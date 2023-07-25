@@ -27,7 +27,7 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build backend
+      - name: Maven build
         run: mvn --batch-mode --update-snapshots package -DskipTests
 
 
