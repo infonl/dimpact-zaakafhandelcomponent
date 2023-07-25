@@ -25,6 +25,7 @@ jobs:
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
+          cache: maven
 
       - name: Build backend
         run: mvn --batch-mode --update-snapshots package -DskipTests
