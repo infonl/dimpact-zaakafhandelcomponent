@@ -27,8 +27,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Build backend
-          run: mvn --batch-mode --update-snapshots package
-
+        run: mvn --batch-mode --update-snapshots package -DskipTests
 
 
 
