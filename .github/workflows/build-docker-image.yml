@@ -1,0 +1,23 @@
+name: Build ZAC Docker image
+
+on:
+  push:
+    # Trigger on specific build- tag
+    tags:
+      - 'build-*'
+
+env:
+  CR_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Docker Login
+        run: echo $CR_PAT | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Build the Nestjs Docker image
+        run: docker build . --file Containerfile --tag ghcr.io/infonl/dimpact-zac:${{ github.sha }}
+      - name: Push Docker image to registry
+        run: docker push ghcr.io/infonl/dimpact-zac:${{ github.sha }}
