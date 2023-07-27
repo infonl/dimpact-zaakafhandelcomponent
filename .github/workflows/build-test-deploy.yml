@@ -83,28 +83,56 @@ jobs:
       needs: [build]
       runs-on: ubuntu-latest
       timeout-minutes: 30
+      env:
+        BUILD_NUMBER: ${{ needs.build.outputs.build_number }}
+        DOCKER_IMAGE_TAG: ${{ needs.build.outputs.docker_image_tag }}
+        GIT_COMMIT_HASH: ${{ github.sha }}
       steps:
         - uses: actions/checkout@v3
 
-        - name: Docker Login
-          uses: docker/login-action@v2
-          with:
-            registry: ${{ env.CONTAINER_REGISTRY_URL }}
-            username: ${{ github.actor }}
-            password: ${{ secrets.GITHUB_TOKEN }}
-
         - name: Build Docker image
-          env:
-            BUILD_NUMBER: ${{ needs.build.outputs.build_number }}
-            DOCKER_TAG: ${{ needs.build.outputs.docker_image_tag }}
-            GIT_COMMIT_HASH: ${{ github.sha }}
           run: |
-            docker build --tag ${DOCKER_TAG} \
+            docker build --tag ${DOCKER_IMAGE_TAG} \
             --build-arg versienummer=${BUILD_NUMBER} \
             --build-arg buildId=${BUILD_NUMBER} \
             --build-arg commit=${GIT_COMMIT_HASH} \
             --file Containerfile \
             .
 
+        - name: Save Docker Image
+          run: docker save --output docker-image.tar ${DOCKER_IMAGE_TAG}
+
+        - name: Cache Docker Image
+          uses: actions/cache/save@v3
+          with:
+            path: docker-image.tar
+            key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+
+  push-docker-image:
+    needs: [unit-tests, build-docker-image]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: github.ref == 'refs/heads/main'
+    env:
+      DOCKER_IMAGE_TAG: ${{ needs.build.outputs.docker_image_tag }}
+    steps:
+      - name: Docker Login
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.CONTAINER_REGISTRY_URL }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Restore Docker Image
+        uses: actions/cache/restore@v3
+        with:
+          path: docker-image.tar
+          key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+
+      - name: Load Docker Image
+        run: docker load --input docker-image.tar
+
+      - name: Push Docker Image
+        run: docker push ${DOCKER_IMAGE_TAG}
 
 
