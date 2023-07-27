@@ -95,12 +95,12 @@ jobs:
 
         - name: Build Docker image
           env:
-            BUILD_NUMBER: ${{ steps.gen_build_number.outputs.BUILD_NUMBER }}
-            DOCKER_TAG: ${{ steps.gen_image_name.outputs.DOCKER_IMAGE_TAG }}
+            BUILD_NUMBER: ${{ needs.build.outputs.BUILD_NUMBER }}
+            DOCKER_TAG: ${{ needs.build.outputs.DOCKER_IMAGE_NAME }}
             GIT_COMMIT_HASH: ${{ github.sha }}
           run: |
             docker build --tag ${DOCKER_TAG} \
-            --build-arg versienummer=${_VERSION} \
+            --build-arg versienummer=${BUILD_NUMBER} \
             --build-arg buildId=${BUILD_NUMBER} \
             --build-arg commit=${GIT_COMMIT_HASH} \
             --file Containerfile \
