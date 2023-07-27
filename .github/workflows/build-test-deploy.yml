@@ -1,4 +1,4 @@
-name: Build, Test & Deploy to Test.
+name: Build, test & deploy
 
 on:
   pull_request:
@@ -100,10 +100,10 @@ jobs:
             GIT_COMMIT_HASH: ${{ github.sha }}
           run: |
             docker build --tag ${DOCKER_TAG} \
-            --file Containerfile \
             --build-arg versienummer=${_VERSION} \
             --build-arg buildId=${BUILD_NUMBER} \
             --build-arg commit=${GIT_COMMIT_HASH} \
+            --file Containerfile \
             .
 
 
