@@ -24,6 +24,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
+import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProviders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
@@ -33,6 +34,7 @@ import net.atos.client.kvk.basisprofiel.model.Eigenaar;
 import net.atos.client.kvk.basisprofiel.model.Vestiging;
 import net.atos.client.kvk.basisprofiel.model.VestigingList;
 import net.atos.client.kvk.exception.RuntimeExceptionMapper;
+import net.atos.client.kvk.util.KVKClientHeadersFactory;
 
 /**
  * API Basisprofiel
@@ -41,6 +43,7 @@ import net.atos.client.kvk.exception.RuntimeExceptionMapper;
  */
 
 @RegisterRestClient(configKey = "KVK-API-Client")
+@RegisterClientHeaders(KVKClientHeadersFactory.class)
 @RegisterProviders({
         @RegisterProvider(RuntimeExceptionMapper.class)
 })
