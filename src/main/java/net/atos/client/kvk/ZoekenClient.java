@@ -20,6 +20,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
 import org.eclipse.microprofile.faulttolerance.Timeout;
+import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProviders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
@@ -27,10 +28,12 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import net.atos.client.kvk.exception.KvKClientNoResultExceptionMapper;
 import net.atos.client.kvk.exception.RuntimeExceptionMapper;
 import net.atos.client.kvk.model.KVKZoekenParameters;
+import net.atos.client.kvk.util.KVKClientHeadersFactory;
 import net.atos.client.kvk.zoeken.model.Resultaat;
 
 
 @RegisterRestClient(configKey = "KVK-API-Client")
+@RegisterClientHeaders(KVKClientHeadersFactory.class)
 @RegisterProviders({
         @RegisterProvider(RuntimeExceptionMapper.class),
         @RegisterProvider(KvKClientNoResultExceptionMapper.class)
