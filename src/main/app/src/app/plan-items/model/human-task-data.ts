@@ -4,7 +4,7 @@
  */
 
 export class HumanTaskData {
-    planItemInstanceId: string;
-    formulierDefinitie: string;
-    data: {};
+  planItemInstanceId: string;
+  formulierDefinitie: string;
+  data: {};
 }

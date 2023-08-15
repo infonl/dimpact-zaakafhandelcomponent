@@ -4,13 +4,18 @@
   -->
 
 <div class="sidenav-title">
-    <h3>
-        <mat-icon>assignment</mat-icon>
-        {{'title.taak.starten'| translate: ({taak: planItem.naam})}}</h3>
-    <button mat-icon-button (click)="sideNav.close()">
-        <mat-icon>close</mat-icon>
-    </button>
+  <h3>
+    <mat-icon>assignment</mat-icon>
+    {{ "title.taak.starten" | translate: { taak: planItem.naam } }}
+  </h3>
+  <button mat-icon-button (click)="sideNav.close()">
+    <mat-icon>close</mat-icon>
+  </button>
 </div>
 
-<zac-formulier *ngIf="formulierDefinitie" [definitie]="formulierDefinitie" [zaak]="zaak"
-               (submit)="onFormSubmit($event)"></zac-formulier>
+<zac-formulier
+  *ngIf="formulierDefinitie"
+  [definitie]="formulierDefinitie"
+  [zaak]="zaak"
+  (submit)="onFormSubmit($event)"
+></zac-formulier>

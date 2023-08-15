@@ -4,7 +4,9 @@
   -->
 
 <div class="form">
-    <zac-formulier *ngIf="formulierDefinitie" (submit)="onFormSubmit($event)"
-                   [definitie]="formulierDefinitie"></zac-formulier>
+  <zac-formulier
+    *ngIf="formulierDefinitie"
+    (submit)="onFormSubmit($event)"
+    [definitie]="formulierDefinitie"
+  ></zac-formulier>
 </div>
-

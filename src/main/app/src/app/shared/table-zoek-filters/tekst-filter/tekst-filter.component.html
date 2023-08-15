@@ -4,6 +4,12 @@
   -->
 
 <mat-form-field subscriptSizing="dynamic">
-    <input matInput placeholder="..." (blur)="change()" (keyup.enter)="change()" [(ngModel)]="value">
-    <mat-icon matSuffix (click)="change()">search</mat-icon>
+  <input
+    matInput
+    placeholder="..."
+    (blur)="change()"
+    (keyup.enter)="change()"
+    [(ngModel)]="value"
+  />
+  <mat-icon matSuffix (click)="change()">search</mat-icon>
 </mat-form-field>
