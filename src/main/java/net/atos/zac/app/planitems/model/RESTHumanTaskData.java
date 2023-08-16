@@ -5,14 +5,25 @@
 
 package net.atos.zac.app.planitems.model;
 
+import java.time.LocalDate;
 import java.util.Map;
+
+import net.atos.zac.app.identity.model.RESTGroup;
+import net.atos.zac.app.identity.model.RESTUser;
 
 public class RESTHumanTaskData {
 
     public String planItemInstanceId;
 
-    public String formulierDefinitie;
+    public RESTGroup groep;
 
-    public Map<String, String> data;
+    public RESTUser medewerker;
 
+    public LocalDate fataledatum;
+
+    public String toelichting;
+
+    public Map<String, String> taakdata;
+
+    public RESTTaakStuurGegevens taakStuurGegevens;
 }

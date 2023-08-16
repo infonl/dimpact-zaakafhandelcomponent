@@ -8,8 +8,10 @@ package net.atos.zac.app.admin;
 import static net.atos.zac.policy.PolicyService.assertPolicy;
 import static net.atos.zac.zaaksturing.model.ReferentieTabel.Systeem.AFZENDER;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -31,6 +33,7 @@ import net.atos.zac.app.admin.converter.RESTZaakafhandelParametersConverter;
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigRedenConverter;
 import net.atos.zac.app.admin.model.RESTCaseDefinition;
 import net.atos.zac.app.admin.model.RESTFormulierDefinitie;
+import net.atos.zac.app.admin.model.RESTFormulierVeldDefinitie;
 import net.atos.zac.app.admin.model.RESTReplyTo;
 import net.atos.zac.app.admin.model.RESTZaakafhandelParameters;
 import net.atos.zac.app.admin.model.RESTZaakbeeindigReden;
@@ -38,12 +41,12 @@ import net.atos.zac.app.zaken.converter.RESTResultaattypeConverter;
 import net.atos.zac.app.zaken.model.RESTResultaattype;
 import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.flowable.CMMNService;
-import net.atos.zac.formulieren.FormulierDefinitieService;
 import net.atos.zac.policy.PolicyService;
 import net.atos.zac.util.UriUtil;
 import net.atos.zac.zaaksturing.ReferentieTabelService;
 import net.atos.zac.zaaksturing.ZaakafhandelParameterBeheerService;
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService;
+import net.atos.zac.zaaksturing.model.FormulierDefinitie;
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
 import net.atos.zac.zaaksturing.model.ZaakbeeindigParameter;
 import net.atos.zac.zaaksturing.model.ZaakbeeindigReden;
@@ -89,9 +92,6 @@ public class ZaakafhandelParametersRESTService {
 
     @Inject
     private PolicyService policyService;
-
-    @Inject
-    private FormulierDefinitieService formulierDefinitieService;
 
     /**
      * Retrieve all CASE_DEFINITIONs that can be linked to a ZAAKTYPE
@@ -229,11 +229,16 @@ public class ZaakafhandelParametersRESTService {
     @GET
     @Path("formulierDefinities")
     public List<RESTFormulierDefinitie> listFormulierDefinities() {
-
-        return formulierDefinitieService.listFormulierDefinities()
-                .stream()
-                .map(fd -> new RESTFormulierDefinitie(fd.getId(), fd.getNaam(), fd.getSysteemnaam()))
-                .toList();
+        return Arrays.stream(FormulierDefinitie.values())
+                .map(formulierDefinitie -> new RESTFormulierDefinitie(formulierDefinitie.name(),
+                                                                      formulierDefinitie.getVeldDefinities()
+                                                                              .stream()
+                                                                              .map(formulierVeldDefinitie -> new RESTFormulierVeldDefinitie(
+                                                                                      formulierVeldDefinitie.name(),
+                                                                                      formulierVeldDefinitie.getDefaultTabel()
+                                                                                              .name()))
+                                                                              .collect(Collectors.toList())))
+                .collect(Collectors.toList());
     }
 
     /**

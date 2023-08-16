@@ -4,7 +4,6 @@
  */
 
 import {FormulierVeldDefinitie} from './formulier-veld-definitie';
-import {FormulierDefinitieMailGegevens} from './formulier-definitie-mail-gegevens';
 
 export class FormulierDefinitie {
     id: number;
@@ -15,6 +14,4 @@ export class FormulierDefinitie {
     creatiedatum: string;
     wijzigingsdatum: string;
     veldDefinities: FormulierVeldDefinitie[];
-    mailVersturen: boolean;
-    mailGegevens: FormulierDefinitieMailGegevens;
 }

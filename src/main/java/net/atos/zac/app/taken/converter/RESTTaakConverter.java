@@ -25,11 +25,11 @@ import net.atos.zac.app.taken.model.RESTTaak;
 import net.atos.zac.flowable.TaakVariabelenService;
 import net.atos.zac.flowable.TakenService;
 import net.atos.zac.formulieren.FormulierDefinitieService;
-import net.atos.zac.formulieren.FormulierRuntimeService;
 import net.atos.zac.formulieren.model.FormulierDefinitie;
 import net.atos.zac.policy.PolicyService;
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService;
 import net.atos.zac.zaaksturing.model.HumanTaskParameters;
+import net.atos.zac.zaaksturing.model.ReferentieTabelWaarde;
 
 /**
  *
@@ -63,9 +63,6 @@ public class RESTTaakConverter {
     @Inject
     private FormulierDefinitieService formulierDefinitieService;
 
-    @Inject
-    private FormulierRuntimeService formulierRuntimeService;
-
     public List<RESTTaak> convert(final List<? extends TaskInfo> tasks) {
         return tasks.stream()
                 .map(this::convert)
@@ -93,21 +90,14 @@ public class RESTTaakConverter {
             restTaak.taakinformatie = taakVariabelenService.readTaakinformatie(taskInfo);
             restTaak.taakdata = taakVariabelenService.readTaakdata(taskInfo);
             restTaak.taakdocumenten = taakVariabelenService.readTaakdocumenten(taskInfo);
-            final String formulierSysteemnaam;
-
             if (takenService.isCmmnTask(taskInfo)) {
-                formulierSysteemnaam = getFormulierDefinitie(taakVariabelenService.readZaaktypeUUID(taskInfo),
-                                                             taskInfo.getTaskDefinitionKey());
+                convertFormulierDefinitieEnReferentieTabellen(restTaak,
+                                                              taakVariabelenService.readZaaktypeUUID(taskInfo),
+                                                              taskInfo.getTaskDefinitionKey());
             } else {
-                formulierSysteemnaam = taskInfo.getFormKey();
-            }
-            if (formulierSysteemnaam != null) {
                 final FormulierDefinitie formulierDefinitie = formulierDefinitieService.readFormulierDefinitie(
-                        formulierSysteemnaam);
-                formulierRuntimeService.resolveDefaultwaarden(formulierDefinitie);
-                formulierRuntimeService.resolveDefaultwaarden(formulierDefinitie, restTaak.taakdata);
-                formulierRuntimeService.resolveDefaultwaarden(formulierDefinitie, restTaak);
-                restTaak.formulierDefinitie = formulierDefinitieConverter.convert(formulierDefinitie, true);
+                        taskInfo.getFormKey());
+                restTaak.formulierDefinitie = formulierDefinitieConverter.convert(formulierDefinitie, true, false);
             }
         }
         return restTaak;
@@ -121,13 +111,24 @@ public class RESTTaakConverter {
                 .orElse(null);
     }
 
-    private String getFormulierDefinitie(final UUID zaaktypeUUID, final String taskDefinitionKey) {
-        return zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUUID)
+    private void convertFormulierDefinitieEnReferentieTabellen(final RESTTaak restTaak, final UUID zaaktypeUUID,
+            final String taskDefinitionKey) {
+        zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUUID)
                 .getHumanTaskParametersCollection().stream()
-                .filter(humanTaskParameters -> taskDefinitionKey.equals(
-                        humanTaskParameters.getPlanItemDefinitionID()))
+                .filter(zaakafhandelParameters -> taskDefinitionKey.equals(
+                        zaakafhandelParameters.getPlanItemDefinitionID()))
                 .findAny()
-                .map(HumanTaskParameters::getAfhandelformulierDefinitieID)
-                .orElse(null);
+                .ifPresent(zaakafhandelParameters -> verwerkZaakafhandelParameters(restTaak, zaakafhandelParameters));
+    }
+
+    private void verwerkZaakafhandelParameters(final RESTTaak restTaak,
+            final HumanTaskParameters humanTaskParameters) {
+        restTaak.formulierDefinitieId = humanTaskParameters.getFormulierDefinitieID();
+        humanTaskParameters.getReferentieTabellen()
+                .forEach(referentieTabel -> restTaak.tabellen.put(
+                        referentieTabel.getVeld(),
+                        referentieTabel.getTabel().getWaarden().stream()
+                                .map(ReferentieTabelWaarde::getNaam)
+                                .toList()));
     }
 }

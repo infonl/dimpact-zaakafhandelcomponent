@@ -17,5 +17,4 @@ export enum FormulierVeldtype {
     MEDEWERKER_KEUZELIJST = 'MEDEWERKER_KEUZELIJST',
     // MEDEWERKER_GROEP_KEUZELIJST ='MEDEWERKER_GROEP_KEUZELIJST', // TODO een lijst van medewerkers die afhankelijk is van de gekozen groep
     DOCUMENTEN_LIJST = 'DOCUMENTEN_LIJST',
-    READONLY = 'READONLY',
 }

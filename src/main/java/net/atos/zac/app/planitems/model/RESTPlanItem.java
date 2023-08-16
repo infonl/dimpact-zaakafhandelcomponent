@@ -6,8 +6,12 @@
 package net.atos.zac.app.planitems.model;
 
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import net.atos.zac.zaaksturing.model.FormulierDefinitie;
 
 public class RESTPlanItem {
 
@@ -21,9 +25,9 @@ public class RESTPlanItem {
 
     public boolean actief;
 
-    public String startformulierDefinitie;
+    public FormulierDefinitie formulierDefinitie;
 
-    public String afhandelformulierDefinitie;
+    public Map<String, List<String>> tabellen = new HashMap<>();
 
     public UUID zaakUuid;
 

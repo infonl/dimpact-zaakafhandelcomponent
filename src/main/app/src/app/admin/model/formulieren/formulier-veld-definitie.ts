@@ -62,7 +62,6 @@ export class FormulierVeldDefinitie {
     }
 
     private static toDate(dateStr): Date {
-        console.log(dateStr);
         if (dateStr) {
             const [day, month, year] = dateStr.split('-');
             return new Date(year, month - 1, day);
@@ -100,5 +99,4 @@ export class FormulierVeldDefinitie {
     static isOndertekenen(fvd: FormulierVeldDefinitie) { // zou ook een eigen veldtype kunnen zijn
         return fvd.veldtype === FormulierVeldtype.DOCUMENTEN_LIJST && fvd.systeemnaam === 'ondertekenen';
     }
-
 }
