@@ -6,9 +6,12 @@ RUN date --iso-8601='seconds' > /build_timestamp.txt && mvn package -DskipTests 
 ### Create runtime image fase
 FROM docker.io/eclipse-temurin:17-jre-focal as runtime
 
-# Import certificates into Java truststore and register build timestamp
-ADD image/certificates /certificates
-RUN keytool -importcert -cacerts -file /certificates/* -storepass changeit -noprompt
+# Import certificates into Java truststore
+ADD certificates /certificates
+RUN keytool -importcert -cacerts -alias SmartDocuments -file /certificates/smartdocuments/smartdocuments_com.cer -storepass changeit -noprompt
+RUN keytool -importcert -cacerts -alias QuoVadis_PKIoverheid_Private_Services_CA -file /certificates/kvk/QuoVadis_PKIoverheid_Private_Services_CA_-_G1.crt  -storepass changeit -noprompt
+RUN keytool -importcert -cacerts -alias Staat_der_Nederlanden_Private_Root_CA -file /certificates/kvk/Staat_der_Nederlanden_Private_Root_CA_-_G1.crt -storepass changeit -noprompt
+RUN keytool -importcert -cacerts -alias Staat_der_Nederlanden_Private_Services_CA -file /certificates/kvk/Staat_der_Nederlanden_Private_Services_CA_-_G1.crt -storepass changeit -noprompt
 
 # Copy zaakafhandelcomponent bootable jar
 COPY --from=build /target/zaakafhandelcomponent.jar /
