@@ -4,12 +4,13 @@
  */
 
 import {PlanItemDefinition} from './plan-item-definition';
+import {HumanTaskReferentieTabel} from './human-task-referentie-tabel';
 
 export class HumanTaskParameter {
     actief: boolean;
     planItemDefinition: PlanItemDefinition;
-    startformulierDefinitieId: string;
-    afhandelformulierDefinitieId: string;
+    formulierDefinitieId: string;
     defaultGroepId: string;
     doorlooptijd: number;
+    referentieTabellen: HumanTaskReferentieTabel[];
 }

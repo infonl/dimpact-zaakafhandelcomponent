@@ -1,7 +1,8 @@
 package net.atos.zac.app.admin.model;
 
+import java.util.List;
+
 public record RESTFormulierDefinitie(
-        long id,
-        String naam,
-        String systeemnaam
+        String id,
+        List<RESTFormulierVeldDefinitie> veldDefinities
 ) {}

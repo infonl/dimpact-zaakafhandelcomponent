@@ -18,5 +18,4 @@ public enum FormulierVeldtype {
     GROEP_KEUZELIJST,
     MEDEWERKER_KEUZELIJST,
     DOCUMENTEN_LIJST,
-    READONLY
 }

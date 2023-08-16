@@ -25,10 +25,4 @@ public class RESTFormulierDefinitie {
     public ZonedDateTime wijzigingsdatum;
 
     public List<RESTFormulierVeldDefinitie> veldDefinities;
-
-    public boolean mailVersturen;
-
-    public RESTFormulierMailGegevens mailGegevens;
-
-
 }

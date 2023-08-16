@@ -12,5 +12,6 @@
     </button>
 </div>
 
-<zac-formulier *ngIf="formulierDefinitie" [definitie]="formulierDefinitie" [zaak]="zaak"
-               (submit)="onFormSubmit($event)"></zac-formulier>
+<div class="form">
+    <mfb-form *ngIf="formItems" (formSubmit)="onFormSubmit($event)" [formFields]="formItems" [config]="formConfig"></mfb-form>
+</div>
