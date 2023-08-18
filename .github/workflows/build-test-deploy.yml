@@ -8,9 +8,9 @@ on:
       - main
 
 env:
-  JAVA_VERSION: '17'
-  CONTAINER_REGISTRY_URL: 'ghcr.io/infonl'
-  APPLICATION_NAME: 'zaakafhandelcomponent'
+  JAVA_VERSION: "17"
+  CONTAINER_REGISTRY_URL: "ghcr.io/infonl"
+  APPLICATION_NAME: "zaakafhandelcomponent"
 
 permissions:
   contents: write
@@ -39,11 +39,17 @@ jobs:
         id: gen_tag
         run: echo "DOCKER_IMAGE_TAG=${{ env.CONTAINER_REGISTRY_URL }}/${{ env.APPLICATION_NAME }}:${{ steps.gen_build_number.outputs.BUILD_NUMBER }}" >> $GITHUB_OUTPUT
 
+      # Set a tag for latest, only on main
+      - name: Set Docker image latest tag
+        id: gen_tag_latest
+        run: echo "DOCKER_IMAGE_LATEST_TAG=${{ env.CONTAINER_REGISTRY_URL }}/${{ env.APPLICATION_NAME }}:latest" >> $GITHUB_OUTPUT
+        if: contains('refs/heads/main', github.ref)
+
       - name: Setup JDK
         uses: actions/setup-java@v3
         with:
           java-version: ${{ env.JAVA_VERSION }}
-          distribution: 'temurin'
+          distribution: "temurin"
           cache: maven
 
       - name: Maven build
@@ -67,7 +73,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: ${{ env.JAVA_VERSION }}
-          distribution: 'temurin'
+          distribution: "temurin"
           cache: maven
 
       - name: Restore build artefacts
@@ -81,33 +87,33 @@ jobs:
         run: mvn test --batch-mode -Dskip.npm
 
   build-docker-image:
-      needs: [build]
-      runs-on: ubuntu-latest
-      timeout-minutes: 30
-      env:
-        BUILD_NUMBER: ${{ needs.build.outputs.build_number }}
-        DOCKER_IMAGE_TAG: ${{ needs.build.outputs.docker_image_tag }}
-        GIT_COMMIT_HASH: ${{ github.sha }}
-      steps:
-        - uses: actions/checkout@v3
+    needs: [build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      BUILD_NUMBER: ${{ needs.build.outputs.build_number }}
+      DOCKER_IMAGE_TAG: ${{ needs.build.outputs.docker_image_tag }}
+      GIT_COMMIT_HASH: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v3
 
-        - name: Build Docker image
-          run: |
-            docker build --tag ${DOCKER_IMAGE_TAG} \
-            --build-arg versienummer=${BUILD_NUMBER} \
-            --build-arg buildId=${BUILD_NUMBER} \
-            --build-arg commit=${GIT_COMMIT_HASH} \
-            --file Containerfile \
-            .
+      - name: Build Docker image
+        run: |
+          docker build --tag ${DOCKER_IMAGE_TAG} \
+          --build-arg versienummer=${BUILD_NUMBER} \
+          --build-arg buildId=${BUILD_NUMBER} \
+          --build-arg commit=${GIT_COMMIT_HASH} \
+          --file Containerfile \
+          .
 
-        - name: Save Docker Image
-          run: docker save --output docker-image.tar ${DOCKER_IMAGE_TAG}
+      - name: Save Docker Image
+        run: docker save --output docker-image.tar ${{ env.CONTAINER_REGISTRY_URL }}/${{ env.APPLICATION_NAME }}
 
-        - name: Cache Docker Image
-          uses: actions/cache/save@v3
-          with:
-            path: docker-image.tar
-            key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+      - name: Cache Docker Image
+        uses: actions/cache/save@v3
+        with:
+          path: docker-image.tar
+          key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   push-docker-image:
     needs: [build, unit-tests, build-docker-image]
@@ -134,4 +140,4 @@ jobs:
         run: docker load --input docker-image.tar
 
       - name: Push Docker Image
-        run: docker push ${DOCKER_IMAGE_TAG}
+        run: docker push ${{ env.CONTAINER_REGISTRY_URL }}/${{ env.APPLICATION_NAME }}
