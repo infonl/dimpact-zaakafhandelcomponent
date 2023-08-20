@@ -59,6 +59,8 @@ description = "Zaakafhandelcomponent"
 java {
     java.sourceCompatibility = JavaVersion.VERSION_17
     java.targetCompatibility = JavaVersion.VERSION_17
+
+    // add our generated client code to the main source set
     sourceSets["main"].java.srcDir("$rootDir/src/generated/java")
 }
 
@@ -68,223 +70,128 @@ publishing {
     }
 }
 
-tasks.withType<JavaCompile>() {
-    options.encoding = "UTF-8"
-    options.compilerArgs.addAll(listOf("--enable-preview"))
-}
-
-tasks.withType<Javadoc>() {
-    options.encoding = "UTF-8"
-}
-
 tasks {
     compileJava {
         dependsOn("generateJavaClients")
     }
-}
 
-tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKvkZoekenClient") {
-    generatorName.set("java")
-    inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/zoeken-openapi.yaml")
-    outputDir.set("$rootDir")
-    modelPackage.set("net.atos.client.kvk.zoeken.model")
-    // TODO: how to prevent generating apis and model docs (overriden pom.xml & README.md even)...?
-    generateApiTests.set(false)
-    generateApiDocumentation.set(false)
-    generateModelTests.set(false)
-    generateModelDocumentation.set(false)
-    //supportingFilesConstrainedTo.set(emptyList())
-    //apiFilesConstrainedTo.set(emptyList())
-    //modelFilesConstrainedTo.set(listOf("..."))
-    configOptions.set(
-        mapOf(
-            "library" to "microprofile",
-            "microprofileRestClientVersion" to "2.0",
-            "sourceFolder" to "src/generated/java",
-            "dateLibrary" to "java8",
-            "disallowAdditionalPropertiesIfNotPresent" to "false"
+    withType<Javadoc>() {
+        options.encoding = "UTF-8"
+    }
+
+    withType<JavaCompile>() {
+        options.encoding = "UTF-8"
+        options.compilerArgs.addAll(listOf("--enable-preview"))
+    }
+
+    clean {
+        delete("$rootDir/src/main/app/dist")
+        delete("$rootDir/src/generated")
+    }
+
+    withType<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>() {
+        generatorName.set("java")
+        outputDir.set("$rootDir")
+        generateApiTests.set(false)
+        generateApiDocumentation.set(false)
+        generateModelTests.set(false)
+        generateModelDocumentation.set(false)
+        globalProperties.set(
+            mapOf(
+                // generate model files only (note that an empty string indicates: generate all)
+                "modelDocs" to "false",
+                "apis" to "false",
+                "models" to ""
+            )
         )
-    )
-    // https://stackoverflow.com/questions/62783236/how-can-i-set-openapi-generator-global-properites-in-build-gradle-kts
-    // is not working
-    // with this setting nothing gets generated anymore..
-    //globalProperties.put("modelDocs", "false")
-    //globalProperties.put("apis", "false")
-
-    // https://github.com/OpenAPITools/openapi-generator/blob/master/modules/openapi-generator-gradle-plugin/src/main/kotlin/org/openapitools/generator/gradle/plugin/extensions/OpenApiGeneratorGenerateExtension.kt
-
-    // systemProperties.put("apis", "false")
-    //systemProperties.put("modelDocs", "false")
-}
-
-task<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKvkBasisProfielClient") {
-    // these openapi generate tasks cannot be run in parallel because they generate files in the same directory
-    mustRunAfter("generateKvkZoekenClient")
-
-    generatorName.set("java")
-    inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/basisprofiel-openapi.yaml")
-    outputDir.set("$rootDir")
-    modelPackage.set("net.atos.client.kvk.basisprofiel.model")
-    generateApiTests.set(false)
-    generateApiDocumentation.set(false)
-    generateModelTests.set(false)
-    generateModelDocumentation.set(false)
-    configOptions.set(
-        mapOf(
-            "library" to "microprofile",
-            "microprofileRestClientVersion" to "2.0",
-            "sourceFolder" to "src/generated/java",
-            "dateLibrary" to "java8",
-            "disallowAdditionalPropertiesIfNotPresent" to "false"
+        configOptions.set(
+            mapOf(
+                "library" to "microprofile",
+                "microprofileRestClientVersion" to "2.0",
+                "sourceFolder" to "src/generated/java",
+                "dateLibrary" to "java8",
+                "disallowAdditionalPropertiesIfNotPresent" to "false"
+            )
         )
-    )
-}
+    }
 
-task<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKvkVestigingsProfielClient") {
-    mustRunAfter("generateKvkBasisProfielClient")
+    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKvkZoekenClient") {
+        // these openapi generate tasks cannot be run in parallel because they generate files in the same directory
+        inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/zoeken-openapi.yaml")
+        modelPackage.set("net.atos.client.kvk.zoeken.model")
+    }
 
-    generatorName.set("java")
-    inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/vestigingsprofiel-openapi.yaml")
-    outputDir.set("$rootDir")
-    modelPackage.set("net.atos.client.kvk.vestigingsprofiel.model")
-    generateApiTests.set(false)
-    generateApiDocumentation.set(false)
-    generateModelTests.set(false)
-    generateModelDocumentation.set(false)
-    configOptions.set(
-        mapOf(
-            "library" to "microprofile",
-            "microprofileRestClientVersion" to "2.0",
-            "sourceFolder" to "src/generated/java",
-            "dateLibrary" to "java8",
-            "disallowAdditionalPropertiesIfNotPresent" to "false"
+    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKvkBasisProfielClient") {
+        // these openapi generate tasks cannot be run in parallel because they generate files in the same directory
+        mustRunAfter("generateKvkZoekenClient")
+
+        inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/basisprofiel-openapi.yaml")
+        modelPackage.set("net.atos.client.kvk.basisprofiel.model")
+    }
+
+    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKvkVestigingsProfielClient") {
+        // these openapi generate tasks cannot be run in parallel because they generate files in the same directory
+        mustRunAfter("generateKvkBasisProfielClient")
+
+        inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/vestigingsprofiel-openapi.yaml")
+        modelPackage.set("net.atos.client.kvk.vestigingsprofiel.model")
+    }
+
+    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateBrpClient") {
+        // these openapi generate tasks cannot be run in parallel because they generate files in the same directory
+        mustRunAfter("generateKvkVestigingsProfielClient")
+
+        inputSpec.set("$rootDir/src/main/resources/api-specs/brp/openapi.yaml")
+        modelPackage.set("net.atos.client.brp.model")
+    }
+
+    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateVrlClient") {
+        // these openapi generate tasks cannot be run in parallel because they generate files in the same directory
+        mustRunAfter("generateBrpClient")
+
+        inputSpec.set("$rootDir/src/main/resources/api-specs/vrl/openapi.yaml")
+        modelPackage.set("net.atos.client.vrl.model")
+    }
+
+    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateBagClient") {
+        // these openapi generate tasks cannot be run in parallel because they generate files in the same directory
+        mustRunAfter("generateVrlClient")
+
+        inputSpec.set("$rootDir/src/main/resources/api-specs/bag/openapi.yaml")
+        modelPackage.set("net.atos.client.bag.model")
+
+    }
+
+    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKlantenClient") {
+        // this task was not enabled in the original Maven build either; these model files were added to the code base manually instead
+        setEnabled(false)
+
+        // these openapi generate tasks cannot be run in parallel because they generate files in the same directory
+        mustRunAfter("generateBagClient")
+
+        inputSpec.set("$rootDir/src/main/resources/api-specs/klanten/openapi.yaml")
+        modelPackage.set("net.atos.client.klanten.model")
+    }
+
+    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateContactMomentenClient") {
+        // this task was not enabled in Maven build either; model files have been added to the code base itself for some reason
+        mustRunAfter("generateKlantenClient")
+
+        inputSpec.set("$rootDir/src/main/resources/api-specs/contactmomenten/openapi.yaml")
+        modelPackage.set("net.atos.client.contactmomenten.model")
+    }
+
+    register("generateJavaClients") {
+        dependsOn(
+            "generateKvkZoekenClient",
+            "generateKvkBasisProfielClient",
+            "generateKvkVestigingsProfielClient",
+            "generateBrpClient",
+            "generateVrlClient",
+            "generateBagClient",
+            "generateKlantenClient",
+            "generateContactMomentenClient"
         )
-    )
-}
-
-task<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateBrpClient") {
-    mustRunAfter("generateKvkVestigingsProfielClient")
-
-    generatorName.set("java")
-    inputSpec.set("$rootDir/src/main/resources/api-specs/brp/openapi.yaml")
-    outputDir.set("$rootDir")
-    modelPackage.set("net.atos.client.brp.model")
-    generateApiTests.set(false)
-    generateApiDocumentation.set(false)
-    generateModelTests.set(false)
-    generateModelDocumentation.set(false)
-    configOptions.set(
-        mapOf(
-            "library" to "microprofile",
-            "microprofileRestClientVersion" to "2.0",
-            "sourceFolder" to "src/generated/java",
-            "dateLibrary" to "java8",
-            "disallowAdditionalPropertiesIfNotPresent" to "false"
-        )
-    )
-}
-
-task<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateVrlClient") {
-    mustRunAfter("generateBrpClient")
-
-    generatorName.set("java")
-    inputSpec.set("$rootDir/src/main/resources/api-specs/vrl/openapi.yaml")
-    outputDir.set("$rootDir")
-    modelPackage.set("net.atos.client.vrl.model")
-    generateApiTests.set(false)
-    generateApiDocumentation.set(false)
-    generateModelTests.set(false)
-    generateModelDocumentation.set(false)
-    configOptions.set(
-        mapOf(
-            "library" to "microprofile",
-            "microprofileRestClientVersion" to "2.0",
-            "sourceFolder" to "src/generated/java",
-            "dateLibrary" to "java8",
-            "disallowAdditionalPropertiesIfNotPresent" to "false"
-        )
-    )
-}
-
-task<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateBagClient") {
-    mustRunAfter("generateVrlClient")
-
-    generatorName.set("java")
-    inputSpec.set("$rootDir/src/main/resources/api-specs/bag/openapi.yaml")
-    outputDir.set("$rootDir")
-    modelPackage.set("net.atos.client.bag.model")
-    generateApiTests.set(false)
-    generateApiDocumentation.set(false)
-    generateModelTests.set(false)
-    generateModelDocumentation.set(false)
-    configOptions.set(
-        mapOf(
-            "library" to "microprofile",
-            "microprofileRestClientVersion" to "2.0",
-            "sourceFolder" to "src/generated/java",
-            "dateLibrary" to "java8",
-            "disallowAdditionalPropertiesIfNotPresent" to "false"
-        )
-    )
-}
-
-task<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKlantenClient") {
-    mustRunAfter("generateBagClient")
-
-    // was not enabled in Maven build either; model files have been added to the code base itself for some reason
-    setEnabled(false)
-
-    generatorName.set("java")
-    inputSpec.set("$rootDir/src/main/resources/api-specs/klanten/openapi.yaml")
-    outputDir.set("$rootDir")
-    modelPackage.set("net.atos.client.klanten.model")
-    generateApiTests.set(false)
-    generateApiDocumentation.set(false)
-    generateModelTests.set(false)
-    generateModelDocumentation.set(false)
-    configOptions.set(
-        mapOf(
-            "library" to "microprofile",
-            "microprofileRestClientVersion" to "2.0",
-            "sourceFolder" to "src/generated/java",
-            "dateLibrary" to "java8",
-            "disallowAdditionalPropertiesIfNotPresent" to "false"
-        )
-    )
-}
-
-task<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateContactMomentenClient") {
-    mustRunAfter("generateKlantenClient")
-
-    generatorName.set("java")
-    inputSpec.set("$rootDir/src/main/resources/api-specs/contactmomenten/openapi.yaml")
-    outputDir.set("$rootDir")
-    modelPackage.set("net.atos.client.contactmomenten.model")
-    generateApiTests.set(false)
-    generateApiDocumentation.set(false)
-    generateModelTests.set(false)
-    generateModelDocumentation.set(false)
-    configOptions.set(
-        mapOf(
-            "library" to "microprofile",
-            "microprofileRestClientVersion" to "2.0",
-            "sourceFolder" to "src/generated/java",
-            "dateLibrary" to "java8",
-            "disallowAdditionalPropertiesIfNotPresent" to "false"
-        )
-    )
-}
-
-tasks.register("generateJavaClients") {
-    dependsOn(
-        "generateKvkZoekenClient",
-        "generateKvkBasisProfielClient",
-        "generateKvkVestigingsProfielClient",
-        "generateBrpClient",
-        "generateVrlClient",
-        "generateBagClient",
-        "generateKlantenClient",
-        "generateContactMomentenClient"
-    )
+    }
 }
 
