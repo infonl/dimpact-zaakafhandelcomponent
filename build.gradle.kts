@@ -4,10 +4,13 @@
  */
 
 plugins {
-    `java-library`
-    `maven-publish`
-    `war`
+    id("base")
+    id("java")
+    id("java-library")
+    id("maven-publish")
+    id("war")
 
+    id("org.jsonschema2pojo") version "1.2.1"
     id("org.openapi.generator") version "6.6.0"
 }
 
@@ -43,6 +46,7 @@ dependencies {
     runtimeOnly("org.infinispan:infinispan-cdi-embedded:13.0.10.Final")
     testImplementation("org.eclipse:yasson:1.0.11")
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.1")
+    // provided in Wildfly
     providedCompile("jakarta.platform:jakarta.jakartaee-api:8.0.0")
     providedCompile("org.eclipse.microprofile.rest.client:microprofile-rest-client-api:2.0")
     providedCompile("org.eclipse.microprofile.config:microprofile-config-api:2.0")
@@ -70,8 +74,28 @@ publishing {
     }
 }
 
+jsonSchema2Pojo {
+    // generates Java model files for the "gemeente Den Haag productaanvraag" JSON schema
+    setSource(files("${rootDir}/src/main/resources/json-schema"))
+    targetDirectory = file("${rootDir}/src/generated/java")
+    setFileExtensions(".schema.json")
+    targetPackage = "net.atos.zac.aanvraag"
+    setAnnotationStyle("JSONB1")
+    dateType = "java.time.LocalDate"
+    dateTimeType = "java.time.ZonedDateTime"
+    timeType = "java.time.LocalTime"
+    includeHashcodeAndEquals = false
+    includeToString = false
+    initializeCollections = false
+    includeAdditionalProperties = false
+}
+
 tasks {
     compileJava {
+
+    }
+
+    processResources {
         dependsOn("generateJavaClients")
     }
 
@@ -110,7 +134,8 @@ tasks {
                 "microprofileRestClientVersion" to "2.0",
                 "sourceFolder" to "src/generated/java",
                 "dateLibrary" to "java8",
-                "disallowAdditionalPropertiesIfNotPresent" to "false"
+                "disallowAdditionalPropertiesIfNotPresent" to "false",
+                "openApiNullable" to "false"
             )
         )
     }
@@ -190,7 +215,7 @@ tasks {
             "generateVrlClient",
             "generateBagClient",
             "generateKlantenClient",
-            "generateContactMomentenClient"
+            "generateContactMomentenClient",
         )
     }
 }
