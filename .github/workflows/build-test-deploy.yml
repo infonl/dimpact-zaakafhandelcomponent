@@ -24,6 +24,7 @@ jobs:
       branch_name: ${{ steps.gen_branch_name.outputs.BRANCH_NAME }}
       build_number: ${{ steps.gen_build_number.outputs.BUILD_NUMBER }}
       docker_image_tag: ${{ steps.gen_tag.outputs.DOCKER_IMAGE_TAG }}
+      docker_image_latest_tag: ${{ steps.gen_tag.outputs.DOCKER_IMAGE_LATEST_TAG }}
     steps:
       - uses: actions/checkout@v3
 
@@ -93,13 +94,14 @@ jobs:
     env:
       BUILD_NUMBER: ${{ needs.build.outputs.build_number }}
       DOCKER_IMAGE_TAG: ${{ needs.build.outputs.docker_image_tag }}
+      DOCKER_IMAGE_LATEST_TAG: ${{ needs.build.outputs.docker_image_latest_tag }}
       GIT_COMMIT_HASH: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v3
 
       - name: Build Docker image
         run: |
-          docker build --tag ${DOCKER_IMAGE_TAG} \
+          docker build --tag ${DOCKER_IMAGE_TAG} ${{ contains('refs/heads/main', github.ref) && '--tag ${DOCKER_IMAGE_LATEST_TAG} ' }}\
           --build-arg versienummer=${BUILD_NUMBER} \
           --build-arg buildId=${BUILD_NUMBER} \
           --build-arg commit=${GIT_COMMIT_HASH} \
