@@ -8,9 +8,9 @@ on:
       - main
 
 env:
-  JAVA_VERSION: "17"
-  CONTAINER_REGISTRY_URL: "ghcr.io/infonl"
-  APPLICATION_NAME: "zaakafhandelcomponent"
+  JAVA_VERSION: '17'
+  CONTAINER_REGISTRY_URL: 'ghcr.io/infonl'
+  APPLICATION_NAME: 'zaakafhandelcomponent'
 
 permissions:
   contents: write

@@ -5,3 +5,5 @@ wildfly-*
 src/generated
 /.openapi-generator/*
 .vscode/
+.env
+.run/
