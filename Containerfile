@@ -1,8 +1,3 @@
-### Maven build fase
-FROM docker.io/maven:3.8-openjdk-17 as build
-COPY . /
-RUN date --iso-8601='seconds' > /build_timestamp.txt && mvn package -DskipTests -Drevision=${versienummer:-latest-SNAPSHOT}
-
 ### Create runtime image fase
 FROM docker.io/eclipse-temurin:17-jre-focal as runtime
 
@@ -14,10 +9,11 @@ RUN keytool -importcert -cacerts -alias Staat_der_Nederlanden_Private_Root_CA -f
 RUN keytool -importcert -cacerts -alias Staat_der_Nederlanden_Private_Services_CA -file /certificates/kvk/Staat_der_Nederlanden_Private_Services_CA_-_G1.crt -storepass changeit -noprompt
 
 # Copy zaakafhandelcomponent bootable jar
-COPY --from=build /target/zaakafhandelcomponent.jar /
+COPY target/zaakafhandelcomponent.jar /
 
 # Copy build timestamp (see also HealthCheckService.java)
-COPY --from=build /build_timestamp.txt /
+RUN date --iso-8601='seconds' > build_timestamp.txt
+COPY build_timestamp.txt /
 
 # Start zaakafhandelcomponent
 ENTRYPOINT ["java", "--enable-preview", "-jar", "zaakafhandelcomponent.jar"]
