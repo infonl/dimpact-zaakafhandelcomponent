@@ -91,6 +91,13 @@ jobs:
       steps:
         - uses: actions/checkout@v3
 
+        - name: Restore build artefacts
+          uses: actions/cache/restore@v3
+          with:
+            path: |
+              target/
+            key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+
         - name: Build Docker image
           run: |
             docker build --tag ${DOCKER_IMAGE_TAG} \
