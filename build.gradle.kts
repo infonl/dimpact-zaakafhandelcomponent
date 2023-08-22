@@ -12,6 +12,7 @@ plugins {
 
     id("org.jsonschema2pojo") version "1.2.1"
     id("org.openapi.generator") version "6.6.0"
+    id("com.github.node-gradle.node") version "7.0.0"
 }
 
 repositories {
@@ -88,6 +89,13 @@ jsonSchema2Pojo {
     includeToString = false
     initializeCollections = false
     includeAdditionalProperties = false
+}
+
+node {
+    download.set(true)
+    version.set("18.10.0")
+    distBaseUrl.set("https://nodejs.org/dist")
+    nodeProjectDir.set(file("${rootDir}/src/main/app"))
 }
 
 tasks {
