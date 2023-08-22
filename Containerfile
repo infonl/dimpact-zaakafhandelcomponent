@@ -11,9 +11,8 @@ RUN keytool -importcert -cacerts -alias Staat_der_Nederlanden_Private_Services_C
 # Copy zaakafhandelcomponent bootable jar
 COPY target/zaakafhandelcomponent.jar /
 
-# Copy build timestamp (see also HealthCheckService.java)
-RUN date --iso-8601='seconds' > build_timestamp.txt
-COPY build_timestamp.txt /
+# Copy build timestamp (used by HealthCheckService.java)
+RUN date --iso-8601='seconds' > /build_timestamp.txt
 
 # Start zaakafhandelcomponent
 ENTRYPOINT ["java", "--enable-preview", "-jar", "zaakafhandelcomponent.jar"]
