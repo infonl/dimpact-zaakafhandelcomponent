@@ -184,7 +184,17 @@ tasks {
 
         inputSpec.set("$rootDir/src/main/resources/api-specs/bag/openapi.yaml")
         modelPackage.set("net.atos.client.bag.model")
-
+        // we use a different date library for this client
+        configOptions.set(
+            mapOf(
+                "library" to "microprofile",
+                "microprofileRestClientVersion" to "2.0",
+                "sourceFolder" to "src/generated/java",
+                "dateLibrary" to "java8-localdatetime",
+                "disallowAdditionalPropertiesIfNotPresent" to "false",
+                "openApiNullable" to "false"
+            )
+        )
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKlantenClient") {
