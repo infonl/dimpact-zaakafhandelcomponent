@@ -4,8 +4,6 @@
  */
 
 plugins {
-    id("base")
-    id("java")
     id("java-library")
     id("maven-publish")
     id("war")
@@ -65,6 +63,10 @@ java {
     java.sourceCompatibility = JavaVersion.VERSION_17
     java.targetCompatibility = JavaVersion.VERSION_17
 
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+
     // add our generated client code to the main source set
     sourceSets["main"].java.srcDir("$rootDir/src/generated/java")
 }
@@ -99,10 +101,6 @@ node {
 }
 
 tasks {
-    compileJava {
-
-    }
-
     processResources {
         dependsOn("generateJavaClients")
     }
@@ -113,7 +111,7 @@ tasks {
 
     withType<JavaCompile>() {
         options.encoding = "UTF-8"
-        options.compilerArgs.addAll(listOf("--enable-preview"))
+        options.compilerArgs.add("--enable-preview")
     }
 
     clean {
@@ -207,7 +205,7 @@ tasks {
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKlantenClient") {
         // this task was not enabled in the original Maven build either; these model files were added to the code base manually instead
-        setEnabled(false)
+        isEnabled = false
 
         // these openapi generate tasks cannot be run in parallel because they generate files in the same directory
         mustRunAfter("generateBagClient")
