@@ -1,5 +1,5 @@
 {
-  "auth-server-url": "${env.AUTH_SERVER}/auth/",
+  "auth-server-url": "${env.AUTH_SERVER}/",
   "realm": "${env.AUTH_REALM}",
   "client-id": "${env.AUTH_RESOURCE}",
   "credentials": {
