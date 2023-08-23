@@ -103,6 +103,7 @@ node {
 tasks {
     processResources {
         dependsOn("generateJavaClients")
+        dependsOn("buildFrontend")
     }
 
     withType<Javadoc>() {
@@ -117,6 +118,7 @@ tasks {
     clean {
         delete("$rootDir/src/main/app/dist")
         delete("$rootDir/src/generated")
+        // what about /src/main/app/.angular and /src/main/app/node_modules?
     }
 
     withType<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>() {
@@ -215,7 +217,7 @@ tasks {
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateContactMomentenClient") {
-        // this task was not enabled in Maven build either; model files have been added to the code base itself for some reason
+        // these openapi generate tasks cannot be run in parallel because they generate files in the same directory
         mustRunAfter("generateKlantenClient")
 
         inputSpec.set("$rootDir/src/main/resources/api-specs/contactmomenten/openapi.yaml")
@@ -233,6 +235,16 @@ tasks {
             "generateKlantenClient",
             "generateContactMomentenClient",
         )
+    }
+
+    register("buildFrontend") {
+        // run build frontend tasks after generating the Java clients because these tasks
+        // use the same output folder (= $rootDir)
+        mustRunAfter("generateJavaClients")
+        getByName("npmInstall").setMustRunAfter(listOf("generateJavaClients"))
+
+        dependsOn("npmInstall")
+        dependsOn("npm_run_build")
     }
 }
 
