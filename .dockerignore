@@ -6,7 +6,6 @@
 # Github specific files
 .github
 #
-**/target
 **/generated
 **/node
 **/node_modules
