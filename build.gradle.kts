@@ -5,11 +5,13 @@
 
 plugins {
     java
+    war
     id("maven-publish")
-    id("war")
 
     id("org.jsonschema2pojo") version "1.2.1"
-    id("org.openapi.generator") version "6.6.0"
+    // 7.0.0-beta fixes an issue with using Quarkus
+    // see: https://stackoverflow.com/questions/76288749/gradle-built-of-micronaut-based-app-breaks-with-nosuchmethoderror-from-3rd-party
+    id("org.openapi.generator") version "7.0.0-beta"
     id("com.github.node-gradle.node") version "7.0.0"
 }
 
