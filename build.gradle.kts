@@ -6,7 +6,6 @@
 plugins {
     java
     war
-    id("maven-publish")
 
     id("org.jsonschema2pojo") version "1.2.1"
     // 7.0.0-beta fixes an issue with using Quarkus
@@ -71,12 +70,6 @@ java {
 
     // add our generated client code to the main source set
     sourceSets["main"].java.srcDir("$rootDir/src/generated/java")
-}
-
-publishing {
-    publications.create<MavenPublication>("maven") {
-        from(components["java"])
-    }
 }
 
 jsonSchema2Pojo {
