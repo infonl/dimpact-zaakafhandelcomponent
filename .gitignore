@@ -1,7 +1,16 @@
+### BUILD ###
+target
+src/generated
+.openapi-generator
+wildfly-*
+.env
+
+### INTELLIJ ###
 *.iml
 .idea
-target
-wildfly-*
-src/generated
-/.openapi-generator/*
+
+### VSCODE ###
 .vscode/
+
+### JENV ###
+.java-version
