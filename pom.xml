@@ -23,10 +23,10 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <flowable.version>6.7.2</flowable.version>
         <node.version>v18.10.0</node.version>
-        <!-- Begin Dependecies on WildFly -->
+        <!-- Begin dependencies on WildFly -->
         <wildfly.version>26.1.2.Final</wildfly.version>
         <infinispan.version>13.0.10.Final</infinispan.version>
-        <!-- End Dependecies on WildFly -->
+        <!-- End dependencies on WildFly -->
     </properties>
 
     <dependencies>
@@ -37,7 +37,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Begin Dependecies on WildFly -->
+        <!-- Begin dependencies on WildFly -->
         <dependency>
             <groupId>org.eclipse.microprofile.rest.client</groupId>
             <artifactId>microprofile-rest-client-api</artifactId>
@@ -92,7 +92,7 @@
             <version>1.0.11</version>
             <scope>test</scope>
         </dependency>
-        <!-- End Dependecies on WildFly -->
+        <!-- End dependencies on WildFly -->
 
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -257,7 +257,7 @@
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
-                <version>1.12.1</version>
+                <version>1.13.4</version>
                 <configuration>
                     <workingDirectory>src/main/app</workingDirectory>
                 </configuration>
@@ -623,85 +623,6 @@
             <properties>
                 <packaging.type>war</packaging.type>
             </properties>
-        </profile>
-        <profile>
-            <id>build-container-image</id>
-            <properties>
-                <packaging.type>jar</packaging.type>
-            </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.google.cloud.tools</groupId>
-                        <artifactId>jib-maven-plugin</artifactId>
-                        <version>3.3.1</version>
-                        <configuration>
-                            <containerizingMode>packaged</containerizingMode>
-                            <from>
-                                <image>eclipse-temurin:17-jre-focal</image>
-                            </from>
-                            <to>
-                                <image>
-                                    europe-west4-docker.pkg.dev/dimpact-dev-20201130/common-ground/zaakafhandelcomponent
-                                </image>
-                            </to>
-                            <container>
-                                <ports>
-                                    <port>8080</port>
-                                    <port>9990</port>
-                                </ports>
-                                <entrypoint>
-                                    <arg>java</arg>
-                                    <arg>--enable-preview</arg>
-                                    <arg>-jar</arg>
-                                    <arg>/app/classpath/zaakafhandelcomponent.jar</arg>
-                                </entrypoint>
-                            </container>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>build</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-install-plugin</artifactId>
-                        <version>3.0.1</version>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-deploy-plugin</artifactId>
-                        <version>3.0.0</version>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>3.1.0</version>
-                        <executions>
-                            <execution>
-                                <phase>deploy</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <executable>kubectl</executable>
-                                    <commandlineArgs>rollout restart deployment zaakafhandelcomponent</commandlineArgs>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
     </profiles>
 </project>
