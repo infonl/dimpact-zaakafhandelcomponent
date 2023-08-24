@@ -23,10 +23,10 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <flowable.version>6.7.2</flowable.version>
         <node.version>v18.10.0</node.version>
-        <!-- Begin Dependecies on WildFly -->
+        <!-- Begin dependencies on WildFly -->
         <wildfly.version>26.1.2.Final</wildfly.version>
         <infinispan.version>13.0.10.Final</infinispan.version>
-        <!-- End Dependecies on WildFly -->
+        <!-- End dependencies on WildFly -->
     </properties>
 
     <dependencies>
@@ -37,7 +37,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Begin Dependecies on WildFly -->
+        <!-- Begin dependencies on WildFly -->
         <dependency>
             <groupId>org.eclipse.microprofile.rest.client</groupId>
             <artifactId>microprofile-rest-client-api</artifactId>
@@ -92,7 +92,7 @@
             <version>1.0.11</version>
             <scope>test</scope>
         </dependency>
-        <!-- End Dependecies on WildFly -->
+        <!-- End dependencies on WildFly -->
 
         <dependency>
             <groupId>org.apache.commons</groupId>
