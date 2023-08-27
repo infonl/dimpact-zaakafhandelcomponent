@@ -1,3 +1,4 @@
+import org.gradle.kotlin.dsl.accessors.runtime.addDependencyTo
 import java.util.*
 
 /*
@@ -10,9 +11,8 @@ plugins {
     war
 
     id("org.jsonschema2pojo") version "1.2.1"
-    // 7.0.0-beta fixes an issue with using Quarkus
-    // see: https://stackoverflow.com/questions/76288749/gradle-built-of-micronaut-based-app-breaks-with-nosuchmethoderror-from-3rd-party
-    id("org.openapi.generator") version "7.0.0-beta"
+    // note that openapi generator 7.0.0 has some breaking changes
+    id("org.openapi.generator") version "6.6.0"
     id("com.github.node-gradle.node") version "7.0.0"
 }
 
@@ -21,6 +21,11 @@ repositories {
     maven {
         url = uri("https://repo.maven.apache.org/maven2/")
     }
+}
+
+// create custom configuration for extra dependencies that are required in the generated WAR
+val warLib by configurations.creating {
+    extendsFrom(configurations["compileOnly"])
 }
 
 dependencies {
@@ -44,16 +49,16 @@ dependencies {
     implementation("com.itextpdf:itextpdf:5.5.13")
     implementation("com.itextpdf.tool:xmlworker:5.5.13")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.6.1")
-    // TODO:
-    //  explicitly add required transitive dependencies excluded in the Gradle build
-    // but present in the maven build
-    implementation("org.apache.httpcomponents:httpclient:4.5.13")
 
     runtimeOnly("org.infinispan:infinispan-jcache:13.0.10.Final")
     runtimeOnly("org.infinispan:infinispan-cdi-embedded:13.0.10.Final")
-    testImplementation("org.eclipse:yasson:1.0.11")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.1")
-    // provided by Wildfly
+
+    // declare dependencies that are required in the generated WAR; see war section below
+    // simply marking them as 'compileOnly' or 'implementation' does not work
+    warLib("org.apache.httpcomponents:httpclient:4.5.13")
+    warLib("org.reactivestreams:reactive-streams:1.0.3")
+
+    // dependencies provided by Wildfly
     providedCompile("jakarta.platform:jakarta.jakartaee-api:8.0.0")
     providedCompile("org.eclipse.microprofile.rest.client:microprofile-rest-client-api:2.0")
     providedCompile("org.eclipse.microprofile.config:microprofile-config-api:2.0")
@@ -61,7 +66,9 @@ dependencies {
     providedCompile("org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api:3.0")
     providedCompile("org.jboss.resteasy:resteasy-multipart-provider:4.7.7.Final")
     providedCompile("org.wildfly.security:wildfly-elytron-http-oidc:1.19.1.Final")
-    // ~provided by Wildfly
+
+    testImplementation("org.eclipse:yasson:1.0.11")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.1")
 }
 
 group = "net.atos.common-ground"
@@ -105,6 +112,9 @@ node {
 tasks.war {
     // add built frontend resources to WAR archive
     from("src/main/app/dist/zaakafhandelcomponent")
+
+    // explicitly add our 'warLib' 'transitive' dependencies that are required in the generated WAR
+    classpath(files(configurations["warLib"]))
 }
 
 tasks {
@@ -125,16 +135,16 @@ tasks {
         dependsOn("buildFrontend")
     }
 
-    withType<Javadoc>() {
+    withType<Javadoc> {
         options.encoding = "UTF-8"
     }
 
-    withType<JavaCompile>() {
+    withType<JavaCompile> {
         options.encoding = "UTF-8"
         options.compilerArgs.add("--enable-preview")
     }
 
-    withType<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>() {
+    withType<org.openapitools.generator.gradle.plugin.tasks.GenerateTask> {
         generatorName.set("java")
         outputDir.set("$rootDir")
         generateApiTests.set(false)
