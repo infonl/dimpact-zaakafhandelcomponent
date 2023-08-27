@@ -1,3 +1,5 @@
+import java.util.*
+
 /*
  * SPDX-FileCopyrightText: 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
@@ -35,18 +37,23 @@ dependencies {
     implementation("com.auth0:java-jwt:4.0.0")
     implementation("javax.cache:cache-api:1.1.1")
     implementation("com.google.guava:guava:30.1.1-jre")
-    implementation("com.mailjet:mailjet-client:5.2.1")
+    implementation("com.mailjet:mailjet-client:5.2.3")
     implementation("org.flywaydb:flyway-core:9.4.0")
     implementation("org.apache.solr:solr-solrj:9.1.0")
     implementation("net.sf.webdav-servlet:webdav-servlet:2.0")
     implementation("com.itextpdf:itextpdf:5.5.13")
     implementation("com.itextpdf.tool:xmlworker:5.5.13")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.6.1")
+    // TODO:
+    //  explicitly add required transitive dependencies excluded in the Gradle build
+    // but present in the maven build
+    implementation("org.apache.httpcomponents:httpclient:4.5.13")
+
     runtimeOnly("org.infinispan:infinispan-jcache:13.0.10.Final")
     runtimeOnly("org.infinispan:infinispan-cdi-embedded:13.0.10.Final")
     testImplementation("org.eclipse:yasson:1.0.11")
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.1")
-    // provided in Wildfly
+    // provided by Wildfly
     providedCompile("jakarta.platform:jakarta.jakartaee-api:8.0.0")
     providedCompile("org.eclipse.microprofile.rest.client:microprofile-rest-client-api:2.0")
     providedCompile("org.eclipse.microprofile.config:microprofile-config-api:2.0")
@@ -54,10 +61,10 @@ dependencies {
     providedCompile("org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api:3.0")
     providedCompile("org.jboss.resteasy:resteasy-multipart-provider:4.7.7.Final")
     providedCompile("org.wildfly.security:wildfly-elytron-http-oidc:1.19.1.Final")
+    // ~provided by Wildfly
 }
 
 group = "net.atos.common-ground"
-version = "latest-SNAPSHOT"
 description = "Zaakafhandelcomponent"
 
 java {
@@ -95,7 +102,24 @@ node {
     nodeProjectDir.set(file("${rootDir}/src/main/app"))
 }
 
+tasks.war {
+    // add built frontend resources to WAR archive
+    from("src/main/app/dist/zaakafhandelcomponent")
+}
+
 tasks {
+    clean {
+        dependsOn("mavenClean")
+
+        delete("$rootDir/src/main/app/dist")
+        delete("$rootDir/src/generated")
+        // what about /src/main/app/.angular and /src/main/app/node_modules?
+    }
+
+    build {
+        dependsOn("generateWildflyBootableJar")
+    }
+
     processResources {
         dependsOn("generateJavaClients")
         dependsOn("buildFrontend")
@@ -108,12 +132,6 @@ tasks {
     withType<JavaCompile>() {
         options.encoding = "UTF-8"
         options.compilerArgs.add("--enable-preview")
-    }
-
-    clean {
-        delete("$rootDir/src/main/app/dist")
-        delete("$rootDir/src/generated")
-        // what about /src/main/app/.angular and /src/main/app/node_modules?
     }
 
     withType<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>() {
@@ -241,5 +259,24 @@ tasks {
         dependsOn("npmInstall")
         dependsOn("npm_run_build")
     }
+
+    register<Exec>("generateWildflyBootableJar") {
+        dependsOn("jar")
+        if (System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")) {
+            commandLine("./mvnw.cmd", "wildfly-jar:package")
+        } else {
+            commandLine("./mvnw", "wildfly-jar:package")
+        }
+    }
+
+    register<Exec>("mavenClean") {
+        if (System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")) {
+            commandLine("./mvnw.cmd", "clean")
+        } else {
+            commandLine("./mvnw", "clean")
+        }
+    }
 }
+
+
 
