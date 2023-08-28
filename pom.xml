@@ -1,8 +1,9 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 Atos
+  ~ SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
+<!-- this Maven build generates a bootable WildFly JAR with the zaakafhandelcomponent WAR deployed into it -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -60,6 +61,7 @@
                         <type>kubernetes</type>
                     </cloud>
                     <jvmArguments>
+                        <!-- uncomment the following line to enable remote debugging -->
                         <!-- <argument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8787</argument> -->
                     </jvmArguments>
                     <outputFileName>${project.artifactId}.jar</outputFileName>
