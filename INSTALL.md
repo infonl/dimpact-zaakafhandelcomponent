@@ -9,23 +9,27 @@ General instructions may be found in the [README.md](README.md) file.
 
 ## Build the software
 
-### Maven build
+### Gradle build
 
-The software is built using Maven. The Maven wrapper is included in the source code, so you do not need to install Maven.
+The software is built using Gradle and for the final step using Maven.
+Both a Gradle and a Maven wrapper are included in the source code, so you do not need to install either Gradle or Maven yourself.
 To build the software use the following command:
 
 ```shell
-./mvnw clean package
+./gradlew build
 ```
 
-This will build all the software, including the Java backend as well as the TypeScript frontend (using `npm`), runs all unit tests
-and packages the built software first into a WAR archive and then into a Wildfly application server bootable fat-JAR.
-All generated artifacts are placed into the `target` directory.
+This builds all the software, including the Java backend as well as the TypeScript frontend (using `npm`), runs all unit tests
+and packages the built software first into a WAR archive and then finally by invoking a Maven command from Gradle into a
+WildFly application server bootable fat-JAR.
+All generated artifacts by Gradle are placed into the `build` folder while the final WildFly bootable JAR is placed in the
+`target` folder. The reason why we use Maven for this last step is because there is unfortunately no Gradle alternative for the
+[WildFly Maven Plugin](https://docs.wildfly.org/wildfly-maven-plugin).
 
 If you want to skip running the tests, use the following command:
 
 ```shell
-./mvnw clean package -DskipTests
+./gradlew build -x test
 ```
 
 ### Build the Docker image
