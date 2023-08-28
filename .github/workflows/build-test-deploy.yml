@@ -9,6 +9,7 @@ on:
 
 env:
   JAVA_VERSION: '17'
+  NODE_VERSION: '18'
   CONTAINER_REGISTRY_URL: 'ghcr.io/infonl'
   APPLICATION_NAME: 'zaakafhandelcomponent'
 
@@ -46,8 +47,24 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Maven build
-        run: ./mvnw --batch-mode --update-snapshots package -DskipTests
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: src/main/app/package-lock.json
+
+      - name: Maven compile without building the frontend
+        run: ./mvnw --batch-mode --update-snapshots compile -DskipTests -Dskip.npm -Dskip.install-node-and-npm
+
+      - name: Build frontend using npm
+        run: |
+          cd src/main/app
+          npm ci
+          npm run build
+
+      - name: Maven package combining the backend and frontend build artefacts
+        run: ./mvnw --batch-mode package -DskipTests -Dskip.npm -Dskip.install-node-and-npm
 
       - name: Cache build artefacts
         uses: actions/cache/save@v3

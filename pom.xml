@@ -11,7 +11,7 @@
     <groupId>net.atos.common-ground</groupId>
     <artifactId>zaakafhandelcomponent</artifactId>
     <version>${revision}</version>
-    <packaging>${packaging.type}</packaging>
+    <packaging>war</packaging>
 
     <name>Zaakafhandelcomponent</name>
 
@@ -613,16 +613,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>webapp</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <packaging.type>war</packaging.type>
-            </properties>
-        </profile>
-    </profiles>
 </project>
