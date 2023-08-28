@@ -134,6 +134,10 @@ tasks {
     processResources {
         dependsOn("generateJavaClients")
         dependsOn("buildFrontend")
+
+        // exclude resources that we do not need in the build artefacts
+        exclude("api-specs/**")
+        exclude("wildfly/**")
     }
 
     named<Test>("test") {

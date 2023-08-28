@@ -48,8 +48,10 @@ jobs:
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
+          # can only specify one cache, so unfortunately we cannot also use the Maven cache here
           cache: gradle
 
+       # the Gradle build also executes a Maven command to build the WildFly bootable JAR
       - name: Gradle build and test
         run: ./gradlew build --info
 
