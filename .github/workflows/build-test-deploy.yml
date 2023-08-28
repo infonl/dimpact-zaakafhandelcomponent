@@ -50,15 +50,8 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Gradle build
-        run: ./gradlew build -x test
-
-      - name: Cache Gradle build artefacts
-        uses: actions/cache/save@v3
-        with:
-          path: |
-            build/
-          key: gradle-build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+      - name: Gradle build and test
+        run: ./gradlew build --info
 
       - name: Cache Maven build artefacts
         uses: actions/cache/save@v3
@@ -66,30 +59,6 @@ jobs:
           path: |
             target/
           key: maven-build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
-
-  unit-tests:
-    needs: [build]
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: 'temurin'
-          cache: gradle
-
-      - name: Restore Gradle build artefacts
-        uses: actions/cache/restore@v3
-        with:
-          path: |
-            build/
-          key: gradle-build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
-
-      - name: Run unit tests
-        run: ./gradlew test -x generateJavaClients -x buildFrontEnd -x processResources
 
   build-docker-image:
       needs: [build]
@@ -128,7 +97,7 @@ jobs:
             key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   push-docker-image:
-    needs: [build, unit-tests, build-docker-image]
+    needs: [build, build-docker-image]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     if: github.ref == 'refs/heads/main'
