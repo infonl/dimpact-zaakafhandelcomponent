@@ -1,7 +1,7 @@
 ### BUILD ###
 target
 build
-./gradle
+.gradle
 src/generated
 .openapi-generator
 wildfly-*
