@@ -1,4 +1,3 @@
-import org.gradle.kotlin.dsl.accessors.runtime.addDependencyTo
 import java.util.*
 
 /*
@@ -14,6 +13,7 @@ plugins {
     // note that openapi generator 7.0.0 has some breaking changes
     id("org.openapi.generator") version "6.6.0"
     id("com.github.node-gradle.node") version "7.0.0"
+    id("org.barfuin.gradle.taskinfo") version "2.1.0"
 }
 
 repositories {
@@ -133,6 +133,10 @@ tasks {
     processResources {
         dependsOn("generateJavaClients")
         dependsOn("buildFrontend")
+    }
+
+    named<Test>("test") {
+        useJUnitPlatform()
     }
 
     withType<Javadoc> {
