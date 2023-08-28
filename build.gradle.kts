@@ -107,6 +107,7 @@ node {
     version.set("18.10.0")
     distBaseUrl.set("https://nodejs.org/dist")
     nodeProjectDir.set(file("${rootDir}/src/main/app"))
+    npmInstallCommand = "ci"
 }
 
 tasks.war {
@@ -265,9 +266,8 @@ tasks {
     }
 
     register("buildFrontend") {
-        // run build frontend tasks after generating the Java clients because these tasks
-        // use the same output folder (= $rootDir)
-        mustRunAfter("generateJavaClients")
+        // run npm install task after generating the Java clients because they
+        // share the same output folder (= $rootDir)
         getByName("npmInstall").setMustRunAfter(listOf("generateJavaClients"))
 
         dependsOn("npmInstall")

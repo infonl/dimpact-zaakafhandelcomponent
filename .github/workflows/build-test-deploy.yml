@@ -50,7 +50,7 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Maven build
+      - name: Gradle build
         run: ./gradlew build -x test
 
       - name: Cache Gradle build artefacts
@@ -89,7 +89,7 @@ jobs:
           key: gradle-build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Run unit tests
-        run: ./gradlew test -x generateJavaClients -x buildFrontEnd
+        run: ./gradlew test -x generateJavaClients -x buildFrontEnd -x processResources
 
   build-docker-image:
       needs: [build]
