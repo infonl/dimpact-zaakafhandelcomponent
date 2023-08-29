@@ -1,3 +1,7 @@
+#
+# SPDX-FileCopyrightText: 2023 Lifely
+# SPDX-License-Identifier: EUPL-1.2+
+#
 name: Build, test & deploy
 
 on:
@@ -9,7 +13,6 @@ on:
 
 env:
   JAVA_VERSION: '17'
-  NODE_VERSION: '18'
   CONTAINER_REGISTRY_URL: 'ghcr.io/infonl'
   APPLICATION_NAME: 'zaakafhandelcomponent'
 
@@ -45,57 +48,19 @@ jobs:
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
-          cache: maven
+          # can only specify one cache, so unfortunately we cannot also use the Maven cache here
+          cache: gradle
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: src/main/app/package-lock.json
+       # the Gradle build also executes a Maven command to build the WildFly bootable JAR
+      - name: Gradle build and test
+        run: ./gradlew build --info
 
-      - name: Maven compile without building the frontend
-        run: ./mvnw --batch-mode --update-snapshots compile -DskipTests -Dskip.npm -Dskip.install-node-and-npm
-
-      - name: Build frontend using npm
-        run: |
-          cd src/main/app
-          npm ci
-          npm run build
-
-      - name: Maven package combining the backend and frontend build artefacts
-        run: ./mvnw --batch-mode package -DskipTests -Dskip.npm -Dskip.install-node-and-npm
-
-      - name: Cache build artefacts
+      - name: Cache Maven build artefacts
         uses: actions/cache/save@v3
         with:
           path: |
             target/
-          key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
-
-  unit-tests:
-    needs: [build]
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: 'temurin'
-          cache: maven
-
-      - name: Restore build artefacts
-        uses: actions/cache/restore@v3
-        with:
-          path: |
-            target/
-          key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
-
-      - name: Run unit tests
-        run: ./mvnw test --batch-mode -Dskip.npm
+          key: maven-build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   build-docker-image:
       needs: [build]
@@ -108,12 +73,12 @@ jobs:
       steps:
         - uses: actions/checkout@v3
 
-        - name: Restore build artefacts
+        - name: Restore Maven build artefacts
           uses: actions/cache/restore@v3
           with:
             path: |
               target/
-            key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+            key: maven-build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
         - name: Build Docker image
           run: |
@@ -134,7 +99,7 @@ jobs:
             key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   push-docker-image:
-    needs: [build, unit-tests, build-docker-image]
+    needs: [build, build-docker-image]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     if: github.ref == 'refs/heads/main'
