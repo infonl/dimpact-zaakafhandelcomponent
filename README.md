@@ -2,7 +2,7 @@
 
 This repository contains the source code of the "zaakafhandelcomponent" (ZAC) developed for [Dimpact](https://www.dimpact.nl/).
 
-It was initially developed by Atos. Starting July 2023 the development of ZAC was taken over by INFO, a partner of Lifely.
+It was initially [developed by Atos](https://github.com/NL-AMS-LOCGOV/zaakafhandelcomponent). Starting July 2023 the development of ZAC was taken over by INFO, a partner of Lifely.
 
 ## Installation
 
@@ -10,7 +10,7 @@ For instructions on how to build, install and run the ZAC software, please see t
 
 ## Manuals
 
-- [Manual for functional administrators on how to configure ZAC](docs/Inrichting Zaakafhandelcomponent.md) - Dutch only
+- [Manual for functional administrators on how to configure ZAC](docs/inrichting-zaakafhandelcomponent.md) - Dutch only
 - Manual for end-users on how to use ZAC - Dutch only - _will be made available in future_
 
 ## License
