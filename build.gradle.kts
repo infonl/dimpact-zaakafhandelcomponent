@@ -1,3 +1,4 @@
+import com.github.gradle.node.npm.task.NpmTask
 import java.util.*
 
 /*
@@ -107,8 +108,16 @@ node {
     version.set("18.10.0")
     distBaseUrl.set("https://nodejs.org/dist")
     nodeProjectDir.set(file("${rootDir}/src/main/app"))
-    npmInstallCommand = "ci"
+    if (System.getenv("CI") != null) {
+        npmInstallCommand.set("ci")
+    } else {
+        npmInstallCommand.set("install")
+    }
 }
+
+// run npm install task after generating the Java clients because they
+// share the same output folder (= $rootDir)
+tasks.getByName("npmInstall").setMustRunAfter(listOf("generateJavaClients"))
 
 tasks.war {
     // add built frontend resources to WAR archive
@@ -133,7 +142,7 @@ tasks {
 
     processResources {
         dependsOn("generateJavaClients")
-        dependsOn("buildFrontend")
+        dependsOn("npmRunBuild")
 
         // exclude resources that we do not need in the build artefacts
         exclude("api-specs/**")
@@ -269,13 +278,17 @@ tasks {
         )
     }
 
-    register("buildFrontend") {
-        // run npm install task after generating the Java clients because they
-        // share the same output folder (= $rootDir)
-        getByName("npmInstall").setMustRunAfter(listOf("generateJavaClients"))
-
+    register<NpmTask>("npmRunBuild") {
         dependsOn("npmInstall")
-        dependsOn("npm_run_build")
+        npmCommand.set(listOf("run", "build"))
+
+        // avoid running this task when there are no changes in the input or output files
+        // see: https://github.com/node-gradle/gradle-node-plugin/blob/master/docs/faq.md
+        inputs.files(fileTree("src/main/app/node_modules"))
+        inputs.files(fileTree("src/main/app/src"))
+        inputs.file("src/main/app/package.json")
+        inputs.file("src/main/app/package-lock.json")
+        outputs.dir("src/main/app/dist/zaakafhandelcomponent")
     }
 
     register<Exec>("generateWildflyBootableJar") {
