@@ -1,0 +1,63 @@
+version: 1
+
+dn: dc=example,dc=org
+objectClass: dcObject
+objectClass: organization
+dc: example
+o: example
+
+dn: ou=people,dc=example,dc=org
+objectClass: organizationalUnit
+ou: people
+ou: users
+
+dn: cn=lastGID,dc=example,dc=org
+objectClass: device
+objectClass: top
+cn: lastGID
+description: Records the last GID used to create a Posix group. This prevent
+ s the re-use of a GID from a deleted group.
+serialNumber: 2003
+
+dn: cn=lastUID,dc=example,dc=org
+objectClass: device
+objectClass: top
+cn: lastUID
+description: Records the last UID used to create a Posix account. This preve
+ nts the re-use of a UID from a deleted account.
+serialNumber: 2001
+
+dn: cn=testuser1,ou=people,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: testuser1
+sn: User1
+givenName: Test
+mail: ${TESTUSER1_EMAIL_ADDRESS}
+userPassword:: e1NTSEF9WVFNNUV2d3F2RHMyR00rSVgzVGtoQzJUWWpScFpRZ0dhdEY5RXc9P
+ Q==
+
+dn: cn=testuser2,ou=people,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: testuser2
+sn: User2
+givenName: Test
+mail: ${TESTUSER2_EMAIL_ADDRESS}
+userPassword:: e1NTSEF9cUErcnhWdjljR2dPTGRrVzFLRDI3bktPZFBXVmovT2N4cElKUnc9P
+ Q==
+
+dn: cn=test-group-a,ou=people,dc=example,dc=org
+objectClass: extensibleObject
+objectClass: groupOfUniqueNames
+objectClass: top
+cn: test-group-a
+uniqueMember: cn=testuser1,ou=people,dc=example,dc=org
+uniqueMember: cn=testuser2,ou=people,dc=example,dc=org
+description: Een hele mooie groep
+email: ${GROUP_A_EMAIL_ADDRESS}
+
