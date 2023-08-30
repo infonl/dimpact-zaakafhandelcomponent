@@ -1,13 +1,21 @@
+#!/bin/sh
+
 #
-# SPDX-FileCopyrightText: 2021 Atos
+# SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
 # SPDX-License-Identifier: EUPL-1.2+
 #
 
-# Version shoud match the version used in pom.xml
+# Script to install WildFly and the required layers and packages and configure WildFly for ZAC.
+# Note that this requires Galleon to be installed locally.
+
+# Change to directory where this script is located
+cd "$(dirname "$0")" || exit
+
+# WildFly version should match the version used in pom.xml
 export WILDFLY_VERSION=26.1.2.Final
 export WILDFLY_DATASOURCES_GALLEON_PACK_VERSION=2.2.5.Final
 
-export WILDFLY_SERVER_DIR=wildfly-$WILDFLY_VERSION
+export WILDFLY_SERVER_DIR=../../wildfly-$WILDFLY_VERSION
 
 echo ">>> Installing WildFly ..."
 rm -fr $WILDFLY_SERVER_DIR
