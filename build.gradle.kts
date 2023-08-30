@@ -164,7 +164,7 @@ tasks {
 
     withType<org.openapitools.generator.gradle.plugin.tasks.GenerateTask> {
         generatorName.set("java")
-        outputDir.set("$rootDir")
+        outputDir.set("$rootDir/src/generated/java")
         generateApiTests.set(false)
         generateApiDocumentation.set(false)
         generateModelTests.set(false)
@@ -181,7 +181,8 @@ tasks {
             mapOf(
                 "library" to "microprofile",
                 "microprofileRestClientVersion" to "2.0",
-                "sourceFolder" to "src/generated/java",
+                //"sourceFolder" to "src/generated/java",
+                "sourceFolder" to "",
                 "dateLibrary" to "java8",
                 "disallowAdditionalPropertiesIfNotPresent" to "false",
                 "openApiNullable" to "false"
@@ -238,7 +239,7 @@ tasks {
             mapOf(
                 "library" to "microprofile",
                 "microprofileRestClientVersion" to "2.0",
-                "sourceFolder" to "src/generated/java",
+                "sourceFolder" to "",
                 "dateLibrary" to "java8-localdatetime",
                 "disallowAdditionalPropertiesIfNotPresent" to "false",
                 "openApiNullable" to "false"
