@@ -51,7 +51,7 @@
                     <cliSessions>
                         <cliSession>
                             <scriptFiles>
-                                <script>configure-wildfly.cli</script>
+                                <script>src/main/resources/wildfly/configure-wildfly.cli</script>
                                 <script>src/main/resources/wildfly/deploy-zaakafhandelcomponent.cli</script>
                             </scriptFiles>
                             <resolveExpressions>false</resolveExpressions>

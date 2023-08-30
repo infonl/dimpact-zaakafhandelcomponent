@@ -1,3 +1,5 @@
+# WildFly configuration script to configure WildFly for the Zaakafhandelcomponent
+
 # Add zaakafhandelcomponent datasource
 data-source add \
     --name=ZaakafhandelcomponentDS \
