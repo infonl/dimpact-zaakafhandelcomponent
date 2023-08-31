@@ -141,6 +141,18 @@ Also, a superuser account for the Open Klant UI on http://localhost:8002 is crea
 1. Stop ZAC.
 2. Stop the Docker containers by executing the command: `docker compose down`.
 
+## Cleaning up
+
+We use Docker volumes to persist data between restarts of the Docker containers in order to speed up
+subsequent startups.
+
+Sometimes it is needed to clean up these volumes to start with a clean slate.
+To do so execute the following command from the root folder of this repository:
+
+```
+rm -rf ./scripts/docker-compose/volume-data
+```
+
 ## Updating the VNG-Referentielijsten Docker Images
 
 We host the VNG-Referentielijsten images on our own Github Packages because they do no support multiple OS architectures. To update these, follow these steps:
