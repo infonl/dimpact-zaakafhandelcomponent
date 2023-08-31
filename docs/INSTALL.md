@@ -7,7 +7,7 @@ General ZAC usage instructions may be found in the [README.md](../README.md) fil
 
 ### Prerequisites
 
-- Java JDK 17 (we use the `Temurin` distribution)
+- Java JDK 17 and up (we use the `Temurin` distribution)
 
 ### Gradle build
 
@@ -49,16 +49,34 @@ For local development purposes we recommend to run ZAC from the IntelliJ IDE.
 ### Prerequisites
 
 - Access to all services that are required by ZAC, either locally (using [Docker Compose](INSTALL-DOCKER-COMPOSE.md)) or on a central development environment.
-- An `.env` file containing all required environment variables.
+  - Environment variables required by ZAC. See the section below.
+
+#### Environment variables
+
+ZAC requires a number of environment variables to be set.
+
+These can be set in various ways. The options are:
+-   1Password: Use the [1Password CLI extensions](https://developer.1password.com/docs/cli/).
+-   Env file: Create an `.env` file based on the [.env.example](../.env.example) example and use the https://github.com/Ashald/EnvFile IntelliJ plugin to read all required environment variables from your local `.env` file.
+-   Or alternatively in `Startup/Connection` add all required ZAC environment variables to the `Debug` configuration.
+
+We prefer to use the 1Password CLI extensions as it is the most secure and enables you to
+centrally manage these variables for all developers.
+It requires you to have configured all environment variables in a 1Password Vault shared with all developers.
+In the section below we describe how to use the 1Password CLI extensions when running ZAC from IntelliJ.
 
 ### Run ZAC in IntelliJ
+
+We use the IntelliJ WilldFly extension which is only available in the IntelliJ Enterprise Edition.
+
+When opening the ZAC project in IntelliJ make sure to select 'Open as Gradle project'.
 
 #### Prerequisites
 
 First you will need to set up IntelliJ for ZAC:
 1. Install and use JDK 17 (we use the `Temurin` distribution).
 2. Follow the [local WildFly instructions](../scripts/wildfly/README.md) and install `Galleon` and `WildFly`.
-3. Enable the built-in IntelliJ WildFly extension (note that this requires the IntelliJ Enterprise Edition).
+3. Enable the built-in IntelliJ WildFly extension if not already enabled (note that this requires the IntelliJ Enterprise Edition).
 4. Create a run configuration using the WildFly extension for ZAC using the `JBoss/Wildfly Server - local` template.
    Select `Application server` - `Configure` and point it to your local Wildfly installation which you set up in the previous step.
    ![zac-intellij-runtime-wildfly-1.png](img/zac-intellij-runtime-wildfly-1.png)
@@ -70,19 +88,18 @@ First you will need to set up IntelliJ for ZAC:
    By default, (depending on your environment variables; see below) ZAC integrates with the [KVK test environment](https://developers.kvk.nl/documentation/testing).
    If you run ZAC from IntelliJ this requires a number of certificates to be added to your local Java keystore. Please follow the instructions on: https://developers.kvk.nl/documentation/install-tls-certificate.
 
-#### Environment variables
+##### Use the 1Password CLI extensions in IntelliJ
 
-ZAC requires a number of environment variables to be set. These can be set in various ways.
+1. Install the [1Password CLI extensions](https://developer.1password.com/docs/cli/)
+2. In IntelliJ edit the WildFly Runtime configuration that was created in the previous step:
+3. Uncheck the `use default` for the startup script and select the `startupwithenv.sh` script from the project root.
+4. Next add a new env var called `APP_ENV` and set the value to `devlocal`.
 
-We prefer to use the 1Password CLI extensions as it is the most secure and enables you to
-centrally manage these variables for all developers.
-It requires you to have configured all environment variables in 1Password.
+See the screenshot below:
+![zac-intellij-runtime-wildfly-4.png](img/zac-intellij-runtime-wildfly-4.png)                                         x
 
-The options are:
--   1Password: Install the [1Password CLI extensions](https://developer.1password.com/docs/cli/). Uncheck the `use default` for the startup script and select the `startupwithenv.sh` script from the project root. Next add a new env var called `APP_ENV` and set the value to `devlocal`.
--   Env file: Create an `.env` file based on the [.env.example](../.env.example) example and use the https://github.com/Ashald/EnvFile IntelliJ plugin to read all required environment variables from your local `.env` file.
--   Or alternatively in `Startup/Connection` add all required ZAC environment variables (see below) to the `Debug` configuration.
-    ![zac-intellij-runtime-wildfly-4.png](img/zac-intellij-runtime-wildfly-4.png)
+Now when starting up ZAC from IntelliJ the `startupwithenv.sh` script will set the required environment variables
+using the 1Password CLI extensions.
 
 #### Starting up ZAC
 
