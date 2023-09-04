@@ -6,7 +6,7 @@ It was initially [developed by Atos](https://github.com/NL-AMS-LOCGOV/zaakafhand
 
 ## Installation
 
-For instructions on how to build, install and run the ZAC software, please see the [INSTALL.md](INSTALL.md) file.
+For instructions on how to build, install and run the ZAC software, please see the [INSTALL.md](docs/INSTALL.md) file.
 
 ## Manuals
 

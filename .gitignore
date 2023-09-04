@@ -5,7 +5,7 @@ build
 src/generated
 .openapi-generator
 wildfly-*
-.env
+.env*
 
 ### INTELLIJ ###
 *.iml
@@ -16,3 +16,7 @@ wildfly-*
 
 ### JENV ###
 .java-version
+
+### Docker Compose data ###
+scripts/docker-compose/volume-data
+scripts/docker-compose/imports/openldap/ldifs/zac-ldap-setup.ldif
