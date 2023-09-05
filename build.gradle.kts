@@ -138,6 +138,7 @@ tasks.getByName("npmInstall").setMustRunAfter(listOf("generateJavaClients"))
 tasks.getByName("generateSwaggerUIZaakafhandelcomponent").setMustRunAfter(listOf("generateOpenApiSpec"))
 
 tasks.war {
+    dependsOn("npmRunBuild")
     // add built frontend resources to WAR archive
     from("src/main/app/dist/zaakafhandelcomponent")
 
@@ -155,14 +156,18 @@ tasks {
     }
 
     build {
-        //dependsOn("generateSwaggerUI")
         dependsOn("generateWildflyBootableJar")
     }
 
-    processResources {
+    compileJava {
         dependsOn("generateJavaClients")
-        dependsOn("npmRunBuild")
+    }
 
+    jar {
+        dependsOn("npmRunBuild")
+    }
+
+    processResources {
         // exclude resources that we do not need in the build artefacts
         exclude("api-specs/**")
         exclude("wildfly/**")
