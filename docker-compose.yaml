@@ -291,6 +291,7 @@ services:
   # The GBA mock is required by the BRP proxy
   gbamock:
     image: ghcr.io/brp-api/haal-centraal-brp-bevragen-gba-mock:2.0.8
+    platform: linux/amd64
     container_name: gbamock
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
@@ -300,6 +301,7 @@ services:
 
   brpproxy:
     image: ghcr.io/brp-api/haal-centraal-brp-bevragen-proxy:2.1.0
+    platform: linux/amd64
     container_name: brpproxy
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
