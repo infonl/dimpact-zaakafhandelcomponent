@@ -1,6 +1,6 @@
 import com.github.gradle.node.npm.task.NpmTask
 import io.smallrye.openapi.api.OpenApiConfig
-import java.util.*
+import java.util.Locale
 
 /*
  * SPDX-FileCopyrightText: 2023 Lifely
