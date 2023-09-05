@@ -1,4 +1,5 @@
 import com.github.gradle.node.npm.task.NpmTask
+import io.smallrye.openapi.api.OpenApiConfig
 import java.util.*
 
 /*
@@ -15,6 +16,7 @@ plugins {
     id("org.openapi.generator") version "6.6.0"
     id("com.github.node-gradle.node") version "7.0.0"
     id("org.barfuin.gradle.taskinfo") version "2.1.0"
+    id("io.smallrye.openapi") version "3.5.1"
 }
 
 repositories {
@@ -113,6 +115,13 @@ node {
     } else {
         npmInstallCommand.set("install")
     }
+}
+
+smallryeOpenApi {
+    infoTitle.set("Zaakafhandelcomponent backend API")
+    schemaFilename.set("META-INF/openapi/openapi")
+    operationIdStrategy.set(OpenApiConfig.OperationIdStrategy.METHOD)
+    outputFileTypeFilter.set("YAML")
 }
 
 // run npm install task after generating the Java clients because they
