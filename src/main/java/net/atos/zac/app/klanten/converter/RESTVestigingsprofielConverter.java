@@ -9,7 +9,7 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import net.atos.client.kvk.vestigingsprofiel.model.SBIActiviteit;
 import net.atos.client.kvk.vestigingsprofiel.model.Vestiging;
-import net.atos.zac.app.klanten.model.bedrijven.RESTAdres;
+import net.atos.zac.app.klanten.model.bedrijven.RESTKlantenAdres;
 import net.atos.zac.app.klanten.model.bedrijven.RESTVestigingsprofiel;
 
 public class RESTVestigingsprofielConverter {
@@ -44,7 +44,7 @@ public class RESTVestigingsprofielConverter {
 
         restVestigingsprofiel.adressen = vestiging.getAdressen()
                 .stream()
-                .map(adres -> new RESTAdres(adres.getType(),
+                .map(adres -> new RESTKlantenAdres(adres.getType(),
                                             isIndicatie(adres.getIndAfgeschermd()),
                                             adres.getVolledigAdres()))
                 .toList();
