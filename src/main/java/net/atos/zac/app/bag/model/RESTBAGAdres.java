@@ -10,7 +10,7 @@ import java.util.List;
 
 import net.atos.zac.app.zaken.model.RESTGeometry;
 
-public class RESTAdres extends RESTBAGObject {
+public class RESTBAGAdres extends RESTBAGObject {
 
     public String postcode;
 
@@ -36,7 +36,7 @@ public class RESTAdres extends RESTBAGObject {
 
     public List<RESTPand> panden = new ArrayList<>();
 
-    public RESTAdres() {
+    public RESTBAGAdres() {
     }
 
     @Override
