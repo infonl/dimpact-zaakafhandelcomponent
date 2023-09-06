@@ -198,10 +198,15 @@ tolerations: [ ]
 
 affinity: { }
 
+# opa url should be the url the openpolicyagent can be reached on from ZAC ( for example: http://release-opa.default.svc.cluster.local )
 opa:
+  url: ""
+  service:
+    type: ClusterIP
+    port: 8181
   image:
     repository: openpolicyagent/opa
-    tag: "0.44.0-rootless"
+    tag: "edge-static"
     pullPolicy: IfNotPresent
 
 solr:

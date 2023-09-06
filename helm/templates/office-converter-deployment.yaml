@@ -3,11 +3,11 @@ kind: Deployment
 metadata:
   name: {{ include "zaakafhandelcomponent.fullname" . }}-office-converter
   labels:
-    {{- include "zaakafhandelcomponent.office-converter.labels" . | nindent 4 }}
+    {{- include "office-converter.labels" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
-      {{- include "zaakafhandelcomponent.office-converter.selectorLabels" . | nindent 6 }}
+      {{- include "office-converter.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       annotations:
@@ -15,7 +15,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "zaakafhandelcomponent.office-converter.selectorLabels" . | nindent 8 }}
+        {{- include "office-converter.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.office_converter.imagePullSecrets }}
       imagePullSecrets:
