@@ -133,7 +133,8 @@ swaggerSources {
     }
 }
 
-// set task dependencies for tasks that share the same output folder (build will fail otherwise)
+// run npm install task after generating the Java clients because they
+// share the same output folder (= $rootDir)
 tasks.getByName("npmInstall").setMustRunAfter(listOf("generateJavaClients"))
 tasks.getByName("generateSwaggerUIZaakafhandelcomponent").setMustRunAfter(listOf("generateOpenApiSpec"))
 
