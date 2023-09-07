@@ -50,7 +50,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@2
+        uses: gradle/gradle-build-action@v2
 
       # the Gradle build also executes a Maven command to build the WildFly bootable JAR
       - name: Gradle build and test
