@@ -48,11 +48,14 @@ jobs:
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
+          # Use the Maven cache here so that Maven artefacts (Maven build is triggered from the Gradle build) are cached.
+          cache: 'maven'
 
+      # To set up the Gradle build itself we use the 'gradle-build-action' which caches Gradle artefacts by default.
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
 
-      # the Gradle build also executes a Maven command to build the WildFly bootable JAR
+      # The Gradle build also executes a Maven command to build the WildFly bootable JAR.
       - name: Gradle build and test
         run: ./gradlew build --info
 
