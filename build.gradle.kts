@@ -127,7 +127,6 @@ smallryeOpenApi {
     outputFileTypeFilter.set("YAML")
 }
 
-
 swaggerSources {
     register("zaakafhandelcomponent") {
         setInputFile(file("${rootDir}/build/generated/openapi/META-INF/openapi/openapi.yaml"))
@@ -170,6 +169,7 @@ tasks {
     }
 
     processResources {
+        // exclude resources that we do not need in the build artefacts
         exclude("api-specs/**")
         exclude("wildfly/**")
     }
