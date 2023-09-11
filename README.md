@@ -11,7 +11,7 @@ For instructions on how to build, install and run the ZAC software, please see t
 ## Manuals
 
 - [Manual for functional administrators on how to configure ZAC](docs/inrichting-zaakafhandelcomponent.md) - Dutch only
-- Manual for end-users on how to use ZAC - Dutch only - _will be made available in future_
+- [Manual for end-users on how to use ZAC](docs/ZAC-gebruikershandleiding-v1.4.pdf) - Dutch only
 
 ## License
 

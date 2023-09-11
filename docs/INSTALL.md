@@ -159,3 +159,15 @@ For example to (re)index all 'zaken' and 'taken' do the following from a local c
 1. Mark all 'zaken' ready for reindexing: `curl http://localhost:8080/rest/indexeren/herindexeren/ZAAK`
 2. Mark all 'taken' ready for reindexing: `curl http://localhost:8080/rest/indexeren/herindexeren/TAAK`
 3. (Re)index all (first 100) 'zaken' and 'taken': `curl http://localhost:8080/rest/indexeren/100`
+
+### Generating Swagger UI documentation for the ZAC backend API
+
+In order to generate the Swagger UI documentation for the ZAC backend API, use the following command:
+
+```shell
+./gradlew generateSwaggerUI
+```
+
+The Swagger UI documentation is generated in the `build/swagger-ui-zaakafhandelcomponent` folder.
+
+This task is currently not run automatically as part of `./gradlew build`.
