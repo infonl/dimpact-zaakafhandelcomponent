@@ -36,7 +36,7 @@ export class IdentityService {
   listUsersInGroup(groupId: string): Observable<User[]> {
     return this.zacHttp
       .GET("/rest/identity/groups/{groupId}/users", {
-        params: { params: { path: { groupId } } },
+        params: { path: { groupId } },
       })
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
@@ -65,5 +65,15 @@ export class IdentityService {
       }),
       catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
     );
+  }
+}
+
+class Test {
+  constructor(private zacHttp: ZacHttpClient) {}
+
+  public getSomething() {
+    this.zacHttp.GET("/rest/bag/zaak/{zaakUuid}", {
+      params: { path: { zaakUuid: "" } },
+    });
   }
 }

@@ -1,4 +1,9 @@
-import createClient, { FetchOptions, FetchResponse } from "openapi-fetch";
+/*
+ * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+import { FetchOptions, FetchResponse } from "openapi-fetch";
 
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
