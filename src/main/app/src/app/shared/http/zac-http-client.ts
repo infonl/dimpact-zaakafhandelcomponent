@@ -29,7 +29,7 @@ export class ZacHttpClient {
   public GET<P extends keyof Paths>(
     url: P,
     init?: Omit<Parameters<HttpClient["get"]>[1], "params"> & {
-      params: FetchOptions<FilterKeys<Paths[P], "get">>;
+      params: FetchOptions<FilterKeys<Paths[P], "get">>["params"];
     },
   ) {
     return this.http.get<Response<P, "get">>(url, {
@@ -41,7 +41,7 @@ export class ZacHttpClient {
     url: P,
     body: FetchOptions<FilterKeys<Paths[P], "post">>["body"],
     init?: Parameters<HttpClient["post"]>[2] & {
-      params: FetchOptions<FilterKeys<Paths[P], "post">>;
+      params: FetchOptions<FilterKeys<Paths[P], "post">>["params"];
     },
   ) {
     return this.http.post<Response<P, "post">>(url, body, {
@@ -53,7 +53,7 @@ export class ZacHttpClient {
     url: P,
     body: FetchOptions<FilterKeys<Paths[P], "put">>["body"],
     init?: Parameters<HttpClient["put"]>[2] & {
-      params: FetchOptions<FilterKeys<Paths[P], "put">>;
+      params: FetchOptions<FilterKeys<Paths[P], "put">>["params"];
     },
   ) {
     return this.http.put<Response<P, "put">>(url, body, {
@@ -64,7 +64,7 @@ export class ZacHttpClient {
   public DELETE<P extends keyof Paths>(
     url: P,
     init?: Parameters<HttpClient["delete"]>[1] & {
-      params: FetchOptions<FilterKeys<Paths[P], "delete">>;
+      params: FetchOptions<FilterKeys<Paths[P], "delete">>["params"];
     },
   ) {
     return this.http.delete<Response<P, "delete">>(url, {
@@ -76,7 +76,7 @@ export class ZacHttpClient {
     url: P,
     body: FetchOptions<FilterKeys<Paths[P], "patch">>["body"],
     init?: Parameters<HttpClient["patch"]>[2] & {
-      params: FetchOptions<FilterKeys<Paths[P], "patch">>;
+      params: FetchOptions<FilterKeys<Paths[P], "patch">>["params"];
     },
   ) {
     return this.http.patch<Response<P, "patch">>(url, body, {
