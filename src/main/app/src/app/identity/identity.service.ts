@@ -67,13 +67,3 @@ export class IdentityService {
     );
   }
 }
-
-class Test {
-  constructor(private zacHttp: ZacHttpClient) {}
-
-  public getSomething() {
-    this.zacHttp.GET("/rest/bag/zaak/{zaakUuid}", {
-      params: { path: { zaakUuid: "" } },
-    });
-  }
-}
