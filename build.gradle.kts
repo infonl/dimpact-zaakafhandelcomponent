@@ -170,7 +170,6 @@ tasks {
     }
 
     processResources {
-    
         exclude("api-specs/**")
         exclude("wildfly/**")
     }
