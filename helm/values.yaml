@@ -7,7 +7,7 @@ contextUrl: ""
 
 # Configuration of database connection
 db:
-  host: "" # databse.internal or 1.2.3.4
+  host: "" # database.internal or 1.2.3.4
   name: ""
   user: ""
   password: ""
@@ -81,6 +81,7 @@ brpApi:
 # Configuration of the KVK API provider (KVK)
 kvkApi:
   url: "" # https://developers.kvk.nl/test
+  apiKey: ""
 
 # Configuration of the BAG API provider (Kadaster)
 bagApi:
@@ -113,12 +114,12 @@ maxFileSizeMB: 80
 # additionalAllowedFileTypes: aaa,bbb,ccc
 
 # Enable Java remote debugging
-remoteDebug: false
+remoteDebug: False
 
 replicaCount: 1
 
 image:
-  repository: publicserviceplatform/zaakafhandelcomponent
+  repository: ghcr.io/infonl/zaakafhandelcomponent
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
@@ -201,6 +202,7 @@ affinity: { }
 # opa url should be the url the openpolicyagent can be reached on from ZAC ( for example: http://release-opa.default.svc.cluster.local )
 opa:
   url: ""
+  name: "opa"
   service:
     type: ClusterIP
     port: 8181
@@ -209,6 +211,7 @@ opa:
     tag: "edge-static"
     pullPolicy: IfNotPresent
 
+# deprecated, provision seperately using solr-values.yml
 solr:
   coreNames: [ "zac" ]
   persistence:
@@ -251,6 +254,8 @@ office_converter:
     repository: ghcr.io/eugenmayer/kontextwork-converter
     tag: "1.0.0"
     pullPolicy: IfNotPresent
+  name: "office-converter"
+  replicas: 1
   resources:
     # We usually recommend not to specify default resources and to leave this as a conscious
     # choice for the user. This also increases chances charts run on environments with little

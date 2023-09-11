@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "zaakafhandelcomponent.fullname" . }}-opa
+  name: {{ .Release.Name }}-opa
   labels:
     {{- include "opa.labels" . | nindent 4 }}
   {{- with .Values.service.annotations }}
