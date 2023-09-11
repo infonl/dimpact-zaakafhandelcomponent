@@ -1,5 +1,6 @@
 import com.github.gradle.node.npm.task.NpmTask
-import java.util.*
+import io.smallrye.openapi.api.OpenApiConfig
+import java.util.Locale
 
 /*
  * SPDX-FileCopyrightText: 2023 Lifely
@@ -15,6 +16,8 @@ plugins {
     id("org.openapi.generator") version "6.6.0"
     id("com.github.node-gradle.node") version "7.0.0"
     id("org.barfuin.gradle.taskinfo") version "2.1.0"
+    id("io.smallrye.openapi") version "3.5.1"
+    id("org.hidetake.swagger.generator") version "2.19.2"
 }
 
 repositories {
@@ -50,6 +53,8 @@ dependencies {
     implementation("com.itextpdf:itextpdf:5.5.13")
     implementation("com.itextpdf.tool:xmlworker:5.5.13")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.6.1")
+
+    swaggerUI("org.webjars:swagger-ui:3.52.5")
 
     runtimeOnly("org.infinispan:infinispan-jcache:13.0.10.Final")
     runtimeOnly("org.infinispan:infinispan-cdi-embedded:13.0.10.Final")
@@ -115,11 +120,26 @@ node {
     }
 }
 
+smallryeOpenApi {
+    infoTitle.set("Zaakafhandelcomponent backend API")
+    schemaFilename.set("META-INF/openapi/openapi")
+    operationIdStrategy.set(OpenApiConfig.OperationIdStrategy.METHOD)
+    outputFileTypeFilter.set("YAML")
+}
+
+swaggerSources {
+    register("zaakafhandelcomponent") {
+        setInputFile(file("${rootDir}/build/generated/openapi/META-INF/openapi/openapi.yaml"))
+    }
+}
+
 // run npm install task after generating the Java clients because they
 // share the same output folder (= $rootDir)
 tasks.getByName("npmInstall").setMustRunAfter(listOf("generateJavaClients"))
+tasks.getByName("generateSwaggerUIZaakafhandelcomponent").setMustRunAfter(listOf("generateOpenApiSpec"))
 
 tasks.war {
+    dependsOn("npmRunBuild")
     // add built frontend resources to WAR archive
     from("src/main/app/dist/zaakafhandelcomponent")
 
@@ -140,10 +160,15 @@ tasks {
         dependsOn("generateWildflyBootableJar")
     }
 
-    processResources {
+    compileJava {
         dependsOn("generateJavaClients")
-        dependsOn("npmRunBuild")
+    }
 
+    jar {
+        dependsOn("npmRunBuild")
+    }
+
+    processResources {
         // exclude resources that we do not need in the build artefacts
         exclude("api-specs/**")
         exclude("wildfly/**")
