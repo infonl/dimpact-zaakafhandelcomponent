@@ -9,6 +9,12 @@ General ZAC usage instructions may be found in the [README.md](../README.md) fil
 
 - Java JDK 17 and up (we use the `Temurin` distribution)
 
+For mac users you can run the following command to install the required Java version:
+
+```shell
+brew install oracle-jdk17
+```
+
 ### Gradle build
 
 The software is built using Gradle and for the final step using Maven.
@@ -16,16 +22,14 @@ Both a Gradle and a Maven wrapper are included in the source code, so you do not
 To build the software use the following command:
 
 ```shell
-./gradlew build
+
 ```
 
 This builds all the software, including the Java backend as well as the TypeScript frontend (using `npm`), runs all unit tests
 and packages the built software first into a WAR archive and then finally by invoking a Maven command from Gradle into a
 [WildFly application server](https://www.wildfly.org/) bootable fat-JAR. This last step uses [Galleon](https://docs.wildfly.org/galleon/).
 
-All generated artifacts by Gradle are placed into the `build` folder while the final WildFly bootable JAR is placed in the
-`target` folder. The reason why we use Maven for this last step is because there is unfortunately no Gradle alternative for the
-[WildFly Maven Plugin](https://docs.wildfly.org/wildfly-maven-plugin).
+All generated artifacts by Gradle are placed into the `build` folder while the final WildFly bootable JAR is placed in the `target` folder. The reason why we use Maven for this last step is because there is unfortunately no Gradle alternative for the [WildFly Maven Plugin](https://docs.wildfly.org/wildfly-maven-plugin).
 
 If you want to skip running the tests, use the following command:
 
@@ -56,9 +60,10 @@ For local development purposes we recommend to run ZAC from the IntelliJ IDE.
 ZAC requires a number of environment variables to be set.
 
 These can be set in various ways. The options are:
--   1Password: Use the [1Password CLI extensions](https://developer.1password.com/docs/cli/).
--   Env file: Create an `.env` file based on the [.env.example](../.env.example) example and use the https://github.com/Ashald/EnvFile IntelliJ plugin to read all required environment variables from your local `.env` file.
--   Or alternatively in `Startup/Connection` add all required ZAC environment variables to the `Debug` configuration.
+
+- 1Password: Use the [1Password CLI extensions](https://developer.1password.com/docs/cli/).
+- Env file: Create an `.env` file based on the [.env.example](../.env.example) example and use the https://github.com/Ashald/EnvFile IntelliJ plugin to read all required environment variables from your local `.env` file.
+- Or alternatively in `Startup/Connection` add all required ZAC environment variables to the `Debug` configuration.
 
 We prefer to use the 1Password CLI extensions as it is the most secure and enables you to
 centrally manage these variables for all developers.
@@ -74,6 +79,7 @@ When opening the ZAC project in IntelliJ make sure to select 'Open as Gradle pro
 #### Prerequisites
 
 First you will need to set up IntelliJ for ZAC:
+
 1. Install and use JDK 17 (we use the `Temurin` distribution).
 2. Follow the [local WildFly instructions](../scripts/wildfly/README.md) and install `Galleon` and `WildFly`.
 3. Enable the built-in IntelliJ WildFly extension if not already enabled (note that this requires the IntelliJ Enterprise Edition).
@@ -96,7 +102,7 @@ First you will need to set up IntelliJ for ZAC:
 4. Next add a new env var called `APP_ENV` and set the value to `devlocal`.
 
 See the screenshot below:
-![zac-intellij-runtime-wildfly-4.png](img/zac-intellij-runtime-wildfly-4.png)                                         x
+![zac-intellij-runtime-wildfly-4.png](img/zac-intellij-runtime-wildfly-4.png) x
 
 Now when starting up ZAC from IntelliJ the `startupwithenv.sh` script will set the required environment variables
 using the 1Password CLI extensions.
