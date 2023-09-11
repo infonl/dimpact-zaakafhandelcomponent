@@ -3,7 +3,7 @@ import createClient, { FetchOptions, FetchResponse } from "openapi-fetch";
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import type { FilterKeys } from "openapi-typescript-helpers";
-import { paths } from "schema";
+import { paths } from "src/generated/types/zac-openapi-types";
 
 type Paths = paths;
 

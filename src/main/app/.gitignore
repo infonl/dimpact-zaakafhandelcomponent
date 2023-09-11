@@ -48,3 +48,5 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
+
+/src/generated/types/zac-openapi-types.d.ts

@@ -3,12 +3,13 @@
   "version": "0.0.1",
   "scripts": {
     "ng": "ng",
-    "dev": "ng serve --hmr --proxy-config proxy.conf.json",
-    "start": "ng serve --proxy-config proxy.conf.json",
-    "build": "ng build --configuration=production --base-href=/",
+    "dev": "npm run generate:types:zac-openapi && ng serve --hmr --proxy-config proxy.conf.json",
+    "start": "npm run generate:types:zac-openapi && ng serve --proxy-config proxy.conf.json",
+    "build": "npm run generate:types:zac-openapi && ng build --configuration=production --base-href=/",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "generate:types:zac-openapi": "npx openapi-typescript ./../../../build/generated/openapi/META-INF/openapi/openapi.yaml -o ./src/generated/types/zac-openapi-types.d.ts"
   },
   "private": true,
   "dependencies": {
