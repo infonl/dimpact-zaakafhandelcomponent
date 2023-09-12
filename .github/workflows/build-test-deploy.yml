@@ -21,6 +21,13 @@ permissions:
   packages: write
 
 jobs:
+  check-for-conventional-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - name: check-for-cc
+        id: check-for-cc
+        uses: agenthunt/conventional-commit-checker-action@v2.0.0
+
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 30
