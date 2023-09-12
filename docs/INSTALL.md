@@ -9,12 +9,6 @@ General ZAC usage instructions may be found in the [README.md](../README.md) fil
 
 - Java JDK 17 and up (we use the `Temurin` distribution)
 
-For mac users you can run the following command to install the required Java version:
-
-```shell
-brew install oracle-jdk17
-```
-
 ### Gradle build
 
 The software is built using Gradle and for the final step using Maven.
