@@ -1,0 +1,19 @@
+#
+# SPDX-FileCopyrightText: 2023 Lifely
+# SPDX-License-Identifier: EUPL-1.2+
+#
+name: Check for conventional commits
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  check-for-conventional-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - name: check-for-cc
+        id: check-for-cc
+        uses: agenthunt/conventional-commit-checker-action@v2.0.0
