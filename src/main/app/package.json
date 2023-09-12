@@ -3,11 +3,13 @@
   "version": "0.0.1",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --proxy-config proxy.conf.json",
-    "build": "ng build --configuration=production --base-href=/",
+    "dev": "npm run generate:types:zac-openapi && ng serve --hmr --proxy-config proxy.conf.json",
+    "start": "npm run generate:types:zac-openapi && ng serve --proxy-config proxy.conf.json",
+    "build": "npm run generate:types:zac-openapi && ng build --configuration=production --base-href=/",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "generate:types:zac-openapi": "npx openapi-typescript ./../../../build/generated/openapi/META-INF/openapi/openapi.yaml -o ./src/generated/types/zac-openapi-types.d.ts"
   },
   "private": true,
   "dependencies": {
@@ -29,6 +31,7 @@
     "moment": "^2.29.4",
     "ngx-editor": "^15.3.0",
     "ol": "^7.3.0",
+    "openapi-fetch": "^0.7.5",
     "proj4": "^2.9.0",
     "rxjs": "^7.8.0",
     "tslib": "^2.5.2",
@@ -59,6 +62,7 @@
     "karma-coverage-istanbul-reporter": "~3.0.2",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "^2.0.0",
+    "openapi-typescript": "^6.5.4",
     "protractor": "~7.0.0",
     "ts-node": "~10.9.1",
     "typescript": "~5.0.4"
