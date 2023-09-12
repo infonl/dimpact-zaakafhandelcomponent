@@ -25,7 +25,7 @@ public class RESTVestigingsprofiel {
 
     public int voltijdWerkzamePersonen;
 
-    public List<RESTAdres> adressen;
+    public List<RESTKlantenAdres> adressen;
 
     public String website;
 
