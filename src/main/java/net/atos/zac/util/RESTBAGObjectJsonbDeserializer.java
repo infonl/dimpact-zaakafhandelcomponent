@@ -15,7 +15,7 @@ import javax.json.bind.serializer.JsonbDeserializer;
 import javax.json.stream.JsonParser;
 
 import net.atos.zac.app.bag.model.BAGObjectType;
-import net.atos.zac.app.bag.model.RESTAdres;
+import net.atos.zac.app.bag.model.RESTBAGAdres;
 import net.atos.zac.app.bag.model.RESTAdresseerbaarObject;
 import net.atos.zac.app.bag.model.RESTBAGObject;
 import net.atos.zac.app.bag.model.RESTNummeraanduiding;
@@ -31,7 +31,7 @@ public class RESTBAGObjectJsonbDeserializer implements JsonbDeserializer<RESTBAG
         final BAGObjectType type = BAGObjectType.valueOf(jsonObject.getJsonString("bagObjectType").getString());
 
         return switch (type) {
-            case ADRES -> JSONB.fromJson(jsonObject.toString(), RESTAdres.class);
+            case ADRES -> JSONB.fromJson(jsonObject.toString(), RESTBAGAdres.class);
             case NUMMERAANDUIDING -> JSONB.fromJson(jsonObject.toString(), RESTNummeraanduiding.class);
             case WOONPLAATS -> JSONB.fromJson(jsonObject.toString(), RESTWoonplaats.class);
             case PAND -> JSONB.fromJson(jsonObject.toString(), RESTPand.class);

@@ -40,7 +40,7 @@ import net.atos.zac.app.bag.converter.RESTOpenbareRuimteConverter;
 import net.atos.zac.app.bag.converter.RESTPandConverter;
 import net.atos.zac.app.bag.converter.RESTWoonplaatsConverter;
 import net.atos.zac.app.bag.model.BAGObjectType;
-import net.atos.zac.app.bag.model.RESTAdres;
+import net.atos.zac.app.bag.model.RESTBAGAdres;
 import net.atos.zac.app.bag.model.RESTBAGObject;
 import net.atos.zac.app.bag.model.RESTBAGObjectGegevens;
 import net.atos.zac.app.bag.model.RESTListAdressenParameters;
@@ -82,7 +82,7 @@ public class BAGRESTService {
 
     @PUT
     @Path("adres")
-    public RESTResultaat<RESTAdres> listAdressen(final RESTListAdressenParameters listAdressenParameters) {
+    public RESTResultaat<RESTBAGAdres> listAdressen(final RESTListAdressenParameters listAdressenParameters) {
         final BevraagAdressenParameters bevraagAdressenParameters = new BevraagAdressenParameters();
         bevraagAdressenParameters.setQ(listAdressenParameters.trefwoorden);
         bevraagAdressenParameters.setExpand(getExpand(BAGObjectType.NUMMERAANDUIDING, BAGObjectType.OPENBARE_RUIMTE, BAGObjectType.PAND,

@@ -32,8 +32,8 @@ import net.atos.zac.app.admin.converter.RESTReplyToConverter;
 import net.atos.zac.app.admin.converter.RESTZaakafhandelParametersConverter;
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigRedenConverter;
 import net.atos.zac.app.admin.model.RESTCaseDefinition;
-import net.atos.zac.app.admin.model.RESTFormulierDefinitie;
-import net.atos.zac.app.admin.model.RESTFormulierVeldDefinitie;
+import net.atos.zac.app.admin.model.RESTTaakFormulierDefinitie;
+import net.atos.zac.app.admin.model.RESTTaakFormulierVeldDefinitie;
 import net.atos.zac.app.admin.model.RESTReplyTo;
 import net.atos.zac.app.admin.model.RESTZaakafhandelParameters;
 import net.atos.zac.app.admin.model.RESTZaakbeeindigReden;
@@ -228,12 +228,12 @@ public class ZaakafhandelParametersRESTService {
      */
     @GET
     @Path("formulierDefinities")
-    public List<RESTFormulierDefinitie> listFormulierDefinities() {
+    public List<RESTTaakFormulierDefinitie> listFormulierDefinities() {
         return Arrays.stream(FormulierDefinitie.values())
-                .map(formulierDefinitie -> new RESTFormulierDefinitie(formulierDefinitie.name(),
+                .map(formulierDefinitie -> new RESTTaakFormulierDefinitie(formulierDefinitie.name(),
                                                                       formulierDefinitie.getVeldDefinities()
                                                                               .stream()
-                                                                              .map(formulierVeldDefinitie -> new RESTFormulierVeldDefinitie(
+                                                                              .map(formulierVeldDefinitie -> new RESTTaakFormulierVeldDefinitie(
                                                                                       formulierVeldDefinitie.name(),
                                                                                       formulierVeldDefinitie.getDefaultTabel()
                                                                                               .name()))

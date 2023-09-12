@@ -20,7 +20,7 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduiding;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaats;
-import net.atos.zac.app.bag.model.RESTAdres;
+import net.atos.zac.app.bag.model.RESTBAGAdres;
 import net.atos.zac.app.bag.model.RESTBAGObject;
 import net.atos.zac.app.bag.model.RESTBAGObjectGegevens;
 import net.atos.zac.app.bag.model.RESTNummeraanduiding;
@@ -50,7 +50,7 @@ public class RESTBAGConverter {
 
     public Zaakobject convertToZaakobject(final RESTBAGObject restbagObject, final Zaak zaak) {
         return switch (restbagObject.getBagObjectType()) {
-            case ADRES -> adresConverter.convertToZaakobject((RESTAdres) restbagObject, zaak);
+            case ADRES -> adresConverter.convertToZaakobject((RESTBAGAdres) restbagObject, zaak);
             case PAND -> pandConverter.convertToZaakobject((RESTPand) restbagObject, zaak);
             case WOONPLAATS -> woonplaatsConverter.convertToZaakobject((RESTWoonplaats) restbagObject, zaak);
             case OPENBARE_RUIMTE -> openbareRuimteConverter.convertToZaakobject((RESTOpenbareRuimte) restbagObject, zaak);
