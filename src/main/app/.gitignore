@@ -49,4 +49,4 @@ testem.log
 .DS_Store
 Thumbs.db
 
-/src/generated/types/zac-openapi-types.d.ts
+/src/generated/*
