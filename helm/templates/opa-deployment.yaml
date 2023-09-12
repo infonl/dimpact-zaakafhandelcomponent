@@ -3,14 +3,14 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}-{{ .Values.opa.name }}
   labels:
-    {{- include "zaakafhandelcomponent.labels" . | nindent 4 }}
+    {{- include "opa.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "zaakafhandelcomponent.selectorLabels" . | nindent 6 }}
+      {{- include "opa.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       annotations:
@@ -20,7 +20,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "zaakafhandelcomponent.selectorLabels" . | nindent 8 }}
+        {{- include "opa.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
