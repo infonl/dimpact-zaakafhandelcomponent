@@ -22,7 +22,7 @@ Both a Gradle and a Maven wrapper are included in the source code, so you do not
 To build the software use the following command:
 
 ```shell
-
+./gradlew build
 ```
 
 This builds all the software, including the Java backend as well as the TypeScript frontend (using `npm`), runs all unit tests
