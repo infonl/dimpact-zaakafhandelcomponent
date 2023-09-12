@@ -213,6 +213,8 @@ opa:
 
 # deprecated, provision seperately using solr-values.yml
 solr:
+  # the url will be the only solr related value relevant for ZAC
+  url: ""
   coreNames: [ "zac" ]
   persistence:
     size: 1Gi
