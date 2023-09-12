@@ -21,7 +21,7 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.wildfly.security.http.oidc.IDToken;
+import org.wildfly.security.http.oidc.AccessToken;
 import org.wildfly.security.http.oidc.OidcPrincipal;
 import org.wildfly.security.http.oidc.OidcSecurityContext;
 
@@ -84,15 +84,15 @@ public class UserPrincipalFilter implements Filter {
     }
 
     private LoggedInUser createLoggedInUser(final OidcSecurityContext context) {
-        final IDToken idToken = context.getIDToken();
-        final Set<String> roles = Set.copyOf(context.getToken().getRealmAccessClaim().getRoles());
-        return new LoggedInUser(idToken.getPreferredUsername(),
-                idToken.getGivenName(),
-                idToken.getFamilyName(),
-                idToken.getName(),
-                idToken.getEmail(),
+        final AccessToken accessToken = context.getToken();
+        final Set<String> roles = Set.copyOf(accessToken.getRealmAccessClaim().getRoles());
+        return new LoggedInUser(accessToken.getPreferredUsername(),
+                accessToken.getGivenName(),
+                accessToken.getFamilyName(),
+                accessToken.getName(),
+                accessToken.getEmail(),
                 roles,
-                Set.copyOf(idToken.getStringListClaimValue(GROUP_MEMBERSHIP_CLAIM_NAME)),
+                Set.copyOf(accessToken.getStringListClaimValue(GROUP_MEMBERSHIP_CLAIM_NAME)),
                 getGeautoriseerdeZaaktypen(roles));
     }
 

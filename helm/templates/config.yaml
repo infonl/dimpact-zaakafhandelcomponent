@@ -37,7 +37,7 @@ data:
   OPA_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.opa.url entry required!" .Values.opa.url }}
   OPEN_FORMS_URL: {{ required "Valid .Values.openForms.url entry required!" .Values.openForms.url }}
   SD_CLIENT_MP_REST_URL: {{ required "Valid .Values.smartDocuments.url entry required!" .Values.smartDocuments.url }}
-  SOLR_URL: {{ printf "http://%s-solr.%s" (include "zaakafhandelcomponent.fullname" .) .Release.Namespace }}
+  SOLR_URL: {{ required "Valid .Values.solr.url entry required!" .Values.solr.url }}
   TZ: Europe/Amsterdam
   VRL_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.vrlApi.url entry required!" .Values.vrlApi.url }}
   ZGW_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.zgwApis.url entry required!" .Values.zgwApis.url }}
