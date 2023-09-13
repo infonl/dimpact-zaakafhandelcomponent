@@ -19,6 +19,7 @@ plugins {
     id("org.barfuin.gradle.taskinfo") version "2.1.0"
     id("io.smallrye.openapi") version "3.5.1"
     id("org.hidetake.swagger.generator") version "2.19.2"
+    id("io.gitlab.arturbosch.detekt") version "1.23.1"
 }
 
 repositories {
@@ -55,6 +56,8 @@ dependencies {
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.6.1")
 
     swaggerUI("org.webjars:swagger-ui:3.52.5")
+
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.1")
 
     runtimeOnly("org.infinispan:infinispan-jcache:13.0.10.Final")
     runtimeOnly("org.infinispan:infinispan-cdi-embedded:13.0.10.Final")
