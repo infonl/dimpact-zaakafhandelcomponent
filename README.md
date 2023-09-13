@@ -17,5 +17,5 @@ For instructions on how to build, install and run the ZAC software, please see t
 
 This software is licensed under the [EUPL](LICENSE.md).
 
-For instructions on how to use this license when adding or changing code, please see the [CONTRIBUTING.md](LICENSE.md) file.
+For instructions on how to use this license when adding or changing code, please see the [CONTRIBUTING.md](CONTRIBUTING.md) file.
 
