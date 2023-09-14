@@ -13,7 +13,7 @@
     "target": "ES2022",
     "lib": ["es2020", "dom"],
     "skipLibCheck": true,
-    "useDefineForClassFields": false
+    "useDefineForClassFields": false,
   },
   "angularCompilerOptions": {
     "fullTemplateTypeCheck": true,
