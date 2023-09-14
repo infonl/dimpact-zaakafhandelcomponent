@@ -20,11 +20,11 @@ To use our shared Postman collection you need to be a member of our Zaakafhandel
 
 Create a Postman environment (e.g. “Localhost”) with the following variables:
 
-| Variable             |        Description         | Value for ZAC on localhost    |
-|----------------------|:--------------------------:|:-----------------------------:|
-| baseUrl              |        ZAC base URL        |     http://localhost:8080     |
-| keycloakBaseUrl      |     Keycloak base URL      |     http://localhost:8081     |
-| keycloakClientSecret | Keycloak ZAC client secret | keycloakZaakafhandelcomponent |
+| Variable             |        Description         |        Value for ZAC on localhost         |
+|----------------------|:--------------------------:|:-----------------------------------------:|
+| baseUrl              |        ZAC base URL        |           http://localhost:8080           |
+| keycloakBaseUrl      |     Keycloak base URL      |           http://localhost:8081           |
+| keycloakClientSecret | Keycloak ZAC client secret | keycloakZaakafhandelcomponentClientSecret |
 
 Also see:
 
