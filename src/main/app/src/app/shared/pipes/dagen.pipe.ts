@@ -4,7 +4,7 @@
  */
 
 import { Pipe, PipeTransform } from "@angular/core";
-import * as moment from "moment";
+import moment from "moment";
 import { TranslateService } from "@ngx-translate/core";
 
 @Pipe({ name: "dagen" })

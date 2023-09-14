@@ -14,7 +14,7 @@ import { Opcode } from "../websocket/model/opcode";
 import { ObjectType } from "../websocket/model/object-type";
 import { WebsocketService } from "../websocket/websocket.service";
 import { WebsocketListener } from "../websocket/model/websocket-listener";
-import * as moment from "moment";
+import moment from "moment";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { PolicyService } from "../../policy/policy.service";
 import { OverigeRechten } from "../../policy/model/overige-rechten";

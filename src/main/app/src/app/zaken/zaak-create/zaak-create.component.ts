@@ -9,7 +9,7 @@ import { Zaak } from "../model/zaak";
 import { ZakenService } from "../zaken.service";
 import { Router } from "@angular/router";
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
-import * as moment from "moment/moment";
+import moment from "moment";
 import { NavigationService } from "../../shared/navigation/navigation.service";
 import { UtilService } from "../../core/service/util.service";
 import { Vertrouwelijkheidaanduiding } from "../../informatie-objecten/model/vertrouwelijkheidaanduiding.enum";

@@ -12,7 +12,7 @@ import { IdentityService } from "../../identity/identity.service";
 import { User } from "../../identity/model/user";
 import { Group } from "../../identity/model/group";
 import { Zaak } from "../../zaken/model/zaak";
-import * as moment from "moment/moment";
+import moment from "moment";
 import { FormulierVeldDefinitie } from "../../admin/model/formulieren/formulier-veld-definitie";
 
 @Component({
