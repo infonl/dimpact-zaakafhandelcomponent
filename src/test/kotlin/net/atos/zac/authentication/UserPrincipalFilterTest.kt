@@ -119,4 +119,3 @@ class UserPrincipalFilterTest : BehaviorSpec({
         }
     }
 })
-
