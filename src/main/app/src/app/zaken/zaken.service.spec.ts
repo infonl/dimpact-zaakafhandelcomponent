@@ -5,26 +5,19 @@
 
 import { ZakenService } from "./zaken.service";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { TestBed } from "@angular/core/testing";
+import { HttpClientModule } from "@angular/common/http";
 
 describe("ZaakService", () => {
   let service: ZakenService;
-  let mockHttpClient;
-  let mockFoutAfhandelingService;
-  let mockRouter;
-  let mockSnackbar;
-  let mockTranslate;
 
   beforeEach(() => {
-    mockHttpClient = jasmine.createSpyObj(["get", "post", "patch"]);
-    mockRouter = jasmine.createSpyObj(["navigate"]);
-    mockSnackbar = jasmine.createSpyObj(["open"]);
-    mockFoutAfhandelingService = new FoutAfhandelingService(
-      mockRouter,
-      mockSnackbar,
-      mockTranslate,
-    );
+    TestBed.configureTestingModule({
+      providers: [{ provide: FoutAfhandelingService, useValue: {} }],
+      imports: [HttpClientModule],
+    });
 
-    service = new ZakenService(mockHttpClient, mockFoutAfhandelingService);
+    service = TestBed.inject(ZakenService);
   });
 
   it("should be created", () => {

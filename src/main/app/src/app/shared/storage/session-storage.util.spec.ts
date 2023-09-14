@@ -3,9 +3,40 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { TestBed } from "@angular/core/testing";
 import { SessionStorageUtil } from "./session-storage.util";
+const localStorageMock = (() => {
+  let store = {};
+
+  return {
+    getItem(key) {
+      return store[key] || null;
+    },
+    setItem(key, value) {
+      store[key] = value.toString();
+    },
+    removeItem(key) {
+      delete store[key];
+    },
+    clear() {
+      store = {};
+    },
+  };
+})();
 
 describe("SessionStorageService", () => {
+  let service: SessionStorageUtil;
+
+  beforeEach(() => {
+    Object.defineProperty(window, "sessionStorage", {
+      value: localStorageMock,
+    });
+    TestBed.configureTestingModule({
+      providers: [SessionStorageUtil],
+    }).compileComponents();
+    service = TestBed.inject(SessionStorageUtil);
+  });
+
   afterEach(() => {
     SessionStorageUtil.clearSessionStorage();
   });
@@ -14,12 +45,12 @@ describe("SessionStorageService", () => {
     const gebruiker = { gebruikersnaam: "Jaap" };
     const gebruikerJSON = JSON.stringify(gebruiker);
 
-    spyOn(sessionStorage, "getItem").and.returnValue(gebruikerJSON);
+    const getItemSpy = jest.spyOn(window.sessionStorage, "getItem");
 
-    expect(SessionStorageUtil.getItem("gebruikersnaam")).toEqual(
-      JSON.parse(gebruikerJSON),
-    );
-    expect(sessionStorage.getItem).toHaveBeenCalled();
+    SessionStorageUtil.setItem("gebruikersnaam", gebruikerJSON);
+
+    expect(SessionStorageUtil.getItem("gebruikersnaam")).toEqual(gebruikerJSON);
+    expect(getItemSpy).toHaveBeenCalled();
   });
 
   it("key value v should be equal to v", () => {
@@ -32,28 +63,28 @@ describe("SessionStorageService", () => {
   });
 
   it("should break the reference", () => {
-    spyOn(JSON, "parse");
-    spyOn(JSON, "stringify");
-    spyOn(sessionStorage, "setItem");
+    jest.spyOn(JSON, "parse");
+    jest.spyOn(JSON, "stringify");
+    jest.spyOn(sessionStorage, "setItem");
 
     const gebruiker = SessionStorageUtil.getItem("", "Jaap");
 
     expect(JSON.parse).toHaveBeenCalled();
     expect(JSON.stringify).toHaveBeenCalled();
-    expect(sessionStorage.setItem).toHaveBeenCalled();
+    expect(window.sessionStorage.setItem).toHaveBeenCalled();
 
     const jaap = { gebruikersnaam: "Jaap" };
     const gebruikerJSON = JSON.stringify(jaap);
 
-    expect(gebruikerJSON).toEqual(gebruiker);
+    expect(gebruiker).toEqual("Jaap");
   });
 
   // session storage word momenteel niet leeggegooid. Echter, in de afterAll() gebeurt dit wel
-  xit("should call clear", () => {
-    spyOn(sessionStorage, "clear");
+  it("should call clear", () => {
+    jest.spyOn(sessionStorage, "clear");
     SessionStorageUtil.setItem("testWaarde", "waarde");
     SessionStorageUtil.clearSessionStorage();
     expect(sessionStorage.clear).toHaveBeenCalled();
-    expect(SessionStorageUtil.getItem("testWaarde")).toBe(undefined);
+    expect(SessionStorageUtil.getItem("testWaarde")).toBe(null);
   });
 });
