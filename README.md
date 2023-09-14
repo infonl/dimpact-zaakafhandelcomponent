@@ -8,7 +8,11 @@ It was initially [developed by Atos](https://github.com/NL-AMS-LOCGOV/zaakafhand
 
 For instructions on how to build, install and run the ZAC software, please see the [INSTALL.md](docs/INSTALL.md) file.
 
-## Manuals
+## Testing
+
+Technical instructions on how to use the tool Postman to test ZAC can be found in the [docs/using-postman.md](docs/using-postman.md) file.
+
+## End-user manuals
 
 - [Manual for functional administrators on how to configure ZAC](docs/inrichting-zaakafhandelcomponent.md) - Dutch only
 - [Manual for end-users on how to use ZAC](docs/ZAC-gebruikershandleiding-v1.4.pdf) - Dutch only
