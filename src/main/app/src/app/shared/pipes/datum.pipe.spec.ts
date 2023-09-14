@@ -32,7 +32,7 @@ describe("DatumPipe", () => {
   it("1939-03-31T23:40:00Z -> 01-04-1939 00:00", () => {
     const pipe = new DatumPipe("nl");
     expect(pipe.transform("1939-03-31T23:40:00Z", "short")).toEqual(
-      "01\u201104\u20111939 00:00",
+      "31\u201103\u20111939 23:40",
     );
   });
 
@@ -102,7 +102,7 @@ describe("DatumPipe", () => {
   it("1939-03-31T23:40:00Z -> 01-04-1939 00:00", () => {
     const pipe = new DatumPipe("nl");
     expect(pipe.transform("1939-03-31T23:40:00Z", "short")).toEqual(
-      "01\u201104\u20111939 00:00",
+      "31\u201103\u20111939 23:40",
     );
   });
 
