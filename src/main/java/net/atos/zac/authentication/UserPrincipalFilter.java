@@ -37,8 +37,12 @@ public class UserPrincipalFilter implements Filter {
 
     private static final String GROUP_MEMBERSHIP_CLAIM_NAME = "group_membership";
 
-    @Inject
     private ZaakafhandelParameterService zaakafhandelParameterService;
+
+    @Inject
+    public UserPrincipalFilter(ZaakafhandelParameterService zaakafhandelParameterService) {
+        this.zaakafhandelParameterService = zaakafhandelParameterService;
+    }
 
     @Override
     public void init(final FilterConfig filterConfig) throws ServletException {

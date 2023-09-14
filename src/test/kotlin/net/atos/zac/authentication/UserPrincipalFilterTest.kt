@@ -25,21 +25,14 @@ import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpSession
 
-class UserPrincipalFilterTest : WordSpec() {
+class UserPrincipalFilterTest : WordSpec({
 
-    @MockK
-    lateinit var zaakafhandelParameterService: ZaakafhandelParameterService
+    val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
+    val userPrincipalFilter = UserPrincipalFilter(zaakafhandelParameterService)
 
-    @InjectMockKs
-    lateinit var userPrincipalFilter: UserPrincipalFilter
-
-    override suspend fun beforeTest(testCase: TestCase) {
-        MockKAnnotations.init(this)
-    }
-
-    init {
-        "doFilter" should {
-            "invoke filterChain with logged-in user with valid session" {
+    "doFilter" When {
+        "logged-in user with valid session" should {
+            "invoke filterChain" {
                 val userId = "dummyId"
 
                 val httpServletRequest = mockk<HttpServletRequest>()
@@ -62,7 +55,9 @@ class UserPrincipalFilterTest : WordSpec() {
                     filterChain.doFilter(httpServletRequest, servletResponse)
                 }
             }
-            "get user from security context and add user to http session when no user is present in session" {
+        }
+        "no user is present in session" should {
+            "get user from security context and add user to http session" {
                 val userName = "dummyUserName"
                 val givenName = "dummyGivenName"
                 val familyName = "dummyFamilyName"
@@ -125,4 +120,5 @@ class UserPrincipalFilterTest : WordSpec() {
             }
         }
     }
-}
+})
+
