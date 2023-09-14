@@ -15,6 +15,7 @@ services:
       - DB_VENDOR=postgres
       - DB_ADDR=zac-keycloak-database
       - DB_USER=keycloak
+      - DB_NAME=keycloak
       - DB_PASSWORD=keycloak
       - ZAC_GROUP_A_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_A_EMAIL_ADDRESS:-test-group-a@example.com}
     volumes:
@@ -26,15 +27,18 @@ services:
   zac-keycloak-database:
     image: postgres:15.4
     container_name: zac-keycloak-database
+    ports:
+      - "54326:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready", "-d", "keycloak" ]
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
       interval: 20s
       timeout: 60s
       retries: 5
       start_period: 30s
     environment:
-      POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: keycloak
+      - POSTGRES_USER=keycloak
+      - POSTGRES_PASSWORD=keycloak
+      - POSTGRES_DB=keycloak
     volumes:
       - ./scripts/docker-compose/volume-data/zac-keycloak-database-data:/var/lib/postgresql/data
 
@@ -59,7 +63,7 @@ services:
       - "54322:5432"
     platform: linux/amd64
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready", "-d", "openzaak" ]
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
       interval: 20s
       timeout: 60s
       retries: 5
@@ -131,7 +135,7 @@ services:
       - "54323:5432"
     platform: linux/amd64
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready", "-d", "objects" ]
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
       interval: 20s
       timeout: 60s
       retries: 5
@@ -178,7 +182,7 @@ services:
     ports:
       - "54324:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready", "-d", "objecttypes" ]
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
       interval: 20s
       timeout: 60s
       retries: 5
@@ -317,7 +321,7 @@ services:
     ports:
       - "54325:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready", "-d", "openklant" ]
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
       interval: 20s
       timeout: 60s
       retries: 5

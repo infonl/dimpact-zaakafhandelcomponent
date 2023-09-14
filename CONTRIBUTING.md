@@ -1,6 +1,9 @@
 # Contribution guidelines
 
 If you want to contribute, we ask you to follow these guidelines.
+These instructions are currently mainly intended for our own Lifely developers, but
+we do also welcome contributions from the open source community.
+Please reach out to us if you have questions or wish to contribute.
 
 ## License
 
@@ -51,3 +54,35 @@ the `SPDX-FileCopyrightText` identifier. E.g.:
  * SPDX-License-Identifier: EUPL-1.2+
  */
 ```
+
+## Conventional Commits
+
+We use [Conventional Commits](https://www.conventionalcommits.org) for our commit messages.
+Specifically we use the following format for our commit messages:
+
+```
+<type>[optional scope]: <description>
+
+[body]
+
+[footer]
+```
+
+When you create a Pull Request (PR) please follow the following instructions to comply to our Conventional Commits guidelines:
+1. Make sure the PR title complies to: `<type>[optional scope]: <description>`. E.g. `feat: add new feature`.
+2. In the PR body fill in the body consisting of one line of text. E.g. `Added new exciting feature.`
+3. In the footer reference the JIRA issue (typically a subtask) number from the
+    [PodiumD Zaak JIRA project](https://dimpact.atlassian.net/jira/software/c/projects/PZ/) as follows:
+    `Solves PZ-XXX`, where `XXX` is the JIRA issue number.
+
+For example:
+
+![conventional-commit-checker.png](docs/img/conventional-commit-checker.png)!
+
+We use the [Conventional Commits GitHub Action](https://github.com/agenthunt/conventional-commit-checker-action) to check
+if a new PR complies to our Conventional Commits guidelines described above.
+
+This plugin unfortunately only checks on PR creation time and not when you merge your PR.
+So when merging a PR in GitHub using Squash and Merge please copy the PR body into the
+GitHub Squash and Merge description text area.
+
