@@ -11,6 +11,7 @@ plugins {
     java
     kotlin("jvm") version "1.9.10"
     war
+    jacoco
 
     id("org.jsonschema2pojo") version "1.2.1"
     // note that openapi generator 7.0.0 has some breaking changes
@@ -84,6 +85,10 @@ dependencies {
 
 group = "net.atos.common-ground"
 description = "Zaakafhandelcomponent"
+
+jacoco {
+    toolVersion = "0.8.7"
+}
 
 java {
     java.sourceCompatibility = JavaVersion.VERSION_17
@@ -167,6 +172,10 @@ tasks {
 
     compileJava {
         dependsOn("generateJavaClients")
+    }
+
+    jacocoTestReport {
+        dependsOn(test)
     }
 
     jar {
