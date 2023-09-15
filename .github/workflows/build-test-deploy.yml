@@ -12,7 +12,7 @@ on:
       - main
 
 env:
-  JAVA_VERSION: '7'
+  JAVA_VERSION: '17'
   CONTAINER_REGISTRY_URL: 'ghcr.io/infonl'
   APPLICATION_NAME: 'zaakafhandelcomponent'
 
