@@ -1,13 +1,10 @@
 package net.atos.zac.authentication
 
-import io.kotest.core.spec.style.WordSpec
-import io.kotest.core.test.TestCase
+import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
-import io.mockk.MockKAnnotations
+import io.mockk.clearAllMocks
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkClass
@@ -25,36 +22,32 @@ import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpSession
 
-class UserPrincipalFilterTest : WordSpec() {
+class UserPrincipalFilterTest : BehaviorSpec({
+    val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
+    val userPrincipalFilter = UserPrincipalFilter(zaakafhandelParameterService)
 
-    @MockK
-    lateinit var zaakafhandelParameterService: ZaakafhandelParameterService
+    val httpServletRequest = mockk<HttpServletRequest>()
+    val servletResponse = mockk<ServletResponse>()
+    val filterChain = mockk<FilterChain>()
+    val httpSession = mockk<HttpSession>()
+    val loggedInUser = mockk<LoggedInUser>()
+    val oidcPrincipal = mockkClass(OidcPrincipal::class)
 
-    @InjectMockKs
-    lateinit var userPrincipalFilter: UserPrincipalFilter
-
-    override suspend fun beforeTest(testCase: TestCase) {
-        MockKAnnotations.init(this)
+    beforeEach {
+        clearAllMocks()
     }
 
-    init {
-        "doFilter" should {
-            "invoke filterChain with logged-in user with valid session" {
+    given("a logged-in user is present in the http session") {
+        When("doFilter is called") {
+            then("filterChain is invoked") {
                 val userId = "dummyId"
-
-                val httpServletRequest = mockk<HttpServletRequest>()
-                val servletResponse = mockk<ServletResponse>()
-                val filterChain = mockk<FilterChain>()
-                val httpSession = mockk<HttpSession>()
-                val loggedInUser = mockk<LoggedInUser>()
-                val oidcPrincipal = mockkClass(OidcPrincipal::class)
 
                 every { httpServletRequest.userPrincipal } returns oidcPrincipal
                 every { httpServletRequest.getSession(true) } returns httpSession
+                every { filterChain.doFilter(any(), any()) } just runs
                 every { SecurityUtil.getLoggedInUser(httpSession) } returns loggedInUser
                 every { loggedInUser.id } returns userId
                 every { oidcPrincipal.name } returns userId
-                every { filterChain.doFilter(any(), any()) } just runs
 
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
 
@@ -62,7 +55,11 @@ class UserPrincipalFilterTest : WordSpec() {
                     filterChain.doFilter(httpServletRequest, servletResponse)
                 }
             }
-            "get user from security context and add user to http session when no user is present in session" {
+        }
+    }
+    given("no user is present in the http session") {
+        When("doFilter is called") {
+            then("user is retrieved from security context and added to the http session") {
                 val userName = "dummyUserName"
                 val givenName = "dummyGivenName"
                 val familyName = "dummyFamilyName"
@@ -81,11 +78,6 @@ class UserPrincipalFilterTest : WordSpec() {
                     ZaakafhandelParameters()
                 )
 
-                val httpServletRequest = mockk<HttpServletRequest>()
-                val servletResponse = mockk<ServletResponse>()
-                val filterChain = mockk<FilterChain>()
-                val httpSession = mockk<HttpSession>()
-                val oidcPrincipal = mockkClass(OidcPrincipal::class)
                 val oidcSecurityContext = mockk<OidcSecurityContext>()
                 val accessToken = mockk<AccessToken>()
                 val realmAccessClaim = mockk<RealmAccessClaim>()
@@ -93,6 +85,7 @@ class UserPrincipalFilterTest : WordSpec() {
 
                 every { httpServletRequest.userPrincipal } returns oidcPrincipal
                 every { httpServletRequest.getSession(true) } returns httpSession
+                every { filterChain.doFilter(any(), any()) } just runs
                 every { SecurityUtil.getLoggedInUser(httpSession) } returns null
                 every { oidcPrincipal.oidcSecurityContext } returns oidcSecurityContext
                 every { oidcSecurityContext.token } returns accessToken
@@ -106,7 +99,6 @@ class UserPrincipalFilterTest : WordSpec() {
                 every { realmAccessClaim.roles } returns roles
                 every { zaakafhandelParameterService.listZaakafhandelParameters() } returns zaakafhandelParameters
                 every { httpSession.setAttribute(any(), any()) } just runs
-                every { filterChain.doFilter(any(), any()) } just runs
 
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
 
@@ -114,15 +106,16 @@ class UserPrincipalFilterTest : WordSpec() {
                     filterChain.doFilter(httpServletRequest, servletResponse)
                     httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot))
                 }
-                val loggedInUser = loggedInUserSlot.captured
-                loggedInUser.id shouldBe userName
-                loggedInUser.firstName shouldBe givenName
-                loggedInUser.lastName shouldBe familyName
-                loggedInUser.fullName shouldBe fullName
-                loggedInUser.email shouldBe email
-                loggedInUser.roles shouldContainAll roles
-                loggedInUser.groupIds shouldContainAll groups
+                with(loggedInUserSlot.captured) {
+                    id shouldBe userName
+                    firstName shouldBe givenName
+                    lastName shouldBe familyName
+                    fullName shouldBe fullName
+                    email shouldBe email
+                    roles shouldContainAll roles
+                    groupIds shouldContainAll groups
+                }
             }
         }
     }
-}
+})
