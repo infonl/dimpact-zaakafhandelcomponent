@@ -144,7 +144,7 @@ jobs:
               repo: 'dimpact-provisioning',
               workflow_id: 'azure-provision-zaakafhandelcomponent.yml',
               inputs: {
-                tag: ${{ needs.build.outputs.docker_image_tag }}
+                tag: '${{ needs.build.outputs.docker_image_tag }}',
               },
               ref: 'main'
             })
