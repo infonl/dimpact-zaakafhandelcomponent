@@ -6,9 +6,7 @@ name: Check for conventional commits
 
 on:
   pull_request:
-  push:
-    branches:
-      - main
+    types: [opened, edited, synchronize]
 
 jobs:
   check-for-conventional-commits:
