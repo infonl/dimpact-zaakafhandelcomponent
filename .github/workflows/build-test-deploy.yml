@@ -12,9 +12,9 @@ on:
       - main
 
 env:
-  JAVA_VERSION: "17"
-  CONTAINER_REGISTRY_URL: "ghcr.io/infonl"
-  APPLICATION_NAME: "zaakafhandelcomponent"
+  JAVA_VERSION: '7'
+  CONTAINER_REGISTRY_URL: 'ghcr.io/infonl'
+  APPLICATION_NAME: 'zaakafhandelcomponent'
 
 permissions:
   contents: write
@@ -47,9 +47,9 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: ${{ env.JAVA_VERSION }}
-          distribution: "temurin"
+          distribution: 'temurin'
           # Use the Maven cache here so that Maven artefacts (Maven build is triggered from the Gradle build) are cached.
-          cache: "maven"
+          cache: 'maven'
 
       # To set up the Gradle build itself we use the 'gradle-build-action' which caches Gradle artefacts by default.
       - name: Setup Gradle
