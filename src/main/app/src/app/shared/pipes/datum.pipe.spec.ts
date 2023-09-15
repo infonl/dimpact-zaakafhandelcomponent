@@ -4,6 +4,7 @@
  */
 
 import { DatumPipe } from "./datum.pipe";
+jest.useFakeTimers().setSystemTime(new Date("2020-01-01"));
 
 describe("DatumPipe", () => {
   it("2021-06-23T00:00:00Z -> 23-06-2021 02:00", () => {
@@ -32,7 +33,7 @@ describe("DatumPipe", () => {
   it("1939-03-31T23:40:00Z -> 01-04-1939 00:00", () => {
     const pipe = new DatumPipe("nl");
     expect(pipe.transform("1939-03-31T23:40:00Z", "short")).toEqual(
-      "31\u201103\u20111939 23:40",
+      "01\u201104\u20111939 00:00",
     );
   });
 
@@ -102,7 +103,7 @@ describe("DatumPipe", () => {
   it("1939-03-31T23:40:00Z -> 01-04-1939 00:00", () => {
     const pipe = new DatumPipe("nl");
     expect(pipe.transform("1939-03-31T23:40:00Z", "short")).toEqual(
-      "31\u201103\u20111939 23:40",
+      "01\u201104\u20111939 00:00",
     );
   });
 
