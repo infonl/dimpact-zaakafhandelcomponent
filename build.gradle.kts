@@ -9,6 +9,7 @@ import java.util.Locale
 
 plugins {
     java
+    kotlin("jvm") version "1.9.10"
     war
 
     id("org.jsonschema2pojo") version "1.2.1"
@@ -18,13 +19,12 @@ plugins {
     id("org.barfuin.gradle.taskinfo") version "2.1.0"
     id("io.smallrye.openapi") version "3.5.1"
     id("org.hidetake.swagger.generator") version "2.19.2"
+    id("io.gitlab.arturbosch.detekt") version "1.23.1"
 }
 
 repositories {
     mavenLocal()
-    maven {
-        url = uri("https://repo.maven.apache.org/maven2/")
-    }
+    mavenCentral()
 }
 
 // create custom configuration for extra dependencies that are required in the generated WAR
@@ -33,6 +33,7 @@ val warLib by configurations.creating {
 }
 
 dependencies {
+    implementation(kotlin("stdlib-jdk8"))
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("org.apache.commons:commons-collections4:4.4")
@@ -56,6 +57,8 @@ dependencies {
 
     swaggerUI("org.webjars:swagger-ui:3.52.5")
 
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.1")
+
     runtimeOnly("org.infinispan:infinispan-jcache:13.0.10.Final")
     runtimeOnly("org.infinispan:infinispan-cdi-embedded:13.0.10.Final")
 
@@ -75,6 +78,8 @@ dependencies {
 
     testImplementation("org.eclipse:yasson:1.0.11")
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.1")
+    testImplementation("io.kotest:kotest-runner-junit5:5.7.1")
+    testImplementation("io.mockk:mockk:1.13.7")
 }
 
 group = "net.atos.common-ground"
@@ -174,7 +179,7 @@ tasks {
         exclude("wildfly/**")
     }
 
-    named<Test>("test") {
+    withType<Test> {
         useJUnitPlatform()
     }
 
