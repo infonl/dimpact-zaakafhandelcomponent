@@ -4,10 +4,12 @@
  */
 
 import { DatumPipe } from "./datum.pipe";
-jest.useFakeTimers().setSystemTime(new Date("2020-04-13T00:00:00.000+08:00"));
-(Date as any).now = jest.fn(() => new Date("2020-04-13T00:00:00.000+08:00"));
 
 describe("DatumPipe", () => {
+  it("should always be UTC", () => {
+    expect(new Date().getTimezoneOffset()).toBe(-120);
+  });
+
   it("2021-06-23T00:00:00Z -> 23-06-2021 02:00", () => {
     const pipe = new DatumPipe("nl");
 

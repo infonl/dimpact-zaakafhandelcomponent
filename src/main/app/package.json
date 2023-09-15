@@ -65,6 +65,7 @@
     "typescript": "~5.0.4"
   },
   "jest": {
+    "globalSetup": "<rootDir>/src/globalJest.js",
     "preset": "jest-preset-angular",
     "setupFilesAfterEnv": [
       "<rootDir>/src/setupJest.ts"
