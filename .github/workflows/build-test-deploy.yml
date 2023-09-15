@@ -12,9 +12,9 @@ on:
       - main
 
 env:
-  JAVA_VERSION: '17'
-  CONTAINER_REGISTRY_URL: 'ghcr.io/infonl'
-  APPLICATION_NAME: 'zaakafhandelcomponent'
+  JAVA_VERSION: "17"
+  CONTAINER_REGISTRY_URL: "ghcr.io/infonl"
+  APPLICATION_NAME: "zaakafhandelcomponent"
 
 permissions:
   contents: write
@@ -47,9 +47,9 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: ${{ env.JAVA_VERSION }}
-          distribution: 'temurin'
+          distribution: "temurin"
           # Use the Maven cache here so that Maven artefacts (Maven build is triggered from the Gradle build) are cached.
-          cache: 'maven'
+          cache: "maven"
 
       # To set up the Gradle build itself we use the 'gradle-build-action' which caches Gradle artefacts by default.
       - name: Setup Gradle
@@ -67,40 +67,40 @@ jobs:
           key: maven-build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   build-docker-image:
-      needs: [build]
-      runs-on: ubuntu-latest
-      timeout-minutes: 30
-      env:
-        BUILD_NUMBER: ${{ needs.build.outputs.build_number }}
-        DOCKER_IMAGE_TAG: ${{ needs.build.outputs.docker_image_tag }}
-        GIT_COMMIT_HASH: ${{ github.sha }}
-      steps:
-        - uses: actions/checkout@v3
+    needs: [build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      BUILD_NUMBER: ${{ needs.build.outputs.build_number }}
+      DOCKER_IMAGE_TAG: ${{ needs.build.outputs.docker_image_tag }}
+      GIT_COMMIT_HASH: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v3
 
-        - name: Restore Maven build artefacts
-          uses: actions/cache/restore@v3
-          with:
-            path: |
-              target/
-            key: maven-build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+      - name: Restore Maven build artefacts
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            target/
+          key: maven-build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
-        - name: Build Docker image
-          run: |
-            docker build --tag ${DOCKER_IMAGE_TAG} \
-            --build-arg versienummer=${BUILD_NUMBER} \
-            --build-arg buildId=${BUILD_NUMBER} \
-            --build-arg commit=${GIT_COMMIT_HASH} \
-            --file Containerfile \
-            .
+      - name: Build Docker image
+        run: |
+          docker build --tag ${DOCKER_IMAGE_TAG} \
+          --build-arg versienummer=${BUILD_NUMBER} \
+          --build-arg buildId=${BUILD_NUMBER} \
+          --build-arg commit=${GIT_COMMIT_HASH} \
+          --file Containerfile \
+          .
 
-        - name: Save Docker Image
-          run: docker save --output docker-image.tar ${DOCKER_IMAGE_TAG}
+      - name: Save Docker Image
+        run: docker save --output docker-image.tar ${DOCKER_IMAGE_TAG}
 
-        - name: Cache Docker Image
-          uses: actions/cache/save@v3
-          with:
-            path: docker-image.tar
-            key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+      - name: Cache Docker Image
+        uses: actions/cache/save@v3
+        with:
+          path: docker-image.tar
+          key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   push-docker-image:
     needs: [build, build-docker-image]
@@ -128,3 +128,23 @@ jobs:
 
       - name: Push Docker Image
         run: docker push ${DOCKER_IMAGE_TAG}
+
+  trigger-provision:
+    needs: [build, push-docker-image]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'infonl',
+              repo: 'dimpact-provisioning',
+              workflow_id: 'azure-provision-zaakafhandelcomponent.yml',
+              inputs: {
+                tags: ${{ needs.build.outputs.docker_image_tag }}
+              },
+              ref: 'main'
+            })
