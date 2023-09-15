@@ -4,7 +4,7 @@
  */
 
 import { DatumPipe } from "./datum.pipe";
-jest.useFakeTimers().setSystemTime(new Date("2020-01-01"));
+jest.useFakeTimers().setSystemTime(new Date("2020-04-13T00:00:00.000+08:00"));
 
 describe("DatumPipe", () => {
   it("2021-06-23T00:00:00Z -> 23-06-2021 02:00", () => {
