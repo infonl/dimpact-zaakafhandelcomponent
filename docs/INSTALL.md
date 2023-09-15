@@ -96,7 +96,7 @@ First you will need to set up IntelliJ for ZAC:
 4. Next add a new env var called `APP_ENV` and set the value to `devlocal`.
 
 See the screenshot below:
-![zac-intellij-runtime-wildfly-4.png](img/zac-intellij-runtime-wildfly-4.png)                                         x
+![zac-intellij-runtime-wildfly-4.png](img/zac-intellij-runtime-wildfly-4.png)
 
 Now when starting up ZAC from IntelliJ the `startupwithenv.sh` script will set the required environment variables
 using the 1Password CLI extensions.
