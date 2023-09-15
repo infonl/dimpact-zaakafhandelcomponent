@@ -144,7 +144,7 @@ jobs:
               repo: 'dimpact-provisioning',
               workflow_id: 'azure-provision-zaakafhandelcomponent.yml',
               inputs: {
-                tag: '${{ steps.gen_branch_name.outputs.BRANCH_NAME }}-${{ github.run_number }}',
+                tag: '${{  github.ref_name }}-${{ github.run_number }}',
               },
               ref: 'main'
             })
