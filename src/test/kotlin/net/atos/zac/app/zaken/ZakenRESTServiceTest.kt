@@ -3,9 +3,12 @@ package net.atos.zac.app.zaken
 import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.clearAllMocks
 import io.mockk.every
+import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
+import io.mockk.slot
+import io.mockk.verify
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.objecten.model.createObjectRegistratieObject
 import net.atos.client.vrl.VRLClientService
@@ -13,6 +16,10 @@ import net.atos.client.zgw.brc.BRCClientService
 import net.atos.client.zgw.drc.DRCClientService
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.model.BetrokkeneType
+import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
+import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
+import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.createNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.createRolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.createZaak
@@ -59,6 +66,8 @@ import net.atos.zac.signalering.SignaleringenService
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import net.atos.zac.zaaksturing.model.createZaakafhandelParameters
 import net.atos.zac.zoeken.IndexeerService
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.extension.ExtendWith
 import javax.enterprise.inject.Instance
 
 class ZakenRESTServiceTest : BehaviorSpec({
@@ -184,17 +193,21 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     )
                 } just runs
                 every { restBagConverter.convertToZaakobject(restZaakAanmaakGegevens.bagObjecten[0], zaak) } returns zaakObjectPand
-                every { restBagConverter.convertToZaakobject(restZaakAanmaakGegevens.bagObjecten[1], zaak) } returns zaakObjectOpenbareRuimte
+                every {
+                    restBagConverter.convertToZaakobject(
+                        restZaakAanmaakGegevens.bagObjecten[1],
+                        zaak
+                    )
+                } returns zaakObjectOpenbareRuimte
                 every { restZaakConverter.convert(zaak) } returns restZaak
+                every { restZaakConverter.convert(restZaakAanmaakGegevens.zaak, zaakType) } returns zaak
                 every {
                     zaakafhandelParameterService.readZaakafhandelParameters(zaakType.uuid)
                 } returns zaakAfhandelParameters
                 every { zaakVariabelenService.setZaakdata(zaak.uuid, formulierData) } just runs
                 every { zgwApiService.createZaak(zaak) } returns zaak
-                every {
-                    zrcClientService.createRol(any(), "Toegekend door de medewerker tijdens het behandelen van de zaak")
-                } returns rolNatuurlijkPersoon
-                every { zrcClientService.updateRol(zaak, any(), "Aanmaken zaak") } just runs
+                every { zrcClientService.createRol(any(), any()) } returns rolNatuurlijkPersoon
+                every { zrcClientService.updateRol(zaak, any(), any()) } just runs
                 every { zrcClientService.createZaak(zaak) } returns zaak
                 every { zrcClientService.createZaakobject(zaakObjectPand) } returns zaakObjectPand
                 every { zrcClientService.createZaakobject(zaakObjectOpenbareRuimte) } returns zaakObjectOpenbareRuimte
@@ -205,12 +218,41 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 every {
                     ztcClientService.readRoltype(AardVanRol.BEHANDELAAR, zaak.zaaktype)
                 } returns createRolType(rol = AardVanRol.BEHANDELAAR)
-                every { restZaakConverter.convert(restZaakAanmaakGegevens.zaak, zaakType) } returns zaak
 
-                val restZaakCreated = zakenRESTService.createZaak(restZaakAanmaakGegevens)
+                val restZaakReturned = zakenRESTService.createZaak(restZaakAanmaakGegevens)
 
-                with(restZaakCreated) {
+                val zaakCreatedSlot = slot<Zaak>()
+                val rolNatuurlijkPersoonSlot = slot<RolNatuurlijkPersoon>()
+                val rolGroupSlotOrganisatorischeEenheidSlot = slot<RolOrganisatorischeEenheid>()
+                verify(exactly = 1) {
+                    ztcClientService.readZaaktype(restZaakAanmaakGegevens.zaak.zaaktype.uuid)
+                    zgwApiService.createZaak(capture(zaakCreatedSlot))
+                    zrcClientService.createRol(
+                        capture(rolNatuurlijkPersoonSlot),
+                        "Toegekend door de medewerker tijdens het behandelen van de zaak"
+                    )
+                    zrcClientService.updateRol(
+                        zaak,
+                        capture(rolGroupSlotOrganisatorischeEenheidSlot),
+                        "Aanmaken zaak"
+                    )
+                    cmmnService.startCase(zaak, zaakType, zaakAfhandelParameters, null)
+                    zrcClientService.createZaakobject(zaakObjectPand)
+                    zrcClientService.createZaakobject(zaakObjectOpenbareRuimte)
+                }
+                with(restZaakReturned) {
                     assert(uuid != null)
+                }
+                with(zaakCreatedSlot.captured) {
+                    assertEquals(this, zaak)
+                }
+                with(rolNatuurlijkPersoonSlot.captured) {
+                    assertEquals(this.zaak, zaak.url)
+                    assertEquals(this.betrokkeneType, BetrokkeneType.NATUURLIJK_PERSOON)
+                }
+                with(rolGroupSlotOrganisatorischeEenheidSlot.captured) {
+                    assertEquals(this.zaak, zaak.url)
+                    assertEquals(this.betrokkeneType, BetrokkeneType.ORGANISATORISCHE_EENHEID)
                 }
             }
         }
