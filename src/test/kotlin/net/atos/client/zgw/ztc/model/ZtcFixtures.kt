@@ -1,7 +1,7 @@
 package net.atos.client.zgw.ztc.model
 
 import java.net.URI
-import java.util.UUID
+import java.util.*
 
 fun createZaakType() = Zaaktype(
     URI("http://example.com/zaaktypes/${UUID.randomUUID()}"),
@@ -13,9 +13,12 @@ fun createZaakType() = Zaaktype(
     false
 )
 
-fun createRolType(zaaktypeURI: URI) = Roltype(
-    zaaktypeURI,
-    "dummyOmschrijving",
-    AardVanRol.INITIATOR
+fun createRolType(
+    zaakTypeURI: URI = URI("http://example.com/${UUID.randomUUID()}"),
+    omschrijving: String = "dummyOmschrijving",
+    rol: AardVanRol = AardVanRol.INITIATOR
+) = Roltype(
+    zaakTypeURI,
+    omschrijving,
+    rol
 )
-

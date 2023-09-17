@@ -12,7 +12,6 @@ import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import java.time.LocalDate
 import java.util.UUID
 
-
 // the value of the zaak type 'omschrijving' field is used to determine whether users are allowed access
 // to a zaak type or not
 const val ZAAK_TYPE_1_OMSCHRIJVING = "zaaktype1"
@@ -24,9 +23,9 @@ fun createRESTZaak() = RESTZaak().apply {
     omschrijving = "Sample Zaak"
     toelichting = "This is a test zaak"
     zaaktype = createRESTZaaktype()
-    status = createSampleRESTZaakStatus()
-    resultaat = createSampleRESTZaakResultaat()
-    besluiten = listOf(createSampleBesluit())
+    status = createRESTZaakStatus()
+    resultaat = createRESTZaakResultaat()
+    besluiten = listOf(createBesluit())
     bronorganisatie = "Sample Bronorganisatie"
     verantwoordelijkeOrganisatie = "Sample Verantwoordelijke Organisatie"
     registratiedatum = LocalDate.of(2023, 9, 14)
@@ -37,20 +36,20 @@ fun createRESTZaak() = RESTZaak().apply {
     publicatiedatum = LocalDate.of(2023, 9, 16)
     archiefActiedatum = LocalDate.of(2023, 10, 15)
     archiefNominatie = "Sample Archief Nominatie"
-    communicatiekanaal = createSampleRESTCommunicatiekanaal()
+    communicatiekanaal = createRESTCommunicatiekanaal()
     vertrouwelijkheidaanduiding = "Sample Vertrouwelijkheidaanduiding"
-    zaakgeometrie = createSampleRESTGeometry()
+    zaakgeometrie = createRESTGeometry()
     isOpgeschort = true
     redenOpschorting = "Sample Reden Opschorting"
     isVerlengd = true
     redenVerlenging = "Sample Reden Verlenging"
     duurVerlenging = "Sample Duur Verlenging"
-    groep = createSampleRESTGroup()
-    behandelaar = createSampleRESTUser()
-    gerelateerdeZaken = listOf(createSampleRESTGerelateerdeZaak())
-    kenmerken = listOf(createSampleRESTZaakKenmerk())
-    eigenschappen = listOf(createSampleRESTZaakEigenschap())
-    zaakdata = createSampleZaakdata()
+    groep = createRESTGroup()
+    behandelaar = createRESTUser()
+    gerelateerdeZaken = listOf(createRESTGerelateerdeZaak())
+    kenmerken = listOf(createRESTZaakKenmerk())
+    eigenschappen = listOf(createRESTZaakEigenschap())
+    zaakdata = createZaakData()
     initiatorIdentificatieType = IdentificatieType.BSN
     initiatorIdentificatie = "Sample Initiator Identificatie"
     isOpen = true
@@ -61,7 +60,7 @@ fun createRESTZaak() = RESTZaak().apply {
     isBesluittypeAanwezig = false
     isInIntakeFase = true
     isProcesGestuurd = false
-    rechten = createSampleRESTZaakRechten()
+    rechten = createRESTZaakRechten()
 }
 
 fun createRESTZaakAanmaakGegevens() = RESTZaakAanmaakGegevens().apply {
@@ -69,8 +68,6 @@ fun createRESTZaakAanmaakGegevens() = RESTZaakAanmaakGegevens().apply {
     inboxProductaanvraag = createRESTInboxProductaanvraag()
     bagObjecten = listOf(createRESTPand(), createRESTOpenbareRuimte())
 }
-
-fun createRESTZaakafhandelParameters() = RESTZaakafhandelParameters()
 
 fun createRESTInboxProductaanvraag() = RESTInboxProductaanvraag()
 
@@ -99,32 +96,32 @@ fun createRESTZaaktype() = RESTZaaktype().apply {
     zaakafhandelparameters = RESTZaakafhandelParameters()
 }
 
-private fun createSampleRESTZaakStatus() = RESTZaakStatus().apply {
+private fun createRESTZaakStatus() = RESTZaakStatus().apply {
     naam = "Sample name"
     toelichting = "Sample toelichting"
 }
 
-private fun createSampleRESTZaakResultaat() = RESTZaakResultaat()
+private fun createRESTZaakResultaat() = RESTZaakResultaat()
 
-private fun createSampleRESTCommunicatiekanaal() = RESTCommunicatiekanaal()
+private fun createRESTCommunicatiekanaal() = RESTCommunicatiekanaal()
 
-private fun createSampleRESTGeometry() = RESTGeometry()
+private fun createRESTGeometry() = RESTGeometry()
 
-private fun createSampleRESTGroup() = RESTGroup()
+private fun createRESTGroup() = RESTGroup()
 
-private fun createSampleRESTUser() = RESTUser()
+private fun createRESTUser() = RESTUser()
 
-private fun createSampleBesluit() = RESTBesluit()
+private fun createBesluit() = RESTBesluit()
 
-private fun createSampleRESTGerelateerdeZaak() = RESTGerelateerdeZaak()
+private fun createRESTGerelateerdeZaak() = RESTGerelateerdeZaak()
 
-private fun createSampleRESTZaakKenmerk() = RESTZaakKenmerk("Sample kenmerk", "Sample bron")
+private fun createRESTZaakKenmerk() = RESTZaakKenmerk("Sample kenmerk", "Sample bron")
 
-private fun createSampleRESTZaakEigenschap() = RESTZaakEigenschap()
+private fun createRESTZaakEigenschap() = RESTZaakEigenschap()
 
-private fun createSampleRESTZaakRechten() = RESTZaakRechten()
+private fun createRESTZaakRechten() = RESTZaakRechten()
 
-private fun createSampleZaakdata(): Map<String, Any> {
+private fun createZaakData(): Map<String, Any> {
     val zaakdata = HashMap<String, Any>()
     zaakdata["key1"] = "value1"
     zaakdata["key2"] = 123

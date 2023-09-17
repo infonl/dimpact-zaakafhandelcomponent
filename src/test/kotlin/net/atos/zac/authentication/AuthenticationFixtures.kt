@@ -13,4 +13,3 @@ fun createLoggedInUser() = LoggedInUser(
     setOf("dummyGroup1", "dummyGroup2"),
     setOf(ZAAK_TYPE_1_OMSCHRIJVING, ZAAK_TYPE_2_OMSCHRIJVING)
 )
-
