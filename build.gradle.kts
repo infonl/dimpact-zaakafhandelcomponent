@@ -86,6 +86,10 @@ dependencies {
 group = "net.atos.common-ground"
 description = "Zaakafhandelcomponent"
 
+detekt {
+    config = files("$rootDir/config/detekt-config.yml")
+}
+
 jacoco {
     toolVersion = "0.8.7"
 }

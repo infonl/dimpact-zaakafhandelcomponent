@@ -10,12 +10,42 @@ import net.atos.zac.app.klanten.model.klant.IdentificatieType
 import net.atos.zac.app.policy.model.RESTZaakRechten
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import java.time.LocalDate
-import java.util.UUID
+import java.util.*
 
-// the value of the zaak type 'omschrijving' field is used to determine whether users are allowed access
-// to a zaak type or not
+// note: the value of the zaak type 'omschrijving' field is used to determine whether users
+// are allowed access to a zaak type
 const val ZAAK_TYPE_1_OMSCHRIJVING = "zaaktype1"
 const val ZAAK_TYPE_2_OMSCHRIJVING = "zaaktype2"
+
+fun createRESTBesluit() = RESTBesluit()
+
+fun createRESTCommunicatiekanaal() = RESTCommunicatiekanaal()
+
+fun createRESTGerelateerdeZaak() = RESTGerelateerdeZaak()
+
+fun createRESTGeometry() = RESTGeometry()
+
+fun createRESTGroup() = RESTGroup()
+
+fun createRESTInboxProductaanvraag(
+    id: Long = 1234L,
+    productaanvraagObjectUUID: UUID = UUID.randomUUID(),
+    aanvraagdocumentUUID: UUID = UUID.randomUUID()
+) = RESTInboxProductaanvraag().apply {
+    this.id = id
+    this.productaanvraagObjectUUID = productaanvraagObjectUUID
+    this.aanvraagdocumentUUID = aanvraagdocumentUUID
+    aantalBijlagen = 0
+    type = null
+    ontvangstdatum = null
+    initiatorID = null
+}
+
+fun createRESTOpenbareRuimte() = RESTOpenbareRuimte()
+
+fun createRESTPand() = RESTPand()
+
+fun createRESTUser() = RESTUser()
 
 fun createRESTZaak() = RESTZaak().apply {
     uuid = UUID.randomUUID()
@@ -25,7 +55,7 @@ fun createRESTZaak() = RESTZaak().apply {
     zaaktype = createRESTZaaktype()
     status = createRESTZaakStatus()
     resultaat = createRESTZaakResultaat()
-    besluiten = listOf(createBesluit())
+    besluiten = listOf(createRESTBesluit())
     bronorganisatie = "Sample Bronorganisatie"
     verantwoordelijkeOrganisatie = "Sample Verantwoordelijke Organisatie"
     registratiedatum = LocalDate.of(2023, 9, 14)
@@ -69,11 +99,18 @@ fun createRESTZaakAanmaakGegevens() = RESTZaakAanmaakGegevens().apply {
     bagObjecten = listOf(createRESTPand(), createRESTOpenbareRuimte())
 }
 
-fun createRESTInboxProductaanvraag() = RESTInboxProductaanvraag()
+fun createRESTZaakEigenschap() = RESTZaakEigenschap()
 
-fun createRESTPand() = RESTPand()
+fun createRESTZaakKenmerk() = RESTZaakKenmerk("Sample kenmerk", "Sample bron")
 
-fun createRESTOpenbareRuimte() = RESTOpenbareRuimte()
+fun createRESTZaakRechten() = RESTZaakRechten()
+
+fun createRESTZaakResultaat() = RESTZaakResultaat()
+
+fun createRESTZaakStatus() = RESTZaakStatus().apply {
+    naam = "Sample name"
+    toelichting = "Sample toelichting"
+}
 
 fun createRESTZaaktype() = RESTZaaktype().apply {
     uuid = UUID.randomUUID()
@@ -95,31 +132,6 @@ fun createRESTZaaktype() = RESTZaaktype().apply {
     // use empty zaakafhandelparameters object here
     zaakafhandelparameters = RESTZaakafhandelParameters()
 }
-
-private fun createRESTZaakStatus() = RESTZaakStatus().apply {
-    naam = "Sample name"
-    toelichting = "Sample toelichting"
-}
-
-private fun createRESTZaakResultaat() = RESTZaakResultaat()
-
-private fun createRESTCommunicatiekanaal() = RESTCommunicatiekanaal()
-
-private fun createRESTGeometry() = RESTGeometry()
-
-private fun createRESTGroup() = RESTGroup()
-
-private fun createRESTUser() = RESTUser()
-
-private fun createBesluit() = RESTBesluit()
-
-private fun createRESTGerelateerdeZaak() = RESTGerelateerdeZaak()
-
-private fun createRESTZaakKenmerk() = RESTZaakKenmerk("Sample kenmerk", "Sample bron")
-
-private fun createRESTZaakEigenschap() = RESTZaakEigenschap()
-
-private fun createRESTZaakRechten() = RESTZaakRechten()
 
 private fun createZaakData(): Map<String, Any> {
     val zaakdata = HashMap<String, Any>()

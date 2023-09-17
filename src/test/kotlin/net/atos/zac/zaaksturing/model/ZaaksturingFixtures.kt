@@ -1,6 +1,12 @@
 package net.atos.zac.zaaksturing.model
 
-fun createZaakafhandelParameters() =
+import java.util.UUID
+
+fun createZaakafhandelParameters(
+    id: Long = 1234L,
+    zaakTypeUUID: UUID = UUID.randomUUID(),
+) =
     ZaakafhandelParameters().apply {
-        id = 1234L
+        this.id = id
+        this.zaakTypeUUID = zaakTypeUUID
     }

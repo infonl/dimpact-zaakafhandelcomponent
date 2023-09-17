@@ -4,4 +4,8 @@ fun createGroup(
     id: String = "dummyId",
     name: String = "dummyName",
     email: String = "dummy-group@example.com"
-) = Group(id, name, email)
+) = Group(
+    id,
+    name,
+    email
+)

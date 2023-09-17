@@ -16,6 +16,7 @@ import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.createNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.createRolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.createZaak
+import net.atos.client.zgw.zrc.model.createZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.createZaakobjectPand
 import net.atos.client.zgw.ztc.ZTCClientService
 import net.atos.client.zgw.ztc.model.AardVanRol
@@ -58,46 +59,45 @@ import net.atos.zac.signalering.SignaleringenService
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import net.atos.zac.zaaksturing.model.createZaakafhandelParameters
 import net.atos.zac.zoeken.IndexeerService
-import java.net.URI
 import javax.enterprise.inject.Instance
 
 class ZakenRESTServiceTest : BehaviorSpec({
-    val zgwApiService = mockk<ZGWApiService>()
-    val productaanvraagService = mockk<ProductaanvraagService>()
-    val brcClientService = mockk<BRCClientService>()
-    val drcClientService = mockk<DRCClientService>()
-    val ztcClientService = mockk<ZTCClientService>()
-    val zrcClientService = mockk<ZRCClientService>()
-    val vrlClientService = mockk<VRLClientService>()
-    val eventingService = mockk<EventingService>()
-    val identityService = mockk<IdentityService>()
-    val signaleringenService = mockk<SignaleringenService>()
-    val ontkoppeldeDocumentenService = mockk<OntkoppeldeDocumentenService>()
-    val indexeerService = mockk<IndexeerService>()
-    val policyService = mockk<PolicyService>()
-    val cmmnService = mockk<CMMNService>()
     val bpmnService = mockk<BPMNService>()
-    val takenService = mockk<TakenService>()
-    val objectsClientService = mockk<ObjectsClientService>()
-    val inboxProductaanvraagService = mockk<InboxProductaanvraagService>()
-    val zaakVariabelenService = mockk<ZaakVariabelenService>()
+    val brcClientService = mockk<BRCClientService>()
+    val cmmnService = mockk<CMMNService>()
+    val communicatiekanaalConverter = mockk<RESTCommunicatiekanaalConverter>()
     val configuratieService = mockk<ConfiguratieService>()
+    val drcClientService = mockk<DRCClientService>()
+    val eventingService = mockk<EventingService>()
+    val healthCheckService = mockk<HealthCheckService>()
+    val identityService = mockk<IdentityService>()
+    val inboxProductaanvraagService = mockk<InboxProductaanvraagService>()
+    val indexeerService = mockk<IndexeerService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-    val restZaakConverter = mockk<RESTZaakConverter>()
-    val restZaaktypeConverter = mockk<RESTZaaktypeConverter>()
+    val objectsClientService = mockk<ObjectsClientService>()
+    val ontkoppeldeDocumentenService = mockk<OntkoppeldeDocumentenService>()
+    val opschortenZaakHelper = mockk<OpschortenZaakHelper>()
+    val policyService = mockk<PolicyService>()
+    val productaanvraagService = mockk<ProductaanvraagService>()
+    val restBagConverter = mockk<RESTBAGConverter>()
     val restBesluitConverter = mockk<RESTBesluitConverter>()
     val restBesluittypeConverter = mockk<RESTBesluittypeConverter>()
-    val resultaattypeConverter = mockk<RESTResultaattypeConverter>()
-    val zaakOverzichtConverter = mockk<RESTZaakOverzichtConverter>()
-    val restBagConverter = mockk<RESTBAGConverter>()
+    val restGeometryConverter = mockk<RESTGeometryConverter>()
     val restHistorieRegelConverter = mockk<RESTHistorieRegelConverter>()
     val restZaakBetrokkeneConverter = mockk<RESTZaakBetrokkeneConverter>()
+    val restZaakConverter = mockk<RESTZaakConverter>()
+    val restZaaktypeConverter = mockk<RESTZaaktypeConverter>()
+    val resultaattypeConverter = mockk<RESTResultaattypeConverter>()
+    val signaleringenService = mockk<SignaleringenService>()
+    val takenService = mockk<TakenService>()
+    val vrlClientService = mockk<VRLClientService>()
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
-    val communicatiekanaalConverter = mockk<RESTCommunicatiekanaalConverter>()
-    val restGeometryConverter = mockk<RESTGeometryConverter>()
-    val healthCheckService = mockk<HealthCheckService>()
-    val opschortenZaakHelper = mockk<OpschortenZaakHelper>()
     val zaakAfzenderConverter = mockk<RESTZaakAfzenderConverter>()
+    val zaakOverzichtConverter = mockk<RESTZaakOverzichtConverter>()
+    val zaakVariabelenService = mockk<ZaakVariabelenService>()
+    val zgwApiService = mockk<ZGWApiService>()
+    val zrcClientService = mockk<ZRCClientService>()
+    val ztcClientService = mockk<ZTCClientService>()
 
     val zakenRESTService = ZakenRESTService(
         zgwApiService,
@@ -157,18 +157,18 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 val user = createLoggedInUser()
                 val zaakAfhandelParameters = createZaakafhandelParameters()
                 val zaakObjectPand = createZaakobjectPand()
+                val zaakObjectOpenbareRuimte = createZaakobjectOpenbareRuimte()
                 val zaakType = createZaakType()
-                val zaakTypeURI = URI("http://example.com/${zaakType.uuid}")
-                val zaak = createZaak(zaakTypeURI)
+                val zaak = createZaak(zaakType.url)
 
                 every { cmmnService.startCase(zaak, zaakType, zaakAfhandelParameters, null) } just runs
                 every { identityService.readGroup(restZaakAanmaakGegevens.zaak.groep.id) } returns group
                 every { identityService.readUser(restZaakAanmaakGegevens.zaak.behandelaar.id) } returns user
-                // fix any
-                every { inboxProductaanvraagService.delete(any()) } just runs
+                every { inboxProductaanvraagService.delete(restZaakAanmaakGegevens.inboxProductaanvraag.id) } just runs
                 every { loggedInUserInstance.get() } returns createLoggedInUser()
-                // should not be null
-                every { objectsClientService.readObject(null) } returns objectRegistratieObject
+                every {
+                    objectsClientService.readObject(restZaakAanmaakGegevens.inboxProductaanvraag.productaanvraagObjectUUID)
+                } returns objectRegistratieObject
                 every { policyService.readOverigeRechten() } returns OverigeRechten(true, false, false)
                 every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
                 every { productaanvraagService.getFormulierData(objectRegistratieObject) } returns formulierData
@@ -176,24 +176,28 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     productaanvraagService.getProductaanvraag(objectRegistratieObject)
                 } returns productaanvraagDenhaag
                 every { productaanvraagService.pairAanvraagPDFWithZaak(productaanvraagDenhaag, zaak.url) } just runs
-                every { productaanvraagService.pairBijlagenWithZaak(any(), zaak.url) } just runs
+                every { productaanvraagService.pairBijlagenWithZaak(productaanvraagDenhaag.attachments, zaak.url) } just runs
                 every {
                     productaanvraagService.pairProductaanvraagWithZaak(
                         objectRegistratieObject,
                         zaak.url
                     )
                 } just runs
-                every { restBagConverter.convertToZaakobject(any(), zaak) } returns zaakObjectPand
+                every { restBagConverter.convertToZaakobject(restZaakAanmaakGegevens.bagObjecten[0], zaak) } returns zaakObjectPand
+                every { restBagConverter.convertToZaakobject(restZaakAanmaakGegevens.bagObjecten[1], zaak) } returns zaakObjectOpenbareRuimte
                 every { restZaakConverter.convert(zaak) } returns restZaak
                 every {
                     zaakafhandelParameterService.readZaakafhandelParameters(zaakType.uuid)
                 } returns zaakAfhandelParameters
                 every { zaakVariabelenService.setZaakdata(zaak.uuid, formulierData) } just runs
                 every { zgwApiService.createZaak(zaak) } returns zaak
-                every { zrcClientService.createRol(any(), any()) } returns rolNatuurlijkPersoon
-                every { zrcClientService.updateRol(zaak, any(), any()) } just runs
+                every {
+                    zrcClientService.createRol(any(), "Toegekend door de medewerker tijdens het behandelen van de zaak")
+                } returns rolNatuurlijkPersoon
+                every { zrcClientService.updateRol(zaak, any(), "Aanmaken zaak") } just runs
                 every { zrcClientService.createZaak(zaak) } returns zaak
                 every { zrcClientService.createZaakobject(zaakObjectPand) } returns zaakObjectPand
+                every { zrcClientService.createZaakobject(zaakObjectOpenbareRuimte) } returns zaakObjectOpenbareRuimte
                 every { ztcClientService.readZaaktype(restZaakType.uuid) } returns zaakType
                 every {
                     ztcClientService.readRoltype(AardVanRol.INITIATOR, zaak.zaaktype)

@@ -1,6 +1,8 @@
 package net.atos.client.zgw.zrc.model
 
+import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectPand
+import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
 import net.atos.client.zgw.ztc.model.Roltype
 import net.atos.client.zgw.ztc.model.createRolType
@@ -9,6 +11,17 @@ import java.time.LocalDate
 import java.util.UUID
 
 fun createNatuurlijkPersoon(bsn: String = "dummyBsn") = NatuurlijkPersoon(bsn)
+
+fun createObjectOpenbareRuimte(
+    identificatie: String = "dummyIdentificatie",
+    openbareRuimteNaam: String = "dummyopenbareRuimteNaam",
+    plaatsNaam: String = "dummyPlaatsNaam"
+) =
+    ObjectOpenbareRuimte(
+        identificatie,
+        openbareRuimteNaam,
+        plaatsNaam
+    )
 
 fun createObjectPand(identificatie: String = "dummyIdentificatie") = ObjectPand(identificatie)
 
@@ -34,6 +47,17 @@ fun createZaak(zaaktypeURI: URI = URI("http://example.com/${UUID.randomUUID()}}"
         url = URI("https://example.com/zaak/${UUID.randomUUID()}")
         uuid = UUID.randomUUID()
     }
+
+fun createZaakobjectOpenbareRuimte(
+    zaakURI: URI = URI("http://example.com/${UUID.randomUUID()}"),
+    bagobjectURI: URI = URI("http://example.com/${UUID.randomUUID()}"),
+    objectOpenbareRuimte: ObjectOpenbareRuimte = createObjectOpenbareRuimte()
+) =
+    ZaakobjectOpenbareRuimte(
+        zaakURI,
+        bagobjectURI,
+        objectOpenbareRuimte
+    )
 
 fun createZaakobjectPand(
     zaakURI: URI = URI("http://example.com/${UUID.randomUUID()}"),
