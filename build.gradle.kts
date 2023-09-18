@@ -11,6 +11,7 @@ plugins {
     java
     kotlin("jvm") version "1.9.10"
     war
+    jacoco
 
     id("org.jsonschema2pojo") version "1.2.1"
     // note that openapi generator 7.0.0 has some breaking changes
@@ -57,6 +58,7 @@ dependencies {
 
     swaggerUI("org.webjars:swagger-ui:3.52.5")
 
+    // enable detekt formatting rules. see: https://detekt.dev/docs/rules/formatting/
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.1")
 
     runtimeOnly("org.infinispan:infinispan-jcache:13.0.10.Final")
@@ -84,6 +86,16 @@ dependencies {
 
 group = "net.atos.common-ground"
 description = "Zaakafhandelcomponent"
+
+detekt {
+    config.from("$rootDir/config/detekt.yml")
+    // our Detekt configuration build builds upon the default configuration
+    buildUponDefaultConfig = true
+}
+
+jacoco {
+    toolVersion = "0.8.7"
+}
 
 java {
     java.sourceCompatibility = JavaVersion.VERSION_17
@@ -167,6 +179,10 @@ tasks {
 
     compileJava {
         dependsOn("generateJavaClients")
+    }
+
+    jacocoTestReport {
+        dependsOn(test)
     }
 
     jar {
