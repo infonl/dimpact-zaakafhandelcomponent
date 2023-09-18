@@ -3,14 +3,22 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { FetchOptions, FetchResponse } from "openapi-fetch";
-
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import type { FilterKeys } from "openapi-typescript-helpers";
+import createClient, { FetchOptions, FetchResponse } from "openapi-fetch";
+import type { FilterKeys, HttpMethod } from "openapi-typescript-helpers";
 import { paths } from "src/generated/types/zac-openapi-types";
 
+createClient();
 type Paths = paths;
+
+type PathsWithMethod<Paths, PathnameMethod extends HttpMethod> = {
+  [Pathname in keyof Paths]: Paths[Pathname] extends {
+    [K in PathnameMethod]: any;
+  }
+    ? Pathname
+    : never;
+}[keyof Paths];
 
 type Response<
   P extends keyof Paths,
@@ -31,7 +39,7 @@ type Response<
 export class ZacHttpClient {
   constructor(private http: HttpClient) {}
 
-  public GET<P extends keyof Paths>(
+  public GET<P extends PathsWithMethod<Paths, "get">>(
     url: P,
     init?: Omit<Parameters<HttpClient["get"]>[1], "params"> & {
       params: FetchOptions<FilterKeys<Paths[P], "get">>["params"];
@@ -42,10 +50,10 @@ export class ZacHttpClient {
     });
   }
 
-  public POST<P extends keyof Paths>(
+  public POST<P extends PathsWithMethod<Paths, "post">>(
     url: P,
     body: FetchOptions<FilterKeys<Paths[P], "post">>["body"],
-    init?: Parameters<HttpClient["post"]>[2] & {
+    init?: Omit<Parameters<HttpClient["post"]>[2], "params"> & {
       params: FetchOptions<FilterKeys<Paths[P], "post">>["params"];
     },
   ) {
@@ -54,10 +62,10 @@ export class ZacHttpClient {
     });
   }
 
-  public PUT<P extends keyof Paths>(
+  public PUT<P extends PathsWithMethod<Paths, "put">>(
     url: P,
     body: FetchOptions<FilterKeys<Paths[P], "put">>["body"],
-    init?: Parameters<HttpClient["put"]>[2] & {
+    init?: Omit<Parameters<HttpClient["put"]>[2], "params"> & {
       params: FetchOptions<FilterKeys<Paths[P], "put">>["params"];
     },
   ) {
@@ -66,9 +74,9 @@ export class ZacHttpClient {
     });
   }
 
-  public DELETE<P extends keyof Paths>(
+  public DELETE<P extends PathsWithMethod<Paths, "delete">>(
     url: P,
-    init?: Parameters<HttpClient["delete"]>[1] & {
+    init?: Omit<Parameters<HttpClient["delete"]>[1], "params"> & {
       params: FetchOptions<FilterKeys<Paths[P], "delete">>["params"];
     },
   ) {
@@ -77,10 +85,10 @@ export class ZacHttpClient {
     });
   }
 
-  public PATCH<P extends keyof Paths>(
+  public PATCH<P extends PathsWithMethod<Paths, "patch">>(
     url: P,
     body: FetchOptions<FilterKeys<Paths[P], "patch">>["body"],
-    init?: Parameters<HttpClient["patch"]>[2] & {
+    init?: Omit<Parameters<HttpClient["patch"]>[2], "params"> & {
       params: FetchOptions<FilterKeys<Paths[P], "patch">>["params"];
     },
   ) {
