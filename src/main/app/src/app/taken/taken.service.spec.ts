@@ -5,26 +5,19 @@
 
 import { TakenService } from "./taken.service";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { TestBed } from "@angular/core/testing";
+import { HttpClientModule } from "@angular/common/http";
 
 describe("TaakService", () => {
-  let service: TakenService;
-  let mockHttpClient;
-  let mockFoutAfhandelingService;
-  let mockRouter;
-  let mockSnackbar;
-  let mockTranslate;
+  let service;
 
   beforeEach(() => {
-    mockHttpClient = jasmine.createSpyObj(["get", "patch"]);
-    mockRouter = jasmine.createSpyObj(["navigate"]);
-    mockSnackbar = jasmine.createSpyObj(["open"]);
-    mockFoutAfhandelingService = new FoutAfhandelingService(
-      mockRouter,
-      mockSnackbar,
-      mockTranslate,
-    );
+    TestBed.configureTestingModule({
+      providers: [{ provide: FoutAfhandelingService, useValue: {} }],
+      imports: [HttpClientModule],
+    });
 
-    service = new TakenService(mockHttpClient, mockFoutAfhandelingService);
+    service = TestBed.inject(TakenService);
   });
 
   it("should be created", () => {

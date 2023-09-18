@@ -1,4 +1,9 @@
-#!/bin/bash
+#!/bin/sh
+
+#
+# SPDX-FileCopyrightText: 2023 Lifely
+# SPDX-License-Identifier: EUPL-1.2+
+#
 
 echo "Send requests to ZAC to reindex zaak, taak and document data (in Solr). This assumes a locally running ZAC instance on the default port 8080."
 

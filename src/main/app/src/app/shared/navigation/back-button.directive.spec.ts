@@ -10,18 +10,12 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { Router } from "@angular/router";
 import { SessionStorageUtil } from "../storage/session-storage.util";
 
+jest.autoMockOn();
 describe("BackButtonDirective", () => {
   let directive;
-  let mockNavigationService;
-  let mockSessionStorage;
-  let mockRouter;
+  const mockNavigationService = { back: jest.fn() };
 
   beforeEach(() => {
-    mockNavigationService = jasmine.createSpyObj("NavigationService", [
-      "back",
-      "navigate",
-    ]);
-
     TestBed.configureTestingModule({
       providers: [
         BackButtonDirective,
@@ -30,7 +24,6 @@ describe("BackButtonDirective", () => {
       imports: [RouterTestingModule.withRoutes([])],
     }).compileComponents();
     directive = TestBed.inject(BackButtonDirective);
-    mockRouter = TestBed.inject(Router);
   });
 
   it("should create an instance", () => {
@@ -41,24 +34,5 @@ describe("BackButtonDirective", () => {
     directive.onClick();
 
     expect(mockNavigationService.back).toHaveBeenCalled();
-  });
-
-  // navigationHistory word niet aangemaakt bij tests
-  xit("should build navigation history, then tear it down", () => {
-    const history = SessionStorageUtil.getItem("navigationHistory") as string[];
-
-    expect(history.length).toBe(1);
-
-    history.push("/zaken/werkvoorraad");
-    expect(history.length).toEqual(2);
-
-    history.push("/zaken/mijn");
-    expect(history.length).toEqual(3);
-
-    directive.onClick();
-    expect(history.length).toEqual(2);
-
-    directive.onClick();
-    expect(history.length).toEqual(1);
   });
 });

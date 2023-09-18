@@ -6,7 +6,9 @@
     "dev": "npm run generate:types:zac-openapi && ng serve --hmr --proxy-config proxy.conf.json",
     "start": "npm run generate:types:zac-openapi && ng serve --proxy-config proxy.conf.json",
     "build": "npm run generate:types:zac-openapi && ng build --configuration=production --base-href=/",
-    "test": "ng test",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:ci": "jest --runInBand",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "generate:types:zac-openapi": "npx openapi-typescript ./../../../build/generated/openapi/META-INF/openapi/openapi.yaml -o ./src/generated/types/zac-openapi-types.d.ts"
@@ -42,12 +44,12 @@
     "@angular-eslint/builder": "16.1.0",
     "@angular-eslint/eslint-plugin": "16.1.0",
     "@angular-eslint/eslint-plugin-template": "16.1.0",
+    "@angular-eslint/schematics": "^16.1.2",
     "@angular-eslint/template-parser": "16.1.0",
     "@angular/cli": "^16.0.2",
     "@angular/compiler-cli": "^16.0.2",
     "@angular/language-service": "^16.0.2",
-    "@types/jasmine": "~4.3.2",
-    "@types/jasminewd2": "~2.0.3",
+    "@types/jest": "^29.5.4",
     "@types/node": "^20.2.5",
     "@typescript-eslint/eslint-plugin": "5.62.0",
     "@typescript-eslint/parser": "5.62.0",
@@ -55,16 +57,21 @@
     "eslint": "^8.44.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^5.0.0",
-    "jasmine-core": "~4.5.0",
-    "jasmine-spec-reporter": "~7.0.0",
-    "karma": "~6.4.2",
-    "karma-chrome-launcher": "~3.2.0",
-    "karma-coverage-istanbul-reporter": "~3.0.2",
-    "karma-jasmine": "~5.1.0",
-    "karma-jasmine-html-reporter": "^2.0.0",
+    "jest": "^29.7.0",
+    "jest-preset-angular": "^13.1.1",
     "openapi-typescript": "^6.5.4",
     "protractor": "~7.0.0",
     "ts-node": "~10.9.1",
     "typescript": "~5.0.4"
+  },
+  "jest": {
+    "globalSetup": "<rootDir>/src/globalJest.js",
+    "preset": "jest-preset-angular",
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/setupJest.ts"
+    ],
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/src/$1"
+    }
   }
 }

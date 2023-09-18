@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import * as moment from "moment";
+import moment from "moment";
 
 /**
  * toJSON aanpassen zodat de huidige tijdzone wordt megeven ipv UTC

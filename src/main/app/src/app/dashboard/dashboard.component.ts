@@ -6,7 +6,7 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { BreakpointObserver } from "@angular/cdk/layout";
 import { UtilService } from "../core/service/util.service";
-import * as moment from "moment";
+import moment from "moment";
 import { SignaleringenService } from "../signaleringen.service";
 import { DashboardCard } from "./model/dashboard-card";
 import { SignaleringType } from "../shared/signaleringen/signalering-type";

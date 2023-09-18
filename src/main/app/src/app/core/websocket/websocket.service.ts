@@ -23,8 +23,6 @@ import { ScreenEventId } from "./model/screen-event-id";
   providedIn: "root",
 })
 export class WebsocketService implements OnDestroy {
-  public static test = false; // Als true dan wordt de mock gebruikt
-
   // This must be bigger then the SECONDS_TO_DELAY defined in ScreenEventObserver.java
   private static DEFAULT_SUSPENSION_TIMEOUT = 5; // seconds
 
@@ -53,11 +51,7 @@ export class WebsocketService implements OnDestroy {
     private translate: TranslateService,
     private utilService: UtilService,
   ) {
-    if (WebsocketService.test) {
-      this.mock();
-    } else {
-      this.receive(this.URL);
-    }
+    this.receive(this.URL);
   }
 
   ngOnDestroy(): void {
@@ -84,20 +78,6 @@ export class WebsocketService implements OnDestroy {
       next: this.onMessage,
       error: this.onError,
     });
-  }
-
-  private mock() {
-    console.warn("Websocket is een mock");
-    this.send = (data: any) => {
-      // Simulates one (i.e. 1) incoming websocket message for the event, after a delay (in ms) which gets derived from the objectId.
-      const wsDelay = Number(data.event.objectId);
-      const event: ScreenEvent = data.event;
-      setTimeout(() => {
-        this.onMessage(
-          new ScreenEvent(event.opcode, event.objectType, event.objectId, 0),
-        );
-      }, wsDelay);
-    };
   }
 
   private send(data: any) {

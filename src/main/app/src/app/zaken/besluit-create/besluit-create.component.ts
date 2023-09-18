@@ -22,7 +22,7 @@ import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-
 import { ZakenService } from "../zaken.service";
 import { Zaak } from "../model/zaak";
 import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
-import * as moment from "moment/moment";
+import moment from "moment";
 import { Resultaattype } from "../model/resultaattype";
 import { takeUntil } from "rxjs/operators";
 import { Subject } from "rxjs";
