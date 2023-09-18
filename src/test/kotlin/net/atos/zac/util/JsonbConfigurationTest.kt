@@ -2,7 +2,6 @@ package net.atos.zac.util
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import net.atos.zac.LocalDateTest
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -12,7 +11,7 @@ import java.time.format.DateTimeFormatter
  * Wanneer je deze test aanpast moet je ook angular test datum.pipe.spec.ts aanpassen
  */
 class JsonbConfigurationTest : BehaviorSpec({
-    val contextResolver = JsonbConfiguration().getContext(LocalDateTest::class.java)
+    val contextResolver = JsonbConfiguration().getContext(JsonbConfigurationTest::class.java)
 
     given("a JSON date-string with an ISO Z timezone") {
         When("it is parsed with our context resolver") {
