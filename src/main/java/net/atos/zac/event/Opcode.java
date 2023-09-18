@@ -34,6 +34,9 @@ public enum Opcode {
      */
     ANY;
 
+    /**
+     * Returns a set of all opcodes defined in this enum except for {@link #ANY}.
+     */
     public static Set<Opcode> any() {
         return EnumSet.complementOf(EnumSet.of(ANY));
     }
