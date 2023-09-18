@@ -235,7 +235,6 @@ services:
       - ./scripts/docker-compose/imports/openldap/schemas:/schemas
       - ./scripts/docker-compose/imports/openldap/ldifs:/ldifs
       - ./scripts/docker-compose/imports/openldap/zac-scripts:/zac-scripts
-      - ./scripts/docker-compose/volume-data/openldap-data/ldap_db:/bitnami/openldap
     environment:
       - LDAP_ADMIN_USERNAME=admin
       - LDAP_ADMIN_PASSWORD=admin
