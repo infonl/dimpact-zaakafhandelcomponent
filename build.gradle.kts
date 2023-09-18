@@ -58,6 +58,7 @@ dependencies {
 
     swaggerUI("org.webjars:swagger-ui:3.52.5")
 
+    // enable detekt formatting rules. see: https://detekt.dev/docs/rules/formatting/
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.1")
 
     runtimeOnly("org.infinispan:infinispan-jcache:13.0.10.Final")
@@ -87,7 +88,9 @@ group = "net.atos.common-ground"
 description = "Zaakafhandelcomponent"
 
 detekt {
-    config = files("$rootDir/config/detekt-config.yml")
+    config.from("$rootDir/config/detekt.yml")
+    // our Detekt configuration build builds upon the default configuration
+    buildUponDefaultConfig = true
 }
 
 jacoco {

@@ -1,6 +1,7 @@
-package net.atos.client.or.objecten.model
+@Suppress("PackageName")
 
-import net.atos.client.or.`object`.model.ORObject
+package net.atos.client.or.`object`.model
+
 import java.net.URI
 import java.util.UUID
 

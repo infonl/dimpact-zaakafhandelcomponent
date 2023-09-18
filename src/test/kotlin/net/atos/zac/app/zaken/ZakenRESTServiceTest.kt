@@ -3,14 +3,13 @@ package net.atos.zac.app.zaken
 import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.clearAllMocks
 import io.mockk.every
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import net.atos.client.or.`object`.ObjectsClientService
-import net.atos.client.or.objecten.model.createObjectRegistratieObject
+import net.atos.client.or.`object`.model.createObjectRegistratieObject
 import net.atos.client.vrl.VRLClientService
 import net.atos.client.zgw.brc.BRCClientService
 import net.atos.client.zgw.drc.DRCClientService
@@ -67,7 +66,6 @@ import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import net.atos.zac.zaaksturing.model.createZaakafhandelParameters
 import net.atos.zac.zoeken.IndexeerService
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.extension.ExtendWith
 import javax.enterprise.inject.Instance
 
 class ZakenRESTServiceTest : BehaviorSpec({
@@ -176,7 +174,8 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 every { inboxProductaanvraagService.delete(restZaakAanmaakGegevens.inboxProductaanvraag.id) } just runs
                 every { loggedInUserInstance.get() } returns createLoggedInUser()
                 every {
-                    objectsClientService.readObject(restZaakAanmaakGegevens.inboxProductaanvraag.productaanvraagObjectUUID)
+                    objectsClientService
+                        .readObject(restZaakAanmaakGegevens.inboxProductaanvraag.productaanvraagObjectUUID)
                 } returns objectRegistratieObject
                 every { policyService.readOverigeRechten() } returns OverigeRechten(true, false, false)
                 every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
@@ -185,14 +184,18 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     productaanvraagService.getProductaanvraag(objectRegistratieObject)
                 } returns productaanvraagDenhaag
                 every { productaanvraagService.pairAanvraagPDFWithZaak(productaanvraagDenhaag, zaak.url) } just runs
-                every { productaanvraagService.pairBijlagenWithZaak(productaanvraagDenhaag.attachments, zaak.url) } just runs
+                every {
+                    productaanvraagService.pairBijlagenWithZaak(productaanvraagDenhaag.attachments, zaak.url)
+                } just runs
                 every {
                     productaanvraagService.pairProductaanvraagWithZaak(
                         objectRegistratieObject,
                         zaak.url
                     )
                 } just runs
-                every { restBagConverter.convertToZaakobject(restZaakAanmaakGegevens.bagObjecten[0], zaak) } returns zaakObjectPand
+                every {
+                    restBagConverter.convertToZaakobject(restZaakAanmaakGegevens.bagObjecten[0], zaak)
+                } returns zaakObjectPand
                 every {
                     restBagConverter.convertToZaakobject(
                         restZaakAanmaakGegevens.bagObjecten[1],
