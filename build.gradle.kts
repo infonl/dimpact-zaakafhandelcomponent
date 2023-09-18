@@ -157,7 +157,7 @@ tasks.getByName("generateSwaggerUIZaakafhandelcomponent").setMustRunAfter(listOf
 
 tasks.war {
     dependsOn("npmRunBuild")
-    dependsOn("npmRunTest")
+    mustRunAfter("npmRunTest")
 
     // add built frontend resources to WAR archive
     from("src/main/app/dist/zaakafhandelcomponent")
