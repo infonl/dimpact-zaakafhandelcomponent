@@ -3,23 +3,20 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { TestBed } from "@angular/core/testing";
 import { FoutAfhandelingService } from "./fout-afhandeling.service";
+import { HttpClientModule } from "@angular/common/http";
 
 describe("FoutAfhandelingService", () => {
   let service: FoutAfhandelingService;
-  let mockRouter;
-  let mockSnackbar;
-  let mockTranslate;
 
   beforeEach(() => {
-    mockRouter = jasmine.createSpyObj(["navigate"]);
-    mockSnackbar = jasmine.createSpyObj(["open"]);
+    TestBed.configureTestingModule({
+      providers: [{ provide: FoutAfhandelingService, useValue: {} }],
+      imports: [HttpClientModule],
+    });
 
-    service = new FoutAfhandelingService(
-      mockRouter,
-      mockSnackbar,
-      mockTranslate,
-    );
+    service = TestBed.inject(FoutAfhandelingService);
   });
 
   it("should be created", () => {

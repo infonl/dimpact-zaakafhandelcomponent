@@ -1,4 +1,4 @@
-import * as moment from "moment/moment";
+import moment from "moment";
 import { DatumRange } from "../../../zoeken/model/datum-range";
 
 export class ClientMatcher {

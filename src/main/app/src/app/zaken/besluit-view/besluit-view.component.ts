@@ -24,7 +24,7 @@ import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { DialogData } from "../../shared/dialog/dialog-data";
 import { Validators } from "@angular/forms";
-import * as moment from "moment";
+import moment from "moment";
 import { DialogComponent } from "../../shared/dialog/dialog.component";
 import { MatDialog } from "@angular/material/dialog";
 import { TranslateService } from "@ngx-translate/core";

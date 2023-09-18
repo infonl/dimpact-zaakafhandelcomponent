@@ -13,7 +13,7 @@ import { CustomValidators } from "../../../shared/validators/customValidators";
 import { Observable, of, Subject } from "rxjs";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { TakenService } from "../../../taken/taken.service";
-import * as moment from "moment/moment";
+import moment from "moment/moment";
 import { RadioFormFieldBuilder } from "../../../shared/material-form-builder/form-components/radio/radio-form-field-builder";
 import { HiddenFormFieldBuilder } from "../../../shared/material-form-builder/form-components/hidden/hidden-form-field-builder";
 import { InformatieobjectZoekParameters } from "../../../informatie-objecten/model/informatieobject-zoek-parameters";

@@ -24,7 +24,7 @@ import {
   Validators,
 } from "@angular/forms";
 import { InputFormField } from "../../material-form-builder/form-components/input/input-form-field";
-import * as moment from "moment/moment";
+import moment from "moment";
 import { Moment } from "moment/moment";
 import { DialogComponent } from "../../dialog/dialog.component";
 import { MatDialog } from "@angular/material/dialog";

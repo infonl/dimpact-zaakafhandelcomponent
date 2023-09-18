@@ -20,7 +20,7 @@ import { Zaak } from "../../zaken/model/zaak";
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormGroup, Validators } from "@angular/forms";
 import { EnkelvoudigInformatieobject } from "../model/enkelvoudig-informatieobject";
-import * as moment from "moment/moment";
+import moment from "moment";
 import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
 import { NavigationService } from "../../shared/navigation/navigation.service";

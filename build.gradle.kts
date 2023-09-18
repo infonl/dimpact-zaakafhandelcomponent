@@ -157,6 +157,8 @@ tasks.getByName("generateSwaggerUIZaakafhandelcomponent").setMustRunAfter(listOf
 
 tasks.war {
     dependsOn("npmRunBuild")
+    dependsOn("npmRunTest")
+    
     // add built frontend resources to WAR archive
     from("src/main/app/dist/zaakafhandelcomponent")
 
@@ -175,6 +177,10 @@ tasks {
 
     build {
         dependsOn("generateWildflyBootableJar")
+    }
+
+    test {
+        dependsOn("npmRunTest")
     }
 
     compileJava {
@@ -328,6 +334,19 @@ tasks {
     register<NpmTask>("npmRunBuild") {
         dependsOn("npmInstall")
         npmCommand.set(listOf("run", "build"))
+
+        // avoid running this task when there are no changes in the input or output files
+        // see: https://github.com/node-gradle/gradle-node-plugin/blob/master/docs/faq.md
+        inputs.files(fileTree("src/main/app/node_modules"))
+        inputs.files(fileTree("src/main/app/src"))
+        inputs.file("src/main/app/package.json")
+        inputs.file("src/main/app/package-lock.json")
+        outputs.dir("src/main/app/dist/zaakafhandelcomponent")
+    }
+
+    register<NpmTask>("npmRunTest") {
+        dependsOn("npmRunBuild")
+        npmCommand.set(listOf("run", "test"))
 
         // avoid running this task when there are no changes in the input or output files
         // see: https://github.com/node-gradle/gradle-node-plugin/blob/master/docs/faq.md

@@ -3,28 +3,21 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { PlanItemsService } from "./plan-items.service";
+import { HttpClientModule } from "@angular/common/http";
+import { TestBed } from "@angular/core/testing";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { PlanItemsService } from "./plan-items.service";
 
 describe("PlanItemServiceService", () => {
   let service: PlanItemsService;
-  let mockHttpClient;
-  let mockFoutAfhandelingService;
-  let mockRouter;
-  let mockSnackbar;
-  let mockTranslate;
 
   beforeEach(() => {
-    mockHttpClient = jasmine.createSpyObj(["get", "put"]);
-    mockRouter = jasmine.createSpyObj(["navigate"]);
-    mockSnackbar = jasmine.createSpyObj(["open"]);
-    mockFoutAfhandelingService = new FoutAfhandelingService(
-      mockRouter,
-      mockSnackbar,
-      mockTranslate,
-    );
+    TestBed.configureTestingModule({
+      providers: [{ provide: FoutAfhandelingService, useValue: {} }],
+      imports: [HttpClientModule],
+    });
 
-    service = new PlanItemsService(mockHttpClient, mockFoutAfhandelingService);
+    service = TestBed.inject(PlanItemsService);
   });
 
   it("should be created", () => {
