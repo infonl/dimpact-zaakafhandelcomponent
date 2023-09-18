@@ -1,8 +1,10 @@
 package net.atos.zac.app.zaken
 
 import io.kotest.core.spec.style.BehaviorSpec
-import io.mockk.clearAllMocks
+import io.kotest.core.test.TestCase
+import io.mockk.MockKAnnotations
 import io.mockk.every
+import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
@@ -68,7 +70,7 @@ import net.atos.zac.zoeken.IndexeerService
 import org.junit.jupiter.api.Assertions.assertEquals
 import javax.enterprise.inject.Instance
 
-class ZakenRESTServiceTest : BehaviorSpec({
+class ZakenRESTServiceTest : BehaviorSpec() {
     val bpmnService = mockk<BPMNService>()
     val brcClientService = mockk<BRCClientService>()
     val cmmnService = mockk<CMMNService>()
@@ -106,158 +108,130 @@ class ZakenRESTServiceTest : BehaviorSpec({
     val zrcClientService = mockk<ZRCClientService>()
     val ztcClientService = mockk<ZTCClientService>()
 
-    val zakenRESTService = ZakenRESTService(
-        zgwApiService,
-        productaanvraagService,
-        brcClientService,
-        drcClientService,
-        ztcClientService,
-        zrcClientService,
-        vrlClientService,
-        eventingService,
-        identityService,
-        signaleringenService,
-        ontkoppeldeDocumentenService,
-        indexeerService,
-        policyService,
-        cmmnService,
-        bpmnService,
-        takenService,
-        objectsClientService,
-        inboxProductaanvraagService,
-        zaakVariabelenService,
-        configuratieService,
-        loggedInUserInstance,
-        restZaakConverter,
-        restZaaktypeConverter,
-        restBesluitConverter,
-        restBesluittypeConverter,
-        resultaattypeConverter,
-        zaakOverzichtConverter,
-        restBagConverter,
-        restHistorieRegelConverter,
-        restZaakBetrokkeneConverter,
-        zaakafhandelParameterService,
-        communicatiekanaalConverter,
-        restGeometryConverter,
-        healthCheckService,
-        opschortenZaakHelper,
-        zaakAfzenderConverter
-    )
+    // We have to use @InjectMockKs since the class under test uses field injection instead of constructor injection.
+    // This is because WildFly does not support constructor injection for JAX-RS REST services completely.
+    @InjectMockKs
+    lateinit var zakenRESTService: ZakenRESTService
 
-    beforeEach {
-        clearAllMocks()
+    override suspend fun beforeTest(testCase: TestCase) {
+        MockKAnnotations.init(this)
     }
 
-    given("zaak input data is provided") {
-        When("createZaak is called") {
-            then("a zaak is created using the ZGW API and a zaak is started in the ZAC CMMN service") {
-                val group = createGroup()
-                val formulierData = mapOf(Pair("dummyKey", "dummyValue"))
-                val natuurlijkPersoon = createNatuurlijkPersoon()
-                val objectRegistratieObject = createObjectRegistratieObject()
-                val productaanvraagDenhaag = createProductaanvraagDenhaag()
-                val restZaak = createRESTZaak()
-                val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens()
-                val restZaakType = restZaakAanmaakGegevens.zaak.zaaktype
-                val rolNatuurlijkPersoon = createRolNatuurlijkPersoon(natuurlijkPersoon = natuurlijkPersoon)
-                val user = createLoggedInUser()
-                val zaakAfhandelParameters = createZaakafhandelParameters()
-                val zaakObjectPand = createZaakobjectPand()
-                val zaakObjectOpenbareRuimte = createZaakobjectOpenbareRuimte()
-                val zaakType = createZaakType()
-                val zaak = createZaak(zaakType.url)
+    init {
+        given("zaak input data is provided") {
+            When("createZaak is called") {
+                then("a zaak is created using the ZGW API and a zaak is started in the ZAC CMMN service") {
+                    val group = createGroup()
+                    val formulierData = mapOf(Pair("dummyKey", "dummyValue"))
+                    val natuurlijkPersoon = createNatuurlijkPersoon()
+                    val objectRegistratieObject = createObjectRegistratieObject()
+                    val productaanvraagDenhaag = createProductaanvraagDenhaag()
+                    val restZaak = createRESTZaak()
+                    val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens()
+                    val restZaakType = restZaakAanmaakGegevens.zaak.zaaktype
+                    val rolNatuurlijkPersoon = createRolNatuurlijkPersoon(natuurlijkPersoon = natuurlijkPersoon)
+                    val user = createLoggedInUser()
+                    val zaakAfhandelParameters = createZaakafhandelParameters()
+                    val zaakObjectPand = createZaakobjectPand()
+                    val zaakObjectOpenbareRuimte = createZaakobjectOpenbareRuimte()
+                    val zaakType = createZaakType()
+                    val zaak = createZaak(zaakType.url)
 
-                every { cmmnService.startCase(zaak, zaakType, zaakAfhandelParameters, null) } just runs
-                every { identityService.readGroup(restZaakAanmaakGegevens.zaak.groep.id) } returns group
-                every { identityService.readUser(restZaakAanmaakGegevens.zaak.behandelaar.id) } returns user
-                every { inboxProductaanvraagService.delete(restZaakAanmaakGegevens.inboxProductaanvraag.id) } just runs
-                every { loggedInUserInstance.get() } returns createLoggedInUser()
-                every {
-                    objectsClientService
-                        .readObject(restZaakAanmaakGegevens.inboxProductaanvraag.productaanvraagObjectUUID)
-                } returns objectRegistratieObject
-                every { policyService.readOverigeRechten() } returns OverigeRechten(true, false, false)
-                every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
-                every { productaanvraagService.getFormulierData(objectRegistratieObject) } returns formulierData
-                every {
-                    productaanvraagService.getProductaanvraag(objectRegistratieObject)
-                } returns productaanvraagDenhaag
-                every { productaanvraagService.pairAanvraagPDFWithZaak(productaanvraagDenhaag, zaak.url) } just runs
-                every {
-                    productaanvraagService.pairBijlagenWithZaak(productaanvraagDenhaag.attachments, zaak.url)
-                } just runs
-                every {
-                    productaanvraagService.pairProductaanvraagWithZaak(
-                        objectRegistratieObject,
-                        zaak.url
-                    )
-                } just runs
-                every {
-                    restBagConverter.convertToZaakobject(restZaakAanmaakGegevens.bagObjecten[0], zaak)
-                } returns zaakObjectPand
-                every {
-                    restBagConverter.convertToZaakobject(
-                        restZaakAanmaakGegevens.bagObjecten[1],
-                        zaak
-                    )
-                } returns zaakObjectOpenbareRuimte
-                every { restZaakConverter.convert(zaak) } returns restZaak
-                every { restZaakConverter.convert(restZaakAanmaakGegevens.zaak, zaakType) } returns zaak
-                every {
-                    zaakafhandelParameterService.readZaakafhandelParameters(zaakType.uuid)
-                } returns zaakAfhandelParameters
-                every { zaakVariabelenService.setZaakdata(zaak.uuid, formulierData) } just runs
-                every { zgwApiService.createZaak(zaak) } returns zaak
-                every { zrcClientService.createRol(any(), any()) } returns rolNatuurlijkPersoon
-                every { zrcClientService.updateRol(zaak, any(), any()) } just runs
-                every { zrcClientService.createZaak(zaak) } returns zaak
-                every { zrcClientService.createZaakobject(zaakObjectPand) } returns zaakObjectPand
-                every { zrcClientService.createZaakobject(zaakObjectOpenbareRuimte) } returns zaakObjectOpenbareRuimte
-                every { ztcClientService.readZaaktype(restZaakType.uuid) } returns zaakType
-                every {
-                    ztcClientService.readRoltype(AardVanRol.INITIATOR, zaak.zaaktype)
-                } returns createRolType(rol = AardVanRol.INITIATOR)
-                every {
-                    ztcClientService.readRoltype(AardVanRol.BEHANDELAAR, zaak.zaaktype)
-                } returns createRolType(rol = AardVanRol.BEHANDELAAR)
+                    every { cmmnService.startCase(zaak, zaakType, zaakAfhandelParameters, null) } just runs
+                    every { identityService.readGroup(restZaakAanmaakGegevens.zaak.groep.id) } returns group
+                    every { identityService.readUser(restZaakAanmaakGegevens.zaak.behandelaar.id) } returns user
+                    every {
+                        inboxProductaanvraagService.delete(restZaakAanmaakGegevens.inboxProductaanvraag.id)
+                    } just runs
+                    every { loggedInUserInstance.get() } returns createLoggedInUser()
+                    every {
+                        objectsClientService
+                            .readObject(restZaakAanmaakGegevens.inboxProductaanvraag.productaanvraagObjectUUID)
+                    } returns objectRegistratieObject
+                    every { policyService.readOverigeRechten() } returns OverigeRechten(true, false, false)
+                    every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
+                    every { productaanvraagService.getFormulierData(objectRegistratieObject) } returns formulierData
+                    every {
+                        productaanvraagService.getProductaanvraag(objectRegistratieObject)
+                    } returns productaanvraagDenhaag
+                    every { productaanvraagService.pairAanvraagPDFWithZaak(productaanvraagDenhaag, zaak.url) } just runs
+                    every {
+                        productaanvraagService.pairBijlagenWithZaak(productaanvraagDenhaag.attachments, zaak.url)
+                    } just runs
+                    every {
+                        productaanvraagService.pairProductaanvraagWithZaak(
+                            objectRegistratieObject,
+                            zaak.url
+                        )
+                    } just runs
+                    every {
+                        restBagConverter.convertToZaakobject(restZaakAanmaakGegevens.bagObjecten[0], zaak)
+                    } returns zaakObjectPand
+                    every {
+                        restBagConverter.convertToZaakobject(
+                            restZaakAanmaakGegevens.bagObjecten[1],
+                            zaak
+                        )
+                    } returns zaakObjectOpenbareRuimte
+                    every { restZaakConverter.convert(zaak) } returns restZaak
+                    every { restZaakConverter.convert(restZaakAanmaakGegevens.zaak, zaakType) } returns zaak
+                    every {
+                        zaakafhandelParameterService.readZaakafhandelParameters(zaakType.uuid)
+                    } returns zaakAfhandelParameters
+                    every { zaakVariabelenService.setZaakdata(zaak.uuid, formulierData) } just runs
+                    every { zgwApiService.createZaak(zaak) } returns zaak
+                    every { zrcClientService.createRol(any(), any()) } returns rolNatuurlijkPersoon
+                    every { zrcClientService.updateRol(zaak, any(), any()) } just runs
+                    every { zrcClientService.createZaak(zaak) } returns zaak
+                    every { zrcClientService.createZaakobject(zaakObjectPand) } returns zaakObjectPand
+                    every {
+                        zrcClientService.createZaakobject(zaakObjectOpenbareRuimte)
+                    } returns zaakObjectOpenbareRuimte
+                    every { ztcClientService.readZaaktype(restZaakType.uuid) } returns zaakType
+                    every {
+                        ztcClientService.readRoltype(AardVanRol.INITIATOR, zaak.zaaktype)
+                    } returns createRolType(rol = AardVanRol.INITIATOR)
+                    every {
+                        ztcClientService.readRoltype(AardVanRol.BEHANDELAAR, zaak.zaaktype)
+                    } returns createRolType(rol = AardVanRol.BEHANDELAAR)
 
-                val restZaakReturned = zakenRESTService.createZaak(restZaakAanmaakGegevens)
+                    val restZaakReturned = zakenRESTService.createZaak(restZaakAanmaakGegevens)
 
-                val zaakCreatedSlot = slot<Zaak>()
-                val rolNatuurlijkPersoonSlot = slot<RolNatuurlijkPersoon>()
-                val rolGroupSlotOrganisatorischeEenheidSlot = slot<RolOrganisatorischeEenheid>()
-                verify(exactly = 1) {
-                    ztcClientService.readZaaktype(restZaakAanmaakGegevens.zaak.zaaktype.uuid)
-                    zgwApiService.createZaak(capture(zaakCreatedSlot))
-                    zrcClientService.createRol(
-                        capture(rolNatuurlijkPersoonSlot),
-                        "Toegekend door de medewerker tijdens het behandelen van de zaak"
-                    )
-                    zrcClientService.updateRol(
-                        zaak,
-                        capture(rolGroupSlotOrganisatorischeEenheidSlot),
-                        "Aanmaken zaak"
-                    )
-                    cmmnService.startCase(zaak, zaakType, zaakAfhandelParameters, null)
-                    zrcClientService.createZaakobject(zaakObjectPand)
-                    zrcClientService.createZaakobject(zaakObjectOpenbareRuimte)
-                }
-                with(restZaakReturned) {
-                    assert(uuid != null)
-                }
-                with(zaakCreatedSlot.captured) {
-                    assertEquals(this, zaak)
-                }
-                with(rolNatuurlijkPersoonSlot.captured) {
-                    assertEquals(this.zaak, zaak.url)
-                    assertEquals(this.betrokkeneType, BetrokkeneType.NATUURLIJK_PERSOON)
-                }
-                with(rolGroupSlotOrganisatorischeEenheidSlot.captured) {
-                    assertEquals(this.zaak, zaak.url)
-                    assertEquals(this.betrokkeneType, BetrokkeneType.ORGANISATORISCHE_EENHEID)
+                    val zaakCreatedSlot = slot<Zaak>()
+                    val rolNatuurlijkPersoonSlot = slot<RolNatuurlijkPersoon>()
+                    val rolGroupSlotOrganisatorischeEenheidSlot = slot<RolOrganisatorischeEenheid>()
+                    verify(exactly = 1) {
+                        ztcClientService.readZaaktype(restZaakAanmaakGegevens.zaak.zaaktype.uuid)
+                        zgwApiService.createZaak(capture(zaakCreatedSlot))
+                        zrcClientService.createRol(
+                            capture(rolNatuurlijkPersoonSlot),
+                            "Toegekend door de medewerker tijdens het behandelen van de zaak"
+                        )
+                        zrcClientService.updateRol(
+                            zaak,
+                            capture(rolGroupSlotOrganisatorischeEenheidSlot),
+                            "Aanmaken zaak"
+                        )
+                        cmmnService.startCase(zaak, zaakType, zaakAfhandelParameters, null)
+                        zrcClientService.createZaakobject(zaakObjectPand)
+                        zrcClientService.createZaakobject(zaakObjectOpenbareRuimte)
+                    }
+                    with(restZaakReturned) {
+                        assert(uuid != null)
+                    }
+                    with(zaakCreatedSlot.captured) {
+                        assertEquals(this, zaak)
+                    }
+                    with(rolNatuurlijkPersoonSlot.captured) {
+                        assertEquals(this.zaak, zaak.url)
+                        assertEquals(this.betrokkeneType, BetrokkeneType.NATUURLIJK_PERSOON)
+                    }
+                    with(rolGroupSlotOrganisatorischeEenheidSlot.captured) {
+                        assertEquals(this.zaak, zaak.url)
+                        assertEquals(this.betrokkeneType, BetrokkeneType.ORGANISATORISCHE_EENHEID)
+                    }
                 }
             }
         }
     }
-})
+}
