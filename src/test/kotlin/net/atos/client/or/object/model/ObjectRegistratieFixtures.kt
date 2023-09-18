@@ -1,4 +1,4 @@
-@Suppress("PackageName")
+@file:Suppress("PackageName")
 
 package net.atos.client.or.`object`.model
 
