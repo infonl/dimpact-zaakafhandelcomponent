@@ -1,10 +1,7 @@
-# override the default detekt formatting rules
-# note that by default the Detekt formatting rules are not enabled
-# source: https://raw.githubusercontent.com/detekt/detekt/main/detekt-formatting/src/main/resources/config/config.yml
-# this is not working correctly yet - work in progress
+style:
+  MaxLineLength:
+    maxLineLength: 140
+
 formatting:
-    active: true
-    MaximumLineLength:
-        active: true
-        maxLineLength: 140
-        ignoreBackTickedIdentifier: false
+  MaximumLineLength:
+    maxLineLength: 140

@@ -88,7 +88,7 @@ group = "net.atos.common-ground"
 description = "Zaakafhandelcomponent"
 
 detekt {
-    config.from("$rootDir/config/detekt.yml")
+    config.setFrom("$rootDir/config/detekt.yml")
     // our Detekt configuration build builds upon the default configuration
     buildUponDefaultConfig = true
 }

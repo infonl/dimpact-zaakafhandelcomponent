@@ -189,9 +189,7 @@ class ZakenRESTServiceTest : BehaviorSpec() {
                     every { zrcClientService.updateRol(zaak, any(), any()) } just runs
                     every { zrcClientService.createZaak(zaak) } returns zaak
                     every { zrcClientService.createZaakobject(zaakObjectPand) } returns zaakObjectPand
-                    every {
-                        zrcClientService.createZaakobject(zaakObjectOpenbareRuimte)
-                    } returns zaakObjectOpenbareRuimte
+                    every { zrcClientService.createZaakobject(zaakObjectOpenbareRuimte) } returns zaakObjectOpenbareRuimte
                     every { ztcClientService.readZaaktype(restZaakType.uuid) } returns zaakType
                     every {
                         ztcClientService.readRoltype(AardVanRol.INITIATOR, zaak.zaaktype)
