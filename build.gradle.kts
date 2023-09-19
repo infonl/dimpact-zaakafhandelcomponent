@@ -334,6 +334,7 @@ tasks {
 
     register<NpmTask>("npmRunBuild") {
         dependsOn("npmInstall")
+        dependsOn("generateOpenApiSpec")
         npmCommand.set(listOf("run", "build"))
 
         // avoid running this task when there are no changes in the input or output files
