@@ -65,7 +65,8 @@ public class SessionRegistry {
      */
     public void delete(final ScreenEvent wildcarded, final Session session) {
         if (session != null) {
-            glob(fix(wildcarded)).forEach(event -> eventSessions.get(event).remove(session));
+            glob(fix(wildcarded)).forEach(
+                event -> eventSessions.get(event).remove(session));
         }
     }
 

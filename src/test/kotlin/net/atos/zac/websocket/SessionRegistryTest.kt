@@ -15,18 +15,20 @@ import net.atos.zac.websocket.event.createScreenEvent
 import javax.websocket.Session
 
 class SessionRegistryTest : BehaviorSpec({
-    val session = mockk<Session>()
+    val session1 = mockk<Session>()
+    val session2 = mockk<Session>()
+    val screenEventCreatedZaak = createScreenEvent(opcode = Opcode.CREATED, screenEventType = ScreenEventType.ZAAK)
+    val screenEventAnyAny = createScreenEvent(opcode = Opcode.ANY, screenEventType = ScreenEventType.ANY)
 
-    given("a new session registry is created and a websocket session exists") {
+    given("a new session registry is created") {
         When("create is invoked with a new screen event of type CREATED") {
             then("a session for this event is added to the session registry") {
                 val sessionRegistry = SessionRegistry()
-                val screenEvent = createScreenEvent(opcode = Opcode.CREATED)
 
-                sessionRegistry.create(screenEvent, session)
+                sessionRegistry.create(screenEventCreatedZaak, session1)
 
-                sessionRegistry.listSessions(screenEvent).size shouldBe 1
-                sessionRegistry.listSessions(screenEvent) shouldContain session
+                sessionRegistry.listSessions(screenEventCreatedZaak).size shouldBe 1
+                sessionRegistry.listSessions(screenEventCreatedZaak) shouldContain session1
                 // check that session registry does not contain a random other screen event
                 sessionRegistry.listSessions(createScreenEvent(screenEventType = ScreenEventType.TAAK)).size shouldBe 0
             }
@@ -34,11 +36,9 @@ class SessionRegistryTest : BehaviorSpec({
         When("create is invoked with a new screen event of type ANY") {
             then("a session for this event is _not_ added to the session registry") {
                 val sessionRegistry = SessionRegistry()
-                val screenEvent = createScreenEvent(opcode = Opcode.ANY, screenEventType = ScreenEventType.ANY)
+                sessionRegistry.create(screenEventAnyAny, session1)
 
-                sessionRegistry.create(screenEvent, session)
-
-                sessionRegistry.listSessions(screenEvent).size shouldBe 0
+                sessionRegistry.listSessions(screenEventAnyAny).size shouldBe 0
                 // however screen events with opcode 'UPDATED' and screen events with opcode 'DELETED'
                 // with all available screen types except 'ANY' should have been added to the registry
                 ScreenEventType.entries
@@ -51,6 +51,62 @@ class SessionRegistryTest : BehaviorSpec({
                             createScreenEvent(opcode = Opcode.DELETED, screenEventType = screenEventType)
                         ).size shouldBe 1
                     }
+            }
+        }
+    }
+    given("a number of events are added to the session registry for a session") {
+        When("delete is invoke for this session and a specific event") {
+            then("all registered events for this session are removed from the registry") {
+                val sessionRegistry = SessionRegistry()
+                sessionRegistry.create(screenEventCreatedZaak, session1)
+                sessionRegistry.create(screenEventAnyAny, session1)
+
+                sessionRegistry.delete(screenEventCreatedZaak, session1)
+
+                sessionRegistry.listSessions(screenEventCreatedZaak).size shouldBe 0
+                // all events seem to be removed for this session; not sure if this is intended behavior..
+                sessionRegistry.listSessions(screenEventAnyAny).size shouldBe 0
+            }
+        }
+        When("deleteAll is invoke for this session") {
+            then("all registered events for this session are removed from the registry") {
+                val sessionRegistry = SessionRegistry()
+                sessionRegistry.create(screenEventCreatedZaak, session1)
+                sessionRegistry.create(screenEventAnyAny, session1)
+
+                sessionRegistry.deleteAll(session1)
+
+                sessionRegistry.listSessions(screenEventCreatedZaak).size shouldBe 0
+                sessionRegistry.listSessions(screenEventAnyAny).size shouldBe 0
+            }
+        }
+    }
+    given("a number of events are added to the session registry for multiple sessions") {
+        When("delete is invoke for one session and a specific event") {
+            then("all registered events for this session are removed from the registry") {
+                val sessionRegistry = SessionRegistry()
+                sessionRegistry.create(screenEventCreatedZaak, session1)
+                sessionRegistry.create(screenEventCreatedZaak, session2)
+                sessionRegistry.create(screenEventAnyAny, session1)
+
+                sessionRegistry.delete(screenEventCreatedZaak, session1)
+
+                sessionRegistry.listSessions(screenEventCreatedZaak).size shouldBe 1
+                // all events seem to be removed for this session; not sure if this is intended behavior..
+                sessionRegistry.listSessions(screenEventAnyAny).size shouldBe 0
+            }
+        }
+        When("deleteAll is invoke for one session") {
+            then("all registered events for this session are removed from the registry") {
+                val sessionRegistry = SessionRegistry()
+                sessionRegistry.create(screenEventCreatedZaak, session1)
+                sessionRegistry.create(screenEventCreatedZaak, session2)
+                sessionRegistry.create(screenEventAnyAny, session1)
+
+                sessionRegistry.deleteAll(session1)
+
+                sessionRegistry.listSessions(screenEventCreatedZaak).size shouldBe 1
+                sessionRegistry.listSessions(screenEventAnyAny).size shouldBe 0
             }
         }
     }
