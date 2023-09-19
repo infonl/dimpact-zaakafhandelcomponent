@@ -78,8 +78,9 @@ dependencies {
     providedCompile("org.jboss.resteasy:resteasy-multipart-provider:4.7.7.Final")
     providedCompile("org.wildfly.security:wildfly-elytron-http-oidc:1.19.1.Final")
 
+    // yasson is required for using a JSONB context in our unit tests
+    // where we do not have the WildFly runtime environment available
     testImplementation("org.eclipse:yasson:1.0.11")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.1")
     testImplementation("io.kotest:kotest-runner-junit5:5.7.1")
     testImplementation("io.mockk:mockk:1.13.7")
 }
@@ -88,7 +89,7 @@ group = "net.atos.common-ground"
 description = "Zaakafhandelcomponent"
 
 detekt {
-    config.from("$rootDir/config/detekt.yml")
+    config.setFrom("$rootDir/config/detekt.yml")
     // our Detekt configuration build builds upon the default configuration
     buildUponDefaultConfig = true
 }
@@ -157,8 +158,8 @@ tasks.getByName("generateSwaggerUIZaakafhandelcomponent").setMustRunAfter(listOf
 
 tasks.war {
     dependsOn("npmRunBuild")
-    dependsOn("npmRunTest")
-    
+    mustRunAfter("npmRunTest")
+
     // add built frontend resources to WAR archive
     from("src/main/app/dist/zaakafhandelcomponent")
 

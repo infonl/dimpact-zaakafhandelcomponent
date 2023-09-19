@@ -65,7 +65,8 @@ public class SessionRegistry {
      */
     public void delete(final ScreenEvent wildcarded, final Session session) {
         if (session != null) {
-            glob(fix(wildcarded)).forEach(event -> eventSessions.get(event).remove(session));
+            glob(fix(wildcarded)).forEach(
+                event -> eventSessions.get(event).remove(session));
         }
     }
 
@@ -83,12 +84,11 @@ public class SessionRegistry {
     private List<ScreenEvent> glob(final ScreenEvent event) {
         if (event.getOpcode() == Opcode.ANY) {
             final Set<Opcode> anyOpcode = Opcode.any();
-            anyOpcode.remove(
-                    Opcode.CREATED);// There will not be any websocket subscriptions with this opcode, so skip it in globbing.
+            anyOpcode.remove(Opcode.CREATED);// There will not be any websocket subscriptions with this opcode, so skip it in globbing.
             if (event.getObjectType() == ScreenEventType.ANY) {
                 return anyOpcode.stream()
                         .flatMap(operation -> ScreenEventType.any().stream()
-                                .map(objecType -> new Wrapper(operation, objecType)))
+                                .map(objectType -> new Wrapper(operation, objectType)))
                         .map(wrapper -> new ScreenEvent(wrapper.opcode, wrapper.objecType, event.getObjectId()))
                         .collect(Collectors.toList());
             }

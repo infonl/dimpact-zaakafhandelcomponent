@@ -106,6 +106,9 @@ public enum ScreenEventType {
 
     ANY;
 
+    /**
+     * Returns a set of all screen event types defined in this enum except for {@link #ANY}.
+     */
     public static Set<ScreenEventType> any() {
         return EnumSet.complementOf(EnumSet.of(ANY));
     }
