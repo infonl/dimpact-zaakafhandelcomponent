@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 package net.atos.zac.authentication
 
 import net.atos.zac.app.zaken.model.ZAAK_TYPE_1_OMSCHRIJVING
