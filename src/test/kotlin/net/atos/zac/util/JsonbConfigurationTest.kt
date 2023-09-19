@@ -11,7 +11,8 @@ import java.time.format.DateTimeFormatter
  * Wanneer je deze test aanpast moet je ook angular test datum.pipe.spec.ts aanpassen
  */
 class JsonbConfigurationTest : BehaviorSpec({
-    val contextResolver = JsonbConfiguration().getContext(JsonbConfigurationTest::class.java)
+    val jsonbConfiguration = JsonbConfiguration()
+    val contextResolver = jsonbConfiguration.getContext(JsonbConfiguration::class.java)
 
     given("a JSON date-string with an ISO Z timezone") {
         When("it is parsed with our context resolver") {
