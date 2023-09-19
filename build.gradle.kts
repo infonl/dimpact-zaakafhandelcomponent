@@ -234,7 +234,6 @@ tasks {
             mapOf(
                 "library" to "microprofile",
                 "microprofileRestClientVersion" to "2.0",
-                //"sourceFolder" to "src/generated/java",
                 "sourceFolder" to "",
                 "dateLibrary" to "java8",
                 "disallowAdditionalPropertiesIfNotPresent" to "false",
