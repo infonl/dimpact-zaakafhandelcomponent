@@ -234,7 +234,6 @@ tasks {
             mapOf(
                 "library" to "microprofile",
                 "microprofileRestClientVersion" to "2.0",
-                //"sourceFolder" to "src/generated/java",
                 "sourceFolder" to "",
                 "dateLibrary" to "java8",
                 "disallowAdditionalPropertiesIfNotPresent" to "false",
@@ -244,47 +243,31 @@ tasks {
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKvkZoekenClient") {
-        // these openapi generate tasks cannot be run in parallel because they generate files in the same directory
         inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/zoeken-openapi.yaml")
         modelPackage.set("net.atos.client.kvk.zoeken.model")
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKvkBasisProfielClient") {
-        // these openapi generate tasks cannot be run in parallel because they generate files in the same directory
-        mustRunAfter("generateKvkZoekenClient")
-
         inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/basisprofiel-openapi.yaml")
         modelPackage.set("net.atos.client.kvk.basisprofiel.model")
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKvkVestigingsProfielClient") {
-        // these openapi generate tasks cannot be run in parallel because they generate files in the same directory
-        mustRunAfter("generateKvkBasisProfielClient")
-
         inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/vestigingsprofiel-openapi.yaml")
         modelPackage.set("net.atos.client.kvk.vestigingsprofiel.model")
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateBrpClient") {
-        // these openapi generate tasks cannot be run in parallel because they generate files in the same directory
-        mustRunAfter("generateKvkVestigingsProfielClient")
-
         inputSpec.set("$rootDir/src/main/resources/api-specs/brp/openapi.yaml")
         modelPackage.set("net.atos.client.brp.model")
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateVrlClient") {
-        // these openapi generate tasks cannot be run in parallel because they generate files in the same directory
-        mustRunAfter("generateBrpClient")
-
         inputSpec.set("$rootDir/src/main/resources/api-specs/vrl/openapi.yaml")
         modelPackage.set("net.atos.client.vrl.model")
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateBagClient") {
-        // these openapi generate tasks cannot be run in parallel because they generate files in the same directory
-        mustRunAfter("generateVrlClient")
-
         inputSpec.set("$rootDir/src/main/resources/api-specs/bag/openapi.yaml")
         modelPackage.set("net.atos.client.bag.model")
         // we use a different date library for this client
@@ -304,17 +287,11 @@ tasks {
         // this task was not enabled in the original Maven build either; these model files were added to the code base manually instead
         isEnabled = false
 
-        // these openapi generate tasks cannot be run in parallel because they generate files in the same directory
-        mustRunAfter("generateBagClient")
-
         inputSpec.set("$rootDir/src/main/resources/api-specs/klanten/openapi.yaml")
         modelPackage.set("net.atos.client.klanten.model")
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateContactMomentenClient") {
-        // these openapi generate tasks cannot be run in parallel because they generate files in the same directory
-        mustRunAfter("generateKlantenClient")
-
         inputSpec.set("$rootDir/src/main/resources/api-specs/contactmomenten/openapi.yaml")
         modelPackage.set("net.atos.client.contactmomenten.model")
     }
@@ -334,6 +311,7 @@ tasks {
 
     register<NpmTask>("npmRunBuild") {
         dependsOn("npmInstall")
+        dependsOn("generateOpenApiSpec")
         npmCommand.set(listOf("run", "build"))
 
         // avoid running this task when there are no changes in the input or output files
