@@ -44,12 +44,14 @@ docker build -t zaakafhandelcomponent:latest --file Containerfile .
 ## Run the software
 
 There are various ways to run ZAC locally.
-For local development purposes we recommend to run ZAC from the IntelliJ IDE.
+For local backend development purposes we recommend to run ZAC from the IntelliJ IDE.
+For local frontend development and testing purposes we recommend to run ZAC in a Docker container.
 
 ### Prerequisites
 
-- Access to all services that are required by ZAC, either locally (using [Docker Compose](INSTALL-DOCKER-COMPOSE.md)) or on a central development environment.
-  - Environment variables required by ZAC. See the section below.
+- Access to all services (such as Keycloak, Open Zaak, etc) that are required by ZAC.
+You either run these locally (using [Docker Compose](INSTALL-DOCKER-COMPOSE.md)) or on a central development environment.
+- Environment variables required by ZAC. See the section below.
 
 #### Environment variables
 
@@ -58,7 +60,7 @@ ZAC requires a number of environment variables to be set.
 These can be set in various ways. The options are:
 -   1Password: Use the [1Password CLI extensions](https://developer.1password.com/docs/cli/).
 -   Env file: Create an `.env` file based on the [.env.example](../.env.example) example and use the https://github.com/Ashald/EnvFile IntelliJ plugin to read all required environment variables from your local `.env` file.
--   Or alternatively in `Startup/Connection` add all required ZAC environment variables to the `Debug` configuration.
+-   Or alternatively, when running ZAC in IntelliJ, in `Startup/Connection` add all required ZAC environment variables to the `Debug` configuration.
 
 We prefer to use the 1Password CLI extensions as it is the most secure and enables you to
 centrally manage these variables for all developers.
@@ -112,13 +114,17 @@ using the 1Password CLI extensions.
 ### Run ZAC in a Docker container
 
 As an alternative to running ZAC in IntelliJ you can also run ZAC in a Docker container.
+There are several ways to do this.
 
-Note that in order to run ZAC in Docker you may need to make changes in certain environment variables in order for
-the ZAC Docker container to be able to access the requires services (which are typically also running in Docker)
-because `localhost` is not accessible inside the Docker container.
-One option is to use `host.docker.internal` instead of `localhost` in the environment variables.
+#### Run ZAC in a Docker container using Docker Compose
 
-Do run ZAC as a Docker container use the following command:
+If you also wish to run all services (Keycloak, Open Zaak, etc) required by
+ZAC locally the easiest way is to use our Docker Compose setup with can also run ZAC.
+Please see the [Docker Compose instructions](INSTALL-DOCKER-COMPOSE.md) for more information.
+
+#### Run ZAC in a Docker container by itself
+
+As an alternative to run ZAC as a Docker container by itself you use the following command:
 
 ```shell
 docker run -p 8080:8080 --env-file .env --name zaakafhandelcomponent zaakafhandelcomponent:latest
@@ -129,6 +135,8 @@ Or run one of the official ZAC Docker images from the [ZAC GitHub Packages Conta
 ```shell
 docker run -p 8080:8080 --env-file .env --name zaakafhandelcomponent ghcr.io/infonl/zaakafhandelcomponent:main-75
 ```
+
+Be aware that you will need to set the ZAC environment variables according to your needs.
 
 ## Miscellaneous
 
