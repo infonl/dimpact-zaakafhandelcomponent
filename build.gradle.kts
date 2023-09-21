@@ -158,7 +158,6 @@ tasks.getByName("generateSwaggerUIZaakafhandelcomponent").setMustRunAfter(listOf
 
 tasks.war {
     dependsOn("npmRunBuild")
-    mustRunAfter("npmRunTest")
 
     // add built frontend resources to WAR archive
     from("src/main/app/dist/zaakafhandelcomponent")
@@ -333,7 +332,9 @@ tasks {
         inputs.files(fileTree("src/main/app/src"))
         inputs.file("src/main/app/package.json")
         inputs.file("src/main/app/package-lock.json")
-        outputs.dir("src/main/app/dist/zaakafhandelcomponent")
+        // this task does not have any output but since Gradle incremental builds
+        // require at least one output folder, we use a dummy folder here
+        outputs.dir("src/main/app/dummy-folder")
     }
 
     register<Exec>("generateWildflyBootableJar") {
