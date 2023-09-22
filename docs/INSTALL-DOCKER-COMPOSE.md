@@ -1,7 +1,7 @@
 # Docker Compose setup
 
-The ZAC Docker Compose setup runs various services required by ZAC.
-It was created to be able to run ZAC locally for development purposes.
+The ZAC Docker Compose setup runs various services required by ZAC and optionally can also run ZAC itself as a Docker container.
+It was created to be able to run ZAC locally for development and testing purposes.
 For general ZAC installation instructions please see the [INSTALL.md](INSTALL.md) file.
 
 The setup consists of a [docker-compose.yml](../docker-compose.yaml) file as well as various data import scripts.
@@ -13,14 +13,19 @@ It was extended and made specific for the needs of ZAC.
 
 - [Docker Desktop](https://docs.docker.com/desktop/install/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
+- [1Password CLI extensions](https://developer.1password.com/docs/cli/) (optional)
 
-## Starting up
+## Running all required services but not ZAC itself
 
+This starts up all required services (like Keycloak, Open Zaak, etc) but does not start ZAC itself.
 From the root folder of this repository execute the following command:
 
 ```
-docker compose up -d
+./start-docker-compose.sh
 ```
+
+This will run Docker Compose (using `docker compose up -d`) and uses the 1Password CLI extensions
+to retrieve certain environment variables from 1Password.
 
 The following services will be started:
 
@@ -47,6 +52,50 @@ The following services will be started:
 
 Note that it may take a while for all services to start up completely.
 You can check the logs of the various Docker containers if you want to see the status.
+
+## Running all required services including ZAC
+
+This starts up all required services mentioned above and will also start ZAC itself.
+This is useful if you do not need to develop on the ZAC backend or just want to run ZAC locally for testing purposes.
+
+### Prerequisites
+
+#### /etc/hosts file
+Some of the environment variables used by the ZAC Docker container in the Docker Compose file use `host.docker.internal`
+as the hostname to connect to other services.
+This is used for services that need to be accessible both the ZAC backend (running in Docker) and the
+ZAC frontend (running in the browser on localhost).
+To be able to use these variables you need to add the following entry to your `/etc/hosts` file:
+
+```
+# ZAC
+127.0.0.1	host.docker.internal
+```
+
+#### Using the latest version of ZAC
+
+Currently, our ZAC Docker Compose file contains a reference to a specific version of the ZAC Docker image.
+In order to use the latest ZAC Docker Image you will need to manually edit the `../docker-compose.yaml` file and
+update the `zac: image:` attribute to the latest ZAC Docker Image tag.
+You can find the latest version of the ZAC Docker Image on:
+https://github.com/infonl/dimpact-zaakafhandelcomponent/pkgs/container/zaakafhandelcomponent
+
+### Running Docker Compose with ZAC
+
+From the root folder of this repository execute the following command:
+
+```
+./start-docker-compose-with-zac.sh
+```
+
+This will run Docker Compose with the `zac` Docker Compose profile and uses the 1Password CLI extensions
+to retrieve certain environment variables from 1Password.
+
+Note that it takes some time for ZAC to start up completely. You can see progress by checking the ZAC Docker container logs:
+
+```
+docker logs -f zac
+```
 
 ## The various Docker containers
 
@@ -138,12 +187,12 @@ Also, a superuser account for the Open Klant UI on http://localhost:8002 is crea
 
 ## Stopping
 
-1. Stop ZAC.
-2. Stop the Docker containers by executing the command: `docker compose down`.
+1. Stop ZAC (only if you are running ZAC separately and not as part of the Docker Compose setup)
+2. Stop all Docker containers by executing the command: `./stop-docker-compose.sh` from the root folder of this project.
 
 ## Cleaning up
 
-We use Docker volumes to persist data between restarts of the Docker containers in order to speed up
+We use Docker volumes to persist data between restarts of certain Docker containers in order to speed up
 subsequent startups.
 
 Sometimes it is needed to clean up these volumes to start with a clean slate.
