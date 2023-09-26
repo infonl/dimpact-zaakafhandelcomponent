@@ -50,3 +50,6 @@ testem.log
 Thumbs.db
 
 /src/generated/*
+/test-results/
+/playwright-report/
+/playwright/.cache/
