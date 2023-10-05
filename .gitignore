@@ -11,9 +11,6 @@ wildfly-*
 *.iml
 .idea
 
-### VSCODE ###
-.vscode/
-
 ### JENV ###
 .java-version
 
