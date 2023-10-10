@@ -44,8 +44,9 @@ docker build -t zaakafhandelcomponent:latest --file Containerfile .
 ## Run the software
 
 There are various ways to run ZAC locally.
-For local backend development purposes we recommend to run ZAC from the IntelliJ IDE.
-For local frontend development and testing purposes we recommend to run ZAC in a Docker container.
+- For local backend development purposes we recommend to run ZAC from the IntelliJ IDE.
+- For local frontend development and testing purposes we recommend to run ZAC in a Docker container.
+- For local e2e testing you can follow the [end-to-end-testing](end-to-end-testing.md) documentation.
 
 ### Prerequisites
 
@@ -110,6 +111,7 @@ using the 1Password CLI extensions.
    ![zac-intellij-runtime-wildfly-5.png](img/zac-intellij-runtime-wildfly-5.png)
 3. After logging in using one of the available test users you should see the ZAC UI:
    ![zac-ui-1.png](img/zac-ui-1.png)
+
 
 ### Run ZAC in a Docker container
 
