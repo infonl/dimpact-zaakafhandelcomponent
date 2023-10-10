@@ -129,8 +129,8 @@ jobs:
       - name: Tag Docker Image with 'latest' tag
         run: docker tag ${DOCKER_IMAGE_TAG} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:latest
 
-      - name: Push Docker Image
-        run: docker push ${DOCKER_IMAGE_TAG}
+      - name: Push Docker Image with all tags
+        run: docker push --all-tags ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}
 
   trigger-provision:
     needs: [build, push-docker-image]
