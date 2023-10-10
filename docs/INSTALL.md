@@ -112,9 +112,6 @@ using the 1Password CLI extensions.
 3. After logging in using one of the available test users you should see the ZAC UI:
    ![zac-ui-1.png](img/zac-ui-1.png)
 
-#### Starting up ZAC with e2e tests
-
-If you want to run ZAC with the e2e you can follow the ![end-to-end-testing](end-to-end-testing.md) do
 
 ### Run ZAC in a Docker container
 
