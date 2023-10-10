@@ -126,6 +126,9 @@ jobs:
       - name: Load Docker Image
         run: docker load --input docker-image.tar
 
+      - name: Tag Docker Image with 'latest' tag
+        run: docker tag ${DOCKER_IMAGE_TAG} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:latest
+
       - name: Push Docker Image
         run: docker push ${DOCKER_IMAGE_TAG}
 
