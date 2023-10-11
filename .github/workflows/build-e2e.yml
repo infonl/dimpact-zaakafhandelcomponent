@@ -13,14 +13,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
       - name: Start containers
         run: docker compose --profile zac up -d
 
-      - name: Setup Chrome
-        uses: browser-actions/setup-chrome@v1.2.3
+      - name: Install deps
+        run: cd src/main/app && npm run e2e:install
 
-      - name: Run tests
-        run: cd src/main/app && npm run e2e:start
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Run test
+        run: cd src/main/app && npm run e2e:run
+
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
 
       - name: Stop containers
         if: always()
