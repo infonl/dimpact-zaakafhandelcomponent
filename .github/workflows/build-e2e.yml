@@ -16,6 +16,9 @@ jobs:
       - name: Start containers
         run: docker compose --profile zac up -d
 
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v1.2.3
+
       - name: Run tests
         run: cd src/main/app && npm run e2e:start
 
