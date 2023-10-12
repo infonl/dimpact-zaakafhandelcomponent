@@ -20,6 +20,9 @@ jobs:
       - name: Start containers
         run: docker compose --profile zac up -d
 
+      - name: Docker ps
+        run: docker ps
+
       - name: Install deps
         run: cd src/main/app && npm run e2e:install
 
