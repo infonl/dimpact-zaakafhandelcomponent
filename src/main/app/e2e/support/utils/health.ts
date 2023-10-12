@@ -9,11 +9,11 @@ export async function waitForHealthCheck(world: CustomWorld, timeout = 300000) {
       try {
         console.error('Checking health');
         // Make a request to the health check endpoint.
-        const zaaktypes = await world.request('http://localhost:8080/rest/health-check/zaaktypes')
-        const communicatiekanaal = await world.request('http://localhost:8080/rest/health-check/bestaat-communicatiekanaal-eformulier')
-        const ztcCache = await world.request('http://localhost:8080/rest/health-check/ztc-cache')
-        const buildInformatie = await world.request('http://localhost:8080/rest/health-check/build-informatie')
-        await world.openUrl('http://localhost:8080')
+        const zaaktypes = await world.request('http://127.0.0.1:8080/rest/health-check/zaaktypes')
+        const communicatiekanaal = await world.request('http://127.0.0.1:8080/rest/health-check/bestaat-communicatiekanaal-eformulier')
+        const ztcCache = await world.request('http://127.0.0.1:8080/rest/health-check/ztc-cache')
+        const buildInformatie = await world.request('http://127.0.0.1:8080/rest/health -check/build-informatie')
+        await world.openUrl('http://127.0.0.1:8080')
         const frontend = await world.page.getByText('Sign in to your account').isVisible()
 
         const responses = [
