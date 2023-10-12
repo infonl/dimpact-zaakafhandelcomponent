@@ -4,6 +4,7 @@
  */
 import { IWorldOptions, World, setWorldConstructor } from "@cucumber/cucumber";
 import playwright from "playwright";
+import {fetch} from 'cross-fetch'
 
 export class CustomWorld extends World {
     page: playwright.Page;
@@ -26,5 +27,13 @@ export class CustomWorld extends World {
         }
         await this.page.goto(url);
     }
+
+    async request(url: string) {
+        if(!this.initialized) {
+            await this.init();
+        }
+      return fetch(url)
+    }
 }
+
 setWorldConstructor(CustomWorld)
