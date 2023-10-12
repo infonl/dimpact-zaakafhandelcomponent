@@ -23,6 +23,9 @@ jobs:
       - name: Docker ps
         run: docker ps
 
+      - name: Netstat
+        run: netstat -lt
+
       - name: Install deps
         run: cd src/main/app && npm run e2e:install
 
