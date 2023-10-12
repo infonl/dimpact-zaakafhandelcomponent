@@ -232,7 +232,7 @@ services:
       - "8181:8181"
 
   openldap:
-    image: bitnami/openldap:2.6.4
+    image: bitnami/openldap:2.6.6
     container_name: openldap
     ports:
       - "1389:1389"
