@@ -6,7 +6,7 @@
 #
 
 # Do a pull first to make sure we use the latest ZAC Docker Image
-docker compose pull
+docker compose pull zac
 
 # Uses the 1Password CLI tools to set up the environment variables for running Docker Compose and ZAC in IntelliJ.
 # Please see docs/INSTALL.md for details on how to use this script.
