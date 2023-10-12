@@ -364,9 +364,9 @@ services:
         condition: service_started
 
   zac:
-    # you typically want to change this to the most recent version of the ZAC Docker Image
-    # see: https://github.com/infonl/dimpact-zaakafhandelcomponent/pkgs/container/zaakafhandelcomponent
-    image: ghcr.io/infonl/zaakafhandelcomponent:main-242
+    # By default we use the latest ZAC Docker Image. Change this if you wish to use a specific version.
+    # See: https://github.com/infonl/dimpact-zaakafhandelcomponent/pkgs/container/zaakafhandelcomponent
+    image: ghcr.io/infonl/zaakafhandelcomponent:latest
     container_name: zac
     platform: linux/amd64
     environment:
