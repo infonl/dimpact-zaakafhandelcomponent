@@ -2,7 +2,8 @@
     "name": "app",
     "version": "0.0.1",
     "scripts": {
-        "e2e": "./node_modules/.bin/cucumber-js -p default"
+        "e2e:run": "./node_modules/.bin/cucumber-js -p default",
+        "e2e:start": "npm ci && npm run e2e:run"
     },
     "private": true,
     "dependencies": {

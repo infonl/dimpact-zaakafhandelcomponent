@@ -11,10 +11,7 @@
     "test:ci": "jest --runInBand",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "generate:types:zac-openapi": "npx openapi-typescript ./../../../build/generated/openapi/META-INF/openapi/openapi.yaml -o ./src/generated/types/zac-openapi-types.d.ts",
-    "e2e:install": "cd e2e && npm i",
-    "e2e:run": "cd e2e && npm run e2e",
-    "e2e:start": "npm run e2e:install && npm run e2e:run"
+    "generate:types:zac-openapi": "npx openapi-typescript ./../../../build/generated/openapi/META-INF/openapi/openapi.yaml -o ./src/generated/types/zac-openapi-types.d.ts"
   },
   "private": true,
   "dependencies": {
