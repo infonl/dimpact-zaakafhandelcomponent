@@ -18,7 +18,7 @@ jobs:
           node-version: 18
 
       - name: Start containers
-        run: docker compose -f "docker-compose-e2e.yml" --profile zac up -d
+        run: docker compose -f "docker-compose-e2e.yaml" --profile zac up -d
 
       - name: Docker ps
         run: docker ps
