@@ -33,6 +33,14 @@ val warLib by configurations.creating {
     extendsFrom(configurations["compileOnly"])
 }
 
+sourceSets {
+    // create custom integration test source set
+    create("itest") {
+        compileClasspath += sourceSets.main.get().output
+        runtimeClasspath += sourceSets.main.get().output
+    }
+}
+
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("org.apache.commons:commons-lang3:3.12.0")
@@ -83,6 +91,10 @@ dependencies {
     testImplementation("org.eclipse:yasson:1.0.11")
     testImplementation("io.kotest:kotest-runner-junit5:5.7.1")
     testImplementation("io.mockk:mockk:1.13.7")
+
+    // integration test dependencies
+    "itestImplementation"("org.testcontainers:testcontainers:1.19.1")
+    "itestImplementation"("io.kotest:kotest-runner-junit5:5.7.1")
 }
 
 group = "net.atos.common-ground"
@@ -90,6 +102,7 @@ description = "Zaakafhandelcomponent"
 
 detekt {
     config.setFrom("$rootDir/config/detekt.yml")
+    source.setFrom("src/main/kotlin", "src/test/kotlin", "src/itest/kotlin")
     // our Detekt configuration build builds upon the default configuration
     buildUponDefaultConfig = true
 }
@@ -335,6 +348,28 @@ tasks {
         // this task does not have any output but since Gradle incremental builds
         // require at least one output folder, we use a dummy folder here
         outputs.dir("src/main/app/dummy-folder")
+    }
+
+    register<Test>("itest") {
+        //mustRunAfter("buildDockerImage")
+        shouldRunAfter("test")
+        inputs.files(project.tasks.findByPath("compileItestKotlin")!!.outputs.files)
+        //inputs.files(project.tasks.findByPath("buildDockerImage")!!.outputs.files)
+
+        testClassesDirs = sourceSets["itest"].output.classesDirs
+        classpath = sourceSets["itest"].runtimeClasspath
+
+//        val runCtestInDockerNetwork =
+//            if (project.hasProperty("runCtestInDockerNetwork")) project.property("runCtestInDockerNetwork")!! else "false"
+//        val dockerNetworkName =
+//            if (project.hasProperty("dockerNetworkName")) project.property("dockerNetworkName")!! else "service_beleensysteem_ctest"
+//
+//        systemProperty(
+//            "serviceBeleensysteemDockerImage",
+//            "${project.extra["dockerImageName"]}:${project.extra["dockerImageTag"]}"
+//        )
+//        systemProperty("runCtestInDockerNetwork", runCtestInDockerNetwork)
+//        systemProperty("dockerNetworkName", dockerNetworkName)
     }
 
     register<Exec>("generateWildflyBootableJar") {
