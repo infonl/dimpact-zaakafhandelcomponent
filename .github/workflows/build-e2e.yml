@@ -24,7 +24,7 @@ jobs:
         run: cd src/main/app && npm run e2e:install
 
       - name: Install Playwright Browsers
-        run: cd src/main/app && npx playwright install --with-deps
+        run: cd src/main/app/e2e && npx playwright install --with-deps
 
       - name: Run test
         run: cd src/main/app && npm run e2e:run
