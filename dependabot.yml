@@ -4,11 +4,28 @@ updates:
     directory: "/src/main/app/"
     schedule:
       interval: "weekly"
+      day: "monday"
+      time: "8:00"
+      timezone: "Europe/Amsterdam"
+    reviewers:
+      - "infonl/dimpact"
+
   - package-ecosystem: "gradle"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
+      time: "8:00"
+      timezone: "Europe/Amsterdam"
+    reviewers:
+      - "infonl/dimpact"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
+      time: "8:00"
+      timezone: "Europe/Amsterdam"
+    reviewers:
+    - "infonl/dimpact"
