@@ -1,3 +1,4 @@
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.github.gradle.node.npm.task.NpmTask
 import io.smallrye.openapi.api.OpenApiConfig
 import java.util.Locale
@@ -21,6 +22,7 @@ plugins {
     id("io.smallrye.openapi") version "3.5.1"
     id("org.hidetake.swagger.generator") version "2.19.2"
     id("io.gitlab.arturbosch.detekt") version "1.23.1"
+    id("com.bmuschko.docker-remote-api") version "9.3.4"
 }
 
 repositories {
@@ -353,6 +355,12 @@ tasks {
         outputs.dir("src/main/app/dummy-folder")
     }
 
+    register<DockerBuildImage>("buildZacDockerImage") {
+        inputDir.set(file("."))
+        dockerFile.set(file("Containerfile"))
+        images.add("ghcr.io/infonl/zaakafhandelcomponent:dev")
+    }
+
     register<Test>("itest") {
         //mustRunAfter("buildDockerImage")
         shouldRunAfter("test")
@@ -392,6 +400,5 @@ tasks {
         }
     }
 }
-
 
 
