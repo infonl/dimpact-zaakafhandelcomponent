@@ -342,8 +342,8 @@ tasks {
 
     register<NpmTask>("npmRunTest") {
         dependsOn("npmRunBuild")
-        npmCommand.set(listOf("run", "test"))
 
+        npmCommand.set(listOf("run", "test"))
         // avoid running this task when there are no changes in the input or output files
         // see: https://github.com/node-gradle/gradle-node-plugin/blob/master/docs/faq.md
         inputs.files(fileTree("src/main/app/node_modules"))
@@ -355,15 +355,24 @@ tasks {
         outputs.dir("src/main/app/dummy-folder")
     }
 
+    register<Copy>("copyJarToDockerBuildDir") {
+        dependsOn("generateWildflyBootableJar")
+
+        from("target/zaakafhandelcomponent.jar")
+        into("$buildDir/docker")
+    }
+
     register<DockerBuildImage>("buildZacDockerImage") {
+        dependsOn("copyJarToDockerBuildDir")
+
         inputDir.set(file("."))
         dockerFile.set(file("Containerfile"))
         images.add("ghcr.io/infonl/zaakafhandelcomponent:dev")
     }
 
     register<Test>("itest") {
-        //mustRunAfter("buildDockerImage")
-        shouldRunAfter("test")
+        dependsOn("buildZacDockerImage")
+
         inputs.files(project.tasks.findByPath("compileItestKotlin")!!.outputs.files)
         //inputs.files(project.tasks.findByPath("buildDockerImage")!!.outputs.files)
 
