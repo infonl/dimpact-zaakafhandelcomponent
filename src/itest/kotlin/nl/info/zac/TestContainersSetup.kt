@@ -1,0 +1,121 @@
+/*
+ * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+package nl.info.zac
+
+import io.github.oshai.kotlinlogging.DelegatingKLogger
+import io.github.oshai.kotlinlogging.KotlinLogging
+import org.slf4j.Logger
+import org.testcontainers.containers.FixedHostPortGenericContainer
+import org.testcontainers.containers.GenericContainer
+import org.testcontainers.containers.Network
+import org.testcontainers.containers.output.Slf4jLogConsumer
+import org.testcontainers.containers.wait.strategy.Wait
+import java.time.Duration
+
+private val logger = KotlinLogging.logger {}
+
+class ZACContainer(
+    private val postgresqlHostAndPort: String,
+    private val network: Network
+) {
+    companion object {
+        const val CONTAINER_PORT = 8080
+    }
+
+    private val zacDockerImage =
+        System.getProperty("zacDockerImage", DockerImages.DOCKER_IMAGE_ZAC_DEV)
+    private lateinit var container: GenericContainer<*>
+    private lateinit var containerBaseUrl: String
+
+    fun start() {
+        container = createContainer()
+
+        logger.info { "Starting ZAC Docker image: '$zacDockerImage' using Postgresql JDBC URL: '$postgresqlHostAndPort'" }
+        container.start()
+
+        containerBaseUrl = "http://localhost:$CONTAINER_PORT"
+
+        logger.info { "ZAC Docker container is running and accessible on: $containerBaseUrl" }
+    }
+
+    fun apiUrl() = "$containerBaseUrl/api"
+    fun healthUrl() = "$containerBaseUrl/health" // TODO
+
+    fun stop() = if (this::container.isInitialized) container.stop() else Unit
+
+    private fun createContainer(): KGenericContainer {
+        // TODO
+        val env = mapOf(
+            "AUTH_REALM" to "zaakafhandelcomponent",
+            "AUTH_RESOURCE" to "zaakafhandelcomponent",
+            "AUTH_SECRET" to "keycloakZaakafhandelcomponentClientSecret",
+            "AUTH_SERVER" to "http://host.docker.internal:8081",
+            "BAG_API_CLIENT_MP_REST_URL" to "https://api.bag.acceptatie.kadaster.nl/lvbag/individuelebevragingen/v2/",
+            "BAG_API_KEY" to "dummyBagApiKey",
+            "BRP_API_CLIENT_MP_REST_URL" to "http://brpproxy:5000/haalcentraal/api/brp",
+            "BRP_API_KEY" to "dummyKey", // not used when using the BRP proxy
+            "CONTACTMOMENTEN_API_CLIENT_MP_REST_URL" to "http://openklant:8000/contactmomenten",
+            "CONTACTMOMENTEN_API_CLIENTID" to "zac_client",
+            "CONTACTMOMENTEN_API_SECRET" to "openklantZaakhandelcomponentClientSecret",
+            "CONTEXT_URL" to "http://localhost:8080",
+            "DB_HOST" to postgresqlHostAndPort,
+            "DB_NAME" to "zac",
+            "DB_PASSWORD" to "password",
+            "DB_USER" to "zac",
+            "GEMEENTE_CODE" to "9999",
+            "GEMEENTE_MAIL" to "gemeente-itest@example.com",
+            "GEMEENTE_NAAM" to "Gemeente ITest",
+            "KLANTEN_API_CLIENT_MP_REST_URL" to "http://openklant:8000/klanten",
+            "KLANTEN_API_CLIENTID" to "zac_client",
+            "KLANTEN_API_SECRET" to "openklantZaakhandelcomponentClientSecret",
+            "KVK_API_CLIENT_MP_REST_URL" to "dummyKvkApiUrl", // TODO
+            "KVK_API_KEY" to "dummyKvkApiKey",
+            "LDAP_DN" to "ou=people,dc=example,dc=org",
+            "LDAP_PASSWORD" to "admin",
+            "LDAP_URL" to "ldap://openldap:1389",
+            "LDAP_USER" to "cn=admin,dc=example,dc=org",
+            "MAILJET_API_KEY" to "dummyMailjetApiKey",
+            "MAILJET_API_SECRET_KEY" to "dummyMailjetApiSecretKey",
+            "MAX_FILE_SIZE_MB" to "80",
+            "OFFICE_CONVERTER_CLIENT_MP_REST_URL" to "http://localhost:9999", // dummy for now
+            "OBJECTS_API_TOKEN" to "1", // dummy for now
+            "OBJECTTYPES_API_TOKEN" to "1", // dummy for now
+            "OPA_API_CLIENT_MP_REST_URL" to "http://zac-opa:8181",
+            "OPEN_FORMS_URL" to "http://localhost:9999", // dummy for now
+            "OPEN_NOTIFICATIONS_API_SECRET_KEY" to "opennotificaties",
+            "SD_AUTHENTICATION" to "dummySmartDocumentsAuthentication",
+            "SD_CLIENT_MP_REST_URL" to "dummySmartDocumentsClientUrl",
+            "SOLR_URL" to "http://zac-solr:8983",
+            "VRL_API_CLIENT_MP_REST_URL" to "http://host.docker.internal:8020/", // TODO
+            "ZGW_API_CLIENT_MP_REST_URL" to "http://host.docker.internal:8001/", // TODO
+            "ZGW_API_CLIENTID" to "zac_client",
+            "ZGW_API_SECRET" to "openzaakZaakafhandelcomponentClientSecret",
+            "ZGW_API_URL_EXTERN" to "http://localhost:8001/"
+        )
+
+        @Suppress("SpreadOperator")
+        return KGenericContainer(zacDockerImage)
+            .withFixedExposedPort(CONTAINER_PORT, CONTAINER_PORT)
+            .withEnv(env)
+            .withNetwork(network)
+            .withLogConsumer(
+                Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
+                    "ZAC"
+                )
+            )
+            .waitingFor(
+                Wait.forLogMessage(".* WildFly Full .* started .*", 1)
+                    .withStartupTimeout(Duration.ofMinutes(2))
+            )
+    }
+}
+
+// for now, we use the deprecated FixedHostPortGenericContainer because our Keycloak configuration
+// is only compatible with ZAC running on a fixed port (8080)
+// note that this may result in port conflicts
+class KGenericContainer(imageName: String) : FixedHostPortGenericContainer<KGenericContainer>(imageName)
+
+
