@@ -24,24 +24,21 @@ class ZACContainer(
 ) {
     companion object {
         const val CONTAINER_PORT = 8080
+        const val API_URL = "http://localhost:$CONTAINER_PORT/api"
     }
 
     private val zacDockerImage =
         System.getProperty("zacDockerImage", DockerImages.DOCKER_IMAGE_ZAC_DEV)
     private lateinit var container: GenericContainer<*>
-    private lateinit var containerBaseUrl: String
 
     fun start() {
         container = createContainer()
 
         logger.info { "Starting ZAC Docker image: '$zacDockerImage' using Postgresql JDBC URL: '$postgresqlHostAndPort'" }
         container.start()
-        containerBaseUrl = "http://localhost:$CONTAINER_PORT"
 
-        logger.info { "ZAC Docker container is running and accessible on: $containerBaseUrl" }
+        logger.info { "ZAC Docker container is running and accessible on: $API_URL" }
     }
-
-    fun apiUrl() = "$containerBaseUrl/api"
 
     fun stop() = if (this::container.isInitialized) container.stop() else Unit
 
@@ -51,10 +48,10 @@ class ZACContainer(
             "AUTH_REALM" to "zaakafhandelcomponent",
             "AUTH_RESOURCE" to "zaakafhandelcomponent",
             "AUTH_SECRET" to "keycloakZaakafhandelcomponentClientSecret",
-            "AUTH_SERVER" to "http://$DOCKER_COMPOSE_ITEST_PROJECT-keycloak-1:8081",
+            "AUTH_SERVER" to "http://host.docker.internal:8081", // TODO
             "BAG_API_CLIENT_MP_REST_URL" to "https://api.bag.acceptatie.kadaster.nl/lvbag/individuelebevragingen/v2/",
             "BAG_API_KEY" to "dummyBagApiKey",
-            "BRP_API_CLIENT_MP_REST_URL" to "http://brpproxy:5000/haalcentraal/api/brp",
+            "BRP_API_CLIENT_MP_REST_URL" to "http://$DOCKER_COMPOSE_ITEST_PROJECT-brpproxy:5000/haalcentraal/api/brp",
             "BRP_API_KEY" to "dummyKey", // not used when using the BRP proxy
             "CONTACTMOMENTEN_API_CLIENT_MP_REST_URL" to "http://$DOCKER_COMPOSE_ITEST_PROJECT-openklant:8000/contactmomenten",
             "CONTACTMOMENTEN_API_CLIENTID" to "zac_client",
@@ -74,7 +71,7 @@ class ZACContainer(
             "KVK_API_KEY" to "dummyKvkApiKey",
             "LDAP_DN" to "ou=people,dc=example,dc=org",
             "LDAP_PASSWORD" to "admin",
-            "LDAP_URL" to "ldap://openldap:1389",
+            "LDAP_URL" to "ldap://$DOCKER_COMPOSE_ITEST_PROJECT-openldap-1:1389",
             "LDAP_USER" to "cn=admin,dc=example,dc=org",
             "MAILJET_API_KEY" to "dummyMailjetApiKey",
             "MAILJET_API_SECRET_KEY" to "dummyMailjetApiSecretKey",
@@ -115,4 +112,5 @@ class ZACContainer(
 // for now, we use the deprecated FixedHostPortGenericContainer because our Keycloak configuration
 // is only compatible with ZAC running on a fixed port (8080)
 // note that this may result in port conflicts
-class KGenericContainer(imageName: String) : FixedHostPortGenericContainer<KGenericContainer>(imageName)
+class KGenericContainer(imageName: String) :
+    FixedHostPortGenericContainer<KGenericContainer>(imageName)
