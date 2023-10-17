@@ -9,16 +9,26 @@ import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.HttpStatus
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.provided.ProjectConfig
+import org.json.JSONObject
 
 private val logger = KotlinLogging.logger {}
 
 class AppContainerTest : BehaviorSpec({
     given("ZAC Docker container and all related Docker containers are running") {
-        When("the build information endpoint is called") {
-            then("the response should be ok") {
-                khttp.get("${ZACContainer.API_URL}/health-check/build-informatie").apply {
+        When("the notificaties endpoint is called with dummy payload without authentication header") {
+            then("the response should be forbidden") {
+                khttp.post(
+                    url = "${ProjectConfig.zacContainer.apiUrl}/notificaties",
+                    headers = mapOf("Content-Type" to "application/json"),
+                    data = JSONObject(
+                        mapOf(
+                            "dummy" to "dummy"
+                        )
+                    )
+                ).apply {
                     logger.info { "response: $this" }
-                    statusCode shouldBe HttpStatus.SC_OK
+                    statusCode shouldBe HttpStatus.SC_FORBIDDEN
                 }
             }
         }

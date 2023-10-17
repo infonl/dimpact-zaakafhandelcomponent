@@ -376,22 +376,10 @@ tasks {
         dependsOn("buildZacDockerImage")
 
         inputs.files(project.tasks.findByPath("compileItestKotlin")!!.outputs.files)
-        //inputs.files(project.tasks.findByPath("buildDockerImage")!!.outputs.files)
+        inputs.files(project.tasks.findByPath("buildZacDockerImage")!!.outputs.files)
 
         testClassesDirs = sourceSets["itest"].output.classesDirs
         classpath = sourceSets["itest"].runtimeClasspath
-
-//        val runCtestInDockerNetwork =
-//            if (project.hasProperty("runCtestInDockerNetwork")) project.property("runCtestInDockerNetwork")!! else "false"
-//        val dockerNetworkName =
-//            if (project.hasProperty("dockerNetworkName")) project.property("dockerNetworkName")!! else "service_beleensysteem_ctest"
-//
-//        systemProperty(
-//            "serviceBeleensysteemDockerImage",
-//            "${project.extra["dockerImageName"]}:${project.extra["dockerImageTag"]}"
-//        )
-//        systemProperty("runCtestInDockerNetwork", runCtestInDockerNetwork)
-//        systemProperty("dockerNetworkName", dockerNetworkName)
     }
 
     register<Exec>("generateWildflyBootableJar") {

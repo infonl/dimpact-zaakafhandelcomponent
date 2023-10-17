@@ -7,7 +7,6 @@ package nl.info.zac
 
 import io.github.oshai.kotlinlogging.DelegatingKLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.kotest.provided.ProjectConfig.DOCKER_COMPOSE_ITEST_PROJECT
 import org.slf4j.Logger
 import org.testcontainers.containers.FixedHostPortGenericContainer
 import org.testcontainers.containers.GenericContainer
@@ -24,12 +23,12 @@ class ZACContainer(
 ) {
     companion object {
         const val CONTAINER_PORT = 8080
-        const val API_URL = "http://localhost:$CONTAINER_PORT/api"
     }
 
     private val zacDockerImage =
         System.getProperty("zacDockerImage", DockerImages.DOCKER_IMAGE_ZAC_DEV)
     private lateinit var container: GenericContainer<*>
+    lateinit var apiUrl: String
 
     fun start() {
         container = createContainer()
@@ -37,7 +36,8 @@ class ZACContainer(
         logger.info { "Starting ZAC Docker image: '$zacDockerImage' using Postgresql JDBC URL: '$postgresqlHostAndPort'" }
         container.start()
 
-        logger.info { "ZAC Docker container is running and accessible on: $API_URL" }
+        apiUrl = "http://${container.getHost()}:$CONTAINER_PORT/rest"
+        logger.info { "ZAC Docker container is running and accessible on: $apiUrl" }
     }
 
     fun stop() = if (this::container.isInitialized) container.stop() else Unit
@@ -51,9 +51,9 @@ class ZACContainer(
             "AUTH_SERVER" to "http://host.docker.internal:8081", // TODO
             "BAG_API_CLIENT_MP_REST_URL" to "https://api.bag.acceptatie.kadaster.nl/lvbag/individuelebevragingen/v2/",
             "BAG_API_KEY" to "dummyBagApiKey",
-            "BRP_API_CLIENT_MP_REST_URL" to "http://$DOCKER_COMPOSE_ITEST_PROJECT-brpproxy:5000/haalcentraal/api/brp",
+            "BRP_API_CLIENT_MP_REST_URL" to "http://brpproxy:5000/haalcentraal/api/brp",
             "BRP_API_KEY" to "dummyKey", // not used when using the BRP proxy
-            "CONTACTMOMENTEN_API_CLIENT_MP_REST_URL" to "http://$DOCKER_COMPOSE_ITEST_PROJECT-openklant:8000/contactmomenten",
+            "CONTACTMOMENTEN_API_CLIENT_MP_REST_URL" to "http://openklant:8000/contactmomenten",
             "CONTACTMOMENTEN_API_CLIENTID" to "zac_client",
             "CONTACTMOMENTEN_API_SECRET" to "openklantZaakhandelcomponentClientSecret",
             "CONTEXT_URL" to "http://localhost:8080",
@@ -64,14 +64,14 @@ class ZACContainer(
             "GEMEENTE_CODE" to "9999",
             "GEMEENTE_MAIL" to "gemeente-itest@example.com",
             "GEMEENTE_NAAM" to "Gemeente ITest",
-            "KLANTEN_API_CLIENT_MP_REST_URL" to "http://$DOCKER_COMPOSE_ITEST_PROJECT-openklant:8000/klanten",
+            "KLANTEN_API_CLIENT_MP_REST_URL" to "http://openklant:8000/klanten",
             "KLANTEN_API_CLIENTID" to "zac_client",
             "KLANTEN_API_SECRET" to "openklantZaakhandelcomponentClientSecret",
             "KVK_API_CLIENT_MP_REST_URL" to "dummyKvkApiUrl", // will be replaced with a mock server
             "KVK_API_KEY" to "dummyKvkApiKey",
             "LDAP_DN" to "ou=people,dc=example,dc=org",
             "LDAP_PASSWORD" to "admin",
-            "LDAP_URL" to "ldap://$DOCKER_COMPOSE_ITEST_PROJECT-openldap-1:1389",
+            "LDAP_URL" to "ldap://openldap:1389",
             "LDAP_USER" to "cn=admin,dc=example,dc=org",
             "MAILJET_API_KEY" to "dummyMailjetApiKey",
             "MAILJET_API_SECRET_KEY" to "dummyMailjetApiSecretKey",
@@ -79,14 +79,14 @@ class ZACContainer(
             "OFFICE_CONVERTER_CLIENT_MP_REST_URL" to "http://localhost:9999", // dummy for now
             "OBJECTS_API_TOKEN" to "1", // dummy for now
             "OBJECTTYPES_API_TOKEN" to "1", // dummy for now
-            "OPA_API_CLIENT_MP_REST_URL" to "http://$DOCKER_COMPOSE_ITEST_PROJECT-opa-1:8181",
+            "OPA_API_CLIENT_MP_REST_URL" to "http://opa:8181",
             "OPEN_FORMS_URL" to "http://localhost:9999", // dummy for now
             "OPEN_NOTIFICATIONS_API_SECRET_KEY" to "opennotificaties",
             "SD_AUTHENTICATION" to "dummySmartDocumentsAuthentication",
             "SD_CLIENT_MP_REST_URL" to "dummySmartDocumentsClientUrl",
-            "SOLR_URL" to "http://$DOCKER_COMPOSE_ITEST_PROJECT-solr-1:8983",
-            "VRL_API_CLIENT_MP_REST_URL" to "http://$DOCKER_COMPOSE_ITEST_PROJECT-zgw-referentielijsten:8000/",
-            "ZGW_API_CLIENT_MP_REST_URL" to "http://$DOCKER_COMPOSE_ITEST_PROJECT-openzaak:8000/",
+            "SOLR_URL" to "http://solr:8983",
+            "VRL_API_CLIENT_MP_REST_URL" to "http://zgw-referentielijsten:8000/",
+            "ZGW_API_CLIENT_MP_REST_URL" to "http://openzaak:8000/",
             "ZGW_API_CLIENTID" to "zac_client",
             "ZGW_API_SECRET" to "openzaakZaakafhandelcomponentClientSecret",
             "ZGW_API_URL_EXTERN" to "http://localhost:8001/"
