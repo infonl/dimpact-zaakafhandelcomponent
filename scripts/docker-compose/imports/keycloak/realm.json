@@ -1757,7 +1757,7 @@
             "false"
           ],
           "connectionUrl": [
-            "ldap://openldap:1389"
+            "${LDAP_URL}"
           ],
           "syncRegistrations": [
             "false"

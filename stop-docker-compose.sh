@@ -10,4 +10,4 @@
 # Note that it is not strictly required to use the 1Password CLI tools to stop Docker Compose,
 # however by doing you do avoid Docker Compose warnings about variables not being set.
 
-export APP_ENV=devlocal && op run --env-file="./.env.tpl" -- docker compose --profile zac down
+export APP_ENV=devlocal && op run --env-file="./.env.tpl" -- docker compose --profile zac --project-name zac down
