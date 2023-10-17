@@ -45,7 +45,7 @@ dependencies {
     implementation("org.flowable:flowable-cmmn-cdi:6.7.2")
     implementation("org.flowable:flowable-cmmn-engine-configurator:6.7.2")
     implementation("org.slf4j:slf4j-jdk14:2.0.3")
-    implementation("com.auth0:java-jwt:4.0.0")
+    implementation("com.auth0:java-jwt:4.4.0")
     implementation("javax.cache:cache-api:1.1.1")
     implementation("com.google.guava:guava:30.1.1-jre")
     implementation("com.mailjet:mailjet-client:5.2.3")
