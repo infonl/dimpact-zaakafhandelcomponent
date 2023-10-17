@@ -31,7 +31,7 @@
     "@ngx-translate/http-loader": "^8.0.0",
     "@types/proj4": "^2.5.3",
     "moment": "^2.29.4",
-    "ngx-editor": "^15.3.0",
+    "ngx-editor": "^16.0.1",
     "ol": "^7.5.2",
     "openapi-fetch": "^0.7.10",
     "proj4": "^2.9.1",
