@@ -20,20 +20,36 @@ jobs:
       - name: Start containers
         run: docker compose -f "docker-compose-e2e.yaml" --profile zac up -d
 
-      - name: Docker ps
-        run: docker ps
+      - name: Wait for application to start
+        run: |
+          # Initialize a flag to check if the application started
+          app_started=false
 
-      - name: Netstat
-        run: netstat -lt
+          for i in {1..120}; do # Try for 5 minutes
+            # Run curl and check the exit status directly
+            if curl --fail -s -L http://zac:8080 | grep 'Zaakafhandelcomponent' > /dev/null; then
+              echo "Application is up!"
+              app_started=true
+              break
+            else
+              echo "Application not yet available, retrying... (attempt $i)"
+              sleep 5
+            fi
+          done
+
+          if [ "$app_started" = false ] ; then
+              echo "Application failed to start within 5 minutes"
+              exit 1
+          fi
 
       - name: Install deps
-        run: cd src/main/app && npm run e2e:install
+        run: cd src/e2e && npm ci
 
       - name: Install Playwright Browsers
-        run: cd src/main/app/e2e && npx playwright install --with-deps
+        run: cd src/e2e && npx playwright install --with-deps
 
       - name: Run test
-        run: cd src/main/app && npm run e2e:run
+        run: cd src/e2e && npm run e2e:run
 
       - uses: actions/upload-artifact@v3
         if: always()
@@ -44,4 +60,4 @@ jobs:
 
       - name: Stop containers
         if: always()
-        run: docker-compose -f "docker-compose-e2e.yml" down
+        run: docker-compose -f "docker-compose-e2e.yaml" down
