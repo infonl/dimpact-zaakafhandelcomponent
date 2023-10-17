@@ -173,6 +173,7 @@ swaggerSources {
 // share the same output folder (= $rootDir)
 tasks.getByName("npmInstall").setMustRunAfter(listOf("generateJavaClients"))
 tasks.getByName("generateSwaggerUIZaakafhandelcomponent").setMustRunAfter(listOf("generateOpenApiSpec"))
+tasks.getByName("compileItestKotlin").setMustRunAfter(listOf("buildZacDockerImage"))
 
 tasks.war {
     dependsOn("npmRunBuild")
