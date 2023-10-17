@@ -111,7 +111,7 @@ jobs:
       DOCKER_IMAGE_TAG: ${{ needs.build.outputs.docker_image_tag }}
     steps:
       - name: Docker Login
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.CONTAINER_REGISTRY_URL }}
           username: ${{ github.actor }}
