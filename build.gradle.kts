@@ -75,7 +75,7 @@ dependencies {
     providedCompile("org.eclipse.microprofile.config:microprofile-config-api:2.0")
     providedCompile("org.eclipse.microprofile.health:microprofile-health-api:3.1")
     providedCompile("org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api:3.0")
-    providedCompile("org.jboss.resteasy:resteasy-multipart-provider:4.7.7.Final")
+    providedCompile("org.jboss.resteasy:resteasy-multipart-provider:6.2.5.Final")
     providedCompile("org.wildfly.security:wildfly-elytron-http-oidc:1.19.1.Final")
 
     // yasson is required for using a JSONB context in our unit tests
