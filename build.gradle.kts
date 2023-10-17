@@ -50,7 +50,7 @@ dependencies {
     implementation("com.google.guava:guava:30.1.1-jre")
     implementation("com.mailjet:mailjet-client:5.2.3")
     implementation("org.flywaydb:flyway-core:9.4.0")
-    implementation("org.apache.solr:solr-solrj:9.1.0")
+    implementation("org.apache.solr:solr-solrj:9.4.0")
     implementation("net.sf.webdav-servlet:webdav-servlet:2.0")
     implementation("com.itextpdf:itextpdf:5.5.13")
     implementation("com.itextpdf.tool:xmlworker:5.5.13")
