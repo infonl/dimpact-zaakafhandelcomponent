@@ -11,7 +11,7 @@
 
       steps:
         - name: Checkout
-          uses: actions/checkout@v1
+          uses: actions/checkout@v4
 
         - name: Start containers
           run: docker compose --profile zac up -d
