@@ -49,7 +49,7 @@ dependencies {
     implementation("javax.cache:cache-api:1.1.1")
     implementation("com.google.guava:guava:30.1.1-jre")
     implementation("com.mailjet:mailjet-client:5.2.3")
-    implementation("org.flywaydb:flyway-core:9.4.0")
+    implementation("org.flywaydb:flyway-core:9.22.3")
     implementation("org.apache.solr:solr-solrj:9.4.0")
     implementation("net.sf.webdav-servlet:webdav-servlet:2.0")
     implementation("com.itextpdf:itextpdf:5.5.13")
