@@ -48,7 +48,7 @@ class ZACContainer(
             "AUTH_REALM" to "zaakafhandelcomponent",
             "AUTH_RESOURCE" to "zaakafhandelcomponent",
             "AUTH_SECRET" to "keycloakZaakafhandelcomponentClientSecret",
-            "AUTH_SERVER" to "http://host.docker.internal:8081", // TODO
+            "AUTH_SERVER" to "http://keycloak:8081",
             "BAG_API_CLIENT_MP_REST_URL" to "https://api.bag.acceptatie.kadaster.nl/lvbag/individuelebevragingen/v2/",
             "BAG_API_KEY" to "dummyBagApiKey",
             "BRP_API_CLIENT_MP_REST_URL" to "http://brpproxy:5000/haalcentraal/api/brp",
