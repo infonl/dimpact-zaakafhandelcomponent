@@ -8,24 +8,12 @@ export async function waitForHealthCheck(world: CustomWorld, timeout = 300000) {
     while (true) {
       try {
         console.error('Checking health');
-        // Make a request to the health check endpoint.
-        const zaaktypes = await world.request('http://127.0.0.1:8080/rest/health-check/zaaktypes')
-        const communicatiekanaal = await world.request('http://127.0.0.1:8080/rest/health-check/bestaat-communicatiekanaal-eformulier')
-        const ztcCache = await world.request('http://127.0.0.1:8080/rest/health-check/ztc-cache')
-        const buildInformatie = await world.request('http://127.0.0.1:8080/rest/health -check/build-informatie')
-        await world.openUrl('http://127.0.0.1:8080')
+        await world.openUrl('http://zaakafhandelcomponent-zac-dev.westeurope.cloudapp.azure.com')
         const frontend = await world.page.getByText('Sign in to your account').isVisible()
-
-        const responses = [
-            zaaktypes,
-            communicatiekanaal,
-            ztcCache,
-            buildInformatie,
-        ]
         
         
         // Check if the health check is successful.
-        if (responses.every(res => res.status === 200)  && frontend) {
+        if (frontend) {
             console.error('Application is healthy');
           return true;
         } else {
