@@ -2,9 +2,8 @@
  * SPDX-FileCopyrightText: 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-import { IWorldOptions, World, setWorldConstructor } from "@cucumber/cucumber";
+import { World, setWorldConstructor } from "@cucumber/cucumber";
 import playwright from "playwright";
-import {fetch} from 'cross-fetch'
 
 export class CustomWorld extends World {
     page: playwright.Page;
@@ -14,7 +13,7 @@ export class CustomWorld extends World {
 
     async init() {
         this.browser = await playwright.chromium.launch({
-            headless: true,
+            headless: false,
         });
         this.context = await this.browser.newContext();
         this.page = await this.context.newPage();
@@ -28,5 +27,4 @@ export class CustomWorld extends World {
         await this.page.goto(url);
     }
 }
-
 setWorldConstructor(CustomWorld)
