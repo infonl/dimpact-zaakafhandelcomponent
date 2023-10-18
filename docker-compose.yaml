@@ -15,6 +15,7 @@ services:
       - DB_USER=keycloak
       - DB_NAME=keycloak
       - DB_PASSWORD=keycloak
+      - LDAP_URL=ldap://openldap:1389
       - ZAC_GROUP_A_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_A_EMAIL_ADDRESS:-test-group-a@example.com}
     volumes:
       - ./scripts/docker-compose/imports/keycloak:/opt/keycloak/data/import
