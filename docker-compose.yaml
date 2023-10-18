@@ -1,22 +1,21 @@
 version: "3.9"
 services:
-  # Keycloak
-  zac-keycloak:
+  keycloak:
     image: quay.io/keycloak/keycloak:22.0.1
-    container_name: zac-keycloak
     depends_on:
-      zac-keycloak-database:
-          condition: service_healthy
+      keycloak-database:
+        condition: service_healthy
     ports:
       - "8081:8080"
     environment:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
       - DB_VENDOR=postgres
-      - DB_ADDR=zac-keycloak-database
+      - DB_ADDR=keycloak-database
       - DB_USER=keycloak
       - DB_NAME=keycloak
       - DB_PASSWORD=keycloak
+      - LDAP_URL=ldap://openldap:1389
       - ZAC_GROUP_A_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_A_EMAIL_ADDRESS:-test-group-a@example.com}
     volumes:
       - ./scripts/docker-compose/imports/keycloak:/opt/keycloak/data/import
@@ -24,9 +23,8 @@ services:
       - "start-dev"
       - "--import-realm"
 
-  zac-keycloak-database:
+  keycloak-database:
     image: postgres:15.4
-    container_name: zac-keycloak-database
     ports:
       - "54326:5432"
     healthcheck:
@@ -42,10 +40,8 @@ services:
     volumes:
       - ./scripts/docker-compose/volume-data/zac-keycloak-database-data:/var/lib/postgresql/data
 
-  # ZAC database
   zac-database:
     image: postgres:15.4
-    container_name: zac-database
     ports:
       - "54320:5432"
     healthcheck:
@@ -64,7 +60,6 @@ services:
 
   openzaak-database:
     image: postgis/postgis:15-3.4
-    container_name: openzaak-database
     ports:
       - "54322:5432"
     platform: linux/amd64
@@ -86,7 +81,6 @@ services:
 
   openzaak:
     image: openzaak/open-zaak:1.8.2
-    container_name: openzaak
     platform: linux/amd64
     environment:
       - DB_HOST=openzaak-database
@@ -114,11 +108,9 @@ services:
 
   redis:
     image: redis:6.2.6
-    container_name: redis
 
   objecten-api:
     image: maykinmedia/objects-api:2.1.1
-    container_name: objecten-api
     platform: linux/amd64
     ports:
       - "8010:8000"
@@ -136,7 +128,6 @@ services:
 
   objecten-api-database:
     image: postgis/postgis:15-3.4
-    container_name: objecten-api-database
     ports:
       - "54323:5432"
     platform: linux/amd64
@@ -153,7 +144,6 @@ services:
 
   objecten-api-import:
     image: maykinmedia/objects-api:2.1.1
-    container_name: objects-api-import
     platform: linux/amd64
     environment: *objects-env
     # in the current version of django it is not possible to create a new user with password without user interaction by using the createsuperuser command
@@ -166,7 +156,6 @@ services:
 
   objecttypen-api:
     image: maykinmedia/objecttypes-api:2.1.0
-    container_name: objecttypen-api
     platform: linux/amd64
     ports:
       - "8011:8000"
@@ -184,7 +173,6 @@ services:
 
   objecttypen-api-database:
     image: postgres:15.4
-    container_name: objecttypen-api-database
     ports:
       - "54324:5432"
     healthcheck:
@@ -200,7 +188,6 @@ services:
 
   objecttypen-api-import:
     image: maykinmedia/objecttypes-api:2.1.0
-    container_name: objecttypen-api-import
     platform: linux/amd64
     environment: *objecttypes-env
     command: sh init/init.sh
@@ -210,10 +197,8 @@ services:
     depends_on:
       - objecttypen-api
 
-  # Solr
-  zac-solr:
+  solr:
     image: solr:9.2.1
-    container_name: zac-solr
     ports:
       - "8983:8983"
     volumes:
@@ -224,16 +209,14 @@ services:
       - "precreate-core zac; exec solr -f"
 
   # Open Policy Agent (OPA)
-  zac-opa:
+  opa:
     image: openpolicyagent/opa:edge-static
-    container_name: zac-opa
     command: run --server --log-level debug
     ports:
       - "8181:8181"
 
   openldap:
-    image: bitnami/openldap:2.6.4
-    container_name: openldap
+    image: bitnami/openldap:2.6.6
     ports:
       - "1389:1389"
       - "1636:1636"
@@ -255,7 +238,6 @@ services:
   # VNG ZGW referentielijsten ('VRL') (see: https://github.com/VNG-Realisatie/VNG-referentielijsten)
   zgw-referentielijsten-database:
     image: postgres:15.4
-    container_name: zgw-referentielijsten-database
     ports:
       - "54321:5432"
     environment:
@@ -267,7 +249,6 @@ services:
 
   zgw-referentielijsten:
     image: ghcr.io/infonl/vng-referentielijsten:0.6.1
-    container_name: zgw-referentielijsten
     environment:
       - DB_HOST=zgw-referentielijsten-database
       - DB_NAME=vrl
@@ -289,7 +270,6 @@ services:
   # Insert required test data into the VRL database after the VRL application has started up and finished initializing the database
   zgw-referentielijsten-database-init:
     image: postgres:15.4
-    container_name: zgw-referentielijsten-database-init
     volumes:
       - ./scripts/docker-compose/imports/zgw-referentielijsten/init-zgw-referentielijsten-database.sql:/tmp/init-zgw-referentielijsten-database.sql
     command: bash -c "psql postgresql://vrl:vrl@zgw-referentielijsten-database/vrl < /tmp/init-zgw-referentielijsten-database.sql"
@@ -301,7 +281,6 @@ services:
   gbamock:
     image: ghcr.io/brp-api/haal-centraal-brp-bevragen-gba-mock:2.0.8
     platform: linux/amd64
-    container_name: gbamock
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010
@@ -311,7 +290,6 @@ services:
   brpproxy:
     image: ghcr.io/brp-api/haal-centraal-brp-bevragen-proxy:2.1.0
     platform: linux/amd64
-    container_name: brpproxy
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5000
@@ -322,7 +300,6 @@ services:
 
   openklant-database:
     image: postgres:15.4
-    container_name: openklant-database
     ports:
       - "54325:5432"
     healthcheck:
@@ -341,7 +318,6 @@ services:
 
   openklant:
     image: docker.io/maykinmedia/open-klant:latest
-    container_name: openklant
     platform: linux/amd64
     environment:
       - ALLOWED_HOSTS=localhost,host.docker.internal,172.17.0.1,openklant
@@ -364,15 +340,13 @@ services:
         condition: service_started
 
   zac:
-    # you typically want to change this to the most recent version of the ZAC Docker Image
-    # see: https://github.com/infonl/dimpact-zaakafhandelcomponent/pkgs/container/zaakafhandelcomponent
-    image: ghcr.io/infonl/zaakafhandelcomponent:main-242
-    container_name: zac
-    platform: linux/amd64
+    # By default, we use the latest ZAC Docker Image. Change this if you wish to use a specific version.
+    # See: https://github.com/infonl/dimpact-zaakafhandelcomponent/pkgs/container/zaakafhandelcomponent
+    image: ghcr.io/infonl/zaakafhandelcomponent:latest
     environment:
-    # Some of these environment variables use 'host.docker.internal' as hostname.
-    # To be able to use this you need an entry in your /etc/hosts file.
-    # Please see docs/INSTALL-DOCKER-COMPOSE.md for details.
+      # Some of these environment variables use 'host.docker.internal' as hostname.
+      # To be able to use this you need an entry in your /etc/hosts file.
+      # Please see docs/INSTALL-DOCKER-COMPOSE.md for details.
       - AUTH_REALM=zaakafhandelcomponent
       - AUTH_RESOURCE=zaakafhandelcomponent
       - AUTH_SECRET=keycloakZaakafhandelcomponentClientSecret
@@ -407,12 +381,12 @@ services:
       - OFFICE_CONVERTER_CLIENT_MP_REST_URL=http://localhost:9999 # dummy for now
       - OBJECTS_API_TOKEN=1 # dummy for now
       - OBJECTTYPES_API_TOKEN=1 # dummy for now
-      - OPA_API_CLIENT_MP_REST_URL=http://zac-opa:8181
+      - OPA_API_CLIENT_MP_REST_URL=http://opa:8181
       - OPEN_FORMS_URL=http://localhost:9999 # dummy for now
       - OPEN_NOTIFICATIONS_API_SECRET_KEY=opennotificaties
       - SD_AUTHENTICATION=${SD_AUTHENTICATION}
       - SD_CLIENT_MP_REST_URL=${SD_CLIENT_MP_REST_URL}
-      - SOLR_URL=http://zac-solr:8983
+      - SOLR_URL=http://solr:8983
       - VRL_API_CLIENT_MP_REST_URL=http://host.docker.internal:8020/
       - ZGW_API_CLIENT_MP_REST_URL=http://host.docker.internal:8001/
       - ZGW_API_CLIENTID=zac_client
@@ -420,6 +394,7 @@ services:
       - ZGW_API_URL_EXTERN=http://localhost:8001/
     ports:
       - "8080:8080"
+      - "9990:9990"
     depends_on:
       zac-database:
         condition: service_healthy
