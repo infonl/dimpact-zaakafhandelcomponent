@@ -5,8 +5,11 @@
 
 package nl.info.zac
 
+import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.HttpStatus
 import io.github.oshai.kotlinlogging.DelegatingKLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.kotest.assertions.fail
+import org.json.JSONObject
 import org.slf4j.Logger
 import org.testcontainers.containers.FixedHostPortGenericContainer
 import org.testcontainers.containers.GenericContainer
@@ -24,15 +27,18 @@ class ZACContainer(
     companion object {
         const val CONTAINER_PORT = 8080
         const val CONTAINER_MANAGEMENT_PORT = 9990
+        const val THREE_MINUTES = 3L
     }
 
-    private val zacDockerImage =
-        System.getProperty("zacDockerImage", DOCKER_IMAGE_ZAC_DEV)
+    private val zacDockerImage = System.getProperty("zacDockerImage", DOCKER_IMAGE_ZAC_DEV)
+    private lateinit var bagApiClientMpRestUrl: String
+    private lateinit var bagApiKey: String
     private lateinit var container: GenericContainer<*>
     lateinit var apiUrl: String
     lateinit var managementUrl: String
 
     fun start() {
+        setVariablesFromEnvironment()
         container = createContainer()
 
         logger.info { "Starting ZAC Docker image: '$zacDockerImage' using Postgresql JDBC URL: '$postgresqlHostAndPort'" }
@@ -45,6 +51,13 @@ class ZACContainer(
 
     fun stop() = if (this::container.isInitialized) container.stop() else Unit
 
+    private fun setVariablesFromEnvironment() {
+        bagApiClientMpRestUrl = System.getenv("BAG_API_CLIENT_MP_REST_URL")
+            .ifEmpty { fail("BAG_API_CLIENT_MP_REST_URL env var is required") }
+        bagApiKey = System.getenv("BAG_API_KEY")
+            .ifEmpty { fail("BAG_API_KEY env var is required") }
+    }
+
     @Suppress("LongMethod")
     private fun createContainer(): KGenericContainer {
         val env = mapOf(
@@ -52,8 +65,8 @@ class ZACContainer(
             "AUTH_RESOURCE" to "zaakafhandelcomponent",
             "AUTH_SECRET" to "keycloakZaakafhandelcomponentClientSecret",
             "AUTH_SERVER" to "http://keycloak:8081",
-            "BAG_API_CLIENT_MP_REST_URL" to "https://api.bag.acceptatie.kadaster.nl/lvbag/individuelebevragingen/v2/",
-            "BAG_API_KEY" to "dummyBagApiKey",
+            "BAG_API_CLIENT_MP_REST_URL" to bagApiClientMpRestUrl,
+            "BAG_API_KEY" to bagApiKey,
             "BRP_API_CLIENT_MP_REST_URL" to "http://brpproxy:5000/haalcentraal/api/brp",
             "BRP_API_KEY" to "dummyKey", // not used when using the BRP proxy
             "CONTACTMOMENTEN_API_CLIENT_MP_REST_URL" to "http://openklant:8000/contactmomenten",
@@ -108,7 +121,15 @@ class ZACContainer(
             )
             .waitingFor(
                 Wait.forLogMessage(".* WildFly Full .* started .*", 1)
-                    .withStartupTimeout(Duration.ofMinutes(2))
+            )
+            .waitingFor(
+                Wait.forHttp("/health/ready")
+                    .forPort(CONTAINER_MANAGEMENT_PORT)
+                    .forStatusCode(HttpStatus.SC_OK)
+                    .forResponsePredicate { response ->
+                        JSONObject(response).getString("status") == "UP"
+                    }
+                    .withStartupTimeout(Duration.ofMinutes(THREE_MINUTES))
             )
     }
 }

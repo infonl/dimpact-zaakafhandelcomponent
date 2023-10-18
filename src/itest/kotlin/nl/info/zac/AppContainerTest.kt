@@ -21,7 +21,6 @@ class AppContainerTest : BehaviorSpec({
                     url = "${ProjectConfig.zacContainer.managementUrl}/health/ready"
                 ).apply {
                     logger.info { "response: $this" }
-                    // TODO: http status is 503 and status is DOWN at the moment
                     statusCode shouldBe HttpStatus.SC_OK
                     this.jsonObject.getString("status") shouldBe "UP"
                 }
