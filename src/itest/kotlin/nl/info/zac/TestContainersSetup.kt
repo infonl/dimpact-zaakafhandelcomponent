@@ -40,7 +40,7 @@ class ZACContainer(
 
         apiUrl = "http://${container.host}:$CONTAINER_PORT/rest"
         managementUrl = "http://${container.host}:$CONTAINER_MANAGEMENT_PORT"
-        logger.info { "ZAC Docker container is running and accessible on: $apiUrl" }
+        logger.info { "ZAC Docker container is running and accessible on: $apiUrl and management URL: $managementUrl" }
     }
 
     fun stop() = if (this::container.isInitialized) container.stop() else Unit
