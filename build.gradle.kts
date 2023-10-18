@@ -337,11 +337,6 @@ tasks {
         outputs.dir("src/main/app/dummy-folder")
     }
 
-    register<NpmTask>("npmRunE2e") {
-        dependsOn("npmRunBuild")
-        npmCommand.set(listOf("run", "e2e:start"))
-    }
-
     register<Exec>("generateWildflyBootableJar") {
         dependsOn("jar")
         if (System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")) {
