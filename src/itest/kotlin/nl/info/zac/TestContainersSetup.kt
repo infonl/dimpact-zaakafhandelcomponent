@@ -23,12 +23,14 @@ class ZACContainer(
 ) {
     companion object {
         const val CONTAINER_PORT = 8080
+        const val CONTAINER_MANAGEMENT_PORT = 9990
     }
 
     private val zacDockerImage =
-        System.getProperty("zacDockerImage", DockerImages.DOCKER_IMAGE_ZAC_DEV)
+        System.getProperty("zacDockerImage", DOCKER_IMAGE_ZAC_DEV)
     private lateinit var container: GenericContainer<*>
     lateinit var apiUrl: String
+    lateinit var managementUrl: String
 
     fun start() {
         container = createContainer()
@@ -36,7 +38,8 @@ class ZACContainer(
         logger.info { "Starting ZAC Docker image: '$zacDockerImage' using Postgresql JDBC URL: '$postgresqlHostAndPort'" }
         container.start()
 
-        apiUrl = "http://${container.getHost()}:$CONTAINER_PORT/rest"
+        apiUrl = "http://${container.host}:$CONTAINER_PORT/rest"
+        managementUrl = "http://${container.host}:$CONTAINER_MANAGEMENT_PORT"
         logger.info { "ZAC Docker container is running and accessible on: $apiUrl" }
     }
 
@@ -95,6 +98,7 @@ class ZACContainer(
         @Suppress("SpreadOperator")
         return KGenericContainer(zacDockerImage)
             .withFixedExposedPort(CONTAINER_PORT, CONTAINER_PORT)
+            .withFixedExposedPort(CONTAINER_MANAGEMENT_PORT, CONTAINER_MANAGEMENT_PORT)
             .withEnv(env)
             .withNetwork(network)
             .withLogConsumer(
