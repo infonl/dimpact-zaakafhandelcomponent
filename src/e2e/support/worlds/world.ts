@@ -27,13 +27,6 @@ export class CustomWorld extends World {
         }
         await this.page.goto(url);
     }
-
-    async request(url: string) {
-        if(!this.initialized) {
-            await this.init();
-        }
-      return fetch(url)
-    }
 }
 
 setWorldConstructor(CustomWorld)
