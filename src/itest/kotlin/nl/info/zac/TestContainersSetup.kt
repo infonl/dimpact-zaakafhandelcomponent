@@ -8,7 +8,6 @@ package nl.info.zac
 import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.HttpStatus
 import io.github.oshai.kotlinlogging.DelegatingKLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.kotest.assertions.fail
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.testcontainers.containers.FixedHostPortGenericContainer
@@ -53,9 +52,7 @@ class ZACContainer(
 
     private fun setVariablesFromEnvironment() {
         bagApiClientMpRestUrl = System.getenv("BAG_API_CLIENT_MP_REST_URL")
-            .ifEmpty { fail("BAG_API_CLIENT_MP_REST_URL env var is required") }
         bagApiKey = System.getenv("BAG_API_KEY")
-            .ifEmpty { fail("BAG_API_KEY env var is required") }
     }
 
     @Suppress("LongMethod")
