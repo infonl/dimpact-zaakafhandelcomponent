@@ -212,7 +212,7 @@ tasks {
     }
 
     jar {
-        dependsOn("npmRunBuild")
+        dependsOn("war")
     }
 
     processResources {
