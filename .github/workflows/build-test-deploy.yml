@@ -113,7 +113,7 @@ jobs:
           .
 
       - name: Run integration tests
-        run: ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} itest --info
+        run: BAG_API_CLIENT_MP_REST_URL=$${{vars.BAG_API_CLIENT_MP_REST_URL}} BAG_API_KEY=${{secrets.BAG_API_KEY}} ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} itest --info
 
       - name: Save Docker Image
         run: docker save --output docker-image.tar ${ZAC_DOCKER_IMAGE}
