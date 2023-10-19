@@ -20,7 +20,7 @@ updates:
     reviewers:
       - "infonl/dimpact"
     ignore:
-      # Ignore updates for these packages because it is needed for our current WildFly version (26.x)
+      # Ignore updates for these packages because they are provided by the WildFly application server.
       - dependency-name: "jakarta.platform:jakarta.jakartaee-api"
       - dependency-name: "org.eclipse.microprofile.rest.client:microprofile-rest-client-api"
       - dependency-name: "org.eclipse.microprofile.config:microprofile-config-api"
