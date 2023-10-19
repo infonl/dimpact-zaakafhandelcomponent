@@ -57,7 +57,7 @@ dependencies {
     implementation("org.slf4j:slf4j-jdk14:2.0.3")
     implementation("com.auth0:java-jwt:4.4.0")
     implementation("javax.cache:cache-api:1.1.1")
-    implementation("com.google.guava:guava:30.1.1-jre")
+    implementation("com.google.guava:guava:32.1.3-jre")
     implementation("com.mailjet:mailjet-client:5.2.4")
     implementation("org.flywaydb:flyway-core:9.22.3")
     implementation("org.apache.solr:solr-solrj:9.4.0")
