@@ -33,10 +33,9 @@ repositories {
 group = "net.atos.common-ground"
 description = "Zaakafhandelcomponent"
 
-val zacDockerImageTag by extra {
-    if (project.hasProperty("zacDockerImageTag")) project.property("zacDockerImageTag") else "dev"
+val zacDockerImage by extra {
+    if (project.hasProperty("zacDockerImage")) project.property("zacDockerImage").toString() else "ghcr.io/infonl/zaakafhandelcomponent:dev"
 }
-val zacDockerImage by extra { "ghcr.io/infonl/zaakafhandelcomponent:$zacDockerImageTag" }
 
 // create custom configuration for extra dependencies that are required in the generated WAR
 val warLib by configurations.creating {
