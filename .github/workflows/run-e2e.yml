@@ -23,8 +23,10 @@ jobs:
       - name: add ip to nsg
         if: ${{ env.my_ip =~ [0-9]+\.[0-9]+\.[0-9]+\.[0-9] }}
         uses: azure/CLI@v1
-        run: |
-          az network nsg rule create -g zac-infra --nsg-name k8s-test-nsg -n allow_github_runner --priority 295 --source-address-prefixes ${{ env.my_ip }} --destination-port-ranges '*' --direction Inbound --access allow --protocol '*' --destination-address-prefixes '*'
+        with:
+          azcliversion: "latest"
+          inlineScript: |
+            az network nsg rule create -g zac-infra --nsg-name k8s-test-nsg -n allow_github_runner --priority 295 --source-address-prefixes ${{ env.my_ip }} --destination-port-ranges '*' --direction Inbound --access allow --protocol '*' --destination-address-prefixes '*'
       - name: pause 30 seconds
         run: |
           sleep 30
@@ -39,5 +41,7 @@ jobs:
       - name: remove nsg rule by name
         if: always()
         uses: azure/CLI@v1
-        run: |
-          az network nsg rule delete -g zac-infra --nsg-name k8s-test-nsg -n allow_github_runner
+        with:
+          azcliversion: "latest"
+          inlineScript: |
+            az network nsg rule delete -g zac-infra --nsg-name k8s-test-nsg -n allow_github_runner
