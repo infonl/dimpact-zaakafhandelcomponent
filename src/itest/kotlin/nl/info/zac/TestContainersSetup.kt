@@ -50,6 +50,7 @@ class ZACContainer(
 
     fun stop() = if (this::container.isInitialized) container.stop() else Unit
 
+    // these environment variables need to be set or else the container will not start
     private fun setVariablesFromEnvironment() {
         bagApiClientMpRestUrl = System.getenv("BAG_API_CLIENT_MP_REST_URL")
         bagApiKey = System.getenv("BAG_API_KEY")
@@ -80,7 +81,7 @@ class ZACContainer(
             "KLANTEN_API_CLIENT_MP_REST_URL" to "http://openklant:8000/klanten",
             "KLANTEN_API_CLIENTID" to "zac_client",
             "KLANTEN_API_SECRET" to "openklantZaakhandelcomponentClientSecret",
-            "KVK_API_CLIENT_MP_REST_URL" to "dummyKvkApiUrl", // will be replaced with a mock server
+            "KVK_API_CLIENT_MP_REST_URL" to "dummyKvkApiUrl", // dummy for now
             "KVK_API_KEY" to "dummyKvkApiKey",
             "LDAP_DN" to "ou=people,dc=example,dc=org",
             "LDAP_PASSWORD" to "admin",
