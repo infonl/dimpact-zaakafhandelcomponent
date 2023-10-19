@@ -84,8 +84,8 @@ jobs:
       BUILD_NUMBER: ${{ needs.build.outputs.build_number }}
       ZAC_DOCKER_IMAGE: ${{ needs.build.outputs.zac_docker_image }}
       GIT_COMMIT_HASH: ${{ github.sha }}
-      BAG_API_CLIENT_MP_REST_URL: $${{vars:BAG_API_CLIENT_MP_REST_URL}}
-      BAG_API_KEY: ${{secrets.BAG_API_KEY}}
+      BAG_API_CLIENT_MP_REST_URL: $${{ vars.BAG_API_CLIENT_MP_REST_URL }}
+      BAG_API_KEY: ${{ secrets.BAG_API_KEY }}
     steps:
       - uses: actions/checkout@v4
 
