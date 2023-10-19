@@ -211,10 +211,6 @@ tasks {
         dependsOn(test)
     }
 
-    jar {
-        dependsOn("war")
-    }
-
     processResources {
         // exclude resources that we do not need in the build artefacts
         exclude("api-specs/**")
@@ -380,7 +376,7 @@ tasks {
     }
 
     register<Exec>("generateWildflyBootableJar") {
-        dependsOn("jar")
+        dependsOn("war")
         if (System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")) {
             commandLine("./mvnw.cmd", "wildfly-jar:package")
         } else {
