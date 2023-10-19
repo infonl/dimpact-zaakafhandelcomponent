@@ -19,6 +19,16 @@ updates:
       timezone: "Europe/Amsterdam"
     reviewers:
       - "infonl/dimpact"
+    ignore:
+      # Ignore updates for these packages because they are provided by the WildFly application server.
+      - dependency-name: "jakarta.platform:jakarta.jakartaee-api"
+      - dependency-name: "org.eclipse.microprofile.rest.client:microprofile-rest-client-api"
+      - dependency-name: "org.eclipse.microprofile.config:microprofile-config-api"
+      - dependency-name: "org.eclipse.microprofile.health:microprofile-health-api"
+      - dependency-name: "org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api"
+      - dependency-name: "org.jboss.resteasy:resteasy-multipart-provider"
+      - dependency-name: "org.wildfly.security:wildfly-elytron-http-oidc"
+
 
   - package-ecosystem: "github-actions"
     directory: "/"
