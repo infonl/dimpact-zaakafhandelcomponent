@@ -38,7 +38,7 @@ If you want to skip running the tests, use the following command:
 To build the ZAC Docker image using the generated JAR archive from the previous step, use the following command:
 
 ```shell
-docker build -t zaakafhandelcomponent:latest --file Containerfile .
+./gradlew buildZacDockerImage
 ```
 
 ## Run the software

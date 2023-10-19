@@ -1,3 +1,4 @@
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.github.gradle.node.npm.task.NpmTask
 import io.smallrye.openapi.api.OpenApiConfig
 import java.util.Locale
@@ -21,6 +22,7 @@ plugins {
     id("io.smallrye.openapi") version "3.5.1"
     id("org.hidetake.swagger.generator") version "2.19.2"
     id("io.gitlab.arturbosch.detekt") version "1.23.1"
+    id("com.bmuschko.docker-remote-api") version "9.3.4"
 }
 
 repositories {
@@ -31,6 +33,14 @@ repositories {
 // create custom configuration for extra dependencies that are required in the generated WAR
 val warLib by configurations.creating {
     extendsFrom(configurations["compileOnly"])
+}
+
+sourceSets {
+    // create custom integration test source set
+    create("itest") {
+        compileClasspath += sourceSets.main.get().output
+        runtimeClasspath += sourceSets.main.get().output
+    }
 }
 
 dependencies {
@@ -83,6 +93,14 @@ dependencies {
     testImplementation("org.eclipse:yasson:1.0.11")
     testImplementation("io.kotest:kotest-runner-junit5:5.7.1")
     testImplementation("io.mockk:mockk:1.13.7")
+
+    // integration test dependencies
+    "itestImplementation"("org.testcontainers:testcontainers:1.19.1")
+    "itestImplementation"("org.testcontainers:postgresql:1.19.1")
+    "itestImplementation"("io.kotest:kotest-runner-junit5:5.7.1")
+    "itestImplementation"("org.slf4j:slf4j-simple:2.0.9")
+    "itestImplementation"("io.github.oshai:kotlin-logging-jvm:5.1.0")
+    "itestImplementation"("org.danilopianini:khttp:1.4.0")
 }
 
 group = "net.atos.common-ground"
@@ -90,6 +108,7 @@ description = "Zaakafhandelcomponent"
 
 detekt {
     config.setFrom("$rootDir/config/detekt.yml")
+    source.setFrom("src/main/kotlin", "src/test/kotlin", "src/itest/kotlin")
     // our Detekt configuration build builds upon the default configuration
     buildUponDefaultConfig = true
 }
@@ -155,6 +174,7 @@ swaggerSources {
 // share the same output folder (= $rootDir)
 tasks.getByName("npmInstall").setMustRunAfter(listOf("generateJavaClients"))
 tasks.getByName("generateSwaggerUIZaakafhandelcomponent").setMustRunAfter(listOf("generateOpenApiSpec"))
+tasks.getByName("compileItestKotlin").setMustRunAfter(listOf("buildZacDockerImage"))
 
 tasks.war {
     dependsOn("npmRunBuild")
@@ -189,10 +209,6 @@ tasks {
 
     jacocoTestReport {
         dependsOn(test)
-    }
-
-    jar {
-        dependsOn("npmRunBuild")
     }
 
     processResources {
@@ -324,8 +340,8 @@ tasks {
 
     register<NpmTask>("npmRunTest") {
         dependsOn("npmRunBuild")
-        npmCommand.set(listOf("run", "test"))
 
+        npmCommand.set(listOf("run", "test"))
         // avoid running this task when there are no changes in the input or output files
         // see: https://github.com/node-gradle/gradle-node-plugin/blob/master/docs/faq.md
         inputs.files(fileTree("src/main/app/node_modules"))
@@ -337,8 +353,30 @@ tasks {
         outputs.dir("src/main/app/dummy-folder")
     }
 
+    register<Copy>("copyJarToDockerBuildDir") {
+        dependsOn("generateWildflyBootableJar")
+
+        from("target/zaakafhandelcomponent.jar")
+        into("$buildDir/docker")
+    }
+
+    register<DockerBuildImage>("buildZacDockerImage") {
+        dependsOn("copyJarToDockerBuildDir")
+
+        inputDir.set(file("."))
+        dockerFile.set(file("Containerfile"))
+        images.add("ghcr.io/infonl/zaakafhandelcomponent:dev")
+    }
+
+    register<Test>("itest") {
+        inputs.files(project.tasks.findByPath("compileItestKotlin")!!.outputs.files)
+
+        testClassesDirs = sourceSets["itest"].output.classesDirs
+        classpath = sourceSets["itest"].runtimeClasspath
+    }
+
     register<Exec>("generateWildflyBootableJar") {
-        dependsOn("jar")
+        dependsOn("war")
         if (System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")) {
             commandLine("./mvnw.cmd", "wildfly-jar:package")
         } else {
@@ -354,6 +392,5 @@ tasks {
         }
     }
 }
-
 
 
