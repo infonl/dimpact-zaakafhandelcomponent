@@ -61,11 +61,10 @@ jobs:
       - name: Gradle build and test
         run: ./gradlew build --info
 
-      - name: Publish unit test results
+      - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
-          check_name: unit-test-results
           files: |
             build/test-results/**/*.xml
             src/main/app/reports/*.xml
@@ -85,8 +84,6 @@ jobs:
       BUILD_NUMBER: ${{ needs.build.outputs.build_number }}
       ZAC_DOCKER_IMAGE: ${{ needs.build.outputs.zac_docker_image }}
       GIT_COMMIT_HASH: ${{ github.sha }}
-      BAG_API_CLIENT_MP_REST_URL: $${{ vars.BAG_API_CLIENT_MP_REST_URL }}
-      BAG_API_KEY: ${{ secrets.BAG_API_KEY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -98,11 +95,6 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
-
-      - name: Cache Docker images
-        uses: ScribeMD/docker-cache@0.3.6
-        with:
-          key: docker-${{ runner.os }}-${{ hashFiles('docker-compose.yaml') }}
 
       - name: Restore Maven build artefacts
         uses: actions/cache/restore@v3
@@ -121,15 +113,7 @@ jobs:
           .
 
       - name: Run integration tests
-        run: ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} -x compileJava -x processResources -x compileKotlin -x classes itest --info
-
-      - name: Publish integration test results
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
-        with:
-          check_name: integration-test-results
-          files: |
-            build/test-results/itest/**/*.xml
+        run: ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} itest --info
 
       - name: Save Docker Image
         run: docker save --output docker-image.tar ${ZAC_DOCKER_IMAGE}
@@ -140,36 +124,8 @@ jobs:
           path: docker-image.tar
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
-  run-integration-tests:
-    needs: [build-docker-image]
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    env:
-      ZAC_DOCKER_IMAGE: ${{ needs.build.outputs.zac_docker_image }}
-    steps:
-      - name: Restore Docker Image
-        uses: actions/cache/restore@v3
-        with:
-          path: docker-image.tar
-          key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
-
-      - name: Load Docker Image
-        run: docker load --input docker-image.tar
-
-      - name: Setup JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-
-      - name: Run integration tests
-        run: ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} itest --info
-
   push-docker-image:
-    needs: [build, build-docker-image-and-run-itests]
+    needs: [run-integration-tests]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     if: github.ref == 'refs/heads/main'
@@ -199,7 +155,7 @@ jobs:
         run: docker push --all-tags ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}
 
   trigger-provision:
-    needs: [push-docker-image]
+    needs: [build, push-docker-image]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     if: github.ref == 'refs/heads/main'
