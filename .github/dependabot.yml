@@ -19,6 +19,10 @@ updates:
       timezone: "Europe/Amsterdam"
     reviewers:
       - "infonl/dimpact"
+    ignore:
+      # Ignore updates for this package because it is needed for our current WildFly version (26.x)
+      - dependency-name: "org.jboss.resteasy:resteasy-multipart-provider"
+
 
   - package-ecosystem: "github-actions"
     directory: "/"
