@@ -76,7 +76,7 @@ jobs:
             target/
           key: maven-build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
-  build-docker-image:
+  build-docker-image-and-run-itests:
     needs: [build]
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -86,6 +86,15 @@ jobs:
       GIT_COMMIT_HASH: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
 
       - name: Restore Maven build artefacts
         uses: actions/cache/restore@v3
@@ -103,6 +112,9 @@ jobs:
           --file Containerfile \
           .
 
+      - name: Run integration tests
+        run: ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} itest --info
+
       - name: Save Docker Image
         run: docker save --output docker-image.tar ${ZAC_DOCKER_IMAGE}
 
@@ -112,36 +124,8 @@ jobs:
           path: docker-image.tar
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
-  run-integration-tests:
-    needs: [build-docker-image]
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    env:
-      ZAC_DOCKER_IMAGE: ${{ needs.build.outputs.zac_docker_image }}
-    steps:
-      - name: Restore Docker Image
-        uses: actions/cache/restore@v3
-        with:
-          path: docker-image.tar
-          key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
-
-      - name: Load Docker Image
-        run: docker load --input docker-image.tar
-
-      - name: Setup JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-
-      - name: Run integration tests
-        run: ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} itest --info
-
   push-docker-image:
-    needs: [build, build-docker-image]
+    needs: [run-integration-tests]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     if: github.ref == 'refs/heads/main'
