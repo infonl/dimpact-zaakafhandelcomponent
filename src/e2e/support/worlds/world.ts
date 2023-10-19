@@ -4,12 +4,23 @@
  */
 import { World, setWorldConstructor } from "@cucumber/cucumber";
 import playwright from "playwright";
+import { worldParametersScheme } from "../../utils/schemes";
+import {z} from 'zod'
+
 
 export class CustomWorld extends World {
     page: playwright.Page;
     browser: playwright.Browser;
     context: playwright.BrowserContext; 
     initialized: boolean = false;
+    worldParameters: z.infer<typeof worldParametersScheme>['parameters'];
+
+    constructor(attach: unknown) {
+        const res = worldParametersScheme.parse(attach)
+        super({attach: res.attach, parameters: res.parameters, log: res.log });
+
+        this.worldParameters = res.parameters;
+    }
 
     async init() {
         this.browser = await playwright.chromium.launch({
