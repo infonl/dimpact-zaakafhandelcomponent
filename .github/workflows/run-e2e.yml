@@ -8,6 +8,7 @@ jobs:
   playwright:
     name: 'Playwright Tests'
     runs-on: ubuntu-latest
+    environment: azure-dimpact-dta
     container:
       image: mcr.microsoft.com/playwright:v1.39.0-jammy
     steps:
