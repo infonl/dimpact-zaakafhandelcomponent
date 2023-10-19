@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-import { IWorldOptions, World, setWorldConstructor } from "@cucumber/cucumber";
+import { World, setWorldConstructor } from "@cucumber/cucumber";
 import playwright from "playwright";
 
 export class CustomWorld extends World {

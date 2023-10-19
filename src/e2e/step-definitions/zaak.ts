@@ -1,5 +1,5 @@
 import { When } from "@cucumber/cucumber";
-import { CustomWorld } from "support/worlds/world";
+import { CustomWorld } from "../support/worlds/world";
 
 /*
  * SPDX-FileCopyrightText: 2023 Lifely

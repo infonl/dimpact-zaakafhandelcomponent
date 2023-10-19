@@ -4,7 +4,7 @@
  */
 
 import { When } from "@cucumber/cucumber";
-import { CustomWorld } from "support/worlds/world";
+import { CustomWorld } from "../support/worlds/world";
 
 When("{string} logs in with username {string} and password {string}", async function (this: CustomWorld, user, username, password) {
     await this.page.getByLabel("Username or email").click();
