@@ -30,6 +30,14 @@ repositories {
     mavenCentral()
 }
 
+group = "net.atos.common-ground"
+description = "Zaakafhandelcomponent"
+
+val zacDockerImageTag by extra {
+    if (project.hasProperty("zacDockerImageTag")) project.property("zacDockerImageTag") else "dev"
+}
+val zacDockerImage by extra { "ghcr.io/infonl/zaakafhandelcomponent:$zacDockerImageTag" }
+
 // create custom configuration for extra dependencies that are required in the generated WAR
 val warLib by configurations.creating {
     extendsFrom(configurations["compileOnly"])
@@ -103,9 +111,6 @@ dependencies {
     "itestImplementation"("org.danilopianini:khttp:1.4.0")
 }
 
-group = "net.atos.common-ground"
-description = "Zaakafhandelcomponent"
-
 detekt {
     config.setFrom("$rootDir/config/detekt.yml")
     source.setFrom("src/main/kotlin", "src/test/kotlin", "src/itest/kotlin")
@@ -131,8 +136,8 @@ java {
 
 jsonSchema2Pojo {
     // generates Java model files for the "gemeente Den Haag productaanvraag" JSON schema
-    setSource(files("${rootDir}/src/main/resources/json-schema"))
-    targetDirectory = file("${rootDir}/src/generated/java")
+    setSource(files("$rootDir/src/main/resources/json-schema"))
+    targetDirectory = file("$rootDir/src/generated/java")
     setFileExtensions(".schema.json")
     targetPackage = "net.atos.zac.aanvraag"
     setAnnotationStyle("JSONB1")
@@ -149,7 +154,7 @@ node {
     download.set(true)
     version.set("18.10.0")
     distBaseUrl.set("https://nodejs.org/dist")
-    nodeProjectDir.set(file("${rootDir}/src/main/app"))
+    nodeProjectDir.set(file("$rootDir/src/main/app"))
     if (System.getenv("CI") != null) {
         npmInstallCommand.set("ci")
     } else {
@@ -166,7 +171,7 @@ smallryeOpenApi {
 
 swaggerSources {
     register("zaakafhandelcomponent") {
-        setInputFile(file("${rootDir}/build/generated/openapi/META-INF/openapi/openapi.yaml"))
+        setInputFile(file("$rootDir/build/generated/openapi/META-INF/openapi/openapi.yaml"))
     }
 }
 
@@ -366,7 +371,7 @@ tasks {
 
         inputDir.set(file("."))
         dockerFile.set(file("Containerfile"))
-        images.add("ghcr.io/infonl/zaakafhandelcomponent:dev")
+        images.add(zacDockerImage)
     }
 
     register<Test>("itest") {
@@ -393,5 +398,3 @@ tasks {
         }
     }
 }
-
-
