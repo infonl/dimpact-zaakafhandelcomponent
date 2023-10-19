@@ -379,6 +379,8 @@ tasks {
 
         testClassesDirs = sourceSets["itest"].output.classesDirs
         classpath = sourceSets["itest"].runtimeClasspath
+
+        systemProperty("zacDockerImage", zacDockerImage)
     }
 
     register<Exec>("generateWildflyBootableJar") {
