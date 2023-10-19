@@ -17,7 +17,7 @@ jobs:
           enable-AzPSSession: true
       - name: check IP
         run: |
-          $my_ip=curl https://api.ipify.org)
+          $my_ip=curl https://api.ipify.org
           echo "my_ip=$my_ip" >> $env:GITHUB_ENV
       - name: add ip to nsg
         uses: azure/CLI@v1
