@@ -1,0 +1,46 @@
+name: Playwright Tests
+on:
+  schedule:
+    # Runs at 9:00 PM UTC from Monday to Friday
+    - cron:  '0 21 * * 1-5'
+  workflow_dispatch:
+jobs:
+  playwright:
+    name: 'Playwright Tests'
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.39.0-jammy
+    steps:
+      - name: login to azure and allow pssessions
+        uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+          enable-AzPSSession: true
+      - name: check IP
+        run: |
+          $my_ip=curl https://api.ipify.org)
+          echo "my_ip=$my_ip" >> $env:GITHUB_ENV
+      - name: add ip to nsg
+        uses: azure/CLI@v1
+        with:
+          azcliversion: "latest"
+          inlineScript: |
+            az network nsg rule create -g zac-infra --nsg-name k8s-test-nsg -n allow_github_runner --priority 295 --source-address-prefixes ${{ env.my_ip }} --destination-port-ranges '*' --direction Inbound --access allow --protocol '*' --destination-address-prefixes '*'
+      - name: pause 30 seconds
+        run: |
+          sleep 30
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install dependencies
+        run: cd src/e2e && npm ci
+      - name: Run your tests
+        run: 'cd src/e2e && npm run e2e:run -- --world-parameters "{\"urls\": { \"zac\": \"http://zaakafhandelcomponent-zac-dev.westeurope.cloudapp.azure.com\"}}"'
+      - name: remove nsg rule by name
+        if: always()
+        uses: azure/CLI@v1
+        with:
+          azcliversion: "latest"
+          inlineScript: |
+            az network nsg rule delete -g zac-infra --nsg-name k8s-test-nsg -n allow_github_runner
