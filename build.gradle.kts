@@ -33,9 +33,10 @@ repositories {
 group = "net.atos.common-ground"
 description = "Zaakafhandelcomponent"
 
-val zacDockerImage by extra {
-    if (project.hasProperty("zacDockerImage")) project.property("zacDockerImage").toString() else "ghcr.io/infonl/zaakafhandelcomponent:dev"
+val zacDockerImageTag by extra {
+    if (project.hasProperty("zacDockerImageTag")) project.property("zacDockerImageTag") else "dev"
 }
+val zacDockerImage by extra { "ghcr.io/infonl/zaakafhandelcomponent:$zacDockerImageTag" }
 
 // create custom configuration for extra dependencies that are required in the generated WAR
 val warLib by configurations.creating {
@@ -55,7 +56,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("org.apache.commons:commons-collections4:4.4")
-    implementation("com.opencsv:opencsv:5.8")
+    implementation("com.opencsv:opencsv:5.7.0")
     implementation("org.flowable:flowable-engine:6.7.2")
     implementation("org.flowable:flowable-cdi:6.7.2")
     implementation("org.flowable:flowable-cmmn-engine:6.7.2")
@@ -84,7 +85,7 @@ dependencies {
     // declare dependencies that are required in the generated WAR; see war section below
     // simply marking them as 'compileOnly' or 'implementation' does not work
     warLib("org.apache.httpcomponents:httpclient:4.5.13")
-    warLib("org.reactivestreams:reactive-streams:1.0.4")
+    warLib("org.reactivestreams:reactive-streams:1.0.3")
 
     // dependencies provided by Wildfly
     providedCompile("jakarta.platform:jakarta.jakartaee-api:8.0.0")
@@ -378,8 +379,6 @@ tasks {
 
         testClassesDirs = sourceSets["itest"].output.classesDirs
         classpath = sourceSets["itest"].runtimeClasspath
-
-        systemProperty("zacDockerImage", zacDockerImage)
     }
 
     register<Exec>("generateWildflyBootableJar") {
