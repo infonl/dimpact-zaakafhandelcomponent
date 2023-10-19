@@ -125,7 +125,7 @@ jobs:
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   push-docker-image:
-    needs: [run-integration-tests]
+    needs: [build-docker-image-and-run-itests]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     if: github.ref == 'refs/heads/main'
@@ -155,7 +155,7 @@ jobs:
         run: docker push --all-tags ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}
 
   trigger-provision:
-    needs: [build, push-docker-image]
+    needs: [push-docker-image]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     if: github.ref == 'refs/heads/main'
