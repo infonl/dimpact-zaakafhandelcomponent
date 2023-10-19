@@ -77,7 +77,7 @@ dependencies {
     // declare dependencies that are required in the generated WAR; see war section below
     // simply marking them as 'compileOnly' or 'implementation' does not work
     warLib("org.apache.httpcomponents:httpclient:4.5.13")
-    warLib("org.reactivestreams:reactive-streams:1.0.3")
+    warLib("org.reactivestreams:reactive-streams:1.0.4")
 
     // dependencies provided by Wildfly
     providedCompile("jakarta.platform:jakarta.jakartaee-api:8.0.0")
