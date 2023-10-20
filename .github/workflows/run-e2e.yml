@@ -36,7 +36,7 @@ jobs:
       - name: Run your tests
         run: 'cd src/e2e && npm run e2e:run -- --world-parameters "{\"urls\": { \"zac\": \"${{ secrets.ZAC_URL }}\"}, \"headless\": true}"'
       - name: Make a playwright report
-        run: 'cd src/e2e && npm run e2e:report'
+        run: 'cd src/e2e && npm run e2e:generate:report'
       - uses: actions/upload-artifact@v3
         if: always()
         with:
