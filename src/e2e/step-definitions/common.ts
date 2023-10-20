@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-import { Given, When, Then } from "@cucumber/cucumber";
+import { Given, Then } from "@cucumber/cucumber";
 import { CustomWorld } from "../support/worlds/world";
 import { worldPossibleZacUrls } from "../utils/schemes";
 

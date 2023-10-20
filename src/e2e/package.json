@@ -9,6 +9,7 @@
     "dependencies": {
         "@cucumber/cucumber": "^9.5.1",
         "cross-fetch": "^4.0.0",
+        "uuid": "^9.0.1",
         "zod": "^3.22.4"
     },
     "devDependencies": {

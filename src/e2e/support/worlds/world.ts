@@ -1,12 +1,12 @@
 /*
  * SPDX-FileCopyrightText: 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
- */
+*/
+
 import { World, setWorldConstructor } from "@cucumber/cucumber";
 import playwright from "playwright";
 import { worldParametersScheme } from "../../utils/schemes";
 import {z} from 'zod'
-
 
 export class CustomWorld extends World {
     page: playwright.Page;
@@ -18,7 +18,6 @@ export class CustomWorld extends World {
     constructor(attach: unknown) {
         const res = worldParametersScheme.parse(attach)
         super({attach: res.attach, parameters: res.parameters, log: res.log });
-
         this.worldParameters = res.parameters;
     }
 
@@ -31,10 +30,13 @@ export class CustomWorld extends World {
         this.initialized = true;
     }
 
+    async stop() {
+        await this.context.close();
+        await this.browser.close();
+        this.initialized = false;
+    }
+
     async openUrl(url: string) {
-        if(!this.initialized) {
-            await this.init();
-        }
         await this.page.goto(url);
     }
 }
