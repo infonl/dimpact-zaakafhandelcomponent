@@ -68,7 +68,7 @@ jobs:
                       "type": "header",
                       "text": {
                         "type": "plain_text",
-                        "text": ":mag: Workflow Run Details :mag_right:"
+                        "text": "Workflow Run Details"
                       }
                     },
                     {
