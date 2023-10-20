@@ -23,7 +23,7 @@ export class CustomWorld extends World {
 
     async init() {
         this.browser = await playwright.chromium.launch({
-            headless: true,
+            headless: this.worldParameters.headless,
         });
         this.context = await this.browser.newContext();
         this.page = await this.context.newPage();

@@ -10,6 +10,7 @@ export const worldParametersScheme = z.object({
         urls: z.object({
             zac: z.string().url(),
         }),
+        headless: z.boolean(),
     })
 })
 
