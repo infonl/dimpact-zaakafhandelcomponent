@@ -44,6 +44,17 @@ jobs:
           name: playwright-report
           path: src/e2e/reports
           retention-days: 7
+      - name: Notify Slack
+        if: always() # This ensures that the Slack notification happens even if the job fails.
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took # Customize fields as per requirement
+          author_name: GitHub Actions Bot # Optional
+          text: The results for the Playwright Tests are in! # Customize this message as needed
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This is needed to interact with GitHub
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # The incoming webhook URL
       - name: remove nsg rule by name
         if: always()
         uses: azure/CLI@v1
