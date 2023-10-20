@@ -8,8 +8,8 @@ const options = {
     scenarioTimestamp: true,
     launchReport: true,
     metadata: {
-        "App": "Your App Name",
-        "Test Environment": "Your Test Environment",
+        "App": "Dimpact e2e test",
+        "Test Environment": "Test",
         // more metadata fields as needed
     }
 };
