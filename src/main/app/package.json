@@ -62,15 +62,5 @@
     "protractor": "~7.0.0",
     "ts-node": "~10.9.1",
     "typescript": "^5.1.6"
-  },
-  "jest": {
-    "globalSetup": "<rootDir>/src/globalJest.js",
-    "preset": "jest-preset-angular",
-    "setupFilesAfterEnv": [
-      "<rootDir>/src/setupJest.ts"
-    ],
-    "moduleNameMapper": {
-      "^src/(.*)$": "<rootDir>/src/$1"
-    }
   }
 }
