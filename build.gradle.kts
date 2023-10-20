@@ -191,6 +191,7 @@ tasks {
         dependsOn("mavenClean")
 
         delete("$rootDir/src/main/app/dist")
+        delete("$rootDir/src/main/app/reports")
         delete("$rootDir/src/generated")
         // what about /src/main/app/.angular and /src/main/app/node_modules?
     }
@@ -348,9 +349,9 @@ tasks {
         inputs.files(fileTree("src/main/app/src"))
         inputs.file("src/main/app/package.json")
         inputs.file("src/main/app/package-lock.json")
-        // this task does not have any output but since Gradle incremental builds
-        // require at least one output folder, we use a dummy folder here
-        outputs.dir("src/main/app/dummy-folder")
+
+        // the Jest junit reporter generates file: src/main/app/reports/report.xml
+        outputs.dir("src/main/app/reports")
     }
 
     register<Copy>("copyJarToDockerBuildDir") {

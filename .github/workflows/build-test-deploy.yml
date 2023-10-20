@@ -19,6 +19,8 @@ env:
 permissions:
   contents: write
   packages: write
+  checks: write
+  pull-requests: write
 
 jobs:
   build:
@@ -58,6 +60,14 @@ jobs:
       # The Gradle build also executes a Maven command to build the WildFly bootable JAR.
       - name: Gradle build and test
         run: ./gradlew build --info
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: |
+            build/test-results/**/*.xml
+            src/main/app/reports/*.xml
 
       - name: Cache Maven build artefacts
         uses: actions/cache/save@v3
