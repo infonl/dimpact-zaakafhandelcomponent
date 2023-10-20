@@ -48,13 +48,64 @@ jobs:
         if: always() # This ensures that the Slack notification happens even if the job fails.
         uses: 8398a7/action-slack@v3
         with:
-          status: ${{ job.status }}
-          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took # Customize fields as per requirement
-          author_name: GitHub Actions Bot # Optional
-          text: The results for the Playwright Tests are in! # Customize this message as needed
+          status: custom
+          fields: workflow,job,status # You can choose the fields that are most relevant
+          custom_payload: |
+            {
+              "text": "Playwright Tests Update :tada:",
+              "attachments": [
+                {
+                  "color": "${{ job.status == 'success' && 'good' || job.status == 'failure' && 'danger' || 'warning' }}",
+                  "blocks": [
+                    {
+                      "type": "header",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Workflow Run Details"
+                      }
+                    },
+                    {
+                      "type": "section",
+                      "fields": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Repository:*\n${{ github.repository }}"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Workflow:*\n${{ github.workflow }}"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Job:*\n${{ github.job }}"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Status:*\n${{ job.status }}"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "actions",
+                      "elements": [
+                        {
+                          "type": "button",
+                          "text": {
+                            "type": "plain_text",
+                            "text": "View Run"
+                          },
+                          "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This is needed to interact with GitHub
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # The incoming webhook URL
+
       - name: remove nsg rule by name
         if: always()
         uses: azure/CLI@v1
