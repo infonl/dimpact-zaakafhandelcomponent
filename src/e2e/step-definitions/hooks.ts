@@ -13,7 +13,7 @@ After(async function (this: CustomWorld) {
 
 AfterStep(async function (this: CustomWorld, { result }) {
     if (result.status === Status.FAILED) {
-        const screenshot = await this.page.screenshot({ path: `./screenshots/${uuidv4()}.png` });
+        const screenshot = await this.page.screenshot({ path: `./reports/screenshots/${uuidv4()}.png` });
         this.attach(screenshot, "image/png");
     }
 })
