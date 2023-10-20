@@ -10,8 +10,9 @@ const config: Config = {
         "^src/(.*)$": "<rootDir>/src/$1"
     },
     reporters: [
-        'default',
         ['github-actions', {silent: false}],
+        ['jest-junit', {outputDirectory: 'reports', outputName: 'report.xml'}],
+        'summary',
     ],
 };
 

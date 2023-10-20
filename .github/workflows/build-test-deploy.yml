@@ -67,6 +67,7 @@ jobs:
         with:
           files: |
             build/test-results/**/*.xml
+            src/main/app/reports/*.xml
 
       - name: Cache Maven build artefacts
         uses: actions/cache/save@v3
