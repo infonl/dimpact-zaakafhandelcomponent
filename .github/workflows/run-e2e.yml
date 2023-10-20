@@ -51,7 +51,6 @@ jobs:
           publish_dir: ./src/e2e/reports/ # directory of your reports
           publish_branch: gh-pages/dimpact-e2e-test-report # deploying to gh-pages branch
           keep_files: true # retains files that are not part of the current publish
-  
       - name: Notify Slack
         if: always()
         uses: 8398a7/action-slack@v3
@@ -60,7 +59,7 @@ jobs:
           fields: workflow,job,status
           custom_payload: |
             {
-              "text": "Playwright Tests Update :tada:",
+              "text": ":performing_arts: Playwright Tests Update",
               "attachments": [
                 {
                   "color": "${{ job.status == 'success' && 'good' || job.status == 'failure' && 'danger' || 'warning' }}",
@@ -69,7 +68,7 @@ jobs:
                       "type": "header",
                       "text": {
                         "type": "plain_text",
-                        "text": "Workflow Run Details"
+                        "text": ":mag: Workflow Run Details :mag_right:"
                       }
                     },
                     {
@@ -89,7 +88,7 @@ jobs:
                         },
                         {
                           "type": "mrkdwn",
-                          "text": "*Status:*\n${{ job.status }}"
+                          "text": "*Status:*\n${{ job.status }} ${{ job.status == 'success' && ':white_check_mark:' || ':x:' }}"
                         }
                       ]
                     },
@@ -97,7 +96,7 @@ jobs:
                       "type": "section",
                       "text": {
                         "type": "mrkdwn",
-                        "text": "*Report URL:*\nhttps://infonl.github.io/dimpact-zaakafhandelcomponent/e2e-report.html"
+                        "text": "*Report URL:*\n:link: https://infonl.github.io/dimpact-zaakafhandelcomponent/e2e-report.html"
                       }
                     },
                     {
