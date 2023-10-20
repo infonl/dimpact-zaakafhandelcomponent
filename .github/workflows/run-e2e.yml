@@ -25,9 +25,6 @@ jobs:
           azcliversion: "latest"
           inlineScript: |
             az network nsg rule create -g zac-infra --nsg-name k8s-test-nsg -n allow_github_runner --priority 295 --source-address-prefixes ${{ env.my_ip }} --destination-port-ranges '*' --direction Inbound --access allow --protocol '*' --destination-address-prefixes '*'
-      - name: pause 30 seconds
-        run: |
-          sleep 30
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
@@ -38,11 +35,13 @@ jobs:
         run: cd src/e2e && npx playwright install --with-deps
       - name: Run your tests
         run: 'cd src/e2e && npm run e2e:run -- --world-parameters "{\"urls\": { \"zac\": \"${{ secrets.ZAC_URL }}\"}, \"headless\": true}"'
+      - name: Make a playwright report
+        run: 'cd src/e2e && npm run e2e:report'
       - uses: actions/upload-artifact@v3
         if: always()
         with:
           name: playwright-report
-          path: playwright-report/
+          path: src/e2e/reports
           retention-days: 30
       - name: remove nsg rule by name
         if: always()
