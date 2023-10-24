@@ -72,7 +72,7 @@ jobs:
         uses: actions/cache/save@v3
         with:
           path: |
-            src/generated/
+            src/generated/java
           key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Cache Maven build artefacts
@@ -98,19 +98,19 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
 
+      - name: Restore generated Java clients
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            src/generated/java
+          key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+
       - name: Restore Gradle build artefacts
         uses: actions/cache/restore@v3
         with:
           path: |
             build/
           key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
-
-      - name: Restore generated Java clients
-        uses: actions/cache/restore@v3
-        with:
-          path: |
-            src/generated/
-          key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Run unit tests
         run: ./gradlew test --info
