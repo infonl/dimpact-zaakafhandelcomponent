@@ -25,7 +25,6 @@ export class CustomWorld extends World {
     }
 
     async init() {
-    // create auth file if not exists
         if (!fs.existsSync(authFile)) {
             fs.writeFileSync(authFile, '{}');
         }
