@@ -29,7 +29,7 @@ jobs:
     outputs:
       branch_name: ${{ steps.gen_branch_name.outputs.BRANCH_NAME }}
       build_number: ${{ steps.gen_build_number.outputs.BUILD_NUMBER }}
-      docker_image_tag: ${{ steps.gen_tag.outputs.DOCKER_IMAGE_TAG }}
+      zac_docker_image: ${{ steps.gen_tag.outputs.ZAC_DOCKER_IMAGE }}
     steps:
       - uses: actions/checkout@v4
 
@@ -43,7 +43,7 @@ jobs:
 
       - name: Set Docker image tag
         id: gen_tag
-        run: echo "DOCKER_IMAGE_TAG=${{ env.CONTAINER_REGISTRY_URL }}/${{ env.APPLICATION_NAME }}:${{ steps.gen_build_number.outputs.BUILD_NUMBER }}" >> $GITHUB_OUTPUT
+        run: echo "ZAC_DOCKER_IMAGE=${{ env.CONTAINER_REGISTRY_URL }}/${{ env.APPLICATION_NAME }}:${{ steps.gen_build_number.outputs.BUILD_NUMBER }}" >> $GITHUB_OUTPUT
 
       - name: Setup JDK
         uses: actions/setup-java@v3
@@ -61,10 +61,11 @@ jobs:
       - name: Gradle build and test
         run: ./gradlew build --info
 
-      - name: Publish Test Results
+      - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
+          check_name: unit-test-results
           files: |
             build/test-results/**/*.xml
             src/main/app/reports/*.xml
@@ -76,16 +77,32 @@ jobs:
             target/
           key: maven-build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
-  build-docker-image:
+  build-docker-image-and-run-itests:
     needs: [build]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
       BUILD_NUMBER: ${{ needs.build.outputs.build_number }}
-      DOCKER_IMAGE_TAG: ${{ needs.build.outputs.docker_image_tag }}
+      ZAC_DOCKER_IMAGE: ${{ needs.build.outputs.zac_docker_image }}
       GIT_COMMIT_HASH: ${{ github.sha }}
+      BAG_API_CLIENT_MP_REST_URL: $${{ vars.BAG_API_CLIENT_MP_REST_URL }}
+      BAG_API_KEY: ${{ secrets.BAG_API_KEY }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Cache Docker images
+        uses: ScribeMD/docker-cache@0.3.6
+        with:
+          key: docker-${{ runner.os }}-${{ hashFiles('docker-compose.yaml') }}
 
       - name: Restore Maven build artefacts
         uses: actions/cache/restore@v3
@@ -96,15 +113,26 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build --tag ${DOCKER_IMAGE_TAG} \
+          docker build --tag ${ZAC_DOCKER_IMAGE} \
           --build-arg versienummer=${BUILD_NUMBER} \
           --build-arg buildId=${BUILD_NUMBER} \
           --build-arg commit=${GIT_COMMIT_HASH} \
           --file Containerfile \
           .
 
+      - name: Run integration tests
+        run: ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} -x compileJava -x processResources -x compileKotlin -x classes itest --info
+
+      - name: Publish integration test results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          check_name: integration-test-results
+          files: |
+            build/test-results/itest/**/*.xml
+
       - name: Save Docker Image
-        run: docker save --output docker-image.tar ${DOCKER_IMAGE_TAG}
+        run: docker save --output docker-image.tar ${ZAC_DOCKER_IMAGE}
 
       - name: Cache Docker Image
         uses: actions/cache/save@v3
@@ -113,12 +141,12 @@ jobs:
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   push-docker-image:
-    needs: [build, build-docker-image]
+    needs: [build, build-docker-image-and-run-itests]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     if: github.ref == 'refs/heads/main'
     env:
-      DOCKER_IMAGE_TAG: ${{ needs.build.outputs.docker_image_tag }}
+      ZAC_DOCKER_IMAGE: ${{ needs.build.outputs.zac_docker_image }}
     steps:
       - name: Docker Login
         uses: docker/login-action@v3
@@ -137,13 +165,13 @@ jobs:
         run: docker load --input docker-image.tar
 
       - name: Tag Docker Image with 'latest' tag
-        run: docker tag ${DOCKER_IMAGE_TAG} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:latest
+        run: docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:latest
 
       - name: Push Docker Image with all tags
         run: docker push --all-tags ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}
 
   trigger-provision:
-    needs: [build, push-docker-image]
+    needs: [push-docker-image]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     if: github.ref == 'refs/heads/main'

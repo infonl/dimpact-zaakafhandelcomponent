@@ -62,7 +62,7 @@ class ZACContainer(
             "AUTH_REALM" to "zaakafhandelcomponent",
             "AUTH_RESOURCE" to "zaakafhandelcomponent",
             "AUTH_SECRET" to "keycloakZaakafhandelcomponentClientSecret",
-            "AUTH_SERVER" to "http://keycloak:8081",
+            "AUTH_SERVER" to "http://keycloak:8080",
             "BAG_API_CLIENT_MP_REST_URL" to bagApiClientMpRestUrl,
             "BAG_API_KEY" to bagApiKey,
             "BRP_API_CLIENT_MP_REST_URL" to "http://brpproxy:5000/haalcentraal/api/brp",

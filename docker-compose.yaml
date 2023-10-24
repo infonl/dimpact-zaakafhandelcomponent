@@ -203,10 +203,12 @@ services:
       - "8983:8983"
     volumes:
       - ./scripts/docker-compose/volume-data/solr-data:/var/solr/data
-    entrypoint:
-      - bash
-      - "-c"
-      - "precreate-core zac; exec solr -f"
+    # run as root to change the permissions of the solr folder
+    user: root
+    # Change permissions of the solr folder, create the 'zac' core and start solr
+    command: bash -c "
+      chown -R 8983:8983 /var/solr
+      && runuser -u solr -- solr-precreate zac"
 
   # Open Policy Agent (OPA)
   opa:
