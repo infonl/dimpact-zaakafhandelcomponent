@@ -129,8 +129,7 @@ jobs:
         with:
           check_name: integration-test-results
           files: |
-            build/test-results/**/*.xml
-            src/main/app/reports/*.xml
+            build/test-results/itest/**/*.xml
 
       - name: Save Docker Image
         run: docker save --output docker-image.tar ${ZAC_DOCKER_IMAGE}
