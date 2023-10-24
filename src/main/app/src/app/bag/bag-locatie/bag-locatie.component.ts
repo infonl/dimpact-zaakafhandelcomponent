@@ -27,6 +27,7 @@ import { GeometryType } from "../../zaken/model/geometryType";
 import proj4 from "proj4";
 import { register } from "ol/proj/proj4.js";
 import * as interaction from "ol/interaction";
+import { environment } from "src/environments/environment";
 
 @Component({
   selector: "zac-bag-locatie",
@@ -88,7 +89,7 @@ export class BagLocatieComponent implements OnInit, AfterViewInit, OnChanges {
     const kaartSource = new source.WMTS({
       layer: "standaard",
       format: "image/png",
-      url: "https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0",
+      url: environment.ACHTERGRONDKAART_API_URL,
       matrixSet: this.RDNEW,
       style: "",
       tileGrid: new WMTSTileGrid({

@@ -11,6 +11,7 @@ import {
   BUILDER_CONFIG,
   MaterialFormBuilderConfig,
 } from "../material-form-builder-config";
+import { environment } from "src/environments/environment";
 
 /**
  * Singleton service voor het 1-malig inladen van de googlemaps api
@@ -36,15 +37,17 @@ export class GoogleMapsService {
       throw new Error("A googlemaps apikey needs to be provided");
     }
 
-    const loading = this.httpClient
-      .jsonp(
-        `https://maps.googleapis.com/maps/api/js?key=${this.config.googleMapsApiKey}&libraries=places`,
-        "callback",
-      )
-      .pipe(
-        map(() => true),
-        catchError(() => of(false)),
-      );
+    const urlParams = new URLSearchParams({
+      key: this.config.googleMapsApiKey,
+      libraries: "places",
+    });
+
+    const fullUrl = `${environment.GOOGLE_API_URL}?${urlParams.toString()}`;
+
+    const loading = this.httpClient.jsonp(fullUrl, "callback").pipe(
+      map(() => true),
+      catchError(() => of(false)),
+    );
 
     loading.subscribe((loaded) => {
       this.$loaded.next(true);

@@ -39,6 +39,7 @@ import { Geometry } from "../../model/geometry";
 import { GeometryType } from "../../model/geometryType";
 import { GeometryGegevens } from "../../model/geometry-gegevens";
 import { MatDrawer } from "@angular/material/sidenav";
+import { environment } from "src/environments/environment";
 
 @Component({
   selector: "zac-locatie-zoek",
@@ -112,7 +113,7 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
       projection: projection,
       layer: "standaard",
       format: "image/png",
-      url: "https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0",
+      url: environment.ACHTERGRONDKAART_API_URL,
       matrixSet: this.EPSG3857,
       style: "",
       tileGrid: new WMTSTileGrid({

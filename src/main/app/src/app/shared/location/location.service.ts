@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -8,6 +8,7 @@ import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { catchError, mergeMap } from "rxjs/operators";
 import { Observable } from "rxjs";
+import { environment } from "src/environments/environment";
 
 @Injectable({
   providedIn: "root",
@@ -19,6 +20,8 @@ export class LocationService {
 
   private readonly typeSuggest: string = "type:adres";
 
+  private baseUrl = environment.LOCATIE_SERVER_API_URL;
+
   constructor(
     private http: HttpClient,
     private foutAfhandelingService: FoutAfhandelingService,
@@ -27,11 +30,16 @@ export class LocationService {
   addressSuggest(
     zoekOpdracht: string,
   ): Observable<GeoDataResponse<SuggestResult>> {
-    const url = `https://geodata.nationaalgeoregister.nl/locatieserver/v3/suggest?wt=json&q=${zoekOpdracht}&fl=${this.flSuggest}&fq=${this.typeSuggest}&rows=5`;
+    const urlParams = new URLSearchParams({
+      wt: "json",
+      q: zoekOpdracht,
+      fl: this.flSuggest,
+      fq: this.typeSuggest,
+      rows: "5",
+    });
+    const url = `${this.baseUrl}/suggest?${urlParams.toString()}`;
     return this.http
-      .get<GeoDataResponse<SuggestResult>>(url, {
-        headers: new HttpHeaders({ "Content-Type": "application/json" }),
-      })
+      .get<GeoDataResponse<SuggestResult>>(url)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -40,22 +48,32 @@ export class LocationService {
   geolocationAddressSuggest(
     coordinates: number[],
   ): Observable<GeoDataResponse<SuggestResult>> {
-    const url = `https://geodata.nationaalgeoregister.nl/locatieserver/revgeo?lon=${coordinates[0]}&lat=${coordinates[1]}&type=adres&rows=1&fl=${this.flSuggest}`;
+    const urlParams = new URLSearchParams({
+      lon: coordinates[0].toString(),
+      lat: coordinates[1].toString(),
+      type: "adres",
+      rows: "1",
+      fl: this.flSuggest,
+    });
+
+    const url = `${this.baseUrl}/reverse?${urlParams.toString()}`;
     return this.http
-      .get<GeoDataResponse<SuggestResult>>(url, {
-        headers: new HttpHeaders({ "Content-Type": "application/json" }),
-      })
+      .get<GeoDataResponse<SuggestResult>>(url)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
 
   addressLookup(objectId: string): Observable<GeoDataResponse<AddressResult>> {
-    const url = `https://geodata.nationaalgeoregister.nl/locatieserver/v3/lookup?wt=json&id=${objectId}&fl=${this.flLookup}`;
+    const urlParams = new URLSearchParams({
+      wt: "json",
+      id: objectId,
+      fl: this.flLookup,
+    });
+
+    const url = `${this.baseUrl}/lookup?${urlParams.toString()}`;
     return this.http
-      .get<GeoDataResponse<AddressResult>>(url, {
-        headers: new HttpHeaders({ "Content-Type": "application/json" }),
-      })
+      .get<GeoDataResponse<AddressResult>>(url)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
