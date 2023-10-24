@@ -200,17 +200,6 @@ For example to (re)index all 'zaken' and 'taken' do the following from a local c
 2. Mark all 'taken' ready for reindexing: `curl http://localhost:8080/rest/indexeren/herindexeren/TAAK`
 3. (Re)index all (first 100) 'zaken' and 'taken': `curl http://localhost:8080/rest/indexeren/100`
 
-### Updating the Solr search index
-
-When running ZAC locally (and not in Kubernetes) the ZAC Solr search index is not automatically regularly updated.
-
-In order to see content in e.g. the 'werklijsten' in ZAC you will need to update the Solr search index manually whenever you have changed relevant content.
-For example to (re)index all 'zaken' and 'taken' do the following from a local command line (or paste the URLs in your browser):
-
-1. Mark all 'zaken' ready for reindexing: `curl http://localhost:8080/rest/indexeren/herindexeren/ZAAK`
-2. Mark all 'taken' ready for reindexing: `curl http://localhost:8080/rest/indexeren/herindexeren/TAAK`
-3. (Re)index all (first 100) 'zaken' and 'taken': `curl http://localhost:8080/rest/indexeren/100`
-
 ### Generating Swagger UI documentation for the ZAC backend API
 
 In order to generate the Swagger UI documentation for the ZAC backend API, use the following command:
