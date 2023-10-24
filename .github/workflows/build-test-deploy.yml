@@ -85,7 +85,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
 
       - name: Run unit tests
-        run: ./gradlew -x compileJava -x processResources -x compileKotlin -x classes test --info
+        run: ./gradlew test --info
 
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action@v2
