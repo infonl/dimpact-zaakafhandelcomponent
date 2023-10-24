@@ -2,11 +2,11 @@ name: Playwright Tests
 on:
   schedule:
     # Runs at 9:00 PM UTC from Monday to Friday
-    - cron: "0 21 * * 1-5"
+    - cron: '0 21 * * 1-5'
   workflow_dispatch:
 jobs:
   playwright:
-    name: "Playwright Tests"
+    name: 'Playwright Tests'
     runs-on: ubuntu-latest
     environment: azure-dimpact-dta
     steps:
@@ -37,7 +37,7 @@ jobs:
         run: 'cd src/e2e && npm run e2e:run -- --world-parameters "{\"urls\": { \"zac\": \"${{ secrets.ZAC_URL }}\"}, \"headless\": true}"'
       - name: Make a playwright report
         if: always()
-        run: "cd src/e2e && npm run e2e:generate:report"
+        run: 'cd src/e2e && npm run e2e:generate:report'
       - uses: actions/upload-artifact@v3
         if: always()
         with:
