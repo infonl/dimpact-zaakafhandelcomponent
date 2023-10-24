@@ -58,8 +58,34 @@ jobs:
         uses: gradle/gradle-build-action@v2
 
       # The Gradle build also executes a Maven command to build the WildFly bootable JAR.
-      - name: Gradle build and test
-        run: ./gradlew build --info
+      - name: Gradle build
+        run: ./gradlew build -x test --info
+
+      - name: Cache Maven build artefacts
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            target/
+          key: maven-build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+
+  run-unit-tests:
+    needs: [build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Run unit tests
+        run: ./gradlew -x compileJava -x processResources -x compileKotlin -x classes test --info
 
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action@v2
@@ -69,13 +95,6 @@ jobs:
           files: |
             build/test-results/**/*.xml
             src/main/app/reports/*.xml
-
-      - name: Cache Maven build artefacts
-        uses: actions/cache/save@v3
-        with:
-          path: |
-            target/
-          key: maven-build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   build-docker-image-and-run-itests:
     needs: [build]
@@ -141,7 +160,7 @@ jobs:
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   push-docker-image:
-    needs: [build, build-docker-image-and-run-itests]
+    needs: [build, run-unit-tests, build-docker-image-and-run-itests]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     if: github.ref == 'refs/heads/main'
