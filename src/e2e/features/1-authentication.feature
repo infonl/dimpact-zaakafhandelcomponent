@@ -4,3 +4,13 @@ Feature: Login
     Given "Bob" navigates to "zac" with path "/"
     When "Bob" logs in with username "testuser1" and password "testuser1"
     Then "Bob" sees the text: "Dashboard"
+
+  Scenario: Bob wants to log out of the application again
+    Given "Bob" navigates to "zac" with path "/"
+    When "Bob" logs in with username "testuser1" and password "testuser1"
+    Then "Bob" sees the text: "Dashboard"
+
+  Scenario: Bob logs back in
+    Given "Bob" navigates to "zac" with path "/"
+    When "Bob" logs in with username "testuser1" and password "testuser1"
+    Then "Bob" sees the text: "Dashboard"
