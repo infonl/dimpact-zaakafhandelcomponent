@@ -2,14 +2,13 @@ name: Playwright Tests
 on:
   schedule:
     # Runs at 9:00 PM UTC from Monday to Friday
-    - cron:  '0 21 * * 1-5'
+    - cron: '0 21 * * 1-5'
   workflow_dispatch:
 jobs:
   playwright:
     name: 'Playwright Tests'
     runs-on: ubuntu-latest
-    container:
-      image: mcr.microsoft.com/playwright:v1.39.0-jammy
+    environment: azure-dimpact-dta
     steps:
       - name: login to azure and allow pssessions
         uses: azure/login@v1
@@ -18,25 +17,117 @@ jobs:
           enable-AzPSSession: true
       - name: check IP
         run: |
-          $my_ip=curl https://api.ipify.org)
-          echo "my_ip=$my_ip" >> $env:GITHUB_ENV
+          my_ip=$(curl https://api.ipify.org)
+          echo "my_ip=$my_ip" >> $GITHUB_ENV
       - name: add ip to nsg
         uses: azure/CLI@v1
         with:
           azcliversion: "latest"
           inlineScript: |
             az network nsg rule create -g zac-infra --nsg-name k8s-test-nsg -n allow_github_runner --priority 295 --source-address-prefixes ${{ env.my_ip }} --destination-port-ranges '*' --direction Inbound --access allow --protocol '*' --destination-address-prefixes '*'
-      - name: pause 30 seconds
-        run: |
-          sleep 30
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: 18
       - name: Install dependencies
         run: cd src/e2e && npm ci
+      - name: Install Playwright Browsers
+        run: cd src/e2e && npx playwright install --with-deps
       - name: Run your tests
-        run: 'cd src/e2e && npm run e2e:run -- --world-parameters "{\"urls\": { \"zac\": \"http://zaakafhandelcomponent-zac-dev.westeurope.cloudapp.azure.com\"}}"'
+        run: 'cd src/e2e && npm run e2e:run -- --world-parameters "{\"urls\": { \"zac\": \"${{ secrets.ZAC_URL }}\"}, \"headless\": true}"'
+      - name: Make a playwright report
+        if: always()
+        run: 'cd src/e2e && npm run e2e:generate:report'
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: src/e2e/reports
+          retention-days: 7
+      - name: Deploy to GitHub Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./src/e2e/reports/ # directory of your reports
+          publish_branch: gh-pages/dimpact-e2e-test-report # deploying to gh-pages branch
+          keep_files: true # retains files that are not part of the current publish
+      - name: Notify Slack
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          fields: workflow,job,status
+          custom_payload: |
+            {
+              "text": ":performing_arts: Playwright Tests Update",
+              "attachments": [
+                {
+                  "color": "${{ job.status == 'success' && 'good' || job.status == 'failure' && 'danger' || 'warning' }}",
+                  "blocks": [
+                    {
+                      "type": "header",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Workflow Run Details"
+                      }
+                    },
+                    {
+                      "type": "section",
+                      "fields": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Repository:*\n${{ github.repository }}"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Workflow:*\n${{ github.workflow }}"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Job:*\n${{ github.job }}"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Status:*\n${{ job.status }} ${{ job.status == 'success' && ':white_check_mark:' || ':x:' }}"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "section",
+                      "text": {
+                        "type": "mrkdwn",
+                        "text": "*Report URL:*\n:link: https://infonl.github.io/dimpact-zaakafhandelcomponent/e2e-report.html"
+                      }
+                    },
+                    {
+                      "type": "actions",
+                      "elements": [
+                        {
+                          "type": "button",
+                          "text": {
+                            "type": "plain_text",
+                            "text": "View Report"
+                          },
+                          "url": "https://infonl.github.io/dimpact-zaakafhandelcomponent/e2e-report.html"
+                        },
+                        {
+                          "type": "button",
+                          "text": {
+                            "type": "plain_text",
+                            "text": "View Run"
+                          },
+                          "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       - name: remove nsg rule by name
         if: always()
         uses: azure/CLI@v1

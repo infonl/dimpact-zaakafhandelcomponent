@@ -5,6 +5,10 @@
 /dist
 /tmp
 /out-tsc
+
+# jest output
+/reports
+
 # Only exists if Bazel was run
 /bazel-out
 
