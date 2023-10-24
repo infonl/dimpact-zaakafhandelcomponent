@@ -38,6 +38,12 @@ object ProjectConfig : AbstractProjectConfig() {
                         "SOLR"
                     )
                 )
+                .withLogConsumer(
+                    "keycloak",
+                    Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
+                        "KEYCLOAK"
+                    )
+                )
             dockerComposeContainer.start()
 
             val zacDatabaseContainer =
