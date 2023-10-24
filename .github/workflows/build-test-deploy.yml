@@ -65,6 +65,7 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
+          check_name: unit-test-results
           files: |
             build/test-results/**/*.xml
             src/main/app/reports/*.xml
@@ -126,6 +127,7 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
+          check_name: integration-test-results
           files: |
             build/test-results/**/*.xml
             src/main/app/reports/*.xml
