@@ -71,7 +71,7 @@ dependencies {
     implementation("net.sf.webdav-servlet:webdav-servlet:2.0")
     implementation("com.itextpdf:itextpdf:5.5.13")
     implementation("com.itextpdf.tool:xmlworker:5.5.13.3")
-    implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.6.1")
+    implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
 
     swaggerUI("org.webjars:swagger-ui:3.52.5")
 
