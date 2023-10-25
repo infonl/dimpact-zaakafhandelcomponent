@@ -10,8 +10,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.config.AbstractProjectConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import nl.info.zac.ZACContainer
-import nl.info.zac.getTestContainersDockerNetwork
+import nl.info.zac.itest.ZACContainer
+import nl.info.zac.itest.getTestContainersDockerNetwork
 import org.slf4j.Logger
 import org.testcontainers.containers.ComposeContainer
 import org.testcontainers.containers.ContainerLaunchException
