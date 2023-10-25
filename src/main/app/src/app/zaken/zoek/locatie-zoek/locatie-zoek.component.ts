@@ -113,7 +113,7 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
       projection: projection,
       layer: "standaard",
       format: "image/png",
-      url: environment.ACHTERGRONDKAART_API_URL,
+      url: environment.BACKGROUND_MAP_API_URL,
       matrixSet: this.EPSG3857,
       style: "",
       tileGrid: new WMTSTileGrid({

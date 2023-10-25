@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -20,7 +20,7 @@ export class LocationService {
 
   private readonly typeSuggest: string = "type:adres";
 
-  private baseUrl = environment.LOCATIE_SERVER_API_URL;
+  private baseUrl = environment.LOCATION_SERVER_API_URL;
 
   constructor(
     private http: HttpClient,
