@@ -27,6 +27,7 @@ class ZACContainer(
         const val CONTAINER_PORT = 8080
         const val CONTAINER_MANAGEMENT_PORT = 9990
         const val THREE_MINUTES = 3L
+        const val OPEN_NOTIFICATIONS_API_SECRET_KEY = "openNotificatiesApiSecretKey"
     }
 
     private val zacDockerImage = System.getProperty("zacDockerImage", DOCKER_IMAGE_ZAC_DEV)
@@ -91,11 +92,13 @@ class ZACContainer(
             "MAILJET_API_SECRET_KEY" to "dummyMailjetApiSecretKey",
             "MAX_FILE_SIZE_MB" to "80",
             "OFFICE_CONVERTER_CLIENT_MP_REST_URL" to "http://localhost:9999", // dummy for now
+            "OBJECTS_API_CLIENT_MP_REST_URL" to "http://objecten-api:8000",
             "OBJECTS_API_TOKEN" to "1", // dummy for now
+            "OBJECTTYPES_API_CLIENT_MP_REST_URL" to "http://objecttypen-api:8000",
             "OBJECTTYPES_API_TOKEN" to "1", // dummy for now
             "OPA_API_CLIENT_MP_REST_URL" to "http://opa:8181",
             "OPEN_FORMS_URL" to "http://localhost:9999", // dummy for now
-            "OPEN_NOTIFICATIONS_API_SECRET_KEY" to "opennotificaties",
+            "OPEN_NOTIFICATIONS_API_SECRET_KEY" to OPEN_NOTIFICATIONS_API_SECRET_KEY,
             "SD_AUTHENTICATION" to "dummySmartDocumentsAuthentication",
             "SD_CLIENT_MP_REST_URL" to "dummySmartDocumentsClientUrl",
             "SOLR_URL" to "http://solr:8983",
