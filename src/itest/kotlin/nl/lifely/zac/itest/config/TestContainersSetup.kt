@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package nl.info.zac.itest.config
+package nl.lifely.zac.itest.config
 
 import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.HttpStatus
 import io.github.oshai.kotlinlogging.DelegatingKLogger
@@ -95,7 +95,7 @@ class ZACContainer(
             "OBJECTS_API_CLIENT_MP_REST_URL" to "http://objecten-api:8000",
             "OBJECTS_API_TOKEN" to "1", // dummy for now
             "OBJECTTYPES_API_CLIENT_MP_REST_URL" to "http://objecttypen-api:8000",
-            "OBJECTTYPES_API_TOKEN" to "1", // dummy for now
+            "OBJECTTYPES_API_TOKEN" to "dummyzacobjecttypestoken", // dummy for now
             "OPA_API_CLIENT_MP_REST_URL" to "http://opa:8181",
             "OPEN_FORMS_URL" to "http://localhost:9999", // dummy for now
             "OPEN_NOTIFICATIONS_API_SECRET_KEY" to OPEN_NOTIFICATIONS_API_SECRET_KEY,

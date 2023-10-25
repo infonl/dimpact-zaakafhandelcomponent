@@ -1,7 +1,7 @@
 [
     {
         "model": "token.tokenauth",
-        "pk": "cd63e158f3aca276ef284e3033d020a22899c728",
+        "pk": "dummyzacobjecttypestoken",
         "fields": {
             "contact_person": "Dummy Contact",
             "email": "dummy@example.com",

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package nl.info.zac.itest
+package nl.lifely.zac.itest
 
 import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.HttpStatus
 import io.kotest.core.spec.style.BehaviorSpec

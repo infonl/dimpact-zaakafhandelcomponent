@@ -3,14 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package nl.info.zac.itest
+package nl.lifely.zac.itest
 
 import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.HttpStatus
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.provided.ProjectConfig
-import nl.info.zac.itest.config.ZACContainer
+import nl.lifely.zac.itest.config.ZACContainer
 import org.json.JSONObject
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -37,7 +37,7 @@ class NotificationsTest : BehaviorSpec({
         }
     }
     given("ZAC Docker container and all related Docker containers are running") {
-        When("the notificaties endpoint is called with 'create zaak' payload with authentication header") {
+        When("the notificaties endpoint is called with a 'create productaanvraag' payload with authentication header") {
             then(
                 "the response should be 'no content', a zaak should be created in OpenZaak " +
                     "and a zaak productaanvraag proces of type 'Productaanvraag-Denhaag' should be started in ZAC"

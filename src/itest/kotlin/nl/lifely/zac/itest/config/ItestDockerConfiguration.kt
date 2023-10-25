@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package nl.info.zac.itest.config
+package nl.lifely.zac.itest.config
 
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
