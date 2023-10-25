@@ -106,6 +106,7 @@ public class SolrDeployer {
                 }
             } catch (final SolrServerException | IOException | SolrException e) {
                 // nothing to report
+                LOG.info(() -> "Solr core is not available yet. Exception: %s".formatted(e.getMessage()));
             }
             LOG.warning("Waiting for %d seconds for Solr core '%s' to become available...".formatted(
                     WAIT_FOR_SOLR_SECONDS, SOLR_CORE));

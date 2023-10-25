@@ -30,6 +30,13 @@ repositories {
     mavenCentral()
 }
 
+group = "net.atos.common-ground"
+description = "Zaakafhandelcomponent"
+
+val zacDockerImage by extra {
+    if (project.hasProperty("zacDockerImage")) project.property("zacDockerImage").toString() else "ghcr.io/infonl/zaakafhandelcomponent:dev"
+}
+
 // create custom configuration for extra dependencies that are required in the generated WAR
 val warLib by configurations.creating {
     extendsFrom(configurations["compileOnly"])
@@ -48,7 +55,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("org.apache.commons:commons-collections4:4.4")
-    implementation("com.opencsv:opencsv:5.7.0")
+    implementation("com.opencsv:opencsv:5.8")
     implementation("org.flowable:flowable-engine:6.7.2")
     implementation("org.flowable:flowable-cdi:6.7.2")
     implementation("org.flowable:flowable-cmmn-engine:6.7.2")
@@ -77,7 +84,7 @@ dependencies {
     // declare dependencies that are required in the generated WAR; see war section below
     // simply marking them as 'compileOnly' or 'implementation' does not work
     warLib("org.apache.httpcomponents:httpclient:4.5.13")
-    warLib("org.reactivestreams:reactive-streams:1.0.3")
+    warLib("org.reactivestreams:reactive-streams:1.0.4")
 
     // dependencies provided by Wildfly
     providedCompile("jakarta.platform:jakarta.jakartaee-api:8.0.0")
@@ -102,9 +109,6 @@ dependencies {
     "itestImplementation"("io.github.oshai:kotlin-logging-jvm:5.1.0")
     "itestImplementation"("org.danilopianini:khttp:1.4.0")
 }
-
-group = "net.atos.common-ground"
-description = "Zaakafhandelcomponent"
 
 detekt {
     config.setFrom("$rootDir/config/detekt.yml")
@@ -131,8 +135,8 @@ java {
 
 jsonSchema2Pojo {
     // generates Java model files for the "gemeente Den Haag productaanvraag" JSON schema
-    setSource(files("${rootDir}/src/main/resources/json-schema"))
-    targetDirectory = file("${rootDir}/src/generated/java")
+    setSource(files("$rootDir/src/main/resources/json-schema"))
+    targetDirectory = file("$rootDir/src/generated/java")
     setFileExtensions(".schema.json")
     targetPackage = "net.atos.zac.aanvraag"
     setAnnotationStyle("JSONB1")
@@ -149,7 +153,7 @@ node {
     download.set(true)
     version.set("18.10.0")
     distBaseUrl.set("https://nodejs.org/dist")
-    nodeProjectDir.set(file("${rootDir}/src/main/app"))
+    nodeProjectDir.set(file("$rootDir/src/main/app"))
     if (System.getenv("CI") != null) {
         npmInstallCommand.set("ci")
     } else {
@@ -166,7 +170,7 @@ smallryeOpenApi {
 
 swaggerSources {
     register("zaakafhandelcomponent") {
-        setInputFile(file("${rootDir}/build/generated/openapi/META-INF/openapi/openapi.yaml"))
+        setInputFile(file("$rootDir/build/generated/openapi/META-INF/openapi/openapi.yaml"))
     }
 }
 
@@ -366,7 +370,7 @@ tasks {
 
         inputDir.set(file("."))
         dockerFile.set(file("Containerfile"))
-        images.add("ghcr.io/infonl/zaakafhandelcomponent:dev")
+        images.add(zacDockerImage)
     }
 
     register<Test>("itest") {
@@ -374,6 +378,8 @@ tasks {
 
         testClassesDirs = sourceSets["itest"].output.classesDirs
         classpath = sourceSets["itest"].runtimeClasspath
+
+        systemProperty("zacDockerImage", zacDockerImage)
     }
 
     register<Exec>("generateWildflyBootableJar") {
@@ -393,5 +399,3 @@ tasks {
         }
     }
 }
-
-
