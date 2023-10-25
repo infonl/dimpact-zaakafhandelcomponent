@@ -93,9 +93,9 @@ class ZACContainer(
             "MAX_FILE_SIZE_MB" to "80",
             "OFFICE_CONVERTER_CLIENT_MP_REST_URL" to "http://localhost:9999", // dummy for now
             "OBJECTS_API_CLIENT_MP_REST_URL" to "http://objecten-api:8000",
-            "OBJECTS_API_TOKEN" to "1", // dummy for now
+            "OBJECTS_API_TOKEN" to "182c13e2209161852c53cef53a879f7a2f923430",
             "OBJECTTYPES_API_CLIENT_MP_REST_URL" to "http://objecttypen-api:8000",
-            "OBJECTTYPES_API_TOKEN" to "dummyzacobjecttypestoken", // dummy for now
+            "OBJECTTYPES_API_TOKEN" to "dummyZacObjectTypesToken",
             "OPA_API_CLIENT_MP_REST_URL" to "http://opa:8181",
             "OPEN_FORMS_URL" to "http://localhost:9999", // dummy for now
             "OPEN_NOTIFICATIONS_API_SECRET_KEY" to OPEN_NOTIFICATIONS_API_SECRET_KEY,

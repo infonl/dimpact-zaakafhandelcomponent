@@ -1,7 +1,7 @@
 [
     {
         "model": "token.tokenauth",
-        "pk": "dummyzacobjecttypestoken",
+        "pk": "dummyZacObjectTypesToken",
         "fields": {
             "contact_person": "Dummy Contact",
             "email": "dummy@example.com",
@@ -1579,7 +1579,7 @@
         "pk": 4,
         "fields": {
             "uuid": "021f685e-9482-4620-b157-34cd4003da6b",
-            "name": "productaanvraag",
+            "name": "Productaanvraag-Denhaag",
             "name_plural": "productaanvragen",
             "description": "Aanvragen van terugbelverzoeken voor Den Haag",
             "data_classification": "intern",

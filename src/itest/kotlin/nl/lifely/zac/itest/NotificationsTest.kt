@@ -14,9 +14,11 @@ import nl.lifely.zac.itest.config.ZACContainer
 import org.json.JSONObject
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.util.UUID
 
 private val logger = KotlinLogging.logger {}
+
+const val OBJECTTYPE_UUID_PRODUCTAANVRAAG_DENHAAG = "021f685e-9482-4620-b157-34cd4003da6b"
+const val OBJECT_UUID_PRODUCTAANVRAAG = "9dbed186-89ca-48d7-8c6c-f9995ceb8e27"
 
 class NotificationsTest : BehaviorSpec({
     given("ZAC Docker container and all related Docker containers are running") {
@@ -52,8 +54,9 @@ class NotificationsTest : BehaviorSpec({
                         mapOf(
                             // "kanaal" to "zaak",
                             "resource" to "object",
+                            "resourceUrl" to "http://objecten-api:8000/$OBJECT_UUID_PRODUCTAANVRAAG",
                             "actie" to "create",
-                            "kenmerken" to mapOf("objectType" to "http://objecten-api/${UUID.randomUUID()}"),
+                            "kenmerken" to mapOf("objectType" to "http://objecten-api:8000/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DENHAAG"),
                             "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                         )
                     )

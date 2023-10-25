@@ -32,7 +32,7 @@
         "fields": {
             "service": 1,
             "uuid": "021f685e-9482-4620-b157-34cd4003da6b",
-            "_name": "Productaanvraag"
+            "_name": "Productaanvraag-Denhaag"
         }
     },
     {
@@ -180,6 +180,14 @@
             "uuid": "57001413-c035-434e-9d46-090ba24fca8e",
             "object_type": 2
         }
+    },
+    {
+      "model": "core.object",
+      "pk": 32,
+      "fields": {
+        "uuid": "9dbed186-89ca-48d7-8c6c-f9995ceb8e27",
+        "object_type": 4
+      }
     },
     {
         "model": "core.objectrecord",
@@ -797,6 +805,23 @@
             "geometry": "SRID=4326;POINT (4.894407188326989 52.37626808920047)"
         }
     },
+  {
+        "model": "core.objectrecord",
+        "pk": 43,
+        "fields": {
+          "index": 1,
+          "object": 32,
+          "version": 1,
+          "data": {
+            "zac_test_data": "test"
+          },
+          "start_at": "2023-10-25",
+          "end_at": null,
+          "registration_at": "2023-10-25",
+          "correct": null,
+          "geometry": null
+    }
+  },
     {
         "model": "token.tokenauth",
         "pk": "cd63e158f3aca276ef284e3033d020a22899c728",
@@ -812,7 +837,7 @@
         "model": "token.tokenauth",
         "pk": "182c13e2209161852c53cef53a879f7a2f923430",
         "fields": {
-            "contact_person": "test",
+            "contact_person": "ZAC Test",
             "email": "test@example.com",
             "organization": "test2",
             "last_modified": "2020-12-23T11:43:16.820Z",
@@ -898,12 +923,12 @@
         "fields": {
             "label": "Objecttypen API",
             "api_type": "orc",
-            "api_root": "http://host.docker.internal:8011/api/v1/",
+            "api_root": "http://objecttypen-api:8000/api/v1/",
             "client_id": "",
             "secret": "",
             "auth_type": "api_key",
             "header_key": "Authorization",
-            "header_value": "Token cd63e158f3aca276ef284e3033d020a22899c728",
+            "header_value": "Token dummyZacObjectTypesToken",
             "oas": "http://host.docker.internal:8011/api/v1/schema/openapi.yaml",
             "nlx": "",
             "user_id": "",
