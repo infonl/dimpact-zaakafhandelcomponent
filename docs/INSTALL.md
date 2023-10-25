@@ -27,7 +27,7 @@ All generated artifacts by Gradle are placed into the `build` folder while the f
 `target` folder. The reason why we use Maven for this last step is because there is unfortunately no Gradle alternative for the
 [WildFly Maven Plugin](https://docs.wildfly.org/wildfly-maven-plugin).
 
-If you want to skip running the tests, use the following command:
+If you want to skip running the unit tests, use the following command:
 
 ```shell
 ./gradlew build -x test
@@ -140,18 +140,54 @@ docker run -p 8080:8080 --env-file .env --name zaakafhandelcomponent ghcr.io/inf
 
 Be aware that you will need to set the ZAC environment variables according to your needs.
 
+## Testing
+
+### Unit tests
+
+Both backend and frontend unit tests are run as part of the `test` phase in the normal Gradle build.
+You can run them separately using the following command:
+
+```shell
+./gradlew test --info
+```
+
+### Integration tests
+
+Our integration tests use the [TestContainers framework](https://testcontainers.com/) together
+with our [Docker Compose set-up](INSTALL-DOCKER-COMPOSE.md) to run all required services (Keycloak, Open Zaak, etc)
+as well as ZAC itself as a Docker container.
+This set-up makes it relatively slow to run the integration tests and for this reason they are not run as part of
+the standard Gradle `test` phase and normal Gradle build.
+
+If you wish to run the integration tests you can use the following command:
+
+```shell
+./gradlew itest --info
+```
+
+It is also possible to run the integration tests from inside your IDE (we use IntelliJ IDEA).
+To do this you will first need to do the following:
+
+1. Start Docker.
+2. Build the ZAC Docker image using the following command:
+    ```shell
+    ./gradlew buildZacDockerImage
+    ```
+3. Create a 'run configuration' in your IDE where the following two environment variables are set: `BAG_API_CLIENT_MP_REST_URL` and `BAG_API_KEY`.
+4. Run the integration tests from your IDE using this run configuration.
+
+Running the integration tests will first start up all required services (Keycloak, Open Zaak, etc) as Docker containers using our [Docker Compose file](INSTALL-DOCKER-COMPOSE.md),
+then start up ZAC as Docker container and finally run the integration tests.
+
+### End-to-end tests
+
+Instructions on how to run end-to-end tests can be found in [end-to-end-testing.md](end-to-end-testing.md).
+
+### Manual tests
+
+Technical instructions on how to use the tool Postman to manually test the ZAC backend API can be found in [using-postman.md](using-postman.md).
+
 ## Miscellaneous
-
-### Updating the Solr search index
-
-When running ZAC locally (and not in Kubernetes) the ZAC Solr search index is not automatically regularly updated.
-
-In order to see content in e.g. the 'werklijsten' in ZAC you will need to update the Solr search index manually whenever you have changed relevant content.
-For example to (re)index all 'zaken' and 'taken' do the following from a local command line (or paste the URLs in your browser):
-
-1. Mark all 'zaken' ready for reindexing: `curl http://localhost:8080/rest/indexeren/herindexeren/ZAAK`
-2. Mark all 'taken' ready for reindexing: `curl http://localhost:8080/rest/indexeren/herindexeren/TAAK`
-3. (Re)index all (first 100) 'zaken' and 'taken': `curl http://localhost:8080/rest/indexeren/100`
 
 ### Updating the Solr search index
 
