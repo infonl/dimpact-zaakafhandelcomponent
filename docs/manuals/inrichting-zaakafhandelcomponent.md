@@ -6,7 +6,7 @@ Om zaken te registeren en behandelen maakt de applicatie gebruik van registratie
 
 ### Beheerinstellingen
 Het inrichten van de ZAC gaat via de beheermenu dat rechts in de werkbalk te openen is via het radar icoon. Het beheermenu bestaat 5 onderdelen, bij het openen van de beheerinstellingen is standaard ‘Inrichtingscheck’ geopend.
-![image](https://user-images.githubusercontent.com/95233683/208067669-5a1050b9-3dd9-4c54-9411-37ce9fa393c7.png)
+![image](./attachments/images/208067669-5a1050b9-3dd9-4c54-9411-37ce9fa393c7.png)
 
 In deze handleiding wordt de werking van de beheer-instellingen per onderdeel beschreven.
 
@@ -18,7 +18,7 @@ Bij het openen van de zaps worden alle zaaktypen uit de zaaktypecatalogus getoon
 
 ### Inrichten van een zaaktype
 Om de zaps te benaderen ga je door op het radar icoon te klikken naar de Beheer-instellingen. Open in het menu de ‘Zaakafhandel-parameters’. Alle zaaktypen worden opgehaald en het overzicht wordt geopend. Het is mogelijk om in dit overzicht te filteren en sorteren.
-![image](https://user-images.githubusercontent.com/95233683/207916618-434d6cbc-d8f1-4522-aeec-7556d11b8e27.png)
+![image](./attachments/images/207916618-434d6cbc-d8f1-4522-aeec-7556d11b8e27.png)
 
 !Klik op het bolletje links van het zaaktype kolom om snel te filteren op geldig en niet geldig!
 
@@ -38,7 +38,7 @@ Stappen:
   - wanneer een zaak in de dashboardkaart ‘Mijn binnenkort verlopende zaken’ verschijnt
 - Productaanvraagtype | het id van de productaanvraag zoals deze in Overige Registraties is ingericht. Deze instelling bepaalt dus voor een in Open Formulieren ingevuld formulier dat in Overige Registraties is geregistreerd van welk zaaktype door de ZAC een zaak aangemaakt moet worden.
 3. Klik op de knop Volgende om naar het volgende tabblad ‘Taakgegevens’ te gaan. Hier worden alle beschikbare taken van het CMMN-model getoond. Standaard staan alle taken aan maar het is mogelijk om een taak via het schuifje uit te zetten waardoor deze tijdens de zaakbehandeling niet beschikbaar is.
-![image](https://user-images.githubusercontent.com/95233683/220167923-88d99ade-f5c3-4bf0-a77d-14f712ee54e3.png)
+![image](./attachments/images/220167923-88d99ade-f5c3-4bf0-a77d-14f712ee54e3.png)
 
  
 Klik op een taak om de instellingen te openen. Iedere taak heeft standaard 3 instellingen:
@@ -46,14 +46,14 @@ Klik op een taak om de instellingen te openen. Iedere taak heeft standaard 3 ins
   - Groep | de groep die standaard bij taaktoewijzing wordt ingevuld als een gebruiker de taak start
   - Doorlooptijd | bepaalt de fatale datum van de taak
 In sommige taakbehandelformulieren komen keuzelijsten voor waarvan de opties via een referentietabel aangepast kunnen worden. Welke referentietabel in dat taakbehandelformulier gebruikt wordt is dan te zien bij de instelling ‘Referentietabel voor ...’. Om de opties aan te passen kun je later naar de menukeuze ‘Referentietabellen’ gaan en daar de juiste tabel te kiezen, dit wordt elders in deze handleiding omschreven. Het is ook mogelijk om zelf een referentietabel aan te maken en deze in het taakbehandelformulier te gebruiken. Na het aanmaken van de tabel kan deze in de lijst bij de instelling ‘Referentietabel voor ...’ gekozen worden.
-![image](https://user-images.githubusercontent.com/95233683/208073572-dbe3e168-91ff-4a42-9c03-dea7824e348a.png)
+![image](./attachments/images/208073572-dbe3e168-91ff-4a42-9c03-dea7824e348a.png)
 
 4. Ga verder naar het tabblad ‘Actie gegevens’. Bij de acties waarmee een gebruiker een fase afrondt is het mogelijk om een toelichting te tonen, denk aan een herinnering aan een belangrijke handeling die in die fase moete zijn uitgevoerd. Klik op een fase om de toelichting in het veld in te vullen.
 5. Ga verder naar ‘Mailgegevens’. Tijdens de zaakbehandeling gebruikt de ZAC een aantal e-mails dat verstuurd wordt, voornamelijk aan de klant. Sommige van deze mails worden verplicht verstuurd en anderen zijn optioneel. De beschikbare opties bij alle mails kunnen in 'Mailgegevens' ingesteld worden. 
 - Voor de statusmails kan bepaald worden of deze beschikbaar zijn en wat de standaard geselecteerde keuze is:
   - Statusmail intake fase (v) | bepaalt of bij het afronden van de fase ‘Intake’ de optie voor het versturen van een e-mail beschikbaar is en of deze standaard aangevinkt is
   - Statusmail afronden fase (v) | bepaalt of bij het afronden van de fase ‘In behandeling’ de optie voor het versturen van een e-mail beschikbaar is en of deze standaard aangevinkt is
-![image](https://user-images.githubusercontent.com/95233683/220169578-58c5bf9d-56ff-4d96-97ed-dadcde4cbb46.png)
+![image](./attachments/images/220169578-58c5bf9d-56ff-4d96-97ed-dadcde4cbb46.png)
 
 - Bij het verzenden van een mail kan de behandelaar kiezen wat de afzender van de e-mail wordt. De keuzes die de behandelaar te zien krijgt zijn is in dit tabblad in te stellen en gelden voor alle mails. Een mail heeft altijd de opties e-mailadres van de gemeente en het e-mailadres van de medewerker (de ingelogde gebruiker). Deze opties kunnen worden aangevuld met meer mailafzenders. Daarnaast kan een van deze opties kan als standaard ingevulde mailafzender worden ingesteld. Verder kan bij iedere mailafzender een eigen 'Antwoord aan' e-mailadres worden ingesteld, als dit niet wordt ingesteld dan is deze gelijk aan de afzender. Een uitgebreide beschrijving van de mailafzenders is in het hoofdstuk Mailafzenders te vinden.
 Stel de lijst van mogelijke mailafzenders op en kies de 'Aantwoord aan' bij iedere mailafzender. Selecteer daarna welke mailafzender als default wordt getoond aan de behandelaar.
@@ -76,13 +76,13 @@ Stappen:
 1. In het Beheer-instellingen menu kies je ‘Referentietabellen’
 2. Open de tabel door op het oog icoon te klikken
 3. Om een waarde te bewerken klik je op het potlood naast de waarde waardoor het veld geactiveerd wordt. Pas de waarde in het veld aan en klik op het vink icoon om deze op te slaan. Als je wilt annuleren klik je op het kruis en blijft de oude waarde bewaard.
-![image](https://user-images.githubusercontent.com/95233683/207917111-de87b280-34c7-4299-847e-d661998e42c2.png)
+![image](./attachments/images/207917111-de87b280-34c7-4299-847e-d661998e42c2.png)
 
 4. Om een waarde aan de tabel toe te voegen klik je op het + icoon. De nieuwe waarde verschijnt in de lijst met standaard de tekst ‘Nieuwe waarde’. Pas deze waarde aan zoals in de vorige stap omschreven.
-![image](https://user-images.githubusercontent.com/95233683/208074543-18598c83-fec9-41c7-af94-af50c3d327ed.png)
+![image](./attachments/images/208074543-18598c83-fec9-41c7-af94-af50c3d327ed.png)
 
 5. Om een waarde uit een tabel te verwijderen klik je in de regel van de waarde op het prullenbak icoon. De waarde wordt direct verwijderd.
-![image](https://user-images.githubusercontent.com/95233683/208074609-b7e7628e-b031-4818-86c7-923b6b14b3cc.png)
+![image](./attachments/images/208074609-b7e7628e-b031-4818-86c7-923b6b14b3cc.png)
 
 ## Mailafzenders
 
@@ -148,7 +148,7 @@ Stappen:
 1. In het Beheer-instellingen menu kies je ‘Mailtemplates’
 2. Open het template door op het oog icoon te klikken
 3. Wijzig het onderwerp of het bericht. Gebruik eventueel variabelen door op het plus icoon te klikken en ze te selecteren uit de lijst
-![image](https://user-images.githubusercontent.com/95233683/208075315-0b74d514-1baa-409a-883d-2891a81b2d55.png)
+![image](./attachments/images/208075315-0b74d514-1baa-409a-883d-2891a81b2d55.png)
 4. Klik op ‘Opslaan’ om de wijziging door te voeren
 
 ### Mailtemplate aanmaken
@@ -197,7 +197,7 @@ Stappen:
 1. In het Beheer-instellingen menu kies je ‘Groepsignalering-instellingen’
 2. Kies de groep uit de keuzelijst die je wilt instellen
 3. Schakel een signalering per e-mail in door deze aan te vinken
-![image](https://user-images.githubusercontent.com/95233683/208075964-091b65fc-96f5-4351-be74-2aa0eb28b13b.png)
+![image](./attachments/images/208075964-091b65fc-96f5-4351-be74-2aa0eb28b13b.png)
 
  
 

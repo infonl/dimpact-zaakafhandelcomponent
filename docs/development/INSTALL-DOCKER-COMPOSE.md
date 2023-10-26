@@ -162,7 +162,7 @@ The LDIF import contains the following test users which can be used to log in to
 
 Please change the email addresses of the test users to your own domain.
 
-![Basic ZAC OpenLDAP setup](img/zac-openldap-1.png)
+![Basic ZAC OpenLDAP setup](./attachments/images/zac-openldap-1.png)
 
 ### VNG Referentielijsten (=VRL)
 
