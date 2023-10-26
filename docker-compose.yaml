@@ -22,6 +22,7 @@ services:
     command:
       - "start-dev"
       - "--import-realm"
+      - "--hostname-url=http://localhost:8081"
 
   keycloak-database:
     image: postgres:15.4
@@ -352,7 +353,7 @@ services:
       - AUTH_REALM=zaakafhandelcomponent
       - AUTH_RESOURCE=zaakafhandelcomponent
       - AUTH_SECRET=keycloakZaakafhandelcomponentClientSecret
-      - AUTH_SERVER=http://host.docker.internal:8081
+      - AUTH_SERVER=http://keycloak:8080
       - BAG_API_CLIENT_MP_REST_URL=https://api.bag.acceptatie.kadaster.nl/lvbag/individuelebevragingen/v2/
       - BAG_API_KEY=${BAG_API_KEY}
       - BRP_API_CLIENT_MP_REST_URL=http://brpproxy:5000/haalcentraal/api/brp
