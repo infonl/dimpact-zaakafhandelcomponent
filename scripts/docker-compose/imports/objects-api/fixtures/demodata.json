@@ -805,28 +805,33 @@
             "geometry": "SRID=4326;POINT (4.894407188326989 52.37626808920047)"
         }
     },
-  {
+   {
         "model": "core.objectrecord",
         "pk": 43,
         "fields": {
-          "index": 1,
-          "object": 32,
-          "version": 1,
-          "data": {
-            "data": "{\"testveld\": \"testwaarde\"}",
-            "type": "448356ff-dcfb-4504-9501-7fe929077c4f",
-            "bsn": "123456789",
-            "pdf_url": "https://example.com",
-            "csv_url": "https://example.com",
-            "submission_id":  "1"
-          },
-          "start_at": "2023-10-25",
-          "end_at": null,
-          "registration_at": "2023-10-25",
-          "correct": null,
-          "geometry": null
-    }
-  },
+            "index": 1,
+            "object": 32,
+            "version": 1,
+            "data": {
+                "data": {
+                  "naam": "Jan Jansen",
+                  "omschrijving": "Ik heb een vraag over mijn paspoort",
+                  "telefoonnummer": "0612345678"
+                },
+                "type": "terugbelnotitie",
+                "bsn": "111222333",
+                "pdf_url": "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/230bab4a-4b51-40c6-91b2-f2022008a7f8",
+                "csv_url": "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/aeaba696-4968-46a6-8b1e-016f503ed88d",
+                "attachments": [],
+                "submission_id": "a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"
+            },
+            "start_at": "2023-10-25",
+            "end_at": null,
+            "registration_at": "2023-10-25",
+            "correct": null,
+            "geometry": null
+         }
+    },
     {
         "model": "token.tokenauth",
         "pk": "cd63e158f3aca276ef284e3033d020a22899c728",
