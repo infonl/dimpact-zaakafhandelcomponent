@@ -813,7 +813,7 @@
           "object": 32,
           "version": 1,
           "data": {
-            "data": "dummyFormulierData",
+            "data": "{\"testveld\": \"testwaarde\"}",
             "type": "448356ff-dcfb-4504-9501-7fe929077c4f",
             "bsn": "123456789",
             "pdf_url": "https://example.com",

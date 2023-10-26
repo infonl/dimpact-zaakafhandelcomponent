@@ -19,7 +19,7 @@ class ZaakafhandelParametersTest : BehaviorSpec({
         When("the list zaakafhandelparameterts endpoint is called for our zaaktype under test") {
             then("the response should be ok and it should return the zaakafhandelparameters") {
                 khttp.get(
-                    url = "${ProjectConfig.zacContainer.managementUrl}/zaakafhandelParameters/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
+                    url = "${ProjectConfig.zacContainer.apiUrl}/zaakafhandelParameters/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
                 ).apply {
                     logger.info { "Zaakafhandelparameters response: $text" }
                     statusCode shouldBe HttpStatus.SC_OK

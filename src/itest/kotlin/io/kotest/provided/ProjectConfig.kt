@@ -72,7 +72,7 @@ object ProjectConfig : AbstractProjectConfig() {
             logger.info { "Started ZAC Docker Compose containers" }
 
             zacContainer.start()
-            createZaakAfhandelParameters()
+            //createZaakAfhandelParameters()
         } catch (exception: ContainerLaunchException) {
             logger.error(exception) { "Failed to start Docker containers" }
             dockerComposeContainer.stop()
