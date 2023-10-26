@@ -17,13 +17,13 @@ Het aanmaken van de Product Aanvraag in Overige Registraties zorgt er voor dat e
 
 # Identity en Policy
 
-![Identity en Policy](https://user-images.githubusercontent.com/3702729/181199480-049a5fcc-5507-4299-9269-136d6659477f.jpg)
+![Identity en Policy](./attachments/images/181199480-049a5fcc-5507-4299-9269-136d6659477f.jpg)
 
 # Open Formulieren aangesloten op Zaakafhandelcomponent
 
-![Open Formulieren gekoppeld aan zaakafhandelcomponent](https://user-images.githubusercontent.com/3702729/189580091-59b45596-8025-416e-b785-632c564671a2.png)
+![Open Formulieren gekoppeld aan zaakafhandelcomponent](./attachments/images/189580091-59b45596-8025-416e-b785-632c564671a2.png)
 
 # Open Formulieren aangesloten op e-Suite
 
-![Open Formulieren gekoppeld aan e-Suite](https://user-images.githubusercontent.com/3702729/189580171-1a1b3ce1-b5f9-49ad-8725-4566d6088712.png)
+![Open Formulieren gekoppeld aan e-Suite](./attachments/images/189580171-1a1b3ce1-b5f9-49ad-8725-4566d6088712.png)
 
