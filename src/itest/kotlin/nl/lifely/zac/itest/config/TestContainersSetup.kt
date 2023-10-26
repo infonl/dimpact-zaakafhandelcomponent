@@ -8,6 +8,9 @@ package nl.lifely.zac.itest.config
 import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.HttpStatus
 import io.github.oshai.kotlinlogging.DelegatingKLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.kotest.provided.KEYCLOAK_CLIENT
+import io.kotest.provided.KEYCLOAK_CLIENT_SECRET
+import io.kotest.provided.KEYCLOAK_REALM
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.testcontainers.containers.FixedHostPortGenericContainer
@@ -60,9 +63,9 @@ class ZACContainer(
     @Suppress("LongMethod")
     private fun createContainer(): KGenericContainer {
         val env = mapOf(
-            "AUTH_REALM" to "zaakafhandelcomponent",
-            "AUTH_RESOURCE" to "zaakafhandelcomponent",
-            "AUTH_SECRET" to "keycloakZaakafhandelcomponentClientSecret",
+            "AUTH_REALM" to KEYCLOAK_REALM,
+            "AUTH_RESOURCE" to KEYCLOAK_CLIENT,
+            "AUTH_SECRET" to KEYCLOAK_CLIENT_SECRET,
             "AUTH_SERVER" to "http://keycloak:8080",
             "BAG_API_CLIENT_MP_REST_URL" to bagApiClientMpRestUrl,
             "BAG_API_KEY" to bagApiKey,

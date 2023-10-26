@@ -10,6 +10,7 @@ import io.github.oshai.kotlinlogging.DelegatingKLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.config.AbstractProjectConfig
 import io.kotest.matchers.shouldBe
+import khttp.requests.GenericRequest.Companion.DEFAULT_FORM_HEADERS
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import nl.lifely.zac.itest.config.ZACContainer
@@ -23,6 +24,10 @@ import java.io.File
 private val logger = KotlinLogging.logger {}
 
 const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID = "021f685e-9482-4620-b157-34cd4003da6b"
+const val KEYCLOAK_HOSTNAME_URL = "http://localhost:8081"
+const val KEYCLOAK_REALM = "zaakafhandelcomponent"
+const val KEYCLOAK_CLIENT = "zaakafhandelcomponent"
+const val KEYCLOAK_CLIENT_SECRET = "keycloakZaakafhandelcomponentClientSecret"
 
 object ProjectConfig : AbstractProjectConfig() {
     private const val ZAC_DATABASE_CONTAINER = "zac-database"
@@ -31,6 +36,7 @@ object ProjectConfig : AbstractProjectConfig() {
 
     private lateinit var dockerComposeContainer: ComposeContainer
     lateinit var zacContainer: ZACContainer
+    lateinit var accessToken: String
 
     @Suppress("UNCHECKED_CAST")
     override suspend fun beforeProject() {
@@ -72,7 +78,8 @@ object ProjectConfig : AbstractProjectConfig() {
             logger.info { "Started ZAC Docker Compose containers" }
 
             zacContainer.start()
-            //createZaakAfhandelParameters()
+            accessToken = requestAccessTokenFromKeycloak()
+            // createZaakAfhandelParameters()
         } catch (exception: ContainerLaunchException) {
             logger.error(exception) { "Failed to start Docker containers" }
             dockerComposeContainer.stop()
@@ -84,12 +91,24 @@ object ProjectConfig : AbstractProjectConfig() {
         dockerComposeContainer.stop()
     }
 
+    private fun requestAccessTokenFromKeycloak() =
+        khttp.post(
+            url = "$KEYCLOAK_HOSTNAME_URL/realms/$KEYCLOAK_REALM/protocol/openid-connect/token",
+            headers = DEFAULT_FORM_HEADERS,
+            data = mapOf(
+                "client_id" to KEYCLOAK_CLIENT,
+                "grant_type" to "password",
+                "username" to "testuser1",
+                "password" to "testuser1",
+                "client_secret" to KEYCLOAK_CLIENT_SECRET
+            )
+        ).jsonObject.getString("access_token")
+
     private fun createZaakAfhandelParameters() {
         logger.info {
             "Creating zaakafhandelparameters in ZAC Docker Container for zaaktype with UUID: $ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
         }
 
-        // TODO: authentication...
         khttp.put(
             url = "${zacContainer.apiUrl}/zaakafhandelParameters",
             headers = mapOf(

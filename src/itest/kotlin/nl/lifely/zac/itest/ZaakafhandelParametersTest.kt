@@ -18,9 +18,9 @@ class ZaakafhandelParametersTest : BehaviorSpec({
     given("ZAC Docker container is running and zaakafhandelparameters have been created") {
         When("the list zaakafhandelparameterts endpoint is called for our zaaktype under test") {
             then("the response should be ok and it should return the zaakafhandelparameters") {
-                // TODO: authentication; this not redirects to Keycloak..
                 khttp.get(
-                    url = "${ProjectConfig.zacContainer.apiUrl}/zaakafhandelParameters/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
+                    url = "${ProjectConfig.zacContainer.apiUrl}/zaakafhandelParameters/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID",
+                    headers = mapOf("Authorization" to "Bearer ${ProjectConfig.accessToken}")
                 ).apply {
                     logger.info { "Zaakafhandelparameters response: $text" }
                     statusCode shouldBe HttpStatus.SC_OK
