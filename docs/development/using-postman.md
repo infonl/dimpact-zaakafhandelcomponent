@@ -28,7 +28,7 @@ Create a Postman environment (e.g. “Localhost”) with the following variables
 
 Also see:
 
-![postman-environment-localhost.png](img/postman-environment-localhost.png)
+![postman-environment-localhost.png](./attachments/images/postman-environment-localhost.png)
 
 When testing ZAC running on a different environment please set the values accordingly.
 
@@ -56,8 +56,8 @@ Next in the collection you have created set up authorization at the top level of
 
 Also see:
 
-![postman-authorization-1.png](img/postman-authorization-1.png)
-![postman-authorization-2.png](img/postman-authorization-2.png)
+![postman-authorization-1.png](./attachments/images/postman-authorization-1.png)
+![postman-authorization-2.png](./attachments/images/postman-authorization-2.png)
 
 ### Generate access token
 
