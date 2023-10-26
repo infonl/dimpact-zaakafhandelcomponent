@@ -129,6 +129,9 @@ public class ProductaanvraagService {
     public void verwerkProductaanvraag(final URI productaanvraagUrl) {
         final var productaanvraagObject = objectsClientService.readObject(uuidFromURI(productaanvraagUrl));
         final var productaanvraag = getProductaanvraag(productaanvraagObject);
+
+        LOG.info("Retrieving zaakafhandelparameters for productaanvraag zaaktype UUID: " + productaanvraag.getType());
+
         final Optional<UUID> zaaktypeUUID = zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(
                 productaanvraag.getType());
         if (zaaktypeUUID.isPresent()) {

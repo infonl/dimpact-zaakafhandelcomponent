@@ -20,6 +20,8 @@ import java.io.File
 
 private val logger = KotlinLogging.logger {}
 
+const val ZAAKTYPE_PRODUCTAANVRAAG_UUID = "021f685e-9482-4620-b157-34cd4003da6b"
+
 object ProjectConfig : AbstractProjectConfig() {
     private const val ZAC_DATABASE_CONTAINER = "zac-database"
     private const val ZAC_DATABASE_PORT = 5432
@@ -28,6 +30,7 @@ object ProjectConfig : AbstractProjectConfig() {
     private lateinit var dockerComposeContainer: ComposeContainer
     lateinit var zacContainer: ZACContainer
 
+    @Suppress("UNCHECKED_CAST")
     override suspend fun beforeProject() {
         try {
             dockerComposeContainer = ComposeContainer(File("docker-compose.yaml"))
@@ -76,5 +79,10 @@ object ProjectConfig : AbstractProjectConfig() {
     override suspend fun afterProject() {
         zacContainer.stop()
         dockerComposeContainer.stop()
+    }
+
+    private fun createZaakAfhandelParameters() {
+        // TODO: use ZaakafhandelParametersRESTService to create zaakafhandelparameters
+
     }
 }
