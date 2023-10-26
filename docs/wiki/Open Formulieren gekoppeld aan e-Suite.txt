@@ -1,0 +1,19 @@
+title This is a title
+
+participant Klant
+participant Open Formulieren
+participant E-Suite
+participant Overige Registraties
+participant Open Notificaties
+
+
+
+
+Klant->Open Formulieren:Invullen formulier
+Open Formulieren->E-Suite:Opslaan aanvraag PDF
+Open Formulieren->Overige Registraties:Opslaan productaanvraag
+Overige Registraties->Open Notificaties:Versturen object notificatie
+E-Suite<-Open Notificaties:Versturen object notificatie
+E-Suite->Overige Registraties:Ophalen productaanvraag
+E-Suite->E-Suite:Aanmaken zaak
+E-Suite->E-Suite:Koppelen aanvraag PDF aan zaak
