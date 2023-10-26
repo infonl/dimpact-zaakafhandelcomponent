@@ -127,6 +127,8 @@ public class ProductaanvraagService {
     private ConfiguratieService configuratieService;
 
     public void verwerkProductaanvraag(final URI productaanvraagUrl) {
+        LOG.info(() -> "Verwerken productaanvraag: %s".formatted(productaanvraagUrl));
+
         final var productaanvraagObject = objectsClientService.readObject(uuidFromURI(productaanvraagUrl));
         final var productaanvraag = getProductaanvraag(productaanvraagObject);
 
@@ -136,6 +138,8 @@ public class ProductaanvraagService {
                 productaanvraag.getType());
         if (zaaktypeUUID.isPresent()) {
             try {
+                LOG.info("Start zaak met CMMN case. Zaaktype: %s".formatted(zaaktypeUUID.get().toString()));
+
                 registreerZaakMetCMMNCase(zaaktypeUUID.get(), productaanvraag, productaanvraagObject);
             } catch (RuntimeException ex) {
                 warning("CMMN", productaanvraag, ex);
@@ -144,6 +148,9 @@ public class ProductaanvraagService {
             final var zaaktype = findZaaktypeByIdentificatie(productaanvraag.getType());
             if (zaaktype.isPresent()) {
                 try {
+
+                    LOG.info("Start zaak met BPMN proces. Zaaktype: %s".formatted(zaaktype.get().toString()));
+
                     registreerZaakMetBPMNProces(zaaktype.get(), productaanvraag, productaanvraagObject);
                 } catch (RuntimeException ex) {
                     warning("BPMN", productaanvraag, ex);

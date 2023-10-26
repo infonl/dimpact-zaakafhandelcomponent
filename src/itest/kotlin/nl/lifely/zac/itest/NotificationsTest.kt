@@ -52,7 +52,7 @@ class NotificationsTest : BehaviorSpec({
                     ),
                     data = JSONObject(
                         mapOf(
-                            // "kanaal" to "zaak",
+                            // "kanaal" to "zaak",  // needed?
                             "resource" to "object",
                             "resourceUrl" to "http://objecten-api:8000/$OBJECT_UUID_PRODUCTAANVRAAG",
                             "actie" to "create",

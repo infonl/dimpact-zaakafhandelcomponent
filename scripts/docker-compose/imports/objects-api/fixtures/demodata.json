@@ -813,7 +813,12 @@
           "object": 32,
           "version": 1,
           "data": {
-            "zac_test_data": "test"
+            "data": "dummyFormulierData",
+            "type": "448356ff-dcfb-4504-9501-7fe929077c4f",
+            "bsn": "123456789",
+            "pdf_url": "https://example.com",
+            "csv_url": "https://example.com",
+            "submission_id":  "1"
           },
           "start_at": "2023-10-25",
           "end_at": null,

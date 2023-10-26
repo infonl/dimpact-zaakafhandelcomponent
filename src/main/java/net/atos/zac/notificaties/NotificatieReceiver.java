@@ -158,6 +158,7 @@ public class NotificatieReceiver {
             return false;
         }
         final Objecttype objecttype = objecttypesClientService.readObjecttype(uuidFromURI(producttypeUri));
+        LOG.info(() -> "Objecttype: %s".formatted(objecttype.getName()));
         return PRODUCTAANVRAAGTYPE_NAAM_DENHAAG.equals(objecttype.getName());
     }
 

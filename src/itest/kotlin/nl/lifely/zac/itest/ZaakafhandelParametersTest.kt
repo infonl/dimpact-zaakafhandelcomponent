@@ -10,7 +10,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.provided.ProjectConfig
-import io.kotest.provided.ZAAKTYPE_PRODUCTAANVRAAG_UUID
+import io.kotest.provided.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 
 private val logger = KotlinLogging.logger {}
 
@@ -19,7 +19,7 @@ class ZaakafhandelParametersTest : BehaviorSpec({
         When("the list zaakafhandelparameterts endpoint is called for our zaaktype under test") {
             then("the response should be ok and it should return the zaakafhandelparameters") {
                 khttp.get(
-                    url = "${ProjectConfig.zacContainer.managementUrl}/zaakafhandelParameters/$ZAAKTYPE_PRODUCTAANVRAAG_UUID"
+                    url = "${ProjectConfig.zacContainer.managementUrl}/zaakafhandelParameters/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
                 ).apply {
                     logger.info { "Zaakafhandelparameters response: $text" }
                     statusCode shouldBe HttpStatus.SC_OK
