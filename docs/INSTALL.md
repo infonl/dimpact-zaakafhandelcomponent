@@ -82,11 +82,11 @@ First you will need to set up IntelliJ for ZAC:
 3. Enable the built-in IntelliJ WildFly extension if not already enabled (note that this requires the IntelliJ Enterprise Edition).
 4. Create a run configuration using the WildFly extension for ZAC using the `JBoss/Wildfly Server - local` template.
    Select `Application server` - `Configure` and point it to your local Wildfly installation which you set up in the previous step.
-   ![zac-intellij-runtime-wildfly-1.png](./attachments/images/zac-intellij-runtime-wildfly-1.png)
+   ![zac-intellij-runtime-wildfly-1.png](img/zac-intellij-runtime-wildfly-1.png)
 5. Configure the Wildfly configuration as follows:
-   ![zac-intellij-runtime-wildfly-2.png](./attachments/images/zac-intellij-runtime-wildfly-2.png)
+   ![zac-intellij-runtime-wildfly-2.png](img/zac-intellij-runtime-wildfly-2.png)
 6. Add the 'exploded zaakafhandelcomponent WAR' artifact to the deployment:
-   ![zac-intellij-runtime-wildfly-3.png](./attachments/images/zac-intellij-runtime-wildfly-3.png)
+   ![zac-intellij-runtime-wildfly-3.png](img/zac-intellij-runtime-wildfly-3.png)
 7. The KVK integration of ZAC is based on the [KVK API](https://developers.kvk.nl/).
    By default, (depending on your environment variables; see below) ZAC integrates with the [KVK test environment](https://developers.kvk.nl/documentation/testing).
    If you run ZAC from IntelliJ this requires a number of certificates to be added to your local Java keystore. Please follow the instructions on: https://developers.kvk.nl/documentation/install-tls-certificate.
@@ -99,7 +99,7 @@ First you will need to set up IntelliJ for ZAC:
 4. Next add a new env var called `APP_ENV` and set the value to `devlocal`.
 
 See the screenshot below:
-![zac-intellij-runtime-wildfly-4.png](./attachments/images/zac-intellij-runtime-wildfly-4.png)
+![zac-intellij-runtime-wildfly-4.png](img/zac-intellij-runtime-wildfly-4.png)
 
 Now when starting up ZAC from IntelliJ the `startupwithenv.sh` script will set the required environment variables
 using the 1Password CLI extensions.
@@ -108,9 +108,9 @@ using the 1Password CLI extensions.
 
 1. To start up ZAC from IntelliJ, select the IntelliJ configuration created above and run it (normally in `Debug` mode).
 2. After starting up ZAC you should see something like this in IntelliJ:
-   ![zac-intellij-runtime-wildfly-5.png](./attachments/images/zac-intellij-runtime-wildfly-5.png)
+   ![zac-intellij-runtime-wildfly-5.png](img/zac-intellij-runtime-wildfly-5.png)
 3. After logging in using one of the available test users you should see the ZAC UI:
-   ![zac-ui-1.png](./attachments/images/zac-ui-1.png)
+   ![zac-ui-1.png](img/zac-ui-1.png)
 
 
 ### Run ZAC in a Docker container
