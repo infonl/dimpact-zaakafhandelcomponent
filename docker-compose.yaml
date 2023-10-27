@@ -381,7 +381,7 @@ services:
       - MAILJET_API_SECRET_KEY=${MAILJET_API_SECRET_KEY}
       - MAX_FILE_SIZE_MB=80
       - OFFICE_CONVERTER_CLIENT_MP_REST_URL=http://localhost:9999 # dummy for now
-      - OBJECTS_API_CLIENT_MP_REST_URL=http://objecten-api:8000
+      - OBJECTS_API_CLIENT_MP_REST_URL=http://host.docker.internal:8010
       - OBJECTS_API_TOKEN=182c13e2209161852c53cef53a879f7a2f923430
       - OBJECTTYPES_API_CLIENT_MP_REST_URL=http://objecttypen-api:8000
       - OBJECTTYPES_API_TOKEN=dummyZacObjectTypesToken

@@ -11,6 +11,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.provided.KEYCLOAK_CLIENT
 import io.kotest.provided.KEYCLOAK_CLIENT_SECRET
 import io.kotest.provided.KEYCLOAK_REALM
+import io.kotest.provided.OBJECTS_API_HOSTNAME_URL
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.testcontainers.containers.FixedHostPortGenericContainer
@@ -95,7 +96,7 @@ class ZACContainer(
             "MAILJET_API_SECRET_KEY" to "dummyMailjetApiSecretKey",
             "MAX_FILE_SIZE_MB" to "80",
             "OFFICE_CONVERTER_CLIENT_MP_REST_URL" to "http://localhost:9999", // dummy for now
-            "OBJECTS_API_CLIENT_MP_REST_URL" to "http://objecten-api:8000",
+            "OBJECTS_API_CLIENT_MP_REST_URL" to OBJECTS_API_HOSTNAME_URL,
             "OBJECTS_API_TOKEN" to "182c13e2209161852c53cef53a879f7a2f923430",
             "OBJECTTYPES_API_CLIENT_MP_REST_URL" to "http://objecttypen-api:8000",
             "OBJECTTYPES_API_TOKEN" to "dummyZacObjectTypesToken",

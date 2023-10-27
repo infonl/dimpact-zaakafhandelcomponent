@@ -9,6 +9,7 @@ import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.HttpStatus
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.provided.OBJECTS_API_HOSTNAME_URL
 import io.kotest.provided.ProjectConfig
 import nl.lifely.zac.itest.config.ZACContainer
 import org.json.JSONObject
@@ -54,10 +55,10 @@ class NotificationsTest : BehaviorSpec({
                         mapOf(
                             // "kanaal" to "zaak",  // needed?
                             "resource" to "object",
-                            "resourceUrl" to "http://objecten-api:8000/$OBJECT_UUID_PRODUCTAANVRAAG",
+                            "resourceUrl" to "$OBJECTS_API_HOSTNAME_URL/$OBJECT_UUID_PRODUCTAANVRAAG",
                             "actie" to "create",
                             "kenmerken" to mapOf(
-                                "objectType" to "http://objecten-api:8000/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DENHAAG"
+                                "objectType" to "$OBJECTS_API_HOSTNAME_URL/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DENHAAG"
                             ),
                             "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                         )
