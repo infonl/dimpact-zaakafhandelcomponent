@@ -56,12 +56,16 @@ class NotificationsTest : BehaviorSpec({
                             "resource" to "object",
                             "resourceUrl" to "http://objecten-api:8000/$OBJECT_UUID_PRODUCTAANVRAAG",
                             "actie" to "create",
-                            "kenmerken" to mapOf("objectType" to "http://objecten-api:8000/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DENHAAG"),
+                            "kenmerken" to mapOf(
+                                "objectType" to "http://objecten-api:8000/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DENHAAG"
+                            ),
                             "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                         )
                     )
                 ).apply {
                     logger.info { "response: $this" }
+                    // check response.
+                    // note that ZAC always returns this HTTP status even if things go wrong..
                     statusCode shouldBe HttpStatus.SC_NO_CONTENT
                 }
             }

@@ -105,8 +105,10 @@ class ZACContainer(
             "SD_AUTHENTICATION" to "dummySmartDocumentsAuthentication",
             "SD_CLIENT_MP_REST_URL" to "dummySmartDocumentsClientUrl",
             "SOLR_URL" to "http://solr:8983",
-            "VRL_API_CLIENT_MP_REST_URL" to "http://zgw-referentielijsten:8000/",
-            "ZGW_API_CLIENT_MP_REST_URL" to "http://openzaak:8000/",
+            // OpenZaak does not accept internal Docker container hostnames for URLs
+            // as workaround we use the default 'host.docker.internal' hostname
+            "VRL_API_CLIENT_MP_REST_URL" to "http://host.docker.internal:8020/",
+            "ZGW_API_CLIENT_MP_REST_URL" to "http://host.docker.internal:8001/",
             "ZGW_API_CLIENTID" to "zac_client",
             "ZGW_API_SECRET" to "openzaakZaakafhandelcomponentClientSecret",
             "ZGW_API_URL_EXTERN" to "http://localhost:8001/"

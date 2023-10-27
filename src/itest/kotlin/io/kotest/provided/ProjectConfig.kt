@@ -24,6 +24,7 @@ import java.io.File
 private val logger = KotlinLogging.logger {}
 
 const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID = "448356ff-dcfb-4504-9501-7fe929077c4f"
+const val PRODUCT_AANVRAAG_TYPE_TERUG_BEL_NOTITIIE = "terugbelnotitie"
 const val KEYCLOAK_HOSTNAME_URL = "http://localhost:8081"
 const val KEYCLOAK_REALM = "zaakafhandelcomponent"
 const val KEYCLOAK_CLIENT = "zaakafhandelcomponent"
@@ -41,6 +42,8 @@ object ProjectConfig : AbstractProjectConfig() {
     @Suppress("UNCHECKED_CAST")
     override suspend fun beforeProject() {
         try {
+            deleteLocalDockerVolumeData()
+
             dockerComposeContainer = ComposeContainer(File("docker-compose.yaml"))
                 .withLocalCompose(true)
                 .withLogConsumer(
@@ -91,6 +94,27 @@ object ProjectConfig : AbstractProjectConfig() {
         dockerComposeContainer.stop()
     }
 
+    /**
+     * The integration tests assume a clean environment.
+     * For that reason we first need to remove any local Docker volume data that may have been created
+     *  by a previous run.
+     * Local Docker volume data is created because we reuse the same Docker Compose file that we also
+     * use for running ZAC locally.
+     */
+    private fun deleteLocalDockerVolumeData() {
+        val file = File("${System.getProperty("user.dir")}/scripts/docker-compose/volume-data")
+        if (file.exists()) {
+            logger.info { "Deleting existing folder '$file' because the integration tests assume a clean environment" }
+            file.deleteRecursively().let { deleted ->
+                if (deleted) {
+                    logger.info { "Deleted folder '$file'" }
+                } else {
+                    logger.error { "Failed to delete folder '$file'" }
+                }
+            }
+        }
+    }
+
     private fun requestAccessTokenFromKeycloak() =
         khttp.post(
             url = "$KEYCLOAK_HOSTNAME_URL/realms/$KEYCLOAK_REALM/protocol/openid-connect/token",
@@ -115,12 +139,186 @@ object ProjectConfig : AbstractProjectConfig() {
                 "Content-Type" to "application/json",
                 "Authorization" to "Bearer $accessToken"
             ),
-            // TODO: productaanvraagtype koppelen aan zaaktype in deze data; is nu null
-            data = "{\"humanTaskParameters\":[{\"planItemDefinition\":{\"defaultFormulierDefinitie\":\"AANVULLENDE_INFORMATIE\",\"id\":\"AANVULLENDE_INFORMATIE\",\"naam\":\"Aanvullende informatie\",\"type\":\"HUMAN_TASK\"},\"defaultGroepId\":null,\"formulierDefinitieId\":\"AANVULLENDE_INFORMATIE\",\"referentieTabellen\":[],\"actief\":true,\"doorlooptijd\":null},{\"planItemDefinition\":{\"defaultFormulierDefinitie\":\"GOEDKEUREN\",\"id\":\"GOEDKEUREN\",\"naam\":\"Goedkeuren\",\"type\":\"HUMAN_TASK\"},\"defaultGroepId\":null,\"formulierDefinitieId\":\"GOEDKEUREN\",\"referentieTabellen\":[],\"actief\":true,\"doorlooptijd\":null},{\"planItemDefinition\":{\"defaultFormulierDefinitie\":\"ADVIES\",\"id\":\"ADVIES_INTERN\",\"naam\":\"Advies intern\",\"type\":\"HUMAN_TASK\"},\"defaultGroepId\":null,\"formulierDefinitieId\":\"ADVIES\",\"referentieTabellen\":[{\"veld\":\"ADVIES\",\"tabel\":{\"aantalWaarden\":5,\"code\":\"ADVIES\",\"id\":1,\"naam\":\"Advies\",\"systeem\":true}}],\"actief\":true,\"doorlooptijd\":null},{\"planItemDefinition\":{\"defaultFormulierDefinitie\":\"EXTERN_ADVIES_VASTLEGGEN\",\"id\":\"ADVIES_EXTERN\",\"naam\":\"Advies extern\",\"type\":\"HUMAN_TASK\"},\"defaultGroepId\":null,\"formulierDefinitieId\":\"EXTERN_ADVIES_VASTLEGGEN\",\"referentieTabellen\":[],\"actief\":true,\"doorlooptijd\":null},{\"planItemDefinition\":{\"defaultFormulierDefinitie\":\"DOCUMENT_VERZENDEN_POST\",\"id\":\"DOCUMENT_VERZENDEN_POST\",\"naam\":\"Document verzenden\",\"type\":\"HUMAN_TASK\"},\"defaultGroepId\":null,\"formulierDefinitieId\":\"DOCUMENT_VERZENDEN_POST\",\"referentieTabellen\":[],\"actief\":true,\"doorlooptijd\":null}],\"mailtemplateKoppelingen\":[],\"userEventListenerParameters\":[{\"id\":\"INTAKE_AFRONDEN\",\"naam\":\"Intake afronden\",\"toelichting\":null},{\"id\":\"ZAAK_AFHANDELEN\",\"naam\":\"Zaak afhandelen\",\"toelichting\":null}],\"valide\":false,\"zaakAfzenders\":[],\"zaakbeeindigParameters\":[],\"zaaktype\":{\"beginGeldigheid\":\"2023-09-21\",\"doel\":\"Melding evenement organiseren behandelen\",\"identificatie\":\"melding-evenement-organiseren-behandelen\",\"nuGeldig\":true,\"omschrijving\":\"Melding evenement organiseren behandelen\",\"servicenorm\":false,\"uuid\":\"448356ff-dcfb-4504-9501-7fe929077c4f\",\"versiedatum\":\"2023-09-21\",\"vertrouwelijkheidaanduiding\":\"openbaar\"},\"intakeMail\":\"BESCHIKBAAR_UIT\",\"afrondenMail\":\"BESCHIKBAAR_UIT\",\"caseDefinition\":{\"humanTaskDefinitions\":[{\"defaultFormulierDefinitie\":\"AANVULLENDE_INFORMATIE\",\"id\":\"AANVULLENDE_INFORMATIE\",\"naam\":\"Aanvullende informatie\",\"type\":\"HUMAN_TASK\"},{\"defaultFormulierDefinitie\":\"GOEDKEUREN\",\"id\":\"GOEDKEUREN\",\"naam\":\"Goedkeuren\",\"type\":\"HUMAN_TASK\"},{\"defaultFormulierDefinitie\":\"ADVIES\",\"id\":\"ADVIES_INTERN\",\"naam\":\"Advies intern\",\"type\":\"HUMAN_TASK\"},{\"defaultFormulierDefinitie\":\"EXTERN_ADVIES_VASTLEGGEN\",\"id\":\"ADVIES_EXTERN\",\"naam\":\"Advies extern\",\"type\":\"HUMAN_TASK\"},{\"defaultFormulierDefinitie\":\"DOCUMENT_VERZENDEN_POST\",\"id\":\"DOCUMENT_VERZENDEN_POST\",\"naam\":\"Document verzenden\",\"type\":\"HUMAN_TASK\"}],\"key\":\"melding-klein-evenement\",\"naam\":\"Melding klein evenement\",\"userEventListenerDefinitions\":[{\"defaultFormulierDefinitie\":\"DEFAULT_TAAKFORMULIER\",\"id\":\"INTAKE_AFRONDEN\",\"naam\":\"Intake afronden\",\"type\":\"USER_EVENT_LISTENER\"},{\"defaultFormulierDefinitie\":\"DEFAULT_TAAKFORMULIER\",\"id\":\"ZAAK_AFHANDELEN\",\"naam\":\"Zaak afhandelen\",\"type\":\"USER_EVENT_LISTENER\"}]},\"domein\":null,\"defaultGroepId\":\"test-group-a\",\"defaultBehandelaarId\":null,\"einddatumGeplandWaarschuwing\":null,\"uiterlijkeEinddatumAfdoeningWaarschuwing\":null,\"productaanvraagtype\":null,\"zaakNietOntvankelijkResultaattype\":{\"archiefNominatie\":\"VERNIETIGEN\",\"archiefTermijn\":\"5 jaren\",\"besluitVerplicht\":false,\"id\":\"dd2bcd87-ed7e-4b23-a8e3-ea7fe7ef00c6\",\"naam\":\"Geweigerd\",\"naamGeneriek\":\"Geweigerd\",\"toelichting\":\"Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen\",\"vervaldatumBesluitVerplicht\":false}}"
+            data = "{\n" +
+                "  \"humanTaskParameters\": [\n" +
+                "    {\n" +
+                "      \"planItemDefinition\": {\n" +
+                "        \"defaultFormulierDefinitie\": \"AANVULLENDE_INFORMATIE\",\n" +
+                "        \"id\": \"AANVULLENDE_INFORMATIE\",\n" +
+                "        \"naam\": \"Aanvullende informatie\",\n" +
+                "        \"type\": \"HUMAN_TASK\"\n" +
+                "      },\n" +
+                "      \"defaultGroepId\": null,\n" +
+                "      \"formulierDefinitieId\": \"AANVULLENDE_INFORMATIE\",\n" +
+                "      \"referentieTabellen\": [],\n" +
+                "      \"actief\": true,\n" +
+                "      \"doorlooptijd\": null\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"planItemDefinition\": {\n" +
+                "        \"defaultFormulierDefinitie\": \"GOEDKEUREN\",\n" +
+                "        \"id\": \"GOEDKEUREN\",\n" +
+                "        \"naam\": \"Goedkeuren\",\n" +
+                "        \"type\": \"HUMAN_TASK\"\n" +
+                "      },\n" +
+                "      \"defaultGroepId\": null,\n" +
+                "      \"formulierDefinitieId\": \"GOEDKEUREN\",\n" +
+                "      \"referentieTabellen\": [],\n" +
+                "      \"actief\": true,\n" +
+                "      \"doorlooptijd\": null\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"planItemDefinition\": {\n" +
+                "        \"defaultFormulierDefinitie\": \"ADVIES\",\n" +
+                "        \"id\": \"ADVIES_INTERN\",\n" +
+                "        \"naam\": \"Advies intern\",\n" +
+                "        \"type\": \"HUMAN_TASK\"\n" +
+                "      },\n" +
+                "      \"defaultGroepId\": null,\n" +
+                "      \"formulierDefinitieId\": \"ADVIES\",\n" +
+                "      \"referentieTabellen\": [\n" +
+                "        {\n" +
+                "          \"veld\": \"ADVIES\",\n" +
+                "          \"tabel\": {\n" +
+                "            \"aantalWaarden\": 5,\n" +
+                "            \"code\": \"ADVIES\",\n" +
+                "            \"id\": 1,\n" +
+                "            \"naam\": \"Advies\",\n" +
+                "            \"systeem\": true\n" +
+                "          }\n" +
+                "        }\n" +
+                "      ],\n" +
+                "      \"actief\": true,\n" +
+                "      \"doorlooptijd\": null\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"planItemDefinition\": {\n" +
+                "        \"defaultFormulierDefinitie\": \"EXTERN_ADVIES_VASTLEGGEN\",\n" +
+                "        \"id\": \"ADVIES_EXTERN\",\n" +
+                "        \"naam\": \"Advies extern\",\n" +
+                "        \"type\": \"HUMAN_TASK\"\n" +
+                "      },\n" +
+                "      \"defaultGroepId\": null,\n" +
+                "      \"formulierDefinitieId\": \"EXTERN_ADVIES_VASTLEGGEN\",\n" +
+                "      \"referentieTabellen\": [],\n" +
+                "      \"actief\": true,\n" +
+                "      \"doorlooptijd\": null\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"planItemDefinition\": {\n" +
+                "        \"defaultFormulierDefinitie\": \"DOCUMENT_VERZENDEN_POST\",\n" +
+                "        \"id\": \"DOCUMENT_VERZENDEN_POST\",\n" +
+                "        \"naam\": \"Document verzenden\",\n" +
+                "        \"type\": \"HUMAN_TASK\"\n" +
+                "      },\n" +
+                "      \"defaultGroepId\": null,\n" +
+                "      \"formulierDefinitieId\": \"DOCUMENT_VERZENDEN_POST\",\n" +
+                "      \"referentieTabellen\": [],\n" +
+                "      \"actief\": true,\n" +
+                "      \"doorlooptijd\": null\n" +
+                "    }\n" +
+                "  ],\n" +
+                "  \"mailtemplateKoppelingen\": [],\n" +
+                "  \"userEventListenerParameters\": [\n" +
+                "    {\n" +
+                "      \"id\": \"INTAKE_AFRONDEN\",\n" +
+                "      \"naam\": \"Intake afronden\",\n" +
+                "      \"toelichting\": null\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"id\": \"ZAAK_AFHANDELEN\",\n" +
+                "      \"naam\": \"Zaak afhandelen\",\n" +
+                "      \"toelichting\": null\n" +
+                "    }\n" +
+                "  ],\n" +
+                "  \"valide\": false,\n" +
+                "  \"zaakAfzenders\": [],\n" +
+                "  \"zaakbeeindigParameters\": [],\n" +
+                "  \"zaaktype\": {\n" +
+                "    \"beginGeldigheid\": \"2023-09-21\",\n" +
+                "    \"doel\": \"Melding evenement organiseren behandelen\",\n" +
+                "    \"identificatie\": \"melding-evenement-organiseren-behandelen\",\n" +
+                "    \"nuGeldig\": true,\n" +
+                "    \"omschrijving\": \"Melding evenement organiseren behandelen\",\n" +
+                "    \"servicenorm\": false,\n" +
+                "    \"uuid\": \"448356ff-dcfb-4504-9501-7fe929077c4f\",\n" +
+                "    \"versiedatum\": \"2023-09-21\",\n" +
+                "    \"vertrouwelijkheidaanduiding\": \"openbaar\"\n" +
+                "  },\n" +
+                "  \"intakeMail\": \"BESCHIKBAAR_UIT\",\n" +
+                "  \"afrondenMail\": \"BESCHIKBAAR_UIT\",\n" +
+                "  \"caseDefinition\": {\n" +
+                "    \"humanTaskDefinitions\": [\n" +
+                "      {\n" +
+                "        \"defaultFormulierDefinitie\": \"AANVULLENDE_INFORMATIE\",\n" +
+                "        \"id\": \"AANVULLENDE_INFORMATIE\",\n" +
+                "        \"naam\": \"Aanvullende informatie\",\n" +
+                "        \"type\": \"HUMAN_TASK\"\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"defaultFormulierDefinitie\": \"GOEDKEUREN\",\n" +
+                "        \"id\": \"GOEDKEUREN\",\n" +
+                "        \"naam\": \"Goedkeuren\",\n" +
+                "        \"type\": \"HUMAN_TASK\"\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"defaultFormulierDefinitie\": \"ADVIES\",\n" +
+                "        \"id\": \"ADVIES_INTERN\",\n" +
+                "        \"naam\": \"Advies intern\",\n" +
+                "        \"type\": \"HUMAN_TASK\"\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"defaultFormulierDefinitie\": \"EXTERN_ADVIES_VASTLEGGEN\",\n" +
+                "        \"id\": \"ADVIES_EXTERN\",\n" +
+                "        \"naam\": \"Advies extern\",\n" +
+                "        \"type\": \"HUMAN_TASK\"\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"defaultFormulierDefinitie\": \"DOCUMENT_VERZENDEN_POST\",\n" +
+                "        \"id\": \"DOCUMENT_VERZENDEN_POST\",\n" +
+                "        \"naam\": \"Document verzenden\",\n" +
+                "        \"type\": \"HUMAN_TASK\"\n" +
+                "      }\n" +
+                "    ],\n" +
+                "    \"key\": \"melding-klein-evenement\",\n" +
+                "    \"naam\": \"Melding klein evenement\",\n" +
+                "    \"userEventListenerDefinitions\": [\n" +
+                "      {\n" +
+                "        \"defaultFormulierDefinitie\": \"DEFAULT_TAAKFORMULIER\",\n" +
+                "        \"id\": \"INTAKE_AFRONDEN\",\n" +
+                "        \"naam\": \"Intake afronden\",\n" +
+                "        \"type\": \"USER_EVENT_LISTENER\"\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"defaultFormulierDefinitie\": \"DEFAULT_TAAKFORMULIER\",\n" +
+                "        \"id\": \"ZAAK_AFHANDELEN\",\n" +
+                "        \"naam\": \"Zaak afhandelen\",\n" +
+                "        \"type\": \"USER_EVENT_LISTENER\"\n" +
+                "      }\n" +
+                "    ]\n" +
+                "  },\n" +
+                "  \"domein\": null,\n" +
+                "  \"defaultGroepId\": \"test-group-a\",\n" +
+                "  \"defaultBehandelaarId\": null,\n" +
+                "  \"einddatumGeplandWaarschuwing\": null,\n" +
+                "  \"uiterlijkeEinddatumAfdoeningWaarschuwing\": null,\n" +
+                "  \"productaanvraagtype\": \"$PRODUCT_AANVRAAG_TYPE_TERUG_BEL_NOTITIIE\",\n" +
+                "  \"zaakNietOntvankelijkResultaattype\": {\n" +
+                "    \"archiefNominatie\": \"VERNIETIGEN\",\n" +
+                "    \"archiefTermijn\": \"5 jaren\",\n" +
+                "    \"besluitVerplicht\": false,\n" +
+                "    \"id\": \"dd2bcd87-ed7e-4b23-a8e3-ea7fe7ef00c6\",\n" +
+                "    \"naam\": \"Geweigerd\",\n" +
+                "    \"naamGeneriek\": \"Geweigerd\",\n" +
+                "    \"toelichting\": \"Het door het orgaan behandelen van een aanvraag, melding of verzoek om " +
+                "toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen\",\n" +
+                "    \"vervaldatumBesluitVerplicht\": false\n" +
+                "  }\n" +
+                "}\n"
         ).apply {
             logger.info { "response: $text" }
             // TODO: check contents
-            // {"afrondenMail":"BESCHIKBAAR_UIT","caseDefinition":{"humanTaskDefinitions":[{"defaultFormulierDefinitie":"AANVULLENDE_INFORMATIE","id":"AANVULLENDE_INFORMATIE","naam":"Aanvullende informatie","type":"HUMAN_TASK"},{"defaultFormulierDefinitie":"GOEDKEUREN","id":"GOEDKEUREN","naam":"Goedkeuren","type":"HUMAN_TASK"},{"defaultFormulierDefinitie":"ADVIES","id":"ADVIES_INTERN","naam":"Advies intern","type":"HUMAN_TASK"},{"defaultFormulierDefinitie":"EXTERN_ADVIES_VASTLEGGEN","id":"ADVIES_EXTERN","naam":"Advies extern","type":"HUMAN_TASK"},{"defaultFormulierDefinitie":"DOCUMENT_VERZENDEN_POST","id":"DOCUMENT_VERZENDEN_POST","naam":"Document verzenden","type":"HUMAN_TASK"}],"key":"melding-klein-evenement","naam":"Melding klein evenement","userEventListenerDefinitions":[{"defaultFormulierDefinitie":"DEFAULT_TAAKFORMULIER","id":"INTAKE_AFRONDEN","naam":"Intake afronden","type":"USER_EVENT_LISTENER"},{"defaultFormulierDefinitie":"DEFAULT_TAAKFORMULIER","id":"ZAAK_AFHANDELEN","naam":"Zaak afhandelen","type":"USER_EVENT_LISTENER"}]},"creatiedatum":"2023-10-27T07:15:42.020258551Z","defaultGroepId":"test-group-a","humanTaskParameters":[{"actief":true,"formulierDefinitieId":"AANVULLENDE_INFORMATIE","id":5,"planItemDefinition":{"defaultFormulierDefinitie":"AANVULLENDE_INFORMATIE","id":"AANVULLENDE_INFORMATIE","naam":"Aanvullende informatie","type":"HUMAN_TASK"},"referentieTabellen":[]},{"actief":true,"formulierDefinitieId":"GOEDKEUREN","id":2,"planItemDefinition":{"defaultFormulierDefinitie":"GOEDKEUREN","id":"GOEDKEUREN","naam":"Goedkeuren","type":"HUMAN_TASK"},"referentieTabellen":[]},{"actief":true,"formulierDefinitieId":"ADVIES","id":3,"planItemDefinition":{"defaultFormulierDefinitie":"ADVIES","id":"ADVIES_INTERN","naam":"Advies intern","type":"HUMAN_TASK"},"referentieTabellen":[{"id":1,"tabel":{"aantalWaarden":5,"code":"ADVIES","id":1,"naam":"Advies","systeem":true},"veld":"ADVIES"}]},{"actief":true,"formulierDefinitieId":"EXTERN_ADVIES_VASTLEGGEN","id":4,"planItemDefinition":{"defaultFormulierDefinitie":"EXTERN_ADVIES_VASTLEGGEN","id":"ADVIES_EXTERN","naam":"Advies extern","type":"HUMAN_TASK"},"referentieTabellen":[]},{"actief":true,"formulierDefinitieId":"DOCUMENT_VERZENDEN_POST","id":1,"planItemDefinition":{"defaultFormulierDefinitie":"DOCUMENT_VERZENDEN_POST","id":"DOCUMENT_VERZENDEN_POST","naam":"Document verzenden","type":"HUMAN_TASK"},"referentieTabellen":[]}],"id":1,"intakeMail":"BESCHIKBAAR_UIT","mailtemplateKoppelingen":[],"userEventListenerParameters":[{"id":"INTAKE_AFRONDEN","naam":"Intake afronden"},{"id":"ZAAK_AFHANDELEN","naam":"Zaak afhandelen"}],"valide":true,"zaakAfzenders":[{"defaultMail":false,"mail":"GEMEENTE","speciaal":true},{"defaultMail":false,"mail":"MEDEWERKER","speciaal":true}],"zaakNietOntvankelijkResultaattype":{"archiefNominatie":"VERNIETIGEN","archiefTermijn":"5 jaren","besluitVerplicht":false,"id":"dd2bcd87-ed7e-4b23-a8e3-ea7fe7ef00c6","naam":"Geweigerd","naamGeneriek":"Geweigerd","toelichting":"Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen","vervaldatumBesluitVerplicht":false},"zaakbeeindigParameters":[],"zaaktype":{"beginGeldigheid":"2023-09-21","doel":"Melding evenement organiseren behandelen","identificatie":"melding-evenement-organiseren-behandelen","nuGeldig":true,"omschrijving":"Melding evenement organiseren behandelen","servicenorm":false,"uuid":"448356ff-dcfb-4504-9501-7fe929077c4f","versiedatum":"2023-09-21","vertrouwelijkheidaanduiding":"openbaar"}}
+            // {"afrondenMail":"BESCHIKBAAR_UIT","caseDefinition":{"humanTaskDefinitions":[{"defaultFormulierDefinitie":"AANVULLENDE_INFORMATIE","id":"AANVULLENDE_INFORMATIE","naam":"Aanvullende informatie","type":"HUMAN_TASK"},{"defaultFormulierDefinitie":"GOEDKEUREN","id":"GOEDKEUREN","naam":"Goedkeuren","type":"HUMAN_TASK"},{"defaultFormulierDefinitie":"ADVIES","id":"ADVIES_INTERN","naam":"Advies intern","type":"HUMAN_TASK"},{"defaultFormulierDefinitie":"EXTERN_ADVIES_VASTLEGGEN","id":"ADVIES_EXTERN","naam":"Advies extern","type":"HUMAN_TASK"},{"defaultFormulierDefinitie":"DOCUMENT_VERZENDEN_POST","id":"DOCUMENT_VERZENDEN_POST","naam":"Document verzenden","type":"HUMAN_TASK"}],"key":"melding-klein-evenement","naam":"Melding klein evenement","userEventListenerDefinitions":[{"defaultFormulierDefinitie":"DEFAULT_TAAKFORMULIER","id":"INTAKE_AFRONDEN","naam":"Intake afronden","type":"USER_EVENT_LISTENER"},{"defaultFormulierDefinitie":"DEFAULT_TAAKFORMULIER","id":"ZAAK_AFHANDELEN","naam":"Zaak afhandelen","type":"USER_EVENT_LISTENER"}]},"creatiedatum":"2023-10-27T08:10:36.256886505Z","defaultGroepId":"test-group-a","humanTaskParameters":[{"actief":true,"formulierDefinitieId":"AANVULLENDE_INFORMATIE","id":2,"planItemDefinition":{"defaultFormulierDefinitie":"AANVULLENDE_INFORMATIE","id":"AANVULLENDE_INFORMATIE","naam":"Aanvullende informatie","type":"HUMAN_TASK"},"referentieTabellen":[]},{"actief":true,"formulierDefinitieId":"GOEDKEUREN","id":5,"planItemDefinition":{"defaultFormulierDefinitie":"GOEDKEUREN","id":"GOEDKEUREN","naam":"Goedkeuren","type":"HUMAN_TASK"},"referentieTabellen":[]},{"actief":true,"formulierDefinitieId":"ADVIES","id":3,"planItemDefinition":{"defaultFormulierDefinitie":"ADVIES","id":"ADVIES_INTERN","naam":"Advies intern","type":"HUMAN_TASK"},"referentieTabellen":[{"id":1,"tabel":{"aantalWaarden":5,"code":"ADVIES","id":1,"naam":"Advies","systeem":true},"veld":"ADVIES"}]},{"actief":true,"formulierDefinitieId":"EXTERN_ADVIES_VASTLEGGEN","id":1,"planItemDefinition":{"defaultFormulierDefinitie":"EXTERN_ADVIES_VASTLEGGEN","id":"ADVIES_EXTERN","naam":"Advies extern","type":"HUMAN_TASK"},"referentieTabellen":[]},{"actief":true,"formulierDefinitieId":"DOCUMENT_VERZENDEN_POST","id":4,"planItemDefinition":{"defaultFormulierDefinitie":"DOCUMENT_VERZENDEN_POST","id":"DOCUMENT_VERZENDEN_POST","naam":"Document verzenden","type":"HUMAN_TASK"},"referentieTabellen":[]}],"id":1,"intakeMail":"BESCHIKBAAR_UIT","mailtemplateKoppelingen":[],"productaanvraagtype":"terugbelnotitie","userEventListenerParameters":[{"id":"INTAKE_AFRONDEN","naam":"Intake afronden"},{"id":"ZAAK_AFHANDELEN","naam":"Zaak afhandelen"}],"valide":true,"zaakAfzenders":[{"defaultMail":false,"mail":"GEMEENTE","speciaal":true},{"defaultMail":false,"mail":"MEDEWERKER","speciaal":true}],"zaakNietOntvankelijkResultaattype":{"archiefNominatie":"VERNIETIGEN","archiefTermijn":"5 jaren","besluitVerplicht":false,"id":"dd2bcd87-ed7e-4b23-a8e3-ea7fe7ef00c6","naam":"Geweigerd","naamGeneriek":"Geweigerd","toelichting":"Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen","vervaldatumBesluitVerplicht":false},"zaakbeeindigParameters":[],"zaaktype":{"beginGeldigheid":"2023-09-21","doel":"Melding evenement organiseren behandelen","identificatie":"melding-evenement-organiseren-behandelen","nuGeldig":true,"omschrijving":"Melding evenement organiseren behandelen","servicenorm":false,"uuid":"448356ff-dcfb-4504-9501-7fe929077c4f","versiedatum":"2023-09-21","vertrouwelijkheidaanduiding":"openbaar"}}
             statusCode shouldBe HttpStatus.SC_OK
         }
     }
