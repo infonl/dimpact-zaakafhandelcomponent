@@ -1,4 +1,4 @@
-![Context diagram](./attachments/images/Contextdiagram%202021-12-15.png)
+![Context diagram](./../attachments/images/Contextdiagram%202021-12-15.png)
 The context of the renewed e-Suite describes the environment of the renewed e-Suite and considers the renewed e-Suite as a black box. Components of the environment of that black box are:
 
 - **Customers and end users**: Residents, chain partners, and companies (including self-employed individuals) and employees use the renewed e-Suite. Functional administrators set up the renewed e-Suite.
