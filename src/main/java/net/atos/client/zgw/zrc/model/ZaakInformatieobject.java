@@ -148,4 +148,18 @@ public class ZaakInformatieobject {
     public UUID getZaakUUID() {
         return uuidFromURI(zaak);
     }
+
+    @Override
+    public String toString() {
+        return "ZaakInformatieobject{" +
+                "url=" + url +
+                ", uuid=" + uuid +
+                ", informatieobject=" + informatieobject +
+                ", zaak=" + zaak +
+                ", aardRelatieWeergave=" + aardRelatieWeergave +
+                ", titel='" + titel + '\'' +
+                ", beschrijving='" + beschrijving + '\'' +
+                ", registratiedatum=" + registratiedatum +
+                '}';
+    }
 }
