@@ -1,4 +1,4 @@
-<_Richtlijn voor het invullen: Beschrijft architectonisch significante oplossingen om de overeengekomen niet-functionele eisen (NFR's) te bereiken. Elke wijziging wordt toegewezen aan de overeenkomstige NFR-categorie, die is gebaseerd op het ISO/IEC 25010-2011-productkwaliteitsmodel. Voorbeelden van te documenteren zaken zijn caching-architectuur, load balancing en hoe de oplossing zorgt voor de gekozen redundantiebenadering._>
+<_Guideline for filling in: Describes architecturally significant solutions to achieve the agreed non-functional requirements (NFRs). Each change is mapped to the corresponding NFR category, which is based on the ISO/IEC 25010-2011 product quality model. Examples of things to document include caching architecture, load balancing, and how the solution ensures the chosen redundancy approach._>
 
 * Performance (e.g. latency and throughput)
 * Scalability (e.g. data and traffic volumes)
