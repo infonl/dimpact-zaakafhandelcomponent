@@ -76,7 +76,6 @@ services:
       - POSTGRES_DB=openzaak
       - BAG_API_CLIENT_MP_REST_URL=${BAG_API_CLIENT_MP_REST_URL:-https://api.bag.acceptatie.kadaster.nl/lvbag/individuelebevragingen/v2/}
       - BAG_API_KEY=${BAG_API_KEY:-please-request-a-bag-api-key}
-      - OBJECTS_API_CLIENT_ROOT_URL=http://objecten-api:8000/api/v2/
     volumes:
       - ./scripts/docker-compose/imports/openzaak-database:/docker-entrypoint-initdb.d
       - ./scripts/docker-compose/volume-data/openzaak-database-data:/var/lib/postgresql/data
