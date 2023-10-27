@@ -814,9 +814,13 @@
             "version": 1,
             "data": {
                 "data": {
-                  "naam": "Jan Jansen",
-                  "omschrijving": "Ik heb een vraag over mijn paspoort",
-                  "telefoonnummer": "0612345678"
+                  "stap1": {
+                      "naam" : "Jan Jansen",
+                      "telefoonnummer" : "0612345678"
+                  },
+                  "stap2": {
+                      "omschrijving" : "Ik heb een vraag over mijn paspoort"
+                  }
                 },
                 "type": "terugbelnotitie",
                 "bsn": "111222333",
@@ -836,9 +840,9 @@
         "model": "token.tokenauth",
         "pk": "cd63e158f3aca276ef284e3033d020a22899c728",
         "fields": {
-            "contact_person": "test",
+            "contact_person": "openzaak",
             "email": "test@example.com",
-            "organization": "test1",
+            "organization": "Test",
             "last_modified": "2020-12-23T11:43:16.820Z",
             "created": "2020-12-22T16:27:00.751Z"
         }
@@ -847,9 +851,9 @@
         "model": "token.tokenauth",
         "pk": "182c13e2209161852c53cef53a879f7a2f923430",
         "fields": {
-            "contact_person": "ZAC Test",
+            "contact_person": "zac",
             "email": "test@example.com",
-            "organization": "test2",
+            "organization": "Test",
             "last_modified": "2020-12-23T11:43:16.820Z",
             "created": "2020-12-22T16:27:00.751Z"
         }
@@ -886,16 +890,16 @@
         "model": "token.permission",
         "pk": 3,
         "fields": {
-            "token_auth": "182c13e2209161852c53cef53a879f7a2f923430",
-            "object_type": 4,
-            "mode": "read_and_write"
+          "token_auth": "cd63e158f3aca276ef284e3033d020a22899c728",
+          "object_type": 4,
+          "mode": "read_and_write"
         }
     },
     {
         "model": "token.permission",
         "pk": 4,
         "fields": {
-            "token_auth": "d667fec15cd7db980730dd843836604e638d1295",
+            "token_auth": "182c13e2209161852c53cef53a879f7a2f923430",
             "object_type": 4,
             "mode": "read_and_write"
         }
@@ -904,8 +908,8 @@
         "model": "token.permission",
         "pk": 5,
         "fields": {
-            "token_auth": "182c13e2209161852c53cef53a879f7a2f923430",
-            "object_type": 5,
+            "token_auth": "d667fec15cd7db980730dd843836604e638d1295",
+            "object_type": 4,
             "mode": "read_and_write"
         }
     },
@@ -914,13 +918,22 @@
         "pk": 6,
         "fields": {
             "token_auth": "182c13e2209161852c53cef53a879f7a2f923430",
-            "object_type": 6,
+            "object_type": 5,
             "mode": "read_and_write"
         }
     },
     {
         "model": "token.permission",
         "pk": 7,
+        "fields": {
+            "token_auth": "182c13e2209161852c53cef53a879f7a2f923430",
+            "object_type": 6,
+            "mode": "read_and_write"
+        }
+    },
+    {
+        "model": "token.permission",
+        "pk": 8,
         "fields": {
             "token_auth": "182c13e2209161852c53cef53a879f7a2f923430",
             "object_type": 1,

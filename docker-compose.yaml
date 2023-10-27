@@ -76,6 +76,7 @@ services:
       - POSTGRES_DB=openzaak
       - BAG_API_CLIENT_MP_REST_URL=${BAG_API_CLIENT_MP_REST_URL:-https://api.bag.acceptatie.kadaster.nl/lvbag/individuelebevragingen/v2/}
       - BAG_API_KEY=${BAG_API_KEY:-please-request-a-bag-api-key}
+      - OBJECTS_API_CLIENT_ROOT_URL=http://objecten-api:8000/api/v2/
     volumes:
       - ./scripts/docker-compose/imports/openzaak-database:/docker-entrypoint-initdb.d
       - ./scripts/docker-compose/volume-data/openzaak-database-data:/var/lib/postgresql/data
@@ -344,7 +345,6 @@ services:
 
   zac:
     # By default, we use the latest ZAC Docker Image. Change this if you wish to use a specific version.
-    # See: https://github.com/infonl/dimpact-zaakafhandelcomponent/pkgs/container/zaakafhandelcomponent
     image: ghcr.io/infonl/zaakafhandelcomponent:latest
     environment:
       # Some of these environment variables use 'host.docker.internal' as hostname.

@@ -14,43 +14,43 @@ INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES ('opennotificat
 INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES ('openformulieren', 'openformulieren');
 
 -- note that we currently use the public https://selectielijst.openzaak.nl/ VNG Selectielijst service here
-INSERT INTO catalogi_zaaktype 
-( 
+INSERT INTO catalogi_zaaktype
+(
   id,
-  datum_begin_geldigheid, 
-  datum_einde_geldigheid, 
-  concept, 
-  uuid, 
-  identificatie, 
-  zaaktype_omschrijving, 
-  zaaktype_omschrijving_generiek, 
-  vertrouwelijkheidaanduiding, 
-  doel, 
-  aanleiding, 
-  toelichting, 
-  indicatie_intern_of_extern, 
-  handeling_initiator, 
-  onderwerp, 
-  handeling_behandelaar, 
-  doorlooptijd_behandeling, 
-  servicenorm_behandeling, 
-  opschorting_en_aanhouding_mogelijk, 
-  verlenging_mogelijk, 
-  verlengingstermijn, 
-  trefwoorden, 
-  publicatie_indicatie, 
-  publicatietekst, 
-  verantwoordingsrelatie, 
-  versiedatum, 
-  producten_of_diensten, 
-  selectielijst_procestype, 
-  referentieproces_naam, 
-  referentieproces_link, 
-  catalogus_id, 
-  selectielijst_procestype_jaar, 
+  datum_begin_geldigheid,
+  datum_einde_geldigheid,
+  concept,
+  uuid,
+  identificatie,
+  zaaktype_omschrijving,
+  zaaktype_omschrijving_generiek,
+  vertrouwelijkheidaanduiding,
+  doel,
+  aanleiding,
+  toelichting,
+  indicatie_intern_of_extern,
+  handeling_initiator,
+  onderwerp,
+  handeling_behandelaar,
+  doorlooptijd_behandeling,
+  servicenorm_behandeling,
+  opschorting_en_aanhouding_mogelijk,
+  verlenging_mogelijk,
+  verlengingstermijn,
+  trefwoorden,
+  publicatie_indicatie,
+  publicatietekst,
+  verantwoordingsrelatie,
+  versiedatum,
+  producten_of_diensten,
+  selectielijst_procestype,
+  referentieproces_naam,
+  referentieproces_link,
+  catalogus_id,
+  selectielijst_procestype_jaar,
   _etag
-) 
-VALUES 
+)
+VALUES
 (
     1,
   '2023-09-21', -- datum_begin_geldigheid
@@ -90,11 +90,11 @@ VALUES
 -- RESULTTYPES (Resultaat type)
 
 -- For the first JSON object
-INSERT INTO catalogi_resultaattype 
+INSERT INTO catalogi_resultaattype
 (
-  id, 
-  uuid, 
-  omschrijving, 
+  id,
+  uuid,
+  omschrijving,
   resultaattypeomschrijving,
   omschrijving_generiek,
   selectielijstklasse,
@@ -107,13 +107,13 @@ INSERT INTO catalogi_resultaattype
   brondatum_archiefprocedure_registratie,
   brondatum_archiefprocedure_procestermijn,
   toelichting,
-  zaaktype_id, 
+  zaaktype_id,
   _etag
 )
-VALUES 
+VALUES
 (
-  4, 
-  '2b774ae4-68b0-462c-b6a0-e48b861ee148', 
+  4,
+  '2b774ae4-68b0-462c-b6a0-e48b861ee148',
   'Verleend',
   'https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/f7d2dc14-1b71-4179-aed3-4e7abcfbeb0d',
   'Verleend',
@@ -127,16 +127,16 @@ VALUES
   '',
   NULL,
   'Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen',
-  1, 
+  1,
   '_etag'
 );
 
 -- For the second JSON object
-INSERT INTO catalogi_resultaattype 
+INSERT INTO catalogi_resultaattype
 (
-  id, 
-  uuid, 
-  omschrijving, 
+  id,
+  uuid,
+  omschrijving,
   resultaattypeomschrijving,
   omschrijving_generiek,
   selectielijstklasse,
@@ -149,12 +149,12 @@ INSERT INTO catalogi_resultaattype
   brondatum_archiefprocedure_registratie,
   brondatum_archiefprocedure_procestermijn,
   toelichting,
-  zaaktype_id, 
+  zaaktype_id,
   _etag
 )
-VALUES 
+VALUES
 (
-  5, 
+  5,
   'dd2bcd87-ed7e-4b23-a8e3-ea7fe7ef00c6',
   'Geweigerd',
   'https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/1f750958-431c-4916-bc01-af5d3a753b41',
@@ -169,16 +169,16 @@ VALUES
   '',
   NULL,
   'Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen',
-  1, 
+  1,
   '_etag'
 );
 
 -- For the third JSON object
-INSERT INTO catalogi_resultaattype 
+INSERT INTO catalogi_resultaattype
 (
-  id, 
-  uuid, 
-  omschrijving, 
+  id,
+  uuid,
+  omschrijving,
   resultaattypeomschrijving,
   omschrijving_generiek,
   selectielijstklasse,
@@ -191,12 +191,12 @@ INSERT INTO catalogi_resultaattype
   brondatum_archiefprocedure_registratie,
   brondatum_archiefprocedure_procestermijn,
   toelichting,
-  zaaktype_id, 
+  zaaktype_id,
   _etag
 )
-VALUES 
+VALUES
 (
-  6, 
+  6,
   '060b1651-4795-4982-bf66-584391bf0421',
   'Afgebroken',
   'https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/ce8cf476-0b59-496f-8eee-957a7c6e2506',
@@ -211,7 +211,7 @@ VALUES
   '',
   NULL,
   'Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen.',
-  1, 
+  1,
   '_etag'
 );
 
@@ -219,20 +219,20 @@ VALUES
 
 -- STATUSTYPES
 -- For the first JSON object
-INSERT INTO catalogi_statustype 
+INSERT INTO catalogi_statustype
 (
-  id, 
-  uuid, 
-  statustype_omschrijving, 
-  statustype_omschrijving_generiek, 
-  statustypevolgnummer, 
-  informeren, 
-  statustekst, 
-  toelichting, 
-  zaaktype_id, 
+  id,
+  uuid,
+  statustype_omschrijving,
+  statustype_omschrijving_generiek,
+  statustypevolgnummer,
+  informeren,
+  statustekst,
+  toelichting,
+  zaaktype_id,
   _etag
-) 
-VALUES 
+)
+VALUES
 (
   1, -- id (Placeholder; adjust as needed)
   'c626ada3-52af-4be2-bd24-734a20fc4f9c', -- uuid
@@ -247,20 +247,20 @@ VALUES
 );
 
 -- For the second JSON object
-INSERT INTO catalogi_statustype 
+INSERT INTO catalogi_statustype
 (
-  id, 
-  uuid, 
-  statustype_omschrijving, 
-  statustype_omschrijving_generiek, 
-  statustypevolgnummer, 
-  informeren, 
-  statustekst, 
-  toelichting, 
-  zaaktype_id, 
+  id,
+  uuid,
+  statustype_omschrijving,
+  statustype_omschrijving_generiek,
+  statustypevolgnummer,
+  informeren,
+  statustekst,
+  toelichting,
+  zaaktype_id,
   _etag
-) 
-VALUES 
+)
+VALUES
 (
   2, -- id (Placeholder; adjust as needed)
   '77174c85-0b40-436e-af3c-e596393962f4', -- uuid
@@ -275,20 +275,20 @@ VALUES
 );
 
 -- For the third JSON object
-INSERT INTO catalogi_statustype 
+INSERT INTO catalogi_statustype
 (
-  id, 
-  uuid, 
-  statustype_omschrijving, 
-  statustype_omschrijving_generiek, 
-  statustypevolgnummer, 
-  informeren, 
-  statustekst, 
-  toelichting, 
-  zaaktype_id, 
+  id,
+  uuid,
+  statustype_omschrijving,
+  statustype_omschrijving_generiek,
+  statustypevolgnummer,
+  informeren,
+  statustekst,
+  toelichting,
+  zaaktype_id,
   _etag
-) 
-VALUES 
+)
+VALUES
 (
   3, -- id (Placeholder; adjust as needed)
   '8eb24967-910c-4bf8-9f30-c44653b0c30c', -- uuid
@@ -303,20 +303,20 @@ VALUES
 );
 
 -- For the fourth JSON object
-INSERT INTO catalogi_statustype 
+INSERT INTO catalogi_statustype
 (
-  id, 
-  uuid, 
-  statustype_omschrijving, 
-  statustype_omschrijving_generiek, 
-  statustypevolgnummer, 
-  informeren, 
-  statustekst, 
-  toelichting, 
-  zaaktype_id, 
+  id,
+  uuid,
+  statustype_omschrijving,
+  statustype_omschrijving_generiek,
+  statustypevolgnummer,
+  informeren,
+  statustekst,
+  toelichting,
+  zaaktype_id,
   _etag
-) 
-VALUES 
+)
+VALUES
 (
   4, -- id (Placeholder; adjust as needed)
   '485677e6-c20c-4a85-af92-ded14bcac8dd', -- uuid
@@ -337,16 +337,16 @@ VALUES
 -- Note that these rol types must be known to ZAC as defined in the 'AardVanRol' Java enum in the ZAC code base.
 
 -- For the first JSON object
-INSERT INTO catalogi_roltype 
+INSERT INTO catalogi_roltype
 (
-  id, 
-  uuid, 
-  omschrijving, 
-  omschrijving_generiek, 
-  zaaktype_id, 
+  id,
+  uuid,
+  omschrijving,
+  omschrijving_generiek,
+  zaaktype_id,
   _etag
-) 
-VALUES 
+)
+VALUES
 (
   1,                               -- id (Placeholder; adjust as needed)
   'd6a6a357-84fc-4cba-b08b-865004f261d6', -- uuid
@@ -357,16 +357,16 @@ VALUES
 );
 
 -- For the second JSON object
-INSERT INTO catalogi_roltype 
+INSERT INTO catalogi_roltype
 (
-  id, 
-  uuid, 
-  omschrijving, 
-  omschrijving_generiek, 
-  zaaktype_id, 
+  id,
+  uuid,
+  omschrijving,
+  omschrijving_generiek,
+  zaaktype_id,
   _etag
-) 
-VALUES 
+)
+VALUES
 (
   2,                               -- id (Placeholder; adjust as needed)
   'f8617909-c166-4f2c-86cc-c0fc44b46725', -- uuid
@@ -377,16 +377,16 @@ VALUES
 );
 
 -- For the third JSON object
-INSERT INTO catalogi_roltype 
+INSERT INTO catalogi_roltype
 (
-  id, 
-  uuid, 
-  omschrijving, 
-  omschrijving_generiek, 
-  zaaktype_id, 
+  id,
+  uuid,
+  omschrijving,
+  omschrijving_generiek,
+  zaaktype_id,
   _etag
-) 
-VALUES 
+)
+VALUES
 (
   3,                               -- id (Placeholder; adjust as needed)
   '4c4cd850-8332-4bb9-adc4-dd046f0614ad', -- uuid
@@ -407,4 +407,5 @@ INSERT INTO catalogi_zaaktypeinformatieobjecttype(id, uuid, volgnummer, richting
 -- Open Formulieren is not used yet in our Docker Compose set-up
 -- INSERT INTO zgw_consumers_service(label, api_type, api_root, client_id, secret, auth_type, header_key, header_value, oas, nlx, user_id, user_representation, oas_file) VALUES ('Open formulieren', 'nrc', 'http://host.docker.internal:8002/api/v1/', 'openzaak', 'openzaak', 'zgw', '', '', 'http://host.docker.internal:8002/api/v1/schema/openapi.yaml', '', '', '', '');
 -- Set up the BAG service configuration. This requires that the corresponding variables have been passed on to this script.
-INSERT INTO zgw_consumers_service(label, api_type, api_root, client_id, secret, auth_type, header_key, header_value, oas, nlx, user_id, user_representation, oas_file, client_certificate_id, server_certificate_id) VALUES ('BAG', 'orc', :'BAG_API_CLIENT_MP_REST_URL', '', '', 'api_key', 'X-Api-Key', :'BAG_API_KEY', 'https://api.bag.acceptatie.kadaster.nl/lvbag/individuelebevragingen/v2/', '', '', '', '', null, null);
+INSERT INTO zgw_consumers_service(label, api_type, api_root, client_id, secret, auth_type, header_key, header_value, oas, nlx, user_id, user_representation, oas_file, client_certificate_id, server_certificate_id) VALUES ('BAG', 'orc', :'BAG_API_CLIENT_MP_REST_URL', '', '', 'api_key', 'X-Api-Key', :'BAG_API_KEY', :'BAG_API_CLIENT_MP_REST_URL', '', '', '', '', null, null);
+INSERT INTO zgw_consumers_service(label, api_type, api_root, client_id, secret, auth_type, header_key, header_value, oas, nlx, user_id, user_representation, oas_file, client_certificate_id, server_certificate_id) VALUES ('Objects API', 'orc', :'OBJECTS_API_CLIENT_ROOT_URL', '', '', 'api_key', 'Authorization', 'Token cd63e158f3aca276ef284e3033d020a22899c728', :'OBJECTS_API_CLIENT_ROOT_URL', '', '', '', '', null, null);
