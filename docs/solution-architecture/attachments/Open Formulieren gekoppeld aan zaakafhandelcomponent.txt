@@ -1,0 +1,21 @@
+title This is a title
+
+participant Klant
+participant Open Formulieren
+participant Zaakafhandelcomponent
+participant Open Zaak
+participant Overige Registraties
+participant Open Notificaties
+
+
+
+
+Klant->Open Formulieren:Invullen formulier
+Open Formulieren->Open Zaak:Opslaan aanvraag PDF
+Open Formulieren->Overige Registraties:Opslaan productaanvraag
+Overige Registraties->Open Notificaties:Versturen object notificatie
+Zaakafhandelcomponent<-Open Notificaties:Versturen object notificatie
+Zaakafhandelcomponent->Overige Registraties:Ophalen productaanvraag
+
+Zaakafhandelcomponent->Open Zaak:Aanmaken zaak
+Zaakafhandelcomponent->Open Zaak:Koppelen aanvraag PDF

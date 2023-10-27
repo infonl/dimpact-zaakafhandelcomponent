@@ -1,6 +1,6 @@
 # Local WildFly development
 
-These steps are part of the overall [ZAC installation instructions](../../docs/INSTALL.md).
+These steps are part of the overall [ZAC installation instructions](../../docs/development/INSTALL.md).
 
 ## Install Galleon
 

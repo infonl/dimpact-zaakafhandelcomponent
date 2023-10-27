@@ -1,4 +1,4 @@
-## **Introduction**
+# End-to-end type safety
 
 The ZAC angular frontend uses [openapi-typescript](https://github.com/drwpow/openapi-typescript) to make requests to the backend and process the responses. This ensures that the frontend and backend align well (think of typed responses) and that the frontend cannot make invalid requests (think of wrong parameters or non-existing endpoints).
 
@@ -11,7 +11,7 @@ This feature consists of 2 packages:
 - [openapi-typescript-fetch](https://github.com/drwpow/openapi-typescript/tree/main/packages/openapi-typescript-fetch)
   - This code is a wrapper around axios fetch that has made the axios API completely type-safe. We don't use this package directly in ZAC; we only use the types in this package to write our wrapper around Angular's httpclient.
 
-## **The ZacHttpClient**
+## The ZacHttpClient
 
 The package openapi-typescript-fetch has an API that is not compatible with Angular's recommended httpclient. That's why we wrote a wrapper around Angular's httpclient that uses the types from openapi-typescript-fetch. This wrapper is the ZacHttpClient. The ZacHttpClient should work exactly like Angular's httpclient, but with type-safe arguments for URL, body, query, and params. Also, the response is type-safe.
 
