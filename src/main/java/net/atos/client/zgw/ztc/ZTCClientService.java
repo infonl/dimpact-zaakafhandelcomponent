@@ -124,7 +124,6 @@ public class ZTCClientService implements Caching {
      */
     @CacheResult(cacheName = ZTC_ZAAKTYPE)
     public List<Zaaktype> listZaaktypen(final URI catalogusURI) {
-        LOG.info("Retrieving zaak typen from ZTC for catalogus '" + catalogusURI.toString() + "'");
         return ztcClient.zaaktypeList(new ZaaktypeListParameters(catalogusURI)).getResults();
     }
 

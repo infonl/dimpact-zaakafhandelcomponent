@@ -127,18 +127,15 @@ public class ProductaanvraagService {
     private ConfiguratieService configuratieService;
 
     public void verwerkProductaanvraag(final URI productaanvraagUrl) {
-        LOG.info(() -> "Verwerken productaanvraag: %s".formatted(productaanvraagUrl));
+        LOG.fine(() -> "Verwerken productaanvraag: %s".formatted(productaanvraagUrl));
 
         final var productaanvraagObject = objectsClientService.readObject(uuidFromURI(productaanvraagUrl));
         final var productaanvraag = getProductaanvraag(productaanvraagObject);
-
-        LOG.info("Retrieving zaakafhandelparameters for productaanvraag type: " + productaanvraag.getType());
-
         final Optional<UUID> zaaktypeUUID = zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(
                 productaanvraag.getType());
         if (zaaktypeUUID.isPresent()) {
             try {
-                LOG.info("Start zaak met CMMN case. Zaaktype: %s".formatted(zaaktypeUUID.get().toString()));
+                LOG.fine(() -> "Start zaak met CMMN case. Zaaktype: %s".formatted(zaaktypeUUID.get().toString()));
 
                 registreerZaakMetCMMNCase(zaaktypeUUID.get(), productaanvraag, productaanvraagObject);
             } catch (RuntimeException ex) {
@@ -149,7 +146,7 @@ public class ProductaanvraagService {
             if (zaaktype.isPresent()) {
                 try {
 
-                    LOG.info("Start zaak met BPMN proces. Zaaktype: %s".formatted(zaaktype.get().toString()));
+                    LOG.fine(() -> "Start zaak met BPMN proces. Zaaktype: %s".formatted(zaaktype.get().toString()));
 
                     registreerZaakMetBPMNProces(zaaktype.get(), productaanvraag, productaanvraagObject);
                 } catch (RuntimeException ex) {
