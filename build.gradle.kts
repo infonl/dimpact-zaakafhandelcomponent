@@ -56,7 +56,7 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("org.apache.commons:commons-collections4:4.4")
     implementation("com.opencsv:opencsv:5.8")
-    implementation("org.flowable:flowable-engine:6.7.2")
+    implementation("org.flowable:flowable-engine:7.0.0")
     implementation("org.flowable:flowable-cdi:6.7.2")
     implementation("org.flowable:flowable-cmmn-engine:6.7.2")
     implementation("org.flowable:flowable-cmmn-cdi:6.7.2")
