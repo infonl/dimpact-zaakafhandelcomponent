@@ -247,9 +247,6 @@ public class ProductaanvraagService {
         final var formulierData = getFormulierData(productaanvraagObject);
         var zaak = new Zaak();
         final var zaaktype = ztcClientService.readZaaktype(zaaktypeUuid);
-
-        LOG.info("Retrieved zaaktype: " + zaaktype);
-
         zaak.setZaaktype(zaaktype.getUrl());
         zaak.setOmschrijving(
                 (String) formulierData.get(FORMULIER_KLEINE_EVENEMENTEN_MELDING_EIGENSCHAPNAAM_NAAM_EVENEMENT));
@@ -264,8 +261,7 @@ public class ProductaanvraagService {
             zaak.setCommunicatiekanaal(communicatiekanaal.get().getUrl());
         }
 
-        LOG.info("Creating zaak using the ZGW API: " + zaak);
-
+        LOG.fine("Creating zaak using the ZGW API: " + zaak);
         zaak = zgwApiService.createZaak(zaak);
         final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
                 zaaktypeUuid);
@@ -296,8 +292,7 @@ public class ProductaanvraagService {
         zaakInformatieobject.setTitel(AANVRAAG_PDF_TITEL);
         zaakInformatieobject.setBeschrijving(AANVRAAG_PDF_BESCHRIJVING);
 
-        LOG.info("Creating zaak informatieobject: " + zaakInformatieobject);
-
+        LOG.fine("Creating zaak informatieobject: " + zaakInformatieobject);
         zrcClientService.createZaakInformatieobject(zaakInformatieobject, ZAAK_INFORMATIEOBJECT_REDEN);
     }
 

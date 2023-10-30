@@ -10,16 +10,17 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.provided.OBJECTS_API_HOSTNAME_URL
+import io.kotest.provided.OBJECTTYPE_UUID_PRODUCTAANVRAAG_DENHAAG
+import io.kotest.provided.OBJECT_UUID_PRODUCTAANVRAAG
 import io.kotest.provided.ProjectConfig
+import io.kotest.provided.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
+import io.kotest.provided.ZAAK_1_IDENTIFICATION
 import nl.lifely.zac.itest.config.ZACContainer
 import org.json.JSONObject
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
 private val logger = KotlinLogging.logger {}
-
-const val OBJECTTYPE_UUID_PRODUCTAANVRAAG_DENHAAG = "021f685e-9482-4620-b157-34cd4003da6b"
-const val OBJECT_UUID_PRODUCTAANVRAAG = "9dbed186-89ca-48d7-8c6c-f9995ceb8e27"
 
 class NotificationsTest : BehaviorSpec({
     given("ZAC and all related Docker containers are running") {
@@ -52,6 +53,8 @@ class NotificationsTest : BehaviorSpec({
                     url = "${ProjectConfig.zacContainer.apiUrl}/notificaties",
                     headers = mapOf(
                         "Content-Type" to "application/json",
+                        // this test simulates that Open Notificaties sends the request to ZAC
+                        // with the secret API key that is configured in ZAC
                         "Authorization" to ZACContainer.OPEN_NOTIFICATIONS_API_SECRET_KEY
                     ),
                     data = JSONObject(
@@ -66,17 +69,31 @@ class NotificationsTest : BehaviorSpec({
                         )
                     )
                 ).apply {
-                    // check if zaak was created in OpenZaak and if CMMN zaak proces was started in ZAC (how?)
-
-                    // GET /zaken/zaak/<uuid> - how do we know the zaak uuid?
-
-                    // GET "zaak/id/{identificatie} - how do we know the zaak identificatie?
-
-                    // Solr index updaten en dan de eerste (enige) zaak ophalen?
-
                     // Note that the 'notificaties' endpoint always returns 'no content' even if things go wrong
                     // since it is a fire-and-forget kind of endpoint.
                     statusCode shouldBe HttpStatus.SC_NO_CONTENT
+
+                    // retrieve the newly created zaak and check the contents
+                    khttp.get(
+                        url = "${ProjectConfig.zacContainer.apiUrl}/zaken/zaak/id/$ZAAK_1_IDENTIFICATION",
+                        headers = mapOf(
+                            "Content-Type" to "application/json",
+                            "Authorization" to "Bearer ${ProjectConfig.accessToken}"
+                        ),
+                    ).apply {
+                        logger.info { "Response: $text" }
+
+                        statusCode shouldBe HttpStatus.SC_OK
+                        val zaak = JSONObject(text)
+                        zaak.getString("identificatie") shouldBe ZAAK_1_IDENTIFICATION
+                        zaak.getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
+                        zaak.getJSONObject("status").getString("naam") shouldBe "Intake"
+                        zaak.getJSONObject("groep").getString("id") shouldBe "test-group-a"
+                        // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
+                        // since we have defined zaakafhandelparameters for this zaaktype a CMMN proces should be started
+                        zaak.getBoolean("isProcesGestuurd") shouldBe false
+                        zaak.getJSONObject("communicatiekanaal").getString("naam") shouldBe "E-formulier"
+                    }
                 }
             }
         }

@@ -23,13 +23,16 @@ import java.io.File
 
 private val logger = KotlinLogging.logger {}
 
-const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID = "448356ff-dcfb-4504-9501-7fe929077c4f"
-const val PRODUCT_AANVRAAG_TYPE_TERUG_BEL_NOTITIIE = "productaanvraag"
 const val KEYCLOAK_HOSTNAME_URL = "http://localhost:8081"
 const val KEYCLOAK_REALM = "zaakafhandelcomponent"
 const val KEYCLOAK_CLIENT = "zaakafhandelcomponent"
 const val KEYCLOAK_CLIENT_SECRET = "keycloakZaakafhandelcomponentClientSecret"
+const val OBJECT_UUID_PRODUCTAANVRAAG = "9dbed186-89ca-48d7-8c6c-f9995ceb8e27"
 const val OBJECTS_API_HOSTNAME_URL = "http://objecten-api.local:8000"
+const val OBJECTTYPE_UUID_PRODUCTAANVRAAG_DENHAAG = "021f685e-9482-4620-b157-34cd4003da6b"
+const val PRODUCT_AANVRAAG_TYPE_TERUG_BEL_NOTITIIE = "productaanvraag"
+const val ZAAK_1_IDENTIFICATION = "ZAAK-2023-0000000001"
+const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID = "448356ff-dcfb-4504-9501-7fe929077c4f"
 
 object ProjectConfig : AbstractProjectConfig() {
     private const val ZAC_DATABASE_CONTAINER = "zac-database"
