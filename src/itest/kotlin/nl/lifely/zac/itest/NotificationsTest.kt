@@ -9,12 +9,13 @@ import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.HttpStatus
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.provided.OBJECTS_API_HOSTNAME_URL
-import io.kotest.provided.OBJECTTYPE_UUID_PRODUCTAANVRAAG_DENHAAG
-import io.kotest.provided.OBJECT_UUID_PRODUCTAANVRAAG
 import io.kotest.provided.ProjectConfig
-import io.kotest.provided.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
-import io.kotest.provided.ZAAK_1_IDENTIFICATION
+import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTS_API_HOSTNAME_URL
+import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANVRAAG_DENHAAG
+import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_UUID
+import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_IDENTIFICATION
 import nl.lifely.zac.itest.config.ZACContainer
 import org.json.JSONObject
 import java.time.ZoneId
@@ -54,13 +55,13 @@ class NotificationsTest : BehaviorSpec({
                     headers = mapOf(
                         "Content-Type" to "application/json",
                         // this test simulates that Open Notificaties sends the request to ZAC
-                        // with the secret API key that is configured in ZAC
-                        "Authorization" to ZACContainer.OPEN_NOTIFICATIONS_API_SECRET_KEY
+                        // using the secret API key that is configured in ZAC
+                        "Authorization" to OPEN_NOTIFICATIONS_API_SECRET_KEY
                     ),
                     data = JSONObject(
                         mapOf(
                             "resource" to "object",
-                            "resourceUrl" to "$OBJECTS_API_HOSTNAME_URL/$OBJECT_UUID_PRODUCTAANVRAAG",
+                            "resourceUrl" to "$OBJECTS_API_HOSTNAME_URL/$OBJECT_PRODUCTAANVRAAG_UUID",
                             "actie" to "create",
                             "kenmerken" to mapOf(
                                 "objectType" to "$OBJECTS_API_HOSTNAME_URL/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DENHAAG"

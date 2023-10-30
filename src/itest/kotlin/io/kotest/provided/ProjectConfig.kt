@@ -13,6 +13,12 @@ import io.kotest.matchers.shouldBe
 import khttp.requests.GenericRequest.Companion.DEFAULT_FORM_HEADERS
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_CLIENT
+import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_CLIENT_SECRET
+import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_HOSTNAME_URL
+import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_REALM
+import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCT_AANVRAAG_TYPE
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ZACContainer
 import nl.lifely.zac.itest.config.getTestContainersDockerNetwork
 import org.slf4j.Logger
@@ -22,17 +28,6 @@ import org.testcontainers.containers.output.Slf4jLogConsumer
 import java.io.File
 
 private val logger = KotlinLogging.logger {}
-
-const val KEYCLOAK_HOSTNAME_URL = "http://localhost:8081"
-const val KEYCLOAK_REALM = "zaakafhandelcomponent"
-const val KEYCLOAK_CLIENT = "zaakafhandelcomponent"
-const val KEYCLOAK_CLIENT_SECRET = "keycloakZaakafhandelcomponentClientSecret"
-const val OBJECT_UUID_PRODUCTAANVRAAG = "9dbed186-89ca-48d7-8c6c-f9995ceb8e27"
-const val OBJECTS_API_HOSTNAME_URL = "http://objecten-api.local:8000"
-const val OBJECTTYPE_UUID_PRODUCTAANVRAAG_DENHAAG = "021f685e-9482-4620-b157-34cd4003da6b"
-const val PRODUCT_AANVRAAG_TYPE_TERUG_BEL_NOTITIIE = "productaanvraag"
-const val ZAAK_1_IDENTIFICATION = "ZAAK-2023-0000000001"
-const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID = "448356ff-dcfb-4504-9501-7fe929077c4f"
 
 object ProjectConfig : AbstractProjectConfig() {
     private const val ZAC_DATABASE_CONTAINER = "zac-database"
@@ -307,7 +302,7 @@ object ProjectConfig : AbstractProjectConfig() {
                 "  \"defaultBehandelaarId\": null,\n" +
                 "  \"einddatumGeplandWaarschuwing\": null,\n" +
                 "  \"uiterlijkeEinddatumAfdoeningWaarschuwing\": null,\n" +
-                "  \"productaanvraagtype\": \"$PRODUCT_AANVRAAG_TYPE_TERUG_BEL_NOTITIIE\",\n" +
+                "  \"productaanvraagtype\": \"$PRODUCT_AANVRAAG_TYPE\",\n" +
                 "  \"zaakNietOntvankelijkResultaattype\": {\n" +
                 "    \"archiefNominatie\": \"VERNIETIGEN\",\n" +
                 "    \"archiefTermijn\": \"5 jaren\",\n" +

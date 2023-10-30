@@ -8,10 +8,11 @@ package nl.lifely.zac.itest.config
 import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.HttpStatus
 import io.github.oshai.kotlinlogging.DelegatingKLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.kotest.provided.KEYCLOAK_CLIENT
-import io.kotest.provided.KEYCLOAK_CLIENT_SECRET
-import io.kotest.provided.KEYCLOAK_REALM
-import io.kotest.provided.OBJECTS_API_HOSTNAME_URL
+import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_CLIENT
+import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_CLIENT_SECRET
+import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_REALM
+import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTS_API_HOSTNAME_URL
+import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.testcontainers.containers.FixedHostPortGenericContainer
@@ -23,6 +24,22 @@ import java.time.Duration
 
 private val logger = KotlinLogging.logger {}
 
+object ItestConfiguration {
+    // These values need to correspond to the test data in the databases of the various services
+    // used in the entire integration test flow such as: Keycloak, Objecten, Objecttypen, Open Zaak, ZAC.
+    const val KEYCLOAK_HOSTNAME_URL = "http://localhost:8081"
+    const val KEYCLOAK_REALM = "zaakafhandelcomponent"
+    const val KEYCLOAK_CLIENT = "zaakafhandelcomponent"
+    const val KEYCLOAK_CLIENT_SECRET = "keycloakZaakafhandelcomponentClientSecret"
+    const val OBJECT_PRODUCTAANVRAAG_UUID = "9dbed186-89ca-48d7-8c6c-f9995ceb8e27"
+    const val OBJECTS_API_HOSTNAME_URL = "http://objecten-api.local:8000"
+    const val OBJECTTYPE_UUID_PRODUCTAANVRAAG_DENHAAG = "021f685e-9482-4620-b157-34cd4003da6b"
+    const val OPEN_NOTIFICATIONS_API_SECRET_KEY = "openNotificatiesApiSecretKey"
+    const val PRODUCT_AANVRAAG_TYPE = "productaanvraag"
+    const val ZAAK_1_IDENTIFICATION = "ZAAK-2023-0000000001"
+    const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID = "448356ff-dcfb-4504-9501-7fe929077c4f"
+}
+
 class ZACContainer(
     private val postgresqlHostAndPort: String,
     private val network: Network
@@ -31,7 +48,6 @@ class ZACContainer(
         const val CONTAINER_PORT = 8080
         const val CONTAINER_MANAGEMENT_PORT = 9990
         const val THREE_MINUTES = 3L
-        const val OPEN_NOTIFICATIONS_API_SECRET_KEY = "openNotificatiesApiSecretKey"
     }
 
     private val zacDockerImage = System.getProperty("zacDockerImage", DOCKER_IMAGE_ZAC_DEV)
@@ -113,7 +129,7 @@ class ZACContainer(
             "ZGW_API_URL_EXTERN" to "http://localhost:8001/"
         )
 
-        @Suppress("SpreadOperator")
+        @Suppress("UNCHECKED_CAST")
         return KGenericContainer(zacDockerImage)
             .withFixedExposedPort(CONTAINER_PORT, CONTAINER_PORT)
             .withFixedExposedPort(CONTAINER_MANAGEMENT_PORT, CONTAINER_MANAGEMENT_PORT)
@@ -139,8 +155,8 @@ class ZACContainer(
     }
 }
 
-// for now, we use the deprecated FixedHostPortGenericContainer because our Keycloak configuration
-// is only compatible with ZAC running on a fixed port (8080)
-// note that this may result in port conflicts
-class KGenericContainer(imageName: String) :
+// For now, we use the deprecated FixedHostPortGenericContainer because our current Keycloak realm configuration
+// is only compatible with the ZAC frontend running on a fixed port (e.g. allowed redirect uris is set to http://localhost:8080).
+// This makes it easy to test and troubleshoot the ZAC frontend in a browser while running the integration tests.
+private class KGenericContainer(imageName: String) :
     FixedHostPortGenericContainer<KGenericContainer>(imageName)
