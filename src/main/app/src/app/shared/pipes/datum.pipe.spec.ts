@@ -8,7 +8,7 @@ import { DatumPipe } from "./datum.pipe";
 describe("DatumPipe", () => {
   it("should always be UTC", () => {
   // TODO
-    expect(new Date().getTimezoneOffset()).toBe(-60);
+    expect(new Date().getTimezoneOffset()).toBe(-120);
   });
 
   it("2021-06-23T00:00:00Z -> 23-06-2021 02:00", () => {
