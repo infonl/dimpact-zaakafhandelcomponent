@@ -824,7 +824,7 @@
                 },
                 "type": "terugbelnotitie",
                 "bsn": "111222333",
-                "pdf_url": "https://host.docker.internal:8001/documenten/api/v1/enkelvoudiginformatieobjecten/230bab4a-4b51-40c6-91b2-f2022008a7f8",
+                "pdf_url": "https://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/230bab4a-4b51-40c6-91b2-f2022008a7f8",
                 "csv_url": "",
                 "attachments": [],
                 "submission_id": "a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"

@@ -80,7 +80,7 @@ services:
       - ./scripts/docker-compose/imports/openzaak-database:/docker-entrypoint-initdb.d
       - ./scripts/docker-compose/volume-data/openzaak-database-data:/var/lib/postgresql/data
 
-  # The openzaak container name must contain a '.' or else Open Zaak will respond with a 400
+  # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   openzaak.local:
     image: openzaak/open-zaak:1.8.2
@@ -113,7 +113,9 @@ services:
   redis:
     image: redis:6.2.6
 
-  objecten-api:
+  # This container name must contain a '.' or else Open Zaak will respond with a 400
+  # error on certain API requests caused by an internal 'invalid URL' error.
+  objecten-api.local:
     image: maykinmedia/objects-api:2.1.1
     platform: linux/amd64
     ports:
@@ -156,7 +158,7 @@ services:
       - ./scripts/docker-compose/imports/objects-api/fixtures:/app/src/objects/fixtures
       - ./scripts/docker-compose/imports/objects-api/init:/app/init
     depends_on:
-      - objecten-api
+      - objecten-api.local
 
   objecttypen-api:
     image: maykinmedia/objecttypes-api:2.1.0
@@ -253,6 +255,8 @@ services:
     volumes:
       - ./scripts/docker-compose/volume-data/zgw-referentielijsten-database-data:/var/lib/postgresql/data
 
+  # This container name must contain a '.' or else Open Zaak will respond with a 400
+  # error on certain API requests caused by an internal 'invalid URL' error.
   zgw-referentielijsten.local:
     image: ghcr.io/infonl/vng-referentielijsten:0.6.1
     environment:
@@ -381,7 +385,7 @@ services:
       - MAILJET_API_SECRET_KEY=${MAILJET_API_SECRET_KEY}
       - MAX_FILE_SIZE_MB=80
       - OFFICE_CONVERTER_CLIENT_MP_REST_URL=http://localhost:9999 # dummy for now
-      - OBJECTS_API_CLIENT_MP_REST_URL=http://objecten-api:8000
+      - OBJECTS_API_CLIENT_MP_REST_URL=http://objecten-api.local:8000
       - OBJECTS_API_TOKEN=182c13e2209161852c53cef53a879f7a2f923430
       - OBJECTTYPES_API_CLIENT_MP_REST_URL=http://objecttypen-api:8000
       - OBJECTTYPES_API_TOKEN=dummyZacObjectTypesToken

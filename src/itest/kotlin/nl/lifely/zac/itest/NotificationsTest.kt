@@ -66,7 +66,7 @@ class NotificationsTest : BehaviorSpec({
                 ).apply {
                     logger.info { "response: $this" }
                     // check response.
-                    // note that ZAC always returns this HTTP status even if things go wrong..
+                    // note that ZAC always returns this HTTP status even if things go very wrong..
                     statusCode shouldBe HttpStatus.SC_NO_CONTENT
                 }
             }

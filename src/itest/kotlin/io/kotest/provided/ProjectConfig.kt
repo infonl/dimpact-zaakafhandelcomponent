@@ -29,7 +29,7 @@ const val KEYCLOAK_HOSTNAME_URL = "http://localhost:8081"
 const val KEYCLOAK_REALM = "zaakafhandelcomponent"
 const val KEYCLOAK_CLIENT = "zaakafhandelcomponent"
 const val KEYCLOAK_CLIENT_SECRET = "keycloakZaakafhandelcomponentClientSecret"
-const val OBJECTS_API_HOSTNAME_URL = "http://host.docker.internal:8010"
+const val OBJECTS_API_HOSTNAME_URL = "http://objecten-api.local:8000"
 
 object ProjectConfig : AbstractProjectConfig() {
     private const val ZAC_DATABASE_CONTAINER = "zac-database"
