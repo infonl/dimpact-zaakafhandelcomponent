@@ -10,7 +10,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.provided.ProjectConfig
-import io.kotest.provided.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
+import org.json.JSONObject
 
 private val logger = KotlinLogging.logger {}
 
@@ -23,7 +25,10 @@ class ZaakafhandelParametersTest : BehaviorSpec({
                     headers = mapOf("Authorization" to "Bearer ${ProjectConfig.accessToken}")
                 ).apply {
                     logger.info { "Zaakafhandelparameters response: $text" }
-                    // check contents
+                    val zaakafhandelparameters = JSONObject(text)
+                    zaakafhandelparameters
+                        .getJSONObject("zaaktype")
+                        .getString("identificatie") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
                     statusCode shouldBe HttpStatus.SC_OK
                 }
             }

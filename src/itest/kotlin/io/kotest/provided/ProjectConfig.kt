@@ -18,6 +18,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_CLIENT_SECRET
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_HOSTNAME_URL
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_REALM
 import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCT_AANVRAAG_TYPE
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ZACContainer
 import nl.lifely.zac.itest.config.getTestContainersDockerNetwork
@@ -237,7 +238,7 @@ object ProjectConfig : AbstractProjectConfig() {
                 "  \"zaaktype\": {\n" +
                 "    \"beginGeldigheid\": \"2023-09-21\",\n" +
                 "    \"doel\": \"Melding evenement organiseren behandelen\",\n" +
-                "    \"identificatie\": \"melding-evenement-organiseren-behandelen\",\n" +
+                "    \"identificatie\": \"$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE\",\n" +
                 "    \"nuGeldig\": true,\n" +
                 "    \"omschrijving\": \"Melding evenement organiseren behandelen\",\n" +
                 "    \"servicenorm\": false,\n" +

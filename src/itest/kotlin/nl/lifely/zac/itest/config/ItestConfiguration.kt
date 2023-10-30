@@ -38,6 +38,7 @@ object ItestConfiguration {
     const val PRODUCT_AANVRAAG_TYPE = "productaanvraag"
     const val ZAAK_1_IDENTIFICATION = "ZAAK-2023-0000000001"
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID = "448356ff-dcfb-4504-9501-7fe929077c4f"
+    const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE = "melding-evenement-organiseren-behandelen"
 }
 
 class ZACContainer(
