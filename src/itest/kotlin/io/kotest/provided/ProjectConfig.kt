@@ -84,10 +84,6 @@ object ProjectConfig : AbstractProjectConfig() {
             zacContainer.start()
             accessToken = requestAccessTokenFromKeycloak()
             createZaakAfhandelParameters()
-
-            //
-            // zrcclient
-
         } catch (exception: ContainerLaunchException) {
             logger.error(exception) { "Failed to start Docker containers" }
             dockerComposeContainer.stop()
