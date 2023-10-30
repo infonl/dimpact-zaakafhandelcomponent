@@ -183,6 +183,15 @@ jobs:
           files: |
             build/test-results/itest/**/*.xml
 
+      - name: Save Docker Image
+        run: docker save --output docker-image.tar ${ZAC_DOCKER_IMAGE}
+
+      - name: Cache Docker Image
+        uses: actions/cache/save@v3
+        with:
+          path: docker-image.tar
+          key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+
   push-docker-image:
     needs: [build, run-unit-tests, build-docker-image-and-run-itests]
     runs-on: ubuntu-latest
@@ -191,17 +200,21 @@ jobs:
     env:
       ZAC_DOCKER_IMAGE: ${{ needs.build.outputs.zac_docker_image }}
     steps:
-      - name: Cache Docker images
-        uses: ScribeMD/docker-cache@0.3.6
-        with:
-          key: docker-${{ runner.os }}-${{ hashFiles('docker-compose.yaml') }}
-
       - name: Docker Login
         uses: docker/login-action@v3
         with:
           registry: ${{ env.CONTAINER_REGISTRY_URL }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Restore Docker Image
+        uses: actions/cache/restore@v3
+        with:
+          path: docker-image.tar
+          key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+
+      - name: Load Docker Image
+        run: docker load --input docker-image.tar
 
       - name: Tag Docker Image with 'latest' tag
         run: docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:latest
