@@ -104,6 +104,8 @@ services:
       - SENDFILE_BACKEND=django_sendfile.backends.simple
     ports:
       - "8001:8000"
+    volumes:
+      - ./scripts/docker-compose/imports/openzaak/uploads/2023/10:/app/private-media/uploads/2023/10
     depends_on:
       openzaak-database:
         condition: service_healthy

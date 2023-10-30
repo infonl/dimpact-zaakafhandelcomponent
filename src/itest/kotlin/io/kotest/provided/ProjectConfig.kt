@@ -24,7 +24,7 @@ import java.io.File
 private val logger = KotlinLogging.logger {}
 
 const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID = "448356ff-dcfb-4504-9501-7fe929077c4f"
-const val PRODUCT_AANVRAAG_TYPE_TERUG_BEL_NOTITIIE = "terugbelnotitie"
+const val PRODUCT_AANVRAAG_TYPE_TERUG_BEL_NOTITIIE = "productaanvraag"
 const val KEYCLOAK_HOSTNAME_URL = "http://localhost:8081"
 const val KEYCLOAK_REALM = "zaakafhandelcomponent"
 const val KEYCLOAK_CLIENT = "zaakafhandelcomponent"
@@ -84,6 +84,10 @@ object ProjectConfig : AbstractProjectConfig() {
             zacContainer.start()
             accessToken = requestAccessTokenFromKeycloak()
             createZaakAfhandelParameters()
+
+            //
+            // zrcclient
+
         } catch (exception: ContainerLaunchException) {
             logger.error(exception) { "Failed to start Docker containers" }
             dockerComposeContainer.stop()
