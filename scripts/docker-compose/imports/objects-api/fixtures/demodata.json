@@ -32,7 +32,7 @@
         "fields": {
             "service": 1,
             "uuid": "021f685e-9482-4620-b157-34cd4003da6b",
-            "_name": "Productaanvraag"
+            "_name": "Productaanvraag-Denhaag"
         }
     },
     {
@@ -180,6 +180,14 @@
             "uuid": "57001413-c035-434e-9d46-090ba24fca8e",
             "object_type": 2
         }
+    },
+    {
+      "model": "core.object",
+      "pk": 32,
+      "fields": {
+        "uuid": "9dbed186-89ca-48d7-8c6c-f9995ceb8e27",
+        "object_type": 4
+      }
     },
     {
         "model": "core.objectrecord",
@@ -797,13 +805,44 @@
             "geometry": "SRID=4326;POINT (4.894407188326989 52.37626808920047)"
         }
     },
+   {
+        "model": "core.objectrecord",
+        "pk": 43,
+        "fields": {
+            "index": 1,
+            "object": 32,
+            "version": 1,
+            "data": {
+                "data": {
+                  "stap1": {
+                      "naam" : "Jan Jansen",
+                      "telefoonnummer" : "0612345678"
+                  },
+                  "stap2": {
+                      "omschrijving" : "Ik heb een vraag over mijn paspoort"
+                  }
+                },
+                "type": "productaanvraag",
+                "bsn": "111222333",
+                "pdf_url": "https://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e",
+                "csv_url": "",
+                "attachments": [],
+                "submission_id": "a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"
+            },
+            "start_at": "2023-10-25",
+            "end_at": null,
+            "registration_at": "2023-10-25",
+            "correct": null,
+            "geometry": null
+         }
+    },
     {
         "model": "token.tokenauth",
         "pk": "cd63e158f3aca276ef284e3033d020a22899c728",
         "fields": {
-            "contact_person": "test",
+            "contact_person": "openzaak",
             "email": "test@example.com",
-            "organization": "test1",
+            "organization": "Test",
             "last_modified": "2020-12-23T11:43:16.820Z",
             "created": "2020-12-22T16:27:00.751Z"
         }
@@ -812,9 +851,9 @@
         "model": "token.tokenauth",
         "pk": "182c13e2209161852c53cef53a879f7a2f923430",
         "fields": {
-            "contact_person": "test",
+            "contact_person": "zac",
             "email": "test@example.com",
-            "organization": "test2",
+            "organization": "Test",
             "last_modified": "2020-12-23T11:43:16.820Z",
             "created": "2020-12-22T16:27:00.751Z"
         }
@@ -851,16 +890,16 @@
         "model": "token.permission",
         "pk": 3,
         "fields": {
-            "token_auth": "182c13e2209161852c53cef53a879f7a2f923430",
-            "object_type": 4,
-            "mode": "read_and_write"
+          "token_auth": "cd63e158f3aca276ef284e3033d020a22899c728",
+          "object_type": 4,
+          "mode": "read_and_write"
         }
     },
     {
         "model": "token.permission",
         "pk": 4,
         "fields": {
-            "token_auth": "d667fec15cd7db980730dd843836604e638d1295",
+            "token_auth": "182c13e2209161852c53cef53a879f7a2f923430",
             "object_type": 4,
             "mode": "read_and_write"
         }
@@ -869,8 +908,8 @@
         "model": "token.permission",
         "pk": 5,
         "fields": {
-            "token_auth": "182c13e2209161852c53cef53a879f7a2f923430",
-            "object_type": 5,
+            "token_auth": "d667fec15cd7db980730dd843836604e638d1295",
+            "object_type": 4,
             "mode": "read_and_write"
         }
     },
@@ -879,13 +918,22 @@
         "pk": 6,
         "fields": {
             "token_auth": "182c13e2209161852c53cef53a879f7a2f923430",
-            "object_type": 6,
+            "object_type": 5,
             "mode": "read_and_write"
         }
     },
     {
         "model": "token.permission",
         "pk": 7,
+        "fields": {
+            "token_auth": "182c13e2209161852c53cef53a879f7a2f923430",
+            "object_type": 6,
+            "mode": "read_and_write"
+        }
+    },
+    {
+        "model": "token.permission",
+        "pk": 8,
         "fields": {
             "token_auth": "182c13e2209161852c53cef53a879f7a2f923430",
             "object_type": 1,
@@ -898,13 +946,13 @@
         "fields": {
             "label": "Objecttypen API",
             "api_type": "orc",
-            "api_root": "http://host.docker.internal:8011/api/v1/",
+            "api_root": "http://objecttypen-api:8000/api/v1/",
             "client_id": "",
             "secret": "",
             "auth_type": "api_key",
             "header_key": "Authorization",
-            "header_value": "Token cd63e158f3aca276ef284e3033d020a22899c728",
-            "oas": "http://host.docker.internal:8011/api/v1/schema/openapi.yaml",
+            "header_value": "Token dummyZacObjectTypesToken",
+            "oas": "http://objecttypen-api:8000/api/v1/schema/openapi.yaml",
             "nlx": "",
             "user_id": "",
             "user_representation": ""

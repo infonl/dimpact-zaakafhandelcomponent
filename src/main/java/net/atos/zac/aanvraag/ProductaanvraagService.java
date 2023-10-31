@@ -127,12 +127,16 @@ public class ProductaanvraagService {
     private ConfiguratieService configuratieService;
 
     public void verwerkProductaanvraag(final URI productaanvraagUrl) {
+        LOG.fine(() -> "Verwerken productaanvraag: %s".formatted(productaanvraagUrl));
+
         final var productaanvraagObject = objectsClientService.readObject(uuidFromURI(productaanvraagUrl));
         final var productaanvraag = getProductaanvraag(productaanvraagObject);
         final Optional<UUID> zaaktypeUUID = zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(
                 productaanvraag.getType());
         if (zaaktypeUUID.isPresent()) {
             try {
+                LOG.fine(() -> "Start zaak met CMMN case. Zaaktype: %s".formatted(zaaktypeUUID.get().toString()));
+
                 registreerZaakMetCMMNCase(zaaktypeUUID.get(), productaanvraag, productaanvraagObject);
             } catch (RuntimeException ex) {
                 warning("CMMN", productaanvraag, ex);
@@ -141,6 +145,9 @@ public class ProductaanvraagService {
             final var zaaktype = findZaaktypeByIdentificatie(productaanvraag.getType());
             if (zaaktype.isPresent()) {
                 try {
+
+                    LOG.fine(() -> "Start zaak met BPMN proces. Zaaktype: %s".formatted(zaaktype.get().toString()));
+
                     registreerZaakMetBPMNProces(zaaktype.get(), productaanvraag, productaanvraagObject);
                 } catch (RuntimeException ex) {
                     warning("BPMN", productaanvraag, ex);
@@ -250,6 +257,8 @@ public class ProductaanvraagService {
         if (communicatiekanaal.isPresent()) {
             zaak.setCommunicatiekanaal(communicatiekanaal.get().getUrl());
         }
+
+        LOG.fine("Creating zaak using the ZGW API: " + zaak);
         zaak = zgwApiService.createZaak(zaak);
         final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
                 zaaktypeUuid);
@@ -279,6 +288,8 @@ public class ProductaanvraagService {
         zaakInformatieobject.setZaak(zaakUrl);
         zaakInformatieobject.setTitel(AANVRAAG_PDF_TITEL);
         zaakInformatieobject.setBeschrijving(AANVRAAG_PDF_BESCHRIJVING);
+
+        LOG.fine("Creating zaak informatieobject: " + zaakInformatieobject);
         zrcClientService.createZaakInformatieobject(zaakInformatieobject, ZAAK_INFORMATIEOBJECT_REDEN);
     }
 
