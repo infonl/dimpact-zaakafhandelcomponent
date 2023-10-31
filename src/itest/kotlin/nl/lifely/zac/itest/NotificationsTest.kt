@@ -16,6 +16,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_IDENTIFICATION
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONObject
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -27,7 +28,7 @@ class NotificationsTest : BehaviorSpec({
         When("the notificaties endpoint is called with dummy payload without authentication header") {
             then("the response should be forbidden") {
                 khttp.post(
-                    url = "${ProjectConfig.zacContainer.apiUrl}/notificaties",
+                    url = "${ZAC_API_URI}/notificaties",
                     headers = mapOf("Content-Type" to "application/json"),
                     data = JSONObject(
                         mapOf(
@@ -50,7 +51,7 @@ class NotificationsTest : BehaviorSpec({
                     "and a zaak productaanvraag proces of type 'Productaanvraag-Denhaag' should be started in ZAC"
             ) {
                 khttp.post(
-                    url = "${ProjectConfig.zacContainer.apiUrl}/notificaties",
+                    url = "${ZAC_API_URI}/notificaties",
                     headers = mapOf(
                         "Content-Type" to "application/json",
                         // this test simulates that Open Notificaties sends the request to ZAC
@@ -75,7 +76,7 @@ class NotificationsTest : BehaviorSpec({
 
                     // retrieve the newly created zaak and check the contents
                     khttp.get(
-                        url = "${ProjectConfig.zacContainer.apiUrl}/zaken/zaak/id/$ZAAK_1_IDENTIFICATION",
+                        url = "${ZAC_API_URI}/zaken/zaak/id/$ZAAK_1_IDENTIFICATION",
                         headers = mapOf(
                             "Content-Type" to "application/json",
                             "Authorization" to "Bearer ${ProjectConfig.accessToken}"
