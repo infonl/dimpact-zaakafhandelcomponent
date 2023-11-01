@@ -178,7 +178,7 @@ swaggerSources {
 // share the same output folder (= $rootDir)
 tasks.getByName("npmInstall").setMustRunAfter(listOf("generateJavaClients"))
 tasks.getByName("generateSwaggerUIZaakafhandelcomponent").setMustRunAfter(listOf("generateOpenApiSpec"))
-tasks.getByName("compileItestKotlin").setMustRunAfter(listOf("buildZacDockerImage"))
+tasks.getByName("compileItestKotlin").setMustRunAfter(listOf("buildDockerImage"))
 
 tasks.war {
     dependsOn("npmRunBuild")
@@ -365,7 +365,7 @@ tasks {
         into("$buildDir/docker")
     }
 
-    register<DockerBuildImage>("buildZacDockerImage") {
+    register<DockerBuildImage>("buildDockerImage") {
         dependsOn("copyJarToDockerBuildDir")
 
         inputDir.set(file("."))

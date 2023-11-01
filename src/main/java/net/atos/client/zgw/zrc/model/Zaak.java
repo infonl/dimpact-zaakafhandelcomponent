@@ -517,4 +517,43 @@ public class Zaak {
     public boolean isDeelzaak() {
         return hoofdzaak != null;
     }
+
+    @Override
+    public String toString() {
+        return "Zaak{" +
+                "url=" + url +
+                ", uuid=" + uuid +
+                ", identificatie='" + identificatie + '\'' +
+                ", bronorganisatie='" + bronorganisatie + '\'' +
+                ", omschrijving='" + omschrijving + '\'' +
+                ", toelichting='" + toelichting + '\'' +
+                ", zaaktype=" + zaaktype +
+                ", registratiedatum=" + registratiedatum +
+                ", verantwoordelijkeOrganisatie='" + verantwoordelijkeOrganisatie + '\'' +
+                ", startdatum=" + startdatum +
+                ", einddatum=" + einddatum +
+                ", einddatumGepland=" + einddatumGepland +
+                ", uiterlijkeEinddatumAfdoening=" + uiterlijkeEinddatumAfdoening +
+                ", publicatiedatum=" + publicatiedatum +
+                ", communicatiekanaal=" + communicatiekanaal +
+                ", productenOfDiensten=" + productenOfDiensten +
+                ", vertrouwelijkheidaanduiding=" + vertrouwelijkheidaanduiding +
+                ", betalingsindicatie=" + betalingsindicatie +
+                ", betalingsindicatieWeergave='" + betalingsindicatieWeergave + '\'' +
+                ", laatsteBetaaldatum=" + laatsteBetaaldatum +
+                ", zaakgeometrie=" + zaakgeometrie +
+                ", verlenging=" + verlenging +
+                ", opschorting=" + opschorting +
+                ", selectielijstklasse=" + selectielijstklasse +
+                ", hoofdzaak=" + hoofdzaak +
+                ", deelzaken=" + deelzaken +
+                ", relevanteAndereZaken=" + relevanteAndereZaken +
+                ", status=" + status +
+                ", kenmerken=" + kenmerken +
+                ", archiefnominatie=" + archiefnominatie +
+                ", archiefstatus=" + archiefstatus +
+                ", archiefactiedatum=" + archiefactiedatum +
+                ", resultaat=" + resultaat +
+                '}';
+    }
 }
