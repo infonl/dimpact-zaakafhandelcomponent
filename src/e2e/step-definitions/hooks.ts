@@ -20,7 +20,6 @@ AfterAll(async function (this: CustomWorld) {
     
         console.log("Delete File successfully.");
     });
-    await this.stop();
 }) 
 
 AfterStep(async function (this: CustomWorld, { result }) {
