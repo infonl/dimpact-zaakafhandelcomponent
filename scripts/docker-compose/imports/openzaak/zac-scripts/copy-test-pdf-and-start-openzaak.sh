@@ -9,7 +9,9 @@ echo -e "Copying 'dummy-test-document.pdf' ZAC test PDF to OpenZaak uploads fold
 
 mkdir -p /app/private-media/uploads/2023/10
 cp /dummy-test-document.pdf /app/private-media/uploads/2023/10/
-chown -R openzaak.openzaak /app/private-media/uploads
+
+# note that this script is run as the 'openzaak' user (see the Dockerfile of Open Zaak) so
+# we do not need to change any file or directory permissions here
 
 echo -e "Starting Open OpenZaak.."
 
