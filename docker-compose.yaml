@@ -353,14 +353,14 @@ services:
 
   zac:
     # By default, we use the latest ZAC Docker Image. Change this if you wish to use a specific version.
-    image: ghcr.io/infonl/zaakafhandelcomponent:latest
+    image: ${ZAC_DOCKER_IMAGE:-ghcr.io/infonl/zaakafhandelcomponent:latest}
     environment:
       - AUTH_REALM=zaakafhandelcomponent
       - AUTH_RESOURCE=zaakafhandelcomponent
       - AUTH_SECRET=keycloakZaakafhandelcomponentClientSecret
       - AUTH_SERVER=http://keycloak:8080
       - BAG_API_CLIENT_MP_REST_URL=https://api.bag.acceptatie.kadaster.nl/lvbag/individuelebevragingen/v2/
-      - BAG_API_KEY=${BAG_API_KEY}
+      - BAG_API_KEY=${BAG_API_KEY:-dummyBagApiKey}
       - BRP_API_CLIENT_MP_REST_URL=http://brpproxy:5000/haalcentraal/api/brp
       - BRP_API_KEY=dummyKey # not used when using the BRP proxy
       - CONTACTMOMENTEN_API_CLIENT_MP_REST_URL=http://openklant:8000/contactmomenten
@@ -371,20 +371,20 @@ services:
       - DB_NAME=zac
       - DB_PASSWORD=password
       - DB_USER=zac
-      - GEMEENTE_CODE=${GEMEENTE_CODE:-0001}
-      - GEMEENTE_MAIL=${GEMEENTE_MAIL:-gemeente-adorp-test@example.com}
-      - GEMEENTE_NAAM=${GEMEENTE_NAAM:-Adorp}
+      - GEMEENTE_CODE=${GEMEENTE_CODE:-9999}
+      - GEMEENTE_MAIL=${GEMEENTE_MAIL:-gemeente-zac-test@example.com}
+      - GEMEENTE_NAAM=${GEMEENTE_NAAM:-DummyZacGemeente}
       - KLANTEN_API_CLIENT_MP_REST_URL=http://openklant:8000/klanten
       - KLANTEN_API_CLIENTID=zac_client
       - KLANTEN_API_SECRET=openklantZaakhandelcomponentClientSecret
-      - KVK_API_CLIENT_MP_REST_URL=${KVK_API_CLIENT_MP_REST_URL}
-      - KVK_API_KEY=${KVK_API_KEY}
+      - KVK_API_CLIENT_MP_REST_URL=${KVK_API_CLIENT_MP_REST_URL:-dummyKvkApiUrl}
+      - KVK_API_KEY=${KVK_API_KEY:-dummyKvkApiKey}
       - LDAP_DN="ou=people,dc=example,dc=org"
       - LDAP_PASSWORD=admin
       - LDAP_URL=ldap://openldap:1389
       - LDAP_USER=cn=admin,dc=example,dc=org
-      - MAILJET_API_KEY=${MAILJET_API_KEY}
-      - MAILJET_API_SECRET_KEY=${MAILJET_API_SECRET_KEY}
+      - MAILJET_API_KEY=${MAILJET_API_KEY:-dummyMailjetApiKey}
+      - MAILJET_API_SECRET_KEY=${MAILJET_API_SECRET_KEY:-dummyMailjetApiSecretKey}
       - MAX_FILE_SIZE_MB=80
       - OFFICE_CONVERTER_CLIENT_MP_REST_URL=http://localhost:9999 # dummy for now
       - OBJECTS_API_CLIENT_MP_REST_URL=http://objecten-api.local:8000
@@ -393,9 +393,9 @@ services:
       - OBJECTTYPES_API_TOKEN=dummyZacObjectTypesToken
       - OPA_API_CLIENT_MP_REST_URL=http://opa:8181
       - OPEN_FORMS_URL=http://localhost:9999 # dummy for now
-      - OPEN_NOTIFICATIONS_API_SECRET_KEY=opennotificaties
-      - SD_AUTHENTICATION=${SD_AUTHENTICATION}
-      - SD_CLIENT_MP_REST_URL=${SD_CLIENT_MP_REST_URL}
+      - OPEN_NOTIFICATIONS_API_SECRET_KEY=openNotificatiesApiSecretKey
+      - SD_AUTHENTICATION=${SD_AUTHENTICATION:-dummySmartDocumentsAuthentication}
+      - SD_CLIENT_MP_REST_URL=${SD_CLIENT_MP_REST_URL:-dummySmartDocumentsClientUrl}
       - SOLR_URL=http://solr:8983
       - VRL_API_CLIENT_MP_REST_URL=http://zgw-referentielijsten.local:8000/
       - ZGW_API_CLIENT_MP_REST_URL=http://openzaak.local:8000/

@@ -10,8 +10,9 @@ INSERT INTO authorizations_applicatie (uuid, client_ids, label, heeft_alle_autor
 -- INSERT INTO authorizations_applicatie (uuid, client_ids, label, heeft_alle_autorisaties) VALUES (uuid_generate_v4(), '{openformulieren}', 'Open Formulieren', true);
 
 INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES ('zac_client', 'openzaakZaakafhandelcomponentClientSecret');
-INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES ('opennotificaties', 'opennotificaties');
-INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES ('openformulieren', 'openformulieren');
+-- even-though we do not use Open Notificaties, we do need to set up a JWT secret for it, as this is required by Open Zaak
+INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES ('opennotificaties', 'openNotificatiesApiSecretKey');
+INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES ('openformulieren', 'openFormulierenApiSecretKey');
 
 -- note that we currently use the public https://selectielijst.openzaak.nl/ VNG Selectielijst service here
 INSERT INTO catalogi_zaaktype

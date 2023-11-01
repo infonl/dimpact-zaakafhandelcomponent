@@ -11,8 +11,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.config.AbstractProjectConfig
 import io.kotest.matchers.shouldBe
 import khttp.requests.GenericRequest.Companion.DEFAULT_FORM_HEADERS
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_CLIENT
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_CLIENT_SECRET
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_HOSTNAME_URL
@@ -20,23 +18,22 @@ import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_REALM
 import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCT_AANVRAAG_TYPE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
-import nl.lifely.zac.itest.config.ZACContainer
-import nl.lifely.zac.itest.config.getTestContainersDockerNetwork
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.slf4j.Logger
 import org.testcontainers.containers.ComposeContainer
 import org.testcontainers.containers.ContainerLaunchException
 import org.testcontainers.containers.output.Slf4jLogConsumer
+import org.testcontainers.containers.wait.strategy.Wait
 import java.io.File
+import java.time.Duration
 
 private val logger = KotlinLogging.logger {}
 
 object ProjectConfig : AbstractProjectConfig() {
-    private const val ZAC_DATABASE_CONTAINER = "zac-database"
-    private const val ZAC_DATABASE_PORT = 5432
-    private const val TWENTY_SECONDS = 20_000L
+    private const val THREE_MINUTES = 3L
 
     private lateinit var dockerComposeContainer: ComposeContainer
-    lateinit var zacContainer: ZACContainer
+
     lateinit var accessToken: String
 
     @Suppress("UNCHECKED_CAST")
@@ -46,6 +43,10 @@ object ProjectConfig : AbstractProjectConfig() {
 
             dockerComposeContainer = ComposeContainer(File("docker-compose.yaml"))
                 .withLocalCompose(true)
+                .withOptions(
+                    "--profile zac",
+                    "--env-file .env.itest"
+                )
                 .withLogConsumer(
                     "solr",
                     Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
@@ -58,29 +59,26 @@ object ProjectConfig : AbstractProjectConfig() {
                         "KEYCLOAK"
                     )
                 )
+                .withLogConsumer(
+                    "zac",
+                    Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
+                        "ZAC"
+                    )
+                )
+                .waitingFor(
+                    "openzaak.local",
+                    Wait.forLogMessage(".*spawned uWSGI worker 2.*", 1)
+                        .withStartupTimeout(Duration.ofMinutes(THREE_MINUTES))
+                )
+                .waitingFor(
+                    "zac",
+                    Wait.forLogMessage(".* WildFly Full .* started .*", 1)
+                        .withStartupTimeout(Duration.ofMinutes(THREE_MINUTES))
+                )
             dockerComposeContainer.start()
 
-            val zacDatabaseContainer =
-                dockerComposeContainer.getContainerByServiceName(ZAC_DATABASE_CONTAINER).get()
-
-            zacContainer = ZACContainer(
-                postgresqlHostAndPort = "$ZAC_DATABASE_CONTAINER:$ZAC_DATABASE_PORT",
-                // run ZAC container in same Docker network as Docker Compose, so we can access the
-                // other containers internally
-                network = zacDatabaseContainer.containerInfo.networkSettings.networks.keys.first()
-                    .let { getTestContainersDockerNetwork(it) }
-            )
-
-            // Wait for a while to give the ZAC database container time to start.
-            // We would like to wait more explicitly but so far cannot get the TestContainers
-            // wait strategies to work in our Docker Compose context for some reason.
-            logger.info { "Waiting a while to be sure the ZAC database has finished starting up" }
-            withContext(Dispatchers.IO) {
-                Thread.sleep(TWENTY_SECONDS)
-            }
             logger.info { "Started ZAC Docker Compose containers" }
 
-            zacContainer.start()
             accessToken = requestAccessTokenFromKeycloak()
             createZaakAfhandelParameters()
         } catch (exception: ContainerLaunchException) {
@@ -90,7 +88,6 @@ object ProjectConfig : AbstractProjectConfig() {
     }
 
     override suspend fun afterProject() {
-        zacContainer.stop()
         dockerComposeContainer.stop()
     }
 
@@ -135,7 +132,7 @@ object ProjectConfig : AbstractProjectConfig() {
         }
 
         khttp.put(
-            url = "${zacContainer.apiUrl}/zaakafhandelParameters",
+            url = "${ZAC_API_URI}/zaakafhandelParameters",
             headers = mapOf(
                 "Content-Type" to "application/json",
                 "Authorization" to "Bearer $accessToken"

@@ -151,11 +151,6 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
 
-      - name: Cache Docker images
-        uses: ScribeMD/docker-cache@0.3.6
-        with:
-          key: docker-${{ runner.os }}-${{ hashFiles('docker-compose.yaml') }}
-
       - name: Restore Maven build artefacts
         uses: actions/cache/restore@v3
         with:
@@ -171,6 +166,14 @@ jobs:
           --build-arg commit=${GIT_COMMIT_HASH} \
           --file Containerfile \
           .
+
+      # Make sure this step is run _after_ we have built our ZAC Docker Image because
+      # we do not want the ZAC Docker image to be cached.
+      # See: https://github.com/ScribeMD/docker-cache/issues/532
+      - name: Cache Docker images
+        uses: ScribeMD/docker-cache@0.3.6
+        with:
+          key: docker-${{ runner.os }}-${{ hashFiles('docker-compose.yaml') }}
 
       - name: Run integration tests
         run: ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} -x compileJava -x processResources -x compileKotlin -x classes itest --info
