@@ -1,0 +1,25 @@
+#
+# SPDX-FileCopyrightText: 2023 Lifely
+# SPDX-License-Identifier: EUPL-1.2+
+#
+name: Update Gradle Wrapper
+
+# This workflow uses the Update Gradle Wrapper action to create a Pull Request if there is a new Gradle Wrapper version available.
+# Do note that this PR does _not_ automatically trigger any other workflows.
+# As a workaround to trigger our normal PR workflows you can manually close and then immediately reopen the PR. See:
+# https://github.com/gradle-update/update-gradle-wrapper-action#running-ci-workflows-in-pull-requests-created-by-the-action
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  update-gradle-wrapper:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update Gradle Wrapper
+        uses: gradle-update/update-gradle-wrapper-action@v1

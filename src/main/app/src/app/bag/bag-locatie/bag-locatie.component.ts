@@ -89,7 +89,7 @@ export class BagLocatieComponent implements OnInit, AfterViewInit, OnChanges {
     const kaartSource = new source.WMTS({
       layer: "standaard",
       format: "image/png",
-      url: environment.ACHTERGRONDKAART_API_URL,
+      url: environment.BACKGROUND_MAP_API_URL,
       matrixSet: this.RDNEW,
       style: "",
       tileGrid: new WMTSTileGrid({

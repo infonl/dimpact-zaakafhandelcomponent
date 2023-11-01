@@ -58,17 +58,22 @@ jobs:
         uses: gradle/gradle-build-action@v2
 
       # The Gradle build also executes a Maven command to build the WildFly bootable JAR.
-      - name: Gradle build and test
-        run: ./gradlew build --info
+      - name: Gradle build
+        run: ./gradlew build -x test --info
 
-      - name: Publish unit test results
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
+      - name: Cache Gradle build artefacts
+        uses: actions/cache/save@v3
         with:
-          check_name: unit-test-results
-          files: |
-            build/test-results/**/*.xml
-            src/main/app/reports/*.xml
+          path: |
+            build/
+          key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+
+      - name: Cache generated Java clients
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            src/generated/java
+          key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Cache Maven build artefacts
         uses: actions/cache/save@v3
@@ -77,16 +82,10 @@ jobs:
             target/
           key: maven-build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
-  build-docker-image-and-run-itests:
+  run-unit-tests:
     needs: [build]
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    env:
-      BUILD_NUMBER: ${{ needs.build.outputs.build_number }}
-      ZAC_DOCKER_IMAGE: ${{ needs.build.outputs.zac_docker_image }}
-      GIT_COMMIT_HASH: ${{ github.sha }}
-      BAG_API_CLIENT_MP_REST_URL: $${{ vars.BAG_API_CLIENT_MP_REST_URL }}
-      BAG_API_KEY: ${{ secrets.BAG_API_KEY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -99,10 +98,58 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
 
-      - name: Cache Docker images
-        uses: ScribeMD/docker-cache@0.3.6
+      - name: Restore generated Java clients
+        uses: actions/cache/restore@v3
         with:
-          key: docker-${{ runner.os }}-${{ hashFiles('docker-compose.yaml') }}
+          path: |
+            src/generated/java
+          key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+
+      - name: Restore Gradle build artefacts
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            build/
+          key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+
+      - name: Run unit tests
+        run: ./gradlew -x compileJava -x processResources -x compileKotlin -x classes test --info
+
+      - name: Publish unit test results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          check_name: unit-test-results
+          files: |
+            build/test-results/**/*.xml
+            src/main/app/reports/*.xml
+
+  build-docker-image-and-run-itests:
+    needs: [build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      BUILD_NUMBER: ${{ needs.build.outputs.build_number }}
+      ZAC_DOCKER_IMAGE: ${{ needs.build.outputs.zac_docker_image }}
+      GIT_COMMIT_HASH: ${{ github.sha }}
+      BAG_API_CLIENT_MP_REST_URL: $${{ vars.BAG_API_CLIENT_MP_REST_URL }}
+      BAG_API_KEY: ${{ secrets.BAG_API_KEY }}
+    steps:
+      # workaround to avoid 'No space left on device' error
+      # see: https://github.com/orgs/community/discussions/25678#discussioncomment-5242449
+      - name: Delete unnecessary tools folder to make space on disk
+        run: rm -rf /opt/hostedtoolcache
+
+      - uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
 
       - name: Restore Maven build artefacts
         uses: actions/cache/restore@v3
@@ -119,6 +166,14 @@ jobs:
           --build-arg commit=${GIT_COMMIT_HASH} \
           --file Containerfile \
           .
+
+      # Make sure this step is run _after_ we have built our ZAC Docker Image because
+      # we do not want the ZAC Docker image to be cached.
+      # See: https://github.com/ScribeMD/docker-cache/issues/532
+      - name: Cache Docker images
+        uses: ScribeMD/docker-cache@0.3.6
+        with:
+          key: docker-${{ runner.os }}-${{ hashFiles('docker-compose.yaml') }}
 
       - name: Run integration tests
         run: ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} -x compileJava -x processResources -x compileKotlin -x classes itest --info
@@ -141,7 +196,7 @@ jobs:
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   push-docker-image:
-    needs: [build, build-docker-image-and-run-itests]
+    needs: [build, run-unit-tests, build-docker-image-and-run-itests]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     if: github.ref == 'refs/heads/main'

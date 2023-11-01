@@ -1,7 +1,7 @@
 #!/bin/bash
 
 c=0
-while ! curl http://objecten-api:8000
+while ! curl http://objecten-api.local:8000
 do
     c=$((c+1))
     if [ "$c" = "12" ]; then

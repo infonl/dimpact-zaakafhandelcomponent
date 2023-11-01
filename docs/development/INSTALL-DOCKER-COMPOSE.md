@@ -60,18 +60,6 @@ This is useful if you do not need to develop on the ZAC backend or just want to 
 
 ### Prerequisites
 
-#### /etc/hosts file
-Some of the environment variables used by the ZAC Docker container in the Docker Compose file use `host.docker.internal`
-as the hostname to connect to other services.
-This is used for services that need to be accessible both the ZAC backend (running in Docker) and the
-ZAC frontend (running in the browser on localhost).
-To be able to use these variables you need to add the following entry to your `/etc/hosts` file:
-
-```
-# ZAC
-127.0.0.1	host.docker.internal
-```
-
 #### Using the latest version of ZAC
 
 Currently, our ZAC Docker Compose file contains a reference to a specific version of the ZAC Docker image.
@@ -174,7 +162,7 @@ The LDIF import contains the following test users which can be used to log in to
 
 Please change the email addresses of the test users to your own domain.
 
-![Basic ZAC OpenLDAP setup](img/zac-openldap-1.png)
+![Basic ZAC OpenLDAP setup](./attachments/images/zac-openldap-1.png)
 
 ### VNG Referentielijsten (=VRL)
 

@@ -27,7 +27,7 @@ All generated artifacts by Gradle are placed into the `build` folder while the f
 `target` folder. The reason why we use Maven for this last step is because there is unfortunately no Gradle alternative for the
 [WildFly Maven Plugin](https://docs.wildfly.org/wildfly-maven-plugin).
 
-If you want to skip running the tests, use the following command:
+If you want to skip running the unit tests, use the following command:
 
 ```shell
 ./gradlew build -x test
@@ -38,7 +38,7 @@ If you want to skip running the tests, use the following command:
 To build the ZAC Docker image using the generated JAR archive from the previous step, use the following command:
 
 ```shell
-./gradlew buildZacDockerImage
+./gradlew buildDockerImage
 ```
 
 ## Run the software
@@ -82,11 +82,11 @@ First you will need to set up IntelliJ for ZAC:
 3. Enable the built-in IntelliJ WildFly extension if not already enabled (note that this requires the IntelliJ Enterprise Edition).
 4. Create a run configuration using the WildFly extension for ZAC using the `JBoss/Wildfly Server - local` template.
    Select `Application server` - `Configure` and point it to your local Wildfly installation which you set up in the previous step.
-   ![zac-intellij-runtime-wildfly-1.png](img/zac-intellij-runtime-wildfly-1.png)
+   ![zac-intellij-runtime-wildfly-1.png](./attachments/images/zac-intellij-runtime-wildfly-1.png)
 5. Configure the Wildfly configuration as follows:
-   ![zac-intellij-runtime-wildfly-2.png](img/zac-intellij-runtime-wildfly-2.png)
+   ![zac-intellij-runtime-wildfly-2.png](./attachments/images/zac-intellij-runtime-wildfly-2.png)
 6. Add the 'exploded zaakafhandelcomponent WAR' artifact to the deployment:
-   ![zac-intellij-runtime-wildfly-3.png](img/zac-intellij-runtime-wildfly-3.png)
+   ![zac-intellij-runtime-wildfly-3.png](./attachments/images/zac-intellij-runtime-wildfly-3.png)
 7. The KVK integration of ZAC is based on the [KVK API](https://developers.kvk.nl/).
    By default, (depending on your environment variables; see below) ZAC integrates with the [KVK test environment](https://developers.kvk.nl/documentation/testing).
    If you run ZAC from IntelliJ this requires a number of certificates to be added to your local Java keystore. Please follow the instructions on: https://developers.kvk.nl/documentation/install-tls-certificate.
@@ -99,7 +99,7 @@ First you will need to set up IntelliJ for ZAC:
 4. Next add a new env var called `APP_ENV` and set the value to `devlocal`.
 
 See the screenshot below:
-![zac-intellij-runtime-wildfly-4.png](img/zac-intellij-runtime-wildfly-4.png)
+![zac-intellij-runtime-wildfly-4.png](./attachments/images/zac-intellij-runtime-wildfly-4.png)
 
 Now when starting up ZAC from IntelliJ the `startupwithenv.sh` script will set the required environment variables
 using the 1Password CLI extensions.
@@ -108,9 +108,9 @@ using the 1Password CLI extensions.
 
 1. To start up ZAC from IntelliJ, select the IntelliJ configuration created above and run it (normally in `Debug` mode).
 2. After starting up ZAC you should see something like this in IntelliJ:
-   ![zac-intellij-runtime-wildfly-5.png](img/zac-intellij-runtime-wildfly-5.png)
+   ![zac-intellij-runtime-wildfly-5.png](./attachments/images/zac-intellij-runtime-wildfly-5.png)
 3. After logging in using one of the available test users you should see the ZAC UI:
-   ![zac-ui-1.png](img/zac-ui-1.png)
+   ![zac-ui-1.png](./attachments/images/zac-ui-1.png)
 
 
 ### Run ZAC in a Docker container
@@ -140,18 +140,54 @@ docker run -p 8080:8080 --env-file .env --name zaakafhandelcomponent ghcr.io/inf
 
 Be aware that you will need to set the ZAC environment variables according to your needs.
 
+## Testing
+
+### Unit tests
+
+Both backend and frontend unit tests are run as part of the `test` phase in the normal Gradle build.
+You can run them separately using the following command:
+
+```shell
+./gradlew test --info
+```
+
+### Integration tests
+
+Our integration tests use the [TestContainers framework](https://testcontainers.com/) together
+with our [Docker Compose set-up](INSTALL-DOCKER-COMPOSE.md) to run all required services (Keycloak, Open Zaak, etc)
+as well as ZAC itself as a Docker container.
+This set-up makes it relatively slow to run the integration tests and for this reason they are not run as part of
+the standard Gradle `test` phase and normal Gradle build.
+
+If you wish to run the integration tests you can use the following command:
+
+```shell
+./gradlew itest --info
+```
+
+It is also possible to run the integration tests from inside your IDE (we use IntelliJ IDEA).
+To do this you will first need to do the following:
+
+1. Start Docker.
+2. Build the ZAC Docker image using the following command:
+    ```shell
+    ./gradlew buildZacDockerImage
+    ```
+3. Create a 'run configuration' in your IDE where the following two environment variables are set: `BAG_API_CLIENT_MP_REST_URL` and `BAG_API_KEY`.
+4. Run the integration tests from your IDE using this run configuration.
+
+Running the integration tests will first start up all required services (Keycloak, Open Zaak, etc) as Docker containers using our [Docker Compose file](INSTALL-DOCKER-COMPOSE.md),
+then start up ZAC as Docker container and finally run the integration tests.
+
+### End-to-end tests
+
+Instructions on how to run end-to-end tests can be found in [end-to-end-testing.md](end-to-end-testing.md).
+
+### Manual tests
+
+Technical instructions on how to use the tool Postman to manually test the ZAC backend API can be found in [using-postman.md](using-postman.md).
+
 ## Miscellaneous
-
-### Updating the Solr search index
-
-When running ZAC locally (and not in Kubernetes) the ZAC Solr search index is not automatically regularly updated.
-
-In order to see content in e.g. the 'werklijsten' in ZAC you will need to update the Solr search index manually whenever you have changed relevant content.
-For example to (re)index all 'zaken' and 'taken' do the following from a local command line (or paste the URLs in your browser):
-
-1. Mark all 'zaken' ready for reindexing: `curl http://localhost:8080/rest/indexeren/herindexeren/ZAAK`
-2. Mark all 'taken' ready for reindexing: `curl http://localhost:8080/rest/indexeren/herindexeren/TAAK`
-3. (Re)index all (first 100) 'zaken' and 'taken': `curl http://localhost:8080/rest/indexeren/100`
 
 ### Updating the Solr search index
 
