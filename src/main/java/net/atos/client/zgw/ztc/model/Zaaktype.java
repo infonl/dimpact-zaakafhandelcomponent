@@ -571,4 +571,47 @@ public class Zaaktype {
     public UUID getUUID() {
         return URIUtil.parseUUIDFromResourceURI(url);
     }
+
+    @Override
+    public String toString() {
+        return "Zaaktype{" +
+                "url=" + url +
+                ", identificatie='" + identificatie + '\'' +
+                ", omschrijving='" + omschrijving + '\'' +
+                ", omschrijvingGeneriek='" + omschrijvingGeneriek + '\'' +
+                ", vertrouwelijkheidaanduiding=" + vertrouwelijkheidaanduiding +
+                ", doel='" + doel + '\'' +
+                ", aanleiding='" + aanleiding + '\'' +
+                ", toelichting='" + toelichting + '\'' +
+                ", indicatieInternOfExtern=" + indicatieInternOfExtern +
+                ", handelingInitiator='" + handelingInitiator + '\'' +
+                ", onderwerp='" + onderwerp + '\'' +
+                ", handelingBehandelaar='" + handelingBehandelaar + '\'' +
+                ", doorlooptijd=" + doorlooptijd +
+                ", servicenorm=" + servicenorm +
+                ", opschortingEnAanhoudingMogelijk=" + opschortingEnAanhoudingMogelijk +
+                ", verlengingMogelijk=" + verlengingMogelijk +
+                ", verlengingstermijn=" + verlengingstermijn +
+                ", trefwoorden=" + trefwoorden +
+                ", publicatieIndicatie=" + publicatieIndicatie +
+                ", publicatietekst='" + publicatietekst + '\'' +
+                ", verantwoordingsrelatie=" + verantwoordingsrelatie +
+                ", productenOfDiensten=" + productenOfDiensten +
+                ", selectielijstProcestype=" + selectielijstProcestype +
+                ", referentieproces=" + referentieproces +
+                ", catalogus=" + catalogus +
+                ", statustypen=" + statustypen +
+                ", resultaattypen=" + resultaattypen +
+                ", eigenschappen=" + eigenschappen +
+                ", informatieobjecttypen=" + informatieobjecttypen +
+                ", roltypen=" + roltypen +
+                ", besluittypen=" + besluittypen +
+                ", deelzaaktypen=" + deelzaaktypen +
+                ", gerelateerdeZaaktypen=" + gerelateerdeZaaktypen +
+                ", beginGeldigheid=" + beginGeldigheid +
+                ", eindeGeldigheid=" + eindeGeldigheid +
+                ", versiedatum=" + versiedatum +
+                ", concept=" + concept +
+                '}';
+    }
 }

@@ -1,10 +1,10 @@
 [
     {
         "model": "token.tokenauth",
-        "pk": "cd63e158f3aca276ef284e3033d020a22899c728",
+        "pk": "dummyZacObjectTypesToken",
         "fields": {
-            "contact_person": "Ritense",
-            "email": "Ritense@Ritense.test",
+            "contact_person": "Dummy Contact",
+            "email": "dummy@example.com",
             "organization": "",
             "last_modified": "2020-12-23T11:43:16.820Z",
             "created": "2020-12-22T16:27:00.751Z"
@@ -1579,7 +1579,7 @@
         "pk": 4,
         "fields": {
             "uuid": "021f685e-9482-4620-b157-34cd4003da6b",
-            "name": "productaanvraag",
+            "name": "Productaanvraag-Denhaag",
             "name_plural": "productaanvragen",
             "description": "Aanvragen van terugbelverzoeken voor Den Haag",
             "data_classification": "intern",
