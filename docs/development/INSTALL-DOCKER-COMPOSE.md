@@ -63,8 +63,8 @@ This is useful if you do not need to develop on the ZAC backend or just want to 
 #### Using the latest version of ZAC
 
 Currently, our ZAC Docker Compose file contains a reference to a specific version of the ZAC Docker image.
-In order to use the latest ZAC Docker Image you will need to manually edit the `../docker-compose.yaml` file and
-update the `zac: image:` attribute to the latest ZAC Docker Image tag.
+In order to use the latest ZAC Docker Image you can specify a ZAC Docker Image by setting the `ZAC_DOCKER_IMAGE`
+environment variable.
 You can find the latest version of the ZAC Docker Image on:
 https://github.com/infonl/dimpact-zaakafhandelcomponent/pkgs/container/zaakafhandelcomponent
 
@@ -73,7 +73,7 @@ https://github.com/infonl/dimpact-zaakafhandelcomponent/pkgs/container/zaakafhan
 From the root folder of this repository execute the following command:
 
 ```
-./start-docker-compose-with-zac.sh
+./start-docker-compose.sh -z
 ```
 
 This will run Docker Compose with the `zac` Docker Compose profile and uses the 1Password CLI extensions
@@ -184,10 +184,10 @@ We use Docker volumes to persist data between restarts of certain Docker contain
 subsequent startups.
 
 Sometimes it is needed to clean up these volumes to start with a clean slate.
-To do so execute the following command from the root folder of this repository:
+To do so execute run the Docker Compose start script with the `-d` option:
 
 ```
-rm -rf ./scripts/docker-compose/volume-data
+./start-docker-compose.sh -d
 ```
 
 ## Updating the VNG-Referentielijsten Docker Images
