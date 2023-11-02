@@ -65,7 +65,7 @@ This is useful if you do not need to develop on the ZAC backend or just want to 
 Currently, our ZAC Docker Compose file contains a reference to a specific version of the ZAC Docker image.
 In order to use the latest ZAC Docker Image you can specify a ZAC Docker Image by setting the `ZAC_DOCKER_IMAGE`
 environment variable.
-You can find the latest version of the ZAC Docker Image on:
+You can find the latest released version of the ZAC Docker Image on:
 https://github.com/infonl/dimpact-zaakafhandelcomponent/pkgs/container/zaakafhandelcomponent
 
 ### Running Docker Compose with ZAC
@@ -184,7 +184,7 @@ We use Docker volumes to persist data between restarts of certain Docker contain
 subsequent startups.
 
 Sometimes it is needed to clean up these volumes to start with a clean slate.
-To do so execute run the Docker Compose start script with the `-d` option:
+To do so run the Docker Compose start script with the `-d` option:
 
 ```
 ./start-docker-compose.sh -d
