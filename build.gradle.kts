@@ -33,6 +33,9 @@ repositories {
 group = "net.atos.common-ground"
 description = "Zaakafhandelcomponent"
 
+// we will only upgrade Java when WildFly explicitly supports a new version
+val javaVersion = JavaVersion.VERSION_17
+
 val zacDockerImage by extra {
     if (project.hasProperty("zacDockerImage"))
         project.property("zacDockerImage").toString()
@@ -125,11 +128,11 @@ jacoco {
 }
 
 java {
-    java.sourceCompatibility = JavaVersion.VERSION_17
-    java.targetCompatibility = JavaVersion.VERSION_17
+    java.sourceCompatibility = javaVersion
+    java.targetCompatibility = javaVersion
 
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(javaVersion.majorVersion)
     }
 
     // add our generated client code to the main source set
@@ -200,7 +203,7 @@ tasks {
         delete("$rootDir/src/main/app/dist")
         delete("$rootDir/src/main/app/reports")
         delete("$rootDir/src/generated")
-        // what about /src/main/app/.angular and /src/main/app/node_modules?
+        delete("$rootDir/.openapi-generator")
     }
 
     build {
