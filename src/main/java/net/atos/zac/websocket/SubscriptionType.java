@@ -6,7 +6,7 @@
 package net.atos.zac.websocket;
 
 
-import javax.websocket.Session;
+import jakarta.websocket.Session;
 
 import net.atos.zac.websocket.event.ScreenEvent;
 

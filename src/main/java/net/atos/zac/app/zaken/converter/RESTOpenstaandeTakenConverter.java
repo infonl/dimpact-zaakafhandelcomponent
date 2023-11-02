@@ -8,7 +8,7 @@ package net.atos.zac.app.zaken.converter;
 import java.util.List;
 import java.util.UUID;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.flowable.task.api.Task;
 import org.flowable.task.api.TaskInfo;

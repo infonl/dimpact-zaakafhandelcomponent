@@ -51,7 +51,7 @@ import net.atos.zac.policy.output.createZaakRechten
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import net.atos.zac.zaaksturing.model.createZaakafhandelParameters
 import org.junit.jupiter.api.Assertions.assertEquals
-import javax.enterprise.inject.Instance
+import jakarta.enterprise.inject.Instance
 
 class ZakenRESTServiceTest : BehaviorSpec() {
     val cmmnService = mockk<CMMNService>()

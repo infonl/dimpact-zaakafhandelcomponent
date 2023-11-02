@@ -5,7 +5,7 @@
 
 package net.atos.client.zgw.ztc.model;
 
-import javax.ws.rs.QueryParam;
+import jakarta.ws.rs.QueryParam;
 
 public class CatalogusListParameters {
 

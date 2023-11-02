@@ -10,8 +10,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.enterprise.inject.spi.CDI;
-import javax.servlet.http.HttpSession;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.servlet.http.HttpSession;
 
 import org.apache.commons.collections4.map.LRUMap;
 import org.apache.commons.io.FilenameUtils;

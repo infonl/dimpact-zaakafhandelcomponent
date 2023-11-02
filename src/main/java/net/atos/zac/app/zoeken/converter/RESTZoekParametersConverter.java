@@ -5,8 +5,8 @@
 
 package net.atos.zac.app.zoeken.converter;
 
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.BooleanUtils;
 

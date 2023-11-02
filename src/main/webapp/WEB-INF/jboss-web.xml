@@ -6,8 +6,7 @@
 
 <jboss-web xmlns="http://www.jboss.com/xml/ns/javaee"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           version="7.1"
+           version="10.0"
            xsi:schemaLocation="http://www.jboss.com/xml/ns/javaee
-                               http://www.jboss.org/schema/jbossweb/jboss-web_7_1.xsd">
-    <context-root></context-root>
+                               http://www.jboss.org/schema/jbossweb/jboss-web_10_0.xsd">
 </jboss-web>

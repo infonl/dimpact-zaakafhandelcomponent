@@ -12,7 +12,7 @@ import io.mockk.mockk
 import net.atos.zac.event.Opcode
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.websocket.event.createScreenEvent
-import javax.websocket.Session
+import jakarta.websocket.Session
 
 class SessionRegistryTest : BehaviorSpec({
     val session1 = mockk<Session>()

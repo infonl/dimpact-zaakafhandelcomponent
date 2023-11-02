@@ -15,11 +15,10 @@ plugins {
     jacoco
 
     id("org.jsonschema2pojo") version "1.2.1"
-    // note that openapi generator 7.0.0 has some breaking changes
-    id("org.openapi.generator") version "6.6.0"
+    id("org.openapi.generator") version "7.0.1"
     id("com.github.node-gradle.node") version "7.0.0"
     id("org.barfuin.gradle.taskinfo") version "2.1.0"
-    id("io.smallrye.openapi") version "3.5.1"
+    id("io.smallrye.openapi") version "3.7.0"
     id("org.hidetake.swagger.generator") version "2.19.2"
     id("io.gitlab.arturbosch.detekt") version "1.23.1"
     id("com.bmuschko.docker-remote-api") version "9.3.4"
@@ -93,13 +92,13 @@ dependencies {
     warLib("org.reactivestreams:reactive-streams:1.0.4")
 
     // dependencies provided by Wildfly
-    providedCompile("jakarta.platform:jakarta.jakartaee-api:8.0.0")
-    providedCompile("org.eclipse.microprofile.rest.client:microprofile-rest-client-api:2.0")
-    providedCompile("org.eclipse.microprofile.config:microprofile-config-api:2.0")
-    providedCompile("org.eclipse.microprofile.health:microprofile-health-api:3.1")
-    providedCompile("org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api:3.0")
-    providedCompile("org.jboss.resteasy:resteasy-multipart-provider:4.7.7.Final")
-    providedCompile("org.wildfly.security:wildfly-elytron-http-oidc:1.19.1.Final")
+    providedCompile("jakarta.platform:jakarta.jakartaee-api:10.0.0")
+    providedCompile("org.eclipse.microprofile.rest.client:microprofile-rest-client-api:3.0.1")
+    providedCompile("org.eclipse.microprofile.config:microprofile-config-api:3.1")
+    providedCompile("org.eclipse.microprofile.health:microprofile-health-api:4.0.1")
+    providedCompile("org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api:4.0.2")
+    providedCompile("org.jboss.resteasy:resteasy-multipart-provider:6.2.5.Final")
+    providedCompile("org.wildfly.security:wildfly-elytron-http-oidc:2.2.2.Final")
 
     // yasson is required for using a JSONB context in our unit tests
     // where we do not have the WildFly runtime environment available
@@ -146,7 +145,7 @@ jsonSchema2Pojo {
     targetDirectory = file("$rootDir/src/generated/java")
     setFileExtensions(".schema.json")
     targetPackage = "net.atos.zac.aanvraag"
-    setAnnotationStyle("JSONB1")
+    setAnnotationStyle("JSONB2")
     dateType = "java.time.LocalDate"
     dateTimeType = "java.time.ZonedDateTime"
     timeType = "java.time.LocalTime"
@@ -154,6 +153,9 @@ jsonSchema2Pojo {
     includeToString = false
     initializeCollections = false
     includeAdditionalProperties = false
+//    isIncludeGeneratedAnnotation = true
+//    useJakartaValidation = true
+//    targetVersion = "9"
 }
 
 node {
@@ -259,11 +261,13 @@ tasks {
         configOptions.set(
             mapOf(
                 "library" to "microprofile",
-                "microprofileRestClientVersion" to "2.0",
+                "microprofileRestClientVersion" to "3.0",
                 "sourceFolder" to "",
                 "dateLibrary" to "java8",
                 "disallowAdditionalPropertiesIfNotPresent" to "false",
-                "openApiNullable" to "false"
+                "openApiNullable" to "false",
+                "useJakartaEe" to "true",
+                "useSpringBoot3" to "true"
             )
         )
     }
@@ -271,6 +275,7 @@ tasks {
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKvkZoekenClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/zoeken-openapi.yaml")
         modelPackage.set("net.atos.client.kvk.zoeken.model")
+
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKvkBasisProfielClient") {
@@ -286,11 +291,36 @@ tasks {
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateBrpClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/brp/openapi.yaml")
         modelPackage.set("net.atos.client.brp.model")
+        configOptions.set(
+            mapOf(
+                "library" to "microprofile",
+                "microprofileRestClientVersion" to "3.0",
+                "sourceFolder" to "",
+                "dateLibrary" to "java8",
+                "disallowAdditionalPropertiesIfNotPresent" to "false",
+                "openApiNullable" to "false",
+                "useJakartaEe" to "true",
+                "useSpringBoot3" to "true"
+            )
+        )
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateVrlClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/vrl/openapi.yaml")
         modelPackage.set("net.atos.client.vrl.model")
+        configOptions.set(
+            mapOf(
+                "library" to "microprofile",
+                "microprofileRestClientVersion" to "3.0",
+                "sourceFolder" to "",
+                "dateLibrary" to "java8",
+                "disallowAdditionalPropertiesIfNotPresent" to "false",
+                "openApiNullable" to "false",
+                "useJakartaEe" to "true",
+                "useSpringBoot3" to "true",
+                "serializationLibrary" to "jackson"
+            )
+        )
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateBagClient") {
@@ -300,11 +330,16 @@ tasks {
         configOptions.set(
             mapOf(
                 "library" to "microprofile",
-                "microprofileRestClientVersion" to "2.0",
+                "microprofileRestClientVersion" to "3.0",
                 "sourceFolder" to "",
                 "dateLibrary" to "java8-localdatetime",
                 "disallowAdditionalPropertiesIfNotPresent" to "false",
-                "openApiNullable" to "false"
+                "openApiNullable" to "false",
+                "useSpringBoot3" to "true",
+                "useJakartaEe" to "true",
+
+
+
             )
         )
     }
@@ -320,6 +355,19 @@ tasks {
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateContactMomentenClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/contactmomenten/openapi.yaml")
         modelPackage.set("net.atos.client.contactmomenten.model")
+        configOptions.set(
+            mapOf(
+                "library" to "microprofile",
+                "microprofileRestClientVersion" to "3.0",
+                "sourceFolder" to "",
+                "dateLibrary" to "java8",
+                "disallowAdditionalPropertiesIfNotPresent" to "false",
+                "openApiNullable" to "false",
+                "useJakartaEe" to "true",
+                "useSpringBoot3" to "true",
+                "serializationLibrary" to "jackson"
+            )
+        )
     }
 
     register("generateJavaClients") {

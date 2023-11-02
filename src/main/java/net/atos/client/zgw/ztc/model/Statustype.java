@@ -10,9 +10,9 @@ import static net.atos.zac.configuratie.ConfiguratieService.STATUSTYPE_OMSCHRIJV
 
 import java.net.URI;
 
-import javax.json.bind.annotation.JsonbCreator;
-import javax.json.bind.annotation.JsonbProperty;
-import javax.json.bind.annotation.JsonbTransient;
+import jakarta.json.bind.annotation.JsonbCreator;
+import jakarta.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbTransient;
 
 /**
  *

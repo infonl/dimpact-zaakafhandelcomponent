@@ -2,7 +2,7 @@ package net.atos.client.zgw.zrc.model;
 
 import java.net.URI;
 
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 public class HoofdzaakZaakPatch extends Zaak {
 

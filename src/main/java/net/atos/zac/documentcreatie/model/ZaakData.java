@@ -9,7 +9,7 @@ import static net.atos.zac.documentcreatie.converter.DataConverter.DATE_FORMAT;
 
 import java.time.LocalDate;
 
-import javax.json.bind.annotation.JsonbDateFormat;
+import jakarta.json.bind.annotation.JsonbDateFormat;
 
 public class ZaakData {
 

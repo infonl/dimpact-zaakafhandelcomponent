@@ -7,7 +7,7 @@ package net.atos.client.zgw.drc.model;
 
 import java.util.Base64;
 
-import javax.json.bind.annotation.JsonbTransient;
+import jakarta.json.bind.annotation.JsonbTransient;
 
 /**
  * Representation of EnkelvoudigInformatieobject for POST request and response only

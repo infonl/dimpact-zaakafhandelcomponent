@@ -7,7 +7,7 @@ package net.atos.zac.app.audit.converter.zaken;
 
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import net.atos.client.zgw.shared.model.ObjectType;
 import net.atos.client.zgw.shared.model.audit.zaken.StatusWijziging;

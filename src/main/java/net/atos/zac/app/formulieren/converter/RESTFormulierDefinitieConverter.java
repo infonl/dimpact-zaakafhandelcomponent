@@ -7,7 +7,7 @@ package net.atos.zac.app.formulieren.converter;
 
 import java.util.Comparator;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import net.atos.zac.app.formulieren.model.RESTFormulierDefinitie;
 import net.atos.zac.formulieren.model.FormulierDefinitie;

@@ -8,7 +8,7 @@ package net.atos.zac.app.ontkoppeldedocumenten.converter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import net.atos.zac.app.identity.converter.RESTUserConverter;
 import net.atos.zac.app.ontkoppeldedocumenten.model.RESTOntkoppeldDocument;

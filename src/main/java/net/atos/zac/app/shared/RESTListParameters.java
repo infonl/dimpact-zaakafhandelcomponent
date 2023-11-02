@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.shared;
 
-import javax.ws.rs.QueryParam;
+import jakarta.ws.rs.QueryParam;
 
 public class RESTListParameters {
 

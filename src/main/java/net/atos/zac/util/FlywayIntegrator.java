@@ -5,16 +5,16 @@
 
 package net.atos.zac.util;
 
-import static javax.ejb.TransactionManagementType.BEAN;
+import static jakarta.ejb.TransactionManagementType.BEAN;
 
 import java.util.Map;
 import java.util.logging.Logger;
 
-import javax.annotation.Resource;
-import javax.ejb.TransactionManagement;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Initialized;
-import javax.enterprise.event.Observes;
+import jakarta.annotation.Resource;
+import jakarta.ejb.TransactionManagement;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Initialized;
+import jakarta.enterprise.event.Observes;
 import javax.sql.DataSource;
 
 import org.flywaydb.core.Flyway;

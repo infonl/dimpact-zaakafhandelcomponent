@@ -6,7 +6,7 @@
 package net.atos.zac.signalering;
 
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import net.atos.zac.identity.IdentityService;
 import net.atos.zac.identity.model.Group;

@@ -5,10 +5,10 @@
 
 package net.atos.zac.authentication;
 
-import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-import javax.servlet.http.HttpSession;
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpSession;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;

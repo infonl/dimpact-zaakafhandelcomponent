@@ -13,8 +13,8 @@ import java.util.UUID;
 
 import javax.cache.annotation.CacheRemove;
 import javax.cache.annotation.CacheResult;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
 
