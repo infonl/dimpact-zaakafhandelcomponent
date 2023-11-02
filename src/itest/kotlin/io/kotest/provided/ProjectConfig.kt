@@ -28,13 +28,15 @@ import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.Wait
 import java.io.File
 import java.time.Duration
-import java.util.concurrent.TimeUnit
 
 private val logger = KotlinLogging.logger {}
 
-@Suppress("MagicNumber")
 object ProjectConfig : AbstractProjectConfig() {
+    @Suppress("MagicNumber")
     private val THREE_MINUTES = Duration.ofMinutes(3)
+
+    @Suppress("MagicNumber")
+    private val TEN_SECONDS = Duration.ofSeconds(10)
 
     private lateinit var dockerComposeContainer: ComposeContainer
 
@@ -82,7 +84,7 @@ object ProjectConfig : AbstractProjectConfig() {
             dockerComposeContainer.start()
             logger.info { "Started ZAC Docker Compose containers" }
             logger.info { "Waiting until ZAC is healthy by calling the health endpoint and checking the response" }
-            await.atMost(10, TimeUnit.SECONDS)
+            await.atMost(TEN_SECONDS)
                 .until {
                     khttp.get(
                         url = "${ZAC_MANAGEMENT_URI}/health/ready",
