@@ -39,7 +39,6 @@ import net.atos.zac.documentcreatie.model.WizardRequest;
 
 @ApplicationScoped
 public class DocumentCreatieService {
-    private static final String NONE = "<NONE>";
     private static final String AUDIT_TOELICHTING = "Door SmartDocuments";
     private static final Logger LOG = Logger.getLogger(DocumentCreatieService.class.getName());
 
