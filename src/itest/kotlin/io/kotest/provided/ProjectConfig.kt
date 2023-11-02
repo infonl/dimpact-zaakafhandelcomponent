@@ -19,6 +19,8 @@ import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCT_AANVRAAG_TYPE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_MANAGEMENT_URI
+import org.awaitility.kotlin.await
 import org.slf4j.Logger
 import org.testcontainers.containers.ComposeContainer
 import org.testcontainers.containers.ContainerLaunchException
@@ -26,11 +28,13 @@ import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.Wait
 import java.io.File
 import java.time.Duration
+import java.util.concurrent.TimeUnit
 
 private val logger = KotlinLogging.logger {}
 
 object ProjectConfig : AbstractProjectConfig() {
     private const val THREE_MINUTES = 3L
+    private const val TEN_SECONDS = 10L
 
     private lateinit var dockerComposeContainer: ComposeContainer
 
@@ -76,9 +80,19 @@ object ProjectConfig : AbstractProjectConfig() {
                         .withStartupTimeout(Duration.ofMinutes(THREE_MINUTES))
                 )
             dockerComposeContainer.start()
-
             logger.info { "Started ZAC Docker Compose containers" }
-
+            logger.info { "Waiting until ZAC is healthy by calling the health endpoint and checking the response" }
+            await.atMost(TEN_SECONDS, TimeUnit.SECONDS)
+                .until {
+                    khttp.get(
+                        url = "${ZAC_MANAGEMENT_URI}/health/ready",
+                        headers = mapOf(
+                            "Content-Type" to "application/json",
+                        )
+                    ).let {
+                        it.statusCode == HttpStatus.SC_OK && it.jsonObject.getString("status") == "UP"
+                    }
+                }
             accessToken = requestAccessTokenFromKeycloak()
             createZaakAfhandelParameters()
         } catch (exception: ContainerLaunchException) {
