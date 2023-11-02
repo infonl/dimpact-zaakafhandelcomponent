@@ -10,7 +10,7 @@ import java.util.Locale
 
 plugins {
     java
-    kotlin("jvm") version "1.9.20"
+    kotlin("jvm") version "1.9.10"
     war
     jacoco
 
@@ -27,29 +27,13 @@ plugins {
 repositories {
     mavenLocal()
     mavenCentral()
-    maven {
-        url = uri("https://maven.pkg.github.com/infonl/webdav-servlet")
-        credentials {
-            // for local development please create a personal access token (or use an existing one)
-            // with the 'read:packages' scope and set the 'gpr.user' and 'gpr.key' properties in
-            // your ~/.gradle/gradle.properties file (create the file if it does not exist yet)
-            username = project.findProperty("gpr.user") as String? ?: System.getenv("READ_PACKAGES_USERNAME")
-            password = project.findProperty("gpr.key") as String? ?: System.getenv("READ_PACKAGES_TOKEN")
-        }
-    }
 }
 
 group = "net.atos.common-ground"
 description = "Zaakafhandelcomponent"
 
-// we will only upgrade Java when WildFly explicitly supports a new version
-val javaVersion = JavaVersion.VERSION_17
-
 val zacDockerImage by extra {
-    if (project.hasProperty("zacDockerImage"))
-        project.property("zacDockerImage").toString()
-    else
-        "ghcr.io/infonl/zaakafhandelcomponent:dev"
+    if (project.hasProperty("zacDockerImage")) project.property("zacDockerImage").toString() else "ghcr.io/infonl/zaakafhandelcomponent:dev"
 }
 
 // create custom configuration for extra dependencies that are required in the generated WAR
@@ -67,27 +51,26 @@ sourceSets {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation("org.apache.commons:commons-lang3:3.13.0")
+    implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("org.apache.commons:commons-collections4:4.4")
-    implementation("commons-io:commons-io:2.15.0")
     implementation("com.opencsv:opencsv:5.8")
-    implementation("org.flowable:flowable-engine:7.0.0")
-    implementation("org.flowable:flowable-cdi:7.0.0")
-    implementation("org.flowable:flowable-cmmn-engine:7.0.0")
-    implementation("org.flowable:flowable-cmmn-cdi:7.0.0")
-    implementation("org.flowable:flowable-cmmn-engine-configurator:7.0.0")
+    implementation("org.flowable:flowable-engine:6.8.0")
+    implementation("org.flowable:flowable-cdi:6.8.0")
+    implementation("org.flowable:flowable-cmmn-engine:6.8.0")
+    implementation("org.flowable:flowable-cmmn-cdi:6.8.0")
+    implementation("org.flowable:flowable-cmmn-engine-configurator:6.8.0")
     implementation("org.slf4j:slf4j-jdk14:2.0.3")
     implementation("com.auth0:java-jwt:4.4.0")
     implementation("javax.cache:cache-api:1.1.1")
     implementation("com.google.guava:guava:32.1.3-jre")
-    implementation("com.mailjet:mailjet-client:5.2.5")
+    implementation("com.mailjet:mailjet-client:5.2.4")
     implementation("org.flywaydb:flyway-core:9.22.3")
     implementation("org.apache.solr:solr-solrj:9.4.0")
-    implementation("net.sf.webdav-servlet:webdav-servlet:2.1.2")
+    implementation("net.sf.webdav-servlet:webdav-servlet:2.0")
     implementation("com.itextpdf:itextpdf:5.5.13")
     implementation("com.itextpdf.tool:xmlworker:5.5.13.3")
-    implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
+    implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.6.1")
 
     swaggerUI("org.webjars:swagger-ui:3.52.5")
 
@@ -101,22 +84,19 @@ dependencies {
     // simply marking them as 'compileOnly' or 'implementation' does not work
     warLib("org.apache.httpcomponents:httpclient:4.5.13")
     warLib("org.reactivestreams:reactive-streams:1.0.4")
-    // WildFly does already include the Jakarta Mail API lib so not sure why, but we need to
-    // include it in the WAR or else ZAC will fail to be deployed
-    warLib("jakarta.mail:jakarta.mail-api:2.1.2")
 
     // dependencies provided by Wildfly
     providedCompile("jakarta.platform:jakarta.jakartaee-api:10.0.0")
     providedCompile("org.eclipse.microprofile.rest.client:microprofile-rest-client-api:3.0.1")
-    providedCompile("org.eclipse.microprofile.config:microprofile-config-api:3.0.2")
+    providedCompile("org.eclipse.microprofile.config:microprofile-config-api:3.1")
     providedCompile("org.eclipse.microprofile.health:microprofile-health-api:4.0.1")
     providedCompile("org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api:4.0.2")
-    providedCompile("org.jboss.resteasy:resteasy-multipart-provider:6.2.6.Final")
+    providedCompile("org.jboss.resteasy:resteasy-multipart-provider:6.2.5.Final")
     providedCompile("org.wildfly.security:wildfly-elytron-http-oidc:2.2.2.Final")
 
     // yasson is required for using a JSONB context in our unit tests
     // where we do not have the WildFly runtime environment available
-    testImplementation("org.eclipse:yasson:3.0.3")
+    testImplementation("org.eclipse:yasson:1.0.11")
     testImplementation("io.kotest:kotest-runner-junit5:5.7.1")
     testImplementation("io.mockk:mockk:1.13.8")
 
@@ -127,7 +107,6 @@ dependencies {
     "itestImplementation"("org.slf4j:slf4j-simple:2.0.9")
     "itestImplementation"("io.github.oshai:kotlin-logging-jvm:5.1.0")
     "itestImplementation"("org.danilopianini:khttp:1.4.0")
-    "itestImplementation"("org.awaitility:awaitility-kotlin:4.2.0")
 }
 
 detekt {
@@ -142,11 +121,11 @@ jacoco {
 }
 
 java {
-    java.sourceCompatibility = javaVersion
-    java.targetCompatibility = javaVersion
+    java.sourceCompatibility = JavaVersion.VERSION_17
+    java.targetCompatibility = JavaVersion.VERSION_17
 
     toolchain {
-        languageVersion = JavaLanguageVersion.of(javaVersion.majorVersion)
+        languageVersion = JavaLanguageVersion.of(17)
     }
 
     // add our generated client code to the main source set
@@ -220,6 +199,7 @@ tasks {
         delete("$rootDir/src/main/app/dist")
         delete("$rootDir/src/main/app/reports")
         delete("$rootDir/src/generated")
+        // what about /src/main/app/.angular and /src/main/app/node_modules?
     }
 
     build {
@@ -430,7 +410,7 @@ tasks {
         dependsOn("generateWildflyBootableJar")
 
         from("target/zaakafhandelcomponent.jar")
-        into("${layout.buildDirectory}/docker")
+        into("$buildDir/docker")
     }
 
     register<DockerBuildImage>("buildDockerImage") {
