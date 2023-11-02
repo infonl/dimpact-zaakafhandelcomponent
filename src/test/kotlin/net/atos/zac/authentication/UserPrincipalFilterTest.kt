@@ -16,16 +16,16 @@ import io.mockk.mockkClass
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
+import jakarta.servlet.FilterChain
+import jakarta.servlet.ServletResponse
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpSession
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters
 import org.wildfly.security.http.oidc.AccessToken
 import org.wildfly.security.http.oidc.OidcPrincipal
 import org.wildfly.security.http.oidc.OidcSecurityContext
 import org.wildfly.security.http.oidc.RealmAccessClaim
-import jakarta.servlet.FilterChain
-import jakarta.servlet.ServletResponse
-import jakarta.servlet.http.HttpServletRequest
-import jakarta.servlet.http.HttpSession
 
 class UserPrincipalFilterTest : BehaviorSpec({
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()

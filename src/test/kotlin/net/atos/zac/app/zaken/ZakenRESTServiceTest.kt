@@ -15,6 +15,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
+import jakarta.enterprise.inject.Instance
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createObjectRegistratieObject
 import net.atos.client.zgw.shared.ZGWApiService
@@ -51,7 +52,6 @@ import net.atos.zac.policy.output.createZaakRechten
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import net.atos.zac.zaaksturing.model.createZaakafhandelParameters
 import org.junit.jupiter.api.Assertions.assertEquals
-import jakarta.enterprise.inject.Instance
 
 class ZakenRESTServiceTest : BehaviorSpec() {
     val cmmnService = mockk<CMMNService>()
