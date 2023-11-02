@@ -10,7 +10,7 @@ import java.util.Locale
 
 plugins {
     java
-    kotlin("jvm") version "1.9.10"
+    kotlin("jvm") version "1.9.20"
     war
     jacoco
 
@@ -114,6 +114,7 @@ dependencies {
     "itestImplementation"("org.slf4j:slf4j-simple:2.0.9")
     "itestImplementation"("io.github.oshai:kotlin-logging-jvm:5.1.0")
     "itestImplementation"("org.danilopianini:khttp:1.4.0")
+    "itestImplementation"("org.awaitility:awaitility-kotlin:4.2.0")
 }
 
 detekt {
