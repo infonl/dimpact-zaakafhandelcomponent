@@ -32,9 +32,9 @@ import java.util.concurrent.TimeUnit
 
 private val logger = KotlinLogging.logger {}
 
+@Suppress("MagicNumber")
 object ProjectConfig : AbstractProjectConfig() {
-    private const val THREE_MINUTES = 3L
-    private const val TEN_SECONDS = 10L
+    private val THREE_MINUTES = Duration.ofMinutes(3)
 
     private lateinit var dockerComposeContainer: ComposeContainer
 
@@ -72,17 +72,17 @@ object ProjectConfig : AbstractProjectConfig() {
                 .waitingFor(
                     "openzaak.local",
                     Wait.forLogMessage(".*spawned uWSGI worker 2.*", 1)
-                        .withStartupTimeout(Duration.ofMinutes(THREE_MINUTES))
+                        .withStartupTimeout(THREE_MINUTES)
                 )
                 .waitingFor(
                     "zac",
                     Wait.forLogMessage(".* WildFly Full .* started .*", 1)
-                        .withStartupTimeout(Duration.ofMinutes(THREE_MINUTES))
+                        .withStartupTimeout(THREE_MINUTES)
                 )
             dockerComposeContainer.start()
             logger.info { "Started ZAC Docker Compose containers" }
             logger.info { "Waiting until ZAC is healthy by calling the health endpoint and checking the response" }
-            await.atMost(TEN_SECONDS, TimeUnit.SECONDS)
+            await.atMost(10, TimeUnit.SECONDS)
                 .until {
                     khttp.get(
                         url = "${ZAC_MANAGEMENT_URI}/health/ready",
