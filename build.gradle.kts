@@ -34,7 +34,10 @@ group = "net.atos.common-ground"
 description = "Zaakafhandelcomponent"
 
 val zacDockerImage by extra {
-    if (project.hasProperty("zacDockerImage")) project.property("zacDockerImage").toString() else "ghcr.io/infonl/zaakafhandelcomponent:dev"
+    if (project.hasProperty("zacDockerImage"))
+        project.property("zacDockerImage").toString()
+    else
+        "ghcr.io/infonl/zaakafhandelcomponent:dev"
 }
 
 // create custom configuration for extra dependencies that are required in the generated WAR
@@ -362,7 +365,7 @@ tasks {
         dependsOn("generateWildflyBootableJar")
 
         from("target/zaakafhandelcomponent.jar")
-        into("$buildDir/docker")
+        into("${layout.buildDirectory}/docker")
     }
 
     register<DockerBuildImage>("buildDockerImage") {
