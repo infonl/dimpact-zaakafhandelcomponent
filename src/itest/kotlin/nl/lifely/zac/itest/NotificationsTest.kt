@@ -79,7 +79,7 @@ class NotificationsTest : BehaviorSpec({
                         url = "${ZAC_API_URI}/zaken/zaak/id/$ZAAK_1_IDENTIFICATION",
                         headers = mapOf(
                             "Content-Type" to "application/json",
-                            "Authorization" to "Bearer ${ProjectConfig.accessToken}"
+                            "Authorization" to "Bearer ${ProjectConfig.keycloakClient.requestAccessToken()}"
                         ),
                     ).apply {
                         logger.info { "Response: $text" }

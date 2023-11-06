@@ -23,7 +23,7 @@ class ZaakafhandelParametersTest : BehaviorSpec({
             then("the response should be ok and it should return the zaakafhandelparameters") {
                 khttp.get(
                     url = "${ZAC_API_URI}/zaakafhandelParameters/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID",
-                    headers = mapOf("Authorization" to "Bearer ${ProjectConfig.accessToken}")
+                    headers = mapOf("Authorization" to "Bearer ${ProjectConfig.keycloakClient.requestAccessToken()}")
                 ).apply {
                     logger.info { "Zaakafhandelparameters response: $text" }
                     val zaakafhandelparameters = JSONObject(text)

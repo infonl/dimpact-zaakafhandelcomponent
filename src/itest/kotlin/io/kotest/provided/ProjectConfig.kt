@@ -10,8 +10,7 @@ import io.github.oshai.kotlinlogging.DelegatingKLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.config.AbstractProjectConfig
 import nl.lifely.zac.itest.client.KeycloakClient
-import nl.lifely.zac.itest.client.ZacClient
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.lifely.zac.itest.client.createZaakAfhandelParameters
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_MANAGEMENT_URI
 import org.awaitility.kotlin.await
 import org.slf4j.Logger
@@ -33,7 +32,7 @@ object ProjectConfig : AbstractProjectConfig() {
 
     private lateinit var dockerComposeContainer: ComposeContainer
 
-    lateinit var accessToken: String
+    lateinit var keycloakClient: KeycloakClient
 
     @Suppress("UNCHECKED_CAST")
     override suspend fun beforeProject() {
@@ -88,9 +87,9 @@ object ProjectConfig : AbstractProjectConfig() {
                         it.statusCode == HttpStatus.SC_OK && it.jsonObject.getString("status") == "UP"
                     }
                 }
-            accessToken = KeycloakClient().requestAccessTokenFromKeycloak()
-            val zacClient = ZacClient(ZAC_API_URI, accessToken)
-            zacClient.createZaakAfhandelParameters()
+            keycloakClient = KeycloakClient()
+            keycloakClient.authenticate()
+            createZaakAfhandelParameters()
         } catch (exception: ContainerLaunchException) {
             logger.error(exception) { "Failed to start Docker containers" }
             dockerComposeContainer.stop()

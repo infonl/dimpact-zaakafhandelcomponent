@@ -8,29 +8,27 @@ package nl.lifely.zac.itest.client
 import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.HttpStatus
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.matchers.shouldBe
+import io.kotest.provided.ProjectConfig
 import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCT_AANVRAAG_TYPE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 
 private val logger = KotlinLogging.logger {}
 
-class ZacClient(
-    private val zacApiUri: String,
-    private val accessToken: String
-) {
-    @Suppress("LongMethod")
-    fun createZaakAfhandelParameters() {
-        logger.info {
-            "Creating zaakafhandelparameters in ZAC for zaaktype with UUID: $ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
-        }
+@Suppress("LongMethod")
+fun createZaakAfhandelParameters() {
+    logger.info {
+        "Creating zaakafhandelparameters in ZAC for zaaktype with UUID: $ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
+    }
 
-        khttp.put(
-            url = "$zacApiUri/zaakafhandelParameters",
-            headers = mapOf(
-                "Content-Type" to "application/json",
-                "Authorization" to "Bearer $accessToken"
-            ),
-            data = "{\n" +
+    khttp.put(
+        url = "$ZAC_API_URI/zaakafhandelParameters",
+        headers = mapOf(
+            "Content-Type" to "application/json",
+            "Authorization" to "Bearer ${ProjectConfig.keycloakClient.requestAccessToken()}"
+        ),
+        data = "{\n" +
                 "  \"humanTaskParameters\": [\n" +
                 "    {\n" +
                 "      \"planItemDefinition\": {\n" +
@@ -206,10 +204,9 @@ class ZacClient(
                 "    \"vervaldatumBesluitVerplicht\": false\n" +
                 "  }\n" +
                 "}\n"
-        ).apply {
-            logger.info { "PUT zaakafhandelParameters response: $text" }
-            // check contents
-            statusCode shouldBe HttpStatus.SC_OK
-        }
+    ).apply {
+        logger.info { "PUT zaakafhandelParameters response: $text" }
+        // check contents
+        statusCode shouldBe HttpStatus.SC_OK
     }
 }
