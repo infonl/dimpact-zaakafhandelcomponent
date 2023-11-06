@@ -56,11 +56,11 @@ You either run these locally (using [Docker Compose](INSTALL-DOCKER-COMPOSE.md))
 
 #### Environment variables
 
-ZAC requires a number of environment variables to be set.
+ZAC requires a number of environment variables to be set. These are documented in the [.env.example](../../.env.example) file.
 
 These can be set in various ways. The options are:
 -   1Password: Use the [1Password CLI extensions](https://developer.1password.com/docs/cli/).
--   Env file: Create an `.env` file based on the [.env.example](../.env.example) example and use the https://github.com/Ashald/EnvFile IntelliJ plugin to read all required environment variables from your local `.env` file.
+-   Env file: Create an `.env` file based on the [.env.example](../../.env.example) example and use the https://github.com/Ashald/EnvFile IntelliJ plugin to read all required environment variables from your local `.env` file.
 -   Or alternatively, when running ZAC in IntelliJ, in `Startup/Connection` add all required ZAC environment variables to the `Debug` configuration.
 
 We prefer to use the 1Password CLI extensions as it is the most secure and enables you to
@@ -78,7 +78,7 @@ When opening the ZAC project in IntelliJ make sure to select 'Open as Gradle pro
 
 First you will need to set up IntelliJ for ZAC:
 1. Install and use JDK 17 (we use the `Temurin` distribution).
-2. Follow the [local WildFly instructions](../scripts/wildfly/README.md) and install `Galleon` and `WildFly`.
+2. Follow the [local WildFly instructions](../../scripts/wildfly/README.md) and install `Galleon` and `WildFly`.
 3. Enable the built-in IntelliJ WildFly extension if not already enabled (note that this requires the IntelliJ Enterprise Edition).
 4. Create a run configuration using the WildFly extension for ZAC using the `JBoss/Wildfly Server - local` template.
    Select `Application server` - `Configure` and point it to your local Wildfly installation which you set up in the previous step.
