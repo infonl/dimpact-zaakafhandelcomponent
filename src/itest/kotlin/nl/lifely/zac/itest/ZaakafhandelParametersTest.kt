@@ -9,7 +9,7 @@ import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.HttpStatus
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.provided.ProjectConfig
+import nl.lifely.zac.itest.client.KeycloakClient
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -23,7 +23,7 @@ class ZaakafhandelParametersTest : BehaviorSpec({
             then("the response should be ok and it should return the zaakafhandelparameters") {
                 khttp.get(
                     url = "${ZAC_API_URI}/zaakafhandelParameters/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID",
-                    headers = mapOf("Authorization" to "Bearer ${ProjectConfig.keycloakClient.requestAccessToken()}")
+                    headers = mapOf("Authorization" to "Bearer ${KeycloakClient.requestAccessToken()}")
                 ).apply {
                     logger.info { "Zaakafhandelparameters response: $text" }
                     val zaakafhandelparameters = JSONObject(text)

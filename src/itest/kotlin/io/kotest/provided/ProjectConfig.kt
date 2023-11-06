@@ -32,8 +32,6 @@ object ProjectConfig : AbstractProjectConfig() {
 
     private lateinit var dockerComposeContainer: ComposeContainer
 
-    lateinit var keycloakClient: KeycloakClient
-
     @Suppress("UNCHECKED_CAST")
     override suspend fun beforeProject() {
         try {
@@ -87,8 +85,7 @@ object ProjectConfig : AbstractProjectConfig() {
                         it.statusCode == HttpStatus.SC_OK && it.jsonObject.getString("status") == "UP"
                     }
                 }
-            keycloakClient = KeycloakClient()
-            keycloakClient.authenticate()
+            KeycloakClient.authenticate()
             createZaakAfhandelParameters()
         } catch (exception: ContainerLaunchException) {
             logger.error(exception) { "Failed to start Docker containers" }

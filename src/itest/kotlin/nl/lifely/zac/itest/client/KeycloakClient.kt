@@ -11,7 +11,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_CLIENT_SECRET
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_HOSTNAME_URL
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_REALM
 
-class KeycloakClient {
+object KeycloakClient {
     private lateinit var refreshToken: String
 
     fun authenticate() =
@@ -47,10 +47,10 @@ class KeycloakClient {
             )
         ).apply {
             // a new refresh token is optional, so only update it if it is present
-            if (jsonObject.has("refresh_token"))
+            if (jsonObject.has("refresh_token")) {
                 refreshToken = jsonObject.getString("refresh_token")
+            }
             return jsonObject.getString("access_token")
         }
     }
 }
-

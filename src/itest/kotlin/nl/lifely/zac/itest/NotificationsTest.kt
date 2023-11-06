@@ -9,7 +9,7 @@ import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.HttpStatus
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.provided.ProjectConfig
+import nl.lifely.zac.itest.client.KeycloakClient
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTS_API_HOSTNAME_URL
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANVRAAG_DENHAAG
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_UUID
@@ -79,7 +79,7 @@ class NotificationsTest : BehaviorSpec({
                         url = "${ZAC_API_URI}/zaken/zaak/id/$ZAAK_1_IDENTIFICATION",
                         headers = mapOf(
                             "Content-Type" to "application/json",
-                            "Authorization" to "Bearer ${ProjectConfig.keycloakClient.requestAccessToken()}"
+                            "Authorization" to "Bearer ${KeycloakClient.requestAccessToken()}"
                         ),
                     ).apply {
                         logger.info { "Response: $text" }
@@ -87,13 +87,15 @@ class NotificationsTest : BehaviorSpec({
                         statusCode shouldBe HttpStatus.SC_OK
                         val zaak = JSONObject(text)
                         zaak.getString("identificatie") shouldBe ZAAK_1_IDENTIFICATION
-                        zaak.getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
+                        zaak.getJSONObject("zaaktype")
+                            .getString("uuid") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
                         zaak.getJSONObject("status").getString("naam") shouldBe "Intake"
                         zaak.getJSONObject("groep").getString("id") shouldBe "test-group-a"
                         // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
                         // since we have defined zaakafhandelparameters for this zaaktype a CMMN proces should be started
                         zaak.getBoolean("isProcesGestuurd") shouldBe false
-                        zaak.getJSONObject("communicatiekanaal").getString("naam") shouldBe "E-formulier"
+                        zaak.getJSONObject("communicatiekanaal")
+                            .getString("naam") shouldBe "E-formulier"
                     }
                 }
             }
