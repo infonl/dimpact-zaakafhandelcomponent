@@ -30,12 +30,12 @@ class KeycloakClient {
         }
 
     /**
-     * Always request a new access token using the refresh token to make sure we remain
+     * Always request a new access token using the current refresh token to make sure we remain
      * authenticated and our access token does not expire.
      * Note that this assumes that subsequent calls to this method are done quickly enough so that the
      * refresh token does not expire in the meantime.
      */
-    fun requestAccessToken(): String =
+    fun requestAccessToken(): String {
         khttp.post(
             url = "$KEYCLOAK_HOSTNAME_URL/realms/$KEYCLOAK_REALM/protocol/openid-connect/token",
             headers = GenericRequest.DEFAULT_FORM_HEADERS,
@@ -45,6 +45,12 @@ class KeycloakClient {
                 "refresh_token" to refreshToken,
                 "client_secret" to KEYCLOAK_CLIENT_SECRET
             )
-        ).jsonObject.getString("access_token")
+        ).apply {
+            // a new refresh token is optional, so only update it if it is present
+            if (jsonObject.has("refresh_token"))
+                refreshToken = jsonObject.getString("refresh_token")
+            return jsonObject.getString("access_token")
+        }
+    }
 }
 
