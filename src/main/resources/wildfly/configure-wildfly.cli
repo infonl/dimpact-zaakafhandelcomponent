@@ -26,6 +26,7 @@ data-source add \
 /subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=max-post-size,value=1000000000)
 
 # To set the log level to DEBUG (default is INFO) uncomment the following lines.
-# Note that this will result in _a lot_ of logging so only use this for debugging purposes.
+# Note that this will result in _a lot_ of logging including security sensitive data
+# so use with care and only enable this for debugging purposes.
 #/subsystem=logging/root-logger=ROOT:write-attribute(name=level,value=DEBUG)
 #/subsystem=logging/console-handler=CONSOLE:write-attribute(name=level,value=DEBUG)
