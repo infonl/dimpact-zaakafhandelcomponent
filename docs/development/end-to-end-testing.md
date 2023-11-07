@@ -14,7 +14,7 @@ To run the tests you can use the following command in the src/main/e2e folder:
 
 ## Writing tests
 
-We have predefined steps that you can use to write tests. You can find them in the [src/main/e2e/step-definitions](src/main/e2e/step-definitions) folder. each file in this folder represents a specific domain, like "zaak" is meant for non reusables steps that are specific to the "zaak" domain. steps in common are meant to be reusable across domains.
+We have predefined steps that you can use to write tests. You can find them in the [src/main/e2e/step-definitions](../../src/e2e/step-definitions) folder. each file in this folder represents a specific domain, like "zaak" is meant for non reusables steps that are specific to the "zaak" domain. steps in common are meant to be reusable across domains.
 ![Alt text](./attachments/images/cucumber-example.png)
 
 In a .feature file you should be able to write out tests based on the predefined steps with auto complete.
