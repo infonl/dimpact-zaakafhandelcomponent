@@ -54,12 +54,13 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("org.apache.commons:commons-collections4:4.4")
+    implementation("commons-io:commons-io:2.15.0")
     implementation("com.opencsv:opencsv:5.8")
-    implementation("org.flowable:flowable-engine:6.8.0")
-    implementation("org.flowable:flowable-cdi:6.8.0")
-    implementation("org.flowable:flowable-cmmn-engine:6.8.0")
-    implementation("org.flowable:flowable-cmmn-cdi:6.8.0")
-    implementation("org.flowable:flowable-cmmn-engine-configurator:6.8.0")
+    implementation("org.flowable:flowable-engine:7.0.0")
+    implementation("org.flowable:flowable-cdi:7.0.0")
+    implementation("org.flowable:flowable-cmmn-engine:7.0.0")
+    implementation("org.flowable:flowable-cmmn-cdi:7.0.0")
+    implementation("org.flowable:flowable-cmmn-engine-configurator:7.0.0")
     implementation("org.slf4j:slf4j-jdk14:2.0.3")
     implementation("com.auth0:java-jwt:4.4.0")
     implementation("javax.cache:cache-api:1.1.1")
@@ -67,7 +68,8 @@ dependencies {
     implementation("com.mailjet:mailjet-client:5.2.4")
     implementation("org.flywaydb:flyway-core:9.22.3")
     implementation("org.apache.solr:solr-solrj:9.4.0")
-    implementation("net.sf.webdav-servlet:webdav-servlet:2.0")
+    // TODO: for now this only works with a local Maven repo
+    implementation("net.sf.webdav-servlet:webdav-servlet:2.1.1")
     implementation("com.itextpdf:itextpdf:5.5.13")
     implementation("com.itextpdf.tool:xmlworker:5.5.13.3")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.6.1")
@@ -84,19 +86,22 @@ dependencies {
     // simply marking them as 'compileOnly' or 'implementation' does not work
     warLib("org.apache.httpcomponents:httpclient:4.5.13")
     warLib("org.reactivestreams:reactive-streams:1.0.4")
+    // WildFly does already include the Jakarta Mail API lib so not sure why, but we need to
+    // include it in the WAR or else ZAC will fail to be deployed
+    warLib("jakarta.mail:jakarta.mail-api:2.1.2")
 
     // dependencies provided by Wildfly
     providedCompile("jakarta.platform:jakarta.jakartaee-api:10.0.0")
     providedCompile("org.eclipse.microprofile.rest.client:microprofile-rest-client-api:3.0.1")
-    providedCompile("org.eclipse.microprofile.config:microprofile-config-api:3.1")
+    providedCompile("org.eclipse.microprofile.config:microprofile-config-api:3.0.2")
     providedCompile("org.eclipse.microprofile.health:microprofile-health-api:4.0.1")
     providedCompile("org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api:4.0.2")
-    providedCompile("org.jboss.resteasy:resteasy-multipart-provider:6.2.5.Final")
+    providedCompile("org.jboss.resteasy:resteasy-multipart-provider:6.2.6.Final")
     providedCompile("org.wildfly.security:wildfly-elytron-http-oidc:2.2.2.Final")
 
     // yasson is required for using a JSONB context in our unit tests
     // where we do not have the WildFly runtime environment available
-    testImplementation("org.eclipse:yasson:1.0.11")
+    testImplementation("org.eclipse:yasson:3.0.3")
     testImplementation("io.kotest:kotest-runner-junit5:5.7.1")
     testImplementation("io.mockk:mockk:1.13.8")
 
@@ -410,7 +415,7 @@ tasks {
         dependsOn("generateWildflyBootableJar")
 
         from("target/zaakafhandelcomponent.jar")
-        into("$buildDir/docker")
+        into("${layout.buildDirectory}/docker")
     }
 
     register<DockerBuildImage>("buildDockerImage") {
