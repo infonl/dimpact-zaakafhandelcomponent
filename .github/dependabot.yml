@@ -9,7 +9,7 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-      time: "08:00"
+      time: "04:00"
       timezone: "Europe/Amsterdam"
     reviewers:
       - "infonl/dimpact"
@@ -19,7 +19,7 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-      time: "08:00"
+      time: "04:00"
       timezone: "Europe/Amsterdam"
     reviewers:
       - "infonl/dimpact"
@@ -39,7 +39,7 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-      time: "08:00"
+      time: "04:00"
       timezone: "Europe/Amsterdam"
     reviewers:
     - "infonl/dimpact"

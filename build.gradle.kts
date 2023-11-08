@@ -58,7 +58,7 @@ sourceSets {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation("org.apache.commons:commons-lang3:3.12.0")
+    implementation("org.apache.commons:commons-lang3:3.13.0")
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("org.apache.commons:commons-collections4:4.4")
     implementation("com.opencsv:opencsv:5.8")
@@ -71,7 +71,7 @@ dependencies {
     implementation("com.auth0:java-jwt:4.4.0")
     implementation("javax.cache:cache-api:1.1.1")
     implementation("com.google.guava:guava:32.1.3-jre")
-    implementation("com.mailjet:mailjet-client:5.2.4")
+    implementation("com.mailjet:mailjet-client:5.2.5")
     implementation("org.flywaydb:flyway-core:9.22.3")
     implementation("org.apache.solr:solr-solrj:9.4.0")
     implementation("net.sf.webdav-servlet:webdav-servlet:2.0")

@@ -9,11 +9,15 @@ import static java.lang.String.format;
 import static net.atos.zac.configuratie.ConfiguratieService.BRON_ORGANISATIE;
 
 import java.time.LocalDate;
+import java.util.Optional;
+import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.ws.rs.core.UriBuilder;
+
+import net.atos.zac.app.inboxdocumenten.InboxDocumentenRESTService;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -35,8 +39,8 @@ import net.atos.zac.documentcreatie.model.WizardRequest;
 
 @ApplicationScoped
 public class DocumentCreatieService {
-
     private static final String AUDIT_TOELICHTING = "Door SmartDocuments";
+    private static final Logger LOG = Logger.getLogger(DocumentCreatieService.class.getName());
 
     @Inject
     @RestClient
@@ -51,6 +55,10 @@ public class DocumentCreatieService {
     private String authenticationToken;
 
     @Inject
+    @ConfigProperty(name = "SD_FIXED_USER_NAME")
+    private Optional<String> fixedUserName;
+
+    @Inject
     private DataConverter dataConverter;
 
     @Inject
@@ -63,7 +71,7 @@ public class DocumentCreatieService {
     private ZRCClientService zrcClientService;
 
     /**
-     * Creeer een document met de wizard van SmartDocuments.
+     * Create a document using the SmartDocuments wizard.
      *
      * @param documentCreatieGegevens Gegevens op basis van welke het document wordt gecreeerd.
      * @return De redirect URL naar de SmartDocuments Wizard
@@ -73,9 +81,14 @@ public class DocumentCreatieService {
         final Registratie registratie = createRegistratie(documentCreatieGegevens);
         final Data data = dataConverter.createData(documentCreatieGegevens, loggedInUser);
         final WizardRequest wizardRequest = new WizardRequest(createSmartDocument(documentCreatieGegevens), registratie, data);
+        final String userName = fixedUserName.orElse(loggedInUser.getId());
         try {
-            final WizardResponse wizardResponse = smartDocumentsClient.wizardDeposit(format("Basic %s", authenticationToken), loggedInUser.getId(),
-                                                                                     wizardRequest);
+            LOG.fine(String.format("Starting Smart Documents wizard for user: '%s'", userName));
+            final WizardResponse wizardResponse = smartDocumentsClient.wizardDeposit(
+                    format("Basic %s", authenticationToken),
+                    userName,
+                    wizardRequest
+            );
             return new DocumentCreatieResponse(
                     UriBuilder.fromUri(smartDocumentsURL).path("smartdocuments/wizard").queryParam("ticket", wizardResponse.ticket).build());
         } catch (final BadRequestException badRequestException) {
