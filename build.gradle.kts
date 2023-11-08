@@ -364,15 +364,8 @@ tasks {
         outputs.dir("src/main/app/reports")
     }
 
-    register<Copy>("copyJarToDockerBuildDir") {
-        dependsOn("generateWildflyBootableJar")
-
-        from("target/zaakafhandelcomponent.jar")
-        into("${layout.buildDirectory}/docker")
-    }
-
     register<DockerBuildImage>("buildDockerImage") {
-        dependsOn("copyJarToDockerBuildDir")
+        dependsOn("generateWildflyBootableJar")
 
         inputDir.set(file("."))
         dockerFile.set(file("Containerfile"))
