@@ -27,6 +27,16 @@ plugins {
 repositories {
     mavenLocal()
     mavenCentral()
+    maven {
+        url = uri("https://maven.pkg.github.com/infonl/webdav-servlet")
+        credentials {
+            // for local development please create a personal access token (or use an existing one)
+            // with the 'read:packages' scope and set the 'gpr.user' and 'gpr.key' properties in
+            // your ~/.gradle/gradle.properties file (create the file if it does not exist yet)
+            username = project.findProperty("gpr.user") as String? ?: System.getenv("READ_PACKAGES_USERNAME")
+            password = project.findProperty("gpr.key") as String? ?: System.getenv("READ_PACKAGES_TOKEN")
+        }
+    }
 }
 
 group = "net.atos.common-ground"
@@ -95,6 +105,8 @@ dependencies {
     // WildFly does already include the Jakarta Mail API lib so not sure why, but we need to
     // include it in the WAR or else ZAC will fail to be deployed
     warLib("jakarta.mail:jakarta.mail-api:2.1.2")
+    // TODO
+    warLib("org.jboss.resteasy:resteasy-json-binding-provider:6.2.6.Final")
 
     // dependencies provided by Wildfly
     providedCompile("jakarta.platform:jakarta.jakartaee-api:10.0.0")
