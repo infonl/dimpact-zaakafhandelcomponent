@@ -84,8 +84,7 @@ dependencies {
     implementation("com.mailjet:mailjet-client:5.2.5")
     implementation("org.flywaydb:flyway-core:9.22.3")
     implementation("org.apache.solr:solr-solrj:9.4.0")
-    // TODO: for now this only works with a local Maven repo
-    implementation("net.sf.webdav-servlet:webdav-servlet:2.1.1")
+    implementation("net.sf.webdav-servlet:webdav-servlet:2.1.2")
     implementation("com.itextpdf:itextpdf:5.5.13")
     implementation("com.itextpdf.tool:xmlworker:5.5.13.3")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
@@ -105,8 +104,6 @@ dependencies {
     // WildFly does already include the Jakarta Mail API lib so not sure why, but we need to
     // include it in the WAR or else ZAC will fail to be deployed
     warLib("jakarta.mail:jakarta.mail-api:2.1.2")
-    // TODO
-    warLib("org.jboss.resteasy:resteasy-json-binding-provider:6.2.6.Final")
 
     // dependencies provided by Wildfly
     providedCompile("jakarta.platform:jakarta.jakartaee-api:10.0.0")
