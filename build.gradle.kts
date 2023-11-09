@@ -10,7 +10,7 @@ import java.util.Locale
 
 plugins {
     java
-    kotlin("jvm") version "1.9.10"
+    kotlin("jvm") version "1.9.20"
     war
     jacoco
 
@@ -32,8 +32,14 @@ repositories {
 group = "net.atos.common-ground"
 description = "Zaakafhandelcomponent"
 
+// we will only upgrade Java when WildFly explicitly supports a new version
+val javaVersion = JavaVersion.VERSION_17
+
 val zacDockerImage by extra {
-    if (project.hasProperty("zacDockerImage")) project.property("zacDockerImage").toString() else "ghcr.io/infonl/zaakafhandelcomponent:dev"
+    if (project.hasProperty("zacDockerImage"))
+        project.property("zacDockerImage").toString()
+    else
+        "ghcr.io/infonl/zaakafhandelcomponent:dev"
 }
 
 // create custom configuration for extra dependencies that are required in the generated WAR
@@ -72,15 +78,15 @@ dependencies {
     implementation("net.sf.webdav-servlet:webdav-servlet:2.1.1")
     implementation("com.itextpdf:itextpdf:5.5.13")
     implementation("com.itextpdf.tool:xmlworker:5.5.13.3")
-    implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.6.1")
+    implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
 
     swaggerUI("org.webjars:swagger-ui:3.52.5")
 
     // enable detekt formatting rules. see: https://detekt.dev/docs/rules/formatting/
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.1")
 
-    runtimeOnly("org.infinispan:infinispan-jcache:13.0.10.Final")
-    runtimeOnly("org.infinispan:infinispan-cdi-embedded:13.0.10.Final")
+    runtimeOnly("org.infinispan:infinispan-jcache:14.0.20.Final")
+    runtimeOnly("org.infinispan:infinispan-cdi-embedded:14.0.20.Final")
 
     // declare dependencies that are required in the generated WAR; see war section below
     // simply marking them as 'compileOnly' or 'implementation' does not work
@@ -112,6 +118,7 @@ dependencies {
     "itestImplementation"("org.slf4j:slf4j-simple:2.0.9")
     "itestImplementation"("io.github.oshai:kotlin-logging-jvm:5.1.0")
     "itestImplementation"("org.danilopianini:khttp:1.4.0")
+    "itestImplementation"("org.awaitility:awaitility-kotlin:4.2.0")
 }
 
 detekt {
@@ -126,11 +133,11 @@ jacoco {
 }
 
 java {
-    java.sourceCompatibility = JavaVersion.VERSION_17
-    java.targetCompatibility = JavaVersion.VERSION_17
+    java.sourceCompatibility = javaVersion
+    java.targetCompatibility = javaVersion
 
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(javaVersion.majorVersion)
     }
 
     // add our generated client code to the main source set
@@ -204,7 +211,6 @@ tasks {
         delete("$rootDir/src/main/app/dist")
         delete("$rootDir/src/main/app/reports")
         delete("$rootDir/src/generated")
-        // what about /src/main/app/.angular and /src/main/app/node_modules?
     }
 
     build {
@@ -265,8 +271,7 @@ tasks {
                 "dateLibrary" to "java8",
                 "disallowAdditionalPropertiesIfNotPresent" to "false",
                 "openApiNullable" to "false",
-                "useJakartaEe" to "true",
-                "useSpringBoot3" to "true"
+                "useJakartaEe" to "true"
             )
         )
     }
@@ -274,7 +279,6 @@ tasks {
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKvkZoekenClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/zoeken-openapi.yaml")
         modelPackage.set("net.atos.client.kvk.zoeken.model")
-
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKvkBasisProfielClient") {
@@ -378,7 +382,7 @@ tasks {
             "generateVrlClient",
             "generateBagClient",
             "generateKlantenClient",
-            "generateContactMomentenClient",
+            "generateContactMomentenClient"
         )
     }
 
