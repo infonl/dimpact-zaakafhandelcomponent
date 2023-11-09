@@ -7,8 +7,9 @@ package net.atos.client.opa.model;
 
 import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
+import net.atos.zac.util.DummyInterface;
 
-public class RuleResponse<T> {
+public class RuleResponse<T extends DummyInterface> {
 
     private final T result;
 

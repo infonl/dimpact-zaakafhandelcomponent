@@ -7,8 +7,9 @@ package net.atos.zac.policy.output;
 
 import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
+import net.atos.zac.util.DummyInterface;
 
-public class ZaakRechten {
+public class ZaakRechten implements DummyInterface {
 
     private final boolean lezen;
 
