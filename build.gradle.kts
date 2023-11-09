@@ -303,23 +303,13 @@ tasks {
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateBrpClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/brp/openapi.yaml")
         modelPackage.set("net.atos.client.brp.model")
-        configOptions.set(
-            mapOf(
-                "library" to "microprofile",
-                "microprofileRestClientVersion" to "3.0",
-                "sourceFolder" to "",
-                "dateLibrary" to "java8",
-                "disallowAdditionalPropertiesIfNotPresent" to "false",
-                "openApiNullable" to "false",
-                "useJakartaEe" to "true",
-                "useSpringBoot3" to "true"
-            )
-        )
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateVrlClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/vrl/openapi.yaml")
         modelPackage.set("net.atos.client.vrl.model")
+        // TODO: solve this issue; we do not want to override the configOptions here and
+        // we do not want to use jackson
         configOptions.set(
             mapOf(
                 "library" to "microprofile",
@@ -329,7 +319,6 @@ tasks {
                 "disallowAdditionalPropertiesIfNotPresent" to "false",
                 "openApiNullable" to "false",
                 "useJakartaEe" to "true",
-                "useSpringBoot3" to "true",
                 "serializationLibrary" to "jackson"
             )
         )
@@ -347,11 +336,7 @@ tasks {
                 "dateLibrary" to "java8-localdatetime",
                 "disallowAdditionalPropertiesIfNotPresent" to "false",
                 "openApiNullable" to "false",
-                "useSpringBoot3" to "true",
-                "useJakartaEe" to "true",
-
-
-
+                "useJakartaEe" to "true"
             )
         )
     }
@@ -367,6 +352,8 @@ tasks {
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateContactMomentenClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/contactmomenten/openapi.yaml")
         modelPackage.set("net.atos.client.contactmomenten.model")
+        // TODO: solve this issue; we do not want to override the configOptions here and
+        // we do not want to use jackson
         configOptions.set(
             mapOf(
                 "library" to "microprofile",
@@ -376,7 +363,6 @@ tasks {
                 "disallowAdditionalPropertiesIfNotPresent" to "false",
                 "openApiNullable" to "false",
                 "useJakartaEe" to "true",
-                "useSpringBoot3" to "true",
                 "serializationLibrary" to "jackson"
             )
         )
