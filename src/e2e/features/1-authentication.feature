@@ -2,7 +2,7 @@ Feature: Login
 
   Scenario: Bob wants to login to ZAC
     Given "Bob" navigates to "zac" with path "/"
-    When "Bob" logs in with username "testuser1" and password "testuser1"
+    When "Bob" logs in with username "testuser1" and password "TER5yM!cte5V"
     Then "Bob" sees the text: "Dashboard"
 
   Scenario: Bob wants to log out of the application after being logged in
@@ -14,5 +14,5 @@ Feature: Login
   Scenario: Bob logs back in
     Given "Bob" navigates to "zac" with path "/"
     Then "Bob" sees the text: "Sign in to your account"
-    When "Bob" logs in with username "testuser1" and password "testuser1"
+    When "Bob" logs in with username "testuser1" and password "TER5yM!cte5V"
     Then "Bob" sees the text: "Dashboard"
