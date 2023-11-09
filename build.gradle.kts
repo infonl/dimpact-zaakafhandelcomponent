@@ -27,6 +27,16 @@ plugins {
 repositories {
     mavenLocal()
     mavenCentral()
+    maven {
+        url = uri("https://maven.pkg.github.com/infonl/webdav-servlet")
+        credentials {
+            // for local development please create a personal access token (or use an existing one)
+            // with the 'read:packages' scope and set the 'gpr.user' and 'gpr.key' properties in
+            // your ~/.gradle/gradle.properties file (create the file if it does not exist yet)
+            username = project.findProperty("gpr.user") as String? ?: System.getenv("READ_PACKAGES_USERNAME")
+            password = project.findProperty("gpr.key") as String? ?: System.getenv("READ_PACKAGES_TOKEN")
+        }
+    }
 }
 
 group = "net.atos.common-ground"
@@ -74,8 +84,7 @@ dependencies {
     implementation("com.mailjet:mailjet-client:5.2.4")
     implementation("org.flywaydb:flyway-core:9.22.3")
     implementation("org.apache.solr:solr-solrj:9.4.0")
-    // TODO: for now this only works with a local Maven repo
-    implementation("net.sf.webdav-servlet:webdav-servlet:2.1.1")
+    implementation("net.sf.webdav-servlet:webdav-servlet:2.1.2")
     implementation("com.itextpdf:itextpdf:5.5.13")
     implementation("com.itextpdf.tool:xmlworker:5.5.13.3")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
