@@ -14,14 +14,20 @@ import java.util.UUID;
 import jakarta.json.bind.annotation.JsonbDateFormat;
 import jakarta.json.bind.annotation.JsonbTypeDeserializer;
 
+import jakarta.json.bind.annotation.JsonbTypeInfo;
 import net.atos.client.zgw.zrc.util.RolJsonbDeserializer;
 import net.atos.client.zgw.ztc.model.Roltype;
 
 /**
- *
+ * This class is no longer an abstract class like it used to be because in WildFly 30,
+ * with JSONB 2, and Yasson 3 we ran into the following issue when deserializing a concrete Rol instance:
+ * "RESTEASY008200: JSON Binding deserialization error: jakarta.json.bind.JsonbException: Can't create instance
+ * [...]
+ * at org.eclipse.yasson//org.eclipse.yasson.internal.ReflectionUtils.createNoArgConstructorInstance(ReflectionUtils.java:274)"
+ * Hopefully this can be improved in the future.
  */
 @JsonbTypeDeserializer(RolJsonbDeserializer.class)
-public abstract class Rol<BETROKKENE_IDENTIFICATIE> {
+public class Rol<BETROKKENE_IDENTIFICATIE> {
 
     public static final String BETROKKENE_TYPE_NAAM = "betrokkeneType";
 
@@ -188,9 +194,15 @@ public abstract class Rol<BETROKKENE_IDENTIFICATIE> {
                 getRoltype().equals(other.getRoltype());
     }
 
-    protected abstract boolean equalBetrokkeneIdentificatie(final BETROKKENE_IDENTIFICATIE identificatie);
+    protected boolean equalBetrokkeneIdentificatie(final BETROKKENE_IDENTIFICATIE identificatie) {
+        throw new UnsupportedOperationException("Operation not supported");
+    }
 
-    public abstract String getNaam();
+    public String getNaam() {
+        throw new UnsupportedOperationException("Operation not supported");
+    }
 
-    public abstract String getIdentificatienummer();
+    public String getIdentificatienummer() {
+        throw new UnsupportedOperationException("Operation not supported");
+    }
 }
