@@ -105,13 +105,13 @@ dependencies {
     // include it in the WAR or else ZAC will fail to be deployed
     warLib("jakarta.mail:jakarta.mail-api:2.1.2")
 
-    // dependencies provided by Wildfly
+    // dependencies provided by Wildfly 30
     providedCompile("jakarta.platform:jakarta.jakartaee-api:10.0.0")
     providedCompile("org.eclipse.microprofile.rest.client:microprofile-rest-client-api:3.0.1")
     providedCompile("org.eclipse.microprofile.config:microprofile-config-api:3.0.2")
     providedCompile("org.eclipse.microprofile.health:microprofile-health-api:4.0.1")
     providedCompile("org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api:4.0.2")
-    providedCompile("org.jboss.resteasy:resteasy-multipart-provider:6.2.6.Final")
+    providedCompile("org.jboss.resteasy:resteasy-multipart-provider:6.2.5.Final")
     providedCompile("org.wildfly.security:wildfly-elytron-http-oidc:2.2.2.Final")
 
     // yasson is required for using a JSONB context in our unit tests
