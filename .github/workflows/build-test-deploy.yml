@@ -94,6 +94,9 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      READ_PACKAGES_USERNAME: $${{ vars.READ_PACKAGES_USERNAME }}
+      READ_PACKAGES_TOKEN: ${{ secrets.READ_PACKAGES_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
