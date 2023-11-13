@@ -22,7 +22,7 @@ import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon;
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid;
 import net.atos.client.zgw.zrc.model.RolVestiging;
 
-public class RolJsonbDeserializer implements JsonbDeserializer<Rol> {
+public class RolJsonbDeserializer implements JsonbDeserializer<Rol<?>> {
 
     @Override
     public Rol deserialize(final JsonParser parser, final DeserializationContext ctx, final Type rtType) {
