@@ -13,8 +13,6 @@ import java.util.UUID;
 
 import jakarta.json.bind.annotation.JsonbDateFormat;
 import jakarta.json.bind.annotation.JsonbTypeDeserializer;
-
-import jakarta.json.bind.annotation.JsonbTypeInfo;
 import net.atos.client.zgw.zrc.util.RolJsonbDeserializer;
 import net.atos.client.zgw.ztc.model.Roltype;
 
@@ -27,7 +25,7 @@ import net.atos.client.zgw.ztc.model.Roltype;
  * Hopefully this can be improved in the future.
  */
 @JsonbTypeDeserializer(RolJsonbDeserializer.class)
-public class Rol<BETROKKENE_IDENTIFICATIE> {
+public abstract class Rol<T> {
 
     public static final String BETROKKENE_TYPE_NAAM = "betrokkeneType";
 
@@ -57,7 +55,7 @@ public class Rol<BETROKKENE_IDENTIFICATIE> {
      * De generieke betrokkene
      * - Required
      */
-    private BETROKKENE_IDENTIFICATIE betrokkeneIdentificatie;
+    private T betrokkeneIdentificatie;
 
     /**
      * Betrokkene type
@@ -110,7 +108,7 @@ public class Rol<BETROKKENE_IDENTIFICATIE> {
     /**
      * Constructor with required attributes for POST and PUT requests
      */
-    public Rol(final URI zaak, final Roltype roltype, final BetrokkeneType betrokkeneType, final BETROKKENE_IDENTIFICATIE betrokkeneIdentificatie,
+    public Rol(final URI zaak, final Roltype roltype, final BetrokkeneType betrokkeneType, final T betrokkeneIdentificatie,
             final String roltoelichting) {
         this.zaak = zaak;
         this.betrokkeneIdentificatie = betrokkeneIdentificatie;
@@ -173,7 +171,7 @@ public class Rol<BETROKKENE_IDENTIFICATIE> {
         this.indicatieMachtiging = indicatieMachtiging;
     }
 
-    public BETROKKENE_IDENTIFICATIE getBetrokkeneIdentificatie() {
+    public T getBetrokkeneIdentificatie() {
         return betrokkeneIdentificatie;
     }
 
@@ -185,7 +183,7 @@ public class Rol<BETROKKENE_IDENTIFICATIE> {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Rol<BETROKKENE_IDENTIFICATIE> rol = (Rol<BETROKKENE_IDENTIFICATIE>) o;
+        Rol<T> rol = (Rol<T>) o;
         return equalBetrokkeneRol(rol) && equalBetrokkeneIdentificatie(rol.getBetrokkeneIdentificatie());
     }
 
@@ -194,15 +192,9 @@ public class Rol<BETROKKENE_IDENTIFICATIE> {
                 getRoltype().equals(other.getRoltype());
     }
 
-    protected boolean equalBetrokkeneIdentificatie(final BETROKKENE_IDENTIFICATIE identificatie) {
-        throw new UnsupportedOperationException("Operation not supported");
-    }
+    protected abstract boolean equalBetrokkeneIdentificatie(final T identificatie);
 
-    public String getNaam() {
-        throw new UnsupportedOperationException("Operation not supported");
-    }
+    public abstract String getNaam();
 
-    public String getIdentificatienummer() {
-        throw new UnsupportedOperationException("Operation not supported");
-    }
+    public abstract String getIdentificatienummer();
 }
