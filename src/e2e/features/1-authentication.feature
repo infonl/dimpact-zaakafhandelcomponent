@@ -26,5 +26,5 @@ Feature: Login
   Scenario: Bob logs back in
     Given "Bob" navigates to "zac" with path "/"
     Then "Bob" sees the text: "Sign in to your account"
-    When "Bob" logs in with username "testuser1" and password "testuser1"
+    When "Bob" logs in
     Then "Bob" sees the text: "Dashboard"
