@@ -19,7 +19,6 @@ export class CustomWorld extends World {
     worldParameters: z.infer<typeof worldParametersScheme>['parameters'];
 
     constructor(attach: any) {
-    console.error(attach)
         const res = worldParametersScheme.parse(attach)
         super({attach: res.attach, parameters: res.parameters, log: res.log });
         this.worldParameters = res.parameters;
