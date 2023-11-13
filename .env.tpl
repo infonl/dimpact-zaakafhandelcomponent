@@ -54,8 +54,8 @@ ZGW_API_URL_EXTERN=op://Dimpact/ZAC-.env-$APP_ENV/ZGW/API_URL_EXTERN
 # -----------------------------------------
 # e2e only environment variables
 # -----------------------------------------
-TEST_USER_1_USERNAME=op://Dimpact/testuser1/username
-TEST_USER_1_PASSWORD=op://Dimpact/testuser1/password
+E2E_TEST_USER_1_USERNAME=op://Dimpact/e2etesuser1/username
+E2E_TEST_USER_1_PASSWORD=op://Dimpact/e2etesuser1/password
 ZAC_URL=op://Dimpact/zaakafhandelcomponent-zac-dev/website
 
 
