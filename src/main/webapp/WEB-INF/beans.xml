@@ -8,10 +8,4 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/beans_4_0.xsd"
        bean-discovery-mode="all">
-<!-- TODO: fails on WildFly 30 -->
-<!--    <interceptors>-->
-<!--        <class>org.infinispan.jcache.annotation.InjectedCacheResultInterceptor</class>-->
-<!--        <class>org.infinispan.jcache.annotation.InjectedCacheRemoveEntryInterceptor</class>-->
-<!--        <class>org.infinispan.jcache.annotation.InjectedCacheRemoveAllInterceptor</class>-->
-<!--    </interceptors>-->
 </beans>
