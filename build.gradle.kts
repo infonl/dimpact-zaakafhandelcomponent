@@ -10,14 +10,14 @@ import java.util.Locale
 
 plugins {
     java
-    kotlin("jvm") version "1.9.10"
+    kotlin("jvm") version "1.9.20"
     war
     jacoco
 
     id("org.jsonschema2pojo") version "1.2.1"
     // note that openapi generator 7.0.0 has some breaking changes
     id("org.openapi.generator") version "6.6.0"
-    id("com.github.node-gradle.node") version "7.0.0"
+    id("com.github.node-gradle.node") version "7.0.1"
     id("org.barfuin.gradle.taskinfo") version "2.1.0"
     id("io.smallrye.openapi") version "3.5.1"
     id("org.hidetake.swagger.generator") version "2.19.2"
@@ -33,8 +33,14 @@ repositories {
 group = "net.atos.common-ground"
 description = "Zaakafhandelcomponent"
 
+// we will only upgrade Java when WildFly explicitly supports a new version
+val javaVersion = JavaVersion.VERSION_17
+
 val zacDockerImage by extra {
-    if (project.hasProperty("zacDockerImage")) project.property("zacDockerImage").toString() else "ghcr.io/infonl/zaakafhandelcomponent:dev"
+    if (project.hasProperty("zacDockerImage"))
+        project.property("zacDockerImage").toString()
+    else
+        "ghcr.io/infonl/zaakafhandelcomponent:dev"
 }
 
 // create custom configuration for extra dependencies that are required in the generated WAR
@@ -52,7 +58,7 @@ sourceSets {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation("org.apache.commons:commons-lang3:3.12.0")
+    implementation("org.apache.commons:commons-lang3:3.13.0")
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("org.apache.commons:commons-collections4:4.4")
     implementation("com.opencsv:opencsv:5.8")
@@ -65,13 +71,13 @@ dependencies {
     implementation("com.auth0:java-jwt:4.4.0")
     implementation("javax.cache:cache-api:1.1.1")
     implementation("com.google.guava:guava:32.1.3-jre")
-    implementation("com.mailjet:mailjet-client:5.2.4")
+    implementation("com.mailjet:mailjet-client:5.2.5")
     implementation("org.flywaydb:flyway-core:9.22.3")
     implementation("org.apache.solr:solr-solrj:9.4.0")
     implementation("net.sf.webdav-servlet:webdav-servlet:2.0")
     implementation("com.itextpdf:itextpdf:5.5.13")
     implementation("com.itextpdf.tool:xmlworker:5.5.13.3")
-    implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.6.1")
+    implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
 
     swaggerUI("org.webjars:swagger-ui:3.52.5")
 
@@ -108,6 +114,7 @@ dependencies {
     "itestImplementation"("org.slf4j:slf4j-simple:2.0.9")
     "itestImplementation"("io.github.oshai:kotlin-logging-jvm:5.1.0")
     "itestImplementation"("org.danilopianini:khttp:1.4.0")
+    "itestImplementation"("org.awaitility:awaitility-kotlin:4.2.0")
 }
 
 detekt {
@@ -122,11 +129,11 @@ jacoco {
 }
 
 java {
-    java.sourceCompatibility = JavaVersion.VERSION_17
-    java.targetCompatibility = JavaVersion.VERSION_17
+    java.sourceCompatibility = javaVersion
+    java.targetCompatibility = javaVersion
 
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(javaVersion.majorVersion)
     }
 
     // add our generated client code to the main source set
@@ -197,7 +204,6 @@ tasks {
         delete("$rootDir/src/main/app/dist")
         delete("$rootDir/src/main/app/reports")
         delete("$rootDir/src/generated")
-        // what about /src/main/app/.angular and /src/main/app/node_modules?
     }
 
     build {
@@ -358,15 +364,8 @@ tasks {
         outputs.dir("src/main/app/reports")
     }
 
-    register<Copy>("copyJarToDockerBuildDir") {
-        dependsOn("generateWildflyBootableJar")
-
-        from("target/zaakafhandelcomponent.jar")
-        into("$buildDir/docker")
-    }
-
     register<DockerBuildImage>("buildDockerImage") {
-        dependsOn("copyJarToDockerBuildDir")
+        dependsOn("generateWildflyBootableJar")
 
         inputDir.set(file("."))
         dockerFile.set(file("Containerfile"))

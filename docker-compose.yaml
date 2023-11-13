@@ -105,7 +105,9 @@ services:
     ports:
       - "8001:8000"
     volumes:
-      - ./scripts/docker-compose/imports/openzaak/uploads/2023/10:/app/private-media/uploads/2023/10
+      - ./scripts/docker-compose/imports/openzaak/zac-scripts:/zac-scripts
+      - ./scripts/docker-compose/imports/openzaak/uploads/dummy-test-document.pdf:/dummy-test-document.pdf
+    command: ["/zac-scripts/copy-test-pdf-and-start-openzaak.sh"]
     depends_on:
       openzaak-database:
         condition: service_healthy
@@ -396,6 +398,7 @@ services:
       - OPEN_NOTIFICATIONS_API_SECRET_KEY=openNotificatiesApiSecretKey
       - SD_AUTHENTICATION=${SD_AUTHENTICATION:-dummySmartDocumentsAuthentication}
       - SD_CLIENT_MP_REST_URL=${SD_CLIENT_MP_REST_URL:-dummySmartDocumentsClientUrl}
+      - SD_FIXED_USER_NAME=${SD_FIXED_USER_NAME:-}
       - SOLR_URL=http://solr:8983
       - VRL_API_CLIENT_MP_REST_URL=http://zgw-referentielijsten.local:8000/
       - ZGW_API_CLIENT_MP_REST_URL=http://openzaak.local:8000/
