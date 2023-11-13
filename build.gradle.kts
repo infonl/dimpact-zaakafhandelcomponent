@@ -19,7 +19,7 @@ plugins {
     id("org.openapi.generator") version "6.6.0"
     id("com.github.node-gradle.node") version "7.0.1"
     id("org.barfuin.gradle.taskinfo") version "2.1.0"
-    id("io.smallrye.openapi") version "3.5.1"
+    id("io.smallrye.openapi") version "3.7.0"
     id("org.hidetake.swagger.generator") version "2.19.2"
     id("io.gitlab.arturbosch.detekt") version "1.23.1"
     id("com.bmuschko.docker-remote-api") version "9.3.4"
