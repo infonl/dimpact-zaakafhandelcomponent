@@ -167,9 +167,6 @@ jsonSchema2Pojo {
     includeToString = false
     initializeCollections = false
     includeAdditionalProperties = false
-//    isIncludeGeneratedAnnotation = true
-//    useJakartaValidation = true
-//    targetVersion = "9"
 }
 
 node {
