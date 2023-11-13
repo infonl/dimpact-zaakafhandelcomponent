@@ -11,7 +11,7 @@ export const worldParametersScheme = z.object({
     log: z.function(),
     parameters: z.object({
         urls: z.object({
-            zac: z.string().url(),
+            zac: z.string(),
         }),
         users: z.object({
             [worldUsers.Values.Bob]: z.object({
