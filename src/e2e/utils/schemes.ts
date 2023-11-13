@@ -1,6 +1,9 @@
 import {z} from 'zod'
 import {ICreateAttachment} from '@cucumber/cucumber/lib/runtime/attachment_manager'
 
+export const worldPossibleZacUrls = z.enum(['zac'])
+export const worldUsers = z.enum(['Bob'])
+
 export const worldParametersScheme = z.object({
     attach: z.any().refine((val): val is ICreateAttachment => {
         return typeof val === 'function'
@@ -10,8 +13,13 @@ export const worldParametersScheme = z.object({
         urls: z.object({
             zac: z.string().url(),
         }),
+        users: z.object({
+            [worldUsers.Values.Bob]: z.object({
+                username: z.string(),
+                password: z.string(),
+            }),
+        }),
         headless: z.boolean(),
     })
 })
 
-export const worldPossibleZacUrls = z.enum(['zac'])

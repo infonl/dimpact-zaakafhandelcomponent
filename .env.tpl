@@ -51,6 +51,14 @@ ZGW_API_SECRET=op://Dimpact/ZAC-.env-$APP_ENV/ZGW/API_SECRET
 ZGW_API_URL_EXTERN=op://Dimpact/ZAC-.env-$APP_ENV/ZGW/API_URL_EXTERN
 
 # -----------------------------------------
+# e2e only environment variables
+# -----------------------------------------
+TEST_USER_1_USERNAME=op://Dimpact/testuser1/username
+TEST_USER_1_PASSWORD=op://Dimpact/testuser1/password
+ZAC_URL=op://Dimpact/zaakafhandelcomponent-zac-dev/website
+
+
+# -----------------------------------------
 # Docker Compose only environment variables
 # -----------------------------------------
 DOCKER_COMPOSE_LDAP_TEST_USER_1_EMAIL_ADDRESS=op://Dimpact/ZAC-.env-$APP_ENV/DOCKER_COMPOSE/LDAP_TEST_USER_1_EMAIL_ADDRESS

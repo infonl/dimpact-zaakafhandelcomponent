@@ -5,8 +5,13 @@
 
 import { When } from "@cucumber/cucumber";
 import { CustomWorld } from "../support/worlds/world";
+import { worldUsers } from "../utils/schemes";
 
-When("{string} logs in with username {string} and password {string}", async function (this: CustomWorld, user, username, password) {
+
+When("{string} logs in", async function (this: CustomWorld, user) {
+    const parsedUser = worldUsers.parse(user)
+    const {username, password} = this.worldParameters.users[parsedUser]
+
     await this.page.getByLabel("Username or email").click();
     await this.page.getByLabel("Username or email").fill(username);
     await this.page.getByLabel("Password").click();
