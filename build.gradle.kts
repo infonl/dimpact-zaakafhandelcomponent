@@ -84,7 +84,7 @@ dependencies {
     implementation("com.mailjet:mailjet-client:5.2.4")
     implementation("org.flywaydb:flyway-core:9.22.3")
     implementation("org.apache.solr:solr-solrj:9.4.0")
-    implementation("net.sf.webdav-servlet:webdav-servlet:2.1.2")
+    implementation("net.sf.webdav-servlet:webdav-servlet:3.0.0-INFONL")
     implementation("com.itextpdf:itextpdf:5.5.13")
     implementation("com.itextpdf.tool:xmlworker:5.5.13.3")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
