@@ -79,6 +79,14 @@ From the root folder of this repository execute the following command:
 This will run Docker Compose with the `zac` Docker Compose profile and uses the 1Password CLI extensions
 to retrieve certain environment variables from 1Password.
 
+Note that by default the script above uses the latest stable version of ZAC published on our GitHub Docker registry.
+If instead you want to use the latest non-stable version of ZAC from your local ZAC codebase (e.g. when working on a Git branch)
+you first need to build the ZAC Docker Image locally and use that:
+
+```
+./gradlew buildDockerImage && ZAC_DOCKER_IMAGE=ghcr.io/infonl/zaakafhandelcomponent:dev ./start-docker-compose.sh -z
+```
+
 Note that it takes some time for ZAC to start up completely. You can see progress by checking the ZAC Docker container logs:
 
 ```
