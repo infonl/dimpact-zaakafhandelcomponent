@@ -86,7 +86,7 @@ dependencies {
     implementation("org.apache.solr:solr-solrj:9.4.0")
     implementation("net.sf.webdav-servlet:webdav-servlet:3.0.0-INFONL")
     implementation("com.itextpdf:itextpdf:5.5.13.3")
-    implementation("com.itextpdf.tool:xmlworker:5.5.13.3.3")
+    implementation("com.itextpdf.tool:xmlworker:5.5.13.3")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
 
     swaggerUI("org.webjars:swagger-ui:3.52.5")
