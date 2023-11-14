@@ -1,10 +1,11 @@
-import { When } from "@cucumber/cucumber";
-import { CustomWorld } from "../support/worlds/world";
-
 /*
  * SPDX-FileCopyrightText: 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
+import { When } from "@cucumber/cucumber";
+import { CustomWorld } from "../support/worlds/world";
+
 When("{string} wants to create a new zaak", { timeout: 60 * 1000 }, async function (this: CustomWorld, user) {
     await this.page.getByLabel("Zaak toevoegen").click();
     await this.page.getByLabel("Zaaktype").click();
