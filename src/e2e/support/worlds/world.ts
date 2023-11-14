@@ -30,9 +30,11 @@ export class CustomWorld extends World {
         }
         this.browser = await playwright.chromium.launch({
             headless: this.worldParameters.headless,
+            args: ['--lang=nl-NL'],
         });
         this.context = await this.browser.newContext({
             storageState: authFile,
+            locale: 'nl-NL',
         });
         this.page = await this.context.newPage();
         this.initialized = true;
