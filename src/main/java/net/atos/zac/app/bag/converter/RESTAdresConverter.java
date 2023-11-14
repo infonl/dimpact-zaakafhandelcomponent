@@ -7,7 +7,7 @@ package net.atos.zac.app.bag.converter;
 
 import java.net.URI;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.BooleanUtils;
 

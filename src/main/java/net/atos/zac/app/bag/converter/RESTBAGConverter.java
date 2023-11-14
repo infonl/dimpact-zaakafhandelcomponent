@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.bag.converter;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;

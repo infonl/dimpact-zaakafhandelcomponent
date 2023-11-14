@@ -9,13 +9,13 @@ import static net.atos.zac.util.JsonbUtil.JSONB;
 
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 
 import net.atos.zac.app.configuratie.converter.RESTTaalConverter;
 import net.atos.zac.app.configuratie.model.RESTTaal;

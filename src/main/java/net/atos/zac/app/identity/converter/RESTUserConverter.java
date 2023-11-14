@@ -7,7 +7,7 @@ package net.atos.zac.app.identity.converter;
 
 import java.util.List;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import net.atos.zac.app.identity.model.RESTLoggedInUser;
 import net.atos.zac.app.identity.model.RESTUser;

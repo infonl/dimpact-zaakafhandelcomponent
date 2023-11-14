@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.taken.converter;
 
-import static javax.json.bind.annotation.JsonbDateFormat.TIME_IN_MILLIS;
+import static jakarta.json.bind.annotation.JsonbDateFormat.TIME_IN_MILLIS;
 import static net.atos.zac.flowable.TakenService.USER_TASK_ASSIGNEE_CHANGED_CUSTOM;
 import static net.atos.zac.flowable.TakenService.USER_TASK_DESCRIPTION_CHANGED;
 import static net.atos.zac.flowable.TakenService.USER_TASK_GROUP_CHANGED;
@@ -17,8 +17,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import javax.inject.Inject;
-import javax.json.bind.annotation.JsonbDateFormat;
+import jakarta.inject.Inject;
+import jakarta.json.bind.annotation.JsonbDateFormat;
 
 import org.flowable.task.api.history.HistoricTaskLogEntry;
 import org.flowable.task.api.history.HistoricTaskLogEntryType;

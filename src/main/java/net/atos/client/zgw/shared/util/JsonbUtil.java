@@ -8,10 +8,10 @@ package net.atos.client.zgw.shared.util;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-import javax.json.bind.JsonbConfig;
-import javax.json.bind.config.PropertyVisibilityStrategy;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
+import jakarta.json.bind.JsonbConfig;
+import jakarta.json.bind.config.PropertyVisibilityStrategy;
 
 public final class JsonbUtil {
 

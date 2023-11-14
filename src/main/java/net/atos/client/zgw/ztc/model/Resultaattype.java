@@ -8,8 +8,8 @@ package net.atos.client.zgw.ztc.model;
 import java.net.URI;
 import java.time.Period;
 
-import javax.json.bind.annotation.JsonbCreator;
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbCreator;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 import net.atos.client.zgw.shared.model.Archiefnominatie;
 

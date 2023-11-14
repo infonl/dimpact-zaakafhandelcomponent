@@ -9,10 +9,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import javax.ws.rs.core.UriInfo;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import jakarta.ws.rs.core.UriInfo;
 
 import org.apache.commons.collections4.map.LRUMap;
 

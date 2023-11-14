@@ -8,8 +8,8 @@ package net.atos.zac.app.gebruikersvoorkeuren.converter;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
 
 import net.atos.zac.app.gebruikersvoorkeuren.model.RESTZoekopdracht;
 import net.atos.zac.authentication.LoggedInUser;

@@ -7,8 +7,8 @@ package net.atos.client.zgw.zrc.model;
 
 import java.time.Period;
 
-import javax.json.bind.annotation.JsonbCreator;
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbCreator;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 /**
  * Gegevens omtrent het verlengen van de doorlooptijd van de behandeling

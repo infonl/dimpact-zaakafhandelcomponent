@@ -7,7 +7,7 @@ package net.atos.client.zgw.drc.model;
 
 import java.net.URI;
 
-import javax.ws.rs.QueryParam;
+import jakarta.ws.rs.QueryParam;
 
 public class ObjectInformatieobjectListParameters {
 

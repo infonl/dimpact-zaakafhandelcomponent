@@ -8,4 +8,4 @@
 # Uses the 1Password CLI tools to set up the environment variables for running ZAC in IntelliJ.
 # Please see docs/development/INSTALL.md for details on how to use this script.
 
-op run --env-file="./.env.tpl" -- ./wildfly-26.1.2.Final/bin/standalone.sh
+op run --env-file="./.env.tpl" -- ./wildfly-30.0.0.Final/bin/standalone.sh

@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.admin.converter;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.zac.app.admin.model.RESTZaakafhandelParameters;

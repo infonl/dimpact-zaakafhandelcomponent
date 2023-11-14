@@ -1,6 +1,6 @@
 package net.atos.zac.app.mail.converter;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import net.atos.zac.app.mail.model.RESTMailGegevens;
 import net.atos.zac.configuratie.ConfiguratieService;

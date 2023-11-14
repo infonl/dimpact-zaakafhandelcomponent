@@ -5,7 +5,7 @@
 
 package net.atos.client.zgw.zrc.model;
 
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 import java.util.List;
 

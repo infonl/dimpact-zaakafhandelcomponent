@@ -15,11 +15,10 @@ plugins {
     jacoco
 
     id("org.jsonschema2pojo") version "1.2.1"
-    // note that openapi generator 7.0.0 has some breaking changes
-    id("org.openapi.generator") version "6.6.0"
+    id("org.openapi.generator") version "7.0.1"
     id("com.github.node-gradle.node") version "7.0.1"
     id("org.barfuin.gradle.taskinfo") version "2.1.0"
-    id("io.smallrye.openapi") version "3.5.1"
+    id("io.smallrye.openapi") version "3.7.0"
     id("org.hidetake.swagger.generator") version "2.19.2"
     id("io.gitlab.arturbosch.detekt") version "1.23.1"
     id("com.bmuschko.docker-remote-api") version "9.3.4"
@@ -28,6 +27,16 @@ plugins {
 repositories {
     mavenLocal()
     mavenCentral()
+    maven {
+        url = uri("https://maven.pkg.github.com/infonl/webdav-servlet")
+        credentials {
+            // for local development please create a personal access token (or use an existing one)
+            // with the 'read:packages' scope and set the 'gpr.user' and 'gpr.key' properties in
+            // your ~/.gradle/gradle.properties file (create the file if it does not exist yet)
+            username = project.findProperty("gpr.user") as String? ?: System.getenv("READ_PACKAGES_USERNAME")
+            password = project.findProperty("gpr.key") as String? ?: System.getenv("READ_PACKAGES_TOKEN")
+        }
+    }
 }
 
 group = "net.atos.common-ground"
@@ -61,20 +70,21 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.13.0")
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("org.apache.commons:commons-collections4:4.4")
+    implementation("commons-io:commons-io:2.15.0")
     implementation("com.opencsv:opencsv:5.8")
-    implementation("org.flowable:flowable-engine:6.7.2")
-    implementation("org.flowable:flowable-cdi:6.7.2")
-    implementation("org.flowable:flowable-cmmn-engine:6.7.2")
-    implementation("org.flowable:flowable-cmmn-cdi:6.7.2")
-    implementation("org.flowable:flowable-cmmn-engine-configurator:6.7.2")
+    implementation("org.flowable:flowable-engine:7.0.0")
+    implementation("org.flowable:flowable-cdi:7.0.0")
+    implementation("org.flowable:flowable-cmmn-engine:7.0.0")
+    implementation("org.flowable:flowable-cmmn-cdi:7.0.0")
+    implementation("org.flowable:flowable-cmmn-engine-configurator:7.0.0")
     implementation("org.slf4j:slf4j-jdk14:2.0.3")
     implementation("com.auth0:java-jwt:4.4.0")
     implementation("javax.cache:cache-api:1.1.1")
     implementation("com.google.guava:guava:32.1.3-jre")
-    implementation("com.mailjet:mailjet-client:5.2.5")
+    implementation("com.mailjet:mailjet-client:5.2.4")
     implementation("org.flywaydb:flyway-core:9.22.3")
     implementation("org.apache.solr:solr-solrj:9.4.0")
-    implementation("net.sf.webdav-servlet:webdav-servlet:2.0")
+    implementation("net.sf.webdav-servlet:webdav-servlet:3.0.0-INFONL")
     implementation("com.itextpdf:itextpdf:5.5.13")
     implementation("com.itextpdf.tool:xmlworker:5.5.13.3")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
@@ -84,26 +94,29 @@ dependencies {
     // enable detekt formatting rules. see: https://detekt.dev/docs/rules/formatting/
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.1")
 
-    runtimeOnly("org.infinispan:infinispan-jcache:13.0.10.Final")
-    runtimeOnly("org.infinispan:infinispan-cdi-embedded:13.0.10.Final")
+    runtimeOnly("org.infinispan:infinispan-jcache:14.0.20.Final")
+    runtimeOnly("org.infinispan:infinispan-cdi-embedded:14.0.20.Final")
 
     // declare dependencies that are required in the generated WAR; see war section below
     // simply marking them as 'compileOnly' or 'implementation' does not work
     warLib("org.apache.httpcomponents:httpclient:4.5.13")
     warLib("org.reactivestreams:reactive-streams:1.0.4")
+    // WildFly does already include the Jakarta Mail API lib so not sure why, but we need to
+    // include it in the WAR or else ZAC will fail to be deployed
+    warLib("jakarta.mail:jakarta.mail-api:2.1.2")
 
-    // dependencies provided by Wildfly
-    providedCompile("jakarta.platform:jakarta.jakartaee-api:8.0.0")
-    providedCompile("org.eclipse.microprofile.rest.client:microprofile-rest-client-api:2.0")
-    providedCompile("org.eclipse.microprofile.config:microprofile-config-api:2.0")
-    providedCompile("org.eclipse.microprofile.health:microprofile-health-api:3.1")
-    providedCompile("org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api:3.0")
-    providedCompile("org.jboss.resteasy:resteasy-multipart-provider:4.7.7.Final")
-    providedCompile("org.wildfly.security:wildfly-elytron-http-oidc:1.19.1.Final")
+    // dependencies provided by Wildfly 30
+    providedCompile("jakarta.platform:jakarta.jakartaee-api:10.0.0")
+    providedCompile("org.eclipse.microprofile.rest.client:microprofile-rest-client-api:3.0.1")
+    providedCompile("org.eclipse.microprofile.config:microprofile-config-api:3.0.2")
+    providedCompile("org.eclipse.microprofile.health:microprofile-health-api:4.0.1")
+    providedCompile("org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api:4.0.2")
+    providedCompile("org.jboss.resteasy:resteasy-multipart-provider:6.2.5.Final")
+    providedCompile("org.wildfly.security:wildfly-elytron-http-oidc:2.2.2.Final")
 
     // yasson is required for using a JSONB context in our unit tests
     // where we do not have the WildFly runtime environment available
-    testImplementation("org.eclipse:yasson:1.0.11")
+    testImplementation("org.eclipse:yasson:3.0.3")
     testImplementation("io.kotest:kotest-runner-junit5:5.7.1")
     testImplementation("io.mockk:mockk:1.13.8")
 
@@ -146,7 +159,7 @@ jsonSchema2Pojo {
     targetDirectory = file("$rootDir/src/generated/java")
     setFileExtensions(".schema.json")
     targetPackage = "net.atos.zac.aanvraag"
-    setAnnotationStyle("JSONB1")
+    setAnnotationStyle("JSONB2")
     dateType = "java.time.LocalDate"
     dateTimeType = "java.time.ZonedDateTime"
     timeType = "java.time.LocalTime"
@@ -259,11 +272,12 @@ tasks {
         configOptions.set(
             mapOf(
                 "library" to "microprofile",
-                "microprofileRestClientVersion" to "2.0",
+                "microprofileRestClientVersion" to "3.0",
                 "sourceFolder" to "",
                 "dateLibrary" to "java8",
                 "disallowAdditionalPropertiesIfNotPresent" to "false",
-                "openApiNullable" to "false"
+                "openApiNullable" to "false",
+                "useJakartaEe" to "true"
             )
         )
     }
@@ -289,6 +303,14 @@ tasks {
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateVrlClient") {
+        // disabled for now because the Java code generated by this task contains @JsonbCreator annotations
+        // but the corresponding "import jakarta.json.bind.annotation.JsonbCreator;" import statements are missing
+        // for some reason.
+        // n.b. switching to jackson instead of jsonb is no option because it causes other issues
+        // related: https://github.com/OpenAPITools/openapi-generator/blob/92daacd6a25873847886ac2360193a1303208300/modules/openapi-generator/src/main/resources/Java/model.mustache#L39
+        // and: https://github.com/OpenAPITools/openapi-generator/blob/92daacd6a25873847886ac2360193a1303208300/modules/openapi-generator/src/main/java/org/openapitools/codegen/languages/AbstractJavaCodegen.java#L1505
+        isEnabled = false
+
         inputSpec.set("$rootDir/src/main/resources/api-specs/vrl/openapi.yaml")
         modelPackage.set("net.atos.client.vrl.model")
     }
@@ -300,11 +322,12 @@ tasks {
         configOptions.set(
             mapOf(
                 "library" to "microprofile",
-                "microprofileRestClientVersion" to "2.0",
+                "microprofileRestClientVersion" to "3.0",
                 "sourceFolder" to "",
                 "dateLibrary" to "java8-localdatetime",
                 "disallowAdditionalPropertiesIfNotPresent" to "false",
-                "openApiNullable" to "false"
+                "openApiNullable" to "false",
+                "useJakartaEe" to "true"
             )
         )
     }
@@ -318,6 +341,14 @@ tasks {
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateContactMomentenClient") {
+        // disabled for now because the Java code generated by this task contains @JsonbCreator annotations
+        // but the corresponding "import jakarta.json.bind.annotation.JsonbCreator;" import statements are missing
+        // for some reason
+        // n.b. switching to jackson instead of jsonb is no option because it causes other issues
+        // related: https://github.com/OpenAPITools/openapi-generator/blob/92daacd6a25873847886ac2360193a1303208300/modules/openapi-generator/src/main/resources/Java/model.mustache#L39
+        // and: https://github.com/OpenAPITools/openapi-generator/blob/92daacd6a25873847886ac2360193a1303208300/modules/openapi-generator/src/main/java/org/openapitools/codegen/languages/AbstractJavaCodegen.java#L1505
+        isEnabled = false
+
         inputSpec.set("$rootDir/src/main/resources/api-specs/contactmomenten/openapi.yaml")
         modelPackage.set("net.atos.client.contactmomenten.model")
     }
@@ -331,7 +362,7 @@ tasks {
             "generateVrlClient",
             "generateBagClient",
             "generateKlantenClient",
-            "generateContactMomentenClient",
+            "generateContactMomentenClient"
         )
     }
 

@@ -5,7 +5,7 @@
 
 package net.atos.client.zgw.drc.model;
 
-import javax.json.bind.annotation.JsonbTypeAdapter;
+import jakarta.json.bind.annotation.JsonbTypeAdapter;
 
 import net.atos.client.zgw.shared.model.AbstractEnum;
 

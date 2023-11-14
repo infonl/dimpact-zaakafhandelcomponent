@@ -10,14 +10,13 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.enterprise.inject.spi.CDI;
-import javax.servlet.http.HttpSession;
-
 import org.apache.commons.collections4.map.LRUMap;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.servlet.http.HttpSession;
 import net.atos.client.zgw.drc.DRCClientService;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectWithInhoudAndLock;
@@ -127,7 +126,9 @@ public class WebdavStore implements IWebdavStore {
     }
 
     @Override
-    public void removeObject(final ITransaction transaction, final String uri) {}
+    public void removeObject(final ITransaction transaction, final String uri) {
+        // no-op
+    }
 
     @Override
     public StoredObject getStoredObject(final ITransaction transaction, final String uri) {
@@ -139,6 +140,11 @@ public class WebdavStore implements IWebdavStore {
         } else {
             return getFileStoredObject(token);
         }
+    }
+
+    @Override
+    public void destroy() {
+        // no-op
     }
 
     private String extraheerToken(final String uri) {

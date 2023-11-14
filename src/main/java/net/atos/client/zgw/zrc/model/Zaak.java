@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.json.bind.annotation.JsonbDateFormat;
-import javax.json.bind.annotation.JsonbTransient;
+import jakarta.json.bind.annotation.JsonbDateFormat;
+import jakarta.json.bind.annotation.JsonbTransient;
 
 import org.apache.commons.collections4.CollectionUtils;
 

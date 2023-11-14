@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.zaken.converter;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.AardRelatie;

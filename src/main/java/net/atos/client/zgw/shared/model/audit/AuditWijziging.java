@@ -5,7 +5,7 @@
 
 package net.atos.client.zgw.shared.model.audit;
 
-import javax.json.bind.annotation.JsonbTypeDeserializer;
+import jakarta.json.bind.annotation.JsonbTypeDeserializer;
 
 import net.atos.client.zgw.shared.model.ObjectType;
 import net.atos.client.zgw.shared.util.AuditWijzigingJsonbDeserializer;

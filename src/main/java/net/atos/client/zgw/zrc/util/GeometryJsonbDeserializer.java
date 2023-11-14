@@ -10,11 +10,10 @@ import static net.atos.client.zgw.zrc.model.Geometry.GEOMETRY_TYPE_NAAM;
 
 import java.lang.reflect.Type;
 
-import javax.json.JsonObject;
-import javax.json.bind.serializer.DeserializationContext;
-import javax.json.bind.serializer.JsonbDeserializer;
-import javax.json.stream.JsonParser;
-
+import jakarta.json.JsonObject;
+import jakarta.json.bind.serializer.DeserializationContext;
+import jakarta.json.bind.serializer.JsonbDeserializer;
+import jakarta.json.stream.JsonParser;
 import net.atos.client.zgw.zrc.model.Geometry;
 import net.atos.client.zgw.zrc.model.GeometryCollection;
 import net.atos.client.zgw.zrc.model.GeometryType;
@@ -24,14 +23,27 @@ import net.atos.client.zgw.zrc.model.Polygon;
 public class GeometryJsonbDeserializer implements JsonbDeserializer<Geometry> {
 
     @Override
-    public Geometry deserialize(final JsonParser parser, final DeserializationContext ctx, final Type rtType) {
+    public Geometry deserialize(
+            final JsonParser parser,
+            final DeserializationContext ctx,
+            final Type rtType
+    ) {
+        if (!parser.hasNext()) {
+            // workaround for WildFly 30 (?) issue
+            // jakarta.ws.rs.ProcessingException: RESTEASY008200: JSON Binding deserialization
+            // error: jakarta.json.bind.JsonbException: Internal error: There are no more elements available!
+            // at 'parser.getObject()' call below
+            return null;
+        }
         final JsonObject jsonObject = parser.getObject();
-        final GeometryType geometryType = GeometryType.fromValue(jsonObject.getJsonString(GEOMETRY_TYPE_NAAM).getString());
+        final GeometryType geometryType = GeometryType.fromValue(
+                jsonObject.getJsonString(GEOMETRY_TYPE_NAAM).getString());
 
         return switch (geometryType) {
             case POINT -> JSONB.fromJson(jsonObject.toString(), Point.class);
             case POLYGON -> JSONB.fromJson(jsonObject.toString(), Polygon.class);
-            case GEOMETRYCOLLECTION -> JSONB.fromJson(jsonObject.toString(), GeometryCollection.class);
+            case GEOMETRYCOLLECTION ->
+                    JSONB.fromJson(jsonObject.toString(), GeometryCollection.class);
         };
     }
 }

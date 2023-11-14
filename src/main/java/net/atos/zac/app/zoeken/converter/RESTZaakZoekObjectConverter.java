@@ -8,7 +8,7 @@ package net.atos.zac.app.zoeken.converter;
 import java.util.EnumMap;
 import java.util.List;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import net.atos.client.zgw.ztc.model.AardVanRol;
 import net.atos.zac.app.policy.converter.RESTRechtenConverter;

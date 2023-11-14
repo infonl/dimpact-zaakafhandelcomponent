@@ -7,8 +7,8 @@ package net.atos.zac.app.notities.converter;
 
 import java.time.ZonedDateTime;
 
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
 
 import net.atos.zac.app.notities.model.RESTNotitie;
 import net.atos.zac.authentication.LoggedInUser;

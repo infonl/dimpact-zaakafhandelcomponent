@@ -21,7 +21,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 
 public class KlantList200Response {
