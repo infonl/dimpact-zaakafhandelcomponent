@@ -18,7 +18,7 @@ export class CustomWorld extends World {
     initialized: boolean = false;
     worldParameters: z.infer<typeof worldParametersScheme>['parameters'];
 
-    constructor(attach: unknown) {
+    constructor(attach: any) {
         const res = worldParametersScheme.parse(attach)
         super({attach: res.attach, parameters: res.parameters, log: res.log });
         this.worldParameters = res.parameters;
