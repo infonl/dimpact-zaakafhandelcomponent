@@ -14,9 +14,7 @@ When("{string} wants to create a new zaak", { timeout: 60 * 1000 }, async functi
         .locator("div")
         .filter({ hasText: /^person$/ })
         .click();
-    await this.page.getByLabel("BSN").dblclick({
-        button: "right",
-    });
+    await this.page.getByLabel("BSN").click();
     await this.page.getByLabel("BSN").fill("999993896");
     await this.page.getByLabel("emoji_people Persoon").getByRole("button", { name: "Zoeken" }).click();
     await this.page.getByRole("button", { name: "Select" }).click();
@@ -32,8 +30,9 @@ When("{string} wants to create a new zaak", { timeout: 60 * 1000 }, async functi
         .getByTitle('Selecteren')
         .click();
     await this.page.getByText('close').click();
-    await this.page.getByText("Communicatiekanaal- Kies een communicatiekanaal -").click();
-    await this.page.getByRole('option').getByText("E-mail").click();
+    await this.page.getByLabel("Communicatiekanaal").click();
+    await this.page.getByRole("option", { name: ' E-mail ' }).click();
+    await this.page.waitForTimeout(1000)
     // Openbaar should be automatically selected on openbaar
     await this.page.getByText("Vertrouwelijkheidaanduiding- Openbaar -")
     await this.page.getByLabel("Omschrijving").click();
