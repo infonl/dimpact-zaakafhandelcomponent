@@ -60,13 +60,3 @@ The different docker containers need to be able to communicate with each other. 
 +       "http://host.docker.internal:4200"
       ],
 ```
-
-`start-docker-comose.sh`
-
-```diff
-    export E2E_TEST_USER_1_USERNAME=testuser1
-    export E2E_TEST_USER_1_PASSWORD=testuser1
--   export ZAC_URL=http://localhost:8080
-+   export ZAC_URL=http://host.docker.internal:8080
-
-```
