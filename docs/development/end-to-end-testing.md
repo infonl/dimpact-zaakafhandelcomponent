@@ -34,3 +34,39 @@ You need to make sure to install the official [cucumber](https://marketplace.vis
 
 Then you will have all the autocomplete features available to you
 
+### Running e2e tests locally
+
+Running e2e tests locally unfortunately requires some extra steps to make it work with our current setup. please don't commit any of these changes, create a stash of it instead so you can easily apply it when needed.
+
+The different docker containers need to be able to communicate with each other. This is not possible when you use localhost. You need to use the host.docker.internal hostname instead.
+
+`docker-compose.yml`
+- replace all the "localhost" with "host.docker.internal"
+
+`realm.json`
+```diff
+      "redirectUris": [
+        "http://localhost:8080/*",
+-       "http://localhost:4200/*",
++       "http://localhost:4200/*",
++       "http://host.docker.internal:8080/*",
++       "http://host.docker.internal:4200/*"
+      ],
+      "webOrigins": [
+        "http://localhost:8080",
+-       "http://localhost:4200"
++       "http://localhost:4200",
++       "http://host.docker.internal:8080",
++       "http://host.docker.internal:4200"
+      ],
+```
+
+`start-docker-comose.sh`
+
+```diff
+    export E2E_TEST_USER_1_USERNAME=testuser1
+    export E2E_TEST_USER_1_PASSWORD=testuser1
+-   export ZAC_URL=http://localhost:8080
++   export ZAC_URL=http://host.docker.internal:8080
+
+```
