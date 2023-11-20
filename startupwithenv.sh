@@ -8,4 +8,8 @@
 # Uses the 1Password CLI tools to set up the environment variables for running ZAC in IntelliJ.
 # Please see docs/development/INSTALL.md for details on how to use this script.
 
-op run --env-file="./.env.tpl" -- ./wildfly-30.0.0.Final/bin/standalone.sh
+# Note that we do not use masking as this does not work well in our context and will result in
+# crashes of WildFly/ZAC when running in IntelliJ when you have configured DEBUG logging in WildFly
+# with errors such as: "fatal error: concurrent map read and map write goroutine 2013 [running]:
+# go.1password.io/op/op-cli/command/subprocess/masking.matches.add(...)"
+op run --env-file="./.env.tpl" --no-masking -- ./wildfly-30.0.0.Final/bin/standalone.sh
