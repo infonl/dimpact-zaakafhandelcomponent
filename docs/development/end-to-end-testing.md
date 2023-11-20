@@ -36,27 +36,46 @@ Then you will have all the autocomplete features available to you
 
 ### Running e2e tests locally
 
-Running e2e tests locally unfortunately requires some extra steps to make it work with our current setup. please don't commit any of these changes, create a stash of it instead so you can easily apply it when needed.
+Running e2e tests locally unfortunately requires some extra steps to make it work with our current setup. This is because docker containers can't communicate with the host machine using localhost. To make this work we need to add an entry to the /etc/hosts file on your machine. This is only needed when running the tests locally. When running the tests in the pipeline this is not needed.
 
-The different docker containers need to be able to communicate with each other. This is not possible when you use localhost. You need to use the host.docker.internal hostname instead.
+#### Steps to Add host.docker.internal Entry to /etc/hosts File
+When working with Docker, adding host.docker.internal to your /etc/hosts file allows Docker containers to access services running on the host machine. Follow these steps to add this entry:
+
+1. Open the /etc/hosts File:
+   - You need administrative privileges to edit the /etc/hosts file.
+   - Open the file in a text editor of your choice. For example, using vim, you would use the following command:
+    ```bash
+        sudo vim /etc/hosts 
+    ```
+2. Add the host.docker.internal Entry:
+   - In the /etc/hosts file, add a new line to link host.docker.internal to the IP address of your host machine. This is typically 127.0.0.1 (localhost).
+   - The entry should look like this:
+    ```csharp
+        # ZAC
+        127.0.0.1 host.docker.internal
+    ```
+   - Save the file and exit the text editor.
+3. Verify the Entry:
+
+   - After adding the entry, you can verify it by running a command that references host.docker.internal from within a Docker container. For example, using a simple ping test:
+    ```bash 
+        docker run --rm alpine ping -c 4 host.docker.internal
+    ```
+This command runs a temporary Alpine Linux container and pings host.docker.internal four times. Successful ping responses indicate that the entry is correctly configured.
+
+#### Steps to run the tests locally
 
 `docker-compose.yml`
-- replace all the "localhost" with "host.docker.internal"
+- replace the follwoing values in the `docker-compose.yml` file:
 
-`realm.json`
+under services -> keycloack -> command 
+```diff 
+-      - CONTEXT_URL=http://host.docker.internal:8080
++      - CONTEXT_URL=http://host.docker.internal:8080
+```
+
+under services -> zac -> environment 
 ```diff
-      "redirectUris": [
-        "http://localhost:8080/*",
--       "http://localhost:4200/*",
-+       "http://localhost:4200/*",
-+       "http://host.docker.internal:8080/*",
-+       "http://host.docker.internal:4200/*"
-      ],
-      "webOrigins": [
-        "http://localhost:8080",
--       "http://localhost:4200"
-+       "http://localhost:4200",
-+       "http://host.docker.internal:8080",
-+       "http://host.docker.internal:4200"
-      ],
+-      - "--hostname-url=http://host.docker.internal:8081"
++      - "--hostname-url=http://host.docker.internal:8081"
 ```

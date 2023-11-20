@@ -783,11 +783,15 @@
       "secret": "keycloakZaakafhandelcomponentClientSecret",
       "redirectUris": [
         "http://localhost:8080/*",
-        "http://localhost:4200/*"
+        "http://localhost:4200/*",
+        "http://host.docker.internal:8080/*",
+        "http://host.docker.internal:4200/*"
       ],
       "webOrigins": [
         "http://localhost:8080",
-        "http://localhost:4200"
+        "http://localhost:4200",
+        "http://host.docker.internal:8080",
+        "http://host.docker.internal:4200"
       ],
       "notBefore": 0,
       "bearerOnly": false,
