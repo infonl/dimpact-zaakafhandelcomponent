@@ -14,7 +14,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTS_API_HOSTNAME_URL
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANVRAAG_DENHAAG
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_GENERIEK_ZAAKAFHANDELMODEL_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONObject
@@ -88,7 +88,7 @@ class NotificationsTest : BehaviorSpec({
                         val zaak = JSONObject(text)
                         zaak.getString("identificatie") shouldBe ZAAK_1_IDENTIFICATION
                         zaak.getJSONObject("zaaktype")
-                            .getString("uuid") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
+                            .getString("uuid") shouldBe ZAAKTYPE_GENERIEK_ZAAKAFHANDELMODEL_UUID
                         zaak.getJSONObject("status").getString("naam") shouldBe "Intake"
                         zaak.getJSONObject("groep").getString("id") shouldBe "test-group-a"
                         // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started

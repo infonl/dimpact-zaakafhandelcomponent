@@ -10,8 +10,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.KeycloakClient
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_GENERIEK_ZAAKAFHANDELMODEL_IDENTIFICATIE
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_GENERIEK_ZAAKAFHANDELMODEL_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONObject
 
@@ -22,14 +22,14 @@ class ZaakafhandelParametersTest : BehaviorSpec({
         When("the list zaakafhandelparameterts endpoint is called for our zaaktype under test") {
             then("the response should be ok and it should return the zaakafhandelparameters") {
                 khttp.get(
-                    url = "${ZAC_API_URI}/zaakafhandelParameters/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID",
+                    url = "${ZAC_API_URI}/zaakafhandelParameters/$ZAAKTYPE_GENERIEK_ZAAKAFHANDELMODEL_UUID",
                     headers = mapOf("Authorization" to "Bearer ${KeycloakClient.requestAccessToken()}")
                 ).apply {
                     logger.info { "Zaakafhandelparameters response: $text" }
                     val zaakafhandelparameters = JSONObject(text)
                     zaakafhandelparameters
                         .getJSONObject("zaaktype")
-                        .getString("identificatie") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
+                        .getString("identificatie") shouldBe ZAAKTYPE_GENERIEK_ZAAKAFHANDELMODEL_IDENTIFICATIE
                     statusCode shouldBe HttpStatus.SC_OK
                 }
             }
