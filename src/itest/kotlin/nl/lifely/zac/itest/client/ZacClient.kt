@@ -168,7 +168,7 @@ fun createZaakAfhandelParameters() {
             "        \"type\": \"HUMAN_TASK\"\n" +
             "      }\n" +
             "    ],\n" +
-            "    \"key\": \"melding-klein-evenement\",\n" +
+            "    \"key\": \"generiek-afhandelmodel\",\n" +
             "    \"naam\": \"Melding klein evenement\",\n" +
             "    \"userEventListenerDefinitions\": [\n" +
             "      {\n" +
