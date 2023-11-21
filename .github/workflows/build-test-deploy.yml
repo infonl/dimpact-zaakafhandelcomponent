@@ -173,7 +173,7 @@ jobs:
       - name: Build Docker image
         run: |
           ./gradlew \
-          -PzacDockerImage ${ZAC_DOCKER_IMAGE} \
+          -PzacDockerImage=${ZAC_DOCKER_IMAGE} \
           -PversionNumber=${BUILD_NUMBER} \
           -PbranchName=${BRANCH_NAME} \
           -PcommitHash=${GIT_COMMIT_HASH} \
