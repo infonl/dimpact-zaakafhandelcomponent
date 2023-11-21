@@ -9,8 +9,8 @@ import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.HttpStatus
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCT_AANVRAAG_TYPE
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_GENERIEK_ZAAKAFHANDELMODEL_IDENTIFICATIE
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_GENERIEK_ZAAKAFHANDELMODEL_UUID
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 
 private val logger = KotlinLogging.logger {}
@@ -18,7 +18,7 @@ private val logger = KotlinLogging.logger {}
 @Suppress("LongMethod")
 fun createZaakAfhandelParameters() {
     logger.info {
-        "Creating zaakafhandelparameters in ZAC for zaaktype with UUID: $ZAAKTYPE_GENERIEK_ZAAKAFHANDELMODEL_UUID"
+        "Creating zaakafhandelparameters in ZAC for zaaktype with UUID: $ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
     }
 
     khttp.put(
@@ -124,10 +124,10 @@ fun createZaakAfhandelParameters() {
             "  \"zaakbeeindigParameters\": [],\n" +
             "  \"zaaktype\": {\n" +
             "    \"beginGeldigheid\": \"2023-09-21\",\n" +
-            "    \"doel\": \"Generiek zaakafhandelmodel\",\n" +
-            "    \"identificatie\": \"$ZAAKTYPE_GENERIEK_ZAAKAFHANDELMODEL_IDENTIFICATIE\",\n" +
+            "    \"doel\": \"Melding evenement organiseren behandelen\",\n" +
+            "    \"identificatie\": \"$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE\",\n" +
             "    \"nuGeldig\": true,\n" +
-            "    \"omschrijving\": \"Generiek zaakafhandelmodel\",\n" +
+            "    \"omschrijving\": \"Melding evenement organiseren behandelen\",\n" +
             "    \"servicenorm\": false,\n" +
             "    \"uuid\": \"448356ff-dcfb-4504-9501-7fe929077c4f\",\n" +
             "    \"versiedatum\": \"2023-09-21\",\n" +
@@ -168,7 +168,7 @@ fun createZaakAfhandelParameters() {
             "        \"type\": \"HUMAN_TASK\"\n" +
             "      }\n" +
             "    ],\n" +
-            "    \"key\": \"generiek-zaakafhandelmodel\",\n" +
+            "    \"key\": \"generiek-zaakafhandelmode\",\n" +
             "    \"naam\": \"Generiek zaakafhandelmodel\",\n" +
             "    \"userEventListenerDefinitions\": [\n" +
             "      {\n" +

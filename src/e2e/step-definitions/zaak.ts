@@ -9,7 +9,7 @@ import { CustomWorld } from "../support/worlds/world";
 When("{string} wants to create a new zaak", { timeout: 60 * 1000 }, async function (this: CustomWorld, user) {
     await this.page.getByLabel("Zaak toevoegen").click();
     await this.page.getByLabel("Zaaktype").click();
-    await this.page.getByRole("option", { name: "Generiek zaakafhandelmodel" }).click();
+    await this.page.getByRole("option", { name: "Melding evenement organiseren behandelen" }).click();
     await this.page
         .locator("div")
         .filter({ hasText: /^person$/ })
