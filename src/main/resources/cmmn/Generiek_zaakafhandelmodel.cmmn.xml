@@ -4,9 +4,9 @@
              xmlns:dc="http://www.omg.org/spec/CMMN/20151109/DC" xmlns:di="http://www.omg.org/spec/CMMN/20151109/DI"
              targetNamespace="http://www.flowable.org/casedef" exporter="Flowable Open Source Modeler"
              exporterVersion="6.7.2">
-    <case id="melding-klein-evenement" name="Melding klein evenement" flowable:initiatorVariableName="initiator">
+    <case id="generiek-zaakafhandelmodel" name="Generiek zaakafhandelmodel" flowable:initiatorVariableName="initiator">
         <documentation>Taak "Verzenden document" toegevoegd</documentation>
-        <casePlanModel id="MELDING_KLEIN_EVENEMENT" name="Melding klein evenement" flowable:formFieldValidation="true"
+        <casePlanModel id="GENERIEK_ZAAKAFHANDELMODEL" name="Generiek zaakafhandelmodel" flowable:formFieldValidation="true"
                        autoComplete="true">
             <planItem id="planItem4" name="Intake" definitionRef="INTAKE">
                 <itemControl>
@@ -192,8 +192,8 @@
         </casePlanModel>
     </case>
     <cmmndi:CMMNDI>
-        <cmmndi:CMMNDiagram id="CMMNDiagram_melding-klein-evenement">
-            <cmmndi:CMMNShape id="CMMNShape_MELDING_KLEIN_EVENEMENT" cmmnElementRef="MELDING_KLEIN_EVENEMENT">
+        <cmmndi:CMMNDiagram id="CMMNDiagram_generiek-zaakafhandelmodel">
+            <cmmndi:CMMNShape id="CMMNShape_GENERIEK_ZAAKAFHANDELMODEL" cmmnElementRef="GENERIEK_ZAAKAFHANDELMODEL">
                 <dc:Bounds height="610.0" width="725.514099048668" x="15.0" y="75.0"></dc:Bounds>
                 <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
             </cmmndi:CMMNShape>
