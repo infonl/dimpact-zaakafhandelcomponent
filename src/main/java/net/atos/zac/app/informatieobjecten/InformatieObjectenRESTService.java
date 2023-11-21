@@ -5,6 +5,7 @@
 
 package net.atos.zac.app.informatieobjecten;
 
+import static net.atos.zac.configuratie.ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE;
 import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN;
 import static net.atos.zac.policy.PolicyService.assertPolicy;
 import static net.atos.zac.websocket.event.ScreenEventType.ENKELVOUDIG_INFORMATIEOBJECT;
@@ -17,6 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+import org.flowable.task.api.Task;
+import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -36,11 +41,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
 import jakarta.ws.rs.core.UriInfo;
-
-import org.apache.commons.lang3.StringUtils;
-import org.flowable.task.api.Task;
-import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
-
 import net.atos.client.officeconverter.OfficeConverterClientService;
 import net.atos.client.zgw.drc.DRCClientService;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
@@ -540,8 +540,26 @@ public class InformatieObjectenRESTService {
     public RESTDocumentCreatieResponse createDocument(final RESTDocumentCreatieGegevens restDocumentCreatieGegevens) {
         final Zaak zaak = zrcClientService.readZaak(restDocumentCreatieGegevens.zaakUUID);
         assertPolicy(policyService.readZaakRechten(zaak).getWijzigen());
-        final DocumentCreatieGegevens documentCreatieGegevens = new DocumentCreatieGegevens(zaak,
-                                                                                            restDocumentCreatieGegevens.taskId);
+
+        // documents created by Smartdocuments are always of the type 'bijlage'
+        // the zaaktype of the current zaak needs to be configured to be able to use this
+        // informatieobjecttype
+        final Informatieobjecttype informatieObjectType =
+                ztcClientService.readInformatieobjecttypen(zaak.getZaaktype()).stream()
+                .filter(informatieobjecttype -> INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE.equals(informatieobjecttype.getOmschrijving()))
+                .findAny()
+                .orElseThrow(() -> new RuntimeException(
+                        String.format("No informatieobjecttype with omschrijving '%s' found " +
+                                              "for zaaktype '%s'",
+                                      INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE,
+                                      zaak.getZaaktype()))
+                );
+
+        final DocumentCreatieGegevens documentCreatieGegevens = new DocumentCreatieGegevens(
+                zaak,
+                restDocumentCreatieGegevens.taskId,
+                informatieObjectType
+        );
         final DocumentCreatieResponse documentCreatieResponse = documentCreatieService.creeerDocumentAttendedSD(
                 documentCreatieGegevens);
         return new RESTDocumentCreatieResponse(documentCreatieResponse.getRedirectUrl(),

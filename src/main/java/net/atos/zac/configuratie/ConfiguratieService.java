@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -21,9 +23,6 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.UriBuilder;
-
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
 import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.client.zgw.ztc.model.CatalogusListParameters;
 import net.atos.zac.configuratie.model.Taal;
@@ -101,6 +100,8 @@ public class ConfiguratieService {
     public static final String COMMUNICATIEKANAAL_EFORMULIER = "E-formulier";
 
     public static final String INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL = "e-mail";
+
+    public static final String INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE = "bijlage";
 
     // Base URL of the zaakafhandelcomponent: protocol, host, port and context (no trailing slash)
     @Inject
