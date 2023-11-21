@@ -112,13 +112,13 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot))
                 }
                 with(loggedInUserSlot.captured) {
-                    id shouldBe userName
-                    firstName shouldBe givenName
-                    lastName shouldBe familyName
-                    fullName shouldBe fullName
-                    email shouldBe email
-                    roles shouldContainAll roles
-                    groupIds shouldContainAll groups
+                    this.id shouldBe userName
+                    this.firstName shouldBe givenName
+                    this.lastName shouldBe familyName
+                    this.fullName shouldBe fullName
+                    this.email shouldBe email
+                    this.roles shouldContainAll roles
+                    this.groupIds shouldContainAll groups
                 }
             }
         }
