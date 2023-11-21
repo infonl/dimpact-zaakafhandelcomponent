@@ -18,7 +18,7 @@ RUN date --iso-8601='seconds' > /build_timestamp.txt
 ENTRYPOINT ["java", "--enable-preview", "-jar", "zaakafhandelcomponent.jar"]
 EXPOSE 8080 9990
 
-ARG buildId
-ARG commit
-ARG versienummer
-ENV BUILD_ID=$buildId COMMIT=$commit VERSIENUMMER=$versienummer
+ARG branchName
+ARG commitHash
+ARG versionNumber
+ENV BRANCH_NAME=$branchName COMMIT_HASH=$commitHash VERSION_NUMBER=$versionNumber

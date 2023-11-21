@@ -2,7 +2,6 @@ package net.atos.zac.healthcheck;
 
 import static java.nio.file.Files.readAllLines;
 import static net.atos.zac.util.DateTimeConverterUtil.convertToLocalDateTime;
-import static org.apache.commons.lang3.StringUtils.substringBefore;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,16 +48,16 @@ public class HealthCheckService {
     private ZaakafhandelParameterService zaakafhandelParameterBeheerService;
 
     @Inject
-    @ConfigProperty(name = "BUILD_ID")
-    private Optional<String> buildId;
+    @ConfigProperty(name = "BRANCH_NAME")
+    private Optional<String> branchName;
 
     @Inject
-    @ConfigProperty(name = "COMMIT")
-    private Optional<String> commit;
+    @ConfigProperty(name = "COMMIT_HASH")
+    private Optional<String> commitHash;
 
     @Inject
-    @ConfigProperty(name = "VERSIENUMMER")
-    private Optional<String> versienummer;
+    @ConfigProperty(name = "VERSION_NUMBER")
+    private Optional<String> versionNumber;
 
     private BuildInformatie buildInformatie;
 
@@ -102,11 +101,10 @@ public class HealthCheckService {
             buildDatumTijd = null;
         }
         return new BuildInformatie(
-                commit.orElse(null),
-                // Take only the part of the build id which is displayed in the GCP Cloud Build History
-                buildId.map(id -> substringBefore(id, "-")).orElse(null),
+                commitHash.orElse(null),
+                branchName.orElse(null),
                 buildDatumTijd,
-                versienummer.orElse(null));
+                versionNumber.orElse(null));
     }
 
     private void controleerZaaktypeStatustypeInrichting(final ZaaktypeInrichtingscheck zaaktypeInrichtingscheck) {
