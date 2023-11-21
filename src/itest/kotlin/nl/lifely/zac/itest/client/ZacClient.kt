@@ -168,7 +168,7 @@ fun createZaakAfhandelParameters() {
             "        \"type\": \"HUMAN_TASK\"\n" +
             "      }\n" +
             "    ],\n" +
-            "    \"key\": \"generiek-zaakafhandelmode\",\n" +
+            "    \"key\": \"generiek-zaakafhandelmodel\",\n" +
             "    \"naam\": \"Generiek zaakafhandelmodel\",\n" +
             "    \"userEventListenerDefinitions\": [\n" +
             "      {\n" +
