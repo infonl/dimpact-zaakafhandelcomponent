@@ -168,8 +168,8 @@ fun createZaakAfhandelParameters() {
             "        \"type\": \"HUMAN_TASK\"\n" +
             "      }\n" +
             "    ],\n" +
-            "    \"key\": \"generiek-afhandelmodel\",\n" +
-            "    \"naam\": \"Melding klein evenement\",\n" +
+            "    \"key\": \"generiek-zaakafhandelmode\",\n" +
+            "    \"naam\": \"Generiek zaakafhandelmodel\",\n" +
             "    \"userEventListenerDefinitions\": [\n" +
             "      {\n" +
             "        \"defaultFormulierDefinitie\": \"DEFAULT_TAAKFORMULIER\",\n" +
