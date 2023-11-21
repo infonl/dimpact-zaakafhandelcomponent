@@ -46,10 +46,35 @@ description = "Zaakafhandelcomponent"
 val javaVersion = JavaVersion.VERSION_17
 
 val zacDockerImage by extra {
-    if (project.hasProperty("zacDockerImage"))
+    if (project.hasProperty("zacDockerImage")) {
         project.property("zacDockerImage").toString()
-    else
+    } else {
         "ghcr.io/infonl/zaakafhandelcomponent:dev"
+    }
+}
+
+val versionNumber by extra {
+    if (project.hasProperty("versionNumber")) {
+        project.property("versionNumber").toString()
+    } else {
+        "dev"
+    }
+}
+
+val branchName by extra {
+    if (project.hasProperty("branchName")) {
+        project.property("branchName").toString()
+    } else {
+        "localdev"
+    }
+}
+
+val commitHash by extra {
+    if (project.hasProperty("commitHash")) {
+        project.property("commitHash").toString()
+    } else {
+        "localdev"
+    }
 }
 
 // create custom configuration for extra dependencies that are required in the generated WAR
@@ -399,6 +424,13 @@ tasks {
         dependsOn("generateWildflyBootableJar")
 
         inputDir.set(file("."))
+        buildArgs.set(
+            mapOf(
+                "versionNumber" to versionNumber,
+                "branchName" to branchName,
+                "commitHash" to commitHash
+            )
+        )
         dockerFile.set(file("Containerfile"))
         images.add(zacDockerImage)
     }
