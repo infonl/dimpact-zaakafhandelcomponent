@@ -9,6 +9,7 @@ import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.HttpStatus
 import io.github.oshai.kotlinlogging.DelegatingKLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.config.AbstractProjectConfig
+import io.kotest.core.spec.SpecExecutionOrder
 import nl.lifely.zac.itest.client.KeycloakClient
 import nl.lifely.zac.itest.client.createZaakAfhandelParameters
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_MANAGEMENT_URI
@@ -21,6 +22,7 @@ import org.testcontainers.containers.wait.strategy.Wait
 import java.io.File
 import java.time.Duration
 
+
 private val logger = KotlinLogging.logger {}
 
 object ProjectConfig : AbstractProjectConfig() {
@@ -28,7 +30,7 @@ object ProjectConfig : AbstractProjectConfig() {
     private val THREE_MINUTES = Duration.ofMinutes(3)
 
     @Suppress("MagicNumber")
-    private val TEN_SECONDS = Duration.ofSeconds(10)
+    private val TWENTY_SECONDS = Duration.ofSeconds(20)
 
     private lateinit var dockerComposeContainer: ComposeContainer
 
@@ -74,7 +76,7 @@ object ProjectConfig : AbstractProjectConfig() {
             dockerComposeContainer.start()
             logger.info { "Started ZAC Docker Compose containers" }
             logger.info { "Waiting until ZAC is healthy by calling the health endpoint and checking the response" }
-            await.atMost(TEN_SECONDS)
+            await.atMost(TWENTY_SECONDS)
                 .until {
                     khttp.get(
                         url = "${ZAC_MANAGEMENT_URI}/health/ready",
@@ -96,6 +98,8 @@ object ProjectConfig : AbstractProjectConfig() {
     override suspend fun afterProject() {
         dockerComposeContainer.stop()
     }
+
+    override val specExecutionOrder = SpecExecutionOrder.Annotated
 
     /**
      * The integration tests assume a clean environment.

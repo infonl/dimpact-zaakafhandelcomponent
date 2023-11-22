@@ -8,6 +8,8 @@ package net.atos.zac.documentcreatie.model;
 import java.net.URI;
 import java.time.LocalDate;
 
+import jakarta.json.bind.annotation.JsonbProperty;
+
 import net.atos.client.zgw.drc.model.InformatieobjectStatus;
 
 public class Registratie {
@@ -16,7 +18,8 @@ public class Registratie {
 
     public InformatieobjectStatus informatieobjectStatus;
 
-    public URI informatieobjecttype;
+    @JsonbProperty("informatieobjecttype")
+    public URI informationObjectType;
 
     public String bronorganisatie;
 
