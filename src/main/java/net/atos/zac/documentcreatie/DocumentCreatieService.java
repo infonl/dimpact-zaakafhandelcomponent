@@ -103,11 +103,11 @@ public class DocumentCreatieService {
 
     private Registratie createRegistratie(final DocumentCreatieGegevens documentCreatieGegevens) {
         final Registratie registratie = new Registratie();
-        registratie.bronorganisatie = BRON_ORGANISATIE;
+        registratie.bronOrganisatie = BRON_ORGANISATIE;
         registratie.zaak = zrcClientService.createUrlExternToZaak(documentCreatieGegevens.getZaak().getUuid());
-        registratie.informatieobjectStatus = documentCreatieGegevens.getInformatieobjectStatus();
-        registratie.informationObjectType = documentCreatieGegevens.getInformatieobjecttype().getUrl();
-        registratie.creatiedatum = LocalDate.now();
+        registratie.informatieObjectStatus = documentCreatieGegevens.getInformatieobjectStatus();
+        registratie.informatieObjectType = documentCreatieGegevens.getInformatieobjecttype().getUrl();
+        registratie.creatieDatum = LocalDate.now();
         registratie.auditToelichting = AUDIT_TOELICHTING;
         return registratie;
     }

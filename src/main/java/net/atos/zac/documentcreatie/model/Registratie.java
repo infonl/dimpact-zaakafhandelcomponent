@@ -14,16 +14,21 @@ import net.atos.client.zgw.drc.model.InformatieobjectStatus;
 
 public class Registratie {
 
+    @JsonbProperty("zaak")
     public URI zaak;
 
-    public InformatieobjectStatus informatieobjectStatus;
+    @JsonbProperty("informatieobjectStatus")
+    public InformatieobjectStatus informatieObjectStatus;
 
     @JsonbProperty("informatieobjecttype")
-    public URI informationObjectType;
+    public URI informatieObjectType;
 
-    public String bronorganisatie;
+    @JsonbProperty("bronorganisatie")
+    public String bronOrganisatie;
 
-    public LocalDate creatiedatum;
+    @JsonbProperty("creatiedatum")
+    public LocalDate creatieDatum;
 
+    @JsonbProperty("auditToelichting")
     public String auditToelichting;
 }

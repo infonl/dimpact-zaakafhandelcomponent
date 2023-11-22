@@ -12,6 +12,7 @@ import io.kotest.core.config.AbstractProjectConfig
 import io.kotest.core.spec.SpecExecutionOrder
 import nl.lifely.zac.itest.client.KeycloakClient
 import nl.lifely.zac.itest.client.createZaakAfhandelParameters
+import nl.lifely.zac.itest.config.ItestConfiguration.SMARTDOCUMENTS_MOCK_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_MANAGEMENT_URI
 import org.awaitility.kotlin.await
 import org.slf4j.Logger
@@ -21,7 +22,6 @@ import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.Wait
 import java.io.File
 import java.time.Duration
-
 
 private val logger = KotlinLogging.logger {}
 
@@ -39,40 +39,7 @@ object ProjectConfig : AbstractProjectConfig() {
         try {
             deleteLocalDockerVolumeData()
 
-            dockerComposeContainer = ComposeContainer(File("docker-compose.yaml"))
-                .withLocalCompose(true)
-                .withOptions(
-                    "--profile zac",
-                    "--env-file .env.itest"
-                )
-                .withLogConsumer(
-                    "solr",
-                    Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
-                        "SOLR"
-                    )
-                )
-                .withLogConsumer(
-                    "keycloak",
-                    Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
-                        "KEYCLOAK"
-                    )
-                )
-                .withLogConsumer(
-                    "zac",
-                    Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
-                        "ZAC"
-                    )
-                )
-                .waitingFor(
-                    "openzaak.local",
-                    Wait.forLogMessage(".*spawned uWSGI worker 2.*", 1)
-                        .withStartupTimeout(THREE_MINUTES)
-                )
-                .waitingFor(
-                    "zac",
-                    Wait.forLogMessage(".* WildFly Full .* started .*", 1)
-                        .withStartupTimeout(THREE_MINUTES)
-                )
+            dockerComposeContainer = createDockerComposeContainer()
             dockerComposeContainer.start()
             logger.info { "Started ZAC Docker Compose containers" }
             logger.info { "Waiting until ZAC is healthy by calling the health endpoint and checking the response" }
@@ -100,6 +67,47 @@ object ProjectConfig : AbstractProjectConfig() {
     }
 
     override val specExecutionOrder = SpecExecutionOrder.Annotated
+
+    private fun createDockerComposeContainer() =
+        ComposeContainer(File("docker-compose.yaml"))
+            .withLocalCompose(true)
+            .withEnv(
+                mapOf(
+                    "ZAC_DOCKER_IMAGE" to "ghcr.io/infonl/zaakafhandelcomponent:dev",
+                    "SD_CLIENT_MP_REST_URL" to SMARTDOCUMENTS_MOCK_BASE_URI
+                )
+            )
+            .withOptions(
+                "--profile zac"
+            )
+            .withLogConsumer(
+                "solr",
+                Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
+                    "SOLR"
+                )
+            )
+            .withLogConsumer(
+                "keycloak",
+                Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
+                    "KEYCLOAK"
+                )
+            )
+            .withLogConsumer(
+                "zac",
+                Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
+                    "ZAC"
+                )
+            )
+            .waitingFor(
+                "openzaak.local",
+                Wait.forLogMessage(".*spawned uWSGI worker 2.*", 1)
+                    .withStartupTimeout(THREE_MINUTES)
+            )
+            .waitingFor(
+                "zac",
+                Wait.forLogMessage(".* WildFly Full .* started .*", 1)
+                    .withStartupTimeout(THREE_MINUTES)
+            )
 
     /**
      * The integration tests assume a clean environment.
