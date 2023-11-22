@@ -16,7 +16,7 @@ public class Registratie {
 
     public InformatieobjectStatus informatieobjectStatus;
 
-    public URI informatieobjectType;
+    public URI informatieobjecttype;
 
     public String bronorganisatie;
 
