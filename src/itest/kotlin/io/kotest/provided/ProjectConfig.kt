@@ -13,6 +13,7 @@ import io.kotest.core.spec.SpecExecutionOrder
 import nl.lifely.zac.itest.client.KeycloakClient
 import nl.lifely.zac.itest.client.createZaakAfhandelParameters
 import nl.lifely.zac.itest.config.ItestConfiguration.SMARTDOCUMENTS_MOCK_BASE_URI
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_DEFAULT_DOCKER_IMAGE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_MANAGEMENT_URI
 import org.awaitility.kotlin.await
 import org.slf4j.Logger
@@ -68,12 +69,17 @@ object ProjectConfig : AbstractProjectConfig() {
 
     override val specExecutionOrder = SpecExecutionOrder.Annotated
 
-    private fun createDockerComposeContainer() =
-        ComposeContainer(File("docker-compose.yaml"))
+    private fun createDockerComposeContainer(): ComposeContainer {
+        val zacDockerImage = System.getProperty("zacDockerImage") ?: run {
+            ZAC_DEFAULT_DOCKER_IMAGE
+        }
+        logger.info { "Using ZAC Docker image: '$zacDockerImage'" }
+
+        return ComposeContainer(File("docker-compose.yaml"))
             .withLocalCompose(true)
             .withEnv(
                 mapOf(
-                    "ZAC_DOCKER_IMAGE" to "ghcr.io/infonl/zaakafhandelcomponent:dev",
+                    "ZAC_DOCKER_IMAGE" to zacDockerImage,
                     "SD_CLIENT_MP_REST_URL" to SMARTDOCUMENTS_MOCK_BASE_URI
                 )
             )
@@ -108,6 +114,7 @@ object ProjectConfig : AbstractProjectConfig() {
                 Wait.forLogMessage(".* WildFly Full .* started .*", 1)
                     .withStartupTimeout(THREE_MINUTES)
             )
+    }
 
     /**
      * The integration tests assume a clean environment.
