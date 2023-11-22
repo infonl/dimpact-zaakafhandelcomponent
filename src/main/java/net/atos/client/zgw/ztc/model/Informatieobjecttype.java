@@ -69,8 +69,12 @@ public class Informatieobjecttype {
     /**
      * Constructor with required attributes for POST and PUT requests
      */
-    public Informatieobjecttype(final URI catalogus, final String omschrijving, final Vertrouwelijkheidaanduiding vertrouwelijkheidaanduiding,
-            final LocalDate beginGeldigheid) {
+    public Informatieobjecttype(
+            final URI catalogus,
+            final String omschrijving,
+            final Vertrouwelijkheidaanduiding vertrouwelijkheidaanduiding,
+            final LocalDate beginGeldigheid)
+    {
         this.catalogus = catalogus;
         this.omschrijving = omschrijving;
         this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding;
@@ -78,11 +82,13 @@ public class Informatieobjecttype {
     }
 
     /**
-     * Constructor with readOnly attribures for GET response
+     * Constructor with readOnly attributes for GET response
      */
     @JsonbCreator
-    public Informatieobjecttype(@JsonbProperty("url") final URI url,
-            @JsonbProperty("concept") final Boolean concept) {
+    public Informatieobjecttype(
+            @JsonbProperty("url") final URI url,
+            @JsonbProperty("concept") final Boolean concept
+    ) {
         this.url = url;
         this.concept = concept;
     }

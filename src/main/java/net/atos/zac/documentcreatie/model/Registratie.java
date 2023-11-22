@@ -16,6 +16,8 @@ public class Registratie {
 
     public InformatieobjectStatus informatieobjectStatus;
 
+    public URI informatieobjectType;
+
     public String bronorganisatie;
 
     public LocalDate creatiedatum;

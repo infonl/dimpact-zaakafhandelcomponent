@@ -37,7 +37,7 @@ fun createRolNatuurlijkPersoon(
     natuurlijkPersoon
 )
 
-fun createZaak(zaaktypeURI: URI = URI("http://example.com/${UUID.randomUUID()}}")) =
+fun createZaak(zaaktypeURI: URI = URI("http://example.com/${UUID.randomUUID()}")) =
     Zaak(
         zaaktypeURI,
         LocalDate.now(),

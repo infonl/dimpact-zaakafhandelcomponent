@@ -12,14 +12,13 @@ import java.time.LocalDate;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.UriBuilder;
-
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-
 import net.atos.client.sd.SmartDocumentsClient;
 import net.atos.client.sd.exception.BadRequestException;
 import net.atos.client.sd.model.Selection;
@@ -106,6 +105,7 @@ public class DocumentCreatieService {
         registratie.bronorganisatie = BRON_ORGANISATIE;
         registratie.zaak = zrcClientService.createUrlExternToZaak(documentCreatieGegevens.getZaak().getUuid());
         registratie.informatieobjectStatus = documentCreatieGegevens.getInformatieobjectStatus();
+        registratie.informatieobjectType = documentCreatieGegevens.getInformatieobjecttype().getUrl();
         registratie.creatiedatum = LocalDate.now();
         registratie.auditToelichting = AUDIT_TOELICHTING;
         return registratie;

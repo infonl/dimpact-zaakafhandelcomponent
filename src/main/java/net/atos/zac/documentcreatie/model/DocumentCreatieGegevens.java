@@ -7,6 +7,7 @@ package net.atos.zac.documentcreatie.model;
 
 import net.atos.client.zgw.drc.model.InformatieobjectStatus;
 import net.atos.client.zgw.zrc.model.Zaak;
+import net.atos.client.zgw.ztc.model.Informatieobjecttype;
 
 public class DocumentCreatieGegevens {
 
@@ -16,9 +17,16 @@ public class DocumentCreatieGegevens {
 
     private InformatieobjectStatus informatieobjectStatus = InformatieobjectStatus.TER_VASTSTELLING;
 
-    public DocumentCreatieGegevens(final Zaak zaak, final String taskId) {
+    private Informatieobjecttype informatieobjecttype;
+
+    public DocumentCreatieGegevens(
+            final Zaak zaak,
+            final String taskId,
+            final Informatieobjecttype informatieobjecttype
+    ) {
         this.zaak = zaak;
         this.taskId = taskId;
+        this.informatieobjecttype = informatieobjecttype;
     }
 
     public Zaak getZaak() {
@@ -28,6 +36,8 @@ public class DocumentCreatieGegevens {
     public InformatieobjectStatus getInformatieobjectStatus() {
         return informatieobjectStatus;
     }
+
+    public Informatieobjecttype getInformatieobjecttype() { return informatieobjecttype; }
 
     public String getTaskId() {
         return taskId;
