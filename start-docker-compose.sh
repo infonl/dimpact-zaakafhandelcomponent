@@ -47,8 +47,8 @@ done
 # Please see docs/INSTALL.md for details on how to use this script.
 if [ "$startZac" = true ] ; then
   echo "Starting Docker Compose environment with ZAC.."
-  export APP_ENV=devlocal && op run --env-file="./.env.tpl" -- docker compose --profile zac --project-name zac up -d
+  export APP_ENV=devlocal && op run --env-file="./.env.tpl" --no-masking -- docker compose --profile zac --project-name zac up -d
 else
   echo "Starting Docker Compose environment without ZAC.."
-  export APP_ENV=devlocal && op run --env-file="./.env.tpl" -- docker compose --project-name zac up -d
+  export APP_ENV=devlocal && op run --env-file="./.env.tpl" --no-masking -- docker compose --project-name zac up -d
 fi
