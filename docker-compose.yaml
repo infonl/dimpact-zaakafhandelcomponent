@@ -29,7 +29,7 @@ services:
     ports:
       - "54326:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 20s
       timeout: 60s
       retries: 5
@@ -46,7 +46,7 @@ services:
     ports:
       - "54320:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 20s
       timeout: 60s
       retries: 5
@@ -65,7 +65,7 @@ services:
       - "54322:5432"
     platform: linux/amd64
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 20s
       timeout: 60s
       retries: 5
@@ -86,7 +86,7 @@ services:
     image: openzaak/open-zaak:1.8.2
     platform: linux/amd64
     environment:
-      - ALLOWED_HOSTS=localhost,host.docker.internal,openzaak.local
+      - ALLOWED_HOSTS=localhost,host.docker.internal,openzaak.local,example.com
       - DB_HOST=openzaak-database
       - DB_NAME=openzaak
       - DB_PASSWORD=openzaak
@@ -142,7 +142,7 @@ services:
       - "54323:5432"
     platform: linux/amd64
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 20s
       timeout: 60s
       retries: 5
@@ -186,7 +186,7 @@ services:
     ports:
       - "54324:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 20s
       timeout: 60s
       retries: 5
@@ -317,7 +317,7 @@ services:
     ports:
       - "54325:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 20s
       timeout: 60s
       retries: 5
@@ -334,7 +334,7 @@ services:
     image: docker.io/maykinmedia/open-klant:latest
     platform: linux/amd64
     environment:
-      - ALLOWED_HOSTS=localhost,host.docker.internal,openklant
+      - ALLOWED_HOSTS=localhost,host.docker.internal,openklant,example.com
       - DB_HOST=openklant-database
       - DB_USER=openklant
       - DB_PASSWORD=openklant
