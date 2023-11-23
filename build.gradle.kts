@@ -142,14 +142,14 @@ dependencies {
     // yasson is required for using a JSONB context in our unit tests
     // where we do not have the WildFly runtime environment available
     testImplementation("org.eclipse:yasson:3.0.3")
-    testImplementation("io.kotest:kotest-runner-junit5:5.7.1")
+    testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
     testImplementation("io.mockk:mockk:1.13.8")
 
     // integration test dependencies
     "itestImplementation"("org.testcontainers:testcontainers:1.19.3")
     "itestImplementation"("org.testcontainers:mockserver:1.19.3")
     "itestImplementation"("org.testcontainers:postgresql:1.19.3")
-    "itestImplementation"("io.kotest:kotest-runner-junit5:5.7.1")
+    "itestImplementation"("io.kotest:kotest-runner-junit5:5.8.0")
     "itestImplementation"("org.slf4j:slf4j-simple:2.0.9")
     "itestImplementation"("io.github.oshai:kotlin-logging-jvm:5.1.0")
     "itestImplementation"("org.danilopianini:khttp:1.4.1")
