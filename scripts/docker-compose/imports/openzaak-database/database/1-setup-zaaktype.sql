@@ -450,7 +450,7 @@ VALUES
     (SELECT id FROM catalogi_zaaktype ORDER BY id DESC LIMIT 1) + 1, -- Assuming auto-increment is not set for id
     '2023-10-01', -- datum_begin_geldigheid
     NULL, -- datum_einde_geldigheid
-    true, -- concept
+    false, -- concept
     'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425', -- uuid (derived from the URL)
     'indienen-aansprakelijkstelling-behandelen', -- identificatie
     'Indienen aansprakelijkstelling door derden behandelen', -- zaaktype_omschrijving
@@ -907,51 +907,51 @@ VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) 
 
 -- Factuur
 INSERT INTO catalogi_informatieobjecttype (id, datum_begin_geldigheid, datum_einde_geldigheid, concept, uuid, omschrijving, vertrouwelijkheidaanduiding, catalogus_id, _etag)
-VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1 , '2023-11-22', NULL, true, 'eca3ae33-c9f1-4136-a48a-47dc3f4aaaf5', 'factuur', 'openbaar', 1, '_etag');
+VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1 , '2023-11-22', NULL, false, 'eca3ae33-c9f1-4136-a48a-47dc3f4aaaf5', 'factuur', 'openbaar', 1, '_etag');
 
 -- Ontvangstbevestiging
 INSERT INTO catalogi_informatieobjecttype (id, datum_begin_geldigheid, datum_einde_geldigheid, concept, uuid, omschrijving, vertrouwelijkheidaanduiding, catalogus_id, _etag)
-VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1 , '2023-11-22', NULL, true, 'bf9a7836-2e29-4db1-9abc-382f2d4a9e70', 'ontvangstbevestiging', 'openbaar', 1, '_etag');
+VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1 , '2023-11-22', NULL, false, 'bf9a7836-2e29-4db1-9abc-382f2d4a9e70', 'ontvangstbevestiging', 'openbaar', 1, '_etag');
 
 -- Brief
 INSERT INTO catalogi_informatieobjecttype (id, datum_begin_geldigheid, datum_einde_geldigheid, concept, uuid, omschrijving, vertrouwelijkheidaanduiding, catalogus_id, _etag)
-VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '2023-11-22', NULL, true, 'd01b6502-6c9b-48a0-a5f2-9825a2128952', 'brief', 'openbaar', 1, '_etag');
+VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '2023-11-22', NULL, false, 'd01b6502-6c9b-48a0-a5f2-9825a2128952', 'brief', 'openbaar', 1, '_etag');
 
 -- Bewijs
 INSERT INTO catalogi_informatieobjecttype (id, datum_begin_geldigheid, datum_einde_geldigheid, concept, uuid, omschrijving, vertrouwelijkheidaanduiding, catalogus_id, _etag)
-VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '2023-11-22', NULL, true, '8018c096-28c5-4175-b235-916b0318c6ef', 'bewijs', 'openbaar', 1, '_etag');
+VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '2023-11-22', NULL, false, '8018c096-28c5-4175-b235-916b0318c6ef', 'bewijs', 'openbaar', 1, '_etag');
 
 -- Afbeelding
 INSERT INTO catalogi_informatieobjecttype (id, datum_begin_geldigheid, datum_einde_geldigheid, concept, uuid, omschrijving, vertrouwelijkheidaanduiding, catalogus_id, _etag)
-VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '2023-11-22', NULL, true, '37beaaf9-9075-4cc8-b847-a06552324c92', 'afbeelding', 'openbaar', 1, '_etag');
+VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '2023-11-22', NULL, false, '37beaaf9-9075-4cc8-b847-a06552324c92', 'afbeelding', 'openbaar', 1, '_etag');
 
 -- Advies
 INSERT INTO catalogi_informatieobjecttype (id, datum_begin_geldigheid, datum_einde_geldigheid, concept, uuid, omschrijving, vertrouwelijkheidaanduiding, catalogus_id, _etag)
-VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '2023-11-22', NULL, true, '8a106522-c526-427d-83d0-05393e5cac9a', 'advies', 'openbaar', 1, '_etag');
+VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '2023-11-22', NULL, false, '8a106522-c526-427d-83d0-05393e5cac9a', 'advies', 'openbaar', 1, '_etag');
 
 -- Aangeboden bescheiden
 INSERT INTO catalogi_informatieobjecttype (id, datum_begin_geldigheid, datum_einde_geldigheid, concept, uuid, omschrijving, vertrouwelijkheidaanduiding, catalogus_id, _etag)
-VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '2023-11-22', NULL, true, '9ad666ea-8f17-44a4-aa2c-9e1deb1c9326', 'aangeboden bescheiden', 'openbaar', 1, '_etag');
+VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '2023-11-22', NULL, false, '9ad666ea-8f17-44a4-aa2c-9e1deb1c9326', 'aangeboden bescheiden', 'openbaar', 1, '_etag');
 
 -- Rapport Intern
 INSERT INTO catalogi_informatieobjecttype (id, datum_begin_geldigheid, datum_einde_geldigheid, concept, uuid, omschrijving, vertrouwelijkheidaanduiding, catalogus_id, _etag)
-VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '2023-11-22', NULL, true, '390fca6f-4f9a-41f9-998a-3e7e7fe43271', 'rapport Intern', 'openbaar', 1, '_etag');
+VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '2023-11-22', NULL, false, '390fca6f-4f9a-41f9-998a-3e7e7fe43271', 'rapport Intern', 'openbaar', 1, '_etag');
 
 -- Rapport Extern
 INSERT INTO catalogi_informatieobjecttype (id, datum_begin_geldigheid, datum_einde_geldigheid, concept, uuid, omschrijving, vertrouwelijkheidaanduiding, catalogus_id, _etag)
-VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '2023-11-22', NULL, true, 'b741de57-6509-456e-94fb-6266c0079356', 'rapport Extern', 'openbaar', 1, '_etag');
+VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '2023-11-22', NULL, false, 'b741de57-6509-456e-94fb-6266c0079356', 'rapport Extern', 'openbaar', 1, '_etag');
 
 -- Opdracht
 INSERT INTO catalogi_informatieobjecttype (id, datum_begin_geldigheid, datum_einde_geldigheid, concept, uuid, omschrijving, vertrouwelijkheidaanduiding, catalogus_id, _etag)
-VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '2023-11-22', NULL, true, '0a6d8317-593f-4a64-9c18-9f14277e644c', 'opdracht', 'openbaar', 1, '_etag');
+VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '2023-11-22', NULL, false, '0a6d8317-593f-4a64-9c18-9f14277e644c', 'opdracht', 'openbaar', 1, '_etag');
 
 -- Offerte
 INSERT INTO catalogi_informatieobjecttype (id, datum_begin_geldigheid, datum_einde_geldigheid, concept, uuid, omschrijving, vertrouwelijkheidaanduiding, catalogus_id, _etag)
-VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '2023-11-22', NULL, true, '91dc9aab-0393-4ead-bdf7-0d6ff75aa8a7', 'offerte', 'openbaar', 1, '_etag');
+VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '2023-11-22', NULL, false, '91dc9aab-0393-4ead-bdf7-0d6ff75aa8a7', 'offerte', 'openbaar', 1, '_etag');
 
 -- Besluit
 INSERT INTO catalogi_informatieobjecttype (id, datum_begin_geldigheid, datum_einde_geldigheid, concept, uuid, omschrijving, vertrouwelijkheidaanduiding, catalogus_id, _etag)
-VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '2023-11-22', NULL, true, '7397af15-44d1-4b0d-b7ea-22b20912ed80', 'besluit', 'openbaar', 1, '_etag');
+VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '2023-11-22', NULL, false, '7397af15-44d1-4b0d-b7ea-22b20912ed80', 'besluit', 'openbaar', 1, '_etag');
 
 -- ZAAKTYPEN INFORMATIEOBJECTTYPE
 -- e-mail
