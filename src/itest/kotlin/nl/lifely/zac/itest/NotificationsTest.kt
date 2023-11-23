@@ -7,6 +7,7 @@ package nl.lifely.zac.itest
 
 import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.HttpStatus
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.KeycloakClient
@@ -20,9 +21,16 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONObject
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.util.UUID
 
 private val logger = KotlinLogging.logger {}
 
+lateinit var zaakUUID: UUID
+
+/**
+ * This test creates a zaak which we use in other tests, and therefore we run this test first.
+ */
+@Order(0)
 class NotificationsTest : BehaviorSpec({
     given("ZAC and all related Docker containers are running") {
         When("the notificaties endpoint is called with dummy payload without authentication header") {
@@ -96,6 +104,7 @@ class NotificationsTest : BehaviorSpec({
                         zaak.getBoolean("isProcesGestuurd") shouldBe false
                         zaak.getJSONObject("communicatiekanaal")
                             .getString("naam") shouldBe "E-formulier"
+                        zaakUUID = UUID.fromString(zaak.getString("uuid"))
                     }
                 }
             }

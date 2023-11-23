@@ -353,6 +353,15 @@ services:
       redis:
         condition: service_started
 
+  smartdocuments-wiremock:
+    image: "wiremock/wiremock:3.3.1"
+    ports:
+      - "8082:8080"
+    volumes:
+      # these WireMock mappings are used by the ZAC integration tests
+      - ./scripts/docker-compose/imports/smartdocuments-wiremock/mappings:/home/wiremock/mappings
+    entrypoint: [ "/docker-entrypoint.sh", "--global-response-templating", "--disable-gzip", "--verbose" ]
+
   zac:
     # By default, we use the latest ZAC Docker Image. Change this if you wish to use a specific version.
     image: ${ZAC_DOCKER_IMAGE:-ghcr.io/infonl/zaakafhandelcomponent:latest}
@@ -397,7 +406,7 @@ services:
       - OPEN_FORMS_URL=http://localhost:9999 # dummy for now
       - OPEN_NOTIFICATIONS_API_SECRET_KEY=openNotificatiesApiSecretKey
       - SD_AUTHENTICATION=${SD_AUTHENTICATION:-dummySmartDocumentsAuthentication}
-      - SD_CLIENT_MP_REST_URL=${SD_CLIENT_MP_REST_URL:-dummySmartDocumentsClientUrl}
+      - SD_CLIENT_MP_REST_URL=${SD_CLIENT_MP_REST_URL:-http://smartdocuments-wiremock:8080}
       - SD_FIXED_USER_NAME=${SD_FIXED_USER_NAME:-}
       - SOLR_URL=http://solr:8983
       - VRL_API_CLIENT_MP_REST_URL=http://zgw-referentielijsten.local:8000/

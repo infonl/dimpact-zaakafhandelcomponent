@@ -200,9 +200,11 @@ jobs:
             build/test-results/itest/**/*.xml
 
       - name: Save Docker Image
+        if: github.ref == 'refs/heads/main'
         run: docker save --output docker-image.tar ${ZAC_DOCKER_IMAGE}
 
       - name: Cache Docker Image
+        if: github.ref == 'refs/heads/main'
         uses: actions/cache/save@v3
         with:
           path: docker-image.tar

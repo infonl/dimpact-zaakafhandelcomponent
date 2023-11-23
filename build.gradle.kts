@@ -146,13 +146,15 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.8")
 
     // integration test dependencies
-    "itestImplementation"("org.testcontainers:testcontainers:1.19.2")
-    "itestImplementation"("org.testcontainers:postgresql:1.19.2")
+    "itestImplementation"("org.testcontainers:testcontainers:1.19.3")
+    "itestImplementation"("org.testcontainers:mockserver:1.19.3")
+    "itestImplementation"("org.testcontainers:postgresql:1.19.3")
     "itestImplementation"("io.kotest:kotest-runner-junit5:5.7.1")
     "itestImplementation"("org.slf4j:slf4j-simple:2.0.9")
     "itestImplementation"("io.github.oshai:kotlin-logging-jvm:5.1.0")
     "itestImplementation"("org.danilopianini:khttp:1.4.0")
     "itestImplementation"("org.awaitility:awaitility-kotlin:4.2.0")
+    "itestImplementation"("org.mock-server:mockserver-client-java:5.15.0")
 }
 
 detekt {
