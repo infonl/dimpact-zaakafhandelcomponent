@@ -58,6 +58,6 @@ objectClass: top
 cn: test-group-a
 uniqueMember: cn=testuser1,ou=people,dc=example,dc=org
 uniqueMember: cn=testuser2,ou=people,dc=example,dc=org
-description: Een hele mooie groep
+description: Test groep A
 email: ${GROUP_A_EMAIL_ADDRESS}
 
