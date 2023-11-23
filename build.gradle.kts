@@ -21,7 +21,7 @@ plugins {
     id("io.smallrye.openapi") version "3.7.0"
     id("org.hidetake.swagger.generator") version "2.19.2"
     id("io.gitlab.arturbosch.detekt") version "1.23.3"
-    id("com.bmuschko.docker-remote-api") version "9.3.4"
+    id("com.bmuschko.docker-remote-api") version "9.3.7"
 }
 
 repositories {
