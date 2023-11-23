@@ -124,7 +124,7 @@ dependencies {
 
     // declare dependencies that are required in the generated WAR; see war section below
     // simply marking them as 'compileOnly' or 'implementation' does not work
-    warLib("org.apache.httpcomponents:httpclient:4.5.13")
+    warLib("org.apache.httpcomponents:httpclient:4.5.14")
     warLib("org.reactivestreams:reactive-streams:1.0.4")
     // WildFly does already include the Jakarta Mail API lib so not sure why, but we need to
     // include it in the WAR or else ZAC will fail to be deployed
