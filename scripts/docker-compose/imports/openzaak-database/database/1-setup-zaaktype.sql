@@ -958,7 +958,7 @@ VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) 
 INSERT INTO catalogi_zaaktypeinformatieobjecttype
 (id, uuid, volgnummer, richting, informatieobjecttype_id, statustype_id, zaaktype_id, _etag)
 VALUES
-((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '405da8a9-7296-439c-a2eb-a470b84f17ee', 1, 'inkomend', 
+((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '96c34d09-475c-41f2-99f6-9ae8123d0815', (SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY volgnummer DESC LIMIT 1) + 1, 'inkomend', 
 (SELECT id FROM catalogi_informatieobjecttype WHERE uuid = 'dc21b6a3-1797-4f00-936e-361928a8bf4e'),
 NULL, 
 (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'), '_etag');
@@ -968,7 +968,7 @@ NULL,
 INSERT INTO catalogi_zaaktypeinformatieobjecttype
 (id, uuid, volgnummer, richting, informatieobjecttype_id, statustype_id, zaaktype_id, _etag)
 VALUES
-((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '809b5454-45f6-4368-b876-a61775c7e6a7', 2, 'inkomend', 
+((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, 'a911bd37-c699-4f0c-8039-6428148fd1f2', (SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY volgnummer DESC LIMIT 1) + 1, 'inkomend', 
 (SELECT id FROM catalogi_informatieobjecttype WHERE uuid = 'e2cbc4ce-ca93-4628-b25c-0ce56d27dd13'),
 NULL, 
 (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'), '_etag');
@@ -977,7 +977,7 @@ NULL,
 INSERT INTO catalogi_zaaktypeinformatieobjecttype
 (id, uuid, volgnummer, richting, informatieobjecttype_id, statustype_id, zaaktype_id, _etag)
 VALUES
-((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, 'cc40a1dc-f02c-4ffe-8e28-e46e8dbed816', 3, 'inkomend', 
+((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, 'cc40a1dc-f02c-4ffe-8e28-e46e8dbed816', (SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY volgnummer DESC LIMIT 1) + 1, 'inkomend', 
 (SELECT id FROM catalogi_informatieobjecttype WHERE uuid = 'eca3ae33-c9f1-4136-a48a-47dc3f4aaaf5'),
 NULL, 
 (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'), '_etag');
@@ -986,7 +986,7 @@ NULL,
 INSERT INTO catalogi_zaaktypeinformatieobjecttype
 (id, uuid, volgnummer, richting, informatieobjecttype_id, statustype_id, zaaktype_id, _etag)
 VALUES
-((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '226f2ee4-c188-44ce-833f-2ae6664803ed', 4, 'inkomend', 
+((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '226f2ee4-c188-44ce-833f-2ae6664803ed', (SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY volgnummer DESC LIMIT 1) + 1, 'inkomend', 
 (SELECT id FROM catalogi_informatieobjecttype WHERE uuid = 'bf9a7836-2e29-4db1-9abc-382f2d4a9e70'),
 NULL, 
 (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'), '_etag');
@@ -995,7 +995,7 @@ NULL,
 INSERT INTO catalogi_zaaktypeinformatieobjecttype
 (id, uuid, volgnummer, richting, informatieobjecttype_id, statustype_id, zaaktype_id, _etag)
 VALUES
-((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '90465ffb-5731-42cf-be64-2f3a37ea70bb', 5, 'inkomend', 
+((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '90465ffb-5731-42cf-be64-2f3a37ea70bb', (SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY volgnummer DESC LIMIT 1) + 1, 'inkomend', 
 (SELECT id FROM catalogi_informatieobjecttype WHERE uuid = 'd01b6502-6c9b-48a0-a5f2-9825a2128952'),
 NULL, 
 (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'), '_etag');
@@ -1005,7 +1005,7 @@ NULL,
 INSERT INTO catalogi_zaaktypeinformatieobjecttype
 (id, uuid, volgnummer, richting, informatieobjecttype_id, statustype_id, zaaktype_id, _etag)
 VALUES
-((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '6e8813db-af94-4224-ab3d-ee886fcda954', 6, 'inkomend', 
+((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '6e8813db-af94-4224-ab3d-ee886fcda954', (SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY volgnummer DESC LIMIT 1) + 1, 'inkomend', 
 (SELECT id FROM catalogi_informatieobjecttype WHERE uuid = '8018c096-28c5-4175-b235-916b0318c6ef'),
 NULL, 
 (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'), '_etag');
@@ -1014,7 +1014,7 @@ NULL,
 INSERT INTO catalogi_zaaktypeinformatieobjecttype
 (id, uuid, volgnummer, richting, informatieobjecttype_id, statustype_id, zaaktype_id, _etag)
 VALUES
-((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '30175a01-ab65-4c27-a90f-07e1c57f8fab', 7, 'inkomend', 
+((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '30175a01-ab65-4c27-a90f-07e1c57f8fab', (SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY volgnummer DESC LIMIT 1) + 1, 'inkomend', 
 (SELECT id FROM catalogi_informatieobjecttype WHERE uuid = '37beaaf9-9075-4cc8-b847-a06552324c92'),
 NULL, 
 (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'), '_etag');
@@ -1023,7 +1023,7 @@ NULL,
 INSERT INTO catalogi_zaaktypeinformatieobjecttype
 (id, uuid, volgnummer, richting, informatieobjecttype_id, statustype_id, zaaktype_id, _etag)
 VALUES
-((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, 'b9753782-e5bb-40d1-95aa-9aca1ef25bc4', 8, 'inkomend', 
+((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, 'b9753782-e5bb-40d1-95aa-9aca1ef25bc4', (SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY volgnummer DESC LIMIT 1) + 1, 'inkomend', 
 (SELECT id FROM catalogi_informatieobjecttype WHERE uuid = '8a106522-c526-427d-83d0-05393e5cac9a'),
 NULL, 
 (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'), '_etag');
@@ -1032,7 +1032,7 @@ NULL,
 INSERT INTO catalogi_zaaktypeinformatieobjecttype
 (id, uuid, volgnummer, richting, informatieobjecttype_id, statustype_id, zaaktype_id, _etag)
 VALUES
-((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '704ae7ba-1b65-4eca-b4d1-0c8311871450', 9, 'inkomend', 
+((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '704ae7ba-1b65-4eca-b4d1-0c8311871450', (SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY volgnummer DESC LIMIT 1) + 1, 'inkomend', 
 (SELECT id FROM catalogi_informatieobjecttype WHERE uuid = '9ad666ea-8f17-44a4-aa2c-9e1deb1c9326'),
 NULL, 
 (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'), '_etag');
@@ -1041,7 +1041,7 @@ NULL,
 INSERT INTO catalogi_zaaktypeinformatieobjecttype
 (id, uuid, volgnummer, richting, informatieobjecttype_id, statustype_id, zaaktype_id, _etag)
 VALUES
-((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '8053c7d0-7489-4b3e-8125-5646e7d2e63c', 10, 'inkomend', 
+((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '8053c7d0-7489-4b3e-8125-5646e7d2e63c', (SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY volgnummer DESC LIMIT 1) + 1, 'inkomend', 
 (SELECT id FROM catalogi_informatieobjecttype WHERE uuid = '390fca6f-4f9a-41f9-998a-3e7e7fe43271'),
 NULL, 
 (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'), '_etag');
@@ -1050,7 +1050,7 @@ NULL,
 INSERT INTO catalogi_zaaktypeinformatieobjecttype
 (id, uuid, volgnummer, richting, informatieobjecttype_id, statustype_id, zaaktype_id, _etag)
 VALUES
-((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '56bd118c-6eac-4dc5-a078-5615a700448f', 11, 'inkomend', 
+((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '56bd118c-6eac-4dc5-a078-5615a700448f', (SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY volgnummer DESC LIMIT 1) + 1, 'inkomend', 
 (SELECT id FROM catalogi_informatieobjecttype WHERE uuid = 'b741de57-6509-456e-94fb-6266c0079356'),
 NULL, 
 (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'), '_etag');
@@ -1059,7 +1059,7 @@ NULL,
 INSERT INTO catalogi_zaaktypeinformatieobjecttype
 (id, uuid, volgnummer, richting, informatieobjecttype_id, statustype_id, zaaktype_id, _etag)
 VALUES
-((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '830ee5b3-ca41-40bc-b478-f0010da7ba02', 12, 'inkomend', 
+((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '830ee5b3-ca41-40bc-b478-f0010da7ba02', (SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY volgnummer DESC LIMIT 1) + 1, 'inkomend', 
 (SELECT id FROM catalogi_informatieobjecttype WHERE uuid = '0a6d8317-593f-4a64-9c18-9f14277e644c'),
 NULL, 
 (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'), '_etag');
@@ -1068,7 +1068,7 @@ NULL,
 INSERT INTO catalogi_zaaktypeinformatieobjecttype
 (id, uuid, volgnummer, richting, informatieobjecttype_id, statustype_id, zaaktype_id, _etag)
 VALUES
-((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '61f985fa-dcd4-4d6c-8da3-5498f41cb51d', 13, 'inkomend', 
+((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '61f985fa-dcd4-4d6c-8da3-5498f41cb51d', (SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY volgnummer DESC LIMIT 1) + 1, 'inkomend', 
 (SELECT id FROM catalogi_informatieobjecttype WHERE uuid = '91dc9aab-0393-4ead-bdf7-0d6ff75aa8a7'),
 NULL, 
 (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'), '_etag');
@@ -1077,7 +1077,7 @@ NULL,
 INSERT INTO catalogi_zaaktypeinformatieobjecttype
 (id, uuid, volgnummer, richting, informatieobjecttype_id, statustype_id, zaaktype_id, _etag)
 VALUES
-((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, 'cd2592ba-7f07-4616-91f0-9c4109c7a82b', 14, 'inkomend', 
+((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, 'cd2592ba-7f07-4616-91f0-9c4109c7a82b', (SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY volgnummer DESC LIMIT 1) + 1, 'inkomend', 
 (SELECT id FROM catalogi_informatieobjecttype WHERE uuid = '7397af15-44d1-4b0d-b7ea-22b20912ed80'),
 NULL, 
 (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'), '_etag');
