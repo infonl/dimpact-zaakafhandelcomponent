@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { When } from "@cucumber/cucumber";
+import { Then, When } from "@cucumber/cucumber";
 import { CustomWorld } from "../support/worlds/world";
 
 When("{string} wants to create a new zaak", { timeout: 60 * 1000 }, async function (this: CustomWorld, user) {
@@ -38,4 +38,28 @@ When("{string} wants to create a new zaak", { timeout: 60 * 1000 }, async functi
     await this.page.getByLabel("Omschrijving").click();
     await this.page.getByLabel("Omschrijving").fill("E2etest1");
     await this.page.getByRole("button", { name: "Aanmaken" }).click();
+
+    await this.page.waitForTimeout(5000)
+
+    await this.page.getByText(/ZAAK-2023-\d+/g)
+
+        // Get the HTML content of the page
+    const content = await this.page.content();
+
+    // Regular expression to match the case number
+    const caseNumberRegex = /ZAAK-2023-\d+/g;
+
+    // Find all matches
+    const matches = content.match(caseNumberRegex);
+
+    if (matches && matches.length > 0) {
+        this.testStorage.set('caseNumber', matches[0]);
+    } else {
+        throw new Error("No case number found");
+    }
+});
+
+Then("{string} sees the created zaak", { timeout: 60 * 1000 }, async function (this: CustomWorld, user) {
+    const caseNumber = this.testStorage.get('caseNumber');
+    await this.page.getByText(caseNumber);
 });
