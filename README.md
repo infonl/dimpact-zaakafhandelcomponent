@@ -7,7 +7,7 @@ Starting July 2023 the development of ZAC was taken over by Lifely and INFO, whe
 
 ## Developer documentation
 
-Please see [docs/development](docs/development/README.md).
+Please see [development](docs/development/README.md).
 
 ## User manuals
 
