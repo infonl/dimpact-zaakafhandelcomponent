@@ -41,16 +41,18 @@ When("{string} wants to create a new zaak", { timeout: 60 * 1000 }, async functi
 
     await this.page.waitForTimeout(5000)
 
-    await this.page.getByText(/ZAAK-2023-\d+/g)
+    const currentYear = new Date().getFullYear();
+
+// Construct the regex pattern with the current year
+    const regexPattern = new RegExp(`ZAAK-${currentYear}-\\d+`, 'g');
+
+    await this.page.getByText(regexPattern)
 
         // Get the HTML content of the page
     const content = await this.page.content();
 
-    // Regular expression to match the case number
-    const caseNumberRegex = /ZAAK-2023-\d+/g;
-
     // Find all matches
-    const matches = content.match(caseNumberRegex);
+    const matches = content.match(regexPattern);
 
     if (matches && matches.length > 0) {
         this.testStorage.set('caseNumber', matches[0]);
