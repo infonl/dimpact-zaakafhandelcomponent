@@ -1132,7 +1132,7 @@ VALUES
 (
   1, 
   (SELECT id FROM catalogi_besluittype WHERE omschrijving = 'Besluit aansprakelijkstelling'),
-  (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'),
+  (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425')
 );
 
 INSERT INTO catalogi_besluittype_zaaktypen
@@ -1141,7 +1141,7 @@ VALUES
 (
   2, 
   (SELECT id FROM catalogi_besluittype WHERE omschrijving = 'Besluit na heroverweging'),
-  (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'),
+  (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425')
 );
 
 
