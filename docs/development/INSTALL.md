@@ -7,7 +7,7 @@ General ZAC usage instructions may be found in the [README.md](../../README.md) 
 
 ### Prerequisites
 
-- Java JDK 17 and up (we use the `Temurin` distribution)
+- Java JDK 17 (we use the `Temurin` distribution)
 
 ### Gradle build
 
