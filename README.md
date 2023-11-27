@@ -11,7 +11,7 @@ Please see [development](docs/development/README.md).
 
 ## Solution architecture documentation
 
-Please see [architecture](docs/solution-architecture/README.md).
+Please see [solution architecture](docs/solution-architecture/README.md).
 
 ## User manuals
 

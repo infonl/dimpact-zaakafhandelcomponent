@@ -5,6 +5,7 @@ These pages describe the solution architecture of ZAC.
 ## ZAC context diagram
 
 The following diagram illustrates the architectural landscape of ZAC:
+
 ![ZAC context diagram](attachments/images/zac-architecture-landscape.jpg)
 
 ## Zaak creation flow
@@ -28,11 +29,13 @@ After receiving the notification of creating a new Product Request in Miscellane
 6. A CMMN Case is started for the case. The started CMMN Case is derived from the case type and can be configured in "Zaak afhandel component" using case handling parameters.
 
 This flow is visualised in the following sequence diagram:
+
 ![ZAC Open Formulieren sequence diagram](attachments/images/zac-open-formulieren-sequence-diagram.png)
 
 ## Identity and Access Management (IAM)
 
 The IAM architecture of ZAC is shown in the following diagram:
+
 ![Identity and Policy](attachments/images/zac-iam-architecture.jpg)
 
 
