@@ -7,9 +7,44 @@ import { CustomWorld } from "../support/worlds/world";
 import { worldPossibleZacUrls } from "../utils/schemes";
 
 Given("{string} navigates to {string} with path {string}", { timeout: 60 * 1000 }, async function (this: CustomWorld, user, urlKey, path) {
-    const res = worldPossibleZacUrls.parse(urlKey)
-    await this.openUrl(this.worldParameters.urls[res] + path);
+   const res = worldPossibleZacUrls.parse(urlKey);
+   const expectedUrl = this.worldParameters.urls[res] + path;
+
+   await this.openUrl(expectedUrl);
+
+   await this.page.waitForURL(expectedUrl);
+
+   const currentUrl = this.page.url();
+
+   if (currentUrl !== expectedUrl) {
+       throw new Error(`Navigation failed: Expected URL '${expectedUrl}', but found '${currentUrl}'`);
+   }
 });
+
+Given("{string} navigates to {string} with path {string} with delay after of {int} ms", { timeout: 60 * 1000 }, async function (this: CustomWorld, user, urlKey, path, delay) {
+    const res = worldPossibleZacUrls.parse(urlKey);
+    const expectedUrl = this.worldParameters.urls[res] + path;
+ 
+    await this.openUrl(expectedUrl);
+ 
+    await this.page.waitForURL(expectedUrl);
+ 
+    const currentUrl = this.page.url();
+ 
+    if (currentUrl !== expectedUrl) {
+        throw new Error(`Navigation failed: Expected URL '${expectedUrl}', but found '${currentUrl}'`);
+    }
+
+    await this.page.waitForTimeout(delay)
+ });
+ 
+
+Given("{string} navigates to {string} with path {string} but other destination is expected", { timeout: 60 * 1000 }, async function (this: CustomWorld, user, urlKey, path) {
+    const res = worldPossibleZacUrls.parse(urlKey);
+    const expectedUrl = this.worldParameters.urls[res] + path;
+ 
+    await this.openUrl(expectedUrl);
+ });
 
 Then("{string} sees the text: {string}", async function (this: CustomWorld, user, text) {
     await this.page.waitForSelector(`text=${text}`, {'timeout': 10000 });
