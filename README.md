@@ -9,6 +9,10 @@ Starting July 2023 the development of ZAC was taken over by Lifely and INFO, whe
 
 Please see [development](docs/development/README.md).
 
+## Solution architecture documentation
+
+Please see [architecture](docs/solution-architecture/README.md).
+
 ## User manuals
 
 Please see [manuals](docs/manuals/README.md) for instructions on how to use ZAC.

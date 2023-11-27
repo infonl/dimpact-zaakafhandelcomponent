@@ -1,3 +1,5 @@
+# ZAC solution architecture
+
 These pages describe the solution architecture of ZAC.
 
 ## ZAC context diagram
