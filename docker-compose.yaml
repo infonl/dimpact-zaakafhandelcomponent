@@ -86,7 +86,7 @@ services:
     image: openzaak/open-zaak:1.8.2
     platform: linux/amd64
     environment:
-      - ALLOWED_HOSTS=localhost,host.docker.internal,openzaak.local,example.com
+      - ALLOWED_HOSTS=localhost,host.docker.internal,openzaak.local
       - DB_HOST=openzaak-database
       - DB_NAME=openzaak
       - DB_PASSWORD=openzaak
@@ -334,7 +334,7 @@ services:
     image: docker.io/maykinmedia/open-klant:latest
     platform: linux/amd64
     environment:
-      - ALLOWED_HOSTS=localhost,host.docker.internal,openklant,example.com
+      - ALLOWED_HOSTS=localhost,host.docker.internal,openklant
       - DB_HOST=openklant-database
       - DB_USER=openklant
       - DB_PASSWORD=openklant
