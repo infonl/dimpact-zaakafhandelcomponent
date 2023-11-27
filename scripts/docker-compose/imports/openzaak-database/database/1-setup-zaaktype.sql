@@ -1083,6 +1083,70 @@ NULL,
 (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'), '_etag');
 
 
+INSERT INTO catalogi_besluittype
+(id, datum_begin_geldigheid, datum_einde_geldigheid, concept, uuid, omschrijving, omschrijving_generiek, besluitcategorie, reactietermijn, publicatie_indicatie, publicatietekst, publicatietermijn, toelichting, catalogus_id, _etag)
+VALUES
+(
+  1, 
+  '2023-10-01', 
+  NULL, 
+  false, 
+  '1a282535-09cc-480c-a5cf-cef0a76a1c5b', 
+  'Besluit aansprakelijkstelling',
+  'besluit-aansprakelijkstelling', 
+  'besluit', 
+  '00:00:00', 
+  false, 
+  '00:00:00', 
+  NULL, 
+  'Besluit aansprakelijkstelling', 
+  (SELECT id FROM catalogi_catalogus WHERE _admin_name = 'zac'), 
+  '_etag'
+);
+
+
+INSERT INTO catalogi_besluittype
+(id, datum_begin_geldigheid, datum_einde_geldigheid, concept, uuid, omschrijving, omschrijving_generiek, besluitcategorie, reactietermijn, publicatie_indicatie, publicatietekst, publicatietermijn, toelichting, catalogus_id, _etag)
+VALUES
+(
+  2, 
+  '2023-10-01', 
+  NULL, 
+  false, 
+  '3951f642-3a40-445e-907d-e1ae1f90b156', 
+  'Besluit na heroverweging',
+  'besluit-na-heroverweging', 
+  'besluit', 
+  '00:00:00', 
+  false, 
+  '00:00:00', 
+  NULL, 
+  'Besluit na heroverweging', 
+  (SELECT id FROM catalogi_catalogus WHERE _admin_name = 'zac'), 
+  '_etag'
+);
+
+INSERT INTO catalogi_besluittype_zaaktypen
+(id, besluittype_id, zaaktype_id)
+VALUES
+(
+  1, 
+  (SELECT id FROM catalogi_besluittype WHERE omschrijving = 'Besluit aansprakelijkstelling'),
+  (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'),
+);
+
+INSERT INTO catalogi_besluittype_zaaktypen
+(id, besluittype_id, zaaktype_id)
+VALUES
+(
+  2, 
+  (SELECT id FROM catalogi_besluittype WHERE omschrijving = 'Besluit na heroverweging'),
+  (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'),
+);
+
+
+
+
 -- Insert productaanvraag PDF document as enkelvoudig informatieobject.
 -- This assumes that the PDF in question is available in the OpenZaak container in: '/app/private-media/uploads/2023/10/dummy-test-document.pdf'
 -- Note that we use an id of '999' for both the canonical and the enkelvoudig informatieobject records to avoid duplicate key conflicts
