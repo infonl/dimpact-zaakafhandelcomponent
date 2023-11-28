@@ -58,7 +58,7 @@ There are various ways to run ZAC locally.
 ### Prerequisites
 
 - Access to all services (such as Keycloak, Open Zaak, etc) that are required by ZAC.
-You either run these locally (using [Docker Compose](INSTALL-DOCKER-COMPOSE.md)) or on a central development environment.
+You either run these locally (using [Docker Compose](installDockerCompose.md)) or on a central development environment.
 - Environment variables required by ZAC. See the section below.
 
 #### Environment variables
@@ -128,7 +128,7 @@ There are several ways to do this.
 
 If you also wish to run all services that are required by
 ZAC locally, the easiest way is to use our Docker Compose setup with can also run ZAC.
-Please see the [Docker Compose instructions](INSTALL-DOCKER-COMPOSE.md) for more information.
+Please see the [Docker Compose instructions](installDockerCompose.md) for more information.
 
 #### Run ZAC in a Docker container by itself
 
