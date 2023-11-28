@@ -16,7 +16,7 @@ C4Context
     Person(Citizen, "Citizen", "A citizen within a municipality")
     Person(Employee, "Employee", "An employee of a municipality")
 
-    Enterprise_Boundary(b0, "ZAC landscape") {
+    Enterprise_Boundary(b0, "ZAC and related Common Ground components") {
         System(OpenFormulieren, "Open Formulieren")
         System(OpenNotificaties, "Open Notificaties")
         System(ZAC, "ZAC", "Zaakafhandelcomponent")
@@ -53,7 +53,7 @@ C4Context
     Rel(ZAC, OpenKlant, "Uses", "Klanten API")
     Rel(ZAC, OpenKlant, "Uses", "Contactmomenten API")
     Rel(ZAC, BAG, "Uses", "HaalCentraal BAG Bevragen API")
-    Rel(ZAC, BAG, "Uses", "HaalCentraal BRP Bevragen API")
+    Rel(ZAC, BRP, "Uses", "HaalCentraal BRP Bevragen API")
     Rel(ZAC, KVK, "Uses", "KVK Zoeken en Vestigingsprofielen API")
     Rel(ZAC, VNGReferentielijsten, "Uses", "VNG Referentielijsten API")
     Rel(ZAC, SmartDocuments, "Uses", "SmartDocuments API")
@@ -73,17 +73,22 @@ C4Context
 
 The following components are part of the ZAC system context:
 
-| Component         | Description                                                                                                                                |
-|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
-| Objecten          | Manages objects. In this context for example 'productaanvragen' which are created from Open Formulieren. Implements the ZGW Objecten API.  |
-| Objecttypen       | Object types. Required for Objecten. Implements the ZGW Objecttypen API.                                                                   |
-| Open Formulieren  | Manages and renders forms. In this context a citizen can submit a so-called 'zaakstartformulier' which is used to create a new 'zaak'.     |
-| Open Klant        | Manages 'customers' (= citizens in our context) and customer 'contact moments'. Implements both the Klanten and Contactmomenten ZWG APIs.  |
-| Open Zaak         | Manages zaken, zaaktypes, and all related items. Also stores documents.                                                                    |
+| Component         | Description                                                                                                                               | ZAC usage                                                                                                      |
+|-------------------|-------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
+| Objecten          | Manages objects. Implements the ZGW Objecten API.                                                                                         | For example 'productaanvragen' which are created from Open Formulieren and used by ZAC to create a new 'zaak'. |
+| Objecttypen       | Object types. Required for Objecten. Implements the ZGW Objecttypen API.                                                                  | ZAC uses a specific 'productaanvraag' type for Open Formulieren data used to create a new 'zaak'               |
+| Open Formulieren  | Manages and renders forms. In this context a citizen can submit a so-called 'zaakstartformulier' which is used to create a new 'zaak'.    | Citizens can start a new zaak by submitting a 'zaakstartformulier'.                                            |
+| Open Klant        | Manages 'customers' (= citizens in our context) and customer 'contact moments'. Implements both the ZWG Klanten and Contactmomenten APIs. | Retrieve customer and customer contact data (e.g. email address) of a citizen linked to a zaak.                |
+| Open Notificaties | The central messaging / system notification component. Implements the ZWG Notificaties APIs.                                              | ZAC needs to get notified of changes in related to zaken from various other components.                        |
+| Open Zaak         | Manages zaken, zaaktypes, and all related items. Also stores documents.                                                                   | Used by ZAC to store and retrieve zaken, documents and related data.                                           |
 
 Furthermore, ZAC integrates with the following external services:
 
-..
+| Service | Description                                                            | ZAC Usage                                                                |
+|---------|------------------------------------------------------------------------|--------------------------------------------------------------------------|
+| BAG     | Centralized address and location data service by the Dutch government. | Retrieve address and location data related to a zaak.                    |
+| BRP     | Centralized personal data service by the Dutch government.             | Retrieve basic citizen data related to a zaak (the initiator of a zaak). |
+| KVK     | Centralized company data service.                                      |
 
 ## Zaak creation flow
 
