@@ -15,23 +15,28 @@ The following System Context diagram illustrates the architectural landscape of 
 C4Context
     title ZAC System Context diagram
 
-    Person(Citizen, "Citizen", "A citizen of a municipality.")
-    Person(Employee, "Employee", "An employee of a municipality who works with ZAC.")
+    Person(Citizen, "Citizen", "A citizen within a municipality")
+    Person(Employee, "Employee", "An employee of a municipality")
 
     Enterprise_Boundary(b0, "ZAC landscape") {
-
+        System(OpenFormulieren, "Open Formulieren")
         System(ZAC, "ZAC", "Zaakafhandelcomponent")
 
-        System_Boundary(b2, "Registers") {
-          System(OpenZaak, "Open Zaak")
-          System(OpenKlant, "Open Klant")
+        System_Boundary(registers, "Registers") {
+            System(Objecten, "Objecten")
+            System(Objecttypen, "Objecttypen")
+            System(OpenZaak, "Open Zaak")
+            System(OpenKlant, "Open Klant")
         }
       }
 
+    Rel(Citizen, OpenFormulieren, "Submits case forms")
     Rel(Employee, ZAC, "Handles cases")
-    Rel(ZAC, OpenZaak, "Uses", "ZGW Zaak APIs")
-    Rel(ZAC, OpenKlant, "Uses", "ZGW Klanten API")
-    Rel(ZAC, OpenKlant, "Uses", "ZGW Contactmomenten API")
+    Rel(ZAC, Objecten, "Uses", "ZGW Objecten API")
+    Rel(ZAC, Objecttypen, "Uses", "ZGW Objecttypen API")
+    Rel(ZAC, OpenZaak, "Uses", "ZGW Autorisaties, Besluiten, Catalogi, Documenten, en Zaken APIs")
+    Rel(ZAC, OpenKlant, "Uses", "Klanten API")
+    Rel(ZAC, OpenKlant, "Uses", "Contactmomenten API")
 
     UpdateElementStyle(ZAC, $bgColor="red", $borderColor="red")
     UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
@@ -41,8 +46,8 @@ The following components are part of the ZAC system context:
 
 | Component  | Description                                                                                                                               |
 |------------|-------------------------------------------------------------------------------------------------------------------------------------------|
-| Open Zaak  | Manages zaken, zaaktypes, and all related items. Also stores documents.                                                                   |
 | Open Klant | Manages 'customers' (= citizens in our context) and customer 'contact moments'. Implements both the Klanten and Contactmomenten ZWG APIs. |
+| Open Zaak  | Manages zaken, zaaktypes, and all related items. Also stores documents.                                                                   |
 
 Furthermore, ZAC integrates with the following external services:
 
