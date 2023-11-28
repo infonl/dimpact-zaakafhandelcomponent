@@ -68,7 +68,7 @@ This flow is visualised in the following sequence diagram:
 
 ```mermaid
 sequenceDiagram
-    actor Behandelaar
+    actor Employee
     box ZAC landscape
     participant ZAC
     participant OpenZaak
@@ -76,14 +76,13 @@ sequenceDiagram
     end
     participant SmartDocuments
 
-
-    Behandelaar->>+ZAC: Maak document aan voor een zaak
-    ZAC->>+SmartDocuments: Maak document aan
-    SmartDocuments->>SmartDocuments: Kies de gewenste sjabloon
-    SmartDocuments->>+OpenZaak: Sla document op
-    SmartDocuments->>+OpenZaak: Koppel document aan zaak
-    OpenZaak->>-OpenNotificaties: Verstuur melding "document gekoppeld aan zaak"
-    SmartDocuments->>-SmartDocuments: Sluit SmartDocuments
+    Behandelaar->>+ZAC: Create document for a case or task
+    ZAC->>+SmartDocuments: Create document
+    SmartDocuments->>+SmartDocuments: Choose template from a list related to the case type
+    Behandelaar->>+SmartDocuments: Fill in remaining document data
+    SmartDocuments->>+OpenZaak: Store document
+    SmartDocuments->>+OpenZaak: Link document to case or task
+    OpenZaak->>-OpenNotificaties: Send notification that a new document is linked to a case or task
     OpenNotificaties--)ZAC: Ontvang melding "document gekoppeld aan zaak"
     ZAC->>-Behandelaar: Document is zichtbaar in de zaak
 ```
