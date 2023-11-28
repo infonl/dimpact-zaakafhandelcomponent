@@ -18,8 +18,11 @@ C4Context
 
     Enterprise_Boundary(b0, "ZAC and related Common Ground components") {
         System(OpenFormulieren, "Open Formulieren")
-        System(OpenNotificaties, "Open Notificaties")
         System(ZAC, "ZAC", "Zaakafhandelcomponent")
+
+        System_Boundary(CentralizedServices, "Centralized Services") {
+            System(OpenNotificaties, "Open Notificaties")
+        }
 
         System_Boundary(registers, "Registers") {
             System(Objecten, "Objecten")
@@ -68,7 +71,7 @@ C4Context
     UpdateElementStyle(Mailjet, $bgColor="grey", $borderColor="grey")
     UpdateElementStyle(SmartDocuments, $bgColor="grey", $borderColor="grey")
 
-    UpdateLayoutConfig($c4ShapeInRow="5", $c4BoundaryInRow="1")
+    UpdateLayoutConfig($c4ShapeInRow="5", $c4BoundaryInRow="2")
 ```
 
 The following components are part of the ZAC system context:
