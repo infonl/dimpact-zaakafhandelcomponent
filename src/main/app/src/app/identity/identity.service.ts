@@ -36,7 +36,7 @@ export class IdentityService {
   listUsersInGroup(groupId: string): Observable<User[]> {
     return this.zacHttp
       .GET("/rest/identity/groups/{groupId}/users", {
-        params: { path: { groupId } },
+        pathParams: { path: { groupId } },
       })
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
