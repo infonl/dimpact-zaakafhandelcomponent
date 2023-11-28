@@ -9,8 +9,6 @@ Architecture diagrams are created and rendered using [Mermaid](https://mermaid.j
 
 The following System Context diagram illustrates the architectural landscape of ZAC:
 
-![ZAC context diagram](attachments/images/zac-architecture-landscape.jpg)
-
 ```mermaid
 C4Context
     title ZAC System Context diagram
@@ -20,6 +18,7 @@ C4Context
 
     Enterprise_Boundary(b0, "ZAC landscape") {
         System(OpenFormulieren, "Open Formulieren")
+        System(OpenNotificaties, "Open Notificaties")
         System(ZAC, "ZAC", "Zaakafhandelcomponent")
 
         System_Boundary(registers, "Registers") {
@@ -28,26 +27,59 @@ C4Context
             System(OpenZaak, "Open Zaak")
             System(OpenKlant, "Open Klant")
         }
-      }
+    }
+
+    Enterprise_Boundary(b1, "External services") {
+        System(BAG, "BAG")
+        System(BRP, "BRP")
+        System(KVK, "KVK")
+        System(VNGReferentielijsten, "VNG Referentielijsten")
+        System(Mailjet, "Mailjet")
+        System(SmartDocuments, "SmartDocuments")
+    }
 
     Rel(Citizen, OpenFormulieren, "Submits case forms")
     Rel(Employee, ZAC, "Handles cases")
+
+    Rel(OpenFormulieren, OpenNotificaties, "Uses", "ZGW Notificaties API")
+    Rel(OpenKlant, OpenNotificaties, "Uses", "ZGW Notificaties API")
+    Rel(Objecten, OpenNotificaties, "Uses", "ZGW Notificaties API")
+    Rel(OpenZaak, OpenNotificaties, "Uses", "ZGW Notificaties API")
+    Rel(OpenNotificaties, ZAC, "Uses", "HTTPS")
+
     Rel(ZAC, Objecten, "Uses", "ZGW Objecten API")
     Rel(ZAC, Objecttypen, "Uses", "ZGW Objecttypen API")
-    Rel(ZAC, OpenZaak, "Uses", "ZGW Autorisaties, Besluiten, Catalogi, Documenten, en Zaken APIs")
+    Rel(ZAC, OpenZaak, "Uses", "ZGW Autorisaties, Besluiten, Catalogi, Documenten, en Zaken API")
     Rel(ZAC, OpenKlant, "Uses", "Klanten API")
     Rel(ZAC, OpenKlant, "Uses", "Contactmomenten API")
+    Rel(ZAC, BAG, "Uses", "HaalCentraal BAG Bevragen API")
+    Rel(ZAC, BAG, "Uses", "HaalCentraal BRP Bevragen API")
+    Rel(ZAC, KVK, "Uses", "KVK Zoeken en Vestigingsprofielen API")
+    Rel(ZAC, VNGReferentielijsten, "Uses", "VNG Referentielijsten API")
+    Rel(ZAC, SmartDocuments, "Uses", "SmartDocuments API")
+    Rel(ZAC, Mailjet, "Uses", "Mailjet API")
+    Rel(SmartDocuments, OpenZaak, "Uses", "ZGW Documenten en Zaken API")
 
     UpdateElementStyle(ZAC, $bgColor="red", $borderColor="red")
-    UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
+    UpdateElementStyle(BAG, $bgColor="grey", $borderColor="grey")
+    UpdateElementStyle(BRP, $bgColor="grey", $borderColor="grey")
+    UpdateElementStyle(KVK, $bgColor="grey", $borderColor="grey")
+    UpdateElementStyle(VNGReferentielijsten, $bgColor="grey", $borderColor="grey")
+    UpdateElementStyle(Mailjet, $bgColor="grey", $borderColor="grey")
+    UpdateElementStyle(SmartDocuments, $bgColor="grey", $borderColor="grey")
+
+    UpdateLayoutConfig($c4ShapeInRow="5", $c4BoundaryInRow="1")
 ```
 
 The following components are part of the ZAC system context:
 
-| Component  | Description                                                                                                                               |
-|------------|-------------------------------------------------------------------------------------------------------------------------------------------|
-| Open Klant | Manages 'customers' (= citizens in our context) and customer 'contact moments'. Implements both the Klanten and Contactmomenten ZWG APIs. |
-| Open Zaak  | Manages zaken, zaaktypes, and all related items. Also stores documents.                                                                   |
+| Component         | Description                                                                                                                                |
+|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| Objecten          | Manages objects. In this context for example 'productaanvragen' which are created from Open Formulieren. Implements the ZGW Objecten API.  |
+| Objecttypen       | Object types. Required for Objecten. Implements the ZGW Objecttypen API.                                                                   |
+| Open Formulieren  | Manages and renders forms. In this context a citizen can submit a so-called 'zaakstartformulier' which is used to create a new 'zaak'.     |
+| Open Klant        | Manages 'customers' (= citizens in our context) and customer 'contact moments'. Implements both the Klanten and Contactmomenten ZWG APIs.  |
+| Open Zaak         | Manages zaken, zaaktypes, and all related items. Also stores documents.                                                                    |
 
 Furthermore, ZAC integrates with the following external services:
 
