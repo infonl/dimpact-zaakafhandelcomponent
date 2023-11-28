@@ -84,11 +84,14 @@ The following components are part of the ZAC system context:
 
 Furthermore, ZAC integrates with the following external services:
 
-| Service | Description                                                            | ZAC Usage                                                                |
-|---------|------------------------------------------------------------------------|--------------------------------------------------------------------------|
-| BAG     | Centralized address and location data service by the Dutch government. | Retrieve address and location data related to a zaak.                    |
-| BRP     | Centralized personal data service by the Dutch government.             | Retrieve basic citizen data related to a zaak (the initiator of a zaak). |
-| KVK     | Centralized company data service.                                      |
+| Service               | Description                                                            | ZAC Usage                                                                                                                           |
+|-----------------------|------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| BAG                   | Centralized address and location data service by the Dutch government. | Retrieve address and location data related to a zaak.                                                                               |
+| BRP                   | Centralized personal data service by the Dutch government.             | Retrieve personal data for citizens related to a zaak (the initiator of a zaak).                                                    |
+| KVK                   | Centralized company data service.                                      | Retrieve company data for companies related to a zaak.                                                                              |
+| Mailjet               | Email service.                                                         | Send emails to employees.                                                                                                           |
+| SmartDocuments        | Document creation service.                                             | Start a document creation 'wizard' with pre-filled zaak data where the resulting document is stored by SmartDocuments in Open Zaak. |
+| VNG Referentielijsten | Centralized reference data service.                                    | Retrieve reference data such as 'communication channels'.                                                                           |
 
 ## Zaak creation flow
 
