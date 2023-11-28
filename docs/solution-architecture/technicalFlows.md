@@ -76,10 +76,11 @@ sequenceDiagram
     end
     participant SmartDocuments
 
-    Behandelaar->>+ZAC: Create document for a case or task
+    Employee->>+ZAC: Create document for a case or task
     ZAC->>+SmartDocuments: Create document
     SmartDocuments->>+SmartDocuments: Choose template from a list related to the case type
-    Behandelaar->>+SmartDocuments: Fill in remaining document data
+    Employee->>+SmartDocuments: Fill in remaining document data
+    Employee->>+SmartDocuments: Close document creation wizard
     SmartDocuments->>+OpenZaak: Store document
     SmartDocuments->>+OpenZaak: Link document to case or task
     OpenZaak->>-OpenNotificaties: Send notification that a new document is linked to a case or task
