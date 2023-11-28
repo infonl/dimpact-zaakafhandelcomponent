@@ -2,11 +2,51 @@
 
 These pages describe the solution architecture of ZAC.
 
-## ZAC context diagram
+The ZAC architecture is documented using the [C4 Model](https://c4model.com/).
+Architecture diagrams are created and rendered using [Mermaid](https://mermaid.js.org/).
 
-The following diagram illustrates the architectural landscape of ZAC:
+## ZAC system context
+
+The following System Context diagram illustrates the architectural landscape of ZAC:
 
 ![ZAC context diagram](attachments/images/zac-architecture-landscape.jpg)
+
+```mermaid
+C4Context
+    title ZAC System Context diagram
+
+    Person(Citizen, "Citizen", "A citizen of a municipality.")
+    Person(Employee, "Employee", "An employee of a municipality who works with ZAC.")
+
+    Enterprise_Boundary(b0, "ZAC landscape") {
+
+        System(ZAC, "ZAC", "Zaakafhandelcomponent")
+
+        System_Boundary(b2, "Registers") {
+          System(OpenZaak, "Open Zaak")
+          System(OpenKlant, "Open Klant")
+        }
+      }
+
+    Rel(Employee, ZAC, "Handles cases")
+    Rel(ZAC, OpenZaak, "Uses", "ZGW Zaak APIs")
+    Rel(ZAC, OpenKlant, "Uses", "ZGW Klanten API")
+    Rel(ZAC, OpenKlant, "Uses", "ZGW Contactmomenten API")
+
+    UpdateElementStyle(ZAC, $bgColor="red", $borderColor="red")
+    UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
+```
+
+The following components are part of the ZAC system context:
+
+| Component  | Description                                                                                                                               |
+|------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| Open Zaak  | Manages zaken, zaaktypes, and all related items. Also stores documents.                                                                   |
+| Open Klant | Manages 'customers' (= citizens in our context) and customer 'contact moments'. Implements both the Klanten and Contactmomenten ZWG APIs. |
+
+Furthermore, ZAC integrates with the following external services:
+
+..
 
 ## Zaak creation flow
 
