@@ -1,7 +1,7 @@
 Feature: Login
 
   Scenario: Bob wants to login to ZAC
-    Given "Bob" navigates to "zac" with path "/" but other destination is expected
+    Given "Bob" navigates to "zac" with path "/"
     When "Bob" logs in
     Then "Bob" sees the text: "Dashboard"
 
@@ -12,7 +12,7 @@ Feature: Login
     Then "Bob" sees the text: "Sign in to your account"
 
   Scenario: Bob logs back in
-    Given "Bob" navigates to "zac" with path "/" but other destination is expected
+    Given "Bob" navigates to "zac" with path "/"
     Then "Bob" sees the text: "Sign in to your account"
     When "Bob" logs in
     Then "Bob" sees the text: "Dashboard"
@@ -24,7 +24,7 @@ Feature: Login
     Then "Bob" sees the text: "Sign in to your account"
 
   Scenario: Bob logs back in
-    Given "Bob" navigates to "zac" with path "/" but other destination is expected
+    Given "Bob" navigates to "zac" with path "/"
     Then "Bob" sees the text: "Sign in to your account"
     When "Bob" logs in
     Then "Bob" sees the text: "Dashboard"
