@@ -33,26 +33,6 @@ type Response<
     : never
 >["data"];
 
-function replacePathParams(
-  urlTemplate: string,
-  pathParams: Record<string, string | number | boolean>,
-): string {
-  let url = urlTemplate;
-  Object.keys(pathParams).forEach((key) => {
-    url = url.replace(new RegExp(`{${key}}`, "g"), pathParams[key].toString());
-  });
-  return url;
-}
-
-function prepareUrl(url: string, init?: any) {
-  const pathParams = init?.pathParams;
-  let newUrl = url as string;
-  if (pathParams && "path" in pathParams) {
-    newUrl = replacePathParams(url, pathParams.path);
-  }
-  return newUrl;
-}
-
 @Injectable({
   providedIn: "root",
 })
@@ -66,7 +46,10 @@ export class ZacHttpClient {
     },
   ) {
     const { pathParams, ...restInit } = { pathParams: {}, ...init };
-    return this.http.get<Response<P, "get">>(prepareUrl(url, init), restInit);
+    return this.http.get<Response<P, "get">>(
+      this.prepareUrl(url, init),
+      restInit,
+    );
   }
 
   public POST<P extends PathsWithMethod<Paths, "post">>(
@@ -78,7 +61,7 @@ export class ZacHttpClient {
   ) {
     const { pathParams, ...restInit } = { pathParams: {}, ...init };
     return this.http.post<Response<P, "post">>(
-      prepareUrl(url, init),
+      this.prepareUrl(url, init),
       body,
       init,
     );
@@ -93,7 +76,7 @@ export class ZacHttpClient {
   ) {
     const { pathParams, ...restInit } = { pathParams: {}, ...init };
     return this.http.put<Response<P, "put">>(
-      prepareUrl(url, init),
+      this.prepareUrl(url, init),
       body,
       restInit,
     );
@@ -107,7 +90,7 @@ export class ZacHttpClient {
   ) {
     const { pathParams, ...restInit } = { pathParams: {}, ...init };
     return this.http.delete<Response<P, "delete">>(
-      prepareUrl(url, restInit),
+      this.prepareUrl(url, restInit),
       restInit,
     );
   }
@@ -121,9 +104,32 @@ export class ZacHttpClient {
   ) {
     const { pathParams, ...restInit } = { pathParams: {}, ...init };
     return this.http.patch<Response<P, "patch">>(
-      prepareUrl(url, init),
+      this.prepareUrl(url, init),
       body,
       restInit,
     );
+  }
+
+  private replacePathParams(
+    urlTemplate: string,
+    pathParams: Record<string, string | number | boolean>,
+  ): string {
+    let url = urlTemplate;
+    Object.keys(pathParams).forEach((key) => {
+      url = url.replace(
+        new RegExp(`{${key}}`, "g"),
+        pathParams[key].toString(),
+      );
+    });
+    return url;
+  }
+
+  private prepareUrl(url: string, init?: any) {
+    const pathParams = init?.pathParams;
+    let newUrl = url as string;
+    if (pathParams && "path" in pathParams) {
+      newUrl = this.replacePathParams(url, pathParams.path);
+    }
+    return newUrl;
   }
 }
