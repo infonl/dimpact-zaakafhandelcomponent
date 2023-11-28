@@ -1,6 +1,6 @@
 # End-to-end type safety
 
-The ZAC angular frontend uses [openapi-typescript](https://github.com/drwpow/openapi-typescript) to make requests to the backend and process the responses. This ensures that the frontend and backend align well (think of typed responses) and that the frontend cannot make invalid requests (think of wrong parameters or non-existing endpoints).
+The ZAC Angular frontend uses [openapi-typescript](https://github.com/drwpow/openapi-typescript) to make requests to the backend and process the responses. This ensures that the frontend and backend align well (think of typed responses) and that the frontend cannot make invalid requests (think of wrong parameters or non-existing endpoints).
 
 With this, we hope to catch bugs faster before they go into production and reduce development time because the frontend and backend align better.
 
@@ -27,7 +27,7 @@ class Test {
 }
 ```
 
-## **How does this work**
+## How does this work?
 
 On the Java side, an openapi document is generated based on the java code. Want to know more about how this works? Check out the [openapi-generator](https://github.com/OpenAPITools/openapi-generator) GitHub page.
 
