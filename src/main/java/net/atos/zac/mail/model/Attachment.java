@@ -1,6 +1,6 @@
 package net.atos.zac.mail.model;
 
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 public class Attachment {
 

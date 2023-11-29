@@ -5,7 +5,7 @@
 
 package net.atos.client.zgw.zrc.model;
 
-import javax.json.bind.annotation.JsonbTypeDeserializer;
+import jakarta.json.bind.annotation.JsonbTypeDeserializer;
 
 import net.atos.client.zgw.zrc.util.GeometryJsonbDeserializer;
 

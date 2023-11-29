@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import net.atos.zac.app.admin.model.RESTHumanTaskReferentieTabel;
 import net.atos.zac.zaaksturing.ReferentieTabelService;

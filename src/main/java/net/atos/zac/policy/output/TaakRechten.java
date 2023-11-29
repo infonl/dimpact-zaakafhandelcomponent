@@ -5,10 +5,11 @@
 
 package net.atos.zac.policy.output;
 
-import javax.json.bind.annotation.JsonbCreator;
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbCreator;
+import jakarta.json.bind.annotation.JsonbProperty;
+import net.atos.zac.util.DummyInterface;
 
-public class TaakRechten {
+public class TaakRechten implements DummyInterface {
 
     private final boolean lezen;
 

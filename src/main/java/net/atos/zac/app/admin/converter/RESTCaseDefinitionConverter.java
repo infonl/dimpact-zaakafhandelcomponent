@@ -8,7 +8,7 @@ package net.atos.zac.app.admin.converter;
 import static net.atos.zac.app.planitems.model.PlanItemType.HUMAN_TASK;
 import static net.atos.zac.app.planitems.model.PlanItemType.USER_EVENT_LISTENER;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.flowable.cmmn.api.repository.CaseDefinition;
 import org.flowable.cmmn.model.HumanTask;

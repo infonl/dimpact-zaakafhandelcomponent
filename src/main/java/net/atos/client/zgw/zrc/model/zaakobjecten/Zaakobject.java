@@ -8,8 +8,8 @@ package net.atos.client.zgw.zrc.model.zaakobjecten;
 import java.net.URI;
 import java.util.UUID;
 
-import javax.json.bind.annotation.JsonbTransient;
-import javax.json.bind.annotation.JsonbTypeDeserializer;
+import jakarta.json.bind.annotation.JsonbTransient;
+import jakarta.json.bind.annotation.JsonbTypeDeserializer;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 

@@ -20,7 +20,7 @@ package net.atos.client.klanten.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 
 public class ValidatieFout {

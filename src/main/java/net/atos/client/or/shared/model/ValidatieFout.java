@@ -7,7 +7,7 @@ package net.atos.client.or.shared.model;
 
 import java.util.List;
 
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 /**
  *

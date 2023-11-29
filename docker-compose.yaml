@@ -29,7 +29,7 @@ services:
     ports:
       - "54326:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 20s
       timeout: 60s
       retries: 5
@@ -46,7 +46,7 @@ services:
     ports:
       - "54320:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 20s
       timeout: 60s
       retries: 5
@@ -65,7 +65,7 @@ services:
       - "54322:5432"
     platform: linux/amd64
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 20s
       timeout: 60s
       retries: 5
@@ -142,7 +142,7 @@ services:
       - "54323:5432"
     platform: linux/amd64
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 20s
       timeout: 60s
       retries: 5
@@ -186,7 +186,7 @@ services:
     ports:
       - "54324:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 20s
       timeout: 60s
       retries: 5
@@ -317,7 +317,7 @@ services:
     ports:
       - "54325:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 20s
       timeout: 60s
       retries: 5
@@ -353,6 +353,15 @@ services:
       redis:
         condition: service_started
 
+  smartdocuments-wiremock:
+    image: "wiremock/wiremock:3.3.1"
+    ports:
+      - "8082:8080"
+    volumes:
+      # these WireMock mappings are used by the ZAC integration tests
+      - ./scripts/docker-compose/imports/smartdocuments-wiremock/mappings:/home/wiremock/mappings
+    entrypoint: [ "/docker-entrypoint.sh", "--global-response-templating", "--disable-gzip", "--verbose" ]
+
   zac:
     # By default, we use the latest ZAC Docker Image. Change this if you wish to use a specific version.
     image: ${ZAC_DOCKER_IMAGE:-ghcr.io/infonl/zaakafhandelcomponent:latest}
@@ -367,7 +376,7 @@ services:
       - BRP_API_KEY=dummyKey # not used when using the BRP proxy
       - CONTACTMOMENTEN_API_CLIENT_MP_REST_URL=http://openklant:8000/contactmomenten
       - CONTACTMOMENTEN_API_CLIENTID=zac_client
-      - CONTACTMOMENTEN_API_SECRET=openklantZaakhandelcomponentClientSecret
+      - CONTACTMOMENTEN_API_SECRET=openklantZaakafhandelcomponentClientSecret
       - CONTEXT_URL=http://localhost:8080
       - DB_HOST=zac-database
       - DB_NAME=zac
@@ -378,7 +387,7 @@ services:
       - GEMEENTE_NAAM=${GEMEENTE_NAAM:-DummyZacGemeente}
       - KLANTEN_API_CLIENT_MP_REST_URL=http://openklant:8000/klanten
       - KLANTEN_API_CLIENTID=zac_client
-      - KLANTEN_API_SECRET=openklantZaakhandelcomponentClientSecret
+      - KLANTEN_API_SECRET=openklantZaakafhandelcomponentClientSecret
       - KVK_API_CLIENT_MP_REST_URL=${KVK_API_CLIENT_MP_REST_URL:-dummyKvkApiUrl}
       - KVK_API_KEY=${KVK_API_KEY:-dummyKvkApiKey}
       - LDAP_DN="ou=people,dc=example,dc=org"
@@ -397,7 +406,7 @@ services:
       - OPEN_FORMS_URL=http://localhost:9999 # dummy for now
       - OPEN_NOTIFICATIONS_API_SECRET_KEY=openNotificatiesApiSecretKey
       - SD_AUTHENTICATION=${SD_AUTHENTICATION:-dummySmartDocumentsAuthentication}
-      - SD_CLIENT_MP_REST_URL=${SD_CLIENT_MP_REST_URL:-dummySmartDocumentsClientUrl}
+      - SD_CLIENT_MP_REST_URL=${SD_CLIENT_MP_REST_URL:-http://smartdocuments-wiremock:8080}
       - SD_FIXED_USER_NAME=${SD_FIXED_USER_NAME:-}
       - SOLR_URL=http://solr:8983
       - VRL_API_CLIENT_MP_REST_URL=http://zgw-referentielijsten.local:8000/

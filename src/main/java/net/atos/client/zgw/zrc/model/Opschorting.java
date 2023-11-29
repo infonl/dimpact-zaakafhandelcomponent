@@ -5,8 +5,8 @@
 
 package net.atos.client.zgw.zrc.model;
 
-import javax.json.bind.annotation.JsonbCreator;
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbCreator;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 /**
  * Gegevens omtrent het tijdelijk opschorten van de behandeling van de ZAAK

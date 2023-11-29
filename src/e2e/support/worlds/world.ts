@@ -17,8 +17,9 @@ export class CustomWorld extends World {
     context: playwright.BrowserContext; 
     initialized: boolean = false;
     worldParameters: z.infer<typeof worldParametersScheme>['parameters'];
+    testStorage = new Map();
 
-    constructor(attach: unknown) {
+    constructor(attach: any) {
         const res = worldParametersScheme.parse(attach)
         super({attach: res.attach, parameters: res.parameters, log: res.log });
         this.worldParameters = res.parameters;
@@ -30,9 +31,11 @@ export class CustomWorld extends World {
         }
         this.browser = await playwright.chromium.launch({
             headless: this.worldParameters.headless,
+            args: ['--lang=nl-NL'],
         });
         this.context = await this.browser.newContext({
             storageState: authFile,
+            locale: 'nl-NL',
         });
         this.page = await this.context.newPage();
         this.initialized = true;

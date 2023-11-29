@@ -8,17 +8,27 @@ package net.atos.zac.documentcreatie.model;
 import java.net.URI;
 import java.time.LocalDate;
 
+import jakarta.json.bind.annotation.JsonbProperty;
+
 import net.atos.client.zgw.drc.model.InformatieobjectStatus;
 
 public class Registratie {
 
+    @JsonbProperty("zaak")
     public URI zaak;
 
-    public InformatieobjectStatus informatieobjectStatus;
+    @JsonbProperty("informatieobjectStatus")
+    public InformatieobjectStatus informatieObjectStatus;
 
-    public String bronorganisatie;
+    @JsonbProperty("informatieobjecttype")
+    public URI informatieObjectType;
 
-    public LocalDate creatiedatum;
+    @JsonbProperty("bronorganisatie")
+    public String bronOrganisatie;
 
+    @JsonbProperty("creatiedatum")
+    public LocalDate creatieDatum;
+
+    @JsonbProperty("auditToelichting")
     public String auditToelichting;
 }

@@ -18,7 +18,7 @@
 package net.atos.client.klanten.model;
 
 
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 /**
  * Adresgegevens zoals opgegeven door de klant (kan ook een buitenlandsadres zijn)

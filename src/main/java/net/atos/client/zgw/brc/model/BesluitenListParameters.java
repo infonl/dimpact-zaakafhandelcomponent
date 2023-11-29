@@ -7,7 +7,7 @@ package net.atos.client.zgw.brc.model;
 
 import java.net.URI;
 
-import javax.ws.rs.QueryParam;
+import jakarta.ws.rs.QueryParam;
 
 import net.atos.client.zgw.shared.model.AbstractListParameters;
 

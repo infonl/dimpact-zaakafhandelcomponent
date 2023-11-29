@@ -1,23 +1,30 @@
 # Installation
 
 These instructions describe how to build, install and run the `zaakafhandelcomponent (ZAC)` software _for developers_.
-General ZAC usage instructions may be found in the [README.md](../README.md) file.
+General ZAC usage instructions may be found in the [README.md](../../README.md) file.
 
 ## Build the software
 
 ### Prerequisites
 
-- Java JDK 17 and up (we use the `Temurin` distribution)
+- Java JDK 17 (we use the `Temurin` distribution)
 
 ### Gradle build
 
 The software is built using Gradle and for the final step using Maven.
 Both a Gradle and a Maven wrapper are included in the source code, so you do not need to install either Gradle or Maven yourself.
+
+Unfortunately we use a customized 3rd Java party library (https://github.com/infonl/webdav-servlet) which currently is only published to our own GitHub Packages Maven repository.
+Since GitHub Packages Maven repositories are not public you require a GitHub Personal Access Token (PAT) with read permissions on GitHub Packages to be able to download this library.
+Lifely developers can find these credentials in our 1Password vault.
+
 To build the software use the following command:
 
 ```shell
-./gradlew build
+READ_PACKAGES_USERNAME=XXX READ_PACKAGES_TOKEN=XXX ./gradlew build
 ```
+
+Replace the `XXX` placeholders with the credentials from the 1Password vault.
 
 This builds all the software, including the Java backend as well as the TypeScript frontend (using `npm`), runs all unit tests
 and packages the built software first into a WAR archive and then finally by invoking a Maven command from Gradle into a
@@ -51,7 +58,7 @@ There are various ways to run ZAC locally.
 ### Prerequisites
 
 - Access to all services (such as Keycloak, Open Zaak, etc) that are required by ZAC.
-You either run these locally (using [Docker Compose](INSTALL-DOCKER-COMPOSE.md)) or on a central development environment.
+You either run these locally (using [Docker Compose](installDockerCompose.md)) or on a central development environment.
 - Environment variables required by ZAC. See the section below.
 
 #### Environment variables
@@ -112,7 +119,6 @@ using the 1Password CLI extensions.
 3. After logging in using one of the available test users you should see the ZAC UI:
    ![zac-ui-1.png](./attachments/images/zac-ui-1.png)
 
-
 ### Run ZAC in a Docker container
 
 As an alternative to running ZAC in IntelliJ you can also run ZAC in a Docker container.
@@ -120,9 +126,9 @@ There are several ways to do this.
 
 #### Run ZAC in a Docker container using Docker Compose
 
-If you also wish to run all services (Keycloak, Open Zaak, etc) required by
-ZAC locally the easiest way is to use our Docker Compose setup with can also run ZAC.
-Please see the [Docker Compose instructions](INSTALL-DOCKER-COMPOSE.md) for more information.
+If you also wish to run all services that are required by
+ZAC locally, the easiest way is to use our Docker Compose setup with can also run ZAC.
+Please see the [Docker Compose instructions](installDockerCompose.md) for more information.
 
 #### Run ZAC in a Docker container by itself
 
@@ -139,53 +145,6 @@ docker run -p 8080:8080 --env-file .env --name zaakafhandelcomponent ghcr.io/inf
 ```
 
 Be aware that you will need to set the ZAC environment variables according to your needs.
-
-## Testing
-
-### Unit tests
-
-Both backend and frontend unit tests are run as part of the `test` phase in the normal Gradle build.
-You can run them separately using the following command:
-
-```shell
-./gradlew test --info
-```
-
-### Integration tests
-
-Our integration tests use the [TestContainers framework](https://testcontainers.com/) together
-with our [Docker Compose set-up](INSTALL-DOCKER-COMPOSE.md) to run all required services (Keycloak, Open Zaak, etc)
-as well as ZAC itself as a Docker container.
-This set-up makes it relatively slow to run the integration tests and for this reason they are not run as part of
-the standard Gradle `test` phase and normal Gradle build.
-
-If you wish to run the integration tests you can use the following command:
-
-```shell
-./gradlew itest --info
-```
-
-It is also possible to run the integration tests from inside your IDE (we use IntelliJ IDEA).
-To do this you will first need to do the following:
-
-1. Start Docker.
-2. Build the ZAC Docker image using the following command:
-    ```shell
-    ./gradlew buildZacDockerImage
-    ```
-3. Create a 'run configuration' in your IDE where the following two environment variables are set: `BAG_API_CLIENT_MP_REST_URL` and `BAG_API_KEY`.
-4. Run the integration tests from your IDE using this run configuration.
-
-Running the integration tests will first start up all required services (Keycloak, Open Zaak, etc) as Docker containers using our [Docker Compose file](INSTALL-DOCKER-COMPOSE.md),
-then start up ZAC as Docker container and finally run the integration tests.
-
-### End-to-end tests
-
-Instructions on how to run end-to-end tests can be found in [end-to-end-testing.md](end-to-end-testing.md).
-
-### Manual tests
-
-Technical instructions on how to use the tool Postman to manually test the ZAC backend API can be found in [using-postman.md](using-postman.md).
 
 ## Miscellaneous
 

@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.zoeken.converter;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import net.atos.zac.app.policy.converter.RESTRechtenConverter;
 import net.atos.zac.app.zoeken.model.RESTTaakZoekObject;

@@ -8,8 +8,8 @@ package net.atos.client.zgw.zrc.model;
 import java.net.URI;
 import java.util.UUID;
 
-import javax.json.bind.annotation.JsonbCreator;
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbCreator;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 /**
  *

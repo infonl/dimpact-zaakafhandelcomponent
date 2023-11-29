@@ -11,17 +11,21 @@ import java.net.URI;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
-import javax.json.bind.annotation.JsonbDateFormat;
-import javax.json.bind.annotation.JsonbTypeDeserializer;
-
+import jakarta.json.bind.annotation.JsonbDateFormat;
+import jakarta.json.bind.annotation.JsonbTypeDeserializer;
 import net.atos.client.zgw.zrc.util.RolJsonbDeserializer;
 import net.atos.client.zgw.ztc.model.Roltype;
 
 /**
- *
+ * This class is no longer an abstract class like it used to be because in WildFly 30,
+ * with JSONB 2, and Yasson 3 we ran into the following issue when deserializing a concrete Rol instance:
+ * "RESTEASY008200: JSON Binding deserialization error: jakarta.json.bind.JsonbException: Can't create instance
+ * [...]
+ * at org.eclipse.yasson//org.eclipse.yasson.internal.ReflectionUtils.createNoArgConstructorInstance(ReflectionUtils.java:274)"
+ * Hopefully this can be improved in the future.
  */
 @JsonbTypeDeserializer(RolJsonbDeserializer.class)
-public abstract class Rol<BETROKKENE_IDENTIFICATIE> {
+public abstract class Rol<T> {
 
     public static final String BETROKKENE_TYPE_NAAM = "betrokkeneType";
 
@@ -51,7 +55,7 @@ public abstract class Rol<BETROKKENE_IDENTIFICATIE> {
      * De generieke betrokkene
      * - Required
      */
-    private BETROKKENE_IDENTIFICATIE betrokkeneIdentificatie;
+    private T betrokkeneIdentificatie;
 
     /**
      * Betrokkene type
@@ -104,7 +108,7 @@ public abstract class Rol<BETROKKENE_IDENTIFICATIE> {
     /**
      * Constructor with required attributes for POST and PUT requests
      */
-    public Rol(final URI zaak, final Roltype roltype, final BetrokkeneType betrokkeneType, final BETROKKENE_IDENTIFICATIE betrokkeneIdentificatie,
+    public Rol(final URI zaak, final Roltype roltype, final BetrokkeneType betrokkeneType, final T betrokkeneIdentificatie,
             final String roltoelichting) {
         this.zaak = zaak;
         this.betrokkeneIdentificatie = betrokkeneIdentificatie;
@@ -167,7 +171,7 @@ public abstract class Rol<BETROKKENE_IDENTIFICATIE> {
         this.indicatieMachtiging = indicatieMachtiging;
     }
 
-    public BETROKKENE_IDENTIFICATIE getBetrokkeneIdentificatie() {
+    public T getBetrokkeneIdentificatie() {
         return betrokkeneIdentificatie;
     }
 
@@ -179,7 +183,7 @@ public abstract class Rol<BETROKKENE_IDENTIFICATIE> {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Rol<BETROKKENE_IDENTIFICATIE> rol = (Rol<BETROKKENE_IDENTIFICATIE>) o;
+        Rol<T> rol = (Rol<T>) o;
         return equalBetrokkeneRol(rol) && equalBetrokkeneIdentificatie(rol.getBetrokkeneIdentificatie());
     }
 
@@ -188,7 +192,7 @@ public abstract class Rol<BETROKKENE_IDENTIFICATIE> {
                 getRoltype().equals(other.getRoltype());
     }
 
-    protected abstract boolean equalBetrokkeneIdentificatie(final BETROKKENE_IDENTIFICATIE identificatie);
+    protected abstract boolean equalBetrokkeneIdentificatie(final T identificatie);
 
     public abstract String getNaam();
 

@@ -7,7 +7,7 @@ package net.atos.client.zgw.shared.model;
 
 import java.util.Arrays;
 
-import javax.json.bind.adapter.JsonbAdapter;
+import jakarta.json.bind.adapter.JsonbAdapter;
 
 public interface AbstractEnum<T extends AbstractEnum> {
 

@@ -8,7 +8,7 @@ package net.atos.client.zgw.ztc.model;
 import java.net.URI;
 import java.util.List;
 
-import javax.ws.rs.QueryParam;
+import jakarta.ws.rs.QueryParam;
 
 import net.atos.client.zgw.shared.model.AbstractListParameters;
 

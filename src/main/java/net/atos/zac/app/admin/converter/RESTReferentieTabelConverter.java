@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.admin.converter;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import net.atos.zac.app.admin.model.RESTReferentieTabel;
 import net.atos.zac.zaaksturing.model.ReferentieTabel;

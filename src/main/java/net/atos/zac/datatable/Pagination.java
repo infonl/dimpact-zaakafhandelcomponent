@@ -5,7 +5,7 @@
 
 package net.atos.zac.datatable;
 
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 public class Pagination {
 

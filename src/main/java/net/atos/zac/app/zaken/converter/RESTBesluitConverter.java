@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import net.atos.client.zgw.brc.BRCClientService;
 import net.atos.client.zgw.brc.model.Besluit;

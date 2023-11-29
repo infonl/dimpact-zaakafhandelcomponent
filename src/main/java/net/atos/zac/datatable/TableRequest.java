@@ -10,8 +10,8 @@ import static net.atos.zac.util.JsonbUtil.JSONB;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
-import javax.json.bind.annotation.JsonbProperty;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.json.bind.annotation.JsonbProperty;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class TableRequest {
 

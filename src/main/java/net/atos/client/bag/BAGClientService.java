@@ -12,9 +12,9 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.client.Invocation;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.client.Invocation;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 

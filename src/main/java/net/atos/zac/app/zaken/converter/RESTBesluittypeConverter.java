@@ -8,7 +8,7 @@ package net.atos.zac.app.zaken.converter;
 import java.net.URI;
 import java.util.List;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.client.zgw.ztc.model.Besluittype;

@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.informatieobjecten.model;
 
-import javax.ws.rs.FormParam;
+import jakarta.ws.rs.FormParam;
 
 public class RESTFileUpload {
 

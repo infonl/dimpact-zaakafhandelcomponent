@@ -8,7 +8,7 @@ package net.atos.client.zgw.ztc.model;
 import java.net.URI;
 import java.util.UUID;
 
-import javax.json.bind.annotation.JsonbTransient;
+import jakarta.json.bind.annotation.JsonbTransient;
 
 import net.atos.client.zgw.shared.util.URIUtil;
 

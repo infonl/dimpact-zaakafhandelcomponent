@@ -5,10 +5,10 @@ import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 import java.time.LocalDate;
 import java.util.UUID;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 import net.atos.client.zgw.drc.DRCClientService;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectWithInhoudAndLock;

@@ -8,7 +8,7 @@ package net.atos.zac.app.admin.converter;
 import java.util.Collection;
 import java.util.List;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import net.atos.zac.app.admin.model.RESTHumanTaskParameters;
 import net.atos.zac.app.admin.model.RESTHumanTaskReferentieTabel;

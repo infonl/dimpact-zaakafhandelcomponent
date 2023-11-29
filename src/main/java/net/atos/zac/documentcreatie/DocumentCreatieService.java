@@ -12,12 +12,10 @@ import java.time.LocalDate;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-import javax.ws.rs.core.UriBuilder;
-
-import net.atos.zac.app.inboxdocumenten.InboxDocumentenRESTService;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.UriBuilder;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -105,10 +103,11 @@ public class DocumentCreatieService {
 
     private Registratie createRegistratie(final DocumentCreatieGegevens documentCreatieGegevens) {
         final Registratie registratie = new Registratie();
-        registratie.bronorganisatie = BRON_ORGANISATIE;
+        registratie.bronOrganisatie = BRON_ORGANISATIE;
         registratie.zaak = zrcClientService.createUrlExternToZaak(documentCreatieGegevens.getZaak().getUuid());
-        registratie.informatieobjectStatus = documentCreatieGegevens.getInformatieobjectStatus();
-        registratie.creatiedatum = LocalDate.now();
+        registratie.informatieObjectStatus = documentCreatieGegevens.getInformatieobjectStatus();
+        registratie.informatieObjectType = documentCreatieGegevens.getInformatieobjecttype().getUrl();
+        registratie.creatieDatum = LocalDate.now();
         registratie.auditToelichting = AUDIT_TOELICHTING;
         return registratie;
     }

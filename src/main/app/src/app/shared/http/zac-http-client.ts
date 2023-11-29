@@ -41,67 +41,89 @@ export class ZacHttpClient {
 
   public GET<P extends PathsWithMethod<Paths, "get">>(
     url: P,
-    init?: Omit<Parameters<HttpClient["get"]>[1], "params"> & {
-      params: FetchOptions<FilterKeys<Paths[P], "get">>["params"];
+    init?: Parameters<HttpClient["get"]>[1] & {
+      pathParams: FetchOptions<FilterKeys<Paths[P], "get">>["params"];
     },
   ) {
-    return this.http.get<Response<P, "get">>(url, {
-      params: (init?.params as any)?.path ?? undefined,
-    });
+    return this.http.get<Response<P, "get">>(
+      this.prepareUrl(url, init?.pathParams),
+      init,
+    );
   }
 
   public POST<P extends PathsWithMethod<Paths, "post">>(
     url: P,
     body: FetchOptions<FilterKeys<Paths[P], "post">>["body"],
-    init?: Omit<Parameters<HttpClient["post"]>[2], "params"> & {
-      params: FetchOptions<FilterKeys<Paths[P], "post">>["params"];
+    init?: Parameters<HttpClient["post"]>[2] & {
+      pathParams: FetchOptions<FilterKeys<Paths[P], "post">>["params"];
     },
   ) {
-    return this.http.post<Response<P, "post">>(url, body, {
-      ...this.getOptions(init),
-    });
+    return this.http.post<Response<P, "post">>(
+      this.prepareUrl(url, init?.pathParams),
+      body,
+      init,
+    );
   }
 
   public PUT<P extends PathsWithMethod<Paths, "put">>(
     url: P,
     body: FetchOptions<FilterKeys<Paths[P], "put">>["body"],
-    init?: Omit<Parameters<HttpClient["put"]>[2], "params"> & {
-      params: FetchOptions<FilterKeys<Paths[P], "put">>["params"];
+    init?: Parameters<HttpClient["put"]>[2] & {
+      pathParams: FetchOptions<FilterKeys<Paths[P], "put">>["params"];
     },
   ) {
-    return this.http.put<Response<P, "put">>(url, body, {
-      ...this.getOptions(init),
-    });
+    return this.http.put<Response<P, "put">>(
+      this.prepareUrl(url, init?.pathParams),
+      body,
+      init,
+    );
   }
 
   public DELETE<P extends PathsWithMethod<Paths, "delete">>(
     url: P,
-    init?: Omit<Parameters<HttpClient["delete"]>[1], "params"> & {
-      params: FetchOptions<FilterKeys<Paths[P], "delete">>["params"];
+    init?: Parameters<HttpClient["delete"]>[1] & {
+      pathParams: FetchOptions<FilterKeys<Paths[P], "delete">>["params"];
     },
   ) {
-    return this.http.delete<Response<P, "delete">>(url, {
-      ...this.getOptions(init),
-    });
+    return this.http.delete<Response<P, "delete">>(
+      this.prepareUrl(url, init?.pathParams),
+      init,
+    );
   }
 
   public PATCH<P extends PathsWithMethod<Paths, "patch">>(
     url: P,
     body: FetchOptions<FilterKeys<Paths[P], "patch">>["body"],
-    init?: Omit<Parameters<HttpClient["patch"]>[2], "params"> & {
-      params: FetchOptions<FilterKeys<Paths[P], "patch">>["params"];
+    init?: Parameters<HttpClient["patch"]>[2] & {
+      pathParams: FetchOptions<FilterKeys<Paths[P], "patch">>["params"];
     },
   ) {
-    return this.http.patch<Response<P, "patch">>(url, body, {
-      ...this.getOptions(init),
-    });
+    return this.http.patch<Response<P, "patch">>(
+      this.prepareUrl(url, init?.pathParams),
+      body,
+      init,
+    );
   }
 
-  private getOptions<T extends { params: any }>(init?: T) {
-    const { params, ...rest } = init ?? {};
-    return {
-      params: (params as any)?.path ?? undefined,
-      ...rest,
-    };
+  private replacePathParams(
+    urlTemplate: string,
+    pathParams: Record<string, string | number | boolean>,
+  ): string {
+    let url = urlTemplate;
+    Object.keys(pathParams).forEach((key) => {
+      url = url.replace(
+        new RegExp(`{${key}}`, "g"),
+        pathParams[key].toString(),
+      );
+    });
+    return url;
+  }
+
+  private prepareUrl(url: string, pathParams?: any) {
+    let newUrl = url;
+    if (pathParams) {
+      newUrl = this.replacePathParams(url, pathParams.path);
+    }
+    return newUrl;
   }
 }

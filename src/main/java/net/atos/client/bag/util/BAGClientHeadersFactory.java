@@ -5,7 +5,7 @@
 
 package net.atos.client.bag.util;
 
-import javax.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.MultivaluedMap;
 
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory;

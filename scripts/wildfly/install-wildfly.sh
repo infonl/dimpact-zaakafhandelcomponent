@@ -12,10 +12,11 @@
 cd "$(dirname "$0")" || exit
 
 # WildFly version should match the version used in pom.xml
-export WILDFLY_VERSION=26.1.2.Final
-export WILDFLY_DATASOURCES_GALLEON_PACK_VERSION=2.2.5.Final
+export WILDFLY_VERSION=30.0.0.Final
+export WILDFLY_DATASOURCES_GALLEON_PACK_VERSION=6.0.0.Final
 
 export WILDFLY_SERVER_DIR=../../wildfly-$WILDFLY_VERSION
+export PATH=$PATH:$(pwd)/galleon/bin
 
 echo ">>> Installing WildFly ..."
 rm -fr $WILDFLY_SERVER_DIR

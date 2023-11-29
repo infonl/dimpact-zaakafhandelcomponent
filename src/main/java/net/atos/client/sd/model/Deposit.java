@@ -5,7 +5,7 @@
 
 package net.atos.client.sd.model;
 
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 public class Deposit {
 

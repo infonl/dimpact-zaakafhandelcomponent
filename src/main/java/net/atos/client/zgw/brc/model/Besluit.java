@@ -8,7 +8,7 @@ package net.atos.client.zgw.brc.model;
 import java.net.URI;
 import java.time.LocalDate;
 
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 /**
  * Besluit

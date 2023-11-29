@@ -11,7 +11,7 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.util.Set;
 
-import javax.ws.rs.QueryParam;
+import jakarta.ws.rs.QueryParam;
 
 import org.apache.commons.collections4.CollectionUtils;
 

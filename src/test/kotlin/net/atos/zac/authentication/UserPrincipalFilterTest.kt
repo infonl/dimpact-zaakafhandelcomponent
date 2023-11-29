@@ -16,16 +16,16 @@ import io.mockk.mockkClass
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
+import jakarta.servlet.FilterChain
+import jakarta.servlet.ServletResponse
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpSession
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters
 import org.wildfly.security.http.oidc.AccessToken
 import org.wildfly.security.http.oidc.OidcPrincipal
 import org.wildfly.security.http.oidc.OidcSecurityContext
 import org.wildfly.security.http.oidc.RealmAccessClaim
-import javax.servlet.FilterChain
-import javax.servlet.ServletResponse
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpSession
 
 class UserPrincipalFilterTest : BehaviorSpec({
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
@@ -112,13 +112,13 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot))
                 }
                 with(loggedInUserSlot.captured) {
-                    id shouldBe userName
-                    firstName shouldBe givenName
-                    lastName shouldBe familyName
-                    fullName shouldBe fullName
-                    email shouldBe email
-                    roles shouldContainAll roles
-                    groupIds shouldContainAll groups
+                    this.id shouldBe userName
+                    this.firstName shouldBe givenName
+                    this.lastName shouldBe familyName
+                    this.fullName shouldBe fullName
+                    this.email shouldBe email
+                    this.roles shouldContainAll roles
+                    this.groupIds shouldContainAll groups
                 }
             }
         }

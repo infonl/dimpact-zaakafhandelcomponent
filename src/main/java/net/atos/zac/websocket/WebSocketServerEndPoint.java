@@ -5,7 +5,7 @@
 
 package net.atos.zac.websocket;
 
-import static javax.websocket.CloseReason.CloseCodes.VIOLATED_POLICY;
+import static jakarta.websocket.CloseReason.CloseCodes.VIOLATED_POLICY;
 import static net.atos.zac.authentication.SecurityUtil.LOGGED_IN_USER_SESSION_ATTRIBUTE;
 import static net.atos.zac.websocket.SubscriptionType.DELETE_ALL;
 import static net.atos.zac.websocket.WebsocketHandshakeInterceptor.HTTP_SESSION;
@@ -14,16 +14,16 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpSession;
-import javax.websocket.CloseReason;
-import javax.websocket.EndpointConfig;
-import javax.websocket.OnClose;
-import javax.websocket.OnError;
-import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
-import javax.websocket.Session;
-import javax.websocket.server.ServerEndpoint;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpSession;
+import jakarta.websocket.CloseReason;
+import jakarta.websocket.EndpointConfig;
+import jakarta.websocket.OnClose;
+import jakarta.websocket.OnError;
+import jakarta.websocket.OnMessage;
+import jakarta.websocket.OnOpen;
+import jakarta.websocket.Session;
+import jakarta.websocket.server.ServerEndpoint;
 
 import net.atos.zac.authentication.LoggedInUser;
 

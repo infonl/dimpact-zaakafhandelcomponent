@@ -7,7 +7,7 @@ package net.atos.client.contactmomenten.model;
 
 import java.net.URI;
 
-import javax.ws.rs.QueryParam;
+import jakarta.ws.rs.QueryParam;
 
 public class KlantcontactmomentListParameters {
 

@@ -8,7 +8,7 @@ package net.atos.zac.app.admin.converter;
 import java.util.List;
 import java.util.Set;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.zac.app.admin.model.RESTZaakbeeindigParameter;

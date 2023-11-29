@@ -11,8 +11,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
 
 import net.atos.client.zgw.brc.BRCClientService;
 import net.atos.client.zgw.drc.DRCClientService;

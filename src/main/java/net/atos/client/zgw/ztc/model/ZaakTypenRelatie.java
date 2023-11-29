@@ -7,8 +7,8 @@ package net.atos.client.zgw.ztc.model;
 
 import java.net.URI;
 
-import javax.json.bind.annotation.JsonbCreator;
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbCreator;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 /**
  * De ZAAKTYPEn van zaken die relevant zijn voor zaken van dit ZAAKTYPE.

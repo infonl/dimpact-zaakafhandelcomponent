@@ -7,7 +7,7 @@ package net.atos.client.kvk.model;
 
 import java.math.BigDecimal;
 
-import javax.ws.rs.QueryParam;
+import jakarta.ws.rs.QueryParam;
 
 public class KVKZoekenParameters {
 

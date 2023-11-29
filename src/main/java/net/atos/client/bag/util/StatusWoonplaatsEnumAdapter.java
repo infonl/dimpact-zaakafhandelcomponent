@@ -5,7 +5,7 @@
 
 package net.atos.client.bag.util;
 
-import javax.json.bind.adapter.JsonbAdapter;
+import jakarta.json.bind.adapter.JsonbAdapter;
 
 import net.atos.client.bag.model.StatusWoonplaats;
 

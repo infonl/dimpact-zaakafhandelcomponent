@@ -7,7 +7,7 @@ package net.atos.zac.app.zaken.converter;
 
 import java.util.ArrayList;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import net.atos.client.zgw.ztc.model.Zaaktype;
 import net.atos.zac.app.admin.converter.RESTZaakafhandelParametersConverter;

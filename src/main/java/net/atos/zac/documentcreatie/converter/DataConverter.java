@@ -13,7 +13,7 @@ import static net.atos.zac.util.UriUtil.uuidFromURI;
 import java.net.URI;
 import java.util.Objects;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.flowable.task.api.TaskInfo;

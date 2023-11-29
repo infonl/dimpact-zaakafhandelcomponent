@@ -8,9 +8,9 @@ package net.atos.zac.util.event;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.annotation.ManagedBean;
-import javax.enterprise.event.ObservesAsync;
-import javax.inject.Inject;
+import jakarta.annotation.ManagedBean;
+import jakarta.enterprise.event.ObservesAsync;
+import jakarta.inject.Inject;
 
 import net.atos.zac.signalering.SignaleringenJob;
 

@@ -5,14 +5,14 @@
 
 package net.atos.zac.authentication;
 
-import javax.enterprise.inject.Produces;
-import javax.inject.Named;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletRequestEvent;
-import javax.servlet.ServletRequestListener;
-import javax.servlet.annotation.WebListener;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Named;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletRequestEvent;
+import jakarta.servlet.ServletRequestListener;
+import jakarta.servlet.annotation.WebListener;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 @WebListener
 public class ServletRequestProducingListener implements ServletRequestListener {
