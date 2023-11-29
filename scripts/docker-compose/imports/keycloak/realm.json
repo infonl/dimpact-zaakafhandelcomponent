@@ -483,7 +483,7 @@
       "path": "/test-group-a",
       "attributes": {
         "description": [
-          "Een hele mooie groep"
+          "Test groep A"
         ],
         "email": [
           "${ZAC_GROUP_A_EMAIL_ADDRESS}"

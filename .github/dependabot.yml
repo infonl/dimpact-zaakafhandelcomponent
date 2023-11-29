@@ -7,8 +7,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/src/main/app/"
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: "daily"
       time: "04:00"
       timezone: "Europe/Amsterdam"
     reviewers:
@@ -17,8 +16,7 @@ updates:
   - package-ecosystem: "gradle"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: "daily"
       time: "04:00"
       timezone: "Europe/Amsterdam"
     reviewers:
@@ -33,12 +31,10 @@ updates:
       - dependency-name: "org.jboss.resteasy:resteasy-multipart-provider"
       - dependency-name: "org.wildfly.security:wildfly-elytron-http-oidc"
 
-
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: "daily"
       time: "04:00"
       timezone: "Europe/Amsterdam"
     reviewers:

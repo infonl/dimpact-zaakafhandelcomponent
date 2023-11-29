@@ -10,7 +10,7 @@ import java.util.Locale
 
 plugins {
     java
-    kotlin("jvm") version "1.9.20"
+    kotlin("jvm") version "1.9.21"
     war
     jacoco
 
@@ -20,7 +20,7 @@ plugins {
     id("org.barfuin.gradle.taskinfo") version "2.1.0"
     id("io.smallrye.openapi") version "3.7.0"
     id("org.hidetake.swagger.generator") version "2.19.2"
-    id("io.gitlab.arturbosch.detekt") version "1.23.3"
+    id("io.gitlab.arturbosch.detekt") version "1.23.4"
     id("com.bmuschko.docker-remote-api") version "9.3.7"
 }
 
@@ -92,11 +92,11 @@ sourceSets {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation("org.apache.commons:commons-lang3:3.13.0")
+    implementation("org.apache.commons:commons-lang3:3.14.0")
     implementation("org.apache.commons:commons-text:1.11.0")
     implementation("org.apache.commons:commons-collections4:4.4")
     implementation("commons-io:commons-io:2.15.0")
-    implementation("com.opencsv:opencsv:5.8")
+    implementation("com.opencsv:opencsv:5.9")
     implementation("org.flowable:flowable-engine:7.0.0")
     implementation("org.flowable:flowable-cdi:7.0.0")
     implementation("org.flowable:flowable-cmmn-engine:7.0.0")
@@ -114,13 +114,13 @@ dependencies {
     implementation("com.itextpdf.tool:xmlworker:5.5.13.3")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
 
-    swaggerUI("org.webjars:swagger-ui:3.52.5")
+    swaggerUI("org.webjars:swagger-ui:5.9.0")
 
     // enable detekt formatting rules. see: https://detekt.dev/docs/rules/formatting/
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.3")
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.4")
 
-    runtimeOnly("org.infinispan:infinispan-jcache:14.0.20.Final")
-    runtimeOnly("org.infinispan:infinispan-cdi-embedded:14.0.20.Final")
+    runtimeOnly("org.infinispan:infinispan-jcache:14.0.21.Final")
+    runtimeOnly("org.infinispan:infinispan-cdi-embedded:14.0.21.Final")
 
     // declare dependencies that are required in the generated WAR; see war section below
     // simply marking them as 'compileOnly' or 'implementation' does not work
@@ -142,17 +142,17 @@ dependencies {
     // yasson is required for using a JSONB context in our unit tests
     // where we do not have the WildFly runtime environment available
     testImplementation("org.eclipse:yasson:3.0.3")
-    testImplementation("io.kotest:kotest-runner-junit5:5.7.1")
+    testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
     testImplementation("io.mockk:mockk:1.13.8")
 
     // integration test dependencies
     "itestImplementation"("org.testcontainers:testcontainers:1.19.3")
     "itestImplementation"("org.testcontainers:mockserver:1.19.3")
     "itestImplementation"("org.testcontainers:postgresql:1.19.3")
-    "itestImplementation"("io.kotest:kotest-runner-junit5:5.7.1")
+    "itestImplementation"("io.kotest:kotest-runner-junit5:5.8.0")
     "itestImplementation"("org.slf4j:slf4j-simple:2.0.9")
-    "itestImplementation"("io.github.oshai:kotlin-logging-jvm:5.1.0")
-    "itestImplementation"("org.danilopianini:khttp:1.4.1")
+    "itestImplementation"("io.github.oshai:kotlin-logging-jvm:5.1.1")
+    "itestImplementation"("org.danilopianini:khttp:1.4.2")
     "itestImplementation"("org.awaitility:awaitility-kotlin:4.2.0")
     "itestImplementation"("org.mock-server:mockserver-client-java:5.15.0")
 }
@@ -224,7 +224,7 @@ swaggerSources {
 // run npm install task after generating the Java clients because they
 // share the same output folder (= $rootDir)
 tasks.getByName("npmInstall").setMustRunAfter(listOf("generateJavaClients"))
-tasks.getByName("generateSwaggerUIZaakafhandelcomponent").setMustRunAfter(listOf("generateOpenApiSpec"))
+tasks.getByName("generateSwaggerUIZaakafhandelcomponent").setDependsOn(listOf("generateOpenApiSpec"))
 tasks.getByName("compileItestKotlin").setMustRunAfter(listOf("buildDockerImage"))
 
 tasks.war {
