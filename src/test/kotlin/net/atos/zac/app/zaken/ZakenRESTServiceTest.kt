@@ -70,7 +70,7 @@ class ZakenRESTServiceTest : BehaviorSpec() {
     val ztcClientService = mockk<ZTCClientService>()
 
     // We have to use @InjectMockKs since the class under test uses field injection instead of constructor injection.
-    // This is because WildFly does not support constructor injection for JAX-RS REST services completely.
+    // This is because WildFly does not properly support constructor injection for JAX-RS REST services.
     @InjectMockKs
     lateinit var zakenRESTService: ZakenRESTService
 

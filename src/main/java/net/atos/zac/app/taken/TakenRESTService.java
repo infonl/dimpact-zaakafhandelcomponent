@@ -82,9 +82,7 @@ import net.atos.zac.util.UriUtil;
 import net.atos.zac.zoeken.IndexeerService;
 import net.atos.zac.zoeken.model.index.ZoekObjectType;
 
-/**
- *
- */
+
 @Singleton
 @Path("taken")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -105,7 +103,7 @@ public class TakenRESTService {
     private IndexeerService indexeerService;
 
     @Inject
-    private RESTTaakConverter taakConverter;
+    private RESTTaakConverter restTaakConverter;
 
     @Inject
     private EventingService eventingService;
@@ -148,7 +146,7 @@ public class TakenRESTService {
     @Path("zaak/{zaakUUID}")
     public List<RESTTaak> listTakenVoorZaak(@PathParam("zaakUUID") final UUID zaakUUID) {
         assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).getLezen());
-        return taakConverter.convert(takenService.listTasksForZaak(zaakUUID));
+        return restTaakConverter.convert(takenService.listTasksForZaak(zaakUUID));
     }
 
     @GET
@@ -157,7 +155,7 @@ public class TakenRESTService {
         final TaskInfo task = takenService.readTask(taskId);
         assertPolicy(policyService.readTaakRechten(task).getLezen());
         deleteSignaleringen(task);
-        return taakConverter.convert(task);
+        return restTaakConverter.convert(task);
     }
 
     @PUT
@@ -221,7 +219,7 @@ public class TakenRESTService {
             final RESTTaakToekennenGegevens restTaakToekennenGegevens) {
         assertPolicy(policyService.readWerklijstRechten().getZakenTaken());
         final Task task = ingelogdeMedewerkerToekennenAanTaak(restTaakToekennenGegevens);
-        return taakConverter.convert(task);
+        return restTaakConverter.convert(task);
     }
 
     @PATCH
@@ -231,7 +229,7 @@ public class TakenRESTService {
         assertPolicy(
                 takenService.getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).getToekennen());
         final String behandelaar = task.getAssignee();
-        final String groep = taakConverter.extractGroupId(task.getIdentityLinks());
+        final String groep = restTaakConverter.extractGroupId(task.getIdentityLinks());
         boolean changed = false;
         if (!StringUtils.equals(behandelaar, restTaakToekennenGegevens.behandelaarId)) {
             task = assignTaak(task.getId(), restTaakToekennenGegevens.behandelaarId, restTaakToekennenGegevens.reden);
@@ -252,7 +250,7 @@ public class TakenRESTService {
     @Path("toekennen/mij")
     public RESTTaak toekennenAanIngelogdeMedewerker(final RESTTaakToekennenGegevens restTaakToekennenGegevens) {
         final Task task = ingelogdeMedewerkerToekennenAanTaak(restTaakToekennenGegevens);
-        return taakConverter.convert(task);
+        return restTaakConverter.convert(task);
     }
 
     @PATCH
@@ -264,7 +262,7 @@ public class TakenRESTService {
         task = takenService.updateTask(task);
         eventingService.send(TAAK.updated(task));
         eventingService.send(ZAAK_TAKEN.updated(restTaak.zaakUuid));
-        return taakConverter.convert(task);
+        return restTaakConverter.convert(task);
     }
 
     @PATCH
@@ -294,7 +292,7 @@ public class TakenRESTService {
         indexeerService.addOrUpdateZaak(restTaak.zaakUuid, false);
         eventingService.send(TAAK.updated(completedTask));
         eventingService.send(ZAAK_TAKEN.updated(restTaak.zaakUuid));
-        return taakConverter.convert(completedTask);
+        return restTaakConverter.convert(completedTask);
     }
 
     @POST
