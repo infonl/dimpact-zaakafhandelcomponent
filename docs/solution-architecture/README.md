@@ -10,6 +10,7 @@ The architecture is documented on the following pages:
 - [IAM Architecture](iamArchitecture.md) - The identity and access management (IAM) architecture of ZAC.
 - [Open Formulieren Integration](openFormulierenIntegration.md) - The integration of ZAC with Open Formulieren.
 - [SmartDocuments Integration](smartDocumentsIntegration.md) - The integration of ZAC with SmartDocuments.
+- [Solr Architecture](solrArchitecture.md) - The architecture of the Solr search engine in ZAC.
 
 
 
