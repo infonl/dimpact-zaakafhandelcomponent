@@ -8,7 +8,9 @@ Architecture diagrams are created and rendered using [Mermaid](https://mermaid.j
 The architecture is documented on the following pages:
 - [System Context](systemContext.md) - The system context of ZAC including the surrounding technical landscape.
 - [IAM Architecture](iamArchitecture.md) - The identity and access management (IAM) architecture of ZAC.
-- [Technical Flows](technicalFlows.md) - Some important technical flows involving ZAC.
+- [Open Formulieren Integration](openFormulierenIntegration.md) - The integration of ZAC with Open Formulieren.
+- [SmartDocuments Integration](smartDocumentsIntegration.md) - The integration of ZAC with SmartDocuments.
+- [Solr Architecture](solrArchitecture.md) - The architecture of the Solr search engine in ZAC.
 
 
 
