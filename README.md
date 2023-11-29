@@ -19,7 +19,7 @@ Please see [manuals](docs/manuals/README.md) for instructions on how to use ZAC.
 
 ## License
 
-This software is licensed under the [EUPL](LICENSE.md).
+This software is licensed under the [EUPL](LICENSE).
 
 For instructions on how to use this license when adding or changing code, please see [CONTRIBUTING.md](CONTRIBUTING.md).
 

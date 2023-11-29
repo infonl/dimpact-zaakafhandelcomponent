@@ -17,6 +17,7 @@ export class CustomWorld extends World {
     context: playwright.BrowserContext; 
     initialized: boolean = false;
     worldParameters: z.infer<typeof worldParametersScheme>['parameters'];
+    testStorage = new Map();
 
     constructor(attach: any) {
         const res = worldParametersScheme.parse(attach)
