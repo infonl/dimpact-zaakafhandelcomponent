@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -607,6 +608,7 @@ public class ZakenRESTService {
             .map(rolMedewerker -> rolMedewerker.getBetrokkeneIdentificatie().getIdentificatie())
             .orElse(null);
 
+        final AtomicBoolean isUpdated = new AtomicBoolean(false);
         if (!StringUtils.equals(behandelaar, toekennenGegevens.behandelaarGebruikersnaam)) {
             if (StringUtils.isNotEmpty(toekennenGegevens.behandelaarGebruikersnaam)) {
                 // Toekennen of overdragen
@@ -619,6 +621,7 @@ public class ZakenRESTService {
                 zrcClientService.deleteRol(zaak, BetrokkeneType.MEDEWERKER,
                                            toekennenGegevens.reden);
             }
+            isUpdated.set(true);
         }
 
         zgwApiService.findGroepForZaak(zaak)
@@ -628,8 +631,13 @@ public class ZakenRESTService {
                     final Group group = identityService.readGroup(toekennenGegevens.groepId);
                     zrcClientService.updateRol(zaak, bepaalRolGroep(group, zaak),
                                                toekennenGegevens.reden);
+                    isUpdated.set(true);
                 }
             });
+
+        if (isUpdated.get()) {
+            indexeerService.indexeerDirect(zaak.getUuid().toString(), ZoekObjectType.ZAAK);
+        }
 
         return zaakConverter.convert(zaak);
     }

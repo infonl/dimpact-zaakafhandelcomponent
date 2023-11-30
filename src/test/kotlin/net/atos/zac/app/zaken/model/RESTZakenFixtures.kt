@@ -15,7 +15,7 @@ import net.atos.zac.app.klanten.model.klant.IdentificatieType
 import net.atos.zac.app.policy.model.RESTZaakRechten
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 // note: the value of the zaak type 'omschrijving' field is used to determine whether users
 // are allowed access to a zaak type
@@ -107,6 +107,18 @@ fun createRESTZaakAanmaakGegevens() = RESTZaakAanmaakGegevens().apply {
 fun createRESTZaakEigenschap() = RESTZaakEigenschap()
 
 fun createRESTZaakKenmerk() = RESTZaakKenmerk("Sample kenmerk", "Sample bron")
+
+fun createRESTZaakToekennenGegevens(
+    zaakUUID: UUID = UUID.randomUUID(),
+    groepId: String = "dummyGroupId",
+    behandelaarGebruikersnaam: String = "dummyBehandelaarGebruikersnaam",
+    reden: String = "dummyReden"
+) = RESTZaakToekennenGegevens().apply {
+    this.zaakUUID = zaakUUID
+    this.groepId = groepId
+    this.behandelaarGebruikersnaam = behandelaarGebruikersnaam
+    this.reden = reden
+}
 
 fun createRESTZaakRechten() = RESTZaakRechten()
 
