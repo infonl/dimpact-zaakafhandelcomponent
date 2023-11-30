@@ -224,12 +224,7 @@ swaggerSources {
     }
 }
 
-sonar {
-    properties {
-        property("sonar.projectKey", "zac")
-        property("sonar.host.url", "http://localhost:9000")
-    }
-}
+
 
 // run npm install task after generating the Java clients because they
 // share the same output folder (= $rootDir)
@@ -270,6 +265,10 @@ tasks {
 
     jacocoTestReport {
         dependsOn(test)
+
+        reports {
+            xml.required = true
+        }
     }
 
     processResources {
