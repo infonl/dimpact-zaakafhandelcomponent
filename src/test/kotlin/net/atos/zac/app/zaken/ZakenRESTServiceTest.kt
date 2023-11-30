@@ -22,6 +22,7 @@ import net.atos.client.or.`object`.model.createObjectRegistratieObject
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
+import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.Zaak
@@ -41,6 +42,7 @@ import net.atos.zac.app.bag.converter.RESTBAGConverter
 import net.atos.zac.app.zaken.converter.RESTZaakConverter
 import net.atos.zac.app.zaken.model.createRESTZaak
 import net.atos.zac.app.zaken.model.createRESTZaakAanmaakGegevens
+import net.atos.zac.app.zaken.model.createRESTZaakToekennenGegevens
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.flowable.CMMNService
@@ -53,6 +55,7 @@ import net.atos.zac.policy.output.createZaakRechten
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import net.atos.zac.zaaksturing.model.createZaakafhandelParameters
 import org.junit.jupiter.api.Assertions.assertEquals
+import java.util.Optional
 
 @MockKExtension.CheckUnnecessaryStub
 class ZakenRESTServiceTest : BehaviorSpec() {
@@ -190,6 +193,41 @@ class ZakenRESTServiceTest : BehaviorSpec() {
                     with(rolGroupSlotOrganisatorischeEenheidSlot.captured) {
                         assertEquals(this.zaak, zaak.url)
                         assertEquals(this.betrokkeneType, BetrokkeneType.ORGANISATORISCHE_EENHEID)
+                    }
+                }
+            }
+        }
+        given("a zaak exists, no one is assigned and zaak toekennen gegevens are provided") {
+            When("toekennen is called") {
+                then("the zaak is updated, and the zaken search index is updated") {
+                    val restZaakToekennenGegevens = createRESTZaakToekennenGegevens()
+                    val zaak = createZaak()
+                    val user = createLoggedInUser()
+                    val rolSlot = slot<Rol<*>>()
+                    val restZaak = createRESTZaak()
+                    val rolType = createRolType(rol = AardVanRol.BEHANDELAAR)
+
+                    every { zrcClientService.readZaak(restZaakToekennenGegevens.zaakUUID) } returns zaak
+                    every { zrcClientService.updateRol(zaak, capture(rolSlot), restZaakToekennenGegevens.reden) } just runs
+                    every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
+                    every { zgwApiService.findBehandelaarForZaak(zaak) } returns Optional.empty()
+                    every { identityService.readUser(restZaakToekennenGegevens.behandelaarGebruikersnaam) } returns user
+                    every {
+                        ztcClientService.readRoltype(AardVanRol.BEHANDELAAR, zaak.zaaktype)
+                    } returns rolType
+                    every { zgwApiService.findGroepForZaak(zaak) } returns Optional.empty()
+                    every { restZaakConverter.convert(zaak) } returns restZaak
+
+                    val returnedRestZaak = zakenRESTService.toekennen(restZaakToekennenGegevens)
+
+                    assertEquals(returnedRestZaak, restZaak)
+                    verify(exactly = 1) {
+                        zrcClientService.updateRol(zaak, any(), restZaakToekennenGegevens.reden)
+                    }
+                    with(rolSlot.captured) {
+                        assertEquals(BetrokkeneType.MEDEWERKER, this.betrokkeneType)
+                        assertEquals(zaak.url, this.zaak)
+                        assertEquals(rolType.omschrijving, this.omschrijving)
                     }
                 }
             }
