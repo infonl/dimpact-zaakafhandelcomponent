@@ -21,7 +21,7 @@ plugins {
     id("io.smallrye.openapi") version "3.7.0"
     id("org.hidetake.swagger.generator") version "2.19.2"
     id("io.gitlab.arturbosch.detekt") version "1.23.4"
-    id("com.bmuschko.docker-remote-api") version "9.3.7"
+    id("com.bmuschko.docker-remote-api") version "9.4.0"
 }
 
 repositories {
@@ -95,7 +95,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.14.0")
     implementation("org.apache.commons:commons-text:1.11.0")
     implementation("org.apache.commons:commons-collections4:4.4")
-    implementation("commons-io:commons-io:2.15.0")
+    implementation("commons-io:commons-io:2.15.1")
     implementation("com.opencsv:opencsv:5.9")
     implementation("org.flowable:flowable-engine:7.0.0")
     implementation("org.flowable:flowable-cdi:7.0.0")
@@ -107,7 +107,8 @@ dependencies {
     implementation("javax.cache:cache-api:1.1.1")
     implementation("com.google.guava:guava:32.1.3-jre")
     implementation("com.mailjet:mailjet-client:5.2.5")
-    implementation("org.flywaydb:flyway-core:9.22.3")
+    implementation("org.flywaydb:flyway-core:10.1.0")
+    implementation("org.flywaydb:flyway-database-postgresql:10.1.0")
     implementation("org.apache.solr:solr-solrj:9.4.0")
     implementation("net.sf.webdav-servlet:webdav-servlet:3.0.0-INFONL")
     implementation("com.itextpdf:itextpdf:5.5.13.3")
@@ -151,7 +152,7 @@ dependencies {
     "itestImplementation"("org.testcontainers:postgresql:1.19.3")
     "itestImplementation"("io.kotest:kotest-runner-junit5:5.8.0")
     "itestImplementation"("org.slf4j:slf4j-simple:2.0.9")
-    "itestImplementation"("io.github.oshai:kotlin-logging-jvm:5.1.0")
+    "itestImplementation"("io.github.oshai:kotlin-logging-jvm:5.1.1")
     "itestImplementation"("org.danilopianini:khttp:1.4.2")
     "itestImplementation"("org.awaitility:awaitility-kotlin:4.2.0")
     "itestImplementation"("org.mock-server:mockserver-client-java:5.15.0")
