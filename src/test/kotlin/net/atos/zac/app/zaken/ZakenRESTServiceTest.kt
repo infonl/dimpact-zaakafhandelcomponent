@@ -22,6 +22,7 @@ import net.atos.client.or.`object`.model.createObjectRegistratieObject
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
+import net.atos.client.zgw.zrc.model.Medewerker
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
@@ -54,6 +55,8 @@ import net.atos.zac.policy.output.OverigeRechten
 import net.atos.zac.policy.output.createZaakRechten
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import net.atos.zac.zaaksturing.model.createZaakafhandelParameters
+import net.atos.zac.zoeken.IndexeerService
+import net.atos.zac.zoeken.model.index.ZoekObjectType
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.Optional
 
@@ -62,6 +65,7 @@ class ZakenRESTServiceTest : BehaviorSpec() {
     val cmmnService = mockk<CMMNService>()
     val identityService = mockk<IdentityService>()
     val inboxProductaanvraagService = mockk<InboxProductaanvraagService>()
+    val indexeerService = mockk<IndexeerService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val objectsClientService = mockk<ObjectsClientService>()
     val policyService = mockk<PolicyService>()
@@ -217,15 +221,18 @@ class ZakenRESTServiceTest : BehaviorSpec() {
                     } returns rolType
                     every { zgwApiService.findGroepForZaak(zaak) } returns Optional.empty()
                     every { restZaakConverter.convert(zaak) } returns restZaak
+                    every { indexeerService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK) } just runs
 
                     val returnedRestZaak = zakenRESTService.toekennen(restZaakToekennenGegevens)
 
                     assertEquals(returnedRestZaak, restZaak)
                     verify(exactly = 1) {
                         zrcClientService.updateRol(zaak, any(), restZaakToekennenGegevens.reden)
+                        indexeerService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK)
                     }
                     with(rolSlot.captured) {
                         assertEquals(BetrokkeneType.MEDEWERKER, this.betrokkeneType)
+                        assertEquals(user.id, (this.betrokkeneIdentificatie as Medewerker).identificatie)
                         assertEquals(zaak.url, this.zaak)
                         assertEquals(rolType.omschrijving, this.omschrijving)
                     }
