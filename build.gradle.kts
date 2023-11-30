@@ -22,6 +22,8 @@ plugins {
     id("org.hidetake.swagger.generator") version "2.19.2"
     id("io.gitlab.arturbosch.detekt") version "1.23.4"
     id("com.bmuschko.docker-remote-api") version "9.4.0"
+
+    id("org.sonarqube") version "4.4.1.3373"
 }
 
 repositories {
@@ -219,6 +221,13 @@ smallryeOpenApi {
 swaggerSources {
     register("zaakafhandelcomponent") {
         setInputFile(file("$rootDir/build/generated/openapi/META-INF/openapi/openapi.yaml"))
+    }
+}
+
+sonar {
+    properties {
+        property("sonar.projectKey", "zac")
+        property("sonar.host.url", "http://localhost:9000")
     }
 }
 
