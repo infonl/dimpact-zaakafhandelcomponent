@@ -7,8 +7,10 @@ package net.atos.zac.signalering.event;
 
 import java.net.URI;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
+import net.atos.zac.notificaties.Action;
 import org.flowable.task.api.TaskInfo;
 
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
@@ -19,9 +21,9 @@ import net.atos.zac.notificaties.Notificatie;
 import net.atos.zac.signalering.model.SignaleringType;
 
 /**
- * There is no SignaleringEvenType. SignaleringType is used for that instead (i.e. the Type enum in it).
+ * There is no SignaleringEventType. {@link SignaleringType} is used for that instead (i.e. the Type enum in it).
  * <p>
- * This util provides the mapping- and factory-methods that would have been in SignaleringEvenType.
+ * This util provides the mapping- and factory-methods that would have been in SignaleringEventType.
  */
 public class SignaleringEventUtil {
 
@@ -64,26 +66,20 @@ public class SignaleringEventUtil {
             final Notificatie.ResourceInfo mainResource,
             final Notificatie.ResourceInfo resource) {
         final Set<SignaleringEvent<URI>> events = new HashSet<>();
-        switch (channel) {
-            case ZAKEN:
-                switch (resource.getType()) {
-                    case ZAAKINFORMATIEOBJECT:
-                        switch (resource.getAction()) {
-                            case CREATE:
-                                events.add(
-                                        event(SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD, mainResource, resource));
-                                break;
-                        }
-                        break;
-                    case ROL:
-                        switch (resource.getAction()) {
-                            case CREATE:
-                                events.add(event(SignaleringType.Type.ZAAK_OP_NAAM, resource, null));
-                                break;
-                        }
-                        break;
-                }
-                break;
+        if (Objects.requireNonNull(channel) == Channel.ZAKEN) {
+            switch (resource.getType()) {
+                case ZAAKINFORMATIEOBJECT:
+                    if (Objects.requireNonNull(resource.getAction()) == Action.CREATE) {
+                        events.add(
+                                event(SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD, mainResource, resource));
+                    }
+                    break;
+                case ROL:
+                    if (Objects.requireNonNull(resource.getAction()) == Action.CREATE) {
+                        events.add(event(SignaleringType.Type.ZAAK_OP_NAAM, resource, null));
+                    }
+                    break;
+            }
         }
         return events;
     }
