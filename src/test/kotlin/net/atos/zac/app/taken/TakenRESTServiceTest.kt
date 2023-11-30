@@ -43,6 +43,7 @@ import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zoeken.IndexeerService
+import net.atos.zac.zoeken.model.index.ZoekObjectType
 import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.task.api.Task
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -115,6 +116,7 @@ class TakenRESTServiceTest : BehaviorSpec() {
                     every { loggedInUserInstance.get() } returns loggedInUser
                     every { eventingService.send(capture(signaleringEventSlot)) } just runs
                     every { eventingService.send(capture(screenEventSlots)) } just runs
+                    every { indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK) } just runs
 
                     takenRESTService.toekennen(restTaakToekennenGegevens)
 
@@ -130,6 +132,7 @@ class TakenRESTServiceTest : BehaviorSpec() {
                             restTaakToekennenGegevens.reden
                         )
                         eventingService.send(any<SignaleringEvent<*>>())
+                        indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK)
                     }
                     // we expect two screen events to be sent
                     verify(exactly = 2) {

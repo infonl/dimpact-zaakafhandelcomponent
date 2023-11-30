@@ -243,6 +243,7 @@ public class TakenRESTService {
         }
         if (changed) {
             taakBehandelaarGewijzigd(task, restTaakToekennenGegevens.zaakUuid);
+            indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK);
         }
     }
 
