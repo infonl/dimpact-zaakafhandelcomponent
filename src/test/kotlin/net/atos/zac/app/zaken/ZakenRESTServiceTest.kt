@@ -10,6 +10,7 @@ import io.kotest.core.test.TestCase
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
+import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
@@ -53,6 +54,7 @@ import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import net.atos.zac.zaaksturing.model.createZaakafhandelParameters
 import org.junit.jupiter.api.Assertions.assertEquals
 
+@MockKExtension.CheckUnnecessaryStub
 class ZakenRESTServiceTest : BehaviorSpec() {
     val cmmnService = mockk<CMMNService>()
     val identityService = mockk<IdentityService>()
@@ -70,7 +72,7 @@ class ZakenRESTServiceTest : BehaviorSpec() {
     val ztcClientService = mockk<ZTCClientService>()
 
     // We have to use @InjectMockKs since the class under test uses field injection instead of constructor injection.
-    // This is because WildFly does not support constructor injection for JAX-RS REST services completely.
+    // This is because WildFly does not properly support constructor injection for JAX-RS REST services.
     @InjectMockKs
     lateinit var zakenRESTService: ZakenRESTService
 

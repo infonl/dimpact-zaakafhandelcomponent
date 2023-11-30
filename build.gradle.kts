@@ -21,7 +21,7 @@ plugins {
     id("io.smallrye.openapi") version "3.7.0"
     id("org.hidetake.swagger.generator") version "2.19.2"
     id("io.gitlab.arturbosch.detekt") version "1.23.4"
-    id("com.bmuschko.docker-remote-api") version "9.3.7"
+    id("com.bmuschko.docker-remote-api") version "9.4.0"
 }
 
 repositories {
@@ -95,7 +95,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.14.0")
     implementation("org.apache.commons:commons-text:1.11.0")
     implementation("org.apache.commons:commons-collections4:4.4")
-    implementation("commons-io:commons-io:2.15.0")
+    implementation("commons-io:commons-io:2.15.1")
     implementation("com.opencsv:opencsv:5.9")
     implementation("org.flowable:flowable-engine:7.0.0")
     implementation("org.flowable:flowable-cdi:7.0.0")

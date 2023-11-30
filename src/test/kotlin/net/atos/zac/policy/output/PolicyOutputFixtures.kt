@@ -5,6 +5,12 @@
 
 package net.atos.zac.policy.output
 
+fun createTaakRechten() = TaakRechten(
+    true,
+    true,
+    true
+)
+
 fun createZaakRechten() = ZaakRechten(
     true,
     true,
