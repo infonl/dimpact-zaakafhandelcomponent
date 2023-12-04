@@ -82,7 +82,7 @@ class IdentityServiceTest : BehaviorSpec() {
         ) {
             When("the 'list users in group' endpoint is called for 'test group a'") {
                 then(
-                    "'testuser 1' and 'testuser 2'"
+                    "'testuser 1' and 'testuser 2' are returned"
                 ) {
                     khttp.get(
                         url = "${ItestConfiguration.ZAC_API_URI}/identity/groups/$TEST_GROUP_A_ID/users",
@@ -103,6 +103,31 @@ class IdentityServiceTest : BehaviorSpec() {
                                     "naam": "Test User2"
                                 }
                             ]
+                        """.trimIndent()
+                    }
+                }
+            }
+        }
+        given(
+            "Keycloak contains groups and users as group members"
+        ) {
+            When(
+                "the 'list users in group' endpoint is called with an illegal LDAP filter character using group name '*'"
+            ) {
+                then(
+                    "an empty list is returned"
+                ) {
+                    khttp.get(
+                        url = "${ItestConfiguration.ZAC_API_URI}/identity/groups/*/users",
+                        headers = mapOf(
+                            "Content-Type" to "application/json",
+                            "Authorization" to "Bearer ${KeycloakClient.requestAccessToken()}"
+                        )
+                    ).apply {
+                        statusCode shouldBe HttpStatus.SC_OK
+                        text shouldEqualJson """
+                            [
+                        ]
                         """.trimIndent()
                     }
                 }
