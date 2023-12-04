@@ -75,7 +75,7 @@ public class ZTCClientService implements Caching {
 
     @Inject
     @ConfigProperty(name = ENV_VAR_ZGW_API_CLIENT_MP_REST_URL)
-    private String getZgwApiClientMpRestUrl;
+    private String zgwApiClientMpRestUrl;
 
     public Results<Catalogus> listCatalogus(final CatalogusListParameters catalogusListParameters) {
         return ztcClient.catalogusList(catalogusListParameters);
@@ -385,13 +385,13 @@ public class ZTCClientService implements Caching {
     private Invocation.Builder createInvocationBuilder(final URI uri) {
         // for security reasons check if the provided URI starts with the value of the
         // environment variable that we use to configure the ztcClient
-        if (!uri.toString().startsWith(getZgwApiClientMpRestUrl)) {
+        if (!uri.toString().startsWith(zgwApiClientMpRestUrl)) {
             throw new RuntimeException(format(
                     "URI '%s' does not start with value for environment variable " +
                             "'%s': '%s'",
                     uri,
                     ENV_VAR_ZGW_API_CLIENT_MP_REST_URL,
-                    getZgwApiClientMpRestUrl
+                    zgwApiClientMpRestUrl
             ));
         }
 
