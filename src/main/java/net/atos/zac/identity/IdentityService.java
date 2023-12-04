@@ -8,7 +8,6 @@ package net.atos.zac.identity;
 import static org.apache.commons.lang3.StringUtils.substringBetween;
 import static org.eclipse.microprofile.config.ConfigProvider.getConfig;
 
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.LinkedList;
@@ -16,6 +15,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -26,12 +27,7 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-
-import com.unboundid.ldap.sdk.Filter;
 
 import net.atos.zac.identity.model.Group;
 import net.atos.zac.identity.model.User;
@@ -65,9 +61,7 @@ public class IdentityService {
 
     private static final String GROUP_OBJECT_CLASS = "groupOfUniqueNames";
 
-    private static final String OBJECT_CLASS_ATTRIBUTE = "objectClass";
-
-    private final Hashtable<String, String> environment = new Hashtable<String, String>();
+    private Hashtable<String, String> environment = new Hashtable<String, String>();
 
     @Inject
     @ConfigProperty(name = "LDAP_DN")
@@ -86,50 +80,32 @@ public class IdentityService {
     }
 
     public List<User> listUsers() {
-        return search(
-                usersDN,
-                Filter.createANDFilter(Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS)),
-                USER_ATTRIBUTES
-        ).stream()
+        final String filter = String.format("(&(objectClass=%s))", USER_OBJECT_CLASS);
+        return search(usersDN, filter, USER_ATTRIBUTES).stream()
                 .map(this::convertToUser)
                 .sorted(Comparator.comparing(User::getFullName))
                 .toList();
     }
 
     public List<Group> listGroups() {
-        return search(
-                groupsDN,
-                Filter.createANDFilter(Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS)),
-                GROUP_ATTRIBUTES
-        ).stream()
+        final String filter = String.format("(&(objectClass=%s))", GROUP_OBJECT_CLASS);
+        return search(groupsDN, filter, GROUP_ATTRIBUTES).stream()
                 .map(this::convertToGroup)
                 .sorted(Comparator.comparing(Group::getName))
                 .toList();
     }
 
     public User readUser(final String userId) {
-        return search(
-                usersDN,
-                Filter.createANDFilter(
-                        Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS),
-                        Filter.createEqualityFilter(USER_ID_ATTRIBUTE, userId)
-                ),
-                USER_ATTRIBUTES
-        ).stream()
+        final String filter = String.format("(&(objectClass=%s)(cn=%s))", USER_OBJECT_CLASS, userId);
+        return search(usersDN, filter, USER_ATTRIBUTES).stream()
                 .findAny()
                 .map(this::convertToUser)
                 .orElseGet(() -> new User(userId));
     }
 
     public Group readGroup(final String groupId) {
-        return search(
-                groupsDN,
-                Filter.createANDFilter(
-                        Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS),
-                        Filter.createEqualityFilter(GROUP_ID_ATTRIBUTE, groupId)
-                ),
-                GROUP_ATTRIBUTES
-        ).stream()
+        final String filter = String.format("(&(objectClass=%s)(cn=%s))", GROUP_OBJECT_CLASS, groupId);
+        return search(groupsDN, filter, GROUP_ATTRIBUTES).stream()
                 .findAny()
                 .map(this::convertToGroup)
                 .orElseGet(() -> new Group(groupId));
@@ -137,33 +113,21 @@ public class IdentityService {
     }
 
     public List<User> listUsersInGroup(final String groupId) {
-        return search(
-                groupsDN,
-                Filter.createANDFilter(
-                        Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS),
-                        Filter.createEqualityFilter(GROUP_ID_ATTRIBUTE, groupId)
-                ),
-                GROUP_MEMBERSHIP_ATTRIBUTES
-        ).stream()
+        final String filter = String.format("(&(objectClass=%s)(cn=%s))", GROUP_OBJECT_CLASS, groupId);
+        return search(groupsDN, filter, GROUP_MEMBERSHIP_ATTRIBUTES).stream()
                 .map(this::convertToMembers)
                 .flatMap(this::readUsers)
                 .sorted(Comparator.comparing(User::getFullName))
                 .toList();
     }
 
-    private Stream<User> readUsers(final Collection<String> userIds) {
-        return search(
-                usersDN,
-                Filter.createANDFilter(
-                        Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS),
-                        Filter.createORFilter(
-                                userIds.stream()
-                                        .map(userId -> Filter.createEqualityFilter(USER_ID_ATTRIBUTE, userId))
-                                        .toList()
-                        )
-                ),
-                USER_ATTRIBUTES
-        ).stream().map(this::convertToUser);
+    private Stream<User> readUsers(final List<String> userIds) {
+        final StringBuilder filter = new StringBuilder();
+        filter.append(String.format("(&(objectClass=%s)(|", USER_OBJECT_CLASS));
+        userIds.forEach(userId -> filter.append(String.format("(cn=%s)", userId)));
+        filter.append("))");
+        return search(usersDN, filter.toString(), USER_ATTRIBUTES).stream()
+                .map(this::convertToUser);
     }
 
     private User convertToUser(final Attributes attributes) {
@@ -180,24 +144,19 @@ public class IdentityService {
     }
 
     private List<String> convertToMembers(final Attributes attributes) {
-        return readAttributeToListOfStrings(attributes).stream()
+        return readAttributeToListOfStrings(attributes, GROUP_MEMBER_ATTRIBUTE).stream()
                 .map(member -> substringBetween(member, "cn=", ","))
                 .filter(Objects::nonNull)
                 .toList();
     }
 
-    private List<Attributes> search(final String root, final Filter filter,
-            final String[] attributesToReturn) {
+    private List<Attributes> search(final String root, final String filter, final String[] attributesToReturn) {
         final SearchControls searchControls = new SearchControls();
         searchControls.setReturningAttributes(attributesToReturn);
         searchControls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
         try {
             final DirContext dirContext = new InitialDirContext(environment);
-            final NamingEnumeration<SearchResult> namingEnumeration = dirContext.search(
-                    root,
-                    filter.toString(),
-                    searchControls
-            );
+            final NamingEnumeration<SearchResult> namingEnumeration = dirContext.search(root, filter, searchControls);
             final List<Attributes> attributesList = new LinkedList<>();
             while (namingEnumeration.hasMore()) {
                 attributesList.add(namingEnumeration.next().getAttributes());
@@ -218,10 +177,10 @@ public class IdentityService {
         }
     }
 
-    private List<String> readAttributeToListOfStrings(final Attributes attributes) {
+    private List<String> readAttributeToListOfStrings(final Attributes attributes, final String attributeName) {
         try {
             final List<String> strings = new LinkedList<>();
-            final Attribute attribute = attributes.get(IdentityService.GROUP_MEMBER_ATTRIBUTE);
+            final Attribute attribute = attributes.get(attributeName);
             if (attribute != null) {
                 final NamingEnumeration<?> enumeration = attribute.getAll();
                 while (enumeration.hasMore()) {
