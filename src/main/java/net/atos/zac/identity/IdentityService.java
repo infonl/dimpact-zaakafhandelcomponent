@@ -112,7 +112,7 @@ public class IdentityService {
                 usersDN,
                 Filter.createANDFilter(
                         Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS),
-                        Filter.createEqualityFilter(USER_ID_ATTRIBUTE, Filter.encodeValue(userId))
+                        Filter.createEqualityFilter(USER_ID_ATTRIBUTE, userId)
                 ),
                 USER_ATTRIBUTES
         ).stream()
@@ -126,7 +126,7 @@ public class IdentityService {
                 groupsDN,
                 Filter.createANDFilter(
                         Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS),
-                        Filter.createEqualityFilter(GROUP_ID_ATTRIBUTE, Filter.encodeValue(groupId))
+                        Filter.createEqualityFilter(GROUP_ID_ATTRIBUTE, groupId)
                 ),
                 GROUP_ATTRIBUTES
         ).stream()
@@ -141,7 +141,7 @@ public class IdentityService {
                 groupsDN,
                 Filter.createANDFilter(
                         Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS),
-                        Filter.createEqualityFilter(GROUP_ID_ATTRIBUTE, Filter.encodeValue(groupId))
+                        Filter.createEqualityFilter(GROUP_ID_ATTRIBUTE, groupId)
                 ),
                 GROUP_MEMBERSHIP_ATTRIBUTES
         ).stream()
@@ -158,7 +158,7 @@ public class IdentityService {
                         Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS),
                         Filter.createORFilter(
                                 userIds.stream()
-                                        .map(userId -> Filter.createEqualityFilter(USER_ID_ATTRIBUTE, Filter.encodeValue(userId)))
+                                        .map(userId -> Filter.createEqualityFilter(USER_ID_ATTRIBUTE, userId))
                                         .toList()
                         )
                 ),
