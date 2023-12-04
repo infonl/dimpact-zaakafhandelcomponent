@@ -14,19 +14,47 @@ import nl.lifely.zac.itest.config.ItestConfiguration
 
 class IdentityServiceTest : BehaviorSpec() {
     companion object {
-        const val TEST_GROUP_A = "test-group-a"
+        const val TEST_GROUP_A_ID = "test-group-a"
+        const val TEST_GROUP_A_DESCRIPTION = "Test groep A"
     }
 
     init {
         given(
-            "Keycloak contains 'test group a' with 'test user 1' and 'test user 2' as members"
+            "Keycloak contains 'test group a' and 'test group b'"
         ) {
-            When("the 'list users in group' endpoint is called for 'test group a'") {
+            When("the 'list groups' endpoint is called") {
                 then(
-                    "'testuser 1' and 'testuser 2'"
+                    "'test group a' and 'test group b' are returned"
                 ) {
                     khttp.get(
-                        url = "${ItestConfiguration.ZAC_API_URI}/identity/groups/$TEST_GROUP_A/users",
+                        url = "${ItestConfiguration.ZAC_API_URI}/identity/groups",
+                        headers = mapOf(
+                            "Content-Type" to "application/json",
+                            "Authorization" to "Bearer ${KeycloakClient.requestAccessToken()}"
+                        )
+                    ).apply {
+                        statusCode shouldBe HttpStatus.SC_OK
+                        text shouldEqualJson """
+                            [
+                                {
+                                    "id": "$TEST_GROUP_A_ID",
+                                    "naam": "$TEST_GROUP_A_DESCRIPTION"
+                                }
+                            ]
+                        """.trimIndent()
+                    }
+                }
+            }
+        }
+        given(
+            "Keycloak contains 'test user 1' and 'test user 2'"
+        ) {
+            When("the 'list users' endpoint is called") {
+                then(
+                    "'test user 1' and 'test user 2' are returned"
+                ) {
+                    khttp.get(
+                        url = "${ItestConfiguration.ZAC_API_URI}/identity/users",
                         headers = mapOf(
                             "Content-Type" to "application/json",
                             "Authorization" to "Bearer ${KeycloakClient.requestAccessToken()}"
@@ -44,6 +72,65 @@ class IdentityServiceTest : BehaviorSpec() {
                                     "naam": "Test User2"
                                 }
                             ]
+                        """.trimIndent()
+                    }
+                }
+            }
+        }
+        given(
+            "Keycloak contains 'test group a' with 'test user 1' and 'test user 2' as members"
+        ) {
+            When("the 'list users in group' endpoint is called for 'test group a'") {
+                then(
+                    "'testuser 1' and 'testuser 2'"
+                ) {
+                    khttp.get(
+                        url = "${ItestConfiguration.ZAC_API_URI}/identity/groups/$TEST_GROUP_A_ID/users",
+                        headers = mapOf(
+                            "Content-Type" to "application/json",
+                            "Authorization" to "Bearer ${KeycloakClient.requestAccessToken()}"
+                        )
+                    ).apply {
+                        statusCode shouldBe HttpStatus.SC_OK
+                        text shouldEqualJson """
+                            [
+                                {
+                                    "id": "testuser1",
+                                    "naam": "Test User1"
+                                },
+                                {
+                                    "id": "testuser2",
+                                    "naam": "Test User2"
+                                }
+                            ]
+                        """.trimIndent()
+                    }
+                }
+            }
+        }
+        given(
+            "'test user 1' is logged in to ZAC and is part of 'test group a'"
+        ) {
+            When("the 'get logged in user' endpoint is called") {
+                then(
+                    "'test user 1' is returned"
+                ) {
+                    khttp.get(
+                        url = "${ItestConfiguration.ZAC_API_URI}/identity/loggedInUser",
+                        headers = mapOf(
+                            "Content-Type" to "application/json",
+                            "Authorization" to "Bearer ${KeycloakClient.requestAccessToken()}"
+                        )
+                    ).apply {
+                        statusCode shouldBe HttpStatus.SC_OK
+                        text shouldEqualJson """
+                            {
+                                "id": "testuser1",
+                                "naam": "Test User1",
+                                "groupIds": [
+                                    "$TEST_GROUP_A_ID"
+                                ]
+                            }
                         """.trimIndent()
                     }
                 }
