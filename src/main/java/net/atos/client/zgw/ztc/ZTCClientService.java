@@ -23,7 +23,7 @@ import jakarta.ws.rs.core.MediaType;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-import net.atos.client.util.ClientFactory;
+import net.atos.client.util.JAXRSClientFactory;
 import net.atos.client.zgw.shared.cache.Caching;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
@@ -376,7 +376,7 @@ public class ZTCClientService implements Caching {
     }
 
     private Invocation.Builder createInvocationBuilder(final URI uri) {
-        return ClientFactory.create().target(uri)
+        return JAXRSClientFactory.getOrCreateClient().target(uri)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, zgwClientHeadersFactory.generateJWTToken());
     }
