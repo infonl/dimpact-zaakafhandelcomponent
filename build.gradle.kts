@@ -114,6 +114,7 @@ dependencies {
     implementation("com.itextpdf:itextpdf:5.5.13.3")
     implementation("com.itextpdf.tool:xmlworker:5.5.13.3")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
+    implementation("com.unboundid:unboundid-ldapsdk:6.0.11")
 
     swaggerUI("org.webjars:swagger-ui:5.10.3")
 
@@ -151,6 +152,7 @@ dependencies {
     "itestImplementation"("org.testcontainers:mockserver:1.19.3")
     "itestImplementation"("org.testcontainers:postgresql:1.19.3")
     "itestImplementation"("io.kotest:kotest-runner-junit5:5.8.0")
+    "itestImplementation"("io.kotest:kotest-assertions-json:5.8.0")
     "itestImplementation"("org.slf4j:slf4j-simple:2.0.9")
     "itestImplementation"("io.github.oshai:kotlin-logging-jvm:5.1.1")
     "itestImplementation"("org.danilopianini:khttp:1.4.2")
