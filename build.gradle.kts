@@ -115,7 +115,7 @@ dependencies {
     implementation("com.itextpdf.tool:xmlworker:5.5.13.3")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
 
-    swaggerUI("org.webjars:swagger-ui:5.9.0")
+    swaggerUI("org.webjars:swagger-ui:5.10.3")
 
     // enable detekt formatting rules. see: https://detekt.dev/docs/rules/formatting/
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.4")
