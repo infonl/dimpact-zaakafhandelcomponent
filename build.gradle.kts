@@ -114,6 +114,7 @@ dependencies {
     implementation("com.itextpdf:itextpdf:5.5.13.3")
     implementation("com.itextpdf.tool:xmlworker:5.5.13.3")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
+    implementation("com.unboundid:unboundid-ldapsdk:6.0.11")
 
     swaggerUI("org.webjars:swagger-ui:5.10.3")
 
@@ -156,6 +157,7 @@ dependencies {
     "itestImplementation"("org.danilopianini:khttp:1.4.2")
     "itestImplementation"("org.awaitility:awaitility-kotlin:4.2.0")
     "itestImplementation"("org.mock-server:mockserver-client-java:5.15.0")
+    "itestImplementation"("io.kotest:kotest-assertions-json:5.8.0")
 }
 
 detekt {
