@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jakarta.json.Json;
+import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.json.bind.JsonbConfig;
 import jakarta.json.stream.JsonGenerator;
@@ -29,9 +30,6 @@ import jakarta.ws.rs.ext.Provider;
 
 import org.apache.commons.io.IOUtils;
 
-/**
- *
- */
 @Provider
 public class JsonLoggingFilter implements ClientRequestFilter, ClientResponseFilter {
 
@@ -76,7 +74,12 @@ public class JsonLoggingFilter implements ClientRequestFilter, ClientResponseFil
     private String getPayload(final ClientRequestContext requestContext) {
         final JsonbConfig jsonbConfig = new JsonbConfig();
         jsonbConfig.setProperty(JsonbConfig.FORMATTING, true);
-        return JsonbBuilder.create(jsonbConfig).toJson(requestContext.getEntity());
+        try (final Jsonb jsonb = JsonbBuilder.create(jsonbConfig)) {
+            return jsonb.toJson(requestContext.getEntity());
+        } catch (final Exception e) {
+            LOG.log(Level.WARNING, "Failed to create or close JSON builder", e);
+            throw new RuntimeException(e);
+        }
     }
 
     private String getPayload(final ClientResponseContext responseContext) {
