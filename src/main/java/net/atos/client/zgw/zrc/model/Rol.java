@@ -13,17 +13,12 @@ import java.util.UUID;
 
 import jakarta.json.bind.annotation.JsonbDateFormat;
 import jakarta.json.bind.annotation.JsonbTypeDeserializer;
+
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import net.atos.client.zgw.zrc.util.RolJsonbDeserializer;
 import net.atos.client.zgw.ztc.model.Roltype;
 
-/**
- * This class is no longer an abstract class like it used to be because in WildFly 30,
- * with JSONB 2, and Yasson 3 we ran into the following issue when deserializing a concrete Rol instance:
- * "RESTEASY008200: JSON Binding deserialization error: jakarta.json.bind.JsonbException: Can't create instance
- * [...]
- * at org.eclipse.yasson//org.eclipse.yasson.internal.ReflectionUtils.createNoArgConstructorInstance(ReflectionUtils.java:274)"
- * Hopefully this can be improved in the future.
- */
 @JsonbTypeDeserializer(RolJsonbDeserializer.class)
 public abstract class Rol<T> {
 
@@ -176,7 +171,7 @@ public abstract class Rol<T> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -185,6 +180,15 @@ public abstract class Rol<T> {
         }
         Rol<T> rol = (Rol<T>) o;
         return equalBetrokkeneRol(rol) && equalBetrokkeneIdentificatie(rol.getBetrokkeneIdentificatie());
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(getBetrokkeneType())
+                .append(getRoltype())
+                .append(getBetrokkeneIdentificatie())
+                .toHashCode();
     }
 
     public boolean equalBetrokkeneRol(final Rol<?> other) {
