@@ -53,7 +53,7 @@ public class RolOrganisatorischeEenheid extends Rol<OrganisatorischeEenheid> {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(getRoltype(), getBetrokkeneType(), getBetrokkeneIdentificatie().getIdentificatie());
+    protected int hashCodeBetrokkeneIdentificatie() {
+        return Objects.hash(getBetrokkeneIdentificatie().getIdentificatie());
     }
 }

@@ -55,8 +55,7 @@ public class RolVestiging extends Rol<Vestiging> {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(getRoltype(), getBetrokkeneType(), getBetrokkeneIdentificatie().getVestigingsNummer());
+    protected int hashCodeBetrokkeneIdentificatie() {
+        return Objects.hash(getBetrokkeneIdentificatie().getVestigingsNummer());
     }
-
 }

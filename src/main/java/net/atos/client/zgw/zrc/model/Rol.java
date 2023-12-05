@@ -9,12 +9,11 @@ import static net.atos.client.zgw.shared.util.DateTimeUtil.DATE_TIME_FORMAT_WITH
 
 import java.net.URI;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 import jakarta.json.bind.annotation.JsonbDateFormat;
 import jakarta.json.bind.annotation.JsonbTypeDeserializer;
-
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import net.atos.client.zgw.zrc.util.RolJsonbDeserializer;
 import net.atos.client.zgw.ztc.model.Roltype;
@@ -171,7 +170,7 @@ public abstract class Rol<T> {
     }
 
     @Override
-    public final boolean equals(Object o) {
+    public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -184,11 +183,7 @@ public abstract class Rol<T> {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(getBetrokkeneType())
-                .append(getRoltype())
-                .append(getBetrokkeneIdentificatie())
-                .toHashCode();
+        return Objects.hash(getRoltype(), getBetrokkeneType(), hashCodeBetrokkeneIdentificatie());
     }
 
     public boolean equalBetrokkeneRol(final Rol<?> other) {
@@ -197,6 +192,8 @@ public abstract class Rol<T> {
     }
 
     protected abstract boolean equalBetrokkeneIdentificatie(final T identificatie);
+
+    protected abstract int hashCodeBetrokkeneIdentificatie();
 
     public abstract String getNaam();
 

@@ -23,18 +23,6 @@ public class RolMedewerker extends Rol<Medewerker> {
         super(zaak, roltype, BetrokkeneType.MEDEWERKER, betrokkeneIdentificatie, roltoelichting);
     }
 
-    @Override
-    protected boolean equalBetrokkeneIdentificatie(final Medewerker identificatie) {
-        final Medewerker betrokkeneIdentificatie = getBetrokkeneIdentificatie();
-        if (betrokkeneIdentificatie == identificatie) {
-            return true;
-        }
-        if (identificatie == null) {
-            return false;
-        }
-        return Objects.equals(betrokkeneIdentificatie.getIdentificatie(), identificatie.getIdentificatie());
-    }
-
     public String getNaam() {
         if (getBetrokkeneIdentificatie() == null) {
             return null;
@@ -58,6 +46,18 @@ public class RolMedewerker extends Rol<Medewerker> {
     }
 
     @Override
+    protected boolean equalBetrokkeneIdentificatie(final Medewerker identificatie) {
+        final Medewerker betrokkeneIdentificatie = getBetrokkeneIdentificatie();
+        if (betrokkeneIdentificatie == identificatie) {
+            return true;
+        }
+        if (identificatie == null) {
+            return false;
+        }
+        return Objects.equals(betrokkeneIdentificatie.getIdentificatie(), identificatie.getIdentificatie());
+    }
+
+    @Override
     public String getIdentificatienummer() {
         if (getBetrokkeneIdentificatie() == null) {
             return null;
@@ -66,7 +66,7 @@ public class RolMedewerker extends Rol<Medewerker> {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(getRoltype(), getBetrokkeneType(), getBetrokkeneIdentificatie().getIdentificatie());
+    protected int hashCodeBetrokkeneIdentificatie() {
+        return Objects.hash(getBetrokkeneIdentificatie().getIdentificatie());
     }
 }

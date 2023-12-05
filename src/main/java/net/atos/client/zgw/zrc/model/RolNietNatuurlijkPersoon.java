@@ -70,4 +70,15 @@ public class RolNietNatuurlijkPersoon extends Rol<NietNatuurlijkPersoon> {
         }
         return Objects.hash(getRoltype(), getBetrokkeneType(), null);
     }
+
+    @Override
+    protected int hashCodeBetrokkeneIdentificatie() {
+        if (getBetrokkeneIdentificatie().getAnnIdentificatie() != null) {
+            return Objects.hash(getBetrokkeneIdentificatie().getAnnIdentificatie());
+        }
+        if (getBetrokkeneIdentificatie().getInnNnpId() != null) {
+            return Objects.hash(getBetrokkeneIdentificatie().getInnNnpId());
+        }
+        return 1;
+    }
 }
