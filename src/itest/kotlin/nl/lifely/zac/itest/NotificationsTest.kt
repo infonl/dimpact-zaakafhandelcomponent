@@ -10,6 +10,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.provided.ProjectConfig
 import nl.lifely.zac.itest.client.KeycloakClient
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTS_API_HOSTNAME_URL
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANVRAAG_DENHAAG
@@ -19,6 +20,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVEN
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONObject
+import org.testcontainers.containers.wait.strategy.Wait
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -106,6 +108,51 @@ class NotificationsTest : BehaviorSpec({
                             .getString("naam") shouldBe "E-formulier"
                         zaakUUID = UUID.fromString(zaak.getString("uuid"))
                     }
+                }
+            }
+        }
+    }
+    given(
+        "ZAC and all related Docker containers are running"
+    ) {
+        When(
+            "the notificaties endpoint is called with a 'create zaaktype' payload with a " +
+                "dummy resourceUrl that does not start with the 'ZGW_API_CLIENT_MP_REST_URL' environment variable"
+        ) {
+            then(
+                "a corresponding error message should be logged in ZAC"
+            ) {
+                khttp.post(
+                    url = "${ZAC_API_URI}/notificaties",
+                    headers = mapOf(
+                        "Content-Type" to "application/json",
+                        // this test simulates that Open Notificaties sends the request to ZAC
+                        // using the secret API key that is configured in ZAC
+                        "Authorization" to OPEN_NOTIFICATIONS_API_SECRET_KEY
+                    ),
+                    data = JSONObject(
+                        mapOf(
+                            "resource" to "zaaktype",
+                            "resourceUrl" to "http://example.com/dummyResourceUrl",
+                            "actie" to "create",
+                            "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
+                        )
+                    )
+                ).apply {
+                    // Note that the 'notificaties' endpoint always returns 'no content' even if things go wrong
+                    // since it is a fire-and-forget kind of endpoint.
+                    statusCode shouldBe HttpStatus.SC_NO_CONTENT
+
+                    // we expect ZAC to log an error message indicating that the resourceURL is invalid
+                    ProjectConfig.dockerComposeContainer.waitingFor(
+                        "zac",
+                        Wait.forLogMessage(
+                            ".* Er is iets fout gegaan in de Zaaktype-handler bij het afhandelen van notificatie: " +
+                                "null ZAAKTYPE CREATE .*: java.lang.RuntimeException: URI 'http://example.com/dummyResourceUrl' does not " +
+                                "start with value for environment variable 'ZGW_API_CLIENT_MP_REST_URL': 'http://openzaak.local:8000/' .*",
+                            1
+                        ).withStartupTimeout(ProjectConfig.TWENTY_SECONDS)
+                    )
                 }
             }
         }

@@ -19,7 +19,7 @@ import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-import net.atos.client.util.ClientFactory;
+import net.atos.client.util.JAXRSClientFactory;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectWithInhoud;
@@ -182,7 +182,7 @@ public class DRCClientService {
     }
 
     private Invocation.Builder createInvocationBuilder(final URI uri) {
-        return ClientFactory.create().target(uri)
+        return JAXRSClientFactory.getOrCreateClient().target(uri)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, zgwClientHeadersFactory.generateJWTToken());
     }

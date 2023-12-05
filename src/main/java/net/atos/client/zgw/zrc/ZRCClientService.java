@@ -22,7 +22,7 @@ import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.UriBuilder;
-import net.atos.client.util.ClientFactory;
+import net.atos.client.util.JAXRSClientFactory;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
 import net.atos.client.zgw.shared.exception.FoutExceptionMapper;
 import net.atos.client.zgw.shared.exception.RuntimeExceptionMapper;
@@ -491,7 +491,7 @@ public class ZRCClientService {
     }
 
     private Invocation.Builder createInvocationBuilder(final URI uri) {
-        return ClientFactory.create().target(uri)
+        return JAXRSClientFactory.getOrCreateClient().target(uri)
                 .register(FoutExceptionMapper.class)
                 .register(ValidatieFoutExceptionMapper.class)
                 .register(RuntimeExceptionMapper.class)

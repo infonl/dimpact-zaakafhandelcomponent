@@ -28,12 +28,12 @@ private val logger = KotlinLogging.logger {}
 
 object ProjectConfig : AbstractProjectConfig() {
     @Suppress("MagicNumber")
-    private val THREE_MINUTES = Duration.ofMinutes(3)
+    val THREE_MINUTES = Duration.ofMinutes(3)
 
     @Suppress("MagicNumber")
-    private val TWENTY_SECONDS = Duration.ofSeconds(20)
+    val TWENTY_SECONDS = Duration.ofSeconds(20)
 
-    private lateinit var dockerComposeContainer: ComposeContainer
+    lateinit var dockerComposeContainer: ComposeContainer
 
     @Suppress("UNCHECKED_CAST")
     override suspend fun beforeProject() {
