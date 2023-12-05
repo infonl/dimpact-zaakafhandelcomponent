@@ -8,6 +8,7 @@ package net.atos.client.zgw.shared.util;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import jakarta.annotation.Nullable;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.HttpHeaders;
@@ -54,7 +55,7 @@ public class ZGWClientHeadersFactory implements ClientHeadersFactory {
         return JWTTokenGenerator.generate(clientId, secret, loggedInUserInstance.get());
     }
 
-    public void setAuditToelichting(final String toelichting) {
+    public void setAuditToelichting(@Nullable final String toelichting) {
         if (toelichting != null) {
             final LoggedInUser loggedInUser = loggedInUserInstance.get();
             if (loggedInUser != null) {
@@ -63,7 +64,7 @@ public class ZGWClientHeadersFactory implements ClientHeadersFactory {
         }
     }
 
-    private void clearAuditToelichting(final LoggedInUser loggedInUser) {
+    private void clearAuditToelichting(@Nullable final LoggedInUser loggedInUser) {
         if (loggedInUser != null) {
             AUDIT_TOELICHTINGEN.remove(loggedInUser.getId());
         }
@@ -74,8 +75,10 @@ public class ZGWClientHeadersFactory implements ClientHeadersFactory {
         outgoingHeaders.add(HttpHeaders.AUTHORIZATION, JWTTokenGenerator.generate(clientId, secret, loggedInUser));
     }
 
-    private void addXAuditToelichtingHeader(final MultivaluedMap<String, String> outgoingHeaders,
-            final LoggedInUser loggedInUser) {
+    private void addXAuditToelichtingHeader(
+            final MultivaluedMap<String, String> outgoingHeaders,
+            final @Nullable LoggedInUser loggedInUser
+    ) {
         if (loggedInUser != null) {
             final String toelichting = AUDIT_TOELICHTINGEN.get(loggedInUser.getId());
             if (toelichting != null) {
