@@ -15,15 +15,17 @@ import java.util.UUID;
 
 import javax.cache.annotation.CacheRemoveAll;
 import javax.cache.annotation.CacheResult;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-import net.atos.client.util.ClientFactory;
+import net.atos.client.util.JAXRSClientFactory;
 import net.atos.client.zgw.shared.cache.Caching;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
@@ -53,6 +55,7 @@ import net.atos.client.zgw.ztc.model.ZaaktypeListParameters;
  */
 @ApplicationScoped
 public class ZTCClientService implements Caching {
+    public static final String ENV_VAR_ZGW_API_CLIENT_MP_REST_URL = "ZGW_API_CLIENT_MP_REST_URL";
 
     private static final List<String> CACHES = List.of(
             ZTC_BESLUITTYPE,
@@ -69,6 +72,10 @@ public class ZTCClientService implements Caching {
 
     @Inject
     private ZGWClientHeadersFactory zgwClientHeadersFactory;
+
+    @Inject
+    @ConfigProperty(name = ENV_VAR_ZGW_API_CLIENT_MP_REST_URL)
+    private String zgwApiClientMpRestUrl;
 
     public Results<Catalogus> listCatalogus(final CatalogusListParameters catalogusListParameters) {
         return ztcClient.catalogusList(catalogusListParameters);
@@ -376,7 +383,19 @@ public class ZTCClientService implements Caching {
     }
 
     private Invocation.Builder createInvocationBuilder(final URI uri) {
-        return ClientFactory.create().target(uri)
+        // for security reasons check if the provided URI starts with the value of the
+        // environment variable that we use to configure the ztcClient
+        if (!uri.toString().startsWith(zgwApiClientMpRestUrl)) {
+            throw new RuntimeException(format(
+                    "URI '%s' does not start with value for environment variable " +
+                            "'%s': '%s'",
+                    uri,
+                    ENV_VAR_ZGW_API_CLIENT_MP_REST_URL,
+                    zgwApiClientMpRestUrl
+            ));
+        }
+
+        return JAXRSClientFactory.getOrCreateClient().target(uri)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, zgwClientHeadersFactory.generateJWTToken());
     }

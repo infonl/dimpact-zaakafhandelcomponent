@@ -30,7 +30,7 @@ import net.atos.client.bag.model.NummeraanduidingIOHal;
 import net.atos.client.bag.model.OpenbareRuimteIOHal;
 import net.atos.client.bag.model.PandIOHal;
 import net.atos.client.bag.model.WoonplaatsIOHal;
-import net.atos.client.util.ClientFactory;
+import net.atos.client.util.JAXRSClientFactory;
 
 @ApplicationScoped
 public class BAGClientService {
@@ -98,7 +98,7 @@ public class BAGClientService {
     }
 
     private Invocation.Builder createInvocationBuilder(final URI uri) {
-        return ClientFactory.create().target(uri)
+        return JAXRSClientFactory.getOrCreateClient().target(uri)
                 .request("application/hal+json", "application/problem+json")
                 .header(X_API_KEY, API_KEY);
     }

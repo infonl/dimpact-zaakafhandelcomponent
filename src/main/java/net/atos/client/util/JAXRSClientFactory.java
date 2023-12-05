@@ -14,16 +14,18 @@ import jakarta.ws.rs.client.ClientBuilder;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- *
+ * Factory for creating a JAX-RS {@link Client} that can be reused within the application.
+ * Note that only one instance of such a client is created here.
+ * And since it can be reused it is never closed.
  */
-public final class ClientFactory {
+public final class JAXRSClientFactory {
 
     private static Client client;
 
-    private ClientFactory() {
+    private JAXRSClientFactory() {
     }
 
-    public static Client create() {
+    public static Client getOrCreateClient() {
         if (client == null) {
             client = createClient();
         }
@@ -42,7 +44,7 @@ public final class ClientFactory {
             }
             return clientBuilder.build();
         } catch (final NoSuchAlgorithmException e) {
-            throw new RuntimeException("Fout tijdens initialiseren van client", e);
+            throw new RuntimeException("Failed to initialize JAX-RS client", e);
         }
     }
 }
