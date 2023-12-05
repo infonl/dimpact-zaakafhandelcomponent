@@ -86,19 +86,21 @@ public class JsonLoggingFilter implements ClientRequestFilter, ClientResponseFil
         try {
             final String payload = IOUtils.toString(responseContext.getEntityStream(), StandardCharsets.UTF_8);
             responseContext.setEntityStream(IOUtils.toInputStream(payload, StandardCharsets.UTF_8));
-            try {
-                final Map<String, Object> jsonConfig = new HashMap<>();
-                jsonConfig.put(JsonGenerator.PRETTY_PRINTING, true);
-                final StringWriter payloadWriter = new StringWriter();
-                Json.createWriterFactory(jsonConfig)
-                        .createWriter(payloadWriter)
-                        .write(Json.createReader(new StringReader(payload)).read());
+            final Map<String, Object> jsonConfig = new HashMap<>();
+            jsonConfig.put(JsonGenerator.PRETTY_PRINTING, true);
+            final StringWriter payloadWriter = new StringWriter();
+
+            try (
+                final var jsonWriter = Json.createWriterFactory(jsonConfig).createWriter(payloadWriter);
+                final var jsonReader = Json.createReader(new StringReader(payload))
+            ) {
+                jsonWriter.write(jsonReader.read());
                 return payloadWriter.toString();
             } catch (final JsonParsingException ignore) {
                 return payload;
             }
         } catch (final IOException e) {
-            throw new RuntimeException("Fout tijdens loggen van REST response", e);
+            throw new RuntimeException("Error logging REST response", e);
         }
     }
 }

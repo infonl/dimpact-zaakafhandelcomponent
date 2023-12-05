@@ -973,7 +973,7 @@ public class ZakenRESTService {
             final Resultaat zaakResultaat = zrcClientService.readResultaat(zaak.getResultaat());
             final Resultaattype resultaattype = ztcClientService.readResultaattype(
                 restBesluitWijzigenGegevens.resultaattypeUuid);
-            if (!UriUtil.equal(zaakResultaat.getResultaattype(), resultaattype.getUrl())) {
+            if (!UriUtil.isEqual(zaakResultaat.getResultaattype(), resultaattype.getUrl())) {
                 zrcClientService.deleteResultaat(zaakResultaat.getUuid());
                 zgwApiService.createResultaatForZaak(zaak,
                                                      restBesluitWijzigenGegevens.resultaattypeUuid,
