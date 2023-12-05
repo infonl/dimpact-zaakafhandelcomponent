@@ -120,7 +120,7 @@ class NotificationsTest : BehaviorSpec({
                 "dummy resourceUrl that does not start with the 'ZGW_API_CLIENT_MP_REST_URL' environment variable"
         ) {
             then(
-                "xxx"
+                "a corresponding error message should be logged in ZAC"
             ) {
                 khttp.post(
                     url = "${ZAC_API_URI}/notificaties",
