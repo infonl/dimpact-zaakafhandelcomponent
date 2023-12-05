@@ -28,7 +28,7 @@
             {{config.partialButtonText | translate}}
         </button>
         <button mat-raised-button color="primary"
-                [disabled]="formGroup.invalid||submitting"
+                [disabled]="formGroup.invalid||formGroup.pending||submitting"
                 id="opslaan_button"
                 type="submit">
             <mat-icon *ngIf="config.saveButtonIcon && !submittingForm">
