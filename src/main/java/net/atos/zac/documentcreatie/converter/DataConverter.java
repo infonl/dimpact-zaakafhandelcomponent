@@ -54,18 +54,6 @@ public class DataConverter {
 
     public static final String DATE_FORMAT = "dd-MM-yyyy";
 
-    public static final String FIELDS_PERSOON =
-            "burgerservicenummer," +
-                    "naam.voornamen," +
-                    "naam.voorvoegsel," +
-                    "naam.geslachtsnaam," +
-                    "verblijfplaats.straat," +
-                    "verblijfplaats.huisnummer," +
-                    "verblijfplaats.huisnummertoevoeging," +
-                    "verblijfplaats.huisletter," +
-                    "verblijfplaats.postcode," +
-                    "verblijfplaats.woonplaats";
-
     @Inject
     private ZGWApiService zgwApiService;
 
@@ -183,8 +171,9 @@ public class DataConverter {
             case VESTIGING -> createAanvragerDataVestiging(initiator.getIdentificatienummer());
             case NIET_NATUURLIJK_PERSOON ->
                     createAanvragerDataNietNatuurlijkPersoon(initiator.getIdentificatienummer());
-            default -> throw new NotImplementedException(String.format("Initiator of type '%s' is not supported"),
-                                                         initiator.getBetrokkeneType().toValue());
+            default -> throw new NotImplementedException(
+                    String.format("Initiator of type '%s' is not supported", initiator.getBetrokkeneType().toValue())
+            );
         };
     }
 
