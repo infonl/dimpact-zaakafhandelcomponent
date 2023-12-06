@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -213,7 +213,7 @@ public class SignaleringenJob {
             final Zaaktype zaaktype, final int venster) {
         final LocalDate now = LocalDate.now();
         final ZoekParameters parameters = getOpenZaakMetBehandelaarZoekParameters(zaaktype);
-        parameters.addDatum(veld, new DatumRange(now.plusDays(venster + 1), null));
+        parameters.addDatum(veld, new DatumRange(now.plusDays((long) venster + 1), null));
         return parameters;
     }
 

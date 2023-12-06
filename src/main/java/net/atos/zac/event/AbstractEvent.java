@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -8,10 +8,13 @@ package net.atos.zac.event;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import jakarta.json.bind.annotation.JsonbTransient;
 
 public abstract class AbstractEvent<TYPE, ID> implements Serializable {
+    private static final Logger LOG = Logger.getLogger(AbstractEvent.class.getName());
 
     private long timestamp;
 
@@ -54,7 +57,8 @@ public abstract class AbstractEvent<TYPE, ID> implements Serializable {
             try {
                 TimeUnit.SECONDS.sleep(delay);
             } catch (InterruptedException e) {
-                // Ignore exception
+                LOG.log(Level.WARNING, "Thread interrupted", e);
+                Thread.currentThread().interrupt();
             }
             return true;
         }

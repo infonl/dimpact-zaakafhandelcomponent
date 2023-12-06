@@ -27,11 +27,10 @@ public final class UriUtil {
         return UUID.fromString(extractUUID(uri));
     }
 
-    public static boolean equal(final URI a, final URI b) {
-        if (a != null && b != null) {
-            return extractUUID(a.getPath()).equals(extractUUID(b.getPath()));
-        }
-        return a == null && b == null;
+    public static boolean isEqual(final URI a, final URI b) {
+        return (a != null && b != null) ?
+                extractUUID(a.getPath()).equals(extractUUID(b.getPath())) :
+                a == null && b == null;
     }
 
     private static String extractUUID(final String path) {
