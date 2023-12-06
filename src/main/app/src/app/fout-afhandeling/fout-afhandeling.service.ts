@@ -4,12 +4,32 @@
  */
 
 import { Injectable, isDevMode } from "@angular/core";
-import { Observable, throwError } from "rxjs";
+import {Observable, throwError} from "rxjs";
 import { Router } from "@angular/router";
 import { HttpErrorResponse } from "@angular/common/http";
 import { MatDialog } from "@angular/material/dialog";
 import { FoutDialogComponent } from "./dialog/fout-dialog.component";
 import { UtilService } from "../core/service/util.service";
+import { match, P } from 'ts-pattern';
+
+const ViolationPattern = {
+  "constraintType": P.string,
+  "message": P.string,
+  "path": P.string,
+  "value": P.string
+}
+
+const ValidationErrorPattern = {
+  statusText: 'Bad Request',
+  error: {
+    classViolations: P.array(ViolationPattern),
+    parameterViolations: P.array(ViolationPattern),
+    propertyViolations: P.array(ViolationPattern),
+    returnValueViolations: P.array(ViolationPattern)
+  }
+}
+
+type JakartaBeanValidationError = P.infer<typeof ValidationErrorPattern>
 
 @Injectable({
   providedIn: "root",
@@ -26,7 +46,25 @@ export class FoutAfhandelingService {
     private utilService: UtilService,
   ) {}
 
-  public foutAfhandelen(err: HttpErrorResponse): Observable<any> {
+  public foutAfhandelen(err: HttpErrorResponse | JakartaBeanValidationError): Observable<any> {
+
+   return match(err)
+       .with(ValidationErrorPattern, (e: JakartaBeanValidationError) => this.validatieErrorAfhandelen(e))
+       .otherwise((err: HttpErrorResponse) => this.httpErrorAfhandelen(err))
+  }
+
+  public validatieErrorAfhandelen(err: JakartaBeanValidationError) {
+      const flattenedErrorList = [
+        err.error.propertyViolations,
+        err.error.returnValueViolations,
+        err.error.classViolations,
+        err.error.parameterViolations,
+      ].flat()
+      const firstError = flattenedErrorList.find(Boolean)
+      return firstError ? this.openFoutDialog(firstError.message) : throwError(() => new Error('No violations found'))
+  }
+
+  public httpErrorAfhandelen(err: HttpErrorResponse) {
     if (err.status === 400) {
       return this.openFoutDialog(err.error);
     } else {

@@ -11,11 +11,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.
+
 import net.atos.zac.app.identity.model.RESTGroup;
 import net.atos.zac.app.identity.model.RESTUser;
 import net.atos.zac.app.klanten.model.klant.IdentificatieType;
 import net.atos.zac.app.policy.model.RESTZaakRechten;
 import net.atos.zac.zoeken.model.ZaakIndicatie;
+
 
 public class RESTZaak {
 
@@ -23,10 +27,12 @@ public class RESTZaak {
 
     public String identificatie;
 
-    public String omschrijving;
+    @NotNull(message = "Omschrijving is required")
+    public String omschrijving; // Assuming this is the description field
 
     public String toelichting;
 
+    @NotNull(message = "Zaaktype is required")
     public RESTZaaktype zaaktype;
 
     public RESTZaakStatus status;
@@ -41,6 +47,8 @@ public class RESTZaak {
 
     public LocalDate registratiedatum;
 
+    @NotNull(message = "Start date is required")
+
     public LocalDate startdatum;
 
     public LocalDate einddatumGepland;
@@ -51,12 +59,15 @@ public class RESTZaak {
 
     public LocalDate publicatiedatum;
 
+
     public LocalDate archiefActiedatum;
 
     public String archiefNominatie;
 
+    @NotNull(message = "Communication channel is required")
     public RESTCommunicatiekanaal communicatiekanaal;
 
+    @NotNull(message = "Confidentiality indication is required")
     public String vertrouwelijkheidaanduiding;
 
     public RESTGeometry zaakgeometrie;
@@ -71,6 +82,7 @@ public class RESTZaak {
 
     public String duurVerlenging;
 
+    @NotNull(message = "Group is required")
     public RESTGroup groep;
 
     public RESTUser behandelaar;

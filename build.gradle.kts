@@ -114,6 +114,7 @@ dependencies {
     implementation("com.itextpdf:itextpdf:5.5.13.3")
     implementation("com.itextpdf.tool:xmlworker:5.5.13.3")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
+    implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
 
     swaggerUI("org.webjars:swagger-ui:5.10.3")
 
