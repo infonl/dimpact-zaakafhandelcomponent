@@ -72,6 +72,6 @@ public class RolNatuurlijkPersoon extends Rol<NatuurlijkPersoon> {
         if (getBetrokkeneIdentificatie().getInpBsn() != null) {
             return Objects.hash(getBetrokkeneIdentificatie().getInpBsn());
         }
-        return 1;
+        return 0;
     }
 }

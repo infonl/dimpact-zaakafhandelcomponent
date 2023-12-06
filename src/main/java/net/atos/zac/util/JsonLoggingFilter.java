@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -86,8 +85,7 @@ public class JsonLoggingFilter implements ClientRequestFilter, ClientResponseFil
         try {
             final String payload = IOUtils.toString(responseContext.getEntityStream(), StandardCharsets.UTF_8);
             responseContext.setEntityStream(IOUtils.toInputStream(payload, StandardCharsets.UTF_8));
-            final Map<String, Object> jsonConfig = new HashMap<>();
-            jsonConfig.put(JsonGenerator.PRETTY_PRINTING, true);
+            final Map<String, Object> jsonConfig = Map.of(JsonGenerator.PRETTY_PRINTING, true);
             final StringWriter payloadWriter = new StringWriter();
 
             try (
