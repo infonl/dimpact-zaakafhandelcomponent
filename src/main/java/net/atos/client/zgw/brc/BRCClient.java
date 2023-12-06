@@ -27,7 +27,6 @@ import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParams;
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
-import org.eclipse.microprofile.rest.client.annotation.RegisterProviders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import net.atos.client.zgw.brc.model.Besluit;
@@ -49,7 +48,7 @@ import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
 @RegisterProvider(FoutExceptionMapper.class)
 @RegisterProvider(ValidatieFoutExceptionMapper.class)
 @RegisterProvider(RuntimeExceptionMapper.class)
-@RegisterProvider(JsonbConfiguration.class)})
+@RegisterProvider(JsonbConfiguration.class)
 @Path("besluiten/api/v1")
 @Produces(APPLICATION_JSON)
 public interface BRCClient {
