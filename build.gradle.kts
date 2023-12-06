@@ -115,6 +115,7 @@ dependencies {
     implementation("com.itextpdf.tool:xmlworker:5.5.13.3")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
     implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
+    implementation("com.unboundid:unboundid-ldapsdk:6.0.11")
 
     swaggerUI("org.webjars:swagger-ui:5.10.3")
 
@@ -152,6 +153,7 @@ dependencies {
     "itestImplementation"("org.testcontainers:mockserver:1.19.3")
     "itestImplementation"("org.testcontainers:postgresql:1.19.3")
     "itestImplementation"("io.kotest:kotest-runner-junit5:5.8.0")
+    "itestImplementation"("io.kotest:kotest-assertions-json:5.8.0")
     "itestImplementation"("org.slf4j:slf4j-simple:2.0.9")
     "itestImplementation"("io.github.oshai:kotlin-logging-jvm:5.1.1")
     "itestImplementation"("org.danilopianini:khttp:1.4.2")
@@ -200,7 +202,7 @@ jsonSchema2Pojo {
 
 node {
     download.set(true)
-    version.set("18.10.0")
+    version.set("18.13.0")
     distBaseUrl.set("https://nodejs.org/dist")
     nodeProjectDir.set(file("$rootDir/src/main/app"))
     if (System.getenv("CI") != null) {

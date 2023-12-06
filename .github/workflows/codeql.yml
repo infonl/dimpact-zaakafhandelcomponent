@@ -9,6 +9,9 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+    # ignore CodeQL analysis when only Markdown files have changed
+    paths-ignore:
+      - '**/*.md'
   schedule:
     - cron: "21 11 * * 0"
 
@@ -30,19 +33,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: ["java-kotlin", "javascript"]
+        language: ["java-kotlin", "javascript-typescript"]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup JDK
+        if: matrix.language == 'java-kotlin'
         uses: actions/setup-java@v4
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: "temurin"
 
       - name: Setup Gradle
+        if: matrix.language == 'java-kotlin'
         uses: gradle/gradle-build-action@v2
 
       - name: Initialize CodeQL
@@ -55,3 +60,5 @@ jobs:
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:${{matrix.language}}"

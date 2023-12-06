@@ -5,6 +5,9 @@
 
 package net.atos.client.zgw.drc;
 
+import static java.lang.String.format;
+import static net.atos.zac.configuratie.ConfiguratieService.ENV_VAR_ZGW_API_CLIENT_MP_REST_URL;
+
 import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.util.List;
@@ -19,7 +22,7 @@ import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-import net.atos.client.util.ClientFactory;
+import net.atos.client.util.JAXRSClientFactory;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectWithInhoud;
@@ -29,6 +32,7 @@ import net.atos.client.zgw.drc.model.Lock;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel;
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
+import net.atos.zac.configuratie.ConfiguratieService;
 
 /**
  *
@@ -42,6 +46,9 @@ public class DRCClientService {
 
     @Inject
     private ZGWClientHeadersFactory zgwClientHeadersFactory;
+
+    @Inject
+    private ConfiguratieService configuratieService;
 
     /**
      * Read {@link EnkelvoudigInformatieobject} via its UUID.
@@ -182,7 +189,19 @@ public class DRCClientService {
     }
 
     private Invocation.Builder createInvocationBuilder(final URI uri) {
-        return ClientFactory.create().target(uri)
+        // for security reasons check if the provided URI starts with the value of the
+        // environment variable that we use to configure the ztcClient
+        if (!uri.toString().startsWith(configuratieService.readZgwApiClientMpRestUrl())) {
+            throw new RuntimeException(format(
+                    "URI '%s' does not start with value for environment variable " +
+                            "'%s': '%s'",
+                    uri,
+                    ENV_VAR_ZGW_API_CLIENT_MP_REST_URL,
+                    configuratieService.readZgwApiClientMpRestUrl()
+            ));
+        }
+
+        return JAXRSClientFactory.getOrCreateClient().target(uri)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, zgwClientHeadersFactory.generateJWTToken());
     }

@@ -5,15 +5,14 @@
 
 package net.atos.client.zgw.zrc;
 
+import static java.lang.String.format;
+import static net.atos.zac.configuratie.ConfiguratieService.ENV_VAR_ZGW_API_CLIENT_MP_REST_URL;
+
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import org.apache.commons.lang3.StringUtils;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -22,7 +21,12 @@ import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.UriBuilder;
-import net.atos.client.util.ClientFactory;
+
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+
+import net.atos.client.util.JAXRSClientFactory;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
 import net.atos.client.zgw.shared.exception.FoutExceptionMapper;
 import net.atos.client.zgw.shared.exception.RuntimeExceptionMapper;
@@ -43,6 +47,7 @@ import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters;
 import net.atos.client.zgw.zrc.model.ZaakListParameters;
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters;
+import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.util.UriUtil;
 
 /**
@@ -60,16 +65,14 @@ public class ZRCClientService {
     private String zgwApiUrlExtern;
 
     @Inject
-    @ConfigProperty(name = "ZGW_API_CLIENT_MP_REST_URL")
-    private String getZgwApiClientMpRestUrl;
-
-    @Inject
     @RestClient
     private ZRCClient zrcClient;
 
     @Inject
     private ZGWClientHeadersFactory zgwClientHeadersFactory;
 
+    @Inject
+    private ConfiguratieService configuratieService;
 
     /**
      * Create {@link Rol}.
@@ -491,7 +494,19 @@ public class ZRCClientService {
     }
 
     private Invocation.Builder createInvocationBuilder(final URI uri) {
-        return ClientFactory.create().target(uri)
+        // for security reasons check if the provided URI starts with the value of the
+        // environment variable that we use to configure the ztcClient
+        if (!uri.toString().startsWith(configuratieService.readZgwApiClientMpRestUrl())) {
+            throw new RuntimeException(format(
+                    "URI '%s' does not start with value for environment variable " +
+                            "'%s': '%s'",
+                    uri,
+                    ENV_VAR_ZGW_API_CLIENT_MP_REST_URL,
+                    configuratieService.readZgwApiClientMpRestUrl()
+            ));
+        }
+
+        return JAXRSClientFactory.getOrCreateClient().target(uri)
                 .register(FoutExceptionMapper.class)
                 .register(ValidatieFoutExceptionMapper.class)
                 .register(RuntimeExceptionMapper.class)
