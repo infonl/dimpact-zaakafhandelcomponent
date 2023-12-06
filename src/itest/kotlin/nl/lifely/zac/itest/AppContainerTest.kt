@@ -23,6 +23,8 @@ class AppContainerTest : BehaviorSpec({
                 }
             }
         }
+    }
+    given("ZAC Docker container and all related Docker containers are running") {
         When("the metrics endpoint is called") {
             then("the response should be ok and the uptime should be > 0.0") {
                 khttp.get(
