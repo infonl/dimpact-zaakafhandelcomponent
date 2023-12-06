@@ -11,7 +11,7 @@ The following ZAC developer documentation is available:
 ## Monitoring
 ZAC exposes two monitoring endpoints through WildFly by default:
 
-- `/health`
-- `/metrics`
+- http://localhost:9990/health
+- http://localhost:9990/metrics
 
-Note: These are not secured. To disable, remove the metrics layers from the install-wildfly.sh script.
+Note: These are not secured. To disable, remove the metrics layer from the install-wildfly.sh script.
