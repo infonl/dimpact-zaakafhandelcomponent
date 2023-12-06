@@ -16,6 +16,7 @@ import java.time.Duration;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -113,7 +114,13 @@ public class SolrDeployer {
             try {
                 Thread.sleep(Duration.ofSeconds(WAIT_FOR_SOLR_SECONDS).toMillis());
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                LOG.log(
+                    Level.WARNING,
+                    "Thread was interrupted while waiting for Solr core to become available. " +
+                            "Re-interrupting thread.",
+                    e
+                );
+                Thread.currentThread().interrupt();
             }
         }
     }
