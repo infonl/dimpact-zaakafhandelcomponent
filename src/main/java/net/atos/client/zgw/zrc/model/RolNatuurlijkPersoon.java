@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -62,16 +62,16 @@ public class RolNatuurlijkPersoon extends Rol<NatuurlijkPersoon> {
     }
 
     @Override
-    public int hashCode() {
+    protected int hashCodeBetrokkeneIdentificatie() {
         if (getBetrokkeneIdentificatie().getAnpIdentificatie() != null) {
-            return Objects.hash(getRoltype(), getBetrokkeneType(), getBetrokkeneIdentificatie().getAnpIdentificatie());
+            return Objects.hash(getBetrokkeneIdentificatie().getAnpIdentificatie());
         }
         if (getBetrokkeneIdentificatie().getInpA_nummer() != null) {
-            return Objects.hash(getRoltype(), getBetrokkeneType(), getBetrokkeneIdentificatie().getInpA_nummer());
+            return Objects.hash(getBetrokkeneIdentificatie().getInpA_nummer());
         }
         if (getBetrokkeneIdentificatie().getInpBsn() != null) {
-            return Objects.hash(getRoltype(), getBetrokkeneType(), getBetrokkeneIdentificatie().getInpBsn());
+            return Objects.hash(getBetrokkeneIdentificatie().getInpBsn());
         }
-        return Objects.hash(getRoltype(), getBetrokkeneType(), null);
+        return 0;
     }
 }

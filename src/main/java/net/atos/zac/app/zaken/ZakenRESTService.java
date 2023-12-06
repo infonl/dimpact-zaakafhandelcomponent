@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -27,8 +27,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.annotation.Nullable;
 
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -173,16 +176,14 @@ import net.atos.zac.zoeken.model.index.ZoekObjectType;
 @Produces(MediaType.APPLICATION_JSON)
 @Singleton
 public class ZakenRESTService {
+
+    private static final Logger LOG = Logger.getLogger(ZakenRESTService.class.getName());
+
     private static final String ROL_VERWIJDER_REDEN = "Verwijderd door de medewerker tijdens het behandelen van de zaak";
-
     private static final String ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak";
-
     private static final String AANMAKEN_ZAAK_REDEN = "Aanmaken zaak";
-
     private static final String VERLENGING = "Verlenging";
-
     private static final String AANMAKEN_BESLUIT_TOELICHTING = "Aanmaken besluit";
-
     private static final String WIJZIGEN_BESLUIT_TOELICHTING = "Wijzigen besluit";
 
     @Inject
@@ -569,7 +570,7 @@ public class ZakenRESTService {
     }
 
     private LocalDate datumWaarschuwing(final LocalDate vandaag, final int dagen) {
-        return vandaag.plusDays(dagen + 1);
+        return vandaag.plusDays(dagen + 1L);
     }
 
 
@@ -972,7 +973,7 @@ public class ZakenRESTService {
             final Resultaat zaakResultaat = zrcClientService.readResultaat(zaak.getResultaat());
             final Resultaattype resultaattype = ztcClientService.readResultaattype(
                 restBesluitWijzigenGegevens.resultaattypeUuid);
-            if (!UriUtil.equal(zaakResultaat.getResultaattype(), resultaattype.getUrl())) {
+            if (!UriUtil.isEqual(zaakResultaat.getResultaattype(), resultaattype.getUrl())) {
                 zrcClientService.deleteResultaat(zaakResultaat.getUuid());
                 zgwApiService.createResultaatForZaak(zaak,
                                                      restBesluitWijzigenGegevens.resultaattypeUuid,
@@ -1026,21 +1027,25 @@ public class ZakenRESTService {
         final Zaak zaak = zrcClientService.readZaak(besluit.getZaak());
         assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).getBehandelen());
         besluit = besluitConverter.convertToBesluit(besluit, restBesluitIntrekkenGegevens);
-        besluit = brcClientService.updateBesluit(besluit,
-                                                 getIntrekToelichting(besluit.getVervalreden())
-                                                     .formatted(
-                                                         restBesluitIntrekkenGegevens.reden));
+        final String intrekToelichting = getIntrekToelichting(besluit.getVervalreden());
+        besluit = brcClientService.updateBesluit(
+                besluit,
+                intrekToelichting != null ? intrekToelichting.formatted(restBesluitIntrekkenGegevens.reden) : null
+        );
         // This event should result from a ZAAKBESLUIT UPDATED notification on the ZAKEN channel
         // but open_zaak does not send that one, so emulate it here.
         eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak));
         return besluitConverter.convertToRESTBesluit(besluit);
     }
 
-    private String getIntrekToelichting(final Vervalreden vervalreden) {
+    private @Nullable String getIntrekToelichting(final Vervalreden vervalreden) {
         return switch (vervalreden) {
             case INGETROKKEN_OVERHEID -> "Overheid: %s";
             case INGETROKKEN_BELANGHEBBENDE -> "Belanghebbende: %s";
-            default -> null;
+            default -> {
+                LOG.info(String.format("Unknown vervalreden: '%s'. Returning 'null'.", vervalreden));
+                yield null;
+            }
         };
     }
 

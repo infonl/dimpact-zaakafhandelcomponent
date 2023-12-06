@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jakarta.annotation.ManagedBean;
+import jakarta.annotation.Nullable;
 import jakarta.enterprise.event.ObservesAsync;
 import jakarta.inject.Inject;
 
@@ -102,12 +103,17 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
         return null;
     }
 
-    private Signalering getSignaleringVoorBehandelaar(final SignaleringEvent<?> event, final Zaak subject,
-            final ZaakInformatieobject detail) {
+    private @Nullable Signalering getSignaleringVoorBehandelaar(
+            final SignaleringEvent<?> event,
+            final Zaak subject,
+            final ZaakInformatieobject detail
+    ) {
         final Optional<Rol<?>> behandelaar = getRolBehandelaarMedewerker(subject);
         if (behandelaar.isPresent()) {
             final Signalering signalering = getSignaleringVoorRol(event, subject, behandelaar.get());
-            signalering.setDetail(detail);
+            if (signalering != null) {
+                signalering.setDetail(detail);
+            }
             return signalering;
         }
         return null;
@@ -189,7 +195,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
                 .getSingleResult();
     }
 
-    private Signalering addTarget(final Signalering signalering, final Rol<?> rol) {
+    private @Nullable Signalering addTarget(final Signalering signalering, final Rol<?> rol) {
         switch (rol.getBetrokkeneType()) {
             case MEDEWERKER -> {
                 final RolMedewerker rolMedewerker = (RolMedewerker) rol;
@@ -199,9 +205,11 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
                 final RolOrganisatorischeEenheid rolGroep = (RolOrganisatorischeEenheid) rol;
                 return addTargetGroup(signalering, rolGroep.getBetrokkeneIdentificatie().getIdentificatie());
             }
-            default -> LOG.warning(String.format("unexpected BetrokkeneType %s", rol.getBetrokkeneType()));
+            default -> {
+                LOG.warning(String.format("Unknown BetrokkeneType '%s'", rol.getBetrokkeneType()));
+                return null;
+            }
         }
-        return null;
     }
 
     private Signalering addTarget(final Signalering signalering, final TaskInfo taskInfo) {

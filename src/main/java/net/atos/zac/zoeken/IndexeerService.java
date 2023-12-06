@@ -320,7 +320,7 @@ public class IndexeerService {
                                                             firstResult, TAKEN_MAX_RESULTS);
         helper.markObjectsForReindexing(tasks.stream().map(TaskInfo::getId), TAAK);
         if (!tasks.isEmpty()) {
-            logProgress(TAAK, firstResult + tasks.size(), numberOfTasks);
+            logProgress(TAAK, (long) firstResult + tasks.size(), numberOfTasks);
             return tasks.size() == TAKEN_MAX_RESULTS;
         }
         return false;

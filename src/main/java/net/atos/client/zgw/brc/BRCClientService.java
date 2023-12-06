@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -51,7 +52,7 @@ public class BRCClientService {
         return brcClient.besluitCreate(besluit);
     }
 
-    public Besluit updateBesluit(final Besluit besluit, final String toelichting) {
+    public Besluit updateBesluit(final Besluit besluit, @Nullable final String toelichting) {
         zgwClientHeadersFactory.setAuditToelichting(toelichting);
         final UUID uuid = UriUtil.uuidFromURI(besluit.getUrl());
         besluit.setUrl(null);

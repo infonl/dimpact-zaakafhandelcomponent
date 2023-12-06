@@ -60,6 +60,6 @@ public final class PeriodUtil {
             return 0;
         }
         LocalDateTime start = LocalDateTime.now();
-        return Long.valueOf(start.until(start.plus(period), ChronoUnit.DAYS)).intValue();
+        return (int) start.until(start.plus(period), ChronoUnit.DAYS);
     }
 }

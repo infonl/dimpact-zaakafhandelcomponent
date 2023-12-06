@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -31,8 +31,8 @@ public class Point2D {
     }
 
     public Point2D(final double x, final double y) {
-        this.x = new BigDecimal(x);
-        this.y = new BigDecimal(y);
+        this.x = BigDecimal.valueOf(x);
+        this.y = BigDecimal.valueOf(y);
     }
 
     public BigDecimal getX() {
@@ -60,7 +60,7 @@ public class Point2D {
     }
 
     @Override
-    public boolean equals(final Object o) {
+    public final boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
@@ -71,11 +71,11 @@ public class Point2D {
 
         final Point2D point2D = (Point2D) o;
 
-        return new EqualsBuilder().append(x, point2D.x).append(y, point2D.y).isEquals();
+        return new EqualsBuilder().append(x, point2D.getX()).append(y, point2D.getY()).isEquals();
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         return new HashCodeBuilder(17, 37).append(x).append(y).toHashCode();
     }
 }

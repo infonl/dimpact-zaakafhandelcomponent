@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -11,12 +11,12 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jakarta.json.Json;
+import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.json.bind.JsonbConfig;
 import jakarta.json.stream.JsonGenerator;
@@ -29,9 +29,6 @@ import jakarta.ws.rs.ext.Provider;
 
 import org.apache.commons.io.IOUtils;
 
-/**
- *
- */
 @Provider
 public class JsonLoggingFilter implements ClientRequestFilter, ClientResponseFilter {
 
@@ -76,26 +73,32 @@ public class JsonLoggingFilter implements ClientRequestFilter, ClientResponseFil
     private String getPayload(final ClientRequestContext requestContext) {
         final JsonbConfig jsonbConfig = new JsonbConfig();
         jsonbConfig.setProperty(JsonbConfig.FORMATTING, true);
-        return JsonbBuilder.create(jsonbConfig).toJson(requestContext.getEntity());
+        try (final Jsonb jsonb = JsonbBuilder.create(jsonbConfig)) {
+            return jsonb.toJson(requestContext.getEntity());
+        } catch (final Exception e) {
+            LOG.log(Level.WARNING, "Failed to create or close JSON builder", e);
+            throw new RuntimeException(e);
+        }
     }
 
     private String getPayload(final ClientResponseContext responseContext) {
         try {
             final String payload = IOUtils.toString(responseContext.getEntityStream(), StandardCharsets.UTF_8);
             responseContext.setEntityStream(IOUtils.toInputStream(payload, StandardCharsets.UTF_8));
-            try {
-                final Map<String, Object> jsonConfig = new HashMap<>();
-                jsonConfig.put(JsonGenerator.PRETTY_PRINTING, true);
-                final StringWriter payloadWriter = new StringWriter();
-                Json.createWriterFactory(jsonConfig)
-                        .createWriter(payloadWriter)
-                        .write(Json.createReader(new StringReader(payload)).read());
+            final Map<String, Object> jsonConfig = Map.of(JsonGenerator.PRETTY_PRINTING, true);
+            final StringWriter payloadWriter = new StringWriter();
+
+            try (
+                final var jsonWriter = Json.createWriterFactory(jsonConfig).createWriter(payloadWriter);
+                final var jsonReader = Json.createReader(new StringReader(payload))
+            ) {
+                jsonWriter.write(jsonReader.read());
                 return payloadWriter.toString();
             } catch (final JsonParsingException ignore) {
                 return payload;
             }
         } catch (final IOException e) {
-            throw new RuntimeException("Fout tijdens loggen van REST response", e);
+            throw new RuntimeException("Error logging REST response", e);
         }
     }
 }

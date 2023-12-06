@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -9,21 +9,15 @@ import static net.atos.client.zgw.shared.util.DateTimeUtil.DATE_TIME_FORMAT_WITH
 
 import java.net.URI;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 import jakarta.json.bind.annotation.JsonbDateFormat;
 import jakarta.json.bind.annotation.JsonbTypeDeserializer;
+
 import net.atos.client.zgw.zrc.util.RolJsonbDeserializer;
 import net.atos.client.zgw.ztc.model.Roltype;
 
-/**
- * This class is no longer an abstract class like it used to be because in WildFly 30,
- * with JSONB 2, and Yasson 3 we ran into the following issue when deserializing a concrete Rol instance:
- * "RESTEASY008200: JSON Binding deserialization error: jakarta.json.bind.JsonbException: Can't create instance
- * [...]
- * at org.eclipse.yasson//org.eclipse.yasson.internal.ReflectionUtils.createNoArgConstructorInstance(ReflectionUtils.java:274)"
- * Hopefully this can be improved in the future.
- */
 @JsonbTypeDeserializer(RolJsonbDeserializer.class)
 public abstract class Rol<T> {
 
@@ -187,12 +181,19 @@ public abstract class Rol<T> {
         return equalBetrokkeneRol(rol) && equalBetrokkeneIdentificatie(rol.getBetrokkeneIdentificatie());
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(getRoltype(), getBetrokkeneType(), hashCodeBetrokkeneIdentificatie());
+    }
+
     public boolean equalBetrokkeneRol(final Rol<?> other) {
         return getBetrokkeneType() == other.getBetrokkeneType() &&
                 getRoltype().equals(other.getRoltype());
     }
 
     protected abstract boolean equalBetrokkeneIdentificatie(final T identificatie);
+
+    protected abstract int hashCodeBetrokkeneIdentificatie();
 
     public abstract String getNaam();
 
