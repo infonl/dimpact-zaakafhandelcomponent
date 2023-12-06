@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -55,8 +55,7 @@ public class RolVestiging extends Rol<Vestiging> {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(getRoltype(), getBetrokkeneType(), getBetrokkeneIdentificatie().getVestigingsNummer());
+    protected int hashCodeBetrokkeneIdentificatie() {
+        return Objects.hash(getBetrokkeneIdentificatie().getVestigingsNummer());
     }
-
 }

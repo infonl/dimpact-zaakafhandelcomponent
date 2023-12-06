@@ -6,6 +6,7 @@
 package net.atos.client.zgw.ztc;
 
 import static java.lang.String.format;
+import static net.atos.zac.configuratie.ConfiguratieService.ENV_VAR_ZGW_API_CLIENT_MP_REST_URL;
 
 import java.net.URI;
 import java.time.ZonedDateTime;
@@ -45,6 +46,7 @@ import net.atos.client.zgw.ztc.model.Zaaktype;
 import net.atos.client.zgw.ztc.model.ZaaktypeInformatieobjecttype;
 import net.atos.client.zgw.ztc.model.ZaaktypeInformatieobjecttypeListParameters;
 import net.atos.client.zgw.ztc.model.ZaaktypeListParameters;
+import net.atos.zac.configuratie.ConfiguratieService;
 
 /**
  * Careful!
@@ -55,8 +57,6 @@ import net.atos.client.zgw.ztc.model.ZaaktypeListParameters;
  */
 @ApplicationScoped
 public class ZTCClientService implements Caching {
-    public static final String ENV_VAR_ZGW_API_CLIENT_MP_REST_URL = "ZGW_API_CLIENT_MP_REST_URL";
-
     private static final List<String> CACHES = List.of(
             ZTC_BESLUITTYPE,
             ZTC_CACHE_TIME,
@@ -74,8 +74,7 @@ public class ZTCClientService implements Caching {
     private ZGWClientHeadersFactory zgwClientHeadersFactory;
 
     @Inject
-    @ConfigProperty(name = ENV_VAR_ZGW_API_CLIENT_MP_REST_URL)
-    private String zgwApiClientMpRestUrl;
+    private ConfiguratieService configuratieService;
 
     public Results<Catalogus> listCatalogus(final CatalogusListParameters catalogusListParameters) {
         return ztcClient.catalogusList(catalogusListParameters);
@@ -385,13 +384,13 @@ public class ZTCClientService implements Caching {
     private Invocation.Builder createInvocationBuilder(final URI uri) {
         // for security reasons check if the provided URI starts with the value of the
         // environment variable that we use to configure the ztcClient
-        if (!uri.toString().startsWith(zgwApiClientMpRestUrl)) {
+        if (!uri.toString().startsWith(configuratieService.readZgwApiClientMpRestUrl())) {
             throw new RuntimeException(format(
                     "URI '%s' does not start with value for environment variable " +
                             "'%s': '%s'",
                     uri,
                     ENV_VAR_ZGW_API_CLIENT_MP_REST_URL,
-                    zgwApiClientMpRestUrl
+                    configuratieService.readZgwApiClientMpRestUrl()
             ));
         }
 
