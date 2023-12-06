@@ -8,6 +8,7 @@ package nl.lifely.zac.itest
 import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.HttpStatus
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.doubles.shouldBeGreaterThan
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_MANAGEMENT_URI
 
 class AppContainerTest : BehaviorSpec({
@@ -19,6 +20,16 @@ class AppContainerTest : BehaviorSpec({
                 ).apply {
                     statusCode shouldBe HttpStatus.SC_OK
                     jsonObject.getString("status") shouldBe "UP"
+                }
+            }
+        }
+        When("the metrics endpoint is called") {
+            then("the response should be ok and the uptime should be > 0.0") {
+                khttp.get(
+                    url = "${ZAC_MANAGEMENT_URI}/metrics"
+                ).apply {
+                    statusCode shouldBe HttpStatus.SC_OK
+                    jsonObject.getDouble("base_jvm_uptime_seconds") shouldBeGreaterThan 0.0
                 }
             }
         }
