@@ -50,7 +50,7 @@
     "@angular/language-service": "^17.0.5",
     "@types/jest": "^29.5.11",
     "@types/node": "^20.8.9",
-    "@typescript-eslint/eslint-plugin": "^6.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.2",
     "@typescript-eslint/parser": "^6.10.0",
     "codelyzer": "^6.0.0",
     "eslint": "^8.53.0",
