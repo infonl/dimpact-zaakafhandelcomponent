@@ -37,7 +37,6 @@
     "proj4": "^2.9.2",
     "rxjs": "^7.8.0",
     "ts-pattern": "^5.0.6",
-    "zod": "^3.22.4",
     "zone.js": "^0.13.3"
   },
   "devDependencies": {
