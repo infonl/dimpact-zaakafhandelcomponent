@@ -44,7 +44,7 @@ public final class JAXRSClientFactory {
             }
             return clientBuilder.build();
         } catch (final NoSuchAlgorithmException e) {
-            throw new RuntimeException("Failed to initialize JAX-RS client", e);
+            throw new IllegalArgumentException("Failed to initialize JAX-RS client", e);
         }
     }
 }
