@@ -46,11 +46,10 @@ import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
  */
 @RegisterRestClient(configKey = "ZGW-API-Client")
 @RegisterClientHeaders(ZGWClientHeadersFactory.class)
-@RegisterProviders({
-        @RegisterProvider(FoutExceptionMapper.class),
-        @RegisterProvider(ValidatieFoutExceptionMapper.class),
-        @RegisterProvider(RuntimeExceptionMapper.class),
-        @RegisterProvider(JsonbConfiguration.class)})
+@RegisterProvider(FoutExceptionMapper.class)
+@RegisterProvider(ValidatieFoutExceptionMapper.class)
+@RegisterProvider(RuntimeExceptionMapper.class)
+@RegisterProvider(JsonbConfiguration.class)})
 @Path("besluiten/api/v1")
 @Produces(APPLICATION_JSON)
 public interface BRCClient {

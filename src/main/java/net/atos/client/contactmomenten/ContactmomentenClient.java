@@ -24,7 +24,6 @@ import jakarta.ws.rs.QueryParam;
 
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
-import org.eclipse.microprofile.rest.client.annotation.RegisterProviders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import net.atos.client.contactmomenten.exception.NotFoundExceptionMapper;
@@ -39,13 +38,10 @@ import net.atos.client.contactmomenten.util.ContactmomentenClientHeadersFactory;
  * <p>
  * Een API om contactmomenten met klanten te registreren of op te vragen.
  */
-
 @RegisterRestClient(configKey = "Contactmomenten-API-Client")
 @RegisterClientHeaders(ContactmomentenClientHeadersFactory.class)
-@RegisterProviders({
-        @RegisterProvider(RuntimeExceptionMapper.class),
-        @RegisterProvider(NotFoundExceptionMapper.class)
-})
+@RegisterProvider(RuntimeExceptionMapper.class)
+@RegisterProvider(NotFoundExceptionMapper.class)
 @Path("api/v1/contactmomenten")
 public interface ContactmomentenClient {
 

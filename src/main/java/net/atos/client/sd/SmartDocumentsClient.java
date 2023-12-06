@@ -13,7 +13,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
-import org.eclipse.microprofile.rest.client.annotation.RegisterProviders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import net.atos.client.sd.exception.BadRequestExceptionMapper;
@@ -23,10 +22,8 @@ import net.atos.client.sd.model.UnattendedResponse;
 import net.atos.client.sd.model.WizardResponse;
 
 @RegisterRestClient(configKey = "SD-Client")
-@RegisterProviders({
-        @RegisterProvider(BadRequestExceptionMapper.class),
-        @RegisterProvider(RuntimeExceptionMapper.class),
-})
+@RegisterProvider(BadRequestExceptionMapper.class)
+@RegisterProvider(RuntimeExceptionMapper.class)
 @Path("wsxmldeposit")
 @Produces(APPLICATION_JSON)
 public interface SmartDocumentsClient {

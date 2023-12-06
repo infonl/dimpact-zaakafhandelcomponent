@@ -48,7 +48,7 @@ import net.atos.client.zgw.ztc.model.ZaaktypeListParameters;
 import net.atos.zac.configuratie.ConfiguratieService;
 
 /**
- * Careful!
+ * Encapsulates the {@link ZTCClient} by providing caching and authentication.
  * <p>
  * Never call methods with caching annotations from within the service (or it will not work).
  * Do not introduce caches with keys other than URI and UUID.
