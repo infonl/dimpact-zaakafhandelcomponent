@@ -15,16 +15,18 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.context.Initialized;
-import jakarta.enterprise.event.Observes;
-import jakarta.inject.Inject;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Initialized;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -68,7 +70,16 @@ public class CMMNDeployer {
 
             final Document modelXml;
             try (final InputStream modelInputStream = new ByteArrayInputStream(modelBytes)) {
-                modelXml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(modelInputStream);
+                final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+                // disallow doctype declaration, external entity declarations and prohibit the
+                // use of all protocols by external entities to prevent XXE attacks
+                // see: https://rules.sonarsource.com/java/RSPEC-2755/
+                documentBuilderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+                documentBuilderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+                documentBuilderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+                documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+                documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+                modelXml = documentBuilderFactory.newDocumentBuilder().parse(modelInputStream);
             }
 
             final XPath xPath = XPathFactory.newInstance().newXPath();
