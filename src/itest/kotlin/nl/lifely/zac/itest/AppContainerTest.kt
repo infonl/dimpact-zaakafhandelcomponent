@@ -7,8 +7,8 @@ package nl.lifely.zac.itest
 
 import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.HttpStatus
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.shouldBe
 import io.kotest.matchers.doubles.shouldBeGreaterThan
+import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_MANAGEMENT_URI
 
 class AppContainerTest : BehaviorSpec({
