@@ -20,6 +20,15 @@
         <wildfly.version>30.0.0.Final</wildfly.version>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-api</artifactId>
+            <version>1.5.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
     <build>
         <finalName>${project.artifactId}</finalName>
         <plugins>
@@ -44,6 +53,7 @@
                         <layer>microprofile-fault-tolerance</layer>
                         <layer>elytron-oidc-client</layer>
                         <layer>postgresql-driver</layer>
+                        <layer>opentelemetry</layer>
                     </layers>
                     <excludedLayers>
                         <layer>deployment-scanner</layer>

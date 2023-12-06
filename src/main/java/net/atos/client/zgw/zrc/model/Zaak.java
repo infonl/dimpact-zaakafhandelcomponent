@@ -40,6 +40,7 @@ public class Zaak {
     /**
      * Unieke resource identifier (UUID4)
      */
+    @UUID()
     private UUID uuid;
 
     /**

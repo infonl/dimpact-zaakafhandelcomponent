@@ -30,3 +30,9 @@ data-source add \
 # so use with care and only enable this for debugging purposes.
 #/subsystem=logging/root-logger=ROOT:write-attribute(name=level,value=DEBUG)
 #/subsystem=logging/console-handler=CONSOLE:write-attribute(name=level,value=DEBUG)
+
+#/extension=org.wildfly.extension.opentelemetry:add
+#/subsystem=opentelemetry:add
+/subsystem=opentelemetry:write-attribute(name=exporter-type, value=otlp)
+/subsystem=opentelemetry:write-attribute(name=endpoint, value=http:localhost:4317)
+/subsystem=opentelemetry:write-attribute(name=service-name, value=ZACwildfly)
