@@ -602,7 +602,7 @@ public class ZakenRESTService {
 
     @PATCH
     @Path("toekennen")
-    public RESTZaak toekennen(final RESTZaakToekennenGegevens toekennenGegevens) {
+    public RESTZaak toekennen(@Valid final RESTZaakToekennenGegevens toekennenGegevens) {
         final Zaak zaak = zrcClientService.readZaak(toekennenGegevens.zaakUUID);
         assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).getToekennen());
 
