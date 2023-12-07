@@ -36,6 +36,7 @@
     "openapi-fetch": "^0.8.2",
     "proj4": "^2.9.2",
     "rxjs": "^7.8.0",
+    "ts-pattern": "^5.0.6",
     "zone.js": "^0.14.2"
   },
   "devDependencies": {

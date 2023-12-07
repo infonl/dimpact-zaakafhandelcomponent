@@ -37,6 +37,7 @@ import javax.annotation.Nullable;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -170,7 +171,6 @@ import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
 import net.atos.zac.zaaksturing.model.ZaakbeeindigParameter;
 import net.atos.zac.zoeken.IndexeerService;
 import net.atos.zac.zoeken.model.index.ZoekObjectType;
-
 
 @Path("zaken")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -356,7 +356,7 @@ public class ZakenRESTService {
 
     @POST
     @Path("zaak")
-    public RESTZaak createZaak(final RESTZaakAanmaakGegevens restZaakAanmaakGegevens) {
+    public RESTZaak createZaak(@Valid RESTZaakAanmaakGegevens restZaakAanmaakGegevens) {
         final RESTZaak restZaak = restZaakAanmaakGegevens.zaak;
         assertPolicy(policyService.readOverigeRechten().getStartenZaak() &&
                          loggedInUserInstance.get()
