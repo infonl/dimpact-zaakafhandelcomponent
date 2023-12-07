@@ -5,8 +5,8 @@
 
 package net.atos.zac.app.identity.model;
 
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 public class RESTGroup {
     /**
@@ -15,7 +15,7 @@ public class RESTGroup {
      * we need to make sure it adheres to the same constraints.
      */
     @NotNull
-    @Max(24)
+    @Size(max = 24)
     public String id;
 
     /**
@@ -24,6 +24,6 @@ public class RESTGroup {
      * we need to make sure it adheres to the same constraints.
      */
     @NotNull
-    @Max(50)
+    @Size(max = 50)
     public String naam;
 }

@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import jakarta.validation.constraints.NotNull;
+
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 
@@ -44,6 +46,7 @@ public class RESTZaak {
 
     public LocalDate registratiedatum;
 
+    @NotNull(message = "Start date is required")
     public LocalDate startdatum;
 
     public LocalDate einddatumGepland;
