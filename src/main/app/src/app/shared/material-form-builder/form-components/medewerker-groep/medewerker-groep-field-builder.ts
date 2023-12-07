@@ -16,7 +16,7 @@ export class MedewerkerGroepFieldBuilder extends AbstractFormFieldBuilder {
   constructor(groep?: Group, medewerker?: User) {
     super();
     this.formField = new MedewerkerGroepFormField();
-
+    this.formField.maxlength = 24
     this.formField.initControl({
       groep: AbstractFormField.formControlInstance(groep),
       medewerker: AbstractFormField.formControlInstance(medewerker),

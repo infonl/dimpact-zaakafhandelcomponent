@@ -298,7 +298,6 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
       .groepLabel("actie.zaak.toekennen.groep")
       .groepRequired()
       .medewerkerLabel("actie.zaak.toekennen.medewerker")
-      .maxlength(50)
       .build();
   }
 
