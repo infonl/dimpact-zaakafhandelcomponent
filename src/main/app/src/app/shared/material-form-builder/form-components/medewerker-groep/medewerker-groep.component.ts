@@ -154,9 +154,13 @@ export class MedewerkerGroepComponent
   }
 
   getMessage(formControl: FormControl, label: string): string {
-    if (formControl.hasError("required")) {
-      return this.translate.instant("msg.error.required", { label: label });
-    }
-    return "";
+      console.log(formControl.errors)
+      if (formControl.hasError("required")) {
+            return this.translate.instant("msg.error.required", { label: label });
+      }
+      if (formControl.hasError("match") && this.data.maxlength) {
+            return this.translate.instant("msg.error.tegroot", { label: label, max: this.data.maxlength });
+      }
+      return "This field has a error";
   }
 }
