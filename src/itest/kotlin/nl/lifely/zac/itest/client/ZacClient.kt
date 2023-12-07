@@ -5,9 +5,7 @@
 
 package nl.lifely.zac.itest.client
 
-import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.HttpStatus
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.kotest.matchers.shouldBe
 import khttp.responses.Response
 import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCT_AANVRAAG_TYPE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
@@ -17,12 +15,12 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 private val logger = KotlinLogging.logger {}
 
 @Suppress("LongMethod")
-fun createZaakAfhandelParameters() {
+fun createZaakAfhandelParameters(): Response {
     logger.info {
         "Creating zaakafhandelparameters in ZAC for zaaktype with UUID: $ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
     }
 
-    khttp.put(
+    val response = khttp.put(
         url = "$ZAC_API_URI/zaakafhandelParameters",
         headers = mapOf(
             "Content-Type" to "application/json",
@@ -204,11 +202,9 @@ fun createZaakAfhandelParameters() {
             "    \"vervaldatumBesluitVerplicht\": false\n" +
             "  }\n" +
             "}\n"
-    ).apply {
-        logger.info { "PUT zaakafhandelParameters response: $text" }
-        // check contents
-        statusCode shouldBe HttpStatus.SC_OK
-    }
+    )
+    logger.info { "PUT zaakafhandelParameters response: ${response.text}" }
+    return response
 }
 
 @Suppress("LongMethod")
@@ -403,7 +399,8 @@ fun createZaakWithGroupNameThatIsTooLong(): Response {
             "          \"id\": \"060b1651-4795-4982-bf66-584391bf0421\",\n" +
             "          \"naam\": \"Afgebroken\",\n" +
             "          \"naamGeneriek\": \"Afgebroken\",\n" +
-            "          \"toelichting\": \"Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen.\",\n" +
+            "          \"toelichting\": \"Het door het orgaan behandelen van een aanvraag, melding " +
+            "of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen.\",\n" +
             "          \"vervaldatumBesluitVerplicht\": false\n" +
             "        },\n" +
             "        \"zaakbeeindigParameters\": [],\n" +
