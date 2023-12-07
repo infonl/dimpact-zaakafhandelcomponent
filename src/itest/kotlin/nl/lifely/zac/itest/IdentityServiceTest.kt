@@ -16,15 +16,17 @@ class IdentityServiceTest : BehaviorSpec() {
     companion object {
         const val TEST_GROUP_A_ID = "test-group-a"
         const val TEST_GROUP_A_DESCRIPTION = "Test groep A"
+        const val TEST_GROUP_FUNCTIONAL_ADMINS_ID = "test-group-functioneel-beheerders"
+        const val TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION = "Test groep functioneel beheerders"
     }
 
     init {
         given(
-            "Keycloak contains 'test group a' and 'test group b'"
+            "Keycloak contains 'test group a' and 'test group functional beheerders'"
         ) {
             When("the 'list groups' endpoint is called") {
                 then(
-                    "'test group a' and 'test group b' are returned"
+                    "'test group a' and 'test group functional beheerders' are returned"
                 ) {
                     khttp.get(
                         url = "${ItestConfiguration.ZAC_API_URI}/identity/groups",
@@ -39,6 +41,10 @@ class IdentityServiceTest : BehaviorSpec() {
                                 {
                                     "id": "$TEST_GROUP_A_ID",
                                     "naam": "$TEST_GROUP_A_DESCRIPTION"
+                                },
+                                  {
+                                    "id": "$TEST_GROUP_FUNCTIONAL_ADMINS_ID",
+                                    "naam": "$TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION"
                                 }
                             ]
                         """.trimIndent()
@@ -134,11 +140,11 @@ class IdentityServiceTest : BehaviorSpec() {
             }
         }
         given(
-            "'test user 1' is logged in to ZAC and is part of 'test group a'"
+            "'test user 1' is logged in to ZAC and is part of two groups"
         ) {
             When("the 'get logged in user' endpoint is called") {
                 then(
-                    "'test user 1' is returned"
+                    "both groups are returned"
                 ) {
                     khttp.get(
                         url = "${ItestConfiguration.ZAC_API_URI}/identity/loggedInUser",
@@ -153,7 +159,8 @@ class IdentityServiceTest : BehaviorSpec() {
                                 "id": "testuser1",
                                 "naam": "Test User1",
                                 "groupIds": [
-                                    "$TEST_GROUP_A_ID"
+                                    "$TEST_GROUP_A_ID",
+                                    "$TEST_GROUP_FUNCTIONAL_ADMINS_ID"
                                 ]
                             }
                         """.trimIndent()
