@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import jakarta.annotation.Nullable;
+import jakarta.validation.Valid;
+
 import net.atos.zac.app.identity.model.RESTGroup;
 import net.atos.zac.app.identity.model.RESTUser;
 import net.atos.zac.app.klanten.model.klant.IdentificatieType;
@@ -71,6 +74,8 @@ public class RESTZaak {
 
     public String duurVerlenging;
 
+    @Valid
+    @Nullable
     public RESTGroup groep;
 
     public RESTUser behandelaar;

@@ -36,6 +36,7 @@ import javax.annotation.Nullable;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -355,7 +356,7 @@ public class ZakenRESTService {
 
     @POST
     @Path("zaak")
-    public RESTZaak createZaak(final RESTZaakAanmaakGegevens restZaakAanmaakGegevens) {
+    public RESTZaak createZaak(@Valid final RESTZaakAanmaakGegevens restZaakAanmaakGegevens) {
         final RESTZaak restZaak = restZaakAanmaakGegevens.zaak;
         assertPolicy(policyService.readOverigeRechten().getStartenZaak() &&
                          loggedInUserInstance.get()
