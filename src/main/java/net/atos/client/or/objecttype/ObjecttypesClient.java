@@ -17,7 +17,6 @@ import jakarta.ws.rs.Produces;
 
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
-import org.eclipse.microprofile.rest.client.annotation.RegisterProviders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import net.atos.client.or.objecttype.model.Objecttype;
@@ -26,16 +25,12 @@ import net.atos.client.or.shared.exception.FoutExceptionMapper;
 import net.atos.client.or.shared.exception.RuntimeExceptionMapper;
 import net.atos.client.or.shared.exception.ValidatieFoutExceptionMapper;
 
-/**
- *
- */
 @RegisterRestClient(configKey = "Objecttypes-API-Client")
 @RegisterClientHeaders(ObjecttypesClientHeadersFactory.class)
-@RegisterProviders({
-        @RegisterProvider(FoutExceptionMapper.class),
-        @RegisterProvider(ValidatieFoutExceptionMapper.class),
-        @RegisterProvider(RuntimeExceptionMapper.class)
-})
+@RegisterProvider(FoutExceptionMapper.class)
+@RegisterProvider(ValidatieFoutExceptionMapper.class)
+@RegisterProvider(RuntimeExceptionMapper.class)
+
 @Produces(APPLICATION_JSON)
 @Path("api/v2")
 public interface ObjecttypesClient {

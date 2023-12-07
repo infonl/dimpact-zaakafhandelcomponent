@@ -13,6 +13,7 @@ import net.atos.zac.app.bag.model.RESTBAGObject;
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag;
 
 public class RESTZaakAanmaakGegevens {
+
     @Valid
     public RESTZaak zaak;
 

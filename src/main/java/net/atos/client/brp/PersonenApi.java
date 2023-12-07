@@ -28,7 +28,6 @@ import jakarta.ws.rs.Produces;
 import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
-import org.eclipse.microprofile.rest.client.annotation.RegisterProviders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import net.atos.client.brp.exception.RuntimeExceptionMapper;
@@ -50,10 +49,8 @@ import net.atos.client.brp.util.JsonbConfiguration;
 
 @RegisterRestClient(configKey = "BRP-API-Client")
 @RegisterClientHeaders(BRPClientHeadersFactory.class)
-@RegisterProviders({
-        @RegisterProvider(RuntimeExceptionMapper.class),
-        @RegisterProvider(JsonbConfiguration.class)
-})
+@RegisterProvider(RuntimeExceptionMapper.class)
+@RegisterProvider(JsonbConfiguration.class)
 @Path("/personen")
 @Consumes({"application/json"})
 @Produces({"application/json"})

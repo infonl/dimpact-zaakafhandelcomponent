@@ -28,7 +28,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
-import org.eclipse.microprofile.rest.client.annotation.RegisterProviders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import net.atos.client.vrl.exception.RuntimeExceptionMapper;
@@ -42,9 +41,7 @@ import net.atos.client.vrl.model.ProcesType;
  */
 
 @RegisterRestClient(configKey = "VRL-API-Client")
-@RegisterProviders({
-        @RegisterProvider(RuntimeExceptionMapper.class)
-})
+@RegisterProvider(RuntimeExceptionMapper.class)
 @Produces({"application/json", "application/problem+json"})
 @Path("api/v1/procestypen")
 public interface ProcestypenApi {

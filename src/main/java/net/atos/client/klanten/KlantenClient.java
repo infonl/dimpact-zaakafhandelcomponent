@@ -24,7 +24,6 @@ import jakarta.ws.rs.Produces;
 
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
-import org.eclipse.microprofile.rest.client.annotation.RegisterProviders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import net.atos.client.klanten.exception.RuntimeExceptionMapper;
@@ -43,9 +42,7 @@ import net.atos.client.klanten.util.KlantenClientHeadersFactory;
 
 @RegisterRestClient(configKey = "Klanten-API-Client")
 @RegisterClientHeaders(KlantenClientHeadersFactory.class)
-@RegisterProviders({
-        @RegisterProvider(RuntimeExceptionMapper.class)
-})
+@RegisterProvider(RuntimeExceptionMapper.class)
 @Path("api/v1/klanten")
 public interface KlantenClient {
 

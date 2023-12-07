@@ -22,16 +22,19 @@ import net.atos.zac.app.klanten.model.klant.IdentificatieType;
 import net.atos.zac.app.policy.model.RESTZaakRechten;
 import net.atos.zac.zoeken.model.ZaakIndicatie;
 
+
 public class RESTZaak {
 
     public UUID uuid;
 
     public String identificatie;
 
+    @NotNull()
     public String omschrijving;
 
     public String toelichting;
 
+    @NotNull()
     public RESTZaaktype zaaktype;
 
     public RESTZaakStatus status;
@@ -46,7 +49,7 @@ public class RESTZaak {
 
     public LocalDate registratiedatum;
 
-    @NotNull(message = "Start date is required")
+    @NotNull()
     public LocalDate startdatum;
 
     public LocalDate einddatumGepland;
@@ -57,12 +60,15 @@ public class RESTZaak {
 
     public LocalDate publicatiedatum;
 
+
     public LocalDate archiefActiedatum;
 
     public String archiefNominatie;
 
+    @NotNull()
     public RESTCommunicatiekanaal communicatiekanaal;
 
+    @NotNull()
     public String vertrouwelijkheidaanduiding;
 
     public RESTGeometry zaakgeometrie;

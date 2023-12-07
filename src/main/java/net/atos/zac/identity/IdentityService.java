@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -67,7 +68,7 @@ public class IdentityService {
 
     private static final String OBJECT_CLASS_ATTRIBUTE = "objectClass";
 
-    private final Hashtable<String, String> environment = new Hashtable<String, String>();
+    private final Map<String, String> environment;
 
     @Inject
     @ConfigProperty(name = "LDAP_DN")
@@ -78,11 +79,13 @@ public class IdentityService {
     private String groupsDN;
 
     public IdentityService() {
-        environment.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-        environment.put(Context.PROVIDER_URL, getConfig().getValue("LDAP_URL", String.class));
-        environment.put(Context.SECURITY_AUTHENTICATION, "simple");
-        environment.put(Context.SECURITY_PRINCIPAL, getConfig().getValue("LDAP_USER", String.class));
-        environment.put(Context.SECURITY_CREDENTIALS, getConfig().getValue("LDAP_PASSWORD", String.class));
+        environment = Map.of(
+                Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory",
+                Context.PROVIDER_URL, getConfig().getValue("LDAP_URL", String.class),
+                Context.SECURITY_AUTHENTICATION, "simple",
+                Context.SECURITY_PRINCIPAL, getConfig().getValue("LDAP_USER", String.class),
+                Context.SECURITY_CREDENTIALS, getConfig().getValue("LDAP_PASSWORD", String.class)
+        );
     }
 
     public List<User> listUsers() {
@@ -192,7 +195,8 @@ public class IdentityService {
         searchControls.setReturningAttributes(attributesToReturn);
         searchControls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
         try {
-            final DirContext dirContext = new InitialDirContext(environment);
+            final DirContext dirContext =
+                    new InitialDirContext(new Hashtable<>(environment));
             final NamingEnumeration<SearchResult> namingEnumeration = dirContext.search(
                     root,
                     filter.toString(),
