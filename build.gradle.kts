@@ -114,7 +114,6 @@ dependencies {
     implementation("com.itextpdf:itextpdf:5.5.13.3")
     implementation("com.itextpdf.tool:xmlworker:5.5.13.3")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
-    implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
     implementation("com.unboundid:unboundid-ldapsdk:6.0.11")
 
     swaggerUI("org.webjars:swagger-ui:5.10.3")
@@ -141,6 +140,7 @@ dependencies {
     providedCompile("org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api:4.0.2")
     providedCompile("org.jboss.resteasy:resteasy-multipart-provider:6.2.5.Final")
     providedCompile("org.wildfly.security:wildfly-elytron-http-oidc:2.2.2.Final")
+    providedCompile("org.hibernate.validator:hibernate-validator:8.0.1.Final")
 
     // yasson is required for using a JSONB context in our unit tests
     // where we do not have the WildFly runtime environment available

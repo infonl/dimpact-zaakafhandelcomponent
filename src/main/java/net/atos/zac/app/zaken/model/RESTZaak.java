@@ -27,7 +27,7 @@ public class RESTZaak {
     public String identificatie;
 
     @NotNull(message = "Omschrijving is required")
-    public String omschrijving; // Assuming this is the description field
+    public String omschrijving;
 
     public String toelichting;
 
