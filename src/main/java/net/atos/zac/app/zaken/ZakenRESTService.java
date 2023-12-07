@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -1043,7 +1044,7 @@ public class ZakenRESTService {
             case INGETROKKEN_OVERHEID -> "Overheid: %s";
             case INGETROKKEN_BELANGHEBBENDE -> "Belanghebbende: %s";
             default -> {
-                LOG.info(String.format("Unknown vervalreden: '%s'. Returning 'null'.", vervalreden));
+                LOG.log(Level.INFO, "Unknown vervalreden: '{0}'. Returning 'null'.", vervalreden);
                 yield null;
             }
         };

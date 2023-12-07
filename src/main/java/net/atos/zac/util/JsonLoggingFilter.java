@@ -76,8 +76,7 @@ public class JsonLoggingFilter implements ClientRequestFilter, ClientResponseFil
         try (final Jsonb jsonb = JsonbBuilder.create(jsonbConfig)) {
             return jsonb.toJson(requestContext.getEntity());
         } catch (final Exception e) {
-            LOG.log(Level.WARNING, "Failed to create or close JSON builder", e);
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to create or close JSON builder", e);
         }
     }
 

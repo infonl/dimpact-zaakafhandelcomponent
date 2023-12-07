@@ -206,7 +206,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
                 return addTargetGroup(signalering, rolGroep.getBetrokkeneIdentificatie().getIdentificatie());
             }
             default -> {
-                LOG.warning(String.format("Unknown BetrokkeneType '%s'", rol.getBetrokkeneType()));
+                LOG.log(Level.WARNING, "Unknown BetrokkeneType '{0}'", rol.getBetrokkeneType());
                 return null;
             }
         }
