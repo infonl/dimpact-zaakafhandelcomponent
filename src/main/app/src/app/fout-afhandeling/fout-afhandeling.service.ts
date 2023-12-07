@@ -11,6 +11,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { FoutDialogComponent } from "./dialog/fout-dialog.component";
 import { UtilService } from "../core/service/util.service";
 import { match, P } from 'ts-pattern';
+import {FoutDetailedDialogComponent} from "./dialog/fout-detailed-dialog.component";
 
 const ViolationPattern = {
   "constraintType": P.string,
@@ -61,7 +62,7 @@ export class FoutAfhandelingService {
         err.error.parameterViolations,
       ].flat()
       const firstError = flattenedErrorList.find(Boolean)
-      return firstError ? this.openFoutDialog(firstError.message) : throwError(() => new Error('No violations found'))
+      return firstError ? this.openFoutDetailedDialog("Validatie fout", JSON.stringify(firstError)) : throwError(() => new Error('No violations found'))
   }
 
   public httpErrorAfhandelen(err: HttpErrorResponse) {
@@ -75,6 +76,17 @@ export class FoutAfhandelingService {
   public openFoutDialog(error: string): Observable<any> {
     this.dialog.open(FoutDialogComponent, {
       data: error,
+    });
+
+    return throwError(() => "Fout!");
+  }
+
+  public openFoutDetailedDialog(error: string, details: string): Observable<any> {
+    this.dialog.open(FoutDetailedDialogComponent, {
+      data: {
+        error,
+        details,
+      },
     });
 
     return throwError(() => "Fout!");

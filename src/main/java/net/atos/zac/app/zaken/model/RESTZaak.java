@@ -26,12 +26,12 @@ public class RESTZaak {
 
     public String identificatie;
 
-    @NotNull(message = "Omschrijving is required")
+    @NotNull()
     public String omschrijving;
 
     public String toelichting;
 
-    @NotNull(message = "Zaaktype is required")
+    @NotNull()
     public RESTZaaktype zaaktype;
 
     public RESTZaakStatus status;
@@ -46,7 +46,7 @@ public class RESTZaak {
 
     public LocalDate registratiedatum;
 
-    @NotNull(message = "Start date is required")
+    @NotNull()
 
     public LocalDate startdatum;
 
@@ -63,10 +63,10 @@ public class RESTZaak {
 
     public String archiefNominatie;
 
-    @NotNull(message = "Communication channel is required")
+    @NotNull()
     public RESTCommunicatiekanaal communicatiekanaal;
 
-    @NotNull(message = "Confidentiality indication is required")
+    @NotNull()
     public String vertrouwelijkheidaanduiding;
 
     public RESTGeometry zaakgeometrie;
@@ -80,7 +80,7 @@ public class RESTZaak {
     public String redenVerlenging;
 
     public String duurVerlenging;
-    
+
     public RESTGroup groep;
 
     public RESTUser behandelaar;
