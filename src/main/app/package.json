@@ -20,7 +20,7 @@
     "@angular/common": "^17.0.5",
     "@angular/compiler": "^17.0.5",
     "@angular/core": "^17.0.5",
-    "@angular/forms": "^17.0.5",
+    "@angular/forms": "^17.0.6",
     "@angular/google-maps": "^17.0.2",
     "@angular/material": "^17.0.2",
     "@angular/material-moment-adapter": "^17.0.2",
