@@ -32,7 +32,6 @@ import jakarta.ws.rs.QueryParam;
 import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
-import org.eclipse.microprofile.rest.client.annotation.RegisterProviders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import net.atos.client.bag.model.NummeraanduidingIOHal;
@@ -50,9 +49,8 @@ import net.atos.client.brp.exception.RuntimeExceptionMapper;
 
 @RegisterRestClient(configKey = "BAG-API-Client")
 @RegisterClientHeaders(BAGClientHeadersFactory.class)
-@RegisterProviders({
-        @RegisterProvider(RuntimeExceptionMapper.class),
-        @RegisterProvider(JsonbConfiguration.class)})
+@RegisterProvider(RuntimeExceptionMapper.class)
+@RegisterProvider(JsonbConfiguration.class)
 @Timeout(unit = ChronoUnit.SECONDS, value = 5)
 @Path("/nummeraanduidingen")
 public interface NummeraanduidingApi {
