@@ -80,8 +80,7 @@ public class RESTZaak {
     public String redenVerlenging;
 
     public String duurVerlenging;
-
-    @NotNull(message = "Group is required")
+    
     public RESTGroup groep;
 
     public RESTUser behandelaar;
