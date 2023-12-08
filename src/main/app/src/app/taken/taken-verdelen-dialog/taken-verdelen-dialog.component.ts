@@ -41,7 +41,6 @@ export class TakenVerdelenDialogComponent implements OnInit {
       .id("toekenning")
       .groepLabel("actie.taak.toekennen.groep")
       .medewerkerLabel("actie.taak.toekennen.medewerker")
-      .maxlength(50)
       .build();
     this.redenFormField = new InputFormFieldBuilder()
       .id("reden")
