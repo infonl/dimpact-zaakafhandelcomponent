@@ -14,7 +14,7 @@ import { NavigationService } from "../../shared/navigation/navigation.service";
 import { UtilService } from "../../core/service/util.service";
 import { Vertrouwelijkheidaanduiding } from "../../informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
-import { Observable, Subject } from "rxjs";
+import { Observable, of, Subject } from "rxjs";
 import { HeadingFormFieldBuilder } from "../../shared/material-form-builder/form-components/heading/heading-form-field-builder";
 import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
 import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
@@ -36,7 +36,7 @@ import { Group } from "../../identity/model/group";
 import { User } from "../../identity/model/user";
 import { HeadingLevel } from "../../shared/material-form-builder/form-components/heading/heading-form-field";
 import { AutocompleteFormFieldBuilder } from "../../shared/material-form-builder/form-components/autocomplete/autocomplete-form-field-builder";
-import { filter, takeUntil } from "rxjs/operators";
+import { catchError, filter, takeUntil}  from "rxjs/operators";
 import { InboxProductaanvraag } from "../../productaanvragen/model/inbox-productaanvraag";
 import { KlantenService } from "../../klanten/klanten.service";
 import { TextareaFormField } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field";
@@ -44,6 +44,7 @@ import { ZaakAanmaakGegevens } from "../model/zaak-aanmaak-gegevens";
 import { BAGObject } from "../../bag/model/bagobject";
 import { TranslateService } from "@ngx-translate/core";
 import { OrderUtil } from "../../shared/order/order-util";
+import { FormComponent } from "../../shared/material-form-builder/form/form/form.component";
 
 @Component({
   selector: "zac-zaak-create",
@@ -56,6 +57,7 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
   bagObjecten: BAGObject[] = [];
   formConfig: FormConfig;
   @ViewChild("actionsSideNav") actionsSidenav: MatSidenav;
+  @ViewChild("mfbForm") mfbForm: FormComponent;
   readonly sideNavAction = SideNavAction;
   action: SideNavAction;
   private initiatorField: InputFormField;
@@ -263,6 +265,12 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
             this.bagObjecten,
           ),
         )
+          .pipe(
+            catchError((err, caught) => {
+              this.mfbForm.reset();
+              return of()
+            })
+          )
         .subscribe((newZaak) => {
           this.router.navigate(["/zaken/", newZaak.identificatie]);
         });

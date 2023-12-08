@@ -26,7 +26,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
-import org.eclipse.microprofile.rest.client.annotation.RegisterProviders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import net.atos.client.vrl.exception.CommunicatiekanaalNotFoundException;
@@ -58,12 +57,9 @@ import net.atos.client.vrl.model.CommunicatiekanaalList200Response;
  * De inhoud van de Gemeentelijke Selectielijst wordt geïmporteerd vanuit de gepubliceerde Excel-bestanden.
  *
  */
-
 @RegisterRestClient(configKey = "VRL-API-Client")
-@RegisterProviders({
-        @RegisterProvider(RuntimeExceptionMapper.class),
-        @RegisterProvider(CommunicatiekanaalNotFoundExceptionMapping.class)
-})
+@RegisterProvider(RuntimeExceptionMapper.class)
+@RegisterProvider(CommunicatiekanaalNotFoundExceptionMapping.class)
 @Produces({"application/json", "application/problem+json"})
 @Path("api/v1/communicatiekanalen")
 public interface CommunicatiekanalenClient {
