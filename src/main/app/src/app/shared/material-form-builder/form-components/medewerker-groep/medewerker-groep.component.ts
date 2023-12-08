@@ -125,7 +125,7 @@ export class MedewerkerGroepComponent
       .subscribe((medewerkers) => {
         this.medewerkers = medewerkers;
         const validators: ValidatorFn[] = [];
-        // validators.push(AutocompleteValidators.optionInList(medewerkers));
+        validators.push(AutocompleteValidators.optionInList(medewerkers));
         if (this.data.medewerker.hasValidator(Validators.required)) {
           validators.push(Validators.required);
         }
