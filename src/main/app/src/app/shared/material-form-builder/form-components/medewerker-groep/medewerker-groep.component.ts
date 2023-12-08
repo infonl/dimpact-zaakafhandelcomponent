@@ -7,7 +7,7 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormComponent } from "../../model/form-component";
 import { TranslateService } from "@ngx-translate/core";
 import { IdentityService } from "../../../../identity/identity.service";
-import { FormControl, ValidatorFn, Validators } from "@angular/forms";
+import {AbstractControl, FormControl, ValidationErrors, ValidatorFn, Validators} from "@angular/forms";
 import { Observable, Subscription } from "rxjs";
 import { Group } from "../../../../identity/model/group";
 import { User } from "../../../../identity/model/user";
@@ -78,6 +78,25 @@ export class MedewerkerGroepComponent
         if (this.data.groep.hasValidator(Validators.required)) {
           validators.push(Validators.required);
         }
+        validators.push((control: AbstractControl): ValidationErrors | null => {
+              if (!control.value || typeof control.value !== 'object') {
+                  return null; // or return an error if this is unexpected
+              }
+
+              const naamToolong = control.value.naam && control.value.naam.length > this.data.maxGroupNameLength;
+
+              return (naamToolong) ? { naamToolong: true } : null;
+        });
+          validators.push((control: AbstractControl): ValidationErrors | null => {
+              if (!control.value || typeof control.value !== 'object') {
+                  return null; // or return an error if this is unexpected
+              }
+
+              const idTooLong = control.value.id && control.value.id.length > this.data.maxGroupIdLength;
+
+              return idTooLong ? { idTooLong: true } : null;
+          });
+
         this.data.groep.setValidators(validators);
         this.data.groep.updateValueAndValidity();
 
@@ -106,7 +125,7 @@ export class MedewerkerGroepComponent
       .subscribe((medewerkers) => {
         this.medewerkers = medewerkers;
         const validators: ValidatorFn[] = [];
-        validators.push(AutocompleteValidators.optionInList(medewerkers));
+        // validators.push(AutocompleteValidators.optionInList(medewerkers));
         if (this.data.medewerker.hasValidator(Validators.required)) {
           validators.push(Validators.required);
         }
@@ -154,12 +173,17 @@ export class MedewerkerGroepComponent
   }
 
   getMessage(formControl: FormControl, label: string): string {
-      console.log(formControl.errors)
       if (formControl.hasError("required")) {
-            return this.translate.instant("msg.error.required", { label: label });
+          return this.translate.instant("msg.error.required", { label: label });
       }
-      if (formControl.hasError("match") && this.data.maxlength) {
-            return this.translate.instant("msg.error.tegroot", { label: label, max: this.data.maxlength });
+      if (formControl.hasError("match")) {
+          return this.translate.instant("msg.error.invalid.match");
+      }
+      if (formControl.hasError("idTooLong")) {
+          return this.translate.instant("msg.error.group.invalid.id", { max: this.data.maxGroupIdLength });
+      }
+      if (formControl.hasError("naamToolong")) {
+          return this.translate.instant("msg.error.group.invalid.name", { max: this.data.maxGroupNameLength });
       }
       return "This field has a error";
   }

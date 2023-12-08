@@ -15,6 +15,9 @@ export class MedewerkerGroepFormField extends AbstractFormGroupField {
   medewerkerLabel: string;
   maxlength: number;
 
+  maxGroupNameLength: number
+  maxGroupIdLength: number
+
   constructor() {
     super();
   }
