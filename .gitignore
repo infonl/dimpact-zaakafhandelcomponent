@@ -11,6 +11,12 @@ wildfly-*
 *.iml
 .idea
 
+### DIRENV ###
+.envrc
+
+### SDKMAN ###
+.sdkmanrc
+
 ### JENV ###
 .java-version
 
@@ -20,3 +26,6 @@ scripts/docker-compose/imports/openldap/ldifs/zac-ldap-setup.ldif
 
 ### just linux things
 *.swp
+
+### GitHub ACT secrets file
+/scripts/github/.secrets

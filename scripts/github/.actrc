@@ -1,0 +1,2 @@
+-s GITHUB_TOKEN=github-token
+-s READ_PACKAGES_TOKEN=read-packages-token
