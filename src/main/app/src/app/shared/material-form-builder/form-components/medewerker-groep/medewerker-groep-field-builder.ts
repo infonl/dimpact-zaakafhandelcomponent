@@ -16,11 +16,12 @@ export class MedewerkerGroepFieldBuilder extends AbstractFormFieldBuilder {
   constructor(groep?: Group, medewerker?: User) {
     super();
     this.formField = new MedewerkerGroepFormField();
-
     this.formField.initControl({
       groep: AbstractFormField.formControlInstance(groep),
       medewerker: AbstractFormField.formControlInstance(medewerker),
     });
+    this.maxGroupIdlength(24)
+    this.maxGroupNamelength(50)
   }
 
   groepLabel(groepLabel: string): this {
@@ -49,8 +50,13 @@ export class MedewerkerGroepFieldBuilder extends AbstractFormFieldBuilder {
     return this;
   }
 
-  maxlength(maxlength: number): this {
-    this.formField.maxlength = maxlength;
+  maxGroupIdlength(maxlength: number): this {
+    this.formField.maxGroupIdLength = maxlength;
+    return this;
+  }
+
+  maxGroupNamelength(maxlength: number): this {
+    this.formField.maxGroupNameLength = maxlength;
     return this;
   }
 
