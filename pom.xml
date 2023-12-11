@@ -41,6 +41,7 @@
                     <layers>
                         <layer>jaxrs-server</layer>
                         <layer>microprofile-health</layer>
+                        <layer>metrics</layer>
                         <layer>microprofile-fault-tolerance</layer>
                         <layer>elytron-oidc-client</layer>
                         <layer>postgresql-driver</layer>
