@@ -356,7 +356,7 @@ public class ZakenRESTService {
 
     @POST
     @Path("zaak")
-    public RESTZaak createZaak(@Valid RESTZaakAanmaakGegevens restZaakAanmaakGegevens) {
+    public RESTZaak createZaak(@Valid final RESTZaakAanmaakGegevens restZaakAanmaakGegevens) {
         final RESTZaak restZaak = restZaakAanmaakGegevens.zaak;
         assertPolicy(policyService.readOverigeRechten().getStartenZaak() &&
                          loggedInUserInstance.get()

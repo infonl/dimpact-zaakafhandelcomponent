@@ -13,6 +13,9 @@ import java.util.UUID;
 
 import jakarta.validation.constraints.NotNull;
 
+import jakarta.annotation.Nullable;
+import jakarta.validation.Valid;
+
 import net.atos.zac.app.identity.model.RESTGroup;
 import net.atos.zac.app.identity.model.RESTUser;
 import net.atos.zac.app.klanten.model.klant.IdentificatieType;
@@ -47,7 +50,6 @@ public class RESTZaak {
     public LocalDate registratiedatum;
 
     @NotNull()
-
     public LocalDate startdatum;
 
     public LocalDate einddatumGepland;
@@ -81,6 +83,8 @@ public class RESTZaak {
 
     public String duurVerlenging;
 
+    @Valid
+    @Nullable
     public RESTGroup groep;
 
     public RESTUser behandelaar;
