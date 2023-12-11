@@ -272,7 +272,7 @@
                                         <th *matHeaderCellDef mat-header-cell
                                             mat-sort-header> {{'door' | translate}} </th>
                                         <td *matCellDef="let regel" mat-cell>
-                                            <div matTooltip="{{regel.applicatie}}">{{regel.door | empty}}</div>
+                                            <div>{{regel.door | empty}}</div>
                                         </td>
                                     </ng-container>
                                     <ng-container matColumnDef="wijziging">
