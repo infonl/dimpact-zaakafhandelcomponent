@@ -20,7 +20,6 @@ import jakarta.ws.rs.QueryParam;
 
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
-import org.eclipse.microprofile.rest.client.annotation.RegisterProviders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import net.atos.client.kvk.exception.RuntimeExceptionMapper;
@@ -29,9 +28,7 @@ import net.atos.client.kvk.vestigingsprofiel.model.Vestiging;
 
 @RegisterRestClient(configKey = "KVK-API-Client")
 @RegisterClientHeaders(KVKClientHeadersFactory.class)
-@RegisterProviders({
-        @RegisterProvider(RuntimeExceptionMapper.class)
-})
+@RegisterProvider(RuntimeExceptionMapper.class)
 @Produces({"application/hal+json"})
 @Path("api/v1/vestigingsprofielen")
 public interface VestigingsprofielClient {

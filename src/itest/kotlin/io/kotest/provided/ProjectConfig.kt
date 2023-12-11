@@ -10,6 +10,7 @@ import io.github.oshai.kotlinlogging.DelegatingKLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.config.AbstractProjectConfig
 import io.kotest.core.spec.SpecExecutionOrder
+import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.KeycloakClient
 import nl.lifely.zac.itest.client.createZaakAfhandelParameters
 import nl.lifely.zac.itest.config.ItestConfiguration.SMARTDOCUMENTS_MOCK_BASE_URI
@@ -35,7 +36,6 @@ object ProjectConfig : AbstractProjectConfig() {
 
     lateinit var dockerComposeContainer: ComposeContainer
 
-    @Suppress("UNCHECKED_CAST")
     override suspend fun beforeProject() {
         try {
             deleteLocalDockerVolumeData()
@@ -56,7 +56,9 @@ object ProjectConfig : AbstractProjectConfig() {
                     }
                 }
             KeycloakClient.authenticate()
-            createZaakAfhandelParameters()
+
+            val response = createZaakAfhandelParameters()
+            response.statusCode shouldBe HttpStatus.SC_OK
         } catch (exception: ContainerLaunchException) {
             logger.error(exception) { "Failed to start Docker containers" }
             dockerComposeContainer.stop()

@@ -23,7 +23,6 @@ import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import net.atos.client.util.JAXRSClientFactory;
@@ -49,7 +48,7 @@ import net.atos.client.zgw.ztc.model.ZaaktypeListParameters;
 import net.atos.zac.configuratie.ConfiguratieService;
 
 /**
- * Careful!
+ * Encapsulates the {@link ZTCClient} by providing caching and authentication.
  * <p>
  * Never call methods with caching annotations from within the service (or it will not work).
  * Do not introduce caches with keys other than URI and UUID.

@@ -107,8 +107,8 @@ dependencies {
     implementation("javax.cache:cache-api:1.1.1")
     implementation("com.google.guava:guava:32.1.3-jre")
     implementation("com.mailjet:mailjet-client:5.2.5")
-    implementation("org.flywaydb:flyway-core:10.1.0")
-    implementation("org.flywaydb:flyway-database-postgresql:10.1.0")
+    implementation("org.flywaydb:flyway-core:10.2.0")
+    implementation("org.flywaydb:flyway-database-postgresql:10.2.0")
     implementation("org.apache.solr:solr-solrj:9.4.0")
     implementation("net.sf.webdav-servlet:webdav-servlet:3.0.0-INFONL")
     implementation("com.itextpdf:itextpdf:5.5.13.3")
@@ -140,6 +140,7 @@ dependencies {
     providedCompile("org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api:4.0.2")
     providedCompile("org.jboss.resteasy:resteasy-multipart-provider:6.2.6.Final")
     providedCompile("org.wildfly.security:wildfly-elytron-http-oidc:2.2.2.Final")
+    providedCompile("org.hibernate.validator:hibernate-validator:8.0.1.Final")
 
     // yasson is required for using a JSONB context in our unit tests
     // where we do not have the WildFly runtime environment available
@@ -447,6 +448,10 @@ tasks {
         classpath = sourceSets["itest"].runtimeClasspath
 
         systemProperty("zacDockerImage", zacDockerImage)
+        // note that the PATCH (and PUT?) HTTP requests in the integration tests currently
+        // require the following environment variable to be set
+        // see: https://github.com/lojewalo/khttp/issues/88
+        environment("JAVA_TOOL_OPTIONS", "--add-opens=java.base/java.net=ALL-UNNAMED")
     }
 
     register<Exec>("generateWildflyBootableJar") {

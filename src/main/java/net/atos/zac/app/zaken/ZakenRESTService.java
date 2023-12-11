@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -36,6 +37,7 @@ import javax.annotation.Nullable;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -169,7 +171,6 @@ import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
 import net.atos.zac.zaaksturing.model.ZaakbeeindigParameter;
 import net.atos.zac.zoeken.IndexeerService;
 import net.atos.zac.zoeken.model.index.ZoekObjectType;
-
 
 @Path("zaken")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -355,7 +356,7 @@ public class ZakenRESTService {
 
     @POST
     @Path("zaak")
-    public RESTZaak createZaak(final RESTZaakAanmaakGegevens restZaakAanmaakGegevens) {
+    public RESTZaak createZaak(@Valid final RESTZaakAanmaakGegevens restZaakAanmaakGegevens) {
         final RESTZaak restZaak = restZaakAanmaakGegevens.zaak;
         assertPolicy(policyService.readOverigeRechten().getStartenZaak() &&
                          loggedInUserInstance.get()
@@ -601,7 +602,7 @@ public class ZakenRESTService {
 
     @PATCH
     @Path("toekennen")
-    public RESTZaak toekennen(final RESTZaakToekennenGegevens toekennenGegevens) {
+    public RESTZaak toekennen(@Valid final RESTZaakToekennenGegevens toekennenGegevens) {
         final Zaak zaak = zrcClientService.readZaak(toekennenGegevens.zaakUUID);
         assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).getToekennen());
 
@@ -1043,7 +1044,7 @@ public class ZakenRESTService {
             case INGETROKKEN_OVERHEID -> "Overheid: %s";
             case INGETROKKEN_BELANGHEBBENDE -> "Belanghebbende: %s";
             default -> {
-                LOG.info(String.format("Unknown vervalreden: '%s'. Returning 'null'.", vervalreden));
+                LOG.log(Level.INFO, "Unknown vervalreden: '{0}'. Returning 'null'.", vervalreden);
                 yield null;
             }
         };

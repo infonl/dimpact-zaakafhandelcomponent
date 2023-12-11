@@ -17,7 +17,6 @@ import jakarta.ws.rs.Produces;
 
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
-import org.eclipse.microprofile.rest.client.annotation.RegisterProviders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import net.atos.client.zgw.shared.exception.FoutExceptionMapper;
@@ -45,15 +44,15 @@ import net.atos.client.zgw.ztc.model.ZaaktypeInformatieobjecttypeListParameters;
 import net.atos.client.zgw.ztc.model.ZaaktypeListParameters;
 
 /**
- * Let op! Methods met caching vind je in ZTCClientService, deze methods NIET direct gebruiken!!!
+ * Note that this client should normally only be used by {@link ZTCClientService} and not directly
+ * because of caching purposes.
  */
 @RegisterRestClient(configKey = "ZGW-API-Client")
 @RegisterClientHeaders(ZGWClientHeadersFactory.class)
-@RegisterProviders({
-        @RegisterProvider(FoutExceptionMapper.class),
-        @RegisterProvider(ValidatieFoutExceptionMapper.class),
-        @RegisterProvider(RuntimeExceptionMapper.class),
-        @RegisterProvider(JsonbConfiguration.class)})
+@RegisterProvider(FoutExceptionMapper.class)
+@RegisterProvider(ValidatieFoutExceptionMapper.class)
+@RegisterProvider(RuntimeExceptionMapper.class)
+@RegisterProvider(JsonbConfiguration.class)
 @Path("catalogi/api/v1")
 @Produces(APPLICATION_JSON)
 public interface ZTCClient {

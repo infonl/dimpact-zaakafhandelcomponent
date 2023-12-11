@@ -24,7 +24,6 @@ import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
-import org.eclipse.microprofile.rest.client.annotation.RegisterProviders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
@@ -43,16 +42,12 @@ import net.atos.client.zgw.shared.model.audit.AuditTrailRegel;
 import net.atos.client.zgw.shared.util.JsonbConfiguration;
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
 
-/**
- *
- */
 @RegisterRestClient(configKey = "ZGW-API-Client")
 @RegisterClientHeaders(ZGWClientHeadersFactory.class)
-@RegisterProviders({
-        @RegisterProvider(FoutExceptionMapper.class),
-        @RegisterProvider(ValidatieFoutExceptionMapper.class),
-        @RegisterProvider(RuntimeExceptionMapper.class),
-        @RegisterProvider(JsonbConfiguration.class)})
+@RegisterProvider(FoutExceptionMapper.class)
+@RegisterProvider(ValidatieFoutExceptionMapper.class)
+@RegisterProvider(RuntimeExceptionMapper.class)
+@RegisterProvider(JsonbConfiguration.class)
 @Path("documenten/api/v1")
 @Produces(APPLICATION_JSON)
 public interface DRCClient {
