@@ -448,6 +448,10 @@ tasks {
         classpath = sourceSets["itest"].runtimeClasspath
 
         systemProperty("zacDockerImage", zacDockerImage)
+        // note that the PATCH (and PUT?) HTTP requests in the integration tests currently
+        // require the following environment variable to be set
+        // see: https://github.com/lojewalo/khttp/issues/88
+        environment("JAVA_TOOL_OPTIONS", "--add-opens=java.base/java.net=ALL-UNNAMED")
     }
 
     register<Exec>("generateWildflyBootableJar") {

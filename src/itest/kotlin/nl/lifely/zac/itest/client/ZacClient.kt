@@ -11,6 +11,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCT_AANVRAAG_TYPE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.lifely.zac.itest.zaakUUID
 
 private val logger = KotlinLogging.logger {}
 
@@ -208,7 +209,7 @@ fun createZaakAfhandelParameters(): Response {
 }
 
 @Suppress("LongMethod")
-fun createZaakWithGroupNameThatIsTooLong(): Response {
+fun createZaak(groupId: String, groupName: String): Response {
     logger.info {
         "Creating zaak with group name that is too long"
     }
@@ -421,8 +422,8 @@ fun createZaakWithGroupNameThatIsTooLong(): Response {
             "    \"initiatorIdentificatie\": null,\n" +
             "    \"startdatum\": \"2023-12-07T12:43:01+01:00\",\n" +
             "    \"groep\": {\n" +
-            "      \"id\": \"test-group-functioneel-beheerders\",\n" +
-            "      \"naam\": \"Test groep functioneel beheerders\"\n" +
+            "      \"id\": \"$groupId\",\n" +
+            "      \"naam\": \"$groupName\"\n" +
             "    },\n" +
             "    \"communicatiekanaal\": {\n" +
             "      \"naam\": \"E-mail\",\n" +
@@ -435,6 +436,31 @@ fun createZaakWithGroupNameThatIsTooLong(): Response {
             "  \"bagObjecten\": []\n" +
             "}"
     )
-    logger.info { "POST zaak response: ${response.text}" }
+    logger.info { "POST zaak create response: ${response.text}" }
+    return response
+}
+
+@Suppress("LongMethod")
+fun assignZaakToGroup(groupId: String): Response {
+    logger.info {
+        "Assigning a zaak to a group with group name that is too long"
+    }
+    // note that this HTTP request currently requires the following environment variable
+    // to be set when running this test: JAVA_TOOL_OPTIONS=--add-opens=java.base/java.net=ALL-UNNAMED
+    // see: https://github.com/lojewalo/khttp/issues/88
+    val response = khttp.patch(
+        url = "${ZAC_API_URI}/zaken/toekennen",
+        headers = mapOf(
+            "Accept" to "application/json",
+            "Content-Type" to "application/json",
+            "Authorization" to "Bearer ${KeycloakClient.requestAccessToken()}"
+        ),
+        data = "{\n" +
+            "  \"zaakUUID\": \"$zaakUUID\",\n" +
+            "  \"groepId\": \"$groupId\",\n" +
+            "  \"reden\": \"dummyReason\"\n" +
+            "}"
+    )
+    logger.info { "POST zaak toekennen response: ${response.text}" }
     return response
 }
