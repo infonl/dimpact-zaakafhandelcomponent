@@ -28,4 +28,4 @@ scripts/docker-compose/imports/openldap/ldifs/zac-ldap-setup.ldif
 *.swp
 
 ### GitHub ACT secrets file
-/scripts/github/.secrets
+scripts/github/.secrets
