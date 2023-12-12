@@ -17,7 +17,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  UBUNTU_RUNNNER: 'ubuntu-22.04' # Explicit ubuntu runner version
   JAVA_VERSION: '17'
   CONTAINER_REGISTRY_URL: 'ghcr.io/infonl'
   APPLICATION_NAME: 'zaakafhandelcomponent'
@@ -30,7 +29,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ${{ env.UBUNTU_RUNNNER }}
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
     env:
       READ_PACKAGES_USERNAME: $${{ vars.READ_PACKAGES_USERNAME }}
@@ -93,7 +92,7 @@ jobs:
 
   run-unit-tests:
     needs: [build]
-    runs-on: ${{ env.UBUNTU_RUNNNER }}
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
     env:
       READ_PACKAGES_USERNAME: $${{ vars.READ_PACKAGES_USERNAME }}
@@ -138,7 +137,7 @@ jobs:
 
   build-docker-image-and-run-itests:
     needs: [build]
-    runs-on: ${{ env.UBUNTU_RUNNNER }}
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
     env:
       BUILD_NUMBER: ${{ needs.build.outputs.build_number }}
@@ -213,7 +212,7 @@ jobs:
 
   next-version:
     if: github.ref == 'refs/heads/main'
-    runs-on: ${{ env.UBUNTU_RUNNNER }}
+    runs-on: ubuntu-22.04
     outputs:
       next_version: ${{ steps.next-version.outputs.new_tag }}
     steps:
@@ -235,7 +234,7 @@ jobs:
 
   push-docker-image:
     needs: [build, run-unit-tests, build-docker-image-and-run-itests, next-version]
-    runs-on: ${{ env.UBUNTU_RUNNNER }}
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
     if: github.ref == 'refs/heads/main'
     env:
@@ -263,7 +262,7 @@ jobs:
 
       - name: Tag Docker Image with next version tag
         if: env.NEXT_VERSION != ''
-        run: docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${NEXT_VERSION}
+        run: docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${env.NEXT_VERSION}
 
       - name: Push Docker Image with all tags
         run: docker push --all-tags ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}
@@ -271,7 +270,7 @@ jobs:
   create-release:
     needs: [next-version, push-docker-image]
     if: github.ref == 'refs/heads/main'
-    runs-on: ${{ env.UBUNTU_RUNNNER }}
+    runs-on: ubuntu-22.04
     env:
       NEXT_VERSION: ${{ needs.build.outputs.next-version }}
     steps:
@@ -283,20 +282,20 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: v${{ NEXT_VERSION }}
-          name: Release ${{ NEXT_VERSION }}
+          tag: v${{ env.NEXT_VERSION }}
+          name: Release ${{ env.NEXT_VERSION }}
           draft: false
           prerelease: false
-          artifacts: "${env.CONTAINER_REGISTRY_URL}/${env.APPLICATION_NAME}:${NEXT_VERSION}"
+          artifacts: "${env.CONTAINER_REGISTRY_URL}/${env.APPLICATION_NAME}:${env.NEXT_VERSION}"
           allowUpdates: true
           makeLatest: true
           generateReleaseNotes: true
 
   trigger-provision:
     needs: [push-docker-image]
-    runs-on: ${{ env.UBUNTU_RUNNNER }}
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
-    if: github.ref == 'refs/heads/main' && ${{ env.ACT != 'true' }}
+    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/github-script@v7
         with:
