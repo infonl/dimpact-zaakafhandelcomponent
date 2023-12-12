@@ -28,19 +28,8 @@ permissions:
   pull-requests: write
 
 jobs:
-  set-runner:
-    # This is the (current) way to set a runner that can be used in other tasks
-    runs-on: ubuntu-22.04
-    outputs:
-      runner: ${{ steps.set-runner.outputs.runner }}
-    steps:
-      - name: Set runner
-        id: set-runner
-        run: |
-          echo "runner=ubuntu-22.04" >> $GITHUB_OUTPUT
   build:
-    needs: [set-runner]
-    runs-on: ${{ needs.set-runner.outputs.runner }}
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
     env:
       READ_PACKAGES_USERNAME: $${{ vars.READ_PACKAGES_USERNAME }}
@@ -102,8 +91,8 @@ jobs:
           key: maven-build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   run-unit-tests:
-    needs: [set-runner, build]
-    runs-on: ${{ needs.set-runner.outputs.runner }}
+    needs: [build]
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
     env:
       READ_PACKAGES_USERNAME: $${{ vars.READ_PACKAGES_USERNAME }}
@@ -147,8 +136,8 @@ jobs:
             src/main/app/reports/*.xml
 
   build-docker-image-and-run-itests:
-    needs: [set-runner, build]
-    runs-on: ${{ needs.set-runner.outputs.runner }}
+    needs: [build]
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
     env:
       BUILD_NUMBER: ${{ needs.build.outputs.build_number }}
@@ -222,9 +211,8 @@ jobs:
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   next-version:
-    needs: [set-runner]
     if: github.ref == 'refs/heads/main'
-    runs-on: ${{ needs.set-runner.outputs.runner }}
+    runs-on: ubuntu-22.04
     outputs:
       next_version: ${{ steps.next-version.outputs.new_tag }}
     steps:
@@ -245,8 +233,8 @@ jobs:
           RELEASE_BRANCHES: main
 
   push-docker-image:
-    needs: [set-runner, build, run-unit-tests, build-docker-image-and-run-itests, next-version]
-    runs-on: ${{ needs.set-runner.outputs.runner }}
+    needs: [build, run-unit-tests, build-docker-image-and-run-itests, next-version]
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
     if: github.ref == 'refs/heads/main'
     env:
@@ -280,9 +268,9 @@ jobs:
         run: docker push --all-tags ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}
 
   create-release:
-    needs: [set-runner, next-version, push-docker-image]
+    needs: [next-version, push-docker-image]
     if: github.ref == 'refs/heads/main'
-    runs-on: ${{ needs.set-runner.outputs.runner }}
+    runs-on: ubuntu-22.04
     env:
       NEXT_VERSION: ${{ needs.build.outputs.next-version }}
     steps:
@@ -304,8 +292,8 @@ jobs:
           generateReleaseNotes: true
 
   trigger-provision:
-    needs: [set-runner, push-docker-image]
-    runs-on: ${{ needs.set-runner.outputs.runner }}
+    needs: [push-docker-image]
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
     if: github.ref == 'refs/heads/main'
     steps:
