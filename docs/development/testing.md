@@ -120,6 +120,14 @@ under services -> zac -> environment
 +      - "--hostname-url=http://host.docker.internal:8081"
 ```
 
+## GitHub Action Tests
+As GitHub pipelines are code as well, we should make an attempt to test their
+behaviour before any changes are pushed to the GitHub repository, before it
+breaks the build itself.
+
+For simple testing we use the ACT framework. Please refer to [scripts/github/README.md](../../scripts/github/README.md).
+This contains the details on how to run ACT tests.
+
 ## Manual tests
 
 ### Using Postman
