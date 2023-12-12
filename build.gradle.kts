@@ -264,6 +264,7 @@ tasks {
 
     jacocoTestReport {
         dependsOn(test)
+        dependsOn("itest")
     }
 
     processResources {

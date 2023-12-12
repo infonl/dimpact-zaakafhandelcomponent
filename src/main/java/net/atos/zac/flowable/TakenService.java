@@ -254,7 +254,7 @@ public class TakenService {
         return ScopeTypes.CMMN.equals(taskInfo.getScopeType());
     }
 
-    private Task findOpenTask(final String taskId) {
+    public Task findOpenTask(final String taskId) {
         return taskService.createTaskQuery()
                 .taskId(taskId)
                 .includeCaseVariables()

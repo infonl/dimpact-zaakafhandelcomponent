@@ -17,6 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  UBUNTU_RUNNNER: 'ubuntu-22.04' # Explicit ubuntu runner version
   JAVA_VERSION: '17'
   CONTAINER_REGISTRY_URL: 'ghcr.io/infonl'
   APPLICATION_NAME: 'zaakafhandelcomponent'
@@ -29,7 +30,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ env.UBUNTU_RUNNNER }}
     timeout-minutes: 30
     env:
       READ_PACKAGES_USERNAME: $${{ vars.READ_PACKAGES_USERNAME }}
@@ -92,7 +93,7 @@ jobs:
 
   run-unit-tests:
     needs: [build]
-    runs-on: ubuntu-latest
+    runs-on: ${{ env.UBUNTU_RUNNNER }}
     timeout-minutes: 30
     env:
       READ_PACKAGES_USERNAME: $${{ vars.READ_PACKAGES_USERNAME }}
@@ -137,7 +138,7 @@ jobs:
 
   build-docker-image-and-run-itests:
     needs: [build]
-    runs-on: ubuntu-latest
+    runs-on: ${{ env.UBUNTU_RUNNNER }}
     timeout-minutes: 30
     env:
       BUILD_NUMBER: ${{ needs.build.outputs.build_number }}
@@ -210,13 +211,36 @@ jobs:
           path: docker-image.tar
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
+  next-version:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ${{ env.UBUNTU_RUNNNER }}
+    outputs:
+      next_version: ${{ steps.next-version.outputs.new_tag }}
+    steps:
+      # Checkout the repository including tags
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # Determine the next semantic version based on the commit message tags
+      - name: Get next version
+        id: next-version
+        uses: anothrNick/github-tag-action@1.36.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PRERELEASE: false
+          DEFAULT_BUMP: patch
+          TAG_PREFIX: v
+          RELEASE_BRANCHES: main
+
   push-docker-image:
-    needs: [build, run-unit-tests, build-docker-image-and-run-itests]
-    runs-on: ubuntu-latest
+    needs: [build, run-unit-tests, build-docker-image-and-run-itests, next-version]
+    runs-on: ${{ env.UBUNTU_RUNNNER }}
     timeout-minutes: 30
     if: github.ref == 'refs/heads/main'
     env:
       ZAC_DOCKER_IMAGE: ${{ needs.build.outputs.zac_docker_image }}
+      NEXT_VERSION: ${{ needs.build.outputs.next-version }}
     steps:
       - name: Docker Login
         uses: docker/login-action@v3
@@ -237,14 +261,42 @@ jobs:
       - name: Tag Docker Image with 'latest' tag
         run: docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:latest
 
+      - name: Tag Docker Image with next version tag
+        if: env.NEXT_VERSION != ''
+        run: docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${NEXT_VERSION}
+
       - name: Push Docker Image with all tags
         run: docker push --all-tags ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}
 
+  create-release:
+    needs: [next-version, push-docker-image]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ${{ env.UBUNTU_RUNNNER }}
+    env:
+      NEXT_VERSION: ${{ needs.build.outputs.next-version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Create or update GitHub release
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: v${{ NEXT_VERSION }}
+          name: Release ${{ NEXT_VERSION }}
+          draft: false
+          prerelease: false
+          artifacts: "${env.CONTAINER_REGISTRY_URL}/${env.APPLICATION_NAME}:${NEXT_VERSION}"
+          allowUpdates: true
+          makeLatest: true
+          generateReleaseNotes: true
+
   trigger-provision:
     needs: [push-docker-image]
-    runs-on: ubuntu-latest
+    runs-on: ${{ env.UBUNTU_RUNNNER }}
     timeout-minutes: 30
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && ${{ env.ACT != 'true' }}
     steps:
       - uses: actions/github-script@v7
         with:
