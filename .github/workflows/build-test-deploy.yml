@@ -225,14 +225,13 @@ jobs:
       # Determine the next semantic version based on the commit message tags
       - name: Get next tag
         id: get-tag
-        uses: anothrNick/github-tag-action@1.36.0
+        uses: anothrNick/github-tag-action@1.67.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PRERELEASE: false
           DEFAULT_BUMP: patch
           WITH_V: true
           RELEASE_BRANCHES: main
-          DRY_RUN: true
       - name: Get next version
         id: get-version
         uses: frabert/replace-string-action@v2.4
