@@ -17,7 +17,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  UBUNTU_RUNNNER: 'ubuntu-22.04' # Explicit ubuntu runner version
   JAVA_VERSION: '17'
   CONTAINER_REGISTRY_URL: 'ghcr.io/infonl'
   APPLICATION_NAME: 'zaakafhandelcomponent'
@@ -29,8 +28,19 @@ permissions:
   pull-requests: write
 
 jobs:
+  set-runner:
+    # This is the (current) way to set a runner that can be used in other tasks
+    runs-on: ubuntu-22.04
+    outputs:
+      runner: ${{ steps.set-runner.outputs.runner }}
+    steps:
+      - name: Set runner
+        id: set-runner
+        run: |
+          echo "::set-output name=runner::ubuntu-22.04"
   build:
-    runs-on: ${{ env.UBUNTU_RUNNNER }}
+    needs: [set-runner]
+    runs-on: ${{ needs.set-runner.outputs.runner }}
     timeout-minutes: 30
     env:
       READ_PACKAGES_USERNAME: $${{ vars.READ_PACKAGES_USERNAME }}
@@ -92,8 +102,8 @@ jobs:
           key: maven-build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   run-unit-tests:
-    needs: [build]
-    runs-on: ${{ env.UBUNTU_RUNNNER }}
+    needs: [set-runner, build]
+    runs-on: ${{ needs.set-runner.outputs.runner }}
     timeout-minutes: 30
     env:
       READ_PACKAGES_USERNAME: $${{ vars.READ_PACKAGES_USERNAME }}
@@ -137,8 +147,8 @@ jobs:
             src/main/app/reports/*.xml
 
   build-docker-image-and-run-itests:
-    needs: [build]
-    runs-on: ${{ env.UBUNTU_RUNNNER }}
+    needs: [set-runner, build]
+    runs-on: ${{ needs.set-runner.outputs.runner }}
     timeout-minutes: 30
     env:
       BUILD_NUMBER: ${{ needs.build.outputs.build_number }}
@@ -212,8 +222,9 @@ jobs:
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   next-version:
+    needs: [set-runner]
     if: github.ref == 'refs/heads/main'
-    runs-on: ${{ env.UBUNTU_RUNNNER }}
+    runs-on: ${{ needs.set-runner.outputs.runner }}
     outputs:
       next_version: ${{ steps.next-version.outputs.new_tag }}
     steps:
@@ -234,8 +245,8 @@ jobs:
           RELEASE_BRANCHES: main
 
   push-docker-image:
-    needs: [build, run-unit-tests, build-docker-image-and-run-itests, next-version]
-    runs-on: ${{ env.UBUNTU_RUNNNER }}
+    needs: [set-runner, build, run-unit-tests, build-docker-image-and-run-itests, next-version]
+    runs-on: ${{ needs.set-runner.outputs.runner }}
     timeout-minutes: 30
     if: github.ref == 'refs/heads/main'
     env:
@@ -269,9 +280,9 @@ jobs:
         run: docker push --all-tags ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}
 
   create-release:
-    needs: [next-version, push-docker-image]
+    needs: [set-runner, next-version, push-docker-image]
     if: github.ref == 'refs/heads/main'
-    runs-on: ${{ env.UBUNTU_RUNNNER }}
+    runs-on: ${{ needs.set-runner.outputs.runner }}
     env:
       NEXT_VERSION: ${{ needs.build.outputs.next-version }}
     steps:
@@ -293,8 +304,8 @@ jobs:
           generateReleaseNotes: true
 
   trigger-provision:
-    needs: [push-docker-image]
-    runs-on: ${{ env.UBUNTU_RUNNNER }}
+    needs: [set-runner, push-docker-image]
+    runs-on: ${{ needs.set-runner.outputs.runner }}
     timeout-minutes: 30
     if: github.ref == 'refs/heads/main' && ${{ env.ACT != 'true' }}
     steps:
