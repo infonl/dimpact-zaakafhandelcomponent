@@ -1,3 +1,3 @@
 #!/bin/bash
 cd ../..
-act --job create-release --verbose --dryrun
+act --verbose --dryrun
