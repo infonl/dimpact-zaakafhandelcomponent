@@ -8,6 +8,8 @@ package net.atos.zac.app.planitems.model;
 import java.time.LocalDate;
 import java.util.Map;
 
+import jakarta.validation.Valid;
+
 import net.atos.zac.app.identity.model.RESTGroup;
 import net.atos.zac.app.identity.model.RESTUser;
 
@@ -17,6 +19,7 @@ public class RESTHumanTaskData {
 
     public RESTGroup groep;
 
+    @Valid
     public RESTUser medewerker;
 
     public LocalDate fataledatum;

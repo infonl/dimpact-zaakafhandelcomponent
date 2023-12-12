@@ -16,6 +16,7 @@ import java.util.UUID;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -160,7 +161,7 @@ public class PlanItemsRESTService {
 
     @POST
     @Path("doHumanTaskPlanItem")
-    public void doHumanTaskplanItem(final RESTHumanTaskData humanTaskData) {
+    public void doHumanTaskplanItem(@Valid final RESTHumanTaskData humanTaskData) {
         final PlanItemInstance planItem = cmmnService.readOpenPlanItem(humanTaskData.planItemInstanceId);
         final UUID zaakUUID = zaakVariabelenService.readZaakUUID(planItem);
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
