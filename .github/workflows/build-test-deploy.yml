@@ -214,7 +214,8 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
     outputs:
-      next_version: ${{ steps.next-version.outputs.new_tag }}
+      version: ${{ steps.next-version.outputs.new_version }}
+      tag: ${{ steps.next-version.outputs.new_tag }}
     steps:
       # Checkout the repository including tags
       - name: Checkout
@@ -229,8 +230,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PRERELEASE: false
           DEFAULT_BUMP: patch
-          TAG_PREFIX: v
+          WITH_V: true
           RELEASE_BRANCHES: main
+      - name: Print new tag and version
+        run: |
+          echo "Next version: ${{ steps.next-version.outputs.new_version }}"
+          echo "Next version tag: ${{ steps.next-version.outputs.new_tag }}"
 
   push-docker-image:
     needs: [build, run-unit-tests, build-docker-image-and-run-itests, next-version]
@@ -239,7 +244,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     env:
       ZAC_DOCKER_IMAGE: ${{ needs.build.outputs.zac_docker_image }}
-      NEXT_VERSION: ${{ needs.build.outputs.next-version }}
+      NEXT_VERSION: ${{ needs.next-version.outputs.version }}
     steps:
       - name: Docker Login
         uses: docker/login-action@v3
@@ -272,7 +277,8 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
     env:
-      NEXT_VERSION: ${{ needs.build.outputs.next-version }}
+      NEXT_VERSION: ${{ needs.next-version.outputs.version }}
+      NEXT_VERSION_TAG: ${{ needs.next-version.outputs.tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -282,11 +288,11 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: v${{ env.NEXT_VERSION }}
-          name: Release ${{ env.NEXT_VERSION }}
+          tag: ${{ env.NEXT_VERSION_TAG }}
+          name: ${{ env.APPLICATION_NAME }} ${{ env.NEXT_VERSION }}
+          body: This release contains the docker image ${{ env.APPLICATION_NAME }} ${{ env.NEXT_VERSION }}, which is available at ${env.CONTAINER_REGISTRY_URL}/${env.APPLICATION_NAME}:${env.NEXT_VERSION}
           draft: false
           prerelease: false
-          artifacts: "${env.CONTAINER_REGISTRY_URL}/${env.APPLICATION_NAME}:${env.NEXT_VERSION}"
           allowUpdates: true
           makeLatest: true
           generateReleaseNotes: true
