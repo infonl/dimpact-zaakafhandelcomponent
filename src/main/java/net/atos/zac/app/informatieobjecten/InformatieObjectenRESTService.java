@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import jakarta.ws.rs.WebApplicationException;
 import org.apache.commons.lang3.StringUtils;
 import org.flowable.task.api.Task;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
@@ -282,6 +283,14 @@ public class InformatieObjectenRESTService {
             @QueryParam("taakObject") final boolean taakObject,
             final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject) {
         final Zaak zaak = zrcClientService.readZaak(zaakUuid);
+
+
+        if(!zaak.isOpen()) {
+            throw new WebApplicationException((
+                String.format("No open zaak found for task with id: '%s'", documentReferentieId)), Response.Status.CONFLICT
+            );
+        }
+
         assertPolicy(policyService.readZaakRechten(zaak).getWijzigen());
         final RESTFileUpload file = (RESTFileUpload) httpSession.get().getAttribute("FILE_" + documentReferentieId);
         final EnkelvoudigInformatieobjectWithInhoud enkelvoudigInformatieobjectWithInhoud = taakObject ?
@@ -294,7 +303,14 @@ public class InformatieObjectenRESTService {
                                                                 enkelvoudigInformatieobjectWithInhoud.getBeschrijving(),
                                                                 OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN);
         if (taakObject) {
-            final Task task = takenService.readOpenTask(documentReferentieId);
+            final Task task = takenService.findOpenTask(documentReferentieId);
+            if (task == null) {
+                throw new WebApplicationException((
+                        String.format("No open task found with task id: '%s'", documentReferentieId)),
+                        Response.Status.CONFLICT
+                );
+            }
+
             final List<UUID> taakdocumenten = new ArrayList<>(taakVariabelenService.readTaakdocumenten(task));
             taakdocumenten.add(UriUtil.uuidFromURI(zaakInformatieobject.getInformatieobject()));
             taakVariabelenService.setTaakdocumenten(task, taakdocumenten);
