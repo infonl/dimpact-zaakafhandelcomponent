@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
@@ -33,11 +34,20 @@ public class RESTExceptionMapper implements ExceptionMapper<Exception> {
      */
     @Override
     public Response toResponse(final Exception e) {
-        LOG.log(Level.SEVERE, e.getMessage(), e);
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .type(MediaType.APPLICATION_JSON)
-                .entity(getJSONMessage(e, "Algemene Fout"))
-                .build();
+        if (e instanceof WebApplicationException &&
+                Response.Status.Family.familyOf(((WebApplicationException) e).getResponse().getStatus()) != Response.Status.Family.SERVER_ERROR) {
+            final WebApplicationException wae = (WebApplicationException) e;
+            return Response.status(wae.getResponse().getStatus())
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(getJSONMessage(e, wae.getMessage()))
+                    .build();
+        } else {
+            LOG.log(Level.SEVERE, e.getMessage(), e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(getJSONMessage(e, "Algemene Fout"))
+                    .build();
+        }
     }
 
     private static String getJSONMessage(final Exception e, final String melding) {
@@ -54,5 +64,4 @@ public class RESTExceptionMapper implements ExceptionMapper<Exception> {
         }
         return null;
     }
-
 }
