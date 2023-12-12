@@ -1,3 +1,3 @@
 #!/bin/bash
 cd ../..
-act --verbose --dryrun
+act -j next-version

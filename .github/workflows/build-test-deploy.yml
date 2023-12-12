@@ -214,7 +214,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
     outputs:
-      version: ${{ steps.get-version.outputs.NEW_VERSION }}
+      version: ${{ steps.get-version.outputs.replaced }}
       tag: ${{ steps.get-tag.outputs.new_tag }}
     steps:
       # Checkout the repository including tags
@@ -232,12 +232,17 @@ jobs:
           DEFAULT_BUMP: patch
           WITH_V: true
           RELEASE_BRANCHES: main
+          DRY_RUN: true
       - name: Get next version
         id: get-version
-        run: echo "NEW_VERSION=${{ steps.next-tag.outputs.new_tag#? }}" >> $GITHUB_OUTPUT
+        uses: frabert/replace-string-action@v2.4
+        with:
+          pattern: 'v(.*)'
+          string: ${{ steps.get-tag.outputs.new_tag }}
+          replace-with: '$1'
       - name: Print new tag and version
         run: |
-          echo "Next version: ${{ steps.get-version.outputs.NEW_VERSION }}"
+          echo "Next version: ${{ steps.get-version.outputs.replaced }}"
           echo "Next version tag: ${{ steps.get-tag.outputs.new_tag }}"
 
   push-docker-image:
