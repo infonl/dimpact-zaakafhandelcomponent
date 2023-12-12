@@ -37,7 +37,7 @@ jobs:
       - name: Set runner
         id: set-runner
         run: |
-          echo "::set-output name=runner::ubuntu-22.04"
+          echo "runner=ubuntu-22.04" >> $GITHUB_OUTPUT
   build:
     needs: [set-runner]
     runs-on: ${{ needs.set-runner.outputs.runner }}
