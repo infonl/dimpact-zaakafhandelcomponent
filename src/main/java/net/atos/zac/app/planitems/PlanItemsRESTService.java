@@ -16,6 +16,7 @@ import java.util.UUID;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -160,7 +161,7 @@ public class PlanItemsRESTService {
 
     @POST
     @Path("doHumanTaskPlanItem")
-    public void doHumanTaskplanItem(final RESTHumanTaskData humanTaskData) {
+    public void doHumanTaskplanItem(@Valid final RESTHumanTaskData humanTaskData) {
         final PlanItemInstance planItem = cmmnService.readOpenPlanItem(humanTaskData.planItemInstanceId);
         final UUID zaakUUID = zaakVariabelenService.readZaakUUID(planItem);
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
@@ -211,7 +212,10 @@ public class PlanItemsRESTService {
                     Bronnen.fromZaak(zaak)));
         }
         cmmnService.startHumanTaskPlanItem(humanTaskData.planItemInstanceId, humanTaskData.groep.id,
-                                           humanTaskData.medewerker != null ? humanTaskData.medewerker.id : null,
+                                           humanTaskData.medewerker != null && !humanTaskData.medewerker.toString().isEmpty()
+                                            ?
+                                                   humanTaskData.medewerker.id :
+                                                   null,
                                            DateTimeConverterUtil.convertToDate(fataleDatum),
                                            humanTaskData.toelichting, taakdata, zaakUUID);
         indexeerService.addOrUpdateZaak(zaakUUID, false);
