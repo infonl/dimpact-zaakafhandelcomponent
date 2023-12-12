@@ -214,8 +214,8 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
     outputs:
-      version: ${{ steps.next-version.outputs.new_version }}
-      tag: ${{ steps.next-version.outputs.new_tag }}
+      version: ${{ steps.get-version.outputs.NEW_VERSION }}
+      tag: ${{ steps.get-tag.outputs.new_tag }}
     steps:
       # Checkout the repository including tags
       - name: Checkout
@@ -223,8 +223,8 @@ jobs:
         with:
           fetch-depth: 0
       # Determine the next semantic version based on the commit message tags
-      - name: Get next version
-        id: next-version
+      - name: Get next tag
+        id: get-tag
         uses: anothrNick/github-tag-action@1.36.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -232,10 +232,13 @@ jobs:
           DEFAULT_BUMP: patch
           WITH_V: true
           RELEASE_BRANCHES: main
+      - name: Get next version
+        id: get-version
+        run: echo "NEW_VERSION=${{ steps.next-tag.outputs.new_tag#? }}" >> $GITHUB_OUTPUT
       - name: Print new tag and version
         run: |
-          echo "Next version: ${{ steps.next-version.outputs.new_version }}"
-          echo "Next version tag: ${{ steps.next-version.outputs.new_tag }}"
+          echo "Next version: ${{ steps.get-version.outputs.NEW_VERSION }}"
+          echo "Next version tag: ${{ steps.get-tag.outputs.new_tag }}"
 
   push-docker-image:
     needs: [build, run-unit-tests, build-docker-image-and-run-itests, next-version]
