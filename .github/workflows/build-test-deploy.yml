@@ -274,7 +274,7 @@ jobs:
 
       - name: Tag Docker Image with next version tag
         if: env.NEXT_VERSION != ''
-        run: docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${NEXT_VERSION}
+        run: docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${env.NEXT_VERSION}
 
       - name: Push Docker Image with all tags
         run: docker push --all-tags ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}
@@ -294,11 +294,11 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: v${{ NEXT_VERSION }}
-          name: Release ${{ NEXT_VERSION }}
+          tag: v${{ env.NEXT_VERSION }}
+          name: Release ${{ env.NEXT_VERSION }}
           draft: false
           prerelease: false
-          artifacts: "${env.CONTAINER_REGISTRY_URL}/${env.APPLICATION_NAME}:${NEXT_VERSION}"
+          artifacts: "${env.CONTAINER_REGISTRY_URL}/${env.APPLICATION_NAME}:${env.NEXT_VERSION}"
           allowUpdates: true
           makeLatest: true
           generateReleaseNotes: true
