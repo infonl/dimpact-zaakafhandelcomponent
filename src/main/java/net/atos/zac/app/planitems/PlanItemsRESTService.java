@@ -211,7 +211,10 @@ public class PlanItemsRESTService {
                     Bronnen.fromZaak(zaak)));
         }
         cmmnService.startHumanTaskPlanItem(humanTaskData.planItemInstanceId, humanTaskData.groep.id,
-                                           humanTaskData.medewerker != null ? humanTaskData.medewerker.id : null,
+                                           humanTaskData.medewerker != null && !humanTaskData.medewerker.toString().isEmpty()
+                                            ?
+                                                   humanTaskData.medewerker.id :
+                                                   null,
                                            DateTimeConverterUtil.convertToDate(fataleDatum),
                                            humanTaskData.toelichting, taakdata, zaakUUID);
         indexeerService.addOrUpdateZaak(zaakUUID, false);
