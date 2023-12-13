@@ -68,10 +68,10 @@ export class PlanItemsService {
 
   doHumanTaskPlanItem(humanTaskData: HumanTaskData): Observable<void> {
 
-      if (!humanTaskData.medewerker.id)  {
+      if (!humanTaskData.medewerker?.id)  {
             humanTaskData.medewerker = null;
       }
-      
+
     return this.http
       .post<void>(`${this.basepath}/doHumanTaskPlanItem`, humanTaskData)
       .pipe(
