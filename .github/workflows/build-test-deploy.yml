@@ -297,7 +297,9 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ env.NEXT_VERSION_TAG }}
           name: ${{ env.APPLICATION_NAME }} ${{ env.NEXT_VERSION }}
-          body: This release contains the docker image ${{ env.APPLICATION_NAME }} ${{ env.NEXT_VERSION }}, which is available at ${env.CONTAINER_REGISTRY_URL}/${env.APPLICATION_NAME}:${env.NEXT_VERSION}
+          body: |
+            This release contains the docker image ${{ env.APPLICATION_NAME }} ${{ env.NEXT_VERSION }}, which is available
+            at ${{ env.CONTAINER_REGISTRY_URL }}/${{ env.APPLICATION_NAME }}:${{ env.NEXT_VERSION }}
           draft: false
           prerelease: false
           allowUpdates: true
