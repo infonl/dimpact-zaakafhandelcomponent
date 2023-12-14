@@ -13,6 +13,15 @@ updates:
     reviewers:
       - "infonl/dimpact"
 
+  - package-ecosystem: "npm"
+    directory: "/src/e2e/"
+    schedule:
+      interval: "daily"
+      time: "04:00"
+      timezone: "Europe/Amsterdam"
+    reviewers:
+      - "infonl/dimpact"
+
   - package-ecosystem: "gradle"
     directory: "/"
     schedule:
