@@ -1,8 +1,9 @@
 name: Playwright Tests
 on:
-  schedule:
+  #disabled for holidays
+  #schedule:
     # Runs at 9:00 PM UTC from Monday to Friday
-    - cron:  '0 21 * * 1-5'
+    #- cron:  '0 21 * * 1-5'
   workflow_dispatch:
 jobs:
   playwright:
