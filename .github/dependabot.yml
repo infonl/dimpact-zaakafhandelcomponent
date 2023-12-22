@@ -48,3 +48,12 @@ updates:
       timezone: "Europe/Amsterdam"
     reviewers:
     - "infonl/dimpact"
+
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "04:00"
+      timezone: "Europe/Amsterdam"
+    reviewers:
+    - "infonl/dimpact"
