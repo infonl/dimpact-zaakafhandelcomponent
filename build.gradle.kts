@@ -105,7 +105,7 @@ dependencies {
     implementation("org.slf4j:slf4j-jdk14:2.0.9")
     implementation("com.auth0:java-jwt:4.4.0")
     implementation("javax.cache:cache-api:1.1.1")
-    implementation("com.google.guava:guava:32.1.3-jre")
+    implementation("com.google.guava:guava:33.0.0-jre")
     implementation("com.mailjet:mailjet-client:5.2.5")
     implementation("org.flywaydb:flyway-core:10.4.1")
     implementation("org.flywaydb:flyway-database-postgresql:10.4.1")
