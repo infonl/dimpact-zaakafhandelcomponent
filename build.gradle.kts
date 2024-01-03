@@ -155,7 +155,7 @@ dependencies {
     "itestImplementation"("io.kotest:kotest-runner-junit5:5.8.0")
     "itestImplementation"("io.kotest:kotest-assertions-json:5.8.0")
     "itestImplementation"("org.slf4j:slf4j-simple:2.0.9")
-    "itestImplementation"("io.github.oshai:kotlin-logging-jvm:5.1.1")
+    "itestImplementation"("io.github.oshai:kotlin-logging-jvm:6.0.1")
     "itestImplementation"("org.danilopianini:khttp:1.4.2")
     "itestImplementation"("org.awaitility:awaitility-kotlin:4.2.0")
     "itestImplementation"("org.mock-server:mockserver-client-java:5.15.0")
