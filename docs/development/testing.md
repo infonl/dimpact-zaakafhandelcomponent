@@ -40,19 +40,13 @@ then start up ZAC as Docker container and finally run the integration tests.
 
 ## End-to-end (e2e) tests
 
-### Cucumber
-
-We use cucumber to write reusable tests in human readable format (Gherkin) for e2e tests.
+Our end-to-end tests use the [Playwright e2e test framework](https://playwright.dev/).
+We use [Cucumber](https://cucumber.io/) to write reusable end-to-end tests in human-readable format using [Gherkin syntax](https://cucumber.io/docs/gherkin/).
 
 ### Running the e2e tests
 
-First make sure to install all the dependencies by running the following command in the src/main/e2e folder:
-
-```npm install```
-
-To run the tests you can use the following command in the src/main/e2e folder:
-
-```npm run e2e```
+The end-to-end tests are located in the `src/e2e` folder.
+You can use the `start-e2e-xxx` scripts in the root folder of this project to run the e2e tests.
 
 ### Writing e2e tests
 
@@ -62,13 +56,13 @@ We have predefined steps that you can use to write tests. You can find them in t
 In a .feature file you should be able to write out tests based on the predefined steps with auto complete.
 ![Alt text](./attachments/images/cucumber-auto-complete.png)
 
-#### Writing cucumber tests in intellij
+#### Writing Cucumber tests in IntelliJ
 
 You need to make sure to install the [cucumber.js](https://plugins.jetbrains.com/plugin/7418-cucumber-js) plugin.
 
 Then you will have all the autocomplete features available to you
 
-#### Writing cucumber tests in vscode
+#### Writing Cucumber tests in VSCode
 
 You need to make sure to install the official [cucumber](https://marketplace.visualstudio.com/items?itemName=CucumberOpen.cucumber-official) plugin.
 

@@ -1,4 +1,9 @@
-#!/bin/bash
+#!/bin/sh
+
+#
+# SPDX-FileCopyrightText: 2024 Lifely
+# SPDX-License-Identifier: EUPL-1.2+
+#
 
 # Change Directory to your test directory
 cd ./src/e2e
