@@ -102,7 +102,7 @@ dependencies {
     implementation("org.flowable:flowable-cmmn-engine:7.0.0")
     implementation("org.flowable:flowable-cmmn-cdi:7.0.0")
     implementation("org.flowable:flowable-cmmn-engine-configurator:7.0.0")
-    implementation("org.slf4j:slf4j-jdk14:2.0.10")
+    implementation("org.slf4j:slf4j-jdk14:2.0.11")
     implementation("com.auth0:java-jwt:4.4.0")
     implementation("javax.cache:cache-api:1.1.1")
     implementation("com.google.guava:guava:33.0.0-jre")
