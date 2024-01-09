@@ -10,21 +10,23 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.servlet.http.HttpSession;
+
 import org.apache.commons.collections4.map.LRUMap;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import jakarta.enterprise.inject.spi.CDI;
-import jakarta.servlet.http.HttpSession;
 import net.atos.client.zgw.drc.DRCClientService;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectWithInhoudAndLock;
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService;
 import net.atos.zac.authentication.SecurityUtil;
-import net.sf.webdav.ITransaction;
-import net.sf.webdav.IWebdavStore;
-import net.sf.webdav.StoredObject;
+import nl.info.webdav.ITransaction;
+import nl.info.webdav.IWebdavStore;
+import nl.info.webdav.StoredObject;
+
 
 public class WebdavStore implements IWebdavStore {
 
