@@ -14,18 +14,6 @@ General ZAC usage instructions may be found in the [README.md](../../README.md) 
 The software is built using Gradle and for the final step using Maven.
 Both a Gradle and a Maven wrapper are included in the source code, so you do not need to install either Gradle or Maven yourself.
 
-Unfortunately we use a customized 3rd Java party library (https://github.com/infonl/webdav-servlet) which currently is only published to our own GitHub Packages Maven repository.
-Since GitHub Packages Maven repositories are not public you require a GitHub Personal Access Token (PAT) with read permissions on GitHub Packages to be able to download this library.
-Lifely developers can find these credentials in our 1Password vault.
-
-To build the software use the following command:
-
-```shell
-READ_PACKAGES_USERNAME=XXX READ_PACKAGES_TOKEN=XXX ./gradlew build
-```
-
-Replace the `XXX` placeholders with the credentials from the 1Password vault.
-
 This builds all the software, including the Java backend as well as the TypeScript frontend (using `npm`), runs all unit tests
 and packages the built software first into a WAR archive and then finally by invoking a Maven command from Gradle into a
 [WildFly application server](https://www.wildfly.org/) bootable fat-JAR. This last step uses [Galleon](https://docs.wildfly.org/galleon/).
