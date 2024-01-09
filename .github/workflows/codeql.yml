@@ -22,9 +22,6 @@ jobs:
   analyze:
     name: Analyze
     runs-on: ubuntu-latest
-    env:
-      READ_PACKAGES_USERNAME: $${{ vars.READ_PACKAGES_USERNAME }}
-      READ_PACKAGES_TOKEN: ${{ secrets.READ_PACKAGES_TOKEN }}
     permissions:
       actions: read
       contents: read
