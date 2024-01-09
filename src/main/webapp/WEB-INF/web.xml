@@ -113,7 +113,7 @@
 
     <servlet>
         <servlet-name>webdav</servlet-name>
-        <servlet-class>net.sf.webdav.WebdavServlet</servlet-class>
+        <servlet-class>nl.info.webdav.WebdavServlet</servlet-class>
         <init-param>
             <param-name>ResourceHandlerImplementation</param-name>
             <param-value>net.atos.zac.webdav.WebdavStore</param-value>
