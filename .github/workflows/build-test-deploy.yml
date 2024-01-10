@@ -132,10 +132,10 @@ jobs:
             build/test-results/**/*.xml
             src/main/app/reports/*.xml
 
-      - name: Generate JaCoCo code coverage report
-        run: ./gradlew jacocoTestReport
+      - name: Generate JaCoCo unit test code coverage report
+        run: ./gradlew -x compileJava -x processResources -x compileKotlin -x classes -x itest jacocoTestReport
 
-      - name: Upload coverage reports to Codecov
+      - name: Upload unit test coverage report to Codecov
         uses: codecov/codecov-action@v3
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -203,6 +203,14 @@ jobs:
           check_name: integration-test-results
           files: |
             build/test-results/itest/**/*.xml
+
+      - name: Generate JaCoCo integration test code coverage report
+        run: ./gradlew -x compileJava -x processResources -x compileKotlin -x classes -x test jacocoTestReport
+
+      - name: Upload integration test coverage report to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Save Docker Image
         if: github.ref == 'refs/heads/main'
