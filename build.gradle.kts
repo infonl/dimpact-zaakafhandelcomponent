@@ -254,10 +254,6 @@ tasks {
         dependsOn("generateWildflyBootableJar")
     }
 
-    check {
-        dependsOn("jacocoTestReport")
-    }
-
     test {
         dependsOn("npmRunTest")
     }

@@ -196,6 +196,9 @@ jobs:
           files: |
             build/test-results/itest/**/*.xml
 
+      - name: Generate JaCoCo code coverage report
+        run: ./gradlew jacocoTestReport
+
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         env:
