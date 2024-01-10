@@ -264,7 +264,6 @@ tasks {
 
     jacocoTestReport {
         dependsOn(test)
-        dependsOn("itest")
 
         reports {
             xml.required = true
