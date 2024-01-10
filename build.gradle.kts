@@ -254,6 +254,10 @@ tasks {
         dependsOn("generateWildflyBootableJar")
     }
 
+    check {
+        dependsOn("jacocoTestReport")
+    }
+
     test {
         dependsOn("npmRunTest")
     }
@@ -265,6 +269,11 @@ tasks {
     jacocoTestReport {
         dependsOn(test)
         dependsOn("itest")
+
+        reports {
+            xml.required = true
+            html.required = false
+        }
     }
 
     processResources {

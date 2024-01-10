@@ -196,6 +196,11 @@ jobs:
           files: |
             build/test-results/itest/**/*.xml
 
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
       - name: Save Docker Image
         if: github.ref == 'refs/heads/main'
         run: docker save --output docker-image.tar ${ZAC_DOCKER_IMAGE}
