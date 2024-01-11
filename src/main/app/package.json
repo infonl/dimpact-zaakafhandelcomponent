@@ -61,7 +61,7 @@
     "jest-junit": "^16.0.0",
     "jest-junit-reporter": "^1.1.0",
     "jest-preset-angular": "^13.1.4",
-    "openapi-typescript": "^6.7.2",
+    "openapi-typescript": "^6.7.3",
     "protractor": "~7.0.0",
     "ts-node": "~10.9.2",
     "typescript": "^5.2.2"
