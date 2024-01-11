@@ -264,7 +264,11 @@ tasks {
 
     jacocoTestReport {
         dependsOn(test)
-        dependsOn("itest")
+
+        reports {
+            xml.required = true
+            html.required = false
+        }
     }
 
     processResources {

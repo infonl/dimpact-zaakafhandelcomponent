@@ -132,6 +132,14 @@ jobs:
             build/test-results/**/*.xml
             src/main/app/reports/*.xml
 
+      - name: Generate JaCoCo unit test code coverage report
+        run: ./gradlew -x compileJava -x processResources -x compileKotlin -x classes -x test -x itest jacocoTestReport --info
+
+      - name: Upload unit test coverage report to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
   build-docker-image-and-run-itests:
     needs: [build]
     runs-on: ubuntu-22.04

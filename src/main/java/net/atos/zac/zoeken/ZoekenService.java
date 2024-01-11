@@ -68,7 +68,8 @@ public class ZoekenService {
     public ZoekResultaat<? extends ZoekObject> zoek(final ZoekParameters zoekParameters) {
         final SolrQuery query = new SolrQuery("*:*");
 
-        if (loggedInUserInstance.get() != null) { // SignaleringenJob heeft geen ingelogde gebruiker
+        if (loggedInUserInstance.get() != null) {
+            // Signaleringen job does not have a logged-in user
             applyAllowedZaaktypenPolicy(query);
         }
 
@@ -76,25 +77,25 @@ public class ZoekenService {
             query.addFilterQuery(format("type:%s", zoekParameters.getType().toString()));
         }
 
-        zoekParameters.getZoeken().forEach((zoekVeld, tekst) -> {
-            if (StringUtils.isNotBlank(tekst)) {
-                if (zoekVeld == ZoekVeld.ZAAK_IDENTIFICATIE || zoekVeld == ZoekVeld.TAAK_ZAAK_ID) {
-                    query.addFilterQuery(format("%s:(*%s*)", zoekVeld.getVeld(), encoded(tekst)));
+        zoekParameters.getZoeken().forEach((searchField, text) -> {
+            if (StringUtils.isNotBlank(text)) {
+                if (searchField == ZoekVeld.ZAAK_IDENTIFICATIE || searchField == ZoekVeld.TAAK_ZAAK_ID) {
+                    query.addFilterQuery(format("%s:(*%s*)", searchField.getVeld(), encoded(text)));
                 } else {
-                    query.addFilterQuery(format("%s:(%s)", zoekVeld.getVeld(), encoded(tekst)));
+                    query.addFilterQuery(format("%s:(%s)", searchField.getVeld(), encoded(text)));
                 }
 
             }
         });
 
-        zoekParameters.getDatums().forEach((datumVeld, datum) -> {
-            if (datum != null) {
+        zoekParameters.getDatums().forEach((dateField, date) -> {
+            if (date != null) {
                 query.addFilterQuery(
-                        format("%s:[%s TO %s]", datumVeld.getVeld(),
-                                datum.van() == null ? "*" : DateTimeFormatter.ISO_INSTANT.format(
-                                        datum.van().atStartOfDay(ZoneId.systemDefault())),
-                                datum.tot() == null ? "*" : DateTimeFormatter.ISO_INSTANT.format(
-                                        datum.tot().atStartOfDay(ZoneId.systemDefault()))));
+                        format("%s:[%s TO %s]", dateField.getVeld(),
+                                date.van() == null ? "*" : DateTimeFormatter.ISO_INSTANT.format(
+                                        date.van().atStartOfDay(ZoneId.systemDefault())),
+                                date.tot() == null ? "*" : DateTimeFormatter.ISO_INSTANT.format(
+                                        date.tot().atStartOfDay(ZoneId.systemDefault()))));
             }
         });
 
@@ -191,11 +192,11 @@ public class ZoekenService {
     /**
      * Produces a quoted Solr string, with properly encoded contents, from a raw Java string.
      *
-     * @param waarde the raw unencoded string
+     * @param value the raw unencoded string
      * @return the encoded and quoted Solr string
      */
-    private static String quoted(final String waarde) {
-        return SOLR_QUOTE + encoded(waarde) + SOLR_QUOTE;
+    private static String quoted(final String value) {
+        return SOLR_QUOTE + encoded(value) + SOLR_QUOTE;
     }
 
     /**
