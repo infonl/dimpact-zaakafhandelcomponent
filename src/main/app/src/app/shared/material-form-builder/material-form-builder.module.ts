@@ -68,6 +68,7 @@ import { DocumentIconComponent } from "../document-icon/document-icon.component"
 import { DragAndDropDirective } from "./form-components/file/drag-and-drop.directive";
 import { MessageComponent } from "./form-components/message/message.component";
 import { InformatieObjectIndicatiesComponent } from "../indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
+import { EnhanceMatErrorDirective } from "../material/mat-zac-error";
 
 @NgModule({
   declarations: [
@@ -96,6 +97,7 @@ import { InformatieObjectIndicatiesComponent } from "../indicaties/informatie-ob
     HiddenComponent,
     DragAndDropDirective,
     MessageComponent,
+    EnhanceMatErrorDirective,
   ],
   imports: [
     CommonModule,
