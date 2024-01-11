@@ -14,5 +14,5 @@
         </mat-radio-button>
     </mat-radio-group>
 
-    <mat-error *ngIf="data.formControl.touched && data.formControl.invalid">{{getErrorMessage()}}</mat-error>
+    <mat-error appEnhanceMatError *ngIf="data.formControl.touched && data.formControl.invalid">{{getErrorMessage()}}</mat-error>
 </div>

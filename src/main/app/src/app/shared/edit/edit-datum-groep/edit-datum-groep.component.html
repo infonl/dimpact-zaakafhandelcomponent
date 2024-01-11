@@ -93,12 +93,12 @@
         </div>
         <div class="flex-1 w50-md">
             <mfb-form-field [field]="einddatumGeplandField" (valueChanges)="validate()" (click)="$event.stopPropagation()"></mfb-form-field>
-            <mat-error class="error-text" *ngIf="showEinddatumGeplandError">
+            <mat-error appEnhanceMatError class="error-text" *ngIf="showEinddatumGeplandError">
                 {{ 'msg.error.date.invalid.streef' | translate}}</mat-error>
         </div>
         <div class="flex-1 w50-md">
             <mfb-form-field [field]="uiterlijkeEinddatumAfdoeningField" (valueChanges)="validate()" (click)="$event.stopPropagation()"></mfb-form-field>
-            <mat-error class="error-text" *ngIf="showUiterlijkeEinddatumAfdoeningError">
+            <mat-error appEnhanceMatError class="error-text" *ngIf="showUiterlijkeEinddatumAfdoeningError">
                 {{ 'msg.error.date.invalid.fatale' + (einddatumGeplandField.formControl.defaultValue ? '1' : '2') | translate}}</mat-error>
         </div>
         <mfb-form-field class="w100" [field]="reasonField" (click)="$event.stopPropagation()"></mfb-form-field>
