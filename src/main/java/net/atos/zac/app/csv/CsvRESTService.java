@@ -42,7 +42,7 @@ public class CsvRESTService {
     @Path("export")
     public Response downloadCSV(final RESTZoekParameters restZoekParameters) {
         final ZoekParameters zoekParameters = restZoekParametersConverter.convert(restZoekParameters);
-        zoekParameters.setRows(Integer.MAX_VALUE);
+        zoekParameters.setRows(1000); // The max per page in ZAC is 100, so we set it to 1000 to be safe
         final ZoekResultaat<? extends ZoekObject> zoekResultaat = zoekenService.zoek(zoekParameters);
 
         final StreamingOutput streamingOutput = csvService.exportToCsv(zoekResultaat);
