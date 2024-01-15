@@ -23,6 +23,7 @@
 |      toevoegen_bag_object       |    Open     |             |               |           |
 |          aanmaken_taak          |      X      |             |               |           |
 |       vastleggen_besluit        |    Open     |             |               |           |
+|     verlengen_doorlooptijd      |      X      |             |       X       |           |
 
 |     Taak rechten     | behandelaar | coordinator | recordmanager | beheerder |
 |:--------------------:|:-----------:|:-----------:|:-------------:|:---------:|
