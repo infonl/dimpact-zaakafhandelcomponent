@@ -223,7 +223,7 @@ jobs:
     steps:
       - name: Print Docker Image Name
         run: | 
-          echo "Docker Image Name: ${ZAC_DOCKER_IMAGE}"
+          echo ${ZAC_DOCKER_IMAGE}
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
