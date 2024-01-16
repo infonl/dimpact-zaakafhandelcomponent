@@ -329,3 +329,18 @@ jobs:
               },
               ref: 'main'
             })
+  docker-image-scan:
+      needs: [push-docker-image]
+      runs-on: ubuntu-22.04
+      timeout-minutes: 30
+      steps:
+        - name: Run Trivy vulnerability scanner
+          uses: aquasecurity/trivy-action@master
+          with:
+              image-ref: ${ZAC_DOCKER_IMAGE}
+              format: 'table'
+              exit-code: '1'
+              ignore-unfixed: true
+              vuln-type: 'os,library'
+              severity: 'CRITICAL,HIGH'
+          
