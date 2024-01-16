@@ -75,6 +75,6 @@ wijzigenZaakdata {
 
 default wijzigenDoorlooptijd := false
 wijzigenDoorlooptijd {
-    recordmanager.rol in user.rollen
+    { behandelaar, recordmanager }[_].rol in user.rollen
     zaaktype_allowed == true
 }

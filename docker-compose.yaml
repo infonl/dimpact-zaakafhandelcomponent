@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   keycloak:
-    image: quay.io/keycloak/keycloak:22.0.1
+    image: quay.io/keycloak/keycloak:23.0.4
     depends_on:
       keycloak-database:
         condition: service_healthy
@@ -300,15 +300,25 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010
+      # Disable FileSystemWatcher because it causes this Docker container to
+      # fail when running on an M3 Pro Mac with: "Unhandled exception.
+      # System.IO.IOException: Function not implemented
+      #   at System.IO.FileSystemWatcher.StartRaisingEvents()"
+      - ASPNETCORE_hostBuilder__reloadConfigOnChange=false
     ports:
       - "5010:5010"
 
   brpproxy:
-    image: ghcr.io/brp-api/haal-centraal-brp-bevragen-proxy:2.1.0
+    image: ghcr.io/brp-api/haal-centraal-brp-bevragen-proxy:2.1.1
     platform: linux/amd64
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5000
+      # Disable FileSystemWatcher because it causes this Docker container to
+      # fail when running on an M3 Pro Mac with: "Unhandled exception.
+      # System.IO.IOException: Function not implemented
+      #   at System.IO.FileSystemWatcher.StartRaisingEvents()"
+      - ASPNETCORE_hostBuilder__reloadConfigOnChange=false
     ports:
       - "5001:5000"
     depends_on:
@@ -333,7 +343,7 @@ services:
       - ./scripts/docker-compose/volume-data/openklant-database-data:/var/lib/postgresql/data
 
   openklant:
-    image: docker.io/maykinmedia/open-klant:latest
+    image: docker.io/maykinmedia/open-klant:0.5-pre
     platform: linux/amd64
     environment:
       - ALLOWED_HOSTS=localhost,host.docker.internal,openklant

@@ -14,7 +14,7 @@ When("{string} logs in", async function (this: CustomWorld, user) {
 
     await this.page.getByLabel("Username or email").click();
     await this.page.getByLabel("Username or email").fill(username);
-    await this.page.getByLabel("Password").click();
-    await this.page.getByLabel("Password").fill(password);
+    await this.page.getByText("Password").click();
+    await this.page.getByText("Password").fill(password);
     await this.page.getByRole("button", { name: "Sign In" }).click();
 });

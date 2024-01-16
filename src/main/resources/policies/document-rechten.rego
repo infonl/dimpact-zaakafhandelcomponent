@@ -47,7 +47,6 @@ wijzigen {
     behandelaar.rol in user.rollen
     zaaktype_allowed
     document.zaak_open == true
-    document.definitief == false
     onvergrendeld_of_vergrendeld_door_user == true
 }
 wijzigen {
@@ -57,7 +56,7 @@ wijzigen {
 
 default verwijderen := false
 verwijderen {
-    recordmanager.rol in user.rollen
+    { behandelaar, recordmanager }[_].rol in user.rollen
     zaaktype_allowed
 }
 
@@ -66,7 +65,6 @@ vergrendelen {
     behandelaar.rol in user.rollen
     zaaktype_allowed
     document.zaak_open == true
-    document.definitief == false
 }
 vergrendelen {
     recordmanager.rol in user.rollen

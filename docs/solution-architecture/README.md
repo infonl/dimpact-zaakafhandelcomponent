@@ -11,6 +11,18 @@ The architecture is documented in more detail on the following pages:
 - [Open Formulieren Integration](openFormulierenIntegration.md) - The integration of ZAC with Open Formulieren.
 - [SmartDocuments Integration](smartDocumentsIntegration.md) - The integration of ZAC with SmartDocuments.
 - [Solr Architecture](solrArchitecture.md) - The architecture of the Solr search engine in ZAC.
+- [OPA policies](policies.md) - The [Open Policy Agent (OPA)](https://www.openpolicyagent.org/) security policies used by ZAC.
+
+## Main characteristics
+
+The main overall characteristics of the ZAC architecture are:
+
+- ZAC is deployed as one [WildFly](https://www.wildfly.org/) runtime container serving both the backend and the frontend (as one process).
+- ZAC uses a [Solr search engine](https://solr.apache.org/) which runs as a separate runtime.
+- ZAC requires a [PostgreSQL relational database](https://www.postgresql.org/).
+- ZAC uses the [Open Policy Agent (OPA)](https://www.openpolicyagent.org/) standard to define its security policies (= role-permission mappings).
+ZAC uses an OPA server which runs as a separate runtime.
+- ZAC does not require an external file system (like NFS or SMB).
 
 ## Common Ground
 

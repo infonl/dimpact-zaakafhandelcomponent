@@ -23,6 +23,7 @@
 |      toevoegen_bag_object       |    Open     |             |               |           |
 |          aanmaken_taak          |      X      |             |               |           |
 |       vastleggen_besluit        |    Open     |             |               |           |
+|     verlengen_doorlooptijd      |      X      |             |       X       |           |
 
 |     Taak rechten     | behandelaar | coordinator | recordmanager | beheerder |
 |:--------------------:|:-----------:|:-----------:|:-------------:|:---------:|
@@ -33,17 +34,17 @@
 |  creeeren_document   |      X      |             |       X       |           |
 |  toevoegen_document  |      X      |             |       X       |           |
 
-|     Document rechten     |                               behandelaar                                | coordinator | recordmanager | beheerder |
-|:------------------------:|:------------------------------------------------------------------------:|:-----------:|:-------------:|:---------:|
-|          lezen           |                                    X                                     |      X      |       X       |           |
-|         wijzigen         | zaak open, niet definitief, onvergrendeld of vergrendeld door gebruiker  |             |       X       |           |
-| toevoegen_nieuwe_versie  | zaak open, niet definitief, onvergrendeld of vergrendeld door gebruiker  |             |       X       |           |
-|         koppelen         |                zaak open, niet definitief, onvergrendeld                 |             |       X       |           |
-|       verwijderen        |                                                                          |             |       X       |           |
-|        downloaden        |                                    X                                     |      X      |       X       |           |
-|       vergrendelen       |                        zaak open, niet definitief                        |             |       X       |           |
-|       ontgrendelen       |                        vergrendeld door gebruiker                        |             |       X       |           |
-|       ondertekenen       | zaak open, niet definitief, onvergrendeld of vergrendeld door gebruiker  |             |               |           |
+|     Document rechten    |                       behandelaar                      | coordinator | recordmanager | beheerder |
+|:-----------------------:|:------------------------------------------------------:|:-----------:|:-------------:|:---------:|
+|          lezen          |                            X                           |      X      |       X       |           |
+|         wijzigen        | zaak open, onvergrendeld of vergrendeld door gebruiker |             |       X       |           |
+| toevoegen_nieuwe_versie | zaak open, onvergrendeld of vergrendeld door gebruiker |             |       X       |           |
+|         koppelen        |                zaak open, onvergrendeld                |             |       X       |           |
+|       verwijderen       |                            X                           |             |       X       |           |
+|        downloaden       |                            X                           |      X      |       X       |           |
+|       vergrendelen      |                        zaak open                       |             |       X       |           |
+|       ontgrendelen      |               vergrendeld door gebruiker               |             |       X       |           |
+|       ondertekenen      | zaak open, onvergrendeld of vergrendeld door gebruiker |             |               |           |
 
 |         Werklijst rechten          | behandelaar | coordinator | recordmanager | beheerder |
 |:----------------------------------:|:-----------:|:-----------:|:-------------:|:---------:|
