@@ -65,7 +65,7 @@ dn: cn=functioneelbeheerdersgroep,ou=people,dc=example,dc=org
 objectClass: extensibleObject
 objectClass: groupOfUniqueNames
 objectClass: top
-cn: test-group-functioneel-beheerders
+cn: test-group-fb
 uniqueMember: cn=testuser1,ou=people,dc=example,dc=org
-description: Test groep FB
+description: Test groep functioneel beheerders
 email: ${GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS}
