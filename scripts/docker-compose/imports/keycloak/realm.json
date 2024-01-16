@@ -508,11 +508,11 @@
     },
     {
       "id": "c06d7f98-16c8-4363-ac31-8449e0c2309c",
-      "name": "test-group-functioneel-beheer",
-      "path": "/test-group-functioneel-beheer",
+      "name": "test-group-functioneel-beheerders",
+      "path": "/test-group-functioneel-beheerders",
       "attributes": {
         "description": [
-          "Test groep functioneel beheer"
+          "Test groep FB"
         ],
         "email": [
           "${ZAC_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS}"
