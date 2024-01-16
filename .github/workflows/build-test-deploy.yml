@@ -224,6 +224,19 @@ jobs:
       - name: Print Docker Image Name
         run: | 
           echo ${ZAC_DOCKER_IMAGE}
+          - name: Docker Login
+          uses: docker/login-action@v3
+          with:
+            registry: ${{ env.CONTAINER_REGISTRY_URL }}
+            username: ${{ github.actor }}
+            password: ${{ secrets.GITHUB_TOKEN }}
+  
+      - name: Restore Docker Image
+        uses: actions/cache/restore@v3
+        with:
+          path: docker-image.tar
+          key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
