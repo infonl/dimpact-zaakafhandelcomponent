@@ -17,7 +17,7 @@ class IdentityServiceTest : BehaviorSpec() {
     companion object {
         const val TEST_GROUP_A_ID = "test-group-a"
         const val TEST_GROUP_A_DESCRIPTION = "Test groep A"
-        const val TEST_GROUP_FUNCTIONAL_ADMINS_ID = "test-group-functioneel-beheerders"
+        const val TEST_GROUP_FUNCTIONAL_ADMINS_ID = "test-group-fb"
         const val TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION = "Test groep functioneel beheerders"
     }
 
