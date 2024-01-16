@@ -227,7 +227,7 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-            image-ref: ${ZAC_DOCKER_IMAGE}
+            image-ref: ${{ needs.build.outputs.zac_docker_image }}
             format: 'table'
             exit-code: '1'
             ignore-unfixed: true
