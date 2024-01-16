@@ -61,7 +61,7 @@ uniqueMember: cn=testuser2,ou=people,dc=example,dc=org
 description: Test groep A
 email: ${GROUP_A_EMAIL_ADDRESS}
 
-dn: cn=functioneelbeheerdersgroep,ou=people,dc=example,dc=org
+dn: cn=test-group-fb,ou=people,dc=example,dc=org
 objectClass: extensibleObject
 objectClass: groupOfUniqueNames
 objectClass: top

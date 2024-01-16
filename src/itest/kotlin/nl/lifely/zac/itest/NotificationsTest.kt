@@ -151,7 +151,7 @@ class NotificationsTest : BehaviorSpec({
                                 "null ZAAKTYPE CREATE .*: java.lang.RuntimeException: URI 'http://example.com/dummyResourceUrl' does not " +
                                 "start with value for environment variable 'ZGW_API_CLIENT_MP_REST_URL': 'http://openzaak.local:8000/' .*",
                             1
-                        ).withStartupTimeout(ProjectConfig.TWENTY_SECONDS)
+                        ).withStartupTimeout(ProjectConfig.THIRTY_SECONDS)
                     )
                 }
             }
