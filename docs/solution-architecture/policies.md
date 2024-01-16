@@ -40,7 +40,7 @@
 |         wijzigen        | zaak open, onvergrendeld of vergrendeld door gebruiker |             |       X       |           |
 | toevoegen_nieuwe_versie | zaak open, onvergrendeld of vergrendeld door gebruiker |             |       X       |           |
 |         koppelen        |                zaak open, onvergrendeld                |             |       X       |           |
-|       verwijderen       |                                                        |             |       X       |           |
+|       verwijderen       |                            X                           |             |       X       |           |
 |        downloaden       |                            X                           |      X      |       X       |           |
 |       vergrendelen      |                        zaak open                       |             |       X       |           |
 |       ontgrendelen      |               vergrendeld door gebruiker               |             |       X       |           |
