@@ -508,8 +508,8 @@
     },
     {
       "id": "c06d7f98-16c8-4363-ac31-8449e0c2309c",
-      "name": "test-group-functioneel-beheerders",
-      "path": "/test-group-functioneel-beheerders",
+      "name": "test-group-fb",
+      "path": "/test-group-fb",
       "attributes": {
         "description": [
           "Test groep functioneel beheerders"
