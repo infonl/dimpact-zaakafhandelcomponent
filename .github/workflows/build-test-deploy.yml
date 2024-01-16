@@ -215,12 +215,15 @@ jobs:
           path: docker-image.tar
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
   docker-image-scan:
-    needs: [build]
+    needs: [build, run-unit-tests, build-docker-image-and-run-itests, next-version]
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     env:
       ZAC_DOCKER_IMAGE: ${{ needs.build.outputs.zac_docker_image }}
     steps:
+      - name: Print Docker Image Name
+        run: | 
+          echo "Docker Image Name: ${ZAC_DOCKER_IMAGE}"
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
