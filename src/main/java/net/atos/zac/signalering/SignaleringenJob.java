@@ -5,6 +5,7 @@
 
 package net.atos.zac.signalering;
 
+import static net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen.AANTAL_PER_PAGINA_MAX;
 import static net.atos.zac.zoeken.model.FilterWaarde.NIET_LEEG;
 
 import java.time.LocalDate;
@@ -222,7 +223,7 @@ public class SignaleringenJob {
         parameters.addFilter(FilterVeld.ZAAK_ZAAKTYPE_UUID, UriUtil.uuidFromURI(zaaktype.getUrl()).toString());
         parameters.addFilter(FilterVeld.ZAAK_BEHANDELAAR, NIET_LEEG.toString());
         parameters.addFilterQuery(ZAAK_AFGEHANDELD_QUERY, "false");
-        parameters.setRows(10000); //Should be enough, max is 100 on a page
+        parameters.setRows(AANTAL_PER_PAGINA_MAX);
         return parameters;
     }
 

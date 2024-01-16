@@ -23,6 +23,8 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
 
+import static net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen.AANTAL_PER_PAGINA_MAX;
+
 @Path("csv")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -42,7 +44,9 @@ public class CsvRESTService {
     @Path("export")
     public Response downloadCSV(final RESTZoekParameters restZoekParameters) {
         final ZoekParameters zoekParameters = restZoekParametersConverter.convert(restZoekParameters);
-        zoekParameters.setRows(1000); // The max per page in ZAC is 100, so we set it to 1000 to be safe
+        if (zoekParameters.getRows() == 0) { // If rows isn't set, use max per page.
+            zoekParameters.setRows(AANTAL_PER_PAGINA_MAX);
+        }
         final ZoekResultaat<? extends ZoekObject> zoekResultaat = zoekenService.zoek(zoekParameters);
 
         final StreamingOutput streamingOutput = csvService.exportToCsv(zoekResultaat);
