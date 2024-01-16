@@ -37,7 +37,7 @@
     "proj4": "^2.10.0",
     "rxjs": "^7.8.0",
     "ts-pattern": "^5.0.6",
-    "zone.js": "^0.14.2"
+    "zone.js": "^0.14.3"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^17.0.10",
