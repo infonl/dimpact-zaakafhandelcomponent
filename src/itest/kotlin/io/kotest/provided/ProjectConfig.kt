@@ -32,7 +32,7 @@ object ProjectConfig : AbstractProjectConfig() {
     val THREE_MINUTES = Duration.ofMinutes(3)
 
     @Suppress("MagicNumber")
-    val TWENTY_SECONDS = Duration.ofSeconds(20)
+    val THIRTY_SECONDS = Duration.ofSeconds(30)
 
     lateinit var dockerComposeContainer: ComposeContainer
 
@@ -44,7 +44,7 @@ object ProjectConfig : AbstractProjectConfig() {
             dockerComposeContainer.start()
             logger.info { "Started ZAC Docker Compose containers" }
             logger.info { "Waiting until ZAC is healthy by calling the health endpoint and checking the response" }
-            await.atMost(TWENTY_SECONDS)
+            await.atMost(THIRTY_SECONDS)
                 .until {
                     khttp.get(
                         url = "${ZAC_MANAGEMENT_URI}/health/ready",
