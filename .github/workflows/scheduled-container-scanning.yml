@@ -40,6 +40,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
+          sarif: true
           image: ${{ env.CONTAINER_REGISTRY_URL }}/${{ env.APPLICATION_NAME }}:latest
           args: --severity-threshold=high --sarif-file=snyk.sarif
 
