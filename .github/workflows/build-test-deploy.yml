@@ -26,6 +26,8 @@ permissions:
   packages: write
   checks: write
   pull-requests: write
+  # Required for uploading SARIF reports
+  security-events: write
 
 jobs:
   build:
