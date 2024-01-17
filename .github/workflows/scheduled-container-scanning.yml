@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2023 Lifely
 # SPDX-License-Identifier: EUPL-1.2+
 #
-name: Scheduled container scanner
+name: Scheduled docker container scan
 
 on:
   schedule:
@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   build:
-    name: Run Trivy code scanner
+    name: Run Trivy docker image scan
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
