@@ -33,7 +33,7 @@ data:
   MP_HEALTH_EMPTY_READINESS_CHECKS_STATUS: DOWN
   OBJECTS_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.objectenApi.url entry required!" .Values.objectenApi.url }}
   OBJECTTYPES_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.objecttypenApi.url entry required!" .Values.objecttypenApi.url }}
-  OFFICE_CONVERTER_CLIENT_MP_REST_URL: {{ printf "http://%s-office-converter.%s" (include "zaakafhandelcomponent.fullname" .) .Release.Namespace }}
+  OFFICE_CONVERTER_CLIENT_MP_REST_URL: {{ printf "http://%s-office-converter.%s" .Release.Name .Release.Namespace }}
   OPA_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.opa.url entry required!" .Values.opa.url }}
   OPEN_FORMS_URL: {{ required "Valid .Values.openForms.url entry required!" .Values.openForms.url }}
   SD_CLIENT_MP_REST_URL: {{ required "Valid .Values.smartDocuments.url entry required!" .Values.smartDocuments.url }}
