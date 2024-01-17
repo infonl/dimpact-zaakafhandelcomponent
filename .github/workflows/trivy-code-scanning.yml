@@ -1,4 +1,8 @@
-name: build
+#
+# SPDX-FileCopyrightText: 2023 Lifely
+# SPDX-License-Identifier: EUPL-1.2+
+#
+name: Trivy code scanner
 on:
   push:
     branches:
