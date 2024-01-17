@@ -3,18 +3,24 @@
 # SPDX-License-Identifier: EUPL-1.2+
 #
 name: Trivy code scanner
+
 on:
   push:
     branches:
       - main
   pull_request:
+
+permissions:
+  # Required for uploading SARIF reports
+  security-events: write
+
 jobs:
   build:
     name: Run Trivy code scanner
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Run Trivy vulnerability scanner in repo mode
         uses: aquasecurity/trivy-action@master
