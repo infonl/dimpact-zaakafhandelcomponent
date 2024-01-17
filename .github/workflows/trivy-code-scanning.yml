@@ -6,9 +6,14 @@ name: Trivy code scanner
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
+    branches: [main]
+    # ignore CodeQL analysis when only Markdown files have changed
+    paths-ignore:
+      - '**/*.md'
+  schedule:
+    - cron: "21 11 * * 0"
 
 permissions:
   # Required for uploading SARIF reports
@@ -29,7 +34,7 @@ jobs:
           ignore-unfixed: true
           format: 'sarif'
           output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH,MEDIUM'
+          severity: 'CRITICAL,HIGH'
 
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v2
