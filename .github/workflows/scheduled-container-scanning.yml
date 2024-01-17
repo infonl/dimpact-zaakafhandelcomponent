@@ -1,0 +1,54 @@
+#
+# SPDX-FileCopyrightText: 2023 Lifely
+# SPDX-License-Identifier: EUPL-1.2+
+#
+name: Trivy code scanner
+
+on:
+  schedule:
+    # Runs at 9:00 PM UTC from Monday to Friday
+    - cron: "0 21 * * 1-5"
+  workflow_dispatch:
+
+env:
+  JAVA_VERSION: '17'
+  CONTAINER_REGISTRY_URL: 'ghcr.io/infonl'
+  APPLICATION_NAME: 'zaakafhandelcomponent'
+
+permissions:
+  # Required for uploading SARIF reports
+  security-events: write
+
+jobs:
+  build:
+    name: Run Trivy code scanner
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Docker Login
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.CONTAINER_REGISTRY_URL }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Restore Docker Image
+        uses: actions/cache/restore@v3
+        with:
+          path: docker-image.tar
+          key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'docker-image.tar'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
