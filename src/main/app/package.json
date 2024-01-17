@@ -6,9 +6,9 @@
     "dev": "npm run generate:types:zac-openapi && ng serve --hmr --proxy-config proxy.conf.json",
     "start": "npm run generate:types:zac-openapi && ng serve --proxy-config proxy.conf.json",
     "build": "npm run generate:types:zac-openapi && ng build --configuration=production --base-href=/",
-    "test": "DEBUG=jest NODE_ENV=development jest",
+    "test": "jest",
     "test:watch": "jest --watch",
-    "test:ci": "DEBUG=jest npx jest -t",
+    "test:ci": "npx jest -t",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "generate:types:zac-openapi": "npx openapi-typescript ./../../../build/generated/openapi/META-INF/openapi/openapi.yaml -o ./src/generated/types/zac-openapi-types.d.ts"
