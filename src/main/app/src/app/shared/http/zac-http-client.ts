@@ -10,7 +10,7 @@ import type { FilterKeys, HttpMethod } from "openapi-typescript-helpers";
 import { paths } from "src/generated/types/zac-openapi-types";
 
 createClient();
-type Paths = paths;
+export type Paths = paths;
 
 type PathsWithMethod<Paths, PathnameMethod extends HttpMethod> = {
   [Pathname in keyof Paths]: Paths[Pathname] extends {
@@ -53,7 +53,7 @@ export class ZacHttpClient {
 
   public POST<P extends PathsWithMethod<Paths, "post">>(
     url: P,
-    body: FetchOptions<FilterKeys<Paths[P], "post">>["body"],
+    body?: FetchOptions<FilterKeys<Paths[P], "post">>["body"],
     init?: Parameters<HttpClient["post"]>[2] & {
       pathParams: FetchOptions<FilterKeys<Paths[P], "post">>["params"];
     },
@@ -110,12 +110,15 @@ export class ZacHttpClient {
     pathParams: Record<string, string | number | boolean>,
   ): string {
     let url = urlTemplate;
-    Object.keys(pathParams).forEach((key) => {
-      url = url.replace(
-        new RegExp(`{${key}}`, "g"),
-        pathParams[key].toString(),
-      );
-    });
+    for (const key in pathParams) {
+      if (pathParams.hasOwnProperty(key)) {
+        // Simple string replacement without regex
+        const placeholder = `{${key}}`;
+        while (url.includes(placeholder)) {
+          url = url.replace(placeholder, pathParams[key].toString());
+        }
+      }
+    }
     return url;
   }
 
