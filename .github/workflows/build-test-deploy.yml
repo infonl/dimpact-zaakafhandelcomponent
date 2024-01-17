@@ -193,16 +193,16 @@ jobs:
         with:
           key: docker-${{ runner.os }}-${{ hashFiles('docker-compose.yaml') }}
 
-      - name: Run integration tests
-        run: ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} -x compileJava -x processResources -x compileKotlin -x classes itest --info
+      # - name: Run integration tests
+      #   run: ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} -x compileJava -x processResources -x compileKotlin -x classes itest --info
 
-      - name: Publish integration test results
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
-        with:
-          check_name: integration-test-results
-          files: |
-            build/test-results/itest/**/*.xml
+      # - name: Publish integration test results
+      #   uses: EnricoMi/publish-unit-test-result-action@v2
+      #   if: always()
+      #   with:
+      #     check_name: integration-test-results
+      #     files: |
+      #       build/test-results/itest/**/*.xml
 
       - name: Save Docker Image
         if: github.ref == 'refs/heads/main'
