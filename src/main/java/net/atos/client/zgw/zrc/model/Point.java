@@ -5,8 +5,9 @@
 
 package net.atos.client.zgw.zrc.model;
 
+import java.util.Objects;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  *
@@ -50,6 +51,6 @@ public class Point extends Geometry {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37).append(coordinates).toHashCode();
+        return Objects.hash(coordinates);
     }
 }
