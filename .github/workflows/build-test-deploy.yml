@@ -206,22 +206,26 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${ZAC_DOCKER_IMAGE}
-          format: 'table'
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
+          image-ref: '${{ env.ZAC_DOCKER_IMAGE }}'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
 
       - name: Save Docker Image
         if: github.ref == 'refs/heads/main'
         run: docker save --output docker-image.tar ${ZAC_DOCKER_IMAGE}
 
-      - name: Cache Docker Image
+      - name: Cache ZAC Docker Image
         if: github.ref == 'refs/heads/main'
         uses: actions/cache/save@v3
         with:
           path: docker-image.tar
-          key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}      
+          key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+
   next-version:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
@@ -337,4 +341,3 @@ jobs:
               ref: 'main'
             })
 
-          
