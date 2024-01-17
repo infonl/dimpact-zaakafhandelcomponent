@@ -203,6 +203,14 @@ jobs:
       #     check_name: integration-test-results
       #     files: |
       #       build/test-results/itest/**/*.xml
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${ZAC_DOCKER_IMAGE}
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
 
       - name: Save Docker Image
         if: github.ref == 'refs/heads/main'
@@ -213,32 +221,7 @@ jobs:
         uses: actions/cache/save@v3
         with:
           path: docker-image.tar
-          key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
-  docker-image-scan:
-    needs: [build-docker-image-and-run-itests]
-    runs-on: ubuntu-22.04
-    timeout-minutes: 30
-    env:
-      ZAC_DOCKER_IMAGE: ${{ needs.build.outputs.zac_docker_image }}
-    steps:
-        - name: Restore Docker Image
-          uses: actions/cache/restore@v3
-          with:
-            path: docker-image.tar
-            key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
-
-        - name: Load Docker Image
-          run: docker load --input docker-image.tar
-
-        - name: Run Trivy vulnerability scanner
-          uses: aquasecurity/trivy-action@master
-          with:
-            image-ref: ${ZAC_DOCKER_IMAGE}
-            format: 'table'
-            exit-code: '1'
-            ignore-unfixed: true
-            vuln-type: 'os,library'
-      
+          key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}      
   next-version:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
