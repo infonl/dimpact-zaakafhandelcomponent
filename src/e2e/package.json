@@ -8,14 +8,14 @@
     },
     "private": true,
     "dependencies": {
-        "@cucumber/cucumber": "^10.3.0",
+        "@cucumber/cucumber": "^10.3.1",
         "cross-fetch": "^4.0.0",
         "uuid": "^9.0.1",
         "zod": "^3.22.4"
     },
     "devDependencies": {
         "@playwright/test": "^1.40.1",
-        "@types/node": "^20.11.3",
+        "@types/node": "^20.11.4",
         "cucumber-html-reporter": "^7.1.1",
         "cucumber-pretty": "^6.0.1",
         "ts-node": "~10.9.2",
