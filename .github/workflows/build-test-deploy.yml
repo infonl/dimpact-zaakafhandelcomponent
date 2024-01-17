@@ -221,14 +221,23 @@ jobs:
     env:
       ZAC_DOCKER_IMAGE: ${{ needs.build.outputs.zac_docker_image }}
     steps:
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ${ZAC_DOCKER_IMAGE}
-          format: 'table'
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
+        - name: Restore Docker Image
+          uses: actions/cache/restore@v3
+          with:
+            path: docker-image.tar
+            key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+
+        - name: Load Docker Image
+          run: docker load --input docker-image.tar
+
+        - name: Run Trivy vulnerability scanner
+          uses: aquasecurity/trivy-action@master
+          with:
+            image-ref: ${ZAC_DOCKER_IMAGE}
+            format: 'table'
+            exit-code: '1'
+            ignore-unfixed: true
+            vuln-type: 'os,library'
       
   next-version:
     if: github.ref == 'refs/heads/main'
