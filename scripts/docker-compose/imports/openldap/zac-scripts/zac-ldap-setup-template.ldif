@@ -61,11 +61,11 @@ uniqueMember: cn=testuser2,ou=people,dc=example,dc=org
 description: Test groep A
 email: ${GROUP_A_EMAIL_ADDRESS}
 
-dn: cn=functioneelbeheerdersgroep,ou=people,dc=example,dc=org
+dn: cn=test-group-fb,ou=people,dc=example,dc=org
 objectClass: extensibleObject
 objectClass: groupOfUniqueNames
 objectClass: top
-cn: test-group-functioneel-beheerders
+cn: test-group-fb
 uniqueMember: cn=testuser1,ou=people,dc=example,dc=org
 description: Test groep functioneel beheerders
 email: ${GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS}
