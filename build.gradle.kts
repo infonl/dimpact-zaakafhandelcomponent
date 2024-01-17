@@ -442,7 +442,7 @@ tasks {
                 "commitHash" to commitHash
             )
         )
-        dockerFile.set(file("Containerfile"))
+        dockerFile.set(file("Dockerfile"))
         images.add(zacDockerImage)
     }
 
