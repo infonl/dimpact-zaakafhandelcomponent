@@ -97,7 +97,7 @@ dependencies {
     implementation("org.apache.commons:commons-collections4:4.4")
     implementation("commons-io:commons-io:2.15.1")
     implementation("com.opencsv:opencsv:5.9")
-    implementation("org.flowable:flowable-engine:7.0.0")
+    implementation("org.flowable:flowable-engine:7.0.1")
     implementation("org.flowable:flowable-cdi:7.0.0")
     implementation("org.flowable:flowable-cmmn-engine:7.0.0")
     implementation("org.flowable:flowable-cmmn-cdi:7.0.0")
