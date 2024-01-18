@@ -42,7 +42,7 @@ jobs:
         with:
           sarif: true
           image: ${{ env.CONTAINER_REGISTRY_URL }}/${{ env.APPLICATION_NAME }}:latest
-          args: --severity-threshold=high --sarif-file=snyk.sarif
+          args: --severity-threshold=high -sarif 
 
       - name: Upload Snyk Scan Results to GitHub Security Tab
         uses: github/codeql-action/upload-sarif@v2
