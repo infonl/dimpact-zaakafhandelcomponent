@@ -69,21 +69,21 @@ jobs:
         run: ./gradlew build -x test --info
 
       - name: Cache Gradle build artefacts
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         with:
           path: |
             build/
           key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Cache generated Java clients
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         with:
           path: |
             src/generated/java
           key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Cache Maven build artefacts
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         with:
           path: |
             target/
@@ -109,14 +109,14 @@ jobs:
         uses: gradle/gradle-build-action@v2
 
       - name: Restore generated Java clients
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         with:
           path: |
             src/generated/java
           key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Restore Gradle build artefacts
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         with:
           path: |
             build/
@@ -171,7 +171,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
 
       - name: Restore Maven build artefacts
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         with:
           path: |
             target/
@@ -225,7 +225,7 @@ jobs:
 
       - name: Cache ZAC Docker Image
         if: github.ref == 'refs/heads/main'
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         with:
           path: docker-image.tar
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
@@ -281,7 +281,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Restore Docker Image
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         with:
           path: docker-image.tar
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
