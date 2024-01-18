@@ -8,12 +8,12 @@ package net.atos.client.zgw.zrc.model;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import jakarta.json.bind.adapter.JsonbAdapter;
 import jakarta.json.bind.annotation.JsonbTypeAdapter;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  *
@@ -76,6 +76,6 @@ public class Point2D {
 
     @Override
     public final int hashCode() {
-        return new HashCodeBuilder(17, 37).append(x).append(y).toHashCode();
+        return Objects.hash(x, y);
     }
 }

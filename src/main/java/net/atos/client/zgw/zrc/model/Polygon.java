@@ -6,13 +6,11 @@
 package net.atos.client.zgw.zrc.model;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-/**
- *
- */
+
 public class Polygon extends Geometry {
 
     private final List<List<Point2D>> coordinates;
@@ -28,8 +26,7 @@ public class Polygon extends Geometry {
 
     @Override
     public String toString() {
-        //TODO yet to be implemented
-        return "POLYGON()";
+        return "Polygon{coordinates=" + coordinates + "}";
     }
 
     @Override
@@ -48,6 +45,6 @@ public class Polygon extends Geometry {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37).append(coordinates).toHashCode();
+        return Objects.hash(coordinates);
     }
 }
