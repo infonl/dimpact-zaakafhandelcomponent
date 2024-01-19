@@ -419,7 +419,7 @@ tasks {
     register<NpmTask>("npmRunTest") {
         dependsOn("npmRunBuild")
 
-        npmCommand.set(listOf("run", "test"))
+        npmCommand.set(listOf("run", "test:report"))
         // avoid running this task when there are no changes in the input or output files
         // see: https://github.com/node-gradle/gradle-node-plugin/blob/master/docs/faq.md
         inputs.files(fileTree("src/main/app/node_modules"))

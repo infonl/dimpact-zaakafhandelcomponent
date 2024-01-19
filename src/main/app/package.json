@@ -9,6 +9,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:ci": "npx jest -t",
+    "test:report": "jest --coverage",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "generate:types:zac-openapi": "npx openapi-typescript ./../../../build/generated/openapi/META-INF/openapi/openapi.yaml -o ./src/generated/types/zac-openapi-types.d.ts"
