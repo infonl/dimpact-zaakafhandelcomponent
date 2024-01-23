@@ -35,6 +35,7 @@ The following services will be started:
 | GBA Mock                                        |    5010     |
 | Keycloak                                        |    8081     |
 | Keycloak database (postgres)                    |      -      |
+| Office Converter                                |    8083     |
 | Open Klant                                      |    8002     |
 | Open Zaak                                       |    8001     |
 | Open Zaak database (postgis)                    |      -      |

@@ -374,6 +374,11 @@ services:
       - ./scripts/docker-compose/imports/smartdocuments-wiremock/mappings:/home/wiremock/mappings
     entrypoint: [ "/docker-entrypoint.sh", "--global-response-templating", "--disable-gzip", "--verbose" ]
 
+  office-converter:
+    image: ghcr.io/eugenmayer/kontextwork-converter:1.5.0
+    ports:
+      - "8083:8080"
+
   zac:
     # By default, we use the latest ZAC Docker Image. Change this if you wish to use a specific version.
     image: ${ZAC_DOCKER_IMAGE:-ghcr.io/infonl/zaakafhandelcomponent:latest}
@@ -409,7 +414,7 @@ services:
       - MAILJET_API_KEY=${MAILJET_API_KEY:-dummyMailjetApiKey}
       - MAILJET_API_SECRET_KEY=${MAILJET_API_SECRET_KEY:-dummyMailjetApiSecretKey}
       - MAX_FILE_SIZE_MB=80
-      - OFFICE_CONVERTER_CLIENT_MP_REST_URL=http://localhost:9999 # dummy for now
+      - OFFICE_CONVERTER_CLIENT_MP_REST_URL=http://office-converter:8083
       - OBJECTS_API_CLIENT_MP_REST_URL=http://objecten-api.local:8000
       - OBJECTS_API_TOKEN=182c13e2209161852c53cef53a879f7a2f923430
       - OBJECTTYPES_API_CLIENT_MP_REST_URL=http://objecttypen-api:8000
