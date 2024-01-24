@@ -65,8 +65,9 @@ jobs:
         uses: gradle/gradle-build-action@v2
 
       # The Gradle build also executes a Maven command to build the WildFly bootable JAR.
+      # Use --write-locks to support dependency updates from Dependabot PRs with Gradle depedency locking
       - name: Gradle build
-        run: ./gradlew build -x test --info
+        run: ./gradlew build -x test --write-locks --info
 
       - name: Cache Gradle build artefacts
         uses: actions/cache/save@v4

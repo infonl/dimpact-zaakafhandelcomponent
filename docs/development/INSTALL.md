@@ -28,6 +28,15 @@ If you want to skip running the unit tests, use the following command:
 ./gradlew build -x test
 ```
 
+#### Updating Gradle dependencies
+
+This is normally done in our GitHub (Dependabot) pipeline.
+If you want to upgrade dependencies yourself, since we use Gradle dependency locking, you need to do:
+
+ ```shell
+./gradlew build -x test --write-locks
+```
+
 ### Build the Docker image
 
 To build the ZAC Docker image using the generated JAR archive from the previous step, use the following command:

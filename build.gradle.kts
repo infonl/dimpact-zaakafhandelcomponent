@@ -42,6 +42,11 @@ repositories {
 group = "net.atos.common-ground"
 description = "Zaakafhandelcomponent"
 
+// enable Gradle dependency locking
+dependencyLocking {
+    lockAllConfigurations()
+}
+
 // we will only upgrade Java when WildFly explicitly supports a new version
 val javaVersion = JavaVersion.VERSION_17
 
