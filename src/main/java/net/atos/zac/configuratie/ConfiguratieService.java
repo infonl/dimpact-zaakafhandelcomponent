@@ -61,14 +61,13 @@ public class ConfiguratieService {
 
     public static final String ENV_VAR_ZGW_API_CLIENT_MP_REST_URL = "ZGW_API_CLIENT_MP_REST_URL";
 
+    public static final Integer MAX_FILE_SIZE_MB = 80;
     private static final String NONE = "<NONE>";
+
+
 
     @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
     private EntityManager entityManager;
-
-    @Inject
-    @ConfigProperty(name = "MAX_FILE_SIZE_MB")
-    private Long maxFileSizeMB;
 
     @Inject
     @ConfigProperty(name = "ADDITIONAL_ALLOWED_FILE_TYPES", defaultValue = NONE)
@@ -102,7 +101,7 @@ public class ConfiguratieService {
     }
 
     public long readMaxFileSizeMB() {
-        return maxFileSizeMB;
+        return Long.valueOf(MAX_FILE_SIZE_MB);
     }
 
     public List<String> readAdditionalAllowedFileTypes() {
