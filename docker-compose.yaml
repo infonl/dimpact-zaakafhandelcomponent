@@ -376,6 +376,7 @@ services:
 
   office-converter:
     image: ghcr.io/eugenmayer/kontextwork-converter:1.5.0
+    platform: linux/amd64
     ports:
       - "8083:8080"
 
