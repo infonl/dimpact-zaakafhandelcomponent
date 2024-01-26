@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit, input } from "@angular/core";
 import { FormComponent } from "../../model/form-component";
 import { SelectFormField } from "./select-form-field";
 import { TranslateService } from "@ngx-translate/core";
@@ -34,5 +34,17 @@ export class SelectComponent
 
   ngOnDestroy(): void {
     this.loading$.unsubscribe();
+  }
+
+  getLabel(option: unknown): string {
+    return this.data.optionLabel ? option[this.data.optionLabel] : option;
+  }
+
+  getFormControlValue() {
+    return this.data.optionLabel &&
+      this.data.formControl.value &&
+      this.data.formControl.value[this.data.optionLabel]
+      ? this.data.formControl.value[this.data.optionLabel]
+      : this.data.formControl.value;
   }
 }
