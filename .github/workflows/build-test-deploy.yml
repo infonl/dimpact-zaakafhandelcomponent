@@ -254,7 +254,7 @@ jobs:
           RELEASE_BRANCHES: main
       - name: Get next version
         id: get-version
-        uses: frabert/replace-string-action@v2.4
+        uses: frabert/replace-string-action@v2.5
         with:
           pattern: 'v(.*)'
           string: ${{ steps.get-tag.outputs.new_tag }}
