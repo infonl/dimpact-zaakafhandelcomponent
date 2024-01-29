@@ -61,6 +61,8 @@ public class ConfiguratieService {
 
     public static final String ENV_VAR_ZGW_API_CLIENT_MP_REST_URL = "ZGW_API_CLIENT_MP_REST_URL";
 
+    // This value should also be set in the widlfly configuration.
+    // The value used in wildfly should be slightly higher to account for overhead. (e.g. 80MB -> 100MB)
     public static final Integer MAX_FILE_SIZE_MB = 80;
     private static final String NONE = "<NONE>";
 
