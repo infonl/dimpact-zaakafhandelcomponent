@@ -13,8 +13,10 @@ import io.kotest.core.spec.SpecExecutionOrder
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.KeycloakClient
 import nl.lifely.zac.itest.client.createZaakAfhandelParameters
+import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
 import nl.lifely.zac.itest.config.ItestConfiguration.SMARTDOCUMENTS_MOCK_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_DEFAULT_DOCKER_IMAGE
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_HEALTH_READY_URL
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_MANAGEMENT_URI
 import org.awaitility.kotlin.await
 import org.slf4j.Logger
@@ -43,11 +45,24 @@ object ProjectConfig : AbstractProjectConfig() {
             dockerComposeContainer = createDockerComposeContainer()
             dockerComposeContainer.start()
             logger.info { "Started ZAC Docker Compose containers" }
+            logger.info { "Waiting until Keycloak is healthy by calling the health endpoint and checking the response" }
+            await.atMost(THIRTY_SECONDS)
+                .until {
+                    khttp.get(
+                        url = KEYCLOAK_HEALTH_READY_URL,
+                        headers = mapOf(
+                            "Content-Type" to "application/json",
+                        )
+                    ).let {
+                        it.statusCode == HttpStatus.SC_OK
+                    }
+                }
+            logger.info { "Keycloak is healthy" }
             logger.info { "Waiting until ZAC is healthy by calling the health endpoint and checking the response" }
             await.atMost(THIRTY_SECONDS)
                 .until {
                     khttp.get(
-                        url = "${ZAC_MANAGEMENT_URI}/health/ready",
+                        url = ZAC_HEALTH_READY_URL,
                         headers = mapOf(
                             "Content-Type" to "application/json",
                         )
@@ -55,6 +70,8 @@ object ProjectConfig : AbstractProjectConfig() {
                         it.statusCode == HttpStatus.SC_OK && it.jsonObject.getString("status") == "UP"
                     }
                 }
+            logger.info { "ZAC is healthy" }
+
             KeycloakClient.authenticate()
 
             val response = createZaakAfhandelParameters()
