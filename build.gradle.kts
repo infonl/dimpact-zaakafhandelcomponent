@@ -110,7 +110,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core:10.6.0")
     implementation("org.flywaydb:flyway-database-postgresql:10.6.0")
     implementation("org.apache.solr:solr-solrj:9.4.1")
-    implementation("nl.info.webdav:webdav-servlet:1.2.26")
+    implementation("nl.info.webdav:webdav-servlet:1.2.27")
     implementation("com.itextpdf:itextpdf:5.5.13.3")
     implementation("com.itextpdf.tool:xmlworker:5.5.13.3")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
