@@ -11,6 +11,7 @@ package nl.lifely.zac.itest.config
  */
 object ItestConfiguration {
     const val KEYCLOAK_HOSTNAME_URL = "http://localhost:8081"
+    const val KEYCLOAK_HEALTH_READY_URL = "$KEYCLOAK_HOSTNAME_URL/health/ready"
     const val KEYCLOAK_REALM = "zaakafhandelcomponent"
     const val KEYCLOAK_CLIENT = "zaakafhandelcomponent"
     const val KEYCLOAK_CLIENT_SECRET = "keycloakZaakafhandelcomponentClientSecret"
@@ -37,6 +38,7 @@ object ItestConfiguration {
      * The ZAC management URI from outside the Docker network.
      */
     const val ZAC_MANAGEMENT_URI = "http://localhost:$ZAC_MANAGEMENT_PORT"
+    const val ZAC_HEALTH_READY_URL = "$ZAC_MANAGEMENT_URI/health/ready"
     const val ZAAK_1_IDENTIFICATION = "ZAAK-2023-0000000001"
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID = "448356ff-dcfb-4504-9501-7fe929077c4f"
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE = "melding-evenement-organiseren-behandelen"

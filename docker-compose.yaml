@@ -24,6 +24,7 @@ services:
       - "start-dev"
       - "--import-realm"
       - "--hostname-url=http://localhost:8081"
+      - "--health-enabled=true"
 
   keycloak-database:
     image: postgres:15.4
