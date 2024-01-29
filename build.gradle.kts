@@ -149,9 +149,9 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.9")
 
     // integration test dependencies
-    "itestImplementation"("org.testcontainers:testcontainers:1.19.3")
-    "itestImplementation"("org.testcontainers:mockserver:1.19.3")
-    "itestImplementation"("org.testcontainers:postgresql:1.19.3")
+    "itestImplementation"("org.testcontainers:testcontainers:1.19.4")
+    "itestImplementation"("org.testcontainers:mockserver:1.19.4")
+    "itestImplementation"("org.testcontainers:postgresql:1.19.4")
     "itestImplementation"("io.kotest:kotest-runner-junit5:5.8.0")
     "itestImplementation"("io.kotest:kotest-assertions-json:5.8.0")
     "itestImplementation"("org.slf4j:slf4j-simple:2.0.11")
