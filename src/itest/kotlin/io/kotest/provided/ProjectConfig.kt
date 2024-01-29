@@ -17,7 +17,6 @@ import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
 import nl.lifely.zac.itest.config.ItestConfiguration.SMARTDOCUMENTS_MOCK_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_DEFAULT_DOCKER_IMAGE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_HEALTH_READY_URL
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_MANAGEMENT_URI
 import org.awaitility.kotlin.await
 import org.slf4j.Logger
 import org.testcontainers.containers.ComposeContainer
