@@ -25,7 +25,6 @@ data:
   LDAP_DN: {{ required "Valid .Values.ldap.dn entry required!" .Values.ldap.dn }}
   LDAP_URL: {{ required "Valid .Values.ldap.url entry required!" .Values.ldap.url }}
   LDAP_USER: {{ required "Valid .Values.ldap.user entry required!" .Values.ldap.user }}
-  MAX_FILE_SIZE_MB: {{ required "Valid .Values.maxFileSizeMB entry required!" .Values.maxFileSizeMB | quote }}
   {{- if .Values.additionalAllowedFileTypes }}
   ADDITIONAL_ALLOWED_FILE_TYPES: {{ .Values.additionalAllowedFileTypes }}
   {{- end}}

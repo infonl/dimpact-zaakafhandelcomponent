@@ -30,3 +30,7 @@ data-source add \
 # so use with care and only enable this for debugging purposes.
 #/subsystem=logging/root-logger=ROOT:write-attribute(name=level,value=DEBUG)
 #/subsystem=logging/console-handler=CONSOLE:write-attribute(name=level,value=DEBUG)
+
+# This sets the max post size accepted by the server/RESTEasy.
+# NOTE: This is higher than our limit of 80MB because there seems to be some overhead.
+/subsystem=microprofile-config-smallrye/config-source=props:add(properties={"dev.resteasy.entity.file.threshold" = "100MB"})
