@@ -62,7 +62,7 @@ jobs:
 
       # To set up the Gradle build itself we use the 'gradle-build-action' which caches Gradle artefacts by default.
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
 
       # The Gradle build also executes a Maven command to build the WildFly bootable JAR.
       - name: Gradle build
@@ -106,7 +106,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
 
       - name: Restore generated Java clients
         uses: actions/cache/restore@v4
@@ -168,7 +168,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
 
       - name: Restore Maven build artefacts
         uses: actions/cache/restore@v4
