@@ -34,7 +34,8 @@ INSERT INTO catalogi_zaaktype
   referentieproces_link,
   catalogus_id,
   selectielijst_procestype_jaar,
-  _etag
+  _etag,
+  verantwoordelijke
 )
 VALUES
 (
@@ -70,7 +71,8 @@ VALUES
   '',           -- referentieproces_link
   1,           -- catalogus_id
   2020,           -- selectielijst_procestype_jaar
-  '_etag'       -- _etag
+  '_etag'       -- _etag,
+  'Test verantwoordelijke' -- verantwoordelijke
 );
 
 -- RESULTTYPES (Resultaat type)
