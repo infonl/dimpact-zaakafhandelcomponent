@@ -62,7 +62,7 @@ VALUES
   'Melden',     -- handeling_initiator
   'Openbare orde & veiligheid', -- onderwerp
   'Behandelen', -- handeling_behandelaar
-  'P14D',       -- doorlooptijd_behandeling    // TODO: '14 days'::interval ?
+  'P14D',       -- doorlooptijd_behandeling
   NULL,         -- servicenorm_behandeling
   false,        -- opschorting_en_aanhouding_mogelijk
   false,        -- verlenging_mogelijk
@@ -79,7 +79,7 @@ VALUES
   1,           -- catalogus_id
   2020,           -- selectielijst_procestype_jaar
   '_etag',       -- _etag,
-  '002564440'    -- verantwoordelijke
+  '002564440',    -- verantwoordelijke
   '',            -- broncatalogus_domein
   '',            -- broncatalogus_rsin
   '',            -- broncatalogus_url
