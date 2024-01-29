@@ -1,4 +1,8 @@
-# Zaak creation flow from Open Formulieren
+# ZAC integration with Open Formulieren
+
+This page describes the way in which ZAC integrates with the Open Formulieren component.
+
+## Zaak creation flow from Open Formulieren
 
 There are multiple ways to create a new zaak. The most standard way involves Open Formulieren and works as follows:
 
