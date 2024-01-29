@@ -1,3 +1,4 @@
+-- SQL script that creates the 'Melding evenement organiseren behandelen' zaaktype in the Open Zaak database
 
 -- note that we currently use the public https://selectielijst.openzaak.nl/ VNG Selectielijst service here
 INSERT INTO catalogi_zaaktype
@@ -35,7 +36,13 @@ INSERT INTO catalogi_zaaktype
   catalogus_id,
   selectielijst_procestype_jaar,
   _etag,
-  verantwoordelijke
+  verantwoordelijke,
+  broncatalogus_domein,
+  broncatalogus_rsin,
+  broncatalogus_url,
+  bronzaaktype_identificatie,
+  bronzaaktype_omschrijving,
+  bronzaaktype_url
 )
 VALUES
 (
@@ -55,7 +62,7 @@ VALUES
   'Melden',     -- handeling_initiator
   'Openbare orde & veiligheid', -- onderwerp
   'Behandelen', -- handeling_behandelaar
-  'P14D',       -- doorlooptijd_behandeling
+  'P14D',       -- doorlooptijd_behandeling    // TODO: '14 days'::interval ?
   NULL,         -- servicenorm_behandeling
   false,        -- opschorting_en_aanhouding_mogelijk
   false,        -- verlenging_mogelijk
@@ -71,9 +78,16 @@ VALUES
   '',           -- referentieproces_link
   1,           -- catalogus_id
   2020,           -- selectielijst_procestype_jaar
-  '_etag'       -- _etag,
-  'Test verantwoordelijke' -- verantwoordelijke
+  '_etag',       -- _etag,
+  '002564440'    -- verantwoordelijke
+  '',            -- broncatalogus_domein
+  '',            -- broncatalogus_rsin
+  '',            -- broncatalogus_url
+  '',            -- bronzaaktype_identificatie
+  '',            -- bronzaaktype_omschrijving
+  ''             -- bronzaaktype_url
 );
+
 
 -- RESULTTYPES (Resultaat type)
 
@@ -96,7 +110,12 @@ INSERT INTO catalogi_resultaattype
   brondatum_archiefprocedure_procestermijn,
   toelichting,
   zaaktype_id,
-  _etag
+  _etag,
+  indicatie_specifiek,
+  procesobjectaard,
+  procestermijn,
+  datum_begin_geldigheid,
+  datum_einde_geldigheid
 )
 VALUES
 (
@@ -116,7 +135,12 @@ VALUES
   NULL,
   'Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen',
   1,
-  '_etag'
+  '_etag',
+  NULL,
+  '',
+  NULL,
+  NULL,
+  NULL
 );
 
 -- For the second JSON object
@@ -138,7 +162,12 @@ INSERT INTO catalogi_resultaattype
   brondatum_archiefprocedure_procestermijn,
   toelichting,
   zaaktype_id,
-  _etag
+  _etag,
+  indicatie_specifiek,
+  procesobjectaard,
+  procestermijn,
+  datum_begin_geldigheid,
+  datum_einde_geldigheid
 )
 VALUES
 (
@@ -158,7 +187,12 @@ VALUES
   NULL,
   'Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen',
   1,
-  '_etag'
+  '_etag',
+  NULL,
+  '',
+  NULL,
+  NULL,
+  NULL
 );
 
 -- For the third JSON object
@@ -180,7 +214,12 @@ INSERT INTO catalogi_resultaattype
   brondatum_archiefprocedure_procestermijn,
   toelichting,
   zaaktype_id,
-  _etag
+  _etag,
+  indicatie_specifiek,
+  procesobjectaard,
+  procestermijn,
+  datum_begin_geldigheid,
+  datum_einde_geldigheid
 )
 VALUES
 (
@@ -200,7 +239,12 @@ VALUES
   NULL,
   'Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen.',
   1,
-  '_etag'
+  '_etag',
+  NULL,
+  '',
+  NULL,
+  NULL,
+  NULL
 );
 
 
@@ -218,7 +262,10 @@ INSERT INTO catalogi_statustype
   statustekst,
   toelichting,
   zaaktype_id,
-  _etag
+  _etag,
+  doorlooptijd,
+  datum_begin_geldigheid,
+  datum_einde_geldigheid
 )
 VALUES
 (
@@ -231,8 +278,12 @@ VALUES
   '',         -- statustekst
   '',         -- toelichting
   1,          -- zaaktype_id (Placeholder; adjust as needed)
-  '_etag'     -- _etag (Placeholder)
+  '_etag',    -- _etag (Placeholder)
+  NULL,       -- doorlooptijd
+  NULL,       -- datum_begin_geldigheid
+  NULL        -- datum_einde_geldigheid
 );
+
 
 -- For the second JSON object
 INSERT INTO catalogi_statustype
@@ -246,7 +297,10 @@ INSERT INTO catalogi_statustype
   statustekst,
   toelichting,
   zaaktype_id,
-  _etag
+  _etag,
+  doorlooptijd,
+  datum_begin_geldigheid,
+  datum_einde_geldigheid
 )
 VALUES
 (
@@ -259,7 +313,10 @@ VALUES
   '',         -- statustekst
   '',         -- toelichting
   1,          -- zaaktype_id (Placeholder; adjust as needed)
-  '_etag'     -- _etag (Placeholder)
+  '_etag',    -- _etag (Placeholder)
+  NULL,       -- doorlooptijd
+  NULL,       -- datum_begin_geldigheid
+  NULL        -- datum_einde_geldigheid
 );
 
 -- For the third JSON object
@@ -274,7 +331,10 @@ INSERT INTO catalogi_statustype
   statustekst,
   toelichting,
   zaaktype_id,
-  _etag
+  _etag,
+  doorlooptijd,
+  datum_begin_geldigheid,
+  datum_einde_geldigheid
 )
 VALUES
 (
@@ -287,7 +347,10 @@ VALUES
   '',              -- statustekst
   '',              -- toelichting
   1,               -- zaaktype_id (Placeholder; adjust as needed)
-  '_etag'          -- _etag (Placeholder)
+  '_etag',         -- _etag (Placeholder)
+  NULL,            -- doorlooptijd
+  NULL,            -- datum_begin_geldigheid
+  NULL             -- datum_einde_geldigheid
 );
 
 -- For the fourth JSON object
@@ -302,7 +365,10 @@ INSERT INTO catalogi_statustype
   statustekst,
   toelichting,
   zaaktype_id,
-  _etag
+  _etag,
+  doorlooptijd,
+  datum_begin_geldigheid,
+  datum_einde_geldigheid
 )
 VALUES
 (
@@ -315,7 +381,10 @@ VALUES
   '',             -- statustekst
   '',             -- toelichting
   1,              -- zaaktype_id (Placeholder; adjust as needed)
-  '_etag'         -- _etag (Placeholder)
+  '_etag',         -- _etag (Placeholder)
+  NULL,            -- doorlooptijd
+  NULL,            -- datum_begin_geldigheid
+  NULL             -- datum_einde_geldigheid
 );
 
 -- PROPERTIES (eigenschappen)
@@ -332,16 +401,20 @@ INSERT INTO catalogi_roltype
   omschrijving,
   omschrijving_generiek,
   zaaktype_id,
-  _etag
+  _etag,
+  datum_begin_geldigheid,
+  datum_einde_geldigheid
 )
 VALUES
 (
-  1,                               -- id (Placeholder; adjust as needed)
+  1,                                -- id (Placeholder; adjust as needed)
   'd6a6a357-84fc-4cba-b08b-865004f261d6', -- uuid
   'Initiator',                      -- omschrijving
   'initiator',                      -- omschrijving_generiek
-  1,                               -- zaaktype_id (Placeholder; adjust as needed)
-  '_etag'                          -- _etag (Placeholder)
+  1,                                -- zaaktype_id (Placeholder; adjust as needed)
+  '_etag',                          -- _etag (Placeholder)
+  NULL,                             -- datum_begin_geldigheid
+  NULL                              -- datum_einde_geldigheid
 );
 
 -- For the second JSON object
@@ -352,16 +425,20 @@ INSERT INTO catalogi_roltype
   omschrijving,
   omschrijving_generiek,
   zaaktype_id,
-  _etag
+  _etag,
+  datum_begin_geldigheid,
+  datum_einde_geldigheid
 )
 VALUES
 (
-  2,                               -- id (Placeholder; adjust as needed)
+  2,                                -- id (Placeholder; adjust as needed)
   'f8617909-c166-4f2c-86cc-c0fc44b46725', -- uuid
   'Behandelaar',                    -- omschrijving
   'behandelaar',                    -- omschrijving_generiek
-  1,                               -- zaaktype_id (Placeholder; adjust as needed)
-  '_etag'                          -- _etag (Placeholder)
+  1,                                -- zaaktype_id (Placeholder; adjust as needed)
+  '_etag',                          -- _etag (Placeholder)
+  NULL,                             -- datum_begin_geldigheid
+  NULL                              -- datum_einde_geldigheid
 );
 
 -- For the third JSON object
@@ -372,22 +449,28 @@ INSERT INTO catalogi_roltype
   omschrijving,
   omschrijving_generiek,
   zaaktype_id,
-  _etag
+  _etag,
+  datum_begin_geldigheid,
+  datum_einde_geldigheid
 )
 VALUES
 (
-  3,                               -- id (Placeholder; adjust as needed)
+  3,                                -- id (Placeholder; adjust as needed)
   '4c4cd850-8332-4bb9-adc4-dd046f0614ad', -- uuid
   'Betrokkene',                     -- omschrijving
   'belanghebbende',                 -- omschrijving_generiek
-  1,                               -- zaaktype_id (Placeholder; adjust as needed)
-  '_etag'                          -- _etag (Placeholder)
+  1,                                -- zaaktype_id (Placeholder; adjust as needed)
+  '_etag',                          -- _etag (Placeholder)
+  NULL,                             -- datum_begin_geldigheid
+  NULL                              -- datum_einde_geldigheid
 );
 
---  INFORMATION OBJECT TYPES
+-- INFORMATIE OBJECT TYPES
 -- ZAC required the informatie objecttype `e-mail` to be present (note the case sensitivity). Also see the 'ConfiguratieService.java' class in the ZAC code base.
 -- the informatie objecttype `bijlage` is used in the flow of creating a zaak by ZAC from an incoming 'productaanvraag' notification
-INSERT INTO catalogi_informatieobjecttype(id, datum_begin_geldigheid, datum_einde_geldigheid, concept, uuid, omschrijving, vertrouwelijkheidaanduiding, catalogus_id, _etag) VALUES (1, '2021-10-04', NULL, false, 'efc332f2-be3b-4bad-9e3c-49a6219c92ad', 'e-mail', 'zaakvertrouwelijk', 1, '_etag');
-INSERT INTO catalogi_informatieobjecttype(id, datum_begin_geldigheid, datum_einde_geldigheid, concept, uuid, omschrijving, vertrouwelijkheidaanduiding, catalogus_id, _etag) VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '2021-10-04', NULL, false, 'b1933137-94d6-49bc-9e12-afe712512276', 'bijlage', 'zaakvertrouwelijk', 1, '_etag');
-INSERT INTO catalogi_zaaktypeinformatieobjecttype(id, uuid, volgnummer, richting, informatieobjecttype_id, statustype_id, zaaktype_id, _etag) VALUES (1, '405da8a9-7296-439c-a2eb-a470b84f17ee', 1, 'inkomend', 1, NULL, 1, '_etag');
-INSERT INTO catalogi_zaaktypeinformatieobjecttype(id, uuid, volgnummer, richting, informatieobjecttype_id, statustype_id, zaaktype_id, _etag) VALUES ((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '809b5454-45f6-4368-b876-a61775c7e6a7', 2, 'inkomend', 2, NULL, 1, '_etag');
+INSERT INTO catalogi_informatieobjecttype (id, datum_begin_geldigheid, datum_einde_geldigheid, concept, uuid, omschrijving, vertrouwelijkheidaanduiding, catalogus_id, _etag, omschrijving_generiek_definitie, omschrijving_generiek_herkomst, omschrijving_generiek_hierarchie, omschrijving_generiek_informatieobjecttype, omschrijving_generiek_opmerking, trefwoord, informatieobjectcategorie) VALUES (1, '2021-10-04', NULL, false, 'efc332f2-be3b-4bad-9e3c-49a6219c92ad', 'e-mail', 'zaakvertrouwelijk', 1, '_etag', '', '', '', '', '', '{}', 'onbekend');
+INSERT INTO catalogi_informatieobjecttype (id, datum_begin_geldigheid, datum_einde_geldigheid, concept, uuid, omschrijving, vertrouwelijkheidaanduiding, catalogus_id, _etag, omschrijving_generiek_definitie, omschrijving_generiek_herkomst, omschrijving_generiek_hierarchie, omschrijving_generiek_informatieobjecttype, omschrijving_generiek_opmerking, trefwoord, informatieobjectcategorie) VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '2021-10-04', NULL, false, 'b1933137-94d6-49bc-9e12-afe712512276', 'bijlage', 'zaakvertrouwelijk', 1, '_etag', '', '', '', '', '', '{}', 'onbekend');
+
+-- ZAAK INFORMATIE OBJECT TYPES
+INSERT INTO catalogi_zaaktypeinformatieobjecttype (id, uuid, volgnummer, richting, informatieobjecttype_id, statustype_id, zaaktype_id, _etag) VALUES (1, '405da8a9-7296-439c-a2eb-a470b84f17ee', 1, 'inkomend', 1, NULL, 1, '_etag');
+INSERT INTO catalogi_zaaktypeinformatieobjecttype (id, uuid, volgnummer, richting, informatieobjecttype_id, statustype_id, zaaktype_id, _etag) VALUES ((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '809b5454-45f6-4368-b876-a61775c7e6a7', 2, 'inkomend', 2, NULL, 1, '_etag');
