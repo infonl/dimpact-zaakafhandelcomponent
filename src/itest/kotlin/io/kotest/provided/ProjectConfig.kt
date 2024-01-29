@@ -58,7 +58,9 @@ object ProjectConfig : AbstractProjectConfig() {
                             it.statusCode == HttpStatus.SC_OK
                         }
                     } catch (socketException: SocketException) {
-                        logger.info { "SocketException while requesting Keycloak health endpoint. Ignoring." }
+                        logger.info(socketException) {
+                            "SocketException while requesting Keycloak health endpoint. Ignoring."
+                        }
                         false
                     }
                 }
