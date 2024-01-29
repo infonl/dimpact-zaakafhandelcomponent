@@ -24,6 +24,7 @@ import org.testcontainers.containers.ContainerLaunchException
 import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.Wait
 import java.io.File
+import java.net.SocketException
 import java.time.Duration
 
 private val logger = KotlinLogging.logger {}
@@ -47,13 +48,18 @@ object ProjectConfig : AbstractProjectConfig() {
             logger.info { "Waiting until Keycloak is healthy by calling the health endpoint and checking the response" }
             await.atMost(THIRTY_SECONDS)
                 .until {
-                    khttp.get(
-                        url = KEYCLOAK_HEALTH_READY_URL,
-                        headers = mapOf(
-                            "Content-Type" to "application/json",
-                        )
-                    ).let {
-                        it.statusCode == HttpStatus.SC_OK
+                    try {
+                        khttp.get(
+                            url = KEYCLOAK_HEALTH_READY_URL,
+                            headers = mapOf(
+                                "Content-Type" to "application/json",
+                            )
+                        ).let {
+                            it.statusCode == HttpStatus.SC_OK
+                        }
+                    } catch (socketException: SocketException) {
+                        logger.info { "SocketException while requesting Keycloak health endpoint. Ignoring." }
+                        false
                     }
                 }
             logger.info { "Keycloak is healthy" }
