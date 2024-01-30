@@ -22,7 +22,6 @@ private val logger = KotlinLogging.logger {}
  */
 @Order(1)
 class InformatieObjectenTest : BehaviorSpec() {
-
     init {
         given(
             "ZAC and all related Docker containers are running and zaak exists"
