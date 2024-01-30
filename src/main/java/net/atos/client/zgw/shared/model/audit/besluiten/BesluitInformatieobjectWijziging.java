@@ -5,11 +5,11 @@
 
 package net.atos.client.zgw.shared.model.audit.besluiten;
 
-import net.atos.client.zgw.brc.model.BesluitInformatieobject;
+import net.atos.client.zgw.brc.model.BesluitInformatieObject;
 import net.atos.client.zgw.shared.model.ObjectType;
 import net.atos.client.zgw.shared.model.audit.AuditWijziging;
 
-public class BesluitInformatieobjectWijziging extends AuditWijziging<BesluitInformatieobject> {
+public class BesluitInformatieobjectWijziging extends AuditWijziging<BesluitInformatieObject> {
 
     @Override
     public ObjectType getObjectType() {

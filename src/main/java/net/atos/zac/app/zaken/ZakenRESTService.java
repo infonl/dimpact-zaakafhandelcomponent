@@ -60,8 +60,7 @@ import net.atos.client.vrl.VRLClientService;
 import net.atos.client.vrl.model.CommunicatieKanaal;
 import net.atos.client.zgw.brc.BRCClientService;
 import net.atos.client.zgw.brc.model.Besluit;
-import net.atos.client.zgw.brc.model.BesluitInformatieobject;
-import net.atos.client.zgw.brc.model.Vervalreden;
+import net.atos.client.zgw.brc.model.BesluitInformatieObject;
 import net.atos.client.zgw.drc.DRCClientService;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
 import net.atos.client.zgw.shared.ZGWApiService;
@@ -947,11 +946,12 @@ public class ZakenRESTService {
         final RESTBesluit resultaat = besluitConverter.convertToRESTBesluit(
             brcClientService.createBesluit(besluit));
         besluitToevoegenGegevens.informatieobjecten.forEach(documentUri -> {
-            final EnkelvoudigInformatieobject informatieobject = drcClientService.readEnkelvoudigInformatieobject(
-                documentUri);
-            final BesluitInformatieobject besluitInformatieobject = new BesluitInformatieobject(
-                resultaat.url,
-                informatieobject.getUrl());
+            final EnkelvoudigInformatieobject informatieobject = drcClientService.readEnkelvoudigInformatieobject(documentUri);
+            final BesluitInformatieObject besluitInformatieobject = new BesluitInformatieObject(
+                    // TODO: PZ-1019; only one argument
+                // resultaat.url,
+                informatieobject.getUrl()
+            );
             brcClientService.createBesluitInformatieobject(besluitInformatieobject,
                                                            AANMAKEN_BESLUIT_TOELICHTING);
         });
@@ -990,7 +990,8 @@ public class ZakenRESTService {
 
     private void updateBesluitInformatieobjecten(final Besluit besluit,
         final List<UUID> nieuweDocumenten) {
-        final List<BesluitInformatieobject> besluitInformatieobjecten = brcClientService.listBesluitInformatieobjecten(
+        final List<BesluitInformatieObject> besluitInformatieobjecten =
+                brcClientService.listBesluitInformatieobjecten(
             besluit.getUrl());
         final List<UUID> huidigeDocumenten = besluitInformatieobjecten.stream()
             .map(besluitInformatieobject -> UriUtil.uuidFromURI(
@@ -1010,11 +1011,14 @@ public class ZakenRESTService {
                 uuidFromURI(besluitInformatieobject.getUrl()))));
 
         toevoegen.forEach(documentUri -> {
-            final EnkelvoudigInformatieobject informatieobject = drcClientService.readEnkelvoudigInformatieobject(
-                documentUri);
-            final BesluitInformatieobject besluitInformatieobject = new BesluitInformatieobject(
-                besluit.getUrl(),
-                informatieobject.getUrl());
+            final EnkelvoudigInformatieobject informatieobject = drcClientService.readEnkelvoudigInformatieobject(documentUri);
+            // TODO: PZ-1019;  BesluitInformatieObject constructor only has one argument now..
+            final BesluitInformatieObject besluitInformatieobject =
+                    new BesluitInformatieObject(
+                        // besluit.getUrl(),
+                        informatieobject.getUrl()
+                    );
+
             brcClientService.createBesluitInformatieobject(besluitInformatieobject,
                                                            WIJZIGEN_BESLUIT_TOELICHTING);
         });
@@ -1039,7 +1043,7 @@ public class ZakenRESTService {
         return besluitConverter.convertToRESTBesluit(besluit);
     }
 
-    private @Nullable String getIntrekToelichting(final Vervalreden vervalreden) {
+    private @Nullable String getIntrekToelichting(final Besluit.VervalredenEnum vervalreden) {
         return switch (vervalreden) {
             case INGETROKKEN_OVERHEID -> "Overheid: %s";
             case INGETROKKEN_BELANGHEBBENDE -> "Belanghebbende: %s";
