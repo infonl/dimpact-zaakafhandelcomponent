@@ -1,7 +1,7 @@
 {{! Temporary workaround for the issue where OpenAPI Generator 7.2.0 }}
 {{! fails to generate import statements for @JsonbCreator annotations. }}
-{{! This template is simply a copy of the Mustache template of the main branch of https://github.com/OpenAPITools/openapi-generator }}
-{{! If all is well this workaround can be removed when we migrate to OpenAPI Generator 7.3.0. }}
+{{! This template is simply a copy of the Java Helidon Mustache template of the main branch of https://github.com/OpenAPITools/openapi-generator }}
+{{! Maybe this workaround can be removed when we migrate to OpenAPI Generator 7.3.0. }}
 {{#jsonb}}
 import java.lang.reflect.Type;
 import {{rootJavaEEPackage}}.json.bind.annotation.JsonbTypeDeserializer;
