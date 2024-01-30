@@ -27,16 +27,6 @@ plugins {
 repositories {
     mavenLocal()
     mavenCentral()
-    maven {
-        url = uri("https://maven.pkg.github.com/infonl/webdav-servlet")
-        credentials {
-            // for local development please create a personal access token (or use an existing one)
-            // with the 'read:packages' scope and set the 'gpr.user' and 'gpr.key' properties in
-            // your ~/.gradle/gradle.properties file (create the file if it does not exist yet)
-            username = project.findProperty("gpr.user") as String? ?: System.getenv("READ_PACKAGES_USERNAME")
-            password = project.findProperty("gpr.key") as String? ?: System.getenv("READ_PACKAGES_TOKEN")
-        }
-    }
 }
 
 group = "net.atos.common-ground"
