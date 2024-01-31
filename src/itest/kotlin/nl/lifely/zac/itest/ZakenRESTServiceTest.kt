@@ -13,6 +13,7 @@ import io.kotest.matchers.shouldNotBe
 import nl.lifely.zac.itest.client.assignZaakToGroup
 import nl.lifely.zac.itest.client.createZaak
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_2_IDENTIFICATION
 import org.apache.http.HttpStatus
 import org.json.JSONObject
@@ -28,8 +29,8 @@ const val GROUP_NAME = "test-group-a-name"
 class ZakenRESTServiceTest : BehaviorSpec({
     given("ZAC Docker container is running and zaakafhandelparameters have been created") {
         When("the create zaak endpoint is called and the user has permissions for the zaaktype used") {
-            then("the response should be a 200") {
-                val response = createZaak(GROUP_ID_A, GROUP_NAME)
+            then("the response should be a 200 HTTP response with the created zaak") {
+                val response = createZaak(ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID, GROUP_ID_A, GROUP_NAME)
                 response.statusCode shouldBe HttpStatus.SC_OK
                 JSONObject(response.text).apply {
                     getJSONObject("zaaktype").getString("identificatie") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
@@ -45,7 +46,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
     given("ZAC Docker container is running and zaakafhandelparameters have been created") {
         When("the create zaak endpoint is called with a group name that is longer than 24 characters") {
             then("the response should be a 400 invalid request with an expected error message") {
-                val response = createZaak(GROUP_ID_THAT_IS_TOO_LONG, GROUP_NAME)
+                val response = createZaak(ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID, GROUP_ID_THAT_IS_TOO_LONG, GROUP_NAME)
                 response.statusCode shouldBe HttpStatus.SC_BAD_REQUEST
                 response.text shouldEqualJson """
                         {

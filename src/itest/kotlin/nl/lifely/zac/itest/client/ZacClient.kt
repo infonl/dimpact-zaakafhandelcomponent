@@ -13,6 +13,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVEN
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.zaakUUID
+import java.util.UUID
 
 private val logger = KotlinLogging.logger {}
 
@@ -211,7 +212,7 @@ fun createZaakAfhandelParameters(): Response {
 }
 
 @Suppress("LongMethod")
-fun createZaak(groupId: String, groupName: String): Response {
+fun createZaak(zaakTypeUUID: UUID, groupId: String, groupName: String): Response {
     logger.info {
         "Creating zaak with group id: $groupId and group name: $groupName"
     }
@@ -225,7 +226,7 @@ fun createZaak(groupId: String, groupName: String): Response {
         data = "{\n" +
             "  \"zaak\": {\n" +
             "    \"zaaktype\": {\n" +
-            "      \"uuid\": \"$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID\"\n" +
+            "      \"uuid\": \"$zaakTypeUUID\"\n" +
             "    },\n" +
             "    \"initiatorIdentificatie\": null,\n" +
             "    \"startdatum\": \"2023-12-07T12:43:01+01:00\",\n" +
