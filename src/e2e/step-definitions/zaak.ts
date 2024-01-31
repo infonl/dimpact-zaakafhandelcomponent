@@ -86,8 +86,7 @@ Then("{string} clicks on the first zaak in zaak werkvoorraad with delay", { time
     await this.page.getByText('visibility').first().click();
 });
 
-Then("{string} sees the created zaak coming from open-forms", { timeout: 60 * 1000 }, async function (this: CustomWorld, user) {
-    
+Then("{string} sees the created zaak with {string} coming from open-forms", { timeout: 60 * 1000 }, async function (this: CustomWorld, user, profile) {
     const openFormsTestId = this.testStorage.get('open-forms-testid');
 
     await this.page.getByText('plagiarism').nth(1).click();

@@ -5,7 +5,7 @@ import { z } from "zod";
 import { profiles } from '../support/indienen-aansprakelijkstelling-door-derden/profiles';
 import uniqid from 'uniqid';
 
-const profilesSchema = z.enum(['alice'])
+export const profilesSchema = z.enum(['alice'])
 
 Given("A Resident fills in the indienen-aansprakelijkheid-behandelen open-forms form using user profile {string}", { timeout: 60 * 1000 }, async function (this: CustomWorld, profileType: z.infer<typeof profilesSchema>) {
     const parsedProfile = profilesSchema.parse(profileType)
@@ -13,7 +13,7 @@ Given("A Resident fills in the indienen-aansprakelijkheid-behandelen open-forms 
     const id = uniqid();
     this.testStorage.set('open-forms-testid', id);
 
-    await this.page.goto('https://open-formulieren-zac-dev.dimpact.lifely.nl/indienen-aansprakelijkstelling-door-derden-behandelen-2/startpagina');
+    await this.page.goto(`${this.worldParameters.urls.openForms}/indienen-aansprakelijkstelling-door-derden-behandelen-2/startpagina`);
     await this.page.getByRole('button', { name: 'Formulier starten' }).click();
 
     // Personal details

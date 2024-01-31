@@ -6,4 +6,4 @@ Feature: Resident submits form in open-forms
     Then "Bob" navigates to "zac" with path "/zaken/werkvoorraad"
     And "Bob" logs in
     And "Bob" clicks on the first zaak in zaak werkvoorraad with delay
-    And "Bob" sees the created zaak coming from open-forms
+    And "Bob" sees the created zaak with "Alice" coming from open-forms
