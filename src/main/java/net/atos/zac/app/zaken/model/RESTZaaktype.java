@@ -9,11 +9,14 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.validation.constraints.NotNull;
+
 import net.atos.client.zgw.shared.model.Vertrouwelijkheidaanduiding;
 import net.atos.zac.app.admin.model.RESTZaakafhandelParameters;
 
 public class RESTZaaktype {
 
+    @NotNull()
     public UUID uuid;
 
     public String identificatie;
