@@ -41,6 +41,7 @@ import net.atos.zac.aanvraag.ProductaanvraagService
 import net.atos.zac.aanvraag.createProductaanvraagDenhaag
 import net.atos.zac.app.bag.converter.RESTBAGConverter
 import net.atos.zac.app.zaken.converter.RESTZaakConverter
+import net.atos.zac.app.zaken.model.ZAAK_TYPE_1_OMSCHRIJVING
 import net.atos.zac.app.zaken.model.createRESTZaak
 import net.atos.zac.app.zaken.model.createRESTZaakAanmaakGegevens
 import net.atos.zac.app.zaken.model.createRESTZaakToekennenGegevens
@@ -89,7 +90,7 @@ class ZakenRESTServiceTest : BehaviorSpec() {
 
     init {
         given("zaak input data is provided") {
-            When("createZaak is called") {
+            When("createZaak is called for a zaaktype for which the logged in user has permissions") {
                 then("a zaak is created using the ZGW API and a zaak is started in the ZAC CMMN service") {
                     val group = createGroup()
                     val formulierData = mapOf(Pair("dummyKey", "dummyValue"))
@@ -97,14 +98,13 @@ class ZakenRESTServiceTest : BehaviorSpec() {
                     val objectRegistratieObject = createObjectRegistratieObject()
                     val productaanvraagDenhaag = createProductaanvraagDenhaag()
                     val restZaak = createRESTZaak()
-                    val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens()
-                    val restZaakType = restZaakAanmaakGegevens.zaak.zaaktype
+                    val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
+                    val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens(zaakTypeUUID = zaakType.uuid)
                     val rolNatuurlijkPersoon = createRolNatuurlijkPersoon(natuurlijkPersoon = natuurlijkPersoon)
                     val user = createLoggedInUser()
                     val zaakAfhandelParameters = createZaakafhandelParameters()
                     val zaakObjectPand = createZaakobjectPand()
                     val zaakObjectOpenbareRuimte = createZaakobjectOpenbareRuimte()
-                    val zaakType = createZaakType()
                     val zaak = createZaak(zaakType.url)
 
                     every { cmmnService.startCase(zaak, zaakType, zaakAfhandelParameters, null) } just runs
@@ -155,7 +155,7 @@ class ZakenRESTServiceTest : BehaviorSpec() {
                     every { zrcClientService.createZaak(zaak) } returns zaak
                     every { zrcClientService.createZaakobject(zaakObjectPand) } returns zaakObjectPand
                     every { zrcClientService.createZaakobject(zaakObjectOpenbareRuimte) } returns zaakObjectOpenbareRuimte
-                    every { ztcClientService.readZaaktype(restZaakType.uuid) } returns zaakType
+                    every { ztcClientService.readZaaktype(zaakType.uuid) } returns zaakType
                     every {
                         ztcClientService.readRoltype(AardVanRol.INITIATOR, zaak.zaaktype)
                     } returns createRolType(rol = AardVanRol.INITIATOR)
