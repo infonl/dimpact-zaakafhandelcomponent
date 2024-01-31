@@ -358,12 +358,10 @@ public class ZakenRESTService {
     @Path("zaak")
     public RESTZaak createZaak(@Valid final RESTZaakAanmaakGegevens restZaakAanmaakGegevens) {
         final RESTZaak restZaak = restZaakAanmaakGegevens.zaak;
-        final Zaaktype zaaktype = ztcClientService.readZaaktype(restZaak.zaaktype.uuid);
-
         assertPolicy(policyService.readOverigeRechten().getStartenZaak() &&
-                             loggedInUserInstance.get()
-                                     .isGeautoriseerdZaaktype(restZaak.zaaktype.omschrijving));
-
+                         loggedInUserInstance.get()
+                             .isGeautoriseerdZaaktype(restZaak.zaaktype.omschrijving));
+        final Zaaktype zaaktype = ztcClientService.readZaaktype(restZaak.zaaktype.uuid);
         final Zaak zaak = zgwApiService.createZaak(zaakConverter.convert(restZaak, zaaktype));
         if (StringUtils.isNotEmpty(restZaak.initiatorIdentificatie)) {
             addInitiator(restZaak.initiatorIdentificatieType, restZaak.initiatorIdentificatie,
