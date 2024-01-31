@@ -18,7 +18,6 @@ private val logger = KotlinLogging.logger {}
 
 @Suppress("LongMethod")
 fun createZaakAfhandelParameters(): Response {
-    // TODO: need to use 'indienen-aansprakelijkstelling-behandelen' zaaktype for creating a besluit..
     logger.info {
         "Creating zaakafhandelparameters in ZAC for zaaktype with identificatie: $ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE " +
             "and UUID: $ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
