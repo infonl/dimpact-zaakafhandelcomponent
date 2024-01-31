@@ -107,7 +107,7 @@ dependencies {
     implementation("javax.cache:cache-api:1.1.1")
     implementation("com.google.guava:guava:33.0.0-jre")
     implementation("com.mailjet:mailjet-client:5.2.5")
-    implementation("org.flywaydb:flyway-core:10.6.0")
+    implementation("org.flywaydb:flyway-core:10.7.1")
     implementation("org.flywaydb:flyway-database-postgresql:10.6.0")
     implementation("org.apache.solr:solr-solrj:9.4.1")
     implementation("nl.info.webdav:webdav-servlet:1.2.27")
