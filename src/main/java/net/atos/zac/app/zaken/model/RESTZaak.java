@@ -35,6 +35,7 @@ public class RESTZaak {
     public String toelichting;
 
     @NotNull()
+    @Valid
     public RESTZaaktype zaaktype;
 
     public RESTZaakStatus status;
