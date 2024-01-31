@@ -42,4 +42,14 @@ export abstract class AbstractChoicesFormFieldBuilder extends AbstractFormFieldB
     }
     return this;
   }
+
+  settings(
+    settings: { translateLabels?: boolean } = {
+      // for backwards compatibility, translateLabels defaults to true
+      translateLabels: true,
+    },
+  ): this {
+    this.formField.settings = settings;
+    return this;
+  }
 }
