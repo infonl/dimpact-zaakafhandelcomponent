@@ -12,13 +12,12 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import nl.lifely.zac.itest.client.assignZaakToGroup
 import nl.lifely.zac.itest.client.createZaak
-import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_2_IDENTIFICATION
 import org.apache.http.HttpStatus
 import org.json.JSONObject
 
-const val GROUP_ID_A= "test-group-a"
+const val GROUP_ID_A = "test-group-a"
 const val GROUP_ID_THAT_IS_TOO_LONG = "test-group-that-is-way-too-long"
 const val GROUP_NAME = "test-group-a-name"
 
