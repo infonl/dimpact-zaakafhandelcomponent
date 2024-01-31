@@ -8,6 +8,7 @@ package nl.lifely.zac.itest.client
 import io.github.oshai.kotlinlogging.KotlinLogging
 import khttp.responses.Response
 import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCT_AANVRAAG_TYPE
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -18,7 +19,8 @@ private val logger = KotlinLogging.logger {}
 @Suppress("LongMethod")
 fun createZaakAfhandelParameters(): Response {
     logger.info {
-        "Creating zaakafhandelparameters in ZAC for zaaktype with UUID: $ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
+        "Creating zaakafhandelparameters in ZAC for zaaktype with identificatie: $ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE " +
+                "and UUID: $ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
     }
 
     val response = khttp.put(
@@ -124,12 +126,12 @@ fun createZaakAfhandelParameters(): Response {
             "  \"zaakbeeindigParameters\": [],\n" +
             "  \"zaaktype\": {\n" +
             "    \"beginGeldigheid\": \"2023-09-21\",\n" +
-            "    \"doel\": \"Melding evenement organiseren behandelen\",\n" +
+            "    \"doel\": \"$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION\",\n" +
             "    \"identificatie\": \"$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE\",\n" +
             "    \"nuGeldig\": true,\n" +
-            "    \"omschrijving\": \"Melding evenement organiseren behandelen\",\n" +
+            "    \"omschrijving\": \"$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION\",\n" +
             "    \"servicenorm\": false,\n" +
-            "    \"uuid\": \"448356ff-dcfb-4504-9501-7fe929077c4f\",\n" +
+            "    \"uuid\": \"$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID\",\n" +
             "    \"versiedatum\": \"2023-09-21\",\n" +
             "    \"vertrouwelijkheidaanduiding\": \"openbaar\"\n" +
             "  },\n" +
@@ -224,18 +226,18 @@ fun createZaak(groupId: String, groupName: String): Response {
             "  \"zaak\": {\n" +
             "    \"zaaktype\": {\n" +
             "      \"beginGeldigheid\": \"2023-09-21\",\n" +
-            "      \"doel\": \"Melding evenement organiseren behandelen\",\n" +
-            "      \"identificatie\": \"melding-evenement-organiseren-behandelen\",\n" +
+            "      \"doel\": \"$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION\",\n" +
+            "      \"identificatie\": \"$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE\",\n" +
             "      \"informatieobjecttypes\": [\n" +
             "        \"efc332f2-be3b-4bad-9e3c-49a6219c92ad\",\n" +
             "        \"b1933137-94d6-49bc-9e12-afe712512276\"\n" +
             "      ],\n" +
             "      \"nuGeldig\": true,\n" +
-            "      \"omschrijving\": \"Melding evenement organiseren behandelen\",\n" +
+            "      \"omschrijving\": \"$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION\",\n" +
             "      \"opschortingMogelijk\": false,\n" +
             "      \"referentieproces\": \"melding klein evenement\",\n" +
             "      \"servicenorm\": false,\n" +
-            "      \"uuid\": \"448356ff-dcfb-4504-9501-7fe929077c4f\",\n" +
+            "      \"uuid\": \"$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID\",\n" +
             "      \"verlengingMogelijk\": false,\n" +
             "      \"versiedatum\": \"2023-09-21\",\n" +
             "      \"vertrouwelijkheidaanduiding\": \"openbaar\",\n" +
@@ -407,12 +409,12 @@ fun createZaak(groupId: String, groupName: String): Response {
             "        \"zaakbeeindigParameters\": [],\n" +
             "        \"zaaktype\": {\n" +
             "          \"beginGeldigheid\": \"2023-09-21\",\n" +
-            "          \"doel\": \"Melding evenement organiseren behandelen\",\n" +
-            "          \"identificatie\": \"melding-evenement-organiseren-behandelen\",\n" +
+            "          \"doel\": \"$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION\",\n" +
+            "          \"identificatie\": \"$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE\",\n" +
             "          \"nuGeldig\": true,\n" +
-            "          \"omschrijving\": \"Melding evenement organiseren behandelen\",\n" +
+            "          \"omschrijving\": \"$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION\",\n" +
             "          \"servicenorm\": false,\n" +
-            "          \"uuid\": \"448356ff-dcfb-4504-9501-7fe929077c4f\",\n" +
+            "          \"uuid\": \"$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID\",\n" +
             "          \"versiedatum\": \"2023-09-21\",\n" +
             "          \"vertrouwelijkheidaanduiding\": \"openbaar\"\n" +
             "        }\n" +
