@@ -1,6 +1,7 @@
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.github.gradle.node.npm.task.NpmTask
 import io.smallrye.openapi.api.OpenApiConfig
+import org.jetbrains.kotlin.backend.common.serialization.mangle.collectForMangler
 import java.util.Locale
 
 /*
@@ -258,6 +259,22 @@ tasks {
         reports {
             xml.required = true
             html.required = false
+        }
+    }
+
+    withType<JacocoReport> {
+        // exclude Java client code that was auto generated at build time
+        afterEvaluate {
+            classDirectories.setFrom(classDirectories.files.map {
+                fileTree(it).matching {
+                    exclude("net/atos/client/bag/model/**")
+                    exclude("net/atos/client/brp/model/**")
+                    exclude("net/atos/client/contactmomenten/model/**")
+                    exclude("net/atos/client/kvk/**/model/**")
+                    exclude("net/atos/client/vrl/model/**")
+                    exclude("net/atos/zac/aanvraag/**")
+                }
+            })
         }
     }
 
