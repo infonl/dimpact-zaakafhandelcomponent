@@ -306,11 +306,6 @@ tasks {
                 "useJakartaEe" to "true"
             )
         )
-
-        //Sspecify custom Mustache template dir as temporary workaround for the issue where OpenAPI Generator 7.2.0
-        // fails to generate import statements for @JsonbCreator annotations.
-        // Maybe this workaround can be removed when we migrate to OpenAPI Generator 7.3.0.
-        templateDir.set("$rootDir/src/main/resources/openapi-generator-templates")
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKvkZoekenClient") {
@@ -331,11 +326,19 @@ tasks {
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateBrpClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/brp/openapi.yaml")
         modelPackage.set("net.atos.client.brp.model")
+        // Specify custom Mustache template dir as temporary workaround for the issue where OpenAPI Generator 7.2.0
+        // fails to generate import statements for @JsonbCreator annotations.
+        // Maybe this workaround can be removed when we migrate to OpenAPI Generator 7.3.0.
+        templateDir.set("$rootDir/src/main/resources/openapi-generator-templates")
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateVrlClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/vrl/openapi.yaml")
         modelPackage.set("net.atos.client.vrl.model")
+        // Specify custom Mustache template dir as temporary workaround for the issue where OpenAPI Generator 7.2.0
+        // fails to generate import statements for @JsonbCreator annotations.
+        // Maybe this workaround can be removed when we migrate to OpenAPI Generator 7.3.0.
+        templateDir.set("$rootDir/src/main/resources/openapi-generator-templates")
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateBagClient") {
@@ -366,6 +369,10 @@ tasks {
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateContactMomentenClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/contactmomenten/openapi.yaml")
         modelPackage.set("net.atos.client.contactmomenten.model")
+        // Specify custom Mustache template dir as temporary workaround for the issue where OpenAPI Generator 7.2.0
+        // fails to generate import statements for @JsonbCreator annotations.
+        // Maybe this workaround can be removed when we migrate to OpenAPI Generator 7.3.0.
+        templateDir.set("$rootDir/src/main/resources/openapi-generator-templates")
     }
 
     register("generateJavaClients") {
