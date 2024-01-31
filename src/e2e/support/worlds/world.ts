@@ -8,11 +8,13 @@ import playwright from "playwright";
 import { worldParametersScheme } from "../../utils/schemes";
 import {z} from 'zod'
 import fs from 'fs';
+import { expect } from '@playwright/test';
 
 export const authFile = 'user.json';
 
 export class CustomWorld extends World {
     page: playwright.Page;
+    expect: typeof expect = expect;
     browser: playwright.Browser;
     context: playwright.BrowserContext; 
     initialized: boolean = false;
