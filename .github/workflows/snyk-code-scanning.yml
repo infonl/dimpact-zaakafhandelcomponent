@@ -1,0 +1,37 @@
+#
+# SPDX-FileCopyrightText: 2024 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+name: Snyk Security code scanner
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "21 11 * * 0"
+
+permissions:
+  # Required for uploading SARIF reports
+  security-events: write
+
+jobs:
+  snyk:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Snyk to check for Gradle vulnerabilities
+        uses: snyk/actions/gradle@master
+        continue-on-error: true # To make sure that SARIF upload gets called
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high --sarif-file-output=snyk-gradle.sarif
+
+      - name: Upload Snyk Gradle result to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: snyk-gradle.sarif
