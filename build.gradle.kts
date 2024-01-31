@@ -306,8 +306,7 @@ tasks {
                 "useJakartaEe" to "true"
             )
         )
-
-        //Sspecify custom Mustache template dir as temporary workaround for the issue where OpenAPI Generator 7.2.0
+        // Specify custom Mustache template dir as temporary workaround for the issue where OpenAPI Generator 7.2.0
         // fails to generate import statements for @JsonbCreator annotations.
         // Maybe this workaround can be removed when we migrate to OpenAPI Generator 7.3.0.
         templateDir.set("$rootDir/src/main/resources/openapi-generator-templates")
