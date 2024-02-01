@@ -213,7 +213,7 @@ fun createZaakAfhandelParameters(): Response {
 @Suppress("LongMethod")
 fun createZaak(groupId: String, groupName: String): Response {
     logger.info {
-        "Creating zaak with group name that is too long"
+        "Creating zaak with group id: $groupId and group name: $groupName"
     }
     val response = khttp.post(
         url = "${ZAC_API_URI}/zaken/zaak",
@@ -252,7 +252,7 @@ fun createZaak(groupId: String, groupName: String): Response {
 @Suppress("LongMethod")
 fun assignZaakToGroup(groupId: String): Response {
     logger.info {
-        "Assigning a zaak to a group with group name that is too long"
+        "Assigning a zaak to a group with group name: $groupId"
     }
     // note that this HTTP request currently requires the following environment variable
     // to be set when running this test: JAVA_TOOL_OPTIONS=--add-opens=java.base/java.net=ALL-UNNAMED

@@ -21,7 +21,7 @@ plugins {
     id("org.barfuin.gradle.taskinfo") version "2.2.0"
     id("io.smallrye.openapi") version "3.8.0"
     id("org.hidetake.swagger.generator") version "2.19.2"
-    id("io.gitlab.arturbosch.detekt") version "1.23.4"
+    id("io.gitlab.arturbosch.detekt") version "1.23.5"
     id("com.bmuschko.docker-remote-api") version "9.4.0"
 }
 
@@ -110,7 +110,7 @@ dependencies {
     swaggerUI("org.webjars:swagger-ui:5.10.3")
 
     // enable detekt formatting rules. see: https://detekt.dev/docs/rules/formatting/
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.4")
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.5")
 
     runtimeOnly("org.infinispan:infinispan-jcache:14.0.22.Final")
     runtimeOnly("org.infinispan:infinispan-cdi-embedded:14.0.22.Final")
