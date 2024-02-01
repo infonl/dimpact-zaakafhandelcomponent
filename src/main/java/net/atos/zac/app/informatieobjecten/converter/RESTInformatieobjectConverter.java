@@ -423,7 +423,14 @@ public class RESTInformatieobjectConverter {
     public static EnkelvoudigInformatieObject convertToEnkelvoudigInformatieObject(
             EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieObjectWithLockData
     ) {
-        final EnkelvoudigInformatieObject enkelvoudigInformatieObject = new EnkelvoudigInformatieObject();
+        final EnkelvoudigInformatieObject enkelvoudigInformatieObject = new EnkelvoudigInformatieObject(
+                enkelvoudigInformatieObjectWithLockData.getUrl(),
+                enkelvoudigInformatieObjectWithLockData.getVersie(),
+                enkelvoudigInformatieObjectWithLockData.getBeginRegistratie(),
+                enkelvoudigInformatieObjectWithLockData.getLink(),
+                enkelvoudigInformatieObjectWithLockData.getLocked(),
+                enkelvoudigInformatieObjectWithLockData.getBestandsdelen()
+        );
         enkelvoudigInformatieObject.setAuteur(enkelvoudigInformatieObjectWithLockData.getAuteur());
         enkelvoudigInformatieObject.setBeschrijving(enkelvoudigInformatieObjectWithLockData.getBeschrijving());
         enkelvoudigInformatieObject.setBestandsomvang(
