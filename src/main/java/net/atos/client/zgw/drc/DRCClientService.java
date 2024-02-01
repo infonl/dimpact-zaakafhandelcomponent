@@ -183,7 +183,7 @@ public class DRCClientService {
         return drcClient.enkelvoudigInformatieobjectList(filter);
     }
 
-    public EnkelvoudigInformatieObjectData createEnkelvoudigInformatieobject(
+    public EnkelvoudigInformatieObject createEnkelvoudigInformatieobject(
             final EnkelvoudigInformatieObjectData informatieobject
     ) {
         return drcClient.enkelvoudigInformatieobjectCreate(informatieobject);

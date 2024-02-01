@@ -1183,7 +1183,7 @@ components:
             - tijdelijk
             - ingetrokken_overheid
             - ingetrokken_belanghebbende
-            # manual added by Lifely: need to allow for empty 'vervalreden' values
+            # manual added by Lifely: need to allow for empty values returned by the API
             - ''
         vervalredenWeergave:
           title: Vervalreden weergave

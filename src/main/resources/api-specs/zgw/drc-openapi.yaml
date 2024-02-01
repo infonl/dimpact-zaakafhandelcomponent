@@ -2719,6 +2719,8 @@ components:
             - analoog
             - digitaal
             - pki
+            # manual added by Lifely: need to allow for empty values returned by the API
+            - ''
         datum:
           title: Ondertekeningdatum
           description: De datum waarop de ondertekening van het INFORMATIEOBJECT heeft
@@ -2770,6 +2772,8 @@ components:
             - sha_256
             - sha_512
             - sha_3
+            # manual added by Lifely: need to allow for empty values returned by the API
+            - ''
         waarde:
           title: Waarde
           description: De waarde van de checksum.
