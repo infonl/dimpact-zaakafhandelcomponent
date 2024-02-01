@@ -1,5 +1,5 @@
-import { alice } from "./alice";
+import { Alice } from "./alice";
 
 export const profiles = {
-    alice
+    Alice
 }

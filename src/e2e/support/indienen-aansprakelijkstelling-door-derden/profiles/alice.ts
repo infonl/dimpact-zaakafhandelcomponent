@@ -1,7 +1,7 @@
 import { robert } from "./robert";
 import { DamageReport } from "./types";
 
-export const alice: DamageReport = {
+export const Alice: DamageReport = {
     personalDetails: {
       firstName: "Alice",
       initials: "A",

@@ -1,13 +1,13 @@
-import { Given } from "@cucumber/cucumber";
+import { Given, When } from "@cucumber/cucumber";
 import path from "path";
 import { CustomWorld } from "support/worlds/world";
 import { z } from "zod";
 import { profiles } from '../support/indienen-aansprakelijkstelling-door-derden/profiles';
 import uniqid from 'uniqid';
 
-export const profilesSchema = z.enum(['alice'])
+export const profilesSchema = z.enum(['Alice'])
 
-Given("A Resident fills in the indienen-aansprakelijkheid-behandelen open-forms form using user profile {string}", { timeout: 60 * 1000 }, async function (this: CustomWorld, profileType: z.infer<typeof profilesSchema>) {
+Given("Resident {string} fills in the indienen-aansprakelijkheid-behandelen open-forms form", { timeout: 60 * 1000 }, async function (this: CustomWorld, profileType: z.infer<typeof profilesSchema>) {
     const parsedProfile = profilesSchema.parse(profileType)
     const profile = profiles[parsedProfile]
     const id = uniqid();
@@ -92,6 +92,14 @@ Given("A Resident fills in the indienen-aansprakelijkheid-behandelen open-forms 
     const loader2 = await this.page.getByText('Bezig met uploaden...')
     await this.expect(loader2).toHaveCount(0);
 
+    await this.page.waitForTimeout(5000)
+
     await this.page.getByRole('button', { name: 'Volgende' }).click();
     await this.page.getByLabel('Ja, ik heb kennis genomen van het  en geef uitdrukkelijk toestemming voor het verwerken van de door mij opgegeven gegevens.').check();
+})
+
+
+When("Resident {string} submits the open-forms form", { timeout: 60 * 1000 }, async function (this: CustomWorld, profileType: z.infer<typeof profilesSchema>) {
+    profilesSchema.parse(profileType)
+    await this.page.getByText('Verzenden').click()
 })

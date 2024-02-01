@@ -1,9 +1,11 @@
 Feature: Resident submits form in open-forms
 
-  Scenario: Resident fills in indienen-aansprakelijkheid-behandelen zaaktype
-    Given A Resident fills in the indienen-aansprakelijkheid-behandelen open-forms form using user profile "alice"
-    When "Alice" clicks on element with text: "Verzenden"
-    Then "Bob" navigates to "zac" with path "/zaken/werkvoorraad"
-    And "Bob" logs in
-    And "Bob" clicks on the first zaak in zaak werkvoorraad with delay
-    And "Bob" sees the created zaak with "Alice" coming from open-forms
+  @live-env-only
+  Scenario: Resident fills in indienen-aansprakelijkheid-behandelen open-forms form
+    Given Resident "Alice" fills in the indienen-aansprakelijkheid-behandelen open-forms form
+    When Resident "Alice" submits the open-forms form
+    And Employee "Bob" opens zac
+    And Employee "Bob" logs in to zac
+    And Employee "Bob" navigates to "/zaken/werkvoorraad"
+    And Employee "Bob" clicks on the first zaak in the zaak-werkvoorraad with delay
+    Then Employee "Bob" sees the zaak that "Alice" created in open-forms
