@@ -1,12 +1,13 @@
-package net.atos.client.zgw.shared.util;
+package net.atos.client.zgw.drc;
 
 import java.util.Base64;
 
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObjectData;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObjectWithLockData;
+import net.atos.client.zgw.drc.model.Ondertekening;
 
-public class InformatieobjectenUtil {
+public class DRCClientUtil {
 
     /**
      * Utility function to convert a byte array to a base64 string as
@@ -83,5 +84,17 @@ public class InformatieobjectenUtil {
                 // the exact uppercase value of the enum value in the OpenAPI specification
                 vertrouwelijkheidaanduidingEnumString.toUpperCase()
         );
+    }
+
+    public static boolean isOndertekend(EnkelvoudigInformatieObject enkelvoudigInformatieObject) {
+        return enkelvoudigInformatieObject.getOndertekening() != null &&
+                enkelvoudigInformatieObject.getOndertekening().getDatum() != null &&
+                enkelvoudigInformatieObject.getOndertekening().getSoort() != null &&
+                // this extra check is because the API can return an empty ondertekening soort
+                // when no signature is present (even if this is not permitted according to the
+                // original OpenAPI spec)
+                !enkelvoudigInformatieObject.getOndertekening().getSoort().equals(
+                        Ondertekening.SoortEnum.EMPTY
+                );
     }
 }

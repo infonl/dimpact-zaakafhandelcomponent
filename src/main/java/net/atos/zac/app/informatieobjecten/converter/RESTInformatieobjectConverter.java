@@ -5,13 +5,13 @@
 
 package net.atos.zac.app.informatieobjecten.converter;
 
-import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertByteArrayToBase64String;
-import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToEnkelvoudigInformatieObjectDataStatusEnum;
-import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToEnkelvoudigInformatieObjectStatusEnum;
-import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToEnkelvoudigInformatieObjectWithLockDataStatusEnum;
-import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToEnkelvoudigInformatieObjectWithLockDataVertrouwelijkheidaanduidingEnum;
-import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToVertrouwelijkheidaanduidingEnum;
-import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToVertrouwelijkheidaanduidingEnumData;
+import static net.atos.client.zgw.drc.DRCClientUtil.convertByteArrayToBase64String;
+import static net.atos.client.zgw.drc.DRCClientUtil.convertToEnkelvoudigInformatieObjectDataStatusEnum;
+import static net.atos.client.zgw.drc.DRCClientUtil.convertToEnkelvoudigInformatieObjectStatusEnum;
+import static net.atos.client.zgw.drc.DRCClientUtil.convertToEnkelvoudigInformatieObjectWithLockDataStatusEnum;
+import static net.atos.client.zgw.drc.DRCClientUtil.convertToEnkelvoudigInformatieObjectWithLockDataVertrouwelijkheidaanduidingEnum;
+import static net.atos.client.zgw.drc.DRCClientUtil.convertToVertrouwelijkheidaanduidingEnum;
+import static net.atos.client.zgw.drc.DRCClientUtil.convertToVertrouwelijkheidaanduidingEnumData;
 import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
 import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT;
 

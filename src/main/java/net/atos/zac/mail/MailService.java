@@ -6,7 +6,7 @@
 package net.atos.zac.mail;
 
 import static java.util.stream.Collectors.joining;
-import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertByteArrayToBase64String;
+import static net.atos.client.zgw.drc.DRCClientUtil.convertByteArrayToBase64String;
 import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN;
 import static net.atos.zac.util.JsonbUtil.JSONB;
 

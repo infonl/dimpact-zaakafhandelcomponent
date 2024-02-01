@@ -5,6 +5,7 @@
 
 package net.atos.zac.app.taken;
 
+import static net.atos.client.zgw.drc.DRCClientUtil.isOndertekend;
 import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
 import static net.atos.zac.app.taken.model.TaakStatus.AFGEROND;
 import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT;
@@ -375,9 +376,11 @@ public class TakenRESTService {
                 .map(UUID::fromString)
                 .map(drcClientService::readEnkelvoudigInformatieobject)
                 .forEach(enkelvoudigInformatieobject -> {
-                    assertPolicy(enkelvoudigInformatieobject.getOndertekening() == null &&
-                                         policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak)
-                                                 .getOndertekenen());
+                    assertPolicy(
+                            !isOndertekend(enkelvoudigInformatieobject) &&
+                                    policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak)
+                                            .getOndertekenen()
+                    );
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
                             parseUUIDFromResourceURI(enkelvoudigInformatieobject.getUrl())
                     );
