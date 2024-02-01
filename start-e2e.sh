@@ -17,4 +17,9 @@ npx playwright install --with-deps
 world_params='{"urls": { "zac": "'$ZAC_URL'", "openForms": "'$OPEN_FORMS_URL'"}, "headless": false, "users": {"Bob": {"username": "'$E2E_TEST_USER_1_USERNAME'", "password": "'$E2E_TEST_USER_1_PASSWORD'"}}}'
 
 # Run your Playwright tests
-npm run e2e:run -- --world-parameters "$world_params"
+
+if [ "$INCLUDE_TAGS" = "true" ]; then
+    npm run e2e:run -- --world-parameters "$world_params" --tags "not @live-env-only"
+else
+    npm run e2e:run -- --world-parameters "$world_params"
+fi
