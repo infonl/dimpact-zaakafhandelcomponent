@@ -55,8 +55,6 @@ public class BRCClientService {
     public Besluit updateBesluit(final Besluit besluit, @Nullable final String toelichting) {
         zgwClientHeadersFactory.setAuditToelichting(toelichting);
         final UUID uuid = UriUtil.uuidFromURI(besluit.getUrl());
-        // TODO: why set the URL to null? PZ-1019
-        //besluit.setUrl(null);
         return brcClient.besluitUpdate(uuid, besluit);
     }
 
