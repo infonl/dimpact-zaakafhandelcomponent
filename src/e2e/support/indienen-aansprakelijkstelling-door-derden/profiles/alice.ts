@@ -38,8 +38,8 @@ export const alice: DamageReport = {
       robert.personalDetails,
     ],
     documents: {
-      photo: "../files/deuk.jpg",
-      invoice: "../files/factuur.pdf",
+      photo: "../files/dent.jpg",
+      invoice: "../files/invoice.pdf",
     },
   };
   

@@ -142,7 +142,7 @@ Then("{string} sees the created zaak with {string} coming from open-forms", { ti
     this.expect(actual_export_values.includes('Voornamen Robert')).toBe(true);
     this.expect(actual_export_values.includes('Postcode 1234 AB')).toBe(true);
     this.expect(actual_export_values.includes('Huisnummer')).toBe(true);
-    this.expect(actual_export_values.includes('Foto bijlage: deuk.jpg')).toBe(true);
-    this.expect(actual_export_values.includes('Factuur of offerte bijlage: factuur.pdf')).toBe(true);
+    this.expect(actual_export_values.includes('Foto bijlage: dent.jpg')).toBe(true);
+    this.expect(actual_export_values.includes('Factuur of offerte bijlage: invoice.pdf')).toBe(true);
     this.expect(actual_export_values.includes('Andere documenten')).toBe(true);
 });
