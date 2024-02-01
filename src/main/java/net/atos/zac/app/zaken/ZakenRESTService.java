@@ -943,22 +943,18 @@ public class ZakenRESTService {
             zgwApiService.createResultaatForZaak(zaak, besluitToevoegenGegevens.resultaattypeUuid,
                                                  null);
         }
-        final RESTBesluit resultaat = besluitConverter.convertToRESTBesluit(
-            brcClientService.createBesluit(besluit));
+        final RESTBesluit restBesluit = besluitConverter.convertToRESTBesluit(brcClientService.createBesluit(besluit));
         besluitToevoegenGegevens.informatieobjecten.forEach(documentUri -> {
             final EnkelvoudigInformatieobject informatieobject = drcClientService.readEnkelvoudigInformatieobject(documentUri);
-            final BesluitInformatieObject besluitInformatieobject = new BesluitInformatieObject(
-                    // TODO: PZ-1019; only one argument
-                // resultaat.url,
-                informatieobject.getUrl()
-            );
-            brcClientService.createBesluitInformatieobject(besluitInformatieobject,
-                                                           AANMAKEN_BESLUIT_TOELICHTING);
+            final BesluitInformatieObject besluitInformatieobject = new BesluitInformatieObject();
+            besluitInformatieobject.setInformatieobject(informatieobject.getUrl());
+            besluitInformatieobject.setBesluit(restBesluit.url);
+            brcClientService.createBesluitInformatieobject(besluitInformatieobject, AANMAKEN_BESLUIT_TOELICHTING);
         });
         // This event should result from a ZAAKBESLUIT CREATED notification on the ZAKEN channel
         // but open_zaak does not send that one, so emulate it here.
         eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak));
-        return resultaat;
+        return restBesluit;
     }
 
     @PUT
