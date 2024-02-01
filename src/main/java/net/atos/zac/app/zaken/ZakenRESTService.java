@@ -1008,15 +1008,10 @@ public class ZakenRESTService {
 
         toevoegen.forEach(documentUri -> {
             final EnkelvoudigInformatieobject informatieobject = drcClientService.readEnkelvoudigInformatieobject(documentUri);
-            // TODO: PZ-1019;  BesluitInformatieObject constructor only has one argument now..
-            final BesluitInformatieObject besluitInformatieobject =
-                    new BesluitInformatieObject(
-                        // besluit.getUrl(),
-                        informatieobject.getUrl()
-                    );
-
-            brcClientService.createBesluitInformatieobject(besluitInformatieobject,
-                                                           WIJZIGEN_BESLUIT_TOELICHTING);
+            final BesluitInformatieObject besluitInformatieobject = new BesluitInformatieObject();
+            besluitInformatieobject.setInformatieobject(informatieobject.getUrl());
+            besluitInformatieobject.setBesluit(besluit.getUrl());
+            brcClientService.createBesluitInformatieobject(besluitInformatieobject, WIJZIGEN_BESLUIT_TOELICHTING);
         });
     }
 
