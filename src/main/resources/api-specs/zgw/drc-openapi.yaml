@@ -90,6 +90,7 @@ info:
     **Resources en acties**
     - `enkelvoudiginformatieobject`: create, update, destroy
     - `gebruiksrechten`: create, update, destroy
+    - `verzending`: create, update, destroy
 
 
     **Handige links**
@@ -104,9 +105,9 @@ info:
   license:
     name: EUPL 1.2
     url: https://opensource.org/licenses/EUPL-1.2
-  version: 1.1.0
+  version: 1.3.0
 security:
-  - JWT-Claims: [ ]
+  - JWT-Claims: []
 paths:
   /bestandsdelen/{uuid}:
     put:
@@ -360,7 +361,72 @@ paths:
       security:
         - JWT-Claims:
             - documenten.aanmaken
-    parameters: [ ]
+    parameters: []
+  /enkelvoudiginformatieobjecten/_zoek:
+    post:
+      operationId: enkelvoudiginformatieobject__zoek
+      summary: Voer een zoekopdracht uit op (ENKELVOUDIG) INFORMATIEOBJECTen .
+      description: |-
+        Zoeken/filteren gaat normaal via de `list` operatie, deze is echter
+        niet geschikt voor zoekopdrachten met UUIDs.
+      parameters:
+        - name: Content-Type
+          in: header
+          description: Content type van de verzoekinhoud.
+          required: true
+          schema:
+            type: string
+            enum:
+              - application/json
+        - name: page
+          in: query
+          description: Een pagina binnen de gepagineerde set resultaten.
+          required: false
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EIOZoek'
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                required:
+                  - count
+                  - results
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  next:
+                    type: string
+                    format: uri
+                    nullable: true
+                  previous:
+                    type: string
+                    format: uri
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EnkelvoudigInformatieObjectData'
+      tags:
+        - enkelvoudiginformatieobjecten
+      security:
+        - JWT-Claims:
+            - documenten.lezen
+    parameters: []
   /enkelvoudiginformatieobjecten/{enkelvoudiginformatieobject_uuid}/audittrail:
     get:
       operationId: audittrail_list
@@ -677,7 +743,7 @@ paths:
         - enkelvoudiginformatieobjecten
       security:
         - JWT-Claims:
-            - documenten.bijwerken
+            - (documenten.bijwerken | documenten.geforceerd-bijwerken)
     patch:
       operationId: enkelvoudiginformatieobject_partial_update
       summary: Werk een (ENKELVOUDIG) INFORMATIEOBJECT deels bij.
@@ -765,7 +831,7 @@ paths:
         - enkelvoudiginformatieobjecten
       security:
         - JWT-Claims:
-            - documenten.bijwerken
+            - (documenten.bijwerken | documenten.geforceerd-bijwerken)
     delete:
       operationId: enkelvoudiginformatieobject_delete
       summary: Verwijder een (ENKELVOUDIG) INFORMATIEOBJECT.
@@ -1205,7 +1271,7 @@ paths:
       security:
         - JWT-Claims:
             - documenten.aanmaken
-    parameters: [ ]
+    parameters: []
   /gebruiksrechten/{uuid}:
     get:
       operationId: gebruiksrechten_read
@@ -1630,7 +1696,7 @@ paths:
       security:
         - JWT-Claims:
             - documenten.aanmaken
-    parameters: [ ]
+    parameters: []
   /objectinformatieobjecten/{uuid}:
     get:
       operationId: objectinformatieobject_read
@@ -1898,6 +1964,414 @@ paths:
         schema:
           type: string
           format: uuid
+  /verzendingen:
+    get:
+      operationId: verzending_list
+      summary: Alle VERZENDINGen opvragen.
+      description: Deze lijst kan gefilterd wordt met query-string parameters.
+      parameters:
+        - name: aardRelatie
+          in: query
+          description: Omschrijving van de aard van de relatie van de BETROKKENE tot
+            het INFORMATIEOBJECT.
+          required: false
+          schema:
+            type: string
+            enum:
+              - afzender
+              - geadresseerde
+        - name: informatieobject
+          in: query
+          description: URL-referentie naar het informatieobject dat is ontvangen of
+            verzonden.
+          required: false
+          schema:
+            type: string
+            format: uri
+        - name: betrokkene
+          in: query
+          description: URL-referentie naar de betrokkene waarvan het informatieobject
+            is ontvangen of waaraan dit is verzonden.
+          required: false
+          schema:
+            type: string
+            format: uri
+        - name: page
+          in: query
+          description: Een pagina binnen de gepagineerde set resultaten.
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                required:
+                  - count
+                  - results
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  next:
+                    type: string
+                    format: uri
+                    nullable: true
+                  previous:
+                    type: string
+                    format: uri
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Verzending'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+        - verzendingen
+      security:
+        - JWT-Claims:
+            - documenten.lezen
+    post:
+      operationId: verzending_create
+      summary: Maak een VERZENDING aan.
+      description: Voeg VERZENDINGen toe voor een INFORMATIEOBJECT en een BETROKKENE.
+      parameters:
+        - name: Content-Type
+          in: header
+          description: Content type van de verzoekinhoud.
+          required: true
+          schema:
+            type: string
+            enum:
+              - application/json
+      requestBody:
+        $ref: '#/components/requestBodies/Verzending'
+      responses:
+        '201':
+          description: Created
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: URL waar de resource leeft.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Verzending'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+        - verzendingen
+      security:
+        - JWT-Claims:
+            - documenten.aanmaken
+    parameters: []
+  /verzendingen/{uuid}:
+    get:
+      operationId: verzending_read
+      summary: Een specifieke VERZENDING opvragen.
+      description: Een specifieke VERZENDING opvragen.
+      parameters:
+        - name: If-None-Match
+          in: header
+          description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\
+            \xE9n of meerdere ETag-waardes bevatten van resources die de consumer\
+            \ gecached heeft. Indien de waarde van de ETag van de huidige resource\
+            \ voorkomt in deze set, dan antwoordt de provider met een lege HTTP 304\
+            \ request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
+            \ voor meer informatie."
+          required: false
+          examples:
+            oneValue:
+              summary: "E\xE9n ETag-waarde"
+              value: '"79054025255fb1a26e4bc422aef54eb4"'
+            multipleValues:
+              summary: Meerdere ETag-waardes
+              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            ETag:
+              description: De ETag berekend op de response body JSON. Indien twee
+                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
+                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
+              schema:
+                type: string
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Verzending'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+        - verzendingen
+      security:
+        - JWT-Claims:
+            - documenten.lezen
+    head:
+      operationId: verzending_headers
+      summary: De headers voor een specifiek(e) VERZENDING opvragen
+      description: Vraag de headers op die je bij een GET request zou krijgen.
+      parameters:
+        - name: If-None-Match
+          in: header
+          description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\
+            \xE9n of meerdere ETag-waardes bevatten van resources die de consumer\
+            \ gecached heeft. Indien de waarde van de ETag van de huidige resource\
+            \ voorkomt in deze set, dan antwoordt de provider met een lege HTTP 304\
+            \ request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
+            \ voor meer informatie."
+          required: false
+          examples:
+            oneValue:
+              summary: "E\xE9n ETag-waarde"
+              value: '"79054025255fb1a26e4bc422aef54eb4"'
+            multipleValues:
+              summary: Meerdere ETag-waardes
+              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            ETag:
+              description: De ETag berekend op de response body JSON. Indien twee
+                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
+                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
+              schema:
+                type: string
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+      tags:
+        - verzendingen
+      security:
+        - JWT-Claims:
+            - documenten.lezen
+    put:
+      operationId: verzending_update
+      summary: Werk een VERZENDING in zijn geheel bij.
+      description: Werk een VERZENDING in zijn geheel bij.
+      parameters:
+        - name: Content-Type
+          in: header
+          description: Content type van de verzoekinhoud.
+          required: true
+          schema:
+            type: string
+            enum:
+              - application/json
+      requestBody:
+        $ref: '#/components/requestBodies/Verzending'
+      responses:
+        '200':
+          description: OK
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Verzending'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+        - verzendingen
+      security:
+        - JWT-Claims:
+            - documenten.bijwerken
+    patch:
+      operationId: verzending_partial_update
+      summary: Werk een VERZENDING relatie deels bij.
+      description: Werk een VERZENDING relatie deels bij.
+      parameters:
+        - name: Content-Type
+          in: header
+          description: Content type van de verzoekinhoud.
+          required: true
+          schema:
+            type: string
+            enum:
+              - application/json
+      requestBody:
+        $ref: '#/components/requestBodies/Verzending'
+      responses:
+        '200':
+          description: OK
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Verzending'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+        - verzendingen
+      security:
+        - JWT-Claims:
+            - documenten.bijwerken
+    delete:
+      operationId: verzending_delete
+      summary: Verwijder een VERZENDING.
+      description: Verwijder een VERZENDING.
+      responses:
+        '204':
+          description: No content
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+        - verzendingen
+      security:
+        - JWT-Claims:
+            - documenten.verwijderen
+    parameters:
+      - name: uuid
+        in: path
+        description: Unieke resource identifier (UUID4)
+        required: true
+        schema:
+          type: string
+          format: uuid
 tags:
   - name: enkelvoudiginformatieobjecten
     description: ''
@@ -1907,8 +2381,10 @@ tags:
     description: |-
       Het betreft een relatie tussen een willekeurig OBJECT, bijvoorbeeld een
       ZAAK in de Zaken API, en een INFORMATIEOBJECT.
+  - name: verzendingen
+    description: ''
 servers:
-  - url: https://open-zaak.develop-public-service-platform.net/documenten/api/v1
+  - url: http://localhost:8001/documenten/api/v1
 components:
   responses:
     '400':
@@ -2044,6 +2520,12 @@ components:
           schema:
             $ref: '#/components/schemas/Fout'
   requestBodies:
+    Verzending:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Verzending'
+      required: true
     ObjectInformatieObject:
       content:
         application/json:
@@ -2383,10 +2865,10 @@ components:
 
             Uitleg bij mogelijke waarden:
 
-            * `in_bewerking` - (In bewerking) Aan het informatieobject wordt nog gewerkt.
-            * `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar moet nog vastgesteld worden.
-            * `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand vastgesteld dan wel ontvangen.
-            * `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar gemaakt; een gearchiveerd informatie-element.
+            * `in_bewerking` - In bewerking
+            * `ter_vaststelling` - Ter vaststelling
+            * `definitief` - Definitief
+            * `gearchiveerd` - Gearchiveerd
           type: string
           enum:
             - in_bewerking
@@ -2403,7 +2885,7 @@ components:
         taal:
           title: Taal
           description: 'Een ISO 639-2/B taalcode waarin de inhoud van het INFORMATIEOBJECT
-            is vastgelegd. Voorbeeld: `nld`. Zie: https://www.iso.org/standard/4767.html'
+            is vastgelegd. Voorbeeld: `dut`. Zie: https://www.iso.org/standard/4767.html'
           type: string
           maxLength: 3
           minLength: 3
@@ -2483,6 +2965,10 @@ components:
             via de GEBRUIKSRECHTen resource.
           type: boolean
           nullable: true
+        verschijningsvorm:
+          title: Verschijningsvorm
+          description: "De essenti\xEBle opmaakaspecten van een INFORMATIEOBJECT."
+          type: string
         ondertekening:
           $ref: '#/components/schemas/Ondertekening'
         integriteit:
@@ -2589,10 +3075,10 @@ components:
 
             Uitleg bij mogelijke waarden:
 
-            * `in_bewerking` - (In bewerking) Aan het informatieobject wordt nog gewerkt.
-            * `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar moet nog vastgesteld worden.
-            * `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand vastgesteld dan wel ontvangen.
-            * `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar gemaakt; een gearchiveerd informatie-element.
+            * `in_bewerking` - In bewerking
+            * `ter_vaststelling` - Ter vaststelling
+            * `definitief` - Definitief
+            * `gearchiveerd` - Gearchiveerd
           type: string
           enum:
             - in_bewerking
@@ -2609,7 +3095,7 @@ components:
         taal:
           title: Taal
           description: 'Een ISO 639-2/B taalcode waarin de inhoud van het INFORMATIEOBJECT
-            is vastgelegd. Voorbeeld: `nld`. Zie: https://www.iso.org/standard/4767.html'
+            is vastgelegd. Voorbeeld: `dut`. Zie: https://www.iso.org/standard/4767.html'
           type: string
           maxLength: 3
           minLength: 3
@@ -2688,6 +3174,10 @@ components:
             via de GEBRUIKSRECHTen resource.
           type: boolean
           nullable: true
+        verschijningsvorm:
+          title: Verschijningsvorm
+          description: "De essenti\xEBle opmaakaspecten van een INFORMATIEOBJECT."
+          type: string
         ondertekening:
           $ref: '#/components/schemas/Ondertekening'
         integriteit:
@@ -2713,12 +3203,232 @@ components:
           readOnly: true
         lock:
           title: Lock
-          description: Lock id generated if the large file is created and should be
-            used while updating the document. Documents with base64 encoded files
-            are created without lock
+          description: Het gegenereerde lock ID voor grote bestandsuploads wat gebruikt
+            moet worden bij document updates. Documenten met base64-encoded bestandsdata
+            worden zonder lock aangemaakt.
           type: string
           readOnly: true
           minLength: 1
+    EIOZoek:
+      required:
+        - uuid__in
+      type: object
+      properties:
+        uuid__in:
+          description: Lijst van unieke resource identifiers (UUID4)
+          type: array
+          items:
+            type: string
+            format: uuid
+    EnkelvoudigInformatieObjectData:
+      required:
+        - bronorganisatie
+        - creatiedatum
+        - titel
+        - auteur
+        - taal
+        - informatieobjecttype
+      type: object
+      properties:
+        url:
+          title: Url
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
+          type: string
+          format: uri
+          readOnly: true
+          maxLength: 1000
+          minLength: 1
+        identificatie:
+          title: Identificatie
+          description: Een binnen een gegeven context ondubbelzinnige referentie naar
+            het INFORMATIEOBJECT.
+          type: string
+          maxLength: 40
+        bronorganisatie:
+          title: Bronorganisatie
+          description: "Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie\
+            \ die het informatieobject heeft gecre\xEBerd of heeft ontvangen en als\
+            \ eerste in een samenwerkingsketen heeft vastgelegd."
+          type: string
+          maxLength: 9
+          minLength: 1
+        creatiedatum:
+          title: Creatiedatum
+          description: Een datum of een gebeurtenis in de levenscyclus van het INFORMATIEOBJECT.
+          type: string
+          format: date
+        titel:
+          title: Titel
+          description: De naam waaronder het INFORMATIEOBJECT formeel bekend is.
+          type: string
+          maxLength: 200
+          minLength: 1
+        vertrouwelijkheidaanduiding:
+          title: Vertrouwelijkheidaanduiding
+          description: |-
+            Aanduiding van de mate waarin het INFORMATIEOBJECT voor de openbaarheid bestemd is.
+
+            Uitleg bij mogelijke waarden:
+
+            * `openbaar` - Openbaar
+            * `beperkt_openbaar` - Beperkt openbaar
+            * `intern` - Intern
+            * `zaakvertrouwelijk` - Zaakvertrouwelijk
+            * `vertrouwelijk` - Vertrouwelijk
+            * `confidentieel` - Confidentieel
+            * `geheim` - Geheim
+            * `zeer_geheim` - Zeer geheim
+          type: string
+          enum:
+            - openbaar
+            - beperkt_openbaar
+            - intern
+            - zaakvertrouwelijk
+            - vertrouwelijk
+            - confidentieel
+            - geheim
+            - zeer_geheim
+        auteur:
+          title: Auteur
+          description: "De persoon of organisatie die in de eerste plaats verantwoordelijk\
+            \ is voor het cre\xEBren van de inhoud van het INFORMATIEOBJECT."
+          type: string
+          maxLength: 200
+          minLength: 1
+        status:
+          title: Status
+          description: |-
+            Aanduiding van de stand van zaken van een INFORMATIEOBJECT. De waarden 'in bewerking' en 'ter vaststelling' komen niet voor als het attribuut `ontvangstdatum` van een waarde is voorzien. Wijziging van de Status in 'gearchiveerd' impliceert dat het informatieobject een duurzaam, niet-wijzigbaar Formaat dient te hebben.
+
+            Uitleg bij mogelijke waarden:
+
+            * `in_bewerking` - In bewerking
+            * `ter_vaststelling` - Ter vaststelling
+            * `definitief` - Definitief
+            * `gearchiveerd` - Gearchiveerd
+          type: string
+          enum:
+            - in_bewerking
+            - ter_vaststelling
+            - definitief
+            - gearchiveerd
+        formaat:
+          title: Formaat
+          description: 'Het "Media Type" (voorheen "MIME type") voor de wijze waaropde
+            inhoud van het INFORMATIEOBJECT is vastgelegd in een computerbestand.
+            Voorbeeld: `application/msword`. Zie: https://www.iana.org/assignments/media-types/media-types.xhtml'
+          type: string
+          maxLength: 255
+        taal:
+          title: Taal
+          description: 'Een ISO 639-2/B taalcode waarin de inhoud van het INFORMATIEOBJECT
+            is vastgelegd. Voorbeeld: `dut`. Zie: https://www.iso.org/standard/4767.html'
+          type: string
+          maxLength: 3
+          minLength: 3
+        versie:
+          title: Versie
+          description: Het (automatische) versienummer van het INFORMATIEOBJECT. Deze
+            begint bij 1 als het INFORMATIEOBJECT aangemaakt wordt.
+          type: integer
+          readOnly: true
+        beginRegistratie:
+          title: Begin registratie
+          description: Een datumtijd in ISO8601 formaat waarop deze versie van het
+            INFORMATIEOBJECT is aangemaakt of gewijzigd.
+          type: string
+          format: date-time
+          readOnly: true
+        bestandsnaam:
+          title: Bestandsnaam
+          description: De naam van het fysieke bestand waarin de inhoud van het informatieobject
+            is vastgelegd, inclusief extensie.
+          type: string
+          maxLength: 255
+        inhoud:
+          title: Inhoud
+          description: "Binaire inhoud, in base64 ge\xEBncodeerd."
+          type: string
+          format: bytes
+          nullable: true
+        bestandsomvang:
+          title: Bestandsomvang
+          description: Aantal bytes dat de inhoud van INFORMATIEOBJECT in beslag neemt.
+          type: integer
+          minimum: 0
+          nullable: true
+        link:
+          title: Link
+          description: De URL waarmee de inhoud van het INFORMATIEOBJECT op te vragen
+            is.
+          type: string
+          format: uri
+          maxLength: 200
+        beschrijving:
+          title: Beschrijving
+          description: Een generieke beschrijving van de inhoud van het INFORMATIEOBJECT.
+          type: string
+          maxLength: 1000
+        ontvangstdatum:
+          title: Ontvangstdatum
+          description: De datum waarop het INFORMATIEOBJECT ontvangen is. Verplicht
+            te registreren voor INFORMATIEOBJECTen die van buiten de zaakbehandelende
+            organisatie(s) ontvangen zijn. Ontvangst en verzending is voorbehouden
+            aan documenten die van of naar andere personen ontvangen of verzonden
+            zijn waarbij die personen niet deel uit maken van de behandeling van de
+            zaak waarin het document een rol speelt.
+          type: string
+          format: date
+          nullable: true
+        verzenddatum:
+          title: Verzenddatum
+          description: De datum waarop het INFORMATIEOBJECT verzonden is, zoals deze
+            op het INFORMATIEOBJECT vermeld is. Dit geldt voor zowel inkomende als
+            uitgaande INFORMATIEOBJECTen. Eenzelfde informatieobject kan niet tegelijk
+            inkomend en uitgaand zijn. Ontvangst en verzending is voorbehouden aan
+            documenten die van of naar andere personen ontvangen of verzonden zijn
+            waarbij die personen niet deel uit maken van de behandeling van de zaak
+            waarin het document een rol speelt.
+          type: string
+          format: date
+          nullable: true
+        indicatieGebruiksrecht:
+          title: Indicatie gebruiksrecht
+          description: Indicatie of er beperkingen gelden aangaande het gebruik van
+            het informatieobject anders dan raadpleging. Dit veld mag `null` zijn
+            om aan te geven dat de indicatie nog niet bekend is. Als de indicatie
+            gezet is, dan kan je de gebruiksrechten die van toepassing zijn raadplegen
+            via de GEBRUIKSRECHTen resource.
+          type: boolean
+          nullable: true
+        verschijningsvorm:
+          title: Verschijningsvorm
+          description: "De essenti\xEBle opmaakaspecten van een INFORMATIEOBJECT."
+          type: string
+        ondertekening:
+          $ref: '#/components/schemas/Ondertekening'
+        integriteit:
+          $ref: '#/components/schemas/Integriteit'
+        informatieobjecttype:
+          title: Informatieobjecttype
+          description: URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi
+            API).
+          type: string
+          format: uri
+          maxLength: 200
+          minLength: 1
+        locked:
+          title: geblokkeerd
+          description: Geeft aan of het document gelocked is. Alleen als een document
+            gelocked is, mogen er aanpassingen gemaakt worden.
+          type: boolean
+          readOnly: true
+        bestandsdelen:
+          type: array
+          items:
+            $ref: '#/components/schemas/BestandsDeel'
+          readOnly: true
     Wijzigingen:
       type: object
       properties:
@@ -2947,10 +3657,10 @@ components:
 
             Uitleg bij mogelijke waarden:
 
-            * `in_bewerking` - (In bewerking) Aan het informatieobject wordt nog gewerkt.
-            * `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar moet nog vastgesteld worden.
-            * `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand vastgesteld dan wel ontvangen.
-            * `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar gemaakt; een gearchiveerd informatie-element.
+            * `in_bewerking` - In bewerking
+            * `ter_vaststelling` - Ter vaststelling
+            * `definitief` - Definitief
+            * `gearchiveerd` - Gearchiveerd
           type: string
           enum:
             - in_bewerking
@@ -2967,7 +3677,7 @@ components:
         taal:
           title: Taal
           description: 'Een ISO 639-2/B taalcode waarin de inhoud van het INFORMATIEOBJECT
-            is vastgelegd. Voorbeeld: `nld`. Zie: https://www.iso.org/standard/4767.html'
+            is vastgelegd. Voorbeeld: `dut`. Zie: https://www.iso.org/standard/4767.html'
           type: string
           maxLength: 3
           minLength: 3
@@ -3046,6 +3756,10 @@ components:
             via de GEBRUIKSRECHTen resource.
           type: boolean
           nullable: true
+        verschijningsvorm:
+          title: Verschijningsvorm
+          description: "De essenti\xEBle opmaakaspecten van een INFORMATIEOBJECT."
+          type: string
         ondertekening:
           $ref: '#/components/schemas/Ondertekening'
         integriteit:
@@ -3178,3 +3892,249 @@ components:
             - besluit
             - zaak
             - verzoek
+    BinnenlandsCorrespondentieadresVerzending:
+      description: Het correspondentieadres, betreffende een adresseerbaar object,
+        van de BETROKKENE, zijnde afzender of geadresseerde, zoals vermeld in het
+        ontvangen of verzonden INFORMATIEOBJECT indien dat afwijkt van het reguliere
+        binnenlandse correspondentieadres van BETROKKENE.
+      required:
+        - huisnummer
+        - naamOpenbareRuimte
+        - woonplaatsnaam
+      type: object
+      properties:
+        huisletter:
+          title: Huisletter
+          description: Een door of namens het bevoegd gemeentelijk orgaan ten aanzien
+            van een adresseerbaar object toegekende toevoeging aan een huisnummer
+            in de vorm van een alfanumeriek teken.
+          type: string
+          maxLength: 1
+        huisnummer:
+          title: Huisnummer
+          description: Een door of namens het bevoegd gemeentelijk orgaan ten aanzien
+            van een adresseerbaar object toegekende nummering.
+          type: integer
+          maximum: 99999
+          minimum: 1
+        huisnummerToevoeging:
+          title: Huisnummer toevoeging
+          description: Een door of namens het bevoegd gemeentelijk orgaan ten aanzien
+            van een adresseerbaar object toegekende nadere toevoeging aan een huisnummer
+            of een combinatie van huisnummer en huisletter.
+          type: string
+          maxLength: 4
+        naamOpenbareRuimte:
+          title: Naam openbare ruimte
+          description: Een door het bevoegde gemeentelijke orgaan aan een GEMEENTELIJKE  OPENBARE
+            RUIMTE toegekende benaming.
+          type: string
+          maxLength: 80
+          minLength: 1
+        postcode:
+          title: Postcode
+          description: De door TNT Post vastgestelde code behorende bij een bepaalde
+            combinatie van een naam van een woonplaats, naam van een openbare ruimte
+            en een huisnummer.
+          type: string
+          pattern: ^[1-9][0-9]{3} ?[A-Z]{2}$
+          maxLength: 6
+        woonplaatsnaam:
+          title: Woonplaatsnaam
+          description: De door het bevoegde gemeentelijke orgaan aan een WOONPLAATS
+            toegekende benaming.
+          type: string
+          maxLength: 80
+          minLength: 1
+      nullable: true
+    BuitenlandsCorrespondentieadresVerzending:
+      description: De gegevens van het adres in het buitenland van BETROKKENE, zijnde
+        afzender of geadresseerde, zoals vermeld in het ontvangen of verzonden INFORMATIEOBJECT
+        en dat afwijkt van de reguliere correspondentiegegevens van BETROKKENE.
+      required:
+        - adresBuitenland_1
+        - landPostadres
+      type: object
+      properties:
+        adresBuitenland_1:
+          title: Adres buitenland 1
+          description: Het eerste deel dat behoort bij het afwijkend buitenlandse
+            correspondentieadres van de betrokkene in zijn/haar rol bij de zaak.
+          type: string
+          maxLength: 35
+          minLength: 1
+        adresBuitenland_2:
+          title: Adres buitenland 2
+          description: Het tweede deel dat behoort bij het afwijkend buitenlandse
+            correspondentieadres van de betrokkene in zijn/haar rol bij de zaak.
+          type: string
+          maxLength: 35
+        adresBuitenland_3:
+          title: Adres buitenland 3
+          description: Het derde deel dat behoort bij het afwijkend buitenlandse correspondentieadres
+            van de betrokkene in zijn/haar rol bij de zaak.
+          type: string
+          maxLength: 35
+        landPostadres:
+          title: Land postadres
+          description: Het LAND dat behoort bij het afwijkend buitenlandse correspondentieadres
+            van de betrokkene in zijn/haar rol bij de zaak.
+          type: string
+          format: uri
+          maxLength: 200
+          minLength: 1
+      nullable: true
+    CorrespondentiePostadresVerzending:
+      description: De gegevens die tezamen een postbusadres of antwoordnummeradres
+        vormen van BETROKKENE, zijnde afzender of geadresseerde, zoals vermeld in
+        het ontvangen of verzonden INFORMATIEOBJECT en dat afwijkt van de reguliere
+        correspondentiegegevens van BETROKKENE.
+      required:
+        - postBusOfAntwoordnummer
+        - postadresPostcode
+        - postadresType
+        - woonplaatsnaam
+      type: object
+      properties:
+        postBusOfAntwoordnummer:
+          title: Postbus-of antwoordnummer
+          description: De numerieke aanduiding zoals deze door de Nederlandse PTT
+            is vastgesteld voor postbusadressen en antwoordnummeradressen.
+          type: integer
+          maximum: 9999
+          minimum: 1
+        postadresPostcode:
+          title: Postadres postcode
+          description: "De offici\xEBle Nederlandse PTT codering, bestaande uit een\
+            \ numerieke woonplaatscode en een alfabetische lettercode."
+          type: string
+          pattern: ^[1-9][0-9]{3} ?[A-Z]{2}$
+          maxLength: 6
+          minLength: 1
+        postadresType:
+          title: Postadrestype
+          description: Aanduiding van het soort postadres.
+          type: string
+          enum:
+            - antwoordnummer
+            - postbusnummer
+        woonplaatsnaam:
+          title: Woonplaatsnaam
+          description: De door het bevoegde gemeentelijke orgaan aan een WOONPLAATS
+            toegekende benaming.
+          type: string
+          maxLength: 80
+          minLength: 1
+      nullable: true
+    Verzending:
+      required:
+        - betrokkene
+        - informatieobject
+        - aardRelatie
+        - contactPersoon
+      type: object
+      properties:
+        url:
+          title: Url
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
+          type: string
+          format: uri
+          readOnly: true
+          maxLength: 1000
+          minLength: 1
+        betrokkene:
+          title: Betrokkene
+          description: URL-referentie naar de betrokkene waarvan het informatieobject
+            is ontvangen of waaraan dit is verzonden.
+          type: string
+          format: uri
+          maxLength: 200
+          minLength: 1
+        informatieobject:
+          title: Informatieobject
+          description: URL-referentie naar het informatieobject dat is ontvangen of
+            verzonden.
+          type: string
+          format: uri
+        aardRelatie:
+          title: Aard relatie
+          description: Omschrijving van de aard van de relatie van de BETROKKENE tot
+            het INFORMATIEOBJECT.
+          type: string
+          enum:
+            - afzender
+            - geadresseerde
+        toelichting:
+          title: Toelichting
+          description: Verduidelijking van de afzender- of geadresseerde-relatie.
+          type: string
+          maxLength: 200
+        ontvangstdatum:
+          title: Ontvangstdatum
+          description: De datum waarop het INFORMATIEOBJECT ontvangen is. Verplicht
+            te registreren voor INFORMATIEOBJECTen die van buiten de zaakbehandelende
+            organisatie(s) ontvangen zijn. Ontvangst en verzending is voorbehouden
+            aan documenten die van of naar andere personen ontvangen of verzonden
+            zijn waarbij die personen niet deel uit maken van de behandeling van de
+            zaak waarin het document een rol speelt. Vervangt het gelijknamige attribuut
+            uit Informatieobject. Verplicht gevuld wanneer aardRelatie de waarde 'afzender'
+            heeft.
+          type: string
+          format: date
+          nullable: true
+        verzenddatum:
+          title: Verzenddatum
+          description: De datum waarop het INFORMATIEOBJECT verzonden is, zoals deze
+            op het INFORMATIEOBJECT vermeld is. Dit geldt voor zowel inkomende als
+            uitgaande INFORMATIEOBJECTen. Eenzelfde informatieobject kan niet tegelijk
+            inkomend en uitgaand zijn. Ontvangst en verzending is voorbehouden aan
+            documenten die van of naar andere personen ontvangen of verzonden zijn
+            waarbij die personen niet deel uit maken van de behandeling van de zaak
+            waarin het document een rol speelt. Vervangt het gelijknamige attribuut
+            uit Informatieobject. Verplicht gevuld wanneer aardRelatie de waarde 'geadresseerde'
+            heeft.
+          type: string
+          format: date
+          nullable: true
+        contactPersoon:
+          title: Contactpersoon
+          description: URL-referentie naar de persoon die als aanspreekpunt fungeert
+            voor de BETROKKENE inzake het ontvangen of verzonden INFORMATIEOBJECT.
+          type: string
+          format: uri
+          maxLength: 1000
+          minLength: 1
+        contactpersoonnaam:
+          title: Contactpersoonnaam
+          description: De opgemaakte naam van de persoon die als aanspreekpunt fungeert
+            voorde BETROKKENE inzake het ontvangen of verzonden INFORMATIEOBJECT.
+          type: string
+          maxLength: 40
+        binnenlandsCorrespondentieadres:
+          $ref: '#/components/schemas/BinnenlandsCorrespondentieadresVerzending'
+        buitenlandsCorrespondentieadres:
+          $ref: '#/components/schemas/BuitenlandsCorrespondentieadresVerzending'
+        correspondentiePostadres:
+          $ref: '#/components/schemas/CorrespondentiePostadresVerzending'
+        faxnummer:
+          title: Faxnummer
+          description: faxnummer van de ontvanger of afzender.
+          type: string
+          maxLength: 15
+        emailadres:
+          title: Emailadres
+          description: emailadres van de ontvanger of afzender.
+          type: string
+          format: email
+          maxLength: 100
+        mijnOverheid:
+          title: Mijn overheid
+          description: is het informatieobject verzonden via mijnOverheid naar de
+            ontvanger.
+          type: boolean
+        telefoonnummer:
+          title: Telefoonnummer
+          description: telefoonnummer van de ontvanger of afzender.
+          type: string
+          maxLength: 15

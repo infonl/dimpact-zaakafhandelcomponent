@@ -20,8 +20,8 @@ import jakarta.json.bind.annotation.JsonbTransient;
 
 import org.apache.commons.collections4.CollectionUtils;
 
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.model.Archiefnominatie;
-import net.atos.client.zgw.shared.model.Vertrouwelijkheidaanduiding;
 
 /**
  * Zaak
@@ -126,7 +126,7 @@ public class Zaak {
      * Optioneel - indien geen waarde gekozen wordt, dan wordt de waarde van het ZAAKTYPE overgenomen.
      * Dit betekent dat de API _altijd_ een waarde teruggeeft.
      */
-    private Vertrouwelijkheidaanduiding vertrouwelijkheidaanduiding;
+    private EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum vertrouwelijkheidaanduiding;
 
     /**
      * Indicatie of de, met behandeling van de zaak gemoeide, kosten betaald zijn door de desbetreffende betrokkene
@@ -372,11 +372,11 @@ public class Zaak {
         this.productenOfDiensten = productenOfDiensten;
     }
 
-    public Vertrouwelijkheidaanduiding getVertrouwelijkheidaanduiding() {
+    public EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum getVertrouwelijkheidaanduiding() {
         return vertrouwelijkheidaanduiding;
     }
 
-    public void setVertrouwelijkheidaanduiding(final Vertrouwelijkheidaanduiding vertrouwelijkheidaanduiding) {
+    public void setVertrouwelijkheidaanduiding(final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum vertrouwelijkheidaanduiding) {
         this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding;
     }
 

@@ -8,12 +8,10 @@ package net.atos.zac.app.informatieobjecten.model;
 import java.time.LocalDate;
 import java.util.UUID;
 
-import net.atos.client.zgw.drc.model.InformatieobjectStatus;
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
 import net.atos.zac.app.configuratie.model.RESTTaal;
 
-/**
- *
- */
+
 public class RESTEnkelvoudigInformatieObjectVersieGegevens {
 
     public UUID uuid;
@@ -26,7 +24,7 @@ public class RESTEnkelvoudigInformatieObjectVersieGegevens {
 
     public String auteur;
 
-    public InformatieobjectStatus status;
+    public EnkelvoudigInformatieObject.StatusEnum status;
 
     public RESTTaal taal;
 

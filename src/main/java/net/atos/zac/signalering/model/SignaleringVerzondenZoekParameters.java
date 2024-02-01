@@ -19,7 +19,7 @@ import java.util.UUID;
 
 import org.flowable.task.api.TaskInfo;
 
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.zac.identity.model.Group;
 import net.atos.zac.identity.model.User;
@@ -94,7 +94,7 @@ public class SignaleringVerzondenZoekParameters {
         return subjectTaak(subject.getId());
     }
 
-    public SignaleringVerzondenZoekParameters subject(final EnkelvoudigInformatieobject subject) {
+    public SignaleringVerzondenZoekParameters subject(final EnkelvoudigInformatieObject subject) {
         return subjectInformatieobject(UriUtil.uuidFromURI(subject.getUrl()));
     }
 

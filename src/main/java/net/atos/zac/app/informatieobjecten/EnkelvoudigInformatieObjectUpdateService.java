@@ -11,10 +11,8 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
 import net.atos.client.zgw.drc.DRCClientService;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectWithInhoudAndLock;
-import net.atos.client.zgw.drc.model.InformatieobjectStatus;
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObjectWithLockData;
 import net.atos.client.zgw.drc.model.Ondertekening;
-import net.atos.client.zgw.drc.model.OndertekeningSoort;
 import net.atos.zac.authentication.LoggedInUser;
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
 import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
@@ -37,23 +35,28 @@ public class EnkelvoudigInformatieObjectUpdateService {
     private Instance<LoggedInUser> loggedInUserInstance;
 
     public void verzendEnkelvoudigInformatieObject(final UUID uuid, final LocalDate verzenddatum, final String toelichting) {
-        final var update = new EnkelvoudigInformatieobjectWithInhoudAndLock();
+        final var update = new EnkelvoudigInformatieObjectWithLockData();
         update.setVerzenddatum(verzenddatum);
-        updateEnkelvoudigInformatieObject(uuid, update, isNotEmpty(toelichting) ? "%s: %s".formatted(
+        updateEnkelvoudigInformatieObjectWithLockData(uuid, update, isNotEmpty(toelichting) ? "%s: %s".formatted(
                 VERZEND_TOELICHTING_PREFIX, toelichting) :
                 VERZEND_TOELICHTING_PREFIX);
     }
 
     public void ondertekenEnkelvoudigInformatieObject(final UUID uuid) {
-        final var update = new EnkelvoudigInformatieobjectWithInhoudAndLock();
-        final Ondertekening ondertekening = new Ondertekening(OndertekeningSoort.DIGITAAL, LocalDate.now());
+        final var update = new EnkelvoudigInformatieObjectWithLockData();
+        final Ondertekening ondertekening = new Ondertekening();
+        ondertekening.setSoort(Ondertekening.SoortEnum.DIGITAAL);
+        ondertekening.setDatum(LocalDate.now());
         update.setOndertekening(ondertekening);
-        update.setStatus(InformatieobjectStatus.DEFINITIEF);
-        updateEnkelvoudigInformatieObject(uuid, update, ONDERTEKENEN_TOELICHTING);
+        update.setStatus(EnkelvoudigInformatieObjectWithLockData.StatusEnum.DEFINITIEF);
+        updateEnkelvoudigInformatieObjectWithLockData(uuid, update, ONDERTEKENEN_TOELICHTING);
     }
 
-    public EnkelvoudigInformatieobjectWithInhoudAndLock updateEnkelvoudigInformatieObject(final UUID uuid,
-            final EnkelvoudigInformatieobjectWithInhoudAndLock update, final String toelichting) {
+    public EnkelvoudigInformatieObjectWithLockData updateEnkelvoudigInformatieObjectWithLockData(
+            final UUID uuid,
+            final EnkelvoudigInformatieObjectWithLockData update,
+            final String toelichting
+    ) {
         EnkelvoudigInformatieObjectLock tempLock = null;
         try {
             final var existingLock = enkelvoudigInformatieObjectLockService.findLock(uuid);

@@ -389,6 +389,11 @@ tasks {
         modelPackage.set("net.atos.client.zgw.brc.model")
     }
 
+f    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateZgwDrcClient") {
+        inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/drc-openapi.yaml")
+        modelPackage.set("net.atos.client.zgw.drc.model")
+    }
+
     register("generateJavaClients") {
         dependsOn(
             "generateKvkZoekenClient",
@@ -399,7 +404,8 @@ tasks {
             "generateBagClient",
             "generateKlantenClient",
             "generateContactMomentenClient",
-            "generateZgwBrcClient"
+            "generateZgwBrcClient",
+            "generateZgwDrcClient"
         )
     }
 

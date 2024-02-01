@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 import org.apache.solr.client.solrj.beans.Field;
 
-import net.atos.client.zgw.drc.model.InformatieobjectStatus;
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
 import net.atos.zac.zoeken.model.DocumentIndicatie;
 import net.atos.zac.zoeken.model.ZoekObject;
 import net.atos.zac.zoeken.model.index.ZoekObjectType;
@@ -274,11 +274,11 @@ public class DocumentZoekObject implements ZoekObject {
         this.auteur = auteur;
     }
 
-    public InformatieobjectStatus getStatus() {
-        return status != null ? InformatieobjectStatus.valueOf(status) : null;
+    public EnkelvoudigInformatieObject.StatusEnum getStatus() {
+        return status != null ? EnkelvoudigInformatieObject.StatusEnum.valueOf(status) : null;
     }
 
-    public void setStatus(final InformatieobjectStatus status) {
+    public void setStatus(final EnkelvoudigInformatieObject.StatusEnum status) {
         this.status = status.toString();
     }
 

@@ -10,7 +10,7 @@ import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.ObjectUtils;
 
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.drc.model.Ondertekening;
 import net.atos.client.zgw.shared.model.ObjectType;
 import net.atos.client.zgw.shared.model.audit.documenten.EnkelvoudigInformatieobjectWijziging;
@@ -30,8 +30,8 @@ public class AuditEnkelvoudigInformatieobjectConverter extends AbstractAuditWijz
 
     @Override
     protected Stream<RESTHistorieRegel> doConvert(final EnkelvoudigInformatieobjectWijziging wijziging) {
-        final EnkelvoudigInformatieobject oud = wijziging.getOud();
-        final EnkelvoudigInformatieobject nieuw = wijziging.getNieuw();
+        final EnkelvoudigInformatieObject oud = wijziging.getOud();
+        final EnkelvoudigInformatieObject nieuw = wijziging.getNieuw();
 
         if (oud == null || nieuw == null) {
             return Stream.of(new RESTHistorieRegel("informatieobject", toWaarde(oud), toWaarde(nieuw)));
@@ -46,7 +46,8 @@ public class AuditEnkelvoudigInformatieobjectConverter extends AbstractAuditWijz
         checkInformatieobjecttype(oud.getInformatieobjecttype(), nieuw.getInformatieobjecttype(), historieRegels);
         checkAttribuut("auteur", oud.getAuteur(), nieuw.getAuteur(), historieRegels);
         checkAttribuut("ontvangstdatum", oud.getOntvangstdatum(), nieuw.getOntvangstdatum(), historieRegels);
-        checkAttribuut("registratiedatum", oud.getBeginRegistratie(), nieuw.getBeginRegistratie(), historieRegels);
+        checkAttribuut("registratiedatum", oud.getBeginRegistratie().toZonedDateTime(),
+                       nieuw.getBeginRegistratie().toZonedDateTime(), historieRegels);
         checkAttribuut("locked", oud.getLocked(), nieuw.getLocked(), historieRegels);
         checkAttribuut("versie", Integer.toString(oud.getVersie()), Integer.toString(nieuw.getVersie()), historieRegels);
         checkAttribuut("informatieobject.status", oud.getStatus(), nieuw.getStatus(), historieRegels);
@@ -68,7 +69,7 @@ public class AuditEnkelvoudigInformatieobjectConverter extends AbstractAuditWijz
         return informatieobjecttype != null ? ztcClientService.readInformatieobjecttype(informatieobjecttype).getOmschrijving() : null;
     }
 
-    private String toWaarde(final EnkelvoudigInformatieobject enkelvoudigInformatieobject) {
+    private String toWaarde(final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
         return enkelvoudigInformatieobject != null ? enkelvoudigInformatieobject.getIdentificatie() : null;
     }
 

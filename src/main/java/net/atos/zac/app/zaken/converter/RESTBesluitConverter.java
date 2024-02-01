@@ -14,7 +14,7 @@ import jakarta.inject.Inject;
 import net.atos.client.zgw.brc.BRCClientService;
 import net.atos.client.zgw.brc.model.Besluit;
 import net.atos.client.zgw.drc.DRCClientService;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter;
@@ -100,7 +100,7 @@ public class RESTBesluitConverter {
         return besluit;
     }
 
-    public List<EnkelvoudigInformatieobject> listBesluitInformatieobjecten(final Besluit besluit) {
+    public List<EnkelvoudigInformatieObject> listBesluitInformatieobjecten(final Besluit besluit) {
         return brcClientService.listBesluitInformatieobjecten(besluit.getUrl()).stream()
                 .map(besluitInformatieobject -> drcClientService.readEnkelvoudigInformatieobject(
                         besluitInformatieobject.getInformatieobject()))

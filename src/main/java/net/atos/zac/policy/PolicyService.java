@@ -5,7 +5,8 @@
 
 package net.atos.zac.policy;
 
-import static net.atos.client.zgw.drc.model.InformatieobjectStatus.DEFINITIEF;
+import static net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject.StatusEnum.DEFINITIEF;
+import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
@@ -15,7 +16,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.flowable.task.api.TaskInfo;
 
 import net.atos.client.opa.model.RuleQuery;
-import net.atos.client.zgw.drc.model.AbstractEnkelvoudigInformatieobject;
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.ZTCClientService;
@@ -93,17 +94,19 @@ public class PolicyService {
                 .getResult();
     }
 
-    public DocumentRechten readDocumentRechten(final AbstractEnkelvoudigInformatieobject enkelvoudigInformatieobject) {
+    public DocumentRechten readDocumentRechten(final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
         return readDocumentRechten(enkelvoudigInformatieobject, null);
     }
 
-    public DocumentRechten readDocumentRechten(final AbstractEnkelvoudigInformatieobject enkelvoudigInformatieobject,
-            final Zaak zaak) {
-        return readDocumentRechten(enkelvoudigInformatieobject,
-                                   lockService.findLock(enkelvoudigInformatieobject.getUUID()).orElse(null), zaak);
+    public DocumentRechten readDocumentRechten(final EnkelvoudigInformatieObject enkelvoudigInformatieobject, final Zaak zaak) {
+        return readDocumentRechten(
+                enkelvoudigInformatieobject,
+                lockService.findLock(parseUUIDFromResourceURI(enkelvoudigInformatieobject.getUrl())).orElse(null),
+                zaak
+        );
     }
 
-    public DocumentRechten readDocumentRechten(final AbstractEnkelvoudigInformatieobject enkelvoudigInformatieobject,
+    public DocumentRechten readDocumentRechten(final EnkelvoudigInformatieObject enkelvoudigInformatieobject,
             final EnkelvoudigInformatieObjectLock lock,
             final Zaak zaak) {
         final DocumentData documentData = new DocumentData();

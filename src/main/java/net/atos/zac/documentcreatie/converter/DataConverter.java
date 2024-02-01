@@ -139,7 +139,7 @@ public class DataConverter {
         }
 
         if (zaak.getVertrouwelijkheidaanduiding() != null) {
-            zaakData.vertrouwelijkheidaanduiding = zaak.getVertrouwelijkheidaanduiding().toValue();
+            zaakData.vertrouwelijkheidaanduiding = zaak.getVertrouwelijkheidaanduiding().value();
         }
 
         zgwApiService.findGroepForZaak(zaak)

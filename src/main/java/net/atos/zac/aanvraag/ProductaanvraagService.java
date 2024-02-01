@@ -31,7 +31,7 @@ import net.atos.client.or.object.model.ORObject;
 import net.atos.client.vrl.VRLClientService;
 import net.atos.client.vrl.model.CommunicatieKanaal;
 import net.atos.client.zgw.drc.DRCClientService;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Medewerker;
@@ -295,7 +295,8 @@ public class ProductaanvraagService {
 
     public void pairBijlagenWithZaak(final List<URI> bijlageURIs, final URI zaakUrl) {
         for (final URI bijlageURI : ListUtils.emptyIfNull(bijlageURIs)) {
-            final EnkelvoudigInformatieobject bijlage = drcClientService.readEnkelvoudigInformatieobject(bijlageURI);
+            final EnkelvoudigInformatieObject bijlage =
+                    drcClientService.readEnkelvoudigInformatieobject(bijlageURI);
             final ZaakInformatieobject zaakInformatieobject = new ZaakInformatieobject();
             zaakInformatieobject.setInformatieobject(bijlage.getUrl());
             zaakInformatieobject.setZaak(zaakUrl);

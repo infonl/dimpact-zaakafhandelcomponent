@@ -13,7 +13,7 @@ import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
 import jakarta.json.bind.annotation.JsonbTransient;
 
-import net.atos.client.zgw.shared.model.Vertrouwelijkheidaanduiding;
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.util.URIUtil;
 
 /**
@@ -42,7 +42,7 @@ public class Informatieobjecttype {
     /**
      * Aanduiding van de mate waarin informatieobjecten van dit INFORMATIEOBJECTTYPE voor de openbaarheid bestemd zijn.
      */
-    private Vertrouwelijkheidaanduiding vertrouwelijkheidaanduiding;
+    private EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum vertrouwelijkheidaanduiding;
 
     /**
      * De datum waarop het is ontstaan.
@@ -72,7 +72,7 @@ public class Informatieobjecttype {
     public Informatieobjecttype(
             final URI catalogus,
             final String omschrijving,
-            final Vertrouwelijkheidaanduiding vertrouwelijkheidaanduiding,
+            final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum vertrouwelijkheidaanduiding,
             final LocalDate beginGeldigheid)
     {
         this.catalogus = catalogus;
@@ -113,11 +113,11 @@ public class Informatieobjecttype {
         this.omschrijving = omschrijving;
     }
 
-    public Vertrouwelijkheidaanduiding getVertrouwelijkheidaanduiding() {
+    public EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum getVertrouwelijkheidaanduiding() {
         return vertrouwelijkheidaanduiding;
     }
 
-    public void setVertrouwelijkheidaanduiding(final Vertrouwelijkheidaanduiding vertrouwelijkheidaanduiding) {
+    public void setVertrouwelijkheidaanduiding(final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum vertrouwelijkheidaanduiding) {
         this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding;
     }
 

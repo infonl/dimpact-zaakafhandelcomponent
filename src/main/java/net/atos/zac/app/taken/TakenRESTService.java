@@ -5,6 +5,7 @@
 
 package net.atos.zac.app.taken;
 
+import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
 import static net.atos.zac.app.taken.model.TaakStatus.AFGEROND;
 import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT;
 import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN;
@@ -52,7 +53,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.atos.client.zgw.drc.DRCClientService;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectWithInhoud;
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObjectData;
 import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
@@ -348,12 +349,18 @@ public class TakenRESTService {
                 } catch (final JsonProcessingException e) {
                     throw new RuntimeException(e.getMessage(), e); //invalid form-group data
                 }
-                final EnkelvoudigInformatieobjectWithInhoud document = restInformatieobjectConverter.convert(
-                        restTaakDocumentData, uploadedFile);
+                final EnkelvoudigInformatieObjectData document = restInformatieobjectConverter.convert(
+                        restTaakDocumentData,
+                        uploadedFile
+                );
                 final ZaakInformatieobject zaakInformatieobject =
-                        zgwApiService.createZaakInformatieobjectForZaak(zaak, document, document.getTitel(),
-                                                                        OMSCHRIJVING_TAAK_DOCUMENT,
-                                                                        OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN);
+                        zgwApiService.createZaakInformatieobjectForZaak(
+                                zaak,
+                                document,
+                                document.getTitel(),
+                                OMSCHRIJVING_TAAK_DOCUMENT,
+                                OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
+                        );
                 restTaak.taakdata.replace(key,
                                           UriUtil.uuidFromURI(zaakInformatieobject.getInformatieobject()).toString());
                 httpSession.removeAttribute(fileKey);
@@ -372,7 +379,8 @@ public class TakenRESTService {
                                          policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak)
                                                  .getOndertekenen());
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
-                            enkelvoudigInformatieobject.getUUID());
+                            parseUUIDFromResourceURI(enkelvoudigInformatieobject.getUrl())
+                    );
                 }));
     }
 
@@ -402,7 +410,10 @@ public class TakenRESTService {
     private void setVerzenddatumEnkelvoudigInformatieObject(final UUID uuid, final LocalDate verzenddatum,
             final String toelichting) {
         final var informatieobject = drcClientService.readEnkelvoudigInformatieobject(uuid);
-        enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(informatieobject.getUUID(),
-                                                                                    verzenddatum, toelichting);
+        enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
+                parseUUIDFromResourceURI(informatieobject.getUrl()),
+                verzenddatum,
+                toelichting
+        );
     }
 }

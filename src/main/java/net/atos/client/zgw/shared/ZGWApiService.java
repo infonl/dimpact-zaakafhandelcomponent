@@ -21,9 +21,10 @@ import jakarta.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 
 import net.atos.client.zgw.drc.DRCClientService;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectWithInhoud;
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObjectData;
 import net.atos.client.zgw.drc.model.Gebruiksrechten;
+import net.atos.client.zgw.shared.util.URIUtil;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.BetrokkeneType;
 import net.atos.client.zgw.zrc.model.Resultaat;
@@ -176,40 +177,52 @@ public class ZGWApiService {
     }
 
     /**
-     * Create {@link EnkelvoudigInformatieobjectWithInhoud} and {@link ZaakInformatieobject} for {@link Zaak}.
+     * Create {@link EnkelvoudigInformatieObject} and {@link ZaakInformatieobject} for {@link Zaak}.
      *
      * @param zaak                                   {@link Zaak}.
-     * @param informatieobject                       {@link EnkelvoudigInformatieobjectWithInhoud} to be created.
+     * @param enkelvoudigInformatieObjectData                       {@link EnkelvoudigInformatieObject} to be
+     *                                                                                  created.
      * @param titel                                  Titel of the new {@link ZaakInformatieobject}.
      * @param beschrijving                           Beschrijving of the new {@link ZaakInformatieobject}.
-     * @param omschrijvingVoorwaardenGebruiksrechten Used to create the {@link Gebruiksrechten} for the to be created {@link EnkelvoudigInformatieobjectWithInhoud}
+     * @param omschrijvingVoorwaardenGebruiksrechten Used to create the {@link Gebruiksrechten}
+     *                                              for the to be created {@link EnkelvoudigInformatieObject}
      * @return Created {@link ZaakInformatieobject}.
      */
-    public ZaakInformatieobject createZaakInformatieobjectForZaak(final Zaak zaak,
-            final EnkelvoudigInformatieobjectWithInhoud informatieobject,
-            final String titel, final String beschrijving, final String omschrijvingVoorwaardenGebruiksrechten) {
-        final EnkelvoudigInformatieobjectWithInhoud newInformatieobject = drcClientService.createEnkelvoudigInformatieobject(
-                informatieobject);
-        drcClientService.createGebruiksrechten(new Gebruiksrechten(newInformatieobject.getUrl(), convertToDateTime(
-                newInformatieobject.getCreatiedatum()),
-                                                                   omschrijvingVoorwaardenGebruiksrechten));
+    public ZaakInformatieobject createZaakInformatieobjectForZaak(
+            final Zaak zaak,
+            final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData,
+            final String titel,
+            final String beschrijving,
+            final String omschrijvingVoorwaardenGebruiksrechten
+    ) {
+        final EnkelvoudigInformatieObjectData newInformatieObjectData =
+                drcClientService.createEnkelvoudigInformatieobject(enkelvoudigInformatieObjectData);
+        final Gebruiksrechten gebruiksrechten = new Gebruiksrechten();
+        gebruiksrechten.setInformatieobject(newInformatieObjectData.getUrl());
+        gebruiksrechten.setStartdatum(convertToDateTime(newInformatieObjectData.getCreatiedatum()).toOffsetDateTime());
+        gebruiksrechten.setOmschrijvingVoorwaarden(omschrijvingVoorwaardenGebruiksrechten);
+        drcClientService.createGebruiksrechten(gebruiksrechten);
+
         final ZaakInformatieobject zaakInformatieObject = new ZaakInformatieobject();
         zaakInformatieObject.setZaak(zaak.getUrl());
-        zaakInformatieObject.setInformatieobject(newInformatieobject.getUrl());
+        zaakInformatieObject.setInformatieobject(newInformatieObjectData.getUrl());
         zaakInformatieObject.setTitel(titel);
         zaakInformatieObject.setBeschrijving(beschrijving);
         return zrcClientService.createZaakInformatieobject(zaakInformatieObject, StringUtils.EMPTY);
     }
 
     /**
-     * Delete {@link ZaakInformatieobject} which relates {@link EnkelvoudigInformatieobject} and {@link Zaak} with zaakUUID.
-     * When the {@link EnkelvoudigInformatieobject} has no other related {@link ZaakInformatieobject}s then it is also deleted.
+     * Delete {@link ZaakInformatieobject} which relates {@link EnkelvoudigInformatieObject} and
+     * {@link Zaak} with zaakUUID.
+     * When the {@link EnkelvoudigInformatieObject} has no other related
+     * {@link ZaakInformatieobject}s then it is also deleted.
      *
-     * @param enkelvoudigInformatieobject {@link EnkelvoudigInformatieobject}
+     * @param enkelvoudigInformatieobject {@link EnkelvoudigInformatieObject}
      * @param zaakUUID                    UUID of a {@link Zaak}
-     * @param toelichting                 Explanation why the {@link EnkelvoudigInformatieobject} is to be removed.
+     * @param toelichting                 Explanation why the {@link EnkelvoudigInformatieObject}
+     *                                   is to be removed.
      */
-    public void removeEnkelvoudigInformatieObjectFromZaak(final EnkelvoudigInformatieobject enkelvoudigInformatieobject,
+    public void removeEnkelvoudigInformatieObjectFromZaak(final EnkelvoudigInformatieObject enkelvoudigInformatieobject,
             final UUID zaakUUID,
             final String toelichting) {
         final List<ZaakInformatieobject> zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
@@ -224,7 +237,7 @@ public class ZGWApiService {
         // If the EnkelvoudigInformatieobject has no relationship(s) with other zaken it can be deleted.
         if (zaakInformatieobjecten.stream()
                 .allMatch(zaakInformatieobject -> zaakInformatieobject.getZaakUUID().equals(zaakUUID))) {
-            drcClientService.deleteEnkelvoudigInformatieobject(enkelvoudigInformatieobject.getUUID());
+            drcClientService.deleteEnkelvoudigInformatieobject(URIUtil.parseUUIDFromResourceURI(enkelvoudigInformatieobject.getUrl()));
         }
     }
 

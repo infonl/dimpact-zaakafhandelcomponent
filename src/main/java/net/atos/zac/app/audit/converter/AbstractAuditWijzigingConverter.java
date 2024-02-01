@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.model.AbstractEnum;
 import net.atos.client.zgw.shared.model.ObjectType;
 import net.atos.client.zgw.shared.model.audit.AuditWijziging;
@@ -34,7 +35,23 @@ public abstract class AbstractAuditWijzigingConverter<W extends AuditWijziging<?
         }
     }
 
-    protected void checkAttribuut(final String label, final AbstractEnum<?> oud, final AbstractEnum<?> nieuw, final List<RESTHistorieRegel> historieRegels) {
+    protected void checkAttribuut(
+            final String label,
+            final EnkelvoudigInformatieObject.StatusEnum oud,
+            final EnkelvoudigInformatieObject.StatusEnum nieuw,
+            final List<RESTHistorieRegel> historieRegels
+    ) {
+        if (oud != nieuw) {
+            historieRegels.add(new RESTHistorieRegel(label, oud, nieuw));
+        }
+    }
+
+    protected void checkAttribuut(
+            final String label,
+            final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum oud,
+            final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum nieuw,
+            final List<RESTHistorieRegel> historieRegels
+    ) {
         if (oud != nieuw) {
             historieRegels.add(new RESTHistorieRegel(label, oud, nieuw));
         }

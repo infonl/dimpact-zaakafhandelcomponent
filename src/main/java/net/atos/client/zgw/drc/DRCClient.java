@@ -26,13 +26,13 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObjectData;
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObjectWithLockData;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectWithInhoud;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectWithInhoudAndLock;
 import net.atos.client.zgw.drc.model.Gebruiksrechten;
 import net.atos.client.zgw.drc.model.Lock;
-import net.atos.client.zgw.drc.model.ObjectInformatieobject;
+import net.atos.client.zgw.drc.model.ObjectInformatieObject;
 import net.atos.client.zgw.drc.model.ObjectInformatieobjectListParameters;
 import net.atos.client.zgw.shared.exception.FoutExceptionMapper;
 import net.atos.client.zgw.shared.exception.RuntimeExceptionMapper;
@@ -54,19 +54,19 @@ public interface DRCClient {
 
     @POST
     @Path("enkelvoudiginformatieobjecten")
-    EnkelvoudigInformatieobjectWithInhoud enkelvoudigInformatieobjectCreate(final EnkelvoudigInformatieobjectWithInhoud enkelvoudigInformatieObjectWithInhoud);
+    EnkelvoudigInformatieObjectData enkelvoudigInformatieobjectCreate(final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData);
 
     @GET
     @Path("enkelvoudiginformatieobjecten")
-    Results<EnkelvoudigInformatieobject> enkelvoudigInformatieobjectList(@BeanParam final EnkelvoudigInformatieobjectListParameters parameters);
+    Results<EnkelvoudigInformatieObject> enkelvoudigInformatieobjectList(@BeanParam final EnkelvoudigInformatieobjectListParameters parameters);
 
     @GET
     @Path("enkelvoudiginformatieobjecten/{uuid}")
-    EnkelvoudigInformatieobject enkelvoudigInformatieobjectRead(@PathParam("uuid") final UUID uuid);
+    EnkelvoudigInformatieObject enkelvoudigInformatieobjectRead(@PathParam("uuid") final UUID uuid);
 
     @GET
     @Path("enkelvoudiginformatieobjecten/{uuid}")
-    EnkelvoudigInformatieobject enkelvoudigInformatieobjectReadVersie(@PathParam("uuid") final UUID uuid,
+    EnkelvoudigInformatieObject enkelvoudigInformatieobjectReadVersie(@PathParam("uuid") final UUID uuid,
             @QueryParam("versie") final Integer versie);
 
     @GET
@@ -81,8 +81,8 @@ public interface DRCClient {
 
     @PATCH
     @Path("enkelvoudiginformatieobjecten/{uuid}")
-    EnkelvoudigInformatieobjectWithInhoudAndLock enkelvoudigInformatieobjectPartialUpdate(@PathParam("uuid") final UUID uuid,
-            final EnkelvoudigInformatieobjectWithInhoudAndLock enkelvoudigInformatieObjectWithInhoudAndLock);
+    EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieobjectPartialUpdate(@PathParam("uuid") final UUID uuid,
+            final EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieObjectWithInhoudAndLock);
 
     @DELETE
     @Path("enkelvoudiginformatieobjecten/{uuid}")
@@ -90,8 +90,10 @@ public interface DRCClient {
 
     @POST
     @Path("enkelvoudiginformatieobjecten/{uuid}/lock")
-    Lock enkelvoudigInformatieobjectLock(@PathParam("uuid") final UUID uuid,
-            final Lock enkelvoudigInformatieObjectLock);
+    Lock enkelvoudigInformatieobjectLock(
+            @PathParam("uuid") final UUID uuid,
+            final Lock enkelvoudigInformatieObjectLock
+    );
 
     @POST
     @Path("enkelvoudiginformatieobjecten/{uuid}/unlock")
@@ -103,7 +105,7 @@ public interface DRCClient {
 
     @GET
     @Path("objectinformatieobjecten")
-    Results<ObjectInformatieobject> objectInformatieobjectList(@BeanParam final ObjectInformatieobjectListParameters parameters);
+    Results<ObjectInformatieObject> objectInformatieobjectList(@BeanParam final ObjectInformatieobjectListParameters parameters);
 
     @GET
     @Path("enkelvoudiginformatieobjecten/{uuid}/audittrail")

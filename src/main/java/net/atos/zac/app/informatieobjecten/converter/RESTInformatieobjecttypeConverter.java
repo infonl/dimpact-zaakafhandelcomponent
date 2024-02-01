@@ -26,7 +26,7 @@ public class RESTInformatieobjecttypeConverter {
         restType.uuid = type.getUUID();
         restType.concept = type.getConcept();
         restType.omschrijving = type.getOmschrijving();
-        restType.vertrouwelijkheidaanduiding = type.getVertrouwelijkheidaanduiding().toValue();
+        restType.vertrouwelijkheidaanduiding = type.getVertrouwelijkheidaanduiding().value();
         return restType;
     }
 

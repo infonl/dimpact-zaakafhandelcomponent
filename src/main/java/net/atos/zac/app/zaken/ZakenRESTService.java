@@ -5,6 +5,7 @@
 
 package net.atos.zac.app.zaken;
 
+import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
 import static net.atos.client.zgw.ztc.model.Statustype.isHeropend;
 import static net.atos.client.zgw.ztc.model.Statustype.isIntake;
 import static net.atos.zac.configuratie.ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER;
@@ -62,7 +63,7 @@ import net.atos.client.zgw.brc.BRCClientService;
 import net.atos.client.zgw.brc.model.Besluit;
 import net.atos.client.zgw.brc.model.BesluitInformatieObject;
 import net.atos.client.zgw.drc.DRCClientService;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel;
 import net.atos.client.zgw.zrc.ZRCClientService;
@@ -495,7 +496,8 @@ public class ZakenRESTService {
     @Path("zaakinformatieobjecten/ontkoppel")
     public void ontkoppelInformatieObject(final RESTDocumentOntkoppelGegevens ontkoppelGegevens) {
         final Zaak zaak = zrcClientService.readZaak(ontkoppelGegevens.zaakUUID);
-        final EnkelvoudigInformatieobject informatieobject = drcClientService.readEnkelvoudigInformatieobject(
+        final EnkelvoudigInformatieObject informatieobject =
+                drcClientService.readEnkelvoudigInformatieobject(
             ontkoppelGegevens.documentUUID);
         assertPolicy(policyService.readDocumentRechten(informatieobject, zaak).getWijzigen());
         final ZaakInformatieobjectListParameters parameters = new ZaakInformatieobjectListParameters();
@@ -516,7 +518,7 @@ public class ZakenRESTService {
                                                ontkoppelGegevens.reden,
                                                "Ontkoppeld"));
         if (zrcClientService.listZaakinformatieobjecten(informatieobject).isEmpty()) {
-            indexeerService.removeInformatieobject(informatieobject.getUUID());
+            indexeerService.removeInformatieobject(parseUUIDFromResourceURI(informatieobject.getUrl()));
             ontkoppeldeDocumentenService.create(informatieobject, zaak, ontkoppelGegevens.reden);
         }
     }
@@ -945,7 +947,8 @@ public class ZakenRESTService {
         }
         final RESTBesluit restBesluit = besluitConverter.convertToRESTBesluit(brcClientService.createBesluit(besluit));
         besluitToevoegenGegevens.informatieobjecten.forEach(documentUri -> {
-            final EnkelvoudigInformatieobject informatieobject = drcClientService.readEnkelvoudigInformatieobject(documentUri);
+            final EnkelvoudigInformatieObject informatieobject =
+                    drcClientService.readEnkelvoudigInformatieobject(documentUri);
             final BesluitInformatieObject besluitInformatieobject = new BesluitInformatieObject();
             besluitInformatieobject.setInformatieobject(informatieobject.getUrl());
             besluitInformatieobject.setBesluit(restBesluit.url);
@@ -1007,7 +1010,8 @@ public class ZakenRESTService {
                 uuidFromURI(besluitInformatieobject.getUrl()))));
 
         toevoegen.forEach(documentUri -> {
-            final EnkelvoudigInformatieobject informatieobject = drcClientService.readEnkelvoudigInformatieobject(documentUri);
+            final EnkelvoudigInformatieObject informatieobject =
+                    drcClientService.readEnkelvoudigInformatieobject(documentUri);
             final BesluitInformatieObject besluitInformatieobject = new BesluitInformatieObject();
             besluitInformatieobject.setInformatieobject(informatieobject.getUrl());
             besluitInformatieobject.setBesluit(besluit.getUrl());

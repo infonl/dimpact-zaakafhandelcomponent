@@ -5,6 +5,8 @@
 
 package net.atos.zac.app.informatieobjecten;
 
+import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
+
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -21,7 +23,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.StreamingOutput;
 
 import net.atos.client.zgw.drc.DRCClientService;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 
@@ -43,10 +45,10 @@ public class EnkelvoudigInformatieObjectDownloadService {
     /**
      * Retourneer {@link StreamingOutput} zip-bestand met informatieobjecten en samenvatting
      *
-     * @param informatieobjecten lijst van {@link EnkelvoudigInformatieobject}s
+     * @param informatieobjecten lijst van {@link EnkelvoudigInformatieObject} s
      * @return het zip-bestand
      */
-    public StreamingOutput getZipStreamOutput(final List<EnkelvoudigInformatieobject> informatieobjecten) {
+    public StreamingOutput getZipStreamOutput(final List<EnkelvoudigInformatieObject> informatieobjecten) {
         return outputStream -> {
             try (final ZipOutputStream zipOutputStream = new ZipOutputStream(new BufferedOutputStream(outputStream))) {
                 final Map<String, Map<String, List<String>>> samenvatting = new HashMap<>();
@@ -67,12 +69,13 @@ public class EnkelvoudigInformatieObjectDownloadService {
      * @param zipOutputStream        {@link ZipOutputStream} van het te updaten zip-bestand
      * @return {@link String} pad naar het toegevoegde bestand in het zip-bestand
      */
-    private String addInformatieObjectToZip(final EnkelvoudigInformatieobject informatieobject, final ZipOutputStream zipOutputStream) {
+    private String addInformatieObjectToZip(final EnkelvoudigInformatieObject informatieobject,
+            final ZipOutputStream zipOutputStream) {
         final String pad = getInformatieObjectZipPath(informatieobject);
         final ZipEntry zipEntry = new ZipEntry(pad);
         try {
             zipOutputStream.putNextEntry(zipEntry);
-            zipOutputStream.write(getInformatieObjectInhoud(informatieobject.getUUID()));
+            zipOutputStream.write(getInformatieObjectInhoud(parseUUIDFromResourceURI(informatieobject.getUrl())));
             zipOutputStream.closeEntry();
         } catch (final IOException e) {
             throw new RuntimeException(e);
@@ -94,10 +97,10 @@ public class EnkelvoudigInformatieObjectDownloadService {
     /**
      * Retourneer pad in mappenstructuur voor een informatieobject in het zip-bestand
      *
-     * @param enkelvoudigInformatieobject {@link EnkelvoudigInformatieobject}
+     * @param enkelvoudigInformatieobject {@link EnkelvoudigInformatieObject}
      * @return {@link String} pad naar het informatieobject
      */
-    private String getInformatieObjectZipPath(final EnkelvoudigInformatieobject enkelvoudigInformatieobject) {
+    private String getInformatieObjectZipPath(final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
         final List<ZaakInformatieobject> zaakInformatieObjectenList = zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieobject);
         final URI zaakUri = zaakInformatieObjectenList.get(0).getZaak();
         final String zaakId = zrcClientService.readZaak(zaakUri).getIdentificatie();

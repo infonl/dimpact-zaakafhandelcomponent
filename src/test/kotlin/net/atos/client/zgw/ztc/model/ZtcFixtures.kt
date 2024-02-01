@@ -1,6 +1,6 @@
 package net.atos.client.zgw.ztc.model
 
-import net.atos.client.zgw.shared.model.Vertrouwelijkheidaanduiding
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
@@ -28,7 +28,8 @@ fun createZaakType() = Zaaktype(
 fun createInformatieObjectType(
     catalogusURI: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
     omschrijving: String = "dummyOmschrijving",
-    vertrouwelijkheidaanduiding: Vertrouwelijkheidaanduiding = Vertrouwelijkheidaanduiding.OPENBAAR,
+    vertrouwelijkheidaanduiding: EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum =
+        EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum.OPENBAAR,
     beginGeldigheid: LocalDate = LocalDate.now()
 ) = Informatieobjecttype(
     catalogusURI,

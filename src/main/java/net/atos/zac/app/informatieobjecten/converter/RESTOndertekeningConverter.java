@@ -12,7 +12,7 @@ public class RESTOndertekeningConverter {
 
     public RESTOndertekening convert(final Ondertekening ondertekening) {
         final RESTOndertekening restOndertekening = new RESTOndertekening();
-        restOndertekening.soort = ondertekening.getSoort().toValue();
+        restOndertekening.soort = ondertekening.getSoort().value();
         restOndertekening.datum = ondertekening.getDatum();
         return restOndertekening;
     }

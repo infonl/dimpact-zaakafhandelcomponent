@@ -1,5 +1,6 @@
 package net.atos.zac.webdav;
 
+import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertByteArrayToBase64String;
 import static net.atos.zac.util.DateTimeConverterUtil.convertToDate;
 
 import java.io.File;
@@ -19,8 +20,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import net.atos.client.zgw.drc.DRCClientService;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectWithInhoudAndLock;
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObjectWithLockData;
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService;
 import net.atos.zac.authentication.SecurityUtil;
 import nl.info.webdav.ITransaction;
@@ -92,19 +93,26 @@ public class WebdavStore implements IWebdavStore {
     }
 
     @Override
-    public long setResourceContent(final ITransaction transaction, final String resourceUri, final InputStream content,
-            final String contentType, final String characterEncoding) {
+    public long setResourceContent(
+            final ITransaction transaction,
+            final String resourceUri,
+            final InputStream content,
+            final String contentType,
+            final String characterEncoding
+    ) {
         final String token = extraheerToken(resourceUri);
         if (StringUtils.isNotEmpty(token)) {
             final WebdavHelper.Gegevens webdavGegevens = webdavHelper.readGegevens(token);
             try {
-                SecurityUtil.setLoggedInUser(CDI.current().select(HttpSession.class).get(),
-                                             webdavGegevens.loggedInUser());
-                final var update = new EnkelvoudigInformatieobjectWithInhoudAndLock();
+                SecurityUtil.setLoggedInUser(
+                        CDI.current().select(HttpSession.class).get(),
+                        webdavGegevens.loggedInUser()
+                );
+                final var update = new EnkelvoudigInformatieObjectWithLockData();
                 final byte[] inhoud = IOUtils.toByteArray(content);
-                update.setInhoud(inhoud);
-                update.setBestandsomvang((long) inhoud.length);
-                return enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObject(
+                update.setInhoud(convertByteArrayToBase64String(inhoud));
+                update.setBestandsomvang(inhoud.length);
+                return enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
                         webdavGegevens.enkelvoudigInformatieibjectUUID(), update, UPDATE_INHOUD_TOELICHTING)
                         .getBestandsomvang();
             } catch (final IOException e) {
@@ -162,12 +170,13 @@ public class WebdavStore implements IWebdavStore {
         return fileStoredObjectMap.computeIfAbsent(token, key -> {
             final UUID enkelvoudigInformatieobjectUUID = webdavHelper.readGegevens(token)
                     .enkelvoudigInformatieibjectUUID();
-            final EnkelvoudigInformatieobject enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
+            final EnkelvoudigInformatieObject enkelvoudigInformatieobject =
+                    drcClientService.readEnkelvoudigInformatieobject(
                     enkelvoudigInformatieobjectUUID);
             final StoredObject storedObject = new StoredObject();
             storedObject.setFolder(false);
             storedObject.setCreationDate(convertToDate(enkelvoudigInformatieobject.getCreatiedatum()));
-            storedObject.setLastModified(convertToDate(enkelvoudigInformatieobject.getBeginRegistratie()));
+            storedObject.setLastModified(convertToDate(enkelvoudigInformatieobject.getBeginRegistratie().toZonedDateTime()));
             storedObject.setResourceLength(enkelvoudigInformatieobject.getBestandsomvang());
             return storedObject;
         });

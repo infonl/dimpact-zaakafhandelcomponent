@@ -5,11 +5,11 @@
 
 package net.atos.client.zgw.shared.model.audit.documenten;
 
-import net.atos.client.zgw.drc.model.ObjectInformatieobject;
+import net.atos.client.zgw.drc.model.ObjectInformatieObject;
 import net.atos.client.zgw.shared.model.ObjectType;
 import net.atos.client.zgw.shared.model.audit.AuditWijziging;
 
-public class ObjectInformatieobjectWijziging extends AuditWijziging<ObjectInformatieobject> {
+public class ObjectInformatieobjectWijziging extends AuditWijziging<ObjectInformatieObject> {
 
     @Override
     public ObjectType getObjectType() {

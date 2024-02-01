@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-import net.atos.client.zgw.shared.model.Vertrouwelijkheidaanduiding;
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
 import net.atos.zac.app.admin.model.RESTZaakafhandelParameters;
 
 public class RESTZaaktype {
@@ -32,7 +32,7 @@ public class RESTZaaktype {
 
     public LocalDate eindeGeldigheid;
 
-    public Vertrouwelijkheidaanduiding vertrouwelijkheidaanduiding;
+    public EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum vertrouwelijkheidaanduiding;
 
     public boolean nuGeldig;
 

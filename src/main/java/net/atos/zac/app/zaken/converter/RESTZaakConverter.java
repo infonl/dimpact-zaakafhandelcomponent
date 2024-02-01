@@ -5,6 +5,7 @@
 
 package net.atos.zac.app.zaken.converter;
 
+import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToVertrouwelijkheidaanduidingEnum;
 import static net.atos.client.zgw.ztc.model.Statustype.isHeropend;
 import static net.atos.client.zgw.ztc.model.Statustype.isIntake;
 import static net.atos.zac.app.klanten.model.klant.IdentificatieType.BSN;
@@ -28,7 +29,6 @@ import net.atos.client.vrl.VRLClientService;
 import net.atos.client.vrl.model.CommunicatieKanaal;
 import net.atos.client.zgw.brc.BRCClientService;
 import net.atos.client.zgw.shared.ZGWApiService;
-import net.atos.client.zgw.shared.model.Vertrouwelijkheidaanduiding;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Status;
 import net.atos.client.zgw.zrc.model.Verlenging;
@@ -224,7 +224,8 @@ public class RESTZaakConverter {
 
         if (restZaak.vertrouwelijkheidaanduiding != null) {
             zaak.setVertrouwelijkheidaanduiding(
-                    Vertrouwelijkheidaanduiding.fromValue(restZaak.vertrouwelijkheidaanduiding));
+                    convertToVertrouwelijkheidaanduidingEnum(restZaak.vertrouwelijkheidaanduiding)
+            );
         }
 
         zaak.setZaakgeometrie(restGeometryConverter.convert(restZaak.zaakgeometrie));
@@ -241,7 +242,8 @@ public class RESTZaakConverter {
         zaak.setUiterlijkeEinddatumAfdoening(restZaak.uiterlijkeEinddatumAfdoening);
         if (restZaak.vertrouwelijkheidaanduiding != null) {
             zaak.setVertrouwelijkheidaanduiding(
-                    Vertrouwelijkheidaanduiding.fromValue(restZaak.vertrouwelijkheidaanduiding));
+                    convertToVertrouwelijkheidaanduidingEnum(restZaak.vertrouwelijkheidaanduiding)
+            );
         }
         if (restZaak.communicatiekanaal != null) {
             vrlClientService.findCommunicatiekanaal(restZaak.communicatiekanaal.uuid)

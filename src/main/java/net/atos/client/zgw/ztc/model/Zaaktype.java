@@ -16,7 +16,7 @@ import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
 import jakarta.json.bind.annotation.JsonbTransient;
 
-import net.atos.client.zgw.shared.model.Vertrouwelijkheidaanduiding;
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.util.URIUtil;
 
 /**
@@ -70,7 +70,7 @@ public class Zaaktype {
      * Indien de zaak bij het aanmaken geen vertrouwelijkheidaanduiding krijgt, dan wordt deze waarde gezet.
      * - required
      */
-    private Vertrouwelijkheidaanduiding vertrouwelijkheidaanduiding;
+    private EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum vertrouwelijkheidaanduiding;
 
     /**
      * Een omschrijving van hetgeen beoogd is te bereiken met een zaak van dit zaaktype.
@@ -342,11 +342,11 @@ public class Zaaktype {
         this.omschrijvingGeneriek = omschrijvingGeneriek;
     }
 
-    public Vertrouwelijkheidaanduiding getVertrouwelijkheidaanduiding() {
+    public EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum getVertrouwelijkheidaanduiding() {
         return vertrouwelijkheidaanduiding;
     }
 
-    public void setVertrouwelijkheidaanduiding(final Vertrouwelijkheidaanduiding vertrouwelijkheidaanduiding) {
+    public void setVertrouwelijkheidaanduiding(final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum vertrouwelijkheidaanduiding) {
         this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding;
     }
 

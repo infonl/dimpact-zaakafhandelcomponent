@@ -18,7 +18,7 @@ import java.util.UUID;
 import org.flowable.task.api.TaskInfo;
 
 import net.atos.client.zgw.brc.model.Besluit;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.zac.event.Opcode;
 import net.atos.zac.notificaties.Channel;
@@ -49,7 +49,7 @@ public enum ScreenEventType {
     ENKELVOUDIG_INFORMATIEOBJECT {
         @Override
         public ScreenEvent event(final Opcode opcode,
-                final EnkelvoudigInformatieobject enkelvoudigInformatieobject) {
+                final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
             return instance(opcode, this, enkelvoudigInformatieobject);
         }
     },
@@ -147,7 +147,7 @@ public enum ScreenEventType {
     }
 
     private static ScreenEvent instance(final Opcode opcode, final ScreenEventType type,
-            final EnkelvoudigInformatieobject enkelvoudigInformatieobject) {
+            final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
         return instance(opcode, type, enkelvoudigInformatieobject.getUrl(), null);
     }
 
@@ -185,7 +185,8 @@ public enum ScreenEventType {
         throw new IllegalArgumentException(); // Not allowed except for object types where this method has an override
     }
 
-    public ScreenEvent event(final Opcode opcode, final EnkelvoudigInformatieobject enkelvoudigInformatieobject) {
+    public ScreenEvent event(final Opcode opcode,
+            final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
         throw new IllegalArgumentException(); // Not allowed except for object types where this method has an override
     }
 
@@ -254,7 +255,7 @@ public enum ScreenEventType {
      * @param enkelvoudigInformatieobject modified enkelvoudigInformatieobject.
      * @return instance of the event
      */
-    public final ScreenEvent updated(final EnkelvoudigInformatieobject enkelvoudigInformatieobject) {
+    public final ScreenEvent updated(final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
         return event(UPDATED, enkelvoudigInformatieobject);
     }
 
@@ -324,7 +325,7 @@ public enum ScreenEventType {
      * @param enkelvoudigInformatieobject deleted enkelvoudigInformatieobject.
      * @return instance of the event
      */
-    public final ScreenEvent deleted(final EnkelvoudigInformatieobject enkelvoudigInformatieobject) {
+    public final ScreenEvent deleted(final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
         return event(DELETED, enkelvoudigInformatieobject);
     }
 

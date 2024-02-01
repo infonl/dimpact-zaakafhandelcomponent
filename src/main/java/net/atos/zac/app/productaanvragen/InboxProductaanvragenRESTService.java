@@ -27,7 +27,7 @@ import jakarta.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 
 import net.atos.client.zgw.drc.DRCClientService;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
 import net.atos.zac.aanvraag.InboxProductaanvraagService;
 import net.atos.zac.aanvraag.model.InboxProductaanvraagListParameters;
 import net.atos.zac.aanvraag.model.InboxProductaanvraagResultaat;
@@ -84,7 +84,8 @@ public class InboxProductaanvragenRESTService {
     @Path("/{uuid}/pdfPreview")
     public Response pdfPreview(@PathParam("uuid") final UUID uuid) {
         assertPolicy(policyService.readWerklijstRechten().getInbox());
-        EnkelvoudigInformatieobject enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(uuid);
+        EnkelvoudigInformatieObject enkelvoudigInformatieobject =
+                drcClientService.readEnkelvoudigInformatieobject(uuid);
         try (ByteArrayInputStream is = drcClientService.downloadEnkelvoudigInformatieobject(uuid)) {
             return Response.ok(is)
                     .header("Content-Disposition",
