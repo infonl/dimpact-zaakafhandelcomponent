@@ -12,6 +12,7 @@ export const worldParametersScheme = z.object({
     parameters: z.object({
         urls: z.object({
             zac: z.string(),
+            openForms: z.string().optional(),
         }),
         users: z.object({
             [worldUsers.Values.Bob]: z.object({
