@@ -69,6 +69,7 @@ import { DragAndDropDirective } from "./form-components/file/drag-and-drop.direc
 import { MessageComponent } from "./form-components/message/message.component";
 import { InformatieObjectIndicatiesComponent } from "../indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { EnhanceMatErrorDirective } from "../material/mat-zac-error";
+import { CapitalizeFirstLetterPipe } from "../pipes/capitalizeFirstLetter.pipe";
 
 @NgModule({
   declarations: [
@@ -98,6 +99,7 @@ import { EnhanceMatErrorDirective } from "../material/mat-zac-error";
     DragAndDropDirective,
     MessageComponent,
     EnhanceMatErrorDirective,
+    CapitalizeFirstLetterPipe,
   ],
   imports: [
     CommonModule,

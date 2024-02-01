@@ -138,7 +138,7 @@ jobs:
         run: ./gradlew -x compileJava -x processResources -x compileKotlin -x classes -x test -x itest jacocoTestReport --info
 
       - name: Upload unit test coverage report to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
