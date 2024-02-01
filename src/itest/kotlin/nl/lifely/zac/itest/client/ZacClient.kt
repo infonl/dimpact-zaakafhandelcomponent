@@ -20,7 +20,7 @@ private val logger = KotlinLogging.logger {}
 fun createZaakAfhandelParameters(): Response {
     logger.info {
         "Creating zaakafhandelparameters in ZAC for zaaktype with identificatie: $ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE " +
-                "and UUID: $ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
+            "and UUID: $ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
     }
 
     val response = khttp.put(
