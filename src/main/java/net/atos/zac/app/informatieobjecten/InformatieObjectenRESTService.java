@@ -5,8 +5,7 @@
 
 package net.atos.zac.app.informatieobjecten;
 
-import static net.atos.client.zgw.drc.DRCClientUtil.convertByteArrayToBase64String;
-import static net.atos.client.zgw.drc.DRCClientUtil.isOndertekend;
+import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertByteArrayToBase64String;
 import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
 import static net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter.convertToEnkelvoudigInformatieObject;
 import static net.atos.zac.configuratie.ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE;
@@ -628,13 +627,11 @@ public class InformatieObjectenRESTService {
     public Response ondertekenInformatieObject(@PathParam("uuid") final UUID uuid,
             @QueryParam("zaak") final UUID zaakUUID) {
         final EnkelvoudigInformatieObject enkelvoudigInformatieobject =
-                drcClientService.readEnkelvoudigInformatieobject(uuid);
-        assertPolicy(!isOndertekend(enkelvoudigInformatieobject) &&
-                             policyService.readDocumentRechten(
-                                     enkelvoudigInformatieobject,
-                                     zrcClientService.readZaak(zaakUUID)
-                             ).getOndertekenen()
-        );
+                drcClientService.readEnkelvoudigInformatieobject(
+                uuid);
+        assertPolicy(enkelvoudigInformatieobject.getOndertekening() == null &&
+                             policyService.readDocumentRechten(enkelvoudigInformatieobject,
+                                                               zrcClientService.readZaak(zaakUUID)).getOndertekenen());
         enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(uuid);
 
         // Hiervoor wordt door open zaak geen notificatie verstuurd. Dus zelf het ScreenEvent versturen!

@@ -195,7 +195,7 @@ public class ZGWApiService {
             final String beschrijving,
             final String omschrijvingVoorwaardenGebruiksrechten
     ) {
-        final EnkelvoudigInformatieObject newInformatieObjectData =
+        final EnkelvoudigInformatieObjectData newInformatieObjectData =
                 drcClientService.createEnkelvoudigInformatieobject(enkelvoudigInformatieObjectData);
         final Gebruiksrechten gebruiksrechten = new Gebruiksrechten();
         gebruiksrechten.setInformatieobject(newInformatieObjectData.getUrl());

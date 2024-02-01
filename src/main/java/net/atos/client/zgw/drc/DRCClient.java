@@ -54,7 +54,7 @@ public interface DRCClient {
 
     @POST
     @Path("enkelvoudiginformatieobjecten")
-    EnkelvoudigInformatieObject enkelvoudigInformatieobjectCreate(final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData);
+    EnkelvoudigInformatieObjectData enkelvoudigInformatieobjectCreate(final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData);
 
     @GET
     @Path("enkelvoudiginformatieobjecten")

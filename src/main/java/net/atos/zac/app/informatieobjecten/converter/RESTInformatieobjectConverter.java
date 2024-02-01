@@ -5,13 +5,12 @@
 
 package net.atos.zac.app.informatieobjecten.converter;
 
-import static net.atos.client.zgw.drc.DRCClientUtil.convertByteArrayToBase64String;
-import static net.atos.client.zgw.drc.DRCClientUtil.convertToEnkelvoudigInformatieObjectDataStatusEnum;
-import static net.atos.client.zgw.drc.DRCClientUtil.convertToEnkelvoudigInformatieObjectStatusEnum;
-import static net.atos.client.zgw.drc.DRCClientUtil.convertToEnkelvoudigInformatieObjectWithLockDataStatusEnum;
-import static net.atos.client.zgw.drc.DRCClientUtil.convertToEnkelvoudigInformatieObjectWithLockDataVertrouwelijkheidaanduidingEnum;
-import static net.atos.client.zgw.drc.DRCClientUtil.convertToVertrouwelijkheidaanduidingEnum;
-import static net.atos.client.zgw.drc.DRCClientUtil.convertToVertrouwelijkheidaanduidingEnumData;
+import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertByteArrayToBase64String;
+import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToEnkelvoudigInformatieObjectDataStatusEnum;
+import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToEnkelvoudigInformatieObjectStatusEnum;
+import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToEnkelvoudigInformatieObjectWithLockDataStatusEnum;
+import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToEnkelvoudigInformatieObjectWithLockDataVertrouwelijkheidaanduidingEnum;
+import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToVertrouwelijkheidaanduidingEnum;
 import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
 import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT;
 
@@ -197,7 +196,7 @@ public class RESTInformatieobjectConverter {
         enkelvoudigInformatieobjectWithInhoud.setVerzenddatum(restEnkelvoudigInformatieobject.verzenddatum);
         enkelvoudigInformatieobjectWithInhoud.setOntvangstdatum(restEnkelvoudigInformatieobject.ontvangstdatum);
         enkelvoudigInformatieobjectWithInhoud.setVertrouwelijkheidaanduiding(
-                convertToVertrouwelijkheidaanduidingEnumData(restEnkelvoudigInformatieobject.vertrouwelijkheidaanduiding)
+                EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.valueOf(restEnkelvoudigInformatieobject.vertrouwelijkheidaanduiding)
         );
         return enkelvoudigInformatieobjectWithInhoud;
     }
@@ -423,14 +422,7 @@ public class RESTInformatieobjectConverter {
     public static EnkelvoudigInformatieObject convertToEnkelvoudigInformatieObject(
             EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieObjectWithLockData
     ) {
-        final EnkelvoudigInformatieObject enkelvoudigInformatieObject = new EnkelvoudigInformatieObject(
-                enkelvoudigInformatieObjectWithLockData.getUrl(),
-                enkelvoudigInformatieObjectWithLockData.getVersie(),
-                enkelvoudigInformatieObjectWithLockData.getBeginRegistratie(),
-                enkelvoudigInformatieObjectWithLockData.getLink(),
-                enkelvoudigInformatieObjectWithLockData.getLocked(),
-                enkelvoudigInformatieObjectWithLockData.getBestandsdelen()
-        );
+        final EnkelvoudigInformatieObject enkelvoudigInformatieObject = new EnkelvoudigInformatieObject();
         enkelvoudigInformatieObject.setAuteur(enkelvoudigInformatieObjectWithLockData.getAuteur());
         enkelvoudigInformatieObject.setBeschrijving(enkelvoudigInformatieObjectWithLockData.getBeschrijving());
         enkelvoudigInformatieObject.setBestandsomvang(

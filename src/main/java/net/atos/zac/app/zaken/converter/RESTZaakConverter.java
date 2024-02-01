@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.zaken.converter;
 
-import static net.atos.client.zgw.drc.DRCClientUtil.convertToVertrouwelijkheidaanduidingEnum;
+import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToVertrouwelijkheidaanduidingEnum;
 import static net.atos.client.zgw.ztc.model.Statustype.isHeropend;
 import static net.atos.client.zgw.ztc.model.Statustype.isIntake;
 import static net.atos.zac.app.klanten.model.klant.IdentificatieType.BSN;
