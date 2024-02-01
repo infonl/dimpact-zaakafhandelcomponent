@@ -52,12 +52,14 @@ fun createRESTPand() = RESTPand()
 
 fun createRESTUser() = RESTUser()
 
-fun createRESTZaak() = RESTZaak().apply {
+fun createRESTZaak(
+    restZaakType: RESTZaaktype = createRESTZaaktype()
+) = RESTZaak().apply {
     uuid = UUID.randomUUID()
     identificatie = "ZA2023001"
     omschrijving = "Sample Zaak"
     toelichting = "This is a test zaak"
-    zaaktype = createRESTZaaktype()
+    zaaktype = restZaakType
     status = createRESTZaakStatus()
     resultaat = createRESTZaakResultaat()
     besluiten = listOf(createRESTBesluit())
@@ -98,8 +100,15 @@ fun createRESTZaak() = RESTZaak().apply {
     rechten = createRESTZaakRechten()
 }
 
-fun createRESTZaakAanmaakGegevens() = RESTZaakAanmaakGegevens().apply {
-    zaak = createRESTZaak()
+fun createRESTZaakAanmaakGegevens(
+    zaakTypeUUID: UUID = UUID.randomUUID()
+) = RESTZaakAanmaakGegevens().apply {
+    zaak = createRESTZaak(
+        RESTZaaktype().apply {
+            // we only need a UUID for the zaaktype when creating a zaak
+            uuid = zaakTypeUUID
+        }
+    )
     inboxProductaanvraag = createRESTInboxProductaanvraag()
     bagObjecten = listOf(createRESTPand(), createRESTOpenbareRuimte())
 }
