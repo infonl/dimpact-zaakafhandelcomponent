@@ -110,7 +110,7 @@ dependencies {
     swaggerUI("org.webjars:swagger-ui:5.10.3")
 
     // enable detekt formatting rules. see: https://detekt.dev/docs/rules/formatting/
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.4")
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.5")
 
     runtimeOnly("org.infinispan:infinispan-jcache:14.0.22.Final")
     runtimeOnly("org.infinispan:infinispan-cdi-embedded:14.0.22.Final")
