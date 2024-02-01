@@ -162,7 +162,7 @@ export class InformatieObjectAddComponent
       )
       .optionLabel("omschrijving")
       .validators(Validators.required)
-      .settings({ translateLabels: false })
+      .settings({ translateLabels: false, capitalizeFirstLetter: true })
       .build();
 
     const auteur = new InputFormFieldBuilder(this.ingelogdeMedewerker.naam)
