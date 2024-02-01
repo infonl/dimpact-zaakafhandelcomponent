@@ -44,9 +44,11 @@ export abstract class AbstractChoicesFormFieldBuilder extends AbstractFormFieldB
   }
 
   settings(
-    settings: { translateLabels?: boolean } = {
+    settings: { translateLabels?: boolean; capitalizeFirstLetter: boolean } = {
       // for backwards compatibility, translateLabels defaults to true
       translateLabels: true,
+      // for backwards compatibility, capitalizeFirstLetter defaults to false
+      capitalizeFirstLetter: false,
     },
   ): this {
     this.formField.settings = settings;
