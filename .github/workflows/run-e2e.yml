@@ -38,7 +38,8 @@ jobs:
       - name: Install Playwright Browsers
         run: cd src/e2e && npx playwright install --with-deps
       - name: Run your tests
-        run: 'cd src/e2e && npm run e2e:run -- --world-parameters "{\"urls\": { \"zac\": \"${{ secrets.ZAC_URL }}\", \"openForms\": \"${{ secrets.OPEN_FORMS_URL }}\"}, \"headless\": true, \"users\": { \"Bob\": { \"username\": \"${{ secrets.ZAC_E2E_TEST_USER_1_USERNAME }}\", \"password\": \"${{ secrets.ZAC_E2E_TEST_USER_1_PASSWORD }}\"}} }"'
+        run: |
+          cd src/e2e && npm run e2e:run -- --world-parameters '{\"urls\": {\"zac\": \"${{ secrets.ZAC_URL }}\", \"openForms\": \"${{ secrets.OPEN_FORMS_URL }}\"}, \"headless\": true, \"users\": {\"Bob\": {\"username\": \"${{ secrets.ZAC_E2E_TEST_USER_1_USERNAME }}\", \"password\": \"${{ secrets.ZAC_E2E_TEST_USER_1_PASSWORD }}\"}} }'
       - name: Make a playwright report
         if: always()
         run: "cd src/e2e && npm run e2e:generate:report"
