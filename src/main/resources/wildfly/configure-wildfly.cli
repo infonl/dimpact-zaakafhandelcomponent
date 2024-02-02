@@ -33,4 +33,4 @@ data-source add \
 
 # This sets the max post size accepted by the server/RESTEasy.
 # NOTE: This is higher than our limit of 80MB because there seems to be some overhead.
-/subsystem=microprofile-config-smallrye/config-source=props:add(properties={"dev.resteasy.entity.file.threshold" = "100MB"})
+/subsystem=microprofile-config-smallrye/config-source=props:add(properties={"dev.resteasy.entity.file.threshold" = "500MB"})
