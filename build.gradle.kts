@@ -113,7 +113,7 @@ dependencies {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.5")
 
     runtimeOnly("org.infinispan:infinispan-jcache:14.0.22.Final")
-    runtimeOnly("org.infinispan:infinispan-cdi-embedded:14.0.22.Final")
+    runtimeOnly("org.infinispan:infinispan-cdi-embedded:14.0.24.Final")
 
     // declare dependencies that are required in the generated WAR; see war section below
     // simply marking them as 'compileOnly' or 'implementation' does not work
