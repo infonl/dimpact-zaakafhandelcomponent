@@ -27,7 +27,7 @@ import java.util.UUID
 
 private val logger = KotlinLogging.logger {}
 
-lateinit var zaakUUID: UUID
+lateinit var zaak1UUID: UUID
 
 /**
  * This test creates a zaak which we use in other tests, and therefore we run this test first.
@@ -98,7 +98,7 @@ class NotificationsTest : BehaviorSpec({
                         val zaak = JSONObject(text)
                         zaak.getString("identificatie") shouldBe ZAAK_1_IDENTIFICATION
                         zaak.getJSONObject("zaaktype")
-                            .getString("uuid") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
+                            .getString("uuid") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID.toString()
                         zaak.getJSONObject("status").getString("naam") shouldBe "Intake"
                         zaak.getJSONObject("groep").getString("id") shouldBe "test-group-a"
                         // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
@@ -106,7 +106,7 @@ class NotificationsTest : BehaviorSpec({
                         zaak.getBoolean("isProcesGestuurd") shouldBe false
                         zaak.getJSONObject("communicatiekanaal")
                             .getString("naam") shouldBe "E-formulier"
-                        zaakUUID = UUID.fromString(zaak.getString("uuid"))
+                        zaak1UUID = UUID.fromString(zaak.getString("uuid"))
                     }
                 }
             }
