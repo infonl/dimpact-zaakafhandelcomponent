@@ -7,7 +7,7 @@ package net.atos.zac.app.zaken.converter;
 
 import java.net.URI;
 
-import net.atos.client.zgw.ztc.model.ZaakTypenRelatie;
+import net.atos.client.zgw.ztc.model.generated.ZaakTypenRelatie;
 import net.atos.zac.app.zaken.model.RESTZaaktypeRelatie;
 import net.atos.zac.app.zaken.model.RelatieType;
 import net.atos.zac.util.UriUtil;

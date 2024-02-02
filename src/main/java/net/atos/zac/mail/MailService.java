@@ -59,8 +59,8 @@ import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.Informatieobjecttype;
-import net.atos.client.zgw.ztc.model.Zaaktype;
+import net.atos.client.zgw.ztc.model.generated.InformatieObjectType;
+import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.authentication.LoggedInUser;
 import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.flowable.TaakVariabelenService;
@@ -175,7 +175,7 @@ public class MailService {
     private EnkelvoudigInformatieObjectData createDocumentInformatieObject(final String verzender,
             final String ontvanger, final String subject, final String body, final List<Attachment> attachments,
             final Zaak zaak) {
-        final Informatieobjecttype eMailObjectType = getEmailInformatieObjectType(zaak);
+        final InformatieObjectType eMailObjectType = getEmailInformatieObjectType(zaak);
         final byte[] pdfDocument = createPdfDocument(verzender, ontvanger, subject, body, attachments);
 
         final EnkelvoudigInformatieObjectData enkelvoudigInformatieobjectWithInhoud = new EnkelvoudigInformatieObjectData();
@@ -241,8 +241,8 @@ public class MailService {
         paragraph.add(Chunk.NEWLINE);
     }
 
-    private Informatieobjecttype getEmailInformatieObjectType(final Zaak zaak) {
-        final Zaaktype zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
+    private InformatieObjectType getEmailInformatieObjectType(final Zaak zaak) {
+        final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
         return zaaktype.getInformatieobjecttypen().stream()
                 .map(ztcClientService::readInformatieobjecttype)
                 .filter(infoObject -> infoObject.getOmschrijving()

@@ -6,8 +6,8 @@
 package net.atos.zac.app.zaken.converter;
 
 import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToVertrouwelijkheidaanduidingEnum;
-import static net.atos.client.zgw.ztc.model.Statustype.isHeropend;
-import static net.atos.client.zgw.ztc.model.Statustype.isIntake;
+import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend;
+import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isIntake;
 import static net.atos.zac.app.klanten.model.klant.IdentificatieType.BSN;
 import static net.atos.zac.app.klanten.model.klant.IdentificatieType.RSIN;
 import static net.atos.zac.app.klanten.model.klant.IdentificatieType.VN;
@@ -34,8 +34,8 @@ import net.atos.client.zgw.zrc.model.Status;
 import net.atos.client.zgw.zrc.model.Verlenging;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.Statustype;
-import net.atos.client.zgw.ztc.model.Zaaktype;
+import net.atos.client.zgw.ztc.model.generated.StatusType;
+import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.app.identity.converter.RESTGroupConverter;
 import net.atos.zac.app.identity.converter.RESTUserConverter;
 import net.atos.zac.app.policy.converter.RESTRechtenConverter;
@@ -108,13 +108,14 @@ public class RESTZaakConverter {
 
     public RESTZaak convert(final Zaak zaak) {
         final Status status = zaak.getStatus() != null ? zrcClientService.readStatus(zaak.getStatus()) : null;
-        final Statustype statustype = status != null ? ztcClientService.readStatustype(status.getStatustype()) : null;
+        final StatusType statustype = status != null ?
+                ztcClientService.readStatustype(status.getStatustype()) : null;
         return convert(zaak, status, statustype);
     }
 
-    public RESTZaak convert(final Zaak zaak, final Status status, final Statustype statustype) {
+    public RESTZaak convert(final Zaak zaak, final Status status, final StatusType statustype) {
         final RESTZaak restZaak = new RESTZaak();
-        final Zaaktype zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
+        final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
 
         brcClientService.listBesluiten(zaak)
                 .map(besluitConverter::convertToRESTBesluit)
@@ -143,13 +144,14 @@ public class RESTZaakConverter {
         restZaak.resultaat = zaakResultaatConverter.convert(zaak.getResultaat());
 
         restZaak.isOpgeschort = zaak.isOpgeschort();
-        if (zaak.isOpgeschort() || StringUtils.isNotEmpty(zaak.getOpschorting().getReden())) {
+        if (restZaak.isOpgeschort || StringUtils.isNotEmpty(zaak.getOpschorting().getReden())) {
             restZaak.redenOpschorting = zaak.getOpschorting().getReden();
         }
 
         restZaak.isVerlengd = zaak.isVerlengd();
-        if (zaak.isVerlengd()) {
-            restZaak.duurVerlenging = PeriodUtil.format(zaak.getVerlenging().getDuur());
+        if (restZaak.isVerlengd) {
+            restZaak.duurVerlenging =
+                    PeriodUtil.format(zaak.getVerlenging().getDuur());
             restZaak.redenVerlenging = zaak.getVerlenging().getReden();
         }
 
@@ -207,7 +209,7 @@ public class RESTZaakConverter {
         return restZaak;
     }
 
-    public Zaak convert(final RESTZaak restZaak, final Zaaktype zaaktype) {
+    public Zaak convert(final RESTZaak restZaak, final ZaakType zaaktype) {
         final Zaak zaak = new Zaak(zaaktype.getUrl(), restZaak.startdatum,
                                    ConfiguratieService.BRON_ORGANISATIE,
                                    ConfiguratieService.VERANTWOORDELIJKE_ORGANISATIE);
@@ -259,11 +261,14 @@ public class RESTZaakConverter {
         zaak.setEinddatumGepland(verlengGegevens.einddatumGepland);
         zaak.setUiterlijkeEinddatumAfdoening(verlengGegevens.uiterlijkeEinddatumAfdoening);
         final Verlenging verlenging = zrcClientService.readZaak(zaakUUID).getVerlenging();
-        zaak.setVerlenging(verlenging != null && verlenging.getDuur() != null
-                                   ? new Verlenging(verlengGegevens.redenVerlenging,
-                                                    verlenging.getDuur().plusDays(verlengGegevens.duurDagen))
-                                   : new Verlenging(verlengGegevens.redenVerlenging,
-                                                    Period.ofDays(verlengGegevens.duurDagen)));
+        zaak.setVerlenging(
+                verlenging != null && verlenging.getDuur() != null ? new Verlenging(
+                        verlengGegevens.redenVerlenging,
+                        verlenging.getDuur().plusDays(verlengGegevens.duurDagen)
+                ) : new Verlenging(
+                        verlengGegevens.redenVerlenging,
+                        Period.ofDays(verlengGegevens.duurDagen))
+        );
         return zaak;
     }
 

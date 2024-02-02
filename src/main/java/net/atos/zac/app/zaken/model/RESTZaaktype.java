@@ -9,9 +9,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
 import jakarta.validation.constraints.NotNull;
 
+import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.app.admin.model.RESTZaakafhandelParameters;
 
 public class RESTZaaktype {
@@ -35,7 +35,7 @@ public class RESTZaaktype {
 
     public LocalDate eindeGeldigheid;
 
-    public EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum vertrouwelijkheidaanduiding;
+    public ZaakType.VertrouwelijkheidaanduidingEnum vertrouwelijkheidaanduiding;
 
     public boolean nuGeldig;
 

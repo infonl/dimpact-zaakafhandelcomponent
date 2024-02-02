@@ -32,9 +32,7 @@ public class Vestiging extends Klant {
     }
 
     @JsonbCreator
-    public Vestiging(
-            @JsonbProperty(value = "url", nillable = true) URI url
-    ) {
+    public Vestiging(@JsonbProperty(value = "url", nillable = true) URI url) {
         this.url = url;
     }
 

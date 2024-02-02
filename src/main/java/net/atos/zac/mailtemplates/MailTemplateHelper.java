@@ -36,8 +36,6 @@ import java.util.regex.Pattern;
 
 import jakarta.inject.Inject;
 
-import net.atos.client.zgw.shared.util.URIUtil;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.flowable.identitylink.api.IdentityLinkInfo;
@@ -62,8 +60,8 @@ import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid;
 import net.atos.client.zgw.zrc.model.Status;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.Statustype;
-import net.atos.client.zgw.ztc.model.Zaaktype;
+import net.atos.client.zgw.ztc.model.generated.StatusType;
+import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.flowable.TaakVariabelenService;
 import net.atos.zac.identity.IdentityService;
@@ -141,7 +139,7 @@ public class MailTemplateHelper {
                                                          .map(zrcClientService::readStatus)
                                                          .map(Status::getStatustype)
                                                          .map(ztcClientService::readStatustype)
-                                                         .map(Statustype::getOmschrijving)
+                                                         .map(StatusType::getOmschrijving)
                 );
             }
 
@@ -149,7 +147,7 @@ public class MailTemplateHelper {
                 resolvedTekst = replaceVariabele(resolvedTekst, ZAAK_TYPE,
                                                  Optional.of(zaak.getZaaktype())
                                                          .map(ztcClientService::readZaaktype)
-                                                         .map(Zaaktype::getOmschrijving));
+                                                         .map(ZaakType::getOmschrijving));
             }
 
             if (resolvedTekst.contains(ZAAK_INITIATOR.getVariabele()) ||
@@ -220,7 +218,7 @@ public class MailTemplateHelper {
     }
 
     private MailLink getLink(final Zaak zaak) {
-        final Zaaktype zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
+        final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
         return new MailLink(zaak.getIdentificatie(),
                             configuratieService.zaakTonenUrl(zaak.getIdentificatie()),
                             "de zaak", "(%s)".formatted(zaaktype.getOmschrijving()));

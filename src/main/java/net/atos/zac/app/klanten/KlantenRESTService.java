@@ -40,7 +40,7 @@ import net.atos.client.kvk.zoeken.model.Resultaat;
 import net.atos.client.kvk.zoeken.model.ResultaatItem;
 import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.client.zgw.ztc.model.AardVanRol;
-import net.atos.client.zgw.ztc.model.Roltype;
+import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.zac.app.klanten.converter.RESTBedrijfConverter;
 import net.atos.zac.app.klanten.converter.RESTPersoonConverter;
 import net.atos.zac.app.klanten.converter.RESTRoltypeConverter;
@@ -193,7 +193,7 @@ public class KlantenRESTService {
         return roltypeConverter.convert(
                 ztcClientService.listRoltypen(ztcClientService.readZaaktype(zaaktype).getUrl()).stream()
                         .filter(roltype -> betrokkenen.contains(roltype.getOmschrijvingGeneriek()))
-                        .sorted(Comparator.comparing(Roltype::getOmschrijving)));
+                        .sorted(Comparator.comparing(RolType::getOmschrijving)));
     }
 
     @GET

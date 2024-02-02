@@ -18,7 +18,6 @@ import net.atos.zac.app.zaken.model.RESTGeometry;
 
 public class RESTGeometryConverter {
 
-
     public RESTGeometry convert(final Geometry geometry) {
         if (geometry == null) {
             return null;

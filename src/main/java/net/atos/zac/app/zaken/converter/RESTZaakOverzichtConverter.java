@@ -11,7 +11,7 @@ import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.Zaaktype;
+import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.app.identity.converter.RESTGroupConverter;
 import net.atos.zac.app.identity.converter.RESTUserConverter;
 import net.atos.zac.app.policy.converter.RESTRechtenConverter;
@@ -49,7 +49,7 @@ public class RESTZaakOverzichtConverter {
     private ZRCClientService zrcClientService;
 
     public RESTZaakOverzicht convert(final Zaak zaak) {
-        final Zaaktype zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
+        final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
         final ZaakRechten zaakrechten = policyService.readZaakRechten(zaak, zaaktype);
         final RESTZaakOverzicht restZaakOverzicht = new RESTZaakOverzicht();
         restZaakOverzicht.uuid = zaak.getUuid();

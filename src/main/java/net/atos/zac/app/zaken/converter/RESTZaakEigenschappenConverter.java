@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 import jakarta.inject.Inject;
 
 import net.atos.client.zgw.zrc.ZRCClientService;
-import net.atos.client.zgw.zrc.model.ZaakEigenschap;
+import net.atos.client.zgw.zrc.model.generated.ZaakEigenschap;
 import net.atos.zac.app.zaken.model.RESTZaakEigenschap;
 
 public class RESTZaakEigenschappenConverter {

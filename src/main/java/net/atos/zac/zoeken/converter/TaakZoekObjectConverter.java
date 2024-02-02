@@ -9,10 +9,11 @@ import org.flowable.identitylink.api.IdentityLinkInfo;
 import org.flowable.identitylink.api.IdentityLinkType;
 import org.flowable.task.api.TaskInfo;
 
+import net.atos.client.zgw.shared.util.URIUtil;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.Zaaktype;
+import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.flowable.TaakVariabelenService;
 import net.atos.zac.flowable.TakenService;
 import net.atos.zac.identity.IdentityService;
@@ -66,11 +67,11 @@ public class TaakZoekObjectConverter extends AbstractZoekObjectConverter<TaakZoe
             taakZoekObject.setGroepNaam(group.getName());
         }
 
-        final Zaaktype zaaktype = ztcClientService.readZaaktype(
+        final ZaakType zaaktype = ztcClientService.readZaaktype(
                 taakVariabelenService.readZaaktypeUUID(taskInfo));
         taakZoekObject.setZaaktypeIdentificatie(zaaktype.getIdentificatie());
         taakZoekObject.setZaaktypeOmschrijving(zaaktype.getOmschrijving());
-        taakZoekObject.setZaaktypeUuid(zaaktype.getUUID().toString());
+        taakZoekObject.setZaaktypeUuid(URIUtil.parseUUIDFromResourceURI(zaaktype.getUrl()).toString());
 
         final UUID zaakUUID = taakVariabelenService.readZaakUUID(taskInfo);
         taakZoekObject.setZaakUUID(zaakUUID.toString());

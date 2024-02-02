@@ -7,6 +7,9 @@ package net.atos.client.zgw.zrc.model;
 
 import java.util.List;
 
+import net.atos.client.zgw.zrc.model.generated.SubVerblijfBuitenland;
+import net.atos.client.zgw.zrc.model.generated.VerblijfsAdres;
+
 public class Vestiging {
 
     /**

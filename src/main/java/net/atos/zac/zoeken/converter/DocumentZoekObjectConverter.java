@@ -10,12 +10,13 @@ import jakarta.inject.Inject;
 import net.atos.client.zgw.brc.BRCClientService;
 import net.atos.client.zgw.drc.DRCClientService;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
+import net.atos.client.zgw.shared.util.URIUtil;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.Informatieobjecttype;
-import net.atos.client.zgw.ztc.model.Zaaktype;
+import net.atos.client.zgw.ztc.model.generated.InformatieObjectType;
+import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
 import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
 import net.atos.zac.identity.IdentityService;
@@ -60,8 +61,8 @@ public class DocumentZoekObjectConverter extends AbstractZoekObjectConverter<Doc
     private DocumentZoekObject convert(final EnkelvoudigInformatieObject informatieobject,
             final ZaakInformatieobject gekoppeldeZaakInformatieobject) {
         final Zaak zaak = zrcClientService.readZaak(gekoppeldeZaakInformatieobject.getZaakUUID());
-        final Zaaktype zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
-        final Informatieobjecttype informatieobjecttype = ztcClientService.readInformatieobjecttype(
+        final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
+        final InformatieObjectType informatieobjecttype = ztcClientService.readInformatieobjecttype(
                 informatieobject.getInformatieobjecttype());
         final DocumentZoekObject documentZoekObject = new DocumentZoekObject();
         final UUID informatieobjectUUID = parseUUIDFromResourceURI(informatieobject.getUrl());
@@ -71,7 +72,7 @@ public class DocumentZoekObjectConverter extends AbstractZoekObjectConverter<Doc
         documentZoekObject.setTitel(informatieobject.getTitel());
         documentZoekObject.setBeschrijving(informatieobject.getBeschrijving());
         documentZoekObject.setZaaktypeOmschrijving(zaaktype.getOmschrijving());
-        documentZoekObject.setZaaktypeUuid(zaaktype.getUUID().toString());
+        documentZoekObject.setZaaktypeUuid(URIUtil.parseUUIDFromResourceURI(zaaktype.getUrl()).toString());
         documentZoekObject.setZaaktypeIdentificatie(zaaktype.getIdentificatie());
         documentZoekObject.setZaakIdentificatie(zaak.getIdentificatie());
         documentZoekObject.setZaakUuid(zaak.getUuid().toString());

@@ -1,6 +1,6 @@
 package net.atos.zac.zoeken.converter;
 
-import static net.atos.client.zgw.ztc.model.Statustype.isHeropend;
+import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend;
 import static net.atos.zac.util.UriUtil.uuidFromURI;
 
 import java.util.Collections;
@@ -15,17 +15,17 @@ import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Geometry;
-import net.atos.client.zgw.zrc.model.Resultaat;
 import net.atos.client.zgw.zrc.model.Rol;
 import net.atos.client.zgw.zrc.model.Status;
 import net.atos.client.zgw.zrc.model.Zaak;
+import net.atos.client.zgw.zrc.model.generated.Resultaat;
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters;
 import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.client.zgw.ztc.model.AardVanRol;
-import net.atos.client.zgw.ztc.model.Resultaattype;
-import net.atos.client.zgw.ztc.model.Statustype;
-import net.atos.client.zgw.ztc.model.Zaaktype;
+import net.atos.client.zgw.ztc.model.generated.ResultaatType;
+import net.atos.client.zgw.ztc.model.generated.StatusType;
+import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.app.klanten.KlantenRESTService;
 import net.atos.zac.flowable.TakenService;
 import net.atos.zac.identity.IdentityService;
@@ -120,7 +120,7 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
         zaakZoekObject.setIndicatie(ZaakIndicatie.DEELZAAK, zaak.isDeelzaak());
         zaakZoekObject.setIndicatie(ZaakIndicatie.HOOFDZAAK, zaak.is_Hoofdzaak());
 
-        final Zaaktype zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
+        final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
         zaakZoekObject.setZaaktypeIdentificatie(zaaktype.getIdentificatie());
         zaakZoekObject.setZaaktypeOmschrijving(zaaktype.getOmschrijving());
         zaakZoekObject.setZaaktypeUuid(uuidFromURI(zaaktype.getUrl()).toString());
@@ -129,9 +129,9 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
             final Status status = zrcClientService.readStatus(zaak.getStatus());
             zaakZoekObject.setStatusToelichting(status.getStatustoelichting());
             zaakZoekObject.setStatusDatumGezet(DateTimeConverterUtil.convertToDate(status.getDatumStatusGezet()));
-            final Statustype statustype = ztcClientService.readStatustype(status.getStatustype());
+            final StatusType statustype = ztcClientService.readStatustype(status.getStatustype());
             zaakZoekObject.setStatustypeOmschrijving(statustype.getOmschrijving());
-            zaakZoekObject.setStatusEindstatus(statustype.getEindstatus());
+            zaakZoekObject.setStatusEindstatus(statustype.getIsEindstatus());
             zaakZoekObject.setIndicatie(ZaakIndicatie.HEROPEND, isHeropend(statustype));
         }
 
@@ -140,7 +140,8 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
         if (zaak.getResultaat() != null) {
             final Resultaat resultaat = zrcClientService.readResultaat(zaak.getResultaat());
             if (resultaat != null) {
-                final Resultaattype resultaattype = ztcClientService.readResultaattype(resultaat.getResultaattype());
+                final ResultaatType resultaattype =
+                        ztcClientService.readResultaattype(resultaat.getResultaattype());
                 zaakZoekObject.setResultaattypeOmschrijving(resultaattype.getOmschrijving());
                 zaakZoekObject.setResultaatToelichting(resultaat.getToelichting());
             }

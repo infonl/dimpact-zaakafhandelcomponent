@@ -7,7 +7,7 @@ package net.atos.client.zgw.shared.model.audit.zaken;
 
 import net.atos.client.zgw.shared.model.ObjectType;
 import net.atos.client.zgw.shared.model.audit.AuditWijziging;
-import net.atos.client.zgw.zrc.model.Resultaat;
+import net.atos.client.zgw.zrc.model.generated.Resultaat;
 
 public class ResultaatWijziging extends AuditWijziging<Resultaat> {
 

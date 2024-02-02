@@ -4,8 +4,8 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectPand
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
-import net.atos.client.zgw.ztc.model.Roltype
 import net.atos.client.zgw.ztc.model.createRolType
+import net.atos.client.zgw.ztc.model.generated.RolType
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
@@ -27,7 +27,7 @@ fun createObjectPand(identificatie: String = "dummyIdentificatie") = ObjectPand(
 
 fun createRolNatuurlijkPersoon(
     zaaktypeURI: URI = URI("http://example.com/${UUID.randomUUID()}"),
-    rolType: Roltype = createRolType(zaaktypeURI),
+    rolType: RolType = createRolType(zaaktypeURI),
     toelichting: String = "dummyToelichting",
     natuurlijkPersoon: NatuurlijkPersoon = createNatuurlijkPersoon()
 ) = RolNatuurlijkPersoon(

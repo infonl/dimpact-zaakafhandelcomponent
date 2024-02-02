@@ -27,7 +27,7 @@ import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.client.zgw.ztc.model.AardVanRol;
-import net.atos.client.zgw.ztc.model.Roltype;
+import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.zac.event.AbstractEventObserver;
 import net.atos.zac.flowable.TakenService;
 import net.atos.zac.identity.IdentityService;
@@ -178,7 +178,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
         return null;
     }
 
-    private Roltype getRoltypeBehandelaar(final Zaak zaak) {
+    private RolType getRoltypeBehandelaar(final Zaak zaak) {
         return ztcClientService.readRoltype(AardVanRol.BEHANDELAAR, zaak.getZaaktype());
     }
 
@@ -190,7 +190,8 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
         return getRol(zaak, getRoltypeBehandelaar(zaak), BetrokkeneType.ORGANISATORISCHE_EENHEID);
     }
 
-    private Optional<Rol<?>> getRol(final Zaak zaak, final Roltype roltype, final BetrokkeneType betrokkeneType) {
+    private Optional<Rol<?>> getRol(final Zaak zaak, final RolType roltype,
+            final BetrokkeneType betrokkeneType) {
         return zrcClientService.listRollen(new RolListParameters(zaak.getUrl(), roltype.getUrl(), betrokkeneType))
                 .getSingleResult();
     }

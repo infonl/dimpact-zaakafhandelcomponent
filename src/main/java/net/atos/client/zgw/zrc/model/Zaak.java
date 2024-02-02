@@ -22,6 +22,8 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.model.Archiefnominatie;
+import net.atos.client.zgw.zrc.model.generated.Opschorting;
+import net.atos.client.zgw.zrc.model.generated.ZaakKenmerk;
 
 /**
  * Zaak

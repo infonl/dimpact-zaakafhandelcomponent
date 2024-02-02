@@ -96,9 +96,9 @@ info:
   license:
     name: EUPL 1.2
     url: https://opensource.org/licenses/EUPL-1.2
-  version: 1.2.0
+  version: 1.4.0
 security:
-  - JWT-Claims: [ ]
+  - JWT-Claims: []
 paths:
   /klantcontacten:
     get:
@@ -264,7 +264,7 @@ paths:
         - JWT-Claims:
             - (zaken.bijwerken | zaken.geforceerd-bijwerken)
       deprecated: true
-    parameters: [ ]
+    parameters: []
   /klantcontacten/{uuid}:
     get:
       operationId: klantcontact_read
@@ -474,7 +474,7 @@ paths:
       security:
         - JWT-Claims:
             - (zaken.bijwerken | zaken.geforceerd-bijwerken)
-    parameters: [ ]
+    parameters: []
   /resultaten/{uuid}:
     get:
       operationId: resultaat_read
@@ -1023,7 +1023,7 @@ paths:
       security:
         - JWT-Claims:
             - (zaken.bijwerken | zaken.geforceerd-bijwerken)
-    parameters: [ ]
+    parameters: []
   /rollen/{uuid}:
     get:
       operationId: rol_read
@@ -1210,6 +1210,13 @@ paths:
           schema:
             type: string
             format: uri
+        - name: indicatieLaatstGezetteStatus
+          in: query
+          description: Het gegeven is afleidbaar uit de historie van de attribuutsoort
+            Datum status gezet van van alle statussen bij de desbetreffende zaak.
+          required: false
+          schema:
+            type: string
         - name: page
           in: query
           description: Een pagina binnen de gepagineerde set resultaten.
@@ -1352,7 +1359,7 @@ paths:
       security:
         - JWT-Claims:
             - (zaken.aanmaken | zaken.statussen.toevoegen | zaken.heropenen)
-    parameters: [ ]
+    parameters: []
   /statussen/{uuid}:
     get:
       operationId: status_read
@@ -1602,7 +1609,7 @@ paths:
       security:
         - JWT-Claims:
             - zaken.bijwerken
-    parameters: [ ]
+    parameters: []
   /zaakcontactmomenten/{uuid}:
     get:
       operationId: zaakcontactmoment_read
@@ -1846,7 +1853,7 @@ paths:
       security:
         - JWT-Claims:
             - (zaken.aanmaken | zaken.bijwerken | zaken.geforceerd-bijwerken)
-    parameters: [ ]
+    parameters: []
   /zaakinformatieobjecten/{uuid}:
     get:
       operationId: zaakinformatieobject_read
@@ -2350,7 +2357,7 @@ paths:
       security:
         - JWT-Claims:
             - (zaken.aanmaken | zaken.bijwerken | zaken.geforceerd-bijwerken)
-    parameters: [ ]
+    parameters: []
   /zaakobjecten/{uuid}:
     get:
       operationId: zaakobject_read
@@ -2686,7 +2693,7 @@ paths:
       security:
         - JWT-Claims:
             - zaken.bijwerken
-    parameters: [ ]
+    parameters: []
   /zaakverzoeken/{uuid}:
     get:
       operationId: zaakverzoek_read
@@ -2810,6 +2817,16 @@ paths:
           required: false
           schema:
             type: string
+        - name: bronorganisatie__in
+          in: query
+          description: Multiple values may be separated by commas.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false
         - name: zaaktype
           in: query
           description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
@@ -2856,6 +2873,15 @@ paths:
           schema:
             type: string
         - name: archiefactiedatum__gt
+          in: query
+          description: De datum waarop het gearchiveerde zaakdossier vernietigd moet
+            worden dan wel overgebracht moet worden naar een archiefbewaarplaats.
+            Wordt automatisch berekend bij het aanmaken of wijzigen van een RESULTAAT
+            aan deze ZAAK indien nog leeg.
+          required: false
+          schema:
+            type: string
+        - name: archiefactiedatum__isnull
           in: query
           description: De datum waarop het gearchiveerde zaakdossier vernietigd moet
             worden dan wel overgebracht moet worden naar een archiefbewaarplaats.
@@ -2913,6 +2939,96 @@ paths:
         - name: startdatum__lte
           in: query
           description: De datum waarop met de uitvoering van de zaak is gestart
+          required: false
+          schema:
+            type: string
+        - name: registratiedatum
+          in: query
+          description: De datum waarop de zaakbehandelende organisatie de ZAAK heeft
+            geregistreerd. Indien deze niet opgegeven wordt, wordt de datum van vandaag
+            gebruikt.
+          required: false
+          schema:
+            type: string
+        - name: registratiedatum__gt
+          in: query
+          description: De datum waarop de zaakbehandelende organisatie de ZAAK heeft
+            geregistreerd. Indien deze niet opgegeven wordt, wordt de datum van vandaag
+            gebruikt.
+          required: false
+          schema:
+            type: string
+        - name: registratiedatum__lt
+          in: query
+          description: De datum waarop de zaakbehandelende organisatie de ZAAK heeft
+            geregistreerd. Indien deze niet opgegeven wordt, wordt de datum van vandaag
+            gebruikt.
+          required: false
+          schema:
+            type: string
+        - name: einddatum
+          in: query
+          description: De datum waarop de uitvoering van de zaak afgerond is.
+          required: false
+          schema:
+            type: string
+        - name: einddatum__gt
+          in: query
+          description: De datum waarop de uitvoering van de zaak afgerond is.
+          required: false
+          schema:
+            type: string
+        - name: einddatum__lt
+          in: query
+          description: De datum waarop de uitvoering van de zaak afgerond is.
+          required: false
+          schema:
+            type: string
+        - name: einddatum__isnull
+          in: query
+          description: De datum waarop de uitvoering van de zaak afgerond is.
+          required: false
+          schema:
+            type: string
+        - name: einddatumGepland
+          in: query
+          description: De datum waarop volgens de planning verwacht wordt dat de zaak
+            afgerond wordt.
+          required: false
+          schema:
+            type: string
+        - name: einddatumGepland__gt
+          in: query
+          description: De datum waarop volgens de planning verwacht wordt dat de zaak
+            afgerond wordt.
+          required: false
+          schema:
+            type: string
+        - name: einddatumGepland__lt
+          in: query
+          description: De datum waarop volgens de planning verwacht wordt dat de zaak
+            afgerond wordt.
+          required: false
+          schema:
+            type: string
+        - name: uiterlijkeEinddatumAfdoening
+          in: query
+          description: De laatste datum waarop volgens wet- en regelgeving de zaak
+            afgerond dient te zijn.
+          required: false
+          schema:
+            type: string
+        - name: uiterlijkeEinddatumAfdoening__gt
+          in: query
+          description: De laatste datum waarop volgens wet- en regelgeving de zaak
+            afgerond dient te zijn.
+          required: false
+          schema:
+            type: string
+        - name: uiterlijkeEinddatumAfdoening__lt
+          in: query
+          description: De laatste datum waarop volgens wet- en regelgeving de zaak
+            afgerond dient te zijn.
           required: false
           schema:
             type: string
@@ -2975,6 +3091,43 @@ paths:
           schema:
             type: string
             maxLength: 9
+        - name: rol__betrokkeneIdentificatie__natuurlijkPersoon__anpIdentificatie
+          in: query
+          description: Het door de gemeente uitgegeven unieke nummer voor een ANDER
+            NATUURLIJK PERSOON
+          required: false
+          schema:
+            type: string
+            maxLength: 17
+        - name: rol__betrokkeneIdentificatie__natuurlijkPersoon__inpA_nummer
+          in: query
+          description: Het administratienummer van de persoon, bedoeld in de Wet BRP
+          required: false
+          schema:
+            type: string
+            maxLength: 10
+        - name: rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__innNnpId
+          in: query
+          description: Het door een kamer toegekend uniek nummer voor de INGESCHREVEN
+            NIET-NATUURLIJK PERSOON
+          required: false
+          schema:
+            type: string
+        - name: rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__annIdentificatie
+          in: query
+          description: Het door de gemeente uitgegeven unieke nummer voor een ANDER
+            NIET-NATUURLIJK PERSOON
+          required: false
+          schema:
+            type: string
+            maxLength: 17
+        - name: rol__betrokkeneIdentificatie__vestiging__vestigingsNummer
+          in: query
+          description: Een korte unieke aanduiding van de Vestiging.
+          required: false
+          schema:
+            type: string
+            maxLength: 24
         - name: rol__betrokkeneIdentificatie__medewerker__identificatie
           in: query
           description: Een korte unieke aanduiding van de MEDEWERKER.
@@ -2990,10 +3143,27 @@ paths:
             type: string
         - name: ordering
           in: query
-          description: Which field to use when ordering the results.
+          description: Het veld waarop de resultaten geordend worden.
           required: false
           schema:
-            type: string
+            type: array
+            items:
+              type: string
+              enum:
+                - startdatum
+                - -startdatum
+                - einddatum
+                - -einddatum
+                - publicatiedatum
+                - -publicatiedatum
+                - archiefactiedatum
+                - -archiefactiedatum
+                - registratiedatum
+                - -registratiedatum
+                - identificatie
+                - -identificatie
+          style: form
+          explode: false
         - name: page
           in: query
           description: Een pagina binnen de gepagineerde set resultaten.
@@ -3191,7 +3361,7 @@ paths:
       security:
         - JWT-Claims:
             - zaken.aanmaken
-    parameters: [ ]
+    parameters: []
   /zaken/_zoek:
     post:
       operationId: zaak__zoek
@@ -3304,7 +3474,7 @@ paths:
       security:
         - JWT-Claims:
             - zaken.lezen
-    parameters: [ ]
+    parameters: []
   /zaken/{uuid}:
     get:
       operationId: zaak_read
@@ -4526,7 +4696,7 @@ tags:
       `archiefstatus` een andere status heeft dan "nog_te_archiveren". Voor
       praktische redenen is er geen harde validatie regel aan de provider kant.
 servers:
-  - url: https://open-zaak.develop-public-service-platform.net/zaken/api/v1
+  - url: http://localhost:8001/zaken/api/v1
 components:
   responses:
     '400':
@@ -4891,6 +5061,41 @@ components:
           description: Een toelichting op wat het resultaat van de zaak inhoudt.
           type: string
           maxLength: 1000
+    ContactPersoonRol:
+      description: De gegevens van de persoon die anderen desgevraagd in contact brengt
+        met medewerkers van de BETROKKENE, een NIET-NATUURLIJK PERSOON of VESTIGING
+        zijnde, of met BETROKKENE zelf, een NATUURLIJK PERSOON zijnde , vanuit het
+        belang van BETROKKENE in haar ROL bij een ZAAK.
+      required:
+        - naam
+      type: object
+      properties:
+        emailadres:
+          title: Email
+          description: Elektronich postadres waaronder de contactpersoon in de regel
+            bereikbaar is.
+          type: string
+          format: email
+          maxLength: 254
+        functie:
+          title: Functie
+          description: 'De aanduiding van de taken, rechten en plichten die de contactpersoon
+            heeft binnen de organisatie van BETROKKENE. '
+          type: string
+          maxLength: 50
+        telefoonnummer:
+          title: Telefoonnummer
+          description: Telefoonnummer waaronder de contactpersoon in de regel bereikbaar
+            is.
+          type: string
+          maxLength: 20
+        naam:
+          title: Naam
+          description: De opgemaakte naam van de contactpersoon namens de BETROKKENE.
+          type: string
+          maxLength: 200
+          minLength: 1
+      nullable: true
     Rol:
       required:
         - zaak
@@ -4905,7 +5110,9 @@ components:
             en locatie van dit object.
           type: string
           format: uri
-          readOnly: true
+          readOnly: false
+          # Lifely - workaround for issue where generated Java classes extende from ZaakObject
+          # but could not set required properties resuling in uncompilable code
           maxLength: 1000
           minLength: 1
         uuid:
@@ -4913,7 +5120,9 @@ components:
           description: Unieke resource identifier (UUID4)
           type: string
           format: uuid
-          readOnly: true
+          # Lifely - workaround for issue where generated Java classes extende from ZaakObject
+          # but could not set required properties resuling in uncompilable code
+          readOnly: false
         zaak:
           title: Zaak
           description: URL-referentie naar de ZAAK.
@@ -4944,6 +5153,12 @@ components:
             - vestiging
             - organisatorische_eenheid
             - medewerker
+        afwijkendeNaamBetrokkene:
+          title: Afwijkende naam betrokkene
+          description: De naam van de betrokkene waaronder deze in relatie tot de
+            zaak aangesproken wil worden.
+          type: string
+          maxLength: 625
         roltype:
           title: Roltype
           description: URL-referentie naar een roltype binnen het ZAAKTYPE van de
@@ -4956,7 +5171,9 @@ components:
           title: Omschrijving
           description: Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE.
           type: string
-          readOnly: true
+          # Lifely - workaround for issue where generated Java classes extende from ZaakObject
+          # but could not set required properties resuling in uncompilable code
+          readOnly: false
           minLength: 1
         omschrijvingGeneriek:
           title: Omschrijving generiek
@@ -4965,16 +5182,18 @@ components:
 
             Uitleg bij mogelijke waarden:
 
-            * `adviseur` - (Adviseur) Kennis in dienst stellen van de behandeling van (een deel van) een zaak.
-            * `behandelaar` - (Behandelaar) De vakinhoudelijke behandeling doen van (een deel van) een zaak.
-            * `belanghebbende` - (Belanghebbende) Vanuit eigen en objectief belang rechtstreeks betrokken zijn bij de behandeling en/of de uitkomst van een zaak.
-            * `beslisser` - (Beslisser) Nemen van besluiten die voor de uitkomst van een zaak noodzakelijk zijn.
-            * `initiator` - (Initiator) Aanleiding geven tot de start van een zaak ..
-            * `klantcontacter` - (Klantcontacter) Het eerste aanspreekpunt zijn voor vragen van burgers en bedrijven ..
-            * `zaakcoordinator` - (Zaakcoördinator) Er voor zorg dragen dat de behandeling van de zaak in samenhang uitgevoerd wordt conform de daarover gemaakte afspraken.
+            * `adviseur` - Adviseur
+            * `behandelaar` - Behandelaar
+            * `belanghebbende` - Belanghebbende
+            * `beslisser` - Beslisser
+            * `initiator` - Initiator
+            * `klantcontacter` - Klantcontacter
+            * `zaakcoordinator` - Zaakcoördinator
             * `mede_initiator` - Mede-initiator
           type: string
-          readOnly: true
+          # Lifely - workaround for issue where generated Java classes extende from ZaakObject
+          # but could not set required properties resuling in uncompilable code
+          readOnly: false
           minLength: 1
         roltoelichting:
           title: Roltoelichting
@@ -4986,7 +5205,9 @@ components:
           description: De datum waarop dit object is geregistreerd.
           type: string
           format: date-time
-          readOnly: true
+          # Lifely - workaround for issue where generated Java classes extende from ZaakObject
+          # but could not set required properties resuling in uncompilable code
+          readOnly: false
         indicatieMachtiging:
           title: Indicatie machtiging
           description: |-
@@ -5000,6 +5221,21 @@ components:
           enum:
             - gemachtigde
             - machtiginggever
+        contactpersoonRol:
+          $ref: '#/components/schemas/ContactPersoonRol'
+        statussen:
+          description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
+            dat STATUSsen in die ZAAK bereikt zijn.
+          type: array
+          items:
+            description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
+              dat STATUSsen in die ZAAK bereikt zijn.
+            type: string
+            format: uri
+          # Lifely - workaround for issue where generated Java classes extende from ZaakObject
+          # but could not set required properties resuling in uncompilable code
+          readOnly: false
+          uniqueItems: true
       discriminator:
         propertyName: betrokkeneType
     VerblijfsAdres:
@@ -5239,6 +5475,11 @@ components:
           $ref: '#/components/schemas/VerblijfsAdres'
         subVerblijfBuitenland:
           $ref: '#/components/schemas/SubVerblijfBuitenland'
+        kvkNummer:
+          title: Kvk nummer
+          description: Een uniek nummer gekoppeld aan de onderneming.
+          type: string
+          maxLength: 8
     betrokkene_identificatie_RolVestiging:
       type: object
       properties:
@@ -5357,6 +5598,28 @@ components:
             de status van een zaak.
           type: string
           maxLength: 1000
+        indicatieLaatstGezetteStatus:
+          title: Indicatie laatst gezette status
+          description: Het gegeven is afleidbaar uit de historie van de attribuutsoort
+            Datum status gezet van van alle statussen bij de desbetreffende zaak.
+          type: boolean
+          readOnly: true
+        gezetdoor:
+          title: Gezet door
+          description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
+            dat STATUSsen in die ZAAK bereikt zijn.
+          type: string
+          format: uri
+          nullable: true
+        zaakinformatieobjecten:
+          description: URL-referenties naar ZAAKINFORMATIEOBJECTen.
+          type: array
+          items:
+            description: URL-referenties naar ZAAKINFORMATIEOBJECTen.
+            type: string
+            format: uri
+          readOnly: true
+          uniqueItems: true
     ZaakContactMoment:
       required:
         - zaak
@@ -5450,6 +5713,21 @@ components:
           type: string
           format: date-time
           readOnly: true
+        vernietigingsdatum:
+          title: Vernietigingsdatum
+          description: De datum waarop het informatieobject uit het zaakdossier verwijderd
+            moet worden.
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          title: Status
+          description: De bij de desbetreffende ZAAK behorende STATUS waarvoor het
+            ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken
+            van die STATUS en/of de communicatie daarover.
+          type: string
+          format: uri
+          nullable: true
     ObjectTypeOverigeDefinitie:
       description: |-
         Verwijzing naar het schema van het type OBJECT als `objectType` de waarde "overige" heeft.
@@ -5504,7 +5782,9 @@ components:
             en locatie van dit object.
           type: string
           format: uri
-          readOnly: true
+          # Lifely - workaround for issue where generated Java classes extende from ZaakObject
+          # but could not set required properties resuling in uncompilable code
+          readOnly: false
           maxLength: 1000
           minLength: 1
         uuid:
@@ -5512,7 +5792,9 @@ components:
           description: Unieke resource identifier (UUID4)
           type: string
           format: uuid
-          readOnly: true
+          # Lifely - workaround for issue where generated Java classes extende from ZaakObject
+          # but could not set required properties resuling in uncompilable code
+          readOnly: false
         zaak:
           title: Zaak
           description: URL-referentie naar de ZAAK.
@@ -5521,6 +5803,12 @@ components:
         object:
           title: Object
           description: URL-referentie naar de resource die het OBJECT beschrijft.
+          type: string
+          format: uri
+          maxLength: 1000
+        zaakobjecttype:
+          title: Zaakobjecttype
+          description: URL-referentie naar het ZAAKOBJECTTYPE (in de Catalogi API).
           type: string
           format: uri
           maxLength: 1000
@@ -6136,10 +6424,10 @@ components:
 
             Uitleg bij mogelijke waarden:
 
-            * `breedspoor` - breedspoor
-            * `normaalspoor` - normaalspoor
-            * `smalspoor` - smalspoor
-            * `spoorbaan` - spoorbaan
+            * `breedspoor` - Breedspoor
+            * `normaalspoor` - Normaalspoor
+            * `smalspoor` - Smalspoor
+            * `spoorbaan` - Spoorbaan
           type: string
           enum:
             - breedspoor
@@ -6812,6 +7100,44 @@ components:
           type: string
           maxLength: 40
           minLength: 1
+    Processobject:
+      description: Specificatie van de attribuutsoort van het object, subject of gebeurtenis  waarop,
+        vanuit archiveringsoptiek, de zaak betrekking heeft en dat bepalend is voor
+        de start van de archiefactietermijn.
+      required:
+        - datumkenmerk
+        - identificatie
+        - objecttype
+        - registratie
+      type: object
+      properties:
+        datumkenmerk:
+          title: Datumkenmerk
+          description: De naam van de attribuutsoort van het procesobject dat bepalend
+            is voor het einde van de procestermijn.
+          type: string
+          maxLength: 250
+          minLength: 1
+        identificatie:
+          title: Identificatie
+          description: De unieke aanduiding van het procesobject.
+          type: string
+          maxLength: 250
+          minLength: 1
+        objecttype:
+          title: Objecttype
+          description: Het soort object dat het procesobject representeert.
+          type: string
+          maxLength: 250
+          minLength: 1
+        registratie:
+          title: Registratie
+          description: De naam van de registratie waarvan het procesobject deel uit
+            maakt.
+          type: string
+          maxLength: 250
+          minLength: 1
+      nullable: true
     Zaak:
       required:
         - bronorganisatie
@@ -7022,6 +7348,15 @@ components:
             format: uri
           readOnly: true
           uniqueItems: true
+        rollen:
+          description: URL-referenties naar ROLLen.
+          type: array
+          items:
+            description: URL-referenties naar ROLLen.
+            type: string
+            format: uri
+          readOnly: true
+          uniqueItems: true
         status:
           title: Status
           description: Indien geen status bekend is, dan is de waarde 'null'
@@ -7029,6 +7364,24 @@ components:
           format: uri
           readOnly: true
           nullable: true
+        zaakinformatieobjecten:
+          description: URL-referenties naar ZAAKINFORMATIEOBJECTen.
+          type: array
+          items:
+            description: URL-referenties naar ZAAKINFORMATIEOBJECTen.
+            type: string
+            format: uri
+          readOnly: true
+          uniqueItems: true
+        zaakobjecten:
+          description: URL-referenties naar ZAAKOBJECTen.
+          type: array
+          items:
+            description: URL-referenties naar ZAAKOBJECTen.
+            type: string
+            format: uri
+          readOnly: true
+          uniqueItems: true
         kenmerken:
           description: Lijst van kenmerken. Merk op dat refereren naar gerelateerde
             objecten beter kan via `ZaakObject`.
@@ -7091,6 +7444,26 @@ components:
             geeft.
           type: string
           maxLength: 9
+        processobjectaard:
+          title: Procesobjectaard
+          description: Omschrijving van het object, subject of gebeurtenis waarop,
+            vanuit archiveringsoptiek, de zaak betrekking heeft.
+          type: string
+          maxLength: 200
+        resultaattoelichting:
+          title: Resultaattoelichting
+          description: Een toelichting op wat het resultaat van de zaak inhoudt.
+          type: string
+          maxLength: 1000
+        startdatumBewaartermijn:
+          title: Startdatum bewaartermijn
+          description: De datum die de start markeert van de termijn waarop het zaakdossier
+            vernietigd moet worden.
+          type: string
+          format: date
+          nullable: true
+        processobject:
+          $ref: '#/components/schemas/Processobject'
     GeoWithin:
       type: object
       properties:
@@ -7107,6 +7480,12 @@ components:
           items:
             type: string
             format: uuid
+        zaaktype__in:
+          description: Array van zaaktypen.
+          type: array
+          items:
+            type: string
+            format: uri
         identificatie:
           title: Identificatie
           description: De unieke identificatie van de ZAAK binnen de organisatie die
@@ -7120,6 +7499,12 @@ components:
             en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
           type: string
           minLength: 1
+        bronorganisatie__in:
+          description: Multiple values may be separated by commas.
+          type: array
+          items:
+            type: string
+            nullable: true
         zaaktype:
           title: Zaaktype
           description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
@@ -7162,6 +7547,14 @@ components:
           minLength: 1
         archiefactiedatum__gt:
           title: Archiefactiedatum  gt
+          description: De datum waarop het gearchiveerde zaakdossier vernietigd moet
+            worden dan wel overgebracht moet worden naar een archiefbewaarplaats.
+            Wordt automatisch berekend bij het aanmaken of wijzigen van een RESULTAAT
+            aan deze ZAAK indien nog leeg.
+          type: string
+          minLength: 1
+        archiefactiedatum__isnull:
+          title: Archiefactiedatum  isnull
           description: De datum waarop het gearchiveerde zaakdossier vernietigd moet
             worden dan wel overgebracht moet worden naar een archiefbewaarplaats.
             Wordt automatisch berekend bij het aanmaken of wijzigen van een RESULTAAT
@@ -7214,6 +7607,83 @@ components:
         startdatum__lte:
           title: Startdatum  lte
           description: De datum waarop met de uitvoering van de zaak is gestart
+          type: string
+          minLength: 1
+        registratiedatum:
+          title: Registratiedatum
+          description: De datum waarop de zaakbehandelende organisatie de ZAAK heeft
+            geregistreerd. Indien deze niet opgegeven wordt, wordt de datum van vandaag
+            gebruikt.
+          type: string
+          minLength: 1
+        registratiedatum__gt:
+          title: Registratiedatum  gt
+          description: De datum waarop de zaakbehandelende organisatie de ZAAK heeft
+            geregistreerd. Indien deze niet opgegeven wordt, wordt de datum van vandaag
+            gebruikt.
+          type: string
+          minLength: 1
+        registratiedatum__lt:
+          title: Registratiedatum  lt
+          description: De datum waarop de zaakbehandelende organisatie de ZAAK heeft
+            geregistreerd. Indien deze niet opgegeven wordt, wordt de datum van vandaag
+            gebruikt.
+          type: string
+          minLength: 1
+        einddatum:
+          title: Einddatum
+          description: De datum waarop de uitvoering van de zaak afgerond is.
+          type: string
+          minLength: 1
+        einddatum__gt:
+          title: Einddatum  gt
+          description: De datum waarop de uitvoering van de zaak afgerond is.
+          type: string
+          minLength: 1
+        einddatum__lt:
+          title: Einddatum  lt
+          description: De datum waarop de uitvoering van de zaak afgerond is.
+          type: string
+          minLength: 1
+        einddatum__isnull:
+          title: Einddatum  isnull
+          description: De datum waarop de uitvoering van de zaak afgerond is.
+          type: string
+          minLength: 1
+        einddatumGepland:
+          title: Einddatumgepland
+          description: De datum waarop volgens de planning verwacht wordt dat de zaak
+            afgerond wordt.
+          type: string
+          minLength: 1
+        einddatumGepland__gt:
+          title: Einddatumgepland  gt
+          description: De datum waarop volgens de planning verwacht wordt dat de zaak
+            afgerond wordt.
+          type: string
+          minLength: 1
+        einddatumGepland__lt:
+          title: Einddatumgepland  lt
+          description: De datum waarop volgens de planning verwacht wordt dat de zaak
+            afgerond wordt.
+          type: string
+          minLength: 1
+        uiterlijkeEinddatumAfdoening:
+          title: Uiterlijkeeinddatumafdoening
+          description: De laatste datum waarop volgens wet- en regelgeving de zaak
+            afgerond dient te zijn.
+          type: string
+          minLength: 1
+        uiterlijkeEinddatumAfdoening__gt:
+          title: Uiterlijkeeinddatumafdoening  gt
+          description: De laatste datum waarop volgens wet- en regelgeving de zaak
+            afgerond dient te zijn.
+          type: string
+          minLength: 1
+        uiterlijkeEinddatumAfdoening__lt:
+          title: Uiterlijkeeinddatumafdoening  lt
+          description: De laatste datum waarop volgens wet- en regelgeving de zaak
+            afgerond dient te zijn.
           type: string
           minLength: 1
         rol__betrokkeneType:
@@ -7296,6 +7766,34 @@ components:
             algemene bepalingen burgerservicenummer.
           type: string
           minLength: 1
+        rol__betrokkeneIdentificatie__natuurlijkPersoon__anpIdentificatie:
+          title: Rol  betrokkeneidentificatie  natuurlijkpersoon  anpidentificatie
+          description: Het door de gemeente uitgegeven unieke nummer voor een ANDER
+            NATUURLIJK PERSOON
+          type: string
+          minLength: 1
+        rol__betrokkeneIdentificatie__natuurlijkPersoon__inpA_nummer:
+          title: Rol  betrokkeneidentificatie  natuurlijkpersoon  inpa nummer
+          description: Het administratienummer van de persoon, bedoeld in de Wet BRP
+          type: string
+          minLength: 1
+        rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__innNnpId:
+          title: Rol  betrokkeneidentificatie  nietnatuurlijkpersoon  innnnpid
+          description: Het door een kamer toegekend uniek nummer voor de INGESCHREVEN
+            NIET-NATUURLIJK PERSOON
+          type: string
+          minLength: 1
+        rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__annIdentificatie:
+          title: Rol  betrokkeneidentificatie  nietnatuurlijkpersoon  annidentificatie
+          description: Het door de gemeente uitgegeven unieke nummer voor een ANDER
+            NIET-NATUURLIJK PERSOON
+          type: string
+          minLength: 1
+        rol__betrokkeneIdentificatie__vestiging__vestigingsNummer:
+          title: Rol  betrokkeneidentificatie  vestiging  vestigingsnummer
+          description: Een korte unieke aanduiding van de Vestiging.
+          type: string
+          minLength: 1
         rol__betrokkeneIdentificatie__medewerker__identificatie:
           title: Rol  betrokkeneidentificatie  medewerker  identificatie
           description: Een korte unieke aanduiding van de MEDEWERKER.
@@ -7308,9 +7806,37 @@ components:
           minLength: 1
         ordering:
           title: Ordering
-          description: Which field to use when ordering the results.
+          description: |-
+            Het veld waarop de resultaten geordend worden.
+
+            Uitleg bij mogelijke waarden:
+
+            * `startdatum` - Startdatum
+            * `-startdatum` - Startdatum (descending)
+            * `einddatum` - Einddatum
+            * `-einddatum` - Einddatum (descending)
+            * `publicatiedatum` - Publicatiedatum
+            * `-publicatiedatum` - Publicatiedatum (descending)
+            * `archiefactiedatum` - Archiefactiedatum
+            * `-archiefactiedatum` - Archiefactiedatum (descending)
+            * `registratiedatum` - Registratiedatum
+            * `-registratiedatum` - Registratiedatum (descending)
+            * `identificatie` - Identificatie
+            * `-identificatie` - Identificatie (descending)
           type: string
-          minLength: 1
+          enum:
+            - startdatum
+            - -startdatum
+            - einddatum
+            - -einddatum
+            - publicatiedatum
+            - -publicatiedatum
+            - archiefactiedatum
+            - -archiefactiedatum
+            - registratiedatum
+            - -registratiedatum
+            - identificatie
+            - -identificatie
     Wijzigingen:
       type: object
       properties:

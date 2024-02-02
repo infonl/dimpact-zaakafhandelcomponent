@@ -57,9 +57,10 @@ import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.Besluittype;
-import net.atos.client.zgw.ztc.model.Informatieobjecttype;
-import net.atos.client.zgw.ztc.model.Zaaktype;
+import net.atos.client.zgw.ztc.model.generated.BesluitType;
+import net.atos.client.zgw.ztc.model.generated.InformatieObjectType;
+import net.atos.client.zgw.ztc.model.generated.ZaakType;
+import net.atos.client.zgw.ztc.util.InformatieObjectTypeUtil;
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter;
 import net.atos.zac.app.audit.model.RESTHistorieRegel;
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter;
@@ -226,7 +227,8 @@ public class InformatieObjectenRESTService {
                 enkelvoudigInformatieobjectenVoorZaak.addAll(listGekoppeldeZaakInformatieObjectenVoorZaak(zaak));
             }
             if (zoekParameters.besluittypeUUID != null) {
-                final Besluittype besluittype = ztcClientService.readBesluittype(zoekParameters.besluittypeUUID);
+                final BesluitType besluittype =
+                        ztcClientService.readBesluittype(zoekParameters.besluittypeUUID);
                 final List<UUID> compareList = besluittype.getInformatieobjecttypen().stream().map(UriUtil::uuidFromURI)
                         .toList();
                 return enkelvoudigInformatieobjectenVoorZaak.stream()
@@ -359,7 +361,7 @@ public class InformatieObjectenRESTService {
     @GET
     @Path("informatieobjecttypes/{zaakTypeUuid}")
     public List<RESTInformatieobjecttype> listInformatieobjecttypes(@PathParam("zaakTypeUuid") final UUID zaakTypeID) {
-        final Zaaktype zaaktype = ztcClientService.readZaaktype(zaakTypeID);
+        final ZaakType zaaktype = ztcClientService.readZaaktype(zaakTypeID);
         return informatieobjecttypeConverter.convert(zaaktype.getInformatieobjecttypen());
     }
 
@@ -367,10 +369,11 @@ public class InformatieObjectenRESTService {
     @Path("informatieobjecttypes/zaak/{zaakUuid}")
     public List<RESTInformatieobjecttype> listInformatieobjecttypesForZaak(@PathParam("zaakUuid") final UUID zaakID) {
         final Zaak zaak = zrcClientService.readZaak(zaakID);
-        final Zaaktype zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
-        final List<Informatieobjecttype> informatieObjectTypes = zaaktype.getInformatieobjecttypen().stream()
+        final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
+        final List<InformatieObjectType> informatieObjectTypes =
+                zaaktype.getInformatieobjecttypen().stream()
                 .map(uri -> ztcClientService.readInformatieobjecttype(uri))
-                .filter(Informatieobjecttype::isNuGeldig)
+                .filter(InformatieObjectTypeUtil::isNuGeldig)
                 .collect(Collectors.toList());
         return informatieobjecttypeConverter.convert(informatieObjectTypes);
     }
@@ -585,7 +588,7 @@ public class InformatieObjectenRESTService {
         // documents created by Smartdocuments are always of the type 'bijlage'
         // the zaaktype of the current zaak needs to be configured to be able to use this
         // informatieobjecttype
-        final Informatieobjecttype informatieObjectType =
+        final InformatieObjectType informatieObjectType =
                 ztcClientService.readInformatieobjecttypen(zaak.getZaaktype()).stream()
                 .filter(informatieobjecttype -> INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE.equals(informatieobjecttype.getOmschrijving()))
                 .findAny()
@@ -690,9 +693,11 @@ public class InformatieObjectenRESTService {
                                                                             RelatieType.HOOFDZAAK));
         }
         zaak.getRelevanteAndereZaken().forEach(relevanteAndereZaak -> enkelvoudigInformatieobjectList.addAll(
-                listGekoppeldeZaakEnkelvoudigInformatieobjectenVoorZaak(relevanteAndereZaak.getUrl(),
-                                                                        gerelateerdeZaakConverter.convertToRelatieType(
-                                                                                relevanteAndereZaak.getAardRelatie()))));
+                listGekoppeldeZaakEnkelvoudigInformatieobjectenVoorZaak(
+                        relevanteAndereZaak.getUrl(),
+                        gerelateerdeZaakConverter.convertToRelatieType(relevanteAndereZaak.getAardRelatie())
+                )
+            ));
         return enkelvoudigInformatieobjectList;
     }
 }

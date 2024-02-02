@@ -2,6 +2,7 @@ import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.github.gradle.node.npm.task.NpmTask
 import io.smallrye.openapi.api.OpenApiConfig
 import org.jetbrains.kotlin.backend.common.serialization.mangle.collectForMangler
+import org.jetbrains.kotlin.fir.declarations.builder.buildConstructor
 import java.util.Locale
 
 /*
@@ -273,6 +274,7 @@ tasks {
                     exclude("net/atos/client/kvk/**/model/**")
                     exclude("net/atos/client/vrl/model/**")
                     exclude("net/atos/zac/aanvraag/**")
+                    exclude("**/generated/**")
                 }
             })
         }
@@ -394,8 +396,19 @@ tasks {
         modelPackage.set("net.atos.client.zgw.drc.model")
     }
 
+    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateZrcDrcClient") {
+        inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/zrc-openapi.yaml")
+        modelPackage.set("net.atos.client.zgw.zrc.model.generated")
+    }
+
+    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateZtcDrcClient") {
+        inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/ztc-openapi.yaml")
+        modelPackage.set("net.atos.client.zgw.ztc.model.generated")
+    }
+
     register("generateJavaClients") {
         dependsOn(
+            generateJsonSchema2Pojo,
             "generateKvkZoekenClient",
             "generateKvkBasisProfielClient",
             "generateKvkVestigingsProfielClient",
@@ -405,7 +418,9 @@ tasks {
             "generateKlantenClient",
             "generateContactMomentenClient",
             "generateZgwBrcClient",
-            "generateZgwDrcClient"
+            "generateZgwDrcClient",
+            "generateZrcDrcClient",
+            "generateZtcDrcClient"
         )
     }
 

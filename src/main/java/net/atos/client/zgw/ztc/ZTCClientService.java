@@ -30,21 +30,21 @@ import net.atos.client.zgw.shared.cache.Caching;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
 import net.atos.client.zgw.ztc.model.AardVanRol;
-import net.atos.client.zgw.ztc.model.Besluittype;
 import net.atos.client.zgw.ztc.model.BesluittypeListParameters;
-import net.atos.client.zgw.ztc.model.Catalogus;
 import net.atos.client.zgw.ztc.model.CatalogusListParameters;
-import net.atos.client.zgw.ztc.model.Informatieobjecttype;
-import net.atos.client.zgw.ztc.model.Resultaattype;
 import net.atos.client.zgw.ztc.model.ResultaattypeListParameters;
-import net.atos.client.zgw.ztc.model.Roltype;
 import net.atos.client.zgw.ztc.model.RoltypeListParameters;
-import net.atos.client.zgw.ztc.model.Statustype;
 import net.atos.client.zgw.ztc.model.StatustypeListParameters;
-import net.atos.client.zgw.ztc.model.Zaaktype;
-import net.atos.client.zgw.ztc.model.ZaaktypeInformatieobjecttype;
 import net.atos.client.zgw.ztc.model.ZaaktypeInformatieobjecttypeListParameters;
 import net.atos.client.zgw.ztc.model.ZaaktypeListParameters;
+import net.atos.client.zgw.ztc.model.generated.BesluitType;
+import net.atos.client.zgw.ztc.model.generated.Catalogus;
+import net.atos.client.zgw.ztc.model.generated.InformatieObjectType;
+import net.atos.client.zgw.ztc.model.generated.ResultaatType;
+import net.atos.client.zgw.ztc.model.generated.RolType;
+import net.atos.client.zgw.ztc.model.generated.StatusType;
+import net.atos.client.zgw.ztc.model.generated.ZaakType;
+import net.atos.client.zgw.ztc.model.generated.ZaakTypeInformatieObjectType;
 import net.atos.zac.configuratie.ConfiguratieService;
 
 /**
@@ -98,240 +98,240 @@ public class ZTCClientService implements Caching {
     }
 
     /**
-     * Read {@link Zaaktype} via URI.
-     * Throws a RuntimeException if the {@link Zaaktype} can not be read.
+     * Read {@link ZaakType} via URI.
+     * Throws a RuntimeException if the {@link ZaakType} can not be read.
      *
-     * @param zaaktypeURI URI of {@link Zaaktype}.
-     * @return {@link Zaaktype}. Never 'null'!
+     * @param zaaktypeURI URI of {@link ZaakType}.
+     * @return {@link ZaakType}. Never 'null'!
      */
     @CacheResult(cacheName = ZTC_ZAAKTYPE)
-    public Zaaktype readZaaktype(final URI zaaktypeURI) {
-        return createInvocationBuilder(zaaktypeURI).get(Zaaktype.class);
+    public ZaakType readZaaktype(final URI zaaktypeURI) {
+        return createInvocationBuilder(zaaktypeURI).get(ZaakType.class);
     }
 
     /**
-     * Read {@link Zaaktype} via UUID.
-     * Throws a RuntimeException if the {@link Zaaktype} can not be read.
+     * Read {@link ZaakType} via UUID.
+     * Throws a RuntimeException if the {@link ZaakType} can not be read.
      *
-     * @param zaaktypeUuid UUID of {@link Zaaktype}.
-     * @return {@link Zaaktype}. Never 'null'!
+     * @param zaaktypeUuid UUID of {@link ZaakType}.
+     * @return {@link ZaakType}. Never 'null'!
      */
     @CacheResult(cacheName = ZTC_ZAAKTYPE)
-    public Zaaktype readZaaktype(final UUID zaaktypeUuid) {
+    public ZaakType readZaaktype(final UUID zaaktypeUuid) {
         return ztcClient.zaaktypeRead(zaaktypeUuid);
     }
 
     /**
-     * List instances of {@link Zaaktype} in {@link Catalogus}.
+     * List instances of {@link ZaakType} in {@link Catalogus}.
      *
      * @param catalogusURI URI of {@link Catalogus}.
-     * @return List of {@link Zaaktype} instances
+     * @return List of {@link ZaakType} instances
      */
     @CacheResult(cacheName = ZTC_ZAAKTYPE)
-    public List<Zaaktype> listZaaktypen(final URI catalogusURI) {
+    public List<ZaakType> listZaaktypen(final URI catalogusURI) {
         return ztcClient.zaaktypeList(new ZaaktypeListParameters(catalogusURI)).getResults();
     }
 
     /**
-     * Read {@link Statustype} via URI.
-     * Throws a RuntimeException if the {@link Statustype} can not be read.
+     * Read {@link StatusType} via URI.
+     * Throws a RuntimeException if the {@link StatusType} can not be read.
      *
-     * @param statustypeURI URI of {@link Statustype}.
-     * @return {@link Statustype}. Never 'null'!
+     * @param statustypeURI URI of {@link StatusType}.
+     * @return {@link StatusType}. Never 'null'!
      */
     @CacheResult(cacheName = ZTC_STATUSTYPE)
-    public Statustype readStatustype(final URI statustypeURI) {
-        return createInvocationBuilder(statustypeURI).get(Statustype.class);
+    public StatusType readStatustype(final URI statustypeURI) {
+        return createInvocationBuilder(statustypeURI).get(StatusType.class);
     }
 
     /**
-     * Read {@link Statustype} via its UUID.
-     * Throws a RuntimeException if the {@link Statustype} can not be read.
+     * Read {@link StatusType} via its UUID.
+     * Throws a RuntimeException if the {@link StatusType} can not be read.
      *
-     * @param statustypeUUID UUID of {@link Statustype}.
-     * @return {@link Statustype}. Never 'null'!
+     * @param statustypeUUID UUID of {@link StatusType}.
+     * @return {@link StatusType}. Never 'null'!
      */
     @CacheResult(cacheName = ZTC_STATUSTYPE)
-    public Statustype readStatustype(final UUID statustypeUUID) {
+    public StatusType readStatustype(final UUID statustypeUUID) {
         return ztcClient.statustypeRead(statustypeUUID);
     }
 
     /**
-     * Read the {@link Statustype} of {@link Zaaktype}.
+     * Read the {@link StatusType} of {@link ZaakType}.
      *
-     * @param zaaktypeURI URI of {@link Zaaktype}.
-     * @return list of {@link Statustype}.
+     * @param zaaktypeURI URI of {@link ZaakType}.
+     * @return list of {@link StatusType}.
      */
     @CacheResult(cacheName = ZTC_STATUSTYPE)
-    public List<Statustype> readStatustypen(final URI zaaktypeURI) {
+    public List<StatusType> readStatustypen(final URI zaaktypeURI) {
         return ztcClient.statustypeList(new StatustypeListParameters(zaaktypeURI)).getSinglePageResults();
     }
 
     /**
-     * Read the {@link ZaaktypeInformatieobjecttype} of {@link Zaaktype}.
+     * Read the {@link ZaakTypeInformatieObjectType} of {@link ZaakType}.
      *
-     * @param zaaktypeURI URI of {@link Zaaktype}.
-     * @return list of {@link ZaaktypeInformatieobjecttype}.
+     * @param zaaktypeURI URI of {@link ZaakType}.
+     * @return list of {@link ZaakTypeInformatieObjectType}.
      */
     @CacheResult(cacheName = ZTC_ZAAKTYPE_INFORMATIEOBJECTTYPE)
-    public List<ZaaktypeInformatieobjecttype> readZaaktypeInformatieobjecttypen(final URI zaaktypeURI) {
+    public List<ZaakTypeInformatieObjectType> readZaaktypeInformatieobjecttypen(final URI zaaktypeURI) {
         return ztcClient.zaaktypeinformatieobjecttypeList(new ZaaktypeInformatieobjecttypeListParameters(zaaktypeURI)).getSinglePageResults();
     }
 
     /**
-     * Read the {@link Informatieobjecttype} of {@link Zaaktype}.
+     * Read the {@link InformatieObjectType} of {@link ZaakType}.
      *
-     * @param zaaktypeURI URI of {@link Zaaktype}.
-     * @return list of {@link Informatieobjecttype}.
+     * @param zaaktypeURI URI of {@link ZaakType}.
+     * @return list of {@link InformatieObjectType}.
      */
     @CacheResult(cacheName = ZTC_INFORMATIEOBJECTTYPE)
-    public List<Informatieobjecttype> readInformatieobjecttypen(final URI zaaktypeURI) {
+    public List<InformatieObjectType> readInformatieobjecttypen(final URI zaaktypeURI) {
         return readZaaktypeInformatieobjecttypen(zaaktypeURI).stream()
                 .map(zaaktypeInformatieobjecttype -> readInformatieobjecttype(zaaktypeInformatieobjecttype.getInformatieobjecttype())).toList();
     }
 
     /**
-     * Read {@link Resultaattype} via its URI.
-     * Throws a RuntimeException if the {@link Resultaattype} can not be read.
+     * Read {@link ResultaatType} via its URI.
+     * Throws a RuntimeException if the {@link ResultaatType} can not be read.
      *
-     * @param resultaattypeURI URI of {@link Resultaattype}.
-     * @return {@link Resultaattype}. Never 'null'!
+     * @param resultaattypeURI URI of {@link ResultaatType}.
+     * @return {@link ResultaatType}. Never 'null'!
      */
     @CacheResult(cacheName = ZTC_RESULTAATTYPE)
-    public Resultaattype readResultaattype(final URI resultaattypeURI) {
-        return createInvocationBuilder(resultaattypeURI).get(Resultaattype.class);
+    public ResultaatType readResultaattype(final URI resultaattypeURI) {
+        return createInvocationBuilder(resultaattypeURI).get(ResultaatType.class);
     }
 
     /**
-     * Read {@link Besluittype} via its URI.
-     * Throws a RuntimeException if the {@link Besluittype} can not be read.
+     * Read {@link BesluitType} via its URI.
+     * Throws a RuntimeException if the {@link BesluitType} can not be read.
      *
-     * @param besluittypeURI URI of {@link Besluittype}.
-     * @return {@link Besluittype}. Never 'null'!
+     * @param besluittypeURI URI of {@link BesluitType}.
+     * @return {@link BesluitType}. Never 'null'!
      */
     @CacheResult(cacheName = ZTC_BESLUITTYPE)
-    public Besluittype readBesluittype(final URI besluittypeURI) {
-        return createInvocationBuilder(besluittypeURI).get(Besluittype.class);
+    public BesluitType readBesluittype(final URI besluittypeURI) {
+        return createInvocationBuilder(besluittypeURI).get(BesluitType.class);
     }
 
     /**
-     * Read {@link Besluittype} via its UUID.
-     * Throws a RuntimeException if the {@link Besluittype} can not be read.
+     * Read {@link BesluitType} via its UUID.
+     * Throws a RuntimeException if the {@link BesluitType} can not be read.
      *
-     * @param besluittypeUUID UUID of {@link Besluittype}.
-     * @return {@link Besluittype}. Never 'null'!
+     * @param besluittypeUUID UUID of {@link BesluitType}.
+     * @return {@link BesluitType}. Never 'null'!
      */
     @CacheResult(cacheName = ZTC_BESLUITTYPE)
-    public Besluittype readBesluittype(final UUID besluittypeUUID) {
+    public BesluitType readBesluittype(final UUID besluittypeUUID) {
         return ztcClient.besluittypeRead(besluittypeUUID);
     }
 
     /**
-     * Read the {@link Besluittype} of {@link Zaaktype}.
+     * Read the {@link BesluitType} of {@link ZaakType}.
      *
-     * @param zaaktypeURI URI of {@link Zaaktype}.
-     * @return list of {@link Besluittype}.
+     * @param zaaktypeURI URI of {@link ZaakType}.
+     * @return list of {@link BesluitType}.
      */
     @CacheResult(cacheName = ZTC_BESLUITTYPE)
-    public List<Besluittype> readBesluittypen(final URI zaaktypeURI) {
+    public List<BesluitType> readBesluittypen(final URI zaaktypeURI) {
         return ztcClient.besluittypeList(new BesluittypeListParameters(zaaktypeURI)).getSinglePageResults();
     }
 
     /**
-     * Read {@link Resultaattype} via its UUID.
-     * Throws a RuntimeException if the {@link Resultaattype} can not be read.
+     * Read {@link ResultaatType} via its UUID.
+     * Throws a RuntimeException if the {@link ResultaatType} can not be read.
      *
-     * @param resultaattypeUUID UUID of {@link Resultaattype}.
-     * @return {@link Resultaattype}. Never 'null'!
+     * @param resultaattypeUUID UUID of {@link ResultaatType}.
+     * @return {@link ResultaatType}. Never 'null'!
      */
     @CacheResult(cacheName = ZTC_RESULTAATTYPE)
-    public Resultaattype readResultaattype(final UUID resultaattypeUUID) {
+    public ResultaatType readResultaattype(final UUID resultaattypeUUID) {
         return ztcClient.resultaattypeRead(resultaattypeUUID);
     }
 
     /**
-     * Read the {@link Resultaattype} of {@link Zaaktype}.
+     * Read the {@link ResultaatType} of {@link ZaakType}.
      *
-     * @param zaaktypeURI URI of {@link Zaaktype}.
-     * @return list of {@link Resultaattype}.
+     * @param zaaktypeURI URI of {@link ZaakType}.
+     * @return list of {@link ResultaatType}.
      */
     @CacheResult(cacheName = ZTC_RESULTAATTYPE)
-    public List<Resultaattype> readResultaattypen(final URI zaaktypeURI) {
+    public List<ResultaatType> readResultaattypen(final URI zaaktypeURI) {
         return ztcClient.resultaattypeList(new ResultaattypeListParameters(zaaktypeURI)).getSinglePageResults();
     }
 
     /**
-     * Find {@link Roltype} of {@link Zaaktype} and {@link AardVanRol}.
-     * returns null if the {@link Resultaattype} can not be found
+     * Find {@link RolType} of {@link ZaakType} and {@link AardVanRol}.
+     * returns null if the {@link ResultaatType} can not be found
      *
-     * @param zaaktypeURI URI of {@link Zaaktype}.
+     * @param zaaktypeURI URI of {@link ZaakType}.
      * @param aardVanRol  {@link AardVanRol}.
-     * @return {@link Roltype} or NULL
+     * @return {@link RolType} or NULL
      */
     @CacheResult(cacheName = ZTC_ROLTYPE)
-    public Optional<Roltype> findRoltype(final URI zaaktypeURI, final AardVanRol aardVanRol) {
+    public Optional<RolType> findRoltype(final URI zaaktypeURI, final AardVanRol aardVanRol) {
         return ztcClient.roltypeList(new RoltypeListParameters(zaaktypeURI, aardVanRol)).getSingleResult();
     }
 
     /**
-     * Read {@link Roltype} of {@link Zaaktype} and {@link AardVanRol}.
-     * Throws a RuntimeException if the {@link Resultaattype} can not be read.
+     * Read {@link RolType} of {@link ZaakType} and {@link AardVanRol}.
+     * Throws a RuntimeException if the {@link ResultaatType} can not be read.
      *
-     * @param zaaktypeURI URI of {@link Zaaktype}.
+     * @param zaaktypeURI URI of {@link ZaakType}.
      * @param aardVanRol  {@link AardVanRol}.
-     * @return {@link Roltype}. Never 'null'!
+     * @return {@link RolType}. Never 'null'!
      */
     @CacheResult(cacheName = ZTC_ROLTYPE)
-    public Roltype readRoltype(final AardVanRol aardVanRol, final URI zaaktypeURI) {
+    public RolType readRoltype(final AardVanRol aardVanRol, final URI zaaktypeURI) {
         return ztcClient.roltypeList(new RoltypeListParameters(zaaktypeURI, aardVanRol)).getSingleResult()
                 .orElseThrow(
                         () -> new RuntimeException(format("Zaaktype '%s': Roltype with aard '%s' not found.", zaaktypeURI.toString(), aardVanRol.toString())));
     }
 
     /**
-     * Read {@link Roltype}s of {@link Zaaktype}.
+     * Read {@link RolType}s of {@link ZaakType}.
      *
-     * @param zaaktypeURI URI of {@link Zaaktype}.
-     * @return list of {@link Roltype}s.
+     * @param zaaktypeURI URI of {@link ZaakType}.
+     * @return list of {@link RolType}s.
      */
     @CacheResult(cacheName = ZTC_ROLTYPE)
-    public List<Roltype> listRoltypen(final URI zaaktypeURI) {
+    public List<RolType> listRoltypen(final URI zaaktypeURI) {
         return ztcClient.roltypeList(new RoltypeListParameters(zaaktypeURI)).getResults();
     }
 
     /**
-     * Read {@link Roltype} via its UUID.
-     * Throws a RuntimeException if the {@link Roltype} can not be read.
+     * Read {@link RolType} via its UUID.
+     * Throws a RuntimeException if the {@link RolType} can not be read.
      *
-     * @param roltypeUUID UUID of {@link Roltype}.
-     * @return {@link Roltype}. Never 'null'!
+     * @param roltypeUUID UUID of {@link RolType}.
+     * @return {@link RolType}. Never 'null'!
      */
     @CacheResult(cacheName = ZTC_ROLTYPE)
-    public Roltype readRoltype(final UUID roltypeUUID) {
+    public RolType readRoltype(final UUID roltypeUUID) {
         return ztcClient.roltypeRead(roltypeUUID);
     }
 
     /**
-     * Read {@link Informatieobjecttype} via its URI.
-     * Throws a RuntimeException if the {@link Informatieobjecttype} can not be read.
+     * Read {@link InformatieObjectType} via its URI.
+     * Throws a RuntimeException if the {@link InformatieObjectType} can not be read.
      *
-     * @param informatieobjecttypeURI URI of {@link Informatieobjecttype}.
-     * @return {@link Informatieobjecttype}. Never 'null'!
+     * @param informatieobjecttypeURI URI of {@link InformatieObjectType}.
+     * @return {@link InformatieObjectType}. Never 'null'!
      */
     @CacheResult(cacheName = ZTC_INFORMATIEOBJECTTYPE)
-    public Informatieobjecttype readInformatieobjecttype(final URI informatieobjecttypeURI) {
-        return createInvocationBuilder(informatieobjecttypeURI).get(Informatieobjecttype.class);
+    public InformatieObjectType readInformatieobjecttype(final URI informatieobjecttypeURI) {
+        return createInvocationBuilder(informatieobjecttypeURI).get(InformatieObjectType.class);
     }
 
     /**
-     * Read {@link Informatieobjecttype} via its UUID.
-     * Throws a RuntimeException if the {@link Informatieobjecttype} can not be read.
+     * Read {@link InformatieObjectType} via its UUID.
+     * Throws a RuntimeException if the {@link InformatieObjectType} can not be read.
      *
-     * @param informatieobjecttypeUUID UUID of {@link Informatieobjecttype}.
-     * @return {@link Informatieobjecttype}.
+     * @param informatieobjecttypeUUID UUID of {@link InformatieObjectType}.
+     * @return {@link InformatieObjectType}.
      */
     @CacheResult(cacheName = ZTC_INFORMATIEOBJECTTYPE)
-    public Informatieobjecttype readInformatieobjecttype(final UUID informatieobjecttypeUUID) {
+    public InformatieObjectType readInformatieobjecttype(final UUID informatieobjecttypeUUID) {
         return ztcClient.informatieObjectTypeRead(informatieobjecttypeUUID);
     }
 

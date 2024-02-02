@@ -45,8 +45,8 @@ import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag;
 import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.client.zgw.ztc.model.AardVanRol;
-import net.atos.client.zgw.ztc.model.Roltype;
-import net.atos.client.zgw.ztc.model.Zaaktype;
+import net.atos.client.zgw.ztc.model.generated.RolType;
+import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.aanvraag.model.InboxProductaanvraag;
 import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.documenten.InboxDocumentenService;
@@ -172,7 +172,8 @@ public class ProductaanvraagService {
                 .formatted(productaanvraag.getSubmissionId(), message);
     }
 
-    private void registreerZaakMetBPMNProces(final Zaaktype zaaktype, final ProductaanvraagDenhaag productaanvraag,
+    private void registreerZaakMetBPMNProces(final ZaakType zaaktype,
+            final ProductaanvraagDenhaag productaanvraag,
             final ORObject productaanvraagObject) {
         final Map<String, Object> formulierData = getFormulierData(productaanvraagObject);
         var zaak = new Zaak();
@@ -209,9 +210,13 @@ public class ProductaanvraagService {
     }
 
     private void addInitiator(final String bsn, final URI zaak, final URI zaaktype) {
-        final Roltype initiator = ztcClientService.readRoltype(AardVanRol.INITIATOR, zaaktype);
-        final RolNatuurlijkPersoon rolNatuurlijkPersoon = new RolNatuurlijkPersoon(zaak, initiator, ROL_TOELICHTING,
-                                                                                   new NatuurlijkPersoon(bsn));
+        final RolType initiator = ztcClientService.readRoltype(AardVanRol.INITIATOR, zaaktype);
+        final RolNatuurlijkPersoon rolNatuurlijkPersoon = new RolNatuurlijkPersoon(
+                zaak,
+                initiator,
+                ROL_TOELICHTING,
+                new NatuurlijkPersoon(bsn)
+        );
         zrcClientService.createRol(rolNatuurlijkPersoon);
     }
 
@@ -324,7 +329,8 @@ public class ProductaanvraagService {
         final OrganisatorischeEenheid groep = new OrganisatorischeEenheid();
         groep.setIdentificatie(group.getId());
         groep.setNaam(group.getName());
-        final Roltype roltype = ztcClientService.readRoltype(AardVanRol.BEHANDELAAR, zaak.getZaaktype());
+        final RolType roltype = ztcClientService.readRoltype(AardVanRol.BEHANDELAAR,
+                                                             zaak.getZaaktype());
         return new RolOrganisatorischeEenheid(zaak.getUrl(), roltype, "Behandelend groep van de zaak", groep);
     }
 
@@ -334,11 +340,12 @@ public class ProductaanvraagService {
         medewerker.setIdentificatie(user.getId());
         medewerker.setVoorletters(user.getFirstName());
         medewerker.setAchternaam(user.getLastName());
-        final Roltype roltype = ztcClientService.readRoltype(AardVanRol.BEHANDELAAR, zaak.getZaaktype());
+        final RolType roltype = ztcClientService.readRoltype(AardVanRol.BEHANDELAAR,
+                                                             zaak.getZaaktype());
         return new RolMedewerker(zaak.getUrl(), roltype, "Behandelaar van de zaak", medewerker);
     }
 
-    private Optional<Zaaktype> findZaaktypeByIdentificatie(final String zaaktypeIdentificatie) {
+    private Optional<ZaakType> findZaaktypeByIdentificatie(final String zaaktypeIdentificatie) {
         return ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI()).stream()
                 .filter(zaak -> zaak.getIdentificatie().equals(zaaktypeIdentificatie))
                 .findFirst();

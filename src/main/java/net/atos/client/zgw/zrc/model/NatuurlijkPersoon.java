@@ -5,6 +5,9 @@
 
 package net.atos.client.zgw.zrc.model;
 
+import net.atos.client.klanten.model.SubVerblijfBuitenland;
+import net.atos.client.klanten.model.VerblijfsAdres;
+
 public class NatuurlijkPersoon {
 
     /**

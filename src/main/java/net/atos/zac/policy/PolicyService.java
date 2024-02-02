@@ -20,7 +20,7 @@ import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.Zaaktype;
+import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.authentication.LoggedInUser;
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
 import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
@@ -78,7 +78,7 @@ public class PolicyService {
         return readZaakRechten(zaak, ztcClientService.readZaaktype(zaak.getZaaktype()));
     }
 
-    public ZaakRechten readZaakRechten(final Zaak zaak, final Zaaktype zaaktype) {
+    public ZaakRechten readZaakRechten(final Zaak zaak, final ZaakType zaaktype) {
         final ZaakData zaakData = new ZaakData();
         zaakData.open = zaak.isOpen();
         zaakData.zaaktype = zaaktype.getOmschrijving();
