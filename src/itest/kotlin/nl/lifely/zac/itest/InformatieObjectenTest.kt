@@ -30,7 +30,7 @@ class InformatieObjectenTest : BehaviorSpec() {
                 then(
                     "the 'unattended document creation wizard' is started in Smartdocuments"
                 ) {
-                    logger.info { "Calling documentcreatie endpoint for zaak with UUID: '$zaakUUID' to create document in Smartdocuments" }
+                    logger.info { "Calling documentcreatie endpoint for zaak with UUID: '$zaak1UUID' to create document in Smartdocuments" }
                     khttp.post(
                         url = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/documentcreatie",
                         headers = mapOf(
@@ -39,7 +39,7 @@ class InformatieObjectenTest : BehaviorSpec() {
                         ),
                         data = JSONObject(
                             mapOf(
-                                "zaakUUID" to zaakUUID
+                                "zaakUUID" to zaak1UUID
                             )
                         )
                     ).apply {
