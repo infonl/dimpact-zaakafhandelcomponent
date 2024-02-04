@@ -418,7 +418,7 @@ public class RESTInformatieobjectConverter {
      * to a {@link EnkelvoudigInformatieObject} object.
      * <br>
      * Eventhough they both contain for the most part the exact same fields the OpenAPI
-     * Generator generates two separate Java classes.
+     * Generator generates two separate Java classes without any inheritance.
      *
      * @param enkelvoudigInformatieObjectWithLockData the object to be converted
      * @return the converted object
@@ -426,7 +426,14 @@ public class RESTInformatieobjectConverter {
     public static EnkelvoudigInformatieObject convertToEnkelvoudigInformatieObject(
             EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieObjectWithLockData
     ) {
-        final EnkelvoudigInformatieObject enkelvoudigInformatieObject = new EnkelvoudigInformatieObject();
+        final EnkelvoudigInformatieObject enkelvoudigInformatieObject = new EnkelvoudigInformatieObject(
+                enkelvoudigInformatieObjectWithLockData.getUrl(),
+                enkelvoudigInformatieObjectWithLockData.getVersie(),
+                enkelvoudigInformatieObjectWithLockData.getBeginRegistratie(),
+                null,
+                enkelvoudigInformatieObjectWithLockData.getLocked(),
+                enkelvoudigInformatieObjectWithLockData.getBestandsdelen()
+        );
         enkelvoudigInformatieObject.setAuteur(enkelvoudigInformatieObjectWithLockData.getAuteur());
         enkelvoudigInformatieObject.setBeschrijving(enkelvoudigInformatieObjectWithLockData.getBeschrijving());
         enkelvoudigInformatieObject.setBestandsomvang(
