@@ -5,7 +5,7 @@
 
 package net.atos.client.zgw.shared.model.audit.documenten;
 
-import net.atos.client.zgw.drc.model.ObjectInformatieObject;
+import net.atos.client.zgw.drc.model.generated.ObjectInformatieObject;
 import net.atos.client.zgw.shared.model.ObjectType;
 import net.atos.client.zgw.shared.model.audit.AuditWijziging;
 

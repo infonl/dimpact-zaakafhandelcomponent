@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter;
 
 import org.apache.commons.lang3.BooleanUtils;
 
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 
 public final class HistorieUtil {
 

@@ -2,9 +2,9 @@ package net.atos.client.zgw.shared.util;
 
 import java.util.Base64;
 
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObjectData;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObjectWithLockData;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockData;
 
 public class InformatieobjectenUtil {
 

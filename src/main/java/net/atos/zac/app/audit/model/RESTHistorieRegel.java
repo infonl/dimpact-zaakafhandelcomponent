@@ -8,7 +8,7 @@ package net.atos.zac.app.audit.model;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.util.HistorieUtil;
 
 public class RESTHistorieRegel {

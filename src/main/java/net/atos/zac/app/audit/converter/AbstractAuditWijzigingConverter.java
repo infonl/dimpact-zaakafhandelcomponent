@@ -13,8 +13,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.shared.model.AbstractEnum;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.model.ObjectType;
 import net.atos.client.zgw.shared.model.audit.AuditWijziging;
 import net.atos.zac.app.audit.model.RESTHistorieRegel;

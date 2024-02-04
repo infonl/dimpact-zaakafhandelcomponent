@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.informatieobjecten.converter;
 
-import net.atos.client.zgw.drc.model.Ondertekening;
+import net.atos.client.zgw.drc.model.generated.Ondertekening;
 import net.atos.zac.app.informatieobjecten.model.RESTOndertekening;
 
 public class RESTOndertekeningConverter {

@@ -10,7 +10,7 @@ import java.time.LocalDate;
 
 import jakarta.json.bind.annotation.JsonbProperty;
 
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 
 
 public class Registratie {

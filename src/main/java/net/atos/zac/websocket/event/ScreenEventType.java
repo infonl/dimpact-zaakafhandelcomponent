@@ -18,7 +18,7 @@ import java.util.UUID;
 import org.flowable.task.api.TaskInfo;
 
 import net.atos.client.zgw.brc.model.Besluit;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.zac.event.Opcode;
 import net.atos.zac.notificaties.Channel;

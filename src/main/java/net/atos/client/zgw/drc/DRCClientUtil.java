@@ -2,10 +2,10 @@ package net.atos.client.zgw.drc;
 
 import java.util.Base64;
 
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObjectData;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObjectWithLockData;
-import net.atos.client.zgw.drc.model.Ondertekening;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockData;
+import net.atos.client.zgw.drc.model.generated.Ondertekening;
 
 public class DRCClientUtil {
 

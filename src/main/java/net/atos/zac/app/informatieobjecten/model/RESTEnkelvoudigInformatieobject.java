@@ -10,7 +10,7 @@ import java.time.ZonedDateTime;
 import java.util.EnumSet;
 import java.util.UUID;
 
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.zac.app.identity.model.RESTUser;
 import net.atos.zac.app.policy.model.RESTDocumentRechten;
 import net.atos.zac.zoeken.model.DocumentIndicatie;

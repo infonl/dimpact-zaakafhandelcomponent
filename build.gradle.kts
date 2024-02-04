@@ -393,7 +393,7 @@ tasks {
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateZgwDrcClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/drc-openapi.yaml")
-        modelPackage.set("net.atos.client.zgw.drc.model")
+        modelPackage.set("net.atos.client.zgw.drc.model.generated")
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateZrcDrcClient") {

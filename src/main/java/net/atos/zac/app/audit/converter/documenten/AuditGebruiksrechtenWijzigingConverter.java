@@ -2,7 +2,7 @@ package net.atos.zac.app.audit.converter.documenten;
 
 import java.util.stream.Stream;
 
-import net.atos.client.zgw.drc.model.Gebruiksrechten;
+import net.atos.client.zgw.drc.model.generated.Gebruiksrechten;
 import net.atos.client.zgw.shared.model.ObjectType;
 import net.atos.client.zgw.shared.model.audit.documenten.GebuiksrechtenWijziging;
 import net.atos.zac.app.audit.converter.AbstractAuditWijzigingConverter;

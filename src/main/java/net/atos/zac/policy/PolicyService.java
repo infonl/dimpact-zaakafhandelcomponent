@@ -5,7 +5,7 @@
 
 package net.atos.zac.policy;
 
-import static net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject.StatusEnum.DEFINITIEF;
+import static net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject.StatusEnum.DEFINITIEF;
 import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -16,7 +16,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.flowable.task.api.TaskInfo;
 
 import net.atos.client.opa.model.RuleQuery;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.ZTCClientService;

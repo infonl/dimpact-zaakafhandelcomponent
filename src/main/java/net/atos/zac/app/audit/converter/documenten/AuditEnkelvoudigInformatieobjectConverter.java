@@ -10,8 +10,8 @@ import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.ObjectUtils;
 
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.drc.model.Ondertekening;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import net.atos.client.zgw.drc.model.generated.Ondertekening;
 import net.atos.client.zgw.shared.model.ObjectType;
 import net.atos.client.zgw.shared.model.audit.documenten.EnkelvoudigInformatieobjectWijziging;
 import net.atos.client.zgw.ztc.ZTCClientService;
