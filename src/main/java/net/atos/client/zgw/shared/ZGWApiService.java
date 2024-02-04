@@ -316,10 +316,9 @@ public class ZGWApiService {
             final URI resultaattypeURI,
             final String resultaatToelichting
     ) {
-        final Resultaat resultaat = new Resultaat(
-                zaakURI,
-                URIUtil.parseUUIDFromResourceURI(resultaattypeURI)
-        );
+        final Resultaat resultaat = new Resultaat();
+        resultaat.setZaak(zaakURI);
+        resultaat.setResultaattype(resultaattypeURI);
         resultaat.setToelichting(resultaatToelichting);
         return zrcClientService.createResultaat(resultaat);
     }
