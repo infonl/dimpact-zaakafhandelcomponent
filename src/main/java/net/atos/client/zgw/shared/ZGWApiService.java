@@ -40,6 +40,7 @@ import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.client.zgw.ztc.model.AardVanRol;
 import net.atos.client.zgw.ztc.model.generated.BrondatumArchiefprocedure;
 import net.atos.client.zgw.ztc.model.generated.ResultaatType;
+import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.client.zgw.ztc.model.generated.StatusType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 
@@ -262,7 +263,7 @@ public class ZGWApiService {
      * @return {@link RolOrganisatorischeEenheid} or 'null'.
      */
     public Optional<RolOrganisatorischeEenheid> findGroepForZaak(final Zaak zaak) {
-        return findRolForZaak(zaak, AardVanRol.BEHANDELAAR, BetrokkeneType.ORGANISATORISCHE_EENHEID)
+        return findRolForZaak(zaak, RolType.OmschrijvingGeneriekEnum.BEHANDELAAR, BetrokkeneType.ORGANISATORISCHE_EENHEID)
                 .map(RolOrganisatorischeEenheid.class::cast);
     }
 
@@ -273,21 +274,21 @@ public class ZGWApiService {
      * @return {@link RolMedewerker} or 'null'.
      */
     public Optional<RolMedewerker> findBehandelaarForZaak(final Zaak zaak) {
-        return findRolForZaak(zaak, AardVanRol.BEHANDELAAR, BetrokkeneType.MEDEWERKER)
+        return findRolForZaak(zaak, RolType.OmschrijvingGeneriekEnum.BEHANDELAAR, BetrokkeneType.MEDEWERKER)
                 .map(RolMedewerker.class::cast);
     }
 
     public Optional<Rol<?>> findInitiatorForZaak(final Zaak zaak) {
-        return findRolForZaak(zaak, AardVanRol.INITIATOR);
+        return findRolForZaak(zaak, RolType.OmschrijvingGeneriekEnum.INITIATOR);
     }
 
-    private Optional<Rol<?>> findRolForZaak(final Zaak zaak, final AardVanRol aardVanRol) {
+    private Optional<Rol<?>> findRolForZaak(final Zaak zaak, final RolType.OmschrijvingGeneriekEnum aardVanRol) {
         return ztcClientService.findRoltype(zaak.getZaaktype(), aardVanRol)
                 .flatMap(roltype -> zrcClientService.listRollen(new RolListParameters(zaak.getUrl(), roltype.getUrl()))
                         .getSingleResult());
     }
 
-    private Optional<Rol<?>> findRolForZaak(final Zaak zaak, final AardVanRol aardVanRol,
+    private Optional<Rol<?>> findRolForZaak(final Zaak zaak, final RolType.OmschrijvingGeneriekEnum aardVanRol,
             final BetrokkeneType betrokkeneType) {
         return ztcClientService.findRoltype(zaak.getZaaktype(), aardVanRol).
                 flatMap(roltype -> zrcClientService.listRollen(

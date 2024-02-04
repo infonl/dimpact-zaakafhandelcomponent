@@ -269,7 +269,7 @@ public class ZTCClientService implements Caching {
      * @return {@link RolType} or NULL
      */
     @CacheResult(cacheName = ZTC_ROLTYPE)
-    public Optional<RolType> findRoltype(final URI zaaktypeURI, final AardVanRol aardVanRol) {
+    public Optional<RolType> findRoltype(final URI zaaktypeURI, final RolType.OmschrijvingGeneriekEnum aardVanRol) {
         return ztcClient.roltypeList(new RoltypeListParameters(zaaktypeURI, aardVanRol)).getSingleResult();
     }
 
@@ -282,7 +282,7 @@ public class ZTCClientService implements Caching {
      * @return {@link RolType}. Never 'null'!
      */
     @CacheResult(cacheName = ZTC_ROLTYPE)
-    public RolType readRoltype(final AardVanRol aardVanRol, final URI zaaktypeURI) {
+    public RolType readRoltype(final RolType.OmschrijvingGeneriekEnum aardVanRol, final URI zaaktypeURI) {
         return ztcClient.roltypeList(new RoltypeListParameters(zaaktypeURI, aardVanRol)).getSingleResult()
                 .orElseThrow(
                         () -> new RuntimeException(format("Zaaktype '%s': Roltype with aard '%s' not found.", zaaktypeURI.toString(), aardVanRol.toString())));

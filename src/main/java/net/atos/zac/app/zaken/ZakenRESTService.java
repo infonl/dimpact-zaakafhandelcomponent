@@ -92,7 +92,6 @@ import net.atos.client.zgw.zrc.model.ZaakListParameters;
 import net.atos.client.zgw.zrc.model.generated.Resultaat;
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject;
 import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.AardVanRol;
 import net.atos.client.zgw.ztc.model.generated.BesluitType;
 import net.atos.client.zgw.ztc.model.generated.ResultaatType;
 import net.atos.client.zgw.ztc.model.generated.RolType;
@@ -820,8 +819,14 @@ public class ZakenRESTService {
         assertPolicy(policyService.readZaakRechten(zaak).getLezen());
         return zaakBetrokkeneConverter.convert(
             zrcClientService.listRollen(zaak).stream()
-                .filter(rol -> KlantenRESTService.betrokkenen.contains(
-                    AardVanRol.fromValue(rol.getOmschrijvingGeneriek()))));
+                .filter(
+                        rol -> KlantenRESTService.betrokkenen.contains(
+                                RolType.OmschrijvingGeneriekEnum.valueOf(
+                                        rol.getOmschrijvingGeneriek().toUpperCase()
+                                )
+                        )
+                )
+        );
     }
 
     /**
@@ -1119,8 +1124,10 @@ public class ZakenRESTService {
         final OrganisatorischeEenheid groep = new OrganisatorischeEenheid();
         groep.setIdentificatie(group.getId());
         groep.setNaam(group.getName());
-        final RolType roltype = ztcClientService.readRoltype(AardVanRol.BEHANDELAAR,
-                                                             zaak.getZaaktype());
+        final RolType roltype = ztcClientService.readRoltype(
+                RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
+                zaak.getZaaktype()
+        );
         return new RolOrganisatorischeEenheid(zaak.getUrl(), roltype,
                                               "Behandelend groep van de zaak", groep);
     }
@@ -1130,7 +1137,7 @@ public class ZakenRESTService {
         medewerker.setIdentificatie(user.getId());
         medewerker.setVoorletters(user.getFirstName());
         medewerker.setAchternaam(user.getLastName());
-        final RolType roltype = ztcClientService.readRoltype(AardVanRol.BEHANDELAAR,
+        final RolType roltype = ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
                                                              zaak.getZaaktype());
         return new RolMedewerker(zaak.getUrl(), roltype, "Behandelaar van de zaak", medewerker);
     }
@@ -1151,7 +1158,7 @@ public class ZakenRESTService {
     private void addInitiator(final IdentificatieType identificatieType, final String identificatie,
         final Zaak zaak) {
         assertPolicy(policyService.readZaakRechten(zaak).getBehandelen());
-        final RolType initiator = ztcClientService.readRoltype(AardVanRol.INITIATOR,
+        final RolType initiator = ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.INITIATOR,
                                                                zaak.getZaaktype());
         switch (identificatieType) {
             case BSN -> addBetrokkenNatuurlijkPersoon(initiator, identificatie, zaak,

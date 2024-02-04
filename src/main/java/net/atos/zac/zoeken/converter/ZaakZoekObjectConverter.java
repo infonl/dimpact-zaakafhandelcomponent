@@ -22,8 +22,8 @@ import net.atos.client.zgw.zrc.model.generated.Resultaat;
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters;
 import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.AardVanRol;
 import net.atos.client.zgw.ztc.model.generated.ResultaatType;
+import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.client.zgw.ztc.model.generated.StatusType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.app.klanten.KlantenRESTService;
@@ -159,9 +159,12 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
 
     private void addBetrokkenen(final Zaak zaak, final ZaakZoekObject zaakZoekObject) {
         for (Rol<?> rol : zrcClientService.listRollen(zaak)) {
-            final AardVanRol aardVanRol = AardVanRol.fromValue(rol.getOmschrijvingGeneriek());
-            if (KlantenRESTService.betrokkenen.contains(aardVanRol)) {
-                zaakZoekObject.addBetrokkene(aardVanRol, rol.getIdentificatienummer());
+            final RolType.OmschrijvingGeneriekEnum rolTypeOmschrijvingGeneriek =
+                    RolType.OmschrijvingGeneriekEnum.valueOf(
+                    rol.getOmschrijvingGeneriek().toUpperCase()
+            );
+            if (KlantenRESTService.betrokkenen.contains(rolTypeOmschrijvingGeneriek)) {
+                zaakZoekObject.addBetrokkene(rolTypeOmschrijvingGeneriek, rol.getIdentificatienummer());
             }
         }
     }

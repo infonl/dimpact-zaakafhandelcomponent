@@ -160,10 +160,10 @@ class ZakenRESTServiceTest : BehaviorSpec() {
                     every { zrcClientService.createZaakobject(zaakObjectOpenbareRuimte) } returns zaakObjectOpenbareRuimte
                     every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
                     every {
-                        ztcClientService.readRoltype(AardVanRol.INITIATOR, zaak.zaaktype)
+                        ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.INITIATOR, zaak.zaaktype)
                     } returns createRolType(omschrijvingGeneriek = RolType.OmschrijvingGeneriekEnum.INITIATOR)
                     every {
-                        ztcClientService.readRoltype(AardVanRol.BEHANDELAAR, zaak.zaaktype)
+                        ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.BEHANDELAAR, zaak.zaaktype)
                     } returns createRolType(omschrijvingGeneriek = RolType.OmschrijvingGeneriekEnum.BEHANDELAAR)
 
                     val restZaakReturned = zakenRESTService.createZaak(restZaakAanmaakGegevens)
@@ -220,7 +220,7 @@ class ZakenRESTServiceTest : BehaviorSpec() {
                     every { zgwApiService.findBehandelaarForZaak(zaak) } returns Optional.empty()
                     every { identityService.readUser(restZaakToekennenGegevens.behandelaarGebruikersnaam) } returns user
                     every {
-                        ztcClientService.readRoltype(AardVanRol.BEHANDELAAR, zaak.zaaktype)
+                        ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.BEHANDELAAR, zaak.zaaktype)
                     } returns rolType
                     every { zgwApiService.findGroepForZaak(zaak) } returns Optional.empty()
                     every { restZaakConverter.convert(zaak) } returns restZaak

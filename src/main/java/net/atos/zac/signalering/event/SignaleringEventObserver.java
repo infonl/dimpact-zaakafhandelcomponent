@@ -179,7 +179,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
     }
 
     private RolType getRoltypeBehandelaar(final Zaak zaak) {
-        return ztcClientService.readRoltype(AardVanRol.BEHANDELAAR, zaak.getZaaktype());
+        return ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.BEHANDELAAR, zaak.getZaaktype());
     }
 
     private Optional<Rol<?>> getRolBehandelaarMedewerker(final Zaak zaak) {

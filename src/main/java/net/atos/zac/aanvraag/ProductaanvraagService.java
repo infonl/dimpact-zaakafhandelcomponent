@@ -44,7 +44,6 @@ import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag;
 import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.AardVanRol;
 import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.aanvraag.model.InboxProductaanvraag;
@@ -210,7 +209,7 @@ public class ProductaanvraagService {
     }
 
     private void addInitiator(final String bsn, final URI zaak, final URI zaaktype) {
-        final RolType initiator = ztcClientService.readRoltype(AardVanRol.INITIATOR, zaaktype);
+        final RolType initiator = ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.INITIATOR, zaaktype);
         final RolNatuurlijkPersoon rolNatuurlijkPersoon = new RolNatuurlijkPersoon(
                 zaak,
                 initiator,
@@ -329,7 +328,7 @@ public class ProductaanvraagService {
         final OrganisatorischeEenheid groep = new OrganisatorischeEenheid();
         groep.setIdentificatie(group.getId());
         groep.setNaam(group.getName());
-        final RolType roltype = ztcClientService.readRoltype(AardVanRol.BEHANDELAAR,
+        final RolType roltype = ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
                                                              zaak.getZaaktype());
         return new RolOrganisatorischeEenheid(zaak.getUrl(), roltype, "Behandelend groep van de zaak", groep);
     }
@@ -340,7 +339,7 @@ public class ProductaanvraagService {
         medewerker.setIdentificatie(user.getId());
         medewerker.setVoorletters(user.getFirstName());
         medewerker.setAchternaam(user.getLastName());
-        final RolType roltype = ztcClientService.readRoltype(AardVanRol.BEHANDELAAR,
+        final RolType roltype = ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
                                                              zaak.getZaaktype());
         return new RolMedewerker(zaak.getUrl(), roltype, "Behandelaar van de zaak", medewerker);
     }

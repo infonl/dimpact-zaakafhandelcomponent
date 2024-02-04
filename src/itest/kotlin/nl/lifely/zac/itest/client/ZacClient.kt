@@ -226,7 +226,6 @@ fun createZaak(zaakTypeUUID: UUID, groupId: String, groupName: String): Response
         data = "{\n" +
             "  \"zaak\": {\n" +
             "    \"zaaktype\": {\n" +
-            "      \"omschrijving\": \"$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION\",\n" +
             "      \"uuid\": \"$zaakTypeUUID\"\n" +
             "    },\n" +
             "    \"initiatorIdentificatie\": null,\n" +
