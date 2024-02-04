@@ -22,7 +22,7 @@ public class RESTRoltypeConverter {
         final RESTRoltype restRoltype = new RESTRoltype();
         restRoltype.uuid = URIUtil.parseUUIDFromResourceURI(roltype.getUrl());
         restRoltype.naam = roltype.getOmschrijving();
-        restRoltype.aardvanrol = roltype.getOmschrijvingGeneriek();
+        restRoltype.omschrijvingGeneriekEnum = roltype.getOmschrijvingGeneriek();
         return restRoltype;
     }
 }

@@ -14,5 +14,5 @@ public class RESTRoltype {
 
     public String naam;
 
-    public RolType.OmschrijvingGeneriekEnum aardvanrol;
+    public RolType.OmschrijvingGeneriekEnum omschrijvingGeneriekEnum;
 }
