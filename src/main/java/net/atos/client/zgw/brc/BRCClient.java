@@ -29,8 +29,8 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import net.atos.client.zgw.brc.model.Besluit;
-import net.atos.client.zgw.brc.model.BesluitInformatieObject;
+import net.atos.client.zgw.brc.model.generated.Besluit;
+import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject;
 import net.atos.client.zgw.brc.model.BesluitenListParameters;
 import net.atos.client.zgw.shared.exception.FoutExceptionMapper;
 import net.atos.client.zgw.shared.exception.RuntimeExceptionMapper;

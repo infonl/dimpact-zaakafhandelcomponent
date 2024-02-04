@@ -5,7 +5,7 @@
 
 package net.atos.client.zgw.shared.model.audit.besluiten;
 
-import net.atos.client.zgw.brc.model.BesluitInformatieObject;
+import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject;
 import net.atos.client.zgw.shared.model.ObjectType;
 import net.atos.client.zgw.shared.model.audit.AuditWijziging;
 

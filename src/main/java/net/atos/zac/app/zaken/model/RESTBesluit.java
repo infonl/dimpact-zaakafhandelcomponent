@@ -11,7 +11,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
 
-import net.atos.client.zgw.brc.model.Besluit;
+import net.atos.client.zgw.brc.model.generated.Besluit;
 import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieobject;
 import net.atos.zac.zoeken.model.BesluitIndicatie;
 

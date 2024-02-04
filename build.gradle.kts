@@ -388,7 +388,7 @@ tasks {
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateZgwBrcClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/brc-openapi.yaml")
-        modelPackage.set("net.atos.client.zgw.brc.model")
+        modelPackage.set("net.atos.client.zgw.brc.model.generated")
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateZgwDrcClient") {
