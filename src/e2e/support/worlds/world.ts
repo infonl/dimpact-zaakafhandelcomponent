@@ -9,6 +9,7 @@ import { worldParametersScheme } from "../../utils/schemes";
 import {z} from 'zod'
 import fs from 'fs';
 import { expect } from '@playwright/test';
+import { TestStorageService } from "../../utils/TestStorage.service"
 
 export const authFile = 'user.json';
 
@@ -19,12 +20,13 @@ export class CustomWorld extends World {
     context: playwright.BrowserContext; 
     initialized: boolean = false;
     worldParameters: z.infer<typeof worldParametersScheme>['parameters'];
-    testStorage = new Map();
+    testStorage: TestStorageService
 
     constructor(attach: any) {
         const res = worldParametersScheme.parse(attach)
         super({attach: res.attach, parameters: res.parameters, log: res.log });
         this.worldParameters = res.parameters;
+        this.testStorage = new TestStorageService();
     }
 
     async init() {
@@ -47,6 +49,20 @@ export class CustomWorld extends World {
         await this.context.close();
         await this.browser.close();
         this.initialized = false;
+    }
+
+    async removeContext() {
+        return new Promise((resolve) => {
+
+            fs.unlink(authFile, (err) => {
+                if (err) {
+                    throw err;
+                }
+            
+                console.log("Deleted auth file successfully.");
+                resolve(true);
+            });
+        });
     }
 
     async openUrl(url: string) {
