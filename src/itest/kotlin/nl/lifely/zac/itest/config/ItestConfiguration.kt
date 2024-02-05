@@ -5,6 +5,8 @@
 
 package nl.lifely.zac.itest.config
 
+import java.util.UUID
+
 /**
  * These values need to correspond to the test data in the databases of the various services
  * used in the entire integration test flow such as: Keycloak, Objecten, Objecttypen, Open Zaak, ZAC.
@@ -41,8 +43,9 @@ object ItestConfiguration {
     const val ZAC_HEALTH_READY_URL = "$ZAC_MANAGEMENT_URI/health/ready"
     const val ZAAK_1_IDENTIFICATION = "ZAAK-2023-0000000001"
     const val ZAAK_2_IDENTIFICATION = "ZAAK-2023-0000000002"
-    const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID = "448356ff-dcfb-4504-9501-7fe929077c4f"
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE = "melding-evenement-organiseren-behandelen"
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION = "Melding evenement organiseren behandelen"
     const val SMARTDOCUMENTS_MOCK_BASE_URI = "http://smartdocuments-wiremock:8080"
+
+    val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
 }
