@@ -54,6 +54,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.atos.client.zgw.drc.DRCClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData;
+import net.atos.client.zgw.drc.model.generated.Ondertekening;
 import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
@@ -375,9 +376,16 @@ public class TakenRESTService {
                 .map(UUID::fromString)
                 .map(drcClientService::readEnkelvoudigInformatieobject)
                 .forEach(enkelvoudigInformatieobject -> {
-                    assertPolicy(enkelvoudigInformatieobject.getOndertekening() == null &&
-                                         policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak)
-                                                 .getOndertekenen());
+                    assertPolicy(
+                            (
+                                    enkelvoudigInformatieobject.getOndertekening() == null ||
+                                            // this extra check is because the API can return an empty ondertekening soort
+                                            // when no signature is present (even if this is not
+                                            // permitted according to the original OpenAPI spec)
+                                            enkelvoudigInformatieobject.getOndertekening().getSoort() == Ondertekening.SoortEnum.EMPTY
+                            )
+                                    && policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).getOndertekenen()
+                    );
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
                             parseUUIDFromResourceURI(enkelvoudigInformatieobject.getUrl())
                     );
