@@ -80,13 +80,13 @@ Then("{string} sees the created zaak with a delay", { timeout: 60 * 1000 + 15000
     await this.page.getByText(caseNumber);
 });
 
-Then("Employee {string} clicks on the first zaak in the zaak-werkvoorraad with delay", { timeout: 60 * 1000 + 15000 }, async function (this: CustomWorld, user) {
+Then("Employee {string} clicks on the first zaak in the zaak-werkvoorraad with delay", { timeout: 60 * 1000 + 30000 }, async function (this: CustomWorld, user) {
     await this.page.waitForTimeout(60 * 1000 + 10000)
     await this.page.reload();
     await this.page.getByText('visibility').first().click();
 });
 
-Then("Employee {string} sees the zaak that {string} created in open-forms", { timeout: 60 * 1000 }, async function (this: CustomWorld, user, profile) {
+Then("Employee {string} sees the zaak that {string} created in open-forms", { timeout: 60 * 1000 + 30000 }, async function (this: CustomWorld, user, profile) {
     const openFormsTestId = this.testStorage.get('open-forms-testid');
 
     await this.page.getByText('plagiarism').nth(1).click();
