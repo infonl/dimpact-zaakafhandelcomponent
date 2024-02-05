@@ -5111,7 +5111,7 @@ components:
           type: string
           format: uri
           readOnly: false
-          # Lifely - workaround for issue where generated Java classes extende from ZaakObject
+          # Lifely - workaround for issue where generated Java classes extend from ZaakObject
           # but could not set required properties resuling in uncompilable code
           maxLength: 1000
           minLength: 1
@@ -5120,7 +5120,7 @@ components:
           description: Unieke resource identifier (UUID4)
           type: string
           format: uuid
-          # Lifely - workaround for issue where generated Java classes extende from ZaakObject
+          # Lifely - workaround for issue where generated Java classes extend from ZaakObject
           # but could not set required properties resuling in uncompilable code
           readOnly: false
         zaak:
@@ -5171,7 +5171,7 @@ components:
           title: Omschrijving
           description: Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE.
           type: string
-          # Lifely - workaround for issue where generated Java classes extende from ZaakObject
+          # Lifely - workaround for issue where generated Java classes extend from ZaakObject
           # but could not set required properties resuling in uncompilable code
           readOnly: false
           minLength: 1
@@ -5191,8 +5191,8 @@ components:
             * `zaakcoordinator` - Zaakcoördinator
             * `mede_initiator` - Mede-initiator
           type: string
-          # Lifely - workaround for issue where generated Java classes extende from ZaakObject
-          # but could not set required properties resuling in uncompilable code
+          # Lifely - workaround for issue where generated Java classes extend from ZaakObject
+          # but could not set required properties resuling in uncompilabl code
           readOnly: false
           minLength: 1
         roltoelichting:
@@ -5205,7 +5205,7 @@ components:
           description: De datum waarop dit object is geregistreerd.
           type: string
           format: date-time
-          # Lifely - workaround for issue where generated Java classes extende from ZaakObject
+          # Lifely - workaround for issue where generated Java classes extend from ZaakObject
           # but could not set required properties resuling in uncompilable code
           readOnly: false
         indicatieMachtiging:
@@ -5232,7 +5232,7 @@ components:
               dat STATUSsen in die ZAAK bereikt zijn.
             type: string
             format: uri
-          # Lifely - workaround for issue where generated Java classes extende from ZaakObject
+          # Lifely - workaround for issue where generated Java classes extend from ZaakObject
           # but could not set required properties resuling in uncompilable code
           readOnly: false
           uniqueItems: true
@@ -5782,7 +5782,7 @@ components:
             en locatie van dit object.
           type: string
           format: uri
-          # Lifely - workaround for issue where generated Java classes extende from ZaakObject
+          # Lifely - workaround for issue where generated Java classes extend from ZaakObject
           # but could not set required properties resuling in uncompilable code
           readOnly: false
           maxLength: 1000
@@ -5792,7 +5792,7 @@ components:
           description: Unieke resource identifier (UUID4)
           type: string
           format: uuid
-          # Lifely - workaround for issue where generated Java classes extende from ZaakObject
+          # Lifely - workaround for issue where generated Java classes extend from ZaakObject
           # but could not set required properties resuling in uncompilable code
           readOnly: false
         zaak:
