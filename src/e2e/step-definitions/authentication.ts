@@ -23,7 +23,7 @@ When("Employee {string} logs out of zac", async function (this: CustomWorld, use
 
     await this.page.getByText("account_circle").first().click();
     await this.page.getByText("Uitloggen").first().click();
-    await this.removeContext();
+    await this.resetAuthFile();
 });
 
 // @deprecated 

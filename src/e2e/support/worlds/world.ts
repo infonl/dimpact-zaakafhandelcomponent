@@ -51,15 +51,13 @@ export class CustomWorld extends World {
         this.initialized = false;
     }
 
-    async removeContext() {
+    async resetAuthFile() {
         return new Promise((resolve) => {
-
-            fs.unlink(authFile, (err) => {
+            fs.writeFile(authFile, '{}', (err) => {
                 if (err) {
                     throw err;
                 }
-            
-                console.log("Deleted auth file successfully.");
+
                 resolve(true);
             });
         });
