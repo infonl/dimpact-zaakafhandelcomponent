@@ -16,12 +16,11 @@ fun createObjectOpenbareRuimte(
     identificatie: String = "dummyIdentificatie",
     openbareRuimteNaam: String = "dummyopenbareRuimteNaam",
     plaatsNaam: String = "dummyPlaatsNaam"
-) =
-    ObjectOpenbareRuimte(
-        identificatie,
-        openbareRuimteNaam,
-        plaatsNaam
-    )
+) = ObjectOpenbareRuimte(
+    identificatie,
+    openbareRuimteNaam,
+    plaatsNaam
+)
 
 fun createObjectPand(identificatie: String = "dummyIdentificatie") = ObjectPand(identificatie)
 
