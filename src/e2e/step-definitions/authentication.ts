@@ -4,7 +4,7 @@
  */
 
 import { When } from "@cucumber/cucumber";
-import { CustomWorld } from "../support/worlds/world";
+import { CustomWorld, authFile } from "../support/worlds/world";
 import { worldUsers } from "../utils/schemes";
 
 When("Employee {string} logs in to zac", async function (this: CustomWorld, user) {
@@ -16,6 +16,9 @@ When("Employee {string} logs in to zac", async function (this: CustomWorld, user
     await this.page.getByText("Password").click();
     await this.page.getByText("Password").fill(password);
     await this.page.getByRole("button", { name: "Sign In" }).click();
+      // End of authentication steps.
+
+  await this.page.context().storageState({ path: authFile });
 });
 
 When("Employee {string} logs out of zac", async function (this: CustomWorld, user) {
@@ -23,7 +26,6 @@ When("Employee {string} logs out of zac", async function (this: CustomWorld, use
 
     await this.page.getByText("account_circle").first().click();
     await this.page.getByText("Uitloggen").first().click();
-    await this.resetAuthFile();
 });
 
 // @deprecated 
@@ -36,4 +38,7 @@ When("{string} logs in", async function (this: CustomWorld, user) {
     await this.page.getByText("Password").click();
     await this.page.getByText("Password").fill(password);
     await this.page.getByRole("button", { name: "Sign In" }).click();
+      // End of authentication steps.
+
+  await this.page.context().storageState({ path: authFile });
 });

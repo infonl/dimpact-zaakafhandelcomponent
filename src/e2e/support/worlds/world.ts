@@ -51,18 +51,6 @@ export class CustomWorld extends World {
         this.initialized = false;
     }
 
-    async resetAuthFile() {
-        return new Promise((resolve) => {
-            fs.writeFile(authFile, '{}', (err) => {
-                if (err) {
-                    throw err;
-                }
-
-                resolve(true);
-            });
-        });
-    }
-
     async openUrl(url: string) {
         await this.page.goto(url);
     }
