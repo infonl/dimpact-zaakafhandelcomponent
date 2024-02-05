@@ -10,7 +10,7 @@ import jakarta.inject.Inject;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Status;
 import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.Statustype;
+import net.atos.client.zgw.ztc.model.generated.StatusType;
 import net.atos.zac.app.zaken.model.RESTZaakStatus;
 
 public class RESTZaakStatusConverter {
@@ -21,7 +21,10 @@ public class RESTZaakStatusConverter {
     @Inject
     private ZTCClientService ztcClientService;
 
-    public RESTZaakStatus convertToRESTZaakStatus(final Status status, final Statustype statustype) {
+    public RESTZaakStatus convertToRESTZaakStatus(
+            final Status status,
+            final StatusType statustype
+    ) {
         final RESTZaakStatus restZaakStatus = new RESTZaakStatus();
         restZaakStatus.toelichting = status.getStatustoelichting();
         restZaakStatus.naam = statustype.getOmschrijving();

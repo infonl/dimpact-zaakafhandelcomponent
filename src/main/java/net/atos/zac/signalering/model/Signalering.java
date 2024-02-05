@@ -30,7 +30,7 @@ import jakarta.validation.constraints.NotNull;
 
 import org.flowable.task.api.TaskInfo;
 
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.zac.identity.model.Group;
@@ -128,7 +128,7 @@ public class Signalering {
         this.subject = subject.getId();
     }
 
-    public void setSubject(final EnkelvoudigInformatieobject subject) {
+    public void setSubject(final EnkelvoudigInformatieObject subject) {
         validSubjecttype(DOCUMENT);
         this.subject = UriUtil.uuidFromURI(subject.getUrl()).toString();
     }

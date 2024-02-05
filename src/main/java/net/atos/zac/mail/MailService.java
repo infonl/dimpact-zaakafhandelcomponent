@@ -6,6 +6,7 @@
 package net.atos.zac.mail;
 
 import static java.util.stream.Collectors.joining;
+import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertByteArrayToBase64String;
 import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN;
 import static net.atos.zac.util.JsonbUtil.JSONB;
 
@@ -52,16 +53,14 @@ import com.mailjet.client.errors.MailjetException;
 import com.mailjet.client.resource.Emailv31;
 
 import net.atos.client.zgw.drc.DRCClientService;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectWithInhoud;
-import net.atos.client.zgw.drc.model.InformatieobjectStatus;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData;
 import net.atos.client.zgw.shared.ZGWApiService;
-import net.atos.client.zgw.shared.model.Vertrouwelijkheidaanduiding;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.Informatieobjecttype;
-import net.atos.client.zgw.ztc.model.Zaaktype;
+import net.atos.client.zgw.ztc.model.generated.InformatieObjectType;
+import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.authentication.LoggedInUser;
 import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.flowable.TaakVariabelenService;
@@ -167,31 +166,33 @@ public class MailService {
 
     private void createZaakDocumentFromMail(final String verzender, final String ontvanger, final String subject,
             final String body, final List<Attachment> attachments, final Zaak zaak) {
-        final EnkelvoudigInformatieobjectWithInhoud informatieObject =
+        final EnkelvoudigInformatieObjectData informatieObject =
                 createDocumentInformatieObject(verzender, ontvanger, subject, body, attachments, zaak);
         zgwApiService.createZaakInformatieobjectForZaak(zaak, informatieObject, subject,
                                                         subject, OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN);
     }
 
-    private EnkelvoudigInformatieobjectWithInhoud createDocumentInformatieObject(final String verzender,
+    private EnkelvoudigInformatieObjectData createDocumentInformatieObject(final String verzender,
             final String ontvanger, final String subject, final String body, final List<Attachment> attachments,
             final Zaak zaak) {
-        final Informatieobjecttype eMailObjectType = getEmailInformatieObjectType(zaak);
+        final InformatieObjectType eMailObjectType = getEmailInformatieObjectType(zaak);
         final byte[] pdfDocument = createPdfDocument(verzender, ontvanger, subject, body, attachments);
 
-        final EnkelvoudigInformatieobjectWithInhoud enkelvoudigInformatieobjectWithInhoud = new EnkelvoudigInformatieobjectWithInhoud();
+        final EnkelvoudigInformatieObjectData enkelvoudigInformatieobjectWithInhoud = new EnkelvoudigInformatieObjectData();
         enkelvoudigInformatieobjectWithInhoud.setBronorganisatie(ConfiguratieService.BRON_ORGANISATIE);
         enkelvoudigInformatieobjectWithInhoud.setCreatiedatum(LocalDate.now());
         enkelvoudigInformatieobjectWithInhoud.setTitel(subject);
         enkelvoudigInformatieobjectWithInhoud.setAuteur(loggedInUserInstance.get().getFullName());
         enkelvoudigInformatieobjectWithInhoud.setTaal(ConfiguratieService.TAAL_NEDERLANDS);
         enkelvoudigInformatieobjectWithInhoud.setInformatieobjecttype(eMailObjectType.getUrl());
-        enkelvoudigInformatieobjectWithInhoud.setInhoud(pdfDocument);
-        enkelvoudigInformatieobjectWithInhoud.setVertrouwelijkheidaanduiding(Vertrouwelijkheidaanduiding.OPENBAAR);
+        enkelvoudigInformatieobjectWithInhoud.setInhoud(convertByteArrayToBase64String(pdfDocument));
+        enkelvoudigInformatieobjectWithInhoud.setVertrouwelijkheidaanduiding(
+                EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.OPENBAAR);
         enkelvoudigInformatieobjectWithInhoud.setFormaat(MEDIA_TYPE_PDF);
         enkelvoudigInformatieobjectWithInhoud.setBestandsnaam(String.format("%s.pdf", subject));
-        enkelvoudigInformatieobjectWithInhoud.setStatus(InformatieobjectStatus.DEFINITIEF);
-        enkelvoudigInformatieobjectWithInhoud.setVertrouwelijkheidaanduiding(Vertrouwelijkheidaanduiding.OPENBAAR);
+        enkelvoudigInformatieobjectWithInhoud.setStatus(EnkelvoudigInformatieObjectData.StatusEnum.DEFINITIEF);
+        enkelvoudigInformatieobjectWithInhoud.setVertrouwelijkheidaanduiding(
+                EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.OPENBAAR);
         enkelvoudigInformatieobjectWithInhoud.setVerzenddatum(LocalDate.now());
         return enkelvoudigInformatieobjectWithInhoud;
     }
@@ -240,8 +241,8 @@ public class MailService {
         paragraph.add(Chunk.NEWLINE);
     }
 
-    private Informatieobjecttype getEmailInformatieObjectType(final Zaak zaak) {
-        final Zaaktype zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
+    private InformatieObjectType getEmailInformatieObjectType(final Zaak zaak) {
+        final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
         return zaaktype.getInformatieobjecttypen().stream()
                 .map(ztcClientService::readInformatieobjecttype)
                 .filter(infoObject -> infoObject.getOmschrijving()
@@ -259,7 +260,8 @@ public class MailService {
 
         final List<Attachment> attachments = new ArrayList<>();
         bijlagen.forEach(uuid -> {
-            final EnkelvoudigInformatieobject enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
+            final EnkelvoudigInformatieObject enkelvoudigInformatieobject =
+                    drcClientService.readEnkelvoudigInformatieobject(
                     uuid);
             final ByteArrayInputStream byteArrayInputStream = drcClientService.downloadEnkelvoudigInformatieobject(
                     uuid);

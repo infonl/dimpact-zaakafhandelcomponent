@@ -16,7 +16,7 @@ import jakarta.json.bind.annotation.JsonbDateFormat;
 import jakarta.json.bind.annotation.JsonbTypeDeserializer;
 
 import net.atos.client.zgw.zrc.util.RolJsonbDeserializer;
-import net.atos.client.zgw.ztc.model.Roltype;
+import net.atos.client.zgw.ztc.model.generated.RolType;
 
 @JsonbTypeDeserializer(RolJsonbDeserializer.class)
 public abstract class Rol<T> {
@@ -102,7 +102,8 @@ public abstract class Rol<T> {
     /**
      * Constructor with required attributes for POST and PUT requests
      */
-    public Rol(final URI zaak, final Roltype roltype, final BetrokkeneType betrokkeneType, final T betrokkeneIdentificatie,
+    public Rol(final URI zaak, final RolType roltype, final BetrokkeneType betrokkeneType,
+            final T betrokkeneIdentificatie,
             final String roltoelichting) {
         this.zaak = zaak;
         this.betrokkeneIdentificatie = betrokkeneIdentificatie;
@@ -110,7 +111,7 @@ public abstract class Rol<T> {
         this.roltype = roltype.getUrl();
         this.roltoelichting = roltoelichting;
         this.omschrijving = roltype.getOmschrijving();
-        this.omschrijvingGeneriek = roltype.getOmschrijvingGeneriek().toValue();
+        this.omschrijvingGeneriek = roltype.getOmschrijvingGeneriek().value();
     }
 
     public URI getUrl() {

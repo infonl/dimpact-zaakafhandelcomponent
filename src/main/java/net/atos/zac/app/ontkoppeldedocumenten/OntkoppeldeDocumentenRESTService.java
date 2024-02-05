@@ -24,7 +24,7 @@ import jakarta.ws.rs.core.MediaType;
 import org.apache.commons.collections4.CollectionUtils;
 
 import net.atos.client.zgw.drc.DRCClientService;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.zac.app.identity.converter.RESTUserConverter;
@@ -95,7 +95,7 @@ public class OntkoppeldeDocumentenRESTService {
         if (ontkoppeldDocument.isEmpty()) {
             return; // al verwijderd
         }
-        final EnkelvoudigInformatieobject enkelvoudigInformatieobject =
+        final EnkelvoudigInformatieObject enkelvoudigInformatieobject =
                 drcClientService.readEnkelvoudigInformatieobject(ontkoppeldDocument.get().getDocumentUUID());
         final List<ZaakInformatieobject> zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
                 enkelvoudigInformatieobject);

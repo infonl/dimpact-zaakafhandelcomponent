@@ -10,7 +10,7 @@ import java.net.URI;
 import jakarta.inject.Inject;
 
 import net.atos.client.zgw.zrc.ZRCClientService;
-import net.atos.client.zgw.zrc.model.Resultaat;
+import net.atos.client.zgw.zrc.model.generated.Resultaat;
 import net.atos.zac.app.zaken.model.RESTZaakResultaat;
 
 public class RESTZaakResultaatConverter {

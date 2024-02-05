@@ -28,7 +28,7 @@ import jakarta.transaction.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
 
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.util.DateTimeUtil;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.zac.authentication.LoggedInUser;
@@ -53,7 +53,8 @@ public class OntkoppeldeDocumentenService {
     private Instance<LoggedInUser> loggedInUserInstance;
 
 
-    public OntkoppeldDocument create(final EnkelvoudigInformatieobject informatieobject, final Zaak zaak,
+    public OntkoppeldDocument create(final EnkelvoudigInformatieObject informatieobject,
+            final Zaak zaak,
             final String reden) {
         final OntkoppeldDocument ontkoppeldDocument = new OntkoppeldDocument();
         ontkoppeldDocument.setDocumentID(informatieobject.getIdentificatie());

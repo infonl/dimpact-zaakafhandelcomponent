@@ -830,3 +830,20 @@ VALUES
   (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425')
 );
 
+INSERT INTO catalogi_besluittype_informatieobjecttypen
+(id, besluittype_id, informatieobjecttype_id)
+VALUES
+(
+  1,
+  (SELECT id FROM catalogi_besluittype WHERE omschrijving = 'Besluit aansprakelijkstelling'),
+  (SELECT id FROM catalogi_informatieobjecttype WHERE uuid = '7397af15-44d1-4b0d-b7ea-22b20912ed80')
+);
+
+INSERT INTO catalogi_besluittype_informatieobjecttypen
+(id, besluittype_id, informatieobjecttype_id)
+VALUES
+(
+  2,
+  (SELECT id FROM catalogi_besluittype WHERE omschrijving = 'Besluit na heroverweging'),
+  (SELECT id FROM catalogi_informatieobjecttype WHERE uuid = '7397af15-44d1-4b0d-b7ea-22b20912ed80')
+);

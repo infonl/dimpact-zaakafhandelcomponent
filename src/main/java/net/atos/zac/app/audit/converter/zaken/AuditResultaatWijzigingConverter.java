@@ -11,7 +11,7 @@ import jakarta.inject.Inject;
 
 import net.atos.client.zgw.shared.model.ObjectType;
 import net.atos.client.zgw.shared.model.audit.zaken.ResultaatWijziging;
-import net.atos.client.zgw.zrc.model.Resultaat;
+import net.atos.client.zgw.zrc.model.generated.Resultaat;
 import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.zac.app.audit.converter.AbstractAuditWijzigingConverter;
 import net.atos.zac.app.audit.model.RESTHistorieRegel;
@@ -28,7 +28,13 @@ public class AuditResultaatWijzigingConverter extends AbstractAuditWijzigingConv
 
     @Override
     protected Stream<RESTHistorieRegel> doConvert(final ResultaatWijziging resultaatWijziging) {
-        return Stream.of(new RESTHistorieRegel("resultaat", toWaarde(resultaatWijziging.getOud()), toWaarde(resultaatWijziging.getNieuw())));
+        return Stream.of(
+                new RESTHistorieRegel(
+                        "resultaat",
+                        toWaarde(resultaatWijziging.getOud()),
+                        toWaarde(resultaatWijziging.getNieuw())
+                )
+        );
     }
 
     private String toWaarde(final Resultaat resultaat) {

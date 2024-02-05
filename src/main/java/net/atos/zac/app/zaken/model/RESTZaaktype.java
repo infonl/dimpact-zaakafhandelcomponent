@@ -11,7 +11,7 @@ import java.util.UUID;
 
 import jakarta.validation.constraints.NotNull;
 
-import net.atos.client.zgw.shared.model.Vertrouwelijkheidaanduiding;
+import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.app.admin.model.RESTZaakafhandelParameters;
 
 public class RESTZaaktype {
@@ -35,7 +35,7 @@ public class RESTZaaktype {
 
     public LocalDate eindeGeldigheid;
 
-    public Vertrouwelijkheidaanduiding vertrouwelijkheidaanduiding;
+    public ZaakType.VertrouwelijkheidaanduidingEnum vertrouwelijkheidaanduiding;
 
     public boolean nuGeldig;
 

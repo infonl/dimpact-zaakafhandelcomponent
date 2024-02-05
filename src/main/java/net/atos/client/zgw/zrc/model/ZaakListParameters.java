@@ -15,13 +15,13 @@ import jakarta.ws.rs.QueryParam;
 
 import org.apache.commons.collections4.CollectionUtils;
 
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.model.AbstractListParameters;
 import net.atos.client.zgw.shared.model.Archiefnominatie;
-import net.atos.client.zgw.shared.model.Vertrouwelijkheidaanduiding;
-import net.atos.client.zgw.ztc.model.AardVanRol;
+import net.atos.client.zgw.ztc.model.generated.RolType;
 
 /**
- *
+ * Parameters to retrieve lists of zaken.
  */
 public class ZaakListParameters extends AbstractListParameters {
 
@@ -103,12 +103,12 @@ public class ZaakListParameters extends AbstractListParameters {
     /**
      * Algemeen gehanteerde benaming van de aard van de ROL, afgeleid uit het ROLTYPE.
      */
-    private AardVanRol rolOmschrijvingGeneriek;
+    private RolType.OmschrijvingGeneriekEnum rolOmschrijvingGeneriek;
 
     /**
      * Zaken met een vertrouwelijkheidaanduiding die beperkter is dan de aangegeven aanduiding worden uit de resultaten gefiltered.
      */
-    private Vertrouwelijkheidaanduiding maximaleVertrouwelijkheidaanduiding;
+    private EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum maximaleVertrouwelijkheidaanduiding;
 
     /**
      * Het burgerservicenummer, bedoeld in artikel 1.1 van de Wet algemene bepalingen burgerservicenummer.
@@ -290,19 +290,20 @@ public class ZaakListParameters extends AbstractListParameters {
 
     @QueryParam("rol__omschrijvingGeneriek")
     public String getRolOmschrijvingGeneriek() {
-        return rolOmschrijvingGeneriek != null ? rolOmschrijvingGeneriek.toValue() : null;
+        return rolOmschrijvingGeneriek != null ? rolOmschrijvingGeneriek.value() : null;
     }
 
-    public void setRolOmschrijvingGeneriek(final AardVanRol rolOmschrijvingGeneriek) {
+    public void setRolOmschrijvingGeneriek(final RolType.OmschrijvingGeneriekEnum rolOmschrijvingGeneriek) {
         this.rolOmschrijvingGeneriek = rolOmschrijvingGeneriek;
     }
 
     @QueryParam("maximaleVertrouwelijkheidaanduiding")
     public String getMaximaleVertrouwelijkheidaanduiding() {
-        return maximaleVertrouwelijkheidaanduiding != null ? maximaleVertrouwelijkheidaanduiding.toValue() : null;
+        return maximaleVertrouwelijkheidaanduiding != null ?
+                maximaleVertrouwelijkheidaanduiding.value() : null;
     }
 
-    public void setMaximaleVertrouwelijkheidaanduiding(final Vertrouwelijkheidaanduiding maximaleVertrouwelijkheidaanduiding) {
+    public void setMaximaleVertrouwelijkheidaanduiding(final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum maximaleVertrouwelijkheidaanduiding) {
         this.maximaleVertrouwelijkheidaanduiding = maximaleVertrouwelijkheidaanduiding;
     }
 

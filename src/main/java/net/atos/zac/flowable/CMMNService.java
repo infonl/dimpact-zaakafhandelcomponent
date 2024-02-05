@@ -5,6 +5,7 @@
 
 package net.atos.zac.flowable;
 
+import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
 import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_OMSCHRIJVING;
 import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_UUUID;
 import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE;
@@ -46,7 +47,7 @@ import org.flowable.common.engine.api.FlowableObjectNotFoundException;
 import net.atos.client.or.object.ObjectsClientService;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.client.zgw.ztc.model.Zaaktype;
+import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.authentication.LoggedInUser;
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
 
@@ -98,7 +99,8 @@ public class CMMNService {
                 .list();
     }
 
-    public void startCase(final Zaak zaak, final Zaaktype zaaktype, final ZaakafhandelParameters zaakafhandelParameters,
+    public void startCase(final Zaak zaak, final ZaakType zaaktype,
+            final ZaakafhandelParameters zaakafhandelParameters,
             final Map<String, Object> zaakData) {
         final String caseDefinitionKey = zaakafhandelParameters.getCaseDefinitionID();
         LOG.info(() -> String.format("Zaak %s: Starten zaak met CMMN model '%s'", zaak.getUuid(), caseDefinitionKey));
@@ -108,7 +110,7 @@ public class CMMNService {
                     .businessKey(zaak.getUuid().toString())
                     .variable(VAR_ZAAK_UUID, zaak.getUuid())
                     .variable(VAR_ZAAK_IDENTIFICATIE, zaak.getIdentificatie())
-                    .variable(VAR_ZAAKTYPE_UUUID, zaaktype.getUUID())
+                    .variable(VAR_ZAAKTYPE_UUUID, parseUUIDFromResourceURI(zaaktype.getUrl()))
                     .variable(VAR_ZAAKTYPE_OMSCHRIJVING, zaaktype.getOmschrijving());
             if (zaakData != null) {
                 caseInstanceBuilder.variables(zaakData);

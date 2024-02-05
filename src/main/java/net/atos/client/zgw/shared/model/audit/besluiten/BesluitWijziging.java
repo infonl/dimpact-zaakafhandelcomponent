@@ -5,7 +5,7 @@
 
 package net.atos.client.zgw.shared.model.audit.besluiten;
 
-import net.atos.client.zgw.brc.model.Besluit;
+import net.atos.client.zgw.brc.model.generated.Besluit;
 import net.atos.client.zgw.shared.model.ObjectType;
 import net.atos.client.zgw.shared.model.audit.AuditWijziging;
 

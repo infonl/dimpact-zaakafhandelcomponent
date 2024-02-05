@@ -7,7 +7,7 @@ package net.atos.zac.util;
 
 import java.time.LocalDate;
 
-import net.atos.client.zgw.ztc.model.Besluittype;
+import net.atos.client.zgw.ztc.model.generated.BesluitType;
 
 public final class LocalDateUtil {
 
@@ -26,7 +26,7 @@ public final class LocalDateUtil {
         return (begin == null || begin.isBefore(now) || begin.isEqual(now)) && (end == null || end.isAfter(now));
     }
 
-    public static boolean dateNowIsBetween(Besluittype besluittype) {
+    public static boolean dateNowIsBetween(BesluitType besluittype) {
         return dateNowIsBetween(besluittype.getBeginGeldigheid(), besluittype.getEindeGeldigheid());
     }
 }

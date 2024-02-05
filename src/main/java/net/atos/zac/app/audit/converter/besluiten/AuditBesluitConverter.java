@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import net.atos.client.zgw.brc.model.Besluit;
+import net.atos.client.zgw.brc.model.generated.Besluit;
 import net.atos.client.zgw.shared.model.ObjectType;
 import net.atos.client.zgw.shared.model.audit.besluiten.BesluitWijziging;
 import net.atos.zac.app.audit.converter.AbstractAuditWijzigingConverter;

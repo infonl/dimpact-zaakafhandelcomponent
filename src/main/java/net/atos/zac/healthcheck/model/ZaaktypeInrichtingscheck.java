@@ -3,7 +3,7 @@ package net.atos.zac.healthcheck.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.atos.client.zgw.ztc.model.Zaaktype;
+import net.atos.client.zgw.ztc.model.generated.ZaakType;
 
 /**
  * 4 statustype; Intake, In behandeling, Heropend, Afgerond: met Afgerond als laatste statustypevolgnummer
@@ -14,7 +14,7 @@ import net.atos.client.zgw.ztc.model.Zaaktype;
  */
 public class ZaaktypeInrichtingscheck {
 
-    private final Zaaktype zaaktype;
+    private final ZaakType zaaktype;
 
     private boolean statustypeIntakeAanwezig;
 
@@ -42,7 +42,7 @@ public class ZaaktypeInrichtingscheck {
 
     private boolean zaakafhandelParametersValide;
 
-    public ZaaktypeInrichtingscheck(final Zaaktype zaaktype) {
+    public ZaaktypeInrichtingscheck(final ZaakType zaaktype) {
         this.zaaktype = zaaktype;
     }
 
@@ -142,7 +142,7 @@ public class ZaaktypeInrichtingscheck {
         this.resultaattypeAanwezig = resultaattypeAanwezig;
     }
 
-    public Zaaktype getZaaktype() {
+    public ZaakType getZaaktype() {
         return zaaktype;
     }
 

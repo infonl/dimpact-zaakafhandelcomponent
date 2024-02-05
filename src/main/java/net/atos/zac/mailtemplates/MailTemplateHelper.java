@@ -1,5 +1,6 @@
 package net.atos.zac.mailtemplates;
 
+import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
 import static net.atos.zac.mailtemplates.model.MailTemplateVariabelen.DOCUMENT_LINK;
 import static net.atos.zac.mailtemplates.model.MailTemplateVariabelen.DOCUMENT_TITEL;
 import static net.atos.zac.mailtemplates.model.MailTemplateVariabelen.DOCUMENT_URL;
@@ -49,7 +50,7 @@ import net.atos.client.brp.model.VerblijfadresBuitenland;
 import net.atos.client.brp.model.VerblijfplaatsBuitenland;
 import net.atos.client.kvk.KVKClientService;
 import net.atos.client.kvk.zoeken.model.ResultaatItem;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.BetrokkeneType;
@@ -59,8 +60,8 @@ import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid;
 import net.atos.client.zgw.zrc.model.Status;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.Statustype;
-import net.atos.client.zgw.ztc.model.Zaaktype;
+import net.atos.client.zgw.ztc.model.generated.StatusType;
+import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.flowable.TaakVariabelenService;
 import net.atos.zac.identity.IdentityService;
@@ -138,7 +139,7 @@ public class MailTemplateHelper {
                                                          .map(zrcClientService::readStatus)
                                                          .map(Status::getStatustype)
                                                          .map(ztcClientService::readStatustype)
-                                                         .map(Statustype::getOmschrijving)
+                                                         .map(StatusType::getOmschrijving)
                 );
             }
 
@@ -146,7 +147,7 @@ public class MailTemplateHelper {
                 resolvedTekst = replaceVariabele(resolvedTekst, ZAAK_TYPE,
                                                  Optional.of(zaak.getZaaktype())
                                                          .map(ztcClientService::readZaaktype)
-                                                         .map(Zaaktype::getOmschrijving));
+                                                         .map(ZaakType::getOmschrijving));
             }
 
             if (resolvedTekst.contains(ZAAK_INITIATOR.getVariabele()) ||
@@ -203,7 +204,8 @@ public class MailTemplateHelper {
         return resolvedTekst;
     }
 
-    public String resolveVariabelen(final String tekst, final EnkelvoudigInformatieobject document) {
+    public String resolveVariabelen(final String tekst,
+            final EnkelvoudigInformatieObject document) {
         String resolvedTekst = tekst;
         if (document != null) {
             resolvedTekst = replaceVariabele(resolvedTekst, DOCUMENT_TITEL, document.getTitel());
@@ -216,7 +218,7 @@ public class MailTemplateHelper {
     }
 
     private MailLink getLink(final Zaak zaak) {
-        final Zaaktype zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
+        final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
         return new MailLink(zaak.getIdentificatie(),
                             configuratieService.zaakTonenUrl(zaak.getIdentificatie()),
                             "de zaak", "(%s)".formatted(zaaktype.getOmschrijving()));
@@ -230,10 +232,13 @@ public class MailTemplateHelper {
                             "de taak", "voor zaak %s (%s)".formatted(zaakIdentificatie, zaaktypeOmschrijving));
     }
 
-    private MailLink getLink(final EnkelvoudigInformatieobject document) {
-        return new MailLink(document.getTitel(),
-                            configuratieService.informatieobjectTonenUrl(document.getUUID()),
-                            "het document", null);
+    private MailLink getLink(final EnkelvoudigInformatieObject document) {
+        return new MailLink(
+                document.getTitel(),
+                configuratieService.informatieobjectTonenUrl(parseUUIDFromResourceURI(document.getUrl())),
+                "het document",
+                null
+        );
     }
 
     private String replaceInitiatorVariabelen(final String resolvedTekst, final Optional<Rol<?>> initiator) {

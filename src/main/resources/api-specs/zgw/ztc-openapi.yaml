@@ -119,9 +119,9 @@ info:
   license:
     name: EUPL 1.2
     url: https://opensource.org/licenses/EUPL-1.2
-  version: 1.1.1
+  version: 1.2.1
 security:
-  - JWT-Claims: [ ]
+  - JWT-Claims: []
 paths:
   /besluittypen:
     get:
@@ -163,6 +163,18 @@ paths:
               - alles
               - definitief
               - concept
+        - name: omschrijving
+          in: query
+          description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
+          required: false
+          schema:
+            type: string
+        - name: datumGeldigheid
+          in: query
+          description: filter objecten op hun geldigheids datum.
+          required: false
+          schema:
+            type: string
         - name: page
           in: query
           description: Een pagina binnen de gepagineerde set resultaten.
@@ -279,7 +291,7 @@ paths:
       security:
         - JWT-Claims:
             - catalogi.schrijven
-    parameters: [ ]
+    parameters: []
   /besluittypen/{uuid}:
     get:
       operationId: besluittype_read
@@ -443,7 +455,7 @@ paths:
         - besluittypen
       security:
         - JWT-Claims:
-            - catalogi.schrijven
+            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     patch:
       operationId: besluittype_partial_update
       summary: Werk een BESLUITTYPE deels bij.
@@ -497,7 +509,7 @@ paths:
         - besluittypen
       security:
         - JWT-Claims:
-            - catalogi.schrijven
+            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     delete:
       operationId: besluittype_delete
       summary: Verwijder een BESLUITTYPE.
@@ -764,7 +776,7 @@ paths:
       security:
         - JWT-Claims:
             - catalogi.schrijven
-    parameters: [ ]
+    parameters: []
   /catalogussen/{uuid}:
     get:
       operationId: catalogus_read
@@ -910,6 +922,19 @@ paths:
               - alles
               - definitief
               - concept
+        - name: datumGeldigheid
+          in: query
+          description: filter objecten op hun geldigheids datum.
+          required: false
+          schema:
+            type: string
+        - name: zaaktypeIdentificatie
+          in: query
+          description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
+            het ZAAKTYPE voorkomt.
+          required: false
+          schema:
+            type: string
         - name: page
           in: query
           description: Een pagina binnen de gepagineerde set resultaten.
@@ -1027,8 +1052,8 @@ paths:
         - eigenschappen
       security:
         - JWT-Claims:
-            - catalogi.schrijven
-    parameters: [ ]
+            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+    parameters: []
   /eigenschappen/{uuid}:
     get:
       operationId: eigenschap_read
@@ -1192,7 +1217,7 @@ paths:
         - eigenschappen
       security:
         - JWT-Claims:
-            - catalogi.schrijven
+            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     patch:
       operationId: eigenschap_partial_update
       summary: Werk een EIGENSCHAP deels bij.
@@ -1247,7 +1272,7 @@ paths:
         - eigenschappen
       security:
         - JWT-Claims:
-            - catalogi.schrijven
+            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     delete:
       operationId: eigenschap_delete
       summary: Verwijder een EIGENSCHAP.
@@ -1322,6 +1347,18 @@ paths:
               - alles
               - definitief
               - concept
+        - name: omschrijving
+          in: query
+          description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
+          required: false
+          schema:
+            type: string
+        - name: datumGeldigheid
+          in: query
+          description: filter objecten op hun geldigheids datum.
+          required: false
+          schema:
+            type: string
         - name: page
           in: query
           description: Een pagina binnen de gepagineerde set resultaten.
@@ -1438,7 +1475,7 @@ paths:
       security:
         - JWT-Claims:
             - catalogi.schrijven
-    parameters: [ ]
+    parameters: []
   /informatieobjecttypen/{uuid}:
     get:
       operationId: informatieobjecttype_read
@@ -1602,7 +1639,7 @@ paths:
         - informatieobjecttypen
       security:
         - JWT-Claims:
-            - catalogi.schrijven
+            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     patch:
       operationId: informatieobjecttype_partial_update
       summary: Werk een INFORMATIEOBJECTTYPE deels bij.
@@ -1657,7 +1694,7 @@ paths:
         - informatieobjecttypen
       security:
         - JWT-Claims:
-            - catalogi.schrijven
+            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     delete:
       operationId: informatieobjecttype_delete
       summary: Verwijder een INFORMATIEOBJECTTYPE.
@@ -1794,6 +1831,19 @@ paths:
               - alles
               - definitief
               - concept
+        - name: datumGeldigheid
+          in: query
+          description: filter objecten op hun geldigheids datum.
+          required: false
+          schema:
+            type: string
+        - name: zaaktypeIdentificatie
+          in: query
+          description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
+            het ZAAKTYPE voorkomt.
+          required: false
+          schema:
+            type: string
         - name: page
           in: query
           description: Een pagina binnen de gepagineerde set resultaten.
@@ -1911,8 +1961,8 @@ paths:
         - resultaattypen
       security:
         - JWT-Claims:
-            - catalogi.schrijven
-    parameters: [ ]
+            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+    parameters: []
   /resultaattypen/{uuid}:
     get:
       operationId: resultaattype_read
@@ -2076,7 +2126,7 @@ paths:
         - resultaattypen
       security:
         - JWT-Claims:
-            - catalogi.schrijven
+            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     patch:
       operationId: resultaattype_partial_update
       summary: Werk een RESULTAATTYPE deels bij.
@@ -2131,7 +2181,7 @@ paths:
         - resultaattypen
       security:
         - JWT-Claims:
-            - catalogi.schrijven
+            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     delete:
       operationId: resultaattype_delete
       summary: Verwijder een RESULTAATTYPE.
@@ -2221,6 +2271,19 @@ paths:
               - alles
               - definitief
               - concept
+        - name: datumGeldigheid
+          in: query
+          description: filter objecten op hun geldigheids datum.
+          required: false
+          schema:
+            type: string
+        - name: zaaktypeIdentificatie
+          in: query
+          description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
+            het ZAAKTYPE voorkomt.
+          required: false
+          schema:
+            type: string
         - name: page
           in: query
           description: Een pagina binnen de gepagineerde set resultaten.
@@ -2338,8 +2401,8 @@ paths:
         - roltypen
       security:
         - JWT-Claims:
-            - catalogi.schrijven
-    parameters: [ ]
+            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+    parameters: []
   /roltypen/{uuid}:
     get:
       operationId: roltype_read
@@ -2503,7 +2566,7 @@ paths:
         - roltypen
       security:
         - JWT-Claims:
-            - catalogi.schrijven
+            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     patch:
       operationId: roltype_partial_update
       summary: Werk een ROLTYPE deels bij.
@@ -2558,7 +2621,7 @@ paths:
         - roltypen
       security:
         - JWT-Claims:
-            - catalogi.schrijven
+            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     delete:
       operationId: roltype_delete
       summary: Verwijder een ROLTYPE.
@@ -2632,6 +2695,19 @@ paths:
               - alles
               - definitief
               - concept
+        - name: datumGeldigheid
+          in: query
+          description: filter objecten op hun geldigheids datum.
+          required: false
+          schema:
+            type: string
+        - name: zaaktypeIdentificatie
+          in: query
+          description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
+            het ZAAKTYPE voorkomt.
+          required: false
+          schema:
+            type: string
         - name: page
           in: query
           description: Een pagina binnen de gepagineerde set resultaten.
@@ -2749,8 +2825,8 @@ paths:
         - statustypen
       security:
         - JWT-Claims:
-            - catalogi.schrijven
-    parameters: [ ]
+            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+    parameters: []
   /statustypen/{uuid}:
     get:
       operationId: statustype_read
@@ -2914,7 +2990,7 @@ paths:
         - statustypen
       security:
         - JWT-Claims:
-            - catalogi.schrijven
+            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     patch:
       operationId: statustype_partial_update
       summary: Werk een STATUSTYPE deels bij.
@@ -2969,7 +3045,7 @@ paths:
         - statustypen
       security:
         - JWT-Claims:
-            - catalogi.schrijven
+            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     delete:
       operationId: statustype_delete
       summary: Verwijder een STATUSTYPE.
@@ -3005,6 +3081,450 @@ paths:
           $ref: '#/components/responses/500'
       tags:
         - statustypen
+      security:
+        - JWT-Claims:
+            - (catalogi.schrijven | catalogi.geforceerd-verwijderen)
+    parameters:
+      - name: uuid
+        in: path
+        description: Unieke resource identifier (UUID4)
+        required: true
+        schema:
+          type: string
+          format: uuid
+  /zaakobjecttypen:
+    get:
+      operationId: zaakobjecttype_list
+      summary: Alle ZAAKOBJECTTYPEn opvragen.
+      description: Deze lijst kan gefilterd wordt met query-string parameters.
+      parameters:
+        - name: anderObjecttype
+          in: query
+          description: Aanduiding waarmee wordt aangegeven of het ZAAKOBJECTTYPE een
+            ander, niet in RSGB en RGBZ voorkomend, objecttype betreft.
+          required: false
+          schema:
+            type: string
+        - name: catalogus
+          in: query
+          description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
+          required: false
+          schema:
+            type: string
+            format: uri
+        - name: objecttype
+          in: query
+          description: URL-referentie naar de OBJECTTYPE waartoe dit ZAAKOBJECTTYPE
+            behoort.
+          required: false
+          schema:
+            type: string
+            format: uri
+        - name: relatieOmschrijving
+          in: query
+          description: Omschrijving van de betrekking van het Objecttype op zaken
+            van het gerelateerde ZAAKTYPE.
+          required: false
+          schema:
+            type: string
+        - name: datumBeginGeldigheid
+          in: query
+          description: De datum waarop het is ontstaan.
+          required: false
+          schema:
+            type: string
+        - name: datumEindeGeldigheid
+          in: query
+          description: De datum waarop het is opgeheven.
+          required: false
+          schema:
+            type: string
+        - name: datumGeldigheid
+          in: query
+          description: filter objecten op hun geldigheids datum.
+          required: false
+          schema:
+            type: string
+        - name: zaaktype
+          in: query
+          description: URL-referentie naar de ZAAKTYPE waartoe dit ZAAKOBJECTTYPE
+            behoort.
+          required: false
+          schema:
+            type: string
+            format: uri
+        - name: zaaktypeIdentificatie
+          in: query
+          description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
+            het ZAAKTYPE voorkomt.
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Een pagina binnen de gepagineerde set resultaten.
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                required:
+                  - count
+                  - results
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  next:
+                    type: string
+                    format: uri
+                    nullable: true
+                  previous:
+                    type: string
+                    format: uri
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ZaakObjectType'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+        - zaakobjecttypen
+      security:
+        - JWT-Claims:
+            - catalogi.lezen
+    post:
+      operationId: zaakobjecttype_create
+      summary: Maak een ZAAKOBJECTTYPE aan.
+      description: Maak een ZAAKOBJECTTYPE aan.
+      parameters:
+        - name: Content-Type
+          in: header
+          description: Content type van de verzoekinhoud.
+          required: true
+          schema:
+            type: string
+            enum:
+              - application/json
+      requestBody:
+        $ref: '#/components/requestBodies/ZaakObjectType'
+      responses:
+        '201':
+          description: Created
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: URL waar de resource leeft.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZaakObjectType'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+        - zaakobjecttypen
+      security:
+        - JWT-Claims:
+            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+    parameters: []
+  /zaakobjecttypen/{uuid}:
+    get:
+      operationId: zaakobjecttype_read
+      summary: Een specifieke ZAAKOBJECTTYPE opvragen.
+      description: Een specifieke ZAAKOBJECTTYPE opvragen.
+      parameters:
+        - name: If-None-Match
+          in: header
+          description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\
+            \xE9n of meerdere ETag-waardes bevatten van resources die de consumer\
+            \ gecached heeft. Indien de waarde van de ETag van de huidige resource\
+            \ voorkomt in deze set, dan antwoordt de provider met een lege HTTP 304\
+            \ request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
+            \ voor meer informatie."
+          required: false
+          examples:
+            oneValue:
+              summary: "E\xE9n ETag-waarde"
+              value: '"79054025255fb1a26e4bc422aef54eb4"'
+            multipleValues:
+              summary: Meerdere ETag-waardes
+              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            ETag:
+              description: De ETag berekend op de response body JSON. Indien twee
+                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
+                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
+              schema:
+                type: string
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZaakObjectType'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+        - zaakobjecttypen
+      security:
+        - JWT-Claims:
+            - catalogi.lezen
+    head:
+      operationId: zaakobjecttype_headers
+      summary: De headers voor een specifiek(e) ZAAKOBJECTTYPE opvragen
+      description: Vraag de headers op die je bij een GET request zou krijgen.
+      parameters:
+        - name: If-None-Match
+          in: header
+          description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\
+            \xE9n of meerdere ETag-waardes bevatten van resources die de consumer\
+            \ gecached heeft. Indien de waarde van de ETag van de huidige resource\
+            \ voorkomt in deze set, dan antwoordt de provider met een lege HTTP 304\
+            \ request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
+            \ voor meer informatie."
+          required: false
+          examples:
+            oneValue:
+              summary: "E\xE9n ETag-waarde"
+              value: '"79054025255fb1a26e4bc422aef54eb4"'
+            multipleValues:
+              summary: Meerdere ETag-waardes
+              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            ETag:
+              description: De ETag berekend op de response body JSON. Indien twee
+                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
+                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
+              schema:
+                type: string
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+      tags:
+        - zaakobjecttypen
+      security:
+        - JWT-Claims:
+            - catalogi.lezen
+    put:
+      operationId: zaakobjecttype_update
+      summary: Werk een ZAAKOBJECTTYPE in zijn geheel bij.
+      description: Werk een ZAAKOBJECTTYPE in zijn geheel bij.
+      parameters:
+        - name: Content-Type
+          in: header
+          description: Content type van de verzoekinhoud.
+          required: true
+          schema:
+            type: string
+            enum:
+              - application/json
+      requestBody:
+        $ref: '#/components/requestBodies/ZaakObjectType'
+      responses:
+        '200':
+          description: OK
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZaakObjectType'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+        - zaakobjecttypen
+      security:
+        - JWT-Claims:
+            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+    patch:
+      operationId: zaakobjecttype_partial_update
+      summary: Werk een ZAAKOBJECTTYPE deels bij.
+      description: Werk een ZAAKOBJECTTYPE deels bij.
+      parameters:
+        - name: Content-Type
+          in: header
+          description: Content type van de verzoekinhoud.
+          required: true
+          schema:
+            type: string
+            enum:
+              - application/json
+      requestBody:
+        $ref: '#/components/requestBodies/ZaakObjectType'
+      responses:
+        '200':
+          description: OK
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZaakObjectType'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+        - zaakobjecttypen
+      security:
+        - JWT-Claims:
+            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+    delete:
+      operationId: zaakobjecttype_delete
+      summary: Verwijder een ZAAKOBJECTTYPE.
+      description: Verwijder een ZAAKOBJECTTYPE.
+      responses:
+        '204':
+          description: No content
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+        - zaakobjecttypen
       security:
         - JWT-Claims:
             - (catalogi.schrijven | catalogi.geforceerd-verwijderen)
@@ -3177,8 +3697,8 @@ paths:
         - zaaktype-informatieobjecttypen
       security:
         - JWT-Claims:
-            - catalogi.schrijven
-    parameters: [ ]
+            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+    parameters: []
   /zaaktype-informatieobjecttypen/{uuid}:
     get:
       operationId: zaakinformatieobjecttype_read
@@ -3345,7 +3865,7 @@ paths:
         - zaaktype-informatieobjecttypen
       security:
         - JWT-Claims:
-            - catalogi.schrijven
+            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     patch:
       operationId: zaakinformatieobjecttype_partial_update
       summary: Werk een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie deels bij.
@@ -3403,7 +3923,7 @@ paths:
         - zaaktype-informatieobjecttypen
       security:
         - JWT-Claims:
-            - catalogi.schrijven
+            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     delete:
       operationId: zaakinformatieobjecttype_delete
       summary: Verwijder een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie.
@@ -3497,6 +4017,12 @@ paths:
               - alles
               - definitief
               - concept
+        - name: datumGeldigheid
+          in: query
+          description: filter objecten op hun geldigheids datum.
+          required: false
+          schema:
+            type: string
         - name: page
           in: query
           description: Een pagina binnen de gepagineerde set resultaten.
@@ -3565,7 +4091,7 @@ paths:
 
         Er wordt gevalideerd op:
         - geldigheid `catalogus` URL, dit moet een catalogus binnen dezelfde API zijn
-        - Uniciteit `catalogus` en `omschrijving`. Dezelfde omeschrijving mag enkel
+        - Uniciteit `catalogus` en `identificatie`. Dezelfde identificatie mag enkel
           opnieuw gebruikt worden als het zaaktype een andere geldigheidsperiode
           kent dan bestaande zaaktypen.
         - `deelzaaktypen` moeten tot dezelfde catalogus behoren als het ZAAKTYPE.
@@ -3621,7 +4147,7 @@ paths:
       security:
         - JWT-Claims:
             - catalogi.schrijven
-    parameters: [ ]
+    parameters: []
   /zaaktypen/{uuid}:
     get:
       operationId: zaaktype_read
@@ -3788,7 +4314,7 @@ paths:
         - zaaktypen
       security:
         - JWT-Claims:
-            - catalogi.schrijven
+            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     patch:
       operationId: zaaktype_partial_update
       summary: Werk een ZAAKTYPE deels bij.
@@ -3845,7 +4371,7 @@ paths:
         - zaaktypen
       security:
         - JWT-Claims:
-            - catalogi.schrijven
+            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     delete:
       operationId: zaaktype_delete
       summary: Verwijder een ZAAKTYPE.
@@ -3980,6 +4506,8 @@ tags:
       uitoefenen in ZAAKen van een ZAAKTYPE.
   - name: statustypen
     description: Generieke aanduiding van de aard van een status.
+  - name: zaakobjecttypen
+    description: ''
   - name: zaaktype-informatieobjecttypen
     description: |-
       Geeft aan welke INFORMATIEOBJECTTYPEn binnen een ZAAKTYPE mogelijk zijn en
@@ -3989,7 +4517,7 @@ tags:
       Een ZAAKTYPE beschrijft het geheel van karakteristieke eigenschappen van
       zaken van eenzelfde soort.
 servers:
-  - url: https://open-zaak.develop-public-service-platform.net/catalogi/api/v1
+  - url: http://localhost:8001/catalogi/api/v1
 components:
   responses:
     '400':
@@ -4167,6 +4695,12 @@ components:
           schema:
             $ref: '#/components/schemas/ResultaatType'
       required: true
+    ZaakObjectType:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ZaakObjectType'
+      required: true
     ZaakTypeInformatieObjectType:
       content:
         application/json:
@@ -4283,6 +4817,45 @@ components:
             niet-definitieve versies en zouden niet gebruikt moeten worden buiten
             deze API.
           type: boolean
+          readOnly: true
+        resultaattypen:
+          description: Het RESULTAATTYPE van resultaten die gepaard gaan met besluiten
+            van het BESLUITTYPE.
+          type: array
+          items:
+            description: Het RESULTAATTYPE van resultaten die gepaard gaan met besluiten
+              van het BESLUITTYPE.
+            type: string
+            format: uri
+          readOnly: true
+          uniqueItems: true
+        resultaattypenOmschrijving:
+          description: Omschrijving van de aard van resultaten van het RESULTAATTYPE.
+          type: array
+          items:
+            description: Omschrijving van de aard van resultaten van het RESULTAATTYPE.
+            type: string
+          readOnly: true
+          uniqueItems: true
+        vastgelegdIn:
+          description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
+          type: array
+          items:
+            description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
+            type: string
+          readOnly: true
+          uniqueItems: true
+        beginObject:
+          title: Begin object
+          description: De datum waarop de eerst versie van het object ontstaan is.
+          type: string
+          format: date
+          readOnly: true
+        eindeObject:
+          title: Einde object
+          description: De datum van de aller laatste versie van het object.
+          type: string
+          format: date
           readOnly: true
     Fout:
       required:
@@ -4470,6 +5043,23 @@ components:
             format: uri
           readOnly: true
           uniqueItems: true
+        naam:
+          title: Naam
+          description: De benaming die is gegeven aan de zaaktypecatalogus.
+          type: string
+          maxLength: 200
+        versie:
+          title: Versie
+          description: Versie-aanduiding van de van toepassing zijnde zaaktypecatalogus.
+          type: string
+          maxLength: 20
+        begindatumVersie:
+          title: Begindatum versie
+          description: Datum waarop de versie van de zaaktypecatalogus van toepassing
+            is geworden.
+          type: string
+          format: date
+          nullable: true
     EigenschapSpecificatie:
       required:
         - formaat
@@ -4565,12 +5155,95 @@ components:
             EIGENSCHAP van belang is.
           type: string
           format: uri
+        zaaktypeIdentificatie:
+          title: Zaaktype identificatie
+          description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
+            het ZAAKTYPE voorkomt.
+          type: string
+          readOnly: true
+        catalogus:
+          title: Catalogus
+          description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
+          type: string
+          format: uri
+          readOnly: true
+        statustype:
+          title: Statustype
+          description: Status type moet (onder andere) deze EIGENSCHAP hebben, voordat
+            een STATUS van het STATUSTYPE kan worden gezet.
+          type: string
+          format: uri
+          nullable: true
+        beginGeldigheid:
+          title: Begin geldigheid
+          description: De datum waarop het is ontstaan.
+          type: string
+          format: date
+          nullable: true
+        eindeGeldigheid:
+          title: Einde geldigheid
+          description: De datum waarop het is opgeheven.
+          type: string
+          format: date
+          nullable: true
+        beginObject:
+          title: Begin object
+          description: De datum waarop de eerst versie van het object ontstaan is.
+          type: string
+          format: date
+          readOnly: true
+        eindeObject:
+          title: Einde object
+          description: De datum van de aller laatste versie van het object.
+          type: string
+          format: date
+          readOnly: true
+    OmschrijvingGeneriek:
+      description: Algemeen gehanteerde omschrijving van het informatieobjecttype.
+      required:
+        - informatieobjecttypeOmschrijvingGeneriek
+        - definitieInformatieobjecttypeOmschrijvingGeneriek
+        - herkomstInformatieobjecttypeOmschrijvingGeneriek
+        - hierarchieInformatieobjecttypeOmschrijvingGeneriek
+      type: object
+      properties:
+        informatieobjecttypeOmschrijvingGeneriek:
+          title: Informatieobjecttype omschrijving generiek
+          description: Algemeen gehanteerde omschrijving van het type informatieobject.
+          type: string
+          maxLength: 80
+          minLength: 1
+        definitieInformatieobjecttypeOmschrijvingGeneriek:
+          title: Definitie
+          description: Nauwkeurige beschrijving van het generieke type informatieobject
+          type: string
+          maxLength: 255
+          minLength: 1
+        herkomstInformatieobjecttypeOmschrijvingGeneriek:
+          title: Herkomst
+          description: De naam van de waardenverzameling, of van de beherende organisatie
+            daarvan, waaruit de waarde is overgenomen.
+          type: string
+          maxLength: 12
+          minLength: 1
+        hierarchieInformatieobjecttypeOmschrijvingGeneriek:
+          title: Hierarchie
+          description: De plaats in de rangorde van het informatieobjecttype.
+          type: string
+          maxLength: 80
+          minLength: 1
+        opmerkingInformatieobjecttypeOmschrijvingGeneriek:
+          title: Opmerking
+          description: Zinvolle toelichting bij het informatieobjecttype
+          type: string
+          maxLength: 255
     InformatieObjectType:
       required:
         - catalogus
         - omschrijving
         - vertrouwelijkheidaanduiding
         - beginGeldigheid
+        - informatieobjectcategorie
       type: object
       properties:
         url:
@@ -4637,6 +5310,54 @@ components:
             deze API.
           type: boolean
           readOnly: true
+        besluittypen:
+          description: URL-referenties naar de BESLUITTYPEN
+          type: array
+          items:
+            description: URL-referenties naar de BESLUITTYPEN
+            type: string
+            format: uri
+          readOnly: true
+          uniqueItems: true
+        informatieobjectcategorie:
+          title: Categorie
+          description: Typering van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
+          type: string
+          maxLength: 80
+          minLength: 1
+        trefwoord:
+          description: Trefwoord(en) waarmee informatieobjecten van het INFORMATIEOBJECTTYPE
+            kunnen worden gekarakteriseerd. (Gebruik een komma om waarden van elkaar
+            te onderscheiden.)
+          type: array
+          items:
+            title: Trefwoord
+            type: string
+            maxLength: 30
+            minLength: 1
+        omschrijvingGeneriek:
+          $ref: '#/components/schemas/OmschrijvingGeneriek'
+        zaaktypen:
+          description: URL-referenties naar de ZAAKTYPEN
+          type: array
+          items:
+            description: URL-referenties naar de ZAAKTYPEN
+            type: string
+            format: uri
+          readOnly: true
+          uniqueItems: true
+        beginObject:
+          title: Begin object
+          description: De datum waarop de eerst versie van het object ontstaan is.
+          type: string
+          format: date
+          readOnly: true
+        eindeObject:
+          title: Einde object
+          description: De datum van de aller laatste versie van het object.
+          type: string
+          format: date
+          readOnly: true
     BrondatumArchiefprocedure:
       description: Specificatie voor het bepalen van de brondatum voor de start van
         de Archiefactietermijn (=brondatum) van het zaakdossier.
@@ -4651,15 +5372,15 @@ components:
 
             Uitleg bij mogelijke waarden:
 
-            * `afgehandeld` - (Afgehandeld) De termijn start op de datum waarop de zaak is afgehandeld (ZAAK.Einddatum in het RGBZ).
-            * `ander_datumkenmerk` - (Ander datumkenmerk) De termijn start op de datum die is vastgelegd in een ander datumveld dan de datumvelden waarop de overige waarden (van deze attribuutsoort) betrekking hebben. `Objecttype`, `Registratie` en `Datumkenmerk` zijn niet leeg.
-            * `eigenschap` - (Eigenschap) De termijn start op de datum die vermeld is in een zaaktype-specifieke eigenschap (zijnde een `datumveld`). `ResultaatType.ZaakType` heeft een `Eigenschap`; `Objecttype`, en `Datumkenmerk` zijn niet leeg.
-            * `gerelateerde_zaak` - (Gerelateerde zaak) De termijn start op de datum waarop de gerelateerde zaak is afgehandeld (`ZAAK.Einddatum` of `ZAAK.Gerelateerde_zaak.Einddatum` in het RGBZ). `ResultaatType.ZaakType` heeft gerelateerd `ZaakType`
-            * `hoofdzaak` - (Hoofdzaak) De termijn start op de datum waarop de gerelateerde zaak is afgehandeld, waarvan de zaak een deelzaak is (`ZAAK.Einddatum` van de hoofdzaak in het RGBZ). ResultaatType.ZaakType is deelzaaktype van ZaakType.
-            * `ingangsdatum_besluit` - (Ingangsdatum besluit) De termijn start op de datum waarop het besluit van kracht wordt (`BESLUIT.Ingangsdatum` in het RGBZ).	ResultaatType.ZaakType heeft relevant BesluitType
-            * `termijn` - (Termijn) De termijn start een vast aantal jaren na de datum waarop de zaak is afgehandeld (`ZAAK.Einddatum` in het RGBZ).
-            * `vervaldatum_besluit` - (Vervaldatum besluit) De termijn start op de dag na de datum waarop het besluit vervalt (`BESLUIT.Vervaldatum` in het RGBZ). ResultaatType.ZaakType heeft relevant BesluitType
-            * `zaakobject` - (Zaakobject) De termijn start op de einddatum geldigheid van het zaakobject waarop de zaak betrekking heeft (bijvoorbeeld de overlijdendatum van een Persoon). M.b.v. de attribuutsoort `Objecttype` wordt vastgelegd om welke zaakobjecttype het gaat; m.b.v. de attribuutsoort `Datumkenmerk` wordt vastgelegd welke datum-attribuutsoort van het zaakobjecttype het betreft.
+            * `afgehandeld` - Afgehandeld
+            * `ander_datumkenmerk` - Ander datumkenmerk
+            * `eigenschap` - Eigenschap
+            * `gerelateerde_zaak` - Gerelateerde zaak
+            * `hoofdzaak` - Hoofdzaak
+            * `ingangsdatum_besluit` - Ingangsdatum besluit
+            * `termijn` - Termijn
+            * `vervaldatum_besluit` - Vervaldatum besluit
+            * `zaakobject` - Zaakobject
           type: string
           enum:
             - afgehandeld
@@ -4755,6 +5476,8 @@ components:
             - woz_waarde
             - zakelijk_recht
             - overige
+            # manual added by Lifely: need to allow for empty values returned by the API
+            - ''
         registratie:
           title: Registratie
           description: De naam van de registratie waarvan het procesobject deel uit
@@ -4794,11 +5517,17 @@ components:
             van dit RESULTAATTYPE bereikt kunnen worden.
           type: string
           format: uri
+        zaaktypeIdentificatie:
+          title: Zaaktype identificatie
+          description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
+            het ZAAKTYPE voorkomt.
+          type: string
+          readOnly: true
         omschrijving:
           title: Omschrijving
           description: Omschrijving van de aard van resultaten van het RESULTAATTYPE.
           type: string
-          maxLength: 20
+          maxLength: 30
           minLength: 1
         resultaattypeomschrijving:
           title: Resultaattypeomschrijving
@@ -4843,6 +5572,8 @@ components:
           enum:
             - blijvend_bewaren
             - vernietigen
+            # manual added by Lifely: need to allow for empty values returned by the API
+            - ''
         archiefactietermijn:
           title: Archiefactietermijn
           description: De termijn, na het vervallen van het bedrjfsvoeringsbelang,
@@ -4857,6 +5588,97 @@ components:
           nullable: true
         brondatumArchiefprocedure:
           $ref: '#/components/schemas/BrondatumArchiefprocedure'
+        procesobjectaard:
+          title: Procesobjectaard
+          description: Omschrijving van het object, subject of gebeurtenis waarop,
+            vanuit archiveringsoptiek, het resultaattype bij zaken van dit type betrekking
+            heeft.
+          type: string
+          maxLength: 200
+        indicatieSpecifiek:
+          title: Indicatie specifiek
+          description: Aanduiding of het, vanuit archiveringsoptiek, een resultaattype
+            betreft dat specifiek is voor een bepaalde procesobjectaard.
+          type: boolean
+          nullable: true
+        procestermijn:
+          title: Procestermijn
+          description: De periode dat het zaakdossier na afronding van de zaak actief
+            gebruikt en/of geraadpleegd wordt ter ondersteuning van de taakuitoefening
+            van de organisatie.
+          type: string
+          format: duration
+          nullable: true
+        catalogus:
+          title: Catalogus
+          description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
+          type: string
+          format: uri
+          readOnly: true
+        besluittypen:
+          description: Het BESLUITTYPE van besluiten die gepaard gaan met resultaten
+            van het RESULTAATTYPE.
+          type: array
+          items:
+            description: Het BESLUITTYPE van besluiten die gepaard gaan met resultaten
+              van het RESULTAATTYPE.
+            type: string
+            format: uri
+            nullable: true
+          uniqueItems: true
+        besluittypeOmschrijving:
+          description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
+          type: array
+          items:
+            description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
+            type: string
+          readOnly: true
+          uniqueItems: true
+        informatieobjecttypen:
+          description: De INFORMATIEOBJECTTYPEn die verplicht aanwezig moeten zijn
+            in het zaakdossier van ZAAKen van dit ZAAKTYPE voordat een resultaat van
+            dit RESULTAATTYPE kan worden gezet.
+          type: array
+          items:
+            description: De INFORMATIEOBJECTTYPEn die verplicht aanwezig moeten zijn
+              in het zaakdossier van ZAAKen van dit ZAAKTYPE voordat een resultaat
+              van dit RESULTAATTYPE kan worden gezet.
+            type: string
+            format: uri
+            nullable: true
+          uniqueItems: true
+        informatieobjecttypeOmschrijving:
+          description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
+          type: array
+          items:
+            description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
+            type: string
+          readOnly: true
+          uniqueItems: true
+        beginGeldigheid:
+          title: Begin geldigheid
+          description: De datum waarop het is ontstaan.
+          type: string
+          format: date
+          nullable: true
+        eindeGeldigheid:
+          title: Einde geldigheid
+          description: De datum waarop het is opgeheven.
+          type: string
+          format: date
+          nullable: true
+        beginObject:
+          title: Begin object
+          description: De datum waarop de eerst versie van het object ontstaan is.
+          type: string
+          format: date
+          readOnly: true
+        eindeObject:
+          title: Einde object
+          description: De datum van de aller laatste versie van het object.
+          type: string
+          format: date
+          readOnly: true
     RolType:
       required:
         - zaaktype
@@ -4879,6 +5701,12 @@ components:
             kunnen zijn.
           type: string
           format: uri
+        zaaktypeIdentificatie:
+          title: Zaaktype identificatie
+          description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
+            het ZAAKTYPE voorkomt.
+          type: string
+          readOnly: true
         omschrijving:
           title: Omschrijving
           description: Omschrijving van de aard van de ROL.
@@ -4892,13 +5720,13 @@ components:
 
             Uitleg bij mogelijke waarden:
 
-            * `adviseur` - (Adviseur) Kennis in dienst stellen van de behandeling van (een deel van) een zaak.
-            * `behandelaar` - (Behandelaar) De vakinhoudelijke behandeling doen van (een deel van) een zaak.
-            * `belanghebbende` - (Belanghebbende) Vanuit eigen en objectief belang rechtstreeks betrokken zijn bij de behandeling en/of de uitkomst van een zaak.
-            * `beslisser` - (Beslisser) Nemen van besluiten die voor de uitkomst van een zaak noodzakelijk zijn.
-            * `initiator` - (Initiator) Aanleiding geven tot de start van een zaak ..
-            * `klantcontacter` - (Klantcontacter) Het eerste aanspreekpunt zijn voor vragen van burgers en bedrijven ..
-            * `zaakcoordinator` - (Zaakcoördinator) Er voor zorg dragen dat de behandeling van de zaak in samenhang uitgevoerd wordt conform de daarover gemaakte afspraken.
+            * `adviseur` - Adviseur
+            * `behandelaar` - Behandelaar
+            * `belanghebbende` - Belanghebbende
+            * `beslisser` - Beslisser
+            * `initiator` - Initiator
+            * `klantcontacter` - Klantcontacter
+            * `zaakcoordinator` - Zaakcoördinator
             * `mede_initiator` - Mede-initiator
           type: string
           enum:
@@ -4910,6 +5738,68 @@ components:
             - klantcontacter
             - zaakcoordinator
             - mede_initiator
+        catalogus:
+          title: Catalogus
+          description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
+          type: string
+          format: uri
+          readOnly: true
+        beginGeldigheid:
+          title: Begin geldigheid
+          description: De datum waarop het is ontstaan.
+          type: string
+          format: date
+          nullable: true
+        eindeGeldigheid:
+          title: Einde geldigheid
+          description: De datum waarop het is opgeheven.
+          type: string
+          format: date
+          nullable: true
+        beginObject:
+          title: Begin object
+          description: De datum waarop de eerst versie van het object ontstaan is.
+          type: string
+          format: date
+          readOnly: true
+        eindeObject:
+          title: Einde object
+          description: De datum van de aller laatste versie van het object.
+          type: string
+          format: date
+          readOnly: true
+    CheckListItem:
+      description: Te controleren aandachtspunt voorafgaand aan het bereiken van een
+        status van het STATUSTYPE.
+      required:
+        - itemnaam
+        - vraagstelling
+      type: object
+      properties:
+        itemnaam:
+          title: Itemnaam
+          description: De betekenisvolle benaming van het checklistitem
+          type: string
+          maxLength: 30
+          minLength: 1
+        toelichting:
+          title: Toelichting
+          description: Beschrijving van de overwegingen bij het controleren van het
+            aandachtspunt
+          type: string
+          maxLength: 1000
+        vraagstelling:
+          title: Vraagstelling
+          description: Een betekenisvolle vraag waaruit blijkt waarop het aandachtspunt
+            gecontroleerd moet worden.
+          type: string
+          maxLength: 255
+          minLength: 1
+        verplicht:
+          title: Verplicht
+          description: Het al dan niet verplicht zijn van controle van het aandachtspunt
+            voorafgaand aan het bereiken van de status van het gerelateerde STATUSTYPE.
+          type: boolean
     StatusType:
       required:
         - omschrijving
@@ -4952,6 +5842,12 @@ components:
             van dit STATUSTYPE bereikt kunnen worden.
           type: string
           format: uri
+        zaaktypeIdentificatie:
+          title: Zaaktype identificatie
+          description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
+            het ZAAKTYPE voorkomt.
+          type: string
+          readOnly: true
         volgnummer:
           title: Volgnummer
           description: Een volgnummer voor statussen van het STATUSTYPE binnen een
@@ -4970,6 +5866,172 @@ components:
           description: "Aanduiding die aangeeft of na het zetten van een STATUS van\
             \ dit STATUSTYPE de Initiator moet worden ge\xEFnformeerd over de statusovergang."
           type: boolean
+        doorlooptijd:
+          title: Doorlooptijd
+          description: De door de zaakbehandelende organisatie(s) gestelde norm voor
+            de doorlooptijd voor het bereiken van STATUSsen van dit STATUSTYPE bij
+            het desbetreffende ZAAKTYPE.
+          type: string
+          format: duration
+          nullable: true
+        toelichting:
+          title: Toelichting
+          description: Een eventuele toelichting op dit STATUSTYPE.
+          type: string
+          maxLength: 1000
+          nullable: true
+        checklistitemStatustype:
+          description: Te controleren aandachtspunt voorafgaand aan het bereiken van
+            een status van het STATUSTYPE.
+          type: array
+          items:
+            $ref: '#/components/schemas/CheckListItem'
+        catalogus:
+          title: Catalogus
+          description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
+          type: string
+          format: uri
+          readOnly: true
+        eigenschappen:
+          description: de EIGENSCHAPpen die verplicht een waarde moeten hebben gekregen,
+            voordat een STATUS van dit STATUSTYPE kan worden gezet.
+          type: array
+          items:
+            description: de EIGENSCHAPpen die verplicht een waarde moeten hebben gekregen,
+              voordat een STATUS van dit STATUSTYPE kan worden gezet.
+            type: string
+            format: uri
+          readOnly: true
+          uniqueItems: true
+        zaakobjecttypen:
+          description: de ZAAKOBJECTTYPEN die verplicht een waarde moeten hebben gekregen,
+            voordat een STATUS van dit STATUSTYPE kan worden gezet.
+          type: array
+          items:
+            description: de ZAAKOBJECTTYPEN die verplicht een waarde moeten hebben
+              gekregen, voordat een STATUS van dit STATUSTYPE kan worden gezet.
+            type: string
+            format: uri
+          readOnly: true
+          uniqueItems: true
+        beginGeldigheid:
+          title: Begin geldigheid
+          description: De datum waarop het is ontstaan.
+          type: string
+          format: date
+          nullable: true
+        eindeGeldigheid:
+          title: Einde geldigheid
+          description: De datum waarop het is opgeheven.
+          type: string
+          format: date
+          nullable: true
+        beginObject:
+          title: Begin object
+          description: De datum waarop de eerst versie van het object ontstaan is.
+          type: string
+          format: date
+          readOnly: true
+        eindeObject:
+          title: Einde object
+          description: De datum van de aller laatste versie van het object.
+          type: string
+          format: date
+          readOnly: true
+    ZaakObjectType:
+      required:
+        - anderObjecttype
+        - objecttype
+        - relatieOmschrijving
+        - zaaktype
+      type: object
+      properties:
+        url:
+          title: Url
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
+          type: string
+          format: uri
+          readOnly: true
+          maxLength: 1000
+          minLength: 1
+        anderObjecttype:
+          title: Ander objecttype
+          description: Aanduiding waarmee wordt aangegeven of het ZAAKOBJECTTYPE een
+            ander, niet in RSGB en RGBZ voorkomend, objecttype betreft.
+          type: boolean
+        objecttype:
+          title: Objecttype
+          description: URL-referentie naar de OBJECTTYPE waartoe dit ZAAKOBJECTTYPE
+            behoort.
+          type: string
+          format: uri
+          maxLength: 200
+          minLength: 1
+        relatieOmschrijving:
+          title: Relatie omschrijving
+          description: Omschrijving van de betrekking van het Objecttype op zaken
+            van het gerelateerde ZAAKTYPE.
+          type: string
+          maxLength: 80
+          minLength: 1
+        zaaktype:
+          title: Zaaktype
+          description: URL-referentie naar de ZAAKTYPE waartoe dit ZAAKOBJECTTYPE
+            behoort.
+          type: string
+          format: uri
+        zaaktypeIdentificatie:
+          title: Zaaktype identificatie
+          description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
+            het ZAAKTYPE voorkomt.
+          type: string
+          readOnly: true
+        resultaattypen:
+          description: URL-referenties naar de RESULTAATTYPEN.
+          type: array
+          items:
+            description: URL-referenties naar de RESULTAATTYPEN.
+            type: string
+            format: uri
+          readOnly: true
+          uniqueItems: true
+        statustype:
+          title: Statustype
+          description: URL-referentie naar het STATUSTYPE
+          type: string
+          format: uri
+          nullable: true
+        catalogus:
+          title: Catalogus
+          description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
+          type: string
+          format: uri
+          readOnly: true
+        beginGeldigheid:
+          title: Begin geldigheid
+          description: De datum waarop het is ontstaan.
+          type: string
+          format: date
+          nullable: true
+        eindeGeldigheid:
+          title: Einde geldigheid
+          description: De datum waarop het is opgeheven.
+          type: string
+          format: date
+          nullable: true
+        beginObject:
+          title: Begin object
+          description: De datum waarop de eerst versie van het object ontstaan is.
+          type: string
+          format: date
+          readOnly: true
+        eindeObject:
+          title: Einde object
+          description: De datum van de aller laatste versie van het object.
+          type: string
+          format: date
+          readOnly: true
     ZaakTypeInformatieObjectType:
       required:
         - zaaktype
@@ -4992,11 +6054,22 @@ components:
           description: URL-referentie naar het ZAAKTYPE.
           type: string
           format: uri
+        zaaktypeIdentificatie:
+          title: Zaaktype identificatie
+          description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
+            het ZAAKTYPE voorkomt.
+          type: string
+          readOnly: true
         informatieobjecttype:
           title: Informatie object type
           description: URL-referentie naar het INFORMATIEOBJECTTYPE.
           type: string
           format: uri
+        informatieobjecttypeOmschrijving:
+          title: Informatieobjecttype omschrijving
+          description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
+          type: string
+          readOnly: true
         volgnummer:
           title: Volgnummer
           description: Uniek volgnummer van het ZAAK-INFORMATIEOBJECTTYPE binnen het
@@ -5026,6 +6099,12 @@ components:
           type: string
           format: uri
           nullable: true
+        catalogus:
+          title: Catalogus
+          description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
+          type: string
+          format: uri
+          readOnly: true
     ReferentieProces:
       description: Het Referentieproces dat ten grondslag ligt aan dit ZAAKTYPE.
       required:
@@ -5044,6 +6123,54 @@ components:
           type: string
           format: uri
           maxLength: 200
+    BronCatalogus:
+      description: De CATALOGUS waaraan het ZAAKTYPE is ontleend.
+      required:
+        - domein
+        - rsin
+      type: object
+      properties:
+        url:
+          title: Url
+          description: URL-referentie naar broncatalogus
+          type: string
+          format: uri
+          maxLength: 200
+        domein:
+          title: Domein
+          description: Het domein van de CATALOGUS waaraan het ZAAKTYPE is ontleend.
+          type: string
+          maxLength: 5
+        rsin:
+          title: Rsin
+          description: Het RSIN van de INGESCHREVEN NIET-NATUURLIJK PERSOON die beheerder
+            is van de CATALOGUS waaraan het ZAAKTYPE is ontleend.
+          type: string
+          maxLength: 9
+    BronZaaktype:
+      description: Het ZAAKTYPE binnen de CATALOGUS waaraan dit ZAAKTYPE is ontleend.
+      required:
+        - identificatie
+        - omschrijving
+      type: object
+      properties:
+        url:
+          title: Url
+          description: URL-referentie naar bronzaaktype
+          type: string
+          format: uri
+          maxLength: 200
+        identificatie:
+          title: Identificatie
+          description: De Zaaktype-identificatie van het bronzaaktype binnen de CATALOGUS.
+          type: string
+          maxLength: 50
+        omschrijving:
+          title: Omschrijving
+          description: De Zaaktype-omschrijving van het bronzaaktype, zoals gehanteerd
+            in de Broncatalogus.
+          type: string
+          maxLength: 80
     ZaakTypenRelatie:
       description: De ZAAKTYPEn van zaken die relevant zijn voor zaken van dit ZAAKTYPE.
       required:
@@ -5095,11 +6222,12 @@ components:
         - publicatieIndicatie
         - productenOfDiensten
         - referentieproces
+        - verantwoordelijke
+        - beginGeldigheid
+        - versiedatum
         - catalogus
         - besluittypen
         - gerelateerdeZaaktypen
-        - beginGeldigheid
-        - versiedatum
       type: object
       properties:
         url:
@@ -5289,6 +6417,53 @@ components:
           maxLength: 200
         referentieproces:
           $ref: '#/components/schemas/ReferentieProces'
+        concept:
+          title: Concept
+          description: Geeft aan of het object een concept betreft. Concepten zijn
+            niet-definitieve versies en zouden niet gebruikt moeten worden buiten
+            deze API.
+          type: boolean
+          readOnly: true
+        verantwoordelijke:
+          title: Verantwoordelijke
+          description: De (soort) organisatorische eenheid of (functie van) medewerker
+            die verantwoordelijk is voor de uitvoering van zaken van het ZAAKTYPE.
+          type: string
+          maxLength: 50
+          minLength: 1
+        broncatalogus:
+          $ref: '#/components/schemas/BronCatalogus'
+        bronzaaktype:
+          $ref: '#/components/schemas/BronZaaktype'
+        beginGeldigheid:
+          title: Begin geldigheid
+          description: De datum waarop het is ontstaan.
+          type: string
+          format: date
+        eindeGeldigheid:
+          title: Einde geldigheid
+          description: De datum waarop het is opgeheven.
+          type: string
+          format: date
+          nullable: true
+        versiedatum:
+          title: Versiedatum
+          description: De datum waarop de (gewijzigde) kenmerken van het ZAAKTYPE
+            geldig zijn geworden
+          type: string
+          format: date
+        beginObject:
+          title: Begin object
+          description: De datum waarop de eerst versie van het object ontstaan is.
+          type: string
+          format: date
+          readOnly: true
+        eindeObject:
+          title: Einde object
+          description: De datum van de aller laatste versie van het object.
+          type: string
+          format: date
+          readOnly: true
         catalogus:
           title: Catalogus
           description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
@@ -5377,27 +6552,14 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ZaakTypenRelatie'
-        beginGeldigheid:
-          title: Begin geldigheid
-          description: De datum waarop het is ontstaan.
-          type: string
-          format: date
-        eindeGeldigheid:
-          title: Einde geldigheid
-          description: De datum waarop het is opgeheven.
-          type: string
-          format: date
-          nullable: true
-        versiedatum:
-          title: Versiedatum
-          description: De datum waarop de (gewijzigde) kenmerken van het ZAAKTYPE
-            geldig zijn geworden
-          type: string
-          format: date
-        concept:
-          title: Concept
-          description: Geeft aan of het object een concept betreft. Concepten zijn
-            niet-definitieve versies en zouden niet gebruikt moeten worden buiten
-            deze API.
-          type: boolean
+        zaakobjecttypen:
+          description: URL-referenties naar de ZAAKOBJECTTYPEN die mogelijk zijn binnen
+            dit ZAAKTYPE.
+          type: array
+          items:
+            description: URL-referenties naar de ZAAKOBJECTTYPEN die mogelijk zijn
+              binnen dit ZAAKTYPE.
+            type: string
+            format: uri
           readOnly: true
+          uniqueItems: true

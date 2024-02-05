@@ -26,15 +26,15 @@ import jakarta.ws.rs.core.MediaType;
 import org.flowable.cmmn.api.repository.CaseDefinition;
 
 import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.Zaaktype;
+import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter;
 import net.atos.zac.app.admin.converter.RESTReplyToConverter;
 import net.atos.zac.app.admin.converter.RESTZaakafhandelParametersConverter;
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigRedenConverter;
 import net.atos.zac.app.admin.model.RESTCaseDefinition;
+import net.atos.zac.app.admin.model.RESTReplyTo;
 import net.atos.zac.app.admin.model.RESTTaakFormulierDefinitie;
 import net.atos.zac.app.admin.model.RESTTaakFormulierVeldDefinitie;
-import net.atos.zac.app.admin.model.RESTReplyTo;
 import net.atos.zac.app.admin.model.RESTZaakafhandelParameters;
 import net.atos.zac.app.admin.model.RESTZaakbeeindigReden;
 import net.atos.zac.app.zaken.converter.RESTResultaattypeConverter;
@@ -217,7 +217,7 @@ public class ZaakafhandelParametersRESTService {
                 ztcClientService.readResultaattypen(ztcClientService.readZaaktype(zaaktypeUUID).getUrl()));
     }
 
-    private List<Zaaktype> listZaaktypes() {
+    private List<ZaakType> listZaaktypes() {
         return ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI());
     }
 

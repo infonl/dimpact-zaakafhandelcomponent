@@ -33,7 +33,7 @@ import jakarta.transaction.Transactional;
 import org.flowable.task.api.TaskInfo;
 
 import net.atos.client.zgw.drc.DRCClientService;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.zac.event.EventingService;
@@ -244,7 +244,7 @@ public class SignaleringenService {
         return takenService.readTask(taakID);
     }
 
-    private EnkelvoudigInformatieobject getDocument(final String documentUUID) {
+    private EnkelvoudigInformatieObject getDocument(final String documentUUID) {
         return drcClientService.readEnkelvoudigInformatieobject(UUID.fromString(documentUUID));
     }
 

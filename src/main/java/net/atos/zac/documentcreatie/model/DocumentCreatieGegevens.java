@@ -5,9 +5,9 @@
 
 package net.atos.zac.documentcreatie.model;
 
-import net.atos.client.zgw.drc.model.InformatieobjectStatus;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.client.zgw.ztc.model.Informatieobjecttype;
+import net.atos.client.zgw.ztc.model.generated.InformatieObjectType;
 
 public class DocumentCreatieGegevens {
 
@@ -15,14 +15,15 @@ public class DocumentCreatieGegevens {
 
     private String taskId;
 
-    private InformatieobjectStatus informatieobjectStatus = InformatieobjectStatus.TER_VASTSTELLING;
+    private EnkelvoudigInformatieObject.StatusEnum informatieobjectStatus =
+            EnkelvoudigInformatieObject.StatusEnum.TER_VASTSTELLING;
 
-    private Informatieobjecttype informatieobjecttype;
+    private InformatieObjectType informatieobjecttype;
 
     public DocumentCreatieGegevens(
             final Zaak zaak,
             final String taskId,
-            final Informatieobjecttype informatieobjecttype
+            final InformatieObjectType informatieobjecttype
     ) {
         this.zaak = zaak;
         this.taskId = taskId;
@@ -33,11 +34,11 @@ public class DocumentCreatieGegevens {
         return zaak;
     }
 
-    public InformatieobjectStatus getInformatieobjectStatus() {
+    public EnkelvoudigInformatieObject.StatusEnum getInformatieobjectStatus() {
         return informatieobjectStatus;
     }
 
-    public Informatieobjecttype getInformatieobjecttype() { return informatieobjecttype; }
+    public InformatieObjectType getInformatieobjecttype() { return informatieobjecttype; }
 
     public String getTaskId() {
         return taskId;

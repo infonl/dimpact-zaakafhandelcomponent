@@ -12,8 +12,9 @@ import java.net.URI;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
+
 /**
- *
+ * URI utility functions.
  */
 public final class URIUtil {
 

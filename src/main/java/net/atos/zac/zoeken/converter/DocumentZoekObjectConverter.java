@@ -1,5 +1,7 @@
 package net.atos.zac.zoeken.converter;
 
+import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -7,13 +9,14 @@ import jakarta.inject.Inject;
 
 import net.atos.client.zgw.brc.BRCClientService;
 import net.atos.client.zgw.drc.DRCClientService;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import net.atos.client.zgw.shared.util.URIUtil;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.Informatieobjecttype;
-import net.atos.client.zgw.ztc.model.Zaaktype;
+import net.atos.client.zgw.ztc.model.generated.InformatieObjectType;
+import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
 import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
 import net.atos.zac.identity.IdentityService;
@@ -45,7 +48,8 @@ public class DocumentZoekObjectConverter extends AbstractZoekObjectConverter<Doc
 
     @Override
     public DocumentZoekObject convert(final String documentUUID) {
-        final EnkelvoudigInformatieobject document = drcClientService.readEnkelvoudigInformatieobject(
+        final EnkelvoudigInformatieObject document =
+                drcClientService.readEnkelvoudigInformatieobject(
                 UUID.fromString(documentUUID));
         final List<ZaakInformatieobject> zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(document);
         if (zaakInformatieobjecten.isEmpty()) {
@@ -54,20 +58,21 @@ public class DocumentZoekObjectConverter extends AbstractZoekObjectConverter<Doc
         return convert(document, zaakInformatieobjecten.get(0));
     }
 
-    private DocumentZoekObject convert(final EnkelvoudigInformatieobject informatieobject,
+    private DocumentZoekObject convert(final EnkelvoudigInformatieObject informatieobject,
             final ZaakInformatieobject gekoppeldeZaakInformatieobject) {
         final Zaak zaak = zrcClientService.readZaak(gekoppeldeZaakInformatieobject.getZaakUUID());
-        final Zaaktype zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
-        final Informatieobjecttype informatieobjecttype = ztcClientService.readInformatieobjecttype(
+        final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
+        final InformatieObjectType informatieobjecttype = ztcClientService.readInformatieobjecttype(
                 informatieobject.getInformatieobjecttype());
         final DocumentZoekObject documentZoekObject = new DocumentZoekObject();
+        final UUID informatieobjectUUID = parseUUIDFromResourceURI(informatieobject.getUrl());
         documentZoekObject.setType(ZoekObjectType.DOCUMENT);
-        documentZoekObject.setUuid(informatieobject.getUUID().toString());
+        documentZoekObject.setUuid(informatieobjectUUID.toString());
         documentZoekObject.setIdentificatie(informatieobject.getIdentificatie());
         documentZoekObject.setTitel(informatieobject.getTitel());
         documentZoekObject.setBeschrijving(informatieobject.getBeschrijving());
         documentZoekObject.setZaaktypeOmschrijving(zaaktype.getOmschrijving());
-        documentZoekObject.setZaaktypeUuid(zaaktype.getUUID().toString());
+        documentZoekObject.setZaaktypeUuid(URIUtil.parseUUIDFromResourceURI(zaaktype.getUrl()).toString());
         documentZoekObject.setZaaktypeIdentificatie(zaaktype.getIdentificatie());
         documentZoekObject.setZaakIdentificatie(zaak.getIdentificatie());
         documentZoekObject.setZaakUuid(zaak.getUuid().toString());
@@ -77,7 +82,7 @@ public class DocumentZoekObjectConverter extends AbstractZoekObjectConverter<Doc
         documentZoekObject.setZaakAfgehandeld(zaak.isOpen());
         documentZoekObject.setCreatiedatum(DateTimeConverterUtil.convertToDate(informatieobject.getCreatiedatum()));
         documentZoekObject.setRegistratiedatum(
-                DateTimeConverterUtil.convertToDate(informatieobject.getBeginRegistratie()));
+                DateTimeConverterUtil.convertToDate(informatieobject.getBeginRegistratie().toZonedDateTime()));
         documentZoekObject.setOntvangstdatum(DateTimeConverterUtil.convertToDate(informatieobject.getOntvangstdatum()));
         documentZoekObject.setVerzenddatum(DateTimeConverterUtil.convertToDate(informatieobject.getVerzenddatum()));
         documentZoekObject.setOndertekeningDatum(
@@ -95,7 +100,7 @@ public class DocumentZoekObjectConverter extends AbstractZoekObjectConverter<Doc
         documentZoekObject.setDocumentType(informatieobjecttype.getOmschrijving());
         if (informatieobject.getOndertekening() != null) {
             if (informatieobject.getOndertekening().getSoort() != null) {
-                documentZoekObject.setOndertekeningSoort(informatieobject.getOndertekening().getSoort().toValue());
+                documentZoekObject.setOndertekeningSoort(informatieobject.getOndertekening().getSoort().value());
             }
             documentZoekObject.setOndertekeningDatum(
                     DateTimeConverterUtil.convertToDate(informatieobject.getOndertekening().getDatum()));
@@ -107,7 +112,8 @@ public class DocumentZoekObjectConverter extends AbstractZoekObjectConverter<Doc
         documentZoekObject.setIndicatie(DocumentIndicatie.VERZONDEN, informatieobject.getVerzenddatum() != null);
         if (informatieobject.getLocked()) {
             final EnkelvoudigInformatieObjectLock lock = enkelvoudigInformatieObjectLockService.readLock(
-                    informatieobject.getUUID());
+                    informatieobjectUUID
+            );
             documentZoekObject.setVergrendeldDoorGebruikersnaam(lock.getUserId());
             documentZoekObject.setVergrendeldDoorNaam(identityService.readUser(lock.getUserId()).getFullName());
         }

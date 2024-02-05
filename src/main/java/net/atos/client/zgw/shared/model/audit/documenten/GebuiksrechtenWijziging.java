@@ -5,7 +5,7 @@
 
 package net.atos.client.zgw.shared.model.audit.documenten;
 
-import net.atos.client.zgw.drc.model.Gebruiksrechten;
+import net.atos.client.zgw.drc.model.generated.Gebruiksrechten;
 import net.atos.client.zgw.shared.model.ObjectType;
 import net.atos.client.zgw.shared.model.audit.AuditWijziging;
 

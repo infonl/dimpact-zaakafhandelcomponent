@@ -39,8 +39,7 @@ import net.atos.client.kvk.vestigingsprofiel.model.Vestiging;
 import net.atos.client.kvk.zoeken.model.Resultaat;
 import net.atos.client.kvk.zoeken.model.ResultaatItem;
 import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.AardVanRol;
-import net.atos.client.zgw.ztc.model.Roltype;
+import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.zac.app.klanten.converter.RESTBedrijfConverter;
 import net.atos.zac.app.klanten.converter.RESTPersoonConverter;
 import net.atos.zac.app.klanten.converter.RESTRoltypeConverter;
@@ -63,14 +62,14 @@ import net.atos.zac.app.shared.RESTResultaat;
 @Singleton
 public class KlantenRESTService {
 
-    public static final Set<AardVanRol> betrokkenen;
+    public static final Set<RolType.OmschrijvingGeneriekEnum> betrokkenen;
 
     private static final RESTPersoon ONBEKEND_PERSOON = new RESTPersoon(ONBEKEND, ONBEKEND, ONBEKEND);
 
     static {
-        betrokkenen = EnumSet.allOf(AardVanRol.class);
-        betrokkenen.remove(AardVanRol.INITIATOR);
-        betrokkenen.remove(AardVanRol.BEHANDELAAR);
+        betrokkenen = EnumSet.allOf(RolType.OmschrijvingGeneriekEnum.class);
+        betrokkenen.remove(RolType.OmschrijvingGeneriekEnum.INITIATOR);
+        betrokkenen.remove(RolType.OmschrijvingGeneriekEnum.BEHANDELAAR);
     }
 
     @Inject
@@ -191,9 +190,11 @@ public class KlantenRESTService {
     @Path("roltype/{zaaktypeUuid}/betrokkene")
     public List<RESTRoltype> listBetrokkeneRoltypen(@PathParam("zaaktypeUuid") final UUID zaaktype) {
         return roltypeConverter.convert(
-                ztcClientService.listRoltypen(ztcClientService.readZaaktype(zaaktype).getUrl()).stream()
-                        .filter(roltype -> betrokkenen.contains(roltype.getOmschrijvingGeneriek()))
-                        .sorted(Comparator.comparing(Roltype::getOmschrijving)));
+                ztcClientService.listRoltypen(ztcClientService.readZaaktype(zaaktype).getUrl())
+                        .stream()
+                        .filter(roltype -> betrokkenen.contains(roltype.getOmschrijvingGeneriek())
+                    ).sorted(Comparator.comparing(RolType::getOmschrijving))
+        );
     }
 
     @GET
