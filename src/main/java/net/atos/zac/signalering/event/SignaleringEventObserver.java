@@ -26,7 +26,6 @@ import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.AardVanRol;
 import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.zac.event.AbstractEventObserver;
 import net.atos.zac.flowable.TakenService;
@@ -153,7 +152,8 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
             }
             case ZAAK_OP_NAAM -> {
                 final Rol<?> rol = zrcClientService.readRol((URI) event.getObjectId().getResource());
-                if (AardVanRol.fromValue(rol.getOmschrijvingGeneriek()) == AardVanRol.BEHANDELAAR) {
+                if (RolType.OmschrijvingGeneriekEnum.valueOf(rol.getOmschrijvingGeneriek().toUpperCase())
+                        == RolType.OmschrijvingGeneriekEnum.BEHANDELAAR) {
                     final Zaak subject = zrcClientService.readZaak(rol.getZaak());
                     switch (rol.getBetrokkeneType()) {
                         case MEDEWERKER -> {

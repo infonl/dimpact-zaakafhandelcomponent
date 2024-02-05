@@ -29,7 +29,6 @@ import net.atos.client.util.JAXRSClientFactory;
 import net.atos.client.zgw.shared.cache.Caching;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
-import net.atos.client.zgw.ztc.model.AardVanRol;
 import net.atos.client.zgw.ztc.model.BesluittypeListParameters;
 import net.atos.client.zgw.ztc.model.CatalogusListParameters;
 import net.atos.client.zgw.ztc.model.ResultaattypeListParameters;
@@ -261,31 +260,31 @@ public class ZTCClientService implements Caching {
     }
 
     /**
-     * Find {@link RolType} of {@link ZaakType} and {@link AardVanRol}.
+     * Find {@link RolType} of {@link ZaakType} and {@link RolType.OmschrijvingGeneriekEnum}.
      * returns null if the {@link ResultaatType} can not be found
      *
      * @param zaaktypeURI URI of {@link ZaakType}.
-     * @param aardVanRol  {@link AardVanRol}.
+     * @param omschrijvingGeneriekEnum  {@link RolType.OmschrijvingGeneriekEnum}.
      * @return {@link RolType} or NULL
      */
     @CacheResult(cacheName = ZTC_ROLTYPE)
-    public Optional<RolType> findRoltype(final URI zaaktypeURI, final RolType.OmschrijvingGeneriekEnum aardVanRol) {
-        return ztcClient.roltypeList(new RoltypeListParameters(zaaktypeURI, aardVanRol)).getSingleResult();
+    public Optional<RolType> findRoltype(final URI zaaktypeURI, final RolType.OmschrijvingGeneriekEnum omschrijvingGeneriekEnum) {
+        return ztcClient.roltypeList(new RoltypeListParameters(zaaktypeURI, omschrijvingGeneriekEnum)).getSingleResult();
     }
 
     /**
-     * Read {@link RolType} of {@link ZaakType} and {@link AardVanRol}.
+     * Read {@link RolType} of {@link ZaakType} and {@link RolType.OmschrijvingGeneriekEnum}.
      * Throws a RuntimeException if the {@link ResultaatType} can not be read.
      *
      * @param zaaktypeURI URI of {@link ZaakType}.
-     * @param aardVanRol  {@link AardVanRol}.
+     * @param omschrijvingGeneriekEnum  {@link RolType.OmschrijvingGeneriekEnum}.
      * @return {@link RolType}. Never 'null'!
      */
     @CacheResult(cacheName = ZTC_ROLTYPE)
-    public RolType readRoltype(final RolType.OmschrijvingGeneriekEnum aardVanRol, final URI zaaktypeURI) {
-        return ztcClient.roltypeList(new RoltypeListParameters(zaaktypeURI, aardVanRol)).getSingleResult()
+    public RolType readRoltype(final RolType.OmschrijvingGeneriekEnum omschrijvingGeneriekEnum, final URI zaaktypeURI) {
+        return ztcClient.roltypeList(new RoltypeListParameters(zaaktypeURI, omschrijvingGeneriekEnum)).getSingleResult()
                 .orElseThrow(
-                        () -> new RuntimeException(format("Zaaktype '%s': Roltype with aard '%s' not found.", zaaktypeURI.toString(), aardVanRol.toString())));
+                        () -> new RuntimeException(format("Zaaktype '%s': Roltype with aard '%s' not found.", zaaktypeURI.toString(), omschrijvingGeneriekEnum.toString())));
     }
 
     /**
