@@ -34,7 +34,6 @@ import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.createZaakobjectPand
 import net.atos.client.zgw.ztc.ZTCClientService
-import net.atos.client.zgw.ztc.model.AardVanRol
 import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.client.zgw.ztc.model.generated.RolType
