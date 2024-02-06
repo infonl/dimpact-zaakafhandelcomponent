@@ -22,6 +22,7 @@ C4Context
             System(Objecttypen, "Objecttypen")
             System(OpenZaak, "Open Zaak")
             System(OpenKlant, "Open Klant")
+            System(OfficeConverter, "OfficeConverter")
         }
     }
 
@@ -54,6 +55,7 @@ C4Context
     Rel(ZAC, VNGReferentielijsten, "Uses", "VNG Referentielijsten API")
     Rel(ZAC, SmartDocuments, "Uses", "SmartDocuments API")
     Rel(ZAC, Mailjet, "Uses", "Mailjet API")
+    Rel(ZAC, OfficeConverter, "Uses", "OfficeConverter API")
     Rel(SmartDocuments, OpenZaak, "Uses", "ZGW Documenten en Zaken API")
 
     UpdateElementStyle(ZAC, $bgColor="red", $borderColor="red")
@@ -99,6 +101,7 @@ Furthermore, ZAC integrates with the following external services:
 | [Mailjet](https://www.mailjet.com/)                                                  | Email service.                                                                     | Send emails to employees. Only used for sending e-mails, not for managing e-mail templates (this is done in ZAC itself).            | <ul><li>Mailjet Email API (latest version)</li></ul>                                            |
 | [SmartDocuments](https://www.smartdocuments.eu/)                                     | Document creation service. Maybe used to create documents in your own look & feel. | Start a document creation 'wizard' with pre-filled zaak data where the resulting document is stored by SmartDocuments in Open Zaak. | <ul><li>SmartDocuments REST API (latest version)</li></ul>                                      |
 | [VNG Referentielijsten](https://vng-realisatie.github.io/gemma-zaken/ontwikkelaars/) | Centralized reference data service.                                                | Retrieve reference data such as 'communication channels'.                                                                           | <ul><li>Referentielijsten & Selectielijst API 0.6.0 (see below)</li></ul>                       |
+| [OfficeConverter](https://github.com/EugenMayer/officeconverter)                     | Document conversion service.                                                       | Convert office documents (like .docx) to PDF for preview purposes.                                                                  | <ul><li>OfficeConverter REST API 1.5.0</li></ul>                                                |
 
 
 Notes:
