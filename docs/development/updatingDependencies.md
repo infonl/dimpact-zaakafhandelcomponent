@@ -42,3 +42,14 @@ of certain OpenZaak requests.
 5. Check if ZAC still compiles and runs correctly and all automated tests succeed.
 6. Manually test the functionality that uses the updated API where automated test coverage is lacking.
 
+## Updating fonts and icons
+
+ZAC uses the [Material Design Icons](https://materialdesignicons.com/) and [Google Fonts](https://fonts.google.com/) libraries, but we host them locally to prevent external dependencies.
+
+The css of all icons and fonts is located in [src/main/app/src/styles.less](../../src/main/app/src/styles.less) file.
+All assets are located in the [src/main/app/src/assets](../../src/main/app/src/assets) folder.
+
+When updating the icons or fonts, make sure to update the css and assets accordingly. We only load in the fonts we actually need so we are not sending unnecessary data to the client.
+
+If you need a new font-weight for example, you can find the css and assets for the roboto font here [https://fonts.googleapis.com/css?family=Roboto](https://fonts.googleapis.com/css?family=Roboto), then you can copy paste the css and download the assets and add them to the project.
+
