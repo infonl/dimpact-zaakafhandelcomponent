@@ -4,10 +4,20 @@
  */
 import { Given, Then, When } from "@cucumber/cucumber";
 import { CustomWorld } from "../support/worlds/world";
-import { worldPossibleZacUrls } from "../utils/schemes";
+import { worldPossibleZacUrls, worldUsers } from "../utils/schemes";
+import { login } from "./authentication";
 
 When("Employee {string} opens zac", { timeout: 60 * 1000 }, async function (this: CustomWorld, user) {
     const expectedUrl = this.worldParameters.urls[worldPossibleZacUrls.Values.zac];
+    const isLoginScreen = await this.page.getByLabel('Sign in to your account')
+
+    if(await isLoginScreen.isVisible()) {
+        const parsedUser = worldUsers.parse(user)
+        const {username, password} = this.worldParameters.users[parsedUser]
+
+        await login(this, username, password)
+        await this.page.waitForTimeout(500)
+    }
  
     await this.openUrl(expectedUrl);
 })
