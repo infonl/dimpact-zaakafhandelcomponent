@@ -45,69 +45,72 @@ Finally, there is a special `domein_elk_zaaktype` system role which will grant t
 The following OPA access control policies are enforced in ZAC for the roles listed above for the
 various resources on which a user can perform actions:
 
-| Rechten                                            |                                 Behandelaar                                 | Coördinator | Recordmanager | beheerder |
-|:---------------------------------------------------|:---------------------------------------------------------------------------:|:-----------:|:-------------:|:---------:|
-|                                                    |                                                                             |             |               |           |
-| **_Zaak rechten (zie ook: Overige rechten)_**      |                                                                             |             |               |           |
-| lezen                                              |                                      X                                      |      X      |       X       |           |
-| wijzigen                                           |                            X (status: zaak open)                            |             |       X       |           |
-| toekennen                                          |                                      X                                      |      X      |       X       |           |
-| behandelen                                         |                                      X                                      |             |               |           |
-| afbreken                                           |                                      X                                      |             |       X       |           |
-| heropenen                                          |                                                                             |             |       X       |           |
-| wijzigenZaakdata                                   |                                                                             |             |       X       |           |
-| wijzigenDoorlooptijd                               |                                      X                                      |             |       X       |           |
-| TODO: de rechten hieronder zijn geen OPA rechten.. |                                                                             |             |               |           |
-| verlengen                                          |                                      X                                      |             |               |           |
-| opschorten                                         |                                      X                                      |             |               |           |
-| hervatten                                          |                                      X                                      |             |               |           |
-| voortzetten                                        |                                      X                                      |             |       X       |           |
-| creeeren_document                                  |                            X (status: zaak open)                            |             |       X       |           |
-| toevoegen_document                                 |                            X (status: zaak open)                            |             |       X       |           |
-| koppelen                                           |                            X (status: zaak open)                            |             |       X       |           |
-| versturen_email                                    |                            X (status: zaak open)                            |             |               |           |
-| versturen_ontvangstbevestiging                     |                            X (status: zaak open)                            |             |               |           |
-| toevoegen_initiator_persoon                        |                            X (status: zaak open)                            |             |               |           |
-| toevoegen_initiator_bedrijf                        |                            X (status: zaak open)                            |             |               |           |
-| verwijderen_initiator                              |                            X (status: zaak open)                            |             |               |           |
-| toevoegen_betrokkene_persoon                       |                            X (status: zaak open)                            |             |               |           |
-| toevoegen_betrokkene_bedrijf                       |                            X (status: zaak open)                            |             |               |           |
-| verwijderen_betrokkene                             |                            X (status: zaak open)                            |             |               |           |
-| toevoegen_bag_object                               |                            X (status: zaak open)                            |             |               |           |
-| aanmaken_taak                                      |                                      X                                      |             |               |           |
-| vastleggen_besluit                                 |                            X (status: zaak open)                            |             |               |           |
-| verlengen_doorlooptijd                             |                                      X                                      |             |       X       |           |
-|                                                    |                                                                             |             |               |           |
-| **_Taak rechten_**                                 |                                                                             |             |               |           |
-| lezen                                              |                                      X                                      |             |       X       |           |
-| wijzigen                                           |                                      X                                      |             |       X       |           |
-| wijzigen_toekenning                                |                                      X                                      |             |               |           |
-| wijzigen_formulier                                 |                                      X                                      |             |       X       |           |
-| creeeren_document                                  |                                      X                                      |             |       X       |           |
-| toevoegen_document                                 |                                      X                                      |             |       X       |           |
-|                                                    |                                                                             |             |               |           |
-| **_Document rechten_**                             |                                                                             |             |               |           |
-| lezen                                              |                                      X                                      |      X      |       X       |           |
-| wijzigen                                           | X (status: zaak open, document onvergrendeld of vergrendeld door gebruiker) |             |       X       |           |
-| toevoegen_nieuwe_versie                            | X (status: zaak open, document onvergrendeld of vergrendeld door gebruiker) |             |       X       |           |
-| koppelen                                           |                X (status: zaak open, document onvergrendeld)                |             |       X       |           |
-| verwijderen                                        |                                      X                                      |             |       X       |           |
-| downloaden                                         |                                      X                                      |      X      |       X       |           |
-| vergrendelen                                       |                            X (status: zaak open)                            |             |       X       |           |
-| ontgrendelen                                       |                   X (document vergrendeld door gebruiker)                   |             |       X       |           |
-| ondertekenen                                       | X (status: zaak open, document onvergrendeld of vergrendeld door gebruiker) |             |               |           |
-|                                                    |                                                                             |             |               |           |
-| **_Werklijst rechten_**                            |                                                                             |             |               |           |
-| documenten_inbox                                   |                                                                             |             |       X       |           |
-| documenten_ontkoppeld                              |                                      X                                      |             |       X       |           |
-| documenten_ontkoppeld_verwijderen                  |                                                                             |             |       X       |           |
-| zaken_taken                                        |                                      X                                      |      X      |       X       |           |
-| zaken_taken_verdelen                               |                                                                             |      X      |               |           |
-|                                                    |                                                                             |             |               |           |
-| **_Overige rechten_**                              |                                                                             |             |               |           |
-| starten_zaak                                       |                                      X                                      |             |               |           |
-| beheren                                            |                                                                             |             |               |     X     |
-| zoeken                                             |                                      X                                      |      X      |       X       |           |
+| Rechten                                                                          |                                 Behandelaar                                 | Coördinator | Recordmanager | beheerder |
+|:---------------------------------------------------------------------------------|:---------------------------------------------------------------------------:|:-----------:|:-------------:|:---------:|
+|                                                                                  |                                                                             |             |               |           |
+| **_Zaak rechten (zie ook: Overige rechten)_**                                    |                                                                             |             |               |           |
+| lezen                                                                            |                                      X                                      |      X      |       X       |           |
+| wijzigen                                                                         |                            X (status: zaak open)                            |             |       X       |           |
+| toekennen                                                                        |                                      X                                      |      X      |       X       |           |
+| behandelen                                                                       |                                      X                                      |             |               |           |
+| afbreken                                                                         |                                      X                                      |             |       X       |           |
+| heropenen                                                                        |                                                                             |             |       X       |           |
+| wijzigenZaakdata                                                                 |                                                                             |             |       X       |           |
+| wijzigenDoorlooptijd                                                             |                                      X                                      |             |       X       |           |
+| _TODO: de rechten hieronder zijn geen OPA rechten en moeten nog bekeken worden._ |                                                                             |             |               |           |
+| verlengen                                                                        |                                      X                                      |             |               |           |
+| opschorten                                                                       |                                      X                                      |             |               |           |
+| hervatten                                                                        |                                      X                                      |             |               |           |
+| voortzetten                                                                      |                                      X                                      |             |       X       |           |
+| creeeren_document                                                                |                            X (status: zaak open)                            |             |       X       |           |
+| toevoegen_document                                                               |                            X (status: zaak open)                            |             |       X       |           |
+| koppelen                                                                         |                            X (status: zaak open)                            |             |       X       |           |
+| versturen_email                                                                  |                            X (status: zaak open)                            |             |               |           |
+| versturen_ontvangstbevestiging                                                   |                            X (status: zaak open)                            |             |               |           |
+| toevoegen_initiator_persoon                                                      |                            X (status: zaak open)                            |             |               |           |
+| toevoegen_initiator_bedrijf                                                      |                            X (status: zaak open)                            |             |               |           |
+| verwijderen_initiator                                                            |                            X (status: zaak open)                            |             |               |           |
+| toevoegen_betrokkene_persoon                                                     |                            X (status: zaak open)                            |             |               |           |
+| toevoegen_betrokkene_bedrijf                                                     |                            X (status: zaak open)                            |             |               |           |
+| verwijderen_betrokkene                                                           |                            X (status: zaak open)                            |             |               |           |
+| toevoegen_bag_object                                                             |                            X (status: zaak open)                            |             |               |           |
+| aanmaken_taak                                                                    |                                      X                                      |             |               |           |
+| vastleggen_besluit                                                               |                            X (status: zaak open)                            |             |               |           |
+| verlengen_doorlooptijd                                                           |                                      X                                      |             |       X       |           |
+|                                                                                  |                                                                             |             |               |           |
+| **_Taak rechten_**                                                               |                                                                             |             |               |           |
+| lezen                                                                            |                                      X                                      |             |       X       |           |
+| wijzigen                                                                         |                                      X                                      |             |       X       |           |
+| toekennen                                                                        |                                      X                                      |             |               |           |
+| _TODO: de rechten hieronder zijn geen OPA rechten en moeten nog bekeken worden._ |                                                                             |             |               |           |
+| wijzigen_toekenning                                                              |                                      X                                      |             |               |           |
+| wijzigen_formulier                                                               |                                      X                                      |             |       X       |           |
+| creeeren_document                                                                |                                      X                                      |             |       X       |           |
+| toevoegen_document                                                               |                                      X                                      |             |       X       |           |
+|                                                                                  |                                                                             |             |               |           |
+| **_Document rechten_**                                                           |                                                                             |             |               |           |
+| lezen                                                                            |                                      X                                      |      X      |       X       |           |
+| wijzigen                                                                         | X (status: zaak open, document onvergrendeld of vergrendeld door gebruiker) |             |       X       |           |
+| verwijderen                                                                      |                                      X                                      |             |       X       |           |
+| vergrendelen                                                                     |                            X (status: zaak open)                            |             |       X       |           |
+| ontgrendelen                                                                     |                   X (document vergrendeld door gebruiker)                   |             |       X       |           |
+| ondertekenen                                                                     | X (status: zaak open, document onvergrendeld of vergrendeld door gebruiker) |             |               |           |
+| _TODO: de rechten hieronder zijn geen OPA rechten en moeten nog bekeken worden._ |                                                                             |             |               |           |
+| toevoegen_nieuwe_versie                                                          | X (status: zaak open, document onvergrendeld of vergrendeld door gebruiker) |             |       X       |           |
+| koppelen                                                                         |                X (status: zaak open, document onvergrendeld)                |             |       X       |           |
+| downloaden                                                                       |                                      X                                      |      X      |       X       |           |
+|                                                                                  |                                                                             |             |               |           |
+| **_Werklijst rechten_**                                                          |                                                                             |             |               |           |
+| documenten_inbox                                                                 |                                                                             |             |       X       |           |
+| documenten_ontkoppeld                                                            |                                      X                                      |             |       X       |           |
+| documenten_ontkoppeld_verwijderen                                                |                                                                             |             |       X       |           |
+| zaken_taken                                                                      |                                      X                                      |      X      |       X       |           |
+| zaken_taken_verdelen                                                             |                                                                             |      X      |               |           |
+|                                                                                  |                                                                             |             |               |           |
+| **_Overige rechten_**                                                            |                                                                             |             |               |           |
+| starten_zaak                                                                     |                                      X                                      |             |               |           |
+| beheren                                                                          |                                                                             |             |               |     X     |
+| zoeken                                                                           |                                      X                                      |      X      |       X       |           |
 
 Notes:
 - `X (status: zaak open)` means that the zaak status must be 'Open' for the user role to have this right.
