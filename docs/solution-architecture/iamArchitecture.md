@@ -41,3 +41,5 @@ The following components are part of the ZAC IAM architecture:
 | [OpenLDAP](https://www.openldap.org/)       | Open Source LDAP server.                                          | ZAC retrieves available user groups from OpenLDAP. Keycloak uses OpenLDAP for user federation. OpenLDAP is leading for all users and groups as well as for federated user authentication (user passwords are only stored in OpenLDAP, not in Keycloak).                 |
 
 As can be seen above ZAC currently requires OpenLDAP as user store solution. Integration with Active Directory is foreseen in future but not yet implemented.
+
+For details about the OPA access control policies and roles used by ZAC please see: [access control policies](accessControlPolicies.md).

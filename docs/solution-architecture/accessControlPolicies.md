@@ -9,22 +9,43 @@ Since every user in ZAC has a role, these policies are used to enforce the acces
 
 ## ZAC roles
 
-ZAC supports the following user roles:
+### Functional roles
 
-| Role          | Description |
-|:-------------:|:-----------:|
-| Behandelaar   | A user who is responsible for handling zaken and taken. |
-| Coordinator   | A user who is responsible for coordinating zaken and taken. |
-| Recordmanager | A user who is responsible for managing records. |
-| Beheerder     | A user who is responsible for managing the ZAC application. |
+As also documented in the [ZAC gebruikershandleiding](../manuals) ZAC supports the following functional user roles (in Dutch):
 
+| Role                  | Description                                                                                                                                |
+|:----------------------|:-------------------------------------------------------------------------------------------------------------------------------------------|
+| Behandelaar           | Een zaakbehandelaar. Heeft alle rechten om met de werklijsten, zaken, taken en documenten te werken.                                       |
+| Coördinator           | Een zaakcoördinator of ook wel werkverdeler genoemd. Heeft rechten om vanuit werklijsten werk te verdelen en zaken en taken te raadplegen. |
+| Recordmanager         | Mag zaken en taken raadplegen en heeft aanvullende rechten op het gebied van documenten en beëindigde zaken.                               |
+| Functioneel beheerder | Heeft toegang tot de beheerschermen van ZAC en kan daar diverse instellingen aanmaken en wijzingen.                                        |
+
+Every ZAC user can have multiple of these roles.
+
+### System roles
+
+Besides the above functional roles, ZAC requires every user that logs in to ZAC to also have the mandatory
+`zaakafhandelcomponent_user` system role.
+Normally every ZAC user will automatically obtain this system role from the [ZAC IAM](iamArchitecture.md) configuration in
+Keycloak.
+
+### Domain roles
+
+ZAC also supports the concept of 'domain' (domein) roles.
+These roles normally correspond to user groups in the [ZAC IAM architecture](iamArchitecture.md) and typically to departments
+in a muncipality. E.g. 'sociaal domein'.
+These roles are used to grant access to a certain zaaktype (or set of zaaktypes) in ZAC.
+This is done by configuring the 'zaakafhandelparameters' for a zaaktype in ZAC for a certain domain
+and by giving a certain group of users the corresponding domain role in Keycloak.
+
+Finally, there is a special `domein_elk_zaaktype` system role which will grant the user access to all zaaktypes in ZAC.
 
 ## ZAC policies per resource and role
 
 The following OPA access control policies are enforced in ZAC for the roles listed above for the
 various resources on which a user can perform actions:
 
-| Rechten                           |                      behandelaar                       | coordinator | recordmanager | beheerder |
+| Rechten                           |                      Behandelaar                       | Coördinator | Recordmanager | beheerder |
 |:----------------------------------|:------------------------------------------------------:|:-----------:|:-------------:|:---------:|
 |                                   |                                                        |             |               |           |
 | **_Zaak rechten_**                |                                                        |             |               |           |
