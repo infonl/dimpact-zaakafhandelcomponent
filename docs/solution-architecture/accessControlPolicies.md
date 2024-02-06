@@ -101,11 +101,13 @@ various resources on which a user can perform actions:
 | downloaden                                                                       |                                      X                                      |      X      |       X       |           |
 |                                                                                  |                                                                             |             |               |           |
 | **_Werklijst rechten_**                                                          |                                                                             |             |               |           |
-| documenten_inbox                                                                 |                                                                             |             |       X       |           |
-| documenten_ontkoppeld                                                            |                                      X                                      |             |       X       |           |
-| documenten_ontkoppeld_verwijderen                                                |                                                                             |             |       X       |           |
+| inbox                                                                            |                                      X                                      |             |       X       |           |
+| ontkoppelde_documenten_verwijderen                                               |                                                                             |             |       X       |           |
+| inbox_productaanvragen_verwijderen                                               |                                                                             |             |       X       |           |
 | zaken_taken                                                                      |                                      X                                      |      X      |       X       |           |
 | zaken_taken_verdelen                                                             |                                                                             |      X      |               |           |
+| _TODO: de rechten hieronder zijn geen OPA rechten en moeten nog bekeken worden._ |                                                                             |             |               |           |
+| documenten_ontkoppeld                                                            |                                      X                                      |             |       X       |           |
 |                                                                                  |                                                                             |             |               |           |
 | **_Overige rechten_**                                                            |                                                                             |             |               |           |
 | starten_zaak                                                                     |                                      X                                      |             |               |           |
