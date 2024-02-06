@@ -26,6 +26,7 @@ various resources on which a user can perform actions:
 
 | Rechten                           |                      behandelaar                       | coordinator | recordmanager | beheerder |
 |:----------------------------------|:------------------------------------------------------:|:-----------:|:-------------:|:---------:|
+|                                   |                                                        |             |               |           |
 | **_Zaak rechten_**                |                                                        |             |               |           |
 | lezen                             |                           X                            |      X      |       X       |           |
 | wijzigen                          |                          Open                          |             |       X       |           |
@@ -59,6 +60,7 @@ various resources on which a user can perform actions:
 | wijzigen_formulier                |                           X                            |             |       X       |           |
 | creeeren_document                 |                           X                            |             |       X       |           |
 | toevoegen_document                |                           X                            |             |       X       |           |
+|                                   |                                                        |             |               |           |
 | **_Document rechten_**            |                                                        |             |               |           |
 | lezen                             |                           X                            |      X      |       X       |           |
 | wijzigen                          | zaak open, onvergrendeld of vergrendeld door gebruiker |             |       X       |           |
@@ -69,12 +71,14 @@ various resources on which a user can perform actions:
 | vergrendelen                      |                       zaak open                        |             |       X       |           |
 | ontgrendelen                      |               vergrendeld door gebruiker               |             |       X       |           |
 | ondertekenen                      | zaak open, onvergrendeld of vergrendeld door gebruiker |             |               |           |
+|                                   |                                                        |             |               |           |
 | **_Werklijst rechten_**           |                                                        |             |               |           |
 | documenten_inbox                  |                                                        |             |       X       |           |
 | documenten_ontkoppeld             |                           X                            |             |       X       |           |
 | documenten_ontkoppeld_verwijderen |                                                        |             |       X       |           |
 | zaken_taken                       |                           X                            |      X      |       X       |           |
 | zaken_taken_verdelen              |                                                        |      X      |               |           |
+|                                   |                                                        |             |               |           |
 | **_Overige rechten_**             |                                                        |             |               |           |
 | starten_zaak                      |                           X                            |             |               |           |
 | beheren                           |                                                        |             |               |     X     |
