@@ -459,11 +459,14 @@ public class ZakenRESTService {
 
     @PATCH
     @Path("zaak/{uuid}/verlenging")
-    public RESTZaak verlengenZaak(@PathParam("uuid") final UUID zaakUUID,
-        final RESTZaakVerlengGegevens restZaakVerlengGegevens) {
+    public RESTZaak verlengenZaak(
+            @PathParam("uuid") final UUID zaakUUID,
+            final RESTZaakVerlengGegevens restZaakVerlengGegevens
+    ) {
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
         final Status status = zaak.getStatus() != null ? zrcClientService.readStatus(
-            zaak.getStatus()) : null;
+            zaak.getStatus()
+        ) : null;
         final StatusType statustype = status != null ? ztcClientService.readStatustype(
             status.getStatustype()) : null;
         assertPolicy(zaak.isOpen() && !isHeropend(statustype) && !zaak.isOpgeschort() &&
