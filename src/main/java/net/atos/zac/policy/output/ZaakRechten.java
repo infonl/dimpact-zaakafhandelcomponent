@@ -51,9 +51,7 @@ public class ZaakRechten implements DummyInterface {
         return lezen;
     }
 
-    public boolean getWijzigen() {
-        return wijzigen;
-    }
+    public boolean getWijzigen() { return wijzigen; }
 
     public boolean getToekennen() {
         return toekennen;
