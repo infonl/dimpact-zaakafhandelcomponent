@@ -5,6 +5,15 @@
 
 package net.atos.zac.policy.output
 
+fun createDocumentRechten() = DocumentRechten(
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+)
+
 fun createTaakRechten() = TaakRechten(
     true,
     true,
