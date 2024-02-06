@@ -11,7 +11,7 @@ The architecture is documented in more detail on the following pages:
 - [Open Formulieren Integration](openFormulierenIntegration.md) - The integration of ZAC with Open Formulieren.
 - [SmartDocuments Integration](smartDocumentsIntegration.md) - The integration of ZAC with SmartDocuments.
 - [Solr Architecture](solrArchitecture.md) - The architecture of the Solr search engine in ZAC.
-- [OPA policies](policies.md) - The [Open Policy Agent (OPA)](https://www.openpolicyagent.org/) security policies used by ZAC.
+- [Access Control Policies](accessControlPolicies) - The [Open Policy Agent (OPA)](https://www.openpolicyagent.org/) access control policies used by ZAC.
 
 ## Main characteristics
 
