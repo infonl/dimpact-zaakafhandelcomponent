@@ -58,7 +58,7 @@ various resources on which a user can perform actions:
 | wijzigenZaakdata                                                                 |                                                                             |             |       X       |           |
 | wijzigenDoorlooptijd                                                             |                                      X                                      |             |       X       |           |
 | _TODO: de rechten hieronder zijn geen OPA rechten en moeten nog bekeken worden._ |                                                                             |             |               |           |
-| verlengen                                                                        |                                      X                                      |             |               |           |
+| verlengen                                                                        |           X  (status: zaak open, niet heropend, niet opgeschort)            |             |               |           |
 | opschorten                                                                       |                                      X                                      |             |               |           |
 | hervatten                                                                        |                                      X                                      |             |               |           |
 | voortzetten                                                                      |                                      X                                      |             |       X       |           |
