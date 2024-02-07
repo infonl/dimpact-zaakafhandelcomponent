@@ -275,7 +275,7 @@ public class DocumentZoekObject implements ZoekObject {
     }
 
     public EnkelvoudigInformatieObject.StatusEnum getStatus() {
-        return status != null ? EnkelvoudigInformatieObject.StatusEnum.valueOf(status) : null;
+        return status != null ? EnkelvoudigInformatieObject.StatusEnum.valueOf(status.toUpperCase()) : null;
     }
 
     public void setStatus(final EnkelvoudigInformatieObject.StatusEnum status) {
