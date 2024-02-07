@@ -276,15 +276,6 @@ public class InformatieObjectenRESTService {
         );
     }
 
-    private boolean isVerzendenToegestaan(final EnkelvoudigInformatieObject informatieobject) {
-        return informatieobject.getStatus() == EnkelvoudigInformatieObject.StatusEnum.DEFINITIEF &&
-                informatieobject.getVertrouwelijkheidaanduiding() != EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum.CONFIDENTIEEL &&
-                informatieobject.getVertrouwelijkheidaanduiding() != EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum.GEHEIM &&
-                informatieobject.getVertrouwelijkheidaanduiding() != EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum.ZEER_GEHEIM &&
-                informatieobject.getOntvangstdatum() == null &&
-                MEDIA_TYPE_PDF.equals(informatieobject.getFormaat());
-    }
-
     @POST
     @Path("informatieobject/{zaakUuid}/{documentReferentieId}")
     public RESTEnkelvoudigInformatieobject createEnkelvoudigInformatieobject(
@@ -294,10 +285,11 @@ public class InformatieObjectenRESTService {
             final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject) {
         final Zaak zaak = zrcClientService.readZaak(zaakUuid);
 
-
+        // not ok; needs to be fixed; see: https://dimpact.atlassian.net/browse/PZ-1356
         if(!zaak.isOpen()) {
             throw new WebApplicationException((
-                String.format("No open zaak found for task with id: '%s'", documentReferentieId)), Response.Status.CONFLICT
+                String.format("No open zaak found for document with id: '%s'",
+                              documentReferentieId)), Response.Status.CONFLICT
             );
         }
 
@@ -667,6 +659,15 @@ public class InformatieObjectenRESTService {
             );
         }
         return Response.ok().build();
+    }
+
+    private boolean isVerzendenToegestaan(final EnkelvoudigInformatieObject informatieobject) {
+        return informatieobject.getStatus() == EnkelvoudigInformatieObject.StatusEnum.DEFINITIEF &&
+                informatieobject.getVertrouwelijkheidaanduiding() != EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum.CONFIDENTIEEL &&
+                informatieobject.getVertrouwelijkheidaanduiding() != EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum.GEHEIM &&
+                informatieobject.getVertrouwelijkheidaanduiding() != EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum.ZEER_GEHEIM &&
+                informatieobject.getOntvangstdatum() == null &&
+                MEDIA_TYPE_PDF.equals(informatieobject.getFormaat());
     }
 
     private List<RESTEnkelvoudigInformatieobject> listEnkelvoudigInformatieobjectenVoorZaak(final Zaak zaak) {
