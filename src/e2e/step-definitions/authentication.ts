@@ -21,8 +21,6 @@ When("Employee {string} logs in to zac", async function (this: CustomWorld, user
     const {username, password} = this.worldParameters.users[parsedUser]
 
     await login(this, username, password);
-
-    await this.page.context().storageState({ path: authFile });
 });
 
 When("Employee {string} logs out of zac", async function (this: CustomWorld, user) {
@@ -38,6 +36,4 @@ When("{string} logs in", async function (this: CustomWorld, user) {
     const {username, password} = this.worldParameters.users[parsedUser]
 
     await login(this, username, password);
-
-    await this.page.context().storageState({ path: authFile });
 });

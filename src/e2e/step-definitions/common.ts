@@ -10,15 +10,6 @@ import { login } from "./authentication";
 When("Employee {string} opens zac", { timeout: 60 * 1000 }, async function (this: CustomWorld, user) {
     const expectedUrl = this.worldParameters.urls[worldPossibleZacUrls.Values.zac];
     await this.openUrl(expectedUrl);
-    
-    await this.page.waitForTimeout(5000)
-
-    if(this.page.url() !== expectedUrl) {
-        const parsedUser = worldUsers.parse(user)
-        const {username, password} = this.worldParameters.users[parsedUser]
-
-        await login(this, username, password)
-    }
 })
 
 When("Employee {string} navigates to {string}", { timeout: 60 * 1000 }, async function (this: CustomWorld, user, path) {
