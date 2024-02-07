@@ -4,7 +4,7 @@
 
 Depandabot creates pull-requests for all angular dependencies that are behind, but angular dependencies have to be updated in a specific order and angular provides migration tools with `ng update`.
 
-So for angular dependencies we have to update them manually and commit them to the repository, then dependabot will remove it's pull-requests.
+So for angular dependencies we have to update them manually and commit them to the repository, then dependabot will remove its pull-requests.
 
 ### Update angular dependencies manually
 
