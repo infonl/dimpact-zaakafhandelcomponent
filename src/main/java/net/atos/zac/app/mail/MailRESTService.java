@@ -62,7 +62,7 @@ public class MailRESTService {
     public void sendMail(@PathParam("zaakUuid") final UUID zaakUUID,
             final RESTMailGegevens restMailGegevens) throws MailjetException {
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        assertPolicy(policyService.readZaakRechten(zaak).getBehandelen());
+        assertPolicy(policyService.readZaakRechten(zaak).behandelen());
         validateEmail(restMailGegevens.verzender);
         validateEmail(restMailGegevens.ontvanger);
         mailService.sendMail(
@@ -75,7 +75,7 @@ public class MailRESTService {
             final RESTMailGegevens restMailGegevens) throws MailjetException {
         final Zaak zaak = zrcClientService.readZaak(zaakUuid);
         assertPolicy(!zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.getUuid()).orElse(false) &&
-                             policyService.readZaakRechten(zaak).getBehandelen());
+                             policyService.readZaakRechten(zaak).behandelen());
         validateEmail(restMailGegevens.verzender);
         validateEmail(restMailGegevens.ontvanger);
         mailService.sendMail(

@@ -362,7 +362,7 @@ public class ZakenRESTService {
 
         // make sure to use the omschrijving of the zaaktype that was retrieved to perform
         // authorisation on zaaktype
-        assertPolicy(policyService.readOverigeRechten().getStartenZaak() &&
+        assertPolicy(policyService.readOverigeRechten().startenZaak() &&
                              loggedInUserInstance.get()
                                      .isGeautoriseerdZaaktype(zaaktype.getOmschrijving()));
 
@@ -408,7 +408,7 @@ public class ZakenRESTService {
             @PathParam("uuid") final UUID zaakUUID,
             final RESTZaakEditMetRedenGegevens restZaakEditMetRedenGegevens
     ) {
-        assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).getWijzigen());
+        assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).wijzigen());
         final Zaak updatedZaak = zrcClientService.patchZaak(
                 zaakUUID, zaakConverter.convertToPatch(restZaakEditMetRedenGegevens.zaak),
                 restZaakEditMetRedenGegevens.reden
@@ -420,7 +420,7 @@ public class ZakenRESTService {
     @Path("{uuid}/zaaklocatie")
     public RESTZaak updateZaakLocatie(@PathParam("uuid") final UUID zaakUUID,
         final RESTZaakLocatieGegevens locatieGegevens) {
-        assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).getWijzigen());
+        assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).wijzigen());
         final LocatieZaakPatch locatieZaakPatch = new LocatieZaakPatch(
             restGeometryConverter.convert(locatieGegevens.geometrie));
         final Zaak updatedZaak = zrcClientService.patchZaak(zaakUUID, locatieZaakPatch,
@@ -446,7 +446,7 @@ public class ZakenRESTService {
     @GET
     @Path("zaak/{uuid}/opschorting")
     public RESTZaakOpschorting readOpschortingZaak(@PathParam("uuid") final UUID zaakUUID) {
-        assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).getLezen());
+        assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).lezen());
         final RESTZaakOpschorting zaakOpschorting = new RESTZaakOpschorting();
         zaakVariabelenService.findDatumtijdOpgeschort(zaakUUID)
             .ifPresent(
@@ -470,7 +470,7 @@ public class ZakenRESTService {
         final StatusType statustype = status != null ? ztcClientService.readStatustype(
             status.getStatustype()) : null;
         assertPolicy(zaak.isOpen() && !isHeropend(statustype) && !zaak.isOpgeschort() &&
-                         policyService.readZaakRechten(zaak).getBehandelen());
+                         policyService.readZaakRechten(zaak).behandelen());
         final String toelichting = String.format("%s: %s", VERLENGING,
                                                  restZaakVerlengGegevens.redenVerlenging);
         final Zaak updatedZaak = zrcClientService.patchZaak(zaakUUID,
@@ -494,7 +494,7 @@ public class ZakenRESTService {
         final EnkelvoudigInformatieObject informatieobject =
                 drcClientService.readEnkelvoudigInformatieobject(
             ontkoppelGegevens.documentUUID);
-        assertPolicy(policyService.readDocumentRechten(informatieobject, zaak).getWijzigen());
+        assertPolicy(policyService.readDocumentRechten(informatieobject, zaak).wijzigen());
         final ZaakInformatieobjectListParameters parameters = new ZaakInformatieobjectListParameters();
         parameters.setInformatieobject(informatieobject.getUrl());
         parameters.setZaak(zaak.getUrl());
@@ -566,7 +566,7 @@ public class ZakenRESTService {
     @Path("zaakdata")
     public RESTZaak updateZaakdata(final RESTZaak restZaak) {
         final Zaak zaak = zrcClientService.readZaak(restZaak.uuid);
-        assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).getWijzigen());
+        assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).wijzigen());
 
         zaakVariabelenService.setZaakdata(restZaak.uuid, restZaak.zaakdata);
         return restZaak;
@@ -576,7 +576,7 @@ public class ZakenRESTService {
     @Path("toekennen")
     public RESTZaak toekennen(@Valid final RESTZaakToekennenGegevens toekennenGegevens) {
         final Zaak zaak = zrcClientService.readZaak(toekennenGegevens.zaakUUID);
-        assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).getToekennen());
+        assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).toekennen());
 
         String behandelaar = zgwApiService.findBehandelaarForZaak(zaak)
             .map(rolMedewerker -> rolMedewerker.getBetrokkeneIdentificatie().getIdentificatie())
@@ -620,7 +620,7 @@ public class ZakenRESTService {
     @Path("lijst/toekennen/mij")
     public RESTZaakOverzicht toekennenAanIngelogdeMedewerkerVanuitLijst(
         final RESTZaakToekennenGegevens toekennenGegevens) {
-        assertPolicy(policyService.readWerklijstRechten().getZakenTaken());
+        assertPolicy(policyService.readWerklijstRechten().zakenTaken());
         final Zaak zaak = ingelogdeMedewerkerToekennenAanZaak(toekennenGegevens);
         indexeerService.indexeerDirect(zaak.getUuid().toString(), ZoekObjectType.ZAAK);
         return zaakOverzichtConverter.convert(zaak);
@@ -630,8 +630,8 @@ public class ZakenRESTService {
     @Path("lijst/verdelen")
     public void verdelenVanuitLijst(final RESTZakenVerdeelGegevens verdeelGegevens) {
         assertPolicy(policyService.readWerklijstRechten()
-                         .getZakenTaken() && policyService.readWerklijstRechten()
-            .getZakenTakenVerdelen());
+                         .zakenTaken() && policyService.readWerklijstRechten()
+            .zakenTakenVerdelen());
         final Group group = !StringUtils.isEmpty(
             verdeelGegevens.groepId) ? identityService.readGroup(
             verdeelGegevens.groepId) : null;
@@ -657,8 +657,8 @@ public class ZakenRESTService {
     @Path("lijst/vrijgeven")
     public void vrijgevenVanuitLijst(final RESTZakenVerdeelGegevens verdeelGegevens) {
         assertPolicy(policyService.readWerklijstRechten()
-                         .getZakenTaken() && policyService.readWerklijstRechten()
-            .getZakenTakenVerdelen());
+                         .zakenTaken() && policyService.readWerklijstRechten()
+            .zakenTakenVerdelen());
         verdeelGegevens.uuids.forEach(uuid -> {
             final Zaak zaak = zrcClientService.readZaak(uuid);
             zrcClientService.deleteRol(zaak, BetrokkeneType.MEDEWERKER, verdeelGegevens.reden);
@@ -675,7 +675,7 @@ public class ZakenRESTService {
         final StatusType statustype = zaak.getStatus() != null ? ztcClientService.readStatustype(
             zrcClientService.readStatus(zaak.getStatus()).getStatustype()) : null;
         assertPolicy(zaak.isOpen() && !isHeropend(statustype) && policyService.readZaakRechten(zaak)
-            .getAfbreken());
+            .afbreken());
         policyService.checkZaakAfsluitbaar(zaak);
         final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
             UriUtil.uuidFromURI(zaak.getZaaktype()));
@@ -694,7 +694,7 @@ public class ZakenRESTService {
     public void heropenen(@PathParam("uuid") final UUID zaakUUID,
         final RESTZaakHeropenenGegevens heropenenGegevens) {
         Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        assertPolicy(!zaak.isOpen() && policyService.readZaakRechten(zaak).getHeropenen());
+        assertPolicy(!zaak.isOpen() && policyService.readZaakRechten(zaak).heropenen());
         zgwApiService.createStatusForZaak(zaak, STATUSTYPE_OMSCHRIJVING_HEROPEND,
                                           heropenenGegevens.reden);
     }
@@ -704,7 +704,7 @@ public class ZakenRESTService {
     public void afsluiten(@PathParam("uuid") final UUID zaakUUID,
         final RESTZaakAfsluitenGegevens afsluitenGegevens) {
         Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).getBehandelen());
+        assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).behandelen());
         policyService.checkZaakAfsluitbaar(zaak);
         zgwApiService.updateResultaatForZaak(zaak, afsluitenGegevens.resultaattypeUuid,
                                              afsluitenGegevens.reden);
@@ -716,8 +716,8 @@ public class ZakenRESTService {
     public void koppelZaak(final RESTZaakKoppelGegevens gegevens) {
         final Zaak zaak = zrcClientService.readZaak(gegevens.zaakUuid);
         final Zaak teKoppelenZaak = zrcClientService.readZaak(gegevens.teKoppelenZaakUuid);
-        assertPolicy(policyService.readZaakRechten(zaak).getWijzigen() &&
-                         policyService.readZaakRechten(teKoppelenZaak).getWijzigen());
+        assertPolicy(policyService.readZaakRechten(zaak).wijzigen() &&
+                         policyService.readZaakRechten(teKoppelenZaak).wijzigen());
 
         switch (gegevens.relatieType) {
             case HOOFDZAAK -> koppelHoofdEnDeelzaak(teKoppelenZaak, zaak);
@@ -741,8 +741,8 @@ public class ZakenRESTService {
         final Zaak zaak = zrcClientService.readZaak(gegevens.zaakUuid);
         final Zaak gekoppeldeZaak = zrcClientService.readZaakByID(
             gegevens.gekoppeldeZaakIdentificatie);
-        assertPolicy(policyService.readZaakRechten(zaak).getWijzigen() &&
-                         policyService.readZaakRechten(gekoppeldeZaak).getWijzigen());
+        assertPolicy(policyService.readZaakRechten(zaak).wijzigen() &&
+                         policyService.readZaakRechten(gekoppeldeZaak).wijzigen());
 
         switch (gegevens.relatietype) {
             case HOOFDZAAK -> ontkoppelHoofdEnDeelzaak(gekoppeldeZaak, zaak, gegevens.reden);
@@ -767,7 +767,7 @@ public class ZakenRESTService {
     @GET
     @Path("zaak/{uuid}/historie")
     public List<RESTHistorieRegel> listHistorie(@PathParam("uuid") final UUID zaakUUID) {
-        assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).getLezen());
+        assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).lezen());
         final List<AuditTrailRegel> auditTrail = zrcClientService.listAuditTrail(zaakUUID);
         return auditTrailConverter.convert(auditTrail);
     }
@@ -777,7 +777,7 @@ public class ZakenRESTService {
     public List<RESTZaakBetrokkene> listBetrokkenenVoorZaak(
         @PathParam("uuid") final UUID zaakUUID) {
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        assertPolicy(policyService.readZaakRechten(zaak).getLezen());
+        assertPolicy(policyService.readZaakRechten(zaak).lezen());
         return zaakBetrokkeneConverter.convert(
             zrcClientService.listRollen(zaak).stream()
                 .filter(
@@ -859,7 +859,7 @@ public class ZakenRESTService {
         final StatusType zaakStatustype = zaakStatus != null ? ztcClientService.readStatustype(
             zaakStatus.getStatustype()) : null;
         assertPolicy(zaak.isOpen() && isNotEmpty(zaaktype.getBesluittypen()) &&
-                         policyService.readZaakRechten(zaak, zaaktype).getBehandelen() &&
+                         policyService.readZaakRechten(zaak, zaaktype).behandelen() &&
                          !isIntake(zaakStatustype));
         final Besluit besluit = besluitConverter.convertToBesluit(zaak, besluitToevoegenGegevens);
         if (zaak.getResultaat() != null) {
@@ -890,7 +890,7 @@ public class ZakenRESTService {
         final RESTBesluitWijzigenGegevens restBesluitWijzigenGegevens) {
         Besluit besluit = brcClientService.readBesluit(restBesluitWijzigenGegevens.besluitUuid);
         final Zaak zaak = zrcClientService.readZaak(besluit.getZaak());
-        assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).getBehandelen());
+        assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).behandelen());
         besluit = besluitConverter.convertToBesluit(besluit, restBesluitWijzigenGegevens);
         besluit = brcClientService.updateBesluit(besluit, restBesluitWijzigenGegevens.reden);
         if (zaak.getResultaat() != null) {
@@ -949,7 +949,7 @@ public class ZakenRESTService {
         final RESTBesluitIntrekkenGegevens restBesluitIntrekkenGegevens) {
         Besluit besluit = brcClientService.readBesluit(restBesluitIntrekkenGegevens.besluitUuid);
         final Zaak zaak = zrcClientService.readZaak(besluit.getZaak());
-        assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).getBehandelen());
+        assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).behandelen());
         besluit = besluitConverter.convertToBesluit(besluit, restBesluitIntrekkenGegevens);
         final String intrekToelichting = getIntrekToelichting(besluit.getVervalreden());
         besluit = brcClientService.updateBesluit(
@@ -973,7 +973,7 @@ public class ZakenRESTService {
     @Path("besluittypes/{zaaktypeUUID}")
     public List<RESTBesluittype> listBesluittypes(
         @PathParam("zaaktypeUUID") final UUID zaaktypeUUID) {
-        assertPolicy(policyService.readWerklijstRechten().getZakenTaken());
+        assertPolicy(policyService.readWerklijstRechten().zakenTaken());
         final List<BesluitType> besluittypen = ztcClientService.readBesluittypen(
                 ztcClientService.readZaaktype(zaaktypeUUID).getUrl()).stream()
             .filter(LocalDateUtil::dateNowIsBetween)
@@ -985,7 +985,7 @@ public class ZakenRESTService {
     @Path("resultaattypes/{zaaktypeUUID}")
     public List<RESTResultaattype> listResultaattypes(
         @PathParam("zaaktypeUUID") final UUID zaaktypeUUID) {
-        assertPolicy(policyService.readWerklijstRechten().getZakenTaken());
+        assertPolicy(policyService.readWerklijstRechten().zakenTaken());
         return resultaattypeConverter.convertResultaattypes(
             ztcClientService.readResultaattypen(
                 ztcClientService.readZaaktype(zaaktypeUUID).getUrl()));
@@ -1010,7 +1010,7 @@ public class ZakenRESTService {
     private void addBetrokkene(final UUID roltype, IdentificatieType identificatieType,
         final String identificatie,
         final String toelichting, final Zaak zaak) {
-        assertPolicy(policyService.readZaakRechten(zaak).getBehandelen());
+        assertPolicy(policyService.readZaakRechten(zaak).behandelen());
         final RolType betrokkene = ztcClientService.readRoltype(roltype);
         switch (identificatieType) {
             case BSN -> addBetrokkenNatuurlijkPersoon(betrokkene, identificatie, zaak, toelichting);
@@ -1057,7 +1057,7 @@ public class ZakenRESTService {
 
     private void addInitiator(final IdentificatieType identificatieType, final String identificatie,
             final Zaak zaak) {
-        assertPolicy(policyService.readZaakRechten(zaak).getBehandelen());
+        assertPolicy(policyService.readZaakRechten(zaak).behandelen());
         final RolType initiator = ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.INITIATOR,
                                                                zaak.getZaaktype());
         switch (identificatieType) {
@@ -1134,7 +1134,7 @@ public class ZakenRESTService {
     private Zaak ingelogdeMedewerkerToekennenAanZaak(
             final RESTZaakToekennenGegevens toekennenGegevens) {
         final Zaak zaak = zrcClientService.readZaak(toekennenGegevens.zaakUUID);
-        assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).getToekennen());
+        assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).toekennen());
 
         final User user = identityService.readUser(loggedInUserInstance.get().getId());
         zrcClientService.updateRol(zaak, bepaalRolMedewerker(user, zaak), toekennenGegevens.reden);
@@ -1214,13 +1214,13 @@ public class ZakenRESTService {
     }
 
     private void removeBetrokkene(final Zaak zaak, final Rol<?> betrokkene, final String reden) {
-        assertPolicy(policyService.readZaakRechten(zaak).getBehandelen());
+        assertPolicy(policyService.readZaakRechten(zaak).behandelen());
         zrcClientService.deleteRol(betrokkene, reden);
     }
 
 
     private void removeInitiator(final Zaak zaak, final Rol<?> initiator, final String reden) {
-        assertPolicy(policyService.readZaakRechten(zaak).getBehandelen());
+        assertPolicy(policyService.readZaakRechten(zaak).behandelen());
         zrcClientService.deleteRol(initiator, reden);
     }
 
