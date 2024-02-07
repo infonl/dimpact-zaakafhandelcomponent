@@ -6,16 +6,10 @@ The following System Context diagram illustrates the architectural landscape of 
 C4Context
     title ZAC System Context diagram
 
-    Person(Employee, "Employee", "An employee of a municipality")
     Person(Citizen, "Citizen", "A citizen within a municipality")
+    Person(Employee, "Employee", "An employee of a municipality")
 
     Enterprise_Boundary(b0, "ZAC context") {
-        System_Boundary(ZAC, "ZAC components") {
-            System(ZAC, "Zaakafhandelcomponent")
-            System(OfficeConverter, "OfficeConverter")
-            System(OpenPolicyAgent, "OPA")
-        }
-
         System_Boundary(components, "Other components") {
             System(OpenFormulieren, "Open Formulieren")
             System(OpenNotificaties, "Open Notificaties")
@@ -23,6 +17,12 @@ C4Context
             System(Objecttypen, "Objecttypen")
             System(OpenZaak, "Open Zaak")
             System(OpenKlant, "Open Klant")
+        }
+
+        System_Boundary(ZAC, "ZAC components") {
+            System(ZAC, "Zaakafhandelcomponent")
+            System(OfficeConverter, "OfficeConverter")
+            System(OpenPolicyAgent, "OPA")
         }
     }
 
@@ -74,11 +74,11 @@ C4Context
 
 The following components are part of the 'ZAC subsystem':
 
-| Component                                                         | Description                                                                      | ZAC usage                                                          | API(s) used                                      |
-|-------------------------------------------------------------------|----------------------------------------------------------------------------------|--------------------------------------------------------------------|--------------------------------------------------|
-| [ZAC](https://github.com/maykinmedia/objects-api/)                | The Zaakafhandelcomponent. Consists of both the ZAC backend as well as frontend. | -                                                                  | -                                                |
-| [OfficeConverter](https://github.com/EugenMayer/officeconverter)  | Document conversion service.                                                     | Convert office documents (like .docx) to PDF for preview purposes. | <ul><li>OfficeConverter REST API 1.5.0</li></ul> |
-| [Open Policy Agent (OPA)](https://www.openpolicyagent.org//)      | Open Policy Agent server                                                         | See [ZAC IAM architecture](iamArchitecture.md).                    | <ul><li>OPA REST API </li></ul>                  |
+| Component              | Description                                                                      | ZAC usage                                                          | API(s) used                                      |
+|------------------------|----------------------------------------------------------------------------------|--------------------------------------------------------------------|--------------------------------------------------|
+| [ZAC](https://github.com/infonl/dimpact-zaakafhandelcomponent)                | The Zaakafhandelcomponent. Consists of both the ZAC backend as well as frontend. | -                                                                  | -                                                |
+| [OfficeConverter](https://github.com/EugenMayer/officeconverter) | Document conversion service.                                                     | Convert office documents (like .docx) to PDF for preview purposes. | <ul><li>OfficeConverter REST API 1.5.0</li></ul> |
+| [Open Policy Agent (OPA)](https://www.openpolicyagent.org//) | Open Policy Agent server                                                         | See [ZAC IAM architecture](iamArchitecture.md).                    | <ul><li>OPA REST API </li></ul>                  |
 
 The following components are part of the broader context of ZAC (='PodiumD Zaak' in the context of Dimpact).
 
