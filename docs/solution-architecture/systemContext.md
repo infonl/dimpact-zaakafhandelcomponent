@@ -6,19 +6,19 @@ The following System Context diagram illustrates the architectural landscape of 
 C4Context
     title ZAC System Context diagram
 
-    Person(Citizen, "Citizen", "A citizen within a municipality")
     Person(Employee, "Employee", "An employee of a municipality")
+    Person(Citizen, "Citizen", "A citizen within a municipality")
 
-    Enterprise_Boundary(b0, "ZAC and related Common Ground components") {
-        System(OpenFormulieren, "Open Formulieren")
-        System(ZAC, "ZAC", "Zaakafhandelcomponent")
-
-        System_Boundary(CentralizedServices, "Centralized Services") {
-            System(OpenNotificaties, "Open Notificaties")
+    Enterprise_Boundary(b0, "ZAC context") {
+        System_Boundary(ZAC, "ZAC components") {
+            System(ZAC, "Zaakafhandelcomponent")
             System(OfficeConverter, "OfficeConverter")
+            System(OpenPolicyAgent, "OPA")
         }
 
-        System_Boundary(registers, "Registers") {
+        System_Boundary(components, "Other components") {
+            System(OpenFormulieren, "Open Formulieren")
+            System(OpenNotificaties, "Open Notificaties")
             System(Objecten, "Objecten")
             System(Objecttypen, "Objecttypen")
             System(OpenZaak, "Open Zaak")
@@ -56,6 +56,7 @@ C4Context
     Rel(ZAC, SmartDocuments, "Uses", "SmartDocuments API")
     Rel(ZAC, Mailjet, "Uses", "Mailjet API")
     Rel(ZAC, OfficeConverter, "Uses", "OfficeConverter API")
+    Rel(ZAC, OpenPolicyAgent, "Uses", "OPA API")
     Rel(SmartDocuments, OpenZaak, "Uses", "ZGW Documenten en Zaken API")
 
     UpdateElementStyle(ZAC, $bgColor="red", $borderColor="red")
@@ -66,22 +67,29 @@ C4Context
     UpdateElementStyle(Mailjet, $bgColor="grey", $borderColor="grey")
     UpdateElementStyle(SmartDocuments, $bgColor="grey", $borderColor="grey")
 
-    UpdateLayoutConfig($c4ShapeInRow="5", $c4BoundaryInRow="2")
+    UpdateLayoutConfig($c4ShapeInRow="5", $c4BoundaryInRow="4")
 ```
 
 ## Components
 
-The following components are part of the ZAC system context (='PodiumD Zaak' in the context of Dimpact).
+The following components are part of the 'ZAC subsystem':
 
-| Component                                                             | Description                                                                                                                               | ZAC usage                                                                                                      | API(s) used                                                                                                            |
-|-----------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
-| [Objecten](https://github.com/maykinmedia/objects-api/)               | Manages objects. Implements the ZGW Objecten API.                                                                                         | For example 'productaanvragen' which are created from Open Formulieren and used by ZAC to create a new 'zaak'. | <ul><li>Objects API 2.1.1</li></ul>                                                                                    |
-| [Objecttypen](https://github.com/maykinmedia/objecttypes-api)         | Object types. Required for Objecten. Implements the ZGW Objecttypen API.                                                                  | ZAC uses a specific 'productaanvraag' type for Open Formulieren data used to create a new 'zaak'               | <ul><li>Objecttypen API 2.1.0</li></ul>                                                                                |
+| Component                                                         | Description                                                                      | ZAC usage                                                          | API(s) used                                      |
+|-------------------------------------------------------------------|----------------------------------------------------------------------------------|--------------------------------------------------------------------|--------------------------------------------------|
+| [ZAC](https://github.com/maykinmedia/objects-api/)                | The Zaakafhandelcomponent. Consists of both the ZAC backend as well as frontend. | -                                                                  | -                                                |
+| [OfficeConverter](https://github.com/EugenMayer/officeconverter)  | Document conversion service.                                                     | Convert office documents (like .docx) to PDF for preview purposes. | <ul><li>OfficeConverter REST API 1.5.0</li></ul> |
+| [Open Policy Agent (OPA)](https://www.openpolicyagent.org//)      | Open Policy Agent server                                                         | See [ZAC IAM architecture](iamArchitecture.md).                    | <ul><li>OPA REST API </li></ul>                  |
+
+The following components are part of the broader context of ZAC (='PodiumD Zaak' in the context of Dimpact).
+
+| Component                                                                  | Description                                                                                                                               | ZAC usage                                                                                                      | API(s) used                                                                                                            |
+|----------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
+| [Objecten](https://github.com/maykinmedia/objects-api/)                    | Manages objects. Implements the ZGW Objecten API.                                                                                         | For example 'productaanvragen' which are created from Open Formulieren and used by ZAC to create a new 'zaak'. | <ul><li>Objects API 2.1.1</li></ul>                                                                                    |
+| [Objecttypen](https://github.com/maykinmedia/objecttypes-api)              | Object types. Required for Objecten. Implements the ZGW Objecttypen API.                                                                  | ZAC uses a specific 'productaanvraag' type for Open Formulieren data used to create a new 'zaak'               | <ul><li>Objecttypen API 2.1.0</li></ul>                                                                                |
 | [Open Forms / Open Formulieren](https://github.com/maykinmedia/open-forms) | Manages and renders forms. In this context a citizen can submit a so-called 'zaakstartformulier' which is used to create a new 'zaak'.    | Citizens can start a new zaak by submitting a 'zaakstartformulier'.                                            | <ul><li>n/a (see below)</li></ul>                                                                                      |
-| [Open Klant](https://github.com/maykinmedia/open-klant)               | Manages 'customers' (= citizens in our context) and customer 'contact moments'. Implements both the ZWG Klanten and Contactmomenten APIs. | Retrieve customer and customer contact data (e.g. email address) of a citizen linked to a zaak.                | <ul><li>Klanten API 1.0.0</li><li>Contactmomenten API 1.0.0</li></ul>                                                  |
-| [Open Notificaties](https://github.com/open-zaak/open-notificaties)   | The central messaging / system notification component. Implements the ZWG Notificaties APIs.                                              | ZAC needs to get notified of changes in related to zaken from various other components.                        | <ul><li>n/a (see below)</li></ul>                                                                                      |
-| [Open Zaak](https://github.com/open-zaak/open-zaak)                   | Manages zaken, zaaktypes, and all related items. Also stores documents.                                                                   | Used by ZAC to store and retrieve zaken, documents and related data.                                           | <ul><li>Besluiten API 1.1.0</li><li>Documenten API 1.3.0</li><li>Zaken API 1.24.0</li><li>Catalogi API 1.2.1</li></ul> |
-| [OfficeConverter](https://github.com/EugenMayer/officeconverter)  | Document conversion service.                                                       | Convert office documents (like .docx) to PDF for preview purposes.                                                                  | <ul><li>OfficeConverter REST API 1.5.0</li></ul>                                                |
+| [Open Klant](https://github.com/maykinmedia/open-klant)                    | Manages 'customers' (= citizens in our context) and customer 'contact moments'. Implements both the ZWG Klanten and Contactmomenten APIs. | Retrieve customer and customer contact data (e.g. email address) of a citizen linked to a zaak.                | <ul><li>Klanten API 1.0.0</li><li>Contactmomenten API 1.0.0</li></ul>                                                  |
+| [Open Notificaties](https://github.com/open-zaak/open-notificaties)        | The central messaging / system notification component. Implements the ZWG Notificaties APIs.                                              | ZAC needs to get notified of changes in related to zaken from various other components.                        | <ul><li>n/a (see below)</li></ul>                                                                                      |
+| [Open Zaak](https://github.com/open-zaak/open-zaak)                        | Manages zaken, zaaktypes, and all related items. Also stores documents.                                                                   | Used by ZAC to store and retrieve zaken, documents and related data.                                           | <ul><li>Besluiten API 1.1.0</li><li>Documenten API 1.3.0</li><li>Zaken API 1.24.0</li><li>Catalogi API 1.2.1</li></ul> |
 
 The 'APIs used' column indicates which APIs offered by the various components is used by ZAC to integrate with each component including which version of the API is used.
 Most APIs are defined using [OpenAPI](https://www.openapis.org/) definitions as part of the [Zaakgerichtwerken (ZGW) API specifications](https://vng-realisatie.github.io/gemma-zaken/standaard/).
@@ -89,6 +97,7 @@ Most APIs are defined using [OpenAPI](https://www.openapis.org/) definitions as 
 Notes:
 - ZAC does not integrate with Open Formulieren. For details please see: [ZAC integration with Open Formulieren](openFormulierenIntegration.md).
 - ZAC does not integrate with Open Notificaties using an API. Rather Open Notificaties performs callback HTTP requests to ZAC when events have been received to which has subscribed.
+- Components belonging to the [IAM architecture](iamArchitecture.md) such as Keycloak and OpenLDAP are not listed here to keep things relatively simple.
 
 ## External services
 
