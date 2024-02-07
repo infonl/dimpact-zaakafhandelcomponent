@@ -43,7 +43,7 @@ public class FormulierDefinitieRESTService {
 
     @GET
     public List<RESTFormulierDefinitie> list() {
-        assertPolicy(policyService.readOverigeRechten().getBeheren());
+        assertPolicy(policyService.readOverigeRechten().beheren());
         return service.listFormulierDefinities().stream()
                 .map(formulierDefinitie -> converter.convert(formulierDefinitie, false, false))
                 .toList();
@@ -51,7 +51,7 @@ public class FormulierDefinitieRESTService {
 
     @POST
     public RESTFormulierDefinitie create(final RESTFormulierDefinitie restFormulierDefinitie) {
-        assertPolicy(policyService.readOverigeRechten().getBeheren());
+        assertPolicy(policyService.readOverigeRechten().beheren());
         return converter.convert(
                 service.createFormulierDefinitie(
                         converter.convert(restFormulierDefinitie)), true, false);
@@ -60,7 +60,7 @@ public class FormulierDefinitieRESTService {
     @GET
     @Path("{id}")
     public RESTFormulierDefinitie read(@PathParam("id") final long id) {
-        assertPolicy(policyService.readOverigeRechten().getBeheren());
+        assertPolicy(policyService.readOverigeRechten().beheren());
         return converter.convert(
                 service.readFormulierDefinitie(id), true, false);
     }
@@ -73,7 +73,7 @@ public class FormulierDefinitieRESTService {
 
     @PUT
     public RESTFormulierDefinitie update(final RESTFormulierDefinitie restFormulierDefinitie) {
-        assertPolicy(policyService.readOverigeRechten().getBeheren());
+        assertPolicy(policyService.readOverigeRechten().beheren());
         return converter.convert(
                 service.updateFormulierDefinitie(
                         converter.convert(restFormulierDefinitie)), true, false);
@@ -82,7 +82,7 @@ public class FormulierDefinitieRESTService {
     @DELETE
     @Path("{id}")
     public void delete(@PathParam("id") final long id) {
-        assertPolicy(policyService.readOverigeRechten().getBeheren());
+        assertPolicy(policyService.readOverigeRechten().beheren());
         service.deleteFormulierDefinitie(id);
     }
 }

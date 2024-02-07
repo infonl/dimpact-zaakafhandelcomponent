@@ -57,8 +57,9 @@ various resources on which a user can perform actions:
 | heropenen                                                                        |                                                                             |             |       X       |           |
 | wijzigenZaakdata                                                                 |                                                                             |             |       X       |           |
 | wijzigenDoorlooptijd                                                             |                                      X                                      |             |       X       |           |
-| _TODO: de rechten hieronder zijn geen OPA rechten en moeten nog bekeken worden._ |                                                                             |             |               |           |
+| _De zaakrechten hieronder zijn afgeleid van bovenstaande (OPA) rechten._         |                                                                             |             |               |           |
 | verlengen                                                                        |           X  (status: zaak open, niet heropend, niet opgeschort)            |             |               |           |
+| _TODO: de rechten hieronder zijn geen OPA rechten en moeten nog bekeken worden._ |                                                                             |             |               |           |
 | opschorten                                                                       |                                      X                                      |             |               |           |
 | hervatten                                                                        |                                      X                                      |             |               |           |
 | voortzetten                                                                      |                                      X                                      |             |       X       |           |
