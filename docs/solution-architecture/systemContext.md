@@ -20,7 +20,7 @@ C4Context
         }
 
         System_Boundary(ZAC, "ZAC components") {
-            System(ZAC, "Zaakafhandelcomponent")
+            System(ZAC, "ZAC")
             System(OfficeConverter, "OfficeConverter")
             System(OpenPolicyAgent, "OPA")
         }
