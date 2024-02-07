@@ -3,9 +3,58 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Then, When } from "@cucumber/cucumber";
+import { Given, Then, When } from "@cucumber/cucumber";
 import { CustomWorld } from "../support/worlds/world";
 import fs from 'fs'
+import { worldUsers, zaakStatus } from "../utils/schemes";
+import { z } from "zod";
+import { profiles } from "../support/worlds/userProfiles";
+
+Given("Employee {string} is on the newly created zaak with status {string}", { timeout: 60 * 1000 },  async function (this: CustomWorld, user: z.infer<typeof worldUsers>, status: z.infer<typeof zaakStatus>) {
+    worldUsers.parse(user)
+    const caseNumber = this.testStorage.get('caseNumber');
+  
+    const parsedStatus = zaakStatus.parse(status);
+
+    await this.page.waitForTimeout(2000)
+    await this.page.goto(`${this.worldParameters.urls.zac}/zaken/${caseNumber}`);
+
+    this.expect(await this.page.getByText(`State ${parsedStatus} info`)).toBeTruthy();
+})
+
+When("Employee {string} does not have enough information to finish Intake and assigns a task to Employee {string}", { timeout: 120 * 1000 }, async function (this: CustomWorld, user1: z.infer<typeof worldUsers>, user2: z.infer<typeof worldUsers>) {
+    const zaakNumber = this.testStorage.get('caseNumber');
+    const user1Parsed = worldUsers.parse(user1);
+    const user1Profile = profiles[user1Parsed];
+    worldUsers.parse(user2);
+
+    await this.page.getByText('Aanvullende informatie').first().click();
+
+    await this.page.getByText('- Kies een e-mailadres -').first().click();
+    await this.page.getByText('E2etestuser1@team-dimpact.info.nl').first().click();
+    await this.page.getByLabel('E-mailadres').first().click();
+    await this.page.getByLabel('E-mailadres').first().fill('test@test.nl');
+
+    await this.page.getByPlaceholder('- Kies een groep -').first().click();
+    await this.page.getByRole('option', {name: 'Test groep B'}).first().click();
+    await this.page.waitForTimeout(1000)
+
+    await this.page.getByPlaceholder('- Geen behandelaar -').first().click();
+    await this.page.getByRole('option', {name: 'E2etest User2'}).first().click();
+    await this.page.getByRole('button', { name: 'Start' }).first().click();
+
+    await this.page.waitForTimeout(10000)
+    this.expect(await this.page.getByText('Document "Aanvullende informatie nodig voor zaak ZAAK-2024-0000000167" is toegevoegd aan de zaak')).toBeTruthy();
+    this.expect(await this.page.getByText(`Aanvullende informatie nodig voor zaak ${zaakNumber}`)).toBeTruthy();
+    this.expect(await this.page.getByRole('cell', { name: 'Aanvullende informatie', exact: true })).toBeTruthy()
+    this.expect(await this.page.getByRole('cell', { name: 'Assigned' })).toBeTruthy()
+    // current date to 16-02-2024 format
+    const currentDDateString = new Date().toISOString().split('T')[0].split('-').reverse().join('-');
+    this.expect(await this.page.getByRole('cell', { name: currentDDateString })).toBeTruthy()
+    this.expect(await this.page.getByRole('cell', { name: user1Profile.group })).toBeTruthy()
+    this.expect(await this.page.getByRole('cell', { name: user1Profile.username })).toBeTruthy()
+})
+
 
 When("{string} wants to create a new zaak", { timeout: 60 * 1000 }, async function (this: CustomWorld, user) {
     await this.page.getByLabel("Zaak toevoegen").click();
@@ -64,6 +113,39 @@ When("{string} wants to create a new zaak", { timeout: 60 * 1000 }, async functi
 
     await this.page.waitForTimeout(1000)
 });
+
+Then("Employee {string} sees the task assigned by Employee {string} in the newly created zaak tasks list", { timeout: 60 * 1000 }, async function (this: CustomWorld, user1, user2) {
+    const user1Parsed = worldUsers.parse(user1);
+    const user1Profile = profiles[user1Parsed];
+    worldUsers.parse(user2);
+    const zaakNumber = this.testStorage.get('caseNumber');
+
+    this.expect(await this.page.getByText(`Aanvullende informatie nodig voor zaak ${zaakNumber}`)).toBeTruthy();
+    this.expect(await this.page.getByRole('cell', { name: 'Aanvullende informatie', exact: true })).toBeTruthy()
+    this.expect(await this.page.getByRole('cell', { name: 'Assigned' })).toBeTruthy()
+    // current date to 16-02-2024 format
+    const currentDDateString = new Date().toISOString().split('T')[0].split('-').reverse().join('-');
+    this.expect(await this.page.getByRole('cell', { name: currentDDateString })).toBeTruthy()
+    this.expect(await this.page.getByRole('cell', { name: user1Profile.group })).toBeTruthy()
+    this.expect(await this.page.getByRole('cell', { name: user1Profile.username })).toBeTruthy()
+})
+
+Then("Employee {string} sees the task assigned to Employee {string} in my task list", { timeout: 120 * 1000 }, async function (this: CustomWorld, user1, user2) {
+    const user1Parsed = worldUsers.parse(user1);
+    const user1Profile = profiles[user1Parsed];
+    worldUsers.parse(user2);
+
+    const caseNumber = this.testStorage.get('caseNumber');
+
+    await this.page.goto(`${this.worldParameters.urls.zac}/taken/mijn`);
+    
+    this.expect(await this.page.getByRole('cell', { name: caseNumber, exact: true }).first()).toBeTruthy()
+    this.expect(await this.page.getByRole('cell', { name: 'Aanvullende informatie', exact: true }).first()).toBeTruthy()
+    // current date to 16-02-2024 format
+    const currentDDateString = new Date().toISOString().split('T')[0].split('-').reverse().join('-');
+    this.expect(await this.page.getByRole('cell', { name: currentDDateString }).first()).toBeTruthy()
+    this.expect(await this.page.getByRole('cell', { name: user1Profile.group }).first()).toBeTruthy()
+})
 
 Then("{string} sees the created zaak", { timeout: 60 * 1000 }, async function (this: CustomWorld, user) {
     const caseNumber = this.testStorage.get('caseNumber');

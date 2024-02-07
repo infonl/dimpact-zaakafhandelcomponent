@@ -14,7 +14,7 @@ npm ci
 npx playwright install --with-deps
 
 # Define world-parameters JSON
-world_params='{"urls": { "zac": "'$ZAC_URL'", "openForms": "'$OPEN_FORMS_URL'"}, "headless": false, "users": {"Bob": {"username": "'$E2E_TEST_USER_1_USERNAME'", "password": "'$E2E_TEST_USER_1_PASSWORD'"}}}'
+world_params='{"urls": { "zac": "'$ZAC_URL'", "openForms": "'$OPEN_FORMS_URL'"}, "headless": false, "users": {"Bob": {"username": "'$E2E_TEST_USER_1_USERNAME'", "password": "'$E2E_TEST_USER_1_PASSWORD'"}, "Oscar": {"username": "'$E2E_TEST_USER_2_USERNAME'", "password": "'$E2E_TEST_USER_2_PASSWORD'"}}}'
 
 # Run your Playwright tests
 
