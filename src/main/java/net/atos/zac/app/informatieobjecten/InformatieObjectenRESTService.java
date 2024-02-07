@@ -257,7 +257,6 @@ public class InformatieObjectenRESTService {
                 .collect(Collectors.toList());
     }
 
-
     @POST
     @Path("informatieobjecten/verzenden")
     public void verzenden(final RESTDocumentVerzendGegevens gegevens) {
