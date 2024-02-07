@@ -5,6 +5,13 @@
 
 package net.atos.zac.app.informatieobjecten.converter;
 
+import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertByteArrayToBase64String;
+import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToEnkelvoudigInformatieObjectDataStatusEnum;
+import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToEnkelvoudigInformatieObjectStatusEnum;
+import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToEnkelvoudigInformatieObjectWithLockDataStatusEnum;
+import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToEnkelvoudigInformatieObjectWithLockDataVertrouwelijkheidaanduidingEnum;
+import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToVertrouwelijkheidaanduidingEnum;
+import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
 import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT;
 
 import java.time.LocalDate;
@@ -16,12 +23,9 @@ import jakarta.inject.Inject;
 
 import net.atos.client.zgw.brc.BRCClientService;
 import net.atos.client.zgw.drc.DRCClientService;
-import net.atos.client.zgw.drc.model.AbstractEnkelvoudigInformatieobject;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectWithInhoud;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectWithInhoudAndLock;
-import net.atos.client.zgw.drc.model.InformatieobjectStatus;
-import net.atos.client.zgw.shared.model.Vertrouwelijkheidaanduiding;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockData;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
@@ -86,30 +90,36 @@ public class RESTInformatieobjectConverter {
     private ConfiguratieService configuratieService;
 
     public List<RESTEnkelvoudigInformatieobject> convertToREST(
-            final List<ZaakInformatieobject> zaakInformatieobjecten) {
+            final List<ZaakInformatieobject> zaakInformatieobjecten
+    ) {
         return zaakInformatieobjecten.stream().map(this::convertToREST).toList();
     }
 
     public RESTEnkelvoudigInformatieobject convertToREST(final ZaakInformatieobject zaakInformatieObject) {
-        final EnkelvoudigInformatieobject enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(
+        final EnkelvoudigInformatieObject enkelvoudigInformatieObject =
+                drcClientService.readEnkelvoudigInformatieobject(
                 zaakInformatieObject.getInformatieobject());
         final Zaak zaak = zrcClientService.readZaak(zaakInformatieObject.getZaakUUID());
         return convertToREST(enkelvoudigInformatieObject, zaak);
     }
 
     public RESTEnkelvoudigInformatieobject convertToREST(
-            final AbstractEnkelvoudigInformatieobject enkelvoudigInformatieObject) {
+            final EnkelvoudigInformatieObject enkelvoudigInformatieObject
+    ) {
         return convertToREST(enkelvoudigInformatieObject, null);
     }
 
     public RESTEnkelvoudigInformatieobject convertToREST(
-            final AbstractEnkelvoudigInformatieobject enkelvoudigInformatieObject, final Zaak zaak) {
+            final EnkelvoudigInformatieObject enkelvoudigInformatieObject,
+            final Zaak zaak
+    ) {
+        final UUID enkelvoudigInformatieObjectUUID = parseUUIDFromResourceURI(enkelvoudigInformatieObject.getUrl());
         final EnkelvoudigInformatieObjectLock lock = enkelvoudigInformatieObject.getLocked() ?
-                enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObject.getUUID()).orElse(null)
+                enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID).orElse(null)
                 : null;
         final DocumentRechten rechten = policyService.readDocumentRechten(enkelvoudigInformatieObject, lock, zaak);
         final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject = new RESTEnkelvoudigInformatieobject();
-        restEnkelvoudigInformatieobject.uuid = enkelvoudigInformatieObject.getUUID();
+        restEnkelvoudigInformatieobject.uuid = enkelvoudigInformatieObjectUUID;
         restEnkelvoudigInformatieobject.identificatie = enkelvoudigInformatieObject.getIdentificatie();
         restEnkelvoudigInformatieobject.rechten = rechtenConverter.convert(rechten);
         restEnkelvoudigInformatieobject.isBesluitDocument = brcClientService.isInformatieObjectGekoppeldAanBesluit(enkelvoudigInformatieObject.getUrl());
@@ -131,7 +141,8 @@ public class RESTInformatieobjectConverter {
             configuratieService.findTaal(enkelvoudigInformatieObject.getTaal())
                     .ifPresent(taal -> restEnkelvoudigInformatieobject.taal = taal.getNaam());
             restEnkelvoudigInformatieobject.versie = enkelvoudigInformatieObject.getVersie();
-            restEnkelvoudigInformatieobject.registratiedatumTijd = enkelvoudigInformatieObject.getBeginRegistratie();
+            restEnkelvoudigInformatieobject.registratiedatumTijd =
+                    enkelvoudigInformatieObject.getBeginRegistratie().toZonedDateTime();
             restEnkelvoudigInformatieobject.bestandsnaam = enkelvoudigInformatieObject.getBestandsnaam();
             if (enkelvoudigInformatieObject.getLink() != null) {
                 restEnkelvoudigInformatieobject.link = enkelvoudigInformatieObject.getLink().toString();
@@ -143,10 +154,12 @@ public class RESTInformatieobjectConverter {
                 restEnkelvoudigInformatieobject.gelockedDoor = restUserConverter.convertUser(
                         identityService.readUser(lock.getUserId()));
             }
-            restEnkelvoudigInformatieobject.bestandsomvang = enkelvoudigInformatieObject.getBestandsomvang();
+            restEnkelvoudigInformatieobject.bestandsomvang =
+                    enkelvoudigInformatieObject.getBestandsomvang().longValue();
             restEnkelvoudigInformatieobject.informatieobjectTypeOmschrijving = ztcClientService.readInformatieobjecttype(
                     enkelvoudigInformatieObject.getInformatieobjecttype()).getOmschrijving();
-            restEnkelvoudigInformatieobject.informatieobjectTypeUUID = enkelvoudigInformatieObject.getInformatieobjectTypeUUID();
+            restEnkelvoudigInformatieobject.informatieobjectTypeUUID =
+                    parseUUIDFromResourceURI(enkelvoudigInformatieObject.getInformatieobjecttype());
             if (enkelvoudigInformatieObject.getOndertekening() != null && enkelvoudigInformatieObject.getOndertekening()
                     .getSoort() != null &&
                     enkelvoudigInformatieObject.getOndertekening().getDatum() != null) {
@@ -159,10 +172,12 @@ public class RESTInformatieobjectConverter {
         return restEnkelvoudigInformatieobject;
     }
 
-    public EnkelvoudigInformatieobjectWithInhoud convertZaakObject(
+    public EnkelvoudigInformatieObjectData convertZaakObject(
             final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject,
-            final RESTFileUpload bestand) {
-        final EnkelvoudigInformatieobjectWithInhoud enkelvoudigInformatieobjectWithInhoud = new EnkelvoudigInformatieobjectWithInhoud();
+            final RESTFileUpload bestand
+    ) {
+        final EnkelvoudigInformatieObjectData enkelvoudigInformatieobjectWithInhoud =
+                new EnkelvoudigInformatieObjectData();
         enkelvoudigInformatieobjectWithInhoud.setBronorganisatie(ConfiguratieService.BRON_ORGANISATIE);
         enkelvoudigInformatieobjectWithInhoud.setCreatiedatum(restEnkelvoudigInformatieobject.creatiedatum);
         enkelvoudigInformatieobjectWithInhoud.setTitel(restEnkelvoudigInformatieobject.titel);
@@ -171,43 +186,55 @@ public class RESTInformatieobjectConverter {
         enkelvoudigInformatieobjectWithInhoud.setInformatieobjecttype(
                 ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID)
                         .getUrl());
-        enkelvoudigInformatieobjectWithInhoud.setInhoud(bestand.file);
+        enkelvoudigInformatieobjectWithInhoud.setInhoud(convertByteArrayToBase64String(bestand.file));
         enkelvoudigInformatieobjectWithInhoud.setFormaat(bestand.type);
         enkelvoudigInformatieobjectWithInhoud.setBestandsnaam(restEnkelvoudigInformatieobject.bestandsnaam);
         enkelvoudigInformatieobjectWithInhoud.setBeschrijving(restEnkelvoudigInformatieobject.beschrijving);
-        enkelvoudigInformatieobjectWithInhoud.setStatus(restEnkelvoudigInformatieobject.status);
+        enkelvoudigInformatieobjectWithInhoud.setStatus(
+                convertToEnkelvoudigInformatieObjectDataStatusEnum(restEnkelvoudigInformatieobject.status)
+        );
         enkelvoudigInformatieobjectWithInhoud.setVerzenddatum(restEnkelvoudigInformatieobject.verzenddatum);
         enkelvoudigInformatieobjectWithInhoud.setOntvangstdatum(restEnkelvoudigInformatieobject.ontvangstdatum);
         enkelvoudigInformatieobjectWithInhoud.setVertrouwelijkheidaanduiding(
-                Vertrouwelijkheidaanduiding.fromValue(restEnkelvoudigInformatieobject.vertrouwelijkheidaanduiding));
+                EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.valueOf(
+                        // the values of the enums generated by OpenAPI Generator are the
+                        // uppercase variants of the strings used in the APIs
+                        restEnkelvoudigInformatieobject.vertrouwelijkheidaanduiding.toUpperCase()
+                )
+        );
         return enkelvoudigInformatieobjectWithInhoud;
     }
 
-    public EnkelvoudigInformatieobjectWithInhoud convertTaakObject(
-            final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject, final RESTFileUpload bestand) {
-        final EnkelvoudigInformatieobjectWithInhoud enkelvoudigInformatieobjectWithInhoud = new EnkelvoudigInformatieobjectWithInhoud();
-        enkelvoudigInformatieobjectWithInhoud.setBronorganisatie(ConfiguratieService.BRON_ORGANISATIE);
-        enkelvoudigInformatieobjectWithInhoud.setCreatiedatum(LocalDate.now());
-        enkelvoudigInformatieobjectWithInhoud.setTitel(restEnkelvoudigInformatieobject.titel);
-        enkelvoudigInformatieobjectWithInhoud.setAuteur(loggedInUserInstance.get().getFullName());
-        enkelvoudigInformatieobjectWithInhoud.setTaal(ConfiguratieService.TAAL_NEDERLANDS);
-        enkelvoudigInformatieobjectWithInhoud.setInformatieobjecttype(
+    public EnkelvoudigInformatieObjectData convertTaakObject(
+            final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject,
+            final RESTFileUpload bestand
+    ) {
+        final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData = new EnkelvoudigInformatieObjectData();
+        enkelvoudigInformatieObjectData.setBronorganisatie(ConfiguratieService.BRON_ORGANISATIE);
+        enkelvoudigInformatieObjectData.setCreatiedatum(LocalDate.now());
+        enkelvoudigInformatieObjectData.setTitel(restEnkelvoudigInformatieobject.titel);
+        enkelvoudigInformatieObjectData.setAuteur(loggedInUserInstance.get().getFullName());
+        enkelvoudigInformatieObjectData.setTaal(ConfiguratieService.TAAL_NEDERLANDS);
+        enkelvoudigInformatieObjectData.setInformatieobjecttype(
                 ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID)
                         .getUrl());
-        enkelvoudigInformatieobjectWithInhoud.setInhoud(bestand.file);
-        enkelvoudigInformatieobjectWithInhoud.setFormaat(bestand.type);
-        enkelvoudigInformatieobjectWithInhoud.setBestandsnaam(bestand.filename);
-        enkelvoudigInformatieobjectWithInhoud.setBeschrijving(OMSCHRIJVING_TAAK_DOCUMENT);
-        enkelvoudigInformatieobjectWithInhoud.setStatus(InformatieobjectStatus.DEFINITIEF);
-        enkelvoudigInformatieobjectWithInhoud.setVerzenddatum(restEnkelvoudigInformatieobject.verzenddatum);
-        enkelvoudigInformatieobjectWithInhoud.setOntvangstdatum(restEnkelvoudigInformatieobject.ontvangstdatum);
-        enkelvoudigInformatieobjectWithInhoud.setVertrouwelijkheidaanduiding(Vertrouwelijkheidaanduiding.OPENBAAR);
-        return enkelvoudigInformatieobjectWithInhoud;
+        enkelvoudigInformatieObjectData.setInhoud(convertByteArrayToBase64String(bestand.file));
+        enkelvoudigInformatieObjectData.setFormaat(bestand.type);
+        enkelvoudigInformatieObjectData.setBestandsnaam(bestand.filename);
+        enkelvoudigInformatieObjectData.setBeschrijving(OMSCHRIJVING_TAAK_DOCUMENT);
+        enkelvoudigInformatieObjectData.setStatus(EnkelvoudigInformatieObjectData.StatusEnum.DEFINITIEF);
+        enkelvoudigInformatieObjectData.setVerzenddatum(restEnkelvoudigInformatieobject.verzenddatum);
+        enkelvoudigInformatieObjectData.setOntvangstdatum(restEnkelvoudigInformatieobject.ontvangstdatum);
+        enkelvoudigInformatieObjectData.setVertrouwelijkheidaanduiding(
+                EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.OPENBAAR);
+        return enkelvoudigInformatieObjectData;
     }
 
-    public EnkelvoudigInformatieobjectWithInhoud convert(final RESTTaakDocumentData documentData,
-            final RESTFileUpload bestand) {
-        final EnkelvoudigInformatieobjectWithInhoud enkelvoudigInformatieobjectWithInhoud = new EnkelvoudigInformatieobjectWithInhoud();
+    public EnkelvoudigInformatieObjectData convert(
+            final RESTTaakDocumentData documentData,
+            final RESTFileUpload bestand
+    ) {
+        final EnkelvoudigInformatieObjectData enkelvoudigInformatieobjectWithInhoud = new EnkelvoudigInformatieObjectData();
         enkelvoudigInformatieobjectWithInhoud.setBronorganisatie(ConfiguratieService.BRON_ORGANISATIE);
         enkelvoudigInformatieobjectWithInhoud.setCreatiedatum(LocalDate.now());
         enkelvoudigInformatieobjectWithInhoud.setTitel(documentData.documentTitel);
@@ -215,18 +242,19 @@ public class RESTInformatieobjectConverter {
         enkelvoudigInformatieobjectWithInhoud.setTaal(ConfiguratieService.TAAL_NEDERLANDS);
         enkelvoudigInformatieobjectWithInhoud.setInformatieobjecttype(
                 ztcClientService.readInformatieobjecttype(documentData.documentType.uuid).getUrl());
-        enkelvoudigInformatieobjectWithInhoud.setInhoud(bestand.file);
+        enkelvoudigInformatieobjectWithInhoud.setInhoud(convertByteArrayToBase64String(bestand.file));
         enkelvoudigInformatieobjectWithInhoud.setFormaat(bestand.type);
         enkelvoudigInformatieobjectWithInhoud.setBestandsnaam(bestand.filename);
-        enkelvoudigInformatieobjectWithInhoud.setStatus(InformatieobjectStatus.DEFINITIEF);
+        enkelvoudigInformatieobjectWithInhoud.setStatus(EnkelvoudigInformatieObjectData.StatusEnum.DEFINITIEF);
         enkelvoudigInformatieobjectWithInhoud.setVertrouwelijkheidaanduiding(
-                Vertrouwelijkheidaanduiding.fromValue(documentData.documentType.vertrouwelijkheidaanduiding));
+                EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.valueOf(documentData.documentType.vertrouwelijkheidaanduiding)
+        );
         return enkelvoudigInformatieobjectWithInhoud;
     }
 
 
     public RESTEnkelvoudigInformatieObjectVersieGegevens convertToRESTEnkelvoudigInformatieObjectVersieGegevens(
-            final EnkelvoudigInformatieobject informatieobject) {
+            final EnkelvoudigInformatieObject informatieobject) {
         final RESTEnkelvoudigInformatieObjectVersieGegevens restEnkelvoudigInformatieObjectVersieGegevens = new RESTEnkelvoudigInformatieObjectVersieGegevens();
 
         restEnkelvoudigInformatieObjectVersieGegevens.uuid = UriUtil.uuidFromURI(informatieobject.getUrl());
@@ -235,8 +263,8 @@ public class RESTInformatieobjectConverter {
             restEnkelvoudigInformatieObjectVersieGegevens.status = informatieobject.getStatus();
         }
         if (informatieobject.getVertrouwelijkheidaanduiding() != null) {
-            restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding = informatieobject.getVertrouwelijkheidaanduiding()
-                    .toValue();
+            restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding =
+                    informatieobject.getVertrouwelijkheidaanduiding().value();
         }
 
         restEnkelvoudigInformatieObjectVersieGegevens.beschrijving = informatieobject.getBeschrijving();
@@ -252,53 +280,61 @@ public class RESTInformatieobjectConverter {
         return restEnkelvoudigInformatieObjectVersieGegevens;
     }
 
-    public EnkelvoudigInformatieobjectWithInhoudAndLock convert(
-            final RESTEnkelvoudigInformatieObjectVersieGegevens restEnkelvoudigInformatieObjectVersieGegevens, final RESTFileUpload file) {
-        final EnkelvoudigInformatieobjectWithInhoudAndLock enkelvoudigInformatieobjectWithInhoudAndLock = new EnkelvoudigInformatieobjectWithInhoudAndLock();
+    public EnkelvoudigInformatieObjectWithLockData convert(
+            final RESTEnkelvoudigInformatieObjectVersieGegevens restEnkelvoudigInformatieObjectVersieGegevens,
+            final RESTFileUpload file
+    ) {
+        final EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieObjectWithLockData =
+                new EnkelvoudigInformatieObjectWithLockData();
 
         if (restEnkelvoudigInformatieObjectVersieGegevens.status != null) {
-            enkelvoudigInformatieobjectWithInhoudAndLock.setStatus(
-                    restEnkelvoudigInformatieObjectVersieGegevens.status);
+            enkelvoudigInformatieObjectWithLockData.setStatus(
+                    convertToEnkelvoudigInformatieObjectWithLockDataStatusEnum(
+                            restEnkelvoudigInformatieObjectVersieGegevens.status
+                    )
+            );
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding != null) {
-            enkelvoudigInformatieobjectWithInhoudAndLock.setVertrouwelijkheidaanduiding(
-                    Vertrouwelijkheidaanduiding.valueOf(
-                            restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding));
+            enkelvoudigInformatieObjectWithLockData.setVertrouwelijkheidaanduiding(
+                    convertToEnkelvoudigInformatieObjectWithLockDataVertrouwelijkheidaanduidingEnum(
+                            restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding
+                    )
+            );
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.beschrijving != null) {
-            enkelvoudigInformatieobjectWithInhoudAndLock.setBeschrijving(
+            enkelvoudigInformatieObjectWithLockData.setBeschrijving(
                     restEnkelvoudigInformatieObjectVersieGegevens.beschrijving);
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.verzenddatum != null) {
-            enkelvoudigInformatieobjectWithInhoudAndLock.setVerzenddatum(
+            enkelvoudigInformatieObjectWithLockData.setVerzenddatum(
                     restEnkelvoudigInformatieObjectVersieGegevens.verzenddatum);
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.ontvangstdatum != null) {
-            enkelvoudigInformatieobjectWithInhoudAndLock.setOntvangstdatum(
+            enkelvoudigInformatieObjectWithLockData.setOntvangstdatum(
                     restEnkelvoudigInformatieObjectVersieGegevens.ontvangstdatum);
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.titel != null) {
-            enkelvoudigInformatieobjectWithInhoudAndLock.setTitel(restEnkelvoudigInformatieObjectVersieGegevens.titel);
+            enkelvoudigInformatieObjectWithLockData.setTitel(restEnkelvoudigInformatieObjectVersieGegevens.titel);
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.taal != null) {
-            enkelvoudigInformatieobjectWithInhoudAndLock.setTaal(
+            enkelvoudigInformatieObjectWithLockData.setTaal(
                     restEnkelvoudigInformatieObjectVersieGegevens.taal.code);
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.auteur != null) {
-            enkelvoudigInformatieobjectWithInhoudAndLock.setAuteur(
+            enkelvoudigInformatieObjectWithLockData.setAuteur(
                     restEnkelvoudigInformatieObjectVersieGegevens.auteur);
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam != null) {
-            enkelvoudigInformatieobjectWithInhoudAndLock.setBestandsnaam(
+            enkelvoudigInformatieObjectWithLockData.setBestandsnaam(
                     (restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam));
         }
         if (file != null && file.file != null) {
-            enkelvoudigInformatieobjectWithInhoudAndLock.setInhoud(file.file);
-            enkelvoudigInformatieobjectWithInhoudAndLock.setBestandsomvang((long) file.file.length);
-            enkelvoudigInformatieobjectWithInhoudAndLock.setFormaat(file.type);
+            enkelvoudigInformatieObjectWithLockData.setInhoud(convertByteArrayToBase64String(file.file));
+            enkelvoudigInformatieObjectWithLockData.setBestandsomvang(file.file.length);
+            enkelvoudigInformatieObjectWithLockData.setFormaat(file.type);
         }
 
-        return enkelvoudigInformatieobjectWithInhoudAndLock;
+        return enkelvoudigInformatieObjectWithLockData;
     }
 
     public List<RESTEnkelvoudigInformatieobject> convertUUIDsToREST(final List<UUID> enkelvoudigInformatieobjectUUIDs,
@@ -310,15 +346,21 @@ public class RESTInformatieobjectConverter {
     }
 
     public RESTGekoppeldeZaakEnkelvoudigInformatieObject convertToREST(
-            final ZaakInformatieobject zaakInformatieObject, final RelatieType relatieType, final Zaak zaak) {
-        final EnkelvoudigInformatieobject enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(
+            final ZaakInformatieobject zaakInformatieObject,
+            final RelatieType relatieType,
+            final Zaak zaak
+    ) {
+        final EnkelvoudigInformatieObject enkelvoudigInformatieObject =
+                drcClientService.readEnkelvoudigInformatieobject(
                 zaakInformatieObject.getInformatieobject());
+        final UUID enkelvoudigInformatieObjectUUID =
+                parseUUIDFromResourceURI(enkelvoudigInformatieObject.getUrl());
         final EnkelvoudigInformatieObjectLock lock = enkelvoudigInformatieObject.getLocked() ?
-                enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObject.getUUID()).orElse(null)
+                enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID).orElse(null)
                 : null;
         final DocumentRechten rechten = policyService.readDocumentRechten(enkelvoudigInformatieObject, lock, zaak);
         final RESTGekoppeldeZaakEnkelvoudigInformatieObject restEnkelvoudigInformatieobject = new RESTGekoppeldeZaakEnkelvoudigInformatieObject();
-        restEnkelvoudigInformatieobject.uuid = enkelvoudigInformatieObject.getUUID();
+        restEnkelvoudigInformatieobject.uuid = enkelvoudigInformatieObjectUUID;
         restEnkelvoudigInformatieobject.identificatie = enkelvoudigInformatieObject.getIdentificatie();
         restEnkelvoudigInformatieobject.rechten = rechtenConverter.convert(rechten);
         if (rechten.getLezen()) {
@@ -338,7 +380,8 @@ public class RESTInformatieobjectConverter {
             configuratieService.findTaal(enkelvoudigInformatieObject.getTaal())
                     .ifPresent(taal -> restEnkelvoudigInformatieobject.taal = taal.getName());
             restEnkelvoudigInformatieobject.versie = enkelvoudigInformatieObject.getVersie();
-            restEnkelvoudigInformatieobject.registratiedatumTijd = enkelvoudigInformatieObject.getBeginRegistratie();
+            restEnkelvoudigInformatieobject.registratiedatumTijd =
+                    enkelvoudigInformatieObject.getBeginRegistratie().toZonedDateTime();
             restEnkelvoudigInformatieobject.bestandsnaam = enkelvoudigInformatieObject.getBestandsnaam();
             if (enkelvoudigInformatieObject.getLink() != null) {
                 restEnkelvoudigInformatieobject.link = enkelvoudigInformatieObject.getLink().toString();
@@ -350,10 +393,12 @@ public class RESTInformatieobjectConverter {
                 restEnkelvoudigInformatieobject.gelockedDoor = restUserConverter.convertUser(
                         identityService.readUser(lock.getUserId()));
             }
-            restEnkelvoudigInformatieobject.bestandsomvang = enkelvoudigInformatieObject.getBestandsomvang();
+            restEnkelvoudigInformatieobject.bestandsomvang =
+                    enkelvoudigInformatieObject.getBestandsomvang().longValue();
             restEnkelvoudigInformatieobject.informatieobjectTypeOmschrijving = ztcClientService.readInformatieobjecttype(
                     enkelvoudigInformatieObject.getInformatieobjecttype()).getOmschrijving();
-            restEnkelvoudigInformatieobject.informatieobjectTypeUUID = enkelvoudigInformatieObject.getInformatieobjectTypeUUID();
+            restEnkelvoudigInformatieobject.informatieobjectTypeUUID =
+                    parseUUIDFromResourceURI(enkelvoudigInformatieObject.getInformatieobjecttype());
             restEnkelvoudigInformatieobject.relatieType = relatieType;
             restEnkelvoudigInformatieobject.zaakIdentificatie = zaak.getIdentificatie();
             restEnkelvoudigInformatieobject.zaakUUID = zaak.getUuid();
@@ -364,7 +409,66 @@ public class RESTInformatieobjectConverter {
     }
 
     public List<RESTEnkelvoudigInformatieobject> convertInformatieobjectenToREST(
-            final List<EnkelvoudigInformatieobject> informatieobjecten) {
+            final List<EnkelvoudigInformatieObject> informatieobjecten) {
         return informatieobjecten.stream().map(this::convertToREST).toList();
+    }
+
+    /**
+     * Utility function to convert a {@link EnkelvoudigInformatieObjectWithLockData} object
+     * to a {@link EnkelvoudigInformatieObject} object.
+     * <br>
+     * Eventhough they both contain for the most part the exact same fields the OpenAPI
+     * Generator generates two separate Java classes without any inheritance.
+     *
+     * @param enkelvoudigInformatieObjectWithLockData the object to be converted
+     * @return the converted object
+     */
+    public static EnkelvoudigInformatieObject convertToEnkelvoudigInformatieObject(
+            EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieObjectWithLockData
+    ) {
+        final EnkelvoudigInformatieObject enkelvoudigInformatieObject = new EnkelvoudigInformatieObject(
+                enkelvoudigInformatieObjectWithLockData.getUrl(),
+                enkelvoudigInformatieObjectWithLockData.getVersie(),
+                enkelvoudigInformatieObjectWithLockData.getBeginRegistratie(),
+                null,
+                enkelvoudigInformatieObjectWithLockData.getLocked(),
+                enkelvoudigInformatieObjectWithLockData.getBestandsdelen()
+        );
+        enkelvoudigInformatieObject.setAuteur(enkelvoudigInformatieObjectWithLockData.getAuteur());
+        enkelvoudigInformatieObject.setBeschrijving(enkelvoudigInformatieObjectWithLockData.getBeschrijving());
+        enkelvoudigInformatieObject.setBestandsomvang(
+                enkelvoudigInformatieObjectWithLockData.getBestandsomvang()
+        );
+        enkelvoudigInformatieObject.setBestandsnaam(enkelvoudigInformatieObjectWithLockData.getBestandsnaam());
+        enkelvoudigInformatieObject.setBronorganisatie(
+                enkelvoudigInformatieObjectWithLockData.getBronorganisatie());
+        enkelvoudigInformatieObject.setCreatiedatum(enkelvoudigInformatieObjectWithLockData.getCreatiedatum());
+        enkelvoudigInformatieObject.setFormaat(enkelvoudigInformatieObjectWithLockData.getFormaat());
+        enkelvoudigInformatieObject.setIdentificatie(enkelvoudigInformatieObjectWithLockData.getIdentificatie());
+        enkelvoudigInformatieObject.setIndicatieGebruiksrecht(enkelvoudigInformatieObjectWithLockData.getIndicatieGebruiksrecht());
+        enkelvoudigInformatieObject.setInformatieobjecttype(enkelvoudigInformatieObjectWithLockData.getInformatieobjecttype());
+        enkelvoudigInformatieObject.setIntegriteit(
+                enkelvoudigInformatieObjectWithLockData.getIntegriteit()
+        );
+        enkelvoudigInformatieObject.setLink(enkelvoudigInformatieObjectWithLockData.getLink());
+        enkelvoudigInformatieObject.setOndertekening(
+                enkelvoudigInformatieObjectWithLockData.getOndertekening()
+        );
+        enkelvoudigInformatieObject.setOntvangstdatum(enkelvoudigInformatieObjectWithLockData.getOntvangstdatum());
+        enkelvoudigInformatieObject.setStatus(
+                convertToEnkelvoudigInformatieObjectStatusEnum(
+                    enkelvoudigInformatieObjectWithLockData.getStatus()
+                )
+        );
+        enkelvoudigInformatieObject.setTaal(enkelvoudigInformatieObjectWithLockData.getTaal());
+        enkelvoudigInformatieObject.setTitel(enkelvoudigInformatieObjectWithLockData.getTitel());
+        enkelvoudigInformatieObject.setVerschijningsvorm(enkelvoudigInformatieObjectWithLockData.getVerschijningsvorm());
+        enkelvoudigInformatieObject.setVertrouwelijkheidaanduiding(
+                convertToVertrouwelijkheidaanduidingEnum(
+                        enkelvoudigInformatieObjectWithLockData.getVertrouwelijkheidaanduiding().value()
+                )
+        );
+        enkelvoudigInformatieObject.setVerzenddatum(enkelvoudigInformatieObjectWithLockData.getVerzenddatum());
+        return enkelvoudigInformatieObject;
     }
 }

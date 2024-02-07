@@ -9,6 +9,8 @@ import java.net.URI;
 
 import jakarta.ws.rs.QueryParam;
 
+import net.atos.client.zgw.ztc.model.generated.RolType;
+
 /**
  *
  */
@@ -23,17 +25,17 @@ public class RoltypeListParameters extends AbstractZTCListParameters {
     /*
      * Algemeen gehanteerde omschrijving van de aard van de ROL.
      */
-    private AardVanRol omschrijvingGeneriek;
+    private RolType.OmschrijvingGeneriekEnum omschrijvingGeneriek;
 
     public RoltypeListParameters(final URI zaaktype) {
         this.zaaktype = zaaktype;
     }
 
-    public RoltypeListParameters(final AardVanRol omschrijvingGeneriek) {
+    public RoltypeListParameters(final RolType.OmschrijvingGeneriekEnum omschrijvingGeneriek) {
         this.omschrijvingGeneriek = omschrijvingGeneriek;
     }
 
-    public RoltypeListParameters(final URI zaaktype, final AardVanRol omschrijvingGeneriek) {
+    public RoltypeListParameters(final URI zaaktype, final RolType.OmschrijvingGeneriekEnum omschrijvingGeneriek) {
         this.zaaktype = zaaktype;
         this.omschrijvingGeneriek = omschrijvingGeneriek;
     }
@@ -44,6 +46,6 @@ public class RoltypeListParameters extends AbstractZTCListParameters {
 
     @QueryParam("omschrijvingGeneriek")
     public String getOmschrijvingGeneriek() {
-        return omschrijvingGeneriek == null ? null : omschrijvingGeneriek.toValue();
+        return omschrijvingGeneriek == null ? null : omschrijvingGeneriek.value();
     }
 }

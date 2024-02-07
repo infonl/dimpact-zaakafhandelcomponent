@@ -10,7 +10,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 /**
- *
+ * Date-time utility functions and constants.
  */
 public final class DateTimeUtil {
 

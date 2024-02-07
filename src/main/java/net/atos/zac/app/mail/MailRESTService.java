@@ -5,6 +5,7 @@
 
 package net.atos.zac.app.mail;
 
+import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend;
 import static net.atos.zac.policy.PolicyService.assertPolicy;
 
 import java.util.UUID;
@@ -23,7 +24,7 @@ import com.mailjet.client.errors.MailjetException;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.Statustype;
+import net.atos.client.zgw.ztc.model.generated.StatusType;
 import net.atos.zac.app.mail.converter.RESTMailGegevensConverter;
 import net.atos.zac.app.mail.model.RESTMailGegevens;
 import net.atos.zac.flowable.ZaakVariabelenService;
@@ -80,9 +81,9 @@ public class MailRESTService {
         mailService.sendMail(
                 restMailGegevensConverter.convert(restMailGegevens), Bronnen.fromZaak(zaak));
 
-        final Statustype statustype = zaak.getStatus() != null ?
+        final StatusType statustype = zaak.getStatus() != null ?
                 ztcClientService.readStatustype(zrcClientService.readStatus(zaak.getStatus()).getStatustype()) : null;
-        if (!Statustype.isHeropend(statustype)) {
+        if (!isHeropend(statustype)) {
             zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaakUuid, Boolean.TRUE);
         }
     }

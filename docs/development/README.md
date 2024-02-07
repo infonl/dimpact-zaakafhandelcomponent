@@ -7,6 +7,7 @@ The following ZAC developer documentation is available:
 - [installDockerCompose.md](installDockerCompose.md) - Instructions on how to run the software using Docker Compose.
 - [endToEndTypeSafety.md](endToEndTypeSafety.md) - Instructions on how to develop ZAC using end-to-end type safety.
 - [testing.md](testing.md) - Instructions on how to run and develop tests for ZAC.
+- [updatingDependencies.md](updatingDependencies.md) - Instructions on how to update dependencies in ZAC and (OpenAPI) API specifications used by ZAC.
 
 ## Monitoring
 ZAC exposes two monitoring endpoints through WildFly by default:

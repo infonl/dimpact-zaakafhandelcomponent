@@ -20,6 +20,7 @@ import jakarta.enterprise.inject.Instance
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createObjectRegistratieObject
 import net.atos.client.zgw.shared.ZGWApiService
+import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Medewerker
@@ -33,14 +34,15 @@ import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.createZaakobjectPand
 import net.atos.client.zgw.ztc.ZTCClientService
-import net.atos.client.zgw.ztc.model.AardVanRol
 import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.createZaakType
+import net.atos.client.zgw.ztc.model.generated.RolType
 import net.atos.zac.aanvraag.InboxProductaanvraagService
 import net.atos.zac.aanvraag.ProductaanvraagService
 import net.atos.zac.aanvraag.createProductaanvraagDenhaag
 import net.atos.zac.app.bag.converter.RESTBAGConverter
 import net.atos.zac.app.zaken.converter.RESTZaakConverter
+import net.atos.zac.app.zaken.model.ZAAK_TYPE_1_OMSCHRIJVING
 import net.atos.zac.app.zaken.model.createRESTZaak
 import net.atos.zac.app.zaken.model.createRESTZaakAanmaakGegevens
 import net.atos.zac.app.zaken.model.createRESTZaakToekennenGegevens
@@ -89,7 +91,7 @@ class ZakenRESTServiceTest : BehaviorSpec() {
 
     init {
         given("zaak input data is provided") {
-            When("createZaak is called") {
+            When("createZaak is called for a zaaktype for which the logged in user has permissions") {
                 then("a zaak is created using the ZGW API and a zaak is started in the ZAC CMMN service") {
                     val group = createGroup()
                     val formulierData = mapOf(Pair("dummyKey", "dummyValue"))
@@ -97,14 +99,14 @@ class ZakenRESTServiceTest : BehaviorSpec() {
                     val objectRegistratieObject = createObjectRegistratieObject()
                     val productaanvraagDenhaag = createProductaanvraagDenhaag()
                     val restZaak = createRESTZaak()
-                    val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens()
-                    val restZaakType = restZaakAanmaakGegevens.zaak.zaaktype
+                    val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
+                    val zaakTypeUUID = URIUtil.parseUUIDFromResourceURI(zaakType.url)
+                    val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens(zaakTypeUUID = zaakTypeUUID)
                     val rolNatuurlijkPersoon = createRolNatuurlijkPersoon(natuurlijkPersoon = natuurlijkPersoon)
                     val user = createLoggedInUser()
                     val zaakAfhandelParameters = createZaakafhandelParameters()
                     val zaakObjectPand = createZaakobjectPand()
                     val zaakObjectOpenbareRuimte = createZaakobjectOpenbareRuimte()
-                    val zaakType = createZaakType()
                     val zaak = createZaak(zaakType.url)
 
                     every { cmmnService.startCase(zaak, zaakType, zaakAfhandelParameters, null) } just runs
@@ -146,7 +148,7 @@ class ZakenRESTServiceTest : BehaviorSpec() {
                     every { restZaakConverter.convert(zaak) } returns restZaak
                     every { restZaakConverter.convert(restZaakAanmaakGegevens.zaak, zaakType) } returns zaak
                     every {
-                        zaakafhandelParameterService.readZaakafhandelParameters(zaakType.uuid)
+                        zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID)
                     } returns zaakAfhandelParameters
                     every { zaakVariabelenService.setZaakdata(zaak.uuid, formulierData) } just runs
                     every { zgwApiService.createZaak(zaak) } returns zaak
@@ -155,13 +157,13 @@ class ZakenRESTServiceTest : BehaviorSpec() {
                     every { zrcClientService.createZaak(zaak) } returns zaak
                     every { zrcClientService.createZaakobject(zaakObjectPand) } returns zaakObjectPand
                     every { zrcClientService.createZaakobject(zaakObjectOpenbareRuimte) } returns zaakObjectOpenbareRuimte
-                    every { ztcClientService.readZaaktype(restZaakType.uuid) } returns zaakType
+                    every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
                     every {
-                        ztcClientService.readRoltype(AardVanRol.INITIATOR, zaak.zaaktype)
-                    } returns createRolType(rol = AardVanRol.INITIATOR)
+                        ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.INITIATOR, zaak.zaaktype)
+                    } returns createRolType(omschrijvingGeneriek = RolType.OmschrijvingGeneriekEnum.INITIATOR)
                     every {
-                        ztcClientService.readRoltype(AardVanRol.BEHANDELAAR, zaak.zaaktype)
-                    } returns createRolType(rol = AardVanRol.BEHANDELAAR)
+                        ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.BEHANDELAAR, zaak.zaaktype)
+                    } returns createRolType(omschrijvingGeneriek = RolType.OmschrijvingGeneriekEnum.BEHANDELAAR)
 
                     val restZaakReturned = zakenRESTService.createZaak(restZaakAanmaakGegevens)
 
@@ -209,7 +211,7 @@ class ZakenRESTServiceTest : BehaviorSpec() {
                     val user = createLoggedInUser()
                     val rolSlot = slot<Rol<*>>()
                     val restZaak = createRESTZaak()
-                    val rolType = createRolType(rol = AardVanRol.BEHANDELAAR)
+                    val rolType = createRolType(omschrijvingGeneriek = RolType.OmschrijvingGeneriekEnum.BEHANDELAAR)
 
                     every { zrcClientService.readZaak(restZaakToekennenGegevens.zaakUUID) } returns zaak
                     every { zrcClientService.updateRol(zaak, capture(rolSlot), restZaakToekennenGegevens.reden) } just runs
@@ -217,7 +219,7 @@ class ZakenRESTServiceTest : BehaviorSpec() {
                     every { zgwApiService.findBehandelaarForZaak(zaak) } returns Optional.empty()
                     every { identityService.readUser(restZaakToekennenGegevens.behandelaarGebruikersnaam) } returns user
                     every {
-                        ztcClientService.readRoltype(AardVanRol.BEHANDELAAR, zaak.zaaktype)
+                        ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.BEHANDELAAR, zaak.zaaktype)
                     } returns rolType
                     every { zgwApiService.findGroepForZaak(zaak) } returns Optional.empty()
                     every { restZaakConverter.convert(zaak) } returns restZaak

@@ -7,12 +7,12 @@ package net.atos.zac.app.klanten.model.klant;
 
 import java.util.UUID;
 
-import net.atos.client.zgw.ztc.model.AardVanRol;
+import net.atos.client.zgw.ztc.model.generated.RolType;
 
 public class RESTRoltype {
     public UUID uuid;
 
     public String naam;
 
-    public AardVanRol aardvanrol;
+    public RolType.OmschrijvingGeneriekEnum omschrijvingGeneriekEnum;
 }

@@ -27,7 +27,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import net.atos.client.util.JAXRSClientFactory;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.exception.FoutExceptionMapper;
 import net.atos.client.zgw.shared.exception.RuntimeExceptionMapper;
 import net.atos.client.zgw.shared.exception.ValidatieFoutExceptionMapper;
@@ -36,15 +36,15 @@ import net.atos.client.zgw.shared.model.audit.AuditTrailRegel;
 import net.atos.client.zgw.shared.util.JsonbConfiguration;
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
 import net.atos.client.zgw.zrc.model.BetrokkeneType;
-import net.atos.client.zgw.zrc.model.Resultaat;
 import net.atos.client.zgw.zrc.model.Rol;
 import net.atos.client.zgw.zrc.model.RolListParameters;
 import net.atos.client.zgw.zrc.model.Status;
 import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.client.zgw.zrc.model.ZaakEigenschap;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters;
 import net.atos.client.zgw.zrc.model.ZaakListParameters;
+import net.atos.client.zgw.zrc.model.generated.Resultaat;
+import net.atos.client.zgw.zrc.model.generated.ZaakEigenschap;
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters;
 import net.atos.zac.configuratie.ConfiguratieService;
@@ -343,7 +343,7 @@ public class ZRCClientService {
         return listZaakinformatieobjecten(parameters);
     }
 
-    public List<ZaakInformatieobject> listZaakinformatieobjecten(final EnkelvoudigInformatieobject informatieobject) {
+    public List<ZaakInformatieobject> listZaakinformatieobjecten(final EnkelvoudigInformatieObject informatieobject) {
         final ZaakInformatieobjectListParameters parameters = new ZaakInformatieobjectListParameters();
         parameters.setInformatieobject(informatieobject.getUrl());
         return listZaakinformatieobjecten(parameters);
@@ -381,7 +381,8 @@ public class ZRCClientService {
         return zaakResults.getResults().get(0);
     }
 
-    public void verplaatsInformatieobject(final EnkelvoudigInformatieobject informatieobject, final Zaak oudeZaak, final Zaak nieuweZaak) {
+    public void verplaatsInformatieobject(final EnkelvoudigInformatieObject informatieobject,
+            final Zaak oudeZaak, final Zaak nieuweZaak) {
         final ZaakInformatieobjectListParameters parameters = new ZaakInformatieobjectListParameters();
         parameters.setInformatieobject(informatieobject.getUrl());
         parameters.setZaak(oudeZaak.getUrl());
@@ -405,7 +406,8 @@ public class ZRCClientService {
         deleteZaakInformatieobject(oudeZaakInformatieobject.getUuid(), toelichting, "Verplaatst");
     }
 
-    public void koppelInformatieobject(final EnkelvoudigInformatieobject informatieobject, final Zaak nieuweZaak, final String toelichting) {
+    public void koppelInformatieobject(final EnkelvoudigInformatieObject informatieobject,
+            final Zaak nieuweZaak, final String toelichting) {
         List<ZaakInformatieobject> zaakInformatieobjecten = listZaakinformatieobjecten(informatieobject);
         if (!zaakInformatieobjecten.isEmpty()) {
             final UUID zaakUuid = UriUtil.uuidFromURI(zaakInformatieobjecten.get(0).getZaak());

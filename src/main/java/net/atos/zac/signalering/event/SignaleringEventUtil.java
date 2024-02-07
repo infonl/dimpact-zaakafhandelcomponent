@@ -10,12 +10,12 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import net.atos.zac.notificaties.Action;
 import org.flowable.task.api.TaskInfo;
 
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.zac.identity.model.User;
+import net.atos.zac.notificaties.Action;
 import net.atos.zac.notificaties.Channel;
 import net.atos.zac.notificaties.Notificatie;
 import net.atos.zac.signalering.model.SignaleringType;
@@ -38,7 +38,7 @@ public class SignaleringEventUtil {
     }
 
     public static SignaleringEvent<URI> event(final SignaleringType.Type signaleringType,
-            final EnkelvoudigInformatieobject enkelvoudigInformatieobject,
+            final EnkelvoudigInformatieObject enkelvoudigInformatieobject,
             final User actor) {
         return instance(signaleringType, enkelvoudigInformatieobject.getUrl(), null, actor);
     }

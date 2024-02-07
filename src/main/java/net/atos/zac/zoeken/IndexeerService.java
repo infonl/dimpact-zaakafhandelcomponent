@@ -43,10 +43,10 @@ import org.flowable.task.api.Task;
 import org.flowable.task.api.TaskInfo;
 
 import net.atos.client.zgw.drc.DRCClientService;
-import net.atos.client.zgw.drc.model.AbstractEnkelvoudigInformatieobject;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.model.Results;
+import net.atos.client.zgw.shared.util.URIUtil;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakListParameters;
@@ -303,11 +303,14 @@ public class IndexeerService {
 
     private boolean markInformatieobjectenForReindexing(
             final EnkelvoudigInformatieobjectListParameters listParameters) {
-        final Results<EnkelvoudigInformatieobject> results = drcClientService.listEnkelvoudigInformatieObjecten(
-                listParameters);
-        helper.markObjectsForReindexing(results.getResults().stream()
-                                                .map(AbstractEnkelvoudigInformatieobject::getUUID)
-                                                .map(UUID::toString), DOCUMENT);
+        final Results<EnkelvoudigInformatieObject> results =
+                drcClientService.listEnkelvoudigInformatieObjecten(listParameters);
+        helper.markObjectsForReindexing(
+                results.getResults().stream()
+                        .map(enkelvoudigInformatieObject -> URIUtil.parseUUIDFromResourceURI(enkelvoudigInformatieObject.getUrl()))
+                        .map(UUID::toString),
+                DOCUMENT
+        );
         logProgress(DOCUMENT,
                     (listParameters.getPage() - FIRST_PAGE_NUMBER_ZGW_APIS) * NUM_ITEMS_PER_PAGE + results.getResults()
                             .size(), results.getCount());

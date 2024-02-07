@@ -2,6 +2,7 @@ import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.github.gradle.node.npm.task.NpmTask
 import io.smallrye.openapi.api.OpenApiConfig
 import org.jetbrains.kotlin.backend.common.serialization.mangle.collectForMangler
+import org.jetbrains.kotlin.fir.declarations.builder.buildConstructor
 import java.util.Locale
 
 /*
@@ -17,9 +18,9 @@ plugins {
 
     id("org.jsonschema2pojo") version "1.2.1"
     id("org.openapi.generator") version "7.2.0"
-    id("com.github.node-gradle.node") version "7.0.1"
+    id("com.github.node-gradle.node") version "7.0.2"
     id("org.barfuin.gradle.taskinfo") version "2.2.0"
-    id("io.smallrye.openapi") version "3.8.0"
+    id("io.smallrye.openapi") version "3.9.0"
     id("org.hidetake.swagger.generator") version "2.19.2"
     id("io.gitlab.arturbosch.detekt") version "1.23.5"
     id("com.bmuschko.docker-remote-api") version "9.4.0"
@@ -93,7 +94,7 @@ dependencies {
     implementation("org.flowable:flowable-cmmn-engine:7.0.1")
     implementation("org.flowable:flowable-cmmn-cdi:7.0.1")
     implementation("org.flowable:flowable-cmmn-engine-configurator:7.0.1")
-    implementation("org.slf4j:slf4j-jdk14:2.0.11")
+    implementation("org.slf4j:slf4j-jdk14:2.0.12")
     implementation("com.auth0:java-jwt:4.4.0")
     implementation("javax.cache:cache-api:1.1.1")
     implementation("com.google.guava:guava:33.0.0-jre")
@@ -101,7 +102,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core:10.7.1")
     implementation("org.flywaydb:flyway-database-postgresql:10.7.1")
     implementation("org.apache.solr:solr-solrj:9.4.1")
-    implementation("nl.info.webdav:webdav-servlet:1.2.27")
+    implementation("nl.info.webdav:webdav-servlet:1.2.31")
     implementation("com.itextpdf:itextpdf:5.5.13.3")
     implementation("com.itextpdf.tool:xmlworker:5.5.13.3")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
@@ -112,8 +113,8 @@ dependencies {
     // enable detekt formatting rules. see: https://detekt.dev/docs/rules/formatting/
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.5")
 
-    runtimeOnly("org.infinispan:infinispan-jcache:14.0.22.Final")
-    runtimeOnly("org.infinispan:infinispan-cdi-embedded:14.0.22.Final")
+    runtimeOnly("org.infinispan:infinispan-jcache:14.0.24.Final")
+    runtimeOnly("org.infinispan:infinispan-cdi-embedded:14.0.24.Final")
 
     // declare dependencies that are required in the generated WAR; see war section below
     // simply marking them as 'compileOnly' or 'implementation' does not work
@@ -145,7 +146,7 @@ dependencies {
     "itestImplementation"("org.testcontainers:postgresql:1.19.4")
     "itestImplementation"("io.kotest:kotest-runner-junit5:5.8.0")
     "itestImplementation"("io.kotest:kotest-assertions-json:5.8.0")
-    "itestImplementation"("org.slf4j:slf4j-simple:2.0.11")
+    "itestImplementation"("org.slf4j:slf4j-simple:2.0.12")
     "itestImplementation"("io.github.oshai:kotlin-logging-jvm:6.0.3")
     "itestImplementation"("org.danilopianini:khttp:1.4.3")
     "itestImplementation"("org.awaitility:awaitility-kotlin:4.2.0")
@@ -273,6 +274,7 @@ tasks {
                     exclude("net/atos/client/kvk/**/model/**")
                     exclude("net/atos/client/vrl/model/**")
                     exclude("net/atos/zac/aanvraag/**")
+                    exclude("**/generated/**")
                 }
             })
         }
@@ -384,8 +386,29 @@ tasks {
         modelPackage.set("net.atos.client.contactmomenten.model")
     }
 
+    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateZgwBrcClient") {
+        inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/brc-openapi.yaml")
+        modelPackage.set("net.atos.client.zgw.brc.model.generated")
+    }
+
+    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateZgwDrcClient") {
+        inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/drc-openapi.yaml")
+        modelPackage.set("net.atos.client.zgw.drc.model.generated")
+    }
+
+    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateZrcDrcClient") {
+        inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/zrc-openapi.yaml")
+        modelPackage.set("net.atos.client.zgw.zrc.model.generated")
+    }
+
+    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateZtcDrcClient") {
+        inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/ztc-openapi.yaml")
+        modelPackage.set("net.atos.client.zgw.ztc.model.generated")
+    }
+
     register("generateJavaClients") {
         dependsOn(
+            generateJsonSchema2Pojo,
             "generateKvkZoekenClient",
             "generateKvkBasisProfielClient",
             "generateKvkVestigingsProfielClient",
@@ -393,7 +416,11 @@ tasks {
             "generateVrlClient",
             "generateBagClient",
             "generateKlantenClient",
-            "generateContactMomentenClient"
+            "generateContactMomentenClient",
+            "generateZgwBrcClient",
+            "generateZgwDrcClient",
+            "generateZrcDrcClient",
+            "generateZtcDrcClient"
         )
     }
 

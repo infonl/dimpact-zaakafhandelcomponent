@@ -25,7 +25,7 @@ import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 
 import net.atos.client.zgw.drc.DRCClientService;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.util.DateTimeUtil;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
@@ -51,7 +51,8 @@ public class InboxDocumentenService {
     private DRCClientService drcClientService;
 
     public InboxDocument create(final UUID enkelvoudiginformatieobejctUUID) {
-        final EnkelvoudigInformatieobject informatieobject = drcClientService.readEnkelvoudigInformatieobject(enkelvoudiginformatieobejctUUID);
+        final EnkelvoudigInformatieObject informatieobject =
+                drcClientService.readEnkelvoudigInformatieobject(enkelvoudiginformatieobejctUUID);
         final InboxDocument inboxDocument = new InboxDocument();
         inboxDocument.setEnkelvoudiginformatieobjectID(informatieobject.getIdentificatie());
         inboxDocument.setEnkelvoudiginformatieobjectUUID(enkelvoudiginformatieobejctUUID);

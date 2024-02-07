@@ -1,5 +1,6 @@
 package net.atos.zac.flowable;
 
+import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
 import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_OMSCHRIJVING;
 import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_UUUID;
 import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE;
@@ -23,7 +24,7 @@ import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.ProcessInstance;
 
 import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.client.zgw.ztc.model.Zaaktype;
+import net.atos.client.zgw.ztc.model.generated.ZaakType;
 
 @ApplicationScoped
 @Transactional
@@ -74,7 +75,8 @@ public class BPMNService {
         }
     }
 
-    public void startProcess(final Zaak zaak, final Zaaktype zaaktype, final Map<String, Object> zaakData,
+    public void startProcess(final Zaak zaak, final ZaakType zaaktype,
+            final Map<String, Object> zaakData,
             final String processDefinitionKey) {
         try {
             runtimeService.createProcessInstanceBuilder()
@@ -82,7 +84,7 @@ public class BPMNService {
                     .businessKey(zaak.getUuid().toString())
                     .variable(VAR_ZAAK_UUID, zaak.getUuid())
                     .variable(VAR_ZAAK_IDENTIFICATIE, zaak.getIdentificatie())
-                    .variable(VAR_ZAAKTYPE_UUUID, zaaktype.getUUID())
+                    .variable(VAR_ZAAKTYPE_UUUID, parseUUIDFromResourceURI(zaaktype.getUrl()))
                     .variable(VAR_ZAAKTYPE_OMSCHRIJVING, zaaktype.getOmschrijving())
                     .variables(zaakData)
                     .start();

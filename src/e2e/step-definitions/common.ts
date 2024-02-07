@@ -2,9 +2,21 @@
  * SPDX-FileCopyrightText: 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-import { Given, Then } from "@cucumber/cucumber";
+import { Given, Then, When } from "@cucumber/cucumber";
 import { CustomWorld } from "../support/worlds/world";
-import { worldPossibleZacUrls } from "../utils/schemes";
+import { worldPossibleZacUrls, worldUsers } from "../utils/schemes";
+import { login } from "./authentication";
+
+When("Employee {string} opens zac", { timeout: 60 * 1000 }, async function (this: CustomWorld, user) {
+    const expectedUrl = this.worldParameters.urls[worldPossibleZacUrls.Values.zac];
+    await this.openUrl(expectedUrl);
+})
+
+When("Employee {string} navigates to {string}", { timeout: 60 * 1000 }, async function (this: CustomWorld, user, path) {
+    const expectedUrl = this.worldParameters.urls[worldPossibleZacUrls.Values.zac] + path;
+ 
+    await this.openUrl(expectedUrl);
+ });
 
 Given("{string} navigates to {string} with path {string}", { timeout: 60 * 1000 }, async function (this: CustomWorld, user, urlKey, path) {
    const res = worldPossibleZacUrls.parse(urlKey);

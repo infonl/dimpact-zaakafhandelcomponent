@@ -21,7 +21,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
 import net.atos.client.zgw.drc.DRCClientService;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.zac.app.inboxdocumenten.converter.RESTInboxDocumentConverter;
@@ -78,7 +78,7 @@ public class InboxDocumentenRESTService {
         if (inboxDocument.isEmpty()) {
             return; // reeds verwijderd
         }
-        final EnkelvoudigInformatieobject enkelvoudigInformatieobject =
+        final EnkelvoudigInformatieObject enkelvoudigInformatieobject =
                 drcClientService.readEnkelvoudigInformatieobject(
                         inboxDocument.get().getEnkelvoudiginformatieobjectUUID());
         final List<ZaakInformatieobject> zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(

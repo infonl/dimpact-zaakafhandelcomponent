@@ -12,7 +12,7 @@ import net.atos.client.zgw.zrc.model.AardRelatie;
 import net.atos.client.zgw.zrc.model.RelevanteZaak;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.Zaaktype;
+import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.app.policy.converter.RESTRechtenConverter;
 import net.atos.zac.app.zaken.model.RESTGerelateerdeZaak;
 import net.atos.zac.app.zaken.model.RelatieType;
@@ -34,7 +34,7 @@ public class RESTGerelateerdeZaakConverter {
     private PolicyService policyService;
 
     public RESTGerelateerdeZaak convert(final Zaak zaak, final RelatieType relatieType) {
-        final Zaaktype zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
+        final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
         final ZaakRechten zaakrechten = policyService.readZaakRechten(zaak, zaaktype);
         final RESTGerelateerdeZaak restGerelateerdeZaak = new RESTGerelateerdeZaak();
         restGerelateerdeZaak.identificatie = zaak.getIdentificatie();

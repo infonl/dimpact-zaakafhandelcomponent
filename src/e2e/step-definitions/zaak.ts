@@ -3,8 +3,58 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Then, When } from "@cucumber/cucumber";
+import { Given, Then, When } from "@cucumber/cucumber";
 import { CustomWorld } from "../support/worlds/world";
+import fs from 'fs'
+import { worldUsers, zaakStatus } from "../utils/schemes";
+import { z } from "zod";
+import { profiles } from "../support/worlds/userProfiles";
+
+Given("Employee {string} is on the newly created zaak with status {string}", { timeout: 60 * 1000 },  async function (this: CustomWorld, user: z.infer<typeof worldUsers>, status: z.infer<typeof zaakStatus>) {
+    worldUsers.parse(user)
+    const caseNumber = this.testStorage.get('caseNumber');
+  
+    const parsedStatus = zaakStatus.parse(status);
+
+    await this.page.waitForTimeout(2000)
+    await this.page.goto(`${this.worldParameters.urls.zac}/zaken/${caseNumber}`);
+
+    this.expect(await this.page.getByText(`State ${parsedStatus} info`)).toBeTruthy();
+})
+
+When("Employee {string} does not have enough information to finish Intake and assigns a task to Employee {string}", { timeout: 120 * 1000 }, async function (this: CustomWorld, user1: z.infer<typeof worldUsers>, user2: z.infer<typeof worldUsers>) {
+    const zaakNumber = this.testStorage.get('caseNumber');
+    const user1Parsed = worldUsers.parse(user1);
+    const user1Profile = profiles[user1Parsed];
+    worldUsers.parse(user2);
+
+    await this.page.getByText('Aanvullende informatie').first().click();
+
+    await this.page.getByText('- Kies een e-mailadres -').first().click();
+    await this.page.getByText('E2etestuser1@team-dimpact.info.nl').first().click();
+    await this.page.getByLabel('E-mailadres').first().click();
+    await this.page.getByLabel('E-mailadres').first().fill('test@test.nl');
+
+    await this.page.getByPlaceholder('- Kies een groep -').first().click();
+    await this.page.getByRole('option', {name: 'Test groep B'}).first().click();
+    await this.page.waitForTimeout(1000)
+
+    await this.page.getByPlaceholder('- Geen behandelaar -').first().click();
+    await this.page.getByRole('option', {name: 'E2etest User2'}).first().click();
+    await this.page.getByRole('button', { name: 'Start' }).first().click();
+
+    await this.page.waitForTimeout(10000)
+    this.expect(await this.page.getByText('Document "Aanvullende informatie nodig voor zaak ZAAK-2024-0000000167" is toegevoegd aan de zaak')).toBeTruthy();
+    this.expect(await this.page.getByText(`Aanvullende informatie nodig voor zaak ${zaakNumber}`)).toBeTruthy();
+    this.expect(await this.page.getByRole('cell', { name: 'Aanvullende informatie', exact: true })).toBeTruthy()
+    this.expect(await this.page.getByRole('cell', { name: 'Assigned' })).toBeTruthy()
+    // current date to 16-02-2024 format
+    const currentDDateString = new Date().toISOString().split('T')[0].split('-').reverse().join('-');
+    this.expect(await this.page.getByRole('cell', { name: currentDDateString })).toBeTruthy()
+    this.expect(await this.page.getByRole('cell', { name: user1Profile.group })).toBeTruthy()
+    this.expect(await this.page.getByRole('cell', { name: user1Profile.username })).toBeTruthy()
+})
+
 
 When("{string} wants to create a new zaak", { timeout: 60 * 1000 }, async function (this: CustomWorld, user) {
     await this.page.getByLabel("Zaak toevoegen").click();
@@ -64,17 +114,116 @@ When("{string} wants to create a new zaak", { timeout: 60 * 1000 }, async functi
     await this.page.waitForTimeout(1000)
 });
 
-Then("{string} sees the created zaak", { timeout: 60 * 1000 }, async function (this: CustomWorld, user,  ) {
+Then("Employee {string} sees the task assigned by Employee {string} in the newly created zaak tasks list", { timeout: 60 * 1000 }, async function (this: CustomWorld, user1, user2) {
+    const user1Parsed = worldUsers.parse(user1);
+    const user1Profile = profiles[user1Parsed];
+    worldUsers.parse(user2);
+    const zaakNumber = this.testStorage.get('caseNumber');
+
+    this.expect(await this.page.getByText(`Aanvullende informatie nodig voor zaak ${zaakNumber}`)).toBeTruthy();
+    this.expect(await this.page.getByRole('cell', { name: 'Aanvullende informatie', exact: true })).toBeTruthy()
+    this.expect(await this.page.getByRole('cell', { name: 'Assigned' })).toBeTruthy()
+    // current date to 16-02-2024 format
+    const currentDDateString = new Date().toISOString().split('T')[0].split('-').reverse().join('-');
+    this.expect(await this.page.getByRole('cell', { name: currentDDateString })).toBeTruthy()
+    this.expect(await this.page.getByRole('cell', { name: user1Profile.group })).toBeTruthy()
+    this.expect(await this.page.getByRole('cell', { name: user1Profile.username })).toBeTruthy()
+})
+
+Then("Employee {string} sees the task assigned to Employee {string} in my task list", { timeout: 120 * 1000 }, async function (this: CustomWorld, user1, user2) {
+    const user1Parsed = worldUsers.parse(user1);
+    const user1Profile = profiles[user1Parsed];
+    worldUsers.parse(user2);
+
+    const caseNumber = this.testStorage.get('caseNumber');
+
+    await this.page.goto(`${this.worldParameters.urls.zac}/taken/mijn`);
+    
+    this.expect(await this.page.getByRole('cell', { name: caseNumber, exact: true }).first()).toBeTruthy()
+    this.expect(await this.page.getByRole('cell', { name: 'Aanvullende informatie', exact: true }).first()).toBeTruthy()
+    // current date to 16-02-2024 format
+    const currentDDateString = new Date().toISOString().split('T')[0].split('-').reverse().join('-');
+    this.expect(await this.page.getByRole('cell', { name: currentDDateString }).first()).toBeTruthy()
+    this.expect(await this.page.getByRole('cell', { name: user1Profile.group }).first()).toBeTruthy()
+})
+
+Then("{string} sees the created zaak", { timeout: 60 * 1000 }, async function (this: CustomWorld, user) {
     const caseNumber = this.testStorage.get('caseNumber');
 
     await this.page.getByText(caseNumber);
 });
 
 
-Then("{string} sees the created zaak with a delay", { timeout: 60 * 1000 + 15000 }, async function (this: CustomWorld, user,  ) {
+Then("{string} sees the created zaak with a delay", { timeout: 60 * 1000 + 15000 }, async function (this: CustomWorld, user) {
     // atleast a minute and 10 seconds just to be sure
     await this.page.waitForTimeout(60 * 1000 + 10000)
     const caseNumber = this.testStorage.get('caseNumber');
 
     await this.page.getByText(caseNumber);
+});
+
+Then("Employee {string} clicks on the first zaak in the zaak-werkvoorraad with delay", { timeout: 60 * 1000 + 30000 }, async function (this: CustomWorld, user) {
+    await this.page.waitForTimeout(60 * 1000 + 10000)
+    await this.page.reload();
+    await this.page.getByText('visibility').first().click();
+});
+
+Then("Employee {string} sees the zaak that {string} created in open-forms", { timeout: 60 * 1000 + 30000 }, async function (this: CustomWorld, user, profile) {
+    const openFormsTestId = this.testStorage.get('open-forms-testid');
+
+    await this.page.getByText('plagiarism').nth(1).click();
+    await this.expect(this.page.getByAltText('Bijgevoegd document')).toBeVisible();
+
+    
+    await this.page.getByText('more_vert').first().click()
+    const [download] = await Promise.all([
+        this.page.waitForEvent('download'),
+        this.page.getByText('Document downloaden').first().click()
+    ]);
+
+    const suggestedFileName = download.suggestedFilename();
+    const filePath = 'ExportData/' + suggestedFileName;
+    await download.saveAs(filePath);
+
+    var pdf = require('pdf-parse');
+    var dataBuffer = fs.readFileSync('./ExportData/' + suggestedFileName);
+    await pdf(dataBuffer).then(function(data: any) {
+        fs.writeFileSync('./ExportData/actual.txt', data.text);
+    });
+
+    let actual_export_values = fs.readFileSync('./ExportData/actual.txt', 'utf-8').replace(/(\r\n|\n|\r)/gm,"");
+    this.expect(actual_export_values.includes(`Voornaam Alice:e2eid=${openFormsTestId}`)).toBe(true);
+    this.expect(actual_export_values.includes('Voorletter(s) A')).toBe(true);
+    this.expect(actual_export_values.includes('Tussenvoegsel(s) den')).toBe(true);
+    this.expect(actual_export_values.includes('Achternaam Test')).toBe(true);
+    this.expect(actual_export_values.includes('BSN BSN-nummer')).toBe(true);
+    this.expect(actual_export_values.includes('Voornaam Demo')).toBe(true);
+    this.expect(actual_export_values.includes('Voorletter(s)')).toBe(true);
+    this.expect(actual_export_values.includes('Tussenvoegsel(s)')).toBe(true);
+    this.expect(actual_export_values.includes('Achternaam Demo')).toBe(true);
+    this.expect(actual_export_values.includes(`Omschrijving van het voorval Achterstallig onderhoudt aan de weg heeft schade aanmijn auto aangebracht`)).toBe(true);
+    this.expect(actual_export_values.includes('Datum & tijdstip voorval 10 oktober 2024 00:00')).toBe(true);
+    this.expect(actual_export_values.includes('materiële schade aan een voertuig')).toBe(true);
+    this.expect(actual_export_values.includes('Waren er getuigen aanwezig ja')).toBe(true);
+    this.expect(actual_export_values.includes('Hoeveel getuigen? 1')).toBe(true);
+    this.expect(actual_export_values.includes(`Wilt u bijlagen meesturen met demelding? ja, digitaal bij deze melding`)).toBe(true);
+    this.expect(actual_export_values.includes(`U kunt hier aangeven waar het voorval ongeveer heeft plaatsgevonden.Plaats Enschede`)).toBe(true);
+    this.expect(actual_export_values.includes('Straat teststraat')).toBe(true);
+    this.expect(actual_export_values.includes(`Nadere omschrijving van de locatie teststraat heeft behoorlijke gaten in de weg`)).toBe(true);
+    this.expect(actual_export_values.includes(`U kunt hier aangeven waarom degemeente aansprakelijk is voor deschade: Achterstallig onderhoudt aan de weg`)).toBe(true);
+    this.expect(actual_export_values.includes('Omschrijving schade voertuig klapband door gaten met scherpe randen in de weg')).toBe(true);
+    this.expect(actual_export_values.includes('Merk voertuig CITROËN')).toBe(true);
+    this.expect(actual_export_values.includes('Kenteken voertuig EE-RP-10')).toBe(true);
+    this.expect(actual_export_values.includes('Bedrijfsnaam Verzekeraar bv')).toBe(true);
+    this.expect(actual_export_values.includes('Polisnummer 111.111.111')).toBe(true);
+    this.expect(actual_export_values.includes('Schade reeds gemeld ja')).toBe(true);
+    this.expect(actual_export_values.includes('Hoe bent u verzekerd? AllRisk')).toBe(true);
+    this.expect(actual_export_values.includes('Achternaam Test')).toBe(true);
+    this.expect(actual_export_values.includes('Tussenvoegsels')).toBe(true);
+    this.expect(actual_export_values.includes('Voornamen Robert')).toBe(true);
+    this.expect(actual_export_values.includes('Postcode 1234 AB')).toBe(true);
+    this.expect(actual_export_values.includes('Huisnummer')).toBe(true);
+    this.expect(actual_export_values.includes('Foto bijlage: dent.jpg')).toBe(true);
+    this.expect(actual_export_values.includes('Factuur of offerte bijlage: invoice.pdf')).toBe(true);
+    this.expect(actual_export_values.includes('Andere documenten')).toBe(true);
 });

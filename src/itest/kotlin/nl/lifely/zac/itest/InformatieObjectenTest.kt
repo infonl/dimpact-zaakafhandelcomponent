@@ -22,7 +22,6 @@ private val logger = KotlinLogging.logger {}
  */
 @Order(1)
 class InformatieObjectenTest : BehaviorSpec() {
-
     init {
         given(
             "ZAC and all related Docker containers are running and zaak exists"
@@ -31,7 +30,7 @@ class InformatieObjectenTest : BehaviorSpec() {
                 then(
                     "the 'unattended document creation wizard' is started in Smartdocuments"
                 ) {
-                    logger.info { "Calling documentcreatie endpoint for zaak with UUID: '$zaakUUID' to create document in Smartdocuments" }
+                    logger.info { "Calling documentcreatie endpoint for zaak with UUID: '$zaak1UUID' to create document in Smartdocuments" }
                     khttp.post(
                         url = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/documentcreatie",
                         headers = mapOf(
@@ -40,7 +39,7 @@ class InformatieObjectenTest : BehaviorSpec() {
                         ),
                         data = JSONObject(
                             mapOf(
-                                "zaakUUID" to zaakUUID
+                                "zaakUUID" to zaak1UUID
                             )
                         )
                     ).apply {

@@ -5,7 +5,8 @@
 
 package net.atos.zac.policy;
 
-import static net.atos.client.zgw.drc.model.InformatieobjectStatus.DEFINITIEF;
+import static net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject.StatusEnum.DEFINITIEF;
+import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
@@ -15,11 +16,11 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.flowable.task.api.TaskInfo;
 
 import net.atos.client.opa.model.RuleQuery;
-import net.atos.client.zgw.drc.model.AbstractEnkelvoudigInformatieobject;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.Zaaktype;
+import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.authentication.LoggedInUser;
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
 import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
@@ -77,7 +78,7 @@ public class PolicyService {
         return readZaakRechten(zaak, ztcClientService.readZaaktype(zaak.getZaaktype()));
     }
 
-    public ZaakRechten readZaakRechten(final Zaak zaak, final Zaaktype zaaktype) {
+    public ZaakRechten readZaakRechten(final Zaak zaak, final ZaakType zaaktype) {
         final ZaakData zaakData = new ZaakData();
         zaakData.open = zaak.isOpen();
         zaakData.zaaktype = zaaktype.getOmschrijving();
@@ -93,17 +94,19 @@ public class PolicyService {
                 .getResult();
     }
 
-    public DocumentRechten readDocumentRechten(final AbstractEnkelvoudigInformatieobject enkelvoudigInformatieobject) {
+    public DocumentRechten readDocumentRechten(final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
         return readDocumentRechten(enkelvoudigInformatieobject, null);
     }
 
-    public DocumentRechten readDocumentRechten(final AbstractEnkelvoudigInformatieobject enkelvoudigInformatieobject,
-            final Zaak zaak) {
-        return readDocumentRechten(enkelvoudigInformatieobject,
-                                   lockService.findLock(enkelvoudigInformatieobject.getUUID()).orElse(null), zaak);
+    public DocumentRechten readDocumentRechten(final EnkelvoudigInformatieObject enkelvoudigInformatieobject, final Zaak zaak) {
+        return readDocumentRechten(
+                enkelvoudigInformatieobject,
+                lockService.findLock(parseUUIDFromResourceURI(enkelvoudigInformatieobject.getUrl())).orElse(null),
+                zaak
+        );
     }
 
-    public DocumentRechten readDocumentRechten(final AbstractEnkelvoudigInformatieobject enkelvoudigInformatieobject,
+    public DocumentRechten readDocumentRechten(final EnkelvoudigInformatieObject enkelvoudigInformatieobject,
             final EnkelvoudigInformatieObjectLock lock,
             final Zaak zaak) {
         final DocumentData documentData = new DocumentData();

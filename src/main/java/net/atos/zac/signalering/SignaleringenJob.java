@@ -19,9 +19,10 @@ import jakarta.transaction.Transactional;
 
 import org.flowable.task.api.Task;
 
+import net.atos.client.zgw.shared.util.URIUtil;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.Zaaktype;
+import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.flowable.TakenService;
 import net.atos.zac.signalering.model.Signalering;
@@ -81,7 +82,8 @@ public class SignaleringenJob {
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
                 .forEach(zaaktype -> {
                     final ZaakafhandelParameters parameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                            zaaktype.getUUID());
+                            URIUtil.parseUUIDFromResourceURI(zaaktype.getUrl())
+                    );
                     if (parameters.getEinddatumGeplandWaarschuwing() != null) {
                         info.streefdatumVerzonden += zaakEinddatumGeplandVerzenden(zaaktype,
                                                                                    parameters.getEinddatumGeplandWaarschuwing());
@@ -106,7 +108,7 @@ public class SignaleringenJob {
      *
      * @return the number of E-Mails sent
      */
-    private int zaakEinddatumGeplandVerzenden(final Zaaktype zaaktype, final int venster) {
+    private int zaakEinddatumGeplandVerzenden(final ZaakType zaaktype, final int venster) {
         final int[] verzonden = new int[1];
         zoekenService.zoek(getZaakSignaleringTeVerzendenZoekParameters(DatumVeld.ZAAK_STREEFDATUM, zaaktype, venster))
                 .getItems().stream()
@@ -125,7 +127,8 @@ public class SignaleringenJob {
      *
      * @return the number of E-Mails sent
      */
-    private int zaakUiterlijkeEinddatumAfdoeningVerzenden(final Zaaktype zaaktype, final int venster) {
+    private int zaakUiterlijkeEinddatumAfdoeningVerzenden(final ZaakType zaaktype,
+            final int venster) {
         final int[] verzonden = new int[1];
         zoekenService.zoek(getZaakSignaleringTeVerzendenZoekParameters(DatumVeld.ZAAK_FATALE_DATUM, zaaktype, venster))
                 .getItems().stream()
@@ -174,7 +177,8 @@ public class SignaleringenJob {
     /**
      * Make sure already sent E-Mail warnings will get send again (in cases where the einddatum gepland has changed)
      */
-    private void zaakEinddatumGeplandOnterechtVerzondenVerwijderen(final Zaaktype zaaktype, final int venster) {
+    private void zaakEinddatumGeplandOnterechtVerzondenVerwijderen(final ZaakType zaaktype,
+            final int venster) {
         zoekenService.zoek(
                         getZaakSignaleringLaterTeVerzendenZoekParameters(DatumVeld.ZAAK_STREEFDATUM, zaaktype, venster))
                 .getItems().stream()
@@ -189,7 +193,7 @@ public class SignaleringenJob {
     /**
      * Make sure already sent E-Mail warnings will get send again (in cases where the uiterlijke einddatum afdoening has changed)
      */
-    private void zaakUiterlijkeEinddatumAfdoeningOnterechtVerzondenVerwijderen(final Zaaktype zaaktype,
+    private void zaakUiterlijkeEinddatumAfdoeningOnterechtVerzondenVerwijderen(final ZaakType zaaktype,
             final int venster) {
         zoekenService.zoek(
                         getZaakSignaleringLaterTeVerzendenZoekParameters(DatumVeld.ZAAK_FATALE_DATUM, zaaktype, venster))
@@ -202,7 +206,8 @@ public class SignaleringenJob {
                 .forEach(signaleringenService::deleteSignaleringVerzonden);
     }
 
-    private ZoekParameters getZaakSignaleringTeVerzendenZoekParameters(final DatumVeld veld, final Zaaktype zaaktype,
+    private ZoekParameters getZaakSignaleringTeVerzendenZoekParameters(final DatumVeld veld,
+            final ZaakType zaaktype,
             final int venster) {
         final LocalDate now = LocalDate.now();
         final ZoekParameters parameters = getOpenZaakMetBehandelaarZoekParameters(zaaktype);
@@ -211,14 +216,14 @@ public class SignaleringenJob {
     }
 
     private ZoekParameters getZaakSignaleringLaterTeVerzendenZoekParameters(final DatumVeld veld,
-            final Zaaktype zaaktype, final int venster) {
+            final ZaakType zaaktype, final int venster) {
         final LocalDate now = LocalDate.now();
         final ZoekParameters parameters = getOpenZaakMetBehandelaarZoekParameters(zaaktype);
         parameters.addDatum(veld, new DatumRange(now.plusDays((long) venster + 1), null));
         return parameters;
     }
 
-    private ZoekParameters getOpenZaakMetBehandelaarZoekParameters(final Zaaktype zaaktype) {
+    private ZoekParameters getOpenZaakMetBehandelaarZoekParameters(final ZaakType zaaktype) {
         final ZoekParameters parameters = new ZoekParameters(ZoekObjectType.ZAAK);
         parameters.addFilter(FilterVeld.ZAAK_ZAAKTYPE_UUID, UriUtil.uuidFromURI(zaaktype.getUrl()).toString());
         parameters.addFilter(FilterVeld.ZAAK_BEHANDELAAR, NIET_LEEG.toString());

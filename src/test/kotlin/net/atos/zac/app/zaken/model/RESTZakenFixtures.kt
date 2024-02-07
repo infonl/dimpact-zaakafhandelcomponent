@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.zaken.model
 
-import net.atos.client.zgw.shared.model.Vertrouwelijkheidaanduiding
+import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.zac.app.admin.model.RESTZaakafhandelParameters
 import net.atos.zac.app.bag.model.RESTOpenbareRuimte
 import net.atos.zac.app.bag.model.RESTPand
@@ -52,12 +52,14 @@ fun createRESTPand() = RESTPand()
 
 fun createRESTUser() = RESTUser()
 
-fun createRESTZaak() = RESTZaak().apply {
+fun createRESTZaak(
+    restZaakType: RESTZaaktype = createRESTZaaktype()
+) = RESTZaak().apply {
     uuid = UUID.randomUUID()
     identificatie = "ZA2023001"
     omschrijving = "Sample Zaak"
     toelichting = "This is a test zaak"
-    zaaktype = createRESTZaaktype()
+    zaaktype = restZaakType
     status = createRESTZaakStatus()
     resultaat = createRESTZaakResultaat()
     besluiten = listOf(createRESTBesluit())
@@ -98,8 +100,15 @@ fun createRESTZaak() = RESTZaak().apply {
     rechten = createRESTZaakRechten()
 }
 
-fun createRESTZaakAanmaakGegevens() = RESTZaakAanmaakGegevens().apply {
-    zaak = createRESTZaak()
+fun createRESTZaakAanmaakGegevens(
+    zaakTypeUUID: UUID = UUID.randomUUID()
+) = RESTZaakAanmaakGegevens().apply {
+    zaak = createRESTZaak(
+        RESTZaaktype().apply {
+            // we only need a UUID for the zaaktype when creating a zaak
+            uuid = zaakTypeUUID
+        }
+    )
     inboxProductaanvraag = createRESTInboxProductaanvraag()
     bagObjecten = listOf(createRESTPand(), createRESTOpenbareRuimte())
 }
@@ -139,7 +148,7 @@ fun createRESTZaaktype() = RESTZaaktype().apply {
     versiedatum = LocalDate.now()
     beginGeldigheid = LocalDate.of(2023, 1, 1)
     eindeGeldigheid = LocalDate.of(2023, 12, 31)
-    vertrouwelijkheidaanduiding = Vertrouwelijkheidaanduiding.OPENBAAR
+    vertrouwelijkheidaanduiding = ZaakType.VertrouwelijkheidaanduidingEnum.OPENBAAR
     nuGeldig = true
     opschortingMogelijk = false
     verlengingMogelijk = false

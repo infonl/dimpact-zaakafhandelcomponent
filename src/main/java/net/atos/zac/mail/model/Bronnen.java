@@ -2,18 +2,19 @@ package net.atos.zac.mail.model;
 
 import org.flowable.task.api.TaskInfo;
 
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobject;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.model.Zaak;
 
 public class Bronnen {
 
     public final Zaak zaak;
 
-    public final EnkelvoudigInformatieobject document;
+    public final EnkelvoudigInformatieObject document;
 
     public final TaskInfo taskInfo;
 
-    private Bronnen(final Zaak zaak, final EnkelvoudigInformatieobject document, final TaskInfo taskInfo) {
+    private Bronnen(final Zaak zaak, final EnkelvoudigInformatieObject document,
+            final TaskInfo taskInfo) {
         this.zaak = zaak;
         this.document = document;
         this.taskInfo = taskInfo;
@@ -23,7 +24,7 @@ public class Bronnen {
         return new Builder().add(zaak).build();
     }
 
-    public static Bronnen fromDocument(final EnkelvoudigInformatieobject document) {
+    public static Bronnen fromDocument(final EnkelvoudigInformatieObject document) {
         return new Builder().add(document).build();
     }
 
@@ -34,7 +35,7 @@ public class Bronnen {
     public static class Builder {
         private Zaak zaak;
 
-        private EnkelvoudigInformatieobject document;
+        private EnkelvoudigInformatieObject document;
 
         private TaskInfo taskInfo;
 
@@ -43,7 +44,7 @@ public class Bronnen {
             return this;
         }
 
-        public Builder add(final EnkelvoudigInformatieobject document) {
+        public Builder add(final EnkelvoudigInformatieObject document) {
             this.document = document;
             return this;
         }

@@ -21,6 +21,7 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 import javax.cache.annotation.CacheRemoveAll;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -32,8 +33,8 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.Resultaattype;
-import net.atos.client.zgw.ztc.model.Zaaktype;
+import net.atos.client.zgw.ztc.model.generated.ResultaatType;
+import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.util.UriUtil;
 import net.atos.zac.util.ValidationUtil;
 import net.atos.zac.zaaksturing.model.HumanTaskParameters;
@@ -133,7 +134,7 @@ public class ZaakafhandelParameterBeheerService {
     @CacheRemoveAll(cacheName = ZAC_ZAAKAFHANDELPARAMETERS)
     public void zaaktypeAangepast(final URI zaaktypeUri) {
         ztcClientService.clearZaaktypeCache();
-        final Zaaktype zaaktype = ztcClientService.readZaaktype(zaaktypeUri);
+        final ZaakType zaaktype = ztcClientService.readZaaktype(zaaktypeUri);
         if (!zaaktype.getConcept()) {
             final String omschrijving = zaaktype.getOmschrijving();
             final ZaakafhandelParameters vorigeZaakafhandelparameters = readRecentsteZaakafhandelParameters(omschrijving);
@@ -143,7 +144,8 @@ public class ZaakafhandelParameterBeheerService {
             nieuweZaakafhandelParameters.setCaseDefinitionID(vorigeZaakafhandelparameters.getCaseDefinitionID());
             nieuweZaakafhandelParameters.setGroepID(vorigeZaakafhandelparameters.getGroepID());
             nieuweZaakafhandelParameters.setGebruikersnaamMedewerker(vorigeZaakafhandelparameters.getGebruikersnaamMedewerker());
-            if (zaaktype.isServicenormBeschikbaar()) {
+            // TODO; Lifely compare with old code
+            if (zaaktype.getServicenorm() != null) {
                 nieuweZaakafhandelParameters.setEinddatumGeplandWaarschuwing(vorigeZaakafhandelparameters.getEinddatumGeplandWaarschuwing());
             }
             nieuweZaakafhandelParameters.setUiterlijkeEinddatumAfdoeningWaarschuwing(
@@ -223,10 +225,14 @@ public class ZaakafhandelParameterBeheerService {
      * @param nieuweZaakafhandelParameters bestemming
      * @param nieuwZaaktype                het nieuwe zaaktype om de resultaten van te lezen
      */
-    private void mapZaakbeeindigGegevens(final ZaakafhandelParameters vorigeZaakafhandelparameters,
-            final ZaakafhandelParameters nieuweZaakafhandelParameters, final Zaaktype nieuwZaaktype) {
+    private void mapZaakbeeindigGegevens(
+            final ZaakafhandelParameters vorigeZaakafhandelparameters,
+            final ZaakafhandelParameters nieuweZaakafhandelParameters,
+            final ZaakType nieuwZaaktype
+    ) {
 
-        final List<Resultaattype> nieuweResultaattypen = nieuwZaaktype.getResultaattypen().stream().map(rt -> ztcClientService.readResultaattype(rt)).toList();
+        final List<ResultaatType> nieuweResultaattypen =
+                nieuwZaaktype.getResultaattypen().stream().map(rt -> ztcClientService.readResultaattype(rt)).toList();
         nieuweZaakafhandelParameters.setNietOntvankelijkResultaattype(
                 mapVorigResultaattypeOpNieuwResultaattype(nieuweResultaattypen, vorigeZaakafhandelparameters.getNietOntvankelijkResultaattype()));
 
@@ -256,11 +262,12 @@ public class ZaakafhandelParameterBeheerService {
         nieuweZaakafhandelParameters.setMailtemplateKoppelingen(mailtemplateKoppelingen);
     }
 
-    private UUID mapVorigResultaattypeOpNieuwResultaattype(final List<Resultaattype> nieuweResultaattypen, final UUID vorigResultaattypeUUID) {
+    private UUID mapVorigResultaattypeOpNieuwResultaattype(final List<ResultaatType> nieuweResultaattypen, final UUID vorigResultaattypeUUID) {
         if (vorigResultaattypeUUID == null) {
             return null;
         }
-        final Resultaattype vorigResultaattype = ztcClientService.readResultaattype(vorigResultaattypeUUID);
+        final ResultaatType vorigResultaattype =
+                ztcClientService.readResultaattype(vorigResultaattypeUUID);
         return nieuweResultaattypen.stream()
                 .filter(resultaattype -> resultaattype.getOmschrijving().equals(vorigResultaattype.getOmschrijving())).findAny()
                 .map(resultaattype -> UriUtil.uuidFromURI(resultaattype.getUrl())).orElse(null);

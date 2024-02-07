@@ -7,7 +7,7 @@ package net.atos.client.zgw.shared.model.audit.zaken;
 
 import net.atos.client.zgw.shared.model.ObjectType;
 import net.atos.client.zgw.shared.model.audit.AuditWijziging;
-import net.atos.client.zgw.zrc.model.ZaakEigenschap;
+import net.atos.client.zgw.zrc.model.generated.ZaakEigenschap;
 
 public class ZaakEigenschapWijziging extends AuditWijziging<ZaakEigenschap> {
 

@@ -5,6 +5,8 @@
 
 package net.atos.client.zgw.zrc.model;
 
+import net.atos.client.zgw.zrc.model.generated.SubVerblijfBuitenland;
+
 public class NietNatuurlijkPersoon {
 
     /**

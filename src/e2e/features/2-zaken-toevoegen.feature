@@ -1,4 +1,4 @@
-Feature: Login
+Feature: Zaak
 
   Scenario: Bob wants to create a new zaak
     Given "Bob" navigates to "zac" with path "/"

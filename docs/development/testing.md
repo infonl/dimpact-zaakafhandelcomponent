@@ -56,6 +56,18 @@ We have predefined steps that you can use to write tests. You can find them in t
 In a .feature file you should be able to write out tests based on the predefined steps with auto complete.
 ![Alt text](./attachments/images/cucumber-auto-complete.png)
 
+### Generating e2e tests with playwright codegen
+
+You can use the playwright codegen tool to generate e2e tests. This is a great way to get started with e2e tests. You can find more information about this tool [here](https://playwright.dev/docs/cli/#generate-code-for-a-scenario).
+
+you can run the following command to generate a test with taking the test environment as a base:
+
+```shell
+npx playwright codegen https://zaakafhandelcomponent-zac-dev.dimpact.lifely.nl
+```
+
+This will open a chrome window, will record all your clicks, and will generate code that you can copy paste into your cucumber test.
+
 #### Writing Cucumber tests in IntelliJ
 
 You need to make sure to install the [cucumber.js](https://plugins.jetbrains.com/plugin/7418-cucumber-js) plugin.

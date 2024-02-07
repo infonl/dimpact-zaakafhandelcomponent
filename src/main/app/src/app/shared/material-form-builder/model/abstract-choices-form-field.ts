@@ -20,7 +20,10 @@ export abstract class AbstractChoicesFormField extends AbstractFormControlField 
   public optionSuffix: string | null;
   public optionValue: string | null;
   public optionOrderFn: (a: any, b: any) => number;
-  public settings: { translateLabels?: boolean } = {};
+  public settings: {
+    translateLabels?: boolean;
+    capitalizeFirstLetter?: boolean;
+  } = {};
   loading$ = new EventEmitter<boolean>();
 
   protected constructor() {
