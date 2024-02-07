@@ -23,6 +23,7 @@ C4Context
             System(ZAC, "ZAC")
             System(OfficeConverter, "OfficeConverter")
             System(OpenPolicyAgent, "OPA")
+            System(Solr, "Solr")
         }
     }
 
@@ -44,6 +45,10 @@ C4Context
     Rel(OpenZaak, OpenNotificaties, "Uses", "ZGW Notificaties API")
     Rel(OpenNotificaties, ZAC, "Uses", "HTTPS")
 
+    Rel(ZAC, OfficeConverter, "Uses", "OfficeConverter API")
+    Rel(ZAC, OpenPolicyAgent, "Uses", "OPA API")
+    Rel(ZAC, Solr, "Uses", "Solr API")
+
     Rel(ZAC, Objecten, "Uses", "ZGW Objecten API")
     Rel(ZAC, Objecttypen, "Uses", "ZGW Objecttypen API")
     Rel(ZAC, OpenZaak, "Uses", "ZGW Autorisaties, Besluiten, Catalogi, Documenten, en Zaken API")
@@ -55,8 +60,7 @@ C4Context
     Rel(ZAC, VNGReferentielijsten, "Uses", "VNG Referentielijsten API")
     Rel(ZAC, SmartDocuments, "Uses", "SmartDocuments API")
     Rel(ZAC, Mailjet, "Uses", "Mailjet API")
-    Rel(ZAC, OfficeConverter, "Uses", "OfficeConverter API")
-    Rel(ZAC, OpenPolicyAgent, "Uses", "OPA API")
+
     Rel(SmartDocuments, OpenZaak, "Uses", "ZGW Documenten en Zaken API")
 
     UpdateElementStyle(ZAC, $bgColor="red", $borderColor="red")
@@ -74,11 +78,12 @@ C4Context
 
 The following components are part of the 'ZAC subsystem':
 
-| Component              | Description                                                                      | ZAC usage                                                          | API(s) used                                      |
-|------------------------|----------------------------------------------------------------------------------|--------------------------------------------------------------------|--------------------------------------------------|
-| [ZAC](https://github.com/infonl/dimpact-zaakafhandelcomponent)                | The Zaakafhandelcomponent. Consists of both the ZAC backend as well as frontend. | -                                                                  | -                                                |
-| [OfficeConverter](https://github.com/EugenMayer/officeconverter) | Document conversion service.                                                     | Convert office documents (like .docx) to PDF for preview purposes. | <ul><li>OfficeConverter REST API 1.5.0</li></ul> |
-| [Open Policy Agent (OPA)](https://www.openpolicyagent.org//) | Open Policy Agent server                                                         | See [ZAC IAM architecture](iamArchitecture.md).                    | <ul><li>OPA REST API </li></ul>                  |
+| Component                                                        | Description                                                                    | ZAC usage                                                          | API(s) used                                      |
+|------------------------------------------------------------------|--------------------------------------------------------------------------------|--------------------------------------------------------------------|--------------------------------------------------|
+| [ZAC](https://github.com/infonl/dimpact-zaakafhandelcomponent)   | The Zaakafhandelcomponent. Consists of both the ZAC backend as well as frontend. | -                                                                  | -                                                |
+| [OfficeConverter](https://github.com/EugenMayer/officeconverter) | Document conversion service.                                                   | Convert office documents (like .docx) to PDF for preview purposes. | <ul><li>OfficeConverter REST API 1.5.0</li></ul> |
+| [Open Policy Agent (OPA)](https://www.openpolicyagent.org//)     | Open Policy Agent server                                                       | See [ZAC IAM architecture](iamArchitecture.md).                    | <ul><li>OPA REST API </li></ul>                  |
+| [Solr](https://solr.apache.org/)                        | Solr search engine                                                             | See [ZAC Solr architecture](solrArchitecture.md)                   | <ul><li>Solr REST API </li></ul>                 |
 
 The following components are part of the broader context of ZAC (='PodiumD Zaak' in the context of Dimpact).
 
