@@ -9,47 +9,41 @@ import {
   EventEmitter,
   Input,
   OnDestroy,
-  OnInit,
   Output,
   ViewChild,
 } from "@angular/core";
-import { ZakenService } from "../../zaken/zaken.service";
-import { InformatieObjectenService } from "../informatie-objecten.service";
-import { UtilService } from "../../core/service/util.service";
-import { Zaak } from "../../zaken/model/zaak";
-import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormGroup, Validators } from "@angular/forms";
-import { EnkelvoudigInformatieobject } from "../model/enkelvoudig-informatieobject";
-import moment from "moment";
-import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
-import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
-import { NavigationService } from "../../shared/navigation/navigation.service";
-import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
-import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { FileFormFieldBuilder } from "../../shared/material-form-builder/form-components/file/file-form-field-builder";
-import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
-import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
-import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
-import { ConfiguratieService } from "../../configuratie/configuratie.service";
+import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateService } from "@ngx-translate/core";
-import { User } from "../../identity/model/user";
+import moment from "moment";
+import { BehaviorSubject, Subscription, combineLatest, map, tap } from "rxjs";
+import { LoggedInUser } from "src/app/identity/model/logged-in-user";
+import { ConfiguratieService } from "../../configuratie/configuratie.service";
+import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { CheckboxFormFieldBuilder } from "../../shared/material-form-builder/form-components/checkbox/checkbox-form-field-builder";
-import { FormComponent } from "../../shared/material-form-builder/form/form/form.component";
-import { MatDrawer } from "@angular/material/sidenav";
-import { Taak } from "../../taken/model/taak";
-import { Subscription } from "rxjs";
-import { OrderUtil } from "../../shared/order/order-util";
+import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
+import { FileFormFieldBuilder } from "../../shared/material-form-builder/form-components/file/file-form-field-builder";
+import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { SelectFormField } from "../../shared/material-form-builder/form-components/select/select-form-field";
+import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
+import { FormComponent } from "../../shared/material-form-builder/form/form/form.component";
+import { FormConfig } from "../../shared/material-form-builder/model/form-config";
+import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
+import { OrderUtil } from "../../shared/order/order-util";
+import { Taak } from "../../taken/model/taak";
+import { Zaak } from "../../zaken/model/zaak";
+import { InformatieObjectenService } from "../informatie-objecten.service";
+import { EnkelvoudigInformatieobject } from "../model/enkelvoudig-informatieobject";
+import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
+import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
 
 @Component({
   selector: "zac-informatie-object-add",
   templateUrl: "./informatie-object-add.component.html",
   styleUrls: ["./informatie-object-add.component.less"],
 })
-export class InformatieObjectAddComponent
-  implements OnInit, AfterViewInit, OnDestroy
-{
+export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
   @Input() zaak: Zaak;
   @Input() taak: Taak;
   @Input() sideNav: MatDrawer;
@@ -57,30 +51,40 @@ export class InformatieObjectAddComponent
 
   @ViewChild(FormComponent) form: FormComponent;
 
-  fields: Array<AbstractFormField[]>;
-  formConfig: FormConfig;
-  ingelogdeMedewerker: User;
-
-  private informatieobjectStatussen: { label: string; value: string }[];
-  private status: SelectFormField;
-  private subscriptions$: Subscription[] = [];
-
   constructor(
-    private zakenService: ZakenService,
     private informatieObjectenService: InformatieObjectenService,
-    private navigation: NavigationService,
     public utilService: UtilService,
     private configuratieService: ConfiguratieService,
     private translateService: TranslateService,
     private identityService: IdentityService,
   ) {}
 
-  ngOnInit(): void {
+  formConfig: FormConfig;
+  loggedInUser$ = this.identityService.readLoggedInUser();
+  // first iteration is always 0
+  formIterations$ = new BehaviorSubject([0]);
+  // last iteration is always active
+
+  readonly activeIteration$ = this.formIterations$.pipe(
+    map((iterations) => iterations.slice(-1)[0]),
+  );
+
+  fields$ = combineLatest([this.loggedInUser$]).pipe(
+    map(([loggedInUser]) => this.getInputs({ loggedInUser })),
+    tap((inputs) => this.setSubscriptions(inputs)),
+    map((inputs) => this.getFormLayout(inputs)),
+  );
+
+  private informatieobjectStatussen: { label: string; value: string }[];
+  private status: SelectFormField;
+  private subscriptions: Subscription[] = [];
+
+  private getInputs(deps: { loggedInUser: LoggedInUser }) {
+    const { loggedInUser } = deps;
     this.formConfig = new FormConfigBuilder()
       .saveText("actie.toevoegen")
       .cancelText("actie.annuleren")
       .build();
-    this.getIngelogdeMedewerker();
 
     const vertrouwelijkheidsAanduidingen = this.utilService.getEnumAsSelectList(
       "vertrouwelijkheidaanduiding",
@@ -165,7 +169,7 @@ export class InformatieObjectAddComponent
       .settings({ translateLabels: false, capitalizeFirstLetter: true })
       .build();
 
-    const auteur = new InputFormFieldBuilder(this.ingelogdeMedewerker.naam)
+    const auteur = new InputFormFieldBuilder(loggedInUser.naam)
       .id("auteur")
       .label("auteur")
       .validators(Validators.required, Validators.pattern("\\S.*"))
@@ -197,8 +201,37 @@ export class InformatieObjectAddComponent
       .label(this.translateService.instant("actie.document.toevoegen.nogmaals"))
       .build();
 
+    return {
+      inhoudField,
+      titel,
+      beschrijving,
+      vertrouwelijkheidsAanduidingen,
+      informatieobjectType,
+      vertrouwelijk,
+      beginRegistratie,
+      auteur,
+      taal,
+      ontvangstDatum,
+      verzendDatum,
+      nogmaals,
+    };
+  }
+
+  private getFormLayout({
+    inhoudField,
+    titel,
+    beschrijving,
+    informatieobjectType,
+    vertrouwelijk,
+    beginRegistratie,
+    auteur,
+    taal,
+    ontvangstDatum,
+    verzendDatum,
+    nogmaals,
+  }: ReturnType<InformatieObjectAddComponent["getInputs"]>) {
     if (this.zaak) {
-      this.fields = [
+      return [
         [inhoudField],
         [titel],
         [beschrijving],
@@ -209,7 +242,7 @@ export class InformatieObjectAddComponent
         [nogmaals],
       ];
     } else if (this.taak) {
-      this.fields = [
+      return [
         [inhoudField],
         [titel],
         [informatieobjectType],
@@ -217,19 +250,18 @@ export class InformatieObjectAddComponent
         [nogmaals],
       ];
     }
+  }
 
-    let vorigeBestandsnaam = null;
-    this.subscriptions$.push(
-      inhoudField.fileUploaded.subscribe((bestandsnaam) => {
-        const titelCtrl = titel.formControl;
-        if (!titelCtrl.value || titelCtrl.value === vorigeBestandsnaam) {
-          titelCtrl.setValue(bestandsnaam.replace(/\.[^/.]+$/, ""));
-          vorigeBestandsnaam = "" + titelCtrl.value;
-        }
-      }),
-    );
-
-    this.subscriptions$.push(
+  private setSubscriptions({
+    informatieobjectType,
+    vertrouwelijk,
+    vertrouwelijkheidsAanduidingen,
+    verzendDatum,
+    ontvangstDatum,
+    inhoudField,
+    titel,
+  }: ReturnType<InformatieObjectAddComponent["getInputs"]>) {
+    this.subscriptions.push(
       informatieobjectType.formControl.valueChanges.subscribe((value) => {
         if (value) {
           vertrouwelijk.formControl.setValue(
@@ -241,7 +273,7 @@ export class InformatieObjectAddComponent
       }),
     );
 
-    this.subscriptions$.push(
+    this.subscriptions.push(
       ontvangstDatum.formControl.valueChanges.subscribe((value) => {
         if (value && verzendDatum.formControl.enabled) {
           this.status.formControl.setValue(this.getStatusDefinitief());
@@ -256,12 +288,23 @@ export class InformatieObjectAddComponent
       }),
     );
 
-    this.subscriptions$.push(
+    this.subscriptions.push(
       verzendDatum.formControl.valueChanges.subscribe((value) => {
         if (value && ontvangstDatum.formControl.enabled) {
           ontvangstDatum.formControl.disable();
         } else if (!value && ontvangstDatum.formControl.disabled) {
           ontvangstDatum.formControl.enable();
+        }
+      }),
+    );
+
+    let vorigeBestandsnaam = null;
+    this.subscriptions.push(
+      inhoudField.fileUploaded.subscribe((bestandsnaam) => {
+        const titelCtrl = titel.formControl;
+        if (!titelCtrl.value || titelCtrl.value === vorigeBestandsnaam) {
+          titelCtrl.setValue(bestandsnaam.replace(/\.[^/.]+$/, ""));
+          vorigeBestandsnaam = "" + titelCtrl.value;
         }
       }),
     );
@@ -289,7 +332,7 @@ export class InformatieObjectAddComponent
   }
 
   ngOnDestroy(): void {
-    for (const subscription of this.subscriptions$) {
+    for (const subscription of this.subscriptions) {
       subscription.unsubscribe();
     }
   }
@@ -324,68 +367,22 @@ export class InformatieObjectAddComponent
         )
         .subscribe((document) => {
           this.document.emit(document);
+          const iterations = this.formIterations$.getValue();
           if (formGroup.get("nogmaals").value) {
-            this.resetForm(formGroup);
+            this.formIterations$.next([
+              ...iterations,
+              iterations.slice(-1)[0] + 1,
+            ]);
           } else {
-            this.clearForm(formGroup);
+            this.formIterations$.next([
+              ...iterations,
+              iterations.slice(-1)[0] + 1,
+            ]);
             this.sideNav.close();
           }
         });
     } else {
-      this.resetAndClose();
+      this.sideNav.close();
     }
-  }
-
-  private resetAndClose() {
-    this.fields.forEach((row) =>
-      row.forEach((field) => {
-        // Alles leeg maken behalve de volgende 3 velden
-        if (
-          field.id !== "auteur" &&
-          field.id !== "creatiedatum" &&
-          field.id !== "taal"
-        ) {
-          field.formControl.reset();
-        }
-      }),
-    );
-    this.sideNav.close();
-  }
-
-  resetForm(formGroup: FormGroup) {
-    if (this.zaak) {
-      formGroup.get("beschrijving").reset();
-    }
-    formGroup.get("bestandsnaam").reset();
-    formGroup.get("bestandsnaam").setErrors(null);
-    formGroup.get("titel").reset();
-    formGroup.get("titel").setErrors(null);
-    formGroup.get("nogmaals").setValue(false);
-    formGroup.get("ontvangstdatum").reset();
-    formGroup.get("verzenddatum").reset();
-    this.form.reset();
-    formGroup.setErrors({ invalid: true });
-  }
-
-  clearForm(formGroup: FormGroup) {
-    if (this.zaak) {
-      formGroup.get("status").reset();
-      formGroup.get("status").setErrors(null);
-      formGroup.get("vertrouwelijkheidaanduiding").reset();
-      formGroup.get("vertrouwelijkheidaanduiding").setErrors(null);
-    }
-    formGroup.get("informatieobjectTypeUUID").reset();
-    formGroup.get("informatieobjectTypeUUID").setErrors(null);
-    formGroup.get("ontvangstdatum").reset();
-    formGroup.get("ontvangstdatum").setErrors(null);
-    formGroup.get("verzenddatum").reset();
-    formGroup.get("verzenddatum").setErrors(null);
-    this.resetForm(formGroup);
-  }
-
-  private getIngelogdeMedewerker() {
-    this.identityService.readLoggedInUser().subscribe((ingelogdeMedewerker) => {
-      this.ingelogdeMedewerker = ingelogdeMedewerker;
-    });
   }
 }
