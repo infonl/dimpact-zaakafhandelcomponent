@@ -100,7 +100,7 @@ dependencies {
     implementation("com.google.guava:guava:33.0.0-jre")
     implementation("com.mailjet:mailjet-client:5.2.5")
     implementation("org.flywaydb:flyway-core:10.7.1")
-    implementation("org.flywaydb:flyway-database-postgresql:10.7.1")
+    implementation("org.flywaydb:flyway-database-postgresql:10.7.2")
     implementation("org.apache.solr:solr-solrj:9.4.1")
     implementation("nl.info.webdav:webdav-servlet:1.2.31")
     implementation("com.itextpdf:itextpdf:5.5.13.3")
