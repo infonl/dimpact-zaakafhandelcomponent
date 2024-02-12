@@ -1,16 +1,26 @@
 # Angular
 
-### Angular dependabot 
+The ZAC frontend is based on the [Angular frontend framework](https://angular.io/).
 
-Depandabot creates pull-requests for all angular dependencies that are behind, but angular dependencies have to be updated in a specific order and angular provides migration tools with `ng update`.
+## Angular updates and Dependabot
 
-So for angular dependencies we have to update them manually and commit them to the repository, then dependabot will remove its pull-requests.
+Depandabot creates pull requests for all Angular dependencies that are behind, but Angular dependencies have to be updated in a specific order and angular provides migration tools with `ng update`.
 
-### Update angular dependencies manually
+So for Angular dependencies we have to update them manually and commit them to the repository, then Dependabot will remove its pull requests.
 
-Run the following command to update angular dependencies:
+## Update angular dependencies manually
+
+### Prerequisites
+
+1. You need to have the Angular command line tools installed locally. Do install these on a Mac you can use
+`brew install angular-cli`
+
+### Update Angular dependencies
+
+Run the following command to update Angular dependencies from the [ZAC frontend folder](../../src/main/app):
+
 ```bash
-    ng update 
+    ng update
 ```
 This command will check whatever angular packages are behind and could result in a list of packages to update like:
 
