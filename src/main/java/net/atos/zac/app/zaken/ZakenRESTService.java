@@ -469,8 +469,12 @@ public class ZakenRESTService {
         ) : null;
         final StatusType statustype = status != null ? ztcClientService.readStatustype(
             status.getStatustype()) : null;
-        assertPolicy(zaak.isOpen() && !isHeropend(statustype) && !zaak.isOpgeschort() &&
-                         policyService.readZaakRechten(zaak).behandelen());
+        assertPolicy(
+                zaak.isOpen() &&
+                        !isHeropend(statustype) &&
+                        !zaak.isOpgeschort() &&
+                        policyService.readZaakRechten(zaak).behandelen()
+        );
         final String toelichting = String.format("%s: %s", VERLENGING,
                                                  restZaakVerlengGegevens.redenVerlenging);
         final Zaak updatedZaak = zrcClientService.patchZaak(zaakUUID,
@@ -858,9 +862,12 @@ public class ZakenRESTService {
             zaak.getStatus()) : null;
         final StatusType zaakStatustype = zaakStatus != null ? ztcClientService.readStatustype(
             zaakStatus.getStatustype()) : null;
-        assertPolicy(zaak.isOpen() && isNotEmpty(zaaktype.getBesluittypen()) &&
-                         policyService.readZaakRechten(zaak, zaaktype).behandelen() &&
-                         !isIntake(zaakStatustype));
+        assertPolicy(
+                zaak.isOpen() &&
+                    isNotEmpty(zaaktype.getBesluittypen()) &&
+                    policyService.readZaakRechten(zaak, zaaktype).behandelen() &&
+                    !isIntake(zaakStatustype)
+        );
         final Besluit besluit = besluitConverter.convertToBesluit(zaak, besluitToevoegenGegevens);
         if (zaak.getResultaat() != null) {
             zgwApiService.updateResultaatForZaak(zaak, besluitToevoegenGegevens.resultaattypeUuid,
@@ -1048,24 +1055,23 @@ public class ZakenRESTService {
     private void addBetrokkenNietNatuurlijkPersoon(final RolType roltype, final String rsin,
         final Zaak zaak,
         String toelichting) {
-        final RolNietNatuurlijkPersoon rol = new RolNietNatuurlijkPersoon(zaak.getUrl(), roltype,
-                                                                          toelichting,
-                                                                          new NietNatuurlijkPersoon(
-                                                                              rsin));
+        final RolNietNatuurlijkPersoon rol = new RolNietNatuurlijkPersoon(
+                zaak.getUrl(),
+                roltype,
+                toelichting,
+                new NietNatuurlijkPersoon(rsin)
+        );
         zrcClientService.createRol(rol, toelichting);
     }
 
     private void addInitiator(final IdentificatieType identificatieType, final String identificatie,
             final Zaak zaak) {
         assertPolicy(policyService.readZaakRechten(zaak).behandelen());
-        final RolType initiator = ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.INITIATOR,
-                                                               zaak.getZaaktype());
+        final RolType initiator = ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.INITIATOR, zaak.getZaaktype());
         switch (identificatieType) {
-            case BSN -> addBetrokkenNatuurlijkPersoon(initiator, identificatie, zaak,
-                                                      ROL_TOEVOEGEN_REDEN);
+            case BSN -> addBetrokkenNatuurlijkPersoon(initiator, identificatie, zaak, ROL_TOEVOEGEN_REDEN);
             case VN -> addBetrokkenVestiging(initiator, identificatie, zaak, ROL_TOEVOEGEN_REDEN);
-            case RSIN -> addBetrokkenNietNatuurlijkPersoon(initiator, identificatie, zaak,
-                                                           ROL_TOEVOEGEN_REDEN);
+            case RSIN -> addBetrokkenNietNatuurlijkPersoon(initiator, identificatie, zaak, ROL_TOEVOEGEN_REDEN);
             default -> throw new IllegalStateException(
                     String.format("Unexpected value: %s '%s'", identificatieType, identificatie));
         }
@@ -1217,7 +1223,6 @@ public class ZakenRESTService {
         assertPolicy(policyService.readZaakRechten(zaak).behandelen());
         zrcClientService.deleteRol(betrokkene, reden);
     }
-
 
     private void removeInitiator(final Zaak zaak, final Rol<?> initiator, final String reden) {
         assertPolicy(policyService.readZaakRechten(zaak).behandelen());

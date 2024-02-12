@@ -42,42 +42,39 @@ Finally, there is a special `domein_elk_zaaktype` system role which will grant t
 
 ## ZAC policies per resource and role
 
-The following OPA access control policies are enforced in ZAC for the roles listed above for the
+The following OPA access control policies are enforced in the ZAC backend for the roles listed above for the
 various resources on which a user can perform actions:
 
-| Rechten                                                                          |                                 Behandelaar                                 | Coördinator | Recordmanager | beheerder |
-|:---------------------------------------------------------------------------------|:---------------------------------------------------------------------------:|:-----------:|:-------------:|:---------:|
-|                                                                                  |                                                                             |             |               |           |
-| **_Zaak rechten (zie ook: Overige rechten)_**                                    |                                                                             |             |               |           |
-| lezen                                                                            |                                      X                                      |      X      |       X       |           |
-| wijzigen                                                                         |                            X (status: zaak open)                            |             |       X       |           |
-| toekennen                                                                        |                                      X                                      |      X      |       X       |           |
-| behandelen                                                                       |                                      X                                      |             |               |           |
-| afbreken                                                                         |                                      X                                      |             |       X       |           |
-| heropenen                                                                        |                                                                             |             |       X       |           |
-| wijzigenZaakdata                                                                 |                                                                             |             |       X       |           |
-| wijzigenDoorlooptijd                                                             |                                      X                                      |             |       X       |           |
-| _De zaakrechten hieronder zijn afgeleid van bovenstaande (OPA) rechten._         |                                                                             |             |               |           |
-| verlengen  (afgeleid van: behandelen)                                            |            X (status: zaak open, niet heropend, niet opgeschort)            |             |               |           |
-| opschorten (afgeleid van: behandelen)                                            |            X (status: zaak open, niet heropend, niet opgeschort)            |             |               |           |
-| hervatten (afgeleid van: behandelen)                                             |                                      X                                      |             |               |           |
-| toevoegen_document (afgeleid van: wijzigen)                                      |                            X (status: zaak open)                            |             |       X       |           |
-| creeeren_document (afgeleid van: wijzigen)                                       |                            X (status: zaak open)                            |             |       X       |           |
-| koppelen (afgeleid van: wijzigen)                                                |                        X (status: beide zaken open)                         |             |       X       |           |
-| _TODO: de rechten hieronder moeten nog bekeken worden._                          |                                                                             |             |               |           |
-| versturen_email                                                                  |                            X (status: zaak open)                            |             |               |           |
-| versturen_ontvangstbevestiging                                                   |                            X (status: zaak open)                            |             |               |           |
-| toevoegen_initiator_persoon                                                      |                            X (status: zaak open)                            |             |               |           |
-| toevoegen_initiator_bedrijf                                                      |                            X (status: zaak open)                            |             |               |           |
-| verwijderen_initiator                                                            |                            X (status: zaak open)                            |             |               |           |
-| toevoegen_betrokkene_persoon                                                     |                            X (status: zaak open)                            |             |               |           |
-| toevoegen_betrokkene_bedrijf                                                     |                            X (status: zaak open)                            |             |               |           |
-| verwijderen_betrokkene                                                           |                            X (status: zaak open)                            |             |               |           |
-| toevoegen_bag_object                                                             |                            X (status: zaak open)                            |             |               |           |
-| aanmaken_taak                                                                    |                                      X                                      |             |               |           |
-| vastleggen_besluit                                                               |                            X (status: zaak open)                            |             |               |           |
-| verlengen_doorlooptijd                                                           |                                      X                                      |             |       X       |           |
-| voortzetten (TODO: wat is dit?)                                                  |                                      X                                      |             |       X       |           |
+| Rechten                                                                          |                                 Behandelaar                                 | Coördinator | Recordmanager | Beheerder | Technische implementatie                                                           |
+|:---------------------------------------------------------------------------------|:---------------------------------------------------------------------------:|:-----------:|:-------------:|:---------:|:-----------------------------------------------------------------------------------|
+|                                                                                  |                                                                             |             |               |           |                                                                                    |
+| **_Zaak rechten (zie ook: Overige rechten)_**                                    |                                                                             |             |               |           |                                                                                    |
+| lezen                                                                            |                                      X                                      |      X      |       X       |           | OPA policy                                                                         |
+| wijzigen                                                                         |                            X (status: zaak open)                            |             |       X       |           | OPA policy                                                                         |
+| toekennen                                                                        |                                      X                                      |      X      |       X       |           | OPA policy                                                                         |
+| behandelen                                                                       |                                      X                                      |             |               |           | OPA policy                                                                         |
+| afbreken                                                                         |                                      X                                      |             |       X       |           | OPA policy                                                                         |
+| heropenen                                                                        |                                                                             |             |       X       |           | OPA policy                                                                         |
+| wijzigenZaakdata                                                                 |                                                                             |             |       X       |           | OPA policy                                                                         |
+| wijzigenDoorlooptijd                                                             |                                      X                                      |             |       X       |           | OPA policy                                                                         |
+| verlengen                                                                        |            X (status: zaak open, niet heropend, niet opgeschort)            |             |               |           | Logica in ZakenRESTService.java. Afgeleid van OPA policy `behandelen`.             |
+| opschorten                                                                       |            X (status: zaak open, niet heropend, niet opgeschort)            |             |               |           | Logica in ZakenRESTService.java. Afgeleid van OPA policy `behandelen`.             |
+| hervatten                                                                        |                                      X                                      |             |               |           | Logica in ZakenRESTService.java. Afgeleid van OPA policy `behandelen`.             |
+| toevoegen_document                                                               |                            X (status: zaak open)                            |             |       X       |           | Logica in InformatieObjectenRESTService.java. Afgeleid van OPA policy: `wijzigen`. |
+| creeeren_document                                                                |                            X (status: zaak open)                            |             |       X       |           | Logica in InformatieObjectenRESTService.java. Afgeleid van OPA policy: `wijzigen`. |
+| koppelen                                                                         |                        X (status: beide zaken open)                         |             |       X       |           | OPA policy `wijzigen` (voor beide zaken)                                           |
+| versturen_email                                                                  |                                      X                                      |             |               |           | OPA policy `behandelen`                                                            |
+| versturen_ontvangstbevestiging                                                   |                                      X                                      |             |               |           | OPA policy `behandelen`                                                            |
+| toevoegen_initiator_persoon                                                      |                                      X                                      |             |               |           | OPA policy `behandelen`                                                            |
+| toevoegen_initiator_bedrijf                                                      |                                      X                                      |             |               |           | OPA policy `behandelen`                                                            |
+| verwijderen_initiator                                                            |                                      X                                      |             |               |           | OPA policy `behandelen`                                                            |
+| toevoegen_betrokkene_persoon                                                     |                                      X                                      |             |               |           | OPA policy `behandelen`                                                            |
+| toevoegen_betrokkene_bedrijf                                                     |                                      X                                      |             |               |           | OPA policy `behandelen`                                                            |
+| verwijderen_betrokkene                                                           |                                      X                                      |             |               |           | OPA policy `behandelen`                                                            |
+| toevoegen_bag_object                                                             |                                      X                                      |             |               |           | OPA policy `behandelen`                                                            |
+| starten_taak                                                                     |                    X (afhankelijk van CMMN status zaak)                     |             |               |           | OPA policy `behandelen`                                                            |
+| vastleggen_besluit                                                               |     X (status: zaak open, niet in intake, zaaktype heeft besluittypen)      |             |               |           | Logica in ZakenRESTService.java. Afgeleid van OPA policy `behandelen`.             |
+| verlengen_doorlooptijd                                                           |            X (status: zaak open, niet heropend, niet opgeschort)            |             |               |           | Logica in ZakenRESTService.java. Afgeleid van OPA policy `behandelen`.             |
 |                                                                                  |                                                                             |             |               |           |
 | **_Taak rechten_**                                                               |                                                                             |             |               |           |
 | lezen                                                                            |                                      X                                      |             |       X       |           |
@@ -118,7 +115,12 @@ various resources on which a user can perform actions:
 Notes:
 - `X (status: zaak open)` means that the zaak status must be 'Open' for the user role to have this right.
 The state 'zaak open' effectively means that the zaak is in the state 'Intake' or 'In behandeling' (and
-not in the state 'Afgerond' or 'Heropend')
+not in the state 'Afgerond' or 'Heropend').
+- `X (afhankelijk van CMMN status zaak)` means that the action is dependent on the state of the CMMN zaak process.
+E.g. in case of a closed zaak, the CMMN state of the zaak is such that no active task items exist for the zaak
+and therefore no task can be started.
+- The policies listed above are backend policies. Whether the related functionality is available to the user in the
+frontend (browser) is for a large part also determined by these policies but differences may apply.
 
 ## Technical implementation
 

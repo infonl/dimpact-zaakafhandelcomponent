@@ -167,7 +167,7 @@ public class PlanItemsRESTService {
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
         final Map<String, String> taakdata = humanTaskData.taakdata;
         assertPolicy(policyService.readZaakRechten(zaak).behandelen());
-        final ZaakafhandelParameters zaakafhandelParameters =
+            final ZaakafhandelParameters zaakafhandelParameters =
                 zaakafhandelParameterService.readZaakafhandelParameters(UriUtil.uuidFromURI(zaak.getZaaktype()));
         final Optional<HumanTaskParameters> humanTaskParameters = zaakafhandelParameters
                 .findHumanTaskParameter(planItem.getPlanItemDefinitionId());
