@@ -306,6 +306,7 @@ public class InformatieObjectenRESTService {
                         Response.Status.CONFLICT
                 );
             }
+            assertPolicy(policyService.readTaakRechten(task).toevoegenDocument());
 
             final List<UUID> taakdocumenten = new ArrayList<>(taakVariabelenService.readTaakdocumenten(task));
             taakdocumenten.add(UriUtil.uuidFromURI(zaakInformatieobject.getInformatieobject()));

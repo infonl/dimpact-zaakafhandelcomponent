@@ -13,6 +13,8 @@ import static net.atos.zac.flowable.TaakVariabelenService.TAAK_DATA_DOCUMENTEN_V
 import static net.atos.zac.flowable.TaakVariabelenService.TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER;
 import static net.atos.zac.flowable.TaakVariabelenService.TAAK_DATA_TOELICHTING;
 import static net.atos.zac.flowable.TaakVariabelenService.TAAK_DATA_VERZENDDATUM;
+import static net.atos.zac.flowable.util.TaskUtil.getTaakStatus;
+import static net.atos.zac.flowable.util.TaskUtil.isOpen;
 import static net.atos.zac.policy.PolicyService.assertPolicy;
 import static net.atos.zac.util.DateTimeConverterUtil.convertToDate;
 import static net.atos.zac.websocket.event.ScreenEventType.TAAK;
@@ -74,7 +76,6 @@ import net.atos.zac.authentication.LoggedInUser;
 import net.atos.zac.event.EventingService;
 import net.atos.zac.flowable.TaakVariabelenService;
 import net.atos.zac.flowable.TakenService;
-import net.atos.zac.flowable.util.TaskUtil;
 import net.atos.zac.policy.PolicyService;
 import net.atos.zac.shared.helper.OpschortenZaakHelper;
 import net.atos.zac.signalering.SignaleringenService;
@@ -165,7 +166,7 @@ public class TakenRESTService {
     @Path("taakdata")
     public RESTTaak updateTaakdata(final RESTTaak restTaak) {
         final Task task = takenService.readOpenTask(restTaak.id);
-        assertPolicy(TaskUtil.getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).wijzigen());
+        assertPolicy(getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).wijzigen());
         taakVariabelenService.setTaakdata(task, restTaak.taakdata);
         taakVariabelenService.setTaakinformatie(task, restTaak.taakinformatie);
         updateTaak(restTaak);
@@ -231,7 +232,7 @@ public class TakenRESTService {
     public void toekennen(final RESTTaakToekennenGegevens restTaakToekennenGegevens) {
         Task task = takenService.readOpenTask(restTaakToekennenGegevens.taakId);
         assertPolicy(
-                TaskUtil.getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).toekennen());
+                getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).toekennen());
         final String behandelaar = task.getAssignee();
         final String groep = restTaakConverter.extractGroupId(task.getIdentityLinks());
         boolean changed = false;
@@ -262,7 +263,7 @@ public class TakenRESTService {
     public RESTTaak updateTaak(final RESTTaak restTaak) {
         Task task = takenService.readOpenTask(restTaak.id);
         assertPolicy(
-                TaskUtil.getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).wijzigen());
+                getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).wijzigen());
         task.setDescription(restTaak.toelichting);
         task.setDueDate(convertToDate(restTaak.fataledatum));
         task = takenService.updateTask(task);
@@ -277,7 +278,8 @@ public class TakenRESTService {
         Task task = takenService.readOpenTask(restTaak.id);
         final Zaak zaak = zrcClientService.readZaak(restTaak.zaakUuid);
         assertPolicy(
-                TaskUtil.getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).wijzigen());
+                isOpen(task) && policyService.readTaakRechten(task).wijzigen()
+        );
         final String loggedInUserId = loggedInUserInstance.get().getId();
         if (restTaak.behandelaar == null || !restTaak.behandelaar.id.equals(loggedInUserId)) {
             task = takenService.assignTaskToUser(task.getId(), loggedInUserId, REDEN_TAAK_AFGESLOTEN);
@@ -323,7 +325,7 @@ public class TakenRESTService {
     private Task ingelogdeMedewerkerToekennenAanTaak(final RESTTaakToekennenGegevens restTaakToekennenGegevens) {
         Task task = takenService.readOpenTask(restTaakToekennenGegevens.taakId);
         assertPolicy(
-                TaskUtil.getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).toekennen());
+                getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).toekennen());
         task = assignTaak(task.getId(), loggedInUserInstance.get().getId(), restTaakToekennenGegevens.reden);
         taakBehandelaarGewijzigd(task, restTaakToekennenGegevens.zaakUuid);
         indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK);
