@@ -230,6 +230,22 @@ jobs:
           path: docker-image.tar
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
+  dependabot-auto-merge:
+    needs: [run-unit-tests, build-docker-image-and-run-itests]
+    runs-on: ubuntu-22.04
+    if: github.actor == 'dependabot[bot]'
+    permissions:
+      pull-requests: write
+      contents: write
+    steps:
+      - uses: fastify/github-action-merge-dependabot@v3
+        with:
+          # Our Dependabot PRs are not merged automatically because an automatically merged PR
+          # does not trigger our push workflow (and so no release would be made).
+          # see: https://github.com/fastify/github-action-merge-dependabot/issues/134
+          approve-only: true
+          target: minor
+
   next-version:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
@@ -265,7 +281,7 @@ jobs:
           echo "Next version tag: ${{ steps.get-tag.outputs.new_tag }}"
 
   push-docker-image:
-    needs: [build, run-unit-tests, build-docker-image-and-run-itests, next-version]
+    needs: [run-unit-tests, build-docker-image-and-run-itests, next-version]
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     if: github.ref == 'refs/heads/main'
