@@ -13,5 +13,10 @@
 </div>
 
 <div class="form">
-    <mfb-form *ngIf="fields" (formSubmit)="onFormSubmit($event)" [formFields]="fields" [config]="formConfig"></mfb-form>
+    <!-- we use a for loop here to mount a completely new form here when there is a new iteration -->
+    @for (iteration of formIterations$ | async; track $index) {
+        @if (iteration === (activeIteration$ | async)) {
+            <mfb-form *ngIf="fields$ | async" (formSubmit)="onFormSubmit($event)" [formFields]="fields$ | async" [config]="formConfig"></mfb-form>
+        }
+    }
 </div>
