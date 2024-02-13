@@ -26,6 +26,7 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -291,7 +292,7 @@ public class InformatieObjectenRESTService {
             @PathParam("zaakUuid") final UUID zaakUuid,
             @PathParam("documentReferentieId") final String documentReferentieId,
             @QueryParam("taakObject") final boolean taakObject,
-            final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject) {
+            @Valid final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject ) {
         final Zaak zaak = zrcClientService.readZaak(zaakUuid);
 
 
