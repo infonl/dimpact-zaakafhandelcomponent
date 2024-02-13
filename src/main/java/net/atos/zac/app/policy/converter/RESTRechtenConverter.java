@@ -34,6 +34,7 @@ public class RESTRechtenConverter {
         restTaakRechten.lezen = taakRechten.lezen();
         restTaakRechten.wijzigen = taakRechten.wijzigen();
         restTaakRechten.toekennen = taakRechten.toekennen();
+        restTaakRechten.toevoegenDocument = taakRechten.toevoegenDocument();
         return restTaakRechten;
     }
 

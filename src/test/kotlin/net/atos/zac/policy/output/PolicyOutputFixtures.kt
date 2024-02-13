@@ -17,6 +17,7 @@ fun createDocumentRechten() = DocumentRechten(
 fun createTaakRechten() = TaakRechten(
     true,
     true,
+    true,
     true
 )
 

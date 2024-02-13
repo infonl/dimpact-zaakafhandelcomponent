@@ -7,4 +7,5 @@ export class TaakRechten {
   lezen = false;
   wijzigen = false;
   toekennen = false;
+  toevoegenDocument = false;
 }

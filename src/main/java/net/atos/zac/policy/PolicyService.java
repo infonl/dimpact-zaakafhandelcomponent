@@ -7,6 +7,9 @@ package net.atos.zac.policy;
 
 import static net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject.StatusEnum.DEFINITIEF;
 import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
+import static net.atos.zac.flowable.util.TaskUtil.isOpen;
+
+import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
@@ -106,9 +109,11 @@ public class PolicyService {
         );
     }
 
-    public DocumentRechten readDocumentRechten(final EnkelvoudigInformatieObject enkelvoudigInformatieobject,
+    public DocumentRechten readDocumentRechten(
+            final EnkelvoudigInformatieObject enkelvoudigInformatieobject,
             final EnkelvoudigInformatieObjectLock lock,
-            final Zaak zaak) {
+            final Zaak zaak
+    ) {
         final DocumentData documentData = new DocumentData();
         documentData.definitief = enkelvoudigInformatieobject.getStatus() == DEFINITIEF;
         documentData.vergrendeld = enkelvoudigInformatieobject.getLocked();
@@ -133,11 +138,14 @@ public class PolicyService {
     }
 
     public TaakRechten readTaakRechten(final TaskInfo taskInfo) {
-        return readTaakRechten(taakVariabelenService.readZaaktypeOmschrijving(taskInfo));
+        return readTaakRechten(taskInfo, taakVariabelenService.readZaaktypeOmschrijving(taskInfo));
     }
 
-    public TaakRechten readTaakRechten(final String zaaktypeOmschrijving) {
+    public TaakRechten readTaakRechten(final TaskInfo taskInfo, final String zaaktypeOmschrijving) {
+        final UUID zaakUUID = taakVariabelenService.readZaakUUID(taskInfo);
         final TaakData taakData = new TaakData();
+        taakData.open = isOpen(taskInfo);
+        taakData.zaakOpen = zrcClientService.readZaak(zaakUUID).isOpen();
         taakData.zaaktype = zaaktypeOmschrijving;
         return evaluationClient.readTaakRechten(new RuleQuery<>(new TaakInput(loggedInUserInstance.get(), taakData)))
                 .getResult();

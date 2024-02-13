@@ -26,6 +26,8 @@ import org.flowable.engine.TaskService;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.TaskInfo;
 
+import net.atos.zac.flowable.util.TaskUtil;
+
 @ApplicationScoped
 @Transactional
 public class TaakVariabelenService {
@@ -145,7 +147,7 @@ public class TaakVariabelenService {
     }
 
     private Map<String, Object> getVariables(final TaskInfo taskInfo) {
-        return takenService.isCmmnTask(taskInfo) ? taskInfo.getCaseVariables() : taskInfo.getProcessVariables();
+        return TaskUtil.isCmmnTask(taskInfo) ? taskInfo.getCaseVariables() : taskInfo.getProcessVariables();
     }
 
     private Optional<Object> findVariable(final TaskInfo taskInfo, final String variableName) {

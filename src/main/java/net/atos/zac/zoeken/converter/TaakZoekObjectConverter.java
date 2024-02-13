@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import jakarta.inject.Inject;
 
+import net.atos.zac.flowable.util.TaskUtil;
 import org.flowable.identitylink.api.IdentityLinkInfo;
 import org.flowable.identitylink.api.IdentityLinkType;
 import org.flowable.task.api.TaskInfo;
@@ -59,7 +60,7 @@ public class TaakZoekObjectConverter extends AbstractZoekObjectConverter<TaakZoe
             taakZoekObject.setToegekend(true);
         }
 
-        taakZoekObject.setStatus(takenService.getTaakStatus(taskInfo));
+        taakZoekObject.setStatus(TaskUtil.getTaakStatus(taskInfo));
         final String groupID = extractGroupId(taskInfo.getIdentityLinks());
         if (groupID != null) {
             final Group group = identityService.readGroup(groupID);

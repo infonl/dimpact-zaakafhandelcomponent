@@ -39,6 +39,7 @@ import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
 import net.atos.zac.flowable.TaakVariabelenService
 import net.atos.zac.flowable.TakenService
+import net.atos.zac.flowable.util.TaskUtil.getTaakStatus
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.output.createDocumentRechten
 import net.atos.zac.policy.output.createTaakRechten
@@ -106,7 +107,7 @@ class TakenRESTServiceTest : BehaviorSpec() {
                     val screenEventSlots = mutableListOf<ScreenEvent>()
 
                     every { takenService.readOpenTask(restTaakToekennenGegevens.taakId) } returns task
-                    every { takenService.getTaakStatus(task) } returns TaakStatus.NIET_TOEGEKEND
+                    every { getTaakStatus(task) } returns TaakStatus.NIET_TOEGEKEND
                     every {
                         takenService.assignTaskToUser(
                             restTaakToekennenGegevens.taakId,
@@ -204,7 +205,7 @@ class TakenRESTServiceTest : BehaviorSpec() {
                     )
 
                     every { takenService.readOpenTask(restTaak.id) } returns task
-                    every { takenService.getTaakStatus(task) } returns TaakStatus.TOEGEKEND
+                    every { getTaakStatus(task) } returns TaakStatus.TOEGEKEND
                     every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
                     every { policyService.readTaakRechten(task) } returns createTaakRechten()
                     every { httpSessionInstance.get() } returns httpSession
@@ -253,7 +254,7 @@ class TakenRESTServiceTest : BehaviorSpec() {
                     val documentenRechten = createDocumentRechten()
 
                     every { takenService.readOpenTask(restTaak.id) } returns task
-                    every { takenService.getTaakStatus(task) } returns TaakStatus.TOEGEKEND
+                    every { getTaakStatus(task) } returns TaakStatus.TOEGEKEND
                     every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
                     every { policyService.readTaakRechten(task) } returns createTaakRechten()
                     every { httpSessionInstance.get() } returns httpSession
