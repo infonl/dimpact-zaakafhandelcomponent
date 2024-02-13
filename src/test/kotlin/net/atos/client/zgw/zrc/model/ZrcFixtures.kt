@@ -51,12 +51,19 @@ fun createZaakobjectOpenbareRuimte(
     zaakURI: URI = URI("http://example.com/${UUID.randomUUID()}"),
     bagobjectURI: URI = URI("http://example.com/${UUID.randomUUID()}"),
     objectOpenbareRuimte: ObjectOpenbareRuimte = createObjectOpenbareRuimte()
-) =
-    ZaakobjectOpenbareRuimte(
-        zaakURI,
-        bagobjectURI,
-        objectOpenbareRuimte
-    )
+) = ZaakobjectOpenbareRuimte(
+    zaakURI,
+    bagobjectURI,
+    objectOpenbareRuimte
+)
+
+fun createZaakInformatieobject(
+    informatieObjectURL: URI = URI("http://example.com/${UUID.randomUUID()}"),
+    zaakURL: URI = URI("http://example.com/${UUID.randomUUID()}")
+) = ZaakInformatieobject(
+    informatieObjectURL,
+    zaakURL
+)
 
 fun createZaakobjectPand(
     zaakURI: URI = URI("http://example.com/${UUID.randomUUID()}"),

@@ -117,7 +117,6 @@ E.g. in case of a closed zaak, the CMMN state of the zaak is such that no active
 and therefore no task can be started.
 - The policies listed above are backend policies. Whether the related functionality is available to the user in the
 frontend (browser) is for a large part also determined by these policies but differences may apply.
-- https://dimpact.atlassian.net/browse/PZ-1327 needs to be implemented still.
 
 ## Technical implementation
 

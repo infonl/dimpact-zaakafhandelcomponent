@@ -16,7 +16,7 @@ import net.atos.zac.app.policy.model.RESTDocumentRechten;
 import net.atos.zac.zoeken.model.DocumentIndicatie;
 
 /**
- *
+ * Representation of an 'enkelvoudig informatieobject' (e.g. a document) in the ZAC REST API.
  */
 public class RESTEnkelvoudigInformatieobject {
 
