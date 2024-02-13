@@ -263,7 +263,8 @@ public class TakenRESTService {
     public RESTTaak updateTaak(final RESTTaak restTaak) {
         Task task = takenService.readOpenTask(restTaak.id);
         assertPolicy(
-                getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).wijzigen());
+                getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).wijzigen()
+        );
         task.setDescription(restTaak.toelichting);
         task.setDueDate(convertToDate(restTaak.fataledatum));
         task = takenService.updateTask(task);
@@ -325,7 +326,8 @@ public class TakenRESTService {
     private Task ingelogdeMedewerkerToekennenAanTaak(final RESTTaakToekennenGegevens restTaakToekennenGegevens) {
         Task task = takenService.readOpenTask(restTaakToekennenGegevens.taakId);
         assertPolicy(
-                getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).toekennen());
+                getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).toekennen()
+        );
         task = assignTaak(task.getId(), loggedInUserInstance.get().getId(), restTaakToekennenGegevens.reden);
         taakBehandelaarGewijzigd(task, restTaakToekennenGegevens.zaakUuid);
         indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK);

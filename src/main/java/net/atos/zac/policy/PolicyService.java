@@ -137,15 +137,24 @@ public class PolicyService {
                 new RuleQuery<>(new DocumentInput(loggedInUserInstance.get(), documentData))).getResult();
     }
 
-    public TaakRechten readTaakRechten(final TaskInfo taskInfo) {
-        return readTaakRechten(taskInfo, taakVariabelenService.readZaaktypeOmschrijving(taskInfo));
+    public TaakRechten readTaakRechten(final TaskInfo taskInfo, Zaak zaak) {
+        return readTaakRechten(taskInfo, zaak, taakVariabelenService.readZaaktypeOmschrijving(taskInfo));
     }
 
     public TaakRechten readTaakRechten(final TaskInfo taskInfo, final String zaaktypeOmschrijving) {
         final UUID zaakUUID = taakVariabelenService.readZaakUUID(taskInfo);
+        return readTaakRechten(taskInfo, zrcClientService.readZaak(zaakUUID), zaaktypeOmschrijving);
+    }
+
+    public TaakRechten readTaakRechten(final TaskInfo taskInfo) {
+        final UUID zaakUUID = taakVariabelenService.readZaakUUID(taskInfo);
+        return readTaakRechten(taskInfo, zrcClientService.readZaak(zaakUUID), taakVariabelenService.readZaaktypeOmschrijving(taskInfo));
+    }
+
+    public TaakRechten readTaakRechten(final TaskInfo taskInfo, final Zaak zaak, final String zaaktypeOmschrijving) {
         final TaakData taakData = new TaakData();
         taakData.open = isOpen(taskInfo);
-        taakData.zaakOpen = zrcClientService.readZaak(zaakUUID).isOpen();
+        taakData.zaakOpen = zaak.isOpen();
         taakData.zaaktype = zaaktypeOmschrijving;
         return evaluationClient.readTaakRechten(new RuleQuery<>(new TaakInput(loggedInUserInstance.get(), taakData)))
                 .getResult();
