@@ -1,3 +1,10 @@
+#
+# SPDX-FileCopyrightText: 2024 Lifely
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# When updating this file, please make sure to also update the policy documentation
+# in ~/docs/solution-architecture/accessControlPolicies.md
+#
 package net.atos.zac.overig
 
 import future.keywords
