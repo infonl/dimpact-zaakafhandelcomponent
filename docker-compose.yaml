@@ -210,7 +210,8 @@ services:
       - objecttypen-api
 
   solr:
-    image: solr:9.4.1
+    image: solr:9.5.0-slim
+    platform: linux/amd64
     ports:
       - "8983:8983"
     volumes:
