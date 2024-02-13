@@ -101,7 +101,7 @@ dependencies {
     implementation("com.mailjet:mailjet-client:5.2.5")
     implementation("org.flywaydb:flyway-core:10.7.2")
     implementation("org.flywaydb:flyway-database-postgresql:10.7.2")
-    implementation("org.apache.solr:solr-solrj:9.4.1")
+    implementation("org.apache.solr:solr-solrj:9.5.0")
     implementation("nl.info.webdav:webdav-servlet:1.2.36")
     implementation("com.itextpdf:itextpdf:5.5.13.3")
     implementation("com.itextpdf.tool:xmlworker:5.5.13.3")
