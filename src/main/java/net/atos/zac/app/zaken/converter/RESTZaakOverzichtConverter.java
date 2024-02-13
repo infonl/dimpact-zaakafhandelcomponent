@@ -55,7 +55,7 @@ public class RESTZaakOverzichtConverter {
         restZaakOverzicht.uuid = zaak.getUuid();
         restZaakOverzicht.identificatie = zaak.getIdentificatie();
         restZaakOverzicht.rechten = rechtenConverter.convert(zaakrechten);
-        if (zaakrechten.getLezen()) {
+        if (zaakrechten.lezen()) {
             restZaakOverzicht.startdatum = zaak.getStartdatum();
             restZaakOverzicht.einddatum = zaak.getEinddatum();
             restZaakOverzicht.einddatumGepland = zaak.getEinddatumGepland();

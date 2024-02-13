@@ -40,7 +40,7 @@ public class RESTGerelateerdeZaakConverter {
         restGerelateerdeZaak.identificatie = zaak.getIdentificatie();
         restGerelateerdeZaak.relatieType = relatieType;
         restGerelateerdeZaak.rechten = rechtenConverter.convert(zaakrechten);
-        if (zaakrechten.getLezen()) {
+        if (zaakrechten.lezen()) {
             restGerelateerdeZaak.zaaktypeOmschrijving = zaaktype.getOmschrijving();
             restGerelateerdeZaak.startdatum = zaak.getStartdatum();
             if (zaak.getStatus() != null) {

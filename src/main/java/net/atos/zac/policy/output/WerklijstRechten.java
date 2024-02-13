@@ -9,17 +9,9 @@ import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
 import net.atos.zac.util.DummyInterface;
 
-public class WerklijstRechten implements DummyInterface {
-
-    private final boolean inbox;
-
-    private final boolean ontkoppeldeDocumentenVerwijderen;
-
-    private final boolean inboxProductaanvragenVerwijderen;
-
-    private final boolean zakenTaken;
-
-    private final boolean zakenTakenVerdelen;
+public record WerklijstRechten(boolean inbox, boolean ontkoppeldeDocumentenVerwijderen,
+                               boolean inboxProductaanvragenVerwijderen, boolean zakenTaken,
+                               boolean zakenTakenVerdelen) implements DummyInterface {
 
     @JsonbCreator
     public WerklijstRechten(
@@ -33,26 +25,6 @@ public class WerklijstRechten implements DummyInterface {
         this.inboxProductaanvragenVerwijderen = inboxProductaanvragenVerwijderen;
         this.zakenTaken = zakenTaken;
         this.zakenTakenVerdelen = zakenTakenVerdelen;
-    }
-
-    public boolean getInbox() {
-        return inbox;
-    }
-
-    public boolean getInboxProductaanvragenVerwijderen() {
-        return inboxProductaanvragenVerwijderen;
-    }
-
-    public boolean getOntkoppeldeDocumentenVerwijderen() {
-        return ontkoppeldeDocumentenVerwijderen;
-    }
-
-    public boolean getZakenTaken() {
-        return zakenTaken;
-    }
-
-    public boolean getZakenTakenVerdelen() {
-        return zakenTakenVerdelen;
     }
 
 

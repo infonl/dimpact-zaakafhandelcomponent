@@ -64,7 +64,7 @@ public class InboxProductaanvragenRESTService {
     @PUT
     @Path("")
     public RESTResultaat<RESTInboxProductaanvraag> list(final RESTInboxProductaanvraagListParameters restListParameters) {
-        assertPolicy(policyService.readWerklijstRechten().getInbox());
+        assertPolicy(policyService.readWerklijstRechten().inbox());
         final InboxProductaanvraagListParameters listParameters = listParametersConverter.convert(restListParameters);
         final InboxProductaanvraagResultaat resultaat = inboxProductaanvraagService.list(listParameters);
         final RESTInboxProductaanvraagResultaat restInboxProductaanvraagResultaat =
@@ -83,7 +83,7 @@ public class InboxProductaanvragenRESTService {
     @GET
     @Path("/{uuid}/pdfPreview")
     public Response pdfPreview(@PathParam("uuid") final UUID uuid) {
-        assertPolicy(policyService.readWerklijstRechten().getInbox());
+        assertPolicy(policyService.readWerklijstRechten().inbox());
         EnkelvoudigInformatieObject enkelvoudigInformatieobject =
                 drcClientService.readEnkelvoudigInformatieobject(uuid);
         try (ByteArrayInputStream is = drcClientService.downloadEnkelvoudigInformatieobject(uuid)) {
@@ -99,7 +99,7 @@ public class InboxProductaanvragenRESTService {
     @DELETE
     @Path("{id}")
     public void delete(@PathParam("id") final long id) {
-        PolicyService.assertPolicy(policyService.readWerklijstRechten().getInboxProductaanvragenVerwijderen());
+        PolicyService.assertPolicy(policyService.readWerklijstRechten().inboxProductaanvragenVerwijderen());
         inboxProductaanvraagService.delete(id);
     }
 }

@@ -9,23 +9,9 @@ import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
 import net.atos.zac.util.DummyInterface;
 
-public class ZaakRechten implements DummyInterface {
-
-    private final boolean lezen;
-
-    private final boolean wijzigen;
-
-    private final boolean toekennen;
-
-    private final boolean behandelen;
-
-    private final boolean afbreken;
-
-    private final boolean heropenen;
-
-    private final boolean wijzigenZaakdata;
-
-    private final boolean wijzigenDoorlooptijd;
+public record ZaakRechten(boolean lezen, boolean wijzigen, boolean toekennen, boolean behandelen,
+                          boolean afbreken, boolean heropenen, boolean wijzigenZaakdata,
+                          boolean wijzigenDoorlooptijd) implements DummyInterface {
 
     @JsonbCreator
     public ZaakRechten(
@@ -45,37 +31,5 @@ public class ZaakRechten implements DummyInterface {
         this.heropenen = heropenen;
         this.wijzigenZaakdata = wijzigenZaakdata;
         this.wijzigenDoorlooptijd = wijzigenDoorlooptijd;
-    }
-
-    public boolean getLezen() {
-        return lezen;
-    }
-
-    public boolean getWijzigen() {
-        return wijzigen;
-    }
-
-    public boolean getToekennen() {
-        return toekennen;
-    }
-
-    public boolean getBehandelen() {
-        return behandelen;
-    }
-
-    public boolean getAfbreken() {
-        return afbreken;
-    }
-
-    public boolean getHeropenen() {
-        return heropenen;
-    }
-
-    public boolean getWijzigenZaakdata() {
-        return wijzigenZaakdata;
-    }
-
-    public boolean getWijzigenDoorlooptijd() {
-        return wijzigenDoorlooptijd;
     }
 }
