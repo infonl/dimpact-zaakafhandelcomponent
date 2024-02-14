@@ -228,7 +228,7 @@ public class MailService {
             Document document = new Document(pdfDoc);
 
             // title
-            document.add(new Paragraph(subject));
+            // document.add(new Paragraph(subject));
 
             final PdfFont font = PdfFontFactory.createFont(StandardFonts.COURIER);
             final Paragraph paragraph = new Paragraph();
@@ -242,6 +242,7 @@ public class MailService {
             }
             addToParagraph(paragraph, MAIL_ONDERWERP, subject);
             paragraph.add(MAIL_BERICHT);
+            paragraph.add("\n");
 
             final HtmlCleaner cleaner = new HtmlCleaner();
             final TagNode rootTagNode = cleaner.clean(body);
