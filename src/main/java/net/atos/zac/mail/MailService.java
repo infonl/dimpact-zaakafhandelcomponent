@@ -208,11 +208,7 @@ public class MailService {
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try{
             PdfDocument pdfDoc = new PdfDocument(new PdfWriter(byteArrayOutputStream));
-
             Document document = new Document(pdfDoc);
-
-            // title
-            // document.add(new Paragraph(subject));
 
             final PdfFont font = PdfFontFactory.createFont(StandardFonts.COURIER);
             final Paragraph paragraph = new Paragraph();
