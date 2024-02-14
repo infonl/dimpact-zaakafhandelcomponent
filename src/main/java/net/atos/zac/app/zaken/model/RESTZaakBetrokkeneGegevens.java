@@ -9,20 +9,22 @@ import java.util.UUID;
 
 import jakarta.validation.constraints.NotBlank;
 
+import jakarta.validation.constraints.NotNull;
+
 import net.atos.zac.app.klanten.model.klant.IdentificatieType;
 
 public class RESTZaakBetrokkeneGegevens {
 
-    @NotBlank
+    @NotNull
     public UUID zaakUUID;
 
-    @NotBlank
+    @NotNull
     public UUID roltypeUUID;
 
     @NotBlank
     public String roltoelichting;
 
-    @NotBlank
+    @NotNull
     public IdentificatieType betrokkeneIdentificatieType;
 
     @NotBlank
