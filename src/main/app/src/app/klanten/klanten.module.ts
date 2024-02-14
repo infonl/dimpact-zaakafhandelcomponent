@@ -26,7 +26,6 @@ import { ContactmomentenModule } from "../contactmomenten/contactmomenten.module
     PersoonsgegevensComponent,
     KlantZakenTabelComponent,
     KlantZoekComponent,
-    KlantKoppelComponent,
     PersoonViewComponent,
     BedrijfViewComponent,
   ],
@@ -36,7 +35,6 @@ import { ContactmomentenModule } from "../contactmomenten/contactmomenten.module
     PersoonZoekComponent,
     PersoonsgegevensComponent,
     KlantZoekComponent,
-    KlantKoppelComponent,
   ],
   imports: [
     SharedModule,
