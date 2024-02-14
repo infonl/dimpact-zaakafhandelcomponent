@@ -12,7 +12,7 @@ public class TaakData {
     public boolean open;
 
     @JsonbProperty("zaak_open")
-    public Boolean zaakOpen;
+    public boolean zaakOpen;
 
     public String zaaktype;
 
