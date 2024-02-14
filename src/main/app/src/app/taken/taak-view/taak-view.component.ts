@@ -245,26 +245,26 @@ export class TaakViewComponent
   private setupMenu(): void {
     this.menu.push(new HeaderMenuItem("taak"));
 
-    if (this.taak.rechten.wijzigen && this.taak.status !== TaakStatus.Afgerond) {
-        this.menu.push(
-            new ButtonMenuItem(
-                "actie.document.maken",
-                () => {
-                  this.maakDocument();
-                },
-                "note_add",
-            ),
-        );
-        this.menu.push(
-          new ButtonMenuItem(
-            "actie.document.toevoegen",
-            () => {
-              this.actionsSidenav.open();
-              this.action = SideNavAction.DOCUMENT_TOEVOEGEN;
-            },
-            "upload_file",
-          ),
-        );
+    if (this.taak.rechten.toevoegenDocument) {
+      this.menu.push(
+        new ButtonMenuItem(
+          "actie.document.maken",
+          () => {
+            this.maakDocument();
+          },
+          "note_add",
+        ),
+      );
+      this.menu.push(
+        new ButtonMenuItem(
+          "actie.document.toevoegen",
+          () => {
+            this.actionsSidenav.open();
+            this.action = SideNavAction.DOCUMENT_TOEVOEGEN;
+          },
+          "upload_file",
+        ),
+      );
     }
   }
 

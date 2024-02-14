@@ -17,6 +17,7 @@ taak_rechten := {
     "lezen": lezen,
     "wijzigen": wijzigen,
     "toekennen": toekennen,
+    "toevoegen_document": toevoegen_document
 }
 
 default zaaktype_allowed := false
@@ -43,4 +44,17 @@ default toekennen := false
 toekennen {
     behandelaar.rol in user.rollen
     zaaktype_allowed == true
+}
+
+default toevoegen_document := false
+toevoegen_document {
+    behandelaar.rol in user.rollen
+    zaaktype_allowed == true
+    taak.zaak_open == true
+    taak.open == true
+}
+toevoegen_document {
+    recordmanager.rol in user.rollen
+    zaaktype_allowed == true
+    taak.open == true
 }

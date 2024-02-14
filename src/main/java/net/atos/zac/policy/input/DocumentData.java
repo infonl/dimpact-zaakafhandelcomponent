@@ -19,5 +19,5 @@ public class DocumentData {
     public String zaaktype;
 
     @JsonbProperty("zaak_open")
-    public Boolean zaakOpen;
+    public boolean zaakOpen;
 }

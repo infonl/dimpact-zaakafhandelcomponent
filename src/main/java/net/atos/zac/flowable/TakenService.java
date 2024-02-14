@@ -5,10 +5,8 @@
 
 package net.atos.zac.flowable;
 
-import static net.atos.zac.app.taken.model.TaakStatus.AFGEROND;
-import static net.atos.zac.app.taken.model.TaakStatus.NIET_TOEGEKEND;
-import static net.atos.zac.app.taken.model.TaakStatus.TOEGEKEND;
 import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_UUID;
+import static net.atos.zac.flowable.util.TaskUtil.isCmmnTask;
 import static net.atos.zac.util.JsonbUtil.FIELD_VISIBILITY_STRATEGY;
 import static org.apache.commons.lang3.StringUtils.defaultString;
 
@@ -25,7 +23,6 @@ import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.flowable.cmmn.api.CmmnTaskService;
-import org.flowable.common.engine.api.scope.ScopeTypes;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.TaskService;
 import org.flowable.identitylink.api.IdentityLinkInfo;
@@ -36,7 +33,6 @@ import org.flowable.task.api.history.HistoricTaskInstance;
 import org.flowable.task.api.history.HistoricTaskLogEntry;
 
 import net.atos.zac.app.taken.model.TaakSortering;
-import net.atos.zac.app.taken.model.TaakStatus;
 import net.atos.zac.shared.model.SorteerRichting;
 
 @ApplicationScoped
@@ -244,14 +240,6 @@ public class TakenService {
         taskService.addGroupIdentityLink(task.getId(), groupId, IdentityLinkType.CANDIDATE);
         createHistoricTaskLogEntry(task, USER_TASK_GROUP_CHANGED, currentGroupId, groupId, reden);
         return readOpenTask(task.getId());
-    }
-
-    public TaakStatus getTaakStatus(final TaskInfo taskInfo) {
-        return taskInfo instanceof Task ? (taskInfo.getAssignee() == null ? NIET_TOEGEKEND : TOEGEKEND) : AFGEROND;
-    }
-
-    public boolean isCmmnTask(final TaskInfo taskInfo) {
-        return ScopeTypes.CMMN.equals(taskInfo.getScopeType());
     }
 
     public Task findOpenTask(final String taskId) {
