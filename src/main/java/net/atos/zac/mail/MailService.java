@@ -231,11 +231,12 @@ public class MailService {
 
             final XmlSerializer xmlSerializer = new PrettyXmlSerializer(cleanerProperties);
             final String html = xmlSerializer.getAsString(rootTagNode);
+
             final List<IElement> elements = HtmlConverter.convertToElements(html);
             for (IElement element : elements) {
                 paragraph.add((IBlockElement)element);
             }
-            //paragraph.addAll();
+
             document.add(paragraph);
             document.close();
         } catch (final PdfException | IOException e) {
