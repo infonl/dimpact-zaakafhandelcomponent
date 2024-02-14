@@ -61,11 +61,13 @@ ZAC runs in the WildFly Java application server. To upgrade the WildFly version,
 2. Upgrade the locally installed WildFly version in: [the WildFly install script](../../scripts/wildfly/install-wildfly.sh).
 3. Re-install your local WildFly version using the WildFly install script.
 4. Upgrade WildFly in the [Maven build file](../../pom.xml). This is the actual WildFly that gets
-used in the ZAC Docker Image. Once everything works tell all your co-developers to do the same.
+used in the ZAC Docker Image.
 5. If you have configured your IntelliJ IDE to run ZAC in WildFly update the IntelliJ WildFly run configuration
 using the instructions in [INSTALL.md](INSTALL.md).
-6. In the [Gradle build file](../../build.gradle.kts) manually upgrade all the 'dependencies provided by Wildfly'.
+6. Update the WildFly installation directory in the [startupwithenv.sh](../../startupwithenv.sh) file.
+7. In the [Gradle build file](../../build.gradle.kts) manually upgrade all the 'dependencies provided by Wildfly'.
 These need to be in sync with the ones provided by the used version of WildFly.
-7. Test ZAC thouroughly to make sure everything still works both by running ZAC locally (in IntelliJ and in Docker Compose)
+8. Test ZAC thouroughly to make sure everything still works both by running ZAC locally (in IntelliJ and in Docker Compose)
 and performing manual testing as well as by running our automated tests.
-
+9. Once everything works tell all your co-developers to upgrade their local WildFly installations and
+Intellij WildFly configurations as well.
