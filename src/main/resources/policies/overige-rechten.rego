@@ -20,7 +20,7 @@ overige_rechten := {
     "zoeken": zoeken
 }
 
-default starten_zaak := true
+default starten_zaak := false
 starten_zaak {
     behandelaar.rol in user.rollen
 }
