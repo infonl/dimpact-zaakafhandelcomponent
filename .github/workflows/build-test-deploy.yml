@@ -155,9 +155,11 @@ jobs:
       BAG_API_KEY: ${{ secrets.BAG_API_KEY }}
     steps:
       # workaround to avoid 'No space left on device' error
-      # see: https://github.com/orgs/community/discussions/25678#discussioncomment-5242449
-      - name: Delete unnecessary tools folder to make space on disk
-        run: rm -rf /opt/hostedtoolcache
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: true
+          docker-images: false
 
       - uses: actions/checkout@v4
 
@@ -229,6 +231,22 @@ jobs:
         with:
           path: docker-image.tar
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+
+  dependabot-auto-merge:
+    needs: [run-unit-tests, build-docker-image-and-run-itests]
+    runs-on: ubuntu-22.04
+    if: github.actor == 'dependabot[bot]'
+    permissions:
+      pull-requests: write
+      contents: write
+    steps:
+      - uses: fastify/github-action-merge-dependabot@v3
+        with:
+          # Our Dependabot PRs are not merged automatically because an automatically merged PR
+          # does not trigger our push workflow (and so no release would be made).
+          # see: https://github.com/fastify/github-action-merge-dependabot/issues/134
+          approve-only: true
+          target: minor
 
   next-version:
     if: github.ref == 'refs/heads/main'

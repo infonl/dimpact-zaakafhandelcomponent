@@ -41,7 +41,7 @@ public class OpschortenZaakHelper {
     private ZaakVariabelenService zaakVariabelenService;
 
     public Zaak opschortenZaak(Zaak zaak, final long aantalDagen, final String redenOpschorting) {
-        assertPolicy(policyService.readZaakRechten(zaak).getBehandelen());
+        assertPolicy(policyService.readZaakRechten(zaak).behandelen());
         final UUID zaakUUID = zaak.getUuid();
         final Status status = zaak.getStatus() != null ? zrcClientService.readStatus(zaak.getStatus()) : null;
         final StatusType statustype = status != null ?
@@ -59,7 +59,7 @@ public class OpschortenZaakHelper {
     }
 
     public Zaak hervattenZaak(final Zaak zaak, final String redenHervatting) {
-        assertPolicy(policyService.readZaakRechten(zaak).getBehandelen());
+        assertPolicy(policyService.readZaakRechten(zaak).behandelen());
         assertPolicy(zaak.isOpgeschort());
         final UUID zaakUUID = zaak.getUuid();
         final ZonedDateTime datumOpgeschort =

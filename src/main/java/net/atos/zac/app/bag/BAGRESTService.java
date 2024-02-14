@@ -108,7 +108,7 @@ public class BAGRESTService {
     @POST
     public void create(final RESTBAGObjectGegevens bagObjectGegevens) {
         final Zaak zaak = zrcClientService.readZaak(bagObjectGegevens.zaakUuid);
-        assertPolicy(policyService.readZaakRechten(zaak).getBehandelen());
+        assertPolicy(policyService.readZaakRechten(zaak).behandelen());
         if (isNogNietGekoppeld(bagObjectGegevens.getBagObject(), zaak)) {
             zrcClientService.createZaakobject(bagConverter.convertToZaakobject(bagObjectGegevens.getBagObject(), zaak));
         }
@@ -117,7 +117,7 @@ public class BAGRESTService {
     @DELETE
     public void delete(final RESTBAGObjectGegevens bagObjectGegevens) {
         final Zaak zaak = zrcClientService.readZaak(bagObjectGegevens.zaakUuid);
-        assertPolicy(policyService.readZaakRechten(zaak).getBehandelen());
+        assertPolicy(policyService.readZaakRechten(zaak).behandelen());
         final Zaakobject zaakobject = zrcClientService.readZaakobject(bagObjectGegevens.uuid);
         zrcClientService.deleteZaakobject(zaakobject, bagObjectGegevens.redenWijzigen);
     }
@@ -127,7 +127,7 @@ public class BAGRESTService {
     public List<RESTBAGObjectGegevens> listBagobjectenVoorZaak(@PathParam("zaakUuid") final UUID zaakUUID) {
         final ZaakobjectListParameters zaakobjectListParameters = new ZaakobjectListParameters();
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        assertPolicy(policyService.readZaakRechten(zaak).getLezen());
+        assertPolicy(policyService.readZaakRechten(zaak).lezen());
         zaakobjectListParameters.setZaak(zaak.getUrl());
         final Results<Zaakobject> zaakobjecten = zrcClientService.listZaakobjecten(zaakobjectListParameters);
         if (zaakobjecten.getCount() > 0) {

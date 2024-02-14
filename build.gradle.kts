@@ -17,7 +17,7 @@ plugins {
     jacoco
 
     id("org.jsonschema2pojo") version "1.2.1"
-    id("org.openapi.generator") version "7.2.0"
+    id("org.openapi.generator") version "7.3.0"
     id("com.github.node-gradle.node") version "7.0.2"
     id("org.barfuin.gradle.taskinfo") version "2.2.0"
     id("io.smallrye.openapi") version "3.9.0"
@@ -99,17 +99,20 @@ dependencies {
     implementation("javax.cache:cache-api:1.1.1")
     implementation("com.google.guava:guava:33.0.0-jre")
     implementation("com.mailjet:mailjet-client:5.2.5")
-    implementation("org.flywaydb:flyway-core:10.7.1")
-    implementation("org.flywaydb:flyway-database-postgresql:10.7.1")
-    implementation("org.apache.solr:solr-solrj:9.4.1")
-    implementation("nl.info.webdav:webdav-servlet:1.2.31")
+
     // implementation("com.itextpdf:itext-core:8.0.2")
     implementation("com.itextpdf:kernel:8.0.3")
     implementation("com.itextpdf:layout:8.0.3")
     implementation("com.itextpdf:io:8.0.3")
     implementation("com.itextpdf:html2pdf:5.0.3")
-//    implementation("com.itextpdf:itextpdf:5.5.13.3")
-//    implementation("com.itextpdf.tool:xmlworker:5.5.13.3")
+    // implementation("com.itextpdf:itextpdf:5.5.13.3")
+    // implementation("com.itextpdf.tool:xmlworker:5.5.13.3")
+
+    implementation("org.flywaydb:flyway-core:10.7.2")
+    implementation("org.flywaydb:flyway-database-postgresql:10.7.2")
+    implementation("org.apache.solr:solr-solrj:9.5.0")
+    implementation("nl.info.webdav:webdav-servlet:1.2.36")
+
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
     implementation("com.unboundid:unboundid-ldapsdk:6.0.11")
 
@@ -129,15 +132,20 @@ dependencies {
     // include it in the WAR or else ZAC will fail to be deployed
     warLib("jakarta.mail:jakarta.mail-api:2.1.2")
 
-    // dependencies provided by Wildfly 30
+    // dependencies provided by Wildfly
+    // update these versions when upgrading WildFly
+    // you can find most of these dependencies in the WildFly pom.xml file
+    // of the WidFly version you are using on https://github.com/wildfly/wildfly
+    // for others you need to check the 'modules' directory of your local WildFly installtion
     providedCompile("jakarta.platform:jakarta.jakartaee-api:10.0.0")
     providedCompile("org.eclipse.microprofile.rest.client:microprofile-rest-client-api:3.0.1")
-    providedCompile("org.eclipse.microprofile.config:microprofile-config-api:3.0.2")
+    providedCompile("org.eclipse.microprofile.config:microprofile-config-api:3.1")
     providedCompile("org.eclipse.microprofile.health:microprofile-health-api:4.0.1")
     providedCompile("org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api:4.0.2")
-    providedCompile("org.jboss.resteasy:resteasy-multipart-provider:6.2.6.Final")
-    providedCompile("org.wildfly.security:wildfly-elytron-http-oidc:2.2.2.Final")
+    providedCompile("org.jboss.resteasy:resteasy-multipart-provider:6.2.7.Final")
+    providedCompile("org.wildfly.security:wildfly-elytron-http-oidc:2.2.3.Final")
     providedCompile("org.hibernate.validator:hibernate-validator:8.0.1.Final")
+    // ~dependencies provided by Wildfly
 
     // yasson is required for using a JSONB context in our unit tests
     // where we do not have the WildFly runtime environment available
@@ -146,14 +154,14 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.9")
 
     // integration test dependencies
-    "itestImplementation"("org.testcontainers:testcontainers:1.19.4")
-    "itestImplementation"("org.testcontainers:mockserver:1.19.4")
-    "itestImplementation"("org.testcontainers:postgresql:1.19.4")
+    "itestImplementation"("org.testcontainers:testcontainers:1.19.5")
+    "itestImplementation"("org.testcontainers:mockserver:1.19.5")
+    "itestImplementation"("org.testcontainers:postgresql:1.19.5")
     "itestImplementation"("io.kotest:kotest-runner-junit5:5.8.0")
     "itestImplementation"("io.kotest:kotest-assertions-json:5.8.0")
     "itestImplementation"("org.slf4j:slf4j-simple:2.0.12")
     "itestImplementation"("io.github.oshai:kotlin-logging-jvm:6.0.3")
-    "itestImplementation"("org.danilopianini:khttp:1.4.3")
+    "itestImplementation"("org.danilopianini:khttp:1.5.0")
     "itestImplementation"("org.awaitility:awaitility-kotlin:4.2.0")
     "itestImplementation"("org.mock-server:mockserver-client-java:5.15.0")
 }

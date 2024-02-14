@@ -101,7 +101,7 @@ public class ZaakafhandelParametersRESTService {
     @GET
     @Path("caseDefinition")
     public List<RESTCaseDefinition> listCaseDefinitions() {
-        assertPolicy(policyService.readOverigeRechten().getBeheren());
+        assertPolicy(policyService.readOverigeRechten().beheren());
         final List<CaseDefinition> caseDefinitions = cmmnService.listCaseDefinitions();
         return caseDefinitions.stream()
                 .map(caseDefinition -> caseDefinitionConverter.convertToRESTCaseDefinition(caseDefinition, true))
@@ -117,7 +117,7 @@ public class ZaakafhandelParametersRESTService {
     @GET
     @Path("caseDefinition/{key}")
     public RESTCaseDefinition readCaseDefinition(@PathParam("key") String caseDefinitionKey) {
-        assertPolicy(policyService.readOverigeRechten().getBeheren());
+        assertPolicy(policyService.readOverigeRechten().beheren());
         return caseDefinitionConverter.convertToRESTCaseDefinition(caseDefinitionKey, true);
     }
 
@@ -128,7 +128,7 @@ public class ZaakafhandelParametersRESTService {
      */
     @GET
     public List<RESTZaakafhandelParameters> listZaakafhandelParameters() {
-        assertPolicy(policyService.readOverigeRechten().getBeheren());
+        assertPolicy(policyService.readOverigeRechten().beheren());
         return listZaaktypes().stream()
                 .map(zaaktype -> UriUtil.uuidFromURI(zaaktype.getUrl()))
                 .map(zaakafhandelParameterService::readZaakafhandelParameters)
@@ -145,7 +145,7 @@ public class ZaakafhandelParametersRESTService {
     @GET
     @Path("{zaaktypeUUID}")
     public RESTZaakafhandelParameters readZaakafhandelParameters(@PathParam("zaaktypeUUID") final UUID zaakTypeUUID) {
-        assertPolicy(policyService.readOverigeRechten().getBeheren());
+        assertPolicy(policyService.readOverigeRechten().beheren());
         final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
                 zaakTypeUUID);
         return zaakafhandelParametersConverter.convertZaakafhandelParameters(zaakafhandelParameters, true);
@@ -159,7 +159,7 @@ public class ZaakafhandelParametersRESTService {
     @PUT
     public RESTZaakafhandelParameters updateZaakafhandelparameters(
             final RESTZaakafhandelParameters restZaakafhandelParameters) {
-        assertPolicy(policyService.readOverigeRechten().getBeheren());
+        assertPolicy(policyService.readOverigeRechten().beheren());
         ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParametersConverter.convertRESTZaakafhandelParameters(
                 restZaakafhandelParameters);
         if (zaakafhandelParameters.getId() == null) {
@@ -181,7 +181,7 @@ public class ZaakafhandelParametersRESTService {
     @GET
     @Path("zaakbeeindigRedenen")
     public List<RESTZaakbeeindigReden> listZaakbeeindigRedenen() {
-        assertPolicy(policyService.readOverigeRechten().getBeheren());
+        assertPolicy(policyService.readOverigeRechten().beheren());
         return zaakbeeindigRedenConverter.convertZaakbeeindigRedenen(
                 zaakafhandelParameterBeheerService.listZaakbeeindigRedenen());
     }
@@ -212,7 +212,7 @@ public class ZaakafhandelParametersRESTService {
     @GET
     @Path("resultaattypes/{zaaktypeUUID}")
     public List<RESTResultaattype> listResultaattypes(@PathParam("zaaktypeUUID") final UUID zaaktypeUUID) {
-        assertPolicy(policyService.readOverigeRechten().getBeheren());
+        assertPolicy(policyService.readOverigeRechten().beheren());
         return resultaattypeConverter.convertResultaattypes(
                 ztcClientService.readResultaattypen(ztcClientService.readZaaktype(zaaktypeUUID).getUrl()));
     }

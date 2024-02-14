@@ -9,13 +9,8 @@ import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
 import net.atos.zac.util.DummyInterface;
 
-public class OverigeRechten implements DummyInterface {
-
-    private final boolean startenZaak;
-
-    private final boolean beheren;
-
-    private final boolean zoeken;
+public record OverigeRechten(boolean startenZaak, boolean beheren,
+                             boolean zoeken) implements DummyInterface {
 
     @JsonbCreator
     public OverigeRechten(
@@ -25,17 +20,5 @@ public class OverigeRechten implements DummyInterface {
         this.startenZaak = startenZaak;
         this.beheren = beheren;
         this.zoeken = zoeken;
-    }
-
-    public boolean getStartenZaak() {
-        return startenZaak;
-    }
-
-    public boolean getBeheren() {
-        return beheren;
-    }
-
-    public boolean getZoeken() {
-        return zoeken;
     }
 }
