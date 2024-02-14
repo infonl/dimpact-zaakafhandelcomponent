@@ -7,24 +7,24 @@ package net.atos.zac.app.zaken.model;
 
 import java.util.UUID;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
 import net.atos.zac.app.klanten.model.klant.IdentificatieType;
 
 public class RESTZaakBetrokkeneGegevens {
 
-    @NotNull
+    @NotBlank
     public UUID zaakUUID;
 
-    @NotNull
+    @NotBlank
     public UUID roltypeUUID;
 
-    @NotNull
+    @NotBlank
     public String roltoelichting;
-    
-    @NotNull
+
+    @NotBlank
     public IdentificatieType betrokkeneIdentificatieType;
 
-    @NotNull
+    @NotBlank
     public String betrokkeneIdentificatie;
 }

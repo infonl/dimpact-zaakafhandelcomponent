@@ -1,24 +1,15 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { Klant } from "../../model/klanten/klant";
-import { SelectFormFieldBuilder } from "../../../shared/material-form-builder/form-components/select/select-form-field-builder";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { SelectFormField } from "../../../shared/material-form-builder/form-components/select/select-form-field";
-import { KlantenService } from "../../klanten.service";
-import { KlantGegevens } from "../../model/klanten/klant-gegevens";
-import { InputFormField } from "../../../shared/material-form-builder/form-components/input/input-form-field";
-import { InputFormFieldBuilder } from "../../../shared/material-form-builder/form-components/input/input-form-field-builder";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { MatDrawer } from "@angular/material/sidenav";
-import { KlantKoppelBetrokkeneComponent } from "./klant-koppel-betrokkene.component";
-import { KlantKoppelInitiator } from "./klant-koppel-initiator.component";
-import { MatTab, MatTabGroup } from "@angular/material/tabs";
-import { MatIcon } from "@angular/material/icon";
 import { TranslateModule } from "@ngx-translate/core";
 import { SharedModule } from "src/app/shared/shared.module";
+import { KlantGegevens } from "../../model/klanten/klant-gegevens";
+import { KlantKoppelBetrokkeneComponent } from "./klant-koppel-betrokkene.component";
+import { KlantKoppelInitiator } from "./klant-koppel-initiator.component";
 
 @Component({
   selector: "zac-klant-koppel",
