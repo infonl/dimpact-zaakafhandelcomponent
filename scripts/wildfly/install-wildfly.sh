@@ -12,6 +12,7 @@
 cd "$(dirname "$0")" || exit
 
 # WildFly version should match the version used in pom.xml
+# Please follow the instructions in 'updatingDependencies.md' when upgrading WildFly.
 export WILDFLY_VERSION=31.0.0.Final
 export WILDFLY_DATASOURCES_GALLEON_PACK_VERSION=6.0.0.Final
 
