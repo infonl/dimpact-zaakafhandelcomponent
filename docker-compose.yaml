@@ -18,6 +18,7 @@ services:
       - LDAP_URL=ldap://openldap:1389
       - ZAC_GROUP_A_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_A_EMAIL_ADDRESS:-test-group-a@example.com}
       - ZAC_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS:-test-group-functioneel-beheerders@example.com}
+      - ZAC_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS:-test-group-record-managers@example.com}
     volumes:
       - ./scripts/docker-compose/imports/keycloak:/opt/keycloak/data/import
     command:
@@ -109,6 +110,7 @@ services:
     volumes:
       - ./scripts/docker-compose/imports/openzaak/zac-scripts:/zac-scripts
       - ./scripts/docker-compose/imports/openzaak/uploads/dummy-test-document.pdf:/dummy-test-document.pdf
+      - ./scripts/docker-compose/volume-data/openzaak-private-media:/app/private-media
     command: ["/zac-scripts/copy-test-pdf-and-start-openzaak.sh"]
     depends_on:
       openzaak-database:
@@ -243,10 +245,12 @@ services:
       - LDAP_ADMIN_PASSWORD=admin
       - LDAP_ROOT=dc=example,dc=org
       - LDAP_SKIP_DEFAULT_TREE=yes
-      - ZAC_LDAP_TESTUSER1_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_TEST_USER_1_EMAIL_ADDRESS:-testuser1@example.com}
-      - ZAC_LDAP_TESTUSER2_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_TEST_USER_2_EMAIL_ADDRESS:-testuser2@example.com}
-      - ZAC_LDAP_GROUP_A_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_A_EMAIL_ADDRESS:-test-group-a@example.com}
+      - ZAC_TESTUSER1_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_TEST_USER_1_EMAIL_ADDRESS:-testuser1@example.com}
+      - ZAC_TESTUSER2_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_TEST_USER_2_EMAIL_ADDRESS:-testuser2@example.com}
+      - ZAC_RECORD_MANAGER_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_RECORD_MANAGER_1_EMAIL_ADDRESS:-recordmanager1@example.com}
+      - ZAC_GROUP_A_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_A_EMAIL_ADDRESS:-test-group-a@example.com}
       - ZAC_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS:-test-group-functioneel-beheerders@example.com}
+      - ZAC_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS:-test-group-record-managers@example.com}
     entrypoint: ["/zac-scripts/generate-zac-import-ldif-and-start-openldap.sh"]
     command: ["/opt/bitnami/scripts/openldap/run.sh"]
 
