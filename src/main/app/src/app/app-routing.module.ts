@@ -5,9 +5,9 @@
 
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
-import { DashboardComponent } from "./dashboard/dashboard.component";
+import { DashboardWrapper } from "./dashboard/dashboard-wrapper";
 
-const routes: Routes = [{ path: "", component: DashboardComponent }];
+const routes: Routes = [{ path: "", component: DashboardWrapper }];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
