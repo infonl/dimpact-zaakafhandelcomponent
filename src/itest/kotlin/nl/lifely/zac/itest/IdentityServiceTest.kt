@@ -21,6 +21,8 @@ class IdentityServiceTest : BehaviorSpec() {
         const val TEST_USER_2_NAME = "Test User2"
         const val TEST_RECORD_MANAGER_1_ID = "recordmanager1"
         const val TEST_RECORD_MANAGER_1_NAME = "Test Recordmanager1"
+        const val TEST_FUNCTIONAL_ADMIN_1_ID = "functioneelbeheerder1"
+        const val TEST_FUNCTIONAL_ADMIN_1_NAME = "Test Functioneelbeheerder1"
         const val TEST_GROUP_A_ID = "test-group-a"
         const val TEST_GROUP_A_DESCRIPTION = "Test group A"
         const val TEST_GROUP_FUNCTIONAL_ADMINS_ID = "test-group-fb"
@@ -82,6 +84,10 @@ class IdentityServiceTest : BehaviorSpec() {
                         statusCode shouldBe HttpStatus.SC_OK
                         text shouldEqualJson """
                             [
+                                {
+                                    "id": "$TEST_FUNCTIONAL_ADMIN_1_ID",
+                                    "naam": "$TEST_FUNCTIONAL_ADMIN_1_NAME"
+                                },
                                 {
                                     "id": "$TEST_RECORD_MANAGER_1_ID",
                                     "naam": "$TEST_RECORD_MANAGER_1_NAME"
