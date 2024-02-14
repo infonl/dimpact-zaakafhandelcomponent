@@ -101,8 +101,8 @@ dependencies {
     implementation("com.mailjet:mailjet-client:5.2.5")
     implementation("org.flywaydb:flyway-core:10.7.2")
     implementation("org.flywaydb:flyway-database-postgresql:10.7.2")
-    implementation("org.apache.solr:solr-solrj:9.4.1")
-    implementation("nl.info.webdav:webdav-servlet:1.2.31")
+    implementation("org.apache.solr:solr-solrj:9.5.0")
+    implementation("nl.info.webdav:webdav-servlet:1.2.36")
     implementation("com.itextpdf:itextpdf:5.5.13.3")
     implementation("com.itextpdf.tool:xmlworker:5.5.13.3")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
@@ -124,15 +124,20 @@ dependencies {
     // include it in the WAR or else ZAC will fail to be deployed
     warLib("jakarta.mail:jakarta.mail-api:2.1.2")
 
-    // dependencies provided by Wildfly 30
+    // dependencies provided by Wildfly
+    // update these versions when upgrading WildFly
+    // you can find most of these dependencies in the WildFly pom.xml file
+    // of the WidFly version you are using on https://github.com/wildfly/wildfly
+    // for others you need to check the 'modules' directory of your local WildFly installtion
     providedCompile("jakarta.platform:jakarta.jakartaee-api:10.0.0")
     providedCompile("org.eclipse.microprofile.rest.client:microprofile-rest-client-api:3.0.1")
-    providedCompile("org.eclipse.microprofile.config:microprofile-config-api:3.0.2")
+    providedCompile("org.eclipse.microprofile.config:microprofile-config-api:3.1")
     providedCompile("org.eclipse.microprofile.health:microprofile-health-api:4.0.1")
     providedCompile("org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api:4.0.2")
-    providedCompile("org.jboss.resteasy:resteasy-multipart-provider:6.2.6.Final")
-    providedCompile("org.wildfly.security:wildfly-elytron-http-oidc:2.2.2.Final")
+    providedCompile("org.jboss.resteasy:resteasy-multipart-provider:6.2.7.Final")
+    providedCompile("org.wildfly.security:wildfly-elytron-http-oidc:2.2.3.Final")
     providedCompile("org.hibernate.validator:hibernate-validator:8.0.1.Final")
+    // ~dependencies provided by Wildfly
 
     // yasson is required for using a JSONB context in our unit tests
     // where we do not have the WildFly runtime environment available
@@ -148,7 +153,7 @@ dependencies {
     "itestImplementation"("io.kotest:kotest-assertions-json:5.8.0")
     "itestImplementation"("org.slf4j:slf4j-simple:2.0.12")
     "itestImplementation"("io.github.oshai:kotlin-logging-jvm:6.0.3")
-    "itestImplementation"("org.danilopianini:khttp:1.4.3")
+    "itestImplementation"("org.danilopianini:khttp:1.5.0")
     "itestImplementation"("org.awaitility:awaitility-kotlin:4.2.0")
     "itestImplementation"("org.mock-server:mockserver-client-java:5.15.0")
 }

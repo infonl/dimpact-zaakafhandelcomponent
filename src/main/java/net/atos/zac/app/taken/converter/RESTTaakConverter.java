@@ -79,7 +79,7 @@ public class RESTTaakConverter {
         final var zaaktypeOmschrijving = taakVariabelenService.readZaaktypeOmschrijving(taskInfo);
         final var rechten = policyService.readTaakRechten(zaaktypeOmschrijving);
         restTaak.rechten = rechtenConverter.convert(rechten);
-        if (rechten.getLezen()) {
+        if (rechten.lezen()) {
             restTaak.zaaktypeOmschrijving = zaaktypeOmschrijving;
             restTaak.toelichting = taskInfo.getDescription();
             restTaak.creatiedatumTijd = convertToZonedDateTime(taskInfo.getCreateTime());

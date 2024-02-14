@@ -40,6 +40,15 @@ updates:
       - dependency-name: "org.jboss.resteasy:resteasy-multipart-provider"
       - dependency-name: "org.wildfly.security:wildfly-elytron-http-oidc"
 
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "04:00"
+      timezone: "Europe/Amsterdam"
+    reviewers:
+      - "infonl/dimpact"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

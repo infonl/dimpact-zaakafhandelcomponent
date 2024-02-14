@@ -9,19 +9,9 @@ import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
 import net.atos.zac.util.DummyInterface;
 
-public class DocumentRechten implements DummyInterface {
-
-    private final boolean lezen;
-
-    private final boolean wijzigen;
-
-    private final boolean verwijderen;
-
-    private final boolean vergrendelen;
-
-    private final boolean ontgrendelen;
-
-    private final boolean ondertekenen;
+public record DocumentRechten(boolean lezen, boolean wijzigen, boolean verwijderen,
+                              boolean vergrendelen, boolean ontgrendelen,
+                              boolean ondertekenen) implements DummyInterface {
 
     @JsonbCreator
     public DocumentRechten(
@@ -37,29 +27,5 @@ public class DocumentRechten implements DummyInterface {
         this.vergrendelen = vergrendelen;
         this.ontgrendelen = ontgrendelen;
         this.ondertekenen = ondertekenen;
-    }
-
-    public boolean getLezen() {
-        return lezen;
-    }
-
-    public boolean getVerwijderen() {
-        return verwijderen;
-    }
-
-    public boolean getWijzigen() {
-        return wijzigen;
-    }
-
-    public boolean getVergrendelen() {
-        return vergrendelen;
-    }
-
-    public boolean getOntgrendelen() {
-        return ontgrendelen;
-    }
-
-    public boolean getOndertekenen() {
-        return ondertekenen;
     }
 }

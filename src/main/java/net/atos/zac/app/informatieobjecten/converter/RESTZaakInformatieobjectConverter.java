@@ -45,7 +45,7 @@ public class RESTZaakInformatieobjectConverter {
         final RESTZaakInformatieobject restZaakInformatieobject = new RESTZaakInformatieobject();
         restZaakInformatieobject.zaakIdentificatie = zaak.getIdentificatie();
         restZaakInformatieobject.zaakRechten = rechtenConverter.convert(zaakrechten);
-        if (zaakrechten.getLezen()) {
+        if (zaakrechten.lezen()) {
             restZaakInformatieobject.zaakStartDatum = zaak.getStartdatum();
             restZaakInformatieobject.zaakEinddatumGepland = zaak.getEinddatumGepland();
             restZaakInformatieobject.zaaktypeOmschrijving = zaaktype.getOmschrijving();

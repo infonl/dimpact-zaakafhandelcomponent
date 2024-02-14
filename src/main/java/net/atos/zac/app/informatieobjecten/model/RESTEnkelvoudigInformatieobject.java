@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.EnumSet;
 import java.util.UUID;
+import jakarta.validation.constraints.NotNull;
 
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.zac.app.identity.model.RESTUser;
@@ -16,18 +17,21 @@ import net.atos.zac.app.policy.model.RESTDocumentRechten;
 import net.atos.zac.zoeken.model.DocumentIndicatie;
 
 /**
- *
+ * Representation of an 'enkelvoudig informatieobject' (e.g. a document) in the ZAC REST API.
  */
 public class RESTEnkelvoudigInformatieobject {
+
 
     public UUID uuid;
 
     public String identificatie;
 
+    @NotNull
     public String titel;
 
     public String beschrijving;
 
+    @NotNull
     public LocalDate creatiedatum;
 
     public ZonedDateTime registratiedatumTijd;
@@ -38,22 +42,28 @@ public class RESTEnkelvoudigInformatieobject {
 
     public String bronorganisatie;
 
+    @NotNull
     public String vertrouwelijkheidaanduiding;
 
+    @NotNull
     public String auteur;
 
     public EnkelvoudigInformatieObject.StatusEnum status;
 
     public String formaat;
 
+    @NotNull
     public String taal;
 
     public Integer versie;
 
+    @NotNull
     public UUID informatieobjectTypeUUID;
+
 
     public String informatieobjectTypeOmschrijving;
 
+    @NotNull
     public String bestandsnaam;
 
     public Long bestandsomvang;

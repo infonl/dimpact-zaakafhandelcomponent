@@ -20,51 +20,51 @@ public class RESTRechtenConverter {
 
     public RESTDocumentRechten convert(final DocumentRechten documentRechten) {
         final RESTDocumentRechten restDocumentRechten = new RESTDocumentRechten();
-        restDocumentRechten.lezen = documentRechten.getLezen();
-        restDocumentRechten.wijzigen = documentRechten.getWijzigen();
-        restDocumentRechten.ontgrendelen = documentRechten.getOntgrendelen();
-        restDocumentRechten.vergrendelen = documentRechten.getVergrendelen();
-        restDocumentRechten.verwijderen = documentRechten.getVerwijderen();
-        restDocumentRechten.ondertekenen = documentRechten.getOndertekenen();
+        restDocumentRechten.lezen = documentRechten.lezen();
+        restDocumentRechten.wijzigen = documentRechten.wijzigen();
+        restDocumentRechten.ontgrendelen = documentRechten.ontgrendelen();
+        restDocumentRechten.vergrendelen = documentRechten.vergrendelen();
+        restDocumentRechten.verwijderen = documentRechten.verwijderen();
+        restDocumentRechten.ondertekenen = documentRechten.ondertekenen();
         return restDocumentRechten;
     }
 
     public RESTTaakRechten convert(final TaakRechten taakRechten) {
         final RESTTaakRechten restTaakRechten = new RESTTaakRechten();
-        restTaakRechten.lezen = taakRechten.getLezen();
-        restTaakRechten.wijzigen = taakRechten.getWijzigen();
-        restTaakRechten.toekennen = taakRechten.getToekennen();
+        restTaakRechten.lezen = taakRechten.lezen();
+        restTaakRechten.wijzigen = taakRechten.wijzigen();
+        restTaakRechten.toekennen = taakRechten.toekennen();
         return restTaakRechten;
     }
 
     public RESTZaakRechten convert(final ZaakRechten zaakRechten) {
         final RESTZaakRechten restZaakRechten = new RESTZaakRechten();
-        restZaakRechten.lezen = zaakRechten.getLezen();
-        restZaakRechten.wijzigen = zaakRechten.getWijzigen();
-        restZaakRechten.toekennen = zaakRechten.getToekennen();
-        restZaakRechten.behandelen = zaakRechten.getBehandelen();
-        restZaakRechten.afbreken = zaakRechten.getAfbreken();
-        restZaakRechten.heropenen = zaakRechten.getHeropenen();
-        restZaakRechten.wijzigenDoorlooptijd = zaakRechten.getWijzigenDoorlooptijd();
-        restZaakRechten.wijzigenZaakdata = zaakRechten.getWijzigenZaakdata();
+        restZaakRechten.lezen = zaakRechten.lezen();
+        restZaakRechten.wijzigen = zaakRechten.wijzigen();
+        restZaakRechten.toekennen = zaakRechten.toekennen();
+        restZaakRechten.behandelen = zaakRechten.behandelen();
+        restZaakRechten.afbreken = zaakRechten.afbreken();
+        restZaakRechten.heropenen = zaakRechten.heropenen();
+        restZaakRechten.wijzigenDoorlooptijd = zaakRechten.wijzigenDoorlooptijd();
+        restZaakRechten.wijzigenZaakdata = zaakRechten.wijzigenZaakdata();
         return restZaakRechten;
     }
 
     public RESTWerklijstRechten convert(final WerklijstRechten werklijstrechten) {
         final RESTWerklijstRechten restWerklijstRechten = new RESTWerklijstRechten();
-        restWerklijstRechten.inbox = werklijstrechten.getInbox();
-        restWerklijstRechten.ontkoppeldeDocumentenVerwijderen = werklijstrechten.getOntkoppeldeDocumentenVerwijderen();
-        restWerklijstRechten.inboxProductaanvragenVerwijderen = werklijstrechten.getInboxProductaanvragenVerwijderen();
-        restWerklijstRechten.zakenTaken = werklijstrechten.getZakenTaken();
-        restWerklijstRechten.zakenTakenVerdelen = werklijstrechten.getZakenTakenVerdelen();
+        restWerklijstRechten.inbox = werklijstrechten.inbox();
+        restWerklijstRechten.ontkoppeldeDocumentenVerwijderen = werklijstrechten.ontkoppeldeDocumentenVerwijderen();
+        restWerklijstRechten.inboxProductaanvragenVerwijderen = werklijstrechten.inboxProductaanvragenVerwijderen();
+        restWerklijstRechten.zakenTaken = werklijstrechten.zakenTaken();
+        restWerklijstRechten.zakenTakenVerdelen = werklijstrechten.zakenTakenVerdelen();
         return restWerklijstRechten;
     }
 
     public RESTOverigeRechten convert(final OverigeRechten overigeRechten) {
         final RESTOverigeRechten restOverigeRechten = new RESTOverigeRechten();
-        restOverigeRechten.startenZaak = overigeRechten.getStartenZaak();
-        restOverigeRechten.beheren = overigeRechten.getBeheren();
-        restOverigeRechten.zoeken = overigeRechten.getZoeken();
+        restOverigeRechten.startenZaak = overigeRechten.startenZaak();
+        restOverigeRechten.beheren = overigeRechten.beheren();
+        restOverigeRechten.zoeken = overigeRechten.zoeken();
         return restOverigeRechten;
     }
 }
