@@ -155,9 +155,10 @@ jobs:
       BAG_API_KEY: ${{ secrets.BAG_API_KEY }}
     steps:
       # workaround to avoid 'No space left on device' error
-      # see: https://github.com/orgs/community/discussions/25678#discussioncomment-5242449
-      - name: Delete unnecessary tools folder to make space on disk
-        run: rm -rf /opt/hostedtoolcache
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@v1
+        with:
+          tool-cache: true
 
       - uses: actions/checkout@v4
 
