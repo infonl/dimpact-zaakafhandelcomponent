@@ -17,7 +17,8 @@
         <revision>latest-SNAPSHOT</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <wildfly.version>30.0.1.Final</wildfly.version>
+        <!-- w-->
+        <wildfly.version>31.0.0.Final</wildfly.version>
     </properties>
 
     <build>

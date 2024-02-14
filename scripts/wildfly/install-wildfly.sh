@@ -12,7 +12,7 @@
 cd "$(dirname "$0")" || exit
 
 # WildFly version should match the version used in pom.xml
-export WILDFLY_VERSION=30.0.1.Final
+export WILDFLY_VERSION=31.0.0.Final
 export WILDFLY_DATASOURCES_GALLEON_PACK_VERSION=6.0.0.Final
 
 export WILDFLY_SERVER_DIR=../../wildfly-$WILDFLY_VERSION
