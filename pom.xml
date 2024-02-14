@@ -17,7 +17,10 @@
         <revision>latest-SNAPSHOT</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <wildfly.version>30.0.1.Final</wildfly.version>
+        <!-- please follow the instructions in 'updatingDependencies.md' when upgrading WildFly -->
+        <wildfly.version>31.0.0.Final</wildfly.version>
+        <wildfly-jar-maven-plugin.version>10.0.0.Final</wildfly-jar-maven-plugin.version>
+        <wildfly-datasources-galleon-pack.version>6.0.0.Final</wildfly-datasources-galleon-pack.version>
     </properties>
 
     <build>
@@ -26,7 +29,7 @@
             <plugin>
                 <groupId>org.wildfly.plugins</groupId>
                 <artifactId>wildfly-jar-maven-plugin</artifactId>
-                <version>10.0.0.Final</version>
+                <version>${wildfly-jar-maven-plugin.version}</version>
                 <configuration>
                     <featurePacks>
                         <featurePack>
@@ -35,7 +38,7 @@
                         <featurePack>
                             <groupId>org.wildfly</groupId>
                             <artifactId>wildfly-datasources-galleon-pack</artifactId>
-                            <version>6.0.0.Final</version>
+                            <version>${wildfly-datasources-galleon-pack.version}</version>
                         </featurePack>
                     </featurePacks>
                     <layers>
