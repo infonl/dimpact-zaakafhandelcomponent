@@ -67,7 +67,7 @@ using the instructions in [INSTALL.md](INSTALL.md).
 6. Update the WildFly installation directory in the [startupwithenv.sh](../../startupwithenv.sh) file.
 7. In the [Gradle build file](../../build.gradle.kts) manually upgrade all the 'dependencies provided by Wildfly'.
 These need to be in sync with the ones provided by the used version of WildFly.
-8. Test ZAC thouroughly to make sure everything still works both by running ZAC locally (in IntelliJ and in Docker Compose)
+8. Test ZAC thoroughly to make sure everything still works both by running ZAC locally (in IntelliJ and in Docker Compose)
 and performing manual testing as well as by running our automated tests.
 9. Once everything works tell all your co-developers to upgrade their local WildFly installations and
 Intellij WildFly configurations as well.
