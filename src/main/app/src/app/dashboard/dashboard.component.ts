@@ -26,7 +26,6 @@ import { MatMenuTrigger } from "@angular/material/menu";
 @Component({
   templateUrl: "./dashboard.component.html",
   styleUrls: ["./dashboard.component.less"],
-  selector: "dashboard-component",
 })
 export class DashboardComponent implements OnInit {
   @ViewChild(MatMenuTrigger) menuTrigger: MatMenuTrigger;
