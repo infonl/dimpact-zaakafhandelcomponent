@@ -6,6 +6,7 @@
 package net.atos.zac.flowable;
 
 import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_UUID;
+import static net.atos.zac.flowable.util.TaskUtil.isCmmnTask;
 import static net.atos.zac.util.JsonbUtil.FIELD_VISIBILITY_STRATEGY;
 import static org.apache.commons.lang3.StringUtils.defaultString;
 
@@ -32,7 +33,6 @@ import org.flowable.task.api.history.HistoricTaskInstance;
 import org.flowable.task.api.history.HistoricTaskLogEntry;
 
 import net.atos.zac.app.taken.model.TaakSortering;
-import net.atos.zac.flowable.util.TaskUtil;
 import net.atos.zac.shared.model.SorteerRichting;
 
 @ApplicationScoped
@@ -209,7 +209,7 @@ public class TakenService {
     }
 
     public HistoricTaskInstance completeTask(final Task Task) {
-        if (TaskUtil.isCmmnTask(Task)) {
+        if (isCmmnTask(Task)) {
             cmmnTaskService.complete(Task.getId());
         } else {
             taskService.complete(Task.getId());
