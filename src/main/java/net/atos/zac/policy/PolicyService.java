@@ -162,6 +162,9 @@ public class PolicyService {
 
     public TaakRechten readTaakRechten(final TaakZoekObject taakZoekObject) {
         final TaakData taakData = new TaakData();
+        taakData.zaakOpen = zrcClientService.readZaak(
+                        UUID.fromString(taakZoekObject.getZaakUUID())
+                ).isOpen();
         taakData.zaaktype = taakZoekObject.getZaaktypeOmschrijving();
         return evaluationClient.readTaakRechten(new RuleQuery<>(new TaakInput(loggedInUserInstance.get(), taakData)))
                 .getResult();
