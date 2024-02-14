@@ -284,16 +284,8 @@ public class InformatieObjectenRESTService {
             @QueryParam("taakObject") final boolean taakObject,
             @Valid final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject ) {
         final Zaak zaak = zrcClientService.readZaak(zaakUuid);
-
-        // not ok; needs to be fixed; see: https://dimpact.atlassian.net/browse/PZ-1356
-        if(!zaak.isOpen()) {
-            throw new WebApplicationException((
-                String.format("No open zaak found for document with id: '%s'",
-                              documentReferentieId)), Response.Status.CONFLICT
-            );
-        }
-
         assertPolicy(policyService.readZaakRechten(zaak).wijzigen());
+
         final RESTFileUpload file = (RESTFileUpload) httpSession.get().getAttribute("FILE_" + documentReferentieId);
         final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData = taakObject ?
                 informatieobjectConverter.convertTaakObject(restEnkelvoudigInformatieobject, file) :

@@ -58,7 +58,7 @@ objectClass: top
 cn: test-group-a
 uniqueMember: cn=testuser1,ou=people,dc=example,dc=org
 uniqueMember: cn=testuser2,ou=people,dc=example,dc=org
-description: Test groep A
+description: Test group A
 email: ${GROUP_A_EMAIL_ADDRESS}
 
 dn: cn=test-group-fb,ou=people,dc=example,dc=org
@@ -67,5 +67,27 @@ objectClass: groupOfUniqueNames
 objectClass: top
 cn: test-group-fb
 uniqueMember: cn=testuser1,ou=people,dc=example,dc=org
-description: Test groep functioneel beheerders
+description: Test group functional admins
 email: ${GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS}
+
+dn: cn=recordmanager1,ou=people,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: recordmanager1
+sn: Recordmanager1
+givenName: Test
+mail: ${RECORDMANAGER1_EMAIL_ADDRESS}
+userPassword:: cmVjb3JkbWFuYWdlcjE=
+
+dn: cn=test-group-rm,ou=people,dc=example,dc=org
+objectClass: extensibleObject
+objectClass: groupOfUniqueNames
+objectClass: top
+cn: test-group-rm
+uniqueMember: cn=recordmanager1,ou=people,dc=example,dc=org
+description: Test group record managers
+email: ${GROUP_RECORD_MANAGERS_EMAIL_ADDRESS}
+
+
