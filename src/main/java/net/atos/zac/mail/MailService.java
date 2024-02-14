@@ -206,10 +206,10 @@ public class MailService {
     private byte[] createPdfDocument(final String verzender, final String ontvanger, final String subject,
             final String body, final List<Attachment> attachments) {
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        try{
-            PdfDocument pdfDoc = new PdfDocument(new PdfWriter(byteArrayOutputStream));
-            Document document = new Document(pdfDoc);
-
+        try (
+                PdfDocument pdfDoc = new PdfDocument(new PdfWriter(byteArrayOutputStream));
+                Document document = new Document(pdfDoc);
+            ) {
             final PdfFont font = PdfFontFactory.createFont(StandardFonts.COURIER);
             final Paragraph paragraph = new Paragraph();
             paragraph.setFont(font).setFontSize(16).setFontColor(ColorConstants.BLACK);
@@ -238,7 +238,6 @@ public class MailService {
             }
 
             document.add(paragraph);
-            document.close();
         } catch (final PdfException | IOException e) {
             LOG.log(Level.SEVERE, "Failed to create pdf document", e);
         }
