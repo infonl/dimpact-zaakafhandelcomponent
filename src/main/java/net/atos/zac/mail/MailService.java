@@ -41,32 +41,16 @@ import org.htmlcleaner.XmlSerializer;
 
 import com.fasterxml.uuid.impl.UUIDUtil;
 
-//import com.itextpdf.text.BaseColor;
 import com.itextpdf.kernel.colors.ColorConstants;
-
-//import com.itextpdf.text.Document;
 import com.itextpdf.layout.Document;
-
 import com.itextpdf.kernel.exceptions.PdfException;
-
-//import com.itextpdf.text.Font;
 import com.itextpdf.kernel.font.PdfFont;
-
-//import com.itextpdf.text.FontFactory;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.io.font.constants.StandardFonts;
-
-//import com.itextpdf.text.Paragraph;
 import com.itextpdf.layout.element.Paragraph;
-
-//import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.PdfDocument;
-
-//import com.itextpdf.tool.xml.XMLWorkerHelper;
 import com.itextpdf.html2pdf.HtmlConverter;
-
-
 
 import com.mailjet.client.ClientOptions;
 import com.mailjet.client.MailjetClient;

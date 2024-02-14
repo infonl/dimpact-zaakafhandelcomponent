@@ -100,13 +100,10 @@ dependencies {
     implementation("com.google.guava:guava:33.0.0-jre")
     implementation("com.mailjet:mailjet-client:5.2.5")
 
-    // implementation("com.itextpdf:itext-core:8.0.2")
     implementation("com.itextpdf:kernel:8.0.3")
     implementation("com.itextpdf:layout:8.0.3")
     implementation("com.itextpdf:io:8.0.3")
     implementation("com.itextpdf:html2pdf:5.0.3")
-    // implementation("com.itextpdf:itextpdf:5.5.13.3")
-    // implementation("com.itextpdf.tool:xmlworker:5.5.13.3")
 
     implementation("org.flywaydb:flyway-core:10.7.2")
     implementation("org.flywaydb:flyway-database-postgresql:10.7.2")
