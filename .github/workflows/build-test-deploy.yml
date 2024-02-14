@@ -156,7 +156,7 @@ jobs:
     steps:
       # workaround to avoid 'No space left on device' error
       - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@v1
+        uses: jlumbroso/free-disk-space@v1.3.1
         with:
           tool-cache: true
 
