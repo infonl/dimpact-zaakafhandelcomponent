@@ -73,14 +73,18 @@ public class OpschortenZaakHelper {
                 .orElse(0);
         final long dagenVerschil = ChronoUnit.DAYS.between(datumOpgeschort, ZonedDateTime.now());
         final long offset = dagenVerschil - verwachteDagenOpgeschort;
-        final LocalDate einddatumGepland = zaak.getEinddatumGepland().plusDays(offset);
+        LocalDate einddatumGepland = null;
+        if (zaak.getEinddatumGepland() != null) {
+            einddatumGepland = zaak.getEinddatumGepland().plusDays(offset);
+        }
         final LocalDate uiterlijkeEinddatumAfdoening = zaak.getUiterlijkeEinddatumAfdoening().plusDays(offset);
 
         final String toelichting = String.format("%s: %s", HERVATTING, redenHervatting);
-        final Zaak updatedZaak = zrcClientService.patchZaak(zaakUUID,
-                                                            toPatch(einddatumGepland, uiterlijkeEinddatumAfdoening,
-                                                                    redenHervatting, false),
-                                                            toelichting);
+        final Zaak updatedZaak = zrcClientService.patchZaak(
+                zaakUUID,
+                toPatch(einddatumGepland, uiterlijkeEinddatumAfdoening, redenHervatting, false),
+                toelichting
+        );
         zaakVariabelenService.removeDatumtijdOpgeschort(zaakUUID);
         zaakVariabelenService.removeVerwachteDagenOpgeschort(zaakUUID);
         return updatedZaak;
