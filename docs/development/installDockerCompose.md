@@ -162,14 +162,8 @@ E.g.: `uniqueMember: cn=testuser1,ou=people,dc=example,dc=org`.
 
 Note that at the moment ZAC only allows one DN which is used for both users and groups.
 
-The LDIF import contains the following test users which can be used to log in to ZAC:
-
-| Test user name | Password  | Email                          | Group        |
-| -------------- | --------- | ------------------------------ | ------------ |
-| testuser1      | testuser1 | testuser1@team-dimpact.info.nl | test-group-a |
-| testuser2      | testuser2 | testuser2@team-dimpact.info.nl | test-group-a |
-
-Please change the email addresses of the test users to your own domain.
+The LDIF import contains a number of test users which can be used to log in to ZAC.
+You may wish to change the email addresses of the test users to your own domain.
 
 ![Basic ZAC OpenLDAP setup](./attachments/images/zac-openldap-1.png)
 
