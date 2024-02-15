@@ -46,6 +46,7 @@ fun createRolNatuurlijkPersoon(
     natuurlijkPersoon
 )
 
+@Suppress("LongParameterList")
 fun createZaak(
     zaaktypeURI: URI = URI("http://example.com/${UUID.randomUUID()}"),
     startDate: LocalDate = LocalDate.now(),
