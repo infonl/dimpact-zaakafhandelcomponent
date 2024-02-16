@@ -215,16 +215,16 @@ public class MailService {
             final PdfFont font = PdfFontFactory.createFont(StandardFonts.COURIER);
 
             paragraph.setFont(font).setFontSize(16).setFontColor(ColorConstants.BLACK);
-            addToParagraph(paragraph, MAIL_VERZENDER, verzender);
-            addToParagraph(paragraph, MAIL_ONTVANGER, ontvanger);
+            paragraph.add(String.format("%s: %s %n %n", MAIL_VERZENDER, verzender));
+            paragraph.add(String.format("%s: %s %n %n", MAIL_ONTVANGER, ontvanger));
             if (!attachments.isEmpty()) {
-                addToParagraph(paragraph, MAIL_BIJLAGE,
-                               attachments.stream().map(attachment -> String.valueOf(attachment.getFilename()))
-                                       .collect(joining(", ")));
+                String content = attachments.stream().map(attachment -> String.valueOf(attachment.getFilename()))
+                        .collect(joining(", ")));
+                paragraph.add(String.format("%s: %s %n %n", MAIL_BIJLAGE, content));
             }
-            addToParagraph(paragraph, MAIL_ONDERWERP, subject);
-            paragraph.add(MAIL_BERICHT);
-            paragraph.add("\n");
+
+            paragraph.add(String.format("%s: %s %n %n", MAIL_ONDERWERP, subject));
+            paragraph.add(String.format("%s %n", MAIL_BERICHT);
 
             final HtmlCleaner cleaner = new HtmlCleaner();
             final TagNode rootTagNode = cleaner.clean(body);
@@ -246,12 +246,6 @@ public class MailService {
         }
 
         return byteArrayOutputStream.toByteArray();
-    }
-
-    private void addToParagraph(final Paragraph paragraph, final String propertie, final String inhoud) {
-        paragraph.add(String.format("%s: %s", propertie, inhoud));
-        paragraph.add("\n");
-        paragraph.add("\n");
     }
 
     private InformatieObjectType getEmailInformatieObjectType(final Zaak zaak) {
