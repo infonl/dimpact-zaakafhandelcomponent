@@ -34,7 +34,7 @@
     "moment": "^2.30.1",
     "ngx-editor": "^16.0.1",
     "ol": "^8.2.0",
-    "openapi-fetch": "^0.8.2",
+    "openapi-fetch": "^0.9.1",
     "proj4": "^2.10.0",
     "rxjs": "^7.8.0",
     "ts-expect": "^1.3.0",
