@@ -24,6 +24,7 @@ import net.atos.zac.app.policy.converter.RESTRechtenConverter;
 import net.atos.zac.app.taken.model.RESTTaak;
 import net.atos.zac.flowable.TaakVariabelenService;
 import net.atos.zac.flowable.TakenService;
+import net.atos.zac.flowable.util.TaskUtil;
 import net.atos.zac.formulieren.FormulierDefinitieService;
 import net.atos.zac.formulieren.model.FormulierDefinitie;
 import net.atos.zac.policy.PolicyService;
@@ -73,11 +74,11 @@ public class RESTTaakConverter {
         final var restTaak = new RESTTaak();
         restTaak.id = taskInfo.getId();
         restTaak.naam = taskInfo.getName();
-        restTaak.status = takenService.getTaakStatus(taskInfo);
+        restTaak.status = TaskUtil.getTaakStatus(taskInfo);
         restTaak.zaakUuid = taakVariabelenService.readZaakUUID(taskInfo);
         restTaak.zaakIdentificatie = taakVariabelenService.readZaakIdentificatie(taskInfo);
         final var zaaktypeOmschrijving = taakVariabelenService.readZaaktypeOmschrijving(taskInfo);
-        final var rechten = policyService.readTaakRechten(zaaktypeOmschrijving);
+        final var rechten = policyService.readTaakRechten(taskInfo, zaaktypeOmschrijving);
         restTaak.rechten = rechtenConverter.convert(rechten);
         if (rechten.lezen()) {
             restTaak.zaaktypeOmschrijving = zaaktypeOmschrijving;
@@ -90,13 +91,16 @@ public class RESTTaakConverter {
             restTaak.taakinformatie = taakVariabelenService.readTaakinformatie(taskInfo);
             restTaak.taakdata = taakVariabelenService.readTaakdata(taskInfo);
             restTaak.taakdocumenten = taakVariabelenService.readTaakdocumenten(taskInfo);
-            if (takenService.isCmmnTask(taskInfo)) {
-                convertFormulierDefinitieEnReferentieTabellen(restTaak,
-                                                              taakVariabelenService.readZaaktypeUUID(taskInfo),
-                                                              taskInfo.getTaskDefinitionKey());
+            if (TaskUtil.isCmmnTask(taskInfo)) {
+                convertFormulierDefinitieEnReferentieTabellen(
+                        restTaak,
+                        taakVariabelenService.readZaaktypeUUID(taskInfo),
+                        taskInfo.getTaskDefinitionKey()
+                );
             } else {
                 final FormulierDefinitie formulierDefinitie = formulierDefinitieService.readFormulierDefinitie(
-                        taskInfo.getFormKey());
+                        taskInfo.getFormKey()
+                );
                 restTaak.formulierDefinitie = formulierDefinitieConverter.convert(formulierDefinitie, true, false);
             }
         }

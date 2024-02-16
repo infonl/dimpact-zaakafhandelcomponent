@@ -9,6 +9,7 @@ import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_OMSCHRIJV
 import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_UUUID;
 import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE;
 import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_UUID;
+import static net.atos.zac.flowable.util.TaskUtil.isCmmnTask;
 
 import java.util.Collections;
 import java.util.List;
@@ -145,7 +146,7 @@ public class TaakVariabelenService {
     }
 
     private Map<String, Object> getVariables(final TaskInfo taskInfo) {
-        return takenService.isCmmnTask(taskInfo) ? taskInfo.getCaseVariables() : taskInfo.getProcessVariables();
+        return isCmmnTask(taskInfo) ? taskInfo.getCaseVariables() : taskInfo.getProcessVariables();
     }
 
     private Optional<Object> findVariable(final TaskInfo taskInfo, final String variableName) {

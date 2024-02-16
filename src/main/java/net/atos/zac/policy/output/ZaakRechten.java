@@ -9,9 +9,16 @@ import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
 import net.atos.zac.util.DummyInterface;
 
-public record ZaakRechten(boolean lezen, boolean wijzigen, boolean toekennen, boolean behandelen,
-                          boolean afbreken, boolean heropenen, boolean wijzigenZaakdata,
-                          boolean wijzigenDoorlooptijd) implements DummyInterface {
+public record ZaakRechten(
+        boolean lezen,
+        boolean wijzigen,
+        boolean toekennen,
+        boolean behandelen,
+        boolean afbreken,
+        boolean heropenen,
+        boolean wijzigenZaakdata,
+        boolean wijzigenDoorlooptijd
+) implements DummyInterface {
 
     @JsonbCreator
     public ZaakRechten(

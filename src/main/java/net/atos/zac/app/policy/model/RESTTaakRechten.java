@@ -12,4 +12,6 @@ public class RESTTaakRechten {
     public boolean wijzigen;
 
     public boolean toekennen;
+
+    public boolean toevoegenDocument;
 }
