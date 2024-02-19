@@ -37,15 +37,18 @@ import org.htmlcleaner.TagNode;
 import org.htmlcleaner.XmlSerializer;
 
 import com.fasterxml.uuid.impl.UUIDUtil;
-import com.itextpdf.text.BaseColor;
-import com.itextpdf.text.Chunk;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Font;
-import com.itextpdf.text.FontFactory;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.pdf.PdfWriter;
-import com.itextpdf.tool.xml.XMLWorkerHelper;
+import com.itextpdf.html2pdf.HtmlConverter;
+import com.itextpdf.io.font.constants.StandardFonts;
+import com.itextpdf.kernel.colors.ColorConstants;
+import com.itextpdf.kernel.exceptions.PdfException;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.IBlockElement;
+import com.itextpdf.layout.element.IElement;
+import com.itextpdf.layout.element.Paragraph;
 import com.mailjet.client.ClientOptions;
 import com.mailjet.client.MailjetClient;
 import com.mailjet.client.MailjetRequest;
@@ -200,22 +203,25 @@ public class MailService {
     private byte[] createPdfDocument(final String verzender, final String ontvanger, final String subject,
             final String body, final List<Attachment> attachments) {
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        final Document document = new Document();
-        try {
-            PdfWriter.getInstance(document, byteArrayOutputStream);
-            document.open();
-            document.addTitle(subject);
-            final Font font = FontFactory.getFont(FontFactory.COURIER, 16, BaseColor.BLACK);
-            final Paragraph paragraph = new Paragraph(StringUtils.EMPTY, font);
-            addToParagraph(paragraph, MAIL_VERZENDER, verzender);
-            addToParagraph(paragraph, MAIL_ONTVANGER, ontvanger);
+        try (
+                final PdfWriter pdfWriter = new PdfWriter(byteArrayOutputStream);
+                final PdfDocument pdfDoc = new PdfDocument(pdfWriter);
+                final Document document = new Document(pdfDoc);
+            ) {
+            final Paragraph paragraph = new Paragraph();
+            final PdfFont font = PdfFontFactory.createFont(StandardFonts.COURIER);
+
+            paragraph.setFont(font).setFontSize(16).setFontColor(ColorConstants.BLACK);
+            paragraph.add(String.format("%s: %s %n %n", MAIL_VERZENDER, verzender));
+            paragraph.add(String.format("%s: %s %n %n", MAIL_ONTVANGER, ontvanger));
             if (!attachments.isEmpty()) {
-                addToParagraph(paragraph, MAIL_BIJLAGE,
-                               attachments.stream().map(attachment -> String.valueOf(attachment.getFilename()))
-                                       .collect(joining(", ")));
+                String content = attachments.stream().map(attachment -> String.valueOf(attachment.getFilename()))
+                        .collect(joining(", "));
+                paragraph.add(String.format("%s: %s %n %n", MAIL_BIJLAGE, content));
             }
-            addToParagraph(paragraph, MAIL_ONDERWERP, subject);
-            paragraph.add(MAIL_BERICHT);
+
+            paragraph.add(String.format("%s: %s %n %n", MAIL_ONDERWERP, subject));
+            paragraph.add(String.format("%s %n", MAIL_BERICHT));
 
             final HtmlCleaner cleaner = new HtmlCleaner();
             final TagNode rootTagNode = cleaner.clean(body);
@@ -225,20 +231,18 @@ public class MailService {
             final XmlSerializer xmlSerializer = new PrettyXmlSerializer(cleanerProperties);
             final String html = xmlSerializer.getAsString(rootTagNode);
 
-            paragraph.addAll(XMLWorkerHelper.parseToElementList(html, null));
+            final List<IElement> elements = HtmlConverter.convertToElements(html);
+            for (IElement element : elements) {
+                paragraph.add((IBlockElement)element);
+            }
+
             document.add(paragraph);
-            document.close();
-        } catch (final DocumentException | IOException e) {
+
+        } catch (final PdfException | IOException e) {
             LOG.log(Level.SEVERE, "Failed to create pdf document", e);
         }
 
         return byteArrayOutputStream.toByteArray();
-    }
-
-    private void addToParagraph(final Paragraph paragraph, final String propertie, final String inhoud) {
-        paragraph.add(String.format("%s: %s", propertie, inhoud));
-        paragraph.add(Chunk.NEWLINE);
-        paragraph.add(Chunk.NEWLINE);
     }
 
     private InformatieObjectType getEmailInformatieObjectType(final Zaak zaak) {
