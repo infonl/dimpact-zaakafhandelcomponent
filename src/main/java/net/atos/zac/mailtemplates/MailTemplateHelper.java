@@ -278,8 +278,8 @@ public class MailTemplateHelper {
 
     private static String convertAdres(final Persoon persoon) {
         return switch (persoon.getVerblijfplaats()) {
-            case Adres adres && adres.getVerblijfadres() != null -> convertAdres(adres.getVerblijfadres());
-            case VerblijfplaatsBuitenland verblijfplaatsBuitenland && verblijfplaatsBuitenland.getVerblijfadres() != null ->
+            case Adres adres when adres.getVerblijfadres() != null -> convertAdres(adres.getVerblijfadres());
+            case VerblijfplaatsBuitenland verblijfplaatsBuitenland when verblijfplaatsBuitenland.getVerblijfadres() != null ->
                     convertAdres(verblijfplaatsBuitenland.getVerblijfadres());
             default -> EMPTY;
         };
