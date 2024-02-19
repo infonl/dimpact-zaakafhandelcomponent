@@ -7,7 +7,7 @@ General ZAC usage instructions may be found in the [README.md](../../README.md) 
 
 ### Prerequisites
 
-- Java JDK 17 (we use the `Temurin` distribution)
+- Java JDK 21 (we use the `Temurin` distribution)
 
 ### Gradle build
 
@@ -72,7 +72,7 @@ When opening the ZAC project in IntelliJ make sure to select 'Open as Gradle pro
 #### Prerequisites
 
 First you will need to set up IntelliJ for ZAC:
-1. Install and use JDK 17 (we use the `Temurin` distribution).
+1. Install and use the correct JDK distribution (see above).
 2. Follow the [local WildFly instructions](../../scripts/wildfly/README.md) and install `WildFly`.
 3. Enable the built-in IntelliJ WildFly extension if not already enabled (note that this requires the IntelliJ Enterprise Edition).
 4. Create a run configuration using the WildFly extension for ZAC using the `JBoss/Wildfly Server - local` template.

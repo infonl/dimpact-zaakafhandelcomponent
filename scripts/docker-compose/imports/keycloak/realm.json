@@ -492,7 +492,7 @@
       "path": "/test-group-a",
       "attributes": {
         "description": [
-          "Test groep A"
+          "Test group A"
         ],
         "email": [
           "${ZAC_GROUP_A_EMAIL_ADDRESS}"
@@ -512,7 +512,7 @@
       "path": "/test-group-fb",
       "attributes": {
         "description": [
-          "Test groep functioneel beheerders"
+          "Test group functional admins"
         ],
         "email": [
           "${ZAC_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS}"
@@ -521,6 +521,24 @@
       "realmRoles": [
         "domein_elk_zaaktype",
         "beheerder",
+        "zaakafhandelcomponent_user"
+      ]
+    },
+    {
+      "id": "c06d7f98-16c8-4363-ac31-8449e0c2309d",
+      "name": "test-group-rm",
+      "path": "/test-group-rm",
+      "attributes": {
+        "description": [
+          "Test group record managers"
+        ],
+        "email": [
+          "${ZAC_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS}"
+        ]
+      },
+      "realmRoles": [
+        "domein_elk_zaaktype",
+        "recordmanager",
         "zaakafhandelcomponent_user"
       ]
     }

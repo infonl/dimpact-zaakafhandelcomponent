@@ -27,6 +27,46 @@ description: Records the last UID used to create a Posix account. This preve
  nts the re-use of a UID from a deleted account.
 serialNumber: 2001
 
+dn: cn=test-group-a,ou=people,dc=example,dc=org
+objectClass: extensibleObject
+objectClass: groupOfUniqueNames
+objectClass: top
+cn: test-group-a
+uniqueMember: cn=testuser1,ou=people,dc=example,dc=org
+uniqueMember: cn=testuser2,ou=people,dc=example,dc=org
+description: Test group A
+email: ${GROUP_A_EMAIL_ADDRESS}
+
+dn: cn=test-group-fb,ou=people,dc=example,dc=org
+objectClass: extensibleObject
+objectClass: groupOfUniqueNames
+objectClass: top
+cn: test-group-fb
+uniqueMember: cn=functioneelbeheerder1,ou=people,dc=example,dc=org
+uniqueMember: cn=testuser1,ou=people,dc=example,dc=org
+description: Test group functional admins
+email: ${GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS}
+
+dn: cn=test-group-rm,ou=people,dc=example,dc=org
+objectClass: extensibleObject
+objectClass: groupOfUniqueNames
+objectClass: top
+cn: test-group-rm
+uniqueMember: cn=recordmanager1,ou=people,dc=example,dc=org
+description: Test group record managers
+email: ${GROUP_RECORD_MANAGERS_EMAIL_ADDRESS}
+
+dn: cn=recordmanager1,ou=people,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: recordmanager1
+sn: Recordmanager1
+givenName: Test
+mail: ${RECORDMANAGER1_EMAIL_ADDRESS}
+userPassword:: cmVjb3JkbWFuYWdlcjE=
+
 dn: cn=testuser1,ou=people,dc=example,dc=org
 objectClass: inetOrgPerson
 objectClass: organizationalPerson
@@ -51,21 +91,14 @@ mail: ${TESTUSER2_EMAIL_ADDRESS}
 userPassword:: e1NTSEF9cUErcnhWdjljR2dPTGRrVzFLRDI3bktPZFBXVmovT2N4cElKUnc9P
  Q==
 
-dn: cn=test-group-a,ou=people,dc=example,dc=org
-objectClass: extensibleObject
-objectClass: groupOfUniqueNames
+dn: cn=functioneelbeheerder1,ou=people,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
 objectClass: top
-cn: test-group-a
-uniqueMember: cn=testuser1,ou=people,dc=example,dc=org
-uniqueMember: cn=testuser2,ou=people,dc=example,dc=org
-description: Test groep A
-email: ${GROUP_A_EMAIL_ADDRESS}
+cn: functioneelbeheerder1
+sn: Functioneelbeheerder1
+givenName: Test
+mail: ${FUNCTIONAL_ADMIN1_EMAIL_ADDRESS}
+userPassword:: ZnVuY3Rpb25lZWxiZWhlZXJkZXIx
 
-dn: cn=test-group-fb,ou=people,dc=example,dc=org
-objectClass: extensibleObject
-objectClass: groupOfUniqueNames
-objectClass: top
-cn: test-group-fb
-uniqueMember: cn=testuser1,ou=people,dc=example,dc=org
-description: Test groep functioneel beheerders
-email: ${GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS}

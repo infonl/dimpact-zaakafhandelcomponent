@@ -2,6 +2,7 @@ package net.atos.client.zgw.drc.model
 
 import net.atos.client.zgw.drc.model.generated.BestandsDeel
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData
 import java.net.URI
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -19,6 +20,20 @@ fun createEnkelvoudigInformatieObject(
     versie,
     beginRegistratie,
     inhoud,
+    locked,
+    bestandsdelen
+)
+
+fun createEnkelvoudigInformatieObjectData(
+    url: URI = URI("http://example.com/${UUID.randomUUID()}"),
+    versie: Int = 1234,
+    beginRegistratie: OffsetDateTime = OffsetDateTime.now(),
+    locked: Boolean = false,
+    bestandsdelen: List<BestandsDeel> = emptyList()
+) = EnkelvoudigInformatieObjectData(
+    url,
+    versie,
+    beginRegistratie,
     locked,
     bestandsdelen
 )

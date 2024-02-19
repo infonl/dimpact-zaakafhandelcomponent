@@ -1,5 +1,6 @@
 package net.atos.client.zgw.zrc.model
 
+import net.atos.client.zgw.shared.model.Archiefnominatie
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectPand
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
@@ -36,27 +37,41 @@ fun createRolNatuurlijkPersoon(
     natuurlijkPersoon
 )
 
-fun createZaak(zaaktypeURI: URI = URI("http://example.com/${UUID.randomUUID()}")) =
-    Zaak(
-        zaaktypeURI,
-        LocalDate.now(),
-        "dummyBronOrganisatie",
-        "dummyVerantwoordelijkeOrganisatie"
-    ).apply {
-        url = URI("https://example.com/zaak/${UUID.randomUUID()}")
-        uuid = UUID.randomUUID()
-    }
+fun createZaak(
+    zaaktypeURI: URI = URI("http://example.com/${UUID.randomUUID()}"),
+    startDate: LocalDate = LocalDate.now(),
+    bronOrganisatie: String = "dummyBronOrganisatie",
+    verantwoordelijkeOrganisatie: String = "dummyVerantwoordelijkeOrganisatie",
+    // an archiefnominatie which is not null means that the zaak is closed
+    archiefnominatie: Archiefnominatie? = null
+) = Zaak(
+    zaaktypeURI,
+    startDate,
+    bronOrganisatie,
+    verantwoordelijkeOrganisatie
+).apply {
+    this.url = URI("https://example.com/zaak/${UUID.randomUUID()}")
+    this.uuid = UUID.randomUUID()
+    this.archiefnominatie = archiefnominatie
+}
 
 fun createZaakobjectOpenbareRuimte(
     zaakURI: URI = URI("http://example.com/${UUID.randomUUID()}"),
     bagobjectURI: URI = URI("http://example.com/${UUID.randomUUID()}"),
     objectOpenbareRuimte: ObjectOpenbareRuimte = createObjectOpenbareRuimte()
-) =
-    ZaakobjectOpenbareRuimte(
-        zaakURI,
-        bagobjectURI,
-        objectOpenbareRuimte
-    )
+) = ZaakobjectOpenbareRuimte(
+    zaakURI,
+    bagobjectURI,
+    objectOpenbareRuimte
+)
+
+fun createZaakInformatieobject(
+    informatieObjectURL: URI = URI("http://example.com/${UUID.randomUUID()}"),
+    zaakURL: URI = URI("http://example.com/${UUID.randomUUID()}")
+) = ZaakInformatieobject(
+    informatieObjectURL,
+    zaakURL
+)
 
 fun createZaakobjectPand(
     zaakURI: URI = URI("http://example.com/${UUID.randomUUID()}"),

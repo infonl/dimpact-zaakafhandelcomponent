@@ -53,3 +53,58 @@ When updating the icons or fonts, make sure to update the css and assets accordi
 
 If you need a new font-weight for example, you can find the css and assets for the roboto font here [https://fonts.googleapis.com/css?family=Roboto](https://fonts.googleapis.com/css?family=Roboto), then you can copy paste the css and download the assets and add them to the project.
 
+## Upgrade WildFly application server
+
+ZAC runs in the WildFly Java application server. To upgrade the WildFly version, follow these steps:
+
+1. Check the WildFly release notes.
+2. Upgrade the locally installed WildFly version in: [the WildFly install script](../../scripts/wildfly/install-wildfly.sh).
+3. Check if [WildFly's Galleon tooling](https://github.com/wildfly/galleon) needs to be updated. This is used to configure the locally
+installed WildFly. To upgrade override the Galleon files in [the Galleon install folder](../../scripts/wildfly/galleon) with the new version.
+4. Re-install your local WildFly version using the WildFly install script.
+5. Upgrade WildFly in the [Maven build file](../../pom.xml). This is the actual WildFly that gets
+used in the ZAC Docker Image. Also check if the Maven WildFly plugins we use need to be updated.
+6. If you have configured your IntelliJ IDE to run ZAC in WildFly update the IntelliJ WildFly run configuration
+using the instructions in [INSTALL.md](INSTALL.md).
+7. Update the WildFly installation directory in the [startupwithenv.sh](../../startupwithenv.sh) file.
+8. In the [Gradle build file](../../build.gradle.kts) manually upgrade all the 'dependencies provided by Wildfly'.
+These need to be in sync with the ones provided by the used version of WildFly.
+9. Test ZAC thoroughly to make sure everything still works both by running ZAC locally (in IntelliJ and in Docker Compose)
+and performing manual testing as well as by running our automated tests.
+10. Once everything works tell all your co-developers to upgrade their local WildFly installations and
+Intellij WildFly configurations as well.
+
+## Upgrading Angular
+
+Depandabot creates pull requests for all Angular dependencies that are behind, but Angular dependencies have to be updated in a specific order and angular provides migration tools with `ng update`.
+
+So for Angular dependencies we have to update them manually and commit them to the repository, then Dependabot will remove its pull requests.
+
+### Prerequisites
+
+1. You need to have the Angular command line tools installed locally. Do install these on a Mac you can use
+   `brew install angular-cli`
+
+### Update Angular dependencies
+
+Run the following command to update Angular dependencies from the [ZAC frontend folder](../../src/main/app):
+
+```bash
+    ng update
+```
+This command will check whatever angular packages are behind and could result in a list of packages to update like:
+
+![ng update](./attachments/ng-update.png)
+
+Then you can run one of the commands in the list like:
+
+```bash
+    ng update @angular/core
+```
+
+Make sure to commit every update command you run with a format like:
+
+```bash
+    git add .
+    git commit -m "update @angular/core to [version]"
+```

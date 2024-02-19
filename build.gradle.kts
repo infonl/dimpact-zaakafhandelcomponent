@@ -34,8 +34,9 @@ repositories {
 group = "net.atos.common-ground"
 description = "Zaakafhandelcomponent"
 
-// we will only upgrade Java when WildFly explicitly supports a new version
-val javaVersion = JavaVersion.VERSION_17
+// make sure the Java version is supported by WildFly
+// and update our base Docker image and JDK versions in our GitHubs workflows accordingly
+val javaVersion = JavaVersion.VERSION_21
 
 val zacDockerImage by extra {
     if (project.hasProperty("zacDockerImage")) {
@@ -99,12 +100,14 @@ dependencies {
     implementation("javax.cache:cache-api:1.1.1")
     implementation("com.google.guava:guava:33.0.0-jre")
     implementation("com.mailjet:mailjet-client:5.2.5")
-    implementation("org.flywaydb:flyway-core:10.7.2")
-    implementation("org.flywaydb:flyway-database-postgresql:10.7.2")
+    implementation("com.itextpdf:kernel:8.0.3")
+    implementation("com.itextpdf:layout:8.0.3")
+    implementation("com.itextpdf:io:8.0.3")
+    implementation("com.itextpdf:html2pdf:5.0.3")
+    implementation("org.flywaydb:flyway-core:10.8.1")
+    implementation("org.flywaydb:flyway-database-postgresql:10.8.1")
     implementation("org.apache.solr:solr-solrj:9.5.0")
-    implementation("nl.info.webdav:webdav-servlet:1.2.36")
-    implementation("com.itextpdf:itextpdf:5.5.13.3")
-    implementation("com.itextpdf.tool:xmlworker:5.5.13.3")
+    implementation("nl.info.webdav:webdav-servlet:1.2.38")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
     implementation("com.unboundid:unboundid-ldapsdk:6.0.11")
 
@@ -124,15 +127,20 @@ dependencies {
     // include it in the WAR or else ZAC will fail to be deployed
     warLib("jakarta.mail:jakarta.mail-api:2.1.2")
 
-    // dependencies provided by Wildfly 30
+    // dependencies provided by Wildfly
+    // update these versions when upgrading WildFly
+    // you can find most of these dependencies in the WildFly pom.xml file
+    // of the WidFly version you are using on https://github.com/wildfly/wildfly
+    // for others you need to check the 'modules' directory of your local WildFly installtion
     providedCompile("jakarta.platform:jakarta.jakartaee-api:10.0.0")
     providedCompile("org.eclipse.microprofile.rest.client:microprofile-rest-client-api:3.0.1")
-    providedCompile("org.eclipse.microprofile.config:microprofile-config-api:3.0.2")
+    providedCompile("org.eclipse.microprofile.config:microprofile-config-api:3.1")
     providedCompile("org.eclipse.microprofile.health:microprofile-health-api:4.0.1")
     providedCompile("org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api:4.0.2")
-    providedCompile("org.jboss.resteasy:resteasy-multipart-provider:6.2.6.Final")
-    providedCompile("org.wildfly.security:wildfly-elytron-http-oidc:2.2.2.Final")
+    providedCompile("org.jboss.resteasy:resteasy-multipart-provider:6.2.7.Final")
+    providedCompile("org.wildfly.security:wildfly-elytron-http-oidc:2.2.3.Final")
     providedCompile("org.hibernate.validator:hibernate-validator:8.0.1.Final")
+    // ~dependencies provided by Wildfly
 
     // yasson is required for using a JSONB context in our unit tests
     // where we do not have the WildFly runtime environment available
@@ -161,7 +169,7 @@ detekt {
 }
 
 jacoco {
-    toolVersion = "0.8.7"
+    toolVersion = "0.8.11"
 }
 
 java {
@@ -296,7 +304,6 @@ tasks {
 
     withType<JavaCompile> {
         options.encoding = "UTF-8"
-        options.compilerArgs.add("--enable-preview")
     }
 
     withType<org.openapitools.generator.gradle.plugin.tasks.GenerateTask> {

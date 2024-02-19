@@ -5,7 +5,15 @@
 
 package net.atos.zac.policy.input;
 
+import jakarta.json.bind.annotation.JsonbProperty;
+
 public class TaakData {
 
+    public boolean open;
+
+    @JsonbProperty("zaak_open")
+    public boolean zaakOpen;
+
     public String zaaktype;
+
 }

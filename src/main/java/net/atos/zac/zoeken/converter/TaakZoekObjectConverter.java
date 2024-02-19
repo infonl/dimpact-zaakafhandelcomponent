@@ -1,5 +1,7 @@
 package net.atos.zac.zoeken.converter;
 
+import static net.atos.zac.flowable.util.TaskUtil.getTaakStatus;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -59,7 +61,7 @@ public class TaakZoekObjectConverter extends AbstractZoekObjectConverter<TaakZoe
             taakZoekObject.setToegekend(true);
         }
 
-        taakZoekObject.setStatus(takenService.getTaakStatus(taskInfo));
+        taakZoekObject.setStatus(getTaakStatus(taskInfo));
         final String groupID = extractGroupId(taskInfo.getIdentityLinks());
         if (groupID != null) {
             final Group group = identityService.readGroup(groupID);
