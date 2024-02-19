@@ -37,6 +37,7 @@ import { ZaakInitiatorToevoegenComponent } from "./zaak-initiator-toevoegen/zaak
 import { DocumentIconComponent } from "../shared/document-icon/document-icon.component";
 import { InformatieObjectIndicatiesComponent } from "../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { ZaakdataFormComponent } from "./zaakdata/zaakdata-form/zaakdata-form.component";
+import { KlantKoppelComponent } from "../klanten/koppel/klanten/klant-koppel.component";
 
 @NgModule({
   declarations: [
@@ -75,6 +76,7 @@ import { ZaakdataFormComponent } from "./zaakdata/zaakdata-form/zaakdata-form.co
     BAGModule,
     DocumentIconComponent,
     InformatieObjectIndicatiesComponent,
+    KlantKoppelComponent,
   ],
 })
 export class ZakenModule {}
