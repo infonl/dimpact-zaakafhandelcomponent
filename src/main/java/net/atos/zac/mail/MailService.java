@@ -47,7 +47,6 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.IBlockElement;
-import com.itextpdf.layout.element.IElement;
 import com.itextpdf.layout.element.Paragraph;
 import com.mailjet.client.ClientOptions;
 import com.mailjet.client.MailjetClient;
@@ -77,7 +76,6 @@ import net.atos.zac.mailtemplates.model.MailGegevens;
 
 @ApplicationScoped
 public class MailService {
-
     private static final String MAILJET_API_KEY =
             ConfigProvider.getConfig().getValue("mailjet.api.key", String.class);
 
@@ -125,26 +123,33 @@ public class MailService {
     @Inject
     private Instance<LoggedInUser> loggedInUserInstance;
 
-    private final ClientOptions clientOptions = ClientOptions.builder().apiKey(MAILJET_API_KEY)
-            .apiSecretKey(MAILJET_API_SECRET_KEY).build();
-
-    private final MailjetClient mailjetClient = new MailjetClient(clientOptions);
+    private final MailjetClient mailjetClient = new MailjetClient(
+            ClientOptions.builder()
+                    .apiKey(MAILJET_API_KEY)
+                    .apiSecretKey(MAILJET_API_SECRET_KEY)
+                    .build()
+    );
 
     public MailAdres getGemeenteMailAdres() {
         return new MailAdres(configuratieService.readGemeenteMail(), configuratieService.readGemeenteNaam());
     }
 
     public String sendMail(final MailGegevens mailGegevens, final Bronnen bronnen) {
-
         final String subject = StringUtils.abbreviate(
                 resolveVariabelen(mailGegevens.getSubject(), bronnen),
-                SUBJECT_MAXWIDTH);
+                SUBJECT_MAXWIDTH
+        );
         final String body = resolveVariabelen(mailGegevens.getBody(), bronnen);
         final List<Attachment> attachments = getAttachments(mailGegevens.getAttachments());
 
         final EMail eMail = new EMail(
-                mailGegevens.getFrom(), List.of(mailGegevens.getTo()), mailGegevens.getReplyTo(),
-                subject, body, attachments);
+                mailGegevens.getFrom(),
+                List.of(mailGegevens.getTo()),
+                mailGegevens.getReplyTo(),
+                subject,
+                body,
+                attachments
+        );
         final MailjetRequest request = new MailjetRequest(Emailv31.resource)
                 .setBody(JSONB.toJson(new EMails(List.of(eMail))));
         try {
@@ -152,9 +157,13 @@ public class MailService {
             if (status < 300) {
                 if (mailGegevens.isCreateDocumentFromMail()) {
                     createZaakDocumentFromMail(
-                            mailGegevens.getFrom().getEmail(), mailGegevens.getTo().getEmail(),
-                            subject, body, attachments,
-                            bronnen.zaak);
+                            mailGegevens.getFrom().getEmail(),
+                            mailGegevens.getTo().getEmail(),
+                            subject,
+                            body,
+                            attachments,
+                            bronnen.zaak
+                    );
                 }
             } else {
                 LOG.log(Level.WARNING,
@@ -167,17 +176,14 @@ public class MailService {
         return body;
     }
 
-    private void createZaakDocumentFromMail(final String verzender, final String ontvanger, final String subject,
-            final String body, final List<Attachment> attachments, final Zaak zaak) {
-        final EnkelvoudigInformatieObjectData informatieObject =
-                createDocumentInformatieObject(verzender, ontvanger, subject, body, attachments, zaak);
-        zgwApiService.createZaakInformatieobjectForZaak(zaak, informatieObject, subject,
-                                                        subject, OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN);
-    }
-
-    private EnkelvoudigInformatieObjectData createDocumentInformatieObject(final String verzender,
-            final String ontvanger, final String subject, final String body, final List<Attachment> attachments,
-            final Zaak zaak) {
+    private void createZaakDocumentFromMail(
+            final String verzender,
+            final String ontvanger,
+            final String subject,
+            final String body,
+            final List<Attachment> attachments,
+            final Zaak zaak
+    ) {
         final InformatieObjectType eMailObjectType = getEmailInformatieObjectType(zaak);
         final byte[] pdfDocument = createPdfDocument(verzender, ontvanger, subject, body, attachments);
 
@@ -197,32 +203,46 @@ public class MailService {
         enkelvoudigInformatieobjectWithInhoud.setVertrouwelijkheidaanduiding(
                 EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.OPENBAAR);
         enkelvoudigInformatieobjectWithInhoud.setVerzenddatum(LocalDate.now());
-        return enkelvoudigInformatieobjectWithInhoud;
+
+        zgwApiService.createZaakInformatieobjectForZaak(
+                zaak,
+                enkelvoudigInformatieobjectWithInhoud,
+                subject,
+                subject,
+                OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
+        );
     }
 
-    private byte[] createPdfDocument(final String verzender, final String ontvanger, final String subject,
-            final String body, final List<Attachment> attachments) {
+    private byte[] createPdfDocument(
+            final String verzender,
+            final String ontvanger,
+            final String subject,
+            final String body,
+            final List<Attachment> attachments
+    ) {
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try (
                 final PdfWriter pdfWriter = new PdfWriter(byteArrayOutputStream);
                 final PdfDocument pdfDoc = new PdfDocument(pdfWriter);
                 final Document document = new Document(pdfDoc);
             ) {
-            final Paragraph paragraph = new Paragraph();
+            final Paragraph headerParagraph = new Paragraph();
             final PdfFont font = PdfFontFactory.createFont(StandardFonts.COURIER);
 
-            paragraph.setFont(font).setFontSize(16).setFontColor(ColorConstants.BLACK);
-            paragraph.add(String.format("%s: %s %n %n", MAIL_VERZENDER, verzender));
-            paragraph.add(String.format("%s: %s %n %n", MAIL_ONTVANGER, ontvanger));
+            headerParagraph.setFont(font).setFontSize(16).setFontColor(ColorConstants.BLACK);
+            headerParagraph.add(String.format("%s: %s %n %n", MAIL_VERZENDER, verzender));
+            headerParagraph.add(String.format("%s: %s %n %n", MAIL_ONTVANGER, ontvanger));
             if (!attachments.isEmpty()) {
                 String content = attachments.stream().map(attachment -> String.valueOf(attachment.getFilename()))
                         .collect(joining(", "));
-                paragraph.add(String.format("%s: %s %n %n", MAIL_BIJLAGE, content));
+                headerParagraph.add(String.format("%s: %s %n %n", MAIL_BIJLAGE, content));
             }
 
-            paragraph.add(String.format("%s: %s %n %n", MAIL_ONDERWERP, subject));
-            paragraph.add(String.format("%s %n", MAIL_BERICHT));
+            headerParagraph.add(String.format("%s: %s %n %n", MAIL_ONDERWERP, subject));
+            headerParagraph.add(String.format("%s: %n", MAIL_BERICHT));
+            document.add(headerParagraph);
 
+            Paragraph emailBodyParagraph = new Paragraph();
             final HtmlCleaner cleaner = new HtmlCleaner();
             final TagNode rootTagNode = cleaner.clean(body);
             final CleanerProperties cleanerProperties = cleaner.getProperties();
@@ -230,14 +250,13 @@ public class MailService {
 
             final XmlSerializer xmlSerializer = new PrettyXmlSerializer(cleanerProperties);
             final String html = xmlSerializer.getAsString(rootTagNode);
-
-            final List<IElement> elements = HtmlConverter.convertToElements(html);
-            for (IElement element : elements) {
-                paragraph.add((IBlockElement)element);
-            }
-
-            document.add(paragraph);
-
+            HtmlConverter.convertToElements(html).forEach(element -> {
+                emailBodyParagraph.add((IBlockElement) element);
+                // the individual (HTML paragraph) block elements are not separated
+                // with new lines, so we add them explicitly here
+                emailBodyParagraph.add("\n");
+            });
+            document.add(emailBodyParagraph);
         } catch (final PdfException | IOException e) {
             LOG.log(Level.SEVERE, "Failed to create pdf document", e);
         }
@@ -283,11 +302,13 @@ public class MailService {
         return mailTemplateHelper.resolveVariabelen(
                 mailTemplateHelper.resolveVariabelen(
                         mailTemplateHelper.resolveVariabelen(
-                                mailTemplateHelper.resolveVariabelen(
-                                        tekst),
-                                getZaakBron(bronnen))
-                        , bronnen.document)
-                , bronnen.taskInfo);
+                                mailTemplateHelper.resolveVariabelen(tekst),
+                                getZaakBron(bronnen)
+                        ),
+                        bronnen.document
+                ),
+                bronnen.taskInfo
+        );
     }
 
     private Zaak getZaakBron(final Bronnen bronnen) {

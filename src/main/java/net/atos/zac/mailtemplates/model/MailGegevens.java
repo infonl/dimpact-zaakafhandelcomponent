@@ -24,9 +24,14 @@ public class MailGegevens {
     private final boolean createDocumentFromMail;
 
     public MailGegevens(
-            final MailAdres from, final MailAdres to, final MailAdres replyTo,
-            final String subject, final String body, final String attachments,
-            final boolean createDocumentFromMail) {
+            final MailAdres from,
+            final MailAdres to,
+            final MailAdres replyTo,
+            final String subject,
+            final String body,
+            final String attachments,
+            final boolean createDocumentFromMail
+    ) {
         this.from = from;
         this.to = to;
         this.replyTo = replyTo;
@@ -37,8 +42,11 @@ public class MailGegevens {
     }
 
     public MailGegevens(
-            final MailAdres from, final MailAdres to,
-            final String subject, final String body) {
+            final MailAdres from,
+            final MailAdres to,
+            final String subject,
+            final String body
+    ) {
         this(from, to, null, subject, body, null, false);
     }
 
