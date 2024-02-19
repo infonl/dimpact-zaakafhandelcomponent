@@ -100,14 +100,12 @@ dependencies {
     implementation("javax.cache:cache-api:1.1.1")
     implementation("com.google.guava:guava:33.0.0-jre")
     implementation("com.mailjet:mailjet-client:5.2.5")
-
     implementation("com.itextpdf:kernel:8.0.3")
     implementation("com.itextpdf:layout:8.0.3")
     implementation("com.itextpdf:io:8.0.3")
     implementation("com.itextpdf:html2pdf:5.0.3")
-
-    implementation("org.flywaydb:flyway-core:10.7.2")
-    implementation("org.flywaydb:flyway-database-postgresql:10.7.2")
+    implementation("org.flywaydb:flyway-core:10.8.1")
+    implementation("org.flywaydb:flyway-database-postgresql:10.8.1")
     implementation("org.apache.solr:solr-solrj:9.5.0")
     implementation("nl.info.webdav:webdav-servlet:1.2.38")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
