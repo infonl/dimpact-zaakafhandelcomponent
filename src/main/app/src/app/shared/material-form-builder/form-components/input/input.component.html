@@ -3,27 +3,34 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<mat-form-field appearance="fill" class="full-width" (click)="clicked()" [class]="data.styleClass">
-
-    <button *ngIf="data.onClear.observed && data.formControl.value"
-            [disabled]="data.formControl.disabled"
-            mat-icon-button type="button" matSuffix
-            title="{{'actie.wissen' | translate}}"
-            (click)="data.onClear.emit(); $event.stopPropagation()">
-        <mat-icon>clear</mat-icon>
-    </button>
+<mat-form-field appearance="fill" class="full-width" (click)="clicked()"
+[class]="data.styleClass">
+    @if (data.onClear.observed && data.formControl.value) {
+        <button matSuffix 
+                mat-icon-button 
+                aria-label="Clear" 
+                [disabled]="clearDisabled$ | async"
+                (click)="data.onClear.emit(); $event.stopPropagation()" 
+                title="{{'actie.wissen' | translate}}">
+            <mat-icon>clear</mat-icon>
+        </button>
+    }
 
     <button *ngFor="let icon of data.icons"
-            [disabled]="data.formControl.disabled"
             mat-icon-button type="button" matSuffix
             title="{{icon.title | translate}}"
-            (click)="icon.iconClicked.next(null)">
+            (click)="icon.iconClicked.next(null)"
+            [disabled]="iconButtonsDisabled$ | async">
         <mat-icon>{{icon.icon}}</mat-icon>
     </button>
 
     <mat-label>{{data.label | translate}}</mat-label>
-    <input [formControl]="data.formControl" [id]="data.id + '_tekstfield'" [required]="data.required" matInput
-           [maxlength]="data.maxlength">
+    <input [formControl]="data.formControl" 
+            [id]="data.id + '_tekstfield'" 
+            [required]="data.required" 
+            matInput
+            [maxlength]="data.maxlength" 
+            >
     <mat-hint *ngIf="data.hint" [align]="data.hint.align">{{data.hint.label | translate}}</mat-hint>
     <mat-hint align="end" *ngIf="data.showCount && data.formControl.value && data.formControl.dirty">{{data.formControl.value.length}}
         /{{data.maxlength}}</mat-hint>
