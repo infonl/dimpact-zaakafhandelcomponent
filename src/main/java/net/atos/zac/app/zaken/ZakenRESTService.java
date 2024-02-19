@@ -336,7 +336,7 @@ public class ZakenRESTService {
 
     @POST
     @Path("betrokkene")
-    public RESTZaak createBetrokken(final RESTZaakBetrokkeneGegevens gegevens) {
+    public RESTZaak createBetrokken(@Valid final RESTZaakBetrokkeneGegevens gegevens) {
         final Zaak zaak = zrcClientService.readZaak(gegevens.zaakUUID);
         addBetrokkene(gegevens.roltypeUUID, gegevens.betrokkeneIdentificatieType,
                       gegevens.betrokkeneIdentificatie,

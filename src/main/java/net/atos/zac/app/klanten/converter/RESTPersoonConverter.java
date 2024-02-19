@@ -201,9 +201,9 @@ public class RESTPersoonConverter {
 
     private String convertVerblijfplaats(final AbstractVerblijfplaats abstractVerblijfplaats) {
         return switch (abstractVerblijfplaats) {
-            case Adres adres && adres.getVerblijfadres() != null ->
+            case Adres adres when adres.getVerblijfadres() != null ->
                     convertVerblijfadresBinnenland(adres.getVerblijfadres());
-            case VerblijfplaatsBuitenland verblijfplaatsBuitenland && verblijfplaatsBuitenland.getVerblijfadres() != null ->
+            case VerblijfplaatsBuitenland verblijfplaatsBuitenland when verblijfplaatsBuitenland.getVerblijfadres() != null ->
                     convertVerblijfadresBuitenland(verblijfplaatsBuitenland.getVerblijfadres());
             case VerblijfplaatsOnbekend verblijfplaatsOnbekend -> ONBEKEND;
             default -> null;

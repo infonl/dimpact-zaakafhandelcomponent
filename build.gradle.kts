@@ -34,8 +34,9 @@ repositories {
 group = "net.atos.common-ground"
 description = "Zaakafhandelcomponent"
 
-// we will only upgrade Java when WildFly explicitly supports a new version
-val javaVersion = JavaVersion.VERSION_17
+// make sure the Java version is supported by WildFly
+// and update our base Docker image and JDK versions in our GitHubs workflows accordingly
+val javaVersion = JavaVersion.VERSION_21
 
 val zacDockerImage by extra {
     if (project.hasProperty("zacDockerImage")) {
@@ -100,7 +101,7 @@ dependencies {
     implementation("com.google.guava:guava:33.0.0-jre")
     implementation("com.mailjet:mailjet-client:5.2.5")
     implementation("org.flywaydb:flyway-core:10.8.1")
-    implementation("org.flywaydb:flyway-database-postgresql:10.7.2")
+    implementation("org.flywaydb:flyway-database-postgresql:10.8.1")
     implementation("org.apache.solr:solr-solrj:9.5.0")
     implementation("nl.info.webdav:webdav-servlet:1.2.38")
     implementation("com.itextpdf:itextpdf:5.5.13.3")
@@ -166,7 +167,7 @@ detekt {
 }
 
 jacoco {
-    toolVersion = "0.8.7"
+    toolVersion = "0.8.11"
 }
 
 java {
@@ -301,7 +302,6 @@ tasks {
 
     withType<JavaCompile> {
         options.encoding = "UTF-8"
-        options.compilerArgs.add("--enable-preview")
     }
 
     withType<org.openapitools.generator.gradle.plugin.tasks.GenerateTask> {
