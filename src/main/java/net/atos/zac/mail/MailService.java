@@ -8,6 +8,7 @@ package net.atos.zac.mail;
 import static java.util.stream.Collectors.joining;
 import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertByteArrayToBase64String;
 import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN;
+import static net.atos.zac.mail.MailjetClientHelper.createMailjetClient;
 import static net.atos.zac.util.JsonbUtil.JSONB;
 
 import java.io.ByteArrayInputStream;
@@ -48,7 +49,6 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.IBlockElement;
 import com.itextpdf.layout.element.Paragraph;
-import com.mailjet.client.ClientOptions;
 import com.mailjet.client.MailjetClient;
 import com.mailjet.client.MailjetRequest;
 import com.mailjet.client.errors.MailjetException;
@@ -123,12 +123,7 @@ public class MailService {
     @Inject
     private Instance<LoggedInUser> loggedInUserInstance;
 
-    private final MailjetClient mailjetClient = new MailjetClient(
-            ClientOptions.builder()
-                    .apiKey(MAILJET_API_KEY)
-                    .apiSecretKey(MAILJET_API_SECRET_KEY)
-                    .build()
-    );
+    private final MailjetClient mailjetClient = createMailjetClient(MAILJET_API_KEY, MAILJET_API_SECRET_KEY);
 
     public MailAdres getGemeenteMailAdres() {
         return new MailAdres(configuratieService.readGemeenteMail(), configuratieService.readGemeenteNaam());
