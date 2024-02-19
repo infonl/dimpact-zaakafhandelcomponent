@@ -9,6 +9,7 @@ package net.atos.zac.werklijst
 
 import future.keywords
 import data.net.atos.zac.rol.behandelaar
+import data.net.atos.zac.rol.beheerder
 import data.net.atos.zac.rol.coordinator
 import data.net.atos.zac.rol.recordmanager
 import input.user
@@ -38,7 +39,7 @@ inbox_productaanvragen_verwijderen {
 
 default zaken_taken := false
 zaken_taken {
-    { behandelaar, coordinator, recordmanager }[_].rol in user.rollen
+    { behandelaar, coordinator, recordmanager, beheerder }[_].rol in user.rollen
 }
 
 default zaken_taken_verdelen := false
