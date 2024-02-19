@@ -23,9 +23,6 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.itextpdf.layout.element.IBlockElement;
-import com.itextpdf.layout.element.IElement;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -40,18 +37,18 @@ import org.htmlcleaner.TagNode;
 import org.htmlcleaner.XmlSerializer;
 
 import com.fasterxml.uuid.impl.UUIDUtil;
-
+import com.itextpdf.html2pdf.HtmlConverter;
+import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.colors.ColorConstants;
-import com.itextpdf.layout.Document;
 import com.itextpdf.kernel.exceptions.PdfException;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
-import com.itextpdf.io.font.constants.StandardFonts;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.html2pdf.HtmlConverter;
-
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.IBlockElement;
+import com.itextpdf.layout.element.IElement;
+import com.itextpdf.layout.element.Paragraph;
 import com.mailjet.client.ClientOptions;
 import com.mailjet.client.MailjetClient;
 import com.mailjet.client.MailjetRequest;
@@ -219,12 +216,12 @@ public class MailService {
             paragraph.add(String.format("%s: %s %n %n", MAIL_ONTVANGER, ontvanger));
             if (!attachments.isEmpty()) {
                 String content = attachments.stream().map(attachment -> String.valueOf(attachment.getFilename()))
-                        .collect(joining(", ")));
+                        .collect(joining(", "));
                 paragraph.add(String.format("%s: %s %n %n", MAIL_BIJLAGE, content));
             }
 
             paragraph.add(String.format("%s: %s %n %n", MAIL_ONDERWERP, subject));
-            paragraph.add(String.format("%s %n", MAIL_BERICHT);
+            paragraph.add(String.format("%s %n", MAIL_BERICHT));
 
             final HtmlCleaner cleaner = new HtmlCleaner();
             final TagNode rootTagNode = cleaner.clean(body);
