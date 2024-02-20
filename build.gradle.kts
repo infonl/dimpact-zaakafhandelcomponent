@@ -107,7 +107,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core:10.8.1")
     implementation("org.flywaydb:flyway-database-postgresql:10.8.1")
     implementation("org.apache.solr:solr-solrj:9.5.0")
-    implementation("nl.info.webdav:webdav-servlet:1.2.38")
+    implementation("nl.info.webdav:webdav-servlet:1.2.39")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
     implementation("com.unboundid:unboundid-ldapsdk:6.0.11")
 
