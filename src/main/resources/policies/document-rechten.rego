@@ -54,6 +54,7 @@ wijzigen {
     behandelaar.rol in user.rollen
     zaaktype_allowed
     document.zaak_open == true
+    document.definitief == false
     onvergrendeld_of_vergrendeld_door_user == true
 }
 wijzigen {
