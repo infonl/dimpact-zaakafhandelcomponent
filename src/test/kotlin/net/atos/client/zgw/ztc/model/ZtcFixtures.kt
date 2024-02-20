@@ -19,7 +19,8 @@ fun createRolType(
 
 fun createZaakType(
     uuid: UUID = UUID.randomUUID(),
-    omschrijving: String = "dummyZaakTypeOmschrijving"
+    omschrijving: String = "dummyZaakTypeOmschrijving",
+    informatieObjectTypen: Set<URI>? = setOf(URI("dummyInformatieObjectType1"), URI("dummyInformatieObjectType2")),
 ) = ZaakType(
     URI("http://example.com/zaaktypes/$uuid"),
     false,
@@ -28,7 +29,7 @@ fun createZaakType(
     setOf(URI("dummyStatusType1"), URI("dummyStatusType2")),
     setOf(URI("dummyResultaatType1"), URI("dummyResultaatType2")),
     setOf(URI("dummyEigenschap1"), URI("dummyEigenschap2")),
-    setOf(URI("dummyInformatieObjectType1"), URI("dummyInformatieObjectType2")),
+    informatieObjectTypen,
     setOf(URI("dummyRolType1"), URI("dummyRolType2")),
     null
 ).apply {
