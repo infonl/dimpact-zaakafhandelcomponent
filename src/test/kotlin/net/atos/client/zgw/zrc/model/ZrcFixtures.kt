@@ -1,6 +1,7 @@
 package net.atos.client.zgw.zrc.model
 
 import net.atos.client.zgw.shared.model.Archiefnominatie
+import net.atos.client.zgw.zrc.model.generated.Opschorting
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectPand
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
@@ -25,6 +26,14 @@ fun createObjectOpenbareRuimte(
 
 fun createObjectPand(identificatie: String = "dummyIdentificatie") = ObjectPand(identificatie)
 
+fun createOpschorting(
+    reden: String? = null,
+    indicatie: Boolean = false
+) = Opschorting().apply {
+    this.reden = reden
+    this.indicatie = indicatie
+}
+
 fun createRolNatuurlijkPersoon(
     zaaktypeURI: URI = URI("http://example.com/${UUID.randomUUID()}"),
     rolType: RolType = createRolType(zaaktypeURI),
@@ -37,13 +46,17 @@ fun createRolNatuurlijkPersoon(
     natuurlijkPersoon
 )
 
+@Suppress("LongParameterList")
 fun createZaak(
     zaaktypeURI: URI = URI("http://example.com/${UUID.randomUUID()}"),
     startDate: LocalDate = LocalDate.now(),
     bronOrganisatie: String = "dummyBronOrganisatie",
     verantwoordelijkeOrganisatie: String = "dummyVerantwoordelijkeOrganisatie",
     // an archiefnominatie which is not null means that the zaak is closed
-    archiefnominatie: Archiefnominatie? = null
+    archiefnominatie: Archiefnominatie? = null,
+    opschorting: Opschorting? = null,
+    einddatumGepland: LocalDate? = null,
+    uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.now().plusDays(1)
 ) = Zaak(
     zaaktypeURI,
     startDate,
@@ -53,6 +66,9 @@ fun createZaak(
     this.url = URI("https://example.com/zaak/${UUID.randomUUID()}")
     this.uuid = UUID.randomUUID()
     this.archiefnominatie = archiefnominatie
+    this.opschorting = opschorting
+    this.einddatumGepland = einddatumGepland
+    this.uiterlijkeEinddatumAfdoening = uiterlijkeEinddatumAfdoening
 }
 
 fun createZaakobjectOpenbareRuimte(

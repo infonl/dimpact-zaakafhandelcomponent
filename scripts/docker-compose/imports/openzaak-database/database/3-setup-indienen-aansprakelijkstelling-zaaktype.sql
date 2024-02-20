@@ -63,7 +63,7 @@ VALUES
     'Behandelen', -- handeling_behandelaar
     'P30D', -- doorlooptijd_behandeling
     NULL, -- servicenorm_behandeling
-    false, -- opschorting_en_aanhouding_mogelijk
+    true, -- opschorting_en_aanhouding_mogelijk
     true, -- verlenging_mogelijk
     'P1M', -- verlengingstermijn
     '{}', -- trefwoorden (empty array)
