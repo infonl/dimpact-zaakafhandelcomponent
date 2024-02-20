@@ -36,7 +36,7 @@ import { Group } from "../../identity/model/group";
 import { User } from "../../identity/model/user";
 import { HeadingLevel } from "../../shared/material-form-builder/form-components/heading/heading-form-field";
 import { AutocompleteFormFieldBuilder } from "../../shared/material-form-builder/form-components/autocomplete/autocomplete-form-field-builder";
-import { catchError, filter, takeUntil}  from "rxjs/operators";
+import { catchError, filter, takeUntil } from "rxjs/operators";
 import { InboxProductaanvraag } from "../../productaanvragen/model/inbox-productaanvraag";
 import { KlantenService } from "../../klanten/klanten.service";
 import { TextareaFormField } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field";
@@ -155,7 +155,7 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
       .id("initiatorIdentificatie")
       .styleClass("input-fake-enabled")
       .icon(this.initiatorToevoegenIcon)
-      .disabled()
+      .nonEditable()
       .label("initiator")
       .build();
 
@@ -192,7 +192,7 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
       .id("bagObjecten")
       .styleClass("input-fake-enabled")
       .icon(this.bagObjectenToevoegenIcon)
-      .disabled()
+      .nonEditable()
       .label("bagObjecten")
       .build();
 
@@ -265,12 +265,12 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
             this.bagObjecten,
           ),
         )
-          .pipe(
-            catchError((err, caught) => {
-              this.mfbForm.reset();
-              return of()
-            })
-          )
+        .pipe(
+          catchError((err, caught) => {
+            this.mfbForm.reset();
+            return of();
+          }),
+        )
         .subscribe((newZaak) => {
           this.router.navigate(["/zaken/", newZaak.identificatie]);
         });
