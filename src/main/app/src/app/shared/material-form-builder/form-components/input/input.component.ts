@@ -33,6 +33,11 @@ export class InputComponent extends FormComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.setDisabled();
+    this.data.formControl.statusChanges
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((v) => {
+        this.setDisabled();
+      });
     this.data.onClear.pipe(takeUntil(this.destroyed$)).subscribe(() => {
       this.data.formControl.setValue(null);
     });
@@ -51,10 +56,9 @@ export class InputComponent extends FormComponent implements OnInit, OnDestroy {
       this.iconButtonsDisabled$.next(false);
       return;
     }
-    if (this.data.formControl.disabled) {
-      this.clearDisabled$.next(this.data.formControl.disabled);
-      this.iconButtonsDisabled$.next(this.data.formControl.disabled);
-    }
+
+    this.clearDisabled$.next(this.data.formControl.disabled);
+    this.iconButtonsDisabled$.next(this.data.formControl.disabled);
   }
 
   iconClick($event: MouseEvent, icon: ActionIcon): void {
