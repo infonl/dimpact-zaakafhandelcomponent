@@ -12,6 +12,18 @@ updates:
       timezone: "Europe/Amsterdam"
     reviewers:
       - "infonl/dimpact"
+    groups:
+      # group minor and patch Angular updates together
+      angular:
+        patterns:
+          - "@angular*"
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      # ignore major Angular updates since they require manual steps
+      - dependency-name: "@angular*"
+        update-types: [ "version-update:semver-major" ]
 
   - package-ecosystem: "npm"
     directory: "/src/e2e/"
