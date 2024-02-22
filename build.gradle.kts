@@ -1,8 +1,6 @@
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.github.gradle.node.npm.task.NpmTask
 import io.smallrye.openapi.api.OpenApiConfig
-import org.jetbrains.kotlin.backend.common.serialization.mangle.collectForMangler
-import org.jetbrains.kotlin.fir.declarations.builder.buildConstructor
 import java.util.Locale
 
 /*
@@ -24,6 +22,7 @@ plugins {
     id("org.hidetake.swagger.generator") version "2.19.2"
     id("io.gitlab.arturbosch.detekt") version "1.23.5"
     id("com.bmuschko.docker-remote-api") version "9.4.0"
+    id("com.diffplug.spotless") version "6.25.0"
 }
 
 repositories {
@@ -225,6 +224,35 @@ swaggerSources {
     }
 }
 
+configure<com.diffplug.gradle.spotless.SpotlessExtension> {
+    // limit format enforcement to just the files changed by this branch
+    ratchetFrom("origin/main")
+
+    format("misc") {
+        target("*.gradle", ".gitattributes", ".gitignore", ".containerignore", ".dockerignore")
+
+        trimTrailingWhitespace()
+        indentWithSpaces()
+        endWithNewline()
+    }
+    java {
+        targetExclude("**/src/generated/**", "**/build/generated/**")
+
+        googleJavaFormat()
+
+        removeUnusedImports()
+        importOrder("java", "javax", "jakarta", "com", "org", "net.atos")
+
+        formatAnnotations()
+        licenseHeader("""
+/*
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+        """)
+    }
+}
+
 // run npm install task after generating the Java clients because they
 // share the same output folder (= $rootDir)
 tasks.getByName("npmInstall").setMustRunAfter(listOf("generateJavaClients"))
@@ -251,6 +279,7 @@ tasks {
     }
 
     build {
+        dependsOn("check")
         dependsOn("generateWildflyBootableJar")
     }
 
@@ -381,7 +410,8 @@ tasks {
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKlantenClient") {
-        // this task was not enabled in the original Maven build either; these model files were added to the code base manually instead
+        // this task was not enabled in the original Maven build either;
+        // these model files were added to the code base manually instead
         isEnabled = false
 
         inputSpec.set("$rootDir/src/main/resources/api-specs/klanten/openapi.yaml")

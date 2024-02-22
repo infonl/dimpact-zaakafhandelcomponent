@@ -62,7 +62,6 @@ E2E_TEST_USER_2_PASSWORD=op://Dimpact/e2etestuser2/password
 ZAC_URL=op://Dimpact/zaakafhandelcomponent-zac-dev/website
 OPEN_FORMS_URL=op://Dimpact/open-formulieren-zac-dev/website
 
-
 # -----------------------------------------
 # Docker Compose only environment variables
 # -----------------------------------------
@@ -73,4 +72,3 @@ DOCKER_COMPOSE_LDAP_FUNCTIONAL_ADMIN_1_EMAIL_ADDRESS=op://Dimpact/ZAC-.env-$APP_
 DOCKER_COMPOSE_LDAP_GROUP_A_EMAIL_ADDRESS=op://Dimpact/ZAC-.env-$APP_ENV/DOCKER_COMPOSE/LDAP_GROUP_A_EMAIL_ADDRESS
 DOCKER_COMPOSE_LDAP_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS=op://Dimpact/ZAC-.env-$APP_ENV/DOCKER_COMPOSE/LDAP_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS
 DOCKER_COMPOSE_LDAP_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS=op://Dimpact/ZAC-.env-$APP_ENV/DOCKER_COMPOSE/LDAP_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS
-
