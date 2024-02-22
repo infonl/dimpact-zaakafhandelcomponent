@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.util;
 
 import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_OMSCHRIJVING;
@@ -35,11 +36,14 @@ public class FixUtilRESTService {
 
     private static final Logger LOG = Logger.getLogger(FixUtilRESTService.class.getName());
 
-    @Inject private CmmnRuntimeService cmmnRuntimeService;
+    @Inject
+    private CmmnRuntimeService cmmnRuntimeService;
 
-    @Inject private CmmnTaskService cmmnTaskService;
+    @Inject
+    private CmmnTaskService cmmnTaskService;
 
-    @Inject private RuntimeService runtimeService;
+    @Inject
+    private RuntimeService runtimeService;
 
     @GET
     @Path("countmissing")
@@ -56,30 +60,18 @@ public class FixUtilRESTService {
     @Path("logzaaktypeuuid")
     @Produces(MediaType.APPLICATION_JSON)
     public Response logExistingZaaktypeUUID() {
-        final List<CaseInstance> caseInstances =
-                cmmnRuntimeService
-                        .createCaseInstanceQuery()
-                        .variableExists(VAR_ZAAKTYPE_UUUID)
-                        .list();
-        caseInstances.forEach(
-                caseInstance -> logVariable(caseInstance.getId(), VAR_ZAAKTYPE_UUUID));
+        final List<CaseInstance> caseInstances = cmmnRuntimeService.createCaseInstanceQuery().variableExists(VAR_ZAAKTYPE_UUUID).list();
+        caseInstances.forEach(caseInstance -> logVariable(caseInstance.getId(), VAR_ZAAKTYPE_UUUID));
         return Response.noContent().build();
     }
 
     @GET
     @Path("fixmissingzaaktypeuuid/{zaaktypeuuid}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response fixMissingZaaktypeUUID(
-            @PathParam("zaaktypeuuid") final String zaaktypeUUIDString) {
+    public Response fixMissingZaaktypeUUID(@PathParam("zaaktypeuuid") final String zaaktypeUUIDString) {
         final UUID zaaktypeUUID = UUID.fromString(zaaktypeUUIDString);
-        final List<CaseInstance> caseInstances =
-                cmmnRuntimeService
-                        .createCaseInstanceQuery()
-                        .variableNotExists(VAR_ZAAKTYPE_UUUID)
-                        .list();
-        caseInstances.forEach(
-                caseInstance ->
-                        fixVariable(caseInstance.getId(), VAR_ZAAKTYPE_UUUID, zaaktypeUUID));
+        final List<CaseInstance> caseInstances = cmmnRuntimeService.createCaseInstanceQuery().variableNotExists(VAR_ZAAKTYPE_UUUID).list();
+        caseInstances.forEach(caseInstance -> fixVariable(caseInstance.getId(), VAR_ZAAKTYPE_UUUID, zaaktypeUUID));
         return Response.noContent().build();
     }
 
@@ -88,14 +80,8 @@ public class FixUtilRESTService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response fixAllZaaktypeUUID(@PathParam("zaaktypeuuid") final String zaaktypeUUIDString) {
         final UUID zaaktypeUUID = UUID.fromString(zaaktypeUUIDString);
-        final List<CaseInstance> caseInstances =
-                cmmnRuntimeService
-                        .createCaseInstanceQuery()
-                        .variableExists(VAR_ZAAKTYPE_UUUID)
-                        .list();
-        caseInstances.forEach(
-                caseInstance ->
-                        fixVariable(caseInstance.getId(), VAR_ZAAKTYPE_UUUID, zaaktypeUUID));
+        final List<CaseInstance> caseInstances = cmmnRuntimeService.createCaseInstanceQuery().variableExists(VAR_ZAAKTYPE_UUUID).list();
+        caseInstances.forEach(caseInstance -> fixVariable(caseInstance.getId(), VAR_ZAAKTYPE_UUUID, zaaktypeUUID));
         return Response.noContent().build();
     }
 
@@ -103,19 +89,9 @@ public class FixUtilRESTService {
     @Path("logtasksmissingscopeid")
     @Produces(MediaType.APPLICATION_JSON)
     public Response logTasksMissingScopeId() {
-        final List<Task> tasks =
-                cmmnTaskService.createTaskQuery().list().stream()
-                        .filter(task -> task.getScopeId() == null)
-                        .toList();
+        final List<Task> tasks = cmmnTaskService.createTaskQuery().list().stream().filter(task -> task.getScopeId() == null).toList();
         LOG.info(String.format("Number of tasks missing scopeId : %d", tasks.size()));
-        tasks.forEach(
-                task ->
-                        LOG.info(
-                                String.format(
-                                        "%s : name = '%s', createTime = '%s'",
-                                        task.getId(),
-                                        task.getName(),
-                                        task.getCreateTime().toString())));
+        tasks.forEach(task -> LOG.info(String.format("%s : name = '%s', createTime = '%s'", task.getId(), task.getName(), task.getCreateTime().toString())));
         return Response.noContent().build();
     }
 
@@ -123,19 +99,13 @@ public class FixUtilRESTService {
     @Path("completetasksmissingscopeid")
     @Produces(MediaType.APPLICATION_JSON)
     public Response completeTasksMissingScopeId() {
-        runtimeService
-                .createActivityInstanceQuery()
-                .list()
-                .forEach(
-                        activityInstance ->
-                                runtimeService.deleteProcessInstance(
-                                        activityInstance.getProcessInstanceId(), "none"));
+        runtimeService.createActivityInstanceQuery().list()
+                .forEach(activityInstance -> runtimeService.deleteProcessInstance(activityInstance.getProcessInstanceId(), "none"));
         return Response.noContent().build();
     }
 
     private void countMissingVariable(final String variable) {
-        final long count =
-                cmmnRuntimeService.createCaseInstanceQuery().variableNotExists(variable).count();
+        final long count = cmmnRuntimeService.createCaseInstanceQuery().variableNotExists(variable).count();
         LOG.info(String.format("Number of cases missing variable '%s' = %d", variable, count));
     }
 
@@ -144,8 +114,7 @@ public class FixUtilRESTService {
         LOG.info(String.format("'%s' : '%s' = '%s'", caseInstanceId, variable, value.toString()));
     }
 
-    private void fixVariable(
-            final String caseInstanceId, final String variable, final Object value) {
+    private void fixVariable(final String caseInstanceId, final String variable, final Object value) {
         LOG.info(String.format("'%s' : Set '%s' to '%s'", caseInstanceId, variable, value));
         cmmnRuntimeService.setVariable(caseInstanceId, variable, value);
     }

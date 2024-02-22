@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.flowable;
 
 import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_OMSCHRIJVING;
@@ -44,13 +45,13 @@ public class TaakVariabelenService {
 
     private static final String TAAK_DATA_ZAAK_HERVATTEN = "zaakHervatten";
 
-    private static final String TAAK_DATA_MAIL_FROM = "verzender";
+    private final static String TAAK_DATA_MAIL_FROM = "verzender";
 
-    private static final String TAAK_DATA_MAIL_REPLYTO = "replyTo";
+    private final static String TAAK_DATA_MAIL_REPLYTO = "replyTo";
 
-    private static final String TAAK_DATA_MAIL_TO = "emailadres";
+    private final static String TAAK_DATA_MAIL_TO = "emailadres";
 
-    private static final String TAAK_DATA_MAIL_BODY = "body";
+    private final static String TAAK_DATA_MAIL_BODY = "body";
 
     private static final String TAAK_DATA_MAIL_BIJLAGEN = "bijlagen";
 
@@ -60,13 +61,14 @@ public class TaakVariabelenService {
 
     private static final String VAR_TASK_TAAKINFORMATIE = "taakinformatie";
 
-    @Inject private TaskService taskService;
+    @Inject
+    private TaskService taskService;
 
-    @Inject private TakenService takenService;
+    @Inject
+    private TakenService takenService;
 
     public Map<String, String> readTaakdata(final TaskInfo taskInfo) {
-        return (Map<String, String>)
-                findTaskVariable(taskInfo, VAR_TASK_TAAKDATA).orElse(Collections.emptyMap());
+        return (Map<String, String>) findTaskVariable(taskInfo, VAR_TASK_TAAKDATA).orElse(Collections.emptyMap());
     }
 
     public void setTaakdata(final Task task, final Map<String, String> taakdata) {
@@ -74,8 +76,7 @@ public class TaakVariabelenService {
     }
 
     public Map<String, String> readTaakinformatie(final TaskInfo taskInfo) {
-        return (Map<String, String>)
-                findTaskVariable(taskInfo, VAR_TASK_TAAKINFORMATIE).orElse(Collections.emptyMap());
+        return (Map<String, String>) findTaskVariable(taskInfo, VAR_TASK_TAAKINFORMATIE).orElse(Collections.emptyMap());
     }
 
     public void setTaakinformatie(final Task task, final Map<String, String> taakinformatie) {
@@ -83,8 +84,7 @@ public class TaakVariabelenService {
     }
 
     public List<UUID> readTaakdocumenten(final TaskInfo taskInfo) {
-        return (List<UUID>)
-                findTaskVariable(taskInfo, VAR_TASK_TAAKDOCUMENTEN).orElse(Collections.emptyList());
+        return (List<UUID>) findTaskVariable(taskInfo, VAR_TASK_TAAKDOCUMENTEN).orElse(Collections.emptyList());
     }
 
     public Optional<String> readMailFrom(Map<String, String> taakData) {
@@ -121,8 +121,7 @@ public class TaakVariabelenService {
     }
 
     public boolean isZaakHervatten(Map<String, String> taakData) {
-        final Optional<String> zaakHervatten =
-                findTaskDataElement(taakData, TAAK_DATA_ZAAK_HERVATTEN);
+        final Optional<String> zaakHervatten = findTaskDataElement(taakData, TAAK_DATA_ZAAK_HERVATTEN);
         return zaakHervatten.filter(BooleanUtils.TRUE::equals).isPresent();
     }
 
@@ -161,14 +160,9 @@ public class TaakVariabelenService {
 
     private Object readVariable(final TaskInfo taskInfo, final String variableName) {
         return findVariable(taskInfo, variableName)
-                .orElseThrow(
-                        () ->
-                                new RuntimeException(
-                                        "No variable found with name '%s' for task with name '%s' and id '%s'"
-                                                .formatted(
-                                                        variableName,
-                                                        taskInfo.getName(),
-                                                        taskInfo.getId())));
+                .orElseThrow(() -> new RuntimeException(
+                        "No variable found with name '%s' for task with name '%s' and id '%s'"
+                                .formatted(variableName, taskInfo.getName(), taskInfo.getId())));
     }
 
     private Optional<Object> findTaskVariable(final TaskInfo taskInfo, final String variableName) {
@@ -180,8 +174,7 @@ public class TaakVariabelenService {
         }
     }
 
-    private Optional<String> findTaskDataElement(
-            final Map<String, String> taakData, final String elementName) {
+    private Optional<String> findTaskDataElement(final Map<String, String> taakData, final String elementName) {
         final String value = taakData.get(elementName);
         if (StringUtils.isNotEmpty(value)) {
             return Optional.of(value);
@@ -189,6 +182,7 @@ public class TaakVariabelenService {
             return Optional.empty();
         }
     }
+
 
     private void setTaskVariable(final Task task, final String variableName, final Object value) {
         taskService.setVariableLocal(task.getId(), variableName, value);

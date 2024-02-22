@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.zrc.model;
 
 import java.net.URI;
@@ -13,12 +14,10 @@ import net.atos.client.zgw.ztc.model.generated.RolType;
 
 public class RolVestiging extends Rol<Vestiging> {
 
-    public RolVestiging() {}
+    public RolVestiging() {
+    }
 
-    public RolVestiging(
-            final URI zaak,
-            final RolType roltype,
-            final String roltoelichting,
+    public RolVestiging(final URI zaak, final RolType roltype, final String roltoelichting,
             final Vestiging betrokkeneIdentificatie) {
         super(zaak, roltype, BetrokkeneType.VESTIGING, betrokkeneIdentificatie, roltoelichting);
     }
@@ -32,8 +31,7 @@ public class RolVestiging extends Rol<Vestiging> {
         if (identificatie == null) {
             return false;
         }
-        return Objects.equals(
-                betrokkeneIdentificatie.getVestigingsNummer(), identificatie.getVestigingsNummer());
+        return Objects.equals(betrokkeneIdentificatie.getVestigingsNummer(), identificatie.getVestigingsNummer());
     }
 
     @Override
@@ -41,11 +39,12 @@ public class RolVestiging extends Rol<Vestiging> {
         if (getBetrokkeneIdentificatie() == null) {
             return null;
         }
-        final String namen =
-                getBetrokkeneIdentificatie().getHandelsnaam() != null
-                        ? String.join("; ", getBetrokkeneIdentificatie().getHandelsnaam())
-                        : null;
-        return StringUtils.isNotEmpty(namen) ? namen : getIdentificatienummer();
+        final String namen = getBetrokkeneIdentificatie().getHandelsnaam() != null
+                ? String.join("; ", getBetrokkeneIdentificatie().getHandelsnaam())
+                : null;
+        return StringUtils.isNotEmpty(namen)
+                ? namen
+                : getIdentificatienummer();
     }
 
     @Override

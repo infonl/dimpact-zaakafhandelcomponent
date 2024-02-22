@@ -1,12 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.policy.output;
 
 import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
-
 import net.atos.zac.util.DummyInterface;
 
 public record ZaakRechten(
@@ -17,8 +17,8 @@ public record ZaakRechten(
         boolean afbreken,
         boolean heropenen,
         boolean wijzigenZaakdata,
-        boolean wijzigenDoorlooptijd)
-        implements DummyInterface {
+        boolean wijzigenDoorlooptijd
+) implements DummyInterface {
 
     @JsonbCreator
     public ZaakRechten(

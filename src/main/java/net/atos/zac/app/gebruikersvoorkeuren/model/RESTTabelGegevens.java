@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.gebruikersvoorkeuren.model;
 
 import java.util.List;
@@ -15,4 +16,6 @@ public class RESTTabelGegevens {
     public List<Integer> pageSizeOptions;
 
     public RESTWerklijstRechten werklijstRechten;
+
+
 }

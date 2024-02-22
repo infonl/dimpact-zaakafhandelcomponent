@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.shared.model;
 
 import java.net.URI;
@@ -18,8 +19,7 @@ public class ValidatieFout extends Fout {
     private final List<FieldValidationError> invalidParams;
 
     @JsonbCreator
-    public ValidatieFout(
-            @JsonbProperty("type") final URI type,
+    public ValidatieFout(@JsonbProperty("type") final URI type,
             @JsonbProperty("code") final String code,
             @JsonbProperty("title") final String title,
             @JsonbProperty("status") final int status,
@@ -38,9 +38,7 @@ public class ValidatieFout extends Fout {
     public String toString() {
         final StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(super.toString()).append("\n");
-        invalidParams.forEach(
-                fieldValidationError ->
-                        stringBuilder.append(fieldValidationError.toString()).append("\n"));
+        invalidParams.forEach(fieldValidationError -> stringBuilder.append(fieldValidationError.toString()).append("\n"));
         return stringBuilder.toString();
     }
 }

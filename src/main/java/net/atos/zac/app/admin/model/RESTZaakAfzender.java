@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.admin.model;
 
 import net.atos.zac.zaaksturing.model.ZaakAfzender;
@@ -20,7 +21,8 @@ public class RESTZaakAfzender {
 
     public boolean speciaal;
 
-    public RESTZaakAfzender() {}
+    public RESTZaakAfzender() {
+    }
 
     public RESTZaakAfzender(ZaakAfzender.Speciaal speciaal) {
         this.mail = speciaal.name();

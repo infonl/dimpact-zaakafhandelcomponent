@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.util;
 
 import java.time.LocalDate;
@@ -24,8 +25,7 @@ public class LocalDateAdapter implements JsonbAdapter<LocalDate, String> {
         if (StringUtils.isBlank(datum)) {
             return null;
         } else if (StringUtils.containsAny(datum, "+", "T", "Z")) {
-            // zone niet aanpassen aan locale tijdzone
-            // (withZoneSameInstant(ZoneId.of("Europe/Amsterdam")))
+            //zone niet aanpassen aan locale tijdzone (withZoneSameInstant(ZoneId.of("Europe/Amsterdam")))
             return ZonedDateTime.parse(datum).toLocalDate();
         } else {
             return LocalDate.parse(datum);

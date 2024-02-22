@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.audit.converter;
 
 import java.util.Comparator;
@@ -19,9 +20,9 @@ import net.atos.zac.app.audit.model.RESTHistorieRegel;
 
 public class RESTHistorieRegelConverter {
 
-    @Inject @Any
-    private Instance<AbstractAuditWijzigingConverter<? extends AuditWijziging<?>>>
-            wijzigingConverterInstance;
+    @Inject
+    @Any
+    private Instance<AbstractAuditWijzigingConverter<? extends AuditWijziging<?>>> wijzigingConverterInstance;
 
     public List<RESTHistorieRegel> convert(final List<AuditTrailRegel> auditTrail) {
         return auditTrail.stream()
@@ -44,8 +45,7 @@ public class RESTHistorieRegelConverter {
         return Stream.empty();
     }
 
-    private void convertAuditTrailBasis(
-            final RESTHistorieRegel historieRegel, final AuditTrailRegel auditTrailRegel) {
+    private void convertAuditTrailBasis(final RESTHistorieRegel historieRegel, final AuditTrailRegel auditTrailRegel) {
         historieRegel.datumTijd = auditTrailRegel.getAanmaakdatum();
         historieRegel.door = auditTrailRegel.getGebruikersWeergave();
         historieRegel.applicatie = auditTrailRegel.getApplicatieWeergave();

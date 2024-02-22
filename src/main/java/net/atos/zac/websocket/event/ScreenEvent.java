@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.websocket.event;
 
 import net.atos.zac.event.AbstractEvent;
@@ -17,8 +18,7 @@ public class ScreenEvent extends AbstractEvent<ScreenEventType, ScreenEventId> {
         super();
     }
 
-    public ScreenEvent(
-            final Opcode opcode, final ScreenEventType objectType, final ScreenEventId objectId) {
+    public ScreenEvent(final Opcode opcode, final ScreenEventType objectType, final ScreenEventId objectId) {
         super(opcode, objectId);
         this.objectType = objectType;
     }

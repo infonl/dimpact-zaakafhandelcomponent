@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.mailtemplates.model;
 
 import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
@@ -20,11 +21,7 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(schema = SCHEMA, name = "mail_template")
-@SequenceGenerator(
-        schema = SCHEMA,
-        name = "sq_mail_template",
-        sequenceName = "sq_mail_template",
-        allocationSize = 1)
+@SequenceGenerator(schema = SCHEMA, name = "sq_mail_template", sequenceName = "sq_mail_template", allocationSize = 1)
 public class MailTemplate {
 
     /**
@@ -54,11 +51,13 @@ public class MailTemplate {
     @Column(name = "body", nullable = false)
     private String body;
 
-    @NotNull @Column(name = "mail_template_enum", nullable = false)
+    @NotNull
+    @Column(name = "mail_template_enum", nullable = false)
     @Enumerated(EnumType.STRING)
     private Mail mail;
 
-    @NotNull @Column(name = "default_mailtemplate", nullable = false)
+    @NotNull
+    @Column(name = "default_mailtemplate", nullable = false)
     private Boolean defaultMailtemplate;
 
     public Long getId() {

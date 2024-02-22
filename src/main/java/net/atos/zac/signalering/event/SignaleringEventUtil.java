@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.signalering.event;
 
 import java.net.URI;
@@ -26,39 +27,31 @@ import net.atos.zac.signalering.model.SignaleringType;
  */
 public class SignaleringEventUtil {
 
-    private static <ID> SignaleringEvent<ID> instance(
-            final SignaleringType.Type signaleringType,
-            final ID id,
-            final ID detail,
-            final User actor) {
-        return new SignaleringEvent<>(
-                signaleringType, new SignaleringEventId<ID>(id, detail), actor);
+    private static <ID> SignaleringEvent<ID> instance(final SignaleringType.Type signaleringType, final ID id,
+            final ID detail, final User actor) {
+        return new SignaleringEvent<>(signaleringType, new SignaleringEventId<ID>(id, detail), actor);
     }
 
-    public static SignaleringEvent<URI> event(
-            final SignaleringType.Type signaleringType, final Zaak zaak, final User actor) {
+    public static SignaleringEvent<URI> event(final SignaleringType.Type signaleringType, final Zaak zaak,
+            final User actor) {
         return instance(signaleringType, zaak.getUrl(), null, actor);
     }
 
-    public static SignaleringEvent<URI> event(
-            final SignaleringType.Type signaleringType,
+    public static SignaleringEvent<URI> event(final SignaleringType.Type signaleringType,
             final EnkelvoudigInformatieObject enkelvoudigInformatieobject,
             final User actor) {
         return instance(signaleringType, enkelvoudigInformatieobject.getUrl(), null, actor);
     }
 
-    public static SignaleringEvent<String> event(
-            final SignaleringType.Type signaleringType, final TaskInfo taak, final User actor) {
+    public static SignaleringEvent<String> event(final SignaleringType.Type signaleringType, final TaskInfo taak,
+            final User actor) {
         return instance(signaleringType, taak.getId(), null, actor);
     }
 
-    private static SignaleringEvent<URI> event(
-            final SignaleringType.Type signaleringType,
-            final Notificatie.ResourceInfo resource,
-            final Notificatie.ResourceInfo detail) {
+    private static SignaleringEvent<URI> event(final SignaleringType.Type signaleringType,
+            final Notificatie.ResourceInfo resource, final Notificatie.ResourceInfo detail) {
         // There is no actor information in notifications
-        return instance(
-                signaleringType, resource.getUrl(), detail != null ? detail.getUrl() : null, null);
+        return instance(signaleringType, resource.getUrl(), detail != null ? detail.getUrl() : null, null);
     }
 
     /**
@@ -69,8 +62,7 @@ public class SignaleringEventUtil {
      * @param resource     the actually modified resource
      * @return the set of events that the parameters map to
      */
-    public static Set<SignaleringEvent<URI>> getEvents(
-            final Channel channel,
+    public static Set<SignaleringEvent<URI>> getEvents(final Channel channel,
             final Notificatie.ResourceInfo mainResource,
             final Notificatie.ResourceInfo resource) {
         final Set<SignaleringEvent<URI>> events = new HashSet<>();
@@ -79,10 +71,7 @@ public class SignaleringEventUtil {
                 case ZAAKINFORMATIEOBJECT:
                     if (Objects.requireNonNull(resource.getAction()) == Action.CREATE) {
                         events.add(
-                                event(
-                                        SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD,
-                                        mainResource,
-                                        resource));
+                                event(SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD, mainResource, resource));
                     }
                     break;
                 case ROL:

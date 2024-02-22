@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.ztc.model;
 
 import java.net.URI;
@@ -39,7 +40,9 @@ public class BesluittypeListParameters extends AbstractListParameters {
      */
     private ObjectStatusFilter status;
 
-    public BesluittypeListParameters() {}
+
+    public BesluittypeListParameters() {
+    }
 
     public BesluittypeListParameters(URI zaaktype) {
         this.zaaktypen = List.of(zaaktype);

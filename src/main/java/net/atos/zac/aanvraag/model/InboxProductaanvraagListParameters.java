@@ -1,11 +1,13 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.aanvraag.model;
 
 import net.atos.zac.shared.model.ListParameters;
 import net.atos.zac.zoeken.model.DatumRange;
+
 
 public class InboxProductaanvraagListParameters extends ListParameters {
 
@@ -14,6 +16,7 @@ public class InboxProductaanvraagListParameters extends ListParameters {
     private String type;
 
     private String initiatorID;
+
 
     public InboxProductaanvraagListParameters() {
         super();

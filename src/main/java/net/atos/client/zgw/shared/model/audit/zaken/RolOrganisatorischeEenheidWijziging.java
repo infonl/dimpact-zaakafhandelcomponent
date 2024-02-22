@@ -1,15 +1,15 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.shared.model.audit.zaken;
 
 import net.atos.client.zgw.shared.model.ObjectType;
 import net.atos.client.zgw.shared.model.audit.AuditWijziging;
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid;
 
-public class RolOrganisatorischeEenheidWijziging
-        extends AuditWijziging<RolOrganisatorischeEenheid> {
+public class RolOrganisatorischeEenheidWijziging extends AuditWijziging<RolOrganisatorischeEenheid> {
 
     @Override
     public ObjectType getObjectType() {

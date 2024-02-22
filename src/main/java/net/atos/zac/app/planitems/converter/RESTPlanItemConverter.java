@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.planitems.converter;
 
 import static net.atos.zac.app.planitems.model.PlanItemType.HUMAN_TASK;
@@ -32,24 +33,19 @@ import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
  */
 public class RESTPlanItemConverter {
 
-    @Inject private ZaakafhandelParameterService zaakafhandelParameterService;
+    @Inject
+    private ZaakafhandelParameterService zaakafhandelParameterService;
 
-    public List<RESTPlanItem> convertPlanItems(
-            final List<PlanItemInstance> planItems, final Zaak zaak) {
+    public List<RESTPlanItem> convertPlanItems(final List<PlanItemInstance> planItems, final Zaak zaak) {
         final UUID zaaktypeUUID = uuidFromURI(zaak.getZaaktype());
-        final ZaakafhandelParameters zaakafhandelParameters =
-                zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUUID);
+        final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
+                zaaktypeUUID);
         return planItems.stream()
-                .map(
-                        planItemInstance ->
-                                this.convertPlanItem(
-                                        planItemInstance, zaak.getUuid(), zaakafhandelParameters))
+                .map(planItemInstance -> this.convertPlanItem(planItemInstance, zaak.getUuid(), zaakafhandelParameters))
                 .toList();
     }
 
-    public RESTPlanItem convertPlanItem(
-            final PlanItemInstance planItem,
-            final UUID zaakUuid,
+    public RESTPlanItem convertPlanItem(final PlanItemInstance planItem, final UUID zaakUuid,
             final ZaakafhandelParameters zaakafhandelParameters) {
         final RESTPlanItem restPlanItem = new RESTPlanItem();
         restPlanItem.id = planItem.getId();
@@ -57,57 +53,36 @@ public class RESTPlanItemConverter {
         restPlanItem.zaakUuid = zaakUuid;
         restPlanItem.type = convertDefinitionType(planItem.getPlanItemDefinitionType());
         return switch (restPlanItem.type) {
-            case USER_EVENT_LISTENER ->
-                    convertUserEventListener(restPlanItem, planItem, zaakafhandelParameters);
+            case USER_EVENT_LISTENER -> convertUserEventListener(restPlanItem, planItem, zaakafhandelParameters);
             case HUMAN_TASK -> convertHumanTask(restPlanItem, planItem, zaakafhandelParameters);
             case PROCESS_TASK -> convertProcessTask(restPlanItem);
         };
     }
 
-    private RESTPlanItem convertUserEventListener(
-            final RESTPlanItem restPlanItem,
-            final PlanItemInstance UserEventListenerPlanItem,
-            final ZaakafhandelParameters zaakafhandelParameters) {
-        restPlanItem.userEventListenerActie =
-                UserEventListenerActie.valueOf(UserEventListenerPlanItem.getPlanItemDefinitionId());
-        restPlanItem.toelichting =
-                zaakafhandelParameters
-                        .readUserEventListenerParameters(
-                                UserEventListenerPlanItem.getPlanItemDefinitionId())
-                        .getToelichting();
+    private RESTPlanItem convertUserEventListener(final RESTPlanItem restPlanItem,
+            final PlanItemInstance UserEventListenerPlanItem, final ZaakafhandelParameters zaakafhandelParameters) {
+        restPlanItem.userEventListenerActie = UserEventListenerActie.valueOf(
+                UserEventListenerPlanItem.getPlanItemDefinitionId());
+        restPlanItem.toelichting = zaakafhandelParameters.readUserEventListenerParameters(
+                UserEventListenerPlanItem.getPlanItemDefinitionId()).getToelichting();
         return restPlanItem;
     }
 
-    private RESTPlanItem convertHumanTask(
-            final RESTPlanItem restPlanItem,
-            final PlanItemInstance humanTaskPlanItem,
+    private RESTPlanItem convertHumanTask(final RESTPlanItem restPlanItem, final PlanItemInstance humanTaskPlanItem,
             final ZaakafhandelParameters zaakafhandelParameters) {
-        zaakafhandelParameters
-                .findHumanTaskParameter(humanTaskPlanItem.getPlanItemDefinitionId())
-                .ifPresent(
-                        humanTaskParameters -> {
-                            restPlanItem.actief = humanTaskParameters.isActief();
-                            restPlanItem.formulierDefinitie =
-                                    FormulierDefinitie.valueOf(
-                                            humanTaskParameters.getFormulierDefinitieID());
-                            humanTaskParameters
-                                    .getReferentieTabellen()
-                                    .forEach(
-                                            rt ->
-                                                    restPlanItem.tabellen.put(
-                                                            rt.getVeld(),
-                                                            rt.getTabel().getWaarden().stream()
-                                                                    .map(
-                                                                            ReferentieTabelWaarde
-                                                                                    ::getNaam)
-                                                                    .toList()));
-                            restPlanItem.groepId = humanTaskParameters.getGroepID();
-                            if (humanTaskParameters.getDoorlooptijd() != null) {
-                                restPlanItem.fataleDatum =
-                                        LocalDate.now()
-                                                .plusDays(humanTaskParameters.getDoorlooptijd());
-                            }
-                        });
+        zaakafhandelParameters.findHumanTaskParameter(humanTaskPlanItem.getPlanItemDefinitionId())
+                .ifPresent(humanTaskParameters -> {
+                    restPlanItem.actief = humanTaskParameters.isActief();
+                    restPlanItem.formulierDefinitie = FormulierDefinitie.valueOf(humanTaskParameters.getFormulierDefinitieID());
+                    humanTaskParameters.getReferentieTabellen().forEach(
+                            rt -> restPlanItem.tabellen.put(rt.getVeld(), rt.getTabel().getWaarden().stream()
+                                    .map(ReferentieTabelWaarde::getNaam)
+                                    .toList()));
+                    restPlanItem.groepId = humanTaskParameters.getGroepID();
+                    if (humanTaskParameters.getDoorlooptijd() != null) {
+                        restPlanItem.fataleDatum = LocalDate.now().plusDays(humanTaskParameters.getDoorlooptijd());
+                    }
+                });
         return restPlanItem;
     }
 
@@ -124,9 +99,8 @@ public class RESTPlanItemConverter {
             return USER_EVENT_LISTENER;
         } else {
             throw new IllegalArgumentException(
-                    String.format(
-                            "Conversie van plan item definition type '%s' wordt niet ondersteund",
-                            planItemDefinitionType));
+                    String.format("Conversie van plan item definition type '%s' wordt niet ondersteund",
+                                  planItemDefinitionType));
         }
     }
 }

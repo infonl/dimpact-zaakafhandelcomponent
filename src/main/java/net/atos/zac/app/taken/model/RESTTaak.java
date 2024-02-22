@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.taken.model;
 
 import java.time.LocalDate;
@@ -51,8 +52,7 @@ public class RESTTaak {
     public String formulierDefinitieId;
 
     // Definitie van een via de user interface gebouwd formulier.
-    // Deze worden enkel gebruikt voor het afhandelen van taken welke automatische worden gestart
-    // vanuit een BPMN proces
+    // Deze worden enkel gebruikt voor het afhandelen van taken welke automatische worden gestart vanuit een BPMN proces
     public RESTFormulierDefinitie formulierDefinitie;
 
     public Map<String, List<String>> tabellen = new HashMap<>();

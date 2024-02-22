@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.zaaksturing.model;
 
 import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
@@ -17,11 +18,7 @@ import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(schema = SCHEMA, name = "zaakbeeindigreden")
-@SequenceGenerator(
-        schema = SCHEMA,
-        name = "sq_zaakbeeindigreden",
-        sequenceName = "sq_zaakbeeindigreden",
-        allocationSize = 1)
+@SequenceGenerator(schema = SCHEMA, name = "sq_zaakbeeindigreden", sequenceName = "sq_zaakbeeindigreden", allocationSize = 1)
 public class ZaakbeeindigReden {
 
     @Id

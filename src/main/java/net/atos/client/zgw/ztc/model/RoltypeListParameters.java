@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.ztc.model;
 
 import java.net.URI;
@@ -34,8 +35,7 @@ public class RoltypeListParameters extends AbstractZTCListParameters {
         this.omschrijvingGeneriek = omschrijvingGeneriek;
     }
 
-    public RoltypeListParameters(
-            final URI zaaktype, final RolType.OmschrijvingGeneriekEnum omschrijvingGeneriek) {
+    public RoltypeListParameters(final URI zaaktype, final RolType.OmschrijvingGeneriekEnum omschrijvingGeneriek) {
         this.zaaktype = zaaktype;
         this.omschrijvingGeneriek = omschrijvingGeneriek;
     }

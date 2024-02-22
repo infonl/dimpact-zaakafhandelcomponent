@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.inboxdocumenten.converter;
 
 import java.util.List;
@@ -15,8 +16,7 @@ public class RESTInboxDocumentConverter {
     public RESTInboxDocument convert(final InboxDocument document) {
         final RESTInboxDocument restDocument = new RESTInboxDocument();
         restDocument.id = document.getId();
-        restDocument.enkelvoudiginformatieobjectUUID =
-                document.getEnkelvoudiginformatieobjectUUID();
+        restDocument.enkelvoudiginformatieobjectUUID = document.getEnkelvoudiginformatieobjectUUID();
         restDocument.enkelvoudiginformatieobjectID = document.getEnkelvoudiginformatieobjectID();
         restDocument.titel = document.getTitel();
         restDocument.creatiedatum = document.getCreatiedatum().toLocalDate();

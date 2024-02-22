@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.gebruikersvoorkeuren.converter;
 
 import java.util.List;
@@ -31,6 +32,8 @@ public class RESTDashboardCardInstellingConverter {
     }
 
     public List<RESTDashboardCardInstelling> convert(final List<DashboardCardInstelling> cards) {
-        return cards.stream().map(this::convert).toList();
+        return cards.stream()
+                .map(this::convert)
+                .toList();
     }
 }

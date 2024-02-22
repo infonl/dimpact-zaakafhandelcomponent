@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.identity.model;
 
 import jakarta.validation.constraints.NotNull;
@@ -13,7 +14,8 @@ public class RESTGroup {
      * {@link net.atos.client.zgw.zrc.model.OrganisatorischeEenheid}
      * we need to make sure it adheres to the same constraints.
      */
-    @NotNull @Size(max = 24)
+    @NotNull
+    @Size(max = 24)
     public String id;
 
     /**
@@ -21,6 +23,7 @@ public class RESTGroup {
      * {@link net.atos.client.zgw.zrc.model.OrganisatorischeEenheid}
      * we need to make sure it adheres to the same constraints.
      */
-    @NotNull @Size(max = 50)
+    @NotNull
+    @Size(max = 50)
     public String naam;
 }

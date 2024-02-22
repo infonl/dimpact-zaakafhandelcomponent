@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.websocket;
 
 import static net.atos.zac.websocket.SubscriptionType.DELETE_ALL;
@@ -26,11 +27,9 @@ import net.atos.zac.websocket.event.ScreenEventType;
 /**
  * Converts websocket messages to SubscriptionType.SubscriptionMessage objects
  */
-public class WebSocketSubscriptionMessageDecoder
-        implements Decoder.Text<SubscriptionType.SubscriptionMessage> {
+public class WebSocketSubscriptionMessageDecoder implements Decoder.Text<SubscriptionType.SubscriptionMessage> {
 
-    private static final Logger LOG =
-            Logger.getLogger(WebSocketSubscriptionMessageDecoder.class.getName());
+    private static final Logger LOG = Logger.getLogger(WebSocketSubscriptionMessageDecoder.class.getName());
 
     private static final String SUBSCRIPTION_TYPE = "subscriptionType";
 
@@ -45,25 +44,20 @@ public class WebSocketSubscriptionMessageDecoder
     private static final String EVENT_RESOURCE = "resource";
 
     @Override
-    public SubscriptionType.SubscriptionMessage decode(final String jsonMessage)
-            throws DecodeException {
+    public SubscriptionType.SubscriptionMessage decode(final String jsonMessage) throws DecodeException {
         try (final JsonReader jsonReader = Json.createReader(new StringReader(jsonMessage))) {
             final JsonObject jsonObject = jsonReader.readObject();
 
-            final SubscriptionType subscriptionType =
-                    SubscriptionType.valueOf(jsonObject.getString(SUBSCRIPTION_TYPE));
+            final SubscriptionType subscriptionType = SubscriptionType.valueOf(jsonObject.getString(SUBSCRIPTION_TYPE));
             if (subscriptionType == DELETE_ALL) {
                 return subscriptionType.message();
             }
 
             final JsonObject jsonEvent = jsonObject.getJsonObject(EVENT);
             final Opcode operatie = Opcode.valueOf(jsonEvent.getString(EVENT_OPCODE));
-            final ScreenEventType objectType =
-                    ScreenEventType.valueOf(jsonEvent.getString(EVENT_TYPE));
-            final String resource =
-                    jsonEvent.getJsonObject(EVENT_OBJECT_ID).getString(EVENT_RESOURCE);
-            return subscriptionType.message(
-                    new ScreenEvent(operatie, objectType, new ScreenEventId(resource, null)));
+            final ScreenEventType objectType = ScreenEventType.valueOf(jsonEvent.getString(EVENT_TYPE));
+            final String resource = jsonEvent.getJsonObject(EVENT_OBJECT_ID).getString(EVENT_RESOURCE);
+            return subscriptionType.message(new ScreenEvent(operatie, objectType, new ScreenEventId(resource, null)));
         }
     }
 
@@ -83,10 +77,7 @@ public class WebSocketSubscriptionMessageDecoder
             jsonReader.readObject();
             return true;
         } catch (final JsonException e) {
-            LOG.log(
-                    Level.WARNING,
-                    String.format("SubscriptionMessage cannot be decrypted: %s", jsonMessage),
-                    e);
+            LOG.log(Level.WARNING, String.format("SubscriptionMessage cannot be decrypted: %s", jsonMessage), e);
             return false;
         }
     }

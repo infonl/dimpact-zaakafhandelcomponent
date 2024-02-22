@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.brc;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -28,9 +29,9 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import net.atos.client.zgw.brc.model.BesluitenListParameters;
 import net.atos.client.zgw.brc.model.generated.Besluit;
 import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject;
+import net.atos.client.zgw.brc.model.BesluitenListParameters;
 import net.atos.client.zgw.shared.exception.FoutExceptionMapper;
 import net.atos.client.zgw.shared.exception.RuntimeExceptionMapper;
 import net.atos.client.zgw.shared.exception.ValidatieFoutExceptionMapper;
@@ -63,25 +64,22 @@ public interface BRCClient {
     @GET
     @Path("besluiten")
     @ClientHeaderParams({
-        @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-        @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)
-    })
+            @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
+            @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
     Results<Besluit> besluitList(@BeanParam final BesluitenListParameters parameters);
 
     @POST
     @Path("besluiten")
     @ClientHeaderParams({
-        @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-        @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)
-    })
+            @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
+            @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
     Besluit besluitCreate(final Besluit besluit);
 
     @PUT
     @Path("besluiten/{uuid}")
     @ClientHeaderParams({
-        @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-        @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)
-    })
+            @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
+            @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
     Besluit besluitUpdate(@PathParam("uuid") final UUID uuid, final Besluit besluit);
 
     @GET
@@ -91,17 +89,15 @@ public interface BRCClient {
     @GET
     @Path("besluiten/{uuid}")
     @ClientHeaderParams({
-        @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-        @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)
-    })
+            @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
+            @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
     Besluit besluitRead(@PathParam("uuid") final UUID uuid);
 
     @PATCH
     @Path("besluiten/{uuid}")
     @ClientHeaderParams({
-        @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-        @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)
-    })
+            @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
+            @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
     Besluit besluitPartialUpdate(@PathParam("uuid") final UUID uuid, final Besluit besluit);
 
     @DELETE
@@ -110,28 +106,24 @@ public interface BRCClient {
 
     @GET
     @Path("besluitinformatieobjecten")
-    List<BesluitInformatieObject> listBesluitInformatieobjectenByBesluit(
-            @QueryParam("besluit") final URI besluit);
+    List<BesluitInformatieObject> listBesluitInformatieobjectenByBesluit(@QueryParam("besluit") final URI besluit);
 
     @GET
     @Path("besluitinformatieobjecten")
-    List<BesluitInformatieObject> listBesluitInformatieobjectenByInformatieObject(
-            @QueryParam("informatieobject") final URI informatieobject);
+    List<BesluitInformatieObject> listBesluitInformatieobjectenByInformatieObject(@QueryParam(
+            "informatieobject") final URI informatieobject);
 
     @POST
     @Path("besluitinformatieobjecten")
     @ClientHeaderParams({
-        @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-        @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)
-    })
-    BesluitInformatieObject besluitinformatieobjectCreate(
-            final BesluitInformatieObject besluitInformatieobject);
+            @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
+            @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
+    BesluitInformatieObject besluitinformatieobjectCreate(final BesluitInformatieObject besluitInformatieobject);
 
     @DELETE
     @Path("besluitinformatieobjecten/{uuid}")
     @ClientHeaderParams({
-        @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-        @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)
-    })
+            @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
+            @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
     BesluitInformatieObject besluitinformatieobjectDelete(@PathParam("uuid") final UUID uuid);
 }

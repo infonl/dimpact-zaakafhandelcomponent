@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.documenten;
 
 import java.time.ZoneId;
@@ -43,9 +44,11 @@ public class InboxDocumentenService {
     @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
     private EntityManager entityManager;
 
-    @Inject private ZRCClientService zrcClientService;
+    @Inject
+    private ZRCClientService zrcClientService;
 
-    @Inject private DRCClientService drcClientService;
+    @Inject
+    private DRCClientService drcClientService;
 
     public InboxDocument create(final UUID enkelvoudiginformatieobejctUUID) {
         final EnkelvoudigInformatieObject informatieobject =
@@ -53,8 +56,7 @@ public class InboxDocumentenService {
         final InboxDocument inboxDocument = new InboxDocument();
         inboxDocument.setEnkelvoudiginformatieobjectID(informatieobject.getIdentificatie());
         inboxDocument.setEnkelvoudiginformatieobjectUUID(enkelvoudiginformatieobejctUUID);
-        inboxDocument.setCreatiedatum(
-                informatieobject.getCreatiedatum().atStartOfDay(ZoneId.systemDefault()));
+        inboxDocument.setCreatiedatum(informatieobject.getCreatiedatum().atStartOfDay(ZoneId.systemDefault()));
         inboxDocument.setTitel(informatieobject.getTitel());
         inboxDocument.setBestandsnaam(informatieobject.getBestandsnaam());
         entityManager.persist(inboxDocument);
@@ -70,22 +72,15 @@ public class InboxDocumentenService {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<InboxDocument> query = builder.createQuery(InboxDocument.class);
         final Root<InboxDocument> root = query.from(InboxDocument.class);
-        query.select(root)
-                .where(
-                        builder.equal(
-                                root.get(InboxDocument.ENKELVOUDIGINFORMATIEOBJECT_UUID),
-                                enkelvoudiginformatieobjectUUID));
+        query.select(root).where(builder.equal(root.get(InboxDocument.ENKELVOUDIGINFORMATIEOBJECT_UUID),
+                                               enkelvoudiginformatieobjectUUID));
         final List<InboxDocument> resultList = entityManager.createQuery(query).getResultList();
         return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
     }
 
     public InboxDocument read(final UUID enkelvoudiginformatieobjectUUID) {
-        return find(enkelvoudiginformatieobjectUUID)
-                .orElseThrow(
-                        () ->
-                                new RuntimeException(
-                                        "InboxDocument with uuid '%s' not found."
-                                                .formatted(enkelvoudiginformatieobjectUUID)));
+        return find(enkelvoudiginformatieobjectUUID).orElseThrow(() -> new RuntimeException(
+                "InboxDocument with uuid '%s' not found.".formatted(enkelvoudiginformatieobjectUUID)));
     }
 
     public int count(final InboxDocumentListParameters listParameters) {
@@ -106,10 +101,9 @@ public class InboxDocumentenService {
     }
 
     public void delete(final UUID zaakinformatieobjectUUID) {
-        final ZaakInformatieobject zaakInformatieobject =
-                zrcClientService.readZaakinformatieobject(zaakinformatieobjectUUID);
-        final UUID enkelvoudiginformatieobjectUUID =
-                UriUtil.uuidFromURI(zaakInformatieobject.getInformatieobject());
+        final ZaakInformatieobject zaakInformatieobject = zrcClientService.readZaakinformatieobject(
+                zaakinformatieobjectUUID);
+        final UUID enkelvoudiginformatieobjectUUID = UriUtil.uuidFromURI(zaakInformatieobject.getInformatieobject());
         find(enkelvoudiginformatieobjectUUID).ifPresent(entityManager::remove);
     }
 
@@ -133,44 +127,33 @@ public class InboxDocumentenService {
         return emQuery.getResultList();
     }
 
-    private Predicate getWhere(
-            final InboxDocumentListParameters listParameters, final Root<InboxDocument> root) {
+    private Predicate getWhere(final InboxDocumentListParameters listParameters, final Root<InboxDocument> root) {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final List<Predicate> predicates = new ArrayList<>();
         if (StringUtils.isNotBlank(listParameters.getIdentificatie())) {
-            predicates.add(
-                    builder.like(
-                            root.get(InboxDocument.ENKELVOUDIGINFORMATIEOBJECT_ID),
-                            LIKE.formatted(listParameters.getIdentificatie())));
+            predicates.add(builder.like(root.get(InboxDocument.ENKELVOUDIGINFORMATIEOBJECT_ID),
+                                        LIKE.formatted(listParameters.getIdentificatie())));
         }
         if (StringUtils.isNotBlank(listParameters.getTitel())) {
-            String titel =
-                    LIKE.formatted(listParameters.getTitel().toLowerCase().replace(" ", "%"));
+            String titel = LIKE.formatted(listParameters.getTitel().toLowerCase().replace(" ", "%"));
             predicates.add(builder.like(builder.lower(root.get(InboxDocument.TITEL)), titel));
         }
         addCreatiedatumPredicates(listParameters.getCreatiedatum(), predicates, root, builder);
         return builder.and(predicates.toArray(new Predicate[0]));
     }
 
-    private void addCreatiedatumPredicates(
-            final DatumRange creatiedatum,
-            final List<Predicate> predicates,
+    private void addCreatiedatumPredicates(final DatumRange creatiedatum, final List<Predicate> predicates,
             final Root<InboxDocument> root,
             final CriteriaBuilder builder) {
         if (creatiedatum != null) {
             if (creatiedatum.van() != null) {
-                predicates.add(
-                        builder.greaterThanOrEqualTo(
-                                root.get(InboxDocument.CREATIEDATUM),
-                                DateTimeUtil.convertToDateTime(creatiedatum.van())));
+                predicates.add(builder.greaterThanOrEqualTo(root.get(InboxDocument.CREATIEDATUM),
+                                                            DateTimeUtil.convertToDateTime(creatiedatum.van())));
             }
             if (creatiedatum.tot() != null) {
-                predicates.add(
-                        builder.lessThanOrEqualTo(
-                                root.get(InboxDocument.CREATIEDATUM),
-                                DateTimeUtil.convertToDateTime(creatiedatum.tot())
-                                        .plusDays(1)
-                                        .minusSeconds(1)));
+                predicates.add(builder.lessThanOrEqualTo(root.get(InboxDocument.CREATIEDATUM),
+                                                         DateTimeUtil.convertToDateTime(creatiedatum.tot()).plusDays(1)
+                                                                 .minusSeconds(1)));
             }
         }
     }

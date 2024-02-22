@@ -1,7 +1,3 @@
-/*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
- * SPDX-License-Identifier: EUPL-1.2+
- */
 package net.atos.zac.zoeken.converter;
 
 import static net.atos.zac.flowable.util.TaskUtil.getTaakStatus;
@@ -30,15 +26,20 @@ import net.atos.zac.zoeken.model.zoekobject.TaakZoekObject;
 
 public class TaakZoekObjectConverter extends AbstractZoekObjectConverter<TaakZoekObject> {
 
-    @Inject private IdentityService identityService;
+    @Inject
+    private IdentityService identityService;
 
-    @Inject private TakenService takenService;
+    @Inject
+    private TakenService takenService;
 
-    @Inject private TaakVariabelenService taakVariabelenService;
+    @Inject
+    private TaakVariabelenService taakVariabelenService;
 
-    @Inject private ZTCClientService ztcClientService;
+    @Inject
+    private ZTCClientService ztcClientService;
 
-    @Inject private ZRCClientService zrcClientService;
+    @Inject
+    private ZRCClientService zrcClientService;
 
     @Override
     public TaakZoekObject convert(final String taskID) {
@@ -68,12 +69,11 @@ public class TaakZoekObjectConverter extends AbstractZoekObjectConverter<TaakZoe
             taakZoekObject.setGroepNaam(group.getName());
         }
 
-        final ZaakType zaaktype =
-                ztcClientService.readZaaktype(taakVariabelenService.readZaaktypeUUID(taskInfo));
+        final ZaakType zaaktype = ztcClientService.readZaaktype(
+                taakVariabelenService.readZaaktypeUUID(taskInfo));
         taakZoekObject.setZaaktypeIdentificatie(zaaktype.getIdentificatie());
         taakZoekObject.setZaaktypeOmschrijving(zaaktype.getOmschrijving());
-        taakZoekObject.setZaaktypeUuid(
-                URIUtil.parseUUIDFromResourceURI(zaaktype.getUrl()).toString());
+        taakZoekObject.setZaaktypeUuid(URIUtil.parseUUIDFromResourceURI(zaaktype.getUrl()).toString());
 
         final UUID zaakUUID = taakVariabelenService.readZaakUUID(taskInfo);
         taakZoekObject.setZaakUUID(zaakUUID.toString());
@@ -90,11 +90,7 @@ public class TaakZoekObjectConverter extends AbstractZoekObjectConverter<TaakZoe
 
         taakZoekObject.setTaakInformatie(
                 taakVariabelenService.readTaakinformatie(taskInfo).entrySet().stream()
-                        .map(
-                                informatie ->
-                                        "%s|%s"
-                                                .formatted(
-                                                        informatie.getKey(), informatie.getValue()))
+                        .map(informatie -> "%s|%s".formatted(informatie.getKey(), informatie.getValue()))
                         .toList());
 
         return taakZoekObject;
@@ -107,9 +103,7 @@ public class TaakZoekObjectConverter extends AbstractZoekObjectConverter<TaakZoe
 
     private String extractGroupId(final List<? extends IdentityLinkInfo> identityLinks) {
         return identityLinks.stream()
-                .filter(
-                        identityLinkInfo ->
-                                IdentityLinkType.CANDIDATE.equals(identityLinkInfo.getType()))
+                .filter(identityLinkInfo -> IdentityLinkType.CANDIDATE.equals(identityLinkInfo.getType()))
                 .findAny()
                 .map(IdentityLinkInfo::getGroupId)
                 .orElse(null);

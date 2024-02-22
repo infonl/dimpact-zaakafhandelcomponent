@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.shared.util;
 
 import jakarta.json.bind.Jsonb;
@@ -18,13 +19,8 @@ public class JsonbConfiguration implements ContextResolver<Jsonb> {
     private Jsonb jsonb;
 
     public JsonbConfiguration() {
-        final JsonbConfig jsonbConfig =
-                new JsonbConfig()
-                        .withDeserializers(
-                                new RolJsonbDeserializer(),
-                                new ZaakObjectJsonbDeserializer(),
-                                new GeometryJsonbDeserializer(),
-                                new URIJsonbDeserializer());
+        final JsonbConfig jsonbConfig = new JsonbConfig().withDeserializers(
+                new RolJsonbDeserializer(), new ZaakObjectJsonbDeserializer(), new GeometryJsonbDeserializer(), new URIJsonbDeserializer());
         jsonb = JsonbBuilder.create(jsonbConfig);
     }
 

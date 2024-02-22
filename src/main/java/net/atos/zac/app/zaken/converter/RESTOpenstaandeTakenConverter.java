@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.zaken.converter;
 
 import java.util.List;
@@ -17,7 +18,8 @@ import net.atos.zac.flowable.TakenService;
 
 public class RESTOpenstaandeTakenConverter {
 
-    @Inject private TakenService takenService;
+    @Inject
+    private TakenService takenService;
 
     public RESTOpenstaandeTaken convert(final UUID zaakUUID) {
         final List<Task> openstaandeTaken = takenService.listOpenTasksForZaak(zaakUUID);
@@ -25,8 +27,7 @@ public class RESTOpenstaandeTakenConverter {
 
         if (openstaandeTaken != null) {
             restOpenstaandeTaken.aantalOpenstaandeTaken = openstaandeTaken.size();
-            restOpenstaandeTaken.taakNamen =
-                    openstaandeTaken.stream().map(TaskInfo::getName).toList();
+            restOpenstaandeTaken.taakNamen = openstaandeTaken.stream().map(TaskInfo::getName).toList();
         }
 
         return restOpenstaandeTaken;

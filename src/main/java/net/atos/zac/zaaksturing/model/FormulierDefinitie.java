@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.zaaksturing.model;
 
 import java.util.Collections;
@@ -20,8 +21,7 @@ public enum FormulierDefinitie {
     private final Set<FormulierVeldDefinitie> veldDefinities;
 
     FormulierDefinitie(final FormulierVeldDefinitie... veldDefinities) {
-        final EnumSet<FormulierVeldDefinitie> formulierVeldDefinities =
-                EnumSet.noneOf(FormulierVeldDefinitie.class);
+        final EnumSet<FormulierVeldDefinitie> formulierVeldDefinities = EnumSet.noneOf(FormulierVeldDefinitie.class);
         Collections.addAll(formulierVeldDefinities, veldDefinities);
         this.veldDefinities = Collections.unmodifiableSet(formulierVeldDefinities);
     }

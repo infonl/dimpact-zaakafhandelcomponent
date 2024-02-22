@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.documenten;
 
 import static net.atos.zac.util.ValidationUtil.valideerObject;
@@ -38,6 +39,7 @@ import net.atos.zac.shared.model.SorteerRichting;
 import net.atos.zac.util.UriUtil;
 import net.atos.zac.zoeken.model.DatumRange;
 
+
 @ApplicationScoped
 @Transactional
 public class OntkoppeldeDocumentenService {
@@ -47,17 +49,17 @@ public class OntkoppeldeDocumentenService {
     @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
     private EntityManager entityManager;
 
-    @Inject private Instance<LoggedInUser> loggedInUserInstance;
+    @Inject
+    private Instance<LoggedInUser> loggedInUserInstance;
 
-    public OntkoppeldDocument create(
-            final EnkelvoudigInformatieObject informatieobject,
+
+    public OntkoppeldDocument create(final EnkelvoudigInformatieObject informatieobject,
             final Zaak zaak,
             final String reden) {
         final OntkoppeldDocument ontkoppeldDocument = new OntkoppeldDocument();
         ontkoppeldDocument.setDocumentID(informatieobject.getIdentificatie());
         ontkoppeldDocument.setDocumentUUID(UriUtil.uuidFromURI(informatieobject.getUrl()));
-        ontkoppeldDocument.setCreatiedatum(
-                informatieobject.getCreatiedatum().atStartOfDay(ZoneId.systemDefault()));
+        ontkoppeldDocument.setCreatiedatum(informatieobject.getCreatiedatum().atStartOfDay(ZoneId.systemDefault()));
         ontkoppeldDocument.setTitel(informatieobject.getTitel());
         ontkoppeldDocument.setBestandsnaam(informatieobject.getBestandsnaam());
         ontkoppeldDocument.setOntkoppeldOp(ZonedDateTime.now());
@@ -69,19 +71,16 @@ public class OntkoppeldeDocumentenService {
         return ontkoppeldDocument;
     }
 
-    public OntkoppeldeDocumentenResultaat getResultaat(
-            final OntkoppeldDocumentListParameters listParameters) {
-        return new OntkoppeldeDocumentenResultaat(
-                list(listParameters), count(listParameters), getOntkoppeldDoor(listParameters));
+    public OntkoppeldeDocumentenResultaat getResultaat(final OntkoppeldDocumentListParameters listParameters) {
+        return new OntkoppeldeDocumentenResultaat(list(listParameters), count(listParameters),
+                                                  getOntkoppeldDoor(listParameters));
     }
 
     public OntkoppeldDocument read(final UUID enkelvoudiginformatieobjectUUID) {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<OntkoppeldDocument> query =
-                builder.createQuery(OntkoppeldDocument.class);
+        final CriteriaQuery<OntkoppeldDocument> query = builder.createQuery(OntkoppeldDocument.class);
         final Root<OntkoppeldDocument> root = query.from(OntkoppeldDocument.class);
-        query.select(root)
-                .where(builder.equal(root.get("documentUUID"), enkelvoudiginformatieobjectUUID));
+        query.select(root).where(builder.equal(root.get("documentUUID"), enkelvoudiginformatieobjectUUID));
         return entityManager.createQuery(query).getSingleResult();
     }
 
@@ -105,8 +104,7 @@ public class OntkoppeldeDocumentenService {
 
     private List<OntkoppeldDocument> list(final OntkoppeldDocumentListParameters listParameters) {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<OntkoppeldDocument> query =
-                builder.createQuery(OntkoppeldDocument.class);
+        final CriteriaQuery<OntkoppeldDocument> query = builder.createQuery(OntkoppeldDocument.class);
         final Root<OntkoppeldDocument> root = query.from(OntkoppeldDocument.class);
         if (listParameters.getSorting() != null) {
             if (listParameters.getSorting().getDirection() == SorteerRichting.ASCENDING) {
@@ -144,70 +142,50 @@ public class OntkoppeldeDocumentenService {
         }
     }
 
-    private Predicate getWhere(
-            final OntkoppeldDocumentListParameters listParameters,
+    private Predicate getWhere(final OntkoppeldDocumentListParameters listParameters,
             final Root<OntkoppeldDocument> root) {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final List<Predicate> predicates = new ArrayList<>();
         if (StringUtils.isNotBlank(listParameters.getZaakID())) {
             predicates.add(
-                    builder.like(
-                            root.get(OntkoppeldDocument.ZAAK_ID),
-                            LIKE.formatted(listParameters.getZaakID())));
+                    builder.like(root.get(OntkoppeldDocument.ZAAK_ID), LIKE.formatted(listParameters.getZaakID())));
         }
         if (StringUtils.isNotBlank(listParameters.getTitel())) {
-            String titel =
-                    LIKE.formatted(listParameters.getTitel().toLowerCase().replace(" ", "%"));
+            String titel = LIKE.formatted(listParameters.getTitel().toLowerCase().replace(" ", "%"));
             predicates.add(builder.like(builder.lower(root.get(OntkoppeldDocument.TITEL)), titel));
         }
         if (StringUtils.isNotBlank(listParameters.getReden())) {
-            String reden =
-                    LIKE.formatted(listParameters.getReden().toLowerCase().replace(" ", "%"));
+            String reden = LIKE.formatted(listParameters.getReden().toLowerCase().replace(" ", "%"));
             predicates.add(builder.like(builder.lower(root.get(OntkoppeldDocument.REDEN)), reden));
         }
 
         if (StringUtils.isNotBlank(listParameters.getOntkoppeldDoor())) {
             predicates.add(
-                    builder.equal(
-                            root.get(OntkoppeldDocument.ONTKOPPELD_DOOR),
-                            listParameters.getOntkoppeldDoor()));
+                    builder.equal(root.get(OntkoppeldDocument.ONTKOPPELD_DOOR), listParameters.getOntkoppeldDoor()));
         }
-        addDatumRangePredicates(
-                listParameters.getCreatiedatum(),
-                OntkoppeldDocument.CREATIEDATUM,
-                predicates,
-                root,
-                builder);
-        addDatumRangePredicates(
-                listParameters.getOntkoppeldOp(),
-                OntkoppeldDocument.ONTKOPPELD_OP,
-                predicates,
-                root,
-                builder);
+        addDatumRangePredicates(listParameters.getCreatiedatum(), OntkoppeldDocument.CREATIEDATUM, predicates, root,
+                                builder);
+        addDatumRangePredicates(listParameters.getOntkoppeldOp(), OntkoppeldDocument.ONTKOPPELD_OP, predicates, root,
+                                builder);
 
         return builder.and(predicates.toArray(new Predicate[0]));
     }
 
-    private void addDatumRangePredicates(
-            final DatumRange datumRange,
-            final String veld,
+
+    private void addDatumRangePredicates(final DatumRange datumRange, final String veld,
             final List<Predicate> predicates,
-            final Root<OntkoppeldDocument> root,
-            final CriteriaBuilder builder) {
+            final Root<OntkoppeldDocument> root, final CriteriaBuilder builder) {
         if (datumRange != null) {
             if (datumRange.van() != null) {
-                predicates.add(
-                        builder.greaterThanOrEqualTo(
-                                root.get(veld), DateTimeUtil.convertToDateTime(datumRange.van())));
+                predicates.add(builder.greaterThanOrEqualTo(root.get(veld),
+                                                            DateTimeUtil.convertToDateTime(datumRange.van())));
             }
             if (datumRange.tot() != null) {
-                predicates.add(
-                        builder.lessThanOrEqualTo(
-                                root.get(veld),
-                                DateTimeUtil.convertToDateTime(datumRange.tot())
-                                        .plusDays(1)
-                                        .minusSeconds(1)));
+                predicates.add(builder.lessThanOrEqualTo(root.get(veld),
+                                                         DateTimeUtil.convertToDateTime(datumRange.tot()).plusDays(1)
+                                                                 .minusSeconds(1)));
             }
         }
     }
+
 }

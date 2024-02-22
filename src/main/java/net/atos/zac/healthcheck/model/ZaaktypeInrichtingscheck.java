@@ -1,7 +1,3 @@
-/*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
- * SPDX-License-Identifier: EUPL-1.2+
- */
 package net.atos.zac.healthcheck.model;
 
 import java.util.ArrayList;
@@ -86,8 +82,7 @@ public class ZaaktypeInrichtingscheck {
         return statustypeAfgerondLaatsteVolgnummer;
     }
 
-    public void setStatustypeAfgerondLaatsteVolgnummer(
-            final boolean statustypeAfgerondLaatsteVolgnummer) {
+    public void setStatustypeAfgerondLaatsteVolgnummer(final boolean statustypeAfgerondLaatsteVolgnummer) {
         this.statustypeAfgerondLaatsteVolgnummer = statustypeAfgerondLaatsteVolgnummer;
     }
 
@@ -119,8 +114,7 @@ public class ZaaktypeInrichtingscheck {
         return informatieobjecttypeEmailAanwezig;
     }
 
-    public void setInformatieobjecttypeEmailAanwezig(
-            final boolean informatieobjecttypeEmailAanwezig) {
+    public void setInformatieobjecttypeEmailAanwezig(final boolean informatieobjecttypeEmailAanwezig) {
         this.informatieobjecttypeEmailAanwezig = informatieobjecttypeEmailAanwezig;
     }
 
@@ -136,8 +130,7 @@ public class ZaaktypeInrichtingscheck {
         return resultaattypesMetVerplichtBesluit;
     }
 
-    public void addResultaattypesMetVerplichtBesluit(
-            final String resultaattypeMetVerplichtBesluit) {
+    public void addResultaattypesMetVerplichtBesluit(final String resultaattypeMetVerplichtBesluit) {
         this.resultaattypesMetVerplichtBesluit.add(resultaattypeMetVerplichtBesluit);
     }
 
@@ -162,17 +155,8 @@ public class ZaaktypeInrichtingscheck {
     }
 
     public boolean isValide() {
-        return statustypeIntakeAanwezig
-                && statustypeInBehandelingAanwezig
-                && statustypeHeropendAanwezig
-                && statustypeAfgerondAanwezig
-                && statustypeAfgerondLaatsteVolgnummer
-                && rolInitiatorAanwezig
-                && rolBehandelaarAanwezig
-                && rolOverigeAanwezig
-                && informatieobjecttypeEmailAanwezig
-                && resultaattypeAanwezig
-                && zaakafhandelParametersValide
-                && (resultaattypesMetVerplichtBesluit.isEmpty() || besluittypeAanwezig);
+        return statustypeIntakeAanwezig && statustypeInBehandelingAanwezig && statustypeHeropendAanwezig && statustypeAfgerondAanwezig && statustypeAfgerondLaatsteVolgnummer &&
+                rolInitiatorAanwezig && rolBehandelaarAanwezig && rolOverigeAanwezig && informatieobjecttypeEmailAanwezig && resultaattypeAanwezig &&
+                zaakafhandelParametersValide && (resultaattypesMetVerplichtBesluit.isEmpty() || besluittypeAanwezig);
     }
 }

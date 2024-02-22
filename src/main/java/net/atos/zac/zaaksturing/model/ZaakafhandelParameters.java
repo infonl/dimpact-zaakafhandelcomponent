@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.zaaksturing.model;
 
 import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
@@ -31,11 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 
 @Entity
 @Table(schema = SCHEMA, name = "zaakafhandelparameters")
-@SequenceGenerator(
-        schema = SCHEMA,
-        name = "sq_zaakafhandelparameters",
-        sequenceName = "sq_zaakafhandelparameters",
-        allocationSize = 1)
+@SequenceGenerator(schema = SCHEMA, name = "sq_zaakafhandelparameters", sequenceName = "sq_zaakafhandelparameters", allocationSize = 1)
 public class ZaakafhandelParameters {
 
     /** Naam van property: {@link ZaakafhandelParameters#zaakTypeUUID} */
@@ -55,7 +52,8 @@ public class ZaakafhandelParameters {
     @Column(name = "id_zaakafhandelparameters")
     private Long id;
 
-    @NotNull @Column(name = "uuid_zaaktype", nullable = false)
+    @NotNull
+    @Column(name = "uuid_zaaktype", nullable = false)
     private UUID zaakTypeUUID;
 
     @NotBlank
@@ -96,43 +94,23 @@ public class ZaakafhandelParameters {
     private String domein;
 
     // The set is necessary for Hibernate when you have more than one eager collection on an entity.
-    @OneToMany(
-            mappedBy = "zaakafhandelParameters",
-            cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER,
-            orphanRemoval = true)
+    @OneToMany(mappedBy = "zaakafhandelParameters", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private Set<HumanTaskParameters> humanTaskParametersCollection;
 
     // The set is necessary for Hibernate when you have more than one eager collection on an entity.
-    @OneToMany(
-            mappedBy = "zaakafhandelParameters",
-            cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER,
-            orphanRemoval = true)
+    @OneToMany(mappedBy = "zaakafhandelParameters", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private Set<UserEventListenerParameters> userEventListenerParametersCollection;
 
     // The set is necessary for Hibernate when you have more than one eager collection on an entity.
-    @OneToMany(
-            mappedBy = "zaakafhandelParameters",
-            cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER,
-            orphanRemoval = true)
+    @OneToMany(mappedBy = "zaakafhandelParameters", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private Set<ZaakbeeindigParameter> zaakbeeindigParameters;
 
     // The set is necessary for Hibernate when you have more than one eager collection on an entity.
-    @OneToMany(
-            mappedBy = "zaakafhandelParameters",
-            cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER,
-            orphanRemoval = true)
+    @OneToMany(mappedBy = "zaakafhandelParameters", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private Set<MailtemplateKoppeling> mailtemplateKoppelingen;
 
     // The set is necessary for Hibernate when you have more than one eager collection on an entity.
-    @OneToMany(
-            mappedBy = "zaakafhandelParameters",
-            cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER,
-            orphanRemoval = true)
+    @OneToMany(mappedBy = "zaakafhandelParameters", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private Set<ZaakAfzender> zaakAfzenders;
 
     public Long getId() {
@@ -200,13 +178,10 @@ public class ZaakafhandelParameters {
     }
 
     public Set<HumanTaskParameters> getHumanTaskParametersCollection() {
-        return humanTaskParametersCollection != null
-                ? humanTaskParametersCollection
-                : Collections.emptySet();
+        return humanTaskParametersCollection != null ? humanTaskParametersCollection : Collections.emptySet();
     }
 
-    public void setHumanTaskParametersCollection(
-            final Collection<HumanTaskParameters> humanTaskParametersCollection) {
+    public void setHumanTaskParametersCollection(final Collection<HumanTaskParameters> humanTaskParametersCollection) {
         if (this.humanTaskParametersCollection == null) {
             this.humanTaskParametersCollection = new HashSet<>();
         } else {
@@ -219,8 +194,7 @@ public class ZaakafhandelParameters {
         return mailtemplateKoppelingen != null ? mailtemplateKoppelingen : Collections.emptySet();
     }
 
-    public void setMailtemplateKoppelingen(
-            final Collection<MailtemplateKoppeling> mailtemplateKoppelingen) {
+    public void setMailtemplateKoppelingen(final Collection<MailtemplateKoppeling> mailtemplateKoppelingen) {
         if (this.mailtemplateKoppelingen == null) {
             this.mailtemplateKoppelingen = new HashSet<>();
         } else {
@@ -233,8 +207,7 @@ public class ZaakafhandelParameters {
         return zaakbeeindigParameters != null ? zaakbeeindigParameters : Collections.emptySet();
     }
 
-    public void setZaakbeeindigParameters(
-            final Collection<ZaakbeeindigParameter> zaakbeeindigParameters) {
+    public void setZaakbeeindigParameters(final Collection<ZaakbeeindigParameter> zaakbeeindigParameters) {
         if (this.zaakbeeindigParameters == null) {
             this.zaakbeeindigParameters = new HashSet<>();
         } else {
@@ -244,9 +217,7 @@ public class ZaakafhandelParameters {
     }
 
     public Set<UserEventListenerParameters> getUserEventListenerParametersCollection() {
-        return userEventListenerParametersCollection != null
-                ? userEventListenerParametersCollection
-                : Collections.emptySet();
+        return userEventListenerParametersCollection != null ? userEventListenerParametersCollection : Collections.emptySet();
     }
 
     public void setUserEventListenerParametersCollection(
@@ -287,8 +258,7 @@ public class ZaakafhandelParameters {
         zaakbeeindigParameters.add(zaakbeeindigParameter);
     }
 
-    private void addUserEventListenerParameters(
-            final UserEventListenerParameters userEventListenerParameters) {
+    private void addUserEventListenerParameters(final UserEventListenerParameters userEventListenerParameters) {
         userEventListenerParameters.setZaakafhandelParameters(this);
         userEventListenerParametersCollection.add(userEventListenerParameters);
     }
@@ -352,55 +322,32 @@ public class ZaakafhandelParameters {
      * @return true indien er een zaak kan worden gestart
      */
     public boolean isValide() {
-        return StringUtils.isNotBlank(groepID)
-                && StringUtils.isNotBlank(caseDefinitionID)
-                && nietOntvankelijkResultaattype != null;
+        return StringUtils.isNotBlank(groepID) && StringUtils.isNotBlank(
+                caseDefinitionID) && nietOntvankelijkResultaattype != null;
     }
+
 
     public ZaakbeeindigParameter readZaakbeeindigParameter(final Long zaakbeeindigRedenId) {
         return getZaakbeeindigParameters().stream()
-                .filter(
-                        zaakbeeindigParameter ->
-                                zaakbeeindigParameter
-                                        .getZaakbeeindigReden()
-                                        .getId()
-                                        .equals(zaakbeeindigRedenId))
-                .findAny()
-                .orElseThrow(
-                        () ->
-                                new RuntimeException(
-                                        String.format(
-                                                "No ZaakbeeindigParameter found for zaaktypeUUID:"
-                                                        + " '%s' and zaakbeeindigRedenId: '%d'",
-                                                zaakTypeUUID, zaakbeeindigRedenId)));
+                .filter(zaakbeeindigParameter -> zaakbeeindigParameter.getZaakbeeindigReden().getId().equals(zaakbeeindigRedenId))
+                .findAny().orElseThrow(() -> new RuntimeException(
+                        String.format("No ZaakbeeindigParameter found for zaaktypeUUID: '%s' and zaakbeeindigRedenId: '%d'", zaakTypeUUID,
+                                      zaakbeeindigRedenId)));
     }
 
-    public UserEventListenerParameters readUserEventListenerParameters(
-            final String planitemDefinitionID) {
+
+    public UserEventListenerParameters readUserEventListenerParameters(final String planitemDefinitionID) {
         return getUserEventListenerParametersCollection().stream()
-                .filter(
-                        userEventListenerParameters ->
-                                userEventListenerParameters
-                                        .getPlanItemDefinitionID()
-                                        .equals(planitemDefinitionID))
-                .findAny()
-                .orElseThrow(
-                        () ->
-                                new RuntimeException(
-                                        String.format(
-                                                "No UserEventListenerParameters found for"
-                                                        + " zaaktypeUUID: '%s' and"
-                                                        + " planitemDefinitionID: '%s'",
-                                                zaakTypeUUID, planitemDefinitionID)));
+                .filter(userEventListenerParameters -> userEventListenerParameters.getPlanItemDefinitionID().equals(planitemDefinitionID))
+                .findAny().orElseThrow(() -> new RuntimeException(
+                        String.format("No UserEventListenerParameters found for zaaktypeUUID: '%s' and planitemDefinitionID: '%s'", zaakTypeUUID,
+                                      planitemDefinitionID)));
     }
 
     public Optional<HumanTaskParameters> findHumanTaskParameter(final String planitemDefinitionID) {
         return getHumanTaskParametersCollection().stream()
-                .filter(
-                        humanTaskParameter ->
-                                humanTaskParameter
-                                        .getPlanItemDefinitionID()
-                                        .equals(planitemDefinitionID))
+                .filter(humanTaskParameter -> humanTaskParameter.getPlanItemDefinitionID().equals(planitemDefinitionID))
                 .findAny();
     }
 }
+

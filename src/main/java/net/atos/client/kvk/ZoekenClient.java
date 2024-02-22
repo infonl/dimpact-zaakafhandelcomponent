@@ -1,6 +1,13 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+/**
+ * API Zoeken
+ * Documentatie voor API Zoeken.
+ * <p>
+ * The version of the OpenAPI document: 1.3
  */
 package net.atos.client.kvk;
 
@@ -22,6 +29,7 @@ import net.atos.client.kvk.exception.RuntimeExceptionMapper;
 import net.atos.client.kvk.model.KVKZoekenParameters;
 import net.atos.client.kvk.util.KVKClientHeadersFactory;
 import net.atos.client.kvk.zoeken.model.Resultaat;
+
 
 @RegisterRestClient(configKey = "KVK-API-Client")
 @RegisterClientHeaders(KVKClientHeadersFactory.class)
@@ -46,6 +54,5 @@ public interface ZoekenClient {
      * Er wordt max. 1000 resultaten getoond.
      */
     @GET
-    CompletionStage<Resultaat> getResultsAsync(
-            @BeanParam final KVKZoekenParameters zoekenParameters);
+    CompletionStage<Resultaat> getResultsAsync(@BeanParam final KVKZoekenParameters zoekenParameters);
 }

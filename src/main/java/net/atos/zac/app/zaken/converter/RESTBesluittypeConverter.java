@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.zaken.converter;
 
 import java.net.URI;
@@ -16,15 +17,15 @@ import net.atos.zac.util.UriUtil;
 
 public class RESTBesluittypeConverter {
 
-    @Inject private ZTCClientService ztcClientService;
+    @Inject
+    private ZTCClientService ztcClientService;
 
     public RESTBesluittype convertToRESTBesluittype(final BesluitType besluittype) {
         final RESTBesluittype restBesluittype = new RESTBesluittype();
         restBesluittype.id = UriUtil.uuidFromURI(besluittype.getUrl());
         restBesluittype.naam = besluittype.getOmschrijving();
         restBesluittype.toelichting = besluittype.getToelichting();
-        restBesluittype.informatieobjecttypen =
-                besluittype.getInformatieobjecttypen().stream().toList();
+        restBesluittype.informatieobjecttypen = besluittype.getInformatieobjecttypen().stream().toList();
         return restBesluittype;
     }
 
@@ -33,6 +34,9 @@ public class RESTBesluittypeConverter {
     }
 
     public List<RESTBesluittype> convertToRESTBesluittypes(final List<BesluitType> besluittypes) {
-        return besluittypes.stream().map(this::convertToRESTBesluittype).toList();
+        return besluittypes.stream()
+                .map(this::convertToRESTBesluittype)
+                .toList();
     }
+
 }

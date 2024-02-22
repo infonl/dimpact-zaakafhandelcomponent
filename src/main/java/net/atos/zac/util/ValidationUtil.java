@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.util;
 
 import java.util.HashSet;
@@ -44,8 +45,7 @@ public final class ValidationUtil {
         return email.matches(emailRegex.pattern());
     }
 
-    private static Set<ConstraintViolation<Object>> valideer(
-            final Object object, final Class<?>... validationGroups) {
+    private static Set<ConstraintViolation<Object>> valideer(final Object object, final Class<?>... validationGroups) {
         final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         final Validator validator = factory.getValidator();
         return validator.validate(object, validationGroups);

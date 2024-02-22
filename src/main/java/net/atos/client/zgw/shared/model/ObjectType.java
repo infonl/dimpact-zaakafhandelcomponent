@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.shared.model;
 
 import java.lang.reflect.Type;
@@ -62,20 +63,16 @@ public enum ObjectType {
     ZAAKOBJECT("/zaken/api/v1/zaakobjecten", ZaakobjectAdresWijziging.class),
 
     /** http://open-zaak/zaken/api/v1/zaakinformatieobjecten/{uuid} */
-    ZAAK_INFORMATIEOBJECT(
-            "/zaken/api/v1/zaakinformatieobjecten", ZaakInformatieobjectWijziging.class),
+    ZAAK_INFORMATIEOBJECT("/zaken/api/v1/zaakinformatieobjecten", ZaakInformatieobjectWijziging.class),
 
     /** http://open-zaak/documenten/api/v1/enkelvoudiginformatieobjecten/{uuid} */
-    ENKELVOUDIG_INFORMATIEOBJECT(
-            "/documenten/api/v1/enkelvoudiginformatieobjecten/",
-            EnkelvoudigInformatieobjectWijziging.class),
+    ENKELVOUDIG_INFORMATIEOBJECT("/documenten/api/v1/enkelvoudiginformatieobjecten/", EnkelvoudigInformatieobjectWijziging.class),
 
     /** http://open-zaak/documenten/api/v1/gebruiksrechten/{uuid} */
     GEBRUIKSRECHTEN("/documenten/api/v1/gebruiksrechten", GebuiksrechtenWijziging.class),
 
     /** http://open-zaak/documenten/api/v1/objectinformatieobjecten/{uuid} */
-    OBJECT_INFORMATIEOBJECT(
-            "documenten/api/v1/objectinformatieobjecten", ObjectInformatieobjectWijziging.class),
+    OBJECT_INFORMATIEOBJECT("documenten/api/v1/objectinformatieobjecten", ObjectInformatieobjectWijziging.class),
 
     /** http://open-zaak/zaken/api/v1/klantcontacten/{uuid} */
     KLANTCONTACT("/zaken/api/v1/klantcontacten", KlantcontactWijziging.class),
@@ -84,8 +81,7 @@ public enum ObjectType {
     BESLUIT("/besluiten/api/v1/besluiten", BesluitWijziging.class),
 
     /** http://open-zaak.default/besluiten/api/v1/besluitinformatieobjecten/{uuid} */
-    BESLUIT_INFORMATIEOBJECT(
-            "/besluiten/api/v1/besluitinformatieobjecten", BesluitInformatieobjectWijziging.class);
+    BESLUIT_INFORMATIEOBJECT("/besluiten/api/v1/besluitinformatieobjecten", BesluitInformatieobjectWijziging.class);
 
     private final String url;
 
@@ -105,8 +101,7 @@ public enum ObjectType {
         throw new RuntimeException(String.format("URL '%s' wordt niet ondersteund", url));
     }
 
-    public Class<? extends AuditWijziging<? extends Rol<?>>> getAuditClass(
-            final BetrokkeneType betrokkenetype) {
+    public Class<? extends AuditWijziging<? extends Rol<?>>> getAuditClass(final BetrokkeneType betrokkenetype) {
         return switch (betrokkenetype) {
             case VESTIGING -> RolVestigingWijziging.class;
             case MEDEWERKER -> RolMedewerkerWijziging.class;
@@ -120,31 +115,23 @@ public enum ObjectType {
         return auditClass;
     }
 
-    public Class<? extends AuditWijziging<? extends Zaakobject>> getAuditClass(
-            final Objecttype objectType, final String objectTypeOverige) {
+    public Class<? extends AuditWijziging<? extends Zaakobject>> getAuditClass(final Objecttype objectType, final String objectTypeOverige) {
         return switch (objectType) {
             case ADRES -> ZaakobjectAdresWijziging.class;
             case OPENBARE_RUIMTE -> ZaakobjectOpenbareRuimteWijziging.class;
             case PAND -> ZaakobjectPandWijziging.class;
             case WOONPLAATS -> ZaakobjectWoonplaatsWijziging.class;
             case OVERIGE -> getAuditClassObjectOverige(objectTypeOverige);
-            default ->
-                    throw new RuntimeException(
-                            String.format("objecttype '%s'  wordt niet ondersteund", objectType));
+            default -> throw new RuntimeException(String.format("objecttype '%s'  wordt niet ondersteund", objectType));
         };
     }
 
-    private Class<? extends AuditWijziging<? extends Zaakobject>> getAuditClassObjectOverige(
-            final String objectTypeOverige) {
+    private Class<? extends AuditWijziging<? extends Zaakobject>> getAuditClassObjectOverige(final String objectTypeOverige) {
         if (StringUtils.equals(objectTypeOverige, ZaakobjectNummeraanduiding.OBJECT_TYPE_OVERIGE)) {
             return ZaakobjectNummeraanduidingWijziging.class;
-        } else if (StringUtils.equals(
-                objectTypeOverige, ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE)) {
+        } else if (StringUtils.equals(objectTypeOverige, ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE)) {
             return ZaakobjectProductaanvraagWijziging.class;
         }
-        throw new RuntimeException(
-                String.format(
-                        "objecttype 'OVERIGE' met objectTypeOverige '%s' wordt niet ondersteund",
-                        objectTypeOverige));
+        throw new RuntimeException(String.format("objecttype 'OVERIGE' met objectTypeOverige '%s' wordt niet ondersteund", objectTypeOverige));
     }
 }

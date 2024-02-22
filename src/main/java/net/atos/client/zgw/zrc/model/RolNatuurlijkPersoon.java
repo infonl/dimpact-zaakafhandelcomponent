@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.zrc.model;
 
 import java.net.URI;
@@ -13,19 +14,12 @@ import net.atos.client.zgw.ztc.model.generated.RolType;
 
 public class RolNatuurlijkPersoon extends Rol<NatuurlijkPersoon> {
 
-    public RolNatuurlijkPersoon() {}
+    public RolNatuurlijkPersoon() {
+    }
 
-    public RolNatuurlijkPersoon(
-            final URI zaak,
-            final RolType roltype,
-            final String roltoelichting,
-            final NatuurlijkPersoon betrokkeneIdentificatie) {
-        super(
-                zaak,
-                roltype,
-                BetrokkeneType.NATUURLIJK_PERSOON,
-                betrokkeneIdentificatie,
-                roltoelichting);
+    public RolNatuurlijkPersoon(final URI zaak, final RolType roltype,
+            final String roltoelichting, final NatuurlijkPersoon betrokkeneIdentificatie) {
+        super(zaak, roltype, BetrokkeneType.NATUURLIJK_PERSOON, betrokkeneIdentificatie, roltoelichting);
     }
 
     @Override
@@ -38,16 +32,11 @@ public class RolNatuurlijkPersoon extends Rol<NatuurlijkPersoon> {
             return false;
         }
         // In volgorde van voorkeur (als er 1 matcht wordt de rest overgeslagen)
-        if (betrokkeneIdentificatie.getAnpIdentificatie() != null
-                || identificatie.getAnpIdentificatie() != null) {
-            return Objects.equals(
-                    betrokkeneIdentificatie.getAnpIdentificatie(),
-                    identificatie.getAnpIdentificatie());
+        if (betrokkeneIdentificatie.getAnpIdentificatie() != null || identificatie.getAnpIdentificatie() != null) {
+            return Objects.equals(betrokkeneIdentificatie.getAnpIdentificatie(), identificatie.getAnpIdentificatie());
         }
-        if (betrokkeneIdentificatie.getInpA_nummer() != null
-                || identificatie.getInpA_nummer() != null) {
-            return Objects.equals(
-                    betrokkeneIdentificatie.getInpA_nummer(), identificatie.getInpA_nummer());
+        if (betrokkeneIdentificatie.getInpA_nummer() != null || identificatie.getInpA_nummer() != null) {
+            return Objects.equals(betrokkeneIdentificatie.getInpA_nummer(), identificatie.getInpA_nummer());
         }
         if (betrokkeneIdentificatie.getInpBsn() != null || identificatie.getInpBsn() != null) {
             return Objects.equals(betrokkeneIdentificatie.getInpBsn(), identificatie.getInpBsn());

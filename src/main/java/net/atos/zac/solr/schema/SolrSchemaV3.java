@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.solr.schema;
 
 import static net.atos.zac.solr.FieldType.STRING;
@@ -22,6 +23,7 @@ class SolrSchemaV3 implements SolrSchemaUpdate {
     @Override
     public int getVersie() {
         return 3;
+
     }
 
     @Override
@@ -40,6 +42,8 @@ class SolrSchemaV3 implements SolrSchemaUpdate {
                 addFieldMultiValued("zaak_betrokkenen", STRING, true, true),
                 addCopyField("zaak_betrokkene_*", "zaak_betrokkenen"),
                 addCopyField("zaak_betrokkene_*", "zaak_betrokkenen"),
-                addCopyField("zaak_initiatorIdentificatie", "zaak_betrokkenen"));
+                addCopyField("zaak_initiatorIdentificatie", "zaak_betrokkenen")
+        );
     }
+
 }

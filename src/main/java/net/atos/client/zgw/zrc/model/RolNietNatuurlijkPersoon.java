@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.zrc.model;
 
 import java.net.URI;
@@ -13,19 +14,12 @@ import net.atos.client.zgw.ztc.model.generated.RolType;
 
 public class RolNietNatuurlijkPersoon extends Rol<NietNatuurlijkPersoon> {
 
-    public RolNietNatuurlijkPersoon() {}
+    public RolNietNatuurlijkPersoon() {
+    }
 
-    public RolNietNatuurlijkPersoon(
-            final URI zaak,
-            final RolType roltype,
-            final String roltoelichting,
-            final NietNatuurlijkPersoon betrokkeneIdentificatie) {
-        super(
-                zaak,
-                roltype,
-                BetrokkeneType.NIET_NATUURLIJK_PERSOON,
-                betrokkeneIdentificatie,
-                roltoelichting);
+    public RolNietNatuurlijkPersoon(final URI zaak, final RolType roltype,
+            final String roltoelichting, final NietNatuurlijkPersoon betrokkeneIdentificatie) {
+        super(zaak, roltype, BetrokkeneType.NIET_NATUURLIJK_PERSOON, betrokkeneIdentificatie, roltoelichting);
     }
 
     @Override
@@ -38,15 +32,11 @@ public class RolNietNatuurlijkPersoon extends Rol<NietNatuurlijkPersoon> {
             return false;
         }
         // In volgorde van voorkeur (als er 1 matcht wordt de rest overgeslagen)
-        if (betrokkeneIdentificatie.getAnnIdentificatie() != null
-                || identificatie.getAnnIdentificatie() != null) {
-            return Objects.equals(
-                    betrokkeneIdentificatie.getAnnIdentificatie(),
-                    identificatie.getAnnIdentificatie());
+        if (betrokkeneIdentificatie.getAnnIdentificatie() != null || identificatie.getAnnIdentificatie() != null) {
+            return Objects.equals(betrokkeneIdentificatie.getAnnIdentificatie(), identificatie.getAnnIdentificatie());
         }
         if (betrokkeneIdentificatie.getInnNnpId() != null || identificatie.getInnNnpId() != null) {
-            return Objects.equals(
-                    betrokkeneIdentificatie.getInnNnpId(), identificatie.getInnNnpId());
+            return Objects.equals(betrokkeneIdentificatie.getInnNnpId(), identificatie.getInnNnpId());
         }
         return true;
     }

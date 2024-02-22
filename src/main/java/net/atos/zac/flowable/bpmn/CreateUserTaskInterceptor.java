@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.flowable.bpmn;
 
 import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_UUID;
@@ -16,8 +17,7 @@ import net.atos.zac.flowable.FlowableHelper;
 import net.atos.zac.websocket.event.ScreenEvent;
 import net.atos.zac.websocket.event.ScreenEventType;
 
-public class CreateUserTaskInterceptor
-        implements org.flowable.engine.interceptor.CreateUserTaskInterceptor {
+public class CreateUserTaskInterceptor implements org.flowable.engine.interceptor.CreateUserTaskInterceptor {
 
     public static final String VAR_PROCESS_OWNER = "owner";
 
@@ -36,8 +36,6 @@ public class CreateUserTaskInterceptor
         // Wait some time before handling the event to make sure that the task has been created.
         screenEvent.setDelay(SECONDS_TO_DELAY);
         FlowableHelper.getInstance().getEventingService().send(screenEvent);
-        FlowableHelper.getInstance()
-                .getIndexeerService()
-                .addOrUpdateTaak(context.getTaskEntity().getId());
+        FlowableHelper.getInstance().getIndexeerService().addOrUpdateTaak(context.getTaskEntity().getId());
     }
 }

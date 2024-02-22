@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.zrc.model;
 
 import jakarta.json.bind.annotation.JsonbTypeAdapter;
@@ -13,6 +14,7 @@ import net.atos.client.zgw.shared.model.AbstractEnum;
  */
 @JsonbTypeAdapter(AardRelatieWeergave.Adapter.class)
 public enum AardRelatieWeergave implements AbstractEnum<AardRelatieWeergave> {
+
     HOORT_BIJ("Hoort bij, omgekeerd: kent"),
 
     LEGT_VAST("Legt vast, omgekeerd: kan vastgelegd zijn als");

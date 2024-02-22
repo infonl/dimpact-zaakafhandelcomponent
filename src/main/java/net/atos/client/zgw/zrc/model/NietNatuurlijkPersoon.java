@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.zrc.model;
 
 import net.atos.client.zgw.zrc.model.generated.SubVerblijfBuitenland;
@@ -40,7 +41,8 @@ public class NietNatuurlijkPersoon {
 
     private SubVerblijfBuitenland subVerblijfBuitenland;
 
-    public NietNatuurlijkPersoon() {}
+    public NietNatuurlijkPersoon() {
+    }
 
     public NietNatuurlijkPersoon(final String innNnpId) {
         this.innNnpId = innNnpId;

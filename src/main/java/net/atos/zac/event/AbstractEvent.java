@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.event;
 
 import java.io.Serializable;
@@ -21,7 +22,8 @@ public abstract class AbstractEvent<TYPE, ID> implements Serializable {
 
     private ID objectId;
 
-    @JsonbTransient private int delay;
+    @JsonbTransient
+    private int delay;
 
     /**
      * Constructor for the sake of JAXB
@@ -98,10 +100,9 @@ public abstract class AbstractEvent<TYPE, ID> implements Serializable {
 
     @Override
     public String toString() {
-        final String className =
-                0 < delay
-                        ? getClass().getSimpleName() + String.format("+%ds", delay)
-                        : getClass().getSimpleName();
+        final String className = 0 < delay
+                ? getClass().getSimpleName() + String.format("+%ds", delay)
+                : getClass().getSimpleName();
         return String.format("%s %s %s %s", className, getOpcode(), getObjectType(), getObjectId());
     }
 }

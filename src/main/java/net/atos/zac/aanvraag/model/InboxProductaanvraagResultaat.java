@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.aanvraag.model;
 
 import java.util.List;
@@ -12,10 +13,7 @@ public class InboxProductaanvraagResultaat extends Resultaat<InboxProductaanvraa
 
     private final List<String> typeFilter;
 
-    public InboxProductaanvraagResultaat(
-            final List<InboxProductaanvraag> items,
-            final long count,
-            final List<String> typeFilter) {
+    public InboxProductaanvraagResultaat(final List<InboxProductaanvraag> items, final long count, final List<String> typeFilter) {
         super(items, count);
         this.typeFilter = typeFilter;
     }

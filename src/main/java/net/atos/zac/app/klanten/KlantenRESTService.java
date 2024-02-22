@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.klanten;
 
 import static net.atos.zac.app.klanten.converter.RESTPersoonConverter.VALID_PERSONEN_QUERIES;
@@ -63,8 +64,7 @@ public class KlantenRESTService {
 
     public static final Set<RolType.OmschrijvingGeneriekEnum> betrokkenen;
 
-    private static final RESTPersoon ONBEKEND_PERSOON =
-            new RESTPersoon(ONBEKEND, ONBEKEND, ONBEKEND);
+    private static final RESTPersoon ONBEKEND_PERSOON = new RESTPersoon(ONBEKEND, ONBEKEND, ONBEKEND);
 
     static {
         betrokkenen = EnumSet.allOf(RolType.OmschrijvingGeneriekEnum.class);
@@ -72,46 +72,52 @@ public class KlantenRESTService {
         betrokkenen.remove(RolType.OmschrijvingGeneriekEnum.BEHANDELAAR);
     }
 
-    @Inject private BRPClientService brpClientService;
+    @Inject
+    private BRPClientService brpClientService;
 
-    @Inject private KVKClientService kvkClientService;
+    @Inject
+    private KVKClientService kvkClientService;
 
-    @Inject private ZTCClientService ztcClientService;
+    @Inject
+    private ZTCClientService ztcClientService;
 
-    @Inject private RESTPersoonConverter persoonConverter;
+    @Inject
+    private RESTPersoonConverter persoonConverter;
 
-    @Inject private RESTBedrijfConverter bedrijfConverter;
+    @Inject
+    private RESTBedrijfConverter bedrijfConverter;
 
-    @Inject private RESTVestigingsprofielConverter vestigingsprofielConverter;
+    @Inject
+    private RESTVestigingsprofielConverter vestigingsprofielConverter;
 
-    @Inject private RESTRoltypeConverter roltypeConverter;
+    @Inject
+    private RESTRoltypeConverter roltypeConverter;
 
-    @Inject private KlantenClientService klantenClientService;
+    @Inject
+    private KlantenClientService klantenClientService;
 
     @GET
     @Path("persoon/{bsn}")
-    public RESTPersoon readPersoon(@PathParam("bsn") final String bsn)
-            throws ExecutionException, InterruptedException {
-        return brpClientService
-                .findPersoonAsync(bsn)
-                .thenCombine(klantenClientService.findPersoonAsync(bsn), this::convertToRESTPersoon)
+    public RESTPersoon readPersoon(@PathParam("bsn") final String bsn) throws ExecutionException, InterruptedException {
+        return brpClientService.findPersoonAsync(bsn)
+                .thenCombine(klantenClientService.findPersoonAsync(bsn),
+                             this::convertToRESTPersoon)
                 .toCompletableFuture()
                 .get();
     }
 
-    private RESTPersoon convertToRESTPersoon(
-            final Optional<Persoon> persoon, final Optional<Klant> klant) {
-        return persoon.map(persoonConverter::convertPersoon)
+    private RESTPersoon convertToRESTPersoon(final Optional<Persoon> persoon, final Optional<Klant> klant) {
+        return persoon
+                .map(persoonConverter::convertPersoon)
                 .map(restPersoon -> (RESTPersoon) addKlantData(restPersoon, klant))
                 .orElse(ONBEKEND_PERSOON);
     }
 
     private RESTKlant addKlantData(final RESTKlant restKlant, final Optional<Klant> klantOptional) {
-        klantOptional.ifPresent(
-                klant -> {
-                    restKlant.telefoonnummer = klant.getTelefoonnummer();
-                    restKlant.emailadres = klant.getEmailadres();
-                });
+        klantOptional.ifPresent(klant -> {
+            restKlant.telefoonnummer = klant.getTelefoonnummer();
+            restKlant.emailadres = klant.getEmailadres();
+        });
         return restKlant;
     }
 
@@ -119,30 +125,24 @@ public class KlantenRESTService {
     @Path("vestiging/{vestigingsnummer}")
     public RESTBedrijf readVestiging(@PathParam("vestigingsnummer") final String vestigingsnummer)
             throws ExecutionException, InterruptedException {
-        return kvkClientService
-                .findVestigingAsync(vestigingsnummer)
-                .thenCombine(
-                        klantenClientService.findVestigingAsync(vestigingsnummer),
-                        this::convertToRESTBedrijf)
+        return kvkClientService.findVestigingAsync(vestigingsnummer)
+                .thenCombine(klantenClientService.findVestigingAsync(vestigingsnummer),
+                             this::convertToRESTBedrijf)
                 .toCompletableFuture()
                 .get();
     }
 
     @GET
     @Path("vestigingsprofiel/{vestigingsnummer}")
-    public RESTVestigingsprofiel readVestigingsprofiel(
-            @PathParam("vestigingsnummer") final String vestigingsnummer) {
+    public RESTVestigingsprofiel readVestigingsprofiel(@PathParam("vestigingsnummer") final String vestigingsnummer) {
         Optional<Vestiging> vestiging = kvkClientService.findVestigingsprofiel(vestigingsnummer);
         if (vestiging.isPresent()) {
             return vestigingsprofielConverter.convert(vestiging.get());
         }
-        throw new NotFoundException(
-                "Geen vestigingsprofiel gevonden voor vestiging met vestigingsnummer \"%s\""
-                        .formatted(vestigingsnummer));
+        throw new NotFoundException("Geen vestigingsprofiel gevonden voor vestiging met vestigingsnummer \"%s\"".formatted(vestigingsnummer));
     }
 
-    private RESTBedrijf convertToRESTBedrijf(
-            final Optional<ResultaatItem> vestiging, final Optional<Klant> klant) {
+    private RESTBedrijf convertToRESTBedrijf(final Optional<ResultaatItem> vestiging, final Optional<Klant> klant) {
         return vestiging
                 .map(bedrijfConverter::convert)
                 .map(restBedrijf -> (RESTBedrijf) addKlantData(restBedrijf, klant))
@@ -152,8 +152,7 @@ public class KlantenRESTService {
     @GET
     @Path("rechtspersoon/{rsin}")
     public RESTBedrijf readRechtspersoon(@PathParam("rsin") final String rsin) {
-        return kvkClientService
-                .findRechtspersoon(rsin)
+        return kvkClientService.findRechtspersoon(rsin)
                 .map(bedrijfConverter::convert)
                 .orElseGet(RESTBedrijf::new);
     }
@@ -166,25 +165,21 @@ public class KlantenRESTService {
 
     @PUT
     @Path("personen")
-    public RESTResultaat<RESTPersoon> listPersonen(
-            final RESTListPersonenParameters restListPersonenParameters) {
-        final PersonenQuery query =
-                persoonConverter.convertToPersonenQuery(restListPersonenParameters);
+    public RESTResultaat<RESTPersoon> listPersonen(final RESTListPersonenParameters restListPersonenParameters) {
+        final PersonenQuery query = persoonConverter.convertToPersonenQuery(restListPersonenParameters);
         final PersonenQueryResponse response = brpClientService.queryPersonen(query);
         return new RESTResultaat<>(persoonConverter.convertFromPersonenQueryResponse(response));
     }
 
     @PUT
     @Path("bedrijven")
-    public RESTResultaat<RESTBedrijf> listBedrijven(
-            final RESTListBedrijvenParameters restParameters) {
+    public RESTResultaat<RESTBedrijf> listBedrijven(final RESTListBedrijvenParameters restParameters) {
         final KVKZoekenParameters zoekenParameters = bedrijfConverter.convert(restParameters);
         final Resultaat resultaat = kvkClientService.list(zoekenParameters);
-        return new RESTResultaat<>(
-                resultaat.getResultaten().stream()
-                        .filter(KlantenRESTService::isKoppelbaar)
-                        .map(bedrijfConverter::convert)
-                        .toList());
+        return new RESTResultaat<>(resultaat.getResultaten().stream()
+                                           .filter(KlantenRESTService::isKoppelbaar)
+                                           .map(bedrijfConverter::convert)
+                                           .toList());
     }
 
     private static boolean isKoppelbaar(final ResultaatItem item) {
@@ -193,14 +188,13 @@ public class KlantenRESTService {
 
     @GET
     @Path("roltype/{zaaktypeUuid}/betrokkene")
-    public List<RESTRoltype> listBetrokkeneRoltypen(
-            @PathParam("zaaktypeUuid") final UUID zaaktype) {
+    public List<RESTRoltype> listBetrokkeneRoltypen(@PathParam("zaaktypeUuid") final UUID zaaktype) {
         return roltypeConverter.convert(
-                ztcClientService
-                        .listRoltypen(ztcClientService.readZaaktype(zaaktype).getUrl())
+                ztcClientService.listRoltypen(ztcClientService.readZaaktype(zaaktype).getUrl())
                         .stream()
-                        .filter(roltype -> betrokkenen.contains(roltype.getOmschrijvingGeneriek()))
-                        .sorted(Comparator.comparing(RolType::getOmschrijving)));
+                        .filter(roltype -> betrokkenen.contains(roltype.getOmschrijvingGeneriek())
+                    ).sorted(Comparator.comparing(RolType::getOmschrijving))
+        );
     }
 
     @GET
@@ -220,11 +214,10 @@ public class KlantenRESTService {
             default -> klantOptional = Optional.empty();
         }
 
-        klantOptional.ifPresent(
-                klant -> {
-                    restContactGegevens.telefoonnummer = klant.getTelefoonnummer();
-                    restContactGegevens.emailadres = klant.getEmailadres();
-                });
+        klantOptional.ifPresent(klant -> {
+            restContactGegevens.telefoonnummer = klant.getTelefoonnummer();
+            restContactGegevens.emailadres = klant.getEmailadres();
+        });
 
         return restContactGegevens;
     }

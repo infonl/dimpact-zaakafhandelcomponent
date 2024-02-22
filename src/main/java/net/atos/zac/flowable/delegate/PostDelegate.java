@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.flowable.delegate;
 
 import java.util.logging.Logger;
@@ -17,11 +18,8 @@ public class PostDelegate extends AbstractDelegate {
 
     @Override
     public void execute(final DelegateExecution delegateExecution) {
-        LOG.info(
-                "Verstuur per post besluit van zaak '%s' via %s met template '%s'."
-                        .formatted(
-                                getZaakIdentificatie(delegateExecution),
-                                PostDelegate.class.getSimpleName(),
-                                template.getExpressionText()));
+        LOG.info("Verstuur per post besluit van zaak '%s' via %s met template '%s'."
+                         .formatted(getZaakIdentificatie(delegateExecution), PostDelegate.class.getSimpleName(),
+                                    template.getExpressionText()));
     }
 }

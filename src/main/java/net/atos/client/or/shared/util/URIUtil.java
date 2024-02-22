@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.or.shared.util;
 
 import static org.apache.commons.lang3.StringUtils.contains;
@@ -17,11 +18,9 @@ public final class URIUtil {
 
     public static UUID getUUID(final URI resourceURI) {
         final String resourceURIString = resourceURI.toString();
-        return UUID.fromString(
-                contains(resourceURIString, "/")
-                        ? substringAfterLast(resourceURIString, "/")
-                        : resourceURIString);
+        return UUID.fromString(contains(resourceURIString, "/") ? substringAfterLast(resourceURIString, "/") : resourceURIString);
     }
 
-    private URIUtil() {}
+    private URIUtil() {
+    }
 }

@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.bag.converter;
 
 import jakarta.inject.Inject;
@@ -32,28 +33,28 @@ import net.atos.zac.util.UriUtil;
 
 public class RESTBAGConverter {
 
-    @Inject private RESTAdresConverter adresConverter;
+    @Inject
+    private RESTAdresConverter adresConverter;
 
-    @Inject private RESTNummeraanduidingConverter nummeraanduidingConverter;
+    @Inject
+    private RESTNummeraanduidingConverter nummeraanduidingConverter;
 
-    @Inject private RESTOpenbareRuimteConverter openbareRuimteConverter;
+    @Inject
+    private RESTOpenbareRuimteConverter openbareRuimteConverter;
 
-    @Inject private RESTPandConverter pandConverter;
+    @Inject
+    private RESTPandConverter pandConverter;
 
-    @Inject private RESTWoonplaatsConverter woonplaatsConverter;
+    @Inject
+    private RESTWoonplaatsConverter woonplaatsConverter;
 
     public Zaakobject convertToZaakobject(final RESTBAGObject restbagObject, final Zaak zaak) {
         return switch (restbagObject.getBagObjectType()) {
             case ADRES -> adresConverter.convertToZaakobject((RESTBAGAdres) restbagObject, zaak);
             case PAND -> pandConverter.convertToZaakobject((RESTPand) restbagObject, zaak);
-            case WOONPLAATS ->
-                    woonplaatsConverter.convertToZaakobject((RESTWoonplaats) restbagObject, zaak);
-            case OPENBARE_RUIMTE ->
-                    openbareRuimteConverter.convertToZaakobject(
-                            (RESTOpenbareRuimte) restbagObject, zaak);
-            case NUMMERAANDUIDING ->
-                    nummeraanduidingConverter.convertToZaakobject(
-                            (RESTNummeraanduiding) restbagObject, zaak);
+            case WOONPLAATS -> woonplaatsConverter.convertToZaakobject((RESTWoonplaats) restbagObject, zaak);
+            case OPENBARE_RUIMTE -> openbareRuimteConverter.convertToZaakobject((RESTOpenbareRuimte) restbagObject, zaak);
+            case NUMMERAANDUIDING -> nummeraanduidingConverter.convertToZaakobject((RESTNummeraanduiding) restbagObject, zaak);
             case ADRESSEERBAAR_OBJECT -> throw new NotImplementedException();
         };
     }
@@ -63,15 +64,9 @@ public class RESTBAGConverter {
             case ADRES -> adresConverter.convertToREST((ZaakobjectAdres) zaakobject);
             case PAND -> pandConverter.convertToREST((ZaakobjectPand) zaakobject);
             case WOONPLAATS -> woonplaatsConverter.convertToREST((ZaakobjectWoonplaats) zaakobject);
-            case OPENBARE_RUIMTE ->
-                    openbareRuimteConverter.convertToREST((ZaakobjectOpenbareRuimte) zaakobject);
-            case OVERIGE ->
-                    nummeraanduidingConverter.convertToREST(
-                            (ZaakobjectNummeraanduiding)
-                                    zaakobject); // voor nu alleen nummeraanduiding
-            default ->
-                    throw new IllegalStateException(
-                            "Unexpected objectType: " + zaakobject.getObjectType());
+            case OPENBARE_RUIMTE -> openbareRuimteConverter.convertToREST((ZaakobjectOpenbareRuimte) zaakobject);
+            case OVERIGE -> nummeraanduidingConverter.convertToREST((ZaakobjectNummeraanduiding) zaakobject); // voor nu alleen nummeraanduiding
+            default -> throw new IllegalStateException("Unexpected objectType: " + zaakobject.getObjectType());
         };
     }
 
@@ -83,8 +78,7 @@ public class RESTBAGConverter {
         return restZaakobject;
     }
 
-    public static String getHuisnummerWeergave(
-            final Integer huisnummer, final String huisletter, final String huisnummertoevoeging) {
+    public static String getHuisnummerWeergave(final Integer huisnummer, final String huisletter, final String huisnummertoevoeging) {
         final StringBuilder volledigHuisnummer = new StringBuilder();
         volledigHuisnummer.append(huisnummer);
 
@@ -100,28 +94,19 @@ public class RESTBAGConverter {
     public static RESTGeometry convertVlak(final Surface surface) {
         final RESTGeometry geometry = new RESTGeometry();
         geometry.type = surface.getType().value();
-        geometry.polygon =
-                surface.getCoordinates().stream()
-                        .map(
-                                coords ->
-                                        coords.stream()
-                                                .map(
-                                                        punt ->
-                                                                new RESTCoordinates(
-                                                                        punt.get(0).doubleValue(),
-                                                                        punt.get(1).doubleValue()))
-                                                .toList())
-                        .toList();
+        geometry.polygon = surface.getCoordinates()
+                .stream()
+                .map(coords -> coords.stream()
+                        .map(punt -> new RESTCoordinates(punt.get(0).doubleValue(), punt.get(1).doubleValue()))
+                        .toList())
+                .toList();
         return geometry;
     }
 
     public static RESTGeometry convertPunt(PointGeoJSON punt) {
         final RESTGeometry geometry = new RESTGeometry();
         geometry.type = punt.getType().value();
-        geometry.point =
-                new RESTCoordinates(
-                        punt.getCoordinates().get(0).doubleValue(),
-                        punt.getCoordinates().get(1).doubleValue());
+        geometry.point = new RESTCoordinates(punt.getCoordinates().get(0).doubleValue(), punt.getCoordinates().get(1).doubleValue());
         return geometry;
     }
 

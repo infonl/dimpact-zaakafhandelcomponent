@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.zaaksturing.model;
 
 import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
@@ -21,11 +22,8 @@ import net.atos.zac.mailtemplates.model.MailTemplate;
 
 @Entity
 @Table(schema = SCHEMA, name = "mail_template_koppelingen")
-@SequenceGenerator(
-        schema = SCHEMA,
-        name = "sq_mail_template_koppelingen",
-        sequenceName = "sq_mail_template_koppelingen",
-        allocationSize = 1)
+@SequenceGenerator(schema = SCHEMA, name = "sq_mail_template_koppelingen",
+        sequenceName = "sq_mail_template_koppelingen", allocationSize = 1)
 public class MailtemplateKoppeling {
 
     @Id
@@ -33,13 +31,13 @@ public class MailtemplateKoppeling {
     @Column(name = "id_mail_template_koppelingen")
     private Long id;
 
-    @NotNull @ManyToOne
-    @JoinColumn(
-            name = "id_zaakafhandelparameters",
-            referencedColumnName = "id_zaakafhandelparameters")
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "id_zaakafhandelparameters", referencedColumnName = "id_zaakafhandelparameters")
     private ZaakafhandelParameters zaakafhandelParameters;
 
-    @NotNull @ManyToOne
+    @NotNull
+    @ManyToOne
     @JoinColumn(name = "id_mail_template", referencedColumnName = "id_mail_template")
     private MailTemplate mailTemplate;
 

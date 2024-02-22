@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.documenten.model;
 
 import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
@@ -21,11 +22,7 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(schema = SCHEMA, name = "inbox_document")
-@SequenceGenerator(
-        schema = SCHEMA,
-        name = "sq_inbox_document",
-        sequenceName = "sq_inbox_document",
-        allocationSize = 1)
+@SequenceGenerator(schema = SCHEMA, name = "sq_inbox_document", sequenceName = "sq_inbox_document", allocationSize = 1)
 public class InboxDocument {
 
     /**
@@ -53,14 +50,16 @@ public class InboxDocument {
     @Column(name = "id_inbox_document")
     private Long id;
 
-    @NotNull @Column(name = "uuid_enkelvoudiginformatieobject", nullable = false)
+    @NotNull
+    @Column(name = "uuid_enkelvoudiginformatieobject", nullable = false)
     private UUID enkelvoudiginformatieobjectUUID;
 
     @NotBlank
     @Column(name = "id_enkelvoudiginformatieobject", nullable = false)
     private String enkelvoudiginformatieobjectID;
 
-    @NotNull @Column(name = "creatiedatum", nullable = false)
+    @NotNull
+    @Column(name = "creatiedatum", nullable = false)
     private ZonedDateTime creatiedatum;
 
     @NotBlank
@@ -70,6 +69,7 @@ public class InboxDocument {
     @Column(name = "bestandsnaam")
     private String bestandsnaam;
 
+
     public Long getId() {
         return id;
     }
@@ -77,6 +77,7 @@ public class InboxDocument {
     public void setId(final Long id) {
         this.id = id;
     }
+
 
     public UUID getEnkelvoudiginformatieobjectUUID() {
         return enkelvoudiginformatieobjectUUID;

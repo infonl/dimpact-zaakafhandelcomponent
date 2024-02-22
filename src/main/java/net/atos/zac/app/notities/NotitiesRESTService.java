@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.notities;
 
 import java.util.List;
@@ -31,14 +32,15 @@ import net.atos.zac.notities.model.Notitie;
 @Produces(MediaType.APPLICATION_JSON)
 public class NotitiesRESTService {
 
-    @Inject private NotitieService notitieService;
+    @Inject
+    private NotitieService notitieService;
 
-    @Inject private NotitieConverter notitieConverter;
+    @Inject
+    private NotitieConverter notitieConverter;
 
     @GET
     @Path("{type}/{uuid}")
-    public List<RESTNotitie> listNotities(
-            @PathParam("type") final String type, @PathParam("uuid") final String uuid) {
+    public List<RESTNotitie> listNotities(@PathParam("type") final String type, @PathParam("uuid") final String uuid) {
         final UUID notitieUUID = UUID.fromString(uuid);
         return notitieService.listNotitiesForZaak(notitieUUID).stream()
                 .map(notitieConverter::convertToRESTNotitie)

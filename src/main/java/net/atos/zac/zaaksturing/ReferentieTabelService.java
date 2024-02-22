@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.zaaksturing;
 
 import java.util.List;
@@ -38,20 +39,14 @@ public class ReferentieTabelService {
         if (referentieTabel != null) {
             return referentieTabel;
         } else {
-            throw new RuntimeException(
-                    "%s with id=%d not found".formatted(ReferentieTabel.class.getSimpleName(), id));
+            throw new RuntimeException("%s with id=%d not found".formatted(ReferentieTabel.class.getSimpleName(), id));
         }
     }
 
     public ReferentieTabel readReferentieTabel(final String code) {
         return findReferentieTabel(code)
-                .orElseThrow(
-                        () ->
-                                new RuntimeException(
-                                        "%s with code='%s' not found"
-                                                .formatted(
-                                                        ReferentieTabel.class.getSimpleName(),
-                                                        code)));
+                .orElseThrow(() -> new RuntimeException(
+                        "%s with code='%s' not found".formatted(ReferentieTabel.class.getSimpleName(), code)));
     }
 
     public Optional<ReferentieTabel> findReferentieTabel(final String code) {

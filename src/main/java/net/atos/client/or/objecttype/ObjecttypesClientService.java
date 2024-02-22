@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.or.objecttype;
 
 import java.util.List;
@@ -18,7 +19,9 @@ import net.atos.client.or.objecttype.model.ObjecttypeVersion;
 @ApplicationScoped
 public class ObjecttypesClientService {
 
-    @Inject @RestClient private ObjecttypesClient objecttypesClient;
+    @Inject
+    @RestClient
+    private ObjecttypesClient objecttypesClient;
 
     /**
      * List all instances of {@link Objecttype}.

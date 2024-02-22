@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.shared.util;
 
 import java.util.Map;
@@ -24,7 +25,8 @@ import net.atos.zac.authentication.LoggedInUser;
  */
 public class ZGWClientHeadersFactory implements ClientHeadersFactory {
 
-    @Inject private Instance<LoggedInUser> loggedInUserInstance;
+    @Inject
+    private Instance<LoggedInUser> loggedInUserInstance;
 
     @Inject
     @ConfigProperty(name = "ZGW_API_CLIENTID")
@@ -37,8 +39,7 @@ public class ZGWClientHeadersFactory implements ClientHeadersFactory {
     private static final Map<String, String> AUDIT_TOELICHTINGEN = new ConcurrentHashMap<>();
 
     @Override
-    public MultivaluedMap<String, String> update(
-            final MultivaluedMap<String, String> incomingHeaders,
+    public MultivaluedMap<String, String> update(final MultivaluedMap<String, String> incomingHeaders,
             final MultivaluedMap<String, String> outgoingHeaders) {
         final LoggedInUser loggedInUser = loggedInUserInstance.get();
         try {
@@ -69,16 +70,15 @@ public class ZGWClientHeadersFactory implements ClientHeadersFactory {
         }
     }
 
-    private void addAutorizationHeader(
-            final MultivaluedMap<String, String> outgoingHeaders, final LoggedInUser loggedInUser) {
-        outgoingHeaders.add(
-                HttpHeaders.AUTHORIZATION,
-                JWTTokenGenerator.generate(clientId, secret, loggedInUser));
+    private void addAutorizationHeader(final MultivaluedMap<String, String> outgoingHeaders,
+            final LoggedInUser loggedInUser) {
+        outgoingHeaders.add(HttpHeaders.AUTHORIZATION, JWTTokenGenerator.generate(clientId, secret, loggedInUser));
     }
 
     private void addXAuditToelichtingHeader(
             final MultivaluedMap<String, String> outgoingHeaders,
-            final @Nullable LoggedInUser loggedInUser) {
+            final @Nullable LoggedInUser loggedInUser
+    ) {
         if (loggedInUser != null) {
             final String toelichting = AUDIT_TOELICHTINGEN.get(loggedInUser.getId());
             if (toelichting != null) {

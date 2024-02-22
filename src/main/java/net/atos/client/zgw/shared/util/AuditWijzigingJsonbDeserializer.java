@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.shared.util;
 
 import static net.atos.client.zgw.shared.util.JsonbUtil.JSONB;
@@ -21,8 +22,7 @@ import net.atos.client.zgw.zrc.model.Objecttype;
 public class AuditWijzigingJsonbDeserializer implements JsonbDeserializer<AuditWijziging<?>> {
 
     @Override
-    public AuditWijziging<?> deserialize(
-            final JsonParser parser, final DeserializationContext ctx, final Type rtType) {
+    public AuditWijziging<?> deserialize(final JsonParser parser, final DeserializationContext ctx, final Type rtType) {
         final JsonObject wijzigingObject = parser.getObject();
         final JsonObject waardeObject;
         if (!wijzigingObject.isNull("oud")) {
@@ -33,20 +33,14 @@ public class AuditWijzigingJsonbDeserializer implements JsonbDeserializer<AuditW
             return null;
         }
 
-        final ObjectType type =
-                ObjectType.getObjectType(waardeObject.getJsonString("url").getString());
+        final ObjectType type = ObjectType.getObjectType(waardeObject.getJsonString("url").getString());
         if (type == ObjectType.ROL) {
-            final BetrokkeneType betrokkenetype =
-                    BetrokkeneType.fromValue(
-                            waardeObject.getJsonString("betrokkeneType").getString());
+            final BetrokkeneType betrokkenetype = BetrokkeneType.fromValue(waardeObject.getJsonString("betrokkeneType").getString());
             return JSONB.fromJson(wijzigingObject.toString(), type.getAuditClass(betrokkenetype));
         } else if (type == ObjectType.ZAAKOBJECT) {
-            final Objecttype objectType =
-                    Objecttype.fromValue(waardeObject.getJsonString("objectType").getString());
-            final String objectTypeOverige =
-                    waardeObject.getJsonString("objectTypeOverige").getString();
-            return JSONB.fromJson(
-                    wijzigingObject.toString(), type.getAuditClass(objectType, objectTypeOverige));
+            final Objecttype objectType = Objecttype.fromValue(waardeObject.getJsonString("objectType").getString());
+            final String objectTypeOverige = waardeObject.getJsonString("objectTypeOverige").getString();
+            return JSONB.fromJson(wijzigingObject.toString(), type.getAuditClass(objectType, objectTypeOverige));
         }
         return JSONB.fromJson(wijzigingObject.toString(), type.getAuditClass());
     }

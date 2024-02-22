@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.drc;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -53,13 +54,11 @@ public interface DRCClient {
 
     @POST
     @Path("enkelvoudiginformatieobjecten")
-    EnkelvoudigInformatieObject enkelvoudigInformatieobjectCreate(
-            final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData);
+    EnkelvoudigInformatieObject enkelvoudigInformatieobjectCreate(final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData);
 
     @GET
     @Path("enkelvoudiginformatieobjecten")
-    Results<EnkelvoudigInformatieObject> enkelvoudigInformatieobjectList(
-            @BeanParam final EnkelvoudigInformatieobjectListParameters parameters);
+    Results<EnkelvoudigInformatieObject> enkelvoudigInformatieobjectList(@BeanParam final EnkelvoudigInformatieobjectListParameters parameters);
 
     @GET
     @Path("enkelvoudiginformatieobjecten/{uuid}")
@@ -67,8 +66,8 @@ public interface DRCClient {
 
     @GET
     @Path("enkelvoudiginformatieobjecten/{uuid}")
-    EnkelvoudigInformatieObject enkelvoudigInformatieobjectReadVersie(
-            @PathParam("uuid") final UUID uuid, @QueryParam("versie") final Integer versie);
+    EnkelvoudigInformatieObject enkelvoudigInformatieobjectReadVersie(@PathParam("uuid") final UUID uuid,
+            @QueryParam("versie") final Integer versie);
 
     @GET
     @Produces(APPLICATION_OCTET_STREAM)
@@ -78,15 +77,12 @@ public interface DRCClient {
     @GET
     @Produces(APPLICATION_OCTET_STREAM)
     @Path("enkelvoudiginformatieobjecten/{uuid}/download")
-    Response enkelvoudigInformatieobjectDownloadVersie(
-            @PathParam("uuid") final UUID uuid, @QueryParam("versie") final Integer versie);
+    Response enkelvoudigInformatieobjectDownloadVersie(@PathParam("uuid") final UUID uuid, @QueryParam("versie") final Integer versie);
 
     @PATCH
     @Path("enkelvoudiginformatieobjecten/{uuid}")
-    EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieobjectPartialUpdate(
-            @PathParam("uuid") final UUID uuid,
-            final EnkelvoudigInformatieObjectWithLockData
-                    enkelvoudigInformatieObjectWithInhoudAndLock);
+    EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieobjectPartialUpdate(@PathParam("uuid") final UUID uuid,
+            final EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieObjectWithInhoudAndLock);
 
     @DELETE
     @Path("enkelvoudiginformatieobjecten/{uuid}")
@@ -95,7 +91,9 @@ public interface DRCClient {
     @POST
     @Path("enkelvoudiginformatieobjecten/{uuid}/lock")
     Lock enkelvoudigInformatieobjectLock(
-            @PathParam("uuid") final UUID uuid, final Lock enkelvoudigInformatieObjectLock);
+            @PathParam("uuid") final UUID uuid,
+            final Lock enkelvoudigInformatieObjectLock
+    );
 
     @POST
     @Path("enkelvoudiginformatieobjecten/{uuid}/unlock")
@@ -107,8 +105,7 @@ public interface DRCClient {
 
     @GET
     @Path("objectinformatieobjecten")
-    Results<ObjectInformatieObject> objectInformatieobjectList(
-            @BeanParam final ObjectInformatieobjectListParameters parameters);
+    Results<ObjectInformatieObject> objectInformatieobjectList(@BeanParam final ObjectInformatieobjectListParameters parameters);
 
     @GET
     @Path("enkelvoudiginformatieobjecten/{uuid}/audittrail")

@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.taken.model;
 
 import java.time.LocalDate;
@@ -21,10 +22,7 @@ public class RESTTaakHistorieRegel {
 
     public ZonedDateTime datumTijd;
 
-    public RESTTaakHistorieRegel(
-            final String attribuutLabel,
-            final String oudeWaarde,
-            final String nieuweWaarde,
+    public RESTTaakHistorieRegel(final String attribuutLabel, final String oudeWaarde, final String nieuweWaarde,
             final String toelichting) {
         this.attribuutLabel = attribuutLabel;
         this.oudeWaarde = oudeWaarde;
@@ -36,15 +34,8 @@ public class RESTTaakHistorieRegel {
         this(attribuutLabel, (String) null, null, null);
     }
 
-    public RESTTaakHistorieRegel(
-            final String attribuutLabel,
-            final LocalDate oudeWaarde,
-            final LocalDate nieuweWaarde,
-            final String toelichting) {
-        this(
-                attribuutLabel,
-                HistorieUtil.toWaarde(oudeWaarde),
-                HistorieUtil.toWaarde(nieuweWaarde),
-                toelichting);
+    public RESTTaakHistorieRegel(final String attribuutLabel, final LocalDate oudeWaarde,
+            final LocalDate nieuweWaarde, final String toelichting) {
+        this(attribuutLabel, HistorieUtil.toWaarde(oudeWaarde), HistorieUtil.toWaarde(nieuweWaarde), toelichting);
     }
 }

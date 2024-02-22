@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.zaken.converter;
 
 import java.util.List;
@@ -12,9 +13,10 @@ import net.atos.zac.util.UriUtil;
 
 public class RESTCommunicatiekanaalConverter {
 
-    public List<RESTCommunicatiekanaal> convert(
-            final List<CommunicatieKanaal> communicatieKanalen) {
-        return communicatieKanalen.stream().map(this::convert).toList();
+    public List<RESTCommunicatiekanaal> convert(final List<CommunicatieKanaal> communicatieKanalen) {
+        return communicatieKanalen.stream()
+                .map(this::convert)
+                .toList();
     }
 
     public RESTCommunicatiekanaal convert(final CommunicatieKanaal communicatieKanaal) {

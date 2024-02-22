@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.or.shared.exception;
 
 import java.net.URI;
@@ -26,12 +27,11 @@ public class FoutException extends RuntimeException {
     @Override
     public String getMessage() {
         return "%s [%d %s] %s (%s)"
-                .formatted(
-                        fout.getTitle(),
-                        fout.getStatus(),
-                        fout.getCode(),
-                        fout.getDetail(),
-                        uri(fout.getInstance()));
+                .formatted(fout.getTitle(),
+                           fout.getStatus(),
+                           fout.getCode(),
+                           fout.getDetail(),
+                           uri(fout.getInstance()));
     }
 
     private String uri(final URI uri) {

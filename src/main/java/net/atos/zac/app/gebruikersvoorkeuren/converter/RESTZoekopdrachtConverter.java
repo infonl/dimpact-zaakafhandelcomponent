@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.gebruikersvoorkeuren.converter;
 
 import java.time.ZonedDateTime;
@@ -16,7 +17,8 @@ import net.atos.zac.gebruikersvoorkeuren.model.Zoekopdracht;
 
 public class RESTZoekopdrachtConverter {
 
-    @Inject private Instance<LoggedInUser> loggedInUserInstance;
+    @Inject
+    private Instance<LoggedInUser> loggedInUserInstance;
 
     public RESTZoekopdracht convert(final Zoekopdracht zoekopdracht) {
         final RESTZoekopdracht restZoekopdracht = new RESTZoekopdracht();

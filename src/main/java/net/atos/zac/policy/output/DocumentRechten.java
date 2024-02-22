@@ -1,22 +1,17 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.policy.output;
 
 import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
-
 import net.atos.zac.util.DummyInterface;
 
-public record DocumentRechten(
-        boolean lezen,
-        boolean wijzigen,
-        boolean verwijderen,
-        boolean vergrendelen,
-        boolean ontgrendelen,
-        boolean ondertekenen)
-        implements DummyInterface {
+public record DocumentRechten(boolean lezen, boolean wijzigen, boolean verwijderen,
+                              boolean vergrendelen, boolean ontgrendelen,
+                              boolean ondertekenen) implements DummyInterface {
 
     @JsonbCreator
     public DocumentRechten(

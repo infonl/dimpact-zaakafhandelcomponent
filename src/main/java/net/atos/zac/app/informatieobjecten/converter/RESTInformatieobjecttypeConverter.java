@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.informatieobjecten.converter;
 
 import java.net.URI;
@@ -18,7 +19,8 @@ import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjecttype;
 
 public class RESTInformatieobjecttypeConverter {
 
-    @Inject private ZTCClientService ztcClientService;
+    @Inject
+    private ZTCClientService ztcClientService;
 
     public RESTInformatieobjecttype convert(final InformatieObjectType type) {
         final RESTInformatieobjecttype restType = new RESTInformatieobjecttype();
@@ -30,14 +32,10 @@ public class RESTInformatieobjecttypeConverter {
     }
 
     public List<RESTInformatieobjecttype> convert(final Set<URI> informatieobjecttypen) {
-        return informatieobjecttypen.stream()
-                .map(ztcClientService::readInformatieobjecttype)
-                .map(this::convert)
-                .collect(Collectors.toList());
+        return informatieobjecttypen.stream().map(ztcClientService::readInformatieobjecttype).map(this::convert).collect(Collectors.toList());
     }
 
-    public List<RESTInformatieobjecttype> convert(
-            final List<InformatieObjectType> informatieobjecttypen) {
+    public List<RESTInformatieobjecttype> convert(final List<InformatieObjectType> informatieobjecttypen) {
         return informatieobjecttypen.stream().map(this::convert).collect(Collectors.toList());
     }
 }

@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.zaken.model;
 
 import java.time.LocalDate;
@@ -10,9 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import jakarta.validation.constraints.NotNull;
+
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 
 import net.atos.zac.app.identity.model.RESTGroup;
 import net.atos.zac.app.identity.model.RESTUser;
@@ -20,17 +22,21 @@ import net.atos.zac.app.klanten.model.klant.IdentificatieType;
 import net.atos.zac.app.policy.model.RESTZaakRechten;
 import net.atos.zac.zoeken.model.ZaakIndicatie;
 
+
 public class RESTZaak {
 
     public UUID uuid;
 
     public String identificatie;
 
-    @NotNull() public String omschrijving;
+    @NotNull()
+    public String omschrijving;
 
     public String toelichting;
 
-    @NotNull() @Valid public RESTZaaktype zaaktype;
+    @NotNull()
+    @Valid
+    public RESTZaaktype zaaktype;
 
     public RESTZaakStatus status;
 
@@ -44,7 +50,8 @@ public class RESTZaak {
 
     public LocalDate registratiedatum;
 
-    @NotNull() public LocalDate startdatum;
+    @NotNull()
+    public LocalDate startdatum;
 
     public LocalDate einddatumGepland;
 
@@ -54,13 +61,16 @@ public class RESTZaak {
 
     public LocalDate publicatiedatum;
 
+
     public LocalDate archiefActiedatum;
 
     public String archiefNominatie;
 
-    @NotNull() public RESTCommunicatiekanaal communicatiekanaal;
+    @NotNull()
+    public RESTCommunicatiekanaal communicatiekanaal;
 
-    @NotNull() public String vertrouwelijkheidaanduiding;
+    @NotNull()
+    public String vertrouwelijkheidaanduiding;
 
     public RESTGeometry zaakgeometrie;
 
@@ -74,7 +84,9 @@ public class RESTZaak {
 
     public String duurVerlenging;
 
-    @Valid @Nullable public RESTGroup groep;
+    @Valid
+    @Nullable
+    public RESTGroup groep;
 
     public RESTUser behandelaar;
 

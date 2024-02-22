@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.klanten.converter;
 
 import static net.atos.zac.util.StringUtil.NON_BREAKING_SPACE;
@@ -75,15 +76,10 @@ public class RESTBedrijfConverter {
 
     private String convertAdres(final ResultaatItem bedrijf) {
 
-        final String adres =
-                replace(
-                        joinNonBlankWith(
-                                NON_BREAKING_SPACE,
-                                bedrijf.getStraatnaam(),
-                                Objects.toString(bedrijf.getHuisnummer(), null),
-                                bedrijf.getHuisnummerToevoeging()),
-                        SPACE,
-                        NON_BREAKING_SPACE);
+        final String adres = replace(joinNonBlankWith(NON_BREAKING_SPACE, bedrijf.getStraatnaam(),
+                                                      Objects.toString(bedrijf.getHuisnummer(), null),
+                                                      bedrijf.getHuisnummerToevoeging()),
+                                     SPACE, NON_BREAKING_SPACE);
         final String postcode = replace(bedrijf.getPostcode(), SPACE, NON_BREAKING_SPACE);
         final String woonplaats = replace(bedrijf.getPlaats(), SPACE, NON_BREAKING_SPACE);
         return joinNonBlankWith(", ", adres, postcode, woonplaats);

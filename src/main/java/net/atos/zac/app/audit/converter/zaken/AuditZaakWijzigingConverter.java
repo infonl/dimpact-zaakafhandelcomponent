@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.audit.converter.zaken;
 
 import static net.atos.zac.util.UriUtil.uuidFromURI;
@@ -29,11 +30,14 @@ import net.atos.zac.app.audit.model.RESTHistorieRegel;
 
 public class AuditZaakWijzigingConverter extends AbstractAuditWijzigingConverter<ZaakWijziging> {
 
-    @Inject private ZTCClientService ztcClientService;
+    @Inject
+    private ZTCClientService ztcClientService;
 
-    @Inject private VRLClientService vrlClientService;
+    @Inject
+    private VRLClientService vrlClientService;
 
-    @Inject private ZRCClientService zrcClientService;
+    @Inject
+    private ZRCClientService zrcClientService;
 
     @Override
     public boolean supports(final ObjectType objectType) {
@@ -50,81 +54,45 @@ public class AuditZaakWijzigingConverter extends AbstractAuditWijzigingConverter
         }
 
         final List<RESTHistorieRegel> historieRegels = new LinkedList<>();
-        checkAttribuut(
-                "zaak.identificatie",
-                oud.getIdentificatie(),
-                nieuw.getIdentificatie(),
-                historieRegels);
+        checkAttribuut("zaak.identificatie", oud.getIdentificatie(), nieuw.getIdentificatie(), historieRegels);
         checkZaaktype(oud.getZaaktype(), nieuw.getZaaktype(), historieRegels);
-        checkCommunicatieKanaal(
-                oud.getCommunicatiekanaal(), nieuw.getCommunicatiekanaal(), historieRegels);
+        checkCommunicatieKanaal(oud.getCommunicatiekanaal(), nieuw.getCommunicatiekanaal(), historieRegels);
         checkZaakgeometrie(oud.getZaakgeometrie(), nieuw.getZaakgeometrie(), historieRegels);
         checkHoofdzaak(oud.getHoofdzaak(), nieuw.getHoofdzaak(), historieRegels);
-        checkAttribuut(
-                "vertrouwelijkheidaanduiding",
-                oud.getVertrouwelijkheidaanduiding(),
-                nieuw.getVertrouwelijkheidaanduiding(),
-                historieRegels);
-        checkAttribuut(
-                "registratiedatum",
-                oud.getRegistratiedatum(),
-                nieuw.getRegistratiedatum(),
-                historieRegels);
+        checkAttribuut("vertrouwelijkheidaanduiding", oud.getVertrouwelijkheidaanduiding(), nieuw.getVertrouwelijkheidaanduiding(), historieRegels);
+        checkAttribuut("registratiedatum", oud.getRegistratiedatum(), nieuw.getRegistratiedatum(), historieRegels);
         checkAttribuut("startdatum", oud.getStartdatum(), nieuw.getStartdatum(), historieRegels);
-        checkAttribuut(
-                "einddatumGepland",
-                oud.getEinddatumGepland(),
-                nieuw.getEinddatumGepland(),
-                historieRegels);
+        checkAttribuut("einddatumGepland", oud.getEinddatumGepland(), nieuw.getEinddatumGepland(), historieRegels);
         checkAttribuut("einddatum", oud.getEinddatum(), nieuw.getEinddatum(), historieRegels);
-        checkAttribuut(
-                "uiterlijkeEinddatumAfdoening",
-                oud.getUiterlijkeEinddatumAfdoening(),
-                nieuw.getUiterlijkeEinddatumAfdoening(),
-                historieRegels);
-        checkAttribuut(
-                "omschrijving", oud.getOmschrijving(), nieuw.getOmschrijving(), historieRegels);
+        checkAttribuut("uiterlijkeEinddatumAfdoening", oud.getUiterlijkeEinddatumAfdoening(), nieuw.getUiterlijkeEinddatumAfdoening(), historieRegels);
+        checkAttribuut("omschrijving", oud.getOmschrijving(), nieuw.getOmschrijving(), historieRegels);
         checkAttribuut("toelichting", oud.getToelichting(), nieuw.getToelichting(), historieRegels);
 
         return historieRegels.stream();
     }
 
-    private void checkZaaktype(
-            final URI oud, final URI nieuw, final List<RESTHistorieRegel> historieRegels) {
+    private void checkZaaktype(final URI oud, final URI nieuw, final List<RESTHistorieRegel> historieRegels) {
         if (ObjectUtils.notEqual(oud, nieuw)) {
-            historieRegels.add(
-                    new RESTHistorieRegel(
-                            "zaaktype", zaaktypeToWaarde(oud), zaaktypeToWaarde(nieuw)));
+            historieRegels.add(new RESTHistorieRegel("zaaktype", zaaktypeToWaarde(oud), zaaktypeToWaarde(nieuw)));
         }
     }
 
-    private void checkHoofdzaak(
-            final URI oud, final URI nieuw, final List<RESTHistorieRegel> historieRegels) {
+    private void checkHoofdzaak(final URI oud, final URI nieuw, final List<RESTHistorieRegel> historieRegels) {
         if (ObjectUtils.notEqual(oud, nieuw)) {
-            historieRegels.add(
-                    new RESTHistorieRegel("hoofdzaak", zaakToWaarde(oud), zaakToWaarde(nieuw)));
+            historieRegels.add(new RESTHistorieRegel("hoofdzaak", zaakToWaarde(oud), zaakToWaarde(nieuw)));
         }
     }
 
-    private void checkCommunicatieKanaal(
-            final URI oud, final URI nieuw, final List<RESTHistorieRegel> historieRegels) {
+    private void checkCommunicatieKanaal(final URI oud, final URI nieuw, final List<RESTHistorieRegel> historieRegels) {
         if (ObjectUtils.notEqual(oud, nieuw)) {
-            historieRegels.add(
-                    new RESTHistorieRegel(
-                            "communicatiekanaal",
-                            communicatieKanaalToWaarde(oud),
-                            communicatieKanaalToWaarde(nieuw)));
+            historieRegels.add(new RESTHistorieRegel("communicatiekanaal", communicatieKanaalToWaarde(oud),
+                                                     communicatieKanaalToWaarde(nieuw)));
         }
     }
 
-    private void checkZaakgeometrie(
-            final Geometry oud,
-            final Geometry nieuw,
-            final List<RESTHistorieRegel> historieRegels) {
+    private void checkZaakgeometrie(final Geometry oud, final Geometry nieuw, final List<RESTHistorieRegel> historieRegels) {
         if (ObjectUtils.notEqual(oud, nieuw)) {
-            historieRegels.add(
-                    new RESTHistorieRegel(
-                            "zaakgeometrie", geoMetrieToWaarde(oud), geoMetrieToWaarde(nieuw)));
+            historieRegels.add(new RESTHistorieRegel("zaakgeometrie", geoMetrieToWaarde(oud), geoMetrieToWaarde(nieuw)));
         }
     }
 
@@ -141,8 +109,7 @@ public class AuditZaakWijzigingConverter extends AbstractAuditWijzigingConverter
             return null;
         }
 
-        return vrlClientService
-                .findCommunicatiekanaal(uuidFromURI(kanaal))
+        return vrlClientService.findCommunicatiekanaal(uuidFromURI(kanaal))
                 .map(CommunicatieKanaal::getNaam)
                 .orElse(null);
     }

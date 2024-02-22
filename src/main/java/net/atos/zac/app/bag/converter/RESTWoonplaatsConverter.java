@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.bag.converter;
 
 import java.net.URI;
@@ -47,12 +48,8 @@ public class RESTWoonplaatsConverter {
         return restWoonplaats;
     }
 
-    public ZaakobjectWoonplaats convertToZaakobject(
-            final RESTWoonplaats woonplaats, final Zaak zaak) {
-        return new ZaakobjectWoonplaats(
-                zaak.getUrl(),
-                woonplaats.url,
-                new ObjectWoonplaats(woonplaats.identificatie, woonplaats.naam));
+    public ZaakobjectWoonplaats convertToZaakobject(final RESTWoonplaats woonplaats, final Zaak zaak) {
+        return new ZaakobjectWoonplaats(zaak.getUrl(), woonplaats.url, new ObjectWoonplaats(woonplaats.identificatie, woonplaats.naam));
     }
 
     private RESTWoonplaats convertToREST(final Woonplaats woonplaats) {
@@ -63,4 +60,5 @@ public class RESTWoonplaatsConverter {
         restWoonplaats.geconstateerd = Indicatie.J.equals(woonplaats.getGeconstateerd());
         return restWoonplaats;
     }
+
 }

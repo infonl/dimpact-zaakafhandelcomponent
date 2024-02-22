@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.mail.model;
 
 import java.util.List;
@@ -28,13 +29,8 @@ public class EMail {
     @JsonbProperty("Attachments")
     private List<Attachment> attachments;
 
-    public EMail(
-            final MailAdres from,
-            final List<MailAdres> to,
-            final MailAdres replyTo,
-            final String subject,
-            final String body,
-            final List<Attachment> attachments) {
+    public EMail(final MailAdres from, final List<MailAdres> to, final MailAdres replyTo,
+            final String subject, final String body, final List<Attachment> attachments) {
         this.from = from;
         this.to = to;
         this.replyTo = replyTo;

@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.identity.model;
 
 import org.apache.commons.lang3.StringUtils;
@@ -31,8 +32,7 @@ public class User {
         this.email = null;
     }
 
-    public User(
-            final String id, final String firstName, final String lastName, final String email) {
+    public User(final String id, final String firstName, final String lastName, final String email) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -40,12 +40,7 @@ public class User {
         this.email = email;
     }
 
-    protected User(
-            final String id,
-            final String firstName,
-            final String lastName,
-            final String fullName,
-            final String email) {
+    protected User(final String id, final String firstName, final String lastName, final String fullName, final String email) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;

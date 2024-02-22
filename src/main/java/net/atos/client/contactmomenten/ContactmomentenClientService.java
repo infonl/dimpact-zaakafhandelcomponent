@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.contactmomenten;
 
 import java.util.UUID;
@@ -20,9 +21,13 @@ import net.atos.client.contactmomenten.model.KlantcontactmomentListParameters;
 @Singleton
 public class ContactmomentenClientService {
 
-    @Inject @RestClient private KlantcontactmomentenClient klantcontactmomentenClient;
+    @Inject
+    @RestClient
+    private KlantcontactmomentenClient klantcontactmomentenClient;
 
-    @Inject @RestClient private ContactmomentenClient contactmomentenClient;
+    @Inject
+    @RestClient
+    private ContactmomentenClient contactmomentenClient;
 
     public KlantcontactmomentList200Response listKlantcontactmomenten(
             final KlantcontactmomentListParameters parameters) {

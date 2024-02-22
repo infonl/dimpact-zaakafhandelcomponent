@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.util;
 
 import static net.atos.zac.configuratie.ConfiguratieService.CATALOGUS_DOMEIN;
@@ -22,14 +23,14 @@ import net.atos.client.zgw.ztc.model.CatalogusListParameters;
 @ApplicationScoped
 public class OpenZaakReadinessHealthCheck implements HealthCheck {
 
-    private static final CatalogusListParameters CATALOGUS_LIST_PARAMETERS =
-            new CatalogusListParameters();
+    private static final CatalogusListParameters CATALOGUS_LIST_PARAMETERS = new CatalogusListParameters();
 
     static {
         CATALOGUS_LIST_PARAMETERS.setDomein(CATALOGUS_DOMEIN);
     }
 
-    @Inject private ZTCClientService ztcClientService;
+    @Inject
+    private ZTCClientService ztcClientService;
 
     @Override
     public HealthCheckResponse call() {

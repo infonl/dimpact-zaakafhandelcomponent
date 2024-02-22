@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.notities.model;
 
 import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
@@ -25,11 +26,7 @@ import jakarta.validation.constraints.NotNull;
  */
 @Entity
 @Table(schema = SCHEMA, name = "notitie")
-@SequenceGenerator(
-        schema = SCHEMA,
-        name = "notitie_sq",
-        sequenceName = "notitie_sq",
-        allocationSize = 1)
+@SequenceGenerator(schema = SCHEMA, name = "notitie_sq", sequenceName = "notitie_sq", allocationSize = 1)
 public class Notitie {
 
     /**
@@ -49,7 +46,8 @@ public class Notitie {
     @Column(nullable = false)
     private String tekst;
 
-    @NotNull @Column(name = "tijdstip_laatste_wijziging", nullable = false)
+    @NotNull
+    @Column(name = "tijdstip_laatste_wijziging", nullable = false)
     private ZonedDateTime tijdstipLaatsteWijziging;
 
     @NotBlank
@@ -95,4 +93,5 @@ public class Notitie {
     public ZonedDateTime getTijdstipLaatsteWijziging() {
         return tijdstipLaatsteWijziging;
     }
+
 }

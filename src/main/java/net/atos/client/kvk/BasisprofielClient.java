@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.kvk;
 
 import jakarta.ws.rs.DefaultValue;
@@ -38,27 +39,21 @@ public interface BasisprofielClient {
      * Voor een specifiek bedrijf basisinformatie opvragen.
      */
     @GET
-    Basisprofiel getBasisprofielByKvkNummer(
-            @PathParam("kvkNummer") String kvkNummer,
-            @QueryParam("geoData") @DefaultValue("false") Boolean geoData);
+    Basisprofiel getBasisprofielByKvkNummer(@PathParam("kvkNummer") String kvkNummer, @QueryParam("geoData") @DefaultValue("false") Boolean geoData);
 
     /**
      * Voor een specifiek bedrijf eigenaar informatie opvragen.
      */
     @GET
     @Path("/eigenaar")
-    Eigenaar getEigenaar(
-            @PathParam("kvkNummer") String kvkNummer,
-            @QueryParam("geoData") @DefaultValue("false") Boolean geoData);
+    Eigenaar getEigenaar(@PathParam("kvkNummer") String kvkNummer, @QueryParam("geoData") @DefaultValue("false") Boolean geoData);
 
     /**
      * Voor een specifiek bedrijf hoofdvestigingsinformatie opvragen.
      */
     @GET
     @Path("/hoofdvestiging")
-    Vestiging getHoofdvestiging(
-            @PathParam("kvkNummer") String kvkNummer,
-            @QueryParam("geoData") @DefaultValue("false") Boolean geoData);
+    Vestiging getHoofdvestiging(@PathParam("kvkNummer") String kvkNummer, @QueryParam("geoData") @DefaultValue("false") Boolean geoData);
 
     /**
      * Voor een specifiek bedrijf een lijst met vestigingen opvragen.

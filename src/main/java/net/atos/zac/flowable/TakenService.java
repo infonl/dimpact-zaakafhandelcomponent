@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.flowable;
 
 import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_UUID;
@@ -40,16 +41,18 @@ public class TakenService {
 
     public static final String USER_TASK_DESCRIPTION_CHANGED = "USER_TASK_DESCRIPTION_CHANGED";
 
-    public static final String USER_TASK_ASSIGNEE_CHANGED_CUSTOM =
-            "USER_TASK_ASSIGNEE_CHANGED_CUSTOM";
+    public static final String USER_TASK_ASSIGNEE_CHANGED_CUSTOM = "USER_TASK_ASSIGNEE_CHANGED_CUSTOM";
 
     public static final String USER_TASK_GROUP_CHANGED = "USER_TASK_GROUP_CHANGED";
 
-    @Inject private TaskService taskService;
+    @Inject
+    private TaskService taskService;
 
-    @Inject private CmmnTaskService cmmnTaskService;
+    @Inject
+    private CmmnTaskService cmmnTaskService;
 
-    @Inject private HistoryService historyService;
+    @Inject
+    private HistoryService historyService;
 
     public static class ValueChangeData {
 
@@ -59,21 +62,18 @@ public class TakenService {
 
         public String explanation;
 
-        public ValueChangeData() {}
+        public ValueChangeData() {
+        }
 
-        public ValueChangeData(
-                final String oldValue, final String newValue, final String explanation) {
+        public ValueChangeData(final String oldValue, final String newValue, final String explanation) {
             this.oldValue = oldValue;
             this.newValue = newValue;
             this.explanation = explanation;
         }
     }
 
-    public List<Task> listOpenTasks(
-            final TaakSortering taakSortering,
-            final SorteerRichting sorteerRichting,
-            final int firstResult,
-            final int maxResults) {
+    public List<Task> listOpenTasks(final TaakSortering taakSortering, final SorteerRichting sorteerRichting,
+            final int firstResult, final int maxResults) {
         final var taskQuery = taskService.createTaskQuery();
         if (taakSortering != null) {
             switch (taakSortering) {
@@ -97,12 +97,14 @@ public class TakenService {
     }
 
     public List<Task> listOpenTasksDueNow() {
-        return taskService.createTaskQuery().taskAssigned().taskDueBefore(tomorrow()).list();
+        return taskService.createTaskQuery()
+                .taskAssigned()
+                .taskDueBefore(tomorrow())
+                .list();
     }
 
     public List<Task> listOpenTasksDueLater() {
-        return taskService
-                .createTaskQuery()
+        return taskService.createTaskQuery()
                 .taskAssigned()
                 .taskDueAfter(DateUtils.addSeconds(tomorrow(), -1))
                 .list();
@@ -110,37 +112,32 @@ public class TakenService {
 
     public List<? extends TaskInfo> listTasksForZaak(final UUID zaakUUID) {
         final List<TaskInfo> tasks = new ArrayList<>();
-        tasks.addAll(
-                taskService
-                        .createTaskQuery()
-                        .or()
-                        .caseVariableValueEquals(VAR_ZAAK_UUID, zaakUUID)
-                        .processVariableValueEquals(VAR_ZAAK_UUID, zaakUUID)
-                        .endOr()
-                        .includeCaseVariables()
-                        .includeProcessVariables()
-                        .includeTaskLocalVariables()
-                        .includeIdentityLinks()
-                        .list());
-        tasks.addAll(
-                historyService
-                        .createHistoricTaskInstanceQuery()
-                        .or()
-                        .caseVariableValueEquals(VAR_ZAAK_UUID, zaakUUID)
-                        .processVariableValueEquals(VAR_ZAAK_UUID, zaakUUID)
-                        .endOr()
-                        .includeCaseVariables()
-                        .includeProcessVariables()
-                        .includeTaskLocalVariables()
-                        .includeIdentityLinks()
-                        .finished()
-                        .list());
+        tasks.addAll(taskService.createTaskQuery()
+                             .or()
+                             .caseVariableValueEquals(VAR_ZAAK_UUID, zaakUUID)
+                             .processVariableValueEquals(VAR_ZAAK_UUID, zaakUUID)
+                             .endOr()
+                             .includeCaseVariables()
+                             .includeProcessVariables()
+                             .includeTaskLocalVariables()
+                             .includeIdentityLinks()
+                             .list());
+        tasks.addAll(historyService.createHistoricTaskInstanceQuery()
+                             .or()
+                             .caseVariableValueEquals(VAR_ZAAK_UUID, zaakUUID)
+                             .processVariableValueEquals(VAR_ZAAK_UUID, zaakUUID)
+                             .endOr()
+                             .includeCaseVariables()
+                             .includeProcessVariables()
+                             .includeTaskLocalVariables()
+                             .includeIdentityLinks()
+                             .finished()
+                             .list());
         return tasks;
     }
 
     public List<Task> listOpenTasksForZaak(final UUID zaakUUID) {
-        return taskService
-                .createTaskQuery()
+        return taskService.createTaskQuery()
                 .or()
                 .caseVariableValueEquals(VAR_ZAAK_UUID, zaakUUID)
                 .processVariableValueEquals(VAR_ZAAK_UUID, zaakUUID)
@@ -149,8 +146,7 @@ public class TakenService {
     }
 
     public long countOpenTasksForZaak(final UUID zaakUUID) {
-        return taskService
-                .createTaskQuery()
+        return taskService.createTaskQuery()
                 .or()
                 .caseVariableValueEquals(VAR_ZAAK_UUID, zaakUUID)
                 .processVariableValueEquals(VAR_ZAAK_UUID, zaakUUID)
@@ -179,8 +175,7 @@ public class TakenService {
         if (task != null) {
             return task;
         } else {
-            throw new RuntimeException(
-                    String.format("No open task found with task id '%s'", taskId));
+            throw new RuntimeException(String.format("No open task found with task id '%s'", taskId));
         }
     }
 
@@ -189,35 +184,26 @@ public class TakenService {
         if (historicTaskInstance != null) {
             return historicTaskInstance;
         } else {
-            throw new RuntimeException(
-                    String.format("No closed task found with task id '%s'", taskId));
+            throw new RuntimeException(String.format("No closed task found with task id '%s'", taskId));
         }
     }
 
     public Task updateTask(final Task task) {
         final String oldDescription = readOpenTask(task.getId()).getDescription();
         taskService.saveTask(task);
-        createHistoricTaskLogEntry(
-                task, USER_TASK_DESCRIPTION_CHANGED, oldDescription, task.getDescription(), null);
+        createHistoricTaskLogEntry(task, USER_TASK_DESCRIPTION_CHANGED, oldDescription, task.getDescription(), null);
         return readOpenTask(task.getId());
     }
 
-    private void createHistoricTaskLogEntry(
-            final Task task,
-            final String type,
-            final String oldValue,
-            final String newValue,
-            final String explanation) {
+    private void createHistoricTaskLogEntry(final Task task, final String type, final String oldValue,
+            final String newValue, final String explanation) {
         if (!StringUtils.equals(oldValue, newValue)) {
-            historyService
-                    .createHistoricTaskLogEntryBuilder(task)
+            historyService.createHistoricTaskLogEntryBuilder(task)
                     .type(type)
-                    .data(
-                            FIELD_VISIBILITY_STRATEGY.toJson(
-                                    new ValueChangeData(
-                                            defaultString(oldValue, StringUtils.EMPTY),
-                                            defaultString(newValue, StringUtils.EMPTY),
-                                            explanation)))
+                    .data(FIELD_VISIBILITY_STRATEGY.toJson(new ValueChangeData(
+                            defaultString(oldValue, StringUtils.EMPTY),
+                            defaultString(newValue, StringUtils.EMPTY),
+                            explanation)))
                     .create();
         }
     }
@@ -238,24 +224,18 @@ public class TakenService {
         } else {
             taskService.unclaim(taskId);
         }
-        createHistoricTaskLogEntry(
-                task, USER_TASK_ASSIGNEE_CHANGED_CUSTOM, task.getAssignee(), userId, reason);
+        createHistoricTaskLogEntry(task, USER_TASK_ASSIGNEE_CHANGED_CUSTOM, task.getAssignee(), userId, reason);
         return readOpenTask(taskId);
     }
 
     public Task assignTaskToGroup(final Task task, final String groupId, final String reden) {
-        final String currentGroupId =
-                task.getIdentityLinks().stream()
-                        .filter(
-                                identityLinkInfo ->
-                                        IdentityLinkType.CANDIDATE.equals(
-                                                identityLinkInfo.getType()))
-                        .map(IdentityLinkInfo::getGroupId)
-                        .findFirst()
-                        .orElse(null);
+        final String currentGroupId = task.getIdentityLinks().stream()
+                .filter(identityLinkInfo -> IdentityLinkType.CANDIDATE.equals(identityLinkInfo.getType()))
+                .map(IdentityLinkInfo::getGroupId)
+                .findFirst()
+                .orElse(null);
         if (currentGroupId != null) {
-            taskService.deleteGroupIdentityLink(
-                    task.getId(), currentGroupId, IdentityLinkType.CANDIDATE);
+            taskService.deleteGroupIdentityLink(task.getId(), currentGroupId, IdentityLinkType.CANDIDATE);
         }
         taskService.addGroupIdentityLink(task.getId(), groupId, IdentityLinkType.CANDIDATE);
         createHistoricTaskLogEntry(task, USER_TASK_GROUP_CHANGED, currentGroupId, groupId, reden);
@@ -263,8 +243,7 @@ public class TakenService {
     }
 
     public Task findOpenTask(final String taskId) {
-        return taskService
-                .createTaskQuery()
+        return taskService.createTaskQuery()
                 .taskId(taskId)
                 .includeCaseVariables()
                 .includeProcessVariables()
@@ -274,8 +253,7 @@ public class TakenService {
     }
 
     private HistoricTaskInstance findClosedTask(final String taskId) {
-        return historyService
-                .createHistoricTaskInstanceQuery()
+        return historyService.createHistoricTaskInstanceQuery()
                 .taskId(taskId)
                 .includeCaseVariables()
                 .includeProcessVariables()

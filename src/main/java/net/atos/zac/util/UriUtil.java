@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.util;
 
 import static org.apache.commons.lang3.StringUtils.contains;
@@ -15,7 +16,8 @@ import java.util.UUID;
  */
 public final class UriUtil {
 
-    private UriUtil() {}
+    private UriUtil() {
+    }
 
     public static UUID uuidFromURI(final URI uri) {
         return uuidFromURI(uri.getPath());
@@ -26,9 +28,9 @@ public final class UriUtil {
     }
 
     public static boolean isEqual(final URI a, final URI b) {
-        return (a != null && b != null)
-                ? extractUUID(a.getPath()).equals(extractUUID(b.getPath()))
-                : a == null && b == null;
+        return (a != null && b != null) ?
+                extractUUID(a.getPath()).equals(extractUUID(b.getPath())) :
+                a == null && b == null;
     }
 
     private static String extractUUID(final String path) {

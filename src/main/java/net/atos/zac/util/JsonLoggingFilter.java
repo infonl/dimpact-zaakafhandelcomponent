@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.util;
 
 import static java.util.logging.Level.FINE;
@@ -43,11 +44,7 @@ public class JsonLoggingFilter implements ClientRequestFilter, ClientResponseFil
             message.append(String.format("Method: %s\n", requestContext.getMethod()));
             message.append(String.format("Media type: %s\n", requestContext.getMediaType()));
             message.append("Headers:\n");
-            requestContext
-                    .getHeaders()
-                    .forEach(
-                            (header, value) ->
-                                    message.append(String.format("   %s : %s\n", header, value)));
+            requestContext.getHeaders().forEach((header, value) -> message.append(String.format("   %s : %s\n", header, value)));
             if (requestContext.hasEntity()) {
                 message.append("Payload:");
                 message.append(getPayload(requestContext));
@@ -57,23 +54,14 @@ public class JsonLoggingFilter implements ClientRequestFilter, ClientResponseFil
     }
 
     @Override
-    public void filter(
-            final ClientRequestContext requestContext,
-            final ClientResponseContext responseContext) {
+    public void filter(final ClientRequestContext requestContext, final ClientResponseContext responseContext) {
         if (LOG.isLoggable(LOG_LEVEL)) {
             final StringBuilder message = new StringBuilder("REST Response\n");
             message.append(
-                    String.format(
-                            "Status: %d (%s)\n",
-                            responseContext.getStatusInfo().getStatusCode(),
-                            responseContext.getStatusInfo().getReasonPhrase()));
+                    String.format("Status: %d (%s)\n", responseContext.getStatusInfo().getStatusCode(), responseContext.getStatusInfo().getReasonPhrase()));
             message.append(String.format("Media type: %s\n", responseContext.getMediaType()));
             message.append("Headers:\n");
-            responseContext
-                    .getHeaders()
-                    .forEach(
-                            (header, value) ->
-                                    message.append(String.format("   %s : %s\n", header, value)));
+            responseContext.getHeaders().forEach((header, value) -> message.append(String.format("   %s : %s\n", header, value)));
             if (responseContext.hasEntity()) {
                 message.append("Payload:");
                 message.append(getPayload(responseContext));
@@ -94,15 +82,15 @@ public class JsonLoggingFilter implements ClientRequestFilter, ClientResponseFil
 
     private String getPayload(final ClientResponseContext responseContext) {
         try {
-            final String payload =
-                    IOUtils.toString(responseContext.getEntityStream(), StandardCharsets.UTF_8);
+            final String payload = IOUtils.toString(responseContext.getEntityStream(), StandardCharsets.UTF_8);
             responseContext.setEntityStream(IOUtils.toInputStream(payload, StandardCharsets.UTF_8));
             final Map<String, Object> jsonConfig = Map.of(JsonGenerator.PRETTY_PRINTING, true);
             final StringWriter payloadWriter = new StringWriter();
 
-            try (final var jsonWriter =
-                            Json.createWriterFactory(jsonConfig).createWriter(payloadWriter);
-                    final var jsonReader = Json.createReader(new StringReader(payload))) {
+            try (
+                final var jsonWriter = Json.createWriterFactory(jsonConfig).createWriter(payloadWriter);
+                final var jsonReader = Json.createReader(new StringReader(payload))
+            ) {
                 jsonWriter.write(jsonReader.read());
                 return payloadWriter.toString();
             } catch (final JsonParsingException ignore) {

@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.zoeken.model.zoekobject;
 
 import java.util.ArrayList;
@@ -22,7 +23,8 @@ public class DocumentZoekObject implements ZoekObject {
     @Field("id")
     private String uuid;
 
-    @Field private String type;
+    @Field
+    private String type;
 
     @Field("informatieobject_identificatie")
     private String identificatie;
@@ -111,7 +113,8 @@ public class DocumentZoekObject implements ZoekObject {
     @Field("informatieobject_indicaties_sort")
     private long indicatiesVolgorde;
 
-    public DocumentZoekObject() {}
+    public DocumentZoekObject() {
+    }
 
     public String getUuid() {
         return uuid;
@@ -272,9 +275,7 @@ public class DocumentZoekObject implements ZoekObject {
     }
 
     public EnkelvoudigInformatieObject.StatusEnum getStatus() {
-        return status != null
-                ? EnkelvoudigInformatieObject.StatusEnum.valueOf(status.toUpperCase())
-                : null;
+        return status != null ? EnkelvoudigInformatieObject.StatusEnum.valueOf(status.toUpperCase()) : null;
     }
 
     public void setStatus(final EnkelvoudigInformatieObject.StatusEnum status) {
@@ -361,8 +362,7 @@ public class DocumentZoekObject implements ZoekObject {
         if (this.indicaties == null) {
             return EnumSet.noneOf(DocumentIndicatie.class);
         }
-        return this.indicaties.stream()
-                .map(DocumentIndicatie::valueOf)
+        return this.indicaties.stream().map(DocumentIndicatie::valueOf)
                 .collect(Collectors.toCollection(() -> EnumSet.noneOf(DocumentIndicatie.class)));
     }
 

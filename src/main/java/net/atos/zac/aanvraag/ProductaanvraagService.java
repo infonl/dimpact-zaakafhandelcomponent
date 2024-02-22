@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.aanvraag;
 
 import static net.atos.zac.configuratie.ConfiguratieService.BRON_ORGANISATIE;
@@ -65,74 +66,77 @@ public class ProductaanvraagService {
 
     public static final String AANVRAAG_PDF_TITEL = "Aanvraag PDF";
 
-    public static final String AANVRAAG_PDF_BESCHRIJVING =
-            "PDF document met de aanvraag gegevens van de zaak";
+    public static final String AANVRAAG_PDF_BESCHRIJVING = "PDF document met de aanvraag gegevens van de zaak";
 
-    public static final String ZAAK_INFORMATIEOBJECT_REDEN =
-            "Document toegevoegd tijdens het starten van de van de zaak vanuit een product"
-                    + " aanvraag";
+    public static final String ZAAK_INFORMATIEOBJECT_REDEN = "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag";
 
     private static final String ROL_TOELICHTING = "Overgenomen vanuit de product aanvraag";
 
     private static final String PRODUCT_AANVRAAG_FORMULIER_DATA_VELD = "data";
 
-    private static final String FORMULIER_KLEINE_EVENEMENTEN_MELDING_EIGENSCHAPNAAM_NAAM_EVENEMENT =
-            "naamEvenement";
+    private static final String FORMULIER_KLEINE_EVENEMENTEN_MELDING_EIGENSCHAPNAAM_NAAM_EVENEMENT = "naamEvenement";
 
-    private static final String
-            FORMULIER_KLEINE_EVENEMENTEN_MELDING_EIGENSCHAPNAAM_OMSCHRIJVING_EVENEMENT =
-                    "omschrijvingEvenement";
+    private static final String FORMULIER_KLEINE_EVENEMENTEN_MELDING_EIGENSCHAPNAAM_OMSCHRIJVING_EVENEMENT =
+            "omschrijvingEvenement";
 
     private static final String FORMULIER_VELD_ZAAK_TOELICHTING = "zaak_toelichting";
 
     private static final String FORMULIER_VELD_ZAAK_OMSCHRIJVING = "zaak_omschrijving";
 
-    @Inject private ObjectsClientService objectsClientService;
+    @Inject
+    private ObjectsClientService objectsClientService;
 
-    @Inject private ZGWApiService zgwApiService;
+    @Inject
+    private ZGWApiService zgwApiService;
 
-    @Inject private ZRCClientService zrcClientService;
+    @Inject
+    private ZRCClientService zrcClientService;
 
-    @Inject private DRCClientService drcClientService;
+    @Inject
+    private DRCClientService drcClientService;
 
-    @Inject private ZTCClientService ztcClientService;
+    @Inject
+    private ZTCClientService ztcClientService;
 
-    @Inject private VRLClientService vrlClientService;
+    @Inject
+    private VRLClientService vrlClientService;
 
-    @Inject private IdentityService identityService;
+    @Inject
+    private IdentityService identityService;
 
-    @Inject private ZaakafhandelParameterService zaakafhandelParameterService;
+    @Inject
+    private ZaakafhandelParameterService zaakafhandelParameterService;
 
-    @Inject private ZaakafhandelParameterBeheerService zaakafhandelParameterBeheerService;
+    @Inject
+    private ZaakafhandelParameterBeheerService zaakafhandelParameterBeheerService;
 
-    @Inject private InboxDocumentenService inboxDocumentenService;
+    @Inject
+    private InboxDocumentenService inboxDocumentenService;
 
-    @Inject private InboxProductaanvraagService inboxProductaanvraagService;
+    @Inject
+    private InboxProductaanvraagService inboxProductaanvraagService;
 
-    @Inject private CMMNService cmmnService;
+    @Inject
+    private CMMNService cmmnService;
 
-    @Inject private BPMNService bpmnService;
+    @Inject
+    private BPMNService bpmnService;
 
-    @Inject private ConfiguratieService configuratieService;
+    @Inject
+    private ConfiguratieService configuratieService;
 
     public void verwerkProductaanvraag(final URI productaanvraagUrl) {
         LOG.fine(() -> "Verwerken productaanvraag: %s".formatted(productaanvraagUrl));
 
-        final var productaanvraagObject =
-                objectsClientService.readObject(uuidFromURI(productaanvraagUrl));
+        final var productaanvraagObject = objectsClientService.readObject(uuidFromURI(productaanvraagUrl));
         final var productaanvraag = getProductaanvraag(productaanvraagObject);
-        final Optional<UUID> zaaktypeUUID =
-                zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(
-                        productaanvraag.getType());
+        final Optional<UUID> zaaktypeUUID = zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(
+                productaanvraag.getType());
         if (zaaktypeUUID.isPresent()) {
             try {
-                LOG.fine(
-                        () ->
-                                "Start zaak met CMMN case. Zaaktype: %s"
-                                        .formatted(zaaktypeUUID.get().toString()));
+                LOG.fine(() -> "Start zaak met CMMN case. Zaaktype: %s".formatted(zaaktypeUUID.get().toString()));
 
-                registreerZaakMetCMMNCase(
-                        zaaktypeUUID.get(), productaanvraag, productaanvraagObject);
+                registreerZaakMetCMMNCase(zaaktypeUUID.get(), productaanvraag, productaanvraagObject);
             } catch (RuntimeException ex) {
                 warning("CMMN", productaanvraag, ex);
             }
@@ -141,45 +145,33 @@ public class ProductaanvraagService {
             if (zaaktype.isPresent()) {
                 try {
 
-                    LOG.fine(
-                            () ->
-                                    "Start zaak met BPMN proces. Zaaktype: %s"
-                                            .formatted(zaaktype.get().toString()));
+                    LOG.fine(() -> "Start zaak met BPMN proces. Zaaktype: %s".formatted(zaaktype.get().toString()));
 
-                    registreerZaakMetBPMNProces(
-                            zaaktype.get(), productaanvraag, productaanvraagObject);
+                    registreerZaakMetBPMNProces(zaaktype.get(), productaanvraag, productaanvraagObject);
                 } catch (RuntimeException ex) {
                     warning("BPMN", productaanvraag, ex);
                 }
             } else {
-                LOG.info(
-                        message(
-                                productaanvraag,
-                                "Er is geen zaaktype gevonden voor het type '%s'. Er wordt geen zaak aangemaakt."
-                                        .formatted(productaanvraag.getType())));
+                LOG.info(message(productaanvraag,
+                                 "Er is geen zaaktype gevonden voor het type '%s'. Er wordt geen zaak aangemaakt."
+                                         .formatted(productaanvraag.getType())));
                 registreerInbox(productaanvraag, productaanvraagObject);
             }
         }
     }
 
-    private void warning(
-            final String type,
-            final ProductaanvraagDenhaag productaanvraag,
-            final RuntimeException ex) {
-        LOG.log(
-                Level.WARNING,
-                message(
-                        productaanvraag,
-                        "Er is iets fout gegaan bij het aanmaken van een %s-zaak.".formatted(type)),
-                ex);
+    private void warning(final String type, final ProductaanvraagDenhaag productaanvraag, final RuntimeException ex) {
+        LOG.log(Level.WARNING,
+                message(productaanvraag, "Er is iets fout gegaan bij het aanmaken van een %s-zaak."
+                        .formatted(type)), ex);
     }
 
     private String message(final ProductaanvraagDenhaag productaanvraag, final String message) {
-        return "Productaanvraag %s: %s".formatted(productaanvraag.getSubmissionId(), message);
+        return "Productaanvraag %s: %s"
+                .formatted(productaanvraag.getSubmissionId(), message);
     }
 
-    private void registreerZaakMetBPMNProces(
-            final ZaakType zaaktype,
+    private void registreerZaakMetBPMNProces(final ZaakType zaaktype,
             final ProductaanvraagDenhaag productaanvraag,
             final ORObject productaanvraagObject) {
         final Map<String, Object> formulierData = getFormulierData(productaanvraagObject);
@@ -198,8 +190,7 @@ public class ProductaanvraagService {
         }
         zaak = zgwApiService.createZaak(zaak);
         final var PROCESS_DEFINITION_KEY = "test-met-proces";
-        final var processDefinition =
-                bpmnService.readProcessDefinitionByprocessDefinitionKey(PROCESS_DEFINITION_KEY);
+        final var processDefinition = bpmnService.readProcessDefinitionByprocessDefinitionKey(PROCESS_DEFINITION_KEY);
         zrcClientService.createRol(creeerRolGroep(processDefinition.getDescription(), zaak));
         pairProductaanvraagInfoWithZaak(productaanvraag, productaanvraagObject, zaak);
         bpmnService.startProcess(zaak, zaaktype, formulierData, PROCESS_DEFINITION_KEY);
@@ -207,37 +198,32 @@ public class ProductaanvraagService {
 
     public Map<String, Object> getFormulierData(final ORObject productaanvraagObject) {
         final Map<String, Object> formulierData = new HashMap<>();
-        ((Map<String, Object>)
-                        productaanvraagObject
-                                .getRecord()
-                                .getData()
-                                .get(PRODUCT_AANVRAAG_FORMULIER_DATA_VELD))
+        ((Map<String, Object>) productaanvraagObject.getRecord().getData().get(PRODUCT_AANVRAAG_FORMULIER_DATA_VELD))
                 .forEach((stap, velden) -> formulierData.putAll((Map<String, Object>) velden));
         return formulierData;
     }
 
     public ProductaanvraagDenhaag getProductaanvraag(final ORObject productaanvraagObject) {
-        return JsonbUtil.JSONB.fromJson(
-                JsonbUtil.JSONB.toJson(productaanvraagObject.getRecord().getData()),
-                ProductaanvraagDenhaag.class);
+        return JsonbUtil.JSONB.fromJson(JsonbUtil.JSONB.toJson(productaanvraagObject.getRecord().getData()),
+                                        ProductaanvraagDenhaag.class);
     }
 
     private void addInitiator(final String bsn, final URI zaak, final URI zaaktype) {
-        final RolType initiator =
-                ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.INITIATOR, zaaktype);
-        final RolNatuurlijkPersoon rolNatuurlijkPersoon =
-                new RolNatuurlijkPersoon(
-                        zaak, initiator, ROL_TOELICHTING, new NatuurlijkPersoon(bsn));
+        final RolType initiator = ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.INITIATOR, zaaktype);
+        final RolNatuurlijkPersoon rolNatuurlijkPersoon = new RolNatuurlijkPersoon(
+                zaak,
+                initiator,
+                ROL_TOELICHTING,
+                new NatuurlijkPersoon(bsn)
+        );
         zrcClientService.createRol(rolNatuurlijkPersoon);
     }
 
-    private void registreerInbox(
-            final ProductaanvraagDenhaag productaanvraag, final ORObject productaanvraagObject) {
+    private void registreerInbox(final ProductaanvraagDenhaag productaanvraag, final ORObject productaanvraagObject) {
         final InboxProductaanvraag inboxProductaanvraag = new InboxProductaanvraag();
         inboxProductaanvraag.setProductaanvraagObjectUUID(productaanvraagObject.getUuid());
         inboxProductaanvraag.setType(productaanvraag.getType());
-        inboxProductaanvraag.setOntvangstdatum(
-                productaanvraagObject.getRecord().getRegistrationAt());
+        inboxProductaanvraag.setOntvangstdatum(productaanvraagObject.getRecord().getRegistrationAt());
         if (StringUtils.isNotBlank(productaanvraag.getBsn())) {
             inboxProductaanvraag.setInitiatorID(productaanvraag.getBsn());
         }
@@ -253,49 +239,40 @@ public class ProductaanvraagService {
     }
 
     private void deleteInboxDocument(final UUID documentUUID) {
-        inboxDocumentenService
-                .find(documentUUID)
+        inboxDocumentenService.find(documentUUID)
                 .ifPresent(inboxDocument -> inboxDocumentenService.delete(inboxDocument.getId()));
     }
 
-    private void registreerZaakMetCMMNCase(
-            final UUID zaaktypeUuid,
-            final ProductaanvraagDenhaag productaanvraag,
+    private void registreerZaakMetCMMNCase(final UUID zaaktypeUuid, final ProductaanvraagDenhaag productaanvraag,
             final ORObject productaanvraagObject) {
         final var formulierData = getFormulierData(productaanvraagObject);
         var zaak = new Zaak();
         final var zaaktype = ztcClientService.readZaaktype(zaaktypeUuid);
         zaak.setZaaktype(zaaktype.getUrl());
         zaak.setOmschrijving(
-                (String)
-                        formulierData.get(
-                                FORMULIER_KLEINE_EVENEMENTEN_MELDING_EIGENSCHAPNAAM_NAAM_EVENEMENT));
+                (String) formulierData.get(FORMULIER_KLEINE_EVENEMENTEN_MELDING_EIGENSCHAPNAAM_NAAM_EVENEMENT));
         zaak.setToelichting(
-                (String)
-                        formulierData.get(
-                                FORMULIER_KLEINE_EVENEMENTEN_MELDING_EIGENSCHAPNAAM_OMSCHRIJVING_EVENEMENT));
+                (String) formulierData.get(FORMULIER_KLEINE_EVENEMENTEN_MELDING_EIGENSCHAPNAAM_OMSCHRIJVING_EVENEMENT));
         zaak.setStartdatum(productaanvraagObject.getRecord().getStartAt());
         zaak.setBronorganisatie(BRON_ORGANISATIE);
         zaak.setVerantwoordelijkeOrganisatie(BRON_ORGANISATIE);
-        final Optional<CommunicatieKanaal> communicatiekanaal =
-                vrlClientService.findCommunicatiekanaal(COMMUNICATIEKANAAL_EFORMULIER);
+        final Optional<CommunicatieKanaal> communicatiekanaal = vrlClientService.findCommunicatiekanaal(
+                COMMUNICATIEKANAAL_EFORMULIER);
         if (communicatiekanaal.isPresent()) {
             zaak.setCommunicatiekanaal(communicatiekanaal.get().getUrl());
         }
 
         LOG.fine("Creating zaak using the ZGW API: " + zaak);
         zaak = zgwApiService.createZaak(zaak);
-        final ZaakafhandelParameters zaakafhandelParameters =
-                zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid);
+        final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
+                zaaktypeUuid);
         toekennenZaak(zaak, zaakafhandelParameters);
         pairProductaanvraagInfoWithZaak(productaanvraag, productaanvraagObject, zaak);
         cmmnService.startCase(zaak, zaaktype, zaakafhandelParameters, formulierData);
     }
 
-    private void pairProductaanvraagInfoWithZaak(
-            final ProductaanvraagDenhaag productaanvraag,
-            final ORObject productaanvraagObject,
-            final Zaak zaak) {
+    private void pairProductaanvraagInfoWithZaak(final ProductaanvraagDenhaag productaanvraag,
+            final ORObject productaanvraagObject, final Zaak zaak) {
         pairProductaanvraagWithZaak(productaanvraagObject, zaak.getUrl());
         pairAanvraagPDFWithZaak(productaanvraag, zaak.getUrl());
         pairBijlagenWithZaak(productaanvraag.getAttachments(), zaak.getUrl());
@@ -305,13 +282,11 @@ public class ProductaanvraagService {
     }
 
     public void pairProductaanvraagWithZaak(final ORObject productaanvraag, final URI zaakUrl) {
-        final ZaakobjectProductaanvraag zaakobject =
-                new ZaakobjectProductaanvraag(zaakUrl, productaanvraag.getUrl());
+        final ZaakobjectProductaanvraag zaakobject = new ZaakobjectProductaanvraag(zaakUrl, productaanvraag.getUrl());
         zrcClientService.createZaakobject(zaakobject);
     }
 
-    public void pairAanvraagPDFWithZaak(
-            final ProductaanvraagDenhaag productaanvraag, final URI zaakUrl) {
+    public void pairAanvraagPDFWithZaak(final ProductaanvraagDenhaag productaanvraag, final URI zaakUrl) {
         final ZaakInformatieobject zaakInformatieobject = new ZaakInformatieobject();
         zaakInformatieobject.setInformatieobject(productaanvraag.getPdfUrl());
         zaakInformatieobject.setZaak(zaakUrl);
@@ -319,8 +294,7 @@ public class ProductaanvraagService {
         zaakInformatieobject.setBeschrijving(AANVRAAG_PDF_BESCHRIJVING);
 
         LOG.fine("Creating zaak informatieobject: " + zaakInformatieobject);
-        zrcClientService.createZaakInformatieobject(
-                zaakInformatieobject, ZAAK_INFORMATIEOBJECT_REDEN);
+        zrcClientService.createZaakInformatieobject(zaakInformatieobject, ZAAK_INFORMATIEOBJECT_REDEN);
     }
 
     public void pairBijlagenWithZaak(final List<URI> bijlageURIs, final URI zaakUrl) {
@@ -332,28 +306,20 @@ public class ProductaanvraagService {
             zaakInformatieobject.setZaak(zaakUrl);
             zaakInformatieobject.setTitel(bijlage.getTitel());
             zaakInformatieobject.setBeschrijving(bijlage.getBeschrijving());
-            zrcClientService.createZaakInformatieobject(
-                    zaakInformatieobject, ZAAK_INFORMATIEOBJECT_REDEN);
+            zrcClientService.createZaakInformatieobject(zaakInformatieobject, ZAAK_INFORMATIEOBJECT_REDEN);
         }
     }
 
-    private void toekennenZaak(
-            final Zaak zaak, final ZaakafhandelParameters zaakafhandelParameters) {
+    private void toekennenZaak(final Zaak zaak, final ZaakafhandelParameters zaakafhandelParameters) {
         if (zaakafhandelParameters.getGroepID() != null) {
-            LOG.info(
-                    String.format(
-                            "Zaak %s: toegekend aan groep '%s'",
-                            zaak.getUuid(), zaakafhandelParameters.getGroepID()));
+            LOG.info(String.format("Zaak %s: toegekend aan groep '%s'", zaak.getUuid(),
+                                   zaakafhandelParameters.getGroepID()));
             zrcClientService.createRol(creeerRolGroep(zaakafhandelParameters.getGroepID(), zaak));
         }
         if (zaakafhandelParameters.getGebruikersnaamMedewerker() != null) {
-            LOG.info(
-                    String.format(
-                            "Zaak %s: toegekend aan behandelaar '%s'",
-                            zaak.getUuid(), zaakafhandelParameters.getGebruikersnaamMedewerker()));
-            zrcClientService.createRol(
-                    creeerRolMedewerker(
-                            zaakafhandelParameters.getGebruikersnaamMedewerker(), zaak));
+            LOG.info(String.format("Zaak %s: toegekend aan behandelaar '%s'", zaak.getUuid(),
+                                   zaakafhandelParameters.getGebruikersnaamMedewerker()));
+            zrcClientService.createRol(creeerRolMedewerker(zaakafhandelParameters.getGebruikersnaamMedewerker(), zaak));
         }
     }
 
@@ -362,30 +328,24 @@ public class ProductaanvraagService {
         final OrganisatorischeEenheid groep = new OrganisatorischeEenheid();
         groep.setIdentificatie(group.getId());
         groep.setNaam(group.getName());
-        final RolType roltype =
-                ztcClientService.readRoltype(
-                        RolType.OmschrijvingGeneriekEnum.BEHANDELAAR, zaak.getZaaktype());
-        return new RolOrganisatorischeEenheid(
-                zaak.getUrl(), roltype, "Behandelend groep van de zaak", groep);
+        final RolType roltype = ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
+                                                             zaak.getZaaktype());
+        return new RolOrganisatorischeEenheid(zaak.getUrl(), roltype, "Behandelend groep van de zaak", groep);
     }
 
-    private RolMedewerker creeerRolMedewerker(
-            final String behandelaarGebruikersnaam, final Zaak zaak) {
+    private RolMedewerker creeerRolMedewerker(final String behandelaarGebruikersnaam, final Zaak zaak) {
         final User user = identityService.readUser(behandelaarGebruikersnaam);
         final Medewerker medewerker = new Medewerker();
         medewerker.setIdentificatie(user.getId());
         medewerker.setVoorletters(user.getFirstName());
         medewerker.setAchternaam(user.getLastName());
-        final RolType roltype =
-                ztcClientService.readRoltype(
-                        RolType.OmschrijvingGeneriekEnum.BEHANDELAAR, zaak.getZaaktype());
+        final RolType roltype = ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
+                                                             zaak.getZaaktype());
         return new RolMedewerker(zaak.getUrl(), roltype, "Behandelaar van de zaak", medewerker);
     }
 
     private Optional<ZaakType> findZaaktypeByIdentificatie(final String zaaktypeIdentificatie) {
-        return ztcClientService
-                .listZaaktypen(configuratieService.readDefaultCatalogusURI())
-                .stream()
+        return ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI()).stream()
                 .filter(zaak -> zaak.getIdentificatie().equals(zaaktypeIdentificatie))
                 .findFirst();
     }

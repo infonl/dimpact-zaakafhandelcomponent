@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.authentication;
 
 import java.io.IOException;
@@ -49,11 +50,8 @@ public class UserPrincipalFilter implements Filter {
     }
 
     @Override
-    public void doFilter(
-            final ServletRequest servletRequest,
-            final ServletResponse servletResponse,
-            final FilterChain filterChain)
-            throws ServletException, IOException {
+    public void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,
+                         final FilterChain filterChain) throws ServletException, IOException {
         if (servletRequest instanceof HttpServletRequest) {
             final HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
             final OidcPrincipal principal = (OidcPrincipal) httpServletRequest.getUserPrincipal();
@@ -62,11 +60,8 @@ public class UserPrincipalFilter implements Filter {
                 HttpSession httpSession = httpServletRequest.getSession(true);
                 LoggedInUser loggedInUser = SecurityUtil.getLoggedInUser(httpSession);
                 if (loggedInUser != null && !loggedInUser.getId().equals(principal.getName())) {
-                    LOG.info(
-                            String.format(
-                                    "HTTP session of user '%s' on context path %s is invalidated",
-                                    loggedInUser.getId(),
-                                    httpServletRequest.getServletContext().getContextPath()));
+                    LOG.info(String.format("HTTP session of user '%s' on context path %s is invalidated",
+                            loggedInUser.getId(), httpServletRequest.getServletContext().getContextPath()));
                     httpSession.invalidate();
                     loggedInUser = null;
                     httpSession = httpServletRequest.getSession(true);
@@ -75,16 +70,11 @@ public class UserPrincipalFilter implements Filter {
                 if (loggedInUser == null) {
                     loggedInUser = createLoggedInUser(principal.getOidcSecurityContext());
                     SecurityUtil.setLoggedInUser(httpSession, loggedInUser);
-                    LOG.info(
-                            String.format(
-                                    "User logged in: '%s' with roles: %s, groups: %s en zaaktypen:"
-                                            + " %s",
-                                    loggedInUser.getId(),
-                                    loggedInUser.getRoles(),
-                                    loggedInUser.getGroupIds(),
-                                    loggedInUser.isGeautoriseerdVoorAlleZaaktypen()
-                                            ? "ELK-ZAAKTYPE"
-                                            : loggedInUser.getGeautoriseerdeZaaktypen()));
+                    LOG.info(String.format("User logged in: '%s' with roles: %s, groups: %s en zaaktypen: %s",
+                                           loggedInUser.getId(),
+                                           loggedInUser.getRoles(), loggedInUser.getGroupIds(),
+                                           loggedInUser.isGeautoriseerdVoorAlleZaaktypen() ? "ELK-ZAAKTYPE" :
+                                                   loggedInUser.getGeautoriseerdeZaaktypen()));
                 }
             }
         }
@@ -100,8 +90,7 @@ public class UserPrincipalFilter implements Filter {
     private LoggedInUser createLoggedInUser(final OidcSecurityContext context) {
         final AccessToken accessToken = context.getToken();
         final Set<String> roles = Set.copyOf(accessToken.getRealmAccessClaim().getRoles());
-        return new LoggedInUser(
-                accessToken.getPreferredUsername(),
+        return new LoggedInUser(accessToken.getPreferredUsername(),
                 accessToken.getGivenName(),
                 accessToken.getFamilyName(),
                 accessToken.getName(),
@@ -116,10 +105,8 @@ public class UserPrincipalFilter implements Filter {
             return null;
         } else {
             return zaakafhandelParameterService.listZaakafhandelParameters().stream()
-                    .filter(
-                            zaakafhandelParameters ->
-                                    zaakafhandelParameters.getDomein() != null
-                                            && roles.contains(zaakafhandelParameters.getDomein()))
+                    .filter(zaakafhandelParameters -> zaakafhandelParameters.getDomein() != null &&
+                            roles.contains(zaakafhandelParameters.getDomein()))
                     .map(ZaakafhandelParameters::getZaaktypeOmschrijving)
                     .collect(Collectors.toUnmodifiableSet());
         }

@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.or.shared.exception;
 
 import java.net.URI;
@@ -27,21 +28,17 @@ public class ValidatieFoutException extends RuntimeException {
     @Override
     public String getMessage() {
         return "%s [%d %s] %s: %s (%s)"
-                .formatted(
-                        validatieFout.getTitle(),
-                        validatieFout.getStatus(),
-                        validatieFout.getCode(),
-                        validatieFout.getDetail(),
-                        validatieFout.getFieldValidationErrors().stream()
-                                .map(
-                                        error ->
-                                                "%s [%s] %s"
-                                                        .formatted(
-                                                                error.getName(),
-                                                                error.getCode(),
-                                                                error.getReason()))
-                                .collect(Collectors.joining(", ")),
-                        uri(validatieFout.getInstance()));
+                .formatted(validatieFout.getTitle(),
+                           validatieFout.getStatus(),
+                           validatieFout.getCode(),
+                           validatieFout.getDetail(),
+                           validatieFout.getFieldValidationErrors().stream()
+                                   .map(error -> "%s [%s] %s"
+                                           .formatted(error.getName(),
+                                                      error.getCode(),
+                                                      error.getReason()))
+                                   .collect(Collectors.joining(", ")),
+                           uri(validatieFout.getInstance()));
     }
 
     private String uri(final URI uri) {

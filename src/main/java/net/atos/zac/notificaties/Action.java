@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.notificaties;
 
 import java.util.HashMap;
@@ -20,6 +21,7 @@ import org.apache.commons.lang3.NotImplementedException;
  */
 @JsonbTypeAdapter(Action.Adapter.class)
 public enum Action {
+
     CREATE("create"),
     READ("read", "list"),
     UPDATE("update", "partial_update"),

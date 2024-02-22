@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.aanvraag;
 
 import java.util.ArrayList;
@@ -39,10 +40,8 @@ public class InboxProductaanvraagService {
         return inboxProductaanvraag;
     }
 
-    public InboxProductaanvraagResultaat list(
-            final InboxProductaanvraagListParameters listParameters) {
-        return new InboxProductaanvraagResultaat(
-                query(listParameters), count(listParameters), listTypes(listParameters));
+    public InboxProductaanvraagResultaat list(final InboxProductaanvraagListParameters listParameters) {
+        return new InboxProductaanvraagResultaat(query(listParameters), count(listParameters), listTypes(listParameters));
     }
 
     private List<String> listTypes(final InboxProductaanvraagListParameters listParameters) {
@@ -54,11 +53,9 @@ public class InboxProductaanvraagService {
         return entityManager.createQuery(query).getResultList();
     }
 
-    private List<InboxProductaanvraag> query(
-            final InboxProductaanvraagListParameters listParameters) {
+    private List<InboxProductaanvraag> query(final InboxProductaanvraagListParameters listParameters) {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<InboxProductaanvraag> query =
-                builder.createQuery(InboxProductaanvraag.class);
+        final CriteriaQuery<InboxProductaanvraag> query = builder.createQuery(InboxProductaanvraag.class);
         final Root<InboxProductaanvraag> root = query.from(InboxProductaanvraag.class);
         if (listParameters.getSorting() != null) {
             if (listParameters.getSorting().getDirection() == SorteerRichting.ASCENDING) {
@@ -81,8 +78,7 @@ public class InboxProductaanvraagService {
     }
 
     public Optional<InboxProductaanvraag> find(final long id) {
-        final InboxProductaanvraag inboxProductaanvraag =
-                entityManager.find(InboxProductaanvraag.class, id);
+        final InboxProductaanvraag inboxProductaanvraag = entityManager.find(InboxProductaanvraag.class, id);
         return inboxProductaanvraag != null ? Optional.of(inboxProductaanvraag) : Optional.empty();
     }
 
@@ -99,37 +95,27 @@ public class InboxProductaanvraagService {
         return result.intValue();
     }
 
-    private Predicate getWhere(
-            final InboxProductaanvraagListParameters listParameters,
-            final Root<InboxProductaanvraag> root) {
+    private Predicate getWhere(final InboxProductaanvraagListParameters listParameters, final Root<InboxProductaanvraag> root) {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final List<Predicate> predicates = new ArrayList<>();
         if (StringUtils.isNotBlank(listParameters.getInitiatorID())) {
             predicates.add(
-                    builder.like(
-                            root.get(InboxProductaanvraag.INITIATOR),
-                            LIKE.formatted(listParameters.getInitiatorID())));
+                    builder.like(root.get(InboxProductaanvraag.INITIATOR), LIKE.formatted(listParameters.getInitiatorID())));
         }
 
         if (StringUtils.isNotBlank(listParameters.getType())) {
-            predicates.add(
-                    builder.equal(root.get(InboxProductaanvraag.TYPE), listParameters.getType()));
+            predicates.add(builder.equal(root.get(InboxProductaanvraag.TYPE), listParameters.getType()));
         }
 
         if (listParameters.getOntvangstdatum() != null) {
             if (listParameters.getOntvangstdatum().van() != null) {
-                predicates.add(
-                        builder.greaterThanOrEqualTo(
-                                root.get(InboxProductaanvraag.ONTVANGSTDATUM),
-                                listParameters.getOntvangstdatum().van()));
+                predicates.add(builder.greaterThanOrEqualTo(root.get(InboxProductaanvraag.ONTVANGSTDATUM), listParameters.getOntvangstdatum().van()));
             }
             if (listParameters.getOntvangstdatum().tot() != null) {
-                predicates.add(
-                        builder.lessThanOrEqualTo(
-                                root.get(InboxProductaanvraag.ONTVANGSTDATUM),
-                                listParameters.getOntvangstdatum().tot()));
+                predicates.add(builder.lessThanOrEqualTo(root.get(InboxProductaanvraag.ONTVANGSTDATUM), listParameters.getOntvangstdatum().tot()));
             }
         }
         return builder.and(predicates.toArray(new Predicate[0]));
     }
+
 }

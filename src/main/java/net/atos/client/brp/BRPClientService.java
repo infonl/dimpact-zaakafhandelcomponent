@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.brp;
 
 import static net.atos.client.brp.util.PersonenQueryResponseJsonbDeserializer.RAADPLEEG_MET_BURGERSERVICENUMMER;
@@ -56,7 +57,9 @@ public class BRPClientService {
     private static final List<String> FIELDS_PERSOON_BEPERKT =
             List.of(BURGERSERVICENUMMER, GESLACHT, NAAM, GEBOORTE, ADRESSERING);
 
-    @Inject @RestClient private PersonenApi personenApi;
+    @Inject
+    @RestClient
+    private PersonenApi personenApi;
 
     public PersonenQueryResponse queryPersonen(final PersonenQuery personenQuery) {
         complementQuery(personenQuery);
@@ -71,19 +74,15 @@ public class BRPClientService {
      */
     public Optional<Persoon> findPersoon(final String burgerservicenummer) {
         try {
-            final var response =
-                    (RaadpleegMetBurgerservicenummerResponse)
-                            personenApi.personen(
-                                    createRaadpleegMetBurgerservicenummerQuery(
-                                            burgerservicenummer));
+            final var response = (RaadpleegMetBurgerservicenummerResponse) personenApi.personen(
+                    createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer));
             if (!CollectionUtils.isEmpty(response.getPersonen())) {
                 return Optional.of(response.getPersonen().get(0));
             } else {
                 return Optional.empty();
             }
         } catch (final RuntimeException exception) {
-            LOG.warning(
-                    () -> "Error while calling findPersoon: %s".formatted(exception.getMessage()));
+            LOG.warning(() -> "Error while calling findPersoon: %s".formatted(exception.getMessage()));
             return Optional.empty();
         }
     }
@@ -95,24 +94,17 @@ public class BRPClientService {
      * Gebruik de fields parameter als je alleen specifieke velden in het antwoord wil zien,
      */
     public CompletionStage<Optional<Persoon>> findPersoonAsync(final String burgerservicenummer) {
-        return personenApi
-                .personenAsync(createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer))
-                .handle(
-                        (response, exception) ->
-                                handleFindPersoonAsync(
-                                        (RaadpleegMetBurgerservicenummerResponse) response,
-                                        exception));
+        return personenApi.personenAsync(createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer))
+                .handle((response, exception) -> handleFindPersoonAsync(
+                        (RaadpleegMetBurgerservicenummerResponse) response, exception));
     }
 
-    private Optional<Persoon> handleFindPersoonAsync(
-            final RaadpleegMetBurgerservicenummerResponse response, final Throwable exception) {
+    private Optional<Persoon> handleFindPersoonAsync(final RaadpleegMetBurgerservicenummerResponse response,
+            final Throwable exception) {
         if (!CollectionUtils.isEmpty(response.getPersonen())) {
             return Optional.of(response.getPersonen().get(0));
         } else {
-            LOG.warning(
-                    () ->
-                            "Error while calling findPersoonAsync: %s"
-                                    .formatted(exception.getMessage()));
+            LOG.warning(() -> "Error while calling findPersoonAsync: %s".formatted(exception.getMessage()));
             return Optional.empty();
         }
     }
@@ -151,10 +143,8 @@ public class BRPClientService {
                 query.setType(ZOEK_MET_STRAAT_HUISNUMMER_EN_GEMEENTE_VAN_INSCHRIJVING);
                 query.setFields(FIELDS_PERSOON_BEPERKT);
             }
-            case PersonenQuery query ->
-                    throw new IllegalStateException(
-                            "Must use one of the subclasses of '%s'"
-                                    .formatted(PersonenQuery.class.getSimpleName()));
+            case PersonenQuery query -> throw new IllegalStateException(
+                    "Must use one of the subclasses of '%s'".formatted(PersonenQuery.class.getSimpleName()));
         }
     }
 }

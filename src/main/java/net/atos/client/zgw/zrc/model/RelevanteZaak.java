@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.zrc.model;
 
 import java.net.URI;
@@ -28,8 +29,7 @@ public class RelevanteZaak {
      * Constructor with required attributes for POST and PUT requests and GET response
      */
     @JsonbCreator
-    public RelevanteZaak(
-            @JsonbProperty("url") final URI url,
+    public RelevanteZaak(@JsonbProperty("url") final URI url,
             @JsonbProperty("aardRelatie") final AardRelatie aardRelatie) {
         this.url = url;
         this.aardRelatie = aardRelatie;

@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.or.objecttype.model;
 
 import static java.util.Arrays.stream;
@@ -16,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 @JsonbTypeAdapter(Updatefrequency.Adapter.class)
 public enum Updatefrequency {
+
     REAL_TIME("real_time"),
     HOURLY("hourly"),
     DAILY("daily"),
@@ -49,12 +51,7 @@ public enum Updatefrequency {
             return stream(values())
                     .filter(updatefrequency -> StringUtils.equals(updatefrequency.value, json))
                     .findFirst()
-                    .orElseThrow(
-                            () ->
-                                    new RuntimeException(
-                                            String.format(
-                                                    "Unkown value for %s: '%s'",
-                                                    Updatefrequency.class.getSimpleName(), json)));
+                    .orElseThrow(() -> new RuntimeException(String.format("Unkown value for %s: '%s'", Updatefrequency.class.getSimpleName(), json)));
         }
     }
 }

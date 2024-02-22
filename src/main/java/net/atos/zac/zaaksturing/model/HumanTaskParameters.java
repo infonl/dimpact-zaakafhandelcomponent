@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.zaaksturing.model;
 
 import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
@@ -30,10 +31,7 @@ import net.atos.zac.app.planitems.model.DefaultHumanTaskFormulierKoppeling;
 
 @Entity
 @Table(schema = SCHEMA, name = "humantask_parameters")
-@SequenceGenerator(
-        schema = SCHEMA,
-        name = "sq_humantask_parameters",
-        sequenceName = "sq_humantask_parameters",
+@SequenceGenerator(schema = SCHEMA, name = "sq_humantask_parameters", sequenceName = "sq_humantask_parameters",
         allocationSize = 1)
 public class HumanTaskParameters {
 
@@ -42,10 +40,9 @@ public class HumanTaskParameters {
     @Column(name = "id_humantask_parameters")
     private Long id;
 
-    @NotNull @ManyToOne
-    @JoinColumn(
-            name = "id_zaakafhandelparameters",
-            referencedColumnName = "id_zaakafhandelparameters")
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "id_zaakafhandelparameters", referencedColumnName = "id_zaakafhandelparameters")
     private ZaakafhandelParameters zaakafhandelParameters;
 
     @Column(name = "actief")
@@ -65,11 +62,7 @@ public class HumanTaskParameters {
     @Column(name = "doorlooptijd")
     private Integer doorlooptijd;
 
-    @OneToMany(
-            mappedBy = "humantask",
-            cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER,
-            orphanRemoval = true)
+    @OneToMany(mappedBy = "humantask", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<HumanTaskReferentieTabel> referentieTabellen = new ArrayList<>();
 
     public Long getId() {
@@ -89,10 +82,7 @@ public class HumanTaskParameters {
     }
 
     public String getFormulierDefinitieID() {
-        return formulierDefinitieID != null
-                ? formulierDefinitieID
-                : DefaultHumanTaskFormulierKoppeling.readFormulierDefinitie(planItemDefinitionID)
-                        .name();
+        return formulierDefinitieID != null ? formulierDefinitieID : DefaultHumanTaskFormulierKoppeling.readFormulierDefinitie(planItemDefinitionID).name();
     }
 
     public void setFormulierDefinitieID(final String formulierDefinitieID) {

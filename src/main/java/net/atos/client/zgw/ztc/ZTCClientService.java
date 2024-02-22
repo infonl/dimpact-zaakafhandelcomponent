@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.ztc;
 
 import static java.lang.String.format;
@@ -54,21 +55,24 @@ import net.atos.zac.configuratie.ConfiguratieService;
  */
 @ApplicationScoped
 public class ZTCClientService implements Caching {
-    private static final List<String> CACHES =
-            List.of(
-                    ZTC_BESLUITTYPE,
-                    ZTC_CACHE_TIME,
-                    ZTC_RESULTAATTYPE,
-                    ZTC_STATUSTYPE,
-                    ZTC_INFORMATIEOBJECTTYPE,
-                    ZTC_ZAAKTYPE_INFORMATIEOBJECTTYPE,
-                    ZTC_ZAAKTYPE);
+    private static final List<String> CACHES = List.of(
+            ZTC_BESLUITTYPE,
+            ZTC_CACHE_TIME,
+            ZTC_RESULTAATTYPE,
+            ZTC_STATUSTYPE,
+            ZTC_INFORMATIEOBJECTTYPE,
+            ZTC_ZAAKTYPE_INFORMATIEOBJECTTYPE,
+            ZTC_ZAAKTYPE);
 
-    @Inject @RestClient private ZTCClient ztcClient;
+    @Inject
+    @RestClient
+    private ZTCClient ztcClient;
 
-    @Inject private ZGWClientHeadersFactory zgwClientHeadersFactory;
+    @Inject
+    private ZGWClientHeadersFactory zgwClientHeadersFactory;
 
-    @Inject private ConfiguratieService configuratieService;
+    @Inject
+    private ConfiguratieService configuratieService;
 
     public Results<Catalogus> listCatalogus(final CatalogusListParameters catalogusListParameters) {
         return ztcClient.catalogusList(catalogusListParameters);
@@ -82,8 +86,7 @@ public class ZTCClientService implements Caching {
      * @return {@link Catalogus}. Never 'null'!
      */
     public Catalogus readCatalogus(final CatalogusListParameters filter) {
-        return ztcClient
-                .catalogusList(filter)
+        return ztcClient.catalogusList(filter)
                 .getSingleResult()
                 .orElseThrow(() -> new RuntimeException("Catalogus not found."));
     }
@@ -160,9 +163,7 @@ public class ZTCClientService implements Caching {
      */
     @CacheResult(cacheName = ZTC_STATUSTYPE)
     public List<StatusType> readStatustypen(final URI zaaktypeURI) {
-        return ztcClient
-                .statustypeList(new StatustypeListParameters(zaaktypeURI))
-                .getSinglePageResults();
+        return ztcClient.statustypeList(new StatustypeListParameters(zaaktypeURI)).getSinglePageResults();
     }
 
     /**
@@ -172,12 +173,8 @@ public class ZTCClientService implements Caching {
      * @return list of {@link ZaakTypeInformatieObjectType}.
      */
     @CacheResult(cacheName = ZTC_ZAAKTYPE_INFORMATIEOBJECTTYPE)
-    public List<ZaakTypeInformatieObjectType> readZaaktypeInformatieobjecttypen(
-            final URI zaaktypeURI) {
-        return ztcClient
-                .zaaktypeinformatieobjecttypeList(
-                        new ZaaktypeInformatieobjecttypeListParameters(zaaktypeURI))
-                .getSinglePageResults();
+    public List<ZaakTypeInformatieObjectType> readZaaktypeInformatieobjecttypen(final URI zaaktypeURI) {
+        return ztcClient.zaaktypeinformatieobjecttypeList(new ZaaktypeInformatieobjecttypeListParameters(zaaktypeURI)).getSinglePageResults();
     }
 
     /**
@@ -189,11 +186,7 @@ public class ZTCClientService implements Caching {
     @CacheResult(cacheName = ZTC_INFORMATIEOBJECTTYPE)
     public List<InformatieObjectType> readInformatieobjecttypen(final URI zaaktypeURI) {
         return readZaaktypeInformatieobjecttypen(zaaktypeURI).stream()
-                .map(
-                        zaaktypeInformatieobjecttype ->
-                                readInformatieobjecttype(
-                                        zaaktypeInformatieobjecttype.getInformatieobjecttype()))
-                .toList();
+                .map(zaaktypeInformatieobjecttype -> readInformatieobjecttype(zaaktypeInformatieobjecttype.getInformatieobjecttype())).toList();
     }
 
     /**
@@ -240,9 +233,7 @@ public class ZTCClientService implements Caching {
      */
     @CacheResult(cacheName = ZTC_BESLUITTYPE)
     public List<BesluitType> readBesluittypen(final URI zaaktypeURI) {
-        return ztcClient
-                .besluittypeList(new BesluittypeListParameters(zaaktypeURI))
-                .getSinglePageResults();
+        return ztcClient.besluittypeList(new BesluittypeListParameters(zaaktypeURI)).getSinglePageResults();
     }
 
     /**
@@ -265,9 +256,7 @@ public class ZTCClientService implements Caching {
      */
     @CacheResult(cacheName = ZTC_RESULTAATTYPE)
     public List<ResultaatType> readResultaattypen(final URI zaaktypeURI) {
-        return ztcClient
-                .resultaattypeList(new ResultaattypeListParameters(zaaktypeURI))
-                .getSinglePageResults();
+        return ztcClient.resultaattypeList(new ResultaattypeListParameters(zaaktypeURI)).getSinglePageResults();
     }
 
     /**
@@ -279,12 +268,8 @@ public class ZTCClientService implements Caching {
      * @return {@link RolType} or NULL
      */
     @CacheResult(cacheName = ZTC_ROLTYPE)
-    public Optional<RolType> findRoltype(
-            final URI zaaktypeURI,
-            final RolType.OmschrijvingGeneriekEnum omschrijvingGeneriekEnum) {
-        return ztcClient
-                .roltypeList(new RoltypeListParameters(zaaktypeURI, omschrijvingGeneriekEnum))
-                .getSingleResult();
+    public Optional<RolType> findRoltype(final URI zaaktypeURI, final RolType.OmschrijvingGeneriekEnum omschrijvingGeneriekEnum) {
+        return ztcClient.roltypeList(new RoltypeListParameters(zaaktypeURI, omschrijvingGeneriekEnum)).getSingleResult();
     }
 
     /**
@@ -296,19 +281,10 @@ public class ZTCClientService implements Caching {
      * @return {@link RolType}. Never 'null'!
      */
     @CacheResult(cacheName = ZTC_ROLTYPE)
-    public RolType readRoltype(
-            final RolType.OmschrijvingGeneriekEnum omschrijvingGeneriekEnum,
-            final URI zaaktypeURI) {
-        return ztcClient
-                .roltypeList(new RoltypeListParameters(zaaktypeURI, omschrijvingGeneriekEnum))
-                .getSingleResult()
+    public RolType readRoltype(final RolType.OmschrijvingGeneriekEnum omschrijvingGeneriekEnum, final URI zaaktypeURI) {
+        return ztcClient.roltypeList(new RoltypeListParameters(zaaktypeURI, omschrijvingGeneriekEnum)).getSingleResult()
                 .orElseThrow(
-                        () ->
-                                new RuntimeException(
-                                        format(
-                                                "Zaaktype '%s': Roltype with aard '%s' not found.",
-                                                zaaktypeURI.toString(),
-                                                omschrijvingGeneriekEnum.toString())));
+                        () -> new RuntimeException(format("Zaaktype '%s': Roltype with aard '%s' not found.", zaaktypeURI.toString(), omschrijvingGeneriekEnum.toString())));
     }
 
     /**
@@ -407,17 +383,16 @@ public class ZTCClientService implements Caching {
         // for security reasons check if the provided URI starts with the value of the
         // environment variable that we use to configure the ztcClient
         if (!uri.toString().startsWith(configuratieService.readZgwApiClientMpRestUrl())) {
-            throw new RuntimeException(
-                    format(
-                            "URI '%s' does not start with value for environment variable "
-                                    + "'%s': '%s'",
-                            uri,
-                            ENV_VAR_ZGW_API_CLIENT_MP_REST_URL,
-                            configuratieService.readZgwApiClientMpRestUrl()));
+            throw new RuntimeException(format(
+                    "URI '%s' does not start with value for environment variable " +
+                            "'%s': '%s'",
+                    uri,
+                    ENV_VAR_ZGW_API_CLIENT_MP_REST_URL,
+                    configuratieService.readZgwApiClientMpRestUrl()
+            ));
         }
 
-        return JAXRSClientFactory.getOrCreateClient()
-                .target(uri)
+        return JAXRSClientFactory.getOrCreateClient().target(uri)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, zgwClientHeadersFactory.generateJWTToken());
     }

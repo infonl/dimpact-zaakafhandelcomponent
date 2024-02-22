@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.configuratie;
 
 import static net.atos.zac.util.JsonbUtil.JSONB;
@@ -29,9 +30,11 @@ import net.atos.zac.configuratie.ConfiguratieService;
 @Singleton
 public class ConfiguratieRESTService {
 
-    @Inject private ConfiguratieService configuratieService;
+    @Inject
+    private ConfiguratieService configuratieService;
 
-    @Inject private RESTTaalConverter taalConverter;
+    @Inject
+    private RESTTaalConverter taalConverter;
 
     @GET
     @Path("talen")

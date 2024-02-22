@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.bag;
 
 import static java.util.stream.Collectors.joining;
@@ -52,57 +53,55 @@ import net.atos.zac.policy.PolicyService;
 @Singleton
 public class BAGRESTService {
 
-    @Inject private BAGClientService bagClientService;
+    @Inject
+    private BAGClientService bagClientService;
 
-    @Inject private ZRCClientService zrcClientService;
+    @Inject
+    private ZRCClientService zrcClientService;
 
-    @Inject private RESTBAGConverter bagConverter;
+    @Inject
+    private RESTBAGConverter bagConverter;
 
-    @Inject private RESTAdresConverter adresConverter;
+    @Inject
+    private RESTAdresConverter adresConverter;
 
-    @Inject private RESTNummeraanduidingConverter nummeraanduidingConverter;
+    @Inject
+    private RESTNummeraanduidingConverter nummeraanduidingConverter;
 
-    @Inject private RESTOpenbareRuimteConverter openbareRuimteConverter;
+    @Inject
+    private RESTOpenbareRuimteConverter openbareRuimteConverter;
 
-    @Inject private RESTPandConverter pandConverter;
+    @Inject
+    private RESTPandConverter pandConverter;
 
-    @Inject private RESTWoonplaatsConverter woonplaatsConverter;
+    @Inject
+    private RESTWoonplaatsConverter woonplaatsConverter;
 
-    @Inject private PolicyService policyService;
+    @Inject
+    private PolicyService policyService;
 
     @PUT
     @Path("adres")
-    public RESTResultaat<RESTBAGAdres> listAdressen(
-            final RESTListAdressenParameters listAdressenParameters) {
+    public RESTResultaat<RESTBAGAdres> listAdressen(final RESTListAdressenParameters listAdressenParameters) {
         final BevraagAdressenParameters bevraagAdressenParameters = new BevraagAdressenParameters();
         bevraagAdressenParameters.setQ(listAdressenParameters.trefwoorden);
-        bevraagAdressenParameters.setExpand(
-                getExpand(
-                        BAGObjectType.NUMMERAANDUIDING,
-                        BAGObjectType.OPENBARE_RUIMTE,
-                        BAGObjectType.PAND,
-                        BAGObjectType.WOONPLAATS));
-        return new RESTResultaat<>(
-                bagClientService.listAdressen(bevraagAdressenParameters).stream()
-                        .map(adres -> adresConverter.convertToREST(adres))
-                        .toList());
+        bevraagAdressenParameters.setExpand(getExpand(BAGObjectType.NUMMERAANDUIDING, BAGObjectType.OPENBARE_RUIMTE, BAGObjectType.PAND,
+                                                      BAGObjectType.WOONPLAATS));
+        return new RESTResultaat<>(bagClientService.listAdressen(bevraagAdressenParameters).stream()
+                                           .map(adres -> adresConverter.convertToREST(adres))
+                                           .toList());
     }
 
     @GET
     @Path("/{type}/{id}")
-    public RESTBAGObject read(
-            @PathParam("type") final BAGObjectType type, @PathParam("id") final String id) {
+    public RESTBAGObject read(@PathParam("type") final BAGObjectType type, @PathParam("id") final String id) {
         return switch (type) {
             case ADRES -> adresConverter.convertToREST(bagClientService.readAdres(id));
-            case WOONPLAATS ->
-                    woonplaatsConverter.convertToREST(bagClientService.readWoonplaats(id));
+            case WOONPLAATS -> woonplaatsConverter.convertToREST(bagClientService.readWoonplaats(id));
             case PAND -> pandConverter.convertToREST(bagClientService.readPand(id));
-            case OPENBARE_RUIMTE ->
-                    openbareRuimteConverter.convertToREST(bagClientService.readOpenbareRuimte(id));
-            case NUMMERAANDUIDING ->
-                    nummeraanduidingConverter.convertToREST(
-                            bagClientService.readNummeraanduiding(id));
-            case ADRESSEERBAAR_OBJECT -> null; // (Nog) geen zelfstandige entiteit
+            case OPENBARE_RUIMTE -> openbareRuimteConverter.convertToREST(bagClientService.readOpenbareRuimte(id));
+            case NUMMERAANDUIDING -> nummeraanduidingConverter.convertToREST(bagClientService.readNummeraanduiding(id));
+            case ADRESSEERBAAR_OBJECT -> null; //(Nog) geen zelfstandige entiteit
         };
     }
 
@@ -111,8 +110,7 @@ public class BAGRESTService {
         final Zaak zaak = zrcClientService.readZaak(bagObjectGegevens.zaakUuid);
         assertPolicy(policyService.readZaakRechten(zaak).behandelen());
         if (isNogNietGekoppeld(bagObjectGegevens.getBagObject(), zaak)) {
-            zrcClientService.createZaakobject(
-                    bagConverter.convertToZaakobject(bagObjectGegevens.getBagObject(), zaak));
+            zrcClientService.createZaakobject(bagConverter.convertToZaakobject(bagObjectGegevens.getBagObject(), zaak));
         }
     }
 
@@ -126,14 +124,12 @@ public class BAGRESTService {
 
     @GET
     @Path("zaak/{zaakUuid}")
-    public List<RESTBAGObjectGegevens> listBagobjectenVoorZaak(
-            @PathParam("zaakUuid") final UUID zaakUUID) {
+    public List<RESTBAGObjectGegevens> listBagobjectenVoorZaak(@PathParam("zaakUuid") final UUID zaakUUID) {
         final ZaakobjectListParameters zaakobjectListParameters = new ZaakobjectListParameters();
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
         assertPolicy(policyService.readZaakRechten(zaak).lezen());
         zaakobjectListParameters.setZaak(zaak.getUrl());
-        final Results<Zaakobject> zaakobjecten =
-                zrcClientService.listZaakobjecten(zaakobjectListParameters);
+        final Results<Zaakobject> zaakobjecten = zrcClientService.listZaakobjecten(zaakobjectListParameters);
         if (zaakobjecten.getCount() > 0) {
             return zaakobjecten.getResults().stream()
                     .filter(Zaakobject::isBagObject)
@@ -145,7 +141,9 @@ public class BAGRESTService {
     }
 
     private String getExpand(final BAGObjectType... bagObjectTypes) {
-        return Arrays.stream(bagObjectTypes).map(BAGObjectType::getExpand).collect(joining(","));
+        return Arrays.stream(bagObjectTypes)
+                .map(BAGObjectType::getExpand)
+                .collect(joining(","));
     }
 
     private boolean isNogNietGekoppeld(final RESTBAGObject restbagObject, final Zaak zaak) {
@@ -157,11 +155,9 @@ public class BAGRESTService {
             case NUMMERAANDUIDING -> zaakobjectListParameters.setObjectType(Objecttype.OVERIGE);
             case WOONPLAATS -> zaakobjectListParameters.setObjectType(Objecttype.WOONPLAATS);
             case PAND -> zaakobjectListParameters.setObjectType(Objecttype.PAND);
-            case OPENBARE_RUIMTE ->
-                    zaakobjectListParameters.setObjectType(Objecttype.OPENBARE_RUIMTE);
+            case OPENBARE_RUIMTE -> zaakobjectListParameters.setObjectType(Objecttype.OPENBARE_RUIMTE);
         }
-        final Results<Zaakobject> zaakobjecten =
-                zrcClientService.listZaakobjecten(zaakobjectListParameters);
+        final Results<Zaakobject> zaakobjecten = zrcClientService.listZaakobjecten(zaakobjectListParameters);
         return zaakobjecten.getResults().isEmpty();
     }
 }

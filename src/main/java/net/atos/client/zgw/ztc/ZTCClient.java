@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.ztc;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -74,8 +75,7 @@ public interface ZTCClient {
 
     @GET
     @Path("resultaattypen")
-    Results<ResultaatType> resultaattypeList(
-            @BeanParam final ResultaattypeListParameters parameters);
+    Results<ResultaatType> resultaattypeList(@BeanParam final ResultaattypeListParameters parameters);
 
     @GET
     @Path("roltypen/{uuid}")
@@ -91,8 +91,7 @@ public interface ZTCClient {
 
     @GET
     @Path("zaaktype-informatieobjecttypen")
-    Results<ZaakTypeInformatieObjectType> zaaktypeinformatieobjecttypeList(
-            @BeanParam final ZaaktypeInformatieobjecttypeListParameters parameters);
+    Results<ZaakTypeInformatieObjectType> zaaktypeinformatieobjecttypeList(@BeanParam final ZaaktypeInformatieobjecttypeListParameters parameters);
 
     @GET
     @Path("statustypen/{uuid}")

@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.flowable.cmmn;
 
 import static java.lang.String.format;
@@ -43,25 +44,18 @@ public class UpdateZaakLifecycleListener implements PlanItemInstanceLifecycleLis
     }
 
     @Override
-    public void stateChanged(
-            final DelegatePlanItemInstance planItemInstance,
-            final String oldState,
+    public void stateChanged(final DelegatePlanItemInstance planItemInstance, final String oldState,
             final String newState) {
         if (statusExpression != null) {
             updateZaak(planItemInstance, statusExpression.getValue(planItemInstance).toString());
         }
     }
 
-    private void updateZaak(
-            final PlanItemInstance planItemInstance, final String statustypeOmschrijving) {
-        final UUID zaakUUID =
-                FlowableHelper.getInstance()
-                        .getZaakVariabelenService()
-                        .readZaakUUID(planItemInstance);
+    private void updateZaak(final PlanItemInstance planItemInstance, final String statustypeOmschrijving) {
+        final UUID zaakUUID = FlowableHelper.getInstance().getZaakVariabelenService().readZaakUUID(planItemInstance);
         final Zaak zaak = FlowableHelper.getInstance().getZrcClientService().readZaak(zaakUUID);
         LOG.info(format("Zaak %s: Change Status to '%s'", zaakUUID, statustypeOmschrijving));
-        FlowableHelper.getInstance()
-                .getZgwApiService()
+        FlowableHelper.getInstance().getZgwApiService()
                 .createStatusForZaak(zaak, statustypeOmschrijving, STATUS_TOELICHTING);
     }
 }

@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.zrc.model;
 
 import static net.atos.client.zgw.shared.util.DateTimeUtil.DATE_TIME_FORMAT_WITH_MILLISECONDS;
@@ -70,7 +71,8 @@ public class ZaakInformatieobject {
     /**
      * Constructor for PATCH request
      */
-    public ZaakInformatieobject() {}
+    public ZaakInformatieobject() {
+    }
 
     /**
      * Constructor with required attributes for POST and PUT requests
@@ -84,8 +86,7 @@ public class ZaakInformatieobject {
      * Constructor with readOnly attributes for GET response
      */
     @JsonbCreator
-    public ZaakInformatieobject(
-            @JsonbProperty("url") final URI url,
+    public ZaakInformatieobject(@JsonbProperty("url") final URI url,
             @JsonbProperty("uuid") final UUID uuid,
             @JsonbProperty("aardRelatieWeergave") final AardRelatieWeergave aardRelatieWeergave,
             @JsonbProperty("registratiedatum") final ZonedDateTime registratiedatum) {
@@ -150,25 +151,15 @@ public class ZaakInformatieobject {
 
     @Override
     public String toString() {
-        return "ZaakInformatieobject{"
-                + "url="
-                + url
-                + ", uuid="
-                + uuid
-                + ", informatieobject="
-                + informatieobject
-                + ", zaak="
-                + zaak
-                + ", aardRelatieWeergave="
-                + aardRelatieWeergave
-                + ", titel='"
-                + titel
-                + '\''
-                + ", beschrijving='"
-                + beschrijving
-                + '\''
-                + ", registratiedatum="
-                + registratiedatum
-                + '}';
+        return "ZaakInformatieobject{" +
+                "url=" + url +
+                ", uuid=" + uuid +
+                ", informatieobject=" + informatieobject +
+                ", zaak=" + zaak +
+                ", aardRelatieWeergave=" + aardRelatieWeergave +
+                ", titel='" + titel + '\'' +
+                ", beschrijving='" + beschrijving + '\'' +
+                ", registratiedatum=" + registratiedatum +
+                '}';
     }
 }

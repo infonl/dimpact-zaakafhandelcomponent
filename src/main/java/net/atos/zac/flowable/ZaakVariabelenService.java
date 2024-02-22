@@ -1,7 +1,3 @@
-/*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
- * SPDX-License-Identifier: EUPL-1.2+
- */
 package net.atos.zac.flowable;
 
 import java.time.ZonedDateTime;
@@ -35,8 +31,7 @@ public class ZaakVariabelenService {
 
     public static final String VAR_ZAAKTYPE_OMSCHRIJVING = "zaaktypeOmschrijving";
 
-    private static final String VAR_ONTVANGSTBEVESTIGING_VERSTUURD =
-            "ontvangstbevestigingVerstuurd";
+    private static final String VAR_ONTVANGSTBEVESTIGING_VERSTUURD = "ontvangstbevestigingVerstuurd";
 
     private static final String VAR_DATUMTIJD_OPGESCHORT = "datumTijdOpgeschort";
 
@@ -45,22 +40,19 @@ public class ZaakVariabelenService {
     // Wordt gebruikt binnen het CMMN model
     private static final String VAR_ONTVANKELIJK = "ontvankelijk";
 
-    public static final List<String> VARS =
-            List.of(
-                    VAR_ZAAK_UUID,
-                    VAR_ZAAK_IDENTIFICATIE,
-                    VAR_ZAAKTYPE_UUUID,
-                    VAR_ZAAKTYPE_OMSCHRIJVING,
-                    VAR_ONTVANGSTBEVESTIGING_VERSTUURD,
-                    VAR_DATUMTIJD_OPGESCHORT,
-                    VAR_VERWACHTE_DAGEN_OPGESCHORT,
-                    VAR_ONTVANKELIJK);
+    public static final List<String> VARS = List.of(VAR_ZAAK_UUID, VAR_ZAAK_IDENTIFICATIE, VAR_ZAAKTYPE_UUUID,
+                                                    VAR_ZAAKTYPE_OMSCHRIJVING, VAR_ONTVANGSTBEVESTIGING_VERSTUURD,
+                                                    VAR_DATUMTIJD_OPGESCHORT, VAR_VERWACHTE_DAGEN_OPGESCHORT,
+                                                    VAR_ONTVANKELIJK);
 
-    @Inject private CmmnRuntimeService cmmnRuntimeService;
+    @Inject
+    private CmmnRuntimeService cmmnRuntimeService;
 
-    @Inject private RuntimeService bpmnRuntimeService;
+    @Inject
+    private RuntimeService bpmnRuntimeService;
 
-    @Inject private CmmnHistoryService cmmnHistoryService;
+    @Inject
+    private CmmnHistoryService cmmnHistoryService;
 
     public UUID readZaakUUID(final PlanItemInstance planItemInstance) {
         return (UUID) readCaseVariable(planItemInstance, VAR_ZAAK_UUID);
@@ -83,13 +75,11 @@ public class ZaakVariabelenService {
         return caseVariable != null ? Optional.of((Boolean) caseVariable) : Optional.empty();
     }
 
-    public void setOntvangstbevestigingVerstuurd(
-            final UUID zaakUUID, final Boolean ontvangstbevestigingVerstuurd) {
+    public void setOntvangstbevestigingVerstuurd(final UUID zaakUUID, final Boolean ontvangstbevestigingVerstuurd) {
         setVariable(zaakUUID, VAR_ONTVANGSTBEVESTIGING_VERSTUURD, ontvangstbevestigingVerstuurd);
     }
 
-    public void setOntvankelijk(
-            final PlanItemInstance planItemInstance, final Boolean ontvankelijk) {
+    public void setOntvankelijk(final PlanItemInstance planItemInstance, final Boolean ontvankelijk) {
         setVariable(planItemInstance, VAR_ONTVANKELIJK, ontvankelijk);
     }
 
@@ -98,8 +88,7 @@ public class ZaakVariabelenService {
         return caseVariable != null ? Optional.of((ZonedDateTime) caseVariable) : Optional.empty();
     }
 
-    public void setDatumtijdOpgeschort(
-            final UUID zaakUUID, final ZonedDateTime datumtijOpgeschort) {
+    public void setDatumtijdOpgeschort(final UUID zaakUUID, final ZonedDateTime datumtijOpgeschort) {
         setVariable(zaakUUID, VAR_DATUMTIJD_OPGESCHORT, datumtijOpgeschort);
     }
 
@@ -112,8 +101,7 @@ public class ZaakVariabelenService {
         return caseVariable != null ? Optional.of((Integer) caseVariable) : Optional.empty();
     }
 
-    public void setVerwachteDagenOpgeschort(
-            final UUID zaakUUID, final Integer verwachteDagenOpgeschort) {
+    public void setVerwachteDagenOpgeschort(final UUID zaakUUID, final Integer verwachteDagenOpgeschort) {
         setVariable(zaakUUID, VAR_VERWACHTE_DAGEN_OPGESCHORT, verwachteDagenOpgeschort);
     }
 
@@ -129,32 +117,26 @@ public class ZaakVariabelenService {
         setVariables(zaakUUID, zaakdata);
     }
 
-    private Object readCaseVariable(
-            final PlanItemInstance planItemInstance, final String variableName) {
-        final CaseInstance caseInstance =
-                cmmnRuntimeService
-                        .createCaseInstanceQuery()
-                        .caseInstanceId(planItemInstance.getCaseInstanceId())
-                        .includeCaseVariables()
-                        .singleResult();
+    private Object readCaseVariable(final PlanItemInstance planItemInstance, final String variableName) {
+        final CaseInstance caseInstance = cmmnRuntimeService.createCaseInstanceQuery()
+                .caseInstanceId(planItemInstance.getCaseInstanceId())
+                .includeCaseVariables()
+                .singleResult();
         if (caseInstance != null) {
             return caseInstance.getCaseVariables().get(variableName);
         }
 
-        final HistoricCaseInstance historicCaseInstance =
-                cmmnHistoryService
-                        .createHistoricCaseInstanceQuery()
-                        .caseInstanceId(planItemInstance.getCaseInstanceId())
-                        .includeCaseVariables()
-                        .singleResult();
+        final HistoricCaseInstance historicCaseInstance = cmmnHistoryService.createHistoricCaseInstanceQuery()
+                .caseInstanceId(planItemInstance.getCaseInstanceId())
+                .includeCaseVariables()
+                .singleResult();
         if (historicCaseInstance != null) {
             return historicCaseInstance.getCaseVariables().get(variableName);
         }
 
         throw new RuntimeException(
-                String.format(
-                        "No variable found with name '%s' for case instance id '%s'",
-                        variableName, planItemInstance.getCaseInstanceId()));
+                String.format("No variable found with name '%s' for case instance id '%s'", variableName,
+                              planItemInstance.getCaseInstanceId()));
     }
 
     private Object findCaseVariable(final UUID zaakUUID, final String variableName) {
@@ -162,22 +144,18 @@ public class ZaakVariabelenService {
     }
 
     private Map<String, Object> findCaseVariables(final UUID zaakUUID) {
-        final CaseInstance caseInstance =
-                cmmnRuntimeService
-                        .createCaseInstanceQuery()
-                        .caseInstanceBusinessKey(zaakUUID.toString())
-                        .includeCaseVariables()
-                        .singleResult();
+        final CaseInstance caseInstance = cmmnRuntimeService.createCaseInstanceQuery()
+                .caseInstanceBusinessKey(zaakUUID.toString())
+                .includeCaseVariables()
+                .singleResult();
         if (caseInstance != null) {
             return caseInstance.getCaseVariables();
         }
 
-        final HistoricCaseInstance historicCaseInstance =
-                cmmnHistoryService
-                        .createHistoricCaseInstanceQuery()
-                        .caseInstanceBusinessKey(zaakUUID.toString())
-                        .includeCaseVariables()
-                        .singleResult();
+        final HistoricCaseInstance historicCaseInstance = cmmnHistoryService.createHistoricCaseInstanceQuery()
+                .caseInstanceBusinessKey(zaakUUID.toString())
+                .includeCaseVariables()
+                .singleResult();
         if (historicCaseInstance != null) {
             return historicCaseInstance.getCaseVariables();
         }
@@ -185,12 +163,10 @@ public class ZaakVariabelenService {
     }
 
     private Map<String, Object> findProcesVariables(final UUID zaakUUID) {
-        final ProcessInstance processInstance =
-                bpmnRuntimeService
-                        .createProcessInstanceQuery()
-                        .processInstanceBusinessKey(zaakUUID.toString())
-                        .includeProcessVariables()
-                        .singleResult();
+        final ProcessInstance processInstance = bpmnRuntimeService.createProcessInstanceQuery()
+                .processInstanceBusinessKey(zaakUUID.toString())
+                .includeProcessVariables()
+                .singleResult();
         if (processInstance != null) {
             return processInstance.getProcessVariables();
         }
@@ -205,80 +181,61 @@ public class ZaakVariabelenService {
         return findProcesVariables(zaakUUID);
     }
 
-    private void setVariable(
-            final PlanItemInstance planItemInstance,
-            final String variableName,
-            final Object value) {
+    private void setVariable(final PlanItemInstance planItemInstance, final String variableName, final Object value) {
         cmmnRuntimeService.setVariable(planItemInstance.getCaseInstanceId(), variableName, value);
     }
 
     private void setVariable(final UUID zaakUUID, final String variableName, final Object value) {
-        final CaseInstance caseInstance =
-                cmmnRuntimeService
-                        .createCaseInstanceQuery()
-                        .variableValueEquals(VAR_ZAAK_UUID, zaakUUID)
-                        .singleResult();
+        final CaseInstance caseInstance = cmmnRuntimeService.createCaseInstanceQuery()
+                .variableValueEquals(VAR_ZAAK_UUID, zaakUUID)
+                .singleResult();
 
         if (caseInstance != null) {
             cmmnRuntimeService.setVariable(caseInstance.getId(), variableName, value);
         } else {
-            final ProcessInstance processInstance =
-                    bpmnRuntimeService
-                            .createProcessInstanceQuery()
-                            .processInstanceBusinessKey(zaakUUID.toString())
-                            .singleResult();
+            final ProcessInstance processInstance = bpmnRuntimeService.createProcessInstanceQuery()
+                    .processInstanceBusinessKey(zaakUUID.toString())
+                    .singleResult();
             if (processInstance != null) {
                 bpmnRuntimeService.setVariable(processInstance.getId(), variableName, value);
             } else {
                 throw new RuntimeException(
-                        String.format(
-                                "No case or process instance found for zaak with UUID: '%s'",
-                                zaakUUID));
+                        String.format("No case or process instance found for zaak with UUID: '%s'", zaakUUID));
             }
         }
     }
 
     private void setVariables(final UUID zaakUUID, final Map<String, Object> variables) {
-        final CaseInstance caseInstance =
-                cmmnRuntimeService
-                        .createCaseInstanceQuery()
-                        .caseInstanceBusinessKey(zaakUUID.toString())
-                        .singleResult();
+        final CaseInstance caseInstance = cmmnRuntimeService.createCaseInstanceQuery()
+                .caseInstanceBusinessKey(zaakUUID.toString())
+                .singleResult();
 
         if (caseInstance != null) {
             cmmnRuntimeService.setVariables(caseInstance.getId(), variables);
         } else {
-            final ProcessInstance processInstance =
-                    bpmnRuntimeService
-                            .createProcessInstanceQuery()
-                            .processInstanceBusinessKey(zaakUUID.toString())
-                            .singleResult();
+            final ProcessInstance processInstance = bpmnRuntimeService.createProcessInstanceQuery()
+                    .processInstanceBusinessKey(zaakUUID.toString())
+                    .singleResult();
             if (processInstance != null) {
                 bpmnRuntimeService.setVariables(processInstance.getId(), variables);
             } else {
                 throw new RuntimeException(
-                        String.format(
-                                "No case or process instance found for zaak with UUID: '%s'",
-                                zaakUUID));
+                        String.format("No case or process instance found for zaak with UUID: '%s'", zaakUUID));
             }
         }
     }
 
     private void removeVariable(final UUID zaakUUID, final String variableName) {
-        final CaseInstance caseInstance =
-                cmmnRuntimeService
-                        .createCaseInstanceQuery()
-                        .caseInstanceBusinessKey(zaakUUID.toString())
-                        .singleResult();
+        final CaseInstance caseInstance = cmmnRuntimeService.createCaseInstanceQuery()
+                .caseInstanceBusinessKey(zaakUUID.toString())
+                .singleResult();
 
         if (caseInstance != null) {
             cmmnRuntimeService.removeVariable(caseInstance.getId(), variableName);
         } else {
-            final ProcessInstance processInstance =
-                    bpmnRuntimeService
-                            .createProcessInstanceQuery()
-                            .processInstanceBusinessKey(zaakUUID.toString())
-                            .singleResult();
+            final ProcessInstance processInstance = bpmnRuntimeService.createProcessInstanceQuery()
+                    .processInstanceBusinessKey(zaakUUID.toString())
+                    .singleResult();
             if (processInstance != null) {
                 bpmnRuntimeService.removeVariable(processInstance.getId(), variableName);
             }

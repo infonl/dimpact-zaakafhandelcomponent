@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.zrc.model;
 
 import java.net.URI;
@@ -13,19 +14,13 @@ import net.atos.client.zgw.ztc.model.generated.RolType;
 
 public class RolOrganisatorischeEenheid extends Rol<OrganisatorischeEenheid> {
 
-    public RolOrganisatorischeEenheid() {}
+    public RolOrganisatorischeEenheid() {
+    }
 
-    public RolOrganisatorischeEenheid(
-            final URI zaak,
-            final RolType roltype,
+    public RolOrganisatorischeEenheid(final URI zaak, final RolType roltype,
             final String roltoelichting,
             final OrganisatorischeEenheid betrokkeneIdentificatie) {
-        super(
-                zaak,
-                roltype,
-                BetrokkeneType.ORGANISATORISCHE_EENHEID,
-                betrokkeneIdentificatie,
-                roltoelichting);
+        super(zaak, roltype, BetrokkeneType.ORGANISATORISCHE_EENHEID, betrokkeneIdentificatie, roltoelichting);
     }
 
     @Override
@@ -37,8 +32,7 @@ public class RolOrganisatorischeEenheid extends Rol<OrganisatorischeEenheid> {
         if (identificatie == null) {
             return false;
         }
-        return Objects.equals(
-                betrokkeneIdentificatie.getIdentificatie(), identificatie.getIdentificatie());
+        return Objects.equals(betrokkeneIdentificatie.getIdentificatie(), identificatie.getIdentificatie());
     }
 
     @Override

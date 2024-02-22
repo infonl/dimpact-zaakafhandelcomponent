@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.formulieren.model;
 
 import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
@@ -23,11 +24,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 
 @Entity
 @Table(schema = SCHEMA, name = "formulier_veld_definitie")
-@SequenceGenerator(
-        schema = SCHEMA,
-        name = "sq_formulier_veld_definitie",
-        sequenceName = "sq_formulier_veld_definitie",
-        allocationSize = 1)
+@SequenceGenerator(schema = SCHEMA, name = "sq_formulier_veld_definitie", sequenceName = "sq_formulier_veld_definitie", allocationSize = 1)
 public class FormulierVeldDefinitie {
 
     @Id
@@ -35,7 +32,8 @@ public class FormulierVeldDefinitie {
     @Column(name = "id_formulier_veld_definitie")
     private Long id;
 
-    @NotNull @ManyToOne
+    @NotNull
+    @ManyToOne
     @JoinColumn(name = "id_formulier_definitie", referencedColumnName = "id_formulier_definitie")
     private FormulierDefinitie formulierDefinitie;
 
@@ -51,7 +49,8 @@ public class FormulierVeldDefinitie {
     @Column(name = "label", nullable = false)
     private String label;
 
-    @NotNull @Column(name = "veldtype", nullable = false)
+    @NotNull
+    @Column(name = "veldtype", nullable = false)
     @Enumerated(EnumType.STRING)
     private FormulierVeldtype veldtype;
 
@@ -72,6 +71,7 @@ public class FormulierVeldDefinitie {
 
     @Column(name = "validaties")
     private String validaties;
+
 
     public Long getId() {
         return id;

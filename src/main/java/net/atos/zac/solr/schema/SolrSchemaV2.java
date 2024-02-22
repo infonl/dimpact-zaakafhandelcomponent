@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.solr.schema;
 
 import static net.atos.zac.solr.FieldType.PDATE;
@@ -42,10 +43,14 @@ class SolrSchemaV2 implements SolrSchemaUpdate {
         return List.of(
                 deleteCopyField("zaak_einddatumGepland", "streefdatum"),
                 deleteCopyField("taak_streefdatum", "streefdatum"),
-                deleteField("streefdatum"));
+                deleteField("streefdatum")
+        );
     }
 
     private List<SchemaRequest.Update> updateTaakSchema() {
-        return List.of(deleteField("taak_streefdatum"), addField("taak_fataledatum", PDATE));
+        return List.of(
+                deleteField("taak_streefdatum"),
+                addField("taak_fataledatum", PDATE)
+        );
     }
 }

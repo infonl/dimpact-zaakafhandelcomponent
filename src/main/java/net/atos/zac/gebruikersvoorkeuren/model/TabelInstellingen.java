@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.gebruikersvoorkeuren.model;
@@ -24,11 +24,7 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(schema = SCHEMA, name = "tabel_instellingen")
-@SequenceGenerator(
-        schema = SCHEMA,
-        name = "sq_tabel_instellingen",
-        sequenceName = "sq_tabel_instellingen",
-        allocationSize = 1)
+@SequenceGenerator(schema = SCHEMA, name = "sq_tabel_instellingen", sequenceName = "sq_tabel_instellingen", allocationSize = 1)
 public class TabelInstellingen {
 
     /** Naam van property: {@link TabelInstellingen#medewerkerID} */
@@ -43,15 +39,16 @@ public class TabelInstellingen {
 
     public static final int AANTAL_PER_PAGINA_MIN = 10;
 
-    public static final List<Integer> PAGE_SIZE_OPTIONS =
-            List.of(AANTAL_PER_PAGINA_MIN, AANTAL_PER_PAGINA_DEFAULT, 50, AANTAL_PER_PAGINA_MAX);
+    public static final List<Integer> PAGE_SIZE_OPTIONS = List.of(AANTAL_PER_PAGINA_MIN, AANTAL_PER_PAGINA_DEFAULT, 50, AANTAL_PER_PAGINA_MAX);
+
 
     @Id
     @GeneratedValue(generator = "sq_tabel_instellingen", strategy = GenerationType.SEQUENCE)
     @Column(name = "id_tabel_instellingen")
     private Long id;
 
-    @NotNull @Column(name = "id_lijst_enum", nullable = false)
+    @NotNull
+    @Column(name = "id_lijst_enum", nullable = false)
     @Enumerated(EnumType.STRING)
     private Werklijst lijstID;
 

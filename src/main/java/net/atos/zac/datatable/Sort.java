@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.datatable;
 
 import net.atos.zac.shared.model.SorteerRichting;
@@ -15,7 +16,8 @@ public class Sort {
     /**
      * Default constructor
      */
-    public Sort() {}
+    public Sort() {
+    }
 
     public String getPredicate() {
         return predicate;

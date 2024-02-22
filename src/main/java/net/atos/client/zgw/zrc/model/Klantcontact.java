@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.zrc.model;
 
 import static net.atos.client.zgw.shared.util.DateTimeUtil.DATE_TIME_FORMAT;
@@ -61,7 +62,9 @@ public class Klantcontact {
      */
     private String toelichting;
 
-    public Klantcontact() {}
+    public Klantcontact() {
+    }
+
 
     public URI getUrl() {
         return url;

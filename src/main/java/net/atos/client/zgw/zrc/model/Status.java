@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.zrc.model;
 
 import static net.atos.client.zgw.shared.util.DateTimeUtil.DATE_TIME_FORMAT;
@@ -67,8 +68,7 @@ public class Status {
      * Constructor with required and readOnly attributes for GET request
      */
     @JsonbCreator
-    public Status(
-            @JsonbProperty("url") final URI url,
+    public Status(@JsonbProperty("url") final URI url,
             @JsonbProperty("uuid") final UUID uuid,
             @JsonbProperty("zaak") final URI zaak,
             @JsonbProperty("statustype") final URI statustype,
@@ -79,6 +79,7 @@ public class Status {
         this.statustype = statustype;
         this.datumStatusGezet = datumStatusGezet;
     }
+
 
     public URI getUrl() {
         return url;

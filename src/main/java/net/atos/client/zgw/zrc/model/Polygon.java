@@ -1,13 +1,15 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.zrc.model;
 
 import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
+
 
 public class Polygon extends Geometry {
 
@@ -38,10 +40,7 @@ public class Polygon extends Geometry {
         }
 
         final Polygon polygon = (Polygon) o;
-        return new EqualsBuilder()
-                .append(super.getType(), polygon.getType())
-                .append(coordinates, polygon.coordinates)
-                .isEquals();
+        return new EqualsBuilder().append(super.getType(), polygon.getType()).append(coordinates, polygon.coordinates).isEquals();
     }
 
     @Override

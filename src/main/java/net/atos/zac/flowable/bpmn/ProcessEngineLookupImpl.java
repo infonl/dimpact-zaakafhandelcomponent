@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.flowable.bpmn;
 
 import static org.flowable.common.engine.impl.AbstractEngineConfiguration.DATABASE_TYPE_POSTGRES;
@@ -52,11 +53,8 @@ public class ProcessEngineLookupImpl implements ProcessEngineLookup {
     }
 
     public static CmmnEngineConfiguration getCmmnEngineConfiguration() {
-        return (CmmnEngineConfiguration)
-                getSharedProcessEngine()
-                        .getProcessEngineConfiguration()
-                        .getEngineConfigurations()
-                        .get(EngineConfigurationConstants.KEY_CMMN_ENGINE_CONFIG);
+        return (CmmnEngineConfiguration) getSharedProcessEngine().getProcessEngineConfiguration()
+                .getEngineConfigurations().get(EngineConfigurationConstants.KEY_CMMN_ENGINE_CONFIG);
     }
 
     private static ProcessEngine getSharedProcessEngine() {
@@ -93,16 +91,13 @@ public class ProcessEngineLookupImpl implements ProcessEngineLookup {
         cmmnEngineConfiguration.setDatabaseSchemaUpdate(DB_SCHEMA_UPDATE_TRUE);
         cmmnEngineConfiguration.setHistoryLevel(AUDIT);
         cmmnEngineConfiguration.setEnableSafeCmmnXml(true);
-        cmmnEngineConfiguration.setDelegateExpressionFieldInjectionMode(
-                DelegateExpressionFieldInjectionMode.DISABLED);
+        cmmnEngineConfiguration.setDelegateExpressionFieldInjectionMode(DelegateExpressionFieldInjectionMode.DISABLED);
         cmmnEngineConfiguration.setEnableHistoricTaskLogging(true);
         CaseInstanceState.END_STATES.forEach(
-                endState ->
-                        cmmnEngineConfiguration.addCaseInstanceLifeCycleListener(
-                                new EndCaseLifecycleListener(CaseInstanceState.ACTIVE, endState)));
+                endState -> cmmnEngineConfiguration.addCaseInstanceLifeCycleListener(
+                        new EndCaseLifecycleListener(CaseInstanceState.ACTIVE, endState)));
         cmmnEngineConfiguration.setCreateHumanTaskInterceptor(new CreateHumanTaskInterceptor());
-        cmmnEngineConfiguration.setIdentityLinkInterceptor(
-                new CompleteTaskInterceptor(cmmnEngineConfiguration));
+        cmmnEngineConfiguration.setIdentityLinkInterceptor(new CompleteTaskInterceptor(cmmnEngineConfiguration));
         cmmnEngineConfiguration.setDisableIdmEngine(true);
         return cmmnEngineConfiguration;
     }

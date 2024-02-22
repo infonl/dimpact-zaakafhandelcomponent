@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.websocket.event;
 
 import static net.atos.zac.event.Opcode.DELETED;
@@ -30,6 +31,7 @@ import net.atos.zac.signalering.model.Signalering;
  * Maps to object-type.ts
  */
 public enum ScreenEventType {
+
     BESLUIT {
         @Override
         public ScreenEvent event(final Opcode opcode, final Besluit besluit) {
@@ -46,8 +48,7 @@ public enum ScreenEventType {
 
     ENKELVOUDIG_INFORMATIEOBJECT {
         @Override
-        public ScreenEvent event(
-                final Opcode opcode,
+        public ScreenEvent event(final Opcode opcode,
                 final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
             return instance(opcode, this, enkelvoudigInformatieobject);
         }
@@ -55,7 +56,8 @@ public enum ScreenEventType {
 
     SIGNALERINGEN {
         @Override
-        public ScreenEvent event(final Opcode opcode, final Signalering signalering) {
+        public ScreenEvent event(final Opcode opcode,
+                final Signalering signalering) {
             return instance(opcode, this, signalering);
         }
     },
@@ -112,52 +114,46 @@ public enum ScreenEventType {
     }
 
     // This is the factory method.
-    private static ScreenEvent instance(
-            final Opcode opcode, final ScreenEventType type, final String id, final String detail) {
+    private static ScreenEvent instance(final Opcode opcode, final ScreenEventType type, final String id,
+            final String detail) {
         return new ScreenEvent(opcode, type, new ScreenEventId(id, detail));
     }
 
-    // In these methods you determine what is used as an id, make sure that this is consistent with
-    // the other methods
-    private static ScreenEvent instance(
-            final Opcode opcode, final ScreenEventType type, final UUID uuid, final UUID detail) {
-        return instance(opcode, type, uuid.toString(), detail != null ? detail.toString() : null);
+    // In these methods you determine what is used as an id, make sure that this is consistent with the other methods
+    private static ScreenEvent instance(final Opcode opcode, final ScreenEventType type, final UUID uuid,
+            final UUID detail) {
+        return instance(opcode, type,
+                        uuid.toString(),
+                        detail != null ? detail.toString() : null);
     }
 
-    private static ScreenEvent instance(
-            final Opcode opcode, final ScreenEventType type, final URI url, final URI detail) {
-        return instance(
-                opcode, type, uuidFromURI(url), detail != null ? uuidFromURI(detail) : null);
+    private static ScreenEvent instance(final Opcode opcode, final ScreenEventType type, final URI url,
+            final URI detail) {
+        return instance(opcode, type, uuidFromURI(url), detail != null ? uuidFromURI(detail) : null);
     }
 
     // These methods determine what is used as an id, so that it is the same everywhere
 
-    private static ScreenEvent instance(
-            final Opcode opcode, final ScreenEventType type, final Zaak zaak) {
+    private static ScreenEvent instance(final Opcode opcode, final ScreenEventType type, final Zaak zaak) {
         return instance(opcode, type, zaak.getUuid(), null);
     }
 
-    private static ScreenEvent instance(
-            final Opcode opcode, final ScreenEventType type, final TaskInfo taskinfo) {
+    private static ScreenEvent instance(final Opcode opcode, final ScreenEventType type, final TaskInfo taskinfo) {
         return instance(opcode, type, taskinfo.getId(), null);
     }
 
-    private static ScreenEvent instance(
-            final Opcode opcode, final ScreenEventType type, final Besluit besluit) {
+    private static ScreenEvent instance(final Opcode opcode, final ScreenEventType type, final Besluit besluit) {
         return instance(opcode, type, besluit.getUrl(), null);
     }
 
-    private static ScreenEvent instance(
-            final Opcode opcode,
-            final ScreenEventType type,
+    private static ScreenEvent instance(final Opcode opcode, final ScreenEventType type,
             final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
         return instance(opcode, type, enkelvoudigInformatieobject.getUrl(), null);
     }
 
-    private static ScreenEvent instance(
-            final Opcode opcode, final ScreenEventType type, final Signalering signalering) {
-        return instance(
-                opcode, type, signalering.getTarget(), signalering.getType().getType().name());
+    private static ScreenEvent instance(final Opcode opcode, final ScreenEventType type,
+            final Signalering signalering) {
+        return instance(opcode, type, signalering.getTarget(), signalering.getType().getType().name());
     }
 
     // These methods determine on which object types the different arguments are allowed
@@ -169,51 +165,37 @@ public enum ScreenEventType {
         return instance(opcode, this, url, null); // Allowed with all object types
     }
 
-    private ScreenEvent event(
-            final Opcode opcode,
+    private ScreenEvent event(final Opcode opcode,
             final Notificatie.ResourceInfo resource,
             final Notificatie.ResourceInfo detail) {
-        return instance(
-                opcode,
-                this,
-                resource.getUrl(),
-                detail != null ? detail.getUrl() : null); // Allowed with all object types
+        return instance(opcode, this,
+                        resource.getUrl(),
+                        detail != null ? detail.getUrl() : null); // Allowed with all object types
     }
 
     public ScreenEvent event(final Opcode opcode, final Zaak zaak) {
-        throw new IllegalArgumentException(); // Not allowed except for object types where this
-        // method
-        // has an override
+        throw new IllegalArgumentException(); // Not allowed except for object types where this method has an override
     }
 
     public ScreenEvent event(final Opcode opcode, final TaskInfo taskInfo) {
-        throw new IllegalArgumentException(); // Not allowed except for object types where this
-        // method
-        // has an override
+        throw new IllegalArgumentException(); // Not allowed except for object types where this method has an override
     }
 
     public ScreenEvent event(final Opcode opcode, final Besluit besluit) {
-        throw new IllegalArgumentException(); // Not allowed except for object types where this
-        // method
-        // has an override
+        throw new IllegalArgumentException(); // Not allowed except for object types where this method has an override
     }
 
-    public ScreenEvent event(
-            final Opcode opcode, final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
-        throw new IllegalArgumentException(); // Not allowed except for object types where this
-        // method
-        // has an override
+    public ScreenEvent event(final Opcode opcode,
+            final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
+        throw new IllegalArgumentException(); // Not allowed except for object types where this method has an override
     }
 
     public ScreenEvent event(final Opcode opcode, final Signalering signalering) {
-        throw new IllegalArgumentException(); // Not allowed except for object types where this
-        // method
-        // has an override
+        throw new IllegalArgumentException(); // Not allowed except for object types where this method has an override
     }
 
     // These are factory methods to create handy and unambiguous ScreenEvents for an object type
-    // Note that there are no "created" factory methods as there will never be a listener for those
-    // (the new objectId is unknown client side).
+    // Note that there are no "created" factory methods as there will never be a listener for those (the new objectId is unknown client side).
 
     /**
      * Pay attention! If you use this method, you are responsible for providing the correct UUID.
@@ -273,8 +255,7 @@ public enum ScreenEventType {
      * @param enkelvoudigInformatieobject modified enkelvoudigInformatieobject.
      * @return instance of the event
      */
-    public final ScreenEvent updated(
-            final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
+    public final ScreenEvent updated(final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
         return event(UPDATED, enkelvoudigInformatieobject);
     }
 
@@ -344,22 +325,16 @@ public enum ScreenEventType {
      * @param enkelvoudigInformatieobject deleted enkelvoudigInformatieobject.
      * @return instance of the event
      */
-    public final ScreenEvent deleted(
-            final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
+    public final ScreenEvent deleted(final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
         return event(DELETED, enkelvoudigInformatieobject);
     }
 
-    private void addEvent(
-            final Set<ScreenEvent> events,
-            final Notificatie.ResourceInfo resource,
+    private void addEvent(final Set<ScreenEvent> events, final Notificatie.ResourceInfo resource,
             final Notificatie.ResourceInfo detail) {
         switch (resource.getAction()) {
             case CREATE:
-                // There cannot be any websockets listeners for Opcode.CREATED, so don't send the
-                // event.
-                // (The new objectId would have to be known client side before it exists to
-                // subscribe to it.
-                // ;-)
+                // There cannot be any websockets listeners for Opcode.CREATED, so don't send the event.
+                // (The new objectId would have to be known client side before it exists to subscribe to it. ;-)
                 break;
             case UPDATE:
                 events.add(event(UPDATED, resource, detail));
@@ -380,9 +355,7 @@ public enum ScreenEventType {
      * @param resource     the actually modified resource
      * @return the set of events that the parameters map to
      */
-    public static Set<ScreenEvent> getEvents(
-            final Channel channel,
-            final Notificatie.ResourceInfo mainResource,
+    public static Set<ScreenEvent> getEvents(final Channel channel, final Notificatie.ResourceInfo mainResource,
             final Notificatie.ResourceInfo resource) {
         final Set<ScreenEvent> events = new HashSet<>();
         switch (channel) {
@@ -392,20 +365,17 @@ public enum ScreenEventType {
                         ScreenEventType.BESLUIT.addEvent(events, resource, null);
                         break;
                     case BESLUITINFORMATIEOBJECT:
-                        ScreenEventType.BESLUIT_INFORMATIEOBJECTEN.addEvent(
-                                events, mainResource, resource);
+                        ScreenEventType.BESLUIT_INFORMATIEOBJECTEN.addEvent(events, mainResource, resource);
                         break;
                 }
                 break;
             case INFORMATIEOBJECTEN:
                 switch (resource.getType()) {
                     case INFORMATIEOBJECT:
-                        ScreenEventType.ENKELVOUDIG_INFORMATIEOBJECT.addEvent(
-                                events, resource, null);
+                        ScreenEventType.ENKELVOUDIG_INFORMATIEOBJECT.addEvent(events, resource, null);
                         break;
                     case GEBRUIKSRECHTEN:
-                        ScreenEventType.ENKELVOUDIG_INFORMATIEOBJECT.addEvent(
-                                events, mainResource, resource);
+                        ScreenEventType.ENKELVOUDIG_INFORMATIEOBJECT.addEvent(events, mainResource, resource);
                         break;
                 }
                 break;
@@ -421,8 +391,7 @@ public enum ScreenEventType {
                         ScreenEventType.ZAAK.addEvent(events, mainResource, resource);
                         break;
                     case ZAAKINFORMATIEOBJECT:
-                        ScreenEventType.ZAAK_INFORMATIEOBJECTEN.addEvent(
-                                events, mainResource, resource);
+                        ScreenEventType.ZAAK_INFORMATIEOBJECTEN.addEvent(events, mainResource, resource);
                         break;
                     case ZAAKEIGENSCHAP:
                         ScreenEventType.ZAAK.addEvent(events, mainResource, resource);

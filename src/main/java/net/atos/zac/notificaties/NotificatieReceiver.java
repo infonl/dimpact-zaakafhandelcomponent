@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.notificaties;
 
 import static jakarta.ws.rs.core.Response.noContent;
@@ -64,32 +65,41 @@ public class NotificatieReceiver {
 
     private static final String PRODUCTAANVRAAGTYPE_NAAM_DENHAAG = "Productaanvraag-Denhaag";
 
-    @Inject private EventingService eventingService;
+    @Inject
+    private EventingService eventingService;
 
-    @Inject private ProductaanvraagService productaanvraagService;
+    @Inject
+    private ProductaanvraagService productaanvraagService;
 
-    @Inject private ConfiguratieService configuratieService;
+    @Inject
+    private ConfiguratieService configuratieService;
 
-    @Inject private IndexeerService indexeerService;
+    @Inject
+    private IndexeerService indexeerService;
 
-    @Inject private InboxDocumentenService inboxDocumentenService;
+    @Inject
+    private InboxDocumentenService inboxDocumentenService;
 
-    @Inject private ZaakafhandelParameterBeheerService zaakafhandelParameterBeheerService;
+    @Inject
+    private ZaakafhandelParameterBeheerService zaakafhandelParameterBeheerService;
 
-    @Inject private ObjecttypesClientService objecttypesClientService;
+    @Inject
+    private ObjecttypesClientService objecttypesClientService;
 
     @Inject
     @ConfigProperty(name = "OPEN_NOTIFICATIONS_API_SECRET_KEY")
     private String secret;
 
-    @Inject @ActiveSession private Instance<HttpSession> httpSession;
+    @Inject
+    @ActiveSession
+    private Instance<HttpSession> httpSession;
 
     @POST
-    public Response notificatieReceive(
-            @Context HttpHeaders headers, final Notificatie notificatie) {
+    public Response notificatieReceive(@Context HttpHeaders headers, final Notificatie notificatie) {
         SecurityUtil.setFunctioneelGebruiker(httpSession.get());
         if (isAuthenticated(headers)) {
-            LOG.info(() -> "Notificatie ontvangen: %s".formatted(notificatie.toString()));
+            LOG.info(() -> "Notificatie ontvangen: %s"
+                    .formatted(notificatie.toString()));
             handleWebsockets(notificatie);
             if (!configuratieService.isLocalDevelopment()) {
                 handleSignaleringen(notificatie);
@@ -111,10 +121,8 @@ public class NotificatieReceiver {
     private void handleWebsockets(final Notificatie notificatie) {
         try {
             if (notificatie.getChannel() != null && notificatie.getResource() != null) {
-                ScreenEventType.getEvents(
-                                notificatie.getChannel(),
-                                notificatie.getMainResourceInfo(),
-                                notificatie.getResourceInfo())
+                ScreenEventType.getEvents(notificatie.getChannel(), notificatie.getMainResourceInfo(),
+                                          notificatie.getResourceInfo())
                         .forEach(eventingService::send);
             }
         } catch (RuntimeException ex) {
@@ -125,10 +133,8 @@ public class NotificatieReceiver {
     private void handleSignaleringen(final Notificatie notificatie) {
         try {
             if (notificatie.getChannel() != null && notificatie.getResource() != null) {
-                SignaleringEventUtil.getEvents(
-                                notificatie.getChannel(),
-                                notificatie.getMainResourceInfo(),
-                                notificatie.getResourceInfo())
+                SignaleringEventUtil.getEvents(notificatie.getChannel(), notificatie.getMainResourceInfo(),
+                                               notificatie.getResourceInfo())
                         .forEach(eventingService::send);
             }
         } catch (RuntimeException ex) {
@@ -148,13 +154,10 @@ public class NotificatieReceiver {
 
     private boolean isProductaanvraagDenHaag(final Notificatie notificatie) {
         final String producttypeUri = notificatie.getProperties().get(OBJECTTYPE_KENMERK);
-        if (notificatie.getResource() != OBJECT
-                || notificatie.getAction() != CREATE
-                || isEmpty(producttypeUri)) {
+        if (notificatie.getResource() != OBJECT || notificatie.getAction() != CREATE || isEmpty(producttypeUri)) {
             return false;
         }
-        final Objecttype objecttype =
-                objecttypesClientService.readObjecttype(uuidFromURI(producttypeUri));
+        final Objecttype objecttype = objecttypesClientService.readObjecttype(uuidFromURI(producttypeUri));
         return PRODUCTAANVRAAGTYPE_NAAM_DENHAAG.equals(objecttype.getName());
     }
 
@@ -164,20 +167,15 @@ public class NotificatieReceiver {
                 if (notificatie.getResource() == ZAAK) {
                     if (notificatie.getAction() == CREATE || notificatie.getAction() == UPDATE) {
                         // Updaten van taak is nodig bij afsluiten zaak
-                        indexeerService.addOrUpdateZaak(
-                                uuidFromURI(notificatie.getResourceUrl()),
-                                notificatie.getAction() == UPDATE);
+                        indexeerService.addOrUpdateZaak(uuidFromURI(notificatie.getResourceUrl()),
+                                                        notificatie.getAction() == UPDATE);
                     } else if (notificatie.getAction() == DELETE) {
                         indexeerService.removeZaak(uuidFromURI(notificatie.getResourceUrl()));
                     }
-                } else if (notificatie.getResource() == STATUS
-                        || notificatie.getResource() == RESULTAAT
-                        || notificatie.getResource() == ROL
-                        || notificatie.getResource() == ZAAKOBJECT) {
-                    indexeerService.addOrUpdateZaak(
-                            uuidFromURI(notificatie.getMainResourceUrl()), false);
-                } else if (notificatie.getResource() == ZAAKINFORMATIEOBJECT
-                        && notificatie.getAction() == CREATE) {
+                } else if (notificatie.getResource() == STATUS || notificatie.getResource() == RESULTAAT ||
+                        notificatie.getResource() == ROL || notificatie.getResource() == ZAAKOBJECT) {
+                    indexeerService.addOrUpdateZaak(uuidFromURI(notificatie.getMainResourceUrl()), false);
+                } else if (notificatie.getResource() == ZAAKINFORMATIEOBJECT && notificatie.getAction() == CREATE) {
                     indexeerService.addOrUpdateInformatieobjectByZaakinformatieobject(
                             uuidFromURI(notificatie.getResourceUrl()));
                 }
@@ -185,11 +183,9 @@ public class NotificatieReceiver {
             if (notificatie.getChannel() == Channel.INFORMATIEOBJECTEN) {
                 if (notificatie.getResource() == INFORMATIEOBJECT) {
                     if (notificatie.getAction() == CREATE || notificatie.getAction() == UPDATE) {
-                        indexeerService.addOrUpdateInformatieobject(
-                                uuidFromURI(notificatie.getResourceUrl()));
+                        indexeerService.addOrUpdateInformatieobject(uuidFromURI(notificatie.getResourceUrl()));
                     } else if (notificatie.getAction() == DELETE) {
-                        indexeerService.removeInformatieobject(
-                                uuidFromURI(notificatie.getResourceUrl()));
+                        indexeerService.removeInformatieobject(uuidFromURI(notificatie.getResourceUrl()));
                     }
                 }
             }
@@ -216,8 +212,7 @@ public class NotificatieReceiver {
         try {
             if (notificatie.getResource() == ZAAKTYPE) {
                 if (notificatie.getAction() == CREATE || notificatie.getAction() == UPDATE) {
-                    zaakafhandelParameterBeheerService.zaaktypeAangepast(
-                            notificatie.getResourceUrl());
+                    zaakafhandelParameterBeheerService.zaaktypeAangepast(notificatie.getResourceUrl());
                 }
             }
         } catch (RuntimeException ex) {
@@ -225,10 +220,8 @@ public class NotificatieReceiver {
         }
     }
 
-    private void warning(
-            final String handler, final Notificatie notificatie, final RuntimeException ex) {
-        LOG.log(
-                Level.WARNING,
+    private void warning(final String handler, final Notificatie notificatie, final RuntimeException ex) {
+        LOG.log(Level.WARNING,
                 "Er is iets fout gegaan in de %s-handler bij het afhandelen van notificatie: %s"
                         .formatted(handler, notificatie.toString()),
                 ex);

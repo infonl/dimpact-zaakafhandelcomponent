@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.zoeken.converter;
 
 import java.util.EnumMap;
@@ -19,9 +20,11 @@ import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
 
 public class RESTZaakZoekObjectConverter {
 
-    @Inject private PolicyService policyService;
+    @Inject
+    private PolicyService policyService;
 
-    @Inject private RESTRechtenConverter restRechtenConverter;
+    @Inject
+    private RESTRechtenConverter restRechtenConverter;
 
     public RESTZaakZoekObject convert(final ZaakZoekObject zoekItem) {
         final RESTZaakZoekObject restZoekItem = new RESTZaakZoekObject();
@@ -31,20 +34,14 @@ public class RESTZaakZoekObjectConverter {
         restZoekItem.omschrijving = zoekItem.getOmschrijving();
         restZoekItem.toelichting = zoekItem.getToelichting();
         restZoekItem.archiefNominatie = zoekItem.getArchiefNominatie();
-        restZoekItem.archiefActiedatum =
-                DateTimeConverterUtil.convertToLocalDate(zoekItem.getArchiefActiedatum());
-        restZoekItem.registratiedatum =
-                DateTimeConverterUtil.convertToLocalDate(zoekItem.getRegistratiedatum());
-        restZoekItem.startdatum =
-                DateTimeConverterUtil.convertToLocalDate(zoekItem.getStartdatum());
+        restZoekItem.archiefActiedatum = DateTimeConverterUtil.convertToLocalDate(zoekItem.getArchiefActiedatum());
+        restZoekItem.registratiedatum = DateTimeConverterUtil.convertToLocalDate(zoekItem.getRegistratiedatum());
+        restZoekItem.startdatum = DateTimeConverterUtil.convertToLocalDate(zoekItem.getStartdatum());
         restZoekItem.einddatum = DateTimeConverterUtil.convertToLocalDate(zoekItem.getEinddatum());
-        restZoekItem.einddatumGepland =
-                DateTimeConverterUtil.convertToLocalDate(zoekItem.getEinddatumGepland());
-        restZoekItem.uiterlijkeEinddatumAfdoening =
-                DateTimeConverterUtil.convertToLocalDate(
-                        zoekItem.getUiterlijkeEinddatumAfdoening());
-        restZoekItem.publicatiedatum =
-                DateTimeConverterUtil.convertToLocalDate(zoekItem.getPublicatiedatum());
+        restZoekItem.einddatumGepland = DateTimeConverterUtil.convertToLocalDate(zoekItem.getEinddatumGepland());
+        restZoekItem.uiterlijkeEinddatumAfdoening = DateTimeConverterUtil.convertToLocalDate(
+                zoekItem.getUiterlijkeEinddatumAfdoening());
+        restZoekItem.publicatiedatum = DateTimeConverterUtil.convertToLocalDate(zoekItem.getPublicatiedatum());
         restZoekItem.communicatiekanaal = zoekItem.getCommunicatiekanaal();
         restZoekItem.vertrouwelijkheidaanduiding = zoekItem.getVertrouwelijkheidaanduiding();
         restZoekItem.afgehandeld = zoekItem.isAfgehandeld();
@@ -66,28 +63,23 @@ public class RESTZaakZoekObjectConverter {
         restZoekItem.indicatieHeropend = zoekItem.isIndicatie(ZaakIndicatie.HEROPEND);
         restZoekItem.statusToelichting = zoekItem.getStatusToelichting();
         restZoekItem.indicaties = zoekItem.getZaakIndicaties();
-        restZoekItem.rechten =
-                restRechtenConverter.convert(policyService.readZaakRechten(zoekItem));
+        restZoekItem.rechten = restRechtenConverter.convert(policyService.readZaakRechten(zoekItem));
         restZoekItem.betrokkenen = new EnumMap<>(RolType.OmschrijvingGeneriekEnum.class);
         if (zoekItem.getInitiatorIdentificatie() != null) {
             restZoekItem.betrokkenen.put(
                     RolType.OmschrijvingGeneriekEnum.INITIATOR,
-                    List.of(zoekItem.getInitiatorIdentificatie()));
+                    List.of(zoekItem.getInitiatorIdentificatie())
+            );
         }
         if (zoekItem.getBetrokkenen() != null) {
-            zoekItem.getBetrokkenen()
-                    .forEach(
-                            (betrokkenheid, ids) -> {
-                                restZoekItem.betrokkenen.put(
-                                        RolType.OmschrijvingGeneriekEnum.valueOf(
-                                                betrokkenheid
-                                                        .replace(
-                                                                ZaakZoekObject
-                                                                        .ZAAK_BETROKKENE_PREFIX,
-                                                                "")
-                                                        .toUpperCase()),
-                                        ids);
-                            });
+            zoekItem.getBetrokkenen().forEach((betrokkenheid, ids) -> {
+                restZoekItem.betrokkenen.put(
+                        RolType.OmschrijvingGeneriekEnum.valueOf(
+                                betrokkenheid.replace(ZaakZoekObject.ZAAK_BETROKKENE_PREFIX, "").toUpperCase()
+                        ),
+                        ids
+                );
+            });
         }
         return restZoekItem;
     }

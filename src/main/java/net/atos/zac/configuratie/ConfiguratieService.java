@@ -1,14 +1,9 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.configuratie;
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+package net.atos.zac.configuratie;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -20,17 +15,21 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.UriBuilder;
-
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
 import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.client.zgw.ztc.model.CatalogusListParameters;
 import net.atos.zac.configuratie.model.Taal;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import java.net.URI;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @ApplicationScoped
 @Transactional
 public class ConfiguratieService {
-    // TODO zaakafhandelcomponent#1468 vervangen van onderstaande placeholders
+    //TODO zaakafhandelcomponent#1468 vervangen van onderstaande placeholders
     public static final String BRON_ORGANISATIE = "123443210";
 
     public static final String VERANTWOORDELIJKE_ORGANISATIE = "316245124";
@@ -60,10 +59,10 @@ public class ConfiguratieService {
 
     public static final String ENV_VAR_ZGW_API_CLIENT_MP_REST_URL = "ZGW_API_CLIENT_MP_REST_URL";
 
-    // This value should also be set in the widlfly configuration.
-    // The value used in wildfly should be slightly higher to account for overhead. (e.g. 80MB ->
-    // 100MB)
+    // Note that WildFly / RESTEasy also defines a max file upload size.
+    // The value used in our WildFly configuration should be set higher to account for overhead. (e.g. 80MB -> 120MB).
     public static final Integer MAX_FILE_SIZE_MB = 80;
+
     private static final String NONE = "<NONE>";
 
     @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
@@ -105,9 +104,8 @@ public class ConfiguratieService {
     }
 
     public List<String> readAdditionalAllowedFileTypes() {
-        return additionalAllowedFileTypes.equals(NONE)
-                ? Collections.emptyList()
-                : List.of(additionalAllowedFileTypes.split(","));
+        return additionalAllowedFileTypes.equals(NONE) ? Collections.emptyList() :
+                List.of(additionalAllowedFileTypes.split(","));
     }
 
     /**
@@ -133,7 +131,8 @@ public class ConfiguratieService {
     @ConfigProperty(name = "AUTH_RESOURCE")
     private String authResource;
 
-    @Inject private ZTCClientService ztcClientService;
+    @Inject
+    private ZTCClientService ztcClientService;
 
     private URI catalogusURI;
 
@@ -151,9 +150,7 @@ public class ConfiguratieService {
     }
 
     public URI zaakTonenUrl(final String zaakIdentificatie) {
-        return UriBuilder.fromUri(contextUrl)
-                .path("zaken/{zaakIdentificatie}")
-                .build(zaakIdentificatie);
+        return UriBuilder.fromUri(contextUrl).path("zaken/{zaakIdentificatie}").build(zaakIdentificatie);
     }
 
     public URI taakTonenUrl(final String taakId) {
@@ -161,8 +158,7 @@ public class ConfiguratieService {
     }
 
     public URI informatieobjectTonenUrl(final UUID enkelvoudigInformatieobjectUUID) {
-        return UriBuilder.fromUri(contextUrl)
-                .path("informatie-objecten/{enkelvoudigInformatieobjectUUID}")
+        return UriBuilder.fromUri(contextUrl).path("informatie-objecten/{enkelvoudigInformatieobjectUUID}")
                 .build(enkelvoudigInformatieobjectUUID.toString());
     }
 

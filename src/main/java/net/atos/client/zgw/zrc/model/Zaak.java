@@ -1,8 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.zrc.model;
+
 
 import static net.atos.client.zgw.shared.util.DateTimeUtil.DATE_TIME_FORMAT;
 
@@ -205,16 +207,13 @@ public class Zaak {
      */
     private URI resultaat;
 
-    public Zaak() {}
+    public Zaak() {
+    }
 
     /**
      * Constructor with required attributes for POST and PUT requests
      */
-    public Zaak(
-            final URI zaaktype,
-            final LocalDate startdatum,
-            final String bronorganisatie,
-            final String verantwoordelijkeOrganisatie) {
+    public Zaak(final URI zaaktype, final LocalDate startdatum, final String bronorganisatie, final String verantwoordelijkeOrganisatie) {
         this.bronorganisatie = bronorganisatie;
         this.zaaktype = zaaktype;
         this.verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie;
@@ -224,10 +223,7 @@ public class Zaak {
     /**
      * Constructor with required attributes for POST and PUT requests but without startdatum which will be set to today.
      */
-    public Zaak(
-            final URI zaaktype,
-            final String bronorganisatie,
-            final String verantwoordelijkeOrganisatie) {
+    public Zaak(final URI zaaktype, final String bronorganisatie, final String verantwoordelijkeOrganisatie) {
         this.bronorganisatie = bronorganisatie;
         this.zaaktype = zaaktype;
         this.verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie;
@@ -378,14 +374,11 @@ public class Zaak {
         this.productenOfDiensten = productenOfDiensten;
     }
 
-    public EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum
-            getVertrouwelijkheidaanduiding() {
+    public EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum getVertrouwelijkheidaanduiding() {
         return vertrouwelijkheidaanduiding;
     }
 
-    public void setVertrouwelijkheidaanduiding(
-            final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum
-                    vertrouwelijkheidaanduiding) {
+    public void setVertrouwelijkheidaanduiding(final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum vertrouwelijkheidaanduiding) {
         this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding;
     }
 
@@ -517,9 +510,7 @@ public class Zaak {
     }
 
     @JsonbTransient
-    // Niet hernoemen naar isHoofdzaak omdat anders het 'hoofdzaak' attribuut niet meer wordt
-    // omgezet
-    // naar JSON
+    // Niet hernoemen naar isHoofdzaak omdat anders het 'hoofdzaak' attribuut niet meer wordt omgezet naar JSON
     public boolean is_Hoofdzaak() {
         return CollectionUtils.isNotEmpty(deelzaken);
     }
@@ -531,79 +522,40 @@ public class Zaak {
 
     @Override
     public String toString() {
-        return "Zaak{"
-                + "url="
-                + url
-                + ", uuid="
-                + uuid
-                + ", identificatie='"
-                + identificatie
-                + '\''
-                + ", bronorganisatie='"
-                + bronorganisatie
-                + '\''
-                + ", omschrijving='"
-                + omschrijving
-                + '\''
-                + ", toelichting='"
-                + toelichting
-                + '\''
-                + ", zaaktype="
-                + zaaktype
-                + ", registratiedatum="
-                + registratiedatum
-                + ", verantwoordelijkeOrganisatie='"
-                + verantwoordelijkeOrganisatie
-                + '\''
-                + ", startdatum="
-                + startdatum
-                + ", einddatum="
-                + einddatum
-                + ", einddatumGepland="
-                + einddatumGepland
-                + ", uiterlijkeEinddatumAfdoening="
-                + uiterlijkeEinddatumAfdoening
-                + ", publicatiedatum="
-                + publicatiedatum
-                + ", communicatiekanaal="
-                + communicatiekanaal
-                + ", productenOfDiensten="
-                + productenOfDiensten
-                + ", vertrouwelijkheidaanduiding="
-                + vertrouwelijkheidaanduiding
-                + ", betalingsindicatie="
-                + betalingsindicatie
-                + ", betalingsindicatieWeergave='"
-                + betalingsindicatieWeergave
-                + '\''
-                + ", laatsteBetaaldatum="
-                + laatsteBetaaldatum
-                + ", zaakgeometrie="
-                + zaakgeometrie
-                + ", verlenging="
-                + verlenging
-                + ", opschorting="
-                + opschorting
-                + ", selectielijstklasse="
-                + selectielijstklasse
-                + ", hoofdzaak="
-                + hoofdzaak
-                + ", deelzaken="
-                + deelzaken
-                + ", relevanteAndereZaken="
-                + relevanteAndereZaken
-                + ", status="
-                + status
-                + ", kenmerken="
-                + kenmerken
-                + ", archiefnominatie="
-                + archiefnominatie
-                + ", archiefstatus="
-                + archiefstatus
-                + ", archiefactiedatum="
-                + archiefactiedatum
-                + ", resultaat="
-                + resultaat
-                + '}';
+        return "Zaak{" +
+                "url=" + url +
+                ", uuid=" + uuid +
+                ", identificatie='" + identificatie + '\'' +
+                ", bronorganisatie='" + bronorganisatie + '\'' +
+                ", omschrijving='" + omschrijving + '\'' +
+                ", toelichting='" + toelichting + '\'' +
+                ", zaaktype=" + zaaktype +
+                ", registratiedatum=" + registratiedatum +
+                ", verantwoordelijkeOrganisatie='" + verantwoordelijkeOrganisatie + '\'' +
+                ", startdatum=" + startdatum +
+                ", einddatum=" + einddatum +
+                ", einddatumGepland=" + einddatumGepland +
+                ", uiterlijkeEinddatumAfdoening=" + uiterlijkeEinddatumAfdoening +
+                ", publicatiedatum=" + publicatiedatum +
+                ", communicatiekanaal=" + communicatiekanaal +
+                ", productenOfDiensten=" + productenOfDiensten +
+                ", vertrouwelijkheidaanduiding=" + vertrouwelijkheidaanduiding +
+                ", betalingsindicatie=" + betalingsindicatie +
+                ", betalingsindicatieWeergave='" + betalingsindicatieWeergave + '\'' +
+                ", laatsteBetaaldatum=" + laatsteBetaaldatum +
+                ", zaakgeometrie=" + zaakgeometrie +
+                ", verlenging=" + verlenging +
+                ", opschorting=" + opschorting +
+                ", selectielijstklasse=" + selectielijstklasse +
+                ", hoofdzaak=" + hoofdzaak +
+                ", deelzaken=" + deelzaken +
+                ", relevanteAndereZaken=" + relevanteAndereZaken +
+                ", status=" + status +
+                ", kenmerken=" + kenmerken +
+                ", archiefnominatie=" + archiefnominatie +
+                ", archiefstatus=" + archiefstatus +
+                ", archiefactiedatum=" + archiefactiedatum +
+                ", resultaat=" + resultaat +
+                '}';
     }
 }

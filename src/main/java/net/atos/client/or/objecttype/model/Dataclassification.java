@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.or.objecttype.model;
 
 import static java.util.Arrays.stream;
@@ -16,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 @JsonbTypeAdapter(Dataclassification.Adapter.class)
 public enum Dataclassification {
+
     OPEN("open"),
     INTERN("intern"),
     CONFIDENTIAL("confidential"),
@@ -44,17 +46,10 @@ public enum Dataclassification {
                 return null;
             }
             return stream(values())
-                    .filter(
-                            dataclassification ->
-                                    StringUtils.equals(dataclassification.value, json))
+                    .filter(dataclassification -> StringUtils.equals(dataclassification.value, json))
                     .findFirst()
-                    .orElseThrow(
-                            () ->
-                                    new RuntimeException(
-                                            String.format(
-                                                    "Unkown value for %s: '%s'",
-                                                    Dataclassification.class.getSimpleName(),
-                                                    json)));
+                    .orElseThrow(() -> new RuntimeException(String.format("Unkown value for %s: '%s'", Dataclassification.class.getSimpleName(), json)));
         }
     }
+
 }

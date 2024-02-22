@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.zoeken;
 
 import static java.util.logging.Level.WARNING;
@@ -70,16 +71,21 @@ public class IndexeerService {
 
     private static final int TAKEN_MAX_RESULTS = 50;
 
-    @Inject @Any
+    @Inject
+    @Any
     private Instance<AbstractZoekObjectConverter<? extends ZoekObject>> converterInstances;
 
-    @Inject private ZRCClientService zrcClientService;
+    @Inject
+    private ZRCClientService zrcClientService;
 
-    @Inject private DRCClientService drcClientService;
+    @Inject
+    private DRCClientService drcClientService;
 
-    @Inject private TakenService takenService;
+    @Inject
+    private TakenService takenService;
 
-    @Inject private IndexeerServiceHelper helper;
+    @Inject
+    private IndexeerServiceHelper helper;
 
     private SolrClient solrClient;
 
@@ -93,9 +99,7 @@ public class IndexeerService {
 
     public IndexeerService() {
         final String solrUrl = ConfigProvider.getConfig().getValue("solr.url", String.class);
-        solrClient =
-                new Http2SolrClient.Builder(String.format("%s/solr/%s", solrUrl, SOLR_CORE))
-                        .build();
+        solrClient = new Http2SolrClient.Builder(String.format("%s/solr/%s", solrUrl, SOLR_CORE)).build();
     }
 
     private void log(final ZoekObjectType objectType, final String message) {
@@ -107,8 +111,7 @@ public class IndexeerService {
     }
 
     public void indexeerDirect(final List<String> objectIds, final ZoekObjectType objectType) {
-        addToSolrIndex(
-                objectIds.stream().map(objectId -> getConverter(objectType).convert(objectId)));
+        addToSolrIndex(objectIds.stream().map(objectId -> getConverter(objectType).convert(objectId)));
     }
 
     @Transactional(Transactional.TxType.NEVER)
@@ -121,39 +124,26 @@ public class IndexeerService {
         if (count == 0) {
             return new Resultaat();
         }
-        final List<ZoekIndexEntity> entities =
-                helper.retrieveMarkedObjects(objectType, batchGrootte);
+        final List<ZoekIndexEntity> entities = helper.retrieveMarkedObjects(objectType, batchGrootte);
         log(objectType, "Indexeren gestart");
         log(objectType, "te indexeren: %d / %d".formatted(entities.size(), count));
-        final AbstractZoekObjectConverter<? extends ZoekObject> converter =
-                getConverter(objectType);
-        final long added =
-                addToSolrIndex(
-                        entities.stream()
-                                .filter(
-                                        zoekIndexEntity ->
-                                                zoekIndexEntity.getStatus() == ADD
-                                                        || zoekIndexEntity.getStatus() == UPDATE)
-                                .map(
-                                        zoekIndexEntity ->
-                                                convertToZoekObject(zoekIndexEntity, converter)));
-        final long removed =
-                removeFromSolrIndex(
-                        entities.stream()
-                                .filter(zoekIndexEntity -> zoekIndexEntity.getStatus() == REMOVE)
-                                .map(ZoekIndexEntity::getObjectId));
+        final AbstractZoekObjectConverter<? extends ZoekObject> converter = getConverter(objectType);
+        final long added = addToSolrIndex(
+                entities.stream()
+                        .filter(zoekIndexEntity -> zoekIndexEntity.getStatus() == ADD || zoekIndexEntity.getStatus() == UPDATE)
+                        .map(zoekIndexEntity -> convertToZoekObject(zoekIndexEntity, converter)));
+        final long removed = removeFromSolrIndex(
+                entities.stream()
+                        .filter(zoekIndexEntity -> zoekIndexEntity.getStatus() == REMOVE)
+                        .map(ZoekIndexEntity::getObjectId));
         final var resultaat = new Resultaat(added, removed, count - entities.size());
         log(objectType, "Indexeren gestopt");
-        log(
-                objectType,
-                "geindexeerd: %d, verwijderd: %d, resterend: %d"
-                        .formatted(
-                                resultaat.indexed(), resultaat.removed(), resultaat.remaining()));
+        log(objectType, "geindexeerd: %d, verwijderd: %d, resterend: %d"
+                .formatted(resultaat.indexed(), resultaat.removed(), resultaat.remaining()));
         return resultaat;
     }
 
-    private AbstractZoekObjectConverter<? extends ZoekObject> getConverter(
-            ZoekObjectType objectType) {
+    private AbstractZoekObjectConverter<? extends ZoekObject> getConverter(ZoekObjectType objectType) {
         for (AbstractZoekObjectConverter<? extends ZoekObject> converter : converterInstances) {
             if (converter.supports(objectType)) {
                 return converter;
@@ -162,20 +152,14 @@ public class IndexeerService {
         throw new RuntimeException("[%s] No converter found".formatted(objectType.toString()));
     }
 
-    private ZoekObject convertToZoekObject(
-            final ZoekIndexEntity zoekIndexEntity,
+    private ZoekObject convertToZoekObject(final ZoekIndexEntity zoekIndexEntity,
             final AbstractZoekObjectConverter<? extends ZoekObject> converter) {
         ZoekObject zoekObject = null;
         try {
             zoekObject = converter.convert(zoekIndexEntity.getObjectId());
         } catch (final RuntimeException e) {
-            LOG.log(
-                    WARNING,
-                    "[%s] '%s': %s"
-                            .formatted(
-                                    zoekIndexEntity.getType(),
-                                    zoekIndexEntity.getObjectId(),
-                                    e.getMessage()));
+            LOG.log(WARNING, "[%s] '%s': %s".formatted(zoekIndexEntity.getType(), zoekIndexEntity.getObjectId(),
+                                                       e.getMessage()));
         }
         if (zoekObject == null) {
             helper.removeMark(zoekIndexEntity.getObjectId());
@@ -184,7 +168,9 @@ public class IndexeerService {
     }
 
     private long addToSolrIndex(final Stream<ZoekObject> zoekObjecten) {
-        final List<ZoekObject> beansToBeAdded = zoekObjecten.filter(Objects::nonNull).toList();
+        final List<ZoekObject> beansToBeAdded = zoekObjecten
+                .filter(Objects::nonNull)
+                .toList();
         if (CollectionUtils.isNotEmpty(beansToBeAdded)) {
             try {
                 solrClient.addBeans(beansToBeAdded);
@@ -231,18 +217,15 @@ public class IndexeerService {
             final long addCount = helper.countMarkedObjects(objectType, ADD);
             final long updateCount = helper.countMarkedObjects(objectType, UPDATE);
             log(objectType, "Markeren voor herindexeren gestopt");
-            log(
-                    objectType,
-                    "toe te voegen: %d, bij te werken: %d, te verwijderen: %d"
-                            .formatted(addCount, updateCount, removeCount));
+            log(objectType, "toe te voegen: %d, bij te werken: %d, te verwijderen: %d"
+                    .formatted(addCount, updateCount, removeCount));
             return new HerindexerenInfo(addCount, updateCount, removeCount);
         } finally {
             herindexerenBezig.remove(objectType);
         }
     }
 
-    private void logProgress(
-            final ZoekObjectType objectType, final long voortgang, final long grootte) {
+    private void logProgress(final ZoekObjectType objectType, final long voortgang, final long grootte) {
         log(objectType, "gemarkeerd: %d / %d".formatted(voortgang, grootte));
     }
 
@@ -266,8 +249,7 @@ public class IndexeerService {
                     response.getResults().stream()
                             .map(document -> document.get("id"))
                             .filter(Objects::nonNull)
-                            .map(Object::toString),
-                    objectType);
+                            .map(Object::toString), objectType);
             final String nextCursorMark = response.getNextCursorMark();
             if (cursorMark.equals(nextCursorMark)) {
                 done = true;
@@ -289,8 +271,7 @@ public class IndexeerService {
     }
 
     private void markAllInformatieobjectenForReindexing() {
-        final EnkelvoudigInformatieobjectListParameters listParameters =
-                new EnkelvoudigInformatieobjectListParameters();
+        final EnkelvoudigInformatieobjectListParameters listParameters = new EnkelvoudigInformatieobjectListParameters();
         listParameters.setPage(FIRST_PAGE_NUMBER_ZGW_APIS);
         boolean hasMore;
         do {
@@ -311,13 +292,12 @@ public class IndexeerService {
 
     private boolean markZakenForReindexing(final ZaakListParameters listParameters) {
         final Results<Zaak> results = zrcClientService.listZaken(listParameters);
-        helper.markObjectsForReindexing(
-                results.getResults().stream().map(Zaak::getUuid).map(UUID::toString), ZAAK);
-        logProgress(
-                ZAAK,
-                (listParameters.getPage() - FIRST_PAGE_NUMBER_ZGW_APIS) * NUM_ITEMS_PER_PAGE
-                        + results.getResults().size(),
-                results.getCount());
+        helper.markObjectsForReindexing(results.getResults().stream()
+                                                .map(Zaak::getUuid)
+                                                .map(UUID::toString), ZAAK);
+        logProgress(ZAAK,
+                    (listParameters.getPage() - FIRST_PAGE_NUMBER_ZGW_APIS) * NUM_ITEMS_PER_PAGE + results.getResults()
+                            .size(), results.getCount());
         return results.getNext() != null;
     }
 
@@ -327,28 +307,20 @@ public class IndexeerService {
                 drcClientService.listEnkelvoudigInformatieObjecten(listParameters);
         helper.markObjectsForReindexing(
                 results.getResults().stream()
-                        .map(
-                                enkelvoudigInformatieObject ->
-                                        URIUtil.parseUUIDFromResourceURI(
-                                                enkelvoudigInformatieObject.getUrl()))
+                        .map(enkelvoudigInformatieObject -> URIUtil.parseUUIDFromResourceURI(enkelvoudigInformatieObject.getUrl()))
                         .map(UUID::toString),
-                DOCUMENT);
-        logProgress(
-                DOCUMENT,
-                (listParameters.getPage() - FIRST_PAGE_NUMBER_ZGW_APIS) * NUM_ITEMS_PER_PAGE
-                        + results.getResults().size(),
-                results.getCount());
+                DOCUMENT
+        );
+        logProgress(DOCUMENT,
+                    (listParameters.getPage() - FIRST_PAGE_NUMBER_ZGW_APIS) * NUM_ITEMS_PER_PAGE + results.getResults()
+                            .size(), results.getCount());
         return results.getNext() != null;
     }
 
     private boolean markTakenForReindexing(final int page, final long numberOfTasks) {
         final int firstResult = page * TAKEN_MAX_RESULTS;
-        final List<Task> tasks =
-                takenService.listOpenTasks(
-                        TaakSortering.CREATIEDATUM,
-                        SorteerRichting.DESCENDING,
-                        firstResult,
-                        TAKEN_MAX_RESULTS);
+        final List<Task> tasks = takenService.listOpenTasks(TaakSortering.CREATIEDATUM, SorteerRichting.DESCENDING,
+                                                            firstResult, TAKEN_MAX_RESULTS);
         helper.markObjectsForReindexing(tasks.stream().map(TaskInfo::getId), TAAK);
         if (!tasks.isEmpty()) {
             logProgress(TAAK, (long) firstResult + tasks.size(), numberOfTasks);
@@ -370,13 +342,9 @@ public class IndexeerService {
         helper.markObjectForIndexing(informatieobjectUUID.toString(), DOCUMENT);
     }
 
-    public void addOrUpdateInformatieobjectByZaakinformatieobject(
-            final UUID zaakinformatieobjectUUID) {
-        addOrUpdateInformatieobject(
-                uuidFromURI(
-                        zrcClientService
-                                .readZaakinformatieobject(zaakinformatieobjectUUID)
-                                .getInformatieobject()));
+    public void addOrUpdateInformatieobjectByZaakinformatieobject(final UUID zaakinformatieobjectUUID) {
+        addOrUpdateInformatieobject(uuidFromURI(
+                zrcClientService.readZaakinformatieobject(zaakinformatieobjectUUID).getInformatieobject()));
     }
 
     public void addOrUpdateTaak(final String taskID) {

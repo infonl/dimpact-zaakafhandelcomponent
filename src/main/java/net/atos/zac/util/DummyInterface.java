@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.util;
 
 /**
@@ -13,4 +14,5 @@ package net.atos.zac.util;
  * "T needs to implement an interface or extends an abstract class. A dummy is fine, it is not added to the schema.
  * For java this means that T can not be a record, in kotlin a data class is possible."
  */
-public interface DummyInterface {}
+public interface DummyInterface {
+}

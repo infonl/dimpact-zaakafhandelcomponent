@@ -31,6 +31,6 @@ data-source add \
 #/subsystem=logging/root-logger=ROOT:write-attribute(name=level,value=DEBUG)
 #/subsystem=logging/console-handler=CONSOLE:write-attribute(name=level,value=DEBUG)
 
-# This sets the max post size accepted by the server/RESTEasy.
-# NOTE: This is higher than our limit of 80MB because there seems to be some overhead.
-/subsystem=microprofile-config-smallrye/config-source=props:add(properties={"dev.resteasy.entity.file.threshold" = "100MB"})
+# This sets the max post size accepted by the RESTEasy framework in WildFly
+# NOTE: This needs to set higher than our max file size setting in ZAC because of the way RESTEasy handles file uploads.
+/subsystem=microprofile-config-smallrye/config-source=props:add(properties={"dev.resteasy.entity.file.threshold" = "120MB"})

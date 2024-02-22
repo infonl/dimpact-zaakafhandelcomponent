@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.signalering.model;
 
 import static net.atos.zac.signalering.model.SignaleringTarget.GROUP;
@@ -24,22 +25,16 @@ import org.apache.commons.lang3.StringUtils;
 
 @Entity
 @Table(schema = SCHEMA, name = "signalering_instellingen")
-@SequenceGenerator(
-        schema = SCHEMA,
-        name = "sq_signalering_instellingen",
-        sequenceName = "sq_signalering_instellingen",
-        allocationSize = 1)
+@SequenceGenerator(schema = SCHEMA, name = "sq_signalering_instellingen", sequenceName = "sq_signalering_instellingen", allocationSize = 1)
 public class SignaleringInstellingen {
     @Id
     @GeneratedValue(generator = "sq_signalering_instellingen", strategy = GenerationType.SEQUENCE)
     @Column(name = "id_signalering_instellingen")
     private Long id;
 
-    @NotNull @ManyToOne
-    @JoinColumn(
-            name = "signaleringtype_enum",
-            referencedColumnName = "signaleringtype_enum",
-            nullable = false)
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "signaleringtype_enum", referencedColumnName = "signaleringtype_enum", nullable = false)
     private SignaleringType type;
 
     @Column(name = "id_groep", nullable = false)
@@ -54,10 +49,10 @@ public class SignaleringInstellingen {
     @Column(name = "mail")
     private boolean mail;
 
-    public SignaleringInstellingen() {}
+    public SignaleringInstellingen() {
+    }
 
-    public SignaleringInstellingen(
-            final SignaleringType type, final SignaleringTarget ownerType, final String ownerId) {
+    public SignaleringInstellingen(final SignaleringType type, final SignaleringTarget ownerType, final String ownerId) {
         this.type = type;
         switch (ownerType) {
             case GROUP -> {
@@ -132,8 +127,6 @@ public class SignaleringInstellingen {
 
     @Override
     public String toString() {
-        return String.format(
-                "%s-signaleringinstellingen voor %s",
-                getType(), groep != null ? groep : medewerker);
+        return String.format("%s-signaleringinstellingen voor %s", getType(), groep != null ? groep : medewerker);
     }
 }

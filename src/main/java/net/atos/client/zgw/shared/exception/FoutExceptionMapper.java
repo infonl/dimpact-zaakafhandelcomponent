@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.shared.exception;
 
 import jakarta.ws.rs.core.MultivaluedMap;
@@ -18,8 +19,7 @@ public class FoutExceptionMapper implements ResponseExceptionMapper<FoutExceptio
 
     @Override
     public boolean handles(final int status, final MultivaluedMap<String, Object> headers) {
-        return Response.Status.BAD_REQUEST.getStatusCode() <= status
-                && status < Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
+        return Response.Status.BAD_REQUEST.getStatusCode() <= status && status < Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
     }
 
     @Override

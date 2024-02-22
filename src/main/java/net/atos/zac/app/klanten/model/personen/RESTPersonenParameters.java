@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.klanten.model.personen;
 
 public class RESTPersonenParameters {
@@ -24,16 +25,11 @@ public class RESTPersonenParameters {
 
     public Cardinaliteit straat;
 
-    public RESTPersonenParameters(
-            final Cardinaliteit bsn,
-            final Cardinaliteit geslachtsnaam,
-            final Cardinaliteit voornamen,
-            final Cardinaliteit voorvoegsel,
+    public RESTPersonenParameters(final Cardinaliteit bsn,
+            final Cardinaliteit geslachtsnaam, final Cardinaliteit voornamen, final Cardinaliteit voorvoegsel,
             final Cardinaliteit geboortedatum,
             final Cardinaliteit gemeenteVanInschrijving,
-            final Cardinaliteit postcode,
-            final Cardinaliteit huisnummer,
-            final Cardinaliteit straat) {
+            final Cardinaliteit postcode, final Cardinaliteit huisnummer, final Cardinaliteit straat) {
         this.bsn = bsn;
         this.geslachtsnaam = geslachtsnaam;
         this.voornamen = voornamen;

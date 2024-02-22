@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.gebruikersvoorkeuren.model;
@@ -23,11 +23,7 @@ import net.atos.zac.signalering.model.SignaleringType;
 
 @Entity
 @Table(schema = SCHEMA, name = "dashboard_card")
-@SequenceGenerator(
-        schema = SCHEMA,
-        name = "sq_dashboard_card",
-        sequenceName = "sq_dashboard_card",
-        allocationSize = 1)
+@SequenceGenerator(schema = SCHEMA, name = "sq_dashboard_card", sequenceName = "sq_dashboard_card", allocationSize = 1)
 public class DashboardCardInstelling {
 
     @Id
@@ -39,16 +35,20 @@ public class DashboardCardInstelling {
     @Column(name = "id_medewerker", nullable = false)
     private String medewerkerId;
 
-    @NotNull @Column(name = "dashboard_card_enum", nullable = false)
+    @NotNull
+    @Column(name = "dashboard_card_enum", nullable = false)
     @Enumerated(EnumType.STRING)
     private DashboardCardId cardId;
 
-    @Transient private SignaleringType.Type signaleringType;
+    @Transient
+    private SignaleringType.Type signaleringType;
 
-    @NotNull @Column(name = "kolom", nullable = false)
+    @NotNull
+    @Column(name = "kolom", nullable = false)
     private int kolom;
 
-    @NotNull @Column(name = "volgorde", nullable = false)
+    @NotNull
+    @Column(name = "volgorde", nullable = false)
     private int volgorde;
 
     public Long getId() {

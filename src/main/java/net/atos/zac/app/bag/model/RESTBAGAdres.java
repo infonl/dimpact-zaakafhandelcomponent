@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.bag.model;
 
 import java.util.ArrayList;
@@ -35,7 +36,8 @@ public class RESTBAGAdres extends RESTBAGObject {
 
     public List<RESTPand> panden = new ArrayList<>();
 
-    public RESTBAGAdres() {}
+    public RESTBAGAdres() {
+    }
 
     @Override
     public BAGObjectType getBagObjectType() {
@@ -44,8 +46,7 @@ public class RESTBAGAdres extends RESTBAGObject {
 
     @Override
     public String getOmschrijving() {
-        return "%s %s, %s %s"
-                .formatted(openbareRuimteNaam, huisnummerWeergave, postcode, woonplaatsNaam);
+        return "%s %s, %s %s".formatted(openbareRuimteNaam, huisnummerWeergave, postcode, woonplaatsNaam);
     }
 
     public RESTGeometry getGeometry() {

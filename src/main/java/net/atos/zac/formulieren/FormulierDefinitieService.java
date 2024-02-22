@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.formulieren;
 
 import static net.atos.zac.util.ValidationUtil.valideerObject;
@@ -29,8 +30,7 @@ public class FormulierDefinitieService {
 
     public List<FormulierDefinitie> listFormulierDefinities() {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<FormulierDefinitie> query =
-                builder.createQuery(FormulierDefinitie.class);
+        final CriteriaQuery<FormulierDefinitie> query = builder.createQuery(FormulierDefinitie.class);
         final Root<FormulierDefinitie> root = query.from(FormulierDefinitie.class);
         query.orderBy(builder.asc(root.get("naam")));
         query.select(root);
@@ -38,61 +38,45 @@ public class FormulierDefinitieService {
     }
 
     public FormulierDefinitie readFormulierDefinitie(final long id) {
-        final FormulierDefinitie formulierDefinitie =
-                entityManager.find(FormulierDefinitie.class, id);
+        final FormulierDefinitie formulierDefinitie = entityManager.find(FormulierDefinitie.class, id);
         if (formulierDefinitie != null) {
             return formulierDefinitie;
         } else {
-            throw new RuntimeException(
-                    "%s with id=%d not found"
-                            .formatted(FormulierDefinitie.class.getSimpleName(), id));
+            throw new RuntimeException("%s with id=%d not found".formatted(FormulierDefinitie.class.getSimpleName(), id));
         }
     }
 
     public FormulierDefinitie readFormulierDefinitie(final String systeemnaam) {
         return findFormulierDefinitie(systeemnaam)
-                .orElseThrow(
-                        () ->
-                                new RuntimeException(
-                                        "%s with code='%s' not found"
-                                                .formatted(
-                                                        FormulierDefinitie.class.getSimpleName(),
-                                                        systeemnaam)));
+                .orElseThrow(() -> new RuntimeException(
+                        "%s with code='%s' not found".formatted(FormulierDefinitie.class.getSimpleName(), systeemnaam)));
     }
 
     public Optional<FormulierDefinitie> findFormulierDefinitie(final String systeemnaam) {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<FormulierDefinitie> query =
-                builder.createQuery(FormulierDefinitie.class);
+        final CriteriaQuery<FormulierDefinitie> query = builder.createQuery(FormulierDefinitie.class);
         final Root<FormulierDefinitie> root = query.from(FormulierDefinitie.class);
         query.select(root).where(builder.equal(root.get("systeemnaam"), systeemnaam));
-        final List<FormulierDefinitie> resultList =
-                entityManager.createQuery(query).getResultList();
+        final List<FormulierDefinitie> resultList = entityManager.createQuery(query).getResultList();
         return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
     }
 
-    public FormulierDefinitie createFormulierDefinitie(
-            final FormulierDefinitie formulierDefinitie) {
+    public FormulierDefinitie createFormulierDefinitie(final FormulierDefinitie formulierDefinitie) {
         final ZonedDateTime now = ZonedDateTime.now();
         formulierDefinitie.setCreatiedatum(now);
         formulierDefinitie.setWijzigingsdatum(now);
         valideerObject(formulierDefinitie);
-        findFormulierDefinitie(formulierDefinitie.getSysteemnaam())
-                .ifPresent(
-                        e -> {
-                            if (!e.getId().equals(formulierDefinitie.getId())) {
-                                throw new RuntimeException(
-                                        "Er bestaat al een formulier definitie met systeemnaam '%s'"
-                                                .formatted(formulierDefinitie.getSysteemnaam()));
-                            }
-                        });
+        findFormulierDefinitie(formulierDefinitie.getSysteemnaam()).ifPresent(e -> {
+            if (!e.getId().equals(formulierDefinitie.getId())) {
+                throw new RuntimeException("Er bestaat al een formulier definitie met systeemnaam '%s'".formatted(
+                        formulierDefinitie.getSysteemnaam()));
+            }
+        });
         return entityManager.merge(formulierDefinitie);
     }
 
-    public FormulierDefinitie updateFormulierDefinitie(
-            final FormulierDefinitie formulierDefinitie) {
-        final FormulierDefinitie bestaandeDefinitie =
-                readFormulierDefinitie(formulierDefinitie.getId());
+    public FormulierDefinitie updateFormulierDefinitie(final FormulierDefinitie formulierDefinitie) {
+        final FormulierDefinitie bestaandeDefinitie = readFormulierDefinitie(formulierDefinitie.getId());
         formulierDefinitie.setSysteemnaam(bestaandeDefinitie.getSysteemnaam());
         formulierDefinitie.setCreatiedatum(bestaandeDefinitie.getCreatiedatum());
         formulierDefinitie.setWijzigingsdatum(ZonedDateTime.now());
@@ -101,8 +85,7 @@ public class FormulierDefinitieService {
     }
 
     public void deleteFormulierDefinitie(final long id) {
-        final FormulierDefinitie formulierDefinitie =
-                entityManager.find(FormulierDefinitie.class, id);
+        final FormulierDefinitie formulierDefinitie = entityManager.find(FormulierDefinitie.class, id);
         // controleren op gebruik
         entityManager.remove(formulierDefinitie);
     }

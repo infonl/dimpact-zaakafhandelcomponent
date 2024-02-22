@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.identity.converter;
 
 import java.util.List;
@@ -16,14 +17,18 @@ import net.atos.zac.identity.model.User;
 
 public class RESTUserConverter {
 
-    @Inject private IdentityService identityService;
+    @Inject
+    private IdentityService identityService;
 
     public List<RESTUser> convertUsers(final List<User> users) {
-        return users.stream().map(this::convertUser).toList();
+        return users.stream()
+                .map(this::convertUser).toList();
     }
 
     public List<RESTUser> convertUserIds(final List<String> userIds) {
-        return userIds.stream().map(this::convertUserId).toList();
+        return userIds.stream()
+                .map(this::convertUserId)
+                .toList();
     }
 
     public RESTUser convertUser(final User user) {

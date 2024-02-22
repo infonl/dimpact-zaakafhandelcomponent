@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.zaaksturing.model;
 
 import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
@@ -20,11 +21,7 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(schema = SCHEMA, name = "zaakafzender")
-@SequenceGenerator(
-        schema = SCHEMA,
-        name = "sq_zaakafzender",
-        sequenceName = "sq_zaakafzender",
-        allocationSize = 1)
+@SequenceGenerator(schema = SCHEMA, name = "sq_zaakafzender", sequenceName = "sq_zaakafzender", allocationSize = 1)
 public class ZaakAfzender {
 
     public enum Speciaal {
@@ -41,10 +38,9 @@ public class ZaakAfzender {
     @Column(name = "id_zaakafzender")
     private Long id;
 
-    @NotNull @ManyToOne
-    @JoinColumn(
-            name = "id_zaakafhandelparameters",
-            referencedColumnName = "id_zaakafhandelparameters")
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "id_zaakafhandelparameters", referencedColumnName = "id_zaakafhandelparameters")
     private ZaakafhandelParameters zaakafhandelParameters;
 
     @Column(name = "default_mail", nullable = false)

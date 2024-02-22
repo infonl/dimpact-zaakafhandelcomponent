@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.zrc.model.zaakobjecten;
 
 import java.net.URI;
@@ -66,7 +67,8 @@ public abstract class Zaakobject {
     /**
      * Constructor for JSONB deserialization
      */
-    public Zaakobject() {}
+    public Zaakobject() {
+    }
 
     /**
      * Constructor with required attributes
@@ -142,12 +144,8 @@ public abstract class Zaakobject {
             return false;
         }
         final Zaakobject that = (Zaakobject) o;
-        return new EqualsBuilder()
-                .append(zaak, that.zaak)
-                .append(object, that.object)
-                .append(objectType, that.objectType)
-                .append(objectTypeOverige, that.objectTypeOverige)
-                .isEquals();
+        return new EqualsBuilder().append(zaak, that.zaak).append(object, that.object).append(objectType, that.objectType)
+                .append(objectTypeOverige, that.objectTypeOverige).isEquals();
     }
 
     @Override
@@ -163,8 +161,7 @@ public abstract class Zaakobject {
     public boolean isBagObject() {
         return switch (objectType) {
             case ADRES, PAND, OPENBARE_RUIMTE, WOONPLAATS -> true;
-            case OVERIGE ->
-                    ZaakobjectNummeraanduiding.OBJECT_TYPE_OVERIGE.equals(objectTypeOverige);
+            case OVERIGE -> ZaakobjectNummeraanduiding.OBJECT_TYPE_OVERIGE.equals(objectTypeOverige);
             default -> false;
         };
     }

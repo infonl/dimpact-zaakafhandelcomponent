@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.flowable.cmmn;
 
 import static java.lang.String.format;
@@ -43,14 +44,11 @@ public class EndCaseLifecycleListener implements CaseInstanceLifecycleListener {
     }
 
     @Override
-    public void stateChanged(
-            final CaseInstance caseInstance, final String oldState, final String newState) {
+    public void stateChanged(final CaseInstance caseInstance, final String oldState, final String newState) {
         final UUID zaakUUID = UUID.fromString(caseInstance.getBusinessKey());
         if (FlowableHelper.getInstance().getZrcClientService().readZaak(zaakUUID).isOpen()) {
             LOG.info(format("Zaak %s: End Zaak", caseInstance.getBusinessKey()));
-            FlowableHelper.getInstance()
-                    .getZgwApiService()
-                    .endZaak(zaakUUID, EINDSTATUS_TOELICHTING);
+            FlowableHelper.getInstance().getZgwApiService().endZaak(zaakUUID, EINDSTATUS_TOELICHTING);
         }
     }
 }

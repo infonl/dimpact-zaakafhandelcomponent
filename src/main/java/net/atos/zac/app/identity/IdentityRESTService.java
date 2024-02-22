@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.identity;
 
 import java.util.List;
@@ -32,13 +33,17 @@ import net.atos.zac.identity.model.User;
 @Produces(MediaType.APPLICATION_JSON)
 public class IdentityRESTService {
 
-    @Inject private RESTGroupConverter groupConverter;
+    @Inject
+    private RESTGroupConverter groupConverter;
 
-    @Inject private RESTUserConverter userConverter;
+    @Inject
+    private RESTUserConverter userConverter;
 
-    @Inject private IdentityService identityService;
+    @Inject
+    private IdentityService identityService;
 
-    @Inject private Instance<LoggedInUser> loggedInUserInstance;
+    @Inject
+    private Instance<LoggedInUser> loggedInUserInstance;
 
     @GET
     @Path("groups")

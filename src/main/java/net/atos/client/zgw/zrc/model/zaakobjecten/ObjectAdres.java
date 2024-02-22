@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.zrc.model.zaakobjecten;
 
 /**
@@ -51,18 +52,14 @@ public class ObjectAdres extends ObjectBAGObject {
     /**
      * Constructor for JSONB deserialization
      */
-    public ObjectAdres() {}
+    public ObjectAdres() {
+    }
 
     /**
      * Constructor with required attributes
      */
-    public ObjectAdres(
-            final String identificatie,
-            final String wplWoonplaatsNaam,
-            final String gorOpenbareRuimteNaam,
-            final int huisnummer,
-            final String huisletter,
-            final String huisnummertoevoeging,
+    public ObjectAdres(final String identificatie, final String wplWoonplaatsNaam, final String gorOpenbareRuimteNaam, final int huisnummer,
+            final String huisletter, final String huisnummertoevoeging,
             final String postcode) {
         super(identificatie);
         this.wplWoonplaatsNaam = wplWoonplaatsNaam;

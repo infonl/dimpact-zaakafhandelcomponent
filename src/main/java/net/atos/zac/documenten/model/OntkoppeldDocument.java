@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.documenten.model;
 
 import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
@@ -21,11 +22,7 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(schema = SCHEMA, name = "ontkoppeld_document")
-@SequenceGenerator(
-        schema = SCHEMA,
-        name = "sq_ontkoppeld_document",
-        sequenceName = "sq_ontkoppeld_document",
-        allocationSize = 1)
+@SequenceGenerator(schema = SCHEMA, name = "sq_ontkoppeld_document", sequenceName = "sq_ontkoppeld_document", allocationSize = 1)
 public class OntkoppeldDocument {
 
     /** Naam van property: {@link OntkoppeldDocument#titel} */
@@ -51,7 +48,8 @@ public class OntkoppeldDocument {
     @Column(name = "id_ontkoppeld_document")
     private Long id;
 
-    @NotNull @Column(name = "uuid_document", nullable = false)
+    @NotNull
+    @Column(name = "uuid_document", nullable = false)
     private UUID documentUUID;
 
     @NotBlank
@@ -62,7 +60,8 @@ public class OntkoppeldDocument {
     @Column(name = "id_zaak", nullable = false)
     private String zaakID;
 
-    @NotNull @Column(name = "creatiedatum", nullable = false)
+    @NotNull
+    @Column(name = "creatiedatum", nullable = false)
     private ZonedDateTime creatiedatum;
 
     @NotBlank
@@ -72,7 +71,8 @@ public class OntkoppeldDocument {
     @Column(name = "bestandsnaam")
     private String bestandsnaam;
 
-    @NotNull @Column(name = "ontkoppeld_op", nullable = false)
+    @NotNull
+    @Column(name = "ontkoppeld_op", nullable = false)
     private ZonedDateTime ontkoppeldOp;
 
     @NotBlank
@@ -162,3 +162,4 @@ public class OntkoppeldDocument {
         this.reden = reden;
     }
 }
+

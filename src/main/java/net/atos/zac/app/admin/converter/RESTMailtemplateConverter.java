@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.admin.converter;
 
 import net.atos.zac.app.admin.model.RESTMailtemplate;
@@ -29,8 +30,7 @@ public class RESTMailtemplateConverter {
         mailTemplate.setId(restMailtemplate.id);
         mailTemplate.setMail(Mail.valueOf(restMailtemplate.mail));
         mailTemplate.setMailTemplateNaam(restMailtemplate.mailTemplateNaam);
-        mailTemplate.setOnderwerp(
-                MailTemplateHelper.stripParagraphTags(restMailtemplate.onderwerp));
+        mailTemplate.setOnderwerp(MailTemplateHelper.stripParagraphTags(restMailtemplate.onderwerp));
         mailTemplate.setBody(restMailtemplate.body);
         mailTemplate.setDefaultMailtemplate(restMailtemplate.defaultMailtemplate);
         return mailTemplate;

@@ -1,12 +1,14 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.ztc.model;
 
 import java.net.URI;
 
 import jakarta.ws.rs.QueryParam;
+
 
 public class ZaaktypeInformatieobjecttypeListParameters extends AbstractZTCListParameters {
 

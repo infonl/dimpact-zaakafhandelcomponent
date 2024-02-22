@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.mailtemplates.model;
 
 import net.atos.zac.mail.model.MailAdres;
@@ -29,7 +30,8 @@ public class MailGegevens {
             final String subject,
             final String body,
             final String attachments,
-            final boolean createDocumentFromMail) {
+            final boolean createDocumentFromMail
+    ) {
         this.from = from;
         this.to = to;
         this.replyTo = replyTo;
@@ -40,7 +42,11 @@ public class MailGegevens {
     }
 
     public MailGegevens(
-            final MailAdres from, final MailAdres to, final String subject, final String body) {
+            final MailAdres from,
+            final MailAdres to,
+            final String subject,
+            final String body
+    ) {
         this(from, to, null, subject, body, null, false);
     }
 

@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.identity;
 
 import static org.apache.commons.lang3.StringUtils.substringBetween;
@@ -29,9 +30,9 @@ import javax.naming.directory.SearchResult;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import com.unboundid.ldap.sdk.Filter;
-
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import com.unboundid.ldap.sdk.Filter;
 
 import net.atos.zac.identity.model.Group;
 import net.atos.zac.identity.model.User;
@@ -47,9 +48,7 @@ public class IdentityService {
 
     private static final String USER_MAIL_ATTRIBUTE = "mail";
 
-    private static final String[] USER_ATTRIBUTES = {
-        USER_ID_ATTRIBUTE, USER_FIRST_NAME_ATTRIBUTE, USER_LAST_NAME_ATTRIBUTE, USER_MAIL_ATTRIBUTE
-    };
+    private static final String[] USER_ATTRIBUTES = {USER_ID_ATTRIBUTE, USER_FIRST_NAME_ATTRIBUTE, USER_LAST_NAME_ATTRIBUTE, USER_MAIL_ATTRIBUTE};
 
     private static final String GROUP_ID_ATTRIBUTE = "cn";
 
@@ -57,9 +56,7 @@ public class IdentityService {
 
     private static final String GROUP_MAIL_ATTRIBUTE = "email";
 
-    private static final String[] GROUP_ATTRIBUTES = {
-        GROUP_ID_ATTRIBUTE, GROUP_NAME_ATTRIBUTE, GROUP_MAIL_ATTRIBUTE
-    };
+    private static final String[] GROUP_ATTRIBUTES = {GROUP_ID_ATTRIBUTE, GROUP_NAME_ATTRIBUTE, GROUP_MAIL_ATTRIBUTE};
 
     private static final String GROUP_MEMBER_ATTRIBUTE = "uniqueMember";
 
@@ -82,24 +79,21 @@ public class IdentityService {
     private String groupsDN;
 
     public IdentityService() {
-        environment =
-                Map.of(
-                        Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory",
-                        Context.PROVIDER_URL, getConfig().getValue("LDAP_URL", String.class),
-                        Context.SECURITY_AUTHENTICATION, "simple",
-                        Context.SECURITY_PRINCIPAL, getConfig().getValue("LDAP_USER", String.class),
-                        Context.SECURITY_CREDENTIALS,
-                                getConfig().getValue("LDAP_PASSWORD", String.class));
+        environment = Map.of(
+                Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory",
+                Context.PROVIDER_URL, getConfig().getValue("LDAP_URL", String.class),
+                Context.SECURITY_AUTHENTICATION, "simple",
+                Context.SECURITY_PRINCIPAL, getConfig().getValue("LDAP_USER", String.class),
+                Context.SECURITY_CREDENTIALS, getConfig().getValue("LDAP_PASSWORD", String.class)
+        );
     }
 
     public List<User> listUsers() {
         return search(
-                        usersDN,
-                        Filter.createANDFilter(
-                                Filter.createEqualityFilter(
-                                        OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS)),
-                        USER_ATTRIBUTES)
-                .stream()
+                usersDN,
+                Filter.createANDFilter(Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS)),
+                USER_ATTRIBUTES
+        ).stream()
                 .map(this::convertToUser)
                 .sorted(Comparator.comparing(User::getFullName))
                 .toList();
@@ -107,12 +101,10 @@ public class IdentityService {
 
     public List<Group> listGroups() {
         return search(
-                        groupsDN,
-                        Filter.createANDFilter(
-                                Filter.createEqualityFilter(
-                                        OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS)),
-                        GROUP_ATTRIBUTES)
-                .stream()
+                groupsDN,
+                Filter.createANDFilter(Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS)),
+                GROUP_ATTRIBUTES
+        ).stream()
                 .map(this::convertToGroup)
                 .sorted(Comparator.comparing(Group::getName))
                 .toList();
@@ -120,13 +112,13 @@ public class IdentityService {
 
     public User readUser(final String userId) {
         return search(
-                        usersDN,
-                        Filter.createANDFilter(
-                                Filter.createEqualityFilter(
-                                        OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS),
-                                Filter.createEqualityFilter(USER_ID_ATTRIBUTE, userId)),
-                        USER_ATTRIBUTES)
-                .stream()
+                usersDN,
+                Filter.createANDFilter(
+                        Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS),
+                        Filter.createEqualityFilter(USER_ID_ATTRIBUTE, userId)
+                ),
+                USER_ATTRIBUTES
+        ).stream()
                 .findAny()
                 .map(this::convertToUser)
                 .orElseGet(() -> new User(userId));
@@ -134,27 +126,28 @@ public class IdentityService {
 
     public Group readGroup(final String groupId) {
         return search(
-                        groupsDN,
-                        Filter.createANDFilter(
-                                Filter.createEqualityFilter(
-                                        OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS),
-                                Filter.createEqualityFilter(GROUP_ID_ATTRIBUTE, groupId)),
-                        GROUP_ATTRIBUTES)
-                .stream()
+                groupsDN,
+                Filter.createANDFilter(
+                        Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS),
+                        Filter.createEqualityFilter(GROUP_ID_ATTRIBUTE, groupId)
+                ),
+                GROUP_ATTRIBUTES
+        ).stream()
                 .findAny()
                 .map(this::convertToGroup)
                 .orElseGet(() -> new Group(groupId));
+
     }
 
     public List<User> listUsersInGroup(final String groupId) {
         return search(
-                        groupsDN,
-                        Filter.createANDFilter(
-                                Filter.createEqualityFilter(
-                                        OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS),
-                                Filter.createEqualityFilter(GROUP_ID_ATTRIBUTE, groupId)),
-                        GROUP_MEMBERSHIP_ATTRIBUTES)
-                .stream()
+                groupsDN,
+                Filter.createANDFilter(
+                        Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS),
+                        Filter.createEqualityFilter(GROUP_ID_ATTRIBUTE, groupId)
+                ),
+                GROUP_MEMBERSHIP_ATTRIBUTES
+        ).stream()
                 .map(this::convertToMembers)
                 .flatMap(this::readUsers)
                 .sorted(Comparator.comparing(User::getFullName))
@@ -163,35 +156,30 @@ public class IdentityService {
 
     private Stream<User> readUsers(final Collection<String> userIds) {
         return search(
-                        usersDN,
-                        Filter.createANDFilter(
-                                Filter.createEqualityFilter(
-                                        OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS),
-                                Filter.createORFilter(
-                                        userIds.stream()
-                                                .map(
-                                                        userId ->
-                                                                Filter.createEqualityFilter(
-                                                                        USER_ID_ATTRIBUTE, userId))
-                                                .toList())),
-                        USER_ATTRIBUTES)
-                .stream()
-                .map(this::convertToUser);
+                usersDN,
+                Filter.createANDFilter(
+                        Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS),
+                        Filter.createORFilter(
+                                userIds.stream()
+                                        .map(userId -> Filter.createEqualityFilter(USER_ID_ATTRIBUTE, userId))
+                                        .toList()
+                        )
+                ),
+                USER_ATTRIBUTES
+        ).stream().map(this::convertToUser);
     }
 
     private User convertToUser(final Attributes attributes) {
-        return new User(
-                readAttributeToString(attributes, USER_ID_ATTRIBUTE),
-                readAttributeToString(attributes, USER_FIRST_NAME_ATTRIBUTE),
-                readAttributeToString(attributes, USER_LAST_NAME_ATTRIBUTE),
-                readAttributeToString(attributes, USER_MAIL_ATTRIBUTE));
+        return new User(readAttributeToString(attributes, USER_ID_ATTRIBUTE),
+                        readAttributeToString(attributes, USER_FIRST_NAME_ATTRIBUTE),
+                        readAttributeToString(attributes, USER_LAST_NAME_ATTRIBUTE),
+                        readAttributeToString(attributes, USER_MAIL_ATTRIBUTE));
     }
 
     private Group convertToGroup(final Attributes attributes) {
-        return new Group(
-                readAttributeToString(attributes, GROUP_ID_ATTRIBUTE),
-                readAttributeToString(attributes, GROUP_NAME_ATTRIBUTE),
-                readAttributeToString(attributes, GROUP_MAIL_ATTRIBUTE));
+        return new Group(readAttributeToString(attributes, GROUP_ID_ATTRIBUTE),
+                         readAttributeToString(attributes, GROUP_NAME_ATTRIBUTE),
+                         readAttributeToString(attributes, GROUP_MAIL_ATTRIBUTE));
     }
 
     private List<String> convertToMembers(final Attributes attributes) {
@@ -201,15 +189,19 @@ public class IdentityService {
                 .toList();
     }
 
-    private List<Attributes> search(
-            final String root, final Filter filter, final String[] attributesToReturn) {
+    private List<Attributes> search(final String root, final Filter filter,
+            final String[] attributesToReturn) {
         final SearchControls searchControls = new SearchControls();
         searchControls.setReturningAttributes(attributesToReturn);
         searchControls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
         try {
-            final DirContext dirContext = new InitialDirContext(new Hashtable<>(environment));
-            final NamingEnumeration<SearchResult> namingEnumeration =
-                    dirContext.search(root, filter.toString(), searchControls);
+            final DirContext dirContext =
+                    new InitialDirContext(new Hashtable<>(environment));
+            final NamingEnumeration<SearchResult> namingEnumeration = dirContext.search(
+                    root,
+                    filter.toString(),
+                    searchControls
+            );
             final List<Attributes> attributesList = new LinkedList<>();
             while (namingEnumeration.hasMore()) {
                 attributesList.add(namingEnumeration.next().getAttributes());

@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.zaken.converter;
 
 import jakarta.inject.Inject;
@@ -20,23 +21,32 @@ import net.atos.zac.policy.output.ZaakRechten;
 
 public class RESTZaakOverzichtConverter {
 
-    @Inject private ZTCClientService ztcClientService;
+    @Inject
+    private ZTCClientService ztcClientService;
 
-    @Inject private ZGWApiService zgwApiService;
+    @Inject
+    private ZGWApiService zgwApiService;
 
-    @Inject private RESTZaakResultaatConverter zaakResultaatConverter;
+    @Inject
+    private RESTZaakResultaatConverter zaakResultaatConverter;
 
-    @Inject private RESTGroupConverter groupConverter;
+    @Inject
+    private RESTGroupConverter groupConverter;
 
-    @Inject private RESTUserConverter userConverter;
+    @Inject
+    private RESTUserConverter userConverter;
 
-    @Inject private RESTOpenstaandeTakenConverter openstaandeTakenConverter;
+    @Inject
+    private RESTOpenstaandeTakenConverter openstaandeTakenConverter;
 
-    @Inject private RESTRechtenConverter rechtenConverter;
+    @Inject
+    private RESTRechtenConverter rechtenConverter;
 
-    @Inject private PolicyService policyService;
+    @Inject
+    private PolicyService policyService;
 
-    @Inject private ZRCClientService zrcClientService;
+    @Inject
+    private ZRCClientService zrcClientService;
 
     public RESTZaakOverzicht convert(final Zaak zaak) {
         final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
@@ -56,29 +66,15 @@ public class RESTZaakOverzichtConverter {
             restZaakOverzicht.openstaandeTaken = openstaandeTakenConverter.convert(zaak.getUuid());
             restZaakOverzicht.resultaat = zaakResultaatConverter.convert(zaak.getResultaat());
             if (zaak.getStatus() != null) {
-                restZaakOverzicht.status =
-                        ztcClientService
-                                .readStatustype(
-                                        zrcClientService
-                                                .readStatus(zaak.getStatus())
-                                                .getStatustype())
-                                .getOmschrijving();
+                restZaakOverzicht.status = ztcClientService.readStatustype(
+                        zrcClientService.readStatus(zaak.getStatus()).getStatustype()).getOmschrijving();
             }
-            zgwApiService
-                    .findBehandelaarForZaak(zaak)
-                    .map(
-                            behandelaar ->
-                                    userConverter.convertUserId(
-                                            behandelaar
-                                                    .getBetrokkeneIdentificatie()
-                                                    .getIdentificatie()))
+            zgwApiService.findBehandelaarForZaak(zaak)
+                    .map(behandelaar -> userConverter.convertUserId(
+                            behandelaar.getBetrokkeneIdentificatie().getIdentificatie()))
                     .ifPresent(behandelaar -> restZaakOverzicht.behandelaar = behandelaar);
-            zgwApiService
-                    .findGroepForZaak(zaak)
-                    .map(
-                            groep ->
-                                    groupConverter.convertGroupId(
-                                            groep.getBetrokkeneIdentificatie().getIdentificatie()))
+            zgwApiService.findGroepForZaak(zaak)
+                    .map(groep -> groupConverter.convertGroupId(groep.getBetrokkeneIdentificatie().getIdentificatie()))
                     .ifPresent(groep -> restZaakOverzicht.groep = groep);
         }
         return restZaakOverzicht;

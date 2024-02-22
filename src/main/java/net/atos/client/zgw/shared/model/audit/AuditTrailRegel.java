@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.shared.model.audit;
 
 import java.net.URI;
@@ -13,6 +14,7 @@ import net.atos.client.zgw.shared.model.Bron;
 /**
  * Gegevens mbt een wijziging gedaan op een object
  */
+
 public class AuditTrailRegel {
 
     /**
@@ -119,6 +121,7 @@ public class AuditTrailRegel {
      * object (Wijzigingen) oud en nieuw
      */
     private AuditWijziging<?> wijzigingen;
+
 
     public URI getUrl() {
         return url;

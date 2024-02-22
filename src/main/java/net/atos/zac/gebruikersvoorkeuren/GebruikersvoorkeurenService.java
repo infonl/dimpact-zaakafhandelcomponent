@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.gebruikersvoorkeuren;
 
 import java.util.ArrayList;
@@ -38,7 +39,8 @@ public class GebruikersvoorkeurenService {
     @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
     private EntityManager entityManager;
 
-    @Inject private SignaleringenService signaleringenService;
+    @Inject
+    private SignaleringenService signaleringenService;
 
     public Zoekopdracht createZoekopdracht(final Zoekopdracht zoekopdracht) {
         if (zoekopdracht.getId() != null) {
@@ -47,10 +49,8 @@ public class GebruikersvoorkeurenService {
             if (existsZoekopdracht(zoekopdracht)) {
                 throw new RuntimeException(
                         "Er bestaat al een zoekopdracht met naam '%s' en lijst '%s' en medewerker: '%s'"
-                                .formatted(
-                                        zoekopdracht.getNaam(),
-                                        zoekopdracht.getLijstID(),
-                                        zoekopdracht.getMedewerkerID()));
+                                .formatted(zoekopdracht.getNaam(), zoekopdracht.getLijstID(),
+                                           zoekopdracht.getMedewerkerID()));
             }
             zoekopdracht.setActief(true);
             entityManager.persist(zoekopdracht);
@@ -70,22 +70,17 @@ public class GebruikersvoorkeurenService {
         final Root<Zoekopdracht> root = query.from(Zoekopdracht.class);
         final List<Predicate> predicates = new ArrayList<>();
         if (listParameters.getLijstID() != null) {
-            predicates.add(
-                    builder.equal(root.get(Zoekopdracht.LIJST_ID), listParameters.getLijstID()));
+            predicates.add(builder.equal(root.get(Zoekopdracht.LIJST_ID), listParameters.getLijstID()));
         }
         if (StringUtils.isNotBlank(listParameters.getMedewerkerID())) {
-            predicates.add(
-                    builder.equal(
-                            root.get(Zoekopdracht.MEDEWERKER_ID),
-                            listParameters.getMedewerkerID()));
+            predicates.add(builder.equal(root.get(Zoekopdracht.MEDEWERKER_ID), listParameters.getMedewerkerID()));
         }
         query.where(builder.and(predicates.toArray(new Predicate[0])));
         final TypedQuery<Zoekopdracht> emQuery = entityManager.createQuery(query);
         return emQuery.getResultList();
     }
 
-    public TabelInstellingen readTabelInstellingen(
-            final Werklijst lijstID, final String medewerkerID) {
+    public TabelInstellingen readTabelInstellingen(final Werklijst lijstID, final String medewerkerID) {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<TabelInstellingen> query = builder.createQuery(TabelInstellingen.class);
         final Root<TabelInstellingen> root = query.from(TabelInstellingen.class);
@@ -106,9 +101,7 @@ public class GebruikersvoorkeurenService {
     }
 
     public void updateTabelInstellingen(final TabelInstellingen tabelInstellingen) {
-        final TabelInstellingen bestaandeTabelInstellingen =
-                readTabelInstellingen(
-                        tabelInstellingen.getLijstID(), tabelInstellingen.getMedewerkerID());
+        final TabelInstellingen bestaandeTabelInstellingen = readTabelInstellingen(tabelInstellingen.getLijstID(), tabelInstellingen.getMedewerkerID());
         bestaandeTabelInstellingen.setAantalPerPagina(tabelInstellingen.getAantalPerPagina());
         entityManager.merge(bestaandeTabelInstellingen);
     }
@@ -119,13 +112,9 @@ public class GebruikersvoorkeurenService {
         final Root<Zoekopdracht> root = query.from(Zoekopdracht.class);
         final List<Predicate> predicates = new ArrayList<>();
         predicates.add(builder.equal(root.get(Zoekopdracht.LIJST_ID), zoekopdracht.getLijstID()));
-        predicates.add(
-                builder.equal(
-                        root.get(Zoekopdracht.MEDEWERKER_ID), zoekopdracht.getMedewerkerID()));
-        predicates.add(
-                builder.equal(
-                        builder.lower(root.get(Zoekopdracht.NAAM)),
-                        zoekopdracht.getNaam().toLowerCase(Locale.ROOT)));
+        predicates.add(builder.equal(root.get(Zoekopdracht.MEDEWERKER_ID), zoekopdracht.getMedewerkerID()));
+        predicates.add(builder.equal(builder.lower(root.get(Zoekopdracht.NAAM)),
+                                     zoekopdracht.getNaam().toLowerCase(Locale.ROOT)));
         query.where(builder.and(predicates.toArray(new Predicate[0])));
         final TypedQuery<Zoekopdracht> emQuery = entityManager.createQuery(query);
         return CollectionUtils.isNotEmpty(emQuery.getResultList());
@@ -136,34 +125,27 @@ public class GebruikersvoorkeurenService {
     }
 
     public void setActief(final Zoekopdracht zoekopdracht) {
-        final List<Zoekopdracht> zoekopdrachten =
-                listZoekopdrachten(
-                        new ZoekopdrachtListParameters(
-                                zoekopdracht.getLijstID(), zoekopdracht.getMedewerkerID()));
-        zoekopdrachten.forEach(
-                z -> {
-                    final boolean huidigeWaarde = z.isActief();
-                    z.setActief(z.getId().equals(zoekopdracht.getId()));
-                    if (huidigeWaarde != z.isActief()) {
-                        entityManager.merge(z);
-                    }
-                });
+        final List<Zoekopdracht> zoekopdrachten = listZoekopdrachten(
+                new ZoekopdrachtListParameters(zoekopdracht.getLijstID(), zoekopdracht.getMedewerkerID()));
+        zoekopdrachten.forEach(z -> {
+            final boolean huidigeWaarde = z.isActief();
+            z.setActief(z.getId().equals(zoekopdracht.getId()));
+            if (huidigeWaarde != z.isActief()) {
+                entityManager.merge(z);
+            }
+        });
     }
 
     public void removeActief(final ZoekopdrachtListParameters zoekopdrachtListParameters) {
-        listZoekopdrachten(zoekopdrachtListParameters).stream()
-                .filter(Zoekopdracht::isActief)
-                .forEach(
-                        zoekopdracht -> {
-                            zoekopdracht.setActief(false);
-                            entityManager.merge(zoekopdracht);
-                        });
+        listZoekopdrachten(zoekopdrachtListParameters).stream().filter(Zoekopdracht::isActief).forEach(zoekopdracht -> {
+            zoekopdracht.setActief(false);
+            entityManager.merge(zoekopdracht);
+        });
     }
 
     public List<DashboardCardInstelling> listDashboardCards(final String medewerkerId) {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<DashboardCardInstelling> query =
-                builder.createQuery(DashboardCardInstelling.class);
+        final CriteriaQuery<DashboardCardInstelling> query = builder.createQuery(DashboardCardInstelling.class);
         final Root<DashboardCardInstelling> root = query.from(DashboardCardInstelling.class);
         final List<Predicate> predicates = new ArrayList<>();
         predicates.add(builder.equal(root.get("medewerkerId"), medewerkerId));
@@ -173,41 +155,32 @@ public class GebruikersvoorkeurenService {
         return emQuery.getResultList();
     }
 
-    public void updateDashboardCards(
-            final String medewerkerId, final List<DashboardCardInstelling> cards) {
+    public void updateDashboardCards(final String medewerkerId, final List<DashboardCardInstelling> cards) {
         final List<DashboardCardInstelling> existingCards = listDashboardCards(medewerkerId);
-        existingCards.forEach(
-                existingCard -> {
-                    final Optional<DashboardCardInstelling> updatedCard =
-                            cards.stream()
-                                    .filter(
-                                            card ->
-                                                    existingCard
-                                                            .getCardId()
-                                                            .equals(card.getCardId()))
-                                    .findAny();
-                    if (updatedCard.isPresent()) {
-                        existingCard.setKolom(updatedCard.get().getKolom());
-                        existingCard.setVolgorde(updatedCard.get().getVolgorde());
-                        entityManager.persist(existingCard);
-                    } else {
-                        entityManager.remove(existingCard);
-                    }
-                });
+        existingCards.forEach(existingCard -> {
+            final Optional<DashboardCardInstelling> updatedCard = cards.stream()
+                    .filter(card -> existingCard.getCardId().equals(card.getCardId()))
+                    .findAny();
+            if (updatedCard.isPresent()) {
+                existingCard.setKolom(updatedCard.get().getKolom());
+                existingCard.setVolgorde(updatedCard.get().getVolgorde());
+                entityManager.persist(existingCard);
+            } else {
+                entityManager.remove(existingCard);
+            }
+        });
         cards.stream()
                 .filter(card -> card.getId() == null)
-                .forEach(
-                        newCard -> {
-                            newCard.setMedewerkerId(medewerkerId);
-                            entityManager.persist(newCard);
-                        });
+                .forEach(newCard -> {
+                    newCard.setMedewerkerId(medewerkerId);
+                    entityManager.persist(newCard);
+                });
     }
 
     public void addDashboardCard(final String medewerkerId, final DashboardCardInstelling card) {
         if (card.getSignaleringType() != null) {
-            final SignaleringInstellingen instellingen =
-                    signaleringenService.readInstellingenUser(
-                            card.getSignaleringType(), medewerkerId);
+            final SignaleringInstellingen instellingen = signaleringenService.readInstellingenUser(
+                    card.getSignaleringType(), medewerkerId);
             instellingen.setDashboard(true);
             signaleringenService.createUpdateOrDeleteInstellingen(instellingen);
         }
@@ -219,9 +192,8 @@ public class GebruikersvoorkeurenService {
 
     public void deleteDashboardCard(final String medewerkerId, final DashboardCardInstelling card) {
         if (card.getSignaleringType() != null) {
-            final SignaleringInstellingen instellingen =
-                    signaleringenService.readInstellingenUser(
-                            card.getSignaleringType(), medewerkerId);
+            final SignaleringInstellingen instellingen = signaleringenService.readInstellingenUser(
+                    card.getSignaleringType(), medewerkerId);
             instellingen.setDashboard(false);
             signaleringenService.createUpdateOrDeleteInstellingen(instellingen);
         }

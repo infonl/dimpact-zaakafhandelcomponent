@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.zoeken.model.zoekobject;
 
 import java.util.Date;
@@ -17,9 +18,11 @@ public class TaakZoekObject implements ZoekObject {
 
     public static final String BEHANDELAAR_ID_FIELD = "taak_behandelaarGebruikersnaam";
 
-    @Field private String id;
+    @Field
+    private String id;
 
-    @Field private String type;
+    @Field
+    private String type;
 
     @Field("taak_naam")
     private String naam;
@@ -81,7 +84,9 @@ public class TaakZoekObject implements ZoekObject {
     @Field(IS_TOEGEKEND_FIELD)
     private boolean toegekend;
 
-    public TaakZoekObject() {}
+
+    public TaakZoekObject() {
+    }
 
     public String getId() {
         return id;

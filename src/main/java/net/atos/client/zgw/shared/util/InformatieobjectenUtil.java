@@ -1,7 +1,3 @@
-/*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
- * SPDX-License-Identifier: EUPL-1.2+
- */
 package net.atos.client.zgw.shared.util;
 
 import java.util.Base64;
@@ -30,9 +26,9 @@ public class InformatieobjectenUtil {
      * Eventhough they have the exact same values the OpenAPI Generator generates two
      * separate Java classes with two separate enums.
      */
-    public static EnkelvoudigInformatieObject.StatusEnum
-            convertToEnkelvoudigInformatieObjectStatusEnum(
-                    EnkelvoudigInformatieObjectWithLockData.StatusEnum statusEnum) {
+    public static EnkelvoudigInformatieObject.StatusEnum convertToEnkelvoudigInformatieObjectStatusEnum(
+            EnkelvoudigInformatieObjectWithLockData.StatusEnum statusEnum
+    ) {
         return EnkelvoudigInformatieObject.StatusEnum.valueOf(statusEnum.name());
     }
 
@@ -43,9 +39,9 @@ public class InformatieobjectenUtil {
      * Eventhough they have the exact same values the OpenAPI Generator generates two
      * separate Java classes with two separate enums.
      */
-    public static EnkelvoudigInformatieObjectData.StatusEnum
-            convertToEnkelvoudigInformatieObjectDataStatusEnum(
-                    EnkelvoudigInformatieObject.StatusEnum statusEnum) {
+    public static EnkelvoudigInformatieObjectData.StatusEnum convertToEnkelvoudigInformatieObjectDataStatusEnum(
+            EnkelvoudigInformatieObject.StatusEnum statusEnum
+    ) {
         return EnkelvoudigInformatieObjectData.StatusEnum.valueOf(statusEnum.name());
     }
 
@@ -56,22 +52,26 @@ public class InformatieobjectenUtil {
      * Eventhough they have the exact same values the OpenAPI Generator generates two
      * separate Java classes with two separate enums.
      */
-    public static EnkelvoudigInformatieObjectWithLockData.StatusEnum
-            convertToEnkelvoudigInformatieObjectWithLockDataStatusEnum(
-                    EnkelvoudigInformatieObject.StatusEnum statusEnum) {
+    public static EnkelvoudigInformatieObjectWithLockData.StatusEnum convertToEnkelvoudigInformatieObjectWithLockDataStatusEnum(
+            EnkelvoudigInformatieObject.StatusEnum statusEnum
+    ) {
         return EnkelvoudigInformatieObjectWithLockData.StatusEnum.valueOf(statusEnum.name());
     }
 
     public static EnkelvoudigInformatieObjectWithLockData.VertrouwelijkheidaanduidingEnum
-            convertToEnkelvoudigInformatieObjectWithLockDataVertrouwelijkheidaanduidingEnum(
-                    String vertrouwelijkheidaanduidingEnumString) {
+    convertToEnkelvoudigInformatieObjectWithLockDataVertrouwelijkheidaanduidingEnum(
+            String vertrouwelijkheidaanduidingEnumString
+    ) {
         return EnkelvoudigInformatieObjectWithLockData.VertrouwelijkheidaanduidingEnum.valueOf(
-                vertrouwelijkheidaanduidingEnumString.toUpperCase());
+                vertrouwelijkheidaanduidingEnumString.toUpperCase()
+        );
     }
 
-    public static EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum
-            convertToVertrouwelijkheidaanduidingEnum(String vertrouwelijkheidaanduidingEnumString) {
+    public static EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum convertToVertrouwelijkheidaanduidingEnum(
+            String vertrouwelijkheidaanduidingEnumString
+    ) {
         return EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum.valueOf(
-                vertrouwelijkheidaanduidingEnumString.toUpperCase());
+                vertrouwelijkheidaanduidingEnumString.toUpperCase()
+        );
     }
 }

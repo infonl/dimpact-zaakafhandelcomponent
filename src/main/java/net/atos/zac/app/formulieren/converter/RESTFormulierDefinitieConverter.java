@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.formulieren.converter;
 
 import java.util.Comparator;
@@ -14,10 +15,11 @@ import net.atos.zac.formulieren.model.FormulierVeldDefinitie;
 
 public class RESTFormulierDefinitieConverter {
 
-    @Inject private RESTFormulierVeldDefinitieConverter veldDefinitieConverter;
+    @Inject
+    private RESTFormulierVeldDefinitieConverter veldDefinitieConverter;
 
-    public RESTFormulierDefinitie convert(
-            final FormulierDefinitie formulierDefinitie, boolean inclusiefVelden, boolean runtime) {
+    public RESTFormulierDefinitie convert(final FormulierDefinitie formulierDefinitie,
+            boolean inclusiefVelden, boolean runtime) {
         final RESTFormulierDefinitie restFormulierDefinitie = new RESTFormulierDefinitie();
         restFormulierDefinitie.id = formulierDefinitie.getId();
         restFormulierDefinitie.beschrijving = formulierDefinitie.getBeschrijving();
@@ -27,11 +29,10 @@ public class RESTFormulierDefinitieConverter {
         restFormulierDefinitie.uitleg = formulierDefinitie.getUitleg();
         restFormulierDefinitie.systeemnaam = formulierDefinitie.getSysteemnaam();
         if (inclusiefVelden) {
-            restFormulierDefinitie.veldDefinities =
-                    formulierDefinitie.getVeldDefinities().stream()
-                            .sorted(Comparator.comparingInt(FormulierVeldDefinitie::getVolgorde))
-                            .map(vd -> veldDefinitieConverter.convert(vd, runtime))
-                            .toList();
+            restFormulierDefinitie.veldDefinities = formulierDefinitie.getVeldDefinities().stream()
+                    .sorted(Comparator.comparingInt(FormulierVeldDefinitie::getVolgorde))
+                    .map(vd -> veldDefinitieConverter.convert(vd, runtime))
+                    .toList();
         }
         return restFormulierDefinitie;
     }
@@ -40,18 +41,15 @@ public class RESTFormulierDefinitieConverter {
         return convert(restFormulierDefinitie, new FormulierDefinitie());
     }
 
-    public FormulierDefinitie convert(
-            final RESTFormulierDefinitie restFormulierDefinitie,
-            final FormulierDefinitie formulierDefinitie) {
+    public FormulierDefinitie convert(final RESTFormulierDefinitie restFormulierDefinitie, final FormulierDefinitie formulierDefinitie) {
         formulierDefinitie.setId(restFormulierDefinitie.id);
         formulierDefinitie.setNaam(restFormulierDefinitie.naam);
         formulierDefinitie.setSysteemnaam(restFormulierDefinitie.systeemnaam);
         formulierDefinitie.setBeschrijving(restFormulierDefinitie.beschrijving);
         formulierDefinitie.setUitleg(restFormulierDefinitie.uitleg);
-        formulierDefinitie.setVeldDefinities(
-                restFormulierDefinitie.veldDefinities.stream()
-                        .map(veldDefinitieConverter::convert)
-                        .toList());
+        formulierDefinitie.setVeldDefinities(restFormulierDefinitie.veldDefinities.stream()
+                                                     .map(veldDefinitieConverter::convert)
+                                                     .toList());
         return formulierDefinitie;
     }
 }

@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.klanten.util;
 
 import jakarta.enterprise.inject.Instance;
@@ -17,7 +18,8 @@ import net.atos.zac.authentication.LoggedInUser;
 
 public class KlantenClientHeadersFactory implements ClientHeadersFactory {
 
-    @Inject private Instance<LoggedInUser> loggedInUserInstance;
+    @Inject
+    private Instance<LoggedInUser> loggedInUserInstance;
 
     @Inject
     @ConfigProperty(name = "KLANTEN_API_CLIENTID")
@@ -28,12 +30,10 @@ public class KlantenClientHeadersFactory implements ClientHeadersFactory {
     private String secret;
 
     @Override
-    public MultivaluedMap<String, String> update(
-            final MultivaluedMap<String, String> incomingHeaders,
+    public MultivaluedMap<String, String> update(final MultivaluedMap<String, String> incomingHeaders,
             final MultivaluedMap<String, String> outgoingHeaders) {
-        outgoingHeaders.add(
-                HttpHeaders.AUTHORIZATION,
-                JWTTokenGenerator.generate(clientId, secret, loggedInUserInstance.get()));
+        outgoingHeaders.add(HttpHeaders.AUTHORIZATION, JWTTokenGenerator.generate(clientId, secret,
+                                                                                  loggedInUserInstance.get()));
         return outgoingHeaders;
     }
 }

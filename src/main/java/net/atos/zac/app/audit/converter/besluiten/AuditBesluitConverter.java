@@ -1,7 +1,3 @@
-/*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
- * SPDX-License-Identifier: EUPL-1.2+
- */
 package net.atos.zac.app.audit.converter.besluiten;
 
 import java.util.LinkedList;
@@ -31,12 +27,9 @@ public class AuditBesluitConverter extends AbstractAuditWijzigingConverter<Beslu
         }
 
         final List<RESTHistorieRegel> historieRegels = new LinkedList<>();
-        checkAttribuut(
-                "identificatie", oud.getIdentificatie(), nieuw.getIdentificatie(), historieRegels);
-        checkAttribuut(
-                "verzenddatum", oud.getVerzenddatum(), nieuw.getVerzenddatum(), historieRegels);
-        checkAttribuut(
-                "ingangsdatum", oud.getIngangsdatum(), nieuw.getIngangsdatum(), historieRegels);
+        checkAttribuut("identificatie", oud.getIdentificatie(), nieuw.getIdentificatie(), historieRegels);
+        checkAttribuut("verzenddatum", oud.getVerzenddatum(), nieuw.getVerzenddatum(), historieRegels);
+        checkAttribuut("ingangsdatum", oud.getIngangsdatum(), nieuw.getIngangsdatum(), historieRegels);
         checkAttribuut("vervaldatum", oud.getVervaldatum(), nieuw.getVervaldatum(), historieRegels);
         checkAttribuut("toelichting", oud.getToelichting(), nieuw.getToelichting(), historieRegels);
         return historieRegels.stream();

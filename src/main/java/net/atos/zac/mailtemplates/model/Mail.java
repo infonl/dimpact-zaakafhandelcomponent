@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.mailtemplates.model;
 
 import java.util.Collections;
@@ -35,14 +36,7 @@ public enum Mail {
     }
 
     public static List<Mail> getKoppelbareMails() {
-        return Stream.of(
-                        ZAAK_ALGEMEEN,
-                        ZAAK_ONTVANKELIJK,
-                        ZAAK_NIET_ONTVANKELIJK,
-                        ZAAK_AFGEHANDELD,
-                        TAAK_AANVULLENDE_INFORMATIE,
-                        TAAK_ADVIES_EXTERN,
-                        TAAK_ONTVANGSTBEVESTIGING)
-                .toList();
+        return Stream.of(ZAAK_ALGEMEEN, ZAAK_ONTVANKELIJK, ZAAK_NIET_ONTVANKELIJK, ZAAK_AFGEHANDELD,
+                         TAAK_AANVULLENDE_INFORMATIE, TAAK_ADVIES_EXTERN, TAAK_ONTVANGSTBEVESTIGING).toList();
     }
 }

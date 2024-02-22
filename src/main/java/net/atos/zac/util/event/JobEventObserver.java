@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.util.event;
 
 import java.util.logging.Level;
@@ -20,7 +21,8 @@ import net.atos.zac.signalering.SignaleringenJob;
 public class JobEventObserver {
     private static final Logger LOG = Logger.getLogger(JobEventObserver.class.getName());
 
-    @Inject private SignaleringenJob signaleringenJob;
+    @Inject
+    private SignaleringenJob signaleringenJob;
 
     public void onFire(final @ObservesAsync JobEvent event) {
         try {

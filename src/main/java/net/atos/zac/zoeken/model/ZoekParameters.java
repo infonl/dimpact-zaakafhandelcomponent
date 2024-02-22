@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.zoeken.model;
 
 import java.util.ArrayList;
@@ -34,12 +35,7 @@ public class ZoekParameters {
 
     public ZoekParameters(final ZoekObjectType type) {
         this.type = type;
-        this.getBeschikbareFilters()
-                .forEach(
-                        filterVeld ->
-                                this.addFilter(
-                                        filterVeld,
-                                        new FilterParameters(new ArrayList<>(), false)));
+        this.getBeschikbareFilters().forEach(filterVeld -> this.addFilter(filterVeld, new FilterParameters(new ArrayList<>(), false)));
     }
 
     public int getRows() {
@@ -82,9 +78,11 @@ public class ZoekParameters {
         this.datums.put(zoekVeld, range);
     }
 
+
     public EnumMap<FilterVeld, FilterParameters> getFilters() {
         return filters;
     }
+
 
     public void addFilter(FilterVeld veld, String waarde) {
         this.filters.put(veld, new FilterParameters(List.of(waarde), false));

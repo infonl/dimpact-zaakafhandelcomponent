@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.audit.converter.zaken;
 
 import java.util.stream.Stream;
@@ -15,8 +16,7 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject;
 import net.atos.zac.app.audit.converter.AbstractAuditWijzigingConverter;
 import net.atos.zac.app.audit.model.RESTHistorieRegel;
 
-public class AuditZaakobjectWijzigingConverter
-        extends AbstractAuditWijzigingConverter<AuditWijziging<Zaakobject>> {
+public class AuditZaakobjectWijzigingConverter extends AbstractAuditWijzigingConverter<AuditWijziging<Zaakobject>> {
 
     @Override
     public boolean supports(final ObjectType objectType) {
@@ -25,11 +25,7 @@ public class AuditZaakobjectWijzigingConverter
 
     @Override
     protected Stream<RESTHistorieRegel> doConvert(final AuditWijziging<Zaakobject> wijziging) {
-        return Stream.of(
-                new RESTHistorieRegel(
-                        toAttribuutLabel(wijziging),
-                        toWaarde(wijziging.getOud()),
-                        toWaarde(wijziging.getNieuw())));
+        return Stream.of(new RESTHistorieRegel(toAttribuutLabel(wijziging), toWaarde(wijziging.getOud()), toWaarde(wijziging.getNieuw())));
     }
 
     private String toAttribuutLabel(final AuditWijziging<Zaakobject> wijziging) {
@@ -55,4 +51,5 @@ public class AuditZaakobjectWijzigingConverter
         }
         return zaakobject.getWaarde();
     }
+
 }

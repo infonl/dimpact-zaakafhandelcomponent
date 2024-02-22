@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.planitems.model;
 
 import java.time.LocalDate;
@@ -18,7 +19,8 @@ public class RESTHumanTaskData {
 
     public RESTGroup groep;
 
-    @Valid public RESTUser medewerker;
+    @Valid
+    public RESTUser medewerker;
 
     public LocalDate fataledatum;
 

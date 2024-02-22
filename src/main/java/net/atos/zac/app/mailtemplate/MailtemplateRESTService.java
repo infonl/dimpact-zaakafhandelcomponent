@@ -1,7 +1,3 @@
-/*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
- * SPDX-License-Identifier: EUPL-1.2+
- */
 package net.atos.zac.app.mailtemplate;
 
 import java.util.UUID;
@@ -31,33 +27,32 @@ import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
 @Produces(MediaType.APPLICATION_JSON)
 public class MailtemplateRESTService {
 
-    @Inject private MailTemplateService mailTemplateService;
+    @Inject
+    private MailTemplateService mailTemplateService;
 
-    @Inject private RESTMailtemplateConverter restMailtemplateConverter;
+    @Inject
+    private RESTMailtemplateConverter restMailtemplateConverter;
 
-    @Inject private ZaakafhandelParameterService zaakafhandelParameterService;
+    @Inject
+    private ZaakafhandelParameterService zaakafhandelParameterService;
 
-    @Inject private ZRCClientService zrcClientService;
+    @Inject
+    private ZRCClientService zrcClientService;
 
     @GET
     @Path("{mailtemplateEnum}/{zaakUUID}")
-    public RESTMailtemplate findMailtemplate(
-            @PathParam("mailtemplateEnum") final Mail mail,
+    public RESTMailtemplate findMailtemplate(@PathParam("mailtemplateEnum") final Mail mail,
             @PathParam("zaakUUID") final UUID zaakUUID) {
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
         final ZaakafhandelParameters zaakafhandelParameters =
-                zaakafhandelParameterService.readZaakafhandelParameters(
-                        UriUtil.uuidFromURI(zaak.getZaaktype()));
+                zaakafhandelParameterService.readZaakafhandelParameters(UriUtil.uuidFromURI(zaak.getZaaktype()));
 
         return zaakafhandelParameters.getMailtemplateKoppelingen().stream()
                 .filter(koppeling -> koppeling.getMailTemplate().getMail().equals(mail))
                 .map(koppeling -> restMailtemplateConverter.convert(koppeling.getMailTemplate()))
                 .findFirst()
-                .orElseGet(
-                        () ->
-                                mailTemplateService
-                                        .findDefaultMailtemplate(mail)
-                                        .map(restMailtemplateConverter::convert)
-                                        .orElse(null));
+                .orElseGet(() -> mailTemplateService.findDefaultMailtemplate(mail)
+                        .map(restMailtemplateConverter::convert)
+                        .orElse(null));
     }
 }

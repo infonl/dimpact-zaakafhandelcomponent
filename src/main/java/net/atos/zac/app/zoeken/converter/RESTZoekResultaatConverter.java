@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.zoeken.converter;
 
 import java.util.ArrayList;
@@ -21,41 +22,32 @@ import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
 
 public class RESTZoekResultaatConverter {
 
-    @Inject private RESTZaakZoekObjectConverter restZaakZoekObjectConverter;
+    @Inject
+    private RESTZaakZoekObjectConverter restZaakZoekObjectConverter;
 
-    @Inject private RESTTaakZoekObjectConverter restTaakZoekObjectConverter;
+    @Inject
+    private RESTTaakZoekObjectConverter restTaakZoekObjectConverter;
 
-    @Inject private RESTDocumentZoekObjectConverter restDocumentZoekObjectConverter;
+    @Inject
+    private RESTDocumentZoekObjectConverter restDocumentZoekObjectConverter;
 
     public RESTZoekResultaat<? extends AbstractRESTZoekObject> convert(
-            final ZoekResultaat<? extends ZoekObject> zoekResultaat,
-            final RESTZoekParameters zoekParameters) {
+            final ZoekResultaat<? extends ZoekObject> zoekResultaat, final RESTZoekParameters zoekParameters) {
 
         final RESTZoekResultaat<? extends AbstractRESTZoekObject> restZoekResultaat =
-                new RESTZoekResultaat<>(
-                        zoekResultaat.getItems().stream().map(this::convert).toList(),
-                        zoekResultaat.getCount());
+                new RESTZoekResultaat<>(zoekResultaat.getItems().stream().map(this::convert).toList(), zoekResultaat.getCount());
         restZoekResultaat.filters.putAll(zoekResultaat.getFilters());
 
         // indien geen resultaten, de huidige filters laten staan
-        zoekParameters.filters.forEach(
-                (filterVeld, filters) -> {
-                    final List<FilterResultaat> filterResultaten =
-                            restZoekResultaat.filters.getOrDefault(filterVeld, new ArrayList<>());
-                    filters.waarden()
-                            .forEach(
-                                    filter -> {
-                                        if (filterResultaten.stream()
-                                                .noneMatch(
-                                                        filterResultaat ->
-                                                                filterResultaat
-                                                                        .naam()
-                                                                        .equals(filter))) {
-                                            filterResultaten.add(new FilterResultaat(filter, 0));
-                                        }
-                                    });
-                    restZoekResultaat.filters.put(filterVeld, filterResultaten);
-                });
+        zoekParameters.filters.forEach((filterVeld, filters) -> {
+            final List<FilterResultaat> filterResultaten = restZoekResultaat.filters.getOrDefault(filterVeld, new ArrayList<>());
+            filters.waarden().forEach(filter -> {
+                if (filterResultaten.stream().noneMatch(filterResultaat -> filterResultaat.naam().equals(filter))) {
+                    filterResultaten.add(new FilterResultaat(filter, 0));
+                }
+            });
+            restZoekResultaat.filters.put(filterVeld, filterResultaten);
+        });
         return restZoekResultaat;
     }
 
@@ -63,8 +55,7 @@ public class RESTZoekResultaatConverter {
         return switch (zoekObject.getType()) {
             case ZAAK -> restZaakZoekObjectConverter.convert((ZaakZoekObject) zoekObject);
             case TAAK -> restTaakZoekObjectConverter.convert((TaakZoekObject) zoekObject);
-            case DOCUMENT ->
-                    restDocumentZoekObjectConverter.convert((DocumentZoekObject) zoekObject);
+            case DOCUMENT -> restDocumentZoekObjectConverter.convert((DocumentZoekObject) zoekObject);
         };
     }
 }

@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.datatable;
 
 import java.util.Map;
@@ -13,7 +14,8 @@ public class Search {
     @JsonbProperty("predicateObject")
     private Map<String, String> predicateObject;
 
-    public Search() {}
+    public Search() {
+    }
 
     public Map<String, String> getPredicateObject() {
         return predicateObject;

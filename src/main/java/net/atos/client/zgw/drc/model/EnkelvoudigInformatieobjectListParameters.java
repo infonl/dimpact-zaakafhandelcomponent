@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.drc.model;
 
 import jakarta.ws.rs.QueryParam;
@@ -26,11 +27,13 @@ public class EnkelvoudigInformatieobjectListParameters extends AbstractListParam
     @QueryParam("bronorganisatie")
     private String bronorganisatie;
 
+
     public EnkelvoudigInformatieobjectListParameters(final String identificatie) {
         this.identificatie = identificatie;
     }
 
-    public EnkelvoudigInformatieobjectListParameters() {}
+    public EnkelvoudigInformatieobjectListParameters() {
+    }
 
     public String getIdentificatie() {
         return identificatie;

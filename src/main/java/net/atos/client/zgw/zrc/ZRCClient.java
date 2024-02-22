@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.zrc;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -66,33 +67,30 @@ public interface ZRCClient {
     @GET
     @Path("zaken")
     @ClientHeaderParams({
-        @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-        @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)
-    })
+            @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
+            @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
     Results<Zaak> zaakList(@BeanParam final ZaakListParameters parameters);
+
 
     @POST
     @Path("zaken")
     @ClientHeaderParams({
-        @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-        @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)
-    })
+            @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
+            @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
     Zaak zaakCreate(final Zaak zaak);
 
     @PATCH
     @Path("zaken/{uuid}")
     @ClientHeaderParams({
-        @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-        @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)
-    })
+            @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
+            @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
     Zaak zaakPartialUpdate(@PathParam("uuid") final UUID uuid, final Zaak zaak);
 
     @GET
     @Path("zaken/{uuid}")
     @ClientHeaderParams({
-        @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-        @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)
-    })
+            @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
+            @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
     Zaak zaakRead(@PathParam("uuid") final UUID uuid);
 
     @GET
@@ -113,13 +111,11 @@ public interface ZRCClient {
 
     @GET
     @Path("zaakinformatieobjecten")
-    List<ZaakInformatieobject> zaakinformatieobjectList(
-            @BeanParam final ZaakInformatieobjectListParameters parameters);
+    List<ZaakInformatieobject> zaakinformatieobjectList(@BeanParam final ZaakInformatieobjectListParameters parameters);
 
     @POST
     @Path("zaakinformatieobjecten")
-    ZaakInformatieobject zaakinformatieobjectCreate(
-            final ZaakInformatieobject zaakInformatieObject);
+    ZaakInformatieobject zaakinformatieobjectCreate(final ZaakInformatieobject zaakInformatieObject);
 
     @DELETE
     @Path("zaakinformatieobjecten/{uuid}")
@@ -135,8 +131,7 @@ public interface ZRCClient {
 
     @PUT
     @Path("resultaten/{uuid}")
-    Resultaat resultaatUpdate(
-            @PathParam("uuid") final UUID resultaatUUID, final Resultaat resultaat);
+    Resultaat resultaatUpdate(@PathParam("uuid") final UUID resultaatUUID, final Resultaat resultaat);
 
     @DELETE
     @Path("resultaten/{uuid}")
@@ -148,13 +143,11 @@ public interface ZRCClient {
 
     @POST
     @Path("zaken/{zaak_uuid}/zaakeigenschappen")
-    ZaakEigenschap zaakeigenschapCreate(
-            @PathParam("zaak_uuid") final UUID zaakUUID, final ZaakEigenschap zaakeigenschap);
+    ZaakEigenschap zaakeigenschapCreate(@PathParam("zaak_uuid") final UUID zaakUUID, final ZaakEigenschap zaakeigenschap);
 
     @GET
     @Path("zaakobjecten")
-    Results<Zaakobject> zaakobjectList(
-            @BeanParam final ZaakobjectListParameters zaakobjectListParameters);
+    Results<Zaakobject> zaakobjectList(@BeanParam final ZaakobjectListParameters zaakobjectListParameters);
 
     @POST
     @Path("zaakobjecten")
@@ -175,4 +168,5 @@ public interface ZRCClient {
     @GET
     @Path("zaakinformatieobjecten/{uuid}")
     ZaakInformatieobject zaakinformatieobjectRead(@PathParam("uuid") UUID zaakinformatieobjectUUID);
+
 }

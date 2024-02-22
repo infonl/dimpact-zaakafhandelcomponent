@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.util;
 
 import java.io.IOException;
@@ -16,9 +17,9 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.apache.commons.lang3.exception.ExceptionUtils;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Implementatie van ExceptionMapper. Alle exceptions worden gecatched door de JAX-RS runtime en gemapped naar een {@link Response}.
@@ -33,10 +34,8 @@ public class RESTExceptionMapper implements ExceptionMapper<Exception> {
      */
     @Override
     public Response toResponse(final Exception e) {
-        if (e instanceof WebApplicationException
-                && Response.Status.Family.familyOf(
-                                ((WebApplicationException) e).getResponse().getStatus())
-                        != Response.Status.Family.SERVER_ERROR) {
+        if (e instanceof WebApplicationException &&
+                Response.Status.Family.familyOf(((WebApplicationException) e).getResponse().getStatus()) != Response.Status.Family.SERVER_ERROR) {
             final WebApplicationException wae = (WebApplicationException) e;
             return Response.status(wae.getResponse().getStatus())
                     .type(MediaType.APPLICATION_JSON)
@@ -60,7 +59,7 @@ public class RESTExceptionMapper implements ExceptionMapper<Exception> {
         try {
             return mapper.writeValueAsString(data);
         } catch (final IOException ioe) {
-            // Het omzetten van de exceptie naar een JSON bericht is fout gegaan.
+            //Het omzetten van de exceptie naar een JSON bericht is fout gegaan.
             LOG.severe(ioe.getMessage());
         }
         return null;

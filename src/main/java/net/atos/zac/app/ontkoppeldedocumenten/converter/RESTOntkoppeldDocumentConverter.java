@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.ontkoppeldedocumenten.converter;
 
 import java.util.List;
@@ -15,7 +16,8 @@ import net.atos.zac.documenten.model.OntkoppeldDocument;
 
 public class RESTOntkoppeldDocumentConverter {
 
-    @Inject private RESTUserConverter userConverter;
+    @Inject
+    private RESTUserConverter userConverter;
 
     public RESTOntkoppeldDocument convert(final OntkoppeldDocument document) {
         final RESTOntkoppeldDocument restDocument = new RESTOntkoppeldDocument();

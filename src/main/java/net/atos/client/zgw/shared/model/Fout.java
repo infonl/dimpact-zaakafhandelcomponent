@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.shared.model;
 
 import static java.lang.String.format;
@@ -36,8 +37,7 @@ public class Fout {
     private final URI instance;
 
     @JsonbCreator
-    public Fout(
-            @JsonbProperty("type") final URI type,
+    public Fout(@JsonbProperty("type") final URI type,
             @JsonbProperty("code") final String code,
             @JsonbProperty("title") final String title,
             @JsonbProperty("status") final int status,

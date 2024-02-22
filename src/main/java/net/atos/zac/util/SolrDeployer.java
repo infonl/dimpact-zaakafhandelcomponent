@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.util;
 
 import static net.atos.zac.solr.FieldType.STRING;
@@ -56,9 +57,11 @@ public class SolrDeployer {
     @ConfigProperty(name = "SOLR_URL")
     private String solrUrl;
 
-    @Resource private ManagedExecutorService managedExecutor;
+    @Resource
+    private ManagedExecutorService managedExecutor;
 
-    @Inject private IndexeerService indexeerService;
+    @Inject
+    private IndexeerService indexeerService;
 
     private SolrClient solrClient;
 
@@ -66,33 +69,30 @@ public class SolrDeployer {
 
     @Inject
     public void setSchemaUpdates(final Instance<SolrSchemaUpdate> schemaUpdates) {
-        this.schemaUpdates =
-                schemaUpdates.stream()
-                        .sorted(Comparator.comparingInt(SolrSchemaUpdate::getVersie))
-                        .toList();
+        this.schemaUpdates = schemaUpdates.stream()
+                .sorted(Comparator.comparingInt(SolrSchemaUpdate::getVersie))
+                .toList();
     }
 
     public void onStartup(@Observes @Initialized(ApplicationScoped.class) Object event) {
-        solrClient =
-                new Http2SolrClient.Builder("%s/solr/%s".formatted(solrUrl, SOLR_CORE)).build();
+        solrClient = new Http2SolrClient.Builder("%s/solr/%s".formatted(solrUrl, SOLR_CORE)).build();
         waitForSolrAvailability();
         try {
             final int currentVersion = getCurrentVersion();
             LOG.info("Current version of Solr core '%s': %d".formatted(SOLR_CORE, currentVersion));
             if (currentVersion == schemaUpdates.get(schemaUpdates.size() - 1).getVersie()) {
-                LOG.info(
-                        "Solr core '%s' is up to date. No Solr schema migration needed."
-                                .formatted(SOLR_CORE));
+                LOG.info("Solr core '%s' is up to date. No Solr schema migration needed.".formatted(SOLR_CORE));
             } else {
-                schemaUpdates.stream().skip(currentVersion).forEach(this::apply);
+                schemaUpdates.stream()
+                        .skip(currentVersion)
+                        .forEach(this::apply);
 
                 schemaUpdates.stream()
                         .skip(currentVersion)
-                        .flatMap(
-                                schemaUpdate ->
-                                        schemaUpdate.getTeHerindexerenZoekObjectTypes().stream())
+                        .flatMap(schemaUpdate -> schemaUpdate.getTeHerindexerenZoekObjectTypes().stream())
                         .collect(Collectors.toSet())
                         .forEach(this::startHerindexeren);
+
             }
         } catch (final SolrServerException | IOException e) {
             throw new RuntimeException(e);
@@ -102,51 +102,41 @@ public class SolrDeployer {
     private void waitForSolrAvailability() {
         while (true) {
             try {
-                if (new SolrPing().setActionPing().process(solrClient).getStatus()
-                        == SOLR_STATUS_OK) {
+                if (new SolrPing().setActionPing().process(solrClient).getStatus() == SOLR_STATUS_OK) {
                     return;
                 }
             } catch (final SolrServerException | IOException | SolrException e) {
                 // nothing to report
-                LOG.info(
-                        () ->
-                                "Solr core is not available yet. Exception: %s"
-                                        .formatted(e.getMessage()));
+                LOG.info(() -> "Solr core is not available yet. Exception: %s".formatted(e.getMessage()));
             }
-            LOG.warning(
-                    "Waiting for %d seconds for Solr core '%s' to become available..."
-                            .formatted(WAIT_FOR_SOLR_SECONDS, SOLR_CORE));
+            LOG.warning("Waiting for %d seconds for Solr core '%s' to become available...".formatted(
+                    WAIT_FOR_SOLR_SECONDS, SOLR_CORE));
             try {
                 Thread.sleep(Duration.ofSeconds(WAIT_FOR_SOLR_SECONDS).toMillis());
             } catch (InterruptedException e) {
                 LOG.log(
-                        Level.WARNING,
-                        "Thread was interrupted while waiting for Solr core to become available. "
-                                + "Re-interrupting thread.",
-                        e);
+                    Level.WARNING,
+                    "Thread was interrupted while waiting for Solr core to become available. " +
+                            "Re-interrupting thread.",
+                    e
+                );
                 Thread.currentThread().interrupt();
             }
         }
     }
 
     private int getCurrentVersion() throws SolrServerException, IOException {
-        return new SchemaRequest.Fields()
-                .process(solrClient).getFields().stream()
-                        .map(field -> field.get(NAME).toString())
-                        .filter(fieldName -> fieldName.startsWith(VERSION_FIELD_PREFIX))
-                        .findAny()
-                        .map(
-                                versionFieldName ->
-                                        Integer.valueOf(
-                                                StringUtils.substringAfter(
-                                                        versionFieldName, VERSION_FIELD_PREFIX)))
-                        .orElse(0);
+        return new SchemaRequest.Fields().process(solrClient).getFields().stream()
+                .map(field -> field.get(NAME).toString())
+                .filter(fieldName -> fieldName.startsWith(VERSION_FIELD_PREFIX))
+                .findAny()
+                .map(versionFieldName -> Integer.valueOf(
+                        StringUtils.substringAfter(versionFieldName, VERSION_FIELD_PREFIX)))
+                .orElse(0);
     }
 
     private void apply(final SolrSchemaUpdate schemaUpdate) {
-        LOG.info(
-                "Updating Solr core '%s' to version: %d"
-                        .formatted(SOLR_CORE, schemaUpdate.getVersie()));
+        LOG.info("Updating Solr core '%s' to version: %d".formatted(SOLR_CORE, schemaUpdate.getVersie()));
         try {
             final List<SchemaRequest.Update> schemaUpdates = new LinkedList<>();
             schemaUpdates.addAll(schemaUpdate.getSchemaUpdates());

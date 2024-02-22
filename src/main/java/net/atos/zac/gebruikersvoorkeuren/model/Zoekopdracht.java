@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.gebruikersvoorkeuren.model;
@@ -22,11 +22,7 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(schema = SCHEMA, name = "zoekopdracht")
-@SequenceGenerator(
-        schema = SCHEMA,
-        name = "sq_zoekopdracht",
-        sequenceName = "sq_zoekopdracht",
-        allocationSize = 1)
+@SequenceGenerator(schema = SCHEMA, name = "sq_zoekopdracht", sequenceName = "sq_zoekopdracht", allocationSize = 1)
 public class Zoekopdracht {
 
     /** Naam van property: {@link Zoekopdracht#medewerkerID} */
@@ -43,14 +39,16 @@ public class Zoekopdracht {
     @Column(name = "id_zoekopdracht")
     private Long id;
 
-    @NotNull @Column(name = "creatiedatum", nullable = false)
+    @NotNull
+    @Column(name = "creatiedatum", nullable = false)
     private ZonedDateTime creatiedatum;
 
     @NotBlank
     @Column(name = "naam", nullable = false)
     private String naam;
 
-    @NotNull @Column(name = "id_lijst", nullable = false)
+    @NotNull
+    @Column(name = "id_lijst", nullable = false)
     @Enumerated(EnumType.STRING)
     private Werklijst lijstID;
 

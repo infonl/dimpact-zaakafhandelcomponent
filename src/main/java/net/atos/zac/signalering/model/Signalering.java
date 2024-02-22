@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.signalering.model;
 
 import static net.atos.zac.signalering.model.SignaleringSubject.DOCUMENT;
@@ -39,25 +40,20 @@ import net.atos.zac.util.UriUtil;
 /* Construction is easiest with the factory method in SignaleringService. */
 @Entity
 @Table(schema = SCHEMA, name = "signalering")
-@SequenceGenerator(
-        schema = SCHEMA,
-        name = "sq_signalering",
-        sequenceName = "sq_signalering",
-        allocationSize = 1)
+@SequenceGenerator(schema = SCHEMA, name = "sq_signalering", sequenceName = "sq_signalering", allocationSize = 1)
 public class Signalering {
     @Id
     @GeneratedValue(generator = "sq_signalering", strategy = GenerationType.SEQUENCE)
     @Column(name = "id_signalering")
     private Long id;
 
-    @NotNull @ManyToOne
-    @JoinColumn(
-            name = "signaleringtype_enum",
-            referencedColumnName = "signaleringtype_enum",
-            nullable = false)
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "signaleringtype_enum", referencedColumnName = "signaleringtype_enum", nullable = false)
     private SignaleringType type;
 
-    @NotNull @Column(name = "targettype_enum", nullable = false)
+    @NotNull
+    @Column(name = "targettype_enum", nullable = false)
     @Enumerated(EnumType.STRING)
     private SignaleringTarget targettype;
 
@@ -72,7 +68,8 @@ public class Signalering {
     @Column(name = "detail")
     private String detail;
 
-    @NotNull @Column(name = "tijdstip", nullable = false)
+    @NotNull
+    @Column(name = "tijdstip", nullable = false)
     private ZonedDateTime tijdstip;
 
     public Long getId() {
@@ -139,9 +136,7 @@ public class Signalering {
     private void validSubjecttype(final SignaleringSubject subjecttype) {
         if (type.getSubjecttype() != subjecttype) {
             throw new IllegalArgumentException(
-                    String.format(
-                            "SignaleringType %s expects a %s-type subject",
-                            type, type.getSubjecttype()));
+                    String.format("SignaleringType %s expects a %s-type subject", type, type.getSubjecttype()));
         }
     }
 
@@ -167,8 +162,7 @@ public class Signalering {
 
     @Override
     public String toString() {
-        return String.format(
-                "%s-signalering voor %s %s (over %s %s)",
-                getType(), getTargettype(), getTarget(), getSubjecttype(), getSubject());
+        return String.format("%s-signalering voor %s %s (over %s %s)", getType(), getTargettype(), getTarget(),
+                             getSubjecttype(), getSubject());
     }
 }

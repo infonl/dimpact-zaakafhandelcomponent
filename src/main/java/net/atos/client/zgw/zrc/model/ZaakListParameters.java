@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.zrc.model;
 
 import static java.util.stream.Collectors.joining;
@@ -107,8 +108,7 @@ public class ZaakListParameters extends AbstractListParameters {
     /**
      * Zaken met een vertrouwelijkheidaanduiding die beperkter is dan de aangegeven aanduiding worden uit de resultaten gefiltered.
      */
-    private EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum
-            maximaleVertrouwelijkheidaanduiding;
+    private EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum maximaleVertrouwelijkheidaanduiding;
 
     /**
      * Het burgerservicenummer, bedoeld in artikel 1.1 van de Wet algemene bepalingen burgerservicenummer.
@@ -219,7 +219,9 @@ public class ZaakListParameters extends AbstractListParameters {
     @QueryParam("archiefstatus__in")
     public String getArchiefstatusIn() {
         if (CollectionUtils.isNotEmpty(archiefstatusIn)) {
-            return archiefstatusIn.stream().map(Archiefstatus::toValue).collect(joining(","));
+            return archiefstatusIn.stream()
+                    .map(Archiefstatus::toValue)
+                    .collect(joining(","));
         } else {
             return null;
         }
@@ -291,21 +293,17 @@ public class ZaakListParameters extends AbstractListParameters {
         return rolOmschrijvingGeneriek != null ? rolOmschrijvingGeneriek.value() : null;
     }
 
-    public void setRolOmschrijvingGeneriek(
-            final RolType.OmschrijvingGeneriekEnum rolOmschrijvingGeneriek) {
+    public void setRolOmschrijvingGeneriek(final RolType.OmschrijvingGeneriekEnum rolOmschrijvingGeneriek) {
         this.rolOmschrijvingGeneriek = rolOmschrijvingGeneriek;
     }
 
     @QueryParam("maximaleVertrouwelijkheidaanduiding")
     public String getMaximaleVertrouwelijkheidaanduiding() {
-        return maximaleVertrouwelijkheidaanduiding != null
-                ? maximaleVertrouwelijkheidaanduiding.value()
-                : null;
+        return maximaleVertrouwelijkheidaanduiding != null ?
+                maximaleVertrouwelijkheidaanduiding.value() : null;
     }
 
-    public void setMaximaleVertrouwelijkheidaanduiding(
-            final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum
-                    maximaleVertrouwelijkheidaanduiding) {
+    public void setMaximaleVertrouwelijkheidaanduiding(final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum maximaleVertrouwelijkheidaanduiding) {
         this.maximaleVertrouwelijkheidaanduiding = maximaleVertrouwelijkheidaanduiding;
     }
 
@@ -313,30 +311,24 @@ public class ZaakListParameters extends AbstractListParameters {
         return rolBetrokkeneIdentificatieNatuurlijkPersoonInpBsn;
     }
 
-    public void setRolBetrokkeneIdentificatieNatuurlijkPersoonInpBsn(
-            final String rolBetrokkeneIdentificatieNatuurlijkPersoonInpBsn) {
-        this.rolBetrokkeneIdentificatieNatuurlijkPersoonInpBsn =
-                rolBetrokkeneIdentificatieNatuurlijkPersoonInpBsn;
+    public void setRolBetrokkeneIdentificatieNatuurlijkPersoonInpBsn(final String rolBetrokkeneIdentificatieNatuurlijkPersoonInpBsn) {
+        this.rolBetrokkeneIdentificatieNatuurlijkPersoonInpBsn = rolBetrokkeneIdentificatieNatuurlijkPersoonInpBsn;
     }
 
     public String getRolBetrokkeneIdentificatieMedewerkerIdentificatie() {
         return rolBetrokkeneIdentificatieMedewerkerIdentificatie;
     }
 
-    public void setRolBetrokkeneIdentificatieMedewerkerIdentificatie(
-            final String rolBetrokkeneIdentificatieMedewerkerIdentificatie) {
-        this.rolBetrokkeneIdentificatieMedewerkerIdentificatie =
-                rolBetrokkeneIdentificatieMedewerkerIdentificatie;
+    public void setRolBetrokkeneIdentificatieMedewerkerIdentificatie(final String rolBetrokkeneIdentificatieMedewerkerIdentificatie) {
+        this.rolBetrokkeneIdentificatieMedewerkerIdentificatie = rolBetrokkeneIdentificatieMedewerkerIdentificatie;
     }
 
     public String getRolBetrokkeneIdentificatieOrganisatorischeEenheidIdentificatie() {
         return rolBetrokkeneIdentificatieOrganisatorischeEenheidIdentificatie;
     }
 
-    public void setRolBetrokkeneIdentificatieOrganisatorischeEenheidIdentificatie(
-            final String rolBetrokkeneIdentificatieOrganisatorischeEenheidIdentificatie) {
-        this.rolBetrokkeneIdentificatieOrganisatorischeEenheidIdentificatie =
-                rolBetrokkeneIdentificatieOrganisatorischeEenheidIdentificatie;
+    public void setRolBetrokkeneIdentificatieOrganisatorischeEenheidIdentificatie(final String rolBetrokkeneIdentificatieOrganisatorischeEenheidIdentificatie) {
+        this.rolBetrokkeneIdentificatieOrganisatorischeEenheidIdentificatie = rolBetrokkeneIdentificatieOrganisatorischeEenheidIdentificatie;
     }
 
     public String getOrdering() {

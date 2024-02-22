@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.formulieren.model;
 
 import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
@@ -26,11 +27,7 @@ import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(schema = SCHEMA, name = "formulier_definitie")
-@SequenceGenerator(
-        schema = SCHEMA,
-        name = "sq_formulier_definitie",
-        sequenceName = "sq_formulier_definitie",
-        allocationSize = 1)
+@SequenceGenerator(schema = SCHEMA, name = "sq_formulier_definitie", sequenceName = "sq_formulier_definitie", allocationSize = 1)
 public class FormulierDefinitie {
 
     @Id
@@ -58,11 +55,7 @@ public class FormulierDefinitie {
     @Column(name = "wijzigingsdatum", nullable = false)
     private ZonedDateTime wijzigingsdatum;
 
-    @OneToMany(
-            mappedBy = "formulierDefinitie",
-            cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER,
-            orphanRemoval = true)
+    @OneToMany(mappedBy = "formulierDefinitie", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private Set<FormulierVeldDefinitie> veldDefinities;
 
     public Long getId() {
@@ -72,6 +65,7 @@ public class FormulierDefinitie {
     public void setId(final Long id) {
         this.id = id;
     }
+
 
     public String getSysteemnaam() {
         return systeemnaam;
@@ -139,3 +133,4 @@ public class FormulierDefinitie {
         veldDefinities.add(veldDefinitie);
     }
 }
+

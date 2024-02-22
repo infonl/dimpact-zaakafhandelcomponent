@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.brc;
 
 import java.net.URI;
@@ -15,9 +16,9 @@ import jakarta.inject.Inject;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-import net.atos.client.zgw.brc.model.BesluitenListParameters;
 import net.atos.client.zgw.brc.model.generated.Besluit;
 import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject;
+import net.atos.client.zgw.brc.model.BesluitenListParameters;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel;
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
@@ -30,9 +31,12 @@ import net.atos.zac.util.UriUtil;
 @ApplicationScoped
 public class BRCClientService {
 
-    @Inject @RestClient private BRCClient brcClient;
+    @Inject
+    @RestClient
+    private BRCClient brcClient;
 
-    @Inject private ZGWClientHeadersFactory zgwClientHeadersFactory;
+    @Inject
+    private ZGWClientHeadersFactory zgwClientHeadersFactory;
 
     public Optional<List<Besluit>> listBesluiten(final Zaak zaak) {
         final BesluitenListParameters listParameters = new BesluitenListParameters(zaak.getUrl());
@@ -62,14 +66,13 @@ public class BRCClientService {
         return brcClient.besluitRead(uuid);
     }
 
-    public BesluitInformatieObject createBesluitInformatieobject(
-            final BesluitInformatieObject besluitInformatieobject, final String toelichting) {
+    public BesluitInformatieObject createBesluitInformatieobject(final BesluitInformatieObject besluitInformatieobject,
+            final String toelichting) {
         zgwClientHeadersFactory.setAuditToelichting(toelichting);
         return brcClient.besluitinformatieobjectCreate(besluitInformatieobject);
     }
 
-    public BesluitInformatieObject deleteBesluitinformatieobject(
-            final UUID besluitInformatieobjectUuid) {
+    public BesluitInformatieObject deleteBesluitinformatieobject(final UUID besluitInformatieobjectUuid) {
         return brcClient.besluitinformatieobjectDelete(besluitInformatieobjectUuid);
     }
 

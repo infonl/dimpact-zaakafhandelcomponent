@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.zaaksturing;
 
 import static net.atos.client.zgw.shared.cache.Caching.ZAC_ZAAKAFHANDELPARAMETERS;
@@ -12,7 +13,6 @@ import java.util.UUID;
 
 import javax.cache.annotation.CacheRemove;
 import javax.cache.annotation.CacheResult;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -21,7 +21,8 @@ import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
 @ApplicationScoped
 public class ZaakafhandelParameterService {
 
-    @Inject private ZaakafhandelParameterBeheerService beheerService;
+    @Inject
+    private ZaakafhandelParameterBeheerService beheerService;
 
     @CacheResult(cacheName = ZAC_ZAAKAFHANDELPARAMETERS_MANAGED)
     public ZaakafhandelParameters readZaakafhandelParameters(final UUID zaaktypeUUID) {

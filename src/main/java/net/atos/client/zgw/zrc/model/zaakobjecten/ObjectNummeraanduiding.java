@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.zrc.model.zaakobjecten;
 
 /**
@@ -26,7 +27,8 @@ public class ObjectNummeraanduiding extends ObjectBAGObject {
     /**
      * Constructor for JSONB deserialization
      */
-    public ObjectNummeraanduiding() {}
+    public ObjectNummeraanduiding() {
+    }
 
     /**
      * Constructor with required attributes
@@ -35,10 +37,8 @@ public class ObjectNummeraanduiding extends ObjectBAGObject {
             final String identificatie,
             final int huisnummer,
             final String huisletter,
-            final String huisnummertoevoeging,
-            final String postcode,
-            final String typeAdresseerbaarObject,
-            final String status) {
+            final String huisnummertoevoeging, final String postcode,
+            final String typeAdresseerbaarObject, final String status) {
         super(identificatie);
         this.huisnummer = huisnummer;
         this.huisletter = huisletter;

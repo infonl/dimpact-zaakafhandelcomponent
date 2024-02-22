@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.datatable;
 
 import static net.atos.zac.util.JsonbUtil.JSONB;
@@ -23,7 +24,8 @@ public class TableRequest {
     @JsonbProperty("pagination")
     private Pagination pagination;
 
-    public TableRequest() {}
+    public TableRequest() {
+    }
 
     public Sort getSort() {
         return sort;
@@ -51,11 +53,9 @@ public class TableRequest {
 
     public static TableRequest getTableState(final HttpServletRequest request) {
         if (request.getQueryString() != null) {
-            // in de getQueryString ()is "tableRequest=" voor de querystring geplakt
-            // deze er eerst afhalen voor het mappen
-            final String decodeQueryString =
-                    URLDecoder.decode(request.getQueryString(), StandardCharsets.UTF_8)
-                            .substring(13);
+            //in de getQueryString ()is "tableRequest=" voor de querystring geplakt
+            //deze er eerst afhalen voor het mappen
+            final String decodeQueryString = URLDecoder.decode(request.getQueryString(), StandardCharsets.UTF_8).substring(13);
             return JSONB.fromJson(decodeQueryString, TableRequest.class);
         }
 
@@ -64,17 +64,8 @@ public class TableRequest {
 
     @Override
     public String toString() {
-        return "TableState{"
-                + "\n"
-                + "sort="
-                + sort
-                + "\n"
-                + ", search="
-                + search
-                + "\n"
-                + ", pagination="
-                + pagination
-                + "\n"
-                + '}';
+        return "TableState{" + "\n" + "sort=" + sort + "\n" + ", search=" + search + "\n" + ", pagination=" + pagination + "\n" + '}';
     }
+
 }
+

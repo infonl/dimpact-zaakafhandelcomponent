@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.productaanvragen.converter;
 
 import net.atos.zac.aanvraag.model.InboxProductaanvraagListParameters;
@@ -9,23 +10,15 @@ import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraagListParam
 import net.atos.zac.app.shared.RESTListParametersConverter;
 import net.atos.zac.zoeken.model.DatumRange;
 
-public class RESTInboxProductaanvraagListParametersConverter
-        extends RESTListParametersConverter<
-                InboxProductaanvraagListParameters, RESTInboxProductaanvraagListParameters> {
+public class RESTInboxProductaanvraagListParametersConverter extends RESTListParametersConverter<InboxProductaanvraagListParameters, RESTInboxProductaanvraagListParameters> {
 
     @Override
-    protected void doConvert(
-            final InboxProductaanvraagListParameters listParameters,
-            final RESTInboxProductaanvraagListParameters restListParameters) {
+    protected void doConvert(final InboxProductaanvraagListParameters listParameters, final RESTInboxProductaanvraagListParameters restListParameters) {
         listParameters.setType(restListParameters.type);
         listParameters.setInitiatorID(restListParameters.initiatorID);
 
-        if (restListParameters.ontvangstdatum != null
-                && restListParameters.ontvangstdatum.hasValue()) {
-            listParameters.setOntvangstdatum(
-                    new DatumRange(
-                            restListParameters.ontvangstdatum.van,
-                            restListParameters.ontvangstdatum.tot));
+        if (restListParameters.ontvangstdatum != null && restListParameters.ontvangstdatum.hasValue()) {
+            listParameters.setOntvangstdatum(new DatumRange(restListParameters.ontvangstdatum.van, restListParameters.ontvangstdatum.tot));
         }
     }
 

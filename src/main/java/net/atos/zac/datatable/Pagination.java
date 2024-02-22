@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.datatable;
 
 import jakarta.json.bind.annotation.JsonbProperty;
@@ -15,7 +16,8 @@ public class Pagination {
     @JsonbProperty("pageSize")
     private int pageSize;
 
-    public Pagination() {}
+    public Pagination() {
+    }
 
     public int getPageNumber() {
         return pageNumber;

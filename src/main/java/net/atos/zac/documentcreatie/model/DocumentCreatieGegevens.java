@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.documentcreatie.model;
 
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
@@ -20,7 +21,10 @@ public class DocumentCreatieGegevens {
     private InformatieObjectType informatieobjecttype;
 
     public DocumentCreatieGegevens(
-            final Zaak zaak, final String taskId, final InformatieObjectType informatieobjecttype) {
+            final Zaak zaak,
+            final String taskId,
+            final InformatieObjectType informatieobjecttype
+    ) {
         this.zaak = zaak;
         this.taskId = taskId;
         this.informatieobjecttype = informatieobjecttype;
@@ -34,9 +38,7 @@ public class DocumentCreatieGegevens {
         return informatieobjectStatus;
     }
 
-    public InformatieObjectType getInformatieobjecttype() {
-        return informatieobjecttype;
-    }
+    public InformatieObjectType getInformatieobjecttype() { return informatieobjecttype; }
 
     public String getTaskId() {
         return taskId;

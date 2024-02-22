@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.signalering.model;
 
 import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
@@ -24,25 +25,20 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(schema = SCHEMA, name = "signalering_verzonden")
-@SequenceGenerator(
-        schema = SCHEMA,
-        name = "sq_signalering_verzonden",
-        sequenceName = "sq_signalering_verzonden",
-        allocationSize = 1)
+@SequenceGenerator(schema = SCHEMA, name = "sq_signalering_verzonden", sequenceName = "sq_signalering_verzonden", allocationSize = 1)
 public class SignaleringVerzonden {
     @Id
     @GeneratedValue(generator = "sq_signalering_verzonden", strategy = GenerationType.SEQUENCE)
     @Column(name = "id_signalering_verzonden")
     private Long id;
 
-    @NotNull @ManyToOne
-    @JoinColumn(
-            name = "signaleringtype_enum",
-            referencedColumnName = "signaleringtype_enum",
-            nullable = false)
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "signaleringtype_enum", referencedColumnName = "signaleringtype_enum", nullable = false)
     private SignaleringType type;
 
-    @NotNull @Column(name = "targettype_enum", nullable = false)
+    @NotNull
+    @Column(name = "targettype_enum", nullable = false)
     @Enumerated(EnumType.STRING)
     private SignaleringTarget targettype;
 
@@ -57,7 +53,8 @@ public class SignaleringVerzonden {
     @Column(name = "detail")
     private String detail;
 
-    @NotNull @Column(name = "tijdstip", nullable = false)
+    @NotNull
+    @Column(name = "tijdstip", nullable = false)
     private ZonedDateTime tijdstip;
 
     public Long getId() {

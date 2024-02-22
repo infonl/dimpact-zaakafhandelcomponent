@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.documentcreatie.converter;
 
 import static net.atos.client.or.shared.util.URIUtil.getUUID;
@@ -53,31 +54,40 @@ public class DataConverter {
 
     public static final String DATE_FORMAT = "dd-MM-yyyy";
 
-    @Inject private ZGWApiService zgwApiService;
+    @Inject
+    private ZGWApiService zgwApiService;
 
-    @Inject private ZRCClientService zrcClientService;
+    @Inject
+    private ZRCClientService zrcClientService;
 
-    @Inject private ZTCClientService ztcClientService;
+    @Inject
+    private ZTCClientService ztcClientService;
 
-    @Inject private VRLClientService vrlClientService;
+    @Inject
+    private VRLClientService vrlClientService;
 
-    @Inject private BRPClientService brpClientService;
+    @Inject
+    private BRPClientService brpClientService;
 
-    @Inject private KVKClientService kvkClientService;
+    @Inject
+    private KVKClientService kvkClientService;
 
-    @Inject private ObjectsClientService objectsClientService;
+    @Inject
+    private ObjectsClientService objectsClientService;
 
-    @Inject private TakenService takenService;
+    @Inject
+    private TakenService takenService;
 
-    @Inject private TaakVariabelenService taakVariabelenService;
+    @Inject
+    private TaakVariabelenService taakVariabelenService;
 
-    @Inject private IdentityService identityService;
+    @Inject
+    private IdentityService identityService;
 
-    @Inject private ProductaanvraagService productaanvraagService;
+    @Inject
+    private ProductaanvraagService productaanvraagService;
 
-    public Data createData(
-            final DocumentCreatieGegevens documentCreatieGegevens,
-            final LoggedInUser loggedInUser) {
+    public Data createData(final DocumentCreatieGegevens documentCreatieGegevens, final LoggedInUser loggedInUser) {
         final Data data = new Data();
         data.gebruiker = createGebruikerData(loggedInUser);
         data.zaak = createZaakData(documentCreatieGegevens.getZaak());
@@ -110,21 +120,14 @@ public class DataConverter {
         zaakData.einddatum = zaak.getEinddatum();
 
         if (zaak.getStatus() != null) {
-            zaakData.status =
-                    ztcClientService
-                            .readStatustype(
-                                    zrcClientService.readStatus(zaak.getStatus()).getStatustype())
-                            .getOmschrijving();
+            zaakData.status = ztcClientService.readStatustype(
+                    zrcClientService.readStatus(zaak.getStatus()).getStatustype()).getOmschrijving();
         }
 
         if (zaak.getResultaat() != null) {
-            zaakData.resultaat =
-                    ztcClientService
-                            .readResultaattype(
-                                    zrcClientService
-                                            .readResultaat(zaak.getResultaat())
-                                            .getResultaattype())
-                            .getOmschrijving();
+            zaakData.resultaat = ztcClientService.readResultaattype(
+                            zrcClientService.readResultaat(zaak.getResultaat()).getResultaattype())
+                    .getOmschrijving();
         }
 
         if (zaak.isOpgeschort()) {
@@ -139,52 +142,43 @@ public class DataConverter {
             zaakData.vertrouwelijkheidaanduiding = zaak.getVertrouwelijkheidaanduiding().value();
         }
 
-        zgwApiService
-                .findGroepForZaak(zaak)
+        zgwApiService.findGroepForZaak(zaak)
                 .map(RolOrganisatorischeEenheid::getNaam)
                 .ifPresent(groep -> zaakData.groep = groep);
 
-        zgwApiService
-                .findBehandelaarForZaak(zaak)
+        zgwApiService.findBehandelaarForZaak(zaak)
                 .map(RolMedewerker::getNaam)
                 .ifPresent(behandelaar -> zaakData.behandelaar = behandelaar);
 
         if (zaak.getCommunicatiekanaal() != null) {
-            vrlClientService
-                    .findCommunicatiekanaal(uuidFromURI(zaak.getCommunicatiekanaal()))
+            vrlClientService.findCommunicatiekanaal(uuidFromURI(zaak.getCommunicatiekanaal()))
                     .map(CommunicatieKanaal::getNaam)
-                    .ifPresent(
-                            communicatiekanaal -> zaakData.communicatiekanaal = communicatiekanaal);
+                    .ifPresent(communicatiekanaal -> zaakData.communicatiekanaal = communicatiekanaal);
         }
 
         return zaakData;
     }
 
     private AanvragerData createAanvragerData(final Zaak zaak) {
-        return zgwApiService
-                .findInitiatorForZaak(zaak)
+        return zgwApiService.findInitiatorForZaak(zaak)
                 .map(this::convertToAanvragerData)
                 .orElse(null);
     }
 
     private AanvragerData convertToAanvragerData(final Rol<?> initiator) {
         return switch (initiator.getBetrokkeneType()) {
-            case NATUURLIJK_PERSOON ->
-                    createAanvragerDataNatuurlijkPersoon(initiator.getIdentificatienummer());
+            case NATUURLIJK_PERSOON -> createAanvragerDataNatuurlijkPersoon(initiator.getIdentificatienummer());
             case VESTIGING -> createAanvragerDataVestiging(initiator.getIdentificatienummer());
             case NIET_NATUURLIJK_PERSOON ->
                     createAanvragerDataNietNatuurlijkPersoon(initiator.getIdentificatienummer());
-            default ->
-                    throw new NotImplementedException(
-                            String.format(
-                                    "Initiator of type '%s' is not supported",
-                                    initiator.getBetrokkeneType().toValue()));
+            default -> throw new NotImplementedException(
+                    String.format("Initiator of type '%s' is not supported", initiator.getBetrokkeneType().toValue())
+            );
         };
     }
 
     private AanvragerData createAanvragerDataNatuurlijkPersoon(final String bsn) {
-        return brpClientService
-                .findPersoon(bsn)
+        return brpClientService.findPersoon(bsn)
                 .map(this::convertToAanvragerDataPersoon)
                 .orElse(null);
     }
@@ -194,8 +188,7 @@ public class DataConverter {
         if (persoon.getNaam() != null) {
             aanvragerData.naam = persoon.getNaam().getVolledigeNaam();
         }
-        if (persoon.getVerblijfplaats() instanceof Adres adres
-                && adres.getVerblijfadres() != null) {
+        if (persoon.getVerblijfplaats() instanceof Adres adres && adres.getVerblijfadres() != null) {
             final var verblijfadres = adres.getVerblijfadres();
             aanvragerData.straat = verblijfadres.getOfficieleStraatnaam();
             aanvragerData.huisnummer = convertToHuisnummer(verblijfadres);
@@ -206,22 +199,19 @@ public class DataConverter {
     }
 
     private String convertToHuisnummer(final VerblijfadresBinnenland verblijfadres) {
-        return joinNonBlank(
-                Objects.toString(verblijfadres.getHuisnummer(), null),
-                verblijfadres.getHuisnummertoevoeging(),
-                verblijfadres.getHuisletter());
+        return joinNonBlank(Objects.toString(verblijfadres.getHuisnummer(), null),
+                            verblijfadres.getHuisnummertoevoeging(),
+                            verblijfadres.getHuisletter());
     }
 
     private AanvragerData createAanvragerDataVestiging(final String vestigingsnummer) {
-        return kvkClientService
-                .findVestiging(vestigingsnummer)
+        return kvkClientService.findVestiging(vestigingsnummer)
                 .map(this::convertToAanvragerDataBedrijf)
                 .orElse(null);
     }
 
     private AanvragerData createAanvragerDataNietNatuurlijkPersoon(final String rsin) {
-        return kvkClientService
-                .findRechtspersoon(rsin)
+        return kvkClientService.findRechtspersoon(rsin)
                 .map(this::convertToAanvragerDataBedrijf)
                 .orElse(null);
     }
@@ -237,9 +227,8 @@ public class DataConverter {
     }
 
     private String convertToHuisnummer(final ResultaatItem vestiging) {
-        return joinNonBlank(
-                Objects.toString(vestiging.getHuisnummer(), null),
-                vestiging.getHuisnummerToevoeging());
+        return joinNonBlank(Objects.toString(vestiging.getHuisnummer(), null),
+                            vestiging.getHuisnummerToevoeging());
     }
 
     private StartformulierData createStartformulierData(final URI zaak) {
@@ -247,20 +236,15 @@ public class DataConverter {
         listParameters.setZaak(zaak);
         listParameters.setObjectType(OVERIGE);
         return zrcClientService.listZaakobjecten(listParameters).getResults().stream()
-                .filter(
-                        zo ->
-                                ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE.equals(
-                                        zo.getObjectTypeOverige()))
+                .filter(zo -> ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE.equals(zo.getObjectTypeOverige()))
                 .findAny()
                 .map(this::convertToStartformulierData)
                 .orElse(null);
     }
 
     private StartformulierData convertToStartformulierData(final Zaakobject zaakobject) {
-        final var productAaanvraagObject =
-                objectsClientService.readObject(getUUID(zaakobject.getObject()));
-        final var productAanvraag =
-                productaanvraagService.getProductaanvraag(productAaanvraagObject);
+        final var productAaanvraagObject = objectsClientService.readObject(getUUID(zaakobject.getObject()));
+        final var productAanvraag = productaanvraagService.getProductaanvraag(productAaanvraagObject);
         final var startformulierData = new StartformulierData();
         startformulierData.productAanvraagtype = productAanvraag.getType();
         startformulierData.data = productaanvraagService.getFormulierData(productAaanvraagObject);

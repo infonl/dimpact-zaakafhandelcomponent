@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.zrc.model;
 
 import jakarta.json.bind.annotation.JsonbTypeAdapter;
@@ -13,6 +14,7 @@ import net.atos.client.zgw.shared.model.AbstractEnum;
  */
 @JsonbTypeAdapter(Objecttype.Adapter.class)
 public enum Objecttype implements AbstractEnum<Objecttype> {
+
     ADRES("adres"),
     BESLUIT("besluit"),
     BUURT("buurt"),

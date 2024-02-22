@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.configuratie.converter;
 
 import java.util.List;
@@ -23,6 +24,8 @@ public class RESTTaalConverter {
     }
 
     public List<RESTTaal> convert(final List<Taal> talen) {
-        return talen.stream().map(this::convert).collect(Collectors.toList());
+        return talen.stream()
+                .map(this::convert)
+                .collect(Collectors.toList());
     }
 }

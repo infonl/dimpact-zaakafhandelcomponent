@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.policy.converter;
 
 import net.atos.zac.app.policy.model.RESTDocumentRechten;
@@ -53,10 +54,8 @@ public class RESTRechtenConverter {
     public RESTWerklijstRechten convert(final WerklijstRechten werklijstrechten) {
         final RESTWerklijstRechten restWerklijstRechten = new RESTWerklijstRechten();
         restWerklijstRechten.inbox = werklijstrechten.inbox();
-        restWerklijstRechten.ontkoppeldeDocumentenVerwijderen =
-                werklijstrechten.ontkoppeldeDocumentenVerwijderen();
-        restWerklijstRechten.inboxProductaanvragenVerwijderen =
-                werklijstrechten.inboxProductaanvragenVerwijderen();
+        restWerklijstRechten.ontkoppeldeDocumentenVerwijderen = werklijstrechten.ontkoppeldeDocumentenVerwijderen();
+        restWerklijstRechten.inboxProductaanvragenVerwijderen = werklijstrechten.inboxProductaanvragenVerwijderen();
         restWerklijstRechten.zakenTaken = werklijstrechten.zakenTaken();
         restWerklijstRechten.zakenTakenVerdelen = werklijstrechten.zakenTakenVerdelen();
         return restWerklijstRechten;

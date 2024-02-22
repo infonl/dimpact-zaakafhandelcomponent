@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.mail;
 
 import static java.util.stream.Collectors.joining;
@@ -27,6 +28,15 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.microprofile.config.ConfigProvider;
+import org.htmlcleaner.CleanerProperties;
+import org.htmlcleaner.HtmlCleaner;
+import org.htmlcleaner.PrettyXmlSerializer;
+import org.htmlcleaner.TagNode;
+import org.htmlcleaner.XmlSerializer;
+
 import com.fasterxml.uuid.impl.UUIDUtil;
 import com.itextpdf.html2pdf.HtmlConverter;
 import com.itextpdf.io.font.constants.StandardFonts;
@@ -43,15 +53,6 @@ import com.mailjet.client.MailjetClient;
 import com.mailjet.client.MailjetRequest;
 import com.mailjet.client.errors.MailjetException;
 import com.mailjet.client.resource.Emailv31;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.eclipse.microprofile.config.ConfigProvider;
-import org.htmlcleaner.CleanerProperties;
-import org.htmlcleaner.HtmlCleaner;
-import org.htmlcleaner.PrettyXmlSerializer;
-import org.htmlcleaner.TagNode;
-import org.htmlcleaner.XmlSerializer;
 
 import net.atos.client.zgw.drc.DRCClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
@@ -98,48 +99,54 @@ public class MailService {
 
     private static final String MAIL_BERICHT = "Bericht";
 
-    @Inject private ConfiguratieService configuratieService;
+    @Inject
+    private ConfiguratieService configuratieService;
 
-    @Inject private ZGWApiService zgwApiService;
+    @Inject
+    private ZGWApiService zgwApiService;
 
-    @Inject private ZTCClientService ztcClientService;
+    @Inject
+    private ZTCClientService ztcClientService;
 
-    @Inject private ZRCClientService zrcClientService;
+    @Inject
+    private ZRCClientService zrcClientService;
 
-    @Inject private DRCClientService drcClientService;
+    @Inject
+    private DRCClientService drcClientService;
 
-    @Inject private MailTemplateHelper mailTemplateHelper;
+    @Inject
+    private MailTemplateHelper mailTemplateHelper;
 
-    @Inject private TaakVariabelenService taakVariabelenService;
+    @Inject
+    private TaakVariabelenService taakVariabelenService;
 
-    @Inject private Instance<LoggedInUser> loggedInUserInstance;
+    @Inject
+    private Instance<LoggedInUser> loggedInUserInstance;
 
-    private final MailjetClient mailjetClient =
-            createMailjetClient(MAILJET_API_KEY, MAILJET_API_SECRET_KEY);
+    private final MailjetClient mailjetClient = createMailjetClient(MAILJET_API_KEY, MAILJET_API_SECRET_KEY);
 
     public MailAdres getGemeenteMailAdres() {
-        return new MailAdres(
-                configuratieService.readGemeenteMail(), configuratieService.readGemeenteNaam());
+        return new MailAdres(configuratieService.readGemeenteMail(), configuratieService.readGemeenteNaam());
     }
 
     public String sendMail(final MailGegevens mailGegevens, final Bronnen bronnen) {
-        final String subject =
-                StringUtils.abbreviate(
-                        resolveVariabelen(mailGegevens.getSubject(), bronnen), SUBJECT_MAXWIDTH);
+        final String subject = StringUtils.abbreviate(
+                resolveVariabelen(mailGegevens.getSubject(), bronnen),
+                SUBJECT_MAXWIDTH
+        );
         final String body = resolveVariabelen(mailGegevens.getBody(), bronnen);
         final List<Attachment> attachments = getAttachments(mailGegevens.getAttachments());
 
-        final EMail eMail =
-                new EMail(
-                        mailGegevens.getFrom(),
-                        List.of(mailGegevens.getTo()),
-                        mailGegevens.getReplyTo(),
-                        subject,
-                        body,
-                        attachments);
-        final MailjetRequest request =
-                new MailjetRequest(Emailv31.resource)
-                        .setBody(JSONB.toJson(new EMails(List.of(eMail))));
+        final EMail eMail = new EMail(
+                mailGegevens.getFrom(),
+                List.of(mailGegevens.getTo()),
+                mailGegevens.getReplyTo(),
+                subject,
+                body,
+                attachments
+        );
+        final MailjetRequest request = new MailjetRequest(Emailv31.resource)
+                .setBody(JSONB.toJson(new EMails(List.of(eMail))));
         try {
             final int status = mailjetClient.post(request).getStatus();
             if (status < 300) {
@@ -150,20 +157,15 @@ public class MailService {
                             subject,
                             body,
                             attachments,
-                            bronnen.zaak);
+                            bronnen.zaak
+                    );
                 }
             } else {
-                LOG.log(
-                        Level.WARNING,
-                        String.format(
-                                "Failed to send mail with subject '%s' (http result %d).",
-                                subject, status));
+                LOG.log(Level.WARNING,
+                        String.format("Failed to send mail with subject '%s' (http result %d).", subject, status));
             }
         } catch (MailjetException e) {
-            LOG.log(
-                    Level.SEVERE,
-                    String.format("Failed to send mail with subject '%s'.", subject),
-                    e);
+            LOG.log(Level.SEVERE, String.format("Failed to send mail with subject '%s'.", subject), e);
         }
 
         return body;
@@ -175,28 +177,24 @@ public class MailService {
             final String subject,
             final String body,
             final List<Attachment> attachments,
-            final Zaak zaak) {
+            final Zaak zaak
+    ) {
         final InformatieObjectType eMailObjectType = getEmailInformatieObjectType(zaak);
-        final byte[] pdfDocument =
-                createPdfDocument(verzender, ontvanger, subject, body, attachments);
+        final byte[] pdfDocument = createPdfDocument(verzender, ontvanger, subject, body, attachments);
 
-        final EnkelvoudigInformatieObjectData enkelvoudigInformatieobjectWithInhoud =
-                new EnkelvoudigInformatieObjectData();
-        enkelvoudigInformatieobjectWithInhoud.setBronorganisatie(
-                ConfiguratieService.BRON_ORGANISATIE);
+        final EnkelvoudigInformatieObjectData enkelvoudigInformatieobjectWithInhoud = new EnkelvoudigInformatieObjectData();
+        enkelvoudigInformatieobjectWithInhoud.setBronorganisatie(ConfiguratieService.BRON_ORGANISATIE);
         enkelvoudigInformatieobjectWithInhoud.setCreatiedatum(LocalDate.now());
         enkelvoudigInformatieobjectWithInhoud.setTitel(subject);
         enkelvoudigInformatieobjectWithInhoud.setAuteur(loggedInUserInstance.get().getFullName());
         enkelvoudigInformatieobjectWithInhoud.setTaal(ConfiguratieService.TAAL_NEDERLANDS);
         enkelvoudigInformatieobjectWithInhoud.setInformatieobjecttype(eMailObjectType.getUrl());
-        enkelvoudigInformatieobjectWithInhoud.setInhoud(
-                convertByteArrayToBase64String(pdfDocument));
+        enkelvoudigInformatieobjectWithInhoud.setInhoud(convertByteArrayToBase64String(pdfDocument));
         enkelvoudigInformatieobjectWithInhoud.setVertrouwelijkheidaanduiding(
                 EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.OPENBAAR);
         enkelvoudigInformatieobjectWithInhoud.setFormaat(MEDIA_TYPE_PDF);
         enkelvoudigInformatieobjectWithInhoud.setBestandsnaam(String.format("%s.pdf", subject));
-        enkelvoudigInformatieobjectWithInhoud.setStatus(
-                EnkelvoudigInformatieObjectData.StatusEnum.DEFINITIEF);
+        enkelvoudigInformatieobjectWithInhoud.setStatus(EnkelvoudigInformatieObjectData.StatusEnum.DEFINITIEF);
         enkelvoudigInformatieobjectWithInhoud.setVertrouwelijkheidaanduiding(
                 EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.OPENBAAR);
         enkelvoudigInformatieobjectWithInhoud.setVerzenddatum(LocalDate.now());
@@ -206,7 +204,8 @@ public class MailService {
                 enkelvoudigInformatieobjectWithInhoud,
                 subject,
                 subject,
-                OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN);
+                OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
+        );
     }
 
     private byte[] createPdfDocument(
@@ -214,11 +213,14 @@ public class MailService {
             final String ontvanger,
             final String subject,
             final String body,
-            final List<Attachment> attachments) {
+            final List<Attachment> attachments
+    ) {
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        try (final PdfWriter pdfWriter = new PdfWriter(byteArrayOutputStream);
+        try (
+                final PdfWriter pdfWriter = new PdfWriter(byteArrayOutputStream);
                 final PdfDocument pdfDoc = new PdfDocument(pdfWriter);
-                final Document document = new Document(pdfDoc); ) {
+                final Document document = new Document(pdfDoc);
+            ) {
             final Paragraph headerParagraph = new Paragraph();
             final PdfFont font = PdfFontFactory.createFont(StandardFonts.COURIER);
 
@@ -226,10 +228,8 @@ public class MailService {
             headerParagraph.add(String.format("%s: %s %n %n", MAIL_VERZENDER, verzender));
             headerParagraph.add(String.format("%s: %s %n %n", MAIL_ONTVANGER, ontvanger));
             if (!attachments.isEmpty()) {
-                String content =
-                        attachments.stream()
-                                .map(attachment -> String.valueOf(attachment.getFilename()))
-                                .collect(joining(", "));
+                String content = attachments.stream().map(attachment -> String.valueOf(attachment.getFilename()))
+                        .collect(joining(", "));
                 headerParagraph.add(String.format("%s: %s %n %n", MAIL_BIJLAGE, content));
             }
 
@@ -245,14 +245,12 @@ public class MailService {
 
             final XmlSerializer xmlSerializer = new PrettyXmlSerializer(cleanerProperties);
             final String html = xmlSerializer.getAsString(rootTagNode);
-            HtmlConverter.convertToElements(html)
-                    .forEach(
-                            element -> {
-                                emailBodyParagraph.add((IBlockElement) element);
-                                // the individual (HTML paragraph) block elements are not separated
-                                // with new lines, so we add them explicitly here
-                                emailBodyParagraph.add("\n");
-                            });
+            HtmlConverter.convertToElements(html).forEach(element -> {
+                emailBodyParagraph.add((IBlockElement) element);
+                // the individual (HTML paragraph) block elements are not separated
+                // with new lines, so we add them explicitly here
+                emailBodyParagraph.add("\n");
+            });
             document.add(emailBodyParagraph);
         } catch (final PdfException | IOException e) {
             LOG.log(Level.SEVERE, "Failed to create pdf document", e);
@@ -265,42 +263,32 @@ public class MailService {
         final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
         return zaaktype.getInformatieobjecttypen().stream()
                 .map(ztcClientService::readInformatieobjecttype)
-                .filter(
-                        infoObject ->
-                                infoObject
-                                        .getOmschrijving()
-                                        .equals(
-                                                ConfiguratieService
-                                                        .INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL))
-                .findFirst()
+                .filter(infoObject -> infoObject.getOmschrijving()
+                        .equals(ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL)).findFirst()
                 .orElseThrow();
     }
 
     private List<Attachment> getAttachments(final String[] bijlagenString) {
         final List<UUID> bijlagen = new ArrayList<>();
         if (ArrayUtils.isNotEmpty(bijlagenString)) {
-            Arrays.stream(bijlagenString)
-                    .forEach(uuidString -> bijlagen.add(UUIDUtil.uuid(uuidString)));
+            Arrays.stream(bijlagenString).forEach(uuidString -> bijlagen.add(UUIDUtil.uuid(uuidString)));
         } else {
             return Collections.emptyList();
         }
 
         final List<Attachment> attachments = new ArrayList<>();
-        bijlagen.forEach(
-                uuid -> {
-                    final EnkelvoudigInformatieObject enkelvoudigInformatieobject =
-                            drcClientService.readEnkelvoudigInformatieobject(uuid);
-                    final ByteArrayInputStream byteArrayInputStream =
-                            drcClientService.downloadEnkelvoudigInformatieobject(uuid);
-                    final Attachment attachment =
-                            new Attachment(
-                                    enkelvoudigInformatieobject.getFormaat(),
-                                    enkelvoudigInformatieobject.getBestandsnaam(),
-                                    new String(
-                                            Base64.getEncoder()
-                                                    .encode(byteArrayInputStream.readAllBytes())));
-                    attachments.add(attachment);
-                });
+        bijlagen.forEach(uuid -> {
+            final EnkelvoudigInformatieObject enkelvoudigInformatieobject =
+                    drcClientService.readEnkelvoudigInformatieobject(
+                    uuid);
+            final ByteArrayInputStream byteArrayInputStream = drcClientService.downloadEnkelvoudigInformatieobject(
+                    uuid);
+            final Attachment attachment = new Attachment(enkelvoudigInformatieobject.getFormaat(),
+                                                         enkelvoudigInformatieobject.getBestandsnaam(),
+                                                         new String(Base64.getEncoder()
+                                                                            .encode(byteArrayInputStream.readAllBytes())));
+            attachments.add(attachment);
+        });
 
         return attachments;
     }
@@ -309,9 +297,13 @@ public class MailService {
         return mailTemplateHelper.resolveVariabelen(
                 mailTemplateHelper.resolveVariabelen(
                         mailTemplateHelper.resolveVariabelen(
-                                mailTemplateHelper.resolveVariabelen(tekst), getZaakBron(bronnen)),
-                        bronnen.document),
-                bronnen.taskInfo);
+                                mailTemplateHelper.resolveVariabelen(tekst),
+                                getZaakBron(bronnen)
+                        ),
+                        bronnen.document
+                ),
+                bronnen.taskInfo
+        );
     }
 
     private Zaak getZaakBron(final Bronnen bronnen) {

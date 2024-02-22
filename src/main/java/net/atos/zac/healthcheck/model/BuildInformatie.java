@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.healthcheck.model;
 
 import java.time.LocalDateTime;
@@ -16,10 +17,7 @@ public class BuildInformatie {
 
     private final String versienummer;
 
-    public BuildInformatie(
-            final String commit,
-            final String buildId,
-            final LocalDateTime buildDatumTijd,
+    public BuildInformatie(final String commit, final String buildId, final LocalDateTime buildDatumTijd,
             final String versienummer) {
         this.commit = commit;
         this.buildId = buildId;

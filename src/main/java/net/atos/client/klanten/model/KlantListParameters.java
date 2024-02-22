@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.klanten.model;
 
 import java.net.URI;
@@ -186,8 +187,7 @@ public class KlantListParameters {
         return subjectNatuurlijkPersoonAnpIdentificatie;
     }
 
-    public void setSubjectNatuurlijkPersoonAnpIdentificatie(
-            final String subjectNatuurlijkPersoonAnpIdentificatie) {
+    public void setSubjectNatuurlijkPersoonAnpIdentificatie(final String subjectNatuurlijkPersoonAnpIdentificatie) {
         this.subjectNatuurlijkPersoonAnpIdentificatie = subjectNatuurlijkPersoonAnpIdentificatie;
     }
 
@@ -195,8 +195,7 @@ public class KlantListParameters {
         return subjectNatuurlijkPersoonInpANummer;
     }
 
-    public void setSubjectNatuurlijkPersoonInpANummer(
-            final String subjectNatuurlijkPersoonInpANummer) {
+    public void setSubjectNatuurlijkPersoonInpANummer(final String subjectNatuurlijkPersoonInpANummer) {
         this.subjectNatuurlijkPersoonInpANummer = subjectNatuurlijkPersoonInpANummer;
     }
 
@@ -204,8 +203,7 @@ public class KlantListParameters {
         return subjectNietNatuurlijkPersoonInnNnpId;
     }
 
-    public void setSubjectNietNatuurlijkPersoonInnNnpId(
-            final String subjectNietNatuurlijkPersoonInnNnpId) {
+    public void setSubjectNietNatuurlijkPersoonInnNnpId(final String subjectNietNatuurlijkPersoonInnNnpId) {
         this.subjectNietNatuurlijkPersoonInnNnpId = subjectNietNatuurlijkPersoonInnNnpId;
     }
 
@@ -215,8 +213,7 @@ public class KlantListParameters {
 
     public void setSubjectNietNatuurlijkPersoonAnnIdentificatie(
             final String subjectNietNatuurlijkPersoonAnnIdentificatie) {
-        this.subjectNietNatuurlijkPersoonAnnIdentificatie =
-                subjectNietNatuurlijkPersoonAnnIdentificatie;
+        this.subjectNietNatuurlijkPersoonAnnIdentificatie = subjectNietNatuurlijkPersoonAnnIdentificatie;
     }
 
     public String getSubjectVestigingVestigingsNummer() {

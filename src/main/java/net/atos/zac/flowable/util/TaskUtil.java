@@ -1,7 +1,3 @@
-/*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
- * SPDX-License-Identifier: EUPL-1.2+
- */
 package net.atos.zac.flowable.util;
 
 import static net.atos.zac.app.taken.model.TaakStatus.AFGEROND;
@@ -18,14 +14,11 @@ public class TaskUtil {
     public static boolean isOpen(final TaskInfo taskInfo) {
         return getTaakStatus(taskInfo) != AFGEROND;
     }
-
     public static boolean isCmmnTask(final TaskInfo taskInfo) {
         return ScopeTypes.CMMN.equals(taskInfo.getScopeType());
     }
 
     public static TaakStatus getTaakStatus(final TaskInfo taskInfo) {
-        return taskInfo instanceof Task
-                ? (taskInfo.getAssignee() == null ? NIET_TOEGEKEND : TOEGEKEND)
-                : AFGEROND;
+        return taskInfo instanceof Task ? (taskInfo.getAssignee() == null ? NIET_TOEGEKEND : TOEGEKEND) : AFGEROND;
     }
 }

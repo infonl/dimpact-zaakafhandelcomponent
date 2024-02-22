@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.zrc.model;
 
 import static net.atos.client.zgw.shared.util.DateTimeUtil.DATE_TIME_FORMAT_WITH_MILLISECONDS;
@@ -95,15 +96,13 @@ public abstract class Rol<T> {
 
     private IndicatieMachtiging indicatieMachtiging;
 
-    public Rol() {}
+    public Rol() {
+    }
 
     /**
      * Constructor with required attributes for POST and PUT requests
      */
-    public Rol(
-            final URI zaak,
-            final RolType roltype,
-            final BetrokkeneType betrokkeneType,
+    public Rol(final URI zaak, final RolType roltype, final BetrokkeneType betrokkeneType,
             final T betrokkeneIdentificatie,
             final String roltoelichting) {
         this.zaak = zaak;
@@ -180,8 +179,7 @@ public abstract class Rol<T> {
             return false;
         }
         Rol<T> rol = (Rol<T>) o;
-        return equalBetrokkeneRol(rol)
-                && equalBetrokkeneIdentificatie(rol.getBetrokkeneIdentificatie());
+        return equalBetrokkeneRol(rol) && equalBetrokkeneIdentificatie(rol.getBetrokkeneIdentificatie());
     }
 
     @Override
@@ -190,8 +188,8 @@ public abstract class Rol<T> {
     }
 
     public boolean equalBetrokkeneRol(final Rol<?> other) {
-        return getBetrokkeneType() == other.getBetrokkeneType()
-                && getRoltype().equals(other.getRoltype());
+        return getBetrokkeneType() == other.getBetrokkeneType() &&
+                getRoltype().equals(other.getRoltype());
     }
 
     protected abstract boolean equalBetrokkeneIdentificatie(final T identificatie);

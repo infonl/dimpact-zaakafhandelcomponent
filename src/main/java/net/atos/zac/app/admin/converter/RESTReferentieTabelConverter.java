@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.admin.converter;
 
 import jakarta.inject.Inject;
@@ -11,10 +12,10 @@ import net.atos.zac.zaaksturing.model.ReferentieTabel;
 
 public class RESTReferentieTabelConverter {
 
-    @Inject private RESTReferentieWaardeConverter restReferentieWaardeConverter;
+    @Inject
+    private RESTReferentieWaardeConverter restReferentieWaardeConverter;
 
-    public RESTReferentieTabel convert(
-            final ReferentieTabel referentieTabel, boolean inclusiefWaarden) {
+    public RESTReferentieTabel convert(final ReferentieTabel referentieTabel, boolean inclusiefWaarden) {
         final RESTReferentieTabel restReferentieTabel = new RESTReferentieTabel();
         restReferentieTabel.id = referentieTabel.getId();
         restReferentieTabel.code = referentieTabel.getCode();
@@ -22,10 +23,9 @@ public class RESTReferentieTabelConverter {
         restReferentieTabel.systeem = referentieTabel.isSysteem();
         restReferentieTabel.aantalWaarden = referentieTabel.getWaarden().size();
         if (inclusiefWaarden) {
-            restReferentieTabel.waarden =
-                    referentieTabel.getWaarden().stream()
-                            .map(restReferentieWaardeConverter::convert)
-                            .toList();
+            restReferentieTabel.waarden = referentieTabel.getWaarden().stream()
+                    .map(restReferentieWaardeConverter::convert)
+                    .toList();
         }
         return restReferentieTabel;
     }
@@ -34,14 +34,12 @@ public class RESTReferentieTabelConverter {
         return convert(restReferentieTabel, new ReferentieTabel());
     }
 
-    public ReferentieTabel convert(
-            final RESTReferentieTabel restReferentieTabel, final ReferentieTabel referentieTabel) {
+    public ReferentieTabel convert(final RESTReferentieTabel restReferentieTabel, final ReferentieTabel referentieTabel) {
         referentieTabel.setCode(restReferentieTabel.code);
         referentieTabel.setNaam(restReferentieTabel.naam);
-        referentieTabel.setWaarden(
-                restReferentieTabel.waarden.stream()
-                        .map(restReferentieWaardeConverter::convert)
-                        .toList());
+        referentieTabel.setWaarden(restReferentieTabel.waarden.stream()
+                                           .map(restReferentieWaardeConverter::convert)
+                                           .toList());
         return referentieTabel;
     }
 }

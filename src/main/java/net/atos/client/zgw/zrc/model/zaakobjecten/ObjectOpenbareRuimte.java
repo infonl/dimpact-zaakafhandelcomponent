@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.zrc.model.zaakobjecten;
 
 /**
@@ -26,15 +27,13 @@ public class ObjectOpenbareRuimte extends ObjectBAGObject {
     /**
      * Constructor for JSONB deserialization
      */
-    public ObjectOpenbareRuimte() {}
+    public ObjectOpenbareRuimte() {
+    }
 
     /**
      * Constructor with required attributes
      */
-    public ObjectOpenbareRuimte(
-            final String identificatie,
-            final String gorOpenbareRuimteNaam,
-            final String wplWoonplaatsNaam) {
+    public ObjectOpenbareRuimte(final String identificatie, final String gorOpenbareRuimteNaam, final String wplWoonplaatsNaam) {
         super(identificatie);
         this.wplWoonplaatsNaam = wplWoonplaatsNaam;
         this.gorOpenbareRuimteNaam = gorOpenbareRuimteNaam;

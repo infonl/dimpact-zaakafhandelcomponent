@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.bag.model;
 
 import net.atos.client.bag.model.StatusNaamgeving;
@@ -20,7 +21,8 @@ public class RESTOpenbareRuimte extends RESTBAGObject {
 
     public RESTWoonplaats woonplaats;
 
-    public RESTOpenbareRuimte() {}
+    public RESTOpenbareRuimte() {
+    }
 
     @Override
     public BAGObjectType getBagObjectType() {

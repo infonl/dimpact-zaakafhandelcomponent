@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.contactmomenten.converter;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -17,8 +18,7 @@ public class ContactmomentConverter {
     public RESTContactmoment convert(final ContactMoment contactMoment) {
         final var restContactmoment = new RESTContactmoment();
         if (contactMoment.getRegistratiedatum() != null) {
-            restContactmoment.registratiedatum =
-                    contactMoment.getRegistratiedatum().toZonedDateTime();
+            restContactmoment.registratiedatum = contactMoment.getRegistratiedatum().toZonedDateTime();
         }
         if (contactMoment.getInitiatiefnemer() != null) {
             restContactmoment.initiatiefnemer = contactMoment.getInitiatiefnemer().value();

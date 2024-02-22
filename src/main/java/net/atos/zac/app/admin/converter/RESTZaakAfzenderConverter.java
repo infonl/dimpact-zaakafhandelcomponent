@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.admin.converter;
 
 import java.util.Arrays;
@@ -15,30 +16,27 @@ import net.atos.zac.zaaksturing.model.ZaakAfzender;
 public class RESTZaakAfzenderConverter {
 
     public List<RESTZaakAfzender> convertZaakAfzenders(final Set<ZaakAfzender> zaakAfzender) {
-        final List<RESTZaakAfzender> restZaakAfzenders =
-                zaakAfzender.stream().map(this::convertZaakAfzender).collect(Collectors.toList());
+        final List<RESTZaakAfzender> restZaakAfzenders = zaakAfzender.stream()
+                .map(this::convertZaakAfzender)
+                .collect(Collectors.toList());
         for (final ZaakAfzender.Speciaal speciaal : ZaakAfzender.Speciaal.values()) {
-            if (zaakAfzender.stream().map(ZaakAfzender::getMail).noneMatch(speciaal::is)) {
+            if (zaakAfzender.stream()
+                    .map(ZaakAfzender::getMail)
+                    .noneMatch(speciaal::is)) {
                 restZaakAfzenders.add(new RESTZaakAfzender(speciaal));
             }
         }
         return restZaakAfzenders;
     }
 
-    public List<ZaakAfzender> convertRESTZaakAfzenders(
-            final List<RESTZaakAfzender> restZaakAfzender) {
+    public List<ZaakAfzender> convertRESTZaakAfzenders(final List<RESTZaakAfzender> restZaakAfzender) {
         return restZaakAfzender.stream()
-                .peek(
-                        afzender -> {
-                            if (afzender.mail.equals(afzender.replyTo)) {
-                                afzender.replyTo = null;
-                            }
-                        })
-                .filter(
-                        afzender ->
-                                !afzender.speciaal
-                                        || afzender.defaultMail
-                                        || afzender.replyTo != null)
+                .peek(afzender -> {
+                    if (afzender.mail.equals(afzender.replyTo)) {
+                        afzender.replyTo = null;
+                    }
+                })
+                .filter(afzender -> !afzender.speciaal || afzender.defaultMail || afzender.replyTo != null)
                 .map(this::convertRESTZaakAfzender)
                 .toList();
     }
@@ -49,9 +47,8 @@ public class RESTZaakAfzenderConverter {
         restZaakAfzender.defaultMail = zaakAfzender.isDefault();
         restZaakAfzender.mail = zaakAfzender.getMail();
         restZaakAfzender.replyTo = zaakAfzender.getReplyTo();
-        restZaakAfzender.speciaal =
-                Arrays.stream(ZaakAfzender.Speciaal.values())
-                        .anyMatch(speciaal -> speciaal.is(restZaakAfzender.mail));
+        restZaakAfzender.speciaal = Arrays.stream(ZaakAfzender.Speciaal.values())
+                .anyMatch(speciaal -> speciaal.is(restZaakAfzender.mail));
         return restZaakAfzender;
     }
 

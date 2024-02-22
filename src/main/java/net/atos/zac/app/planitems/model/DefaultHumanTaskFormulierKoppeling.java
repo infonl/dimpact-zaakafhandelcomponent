@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.planitems.model;
 
 import java.util.Arrays;
@@ -11,6 +12,7 @@ import net.atos.zac.zaaksturing.model.FormulierDefinitie;
 import net.atos.zac.zaaksturing.model.FormulierVeldDefinitie;
 
 public enum DefaultHumanTaskFormulierKoppeling {
+
     AANVULLENDE_INFORMATIE("AANVULLENDE_INFORMATIE", FormulierDefinitie.AANVULLENDE_INFORMATIE),
     GOEDKEUREN("GOEDKEUREN", FormulierDefinitie.GOEDKEUREN),
     ADVIES_INTERN("ADVIES_INTERN", FormulierDefinitie.ADVIES),
@@ -22,8 +24,7 @@ public enum DefaultHumanTaskFormulierKoppeling {
 
     private final FormulierDefinitie formulierDefinitie;
 
-    DefaultHumanTaskFormulierKoppeling(
-            final String planItemDefinitionId, final FormulierDefinitie formulierDefinitie) {
+    DefaultHumanTaskFormulierKoppeling(final String planItemDefinitionId, final FormulierDefinitie formulierDefinitie) {
         this.planItemDefinitionId = planItemDefinitionId;
         this.formulierDefinitie = formulierDefinitie;
     }
@@ -34,17 +35,14 @@ public enum DefaultHumanTaskFormulierKoppeling {
 
     public static FormulierDefinitie readFormulierDefinitie(final String planItemDefinitionId) {
         return Arrays.stream(values())
-                .filter(
-                        humanTaskFormulierKoppeling ->
-                                humanTaskFormulierKoppeling.planItemDefinitionId.equals(
-                                        planItemDefinitionId))
+                .filter(humanTaskFormulierKoppeling -> humanTaskFormulierKoppeling.planItemDefinitionId.equals(
+                        planItemDefinitionId))
                 .map(DefaultHumanTaskFormulierKoppeling::getFormulierDefinitie)
                 .findAny()
                 .orElse(DefaultHumanTaskFormulierKoppeling.DEFAULT.getFormulierDefinitie());
     }
 
-    public static Set<FormulierVeldDefinitie> readFormulierVeldDefinities(
-            final String planItemDefinitionId) {
+    public static Set<FormulierVeldDefinitie> readFormulierVeldDefinities(final String planItemDefinitionId) {
         return readFormulierDefinitie(planItemDefinitionId).getVeldDefinities();
     }
 }

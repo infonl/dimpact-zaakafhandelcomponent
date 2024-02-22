@@ -1,7 +1,3 @@
-/*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
- * SPDX-License-Identifier: EUPL-1.2+
- */
 package net.atos.zac.mail.model;
 
 import org.flowable.task.api.TaskInfo;
@@ -18,7 +14,10 @@ public class Bronnen {
     public final TaskInfo taskInfo;
 
     private Bronnen(
-            final Zaak zaak, final EnkelvoudigInformatieObject document, final TaskInfo taskInfo) {
+            final Zaak zaak,
+            final EnkelvoudigInformatieObject document,
+            final TaskInfo taskInfo
+    ) {
         this.zaak = zaak;
         this.document = document;
         this.taskInfo = taskInfo;

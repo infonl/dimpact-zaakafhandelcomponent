@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.klanten;
 
 import java.util.Optional;
@@ -20,26 +21,25 @@ import net.atos.zac.configuratie.ConfiguratieService;
 @Singleton
 public class KlantenClientService {
 
-    @Inject @RestClient private KlantenClient klantenClient;
+    @Inject
+    @RestClient
+    private KlantenClient klantenClient;
 
     public Optional<Klant> findPersoon(final String bsn) {
         return convertToSingleItem(klantenClient.klantList(createFindPersoonListParameters(bsn)));
     }
 
     public CompletionStage<Optional<Klant>> findPersoonAsync(final String bsn) {
-        return klantenClient
-                .klantListAsync(createFindPersoonListParameters(bsn))
+        return klantenClient.klantListAsync(createFindPersoonListParameters(bsn))
                 .thenApply(this::convertToSingleItem);
     }
 
     public Optional<Klant> findVestiging(final String vestigingsnummer) {
-        return convertToSingleItem(
-                klantenClient.klantList(createFindVestigingListParameters(vestigingsnummer)));
+        return convertToSingleItem(klantenClient.klantList(createFindVestigingListParameters(vestigingsnummer)));
     }
 
     public CompletionStage<Optional<Klant>> findVestigingAsync(final String vestigingsnummer) {
-        return klantenClient
-                .klantListAsync(createFindVestigingListParameters(vestigingsnummer))
+        return klantenClient.klantListAsync(createFindVestigingListParameters(vestigingsnummer))
                 .thenApply(this::convertToSingleItem);
     }
 
@@ -65,9 +65,7 @@ public class KlantenClientService {
         return switch (response.getResults().size()) {
             case 0 -> Optional.empty();
             case 1 -> Optional.of(response.getResults().get(0));
-            default ->
-                    throw new IllegalStateException(
-                            "Too many results: %d".formatted(response.getResults().size()));
+            default -> throw new IllegalStateException("Too many results: %d".formatted(response.getResults().size()));
         };
     }
 }

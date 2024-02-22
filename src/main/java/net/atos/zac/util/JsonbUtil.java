@@ -1,37 +1,36 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.util;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+package net.atos.zac.util;
 
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.json.bind.JsonbConfig;
 import jakarta.json.bind.config.PropertyVisibilityStrategy;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
 public final class JsonbUtil {
 
-    public static final PropertyVisibilityStrategy visibilityStrategy =
-            new PropertyVisibilityStrategy() {
-                @Override
-                public boolean isVisible(Field field) {
-                    return true;
-                }
+    public static final PropertyVisibilityStrategy visibilityStrategy = new PropertyVisibilityStrategy() {
+        @Override
+        public boolean isVisible(Field field) {
+            return true;
+        }
 
-                @Override
-                public boolean isVisible(Method method) {
-                    return false;
-                }
-            };
+        @Override
+        public boolean isVisible(Method method) {
+            return false;
+        }
+    };
 
     public static final Jsonb JSONB = JsonbBuilder.create();
 
     public static final Jsonb FIELD_VISIBILITY_STRATEGY =
-            JsonbBuilder.create(
-                    new JsonbConfig().withPropertyVisibilityStrategy(JsonbUtil.visibilityStrategy));
+            JsonbBuilder.create(new JsonbConfig().withPropertyVisibilityStrategy(JsonbUtil.visibilityStrategy));
 
     private JsonbUtil() {}
 }

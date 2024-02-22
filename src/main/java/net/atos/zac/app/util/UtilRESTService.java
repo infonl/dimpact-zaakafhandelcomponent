@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.util;
 
 import static java.util.stream.Collectors.joining;
@@ -24,14 +25,14 @@ public class UtilRESTService {
 
     private static final String ZTC = h(2, "ztcClientService");
 
-    @Inject private ZTCClientService ztcClientService;
+    @Inject
+    private ZTCClientService ztcClientService;
 
     @GET
     public String index() {
-        return body(
-                h(1, "Util")
-                        + links(Stream.of("cache", "cache/ztc"))
-                        + links(Stream.of("cache/clear", "cache/ztc/clear")));
+        return body(h(1, "Util") +
+                            links(Stream.of("cache", "cache/ztc")) +
+                            links(Stream.of("cache/clear", "cache/ztc/clear")));
     }
 
     private String links(final Stream<String> url) {
@@ -67,17 +68,14 @@ public class UtilRESTService {
     }
 
     private String clearZtcClientCaches() {
-        return ZTC
-                + ul(
-                        Stream.of(
-                                ztcClientService.clearZaaktypeCache(),
-                                ztcClientService.clearStatustypeCache(),
-                                ztcClientService.clearResultaattypeCache(),
-                                ztcClientService.clearInformatieobjecttypeCache(),
-                                ztcClientService.clearZaaktypeInformatieobjecttypeCache(),
-                                ztcClientService.clearBesluittypeCache(),
-                                ztcClientService.clearRoltypeCache(),
-                                ztcClientService.clearCacheTime()));
+        return ZTC + ul(Stream.of(ztcClientService.clearZaaktypeCache(),
+                                  ztcClientService.clearStatustypeCache(),
+                                  ztcClientService.clearResultaattypeCache(),
+                                  ztcClientService.clearInformatieobjecttypeCache(),
+                                  ztcClientService.clearZaaktypeInformatieobjecttypeCache(),
+                                  ztcClientService.clearBesluittypeCache(),
+                                  ztcClientService.clearRoltypeCache(),
+                                  ztcClientService.clearCacheTime()));
     }
 
     private static String body(final Stream<String> utils) {

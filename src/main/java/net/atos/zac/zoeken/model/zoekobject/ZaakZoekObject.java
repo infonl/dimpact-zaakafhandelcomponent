@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.zoeken.model.zoekobject;
 
 import java.util.ArrayList;
@@ -12,9 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.Lists;
-
 import org.apache.solr.client.solrj.beans.Field;
+
+import com.google.common.collect.Lists;
 
 import net.atos.client.zgw.zrc.model.Rol;
 import net.atos.client.zgw.ztc.model.generated.RolType;
@@ -36,9 +37,11 @@ public class ZaakZoekObject implements ZoekObject {
 
     public static final String ZAAK_BETROKKENE_PREFIX = "zaak_betrokkene_";
 
-    @Field private String id;
+    @Field
+    private String id;
 
-    @Field private String type;
+    @Field
+    private String type;
 
     @Field("zaak_identificatie")
     private String identificatie;
@@ -109,6 +112,7 @@ public class ZaakZoekObject implements ZoekObject {
     @Field("zaak_redenVerlenging")
     private String redenVerlenging;
 
+
     @Field("zaak_redenOpschorting")
     private String redenOpschorting;
 
@@ -157,7 +161,8 @@ public class ZaakZoekObject implements ZoekObject {
     @Field("zaak_bagObjecten")
     private List<String> bagObjectIDs;
 
-    public ZaakZoekObject() {}
+    public ZaakZoekObject() {
+    }
 
     public String getUuid() {
         return id;
@@ -464,8 +469,7 @@ public class ZaakZoekObject implements ZoekObject {
         if (this.indicaties == null) {
             return EnumSet.noneOf(ZaakIndicatie.class);
         }
-        return this.indicaties.stream()
-                .map(ZaakIndicatie::valueOf)
+        return this.indicaties.stream().map(ZaakIndicatie::valueOf)
                 .collect(Collectors.toCollection(() -> EnumSet.noneOf(ZaakIndicatie.class)));
     }
 
@@ -497,8 +501,7 @@ public class ZaakZoekObject implements ZoekObject {
         }
     }
 
-    public void addBetrokkene(
-            final RolType.OmschrijvingGeneriekEnum rol, final String identificatie) {
+    public void addBetrokkene(final RolType.OmschrijvingGeneriekEnum rol, final String identificatie) {
         final String key = "%s%s".formatted(ZAAK_BETROKKENE_PREFIX, rol.value());
         if (betrokkenen == null) {
             betrokkenen = new HashMap<>();

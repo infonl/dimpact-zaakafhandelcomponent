@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.or.object;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -49,9 +50,8 @@ public interface ObjectsClient {
     @POST
     @Path("objects")
     @ClientHeaderParams({
-        @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-        @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)
-    })
+            @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
+            @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
     ORObject objectCreate(final ORObject object);
 
     @GET
@@ -61,8 +61,7 @@ public interface ObjectsClient {
     @PUT
     @Path("objects/{object-uuid}")
     @ClientHeaderParams({
-        @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-        @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)
-    })
+            @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
+            @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
     ORObject objectUpdate(@PathParam("object-uuid") final UUID objectUUID, final ORObject object);
 }

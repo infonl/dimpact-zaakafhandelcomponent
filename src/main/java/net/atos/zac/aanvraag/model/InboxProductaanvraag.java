@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.aanvraag.model;
 
 import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
@@ -21,11 +22,7 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(schema = SCHEMA, name = "inbox_productaanvraag")
-@SequenceGenerator(
-        schema = SCHEMA,
-        name = "sq_inbox_productaanvraag",
-        sequenceName = "sq_inbox_productaanvraag",
-        allocationSize = 1)
+@SequenceGenerator(schema = SCHEMA, name = "sq_inbox_productaanvraag", sequenceName = "sq_inbox_productaanvraag", allocationSize = 1)
 public class InboxProductaanvraag {
 
     /**
@@ -48,13 +45,15 @@ public class InboxProductaanvraag {
     @Column(name = "id_inbox_productaanvraag")
     private Long id;
 
-    @NotNull @Column(name = "uuid_productaanvraag_object", nullable = false)
+    @NotNull
+    @Column(name = "uuid_productaanvraag_object", nullable = false)
     private UUID productaanvraagObjectUUID;
 
     @Column(name = "uuid_aanvraagdocument")
     private UUID aanvraagdocumentUUID;
 
-    @NotNull @Column(name = "ontvangstdatum", nullable = false)
+    @NotNull
+    @Column(name = "ontvangstdatum", nullable = false)
     private LocalDate ontvangstdatum;
 
     @NotBlank

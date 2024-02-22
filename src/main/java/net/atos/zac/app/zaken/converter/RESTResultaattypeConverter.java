@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.zaken.converter;
 
 import java.net.URI;
@@ -20,7 +21,8 @@ import net.atos.zac.util.UriUtil;
 
 public class RESTResultaattypeConverter {
 
-    @Inject private ZTCClientService ztcClientService;
+    @Inject
+    private ZTCClientService ztcClientService;
 
     public RESTResultaattype convertResultaattype(final ResultaatType resultaattype) {
         final BrondatumArchiefprocedure.AfleidingswijzeEnum afleidingswijze =
@@ -33,10 +35,8 @@ public class RESTResultaattypeConverter {
         restResultaattype.vervaldatumBesluitVerplicht =
                 Afleidingswijze.VERVALDATUM_BESLUIT.toValue().equals(afleidingswijze.value());
         restResultaattype.besluitVerplicht =
-                Afleidingswijze.VERVALDATUM_BESLUIT.toValue().equals(afleidingswijze.value())
-                        || Afleidingswijze.INGANGSDATUM_BESLUIT
-                                .toValue()
-                                .equals(afleidingswijze.value());
+                Afleidingswijze.VERVALDATUM_BESLUIT.toValue().equals(afleidingswijze.value()) ||
+                Afleidingswijze.INGANGSDATUM_BESLUIT.toValue().equals(afleidingswijze.value());
         restResultaattype.archiefNominatie = resultaattype.getArchiefnominatie().name();
         restResultaattype.toelichting = resultaattype.getToelichting();
         restResultaattype.naamGeneriek = resultaattype.getOmschrijvingGeneriek();
@@ -50,6 +50,9 @@ public class RESTResultaattypeConverter {
     }
 
     public List<RESTResultaattype> convertResultaattypes(final List<ResultaatType> resultaattypes) {
-        return resultaattypes.stream().map(this::convertResultaattype).toList();
+        return resultaattypes.stream()
+                .map(this::convertResultaattype)
+                .toList();
     }
+
 }

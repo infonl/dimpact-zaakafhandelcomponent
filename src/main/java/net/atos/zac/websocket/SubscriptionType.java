@@ -1,8 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.websocket;
+
 
 import jakarta.websocket.Session;
 
@@ -18,8 +20,7 @@ public enum SubscriptionType {
      */
     CREATE {
         @Override
-        protected void register(
-                final SessionRegistry registry, final Session session, final ScreenEvent event) {
+        protected void register(final SessionRegistry registry, final Session session, final ScreenEvent event) {
             registry.create(event, session);
         }
     },
@@ -28,8 +29,7 @@ public enum SubscriptionType {
      */
     DELETE {
         @Override
-        protected void register(
-                final SessionRegistry registry, final Session session, final ScreenEvent event) {
+        protected void register(final SessionRegistry registry, final Session session, final ScreenEvent event) {
             registry.delete(event, session);
         }
     },
@@ -41,8 +41,7 @@ public enum SubscriptionType {
         private final SubscriptionMessage MESSAGE = new SubscriptionMessage(this, null);
 
         @Override
-        protected void register(
-                final SessionRegistry registry, final Session session, final ScreenEvent event) {
+        protected void register(final SessionRegistry registry, final Session session, final ScreenEvent event) {
             registry.deleteAll(session);
         }
 
@@ -60,8 +59,7 @@ public enum SubscriptionType {
         }
     };
 
-    protected abstract void register(
-            final SessionRegistry registry, final Session session, final ScreenEvent event);
+    protected abstract void register(final SessionRegistry registry, final Session session, final ScreenEvent event);
 
     /**
      * Factory method for SubscriptionMessages ({@link SubscriptionType#CREATE} and {@link SubscriptionType#DELETE} types).
@@ -96,8 +94,7 @@ public enum SubscriptionType {
 
         private final ScreenEvent event;
 
-        private SubscriptionMessage(
-                final SubscriptionType subscriptionType, final ScreenEvent event) {
+        private SubscriptionMessage(final SubscriptionType subscriptionType, final ScreenEvent event) {
             this.subscriptionType = subscriptionType;
             this.event = event;
         }

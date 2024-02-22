@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.klanten.model.personen;
 
 import static net.atos.zac.app.klanten.model.klant.IdentificatieType.BSN;
@@ -21,7 +22,8 @@ public class RESTPersoon extends RESTKlant {
 
     public String verblijfplaats;
 
-    public RESTPersoon() {}
+    public RESTPersoon() {
+    }
 
     public RESTPersoon(final String naam, final String geboortedatum, final String verblijfplaats) {
         this.naam = naam;

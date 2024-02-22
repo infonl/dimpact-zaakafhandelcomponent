@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.mail;
 
 import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend;
@@ -38,23 +39,28 @@ import net.atos.zac.util.ValidationUtil;
 @Produces(MediaType.APPLICATION_JSON)
 public class MailRESTService {
 
-    @Inject private MailService mailService;
+    @Inject
+    private MailService mailService;
 
-    @Inject private ZaakVariabelenService zaakVariabelenService;
+    @Inject
+    private ZaakVariabelenService zaakVariabelenService;
 
-    @Inject private PolicyService policyService;
+    @Inject
+    private PolicyService policyService;
 
-    @Inject private ZRCClientService zrcClientService;
+    @Inject
+    private ZRCClientService zrcClientService;
 
-    @Inject private ZTCClientService ztcClientService;
+    @Inject
+    private ZTCClientService ztcClientService;
 
-    @Inject private RESTMailGegevensConverter restMailGegevensConverter;
+    @Inject
+    private RESTMailGegevensConverter restMailGegevensConverter;
 
     @POST
     @Path("send/{zaakUuid}")
-    public void sendMail(
-            @PathParam("zaakUuid") final UUID zaakUUID, final RESTMailGegevens restMailGegevens)
-            throws MailjetException {
+    public void sendMail(@PathParam("zaakUuid") final UUID zaakUUID,
+            final RESTMailGegevens restMailGegevens) throws MailjetException {
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
         assertPolicy(policyService.readZaakRechten(zaak).behandelen());
         validateEmail(restMailGegevens.verzender);
@@ -65,25 +71,18 @@ public class MailRESTService {
 
     @POST
     @Path("acknowledge/{zaakUuid}")
-    public void sendAcknowledgmentReceiptMail(
-            @PathParam("zaakUuid") final UUID zaakUuid, final RESTMailGegevens restMailGegevens)
-            throws MailjetException {
+    public void sendAcknowledgmentReceiptMail(@PathParam("zaakUuid") final UUID zaakUuid,
+            final RESTMailGegevens restMailGegevens) throws MailjetException {
         final Zaak zaak = zrcClientService.readZaak(zaakUuid);
-        assertPolicy(
-                !zaakVariabelenService
-                                .findOntvangstbevestigingVerstuurd(zaak.getUuid())
-                                .orElse(false)
-                        && policyService.readZaakRechten(zaak).behandelen());
+        assertPolicy(!zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.getUuid()).orElse(false) &&
+                             policyService.readZaakRechten(zaak).behandelen());
         validateEmail(restMailGegevens.verzender);
         validateEmail(restMailGegevens.ontvanger);
         mailService.sendMail(
                 restMailGegevensConverter.convert(restMailGegevens), Bronnen.fromZaak(zaak));
 
-        final StatusType statustype =
-                zaak.getStatus() != null
-                        ? ztcClientService.readStatustype(
-                                zrcClientService.readStatus(zaak.getStatus()).getStatustype())
-                        : null;
+        final StatusType statustype = zaak.getStatus() != null ?
+                ztcClientService.readStatustype(zrcClientService.readStatus(zaak.getStatus()).getStatustype()) : null;
         if (!isHeropend(statustype)) {
             zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaakUuid, Boolean.TRUE);
         }

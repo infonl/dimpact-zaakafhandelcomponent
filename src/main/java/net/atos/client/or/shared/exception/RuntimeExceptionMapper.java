@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.or.shared.exception;
 
 import jakarta.ws.rs.core.MultivaluedMap;
@@ -21,9 +22,6 @@ public class RuntimeExceptionMapper implements ResponseExceptionMapper<RuntimeEx
 
     @Override
     public RuntimeException toThrowable(final Response response) {
-        return new RuntimeException(
-                String.format(
-                        "Server response from object registratie: %d (%s)",
-                        response.getStatus(), response.getStatusInfo()));
+        return new RuntimeException(String.format("Server response from object registratie: %d (%s)", response.getStatus(), response.getStatusInfo()));
     }
 }

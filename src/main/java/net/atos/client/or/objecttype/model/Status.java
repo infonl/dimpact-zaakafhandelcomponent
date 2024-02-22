@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.or.objecttype.model;
 
 import static java.util.Arrays.stream;
@@ -16,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 @JsonbTypeAdapter(Status.Adapter.class)
 public enum Status {
+
     PUBLISHED("published"),
     DRAFT("draft"),
     DEPRECATED("deprecated");
@@ -45,12 +47,7 @@ public enum Status {
             return stream(values())
                     .filter(status -> StringUtils.equals(status.value, json))
                     .findFirst()
-                    .orElseThrow(
-                            () ->
-                                    new RuntimeException(
-                                            String.format(
-                                                    "Unkown value for %s: '%s'",
-                                                    Status.class.getSimpleName(), json)));
+                    .orElseThrow(() -> new RuntimeException(String.format("Unkown value for %s: '%s'", Status.class.getSimpleName(), json)));
         }
     }
 }

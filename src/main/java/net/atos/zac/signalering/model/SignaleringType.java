@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.signalering.model;
 
 import static net.atos.zac.signalering.model.SignaleringTarget.GROUP;
@@ -33,12 +34,14 @@ public class SignaleringType implements Comparable<SignaleringType> {
     @Column(name = "signaleringtype_enum", updatable = false, insertable = false)
     private String id;
 
-    @NotNull @Column(name = "subjecttype_enum", updatable = false, insertable = false)
+    @NotNull
+    @Column(name = "subjecttype_enum", updatable = false, insertable = false)
     @Enumerated(EnumType.STRING)
     private SignaleringSubject subjecttype;
 
     /* Workaround, Hibernate does not support primary keys of type enum. */
-    @Transient private Type type;
+    @Transient
+    private Type type;
 
     public Type getType() {
         if (type == null) {
@@ -56,13 +59,9 @@ public class SignaleringType implements Comparable<SignaleringType> {
      * !! Don't forget to add a new enum value to signaleringtype table and to add the translation !!
      */
     public enum Type {
-        ZAAK_DOCUMENT_TOEGEVOEGD(
-                "Zaakdocument toegevoegd", "Er is een document aan uw zaak toegevoegd.", USER),
+        ZAAK_DOCUMENT_TOEGEVOEGD("Zaakdocument toegevoegd", "Er is een document aan uw zaak toegevoegd.", USER),
         ZAAK_OP_NAAM("Zaak op naam", "Er is een zaak op uw naam gezet.", USER, GROUP),
-        ZAAK_VERLOPEND(
-                "Zaak verloopt",
-                "Uw zaak nadert de streefdatum." + SEPARATOR + "Uw zaak nadert de fatale datum.",
-                USER),
+        ZAAK_VERLOPEND("Zaak verloopt", "Uw zaak nadert de streefdatum." + SEPARATOR + "Uw zaak nadert de fatale datum.", USER),
         TAAK_OP_NAAM("Taak op naam", "Er is een taak op uw naam gezet.", USER),
         TAAK_VERLOPEN("Taak verloopt", "Uw taak heeft de fatale datum bereikt.", USER) {
             @Override
@@ -81,14 +80,7 @@ public class SignaleringType implements Comparable<SignaleringType> {
         Type(final String naam, final String bericht, SignaleringTarget... targets) {
             this.naam = naam;
             this.bericht = bericht;
-            this.targets =
-                    Collections.unmodifiableSet(
-                            Arrays.stream(targets)
-                                    .collect(
-                                            Collectors.toCollection(
-                                                    () ->
-                                                            EnumSet.noneOf(
-                                                                    SignaleringTarget.class))));
+            this.targets = Collections.unmodifiableSet(Arrays.stream(targets).collect(Collectors.toCollection(() -> EnumSet.noneOf(SignaleringTarget.class))));
         }
 
         public String getNaam() {
@@ -99,9 +91,7 @@ public class SignaleringType implements Comparable<SignaleringType> {
             return bericht;
         }
 
-        public boolean isTarget(final SignaleringTarget target) {
-            return targets.contains(target);
-        }
+        public boolean isTarget(final SignaleringTarget target) {return targets.contains(target);}
 
         public boolean isDashboard() {
             return true;

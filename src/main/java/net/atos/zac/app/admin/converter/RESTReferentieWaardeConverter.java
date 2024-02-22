@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.admin.converter;
 
 import java.util.List;
@@ -19,11 +20,12 @@ public class RESTReferentieWaardeConverter {
     }
 
     public List<String> convert(final List<ReferentieTabelWaarde> referentieTabelWaarden) {
-        return referentieTabelWaarden.stream().map(ReferentieTabelWaarde::getNaam).toList();
+        return referentieTabelWaarden.stream()
+                .map(ReferentieTabelWaarde::getNaam)
+                .toList();
     }
 
-    public ReferentieTabelWaarde convert(
-            final RESTReferentieTabelWaarde restReferentieTabelWaarde) {
+    public ReferentieTabelWaarde convert(final RESTReferentieTabelWaarde restReferentieTabelWaarde) {
         final ReferentieTabelWaarde referentieTabelWaarde = new ReferentieTabelWaarde();
         referentieTabelWaarde.setId(restReferentieTabelWaarde.id);
         referentieTabelWaarde.setNaam(restReferentieTabelWaarde.naam);

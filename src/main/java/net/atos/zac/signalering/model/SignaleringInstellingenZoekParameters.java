@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.signalering.model;
 
 import static net.atos.zac.signalering.model.SignaleringTarget.GROUP;
@@ -27,8 +28,7 @@ public class SignaleringInstellingenZoekParameters {
         this.type = signalering.getType().getType();
     }
 
-    public SignaleringInstellingenZoekParameters(
-            final SignaleringTarget ownertype, final String owner) {
+    public SignaleringInstellingenZoekParameters(final SignaleringTarget ownertype, final String owner) {
         this.ownertype = ownertype;
         this.owner = owner;
     }

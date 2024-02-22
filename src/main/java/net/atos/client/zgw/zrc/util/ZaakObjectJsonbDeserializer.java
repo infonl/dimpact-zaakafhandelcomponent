@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.zrc.util;
 
 import static net.atos.client.zgw.shared.util.JsonbUtil.JSONB;
@@ -27,8 +28,7 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaats;
 public class ZaakObjectJsonbDeserializer implements JsonbDeserializer<Zaakobject> {
 
     @Override
-    public Zaakobject deserialize(
-            final JsonParser parser, final DeserializationContext ctx, final Type rtType) {
+    public Zaakobject deserialize(final JsonParser parser, final DeserializationContext ctx, final Type rtType) {
         final JsonObject jsonObject = parser.getObject();
         final Objecttype objecttype = Objecttype.fromValue(jsonObject.getString("objectType"));
         final String objecttypeOverige = jsonObject.getString("objectTypeOverige");
@@ -42,16 +42,13 @@ public class ZaakObjectJsonbDeserializer implements JsonbDeserializer<Zaakobject
             case WOONPLAATS:
                 return JSONB.fromJson(jsonObject.toString(), ZaakobjectWoonplaats.class);
             case OVERIGE:
-                if (StringUtils.equals(
-                        objecttypeOverige, ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE)) {
+                if (StringUtils.equals(objecttypeOverige, ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE)) {
                     return JSONB.fromJson(jsonObject.toString(), ZaakobjectProductaanvraag.class);
-                } else if (StringUtils.equals(
-                        objecttypeOverige, ZaakobjectNummeraanduiding.OBJECT_TYPE_OVERIGE)) {
+                } else if (StringUtils.equals(objecttypeOverige, ZaakobjectNummeraanduiding.OBJECT_TYPE_OVERIGE)) {
                     return JSONB.fromJson(jsonObject.toString(), ZaakobjectNummeraanduiding.class);
                 }
             default:
-                throw new RuntimeException(
-                        String.format("objectType '%s' wordt niet ondersteund", objecttype));
+                throw new RuntimeException(String.format("objectType '%s' wordt niet ondersteund", objecttype));
         }
     }
 }

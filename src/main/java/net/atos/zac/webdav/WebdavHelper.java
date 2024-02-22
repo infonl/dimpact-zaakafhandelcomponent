@@ -1,7 +1,3 @@
-/*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
- * SPDX-License-Identifier: EUPL-1.2+
- */
 package net.atos.zac.webdav;
 
 import static java.lang.String.format;
@@ -34,45 +30,29 @@ public class WebdavHelper {
     /**
      * De mapping naar applicaties met WebDAV support
      */
-    private static final Set<String> WEBDAV_WORD =
-            Set.of(
-                    "application/msword",
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+    private static final Set<String> WEBDAV_WORD = Set.of("application/msword",
+                                                          "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
 
-    private static final Set<String> WEBDAV_POWERPOINT =
-            Set.of(
-                    "application/vnd.ms-powerpoint",
-                    "application/vnd.openxmlformats-officedocument.presentationml.presentation");
+    private static final Set<String> WEBDAV_POWERPOINT = Set.of("application/vnd.ms-powerpoint",
+                                                                "application/vnd.openxmlformats-officedocument.presentationml.presentation");
 
-    private static final Set<String> WEBDAV_EXCEL =
-            Set.of(
-                    "application/vnd.ms-excel",
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    private static final Set<String> WEBDAV_EXCEL = Set.of("application/vnd.ms-excel",
+                                                           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
-    @Inject private DRCClientService drcClientService;
+    @Inject
+    private DRCClientService drcClientService;
 
-    @Inject private Instance<LoggedInUser> loggedInUserInstance;
+    @Inject
+    private Instance<LoggedInUser> loggedInUserInstance;
 
     private final Map<String, Gegevens> tokenMap = Collections.synchronizedMap(new LRUMap<>(1000));
 
-    public URI createRedirectURL(
-            final UUID enkelvoudigInformatieobjectUUID, final UriInfo uriInfo) {
+    public URI createRedirectURL(final UUID enkelvoudigInformatieobjectUUID, final UriInfo uriInfo) {
         final EnkelvoudigInformatieObject enkelvoudigInformatieobject =
                 drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID);
-        final String scheme =
-                format(
-                        "%s:%s",
-                        getWebDAVApp(enkelvoudigInformatieobject.getFormaat()),
-                        uriInfo.getBaseUri().getScheme());
-        final String filename =
-                format(
-                        "%s.%s",
-                        createToken(enkelvoudigInformatieobjectUUID),
-                        getExtension(enkelvoudigInformatieobject.getBestandsnaam()));
-        return uriInfo.getBaseUriBuilder()
-                .scheme(scheme)
-                .replacePath("webdav/folder/{filename}")
-                .build(filename);
+        final String scheme = format("%s:%s", getWebDAVApp(enkelvoudigInformatieobject.getFormaat()), uriInfo.getBaseUri().getScheme());
+        final String filename = format("%s.%s", createToken(enkelvoudigInformatieobjectUUID), getExtension(enkelvoudigInformatieobject.getBestandsnaam()));
+        return uriInfo.getBaseUriBuilder().scheme(scheme).replacePath("webdav/folder/{filename}").build(filename);
     }
 
     public Gegevens readGegevens(final String token) {
@@ -85,8 +65,7 @@ public class WebdavHelper {
 
     private String createToken(final UUID enkelvoudigInformatieobjectUUID) {
         final String token = UUID.randomUUID().toString();
-        tokenMap.put(
-                token, new Gegevens(enkelvoudigInformatieobjectUUID, loggedInUserInstance.get()));
+        tokenMap.put(token, new Gegevens(enkelvoudigInformatieobjectUUID, loggedInUserInstance.get()));
         return token;
     }
 

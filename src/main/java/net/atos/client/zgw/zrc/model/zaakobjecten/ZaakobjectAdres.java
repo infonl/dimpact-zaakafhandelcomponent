@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.zrc.model.zaakobjecten;
 
 import java.net.URI;
@@ -16,7 +17,8 @@ public class ZaakobjectAdres extends ZaakobjectMetObjectIdentificatie<ObjectAdre
     /**
      * Constructor for JSONB deserialization
      */
-    public ZaakobjectAdres() {}
+    public ZaakobjectAdres() {
+    }
 
     /**
      * Constructor with required attributes

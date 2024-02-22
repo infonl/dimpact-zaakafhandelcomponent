@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.websocket.event;
 
 import java.util.Set;
@@ -29,7 +30,8 @@ public class ScreenEventObserver extends AbstractEventObserver<ScreenEvent> {
 
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
-    @Inject private SessionRegistry sessionRegistry;
+    @Inject
+    private SessionRegistry sessionRegistry;
 
     public void onFire(final @ObservesAsync ScreenEvent event) {
         try {

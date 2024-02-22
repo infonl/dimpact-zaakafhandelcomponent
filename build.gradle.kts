@@ -1,6 +1,7 @@
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.github.gradle.node.npm.task.NpmTask
 import io.smallrye.openapi.api.OpenApiConfig
+import java.time.Year
 import java.util.Locale
 
 /*
@@ -243,10 +244,10 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         formatAnnotations()
         licenseHeader("""
             /*
-             * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+             * SPDX-FileCopyrightText: ${'$'}YEAR Lifely
              * SPDX-License-Identifier: EUPL-1.2+
              */
-        """.trimIndent())
+        """.trimIndent()).updateYearWithLatest(true)
     }
 }
 

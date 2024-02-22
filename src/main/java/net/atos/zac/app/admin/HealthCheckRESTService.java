@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.admin;
 
 import java.time.ZonedDateTime;
@@ -32,23 +33,22 @@ import net.atos.zac.healthcheck.model.ZaaktypeInrichtingscheck;
 @Produces(MediaType.APPLICATION_JSON)
 public class HealthCheckRESTService {
 
-    @Inject private ZTCClientService ztcClientService;
+    @Inject
+    private ZTCClientService ztcClientService;
 
-    @Inject private ConfiguratieService configuratieService;
+    @Inject
+    private ConfiguratieService configuratieService;
 
-    @Inject private HealthCheckService healthCheckService;
+    @Inject
+    private HealthCheckService healthCheckService;
 
-    @Inject private RESTZaaktypeOverzichtConverter zaaktypeConverter;
+    @Inject
+    private RESTZaaktypeOverzichtConverter zaaktypeConverter;
 
     @GET
     @Path("zaaktypes")
     public List<RESTZaaktypeInrichtingscheck> listZaaktypeInrichtingschecks() {
-        return listZaaktypes().stream()
-                .map(
-                        zaaktype ->
-                                convertToREST(
-                                        healthCheckService.controleerZaaktype(zaaktype.getUrl())))
-                .toList();
+        return listZaaktypes().stream().map(zaaktype -> convertToREST(healthCheckService.controleerZaaktype(zaaktype.getUrl()))).toList();
     }
 
     @GET
@@ -84,9 +84,7 @@ public class HealthCheckRESTService {
     }
 
     private List<ZaakType> listZaaktypes() {
-        return ztcClientService
-                .listZaaktypen(configuratieService.readDefaultCatalogusURI())
-                .stream()
+        return ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI()).stream()
                 .filter(zaaktype -> !zaaktype.getConcept())
                 .filter(ZaakTypeUtil::isNuGeldig)
                 .toList();
@@ -103,8 +101,7 @@ public class HealthCheckRESTService {
         restCheck.rolInitiatorAanwezig = check.isRolInitiatorAanwezig();
         restCheck.rolOverigeAanwezig = check.isRolOverigeAanwezig();
         restCheck.statustypeAfgerondAanwezig = check.isStatustypeAfgerondAanwezig();
-        restCheck.statustypeAfgerondLaatsteVolgnummer =
-                check.isStatustypeAfgerondLaatsteVolgnummer();
+        restCheck.statustypeAfgerondLaatsteVolgnummer = check.isStatustypeAfgerondLaatsteVolgnummer();
         restCheck.statustypeHeropendAanwezig = check.isStatustypeHeropendAanwezig();
         restCheck.statustypeInBehandelingAanwezig = check.isStatustypeInBehandelingAanwezig();
         restCheck.statustypeIntakeAanwezig = check.isStatustypeIntakeAanwezig();

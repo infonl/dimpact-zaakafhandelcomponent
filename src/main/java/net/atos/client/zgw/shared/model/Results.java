@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.shared.model;
 
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
@@ -20,7 +21,7 @@ import jakarta.json.bind.annotation.JsonbProperty;
 public class Results<T> {
 
     // Aantal items wat Open Zaak terug geeft per pagina
-    public static final long NUM_ITEMS_PER_PAGE = 100;
+    public final static long NUM_ITEMS_PER_PAGE = 100;
 
     private final int count;
 
@@ -38,8 +39,7 @@ public class Results<T> {
     }
 
     @JsonbCreator
-    public Results(
-            @JsonbProperty("count") final int count,
+    public Results(@JsonbProperty("count") final int count,
             @JsonbProperty("results") final List<T> results,
             @JsonbProperty("next") final URI next,
             @JsonbProperty("previous") final URI previous) {
@@ -71,8 +71,7 @@ public class Results<T> {
         } else if (results.size() == 1) {
             return Optional.of(results.get(0));
         } else {
-            throw new IllegalStateException(
-                    String.format("More then one result found (count: %d)", count));
+            throw new IllegalStateException(String.format("More then one result found (count: %d)", count));
         }
     }
 
@@ -80,10 +79,7 @@ public class Results<T> {
         if (next == null) {
             return getResults();
         } else {
-            throw new IllegalStateException(
-                    String.format(
-                            "More then one page found (count: %d, results: %d)",
-                            count, results.size()));
+            throw new IllegalStateException(String.format("More then one page found (count: %d, results: %d)", count, results.size()));
         }
     }
 }

@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.klanten.converter;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -22,38 +23,33 @@ public class RESTVestigingsprofielConverter {
         restVestigingsprofiel.totaalWerkzamePersonen = vestiging.getTotaalWerkzamePersonen();
         restVestigingsprofiel.deeltijdWerkzamePersonen = vestiging.getDeeltijdWerkzamePersonen();
         restVestigingsprofiel.voltijdWerkzamePersonen = vestiging.getVoltijdWerkzamePersonen();
-        restVestigingsprofiel.commercieleVestiging =
-                isIndicatie(vestiging.getIndCommercieleVestiging());
+        restVestigingsprofiel.commercieleVestiging = isIndicatie(vestiging.getIndCommercieleVestiging());
 
-        restVestigingsprofiel.type =
-                isIndicatie(vestiging.getIndHoofdvestiging()) ? "HOOFDVESTIGING" : "NEVENVESTIGING";
+        restVestigingsprofiel.type = isIndicatie(
+                vestiging.getIndHoofdvestiging()) ? "HOOFDVESTIGING" : "NEVENVESTIGING";
         restVestigingsprofiel.sbiHoofdActiviteit =
-                vestiging.getSbiActiviteiten().stream()
+                vestiging.getSbiActiviteiten()
+                        .stream()
                         .filter(a -> isIndicatie(a.getIndHoofdactiviteit()))
                         .findAny()
                         .map(SBIActiviteit::getSbiOmschrijving)
                         .orElse(null);
 
         restVestigingsprofiel.sbiActiviteiten =
-                vestiging.getSbiActiviteiten().stream()
+                vestiging.getSbiActiviteiten()
+                        .stream()
                         .filter(a -> !isIndicatie(a.getIndHoofdactiviteit()))
                         .map(SBIActiviteit::getSbiOmschrijving)
                         .toList();
 
-        restVestigingsprofiel.adressen =
-                vestiging.getAdressen().stream()
-                        .map(
-                                adres ->
-                                        new RESTKlantenAdres(
-                                                adres.getType(),
-                                                isIndicatie(adres.getIndAfgeschermd()),
-                                                adres.getVolledigAdres()))
-                        .toList();
+        restVestigingsprofiel.adressen = vestiging.getAdressen()
+                .stream()
+                .map(adres -> new RESTKlantenAdres(adres.getType(),
+                                            isIndicatie(adres.getIndAfgeschermd()),
+                                            adres.getVolledigAdres()))
+                .toList();
 
-        restVestigingsprofiel.website =
-                CollectionUtils.emptyIfNull(vestiging.getWebsites()).stream()
-                        .findFirst()
-                        .orElse(null);
+        restVestigingsprofiel.website = CollectionUtils.emptyIfNull(vestiging.getWebsites()).stream().findFirst().orElse(null);
         return restVestigingsprofiel;
     }
 

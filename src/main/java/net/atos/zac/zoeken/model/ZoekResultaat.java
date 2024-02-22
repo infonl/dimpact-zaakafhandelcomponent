@@ -1,7 +1,3 @@
-/*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
- * SPDX-License-Identifier: EUPL-1.2+
- */
 package net.atos.zac.zoeken.model;
 
 import java.util.EnumMap;
@@ -11,8 +7,7 @@ import net.atos.zac.shared.model.Resultaat;
 
 public class ZoekResultaat<TYPE> extends Resultaat<TYPE> {
 
-    private final EnumMap<FilterVeld, List<FilterResultaat>> filters =
-            new EnumMap<>(FilterVeld.class);
+    private final EnumMap<FilterVeld, List<FilterResultaat>> filters = new EnumMap<>(FilterVeld.class);
 
     public ZoekResultaat(final List<TYPE> items, final long count) {
         super(items, count);

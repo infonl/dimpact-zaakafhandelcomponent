@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.formulieren.converter;
 
 import java.util.Comparator;
@@ -21,12 +22,12 @@ import net.atos.zac.zaaksturing.model.ReferentieTabelWaarde;
 
 public class RESTFormulierVeldDefinitieConverter {
 
-    @Inject private ReferentieTabelService referentieTabelService;
+    @Inject
+    private ReferentieTabelService referentieTabelService;
 
     private final String SEPARATOR = ";";
 
-    public RESTFormulierVeldDefinitie convert(
-            final FormulierVeldDefinitie veldDefinitie, boolean runtime) {
+    public RESTFormulierVeldDefinitie convert(final FormulierVeldDefinitie veldDefinitie, boolean runtime) {
         final RESTFormulierVeldDefinitie restVeldDefinitie = new RESTFormulierVeldDefinitie();
         restVeldDefinitie.id = veldDefinitie.getId();
         restVeldDefinitie.systeemnaam = veldDefinitie.getSysteemnaam();
@@ -39,21 +40,18 @@ public class RESTFormulierVeldDefinitieConverter {
         restVeldDefinitie.defaultWaarde = veldDefinitie.getDefaultWaarde();
         restVeldDefinitie.meerkeuzeOpties = veldDefinitie.getMeerkeuzeOpties();
         if (StringUtils.isNotBlank(veldDefinitie.getValidaties())) {
-            restVeldDefinitie.validaties =
-                    List.of(StringUtils.split(veldDefinitie.getValidaties(), SEPARATOR));
+            restVeldDefinitie.validaties = List.of(StringUtils.split(veldDefinitie.getValidaties(), SEPARATOR));
         }
 
         if (runtime) {
-            final String referentietabelCode =
-                    StringUtils.substringAfter(veldDefinitie.getMeerkeuzeOpties(), "REF:");
+            final String referentietabelCode = StringUtils.substringAfter(veldDefinitie.getMeerkeuzeOpties(), "REF:");
             if (StringUtils.isNotBlank(referentietabelCode)) {
-                final ReferentieTabel referentieTabel =
-                        referentieTabelService.readReferentieTabel(referentietabelCode);
-                restVeldDefinitie.meerkeuzeOpties =
-                        referentieTabel.getWaarden().stream()
-                                .sorted(Comparator.comparingInt(ReferentieTabelWaarde::getVolgorde))
-                                .map(ReferentieTabelWaarde::getNaam)
-                                .collect(Collectors.joining(SEPARATOR));
+                final ReferentieTabel referentieTabel = referentieTabelService.readReferentieTabel(referentietabelCode);
+                restVeldDefinitie.meerkeuzeOpties = referentieTabel.getWaarden()
+                        .stream()
+                        .sorted(Comparator.comparingInt(ReferentieTabelWaarde::getVolgorde))
+                        .map(ReferentieTabelWaarde::getNaam)
+                        .collect(Collectors.joining(SEPARATOR));
             }
         }
         return restVeldDefinitie;

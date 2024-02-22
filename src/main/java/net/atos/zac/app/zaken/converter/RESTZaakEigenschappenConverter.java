@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.zaken.converter;
 
 import java.net.URI;
@@ -17,7 +18,8 @@ import net.atos.zac.app.zaken.model.RESTZaakEigenschap;
 
 public class RESTZaakEigenschappenConverter {
 
-    @Inject private ZRCClientService zrcClientService;
+    @Inject
+    private ZRCClientService zrcClientService;
 
     public RESTZaakEigenschap convert(final URI uri) {
         if (uri != null) {

@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.formulieren;
 
 import static net.atos.zac.policy.PolicyService.assertPolicy;
@@ -31,11 +32,14 @@ import net.atos.zac.policy.PolicyService;
 @Produces(MediaType.APPLICATION_JSON)
 public class FormulierDefinitieRESTService {
 
-    @Inject private FormulierDefinitieService service;
+    @Inject
+    private FormulierDefinitieService service;
 
-    @Inject private RESTFormulierDefinitieConverter converter;
+    @Inject
+    private RESTFormulierDefinitieConverter converter;
 
-    @Inject private PolicyService policyService;
+    @Inject
+    private PolicyService policyService;
 
     @GET
     public List<RESTFormulierDefinitie> list() {
@@ -49,16 +53,16 @@ public class FormulierDefinitieRESTService {
     public RESTFormulierDefinitie create(final RESTFormulierDefinitie restFormulierDefinitie) {
         assertPolicy(policyService.readOverigeRechten().beheren());
         return converter.convert(
-                service.createFormulierDefinitie(converter.convert(restFormulierDefinitie)),
-                true,
-                false);
+                service.createFormulierDefinitie(
+                        converter.convert(restFormulierDefinitie)), true, false);
     }
 
     @GET
     @Path("{id}")
     public RESTFormulierDefinitie read(@PathParam("id") final long id) {
         assertPolicy(policyService.readOverigeRechten().beheren());
-        return converter.convert(service.readFormulierDefinitie(id), true, false);
+        return converter.convert(
+                service.readFormulierDefinitie(id), true, false);
     }
 
     @GET
@@ -71,9 +75,8 @@ public class FormulierDefinitieRESTService {
     public RESTFormulierDefinitie update(final RESTFormulierDefinitie restFormulierDefinitie) {
         assertPolicy(policyService.readOverigeRechten().beheren());
         return converter.convert(
-                service.updateFormulierDefinitie(converter.convert(restFormulierDefinitie)),
-                true,
-                false);
+                service.updateFormulierDefinitie(
+                        converter.convert(restFormulierDefinitie)), true, false);
     }
 
     @DELETE

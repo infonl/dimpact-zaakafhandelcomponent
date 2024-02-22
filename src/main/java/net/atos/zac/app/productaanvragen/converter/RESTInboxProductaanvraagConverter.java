@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.productaanvragen.converter;
 
 import java.util.List;
@@ -16,8 +17,7 @@ public class RESTInboxProductaanvraagConverter {
         final RESTInboxProductaanvraag restInboxProductaanvraag = new RESTInboxProductaanvraag();
         restInboxProductaanvraag.id = productaanvraag.getId();
         restInboxProductaanvraag.aanvraagdocumentUUID = productaanvraag.getAanvraagdocumentUUID();
-        restInboxProductaanvraag.productaanvraagObjectUUID =
-                productaanvraag.getProductaanvraagObjectUUID();
+        restInboxProductaanvraag.productaanvraagObjectUUID = productaanvraag.getProductaanvraagObjectUUID();
         restInboxProductaanvraag.initiatorID = productaanvraag.getInitiatorID();
         restInboxProductaanvraag.aantalBijlagen = productaanvraag.getAantalBijlagen();
         restInboxProductaanvraag.type = productaanvraag.getType();
@@ -25,8 +25,7 @@ public class RESTInboxProductaanvraagConverter {
         return restInboxProductaanvraag;
     }
 
-    public List<RESTInboxProductaanvraag> convert(
-            final List<InboxProductaanvraag> productaanvragen) {
+    public List<RESTInboxProductaanvraag> convert(final List<InboxProductaanvraag> productaanvragen) {
         return productaanvragen.stream().map(this::convert).collect(Collectors.toList());
     }
 }

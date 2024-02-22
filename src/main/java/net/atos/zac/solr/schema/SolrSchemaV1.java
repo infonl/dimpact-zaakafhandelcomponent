@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.solr.schema;
 
 import static net.atos.zac.solr.FieldType.BOOLEAN;
@@ -67,7 +68,8 @@ class SolrSchemaV1 implements SolrSchemaUpdate {
                 addFieldMultiValued("text_exact", TEXT_WS, true, false),
                 addFieldMultiValued("text_rev", TEXT_GENERAL_REV, true, false),
                 addDynamicField("*_coordinate", PDOUBLE, true, false),
-                addCopyField("id", "text", "text_exact"));
+                addCopyField("id", "text", "text_exact")
+        );
     }
 
     private List<SchemaRequest.Update> createZaakSchema() {
@@ -126,7 +128,8 @@ class SolrSchemaV1 implements SolrSchemaUpdate {
                 addCopyField("zaak_resultaatToelichting", "text"),
                 addField("zaak_aantalOpenstaandeTaken", PINT),
                 addFieldMultiValued("zaak_indicaties", STRING, true),
-                addField("zaak_indicaties_sort", PLONG, true, false, true));
+                addField("zaak_indicaties_sort", PLONG, true, false, true)
+        );
     }
 
     private List<SchemaRequest.Update> createTaakSchema() {
@@ -142,8 +145,7 @@ class SolrSchemaV1 implements SolrSchemaUpdate {
                 addField("taak_zaaktypeIdentificatie", STRING),
                 addCopyField("taak_zaaktypeIdentificatie", "text", "zaaktypeIdentificatie"),
                 addField("taak_zaaktypeOmschrijving", STRING, true),
-                addCopyField(
-                        "taak_zaaktypeOmschrijving", "text", "text_exact", "zaaktypeOmschrijving"),
+                addCopyField("taak_zaaktypeOmschrijving", "text", "text_exact", "zaaktypeOmschrijving"),
                 addField("taak_zaakUuid", STRING),
                 addField("taak_zaakId", STRING),
                 addCopyField("taak_zaakId", "text_exact"),
@@ -161,7 +163,8 @@ class SolrSchemaV1 implements SolrSchemaUpdate {
                 addCopyField("taak_behandelaarGebruikersnaam", "text"),
                 addFieldMultiValued("taak_data", STRING),
                 addCopyField("taak_data", "text"),
-                addFieldMultiValued("taak_informatie", STRING));
+                addFieldMultiValued("taak_informatie", STRING)
+        );
     }
 
     private List<SchemaRequest.Update> createInformatieobjectSchema() {
@@ -211,6 +214,7 @@ class SolrSchemaV1 implements SolrSchemaUpdate {
                 addField("informatieobject_vergrendeldDoorNaam", STRING, true),
                 addField("informatieobject_vergrendeldDoorGebruikersnaam", STRING),
                 addFieldMultiValued("informatieobject_indicaties", STRING, true),
-                addField("informatieobject_indicaties_sort", PLONG, true, false, true));
+                addField("informatieobject_indicaties_sort", PLONG, true, false, true)
+        );
     }
 }

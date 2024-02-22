@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.or.object;
 
 import java.util.UUID;
@@ -16,7 +17,9 @@ import net.atos.client.or.object.model.ORObject;
 @ApplicationScoped
 public class ObjectsClientService {
 
-    @Inject @RestClient private ObjectsClient objectsClient;
+    @Inject
+    @RestClient
+    private ObjectsClient objectsClient;
 
     /**
      * Create {@link ORObject}.

@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.audit.model;
 
 import java.time.LocalDate;
@@ -26,56 +27,37 @@ public class RESTHistorieRegel {
 
     public String toelichting;
 
-    public RESTHistorieRegel(
-            final String attribuutLabel, final String oudeWaarde, final String nieuweWaarde) {
+    public RESTHistorieRegel(final String attribuutLabel, final String oudeWaarde, final String nieuweWaarde) {
         this.attribuutLabel = attribuutLabel;
         this.oudeWaarde = oudeWaarde;
         this.nieuweWaarde = nieuweWaarde;
     }
 
-    public RESTHistorieRegel(
-            final String attribuutLabel, final LocalDate oudeWaarde, final LocalDate nieuweWaarde) {
-        this(
-                attribuutLabel,
-                HistorieUtil.toWaarde(oudeWaarde),
-                HistorieUtil.toWaarde(nieuweWaarde));
+    public RESTHistorieRegel(final String attribuutLabel, final LocalDate oudeWaarde, final LocalDate nieuweWaarde) {
+        this(attribuutLabel, HistorieUtil.toWaarde(oudeWaarde), HistorieUtil.toWaarde(nieuweWaarde));
     }
 
-    public RESTHistorieRegel(
-            final String attribuutLabel,
-            final ZonedDateTime oudeWaarde,
-            final ZonedDateTime nieuweWaarde) {
-        this(
-                attribuutLabel,
-                HistorieUtil.toWaarde(oudeWaarde),
-                HistorieUtil.toWaarde(nieuweWaarde));
+    public RESTHistorieRegel(final String attribuutLabel, final ZonedDateTime oudeWaarde, final ZonedDateTime nieuweWaarde) {
+        this(attribuutLabel, HistorieUtil.toWaarde(oudeWaarde), HistorieUtil.toWaarde(nieuweWaarde));
     }
 
-    public RESTHistorieRegel(
-            final String attribuutLabel, final Boolean oudeWaarde, final Boolean nieuweWaarde) {
-        this(
-                attribuutLabel,
-                HistorieUtil.toWaarde(oudeWaarde),
-                HistorieUtil.toWaarde(nieuweWaarde));
+    public RESTHistorieRegel(final String attribuutLabel, final Boolean oudeWaarde, final Boolean nieuweWaarde) {
+        this(attribuutLabel, HistorieUtil.toWaarde(oudeWaarde), HistorieUtil.toWaarde(nieuweWaarde));
     }
 
     public RESTHistorieRegel(
             final String attribuutLabel,
             final EnkelvoudigInformatieObject.StatusEnum oudeWaarde,
-            final EnkelvoudigInformatieObject.StatusEnum nieuweWaarde) {
-        this(
-                attribuutLabel,
-                HistorieUtil.toWaarde(oudeWaarde),
-                HistorieUtil.toWaarde(nieuweWaarde));
+            final EnkelvoudigInformatieObject.StatusEnum nieuweWaarde
+    ) {
+        this(attribuutLabel, HistorieUtil.toWaarde(oudeWaarde), HistorieUtil.toWaarde(nieuweWaarde));
     }
 
     public RESTHistorieRegel(
             final String attribuutLabel,
             final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum oudeWaarde,
-            final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum nieuweWaarde) {
-        this(
-                attribuutLabel,
-                HistorieUtil.toWaarde(oudeWaarde),
-                HistorieUtil.toWaarde(nieuweWaarde));
+            final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum nieuweWaarde
+    ) {
+        this(attribuutLabel, HistorieUtil.toWaarde(oudeWaarde), HistorieUtil.toWaarde(nieuweWaarde));
     }
 }

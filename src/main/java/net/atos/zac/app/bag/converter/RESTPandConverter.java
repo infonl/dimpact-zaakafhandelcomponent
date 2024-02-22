@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.bag.converter;
 
 import java.net.URI;
@@ -67,4 +68,5 @@ public class RESTPandConverter {
         restPand.geometry = RESTBAGConverter.convertVlak(pand.getGeometrie());
         return restPand;
     }
+
 }

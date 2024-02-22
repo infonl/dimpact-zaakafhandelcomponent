@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.event;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -17,11 +18,14 @@ import net.atos.zac.websocket.event.ScreenEventType;
 @ApplicationScoped
 public class EventingService {
 
-    @Inject private Event<ScreenEvent> screenUpdateEvent;
+    @Inject
+    private Event<ScreenEvent> screenUpdateEvent;
 
-    @Inject private Event<SignaleringEvent<?>> signaleringEvent;
+    @Inject
+    private Event<SignaleringEvent<?>> signaleringEvent;
 
-    @Inject private Event<JobEvent> signaleringJobEvent;
+    @Inject
+    private Event<JobEvent> signaleringJobEvent;
 
     /**
      * Send {@link ScreenEvent}s to Observer(s),

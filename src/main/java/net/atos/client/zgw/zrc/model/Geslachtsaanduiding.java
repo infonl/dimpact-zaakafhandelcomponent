@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.zrc.model;
 
 import jakarta.json.bind.annotation.JsonbTypeAdapter;
@@ -28,6 +29,7 @@ public enum Geslachtsaanduiding implements AbstractEnum<Geslachtsaanduiding> {
     public static Geslachtsaanduiding fromValue(final String value) {
         return AbstractEnum.fromValue(values(), value);
     }
+
 
     static class Adapter extends AbstractEnum.Adapter<Geslachtsaanduiding> {
 

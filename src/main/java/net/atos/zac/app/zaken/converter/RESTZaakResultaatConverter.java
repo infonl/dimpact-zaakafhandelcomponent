@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.zaken.converter;
 
 import java.net.URI;
@@ -14,18 +15,18 @@ import net.atos.zac.app.zaken.model.RESTZaakResultaat;
 
 public class RESTZaakResultaatConverter {
 
-    @Inject private ZRCClientService zrcClientService;
+    @Inject
+    private ZRCClientService zrcClientService;
 
-    @Inject private RESTResultaattypeConverter restResultaattypeConverter;
+    @Inject
+    private RESTResultaattypeConverter restResultaattypeConverter;
 
     public RESTZaakResultaat convert(final URI resultaatURI) {
         if (resultaatURI != null) {
             final Resultaat resultaat = zrcClientService.readResultaat(resultaatURI);
             final RESTZaakResultaat restZaakResultaat = new RESTZaakResultaat();
             restZaakResultaat.toelichting = resultaat.getToelichting();
-            restZaakResultaat.resultaattype =
-                    restResultaattypeConverter.convertResultaattypeUri(
-                            resultaat.getResultaattype());
+            restZaakResultaat.resultaattype = restResultaattypeConverter.convertResultaattypeUri(resultaat.getResultaattype());
             return restZaakResultaat;
         }
         return null;

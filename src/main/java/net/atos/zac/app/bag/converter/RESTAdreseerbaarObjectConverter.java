@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.bag.converter;
 
 import java.util.stream.Collectors;
@@ -19,8 +20,7 @@ import net.atos.zac.app.bag.model.RESTAdresseerbaarObject;
 
 public class RESTAdreseerbaarObjectConverter {
 
-    public RESTAdresseerbaarObject convertToREST(
-            final AdresseerbaarObjectIOHal adresseerbaarObjectIOHal) {
+    public RESTAdresseerbaarObject convertToREST(final AdresseerbaarObjectIOHal adresseerbaarObjectIOHal) {
         if (adresseerbaarObjectIOHal == null) {
             return null;
         }
@@ -30,8 +30,7 @@ public class RESTAdreseerbaarObjectConverter {
         } else if (adresseerbaarObjectIOHal.getStandplaats() != null) {
             return convertToREST(adresseerbaarObjectIOHal.getStandplaats().getStandplaats());
         } else if (adresseerbaarObjectIOHal.getVerblijfsobject() != null) {
-            return convertToREST(
-                    adresseerbaarObjectIOHal.getVerblijfsobject().getVerblijfsobject());
+            return convertToREST(adresseerbaarObjectIOHal.getVerblijfsobject().getVerblijfsobject());
         } else {
             throw new IllegalStateException("adresseerbaarObject is leeg");
         }
@@ -62,16 +61,11 @@ public class RESTAdreseerbaarObjectConverter {
         restAdresseerbaarObject.typeAdresseerbaarObject = TypeAdresseerbaarObject.VERBLIJFSOBJECT;
         restAdresseerbaarObject.identificatie = verblijfsobject.getIdentificatie();
         restAdresseerbaarObject.status = verblijfsobject.getStatus().toString();
-        restAdresseerbaarObject.geconstateerd =
-                Indicatie.J.equals(verblijfsobject.getGeconstateerd());
-        restAdresseerbaarObject.vboDoel =
-                ListUtils.emptyIfNull(verblijfsobject.getGebruiksdoelen()).stream()
-                        .map(Gebruiksdoel::toString)
-                        .collect(Collectors.joining(", "));
-        restAdresseerbaarObject.vboOppervlakte =
-                verblijfsobject.getOppervlakte() != null ? verblijfsobject.getOppervlakte() : 0;
-        restAdresseerbaarObject.geometry =
-                RESTBAGConverter.convertPuntOrVlak(verblijfsobject.getGeometrie());
+        restAdresseerbaarObject.geconstateerd = Indicatie.J.equals(verblijfsobject.getGeconstateerd());
+        restAdresseerbaarObject.vboDoel = ListUtils.emptyIfNull(
+                verblijfsobject.getGebruiksdoelen()).stream().map(Gebruiksdoel::toString).collect(Collectors.joining(", "));
+        restAdresseerbaarObject.vboOppervlakte = verblijfsobject.getOppervlakte() != null ? verblijfsobject.getOppervlakte() : 0;
+        restAdresseerbaarObject.geometry = RESTBAGConverter.convertPuntOrVlak(verblijfsobject.getGeometrie());
         return restAdresseerbaarObject;
     }
 }

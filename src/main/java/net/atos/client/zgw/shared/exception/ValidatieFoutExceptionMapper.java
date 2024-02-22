@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.shared.exception;
 
 import jakarta.ws.rs.core.MultivaluedMap;
@@ -14,8 +15,7 @@ import net.atos.client.zgw.shared.model.ValidatieFout;
 /**
  *
  */
-public class ValidatieFoutExceptionMapper
-        implements ResponseExceptionMapper<ValidatieFoutException> {
+public class ValidatieFoutExceptionMapper implements ResponseExceptionMapper<ValidatieFoutException> {
 
     @Override
     public boolean handles(final int status, final MultivaluedMap<String, Object> headers) {

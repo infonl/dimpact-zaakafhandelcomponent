@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.flowable.cmmn;
 
 import java.util.Date;
@@ -19,8 +20,7 @@ import net.atos.zac.signalering.model.SignaleringType;
 import net.atos.zac.websocket.event.ScreenEvent;
 import net.atos.zac.websocket.event.ScreenEventType;
 
-public class CreateHumanTaskInterceptor
-        implements org.flowable.cmmn.engine.interceptor.CreateHumanTaskInterceptor {
+public class CreateHumanTaskInterceptor implements org.flowable.cmmn.engine.interceptor.CreateHumanTaskInterceptor {
 
     public static final String VAR_TRANSIENT_TAAKDATA = "taakdata";
 
@@ -41,24 +41,16 @@ public class CreateHumanTaskInterceptor
 
     @Override
     public void beforeCreateHumanTask(final CreateHumanTaskBeforeContext context) {
-        final String owner =
-                (String)
-                        context.getPlanItemInstanceEntity()
-                                .getTransientVariable(VAR_TRANSIENT_OWNER);
+        final String owner = (String) context.getPlanItemInstanceEntity().getTransientVariable(VAR_TRANSIENT_OWNER);
         if (owner != null) {
             context.setOwner(owner);
         }
-        final String candidateGroupId =
-                (String)
-                        context.getPlanItemInstanceEntity()
-                                .getTransientVariable(VAR_TRANSIENT_CANDIDATE_GROUP);
+        final String candidateGroupId = (String) context.getPlanItemInstanceEntity()
+                .getTransientVariable(VAR_TRANSIENT_CANDIDATE_GROUP);
         if (candidateGroupId != null) {
             context.setCandidateGroups(List.of(candidateGroupId));
         }
-        final String assignee =
-                (String)
-                        context.getPlanItemInstanceEntity()
-                                .getTransientVariable(VAR_TRANSIENT_ASSIGNEE);
+        final String assignee = (String) context.getPlanItemInstanceEntity().getTransientVariable(VAR_TRANSIENT_ASSIGNEE);
         if (assignee != null) {
             context.setAssignee(assignee);
         }
@@ -66,44 +58,27 @@ public class CreateHumanTaskInterceptor
 
     @Override
     public void afterCreateHumanTask(final CreateHumanTaskAfterContext context) {
-        final Map<String, String> taakdata =
-                (Map<String, String>)
-                        context.getPlanItemInstanceEntity()
-                                .getTransientVariable(VAR_TRANSIENT_TAAKDATA);
-        FlowableHelper.getInstance()
-                .getTaakVariabelenService()
-                .setTaakdata(context.getTaskEntity(), taakdata);
-        context.getTaskEntity()
-                .setDueDate(
-                        (Date)
-                                context.getPlanItemInstanceEntity()
-                                        .getTransientVariable(VAR_TRANSIENT_DUE_DATE));
-        context.getTaskEntity()
-                .setDescription(
-                        (String)
-                                context.getPlanItemInstanceEntity()
-                                        .getTransientVariable(VAR_TRANSIENT_DESCRIPTION));
-        final UUID zaakUUID =
-                (UUID)
-                        context.getPlanItemInstanceEntity()
-                                .getTransientVariable(VAR_TRANSIENT_ZAAK_UUID);
+        final Map<String, String> taakdata = (Map<String, String>) context.getPlanItemInstanceEntity()
+                .getTransientVariable(VAR_TRANSIENT_TAAKDATA);
+        FlowableHelper.getInstance().getTaakVariabelenService().setTaakdata(context.getTaskEntity(), taakdata);
+        context.getTaskEntity().setDueDate((Date) context.getPlanItemInstanceEntity()
+                .getTransientVariable(VAR_TRANSIENT_DUE_DATE));
+        context.getTaskEntity().setDescription((String) context.getPlanItemInstanceEntity()
+                .getTransientVariable(VAR_TRANSIENT_DESCRIPTION));
+        final UUID zaakUUID = (UUID) context.getPlanItemInstanceEntity().getTransientVariable(VAR_TRANSIENT_ZAAK_UUID);
         final ScreenEvent screenEvent = ScreenEventType.ZAAK_TAKEN.updated(zaakUUID);
         // Wait some time before handling the event to make sure that the task has been created.
         screenEvent.setDelay(SECONDS_TO_DELAY);
         FlowableHelper.getInstance().getEventingService().send(screenEvent);
 
         if (context.getTaskEntity().getAssignee() != null) {
-            // On creation of a human task the event observer will assume its owner is the actor who
-            // created it.
+            // On creation of a human task the event observer will assume its owner is the actor who created it.
             final SignaleringEvent<?> signaleringEvent =
-                    SignaleringEventUtil.event(
-                            SignaleringType.Type.TAAK_OP_NAAM, context.getTaskEntity(), null);
+                    SignaleringEventUtil.event(SignaleringType.Type.TAAK_OP_NAAM, context.getTaskEntity(), null);
             // Wait some time before handling the event to make sure that the task has been created.
             signaleringEvent.setDelay(SECONDS_TO_DELAY);
             FlowableHelper.getInstance().getEventingService().send(signaleringEvent);
         }
-        FlowableHelper.getInstance()
-                .getIndexeerService()
-                .addOrUpdateTaak(context.getTaskEntity().getId());
+        FlowableHelper.getInstance().getIndexeerService().addOrUpdateTaak(context.getTaskEntity().getId());
     }
 }

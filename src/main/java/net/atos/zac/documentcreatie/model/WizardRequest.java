@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.documentcreatie.model;
 
 import net.atos.client.sd.model.Deposit;
@@ -13,8 +14,7 @@ public class WizardRequest extends Deposit {
 
     public final Data data;
 
-    public WizardRequest(
-            final SmartDocument smartDocument, final Registratie registratie, final Data data) {
+    public WizardRequest(final SmartDocument smartDocument, final Registratie registratie, final Data data) {
         this.smartDocument = smartDocument;
         this.registratie = registratie;
         this.data = data;

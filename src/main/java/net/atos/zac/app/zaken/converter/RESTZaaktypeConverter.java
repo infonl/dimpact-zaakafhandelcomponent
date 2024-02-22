@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.zaken.converter;
 
 import static net.atos.client.zgw.ztc.util.ZaakTypeUtil.isNuGeldig;
@@ -23,11 +24,14 @@ import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
 
 public class RESTZaaktypeConverter {
 
-    @Inject private RESTZaaktypeRelatieConverter zaaktypeRelatieConverter;
+    @Inject
+    private RESTZaaktypeRelatieConverter zaaktypeRelatieConverter;
 
-    @Inject private RESTZaakafhandelParametersConverter zaakafhandelParametersConverter;
+    @Inject
+    private RESTZaakafhandelParametersConverter zaakafhandelParametersConverter;
 
-    @Inject private ZaakafhandelParameterService zaakafhandelParameterService;
+    @Inject
+    private ZaakafhandelParameterService zaakafhandelParameterService;
 
     public RESTZaaktype convert(final ZaakType zaaktype) {
         final RESTZaaktype restZaaktype = new RESTZaaktype();
@@ -44,17 +48,15 @@ public class RESTZaaktypeConverter {
         restZaaktype.opschortingMogelijk = zaaktype.getOpschortingEnAanhoudingMogelijk();
         restZaaktype.verlengingMogelijk = zaaktype.getVerlengingMogelijk();
         if (restZaaktype.verlengingMogelijk) {
-            restZaaktype.verlengingstermijn =
-                    PeriodUtil.aantalDagenVanafHeden(
-                            Period.parse(zaaktype.getVerlengingstermijn()));
+            restZaaktype.verlengingstermijn = PeriodUtil.aantalDagenVanafHeden(
+                    Period.parse(zaaktype.getVerlengingstermijn())
+            );
         }
         restZaaktype.zaaktypeRelaties = new ArrayList<>();
         if (zaaktype.getDeelzaaktypen() != null) {
             zaaktype.getDeelzaaktypen().stream()
-                    .map(
-                            deelzaaktype ->
-                                    zaaktypeRelatieConverter.convertToRESTZaaktypeRelatie(
-                                            deelzaaktype, RelatieType.DEELZAAK))
+                    .map(deelzaaktype -> zaaktypeRelatieConverter.convertToRESTZaaktypeRelatie(deelzaaktype,
+                                                                                               RelatieType.DEELZAAK))
                     .forEach(restZaaktype.zaaktypeRelaties::add);
         }
         if (zaaktype.getGerelateerdeZaaktypen() != null) {
@@ -63,17 +65,15 @@ public class RESTZaaktypeConverter {
                     .forEach(restZaaktype.zaaktypeRelaties::add);
         }
 
-        restZaaktype.informatieobjecttypes =
-                zaaktype.getInformatieobjecttypen().stream().map(UriUtil::uuidFromURI).toList();
+        restZaaktype.informatieobjecttypes = zaaktype.getInformatieobjecttypen().stream().map(UriUtil::uuidFromURI).toList();
 
         if (zaaktype.getReferentieproces() != null) {
             restZaaktype.referentieproces = zaaktype.getReferentieproces().getNaam();
         }
-        final ZaakafhandelParameters zaakafhandelParameters =
-                zaakafhandelParameterService.readZaakafhandelParameters(restZaaktype.uuid);
-        restZaaktype.zaakafhandelparameters =
-                zaakafhandelParametersConverter.convertZaakafhandelParameters(
-                        zaakafhandelParameters, true);
+        final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
+                restZaaktype.uuid);
+        restZaaktype.zaakafhandelparameters = zaakafhandelParametersConverter.convertZaakafhandelParameters(
+                zaakafhandelParameters, true);
         return restZaaktype;
     }
 }

@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.util;
 
 import java.time.LocalDate;
@@ -10,7 +11,8 @@ import net.atos.client.zgw.ztc.model.generated.BesluitType;
 
 public final class LocalDateUtil {
 
-    private LocalDateUtil() {}
+    private LocalDateUtil() {
+    }
 
     /**
      * Returns whether {@link LocalDate}.now() is between two dates.
@@ -21,8 +23,7 @@ public final class LocalDateUtil {
      */
     public static boolean dateNowIsBetween(LocalDate begin, LocalDate end) {
         final LocalDate now = LocalDate.now();
-        return (begin == null || begin.isBefore(now) || begin.isEqual(now))
-                && (end == null || end.isAfter(now));
+        return (begin == null || begin.isBefore(now) || begin.isEqual(now)) && (end == null || end.isAfter(now));
     }
 
     public static boolean dateNowIsBetween(BesluitType besluittype) {

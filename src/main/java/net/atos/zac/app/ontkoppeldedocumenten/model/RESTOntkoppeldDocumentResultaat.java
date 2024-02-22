@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.ontkoppeldedocumenten.model;
 
 import java.util.ArrayList;
@@ -15,8 +16,7 @@ public class RESTOntkoppeldDocumentResultaat extends RESTResultaat<RESTOntkoppel
 
     public List<RESTUser> filterOntkoppeldDoor = new ArrayList<>();
 
-    public RESTOntkoppeldDocumentResultaat(
-            final Collection<RESTOntkoppeldDocument> resultaten, final long aantalTotaal) {
+    public RESTOntkoppeldDocumentResultaat(final Collection<RESTOntkoppeldDocument> resultaten, final long aantalTotaal) {
         super(resultaten, aantalTotaal);
     }
 }

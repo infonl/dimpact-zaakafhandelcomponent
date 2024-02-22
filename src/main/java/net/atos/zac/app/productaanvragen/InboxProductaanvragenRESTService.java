@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.productaanvragen;
 
 import static net.atos.zac.policy.PolicyService.assertPolicy;
@@ -44,29 +45,30 @@ import net.atos.zac.policy.PolicyService;
 @Produces(MediaType.APPLICATION_JSON)
 public class InboxProductaanvragenRESTService {
 
-    @Inject private DRCClientService drcClientService;
+    @Inject
+    private DRCClientService drcClientService;
 
-    @Inject private PolicyService policyService;
 
-    @Inject private InboxProductaanvraagService inboxProductaanvraagService;
+    @Inject
+    private PolicyService policyService;
 
-    @Inject private RESTInboxProductaanvraagConverter inboxProductaanvraagConverter;
+    @Inject
+    private InboxProductaanvraagService inboxProductaanvraagService;
 
-    @Inject private RESTInboxProductaanvraagListParametersConverter listParametersConverter;
+    @Inject
+    private RESTInboxProductaanvraagConverter inboxProductaanvraagConverter;
+
+    @Inject
+    private RESTInboxProductaanvraagListParametersConverter listParametersConverter;
 
     @PUT
     @Path("")
-    public RESTResultaat<RESTInboxProductaanvraag> list(
-            final RESTInboxProductaanvraagListParameters restListParameters) {
+    public RESTResultaat<RESTInboxProductaanvraag> list(final RESTInboxProductaanvraagListParameters restListParameters) {
         assertPolicy(policyService.readWerklijstRechten().inbox());
-        final InboxProductaanvraagListParameters listParameters =
-                listParametersConverter.convert(restListParameters);
-        final InboxProductaanvraagResultaat resultaat =
-                inboxProductaanvraagService.list(listParameters);
+        final InboxProductaanvraagListParameters listParameters = listParametersConverter.convert(restListParameters);
+        final InboxProductaanvraagResultaat resultaat = inboxProductaanvraagService.list(listParameters);
         final RESTInboxProductaanvraagResultaat restInboxProductaanvraagResultaat =
-                new RESTInboxProductaanvraagResultaat(
-                        inboxProductaanvraagConverter.convert(resultaat.getItems()),
-                        resultaat.getCount());
+                new RESTInboxProductaanvraagResultaat(inboxProductaanvraagConverter.convert(resultaat.getItems()), resultaat.getCount());
         final List<String> types = resultaat.getTypeFilter();
         if (CollectionUtils.isEmpty(types)) {
             if (restListParameters.type != null) {
@@ -86,12 +88,9 @@ public class InboxProductaanvragenRESTService {
                 drcClientService.readEnkelvoudigInformatieobject(uuid);
         try (ByteArrayInputStream is = drcClientService.downloadEnkelvoudigInformatieobject(uuid)) {
             return Response.ok(is)
-                    .header(
-                            "Content-Disposition",
-                            "inline; filename=\"%s\""
-                                    .formatted(enkelvoudigInformatieobject.getBestandsnaam()))
-                    .header("Content-Type", "application/pdf")
-                    .build();
+                    .header("Content-Disposition",
+                            "inline; filename=\"%s\"".formatted(enkelvoudigInformatieobject.getBestandsnaam()))
+                    .header("Content-Type", "application/pdf").build();
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
@@ -100,8 +99,7 @@ public class InboxProductaanvragenRESTService {
     @DELETE
     @Path("{id}")
     public void delete(@PathParam("id") final long id) {
-        PolicyService.assertPolicy(
-                policyService.readWerklijstRechten().inboxProductaanvragenVerwijderen());
+        PolicyService.assertPolicy(policyService.readWerklijstRechten().inboxProductaanvragenVerwijderen());
         inboxProductaanvraagService.delete(id);
     }
 }

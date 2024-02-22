@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.taken.model;
 
 import java.util.Arrays;
@@ -20,11 +21,7 @@ public enum TaakSortering {
         return Arrays.stream(values())
                 .filter(taakSortering -> taakSortering.name().equalsIgnoreCase(value))
                 .findAny()
-                .orElseThrow(
-                        () ->
-                                new IllegalArgumentException(
-                                        String.format(
-                                                "Onbekende TaakSortering met waarde: '%s'",
-                                                value)));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        String.format("Onbekende TaakSortering met waarde: '%s'", value)));
     }
 }

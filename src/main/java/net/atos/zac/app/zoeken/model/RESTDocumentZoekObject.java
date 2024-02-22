@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.zoeken.model;
 
 import java.time.LocalDate;
@@ -69,4 +70,5 @@ public class RESTDocumentZoekObject extends AbstractRESTZoekObject {
     public RESTDocumentRechten rechten;
 
     public boolean indicatieGebruiksrecht;
+
 }

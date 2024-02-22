@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.zrc.model;
 
 import jakarta.json.bind.annotation.JsonbTypeAdapter;
@@ -10,6 +11,7 @@ import net.atos.client.zgw.shared.model.AbstractEnum;
 
 @JsonbTypeAdapter(Rechtsvorm.Adapter.class)
 public enum Rechtsvorm implements AbstractEnum<Rechtsvorm> {
+
     BESLOTEN_VENNOOTSCHAP("besloten_vennootschap"),
     COOPERATIE_EUROPEES_ECONOMISCHE_SAMENWERKING("cooperatie_europees_economische_samenwerking"),
     EUROPESE_COOPERATIEVE_VENOOTSCHAP("europese_cooperatieve_venootschap"),
@@ -27,8 +29,7 @@ public enum Rechtsvorm implements AbstractEnum<Rechtsvorm> {
     REDERIJ("rederij"),
     COMMANDITAIRE_VENNOOTSCHAP("commanditaire_vennootschap"),
     KAPITAALVENNOOTSCHAP_BINNEN_EER("kapitaalvennootschap_binnen_eer"),
-    OVERIGE_BUITENLANDSE_RECHTSPERSOON_VENNOOTSCHAP(
-            "overige_buitenlandse_rechtspersoon_vennootschap"),
+    OVERIGE_BUITENLANDSE_RECHTSPERSOON_VENNOOTSCHAP("overige_buitenlandse_rechtspersoon_vennootschap"),
     KAPITAALVENNOOTSCHAP_BUITEN_EER("kapitaalvennootschap_buiten_eer");
 
     private final String value;

@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.drc;
 
 import static java.lang.String.format;
@@ -39,11 +40,15 @@ import net.atos.zac.configuratie.ConfiguratieService;
 @ApplicationScoped
 public class DRCClientService {
 
-    @Inject @RestClient private DRCClient drcClient;
+    @Inject
+    @RestClient
+    private DRCClient drcClient;
 
-    @Inject private ZGWClientHeadersFactory zgwClientHeadersFactory;
+    @Inject
+    private ZGWClientHeadersFactory zgwClientHeadersFactory;
 
-    @Inject private ConfiguratieService configuratieService;
+    @Inject
+    private ConfiguratieService configuratieService;
 
     /**
      * Read {@link EnkelvoudigInformatieObject} via its UUID.
@@ -56,6 +61,7 @@ public class DRCClientService {
         return drcClient.enkelvoudigInformatieobjectRead(uuid);
     }
 
+
     /**
      * Read {@link EnkelvoudigInformatieObject} via its UUID and version.
      * Throws a RuntimeException if the {@link EnkelvoudigInformatieObject} can not be read.
@@ -64,10 +70,11 @@ public class DRCClientService {
      * @param versie Required version
      * @return {@link EnkelvoudigInformatieObject}. Never 'null'!
      */
-    public EnkelvoudigInformatieObject readEnkelvoudigInformatieobjectVersie(
-            final UUID uuid, final int versie) {
+    public EnkelvoudigInformatieObject readEnkelvoudigInformatieobjectVersie(final UUID uuid,
+            final int versie) {
         return drcClient.enkelvoudigInformatieobjectReadVersie(uuid, versie);
     }
+
 
     /**
      * DELETE {@link EnkelvoudigInformatieObject} via its UUID.
@@ -86,19 +93,14 @@ public class DRCClientService {
      * @param enkelvoudigInformatieobjectURI URI of the {@link EnkelvoudigInformatieObject}.
      * @return {@link EnkelvoudigInformatieObject}. Never 'null'!
      */
-    public EnkelvoudigInformatieObject readEnkelvoudigInformatieobject(
-            final URI enkelvoudigInformatieobjectURI) {
-        return createInvocationBuilder(enkelvoudigInformatieobjectURI)
-                .get(EnkelvoudigInformatieObject.class);
+    public EnkelvoudigInformatieObject readEnkelvoudigInformatieobject(final URI enkelvoudigInformatieobjectURI) {
+        return createInvocationBuilder(enkelvoudigInformatieobjectURI).get(EnkelvoudigInformatieObject.class);
     }
 
-    public EnkelvoudigInformatieObjectWithLockData updateEnkelvoudigInformatieobject(
-            final UUID uuid,
-            final EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieobject,
-            final String toelichting) {
+    public EnkelvoudigInformatieObjectWithLockData updateEnkelvoudigInformatieobject(final UUID uuid,
+            final EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieobject, final String toelichting) {
         zgwClientHeadersFactory.setAuditToelichting(toelichting);
-        return drcClient.enkelvoudigInformatieobjectPartialUpdate(
-                uuid, enkelvoudigInformatieobject);
+        return drcClient.enkelvoudigInformatieobjectPartialUpdate(uuid, enkelvoudigInformatieobject);
     }
 
     /**
@@ -108,9 +110,8 @@ public class DRCClientService {
      */
     public String lockEnkelvoudigInformatieobject(final UUID enkelvoudigInformatieobjectUUID) {
         // If the EnkelvoudigInformatieobject is already locked a ValidationException is thrown.
-        return drcClient
-                .enkelvoudigInformatieobjectLock(enkelvoudigInformatieobjectUUID, new Lock())
-                .getLock();
+        return drcClient.enkelvoudigInformatieobjectLock(enkelvoudigInformatieobjectUUID, new Lock()).getLock();
+
     }
 
     /**
@@ -119,10 +120,8 @@ public class DRCClientService {
      * @param enkelvoudigInformatieobjectUUID {@link EnkelvoudigInformatieObject}
      * @param lock                            The lock id
      */
-    public void unlockEnkelvoudigInformatieobject(
-            final UUID enkelvoudigInformatieobjectUUID, String lock) {
-        drcClient.enkelvoudigInformatieobjectUnlock(
-                enkelvoudigInformatieobjectUUID, new Lock(lock));
+    public void unlockEnkelvoudigInformatieobject(final UUID enkelvoudigInformatieobjectUUID, String lock) {
+        drcClient.enkelvoudigInformatieobjectUnlock(enkelvoudigInformatieobjectUUID, new Lock(lock));
     }
 
     /**
@@ -131,16 +130,12 @@ public class DRCClientService {
      * @param enkelvoudigInformatieobjectUUID UUID of {@link EnkelvoudigInformatieObject}
      * @return Content of {@link EnkelvoudigInformatieObject}.
      */
-    public ByteArrayInputStream downloadEnkelvoudigInformatieobject(
-            final UUID enkelvoudigInformatieobjectUUID) {
-        final Response response =
-                drcClient.enkelvoudigInformatieobjectDownload(enkelvoudigInformatieobjectUUID);
+    public ByteArrayInputStream downloadEnkelvoudigInformatieobject(final UUID enkelvoudigInformatieobjectUUID) {
+        final Response response = drcClient.enkelvoudigInformatieobjectDownload(enkelvoudigInformatieobjectUUID);
         if (!response.bufferEntity()) {
             throw new RuntimeException(
-                    String.format(
-                            "Content of enkelvoudig informatieobject with uuid '%s' could not be"
-                                    + " buffered.",
-                            enkelvoudigInformatieobjectUUID.toString()));
+                    String.format("Content of enkelvoudig informatieobject with uuid '%s' could not be buffered.",
+                                  enkelvoudigInformatieobjectUUID.toString()));
         }
         return (ByteArrayInputStream) response.getEntity();
     }
@@ -152,17 +147,14 @@ public class DRCClientService {
      * @param versie                          Required version
      * @return Content of {@link EnkelvoudigInformatieObject}.
      */
-    public ByteArrayInputStream downloadEnkelvoudigInformatieobjectVersie(
-            final UUID enkelvoudigInformatieobjectUUID, final Integer versie) {
-        final Response response =
-                drcClient.enkelvoudigInformatieobjectDownloadVersie(
-                        enkelvoudigInformatieobjectUUID, versie);
+    public ByteArrayInputStream downloadEnkelvoudigInformatieobjectVersie(final UUID enkelvoudigInformatieobjectUUID,
+            final Integer versie) {
+        final Response response = drcClient.enkelvoudigInformatieobjectDownloadVersie(enkelvoudigInformatieobjectUUID,
+                                                                                      versie);
         if (!response.bufferEntity()) {
-            throw new RuntimeException(
-                    String.format(
-                            "Content of enkelvoudig informatieobject with uuid '%s' and version"
-                                    + " '%d' could not be buffered.",
-                            enkelvoudigInformatieobjectUUID.toString(), versie));
+            throw new RuntimeException(String.format(
+                    "Content of enkelvoudig informatieobject with uuid '%s' and version '%d' could not be buffered.",
+                    enkelvoudigInformatieobjectUUID.toString(), versie));
         }
         return (ByteArrayInputStream) response.getEntity();
     }
@@ -186,7 +178,8 @@ public class DRCClientService {
      * @return List of {@EnkelvoudigInformatieObject} instances.
      */
     public Results<EnkelvoudigInformatieObject> listEnkelvoudigInformatieObjecten(
-            final EnkelvoudigInformatieobjectListParameters filter) {
+            final EnkelvoudigInformatieobjectListParameters filter
+    ) {
         return drcClient.enkelvoudigInformatieobjectList(filter);
     }
 
@@ -203,17 +196,16 @@ public class DRCClientService {
         // for security reasons check if the provided URI starts with the value of the
         // environment variable that we use to configure the ztcClient
         if (!uri.toString().startsWith(configuratieService.readZgwApiClientMpRestUrl())) {
-            throw new RuntimeException(
-                    format(
-                            "URI '%s' does not start with value for environment variable "
-                                    + "'%s': '%s'",
-                            uri,
-                            ENV_VAR_ZGW_API_CLIENT_MP_REST_URL,
-                            configuratieService.readZgwApiClientMpRestUrl()));
+            throw new RuntimeException(format(
+                    "URI '%s' does not start with value for environment variable " +
+                            "'%s': '%s'",
+                    uri,
+                    ENV_VAR_ZGW_API_CLIENT_MP_REST_URL,
+                    configuratieService.readZgwApiClientMpRestUrl()
+            ));
         }
 
-        return JAXRSClientFactory.getOrCreateClient()
-                .target(uri)
+        return JAXRSClientFactory.getOrCreateClient().target(uri)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, zgwClientHeadersFactory.generateJWTToken());
     }

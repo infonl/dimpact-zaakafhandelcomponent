@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.zrc;
 
 import static java.lang.String.format;
@@ -63,11 +64,15 @@ public class ZRCClientService {
     @ConfigProperty(name = "ZGW_API_URL_EXTERN")
     private String zgwApiUrlExtern;
 
-    @Inject @RestClient private ZRCClient zrcClient;
+    @Inject
+    @RestClient
+    private ZRCClient zrcClient;
 
-    @Inject private ZGWClientHeadersFactory zgwClientHeadersFactory;
+    @Inject
+    private ZGWClientHeadersFactory zgwClientHeadersFactory;
 
-    @Inject private ConfiguratieService configuratieService;
+    @Inject
+    private ConfiguratieService configuratieService;
 
     /**
      * Create {@link Rol}.
@@ -87,8 +92,7 @@ public class ZRCClientService {
      * @return Created {@link Rol}.
      */
     public Rol<?> createRol(final Rol<?> rol, final String toelichting) {
-        zgwClientHeadersFactory.setAuditToelichting(
-                "%s: %s".formatted(rol.getOmschrijving(), toelichting));
+        zgwClientHeadersFactory.setAuditToelichting("%s: %s".formatted(rol.getOmschrijving(), toelichting));
         return zrcClient.rolCreate(rol);
     }
 
@@ -99,8 +103,7 @@ public class ZRCClientService {
      * @param toelichting de toelichting
      */
     public void deleteRol(final Rol<?> rol, final String toelichting) {
-        zgwClientHeadersFactory.setAuditToelichting(
-                "%s: %s".formatted(rol.getOmschrijving(), toelichting));
+        zgwClientHeadersFactory.setAuditToelichting("%s: %s".formatted(rol.getOmschrijving(), toelichting));
         zrcClient.rolDelete(rol.getUuid());
     }
 
@@ -141,8 +144,7 @@ public class ZRCClientService {
      * @param zaakInformatieobject describes relation between ZAAK en INFORMATIEOBJECT
      * @return ZaakInformatieobject
      */
-    public ZaakInformatieobject createZaakInformatieobject(
-            final ZaakInformatieobject zaakInformatieobject, final String toelichting) {
+    public ZaakInformatieobject createZaakInformatieobject(final ZaakInformatieobject zaakInformatieobject, final String toelichting) {
         zgwClientHeadersFactory.setAuditToelichting(toelichting);
         return zrcClient.zaakinformatieobjectCreate(zaakInformatieobject);
     }
@@ -152,14 +154,11 @@ public class ZRCClientService {
      *
      * @param zaakInformatieobjectUuid zaakInformatieobjectUuid
      */
-    public void deleteZaakInformatieobject(
-            final UUID zaakInformatieobjectUuid,
-            final String toelichting,
+    public void deleteZaakInformatieobject(final UUID zaakInformatieobjectUuid, final String toelichting,
             final String toelichtingPrefix) {
-        final String fullToelichting =
-                StringUtils.isEmpty(toelichting)
-                        ? toelichtingPrefix
-                        : String.format("%s: %s", toelichtingPrefix, toelichting);
+        final String fullToelichting = StringUtils.isEmpty(toelichting) ?
+                toelichtingPrefix :
+                String.format("%s: %s", toelichtingPrefix, toelichting);
         zgwClientHeadersFactory.setAuditToelichting(fullToelichting);
         zrcClient.zaakinformatieobjectDelete(zaakInformatieobjectUuid);
     }
@@ -186,6 +185,7 @@ public class ZRCClientService {
         return createInvocationBuilder(zaakURI).get(Zaak.class);
     }
 
+
     /**
      * Read {@link ZaakInformatieobject} via its UUID.
      * Throws a RuntimeException if the {@link ZaakInformatieobject} can not be read.
@@ -204,8 +204,7 @@ public class ZRCClientService {
      * @param zaak   de bij te werken zaak
      * @param rollen de gewenste rollen
      */
-    private void updateRollen(
-            final Zaak zaak, final Collection<Rol<?>> rollen, final String toelichting) {
+    private void updateRollen(final Zaak zaak, final Collection<Rol<?>> rollen, final String toelichting) {
         final Collection<Rol<?>> current = listRollen(zaak);
         deleteDeletedRollen(current, rollen, toelichting);
         deleteUpdatedRollen(current, rollen, toelichting);
@@ -219,17 +218,13 @@ public class ZRCClientService {
         updateRollen(zaak, rollen, toelichting);
     }
 
-    public void deleteRol(
-            final Zaak zaak, final BetrokkeneType betrokkeneType, final String toelichting) {
+    public void deleteRol(final Zaak zaak, final BetrokkeneType betrokkeneType, final String toelichting) {
         final List<Rol<?>> rollen = listRollen(zaak);
 
         final Optional<Rol<?>> rolMedewerker =
-                rollen.stream()
-                        .filter(rol -> rol.getBetrokkeneType() == betrokkeneType)
-                        .findFirst();
+                rollen.stream().filter(rol -> rol.getBetrokkeneType() == betrokkeneType).findFirst();
 
-        rolMedewerker.ifPresent(
-                betrokkene -> rollen.removeIf(rol -> rol.equalBetrokkeneRol(betrokkene)));
+        rolMedewerker.ifPresent(betrokkene -> rollen.removeIf(rol -> rol.equalBetrokkeneRol(betrokkene)));
 
         updateRollen(zaak, rollen, toelichting);
     }
@@ -295,8 +290,7 @@ public class ZRCClientService {
      * @param zaakobjectListParameters {@link ZaakobjectListParameters}.
      * @return List of {@link Zaakobject} instances.
      */
-    public Results<Zaakobject> listZaakobjecten(
-            final ZaakobjectListParameters zaakobjectListParameters) {
+    public Results<Zaakobject> listZaakobjecten(final ZaakobjectListParameters zaakobjectListParameters) {
         return zrcClient.zaakobjectList(zaakobjectListParameters);
     }
 
@@ -339,22 +333,18 @@ public class ZRCClientService {
      * @param filter {@link ZaakInformatieobjectListParameters}.
      * @return List of {@link ZaakInformatieobject} instances.
      */
-    public List<ZaakInformatieobject> listZaakinformatieobjecten(
-            final ZaakInformatieobjectListParameters filter) {
+    public List<ZaakInformatieobject> listZaakinformatieobjecten(final ZaakInformatieobjectListParameters filter) {
         return zrcClient.zaakinformatieobjectList(filter);
     }
 
     public List<ZaakInformatieobject> listZaakinformatieobjecten(final Zaak zaak) {
-        final ZaakInformatieobjectListParameters parameters =
-                new ZaakInformatieobjectListParameters();
+        final ZaakInformatieobjectListParameters parameters = new ZaakInformatieobjectListParameters();
         parameters.setZaak(zaak.getUrl());
         return listZaakinformatieobjecten(parameters);
     }
 
-    public List<ZaakInformatieobject> listZaakinformatieobjecten(
-            final EnkelvoudigInformatieObject informatieobject) {
-        final ZaakInformatieobjectListParameters parameters =
-                new ZaakInformatieobjectListParameters();
+    public List<ZaakInformatieobject> listZaakinformatieobjecten(final EnkelvoudigInformatieObject informatieobject) {
+        final ZaakInformatieobjectListParameters parameters = new ZaakInformatieobjectListParameters();
         parameters.setInformatieobject(informatieobject.getUrl());
         return listZaakinformatieobjecten(parameters);
     }
@@ -384,31 +374,23 @@ public class ZRCClientService {
         zaakListParameters.setIdentificatie(identificatie);
         final Results<Zaak> zaakResults = listZaken(zaakListParameters);
         if (zaakResults.getCount() == 0) {
-            throw new NotFoundException(
-                    String.format("Zaak met identificatie '%s' niet gevonden", identificatie));
+            throw new NotFoundException(String.format("Zaak met identificatie '%s' niet gevonden", identificatie));
         } else if (zaakResults.getCount() > 1) {
-            throw new IllegalStateException(
-                    String.format("Meerdere zaken met identificatie '%s' gevonden", identificatie));
+            throw new IllegalStateException(String.format("Meerdere zaken met identificatie '%s' gevonden", identificatie));
         }
         return zaakResults.getResults().get(0);
     }
 
-    public void verplaatsInformatieobject(
-            final EnkelvoudigInformatieObject informatieobject,
-            final Zaak oudeZaak,
-            final Zaak nieuweZaak) {
-        final ZaakInformatieobjectListParameters parameters =
-                new ZaakInformatieobjectListParameters();
+    public void verplaatsInformatieobject(final EnkelvoudigInformatieObject informatieobject,
+            final Zaak oudeZaak, final Zaak nieuweZaak) {
+        final ZaakInformatieobjectListParameters parameters = new ZaakInformatieobjectListParameters();
         parameters.setInformatieobject(informatieobject.getUrl());
         parameters.setZaak(oudeZaak.getUrl());
         List<ZaakInformatieobject> zaakInformatieobjecten = listZaakinformatieobjecten(parameters);
         if (zaakInformatieobjecten.isEmpty()) {
-            throw new NotFoundException(
-                    String.format(
-                            "Geen ZaakInformatieobject gevonden voor Zaak: '%s' en"
-                                    + " InformatieObject: '%s'",
-                            oudeZaak.getIdentificatie(),
-                            UriUtil.uuidFromURI(informatieobject.getInhoud())));
+            throw new NotFoundException(String.format("Geen ZaakInformatieobject gevonden voor Zaak: '%s' en InformatieObject: '%s'",
+                                                      oudeZaak.getIdentificatie(),
+                                                      UriUtil.uuidFromURI(informatieobject.getInhoud())));
         }
 
         final ZaakInformatieobject oudeZaakInformatieobject = zaakInformatieobjecten.get(0);
@@ -418,22 +400,18 @@ public class ZRCClientService {
         nieuweZaakInformatieObject.setTitel(oudeZaakInformatieobject.getTitel());
         nieuweZaakInformatieObject.setBeschrijving(oudeZaakInformatieobject.getBeschrijving());
 
-        final String toelichting =
-                "%s -> %s".formatted(oudeZaak.getIdentificatie(), nieuweZaak.getIdentificatie());
+
+        final String toelichting = "%s -> %s".formatted(oudeZaak.getIdentificatie(), nieuweZaak.getIdentificatie());
         createZaakInformatieobject(nieuweZaakInformatieObject, toelichting);
         deleteZaakInformatieobject(oudeZaakInformatieobject.getUuid(), toelichting, "Verplaatst");
     }
 
-    public void koppelInformatieobject(
-            final EnkelvoudigInformatieObject informatieobject,
-            final Zaak nieuweZaak,
-            final String toelichting) {
-        List<ZaakInformatieobject> zaakInformatieobjecten =
-                listZaakinformatieobjecten(informatieobject);
+    public void koppelInformatieobject(final EnkelvoudigInformatieObject informatieobject,
+            final Zaak nieuweZaak, final String toelichting) {
+        List<ZaakInformatieobject> zaakInformatieobjecten = listZaakinformatieobjecten(informatieobject);
         if (!zaakInformatieobjecten.isEmpty()) {
             final UUID zaakUuid = UriUtil.uuidFromURI(zaakInformatieobjecten.get(0).getZaak());
-            throw new IllegalStateException(
-                    String.format("Informatieobject is reeds gekoppeld aan zaak '%s'", zaakUuid));
+            throw new IllegalStateException(String.format("Informatieobject is reeds gekoppeld aan zaak '%s'", zaakUuid));
         }
         final ZaakInformatieobject nieuweZaakInformatieObject = new ZaakInformatieobject();
         nieuweZaakInformatieObject.setZaak(nieuweZaak.getUrl());
@@ -478,57 +456,42 @@ public class ZRCClientService {
     }
 
     public URI createUrlExternToZaak(final UUID zaakUUID) {
-        return UriBuilder.fromUri(zgwApiUrlExtern)
-                .path(ZRCClient.class)
-                .path(ZRCClient.class, "zaakRead")
-                .build(zaakUUID);
+        return UriBuilder.fromUri(zgwApiUrlExtern).path(ZRCClient.class).path(ZRCClient.class, "zaakRead").build(zaakUUID);
     }
 
     public boolean heeftOpenDeelzaken(final Zaak zaak) {
-        return zaak.getDeelzaken().stream().map(this::readZaak).anyMatch(Zaak::isOpen);
+        return zaak.getDeelzaken().stream()
+                .map(this::readZaak).
+                anyMatch(Zaak::isOpen);
     }
 
-    private void deleteDeletedRollen(
-            final Collection<Rol<?>> current,
-            final Collection<Rol<?>> rollen,
-            final String toelichting) {
+    private void deleteDeletedRollen(final Collection<Rol<?>> current, final Collection<Rol<?>> rollen, final String toelichting) {
         current.stream()
-                .filter(oud -> rollen.stream().noneMatch(oud::equalBetrokkeneRol))
+                .filter(oud -> rollen.stream()
+                        .noneMatch(oud::equalBetrokkeneRol))
                 .forEach(rol -> deleteRol(rol, toelichting));
     }
 
-    private void deleteUpdatedRollen(
-            final Collection<Rol<?>> current,
-            final Collection<Rol<?>> rollen,
-            final String toelichting) {
+    private void deleteUpdatedRollen(final Collection<Rol<?>> current, final Collection<Rol<?>> rollen, final String toelichting) {
         current.stream()
-                .filter(
-                        oud ->
-                                rollen.stream()
-                                        .filter(oud::equalBetrokkeneRol)
-                                        .anyMatch(nieuw -> !nieuw.equals(oud)))
+                .filter(oud -> rollen.stream()
+                        .filter(oud::equalBetrokkeneRol)
+                        .anyMatch(nieuw -> !nieuw.equals(oud)))
                 .forEach(rol -> deleteRol(rol, toelichting));
     }
 
-    private void createUpdatedRollen(
-            final Collection<Rol<?>> current,
-            final Collection<Rol<?>> rollen,
-            final String toelichting) {
+    private void createUpdatedRollen(final Collection<Rol<?>> current, final Collection<Rol<?>> rollen, final String toelichting) {
         rollen.stream()
-                .filter(
-                        nieuw ->
-                                current.stream()
-                                        .filter(nieuw::equalBetrokkeneRol)
-                                        .anyMatch(oud -> !oud.equals(nieuw)))
+                .filter(nieuw -> current.stream()
+                        .filter(nieuw::equalBetrokkeneRol)
+                        .anyMatch(oud -> !oud.equals(nieuw)))
                 .forEach(rol -> createRol(rol, toelichting));
     }
 
-    private void createCreatedRollen(
-            final Collection<Rol<?>> currentRollen,
-            final Collection<Rol<?>> rollen,
-            final String toelichting) {
+    private void createCreatedRollen(final Collection<Rol<?>> currentRollen, final Collection<Rol<?>> rollen, final String toelichting) {
         rollen.stream()
-                .filter(nieuw -> currentRollen.stream().noneMatch(nieuw::equalBetrokkeneRol))
+                .filter(nieuw -> currentRollen.stream()
+                        .noneMatch(nieuw::equalBetrokkeneRol))
                 .forEach(rol -> createRol(rol, toelichting));
     }
 
@@ -536,17 +499,16 @@ public class ZRCClientService {
         // for security reasons check if the provided URI starts with the value of the
         // environment variable that we use to configure the ztcClient
         if (!uri.toString().startsWith(configuratieService.readZgwApiClientMpRestUrl())) {
-            throw new RuntimeException(
-                    format(
-                            "URI '%s' does not start with value for environment variable "
-                                    + "'%s': '%s'",
-                            uri,
-                            ENV_VAR_ZGW_API_CLIENT_MP_REST_URL,
-                            configuratieService.readZgwApiClientMpRestUrl()));
+            throw new RuntimeException(format(
+                    "URI '%s' does not start with value for environment variable " +
+                            "'%s': '%s'",
+                    uri,
+                    ENV_VAR_ZGW_API_CLIENT_MP_REST_URL,
+                    configuratieService.readZgwApiClientMpRestUrl()
+            ));
         }
 
-        return JAXRSClientFactory.getOrCreateClient()
-                .target(uri)
+        return JAXRSClientFactory.getOrCreateClient().target(uri)
                 .register(FoutExceptionMapper.class)
                 .register(ValidatieFoutExceptionMapper.class)
                 .register(RuntimeExceptionMapper.class)

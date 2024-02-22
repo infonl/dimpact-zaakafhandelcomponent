@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.admin;
 
 import static net.atos.zac.policy.PolicyService.assertPolicy;
@@ -35,25 +36,27 @@ import net.atos.zac.zaaksturing.model.ReferentieTabel;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class ReferentieTabelRESTService {
-    @Inject private ReferentieTabelService referentieTabelService;
+    @Inject
+    private ReferentieTabelService referentieTabelService;
 
-    @Inject private ReferentieTabelBeheerService referentieTabelBeheerService;
+    @Inject
+    private ReferentieTabelBeheerService referentieTabelBeheerService;
 
-    @Inject private RESTReferentieTabelConverter restReferentieTabelConverter;
+    @Inject
+    private RESTReferentieTabelConverter restReferentieTabelConverter;
 
-    @Inject private RESTReferentieWaardeConverter restReferentieWaardeConverter;
+    @Inject
+    private RESTReferentieWaardeConverter restReferentieWaardeConverter;
 
-    @Inject private PolicyService policyService;
+    @Inject
+    private PolicyService policyService;
 
     @GET
     public List<RESTReferentieTabel> listReferentieTabellen() {
         assertPolicy(policyService.readOverigeRechten().beheren());
-        final List<ReferentieTabel> referentieTabellen =
-                referentieTabelService.listReferentieTabellen();
+        final List<ReferentieTabel> referentieTabellen = referentieTabelService.listReferentieTabellen();
         return referentieTabellen.stream()
-                .map(
-                        referentieTabel ->
-                                restReferentieTabelConverter.convert(referentieTabel, false))
+                .map(referentieTabel -> restReferentieTabelConverter.convert(referentieTabel, false))
                 .toList();
     }
 
@@ -70,8 +73,7 @@ public class ReferentieTabelRESTService {
         assertPolicy(policyService.readOverigeRechten().beheren());
         return restReferentieTabelConverter.convert(
                 referentieTabelBeheerService.createReferentieTabel(
-                        restReferentieTabelConverter.convert(referentieTabel)),
-                true);
+                        restReferentieTabelConverter.convert(referentieTabel)), true);
     }
 
     @GET
@@ -84,14 +86,13 @@ public class ReferentieTabelRESTService {
 
     @PUT
     @Path("{id}")
-    public RESTReferentieTabel updateReferentieTabel(
-            @PathParam("id") final long id, final RESTReferentieTabel referentieTabel) {
+    public RESTReferentieTabel updateReferentieTabel(@PathParam("id") final long id,
+            final RESTReferentieTabel referentieTabel) {
         assertPolicy(policyService.readOverigeRechten().beheren());
         return restReferentieTabelConverter.convert(
                 referentieTabelBeheerService.updateReferentieTabel(
-                        restReferentieTabelConverter.convert(
-                                referentieTabel, referentieTabelService.readReferentieTabel(id))),
-                true);
+                        restReferentieTabelConverter.convert(referentieTabel,
+                                                             referentieTabelService.readReferentieTabel(id))), true);
     }
 
     @DELETE

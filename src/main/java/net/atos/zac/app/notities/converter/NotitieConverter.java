@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.notities.converter;
 
 import java.time.ZonedDateTime;
@@ -17,9 +18,11 @@ import net.atos.zac.notities.model.Notitie;
 
 public class NotitieConverter {
 
-    @Inject private IdentityService identityService;
+    @Inject
+    private IdentityService identityService;
 
-    @Inject private Instance<LoggedInUser> loggedInUserInstance;
+    @Inject
+    private Instance<LoggedInUser> loggedInUserInstance;
 
     public RESTNotitie convertToRESTNotitie(final Notitie notitie) {
         final RESTNotitie restNotitie = new RESTNotitie();
@@ -31,11 +34,9 @@ public class NotitieConverter {
         restNotitie.gebruikersnaamMedewerker = notitie.getGebruikersnaamMedewerker();
 
         final User medewerker = identityService.readUser(notitie.getGebruikersnaamMedewerker());
-        restNotitie.voornaamAchternaamMedewerker =
-                String.format("%s %s", medewerker.getFirstName(), medewerker.getLastName());
+        restNotitie.voornaamAchternaamMedewerker = String.format("%s %s", medewerker.getFirstName(), medewerker.getLastName());
 
-        restNotitie.bewerkenToegestaan =
-                loggedInUserInstance.get().getId().equals(notitie.getGebruikersnaamMedewerker());
+        restNotitie.bewerkenToegestaan = loggedInUserInstance.get().getId().equals(notitie.getGebruikersnaamMedewerker());
 
         return restNotitie;
     }

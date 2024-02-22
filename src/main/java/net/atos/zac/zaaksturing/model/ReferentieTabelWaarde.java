@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.zaaksturing.model;
 
 import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
@@ -20,11 +21,7 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(schema = SCHEMA, name = "referentie_waarde")
-@SequenceGenerator(
-        schema = SCHEMA,
-        name = "sq_referentie_waarde",
-        sequenceName = "sq_referentie_waarde",
-        allocationSize = 1)
+@SequenceGenerator(schema = SCHEMA, name = "sq_referentie_waarde", sequenceName = "sq_referentie_waarde", allocationSize = 1)
 public class ReferentieTabelWaarde {
 
     @Id
@@ -32,7 +29,8 @@ public class ReferentieTabelWaarde {
     @Column(name = "id_referentie_waarde")
     private Long id;
 
-    @NotNull @ManyToOne
+    @NotNull
+    @ManyToOne
     @JoinColumn(name = "id_referentie_tabel", referencedColumnName = "id_referentie_tabel")
     private ReferentieTabel tabel;
 
@@ -67,11 +65,7 @@ public class ReferentieTabelWaarde {
         this.naam = naam;
     }
 
-    public int getVolgorde() {
-        return volgorde;
-    }
+    public int getVolgorde() {return volgorde;}
 
-    public void setVolgorde(final int volgorde) {
-        this.volgorde = volgorde;
-    }
+    public void setVolgorde(final int volgorde) {this.volgorde = volgorde;}
 }

@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.zaken.converter;
 
 import java.time.LocalDate;
@@ -26,21 +27,25 @@ import net.atos.zac.util.UriUtil;
 
 public class RESTBesluitConverter {
 
-    @Inject private RESTBesluittypeConverter restBesluittypeConverter;
+    @Inject
+    private RESTBesluittypeConverter restBesluittypeConverter;
 
-    @Inject private ZTCClientService ztcClientService;
+    @Inject
+    private ZTCClientService ztcClientService;
 
-    @Inject private BRCClientService brcClientService;
+    @Inject
+    private BRCClientService brcClientService;
 
-    @Inject private RESTInformatieobjectConverter informatieobjectConverter;
+    @Inject
+    private RESTInformatieobjectConverter informatieobjectConverter;
 
-    @Inject private DRCClientService drcClientService;
+    @Inject
+    private DRCClientService drcClientService;
 
     public RESTBesluit convertToRESTBesluit(final Besluit besluit) {
         final RESTBesluit restBesluit = new RESTBesluit();
         restBesluit.uuid = UriUtil.uuidFromURI(besluit.getUrl());
-        restBesluit.besluittype =
-                restBesluittypeConverter.convertToRESTBesluittype(besluit.getBesluittype());
+        restBesluit.besluittype = restBesluittypeConverter.convertToRESTBesluittype(besluit.getBesluittype());
         restBesluit.datum = besluit.getDatum();
         restBesluit.identificatie = besluit.getIdentificatie();
         restBesluit.url = besluit.getUrl();
@@ -49,29 +54,24 @@ public class RESTBesluitConverter {
         restBesluit.vervaldatum = besluit.getVervaldatum();
         restBesluit.vervalreden = besluit.getVervalreden();
         restBesluit.isIngetrokken =
-                restBesluit.vervaldatum != null
-                        && (restBesluit.vervalreden
-                                        == Besluit.VervalredenEnum.INGETROKKEN_BELANGHEBBENDE
-                                || restBesluit.vervalreden
-                                        == Besluit.VervalredenEnum.INGETROKKEN_OVERHEID);
-        restBesluit.informatieobjecten =
-                informatieobjectConverter.convertInformatieobjectenToREST(
-                        listBesluitInformatieobjecten(besluit));
+                restBesluit.vervaldatum != null &&
+                        (restBesluit.vervalreden == Besluit.VervalredenEnum.INGETROKKEN_BELANGHEBBENDE ||
+                                restBesluit.vervalreden == Besluit.VervalredenEnum.INGETROKKEN_OVERHEID);
+        restBesluit.informatieobjecten = informatieobjectConverter.convertInformatieobjectenToREST(
+                listBesluitInformatieobjecten(besluit));
         return restBesluit;
     }
 
     public List<RESTBesluit> convertToRESTBesluit(final List<Besluit> besluiten) {
-        return besluiten.stream().map(this::convertToRESTBesluit).toList();
+        return besluiten.stream()
+                .map(this::convertToRESTBesluit)
+                .toList();
     }
 
-    public Besluit convertToBesluit(
-            final Zaak zaak, final RESTBesluitVastleggenGegevens besluitToevoegenGegevens) {
+    public Besluit convertToBesluit(final Zaak zaak, final RESTBesluitVastleggenGegevens besluitToevoegenGegevens) {
         final Besluit besluit = new Besluit();
         besluit.setZaak(zaak.getUrl());
-        besluit.setBesluittype(
-                ztcClientService
-                        .readBesluittype(besluitToevoegenGegevens.besluittypeUuid)
-                        .getUrl());
+        besluit.setBesluittype(ztcClientService.readBesluittype(besluitToevoegenGegevens.besluittypeUuid).getUrl());
         besluit.setDatum(LocalDate.now());
         besluit.setIngangsdatum(besluitToevoegenGegevens.ingangsdatum);
         besluit.setVervaldatum(besluitToevoegenGegevens.vervaldatum);
@@ -83,8 +83,7 @@ public class RESTBesluitConverter {
         return besluit;
     }
 
-    public Besluit convertToBesluit(
-            final Besluit besluit, final RESTBesluitWijzigenGegevens besluitWijzigenGegevens) {
+    public Besluit convertToBesluit(final Besluit besluit, final RESTBesluitWijzigenGegevens besluitWijzigenGegevens) {
         besluit.setToelichting(besluitWijzigenGegevens.toelichting);
         besluit.setIngangsdatum(besluitWijzigenGegevens.ingangsdatum);
         besluit.setVervaldatum(besluitWijzigenGegevens.vervaldatum);
@@ -94,20 +93,17 @@ public class RESTBesluitConverter {
         return besluit;
     }
 
-    public Besluit convertToBesluit(
-            final Besluit besluit, final RESTBesluitIntrekkenGegevens besluitIntrekkenGegevens) {
+    public Besluit convertToBesluit(final Besluit besluit,
+            final RESTBesluitIntrekkenGegevens besluitIntrekkenGegevens) {
         besluit.setVervaldatum(besluitIntrekkenGegevens.vervaldatum);
-        besluit.setVervalreden(
-                Besluit.VervalredenEnum.valueOf(besluitIntrekkenGegevens.vervalreden));
+        besluit.setVervalreden(Besluit.VervalredenEnum.valueOf(besluitIntrekkenGegevens.vervalreden));
         return besluit;
     }
 
     public List<EnkelvoudigInformatieObject> listBesluitInformatieobjecten(final Besluit besluit) {
         return brcClientService.listBesluitInformatieobjecten(besluit.getUrl()).stream()
-                .map(
-                        besluitInformatieobject ->
-                                drcClientService.readEnkelvoudigInformatieobject(
-                                        besluitInformatieobject.getInformatieobject()))
+                .map(besluitInformatieobject -> drcClientService.readEnkelvoudigInformatieobject(
+                        besluitInformatieobject.getInformatieobject()))
                 .collect(Collectors.toList());
     }
 }

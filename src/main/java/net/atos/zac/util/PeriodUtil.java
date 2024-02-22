@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.util;
 
 import java.time.LocalDateTime;
@@ -10,7 +11,8 @@ import java.time.temporal.ChronoUnit;
 
 public final class PeriodUtil {
 
-    private PeriodUtil() {}
+    private PeriodUtil() {
+    }
 
     public static String format(Period period) {
         if (period == null) {

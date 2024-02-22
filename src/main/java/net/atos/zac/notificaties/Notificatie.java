@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.notificaties;
 
 import static net.atos.client.zgw.shared.util.DateTimeUtil.DATE_TIME_FORMAT_WITH_MILLISECONDS;
@@ -98,7 +99,10 @@ public class Notificatie {
 
     @JsonbTransient
     public ResourceInfo getResourceInfo() {
-        return new ResourceInfo(getResource(), getResourceUrl(), getAction());
+        return new ResourceInfo(
+                getResource(),
+                getResourceUrl(),
+                getAction());
     }
 
     @JsonbTransient
@@ -111,10 +115,7 @@ public class Notificatie {
         return new ResourceInfo(
                 getMainResourceType(),
                 getMainResourceUrl(),
-                getMainResourceType() == getResource()
-                                && getMainResourceUrl().equals(getResourceUrl())
-                        ? getAction()
-                        : UPDATE);
+                getMainResourceType() == getResource() && getMainResourceUrl().equals(getResourceUrl()) ? getAction() : UPDATE);
     }
 
     @Override

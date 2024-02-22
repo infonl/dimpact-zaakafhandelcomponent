@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.zrc.model;
 
 import java.net.URI;
@@ -42,8 +43,7 @@ public class RolListParameters extends AbstractListParameters {
         this.roltype = roltype;
     }
 
-    public RolListParameters(
-            final URI zaak, final URI roltype, final BetrokkeneType betrokkeneType) {
+    public RolListParameters(final URI zaak, final URI roltype, final BetrokkeneType betrokkeneType) {
         this.zaak = zaak;
         this.betrokkeneType = betrokkeneType.toValue();
         this.roltype = roltype;

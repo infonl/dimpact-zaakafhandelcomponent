@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.identity.converter;
 
 import java.util.List;
@@ -17,10 +18,13 @@ import net.atos.zac.identity.model.Group;
 
 public class RESTGroupConverter {
 
-    @Inject private IdentityService identityService;
+    @Inject
+    private IdentityService identityService;
 
     public List<RESTGroup> convertGroups(final List<Group> groups) {
-        return groups.stream().map(this::convertGroup).collect(Collectors.toList());
+        return groups.stream()
+                .map(this::convertGroup)
+                .collect(Collectors.toList());
     }
 
     public RESTGroup convertGroup(final Group group) {

@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.signalering.model;
 
 import static net.atos.zac.signalering.model.SignaleringSubject.DOCUMENT;
@@ -37,8 +38,7 @@ public class SignaleringVerzondenZoekParameters {
 
     private SignaleringDetail detail;
 
-    public SignaleringVerzondenZoekParameters(
-            final SignaleringTarget targettype, final String target) {
+    public SignaleringVerzondenZoekParameters(final SignaleringTarget targettype, final String target) {
         this.targettype = targettype;
         this.target = target;
     }
@@ -108,8 +108,7 @@ public class SignaleringVerzondenZoekParameters {
         return subjecttype(TAAK);
     }
 
-    public SignaleringVerzondenZoekParameters subjectInformatieobject(
-            final UUID informatieobjectId) {
+    public SignaleringVerzondenZoekParameters subjectInformatieobject(final UUID informatieobjectId) {
         this.subject = informatieobjectId.toString();
         return subjecttype(DOCUMENT);
     }

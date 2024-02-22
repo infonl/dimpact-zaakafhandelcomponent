@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.zgw.shared;
 
 import static net.atos.client.zgw.shared.util.DateTimeUtil.convertToDateTime;
@@ -42,6 +43,7 @@ import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.client.zgw.ztc.model.generated.StatusType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 
+
 /**
  * Careful!
  * <p>
@@ -57,11 +59,14 @@ public class ZGWApiService {
     // Page numbering in ZGW Api's starts with 1
     public static final int FIRST_PAGE_NUMBER_ZGW_APIS = 1;
 
-    @Inject private ZTCClientService ztcClientService;
+    @Inject
+    private ZTCClientService ztcClientService;
 
-    @Inject private ZRCClientService zrcClientService;
+    @Inject
+    private ZRCClientService zrcClientService;
 
-    @Inject private DRCClientService drcClientService;
+    @Inject
+    private DRCClientService drcClientService;
 
     /**
      * Create {@link Zaak} and calculate Doorlooptijden.
@@ -84,13 +89,11 @@ public class ZGWApiService {
      * @param statusToelichting      Toelichting for thew {@link Status}.
      * @return Created {@link Status}.
      */
-    public Status createStatusForZaak(
-            final Zaak zaak, final String statusTypeOmschrijving, final String statusToelichting) {
+    public Status createStatusForZaak(final Zaak zaak, final String statusTypeOmschrijving,
+            final String statusToelichting) {
         final StatusType statustype =
-                readStatustype(
-                        ztcClientService.readStatustypen(zaak.getZaaktype()),
-                        statusTypeOmschrijving,
-                        zaak.getZaaktype());
+                readStatustype(ztcClientService.readStatustypen(zaak.getZaaktype()),
+                                                     statusTypeOmschrijving, zaak.getZaaktype());
         return createStatusForZaak(zaak.getUrl(), statustype.getUrl(), statusToelichting);
     }
 
@@ -104,14 +107,13 @@ public class ZGWApiService {
      * @param resultaatToelichting      Toelichting for thew {@link Resultaat}.
      * @return Created {@link Resultaat}.
      */
-    public Resultaat createResultaatForZaak(
-            final Zaak zaak,
-            final String resultaattypeOmschrijving,
+    public Resultaat createResultaatForZaak(final Zaak zaak, final String resultaattypeOmschrijving,
             final String resultaatToelichting) {
         final List<ResultaatType> resultaattypen =
                 ztcClientService.readResultaattypen(zaak.getZaaktype());
-        final ResultaatType resultaattype =
-                filterResultaattype(resultaattypen, resultaattypeOmschrijving, zaak.getZaaktype());
+        final ResultaatType resultaattype = filterResultaattype(resultaattypen,
+                                                                resultaattypeOmschrijving,
+                                                                zaak.getZaaktype());
         return createResultaat(zaak.getUrl(), resultaattype.getUrl(), resultaatToelichting);
     }
 
@@ -125,8 +127,8 @@ public class ZGWApiService {
      * @param resultaatToelichting Toelichting for thew {@link Resultaat}.
      * @return Created {@link Resultaat}.
      */
-    public Resultaat createResultaatForZaak(
-            final Zaak zaak, final UUID resultaattypeUUID, final String resultaatToelichting) {
+    public Resultaat createResultaatForZaak(final Zaak zaak, final UUID resultaattypeUUID,
+            final String resultaatToelichting) {
         final ResultaatType resultaattype = ztcClientService.readResultaattype(resultaattypeUUID);
         return createResultaat(zaak.getUrl(), resultaattype.getUrl(), resultaatToelichting);
     }
@@ -142,8 +144,7 @@ public class ZGWApiService {
      * @param reden             Reason of setting the {@link ResultaatType}
      * @return Created {@link Resultaat}.
      */
-    public Resultaat updateResultaatForZaak(
-            final Zaak zaak, final UUID resultaatTypeUuid, final String reden) {
+    public Resultaat updateResultaatForZaak(final Zaak zaak, final UUID resultaatTypeUuid, final String reden) {
         final Resultaat resultaat = zrcClientService.readResultaat(zaak.getResultaat());
         zrcClientService.deleteResultaat(resultaat.getUuid());
         return createResultaatForZaak(zaak, resultaatTypeUuid, reden);
@@ -184,8 +185,8 @@ public class ZGWApiService {
      */
     public void closeZaak(final Zaak zaak, final String eindstatusToelichting) {
         final StatusType eindStatustype =
-                readStatustypeEind(
-                        ztcClientService.readStatustypen(zaak.getZaaktype()), zaak.getZaaktype());
+                readStatustypeEind(ztcClientService.readStatustypen(zaak.getZaaktype()),
+                                                             zaak.getZaaktype());
         createStatusForZaak(zaak.getUrl(), eindStatustype.getUrl(), eindstatusToelichting);
     }
 
@@ -206,13 +207,13 @@ public class ZGWApiService {
             final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData,
             final String titel,
             final String beschrijving,
-            final String omschrijvingVoorwaardenGebruiksrechten) {
+            final String omschrijvingVoorwaardenGebruiksrechten
+    ) {
         final EnkelvoudigInformatieObject newInformatieObjectData =
                 drcClientService.createEnkelvoudigInformatieobject(enkelvoudigInformatieObjectData);
         final Gebruiksrechten gebruiksrechten = new Gebruiksrechten();
         gebruiksrechten.setInformatieobject(newInformatieObjectData.getUrl());
-        gebruiksrechten.setStartdatum(
-                convertToDateTime(newInformatieObjectData.getCreatiedatum()).toOffsetDateTime());
+        gebruiksrechten.setStartdatum(convertToDateTime(newInformatieObjectData.getCreatiedatum()).toOffsetDateTime());
         gebruiksrechten.setOmschrijvingVoorwaarden(omschrijvingVoorwaardenGebruiksrechten);
         drcClientService.createGebruiksrechten(gebruiksrechten);
 
@@ -235,28 +236,22 @@ public class ZGWApiService {
      * @param toelichting                 Explanation why the {@link EnkelvoudigInformatieObject}
      *                                   is to be removed.
      */
-    public void removeEnkelvoudigInformatieObjectFromZaak(
-            final EnkelvoudigInformatieObject enkelvoudigInformatieobject,
+    public void removeEnkelvoudigInformatieObjectFromZaak(final EnkelvoudigInformatieObject enkelvoudigInformatieobject,
             final UUID zaakUUID,
             final String toelichting) {
-        final List<ZaakInformatieobject> zaakInformatieobjecten =
-                zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieobject);
+        final List<ZaakInformatieobject> zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
+                enkelvoudigInformatieobject);
         // Delete the relationship of the EnkelvoudigInformatieobject with the zaak.
         zaakInformatieobjecten.stream()
                 .filter(zaakInformatieobject -> zaakInformatieobject.getZaakUUID().equals(zaakUUID))
-                .forEach(
-                        zaakInformatieobject ->
-                                zrcClientService.deleteZaakInformatieobject(
-                                        zaakInformatieobject.getUuid(), toelichting, "Verwijderd"));
+                .forEach(zaakInformatieobject -> zrcClientService.deleteZaakInformatieobject(zaakInformatieobject.getUuid(),
+                                                                                             toelichting,
+                                                                                             "Verwijderd"));
 
-        // If the EnkelvoudigInformatieobject has no relationship(s) with other zaken it can be
-        // deleted.
+        // If the EnkelvoudigInformatieobject has no relationship(s) with other zaken it can be deleted.
         if (zaakInformatieobjecten.stream()
-                .allMatch(
-                        zaakInformatieobject ->
-                                zaakInformatieobject.getZaakUUID().equals(zaakUUID))) {
-            drcClientService.deleteEnkelvoudigInformatieobject(
-                    URIUtil.parseUUIDFromResourceURI(enkelvoudigInformatieobject.getUrl()));
+                .allMatch(zaakInformatieobject -> zaakInformatieobject.getZaakUUID().equals(zaakUUID))) {
+            drcClientService.deleteEnkelvoudigInformatieobject(URIUtil.parseUUIDFromResourceURI(enkelvoudigInformatieobject.getUrl()));
         }
     }
 
@@ -267,10 +262,7 @@ public class ZGWApiService {
      * @return {@link RolOrganisatorischeEenheid} or 'null'.
      */
     public Optional<RolOrganisatorischeEenheid> findGroepForZaak(final Zaak zaak) {
-        return findRolForZaak(
-                        zaak,
-                        RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
-                        BetrokkeneType.ORGANISATORISCHE_EENHEID)
+        return findRolForZaak(zaak, RolType.OmschrijvingGeneriekEnum.BEHANDELAAR, BetrokkeneType.ORGANISATORISCHE_EENHEID)
                 .map(RolOrganisatorischeEenheid.class::cast);
     }
 
@@ -281,10 +273,7 @@ public class ZGWApiService {
      * @return {@link RolMedewerker} or 'null'.
      */
     public Optional<RolMedewerker> findBehandelaarForZaak(final Zaak zaak) {
-        return findRolForZaak(
-                        zaak,
-                        RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
-                        BetrokkeneType.MEDEWERKER)
+        return findRolForZaak(zaak, RolType.OmschrijvingGeneriekEnum.BEHANDELAAR, BetrokkeneType.MEDEWERKER)
                 .map(RolMedewerker.class::cast);
     }
 
@@ -292,38 +281,21 @@ public class ZGWApiService {
         return findRolForZaak(zaak, RolType.OmschrijvingGeneriekEnum.INITIATOR);
     }
 
-    private Optional<Rol<?>> findRolForZaak(
-            final Zaak zaak, final RolType.OmschrijvingGeneriekEnum omschrijvingGeneriekEnum) {
-        return ztcClientService
-                .findRoltype(zaak.getZaaktype(), omschrijvingGeneriekEnum)
-                .flatMap(
-                        roltype ->
-                                zrcClientService
-                                        .listRollen(
-                                                new RolListParameters(
-                                                        zaak.getUrl(), roltype.getUrl()))
-                                        .getSingleResult());
+    private Optional<Rol<?>> findRolForZaak(final Zaak zaak, final RolType.OmschrijvingGeneriekEnum omschrijvingGeneriekEnum) {
+        return ztcClientService.findRoltype(zaak.getZaaktype(), omschrijvingGeneriekEnum)
+                .flatMap(roltype -> zrcClientService.listRollen(new RolListParameters(zaak.getUrl(), roltype.getUrl()))
+                        .getSingleResult());
     }
 
-    private Optional<Rol<?>> findRolForZaak(
-            final Zaak zaak,
-            final RolType.OmschrijvingGeneriekEnum omschrijvingGeneriekEnum,
+    private Optional<Rol<?>> findRolForZaak(final Zaak zaak, final RolType.OmschrijvingGeneriekEnum omschrijvingGeneriekEnum,
             final BetrokkeneType betrokkeneType) {
-        return ztcClientService
-                .findRoltype(zaak.getZaaktype(), omschrijvingGeneriekEnum)
-                .flatMap(
-                        roltype ->
-                                zrcClientService
-                                        .listRollen(
-                                                new RolListParameters(
-                                                        zaak.getUrl(),
-                                                        roltype.getUrl(),
-                                                        betrokkeneType))
-                                        .getSingleResult());
+        return ztcClientService.findRoltype(zaak.getZaaktype(), omschrijvingGeneriekEnum).
+                flatMap(roltype -> zrcClientService.listRollen(
+                                new RolListParameters(zaak.getUrl(), roltype.getUrl(), betrokkeneType))
+                        .getSingleResult());
     }
 
-    private Status createStatusForZaak(
-            final URI zaakURI, final URI statustypeURI, final String toelichting) {
+    private Status createStatusForZaak(final URI zaakURI, final URI statustypeURI, final String toelichting) {
         final Status status = new Status(zaakURI, statustypeURI, ZonedDateTime.now());
         status.setStatustoelichting(toelichting);
         return zrcClientService.createStatus(status);
@@ -333,16 +305,17 @@ public class ZGWApiService {
         final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
 
         if (zaaktype.getServicenorm() != null) {
-            zaak.setEinddatumGepland(
-                    zaak.getStartdatum().plus(Period.parse(zaaktype.getServicenorm())));
+            zaak.setEinddatumGepland(zaak.getStartdatum().plus(Period.parse(zaaktype.getServicenorm())));
         }
 
-        zaak.setUiterlijkeEinddatumAfdoening(
-                zaak.getStartdatum().plus(Period.parse(zaaktype.getDoorlooptijd())));
+        zaak.setUiterlijkeEinddatumAfdoening(zaak.getStartdatum().plus(Period.parse(zaaktype.getDoorlooptijd())));
     }
 
     private Resultaat createResultaat(
-            final URI zaakURI, final URI resultaattypeURI, final String resultaatToelichting) {
+            final URI zaakURI,
+            final URI resultaattypeURI,
+            final String resultaatToelichting
+    ) {
         final Resultaat resultaat = new Resultaat();
         resultaat.setZaak(zaakURI);
         resultaat.setResultaattype(resultaattypeURI);
@@ -350,37 +323,28 @@ public class ZGWApiService {
         return zrcClientService.createResultaat(resultaat);
     }
 
-    private ResultaatType filterResultaattype(
-            List<ResultaatType> resultaattypes, final String omschrijving, final URI zaaktypeURI) {
+    private ResultaatType filterResultaattype(List<ResultaatType> resultaattypes,
+            final String omschrijving,
+            final URI zaaktypeURI) {
         return resultaattypes.stream()
-                .filter(
-                        resultaattype ->
-                                StringUtils.equals(resultaattype.getOmschrijving(), omschrijving))
+                .filter(resultaattype -> StringUtils.equals(resultaattype.getOmschrijving(), omschrijving))
                 .findAny()
                 .orElseThrow(
-                        () ->
-                                new RuntimeException(
-                                        String.format(
-                                                "Zaaktype '%s': Resultaattype with omschrijving"
-                                                        + " '%s' not found",
-                                                zaaktypeURI, omschrijving)));
+                        () -> new RuntimeException(
+                                String.format("Zaaktype '%s': Resultaattype with omschrijving '%s' not found",
+                                              zaaktypeURI, omschrijving)));
     }
 
     private void berekenArchiveringsparameters(final UUID zaakUUID) {
-        final Zaak zaak =
-                zrcClientService.readZaak(
-                        zaakUUID); // refetch to get the einddatum (the archiefnominatie has also
-        // been set)
-        final ResultaatType resultaattype =
-                ztcClientService.readResultaattype(
-                        zrcClientService.readResultaat(zaak.getResultaat()).getResultaattype());
-        if (resultaattype.getArchiefactietermijn()
-                != null) { // no idea what it means when there is no archiefactietermijn
+        final Zaak zaak = zrcClientService.readZaak(
+                zaakUUID); // refetch to get the einddatum (the archiefnominatie has also been set)
+        final ResultaatType resultaattype = ztcClientService.readResultaattype(
+                zrcClientService.readResultaat(zaak.getResultaat()).getResultaattype());
+        if (resultaattype.getArchiefactietermijn() != null) { // no idea what it means when there is no archiefactietermijn
             final LocalDate brondatum = bepaalBrondatum(zaak, resultaattype);
             if (brondatum != null) {
                 final Zaak zaakPatch = new Zaak();
-                zaakPatch.setArchiefactiedatum(
-                        brondatum.plus(Period.parse(resultaattype.getArchiefactietermijn())));
+                zaakPatch.setArchiefactiedatum(brondatum.plus(Period.parse(resultaattype.getArchiefactietermijn())));
                 zrcClientService.patchZaak(zaakUUID, zaakPatch);
             }
         }
@@ -395,39 +359,29 @@ public class ZGWApiService {
                     return zaak.getEinddatum();
                 default:
                     LOG.warning(
-                            String.format(
-                                    "De brondatum bepaling voor afleidingswijze %s is nog niet"
-                                            + " geimplementeerd",
-                                    brondatumArchiefprocedure.getAfleidingswijze()));
+                            String.format("De brondatum bepaling voor afleidingswijze %s is nog niet geimplementeerd",
+                                          brondatumArchiefprocedure.getAfleidingswijze()));
             }
         }
         return null;
     }
 
-    private StatusType readStatustype(
-            final List<StatusType> statustypes, final String omschrijving, final URI zaaktypeURI) {
+    private StatusType readStatustype(final List<StatusType> statustypes, final String omschrijving,
+            final URI zaaktypeURI) {
         return statustypes.stream()
                 .filter(statustype -> omschrijving.equals(statustype.getOmschrijving()))
                 .findAny()
-                .orElseThrow(
-                        () ->
-                                new RuntimeException(
-                                        String.format(
-                                                "Zaaktype '%s': Statustype with omschrijving '%s'"
-                                                        + " not found",
-                                                zaaktypeURI, omschrijving)));
+                .orElseThrow(() -> new RuntimeException(
+                        String.format("Zaaktype '%s': Statustype with omschrijving '%s' not found", zaaktypeURI,
+                                      omschrijving)));
     }
 
-    private StatusType readStatustypeEind(
-            final List<StatusType> statustypes, final URI zaaktypeURI) {
+    private StatusType readStatustypeEind(final List<StatusType> statustypes,
+            final URI zaaktypeURI) {
         return statustypes.stream()
                 .filter(StatusType::getIsEindstatus)
                 .findAny()
-                .orElseThrow(
-                        () ->
-                                new RuntimeException(
-                                        String.format(
-                                                "Zaaktype '%s': No eind Status found for Zaaktype.",
-                                                zaaktypeURI)));
+                .orElseThrow(() -> new RuntimeException(
+                        String.format("Zaaktype '%s': No eind Status found for Zaaktype.", zaaktypeURI)));
     }
 }

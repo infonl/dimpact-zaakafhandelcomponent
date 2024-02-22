@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.zoeken.model.index;
 
 import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
@@ -15,13 +16,10 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
+
 @Entity
 @Table(schema = SCHEMA, name = "zoek_index")
-@SequenceGenerator(
-        schema = SCHEMA,
-        name = "sq_zoek_index",
-        sequenceName = "sq_zoek_index",
-        allocationSize = 1)
+@SequenceGenerator(schema = SCHEMA, name = "sq_zoek_index", sequenceName = "sq_zoek_index", allocationSize = 1)
 public class ZoekIndexEntity {
 
     public static final String OBJECT_ID = "objectId";
@@ -35,13 +33,16 @@ public class ZoekIndexEntity {
     @Column(name = "id_zoek_index")
     private Long id;
 
-    @NotNull @Column(name = "object_id", nullable = false)
+    @NotNull
+    @Column(name = "object_id", nullable = false)
     private String objectId;
 
-    @NotNull @Column(name = "type", nullable = false)
+    @NotNull
+    @Column(name = "type", nullable = false)
     private String type;
 
-    @NotNull @Column(name = "status", nullable = false)
+    @NotNull
+    @Column(name = "status", nullable = false)
     private String status;
 
     public ZoekIndexEntity() {

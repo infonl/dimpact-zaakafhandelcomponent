@@ -1,7 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.zac.app.klanten.converter;
 
 import static net.atos.zac.app.klanten.model.personen.RESTPersonenParameters.Cardinaliteit.NON;
@@ -52,13 +53,33 @@ import net.atos.zac.app.klanten.model.personen.RESTPersoon;
 
 public class RESTPersoonConverter {
     // Moet overeenkomen met wat er in convertToPersonenQuery gebeurt.
-    public static final List<RESTPersonenParameters> VALID_PERSONEN_QUERIES =
-            List.of(
-                    new RESTPersonenParameters(REQ, NON, NON, NON, NON, NON, NON, NON, NON),
-                    new RESTPersonenParameters(NON, REQ, OPT, OPT, REQ, NON, NON, NON, NON),
-                    new RESTPersonenParameters(NON, REQ, REQ, OPT, NON, REQ, NON, NON, NON),
-                    new RESTPersonenParameters(NON, NON, NON, NON, NON, NON, REQ, REQ, NON),
-                    new RESTPersonenParameters(NON, NON, NON, NON, NON, REQ, NON, REQ, REQ));
+    public static final List<RESTPersonenParameters> VALID_PERSONEN_QUERIES = List.of(
+            new RESTPersonenParameters(REQ,
+                                       NON, NON, NON,
+                                       NON,
+                                       NON,
+                                       NON, NON, NON),
+            new RESTPersonenParameters(NON,
+                                       REQ, OPT, OPT,
+                                       REQ,
+                                       NON,
+                                       NON, NON, NON),
+            new RESTPersonenParameters(NON,
+                                       REQ, REQ, OPT,
+                                       NON,
+                                       REQ,
+                                       NON, NON, NON),
+            new RESTPersonenParameters(NON,
+                                       NON, NON, NON,
+                                       NON,
+                                       NON,
+                                       REQ, REQ, NON),
+            new RESTPersonenParameters(NON,
+                                       NON, NON, NON,
+                                       NON,
+                                       REQ,
+                                       NON, REQ, REQ)
+    );
 
     public List<RESTPersoon> convertPersonen(final List<Persoon> personen) {
         return personen.stream().map(this::convertPersoon).toList();
@@ -100,12 +121,10 @@ public class RESTPersoonConverter {
         }
         if (persoon.getAdressering() != null) {
             final AdresseringBeperkt adressering = persoon.getAdressering();
-            restPersoon.verblijfplaats =
-                    joinNonBlankWith(
-                            ", ",
-                            adressering.getAdresregel1(),
-                            adressering.getAdresregel2(),
-                            adressering.getAdresregel3());
+            restPersoon.verblijfplaats = joinNonBlankWith(", ",
+                                                          adressering.getAdresregel1(),
+                                                          adressering.getAdresregel2(),
+                                                          adressering.getAdresregel3());
         }
         return restPersoon;
     }
@@ -124,9 +143,8 @@ public class RESTPersoonConverter {
             query.setVoorvoegsel(parameters.voorvoegsel);
             return query;
         }
-        if (isNotBlank(parameters.geslachtsnaam)
-                && isNotBlank(parameters.voornamen)
-                && isNotBlank(parameters.gemeenteVanInschrijving)) {
+        if (isNotBlank(parameters.geslachtsnaam) && isNotBlank(parameters.voornamen) &&
+                isNotBlank(parameters.gemeenteVanInschrijving)) {
             final var query = new ZoekMetNaamEnGemeenteVanInschrijving();
             query.setGeslachtsnaam(parameters.geslachtsnaam);
             query.setVoornamen(parameters.voornamen);
@@ -140,8 +158,7 @@ public class RESTPersoonConverter {
             query.setHuisnummer(parameters.huisnummer);
             return query;
         }
-        if (isNotBlank(parameters.straat)
-                && parameters.huisnummer != null
+        if (isNotBlank(parameters.straat) && parameters.huisnummer != null
                 && isNotBlank(parameters.gemeenteVanInschrijving)) {
             final var query = new ZoekMetStraatHuisnummerEnGemeenteVanInschrijving();
             query.setStraat(parameters.straat);
@@ -152,19 +169,15 @@ public class RESTPersoonConverter {
         throw new IllegalArgumentException("Ongeldige combinatie van zoek parameters");
     }
 
-    public List<RESTPersoon> convertFromPersonenQueryResponse(
-            final PersonenQueryResponse personenQueryResponse) {
+    public List<RESTPersoon> convertFromPersonenQueryResponse(final PersonenQueryResponse personenQueryResponse) {
         return switch (personenQueryResponse) {
-            case RaadpleegMetBurgerservicenummerResponse response ->
-                    convertPersonen(response.getPersonen());
-            case ZoekMetGeslachtsnaamEnGeboortedatumResponse response ->
-                    convertPersonenBeperkt(response.getPersonen());
+            case RaadpleegMetBurgerservicenummerResponse response -> convertPersonen(response.getPersonen());
+            case ZoekMetGeslachtsnaamEnGeboortedatumResponse response -> convertPersonenBeperkt(response.getPersonen());
             case ZoekMetNaamEnGemeenteVanInschrijvingResponse response ->
                     convertPersonenBeperkt(response.getPersonen());
             case ZoekMetNummeraanduidingIdentificatieResponse response ->
                     convertPersonenBeperkt(response.getPersonen());
-            case ZoekMetPostcodeEnHuisnummerResponse response ->
-                    convertPersonenBeperkt(response.getPersonen());
+            case ZoekMetPostcodeEnHuisnummerResponse response -> convertPersonenBeperkt(response.getPersonen());
             case ZoekMetStraatHuisnummerEnGemeenteVanInschrijvingResponse response ->
                     convertPersonenBeperkt(response.getPersonen());
             default -> Collections.emptyList();
@@ -172,16 +185,14 @@ public class RESTPersoonConverter {
     }
 
     private String convertGeslacht(final Waardetabel geslacht) {
-        return isNotBlank(geslacht.getOmschrijving())
-                ? geslacht.getOmschrijving()
-                : geslacht.getCode();
+        return isNotBlank(geslacht.getOmschrijving()) ? geslacht.getOmschrijving() : geslacht.getCode();
     }
 
     private String convertGeboortedatum(final AbstractDatum abstractDatum) {
         return switch (abstractDatum) {
             case VolledigeDatum volledigeDatum -> volledigeDatum.getDatum().toString();
-            case JaarMaandDatum jaarMaandDatum ->
-                    "%d2-%d4".formatted(jaarMaandDatum.getMaand(), jaarMaandDatum.getJaar());
+            case JaarMaandDatum jaarMaandDatum -> "%d2-%d4".formatted(jaarMaandDatum.getMaand(),
+                                                                      jaarMaandDatum.getJaar());
             case JaarDatum jaarDatum -> "%d4".formatted(jaarDatum.getJaar());
             case DatumOnbekend datumOnbekend -> ONBEKEND;
             default -> null;
@@ -192,39 +203,29 @@ public class RESTPersoonConverter {
         return switch (abstractVerblijfplaats) {
             case Adres adres when adres.getVerblijfadres() != null ->
                     convertVerblijfadresBinnenland(adres.getVerblijfadres());
-            case VerblijfplaatsBuitenland verblijfplaatsBuitenland when verblijfplaatsBuitenland
-                                    .getVerblijfadres()
-                            != null ->
+            case VerblijfplaatsBuitenland verblijfplaatsBuitenland when verblijfplaatsBuitenland.getVerblijfadres() != null ->
                     convertVerblijfadresBuitenland(verblijfplaatsBuitenland.getVerblijfadres());
             case VerblijfplaatsOnbekend verblijfplaatsOnbekend -> ONBEKEND;
             default -> null;
         };
     }
 
-    private String convertVerblijfadresBinnenland(
-            final VerblijfadresBinnenland verblijfadresBinnenland) {
-        final String adres =
-                replace(
-                        joinNonBlankWith(
-                                NON_BREAKING_SPACE,
-                                verblijfadresBinnenland.getOfficieleStraatnaam(),
-                                Objects.toString(verblijfadresBinnenland.getHuisnummer(), null),
-                                verblijfadresBinnenland.getHuisnummertoevoeging(),
-                                verblijfadresBinnenland.getHuisletter()),
-                        SPACE,
-                        NON_BREAKING_SPACE);
-        final String postcode =
-                replace(verblijfadresBinnenland.getPostcode(), SPACE, NON_BREAKING_SPACE);
-        final String woonplaats =
-                replace(verblijfadresBinnenland.getWoonplaats(), SPACE, NON_BREAKING_SPACE);
+    private String convertVerblijfadresBinnenland(final VerblijfadresBinnenland verblijfadresBinnenland) {
+        final String adres = replace(joinNonBlankWith(NON_BREAKING_SPACE,
+                                                      verblijfadresBinnenland.getOfficieleStraatnaam(),
+                                                      Objects.toString(verblijfadresBinnenland.getHuisnummer(), null),
+                                                      verblijfadresBinnenland.getHuisnummertoevoeging(),
+                                                      verblijfadresBinnenland.getHuisletter()),
+                                     SPACE, NON_BREAKING_SPACE);
+        final String postcode = replace(verblijfadresBinnenland.getPostcode(), SPACE, NON_BREAKING_SPACE);
+        final String woonplaats = replace(verblijfadresBinnenland.getWoonplaats(), SPACE, NON_BREAKING_SPACE);
         return joinNonBlankWith(", ", adres, postcode, woonplaats);
     }
 
     private String convertVerblijfadresBuitenland(VerblijfadresBuitenland verblijfadresBuitenland) {
-        return joinNonBlankWith(
-                ", ",
-                verblijfadresBuitenland.getRegel1(),
-                verblijfadresBuitenland.getRegel2(),
-                verblijfadresBuitenland.getRegel3());
+        return joinNonBlankWith(", ", verblijfadresBuitenland.getRegel1(),
+                                verblijfadresBuitenland.getRegel2(),
+                                verblijfadresBuitenland.getRegel3());
     }
+
 }

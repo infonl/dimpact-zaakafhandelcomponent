@@ -1,13 +1,13 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
 package net.atos.client.util;
 
 import java.security.NoSuchAlgorithmException;
 
 import javax.net.ssl.SSLContext;
-
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 
@@ -22,7 +22,8 @@ public final class JAXRSClientFactory {
 
     private static Client client;
 
-    private JAXRSClientFactory() {}
+    private JAXRSClientFactory() {
+    }
 
     public static Client getOrCreateClient() {
         if (client == null) {
@@ -35,8 +36,7 @@ public final class JAXRSClientFactory {
         final String proxyHost = System.getProperty("http.proxyHost");
         final String proxyPort = System.getProperty("http.proxyPort");
         try {
-            final ClientBuilder clientBuilder =
-                    ClientBuilder.newBuilder().sslContext(SSLContext.getDefault());
+            final ClientBuilder clientBuilder = ClientBuilder.newBuilder().sslContext(SSLContext.getDefault());
             if (StringUtils.isNotEmpty(proxyHost) && StringUtils.isNumeric(proxyPort)) {
                 clientBuilder
                         .property("org.jboss.resteasy.jaxrs.client.proxy.host", proxyHost)
