@@ -235,18 +235,18 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
     java {
         targetExclude("**/src/generated/**", "**/build/generated/**")
 
-        googleJavaFormat().reflowLongStrings()
+        googleJavaFormat().reflowLongStrings().skipJavadocFormatting()
 
         removeUnusedImports()
         importOrder("java", "javax", "jakarta", "com", "org", "net.atos")
 
         formatAnnotations()
         licenseHeader("""
-/*
- * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
- * SPDX-License-Identifier: EUPL-1.2+
- */
-        """)
+            /*
+             * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+             * SPDX-License-Identifier: EUPL-1.2+
+             */
+        """.trimIndent())
     }
 }
 
