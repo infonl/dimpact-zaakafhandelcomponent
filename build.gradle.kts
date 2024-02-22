@@ -276,7 +276,6 @@ tasks {
     }
 
     build {
-        dependsOn("check")
         dependsOn("generateWildflyBootableJar")
     }
 
