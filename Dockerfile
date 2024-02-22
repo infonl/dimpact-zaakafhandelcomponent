@@ -1,5 +1,5 @@
 ### Create runtime image fase
-FROM docker.io/eclipse-temurin:21-jre-alpine as runtime
+FROM docker.io/eclipse-temurin:21-ubi9-minimal as runtime
 
 # Import certificates into Java truststore
 ADD certificates /certificates

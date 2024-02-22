@@ -20,7 +20,7 @@ plugins {
     id("org.openapi.generator") version "7.3.0"
     id("com.github.node-gradle.node") version "7.0.2"
     id("org.barfuin.gradle.taskinfo") version "2.2.0"
-    id("io.smallrye.openapi") version "3.9.0"
+    id("io.smallrye.openapi") version "3.10.0"
     id("org.hidetake.swagger.generator") version "2.19.2"
     id("io.gitlab.arturbosch.detekt") version "1.23.5"
     id("com.bmuschko.docker-remote-api") version "9.4.0"
@@ -149,9 +149,9 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.9")
 
     // integration test dependencies
-    "itestImplementation"("org.testcontainers:testcontainers:1.19.5")
-    "itestImplementation"("org.testcontainers:mockserver:1.19.5")
-    "itestImplementation"("org.testcontainers:postgresql:1.19.5")
+    "itestImplementation"("org.testcontainers:testcontainers:1.19.6")
+    "itestImplementation"("org.testcontainers:mockserver:1.19.6")
+    "itestImplementation"("org.testcontainers:postgresql:1.19.6")
     "itestImplementation"("io.kotest:kotest-runner-junit5:5.8.0")
     "itestImplementation"("io.kotest:kotest-assertions-json:5.8.0")
     "itestImplementation"("org.slf4j:slf4j-simple:2.0.12")
