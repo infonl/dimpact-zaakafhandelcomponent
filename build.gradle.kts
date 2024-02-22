@@ -225,9 +225,6 @@ swaggerSources {
 }
 
 configure<com.diffplug.gradle.spotless.SpotlessExtension> {
-    // limit format enforcement to just the files changed by this branch
-    ratchetFrom("origin/main")
-
     format("misc") {
         target("*.gradle", ".gitattributes", ".gitignore", ".containerignore", ".dockerignore")
 
@@ -238,7 +235,7 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
     java {
         targetExclude("**/src/generated/**", "**/build/generated/**")
 
-        googleJavaFormat()
+        googleJavaFormat().reflowLongStrings()
 
         removeUnusedImports()
         importOrder("java", "javax", "jakarta", "com", "org", "net.atos")
