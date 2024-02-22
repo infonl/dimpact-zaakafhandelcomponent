@@ -40,6 +40,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Fetch origin main
+        run: git fetch origin main
+
       - name: Set branch name
         id: gen_branch_name
         run: echo "BRANCH_NAME=${{ github.ref_name }}" | sed 's/\//_/g; s/(//g; s/)//g' >> $GITHUB_OUTPUT
@@ -362,4 +365,3 @@ jobs:
               },
               ref: 'main'
             })
-
