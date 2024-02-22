@@ -5,13 +5,17 @@
 
 package net.atos.zac.app.informatieobjecten
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.core.test.TestCase
 import io.kotest.matchers.shouldBe
 import io.mockk.MockKAnnotations
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
@@ -54,6 +58,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
 
     override suspend fun beforeTest(testCase: TestCase) {
         MockKAnnotations.init(this)
+        clearAllMocks()
     }
 
     init {
@@ -110,6 +115,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                     every { policyService.readZaakRechten(zaak) } returns zaakRechtenWijzigen
                     every { httpSessionInstance.get() } returns httpSession
                     every { httpSession.getAttribute("FILE_$documentReferentieId") } returns restFileUpload
+                    every { httpSession.removeAttribute("FILE_$documentReferentieId") } just runs
                     every {
                         restInformatieobjectConverter.convertZaakObject(
                             restEnkelvoudigInformatieobject,
@@ -146,6 +152,62 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                             enkelvoudigInformatieObjectData.beschrijving,
                             "geen"
                         )
+                        httpSession.removeAttribute("FILE_$documentReferentieId")
+                    }
+                }
+            }
+        }
+        given("an enkelvoudig informatieobject has been uploaded, and the zaak is open") {
+            When("createEnkelvoudigInformatieobject is called but the ZGW client service throws an exception") {
+                then("the enkelvoudig informatieobject is not to the zaak but is removed from the HTTP session") {
+                    val zaak = createZaak()
+                    val documentReferentieId = "dummyDocumentReferentieId"
+                    val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
+                    val responseRestEnkelvoudigInformatieobject =
+                        createRESTEnkelvoudigInformatieobject()
+                    val restFileUpload = createRESTFileUpload()
+                    val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectData()
+                    val zaakInformatieobject = createZaakInformatieobject()
+
+                    every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+                    every { policyService.readZaakRechten(zaak) } returns zaakRechtenWijzigen
+                    every { httpSessionInstance.get() } returns httpSession
+                    every { httpSession.getAttribute("FILE_$documentReferentieId") } returns restFileUpload
+                    every { httpSession.removeAttribute("FILE_$documentReferentieId") } just runs
+                    every {
+                        restInformatieobjectConverter.convertZaakObject(
+                            restEnkelvoudigInformatieobject,
+                            restFileUpload
+                        )
+                    } returns enkelvoudigInformatieObjectData
+                    every {
+                        zgwApiService.createZaakInformatieobjectForZaak(
+                            zaak,
+                            enkelvoudigInformatieObjectData,
+                            enkelvoudigInformatieObjectData.titel,
+                            enkelvoudigInformatieObjectData.beschrijving,
+                            "geen"
+                        )
+                    } throws RuntimeException("dummy exception")
+
+                    shouldThrow<RuntimeException> {
+                        informatieObjectenRESTService.createEnkelvoudigInformatieobject(
+                            zaak.uuid,
+                            documentReferentieId,
+                            false,
+                            restEnkelvoudigInformatieobject
+                        )
+                    }
+
+                    verify(exactly = 1) {
+                        zgwApiService.createZaakInformatieobjectForZaak(
+                            zaak,
+                            enkelvoudigInformatieObjectData,
+                            enkelvoudigInformatieObjectData.titel,
+                            enkelvoudigInformatieObjectData.beschrijving,
+                            "geen"
+                        )
+                        httpSession.removeAttribute("FILE_$documentReferentieId")
                     }
                 }
             }
@@ -168,6 +230,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                     every { policyService.readZaakRechten(closedZaak) } returns zaakRechtenWijzigen
                     every { httpSessionInstance.get() } returns httpSession
                     every { httpSession.getAttribute("FILE_$documentReferentieId") } returns restFileUpload
+                    every { httpSession.removeAttribute("FILE_$documentReferentieId") } just runs
                     every {
                         restInformatieobjectConverter.convertZaakObject(
                             restEnkelvoudigInformatieobject,
@@ -204,6 +267,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                             enkelvoudigInformatieObjectData.beschrijving,
                             "geen"
                         )
+                        httpSession.removeAttribute("FILE_$documentReferentieId")
                     }
                 }
             }
