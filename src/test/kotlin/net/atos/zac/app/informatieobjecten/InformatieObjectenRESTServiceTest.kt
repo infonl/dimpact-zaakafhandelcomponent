@@ -110,12 +110,13 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                     val restFileUpload = createRESTFileUpload()
                     val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectData()
                     val zaakInformatieobject = createZaakInformatieobject()
+                    val httpSessionFileAttribute = "FILE_$documentReferentieId"
 
                     every { zrcClientService.readZaak(zaak.uuid) } returns zaak
                     every { policyService.readZaakRechten(zaak) } returns zaakRechtenWijzigen
                     every { httpSessionInstance.get() } returns httpSession
-                    every { httpSession.getAttribute("FILE_$documentReferentieId") } returns restFileUpload
-                    every { httpSession.removeAttribute("FILE_$documentReferentieId") } just runs
+                    every { httpSession.getAttribute(httpSessionFileAttribute) } returns restFileUpload
+                    every { httpSession.removeAttribute(httpSessionFileAttribute) } just runs
                     every {
                         restInformatieobjectConverter.convertZaakObject(
                             restEnkelvoudigInformatieobject,
@@ -152,7 +153,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                             enkelvoudigInformatieObjectData.beschrijving,
                             "geen"
                         )
-                        httpSession.removeAttribute("FILE_$documentReferentieId")
+                        httpSession.removeAttribute(httpSessionFileAttribute)
                     }
                 }
             }
@@ -163,17 +164,15 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                     val zaak = createZaak()
                     val documentReferentieId = "dummyDocumentReferentieId"
                     val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
-                    val responseRestEnkelvoudigInformatieobject =
-                        createRESTEnkelvoudigInformatieobject()
                     val restFileUpload = createRESTFileUpload()
                     val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectData()
-                    val zaakInformatieobject = createZaakInformatieobject()
+                    val httpSessionFileAttribute = "FILE_$documentReferentieId"
 
                     every { zrcClientService.readZaak(zaak.uuid) } returns zaak
                     every { policyService.readZaakRechten(zaak) } returns zaakRechtenWijzigen
                     every { httpSessionInstance.get() } returns httpSession
-                    every { httpSession.getAttribute("FILE_$documentReferentieId") } returns restFileUpload
-                    every { httpSession.removeAttribute("FILE_$documentReferentieId") } just runs
+                    every { httpSession.getAttribute(httpSessionFileAttribute) } returns restFileUpload
+                    every { httpSession.removeAttribute(httpSessionFileAttribute) } just runs
                     every {
                         restInformatieobjectConverter.convertZaakObject(
                             restEnkelvoudigInformatieobject,
@@ -207,7 +206,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                             enkelvoudigInformatieObjectData.beschrijving,
                             "geen"
                         )
-                        httpSession.removeAttribute("FILE_$documentReferentieId")
+                        httpSession.removeAttribute(httpSessionFileAttribute)
                     }
                 }
             }
@@ -225,12 +224,13 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                     val restFileUpload = createRESTFileUpload()
                     val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectData()
                     val zaakInformatieobject = createZaakInformatieobject()
+                    val httpSessionFileAttribute = "FILE_$documentReferentieId"
 
                     every { zrcClientService.readZaak(closedZaak.uuid) } returns closedZaak
                     every { policyService.readZaakRechten(closedZaak) } returns zaakRechtenWijzigen
                     every { httpSessionInstance.get() } returns httpSession
-                    every { httpSession.getAttribute("FILE_$documentReferentieId") } returns restFileUpload
-                    every { httpSession.removeAttribute("FILE_$documentReferentieId") } just runs
+                    every { httpSession.getAttribute(httpSessionFileAttribute) } returns restFileUpload
+                    every { httpSession.removeAttribute(httpSessionFileAttribute) } just runs
                     every {
                         restInformatieobjectConverter.convertZaakObject(
                             restEnkelvoudigInformatieobject,
@@ -267,7 +267,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                             enkelvoudigInformatieObjectData.beschrijving,
                             "geen"
                         )
-                        httpSession.removeAttribute("FILE_$documentReferentieId")
+                        httpSession.removeAttribute(httpSessionFileAttribute)
                     }
                 }
             }
