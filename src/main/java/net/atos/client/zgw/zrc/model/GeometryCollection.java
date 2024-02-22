@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.zrc.model;
 
 import java.util.List;
@@ -15,40 +14,43 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
  */
 public class GeometryCollection extends Geometry {
 
-    private final List<Geometry> geometries;
+  private final List<Geometry> geometries;
 
-    public GeometryCollection(final List<Geometry> geometries) {
-        super(GeometryType.GEOMETRYCOLLECTION);
-        this.geometries = geometries;
+  public GeometryCollection(final List<Geometry> geometries) {
+    super(GeometryType.GEOMETRYCOLLECTION);
+    this.geometries = geometries;
+  }
+
+  public List<Geometry> getGeometries() {
+    return geometries;
+  }
+
+  @Override
+  public String toString() {
+    // TODO yet to be implemented
+    return "GEOMETRYCOLLECTION()";
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (this == o) {
+      return true;
     }
 
-    public List<Geometry> getGeometries() {
-        return geometries;
+    if (o == null || getClass() != o.getClass()) {
+      return false;
     }
 
-    @Override
-    public String toString() {
-        //TODO yet to be implemented
-        return "GEOMETRYCOLLECTION()";
-    }
+    final GeometryCollection geometryCollection = (GeometryCollection) o;
 
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
+    return new EqualsBuilder()
+        .append(super.getType(), geometryCollection.getType())
+        .append(geometries, geometryCollection.geometries)
+        .isEquals();
+  }
 
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        final GeometryCollection geometryCollection = (GeometryCollection) o;
-
-        return new EqualsBuilder().append(super.getType(), geometryCollection.getType()).append(geometries, geometryCollection.geometries).isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(geometries);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(geometries);
+  }
 }

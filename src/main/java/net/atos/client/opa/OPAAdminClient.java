@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.opa;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -23,7 +22,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 @Produces(APPLICATION_JSON)
 public interface OPAAdminClient {
 
-    @PUT
-    @Path("{id}")
-    Response policyUpdate(@PathParam("id") final String id, final String policy);
+  @PUT
+  @Path("{id}")
+  Response policyUpdate(@PathParam("id") final String id, final String policy);
 }

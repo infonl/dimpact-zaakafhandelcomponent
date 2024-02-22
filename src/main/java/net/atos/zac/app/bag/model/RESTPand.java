@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.bag.model;
 
 import net.atos.client.bag.model.StatusPand;
@@ -10,24 +9,23 @@ import net.atos.zac.app.zaken.model.RESTGeometry;
 
 public class RESTPand extends RESTBAGObject {
 
-    public String oorspronkelijkBouwjaar;
+  public String oorspronkelijkBouwjaar;
 
-    public StatusPand status;
+  public StatusPand status;
 
-    public String statusWeergave;
+  public String statusWeergave;
 
-    public RESTGeometry geometry;
+  public RESTGeometry geometry;
 
-    public RESTPand() {
-    }
+  public RESTPand() {}
 
-    @Override
-    public BAGObjectType getBagObjectType() {
-        return BAGObjectType.PAND;
-    }
+  @Override
+  public BAGObjectType getBagObjectType() {
+    return BAGObjectType.PAND;
+  }
 
-    @Override
-    public String getOmschrijving() {
-        return identificatie;
-    }
+  @Override
+  public String getOmschrijving() {
+    return identificatie;
+  }
 }

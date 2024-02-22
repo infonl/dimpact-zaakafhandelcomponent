@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.shared.model;
 
 import jakarta.ws.rs.QueryParam;
@@ -12,17 +11,17 @@ import jakarta.ws.rs.QueryParam;
  */
 public abstract class AbstractListParameters {
 
-    /**
-     * Een pagina binnen de gepagineerde set resultaten.
-     */
-    @QueryParam("page")
-    private Integer page;
+  /**
+   * Een pagina binnen de gepagineerde set resultaten.
+   */
+  @QueryParam("page")
+  private Integer page;
 
-    public Integer getPage() {
-        return page;
-    }
+  public Integer getPage() {
+    return page;
+  }
 
-    public void setPage(final Integer page) {
-        this.page = page;
-    }
+  public void setPage(final Integer page) {
+    this.page = page;
+  }
 }

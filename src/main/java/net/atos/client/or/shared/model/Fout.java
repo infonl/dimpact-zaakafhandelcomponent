@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.or.shared.model;
 
 import java.net.URI;
@@ -12,53 +11,53 @@ import java.net.URI;
  */
 public class Fout {
 
-    private String code;
+  private String code;
 
-    private String title;
+  private String title;
 
-    private int status;
+  private int status;
 
-    private String detail;
+  private String detail;
 
-    private URI instance;
+  private URI instance;
 
-    public String getCode() {
-        return code;
-    }
+  public String getCode() {
+    return code;
+  }
 
-    public void setCode(final String code) {
-        this.code = code;
-    }
+  public void setCode(final String code) {
+    this.code = code;
+  }
 
-    public String getTitle() {
-        return title;
-    }
+  public String getTitle() {
+    return title;
+  }
 
-    public void setTitle(final String title) {
-        this.title = title;
-    }
+  public void setTitle(final String title) {
+    this.title = title;
+  }
 
-    public int getStatus() {
-        return status;
-    }
+  public int getStatus() {
+    return status;
+  }
 
-    public void setStatus(final int status) {
-        this.status = status;
-    }
+  public void setStatus(final int status) {
+    this.status = status;
+  }
 
-    public String getDetail() {
-        return detail;
-    }
+  public String getDetail() {
+    return detail;
+  }
 
-    public void setDetail(final String detail) {
-        this.detail = detail;
-    }
+  public void setDetail(final String detail) {
+    this.detail = detail;
+  }
 
-    public URI getInstance() {
-        return instance;
-    }
+  public URI getInstance() {
+    return instance;
+  }
 
-    public void setInstance(final URI instance) {
-        this.instance = instance;
-    }
+  public void setInstance(final URI instance) {
+    this.instance = instance;
+  }
 }

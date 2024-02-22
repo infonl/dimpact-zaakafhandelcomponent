@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.admin;
 
 import static net.atos.zac.policy.PolicyService.assertPolicy;
@@ -33,53 +32,54 @@ import net.atos.zac.zaaksturing.model.MailtemplateKoppeling;
 @Produces(MediaType.APPLICATION_JSON)
 public class MailtemplateKoppelingRESTService {
 
-    @Inject
-    private MailTemplateKoppelingenService mailTemplateKoppelingenService;
+  @Inject private MailTemplateKoppelingenService mailTemplateKoppelingenService;
 
-    @Inject
-    private RESTMailtemplateKoppelingConverter restMailtemplateKoppelingConverter;
+  @Inject private RESTMailtemplateKoppelingConverter restMailtemplateKoppelingConverter;
 
-    @Inject
-    private RESTZaakafhandelParametersConverter restZaakafhandelParametersConverter;
+  @Inject private RESTZaakafhandelParametersConverter restZaakafhandelParametersConverter;
 
-    @Inject
-    private PolicyService policyService;
+  @Inject private PolicyService policyService;
 
-    @GET
-    @Path("{id}")
-    public RESTMailtemplateKoppeling readMailtemplateKoppeling(@PathParam("id") final long id) {
-        assertPolicy(policyService.readOverigeRechten().beheren());
-        return restMailtemplateKoppelingConverter.convert(mailTemplateKoppelingenService.readMailtemplateKoppeling(id));
-    }
+  @GET
+  @Path("{id}")
+  public RESTMailtemplateKoppeling readMailtemplateKoppeling(@PathParam("id") final long id) {
+    assertPolicy(policyService.readOverigeRechten().beheren());
+    return restMailtemplateKoppelingConverter.convert(
+        mailTemplateKoppelingenService.readMailtemplateKoppeling(id));
+  }
 
-    @DELETE
-    @Path("{id}")
-    public void deleteMailtemplateKoppeling(@PathParam("id") final long id) {
-        assertPolicy(policyService.readOverigeRechten().beheren());
-        mailTemplateKoppelingenService.delete(id);
-    }
+  @DELETE
+  @Path("{id}")
+  public void deleteMailtemplateKoppeling(@PathParam("id") final long id) {
+    assertPolicy(policyService.readOverigeRechten().beheren());
+    mailTemplateKoppelingenService.delete(id);
+  }
 
-    @GET
-    public List<RESTMailtemplateKoppeling> listMailtemplateKoppelingen() {
-        assertPolicy(policyService.readOverigeRechten().beheren());
-        final List<MailtemplateKoppeling> mailtemplateKoppelingList =
-                mailTemplateKoppelingenService.listMailtemplateKoppelingen();
-        return mailtemplateKoppelingList.stream().map(mailtemplateKoppeling -> {
-            final RESTMailtemplateKoppeling restMailtemplateKoppeling =
-                    restMailtemplateKoppelingConverter.convert(mailtemplateKoppeling);
-            restMailtemplateKoppeling.zaakafhandelParameters = restZaakafhandelParametersConverter
-                    .convertZaakafhandelParameters(mailtemplateKoppeling.getZaakafhandelParameters(), false);
-            return restMailtemplateKoppeling;
-        }).toList();
-    }
+  @GET
+  public List<RESTMailtemplateKoppeling> listMailtemplateKoppelingen() {
+    assertPolicy(policyService.readOverigeRechten().beheren());
+    final List<MailtemplateKoppeling> mailtemplateKoppelingList =
+        mailTemplateKoppelingenService.listMailtemplateKoppelingen();
+    return mailtemplateKoppelingList.stream()
+        .map(
+            mailtemplateKoppeling -> {
+              final RESTMailtemplateKoppeling restMailtemplateKoppeling =
+                  restMailtemplateKoppelingConverter.convert(mailtemplateKoppeling);
+              restMailtemplateKoppeling.zaakafhandelParameters =
+                  restZaakafhandelParametersConverter.convertZaakafhandelParameters(
+                      mailtemplateKoppeling.getZaakafhandelParameters(), false);
+              return restMailtemplateKoppeling;
+            })
+        .toList();
+  }
 
-    @PUT
-    @Path("")
-    public RESTMailtemplateKoppeling storeMailtemplateKoppeling(
-            final RESTMailtemplateKoppeling mailtemplateKoppeling) {
-        assertPolicy(policyService.readOverigeRechten().beheren());
-        return restMailtemplateKoppelingConverter.convert(
-                mailTemplateKoppelingenService.storeMailtemplateKoppeling(
-                        restMailtemplateKoppelingConverter.convert(mailtemplateKoppeling)));
-    }
+  @PUT
+  @Path("")
+  public RESTMailtemplateKoppeling storeMailtemplateKoppeling(
+      final RESTMailtemplateKoppeling mailtemplateKoppeling) {
+    assertPolicy(policyService.readOverigeRechten().beheren());
+    return restMailtemplateKoppelingConverter.convert(
+        mailTemplateKoppelingenService.storeMailtemplateKoppeling(
+            restMailtemplateKoppelingConverter.convert(mailtemplateKoppeling)));
+  }
 }

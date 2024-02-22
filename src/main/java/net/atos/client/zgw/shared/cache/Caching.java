@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.shared.cache;
 
 import java.util.List;
@@ -16,37 +15,37 @@ import java.util.logging.Logger;
  * Bij caches waarbij het resultaat null kan zijn Optional gebruiken want null wordt niet gecachet.
  */
 public interface Caching {
-    Logger LOG = Logger.getLogger(Caching.class.getName());
+  Logger LOG = Logger.getLogger(Caching.class.getName());
 
-    String ZTC_CACHE_TIME = "ztc-cache-datetime";
+  String ZTC_CACHE_TIME = "ztc-cache-datetime";
 
-    String ZTC_RESULTAATTYPE = "ztc-resultaattype";
+  String ZTC_RESULTAATTYPE = "ztc-resultaattype";
 
-    String ZTC_BESLUITTYPE = "ztc-besluittype";
+  String ZTC_BESLUITTYPE = "ztc-besluittype";
 
-    String ZTC_STATUSTYPE = "ztc-statustype";
+  String ZTC_STATUSTYPE = "ztc-statustype";
 
-    String ZTC_INFORMATIEOBJECTTYPE = "ztc-informatieobjecttype";
+  String ZTC_INFORMATIEOBJECTTYPE = "ztc-informatieobjecttype";
 
-    String ZTC_ZAAKTYPE = "ztc-zaaktype";
+  String ZTC_ZAAKTYPE = "ztc-zaaktype";
 
-    String ZTC_ROLTYPE = "ztc-roltype";
+  String ZTC_ROLTYPE = "ztc-roltype";
 
-    String ZTC_ZAAKTYPE_INFORMATIEOBJECTTYPE = "ztc-zaaktypeinformatieobjecttype";
+  String ZTC_ZAAKTYPE_INFORMATIEOBJECTTYPE = "ztc-zaaktypeinformatieobjecttype";
 
-    String ZAC_ZAAKAFHANDELPARAMETERS_MANAGED = "zac-zaakafhandelparameters-read";
+  String ZAC_ZAAKAFHANDELPARAMETERS_MANAGED = "zac-zaakafhandelparameters-read";
 
-    String ZAC_ZAAKAFHANDELPARAMETERS = "zac-zaakafhandelparameters-list";
+  String ZAC_ZAAKAFHANDELPARAMETERS = "zac-zaakafhandelparameters-list";
 
-    List<String> cacheNames();
+  List<String> cacheNames();
 
-    default String cleared(final String cache) {
-        final String message = String.format("%s cache cleared", cache);
-        LOG.info(message);
-        return message;
-    }
+  default String cleared(final String cache) {
+    final String message = String.format("%s cache cleared", cache);
+    LOG.info(message);
+    return message;
+  }
 
-    default <KEY> void removed(final String cache, final KEY key) {
-        LOG.fine(() -> String.format("Removed from %s cache: %s", cache, key.toString()));
-    }
+  default <KEY> void removed(final String cache, final KEY key) {
+    LOG.fine(() -> String.format("Removed from %s cache: %s", cache, key.toString()));
+  }
 }

@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.util;
 
 import jakarta.json.bind.Jsonb;
@@ -14,21 +13,18 @@ import jakarta.ws.rs.ext.Provider;
 @Provider
 public class JsonbConfiguration implements ContextResolver<Jsonb> {
 
-    private Jsonb jsonb;
+  private Jsonb jsonb;
 
-    public JsonbConfiguration() {
-        final JsonbConfig jsonbConfig = new JsonbConfig()
-                .withAdapters(
-                        new ZonedDateTimeAdapter(),
-                        new LocalDateAdapter()
-                ).withDeserializers(
-                        new RESTBAGObjectJsonbDeserializer()
-                );
-        jsonb = JsonbBuilder.create(jsonbConfig);
-    }
+  public JsonbConfiguration() {
+    final JsonbConfig jsonbConfig =
+        new JsonbConfig()
+            .withAdapters(new ZonedDateTimeAdapter(), new LocalDateAdapter())
+            .withDeserializers(new RESTBAGObjectJsonbDeserializer());
+    jsonb = JsonbBuilder.create(jsonbConfig);
+  }
 
-    @Override
-    public Jsonb getContext(Class<?> type) {
-        return jsonb;
-    }
+  @Override
+  public Jsonb getContext(Class<?> type) {
+    return jsonb;
+  }
 }

@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.signalering.model;
 
 import static net.atos.zac.signalering.model.SignaleringTarget.GROUP;
@@ -28,105 +27,112 @@ import jakarta.validation.constraints.NotNull;
 @Table(schema = SCHEMA, name = "signaleringtype")
 public class SignaleringType implements Comparable<SignaleringType> {
 
-    public static final String SEPARATOR = ";";
+  public static final String SEPARATOR = ";";
 
-    @Id
-    @Column(name = "signaleringtype_enum", updatable = false, insertable = false)
-    private String id;
+  @Id
+  @Column(name = "signaleringtype_enum", updatable = false, insertable = false)
+  private String id;
 
-    @NotNull
-    @Column(name = "subjecttype_enum", updatable = false, insertable = false)
-    @Enumerated(EnumType.STRING)
-    private SignaleringSubject subjecttype;
+  @NotNull @Column(name = "subjecttype_enum", updatable = false, insertable = false)
+  @Enumerated(EnumType.STRING)
+  private SignaleringSubject subjecttype;
 
-    /* Workaround, Hibernate does not support primary keys of type enum. */
-    @Transient
-    private Type type;
+  /* Workaround, Hibernate does not support primary keys of type enum. */
+  @Transient private Type type;
 
-    public Type getType() {
-        if (type == null) {
-            type = Type.valueOf(id);
-        }
-        return type;
+  public Type getType() {
+    if (type == null) {
+      type = Type.valueOf(id);
+    }
+    return type;
+  }
+
+  public SignaleringSubject getSubjecttype() {
+    return subjecttype;
+  }
+
+  /**
+   * Maps to signalering-type.ts
+   * !! Don't forget to add a new enum value to signaleringtype table and to add the translation !!
+   */
+  public enum Type {
+    ZAAK_DOCUMENT_TOEGEVOEGD(
+        "Zaakdocument toegevoegd", "Er is een document aan uw zaak toegevoegd.", USER),
+    ZAAK_OP_NAAM("Zaak op naam", "Er is een zaak op uw naam gezet.", USER, GROUP),
+    ZAAK_VERLOPEND(
+        "Zaak verloopt",
+        "Uw zaak nadert de streefdatum." + SEPARATOR + "Uw zaak nadert de fatale datum.",
+        USER),
+    TAAK_OP_NAAM("Taak op naam", "Er is een taak op uw naam gezet.", USER),
+    TAAK_VERLOPEN("Taak verloopt", "Uw taak heeft de fatale datum bereikt.", USER) {
+      @Override
+      public boolean isDashboard() {
+        // This one has no dashboard card
+        return false;
+      }
+    };
+
+    private final String naam;
+
+    private final String bericht;
+
+    private final Set<SignaleringTarget> targets;
+
+    Type(final String naam, final String bericht, SignaleringTarget... targets) {
+      this.naam = naam;
+      this.bericht = bericht;
+      this.targets =
+          Collections.unmodifiableSet(
+              Arrays.stream(targets)
+                  .collect(Collectors.toCollection(() -> EnumSet.noneOf(SignaleringTarget.class))));
     }
 
-    public SignaleringSubject getSubjecttype() {
-        return subjecttype;
+    public String getNaam() {
+      return naam;
     }
 
-    /**
-     * Maps to signalering-type.ts
-     * !! Don't forget to add a new enum value to signaleringtype table and to add the translation !!
-     */
-    public enum Type {
-        ZAAK_DOCUMENT_TOEGEVOEGD("Zaakdocument toegevoegd", "Er is een document aan uw zaak toegevoegd.", USER),
-        ZAAK_OP_NAAM("Zaak op naam", "Er is een zaak op uw naam gezet.", USER, GROUP),
-        ZAAK_VERLOPEND("Zaak verloopt", "Uw zaak nadert de streefdatum." + SEPARATOR + "Uw zaak nadert de fatale datum.", USER),
-        TAAK_OP_NAAM("Taak op naam", "Er is een taak op uw naam gezet.", USER),
-        TAAK_VERLOPEN("Taak verloopt", "Uw taak heeft de fatale datum bereikt.", USER) {
-            @Override
-            public boolean isDashboard() {
-                // This one has no dashboard card
-                return false;
-            }
-        };
-
-        private final String naam;
-
-        private final String bericht;
-
-        private final Set<SignaleringTarget> targets;
-
-        Type(final String naam, final String bericht, SignaleringTarget... targets) {
-            this.naam = naam;
-            this.bericht = bericht;
-            this.targets = Collections.unmodifiableSet(Arrays.stream(targets).collect(Collectors.toCollection(() -> EnumSet.noneOf(SignaleringTarget.class))));
-        }
-
-        public String getNaam() {
-            return naam;
-        }
-
-        public String getBericht() {
-            return bericht;
-        }
-
-        public boolean isTarget(final SignaleringTarget target) {return targets.contains(target);}
-
-        public boolean isDashboard() {
-            return true;
-        }
-
-        public boolean isMail() {
-            return true;
-        }
+    public String getBericht() {
+      return bericht;
     }
 
-    @Override
-    public int compareTo(final SignaleringType other) {
-        final int result = this.getSubjecttype().compareTo(other.getSubjecttype());
-        return result != 0 ? result : this.getType().compareTo(other.getType());
+    public boolean isTarget(final SignaleringTarget target) {
+      return targets.contains(target);
     }
 
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) {
-            return true;
-        }
-        if (other == null || getClass() != other.getClass()) {
-            return false;
-        }
-        SignaleringType signaleringType = (SignaleringType) other;
-        return getType() == signaleringType.getType();
+    public boolean isDashboard() {
+      return true;
     }
 
-    @Override
-    public int hashCode() {
-        return getType().hashCode();
+    public boolean isMail() {
+      return true;
     }
+  }
 
-    @Override
-    public String toString() {
-        return getType().toString();
+  @Override
+  public int compareTo(final SignaleringType other) {
+    final int result = this.getSubjecttype().compareTo(other.getSubjecttype());
+    return result != 0 ? result : this.getType().compareTo(other.getType());
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
     }
+    if (other == null || getClass() != other.getClass()) {
+      return false;
+    }
+    SignaleringType signaleringType = (SignaleringType) other;
+    return getType() == signaleringType.getType();
+  }
+
+  @Override
+  public int hashCode() {
+    return getType().hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return getType().toString();
+  }
 }

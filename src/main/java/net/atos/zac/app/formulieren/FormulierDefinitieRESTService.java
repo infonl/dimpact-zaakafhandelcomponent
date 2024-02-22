@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.formulieren;
 
 import static net.atos.zac.policy.PolicyService.assertPolicy;
@@ -32,57 +31,51 @@ import net.atos.zac.policy.PolicyService;
 @Produces(MediaType.APPLICATION_JSON)
 public class FormulierDefinitieRESTService {
 
-    @Inject
-    private FormulierDefinitieService service;
+  @Inject private FormulierDefinitieService service;
 
-    @Inject
-    private RESTFormulierDefinitieConverter converter;
+  @Inject private RESTFormulierDefinitieConverter converter;
 
-    @Inject
-    private PolicyService policyService;
+  @Inject private PolicyService policyService;
 
-    @GET
-    public List<RESTFormulierDefinitie> list() {
-        assertPolicy(policyService.readOverigeRechten().beheren());
-        return service.listFormulierDefinities().stream()
-                .map(formulierDefinitie -> converter.convert(formulierDefinitie, false, false))
-                .toList();
-    }
+  @GET
+  public List<RESTFormulierDefinitie> list() {
+    assertPolicy(policyService.readOverigeRechten().beheren());
+    return service.listFormulierDefinities().stream()
+        .map(formulierDefinitie -> converter.convert(formulierDefinitie, false, false))
+        .toList();
+  }
 
-    @POST
-    public RESTFormulierDefinitie create(final RESTFormulierDefinitie restFormulierDefinitie) {
-        assertPolicy(policyService.readOverigeRechten().beheren());
-        return converter.convert(
-                service.createFormulierDefinitie(
-                        converter.convert(restFormulierDefinitie)), true, false);
-    }
+  @POST
+  public RESTFormulierDefinitie create(final RESTFormulierDefinitie restFormulierDefinitie) {
+    assertPolicy(policyService.readOverigeRechten().beheren());
+    return converter.convert(
+        service.createFormulierDefinitie(converter.convert(restFormulierDefinitie)), true, false);
+  }
 
-    @GET
-    @Path("{id}")
-    public RESTFormulierDefinitie read(@PathParam("id") final long id) {
-        assertPolicy(policyService.readOverigeRechten().beheren());
-        return converter.convert(
-                service.readFormulierDefinitie(id), true, false);
-    }
+  @GET
+  @Path("{id}")
+  public RESTFormulierDefinitie read(@PathParam("id") final long id) {
+    assertPolicy(policyService.readOverigeRechten().beheren());
+    return converter.convert(service.readFormulierDefinitie(id), true, false);
+  }
 
-    @GET
-    @Path("runtime/{systeemnaam}")
-    public RESTFormulierDefinitie find(@PathParam("systeemnaam") final String systeemnaam) {
-        return converter.convert(service.readFormulierDefinitie(systeemnaam), true, true);
-    }
+  @GET
+  @Path("runtime/{systeemnaam}")
+  public RESTFormulierDefinitie find(@PathParam("systeemnaam") final String systeemnaam) {
+    return converter.convert(service.readFormulierDefinitie(systeemnaam), true, true);
+  }
 
-    @PUT
-    public RESTFormulierDefinitie update(final RESTFormulierDefinitie restFormulierDefinitie) {
-        assertPolicy(policyService.readOverigeRechten().beheren());
-        return converter.convert(
-                service.updateFormulierDefinitie(
-                        converter.convert(restFormulierDefinitie)), true, false);
-    }
+  @PUT
+  public RESTFormulierDefinitie update(final RESTFormulierDefinitie restFormulierDefinitie) {
+    assertPolicy(policyService.readOverigeRechten().beheren());
+    return converter.convert(
+        service.updateFormulierDefinitie(converter.convert(restFormulierDefinitie)), true, false);
+  }
 
-    @DELETE
-    @Path("{id}")
-    public void delete(@PathParam("id") final long id) {
-        assertPolicy(policyService.readOverigeRechten().beheren());
-        service.deleteFormulierDefinitie(id);
-    }
+  @DELETE
+  @Path("{id}")
+  public void delete(@PathParam("id") final long id) {
+    assertPolicy(policyService.readOverigeRechten().beheren());
+    service.deleteFormulierDefinitie(id);
+  }
 }

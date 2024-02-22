@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.or.shared;
 
 import static java.lang.String.format;
@@ -26,43 +25,51 @@ import net.atos.client.or.objecttype.model.ObjecttypeVersion;
 @ApplicationScoped
 public class ObjectRegistratieClientService {
 
-    @Inject
-    private ObjectsClientService objectsClientService;
+  @Inject private ObjectsClientService objectsClientService;
 
-    @Inject
-    private ObjecttypesClientService objecttypesClientService;
+  @Inject private ObjecttypesClientService objecttypesClientService;
 
-    /**
-     * Create an Object of a specific type.
-     *
-     * @param objecttypeNaam The name of the objecttype
-     * @param data           Data stored in the ObjectRecord of the newly created Object
-     * @return New Object
-     */
-    public ORObject createObject(final String objecttypeNaam, final Map<String, Object> data) {
-        // Search Objecttype
-        final Objecttype objecttype = objecttypesClientService.listObjecttypes().stream()
-                .filter(_objecttype -> equalsIgnoreCase(_objecttype.getName(), objecttypeNaam))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException(format("Objecttype with name '%s' not found", objecttypeNaam)));
+  /**
+   * Create an Object of a specific type.
+   *
+   * @param objecttypeNaam The name of the objecttype
+   * @param data           Data stored in the ObjectRecord of the newly created Object
+   * @return New Object
+   */
+  public ORObject createObject(final String objecttypeNaam, final Map<String, Object> data) {
+    // Search Objecttype
+    final Objecttype objecttype =
+        objecttypesClientService.listObjecttypes().stream()
+            .filter(_objecttype -> equalsIgnoreCase(_objecttype.getName(), objecttypeNaam))
+            .findFirst()
+            .orElseThrow(
+                () ->
+                    new RuntimeException(
+                        format("Objecttype with name '%s' not found", objecttypeNaam)));
 
-        // Get latest ObjecttypeVersion
-        final ObjecttypeVersion objecttypeVersion = objecttypesClientService.listObjecttypeVersions(objecttype.getUuid()).stream()
-                .filter(_objecttypeVersion -> _objecttypeVersion.getStatus() == PUBLISHED)
-                .max(Comparator.comparing(ObjecttypeVersion::getVersion))
-                .orElseThrow(() -> new RuntimeException(format("No ObjecttypeVersion found for Objecttype with UUID: '%s'", objecttype.getUuid().toString())));
+    // Get latest ObjecttypeVersion
+    final ObjecttypeVersion objecttypeVersion =
+        objecttypesClientService.listObjecttypeVersions(objecttype.getUuid()).stream()
+            .filter(_objecttypeVersion -> _objecttypeVersion.getStatus() == PUBLISHED)
+            .max(Comparator.comparing(ObjecttypeVersion::getVersion))
+            .orElseThrow(
+                () ->
+                    new RuntimeException(
+                        format(
+                            "No ObjecttypeVersion found for Objecttype with UUID: '%s'",
+                            objecttype.getUuid().toString())));
 
-        // Create ObjectRecord
-        final ObjectRecord record = new ObjectRecord();
-        record.setTypeVersion(objecttypeVersion.getVersion());
-        record.setStartAt(LocalDate.now());
-        record.setData(data);
+    // Create ObjectRecord
+    final ObjectRecord record = new ObjectRecord();
+    record.setTypeVersion(objecttypeVersion.getVersion());
+    record.setStartAt(LocalDate.now());
+    record.setData(data);
 
-        // create Object
-        final ORObject object = new ORObject();
-        object.setType(objecttype.getUrl());
-        object.setRecord(record);
+    // create Object
+    final ORObject object = new ORObject();
+    object.setType(objecttype.getUrl());
+    object.setRecord(record);
 
-        return objectsClientService.createObject(object);
-    }
+    return objectsClientService.createObject(object);
+  }
 }

@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.ztc.model;
 
 import jakarta.json.bind.annotation.JsonbTypeAdapter;
@@ -14,33 +13,32 @@ import net.atos.client.zgw.shared.model.AbstractEnum;
  */
 @JsonbTypeAdapter(Richting.Adapter.class)
 public enum Richting implements AbstractEnum<Richting> {
+  INKOMEND("inkomend"),
 
-    INKOMEND("inkomend"),
+  INTERN("intern"),
 
-    INTERN("intern"),
+  UITGAAND("uitgaand");
 
-    UITGAAND("uitgaand");
+  private final String value;
 
-    private final String value;
+  Richting(final String value) {
+    this.value = value;
+  }
 
-    Richting(final String value) {
-        this.value = value;
-    }
+  @Override
+  public String toValue() {
+    return value;
+  }
+
+  public static Richting fromValue(final String value) {
+    return AbstractEnum.fromValue(values(), value);
+  }
+
+  static class Adapter extends AbstractEnum.Adapter<Richting> {
 
     @Override
-    public String toValue() {
-        return value;
+    protected Richting[] getEnums() {
+      return values();
     }
-
-    public static Richting fromValue(final String value) {
-        return AbstractEnum.fromValue(values(), value);
-    }
-
-    static class Adapter extends AbstractEnum.Adapter<Richting> {
-
-        @Override
-        protected Richting[] getEnums() {
-            return values();
-        }
-    }
+  }
 }

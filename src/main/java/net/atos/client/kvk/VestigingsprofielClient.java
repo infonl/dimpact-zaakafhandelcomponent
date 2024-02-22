@@ -1,13 +1,6 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
- */
-
-/**
- * API Vestigingsprofiel
- * Documentatie voor API Vestigingsprofiel.
- * <p>
- * The version of the OpenAPI document: 1.3
  */
 package net.atos.client.kvk;
 
@@ -33,12 +26,12 @@ import net.atos.client.kvk.vestigingsprofiel.model.Vestiging;
 @Path("api/v1/vestigingsprofielen")
 public interface VestigingsprofielClient {
 
-    /**
-     * Voor een specifieke vestiging informatie opvragen.
-     */
-    @GET
-    @Path("{vestigingsnummer}")
-    Vestiging getVestigingByVestigingsnummer(@PathParam("vestigingsnummer") String vestigingsnummer,
-            @QueryParam("geoData") @DefaultValue("false") Boolean geoData);
-
+  /**
+   * Voor een specifieke vestiging informatie opvragen.
+   */
+  @GET
+  @Path("{vestigingsnummer}")
+  Vestiging getVestigingByVestigingsnummer(
+      @PathParam("vestigingsnummer") String vestigingsnummer,
+      @QueryParam("geoData") @DefaultValue("false") Boolean geoData);
 }

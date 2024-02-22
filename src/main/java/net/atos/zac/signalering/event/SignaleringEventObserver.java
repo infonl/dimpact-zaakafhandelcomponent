@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.signalering.event;
 
 import java.net.URI;
@@ -42,188 +41,190 @@ import net.atos.zac.util.UriUtil;
 @ManagedBean
 public class SignaleringEventObserver extends AbstractEventObserver<SignaleringEvent<?>> {
 
-    private static final Logger LOG = Logger.getLogger(SignaleringEventObserver.class.getName());
+  private static final Logger LOG = Logger.getLogger(SignaleringEventObserver.class.getName());
 
-    @Inject
-    private ZTCClientService ztcClientService;
+  @Inject private ZTCClientService ztcClientService;
 
-    @Inject
-    private ZRCClientService zrcClientService;
+  @Inject private ZRCClientService zrcClientService;
 
-    @Inject
-    private TakenService takenService;
+  @Inject private TakenService takenService;
 
-    @Inject
-    private IdentityService identityService;
+  @Inject private IdentityService identityService;
 
-    @Inject
-    private SignaleringenService signaleringenService;
+  @Inject private SignaleringenService signaleringenService;
 
-    @Override
-    public void onFire(final @ObservesAsync SignaleringEvent<?> event) {
-        try {
-            LOG.fine(() -> String.format("Signalering event ontvangen: %s", event.toString()));
-            event.delay();
-            final Signalering signalering = buildSignalering(event);
-            if (signalering != null && signaleringenService.isNecessary(signalering, event.getActor())) {
-                final SignaleringInstellingen subscriptions = signaleringenService.readInstellingen(signalering);
-                if (subscriptions.isDashboard()) {
-                    signaleringenService.createSignalering(signalering);
-                }
-                if (subscriptions.isMail()) {
-                    signaleringenService.sendSignalering(signalering);
-                }
-            }
-        } catch (final Throwable ex) {
-            LOG.log(Level.SEVERE, "asynchronous guard", ex);
+  @Override
+  public void onFire(final @ObservesAsync SignaleringEvent<?> event) {
+    try {
+      LOG.fine(() -> String.format("Signalering event ontvangen: %s", event.toString()));
+      event.delay();
+      final Signalering signalering = buildSignalering(event);
+      if (signalering != null && signaleringenService.isNecessary(signalering, event.getActor())) {
+        final SignaleringInstellingen subscriptions =
+            signaleringenService.readInstellingen(signalering);
+        if (subscriptions.isDashboard()) {
+          signaleringenService.createSignalering(signalering);
         }
-    }
-
-    private Signalering getInstance(final SignaleringEvent<?> event) {
-        return signaleringenService.signaleringInstance(event.getObjectType());
-    }
-
-    private Signalering getSignaleringVoorRol(final SignaleringEvent<?> event, final Zaak subject, final Rol<?> rol) {
-        final Signalering signalering = getInstance(event);
-        signalering.setSubject(subject);
-        return addTarget(signalering, rol);
-    }
-
-    private Signalering getSignaleringVoorMedewerker(final SignaleringEvent<?> event, final Zaak subject,
-            final RolMedewerker rol) {
-        return getSignaleringVoorRol(event, subject, rol);
-    }
-
-    private Signalering getSignaleringVoorGroup(final SignaleringEvent<?> event, final Zaak subject,
-            final RolOrganisatorischeEenheid rol) {
-        if (getRolBehandelaarMedewerker(subject).isEmpty()) {
-            return getSignaleringVoorRol(event, subject, rol);
+        if (subscriptions.isMail()) {
+          signaleringenService.sendSignalering(signalering);
         }
-        return null;
+      }
+    } catch (final Throwable ex) {
+      LOG.log(Level.SEVERE, "asynchronous guard", ex);
     }
+  }
 
-    private @Nullable Signalering getSignaleringVoorBehandelaar(
-            final SignaleringEvent<?> event,
-            final Zaak subject,
-            final ZaakInformatieobject detail
-    ) {
-        final Optional<Rol<?>> behandelaar = getRolBehandelaarMedewerker(subject);
-        if (behandelaar.isPresent()) {
-            final Signalering signalering = getSignaleringVoorRol(event, subject, behandelaar.get());
-            if (signalering != null) {
-                signalering.setDetail(detail);
-            }
-            return signalering;
-        }
-        return null;
+  private Signalering getInstance(final SignaleringEvent<?> event) {
+    return signaleringenService.signaleringInstance(event.getObjectType());
+  }
+
+  private Signalering getSignaleringVoorRol(
+      final SignaleringEvent<?> event, final Zaak subject, final Rol<?> rol) {
+    final Signalering signalering = getInstance(event);
+    signalering.setSubject(subject);
+    return addTarget(signalering, rol);
+  }
+
+  private Signalering getSignaleringVoorMedewerker(
+      final SignaleringEvent<?> event, final Zaak subject, final RolMedewerker rol) {
+    return getSignaleringVoorRol(event, subject, rol);
+  }
+
+  private Signalering getSignaleringVoorGroup(
+      final SignaleringEvent<?> event, final Zaak subject, final RolOrganisatorischeEenheid rol) {
+    if (getRolBehandelaarMedewerker(subject).isEmpty()) {
+      return getSignaleringVoorRol(event, subject, rol);
     }
+    return null;
+  }
 
-    private Signalering getSignaleringVoorBehandelaar(final SignaleringEvent<?> event, final TaskInfo subject) {
-        if (subject.getAssignee() != null) {
-            final Signalering signalering = getInstance(event);
-            signalering.setSubject(subject);
-            return addTarget(signalering, subject);
-        }
-        return null;
+  private @Nullable Signalering getSignaleringVoorBehandelaar(
+      final SignaleringEvent<?> event, final Zaak subject, final ZaakInformatieobject detail) {
+    final Optional<Rol<?>> behandelaar = getRolBehandelaarMedewerker(subject);
+    if (behandelaar.isPresent()) {
+      final Signalering signalering = getSignaleringVoorRol(event, subject, behandelaar.get());
+      if (signalering != null) {
+        signalering.setDetail(detail);
+      }
+      return signalering;
     }
+    return null;
+  }
 
-    // On creation of a human task it's owner is assumed to be the actor who created it.
-    private SignaleringEvent<?> fixActor(final SignaleringEvent<?> event, final TaskInfo subject) {
-        if (event.getActor() == null) {
-            final String owner = subject.getOwner();
-            final User actor = owner != null ? identityService.readUser(owner) : null;
-            final SignaleringEvent<?> fixed = SignaleringEventUtil.event(event.getObjectType(), subject, actor);
-            if (actor != null) {
-                LOG.fine(() -> String.format("Signalering event fixed: %s", fixed.toString()));
-            }
-            return fixed;
-        }
-        return event;
+  private Signalering getSignaleringVoorBehandelaar(
+      final SignaleringEvent<?> event, final TaskInfo subject) {
+    if (subject.getAssignee() != null) {
+      final Signalering signalering = getInstance(event);
+      signalering.setSubject(subject);
+      return addTarget(signalering, subject);
     }
+    return null;
+  }
 
-    private Signalering buildSignalering(final SignaleringEvent<?> event) {
-        switch (event.getObjectType()) {
-            case ZAAK_DOCUMENT_TOEGEVOEGD -> {
-                final Zaak subject = zrcClientService.readZaak((URI) event.getObjectId().getResource());
-                final ZaakInformatieobject detail =
-                        zrcClientService.readZaakinformatieobject(
-                                UriUtil.uuidFromURI((URI) event.getObjectId().getDetail()));
-                return getSignaleringVoorBehandelaar(event, subject, detail);
-            }
-            case ZAAK_OP_NAAM -> {
-                final Rol<?> rol = zrcClientService.readRol((URI) event.getObjectId().getResource());
-                if (RolType.OmschrijvingGeneriekEnum.valueOf(rol.getOmschrijvingGeneriek().toUpperCase())
-                        == RolType.OmschrijvingGeneriekEnum.BEHANDELAAR) {
-                    final Zaak subject = zrcClientService.readZaak(rol.getZaak());
-                    switch (rol.getBetrokkeneType()) {
-                        case MEDEWERKER -> {
-                            return getSignaleringVoorMedewerker(event, subject, (RolMedewerker) rol);
-                        }
-                        case ORGANISATORISCHE_EENHEID -> {
-                            return getSignaleringVoorGroup(event, subject, (RolOrganisatorischeEenheid) rol);
-                        }
-                        default -> LOG.warning(String.format("unexpected BetrokkeneType %s", rol.getBetrokkeneType()));
-                    }
-                }
-            }
-            case TAAK_OP_NAAM -> {
-                final TaskInfo subject = takenService.readOpenTask((String) event.getObjectId().getResource());
-                return getSignaleringVoorBehandelaar(fixActor(event, subject), subject);
-            }
-            case ZAAK_VERLOPEND, TAAK_VERLOPEN -> {
-                // These are NOT event driven and should not show up here
-                LOG.warning(String.format("ignored SignaleringType %s", event.getObjectType()));
-            }
-        }
-        return null;
+  // On creation of a human task it's owner is assumed to be the actor who created it.
+  private SignaleringEvent<?> fixActor(final SignaleringEvent<?> event, final TaskInfo subject) {
+    if (event.getActor() == null) {
+      final String owner = subject.getOwner();
+      final User actor = owner != null ? identityService.readUser(owner) : null;
+      final SignaleringEvent<?> fixed =
+          SignaleringEventUtil.event(event.getObjectType(), subject, actor);
+      if (actor != null) {
+        LOG.fine(() -> String.format("Signalering event fixed: %s", fixed.toString()));
+      }
+      return fixed;
     }
+    return event;
+  }
 
-    private RolType getRoltypeBehandelaar(final Zaak zaak) {
-        return ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.BEHANDELAAR, zaak.getZaaktype());
-    }
-
-    private Optional<Rol<?>> getRolBehandelaarMedewerker(final Zaak zaak) {
-        return getRol(zaak, getRoltypeBehandelaar(zaak), BetrokkeneType.MEDEWERKER);
-    }
-
-    private Optional<Rol<?>> getRolBehandelaarGroup(final Zaak zaak) {
-        return getRol(zaak, getRoltypeBehandelaar(zaak), BetrokkeneType.ORGANISATORISCHE_EENHEID);
-    }
-
-    private Optional<Rol<?>> getRol(final Zaak zaak, final RolType roltype,
-            final BetrokkeneType betrokkeneType) {
-        return zrcClientService.listRollen(new RolListParameters(zaak.getUrl(), roltype.getUrl(), betrokkeneType))
-                .getSingleResult();
-    }
-
-    private @Nullable Signalering addTarget(final Signalering signalering, final Rol<?> rol) {
-        switch (rol.getBetrokkeneType()) {
+  private Signalering buildSignalering(final SignaleringEvent<?> event) {
+    switch (event.getObjectType()) {
+      case ZAAK_DOCUMENT_TOEGEVOEGD -> {
+        final Zaak subject = zrcClientService.readZaak((URI) event.getObjectId().getResource());
+        final ZaakInformatieobject detail =
+            zrcClientService.readZaakinformatieobject(
+                UriUtil.uuidFromURI((URI) event.getObjectId().getDetail()));
+        return getSignaleringVoorBehandelaar(event, subject, detail);
+      }
+      case ZAAK_OP_NAAM -> {
+        final Rol<?> rol = zrcClientService.readRol((URI) event.getObjectId().getResource());
+        if (RolType.OmschrijvingGeneriekEnum.valueOf(rol.getOmschrijvingGeneriek().toUpperCase())
+            == RolType.OmschrijvingGeneriekEnum.BEHANDELAAR) {
+          final Zaak subject = zrcClientService.readZaak(rol.getZaak());
+          switch (rol.getBetrokkeneType()) {
             case MEDEWERKER -> {
-                final RolMedewerker rolMedewerker = (RolMedewerker) rol;
-                return addTargetUser(signalering, rolMedewerker.getBetrokkeneIdentificatie().getIdentificatie());
+              return getSignaleringVoorMedewerker(event, subject, (RolMedewerker) rol);
             }
             case ORGANISATORISCHE_EENHEID -> {
-                final RolOrganisatorischeEenheid rolGroep = (RolOrganisatorischeEenheid) rol;
-                return addTargetGroup(signalering, rolGroep.getBetrokkeneIdentificatie().getIdentificatie());
+              return getSignaleringVoorGroup(event, subject, (RolOrganisatorischeEenheid) rol);
             }
-            default -> {
-                LOG.log(Level.WARNING, "Unknown BetrokkeneType '{0}'", rol.getBetrokkeneType());
-                return null;
-            }
+            default ->
+                LOG.warning(String.format("unexpected BetrokkeneType %s", rol.getBetrokkeneType()));
+          }
         }
+      }
+      case TAAK_OP_NAAM -> {
+        final TaskInfo subject =
+            takenService.readOpenTask((String) event.getObjectId().getResource());
+        return getSignaleringVoorBehandelaar(fixActor(event, subject), subject);
+      }
+      case ZAAK_VERLOPEND, TAAK_VERLOPEN -> {
+        // These are NOT event driven and should not show up here
+        LOG.warning(String.format("ignored SignaleringType %s", event.getObjectType()));
+      }
     }
+    return null;
+  }
 
-    private Signalering addTarget(final Signalering signalering, final TaskInfo taskInfo) {
-        return addTargetUser(signalering, taskInfo.getAssignee());
-    }
+  private RolType getRoltypeBehandelaar(final Zaak zaak) {
+    return ztcClientService.readRoltype(
+        RolType.OmschrijvingGeneriekEnum.BEHANDELAAR, zaak.getZaaktype());
+  }
 
-    private Signalering addTargetUser(final Signalering signalering, final String userId) {
-        signalering.setTarget(identityService.readUser(userId));
-        return signalering;
-    }
+  private Optional<Rol<?>> getRolBehandelaarMedewerker(final Zaak zaak) {
+    return getRol(zaak, getRoltypeBehandelaar(zaak), BetrokkeneType.MEDEWERKER);
+  }
 
-    private Signalering addTargetGroup(final Signalering signalering, final String groupId) {
-        signalering.setTarget(identityService.readGroup(groupId));
-        return signalering;
+  private Optional<Rol<?>> getRolBehandelaarGroup(final Zaak zaak) {
+    return getRol(zaak, getRoltypeBehandelaar(zaak), BetrokkeneType.ORGANISATORISCHE_EENHEID);
+  }
+
+  private Optional<Rol<?>> getRol(
+      final Zaak zaak, final RolType roltype, final BetrokkeneType betrokkeneType) {
+    return zrcClientService
+        .listRollen(new RolListParameters(zaak.getUrl(), roltype.getUrl(), betrokkeneType))
+        .getSingleResult();
+  }
+
+  private @Nullable Signalering addTarget(final Signalering signalering, final Rol<?> rol) {
+    switch (rol.getBetrokkeneType()) {
+      case MEDEWERKER -> {
+        final RolMedewerker rolMedewerker = (RolMedewerker) rol;
+        return addTargetUser(
+            signalering, rolMedewerker.getBetrokkeneIdentificatie().getIdentificatie());
+      }
+      case ORGANISATORISCHE_EENHEID -> {
+        final RolOrganisatorischeEenheid rolGroep = (RolOrganisatorischeEenheid) rol;
+        return addTargetGroup(
+            signalering, rolGroep.getBetrokkeneIdentificatie().getIdentificatie());
+      }
+      default -> {
+        LOG.log(Level.WARNING, "Unknown BetrokkeneType '{0}'", rol.getBetrokkeneType());
+        return null;
+      }
     }
+  }
+
+  private Signalering addTarget(final Signalering signalering, final TaskInfo taskInfo) {
+    return addTargetUser(signalering, taskInfo.getAssignee());
+  }
+
+  private Signalering addTargetUser(final Signalering signalering, final String userId) {
+    signalering.setTarget(identityService.readUser(userId));
+    return signalering;
+  }
+
+  private Signalering addTargetGroup(final Signalering signalering, final String groupId) {
+    signalering.setTarget(identityService.readGroup(groupId));
+    return signalering;
+  }
 }

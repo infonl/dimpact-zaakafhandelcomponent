@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.solr;
 
 import java.util.Collections;
@@ -15,11 +14,11 @@ import net.atos.zac.zoeken.model.index.ZoekObjectType;
 
 public interface SolrSchemaUpdate {
 
-    int getVersie();
+  int getVersie();
 
-    default Set<ZoekObjectType> getTeHerindexerenZoekObjectTypes() {
-        return Collections.emptySet();
-    }
+  default Set<ZoekObjectType> getTeHerindexerenZoekObjectTypes() {
+    return Collections.emptySet();
+  }
 
-    List<SchemaRequest.Update> getSchemaUpdates();
+  List<SchemaRequest.Update> getSchemaUpdates();
 }

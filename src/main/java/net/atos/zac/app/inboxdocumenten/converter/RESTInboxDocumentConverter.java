@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.inboxdocumenten.converter;
 
 import java.util.List;
@@ -13,18 +12,18 @@ import net.atos.zac.documenten.model.InboxDocument;
 
 public class RESTInboxDocumentConverter {
 
-    public RESTInboxDocument convert(final InboxDocument document) {
-        final RESTInboxDocument restDocument = new RESTInboxDocument();
-        restDocument.id = document.getId();
-        restDocument.enkelvoudiginformatieobjectUUID = document.getEnkelvoudiginformatieobjectUUID();
-        restDocument.enkelvoudiginformatieobjectID = document.getEnkelvoudiginformatieobjectID();
-        restDocument.titel = document.getTitel();
-        restDocument.creatiedatum = document.getCreatiedatum().toLocalDate();
-        restDocument.bestandsnaam = document.getBestandsnaam();
-        return restDocument;
-    }
+  public RESTInboxDocument convert(final InboxDocument document) {
+    final RESTInboxDocument restDocument = new RESTInboxDocument();
+    restDocument.id = document.getId();
+    restDocument.enkelvoudiginformatieobjectUUID = document.getEnkelvoudiginformatieobjectUUID();
+    restDocument.enkelvoudiginformatieobjectID = document.getEnkelvoudiginformatieobjectID();
+    restDocument.titel = document.getTitel();
+    restDocument.creatiedatum = document.getCreatiedatum().toLocalDate();
+    restDocument.bestandsnaam = document.getBestandsnaam();
+    return restDocument;
+  }
 
-    public List<RESTInboxDocument> convert(final List<InboxDocument> documenten) {
-        return documenten.stream().map(this::convert).collect(Collectors.toList());
-    }
+  public List<RESTInboxDocument> convert(final List<InboxDocument> documenten) {
+    return documenten.stream().map(this::convert).collect(Collectors.toList());
+  }
 }

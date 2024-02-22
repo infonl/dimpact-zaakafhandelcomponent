@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.formulieren.model;
 
 import java.util.List;
@@ -11,26 +10,25 @@ import net.atos.zac.formulieren.model.FormulierVeldtype;
 
 public class RESTFormulierVeldDefinitie {
 
-    public Long id;
+  public Long id;
 
-    public String systeemnaam;
+  public String systeemnaam;
 
-    public int volgorde;
+  public int volgorde;
 
-    public String label;
+  public String label;
 
-    public FormulierVeldtype veldtype;
+  public FormulierVeldtype veldtype;
 
-    public String beschrijving;
+  public String beschrijving;
 
-    public String helptekst;
+  public String helptekst;
 
-    public boolean verplicht;
+  public boolean verplicht;
 
-    public String defaultWaarde;
+  public String defaultWaarde;
 
-    public String meerkeuzeOpties;
+  public String meerkeuzeOpties;
 
-    public List<String> validaties;
-
+  public List<String> validaties;
 }

@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.shared.model;
 
 import java.util.stream.Stream;
@@ -10,27 +9,26 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 
 public enum SorteerRichting {
-    /** Oplopend */
-    ASCENDING("asc"),
+  /** Oplopend */
+  ASCENDING("asc"),
 
-    /** Aflopend */
-    DESCENDING("desc");
+  /** Aflopend */
+  DESCENDING("desc");
 
-    private final String value;
+  private final String value;
 
-    SorteerRichting(final String value) {
-        this.value = value;
+  SorteerRichting(final String value) {
+    this.value = value;
+  }
+
+  public static SorteerRichting fromValue(final String waarde) {
+    if (StringUtils.isBlank(waarde)) {
+      return SorteerRichting.DESCENDING;
     }
-
-    public static SorteerRichting fromValue(final String waarde) {
-        if (StringUtils.isBlank(waarde)) {
-            return SorteerRichting.DESCENDING;
-        }
-        return Stream.of(SorteerRichting.values())
-                .filter(filter -> String.valueOf(filter.value).equals(waarde))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(String.format("Onbekende waarde '%s'", waarde)));
-
-
-    }
+    return Stream.of(SorteerRichting.values())
+        .filter(filter -> String.valueOf(filter.value).equals(waarde))
+        .findFirst()
+        .orElseThrow(
+            () -> new IllegalArgumentException(String.format("Onbekende waarde '%s'", waarde)));
+  }
 }

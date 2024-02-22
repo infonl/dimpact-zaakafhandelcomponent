@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.signalering.event;
 
 import java.net.URI;
@@ -27,60 +26,65 @@ import net.atos.zac.signalering.model.SignaleringType;
  */
 public class SignaleringEventUtil {
 
-    private static <ID> SignaleringEvent<ID> instance(final SignaleringType.Type signaleringType, final ID id,
-            final ID detail, final User actor) {
-        return new SignaleringEvent<>(signaleringType, new SignaleringEventId<ID>(id, detail), actor);
-    }
+  private static <ID> SignaleringEvent<ID> instance(
+      final SignaleringType.Type signaleringType, final ID id, final ID detail, final User actor) {
+    return new SignaleringEvent<>(signaleringType, new SignaleringEventId<ID>(id, detail), actor);
+  }
 
-    public static SignaleringEvent<URI> event(final SignaleringType.Type signaleringType, final Zaak zaak,
-            final User actor) {
-        return instance(signaleringType, zaak.getUrl(), null, actor);
-    }
+  public static SignaleringEvent<URI> event(
+      final SignaleringType.Type signaleringType, final Zaak zaak, final User actor) {
+    return instance(signaleringType, zaak.getUrl(), null, actor);
+  }
 
-    public static SignaleringEvent<URI> event(final SignaleringType.Type signaleringType,
-            final EnkelvoudigInformatieObject enkelvoudigInformatieobject,
-            final User actor) {
-        return instance(signaleringType, enkelvoudigInformatieobject.getUrl(), null, actor);
-    }
+  public static SignaleringEvent<URI> event(
+      final SignaleringType.Type signaleringType,
+      final EnkelvoudigInformatieObject enkelvoudigInformatieobject,
+      final User actor) {
+    return instance(signaleringType, enkelvoudigInformatieobject.getUrl(), null, actor);
+  }
 
-    public static SignaleringEvent<String> event(final SignaleringType.Type signaleringType, final TaskInfo taak,
-            final User actor) {
-        return instance(signaleringType, taak.getId(), null, actor);
-    }
+  public static SignaleringEvent<String> event(
+      final SignaleringType.Type signaleringType, final TaskInfo taak, final User actor) {
+    return instance(signaleringType, taak.getId(), null, actor);
+  }
 
-    private static SignaleringEvent<URI> event(final SignaleringType.Type signaleringType,
-            final Notificatie.ResourceInfo resource, final Notificatie.ResourceInfo detail) {
-        // There is no actor information in notifications
-        return instance(signaleringType, resource.getUrl(), detail != null ? detail.getUrl() : null, null);
-    }
+  private static SignaleringEvent<URI> event(
+      final SignaleringType.Type signaleringType,
+      final Notificatie.ResourceInfo resource,
+      final Notificatie.ResourceInfo detail) {
+    // There is no actor information in notifications
+    return instance(
+        signaleringType, resource.getUrl(), detail != null ? detail.getUrl() : null, null);
+  }
 
-    /**
-     * This is the mapping.
-     *
-     * @param channel      the channel the notification came in on
-     * @param mainResource the involved main resource (may be equal to the resource)
-     * @param resource     the actually modified resource
-     * @return the set of events that the parameters map to
-     */
-    public static Set<SignaleringEvent<URI>> getEvents(final Channel channel,
-            final Notificatie.ResourceInfo mainResource,
-            final Notificatie.ResourceInfo resource) {
-        final Set<SignaleringEvent<URI>> events = new HashSet<>();
-        if (Objects.requireNonNull(channel) == Channel.ZAKEN) {
-            switch (resource.getType()) {
-                case ZAAKINFORMATIEOBJECT:
-                    if (Objects.requireNonNull(resource.getAction()) == Action.CREATE) {
-                        events.add(
-                                event(SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD, mainResource, resource));
-                    }
-                    break;
-                case ROL:
-                    if (Objects.requireNonNull(resource.getAction()) == Action.CREATE) {
-                        events.add(event(SignaleringType.Type.ZAAK_OP_NAAM, resource, null));
-                    }
-                    break;
-            }
-        }
-        return events;
+  /**
+   * This is the mapping.
+   *
+   * @param channel      the channel the notification came in on
+   * @param mainResource the involved main resource (may be equal to the resource)
+   * @param resource     the actually modified resource
+   * @return the set of events that the parameters map to
+   */
+  public static Set<SignaleringEvent<URI>> getEvents(
+      final Channel channel,
+      final Notificatie.ResourceInfo mainResource,
+      final Notificatie.ResourceInfo resource) {
+    final Set<SignaleringEvent<URI>> events = new HashSet<>();
+    if (Objects.requireNonNull(channel) == Channel.ZAKEN) {
+      switch (resource.getType()) {
+        case ZAAKINFORMATIEOBJECT:
+          if (Objects.requireNonNull(resource.getAction()) == Action.CREATE) {
+            events.add(
+                event(SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD, mainResource, resource));
+          }
+          break;
+        case ROL:
+          if (Objects.requireNonNull(resource.getAction()) == Action.CREATE) {
+            events.add(event(SignaleringType.Type.ZAAK_OP_NAAM, resource, null));
+          }
+          break;
+      }
     }
+    return events;
+  }
 }

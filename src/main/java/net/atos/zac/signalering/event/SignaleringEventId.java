@@ -1,53 +1,52 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.signalering.event;
 
 import java.util.Objects;
 
 public class SignaleringEventId<ID> {
-    private final ID resource;
+  private final ID resource;
 
-    private final ID detail;
+  private final ID detail;
 
-    public SignaleringEventId(final ID resource, final ID detail) {
-        this.resource = resource;
-        this.detail = detail;
+  public SignaleringEventId(final ID resource, final ID detail) {
+    this.resource = resource;
+    this.detail = detail;
+  }
+
+  public ID getResource() {
+    return resource;
+  }
+
+  public ID getDetail() {
+    return detail;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    // snel antwoord
+    if (obj == this) {
+      return true;
     }
-
-    public ID getResource() {
-        return resource;
+    // gebruik getClass i.p.v. instanceof, maar dan wel met de null check
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
     }
+    // cast en vergelijk
+    final SignaleringEventId<?> other = (SignaleringEventId<?>) obj;
+    return Objects.equals(resource, other.resource) && Objects.equals(detail, other.detail);
+  }
 
-    public ID getDetail() {
-        return detail;
-    }
+  @Override
+  public int hashCode() {
+    final int result = resource != null ? resource.hashCode() : 0;
+    return detail != null ? 31 * result + detail.hashCode() : result;
+  }
 
-    @Override
-    public boolean equals(final Object obj) {
-        // snel antwoord
-        if (obj == this) {
-            return true;
-        }
-        // gebruik getClass i.p.v. instanceof, maar dan wel met de null check
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        // cast en vergelijk
-        final SignaleringEventId<?> other = (SignaleringEventId<?>) obj;
-        return Objects.equals(resource, other.resource) && Objects.equals(detail, other.detail);
-    }
-
-    @Override
-    public int hashCode() {
-        final int result = resource != null ? resource.hashCode() : 0;
-        return detail != null ? 31 * result + detail.hashCode() : result;
-    }
-
-    @Override
-    public String toString() {
-        return detail != null ? String.format("%s;%s", resource, detail) : resource.toString();
-    }
+  @Override
+  public String toString() {
+    return detail != null ? String.format("%s;%s", resource, detail) : resource.toString();
+  }
 }

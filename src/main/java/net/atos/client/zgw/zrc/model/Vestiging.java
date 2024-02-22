@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.zrc.model;
 
 import java.util.List;
@@ -12,58 +11,57 @@ import net.atos.client.zgw.zrc.model.generated.VerblijfsAdres;
 
 public class Vestiging {
 
-    /**
-     * Een korte unieke aanduiding van de Vestiging.
-     * - maxLength: 24
-     */
-    private String vestigingsNummer;
+  /**
+   * Een korte unieke aanduiding van de Vestiging.
+   * - maxLength: 24
+   */
+  private String vestigingsNummer;
 
-    /**
-     * De naam van de vestiging waaronder gehandeld wordt.
-     * - maxLength: 625
-     */
-    private List<String> handelsnaam;
+  /**
+   * De naam van de vestiging waaronder gehandeld wordt.
+   * - maxLength: 625
+   */
+  private List<String> handelsnaam;
 
-    private VerblijfsAdres verblijfsadres;
+  private VerblijfsAdres verblijfsadres;
 
-    private SubVerblijfBuitenland subVerblijfBuitenland;
+  private SubVerblijfBuitenland subVerblijfBuitenland;
 
-    public Vestiging() {
-    }
+  public Vestiging() {}
 
-    public Vestiging(final String vestigingsNummer) {
-        this.vestigingsNummer = vestigingsNummer;
-    }
+  public Vestiging(final String vestigingsNummer) {
+    this.vestigingsNummer = vestigingsNummer;
+  }
 
-    public String getVestigingsNummer() {
-        return vestigingsNummer;
-    }
+  public String getVestigingsNummer() {
+    return vestigingsNummer;
+  }
 
-    public void setVestigingsNummer(final String vestigingsNummer) {
-        this.vestigingsNummer = vestigingsNummer;
-    }
+  public void setVestigingsNummer(final String vestigingsNummer) {
+    this.vestigingsNummer = vestigingsNummer;
+  }
 
-    public List<String> getHandelsnaam() {
-        return handelsnaam;
-    }
+  public List<String> getHandelsnaam() {
+    return handelsnaam;
+  }
 
-    public void setHandelsnaam(final List<String> handelsnaam) {
-        this.handelsnaam = handelsnaam;
-    }
+  public void setHandelsnaam(final List<String> handelsnaam) {
+    this.handelsnaam = handelsnaam;
+  }
 
-    public VerblijfsAdres getVerblijfsadres() {
-        return verblijfsadres;
-    }
+  public VerblijfsAdres getVerblijfsadres() {
+    return verblijfsadres;
+  }
 
-    public void setVerblijfsadres(final VerblijfsAdres verblijfsadres) {
-        this.verblijfsadres = verblijfsadres;
-    }
+  public void setVerblijfsadres(final VerblijfsAdres verblijfsadres) {
+    this.verblijfsadres = verblijfsadres;
+  }
 
-    public SubVerblijfBuitenland getSubVerblijfBuitenland() {
-        return subVerblijfBuitenland;
-    }
+  public SubVerblijfBuitenland getSubVerblijfBuitenland() {
+    return subVerblijfBuitenland;
+  }
 
-    public void setSubVerblijfBuitenland(final SubVerblijfBuitenland subVerblijfBuitenland) {
-        this.subVerblijfBuitenland = subVerblijfBuitenland;
-    }
+  public void setSubVerblijfBuitenland(final SubVerblijfBuitenland subVerblijfBuitenland) {
+    this.subVerblijfBuitenland = subVerblijfBuitenland;
+  }
 }

@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.brp.util;
 
 import java.lang.reflect.Type;
@@ -21,23 +20,26 @@ import net.atos.client.brp.model.Locatie;
 import net.atos.client.brp.model.VerblijfplaatsBuitenland;
 import net.atos.client.brp.model.VerblijfplaatsOnbekend;
 
-public class AbstractVerblijfplaatsJsonbDeserializer implements JsonbDeserializer<AbstractVerblijfplaats> {
+public class AbstractVerblijfplaatsJsonbDeserializer
+    implements JsonbDeserializer<AbstractVerblijfplaats> {
 
-    private static final Jsonb JSONB =
-            JsonbBuilder.create(
-                    new JsonbConfig().withPropertyVisibilityStrategy(new FieldPropertyVisibilityStrategy()));
+  private static final Jsonb JSONB =
+      JsonbBuilder.create(
+          new JsonbConfig().withPropertyVisibilityStrategy(new FieldPropertyVisibilityStrategy()));
 
-    @Override
-    public AbstractVerblijfplaats deserialize(final JsonParser parser, final DeserializationContext ctx,
-            final Type rtType) {
-        final JsonObject jsonObject = parser.getObject();
-        final String type = jsonObject.getString("type");
-        return switch (type) {
-            case "VerblijfplaatsBuitenland" -> JSONB.fromJson(jsonObject.toString(), VerblijfplaatsBuitenland.class);
-            case "Adres" -> JSONB.fromJson(jsonObject.toString(), Adres.class);
-            case "VerblijfplaatsOnbekend" -> JSONB.fromJson(jsonObject.toString(), VerblijfplaatsOnbekend.class);
-            case "Locatie" -> JSONB.fromJson(jsonObject.toString(), Locatie.class);
-            default -> throw new RuntimeException("Type '%s' wordt niet ondersteund".formatted(type));
-        };
-    }
+  @Override
+  public AbstractVerblijfplaats deserialize(
+      final JsonParser parser, final DeserializationContext ctx, final Type rtType) {
+    final JsonObject jsonObject = parser.getObject();
+    final String type = jsonObject.getString("type");
+    return switch (type) {
+      case "VerblijfplaatsBuitenland" ->
+          JSONB.fromJson(jsonObject.toString(), VerblijfplaatsBuitenland.class);
+      case "Adres" -> JSONB.fromJson(jsonObject.toString(), Adres.class);
+      case "VerblijfplaatsOnbekend" ->
+          JSONB.fromJson(jsonObject.toString(), VerblijfplaatsOnbekend.class);
+      case "Locatie" -> JSONB.fromJson(jsonObject.toString(), Locatie.class);
+      default -> throw new RuntimeException("Type '%s' wordt niet ondersteund".formatted(type));
+    };
+  }
 }

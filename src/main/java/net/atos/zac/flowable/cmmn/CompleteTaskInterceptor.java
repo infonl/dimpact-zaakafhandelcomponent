@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.flowable.cmmn;
 
 import org.flowable.cmmn.engine.CmmnEngineConfiguration;
@@ -13,13 +12,13 @@ import net.atos.zac.flowable.FlowableHelper;
 
 public class CompleteTaskInterceptor extends DefaultCmmnIdentityLinkInterceptor {
 
-    public CompleteTaskInterceptor(final CmmnEngineConfiguration cmmnEngineConfiguration) {
-        super(cmmnEngineConfiguration);
-    }
+  public CompleteTaskInterceptor(final CmmnEngineConfiguration cmmnEngineConfiguration) {
+    super(cmmnEngineConfiguration);
+  }
 
-    @Override
-    public void handleCompleteTask(final TaskEntity task) {
-        super.handleCompleteTask(task);
-        FlowableHelper.getInstance().getIndexeerService().removeTaak(task.getId());
-    }
+  @Override
+  public void handleCompleteTask(final TaskEntity task) {
+    super.handleCompleteTask(task);
+    FlowableHelper.getInstance().getIndexeerService().removeTaak(task.getId());
+  }
 }

@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.shared.model;
 
 import jakarta.json.bind.annotation.JsonbTypeAdapter;
@@ -13,56 +12,56 @@ import jakarta.json.bind.annotation.JsonbTypeAdapter;
 @JsonbTypeAdapter(Bron.Adapter.class)
 public enum Bron implements AbstractEnum<Bron> {
 
-    /**
-     * Autorisaties API.
-     */
-    AUTORISATIES_API("AC"),
+  /**
+   * Autorisaties API.
+   */
+  AUTORISATIES_API("AC"),
 
-    /**
-     * Notificaties API.
-     */
-    NOTIFICATIES_API("NRC"),
+  /**
+   * Notificaties API.
+   */
+  NOTIFICATIES_API("NRC"),
 
-    /**
-     * Zaken API
-     */
-    ZAKEN_API("ZRC"),
+  /**
+   * Zaken API
+   */
+  ZAKEN_API("ZRC"),
 
-    /**
-     * Catalogi API
-     */
-    CATALOGI_API("ZTC"),
+  /**
+   * Catalogi API
+   */
+  CATALOGI_API("ZTC"),
 
-    /**
-     * Documenten API
-     */
-    DOCUMENTEN_API("DRC"),
+  /**
+   * Documenten API
+   */
+  DOCUMENTEN_API("DRC"),
 
-    /**
-     * Besluiten API
-     */
-    BESLUITEN_API("BRC");
+  /**
+   * Besluiten API
+   */
+  BESLUITEN_API("BRC");
 
-    private final String value;
+  private final String value;
 
-    Bron(final String value) {
-        this.value = value;
-    }
+  Bron(final String value) {
+    this.value = value;
+  }
+
+  @Override
+  public String toValue() {
+    return value;
+  }
+
+  public static Bron fromValue(final String value) {
+    return AbstractEnum.fromValue(values(), value);
+  }
+
+  static class Adapter extends AbstractEnum.Adapter<Bron> {
 
     @Override
-    public String toValue() {
-        return value;
+    protected Bron[] getEnums() {
+      return values();
     }
-
-    public static Bron fromValue(final String value) {
-        return AbstractEnum.fromValue(values(), value);
-    }
-
-    static class Adapter extends AbstractEnum.Adapter<Bron> {
-
-        @Override
-        protected Bron[] getEnums() {
-            return values();
-        }
-    }
+  }
 }

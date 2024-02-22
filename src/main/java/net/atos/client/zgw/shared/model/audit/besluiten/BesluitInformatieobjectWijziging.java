@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.shared.model.audit.besluiten;
 
 import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject;
@@ -11,8 +10,8 @@ import net.atos.client.zgw.shared.model.audit.AuditWijziging;
 
 public class BesluitInformatieobjectWijziging extends AuditWijziging<BesluitInformatieObject> {
 
-    @Override
-    public ObjectType getObjectType() {
-        return ObjectType.BESLUIT_INFORMATIEOBJECT;
-    }
+  @Override
+  public ObjectType getObjectType() {
+    return ObjectType.BESLUIT_INFORMATIEOBJECT;
+  }
 }

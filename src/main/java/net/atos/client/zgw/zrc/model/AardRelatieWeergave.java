@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.zrc.model;
 
 import jakarta.json.bind.annotation.JsonbTypeAdapter;
@@ -14,31 +13,30 @@ import net.atos.client.zgw.shared.model.AbstractEnum;
  */
 @JsonbTypeAdapter(AardRelatieWeergave.Adapter.class)
 public enum AardRelatieWeergave implements AbstractEnum<AardRelatieWeergave> {
+  HOORT_BIJ("Hoort bij, omgekeerd: kent"),
 
-    HOORT_BIJ("Hoort bij, omgekeerd: kent"),
+  LEGT_VAST("Legt vast, omgekeerd: kan vastgelegd zijn als");
 
-    LEGT_VAST("Legt vast, omgekeerd: kan vastgelegd zijn als");
+  private final String value;
 
-    private final String value;
+  AardRelatieWeergave(final String value) {
+    this.value = value;
+  }
 
-    AardRelatieWeergave(final String value) {
-        this.value = value;
-    }
+  @Override
+  public String toValue() {
+    return value;
+  }
+
+  public static AardRelatieWeergave fromValue(final String value) {
+    return AbstractEnum.fromValue(values(), value);
+  }
+
+  static class Adapter extends AbstractEnum.Adapter<AardRelatieWeergave> {
 
     @Override
-    public String toValue() {
-        return value;
+    protected AardRelatieWeergave[] getEnums() {
+      return values();
     }
-
-    public static AardRelatieWeergave fromValue(final String value) {
-        return AbstractEnum.fromValue(values(), value);
-    }
-
-    static class Adapter extends AbstractEnum.Adapter<AardRelatieWeergave> {
-
-        @Override
-        protected AardRelatieWeergave[] getEnums() {
-            return values();
-        }
-    }
+  }
 }

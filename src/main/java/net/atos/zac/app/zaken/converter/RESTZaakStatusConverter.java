@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.zaken.converter;
 
 import jakarta.inject.Inject;
@@ -15,19 +14,14 @@ import net.atos.zac.app.zaken.model.RESTZaakStatus;
 
 public class RESTZaakStatusConverter {
 
-    @Inject
-    private ZRCClientService zrcClientService;
+  @Inject private ZRCClientService zrcClientService;
 
-    @Inject
-    private ZTCClientService ztcClientService;
+  @Inject private ZTCClientService ztcClientService;
 
-    public RESTZaakStatus convertToRESTZaakStatus(
-            final Status status,
-            final StatusType statustype
-    ) {
-        final RESTZaakStatus restZaakStatus = new RESTZaakStatus();
-        restZaakStatus.toelichting = status.getStatustoelichting();
-        restZaakStatus.naam = statustype.getOmschrijving();
-        return restZaakStatus;
-    }
+  public RESTZaakStatus convertToRESTZaakStatus(final Status status, final StatusType statustype) {
+    final RESTZaakStatus restZaakStatus = new RESTZaakStatus();
+    restZaakStatus.toelichting = status.getStatustoelichting();
+    restZaakStatus.naam = statustype.getOmschrijving();
+    return restZaakStatus;
+  }
 }

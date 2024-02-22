@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.zrc.model;
 
 import jakarta.json.bind.annotation.JsonbTypeAdapter;
@@ -11,31 +10,30 @@ import net.atos.client.zgw.shared.model.AbstractEnum;
 
 @JsonbTypeAdapter(Geslachtsaanduiding.Adapter.class)
 public enum Geslachtsaanduiding implements AbstractEnum<Geslachtsaanduiding> {
-    MAN("m"),
-    VROUW("v"),
-    ONBEKEND("o");
+  MAN("m"),
+  VROUW("v"),
+  ONBEKEND("o");
 
-    private final String value;
+  private final String value;
 
-    Geslachtsaanduiding(final String value) {
-        this.value = value;
-    }
+  Geslachtsaanduiding(final String value) {
+    this.value = value;
+  }
+
+  @Override
+  public String toValue() {
+    return value;
+  }
+
+  public static Geslachtsaanduiding fromValue(final String value) {
+    return AbstractEnum.fromValue(values(), value);
+  }
+
+  static class Adapter extends AbstractEnum.Adapter<Geslachtsaanduiding> {
 
     @Override
-    public String toValue() {
-        return value;
+    protected Geslachtsaanduiding[] getEnums() {
+      return values();
     }
-
-    public static Geslachtsaanduiding fromValue(final String value) {
-        return AbstractEnum.fromValue(values(), value);
-    }
-
-
-    static class Adapter extends AbstractEnum.Adapter<Geslachtsaanduiding> {
-
-        @Override
-        protected Geslachtsaanduiding[] getEnums() {
-            return values();
-        }
-    }
+  }
 }

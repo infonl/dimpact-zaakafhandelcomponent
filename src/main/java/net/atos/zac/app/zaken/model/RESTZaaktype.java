@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.zaken.model;
 
 import java.time.LocalDate;
@@ -16,38 +15,37 @@ import net.atos.zac.app.admin.model.RESTZaakafhandelParameters;
 
 public class RESTZaaktype {
 
-    @NotNull
-    public UUID uuid;
+  @NotNull public UUID uuid;
 
-    public String identificatie;
+  public String identificatie;
 
-    public String doel;
+  public String doel;
 
-    public String omschrijving;
+  public String omschrijving;
 
-    public String referentieproces;
+  public String referentieproces;
 
-    public boolean servicenorm;
+  public boolean servicenorm;
 
-    public LocalDate versiedatum;
+  public LocalDate versiedatum;
 
-    public LocalDate beginGeldigheid;
+  public LocalDate beginGeldigheid;
 
-    public LocalDate eindeGeldigheid;
+  public LocalDate eindeGeldigheid;
 
-    public ZaakType.VertrouwelijkheidaanduidingEnum vertrouwelijkheidaanduiding;
+  public ZaakType.VertrouwelijkheidaanduidingEnum vertrouwelijkheidaanduiding;
 
-    public boolean nuGeldig;
+  public boolean nuGeldig;
 
-    public boolean opschortingMogelijk;
+  public boolean opschortingMogelijk;
 
-    public boolean verlengingMogelijk;
+  public boolean verlengingMogelijk;
 
-    public Integer verlengingstermijn;
+  public Integer verlengingstermijn;
 
-    public List<RESTZaaktypeRelatie> zaaktypeRelaties;
+  public List<RESTZaaktypeRelatie> zaaktypeRelaties;
 
-    public List<UUID> informatieobjecttypes;
+  public List<UUID> informatieobjecttypes;
 
-    public RESTZaakafhandelParameters zaakafhandelparameters;
+  public RESTZaakafhandelParameters zaakafhandelparameters;
 }

@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.shared.exception;
 
 import java.net.URI;
@@ -14,28 +13,29 @@ import net.atos.client.zgw.shared.model.Fout;
  */
 public class FoutException extends RuntimeException {
 
-    private final Fout fout;
+  private final Fout fout;
 
-    public FoutException(final Fout fout) {
-        this.fout = fout;
-    }
+  public FoutException(final Fout fout) {
+    this.fout = fout;
+  }
 
-    public Fout getFout() {
-        return fout;
-    }
+  public Fout getFout() {
+    return fout;
+  }
 
-    @Override
-    public String getMessage() {
-        return "%s [%d %s] %s (%s %s)"
-                .formatted(fout.getTitle(),
-                           fout.getStatus(),
-                           fout.getCode(),
-                           fout.getDetail(),
-                           uri(fout.getType()),
-                           uri(fout.getInstance()));
-    }
+  @Override
+  public String getMessage() {
+    return "%s [%d %s] %s (%s %s)"
+        .formatted(
+            fout.getTitle(),
+            fout.getStatus(),
+            fout.getCode(),
+            fout.getDetail(),
+            uri(fout.getType()),
+            uri(fout.getInstance()));
+  }
 
-    private String uri(final URI uri) {
-        return uri == null ? null : uri.toString();
-    }
+  private String uri(final URI uri) {
+    return uri == null ? null : uri.toString();
+  }
 }

@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.sd;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -28,13 +27,17 @@ import net.atos.client.sd.model.WizardResponse;
 @Produces(APPLICATION_JSON)
 public interface SmartDocumentsClient {
 
-    @POST
-    @Path("deposit/unattended")
-    UnattendedResponse unattendedDeposit(@HeaderParam("Authorization") final String authenticationToken, @HeaderParam("Username") final String username,
-            final Deposit deposit);
+  @POST
+  @Path("deposit/unattended")
+  UnattendedResponse unattendedDeposit(
+      @HeaderParam("Authorization") final String authenticationToken,
+      @HeaderParam("Username") final String username,
+      final Deposit deposit);
 
-    @POST
-    @Path("deposit/wizard")
-    WizardResponse wizardDeposit(@HeaderParam("Authorization") final String authenticationToken, @HeaderParam("Username") final String username,
-            final Deposit deposit);
+  @POST
+  @Path("deposit/wizard")
+  WizardResponse wizardDeposit(
+      @HeaderParam("Authorization") final String authenticationToken,
+      @HeaderParam("Username") final String username,
+      final Deposit deposit);
 }

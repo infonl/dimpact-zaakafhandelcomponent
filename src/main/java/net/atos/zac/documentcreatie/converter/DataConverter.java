@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.documentcreatie.converter;
 
 import static net.atos.client.or.shared.util.URIUtil.getUUID;
@@ -52,213 +51,214 @@ import net.atos.zac.identity.IdentityService;
 
 public class DataConverter {
 
-    public static final String DATE_FORMAT = "dd-MM-yyyy";
+  public static final String DATE_FORMAT = "dd-MM-yyyy";
 
-    @Inject
-    private ZGWApiService zgwApiService;
+  @Inject private ZGWApiService zgwApiService;
 
-    @Inject
-    private ZRCClientService zrcClientService;
+  @Inject private ZRCClientService zrcClientService;
 
-    @Inject
-    private ZTCClientService ztcClientService;
+  @Inject private ZTCClientService ztcClientService;
 
-    @Inject
-    private VRLClientService vrlClientService;
+  @Inject private VRLClientService vrlClientService;
 
-    @Inject
-    private BRPClientService brpClientService;
+  @Inject private BRPClientService brpClientService;
 
-    @Inject
-    private KVKClientService kvkClientService;
+  @Inject private KVKClientService kvkClientService;
 
-    @Inject
-    private ObjectsClientService objectsClientService;
+  @Inject private ObjectsClientService objectsClientService;
 
-    @Inject
-    private TakenService takenService;
+  @Inject private TakenService takenService;
 
-    @Inject
-    private TaakVariabelenService taakVariabelenService;
+  @Inject private TaakVariabelenService taakVariabelenService;
 
-    @Inject
-    private IdentityService identityService;
+  @Inject private IdentityService identityService;
 
-    @Inject
-    private ProductaanvraagService productaanvraagService;
+  @Inject private ProductaanvraagService productaanvraagService;
 
-    public Data createData(final DocumentCreatieGegevens documentCreatieGegevens, final LoggedInUser loggedInUser) {
-        final Data data = new Data();
-        data.gebruiker = createGebruikerData(loggedInUser);
-        data.zaak = createZaakData(documentCreatieGegevens.getZaak());
-        data.aanvrager = createAanvragerData(documentCreatieGegevens.getZaak());
-        data.startformulier = createStartformulierData(documentCreatieGegevens.getZaak().getUrl());
-        if (documentCreatieGegevens.getTaskId() != null) {
-            data.taak = createTaakData(documentCreatieGegevens.getTaskId());
-        }
-        return data;
+  public Data createData(
+      final DocumentCreatieGegevens documentCreatieGegevens, final LoggedInUser loggedInUser) {
+    final Data data = new Data();
+    data.gebruiker = createGebruikerData(loggedInUser);
+    data.zaak = createZaakData(documentCreatieGegevens.getZaak());
+    data.aanvrager = createAanvragerData(documentCreatieGegevens.getZaak());
+    data.startformulier = createStartformulierData(documentCreatieGegevens.getZaak().getUrl());
+    if (documentCreatieGegevens.getTaskId() != null) {
+      data.taak = createTaakData(documentCreatieGegevens.getTaskId());
+    }
+    return data;
+  }
+
+  private GebruikerData createGebruikerData(final LoggedInUser loggedInUser) {
+    final GebruikerData gebruikerData = new GebruikerData();
+    gebruikerData.id = loggedInUser.getId();
+    gebruikerData.naam = loggedInUser.getFullName();
+    return gebruikerData;
+  }
+
+  private ZaakData createZaakData(final Zaak zaak) {
+    final ZaakData zaakData = new ZaakData();
+
+    zaakData.identificatie = zaak.getIdentificatie();
+    zaakData.omschrijving = zaak.getOmschrijving();
+    zaakData.toelichting = zaak.getToelichting();
+    zaakData.zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype()).getOmschrijving();
+    zaakData.registratiedatum = zaak.getRegistratiedatum();
+    zaakData.startdatum = zaak.getStartdatum();
+    zaakData.einddatumGepland = zaak.getEinddatumGepland();
+    zaakData.uiterlijkeEinddatumAfdoening = zaak.getUiterlijkeEinddatumAfdoening();
+    zaakData.einddatum = zaak.getEinddatum();
+
+    if (zaak.getStatus() != null) {
+      zaakData.status =
+          ztcClientService
+              .readStatustype(zrcClientService.readStatus(zaak.getStatus()).getStatustype())
+              .getOmschrijving();
     }
 
-    private GebruikerData createGebruikerData(final LoggedInUser loggedInUser) {
-        final GebruikerData gebruikerData = new GebruikerData();
-        gebruikerData.id = loggedInUser.getId();
-        gebruikerData.naam = loggedInUser.getFullName();
-        return gebruikerData;
+    if (zaak.getResultaat() != null) {
+      zaakData.resultaat =
+          ztcClientService
+              .readResultaattype(
+                  zrcClientService.readResultaat(zaak.getResultaat()).getResultaattype())
+              .getOmschrijving();
     }
 
-    private ZaakData createZaakData(final Zaak zaak) {
-        final ZaakData zaakData = new ZaakData();
-
-        zaakData.identificatie = zaak.getIdentificatie();
-        zaakData.omschrijving = zaak.getOmschrijving();
-        zaakData.toelichting = zaak.getToelichting();
-        zaakData.zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype()).getOmschrijving();
-        zaakData.registratiedatum = zaak.getRegistratiedatum();
-        zaakData.startdatum = zaak.getStartdatum();
-        zaakData.einddatumGepland = zaak.getEinddatumGepland();
-        zaakData.uiterlijkeEinddatumAfdoening = zaak.getUiterlijkeEinddatumAfdoening();
-        zaakData.einddatum = zaak.getEinddatum();
-
-        if (zaak.getStatus() != null) {
-            zaakData.status = ztcClientService.readStatustype(
-                    zrcClientService.readStatus(zaak.getStatus()).getStatustype()).getOmschrijving();
-        }
-
-        if (zaak.getResultaat() != null) {
-            zaakData.resultaat = ztcClientService.readResultaattype(
-                            zrcClientService.readResultaat(zaak.getResultaat()).getResultaattype())
-                    .getOmschrijving();
-        }
-
-        if (zaak.isOpgeschort()) {
-            zaakData.opschortingReden = zaak.getOpschorting().getReden();
-        }
-
-        if (zaak.isVerlengd()) {
-            zaakData.verlengingReden = zaak.getVerlenging().getReden();
-        }
-
-        if (zaak.getVertrouwelijkheidaanduiding() != null) {
-            zaakData.vertrouwelijkheidaanduiding = zaak.getVertrouwelijkheidaanduiding().value();
-        }
-
-        zgwApiService.findGroepForZaak(zaak)
-                .map(RolOrganisatorischeEenheid::getNaam)
-                .ifPresent(groep -> zaakData.groep = groep);
-
-        zgwApiService.findBehandelaarForZaak(zaak)
-                .map(RolMedewerker::getNaam)
-                .ifPresent(behandelaar -> zaakData.behandelaar = behandelaar);
-
-        if (zaak.getCommunicatiekanaal() != null) {
-            vrlClientService.findCommunicatiekanaal(uuidFromURI(zaak.getCommunicatiekanaal()))
-                    .map(CommunicatieKanaal::getNaam)
-                    .ifPresent(communicatiekanaal -> zaakData.communicatiekanaal = communicatiekanaal);
-        }
-
-        return zaakData;
+    if (zaak.isOpgeschort()) {
+      zaakData.opschortingReden = zaak.getOpschorting().getReden();
     }
 
-    private AanvragerData createAanvragerData(final Zaak zaak) {
-        return zgwApiService.findInitiatorForZaak(zaak)
-                .map(this::convertToAanvragerData)
-                .orElse(null);
+    if (zaak.isVerlengd()) {
+      zaakData.verlengingReden = zaak.getVerlenging().getReden();
     }
 
-    private AanvragerData convertToAanvragerData(final Rol<?> initiator) {
-        return switch (initiator.getBetrokkeneType()) {
-            case NATUURLIJK_PERSOON -> createAanvragerDataNatuurlijkPersoon(initiator.getIdentificatienummer());
-            case VESTIGING -> createAanvragerDataVestiging(initiator.getIdentificatienummer());
-            case NIET_NATUURLIJK_PERSOON ->
-                    createAanvragerDataNietNatuurlijkPersoon(initiator.getIdentificatienummer());
-            default -> throw new NotImplementedException(
-                    String.format("Initiator of type '%s' is not supported", initiator.getBetrokkeneType().toValue())
-            );
-        };
+    if (zaak.getVertrouwelijkheidaanduiding() != null) {
+      zaakData.vertrouwelijkheidaanduiding = zaak.getVertrouwelijkheidaanduiding().value();
     }
 
-    private AanvragerData createAanvragerDataNatuurlijkPersoon(final String bsn) {
-        return brpClientService.findPersoon(bsn)
-                .map(this::convertToAanvragerDataPersoon)
-                .orElse(null);
+    zgwApiService
+        .findGroepForZaak(zaak)
+        .map(RolOrganisatorischeEenheid::getNaam)
+        .ifPresent(groep -> zaakData.groep = groep);
+
+    zgwApiService
+        .findBehandelaarForZaak(zaak)
+        .map(RolMedewerker::getNaam)
+        .ifPresent(behandelaar -> zaakData.behandelaar = behandelaar);
+
+    if (zaak.getCommunicatiekanaal() != null) {
+      vrlClientService
+          .findCommunicatiekanaal(uuidFromURI(zaak.getCommunicatiekanaal()))
+          .map(CommunicatieKanaal::getNaam)
+          .ifPresent(communicatiekanaal -> zaakData.communicatiekanaal = communicatiekanaal);
     }
 
-    private AanvragerData convertToAanvragerDataPersoon(final Persoon persoon) {
-        final AanvragerData aanvragerData = new AanvragerData();
-        if (persoon.getNaam() != null) {
-            aanvragerData.naam = persoon.getNaam().getVolledigeNaam();
-        }
-        if (persoon.getVerblijfplaats() instanceof Adres adres && adres.getVerblijfadres() != null) {
-            final var verblijfadres = adres.getVerblijfadres();
-            aanvragerData.straat = verblijfadres.getOfficieleStraatnaam();
-            aanvragerData.huisnummer = convertToHuisnummer(verblijfadres);
-            aanvragerData.postcode = verblijfadres.getPostcode();
-            aanvragerData.woonplaats = verblijfadres.getWoonplaats();
-        }
-        return aanvragerData;
-    }
+    return zaakData;
+  }
 
-    private String convertToHuisnummer(final VerblijfadresBinnenland verblijfadres) {
-        return joinNonBlank(Objects.toString(verblijfadres.getHuisnummer(), null),
-                            verblijfadres.getHuisnummertoevoeging(),
-                            verblijfadres.getHuisletter());
-    }
+  private AanvragerData createAanvragerData(final Zaak zaak) {
+    return zgwApiService.findInitiatorForZaak(zaak).map(this::convertToAanvragerData).orElse(null);
+  }
 
-    private AanvragerData createAanvragerDataVestiging(final String vestigingsnummer) {
-        return kvkClientService.findVestiging(vestigingsnummer)
-                .map(this::convertToAanvragerDataBedrijf)
-                .orElse(null);
-    }
+  private AanvragerData convertToAanvragerData(final Rol<?> initiator) {
+    return switch (initiator.getBetrokkeneType()) {
+      case NATUURLIJK_PERSOON ->
+          createAanvragerDataNatuurlijkPersoon(initiator.getIdentificatienummer());
+      case VESTIGING -> createAanvragerDataVestiging(initiator.getIdentificatienummer());
+      case NIET_NATUURLIJK_PERSOON ->
+          createAanvragerDataNietNatuurlijkPersoon(initiator.getIdentificatienummer());
+      default ->
+          throw new NotImplementedException(
+              String.format(
+                  "Initiator of type '%s' is not supported",
+                  initiator.getBetrokkeneType().toValue()));
+    };
+  }
 
-    private AanvragerData createAanvragerDataNietNatuurlijkPersoon(final String rsin) {
-        return kvkClientService.findRechtspersoon(rsin)
-                .map(this::convertToAanvragerDataBedrijf)
-                .orElse(null);
-    }
+  private AanvragerData createAanvragerDataNatuurlijkPersoon(final String bsn) {
+    return brpClientService.findPersoon(bsn).map(this::convertToAanvragerDataPersoon).orElse(null);
+  }
 
-    private AanvragerData convertToAanvragerDataBedrijf(final ResultaatItem vestiging) {
-        final AanvragerData aanvragerData = new AanvragerData();
-        aanvragerData.naam = vestiging.getHandelsnaam();
-        aanvragerData.straat = vestiging.getStraatnaam();
-        aanvragerData.huisnummer = convertToHuisnummer(vestiging);
-        aanvragerData.postcode = vestiging.getPostcode();
-        aanvragerData.woonplaats = vestiging.getPlaats();
-        return aanvragerData;
+  private AanvragerData convertToAanvragerDataPersoon(final Persoon persoon) {
+    final AanvragerData aanvragerData = new AanvragerData();
+    if (persoon.getNaam() != null) {
+      aanvragerData.naam = persoon.getNaam().getVolledigeNaam();
     }
+    if (persoon.getVerblijfplaats() instanceof Adres adres && adres.getVerblijfadres() != null) {
+      final var verblijfadres = adres.getVerblijfadres();
+      aanvragerData.straat = verblijfadres.getOfficieleStraatnaam();
+      aanvragerData.huisnummer = convertToHuisnummer(verblijfadres);
+      aanvragerData.postcode = verblijfadres.getPostcode();
+      aanvragerData.woonplaats = verblijfadres.getWoonplaats();
+    }
+    return aanvragerData;
+  }
 
-    private String convertToHuisnummer(final ResultaatItem vestiging) {
-        return joinNonBlank(Objects.toString(vestiging.getHuisnummer(), null),
-                            vestiging.getHuisnummerToevoeging());
-    }
+  private String convertToHuisnummer(final VerblijfadresBinnenland verblijfadres) {
+    return joinNonBlank(
+        Objects.toString(verblijfadres.getHuisnummer(), null),
+        verblijfadres.getHuisnummertoevoeging(),
+        verblijfadres.getHuisletter());
+  }
 
-    private StartformulierData createStartformulierData(final URI zaak) {
-        final ZaakobjectListParameters listParameters = new ZaakobjectListParameters();
-        listParameters.setZaak(zaak);
-        listParameters.setObjectType(OVERIGE);
-        return zrcClientService.listZaakobjecten(listParameters).getResults().stream()
-                .filter(zo -> ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE.equals(zo.getObjectTypeOverige()))
-                .findAny()
-                .map(this::convertToStartformulierData)
-                .orElse(null);
-    }
+  private AanvragerData createAanvragerDataVestiging(final String vestigingsnummer) {
+    return kvkClientService
+        .findVestiging(vestigingsnummer)
+        .map(this::convertToAanvragerDataBedrijf)
+        .orElse(null);
+  }
 
-    private StartformulierData convertToStartformulierData(final Zaakobject zaakobject) {
-        final var productAaanvraagObject = objectsClientService.readObject(getUUID(zaakobject.getObject()));
-        final var productAanvraag = productaanvraagService.getProductaanvraag(productAaanvraagObject);
-        final var startformulierData = new StartformulierData();
-        startformulierData.productAanvraagtype = productAanvraag.getType();
-        startformulierData.data = productaanvraagService.getFormulierData(productAaanvraagObject);
-        return startformulierData;
-    }
+  private AanvragerData createAanvragerDataNietNatuurlijkPersoon(final String rsin) {
+    return kvkClientService
+        .findRechtspersoon(rsin)
+        .map(this::convertToAanvragerDataBedrijf)
+        .orElse(null);
+  }
 
-    private TaakData createTaakData(final String taskId) {
-        final TaakData taakData = new TaakData();
-        final TaskInfo taskInfo = takenService.readTask(taskId);
-        taakData.naam = taskInfo.getName();
-        if (taskInfo.getAssignee() != null) {
-            taakData.behandelaar = identityService.readUser(taskInfo.getAssignee()).getFullName();
-        }
-        taakData.data = taakVariabelenService.readTaakdata(taskInfo);
-        return taakData;
+  private AanvragerData convertToAanvragerDataBedrijf(final ResultaatItem vestiging) {
+    final AanvragerData aanvragerData = new AanvragerData();
+    aanvragerData.naam = vestiging.getHandelsnaam();
+    aanvragerData.straat = vestiging.getStraatnaam();
+    aanvragerData.huisnummer = convertToHuisnummer(vestiging);
+    aanvragerData.postcode = vestiging.getPostcode();
+    aanvragerData.woonplaats = vestiging.getPlaats();
+    return aanvragerData;
+  }
+
+  private String convertToHuisnummer(final ResultaatItem vestiging) {
+    return joinNonBlank(
+        Objects.toString(vestiging.getHuisnummer(), null), vestiging.getHuisnummerToevoeging());
+  }
+
+  private StartformulierData createStartformulierData(final URI zaak) {
+    final ZaakobjectListParameters listParameters = new ZaakobjectListParameters();
+    listParameters.setZaak(zaak);
+    listParameters.setObjectType(OVERIGE);
+    return zrcClientService.listZaakobjecten(listParameters).getResults().stream()
+        .filter(
+            zo -> ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE.equals(zo.getObjectTypeOverige()))
+        .findAny()
+        .map(this::convertToStartformulierData)
+        .orElse(null);
+  }
+
+  private StartformulierData convertToStartformulierData(final Zaakobject zaakobject) {
+    final var productAaanvraagObject =
+        objectsClientService.readObject(getUUID(zaakobject.getObject()));
+    final var productAanvraag = productaanvraagService.getProductaanvraag(productAaanvraagObject);
+    final var startformulierData = new StartformulierData();
+    startformulierData.productAanvraagtype = productAanvraag.getType();
+    startformulierData.data = productaanvraagService.getFormulierData(productAaanvraagObject);
+    return startformulierData;
+  }
+
+  private TaakData createTaakData(final String taskId) {
+    final TaakData taakData = new TaakData();
+    final TaskInfo taskInfo = takenService.readTask(taskId);
+    taakData.naam = taskInfo.getName();
+    if (taskInfo.getAssignee() != null) {
+      taakData.behandelaar = identityService.readUser(taskInfo.getAssignee()).getFullName();
     }
+    taakData.data = taakVariabelenService.readTaakdata(taskInfo);
+    return taakData;
+  }
 }

@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.notities.model;
 
 import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
@@ -26,72 +25,74 @@ import jakarta.validation.constraints.NotNull;
  */
 @Entity
 @Table(schema = SCHEMA, name = "notitie")
-@SequenceGenerator(schema = SCHEMA, name = "notitie_sq", sequenceName = "notitie_sq", allocationSize = 1)
+@SequenceGenerator(
+    schema = SCHEMA,
+    name = "notitie_sq",
+    sequenceName = "notitie_sq",
+    allocationSize = 1)
 public class Notitie {
 
-    /**
-     * Naam van property: {@link Notitie#zaakUUID}
-     */
-    public static final String ZAAK_UUID = "zaakUUID";
+  /**
+   * Naam van property: {@link Notitie#zaakUUID}
+   */
+  public static final String ZAAK_UUID = "zaakUUID";
 
-    @Id
-    @GeneratedValue(generator = "notitie_sq", strategy = GenerationType.SEQUENCE)
-    private Long id;
+  @Id
+  @GeneratedValue(generator = "notitie_sq", strategy = GenerationType.SEQUENCE)
+  private Long id;
 
-    @Basic
-    @Column(name = "zaak_uuid", updatable = false)
-    private UUID zaakUUID;
+  @Basic
+  @Column(name = "zaak_uuid", updatable = false)
+  private UUID zaakUUID;
 
-    @NotBlank
-    @Column(nullable = false)
-    private String tekst;
+  @NotBlank
+  @Column(nullable = false)
+  private String tekst;
 
-    @NotNull
-    @Column(name = "tijdstip_laatste_wijziging", nullable = false)
-    private ZonedDateTime tijdstipLaatsteWijziging;
+  @NotNull @Column(name = "tijdstip_laatste_wijziging", nullable = false)
+  private ZonedDateTime tijdstipLaatsteWijziging;
 
-    @NotBlank
-    @Column(name = "gebruikersnaam_medewerker", nullable = false, updatable = false)
-    private String gebruikersnaamMedewerker;
+  @NotBlank
+  @Column(name = "gebruikersnaam_medewerker", nullable = false, updatable = false)
+  private String gebruikersnaamMedewerker;
 
-    public Long getId() {
-        return id;
-    }
+  public Long getId() {
+    return id;
+  }
 
-    public void setId(final Long id) {
-        this.id = id;
-    }
+  public void setId(final Long id) {
+    this.id = id;
+  }
 
-    public UUID getZaakUUID() {
-        return zaakUUID;
-    }
+  public UUID getZaakUUID() {
+    return zaakUUID;
+  }
 
-    public void setZaakUUID(final UUID zaakUUID) {
-        this.zaakUUID = zaakUUID;
-    }
+  public void setZaakUUID(final UUID zaakUUID) {
+    this.zaakUUID = zaakUUID;
+  }
 
-    public String getTekst() {
-        return tekst;
-    }
+  public String getTekst() {
+    return tekst;
+  }
 
-    public void setTekst(final String text) {
-        this.tekst = text;
-    }
+  public void setTekst(final String text) {
+    this.tekst = text;
+  }
 
-    public String getGebruikersnaamMedewerker() {
-        return gebruikersnaamMedewerker;
-    }
+  public String getGebruikersnaamMedewerker() {
+    return gebruikersnaamMedewerker;
+  }
 
-    public void setGebruikersnaamMedewerker(final String gebruikersnaamMedewerker) {
-        this.gebruikersnaamMedewerker = gebruikersnaamMedewerker;
-    }
+  public void setGebruikersnaamMedewerker(final String gebruikersnaamMedewerker) {
+    this.gebruikersnaamMedewerker = gebruikersnaamMedewerker;
+  }
 
-    public void setTijdstipLaatsteWijziging(final ZonedDateTime tijdstipLaatsteWijziging) {
-        this.tijdstipLaatsteWijziging = tijdstipLaatsteWijziging;
-    }
+  public void setTijdstipLaatsteWijziging(final ZonedDateTime tijdstipLaatsteWijziging) {
+    this.tijdstipLaatsteWijziging = tijdstipLaatsteWijziging;
+  }
 
-    public ZonedDateTime getTijdstipLaatsteWijziging() {
-        return tijdstipLaatsteWijziging;
-    }
-
+  public ZonedDateTime getTijdstipLaatsteWijziging() {
+    return tijdstipLaatsteWijziging;
+  }
 }

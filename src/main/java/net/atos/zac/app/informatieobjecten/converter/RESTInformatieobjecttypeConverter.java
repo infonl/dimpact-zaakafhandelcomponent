@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.informatieobjecten.converter;
 
 import java.net.URI;
@@ -19,23 +18,26 @@ import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjecttype;
 
 public class RESTInformatieobjecttypeConverter {
 
-    @Inject
-    private ZTCClientService ztcClientService;
+  @Inject private ZTCClientService ztcClientService;
 
-    public RESTInformatieobjecttype convert(final InformatieObjectType type) {
-        final RESTInformatieobjecttype restType = new RESTInformatieobjecttype();
-        restType.uuid = URIUtil.parseUUIDFromResourceURI(type.getUrl());
-        restType.concept = type.getConcept();
-        restType.omschrijving = type.getOmschrijving();
-        restType.vertrouwelijkheidaanduiding = type.getVertrouwelijkheidaanduiding().value();
-        return restType;
-    }
+  public RESTInformatieobjecttype convert(final InformatieObjectType type) {
+    final RESTInformatieobjecttype restType = new RESTInformatieobjecttype();
+    restType.uuid = URIUtil.parseUUIDFromResourceURI(type.getUrl());
+    restType.concept = type.getConcept();
+    restType.omschrijving = type.getOmschrijving();
+    restType.vertrouwelijkheidaanduiding = type.getVertrouwelijkheidaanduiding().value();
+    return restType;
+  }
 
-    public List<RESTInformatieobjecttype> convert(final Set<URI> informatieobjecttypen) {
-        return informatieobjecttypen.stream().map(ztcClientService::readInformatieobjecttype).map(this::convert).collect(Collectors.toList());
-    }
+  public List<RESTInformatieobjecttype> convert(final Set<URI> informatieobjecttypen) {
+    return informatieobjecttypen.stream()
+        .map(ztcClientService::readInformatieobjecttype)
+        .map(this::convert)
+        .collect(Collectors.toList());
+  }
 
-    public List<RESTInformatieobjecttype> convert(final List<InformatieObjectType> informatieobjecttypen) {
-        return informatieobjecttypen.stream().map(this::convert).collect(Collectors.toList());
-    }
+  public List<RESTInformatieobjecttype> convert(
+      final List<InformatieObjectType> informatieobjecttypen) {
+    return informatieobjecttypen.stream().map(this::convert).collect(Collectors.toList());
+  }
 }

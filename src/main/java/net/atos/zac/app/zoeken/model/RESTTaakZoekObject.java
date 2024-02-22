@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.zoeken.model;
 
 import java.time.LocalDate;
@@ -13,44 +12,43 @@ import net.atos.zac.app.taken.model.TaakStatus;
 
 public class RESTTaakZoekObject extends AbstractRESTZoekObject {
 
-    public String naam;
+  public String naam;
 
-    public String toelichting;
+  public String toelichting;
 
-    public TaakStatus status;
+  public TaakStatus status;
 
-    public String zaakUuid;
+  public String zaakUuid;
 
-    public String zaakIdentificatie;
+  public String zaakIdentificatie;
 
-    public String zaakOmschrijving;
+  public String zaakOmschrijving;
 
-    public String zaakToelichting;
+  public String zaakToelichting;
 
-    public String zaaktypeUuid;
+  public String zaaktypeUuid;
 
-    public String zaaktypeIdentificatie;
+  public String zaaktypeIdentificatie;
 
-    public String zaaktypeOmschrijving;
+  public String zaaktypeOmschrijving;
 
-    public LocalDate creatiedatum;
+  public LocalDate creatiedatum;
 
-    public LocalDate toekenningsdatum;
+  public LocalDate toekenningsdatum;
 
-    public LocalDate fataledatum;
+  public LocalDate fataledatum;
 
-    public String groepID;
+  public String groepID;
 
-    public String groepNaam;
+  public String groepNaam;
 
-    public String behandelaarNaam;
+  public String behandelaarNaam;
 
-    public String behandelaarGebruikersnaam;
+  public String behandelaarGebruikersnaam;
 
-    public List<String> taakData;
+  public List<String> taakData;
 
-    public List<String> taakInformatie;
+  public List<String> taakInformatie;
 
-    public RESTTaakRechten rechten;
-
+  public RESTTaakRechten rechten;
 }

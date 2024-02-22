@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.shared.model.audit.documenten;
 
 import net.atos.client.zgw.drc.model.generated.Gebruiksrechten;
@@ -11,8 +10,8 @@ import net.atos.client.zgw.shared.model.audit.AuditWijziging;
 
 public class GebuiksrechtenWijziging extends AuditWijziging<Gebruiksrechten> {
 
-    @Override
-    public ObjectType getObjectType() {
-        return ObjectType.GEBRUIKSRECHTEN;
-    }
+  @Override
+  public ObjectType getObjectType() {
+    return ObjectType.GEBRUIKSRECHTEN;
+  }
 }

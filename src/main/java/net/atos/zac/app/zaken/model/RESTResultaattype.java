@@ -1,30 +1,28 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.zaken.model;
 
 import java.util.UUID;
 
-
 public class RESTResultaattype {
 
-    public UUID id;
+  public UUID id;
 
-    public String naam;
+  public String naam;
 
-    public String naamGeneriek;
+  public String naamGeneriek;
 
-    public boolean vervaldatumBesluitVerplicht;
+  public boolean vervaldatumBesluitVerplicht;
 
-    public boolean besluitVerplicht;
+  public boolean besluitVerplicht;
 
-    public String toelichting;
+  public String toelichting;
 
-    public String archiefNominatie;
+  public String archiefNominatie;
 
-    public String archiefTermijn;
+  public String archiefTermijn;
 
-    public String selectielijst;
+  public String selectielijst;
 }

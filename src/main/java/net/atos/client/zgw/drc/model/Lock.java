@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.drc.model;
 
 import java.util.UUID;
@@ -15,24 +14,24 @@ import jakarta.json.bind.annotation.JsonbProperty;
  */
 public class Lock {
 
-    /**
-     * Hash string, wordt gebruikt als ID voor de lock
-     */
-    private final String lock;
+  /**
+   * Hash string, wordt gebruikt als ID voor de lock
+   */
+  private final String lock;
 
-    public Lock() {
-        lock = UUID.randomUUID().toString();
-    }
+  public Lock() {
+    lock = UUID.randomUUID().toString();
+  }
 
-    /**
-     * Constructor for POST response
-     */
-    @JsonbCreator
-    public Lock(@JsonbProperty("lock") final String lock) {
-        this.lock = lock;
-    }
+  /**
+   * Constructor for POST response
+   */
+  @JsonbCreator
+  public Lock(@JsonbProperty("lock") final String lock) {
+    this.lock = lock;
+  }
 
-    public String getLock() {
-        return lock;
-    }
+  public String getLock() {
+    return lock;
+  }
 }

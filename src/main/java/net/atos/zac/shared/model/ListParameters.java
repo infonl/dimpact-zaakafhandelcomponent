@@ -1,25 +1,29 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 package net.atos.zac.shared.model;
 
 public class ListParameters {
-    private Sorting sorting;
+  private Sorting sorting;
 
-    private Paging paging;
+  private Paging paging;
 
-    public ListParameters() {}
+  public ListParameters() {}
 
-    public Sorting getSorting() {
-        return sorting;
-    }
+  public Sorting getSorting() {
+    return sorting;
+  }
 
-    public void setSorting(final Sorting sorting) {
-        this.sorting = sorting;
-    }
+  public void setSorting(final Sorting sorting) {
+    this.sorting = sorting;
+  }
 
-    public Paging getPaging() {
-        return paging;
-    }
+  public Paging getPaging() {
+    return paging;
+  }
 
-    public void setPaging(final Paging paging) {
-        this.paging = paging;
-    }
+  public void setPaging(final Paging paging) {
+    this.paging = paging;
+  }
 }

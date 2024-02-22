@@ -1,23 +1,22 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.informatieobjecten.model;
 
 import jakarta.ws.rs.FormParam;
 
 public class RESTFileUpload {
 
-    @FormParam("file")
-    public byte[] file;
+  @FormParam("file")
+  public byte[] file;
 
-    @FormParam("filesize")
-    public long fileSize;
+  @FormParam("filesize")
+  public long fileSize;
 
-    @FormParam("filename")
-    public String filename;
+  @FormParam("filename")
+  public String filename;
 
-    @FormParam("type")
-    public String type;
+  @FormParam("type")
+  public String type;
 }

@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.zaken.converter;
 
 import jakarta.inject.Inject;
@@ -21,46 +20,44 @@ import net.atos.zac.policy.output.ZaakRechten;
 
 public class RESTGerelateerdeZaakConverter {
 
-    @Inject
-    private ZRCClientService zrcClientService;
+  @Inject private ZRCClientService zrcClientService;
 
-    @Inject
-    private ZTCClientService ztcClientService;
+  @Inject private ZTCClientService ztcClientService;
 
-    @Inject
-    private RESTRechtenConverter rechtenConverter;
+  @Inject private RESTRechtenConverter rechtenConverter;
 
-    @Inject
-    private PolicyService policyService;
+  @Inject private PolicyService policyService;
 
-    public RESTGerelateerdeZaak convert(final Zaak zaak, final RelatieType relatieType) {
-        final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
-        final ZaakRechten zaakrechten = policyService.readZaakRechten(zaak, zaaktype);
-        final RESTGerelateerdeZaak restGerelateerdeZaak = new RESTGerelateerdeZaak();
-        restGerelateerdeZaak.identificatie = zaak.getIdentificatie();
-        restGerelateerdeZaak.relatieType = relatieType;
-        restGerelateerdeZaak.rechten = rechtenConverter.convert(zaakrechten);
-        if (zaakrechten.lezen()) {
-            restGerelateerdeZaak.zaaktypeOmschrijving = zaaktype.getOmschrijving();
-            restGerelateerdeZaak.startdatum = zaak.getStartdatum();
-            if (zaak.getStatus() != null) {
-                restGerelateerdeZaak.statustypeOmschrijving = ztcClientService.readStatustype(zrcClientService.readStatus(zaak.getStatus()).getStatustype())
-                        .getOmschrijving();
-            }
-        }
-        return restGerelateerdeZaak;
+  public RESTGerelateerdeZaak convert(final Zaak zaak, final RelatieType relatieType) {
+    final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
+    final ZaakRechten zaakrechten = policyService.readZaakRechten(zaak, zaaktype);
+    final RESTGerelateerdeZaak restGerelateerdeZaak = new RESTGerelateerdeZaak();
+    restGerelateerdeZaak.identificatie = zaak.getIdentificatie();
+    restGerelateerdeZaak.relatieType = relatieType;
+    restGerelateerdeZaak.rechten = rechtenConverter.convert(zaakrechten);
+    if (zaakrechten.lezen()) {
+      restGerelateerdeZaak.zaaktypeOmschrijving = zaaktype.getOmschrijving();
+      restGerelateerdeZaak.startdatum = zaak.getStartdatum();
+      if (zaak.getStatus() != null) {
+        restGerelateerdeZaak.statustypeOmschrijving =
+            ztcClientService
+                .readStatustype(zrcClientService.readStatus(zaak.getStatus()).getStatustype())
+                .getOmschrijving();
+      }
     }
+    return restGerelateerdeZaak;
+  }
 
-    public RESTGerelateerdeZaak convert(final RelevanteZaak relevanteZaak) {
-        final Zaak zaak = zrcClientService.readZaak(relevanteZaak.getUrl());
-        return convert(zaak, convertToRelatieType(relevanteZaak.getAardRelatie()));
-    }
+  public RESTGerelateerdeZaak convert(final RelevanteZaak relevanteZaak) {
+    final Zaak zaak = zrcClientService.readZaak(relevanteZaak.getUrl());
+    return convert(zaak, convertToRelatieType(relevanteZaak.getAardRelatie()));
+  }
 
-    public RelatieType convertToRelatieType(final AardRelatie aardRelatie) {
-        return switch (aardRelatie) {
-            case VERVOLG -> RelatieType.VERVOLG;
-            case BIJDRAGE -> RelatieType.BIJDRAGE;
-            case ONDERWERP -> RelatieType.ONDERWERP;
-        };
-    }
+  public RelatieType convertToRelatieType(final AardRelatie aardRelatie) {
+    return switch (aardRelatie) {
+      case VERVOLG -> RelatieType.VERVOLG;
+      case BIJDRAGE -> RelatieType.BIJDRAGE;
+      case ONDERWERP -> RelatieType.ONDERWERP;
+    };
+  }
 }

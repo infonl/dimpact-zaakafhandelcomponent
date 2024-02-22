@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.ztc.model;
 
 import jakarta.json.bind.annotation.JsonbTypeAdapter;
@@ -14,31 +13,30 @@ import net.atos.client.zgw.shared.model.AbstractEnum;
  */
 @JsonbTypeAdapter(IndicatieInternExtern.Adapter.class)
 public enum IndicatieInternExtern implements AbstractEnum<IndicatieInternExtern> {
+  INTERN("intern"),
 
-    INTERN("intern"),
+  EXTERN("extern");
 
-    EXTERN("extern");
+  private final String value;
 
-    private final String value;
+  IndicatieInternExtern(final String value) {
+    this.value = value;
+  }
 
-    IndicatieInternExtern(final String value) {
-        this.value = value;
-    }
+  @Override
+  public String toValue() {
+    return value;
+  }
+
+  public static IndicatieInternExtern fromValue(final String value) {
+    return AbstractEnum.fromValue(values(), value);
+  }
+
+  static class Adapter extends AbstractEnum.Adapter<IndicatieInternExtern> {
 
     @Override
-    public String toValue() {
-        return value;
+    protected IndicatieInternExtern[] getEnums() {
+      return values();
     }
-
-    public static IndicatieInternExtern fromValue(final String value) {
-        return AbstractEnum.fromValue(values(), value);
-    }
-
-    static class Adapter extends AbstractEnum.Adapter<IndicatieInternExtern> {
-
-        @Override
-        protected IndicatieInternExtern[] getEnums() {
-            return values();
-        }
-    }
+  }
 }

@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.admin.model;
 
 import java.util.List;
@@ -16,33 +15,33 @@ import java.util.List;
  */
 public class RESTZaaktypeInrichtingscheck {
 
-    public RESTZaaktypeOverzicht zaaktype;
+  public RESTZaaktypeOverzicht zaaktype;
 
-    public boolean statustypeIntakeAanwezig;
+  public boolean statustypeIntakeAanwezig;
 
-    public boolean statustypeInBehandelingAanwezig;
+  public boolean statustypeInBehandelingAanwezig;
 
-    public boolean statustypeHeropendAanwezig;
+  public boolean statustypeHeropendAanwezig;
 
-    public boolean statustypeAfgerondAanwezig;
+  public boolean statustypeAfgerondAanwezig;
 
-    public boolean statustypeAfgerondLaatsteVolgnummer;
+  public boolean statustypeAfgerondLaatsteVolgnummer;
 
-    public boolean resultaattypeAanwezig;
+  public boolean resultaattypeAanwezig;
 
-    public boolean rolInitiatorAanwezig;
+  public boolean rolInitiatorAanwezig;
 
-    public boolean rolBehandelaarAanwezig;
+  public boolean rolBehandelaarAanwezig;
 
-    public boolean rolOverigeAanwezig;
+  public boolean rolOverigeAanwezig;
 
-    public boolean informatieobjecttypeEmailAanwezig;
+  public boolean informatieobjecttypeEmailAanwezig;
 
-    public boolean besluittypeAanwezig;
+  public boolean besluittypeAanwezig;
 
-    public List<String> resultaattypesMetVerplichtBesluit;
+  public List<String> resultaattypesMetVerplichtBesluit;
 
-    public boolean zaakafhandelParametersValide;
+  public boolean zaakafhandelParametersValide;
 
-    public boolean valide;
+  public boolean valide;
 }

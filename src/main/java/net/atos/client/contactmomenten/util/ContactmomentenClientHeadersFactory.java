@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.contactmomenten.util;
 
 import jakarta.enterprise.inject.Instance;
@@ -18,22 +17,23 @@ import net.atos.zac.authentication.LoggedInUser;
 
 public class ContactmomentenClientHeadersFactory implements ClientHeadersFactory {
 
-    @Inject
-    private Instance<LoggedInUser> loggedInUserInstance;
+  @Inject private Instance<LoggedInUser> loggedInUserInstance;
 
-    @Inject
-    @ConfigProperty(name = "CONTACTMOMENTEN_API_CLIENTID")
-    private String clientId;
+  @Inject
+  @ConfigProperty(name = "CONTACTMOMENTEN_API_CLIENTID")
+  private String clientId;
 
-    @Inject
-    @ConfigProperty(name = "CONTACTMOMENTEN_API_SECRET")
-    private String secret;
+  @Inject
+  @ConfigProperty(name = "CONTACTMOMENTEN_API_SECRET")
+  private String secret;
 
-    @Override
-    public MultivaluedMap<String, String> update(final MultivaluedMap<String, String> incomingHeaders,
-            final MultivaluedMap<String, String> outgoingHeaders) {
-        outgoingHeaders.add(HttpHeaders.AUTHORIZATION, JWTTokenGenerator.generate(clientId, secret,
-                                                                                  loggedInUserInstance.get()));
-        return outgoingHeaders;
-    }
+  @Override
+  public MultivaluedMap<String, String> update(
+      final MultivaluedMap<String, String> incomingHeaders,
+      final MultivaluedMap<String, String> outgoingHeaders) {
+    outgoingHeaders.add(
+        HttpHeaders.AUTHORIZATION,
+        JWTTokenGenerator.generate(clientId, secret, loggedInUserInstance.get()));
+    return outgoingHeaders;
+  }
 }

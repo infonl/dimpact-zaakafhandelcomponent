@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.shared.exception;
 
 /**
@@ -11,7 +10,7 @@ package net.atos.zac.shared.exception;
  */
 public class FoutmeldingException extends RuntimeException {
 
-    public FoutmeldingException(final String message) {
-        super(message);
-    }
+  public FoutmeldingException(final String message) {
+    super(message);
+  }
 }

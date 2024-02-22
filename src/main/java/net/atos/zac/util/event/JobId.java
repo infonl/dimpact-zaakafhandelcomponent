@@ -1,20 +1,19 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.util.event;
 
 public enum JobId {
-    SIGNALERINGEN_JOB("Signaleringen verzenden");
+  SIGNALERINGEN_JOB("Signaleringen verzenden");
 
-    private final String name;
+  private final String name;
 
-    JobId(final String value) {
-        this.name = value;
-    }
+  JobId(final String value) {
+    this.name = value;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 }

@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.audit.converter.zaken;
 
 import java.util.stream.Stream;
@@ -13,19 +12,22 @@ import net.atos.client.zgw.zrc.model.Klantcontact;
 import net.atos.zac.app.audit.converter.AbstractAuditWijzigingConverter;
 import net.atos.zac.app.audit.model.RESTHistorieRegel;
 
-public class AuditKlantcontactWijzigingConverter extends AbstractAuditWijzigingConverter<KlantcontactWijziging> {
+public class AuditKlantcontactWijzigingConverter
+    extends AbstractAuditWijzigingConverter<KlantcontactWijziging> {
 
-    @Override
-    public boolean supports(final ObjectType objectType) {
-        return ObjectType.KLANTCONTACT == objectType;
-    }
+  @Override
+  public boolean supports(final ObjectType objectType) {
+    return ObjectType.KLANTCONTACT == objectType;
+  }
 
-    @Override
-    protected Stream<RESTHistorieRegel> doConvert(final KlantcontactWijziging wijziging) {
-        return Stream.of(new RESTHistorieRegel("klantcontact", toWaarde(wijziging.getOud()), toWaarde(wijziging.getNieuw())));
-    }
+  @Override
+  protected Stream<RESTHistorieRegel> doConvert(final KlantcontactWijziging wijziging) {
+    return Stream.of(
+        new RESTHistorieRegel(
+            "klantcontact", toWaarde(wijziging.getOud()), toWaarde(wijziging.getNieuw())));
+  }
 
-    private String toWaarde(final Klantcontact klantcontact) {
-        return klantcontact != null ? klantcontact.getToelichting() : null;
-    }
+  private String toWaarde(final Klantcontact klantcontact) {
+    return klantcontact != null ? klantcontact.getToelichting() : null;
+  }
 }

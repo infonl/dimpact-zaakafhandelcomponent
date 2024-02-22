@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.zaken;
 
 import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
@@ -178,1132 +177,1119 @@ import net.atos.zac.zoeken.model.index.ZoekObjectType;
 @Produces(MediaType.APPLICATION_JSON)
 @Singleton
 public class ZakenRESTService {
-    private static final Logger LOG = Logger.getLogger(ZakenRESTService.class.getName());
+  private static final Logger LOG = Logger.getLogger(ZakenRESTService.class.getName());
 
-    private static final String ROL_VERWIJDER_REDEN = "Verwijderd door de medewerker tijdens het behandelen van de zaak";
-    private static final String ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak";
-    private static final String AANMAKEN_ZAAK_REDEN = "Aanmaken zaak";
-    private static final String VERLENGING = "Verlenging";
-    private static final String AANMAKEN_BESLUIT_TOELICHTING = "Aanmaken besluit";
-    private static final String WIJZIGEN_BESLUIT_TOELICHTING = "Wijzigen besluit";
+  private static final String ROL_VERWIJDER_REDEN =
+      "Verwijderd door de medewerker tijdens het behandelen van de zaak";
+  private static final String ROL_TOEVOEGEN_REDEN =
+      "Toegekend door de medewerker tijdens het behandelen van de zaak";
+  private static final String AANMAKEN_ZAAK_REDEN = "Aanmaken zaak";
+  private static final String VERLENGING = "Verlenging";
+  private static final String AANMAKEN_BESLUIT_TOELICHTING = "Aanmaken besluit";
+  private static final String WIJZIGEN_BESLUIT_TOELICHTING = "Wijzigen besluit";
 
-    @Inject
-    private ZGWApiService zgwApiService;
+  @Inject private ZGWApiService zgwApiService;
 
-    @Inject
-    private ProductaanvraagService productaanvraagService;
+  @Inject private ProductaanvraagService productaanvraagService;
 
-    @Inject
-    private BRCClientService brcClientService;
+  @Inject private BRCClientService brcClientService;
 
-    @Inject
-    private DRCClientService drcClientService;
+  @Inject private DRCClientService drcClientService;
 
-    @Inject
-    private ZTCClientService ztcClientService;
+  @Inject private ZTCClientService ztcClientService;
 
-    @Inject
-    private ZRCClientService zrcClientService;
+  @Inject private ZRCClientService zrcClientService;
 
-    @Inject
-    private VRLClientService vrlClientService;
+  @Inject private VRLClientService vrlClientService;
 
-    @Inject
-    private EventingService eventingService;
+  @Inject private EventingService eventingService;
 
-    @Inject
-    private IdentityService identityService;
+  @Inject private IdentityService identityService;
 
-    @Inject
-    private SignaleringenService signaleringenService;
+  @Inject private SignaleringenService signaleringenService;
 
-    @Inject
-    private OntkoppeldeDocumentenService ontkoppeldeDocumentenService;
+  @Inject private OntkoppeldeDocumentenService ontkoppeldeDocumentenService;
 
-    @Inject
-    private IndexeerService indexeerService;
+  @Inject private IndexeerService indexeerService;
 
-    @Inject
-    private PolicyService policyService;
+  @Inject private PolicyService policyService;
 
-    @Inject
-    private CMMNService cmmnService;
+  @Inject private CMMNService cmmnService;
 
-    @Inject
-    private BPMNService bpmnService;
+  @Inject private BPMNService bpmnService;
 
-    @Inject
-    private TakenService takenService;
+  @Inject private TakenService takenService;
 
-    @Inject
-    private ObjectsClientService objectsClientService;
+  @Inject private ObjectsClientService objectsClientService;
 
-    @Inject
-    private InboxProductaanvraagService inboxProductaanvraagService;
+  @Inject private InboxProductaanvraagService inboxProductaanvraagService;
 
-    @Inject
-    private ZaakVariabelenService zaakVariabelenService;
+  @Inject private ZaakVariabelenService zaakVariabelenService;
 
-    @Inject
-    private ConfiguratieService configuratieService;
+  @Inject private ConfiguratieService configuratieService;
 
-    @Inject
-    private Instance<LoggedInUser> loggedInUserInstance;
+  @Inject private Instance<LoggedInUser> loggedInUserInstance;
 
-    @Inject
-    private RESTZaakConverter zaakConverter;
+  @Inject private RESTZaakConverter zaakConverter;
 
-    @Inject
-    private RESTZaaktypeConverter zaaktypeConverter;
+  @Inject private RESTZaaktypeConverter zaaktypeConverter;
 
-    @Inject
-    private RESTBesluitConverter besluitConverter;
+  @Inject private RESTBesluitConverter besluitConverter;
 
-    @Inject
-    private RESTBesluittypeConverter besluittypeConverter;
+  @Inject private RESTBesluittypeConverter besluittypeConverter;
 
-    @Inject
-    private RESTResultaattypeConverter resultaattypeConverter;
+  @Inject private RESTResultaattypeConverter resultaattypeConverter;
 
-    @Inject
-    private RESTZaakOverzichtConverter zaakOverzichtConverter;
+  @Inject private RESTZaakOverzichtConverter zaakOverzichtConverter;
 
-    @Inject
-    private RESTBAGConverter bagConverter;
+  @Inject private RESTBAGConverter bagConverter;
 
-    @Inject
-    private RESTHistorieRegelConverter auditTrailConverter;
+  @Inject private RESTHistorieRegelConverter auditTrailConverter;
 
-    @Inject
-    private RESTZaakBetrokkeneConverter zaakBetrokkeneConverter;
+  @Inject private RESTZaakBetrokkeneConverter zaakBetrokkeneConverter;
 
-    @Inject
-    private ZaakafhandelParameterService zaakafhandelParameterService;
+  @Inject private ZaakafhandelParameterService zaakafhandelParameterService;
 
-    @Inject
-    private RESTCommunicatiekanaalConverter communicatiekanaalConverter;
+  @Inject private RESTCommunicatiekanaalConverter communicatiekanaalConverter;
 
-    @Inject
-    private RESTGeometryConverter restGeometryConverter;
+  @Inject private RESTGeometryConverter restGeometryConverter;
 
-    @Inject
-    private HealthCheckService healthCheckService;
+  @Inject private HealthCheckService healthCheckService;
 
-    @Inject
-    private OpschortenZaakHelper opschortenZaakHelper;
+  @Inject private OpschortenZaakHelper opschortenZaakHelper;
 
-    @Inject
-    private RESTZaakAfzenderConverter zaakAfzenderConverter;
+  @Inject private RESTZaakAfzenderConverter zaakAfzenderConverter;
 
-    @GET
-    @Path("zaak/{uuid}")
-    public RESTZaak readZaak(@PathParam("uuid") final UUID zaakUUID) {
-        final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        final RESTZaak restZaak = zaakConverter.convert(zaak);
-        assertPolicy(restZaak.rechten.lezen);
-        deleteSignaleringen(zaak);
-        return restZaak;
+  @GET
+  @Path("zaak/{uuid}")
+  public RESTZaak readZaak(@PathParam("uuid") final UUID zaakUUID) {
+    final Zaak zaak = zrcClientService.readZaak(zaakUUID);
+    final RESTZaak restZaak = zaakConverter.convert(zaak);
+    assertPolicy(restZaak.rechten.lezen);
+    deleteSignaleringen(zaak);
+    return restZaak;
+  }
+
+  @GET
+  @Path("zaak/id/{identificatie}")
+  public RESTZaak readZaakById(@PathParam("identificatie") final String identificatie) {
+    final Zaak zaak = zrcClientService.readZaakByID(identificatie);
+    final RESTZaak restZaak = zaakConverter.convert(zaak);
+    assertPolicy(restZaak.rechten.lezen);
+    deleteSignaleringen(zaak);
+    return restZaak;
+  }
+
+  @PUT
+  @Path("initiator")
+  public RESTZaak updateInitiator(final RESTZaakBetrokkeneGegevens gegevens) {
+    final Zaak zaak = zrcClientService.readZaak(gegevens.zaakUUID);
+    zgwApiService
+        .findInitiatorForZaak(zaak)
+        .ifPresent(initiator -> removeInitiator(zaak, initiator, ROL_VERWIJDER_REDEN));
+    addInitiator(gegevens.betrokkeneIdentificatieType, gegevens.betrokkeneIdentificatie, zaak);
+    return zaakConverter.convert(zaak);
+  }
+
+  @DELETE
+  @Path("{uuid}/initiator")
+  public RESTZaak deleteInitiator(@PathParam("uuid") final UUID zaakUUID, RESTReden reden) {
+    final Zaak zaak = zrcClientService.readZaak(zaakUUID);
+    zgwApiService
+        .findInitiatorForZaak(zaak)
+        .ifPresent(initiator -> removeInitiator(zaak, initiator, reden.reden));
+    return zaakConverter.convert(zaak);
+  }
+
+  @POST
+  @Path("betrokkene")
+  public RESTZaak createBetrokken(@Valid final RESTZaakBetrokkeneGegevens gegevens) {
+    final Zaak zaak = zrcClientService.readZaak(gegevens.zaakUUID);
+    addBetrokkene(
+        gegevens.roltypeUUID,
+        gegevens.betrokkeneIdentificatieType,
+        gegevens.betrokkeneIdentificatie,
+        gegevens.roltoelichting,
+        zaak);
+    return zaakConverter.convert(zaak);
+  }
+
+  @DELETE
+  @Path("betrokkene/{uuid}")
+  public RESTZaak deleteBetrokkene(
+      @PathParam("uuid") final UUID betrokkeneUUID, final RESTReden reden) {
+    final Rol<?> betrokkene = zrcClientService.readRol(betrokkeneUUID);
+    final Zaak zaak = zrcClientService.readZaak(betrokkene.getZaak());
+    removeBetrokkene(zaak, betrokkene, reden.reden);
+    return zaakConverter.convert(zaak);
+  }
+
+  @POST
+  @Path("zaak")
+  public RESTZaak createZaak(@Valid final RESTZaakAanmaakGegevens restZaakAanmaakGegevens) {
+    final RESTZaak restZaak = restZaakAanmaakGegevens.zaak;
+    final ZaakType zaaktype = ztcClientService.readZaaktype(restZaak.zaaktype.uuid);
+
+    // make sure to use the omschrijving of the zaaktype that was retrieved to perform
+    // authorisation on zaaktype
+    assertPolicy(
+        policyService.readOverigeRechten().startenZaak()
+            && loggedInUserInstance.get().isGeautoriseerdZaaktype(zaaktype.getOmschrijving()));
+
+    final Zaak zaak = zgwApiService.createZaak(zaakConverter.convert(restZaak, zaaktype));
+    if (StringUtils.isNotEmpty(restZaak.initiatorIdentificatie)) {
+      addInitiator(restZaak.initiatorIdentificatieType, restZaak.initiatorIdentificatie, zaak);
+    }
+    if (restZaak.groep != null) {
+      final Group group = identityService.readGroup(restZaak.groep.id);
+      zrcClientService.updateRol(zaak, bepaalRolGroep(group, zaak), AANMAKEN_ZAAK_REDEN);
+    }
+    if (restZaak.behandelaar != null) {
+      final User user = identityService.readUser(restZaak.behandelaar.id);
+      zrcClientService.updateRol(zaak, bepaalRolMedewerker(user, zaak), AANMAKEN_ZAAK_REDEN);
+    }
+    cmmnService.startCase(
+        zaak,
+        zaaktype,
+        zaakafhandelParameterService.readZaakafhandelParameters(
+            URIUtil.parseUUIDFromResourceURI(zaaktype.getUrl())),
+        null);
+
+    if (restZaakAanmaakGegevens.inboxProductaanvraag != null) {
+      koppelInboxProductaanvraag(zaak, restZaakAanmaakGegevens.inboxProductaanvraag);
     }
 
-    @GET
-    @Path("zaak/id/{identificatie}")
-    public RESTZaak readZaakById(@PathParam("identificatie") final String identificatie) {
-        final Zaak zaak = zrcClientService.readZaakByID(identificatie);
-        final RESTZaak restZaak = zaakConverter.convert(zaak);
-        assertPolicy(restZaak.rechten.lezen);
-        deleteSignaleringen(zaak);
-        return restZaak;
+    if (restZaakAanmaakGegevens.bagObjecten != null) {
+      for (final RESTBAGObject restbagObject : restZaakAanmaakGegevens.bagObjecten) {
+        final Zaakobject zaakobject = bagConverter.convertToZaakobject(restbagObject, zaak);
+        zrcClientService.createZaakobject(zaakobject);
+      }
     }
 
-    @PUT
-    @Path("initiator")
-    public RESTZaak updateInitiator(final RESTZaakBetrokkeneGegevens gegevens) {
-        final Zaak zaak = zrcClientService.readZaak(gegevens.zaakUUID);
-        zgwApiService.findInitiatorForZaak(zaak)
-            .ifPresent(initiator -> removeInitiator(zaak, initiator, ROL_VERWIJDER_REDEN));
-        addInitiator(gegevens.betrokkeneIdentificatieType, gegevens.betrokkeneIdentificatie, zaak);
-        return zaakConverter.convert(zaak);
+    return zaakConverter.convert(zaak);
+  }
+
+  @PATCH
+  @Path("zaak/{uuid}")
+  public RESTZaak updateZaak(
+      @PathParam("uuid") final UUID zaakUUID,
+      final RESTZaakEditMetRedenGegevens restZaakEditMetRedenGegevens) {
+    assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).wijzigen());
+    final Zaak updatedZaak =
+        zrcClientService.patchZaak(
+            zaakUUID,
+            zaakConverter.convertToPatch(restZaakEditMetRedenGegevens.zaak),
+            restZaakEditMetRedenGegevens.reden);
+    return zaakConverter.convert(updatedZaak);
+  }
+
+  @PATCH
+  @Path("{uuid}/zaaklocatie")
+  public RESTZaak updateZaakLocatie(
+      @PathParam("uuid") final UUID zaakUUID, final RESTZaakLocatieGegevens locatieGegevens) {
+    assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).wijzigen());
+    final LocatieZaakPatch locatieZaakPatch =
+        new LocatieZaakPatch(restGeometryConverter.convert(locatieGegevens.geometrie));
+    final Zaak updatedZaak =
+        zrcClientService.patchZaak(zaakUUID, locatieZaakPatch, locatieGegevens.reden);
+    return zaakConverter.convert(updatedZaak);
+  }
+
+  @PATCH
+  @Path("zaak/{uuid}/opschorting")
+  public RESTZaak opschortenZaak(
+      @PathParam("uuid") final UUID zaakUUID, final RESTZaakOpschortGegevens opschortGegevens) {
+    final Zaak zaak = zrcClientService.readZaak(zaakUUID);
+    if (opschortGegevens.indicatieOpschorting) {
+      return zaakConverter.convert(
+          opschortenZaakHelper.opschortenZaak(
+              zaak, opschortGegevens.duurDagen, opschortGegevens.redenOpschorting));
+    } else {
+      return zaakConverter.convert(
+          opschortenZaakHelper.hervattenZaak(zaak, opschortGegevens.redenOpschorting));
     }
+  }
 
-    @DELETE
-    @Path("{uuid}/initiator")
-    public RESTZaak deleteInitiator(@PathParam("uuid") final UUID zaakUUID, RESTReden reden) {
-        final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        zgwApiService.findInitiatorForZaak(zaak)
-            .ifPresent(initiator -> removeInitiator(zaak, initiator, reden.reden));
-        return zaakConverter.convert(zaak);
+  @GET
+  @Path("zaak/{uuid}/opschorting")
+  public RESTZaakOpschorting readOpschortingZaak(@PathParam("uuid") final UUID zaakUUID) {
+    assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).lezen());
+    final RESTZaakOpschorting zaakOpschorting = new RESTZaakOpschorting();
+    zaakVariabelenService
+        .findDatumtijdOpgeschort(zaakUUID)
+        .ifPresent(datumtijdOpgeschort -> zaakOpschorting.vanafDatumTijd = datumtijdOpgeschort);
+    zaakVariabelenService
+        .findVerwachteDagenOpgeschort(zaakUUID)
+        .ifPresent(
+            verwachteDagenOpgeschort -> zaakOpschorting.duurDagen = verwachteDagenOpgeschort);
+    return zaakOpschorting;
+  }
+
+  @PATCH
+  @Path("zaak/{uuid}/verlenging")
+  public RESTZaak verlengenZaak(
+      @PathParam("uuid") final UUID zaakUUID,
+      final RESTZaakVerlengGegevens restZaakVerlengGegevens) {
+    final Zaak zaak = zrcClientService.readZaak(zaakUUID);
+    final Status status =
+        zaak.getStatus() != null ? zrcClientService.readStatus(zaak.getStatus()) : null;
+    final StatusType statustype =
+        status != null ? ztcClientService.readStatustype(status.getStatustype()) : null;
+    assertPolicy(
+        zaak.isOpen()
+            && !isHeropend(statustype)
+            && !zaak.isOpgeschort()
+            && policyService.readZaakRechten(zaak).behandelen());
+    final String toelichting =
+        String.format("%s: %s", VERLENGING, restZaakVerlengGegevens.redenVerlenging);
+    final Zaak updatedZaak =
+        zrcClientService.patchZaak(
+            zaakUUID, zaakConverter.convertToPatch(zaakUUID, restZaakVerlengGegevens), toelichting);
+    if (restZaakVerlengGegevens.takenVerlengen) {
+      final int aantalTakenVerlengd = verlengOpenTaken(zaakUUID, restZaakVerlengGegevens.duurDagen);
+      if (aantalTakenVerlengd > 0) {
+        eventingService.send(ZAAK_TAKEN.updated(updatedZaak));
+      }
     }
+    return zaakConverter.convert(updatedZaak, status, statustype);
+  }
 
-    @POST
-    @Path("betrokkene")
-    public RESTZaak createBetrokken(@Valid final RESTZaakBetrokkeneGegevens gegevens) {
-        final Zaak zaak = zrcClientService.readZaak(gegevens.zaakUUID);
-        addBetrokkene(gegevens.roltypeUUID, gegevens.betrokkeneIdentificatieType,
-                      gegevens.betrokkeneIdentificatie,
-                      gegevens.roltoelichting, zaak);
-        return zaakConverter.convert(zaak);
+  @PUT
+  @Path("zaakinformatieobjecten/ontkoppel")
+  public void ontkoppelInformatieObject(final RESTDocumentOntkoppelGegevens ontkoppelGegevens) {
+    final Zaak zaak = zrcClientService.readZaak(ontkoppelGegevens.zaakUUID);
+    final EnkelvoudigInformatieObject informatieobject =
+        drcClientService.readEnkelvoudigInformatieobject(ontkoppelGegevens.documentUUID);
+    assertPolicy(policyService.readDocumentRechten(informatieobject, zaak).wijzigen());
+    final ZaakInformatieobjectListParameters parameters = new ZaakInformatieobjectListParameters();
+    parameters.setInformatieobject(informatieobject.getUrl());
+    parameters.setZaak(zaak.getUrl());
+    List<ZaakInformatieobject> zaakInformatieobjecten =
+        zrcClientService.listZaakinformatieobjecten(parameters);
+    if (zaakInformatieobjecten.isEmpty()) {
+      throw new NotFoundException(
+          String.format(
+              "Geen ZaakInformatieobject gevonden voor Zaak: '%s' en InformatieObject: '%s'",
+              ontkoppelGegevens.zaakUUID, ontkoppelGegevens.documentUUID));
     }
-
-    @DELETE
-    @Path("betrokkene/{uuid}")
-    public RESTZaak deleteBetrokkene(@PathParam("uuid") final UUID betrokkeneUUID,
-        final RESTReden reden) {
-        final Rol<?> betrokkene = zrcClientService.readRol(betrokkeneUUID);
-        final Zaak zaak = zrcClientService.readZaak(betrokkene.getZaak());
-        removeBetrokkene(zaak, betrokkene, reden.reden);
-        return zaakConverter.convert(zaak);
+    zaakInformatieobjecten.forEach(
+        zaakInformatieobject ->
+            zrcClientService.deleteZaakInformatieobject(
+                zaakInformatieobject.getUuid(), ontkoppelGegevens.reden, "Ontkoppeld"));
+    if (zrcClientService.listZaakinformatieobjecten(informatieobject).isEmpty()) {
+      indexeerService.removeInformatieobject(parseUUIDFromResourceURI(informatieobject.getUrl()));
+      ontkoppeldeDocumentenService.create(informatieobject, zaak, ontkoppelGegevens.reden);
     }
+  }
 
-    @POST
-    @Path("zaak")
-    public RESTZaak createZaak(@Valid final RESTZaakAanmaakGegevens restZaakAanmaakGegevens) {
-        final RESTZaak restZaak = restZaakAanmaakGegevens.zaak;
-        final ZaakType zaaktype = ztcClientService.readZaaktype(restZaak.zaaktype.uuid);
+  @GET
+  @Path("waarschuwing")
+  public List<RESTZaakOverzicht> listZaakWaarschuwingen() {
+    final LocalDate vandaag = LocalDate.now();
+    final Map<UUID, LocalDate> einddatumGeplandWaarschuwing = new HashMap<>();
+    final Map<UUID, LocalDate> uiterlijkeEinddatumAfdoeningWaarschuwing = new HashMap<>();
+    zaakafhandelParameterService
+        .listZaakafhandelParameters()
+        .forEach(
+            parameters -> {
+              if (parameters.getEinddatumGeplandWaarschuwing() != null) {
+                einddatumGeplandWaarschuwing.put(
+                    parameters.getZaakTypeUUID(),
+                    datumWaarschuwing(vandaag, parameters.getEinddatumGeplandWaarschuwing()));
+              }
+              if (parameters.getUiterlijkeEinddatumAfdoeningWaarschuwing() != null) {
+                uiterlijkeEinddatumAfdoeningWaarschuwing.put(
+                    parameters.getZaakTypeUUID(),
+                    datumWaarschuwing(
+                        vandaag, parameters.getUiterlijkeEinddatumAfdoeningWaarschuwing()));
+              }
+            });
+    final ZaakListParameters zaakListParameters = new ZaakListParameters();
+    zaakListParameters.setRolBetrokkeneIdentificatieMedewerkerIdentificatie(
+        loggedInUserInstance.get().getId());
+    return zrcClientService.listZaken(zaakListParameters).getResults().stream()
+        .filter(Zaak::isOpen)
+        .filter(
+            zaak ->
+                isWaarschuwing(
+                    zaak,
+                    vandaag,
+                    einddatumGeplandWaarschuwing,
+                    uiterlijkeEinddatumAfdoeningWaarschuwing))
+        .map(zaakOverzichtConverter::convert)
+        .toList();
+  }
 
-        // make sure to use the omschrijving of the zaaktype that was retrieved to perform
-        // authorisation on zaaktype
-        assertPolicy(policyService.readOverigeRechten().startenZaak() &&
-                             loggedInUserInstance.get()
-                                     .isGeautoriseerdZaaktype(zaaktype.getOmschrijving()));
+  @GET
+  @Path("zaaktypes")
+  public List<RESTZaaktype> listZaaktypes() {
+    return ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI()).stream()
+        .filter(
+            zaaktype ->
+                loggedInUserInstance.get().isGeautoriseerdZaaktype(zaaktype.getOmschrijving()))
+        .filter(zaaktype -> !zaaktype.getConcept())
+        .filter(ZaakTypeUtil::isNuGeldig)
+        .filter(zaaktype -> healthCheckService.controleerZaaktype(zaaktype.getUrl()).isValide())
+        .map(zaaktypeConverter::convert)
+        .toList();
+  }
 
-        final Zaak zaak = zgwApiService.createZaak(zaakConverter.convert(restZaak, zaaktype));
-        if (StringUtils.isNotEmpty(restZaak.initiatorIdentificatie)) {
-            addInitiator(restZaak.initiatorIdentificatieType, restZaak.initiatorIdentificatie,
-                         zaak);
-        }
-        if (restZaak.groep != null) {
-            final Group group = identityService.readGroup(restZaak.groep.id);
-            zrcClientService.updateRol(zaak, bepaalRolGroep(group, zaak), AANMAKEN_ZAAK_REDEN);
-        }
-        if (restZaak.behandelaar != null) {
-            final User user = identityService.readUser(restZaak.behandelaar.id);
-            zrcClientService.updateRol(zaak, bepaalRolMedewerker(user, zaak), AANMAKEN_ZAAK_REDEN);
-        }
-        cmmnService.startCase(
-                zaak,
-                zaaktype,
-                zaakafhandelParameterService.readZaakafhandelParameters(
-                    URIUtil.parseUUIDFromResourceURI(zaaktype.getUrl())
-                ),
-                null
-        );
+  @PUT
+  @Path("zaakdata")
+  public RESTZaak updateZaakdata(final RESTZaak restZaak) {
+    final Zaak zaak = zrcClientService.readZaak(restZaak.uuid);
+    assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).wijzigen());
 
-        if (restZaakAanmaakGegevens.inboxProductaanvraag != null) {
-            koppelInboxProductaanvraag(zaak, restZaakAanmaakGegevens.inboxProductaanvraag);
-        }
+    zaakVariabelenService.setZaakdata(restZaak.uuid, restZaak.zaakdata);
+    return restZaak;
+  }
 
-        if (restZaakAanmaakGegevens.bagObjecten != null) {
-            for (final RESTBAGObject restbagObject : restZaakAanmaakGegevens.bagObjecten) {
-                final Zaakobject zaakobject = bagConverter.convertToZaakobject(restbagObject, zaak);
-                zrcClientService.createZaakobject(zaakobject);
-            }
-        }
+  @PATCH
+  @Path("toekennen")
+  public RESTZaak toekennen(@Valid final RESTZaakToekennenGegevens toekennenGegevens) {
+    final Zaak zaak = zrcClientService.readZaak(toekennenGegevens.zaakUUID);
+    assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).toekennen());
 
-        return zaakConverter.convert(zaak);
-    }
-
-    @PATCH
-    @Path("zaak/{uuid}")
-    public RESTZaak updateZaak(
-            @PathParam("uuid") final UUID zaakUUID,
-            final RESTZaakEditMetRedenGegevens restZaakEditMetRedenGegevens
-    ) {
-        assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).wijzigen());
-        final Zaak updatedZaak = zrcClientService.patchZaak(
-                zaakUUID, zaakConverter.convertToPatch(restZaakEditMetRedenGegevens.zaak),
-                restZaakEditMetRedenGegevens.reden
-        );
-        return zaakConverter.convert(updatedZaak);
-    }
-
-    @PATCH
-    @Path("{uuid}/zaaklocatie")
-    public RESTZaak updateZaakLocatie(@PathParam("uuid") final UUID zaakUUID,
-        final RESTZaakLocatieGegevens locatieGegevens) {
-        assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).wijzigen());
-        final LocatieZaakPatch locatieZaakPatch = new LocatieZaakPatch(
-            restGeometryConverter.convert(locatieGegevens.geometrie));
-        final Zaak updatedZaak = zrcClientService.patchZaak(zaakUUID, locatieZaakPatch,
-                                                            locatieGegevens.reden);
-        return zaakConverter.convert(updatedZaak);
-    }
-
-    @PATCH
-    @Path("zaak/{uuid}/opschorting")
-    public RESTZaak opschortenZaak(@PathParam("uuid") final UUID zaakUUID,
-        final RESTZaakOpschortGegevens opschortGegevens) {
-        final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        if (opschortGegevens.indicatieOpschorting) {
-            return zaakConverter.convert(
-                opschortenZaakHelper.opschortenZaak(zaak, opschortGegevens.duurDagen,
-                                                    opschortGegevens.redenOpschorting));
-        } else {
-            return zaakConverter.convert(
-                opschortenZaakHelper.hervattenZaak(zaak, opschortGegevens.redenOpschorting));
-        }
-    }
-
-    @GET
-    @Path("zaak/{uuid}/opschorting")
-    public RESTZaakOpschorting readOpschortingZaak(@PathParam("uuid") final UUID zaakUUID) {
-        assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).lezen());
-        final RESTZaakOpschorting zaakOpschorting = new RESTZaakOpschorting();
-        zaakVariabelenService.findDatumtijdOpgeschort(zaakUUID)
-            .ifPresent(
-                datumtijdOpgeschort -> zaakOpschorting.vanafDatumTijd = datumtijdOpgeschort);
-        zaakVariabelenService.findVerwachteDagenOpgeschort(zaakUUID)
-            .ifPresent(
-                verwachteDagenOpgeschort -> zaakOpschorting.duurDagen = verwachteDagenOpgeschort);
-        return zaakOpschorting;
-    }
-
-    @PATCH
-    @Path("zaak/{uuid}/verlenging")
-    public RESTZaak verlengenZaak(
-            @PathParam("uuid") final UUID zaakUUID,
-            final RESTZaakVerlengGegevens restZaakVerlengGegevens
-    ) {
-        final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        final Status status = zaak.getStatus() != null ? zrcClientService.readStatus(
-            zaak.getStatus()
-        ) : null;
-        final StatusType statustype = status != null ? ztcClientService.readStatustype(
-            status.getStatustype()) : null;
-        assertPolicy(
-                zaak.isOpen() &&
-                        !isHeropend(statustype) &&
-                        !zaak.isOpgeschort() &&
-                        policyService.readZaakRechten(zaak).behandelen()
-        );
-        final String toelichting = String.format("%s: %s", VERLENGING,
-                                                 restZaakVerlengGegevens.redenVerlenging);
-        final Zaak updatedZaak = zrcClientService.patchZaak(zaakUUID,
-                                                            zaakConverter.convertToPatch(zaakUUID,
-                                                                                         restZaakVerlengGegevens),
-                                                            toelichting);
-        if (restZaakVerlengGegevens.takenVerlengen) {
-            final int aantalTakenVerlengd = verlengOpenTaken(zaakUUID,
-                                                             restZaakVerlengGegevens.duurDagen);
-            if (aantalTakenVerlengd > 0) {
-                eventingService.send(ZAAK_TAKEN.updated(updatedZaak));
-            }
-        }
-        return zaakConverter.convert(updatedZaak, status, statustype);
-    }
-
-    @PUT
-    @Path("zaakinformatieobjecten/ontkoppel")
-    public void ontkoppelInformatieObject(final RESTDocumentOntkoppelGegevens ontkoppelGegevens) {
-        final Zaak zaak = zrcClientService.readZaak(ontkoppelGegevens.zaakUUID);
-        final EnkelvoudigInformatieObject informatieobject =
-                drcClientService.readEnkelvoudigInformatieobject(
-            ontkoppelGegevens.documentUUID);
-        assertPolicy(policyService.readDocumentRechten(informatieobject, zaak).wijzigen());
-        final ZaakInformatieobjectListParameters parameters = new ZaakInformatieobjectListParameters();
-        parameters.setInformatieobject(informatieobject.getUrl());
-        parameters.setZaak(zaak.getUrl());
-        List<ZaakInformatieobject> zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
-            parameters);
-        if (zaakInformatieobjecten.isEmpty()) {
-            throw new NotFoundException(
-                String.format(
-                    "Geen ZaakInformatieobject gevonden voor Zaak: '%s' en InformatieObject: '%s'",
-                    ontkoppelGegevens.zaakUUID,
-                    ontkoppelGegevens.documentUUID));
-        }
-        zaakInformatieobjecten.forEach(zaakInformatieobject ->
-                                           zrcClientService.deleteZaakInformatieobject(
-                                               zaakInformatieobject.getUuid(),
-                                               ontkoppelGegevens.reden,
-                                               "Ontkoppeld"));
-        if (zrcClientService.listZaakinformatieobjecten(informatieobject).isEmpty()) {
-            indexeerService.removeInformatieobject(parseUUIDFromResourceURI(informatieobject.getUrl()));
-            ontkoppeldeDocumentenService.create(informatieobject, zaak, ontkoppelGegevens.reden);
-        }
-    }
-
-    @GET
-    @Path("waarschuwing")
-    public List<RESTZaakOverzicht> listZaakWaarschuwingen() {
-        final LocalDate vandaag = LocalDate.now();
-        final Map<UUID, LocalDate> einddatumGeplandWaarschuwing = new HashMap<>();
-        final Map<UUID, LocalDate> uiterlijkeEinddatumAfdoeningWaarschuwing = new HashMap<>();
-        zaakafhandelParameterService.listZaakafhandelParameters().forEach(parameters -> {
-            if (parameters.getEinddatumGeplandWaarschuwing() != null) {
-                einddatumGeplandWaarschuwing.put(parameters.getZaakTypeUUID(),
-                                                 datumWaarschuwing(vandaag,
-                                                                   parameters.getEinddatumGeplandWaarschuwing()));
-            }
-            if (parameters.getUiterlijkeEinddatumAfdoeningWaarschuwing() != null) {
-                uiterlijkeEinddatumAfdoeningWaarschuwing.put(parameters.getZaakTypeUUID(),
-                                                             datumWaarschuwing(vandaag,
-                                                                               parameters.getUiterlijkeEinddatumAfdoeningWaarschuwing()));
-            }
-        });
-        final ZaakListParameters zaakListParameters = new ZaakListParameters();
-        zaakListParameters.setRolBetrokkeneIdentificatieMedewerkerIdentificatie(
-            loggedInUserInstance.get().getId());
-        return zrcClientService.listZaken(zaakListParameters).getResults().stream()
-            .filter(Zaak::isOpen)
-            .filter(zaak -> isWaarschuwing(zaak, vandaag, einddatumGeplandWaarschuwing,
-                                           uiterlijkeEinddatumAfdoeningWaarschuwing))
-            .map(zaakOverzichtConverter::convert)
-            .toList();
-    }
-
-    @GET
-    @Path("zaaktypes")
-    public List<RESTZaaktype> listZaaktypes() {
-        return ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
-            .stream()
-            .filter(zaaktype -> loggedInUserInstance.get()
-                .isGeautoriseerdZaaktype(zaaktype.getOmschrijving()))
-            .filter(zaaktype -> !zaaktype.getConcept())
-            .filter(ZaakTypeUtil::isNuGeldig)
-            .filter(zaaktype -> healthCheckService.controleerZaaktype(zaaktype.getUrl())
-                .isValide())
-            .map(zaaktypeConverter::convert)
-            .toList();
-    }
-
-    @PUT
-    @Path("zaakdata")
-    public RESTZaak updateZaakdata(final RESTZaak restZaak) {
-        final Zaak zaak = zrcClientService.readZaak(restZaak.uuid);
-        assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).wijzigen());
-
-        zaakVariabelenService.setZaakdata(restZaak.uuid, restZaak.zaakdata);
-        return restZaak;
-    }
-
-    @PATCH
-    @Path("toekennen")
-    public RESTZaak toekennen(@Valid final RESTZaakToekennenGegevens toekennenGegevens) {
-        final Zaak zaak = zrcClientService.readZaak(toekennenGegevens.zaakUUID);
-        assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).toekennen());
-
-        String behandelaar = zgwApiService.findBehandelaarForZaak(zaak)
+    String behandelaar =
+        zgwApiService
+            .findBehandelaarForZaak(zaak)
             .map(rolMedewerker -> rolMedewerker.getBetrokkeneIdentificatie().getIdentificatie())
             .orElse(null);
 
-        final AtomicBoolean isUpdated = new AtomicBoolean(false);
-        if (!StringUtils.equals(behandelaar, toekennenGegevens.behandelaarGebruikersnaam)) {
-            if (StringUtils.isNotEmpty(toekennenGegevens.behandelaarGebruikersnaam)) {
-                // Toekennen of overdragen
-                final User user = identityService.readUser(
-                    toekennenGegevens.behandelaarGebruikersnaam);
-                zrcClientService.updateRol(zaak, bepaalRolMedewerker(user, zaak),
-                                           toekennenGegevens.reden);
-            } else {
-                // Vrijgeven
-                zrcClientService.deleteRol(zaak, BetrokkeneType.MEDEWERKER,
-                                           toekennenGegevens.reden);
-            }
-            isUpdated.set(true);
-        }
+    final AtomicBoolean isUpdated = new AtomicBoolean(false);
+    if (!StringUtils.equals(behandelaar, toekennenGegevens.behandelaarGebruikersnaam)) {
+      if (StringUtils.isNotEmpty(toekennenGegevens.behandelaarGebruikersnaam)) {
+        // Toekennen of overdragen
+        final User user = identityService.readUser(toekennenGegevens.behandelaarGebruikersnaam);
+        zrcClientService.updateRol(zaak, bepaalRolMedewerker(user, zaak), toekennenGegevens.reden);
+      } else {
+        // Vrijgeven
+        zrcClientService.deleteRol(zaak, BetrokkeneType.MEDEWERKER, toekennenGegevens.reden);
+      }
+      isUpdated.set(true);
+    }
 
-        zgwApiService.findGroepForZaak(zaak)
-            .ifPresent(groep -> {
-                if (!StringUtils.equals(groep.getBetrokkeneIdentificatie().getIdentificatie(),
-                                        toekennenGegevens.groepId)) {
-                    final Group group = identityService.readGroup(toekennenGegevens.groepId);
-                    zrcClientService.updateRol(zaak, bepaalRolGroep(group, zaak),
-                                               toekennenGegevens.reden);
-                    isUpdated.set(true);
-                }
+    zgwApiService
+        .findGroepForZaak(zaak)
+        .ifPresent(
+            groep -> {
+              if (!StringUtils.equals(
+                  groep.getBetrokkeneIdentificatie().getIdentificatie(),
+                  toekennenGegevens.groepId)) {
+                final Group group = identityService.readGroup(toekennenGegevens.groepId);
+                zrcClientService.updateRol(
+                    zaak, bepaalRolGroep(group, zaak), toekennenGegevens.reden);
+                isUpdated.set(true);
+              }
             });
 
-        if (isUpdated.get()) {
-            indexeerService.indexeerDirect(zaak.getUuid().toString(), ZoekObjectType.ZAAK);
-        }
-
-        return zaakConverter.convert(zaak);
+    if (isUpdated.get()) {
+      indexeerService.indexeerDirect(zaak.getUuid().toString(), ZoekObjectType.ZAAK);
     }
 
-    @PUT
-    @Path("lijst/toekennen/mij")
-    public RESTZaakOverzicht toekennenAanIngelogdeMedewerkerVanuitLijst(
-        final RESTZaakToekennenGegevens toekennenGegevens) {
-        assertPolicy(policyService.readWerklijstRechten().zakenTaken());
-        final Zaak zaak = ingelogdeMedewerkerToekennenAanZaak(toekennenGegevens);
-        indexeerService.indexeerDirect(zaak.getUuid().toString(), ZoekObjectType.ZAAK);
-        return zaakOverzichtConverter.convert(zaak);
-    }
+    return zaakConverter.convert(zaak);
+  }
 
-    @PUT
-    @Path("lijst/verdelen")
-    public void verdelenVanuitLijst(final RESTZakenVerdeelGegevens verdeelGegevens) {
-        assertPolicy(policyService.readWerklijstRechten()
-                         .zakenTaken() && policyService.readWerklijstRechten()
-            .zakenTakenVerdelen());
-        final Group group = !StringUtils.isEmpty(
-            verdeelGegevens.groepId) ? identityService.readGroup(
-            verdeelGegevens.groepId) : null;
-        final User user = !StringUtils.isEmpty(verdeelGegevens.behandelaarGebruikersnaam) ?
-            identityService.readUser(verdeelGegevens.behandelaarGebruikersnaam) : null;
-        verdeelGegevens.uuids.forEach(uuid -> {
-            final Zaak zaak = zrcClientService.readZaak(uuid);
-            if (group != null) {
-                zrcClientService.updateRol(zaak, bepaalRolGroep(group, zaak),
-                                           verdeelGegevens.reden);
-            }
-            if (user != null) {
-                zrcClientService.updateRol(zaak, bepaalRolMedewerker(user, zaak),
-                                           verdeelGegevens.reden);
-            }
+  @PUT
+  @Path("lijst/toekennen/mij")
+  public RESTZaakOverzicht toekennenAanIngelogdeMedewerkerVanuitLijst(
+      final RESTZaakToekennenGegevens toekennenGegevens) {
+    assertPolicy(policyService.readWerklijstRechten().zakenTaken());
+    final Zaak zaak = ingelogdeMedewerkerToekennenAanZaak(toekennenGegevens);
+    indexeerService.indexeerDirect(zaak.getUuid().toString(), ZoekObjectType.ZAAK);
+    return zaakOverzichtConverter.convert(zaak);
+  }
+
+  @PUT
+  @Path("lijst/verdelen")
+  public void verdelenVanuitLijst(final RESTZakenVerdeelGegevens verdeelGegevens) {
+    assertPolicy(
+        policyService.readWerklijstRechten().zakenTaken()
+            && policyService.readWerklijstRechten().zakenTakenVerdelen());
+    final Group group =
+        !StringUtils.isEmpty(verdeelGegevens.groepId)
+            ? identityService.readGroup(verdeelGegevens.groepId)
+            : null;
+    final User user =
+        !StringUtils.isEmpty(verdeelGegevens.behandelaarGebruikersnaam)
+            ? identityService.readUser(verdeelGegevens.behandelaarGebruikersnaam)
+            : null;
+    verdeelGegevens.uuids.forEach(
+        uuid -> {
+          final Zaak zaak = zrcClientService.readZaak(uuid);
+          if (group != null) {
+            zrcClientService.updateRol(zaak, bepaalRolGroep(group, zaak), verdeelGegevens.reden);
+          }
+          if (user != null) {
+            zrcClientService.updateRol(
+                zaak, bepaalRolMedewerker(user, zaak), verdeelGegevens.reden);
+          }
         });
-        indexeerService.indexeerDirect(
-            verdeelGegevens.uuids.stream().map(UUID::toString).collect(Collectors.toList()),
-            ZoekObjectType.ZAAK);
-    }
+    indexeerService.indexeerDirect(
+        verdeelGegevens.uuids.stream().map(UUID::toString).collect(Collectors.toList()),
+        ZoekObjectType.ZAAK);
+  }
 
-    @PUT
-    @Path("lijst/vrijgeven")
-    public void vrijgevenVanuitLijst(final RESTZakenVerdeelGegevens verdeelGegevens) {
-        assertPolicy(policyService.readWerklijstRechten()
-                         .zakenTaken() && policyService.readWerklijstRechten()
-            .zakenTakenVerdelen());
-        verdeelGegevens.uuids.forEach(uuid -> {
-            final Zaak zaak = zrcClientService.readZaak(uuid);
-            zrcClientService.deleteRol(zaak, BetrokkeneType.MEDEWERKER, verdeelGegevens.reden);
+  @PUT
+  @Path("lijst/vrijgeven")
+  public void vrijgevenVanuitLijst(final RESTZakenVerdeelGegevens verdeelGegevens) {
+    assertPolicy(
+        policyService.readWerklijstRechten().zakenTaken()
+            && policyService.readWerklijstRechten().zakenTakenVerdelen());
+    verdeelGegevens.uuids.forEach(
+        uuid -> {
+          final Zaak zaak = zrcClientService.readZaak(uuid);
+          zrcClientService.deleteRol(zaak, BetrokkeneType.MEDEWERKER, verdeelGegevens.reden);
         });
-        indexeerService.indexeerDirect(verdeelGegevens.uuids.stream().map(UUID::toString).toList(),
-                                       ZoekObjectType.ZAAK);
-    }
+    indexeerService.indexeerDirect(
+        verdeelGegevens.uuids.stream().map(UUID::toString).toList(), ZoekObjectType.ZAAK);
+  }
 
-    @PATCH
-    @Path("/zaak/{uuid}/afbreken")
-    public void afbreken(@PathParam("uuid") final UUID zaakUUID,
-        final RESTZaakAfbrekenGegevens afbrekenGegevens) {
-        Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        final StatusType statustype = zaak.getStatus() != null ? ztcClientService.readStatustype(
-            zrcClientService.readStatus(zaak.getStatus()).getStatustype()) : null;
-        assertPolicy(zaak.isOpen() && !isHeropend(statustype) && policyService.readZaakRechten(zaak)
-            .afbreken());
-        policyService.checkZaakAfsluitbaar(zaak);
-        final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
+  @PATCH
+  @Path("/zaak/{uuid}/afbreken")
+  public void afbreken(
+      @PathParam("uuid") final UUID zaakUUID, final RESTZaakAfbrekenGegevens afbrekenGegevens) {
+    Zaak zaak = zrcClientService.readZaak(zaakUUID);
+    final StatusType statustype =
+        zaak.getStatus() != null
+            ? ztcClientService.readStatustype(
+                zrcClientService.readStatus(zaak.getStatus()).getStatustype())
+            : null;
+    assertPolicy(
+        zaak.isOpen() && !isHeropend(statustype) && policyService.readZaakRechten(zaak).afbreken());
+    policyService.checkZaakAfsluitbaar(zaak);
+    final ZaakafhandelParameters zaakafhandelParameters =
+        zaakafhandelParameterService.readZaakafhandelParameters(
             UriUtil.uuidFromURI(zaak.getZaaktype()));
-        final ZaakbeeindigParameter zaakbeeindigParameter = zaakafhandelParameters.readZaakbeeindigParameter(
-            afbrekenGegevens.zaakbeeindigRedenId);
-        zgwApiService.createResultaatForZaak(zaak, zaakbeeindigParameter.getResultaattype(),
-                                             zaakbeeindigParameter.getZaakbeeindigReden()
-                                                 .getNaam());
-        zgwApiService.endZaak(zaak, zaakbeeindigParameter.getZaakbeeindigReden().getNaam());
-        // Terminate case after the zaak is ended in order to prevent the EndCaseLifecycleListener from ending the zaak.
-        cmmnService.terminateCase(zaakUUID);
+    final ZaakbeeindigParameter zaakbeeindigParameter =
+        zaakafhandelParameters.readZaakbeeindigParameter(afbrekenGegevens.zaakbeeindigRedenId);
+    zgwApiService.createResultaatForZaak(
+        zaak,
+        zaakbeeindigParameter.getResultaattype(),
+        zaakbeeindigParameter.getZaakbeeindigReden().getNaam());
+    zgwApiService.endZaak(zaak, zaakbeeindigParameter.getZaakbeeindigReden().getNaam());
+    // Terminate case after the zaak is ended in order to prevent the EndCaseLifecycleListener from
+    // ending the zaak.
+    cmmnService.terminateCase(zaakUUID);
+  }
+
+  @PATCH
+  @Path("/zaak/{uuid}/heropenen")
+  public void heropenen(
+      @PathParam("uuid") final UUID zaakUUID, final RESTZaakHeropenenGegevens heropenenGegevens) {
+    Zaak zaak = zrcClientService.readZaak(zaakUUID);
+    assertPolicy(!zaak.isOpen() && policyService.readZaakRechten(zaak).heropenen());
+    zgwApiService.createStatusForZaak(
+        zaak, STATUSTYPE_OMSCHRIJVING_HEROPEND, heropenenGegevens.reden);
+  }
+
+  @PATCH
+  @Path("/zaak/{uuid}/afsluiten")
+  public void afsluiten(
+      @PathParam("uuid") final UUID zaakUUID, final RESTZaakAfsluitenGegevens afsluitenGegevens) {
+    Zaak zaak = zrcClientService.readZaak(zaakUUID);
+    assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).behandelen());
+    policyService.checkZaakAfsluitbaar(zaak);
+    zgwApiService.updateResultaatForZaak(
+        zaak, afsluitenGegevens.resultaattypeUuid, afsluitenGegevens.reden);
+    zgwApiService.closeZaak(zaak, afsluitenGegevens.reden);
+  }
+
+  @PATCH
+  @Path("/zaak/koppel")
+  public void koppelZaak(final RESTZaakKoppelGegevens gegevens) {
+    final Zaak zaak = zrcClientService.readZaak(gegevens.zaakUuid);
+    final Zaak teKoppelenZaak = zrcClientService.readZaak(gegevens.teKoppelenZaakUuid);
+    assertPolicy(
+        policyService.readZaakRechten(zaak).wijzigen()
+            && policyService.readZaakRechten(teKoppelenZaak).wijzigen());
+
+    switch (gegevens.relatieType) {
+      case HOOFDZAAK -> koppelHoofdEnDeelzaak(teKoppelenZaak, zaak);
+      case DEELZAAK -> koppelHoofdEnDeelzaak(zaak, teKoppelenZaak);
+      case VERVOLG -> koppelRelevantezaken(zaak, teKoppelenZaak, AardRelatie.VERVOLG);
+      case ONDERWERP -> koppelRelevantezaken(zaak, teKoppelenZaak, AardRelatie.ONDERWERP);
+      case BIJDRAGE -> koppelRelevantezaken(zaak, teKoppelenZaak, AardRelatie.BIJDRAGE);
     }
-
-    @PATCH
-    @Path("/zaak/{uuid}/heropenen")
-    public void heropenen(@PathParam("uuid") final UUID zaakUUID,
-        final RESTZaakHeropenenGegevens heropenenGegevens) {
-        Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        assertPolicy(!zaak.isOpen() && policyService.readZaakRechten(zaak).heropenen());
-        zgwApiService.createStatusForZaak(zaak, STATUSTYPE_OMSCHRIJVING_HEROPEND,
-                                          heropenenGegevens.reden);
+    if (gegevens.reverseRelatieType != null) {
+      switch (gegevens.reverseRelatieType) {
+        case VERVOLG -> koppelRelevantezaken(teKoppelenZaak, zaak, AardRelatie.VERVOLG);
+        case ONDERWERP -> koppelRelevantezaken(teKoppelenZaak, zaak, AardRelatie.ONDERWERP);
+        case BIJDRAGE -> koppelRelevantezaken(teKoppelenZaak, zaak, AardRelatie.BIJDRAGE);
+      }
     }
+  }
 
-    @PATCH
-    @Path("/zaak/{uuid}/afsluiten")
-    public void afsluiten(@PathParam("uuid") final UUID zaakUUID,
-        final RESTZaakAfsluitenGegevens afsluitenGegevens) {
-        Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).behandelen());
-        policyService.checkZaakAfsluitbaar(zaak);
-        zgwApiService.updateResultaatForZaak(zaak, afsluitenGegevens.resultaattypeUuid,
-                                             afsluitenGegevens.reden);
-        zgwApiService.closeZaak(zaak, afsluitenGegevens.reden);
+  @PATCH
+  @Path("/zaak/ontkoppel")
+  public void ontkoppelZaak(final RESTZaakOntkoppelGegevens gegevens) {
+    final Zaak zaak = zrcClientService.readZaak(gegevens.zaakUuid);
+    final Zaak gekoppeldeZaak = zrcClientService.readZaakByID(gegevens.gekoppeldeZaakIdentificatie);
+    assertPolicy(
+        policyService.readZaakRechten(zaak).wijzigen()
+            && policyService.readZaakRechten(gekoppeldeZaak).wijzigen());
+
+    switch (gegevens.relatietype) {
+      case HOOFDZAAK -> ontkoppelHoofdEnDeelzaak(gekoppeldeZaak, zaak, gegevens.reden);
+      case DEELZAAK -> ontkoppelHoofdEnDeelzaak(zaak, gekoppeldeZaak, gegevens.reden);
+      case VERVOLG ->
+          ontkoppelRelevantezaken(zaak, gekoppeldeZaak, AardRelatie.VERVOLG, gegevens.reden);
+      case ONDERWERP ->
+          ontkoppelRelevantezaken(zaak, gekoppeldeZaak, AardRelatie.ONDERWERP, gegevens.reden);
+      case BIJDRAGE ->
+          ontkoppelRelevantezaken(zaak, gekoppeldeZaak, AardRelatie.BIJDRAGE, gegevens.reden);
     }
+  }
 
-    @PATCH
-    @Path("/zaak/koppel")
-    public void koppelZaak(final RESTZaakKoppelGegevens gegevens) {
-        final Zaak zaak = zrcClientService.readZaak(gegevens.zaakUuid);
-        final Zaak teKoppelenZaak = zrcClientService.readZaak(gegevens.teKoppelenZaakUuid);
-        assertPolicy(policyService.readZaakRechten(zaak).wijzigen() &&
-                         policyService.readZaakRechten(teKoppelenZaak).wijzigen());
+  @PUT
+  @Path("toekennen/mij")
+  public RESTZaak toekennenAanIngelogdeMedewerker(
+      final RESTZaakToekennenGegevens toekennenGegevens) {
+    final Zaak zaak = ingelogdeMedewerkerToekennenAanZaak(toekennenGegevens);
+    return zaakConverter.convert(zaak);
+  }
 
-        switch (gegevens.relatieType) {
-            case HOOFDZAAK -> koppelHoofdEnDeelzaak(teKoppelenZaak, zaak);
-            case DEELZAAK -> koppelHoofdEnDeelzaak(zaak, teKoppelenZaak);
-            case VERVOLG -> koppelRelevantezaken(zaak, teKoppelenZaak, AardRelatie.VERVOLG);
-            case ONDERWERP -> koppelRelevantezaken(zaak, teKoppelenZaak, AardRelatie.ONDERWERP);
-            case BIJDRAGE -> koppelRelevantezaken(zaak, teKoppelenZaak, AardRelatie.BIJDRAGE);
-        }
-        if (gegevens.reverseRelatieType != null) {
-            switch (gegevens.reverseRelatieType) {
-                case VERVOLG -> koppelRelevantezaken(teKoppelenZaak, zaak, AardRelatie.VERVOLG);
-                case ONDERWERP -> koppelRelevantezaken(teKoppelenZaak, zaak, AardRelatie.ONDERWERP);
-                case BIJDRAGE -> koppelRelevantezaken(teKoppelenZaak, zaak, AardRelatie.BIJDRAGE);
-            }
-        }
-    }
+  @GET
+  @Path("zaak/{uuid}/historie")
+  public List<RESTHistorieRegel> listHistorie(@PathParam("uuid") final UUID zaakUUID) {
+    assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).lezen());
+    final List<AuditTrailRegel> auditTrail = zrcClientService.listAuditTrail(zaakUUID);
+    return auditTrailConverter.convert(auditTrail);
+  }
 
-    @PATCH
-    @Path("/zaak/ontkoppel")
-    public void ontkoppelZaak(final RESTZaakOntkoppelGegevens gegevens) {
-        final Zaak zaak = zrcClientService.readZaak(gegevens.zaakUuid);
-        final Zaak gekoppeldeZaak = zrcClientService.readZaakByID(
-            gegevens.gekoppeldeZaakIdentificatie);
-        assertPolicy(policyService.readZaakRechten(zaak).wijzigen() &&
-                         policyService.readZaakRechten(gekoppeldeZaak).wijzigen());
+  @GET
+  @Path("zaak/{uuid}/betrokkene")
+  public List<RESTZaakBetrokkene> listBetrokkenenVoorZaak(@PathParam("uuid") final UUID zaakUUID) {
+    final Zaak zaak = zrcClientService.readZaak(zaakUUID);
+    assertPolicy(policyService.readZaakRechten(zaak).lezen());
+    return zaakBetrokkeneConverter.convert(
+        zrcClientService.listRollen(zaak).stream()
+            .filter(
+                rol ->
+                    KlantenRESTService.betrokkenen.contains(
+                        RolType.OmschrijvingGeneriekEnum.valueOf(
+                            rol.getOmschrijvingGeneriek().toUpperCase()))));
+  }
 
-        switch (gegevens.relatietype) {
-            case HOOFDZAAK -> ontkoppelHoofdEnDeelzaak(gekoppeldeZaak, zaak, gegevens.reden);
-            case DEELZAAK -> ontkoppelHoofdEnDeelzaak(zaak, gekoppeldeZaak, gegevens.reden);
-            case VERVOLG -> ontkoppelRelevantezaken(zaak, gekoppeldeZaak, AardRelatie.VERVOLG,
-                                                    gegevens.reden);
-            case ONDERWERP -> ontkoppelRelevantezaken(zaak, gekoppeldeZaak, AardRelatie.ONDERWERP,
-                                                      gegevens.reden);
-            case BIJDRAGE -> ontkoppelRelevantezaken(zaak, gekoppeldeZaak, AardRelatie.BIJDRAGE,
-                                                     gegevens.reden);
-        }
-    }
+  /**
+   * Retrieve all possible afzenders for a zaak
+   *
+   * @param zaakUUID the id of the zaak
+   * @return list of afzenders
+   */
+  @GET
+  @Path("zaak/{uuid}/afzender")
+  public List<RESTZaakAfzender> listAfzendersVoorZaak(@PathParam("uuid") final UUID zaakUUID) {
+    final Zaak zaak = zrcClientService.readZaak(zaakUUID);
+    return sortAndRemoveDuplicates(
+        resolveZaakAfzenderMail(
+            zaakAfzenderConverter
+                .convertZaakAfzenders(
+                    zaakafhandelParameterService
+                        .readZaakafhandelParameters(UriUtil.uuidFromURI(zaak.getZaaktype()))
+                        .getZaakAfzenders())
+                .stream()));
+  }
 
-    @PUT
-    @Path("toekennen/mij")
-    public RESTZaak toekennenAanIngelogdeMedewerker(
-        final RESTZaakToekennenGegevens toekennenGegevens) {
-        final Zaak zaak = ingelogdeMedewerkerToekennenAanZaak(toekennenGegevens);
-        return zaakConverter.convert(zaak);
-    }
-
-    @GET
-    @Path("zaak/{uuid}/historie")
-    public List<RESTHistorieRegel> listHistorie(@PathParam("uuid") final UUID zaakUUID) {
-        assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).lezen());
-        final List<AuditTrailRegel> auditTrail = zrcClientService.listAuditTrail(zaakUUID);
-        return auditTrailConverter.convert(auditTrail);
-    }
-
-    @GET
-    @Path("zaak/{uuid}/betrokkene")
-    public List<RESTZaakBetrokkene> listBetrokkenenVoorZaak(
-        @PathParam("uuid") final UUID zaakUUID) {
-        final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        assertPolicy(policyService.readZaakRechten(zaak).lezen());
-        return zaakBetrokkeneConverter.convert(
-            zrcClientService.listRollen(zaak).stream()
-                .filter(
-                        rol -> KlantenRESTService.betrokkenen.contains(
-                                RolType.OmschrijvingGeneriekEnum.valueOf(
-                                        rol.getOmschrijvingGeneriek().toUpperCase()
-                                )
-                        )
-                )
-        );
-    }
-
-    /**
-     * Retrieve all possible afzenders for a zaak
-     *
-     * @param zaakUUID the id of the zaak
-     * @return list of afzenders
-     */
-    @GET
-    @Path("zaak/{uuid}/afzender")
-    public List<RESTZaakAfzender> listAfzendersVoorZaak(@PathParam("uuid") final UUID zaakUUID) {
-        final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        return sortAndRemoveDuplicates(
-            resolveZaakAfzenderMail(
-                zaakAfzenderConverter.convertZaakAfzenders(
-                    zaakafhandelParameterService.readZaakafhandelParameters(
-                            UriUtil.uuidFromURI(zaak.getZaaktype()))
-                        .getZaakAfzenders()).stream()));
-    }
-
-    /**
-     * Retrieve the default afzender for a zaak
-     *
-     * @param zaakUUID the id of the zaak
-     * @return the default zaakafzender or null if no default is available
-     */
-    @GET
-    @Path("zaak/{uuid}/afzender/default")
-    public RESTZaakAfzender readDefaultAfzenderVoorZaak(@PathParam("uuid") final UUID zaakUUID) {
-        final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        return resolveZaakAfzenderMail(
-            zaakafhandelParameterService.readZaakafhandelParameters(
-                    UriUtil.uuidFromURI(zaak.getZaaktype()))
-                .getZaakAfzenders().stream()
+  /**
+   * Retrieve the default afzender for a zaak
+   *
+   * @param zaakUUID the id of the zaak
+   * @return the default zaakafzender or null if no default is available
+   */
+  @GET
+  @Path("zaak/{uuid}/afzender/default")
+  public RESTZaakAfzender readDefaultAfzenderVoorZaak(@PathParam("uuid") final UUID zaakUUID) {
+    final Zaak zaak = zrcClientService.readZaak(zaakUUID);
+    return resolveZaakAfzenderMail(
+            zaakafhandelParameterService
+                .readZaakafhandelParameters(UriUtil.uuidFromURI(zaak.getZaaktype()))
+                .getZaakAfzenders()
+                .stream()
                 .filter(ZaakAfzender::isDefault)
                 .map(zaakAfzenderConverter::convertZaakAfzender))
-            .findAny()
-            .orElse(null);
-    }
+        .findAny()
+        .orElse(null);
+  }
 
-    @GET
-    @Path("communicatiekanalen/{inclusiefEFormulier}")
-    public List<RESTCommunicatiekanaal> listCommunicatiekanalen(
-        @PathParam("inclusiefEFormulier") final boolean inclusiefEFormulier) {
-        final List<CommunicatieKanaal> communicatieKanalen = vrlClientService.listCommunicatiekanalen();
-        if (!inclusiefEFormulier) {
-            communicatieKanalen.removeIf(
-                communicatieKanaal -> communicatieKanaal.getNaam()
-                    .equals(COMMUNICATIEKANAAL_EFORMULIER));
-        }
-        return communicatiekanaalConverter.convert(communicatieKanalen);
+  @GET
+  @Path("communicatiekanalen/{inclusiefEFormulier}")
+  public List<RESTCommunicatiekanaal> listCommunicatiekanalen(
+      @PathParam("inclusiefEFormulier") final boolean inclusiefEFormulier) {
+    final List<CommunicatieKanaal> communicatieKanalen = vrlClientService.listCommunicatiekanalen();
+    if (!inclusiefEFormulier) {
+      communicatieKanalen.removeIf(
+          communicatieKanaal -> communicatieKanaal.getNaam().equals(COMMUNICATIEKANAAL_EFORMULIER));
     }
+    return communicatiekanaalConverter.convert(communicatieKanalen);
+  }
 
-    @GET
-    @Path("besluit/zaakUuid/{zaakUuid}")
-    public List<RESTBesluit> listBesluitenForZaakUUID(@PathParam("zaakUuid") final UUID zaakUuid) {
-        return brcClientService.listBesluiten(zrcClientService.readZaak(zaakUuid))
-            .map(besluitConverter::convertToRESTBesluit)
-            .orElse(null);
+  @GET
+  @Path("besluit/zaakUuid/{zaakUuid}")
+  public List<RESTBesluit> listBesluitenForZaakUUID(@PathParam("zaakUuid") final UUID zaakUuid) {
+    return brcClientService
+        .listBesluiten(zrcClientService.readZaak(zaakUuid))
+        .map(besluitConverter::convertToRESTBesluit)
+        .orElse(null);
+  }
+
+  @POST
+  @Path("besluit")
+  public RESTBesluit createBesluit(final RESTBesluitVastleggenGegevens besluitToevoegenGegevens) {
+    final Zaak zaak = zrcClientService.readZaak(besluitToevoegenGegevens.zaakUuid);
+    final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
+    final Status zaakStatus =
+        zaak.getStatus() != null ? zrcClientService.readStatus(zaak.getStatus()) : null;
+    final StatusType zaakStatustype =
+        zaakStatus != null ? ztcClientService.readStatustype(zaakStatus.getStatustype()) : null;
+    assertPolicy(
+        zaak.isOpen()
+            && isNotEmpty(zaaktype.getBesluittypen())
+            && policyService.readZaakRechten(zaak, zaaktype).behandelen()
+            && !isIntake(zaakStatustype));
+    final Besluit besluit = besluitConverter.convertToBesluit(zaak, besluitToevoegenGegevens);
+    if (zaak.getResultaat() != null) {
+      zgwApiService.updateResultaatForZaak(zaak, besluitToevoegenGegevens.resultaattypeUuid, null);
+    } else {
+      zgwApiService.createResultaatForZaak(zaak, besluitToevoegenGegevens.resultaattypeUuid, null);
     }
-
-    @POST
-    @Path("besluit")
-    public RESTBesluit createBesluit(final RESTBesluitVastleggenGegevens besluitToevoegenGegevens) {
-        final Zaak zaak = zrcClientService.readZaak(besluitToevoegenGegevens.zaakUuid);
-        final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
-        final Status zaakStatus = zaak.getStatus() != null ? zrcClientService.readStatus(
-            zaak.getStatus()) : null;
-        final StatusType zaakStatustype = zaakStatus != null ? ztcClientService.readStatustype(
-            zaakStatus.getStatustype()) : null;
-        assertPolicy(
-                zaak.isOpen() &&
-                    isNotEmpty(zaaktype.getBesluittypen()) &&
-                    policyService.readZaakRechten(zaak, zaaktype).behandelen() &&
-                    !isIntake(zaakStatustype)
-        );
-        final Besluit besluit = besluitConverter.convertToBesluit(zaak, besluitToevoegenGegevens);
-        if (zaak.getResultaat() != null) {
-            zgwApiService.updateResultaatForZaak(zaak, besluitToevoegenGegevens.resultaattypeUuid,
-                                                 null);
-        } else {
-            zgwApiService.createResultaatForZaak(zaak, besluitToevoegenGegevens.resultaattypeUuid,
-                                                 null);
-        }
-        final RESTBesluit restBesluit = besluitConverter.convertToRESTBesluit(brcClientService.createBesluit(besluit));
-        besluitToevoegenGegevens.informatieobjecten.forEach(documentUri -> {
-            final EnkelvoudigInformatieObject informatieobject =
-                    drcClientService.readEnkelvoudigInformatieobject(documentUri);
-            final BesluitInformatieObject besluitInformatieobject = new BesluitInformatieObject();
-            besluitInformatieobject.setInformatieobject(informatieobject.getUrl());
-            besluitInformatieobject.setBesluit(restBesluit.url);
-            brcClientService.createBesluitInformatieobject(besluitInformatieobject, AANMAKEN_BESLUIT_TOELICHTING);
+    final RESTBesluit restBesluit =
+        besluitConverter.convertToRESTBesluit(brcClientService.createBesluit(besluit));
+    besluitToevoegenGegevens.informatieobjecten.forEach(
+        documentUri -> {
+          final EnkelvoudigInformatieObject informatieobject =
+              drcClientService.readEnkelvoudigInformatieobject(documentUri);
+          final BesluitInformatieObject besluitInformatieobject = new BesluitInformatieObject();
+          besluitInformatieobject.setInformatieobject(informatieobject.getUrl());
+          besluitInformatieobject.setBesluit(restBesluit.url);
+          brcClientService.createBesluitInformatieobject(
+              besluitInformatieobject, AANMAKEN_BESLUIT_TOELICHTING);
         });
-        // This event should result from a ZAAKBESLUIT CREATED notification on the ZAKEN channel
-        // but open_zaak does not send that one, so emulate it here.
-        eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak));
-        return restBesluit;
-    }
+    // This event should result from a ZAAKBESLUIT CREATED notification on the ZAKEN channel
+    // but open_zaak does not send that one, so emulate it here.
+    eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak));
+    return restBesluit;
+  }
 
-    @PUT
-    @Path("besluit")
-    public RESTBesluit updateBesluit(
-        final RESTBesluitWijzigenGegevens restBesluitWijzigenGegevens) {
-        Besluit besluit = brcClientService.readBesluit(restBesluitWijzigenGegevens.besluitUuid);
-        final Zaak zaak = zrcClientService.readZaak(besluit.getZaak());
-        assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).behandelen());
-        besluit = besluitConverter.convertToBesluit(besluit, restBesluitWijzigenGegevens);
-        besluit = brcClientService.updateBesluit(besluit, restBesluitWijzigenGegevens.reden);
-        if (zaak.getResultaat() != null) {
-            final Resultaat zaakResultaat = zrcClientService.readResultaat(zaak.getResultaat());
-            final ResultaatType resultaattype = ztcClientService.readResultaattype(
-                restBesluitWijzigenGegevens.resultaattypeUuid);
-            if (!UriUtil.isEqual(zaakResultaat.getResultaattype(), resultaattype.getUrl())) {
-                zrcClientService.deleteResultaat(zaakResultaat.getUuid());
-                zgwApiService.createResultaatForZaak(zaak,
-                                                     restBesluitWijzigenGegevens.resultaattypeUuid,
-                                                     null);
-            }
-        }
-        updateBesluitInformatieobjecten(besluit, restBesluitWijzigenGegevens.informatieobjecten);
-        // This event should result from a ZAAKBESLUIT CREATED notification on the ZAKEN channel
-        // but open_zaak does not send that one, so emulate it here.
-        eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak));
-        return besluitConverter.convertToRESTBesluit(besluit);
+  @PUT
+  @Path("besluit")
+  public RESTBesluit updateBesluit(final RESTBesluitWijzigenGegevens restBesluitWijzigenGegevens) {
+    Besluit besluit = brcClientService.readBesluit(restBesluitWijzigenGegevens.besluitUuid);
+    final Zaak zaak = zrcClientService.readZaak(besluit.getZaak());
+    assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).behandelen());
+    besluit = besluitConverter.convertToBesluit(besluit, restBesluitWijzigenGegevens);
+    besluit = brcClientService.updateBesluit(besluit, restBesluitWijzigenGegevens.reden);
+    if (zaak.getResultaat() != null) {
+      final Resultaat zaakResultaat = zrcClientService.readResultaat(zaak.getResultaat());
+      final ResultaatType resultaattype =
+          ztcClientService.readResultaattype(restBesluitWijzigenGegevens.resultaattypeUuid);
+      if (!UriUtil.isEqual(zaakResultaat.getResultaattype(), resultaattype.getUrl())) {
+        zrcClientService.deleteResultaat(zaakResultaat.getUuid());
+        zgwApiService.createResultaatForZaak(
+            zaak, restBesluitWijzigenGegevens.resultaattypeUuid, null);
+      }
     }
+    updateBesluitInformatieobjecten(besluit, restBesluitWijzigenGegevens.informatieobjecten);
+    // This event should result from a ZAAKBESLUIT CREATED notification on the ZAKEN channel
+    // but open_zaak does not send that one, so emulate it here.
+    eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak));
+    return besluitConverter.convertToRESTBesluit(besluit);
+  }
 
-    private void updateBesluitInformatieobjecten(final Besluit besluit,
-        final List<UUID> nieuweDocumenten) {
-        final List<BesluitInformatieObject> besluitInformatieobjecten =
-                brcClientService.listBesluitInformatieobjecten(
-            besluit.getUrl());
-        final List<UUID> huidigeDocumenten = besluitInformatieobjecten.stream()
-            .map(besluitInformatieobject -> UriUtil.uuidFromURI(
-                besluitInformatieobject.getInformatieobject()))
+  private void updateBesluitInformatieobjecten(
+      final Besluit besluit, final List<UUID> nieuweDocumenten) {
+    final List<BesluitInformatieObject> besluitInformatieobjecten =
+        brcClientService.listBesluitInformatieobjecten(besluit.getUrl());
+    final List<UUID> huidigeDocumenten =
+        besluitInformatieobjecten.stream()
+            .map(
+                besluitInformatieobject ->
+                    UriUtil.uuidFromURI(besluitInformatieobject.getInformatieobject()))
             .toList();
 
-        final Collection<UUID> verwijderen = CollectionUtils.subtract(huidigeDocumenten,
-                                                                      nieuweDocumenten);
-        final Collection<UUID> toevoegen = CollectionUtils.subtract(nieuweDocumenten,
-                                                                    huidigeDocumenten);
+    final Collection<UUID> verwijderen =
+        CollectionUtils.subtract(huidigeDocumenten, nieuweDocumenten);
+    final Collection<UUID> toevoegen =
+        CollectionUtils.subtract(nieuweDocumenten, huidigeDocumenten);
 
-        verwijderen.forEach(teVerwijderenInformatieobject -> besluitInformatieobjecten.stream()
-            .filter(besluitInformatieobject -> uuidFromURI(
-                besluitInformatieobject.getInformatieobject()).equals(
-                teVerwijderenInformatieobject))
-            .forEach(besluitInformatieobject -> brcClientService.deleteBesluitinformatieobject(
-                uuidFromURI(besluitInformatieobject.getUrl()))));
+    verwijderen.forEach(
+        teVerwijderenInformatieobject ->
+            besluitInformatieobjecten.stream()
+                .filter(
+                    besluitInformatieobject ->
+                        uuidFromURI(besluitInformatieobject.getInformatieobject())
+                            .equals(teVerwijderenInformatieobject))
+                .forEach(
+                    besluitInformatieobject ->
+                        brcClientService.deleteBesluitinformatieobject(
+                            uuidFromURI(besluitInformatieobject.getUrl()))));
 
-        toevoegen.forEach(documentUri -> {
-            final EnkelvoudigInformatieObject informatieobject =
-                    drcClientService.readEnkelvoudigInformatieobject(documentUri);
-            final BesluitInformatieObject besluitInformatieobject = new BesluitInformatieObject();
-            besluitInformatieobject.setInformatieobject(informatieobject.getUrl());
-            besluitInformatieobject.setBesluit(besluit.getUrl());
-            brcClientService.createBesluitInformatieobject(besluitInformatieobject, WIJZIGEN_BESLUIT_TOELICHTING);
+    toevoegen.forEach(
+        documentUri -> {
+          final EnkelvoudigInformatieObject informatieobject =
+              drcClientService.readEnkelvoudigInformatieobject(documentUri);
+          final BesluitInformatieObject besluitInformatieobject = new BesluitInformatieObject();
+          besluitInformatieobject.setInformatieobject(informatieobject.getUrl());
+          besluitInformatieobject.setBesluit(besluit.getUrl());
+          brcClientService.createBesluitInformatieobject(
+              besluitInformatieobject, WIJZIGEN_BESLUIT_TOELICHTING);
         });
-    }
+  }
 
-    @PUT
-    @Path("besluit/intrekken")
-    public RESTBesluit intrekkenBesluit(
-        final RESTBesluitIntrekkenGegevens restBesluitIntrekkenGegevens) {
-        Besluit besluit = brcClientService.readBesluit(restBesluitIntrekkenGegevens.besluitUuid);
-        final Zaak zaak = zrcClientService.readZaak(besluit.getZaak());
-        assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).behandelen());
-        besluit = besluitConverter.convertToBesluit(besluit, restBesluitIntrekkenGegevens);
-        final String intrekToelichting = getIntrekToelichting(besluit.getVervalreden());
-        besluit = brcClientService.updateBesluit(
-                besluit,
-                intrekToelichting != null ? intrekToelichting.formatted(restBesluitIntrekkenGegevens.reden) : null
-        );
-        // This event should result from a ZAAKBESLUIT UPDATED notification on the ZAKEN channel
-        // but open_zaak does not send that one, so emulate it here.
-        eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak));
-        return besluitConverter.convertToRESTBesluit(besluit);
-    }
+  @PUT
+  @Path("besluit/intrekken")
+  public RESTBesluit intrekkenBesluit(
+      final RESTBesluitIntrekkenGegevens restBesluitIntrekkenGegevens) {
+    Besluit besluit = brcClientService.readBesluit(restBesluitIntrekkenGegevens.besluitUuid);
+    final Zaak zaak = zrcClientService.readZaak(besluit.getZaak());
+    assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).behandelen());
+    besluit = besluitConverter.convertToBesluit(besluit, restBesluitIntrekkenGegevens);
+    final String intrekToelichting = getIntrekToelichting(besluit.getVervalreden());
+    besluit =
+        brcClientService.updateBesluit(
+            besluit,
+            intrekToelichting != null
+                ? intrekToelichting.formatted(restBesluitIntrekkenGegevens.reden)
+                : null);
+    // This event should result from a ZAAKBESLUIT UPDATED notification on the ZAKEN channel
+    // but open_zaak does not send that one, so emulate it here.
+    eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak));
+    return besluitConverter.convertToRESTBesluit(besluit);
+  }
 
-    @GET
-    @Path("besluit/{uuid}/historie")
-    public List<RESTHistorieRegel> listBesluitHistorie(@PathParam("uuid") final UUID uuid) {
-        final List<AuditTrailRegel> auditTrail = brcClientService.listAuditTrail(uuid);
-        return auditTrailConverter.convert(auditTrail);
-    }
+  @GET
+  @Path("besluit/{uuid}/historie")
+  public List<RESTHistorieRegel> listBesluitHistorie(@PathParam("uuid") final UUID uuid) {
+    final List<AuditTrailRegel> auditTrail = brcClientService.listAuditTrail(uuid);
+    return auditTrailConverter.convert(auditTrail);
+  }
 
-    @GET
-    @Path("besluittypes/{zaaktypeUUID}")
-    public List<RESTBesluittype> listBesluittypes(
-        @PathParam("zaaktypeUUID") final UUID zaaktypeUUID) {
-        assertPolicy(policyService.readWerklijstRechten().zakenTaken());
-        final List<BesluitType> besluittypen = ztcClientService.readBesluittypen(
-                ztcClientService.readZaaktype(zaaktypeUUID).getUrl()).stream()
+  @GET
+  @Path("besluittypes/{zaaktypeUUID}")
+  public List<RESTBesluittype> listBesluittypes(
+      @PathParam("zaaktypeUUID") final UUID zaaktypeUUID) {
+    assertPolicy(policyService.readWerklijstRechten().zakenTaken());
+    final List<BesluitType> besluittypen =
+        ztcClientService
+            .readBesluittypen(ztcClientService.readZaaktype(zaaktypeUUID).getUrl())
+            .stream()
             .filter(LocalDateUtil::dateNowIsBetween)
             .toList();
-        return besluittypeConverter.convertToRESTBesluittypes(besluittypen);
+    return besluittypeConverter.convertToRESTBesluittypes(besluittypen);
+  }
+
+  @GET
+  @Path("resultaattypes/{zaaktypeUUID}")
+  public List<RESTResultaattype> listResultaattypes(
+      @PathParam("zaaktypeUUID") final UUID zaaktypeUUID) {
+    assertPolicy(policyService.readWerklijstRechten().zakenTaken());
+    return resultaattypeConverter.convertResultaattypes(
+        ztcClientService.readResultaattypen(ztcClientService.readZaaktype(zaaktypeUUID).getUrl()));
+  }
+
+  @GET
+  @Path("{uuid}/procesdiagram")
+  @Produces(MediaType.APPLICATION_OCTET_STREAM)
+  public Response downloadProcessDiagram(@PathParam("uuid") final UUID uuid) {
+    return Response.ok(bpmnService.getProcessDiagram(uuid))
+        .header("Content-Disposition", "attachment; filename=\"procesdiagram.gif\"")
+        .build();
+  }
+
+  @GET
+  @Path("procesvariabelen")
+  public List<String> listProcesVariabelen() {
+    return ZaakVariabelenService.VARS;
+  }
+
+  private void addBetrokkene(
+      final UUID roltype,
+      IdentificatieType identificatieType,
+      final String identificatie,
+      final String toelichting,
+      final Zaak zaak) {
+    assertPolicy(policyService.readZaakRechten(zaak).behandelen());
+    final RolType betrokkene = ztcClientService.readRoltype(roltype);
+    switch (identificatieType) {
+      case BSN -> addBetrokkenNatuurlijkPersoon(betrokkene, identificatie, zaak, toelichting);
+      case VN -> addBetrokkenVestiging(betrokkene, identificatie, zaak, toelichting);
+      case RSIN -> addBetrokkenNietNatuurlijkPersoon(betrokkene, identificatie, zaak, toelichting);
+      default ->
+          throw new IllegalStateException(
+              String.format("Unexpected value: %s '%s'", identificatieType, identificatie));
     }
+  }
 
-    @GET
-    @Path("resultaattypes/{zaaktypeUUID}")
-    public List<RESTResultaattype> listResultaattypes(
-        @PathParam("zaaktypeUUID") final UUID zaaktypeUUID) {
-        assertPolicy(policyService.readWerklijstRechten().zakenTaken());
-        return resultaattypeConverter.convertResultaattypes(
-            ztcClientService.readResultaattypen(
-                ztcClientService.readZaaktype(zaaktypeUUID).getUrl()));
+  private void addBetrokkenNatuurlijkPersoon(
+      final RolType roltype, final String bsn, final Zaak zaak, String toelichting) {
+    final RolNatuurlijkPersoon rol =
+        new RolNatuurlijkPersoon(zaak.getUrl(), roltype, toelichting, new NatuurlijkPersoon(bsn));
+    zrcClientService.createRol(rol, toelichting);
+  }
+
+  private void addBetrokkenVestiging(
+      final RolType roltype, final String vestigingsnummer, final Zaak zaak, String toelichting) {
+    final RolVestiging rol =
+        new RolVestiging(zaak.getUrl(), roltype, toelichting, new Vestiging(vestigingsnummer));
+    zrcClientService.createRol(rol, toelichting);
+  }
+
+  private void addBetrokkenNietNatuurlijkPersoon(
+      final RolType roltype, final String rsin, final Zaak zaak, String toelichting) {
+    final RolNietNatuurlijkPersoon rol =
+        new RolNietNatuurlijkPersoon(
+            zaak.getUrl(), roltype, toelichting, new NietNatuurlijkPersoon(rsin));
+    zrcClientService.createRol(rol, toelichting);
+  }
+
+  private void addInitiator(
+      final IdentificatieType identificatieType, final String identificatie, final Zaak zaak) {
+    assertPolicy(policyService.readZaakRechten(zaak).behandelen());
+    final RolType initiator =
+        ztcClientService.readRoltype(
+            RolType.OmschrijvingGeneriekEnum.INITIATOR, zaak.getZaaktype());
+    switch (identificatieType) {
+      case BSN ->
+          addBetrokkenNatuurlijkPersoon(initiator, identificatie, zaak, ROL_TOEVOEGEN_REDEN);
+      case VN -> addBetrokkenVestiging(initiator, identificatie, zaak, ROL_TOEVOEGEN_REDEN);
+      case RSIN ->
+          addBetrokkenNietNatuurlijkPersoon(initiator, identificatie, zaak, ROL_TOEVOEGEN_REDEN);
+      default ->
+          throw new IllegalStateException(
+              String.format("Unexpected value: %s '%s'", identificatieType, identificatie));
     }
+  }
 
-    @GET
-    @Path("{uuid}/procesdiagram")
-    @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public Response downloadProcessDiagram(@PathParam("uuid") final UUID uuid) {
-        return Response.ok(bpmnService.getProcessDiagram(uuid))
-            .header("Content-Disposition",
-                    "attachment; filename=\"procesdiagram.gif\"")
-            .build();
+  private List<RelevanteZaak> addRelevanteZaak(
+      final List<RelevanteZaak> relevanteZaken, URI andereZaak, final AardRelatie aardRelatie) {
+    final RelevanteZaak relevanteZaak = new RelevanteZaak(andereZaak, aardRelatie);
+    if (relevanteZaken != null) {
+      if (relevanteZaken.stream().noneMatch(zaak -> zaak.is(andereZaak, aardRelatie))) {
+        relevanteZaken.add(relevanteZaak);
+      }
+      return relevanteZaken;
+    } else {
+      return List.of(relevanteZaak);
     }
+  }
 
-    @GET
-    @Path("procesvariabelen")
-    public List<String> listProcesVariabelen() {
-        return ZaakVariabelenService.VARS;
-    }
+  private RolOrganisatorischeEenheid bepaalRolGroep(final Group group, final Zaak zaak) {
+    final OrganisatorischeEenheid groep = new OrganisatorischeEenheid();
+    groep.setIdentificatie(group.getId());
+    groep.setNaam(group.getName());
+    final RolType roltype =
+        ztcClientService.readRoltype(
+            RolType.OmschrijvingGeneriekEnum.BEHANDELAAR, zaak.getZaaktype());
+    return new RolOrganisatorischeEenheid(
+        zaak.getUrl(), roltype, "Behandelend groep van de zaak", groep);
+  }
 
-    private void addBetrokkene(final UUID roltype, IdentificatieType identificatieType,
-        final String identificatie,
-        final String toelichting, final Zaak zaak) {
-        assertPolicy(policyService.readZaakRechten(zaak).behandelen());
-        final RolType betrokkene = ztcClientService.readRoltype(roltype);
-        switch (identificatieType) {
-            case BSN -> addBetrokkenNatuurlijkPersoon(betrokkene, identificatie, zaak, toelichting);
-            case VN -> addBetrokkenVestiging(betrokkene, identificatie, zaak, toelichting);
-            case RSIN -> addBetrokkenNietNatuurlijkPersoon(betrokkene, identificatie, zaak, toelichting);
-            default -> throw new IllegalStateException(
-                String.format("Unexpected value: %s '%s'", identificatieType, identificatie));
-        }
-    }
+  private RolMedewerker bepaalRolMedewerker(final User user, final Zaak zaak) {
+    final net.atos.client.zgw.zrc.model.Medewerker medewerker =
+        new net.atos.client.zgw.zrc.model.Medewerker();
+    medewerker.setIdentificatie(user.getId());
+    medewerker.setVoorletters(user.getFirstName());
+    medewerker.setAchternaam(user.getLastName());
+    final RolType roltype =
+        ztcClientService.readRoltype(
+            RolType.OmschrijvingGeneriekEnum.BEHANDELAAR, zaak.getZaaktype());
+    return new RolMedewerker(zaak.getUrl(), roltype, "Behandelaar van de zaak", medewerker);
+  }
 
-    private void addBetrokkenNatuurlijkPersoon(final RolType roltype, final String bsn,
-        final Zaak zaak,
-        String toelichting) {
-        final RolNatuurlijkPersoon rol = new RolNatuurlijkPersoon(zaak.getUrl(), roltype,
-                                                                  toelichting,
-                                                                  new NatuurlijkPersoon(bsn));
-        zrcClientService.createRol(rol, toelichting);
-    }
+  private LocalDate datumWaarschuwing(final LocalDate vandaag, final int dagen) {
+    return vandaag.plusDays(dagen + 1L);
+  }
 
-    private void addBetrokkenVestiging(
-            final RolType roltype,
-            final String vestigingsnummer,
-            final Zaak zaak,
-            String toelichting
-    ) {
-        final RolVestiging rol = new RolVestiging(
-                zaak.getUrl(),
-                roltype,
-                toelichting,
-                new Vestiging(vestigingsnummer)
-        );
-        zrcClientService.createRol(rol, toelichting);
-    }
+  private void deleteSignaleringen(final Zaak zaak) {
+    signaleringenService.deleteSignaleringen(
+        new SignaleringZoekParameters(loggedInUserInstance.get())
+            .types(SignaleringType.Type.ZAAK_OP_NAAM, SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD)
+            .subject(zaak));
+  }
 
-    private void addBetrokkenNietNatuurlijkPersoon(final RolType roltype, final String rsin,
-        final Zaak zaak,
-        String toelichting) {
-        final RolNietNatuurlijkPersoon rol = new RolNietNatuurlijkPersoon(
-                zaak.getUrl(),
-                roltype,
-                toelichting,
-                new NietNatuurlijkPersoon(rsin)
-        );
-        zrcClientService.createRol(rol, toelichting);
-    }
+  private @Nullable String getIntrekToelichting(final Besluit.VervalredenEnum vervalreden) {
+    return switch (vervalreden) {
+      case INGETROKKEN_OVERHEID -> "Overheid: %s";
+      case INGETROKKEN_BELANGHEBBENDE -> "Belanghebbende: %s";
+      default -> {
+        LOG.log(Level.INFO, "Unknown vervalreden: '{0}'. Returning 'null'.", vervalreden);
+        yield null;
+      }
+    };
+  }
 
-    private void addInitiator(final IdentificatieType identificatieType, final String identificatie,
-            final Zaak zaak) {
-        assertPolicy(policyService.readZaakRechten(zaak).behandelen());
-        final RolType initiator = ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.INITIATOR, zaak.getZaaktype());
-        switch (identificatieType) {
-            case BSN -> addBetrokkenNatuurlijkPersoon(initiator, identificatie, zaak, ROL_TOEVOEGEN_REDEN);
-            case VN -> addBetrokkenVestiging(initiator, identificatie, zaak, ROL_TOEVOEGEN_REDEN);
-            case RSIN -> addBetrokkenNietNatuurlijkPersoon(initiator, identificatie, zaak, ROL_TOEVOEGEN_REDEN);
-            default -> throw new IllegalStateException(
-                    String.format("Unexpected value: %s '%s'", identificatieType, identificatie));
-        }
-    }
+  private Zaak ingelogdeMedewerkerToekennenAanZaak(
+      final RESTZaakToekennenGegevens toekennenGegevens) {
+    final Zaak zaak = zrcClientService.readZaak(toekennenGegevens.zaakUUID);
+    assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).toekennen());
 
-    private List<RelevanteZaak> addRelevanteZaak(final List<RelevanteZaak> relevanteZaken,
-            URI andereZaak,
-            final AardRelatie aardRelatie) {
-        final RelevanteZaak relevanteZaak = new RelevanteZaak(andereZaak, aardRelatie);
-        if (relevanteZaken != null) {
-            if (relevanteZaken.stream()
-                    .noneMatch(zaak -> zaak.is(andereZaak, aardRelatie))) {
-                relevanteZaken.add(relevanteZaak);
-            }
-            return relevanteZaken;
-        } else {
-            return List.of(relevanteZaak);
-        }
-    }
+    final User user = identityService.readUser(loggedInUserInstance.get().getId());
+    zrcClientService.updateRol(zaak, bepaalRolMedewerker(user, zaak), toekennenGegevens.reden);
+    return zaak;
+  }
 
-    private RolOrganisatorischeEenheid bepaalRolGroep(final Group group, final Zaak zaak) {
-        final OrganisatorischeEenheid groep = new OrganisatorischeEenheid();
-        groep.setIdentificatie(group.getId());
-        groep.setNaam(group.getName());
-        final RolType roltype = ztcClientService.readRoltype(
-                RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
-                zaak.getZaaktype()
-        );
-        return new RolOrganisatorischeEenheid(zaak.getUrl(), roltype,
-                                              "Behandelend groep van de zaak", groep);
-    }
+  private boolean isWaarschuwing(
+      final Zaak zaak,
+      final LocalDate vandaag,
+      final Map<UUID, LocalDate> einddatumGeplandWaarschuwing,
+      final Map<UUID, LocalDate> uiterlijkeEinddatumAfdoeningWaarschuwing) {
+    final UUID zaaktypeUUID = UriUtil.uuidFromURI(zaak.getZaaktype());
+    return (zaak.getEinddatumGepland() != null
+            && isWaarschuwing(
+                vandaag,
+                zaak.getEinddatumGepland(),
+                einddatumGeplandWaarschuwing.get(zaaktypeUUID)))
+        || isWaarschuwing(
+            vandaag,
+            zaak.getUiterlijkeEinddatumAfdoening(),
+            uiterlijkeEinddatumAfdoeningWaarschuwing.get(zaaktypeUUID));
+  }
 
-    private RolMedewerker bepaalRolMedewerker(final User user, final Zaak zaak) {
-        final net.atos.client.zgw.zrc.model.Medewerker medewerker = new net.atos.client.zgw.zrc.model.Medewerker();
-        medewerker.setIdentificatie(user.getId());
-        medewerker.setVoorletters(user.getFirstName());
-        medewerker.setAchternaam(user.getLastName());
-        final RolType roltype = ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
-                                                             zaak.getZaaktype());
-        return new RolMedewerker(zaak.getUrl(), roltype, "Behandelaar van de zaak", medewerker);
-    }
+  private boolean isWaarschuwing(
+      final LocalDate vandaag, final LocalDate datum, final LocalDate datumWaarschuwing) {
+    return datumWaarschuwing != null
+        && !datum.isBefore(vandaag)
+        && datum.isBefore(datumWaarschuwing);
+  }
 
-    private LocalDate datumWaarschuwing(final LocalDate vandaag, final int dagen) {
-        return vandaag.plusDays(dagen + 1L);
-    }
+  private void koppelHoofdEnDeelzaak(final Zaak hoofdZaak, final Zaak deelZaak) {
+    final HoofdzaakZaakPatch zaakPatch = new HoofdzaakZaakPatch(hoofdZaak.getUrl());
+    zrcClientService.patchZaak(deelZaak.getUuid(), zaakPatch);
+    // Hiervoor wordt door open zaak alleen voor de deelzaak een notificatie verstuurd.
+    // Dus zelf het ScreenEvent versturen voor de hoofdzaak!
+    indexeerService.addOrUpdateZaak(hoofdZaak.getUuid(), false);
+    eventingService.send(ZAAK.updated(hoofdZaak.getUuid()));
+  }
 
-    private void deleteSignaleringen(final Zaak zaak) {
-        signaleringenService.deleteSignaleringen(
-                new SignaleringZoekParameters(loggedInUserInstance.get())
-                        .types(SignaleringType.Type.ZAAK_OP_NAAM,
-                               SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD)
-                        .subject(zaak));
-    }
+  private void koppelInboxProductaanvraag(
+      final Zaak zaak, final RESTInboxProductaanvraag inboxProductaanvraag) {
+    final ORObject productaanvraagObject =
+        objectsClientService.readObject(inboxProductaanvraag.productaanvraagObjectUUID);
+    final ProductaanvraagDenhaag productaanvraag =
+        productaanvraagService.getProductaanvraag(productaanvraagObject);
 
-    private @Nullable String getIntrekToelichting(final Besluit.VervalredenEnum vervalreden) {
-        return switch (vervalreden) {
-            case INGETROKKEN_OVERHEID -> "Overheid: %s";
-            case INGETROKKEN_BELANGHEBBENDE -> "Belanghebbende: %s";
-            default -> {
-                LOG.log(Level.INFO, "Unknown vervalreden: '{0}'. Returning 'null'.", vervalreden);
-                yield null;
-            }
-        };
-    }
+    productaanvraagService.pairProductaanvraagWithZaak(productaanvraagObject, zaak.getUrl());
+    productaanvraagService.pairAanvraagPDFWithZaak(productaanvraag, zaak.getUrl());
+    productaanvraagService.pairBijlagenWithZaak(productaanvraag.getAttachments(), zaak.getUrl());
 
-    private Zaak ingelogdeMedewerkerToekennenAanZaak(
-            final RESTZaakToekennenGegevens toekennenGegevens) {
-        final Zaak zaak = zrcClientService.readZaak(toekennenGegevens.zaakUUID);
-        assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).toekennen());
+    // verwijder het verwerkte inbox productaanvraag item
+    inboxProductaanvraagService.delete(inboxProductaanvraag.id);
+    zaakVariabelenService.setZaakdata(
+        zaak.getUuid(), productaanvraagService.getFormulierData(productaanvraagObject));
+  }
 
-        final User user = identityService.readUser(loggedInUserInstance.get().getId());
-        zrcClientService.updateRol(zaak, bepaalRolMedewerker(user, zaak), toekennenGegevens.reden);
-        return zaak;
-    }
-
-    private boolean isWaarschuwing(
-            final Zaak zaak,
-            final LocalDate vandaag,
-            final Map<UUID, LocalDate> einddatumGeplandWaarschuwing,
-            final Map<UUID, LocalDate> uiterlijkeEinddatumAfdoeningWaarschuwing) {
-        final UUID zaaktypeUUID = UriUtil.uuidFromURI(zaak.getZaaktype());
-        return (zaak.getEinddatumGepland() != null &&
-                isWaarschuwing(vandaag, zaak.getEinddatumGepland(),
-                               einddatumGeplandWaarschuwing.get(zaaktypeUUID))) ||
-                isWaarschuwing(vandaag, zaak.getUiterlijkeEinddatumAfdoening(),
-                               uiterlijkeEinddatumAfdoeningWaarschuwing.get(zaaktypeUUID));
-    }
-
-    private boolean isWaarschuwing(final LocalDate vandaag, final LocalDate datum,
-            final LocalDate datumWaarschuwing) {
-        return datumWaarschuwing != null && !datum.isBefore(vandaag) && datum.isBefore(
-                datumWaarschuwing);
-    }
-
-    private void koppelHoofdEnDeelzaak(final Zaak hoofdZaak, final Zaak deelZaak) {
-        final HoofdzaakZaakPatch zaakPatch = new HoofdzaakZaakPatch(hoofdZaak.getUrl());
-        zrcClientService.patchZaak(deelZaak.getUuid(), zaakPatch);
-        // Hiervoor wordt door open zaak alleen voor de deelzaak een notificatie verstuurd.
-        // Dus zelf het ScreenEvent versturen voor de hoofdzaak!
-        indexeerService.addOrUpdateZaak(hoofdZaak.getUuid(), false);
-        eventingService.send(ZAAK.updated(hoofdZaak.getUuid()));
-    }
-
-    private void koppelInboxProductaanvraag(final Zaak zaak,
-            final RESTInboxProductaanvraag inboxProductaanvraag) {
-        final ORObject productaanvraagObject = objectsClientService.readObject(
-                inboxProductaanvraag.productaanvraagObjectUUID);
-        final ProductaanvraagDenhaag productaanvraag = productaanvraagService.getProductaanvraag(
-                productaanvraagObject);
-
-        productaanvraagService.pairProductaanvraagWithZaak(productaanvraagObject, zaak.getUrl());
-        productaanvraagService.pairAanvraagPDFWithZaak(productaanvraag, zaak.getUrl());
-        productaanvraagService.pairBijlagenWithZaak(productaanvraag.getAttachments(),
-                                                    zaak.getUrl());
-
-        //verwijder het verwerkte inbox productaanvraag item
-        inboxProductaanvraagService.delete(inboxProductaanvraag.id);
-        zaakVariabelenService.setZaakdata(zaak.getUuid(), productaanvraagService.getFormulierData(
-                productaanvraagObject));
-    }
-
-    private void koppelRelevantezaken(final Zaak zaak, final Zaak andereZaak,
-        final AardRelatie aardRelatie) {
-        final RelevantezaakZaakPatch zaakPatch = new RelevantezaakZaakPatch(
+  private void koppelRelevantezaken(
+      final Zaak zaak, final Zaak andereZaak, final AardRelatie aardRelatie) {
+    final RelevantezaakZaakPatch zaakPatch =
+        new RelevantezaakZaakPatch(
             addRelevanteZaak(zaak.getRelevanteAndereZaken(), andereZaak.getUrl(), aardRelatie));
-        zrcClientService.patchZaak(zaak.getUuid(), zaakPatch);
-    }
+    zrcClientService.patchZaak(zaak.getUuid(), zaakPatch);
+  }
 
-    private void ontkoppelHoofdEnDeelzaak(final Zaak hoofdZaak, final Zaak deelZaak,
-            final String reden) {
-        final HoofdzaakZaakPatch zaakPatch = new HoofdzaakZaakPatch(null);
-        zrcClientService.patchZaak(deelZaak.getUuid(), zaakPatch, reden);
-        // Hiervoor wordt door open zaak alleen voor de deelzaak een notificatie verstuurd.
-        // Dus zelf het ScreenEvent versturen voor de hoofdzaak!
-        indexeerService.addOrUpdateZaak(hoofdZaak.getUuid(), false);
-        eventingService.send(ZAAK.updated(hoofdZaak.getUuid()));
-    }
+  private void ontkoppelHoofdEnDeelzaak(
+      final Zaak hoofdZaak, final Zaak deelZaak, final String reden) {
+    final HoofdzaakZaakPatch zaakPatch = new HoofdzaakZaakPatch(null);
+    zrcClientService.patchZaak(deelZaak.getUuid(), zaakPatch, reden);
+    // Hiervoor wordt door open zaak alleen voor de deelzaak een notificatie verstuurd.
+    // Dus zelf het ScreenEvent versturen voor de hoofdzaak!
+    indexeerService.addOrUpdateZaak(hoofdZaak.getUuid(), false);
+    eventingService.send(ZAAK.updated(hoofdZaak.getUuid()));
+  }
 
-    private void ontkoppelRelevantezaken(final Zaak zaak, final Zaak andereZaak,
-        final AardRelatie aardRelatie,
-        final String reden) {
-        final RelevantezaakZaakPatch zaakPatch = new RelevantezaakZaakPatch(
-            removeRelevanteZaak(zaak.getRelevanteAndereZaken(), andereZaak.getUrl(),
-                                aardRelatie));
-        zrcClientService.patchZaak(zaak.getUuid(), zaakPatch, reden);
-    }
+  private void ontkoppelRelevantezaken(
+      final Zaak zaak, final Zaak andereZaak, final AardRelatie aardRelatie, final String reden) {
+    final RelevantezaakZaakPatch zaakPatch =
+        new RelevantezaakZaakPatch(
+            removeRelevanteZaak(zaak.getRelevanteAndereZaken(), andereZaak.getUrl(), aardRelatie));
+    zrcClientService.patchZaak(zaak.getUuid(), zaakPatch, reden);
+  }
 
-    private void removeBetrokkene(final Zaak zaak, final Rol<?> betrokkene, final String reden) {
-        assertPolicy(policyService.readZaakRechten(zaak).behandelen());
-        zrcClientService.deleteRol(betrokkene, reden);
-    }
+  private void removeBetrokkene(final Zaak zaak, final Rol<?> betrokkene, final String reden) {
+    assertPolicy(policyService.readZaakRechten(zaak).behandelen());
+    zrcClientService.deleteRol(betrokkene, reden);
+  }
 
-    private void removeInitiator(final Zaak zaak, final Rol<?> initiator, final String reden) {
-        assertPolicy(policyService.readZaakRechten(zaak).behandelen());
-        zrcClientService.deleteRol(initiator, reden);
-    }
+  private void removeInitiator(final Zaak zaak, final Rol<?> initiator, final String reden) {
+    assertPolicy(policyService.readZaakRechten(zaak).behandelen());
+    zrcClientService.deleteRol(initiator, reden);
+  }
 
-    private List<RelevanteZaak> removeRelevanteZaak(final List<RelevanteZaak> relevanteZaken,
-        URI andereZaak,
-        final AardRelatie aardRelatie) {
-        if (relevanteZaken != null) {
-            relevanteZaken.removeAll(relevanteZaken.stream()
-                                         .filter(zaak -> zaak.is(andereZaak, aardRelatie))
-                                         .toList());
-        }
-        return relevanteZaken;
+  private List<RelevanteZaak> removeRelevanteZaak(
+      final List<RelevanteZaak> relevanteZaken, URI andereZaak, final AardRelatie aardRelatie) {
+    if (relevanteZaken != null) {
+      relevanteZaken.removeAll(
+          relevanteZaken.stream().filter(zaak -> zaak.is(andereZaak, aardRelatie)).toList());
     }
+    return relevanteZaken;
+  }
 
-    private Stream<RESTZaakAfzender> resolveZaakAfzenderMail(
-            final Stream<RESTZaakAfzender> afzenders) {
-        return afzenders
-                .peek(afzender -> {
-                    final ZaakAfzender.Speciaal speciaal = speciaalMail(afzender.mail);
-                    if (speciaal != null) {
-                        afzender.suffix = "gegevens.mail.afzender." + speciaal;
-                        afzender.mail = resolveMail(speciaal, afzender.mail);
-                    }
-                    afzender.replyTo = resolveMail(speciaalMail(afzender.replyTo),
-                                                   afzender.replyTo);
+  private Stream<RESTZaakAfzender> resolveZaakAfzenderMail(
+      final Stream<RESTZaakAfzender> afzenders) {
+    return afzenders
+        .peek(
+            afzender -> {
+              final ZaakAfzender.Speciaal speciaal = speciaalMail(afzender.mail);
+              if (speciaal != null) {
+                afzender.suffix = "gegevens.mail.afzender." + speciaal;
+                afzender.mail = resolveMail(speciaal, afzender.mail);
+              }
+              afzender.replyTo = resolveMail(speciaalMail(afzender.replyTo), afzender.replyTo);
+            })
+        .filter(afzender -> afzender.mail != null);
+  }
+
+  private String resolveMail(ZaakAfzender.Speciaal speciaal, final String mail) {
+    if (speciaal != null) {
+      return switch (speciaal) {
+        case GEMEENTE -> configuratieService.readGemeenteMail();
+        case MEDEWERKER -> loggedInUserInstance.get().getEmail();
+      };
+    }
+    return mail;
+  }
+
+  private static List<RESTZaakAfzender> sortAndRemoveDuplicates(
+      Stream<RESTZaakAfzender> afzenders) {
+    final List<RESTZaakAfzender> list =
+        afzenders
+            .sorted(
+                (a, b) -> {
+                  final int result = a.mail.compareTo(b.mail);
+                  return result == 0 ? a.defaultMail ? -1 : 0 : result;
                 })
-                .filter(afzender -> afzender.mail != null);
+            .collect(Collectors.toList());
+    final Iterator<RESTZaakAfzender> i = list.iterator();
+    String previous = null;
+    while (i.hasNext()) {
+      final RESTZaakAfzender afzender = i.next();
+      if (afzender.mail.equals(previous)) {
+        i.remove();
+      } else {
+        previous = afzender.mail;
+      }
     }
+    return list;
+  }
 
-    private String resolveMail(ZaakAfzender.Speciaal speciaal, final String mail) {
-        if (speciaal != null) {
-            return switch (speciaal) {
-                case GEMEENTE -> configuratieService.readGemeenteMail();
-                case MEDEWERKER -> loggedInUserInstance.get().getEmail();
-            };
-        }
-        return mail;
+  private ZaakAfzender.Speciaal speciaalMail(final String mail) {
+    if (mail != null && !mail.contains("@")) {
+      return ZaakAfzender.Speciaal.valueOf(mail);
     }
+    return null;
+  }
 
-    private static List<RESTZaakAfzender> sortAndRemoveDuplicates(
-            Stream<RESTZaakAfzender> afzenders) {
-        final List<RESTZaakAfzender> list = afzenders
-                .sorted((a, b) -> {
-                    final int result = a.mail.compareTo(b.mail);
-                    return result == 0 ? a.defaultMail ? -1 : 0 : result;
-                })
-                .collect(Collectors.toList());
-        final Iterator<RESTZaakAfzender> i = list.iterator();
-        String previous = null;
-        while (i.hasNext()) {
-            final RESTZaakAfzender afzender = i.next();
-            if (afzender.mail.equals(previous)) {
-                i.remove();
-            } else {
-                previous = afzender.mail;
-            }
-        }
-        return list;
-    }
-
-    private ZaakAfzender.Speciaal speciaalMail(final String mail) {
-        if (mail != null && !mail.contains("@")) {
-            return ZaakAfzender.Speciaal.valueOf(mail);
-        }
-        return null;
-    }
-
-    private int verlengOpenTaken(final UUID zaakUUID, final int duurDagen) {
-        final int[] count = new int[1];
-        takenService.listOpenTasksForZaak(zaakUUID).stream()
-                .filter(task -> task.getDueDate() != null)
-                .forEach(task -> {
-                    task.setDueDate(convertToDate(
-                            convertToLocalDate(task.getDueDate()).plusDays(duurDagen)));
-                    takenService.updateTask(task);
-                    eventingService.send(TAAK.updated(task));
-                    count[0]++;
-                });
-        return count[0];
-    }
+  private int verlengOpenTaken(final UUID zaakUUID, final int duurDagen) {
+    final int[] count = new int[1];
+    takenService.listOpenTasksForZaak(zaakUUID).stream()
+        .filter(task -> task.getDueDate() != null)
+        .forEach(
+            task -> {
+              task.setDueDate(
+                  convertToDate(convertToLocalDate(task.getDueDate()).plusDays(duurDagen)));
+              takenService.updateTask(task);
+              eventingService.send(TAAK.updated(task));
+              count[0]++;
+            });
+    return count[0];
+  }
 }

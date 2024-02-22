@@ -1,26 +1,24 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.admin.model;
 
 import java.util.List;
 
 public class RESTReferentieTabel {
 
-    public Long id;
+  public Long id;
 
-    public String code;
+  public String code;
 
-    public String naam;
+  public String naam;
 
-    public boolean systeem;
+  public boolean systeem;
 
-    public int aantalWaarden;
+  public int aantalWaarden;
 
-    public List<RESTReferentieTabelWaarde> waarden;
+  public List<RESTReferentieTabelWaarde> waarden;
 
-    public RESTReferentieTabel() {
-    }
+  public RESTReferentieTabel() {}
 }

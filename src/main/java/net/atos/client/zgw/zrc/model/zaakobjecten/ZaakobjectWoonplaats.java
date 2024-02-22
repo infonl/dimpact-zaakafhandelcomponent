@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.zrc.model.zaakobjecten;
 
 import java.net.URI;
@@ -14,22 +13,21 @@ import net.atos.client.zgw.zrc.model.Objecttype;
  */
 public class ZaakobjectWoonplaats extends ZaakobjectMetObjectIdentificatie<ObjectWoonplaats> {
 
-    /**
-     * Constructor for JSONB deserialization
-     */
-    public ZaakobjectWoonplaats() {
-    }
+  /**
+   * Constructor for JSONB deserialization
+   */
+  public ZaakobjectWoonplaats() {}
 
-    /**
-     * Constructor with required attributes
-     */
-    public ZaakobjectWoonplaats(final URI zaak, final URI bagobjectUri, final ObjectWoonplaats woonplaats) {
-        super(zaak, bagobjectUri, Objecttype.WOONPLAATS, woonplaats);
-    }
+  /**
+   * Constructor with required attributes
+   */
+  public ZaakobjectWoonplaats(
+      final URI zaak, final URI bagobjectUri, final ObjectWoonplaats woonplaats) {
+    super(zaak, bagobjectUri, Objecttype.WOONPLAATS, woonplaats);
+  }
 
-    @Override
-    public String getWaarde() {
-        return getObjectIdentificatie().getIdentificatie();
-    }
-
+  @Override
+  public String getWaarde() {
+    return getObjectIdentificatie().getIdentificatie();
+  }
 }

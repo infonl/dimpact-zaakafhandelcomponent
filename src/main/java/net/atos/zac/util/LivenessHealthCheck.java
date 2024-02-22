@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.util;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -15,8 +14,8 @@ import org.eclipse.microprofile.health.Liveness;
 @ApplicationScoped
 public class LivenessHealthCheck implements HealthCheck {
 
-    @Override
-    public HealthCheckResponse call() {
-        return HealthCheckResponse.up(LivenessHealthCheck.class.getName());
-    }
+  @Override
+  public HealthCheckResponse call() {
+    return HealthCheckResponse.up(LivenessHealthCheck.class.getName());
+  }
 }

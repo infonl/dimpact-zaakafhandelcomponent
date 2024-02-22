@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.policy;
 
 import jakarta.inject.Inject;
@@ -24,21 +23,19 @@ import net.atos.zac.policy.PolicyService;
 @Singleton
 public class PolicyRESTService {
 
-    @Inject
-    private PolicyService policyService;
+  @Inject private PolicyService policyService;
 
-    @Inject
-    private RESTRechtenConverter rechtenConverter;
+  @Inject private RESTRechtenConverter rechtenConverter;
 
-    @GET
-    @Path("werklijstRechten")
-    public RESTWerklijstRechten readWerklijstRechten() {
-        return rechtenConverter.convert(policyService.readWerklijstRechten());
-    }
+  @GET
+  @Path("werklijstRechten")
+  public RESTWerklijstRechten readWerklijstRechten() {
+    return rechtenConverter.convert(policyService.readWerklijstRechten());
+  }
 
-    @GET
-    @Path("overigeRechten")
-    public RESTOverigeRechten readOverigeRechten() {
-        return rechtenConverter.convert(policyService.readOverigeRechten());
-    }
+  @GET
+  @Path("overigeRechten")
+  public RESTOverigeRechten readOverigeRechten() {
+    return rechtenConverter.convert(policyService.readOverigeRechten());
+  }
 }

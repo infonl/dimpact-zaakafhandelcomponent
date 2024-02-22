@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.zrc.model.zaakobjecten;
 
 import java.net.URI;
@@ -14,27 +13,30 @@ import net.atos.client.zgw.zrc.model.Objecttype;
  */
 public abstract class ZaakobjectMetObjectIdentificatie<OBJECT> extends Zaakobject {
 
-    /**
-     * Het generieke object
-     * - Required
-     */
-    private OBJECT objectIdentificatie;
+  /**
+   * Het generieke object
+   * - Required
+   */
+  private OBJECT objectIdentificatie;
 
-    /**
-     * Constructor for JSONB deserialization
-     */
-    public ZaakobjectMetObjectIdentificatie() {
-    }
+  /**
+   * Constructor for JSONB deserialization
+   */
+  public ZaakobjectMetObjectIdentificatie() {}
 
-    /**
-     * Constructor with required attributes
-     */
-    public ZaakobjectMetObjectIdentificatie(final URI zaak, final URI objectUri, final Objecttype objectType, final OBJECT objectIdentificatie) {
-        super(zaak, objectUri, objectType);
-        this.objectIdentificatie = objectIdentificatie;
-    }
+  /**
+   * Constructor with required attributes
+   */
+  public ZaakobjectMetObjectIdentificatie(
+      final URI zaak,
+      final URI objectUri,
+      final Objecttype objectType,
+      final OBJECT objectIdentificatie) {
+    super(zaak, objectUri, objectType);
+    this.objectIdentificatie = objectIdentificatie;
+  }
 
-    public OBJECT getObjectIdentificatie() {
-        return objectIdentificatie;
-    }
+  public OBJECT getObjectIdentificatie() {
+    return objectIdentificatie;
+  }
 }

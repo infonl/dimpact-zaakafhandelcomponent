@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.contactmomenten;
 
 import static net.atos.zac.util.UriUtil.uuidFromURI;
@@ -35,46 +34,48 @@ import net.atos.zac.app.shared.RESTResultaat;
 @Singleton
 public class ContactmomentenRESTService {
 
-    // Aantal items wat Open klant (waarschijnlijk) terug geeft per pagina
-    private final static int NUM_ITEMS_PER_PAGE = 100;
+  // Aantal items wat Open klant (waarschijnlijk) terug geeft per pagina
+  private static final int NUM_ITEMS_PER_PAGE = 100;
 
-    @Inject
-    private KlantenClientService klantenClientService;
+  @Inject private KlantenClientService klantenClientService;
 
-    @Inject
-    private ContactmomentenClientService contactmomentenClientService;
+  @Inject private ContactmomentenClientService contactmomentenClientService;
 
-    @Inject
-    private ContactmomentConverter contactmomentConverter;
+  @Inject private ContactmomentConverter contactmomentConverter;
 
-    @PUT
-    public RESTResultaat<RESTContactmoment> listContactmomenten(final RESTListContactmomentenParameters parameters) {
-        final Optional<Klant> klantOptional = parameters.bsn != null ?
-                klantenClientService.findPersoon(parameters.bsn) :
-                klantenClientService.findVestiging(parameters.vestigingsnummer);
-        return klantOptional.map(klant -> listContactmomenten(klant, parameters.page, parameters.pageSize))
-                .orElseGet(() -> new RESTResultaat<>());
-    }
+  @PUT
+  public RESTResultaat<RESTContactmoment> listContactmomenten(
+      final RESTListContactmomentenParameters parameters) {
+    final Optional<Klant> klantOptional =
+        parameters.bsn != null
+            ? klantenClientService.findPersoon(parameters.bsn)
+            : klantenClientService.findVestiging(parameters.vestigingsnummer);
+    return klantOptional
+        .map(klant -> listContactmomenten(klant, parameters.page, parameters.pageSize))
+        .orElseGet(() -> new RESTResultaat<>());
+  }
 
-    private RESTResultaat<RESTContactmoment> listContactmomenten(final Klant klant, final Integer page,
-            final Integer pageSize) {
-        final var klantcontactmomentListParameters = new KlantcontactmomentListParameters();
-        klantcontactmomentListParameters.setPage(1 + page * pageSize / 100);
-        klantcontactmomentListParameters.setKlant(klant.getUrl());
-        final var klantcontactmomentenResponse =
-                contactmomentenClientService.listKlantcontactmomenten(klantcontactmomentListParameters);
-        final List<RESTContactmoment> contactmomenten = klantcontactmomentenResponse.getResults().stream()
-                .skip(page * pageSize % NUM_ITEMS_PER_PAGE)
-                .limit(pageSize)
-                .map(this::convertToRESTContactmoment)
-                .toList();
-        return new RESTResultaat<>(contactmomenten, klantcontactmomentenResponse.getCount());
-    }
+  private RESTResultaat<RESTContactmoment> listContactmomenten(
+      final Klant klant, final Integer page, final Integer pageSize) {
+    final var klantcontactmomentListParameters = new KlantcontactmomentListParameters();
+    klantcontactmomentListParameters.setPage(1 + page * pageSize / 100);
+    klantcontactmomentListParameters.setKlant(klant.getUrl());
+    final var klantcontactmomentenResponse =
+        contactmomentenClientService.listKlantcontactmomenten(klantcontactmomentListParameters);
+    final List<RESTContactmoment> contactmomenten =
+        klantcontactmomentenResponse.getResults().stream()
+            .skip(page * pageSize % NUM_ITEMS_PER_PAGE)
+            .limit(pageSize)
+            .map(this::convertToRESTContactmoment)
+            .toList();
+    return new RESTResultaat<>(contactmomenten, klantcontactmomentenResponse.getCount());
+  }
 
-    private RESTContactmoment convertToRESTContactmoment(final KlantContactMoment klantContactMoment) {
-        final ContactMoment contactMoment = contactmomentenClientService.readContactmoment(
-                uuidFromURI(klantContactMoment.getContactmoment()));
-        return contactmomentConverter.convert(contactMoment);
-
-    }
+  private RESTContactmoment convertToRESTContactmoment(
+      final KlantContactMoment klantContactMoment) {
+    final ContactMoment contactMoment =
+        contactmomentenClientService.readContactmoment(
+            uuidFromURI(klantContactMoment.getContactmoment()));
+    return contactmomentConverter.convert(contactMoment);
+  }
 }

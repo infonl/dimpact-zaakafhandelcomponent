@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.informatieobjecten.model;
 
 import java.util.UUID;
@@ -11,9 +10,9 @@ import net.atos.zac.app.zaken.model.RelatieType;
 
 public class RESTGekoppeldeZaakEnkelvoudigInformatieObject extends RESTEnkelvoudigInformatieobject {
 
-    public RelatieType relatieType;
+  public RelatieType relatieType;
 
-    public String zaakIdentificatie;
+  public String zaakIdentificatie;
 
-    public UUID zaakUUID;
+  public UUID zaakUUID;
 }

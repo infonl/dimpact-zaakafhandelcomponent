@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.signalering.model;
 
 import static net.atos.zac.signalering.model.SignaleringSubject.DOCUMENT;
@@ -26,99 +25,100 @@ import net.atos.zac.identity.model.User;
 import net.atos.zac.util.UriUtil;
 
 public class SignaleringVerzondenZoekParameters {
-    private final SignaleringTarget targettype;
+  private final SignaleringTarget targettype;
 
-    private final String target;
+  private final String target;
 
-    private Set<SignaleringType.Type> types;
+  private Set<SignaleringType.Type> types;
 
-    private SignaleringSubject subjecttype;
+  private SignaleringSubject subjecttype;
 
-    private String subject;
+  private String subject;
 
-    private SignaleringDetail detail;
+  private SignaleringDetail detail;
 
-    public SignaleringVerzondenZoekParameters(final SignaleringTarget targettype, final String target) {
-        this.targettype = targettype;
-        this.target = target;
-    }
+  public SignaleringVerzondenZoekParameters(
+      final SignaleringTarget targettype, final String target) {
+    this.targettype = targettype;
+    this.target = target;
+  }
 
-    public SignaleringVerzondenZoekParameters(final Group target) {
-        this(GROUP, target.getId());
-    }
+  public SignaleringVerzondenZoekParameters(final Group target) {
+    this(GROUP, target.getId());
+  }
 
-    public SignaleringVerzondenZoekParameters(final User target) {
-        this(USER, target.getId());
-    }
+  public SignaleringVerzondenZoekParameters(final User target) {
+    this(USER, target.getId());
+  }
 
-    public SignaleringTarget getTargettype() {
-        return targettype;
-    }
+  public SignaleringTarget getTargettype() {
+    return targettype;
+  }
 
-    public String getTarget() {
-        return target;
-    }
+  public String getTarget() {
+    return target;
+  }
 
-    public Set<SignaleringType.Type> getTypes() {
-        return types == null ? Collections.emptySet() : Collections.unmodifiableSet(types);
-    }
+  public Set<SignaleringType.Type> getTypes() {
+    return types == null ? Collections.emptySet() : Collections.unmodifiableSet(types);
+  }
 
-    public SignaleringVerzondenZoekParameters types(final SignaleringType.Type... types) {
-        this.types = EnumSet.copyOf(Arrays.asList(types));
-        return this;
-    }
+  public SignaleringVerzondenZoekParameters types(final SignaleringType.Type... types) {
+    this.types = EnumSet.copyOf(Arrays.asList(types));
+    return this;
+  }
 
-    public SignaleringVerzondenZoekParameters types(final SignaleringType.Type type) {
-        this.types = EnumSet.of(type);
-        return this;
-    }
+  public SignaleringVerzondenZoekParameters types(final SignaleringType.Type type) {
+    this.types = EnumSet.of(type);
+    return this;
+  }
 
-    public SignaleringSubject getSubjecttype() {
-        return subjecttype;
-    }
+  public SignaleringSubject getSubjecttype() {
+    return subjecttype;
+  }
 
-    public String getSubject() {
-        return subject;
-    }
+  public String getSubject() {
+    return subject;
+  }
 
-    public SignaleringVerzondenZoekParameters subjecttype(final SignaleringSubject subjecttype) {
-        this.subjecttype = subjecttype;
-        return this;
-    }
+  public SignaleringVerzondenZoekParameters subjecttype(final SignaleringSubject subjecttype) {
+    this.subjecttype = subjecttype;
+    return this;
+  }
 
-    public SignaleringVerzondenZoekParameters subject(final Zaak subject) {
-        return subjectZaak(subject.getUuid());
-    }
+  public SignaleringVerzondenZoekParameters subject(final Zaak subject) {
+    return subjectZaak(subject.getUuid());
+  }
 
-    public SignaleringVerzondenZoekParameters subject(final TaskInfo subject) {
-        return subjectTaak(subject.getId());
-    }
+  public SignaleringVerzondenZoekParameters subject(final TaskInfo subject) {
+    return subjectTaak(subject.getId());
+  }
 
-    public SignaleringVerzondenZoekParameters subject(final EnkelvoudigInformatieObject subject) {
-        return subjectInformatieobject(UriUtil.uuidFromURI(subject.getUrl()));
-    }
+  public SignaleringVerzondenZoekParameters subject(final EnkelvoudigInformatieObject subject) {
+    return subjectInformatieobject(UriUtil.uuidFromURI(subject.getUrl()));
+  }
 
-    public SignaleringVerzondenZoekParameters subjectZaak(final UUID zaakId) {
-        this.subject = zaakId.toString();
-        return subjecttype(ZAAK);
-    }
+  public SignaleringVerzondenZoekParameters subjectZaak(final UUID zaakId) {
+    this.subject = zaakId.toString();
+    return subjecttype(ZAAK);
+  }
 
-    public SignaleringVerzondenZoekParameters subjectTaak(final String taakId) {
-        this.subject = taakId;
-        return subjecttype(TAAK);
-    }
+  public SignaleringVerzondenZoekParameters subjectTaak(final String taakId) {
+    this.subject = taakId;
+    return subjecttype(TAAK);
+  }
 
-    public SignaleringVerzondenZoekParameters subjectInformatieobject(final UUID informatieobjectId) {
-        this.subject = informatieobjectId.toString();
-        return subjecttype(DOCUMENT);
-    }
+  public SignaleringVerzondenZoekParameters subjectInformatieobject(final UUID informatieobjectId) {
+    this.subject = informatieobjectId.toString();
+    return subjecttype(DOCUMENT);
+  }
 
-    public SignaleringDetail getDetail() {
-        return detail;
-    }
+  public SignaleringDetail getDetail() {
+    return detail;
+  }
 
-    public SignaleringVerzondenZoekParameters detail(final SignaleringDetail detail) {
-        this.detail = detail;
-        return this;
-    }
+  public SignaleringVerzondenZoekParameters detail(final SignaleringDetail detail) {
+    this.detail = detail;
+    return this;
+  }
 }

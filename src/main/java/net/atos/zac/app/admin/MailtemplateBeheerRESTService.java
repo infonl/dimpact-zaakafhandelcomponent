@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.admin;
 
 import static net.atos.zac.policy.PolicyService.assertPolicy;
@@ -35,55 +34,52 @@ import net.atos.zac.policy.PolicyService;
 @Produces(MediaType.APPLICATION_JSON)
 public class MailtemplateBeheerRESTService {
 
-    @Inject
-    private MailTemplateService mailTemplateService;
+  @Inject private MailTemplateService mailTemplateService;
 
-    @Inject
-    private RESTMailtemplateConverter restMailtemplateConverter;
+  @Inject private RESTMailtemplateConverter restMailtemplateConverter;
 
-    @Inject
-    private PolicyService policyService;
+  @Inject private PolicyService policyService;
 
-    @GET
-    @Path("{id}")
-    public RESTMailtemplate readMailtemplate(@PathParam("id") final long id) {
-        assertPolicy(policyService.readOverigeRechten().beheren());
-        return restMailtemplateConverter.convert(mailTemplateService.readMailtemplate(id));
-    }
+  @GET
+  @Path("{id}")
+  public RESTMailtemplate readMailtemplate(@PathParam("id") final long id) {
+    assertPolicy(policyService.readOverigeRechten().beheren());
+    return restMailtemplateConverter.convert(mailTemplateService.readMailtemplate(id));
+  }
 
-    @GET
-    public List<RESTMailtemplate> listMailtemplates() {
-        assertPolicy(policyService.readOverigeRechten().beheren());
-        final List<MailTemplate> mailTemplates = mailTemplateService.listMailtemplates();
-        return mailTemplates.stream().map(restMailtemplateConverter::convert).toList();
-    }
+  @GET
+  public List<RESTMailtemplate> listMailtemplates() {
+    assertPolicy(policyService.readOverigeRechten().beheren());
+    final List<MailTemplate> mailTemplates = mailTemplateService.listMailtemplates();
+    return mailTemplates.stream().map(restMailtemplateConverter::convert).toList();
+  }
 
-    @GET
-    @Path("/koppelbaar")
-    public List<RESTMailtemplate> listkoppelbareMailtemplates() {
-        assertPolicy(policyService.readOverigeRechten().beheren());
-        final List<MailTemplate> mailTemplates = mailTemplateService.listKoppelbareMailtemplates();
-        return mailTemplates.stream().map(restMailtemplateConverter::convert).toList();
-    }
+  @GET
+  @Path("/koppelbaar")
+  public List<RESTMailtemplate> listkoppelbareMailtemplates() {
+    assertPolicy(policyService.readOverigeRechten().beheren());
+    final List<MailTemplate> mailTemplates = mailTemplateService.listKoppelbareMailtemplates();
+    return mailTemplates.stream().map(restMailtemplateConverter::convert).toList();
+  }
 
-    @DELETE
-    @Path("{id}")
-    public void deleteMailtemplate(@PathParam("id") final long id) {
-        assertPolicy(policyService.readOverigeRechten().beheren());
-        mailTemplateService.delete(id);
-    }
+  @DELETE
+  @Path("{id}")
+  public void deleteMailtemplate(@PathParam("id") final long id) {
+    assertPolicy(policyService.readOverigeRechten().beheren());
+    mailTemplateService.delete(id);
+  }
 
-    @PUT
-    @Path("")
-    public RESTMailtemplate persistMailtemplate(final RESTMailtemplate mailtemplate) {
-        assertPolicy(policyService.readOverigeRechten().beheren());
-        return restMailtemplateConverter.convert(
-                mailTemplateService.storeMailtemplate(restMailtemplateConverter.convert(mailtemplate)));
-    }
+  @PUT
+  @Path("")
+  public RESTMailtemplate persistMailtemplate(final RESTMailtemplate mailtemplate) {
+    assertPolicy(policyService.readOverigeRechten().beheren());
+    return restMailtemplateConverter.convert(
+        mailTemplateService.storeMailtemplate(restMailtemplateConverter.convert(mailtemplate)));
+  }
 
-    @GET
-    @Path("variabelen/{mail}")
-    public Set<MailTemplateVariabelen> ophalenVariabelenVoorMail(@PathParam("mail") final Mail mail) {
-        return mail.getVariabelen();
-    }
+  @GET
+  @Path("variabelen/{mail}")
+  public Set<MailTemplateVariabelen> ophalenVariabelenVoorMail(@PathParam("mail") final Mail mail) {
+    return mail.getVariabelen();
+  }
 }

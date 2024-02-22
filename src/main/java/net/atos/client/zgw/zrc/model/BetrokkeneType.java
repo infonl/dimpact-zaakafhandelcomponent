@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.zrc.model;
 
 import jakarta.json.bind.annotation.JsonbTypeAdapter;
@@ -14,37 +13,36 @@ import net.atos.client.zgw.shared.model.AbstractEnum;
  */
 @JsonbTypeAdapter(BetrokkeneType.Adapter.class)
 public enum BetrokkeneType implements AbstractEnum<BetrokkeneType> {
+  NATUURLIJK_PERSOON("natuurlijk_persoon"),
 
-    NATUURLIJK_PERSOON("natuurlijk_persoon"),
+  NIET_NATUURLIJK_PERSOON("niet_natuurlijk_persoon"),
 
-    NIET_NATUURLIJK_PERSOON("niet_natuurlijk_persoon"),
+  VESTIGING("vestiging"),
 
-    VESTIGING("vestiging"),
+  ORGANISATORISCHE_EENHEID("organisatorische_eenheid"),
 
-    ORGANISATORISCHE_EENHEID("organisatorische_eenheid"),
+  MEDEWERKER("medewerker");
 
-    MEDEWERKER("medewerker");
+  private final String value;
 
-    private final String value;
+  BetrokkeneType(final String value) {
+    this.value = value;
+  }
 
-    BetrokkeneType(final String value) {
-        this.value = value;
-    }
+  @Override
+  public String toValue() {
+    return value;
+  }
+
+  public static BetrokkeneType fromValue(final String value) {
+    return AbstractEnum.fromValue(values(), value);
+  }
+
+  static class Adapter extends AbstractEnum.Adapter<BetrokkeneType> {
 
     @Override
-    public String toValue() {
-        return value;
+    protected BetrokkeneType[] getEnums() {
+      return values();
     }
-
-    public static BetrokkeneType fromValue(final String value) {
-        return AbstractEnum.fromValue(values(), value);
-    }
-
-    static class Adapter extends AbstractEnum.Adapter<BetrokkeneType> {
-
-        @Override
-        protected BetrokkeneType[] getEnums() {
-            return values();
-        }
-    }
+  }
 }

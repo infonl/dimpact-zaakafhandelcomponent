@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.formulieren.model;
 
 import java.time.ZonedDateTime;
@@ -10,19 +9,19 @@ import java.util.List;
 
 public class RESTFormulierDefinitie {
 
-    public Long id;
+  public Long id;
 
-    public String systeemnaam;
+  public String systeemnaam;
 
-    public String naam;
+  public String naam;
 
-    public String beschrijving;
+  public String beschrijving;
 
-    public String uitleg;
+  public String uitleg;
 
-    public ZonedDateTime creatiedatum;
+  public ZonedDateTime creatiedatum;
 
-    public ZonedDateTime wijzigingsdatum;
+  public ZonedDateTime wijzigingsdatum;
 
-    public List<RESTFormulierVeldDefinitie> veldDefinities;
+  public List<RESTFormulierVeldDefinitie> veldDefinities;
 }

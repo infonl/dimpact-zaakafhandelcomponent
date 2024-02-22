@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.ontkoppeldedocumenten;
 
 import static net.atos.zac.policy.PolicyService.assertPolicy;
@@ -47,63 +46,64 @@ import net.atos.zac.util.UriUtil;
 @Produces(MediaType.APPLICATION_JSON)
 public class OntkoppeldeDocumentenRESTService {
 
-    @Inject
-    private OntkoppeldeDocumentenService ontkoppeldeDocumentenService;
+  @Inject private OntkoppeldeDocumentenService ontkoppeldeDocumentenService;
 
-    @Inject
-    private DRCClientService drcClientService;
+  @Inject private DRCClientService drcClientService;
 
-    @Inject
-    private ZRCClientService zrcClientService;
+  @Inject private ZRCClientService zrcClientService;
 
-    @Inject
-    private RESTOntkoppeldDocumentConverter ontkoppeldDocumentConverter;
+  @Inject private RESTOntkoppeldDocumentConverter ontkoppeldDocumentConverter;
 
-    @Inject
-    private RESTOntkoppeldDocumentListParametersConverter listParametersConverter;
+  @Inject private RESTOntkoppeldDocumentListParametersConverter listParametersConverter;
 
-    @Inject
-    private RESTUserConverter userConverter;
+  @Inject private RESTUserConverter userConverter;
 
-    @Inject
-    private PolicyService policyService;
+  @Inject private PolicyService policyService;
 
-    @PUT
-    @Path("")
-    public RESTResultaat<RESTOntkoppeldDocument> list(final RESTOntkoppeldDocumentListParameters restListParameters) {
-        assertPolicy(policyService.readWerklijstRechten().inbox());
-        final OntkoppeldDocumentListParameters listParameters = listParametersConverter.convert(restListParameters);
-        final OntkoppeldeDocumentenResultaat resultaat = ontkoppeldeDocumentenService.getResultaat(listParameters);
-        final RESTOntkoppeldDocumentResultaat restOntkoppeldDocumentResultaat =
-                new RESTOntkoppeldDocumentResultaat(ontkoppeldDocumentConverter.convert(resultaat.getItems()), resultaat.getCount());
-        final List<String> ontkoppeldDoor = resultaat.getOntkoppeldDoorFilter();
-        if (CollectionUtils.isEmpty(ontkoppeldDoor)) {
-            if (restListParameters.ontkoppeldDoor != null) {
-                restOntkoppeldDocumentResultaat.filterOntkoppeldDoor = List.of(restListParameters.ontkoppeldDoor);
-            }
-        } else {
-            restOntkoppeldDocumentResultaat.filterOntkoppeldDoor = userConverter.convertUserIds(ontkoppeldDoor);
-        }
-        return restOntkoppeldDocumentResultaat;
+  @PUT
+  @Path("")
+  public RESTResultaat<RESTOntkoppeldDocument> list(
+      final RESTOntkoppeldDocumentListParameters restListParameters) {
+    assertPolicy(policyService.readWerklijstRechten().inbox());
+    final OntkoppeldDocumentListParameters listParameters =
+        listParametersConverter.convert(restListParameters);
+    final OntkoppeldeDocumentenResultaat resultaat =
+        ontkoppeldeDocumentenService.getResultaat(listParameters);
+    final RESTOntkoppeldDocumentResultaat restOntkoppeldDocumentResultaat =
+        new RESTOntkoppeldDocumentResultaat(
+            ontkoppeldDocumentConverter.convert(resultaat.getItems()), resultaat.getCount());
+    final List<String> ontkoppeldDoor = resultaat.getOntkoppeldDoorFilter();
+    if (CollectionUtils.isEmpty(ontkoppeldDoor)) {
+      if (restListParameters.ontkoppeldDoor != null) {
+        restOntkoppeldDocumentResultaat.filterOntkoppeldDoor =
+            List.of(restListParameters.ontkoppeldDoor);
+      }
+    } else {
+      restOntkoppeldDocumentResultaat.filterOntkoppeldDoor =
+          userConverter.convertUserIds(ontkoppeldDoor);
     }
+    return restOntkoppeldDocumentResultaat;
+  }
 
-    @DELETE
-    @Path("{id}")
-    public void delete(@PathParam("id") final long id) {
-        assertPolicy(policyService.readWerklijstRechten().ontkoppeldeDocumentenVerwijderen());
-        final Optional<OntkoppeldDocument> ontkoppeldDocument = ontkoppeldeDocumentenService.find(id);
-        if (ontkoppeldDocument.isEmpty()) {
-            return; // al verwijderd
-        }
-        final EnkelvoudigInformatieObject enkelvoudigInformatieobject =
-                drcClientService.readEnkelvoudigInformatieobject(ontkoppeldDocument.get().getDocumentUUID());
-        final List<ZaakInformatieobject> zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
-                enkelvoudigInformatieobject);
-        if (!zaakInformatieobjecten.isEmpty()) {
-            final UUID zaakUuid = UriUtil.uuidFromURI(zaakInformatieobjecten.get(0).getZaak());
-            throw new IllegalStateException(String.format("Informatieobject is gekoppeld aan zaak '%s'", zaakUuid));
-        }
-        drcClientService.deleteEnkelvoudigInformatieobject(ontkoppeldDocument.get().getDocumentUUID());
-        ontkoppeldeDocumentenService.delete(ontkoppeldDocument.get().getId());
+  @DELETE
+  @Path("{id}")
+  public void delete(@PathParam("id") final long id) {
+    assertPolicy(policyService.readWerklijstRechten().ontkoppeldeDocumentenVerwijderen());
+    final Optional<OntkoppeldDocument> ontkoppeldDocument = ontkoppeldeDocumentenService.find(id);
+    if (ontkoppeldDocument.isEmpty()) {
+      return; // al verwijderd
     }
+    final EnkelvoudigInformatieObject enkelvoudigInformatieobject =
+        drcClientService.readEnkelvoudigInformatieobject(
+            ontkoppeldDocument.get().getDocumentUUID());
+    final List<ZaakInformatieobject> zaakInformatieobjecten =
+        zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieobject);
+    if (!zaakInformatieobjecten.isEmpty()) {
+      final UUID zaakUuid = UriUtil.uuidFromURI(zaakInformatieobjecten.get(0).getZaak());
+      throw new IllegalStateException(
+          String.format("Informatieobject is gekoppeld aan zaak '%s'", zaakUuid));
+    }
+    drcClientService.deleteEnkelvoudigInformatieobject(ontkoppeldDocument.get().getDocumentUUID());
+    ontkoppeldeDocumentenService.delete(ontkoppeldDocument.get().getId());
+  }
 }

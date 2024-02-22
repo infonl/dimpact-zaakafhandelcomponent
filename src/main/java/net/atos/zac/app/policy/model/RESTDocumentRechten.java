@@ -1,21 +1,20 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.policy.model;
 
 public class RESTDocumentRechten {
 
-    public boolean lezen;
+  public boolean lezen;
 
-    public boolean wijzigen;
+  public boolean wijzigen;
 
-    public boolean verwijderen;
+  public boolean verwijderen;
 
-    public boolean vergrendelen;
+  public boolean vergrendelen;
 
-    public boolean ontgrendelen;
+  public boolean ontgrendelen;
 
-    public boolean ondertekenen;
+  public boolean ondertekenen;
 }

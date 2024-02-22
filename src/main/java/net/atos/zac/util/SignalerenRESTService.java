@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.util;
 
 import jakarta.enterprise.inject.Instance;
@@ -25,17 +24,14 @@ import net.atos.zac.util.event.JobId;
 @Produces(MediaType.APPLICATION_JSON)
 public class SignalerenRESTService {
 
-    @Inject
-    private EventingService eventingService;
+  @Inject private EventingService eventingService;
 
-    @Inject
-    @ActiveSession
-    private Instance<HttpSession> httpSession;
+  @Inject @ActiveSession private Instance<HttpSession> httpSession;
 
-    @GET
-    public String zaakSignaleringenVerzenden() {
-        SecurityUtil.setFunctioneelGebruiker(httpSession.get());
-        eventingService.send(new JobEvent(JobId.SIGNALERINGEN_JOB));
-        return String.format("%s: gestart...", JobId.SIGNALERINGEN_JOB.getName());
-    }
+  @GET
+  public String zaakSignaleringenVerzenden() {
+    SecurityUtil.setFunctioneelGebruiker(httpSession.get());
+    eventingService.send(new JobEvent(JobId.SIGNALERINGEN_JOB));
+    return String.format("%s: gestart...", JobId.SIGNALERINGEN_JOB.getName());
+  }
 }

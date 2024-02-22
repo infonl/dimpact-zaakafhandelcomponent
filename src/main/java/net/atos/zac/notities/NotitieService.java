@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.notities;
 
 import static net.atos.zac.notities.model.Notitie.ZAAK_UUID;
@@ -25,30 +24,30 @@ import net.atos.zac.notities.model.Notitie;
 @Transactional
 public class NotitieService {
 
-    @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
-    private EntityManager entityManager;
+  @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
+  private EntityManager entityManager;
 
-    public Notitie createNotitie(final Notitie notitie) {
-        valideerObject(notitie);
-        entityManager.persist(notitie);
-        return notitie;
-    }
+  public Notitie createNotitie(final Notitie notitie) {
+    valideerObject(notitie);
+    entityManager.persist(notitie);
+    return notitie;
+  }
 
-    public List<Notitie> listNotitiesForZaak(final UUID zaakUUID) {
-        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<Notitie> query = builder.createQuery(Notitie.class);
-        final Root<Notitie> root = query.from(Notitie.class);
-        query.select(root).where(builder.equal(root.get(ZAAK_UUID), zaakUUID));
-        return entityManager.createQuery(query).getResultList();
-    }
+  public List<Notitie> listNotitiesForZaak(final UUID zaakUUID) {
+    final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+    final CriteriaQuery<Notitie> query = builder.createQuery(Notitie.class);
+    final Root<Notitie> root = query.from(Notitie.class);
+    query.select(root).where(builder.equal(root.get(ZAAK_UUID), zaakUUID));
+    return entityManager.createQuery(query).getResultList();
+  }
 
-    public Notitie updateNotitie(final Notitie notitie) {
-        valideerObject(notitie);
-        return entityManager.merge(notitie);
-    }
+  public Notitie updateNotitie(final Notitie notitie) {
+    valideerObject(notitie);
+    return entityManager.merge(notitie);
+  }
 
-    public void deleteNotitie(final Long notitieId) {
-        final Notitie notitie = entityManager.find(Notitie.class, notitieId);
-        entityManager.remove(notitie);
-    }
+  public void deleteNotitie(final Long notitieId) {
+    final Notitie notitie = entityManager.find(Notitie.class, notitieId);
+    entityManager.remove(notitie);
+  }
 }

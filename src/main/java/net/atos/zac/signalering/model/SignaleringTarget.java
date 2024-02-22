@@ -1,24 +1,22 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.signalering.model;
 
 public enum SignaleringTarget {
+  GROUP,
+  USER;
 
-    GROUP,
-    USER;
+  public static final class Mail {
 
-    public static final class Mail {
+    public final String naam;
 
-        public final String naam;
+    public final String emailadres;
 
-        public final String emailadres;
-
-        public Mail(final String naam, final String emailadres) {
-            this.naam = naam;
-            this.emailadres = emailadres;
-        }
+    public Mail(final String naam, final String emailadres) {
+      this.naam = naam;
+      this.emailadres = emailadres;
     }
+  }
 }

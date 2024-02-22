@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.contactmomenten.exception;
 
 import jakarta.ws.rs.core.MultivaluedMap;
@@ -12,13 +11,13 @@ import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
 
 public class NotFoundExceptionMapper implements ResponseExceptionMapper<NotFoundException> {
 
-    @Override
-    public boolean handles(final int status, final MultivaluedMap<String, Object> headers) {
-        return status == Response.Status.NOT_FOUND.getStatusCode();
-    }
+  @Override
+  public boolean handles(final int status, final MultivaluedMap<String, Object> headers) {
+    return status == Response.Status.NOT_FOUND.getStatusCode();
+  }
 
-    @Override
-    public NotFoundException toThrowable(final Response response) {
-        return new NotFoundException();
-    }
+  @Override
+  public NotFoundException toThrowable(final Response response) {
+    return new NotFoundException();
+  }
 }

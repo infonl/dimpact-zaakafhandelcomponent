@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.or.shared.model;
 
 /**
@@ -10,33 +9,33 @@ package net.atos.client.or.shared.model;
  */
 public class FieldValidationError {
 
-    private String name;
+  private String name;
 
-    private String code;
+  private String code;
 
-    private String reason;
+  private String reason;
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(final String name) {
-        this.name = name;
-    }
+  public void setName(final String name) {
+    this.name = name;
+  }
 
-    public String getCode() {
-        return code;
-    }
+  public String getCode() {
+    return code;
+  }
 
-    public void setCode(final String code) {
-        this.code = code;
-    }
+  public void setCode(final String code) {
+    this.code = code;
+  }
 
-    public String getReason() {
-        return reason;
-    }
+  public String getReason() {
+    return reason;
+  }
 
-    public void setReason(final String reason) {
-        this.reason = reason;
-    }
+  public void setReason(final String reason) {
+    this.reason = reason;
+  }
 }

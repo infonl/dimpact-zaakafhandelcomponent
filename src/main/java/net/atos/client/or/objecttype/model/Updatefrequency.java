@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.or.objecttype.model;
 
 import static java.util.Arrays.stream;
@@ -17,41 +16,45 @@ import org.apache.commons.lang3.StringUtils;
  */
 @JsonbTypeAdapter(Updatefrequency.Adapter.class)
 public enum Updatefrequency {
+  REAL_TIME("real_time"),
+  HOURLY("hourly"),
+  DAILY("daily"),
+  WEEKLY("weekly"),
+  MONTHLY("monthly"),
+  YEARLY("yearly"),
+  UNKNOWN("unknown");
 
-    REAL_TIME("real_time"),
-    HOURLY("hourly"),
-    DAILY("daily"),
-    WEEKLY("weekly"),
-    MONTHLY("monthly"),
-    YEARLY("yearly"),
-    UNKNOWN("unknown");
+  private final String value;
 
-    private final String value;
+  Updatefrequency(final String value) {
+    this.value = value;
+  }
 
-    Updatefrequency(final String value) {
-        this.value = value;
+  public String getValue() {
+    return value;
+  }
+
+  static class Adapter implements JsonbAdapter<Updatefrequency, String> {
+
+    @Override
+    public String adaptToJson(final Updatefrequency updatefrequency) {
+      return updatefrequency.value;
     }
 
-    public String getValue() {
-        return value;
+    @Override
+    public Updatefrequency adaptFromJson(final String json) {
+      if (StringUtils.isBlank(json)) {
+        return null;
+      }
+      return stream(values())
+          .filter(updatefrequency -> StringUtils.equals(updatefrequency.value, json))
+          .findFirst()
+          .orElseThrow(
+              () ->
+                  new RuntimeException(
+                      String.format(
+                          "Unkown value for %s: '%s'",
+                          Updatefrequency.class.getSimpleName(), json)));
     }
-
-    static class Adapter implements JsonbAdapter<Updatefrequency, String> {
-
-        @Override
-        public String adaptToJson(final Updatefrequency updatefrequency) {
-            return updatefrequency.value;
-        }
-
-        @Override
-        public Updatefrequency adaptFromJson(final String json) {
-            if (StringUtils.isBlank(json)) {
-                return null;
-            }
-            return stream(values())
-                    .filter(updatefrequency -> StringUtils.equals(updatefrequency.value, json))
-                    .findFirst()
-                    .orElseThrow(() -> new RuntimeException(String.format("Unkown value for %s: '%s'", Updatefrequency.class.getSimpleName(), json)));
-        }
-    }
+  }
 }

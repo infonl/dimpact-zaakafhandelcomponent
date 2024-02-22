@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.admin.model;
 
 import java.util.ArrayList;
@@ -10,17 +9,17 @@ import java.util.List;
 
 public class RESTHumanTaskParameters {
 
-    public boolean actief;
+  public boolean actief;
 
-    public Long id;
+  public Long id;
 
-    public RESTPlanItemDefinition planItemDefinition;
+  public RESTPlanItemDefinition planItemDefinition;
 
-    public Integer doorlooptijd;
+  public Integer doorlooptijd;
 
-    public String defaultGroepId;
+  public String defaultGroepId;
 
-    public String formulierDefinitieId;
+  public String formulierDefinitieId;
 
-    public List<RESTHumanTaskReferentieTabel> referentieTabellen = new ArrayList<>();
+  public List<RESTHumanTaskReferentieTabel> referentieTabellen = new ArrayList<>();
 }

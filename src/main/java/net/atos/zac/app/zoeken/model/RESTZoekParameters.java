@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.zoeken.model;
 
 import java.util.Map;
@@ -16,27 +15,27 @@ import net.atos.zac.zoeken.model.index.ZoekObjectType;
 
 public class RESTZoekParameters {
 
-    public ZoekObjectType type;
+  public ZoekObjectType type;
 
-    public Map<ZoekVeld, String> zoeken;
+  public Map<ZoekVeld, String> zoeken;
 
-    public Map<FilterVeld, FilterParameters> filters;
+  public Map<FilterVeld, FilterParameters> filters;
 
-    public Map<DatumVeld, RESTDatumRange> datums;
+  public Map<DatumVeld, RESTDatumRange> datums;
 
-    public SorteerVeld sorteerVeld;
+  public SorteerVeld sorteerVeld;
 
-    public String sorteerRichting;
+  public String sorteerRichting;
 
-    public int rows;
+  public int rows;
 
-    public int page;
+  public int page;
 
-    public boolean alleenMijnZaken;
+  public boolean alleenMijnZaken;
 
-    public boolean alleenOpenstaandeZaken;
+  public boolean alleenOpenstaandeZaken;
 
-    public boolean alleenAfgeslotenZaken;
+  public boolean alleenAfgeslotenZaken;
 
-    public boolean alleenMijnTaken;
+  public boolean alleenMijnTaken;
 }

@@ -1,27 +1,30 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 package net.atos.client.zgw.zrc.model.zaakobjecten;
 
 public class ObjectOverige<OVERIGE> {
 
-    public OVERIGE overigeData;
+  public OVERIGE overigeData;
 
-    /**
-     * Constructor for JSONB deserialization
-     */
-    public ObjectOverige() {
-    }
+  /**
+   * Constructor for JSONB deserialization
+   */
+  public ObjectOverige() {}
 
-    /**
-     * Constructor with required attributes
-     */
-    public ObjectOverige(final OVERIGE overigeData) {
-        this.overigeData = overigeData;
-    }
+  /**
+   * Constructor with required attributes
+   */
+  public ObjectOverige(final OVERIGE overigeData) {
+    this.overigeData = overigeData;
+  }
 
-    public OVERIGE getOverigeData() {
-        return overigeData;
-    }
+  public OVERIGE getOverigeData() {
+    return overigeData;
+  }
 
-    public void setOverigeData(final OVERIGE overigeData) {
-        this.overigeData = overigeData;
-    }
+  public void setOverigeData(final OVERIGE overigeData) {
+    this.overigeData = overigeData;
+  }
 }

@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.zaken.model;
 
 import java.time.LocalDate;
@@ -14,33 +13,33 @@ import net.atos.zac.app.policy.model.RESTZaakRechten;
 
 public class RESTZaakOverzicht {
 
-    public String identificatie;
+  public String identificatie;
 
-    public String toelichting;
+  public String toelichting;
 
-    public String omschrijving;
+  public String omschrijving;
 
-    public UUID uuid;
+  public UUID uuid;
 
-    public LocalDate startdatum;
+  public LocalDate startdatum;
 
-    public LocalDate einddatum;
+  public LocalDate einddatum;
 
-    public String zaaktype;
+  public String zaaktype;
 
-    public String status;
+  public String status;
 
-    public RESTUser behandelaar;
+  public RESTUser behandelaar;
 
-    public LocalDate einddatumGepland;
+  public LocalDate einddatumGepland;
 
-    public LocalDate uiterlijkeEinddatumAfdoening;
+  public LocalDate uiterlijkeEinddatumAfdoening;
 
-    public RESTGroup groep;
+  public RESTGroup groep;
 
-    public RESTZaakResultaat resultaat;
+  public RESTZaakResultaat resultaat;
 
-    public RESTOpenstaandeTaken openstaandeTaken;
+  public RESTOpenstaandeTaken openstaandeTaken;
 
-    public RESTZaakRechten rechten;
+  public RESTZaakRechten rechten;
 }

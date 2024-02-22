@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.admin.converter;
 
 import java.util.List;
@@ -15,31 +14,31 @@ import net.atos.zac.zaaksturing.model.MailtemplateKoppeling;
 
 public class RESTMailtemplateKoppelingConverter {
 
-    @Inject
-    private RESTMailtemplateConverter restMailtemplateConverter;
+  @Inject private RESTMailtemplateConverter restMailtemplateConverter;
 
-    public RESTMailtemplateKoppeling convert(final MailtemplateKoppeling mailtemplateKoppeling) {
-        final RESTMailtemplateKoppeling restMailtemplateKoppeling = new RESTMailtemplateKoppeling();
-        restMailtemplateKoppeling.id = mailtemplateKoppeling.getId();
-        restMailtemplateKoppeling.mailtemplate =
-                restMailtemplateConverter.convert(mailtemplateKoppeling.getMailTemplate());
+  public RESTMailtemplateKoppeling convert(final MailtemplateKoppeling mailtemplateKoppeling) {
+    final RESTMailtemplateKoppeling restMailtemplateKoppeling = new RESTMailtemplateKoppeling();
+    restMailtemplateKoppeling.id = mailtemplateKoppeling.getId();
+    restMailtemplateKoppeling.mailtemplate =
+        restMailtemplateConverter.convert(mailtemplateKoppeling.getMailTemplate());
 
-        return restMailtemplateKoppeling;
-    }
+    return restMailtemplateKoppeling;
+  }
 
-    public MailtemplateKoppeling convert(final RESTMailtemplateKoppeling restMailtemplateKoppeling) {
-        final MailtemplateKoppeling mailtemplateKoppeling = new MailtemplateKoppeling();
-        mailtemplateKoppeling.setMailTemplate(
-                restMailtemplateConverter.convert(restMailtemplateKoppeling.mailtemplate));
-        return mailtemplateKoppeling;
-    }
+  public MailtemplateKoppeling convert(final RESTMailtemplateKoppeling restMailtemplateKoppeling) {
+    final MailtemplateKoppeling mailtemplateKoppeling = new MailtemplateKoppeling();
+    mailtemplateKoppeling.setMailTemplate(
+        restMailtemplateConverter.convert(restMailtemplateKoppeling.mailtemplate));
+    return mailtemplateKoppeling;
+  }
 
-    public List<RESTMailtemplateKoppeling> convert(final Set<MailtemplateKoppeling> mailtemplateKoppelingen) {
-        return mailtemplateKoppelingen.stream().map(this::convert).toList();
-    }
+  public List<RESTMailtemplateKoppeling> convert(
+      final Set<MailtemplateKoppeling> mailtemplateKoppelingen) {
+    return mailtemplateKoppelingen.stream().map(this::convert).toList();
+  }
 
-    public List<MailtemplateKoppeling> convertRESTmailtemplateKoppelingen(
-            final List<RESTMailtemplateKoppeling> restMailtemplateKoppelingen) {
-        return restMailtemplateKoppelingen.stream().map(this::convert).toList();
-    }
+  public List<MailtemplateKoppeling> convertRESTmailtemplateKoppelingen(
+      final List<RESTMailtemplateKoppeling> restMailtemplateKoppelingen) {
+    return restMailtemplateKoppelingen.stream().map(this::convert).toList();
+  }
 }

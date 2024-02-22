@@ -1,10 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.util;
-
 
 import java.io.IOException;
 import java.util.List;
@@ -26,36 +24,43 @@ import jakarta.servlet.http.HttpServletResponse;
 @WebFilter(filterName = "indexRewriteFilter")
 public class indexRewriteFilter implements Filter {
 
-    private final List<String> resourcePaths = List.of("/assets", "/rest", "/websocket", "/webdav");
+  private final List<String> resourcePaths = List.of("/assets", "/rest", "/websocket", "/webdav");
 
-    private static final Pattern REGEX_RESOURCES = Pattern.compile("\\.(js(on|\\.map)?|css|txt|jpe?g|png|gif|svg|ico|webmanifest|eot|ttf|woff2?)$");
+  private static final Pattern REGEX_RESOURCES =
+      Pattern.compile(
+          "\\.(js(on|\\.map)?|css|txt|jpe?g|png|gif|svg|ico|webmanifest|eot|ttf|woff2?)$");
 
-    @Override
-    public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException, ServletException {
-        if (request instanceof final HttpServletRequest httpRequest) {
-            final String path = httpRequest.getServletPath();
-            if (isResourcePath(path) || isResource(path)) {
-                chain.doFilter(request, response);
-            } else if (path.equals("/logout")) {
-                logout(httpRequest, (HttpServletResponse) response);
-            } else if (path.startsWith("/startformulieren")) {
-                httpRequest.getRequestDispatcher("/startformulieren/melding-klein-evenement.jsp").forward(request, response);
-            } else {
-                httpRequest.getRequestDispatcher("/index.html").forward(request, response);
-            }
-        }
+  @Override
+  public void doFilter(
+      final ServletRequest request, final ServletResponse response, final FilterChain chain)
+      throws IOException, ServletException {
+    if (request instanceof final HttpServletRequest httpRequest) {
+      final String path = httpRequest.getServletPath();
+      if (isResourcePath(path) || isResource(path)) {
+        chain.doFilter(request, response);
+      } else if (path.equals("/logout")) {
+        logout(httpRequest, (HttpServletResponse) response);
+      } else if (path.startsWith("/startformulieren")) {
+        httpRequest
+            .getRequestDispatcher("/startformulieren/melding-klein-evenement.jsp")
+            .forward(request, response);
+      } else {
+        httpRequest.getRequestDispatcher("/index.html").forward(request, response);
+      }
     }
+  }
 
-    private void logout(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
-        request.logout();
-        response.sendRedirect("/");
-    }
+  private void logout(final HttpServletRequest request, final HttpServletResponse response)
+      throws ServletException, IOException {
+    request.logout();
+    response.sendRedirect("/");
+  }
 
-    private boolean isResourcePath(final String path) {
-        return resourcePaths.stream().anyMatch(path::startsWith);
-    }
+  private boolean isResourcePath(final String path) {
+    return resourcePaths.stream().anyMatch(path::startsWith);
+  }
 
-    private boolean isResource(final String path) {
-        return REGEX_RESOURCES.matcher(path).find();
-    }
+  private boolean isResource(final String path) {
+    return REGEX_RESOURCES.matcher(path).find();
+  }
 }

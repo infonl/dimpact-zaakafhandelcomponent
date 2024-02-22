@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.admin.model;
 
 import java.time.ZonedDateTime;
@@ -14,44 +13,43 @@ import net.atos.zac.app.zaken.model.RESTZaakStatusmailOptie;
 
 public class RESTZaakafhandelParameters {
 
-    public Long id;
+  public Long id;
 
-    public RESTZaaktypeOverzicht zaaktype;
+  public RESTZaaktypeOverzicht zaaktype;
 
-    public RESTCaseDefinition caseDefinition;
+  public RESTCaseDefinition caseDefinition;
 
-    public String defaultBehandelaarId;
+  public String defaultBehandelaarId;
 
-    public String defaultGroepId;
+  public String defaultGroepId;
 
-    public Integer einddatumGeplandWaarschuwing;
+  public Integer einddatumGeplandWaarschuwing;
 
-    public Integer uiterlijkeEinddatumAfdoeningWaarschuwing;
+  public Integer uiterlijkeEinddatumAfdoeningWaarschuwing;
 
-    public ZonedDateTime creatiedatum;
+  public ZonedDateTime creatiedatum;
 
-    public RESTResultaattype zaakNietOntvankelijkResultaattype;
+  public RESTResultaattype zaakNietOntvankelijkResultaattype;
 
-    public RESTZaakStatusmailOptie intakeMail;
+  public RESTZaakStatusmailOptie intakeMail;
 
-    public RESTZaakStatusmailOptie afrondenMail;
+  public RESTZaakStatusmailOptie afrondenMail;
 
-    public String productaanvraagtype;
+  public String productaanvraagtype;
 
-    public String domein;
+  public String domein;
 
-    public boolean valide;
+  public boolean valide;
 
-    public List<RESTHumanTaskParameters> humanTaskParameters = new ArrayList<>();
+  public List<RESTHumanTaskParameters> humanTaskParameters = new ArrayList<>();
 
-    public List<RESTUserEventListenerParameter> userEventListenerParameters = new ArrayList<>();
+  public List<RESTUserEventListenerParameter> userEventListenerParameters = new ArrayList<>();
 
-    public List<RESTMailtemplateKoppeling> mailtemplateKoppelingen = new ArrayList<>();
+  public List<RESTMailtemplateKoppeling> mailtemplateKoppelingen = new ArrayList<>();
 
-    public List<RESTZaakbeeindigParameter> zaakbeeindigParameters = new ArrayList<>();
+  public List<RESTZaakbeeindigParameter> zaakbeeindigParameters = new ArrayList<>();
 
-    public List<RESTZaakAfzender> zaakAfzenders = new ArrayList<>();
+  public List<RESTZaakAfzender> zaakAfzenders = new ArrayList<>();
 
-    public RESTZaakafhandelParameters() {
-    }
+  public RESTZaakafhandelParameters() {}
 }

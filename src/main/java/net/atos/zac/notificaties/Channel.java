@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.notificaties;
 
 import static net.atos.zac.notificaties.Resource.APPLICATIE;
@@ -30,56 +29,56 @@ import org.apache.commons.lang3.NotImplementedException;
  */
 @JsonbTypeAdapter(Channel.Adapter.class)
 public enum Channel {
-    AUTORISATIES("autorisaties", APPLICATIE),
-    BESLUITEN("besluiten", BESLUIT),
-    BESLUITTYPEN("besluittypen", BESLUITTYPE),
-    INFORMATIEOBJECTEN("documenten", INFORMATIEOBJECT),
-    INFORMATIEOBJECTTYPEN("informatieobjecttypen", INFORMATIEOBJECTTYPE),
-    OBJECTEN("objecten", OBJECT),
-    ZAKEN("zaken", ZAAK),
-    ZAAKTYPEN("zaaktypen", ZAAKTYPE);
+  AUTORISATIES("autorisaties", APPLICATIE),
+  BESLUITEN("besluiten", BESLUIT),
+  BESLUITTYPEN("besluittypen", BESLUITTYPE),
+  INFORMATIEOBJECTEN("documenten", INFORMATIEOBJECT),
+  INFORMATIEOBJECTTYPEN("informatieobjecttypen", INFORMATIEOBJECTTYPE),
+  OBJECTEN("objecten", OBJECT),
+  ZAKEN("zaken", ZAAK),
+  ZAAKTYPEN("zaaktypen", ZAAKTYPE);
 
-    private static final Logger LOG = Logger.getLogger(Channel.class.getName());
+  private static final Logger LOG = Logger.getLogger(Channel.class.getName());
 
-    private final String code;
+  private final String code;
 
-    private final Resource resourceType;
+  private final Resource resourceType;
 
-    private static final Map<String, Channel> VALUES = new HashMap<>();
+  private static final Map<String, Channel> VALUES = new HashMap<>();
 
-    static {
-        for (final Channel value : values()) {
-            VALUES.put(value.code, value);
-        }
+  static {
+    for (final Channel value : values()) {
+      VALUES.put(value.code, value);
+    }
+  }
+
+  Channel(final String code, final Resource resourceType) {
+    this.code = code;
+    this.resourceType = resourceType;
+  }
+
+  public Resource getResourceType() {
+    return resourceType;
+  }
+
+  public static Channel fromCode(final String code) {
+    final Channel value = VALUES.get(code);
+    if (value == null) {
+      LOG.warning(String.format("unknown %s channel", code));
+    }
+    return value;
+  }
+
+  static class Adapter implements JsonbAdapter<Channel, String> {
+
+    @Override
+    public String adaptToJson(final Channel channel) {
+      throw new NotImplementedException();
     }
 
-    Channel(final String code, final Resource resourceType) {
-        this.code = code;
-        this.resourceType = resourceType;
+    @Override
+    public Channel adaptFromJson(final String code) {
+      return fromCode(code);
     }
-
-    public Resource getResourceType() {
-        return resourceType;
-    }
-
-    public static Channel fromCode(final String code) {
-        final Channel value = VALUES.get(code);
-        if (value == null) {
-            LOG.warning(String.format("unknown %s channel", code));
-        }
-        return value;
-    }
-
-    static class Adapter implements JsonbAdapter<Channel, String> {
-
-        @Override
-        public String adaptToJson(final Channel channel) {
-            throw new NotImplementedException();
-        }
-
-        @Override
-        public Channel adaptFromJson(final String code) {
-            return fromCode(code);
-        }
-    }
+  }
 }
