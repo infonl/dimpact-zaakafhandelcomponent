@@ -226,7 +226,8 @@ swaggerSources {
 
 configure<com.diffplug.gradle.spotless.SpotlessExtension> {
     // limit format enforcement to just the files changed by this branch
-    ratchetFrom("origin/main")
+    val ratchetAnchor = if (System.getenv("CI") != "true") "origin/main" else "upstream/main"
+    ratchetFrom(ratchetAnchor)
 
     format("misc") {
         target("*.gradle", ".gitattributes", ".gitignore", ".containerignore", ".dockerignore")
