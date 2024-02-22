@@ -15,7 +15,7 @@ COPY target/zaakafhandelcomponent.jar /
 RUN date -Iseconds > /build_timestamp.txt
 
 # Start zaakafhandelcomponent
-ENTRYPOINT ["java", "-jar", "zaakafhandelcomponent.jar"]
+ENTRYPOINT ["java", "-XX:+HeapDumpOnOutOfMemoryError", "-jar", "zaakafhandelcomponent.jar"]
 EXPOSE 8080 9990
 
 ARG branchName
