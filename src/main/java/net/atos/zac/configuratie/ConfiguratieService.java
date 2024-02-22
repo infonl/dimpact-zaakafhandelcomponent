@@ -5,12 +5,6 @@
 
 package net.atos.zac.configuratie;
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -21,12 +15,16 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.UriBuilder;
-
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
 import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.client.zgw.ztc.model.CatalogusListParameters;
 import net.atos.zac.configuratie.model.Taal;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import java.net.URI;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @ApplicationScoped
 @Transactional
@@ -61,12 +59,11 @@ public class ConfiguratieService {
 
     public static final String ENV_VAR_ZGW_API_CLIENT_MP_REST_URL = "ZGW_API_CLIENT_MP_REST_URL";
 
-    // This value should also be set in the widlfly configuration.
-    // The value used in wildfly should be slightly higher to account for overhead. (e.g. 80MB -> 100MB)
+    // Note that WildFly / RESTEasy also defines a max file upload size.
+    // The value used in our WildFly configuration should be set higher to account for overhead. (e.g. 80MB -> 120MB).
     public static final Integer MAX_FILE_SIZE_MB = 80;
+
     private static final String NONE = "<NONE>";
-
-
 
     @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
     private EntityManager entityManager;
