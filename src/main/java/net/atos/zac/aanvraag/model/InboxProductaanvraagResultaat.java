@@ -10,15 +10,17 @@ import net.atos.zac.shared.model.Resultaat;
 
 public class InboxProductaanvraagResultaat extends Resultaat<InboxProductaanvraag> {
 
-  private final List<String> typeFilter;
+    private final List<String> typeFilter;
 
-  public InboxProductaanvraagResultaat(
-      final List<InboxProductaanvraag> items, final long count, final List<String> typeFilter) {
-    super(items, count);
-    this.typeFilter = typeFilter;
-  }
+    public InboxProductaanvraagResultaat(
+            final List<InboxProductaanvraag> items,
+            final long count,
+            final List<String> typeFilter) {
+        super(items, count);
+        this.typeFilter = typeFilter;
+    }
 
-  public List<String> getTypeFilter() {
-    return typeFilter;
-  }
+    public List<String> getTypeFilter() {
+        return typeFilter;
+    }
 }

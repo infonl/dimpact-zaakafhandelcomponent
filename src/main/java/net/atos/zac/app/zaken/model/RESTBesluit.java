@@ -16,35 +16,35 @@ import net.atos.zac.zoeken.model.BesluitIndicatie;
 
 public class RESTBesluit {
 
-  public URI url;
+    public URI url;
 
-  public UUID uuid;
+    public UUID uuid;
 
-  public String identificatie;
+    public String identificatie;
 
-  public LocalDate datum;
+    public LocalDate datum;
 
-  public RESTBesluittype besluittype;
+    public RESTBesluittype besluittype;
 
-  public LocalDate ingangsdatum;
+    public LocalDate ingangsdatum;
 
-  public LocalDate vervaldatum;
+    public LocalDate vervaldatum;
 
-  public Besluit.VervalredenEnum vervalreden;
+    public Besluit.VervalredenEnum vervalreden;
 
-  public boolean isIngetrokken;
+    public boolean isIngetrokken;
 
-  public String toelichting;
+    public String toelichting;
 
-  public UUID zaakUuid;
+    public UUID zaakUuid;
 
-  public List<RESTEnkelvoudigInformatieobject> informatieobjecten;
+    public List<RESTEnkelvoudigInformatieobject> informatieobjecten;
 
-  public EnumSet<BesluitIndicatie> getIndicaties() {
-    final EnumSet<BesluitIndicatie> indicaties = EnumSet.noneOf(BesluitIndicatie.class);
-    if (isIngetrokken) {
-      indicaties.add(BesluitIndicatie.INGETROKKEN);
+    public EnumSet<BesluitIndicatie> getIndicaties() {
+        final EnumSet<BesluitIndicatie> indicaties = EnumSet.noneOf(BesluitIndicatie.class);
+        if (isIngetrokken) {
+            indicaties.add(BesluitIndicatie.INGETROKKEN);
+        }
+        return indicaties;
     }
-    return indicaties;
-  }
 }

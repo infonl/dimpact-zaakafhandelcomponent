@@ -46,72 +46,72 @@ import net.atos.client.brp.exception.RuntimeExceptionMapper;
 @Path("/verblijfsobjecten")
 public interface VerblijfsobjectApi {
 
-  /**
-   * bevragen 1 verblijfsobject met de identificatie van een verblijfsobject.
-   * <p>
-   * Bevragen/raadplegen van één voorkomen van een Verblijfsobject met de identificatie van een verblijfsobject. Parameter huidig kan worden toegepast, zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature). De geldigOp en beschikbaarOp parameters kunnen gebruikt worden voor  tijdreis vragen, zie  [functionele specificatie tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature).  Als expand&#x3D;heeftAlsHoofdAdres, heeftAlsNevenAdres, maaktDeelUitVan of true, dan worden de gevraagde of alle gerelateerde objecten als geneste resource geleverd, zie [functionele specificatie expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).
-   */
-  @GET
-  @Path("/{identificatie}")
-  @Produces({"application/hal+json", "application/problem+json"})
-  public VerblijfsobjectIOHal verblijfsobjectIdentificatie(
-      @PathParam("identificatie") String identificatie,
-      @QueryParam("geldigOp") LocalDate geldigOp,
-      @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
-      @QueryParam("expand") String expand,
-      @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
-      @QueryParam("huidig") @DefaultValue("false") Boolean huidig)
-      throws ProcessingException;
+    /**
+     * bevragen 1 verblijfsobject met de identificatie van een verblijfsobject.
+     * <p>
+     * Bevragen/raadplegen van één voorkomen van een Verblijfsobject met de identificatie van een verblijfsobject. Parameter huidig kan worden toegepast, zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature). De geldigOp en beschikbaarOp parameters kunnen gebruikt worden voor  tijdreis vragen, zie  [functionele specificatie tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature).  Als expand&#x3D;heeftAlsHoofdAdres, heeftAlsNevenAdres, maaktDeelUitVan of true, dan worden de gevraagde of alle gerelateerde objecten als geneste resource geleverd, zie [functionele specificatie expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).
+     */
+    @GET
+    @Path("/{identificatie}")
+    @Produces({"application/hal+json", "application/problem+json"})
+    public VerblijfsobjectIOHal verblijfsobjectIdentificatie(
+            @PathParam("identificatie") String identificatie,
+            @QueryParam("geldigOp") LocalDate geldigOp,
+            @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
+            @QueryParam("expand") String expand,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
+            @QueryParam("huidig") @DefaultValue("false") Boolean huidig)
+            throws ProcessingException;
 
-  /**
-   * bevragen voorkomen van een verblijfsobject, op basis van de identificatie van een verblijfsobject en de identificatie van een voorkomen
-   * <p>
-   * Bevragen/raadplegen van een voorkomen van een verblijfsobject, met de identificatie van een verblijfsobject en de identificatie van een voorkomen, bestaande uit een versie en een timestamp van het tijdstip van registratie in de LV BAG.
-   */
-  @GET
-  @Path("/{identificatie}/{versie}/{timestampRegistratieLv}")
-  @Produces({"application/hal+json", "application/problem+json"})
-  public VerblijfsobjectIOHal verblijfsobjectIdentificatieVoorkomen(
-      @PathParam("identificatie") String identificatie,
-      @PathParam("versie") Integer versie,
-      @PathParam("timestampRegistratieLv") String timestampRegistratieLv,
-      @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs)
-      throws ProcessingException;
+    /**
+     * bevragen voorkomen van een verblijfsobject, op basis van de identificatie van een verblijfsobject en de identificatie van een voorkomen
+     * <p>
+     * Bevragen/raadplegen van een voorkomen van een verblijfsobject, met de identificatie van een verblijfsobject en de identificatie van een voorkomen, bestaande uit een versie en een timestamp van het tijdstip van registratie in de LV BAG.
+     */
+    @GET
+    @Path("/{identificatie}/{versie}/{timestampRegistratieLv}")
+    @Produces({"application/hal+json", "application/problem+json"})
+    public VerblijfsobjectIOHal verblijfsobjectIdentificatieVoorkomen(
+            @PathParam("identificatie") String identificatie,
+            @PathParam("versie") Integer versie,
+            @PathParam("timestampRegistratieLv") String timestampRegistratieLv,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs)
+            throws ProcessingException;
 
-  /**
-   * bevragen levenscyclus van een verblijfsobject met de identificatie van een verblijfsobject.
-   * <p>
-   * Bevragen/raadplegen van de levenscyclus van een Verblijfsobject met de identificatie van de verblijfsobject.
-   */
-  @GET
-  @Path("/{identificatie}/lvc")
-  @Produces({"application/hal+json", "application/problem+json"})
-  public VerblijfsobjectIOLvcHalCollection verblijfsobjectLvcIdentificatie(
-      @PathParam("identificatie") String identificatie,
-      @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc,
-      @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs)
-      throws ProcessingException;
+    /**
+     * bevragen levenscyclus van een verblijfsobject met de identificatie van een verblijfsobject.
+     * <p>
+     * Bevragen/raadplegen van de levenscyclus van een Verblijfsobject met de identificatie van de verblijfsobject.
+     */
+    @GET
+    @Path("/{identificatie}/lvc")
+    @Produces({"application/hal+json", "application/problem+json"})
+    public VerblijfsobjectIOLvcHalCollection verblijfsobjectLvcIdentificatie(
+            @PathParam("identificatie") String identificatie,
+            @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs)
+            throws ProcessingException;
 
-  /**
-   * Zoeken van alle aan een pand gerelateerde verblijfsobjecten of binnen een bounding box (met paginering).
-   * <p>
-   * Zoek verblijfsobjecten:  1. gerelateerd aan een pand identificatie.  2. binnen een geometrische contour (rechthoek) in combinatie met status geconstateerd, oppervlakte, gebruiksdoel.   Parameter huidig kan worden toegepast, zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature).  De geldigOp en beschikbaarOp parameters kunnen gebruikt worden voor  tijdreis vragen, zie  [functionele specificatie tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature).   Als expand&#x3D;heeftAlsHoofdAdres, heeftAlsNevenAdres of true, dan worden de gevraagde of alle gerelateerde objecten als geneste resource geleverd, zie [functionele specificatie expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).  Voor paginering, zie: [functionele specificatie paginering](https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature).
-   */
-  @GET
-  @Produces({"application/hal+json", "application/problem+json"})
-  public VerblijfsobjectIOHalCollection zoekVerblijfsobjecten(
-      @QueryParam("pandIdentificatie") String pandIdentificatie,
-      @QueryParam("huidig") @DefaultValue("false") Boolean huidig,
-      @QueryParam("geldigOp") LocalDate geldigOp,
-      @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
-      @QueryParam("expand") String expand,
-      @QueryParam("page") @DefaultValue("1") Integer page,
-      @QueryParam("pageSize") @DefaultValue("20") Integer pageSize,
-      @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
-      @HeaderParam("Content-Crs") String contentCrs,
-      @QueryParam("bbox") List<BigDecimal> bbox,
-      @QueryParam("geconstateerd") Boolean geconstateerd,
-      @QueryParam("oppervlakte") OppervlakteFilter oppervlakte,
-      @QueryParam("gebruiksdoelen") List<Gebruiksdoel> gebruiksdoelen)
-      throws ProcessingException;
+    /**
+     * Zoeken van alle aan een pand gerelateerde verblijfsobjecten of binnen een bounding box (met paginering).
+     * <p>
+     * Zoek verblijfsobjecten:  1. gerelateerd aan een pand identificatie.  2. binnen een geometrische contour (rechthoek) in combinatie met status geconstateerd, oppervlakte, gebruiksdoel.   Parameter huidig kan worden toegepast, zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature).  De geldigOp en beschikbaarOp parameters kunnen gebruikt worden voor  tijdreis vragen, zie  [functionele specificatie tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature).   Als expand&#x3D;heeftAlsHoofdAdres, heeftAlsNevenAdres of true, dan worden de gevraagde of alle gerelateerde objecten als geneste resource geleverd, zie [functionele specificatie expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).  Voor paginering, zie: [functionele specificatie paginering](https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature).
+     */
+    @GET
+    @Produces({"application/hal+json", "application/problem+json"})
+    public VerblijfsobjectIOHalCollection zoekVerblijfsobjecten(
+            @QueryParam("pandIdentificatie") String pandIdentificatie,
+            @QueryParam("huidig") @DefaultValue("false") Boolean huidig,
+            @QueryParam("geldigOp") LocalDate geldigOp,
+            @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
+            @QueryParam("expand") String expand,
+            @QueryParam("page") @DefaultValue("1") Integer page,
+            @QueryParam("pageSize") @DefaultValue("20") Integer pageSize,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
+            @HeaderParam("Content-Crs") String contentCrs,
+            @QueryParam("bbox") List<BigDecimal> bbox,
+            @QueryParam("geconstateerd") Boolean geconstateerd,
+            @QueryParam("oppervlakte") OppervlakteFilter oppervlakte,
+            @QueryParam("gebruiksdoelen") List<Gebruiksdoel> gebruiksdoelen)
+            throws ProcessingException;
 }

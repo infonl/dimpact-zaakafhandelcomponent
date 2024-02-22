@@ -8,12 +8,12 @@ import java.net.URI;
 
 public class RESTDocumentCreatieResponse {
 
-  public final URI redirectURL;
+    public final URI redirectURL;
 
-  public final String message;
+    public final String message;
 
-  public RESTDocumentCreatieResponse(final URI redirectURL, final String message) {
-    this.redirectURL = redirectURL;
-    this.message = message;
-  }
+    public RESTDocumentCreatieResponse(final URI redirectURL, final String message) {
+        this.redirectURL = redirectURL;
+        this.message = message;
+    }
 }

@@ -14,17 +14,17 @@ import net.atos.zac.app.identity.model.RESTUser;
 
 public class RESTHumanTaskData {
 
-  public String planItemInstanceId;
+    public String planItemInstanceId;
 
-  public RESTGroup groep;
+    public RESTGroup groep;
 
-  @Valid public RESTUser medewerker;
+    @Valid public RESTUser medewerker;
 
-  public LocalDate fataledatum;
+    public LocalDate fataledatum;
 
-  public String toelichting;
+    public String toelichting;
 
-  public Map<String, String> taakdata;
+    public Map<String, String> taakdata;
 
-  public RESTTaakStuurGegevens taakStuurGegevens;
+    public RESTTaakStuurGegevens taakStuurGegevens;
 }

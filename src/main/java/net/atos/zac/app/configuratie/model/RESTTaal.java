@@ -5,13 +5,13 @@
 package net.atos.zac.app.configuratie.model;
 
 public class RESTTaal {
-  public String id;
+    public String id;
 
-  public String code;
+    public String code;
 
-  public String naam;
+    public String naam;
 
-  public String name;
+    public String name;
 
-  public String local;
+    public String local;
 }

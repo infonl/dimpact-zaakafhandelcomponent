@@ -20,55 +20,55 @@ import org.apache.commons.lang3.NotImplementedException;
  */
 @JsonbTypeAdapter(Action.Adapter.class)
 public enum Action {
-  CREATE("create"),
-  READ("read", "list"),
-  UPDATE("update", "partial_update"),
-  DELETE("destroy");
+    CREATE("create"),
+    READ("read", "list"),
+    UPDATE("update", "partial_update"),
+    DELETE("destroy");
 
-  private static final Logger LOG = Logger.getLogger(Action.class.getName());
+    private static final Logger LOG = Logger.getLogger(Action.class.getName());
 
-  private final String code;
+    private final String code;
 
-  private final String alt;
+    private final String alt;
 
-  private static final Map<String, Action> VALUES = new HashMap<>();
+    private static final Map<String, Action> VALUES = new HashMap<>();
 
-  static {
-    for (final Action value : values()) {
-      VALUES.put(value.code, value);
-      if (value.alt != null) {
-        VALUES.put(value.alt, value);
-      }
-    }
-  }
-
-  Action(final String code, final String alt) {
-    this.code = code;
-    this.alt = alt;
-  }
-
-  Action(final String code) {
-    this(code, null);
-  }
-
-  public static Action fromCode(final String code) {
-    final Action value = VALUES.get(code);
-    if (value == null) {
-      LOG.warning(String.format("unknown %s action", code));
-    }
-    return value;
-  }
-
-  static class Adapter implements JsonbAdapter<Action, String> {
-
-    @Override
-    public String adaptToJson(final Action action) {
-      throw new NotImplementedException();
+    static {
+        for (final Action value : values()) {
+            VALUES.put(value.code, value);
+            if (value.alt != null) {
+                VALUES.put(value.alt, value);
+            }
+        }
     }
 
-    @Override
-    public Action adaptFromJson(final String code) {
-      return fromCode(code);
+    Action(final String code, final String alt) {
+        this.code = code;
+        this.alt = alt;
     }
-  }
+
+    Action(final String code) {
+        this(code, null);
+    }
+
+    public static Action fromCode(final String code) {
+        final Action value = VALUES.get(code);
+        if (value == null) {
+            LOG.warning(String.format("unknown %s action", code));
+        }
+        return value;
+    }
+
+    static class Adapter implements JsonbAdapter<Action, String> {
+
+        @Override
+        public String adaptToJson(final Action action) {
+            throw new NotImplementedException();
+        }
+
+        @Override
+        public Action adaptFromJson(final String code) {
+            return fromCode(code);
+        }
+    }
 }

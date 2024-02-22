@@ -10,8 +10,8 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectAdres;
 
 public class ZaakobjectAdresWijziging extends AuditWijziging<ZaakobjectAdres> {
 
-  @Override
-  public ObjectType getObjectType() {
-    return ObjectType.ZAAKOBJECT;
-  }
+    @Override
+    public ObjectType getObjectType() {
+        return ObjectType.ZAAKOBJECT;
+    }
 }

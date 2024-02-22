@@ -9,9 +9,9 @@ import net.atos.zac.app.zoeken.model.RESTDatumRange;
 
 public class RESTInboxProductaanvraagListParameters extends RESTListParameters {
 
-  public String type;
+    public String type;
 
-  public RESTDatumRange ontvangstdatum;
+    public RESTDatumRange ontvangstdatum;
 
-  public String initiatorID;
+    public String initiatorID;
 }

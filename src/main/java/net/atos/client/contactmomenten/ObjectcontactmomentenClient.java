@@ -37,25 +37,25 @@ import net.atos.client.contactmomenten.util.ContactmomentenClientHeadersFactory;
 @Path("api/v1/objectcontactmomenten")
 public interface ObjectcontactmomentenClient {
 
-  /**
-   * Alle OBJECT-CONTACTMOMENT relaties opvragen.
-   */
-  @GET
-  @Produces({"application/json", "application/problem+json"})
-  public ObjectcontactmomentList200Response objectcontactmomentList(
-      @QueryParam("object") URI _object,
-      @QueryParam("contactmoment") URI contactmoment,
-      @QueryParam("objectType") String objectType,
-      @QueryParam("page") Integer page)
-      throws ProcessingException;
+    /**
+     * Alle OBJECT-CONTACTMOMENT relaties opvragen.
+     */
+    @GET
+    @Produces({"application/json", "application/problem+json"})
+    public ObjectcontactmomentList200Response objectcontactmomentList(
+            @QueryParam("object") URI _object,
+            @QueryParam("contactmoment") URI contactmoment,
+            @QueryParam("objectType") String objectType,
+            @QueryParam("page") Integer page)
+            throws ProcessingException;
 
-  /**
-   * Een specifiek OBJECT-CONTACTMOMENT relatie opvragen.
-   */
-  @GET
-  @Path("/{uuid}")
-  @Produces({"application/json", "application/problem+json"})
-  public ObjectContactMoment objectcontactmomentRead(
-      @PathParam("uuid") UUID uuid, @HeaderParam("If-None-Match") String ifNoneMatch)
-      throws ProcessingException;
+    /**
+     * Een specifiek OBJECT-CONTACTMOMENT relatie opvragen.
+     */
+    @GET
+    @Path("/{uuid}")
+    @Produces({"application/json", "application/problem+json"})
+    public ObjectContactMoment objectcontactmomentRead(
+            @PathParam("uuid") UUID uuid, @HeaderParam("If-None-Match") String ifNoneMatch)
+            throws ProcessingException;
 }

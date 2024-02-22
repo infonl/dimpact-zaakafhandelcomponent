@@ -8,15 +8,15 @@ import jakarta.json.bind.annotation.JsonbProperty;
 
 public class DocumentData {
 
-  public boolean definitief;
+    public boolean definitief;
 
-  public boolean vergrendeld;
+    public boolean vergrendeld;
 
-  @JsonbProperty("vergrendeld_door")
-  public String vergrendeldDoor;
+    @JsonbProperty("vergrendeld_door")
+    public String vergrendeldDoor;
 
-  public String zaaktype;
+    public String zaaktype;
 
-  @JsonbProperty("zaak_open")
-  public boolean zaakOpen;
+    @JsonbProperty("zaak_open")
+    public boolean zaakOpen;
 }

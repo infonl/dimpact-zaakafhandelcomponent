@@ -5,5 +5,5 @@
 package net.atos.zac.app.zaken.model;
 
 public class RESTReden {
-  public String reden;
+    public String reden;
 }

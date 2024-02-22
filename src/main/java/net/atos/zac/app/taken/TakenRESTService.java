@@ -91,345 +91,371 @@ import net.atos.zac.zoeken.model.index.ZoekObjectType;
 @Produces(MediaType.APPLICATION_JSON)
 public class TakenRESTService {
 
-  private static final String REDEN_ZAAK_HERVATTEN = "Aanvullende informatie geleverd";
+    private static final String REDEN_ZAAK_HERVATTEN = "Aanvullende informatie geleverd";
 
-  private static final String REDEN_TAAK_AFGESLOTEN = "Afgesloten";
+    private static final String REDEN_TAAK_AFGESLOTEN = "Afgesloten";
 
-  @Inject private TakenService takenService;
+    @Inject private TakenService takenService;
 
-  @Inject private TaakVariabelenService taakVariabelenService;
+    @Inject private TaakVariabelenService taakVariabelenService;
 
-  @Inject private IndexeerService indexeerService;
+    @Inject private IndexeerService indexeerService;
 
-  @Inject private RESTTaakConverter restTaakConverter;
+    @Inject private RESTTaakConverter restTaakConverter;
 
-  @Inject private EventingService eventingService;
+    @Inject private EventingService eventingService;
 
-  @Inject private Instance<LoggedInUser> loggedInUserInstance;
+    @Inject private Instance<LoggedInUser> loggedInUserInstance;
 
-  @Inject @ActiveSession private Instance<HttpSession> httpSession;
+    @Inject @ActiveSession private Instance<HttpSession> httpSession;
 
-  @Inject private RESTInformatieobjectConverter restInformatieobjectConverter;
+    @Inject private RESTInformatieobjectConverter restInformatieobjectConverter;
 
-  @Inject private ZGWApiService zgwApiService;
+    @Inject private ZGWApiService zgwApiService;
 
-  @Inject private ZRCClientService zrcClientService;
+    @Inject private ZRCClientService zrcClientService;
 
-  @Inject private DRCClientService drcClientService;
+    @Inject private DRCClientService drcClientService;
 
-  @Inject private SignaleringenService signaleringenService;
+    @Inject private SignaleringenService signaleringenService;
 
-  @Inject private RESTTaakHistorieConverter taakHistorieConverter;
+    @Inject private RESTTaakHistorieConverter taakHistorieConverter;
 
-  @Inject private PolicyService policyService;
+    @Inject private PolicyService policyService;
 
-  @Inject private EnkelvoudigInformatieObjectUpdateService enkelvoudigInformatieObjectUpdateService;
+    @Inject
+    private EnkelvoudigInformatieObjectUpdateService enkelvoudigInformatieObjectUpdateService;
 
-  @Inject private OpschortenZaakHelper opschortenZaakHelper;
+    @Inject private OpschortenZaakHelper opschortenZaakHelper;
 
-  @GET
-  @Path("zaak/{zaakUUID}")
-  public List<RESTTaak> listTakenVoorZaak(@PathParam("zaakUUID") final UUID zaakUUID) {
-    assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).lezen());
-    return restTaakConverter.convert(takenService.listTasksForZaak(zaakUUID));
-  }
+    @GET
+    @Path("zaak/{zaakUUID}")
+    public List<RESTTaak> listTakenVoorZaak(@PathParam("zaakUUID") final UUID zaakUUID) {
+        assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).lezen());
+        return restTaakConverter.convert(takenService.listTasksForZaak(zaakUUID));
+    }
 
-  @GET
-  @Path("{taskId}")
-  public RESTTaak readTaak(@PathParam("taskId") final String taskId) {
-    final TaskInfo task = takenService.readTask(taskId);
-    assertPolicy(policyService.readTaakRechten(task).lezen());
-    deleteSignaleringen(task);
-    return restTaakConverter.convert(task);
-  }
+    @GET
+    @Path("{taskId}")
+    public RESTTaak readTaak(@PathParam("taskId") final String taskId) {
+        final TaskInfo task = takenService.readTask(taskId);
+        assertPolicy(policyService.readTaakRechten(task).lezen());
+        deleteSignaleringen(task);
+        return restTaakConverter.convert(task);
+    }
 
-  @PUT
-  @Path("taakdata")
-  public RESTTaak updateTaakdata(final RESTTaak restTaak) {
-    final Task task = takenService.readOpenTask(restTaak.id);
-    assertPolicy(getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).wijzigen());
-    taakVariabelenService.setTaakdata(task, restTaak.taakdata);
-    taakVariabelenService.setTaakinformatie(task, restTaak.taakinformatie);
-    updateTaak(restTaak);
-    return restTaak;
-  }
+    @PUT
+    @Path("taakdata")
+    public RESTTaak updateTaakdata(final RESTTaak restTaak) {
+        final Task task = takenService.readOpenTask(restTaak.id);
+        assertPolicy(
+                getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).wijzigen());
+        taakVariabelenService.setTaakdata(task, restTaak.taakdata);
+        taakVariabelenService.setTaakinformatie(task, restTaak.taakinformatie);
+        updateTaak(restTaak);
+        return restTaak;
+    }
 
-  @PUT
-  @Path("lijst/verdelen")
-  public void verdelenVanuitLijst(final RESTTaakVerdelenGegevens restTaakVerdelenGegevens) {
-    assertPolicy(
-        policyService.readWerklijstRechten().zakenTaken()
-            && policyService.readWerklijstRechten().zakenTakenVerdelen());
-    final List<String> taakIds = new ArrayList<>();
-    restTaakVerdelenGegevens.taken.forEach(
-        taak -> {
-          Task task = takenService.readOpenTask(taak.taakId);
-          boolean changed = false;
-          if (restTaakVerdelenGegevens.behandelaarGebruikersnaam != null) {
+    @PUT
+    @Path("lijst/verdelen")
+    public void verdelenVanuitLijst(final RESTTaakVerdelenGegevens restTaakVerdelenGegevens) {
+        assertPolicy(
+                policyService.readWerklijstRechten().zakenTaken()
+                        && policyService.readWerklijstRechten().zakenTakenVerdelen());
+        final List<String> taakIds = new ArrayList<>();
+        restTaakVerdelenGegevens.taken.forEach(
+                taak -> {
+                    Task task = takenService.readOpenTask(taak.taakId);
+                    boolean changed = false;
+                    if (restTaakVerdelenGegevens.behandelaarGebruikersnaam != null) {
+                        task =
+                                assignTaak(
+                                        task.getId(),
+                                        restTaakVerdelenGegevens.behandelaarGebruikersnaam,
+                                        restTaakVerdelenGegevens.reden);
+                        changed = true;
+                    }
+
+                    if (restTaakVerdelenGegevens.groepId != null) {
+                        task =
+                                takenService.assignTaskToGroup(
+                                        task,
+                                        restTaakVerdelenGegevens.groepId,
+                                        restTaakVerdelenGegevens.reden);
+                        changed = true;
+                    }
+
+                    if (changed) {
+                        taakBehandelaarGewijzigd(task, taak.zaakUuid);
+                        taakIds.add(taak.taakId);
+                    }
+                });
+        indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK);
+    }
+
+    @PUT
+    @Path("lijst/vrijgeven")
+    public void vrijgevenVanuitLijst(final RESTTaakVerdelenGegevens restTaakVerdelenGegevens) {
+        assertPolicy(
+                policyService.readWerklijstRechten().zakenTaken()
+                        && policyService.readWerklijstRechten().zakenTakenVerdelen());
+        final List<String> taakIds = new ArrayList<>();
+        restTaakVerdelenGegevens.taken.forEach(
+                taak -> {
+                    final var task = assignTaak(taak.taakId, null, restTaakVerdelenGegevens.reden);
+                    taakBehandelaarGewijzigd(task, taak.zaakUuid);
+                    taakIds.add(task.getId());
+                });
+        indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK);
+    }
+
+    @PATCH
+    @Path("lijst/toekennen/mij")
+    public RESTTaak toekennenAanIngelogdeMedewerkerVanuitLijst(
+            final RESTTaakToekennenGegevens restTaakToekennenGegevens) {
+        assertPolicy(policyService.readWerklijstRechten().zakenTaken());
+        final Task task = ingelogdeMedewerkerToekennenAanTaak(restTaakToekennenGegevens);
+        return restTaakConverter.convert(task);
+    }
+
+    @PATCH
+    @Path("toekennen")
+    public void toekennen(final RESTTaakToekennenGegevens restTaakToekennenGegevens) {
+        Task task = takenService.readOpenTask(restTaakToekennenGegevens.taakId);
+        assertPolicy(
+                getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).toekennen());
+        final String behandelaar = task.getAssignee();
+        final String groep = restTaakConverter.extractGroupId(task.getIdentityLinks());
+        boolean changed = false;
+        if (!StringUtils.equals(behandelaar, restTaakToekennenGegevens.behandelaarId)) {
             task =
+                    assignTaak(
+                            task.getId(),
+                            restTaakToekennenGegevens.behandelaarId,
+                            restTaakToekennenGegevens.reden);
+            changed = true;
+        }
+
+        if (!StringUtils.equals(groep, restTaakToekennenGegevens.groepId)) {
+            task =
+                    takenService.assignTaskToGroup(
+                            task,
+                            restTaakToekennenGegevens.groepId,
+                            restTaakToekennenGegevens.reden);
+            changed = true;
+        }
+        if (changed) {
+            taakBehandelaarGewijzigd(task, restTaakToekennenGegevens.zaakUuid);
+            indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK);
+        }
+    }
+
+    @PATCH
+    @Path("toekennen/mij")
+    public RESTTaak toekennenAanIngelogdeMedewerker(
+            final RESTTaakToekennenGegevens restTaakToekennenGegevens) {
+        final Task task = ingelogdeMedewerkerToekennenAanTaak(restTaakToekennenGegevens);
+        return restTaakConverter.convert(task);
+    }
+
+    @PATCH
+    public RESTTaak updateTaak(final RESTTaak restTaak) {
+        Task task = takenService.readOpenTask(restTaak.id);
+        assertPolicy(
+                getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).wijzigen());
+        task.setDescription(restTaak.toelichting);
+        task.setDueDate(convertToDate(restTaak.fataledatum));
+        task = takenService.updateTask(task);
+        eventingService.send(TAAK.updated(task));
+        eventingService.send(ZAAK_TAKEN.updated(restTaak.zaakUuid));
+        return restTaakConverter.convert(task);
+    }
+
+    @PATCH
+    @Path("complete")
+    public RESTTaak completeTaak(final RESTTaak restTaak) {
+        Task task = takenService.readOpenTask(restTaak.id);
+        final Zaak zaak = zrcClientService.readZaak(restTaak.zaakUuid);
+        assertPolicy(isOpen(task) && policyService.readTaakRechten(task).wijzigen());
+        final String loggedInUserId = loggedInUserInstance.get().getId();
+        if (restTaak.behandelaar == null || !restTaak.behandelaar.id.equals(loggedInUserId)) {
+            task =
+                    takenService.assignTaskToUser(
+                            task.getId(), loggedInUserId, REDEN_TAAK_AFGESLOTEN);
+        }
+        createDocuments(restTaak, zaak);
+        if (taakVariabelenService.isZaakHervatten(restTaak.taakdata)) {
+            opschortenZaakHelper.hervattenZaak(zaak, REDEN_ZAAK_HERVATTEN);
+        }
+        if (restTaak.taakdata.containsKey(TAAK_DATA_DOCUMENTEN_VERZENDEN_POST)) {
+            updateVerzenddatumEnkelvoudigInformatieObjecten(
+                    restTaak.taakdata.get(TAAK_DATA_DOCUMENTEN_VERZENDEN_POST),
+                    restTaak.taakdata.get(TAAK_DATA_VERZENDDATUM),
+                    restTaak.taakdata.get(TAAK_DATA_TOELICHTING));
+        }
+        ondertekenEnkelvoudigInformatieObjecten(restTaak.taakdata, zaak);
+        taakVariabelenService.setTaakdata(task, restTaak.taakdata);
+        taakVariabelenService.setTaakinformatie(task, restTaak.taakinformatie);
+        final HistoricTaskInstance completedTask = takenService.completeTask(task);
+        indexeerService.addOrUpdateZaak(restTaak.zaakUuid, false);
+        eventingService.send(TAAK.updated(completedTask));
+        eventingService.send(ZAAK_TAKEN.updated(restTaak.zaakUuid));
+        return restTaakConverter.convert(completedTask);
+    }
+
+    @POST
+    @Path("upload/{uuid}/{field}")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public Response uploadFile(
+            @PathParam("field") final String field,
+            @PathParam("uuid") final UUID uuid,
+            @MultipartForm final RESTFileUpload data) {
+        String fileKey = String.format("_FILE__%s__%s", uuid, field);
+        httpSession.get().setAttribute(fileKey, data);
+        return Response.ok("\"Success\"").build();
+    }
+
+    @GET
+    @Path("{taskId}/historie")
+    public List<RESTTaakHistorieRegel> listHistorie(@PathParam("taskId") final String taskId) {
+        assertPolicy(policyService.readTaakRechten(takenService.readTask(taskId)).lezen());
+        final List<HistoricTaskLogEntry> historicTaskLogEntries =
+                takenService.listHistorieForTask(taskId);
+        return taakHistorieConverter.convert(historicTaskLogEntries);
+    }
+
+    private Task ingelogdeMedewerkerToekennenAanTaak(
+            final RESTTaakToekennenGegevens restTaakToekennenGegevens) {
+        Task task = takenService.readOpenTask(restTaakToekennenGegevens.taakId);
+        assertPolicy(
+                getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).toekennen());
+        task =
                 assignTaak(
-                    task.getId(),
-                    restTaakVerdelenGegevens.behandelaarGebruikersnaam,
-                    restTaakVerdelenGegevens.reden);
-            changed = true;
-          }
-
-          if (restTaakVerdelenGegevens.groepId != null) {
-            task =
-                takenService.assignTaskToGroup(
-                    task, restTaakVerdelenGegevens.groepId, restTaakVerdelenGegevens.reden);
-            changed = true;
-          }
-
-          if (changed) {
-            taakBehandelaarGewijzigd(task, taak.zaakUuid);
-            taakIds.add(taak.taakId);
-          }
-        });
-    indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK);
-  }
-
-  @PUT
-  @Path("lijst/vrijgeven")
-  public void vrijgevenVanuitLijst(final RESTTaakVerdelenGegevens restTaakVerdelenGegevens) {
-    assertPolicy(
-        policyService.readWerklijstRechten().zakenTaken()
-            && policyService.readWerklijstRechten().zakenTakenVerdelen());
-    final List<String> taakIds = new ArrayList<>();
-    restTaakVerdelenGegevens.taken.forEach(
-        taak -> {
-          final var task = assignTaak(taak.taakId, null, restTaakVerdelenGegevens.reden);
-          taakBehandelaarGewijzigd(task, taak.zaakUuid);
-          taakIds.add(task.getId());
-        });
-    indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK);
-  }
-
-  @PATCH
-  @Path("lijst/toekennen/mij")
-  public RESTTaak toekennenAanIngelogdeMedewerkerVanuitLijst(
-      final RESTTaakToekennenGegevens restTaakToekennenGegevens) {
-    assertPolicy(policyService.readWerklijstRechten().zakenTaken());
-    final Task task = ingelogdeMedewerkerToekennenAanTaak(restTaakToekennenGegevens);
-    return restTaakConverter.convert(task);
-  }
-
-  @PATCH
-  @Path("toekennen")
-  public void toekennen(final RESTTaakToekennenGegevens restTaakToekennenGegevens) {
-    Task task = takenService.readOpenTask(restTaakToekennenGegevens.taakId);
-    assertPolicy(
-        getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).toekennen());
-    final String behandelaar = task.getAssignee();
-    final String groep = restTaakConverter.extractGroupId(task.getIdentityLinks());
-    boolean changed = false;
-    if (!StringUtils.equals(behandelaar, restTaakToekennenGegevens.behandelaarId)) {
-      task =
-          assignTaak(
-              task.getId(),
-              restTaakToekennenGegevens.behandelaarId,
-              restTaakToekennenGegevens.reden);
-      changed = true;
+                        task.getId(),
+                        loggedInUserInstance.get().getId(),
+                        restTaakToekennenGegevens.reden);
+        taakBehandelaarGewijzigd(task, restTaakToekennenGegevens.zaakUuid);
+        indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK);
+        return task;
     }
 
-    if (!StringUtils.equals(groep, restTaakToekennenGegevens.groepId)) {
-      task =
-          takenService.assignTaskToGroup(
-              task, restTaakToekennenGegevens.groepId, restTaakToekennenGegevens.reden);
-      changed = true;
+    private Task assignTaak(final String taskId, final String assignee, final String reden) {
+        final Task task = takenService.assignTaskToUser(taskId, assignee, reden);
+        eventingService.send(
+                SignaleringEventUtil.event(
+                        SignaleringType.Type.TAAK_OP_NAAM, task, loggedInUserInstance.get()));
+        return task;
     }
-    if (changed) {
-      taakBehandelaarGewijzigd(task, restTaakToekennenGegevens.zaakUuid);
-      indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK);
-    }
-  }
 
-  @PATCH
-  @Path("toekennen/mij")
-  public RESTTaak toekennenAanIngelogdeMedewerker(
-      final RESTTaakToekennenGegevens restTaakToekennenGegevens) {
-    final Task task = ingelogdeMedewerkerToekennenAanTaak(restTaakToekennenGegevens);
-    return restTaakConverter.convert(task);
-  }
-
-  @PATCH
-  public RESTTaak updateTaak(final RESTTaak restTaak) {
-    Task task = takenService.readOpenTask(restTaak.id);
-    assertPolicy(getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).wijzigen());
-    task.setDescription(restTaak.toelichting);
-    task.setDueDate(convertToDate(restTaak.fataledatum));
-    task = takenService.updateTask(task);
-    eventingService.send(TAAK.updated(task));
-    eventingService.send(ZAAK_TAKEN.updated(restTaak.zaakUuid));
-    return restTaakConverter.convert(task);
-  }
-
-  @PATCH
-  @Path("complete")
-  public RESTTaak completeTaak(final RESTTaak restTaak) {
-    Task task = takenService.readOpenTask(restTaak.id);
-    final Zaak zaak = zrcClientService.readZaak(restTaak.zaakUuid);
-    assertPolicy(isOpen(task) && policyService.readTaakRechten(task).wijzigen());
-    final String loggedInUserId = loggedInUserInstance.get().getId();
-    if (restTaak.behandelaar == null || !restTaak.behandelaar.id.equals(loggedInUserId)) {
-      task = takenService.assignTaskToUser(task.getId(), loggedInUserId, REDEN_TAAK_AFGESLOTEN);
-    }
-    createDocuments(restTaak, zaak);
-    if (taakVariabelenService.isZaakHervatten(restTaak.taakdata)) {
-      opschortenZaakHelper.hervattenZaak(zaak, REDEN_ZAAK_HERVATTEN);
-    }
-    if (restTaak.taakdata.containsKey(TAAK_DATA_DOCUMENTEN_VERZENDEN_POST)) {
-      updateVerzenddatumEnkelvoudigInformatieObjecten(
-          restTaak.taakdata.get(TAAK_DATA_DOCUMENTEN_VERZENDEN_POST),
-          restTaak.taakdata.get(TAAK_DATA_VERZENDDATUM),
-          restTaak.taakdata.get(TAAK_DATA_TOELICHTING));
-    }
-    ondertekenEnkelvoudigInformatieObjecten(restTaak.taakdata, zaak);
-    taakVariabelenService.setTaakdata(task, restTaak.taakdata);
-    taakVariabelenService.setTaakinformatie(task, restTaak.taakinformatie);
-    final HistoricTaskInstance completedTask = takenService.completeTask(task);
-    indexeerService.addOrUpdateZaak(restTaak.zaakUuid, false);
-    eventingService.send(TAAK.updated(completedTask));
-    eventingService.send(ZAAK_TAKEN.updated(restTaak.zaakUuid));
-    return restTaakConverter.convert(completedTask);
-  }
-
-  @POST
-  @Path("upload/{uuid}/{field}")
-  @Consumes(MediaType.MULTIPART_FORM_DATA)
-  public Response uploadFile(
-      @PathParam("field") final String field,
-      @PathParam("uuid") final UUID uuid,
-      @MultipartForm final RESTFileUpload data) {
-    String fileKey = String.format("_FILE__%s__%s", uuid, field);
-    httpSession.get().setAttribute(fileKey, data);
-    return Response.ok("\"Success\"").build();
-  }
-
-  @GET
-  @Path("{taskId}/historie")
-  public List<RESTTaakHistorieRegel> listHistorie(@PathParam("taskId") final String taskId) {
-    assertPolicy(policyService.readTaakRechten(takenService.readTask(taskId)).lezen());
-    final List<HistoricTaskLogEntry> historicTaskLogEntries =
-        takenService.listHistorieForTask(taskId);
-    return taakHistorieConverter.convert(historicTaskLogEntries);
-  }
-
-  private Task ingelogdeMedewerkerToekennenAanTaak(
-      final RESTTaakToekennenGegevens restTaakToekennenGegevens) {
-    Task task = takenService.readOpenTask(restTaakToekennenGegevens.taakId);
-    assertPolicy(
-        getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).toekennen());
-    task =
-        assignTaak(
-            task.getId(), loggedInUserInstance.get().getId(), restTaakToekennenGegevens.reden);
-    taakBehandelaarGewijzigd(task, restTaakToekennenGegevens.zaakUuid);
-    indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK);
-    return task;
-  }
-
-  private Task assignTaak(final String taskId, final String assignee, final String reden) {
-    final Task task = takenService.assignTaskToUser(taskId, assignee, reden);
-    eventingService.send(
-        SignaleringEventUtil.event(
-            SignaleringType.Type.TAAK_OP_NAAM, task, loggedInUserInstance.get()));
-    return task;
-  }
-
-  private void createDocuments(final RESTTaak restTaak, final Zaak zaak) {
-    final HttpSession httpSession = this.httpSession.get();
-    for (String key : restTaak.taakdata.keySet()) {
-      final String fileKey = String.format("_FILE__%s__%s", restTaak.id, key);
-      final RESTFileUpload uploadedFile = (RESTFileUpload) httpSession.getAttribute(fileKey);
-      if (uploadedFile != null) {
-        final String jsonDocumentData = restTaak.taakdata.get(key);
-        if (StringUtils.isEmpty(jsonDocumentData)) { // document uploaded but removed afterwards
-          httpSession.removeAttribute(fileKey);
-          break;
+    private void createDocuments(final RESTTaak restTaak, final Zaak zaak) {
+        final HttpSession httpSession = this.httpSession.get();
+        for (String key : restTaak.taakdata.keySet()) {
+            final String fileKey = String.format("_FILE__%s__%s", restTaak.id, key);
+            final RESTFileUpload uploadedFile = (RESTFileUpload) httpSession.getAttribute(fileKey);
+            if (uploadedFile != null) {
+                final String jsonDocumentData = restTaak.taakdata.get(key);
+                if (StringUtils.isEmpty(
+                        jsonDocumentData)) { // document uploaded but removed afterwards
+                    httpSession.removeAttribute(fileKey);
+                    break;
+                }
+                final RESTTaakDocumentData restTaakDocumentData;
+                try {
+                    restTaakDocumentData =
+                            new ObjectMapper()
+                                    .readValue(jsonDocumentData, RESTTaakDocumentData.class);
+                } catch (final JsonProcessingException e) {
+                    throw new RuntimeException(e.getMessage(), e); // invalid form-group data
+                }
+                final EnkelvoudigInformatieObjectData document =
+                        restInformatieobjectConverter.convert(restTaakDocumentData, uploadedFile);
+                final ZaakInformatieobject zaakInformatieobject =
+                        zgwApiService.createZaakInformatieobjectForZaak(
+                                zaak,
+                                document,
+                                document.getTitel(),
+                                OMSCHRIJVING_TAAK_DOCUMENT,
+                                OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN);
+                restTaak.taakdata.replace(
+                        key,
+                        UriUtil.uuidFromURI(zaakInformatieobject.getInformatieobject()).toString());
+                httpSession.removeAttribute(fileKey);
+            }
         }
-        final RESTTaakDocumentData restTaakDocumentData;
-        try {
-          restTaakDocumentData =
-              new ObjectMapper().readValue(jsonDocumentData, RESTTaakDocumentData.class);
-        } catch (final JsonProcessingException e) {
-          throw new RuntimeException(e.getMessage(), e); // invalid form-group data
-        }
-        final EnkelvoudigInformatieObjectData document =
-            restInformatieobjectConverter.convert(restTaakDocumentData, uploadedFile);
-        final ZaakInformatieobject zaakInformatieobject =
-            zgwApiService.createZaakInformatieobjectForZaak(
-                zaak,
-                document,
-                document.getTitel(),
-                OMSCHRIJVING_TAAK_DOCUMENT,
-                OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN);
-        restTaak.taakdata.replace(
-            key, UriUtil.uuidFromURI(zaakInformatieobject.getInformatieobject()).toString());
-        httpSession.removeAttribute(fileKey);
-      }
     }
-  }
 
-  private void ondertekenEnkelvoudigInformatieObjecten(
-      final Map<String, String> taakdata, final Zaak zaak) {
-    final Optional<String> ondertekenen = taakVariabelenService.readOndertekeningen(taakdata);
-    ondertekenen.ifPresent(
-        s ->
-            Arrays.stream(s.split(TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER))
-                .filter(StringUtils::isNotEmpty)
-                .map(UUID::fromString)
-                .map(drcClientService::readEnkelvoudigInformatieobject)
+    private void ondertekenEnkelvoudigInformatieObjecten(
+            final Map<String, String> taakdata, final Zaak zaak) {
+        final Optional<String> ondertekenen = taakVariabelenService.readOndertekeningen(taakdata);
+        ondertekenen.ifPresent(
+                s ->
+                        Arrays.stream(s.split(TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER))
+                                .filter(StringUtils::isNotEmpty)
+                                .map(UUID::fromString)
+                                .map(drcClientService::readEnkelvoudigInformatieobject)
+                                .forEach(
+                                        enkelvoudigInformatieobject -> {
+                                            assertPolicy(
+                                                    (enkelvoudigInformatieobject.getOndertekening()
+                                                                            == null
+                                                                    ||
+                                                                    // this extra check is because
+                                                                    // the API can return an empty
+                                                                    // ondertekening soort
+                                                                    // when no signature is present
+                                                                    // (even if this is not
+                                                                    // permitted according to the
+                                                                    // original OpenAPI spec)
+                                                                    enkelvoudigInformatieobject
+                                                                                    .getOndertekening()
+                                                                                    .getSoort()
+                                                                            == Ondertekening
+                                                                                    .SoortEnum
+                                                                                    .EMPTY)
+                                                            && policyService
+                                                                    .readDocumentRechten(
+                                                                            enkelvoudigInformatieobject,
+                                                                            zaak)
+                                                                    .ondertekenen());
+                                            enkelvoudigInformatieObjectUpdateService
+                                                    .ondertekenEnkelvoudigInformatieObject(
+                                                            parseUUIDFromResourceURI(
+                                                                    enkelvoudigInformatieobject
+                                                                            .getUrl()));
+                                        }));
+    }
+
+    private void deleteSignaleringen(final TaskInfo taskInfo) {
+        final LoggedInUser loggedInUser = loggedInUserInstance.get();
+        signaleringenService.deleteSignaleringen(
+                new SignaleringZoekParameters(loggedInUser)
+                        .types(SignaleringType.Type.TAAK_OP_NAAM)
+                        .subject(taskInfo));
+        signaleringenService.deleteSignaleringen(
+                new SignaleringZoekParameters(loggedInUser)
+                        .types(SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD)
+                        .subjectZaak(taakVariabelenService.readZaakUUID(taskInfo)));
+    }
+
+    private void taakBehandelaarGewijzigd(final Task task, final UUID zaakUuid) {
+        eventingService.send(TAAK.updated(task));
+        eventingService.send(ZAAK_TAKEN.updated(zaakUuid));
+    }
+
+    private void updateVerzenddatumEnkelvoudigInformatieObjecten(
+            final String documenten, final String verzenddatumString, final String toelichting) {
+        final LocalDate verzenddatum = ZonedDateTime.parse(verzenddatumString).toLocalDate();
+        Arrays.stream(documenten.split(TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER))
                 .forEach(
-                    enkelvoudigInformatieobject -> {
-                      assertPolicy(
-                          (enkelvoudigInformatieobject.getOndertekening() == null
-                                  ||
-                                  // this extra check is because the API can return an empty
-                                  // ondertekening soort
-                                  // when no signature is present (even if this is not
-                                  // permitted according to the original OpenAPI spec)
-                                  enkelvoudigInformatieobject.getOndertekening().getSoort()
-                                      == Ondertekening.SoortEnum.EMPTY)
-                              && policyService
-                                  .readDocumentRechten(enkelvoudigInformatieobject, zaak)
-                                  .ondertekenen());
-                      enkelvoudigInformatieObjectUpdateService
-                          .ondertekenEnkelvoudigInformatieObject(
-                              parseUUIDFromResourceURI(enkelvoudigInformatieobject.getUrl()));
-                    }));
-  }
+                        documentUUID ->
+                                setVerzenddatumEnkelvoudigInformatieObject(
+                                        UUID.fromString(documentUUID), verzenddatum, toelichting));
+    }
 
-  private void deleteSignaleringen(final TaskInfo taskInfo) {
-    final LoggedInUser loggedInUser = loggedInUserInstance.get();
-    signaleringenService.deleteSignaleringen(
-        new SignaleringZoekParameters(loggedInUser)
-            .types(SignaleringType.Type.TAAK_OP_NAAM)
-            .subject(taskInfo));
-    signaleringenService.deleteSignaleringen(
-        new SignaleringZoekParameters(loggedInUser)
-            .types(SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD)
-            .subjectZaak(taakVariabelenService.readZaakUUID(taskInfo)));
-  }
-
-  private void taakBehandelaarGewijzigd(final Task task, final UUID zaakUuid) {
-    eventingService.send(TAAK.updated(task));
-    eventingService.send(ZAAK_TAKEN.updated(zaakUuid));
-  }
-
-  private void updateVerzenddatumEnkelvoudigInformatieObjecten(
-      final String documenten, final String verzenddatumString, final String toelichting) {
-    final LocalDate verzenddatum = ZonedDateTime.parse(verzenddatumString).toLocalDate();
-    Arrays.stream(documenten.split(TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER))
-        .forEach(
-            documentUUID ->
-                setVerzenddatumEnkelvoudigInformatieObject(
-                    UUID.fromString(documentUUID), verzenddatum, toelichting));
-  }
-
-  private void setVerzenddatumEnkelvoudigInformatieObject(
-      final UUID uuid, final LocalDate verzenddatum, final String toelichting) {
-    final var informatieobject = drcClientService.readEnkelvoudigInformatieobject(uuid);
-    enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
-        parseUUIDFromResourceURI(informatieobject.getUrl()), verzenddatum, toelichting);
-  }
+    private void setVerzenddatumEnkelvoudigInformatieObject(
+            final UUID uuid, final LocalDate verzenddatum, final String toelichting) {
+        final var informatieobject = drcClientService.readEnkelvoudigInformatieobject(uuid);
+        enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
+                parseUUIDFromResourceURI(informatieobject.getUrl()), verzenddatum, toelichting);
+    }
 }

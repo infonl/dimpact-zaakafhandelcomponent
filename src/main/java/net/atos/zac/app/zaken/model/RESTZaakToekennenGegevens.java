@@ -12,17 +12,17 @@ import jakarta.validation.constraints.Size;
 
 public class RESTZaakToekennenGegevens {
 
-  @NotNull public UUID zaakUUID;
+    @NotNull public UUID zaakUUID;
 
-  /**
-   * Since this is used for the 'identificatie' field in
-   * {@link net.atos.client.zgw.zrc.model.OrganisatorischeEenheid}
-   * we need to make sure it adheres to the same constraints.
-   */
-  @Nullable @Size(max = 24)
-  public String groepId;
+    /**
+     * Since this is used for the 'identificatie' field in
+     * {@link net.atos.client.zgw.zrc.model.OrganisatorischeEenheid}
+     * we need to make sure it adheres to the same constraints.
+     */
+    @Nullable @Size(max = 24)
+    public String groepId;
 
-  public String behandelaarGebruikersnaam;
+    public String behandelaarGebruikersnaam;
 
-  public String reden;
+    public String reden;
 }

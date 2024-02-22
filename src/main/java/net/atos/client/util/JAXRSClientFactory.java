@@ -20,31 +20,31 @@ import org.apache.commons.lang3.StringUtils;
  */
 public final class JAXRSClientFactory {
 
-  private static Client client;
+    private static Client client;
 
-  private JAXRSClientFactory() {}
+    private JAXRSClientFactory() {}
 
-  public static Client getOrCreateClient() {
-    if (client == null) {
-      client = createClient();
+    public static Client getOrCreateClient() {
+        if (client == null) {
+            client = createClient();
+        }
+        return client;
     }
-    return client;
-  }
 
-  private static Client createClient() {
-    final String proxyHost = System.getProperty("http.proxyHost");
-    final String proxyPort = System.getProperty("http.proxyPort");
-    try {
-      final ClientBuilder clientBuilder =
-          ClientBuilder.newBuilder().sslContext(SSLContext.getDefault());
-      if (StringUtils.isNotEmpty(proxyHost) && StringUtils.isNumeric(proxyPort)) {
-        clientBuilder
-            .property("org.jboss.resteasy.jaxrs.client.proxy.host", proxyHost)
-            .property("org.jboss.resteasy.jaxrs.client.proxy.port", proxyPort);
-      }
-      return clientBuilder.build();
-    } catch (final NoSuchAlgorithmException e) {
-      throw new IllegalArgumentException("Failed to initialize JAX-RS client", e);
+    private static Client createClient() {
+        final String proxyHost = System.getProperty("http.proxyHost");
+        final String proxyPort = System.getProperty("http.proxyPort");
+        try {
+            final ClientBuilder clientBuilder =
+                    ClientBuilder.newBuilder().sslContext(SSLContext.getDefault());
+            if (StringUtils.isNotEmpty(proxyHost) && StringUtils.isNumeric(proxyPort)) {
+                clientBuilder
+                        .property("org.jboss.resteasy.jaxrs.client.proxy.host", proxyHost)
+                        .property("org.jboss.resteasy.jaxrs.client.proxy.port", proxyPort);
+            }
+            return clientBuilder.build();
+        } catch (final NoSuchAlgorithmException e) {
+            throw new IllegalArgumentException("Failed to initialize JAX-RS client", e);
+        }
     }
-  }
 }

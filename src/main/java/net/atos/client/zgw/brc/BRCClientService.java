@@ -30,56 +30,56 @@ import net.atos.zac.util.UriUtil;
 @ApplicationScoped
 public class BRCClientService {
 
-  @Inject @RestClient private BRCClient brcClient;
+    @Inject @RestClient private BRCClient brcClient;
 
-  @Inject private ZGWClientHeadersFactory zgwClientHeadersFactory;
+    @Inject private ZGWClientHeadersFactory zgwClientHeadersFactory;
 
-  public Optional<List<Besluit>> listBesluiten(final Zaak zaak) {
-    final BesluitenListParameters listParameters = new BesluitenListParameters(zaak.getUrl());
-    final Results<Besluit> results = brcClient.besluitList(listParameters);
-    if (results.getCount() > 0) {
-      return Optional.of(results.getResults());
-    } else {
-      return Optional.empty();
+    public Optional<List<Besluit>> listBesluiten(final Zaak zaak) {
+        final BesluitenListParameters listParameters = new BesluitenListParameters(zaak.getUrl());
+        final Results<Besluit> results = brcClient.besluitList(listParameters);
+        if (results.getCount() > 0) {
+            return Optional.of(results.getResults());
+        } else {
+            return Optional.empty();
+        }
     }
-  }
 
-  public Besluit createBesluit(final Besluit besluit) {
-    return brcClient.besluitCreate(besluit);
-  }
+    public Besluit createBesluit(final Besluit besluit) {
+        return brcClient.besluitCreate(besluit);
+    }
 
-  public Besluit updateBesluit(final Besluit besluit, @Nullable final String toelichting) {
-    zgwClientHeadersFactory.setAuditToelichting(toelichting);
-    final UUID uuid = UriUtil.uuidFromURI(besluit.getUrl());
-    return brcClient.besluitUpdate(uuid, besluit);
-  }
+    public Besluit updateBesluit(final Besluit besluit, @Nullable final String toelichting) {
+        zgwClientHeadersFactory.setAuditToelichting(toelichting);
+        final UUID uuid = UriUtil.uuidFromURI(besluit.getUrl());
+        return brcClient.besluitUpdate(uuid, besluit);
+    }
 
-  public List<AuditTrailRegel> listAuditTrail(final UUID besluitUuid) {
-    return brcClient.listAuditTrail(besluitUuid);
-  }
+    public List<AuditTrailRegel> listAuditTrail(final UUID besluitUuid) {
+        return brcClient.listAuditTrail(besluitUuid);
+    }
 
-  public Besluit readBesluit(final UUID uuid) {
-    return brcClient.besluitRead(uuid);
-  }
+    public Besluit readBesluit(final UUID uuid) {
+        return brcClient.besluitRead(uuid);
+    }
 
-  public BesluitInformatieObject createBesluitInformatieobject(
-      final BesluitInformatieObject besluitInformatieobject, final String toelichting) {
-    zgwClientHeadersFactory.setAuditToelichting(toelichting);
-    return brcClient.besluitinformatieobjectCreate(besluitInformatieobject);
-  }
+    public BesluitInformatieObject createBesluitInformatieobject(
+            final BesluitInformatieObject besluitInformatieobject, final String toelichting) {
+        zgwClientHeadersFactory.setAuditToelichting(toelichting);
+        return brcClient.besluitinformatieobjectCreate(besluitInformatieobject);
+    }
 
-  public BesluitInformatieObject deleteBesluitinformatieobject(
-      final UUID besluitInformatieobjectUuid) {
-    return brcClient.besluitinformatieobjectDelete(besluitInformatieobjectUuid);
-  }
+    public BesluitInformatieObject deleteBesluitinformatieobject(
+            final UUID besluitInformatieobjectUuid) {
+        return brcClient.besluitinformatieobjectDelete(besluitInformatieobjectUuid);
+    }
 
-  public List<BesluitInformatieObject> listBesluitInformatieobjecten(final URI besluit) {
-    return brcClient.listBesluitInformatieobjectenByBesluit(besluit);
-  }
+    public List<BesluitInformatieObject> listBesluitInformatieobjecten(final URI besluit) {
+        return brcClient.listBesluitInformatieobjectenByBesluit(besluit);
+    }
 
-  public boolean isInformatieObjectGekoppeldAanBesluit(final URI informatieobject) {
-    final List<BesluitInformatieObject> besluitInformatieobjecten =
-        brcClient.listBesluitInformatieobjectenByInformatieObject(informatieobject);
-    return !besluitInformatieobjecten.isEmpty();
-  }
+    public boolean isInformatieObjectGekoppeldAanBesluit(final URI informatieobject) {
+        final List<BesluitInformatieObject> besluitInformatieobjecten =
+                brcClient.listBesluitInformatieobjectenByInformatieObject(informatieobject);
+        return !besluitInformatieobjecten.isEmpty();
+    }
 }

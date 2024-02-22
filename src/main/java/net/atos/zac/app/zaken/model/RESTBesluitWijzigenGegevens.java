@@ -10,17 +10,17 @@ import java.util.UUID;
 
 public class RESTBesluitWijzigenGegevens {
 
-  public UUID besluitUuid;
+    public UUID besluitUuid;
 
-  public UUID resultaattypeUuid;
+    public UUID resultaattypeUuid;
 
-  public String toelichting;
+    public String toelichting;
 
-  public LocalDate ingangsdatum;
+    public LocalDate ingangsdatum;
 
-  public LocalDate vervaldatum;
+    public LocalDate vervaldatum;
 
-  public List<UUID> informatieobjecten;
+    public List<UUID> informatieobjecten;
 
-  public String reden;
+    public String reden;
 }

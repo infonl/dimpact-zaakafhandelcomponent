@@ -31,35 +31,35 @@ import net.atos.zac.notities.model.Notitie;
 @Produces(MediaType.APPLICATION_JSON)
 public class NotitiesRESTService {
 
-  @Inject private NotitieService notitieService;
+    @Inject private NotitieService notitieService;
 
-  @Inject private NotitieConverter notitieConverter;
+    @Inject private NotitieConverter notitieConverter;
 
-  @GET
-  @Path("{type}/{uuid}")
-  public List<RESTNotitie> listNotities(
-      @PathParam("type") final String type, @PathParam("uuid") final String uuid) {
-    final UUID notitieUUID = UUID.fromString(uuid);
-    return notitieService.listNotitiesForZaak(notitieUUID).stream()
-        .map(notitieConverter::convertToRESTNotitie)
-        .collect(Collectors.toList());
-  }
+    @GET
+    @Path("{type}/{uuid}")
+    public List<RESTNotitie> listNotities(
+            @PathParam("type") final String type, @PathParam("uuid") final String uuid) {
+        final UUID notitieUUID = UUID.fromString(uuid);
+        return notitieService.listNotitiesForZaak(notitieUUID).stream()
+                .map(notitieConverter::convertToRESTNotitie)
+                .collect(Collectors.toList());
+    }
 
-  @POST
-  public RESTNotitie createNotitie(final RESTNotitie restNotitie) {
-    final Notitie notitie = notitieConverter.convertToNotitie(restNotitie);
-    return notitieConverter.convertToRESTNotitie(notitieService.createNotitie(notitie));
-  }
+    @POST
+    public RESTNotitie createNotitie(final RESTNotitie restNotitie) {
+        final Notitie notitie = notitieConverter.convertToNotitie(restNotitie);
+        return notitieConverter.convertToRESTNotitie(notitieService.createNotitie(notitie));
+    }
 
-  @PATCH
-  public RESTNotitie updateNotitie(final RESTNotitie restNotitie) {
-    final Notitie notitie = notitieConverter.convertToNotitie(restNotitie);
-    return notitieConverter.convertToRESTNotitie(notitieService.updateNotitie(notitie));
-  }
+    @PATCH
+    public RESTNotitie updateNotitie(final RESTNotitie restNotitie) {
+        final Notitie notitie = notitieConverter.convertToNotitie(restNotitie);
+        return notitieConverter.convertToRESTNotitie(notitieService.updateNotitie(notitie));
+    }
 
-  @DELETE
-  @Path("{id}")
-  public void deleteNotitie(@PathParam("id") final Long id) {
-    notitieService.deleteNotitie(id);
-  }
+    @DELETE
+    @Path("{id}")
+    public void deleteNotitie(@PathParam("id") final Long id) {
+        notitieService.deleteNotitie(id);
+    }
 }

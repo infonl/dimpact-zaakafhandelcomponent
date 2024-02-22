@@ -8,15 +8,15 @@ import java.util.UUID;
 
 public class RESTUserEventListenerData {
 
-  public UUID zaakUuid;
+    public UUID zaakUuid;
 
-  public String planItemInstanceId;
+    public String planItemInstanceId;
 
-  public UserEventListenerActie actie;
+    public UserEventListenerActie actie;
 
-  public Boolean zaakOntvankelijk;
+    public Boolean zaakOntvankelijk;
 
-  public String resultaatToelichting;
+    public String resultaatToelichting;
 
-  public UUID resultaattypeUuid;
+    public UUID resultaattypeUuid;
 }

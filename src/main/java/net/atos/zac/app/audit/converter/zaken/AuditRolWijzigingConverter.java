@@ -14,31 +14,31 @@ import net.atos.zac.app.audit.converter.AbstractAuditWijzigingConverter;
 import net.atos.zac.app.audit.model.RESTHistorieRegel;
 
 public class AuditRolWijzigingConverter
-    extends AbstractAuditWijzigingConverter<AuditWijziging<Rol>> {
+        extends AbstractAuditWijzigingConverter<AuditWijziging<Rol>> {
 
-  @Override
-  public boolean supports(final ObjectType objectType) {
-    return ObjectType.ROL == objectType;
-  }
+    @Override
+    public boolean supports(final ObjectType objectType) {
+        return ObjectType.ROL == objectType;
+    }
 
-  @Override
-  protected Stream<RESTHistorieRegel> doConvert(final AuditWijziging<Rol> wijziging) {
-    return Stream.of(
-        new RESTHistorieRegel(
-            toAttribuutLabel(wijziging),
-            toWaarde(wijziging.getOud()),
-            toWaarde(wijziging.getNieuw())));
-  }
+    @Override
+    protected Stream<RESTHistorieRegel> doConvert(final AuditWijziging<Rol> wijziging) {
+        return Stream.of(
+                new RESTHistorieRegel(
+                        toAttribuutLabel(wijziging),
+                        toWaarde(wijziging.getOud()),
+                        toWaarde(wijziging.getNieuw())));
+    }
 
-  private String toAttribuutLabel(final AuditWijziging<Rol> wijziging) {
-    final BetrokkeneType betrokkeneType =
-        wijziging.getOud() != null
-            ? wijziging.getOud().getBetrokkeneType()
-            : wijziging.getNieuw().getBetrokkeneType();
-    return "betrokkenetype." + betrokkeneType.name();
-  }
+    private String toAttribuutLabel(final AuditWijziging<Rol> wijziging) {
+        final BetrokkeneType betrokkeneType =
+                wijziging.getOud() != null
+                        ? wijziging.getOud().getBetrokkeneType()
+                        : wijziging.getNieuw().getBetrokkeneType();
+        return "betrokkenetype." + betrokkeneType.name();
+    }
 
-  private String toWaarde(final Rol<?> rol) {
-    return rol != null ? rol.getNaam() : null;
-  }
+    private String toWaarde(final Rol<?> rol) {
+        return rol != null ? rol.getNaam() : null;
+    }
 }

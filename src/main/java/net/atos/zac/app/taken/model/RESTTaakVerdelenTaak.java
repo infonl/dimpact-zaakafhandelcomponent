@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public class RESTTaakVerdelenTaak {
 
-  public String taakId;
+    public String taakId;
 
-  public UUID zaakUuid;
+    public UUID zaakUuid;
 }

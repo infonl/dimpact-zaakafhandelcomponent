@@ -8,15 +8,15 @@ import jakarta.ws.rs.FormParam;
 
 public class RESTFileUpload {
 
-  @FormParam("file")
-  public byte[] file;
+    @FormParam("file")
+    public byte[] file;
 
-  @FormParam("filesize")
-  public long fileSize;
+    @FormParam("filesize")
+    public long fileSize;
 
-  @FormParam("filename")
-  public String filename;
+    @FormParam("filename")
+    public String filename;
 
-  @FormParam("type")
-  public String type;
+    @FormParam("type")
+    public String type;
 }

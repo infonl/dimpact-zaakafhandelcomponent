@@ -19,36 +19,38 @@ import net.atos.zac.flowable.FlowableHelper;
  */
 public class EndCaseLifecycleListener implements CaseInstanceLifecycleListener {
 
-  private static final Logger LOG = Logger.getLogger(EndCaseLifecycleListener.class.getName());
+    private static final Logger LOG = Logger.getLogger(EndCaseLifecycleListener.class.getName());
 
-  private static final String EINDSTATUS_TOELICHTING = "Zaak beeindigd vanuit Case";
+    private static final String EINDSTATUS_TOELICHTING = "Zaak beeindigd vanuit Case";
 
-  private final String sourceState;
+    private final String sourceState;
 
-  private final String targetState;
+    private final String targetState;
 
-  public EndCaseLifecycleListener(final String sourceState, final String targetState) {
-    this.sourceState = sourceState;
-    this.targetState = targetState;
-  }
-
-  @Override
-  public String getSourceState() {
-    return sourceState;
-  }
-
-  @Override
-  public String getTargetState() {
-    return targetState;
-  }
-
-  @Override
-  public void stateChanged(
-      final CaseInstance caseInstance, final String oldState, final String newState) {
-    final UUID zaakUUID = UUID.fromString(caseInstance.getBusinessKey());
-    if (FlowableHelper.getInstance().getZrcClientService().readZaak(zaakUUID).isOpen()) {
-      LOG.info(format("Zaak %s: End Zaak", caseInstance.getBusinessKey()));
-      FlowableHelper.getInstance().getZgwApiService().endZaak(zaakUUID, EINDSTATUS_TOELICHTING);
+    public EndCaseLifecycleListener(final String sourceState, final String targetState) {
+        this.sourceState = sourceState;
+        this.targetState = targetState;
     }
-  }
+
+    @Override
+    public String getSourceState() {
+        return sourceState;
+    }
+
+    @Override
+    public String getTargetState() {
+        return targetState;
+    }
+
+    @Override
+    public void stateChanged(
+            final CaseInstance caseInstance, final String oldState, final String newState) {
+        final UUID zaakUUID = UUID.fromString(caseInstance.getBusinessKey());
+        if (FlowableHelper.getInstance().getZrcClientService().readZaak(zaakUUID).isOpen()) {
+            LOG.info(format("Zaak %s: End Zaak", caseInstance.getBusinessKey()));
+            FlowableHelper.getInstance()
+                    .getZgwApiService()
+                    .endZaak(zaakUUID, EINDSTATUS_TOELICHTING);
+        }
+    }
 }

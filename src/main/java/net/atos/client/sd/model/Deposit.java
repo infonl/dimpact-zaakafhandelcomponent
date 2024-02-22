@@ -8,6 +8,6 @@ import jakarta.json.bind.annotation.JsonbProperty;
 
 public class Deposit {
 
-  @JsonbProperty("SmartDocument")
-  public SmartDocument smartDocument;
+    @JsonbProperty("SmartDocument")
+    public SmartDocument smartDocument;
 }

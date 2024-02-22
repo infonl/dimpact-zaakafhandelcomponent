@@ -23,19 +23,19 @@ import net.atos.zac.policy.PolicyService;
 @Singleton
 public class PolicyRESTService {
 
-  @Inject private PolicyService policyService;
+    @Inject private PolicyService policyService;
 
-  @Inject private RESTRechtenConverter rechtenConverter;
+    @Inject private RESTRechtenConverter rechtenConverter;
 
-  @GET
-  @Path("werklijstRechten")
-  public RESTWerklijstRechten readWerklijstRechten() {
-    return rechtenConverter.convert(policyService.readWerklijstRechten());
-  }
+    @GET
+    @Path("werklijstRechten")
+    public RESTWerklijstRechten readWerklijstRechten() {
+        return rechtenConverter.convert(policyService.readWerklijstRechten());
+    }
 
-  @GET
-  @Path("overigeRechten")
-  public RESTOverigeRechten readOverigeRechten() {
-    return rechtenConverter.convert(policyService.readOverigeRechten());
-  }
+    @GET
+    @Path("overigeRechten")
+    public RESTOverigeRechten readOverigeRechten() {
+        return rechtenConverter.convert(policyService.readOverigeRechten());
+    }
 }

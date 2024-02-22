@@ -32,21 +32,21 @@ import net.atos.client.vrl.model.Resultaat;
 @Path("api/v1/resultaten")
 public interface ResultatenApi {
 
-  /**
-   * Ontsluit de selectielijst resultaten.
-   * <p>
-   * Bij een procestype horen meerdere mogelijke resultaten, al dan niet generiek/specifiek. Bij het configureren van een resultaattype in het ZTC wordt aangegeven welke selectielijstklasse van toepassing is, wat een referentie is naar een item van deze resource.  Zie https://vng.nl/files/vng/20170706-selectielijst-gemeenten-intergemeentelijke-organen-2017.pdf voor de bron van de inhoud.
-   */
-  @GET
-  CommunicatiekanaalList200Response resultaatList(
-      @QueryParam("procesType") URI procesType, @QueryParam("page") Integer page);
+    /**
+     * Ontsluit de selectielijst resultaten.
+     * <p>
+     * Bij een procestype horen meerdere mogelijke resultaten, al dan niet generiek/specifiek. Bij het configureren van een resultaattype in het ZTC wordt aangegeven welke selectielijstklasse van toepassing is, wat een referentie is naar een item van deze resource.  Zie https://vng.nl/files/vng/20170706-selectielijst-gemeenten-intergemeentelijke-organen-2017.pdf voor de bron van de inhoud.
+     */
+    @GET
+    CommunicatiekanaalList200Response resultaatList(
+            @QueryParam("procesType") URI procesType, @QueryParam("page") Integer page);
 
-  /**
-   * Ontsluit de selectielijst resultaten.
-   *
-   * Bij een procestype horen meerdere mogelijke resultaten, al dan niet generiek/specifiek. Bij het configureren van een resultaattype in het ZTC wordt aangegeven welke selectielijstklasse van toepassing is, wat een referentie is naar een item van deze resource.  Zie https://vng.nl/files/vng/20170706-selectielijst-gemeenten-intergemeentelijke-organen-2017.pdf voor de bron van de inhoud.
-   */
-  @GET
-  @Path("/{uuid}")
-  Resultaat resultaatRead(@PathParam("uuid") UUID uuid);
+    /**
+     * Ontsluit de selectielijst resultaten.
+     *
+     * Bij een procestype horen meerdere mogelijke resultaten, al dan niet generiek/specifiek. Bij het configureren van een resultaattype in het ZTC wordt aangegeven welke selectielijstklasse van toepassing is, wat een referentie is naar een item van deze resource.  Zie https://vng.nl/files/vng/20170706-selectielijst-gemeenten-intergemeentelijke-organen-2017.pdf voor de bron van de inhoud.
+     */
+    @GET
+    @Path("/{uuid}")
+    Resultaat resultaatRead(@PathParam("uuid") UUID uuid);
 }

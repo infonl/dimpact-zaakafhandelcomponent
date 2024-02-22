@@ -9,13 +9,13 @@ import net.atos.zac.signalering.model.SignaleringType;
 
 public class RESTDashboardCardInstelling {
 
-  public Long id;
+    public Long id;
 
-  public DashboardCardId cardId;
+    public DashboardCardId cardId;
 
-  public SignaleringType.Type signaleringType;
+    public SignaleringType.Type signaleringType;
 
-  public int column;
+    public int column;
 
-  public int row;
+    public int row;
 }

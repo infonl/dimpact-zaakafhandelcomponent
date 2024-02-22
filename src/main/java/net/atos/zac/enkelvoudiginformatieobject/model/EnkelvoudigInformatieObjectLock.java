@@ -21,59 +21,59 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 @Table(schema = SCHEMA, name = "enkelvoudiginformatieobject_lock")
 @SequenceGenerator(
-    schema = SCHEMA,
-    name = "sq_enkelvoudiginformatieobject_lock",
-    sequenceName = "sq_enkelvoudiginformatieobject_lock",
-    allocationSize = 1)
+        schema = SCHEMA,
+        name = "sq_enkelvoudiginformatieobject_lock",
+        sequenceName = "sq_enkelvoudiginformatieobject_lock",
+        allocationSize = 1)
 public class EnkelvoudigInformatieObjectLock {
 
-  @Id
-  @GeneratedValue(
-      generator = "sq_enkelvoudiginformatieobject_lock",
-      strategy = GenerationType.SEQUENCE)
-  @Column(name = "id_enkelvoudiginformatieobject_lock")
-  private Long id;
+    @Id
+    @GeneratedValue(
+            generator = "sq_enkelvoudiginformatieobject_lock",
+            strategy = GenerationType.SEQUENCE)
+    @Column(name = "id_enkelvoudiginformatieobject_lock")
+    private Long id;
 
-  @NotNull @Column(name = "uuid_enkelvoudiginformatieobject", nullable = false)
-  private UUID enkelvoudiginformatieobjectUUID;
+    @NotNull @Column(name = "uuid_enkelvoudiginformatieobject", nullable = false)
+    private UUID enkelvoudiginformatieobjectUUID;
 
-  @NotBlank
-  @Column(name = "id_user", nullable = false)
-  private String userId;
+    @NotBlank
+    @Column(name = "id_user", nullable = false)
+    private String userId;
 
-  @NotBlank
-  @Column(name = "lock", nullable = false)
-  private String lock;
+    @NotBlank
+    @Column(name = "lock", nullable = false)
+    private String lock;
 
-  public Long getId() {
-    return id;
-  }
+    public Long getId() {
+        return id;
+    }
 
-  public void setId(final Long id) {
-    this.id = id;
-  }
+    public void setId(final Long id) {
+        this.id = id;
+    }
 
-  public UUID getEnkelvoudiginformatieobjectUUID() {
-    return enkelvoudiginformatieobjectUUID;
-  }
+    public UUID getEnkelvoudiginformatieobjectUUID() {
+        return enkelvoudiginformatieobjectUUID;
+    }
 
-  public void setEnkelvoudiginformatieobjectUUID(final UUID enkelvoudiginformatieobjectUUID) {
-    this.enkelvoudiginformatieobjectUUID = enkelvoudiginformatieobjectUUID;
-  }
+    public void setEnkelvoudiginformatieobjectUUID(final UUID enkelvoudiginformatieobjectUUID) {
+        this.enkelvoudiginformatieobjectUUID = enkelvoudiginformatieobjectUUID;
+    }
 
-  public String getUserId() {
-    return userId;
-  }
+    public String getUserId() {
+        return userId;
+    }
 
-  public void setUserId(final String userId) {
-    this.userId = userId;
-  }
+    public void setUserId(final String userId) {
+        this.userId = userId;
+    }
 
-  public String getLock() {
-    return lock;
-  }
+    public String getLock() {
+        return lock;
+    }
 
-  public void setLock(final String lock) {
-    this.lock = lock;
-  }
+    public void setLock(final String lock) {
+        this.lock = lock;
+    }
 }

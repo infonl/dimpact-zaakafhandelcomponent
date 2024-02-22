@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public class RESTDocumentCreatieGegevens {
 
-  public UUID zaakUUID;
+    public UUID zaakUUID;
 
-  public String taskId;
+    public String taskId;
 }

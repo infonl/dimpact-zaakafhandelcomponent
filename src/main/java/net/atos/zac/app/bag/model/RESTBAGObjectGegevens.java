@@ -8,9 +8,9 @@ import net.atos.zac.app.shared.RESTZaakobject;
 
 public class RESTBAGObjectGegevens extends RESTZaakobject<RESTBAGObject> {
 
-  public String redenWijzigen;
+    public String redenWijzigen;
 
-  public RESTBAGObject getBagObject() {
-    return zaakobject;
-  }
+    public RESTBAGObject getBagObject() {
+        return zaakobject;
+    }
 }

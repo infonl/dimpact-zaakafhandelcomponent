@@ -52,113 +52,116 @@ import net.atos.zac.policy.PolicyService;
 @Singleton
 public class BAGRESTService {
 
-  @Inject private BAGClientService bagClientService;
+    @Inject private BAGClientService bagClientService;
 
-  @Inject private ZRCClientService zrcClientService;
+    @Inject private ZRCClientService zrcClientService;
 
-  @Inject private RESTBAGConverter bagConverter;
+    @Inject private RESTBAGConverter bagConverter;
 
-  @Inject private RESTAdresConverter adresConverter;
+    @Inject private RESTAdresConverter adresConverter;
 
-  @Inject private RESTNummeraanduidingConverter nummeraanduidingConverter;
+    @Inject private RESTNummeraanduidingConverter nummeraanduidingConverter;
 
-  @Inject private RESTOpenbareRuimteConverter openbareRuimteConverter;
+    @Inject private RESTOpenbareRuimteConverter openbareRuimteConverter;
 
-  @Inject private RESTPandConverter pandConverter;
+    @Inject private RESTPandConverter pandConverter;
 
-  @Inject private RESTWoonplaatsConverter woonplaatsConverter;
+    @Inject private RESTWoonplaatsConverter woonplaatsConverter;
 
-  @Inject private PolicyService policyService;
+    @Inject private PolicyService policyService;
 
-  @PUT
-  @Path("adres")
-  public RESTResultaat<RESTBAGAdres> listAdressen(
-      final RESTListAdressenParameters listAdressenParameters) {
-    final BevraagAdressenParameters bevraagAdressenParameters = new BevraagAdressenParameters();
-    bevraagAdressenParameters.setQ(listAdressenParameters.trefwoorden);
-    bevraagAdressenParameters.setExpand(
-        getExpand(
-            BAGObjectType.NUMMERAANDUIDING,
-            BAGObjectType.OPENBARE_RUIMTE,
-            BAGObjectType.PAND,
-            BAGObjectType.WOONPLAATS));
-    return new RESTResultaat<>(
-        bagClientService.listAdressen(bevraagAdressenParameters).stream()
-            .map(adres -> adresConverter.convertToREST(adres))
-            .toList());
-  }
-
-  @GET
-  @Path("/{type}/{id}")
-  public RESTBAGObject read(
-      @PathParam("type") final BAGObjectType type, @PathParam("id") final String id) {
-    return switch (type) {
-      case ADRES -> adresConverter.convertToREST(bagClientService.readAdres(id));
-      case WOONPLAATS -> woonplaatsConverter.convertToREST(bagClientService.readWoonplaats(id));
-      case PAND -> pandConverter.convertToREST(bagClientService.readPand(id));
-      case OPENBARE_RUIMTE ->
-          openbareRuimteConverter.convertToREST(bagClientService.readOpenbareRuimte(id));
-      case NUMMERAANDUIDING ->
-          nummeraanduidingConverter.convertToREST(bagClientService.readNummeraanduiding(id));
-      case ADRESSEERBAAR_OBJECT -> null; // (Nog) geen zelfstandige entiteit
-    };
-  }
-
-  @POST
-  public void create(final RESTBAGObjectGegevens bagObjectGegevens) {
-    final Zaak zaak = zrcClientService.readZaak(bagObjectGegevens.zaakUuid);
-    assertPolicy(policyService.readZaakRechten(zaak).behandelen());
-    if (isNogNietGekoppeld(bagObjectGegevens.getBagObject(), zaak)) {
-      zrcClientService.createZaakobject(
-          bagConverter.convertToZaakobject(bagObjectGegevens.getBagObject(), zaak));
+    @PUT
+    @Path("adres")
+    public RESTResultaat<RESTBAGAdres> listAdressen(
+            final RESTListAdressenParameters listAdressenParameters) {
+        final BevraagAdressenParameters bevraagAdressenParameters = new BevraagAdressenParameters();
+        bevraagAdressenParameters.setQ(listAdressenParameters.trefwoorden);
+        bevraagAdressenParameters.setExpand(
+                getExpand(
+                        BAGObjectType.NUMMERAANDUIDING,
+                        BAGObjectType.OPENBARE_RUIMTE,
+                        BAGObjectType.PAND,
+                        BAGObjectType.WOONPLAATS));
+        return new RESTResultaat<>(
+                bagClientService.listAdressen(bevraagAdressenParameters).stream()
+                        .map(adres -> adresConverter.convertToREST(adres))
+                        .toList());
     }
-  }
 
-  @DELETE
-  public void delete(final RESTBAGObjectGegevens bagObjectGegevens) {
-    final Zaak zaak = zrcClientService.readZaak(bagObjectGegevens.zaakUuid);
-    assertPolicy(policyService.readZaakRechten(zaak).behandelen());
-    final Zaakobject zaakobject = zrcClientService.readZaakobject(bagObjectGegevens.uuid);
-    zrcClientService.deleteZaakobject(zaakobject, bagObjectGegevens.redenWijzigen);
-  }
-
-  @GET
-  @Path("zaak/{zaakUuid}")
-  public List<RESTBAGObjectGegevens> listBagobjectenVoorZaak(
-      @PathParam("zaakUuid") final UUID zaakUUID) {
-    final ZaakobjectListParameters zaakobjectListParameters = new ZaakobjectListParameters();
-    final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-    assertPolicy(policyService.readZaakRechten(zaak).lezen());
-    zaakobjectListParameters.setZaak(zaak.getUrl());
-    final Results<Zaakobject> zaakobjecten =
-        zrcClientService.listZaakobjecten(zaakobjectListParameters);
-    if (zaakobjecten.getCount() > 0) {
-      return zaakobjecten.getResults().stream()
-          .filter(Zaakobject::isBagObject)
-          .map(bagConverter::convertToRESTBAGObjectGegevens)
-          .toList();
-    } else {
-      return Collections.emptyList();
+    @GET
+    @Path("/{type}/{id}")
+    public RESTBAGObject read(
+            @PathParam("type") final BAGObjectType type, @PathParam("id") final String id) {
+        return switch (type) {
+            case ADRES -> adresConverter.convertToREST(bagClientService.readAdres(id));
+            case WOONPLAATS ->
+                    woonplaatsConverter.convertToREST(bagClientService.readWoonplaats(id));
+            case PAND -> pandConverter.convertToREST(bagClientService.readPand(id));
+            case OPENBARE_RUIMTE ->
+                    openbareRuimteConverter.convertToREST(bagClientService.readOpenbareRuimte(id));
+            case NUMMERAANDUIDING ->
+                    nummeraanduidingConverter.convertToREST(
+                            bagClientService.readNummeraanduiding(id));
+            case ADRESSEERBAAR_OBJECT -> null; // (Nog) geen zelfstandige entiteit
+        };
     }
-  }
 
-  private String getExpand(final BAGObjectType... bagObjectTypes) {
-    return Arrays.stream(bagObjectTypes).map(BAGObjectType::getExpand).collect(joining(","));
-  }
-
-  private boolean isNogNietGekoppeld(final RESTBAGObject restbagObject, final Zaak zaak) {
-    final ZaakobjectListParameters zaakobjectListParameters = new ZaakobjectListParameters();
-    zaakobjectListParameters.setZaak(zaak.getUrl());
-    zaakobjectListParameters.setObject(restbagObject.url);
-    switch (restbagObject.getBagObjectType()) {
-      case ADRES -> zaakobjectListParameters.setObjectType(Objecttype.ADRES);
-      case NUMMERAANDUIDING -> zaakobjectListParameters.setObjectType(Objecttype.OVERIGE);
-      case WOONPLAATS -> zaakobjectListParameters.setObjectType(Objecttype.WOONPLAATS);
-      case PAND -> zaakobjectListParameters.setObjectType(Objecttype.PAND);
-      case OPENBARE_RUIMTE -> zaakobjectListParameters.setObjectType(Objecttype.OPENBARE_RUIMTE);
+    @POST
+    public void create(final RESTBAGObjectGegevens bagObjectGegevens) {
+        final Zaak zaak = zrcClientService.readZaak(bagObjectGegevens.zaakUuid);
+        assertPolicy(policyService.readZaakRechten(zaak).behandelen());
+        if (isNogNietGekoppeld(bagObjectGegevens.getBagObject(), zaak)) {
+            zrcClientService.createZaakobject(
+                    bagConverter.convertToZaakobject(bagObjectGegevens.getBagObject(), zaak));
+        }
     }
-    final Results<Zaakobject> zaakobjecten =
-        zrcClientService.listZaakobjecten(zaakobjectListParameters);
-    return zaakobjecten.getResults().isEmpty();
-  }
+
+    @DELETE
+    public void delete(final RESTBAGObjectGegevens bagObjectGegevens) {
+        final Zaak zaak = zrcClientService.readZaak(bagObjectGegevens.zaakUuid);
+        assertPolicy(policyService.readZaakRechten(zaak).behandelen());
+        final Zaakobject zaakobject = zrcClientService.readZaakobject(bagObjectGegevens.uuid);
+        zrcClientService.deleteZaakobject(zaakobject, bagObjectGegevens.redenWijzigen);
+    }
+
+    @GET
+    @Path("zaak/{zaakUuid}")
+    public List<RESTBAGObjectGegevens> listBagobjectenVoorZaak(
+            @PathParam("zaakUuid") final UUID zaakUUID) {
+        final ZaakobjectListParameters zaakobjectListParameters = new ZaakobjectListParameters();
+        final Zaak zaak = zrcClientService.readZaak(zaakUUID);
+        assertPolicy(policyService.readZaakRechten(zaak).lezen());
+        zaakobjectListParameters.setZaak(zaak.getUrl());
+        final Results<Zaakobject> zaakobjecten =
+                zrcClientService.listZaakobjecten(zaakobjectListParameters);
+        if (zaakobjecten.getCount() > 0) {
+            return zaakobjecten.getResults().stream()
+                    .filter(Zaakobject::isBagObject)
+                    .map(bagConverter::convertToRESTBAGObjectGegevens)
+                    .toList();
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    private String getExpand(final BAGObjectType... bagObjectTypes) {
+        return Arrays.stream(bagObjectTypes).map(BAGObjectType::getExpand).collect(joining(","));
+    }
+
+    private boolean isNogNietGekoppeld(final RESTBAGObject restbagObject, final Zaak zaak) {
+        final ZaakobjectListParameters zaakobjectListParameters = new ZaakobjectListParameters();
+        zaakobjectListParameters.setZaak(zaak.getUrl());
+        zaakobjectListParameters.setObject(restbagObject.url);
+        switch (restbagObject.getBagObjectType()) {
+            case ADRES -> zaakobjectListParameters.setObjectType(Objecttype.ADRES);
+            case NUMMERAANDUIDING -> zaakobjectListParameters.setObjectType(Objecttype.OVERIGE);
+            case WOONPLAATS -> zaakobjectListParameters.setObjectType(Objecttype.WOONPLAATS);
+            case PAND -> zaakobjectListParameters.setObjectType(Objecttype.PAND);
+            case OPENBARE_RUIMTE ->
+                    zaakobjectListParameters.setObjectType(Objecttype.OPENBARE_RUIMTE);
+        }
+        final Results<Zaakobject> zaakobjecten =
+                zrcClientService.listZaakobjecten(zaakobjectListParameters);
+        return zaakobjecten.getResults().isEmpty();
+    }
 }

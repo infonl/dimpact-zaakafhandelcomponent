@@ -21,73 +21,73 @@ import net.atos.zac.zoeken.model.DocumentIndicatie;
  */
 public class RESTEnkelvoudigInformatieobject {
 
-  public UUID uuid;
+    public UUID uuid;
 
-  public String identificatie;
+    public String identificatie;
 
-  @NotNull public String titel;
+    @NotNull public String titel;
 
-  public String beschrijving;
+    public String beschrijving;
 
-  @NotNull public LocalDate creatiedatum;
+    @NotNull public LocalDate creatiedatum;
 
-  public ZonedDateTime registratiedatumTijd;
+    public ZonedDateTime registratiedatumTijd;
 
-  public LocalDate ontvangstdatum;
+    public LocalDate ontvangstdatum;
 
-  public LocalDate verzenddatum;
+    public LocalDate verzenddatum;
 
-  public String bronorganisatie;
+    public String bronorganisatie;
 
-  @NotNull public String vertrouwelijkheidaanduiding;
+    @NotNull public String vertrouwelijkheidaanduiding;
 
-  @NotNull public String auteur;
+    @NotNull public String auteur;
 
-  public EnkelvoudigInformatieObject.StatusEnum status;
+    public EnkelvoudigInformatieObject.StatusEnum status;
 
-  public String formaat;
+    public String formaat;
 
-  @NotNull public String taal;
+    @NotNull public String taal;
 
-  public Integer versie;
+    public Integer versie;
 
-  @NotNull public UUID informatieobjectTypeUUID;
+    @NotNull public UUID informatieobjectTypeUUID;
 
-  public String informatieobjectTypeOmschrijving;
+    public String informatieobjectTypeOmschrijving;
 
-  @NotNull public String bestandsnaam;
+    @NotNull public String bestandsnaam;
 
-  public Long bestandsomvang;
+    public Long bestandsomvang;
 
-  public String link;
+    public String link;
 
-  public RESTOndertekening ondertekening;
+    public RESTOndertekening ondertekening;
 
-  public boolean indicatieGebruiksrecht;
+    public boolean indicatieGebruiksrecht;
 
-  public EnumSet<DocumentIndicatie> getIndicaties() {
-    final EnumSet<DocumentIndicatie> indicaties = EnumSet.noneOf(DocumentIndicatie.class);
-    if (gelockedDoor != null) {
-      indicaties.add(DocumentIndicatie.VERGRENDELD);
+    public EnumSet<DocumentIndicatie> getIndicaties() {
+        final EnumSet<DocumentIndicatie> indicaties = EnumSet.noneOf(DocumentIndicatie.class);
+        if (gelockedDoor != null) {
+            indicaties.add(DocumentIndicatie.VERGRENDELD);
+        }
+        if (ondertekening != null) {
+            indicaties.add(DocumentIndicatie.ONDERTEKEND);
+        }
+        if (indicatieGebruiksrecht) {
+            indicaties.add(DocumentIndicatie.GEBRUIKSRECHT);
+        }
+        if (isBesluitDocument) {
+            indicaties.add(DocumentIndicatie.BESLUIT);
+        }
+        if (verzenddatum != null) {
+            indicaties.add(DocumentIndicatie.VERZONDEN);
+        }
+        return indicaties;
     }
-    if (ondertekening != null) {
-      indicaties.add(DocumentIndicatie.ONDERTEKEND);
-    }
-    if (indicatieGebruiksrecht) {
-      indicaties.add(DocumentIndicatie.GEBRUIKSRECHT);
-    }
-    if (isBesluitDocument) {
-      indicaties.add(DocumentIndicatie.BESLUIT);
-    }
-    if (verzenddatum != null) {
-      indicaties.add(DocumentIndicatie.VERZONDEN);
-    }
-    return indicaties;
-  }
 
-  public RESTUser gelockedDoor;
+    public RESTUser gelockedDoor;
 
-  public boolean isBesluitDocument;
+    public boolean isBesluitDocument;
 
-  public RESTDocumentRechten rechten;
+    public RESTDocumentRechten rechten;
 }

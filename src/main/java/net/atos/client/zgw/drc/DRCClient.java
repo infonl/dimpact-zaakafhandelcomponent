@@ -51,65 +51,66 @@ import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
 @Produces(APPLICATION_JSON)
 public interface DRCClient {
 
-  @POST
-  @Path("enkelvoudiginformatieobjecten")
-  EnkelvoudigInformatieObject enkelvoudigInformatieobjectCreate(
-      final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData);
+    @POST
+    @Path("enkelvoudiginformatieobjecten")
+    EnkelvoudigInformatieObject enkelvoudigInformatieobjectCreate(
+            final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData);
 
-  @GET
-  @Path("enkelvoudiginformatieobjecten")
-  Results<EnkelvoudigInformatieObject> enkelvoudigInformatieobjectList(
-      @BeanParam final EnkelvoudigInformatieobjectListParameters parameters);
+    @GET
+    @Path("enkelvoudiginformatieobjecten")
+    Results<EnkelvoudigInformatieObject> enkelvoudigInformatieobjectList(
+            @BeanParam final EnkelvoudigInformatieobjectListParameters parameters);
 
-  @GET
-  @Path("enkelvoudiginformatieobjecten/{uuid}")
-  EnkelvoudigInformatieObject enkelvoudigInformatieobjectRead(@PathParam("uuid") final UUID uuid);
+    @GET
+    @Path("enkelvoudiginformatieobjecten/{uuid}")
+    EnkelvoudigInformatieObject enkelvoudigInformatieobjectRead(@PathParam("uuid") final UUID uuid);
 
-  @GET
-  @Path("enkelvoudiginformatieobjecten/{uuid}")
-  EnkelvoudigInformatieObject enkelvoudigInformatieobjectReadVersie(
-      @PathParam("uuid") final UUID uuid, @QueryParam("versie") final Integer versie);
+    @GET
+    @Path("enkelvoudiginformatieobjecten/{uuid}")
+    EnkelvoudigInformatieObject enkelvoudigInformatieobjectReadVersie(
+            @PathParam("uuid") final UUID uuid, @QueryParam("versie") final Integer versie);
 
-  @GET
-  @Produces(APPLICATION_OCTET_STREAM)
-  @Path("enkelvoudiginformatieobjecten/{uuid}/download")
-  Response enkelvoudigInformatieobjectDownload(@PathParam("uuid") final UUID uuid);
+    @GET
+    @Produces(APPLICATION_OCTET_STREAM)
+    @Path("enkelvoudiginformatieobjecten/{uuid}/download")
+    Response enkelvoudigInformatieobjectDownload(@PathParam("uuid") final UUID uuid);
 
-  @GET
-  @Produces(APPLICATION_OCTET_STREAM)
-  @Path("enkelvoudiginformatieobjecten/{uuid}/download")
-  Response enkelvoudigInformatieobjectDownloadVersie(
-      @PathParam("uuid") final UUID uuid, @QueryParam("versie") final Integer versie);
+    @GET
+    @Produces(APPLICATION_OCTET_STREAM)
+    @Path("enkelvoudiginformatieobjecten/{uuid}/download")
+    Response enkelvoudigInformatieobjectDownloadVersie(
+            @PathParam("uuid") final UUID uuid, @QueryParam("versie") final Integer versie);
 
-  @PATCH
-  @Path("enkelvoudiginformatieobjecten/{uuid}")
-  EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieobjectPartialUpdate(
-      @PathParam("uuid") final UUID uuid,
-      final EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieObjectWithInhoudAndLock);
+    @PATCH
+    @Path("enkelvoudiginformatieobjecten/{uuid}")
+    EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieobjectPartialUpdate(
+            @PathParam("uuid") final UUID uuid,
+            final EnkelvoudigInformatieObjectWithLockData
+                    enkelvoudigInformatieObjectWithInhoudAndLock);
 
-  @DELETE
-  @Path("enkelvoudiginformatieobjecten/{uuid}")
-  Response enkelvoudigInformatieobjectDelete(@PathParam("uuid") final UUID uuid);
+    @DELETE
+    @Path("enkelvoudiginformatieobjecten/{uuid}")
+    Response enkelvoudigInformatieobjectDelete(@PathParam("uuid") final UUID uuid);
 
-  @POST
-  @Path("enkelvoudiginformatieobjecten/{uuid}/lock")
-  Lock enkelvoudigInformatieobjectLock(
-      @PathParam("uuid") final UUID uuid, final Lock enkelvoudigInformatieObjectLock);
+    @POST
+    @Path("enkelvoudiginformatieobjecten/{uuid}/lock")
+    Lock enkelvoudigInformatieobjectLock(
+            @PathParam("uuid") final UUID uuid, final Lock enkelvoudigInformatieObjectLock);
 
-  @POST
-  @Path("enkelvoudiginformatieobjecten/{uuid}/unlock")
-  Response enkelvoudigInformatieobjectUnlock(@PathParam("uuid") final UUID uuid, final Lock lock);
+    @POST
+    @Path("enkelvoudiginformatieobjecten/{uuid}/unlock")
+    Response enkelvoudigInformatieobjectUnlock(@PathParam("uuid") final UUID uuid, final Lock lock);
 
-  @POST
-  @Path("gebruiksrechten")
-  Gebruiksrechten gebruiksrechtenCreate(final Gebruiksrechten gebruiksrechten);
+    @POST
+    @Path("gebruiksrechten")
+    Gebruiksrechten gebruiksrechtenCreate(final Gebruiksrechten gebruiksrechten);
 
-  @GET
-  @Path("objectinformatieobjecten")
-  Results<ObjectInformatieObject> objectInformatieobjectList(
-      @BeanParam final ObjectInformatieobjectListParameters parameters);
+    @GET
+    @Path("objectinformatieobjecten")
+    Results<ObjectInformatieObject> objectInformatieobjectList(
+            @BeanParam final ObjectInformatieobjectListParameters parameters);
 
-  @GET
-  @Path("enkelvoudiginformatieobjecten/{uuid}/audittrail")
-  List<AuditTrailRegel> listAuditTrail(@PathParam("uuid") UUID enkelvoudigInformatieobjectUUID);
+    @GET
+    @Path("enkelvoudiginformatieobjecten/{uuid}/audittrail")
+    List<AuditTrailRegel> listAuditTrail(@PathParam("uuid") UUID enkelvoudigInformatieobjectUUID);
 }

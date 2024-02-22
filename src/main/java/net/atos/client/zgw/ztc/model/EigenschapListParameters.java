@@ -11,13 +11,13 @@ import java.net.URI;
  */
 public class EigenschapListParameters {
 
-  private URI zaaktype;
+    private URI zaaktype;
 
-  public URI getZaaktype() {
-    return zaaktype;
-  }
+    public URI getZaaktype() {
+        return zaaktype;
+    }
 
-  public void setZaaktype(final URI zaaktype) {
-    this.zaaktype = zaaktype;
-  }
+    public void setZaaktype(final URI zaaktype) {
+        this.zaaktype = zaaktype;
+    }
 }

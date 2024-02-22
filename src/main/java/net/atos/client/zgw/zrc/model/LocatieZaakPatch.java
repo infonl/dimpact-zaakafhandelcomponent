@@ -11,14 +11,14 @@ import jakarta.json.bind.annotation.JsonbProperty;
  */
 public class LocatieZaakPatch extends Zaak {
 
-  @JsonbProperty(nillable = true)
-  private final Geometry zaakgeometrie;
+    @JsonbProperty(nillable = true)
+    private final Geometry zaakgeometrie;
 
-  public LocatieZaakPatch(final Geometry zaakgeometrie) {
-    this.zaakgeometrie = zaakgeometrie;
-  }
+    public LocatieZaakPatch(final Geometry zaakgeometrie) {
+        this.zaakgeometrie = zaakgeometrie;
+    }
 
-  public Geometry getZaakgeometrie() {
-    return zaakgeometrie;
-  }
+    public Geometry getZaakgeometrie() {
+        return zaakgeometrie;
+    }
 }

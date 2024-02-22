@@ -10,11 +10,11 @@ import java.util.UUID;
 
 public class RESTBesluittype {
 
-  public UUID id;
+    public UUID id;
 
-  public String naam;
+    public String naam;
 
-  public String toelichting;
+    public String toelichting;
 
-  public List<URI> informatieobjecttypen;
+    public List<URI> informatieobjecttypen;
 }

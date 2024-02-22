@@ -16,24 +16,26 @@ import net.atos.zac.app.audit.converter.AbstractAuditWijzigingConverter;
 import net.atos.zac.app.audit.model.RESTHistorieRegel;
 
 public class AuditStatusWijzigingConverter
-    extends AbstractAuditWijzigingConverter<StatusWijziging> {
+        extends AbstractAuditWijzigingConverter<StatusWijziging> {
 
-  @Inject private ZTCClientService ztcClientService;
+    @Inject private ZTCClientService ztcClientService;
 
-  @Override
-  public boolean supports(final ObjectType objectType) {
-    return ObjectType.STATUS == objectType;
-  }
+    @Override
+    public boolean supports(final ObjectType objectType) {
+        return ObjectType.STATUS == objectType;
+    }
 
-  protected Stream<RESTHistorieRegel> doConvert(final StatusWijziging statusWijziging) {
-    return Stream.of(
-        new RESTHistorieRegel(
-            "status", toWaarde(statusWijziging.getOud()), toWaarde(statusWijziging.getNieuw())));
-  }
+    protected Stream<RESTHistorieRegel> doConvert(final StatusWijziging statusWijziging) {
+        return Stream.of(
+                new RESTHistorieRegel(
+                        "status",
+                        toWaarde(statusWijziging.getOud()),
+                        toWaarde(statusWijziging.getNieuw())));
+    }
 
-  private String toWaarde(final Status status) {
-    return status != null
-        ? ztcClientService.readStatustype(status.getStatustype()).getOmschrijving()
-        : null;
-  }
+    private String toWaarde(final Status status) {
+        return status != null
+                ? ztcClientService.readStatustype(status.getStatustype()).getOmschrijving()
+                : null;
+    }
 }

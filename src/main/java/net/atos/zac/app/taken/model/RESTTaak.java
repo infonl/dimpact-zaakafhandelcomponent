@@ -21,47 +21,47 @@ import net.atos.zac.app.policy.model.RESTTaakRechten;
  */
 public class RESTTaak {
 
-  public String id;
+    public String id;
 
-  public String naam;
+    public String naam;
 
-  public String toelichting;
+    public String toelichting;
 
-  public ZonedDateTime creatiedatumTijd;
+    public ZonedDateTime creatiedatumTijd;
 
-  // Datum waarop de taak is toegekend aan een behandelaar
-  public ZonedDateTime toekenningsdatumTijd;
+    // Datum waarop de taak is toegekend aan een behandelaar
+    public ZonedDateTime toekenningsdatumTijd;
 
-  public LocalDate fataledatum;
+    public LocalDate fataledatum;
 
-  public RESTUser behandelaar;
+    public RESTUser behandelaar;
 
-  public RESTGroup groep;
+    public RESTGroup groep;
 
-  public UUID zaakUuid;
+    public UUID zaakUuid;
 
-  public String zaakIdentificatie;
+    public String zaakIdentificatie;
 
-  public String zaaktypeOmschrijving;
+    public String zaaktypeOmschrijving;
 
-  public TaakStatus status;
+    public TaakStatus status;
 
-  // Identificatie van een vooraf gecodeerde combinatie van taak start en afhandel formulieren.
-  // Deze worden enkel gebruikt door taken welke handmatig worden gestart vanuit een CMMN model
-  public String formulierDefinitieId;
+    // Identificatie van een vooraf gecodeerde combinatie van taak start en afhandel formulieren.
+    // Deze worden enkel gebruikt door taken welke handmatig worden gestart vanuit een CMMN model
+    public String formulierDefinitieId;
 
-  // Definitie van een via de user interface gebouwd formulier.
-  // Deze worden enkel gebruikt voor het afhandelen van taken welke automatische worden gestart
-  // vanuit een BPMN proces
-  public RESTFormulierDefinitie formulierDefinitie;
+    // Definitie van een via de user interface gebouwd formulier.
+    // Deze worden enkel gebruikt voor het afhandelen van taken welke automatische worden gestart
+    // vanuit een BPMN proces
+    public RESTFormulierDefinitie formulierDefinitie;
 
-  public Map<String, List<String>> tabellen = new HashMap<>();
+    public Map<String, List<String>> tabellen = new HashMap<>();
 
-  public Map<String, String> taakdata;
+    public Map<String, String> taakdata;
 
-  public Map<String, String> taakinformatie;
+    public Map<String, String> taakinformatie;
 
-  public List<UUID> taakdocumenten;
+    public List<UUID> taakdocumenten;
 
-  public RESTTaakRechten rechten;
+    public RESTTaakRechten rechten;
 }

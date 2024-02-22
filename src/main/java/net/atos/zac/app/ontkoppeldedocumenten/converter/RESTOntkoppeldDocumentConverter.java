@@ -15,24 +15,24 @@ import net.atos.zac.documenten.model.OntkoppeldDocument;
 
 public class RESTOntkoppeldDocumentConverter {
 
-  @Inject private RESTUserConverter userConverter;
+    @Inject private RESTUserConverter userConverter;
 
-  public RESTOntkoppeldDocument convert(final OntkoppeldDocument document) {
-    final RESTOntkoppeldDocument restDocument = new RESTOntkoppeldDocument();
-    restDocument.id = document.getId();
-    restDocument.documentUUID = document.getDocumentUUID();
-    restDocument.documentID = document.getDocumentID();
-    restDocument.titel = document.getTitel();
-    restDocument.zaakID = document.getZaakID();
-    restDocument.creatiedatum = document.getCreatiedatum().toLocalDate();
-    restDocument.bestandsnaam = document.getBestandsnaam();
-    restDocument.ontkoppeldDoor = userConverter.convertUserId(document.getOntkoppeldDoor());
-    restDocument.ontkoppeldOp = document.getOntkoppeldOp();
-    restDocument.reden = document.getReden();
-    return restDocument;
-  }
+    public RESTOntkoppeldDocument convert(final OntkoppeldDocument document) {
+        final RESTOntkoppeldDocument restDocument = new RESTOntkoppeldDocument();
+        restDocument.id = document.getId();
+        restDocument.documentUUID = document.getDocumentUUID();
+        restDocument.documentID = document.getDocumentID();
+        restDocument.titel = document.getTitel();
+        restDocument.zaakID = document.getZaakID();
+        restDocument.creatiedatum = document.getCreatiedatum().toLocalDate();
+        restDocument.bestandsnaam = document.getBestandsnaam();
+        restDocument.ontkoppeldDoor = userConverter.convertUserId(document.getOntkoppeldDoor());
+        restDocument.ontkoppeldOp = document.getOntkoppeldOp();
+        restDocument.reden = document.getReden();
+        return restDocument;
+    }
 
-  public List<RESTOntkoppeldDocument> convert(final List<OntkoppeldDocument> documenten) {
-    return documenten.stream().map(this::convert).collect(Collectors.toList());
-  }
+    public List<RESTOntkoppeldDocument> convert(final List<OntkoppeldDocument> documenten) {
+        return documenten.stream().map(this::convert).collect(Collectors.toList());
+    }
 }

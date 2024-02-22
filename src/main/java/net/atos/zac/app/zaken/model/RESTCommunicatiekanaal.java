@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public class RESTCommunicatiekanaal {
 
-  public UUID uuid;
+    public UUID uuid;
 
-  public String naam;
+    public String naam;
 }

@@ -26,45 +26,46 @@ import org.flywaydb.core.api.MigrationInfo;
 @TransactionManagement(value = BEAN)
 public class FlywayIntegrator {
 
-  private static final Logger LOG = Logger.getLogger(FlywayIntegrator.class.getName());
+    private static final Logger LOG = Logger.getLogger(FlywayIntegrator.class.getName());
 
-  public static final String SCHEMA = "zaakafhandelcomponent";
+    public static final String SCHEMA = "zaakafhandelcomponent";
 
-  private static final String SCHEMA_FILES_LOCATION = "schemas";
+    private static final String SCHEMA_FILES_LOCATION = "schemas";
 
-  private static final String SCHEMA_PLACEHOLDER = "schema";
+    private static final String SCHEMA_PLACEHOLDER = "schema";
 
-  @Resource(lookup = "java:comp/env/jdbc/Datasource")
-  private DataSource dataSource;
+    @Resource(lookup = "java:comp/env/jdbc/Datasource")
+    private DataSource dataSource;
 
-  public void onStartup(@Observes @Initialized(ApplicationScoped.class) Object event) {
-    if (dataSource == null) {
-      throw new RuntimeException("No datasource found to execute the db migrations!");
+    public void onStartup(@Observes @Initialized(ApplicationScoped.class) Object event) {
+        if (dataSource == null) {
+            throw new RuntimeException("No datasource found to execute the db migrations!");
+        }
+
+        final Flyway flyway =
+                Flyway.configure()
+                        .dataSource(dataSource)
+                        .locations(SCHEMA_FILES_LOCATION)
+                        .schemas(SCHEMA)
+                        .placeholders(Map.of(SCHEMA_PLACEHOLDER, SCHEMA))
+                        .outOfOrder(true)
+                        .load();
+
+        final MigrationInfo migrationInfo = flyway.info().current();
+
+        if (migrationInfo == null) {
+            LOG.info("No existing database at the actual datasource");
+        } else {
+            LOG.info(
+                    String.format(
+                            "Found a database with the version: %s : %s",
+                            migrationInfo.getVersion(), migrationInfo.getDescription()));
+        }
+
+        flyway.migrate();
+        LOG.info(
+                String.format(
+                        "Successfully migrated to database version: %s",
+                        flyway.info().current().getVersion()));
     }
-
-    final Flyway flyway =
-        Flyway.configure()
-            .dataSource(dataSource)
-            .locations(SCHEMA_FILES_LOCATION)
-            .schemas(SCHEMA)
-            .placeholders(Map.of(SCHEMA_PLACEHOLDER, SCHEMA))
-            .outOfOrder(true)
-            .load();
-
-    final MigrationInfo migrationInfo = flyway.info().current();
-
-    if (migrationInfo == null) {
-      LOG.info("No existing database at the actual datasource");
-    } else {
-      LOG.info(
-          String.format(
-              "Found a database with the version: %s : %s",
-              migrationInfo.getVersion(), migrationInfo.getDescription()));
-    }
-
-    flyway.migrate();
-    LOG.info(
-        String.format(
-            "Successfully migrated to database version: %s", flyway.info().current().getVersion()));
-  }
 }

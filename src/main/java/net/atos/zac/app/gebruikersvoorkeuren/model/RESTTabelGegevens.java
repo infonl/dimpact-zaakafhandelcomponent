@@ -10,9 +10,9 @@ import net.atos.zac.app.policy.model.RESTWerklijstRechten;
 
 public class RESTTabelGegevens {
 
-  public int aantalPerPagina;
+    public int aantalPerPagina;
 
-  public List<Integer> pageSizeOptions;
+    public List<Integer> pageSizeOptions;
 
-  public RESTWerklijstRechten werklijstRechten;
+    public RESTWerklijstRechten werklijstRechten;
 }

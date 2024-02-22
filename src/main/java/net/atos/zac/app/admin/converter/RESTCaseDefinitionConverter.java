@@ -20,43 +20,43 @@ import net.atos.zac.flowable.TakenService;
 
 public class RESTCaseDefinitionConverter {
 
-  @Inject private CMMNService cmmnService;
+    @Inject private CMMNService cmmnService;
 
-  @Inject private TakenService takenService;
+    @Inject private TakenService takenService;
 
-  public RESTCaseDefinition convertToRESTCaseDefinition(
-      final String caseDefinitionKey, final boolean inclusiefRelaties) {
-    final CaseDefinition caseDefinition = cmmnService.readCaseDefinition(caseDefinitionKey);
-    return convertToRESTCaseDefinition(caseDefinition, inclusiefRelaties);
-  }
-
-  public RESTCaseDefinition convertToRESTCaseDefinition(
-      final CaseDefinition caseDefinition, final boolean inclusiefRelaties) {
-    final RESTCaseDefinition restCaseDefinition =
-        new RESTCaseDefinition(caseDefinition.getName(), caseDefinition.getKey());
-    if (inclusiefRelaties) {
-      restCaseDefinition.humanTaskDefinitions =
-          cmmnService.listHumanTasks(caseDefinition.getId()).stream()
-              .map(this::convertHumanTaskDefinition)
-              .toList();
-      restCaseDefinition.userEventListenerDefinitions =
-          cmmnService.listUserEventListeners(caseDefinition.getId()).stream()
-              .map(this::convertUserEventListenerDefinition)
-              .toList();
+    public RESTCaseDefinition convertToRESTCaseDefinition(
+            final String caseDefinitionKey, final boolean inclusiefRelaties) {
+        final CaseDefinition caseDefinition = cmmnService.readCaseDefinition(caseDefinitionKey);
+        return convertToRESTCaseDefinition(caseDefinition, inclusiefRelaties);
     }
-    return restCaseDefinition;
-  }
 
-  private RESTPlanItemDefinition convertHumanTaskDefinition(final HumanTask humanTaskDefinition) {
-    return new RESTPlanItemDefinition(
-        humanTaskDefinition.getId(), humanTaskDefinition.getName(), HUMAN_TASK);
-  }
+    public RESTCaseDefinition convertToRESTCaseDefinition(
+            final CaseDefinition caseDefinition, final boolean inclusiefRelaties) {
+        final RESTCaseDefinition restCaseDefinition =
+                new RESTCaseDefinition(caseDefinition.getName(), caseDefinition.getKey());
+        if (inclusiefRelaties) {
+            restCaseDefinition.humanTaskDefinitions =
+                    cmmnService.listHumanTasks(caseDefinition.getId()).stream()
+                            .map(this::convertHumanTaskDefinition)
+                            .toList();
+            restCaseDefinition.userEventListenerDefinitions =
+                    cmmnService.listUserEventListeners(caseDefinition.getId()).stream()
+                            .map(this::convertUserEventListenerDefinition)
+                            .toList();
+        }
+        return restCaseDefinition;
+    }
 
-  private RESTPlanItemDefinition convertUserEventListenerDefinition(
-      final UserEventListener userEventListenerDefinition) {
-    return new RESTPlanItemDefinition(
-        userEventListenerDefinition.getId(),
-        userEventListenerDefinition.getName(),
-        USER_EVENT_LISTENER);
-  }
+    private RESTPlanItemDefinition convertHumanTaskDefinition(final HumanTask humanTaskDefinition) {
+        return new RESTPlanItemDefinition(
+                humanTaskDefinition.getId(), humanTaskDefinition.getName(), HUMAN_TASK);
+    }
+
+    private RESTPlanItemDefinition convertUserEventListenerDefinition(
+            final UserEventListener userEventListenerDefinition) {
+        return new RESTPlanItemDefinition(
+                userEventListenerDefinition.getId(),
+                userEventListenerDefinition.getName(),
+                USER_EVENT_LISTENER);
+    }
 }

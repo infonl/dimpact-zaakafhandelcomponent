@@ -8,34 +8,34 @@ import jakarta.json.bind.annotation.JsonbProperty;
 
 public class MailAdres {
 
-  @JsonbProperty("Email")
-  private String email;
+    @JsonbProperty("Email")
+    private String email;
 
-  @JsonbProperty("Name")
-  private String name;
+    @JsonbProperty("Name")
+    private String name;
 
-  public MailAdres(final String email, final String name) {
-    this.email = email;
-    this.name = name;
-  }
+    public MailAdres(final String email, final String name) {
+        this.email = email;
+        this.name = name;
+    }
 
-  public MailAdres(final String email) {
-    this(email, null);
-  }
+    public MailAdres(final String email) {
+        this(email, null);
+    }
 
-  public String getEmail() {
-    return email;
-  }
+    public String getEmail() {
+        return email;
+    }
 
-  public void setEmail(final String email) {
-    this.email = email;
-  }
+    public void setEmail(final String email) {
+        this.email = email;
+    }
 
-  public String getName() {
-    return name;
-  }
+    public String getName() {
+        return name;
+    }
 
-  public void setName(final String naam) {
-    this.name = naam;
-  }
+    public void setName(final String naam) {
+        this.name = naam;
+    }
 }

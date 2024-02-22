@@ -9,11 +9,11 @@ import java.util.UUID;
 
 public class RESTBesluitIntrekkenGegevens {
 
-  public UUID besluitUuid;
+    public UUID besluitUuid;
 
-  public LocalDate vervaldatum;
+    public LocalDate vervaldatum;
 
-  public String vervalreden;
+    public String vervalreden;
 
-  public String reden;
+    public String reden;
 }

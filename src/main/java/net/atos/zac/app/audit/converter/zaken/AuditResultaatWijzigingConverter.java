@@ -16,27 +16,27 @@ import net.atos.zac.app.audit.converter.AbstractAuditWijzigingConverter;
 import net.atos.zac.app.audit.model.RESTHistorieRegel;
 
 public class AuditResultaatWijzigingConverter
-    extends AbstractAuditWijzigingConverter<ResultaatWijziging> {
+        extends AbstractAuditWijzigingConverter<ResultaatWijziging> {
 
-  @Inject private ZTCClientService ztcClientService;
+    @Inject private ZTCClientService ztcClientService;
 
-  @Override
-  public boolean supports(final ObjectType objectType) {
-    return ObjectType.RESULTAAT == objectType;
-  }
+    @Override
+    public boolean supports(final ObjectType objectType) {
+        return ObjectType.RESULTAAT == objectType;
+    }
 
-  @Override
-  protected Stream<RESTHistorieRegel> doConvert(final ResultaatWijziging resultaatWijziging) {
-    return Stream.of(
-        new RESTHistorieRegel(
-            "resultaat",
-            toWaarde(resultaatWijziging.getOud()),
-            toWaarde(resultaatWijziging.getNieuw())));
-  }
+    @Override
+    protected Stream<RESTHistorieRegel> doConvert(final ResultaatWijziging resultaatWijziging) {
+        return Stream.of(
+                new RESTHistorieRegel(
+                        "resultaat",
+                        toWaarde(resultaatWijziging.getOud()),
+                        toWaarde(resultaatWijziging.getNieuw())));
+    }
 
-  private String toWaarde(final Resultaat resultaat) {
-    return resultaat != null
-        ? ztcClientService.readResultaattype(resultaat.getResultaattype()).getOmschrijving()
-        : null;
-  }
+    private String toWaarde(final Resultaat resultaat) {
+        return resultaat != null
+                ? ztcClientService.readResultaattype(resultaat.getResultaattype()).getOmschrijving()
+                : null;
+    }
 }

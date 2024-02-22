@@ -21,18 +21,18 @@ import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
 @ApplicationScoped
 public class ZaakafhandelParameterService {
 
-  @Inject private ZaakafhandelParameterBeheerService beheerService;
+    @Inject private ZaakafhandelParameterBeheerService beheerService;
 
-  @CacheResult(cacheName = ZAC_ZAAKAFHANDELPARAMETERS_MANAGED)
-  public ZaakafhandelParameters readZaakafhandelParameters(final UUID zaaktypeUUID) {
-    return beheerService.readZaakafhandelParameters(zaaktypeUUID);
-  }
+    @CacheResult(cacheName = ZAC_ZAAKAFHANDELPARAMETERS_MANAGED)
+    public ZaakafhandelParameters readZaakafhandelParameters(final UUID zaaktypeUUID) {
+        return beheerService.readZaakafhandelParameters(zaaktypeUUID);
+    }
 
-  @CacheResult(cacheName = ZAC_ZAAKAFHANDELPARAMETERS)
-  public List<ZaakafhandelParameters> listZaakafhandelParameters() {
-    return beheerService.listZaakafhandelParameters();
-  }
+    @CacheResult(cacheName = ZAC_ZAAKAFHANDELPARAMETERS)
+    public List<ZaakafhandelParameters> listZaakafhandelParameters() {
+        return beheerService.listZaakafhandelParameters();
+    }
 
-  @CacheRemove(cacheName = ZAC_ZAAKAFHANDELPARAMETERS_MANAGED)
-  public void cacheRemoveZaakafhandelParameters(final UUID zaaktypeUUID) {}
+    @CacheRemove(cacheName = ZAC_ZAAKAFHANDELPARAMETERS_MANAGED)
+    public void cacheRemoveZaakafhandelParameters(final UUID zaaktypeUUID) {}
 }

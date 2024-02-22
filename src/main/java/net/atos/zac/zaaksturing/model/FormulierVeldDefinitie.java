@@ -5,15 +5,15 @@
 package net.atos.zac.zaaksturing.model;
 
 public enum FormulierVeldDefinitie {
-  ADVIES(ReferentieTabel.Systeem.ADVIES);
+    ADVIES(ReferentieTabel.Systeem.ADVIES);
 
-  private final ReferentieTabel.Systeem defaultTabel;
+    private final ReferentieTabel.Systeem defaultTabel;
 
-  FormulierVeldDefinitie(final ReferentieTabel.Systeem defaultTabel) {
-    this.defaultTabel = defaultTabel;
-  }
+    FormulierVeldDefinitie(final ReferentieTabel.Systeem defaultTabel) {
+        this.defaultTabel = defaultTabel;
+    }
 
-  public ReferentieTabel.Systeem getDefaultTabel() {
-    return defaultTabel;
-  }
+    public ReferentieTabel.Systeem getDefaultTabel() {
+        return defaultTabel;
+    }
 }

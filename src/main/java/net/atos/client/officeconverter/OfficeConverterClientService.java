@@ -17,17 +17,17 @@ import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 @ApplicationScoped
 public class OfficeConverterClientService {
 
-  @Inject @RestClient private OfficeConverterClient officeConverterClient;
+    @Inject @RestClient private OfficeConverterClient officeConverterClient;
 
-  public ByteArrayInputStream convertToPDF(
-      final ByteArrayInputStream document, final String filename) {
-    final MultipartFormDataOutput multipartFormDataOutput = new MultipartFormDataOutput();
-    multipartFormDataOutput.addFormData(
-        "file", document, MediaType.APPLICATION_OCTET_STREAM_TYPE, filename);
-    final Response response = officeConverterClient.convert(multipartFormDataOutput);
-    if (!response.bufferEntity()) {
-      throw new RuntimeException("Content of PDF converter could not be buffered.");
+    public ByteArrayInputStream convertToPDF(
+            final ByteArrayInputStream document, final String filename) {
+        final MultipartFormDataOutput multipartFormDataOutput = new MultipartFormDataOutput();
+        multipartFormDataOutput.addFormData(
+                "file", document, MediaType.APPLICATION_OCTET_STREAM_TYPE, filename);
+        final Response response = officeConverterClient.convert(multipartFormDataOutput);
+        if (!response.bufferEntity()) {
+            throw new RuntimeException("Content of PDF converter could not be buffered.");
+        }
+        return (ByteArrayInputStream) response.getEntity();
     }
-    return (ByteArrayInputStream) response.getEntity();
-  }
 }

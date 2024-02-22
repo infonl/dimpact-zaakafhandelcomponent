@@ -11,16 +11,16 @@ import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory;
 
 public class BAGClientHeadersFactory implements ClientHeadersFactory {
 
-  public static final String X_API_KEY = "X-Api-Key";
+    public static final String X_API_KEY = "X-Api-Key";
 
-  public static final String API_KEY =
-      ConfigProvider.getConfig().getValue("bag.api.key", String.class);
+    public static final String API_KEY =
+            ConfigProvider.getConfig().getValue("bag.api.key", String.class);
 
-  @Override
-  public MultivaluedMap<String, String> update(
-      final MultivaluedMap<String, String> incomingHeaders,
-      final MultivaluedMap<String, String> clientOutgoingHeaders) {
-    clientOutgoingHeaders.add(X_API_KEY, API_KEY);
-    return clientOutgoingHeaders;
-  }
+    @Override
+    public MultivaluedMap<String, String> update(
+            final MultivaluedMap<String, String> incomingHeaders,
+            final MultivaluedMap<String, String> clientOutgoingHeaders) {
+        clientOutgoingHeaders.add(X_API_KEY, API_KEY);
+        return clientOutgoingHeaders;
+    }
 }

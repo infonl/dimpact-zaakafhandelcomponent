@@ -14,24 +14,24 @@ import jakarta.json.bind.annotation.JsonbProperty;
  */
 public class Lock {
 
-  /**
-   * Hash string, wordt gebruikt als ID voor de lock
-   */
-  private final String lock;
+    /**
+     * Hash string, wordt gebruikt als ID voor de lock
+     */
+    private final String lock;
 
-  public Lock() {
-    lock = UUID.randomUUID().toString();
-  }
+    public Lock() {
+        lock = UUID.randomUUID().toString();
+    }
 
-  /**
-   * Constructor for POST response
-   */
-  @JsonbCreator
-  public Lock(@JsonbProperty("lock") final String lock) {
-    this.lock = lock;
-  }
+    /**
+     * Constructor for POST response
+     */
+    @JsonbCreator
+    public Lock(@JsonbProperty("lock") final String lock) {
+        this.lock = lock;
+    }
 
-  public String getLock() {
-    return lock;
-  }
+    public String getLock() {
+        return lock;
+    }
 }

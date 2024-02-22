@@ -13,10 +13,10 @@ import net.atos.zac.app.shared.RESTResultaat;
 
 public class RESTOntkoppeldDocumentResultaat extends RESTResultaat<RESTOntkoppeldDocument> {
 
-  public List<RESTUser> filterOntkoppeldDoor = new ArrayList<>();
+    public List<RESTUser> filterOntkoppeldDoor = new ArrayList<>();
 
-  public RESTOntkoppeldDocumentResultaat(
-      final Collection<RESTOntkoppeldDocument> resultaten, final long aantalTotaal) {
-    super(resultaten, aantalTotaal);
-  }
+    public RESTOntkoppeldDocumentResultaat(
+            final Collection<RESTOntkoppeldDocument> resultaten, final long aantalTotaal) {
+        super(resultaten, aantalTotaal);
+    }
 }

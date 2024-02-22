@@ -10,8 +10,8 @@ import net.atos.client.zgw.shared.model.audit.AuditWijziging;
 
 public class GebuiksrechtenWijziging extends AuditWijziging<Gebruiksrechten> {
 
-  @Override
-  public ObjectType getObjectType() {
-    return ObjectType.GEBRUIKSRECHTEN;
-  }
+    @Override
+    public ObjectType getObjectType() {
+        return ObjectType.GEBRUIKSRECHTEN;
+    }
 }

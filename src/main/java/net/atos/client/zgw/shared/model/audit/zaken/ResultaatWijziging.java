@@ -10,8 +10,8 @@ import net.atos.client.zgw.zrc.model.generated.Resultaat;
 
 public class ResultaatWijziging extends AuditWijziging<Resultaat> {
 
-  @Override
-  public ObjectType getObjectType() {
-    return ObjectType.RESULTAAT;
-  }
+    @Override
+    public ObjectType getObjectType() {
+        return ObjectType.RESULTAAT;
+    }
 }

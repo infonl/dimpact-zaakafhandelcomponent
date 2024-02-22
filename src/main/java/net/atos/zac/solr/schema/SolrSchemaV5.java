@@ -17,18 +17,18 @@ import net.atos.zac.zoeken.model.index.ZoekObjectType;
 
 class SolrSchemaV5 implements SolrSchemaUpdate {
 
-  @Override
-  public int getVersie() {
-    return 5;
-  }
+    @Override
+    public int getVersie() {
+        return 5;
+    }
 
-  @Override
-  public Set<ZoekObjectType> getTeHerindexerenZoekObjectTypes() {
-    return Set.of(ZoekObjectType.ZAAK);
-  }
+    @Override
+    public Set<ZoekObjectType> getTeHerindexerenZoekObjectTypes() {
+        return Set.of(ZoekObjectType.ZAAK);
+    }
 
-  @Override
-  public List<SchemaRequest.Update> getSchemaUpdates() {
-    return List.of(addFieldMultiValued("zaak_bagObjecten", STRING, true, true));
-  }
+    @Override
+    public List<SchemaRequest.Update> getSchemaUpdates() {
+        return List.of(addFieldMultiValued("zaak_bagObjecten", STRING, true, true));
+    }
 }

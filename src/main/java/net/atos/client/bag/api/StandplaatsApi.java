@@ -47,87 +47,87 @@ import net.atos.client.brp.exception.RuntimeExceptionMapper;
 @Path("/standplaatsen")
 public interface StandplaatsApi {
 
-  /**
-   * bevragen van een standplaats met een geometrische locatie.
-   * <p>
-   * Bevragen/raadplegen van één of meer standplaatsen met een geometrische locatie. Parameter huidig kan worden toegepast, zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature). De geldigOp en beschikbaarOp parameters kunnen gebruikt worden voor  tijdreis vragen, zie  [functionele specificatie tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature).  Als expand&#x3D;heeftAlsHoofdAdres, heeftAlsNevenAdres of true dan worden de gevraagde of alle objecten als geneste resource geleverd, zie [functionele specificatie expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).
-   */
-  @POST
-  @Consumes({"application/json"})
-  @Produces({"application/hal+json", "application/problem+json"})
-  public StandplaatsIOHalCollection standplaatsGeometrie(
-      PointGeoJSON pointGeoJSON,
-      @QueryParam("geldigOp") LocalDate geldigOp,
-      @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
-      @QueryParam("huidig") @DefaultValue("false") Boolean huidig,
-      @QueryParam("expand") String expand,
-      @HeaderParam("Content-Crs") String contentCrs,
-      @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs)
-      throws ProcessingException;
+    /**
+     * bevragen van een standplaats met een geometrische locatie.
+     * <p>
+     * Bevragen/raadplegen van één of meer standplaatsen met een geometrische locatie. Parameter huidig kan worden toegepast, zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature). De geldigOp en beschikbaarOp parameters kunnen gebruikt worden voor  tijdreis vragen, zie  [functionele specificatie tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature).  Als expand&#x3D;heeftAlsHoofdAdres, heeftAlsNevenAdres of true dan worden de gevraagde of alle objecten als geneste resource geleverd, zie [functionele specificatie expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).
+     */
+    @POST
+    @Consumes({"application/json"})
+    @Produces({"application/hal+json", "application/problem+json"})
+    public StandplaatsIOHalCollection standplaatsGeometrie(
+            PointGeoJSON pointGeoJSON,
+            @QueryParam("geldigOp") LocalDate geldigOp,
+            @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
+            @QueryParam("huidig") @DefaultValue("false") Boolean huidig,
+            @QueryParam("expand") String expand,
+            @HeaderParam("Content-Crs") String contentCrs,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs)
+            throws ProcessingException;
 
-  /**
-   * bevragen van een standplaats met de identificatie van een standplaats.
-   * <p>
-   * Bevragen/raadplegen van een standplaats met de identificatie van de standplaats. Parameter huidig kan worden toegepast, zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature). De geldigOp en beschikbaarOp parameters kunnen gebruikt worden voor  tijdreis vragen, zie  [functionele specificatie tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature).  Als expand&#x3D;heeftAlsHoofdAdres, heeftAlsNevenAdres of true dan worden de gevraagde of alle objecten als geneste resource geleverd, zie [functionele specificatie expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).
-   */
-  @GET
-  @Path("/{identificatie}")
-  @Produces({"application/hal+json", "application/problem+json"})
-  public StandplaatsIOHal standplaatsIdentificatie(
-      @PathParam("identificatie") String identificatie,
-      @QueryParam("geldigOp") LocalDate geldigOp,
-      @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
-      @QueryParam("expand") String expand,
-      @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
-      @QueryParam("huidig") @DefaultValue("false") Boolean huidig)
-      throws ProcessingException;
+    /**
+     * bevragen van een standplaats met de identificatie van een standplaats.
+     * <p>
+     * Bevragen/raadplegen van een standplaats met de identificatie van de standplaats. Parameter huidig kan worden toegepast, zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature). De geldigOp en beschikbaarOp parameters kunnen gebruikt worden voor  tijdreis vragen, zie  [functionele specificatie tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature).  Als expand&#x3D;heeftAlsHoofdAdres, heeftAlsNevenAdres of true dan worden de gevraagde of alle objecten als geneste resource geleverd, zie [functionele specificatie expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).
+     */
+    @GET
+    @Path("/{identificatie}")
+    @Produces({"application/hal+json", "application/problem+json"})
+    public StandplaatsIOHal standplaatsIdentificatie(
+            @PathParam("identificatie") String identificatie,
+            @QueryParam("geldigOp") LocalDate geldigOp,
+            @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
+            @QueryParam("expand") String expand,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
+            @QueryParam("huidig") @DefaultValue("false") Boolean huidig)
+            throws ProcessingException;
 
-  /**
-   * bevragen van een voorkomen van een standplaats met de identificatie van een standplaats en de identificatie van een voorkomen, bestaande uit een versie en een timestamp van het tijdstip van registratie in de LV BAG.
-   * <p>
-   * Bevragen/raadplegen van een voorkomen van een standplaats met de identificatie van een standplaats en de identificatie van een voorkomen, bestaande uit een versie en een timestamp van het tijdstip van registratie in de LV BAG.
-   */
-  @GET
-  @Path("/{identificatie}/{versie}/{timestampRegistratieLv}")
-  @Produces({"application/hal+json", "application/problem+json"})
-  public StandplaatsIOHal standplaatsIdentificatieVoorkomen(
-      @PathParam("identificatie") String identificatie,
-      @PathParam("versie") Integer versie,
-      @PathParam("timestampRegistratieLv") String timestampRegistratieLv,
-      @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs)
-      throws ProcessingException;
+    /**
+     * bevragen van een voorkomen van een standplaats met de identificatie van een standplaats en de identificatie van een voorkomen, bestaande uit een versie en een timestamp van het tijdstip van registratie in de LV BAG.
+     * <p>
+     * Bevragen/raadplegen van een voorkomen van een standplaats met de identificatie van een standplaats en de identificatie van een voorkomen, bestaande uit een versie en een timestamp van het tijdstip van registratie in de LV BAG.
+     */
+    @GET
+    @Path("/{identificatie}/{versie}/{timestampRegistratieLv}")
+    @Produces({"application/hal+json", "application/problem+json"})
+    public StandplaatsIOHal standplaatsIdentificatieVoorkomen(
+            @PathParam("identificatie") String identificatie,
+            @PathParam("versie") Integer versie,
+            @PathParam("timestampRegistratieLv") String timestampRegistratieLv,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs)
+            throws ProcessingException;
 
-  /**
-   * bevragen levenscyclus van een standplaats met de identificatie van een standplaats.
-   * <p>
-   * Bevragen/raadplegen van de levenscyclus van een standplaats met de identificatie van de standplaats.
-   */
-  @GET
-  @Path("/{identificatie}/lvc")
-  @Produces({"application/hal+json", "application/problem+json"})
-  public StandplaatsIOLvcHalCollection standplaatsLvcIdentificatie(
-      @PathParam("identificatie") String identificatie,
-      @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc,
-      @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs)
-      throws ProcessingException;
+    /**
+     * bevragen levenscyclus van een standplaats met de identificatie van een standplaats.
+     * <p>
+     * Bevragen/raadplegen van de levenscyclus van een standplaats met de identificatie van de standplaats.
+     */
+    @GET
+    @Path("/{identificatie}/lvc")
+    @Produces({"application/hal+json", "application/problem+json"})
+    public StandplaatsIOLvcHalCollection standplaatsLvcIdentificatie(
+            @PathParam("identificatie") String identificatie,
+            @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs)
+            throws ProcessingException;
 
-  /**
-   * zoeken van standplaatsen met een geometrische locatie of binnen een bounding box.
-   * <p>
-   * Zoeken van actuele standplaatsen:  1. met een geometrische locatie.  2. binnen een geometrische contour (rechthoek).   Parameter huidig kan worden toegepast, zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature).  De geldigOp en beschikbaarOp parameters kunnen gebruikt worden voor  tijdreis vragen, zie  [functionele specificatie tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature).   Als expand&#x3D;heeftAlsHoofdAdres, heeftAlsNevenAdres of true dan worden de gevraagde of alle objecten als geneste resource geleverd, zie [functionele specificatie expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).  Voor paginering, zie: [functionele specificatie paginering](https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature).
-   */
-  @GET
-  @Produces({"application/hal+json", "application/problem+json"})
-  public StandplaatsIOHalCollection zoekStandplaatsen(
-      @QueryParam("geldigOp") LocalDate geldigOp,
-      @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
-      @QueryParam("huidig") @DefaultValue("false") Boolean huidig,
-      @QueryParam("expand") String expand,
-      @HeaderParam("Content-Crs") String contentCrs,
-      @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
-      @QueryParam("page") @DefaultValue("1") Integer page,
-      @QueryParam("pageSize") @DefaultValue("20") Integer pageSize,
-      @QueryParam("point") PointGeoJSON point,
-      @QueryParam("bbox") List<BigDecimal> bbox)
-      throws ProcessingException;
+    /**
+     * zoeken van standplaatsen met een geometrische locatie of binnen een bounding box.
+     * <p>
+     * Zoeken van actuele standplaatsen:  1. met een geometrische locatie.  2. binnen een geometrische contour (rechthoek).   Parameter huidig kan worden toegepast, zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature).  De geldigOp en beschikbaarOp parameters kunnen gebruikt worden voor  tijdreis vragen, zie  [functionele specificatie tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature).   Als expand&#x3D;heeftAlsHoofdAdres, heeftAlsNevenAdres of true dan worden de gevraagde of alle objecten als geneste resource geleverd, zie [functionele specificatie expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).  Voor paginering, zie: [functionele specificatie paginering](https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature).
+     */
+    @GET
+    @Produces({"application/hal+json", "application/problem+json"})
+    public StandplaatsIOHalCollection zoekStandplaatsen(
+            @QueryParam("geldigOp") LocalDate geldigOp,
+            @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
+            @QueryParam("huidig") @DefaultValue("false") Boolean huidig,
+            @QueryParam("expand") String expand,
+            @HeaderParam("Content-Crs") String contentCrs,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
+            @QueryParam("page") @DefaultValue("1") Integer page,
+            @QueryParam("pageSize") @DefaultValue("20") Integer pageSize,
+            @QueryParam("point") PointGeoJSON point,
+            @QueryParam("bbox") List<BigDecimal> bbox)
+            throws ProcessingException;
 }

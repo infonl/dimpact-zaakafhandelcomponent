@@ -11,10 +11,10 @@ import java.util.List;
 import net.atos.zac.app.shared.RESTResultaat;
 
 public class RESTInboxProductaanvraagResultaat extends RESTResultaat<RESTInboxProductaanvraag> {
-  public List<String> filterType = new ArrayList<>();
+    public List<String> filterType = new ArrayList<>();
 
-  public RESTInboxProductaanvraagResultaat(
-      final Collection<RESTInboxProductaanvraag> resultaten, final long aantalTotaal) {
-    super(resultaten, aantalTotaal);
-  }
+    public RESTInboxProductaanvraagResultaat(
+            final Collection<RESTInboxProductaanvraag> resultaten, final long aantalTotaal) {
+        super(resultaten, aantalTotaal);
+    }
 }

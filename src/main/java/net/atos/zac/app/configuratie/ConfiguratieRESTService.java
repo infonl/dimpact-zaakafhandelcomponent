@@ -29,43 +29,43 @@ import net.atos.zac.configuratie.ConfiguratieService;
 @Singleton
 public class ConfiguratieRESTService {
 
-  @Inject private ConfiguratieService configuratieService;
+    @Inject private ConfiguratieService configuratieService;
 
-  @Inject private RESTTaalConverter taalConverter;
+    @Inject private RESTTaalConverter taalConverter;
 
-  @GET
-  @Path("talen")
-  public List<RESTTaal> listTalen() {
-    return taalConverter.convert(configuratieService.listTalen());
-  }
+    @GET
+    @Path("talen")
+    public List<RESTTaal> listTalen() {
+        return taalConverter.convert(configuratieService.listTalen());
+    }
 
-  @GET
-  @Path("talen/default")
-  public RESTTaal readDefaultTaal() {
-    return configuratieService.findDefaultTaal().map(taalConverter::convert).orElse(null);
-  }
+    @GET
+    @Path("talen/default")
+    public RESTTaal readDefaultTaal() {
+        return configuratieService.findDefaultTaal().map(taalConverter::convert).orElse(null);
+    }
 
-  @GET
-  @Path("maxFileSizeMB")
-  public long readMaxFileSizeMB() {
-    return configuratieService.readMaxFileSizeMB();
-  }
+    @GET
+    @Path("maxFileSizeMB")
+    public long readMaxFileSizeMB() {
+        return configuratieService.readMaxFileSizeMB();
+    }
 
-  @GET
-  @Path("additionalAllowedFileTypes")
-  public List<String> readAdditionalAllowedFileTypes() {
-    return configuratieService.readAdditionalAllowedFileTypes();
-  }
+    @GET
+    @Path("additionalAllowedFileTypes")
+    public List<String> readAdditionalAllowedFileTypes() {
+        return configuratieService.readAdditionalAllowedFileTypes();
+    }
 
-  @GET
-  @Path("gemeente/code")
-  public String readGemeenteCode() {
-    return JSONB.toJson(configuratieService.readGemeenteCode());
-  }
+    @GET
+    @Path("gemeente/code")
+    public String readGemeenteCode() {
+        return JSONB.toJson(configuratieService.readGemeenteCode());
+    }
 
-  @GET
-  @Path("gemeente")
-  public String readGemeenteNaam() {
-    return JSONB.toJson(configuratieService.readGemeenteNaam());
-  }
+    @GET
+    @Path("gemeente")
+    public String readGemeenteNaam() {
+        return JSONB.toJson(configuratieService.readGemeenteNaam());
+    }
 }

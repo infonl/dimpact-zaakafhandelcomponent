@@ -8,9 +8,9 @@ import net.atos.zac.app.shared.RESTListParameters;
 import net.atos.zac.app.zoeken.model.RESTDatumRange;
 
 public class RESTInboxDocumentListParameters extends RESTListParameters {
-  public String titel;
+    public String titel;
 
-  public String identificatie;
+    public String identificatie;
 
-  public RESTDatumRange creatiedatum;
+    public RESTDatumRange creatiedatum;
 }

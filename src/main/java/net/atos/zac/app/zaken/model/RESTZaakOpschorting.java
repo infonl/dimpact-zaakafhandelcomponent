@@ -8,7 +8,7 @@ import java.time.ZonedDateTime;
 
 public class RESTZaakOpschorting {
 
-  public ZonedDateTime vanafDatumTijd;
+    public ZonedDateTime vanafDatumTijd;
 
-  public int duurDagen;
+    public int duurDagen;
 }

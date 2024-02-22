@@ -22,25 +22,26 @@ import net.atos.client.zgw.zrc.model.Polygon;
 
 public class GeometryJsonbDeserializer implements JsonbDeserializer<Geometry> {
 
-  @Override
-  public Geometry deserialize(
-      final JsonParser parser, final DeserializationContext ctx, final Type rtType) {
-    if (!parser.hasNext()) {
-      // workaround for WildFly 30 (?) issue
-      // jakarta.ws.rs.ProcessingException: RESTEASY008200: JSON Binding deserialization
-      // error: jakarta.json.bind.JsonbException: Internal error: There are no more elements
-      // available!
-      // at 'parser.getObject()' call below
-      return null;
-    }
-    final JsonObject jsonObject = parser.getObject();
-    final GeometryType geometryType =
-        GeometryType.fromValue(jsonObject.getJsonString(GEOMETRY_TYPE_NAAM).getString());
+    @Override
+    public Geometry deserialize(
+            final JsonParser parser, final DeserializationContext ctx, final Type rtType) {
+        if (!parser.hasNext()) {
+            // workaround for WildFly 30 (?) issue
+            // jakarta.ws.rs.ProcessingException: RESTEASY008200: JSON Binding deserialization
+            // error: jakarta.json.bind.JsonbException: Internal error: There are no more elements
+            // available!
+            // at 'parser.getObject()' call below
+            return null;
+        }
+        final JsonObject jsonObject = parser.getObject();
+        final GeometryType geometryType =
+                GeometryType.fromValue(jsonObject.getJsonString(GEOMETRY_TYPE_NAAM).getString());
 
-    return switch (geometryType) {
-      case POINT -> JSONB.fromJson(jsonObject.toString(), Point.class);
-      case POLYGON -> JSONB.fromJson(jsonObject.toString(), Polygon.class);
-      case GEOMETRYCOLLECTION -> JSONB.fromJson(jsonObject.toString(), GeometryCollection.class);
-    };
-  }
+        return switch (geometryType) {
+            case POINT -> JSONB.fromJson(jsonObject.toString(), Point.class);
+            case POLYGON -> JSONB.fromJson(jsonObject.toString(), Polygon.class);
+            case GEOMETRYCOLLECTION ->
+                    JSONB.fromJson(jsonObject.toString(), GeometryCollection.class);
+        };
+    }
 }

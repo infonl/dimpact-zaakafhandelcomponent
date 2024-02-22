@@ -49,59 +49,59 @@ import net.atos.client.brp.exception.RuntimeExceptionMapper;
 @Path("/adresseerbareobjecten")
 public interface AdresseerbaarObjectApi {
 
-  /**
-   * Bevragen van één adresseerbaar object met een adresseerbaar  object identificatie.
-   * <p>
-   * Bevragen van één adresseerbaar object (ligplaats, standplaats of  verblijfsobject) met de identificatie van een adresseerbaar object.  Parameter huidig kan worden toegepast, zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature).  De geldigOp en beschikbaarOp parameters kunnen gebruikt worden voor  tijdreis vragen, zie  [functionele specificatie tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature).   Als expand&#x3D;heeftAlsHoofdAdres, heeftAlsNevenAdres, maaktDeelUitVan  (of een combinatie daarvan) of als expand&#x3D;true, dan worden de  gevraagde of alle gerelateerde resources als geneste resource geleverd, zie [functionele specificatie expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).
-   */
-  @GET
-  @Path("/{adresseerbaarObjectIdentificatie}")
-  @Produces({"application/hal+json", "application/problem+json"})
-  public AdresseerbaarObjectIOHal bevragenAdresseerbaarObject(
-      @PathParam("adresseerbaarObjectIdentificatie") String adresseerbaarObjectIdentificatie,
-      @QueryParam("geldigOp") LocalDate geldigOp,
-      @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
-      @QueryParam("expand") String expand,
-      @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
-      @QueryParam("huidig") @DefaultValue("false") Boolean huidig)
-      throws ProcessingException;
+    /**
+     * Bevragen van één adresseerbaar object met een adresseerbaar  object identificatie.
+     * <p>
+     * Bevragen van één adresseerbaar object (ligplaats, standplaats of  verblijfsobject) met de identificatie van een adresseerbaar object.  Parameter huidig kan worden toegepast, zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature).  De geldigOp en beschikbaarOp parameters kunnen gebruikt worden voor  tijdreis vragen, zie  [functionele specificatie tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature).   Als expand&#x3D;heeftAlsHoofdAdres, heeftAlsNevenAdres, maaktDeelUitVan  (of een combinatie daarvan) of als expand&#x3D;true, dan worden de  gevraagde of alle gerelateerde resources als geneste resource geleverd, zie [functionele specificatie expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).
+     */
+    @GET
+    @Path("/{adresseerbaarObjectIdentificatie}")
+    @Produces({"application/hal+json", "application/problem+json"})
+    public AdresseerbaarObjectIOHal bevragenAdresseerbaarObject(
+            @PathParam("adresseerbaarObjectIdentificatie") String adresseerbaarObjectIdentificatie,
+            @QueryParam("geldigOp") LocalDate geldigOp,
+            @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
+            @QueryParam("expand") String expand,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
+            @QueryParam("huidig") @DefaultValue("false") Boolean huidig)
+            throws ProcessingException;
 
-  /**
-   * Bevragen van de levenscyclus van een adresseerbaar object met een adresseerbaar object identificatie.
-   * <p>
-   * Bevragen van de levenscyclus van een adresseerbaar object (ligplaats, standplaats of verblijfsobject) met de identificatie van een adresseerbaar object. Met de geheleLvc parameter kan worden aangegeven of de gehele levenscyclus (inclusief voorkomens die uit de geldige levenscyclus zijn verwijderd) of alleen de actieve levenscyclus (alleen de voorkomens die onderdeel zijn van de geldige levenscyclus) gewenst zijn.
-   */
-  @GET
-  @Path("/{adresseerbaarObjectIdentificatie}/lvc")
-  @Produces({"application/hal+json", "application/problem+json"})
-  public AdresseerbaarObjectLvcIOHalCollection bevragenAdresseerbaarObjectLvc(
-      @PathParam("adresseerbaarObjectIdentificatie") String adresseerbaarObjectIdentificatie,
-      @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc,
-      @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs)
-      throws ProcessingException;
+    /**
+     * Bevragen van de levenscyclus van een adresseerbaar object met een adresseerbaar object identificatie.
+     * <p>
+     * Bevragen van de levenscyclus van een adresseerbaar object (ligplaats, standplaats of verblijfsobject) met de identificatie van een adresseerbaar object. Met de geheleLvc parameter kan worden aangegeven of de gehele levenscyclus (inclusief voorkomens die uit de geldige levenscyclus zijn verwijderd) of alleen de actieve levenscyclus (alleen de voorkomens die onderdeel zijn van de geldige levenscyclus) gewenst zijn.
+     */
+    @GET
+    @Path("/{adresseerbaarObjectIdentificatie}/lvc")
+    @Produces({"application/hal+json", "application/problem+json"})
+    public AdresseerbaarObjectLvcIOHalCollection bevragenAdresseerbaarObjectLvc(
+            @PathParam("adresseerbaarObjectIdentificatie") String adresseerbaarObjectIdentificatie,
+            @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs)
+            throws ProcessingException;
 
-  /**
-   * Bevragen van één of meer adresseerbare objecten op basis van een nummeraanduiding identificatie.
-   * <p>
-   * Zoek actuele adresseerbare objecten (verblijfsobjecten, standplaatsen of ligplaatsen):  1. met een nummeraanduiding identificatie.  2. binnen een geometrische contour (rechthoek) in combinatie met status geconstateerd, oppervlakte, gebruiksdoel en/of type.  3. met een lijst van pandidentificaties.   Parameter huidig kan worden toegepast, zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature).  De geldigOp en beschikbaarOp parameters kunnen gebruikt worden voor  tijdreis vragen, zie  [functionele specificatie tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature).   Als expand&#x3D;heeftAlsHoofdAdres, heeftAlsNevenAdres, maaktDeelUitVan (of een combinatie daarvan) of als expand&#x3D;true, dan worden de gevraagde of alle gerelateerde resources als geneste resource geleverd, zie [functionele specificatie expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).  Voor paginering, zie: [functionele specificatie paginering](https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature).
-   */
-  @GET
-  @Produces({"application/hal+json", "application/problem+json"})
-  public AdresseerbareObjectenIOHalCollection zoekAdresseerbareObjecten(
-      @QueryParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie,
-      @QueryParam("huidig") @DefaultValue("false") Boolean huidig,
-      @QueryParam("geldigOp") LocalDate geldigOp,
-      @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
-      @QueryParam("expand") String expand,
-      @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
-      @HeaderParam("Content-Crs") String contentCrs,
-      @QueryParam("page") @DefaultValue("1") Integer page,
-      @QueryParam("pageSize") @DefaultValue("20") Integer pageSize,
-      @QueryParam("bbox") List<BigDecimal> bbox,
-      @QueryParam("geconstateerd") Boolean geconstateerd,
-      @QueryParam("oppervlakte") OppervlakteFilter oppervlakte,
-      @QueryParam("gebruiksdoelen") List<Gebruiksdoel> gebruiksdoelen,
-      @QueryParam("type") TypeAdresseerbaarObject type,
-      @QueryParam("pandIdentificaties") List<String> pandIdentificaties)
-      throws ProcessingException;
+    /**
+     * Bevragen van één of meer adresseerbare objecten op basis van een nummeraanduiding identificatie.
+     * <p>
+     * Zoek actuele adresseerbare objecten (verblijfsobjecten, standplaatsen of ligplaatsen):  1. met een nummeraanduiding identificatie.  2. binnen een geometrische contour (rechthoek) in combinatie met status geconstateerd, oppervlakte, gebruiksdoel en/of type.  3. met een lijst van pandidentificaties.   Parameter huidig kan worden toegepast, zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature).  De geldigOp en beschikbaarOp parameters kunnen gebruikt worden voor  tijdreis vragen, zie  [functionele specificatie tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature).   Als expand&#x3D;heeftAlsHoofdAdres, heeftAlsNevenAdres, maaktDeelUitVan (of een combinatie daarvan) of als expand&#x3D;true, dan worden de gevraagde of alle gerelateerde resources als geneste resource geleverd, zie [functionele specificatie expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).  Voor paginering, zie: [functionele specificatie paginering](https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature).
+     */
+    @GET
+    @Produces({"application/hal+json", "application/problem+json"})
+    public AdresseerbareObjectenIOHalCollection zoekAdresseerbareObjecten(
+            @QueryParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie,
+            @QueryParam("huidig") @DefaultValue("false") Boolean huidig,
+            @QueryParam("geldigOp") LocalDate geldigOp,
+            @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
+            @QueryParam("expand") String expand,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
+            @HeaderParam("Content-Crs") String contentCrs,
+            @QueryParam("page") @DefaultValue("1") Integer page,
+            @QueryParam("pageSize") @DefaultValue("20") Integer pageSize,
+            @QueryParam("bbox") List<BigDecimal> bbox,
+            @QueryParam("geconstateerd") Boolean geconstateerd,
+            @QueryParam("oppervlakte") OppervlakteFilter oppervlakte,
+            @QueryParam("gebruiksdoelen") List<Gebruiksdoel> gebruiksdoelen,
+            @QueryParam("type") TypeAdresseerbaarObject type,
+            @QueryParam("pandIdentificaties") List<String> pandIdentificaties)
+            throws ProcessingException;
 }

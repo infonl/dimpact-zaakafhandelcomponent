@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public class RESTZaaktypeRelatie {
 
-  public UUID zaaktypeUuid;
+    public UUID zaaktypeUuid;
 
-  public RelatieType relatieType;
+    public RelatieType relatieType;
 }

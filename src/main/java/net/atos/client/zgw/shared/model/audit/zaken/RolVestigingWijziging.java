@@ -10,8 +10,8 @@ import net.atos.client.zgw.zrc.model.RolVestiging;
 
 public class RolVestigingWijziging extends AuditWijziging<RolVestiging> {
 
-  @Override
-  public ObjectType getObjectType() {
-    return ObjectType.ROL;
-  }
+    @Override
+    public ObjectType getObjectType() {
+        return ObjectType.ROL;
+    }
 }

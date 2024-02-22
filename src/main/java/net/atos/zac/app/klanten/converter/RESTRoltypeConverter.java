@@ -13,15 +13,15 @@ import net.atos.zac.app.klanten.model.klant.RESTRoltype;
 
 public class RESTRoltypeConverter {
 
-  public List<RESTRoltype> convert(final Stream<RolType> roltypen) {
-    return roltypen.map(this::convert).toList();
-  }
+    public List<RESTRoltype> convert(final Stream<RolType> roltypen) {
+        return roltypen.map(this::convert).toList();
+    }
 
-  public RESTRoltype convert(final RolType roltype) {
-    final RESTRoltype restRoltype = new RESTRoltype();
-    restRoltype.uuid = URIUtil.parseUUIDFromResourceURI(roltype.getUrl());
-    restRoltype.naam = roltype.getOmschrijving();
-    restRoltype.omschrijvingGeneriekEnum = roltype.getOmschrijvingGeneriek();
-    return restRoltype;
-  }
+    public RESTRoltype convert(final RolType roltype) {
+        final RESTRoltype restRoltype = new RESTRoltype();
+        restRoltype.uuid = URIUtil.parseUUIDFromResourceURI(roltype.getUrl());
+        restRoltype.naam = roltype.getOmschrijving();
+        restRoltype.omschrijvingGeneriekEnum = roltype.getOmschrijvingGeneriek();
+        return restRoltype;
+    }
 }

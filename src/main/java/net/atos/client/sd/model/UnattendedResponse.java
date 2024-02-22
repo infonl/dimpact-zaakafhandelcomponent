@@ -10,6 +10,6 @@ import jakarta.json.bind.annotation.JsonbProperty;
 
 public class UnattendedResponse {
 
-  @JsonbProperty("file")
-  public List<File> files;
+    @JsonbProperty("file")
+    public List<File> files;
 }

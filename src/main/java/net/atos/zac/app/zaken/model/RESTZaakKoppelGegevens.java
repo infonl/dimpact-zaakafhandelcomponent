@@ -8,11 +8,11 @@ import java.util.UUID;
 
 public class RESTZaakKoppelGegevens {
 
-  public UUID zaakUuid;
+    public UUID zaakUuid;
 
-  public UUID teKoppelenZaakUuid;
+    public UUID teKoppelenZaakUuid;
 
-  public RelatieType relatieType;
+    public RelatieType relatieType;
 
-  public RelatieType reverseRelatieType;
+    public RelatieType reverseRelatieType;
 }

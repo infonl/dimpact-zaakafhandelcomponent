@@ -8,9 +8,9 @@ import java.util.UUID;
 
 public class RESTDocumentOntkoppelGegevens {
 
-  public UUID zaakUUID;
+    public UUID zaakUUID;
 
-  public UUID documentUUID;
+    public UUID documentUUID;
 
-  public String reden;
+    public String reden;
 }

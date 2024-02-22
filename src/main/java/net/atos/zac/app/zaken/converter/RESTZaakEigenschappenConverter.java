@@ -17,25 +17,25 @@ import net.atos.zac.app.zaken.model.RESTZaakEigenschap;
 
 public class RESTZaakEigenschappenConverter {
 
-  @Inject private ZRCClientService zrcClientService;
+    @Inject private ZRCClientService zrcClientService;
 
-  public RESTZaakEigenschap convert(final URI uri) {
-    if (uri != null) {
-      final ZaakEigenschap zaakeigenschap = zrcClientService.readZaakeigenschap(uri);
-      if (zaakeigenschap != null) {
-        final RESTZaakEigenschap restZaakEigenschap = new RESTZaakEigenschap();
-        restZaakEigenschap.naam = zaakeigenschap.getNaam();
-        restZaakEigenschap.waarde = zaakeigenschap.getWaarde();
-        return restZaakEigenschap;
-      }
+    public RESTZaakEigenschap convert(final URI uri) {
+        if (uri != null) {
+            final ZaakEigenschap zaakeigenschap = zrcClientService.readZaakeigenschap(uri);
+            if (zaakeigenschap != null) {
+                final RESTZaakEigenschap restZaakEigenschap = new RESTZaakEigenschap();
+                restZaakEigenschap.naam = zaakeigenschap.getNaam();
+                restZaakEigenschap.waarde = zaakeigenschap.getWaarde();
+                return restZaakEigenschap;
+            }
+        }
+        return null;
     }
-    return null;
-  }
 
-  public List<RESTZaakEigenschap> convert(final Collection<URI> eigenschappen) {
-    if (eigenschappen == null) {
-      return null;
+    public List<RESTZaakEigenschap> convert(final Collection<URI> eigenschappen) {
+        if (eigenschappen == null) {
+            return null;
+        }
+        return eigenschappen.stream().map(this::convert).collect(Collectors.toList());
     }
-    return eigenschappen.stream().map(this::convert).collect(Collectors.toList());
-  }
 }

@@ -34,36 +34,36 @@ import net.atos.client.kvk.util.KVKClientHeadersFactory;
 @Path("api/v1/basisprofielen/{kvkNummer}")
 public interface BasisprofielClient {
 
-  /**
-   * Voor een specifiek bedrijf basisinformatie opvragen.
-   */
-  @GET
-  Basisprofiel getBasisprofielByKvkNummer(
-      @PathParam("kvkNummer") String kvkNummer,
-      @QueryParam("geoData") @DefaultValue("false") Boolean geoData);
+    /**
+     * Voor een specifiek bedrijf basisinformatie opvragen.
+     */
+    @GET
+    Basisprofiel getBasisprofielByKvkNummer(
+            @PathParam("kvkNummer") String kvkNummer,
+            @QueryParam("geoData") @DefaultValue("false") Boolean geoData);
 
-  /**
-   * Voor een specifiek bedrijf eigenaar informatie opvragen.
-   */
-  @GET
-  @Path("/eigenaar")
-  Eigenaar getEigenaar(
-      @PathParam("kvkNummer") String kvkNummer,
-      @QueryParam("geoData") @DefaultValue("false") Boolean geoData);
+    /**
+     * Voor een specifiek bedrijf eigenaar informatie opvragen.
+     */
+    @GET
+    @Path("/eigenaar")
+    Eigenaar getEigenaar(
+            @PathParam("kvkNummer") String kvkNummer,
+            @QueryParam("geoData") @DefaultValue("false") Boolean geoData);
 
-  /**
-   * Voor een specifiek bedrijf hoofdvestigingsinformatie opvragen.
-   */
-  @GET
-  @Path("/hoofdvestiging")
-  Vestiging getHoofdvestiging(
-      @PathParam("kvkNummer") String kvkNummer,
-      @QueryParam("geoData") @DefaultValue("false") Boolean geoData);
+    /**
+     * Voor een specifiek bedrijf hoofdvestigingsinformatie opvragen.
+     */
+    @GET
+    @Path("/hoofdvestiging")
+    Vestiging getHoofdvestiging(
+            @PathParam("kvkNummer") String kvkNummer,
+            @QueryParam("geoData") @DefaultValue("false") Boolean geoData);
 
-  /**
-   * Voor een specifiek bedrijf een lijst met vestigingen opvragen.
-   */
-  @GET
-  @Path("/vestigingen")
-  VestigingList getVestigingen(@PathParam("kvkNummer") String kvkNummer);
+    /**
+     * Voor een specifiek bedrijf een lijst met vestigingen opvragen.
+     */
+    @GET
+    @Path("/vestigingen")
+    VestigingList getVestigingen(@PathParam("kvkNummer") String kvkNummer);
 }

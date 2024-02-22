@@ -20,20 +20,20 @@ import net.atos.client.contactmomenten.model.KlantcontactmomentListParameters;
 @Singleton
 public class ContactmomentenClientService {
 
-  @Inject @RestClient private KlantcontactmomentenClient klantcontactmomentenClient;
+    @Inject @RestClient private KlantcontactmomentenClient klantcontactmomentenClient;
 
-  @Inject @RestClient private ContactmomentenClient contactmomentenClient;
+    @Inject @RestClient private ContactmomentenClient contactmomentenClient;
 
-  public KlantcontactmomentList200Response listKlantcontactmomenten(
-      final KlantcontactmomentListParameters parameters) {
-    try {
-      return klantcontactmomentenClient.klantcontactmomentList(parameters);
-    } catch (final NotFoundException exception) {
-      return new KlantcontactmomentList200Response().count(0);
+    public KlantcontactmomentList200Response listKlantcontactmomenten(
+            final KlantcontactmomentListParameters parameters) {
+        try {
+            return klantcontactmomentenClient.klantcontactmomentList(parameters);
+        } catch (final NotFoundException exception) {
+            return new KlantcontactmomentList200Response().count(0);
+        }
     }
-  }
 
-  public ContactMoment readContactmoment(final UUID uuid) {
-    return contactmomentenClient.contactmomentRead(uuid, StringUtils.EMPTY);
-  }
+    public ContactMoment readContactmoment(final UUID uuid) {
+        return contactmomentenClient.contactmomentRead(uuid, StringUtils.EMPTY);
+    }
 }

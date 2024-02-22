@@ -8,14 +8,14 @@ import net.atos.zac.authentication.LoggedInUser;
 
 public class TaakInput extends UserInput {
 
-  private final TaakData taak;
+    private final TaakData taak;
 
-  public TaakInput(final LoggedInUser loggedInUser, final TaakData taakData) {
-    super(loggedInUser);
-    taak = taakData;
-  }
+    public TaakInput(final LoggedInUser loggedInUser, final TaakData taakData) {
+        super(loggedInUser);
+        taak = taakData;
+    }
 
-  public TaakData getTaak() {
-    return taak;
-  }
+    public TaakData getTaak() {
+        return taak;
+    }
 }

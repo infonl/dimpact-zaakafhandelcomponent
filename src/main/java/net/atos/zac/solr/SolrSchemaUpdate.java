@@ -14,11 +14,11 @@ import net.atos.zac.zoeken.model.index.ZoekObjectType;
 
 public interface SolrSchemaUpdate {
 
-  int getVersie();
+    int getVersie();
 
-  default Set<ZoekObjectType> getTeHerindexerenZoekObjectTypes() {
-    return Collections.emptySet();
-  }
+    default Set<ZoekObjectType> getTeHerindexerenZoekObjectTypes() {
+        return Collections.emptySet();
+    }
 
-  List<SchemaRequest.Update> getSchemaUpdates();
+    List<SchemaRequest.Update> getSchemaUpdates();
 }

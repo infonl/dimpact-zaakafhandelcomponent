@@ -24,64 +24,64 @@ import jakarta.validation.constraints.NotBlank;
 @SequenceGenerator(schema = SCHEMA, name = "sq_taal", sequenceName = "sq_taal", allocationSize = 1)
 public class Taal {
 
-  @Id
-  @GeneratedValue(generator = "sq_taal", strategy = GenerationType.SEQUENCE)
-  @Column(name = "id_taal")
-  private Long id;
+    @Id
+    @GeneratedValue(generator = "sq_taal", strategy = GenerationType.SEQUENCE)
+    @Column(name = "id_taal")
+    private Long id;
 
-  @NotBlank
-  @Column(name = "code", nullable = false)
-  private String code;
+    @NotBlank
+    @Column(name = "code", nullable = false)
+    private String code;
 
-  @NotBlank
-  @Column(name = "naam", nullable = false)
-  private String naam;
+    @NotBlank
+    @Column(name = "naam", nullable = false)
+    private String naam;
 
-  @NotBlank
-  @Column(name = "name", nullable = false)
-  private String name;
+    @NotBlank
+    @Column(name = "name", nullable = false)
+    private String name;
 
-  @NotBlank
-  @Column(name = "native", nullable = false)
-  private String local;
+    @NotBlank
+    @Column(name = "native", nullable = false)
+    private String local;
 
-  public Long getId() {
-    return id;
-  }
+    public Long getId() {
+        return id;
+    }
 
-  public void setId(final Long id) {
-    this.id = id;
-  }
+    public void setId(final Long id) {
+        this.id = id;
+    }
 
-  public String getCode() {
-    return code;
-  }
+    public String getCode() {
+        return code;
+    }
 
-  public void setCode(final String code) {
-    this.code = code;
-  }
+    public void setCode(final String code) {
+        this.code = code;
+    }
 
-  public String getNaam() {
-    return naam;
-  }
+    public String getNaam() {
+        return naam;
+    }
 
-  public void setNaam(final String naam) {
-    this.naam = naam;
-  }
+    public void setNaam(final String naam) {
+        this.naam = naam;
+    }
 
-  public String getName() {
-    return name;
-  }
+    public String getName() {
+        return name;
+    }
 
-  public void setName(final String name) {
-    this.name = name;
-  }
+    public void setName(final String name) {
+        this.name = name;
+    }
 
-  public String getLocal() {
-    return local;
-  }
+    public String getLocal() {
+        return local;
+    }
 
-  public void setLocal(final String local) {
-    this.local = local;
-  }
+    public void setLocal(final String local) {
+        this.local = local;
+    }
 }

@@ -13,21 +13,21 @@ import net.atos.client.zgw.zrc.model.Objecttype;
  */
 public class ZaakobjectWoonplaats extends ZaakobjectMetObjectIdentificatie<ObjectWoonplaats> {
 
-  /**
-   * Constructor for JSONB deserialization
-   */
-  public ZaakobjectWoonplaats() {}
+    /**
+     * Constructor for JSONB deserialization
+     */
+    public ZaakobjectWoonplaats() {}
 
-  /**
-   * Constructor with required attributes
-   */
-  public ZaakobjectWoonplaats(
-      final URI zaak, final URI bagobjectUri, final ObjectWoonplaats woonplaats) {
-    super(zaak, bagobjectUri, Objecttype.WOONPLAATS, woonplaats);
-  }
+    /**
+     * Constructor with required attributes
+     */
+    public ZaakobjectWoonplaats(
+            final URI zaak, final URI bagobjectUri, final ObjectWoonplaats woonplaats) {
+        super(zaak, bagobjectUri, Objecttype.WOONPLAATS, woonplaats);
+    }
 
-  @Override
-  public String getWaarde() {
-    return getObjectIdentificatie().getIdentificatie();
-  }
+    @Override
+    public String getWaarde() {
+        return getObjectIdentificatie().getIdentificatie();
+    }
 }

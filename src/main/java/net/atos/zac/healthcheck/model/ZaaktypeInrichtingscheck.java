@@ -18,160 +18,161 @@ import net.atos.client.zgw.ztc.model.generated.ZaakType;
  */
 public class ZaaktypeInrichtingscheck {
 
-  private final ZaakType zaaktype;
+    private final ZaakType zaaktype;
 
-  private boolean statustypeIntakeAanwezig;
+    private boolean statustypeIntakeAanwezig;
 
-  private boolean statustypeInBehandelingAanwezig;
+    private boolean statustypeInBehandelingAanwezig;
 
-  private boolean statustypeHeropendAanwezig;
+    private boolean statustypeHeropendAanwezig;
 
-  private boolean statustypeAfgerondAanwezig;
+    private boolean statustypeAfgerondAanwezig;
 
-  private boolean statustypeAfgerondLaatsteVolgnummer;
+    private boolean statustypeAfgerondLaatsteVolgnummer;
 
-  private boolean resultaattypeAanwezig;
+    private boolean resultaattypeAanwezig;
 
-  private boolean rolInitiatorAanwezig;
+    private boolean rolInitiatorAanwezig;
 
-  private boolean rolBehandelaarAanwezig;
+    private boolean rolBehandelaarAanwezig;
 
-  private boolean rolOverigeAanwezig;
+    private boolean rolOverigeAanwezig;
 
-  private boolean informatieobjecttypeEmailAanwezig;
+    private boolean informatieobjecttypeEmailAanwezig;
 
-  private boolean besluittypeAanwezig;
+    private boolean besluittypeAanwezig;
 
-  private final List<String> resultaattypesMetVerplichtBesluit = new ArrayList<>();
+    private final List<String> resultaattypesMetVerplichtBesluit = new ArrayList<>();
 
-  private boolean zaakafhandelParametersValide;
+    private boolean zaakafhandelParametersValide;
 
-  public ZaaktypeInrichtingscheck(final ZaakType zaaktype) {
-    this.zaaktype = zaaktype;
-  }
+    public ZaaktypeInrichtingscheck(final ZaakType zaaktype) {
+        this.zaaktype = zaaktype;
+    }
 
-  public boolean isStatustypeIntakeAanwezig() {
-    return statustypeIntakeAanwezig;
-  }
+    public boolean isStatustypeIntakeAanwezig() {
+        return statustypeIntakeAanwezig;
+    }
 
-  public void setStatustypeIntakeAanwezig(final boolean statustypeIntakeAanwezig) {
-    this.statustypeIntakeAanwezig = statustypeIntakeAanwezig;
-  }
+    public void setStatustypeIntakeAanwezig(final boolean statustypeIntakeAanwezig) {
+        this.statustypeIntakeAanwezig = statustypeIntakeAanwezig;
+    }
 
-  public boolean isStatustypeInBehandelingAanwezig() {
-    return statustypeInBehandelingAanwezig;
-  }
+    public boolean isStatustypeInBehandelingAanwezig() {
+        return statustypeInBehandelingAanwezig;
+    }
 
-  public void setStatustypeInBehandelingAanwezig(final boolean statustypeInBehandelingAanwezig) {
-    this.statustypeInBehandelingAanwezig = statustypeInBehandelingAanwezig;
-  }
+    public void setStatustypeInBehandelingAanwezig(final boolean statustypeInBehandelingAanwezig) {
+        this.statustypeInBehandelingAanwezig = statustypeInBehandelingAanwezig;
+    }
 
-  public boolean isStatustypeHeropendAanwezig() {
-    return statustypeHeropendAanwezig;
-  }
+    public boolean isStatustypeHeropendAanwezig() {
+        return statustypeHeropendAanwezig;
+    }
 
-  public void setStatustypeHeropendAanwezig(final boolean statustypeHeropendAanwezig) {
-    this.statustypeHeropendAanwezig = statustypeHeropendAanwezig;
-  }
+    public void setStatustypeHeropendAanwezig(final boolean statustypeHeropendAanwezig) {
+        this.statustypeHeropendAanwezig = statustypeHeropendAanwezig;
+    }
 
-  public boolean isStatustypeAfgerondAanwezig() {
-    return statustypeAfgerondAanwezig;
-  }
+    public boolean isStatustypeAfgerondAanwezig() {
+        return statustypeAfgerondAanwezig;
+    }
 
-  public void setStatustypeAfgerondAanwezig(final boolean statustypeAfgerondAanwezig) {
-    this.statustypeAfgerondAanwezig = statustypeAfgerondAanwezig;
-  }
+    public void setStatustypeAfgerondAanwezig(final boolean statustypeAfgerondAanwezig) {
+        this.statustypeAfgerondAanwezig = statustypeAfgerondAanwezig;
+    }
 
-  public boolean isStatustypeAfgerondLaatsteVolgnummer() {
-    return statustypeAfgerondLaatsteVolgnummer;
-  }
+    public boolean isStatustypeAfgerondLaatsteVolgnummer() {
+        return statustypeAfgerondLaatsteVolgnummer;
+    }
 
-  public void setStatustypeAfgerondLaatsteVolgnummer(
-      final boolean statustypeAfgerondLaatsteVolgnummer) {
-    this.statustypeAfgerondLaatsteVolgnummer = statustypeAfgerondLaatsteVolgnummer;
-  }
+    public void setStatustypeAfgerondLaatsteVolgnummer(
+            final boolean statustypeAfgerondLaatsteVolgnummer) {
+        this.statustypeAfgerondLaatsteVolgnummer = statustypeAfgerondLaatsteVolgnummer;
+    }
 
-  public boolean isRolInitiatorAanwezig() {
-    return rolInitiatorAanwezig;
-  }
+    public boolean isRolInitiatorAanwezig() {
+        return rolInitiatorAanwezig;
+    }
 
-  public void setRolInitiatorAanwezig(final boolean rolInitiatorAanwezig) {
-    this.rolInitiatorAanwezig = rolInitiatorAanwezig;
-  }
+    public void setRolInitiatorAanwezig(final boolean rolInitiatorAanwezig) {
+        this.rolInitiatorAanwezig = rolInitiatorAanwezig;
+    }
 
-  public boolean isRolBehandelaarAanwezig() {
-    return rolBehandelaarAanwezig;
-  }
+    public boolean isRolBehandelaarAanwezig() {
+        return rolBehandelaarAanwezig;
+    }
 
-  public void setRolBehandelaarAanwezig(final boolean rolBehandelaarAanwezig) {
-    this.rolBehandelaarAanwezig = rolBehandelaarAanwezig;
-  }
+    public void setRolBehandelaarAanwezig(final boolean rolBehandelaarAanwezig) {
+        this.rolBehandelaarAanwezig = rolBehandelaarAanwezig;
+    }
 
-  public boolean isRolOverigeAanwezig() {
-    return rolOverigeAanwezig;
-  }
+    public boolean isRolOverigeAanwezig() {
+        return rolOverigeAanwezig;
+    }
 
-  public void setRolOverigeAanwezig(final boolean rolOverigeAanwezig) {
-    this.rolOverigeAanwezig = rolOverigeAanwezig;
-  }
+    public void setRolOverigeAanwezig(final boolean rolOverigeAanwezig) {
+        this.rolOverigeAanwezig = rolOverigeAanwezig;
+    }
 
-  public boolean isInformatieobjecttypeEmailAanwezig() {
-    return informatieobjecttypeEmailAanwezig;
-  }
+    public boolean isInformatieobjecttypeEmailAanwezig() {
+        return informatieobjecttypeEmailAanwezig;
+    }
 
-  public void setInformatieobjecttypeEmailAanwezig(
-      final boolean informatieobjecttypeEmailAanwezig) {
-    this.informatieobjecttypeEmailAanwezig = informatieobjecttypeEmailAanwezig;
-  }
+    public void setInformatieobjecttypeEmailAanwezig(
+            final boolean informatieobjecttypeEmailAanwezig) {
+        this.informatieobjecttypeEmailAanwezig = informatieobjecttypeEmailAanwezig;
+    }
 
-  public boolean isBesluittypeAanwezig() {
-    return besluittypeAanwezig;
-  }
+    public boolean isBesluittypeAanwezig() {
+        return besluittypeAanwezig;
+    }
 
-  public void setBesluittypeAanwezig(final boolean besluittypeAanwezig) {
-    this.besluittypeAanwezig = besluittypeAanwezig;
-  }
+    public void setBesluittypeAanwezig(final boolean besluittypeAanwezig) {
+        this.besluittypeAanwezig = besluittypeAanwezig;
+    }
 
-  public List<String> getResultaattypesMetVerplichtBesluit() {
-    return resultaattypesMetVerplichtBesluit;
-  }
+    public List<String> getResultaattypesMetVerplichtBesluit() {
+        return resultaattypesMetVerplichtBesluit;
+    }
 
-  public void addResultaattypesMetVerplichtBesluit(final String resultaattypeMetVerplichtBesluit) {
-    this.resultaattypesMetVerplichtBesluit.add(resultaattypeMetVerplichtBesluit);
-  }
+    public void addResultaattypesMetVerplichtBesluit(
+            final String resultaattypeMetVerplichtBesluit) {
+        this.resultaattypesMetVerplichtBesluit.add(resultaattypeMetVerplichtBesluit);
+    }
 
-  public boolean isResultaattypeAanwezig() {
-    return resultaattypeAanwezig;
-  }
+    public boolean isResultaattypeAanwezig() {
+        return resultaattypeAanwezig;
+    }
 
-  public void setResultaattypeAanwezig(final boolean resultaattypeAanwezig) {
-    this.resultaattypeAanwezig = resultaattypeAanwezig;
-  }
+    public void setResultaattypeAanwezig(final boolean resultaattypeAanwezig) {
+        this.resultaattypeAanwezig = resultaattypeAanwezig;
+    }
 
-  public ZaakType getZaaktype() {
-    return zaaktype;
-  }
+    public ZaakType getZaaktype() {
+        return zaaktype;
+    }
 
-  public boolean isZaakafhandelParametersValide() {
-    return zaakafhandelParametersValide;
-  }
+    public boolean isZaakafhandelParametersValide() {
+        return zaakafhandelParametersValide;
+    }
 
-  public void setZaakafhandelParametersValide(final boolean zaakafhandelParametersValide) {
-    this.zaakafhandelParametersValide = zaakafhandelParametersValide;
-  }
+    public void setZaakafhandelParametersValide(final boolean zaakafhandelParametersValide) {
+        this.zaakafhandelParametersValide = zaakafhandelParametersValide;
+    }
 
-  public boolean isValide() {
-    return statustypeIntakeAanwezig
-        && statustypeInBehandelingAanwezig
-        && statustypeHeropendAanwezig
-        && statustypeAfgerondAanwezig
-        && statustypeAfgerondLaatsteVolgnummer
-        && rolInitiatorAanwezig
-        && rolBehandelaarAanwezig
-        && rolOverigeAanwezig
-        && informatieobjecttypeEmailAanwezig
-        && resultaattypeAanwezig
-        && zaakafhandelParametersValide
-        && (resultaattypesMetVerplichtBesluit.isEmpty() || besluittypeAanwezig);
-  }
+    public boolean isValide() {
+        return statustypeIntakeAanwezig
+                && statustypeInBehandelingAanwezig
+                && statustypeHeropendAanwezig
+                && statustypeAfgerondAanwezig
+                && statustypeAfgerondLaatsteVolgnummer
+                && rolInitiatorAanwezig
+                && rolBehandelaarAanwezig
+                && rolOverigeAanwezig
+                && informatieobjecttypeEmailAanwezig
+                && resultaattypeAanwezig
+                && zaakafhandelParametersValide
+                && (resultaattypesMetVerplichtBesluit.isEmpty() || besluittypeAanwezig);
+    }
 }

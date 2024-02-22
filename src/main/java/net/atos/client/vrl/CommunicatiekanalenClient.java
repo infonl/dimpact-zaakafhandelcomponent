@@ -51,11 +51,11 @@ import net.atos.client.vrl.model.CommunicatiekanaalList200Response;
 @Path("api/v1/communicatiekanalen")
 public interface CommunicatiekanalenClient {
 
-  @GET
-  CommunicatiekanaalList200Response communicatiekanaalList(@QueryParam("page") Integer page);
+    @GET
+    CommunicatiekanaalList200Response communicatiekanaalList(@QueryParam("page") Integer page);
 
-  @GET
-  @Path("/{uuid}")
-  CommunicatieKanaal communicatiekanaalRead(@PathParam("uuid") UUID uuid)
-      throws CommunicatiekanaalNotFoundException;
+    @GET
+    @Path("/{uuid}")
+    CommunicatieKanaal communicatiekanaalRead(@PathParam("uuid") UUID uuid)
+            throws CommunicatiekanaalNotFoundException;
 }

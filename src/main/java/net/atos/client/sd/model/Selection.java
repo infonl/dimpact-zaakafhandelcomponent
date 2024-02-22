@@ -8,9 +8,9 @@ import jakarta.json.bind.annotation.JsonbProperty;
 
 public class Selection {
 
-  @JsonbProperty("TemplateGroup")
-  public String templateGroup;
+    @JsonbProperty("TemplateGroup")
+    public String templateGroup;
 
-  @JsonbProperty("Template")
-  public String template;
+    @JsonbProperty("Template")
+    public String template;
 }

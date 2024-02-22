@@ -56,202 +56,209 @@ import net.atos.zac.zaaksturing.model.ZaakbeeindigReden;
 @Produces(MediaType.APPLICATION_JSON)
 public class ZaakafhandelParametersRESTService {
 
-  @Inject private ZTCClientService ztcClientService;
+    @Inject private ZTCClientService ztcClientService;
 
-  @Inject private ConfiguratieService configuratieService;
+    @Inject private ConfiguratieService configuratieService;
 
-  @Inject private CMMNService cmmnService;
+    @Inject private CMMNService cmmnService;
 
-  @Inject private ZaakafhandelParameterService zaakafhandelParameterService;
+    @Inject private ZaakafhandelParameterService zaakafhandelParameterService;
 
-  @Inject private ZaakafhandelParameterBeheerService zaakafhandelParameterBeheerService;
+    @Inject private ZaakafhandelParameterBeheerService zaakafhandelParameterBeheerService;
 
-  @Inject private ReferentieTabelService referentieTabelService;
+    @Inject private ReferentieTabelService referentieTabelService;
 
-  @Inject private RESTZaakafhandelParametersConverter zaakafhandelParametersConverter;
+    @Inject private RESTZaakafhandelParametersConverter zaakafhandelParametersConverter;
 
-  @Inject private RESTCaseDefinitionConverter caseDefinitionConverter;
+    @Inject private RESTCaseDefinitionConverter caseDefinitionConverter;
 
-  @Inject private RESTResultaattypeConverter resultaattypeConverter;
+    @Inject private RESTResultaattypeConverter resultaattypeConverter;
 
-  @Inject private RESTZaakbeeindigRedenConverter zaakbeeindigRedenConverter;
+    @Inject private RESTZaakbeeindigRedenConverter zaakbeeindigRedenConverter;
 
-  @Inject private RESTReplyToConverter restReplyToConverter;
+    @Inject private RESTReplyToConverter restReplyToConverter;
 
-  @Inject private PolicyService policyService;
+    @Inject private PolicyService policyService;
 
-  /**
-   * Retrieve all CASE_DEFINITIONs that can be linked to a ZAAKTYPE
-   *
-   * @return LIST of CASE_DEFINITIONs
-   */
-  @GET
-  @Path("caseDefinition")
-  public List<RESTCaseDefinition> listCaseDefinitions() {
-    assertPolicy(policyService.readOverigeRechten().beheren());
-    final List<CaseDefinition> caseDefinitions = cmmnService.listCaseDefinitions();
-    return caseDefinitions.stream()
-        .map(
-            caseDefinition ->
-                caseDefinitionConverter.convertToRESTCaseDefinition(caseDefinition, true))
-        .toList();
-  }
-
-  /**
-   * Retrieving a CASE_DEFINITION including it's PLAN_ITEM_DEFINITIONs
-   *
-   * @param caseDefinitionKey id of the CASE_DEFINITION
-   * @return CASE_DEFINITION including it's PLAN_ITEM_DEFINITIONs
-   */
-  @GET
-  @Path("caseDefinition/{key}")
-  public RESTCaseDefinition readCaseDefinition(@PathParam("key") String caseDefinitionKey) {
-    assertPolicy(policyService.readOverigeRechten().beheren());
-    return caseDefinitionConverter.convertToRESTCaseDefinition(caseDefinitionKey, true);
-  }
-
-  /**
-   * Retrieve all ZAAKAFHANDELPARAMETERS for overview
-   *
-   * @return LIST of ZAAKAFHANDELPARAMETERS
-   */
-  @GET
-  public List<RESTZaakafhandelParameters> listZaakafhandelParameters() {
-    assertPolicy(policyService.readOverigeRechten().beheren());
-    return listZaaktypes().stream()
-        .map(zaaktype -> UriUtil.uuidFromURI(zaaktype.getUrl()))
-        .map(zaakafhandelParameterService::readZaakafhandelParameters)
-        .map(
-            zaakafhandelParameters ->
-                zaakafhandelParametersConverter.convertZaakafhandelParameters(
-                    zaakafhandelParameters, false))
-        .toList();
-  }
-
-  /**
-   * Retrieve the ZAAKAFHANDELPARAMETERS for a ZAAKTYPE
-   *
-   * @return ZAAKAFHANDELPARAMETERS for a ZAAKTYPE by uuid of the ZAAKTYPE
-   */
-  @GET
-  @Path("{zaaktypeUUID}")
-  public RESTZaakafhandelParameters readZaakafhandelParameters(
-      @PathParam("zaaktypeUUID") final UUID zaakTypeUUID) {
-    assertPolicy(policyService.readOverigeRechten().beheren());
-    final ZaakafhandelParameters zaakafhandelParameters =
-        zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID);
-    return zaakafhandelParametersConverter.convertZaakafhandelParameters(
-        zaakafhandelParameters, true);
-  }
-
-  /**
-   * Saves the ZAAKAFHANDELPARAMETERS
-   *
-   * @param restZaakafhandelParameters ZAAKAFHANDELPARAMETERS
-   */
-  @PUT
-  public RESTZaakafhandelParameters updateZaakafhandelparameters(
-      final RESTZaakafhandelParameters restZaakafhandelParameters) {
-    assertPolicy(policyService.readOverigeRechten().beheren());
-    ZaakafhandelParameters zaakafhandelParameters =
-        zaakafhandelParametersConverter.convertRESTZaakafhandelParameters(
-            restZaakafhandelParameters);
-    if (zaakafhandelParameters.getId() == null) {
-      zaakafhandelParameters =
-          zaakafhandelParameterBeheerService.createZaakafhandelParameters(zaakafhandelParameters);
-    } else {
-      zaakafhandelParameters =
-          zaakafhandelParameterBeheerService.updateZaakafhandelParameters(zaakafhandelParameters);
-      zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(
-          zaakafhandelParameters.getZaakTypeUUID());
+    /**
+     * Retrieve all CASE_DEFINITIONs that can be linked to a ZAAKTYPE
+     *
+     * @return LIST of CASE_DEFINITIONs
+     */
+    @GET
+    @Path("caseDefinition")
+    public List<RESTCaseDefinition> listCaseDefinitions() {
+        assertPolicy(policyService.readOverigeRechten().beheren());
+        final List<CaseDefinition> caseDefinitions = cmmnService.listCaseDefinitions();
+        return caseDefinitions.stream()
+                .map(
+                        caseDefinition ->
+                                caseDefinitionConverter.convertToRESTCaseDefinition(
+                                        caseDefinition, true))
+                .toList();
     }
-    return zaakafhandelParametersConverter.convertZaakafhandelParameters(
-        zaakafhandelParameters, true);
-  }
 
-  /**
-   * Retrieve all possible zaakbeeindig-redenen
-   *
-   * @return list of zaakbeeindig-redenen
-   */
-  @GET
-  @Path("zaakbeeindigRedenen")
-  public List<RESTZaakbeeindigReden> listZaakbeeindigRedenen() {
-    assertPolicy(policyService.readOverigeRechten().beheren());
-    return zaakbeeindigRedenConverter.convertZaakbeeindigRedenen(
-        zaakafhandelParameterBeheerService.listZaakbeeindigRedenen());
-  }
+    /**
+     * Retrieving a CASE_DEFINITION including it's PLAN_ITEM_DEFINITIONs
+     *
+     * @param caseDefinitionKey id of the CASE_DEFINITION
+     * @return CASE_DEFINITION including it's PLAN_ITEM_DEFINITIONs
+     */
+    @GET
+    @Path("caseDefinition/{key}")
+    public RESTCaseDefinition readCaseDefinition(@PathParam("key") String caseDefinitionKey) {
+        assertPolicy(policyService.readOverigeRechten().beheren());
+        return caseDefinitionConverter.convertToRESTCaseDefinition(caseDefinitionKey, true);
+    }
 
-  /**
-   * Retrieve zaakbeeindig redenen for a zaaktype
-   *
-   * @return list of zaakbeeindig-redenen
-   */
-  @GET
-  @Path("zaakbeeindigRedenen/{zaaktypeUUID}")
-  public List<RESTZaakbeeindigReden> listZaakbeeindigRedenenForZaaktype(
-      @PathParam("zaaktypeUUID") final UUID zaaktypeUUID) {
-    final List<ZaakbeeindigReden> zaakbeeindigRedenen =
-        zaakafhandelParameterService
-            .readZaakafhandelParameters(zaaktypeUUID)
-            .getZaakbeeindigParameters()
-            .stream()
-            .map(ZaakbeeindigParameter::getZaakbeeindigReden)
-            .toList();
-    return zaakbeeindigRedenConverter.convertZaakbeeindigRedenen(zaakbeeindigRedenen);
-  }
+    /**
+     * Retrieve all ZAAKAFHANDELPARAMETERS for overview
+     *
+     * @return LIST of ZAAKAFHANDELPARAMETERS
+     */
+    @GET
+    public List<RESTZaakafhandelParameters> listZaakafhandelParameters() {
+        assertPolicy(policyService.readOverigeRechten().beheren());
+        return listZaaktypes().stream()
+                .map(zaaktype -> UriUtil.uuidFromURI(zaaktype.getUrl()))
+                .map(zaakafhandelParameterService::readZaakafhandelParameters)
+                .map(
+                        zaakafhandelParameters ->
+                                zaakafhandelParametersConverter.convertZaakafhandelParameters(
+                                        zaakafhandelParameters, false))
+                .toList();
+    }
 
-  /**
-   * Retrieve all resultaattypes for a zaaktype
-   *
-   * @param zaaktypeUUID the id of the zaaktype
-   * @return list of resultaattypes
-   */
-  @GET
-  @Path("resultaattypes/{zaaktypeUUID}")
-  public List<RESTResultaattype> listResultaattypes(
-      @PathParam("zaaktypeUUID") final UUID zaaktypeUUID) {
-    assertPolicy(policyService.readOverigeRechten().beheren());
-    return resultaattypeConverter.convertResultaattypes(
-        ztcClientService.readResultaattypen(ztcClientService.readZaaktype(zaaktypeUUID).getUrl()));
-  }
+    /**
+     * Retrieve the ZAAKAFHANDELPARAMETERS for a ZAAKTYPE
+     *
+     * @return ZAAKAFHANDELPARAMETERS for a ZAAKTYPE by uuid of the ZAAKTYPE
+     */
+    @GET
+    @Path("{zaaktypeUUID}")
+    public RESTZaakafhandelParameters readZaakafhandelParameters(
+            @PathParam("zaaktypeUUID") final UUID zaakTypeUUID) {
+        assertPolicy(policyService.readOverigeRechten().beheren());
+        final ZaakafhandelParameters zaakafhandelParameters =
+                zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID);
+        return zaakafhandelParametersConverter.convertZaakafhandelParameters(
+                zaakafhandelParameters, true);
+    }
 
-  private List<ZaakType> listZaaktypes() {
-    return ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI());
-  }
+    /**
+     * Saves the ZAAKAFHANDELPARAMETERS
+     *
+     * @param restZaakafhandelParameters ZAAKAFHANDELPARAMETERS
+     */
+    @PUT
+    public RESTZaakafhandelParameters updateZaakafhandelparameters(
+            final RESTZaakafhandelParameters restZaakafhandelParameters) {
+        assertPolicy(policyService.readOverigeRechten().beheren());
+        ZaakafhandelParameters zaakafhandelParameters =
+                zaakafhandelParametersConverter.convertRESTZaakafhandelParameters(
+                        restZaakafhandelParameters);
+        if (zaakafhandelParameters.getId() == null) {
+            zaakafhandelParameters =
+                    zaakafhandelParameterBeheerService.createZaakafhandelParameters(
+                            zaakafhandelParameters);
+        } else {
+            zaakafhandelParameters =
+                    zaakafhandelParameterBeheerService.updateZaakafhandelParameters(
+                            zaakafhandelParameters);
+            zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(
+                    zaakafhandelParameters.getZaakTypeUUID());
+        }
+        return zaakafhandelParametersConverter.convertZaakafhandelParameters(
+                zaakafhandelParameters, true);
+    }
 
-  /**
-   * Retrieve all FORMULIER_DEFINITIEs that can be linked to a HUMAN_TASK_PLAN_ITEM
-   *
-   * @return lijst of FORMULIER_DEFINITIEs
-   */
-  @GET
-  @Path("formulierDefinities")
-  public List<RESTTaakFormulierDefinitie> listFormulierDefinities() {
-    return Arrays.stream(FormulierDefinitie.values())
-        .map(
-            formulierDefinitie ->
-                new RESTTaakFormulierDefinitie(
-                    formulierDefinitie.name(),
-                    formulierDefinitie.getVeldDefinities().stream()
-                        .map(
-                            formulierVeldDefinitie ->
-                                new RESTTaakFormulierVeldDefinitie(
-                                    formulierVeldDefinitie.name(),
-                                    formulierVeldDefinitie.getDefaultTabel().name()))
-                        .collect(Collectors.toList())))
-        .collect(Collectors.toList());
-  }
+    /**
+     * Retrieve all possible zaakbeeindig-redenen
+     *
+     * @return list of zaakbeeindig-redenen
+     */
+    @GET
+    @Path("zaakbeeindigRedenen")
+    public List<RESTZaakbeeindigReden> listZaakbeeindigRedenen() {
+        assertPolicy(policyService.readOverigeRechten().beheren());
+        return zaakbeeindigRedenConverter.convertZaakbeeindigRedenen(
+                zaakafhandelParameterBeheerService.listZaakbeeindigRedenen());
+    }
 
-  /**
-   * Retrieve all possible replytos
-   *
-   * @return sorted list of replytos
-   */
-  @GET
-  @Path("replyTo")
-  public List<RESTReplyTo> listReplyTos() {
-    return restReplyToConverter.convertReplyTos(
-        referentieTabelService.readReferentieTabel(AFZENDER.name()).getWaarden());
-  }
+    /**
+     * Retrieve zaakbeeindig redenen for a zaaktype
+     *
+     * @return list of zaakbeeindig-redenen
+     */
+    @GET
+    @Path("zaakbeeindigRedenen/{zaaktypeUUID}")
+    public List<RESTZaakbeeindigReden> listZaakbeeindigRedenenForZaaktype(
+            @PathParam("zaaktypeUUID") final UUID zaaktypeUUID) {
+        final List<ZaakbeeindigReden> zaakbeeindigRedenen =
+                zaakafhandelParameterService
+                        .readZaakafhandelParameters(zaaktypeUUID)
+                        .getZaakbeeindigParameters()
+                        .stream()
+                        .map(ZaakbeeindigParameter::getZaakbeeindigReden)
+                        .toList();
+        return zaakbeeindigRedenConverter.convertZaakbeeindigRedenen(zaakbeeindigRedenen);
+    }
+
+    /**
+     * Retrieve all resultaattypes for a zaaktype
+     *
+     * @param zaaktypeUUID the id of the zaaktype
+     * @return list of resultaattypes
+     */
+    @GET
+    @Path("resultaattypes/{zaaktypeUUID}")
+    public List<RESTResultaattype> listResultaattypes(
+            @PathParam("zaaktypeUUID") final UUID zaaktypeUUID) {
+        assertPolicy(policyService.readOverigeRechten().beheren());
+        return resultaattypeConverter.convertResultaattypes(
+                ztcClientService.readResultaattypen(
+                        ztcClientService.readZaaktype(zaaktypeUUID).getUrl()));
+    }
+
+    private List<ZaakType> listZaaktypes() {
+        return ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI());
+    }
+
+    /**
+     * Retrieve all FORMULIER_DEFINITIEs that can be linked to a HUMAN_TASK_PLAN_ITEM
+     *
+     * @return lijst of FORMULIER_DEFINITIEs
+     */
+    @GET
+    @Path("formulierDefinities")
+    public List<RESTTaakFormulierDefinitie> listFormulierDefinities() {
+        return Arrays.stream(FormulierDefinitie.values())
+                .map(
+                        formulierDefinitie ->
+                                new RESTTaakFormulierDefinitie(
+                                        formulierDefinitie.name(),
+                                        formulierDefinitie.getVeldDefinities().stream()
+                                                .map(
+                                                        formulierVeldDefinitie ->
+                                                                new RESTTaakFormulierVeldDefinitie(
+                                                                        formulierVeldDefinitie
+                                                                                .name(),
+                                                                        formulierVeldDefinitie
+                                                                                .getDefaultTabel()
+                                                                                .name()))
+                                                .collect(Collectors.toList())))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Retrieve all possible replytos
+     *
+     * @return sorted list of replytos
+     */
+    @GET
+    @Path("replyTo")
+    public List<RESTReplyTo> listReplyTos() {
+        return restReplyToConverter.convertReplyTos(
+                referentieTabelService.readReferentieTabel(AFZENDER.name()).getWaarden());
+    }
 }

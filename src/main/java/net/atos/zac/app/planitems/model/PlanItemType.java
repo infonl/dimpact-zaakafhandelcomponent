@@ -8,9 +8,9 @@ package net.atos.zac.app.planitems.model;
  *
  */
 public enum PlanItemType {
-  HUMAN_TASK,
+    HUMAN_TASK,
 
-  PROCESS_TASK,
+    PROCESS_TASK,
 
-  USER_EVENT_LISTENER
+    USER_EVENT_LISTENER
 }

@@ -8,13 +8,13 @@ import java.net.URI;
 
 public abstract class RESTBAGObject {
 
-  public URI url;
+    public URI url;
 
-  public String identificatie;
+    public String identificatie;
 
-  public boolean geconstateerd;
+    public boolean geconstateerd;
 
-  public abstract BAGObjectType getBagObjectType();
+    public abstract BAGObjectType getBagObjectType();
 
-  public abstract String getOmschrijving();
+    public abstract String getOmschrijving();
 }

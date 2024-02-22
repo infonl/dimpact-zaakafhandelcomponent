@@ -9,10 +9,10 @@ import net.atos.client.zgw.shared.model.audit.AuditWijziging;
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid;
 
 public class RolOrganisatorischeEenheidWijziging
-    extends AuditWijziging<RolOrganisatorischeEenheid> {
+        extends AuditWijziging<RolOrganisatorischeEenheid> {
 
-  @Override
-  public ObjectType getObjectType() {
-    return ObjectType.ROL;
-  }
+    @Override
+    public ObjectType getObjectType() {
+        return ObjectType.ROL;
+    }
 }

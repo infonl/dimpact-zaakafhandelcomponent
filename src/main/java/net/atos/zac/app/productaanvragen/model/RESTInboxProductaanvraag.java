@@ -9,17 +9,17 @@ import java.util.UUID;
 
 public class RESTInboxProductaanvraag {
 
-  public long id;
+    public long id;
 
-  public UUID productaanvraagObjectUUID;
+    public UUID productaanvraagObjectUUID;
 
-  public UUID aanvraagdocumentUUID;
+    public UUID aanvraagdocumentUUID;
 
-  public int aantalBijlagen;
+    public int aantalBijlagen;
 
-  public String type;
+    public String type;
 
-  public LocalDate ontvangstdatum;
+    public LocalDate ontvangstdatum;
 
-  public String initiatorID;
+    public String initiatorID;
 }

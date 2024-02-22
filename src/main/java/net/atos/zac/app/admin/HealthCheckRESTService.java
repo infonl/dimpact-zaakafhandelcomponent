@@ -32,78 +32,84 @@ import net.atos.zac.healthcheck.model.ZaaktypeInrichtingscheck;
 @Produces(MediaType.APPLICATION_JSON)
 public class HealthCheckRESTService {
 
-  @Inject private ZTCClientService ztcClientService;
+    @Inject private ZTCClientService ztcClientService;
 
-  @Inject private ConfiguratieService configuratieService;
+    @Inject private ConfiguratieService configuratieService;
 
-  @Inject private HealthCheckService healthCheckService;
+    @Inject private HealthCheckService healthCheckService;
 
-  @Inject private RESTZaaktypeOverzichtConverter zaaktypeConverter;
+    @Inject private RESTZaaktypeOverzichtConverter zaaktypeConverter;
 
-  @GET
-  @Path("zaaktypes")
-  public List<RESTZaaktypeInrichtingscheck> listZaaktypeInrichtingschecks() {
-    return listZaaktypes().stream()
-        .map(zaaktype -> convertToREST(healthCheckService.controleerZaaktype(zaaktype.getUrl())))
-        .toList();
-  }
+    @GET
+    @Path("zaaktypes")
+    public List<RESTZaaktypeInrichtingscheck> listZaaktypeInrichtingschecks() {
+        return listZaaktypes().stream()
+                .map(
+                        zaaktype ->
+                                convertToREST(
+                                        healthCheckService.controleerZaaktype(zaaktype.getUrl())))
+                .toList();
+    }
 
-  @GET
-  @Path("bestaat-communicatiekanaal-eformulier")
-  public boolean readBestaatCommunicatiekanaalEformulier() {
-    return healthCheckService.bestaatCommunicatiekanaalEformulier();
-  }
+    @GET
+    @Path("bestaat-communicatiekanaal-eformulier")
+    public boolean readBestaatCommunicatiekanaalEformulier() {
+        return healthCheckService.bestaatCommunicatiekanaalEformulier();
+    }
 
-  @DELETE
-  @Path("ztc-cache")
-  public ZonedDateTime clearZTCCaches() {
-    ztcClientService.clearZaaktypeCache();
-    ztcClientService.clearStatustypeCache();
-    ztcClientService.clearResultaattypeCache();
-    ztcClientService.clearInformatieobjecttypeCache();
-    ztcClientService.clearZaaktypeInformatieobjecttypeCache();
-    ztcClientService.clearBesluittypeCache();
-    ztcClientService.clearRoltypeCache();
-    ztcClientService.clearCacheTime();
-    return ztcClientService.readCacheTime();
-  }
+    @DELETE
+    @Path("ztc-cache")
+    public ZonedDateTime clearZTCCaches() {
+        ztcClientService.clearZaaktypeCache();
+        ztcClientService.clearStatustypeCache();
+        ztcClientService.clearResultaattypeCache();
+        ztcClientService.clearInformatieobjecttypeCache();
+        ztcClientService.clearZaaktypeInformatieobjecttypeCache();
+        ztcClientService.clearBesluittypeCache();
+        ztcClientService.clearRoltypeCache();
+        ztcClientService.clearCacheTime();
+        return ztcClientService.readCacheTime();
+    }
 
-  @GET
-  @Path("ztc-cache")
-  public ZonedDateTime readZTCCacheTime() {
-    return ztcClientService.readCacheTime();
-  }
+    @GET
+    @Path("ztc-cache")
+    public ZonedDateTime readZTCCacheTime() {
+        return ztcClientService.readCacheTime();
+    }
 
-  @GET
-  @Path("build-informatie")
-  public RESTBuildInformatie readBuildInformatie() {
-    return new RESTBuildInformatie(healthCheckService.readBuildInformatie());
-  }
+    @GET
+    @Path("build-informatie")
+    public RESTBuildInformatie readBuildInformatie() {
+        return new RESTBuildInformatie(healthCheckService.readBuildInformatie());
+    }
 
-  private List<ZaakType> listZaaktypes() {
-    return ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI()).stream()
-        .filter(zaaktype -> !zaaktype.getConcept())
-        .filter(ZaakTypeUtil::isNuGeldig)
-        .toList();
-  }
+    private List<ZaakType> listZaaktypes() {
+        return ztcClientService
+                .listZaaktypen(configuratieService.readDefaultCatalogusURI())
+                .stream()
+                .filter(zaaktype -> !zaaktype.getConcept())
+                .filter(ZaakTypeUtil::isNuGeldig)
+                .toList();
+    }
 
-  private RESTZaaktypeInrichtingscheck convertToREST(final ZaaktypeInrichtingscheck check) {
-    final RESTZaaktypeInrichtingscheck restCheck = new RESTZaaktypeInrichtingscheck();
-    restCheck.zaaktype = zaaktypeConverter.convert(check.getZaaktype());
-    restCheck.besluittypeAanwezig = check.isBesluittypeAanwezig();
-    restCheck.resultaattypesMetVerplichtBesluit = check.getResultaattypesMetVerplichtBesluit();
-    restCheck.resultaattypeAanwezig = check.isResultaattypeAanwezig();
-    restCheck.informatieobjecttypeEmailAanwezig = check.isInformatieobjecttypeEmailAanwezig();
-    restCheck.rolBehandelaarAanwezig = check.isRolBehandelaarAanwezig();
-    restCheck.rolInitiatorAanwezig = check.isRolInitiatorAanwezig();
-    restCheck.rolOverigeAanwezig = check.isRolOverigeAanwezig();
-    restCheck.statustypeAfgerondAanwezig = check.isStatustypeAfgerondAanwezig();
-    restCheck.statustypeAfgerondLaatsteVolgnummer = check.isStatustypeAfgerondLaatsteVolgnummer();
-    restCheck.statustypeHeropendAanwezig = check.isStatustypeHeropendAanwezig();
-    restCheck.statustypeInBehandelingAanwezig = check.isStatustypeInBehandelingAanwezig();
-    restCheck.statustypeIntakeAanwezig = check.isStatustypeIntakeAanwezig();
-    restCheck.zaakafhandelParametersValide = check.isZaakafhandelParametersValide();
-    restCheck.valide = check.isValide();
-    return restCheck;
-  }
+    private RESTZaaktypeInrichtingscheck convertToREST(final ZaaktypeInrichtingscheck check) {
+        final RESTZaaktypeInrichtingscheck restCheck = new RESTZaaktypeInrichtingscheck();
+        restCheck.zaaktype = zaaktypeConverter.convert(check.getZaaktype());
+        restCheck.besluittypeAanwezig = check.isBesluittypeAanwezig();
+        restCheck.resultaattypesMetVerplichtBesluit = check.getResultaattypesMetVerplichtBesluit();
+        restCheck.resultaattypeAanwezig = check.isResultaattypeAanwezig();
+        restCheck.informatieobjecttypeEmailAanwezig = check.isInformatieobjecttypeEmailAanwezig();
+        restCheck.rolBehandelaarAanwezig = check.isRolBehandelaarAanwezig();
+        restCheck.rolInitiatorAanwezig = check.isRolInitiatorAanwezig();
+        restCheck.rolOverigeAanwezig = check.isRolOverigeAanwezig();
+        restCheck.statustypeAfgerondAanwezig = check.isStatustypeAfgerondAanwezig();
+        restCheck.statustypeAfgerondLaatsteVolgnummer =
+                check.isStatustypeAfgerondLaatsteVolgnummer();
+        restCheck.statustypeHeropendAanwezig = check.isStatustypeHeropendAanwezig();
+        restCheck.statustypeInBehandelingAanwezig = check.isStatustypeInBehandelingAanwezig();
+        restCheck.statustypeIntakeAanwezig = check.isStatustypeIntakeAanwezig();
+        restCheck.zaakafhandelParametersValide = check.isZaakafhandelParametersValide();
+        restCheck.valide = check.isValide();
+        return restCheck;
+    }
 }

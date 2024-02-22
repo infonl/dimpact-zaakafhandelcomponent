@@ -8,9 +8,9 @@ import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjecttype;
 
 public class RESTTaakDocumentData {
 
-  public String bestandsnaam;
+    public String bestandsnaam;
 
-  public String documentTitel;
+    public String documentTitel;
 
-  public RESTInformatieobjecttype documentType;
+    public RESTInformatieobjecttype documentType;
 }

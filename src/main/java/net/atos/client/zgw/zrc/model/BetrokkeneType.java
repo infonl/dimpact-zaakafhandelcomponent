@@ -13,36 +13,36 @@ import net.atos.client.zgw.shared.model.AbstractEnum;
  */
 @JsonbTypeAdapter(BetrokkeneType.Adapter.class)
 public enum BetrokkeneType implements AbstractEnum<BetrokkeneType> {
-  NATUURLIJK_PERSOON("natuurlijk_persoon"),
+    NATUURLIJK_PERSOON("natuurlijk_persoon"),
 
-  NIET_NATUURLIJK_PERSOON("niet_natuurlijk_persoon"),
+    NIET_NATUURLIJK_PERSOON("niet_natuurlijk_persoon"),
 
-  VESTIGING("vestiging"),
+    VESTIGING("vestiging"),
 
-  ORGANISATORISCHE_EENHEID("organisatorische_eenheid"),
+    ORGANISATORISCHE_EENHEID("organisatorische_eenheid"),
 
-  MEDEWERKER("medewerker");
+    MEDEWERKER("medewerker");
 
-  private final String value;
+    private final String value;
 
-  BetrokkeneType(final String value) {
-    this.value = value;
-  }
-
-  @Override
-  public String toValue() {
-    return value;
-  }
-
-  public static BetrokkeneType fromValue(final String value) {
-    return AbstractEnum.fromValue(values(), value);
-  }
-
-  static class Adapter extends AbstractEnum.Adapter<BetrokkeneType> {
+    BetrokkeneType(final String value) {
+        this.value = value;
+    }
 
     @Override
-    protected BetrokkeneType[] getEnums() {
-      return values();
+    public String toValue() {
+        return value;
     }
-  }
+
+    public static BetrokkeneType fromValue(final String value) {
+        return AbstractEnum.fromValue(values(), value);
+    }
+
+    static class Adapter extends AbstractEnum.Adapter<BetrokkeneType> {
+
+        @Override
+        protected BetrokkeneType[] getEnums() {
+            return values();
+        }
+    }
 }

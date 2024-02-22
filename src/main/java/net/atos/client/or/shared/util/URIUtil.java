@@ -15,13 +15,13 @@ import java.util.UUID;
  */
 public final class URIUtil {
 
-  public static UUID getUUID(final URI resourceURI) {
-    final String resourceURIString = resourceURI.toString();
-    return UUID.fromString(
-        contains(resourceURIString, "/")
-            ? substringAfterLast(resourceURIString, "/")
-            : resourceURIString);
-  }
+    public static UUID getUUID(final URI resourceURI) {
+        final String resourceURIString = resourceURI.toString();
+        return UUID.fromString(
+                contains(resourceURIString, "/")
+                        ? substringAfterLast(resourceURIString, "/")
+                        : resourceURIString);
+    }
 
-  private URIUtil() {}
+    private URIUtil() {}
 }

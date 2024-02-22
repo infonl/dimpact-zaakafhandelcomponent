@@ -10,15 +10,15 @@ import net.atos.zac.authentication.LoggedInUser;
 
 public class DocumentInput extends UserInput {
 
-  @JsonbProperty("document")
-  private final DocumentData documentData;
+    @JsonbProperty("document")
+    private final DocumentData documentData;
 
-  public DocumentInput(final LoggedInUser loggedInUser, final DocumentData documentData) {
-    super(loggedInUser);
-    this.documentData = documentData;
-  }
+    public DocumentInput(final LoggedInUser loggedInUser, final DocumentData documentData) {
+        super(loggedInUser);
+        this.documentData = documentData;
+    }
 
-  public DocumentData getDocumentData() {
-    return documentData;
-  }
+    public DocumentData getDocumentData() {
+        return documentData;
+    }
 }

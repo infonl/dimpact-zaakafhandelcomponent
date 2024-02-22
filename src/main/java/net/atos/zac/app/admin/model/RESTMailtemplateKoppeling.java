@@ -6,9 +6,9 @@ package net.atos.zac.app.admin.model;
 
 public class RESTMailtemplateKoppeling {
 
-  public Long id;
+    public Long id;
 
-  public RESTZaakafhandelParameters zaakafhandelParameters;
+    public RESTZaakafhandelParameters zaakafhandelParameters;
 
-  public RESTMailtemplate mailtemplate;
+    public RESTMailtemplate mailtemplate;
 }

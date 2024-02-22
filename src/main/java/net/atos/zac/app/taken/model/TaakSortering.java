@@ -7,22 +7,24 @@ package net.atos.zac.app.taken.model;
 import java.util.Arrays;
 
 public enum TaakSortering {
-  ID,
-  TAAKNAAM,
-  CREATIEDATUM,
-  FATALEDATUM,
-  BEHANDELAAR;
+    ID,
+    TAAKNAAM,
+    CREATIEDATUM,
+    FATALEDATUM,
+    BEHANDELAAR;
 
-  public static TaakSortering fromValue(final String value) {
-    if (value == null) {
-      return null;
+    public static TaakSortering fromValue(final String value) {
+        if (value == null) {
+            return null;
+        }
+        return Arrays.stream(values())
+                .filter(taakSortering -> taakSortering.name().equalsIgnoreCase(value))
+                .findAny()
+                .orElseThrow(
+                        () ->
+                                new IllegalArgumentException(
+                                        String.format(
+                                                "Onbekende TaakSortering met waarde: '%s'",
+                                                value)));
     }
-    return Arrays.stream(values())
-        .filter(taakSortering -> taakSortering.name().equalsIgnoreCase(value))
-        .findAny()
-        .orElseThrow(
-            () ->
-                new IllegalArgumentException(
-                    String.format("Onbekende TaakSortering met waarde: '%s'", value)));
-  }
 }

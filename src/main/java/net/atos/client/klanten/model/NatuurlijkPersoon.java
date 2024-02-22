@@ -11,59 +11,59 @@ import jakarta.json.bind.annotation.JsonbProperty;
 
 public class NatuurlijkPersoon extends Klant {
 
-  @JsonbProperty("subjectIdentificatie")
-  private NatuurlijkPersoon subjectIdentificatie;
+    @JsonbProperty("subjectIdentificatie")
+    private NatuurlijkPersoon subjectIdentificatie;
 
-  public NatuurlijkPersoon() {}
+    public NatuurlijkPersoon() {}
 
-  @JsonbCreator
-  public NatuurlijkPersoon(@JsonbProperty(value = "url", nillable = true) URI url) {
-    this.url = url;
-  }
-
-  /**
-   * Get subjectIdentificatie
-   * @return subjectIdentificatie
-   **/
-  public NatuurlijkPersoon getSubjectIdentificatie() {
-    return subjectIdentificatie;
-  }
-
-  /**
-   * Set subjectIdentificatie
-   **/
-  public void setSubjectIdentificatie(NatuurlijkPersoon subjectIdentificatie) {
-    this.subjectIdentificatie = subjectIdentificatie;
-  }
-
-  public NatuurlijkPersoon subjectIdentificatie(NatuurlijkPersoon subjectIdentificatie) {
-    this.subjectIdentificatie = subjectIdentificatie;
-    return this;
-  }
-
-  /**
-   * Create a string representation of this pojo.
-   **/
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class NatuurlijkPersoon {\n");
-    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
-    sb.append("    subjectIdentificatie: ")
-        .append(toIndentedString(subjectIdentificatie))
-        .append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private static String toIndentedString(Object o) {
-    if (o == null) {
-      return "null";
+    @JsonbCreator
+    public NatuurlijkPersoon(@JsonbProperty(value = "url", nillable = true) URI url) {
+        this.url = url;
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    /**
+     * Get subjectIdentificatie
+     * @return subjectIdentificatie
+     **/
+    public NatuurlijkPersoon getSubjectIdentificatie() {
+        return subjectIdentificatie;
+    }
+
+    /**
+     * Set subjectIdentificatie
+     **/
+    public void setSubjectIdentificatie(NatuurlijkPersoon subjectIdentificatie) {
+        this.subjectIdentificatie = subjectIdentificatie;
+    }
+
+    public NatuurlijkPersoon subjectIdentificatie(NatuurlijkPersoon subjectIdentificatie) {
+        this.subjectIdentificatie = subjectIdentificatie;
+        return this;
+    }
+
+    /**
+     * Create a string representation of this pojo.
+     **/
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class NatuurlijkPersoon {\n");
+        sb.append("    ").append(toIndentedString(super.toString())).append("\n");
+        sb.append("    subjectIdentificatie: ")
+                .append(toIndentedString(subjectIdentificatie))
+                .append("\n");
+        sb.append("}");
+        return sb.toString();
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private static String toIndentedString(Object o) {
+        if (o == null) {
+            return "null";
+        }
+        return o.toString().replace("\n", "\n    ");
+    }
 }

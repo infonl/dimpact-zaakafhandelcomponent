@@ -8,5 +8,5 @@ import java.util.Set;
 
 public class RESTLoggedInUser extends RESTUser {
 
-  public Set<String> groupIds;
+    public Set<String> groupIds;
 }

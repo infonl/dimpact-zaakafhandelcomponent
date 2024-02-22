@@ -6,7 +6,7 @@ package net.atos.zac.app.zaken.model;
 
 public class RESTZaakStatus {
 
-  public String naam; // Omschrijving van het statustype
+    public String naam; // Omschrijving van het statustype
 
-  public String toelichting; // Toelichting op de status
+    public String toelichting; // Toelichting op de status
 }

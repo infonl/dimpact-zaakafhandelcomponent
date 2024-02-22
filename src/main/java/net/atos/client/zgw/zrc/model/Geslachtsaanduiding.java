@@ -10,30 +10,30 @@ import net.atos.client.zgw.shared.model.AbstractEnum;
 
 @JsonbTypeAdapter(Geslachtsaanduiding.Adapter.class)
 public enum Geslachtsaanduiding implements AbstractEnum<Geslachtsaanduiding> {
-  MAN("m"),
-  VROUW("v"),
-  ONBEKEND("o");
+    MAN("m"),
+    VROUW("v"),
+    ONBEKEND("o");
 
-  private final String value;
+    private final String value;
 
-  Geslachtsaanduiding(final String value) {
-    this.value = value;
-  }
-
-  @Override
-  public String toValue() {
-    return value;
-  }
-
-  public static Geslachtsaanduiding fromValue(final String value) {
-    return AbstractEnum.fromValue(values(), value);
-  }
-
-  static class Adapter extends AbstractEnum.Adapter<Geslachtsaanduiding> {
+    Geslachtsaanduiding(final String value) {
+        this.value = value;
+    }
 
     @Override
-    protected Geslachtsaanduiding[] getEnums() {
-      return values();
+    public String toValue() {
+        return value;
     }
-  }
+
+    public static Geslachtsaanduiding fromValue(final String value) {
+        return AbstractEnum.fromValue(values(), value);
+    }
+
+    static class Adapter extends AbstractEnum.Adapter<Geslachtsaanduiding> {
+
+        @Override
+        protected Geslachtsaanduiding[] getEnums() {
+            return values();
+        }
+    }
 }

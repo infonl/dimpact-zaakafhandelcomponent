@@ -55,122 +55,124 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters;
 @Produces(APPLICATION_JSON)
 public interface ZRCClient {
 
-  String ACCEPT_CRS = "Accept-Crs";
+    String ACCEPT_CRS = "Accept-Crs";
 
-  String ACCEPT_CRS_VALUE = "EPSG:4326";
+    String ACCEPT_CRS_VALUE = "EPSG:4326";
 
-  String CONTENT_CRS = "Content-Crs";
+    String CONTENT_CRS = "Content-Crs";
 
-  String CONTENT_CRS_VALUE = ACCEPT_CRS_VALUE;
+    String CONTENT_CRS_VALUE = ACCEPT_CRS_VALUE;
 
-  @GET
-  @Path("zaken")
-  @ClientHeaderParams({
-    @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-    @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)
-  })
-  Results<Zaak> zaakList(@BeanParam final ZaakListParameters parameters);
+    @GET
+    @Path("zaken")
+    @ClientHeaderParams({
+        @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
+        @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)
+    })
+    Results<Zaak> zaakList(@BeanParam final ZaakListParameters parameters);
 
-  @POST
-  @Path("zaken")
-  @ClientHeaderParams({
-    @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-    @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)
-  })
-  Zaak zaakCreate(final Zaak zaak);
+    @POST
+    @Path("zaken")
+    @ClientHeaderParams({
+        @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
+        @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)
+    })
+    Zaak zaakCreate(final Zaak zaak);
 
-  @PATCH
-  @Path("zaken/{uuid}")
-  @ClientHeaderParams({
-    @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-    @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)
-  })
-  Zaak zaakPartialUpdate(@PathParam("uuid") final UUID uuid, final Zaak zaak);
+    @PATCH
+    @Path("zaken/{uuid}")
+    @ClientHeaderParams({
+        @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
+        @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)
+    })
+    Zaak zaakPartialUpdate(@PathParam("uuid") final UUID uuid, final Zaak zaak);
 
-  @GET
-  @Path("zaken/{uuid}")
-  @ClientHeaderParams({
-    @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-    @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)
-  })
-  Zaak zaakRead(@PathParam("uuid") final UUID uuid);
+    @GET
+    @Path("zaken/{uuid}")
+    @ClientHeaderParams({
+        @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
+        @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)
+    })
+    Zaak zaakRead(@PathParam("uuid") final UUID uuid);
 
-  @GET
-  @Path("rollen")
-  Results<Rol<?>> rolList(@BeanParam final RolListParameters parameters);
+    @GET
+    @Path("rollen")
+    Results<Rol<?>> rolList(@BeanParam final RolListParameters parameters);
 
-  @POST
-  @Path("rollen")
-  Rol<?> rolCreate(final Rol<?> rol);
+    @POST
+    @Path("rollen")
+    Rol<?> rolCreate(final Rol<?> rol);
 
-  @DELETE
-  @Path("rollen/{uuid}")
-  Response rolDelete(@PathParam("uuid") final UUID uuid);
+    @DELETE
+    @Path("rollen/{uuid}")
+    Response rolDelete(@PathParam("uuid") final UUID uuid);
 
-  @GET
-  @Path("rollen/{uuid}")
-  Rol<?> rolRead(@PathParam("uuid") final UUID uuid);
+    @GET
+    @Path("rollen/{uuid}")
+    Rol<?> rolRead(@PathParam("uuid") final UUID uuid);
 
-  @GET
-  @Path("zaakinformatieobjecten")
-  List<ZaakInformatieobject> zaakinformatieobjectList(
-      @BeanParam final ZaakInformatieobjectListParameters parameters);
+    @GET
+    @Path("zaakinformatieobjecten")
+    List<ZaakInformatieobject> zaakinformatieobjectList(
+            @BeanParam final ZaakInformatieobjectListParameters parameters);
 
-  @POST
-  @Path("zaakinformatieobjecten")
-  ZaakInformatieobject zaakinformatieobjectCreate(final ZaakInformatieobject zaakInformatieObject);
+    @POST
+    @Path("zaakinformatieobjecten")
+    ZaakInformatieobject zaakinformatieobjectCreate(
+            final ZaakInformatieobject zaakInformatieObject);
 
-  @DELETE
-  @Path("zaakinformatieobjecten/{uuid}")
-  Response zaakinformatieobjectDelete(@PathParam("uuid") final UUID uuid);
+    @DELETE
+    @Path("zaakinformatieobjecten/{uuid}")
+    Response zaakinformatieobjectDelete(@PathParam("uuid") final UUID uuid);
 
-  @POST
-  @Path("statussen")
-  Status statusCreate(final Status status);
+    @POST
+    @Path("statussen")
+    Status statusCreate(final Status status);
 
-  @POST
-  @Path("resultaten")
-  Resultaat resultaatCreate(final Resultaat resultaat);
+    @POST
+    @Path("resultaten")
+    Resultaat resultaatCreate(final Resultaat resultaat);
 
-  @PUT
-  @Path("resultaten/{uuid}")
-  Resultaat resultaatUpdate(@PathParam("uuid") final UUID resultaatUUID, final Resultaat resultaat);
+    @PUT
+    @Path("resultaten/{uuid}")
+    Resultaat resultaatUpdate(
+            @PathParam("uuid") final UUID resultaatUUID, final Resultaat resultaat);
 
-  @DELETE
-  @Path("resultaten/{uuid}")
-  Response resultaatDelete(@PathParam("uuid") final UUID uuid);
+    @DELETE
+    @Path("resultaten/{uuid}")
+    Response resultaatDelete(@PathParam("uuid") final UUID uuid);
 
-  @GET
-  @Path("zaken/{zaak_uuid}/zaakeigenschappen")
-  List<ZaakEigenschap> zaakeigenschapList(@PathParam("zaak_uuid") final UUID zaakUUID);
+    @GET
+    @Path("zaken/{zaak_uuid}/zaakeigenschappen")
+    List<ZaakEigenschap> zaakeigenschapList(@PathParam("zaak_uuid") final UUID zaakUUID);
 
-  @POST
-  @Path("zaken/{zaak_uuid}/zaakeigenschappen")
-  ZaakEigenschap zaakeigenschapCreate(
-      @PathParam("zaak_uuid") final UUID zaakUUID, final ZaakEigenschap zaakeigenschap);
+    @POST
+    @Path("zaken/{zaak_uuid}/zaakeigenschappen")
+    ZaakEigenschap zaakeigenschapCreate(
+            @PathParam("zaak_uuid") final UUID zaakUUID, final ZaakEigenschap zaakeigenschap);
 
-  @GET
-  @Path("zaakobjecten")
-  Results<Zaakobject> zaakobjectList(
-      @BeanParam final ZaakobjectListParameters zaakobjectListParameters);
+    @GET
+    @Path("zaakobjecten")
+    Results<Zaakobject> zaakobjectList(
+            @BeanParam final ZaakobjectListParameters zaakobjectListParameters);
 
-  @POST
-  @Path("zaakobjecten")
-  Zaakobject zaakobjectCreate(final Zaakobject zaakobject);
+    @POST
+    @Path("zaakobjecten")
+    Zaakobject zaakobjectCreate(final Zaakobject zaakobject);
 
-  @DELETE
-  @Path("zaakobjecten/{uuid}")
-  Response zaakobjectDelete(@PathParam("uuid") final UUID uuid);
+    @DELETE
+    @Path("zaakobjecten/{uuid}")
+    Response zaakobjectDelete(@PathParam("uuid") final UUID uuid);
 
-  @GET
-  @Path("zaakobjecten/{uuid}")
-  Zaakobject zaakobjectRead(@PathParam("uuid") final UUID uuid);
+    @GET
+    @Path("zaakobjecten/{uuid}")
+    Zaakobject zaakobjectRead(@PathParam("uuid") final UUID uuid);
 
-  @GET
-  @Path("zaken/{zaak_uuid}/audittrail")
-  List<AuditTrailRegel> listAuditTrail(@PathParam("zaak_uuid") final UUID zaakUUID);
+    @GET
+    @Path("zaken/{zaak_uuid}/audittrail")
+    List<AuditTrailRegel> listAuditTrail(@PathParam("zaak_uuid") final UUID zaakUUID);
 
-  @GET
-  @Path("zaakinformatieobjecten/{uuid}")
-  ZaakInformatieobject zaakinformatieobjectRead(@PathParam("uuid") UUID zaakinformatieobjectUUID);
+    @GET
+    @Path("zaakinformatieobjecten/{uuid}")
+    ZaakInformatieobject zaakinformatieobjectRead(@PathParam("uuid") UUID zaakinformatieobjectUUID);
 }

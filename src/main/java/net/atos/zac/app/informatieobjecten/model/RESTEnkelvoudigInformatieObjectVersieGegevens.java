@@ -12,27 +12,27 @@ import net.atos.zac.app.configuratie.model.RESTTaal;
 
 public class RESTEnkelvoudigInformatieObjectVersieGegevens {
 
-  public UUID uuid;
+    public UUID uuid;
 
-  public UUID zaakUuid;
+    public UUID zaakUuid;
 
-  public String titel;
+    public String titel;
 
-  public String vertrouwelijkheidaanduiding;
+    public String vertrouwelijkheidaanduiding;
 
-  public String auteur;
+    public String auteur;
 
-  public EnkelvoudigInformatieObject.StatusEnum status;
+    public EnkelvoudigInformatieObject.StatusEnum status;
 
-  public RESTTaal taal;
+    public RESTTaal taal;
 
-  public String bestandsnaam;
+    public String bestandsnaam;
 
-  public String beschrijving;
+    public String beschrijving;
 
-  public LocalDate verzenddatum;
+    public LocalDate verzenddatum;
 
-  public LocalDate ontvangstdatum;
+    public LocalDate ontvangstdatum;
 
-  public String toelichting;
+    public String toelichting;
 }

@@ -18,23 +18,24 @@ import net.atos.zac.zoeken.model.index.ZoekObjectType;
 
 class SolrSchemaV4 implements SolrSchemaUpdate {
 
-  @Override
-  public int getVersie() {
-    return 4;
-  }
+    @Override
+    public int getVersie() {
+        return 4;
+    }
 
-  @Override
-  public Set<ZoekObjectType> getTeHerindexerenZoekObjectTypes() {
-    return Set.of(ZoekObjectType.ZAAK);
-  }
+    @Override
+    public Set<ZoekObjectType> getTeHerindexerenZoekObjectTypes() {
+        return Set.of(ZoekObjectType.ZAAK);
+    }
 
-  @Override
-  public List<SchemaRequest.Update> getSchemaUpdates() {
-    return updateZaakSchema();
-  }
+    @Override
+    public List<SchemaRequest.Update> getSchemaUpdates() {
+        return updateZaakSchema();
+    }
 
-  private List<SchemaRequest.Update> updateZaakSchema() {
-    return List.of(
-        addField("zaak_archiefNominatie", STRING, true), addField("zaak_archiefActiedatum", PDATE));
-  }
+    private List<SchemaRequest.Update> updateZaakSchema() {
+        return List.of(
+                addField("zaak_archiefNominatie", STRING, true),
+                addField("zaak_archiefActiedatum", PDATE));
+    }
 }

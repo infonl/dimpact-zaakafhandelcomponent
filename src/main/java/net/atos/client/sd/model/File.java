@@ -6,9 +6,9 @@ package net.atos.client.sd.model;
 
 public class File {
 
-  public String fileName;
+    public String fileName;
 
-  public Document document;
+    public Document document;
 
-  public String outputFormat;
+    public String outputFormat;
 }

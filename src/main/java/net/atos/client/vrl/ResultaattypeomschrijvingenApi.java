@@ -30,11 +30,11 @@ import net.atos.client.vrl.model.ResultaattypeOmschrijvingGeneriek;
 @Path("api/v1/resultaattypeomschrijvingen")
 public interface ResultaattypeomschrijvingenApi {
 
-  @GET
-  List<ResultaattypeOmschrijvingGeneriek> resultaattypeomschrijvinggeneriekList();
+    @GET
+    List<ResultaattypeOmschrijvingGeneriek> resultaattypeomschrijvinggeneriekList();
 
-  @GET
-  @Path("/{uuid}")
-  ResultaattypeOmschrijvingGeneriek resultaattypeomschrijvinggeneriekRead(
-      @PathParam("uuid") UUID uuid);
+    @GET
+    @Path("/{uuid}")
+    ResultaattypeOmschrijvingGeneriek resultaattypeomschrijvinggeneriekRead(
+            @PathParam("uuid") UUID uuid);
 }

@@ -10,9 +10,9 @@ import net.atos.zac.app.zaken.model.RelatieType;
 
 public class RESTGekoppeldeZaakEnkelvoudigInformatieObject extends RESTEnkelvoudigInformatieobject {
 
-  public RelatieType relatieType;
+    public RelatieType relatieType;
 
-  public String zaakIdentificatie;
+    public String zaakIdentificatie;
 
-  public UUID zaakUUID;
+    public UUID zaakUUID;
 }

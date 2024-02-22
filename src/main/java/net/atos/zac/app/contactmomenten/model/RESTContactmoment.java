@@ -8,13 +8,13 @@ import java.time.ZonedDateTime;
 
 public class RESTContactmoment {
 
-  public ZonedDateTime registratiedatum;
+    public ZonedDateTime registratiedatum;
 
-  public String kanaal;
+    public String kanaal;
 
-  public String tekst;
+    public String tekst;
 
-  public String initiatiefnemer;
+    public String initiatiefnemer;
 
-  public String medewerker;
+    public String medewerker;
 }

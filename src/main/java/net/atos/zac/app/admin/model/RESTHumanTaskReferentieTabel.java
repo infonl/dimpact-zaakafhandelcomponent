@@ -8,15 +8,15 @@ import net.atos.zac.zaaksturing.model.FormulierVeldDefinitie;
 
 public class RESTHumanTaskReferentieTabel {
 
-  public Long id;
+    public Long id;
 
-  public String veld;
+    public String veld;
 
-  public RESTReferentieTabel tabel;
+    public RESTReferentieTabel tabel;
 
-  public RESTHumanTaskReferentieTabel() {}
+    public RESTHumanTaskReferentieTabel() {}
 
-  public RESTHumanTaskReferentieTabel(final FormulierVeldDefinitie veldDefinitie) {
-    veld = veldDefinitie.name();
-  }
+    public RESTHumanTaskReferentieTabel(final FormulierVeldDefinitie veldDefinitie) {
+        veld = veldDefinitie.name();
+    }
 }

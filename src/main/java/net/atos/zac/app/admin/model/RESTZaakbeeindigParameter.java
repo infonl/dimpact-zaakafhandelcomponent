@@ -8,9 +8,9 @@ import net.atos.zac.app.zaken.model.RESTResultaattype;
 
 public class RESTZaakbeeindigParameter {
 
-  public Long id;
+    public Long id;
 
-  public RESTZaakbeeindigReden zaakbeeindigReden;
+    public RESTZaakbeeindigReden zaakbeeindigReden;
 
-  public RESTResultaattype resultaattype;
+    public RESTResultaattype resultaattype;
 }

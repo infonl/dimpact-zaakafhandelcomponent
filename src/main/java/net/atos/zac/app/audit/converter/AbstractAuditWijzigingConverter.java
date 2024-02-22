@@ -19,71 +19,71 @@ import net.atos.zac.app.audit.model.RESTHistorieRegel;
 
 public abstract class AbstractAuditWijzigingConverter<W extends AuditWijziging<?>> {
 
-  public Stream<RESTHistorieRegel> convert(final AuditWijziging<?> wijziging) {
-    return doConvert((W) wijziging);
-  }
-
-  public abstract boolean supports(final ObjectType objectType);
-
-  protected abstract Stream<RESTHistorieRegel> doConvert(final W wijziging);
-
-  protected void checkAttribuut(
-      final String label,
-      final String oud,
-      final String nieuw,
-      final List<RESTHistorieRegel> historieRegels) {
-    if (!StringUtils.equals(oud, nieuw)) {
-      historieRegels.add(new RESTHistorieRegel(label, oud, nieuw));
+    public Stream<RESTHistorieRegel> convert(final AuditWijziging<?> wijziging) {
+        return doConvert((W) wijziging);
     }
-  }
 
-  protected void checkAttribuut(
-      final String label,
-      final EnkelvoudigInformatieObject.StatusEnum oud,
-      final EnkelvoudigInformatieObject.StatusEnum nieuw,
-      final List<RESTHistorieRegel> historieRegels) {
-    if (oud != nieuw) {
-      historieRegels.add(new RESTHistorieRegel(label, oud, nieuw));
-    }
-  }
+    public abstract boolean supports(final ObjectType objectType);
 
-  protected void checkAttribuut(
-      final String label,
-      final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum oud,
-      final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum nieuw,
-      final List<RESTHistorieRegel> historieRegels) {
-    if (oud != nieuw) {
-      historieRegels.add(new RESTHistorieRegel(label, oud, nieuw));
-    }
-  }
+    protected abstract Stream<RESTHistorieRegel> doConvert(final W wijziging);
 
-  protected void checkAttribuut(
-      final String label,
-      final Boolean oud,
-      final Boolean nieuw,
-      final List<RESTHistorieRegel> historieRegels) {
-    if (ObjectUtils.notEqual(oud, nieuw)) {
-      historieRegels.add(new RESTHistorieRegel(label, oud, nieuw));
+    protected void checkAttribuut(
+            final String label,
+            final String oud,
+            final String nieuw,
+            final List<RESTHistorieRegel> historieRegels) {
+        if (!StringUtils.equals(oud, nieuw)) {
+            historieRegels.add(new RESTHistorieRegel(label, oud, nieuw));
+        }
     }
-  }
 
-  protected void checkAttribuut(
-      final String label,
-      final LocalDate oud,
-      final LocalDate nieuw,
-      final List<RESTHistorieRegel> historieRegels) {
-    if (ObjectUtils.notEqual(oud, nieuw)) {
-      historieRegels.add(new RESTHistorieRegel(label, oud, nieuw));
+    protected void checkAttribuut(
+            final String label,
+            final EnkelvoudigInformatieObject.StatusEnum oud,
+            final EnkelvoudigInformatieObject.StatusEnum nieuw,
+            final List<RESTHistorieRegel> historieRegels) {
+        if (oud != nieuw) {
+            historieRegels.add(new RESTHistorieRegel(label, oud, nieuw));
+        }
     }
-  }
 
-  protected void checkAttribuut(
-      final String label,
-      final ZonedDateTime oud,
-      final ZonedDateTime nieuw,
-      final List<RESTHistorieRegel> historieRegels) {
-    if (ObjectUtils.notEqual(oud, nieuw)) {
-      historieRegels.add(new RESTHistorieRegel(label, oud, nieuw));
+    protected void checkAttribuut(
+            final String label,
+            final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum oud,
+            final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum nieuw,
+            final List<RESTHistorieRegel> historieRegels) {
+        if (oud != nieuw) {
+            historieRegels.add(new RESTHistorieRegel(label, oud, nieuw));
+        }
     }
-  }
+
+    protected void checkAttribuut(
+            final String label,
+            final Boolean oud,
+            final Boolean nieuw,
+            final List<RESTHistorieRegel> historieRegels) {
+        if (ObjectUtils.notEqual(oud, nieuw)) {
+            historieRegels.add(new RESTHistorieRegel(label, oud, nieuw));
+        }
+    }
+
+    protected void checkAttribuut(
+            final String label,
+            final LocalDate oud,
+            final LocalDate nieuw,
+            final List<RESTHistorieRegel> historieRegels) {
+        if (ObjectUtils.notEqual(oud, nieuw)) {
+            historieRegels.add(new RESTHistorieRegel(label, oud, nieuw));
+        }
+    }
+
+    protected void checkAttribuut(
+            final String label,
+            final ZonedDateTime oud,
+            final ZonedDateTime nieuw,
+            final List<RESTHistorieRegel> historieRegels) {
+        if (ObjectUtils.notEqual(oud, nieuw)) {
+            historieRegels.add(new RESTHistorieRegel(label, oud, nieuw));
+        }
+    }
 }

@@ -10,8 +10,8 @@ import net.atos.client.zgw.zrc.model.Zaak;
 
 public class ZaakWijziging extends AuditWijziging<Zaak> {
 
-  @Override
-  public ObjectType getObjectType() {
-    return ObjectType.ZAAK;
-  }
+    @Override
+    public ObjectType getObjectType() {
+        return ObjectType.ZAAK;
+    }
 }

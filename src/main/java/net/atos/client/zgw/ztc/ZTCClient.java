@@ -56,64 +56,65 @@ import net.atos.client.zgw.ztc.model.generated.ZaakTypeInformatieObjectType;
 @Produces(APPLICATION_JSON)
 public interface ZTCClient {
 
-  @GET
-  @Path("catalogussen")
-  Results<Catalogus> catalogusList(@BeanParam final CatalogusListParameters parameters);
+    @GET
+    @Path("catalogussen")
+    Results<Catalogus> catalogusList(@BeanParam final CatalogusListParameters parameters);
 
-  @GET
-  @Path("eigenschappen")
-  Results<Eigenschap> eigenschapList(@BeanParam final EigenschapListParameters parameters);
+    @GET
+    @Path("eigenschappen")
+    Results<Eigenschap> eigenschapList(@BeanParam final EigenschapListParameters parameters);
 
-  @GET
-  @Path("informatieobjecttypen")
-  Results<InformatieObjectType> informatieobjecttypeList();
+    @GET
+    @Path("informatieobjecttypen")
+    Results<InformatieObjectType> informatieobjecttypeList();
 
-  @GET
-  @Path("resultaattypen/{uuid}")
-  ResultaatType resultaattypeRead(@PathParam("uuid") final UUID uuid);
+    @GET
+    @Path("resultaattypen/{uuid}")
+    ResultaatType resultaattypeRead(@PathParam("uuid") final UUID uuid);
 
-  @GET
-  @Path("resultaattypen")
-  Results<ResultaatType> resultaattypeList(@BeanParam final ResultaattypeListParameters parameters);
+    @GET
+    @Path("resultaattypen")
+    Results<ResultaatType> resultaattypeList(
+            @BeanParam final ResultaattypeListParameters parameters);
 
-  @GET
-  @Path("roltypen/{uuid}")
-  RolType roltypeRead(@PathParam("uuid") final UUID uuid);
+    @GET
+    @Path("roltypen/{uuid}")
+    RolType roltypeRead(@PathParam("uuid") final UUID uuid);
 
-  @GET
-  @Path("roltypen")
-  Results<RolType> roltypeList(@BeanParam final RoltypeListParameters parameters);
+    @GET
+    @Path("roltypen")
+    Results<RolType> roltypeList(@BeanParam final RoltypeListParameters parameters);
 
-  @GET
-  @Path("statustypen")
-  Results<StatusType> statustypeList(@BeanParam final StatustypeListParameters parameters);
+    @GET
+    @Path("statustypen")
+    Results<StatusType> statustypeList(@BeanParam final StatustypeListParameters parameters);
 
-  @GET
-  @Path("zaaktype-informatieobjecttypen")
-  Results<ZaakTypeInformatieObjectType> zaaktypeinformatieobjecttypeList(
-      @BeanParam final ZaaktypeInformatieobjecttypeListParameters parameters);
+    @GET
+    @Path("zaaktype-informatieobjecttypen")
+    Results<ZaakTypeInformatieObjectType> zaaktypeinformatieobjecttypeList(
+            @BeanParam final ZaaktypeInformatieobjecttypeListParameters parameters);
 
-  @GET
-  @Path("statustypen/{uuid}")
-  StatusType statustypeRead(@PathParam("uuid") final UUID uuid);
+    @GET
+    @Path("statustypen/{uuid}")
+    StatusType statustypeRead(@PathParam("uuid") final UUID uuid);
 
-  @GET
-  @Path("zaaktypen")
-  Results<ZaakType> zaaktypeList(@BeanParam final ZaaktypeListParameters parameters);
+    @GET
+    @Path("zaaktypen")
+    Results<ZaakType> zaaktypeList(@BeanParam final ZaaktypeListParameters parameters);
 
-  @GET
-  @Path("zaaktypen/{uuid}")
-  ZaakType zaaktypeRead(@PathParam("uuid") final UUID uuid);
+    @GET
+    @Path("zaaktypen/{uuid}")
+    ZaakType zaaktypeRead(@PathParam("uuid") final UUID uuid);
 
-  @GET
-  @Path("informatieobjecttypen/{uuid}")
-  InformatieObjectType informatieObjectTypeRead(@PathParam("uuid") UUID informatieObjectTypeUUID);
+    @GET
+    @Path("informatieobjecttypen/{uuid}")
+    InformatieObjectType informatieObjectTypeRead(@PathParam("uuid") UUID informatieObjectTypeUUID);
 
-  @GET
-  @Path("besluittypen")
-  Results<BesluitType> besluittypeList(@BeanParam final BesluittypeListParameters parameters);
+    @GET
+    @Path("besluittypen")
+    Results<BesluitType> besluittypeList(@BeanParam final BesluittypeListParameters parameters);
 
-  @GET
-  @Path("besluittypen/{uuid}")
-  BesluitType besluittypeRead(@PathParam("uuid") final UUID uuid);
+    @GET
+    @Path("besluittypen/{uuid}")
+    BesluitType besluittypeRead(@PathParam("uuid") final UUID uuid);
 }

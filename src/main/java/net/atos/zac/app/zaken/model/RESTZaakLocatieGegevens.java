@@ -5,7 +5,7 @@
 package net.atos.zac.app.zaken.model;
 
 public class RESTZaakLocatieGegevens {
-  public RESTGeometry geometrie;
+    public RESTGeometry geometrie;
 
-  public String reden;
+    public String reden;
 }

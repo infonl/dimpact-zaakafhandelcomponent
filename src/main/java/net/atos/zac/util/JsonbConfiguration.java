@@ -13,18 +13,18 @@ import jakarta.ws.rs.ext.Provider;
 @Provider
 public class JsonbConfiguration implements ContextResolver<Jsonb> {
 
-  private Jsonb jsonb;
+    private Jsonb jsonb;
 
-  public JsonbConfiguration() {
-    final JsonbConfig jsonbConfig =
-        new JsonbConfig()
-            .withAdapters(new ZonedDateTimeAdapter(), new LocalDateAdapter())
-            .withDeserializers(new RESTBAGObjectJsonbDeserializer());
-    jsonb = JsonbBuilder.create(jsonbConfig);
-  }
+    public JsonbConfiguration() {
+        final JsonbConfig jsonbConfig =
+                new JsonbConfig()
+                        .withAdapters(new ZonedDateTimeAdapter(), new LocalDateAdapter())
+                        .withDeserializers(new RESTBAGObjectJsonbDeserializer());
+        jsonb = JsonbBuilder.create(jsonbConfig);
+    }
 
-  @Override
-  public Jsonb getContext(Class<?> type) {
-    return jsonb;
-  }
+    @Override
+    public Jsonb getContext(Class<?> type) {
+        return jsonb;
+    }
 }

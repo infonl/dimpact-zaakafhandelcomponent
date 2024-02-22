@@ -11,13 +11,13 @@ import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
 
 public class BadRequestExceptionMapper implements ResponseExceptionMapper<BadRequestException> {
 
-  @Override
-  public boolean handles(final int status, final MultivaluedMap<String, Object> headers) {
-    return status == Response.Status.BAD_REQUEST.getStatusCode();
-  }
+    @Override
+    public boolean handles(final int status, final MultivaluedMap<String, Object> headers) {
+        return status == Response.Status.BAD_REQUEST.getStatusCode();
+    }
 
-  @Override
-  public BadRequestException toThrowable(final Response response) {
-    return new BadRequestException();
-  }
+    @Override
+    public BadRequestException toThrowable(final Response response) {
+        return new BadRequestException();
+    }
 }

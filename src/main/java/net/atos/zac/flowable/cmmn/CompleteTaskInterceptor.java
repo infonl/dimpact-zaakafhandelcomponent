@@ -12,13 +12,13 @@ import net.atos.zac.flowable.FlowableHelper;
 
 public class CompleteTaskInterceptor extends DefaultCmmnIdentityLinkInterceptor {
 
-  public CompleteTaskInterceptor(final CmmnEngineConfiguration cmmnEngineConfiguration) {
-    super(cmmnEngineConfiguration);
-  }
+    public CompleteTaskInterceptor(final CmmnEngineConfiguration cmmnEngineConfiguration) {
+        super(cmmnEngineConfiguration);
+    }
 
-  @Override
-  public void handleCompleteTask(final TaskEntity task) {
-    super.handleCompleteTask(task);
-    FlowableHelper.getInstance().getIndexeerService().removeTaak(task.getId());
-  }
+    @Override
+    public void handleCompleteTask(final TaskEntity task) {
+        super.handleCompleteTask(task);
+        FlowableHelper.getInstance().getIndexeerService().removeTaak(task.getId());
+    }
 }

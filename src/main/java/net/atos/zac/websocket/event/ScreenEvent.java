@@ -9,22 +9,22 @@ import net.atos.zac.event.Opcode;
 
 public class ScreenEvent extends AbstractEvent<ScreenEventType, ScreenEventId> {
 
-  private static final long serialVersionUID = -740125186878024703L;
+    private static final long serialVersionUID = -740125186878024703L;
 
-  private ScreenEventType objectType;
+    private ScreenEventType objectType;
 
-  public ScreenEvent() {
-    super();
-  }
+    public ScreenEvent() {
+        super();
+    }
 
-  public ScreenEvent(
-      final Opcode opcode, final ScreenEventType objectType, final ScreenEventId objectId) {
-    super(opcode, objectId);
-    this.objectType = objectType;
-  }
+    public ScreenEvent(
+            final Opcode opcode, final ScreenEventType objectType, final ScreenEventId objectId) {
+        super(opcode, objectId);
+        this.objectType = objectType;
+    }
 
-  @Override
-  public ScreenEventType getObjectType() {
-    return objectType;
-  }
+    @Override
+    public ScreenEventType getObjectType() {
+        return objectType;
+    }
 }

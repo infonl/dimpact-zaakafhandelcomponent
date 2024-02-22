@@ -6,17 +6,17 @@ package net.atos.zac.app.klanten.model.bedrijven;
 
 public class RESTListBedrijvenParameters {
 
-  public String kvkNummer;
+    public String kvkNummer;
 
-  public String vestigingsnummer;
+    public String vestigingsnummer;
 
-  public String rsin;
+    public String rsin;
 
-  public String handelsnaam;
+    public String handelsnaam;
 
-  public String postcode;
+    public String postcode;
 
-  public Integer huisnummer;
+    public Integer huisnummer;
 
-  public BedrijfType type;
+    public BedrijfType type;
 }

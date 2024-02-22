@@ -10,47 +10,47 @@ import jakarta.ws.rs.QueryParam;
 
 public class KlantcontactmomentListParameters {
 
-  @QueryParam("contactmoment")
-  private URI contactmoment;
+    @QueryParam("contactmoment")
+    private URI contactmoment;
 
-  @QueryParam("klant")
-  private URI klant;
+    @QueryParam("klant")
+    private URI klant;
 
-  @QueryParam("rol")
-  private String rol;
+    @QueryParam("rol")
+    private String rol;
 
-  @QueryParam("page")
-  private Integer page;
+    @QueryParam("page")
+    private Integer page;
 
-  public URI getContactmoment() {
-    return contactmoment;
-  }
+    public URI getContactmoment() {
+        return contactmoment;
+    }
 
-  public void setContactmoment(final URI contactmoment) {
-    this.contactmoment = contactmoment;
-  }
+    public void setContactmoment(final URI contactmoment) {
+        this.contactmoment = contactmoment;
+    }
 
-  public URI getKlant() {
-    return klant;
-  }
+    public URI getKlant() {
+        return klant;
+    }
 
-  public void setKlant(final URI klant) {
-    this.klant = klant;
-  }
+    public void setKlant(final URI klant) {
+        this.klant = klant;
+    }
 
-  public String getRol() {
-    return rol;
-  }
+    public String getRol() {
+        return rol;
+    }
 
-  public void setRol(final String rol) {
-    this.rol = rol;
-  }
+    public void setRol(final String rol) {
+        this.rol = rol;
+    }
 
-  public Integer getPage() {
-    return page;
-  }
+    public Integer getPage() {
+        return page;
+    }
 
-  public void setPage(final Integer page) {
-    this.page = page;
-  }
+    public void setPage(final Integer page) {
+        this.page = page;
+    }
 }

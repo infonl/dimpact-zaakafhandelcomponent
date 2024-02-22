@@ -13,32 +13,32 @@ import net.atos.client.zgw.shared.model.AbstractEnum;
  */
 @JsonbTypeAdapter(Richting.Adapter.class)
 public enum Richting implements AbstractEnum<Richting> {
-  INKOMEND("inkomend"),
+    INKOMEND("inkomend"),
 
-  INTERN("intern"),
+    INTERN("intern"),
 
-  UITGAAND("uitgaand");
+    UITGAAND("uitgaand");
 
-  private final String value;
+    private final String value;
 
-  Richting(final String value) {
-    this.value = value;
-  }
-
-  @Override
-  public String toValue() {
-    return value;
-  }
-
-  public static Richting fromValue(final String value) {
-    return AbstractEnum.fromValue(values(), value);
-  }
-
-  static class Adapter extends AbstractEnum.Adapter<Richting> {
+    Richting(final String value) {
+        this.value = value;
+    }
 
     @Override
-    protected Richting[] getEnums() {
-      return values();
+    public String toValue() {
+        return value;
     }
-  }
+
+    public static Richting fromValue(final String value) {
+        return AbstractEnum.fromValue(values(), value);
+    }
+
+    static class Adapter extends AbstractEnum.Adapter<Richting> {
+
+        @Override
+        protected Richting[] getEnums() {
+            return values();
+        }
+    }
 }

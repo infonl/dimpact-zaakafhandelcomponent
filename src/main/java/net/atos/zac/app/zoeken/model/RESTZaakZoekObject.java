@@ -15,77 +15,77 @@ import net.atos.zac.zoeken.model.ZaakIndicatie;
 
 public class RESTZaakZoekObject extends AbstractRESTZoekObject {
 
-  public String omschrijving;
+    public String omschrijving;
 
-  public String toelichting;
+    public String toelichting;
 
-  public LocalDate registratiedatum;
+    public LocalDate registratiedatum;
 
-  public LocalDate startdatum;
+    public LocalDate startdatum;
 
-  public LocalDate einddatumGepland;
+    public LocalDate einddatumGepland;
 
-  public LocalDate einddatum;
+    public LocalDate einddatum;
 
-  public LocalDate archiefActiedatum;
+    public LocalDate archiefActiedatum;
 
-  public LocalDate uiterlijkeEinddatumAfdoening;
+    public LocalDate uiterlijkeEinddatumAfdoening;
 
-  public LocalDate publicatiedatum;
+    public LocalDate publicatiedatum;
 
-  public String communicatiekanaal;
+    public String communicatiekanaal;
 
-  public String vertrouwelijkheidaanduiding;
+    public String vertrouwelijkheidaanduiding;
 
-  public String archiefNominatie;
+    public String archiefNominatie;
 
-  public boolean afgehandeld;
+    public boolean afgehandeld;
 
-  public String groepId;
+    public String groepId;
 
-  public String groepNaam;
+    public String groepNaam;
 
-  public String behandelaarNaam;
+    public String behandelaarNaam;
 
-  public String behandelaarGebruikersnaam;
+    public String behandelaarGebruikersnaam;
 
-  public String initiatorIdentificatie;
+    public String initiatorIdentificatie;
 
-  public String locatie;
+    public String locatie;
 
-  public boolean indicatieVerlenging;
+    public boolean indicatieVerlenging;
 
-  public boolean indicatieOpschorting;
+    public boolean indicatieOpschorting;
 
-  public boolean indicatieHeropend;
+    public boolean indicatieHeropend;
 
-  public boolean indicatieDeelzaak;
+    public boolean indicatieDeelzaak;
 
-  public boolean indicatieHoofdzaak;
+    public boolean indicatieHoofdzaak;
 
-  public String duurVerlenging;
+    public String duurVerlenging;
 
-  public String redenVerlenging;
+    public String redenVerlenging;
 
-  public String redenOpschorting;
+    public String redenOpschorting;
 
-  public String zaaktypeUuid;
+    public String zaaktypeUuid;
 
-  public String zaaktypeOmschrijving;
+    public String zaaktypeOmschrijving;
 
-  public String resultaattypeOmschrijving;
+    public String resultaattypeOmschrijving;
 
-  public String resultaatToelichting;
+    public String resultaatToelichting;
 
-  public String statustypeOmschrijving;
+    public String statustypeOmschrijving;
 
-  public String statusToelichting;
+    public String statusToelichting;
 
-  public long aantalOpenstaandeTaken;
+    public long aantalOpenstaandeTaken;
 
-  public EnumSet<ZaakIndicatie> indicaties;
+    public EnumSet<ZaakIndicatie> indicaties;
 
-  public RESTZaakRechten rechten;
+    public RESTZaakRechten rechten;
 
-  public Map<RolType.OmschrijvingGeneriekEnum, List<String>> betrokkenen;
+    public Map<RolType.OmschrijvingGeneriekEnum, List<String>> betrokkenen;
 }

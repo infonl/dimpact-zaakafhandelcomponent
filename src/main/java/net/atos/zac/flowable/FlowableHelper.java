@@ -20,49 +20,49 @@ import net.atos.zac.zoeken.IndexeerService;
 @ApplicationScoped
 public class FlowableHelper {
 
-  @Inject private ZaakVariabelenService zaakVariabelenService;
+    @Inject private ZaakVariabelenService zaakVariabelenService;
 
-  @Inject private TaakVariabelenService taakVariabelenService;
+    @Inject private TaakVariabelenService taakVariabelenService;
 
-  @Inject private ZGWApiService zgwApiService;
+    @Inject private ZGWApiService zgwApiService;
 
-  @Inject private ZRCClientService zrcClientService;
+    @Inject private ZRCClientService zrcClientService;
 
-  @Inject private EventingService eventingService;
+    @Inject private EventingService eventingService;
 
-  @Inject private IndexeerService indexeerService;
+    @Inject private IndexeerService indexeerService;
 
-  @Inject private IdentityService identityService;
+    @Inject private IdentityService identityService;
 
-  public static FlowableHelper getInstance() {
-    return CDI.current().select(FlowableHelper.class).get();
-  }
+    public static FlowableHelper getInstance() {
+        return CDI.current().select(FlowableHelper.class).get();
+    }
 
-  public ZGWApiService getZgwApiService() {
-    return zgwApiService;
-  }
+    public ZGWApiService getZgwApiService() {
+        return zgwApiService;
+    }
 
-  public ZRCClientService getZrcClientService() {
-    return zrcClientService;
-  }
+    public ZRCClientService getZrcClientService() {
+        return zrcClientService;
+    }
 
-  public EventingService getEventingService() {
-    return eventingService;
-  }
+    public EventingService getEventingService() {
+        return eventingService;
+    }
 
-  public IdentityService getIdentityService() {
-    return identityService;
-  }
+    public IdentityService getIdentityService() {
+        return identityService;
+    }
 
-  public ZaakVariabelenService getZaakVariabelenService() {
-    return zaakVariabelenService;
-  }
+    public ZaakVariabelenService getZaakVariabelenService() {
+        return zaakVariabelenService;
+    }
 
-  public TaakVariabelenService getTaakVariabelenService() {
-    return taakVariabelenService;
-  }
+    public TaakVariabelenService getTaakVariabelenService() {
+        return taakVariabelenService;
+    }
 
-  public IndexeerService getIndexeerService() {
-    return indexeerService;
-  }
+    public IndexeerService getIndexeerService() {
+        return indexeerService;
+    }
 }

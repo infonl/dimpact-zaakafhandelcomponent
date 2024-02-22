@@ -8,6 +8,6 @@ import jakarta.json.bind.annotation.JsonbProperty;
 
 public class SmartDocument {
 
-  @JsonbProperty("Selection")
-  public Selection selection;
+    @JsonbProperty("Selection")
+    public Selection selection;
 }

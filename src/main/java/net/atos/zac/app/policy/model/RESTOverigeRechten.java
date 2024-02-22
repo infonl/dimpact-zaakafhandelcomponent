@@ -6,9 +6,9 @@ package net.atos.zac.app.policy.model;
 
 public class RESTOverigeRechten {
 
-  public boolean startenZaak;
+    public boolean startenZaak;
 
-  public boolean beheren;
+    public boolean beheren;
 
-  public boolean zoeken;
+    public boolean zoeken;
 }

@@ -23,47 +23,51 @@ import net.atos.zac.zaaksturing.model.MailtemplateKoppeling;
 @Transactional
 public class MailTemplateKoppelingenService {
 
-  @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
-  private EntityManager entityManager;
+    @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
+    private EntityManager entityManager;
 
-  public Optional<MailtemplateKoppeling> find(final long id) {
-    final var mailtemplateKoppeling = entityManager.find(MailtemplateKoppeling.class, id);
-    return mailtemplateKoppeling != null ? Optional.of(mailtemplateKoppeling) : Optional.empty();
-  }
-
-  public void delete(final Long id) {
-    find(id).ifPresent(entityManager::remove);
-  }
-
-  public MailtemplateKoppeling storeMailtemplateKoppeling(
-      final MailtemplateKoppeling mailtemplateKoppeling) {
-    valideerObject(mailtemplateKoppeling);
-    if (mailtemplateKoppeling.getId() != null && find(mailtemplateKoppeling.getId()).isPresent()) {
-      return entityManager.merge(mailtemplateKoppeling);
-    } else {
-      entityManager.persist(mailtemplateKoppeling);
-      return mailtemplateKoppeling;
+    public Optional<MailtemplateKoppeling> find(final long id) {
+        final var mailtemplateKoppeling = entityManager.find(MailtemplateKoppeling.class, id);
+        return mailtemplateKoppeling != null
+                ? Optional.of(mailtemplateKoppeling)
+                : Optional.empty();
     }
-  }
 
-  public MailtemplateKoppeling readMailtemplateKoppeling(final long id) {
-    final MailtemplateKoppeling mailtemplateKoppeling =
-        entityManager.find(MailtemplateKoppeling.class, id);
-    if (mailtemplateKoppeling != null) {
-      return mailtemplateKoppeling;
-    } else {
-      throw new RuntimeException(
-          String.format(
-              "%s with id=%d not found", MailtemplateKoppeling.class.getSimpleName(), id));
+    public void delete(final Long id) {
+        find(id).ifPresent(entityManager::remove);
     }
-  }
 
-  public List<MailtemplateKoppeling> listMailtemplateKoppelingen() {
-    final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-    final CriteriaQuery<MailtemplateKoppeling> query =
-        builder.createQuery(MailtemplateKoppeling.class);
-    final Root<MailtemplateKoppeling> root = query.from(MailtemplateKoppeling.class);
-    query.select(root);
-    return entityManager.createQuery(query).getResultList();
-  }
+    public MailtemplateKoppeling storeMailtemplateKoppeling(
+            final MailtemplateKoppeling mailtemplateKoppeling) {
+        valideerObject(mailtemplateKoppeling);
+        if (mailtemplateKoppeling.getId() != null
+                && find(mailtemplateKoppeling.getId()).isPresent()) {
+            return entityManager.merge(mailtemplateKoppeling);
+        } else {
+            entityManager.persist(mailtemplateKoppeling);
+            return mailtemplateKoppeling;
+        }
+    }
+
+    public MailtemplateKoppeling readMailtemplateKoppeling(final long id) {
+        final MailtemplateKoppeling mailtemplateKoppeling =
+                entityManager.find(MailtemplateKoppeling.class, id);
+        if (mailtemplateKoppeling != null) {
+            return mailtemplateKoppeling;
+        } else {
+            throw new RuntimeException(
+                    String.format(
+                            "%s with id=%d not found",
+                            MailtemplateKoppeling.class.getSimpleName(), id));
+        }
+    }
+
+    public List<MailtemplateKoppeling> listMailtemplateKoppelingen() {
+        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        final CriteriaQuery<MailtemplateKoppeling> query =
+                builder.createQuery(MailtemplateKoppeling.class);
+        final Root<MailtemplateKoppeling> root = query.from(MailtemplateKoppeling.class);
+        query.select(root);
+        return entityManager.createQuery(query).getResultList();
+    }
 }

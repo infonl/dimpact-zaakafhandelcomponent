@@ -18,26 +18,26 @@ import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjecttype;
 
 public class RESTInformatieobjecttypeConverter {
 
-  @Inject private ZTCClientService ztcClientService;
+    @Inject private ZTCClientService ztcClientService;
 
-  public RESTInformatieobjecttype convert(final InformatieObjectType type) {
-    final RESTInformatieobjecttype restType = new RESTInformatieobjecttype();
-    restType.uuid = URIUtil.parseUUIDFromResourceURI(type.getUrl());
-    restType.concept = type.getConcept();
-    restType.omschrijving = type.getOmschrijving();
-    restType.vertrouwelijkheidaanduiding = type.getVertrouwelijkheidaanduiding().value();
-    return restType;
-  }
+    public RESTInformatieobjecttype convert(final InformatieObjectType type) {
+        final RESTInformatieobjecttype restType = new RESTInformatieobjecttype();
+        restType.uuid = URIUtil.parseUUIDFromResourceURI(type.getUrl());
+        restType.concept = type.getConcept();
+        restType.omschrijving = type.getOmschrijving();
+        restType.vertrouwelijkheidaanduiding = type.getVertrouwelijkheidaanduiding().value();
+        return restType;
+    }
 
-  public List<RESTInformatieobjecttype> convert(final Set<URI> informatieobjecttypen) {
-    return informatieobjecttypen.stream()
-        .map(ztcClientService::readInformatieobjecttype)
-        .map(this::convert)
-        .collect(Collectors.toList());
-  }
+    public List<RESTInformatieobjecttype> convert(final Set<URI> informatieobjecttypen) {
+        return informatieobjecttypen.stream()
+                .map(ztcClientService::readInformatieobjecttype)
+                .map(this::convert)
+                .collect(Collectors.toList());
+    }
 
-  public List<RESTInformatieobjecttype> convert(
-      final List<InformatieObjectType> informatieobjecttypen) {
-    return informatieobjecttypen.stream().map(this::convert).collect(Collectors.toList());
-  }
+    public List<RESTInformatieobjecttype> convert(
+            final List<InformatieObjectType> informatieobjecttypen) {
+        return informatieobjecttypen.stream().map(this::convert).collect(Collectors.toList());
+    }
 }

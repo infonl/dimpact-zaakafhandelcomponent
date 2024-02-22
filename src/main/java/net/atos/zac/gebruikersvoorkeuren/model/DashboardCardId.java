@@ -5,10 +5,10 @@
 package net.atos.zac.gebruikersvoorkeuren.model;
 
 public enum DashboardCardId {
-  MIJN_DOCUMENTEN_NIEUW,
-  MIJN_TAKEN,
-  MIJN_TAKEN_NIEUW,
-  MIJN_ZAKEN,
-  MIJN_ZAKEN_NIEUW,
-  MIJN_ZAKEN_WAARSCHUWING
+    MIJN_DOCUMENTEN_NIEUW,
+    MIJN_TAKEN,
+    MIJN_TAKEN_NIEUW,
+    MIJN_ZAKEN,
+    MIJN_ZAKEN_NIEUW,
+    MIJN_ZAKEN_WAARSCHUWING
 }

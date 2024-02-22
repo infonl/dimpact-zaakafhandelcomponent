@@ -16,23 +16,23 @@ import net.atos.zac.util.UriUtil;
 
 public class RESTBesluittypeConverter {
 
-  @Inject private ZTCClientService ztcClientService;
+    @Inject private ZTCClientService ztcClientService;
 
-  public RESTBesluittype convertToRESTBesluittype(final BesluitType besluittype) {
-    final RESTBesluittype restBesluittype = new RESTBesluittype();
-    restBesluittype.id = UriUtil.uuidFromURI(besluittype.getUrl());
-    restBesluittype.naam = besluittype.getOmschrijving();
-    restBesluittype.toelichting = besluittype.getToelichting();
-    restBesluittype.informatieobjecttypen =
-        besluittype.getInformatieobjecttypen().stream().toList();
-    return restBesluittype;
-  }
+    public RESTBesluittype convertToRESTBesluittype(final BesluitType besluittype) {
+        final RESTBesluittype restBesluittype = new RESTBesluittype();
+        restBesluittype.id = UriUtil.uuidFromURI(besluittype.getUrl());
+        restBesluittype.naam = besluittype.getOmschrijving();
+        restBesluittype.toelichting = besluittype.getToelichting();
+        restBesluittype.informatieobjecttypen =
+                besluittype.getInformatieobjecttypen().stream().toList();
+        return restBesluittype;
+    }
 
-  public RESTBesluittype convertToRESTBesluittype(final URI besluittypeURI) {
-    return convertToRESTBesluittype(ztcClientService.readBesluittype(besluittypeURI));
-  }
+    public RESTBesluittype convertToRESTBesluittype(final URI besluittypeURI) {
+        return convertToRESTBesluittype(ztcClientService.readBesluittype(besluittypeURI));
+    }
 
-  public List<RESTBesluittype> convertToRESTBesluittypes(final List<BesluitType> besluittypes) {
-    return besluittypes.stream().map(this::convertToRESTBesluittype).toList();
-  }
+    public List<RESTBesluittype> convertToRESTBesluittypes(final List<BesluitType> besluittypes) {
+        return besluittypes.stream().map(this::convertToRESTBesluittype).toList();
+    }
 }

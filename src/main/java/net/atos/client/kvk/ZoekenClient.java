@@ -32,19 +32,20 @@ import net.atos.client.kvk.zoeken.model.Resultaat;
 @Timeout(unit = ChronoUnit.SECONDS, value = 5)
 public interface ZoekenClient {
 
-  /**
-   * Voor een bedrijf zoeken naar basisinformatie.
-   * <p>
-   * Er wordt max. 1000 resultaten getoond.
-   */
-  @GET
-  Resultaat getResults(@BeanParam final KVKZoekenParameters zoekenParameters);
+    /**
+     * Voor een bedrijf zoeken naar basisinformatie.
+     * <p>
+     * Er wordt max. 1000 resultaten getoond.
+     */
+    @GET
+    Resultaat getResults(@BeanParam final KVKZoekenParameters zoekenParameters);
 
-  /**
-   * Voor een bedrijf zoeken naar basisinformatie asynchron.
-   * <p>
-   * Er wordt max. 1000 resultaten getoond.
-   */
-  @GET
-  CompletionStage<Resultaat> getResultsAsync(@BeanParam final KVKZoekenParameters zoekenParameters);
+    /**
+     * Voor een bedrijf zoeken naar basisinformatie asynchron.
+     * <p>
+     * Er wordt max. 1000 resultaten getoond.
+     */
+    @GET
+    CompletionStage<Resultaat> getResultsAsync(
+            @BeanParam final KVKZoekenParameters zoekenParameters);
 }

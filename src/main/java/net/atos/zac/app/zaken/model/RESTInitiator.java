@@ -6,7 +6,7 @@ package net.atos.zac.app.zaken.model;
 
 public class RESTInitiator {
 
-  public String bsn;
+    public String bsn;
 
-  public String kvkNummer;
+    public String kvkNummer;
 }

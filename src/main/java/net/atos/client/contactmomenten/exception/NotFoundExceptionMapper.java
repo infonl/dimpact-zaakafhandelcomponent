@@ -11,13 +11,13 @@ import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
 
 public class NotFoundExceptionMapper implements ResponseExceptionMapper<NotFoundException> {
 
-  @Override
-  public boolean handles(final int status, final MultivaluedMap<String, Object> headers) {
-    return status == Response.Status.NOT_FOUND.getStatusCode();
-  }
+    @Override
+    public boolean handles(final int status, final MultivaluedMap<String, Object> headers) {
+        return status == Response.Status.NOT_FOUND.getStatusCode();
+    }
 
-  @Override
-  public NotFoundException toThrowable(final Response response) {
-    return new NotFoundException();
-  }
+    @Override
+    public NotFoundException toThrowable(final Response response) {
+        return new NotFoundException();
+    }
 }

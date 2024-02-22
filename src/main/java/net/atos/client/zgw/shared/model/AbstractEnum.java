@@ -10,30 +10,30 @@ import jakarta.json.bind.adapter.JsonbAdapter;
 
 public interface AbstractEnum<T extends AbstractEnum> {
 
-  String toValue();
+    String toValue();
 
-  static <T extends AbstractEnum> T fromValue(final T[] enums, final String value) {
-    return Arrays.stream(enums)
-        .filter(anEnum -> anEnum.toValue().equals(value))
-        .findAny()
-        .orElseThrow();
-  }
-
-  abstract class Adapter<T extends AbstractEnum> implements JsonbAdapter<T, String> {
-
-    @Override
-    public String adaptToJson(final T anEnum) {
-      return anEnum.toValue();
+    static <T extends AbstractEnum> T fromValue(final T[] enums, final String value) {
+        return Arrays.stream(enums)
+                .filter(anEnum -> anEnum.toValue().equals(value))
+                .findAny()
+                .orElseThrow();
     }
 
-    @Override
-    public T adaptFromJson(final String json) {
-      return Arrays.stream(getEnums())
-          .filter(anEnum -> anEnum.toValue().equals(json))
-          .findAny()
-          .orElse(null);
-    }
+    abstract class Adapter<T extends AbstractEnum> implements JsonbAdapter<T, String> {
 
-    protected abstract T[] getEnums();
-  }
+        @Override
+        public String adaptToJson(final T anEnum) {
+            return anEnum.toValue();
+        }
+
+        @Override
+        public T adaptFromJson(final String json) {
+            return Arrays.stream(getEnums())
+                    .filter(anEnum -> anEnum.toValue().equals(json))
+                    .findAny()
+                    .orElse(null);
+        }
+
+        protected abstract T[] getEnums();
+    }
 }

@@ -51,56 +51,56 @@ import net.atos.client.brp.exception.RuntimeExceptionMapper;
 @Path("/adressen")
 public interface AdresApi {
 
-  /**
-   * Bevragen van huidige adressen met een (combinatie van) zoek parameters.
-   * <p>
-   * De volgende bevragingen worden ondersteund:
-   * 1. Bevragen van één of meer huidige adressen met postcode, huisnummer en optioneel huisnummertoevoeging en huisletter.
-   * Parameter exacteMatch kan worden toegepast.
-   * 2. Bevragen van één of meer huidige adressen met de identificatie van een adresseerbaar object.
-   * 3. Bevragen van één of meer huidige adressen met woonplaats naam, openbare ruimte naam, huisnummer en optioneel huisnummertoevoeging en/of huisletter.    Parameter exacteMatch kan worden toegepast.
-   * 4. Bevragen van één of meer huidige adressen met de identificatie van een pand.
-   * Expand wordt niet ondersteund.
-   * 5. Zoek huidige adressen met een zoekterm.
-   * Bij de bovenstaande bevragingen
-   * kunnen eveneens de volgende parameters worden gebruikt (tenzij anders vermeld):  Als expand&#x3D;nummeraanduiding, openbareRuimte, woonplaats, adresseerbaarObject, panden (of een combinatie daarvan) of als expand&#x3D;true, dan worden de gevraagde of alle gerelateerde resources als geneste resource geleverd, zie [functionele specificatie expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).  Voor paginering, zie: [functionele specificatie paginering](https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature).  Als inclusiefEindStatus&#x3D;true, dan worden ook actuele adressen met een eind status geleverd, zie [functionele specificatie inclusiefEindstatus](https://github.com/lvbag/BAG-API/blob/master/Features/inclusief-eind-status.feature).
-   */
-  @GET
-  @Produces({"application/hal+json", "application/problem+json"})
-  public AdresIOHalCollection bevraagAdressen(@BeanParam BevraagAdressenParameters parameters)
-      throws ProcessingException;
+    /**
+     * Bevragen van huidige adressen met een (combinatie van) zoek parameters.
+     * <p>
+     * De volgende bevragingen worden ondersteund:
+     * 1. Bevragen van één of meer huidige adressen met postcode, huisnummer en optioneel huisnummertoevoeging en huisletter.
+     * Parameter exacteMatch kan worden toegepast.
+     * 2. Bevragen van één of meer huidige adressen met de identificatie van een adresseerbaar object.
+     * 3. Bevragen van één of meer huidige adressen met woonplaats naam, openbare ruimte naam, huisnummer en optioneel huisnummertoevoeging en/of huisletter.    Parameter exacteMatch kan worden toegepast.
+     * 4. Bevragen van één of meer huidige adressen met de identificatie van een pand.
+     * Expand wordt niet ondersteund.
+     * 5. Zoek huidige adressen met een zoekterm.
+     * Bij de bovenstaande bevragingen
+     * kunnen eveneens de volgende parameters worden gebruikt (tenzij anders vermeld):  Als expand&#x3D;nummeraanduiding, openbareRuimte, woonplaats, adresseerbaarObject, panden (of een combinatie daarvan) of als expand&#x3D;true, dan worden de gevraagde of alle gerelateerde resources als geneste resource geleverd, zie [functionele specificatie expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).  Voor paginering, zie: [functionele specificatie paginering](https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature).  Als inclusiefEindStatus&#x3D;true, dan worden ook actuele adressen met een eind status geleverd, zie [functionele specificatie inclusiefEindstatus](https://github.com/lvbag/BAG-API/blob/master/Features/inclusief-eind-status.feature).
+     */
+    @GET
+    @Produces({"application/hal+json", "application/problem+json"})
+    public AdresIOHalCollection bevraagAdressen(@BeanParam BevraagAdressenParameters parameters)
+            throws ProcessingException;
 
-  /**
-   * Bevragen van een huidig adres met de identificatie van een nummeraanduiding.
-   * <p>
-   * Bevragen van een huidig adres met de identificatie van een nummeraanduiding.
-   * Als expand&#x3D;nummeraanduiding, openbareRuimte, woonplaats, adresseerbaarObject, panden (of een combinatie daarvan) of als expand&#x3D;true, dan worden de gevraagde of alle gerelateerde resources als geneste resource geleverd, zie [functionele specificatie expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).  Als inclusiefEindStatus&#x3D;true, dan worden ook actuele adressen met een eind status geleverd, zie [functionele specificatie inclusiefEindstatus](https://github.com/lvbag/BAG-API/blob/master/Features/inclusief-eind-status.feature).
-   */
-  @GET
-  @Path("/{nummeraanduidingIdentificatie}")
-  @Produces({"application/hal+json", "application/problem+json"})
-  public AdresIOHal bevraagAdressenMetNumId(
-      @PathParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie,
-      @QueryParam("expand") String expand,
-      @QueryParam("inclusiefEindStatus") @DefaultValue("false") Boolean inclusiefEindStatus)
-      throws ProcessingException;
+    /**
+     * Bevragen van een huidig adres met de identificatie van een nummeraanduiding.
+     * <p>
+     * Bevragen van een huidig adres met de identificatie van een nummeraanduiding.
+     * Als expand&#x3D;nummeraanduiding, openbareRuimte, woonplaats, adresseerbaarObject, panden (of een combinatie daarvan) of als expand&#x3D;true, dan worden de gevraagde of alle gerelateerde resources als geneste resource geleverd, zie [functionele specificatie expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).  Als inclusiefEindStatus&#x3D;true, dan worden ook actuele adressen met een eind status geleverd, zie [functionele specificatie inclusiefEindstatus](https://github.com/lvbag/BAG-API/blob/master/Features/inclusief-eind-status.feature).
+     */
+    @GET
+    @Path("/{nummeraanduidingIdentificatie}")
+    @Produces({"application/hal+json", "application/problem+json"})
+    public AdresIOHal bevraagAdressenMetNumId(
+            @PathParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie,
+            @QueryParam("expand") String expand,
+            @QueryParam("inclusiefEindStatus") @DefaultValue("false") Boolean inclusiefEindStatus)
+            throws ProcessingException;
 
-  /**
-   * Zoeken van huidige adressen
-   * <p>
-   * Zoeken van huidige adressen met postcode, woonplaats, straatnaam, huisnummer, huisletter, huisnummertoevoeging.
-   * Een adres kan worden gevonden door de zoekresultaatidentificatie uit het antwoord als parameter mee te geven in get /adressen.
-   * Voor paginering, zie: [functionele specificatie paginering](https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature).
-   *
-   * @deprecated
-   */
-  @Deprecated
-  @GET
-  @Path("/zoek")
-  @Produces({"application/hal+json", "application/problem+json"})
-  public ZoekResultaatHalCollection zoek(
-      @QueryParam("zoek") String zoek,
-      @QueryParam("page") @DefaultValue("1") Integer page,
-      @QueryParam("pageSize") @DefaultValue("20") Integer pageSize)
-      throws ProcessingException;
+    /**
+     * Zoeken van huidige adressen
+     * <p>
+     * Zoeken van huidige adressen met postcode, woonplaats, straatnaam, huisnummer, huisletter, huisnummertoevoeging.
+     * Een adres kan worden gevonden door de zoekresultaatidentificatie uit het antwoord als parameter mee te geven in get /adressen.
+     * Voor paginering, zie: [functionele specificatie paginering](https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature).
+     *
+     * @deprecated
+     */
+    @Deprecated
+    @GET
+    @Path("/zoek")
+    @Produces({"application/hal+json", "application/problem+json"})
+    public ZoekResultaatHalCollection zoek(
+            @QueryParam("zoek") String zoek,
+            @QueryParam("page") @DefaultValue("1") Integer page,
+            @QueryParam("pageSize") @DefaultValue("20") Integer pageSize)
+            throws ProcessingException;
 }

@@ -9,10 +9,10 @@ import net.atos.client.zgw.shared.model.audit.AuditWijziging;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduiding;
 
 public class ZaakobjectNummeraanduidingWijziging
-    extends AuditWijziging<ZaakobjectNummeraanduiding> {
+        extends AuditWijziging<ZaakobjectNummeraanduiding> {
 
-  @Override
-  public ObjectType getObjectType() {
-    return ObjectType.ZAAKOBJECT;
-  }
+    @Override
+    public ObjectType getObjectType() {
+        return ObjectType.ZAAKOBJECT;
+    }
 }

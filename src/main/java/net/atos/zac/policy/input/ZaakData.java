@@ -6,7 +6,7 @@ package net.atos.zac.policy.input;
 
 public class ZaakData {
 
-  public boolean open;
+    public boolean open;
 
-  public String zaaktype;
+    public String zaaktype;
 }

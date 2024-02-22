@@ -12,14 +12,15 @@ import net.atos.zac.util.UriUtil;
 
 public class RESTCommunicatiekanaalConverter {
 
-  public List<RESTCommunicatiekanaal> convert(final List<CommunicatieKanaal> communicatieKanalen) {
-    return communicatieKanalen.stream().map(this::convert).toList();
-  }
+    public List<RESTCommunicatiekanaal> convert(
+            final List<CommunicatieKanaal> communicatieKanalen) {
+        return communicatieKanalen.stream().map(this::convert).toList();
+    }
 
-  public RESTCommunicatiekanaal convert(final CommunicatieKanaal communicatieKanaal) {
-    final RESTCommunicatiekanaal restCommunicatiekanaal = new RESTCommunicatiekanaal();
-    restCommunicatiekanaal.uuid = UriUtil.uuidFromURI(communicatieKanaal.getUrl());
-    restCommunicatiekanaal.naam = communicatieKanaal.getNaam();
-    return restCommunicatiekanaal;
-  }
+    public RESTCommunicatiekanaal convert(final CommunicatieKanaal communicatieKanaal) {
+        final RESTCommunicatiekanaal restCommunicatiekanaal = new RESTCommunicatiekanaal();
+        restCommunicatiekanaal.uuid = UriUtil.uuidFromURI(communicatieKanaal.getUrl());
+        restCommunicatiekanaal.naam = communicatieKanaal.getNaam();
+        return restCommunicatiekanaal;
+    }
 }

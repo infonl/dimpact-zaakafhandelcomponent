@@ -14,36 +14,36 @@ import jakarta.json.bind.annotation.JsonbProperty;
  */
 public class Referentieproces {
 
-  public static final int NAAM_MAX_LENGTH = 80;
+    public static final int NAAM_MAX_LENGTH = 80;
 
-  /**
-   * De naam van het Referentieproces.
-   * maxLength: {@link Referentieproces#NAAM_MAX_LENGTH}
-   */
-  private final String naam;
+    /**
+     * De naam van het Referentieproces.
+     * maxLength: {@link Referentieproces#NAAM_MAX_LENGTH}
+     */
+    private final String naam;
 
-  /**
-   * De URL naar de beschrijving van het Referentieproces
-   */
-  private URI link;
+    /**
+     * De URL naar de beschrijving van het Referentieproces
+     */
+    private URI link;
 
-  /**
-   * Constructor with required attributes for POST and PUT requests and GET response
-   */
-  @JsonbCreator
-  public Referentieproces(@JsonbProperty("naam") final String naam) {
-    this.naam = naam;
-  }
+    /**
+     * Constructor with required attributes for POST and PUT requests and GET response
+     */
+    @JsonbCreator
+    public Referentieproces(@JsonbProperty("naam") final String naam) {
+        this.naam = naam;
+    }
 
-  public String getNaam() {
-    return naam;
-  }
+    public String getNaam() {
+        return naam;
+    }
 
-  public URI getLink() {
-    return link;
-  }
+    public URI getLink() {
+        return link;
+    }
 
-  public void setLink(final URI link) {
-    this.link = link;
-  }
+    public void setLink(final URI link) {
+        this.link = link;
+    }
 }

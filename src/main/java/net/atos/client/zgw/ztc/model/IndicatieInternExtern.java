@@ -13,30 +13,30 @@ import net.atos.client.zgw.shared.model.AbstractEnum;
  */
 @JsonbTypeAdapter(IndicatieInternExtern.Adapter.class)
 public enum IndicatieInternExtern implements AbstractEnum<IndicatieInternExtern> {
-  INTERN("intern"),
+    INTERN("intern"),
 
-  EXTERN("extern");
+    EXTERN("extern");
 
-  private final String value;
+    private final String value;
 
-  IndicatieInternExtern(final String value) {
-    this.value = value;
-  }
-
-  @Override
-  public String toValue() {
-    return value;
-  }
-
-  public static IndicatieInternExtern fromValue(final String value) {
-    return AbstractEnum.fromValue(values(), value);
-  }
-
-  static class Adapter extends AbstractEnum.Adapter<IndicatieInternExtern> {
+    IndicatieInternExtern(final String value) {
+        this.value = value;
+    }
 
     @Override
-    protected IndicatieInternExtern[] getEnums() {
-      return values();
+    public String toValue() {
+        return value;
     }
-  }
+
+    public static IndicatieInternExtern fromValue(final String value) {
+        return AbstractEnum.fromValue(values(), value);
+    }
+
+    static class Adapter extends AbstractEnum.Adapter<IndicatieInternExtern> {
+
+        @Override
+        protected IndicatieInternExtern[] getEnums() {
+            return values();
+        }
+    }
 }

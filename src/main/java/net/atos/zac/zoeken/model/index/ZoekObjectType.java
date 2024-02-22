@@ -10,17 +10,17 @@ import net.atos.zac.zoeken.model.zoekobject.TaakZoekObject;
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
 
 public enum ZoekObjectType {
-  TAAK(TaakZoekObject.class),
-  ZAAK(ZaakZoekObject.class),
-  DOCUMENT(DocumentZoekObject.class);
+    TAAK(TaakZoekObject.class),
+    ZAAK(ZaakZoekObject.class),
+    DOCUMENT(DocumentZoekObject.class);
 
-  private final Class<? extends ZoekObject> zoekObjectClass;
+    private final Class<? extends ZoekObject> zoekObjectClass;
 
-  ZoekObjectType(final Class<? extends ZoekObject> zoekObjectClass) {
-    this.zoekObjectClass = zoekObjectClass;
-  }
+    ZoekObjectType(final Class<? extends ZoekObject> zoekObjectClass) {
+        this.zoekObjectClass = zoekObjectClass;
+    }
 
-  public Class<? extends ZoekObject> getZoekObjectClass() {
-    return zoekObjectClass;
-  }
+    public Class<? extends ZoekObject> getZoekObjectClass() {
+        return zoekObjectClass;
+    }
 }

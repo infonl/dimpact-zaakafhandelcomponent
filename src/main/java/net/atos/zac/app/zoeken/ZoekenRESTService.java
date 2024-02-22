@@ -33,25 +33,27 @@ import net.atos.zac.zoeken.model.ZoekResultaat;
 @Singleton
 public class ZoekenRESTService {
 
-  @Inject private ZoekenService zoekenService;
+    @Inject private ZoekenService zoekenService;
 
-  @Inject private RESTZoekParametersConverter zoekZaakParametersConverter;
+    @Inject private RESTZoekParametersConverter zoekZaakParametersConverter;
 
-  @Inject private RESTZoekResultaatConverter ZoekResultaatConverter;
+    @Inject private RESTZoekResultaatConverter ZoekResultaatConverter;
 
-  @Inject private PolicyService policyService;
+    @Inject private PolicyService policyService;
 
-  @PUT
-  @Path("list")
-  public RESTZoekResultaat<? extends AbstractRESTZoekObject> list(
-      final RESTZoekParameters restZoekParameters) {
-    if (restZoekParameters.type == ZAAK || restZoekParameters.type == TAAK) {
-      assertPolicy(policyService.readWerklijstRechten().zakenTaken());
-    } else {
-      assertPolicy(policyService.readOverigeRechten().zoeken());
+    @PUT
+    @Path("list")
+    public RESTZoekResultaat<? extends AbstractRESTZoekObject> list(
+            final RESTZoekParameters restZoekParameters) {
+        if (restZoekParameters.type == ZAAK || restZoekParameters.type == TAAK) {
+            assertPolicy(policyService.readWerklijstRechten().zakenTaken());
+        } else {
+            assertPolicy(policyService.readOverigeRechten().zoeken());
+        }
+        final ZoekParameters zoekParameters =
+                zoekZaakParametersConverter.convert(restZoekParameters);
+        final ZoekResultaat<? extends ZoekObject> zoekResultaat =
+                zoekenService.zoek(zoekParameters);
+        return ZoekResultaatConverter.convert(zoekResultaat, restZoekParameters);
     }
-    final ZoekParameters zoekParameters = zoekZaakParametersConverter.convert(restZoekParameters);
-    final ZoekResultaat<? extends ZoekObject> zoekResultaat = zoekenService.zoek(zoekParameters);
-    return ZoekResultaatConverter.convert(zoekResultaat, restZoekParameters);
-  }
 }

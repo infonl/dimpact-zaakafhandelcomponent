@@ -9,9 +9,9 @@ import java.util.UUID;
 import net.atos.client.zgw.ztc.model.generated.RolType;
 
 public class RESTRoltype {
-  public UUID uuid;
+    public UUID uuid;
 
-  public String naam;
+    public String naam;
 
-  public RolType.OmschrijvingGeneriekEnum omschrijvingGeneriekEnum;
+    public RolType.OmschrijvingGeneriekEnum omschrijvingGeneriekEnum;
 }

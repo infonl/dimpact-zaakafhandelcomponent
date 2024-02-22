@@ -11,5 +11,5 @@ package net.atos.zac.zoeken.model;
   MUST be rebuilt. Oh, and no more than 63 indicaties in this enum please (it needs to fit in a signed plong in Solr)
 */
 public enum BesluitIndicatie {
-  INGETROKKEN;
+    INGETROKKEN;
 }

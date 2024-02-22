@@ -10,8 +10,8 @@ import net.atos.client.zgw.zrc.model.Status;
 
 public class StatusWijziging extends AuditWijziging<Status> {
 
-  @Override
-  public ObjectType getObjectType() {
-    return ObjectType.STATUS;
-  }
+    @Override
+    public ObjectType getObjectType() {
+        return ObjectType.STATUS;
+    }
 }

@@ -35,83 +35,85 @@ import net.atos.zac.zaaksturing.model.ReferentieTabel;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class ReferentieTabelRESTService {
-  @Inject private ReferentieTabelService referentieTabelService;
+    @Inject private ReferentieTabelService referentieTabelService;
 
-  @Inject private ReferentieTabelBeheerService referentieTabelBeheerService;
+    @Inject private ReferentieTabelBeheerService referentieTabelBeheerService;
 
-  @Inject private RESTReferentieTabelConverter restReferentieTabelConverter;
+    @Inject private RESTReferentieTabelConverter restReferentieTabelConverter;
 
-  @Inject private RESTReferentieWaardeConverter restReferentieWaardeConverter;
+    @Inject private RESTReferentieWaardeConverter restReferentieWaardeConverter;
 
-  @Inject private PolicyService policyService;
+    @Inject private PolicyService policyService;
 
-  @GET
-  public List<RESTReferentieTabel> listReferentieTabellen() {
-    assertPolicy(policyService.readOverigeRechten().beheren());
-    final List<ReferentieTabel> referentieTabellen =
-        referentieTabelService.listReferentieTabellen();
-    return referentieTabellen.stream()
-        .map(referentieTabel -> restReferentieTabelConverter.convert(referentieTabel, false))
-        .toList();
-  }
+    @GET
+    public List<RESTReferentieTabel> listReferentieTabellen() {
+        assertPolicy(policyService.readOverigeRechten().beheren());
+        final List<ReferentieTabel> referentieTabellen =
+                referentieTabelService.listReferentieTabellen();
+        return referentieTabellen.stream()
+                .map(
+                        referentieTabel ->
+                                restReferentieTabelConverter.convert(referentieTabel, false))
+                .toList();
+    }
 
-  @GET
-  @Path("new")
-  public RESTReferentieTabel newReferentieTabel() {
-    assertPolicy(policyService.readOverigeRechten().beheren());
-    return restReferentieTabelConverter.convert(
-        referentieTabelBeheerService.newReferentieTabel(), true);
-  }
+    @GET
+    @Path("new")
+    public RESTReferentieTabel newReferentieTabel() {
+        assertPolicy(policyService.readOverigeRechten().beheren());
+        return restReferentieTabelConverter.convert(
+                referentieTabelBeheerService.newReferentieTabel(), true);
+    }
 
-  @POST
-  public RESTReferentieTabel createReferentieTabel(final RESTReferentieTabel referentieTabel) {
-    assertPolicy(policyService.readOverigeRechten().beheren());
-    return restReferentieTabelConverter.convert(
-        referentieTabelBeheerService.createReferentieTabel(
-            restReferentieTabelConverter.convert(referentieTabel)),
-        true);
-  }
+    @POST
+    public RESTReferentieTabel createReferentieTabel(final RESTReferentieTabel referentieTabel) {
+        assertPolicy(policyService.readOverigeRechten().beheren());
+        return restReferentieTabelConverter.convert(
+                referentieTabelBeheerService.createReferentieTabel(
+                        restReferentieTabelConverter.convert(referentieTabel)),
+                true);
+    }
 
-  @GET
-  @Path("{id}")
-  public RESTReferentieTabel readReferentieTabel(@PathParam("id") final long id) {
-    assertPolicy(policyService.readOverigeRechten().beheren());
-    return restReferentieTabelConverter.convert(
-        referentieTabelService.readReferentieTabel(id), true);
-  }
+    @GET
+    @Path("{id}")
+    public RESTReferentieTabel readReferentieTabel(@PathParam("id") final long id) {
+        assertPolicy(policyService.readOverigeRechten().beheren());
+        return restReferentieTabelConverter.convert(
+                referentieTabelService.readReferentieTabel(id), true);
+    }
 
-  @PUT
-  @Path("{id}")
-  public RESTReferentieTabel updateReferentieTabel(
-      @PathParam("id") final long id, final RESTReferentieTabel referentieTabel) {
-    assertPolicy(policyService.readOverigeRechten().beheren());
-    return restReferentieTabelConverter.convert(
-        referentieTabelBeheerService.updateReferentieTabel(
-            restReferentieTabelConverter.convert(
-                referentieTabel, referentieTabelService.readReferentieTabel(id))),
-        true);
-  }
+    @PUT
+    @Path("{id}")
+    public RESTReferentieTabel updateReferentieTabel(
+            @PathParam("id") final long id, final RESTReferentieTabel referentieTabel) {
+        assertPolicy(policyService.readOverigeRechten().beheren());
+        return restReferentieTabelConverter.convert(
+                referentieTabelBeheerService.updateReferentieTabel(
+                        restReferentieTabelConverter.convert(
+                                referentieTabel, referentieTabelService.readReferentieTabel(id))),
+                true);
+    }
 
-  @DELETE
-  @Path("{id}")
-  public void deleteReferentieTabel(@PathParam("id") final long id) {
-    assertPolicy(policyService.readOverigeRechten().beheren());
-    referentieTabelBeheerService.deleteReferentieTabel(id);
-  }
+    @DELETE
+    @Path("{id}")
+    public void deleteReferentieTabel(@PathParam("id") final long id) {
+        assertPolicy(policyService.readOverigeRechten().beheren());
+        referentieTabelBeheerService.deleteReferentieTabel(id);
+    }
 
-  @GET
-  @Path("afzender")
-  public List<String> listAfzenders() {
-    assertPolicy(policyService.readOverigeRechten().beheren());
-    return restReferentieWaardeConverter.convert(
-        referentieTabelService.readReferentieTabel(AFZENDER.name()).getWaarden());
-  }
+    @GET
+    @Path("afzender")
+    public List<String> listAfzenders() {
+        assertPolicy(policyService.readOverigeRechten().beheren());
+        return restReferentieWaardeConverter.convert(
+                referentieTabelService.readReferentieTabel(AFZENDER.name()).getWaarden());
+    }
 
-  @GET
-  @Path("domein")
-  public List<String> listDomeinen() {
-    assertPolicy(policyService.readOverigeRechten().beheren());
-    return restReferentieWaardeConverter.convert(
-        referentieTabelService.readReferentieTabel(DOMEIN.name()).getWaarden());
-  }
+    @GET
+    @Path("domein")
+    public List<String> listDomeinen() {
+        assertPolicy(policyService.readOverigeRechten().beheren());
+        return restReferentieWaardeConverter.convert(
+                referentieTabelService.readReferentieTabel(DOMEIN.name()).getWaarden());
+    }
 }

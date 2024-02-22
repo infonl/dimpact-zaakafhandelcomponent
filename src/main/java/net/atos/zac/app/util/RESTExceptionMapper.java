@@ -26,42 +26,43 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 @Provider
 public class RESTExceptionMapper implements ExceptionMapper<Exception> {
 
-  private static final Logger LOG = Logger.getLogger(RESTExceptionMapper.class.getName());
+    private static final Logger LOG = Logger.getLogger(RESTExceptionMapper.class.getName());
 
-  /**
-   * Retourneert een {@link Response} naar de Angular client.
-   */
-  @Override
-  public Response toResponse(final Exception e) {
-    if (e instanceof WebApplicationException
-        && Response.Status.Family.familyOf(((WebApplicationException) e).getResponse().getStatus())
-            != Response.Status.Family.SERVER_ERROR) {
-      final WebApplicationException wae = (WebApplicationException) e;
-      return Response.status(wae.getResponse().getStatus())
-          .type(MediaType.APPLICATION_JSON)
-          .entity(getJSONMessage(e, wae.getMessage()))
-          .build();
-    } else {
-      LOG.log(Level.SEVERE, e.getMessage(), e);
-      return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-          .type(MediaType.APPLICATION_JSON)
-          .entity(getJSONMessage(e, "Algemene Fout"))
-          .build();
+    /**
+     * Retourneert een {@link Response} naar de Angular client.
+     */
+    @Override
+    public Response toResponse(final Exception e) {
+        if (e instanceof WebApplicationException
+                && Response.Status.Family.familyOf(
+                                ((WebApplicationException) e).getResponse().getStatus())
+                        != Response.Status.Family.SERVER_ERROR) {
+            final WebApplicationException wae = (WebApplicationException) e;
+            return Response.status(wae.getResponse().getStatus())
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(getJSONMessage(e, wae.getMessage()))
+                    .build();
+        } else {
+            LOG.log(Level.SEVERE, e.getMessage(), e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(getJSONMessage(e, "Algemene Fout"))
+                    .build();
+        }
     }
-  }
 
-  private static String getJSONMessage(final Exception e, final String melding) {
-    final Map<String, Object> data = new HashMap<>();
-    data.put("message", melding);
-    data.put("exception", e.getMessage());
-    data.put("stackTrace", ExceptionUtils.getStackTrace(e));
-    final ObjectMapper mapper = new ObjectMapper();
-    try {
-      return mapper.writeValueAsString(data);
-    } catch (final IOException ioe) {
-      // Het omzetten van de exceptie naar een JSON bericht is fout gegaan.
-      LOG.severe(ioe.getMessage());
+    private static String getJSONMessage(final Exception e, final String melding) {
+        final Map<String, Object> data = new HashMap<>();
+        data.put("message", melding);
+        data.put("exception", e.getMessage());
+        data.put("stackTrace", ExceptionUtils.getStackTrace(e));
+        final ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.writeValueAsString(data);
+        } catch (final IOException ioe) {
+            // Het omzetten van de exceptie naar een JSON bericht is fout gegaan.
+            LOG.severe(ioe.getMessage());
+        }
+        return null;
     }
-    return null;
-  }
 }

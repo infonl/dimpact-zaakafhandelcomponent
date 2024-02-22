@@ -8,11 +8,11 @@ import java.util.List;
 
 public class RESTGeometry {
 
-  public String type;
+    public String type;
 
-  public RESTCoordinates point;
+    public RESTCoordinates point;
 
-  public List<List<RESTCoordinates>> polygon;
+    public List<List<RESTCoordinates>> polygon;
 
-  public List<RESTGeometry> geometrycollection;
+    public List<RESTGeometry> geometrycollection;
 }

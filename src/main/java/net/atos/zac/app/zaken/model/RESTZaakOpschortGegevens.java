@@ -8,13 +8,13 @@ import java.time.LocalDate;
 
 public class RESTZaakOpschortGegevens {
 
-  public boolean indicatieOpschorting;
+    public boolean indicatieOpschorting;
 
-  public String redenOpschorting;
+    public String redenOpschorting;
 
-  public long duurDagen;
+    public long duurDagen;
 
-  public LocalDate einddatumGepland;
+    public LocalDate einddatumGepland;
 
-  public LocalDate uiterlijkeEinddatumAfdoening;
+    public LocalDate uiterlijkeEinddatumAfdoening;
 }

@@ -27,115 +27,115 @@ import jakarta.validation.constraints.NotBlank;
 @Entity
 @Table(schema = SCHEMA, name = "formulier_definitie")
 @SequenceGenerator(
-    schema = SCHEMA,
-    name = "sq_formulier_definitie",
-    sequenceName = "sq_formulier_definitie",
-    allocationSize = 1)
+        schema = SCHEMA,
+        name = "sq_formulier_definitie",
+        sequenceName = "sq_formulier_definitie",
+        allocationSize = 1)
 public class FormulierDefinitie {
 
-  @Id
-  @GeneratedValue(generator = "sq_formulier_definitie", strategy = GenerationType.SEQUENCE)
-  @Column(name = "id_formulier_definitie")
-  private Long id;
+    @Id
+    @GeneratedValue(generator = "sq_formulier_definitie", strategy = GenerationType.SEQUENCE)
+    @Column(name = "id_formulier_definitie")
+    private Long id;
 
-  @NotBlank
-  @Column(name = "systeemnaam", nullable = false, unique = true)
-  private String systeemnaam;
+    @NotBlank
+    @Column(name = "systeemnaam", nullable = false, unique = true)
+    private String systeemnaam;
 
-  @NotBlank
-  @Column(name = "naam", nullable = false)
-  private String naam;
+    @NotBlank
+    @Column(name = "naam", nullable = false)
+    private String naam;
 
-  @Column(name = "beschrijving")
-  private String beschrijving;
+    @Column(name = "beschrijving")
+    private String beschrijving;
 
-  @Column(name = "uitleg")
-  private String uitleg;
+    @Column(name = "uitleg")
+    private String uitleg;
 
-  @Column(name = "creatiedatum", nullable = false)
-  private ZonedDateTime creatiedatum;
+    @Column(name = "creatiedatum", nullable = false)
+    private ZonedDateTime creatiedatum;
 
-  @Column(name = "wijzigingsdatum", nullable = false)
-  private ZonedDateTime wijzigingsdatum;
+    @Column(name = "wijzigingsdatum", nullable = false)
+    private ZonedDateTime wijzigingsdatum;
 
-  @OneToMany(
-      mappedBy = "formulierDefinitie",
-      cascade = CascadeType.ALL,
-      fetch = FetchType.EAGER,
-      orphanRemoval = true)
-  private Set<FormulierVeldDefinitie> veldDefinities;
+    @OneToMany(
+            mappedBy = "formulierDefinitie",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER,
+            orphanRemoval = true)
+    private Set<FormulierVeldDefinitie> veldDefinities;
 
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(final Long id) {
-    this.id = id;
-  }
-
-  public String getSysteemnaam() {
-    return systeemnaam;
-  }
-
-  public void setSysteemnaam(final String systeemnaam) {
-    this.systeemnaam = systeemnaam;
-  }
-
-  public String getNaam() {
-    return naam;
-  }
-
-  public void setNaam(final String naam) {
-    this.naam = naam;
-  }
-
-  public String getBeschrijving() {
-    return beschrijving;
-  }
-
-  public void setBeschrijving(final String beschrijving) {
-    this.beschrijving = beschrijving;
-  }
-
-  public String getUitleg() {
-    return uitleg;
-  }
-
-  public void setUitleg(final String uitleg) {
-    this.uitleg = uitleg;
-  }
-
-  public ZonedDateTime getCreatiedatum() {
-    return creatiedatum;
-  }
-
-  public void setCreatiedatum(final ZonedDateTime creatiedatum) {
-    this.creatiedatum = creatiedatum;
-  }
-
-  public ZonedDateTime getWijzigingsdatum() {
-    return wijzigingsdatum;
-  }
-
-  public void setWijzigingsdatum(final ZonedDateTime wijzigingsdatum) {
-    this.wijzigingsdatum = wijzigingsdatum;
-  }
-
-  public Set<FormulierVeldDefinitie> getVeldDefinities() {
-    return veldDefinities != null ? veldDefinities : Collections.emptySet();
-  }
-
-  public void setVeldDefinities(final Collection<FormulierVeldDefinitie> veldDefinities) {
-    if (this.veldDefinities == null) {
-      this.veldDefinities = new HashSet<>();
-    } else {
-      this.veldDefinities.clear();
+    public Long getId() {
+        return id;
     }
-    veldDefinities.forEach(this::addVeldDefinitie);
-  }
 
-  private void addVeldDefinitie(final FormulierVeldDefinitie veldDefinitie) {
-    veldDefinitie.setFormulierDefinitie(this);
-    veldDefinities.add(veldDefinitie);
-  }
+    public void setId(final Long id) {
+        this.id = id;
+    }
+
+    public String getSysteemnaam() {
+        return systeemnaam;
+    }
+
+    public void setSysteemnaam(final String systeemnaam) {
+        this.systeemnaam = systeemnaam;
+    }
+
+    public String getNaam() {
+        return naam;
+    }
+
+    public void setNaam(final String naam) {
+        this.naam = naam;
+    }
+
+    public String getBeschrijving() {
+        return beschrijving;
+    }
+
+    public void setBeschrijving(final String beschrijving) {
+        this.beschrijving = beschrijving;
+    }
+
+    public String getUitleg() {
+        return uitleg;
+    }
+
+    public void setUitleg(final String uitleg) {
+        this.uitleg = uitleg;
+    }
+
+    public ZonedDateTime getCreatiedatum() {
+        return creatiedatum;
+    }
+
+    public void setCreatiedatum(final ZonedDateTime creatiedatum) {
+        this.creatiedatum = creatiedatum;
+    }
+
+    public ZonedDateTime getWijzigingsdatum() {
+        return wijzigingsdatum;
+    }
+
+    public void setWijzigingsdatum(final ZonedDateTime wijzigingsdatum) {
+        this.wijzigingsdatum = wijzigingsdatum;
+    }
+
+    public Set<FormulierVeldDefinitie> getVeldDefinities() {
+        return veldDefinities != null ? veldDefinities : Collections.emptySet();
+    }
+
+    public void setVeldDefinities(final Collection<FormulierVeldDefinitie> veldDefinities) {
+        if (this.veldDefinities == null) {
+            this.veldDefinities = new HashSet<>();
+        } else {
+            this.veldDefinities.clear();
+        }
+        veldDefinities.forEach(this::addVeldDefinitie);
+    }
+
+    private void addVeldDefinitie(final FormulierVeldDefinitie veldDefinitie) {
+        veldDefinitie.setFormulierDefinitie(this);
+        veldDefinities.add(veldDefinitie);
+    }
 }

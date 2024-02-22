@@ -15,27 +15,27 @@ import net.atos.zac.signalering.model.SignaleringTarget;
 
 public class SignaleringenMailHelper {
 
-  @Inject private IdentityService identityService;
+    @Inject private IdentityService identityService;
 
-  public SignaleringTarget.Mail getTargetMail(final Signalering signalering) {
-    switch (signalering.getTargettype()) {
-      case GROUP -> {
-        final Group group = identityService.readGroup(signalering.getTarget());
-        if (group.getEmail() != null) {
-          return new SignaleringTarget.Mail(group.getName(), group.getEmail());
+    public SignaleringTarget.Mail getTargetMail(final Signalering signalering) {
+        switch (signalering.getTargettype()) {
+            case GROUP -> {
+                final Group group = identityService.readGroup(signalering.getTarget());
+                if (group.getEmail() != null) {
+                    return new SignaleringTarget.Mail(group.getName(), group.getEmail());
+                }
+            }
+            case USER -> {
+                final User user = identityService.readUser(signalering.getTarget());
+                if (user.getEmail() != null) {
+                    return new SignaleringTarget.Mail(user.getFullName(), user.getEmail());
+                }
+            }
         }
-      }
-      case USER -> {
-        final User user = identityService.readUser(signalering.getTarget());
-        if (user.getEmail() != null) {
-          return new SignaleringTarget.Mail(user.getFullName(), user.getEmail());
-        }
-      }
+        return null;
     }
-    return null;
-  }
 
-  public MailAdres formatTo(final SignaleringTarget.Mail mail) {
-    return new MailAdres(mail.emailadres, mail.naam);
-  }
+    public MailAdres formatTo(final SignaleringTarget.Mail mail) {
+        return new MailAdres(mail.emailadres, mail.naam);
+    }
 }

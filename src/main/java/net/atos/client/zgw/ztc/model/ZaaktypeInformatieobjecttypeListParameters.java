@@ -10,14 +10,14 @@ import jakarta.ws.rs.QueryParam;
 
 public class ZaaktypeInformatieobjecttypeListParameters extends AbstractZTCListParameters {
 
-  @QueryParam("zaaktype")
-  private final URI zaaktype;
+    @QueryParam("zaaktype")
+    private final URI zaaktype;
 
-  public ZaaktypeInformatieobjecttypeListParameters(final URI zaaktype) {
-    this.zaaktype = zaaktype;
-  }
+    public ZaaktypeInformatieobjecttypeListParameters(final URI zaaktype) {
+        this.zaaktype = zaaktype;
+    }
 
-  public URI getZaaktype() {
-    return zaaktype;
-  }
+    public URI getZaaktype() {
+        return zaaktype;
+    }
 }

@@ -8,21 +8,21 @@ import java.time.LocalDate;
 
 public class RESTListPersonenParameters {
 
-  public String bsn;
+    public String bsn;
 
-  public String geslachtsnaam;
+    public String geslachtsnaam;
 
-  public String voornamen;
+    public String voornamen;
 
-  public String voorvoegsel;
+    public String voorvoegsel;
 
-  public LocalDate geboortedatum;
+    public LocalDate geboortedatum;
 
-  public String gemeenteVanInschrijving;
+    public String gemeenteVanInschrijving;
 
-  public String postcode;
+    public String postcode;
 
-  public Integer huisnummer;
+    public Integer huisnummer;
 
-  public String straat;
+    public String straat;
 }

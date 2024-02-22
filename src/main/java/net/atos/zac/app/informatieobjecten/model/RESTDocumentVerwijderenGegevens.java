@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public class RESTDocumentVerwijderenGegevens {
 
-  public UUID zaakUuid;
+    public UUID zaakUuid;
 
-  public String reden;
+    public String reden;
 }

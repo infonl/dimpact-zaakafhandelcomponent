@@ -10,15 +10,15 @@ import net.atos.zac.app.policy.model.RESTZaakRechten;
 
 public class RESTGerelateerdeZaak {
 
-  public RelatieType relatieType;
+    public RelatieType relatieType;
 
-  public String identificatie;
+    public String identificatie;
 
-  public String zaaktypeOmschrijving;
+    public String zaaktypeOmschrijving;
 
-  public String statustypeOmschrijving;
+    public String statustypeOmschrijving;
 
-  public LocalDate startdatum;
+    public LocalDate startdatum;
 
-  public RESTZaakRechten rechten;
+    public RESTZaakRechten rechten;
 }

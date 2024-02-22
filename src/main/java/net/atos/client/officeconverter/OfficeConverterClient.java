@@ -18,8 +18,8 @@ import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 @RegisterRestClient(configKey = "Office-Converter-Client")
 public interface OfficeConverterClient {
 
-  @POST
-  @Consumes(MediaType.MULTIPART_FORM_DATA)
-  @Produces(MediaType.APPLICATION_OCTET_STREAM)
-  Response convert(final MultipartFormDataOutput file);
+    @POST
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    Response convert(final MultipartFormDataOutput file);
 }

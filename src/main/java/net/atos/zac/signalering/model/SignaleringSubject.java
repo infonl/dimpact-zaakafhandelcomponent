@@ -5,7 +5,7 @@
 package net.atos.zac.signalering.model;
 
 public enum SignaleringSubject {
-  ZAAK,
-  TAAK,
-  DOCUMENT;
+    ZAAK,
+    TAAK,
+    DOCUMENT;
 }

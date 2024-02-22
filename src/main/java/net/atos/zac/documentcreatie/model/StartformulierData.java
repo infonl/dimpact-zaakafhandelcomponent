@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class StartformulierData {
 
-  public String productAanvraagtype;
+    public String productAanvraagtype;
 
-  public Map<String, Object> data;
+    public Map<String, Object> data;
 }

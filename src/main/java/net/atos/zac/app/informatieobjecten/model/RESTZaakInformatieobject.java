@@ -14,15 +14,15 @@ import net.atos.zac.app.zaken.model.RESTZaakStatus;
  */
 public class RESTZaakInformatieobject {
 
-  public String zaakIdentificatie;
+    public String zaakIdentificatie;
 
-  public RESTZaakStatus zaakStatus;
+    public RESTZaakStatus zaakStatus;
 
-  public LocalDate zaakStartDatum;
+    public LocalDate zaakStartDatum;
 
-  public LocalDate zaakEinddatumGepland;
+    public LocalDate zaakEinddatumGepland;
 
-  public String zaaktypeOmschrijving;
+    public String zaaktypeOmschrijving;
 
-  public RESTZaakRechten zaakRechten;
+    public RESTZaakRechten zaakRechten;
 }

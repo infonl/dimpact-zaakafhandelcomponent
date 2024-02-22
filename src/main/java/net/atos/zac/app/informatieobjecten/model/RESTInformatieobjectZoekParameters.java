@@ -9,11 +9,11 @@ import java.util.UUID;
 
 public class RESTInformatieobjectZoekParameters {
 
-  public List<UUID> informatieobjectUUIDs;
+    public List<UUID> informatieobjectUUIDs;
 
-  public UUID zaakUUID;
+    public UUID zaakUUID;
 
-  public UUID besluittypeUUID;
+    public UUID besluittypeUUID;
 
-  public boolean gekoppeldeZaakDocumenten;
+    public boolean gekoppeldeZaakDocumenten;
 }

@@ -10,13 +10,13 @@ import net.atos.client.bag.model.StatusPand;
 
 public class StatusPandEnumAdapter implements JsonbAdapter<StatusPand, String> {
 
-  @Override
-  public String adaptToJson(final StatusPand statusPand) {
-    return statusPand.toString();
-  }
+    @Override
+    public String adaptToJson(final StatusPand statusPand) {
+        return statusPand.toString();
+    }
 
-  @Override
-  public StatusPand adaptFromJson(final String json) {
-    return StatusPand.fromValue(json);
-  }
+    @Override
+    public StatusPand adaptFromJson(final String json) {
+        return StatusPand.fromValue(json);
+    }
 }

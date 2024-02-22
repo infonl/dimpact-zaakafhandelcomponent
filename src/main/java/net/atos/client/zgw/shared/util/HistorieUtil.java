@@ -15,36 +15,39 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 
 public final class HistorieUtil {
 
-  private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    private static final DateTimeFormatter DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
-  private static final DateTimeFormatter DATE_TIME_FORMATTER =
-      DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm").withZone(ZoneId.systemDefault());
+    private static final DateTimeFormatter DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm").withZone(ZoneId.systemDefault());
 
-  private static final String TRUE = "Ja";
+    private static final String TRUE = "Ja";
 
-  private static final String FALSE = "Nee";
+    private static final String FALSE = "Nee";
 
-  private HistorieUtil() {}
+    private HistorieUtil() {}
 
-  public static String toWaarde(final LocalDate date) {
-    return date != null ? DATE_FORMATTER.format(date) : null;
-  }
+    public static String toWaarde(final LocalDate date) {
+        return date != null ? DATE_FORMATTER.format(date) : null;
+    }
 
-  public static String toWaarde(final ZonedDateTime date) {
-    return date != null ? DATE_TIME_FORMATTER.format(date) : null;
-  }
+    public static String toWaarde(final ZonedDateTime date) {
+        return date != null ? DATE_TIME_FORMATTER.format(date) : null;
+    }
 
-  public static String toWaarde(final EnkelvoudigInformatieObject.StatusEnum statusEnum) {
-    return statusEnum != null ? statusEnum.value() : null;
-  }
+    public static String toWaarde(final EnkelvoudigInformatieObject.StatusEnum statusEnum) {
+        return statusEnum != null ? statusEnum.value() : null;
+    }
 
-  public static String toWaarde(
-      final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum
-          vertrouwelijkheidaanduidingEnum) {
-    return vertrouwelijkheidaanduidingEnum != null ? vertrouwelijkheidaanduidingEnum.value() : null;
-  }
+    public static String toWaarde(
+            final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum
+                    vertrouwelijkheidaanduidingEnum) {
+        return vertrouwelijkheidaanduidingEnum != null
+                ? vertrouwelijkheidaanduidingEnum.value()
+                : null;
+    }
 
-  public static String toWaarde(final Boolean bool) {
-    return bool != null ? BooleanUtils.toString(bool, TRUE, FALSE) : null;
-  }
+    public static String toWaarde(final Boolean bool) {
+        return bool != null ? BooleanUtils.toString(bool, TRUE, FALSE) : null;
+    }
 }

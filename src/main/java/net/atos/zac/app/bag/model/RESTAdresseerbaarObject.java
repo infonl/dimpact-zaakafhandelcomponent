@@ -9,25 +9,25 @@ import net.atos.zac.app.zaken.model.RESTGeometry;
 
 public class RESTAdresseerbaarObject extends RESTBAGObject {
 
-  public TypeAdresseerbaarObject typeAdresseerbaarObject;
+    public TypeAdresseerbaarObject typeAdresseerbaarObject;
 
-  public String status;
+    public String status;
 
-  public String vboDoel;
+    public String vboDoel;
 
-  public int vboOppervlakte;
+    public int vboOppervlakte;
 
-  public RESTGeometry geometry;
+    public RESTGeometry geometry;
 
-  public RESTAdresseerbaarObject() {}
+    public RESTAdresseerbaarObject() {}
 
-  @Override
-  public BAGObjectType getBagObjectType() {
-    return BAGObjectType.ADRESSEERBAAR_OBJECT;
-  }
+    @Override
+    public BAGObjectType getBagObjectType() {
+        return BAGObjectType.ADRESSEERBAAR_OBJECT;
+    }
 
-  @Override
-  public String getOmschrijving() {
-    return "%s %s".formatted(typeAdresseerbaarObject.toString(), identificatie);
-  }
+    @Override
+    public String getOmschrijving() {
+        return "%s %s".formatted(typeAdresseerbaarObject.toString(), identificatie);
+    }
 }

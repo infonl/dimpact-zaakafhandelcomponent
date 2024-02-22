@@ -6,13 +6,13 @@ package net.atos.zac.app.zaken.model;
 
 public class RESTZaakBetrokkene {
 
-  public String rolid;
+    public String rolid;
 
-  public String roltype;
+    public String roltype;
 
-  public String roltoelichting;
+    public String roltoelichting;
 
-  public String type;
+    public String type;
 
-  public String identificatie;
+    public String identificatie;
 }

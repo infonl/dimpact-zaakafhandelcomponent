@@ -14,24 +14,24 @@ import jakarta.json.bind.config.PropertyVisibilityStrategy;
 
 public final class JsonbUtil {
 
-  public static final PropertyVisibilityStrategy visibilityStrategy =
-      new PropertyVisibilityStrategy() {
-        @Override
-        public boolean isVisible(Field field) {
-          return true;
-        }
+    public static final PropertyVisibilityStrategy visibilityStrategy =
+            new PropertyVisibilityStrategy() {
+                @Override
+                public boolean isVisible(Field field) {
+                    return true;
+                }
 
-        @Override
-        public boolean isVisible(Method method) {
-          return false;
-        }
-      };
+                @Override
+                public boolean isVisible(Method method) {
+                    return false;
+                }
+            };
 
-  public static final Jsonb JSONB = JsonbBuilder.create();
+    public static final Jsonb JSONB = JsonbBuilder.create();
 
-  public static final Jsonb FIELD_VISIBILITY_STRATEGY =
-      JsonbBuilder.create(
-          new JsonbConfig().withPropertyVisibilityStrategy(JsonbUtil.visibilityStrategy));
+    public static final Jsonb FIELD_VISIBILITY_STRATEGY =
+            JsonbBuilder.create(
+                    new JsonbConfig().withPropertyVisibilityStrategy(JsonbUtil.visibilityStrategy));
 
-  private JsonbUtil() {}
+    private JsonbUtil() {}
 }

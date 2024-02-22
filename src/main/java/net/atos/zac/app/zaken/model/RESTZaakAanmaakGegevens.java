@@ -13,9 +13,9 @@ import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag;
 
 public class RESTZaakAanmaakGegevens {
 
-  @Valid public RESTZaak zaak;
+    @Valid public RESTZaak zaak;
 
-  public RESTInboxProductaanvraag inboxProductaanvraag;
+    public RESTInboxProductaanvraag inboxProductaanvraag;
 
-  public List<RESTBAGObject> bagObjecten;
+    public List<RESTBAGObject> bagObjecten;
 }

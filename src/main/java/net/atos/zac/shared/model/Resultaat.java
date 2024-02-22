@@ -8,20 +8,20 @@ import java.util.List;
 
 public class Resultaat<TYPE> {
 
-  private final List<TYPE> items;
+    private final List<TYPE> items;
 
-  private final long count;
+    private final long count;
 
-  public Resultaat(final List<TYPE> items, final long count) {
-    this.items = items;
-    this.count = count;
-  }
+    public Resultaat(final List<TYPE> items, final long count) {
+        this.items = items;
+        this.count = count;
+    }
 
-  public List<TYPE> getItems() {
-    return items;
-  }
+    public List<TYPE> getItems() {
+        return items;
+    }
 
-  public long getCount() {
-    return count;
-  }
+    public long getCount() {
+        return count;
+    }
 }

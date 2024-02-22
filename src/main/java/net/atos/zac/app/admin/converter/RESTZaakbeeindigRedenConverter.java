@@ -11,23 +11,24 @@ import net.atos.zac.zaaksturing.model.ZaakbeeindigReden;
 
 public class RESTZaakbeeindigRedenConverter {
 
-  public RESTZaakbeeindigReden convertZaakbeeindigReden(final ZaakbeeindigReden zaakbeeindigReden) {
-    final RESTZaakbeeindigReden restZaakbeeindigReden = new RESTZaakbeeindigReden();
-    restZaakbeeindigReden.id = zaakbeeindigReden.getId();
-    restZaakbeeindigReden.naam = zaakbeeindigReden.getNaam();
-    return restZaakbeeindigReden;
-  }
+    public RESTZaakbeeindigReden convertZaakbeeindigReden(
+            final ZaakbeeindigReden zaakbeeindigReden) {
+        final RESTZaakbeeindigReden restZaakbeeindigReden = new RESTZaakbeeindigReden();
+        restZaakbeeindigReden.id = zaakbeeindigReden.getId();
+        restZaakbeeindigReden.naam = zaakbeeindigReden.getNaam();
+        return restZaakbeeindigReden;
+    }
 
-  public List<RESTZaakbeeindigReden> convertZaakbeeindigRedenen(
-      final List<ZaakbeeindigReden> zaakbeeindigRedenen) {
-    return zaakbeeindigRedenen.stream().map(this::convertZaakbeeindigReden).toList();
-  }
+    public List<RESTZaakbeeindigReden> convertZaakbeeindigRedenen(
+            final List<ZaakbeeindigReden> zaakbeeindigRedenen) {
+        return zaakbeeindigRedenen.stream().map(this::convertZaakbeeindigReden).toList();
+    }
 
-  public ZaakbeeindigReden convertRESTZaakbeeindigReden(
-      final RESTZaakbeeindigReden restZaakbeeindigReden) {
-    final ZaakbeeindigReden zaakbeeindigReden = new ZaakbeeindigReden();
-    zaakbeeindigReden.setId(restZaakbeeindigReden.id);
-    zaakbeeindigReden.setNaam(restZaakbeeindigReden.naam);
-    return zaakbeeindigReden;
-  }
+    public ZaakbeeindigReden convertRESTZaakbeeindigReden(
+            final RESTZaakbeeindigReden restZaakbeeindigReden) {
+        final ZaakbeeindigReden zaakbeeindigReden = new ZaakbeeindigReden();
+        zaakbeeindigReden.setId(restZaakbeeindigReden.id);
+        zaakbeeindigReden.setNaam(restZaakbeeindigReden.naam);
+        return zaakbeeindigReden;
+    }
 }

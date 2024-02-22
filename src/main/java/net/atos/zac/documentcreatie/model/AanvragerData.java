@@ -6,13 +6,13 @@ package net.atos.zac.documentcreatie.model;
 
 public class AanvragerData {
 
-  public String naam;
+    public String naam;
 
-  public String straat;
+    public String straat;
 
-  public String huisnummer;
+    public String huisnummer;
 
-  public String postcode;
+    public String postcode;
 
-  public String woonplaats;
+    public String woonplaats;
 }

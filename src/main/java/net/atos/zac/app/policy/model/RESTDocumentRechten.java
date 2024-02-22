@@ -6,15 +6,15 @@ package net.atos.zac.app.policy.model;
 
 public class RESTDocumentRechten {
 
-  public boolean lezen;
+    public boolean lezen;
 
-  public boolean wijzigen;
+    public boolean wijzigen;
 
-  public boolean verwijderen;
+    public boolean verwijderen;
 
-  public boolean vergrendelen;
+    public boolean vergrendelen;
 
-  public boolean ontgrendelen;
+    public boolean ontgrendelen;
 
-  public boolean ondertekenen;
+    public boolean ondertekenen;
 }

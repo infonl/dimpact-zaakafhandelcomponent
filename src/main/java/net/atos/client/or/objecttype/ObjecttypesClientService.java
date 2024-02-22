@@ -18,34 +18,34 @@ import net.atos.client.or.objecttype.model.ObjecttypeVersion;
 @ApplicationScoped
 public class ObjecttypesClientService {
 
-  @Inject @RestClient private ObjecttypesClient objecttypesClient;
+    @Inject @RestClient private ObjecttypesClient objecttypesClient;
 
-  /**
-   * List all instances of {@link Objecttype}.
-   *
-   * @return List of {@link Objecttype} instances.
-   */
-  public List<Objecttype> listObjecttypes() {
-    return objecttypesClient.objecttypeList();
-  }
+    /**
+     * List all instances of {@link Objecttype}.
+     *
+     * @return List of {@link Objecttype} instances.
+     */
+    public List<Objecttype> listObjecttypes() {
+        return objecttypesClient.objecttypeList();
+    }
 
-  /**
-   * List all instances of {@link ObjecttypeVersion} for a specific {@link Objecttype}.
-   *
-   * @param objecttypeUUID UUID of the {@link Objecttype}.
-   * @return List of {@link ObjecttypeVersion} instances.
-   */
-  public List<ObjecttypeVersion> listObjecttypeVersions(final UUID objecttypeUUID) {
-    return objecttypesClient.objectversionList(objecttypeUUID);
-  }
+    /**
+     * List all instances of {@link ObjecttypeVersion} for a specific {@link Objecttype}.
+     *
+     * @param objecttypeUUID UUID of the {@link Objecttype}.
+     * @return List of {@link ObjecttypeVersion} instances.
+     */
+    public List<ObjecttypeVersion> listObjecttypeVersions(final UUID objecttypeUUID) {
+        return objecttypesClient.objectversionList(objecttypeUUID);
+    }
 
-  /**
-   * Read an {@link Objecttype}
-   *
-   * @param objecttypeUUID UUID of the {@link Objecttype}
-   * @return {@link Objecttype} throws an exception if not found,
-   */
-  public Objecttype readObjecttype(final UUID objecttypeUUID) {
-    return objecttypesClient.objecttypeRead(objecttypeUUID);
-  }
+    /**
+     * Read an {@link Objecttype}
+     *
+     * @param objecttypeUUID UUID of the {@link Objecttype}
+     * @return {@link Objecttype} throws an exception if not found,
+     */
+    public Objecttype readObjecttype(final UUID objecttypeUUID) {
+        return objecttypesClient.objecttypeRead(objecttypeUUID);
+    }
 }

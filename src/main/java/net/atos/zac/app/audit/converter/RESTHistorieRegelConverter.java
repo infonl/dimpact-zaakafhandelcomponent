@@ -19,36 +19,36 @@ import net.atos.zac.app.audit.model.RESTHistorieRegel;
 
 public class RESTHistorieRegelConverter {
 
-  @Inject @Any
-  private Instance<AbstractAuditWijzigingConverter<? extends AuditWijziging<?>>>
-      wijzigingConverterInstance;
+    @Inject @Any
+    private Instance<AbstractAuditWijzigingConverter<? extends AuditWijziging<?>>>
+            wijzigingConverterInstance;
 
-  public List<RESTHistorieRegel> convert(final List<AuditTrailRegel> auditTrail) {
-    return auditTrail.stream()
-        .sorted(Comparator.comparing(AuditTrailRegel::getAanmaakdatum).reversed())
-        .flatMap(this::convert)
-        .collect(Collectors.toList());
-  }
-
-  private Stream<RESTHistorieRegel> convert(final AuditTrailRegel auditTrailRegel) {
-    return convertWijziging(auditTrailRegel.getWijzigingen())
-        .peek(historieRegel -> convertAuditTrailBasis(historieRegel, auditTrailRegel));
-  }
-
-  private Stream<RESTHistorieRegel> convertWijziging(final AuditWijziging<?> wijziging) {
-    for (AbstractAuditWijzigingConverter<?> wijzigingConverter : wijzigingConverterInstance) {
-      if (wijzigingConverter.supports(wijziging.getObjectType())) {
-        return wijzigingConverter.convert(wijziging);
-      }
+    public List<RESTHistorieRegel> convert(final List<AuditTrailRegel> auditTrail) {
+        return auditTrail.stream()
+                .sorted(Comparator.comparing(AuditTrailRegel::getAanmaakdatum).reversed())
+                .flatMap(this::convert)
+                .collect(Collectors.toList());
     }
-    return Stream.empty();
-  }
 
-  private void convertAuditTrailBasis(
-      final RESTHistorieRegel historieRegel, final AuditTrailRegel auditTrailRegel) {
-    historieRegel.datumTijd = auditTrailRegel.getAanmaakdatum();
-    historieRegel.door = auditTrailRegel.getGebruikersWeergave();
-    historieRegel.applicatie = auditTrailRegel.getApplicatieWeergave();
-    historieRegel.toelichting = auditTrailRegel.getToelichting();
-  }
+    private Stream<RESTHistorieRegel> convert(final AuditTrailRegel auditTrailRegel) {
+        return convertWijziging(auditTrailRegel.getWijzigingen())
+                .peek(historieRegel -> convertAuditTrailBasis(historieRegel, auditTrailRegel));
+    }
+
+    private Stream<RESTHistorieRegel> convertWijziging(final AuditWijziging<?> wijziging) {
+        for (AbstractAuditWijzigingConverter<?> wijzigingConverter : wijzigingConverterInstance) {
+            if (wijzigingConverter.supports(wijziging.getObjectType())) {
+                return wijzigingConverter.convert(wijziging);
+            }
+        }
+        return Stream.empty();
+    }
+
+    private void convertAuditTrailBasis(
+            final RESTHistorieRegel historieRegel, final AuditTrailRegel auditTrailRegel) {
+        historieRegel.datumTijd = auditTrailRegel.getAanmaakdatum();
+        historieRegel.door = auditTrailRegel.getGebruikersWeergave();
+        historieRegel.applicatie = auditTrailRegel.getApplicatieWeergave();
+        historieRegel.toelichting = auditTrailRegel.getToelichting();
+    }
 }

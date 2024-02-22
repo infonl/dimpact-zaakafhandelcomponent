@@ -6,11 +6,11 @@ package net.atos.zac.app.policy.model;
 
 public class RESTTaakRechten {
 
-  public boolean lezen;
+    public boolean lezen;
 
-  public boolean wijzigen;
+    public boolean wijzigen;
 
-  public boolean toekennen;
+    public boolean toekennen;
 
-  public boolean toevoegenDocument;
+    public boolean toevoegenDocument;
 }

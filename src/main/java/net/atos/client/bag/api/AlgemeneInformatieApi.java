@@ -32,10 +32,10 @@ import net.atos.client.brp.exception.RuntimeExceptionMapper;
 @Path("/info")
 public interface AlgemeneInformatieApi {
 
-  /**
-   * Algemene info van de API
-   */
-  @GET
-  @Produces({"application/json", "application/problem+json"})
-  public APIInfo getInfo() throws ProcessingException;
+    /**
+     * Algemene info van de API
+     */
+    @GET
+    @Produces({"application/json", "application/problem+json"})
+    public APIInfo getInfo() throws ProcessingException;
 }

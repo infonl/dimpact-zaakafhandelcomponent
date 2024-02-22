@@ -41,65 +41,65 @@ import net.atos.client.brp.exception.RuntimeExceptionMapper;
 @Path("/openbareruimten")
 public interface OpenbareRuimteApi {
 
-  /**
-   * bevragen van een openbare ruimte met de identificatie van een openbare ruimte.
-   * <p>
-   * Bevragen/raadplegen van een openbare ruimte met de identificatie van een openbare ruimte. Parameter huidig kan worden toegepast, zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature). De geldigOp en beschikbaarOp parameters kunnen gebruikt worden voor  tijdreis vragen, zie  [functionele specificatie tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature).  Als expand&#x3D;ligtInWoonplaats of true dan wordt de woonplaats als geneste resource geleverd, zie [functionele specificatie expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).
-   */
-  @GET
-  @Path("/{openbareRuimteIdentificatie}")
-  @Produces({"application/hal+json", "application/problem+json"})
-  public OpenbareRuimteIOHal openbareruimteIdentificatie(
-      @PathParam("openbareRuimteIdentificatie") String openbareRuimteIdentificatie,
-      @QueryParam("geldigOp") LocalDate geldigOp,
-      @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
-      @QueryParam("expand") String expand,
-      @QueryParam("huidig") @DefaultValue("false") Boolean huidig)
-      throws ProcessingException;
+    /**
+     * bevragen van een openbare ruimte met de identificatie van een openbare ruimte.
+     * <p>
+     * Bevragen/raadplegen van een openbare ruimte met de identificatie van een openbare ruimte. Parameter huidig kan worden toegepast, zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature). De geldigOp en beschikbaarOp parameters kunnen gebruikt worden voor  tijdreis vragen, zie  [functionele specificatie tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature).  Als expand&#x3D;ligtInWoonplaats of true dan wordt de woonplaats als geneste resource geleverd, zie [functionele specificatie expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).
+     */
+    @GET
+    @Path("/{openbareRuimteIdentificatie}")
+    @Produces({"application/hal+json", "application/problem+json"})
+    public OpenbareRuimteIOHal openbareruimteIdentificatie(
+            @PathParam("openbareRuimteIdentificatie") String openbareRuimteIdentificatie,
+            @QueryParam("geldigOp") LocalDate geldigOp,
+            @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
+            @QueryParam("expand") String expand,
+            @QueryParam("huidig") @DefaultValue("false") Boolean huidig)
+            throws ProcessingException;
 
-  /**
-   * bevragen van een voorkomen van een openbare ruimte met de identificatie van een openbare ruimte en de identificatie van een voorkomen, bestaande uit een versie en een timestamp van het tijdstip van registratie in de LV BAG.
-   * <p>
-   * Bevragen/raadplegen van een voorkomen van een openbare ruimte met de identificatie van een openbare ruimte en de identificatie van een voorkomen, bestaande uit een versie en een timestamp van het tijdstip van registratie in de LV BAG.
-   */
-  @GET
-  @Path("/{openbareRuimteIdentificatie}/{versie}/{timestampRegistratieLv}")
-  @Produces({"application/hal+json", "application/problem+json"})
-  public OpenbareRuimteIOHal openbareruimteIdentificatieVoorkomen(
-      @PathParam("openbareRuimteIdentificatie") String openbareRuimteIdentificatie,
-      @PathParam("versie") Integer versie,
-      @PathParam("timestampRegistratieLv") String timestampRegistratieLv)
-      throws ProcessingException;
+    /**
+     * bevragen van een voorkomen van een openbare ruimte met de identificatie van een openbare ruimte en de identificatie van een voorkomen, bestaande uit een versie en een timestamp van het tijdstip van registratie in de LV BAG.
+     * <p>
+     * Bevragen/raadplegen van een voorkomen van een openbare ruimte met de identificatie van een openbare ruimte en de identificatie van een voorkomen, bestaande uit een versie en een timestamp van het tijdstip van registratie in de LV BAG.
+     */
+    @GET
+    @Path("/{openbareRuimteIdentificatie}/{versie}/{timestampRegistratieLv}")
+    @Produces({"application/hal+json", "application/problem+json"})
+    public OpenbareRuimteIOHal openbareruimteIdentificatieVoorkomen(
+            @PathParam("openbareRuimteIdentificatie") String openbareRuimteIdentificatie,
+            @PathParam("versie") Integer versie,
+            @PathParam("timestampRegistratieLv") String timestampRegistratieLv)
+            throws ProcessingException;
 
-  /**
-   * bevragen levenscyclus van een openbare ruimte met de identificatie van een openbare ruimte.
-   * <p>
-   * Bevragen/raadplegen van de levenscyclus van één openbare ruimte, via de identificatie van een openbare ruimte.
-   */
-  @GET
-  @Path("/{openbareRuimteIdentificatie}/lvc")
-  @Produces({"application/hal+json", "application/problem+json"})
-  public OpenbareRuimteIOLvcHalCollection openbareruimteLvcIdentificatie(
-      @PathParam("openbareRuimteIdentificatie") String openbareRuimteIdentificatie,
-      @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc)
-      throws ProcessingException;
+    /**
+     * bevragen levenscyclus van een openbare ruimte met de identificatie van een openbare ruimte.
+     * <p>
+     * Bevragen/raadplegen van de levenscyclus van één openbare ruimte, via de identificatie van een openbare ruimte.
+     */
+    @GET
+    @Path("/{openbareRuimteIdentificatie}/lvc")
+    @Produces({"application/hal+json", "application/problem+json"})
+    public OpenbareRuimteIOLvcHalCollection openbareruimteLvcIdentificatie(
+            @PathParam("openbareRuimteIdentificatie") String openbareRuimteIdentificatie,
+            @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc)
+            throws ProcessingException;
 
-  /**
-   * bevragen openbare ruimte(n) op basis van de verschillende combinaties van parameters.
-   * <p>
-   * De volgende (combinaties van) parameters worden ondersteund:  1. Bevragen/raadplegen van een openbare ruimte met een woonplaats naam en een openbare ruimte naam.    Als expand&#x3D;ligtInWoonplaats of true dan wordt de woonplaats als geneste resource geleverd, zie [functionele specificatie expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).  2. Bevragen/raadplegen van een openbare ruimte met een woonplaats identificatie en een openbare ruimte naam.    Als expand&#x3D;ligtInWoonplaats of true dan wordt de woonplaats als geneste resource geleverd, zie [functionele specificatie expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).  3. Bevragen/zoeken van alle aan een woonplaats gerelateerde openbare ruimten met de woonplaats identificatie.    Parameter huidig kan worden toegepast, zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature).    Expand wordt niet ondersteund.   Bij alle bovenstaande combinaties wordt paginering ondersteund en kunnen de parameters geldigOp en beschikbaarOp worden gebruikt. Voor paginering, zie: [functionele specificatie paginering](https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature).  De geldigOp en beschikbaarOp parameters kunnen gebruikt worden voor  tijdreis vragen, zie  [functionele specificatie tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature).
-   */
-  @GET
-  @Produces({"application/hal+json", "application/problem+json"})
-  public OpenbareRuimteIOHalCollection zoekOpenbareRuimten(
-      @QueryParam("woonplaatsNaam") String woonplaatsNaam,
-      @QueryParam("openbareRuimteNaam") String openbareRuimteNaam,
-      @QueryParam("woonplaatsIdentificatie") String woonplaatsIdentificatie,
-      @QueryParam("huidig") @DefaultValue("false") Boolean huidig,
-      @QueryParam("geldigOp") LocalDate geldigOp,
-      @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
-      @QueryParam("page") @DefaultValue("1") Integer page,
-      @QueryParam("pageSize") @DefaultValue("20") Integer pageSize,
-      @QueryParam("expand") String expand)
-      throws ProcessingException;
+    /**
+     * bevragen openbare ruimte(n) op basis van de verschillende combinaties van parameters.
+     * <p>
+     * De volgende (combinaties van) parameters worden ondersteund:  1. Bevragen/raadplegen van een openbare ruimte met een woonplaats naam en een openbare ruimte naam.    Als expand&#x3D;ligtInWoonplaats of true dan wordt de woonplaats als geneste resource geleverd, zie [functionele specificatie expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).  2. Bevragen/raadplegen van een openbare ruimte met een woonplaats identificatie en een openbare ruimte naam.    Als expand&#x3D;ligtInWoonplaats of true dan wordt de woonplaats als geneste resource geleverd, zie [functionele specificatie expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).  3. Bevragen/zoeken van alle aan een woonplaats gerelateerde openbare ruimten met de woonplaats identificatie.    Parameter huidig kan worden toegepast, zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature).    Expand wordt niet ondersteund.   Bij alle bovenstaande combinaties wordt paginering ondersteund en kunnen de parameters geldigOp en beschikbaarOp worden gebruikt. Voor paginering, zie: [functionele specificatie paginering](https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature).  De geldigOp en beschikbaarOp parameters kunnen gebruikt worden voor  tijdreis vragen, zie  [functionele specificatie tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature).
+     */
+    @GET
+    @Produces({"application/hal+json", "application/problem+json"})
+    public OpenbareRuimteIOHalCollection zoekOpenbareRuimten(
+            @QueryParam("woonplaatsNaam") String woonplaatsNaam,
+            @QueryParam("openbareRuimteNaam") String openbareRuimteNaam,
+            @QueryParam("woonplaatsIdentificatie") String woonplaatsIdentificatie,
+            @QueryParam("huidig") @DefaultValue("false") Boolean huidig,
+            @QueryParam("geldigOp") LocalDate geldigOp,
+            @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
+            @QueryParam("page") @DefaultValue("1") Integer page,
+            @QueryParam("pageSize") @DefaultValue("20") Integer pageSize,
+            @QueryParam("expand") String expand)
+            throws ProcessingException;
 }

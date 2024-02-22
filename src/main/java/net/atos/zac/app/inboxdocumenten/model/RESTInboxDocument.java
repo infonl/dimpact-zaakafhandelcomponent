@@ -9,15 +9,15 @@ import java.util.UUID;
 
 public class RESTInboxDocument {
 
-  public long id;
+    public long id;
 
-  public UUID enkelvoudiginformatieobjectUUID;
+    public UUID enkelvoudiginformatieobjectUUID;
 
-  public String enkelvoudiginformatieobjectID;
+    public String enkelvoudiginformatieobjectID;
 
-  public LocalDate creatiedatum;
+    public LocalDate creatiedatum;
 
-  public String titel;
+    public String titel;
 
-  public String bestandsnaam;
+    public String bestandsnaam;
 }

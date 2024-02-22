@@ -15,8 +15,8 @@ import jakarta.ws.rs.ext.Provider;
 @Provider
 public class FoutMeldingExceptionMapper implements ExceptionMapper<FoutmeldingException> {
 
-  @Override
-  public Response toResponse(final FoutmeldingException e) {
-    return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
-  }
+    @Override
+    public Response toResponse(final FoutmeldingException e) {
+        return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+    }
 }

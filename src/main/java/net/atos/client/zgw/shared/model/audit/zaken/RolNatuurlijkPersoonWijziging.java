@@ -10,8 +10,8 @@ import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon;
 
 public class RolNatuurlijkPersoonWijziging extends AuditWijziging<RolNatuurlijkPersoon> {
 
-  @Override
-  public ObjectType getObjectType() {
-    return ObjectType.ROL;
-  }
+    @Override
+    public ObjectType getObjectType() {
+        return ObjectType.ROL;
+    }
 }

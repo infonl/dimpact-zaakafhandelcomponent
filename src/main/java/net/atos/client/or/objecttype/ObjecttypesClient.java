@@ -33,22 +33,22 @@ import net.atos.client.or.shared.exception.ValidatieFoutExceptionMapper;
 @Path("api/v2")
 public interface ObjecttypesClient {
 
-  @GET
-  @Path("objecttypes")
-  List<Objecttype> objecttypeList();
+    @GET
+    @Path("objecttypes")
+    List<Objecttype> objecttypeList();
 
-  @GET
-  @Path("objecttypes/{objecttype-uuid}")
-  Objecttype objecttypeRead(@PathParam("objecttype-uuid") final UUID objecttypeUUID);
+    @GET
+    @Path("objecttypes/{objecttype-uuid}")
+    Objecttype objecttypeRead(@PathParam("objecttype-uuid") final UUID objecttypeUUID);
 
-  @GET
-  @Path("objecttypes/{objecttype-uuid}/versions")
-  List<ObjecttypeVersion> objectversionList(
-      @PathParam("objecttype-uuid") final UUID objecttypeUUID);
+    @GET
+    @Path("objecttypes/{objecttype-uuid}/versions")
+    List<ObjecttypeVersion> objectversionList(
+            @PathParam("objecttype-uuid") final UUID objecttypeUUID);
 
-  @GET
-  @Path("objecttypes/{objecttype-uuid}/versions/{version}")
-  ObjecttypeVersion objectversionRead(
-      @PathParam("objecttype-uuid") final UUID objecttypeUUID,
-      @PathParam("version") final Integer version);
+    @GET
+    @Path("objecttypes/{objecttype-uuid}/versions/{version}")
+    ObjecttypeVersion objectversionRead(
+            @PathParam("objecttype-uuid") final UUID objecttypeUUID,
+            @PathParam("version") final Integer version);
 }

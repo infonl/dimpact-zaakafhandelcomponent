@@ -5,6 +5,6 @@
 package net.atos.zac.app.planitems.model;
 
 public enum UserEventListenerActie {
-  INTAKE_AFRONDEN,
-  ZAAK_AFHANDELEN;
+    INTAKE_AFRONDEN,
+    ZAAK_AFHANDELEN;
 }

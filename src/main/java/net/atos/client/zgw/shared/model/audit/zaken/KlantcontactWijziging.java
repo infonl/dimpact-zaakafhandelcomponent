@@ -10,8 +10,8 @@ import net.atos.client.zgw.zrc.model.Klantcontact;
 
 public class KlantcontactWijziging extends AuditWijziging<Klantcontact> {
 
-  @Override
-  public ObjectType getObjectType() {
-    return ObjectType.KLANTCONTACT;
-  }
+    @Override
+    public ObjectType getObjectType() {
+        return ObjectType.KLANTCONTACT;
+    }
 }

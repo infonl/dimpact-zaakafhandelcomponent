@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 public class RESTOndertekening {
 
-  public String soort;
+    public String soort;
 
-  public LocalDate datum;
+    public LocalDate datum;
 }

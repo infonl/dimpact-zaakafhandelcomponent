@@ -13,14 +13,14 @@ import jakarta.json.bind.annotation.JsonbProperty;
  */
 public class ValidatieFout extends Fout {
 
-  @JsonbProperty("invalid_params")
-  private List<FieldValidationError> fieldValidationErrors;
+    @JsonbProperty("invalid_params")
+    private List<FieldValidationError> fieldValidationErrors;
 
-  public List<FieldValidationError> getFieldValidationErrors() {
-    return fieldValidationErrors;
-  }
+    public List<FieldValidationError> getFieldValidationErrors() {
+        return fieldValidationErrors;
+    }
 
-  public void setFieldValidationErrors(final List<FieldValidationError> fieldValidationErrors) {
-    this.fieldValidationErrors = fieldValidationErrors;
-  }
+    public void setFieldValidationErrors(final List<FieldValidationError> fieldValidationErrors) {
+        this.fieldValidationErrors = fieldValidationErrors;
+    }
 }

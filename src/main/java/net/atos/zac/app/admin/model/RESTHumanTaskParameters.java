@@ -9,17 +9,17 @@ import java.util.List;
 
 public class RESTHumanTaskParameters {
 
-  public boolean actief;
+    public boolean actief;
 
-  public Long id;
+    public Long id;
 
-  public RESTPlanItemDefinition planItemDefinition;
+    public RESTPlanItemDefinition planItemDefinition;
 
-  public Integer doorlooptijd;
+    public Integer doorlooptijd;
 
-  public String defaultGroepId;
+    public String defaultGroepId;
 
-  public String formulierDefinitieId;
+    public String formulierDefinitieId;
 
-  public List<RESTHumanTaskReferentieTabel> referentieTabellen = new ArrayList<>();
+    public List<RESTHumanTaskReferentieTabel> referentieTabellen = new ArrayList<>();
 }

@@ -9,13 +9,13 @@ import net.atos.zac.signalering.model.SignaleringType;
 
 public class RESTSignaleringInstellingen {
 
-  public Long id;
+    public Long id;
 
-  public SignaleringType.Type type;
+    public SignaleringType.Type type;
 
-  public SignaleringSubject subjecttype;
+    public SignaleringSubject subjecttype;
 
-  public Boolean dashboard;
+    public Boolean dashboard;
 
-  public Boolean mail;
+    public Boolean mail;
 }

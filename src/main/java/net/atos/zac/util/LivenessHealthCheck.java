@@ -14,8 +14,8 @@ import org.eclipse.microprofile.health.Liveness;
 @ApplicationScoped
 public class LivenessHealthCheck implements HealthCheck {
 
-  @Override
-  public HealthCheckResponse call() {
-    return HealthCheckResponse.up(LivenessHealthCheck.class.getName());
-  }
+    @Override
+    public HealthCheckResponse call() {
+        return HealthCheckResponse.up(LivenessHealthCheck.class.getName());
+    }
 }

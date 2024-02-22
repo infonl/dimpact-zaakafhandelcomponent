@@ -24,148 +24,148 @@ import jakarta.validation.constraints.PositiveOrZero;
 @Entity
 @Table(schema = SCHEMA, name = "formulier_veld_definitie")
 @SequenceGenerator(
-    schema = SCHEMA,
-    name = "sq_formulier_veld_definitie",
-    sequenceName = "sq_formulier_veld_definitie",
-    allocationSize = 1)
+        schema = SCHEMA,
+        name = "sq_formulier_veld_definitie",
+        sequenceName = "sq_formulier_veld_definitie",
+        allocationSize = 1)
 public class FormulierVeldDefinitie {
 
-  @Id
-  @GeneratedValue(generator = "sq_formulier_veld_definitie", strategy = GenerationType.SEQUENCE)
-  @Column(name = "id_formulier_veld_definitie")
-  private Long id;
+    @Id
+    @GeneratedValue(generator = "sq_formulier_veld_definitie", strategy = GenerationType.SEQUENCE)
+    @Column(name = "id_formulier_veld_definitie")
+    private Long id;
 
-  @NotNull @ManyToOne
-  @JoinColumn(name = "id_formulier_definitie", referencedColumnName = "id_formulier_definitie")
-  private FormulierDefinitie formulierDefinitie;
+    @NotNull @ManyToOne
+    @JoinColumn(name = "id_formulier_definitie", referencedColumnName = "id_formulier_definitie")
+    private FormulierDefinitie formulierDefinitie;
 
-  @NotBlank
-  @Column(name = "systeemnaam", nullable = false, unique = true)
-  private String systeemnaam;
+    @NotBlank
+    @Column(name = "systeemnaam", nullable = false, unique = true)
+    private String systeemnaam;
 
-  @PositiveOrZero
-  @Column(name = "volgorde", nullable = false)
-  private int volgorde;
+    @PositiveOrZero
+    @Column(name = "volgorde", nullable = false)
+    private int volgorde;
 
-  @NotBlank
-  @Column(name = "label", nullable = false)
-  private String label;
+    @NotBlank
+    @Column(name = "label", nullable = false)
+    private String label;
 
-  @NotNull @Column(name = "veldtype", nullable = false)
-  @Enumerated(EnumType.STRING)
-  private FormulierVeldtype veldtype;
+    @NotNull @Column(name = "veldtype", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private FormulierVeldtype veldtype;
 
-  @Column(name = "beschrijving")
-  private String beschrijving;
+    @Column(name = "beschrijving")
+    private String beschrijving;
 
-  @Column(name = "helptekst")
-  private String helptekst;
+    @Column(name = "helptekst")
+    private String helptekst;
 
-  @Column(name = "verplicht")
-  private boolean verplicht;
+    @Column(name = "verplicht")
+    private boolean verplicht;
 
-  @Column(name = "default_waarde")
-  private String defaultWaarde;
+    @Column(name = "default_waarde")
+    private String defaultWaarde;
 
-  @Column(name = "meerkeuze_opties")
-  private String meerkeuzeOpties;
+    @Column(name = "meerkeuze_opties")
+    private String meerkeuzeOpties;
 
-  @Column(name = "validaties")
-  private String validaties;
+    @Column(name = "validaties")
+    private String validaties;
 
-  public Long getId() {
-    return id;
-  }
+    public Long getId() {
+        return id;
+    }
 
-  public void setId(final Long id) {
-    this.id = id;
-  }
+    public void setId(final Long id) {
+        this.id = id;
+    }
 
-  public FormulierDefinitie getFormulierDefinitie() {
-    return formulierDefinitie;
-  }
+    public FormulierDefinitie getFormulierDefinitie() {
+        return formulierDefinitie;
+    }
 
-  public void setFormulierDefinitie(final FormulierDefinitie formulierDefinitie) {
-    this.formulierDefinitie = formulierDefinitie;
-  }
+    public void setFormulierDefinitie(final FormulierDefinitie formulierDefinitie) {
+        this.formulierDefinitie = formulierDefinitie;
+    }
 
-  public String getSysteemnaam() {
-    return systeemnaam;
-  }
+    public String getSysteemnaam() {
+        return systeemnaam;
+    }
 
-  public void setSysteemnaam(final String systeemnaam) {
-    this.systeemnaam = systeemnaam;
-  }
+    public void setSysteemnaam(final String systeemnaam) {
+        this.systeemnaam = systeemnaam;
+    }
 
-  public int getVolgorde() {
-    return volgorde;
-  }
+    public int getVolgorde() {
+        return volgorde;
+    }
 
-  public void setVolgorde(final int volgorde) {
-    this.volgorde = volgorde;
-  }
+    public void setVolgorde(final int volgorde) {
+        this.volgorde = volgorde;
+    }
 
-  public String getLabel() {
-    return label;
-  }
+    public String getLabel() {
+        return label;
+    }
 
-  public void setLabel(final String label) {
-    this.label = label;
-  }
+    public void setLabel(final String label) {
+        this.label = label;
+    }
 
-  public FormulierVeldtype getVeldtype() {
-    return veldtype;
-  }
+    public FormulierVeldtype getVeldtype() {
+        return veldtype;
+    }
 
-  public void setVeldtype(final FormulierVeldtype veldType) {
-    this.veldtype = veldType;
-  }
+    public void setVeldtype(final FormulierVeldtype veldType) {
+        this.veldtype = veldType;
+    }
 
-  public String getBeschrijving() {
-    return beschrijving;
-  }
+    public String getBeschrijving() {
+        return beschrijving;
+    }
 
-  public void setBeschrijving(final String beschrijving) {
-    this.beschrijving = beschrijving;
-  }
+    public void setBeschrijving(final String beschrijving) {
+        this.beschrijving = beschrijving;
+    }
 
-  public String getHelptekst() {
-    return helptekst;
-  }
+    public String getHelptekst() {
+        return helptekst;
+    }
 
-  public void setHelptekst(final String helptekst) {
-    this.helptekst = helptekst;
-  }
+    public void setHelptekst(final String helptekst) {
+        this.helptekst = helptekst;
+    }
 
-  public boolean isVerplicht() {
-    return verplicht;
-  }
+    public boolean isVerplicht() {
+        return verplicht;
+    }
 
-  public void setVerplicht(final boolean verplicht) {
-    this.verplicht = verplicht;
-  }
+    public void setVerplicht(final boolean verplicht) {
+        this.verplicht = verplicht;
+    }
 
-  public String getDefaultWaarde() {
-    return defaultWaarde;
-  }
+    public String getDefaultWaarde() {
+        return defaultWaarde;
+    }
 
-  public void setDefaultWaarde(final String defaultWaarde) {
-    this.defaultWaarde = defaultWaarde;
-  }
+    public void setDefaultWaarde(final String defaultWaarde) {
+        this.defaultWaarde = defaultWaarde;
+    }
 
-  public String getMeerkeuzeOpties() {
-    return meerkeuzeOpties;
-  }
+    public String getMeerkeuzeOpties() {
+        return meerkeuzeOpties;
+    }
 
-  public void setMeerkeuzeOpties(final String meerkeuzeWaarden) {
-    this.meerkeuzeOpties = meerkeuzeWaarden;
-  }
+    public void setMeerkeuzeOpties(final String meerkeuzeWaarden) {
+        this.meerkeuzeOpties = meerkeuzeWaarden;
+    }
 
-  public String getValidaties() {
-    return validaties;
-  }
+    public String getValidaties() {
+        return validaties;
+    }
 
-  public void setValidaties(final String validaties) {
-    this.validaties = validaties;
-  }
+    public void setValidaties(final String validaties) {
+        this.validaties = validaties;
+    }
 }

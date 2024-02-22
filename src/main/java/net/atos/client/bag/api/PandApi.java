@@ -51,89 +51,89 @@ import net.atos.client.brp.exception.RuntimeExceptionMapper;
 @Path("/panden")
 public interface PandApi {
 
-  /**
-   * bevragen panden met een geometrische locatie.
-   * <p>
-   * Bevragen/raadplegen van een voorkomen van één of meer panden met de geometrische locatie van het pand.  Parameter huidig kan worden toegepast, zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature).  De geldigOp en beschikbaarOp parameters kunnen gebruikt worden voor  tijdreis vragen, zie  [functionele specificatie tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature).
-   */
-  @POST
-  @Consumes({"application/json"})
-  @Produces({"application/hal+json", "application/problem+json"})
-  public PandIOHalCollection pandGeometrie(
-      PointGeoJSON pointGeoJSON,
-      @QueryParam("geldigOp") LocalDate geldigOp,
-      @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
-      @QueryParam("huidig") @DefaultValue("false") Boolean huidig,
-      @HeaderParam("Content-Crs") String contentCrs,
-      @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs)
-      throws ProcessingException;
+    /**
+     * bevragen panden met een geometrische locatie.
+     * <p>
+     * Bevragen/raadplegen van een voorkomen van één of meer panden met de geometrische locatie van het pand.  Parameter huidig kan worden toegepast, zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature).  De geldigOp en beschikbaarOp parameters kunnen gebruikt worden voor  tijdreis vragen, zie  [functionele specificatie tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature).
+     */
+    @POST
+    @Consumes({"application/json"})
+    @Produces({"application/hal+json", "application/problem+json"})
+    public PandIOHalCollection pandGeometrie(
+            PointGeoJSON pointGeoJSON,
+            @QueryParam("geldigOp") LocalDate geldigOp,
+            @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
+            @QueryParam("huidig") @DefaultValue("false") Boolean huidig,
+            @HeaderParam("Content-Crs") String contentCrs,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs)
+            throws ProcessingException;
 
-  /**
-   * bevragen van een pand met de identificatie van een pand.
-   * <p>
-   * Bevragen/raadplegen van een voorkomen van een pand met de identificatie van het pand.  Parameter huidig kan worden toegepast, zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature).  De geldigOp en beschikbaarOp parameters kunnen gebruikt worden voor  tijdreis vragen, zie  [functionele specificatie tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature).
-   */
-  @GET
-  @Path("/{identificatie}")
-  @Produces({"application/hal+json", "application/problem+json"})
-  public PandIOHal pandIdentificatie(
-      @PathParam("identificatie") String identificatie,
-      @QueryParam("geldigOp") LocalDate geldigOp,
-      @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
-      @HeaderParam("Accept-Crs") @DefaultValue("epsg:28992") String acceptCrs,
-      @QueryParam("huidig") @DefaultValue("false") Boolean huidig)
-      throws ProcessingException;
+    /**
+     * bevragen van een pand met de identificatie van een pand.
+     * <p>
+     * Bevragen/raadplegen van een voorkomen van een pand met de identificatie van het pand.  Parameter huidig kan worden toegepast, zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature).  De geldigOp en beschikbaarOp parameters kunnen gebruikt worden voor  tijdreis vragen, zie  [functionele specificatie tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature).
+     */
+    @GET
+    @Path("/{identificatie}")
+    @Produces({"application/hal+json", "application/problem+json"})
+    public PandIOHal pandIdentificatie(
+            @PathParam("identificatie") String identificatie,
+            @QueryParam("geldigOp") LocalDate geldigOp,
+            @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
+            @HeaderParam("Accept-Crs") @DefaultValue("epsg:28992") String acceptCrs,
+            @QueryParam("huidig") @DefaultValue("false") Boolean huidig)
+            throws ProcessingException;
 
-  /**
-   * bevragen voorkomen van een pand met de identificatie van een pand en de identificatie van een voorkomen, bestaande uit een versie en een timestamp van het tijdstip van registratie in de LV BAG.
-   * <p>
-   * Bevragen/raadplegen van een voorkomen van een pand met de identificatie van een pand en de identificatie van een voorkomen, bestaande uit een versie en een timestamp van het tijdstip van registratie in de LV BAG.
-   */
-  @GET
-  @Path("/{identificatie}/{versie}/{timestampRegistratieLv}")
-  @Produces({"application/hal+json", "application/problem+json"})
-  public PandIOHal pandIdentificatieVoorkomen(
-      @PathParam("identificatie") String identificatie,
-      @PathParam("versie") Integer versie,
-      @PathParam("timestampRegistratieLv") String timestampRegistratieLv,
-      @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs)
-      throws ProcessingException;
+    /**
+     * bevragen voorkomen van een pand met de identificatie van een pand en de identificatie van een voorkomen, bestaande uit een versie en een timestamp van het tijdstip van registratie in de LV BAG.
+     * <p>
+     * Bevragen/raadplegen van een voorkomen van een pand met de identificatie van een pand en de identificatie van een voorkomen, bestaande uit een versie en een timestamp van het tijdstip van registratie in de LV BAG.
+     */
+    @GET
+    @Path("/{identificatie}/{versie}/{timestampRegistratieLv}")
+    @Produces({"application/hal+json", "application/problem+json"})
+    public PandIOHal pandIdentificatieVoorkomen(
+            @PathParam("identificatie") String identificatie,
+            @PathParam("versie") Integer versie,
+            @PathParam("timestampRegistratieLv") String timestampRegistratieLv,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs)
+            throws ProcessingException;
 
-  /**
-   * bevragen levenscyclus van een pand met de identificatie van een pand.
-   * <p>
-   * Bevragen/raadplegen van de levenscyclus van een pand met de identificatie van een pand.
-   */
-  @GET
-  @Path("/{identificatie}/lvc")
-  @Produces({"application/hal+json", "application/problem+json"})
-  public PandIOLvcHalCollection pandLvcIdentificatie(
-      @PathParam("identificatie") String identificatie,
-      @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc,
-      @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs)
-      throws ProcessingException;
+    /**
+     * bevragen levenscyclus van een pand met de identificatie van een pand.
+     * <p>
+     * Bevragen/raadplegen van de levenscyclus van een pand met de identificatie van een pand.
+     */
+    @GET
+    @Path("/{identificatie}/lvc")
+    @Produces({"application/hal+json", "application/problem+json"})
+    public PandIOLvcHalCollection pandLvcIdentificatie(
+            @PathParam("identificatie") String identificatie,
+            @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs)
+            throws ProcessingException;
 
-  /**
-   * Zoek panden met een geometrische locatie, binnen een bounding box,  met een adresseerbaar object identificatie of met een nummeraanduiding  identificatie.
-   * <p>
-   * Zoek actuele panden:  1. met een geometrische locatie.  2. binnen een geometrische contour (rechthoek) die voldoen aan de opgegeven status, geconstateerd of bouwjaar.  3. met de identificatie van een adresseerbaar object  4. met de identificatie van een nummeraanduiding  Parameter huidig kan worden toegepast, zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature).  De geldigOp en beschikbaarOp parameters kunnen gebruikt worden voor  tijdreis vragen, zie  [functionele specificatie tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature).   Voor paginering, zie: [functionele specificatie paginering](https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature).
-   */
-  @GET
-  @Produces({"application/hal+json", "application/problem+json"})
-  public PandIOHalCollection zoekPanden(
-      @QueryParam("geldigOp") LocalDate geldigOp,
-      @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
-      @QueryParam("huidig") @DefaultValue("false") Boolean huidig,
-      @HeaderParam("Content-Crs") String contentCrs,
-      @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
-      @QueryParam("page") @DefaultValue("1") Integer page,
-      @QueryParam("pageSize") @DefaultValue("20") Integer pageSize,
-      @QueryParam("point") PointGeoJSON point,
-      @QueryParam("bbox") List<BigDecimal> bbox,
-      @QueryParam("statusPand") List<StatusPand> statusPand,
-      @QueryParam("geconstateerd") Boolean geconstateerd,
-      @QueryParam("bouwjaar") BouwjaarFilter bouwjaar,
-      @QueryParam("adresseerbaarObjectIdentificatie") String adresseerbaarObjectIdentificatie,
-      @QueryParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie)
-      throws ProcessingException;
+    /**
+     * Zoek panden met een geometrische locatie, binnen een bounding box,  met een adresseerbaar object identificatie of met een nummeraanduiding  identificatie.
+     * <p>
+     * Zoek actuele panden:  1. met een geometrische locatie.  2. binnen een geometrische contour (rechthoek) die voldoen aan de opgegeven status, geconstateerd of bouwjaar.  3. met de identificatie van een adresseerbaar object  4. met de identificatie van een nummeraanduiding  Parameter huidig kan worden toegepast, zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature).  De geldigOp en beschikbaarOp parameters kunnen gebruikt worden voor  tijdreis vragen, zie  [functionele specificatie tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature).   Voor paginering, zie: [functionele specificatie paginering](https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature).
+     */
+    @GET
+    @Produces({"application/hal+json", "application/problem+json"})
+    public PandIOHalCollection zoekPanden(
+            @QueryParam("geldigOp") LocalDate geldigOp,
+            @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
+            @QueryParam("huidig") @DefaultValue("false") Boolean huidig,
+            @HeaderParam("Content-Crs") String contentCrs,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
+            @QueryParam("page") @DefaultValue("1") Integer page,
+            @QueryParam("pageSize") @DefaultValue("20") Integer pageSize,
+            @QueryParam("point") PointGeoJSON point,
+            @QueryParam("bbox") List<BigDecimal> bbox,
+            @QueryParam("statusPand") List<StatusPand> statusPand,
+            @QueryParam("geconstateerd") Boolean geconstateerd,
+            @QueryParam("bouwjaar") BouwjaarFilter bouwjaar,
+            @QueryParam("adresseerbaarObjectIdentificatie") String adresseerbaarObjectIdentificatie,
+            @QueryParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie)
+            throws ProcessingException;
 }

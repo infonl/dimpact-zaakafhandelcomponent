@@ -14,35 +14,35 @@ import jakarta.json.bind.annotation.JsonbProperty;
  */
 public class Verlenging {
 
-  public static final int REDEN_MAX_LENGTH = 200;
+    public static final int REDEN_MAX_LENGTH = 200;
 
-  /**
-   * Omschrijving van de reden voor het verlengen van de behandeling
-   * maxLength: {@link Verlenging#REDEN_MAX_LENGTH}
-   */
-  private final String reden;
+    /**
+     * Omschrijving van de reden voor het verlengen van de behandeling
+     * maxLength: {@link Verlenging#REDEN_MAX_LENGTH}
+     */
+    private final String reden;
 
-  /**
-   * Het aantal werkbare dagen waarmee de doorlooptijd van de behandeling van de ZAAK is verlengd (of verkort)
-   * ten opzichte van de eerder gecommuniceerde doorlooptijd.
-   */
-  private final Period duur;
+    /**
+     * Het aantal werkbare dagen waarmee de doorlooptijd van de behandeling van de ZAAK is verlengd (of verkort)
+     * ten opzichte van de eerder gecommuniceerde doorlooptijd.
+     */
+    private final Period duur;
 
-  /**
-   * Constructor for required attributes for POST and PUT requests and GET response
-   */
-  @JsonbCreator
-  public Verlenging(
-      @JsonbProperty("reden") final String reden, @JsonbProperty("duur") final Period duur) {
-    this.reden = reden;
-    this.duur = duur;
-  }
+    /**
+     * Constructor for required attributes for POST and PUT requests and GET response
+     */
+    @JsonbCreator
+    public Verlenging(
+            @JsonbProperty("reden") final String reden, @JsonbProperty("duur") final Period duur) {
+        this.reden = reden;
+        this.duur = duur;
+    }
 
-  public String getReden() {
-    return reden;
-  }
+    public String getReden() {
+        return reden;
+    }
 
-  public Period getDuur() {
-    return duur;
-  }
+    public Period getDuur() {
+        return duur;
+    }
 }

@@ -26,12 +26,12 @@ import net.atos.client.kvk.vestigingsprofiel.model.Vestiging;
 @Path("api/v1/vestigingsprofielen")
 public interface VestigingsprofielClient {
 
-  /**
-   * Voor een specifieke vestiging informatie opvragen.
-   */
-  @GET
-  @Path("{vestigingsnummer}")
-  Vestiging getVestigingByVestigingsnummer(
-      @PathParam("vestigingsnummer") String vestigingsnummer,
-      @QueryParam("geoData") @DefaultValue("false") Boolean geoData);
+    /**
+     * Voor een specifieke vestiging informatie opvragen.
+     */
+    @GET
+    @Path("{vestigingsnummer}")
+    Vestiging getVestigingByVestigingsnummer(
+            @PathParam("vestigingsnummer") String vestigingsnummer,
+            @QueryParam("geoData") @DefaultValue("false") Boolean geoData);
 }

@@ -8,13 +8,13 @@ import java.util.UUID;
 
 public class RESTTaakToekennenGegevens {
 
-  public String taakId;
+    public String taakId;
 
-  public UUID zaakUuid;
+    public UUID zaakUuid;
 
-  public String groepId;
+    public String groepId;
 
-  public String behandelaarId;
+    public String behandelaarId;
 
-  public String reden;
+    public String reden;
 }

@@ -8,11 +8,11 @@ import java.time.LocalDate;
 
 public class RESTDatumRange {
 
-  public LocalDate van;
+    public LocalDate van;
 
-  public LocalDate tot;
+    public LocalDate tot;
 
-  public boolean hasValue() {
-    return this.van != null || this.tot != null;
-  }
+    public boolean hasValue() {
+        return this.van != null || this.tot != null;
+    }
 }

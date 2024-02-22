@@ -32,20 +32,20 @@ import net.atos.client.vrl.model.ProcesType;
 @Path("api/v1/procestypen")
 public interface ProcestypenApi {
 
-  /**
-   * Ontsluit de selectielijst procestypen.
-   *
-   * Procestypen worden gerefereerd in zaaktypecatalogi - bij het configureren van een zaaktype wordt aangegeven welk procestype van toepassing is, zodat het archiefregime van zaken bepaald kan worden.  Zie https://vng.nl/files/vng/20170706-selectielijst-gemeenten-intergemeentelijke-organen-2017.pdf voor de bron van de inhoud.
-   */
-  @GET
-  List<ProcesType> procestypeList(@QueryParam("jaar") BigDecimal jaar);
+    /**
+     * Ontsluit de selectielijst procestypen.
+     *
+     * Procestypen worden gerefereerd in zaaktypecatalogi - bij het configureren van een zaaktype wordt aangegeven welk procestype van toepassing is, zodat het archiefregime van zaken bepaald kan worden.  Zie https://vng.nl/files/vng/20170706-selectielijst-gemeenten-intergemeentelijke-organen-2017.pdf voor de bron van de inhoud.
+     */
+    @GET
+    List<ProcesType> procestypeList(@QueryParam("jaar") BigDecimal jaar);
 
-  /**
-   * Ontsluit de selectielijst procestypen.
-   *
-   * Procestypen worden gerefereerd in zaaktypecatalogi - bij het configureren van een zaaktype wordt aangegeven welk procestype van toepassing is, zodat het archiefregime van zaken bepaald kan worden.  Zie https://vng.nl/files/vng/20170706-selectielijst-gemeenten-intergemeentelijke-organen-2017.pdf voor de bron van de inhoud.
-   */
-  @GET
-  @Path("/{uuid}")
-  ProcesType procestypeRead(@PathParam("uuid") UUID uuid);
+    /**
+     * Ontsluit de selectielijst procestypen.
+     *
+     * Procestypen worden gerefereerd in zaaktypecatalogi - bij het configureren van een zaaktype wordt aangegeven welk procestype van toepassing is, zodat het archiefregime van zaken bepaald kan worden.  Zie https://vng.nl/files/vng/20170706-selectielijst-gemeenten-intergemeentelijke-organen-2017.pdf voor de bron van de inhoud.
+     */
+    @GET
+    @Path("/{uuid}")
+    ProcesType procestypeRead(@PathParam("uuid") UUID uuid);
 }

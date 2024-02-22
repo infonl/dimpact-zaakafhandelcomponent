@@ -10,15 +10,15 @@ import net.atos.zac.gebruikersvoorkeuren.model.Werklijst;
 
 public class RESTZoekopdracht {
 
-  public Long id;
+    public Long id;
 
-  public Werklijst lijstID;
+    public Werklijst lijstID;
 
-  public boolean actief;
+    public boolean actief;
 
-  public LocalDate creatiedatum;
+    public LocalDate creatiedatum;
 
-  public String naam;
+    public String naam;
 
-  public String json;
+    public String json;
 }

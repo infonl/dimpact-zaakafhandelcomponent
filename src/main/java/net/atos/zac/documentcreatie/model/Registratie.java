@@ -13,21 +13,21 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 
 public class Registratie {
 
-  @JsonbProperty("zaak")
-  public URI zaak;
+    @JsonbProperty("zaak")
+    public URI zaak;
 
-  @JsonbProperty("informatieobjectStatus")
-  public EnkelvoudigInformatieObject.StatusEnum informatieObjectStatus;
+    @JsonbProperty("informatieobjectStatus")
+    public EnkelvoudigInformatieObject.StatusEnum informatieObjectStatus;
 
-  @JsonbProperty("informatieobjecttype")
-  public URI informatieObjectType;
+    @JsonbProperty("informatieobjecttype")
+    public URI informatieObjectType;
 
-  @JsonbProperty("bronorganisatie")
-  public String bronOrganisatie;
+    @JsonbProperty("bronorganisatie")
+    public String bronOrganisatie;
 
-  @JsonbProperty("creatiedatum")
-  public LocalDate creatieDatum;
+    @JsonbProperty("creatiedatum")
+    public LocalDate creatieDatum;
 
-  @JsonbProperty("auditToelichting")
-  public String auditToelichting;
+    @JsonbProperty("auditToelichting")
+    public String auditToelichting;
 }

@@ -10,8 +10,8 @@ import net.atos.client.zgw.shared.model.audit.AuditWijziging;
 
 public class BesluitInformatieobjectWijziging extends AuditWijziging<BesluitInformatieObject> {
 
-  @Override
-  public ObjectType getObjectType() {
-    return ObjectType.BESLUIT_INFORMATIEOBJECT;
-  }
+    @Override
+    public ObjectType getObjectType() {
+        return ObjectType.BESLUIT_INFORMATIEOBJECT;
+    }
 }

@@ -13,20 +13,20 @@ import net.atos.client.zgw.zrc.model.Objecttype;
  */
 public class ZaakobjectAdres extends ZaakobjectMetObjectIdentificatie<ObjectAdres> {
 
-  /**
-   * Constructor for JSONB deserialization
-   */
-  public ZaakobjectAdres() {}
+    /**
+     * Constructor for JSONB deserialization
+     */
+    public ZaakobjectAdres() {}
 
-  /**
-   * Constructor with required attributes
-   */
-  public ZaakobjectAdres(final URI zaak, final URI bagobjectURI, final ObjectAdres adres) {
-    super(zaak, bagobjectURI, Objecttype.ADRES, adres);
-  }
+    /**
+     * Constructor with required attributes
+     */
+    public ZaakobjectAdres(final URI zaak, final URI bagobjectURI, final ObjectAdres adres) {
+        super(zaak, bagobjectURI, Objecttype.ADRES, adres);
+    }
 
-  @Override
-  public String getWaarde() {
-    return getObjectIdentificatie().getIdentificatie();
-  }
+    @Override
+    public String getWaarde() {
+        return getObjectIdentificatie().getIdentificatie();
+    }
 }

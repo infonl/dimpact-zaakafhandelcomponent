@@ -11,13 +11,13 @@ import jakarta.json.bind.config.PropertyVisibilityStrategy;
 
 public class FieldPropertyVisibilityStrategy implements PropertyVisibilityStrategy {
 
-  @Override
-  public boolean isVisible(final Field field) {
-    return true;
-  }
+    @Override
+    public boolean isVisible(final Field field) {
+        return true;
+    }
 
-  @Override
-  public boolean isVisible(final Method method) {
-    return false;
-  }
+    @Override
+    public boolean isVisible(final Method method) {
+        return false;
+    }
 }

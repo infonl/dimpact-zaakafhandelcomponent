@@ -6,7 +6,7 @@ package net.atos.zac.app.planitems.model;
 
 public class RESTTaakStuurGegevens {
 
-  public boolean sendMail;
+    public boolean sendMail;
 
-  public String mail;
+    public String mail;
 }

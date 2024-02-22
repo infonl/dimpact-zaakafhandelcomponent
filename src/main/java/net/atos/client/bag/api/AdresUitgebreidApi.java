@@ -41,40 +41,40 @@ import net.atos.client.brp.exception.RuntimeExceptionMapper;
 @Path("/adressenuitgebreid")
 public interface AdresUitgebreidApi {
 
-  /**
-   * Bevragen van de uitgebreide informatie van één huidig adres met de  identificatie van een nummeraanduiding.
-   * <p>
-   * Bevragen van de uitgebreide informatie van één huidig adres met de  identificatie van een nummeraanduiding.  Als inclusiefEindStatus&#x3D;true, dan worden ook actuele adressen met een eind status geleverd, zie [functionele specificatie inclusiefEindstatus](https://github.com/lvbag/BAG-API/blob/master/Features/inclusief-eind-status.feature).
-   */
-  @GET
-  @Path("/{nummeraanduidingIdentificatie}")
-  @Produces({"application/hal+json", "application/problem+json"})
-  public AdresUitgebreidHal bevraagAdresUitgebreidMetNumId(
-      @PathParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie,
-      @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
-      @QueryParam("inclusiefEindStatus") @DefaultValue("false") Boolean inclusiefEindStatus)
-      throws ProcessingException;
+    /**
+     * Bevragen van de uitgebreide informatie van één huidig adres met de  identificatie van een nummeraanduiding.
+     * <p>
+     * Bevragen van de uitgebreide informatie van één huidig adres met de  identificatie van een nummeraanduiding.  Als inclusiefEindStatus&#x3D;true, dan worden ook actuele adressen met een eind status geleverd, zie [functionele specificatie inclusiefEindstatus](https://github.com/lvbag/BAG-API/blob/master/Features/inclusief-eind-status.feature).
+     */
+    @GET
+    @Path("/{nummeraanduidingIdentificatie}")
+    @Produces({"application/hal+json", "application/problem+json"})
+    public AdresUitgebreidHal bevraagAdresUitgebreidMetNumId(
+            @PathParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
+            @QueryParam("inclusiefEindStatus") @DefaultValue("false") Boolean inclusiefEindStatus)
+            throws ProcessingException;
 
-  /**
-   * Bevragen van de uitgebreide informatie van één of meer huidige adressen  op basis van verschillende combinaties van parameters.
-   * <p>
-   * De volgende (combinaties van) parameters worden ondersteund:  1. Bevragen van de uitgebreide informatie van één of meer huidige     adressen met een postcode, huisnummer en optioneel     huisnummertoevoeging en huisletter.    Het opgeven van een combinatie van parameters levert niet altijd     een exacte match met één adres, bv. in geval van meerdere objecten     met huisnummertoevoegingen en/of huisletters.     Met de exacteMatch parameter kan worden aangegeven dat alleen     object(en) die exact overeenkomen met de opgegeven parameters,     geretourneerd moeten worden.  2. Bevragen van de uitgebreide informatie van één of meer huidige     adressen met de identificatie van een adresseerbaar object.  3. Bevragen van de uitgebreide informatie van één of meer huidige     adressen met woonplaats naam, openbare ruimte naam, huisnummer     en optioneel huisnummertoevoeging en huisletter.    Het opgeven van een combinatie van parameters levert niet altijd     een exacte match met één adres, bv. in geval van meerdere objecten     met huisnummertoevoegingen en/of huisletters.     Met de exacteMatch parameter kan worden aangegeven dat alleen     object(en) die exact overeenkomen met de opgegeven parameters,     geretourneerd moeten worden.  4. Zoek uitgebreide adres informatie van huidige adressen met een     zoekterm.   Voor paginering, zie: [functionele specificatie paginering](https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature).  Als inclusiefEindStatus&#x3D;true, dan worden ook actuele adressen met een eind status geleverd, zie [functionele specificatie inclusiefEindstatus](https://github.com/lvbag/BAG-API/blob/master/Features/inclusief-eind-status.feature).
-   */
-  @GET
-  @Produces({"application/hal+json", "application/problem+json"})
-  public AdresUitgebreidHalCollection zoekAdresUitgebreid(
-      @QueryParam("postcode") String postcode,
-      @QueryParam("huisnummer") Integer huisnummer,
-      @QueryParam("huisnummertoevoeging") String huisnummertoevoeging,
-      @QueryParam("huisletter") String huisletter,
-      @QueryParam("exacteMatch") @DefaultValue("false") Boolean exacteMatch,
-      @QueryParam("adresseerbaarObjectIdentificatie") String adresseerbaarObjectIdentificatie,
-      @QueryParam("woonplaatsNaam") String woonplaatsNaam,
-      @QueryParam("openbareRuimteNaam") String openbareRuimteNaam,
-      @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
-      @QueryParam("page") @DefaultValue("1") Integer page,
-      @QueryParam("pageSize") @DefaultValue("20") Integer pageSize,
-      @QueryParam("q") String q,
-      @QueryParam("inclusiefEindStatus") @DefaultValue("false") Boolean inclusiefEindStatus)
-      throws ProcessingException;
+    /**
+     * Bevragen van de uitgebreide informatie van één of meer huidige adressen  op basis van verschillende combinaties van parameters.
+     * <p>
+     * De volgende (combinaties van) parameters worden ondersteund:  1. Bevragen van de uitgebreide informatie van één of meer huidige     adressen met een postcode, huisnummer en optioneel     huisnummertoevoeging en huisletter.    Het opgeven van een combinatie van parameters levert niet altijd     een exacte match met één adres, bv. in geval van meerdere objecten     met huisnummertoevoegingen en/of huisletters.     Met de exacteMatch parameter kan worden aangegeven dat alleen     object(en) die exact overeenkomen met de opgegeven parameters,     geretourneerd moeten worden.  2. Bevragen van de uitgebreide informatie van één of meer huidige     adressen met de identificatie van een adresseerbaar object.  3. Bevragen van de uitgebreide informatie van één of meer huidige     adressen met woonplaats naam, openbare ruimte naam, huisnummer     en optioneel huisnummertoevoeging en huisletter.    Het opgeven van een combinatie van parameters levert niet altijd     een exacte match met één adres, bv. in geval van meerdere objecten     met huisnummertoevoegingen en/of huisletters.     Met de exacteMatch parameter kan worden aangegeven dat alleen     object(en) die exact overeenkomen met de opgegeven parameters,     geretourneerd moeten worden.  4. Zoek uitgebreide adres informatie van huidige adressen met een     zoekterm.   Voor paginering, zie: [functionele specificatie paginering](https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature).  Als inclusiefEindStatus&#x3D;true, dan worden ook actuele adressen met een eind status geleverd, zie [functionele specificatie inclusiefEindstatus](https://github.com/lvbag/BAG-API/blob/master/Features/inclusief-eind-status.feature).
+     */
+    @GET
+    @Produces({"application/hal+json", "application/problem+json"})
+    public AdresUitgebreidHalCollection zoekAdresUitgebreid(
+            @QueryParam("postcode") String postcode,
+            @QueryParam("huisnummer") Integer huisnummer,
+            @QueryParam("huisnummertoevoeging") String huisnummertoevoeging,
+            @QueryParam("huisletter") String huisletter,
+            @QueryParam("exacteMatch") @DefaultValue("false") Boolean exacteMatch,
+            @QueryParam("adresseerbaarObjectIdentificatie") String adresseerbaarObjectIdentificatie,
+            @QueryParam("woonplaatsNaam") String woonplaatsNaam,
+            @QueryParam("openbareRuimteNaam") String openbareRuimteNaam,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
+            @QueryParam("page") @DefaultValue("1") Integer page,
+            @QueryParam("pageSize") @DefaultValue("20") Integer pageSize,
+            @QueryParam("q") String q,
+            @QueryParam("inclusiefEindStatus") @DefaultValue("false") Boolean inclusiefEindStatus)
+            throws ProcessingException;
 }

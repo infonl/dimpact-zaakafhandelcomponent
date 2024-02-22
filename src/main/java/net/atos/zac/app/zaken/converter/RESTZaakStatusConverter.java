@@ -14,14 +14,15 @@ import net.atos.zac.app.zaken.model.RESTZaakStatus;
 
 public class RESTZaakStatusConverter {
 
-  @Inject private ZRCClientService zrcClientService;
+    @Inject private ZRCClientService zrcClientService;
 
-  @Inject private ZTCClientService ztcClientService;
+    @Inject private ZTCClientService ztcClientService;
 
-  public RESTZaakStatus convertToRESTZaakStatus(final Status status, final StatusType statustype) {
-    final RESTZaakStatus restZaakStatus = new RESTZaakStatus();
-    restZaakStatus.toelichting = status.getStatustoelichting();
-    restZaakStatus.naam = statustype.getOmschrijving();
-    return restZaakStatus;
-  }
+    public RESTZaakStatus convertToRESTZaakStatus(
+            final Status status, final StatusType statustype) {
+        final RESTZaakStatus restZaakStatus = new RESTZaakStatus();
+        restZaakStatus.toelichting = status.getStatustoelichting();
+        restZaakStatus.naam = statustype.getOmschrijving();
+        return restZaakStatus;
+    }
 }

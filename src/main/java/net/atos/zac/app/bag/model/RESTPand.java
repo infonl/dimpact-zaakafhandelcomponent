@@ -9,23 +9,23 @@ import net.atos.zac.app.zaken.model.RESTGeometry;
 
 public class RESTPand extends RESTBAGObject {
 
-  public String oorspronkelijkBouwjaar;
+    public String oorspronkelijkBouwjaar;
 
-  public StatusPand status;
+    public StatusPand status;
 
-  public String statusWeergave;
+    public String statusWeergave;
 
-  public RESTGeometry geometry;
+    public RESTGeometry geometry;
 
-  public RESTPand() {}
+    public RESTPand() {}
 
-  @Override
-  public BAGObjectType getBagObjectType() {
-    return BAGObjectType.PAND;
-  }
+    @Override
+    public BAGObjectType getBagObjectType() {
+        return BAGObjectType.PAND;
+    }
 
-  @Override
-  public String getOmschrijving() {
-    return identificatie;
-  }
+    @Override
+    public String getOmschrijving() {
+        return identificatie;
+    }
 }

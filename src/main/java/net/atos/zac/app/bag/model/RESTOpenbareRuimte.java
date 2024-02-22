@@ -8,27 +8,27 @@ import net.atos.client.bag.model.StatusNaamgeving;
 import net.atos.client.bag.model.TypeOpenbareRuimte;
 
 public class RESTOpenbareRuimte extends RESTBAGObject {
-  public String naam;
+    public String naam;
 
-  public TypeOpenbareRuimte type;
+    public TypeOpenbareRuimte type;
 
-  public String typeWeergave;
+    public String typeWeergave;
 
-  public StatusNaamgeving status;
+    public StatusNaamgeving status;
 
-  public String woonplaatsNaam;
+    public String woonplaatsNaam;
 
-  public RESTWoonplaats woonplaats;
+    public RESTWoonplaats woonplaats;
 
-  public RESTOpenbareRuimte() {}
+    public RESTOpenbareRuimte() {}
 
-  @Override
-  public BAGObjectType getBagObjectType() {
-    return BAGObjectType.OPENBARE_RUIMTE;
-  }
+    @Override
+    public BAGObjectType getBagObjectType() {
+        return BAGObjectType.OPENBARE_RUIMTE;
+    }
 
-  @Override
-  public String getOmschrijving() {
-    return naam;
-  }
+    @Override
+    public String getOmschrijving() {
+        return naam;
+    }
 }

@@ -17,9 +17,9 @@ import net.atos.client.zgw.shared.exception.ValidatieFoutException;
 @Provider
 public class ValidatieFoutExceptionMapper implements ExceptionMapper<ValidatieFoutException> {
 
-  @Override
-  public Response toResponse(final ValidatieFoutException validatieFoutException) {
-    final String validatieFouten = validatieFoutException.getValidatieFout().toString();
-    return Response.status(Response.Status.BAD_REQUEST).entity(validatieFouten).build();
-  }
+    @Override
+    public Response toResponse(final ValidatieFoutException validatieFoutException) {
+        final String validatieFouten = validatieFoutException.getValidatieFout().toString();
+        return Response.status(Response.Status.BAD_REQUEST).entity(validatieFouten).build();
+    }
 }

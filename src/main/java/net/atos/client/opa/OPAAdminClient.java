@@ -22,7 +22,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 @Produces(APPLICATION_JSON)
 public interface OPAAdminClient {
 
-  @PUT
-  @Path("{id}")
-  Response policyUpdate(@PathParam("id") final String id, final String policy);
+    @PUT
+    @Path("{id}")
+    Response policyUpdate(@PathParam("id") final String id, final String policy);
 }

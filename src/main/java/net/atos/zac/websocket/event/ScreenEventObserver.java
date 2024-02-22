@@ -25,31 +25,31 @@ import net.atos.zac.websocket.SessionRegistry;
 @ManagedBean
 public class ScreenEventObserver extends AbstractEventObserver<ScreenEvent> {
 
-  private static final Logger LOG = Logger.getLogger(ScreenEventObserver.class.getName());
+    private static final Logger LOG = Logger.getLogger(ScreenEventObserver.class.getName());
 
-  private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
+    private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
-  @Inject private SessionRegistry sessionRegistry;
+    @Inject private SessionRegistry sessionRegistry;
 
-  public void onFire(final @ObservesAsync ScreenEvent event) {
-    try {
-      LOG.fine(() -> String.format("Scherm event ontvangen: %s", event.toString()));
-      event.delay();
-      sendToWebsocketSubscribers(event);
-    } catch (final Throwable ex) {
-      LOG.log(Level.SEVERE, "asynchronous guard", ex);
+    public void onFire(final @ObservesAsync ScreenEvent event) {
+        try {
+            LOG.fine(() -> String.format("Scherm event ontvangen: %s", event.toString()));
+            event.delay();
+            sendToWebsocketSubscribers(event);
+        } catch (final Throwable ex) {
+            LOG.log(Level.SEVERE, "asynchronous guard", ex);
+        }
     }
-  }
 
-  private void sendToWebsocketSubscribers(final ScreenEvent event) {
-    try {
-      final Set<Session> subscribers = sessionRegistry.listSessions(event);
-      if (!subscribers.isEmpty()) {
-        final String json = JSON_MAPPER.writeValueAsString(event);
-        subscribers.forEach(session -> session.getAsyncRemote().sendText(json));
-      }
-    } catch (final JsonProcessingException e) {
-      LOG.log(Level.SEVERE, "Failed to convert the ScreenUpdateEvent to JSON.", e);
+    private void sendToWebsocketSubscribers(final ScreenEvent event) {
+        try {
+            final Set<Session> subscribers = sessionRegistry.listSessions(event);
+            if (!subscribers.isEmpty()) {
+                final String json = JSON_MAPPER.writeValueAsString(event);
+                subscribers.forEach(session -> session.getAsyncRemote().sendText(json));
+            }
+        } catch (final JsonProcessingException e) {
+            LOG.log(Level.SEVERE, "Failed to convert the ScreenUpdateEvent to JSON.", e);
+        }
     }
-  }
 }

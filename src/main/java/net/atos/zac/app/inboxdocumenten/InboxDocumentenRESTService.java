@@ -40,56 +40,57 @@ import net.atos.zac.util.UriUtil;
 @Produces(MediaType.APPLICATION_JSON)
 public class InboxDocumentenRESTService {
 
-  @Inject private InboxDocumentenService inboxDocumentenService;
+    @Inject private InboxDocumentenService inboxDocumentenService;
 
-  @Inject private DRCClientService drcClientService;
+    @Inject private DRCClientService drcClientService;
 
-  @Inject private ZRCClientService zrcClientService;
+    @Inject private ZRCClientService zrcClientService;
 
-  @Inject private RESTInboxDocumentConverter inboxDocumentConverter;
+    @Inject private RESTInboxDocumentConverter inboxDocumentConverter;
 
-  @Inject private RESTInboxDocumentListParametersConverter listParametersConverter;
+    @Inject private RESTInboxDocumentListParametersConverter listParametersConverter;
 
-  @Inject private PolicyService policyService;
+    @Inject private PolicyService policyService;
 
-  private static final Logger LOG = Logger.getLogger(InboxDocumentenRESTService.class.getName());
+    private static final Logger LOG = Logger.getLogger(InboxDocumentenRESTService.class.getName());
 
-  @PUT
-  @Path("")
-  public RESTResultaat<RESTInboxDocument> list(
-      final RESTInboxDocumentListParameters restListParameters) {
-    PolicyService.assertPolicy(policyService.readWerklijstRechten().inbox());
-    final InboxDocumentListParameters listParameters =
-        listParametersConverter.convert(restListParameters);
-    return new RESTResultaat<>(
-        inboxDocumentConverter.convert(inboxDocumentenService.list(listParameters)),
-        inboxDocumentenService.count(listParameters));
-  }
-
-  @DELETE
-  @Path("{id}")
-  public void delete(@PathParam("id") final long id) {
-    PolicyService.assertPolicy(policyService.readWerklijstRechten().inbox());
-    final Optional<InboxDocument> inboxDocument = inboxDocumentenService.find(id);
-    if (inboxDocument.isEmpty()) {
-      return; // reeds verwijderd
+    @PUT
+    @Path("")
+    public RESTResultaat<RESTInboxDocument> list(
+            final RESTInboxDocumentListParameters restListParameters) {
+        PolicyService.assertPolicy(policyService.readWerklijstRechten().inbox());
+        final InboxDocumentListParameters listParameters =
+                listParametersConverter.convert(restListParameters);
+        return new RESTResultaat<>(
+                inboxDocumentConverter.convert(inboxDocumentenService.list(listParameters)),
+                inboxDocumentenService.count(listParameters));
     }
-    final EnkelvoudigInformatieObject enkelvoudigInformatieobject =
-        drcClientService.readEnkelvoudigInformatieobject(
-            inboxDocument.get().getEnkelvoudiginformatieobjectUUID());
-    final List<ZaakInformatieobject> zaakInformatieobjecten =
-        zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieobject);
-    if (!zaakInformatieobjecten.isEmpty()) {
-      final UUID zaakUuid = UriUtil.uuidFromURI(zaakInformatieobjecten.get(0).getZaak());
-      LOG.warning(
-          String.format(
-              "Het inbox-document is verwijderd maar het informatieobject is niet verwijderd."
-                  + " Reden: informatieobject '%s' is gekoppeld aan zaak '%s'.",
-              enkelvoudigInformatieobject.getIdentificatie(), zaakUuid));
-    } else {
-      drcClientService.deleteEnkelvoudigInformatieobject(
-          inboxDocument.get().getEnkelvoudiginformatieobjectUUID());
+
+    @DELETE
+    @Path("{id}")
+    public void delete(@PathParam("id") final long id) {
+        PolicyService.assertPolicy(policyService.readWerklijstRechten().inbox());
+        final Optional<InboxDocument> inboxDocument = inboxDocumentenService.find(id);
+        if (inboxDocument.isEmpty()) {
+            return; // reeds verwijderd
+        }
+        final EnkelvoudigInformatieObject enkelvoudigInformatieobject =
+                drcClientService.readEnkelvoudigInformatieobject(
+                        inboxDocument.get().getEnkelvoudiginformatieobjectUUID());
+        final List<ZaakInformatieobject> zaakInformatieobjecten =
+                zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieobject);
+        if (!zaakInformatieobjecten.isEmpty()) {
+            final UUID zaakUuid = UriUtil.uuidFromURI(zaakInformatieobjecten.get(0).getZaak());
+            LOG.warning(
+                    String.format(
+                            "Het inbox-document is verwijderd maar het informatieobject is niet"
+                                + " verwijderd. Reden: informatieobject '%s' is gekoppeld aan zaak"
+                                + " '%s'.",
+                            enkelvoudigInformatieobject.getIdentificatie(), zaakUuid));
+        } else {
+            drcClientService.deleteEnkelvoudigInformatieobject(
+                    inboxDocument.get().getEnkelvoudiginformatieobjectUUID());
+        }
+        inboxDocumentenService.delete(id);
     }
-    inboxDocumentenService.delete(id);
-  }
 }

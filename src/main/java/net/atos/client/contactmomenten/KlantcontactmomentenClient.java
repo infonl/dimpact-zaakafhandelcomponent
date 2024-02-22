@@ -40,47 +40,48 @@ import net.atos.client.contactmomenten.util.ContactmomentenClientHeadersFactory;
 @Path("api/v1/klantcontactmomenten")
 public interface KlantcontactmomentenClient {
 
-  /**
-   * Maak een KLANT-CONTACTMOMENT relatie aan.
-   * <p>
-   * Registreer een CONTACTMOMENT bij een KLANT.
-   * **Er wordt gevalideerd op**
-   * * geldigheid &#x60;contactmoment&#x60; URL
-   * * geldigheid &#x60;klant&#x60; URL
-   * * de combinatie &#x60;contactmoment&#x60; en &#x60;klant&#x60; moet uniek zijn
-   */
-  @POST
-  @Consumes({"application/json"})
-  @Produces({"application/json", "application/problem+json"})
-  public KlantContactMoment klantcontactmomentCreate(
-      @HeaderParam("Content-Type") String contentType, KlantContactMoment klantContactMoment)
-      throws ProcessingException;
+    /**
+     * Maak een KLANT-CONTACTMOMENT relatie aan.
+     * <p>
+     * Registreer een CONTACTMOMENT bij een KLANT.
+     * **Er wordt gevalideerd op**
+     * * geldigheid &#x60;contactmoment&#x60; URL
+     * * geldigheid &#x60;klant&#x60; URL
+     * * de combinatie &#x60;contactmoment&#x60; en &#x60;klant&#x60; moet uniek zijn
+     */
+    @POST
+    @Consumes({"application/json"})
+    @Produces({"application/json", "application/problem+json"})
+    public KlantContactMoment klantcontactmomentCreate(
+            @HeaderParam("Content-Type") String contentType, KlantContactMoment klantContactMoment)
+            throws ProcessingException;
 
-  /**
-   * Verwijder een KLANT-CONTACTMOMENT relatie.
-   */
-  @DELETE
-  @Path("/{uuid}")
-  @Produces({"application/problem+json"})
-  public void klantcontactmomentDelete(@PathParam("uuid") UUID uuid) throws ProcessingException;
+    /**
+     * Verwijder een KLANT-CONTACTMOMENT relatie.
+     */
+    @DELETE
+    @Path("/{uuid}")
+    @Produces({"application/problem+json"})
+    public void klantcontactmomentDelete(@PathParam("uuid") UUID uuid) throws ProcessingException;
 
-  /**
-   * Alle KLANT-CONTACTMOMENT relaties opvragen.
-   * <p>
-   * Deze lijst kan gefilterd wordt met query-string parameters.
-   */
-  @GET
-  @Produces({"application/json", "application/problem+json"})
-  public KlantcontactmomentList200Response klantcontactmomentList(
-      @BeanParam final KlantcontactmomentListParameters parameters) throws ProcessingException;
+    /**
+     * Alle KLANT-CONTACTMOMENT relaties opvragen.
+     * <p>
+     * Deze lijst kan gefilterd wordt met query-string parameters.
+     */
+    @GET
+    @Produces({"application/json", "application/problem+json"})
+    public KlantcontactmomentList200Response klantcontactmomentList(
+            @BeanParam final KlantcontactmomentListParameters parameters)
+            throws ProcessingException;
 
-  /**
-   * Een specifieke KLANT-CONTACTMOMENT relatie opvragen.
-   */
-  @GET
-  @Path("/{uuid}")
-  @Produces({"application/json", "application/problem+json"})
-  public KlantContactMoment klantcontactmomentRead(
-      @PathParam("uuid") UUID uuid, @HeaderParam("If-None-Match") String ifNoneMatch)
-      throws ProcessingException;
+    /**
+     * Een specifieke KLANT-CONTACTMOMENT relatie opvragen.
+     */
+    @GET
+    @Path("/{uuid}")
+    @Produces({"application/json", "application/problem+json"})
+    public KlantContactMoment klantcontactmomentRead(
+            @PathParam("uuid") UUID uuid, @HeaderParam("If-None-Match") String ifNoneMatch)
+            throws ProcessingException;
 }

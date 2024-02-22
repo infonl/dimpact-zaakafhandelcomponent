@@ -10,8 +10,8 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte;
 
 public class ZaakobjectOpenbareRuimteWijziging extends AuditWijziging<ZaakobjectOpenbareRuimte> {
 
-  @Override
-  public ObjectType getObjectType() {
-    return ObjectType.ZAAKOBJECT;
-  }
+    @Override
+    public ObjectType getObjectType() {
+        return ObjectType.ZAAKOBJECT;
+    }
 }

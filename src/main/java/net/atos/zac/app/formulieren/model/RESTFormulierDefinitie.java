@@ -9,19 +9,19 @@ import java.util.List;
 
 public class RESTFormulierDefinitie {
 
-  public Long id;
+    public Long id;
 
-  public String systeemnaam;
+    public String systeemnaam;
 
-  public String naam;
+    public String naam;
 
-  public String beschrijving;
+    public String beschrijving;
 
-  public String uitleg;
+    public String uitleg;
 
-  public ZonedDateTime creatiedatum;
+    public ZonedDateTime creatiedatum;
 
-  public ZonedDateTime wijzigingsdatum;
+    public ZonedDateTime wijzigingsdatum;
 
-  public List<RESTFormulierVeldDefinitie> veldDefinities;
+    public List<RESTFormulierVeldDefinitie> veldDefinities;
 }

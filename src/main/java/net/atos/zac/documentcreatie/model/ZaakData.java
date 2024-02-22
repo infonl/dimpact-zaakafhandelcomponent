@@ -12,44 +12,44 @@ import jakarta.json.bind.annotation.JsonbDateFormat;
 
 public class ZaakData {
 
-  public String zaaktype;
+    public String zaaktype;
 
-  public String identificatie;
+    public String identificatie;
 
-  public String omschrijving;
+    public String omschrijving;
 
-  public String toelichting;
+    public String toelichting;
 
-  @JsonbDateFormat(DATE_FORMAT)
-  public LocalDate registratiedatum;
+    @JsonbDateFormat(DATE_FORMAT)
+    public LocalDate registratiedatum;
 
-  @JsonbDateFormat(DATE_FORMAT)
-  public LocalDate startdatum;
+    @JsonbDateFormat(DATE_FORMAT)
+    public LocalDate startdatum;
 
-  @JsonbDateFormat(DATE_FORMAT)
-  public LocalDate einddatumGepland;
+    @JsonbDateFormat(DATE_FORMAT)
+    public LocalDate einddatumGepland;
 
-  @JsonbDateFormat(DATE_FORMAT)
-  public LocalDate uiterlijkeEinddatumAfdoening;
+    @JsonbDateFormat(DATE_FORMAT)
+    public LocalDate uiterlijkeEinddatumAfdoening;
 
-  @JsonbDateFormat(DATE_FORMAT)
-  public LocalDate einddatum;
+    @JsonbDateFormat(DATE_FORMAT)
+    public LocalDate einddatum;
 
-  public String communicatiekanaal;
+    public String communicatiekanaal;
 
-  public String vertrouwelijkheidaanduiding;
+    public String vertrouwelijkheidaanduiding;
 
-  public String verlengingReden;
+    public String verlengingReden;
 
-  public String opschortingReden;
+    public String opschortingReden;
 
-  public String resultaat;
+    public String resultaat;
 
-  public String status;
+    public String status;
 
-  public String besluit;
+    public String besluit;
 
-  public String groep;
+    public String groep;
 
-  public String behandelaar;
+    public String behandelaar;
 }

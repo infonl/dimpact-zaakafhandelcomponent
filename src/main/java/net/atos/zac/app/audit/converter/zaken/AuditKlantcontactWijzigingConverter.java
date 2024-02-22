@@ -13,21 +13,23 @@ import net.atos.zac.app.audit.converter.AbstractAuditWijzigingConverter;
 import net.atos.zac.app.audit.model.RESTHistorieRegel;
 
 public class AuditKlantcontactWijzigingConverter
-    extends AbstractAuditWijzigingConverter<KlantcontactWijziging> {
+        extends AbstractAuditWijzigingConverter<KlantcontactWijziging> {
 
-  @Override
-  public boolean supports(final ObjectType objectType) {
-    return ObjectType.KLANTCONTACT == objectType;
-  }
+    @Override
+    public boolean supports(final ObjectType objectType) {
+        return ObjectType.KLANTCONTACT == objectType;
+    }
 
-  @Override
-  protected Stream<RESTHistorieRegel> doConvert(final KlantcontactWijziging wijziging) {
-    return Stream.of(
-        new RESTHistorieRegel(
-            "klantcontact", toWaarde(wijziging.getOud()), toWaarde(wijziging.getNieuw())));
-  }
+    @Override
+    protected Stream<RESTHistorieRegel> doConvert(final KlantcontactWijziging wijziging) {
+        return Stream.of(
+                new RESTHistorieRegel(
+                        "klantcontact",
+                        toWaarde(wijziging.getOud()),
+                        toWaarde(wijziging.getNieuw())));
+    }
 
-  private String toWaarde(final Klantcontact klantcontact) {
-    return klantcontact != null ? klantcontact.getToelichting() : null;
-  }
+    private String toWaarde(final Klantcontact klantcontact) {
+        return klantcontact != null ? klantcontact.getToelichting() : null;
+    }
 }

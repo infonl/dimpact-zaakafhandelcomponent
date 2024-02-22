@@ -9,17 +9,17 @@ import java.util.UUID;
 
 public class RESTNotitie {
 
-  public Long id;
+    public Long id;
 
-  public UUID zaakUUID;
+    public UUID zaakUUID;
 
-  public String tekst;
+    public String tekst;
 
-  public ZonedDateTime tijdstipLaatsteWijziging;
+    public ZonedDateTime tijdstipLaatsteWijziging;
 
-  public String gebruikersnaamMedewerker;
+    public String gebruikersnaamMedewerker;
 
-  public String voornaamAchternaamMedewerker;
+    public String voornaamAchternaamMedewerker;
 
-  public boolean bewerkenToegestaan;
+    public boolean bewerkenToegestaan;
 }

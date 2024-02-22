@@ -6,7 +6,7 @@ package net.atos.zac.app.zaken.model;
 
 public class RESTZaakEditMetRedenGegevens {
 
-  public RESTZaak zaak;
+    public RESTZaak zaak;
 
-  public String reden;
+    public String reden;
 }

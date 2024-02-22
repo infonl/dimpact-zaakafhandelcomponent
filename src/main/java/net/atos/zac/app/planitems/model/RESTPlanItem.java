@@ -14,25 +14,25 @@ import net.atos.zac.zaaksturing.model.FormulierDefinitie;
 
 public class RESTPlanItem {
 
-  public String id;
+    public String id;
 
-  public String naam;
+    public String naam;
 
-  public PlanItemType type;
+    public PlanItemType type;
 
-  public String groepId;
+    public String groepId;
 
-  public boolean actief;
+    public boolean actief;
 
-  public FormulierDefinitie formulierDefinitie;
+    public FormulierDefinitie formulierDefinitie;
 
-  public Map<String, List<String>> tabellen = new HashMap<>();
+    public Map<String, List<String>> tabellen = new HashMap<>();
 
-  public UUID zaakUuid;
+    public UUID zaakUuid;
 
-  public UserEventListenerActie userEventListenerActie;
+    public UserEventListenerActie userEventListenerActie;
 
-  public String toelichting;
+    public String toelichting;
 
-  public LocalDate fataleDatum;
+    public LocalDate fataleDatum;
 }

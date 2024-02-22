@@ -5,9 +5,9 @@
 package net.atos.zac.signalering.model;
 
 public class SignaleringVerzendInfo {
-  public int streefdatumVerzonden;
+    public int streefdatumVerzonden;
 
-  public int fataledatumVerzonden;
+    public int fataledatumVerzonden;
 
-  public SignaleringVerzendInfo() {}
+    public SignaleringVerzendInfo() {}
 }

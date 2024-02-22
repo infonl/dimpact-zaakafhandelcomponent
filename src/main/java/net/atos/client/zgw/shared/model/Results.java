@@ -19,70 +19,71 @@ import jakarta.json.bind.annotation.JsonbProperty;
  */
 public class Results<T> {
 
-  // Aantal items wat Open Zaak terug geeft per pagina
-  public static final long NUM_ITEMS_PER_PAGE = 100;
+    // Aantal items wat Open Zaak terug geeft per pagina
+    public static final long NUM_ITEMS_PER_PAGE = 100;
 
-  private final int count;
+    private final int count;
 
-  private List<T> results;
+    private List<T> results;
 
-  private final URI next;
+    private final URI next;
 
-  private final URI previous;
+    private final URI previous;
 
-  public Results(final List<T> results, final int count) {
-    this.results = results;
-    this.count = count;
-    previous = null;
-    next = null;
-  }
-
-  @JsonbCreator
-  public Results(
-      @JsonbProperty("count") final int count,
-      @JsonbProperty("results") final List<T> results,
-      @JsonbProperty("next") final URI next,
-      @JsonbProperty("previous") final URI previous) {
-    this.count = count;
-    this.results = results;
-    this.next = next;
-    this.previous = previous;
-  }
-
-  public int getCount() {
-    return count;
-  }
-
-  public URI getNext() {
-    return next;
-  }
-
-  public URI getPrevious() {
-    return previous;
-  }
-
-  public List<T> getResults() {
-    return results != null ? results : Collections.EMPTY_LIST;
-  }
-
-  public Optional<T> getSingleResult() {
-    if (isEmpty(results)) {
-      return Optional.empty();
-    } else if (results.size() == 1) {
-      return Optional.of(results.get(0));
-    } else {
-      throw new IllegalStateException(
-          String.format("More then one result found (count: %d)", count));
+    public Results(final List<T> results, final int count) {
+        this.results = results;
+        this.count = count;
+        previous = null;
+        next = null;
     }
-  }
 
-  public List<T> getSinglePageResults() {
-    if (next == null) {
-      return getResults();
-    } else {
-      throw new IllegalStateException(
-          String.format(
-              "More then one page found (count: %d, results: %d)", count, results.size()));
+    @JsonbCreator
+    public Results(
+            @JsonbProperty("count") final int count,
+            @JsonbProperty("results") final List<T> results,
+            @JsonbProperty("next") final URI next,
+            @JsonbProperty("previous") final URI previous) {
+        this.count = count;
+        this.results = results;
+        this.next = next;
+        this.previous = previous;
     }
-  }
+
+    public int getCount() {
+        return count;
+    }
+
+    public URI getNext() {
+        return next;
+    }
+
+    public URI getPrevious() {
+        return previous;
+    }
+
+    public List<T> getResults() {
+        return results != null ? results : Collections.EMPTY_LIST;
+    }
+
+    public Optional<T> getSingleResult() {
+        if (isEmpty(results)) {
+            return Optional.empty();
+        } else if (results.size() == 1) {
+            return Optional.of(results.get(0));
+        } else {
+            throw new IllegalStateException(
+                    String.format("More then one result found (count: %d)", count));
+        }
+    }
+
+    public List<T> getSinglePageResults() {
+        if (next == null) {
+            return getResults();
+        } else {
+            throw new IllegalStateException(
+                    String.format(
+                            "More then one page found (count: %d, results: %d)",
+                            count, results.size()));
+        }
+    }
 }

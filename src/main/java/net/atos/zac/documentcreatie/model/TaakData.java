@@ -8,9 +8,9 @@ import java.util.Map;
 
 public class TaakData {
 
-  public String naam;
+    public String naam;
 
-  public String behandelaar;
+    public String behandelaar;
 
-  public Map<String, String> data;
+    public Map<String, String> data;
 }

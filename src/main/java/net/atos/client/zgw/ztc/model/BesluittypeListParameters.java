@@ -16,32 +16,32 @@ import net.atos.client.zgw.shared.model.AbstractListParameters;
  */
 public class BesluittypeListParameters extends AbstractListParameters {
 
-  /**
-   * URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
-   */
-  @QueryParam("catalogus")
-  private URI catalogus;
+    /**
+     * URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
+     */
+    @QueryParam("catalogus")
+    private URI catalogus;
 
-  /**
-   * URL-referentie naar het ZAAKTYPE van ZAAKen waarin resultaten van dit RESULTAATTYPE bereikt kunnen worden.
-   */
-  @QueryParam("zaaktypen")
-  private List<URI> zaaktypen;
+    /**
+     * URL-referentie naar het ZAAKTYPE van ZAAKen waarin resultaten van dit RESULTAATTYPE bereikt kunnen worden.
+     */
+    @QueryParam("zaaktypen")
+    private List<URI> zaaktypen;
 
-  /**
-   * Het INFORMATIEOBJECTTYPE van informatieobjecten waarin besluiten van dit BESLUITTYPE worden vastgelegd.
-   */
-  @QueryParam("informatieobjecttypen")
-  private List<URI> informatieobjecttypen;
+    /**
+     * Het INFORMATIEOBJECTTYPE van informatieobjecten waarin besluiten van dit BESLUITTYPE worden vastgelegd.
+     */
+    @QueryParam("informatieobjecttypen")
+    private List<URI> informatieobjecttypen;
 
-  /*
-   * Filter objects depending on their concept status
-   */
-  private ObjectStatusFilter status;
+    /*
+     * Filter objects depending on their concept status
+     */
+    private ObjectStatusFilter status;
 
-  public BesluittypeListParameters() {}
+    public BesluittypeListParameters() {}
 
-  public BesluittypeListParameters(URI zaaktype) {
-    this.zaaktypen = List.of(zaaktype);
-  }
+    public BesluittypeListParameters(URI zaaktype) {
+        this.zaaktypen = List.of(zaaktype);
+    }
 }

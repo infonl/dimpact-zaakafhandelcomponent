@@ -22,26 +22,26 @@ import net.atos.client.zgw.ztc.model.CatalogusListParameters;
 @ApplicationScoped
 public class OpenZaakReadinessHealthCheck implements HealthCheck {
 
-  private static final CatalogusListParameters CATALOGUS_LIST_PARAMETERS =
-      new CatalogusListParameters();
+    private static final CatalogusListParameters CATALOGUS_LIST_PARAMETERS =
+            new CatalogusListParameters();
 
-  static {
-    CATALOGUS_LIST_PARAMETERS.setDomein(CATALOGUS_DOMEIN);
-  }
-
-  @Inject private ZTCClientService ztcClientService;
-
-  @Override
-  public HealthCheckResponse call() {
-    try {
-      ztcClientService.listCatalogus(CATALOGUS_LIST_PARAMETERS);
-      return HealthCheckResponse.up(OpenZaakReadinessHealthCheck.class.getName());
-    } catch (final Exception exception) {
-      return HealthCheckResponse.named(OpenZaakReadinessHealthCheck.class.getName())
-          .withData("time", LocalDateTime.now().toString())
-          .withData("error", exception.getMessage())
-          .down()
-          .build();
+    static {
+        CATALOGUS_LIST_PARAMETERS.setDomein(CATALOGUS_DOMEIN);
     }
-  }
+
+    @Inject private ZTCClientService ztcClientService;
+
+    @Override
+    public HealthCheckResponse call() {
+        try {
+            ztcClientService.listCatalogus(CATALOGUS_LIST_PARAMETERS);
+            return HealthCheckResponse.up(OpenZaakReadinessHealthCheck.class.getName());
+        } catch (final Exception exception) {
+            return HealthCheckResponse.named(OpenZaakReadinessHealthCheck.class.getName())
+                    .withData("time", LocalDateTime.now().toString())
+                    .withData("error", exception.getMessage())
+                    .down()
+                    .build();
+        }
+    }
 }

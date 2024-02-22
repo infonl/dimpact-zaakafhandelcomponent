@@ -43,23 +43,23 @@ import net.atos.client.brp.util.JsonbConfiguration;
 @Timeout(unit = ChronoUnit.SECONDS, value = 10)
 public interface PersonenApi {
 
-  /**
-   * Zoek personen
-   * <p>
-   * Zoek personen met één van de onderstaande verplichte combinaties van parameters en vul ze evt. aan met optionele parameters.
-   * 1.  Raadpleeg met burgerservicenummer
-   * 2.  Zoek met geslachtsnaam en geboortedatum
-   * 3.  Zoek met geslachtsnaam, voornamen en gemeente van inschrijving
-   * 4.  Zoek met postcode en huisnummer
-   * 5.  Zoek met straat, huisnummer en gemeente van inschrijving
-   * 6.  Zoek met nummeraanduiding identificatie
-   * <p>
-   * Default krijg je personen terug die nog in leven zijn, tenzij je de inclusiefoverledenpersonen=true opgeeft.
-   * Gebruik de fields parameter om alleen die gegevens op te vragen die je nodig hebt en waarvoor je geautoriseerd bent.
-   */
-  @POST
-  PersonenQueryResponse personen(final PersonenQuery personenQuery);
+    /**
+     * Zoek personen
+     * <p>
+     * Zoek personen met één van de onderstaande verplichte combinaties van parameters en vul ze evt. aan met optionele parameters.
+     * 1.  Raadpleeg met burgerservicenummer
+     * 2.  Zoek met geslachtsnaam en geboortedatum
+     * 3.  Zoek met geslachtsnaam, voornamen en gemeente van inschrijving
+     * 4.  Zoek met postcode en huisnummer
+     * 5.  Zoek met straat, huisnummer en gemeente van inschrijving
+     * 6.  Zoek met nummeraanduiding identificatie
+     * <p>
+     * Default krijg je personen terug die nog in leven zijn, tenzij je de inclusiefoverledenpersonen=true opgeeft.
+     * Gebruik de fields parameter om alleen die gegevens op te vragen die je nodig hebt en waarvoor je geautoriseerd bent.
+     */
+    @POST
+    PersonenQueryResponse personen(final PersonenQuery personenQuery);
 
-  @POST
-  CompletionStage<PersonenQueryResponse> personenAsync(final PersonenQuery personenQuery);
+    @POST
+    CompletionStage<PersonenQueryResponse> personenAsync(final PersonenQuery personenQuery);
 }

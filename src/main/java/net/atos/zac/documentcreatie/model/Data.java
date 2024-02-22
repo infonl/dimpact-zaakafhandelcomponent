@@ -6,13 +6,13 @@ package net.atos.zac.documentcreatie.model;
 
 public class Data {
 
-  public StartformulierData startformulier;
+    public StartformulierData startformulier;
 
-  public ZaakData zaak;
+    public ZaakData zaak;
 
-  public TaakData taak;
+    public TaakData taak;
 
-  public GebruikerData gebruiker;
+    public GebruikerData gebruiker;
 
-  public AanvragerData aanvrager;
+    public AanvragerData aanvrager;
 }

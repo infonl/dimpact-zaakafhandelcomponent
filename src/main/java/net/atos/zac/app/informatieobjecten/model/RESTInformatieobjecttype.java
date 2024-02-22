@@ -7,11 +7,11 @@ package net.atos.zac.app.informatieobjecten.model;
 import java.util.UUID;
 
 public class RESTInformatieobjecttype {
-  public UUID uuid;
+    public UUID uuid;
 
-  public String omschrijving;
+    public String omschrijving;
 
-  public String vertrouwelijkheidaanduiding;
+    public String vertrouwelijkheidaanduiding;
 
-  public boolean concept;
+    public boolean concept;
 }

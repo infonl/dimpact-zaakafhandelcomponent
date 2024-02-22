@@ -10,8 +10,8 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand;
 
 public class ZaakobjectPandWijziging extends AuditWijziging<ZaakobjectPand> {
 
-  @Override
-  public ObjectType getObjectType() {
-    return ObjectType.ZAAKOBJECT;
-  }
+    @Override
+    public ObjectType getObjectType() {
+        return ObjectType.ZAAKOBJECT;
+    }
 }

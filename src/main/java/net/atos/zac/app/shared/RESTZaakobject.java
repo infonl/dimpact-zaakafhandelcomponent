@@ -8,9 +8,9 @@ import java.util.UUID;
 
 public class RESTZaakobject<E> {
 
-  public UUID uuid;
+    public UUID uuid;
 
-  public UUID zaakUuid;
+    public UUID zaakUuid;
 
-  public E zaakobject;
+    public E zaakobject;
 }

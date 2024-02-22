@@ -10,8 +10,8 @@ import net.atos.client.zgw.zrc.model.generated.ZaakEigenschap;
 
 public class ZaakEigenschapWijziging extends AuditWijziging<ZaakEigenschap> {
 
-  @Override
-  public ObjectType getObjectType() {
-    return ObjectType.ZAAKEIGENSCHAP;
-  }
+    @Override
+    public ObjectType getObjectType() {
+        return ObjectType.ZAAKEIGENSCHAP;
+    }
 }

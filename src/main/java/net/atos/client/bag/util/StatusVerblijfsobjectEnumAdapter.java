@@ -9,15 +9,15 @@ import jakarta.json.bind.adapter.JsonbAdapter;
 import net.atos.client.bag.model.StatusVerblijfsobject;
 
 public class StatusVerblijfsobjectEnumAdapter
-    implements JsonbAdapter<StatusVerblijfsobject, String> {
+        implements JsonbAdapter<StatusVerblijfsobject, String> {
 
-  @Override
-  public String adaptToJson(final StatusVerblijfsobject statusVerblijfsobject) {
-    return statusVerblijfsobject.toString();
-  }
+    @Override
+    public String adaptToJson(final StatusVerblijfsobject statusVerblijfsobject) {
+        return statusVerblijfsobject.toString();
+    }
 
-  @Override
-  public StatusVerblijfsobject adaptFromJson(final String json) {
-    return StatusVerblijfsobject.fromValue(json);
-  }
+    @Override
+    public StatusVerblijfsobject adaptFromJson(final String json) {
+        return StatusVerblijfsobject.fromValue(json);
+    }
 }

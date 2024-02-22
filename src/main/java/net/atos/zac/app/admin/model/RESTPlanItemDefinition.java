@@ -10,20 +10,21 @@ import net.atos.zac.zaaksturing.model.FormulierDefinitie;
 
 public class RESTPlanItemDefinition {
 
-  public String id;
+    public String id;
 
-  public String naam;
+    public String naam;
 
-  public PlanItemType type;
+    public PlanItemType type;
 
-  public FormulierDefinitie defaultFormulierDefinitie;
+    public FormulierDefinitie defaultFormulierDefinitie;
 
-  public RESTPlanItemDefinition() {}
+    public RESTPlanItemDefinition() {}
 
-  public RESTPlanItemDefinition(final String id, final String naam, final PlanItemType type) {
-    this.id = id;
-    this.naam = naam;
-    this.type = type;
-    this.defaultFormulierDefinitie = DefaultHumanTaskFormulierKoppeling.readFormulierDefinitie(id);
-  }
+    public RESTPlanItemDefinition(final String id, final String naam, final PlanItemType type) {
+        this.id = id;
+        this.naam = naam;
+        this.type = type;
+        this.defaultFormulierDefinitie =
+                DefaultHumanTaskFormulierKoppeling.readFormulierDefinitie(id);
+    }
 }

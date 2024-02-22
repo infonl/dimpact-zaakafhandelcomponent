@@ -6,7 +6,7 @@ package net.atos.zac.app.klanten.model.klant;
 
 public class RESTContactGegevens {
 
-  public String emailadres;
+    public String emailadres;
 
-  public String telefoonnummer;
+    public String telefoonnummer;
 }

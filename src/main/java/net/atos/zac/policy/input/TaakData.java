@@ -8,10 +8,10 @@ import jakarta.json.bind.annotation.JsonbProperty;
 
 public class TaakData {
 
-  public boolean open;
+    public boolean open;
 
-  @JsonbProperty("zaak_open")
-  public boolean zaakOpen;
+    @JsonbProperty("zaak_open")
+    public boolean zaakOpen;
 
-  public String zaaktype;
+    public String zaaktype;
 }

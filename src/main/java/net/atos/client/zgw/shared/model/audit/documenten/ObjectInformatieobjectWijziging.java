@@ -10,8 +10,8 @@ import net.atos.client.zgw.shared.model.audit.AuditWijziging;
 
 public class ObjectInformatieobjectWijziging extends AuditWijziging<ObjectInformatieObject> {
 
-  @Override
-  public ObjectType getObjectType() {
-    return ObjectType.OBJECT_INFORMATIEOBJECT;
-  }
+    @Override
+    public ObjectType getObjectType() {
+        return ObjectType.OBJECT_INFORMATIEOBJECT;
+    }
 }

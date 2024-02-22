@@ -18,19 +18,19 @@ import net.atos.zac.signalering.SignaleringenJob;
  */
 @ManagedBean
 public class JobEventObserver {
-  private static final Logger LOG = Logger.getLogger(JobEventObserver.class.getName());
+    private static final Logger LOG = Logger.getLogger(JobEventObserver.class.getName());
 
-  @Inject private SignaleringenJob signaleringenJob;
+    @Inject private SignaleringenJob signaleringenJob;
 
-  public void onFire(final @ObservesAsync JobEvent event) {
-    try {
-      LOG.fine(() -> String.format("Job event ontvangen: %s", event.toString()));
-      event.delay();
-      switch (event.getObjectId()) {
-        case SIGNALERINGEN_JOB -> signaleringenJob.signaleringenVerzenden();
-      }
-    } catch (final Throwable ex) {
-      LOG.log(Level.SEVERE, "asynchronous guard", ex);
+    public void onFire(final @ObservesAsync JobEvent event) {
+        try {
+            LOG.fine(() -> String.format("Job event ontvangen: %s", event.toString()));
+            event.delay();
+            switch (event.getObjectId()) {
+                case SIGNALERINGEN_JOB -> signaleringenJob.signaleringenVerzenden();
+            }
+        } catch (final Throwable ex) {
+            LOG.log(Level.SEVERE, "asynchronous guard", ex);
+        }
     }
-  }
 }

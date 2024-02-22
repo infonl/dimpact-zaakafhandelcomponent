@@ -8,22 +8,22 @@ import net.atos.zac.zaaksturing.model.ZaakAfzender;
 
 public class RESTZaakAfzender {
 
-  public Long id;
+    public Long id;
 
-  public boolean defaultMail;
+    public boolean defaultMail;
 
-  public String mail;
+    public String mail;
 
-  public String suffix;
+    public String suffix;
 
-  public String replyTo;
+    public String replyTo;
 
-  public boolean speciaal;
+    public boolean speciaal;
 
-  public RESTZaakAfzender() {}
+    public RESTZaakAfzender() {}
 
-  public RESTZaakAfzender(ZaakAfzender.Speciaal speciaal) {
-    this.mail = speciaal.name();
-    this.speciaal = true;
-  }
+    public RESTZaakAfzender(ZaakAfzender.Speciaal speciaal) {
+        this.mail = speciaal.name();
+        this.speciaal = true;
+    }
 }

@@ -8,7 +8,7 @@ import java.util.List;
 
 public class RESTOpenstaandeTaken {
 
-  public List<String> taakNamen;
+    public List<String> taakNamen;
 
-  public int aantalOpenstaandeTaken;
+    public int aantalOpenstaandeTaken;
 }

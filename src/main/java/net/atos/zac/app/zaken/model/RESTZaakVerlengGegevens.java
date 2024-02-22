@@ -8,13 +8,13 @@ import java.time.LocalDate;
 
 public class RESTZaakVerlengGegevens {
 
-  public String redenVerlenging;
+    public String redenVerlenging;
 
-  public int duurDagen;
+    public int duurDagen;
 
-  public boolean takenVerlengen;
+    public boolean takenVerlengen;
 
-  public LocalDate einddatumGepland;
+    public LocalDate einddatumGepland;
 
-  public LocalDate uiterlijkeEinddatumAfdoening;
+    public LocalDate uiterlijkeEinddatumAfdoening;
 }

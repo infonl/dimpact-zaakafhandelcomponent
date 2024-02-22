@@ -11,14 +11,14 @@ import net.atos.zac.util.DummyInterface;
 
 public class RuleResponse<T extends DummyInterface> {
 
-  private final T result;
+    private final T result;
 
-  @JsonbCreator
-  public RuleResponse(@JsonbProperty("result") final T result) {
-    this.result = result;
-  }
+    @JsonbCreator
+    public RuleResponse(@JsonbProperty("result") final T result) {
+        this.result = result;
+    }
 
-  public T getResult() {
-    return result;
-  }
+    public T getResult() {
+        return result;
+    }
 }

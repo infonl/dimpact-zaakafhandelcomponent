@@ -8,5 +8,5 @@ package net.atos.zac.event;
  * Generic code for beans that listen to AbstractEvents.
  */
 public abstract class AbstractEventObserver<EVENT extends AbstractEvent> {
-  public abstract void onFire(final EVENT event);
+    public abstract void onFire(final EVENT event);
 }

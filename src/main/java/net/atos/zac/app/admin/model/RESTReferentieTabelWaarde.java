@@ -6,9 +6,9 @@ package net.atos.zac.app.admin.model;
 
 public class RESTReferentieTabelWaarde {
 
-  public Long id;
+    public Long id;
 
-  public String naam;
+    public String naam;
 
-  public RESTReferentieTabelWaarde() {}
+    public RESTReferentieTabelWaarde() {}
 }

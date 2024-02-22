@@ -11,9 +11,9 @@ package net.atos.zac.zoeken.model;
   Oh, and no more than 63 indicaties in this enum please (it needs to fit in a signed plong in Solr)
 */
 public enum DocumentIndicatie {
-  VERGRENDELD,
-  ONDERTEKEND,
-  BESLUIT,
-  GEBRUIKSRECHT,
-  VERZONDEN;
+    VERGRENDELD,
+    ONDERTEKEND,
+    BESLUIT,
+    GEBRUIKSRECHT,
+    VERZONDEN;
 }

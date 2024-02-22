@@ -5,7 +5,7 @@
 package net.atos.zac.app.taken.model;
 
 public enum TaakStatus {
-  NIET_TOEGEKEND,
-  TOEGEKEND,
-  AFGEROND
+    NIET_TOEGEKEND,
+    TOEGEKEND,
+    AFGEROND
 }

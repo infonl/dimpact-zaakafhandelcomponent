@@ -8,25 +8,25 @@ import java.net.URI;
 
 public class DocumentCreatieResponse {
 
-  private final URI redirectUrl;
+    private final URI redirectUrl;
 
-  private final String message;
+    private final String message;
 
-  public DocumentCreatieResponse(final URI redirectUrl) {
-    this.redirectUrl = redirectUrl;
-    message = null;
-  }
+    public DocumentCreatieResponse(final URI redirectUrl) {
+        this.redirectUrl = redirectUrl;
+        message = null;
+    }
 
-  public DocumentCreatieResponse(final String message) {
-    this.message = message;
-    redirectUrl = null;
-  }
+    public DocumentCreatieResponse(final String message) {
+        this.message = message;
+        redirectUrl = null;
+    }
 
-  public URI getRedirectUrl() {
-    return redirectUrl;
-  }
+    public URI getRedirectUrl() {
+        return redirectUrl;
+    }
 
-  public String getMessage() {
-    return message;
-  }
+    public String getMessage() {
+        return message;
+    }
 }

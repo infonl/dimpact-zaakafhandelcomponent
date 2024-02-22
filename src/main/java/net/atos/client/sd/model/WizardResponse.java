@@ -6,5 +6,5 @@ package net.atos.client.sd.model;
 
 public class WizardResponse {
 
-  public String ticket;
+    public String ticket;
 }

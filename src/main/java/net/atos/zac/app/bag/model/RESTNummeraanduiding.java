@@ -9,33 +9,33 @@ import net.atos.client.bag.model.TypeAdresseerbaarObject;
 
 public class RESTNummeraanduiding extends RESTBAGObject {
 
-  public String huisnummerWeergave;
+    public String huisnummerWeergave;
 
-  public int huisnummer;
+    public int huisnummer;
 
-  public String huisletter;
+    public String huisletter;
 
-  public String huisnummertoevoeging;
+    public String huisnummertoevoeging;
 
-  public String postcode;
+    public String postcode;
 
-  public TypeAdresseerbaarObject typeAdresseerbaarObject;
+    public TypeAdresseerbaarObject typeAdresseerbaarObject;
 
-  public StatusNaamgeving status;
+    public StatusNaamgeving status;
 
-  public RESTWoonplaats woonplaats;
+    public RESTWoonplaats woonplaats;
 
-  public RESTOpenbareRuimte openbareRuimte;
+    public RESTOpenbareRuimte openbareRuimte;
 
-  public RESTNummeraanduiding() {}
+    public RESTNummeraanduiding() {}
 
-  @Override
-  public BAGObjectType getBagObjectType() {
-    return BAGObjectType.NUMMERAANDUIDING;
-  }
+    @Override
+    public BAGObjectType getBagObjectType() {
+        return BAGObjectType.NUMMERAANDUIDING;
+    }
 
-  @Override
-  public String getOmschrijving() {
-    return "%s %s".formatted(huisnummerWeergave, postcode);
-  }
+    @Override
+    public String getOmschrijving() {
+        return "%s %s".formatted(huisnummerWeergave, postcode);
+    }
 }

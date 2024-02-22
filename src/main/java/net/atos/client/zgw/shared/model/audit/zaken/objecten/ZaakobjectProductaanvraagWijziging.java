@@ -10,8 +10,8 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag;
 
 public class ZaakobjectProductaanvraagWijziging extends AuditWijziging<ZaakobjectProductaanvraag> {
 
-  @Override
-  public ObjectType getObjectType() {
-    return ObjectType.ZAAKOBJECT;
-  }
+    @Override
+    public ObjectType getObjectType() {
+        return ObjectType.ZAAKOBJECT;
+    }
 }

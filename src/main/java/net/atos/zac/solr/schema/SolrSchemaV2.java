@@ -20,32 +20,32 @@ import net.atos.zac.zoeken.model.index.ZoekObjectType;
 
 class SolrSchemaV2 implements SolrSchemaUpdate {
 
-  @Override
-  public int getVersie() {
-    return 2;
-  }
+    @Override
+    public int getVersie() {
+        return 2;
+    }
 
-  @Override
-  public Set<ZoekObjectType> getTeHerindexerenZoekObjectTypes() {
-    return Set.of(ZoekObjectType.TAAK);
-  }
+    @Override
+    public Set<ZoekObjectType> getTeHerindexerenZoekObjectTypes() {
+        return Set.of(ZoekObjectType.TAAK);
+    }
 
-  @Override
-  public List<SchemaRequest.Update> getSchemaUpdates() {
-    final List<SchemaRequest.Update> schemaUpdates = new LinkedList<>();
-    schemaUpdates.addAll(updateGenericSchema());
-    schemaUpdates.addAll(updateTaakSchema());
-    return schemaUpdates;
-  }
+    @Override
+    public List<SchemaRequest.Update> getSchemaUpdates() {
+        final List<SchemaRequest.Update> schemaUpdates = new LinkedList<>();
+        schemaUpdates.addAll(updateGenericSchema());
+        schemaUpdates.addAll(updateTaakSchema());
+        return schemaUpdates;
+    }
 
-  private List<SchemaRequest.Update> updateGenericSchema() {
-    return List.of(
-        deleteCopyField("zaak_einddatumGepland", "streefdatum"),
-        deleteCopyField("taak_streefdatum", "streefdatum"),
-        deleteField("streefdatum"));
-  }
+    private List<SchemaRequest.Update> updateGenericSchema() {
+        return List.of(
+                deleteCopyField("zaak_einddatumGepland", "streefdatum"),
+                deleteCopyField("taak_streefdatum", "streefdatum"),
+                deleteField("streefdatum"));
+    }
 
-  private List<SchemaRequest.Update> updateTaakSchema() {
-    return List.of(deleteField("taak_streefdatum"), addField("taak_fataledatum", PDATE));
-  }
+    private List<SchemaRequest.Update> updateTaakSchema() {
+        return List.of(deleteField("taak_streefdatum"), addField("taak_fataledatum", PDATE));
+    }
 }

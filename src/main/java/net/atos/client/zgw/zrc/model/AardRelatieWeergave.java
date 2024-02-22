@@ -13,30 +13,30 @@ import net.atos.client.zgw.shared.model.AbstractEnum;
  */
 @JsonbTypeAdapter(AardRelatieWeergave.Adapter.class)
 public enum AardRelatieWeergave implements AbstractEnum<AardRelatieWeergave> {
-  HOORT_BIJ("Hoort bij, omgekeerd: kent"),
+    HOORT_BIJ("Hoort bij, omgekeerd: kent"),
 
-  LEGT_VAST("Legt vast, omgekeerd: kan vastgelegd zijn als");
+    LEGT_VAST("Legt vast, omgekeerd: kan vastgelegd zijn als");
 
-  private final String value;
+    private final String value;
 
-  AardRelatieWeergave(final String value) {
-    this.value = value;
-  }
-
-  @Override
-  public String toValue() {
-    return value;
-  }
-
-  public static AardRelatieWeergave fromValue(final String value) {
-    return AbstractEnum.fromValue(values(), value);
-  }
-
-  static class Adapter extends AbstractEnum.Adapter<AardRelatieWeergave> {
+    AardRelatieWeergave(final String value) {
+        this.value = value;
+    }
 
     @Override
-    protected AardRelatieWeergave[] getEnums() {
-      return values();
+    public String toValue() {
+        return value;
     }
-  }
+
+    public static AardRelatieWeergave fromValue(final String value) {
+        return AbstractEnum.fromValue(values(), value);
+    }
+
+    static class Adapter extends AbstractEnum.Adapter<AardRelatieWeergave> {
+
+        @Override
+        protected AardRelatieWeergave[] getEnums() {
+            return values();
+        }
+    }
 }

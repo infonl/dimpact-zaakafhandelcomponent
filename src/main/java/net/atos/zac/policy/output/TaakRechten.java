@@ -10,18 +10,18 @@ import jakarta.json.bind.annotation.JsonbProperty;
 import net.atos.zac.util.DummyInterface;
 
 public record TaakRechten(
-    boolean lezen, boolean wijzigen, boolean toekennen, boolean toevoegenDocument)
-    implements DummyInterface {
+        boolean lezen, boolean wijzigen, boolean toekennen, boolean toevoegenDocument)
+        implements DummyInterface {
 
-  @JsonbCreator
-  public TaakRechten(
-      @JsonbProperty("lezen") final boolean lezen,
-      @JsonbProperty("wijzigen") final boolean wijzigen,
-      @JsonbProperty("toekennen") final boolean toekennen,
-      @JsonbProperty("toevoegen_document") final boolean toevoegenDocument) {
-    this.lezen = lezen;
-    this.wijzigen = wijzigen;
-    this.toekennen = toekennen;
-    this.toevoegenDocument = toevoegenDocument;
-  }
+    @JsonbCreator
+    public TaakRechten(
+            @JsonbProperty("lezen") final boolean lezen,
+            @JsonbProperty("wijzigen") final boolean wijzigen,
+            @JsonbProperty("toekennen") final boolean toekennen,
+            @JsonbProperty("toevoegen_document") final boolean toevoegenDocument) {
+        this.lezen = lezen;
+        this.wijzigen = wijzigen;
+        this.toekennen = toekennen;
+        this.toevoegenDocument = toevoegenDocument;
+    }
 }

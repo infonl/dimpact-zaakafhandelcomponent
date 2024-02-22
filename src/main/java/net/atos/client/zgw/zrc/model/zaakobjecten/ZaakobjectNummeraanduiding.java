@@ -12,26 +12,26 @@ import net.atos.client.zgw.zrc.model.Objecttype;
  * ZaakobjectNummeraanduiding
  */
 public class ZaakobjectNummeraanduiding
-    extends ZaakobjectMetObjectIdentificatie<ObjectOverige<ObjectNummeraanduiding>> {
+        extends ZaakobjectMetObjectIdentificatie<ObjectOverige<ObjectNummeraanduiding>> {
 
-  public static final String OBJECT_TYPE_OVERIGE = "nummeraanduiding";
+    public static final String OBJECT_TYPE_OVERIGE = "nummeraanduiding";
 
-  /**
-   * Constructor for JSONB deserialization
-   */
-  public ZaakobjectNummeraanduiding() {}
+    /**
+     * Constructor for JSONB deserialization
+     */
+    public ZaakobjectNummeraanduiding() {}
 
-  /**
-   * Constructor with required attributes
-   */
-  public ZaakobjectNummeraanduiding(
-      final URI zaak, final URI bagObjectUri, final ObjectNummeraanduiding nummeraanduiding) {
-    super(zaak, bagObjectUri, Objecttype.OVERIGE, new ObjectOverige<>(nummeraanduiding));
-    setObjectTypeOverige(OBJECT_TYPE_OVERIGE);
-  }
+    /**
+     * Constructor with required attributes
+     */
+    public ZaakobjectNummeraanduiding(
+            final URI zaak, final URI bagObjectUri, final ObjectNummeraanduiding nummeraanduiding) {
+        super(zaak, bagObjectUri, Objecttype.OVERIGE, new ObjectOverige<>(nummeraanduiding));
+        setObjectTypeOverige(OBJECT_TYPE_OVERIGE);
+    }
 
-  @Override
-  public String getWaarde() {
-    return getObjectIdentificatie().overigeData.getIdentificatie();
-  }
+    @Override
+    public String getWaarde() {
+        return getObjectIdentificatie().overigeData.getIdentificatie();
+    }
 }

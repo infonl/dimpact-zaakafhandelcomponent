@@ -10,13 +10,13 @@ import net.atos.client.bag.model.TypeOpenbareRuimte;
 
 public class TypeOpenbareRuimteEnumAdapter implements JsonbAdapter<TypeOpenbareRuimte, String> {
 
-  @Override
-  public String adaptToJson(final TypeOpenbareRuimte typeOpenbareRuimte) {
-    return typeOpenbareRuimte.toString();
-  }
+    @Override
+    public String adaptToJson(final TypeOpenbareRuimte typeOpenbareRuimte) {
+        return typeOpenbareRuimte.toString();
+    }
 
-  @Override
-  public TypeOpenbareRuimte adaptFromJson(final String json) {
-    return TypeOpenbareRuimte.fromValue(json);
-  }
+    @Override
+    public TypeOpenbareRuimte adaptFromJson(final String json) {
+        return TypeOpenbareRuimte.fromValue(json);
+    }
 }

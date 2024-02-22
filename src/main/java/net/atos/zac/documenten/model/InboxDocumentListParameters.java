@@ -9,37 +9,37 @@ import net.atos.zac.zoeken.model.DatumRange;
 
 public class InboxDocumentListParameters extends ListParameters {
 
-  private String titel;
+    private String titel;
 
-  private String identificatie;
+    private String identificatie;
 
-  private DatumRange creatiedatum;
+    private DatumRange creatiedatum;
 
-  public InboxDocumentListParameters() {
-    super();
-  }
+    public InboxDocumentListParameters() {
+        super();
+    }
 
-  public String getTitel() {
-    return titel;
-  }
+    public String getTitel() {
+        return titel;
+    }
 
-  public void setTitel(final String titel) {
-    this.titel = titel;
-  }
+    public void setTitel(final String titel) {
+        this.titel = titel;
+    }
 
-  public String getIdentificatie() {
-    return identificatie;
-  }
+    public String getIdentificatie() {
+        return identificatie;
+    }
 
-  public void setIdentificatie(final String identificatie) {
-    this.identificatie = identificatie;
-  }
+    public void setIdentificatie(final String identificatie) {
+        this.identificatie = identificatie;
+    }
 
-  public DatumRange getCreatiedatum() {
-    return creatiedatum;
-  }
+    public DatumRange getCreatiedatum() {
+        return creatiedatum;
+    }
 
-  public void setCreatiedatum(final DatumRange creatiedatum) {
-    this.creatiedatum = creatiedatum;
-  }
+    public void setCreatiedatum(final DatumRange creatiedatum) {
+        this.creatiedatum = creatiedatum;
+    }
 }

@@ -6,19 +6,19 @@ package net.atos.zac.app.policy.model;
 
 public class RESTZaakRechten {
 
-  public boolean lezen;
+    public boolean lezen;
 
-  public boolean wijzigen;
+    public boolean wijzigen;
 
-  public boolean toekennen;
+    public boolean toekennen;
 
-  public boolean behandelen;
+    public boolean behandelen;
 
-  public boolean afbreken;
+    public boolean afbreken;
 
-  public boolean heropenen;
+    public boolean heropenen;
 
-  public boolean wijzigenZaakdata;
+    public boolean wijzigenZaakdata;
 
-  public boolean wijzigenDoorlooptijd;
+    public boolean wijzigenDoorlooptijd;
 }

@@ -5,29 +5,29 @@
 package net.atos.zac.app.klanten.model.bedrijven;
 
 public enum BedrijfType {
-  HOOFDVESTIGING("hoofdvestiging"),
-  NEVENVESTIGING("nevenvestiging"),
-  RECHTSPERSOON("rechtspersoon");
+    HOOFDVESTIGING("hoofdvestiging"),
+    NEVENVESTIGING("nevenvestiging"),
+    RECHTSPERSOON("rechtspersoon");
 
-  private final String type;
+    private final String type;
 
-  BedrijfType(final String type) {
-    this.type = type;
-  }
-
-  public String getType() {
-    return type;
-  }
-
-  public static BedrijfType getType(final String type) {
-    if (type == null) {
-      return null;
+    BedrijfType(final String type) {
+        this.type = type;
     }
-    for (final BedrijfType bedrijfType : BedrijfType.values()) {
-      if (bedrijfType.type.equals(type)) {
-        return bedrijfType;
-      }
+
+    public String getType() {
+        return type;
     }
-    throw new IllegalStateException(String.format("BedrijfType: '%s' not found", type));
-  }
+
+    public static BedrijfType getType(final String type) {
+        if (type == null) {
+            return null;
+        }
+        for (final BedrijfType bedrijfType : BedrijfType.values()) {
+            if (bedrijfType.type.equals(type)) {
+                return bedrijfType;
+            }
+        }
+        throw new IllegalStateException(String.format("BedrijfType: '%s' not found", type));
+    }
 }

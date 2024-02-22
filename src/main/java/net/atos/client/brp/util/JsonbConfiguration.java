@@ -11,16 +11,16 @@ import jakarta.ws.rs.ext.ContextResolver;
 
 public class JsonbConfiguration implements ContextResolver<Jsonb> {
 
-  private Jsonb jsonb;
+    private Jsonb jsonb;
 
-  public JsonbConfiguration() {
-    final JsonbConfig jsonbConfig =
-        new JsonbConfig().withDeserializers(new PersonenQueryResponseJsonbDeserializer());
-    jsonb = JsonbBuilder.create(jsonbConfig);
-  }
+    public JsonbConfiguration() {
+        final JsonbConfig jsonbConfig =
+                new JsonbConfig().withDeserializers(new PersonenQueryResponseJsonbDeserializer());
+        jsonb = JsonbBuilder.create(jsonbConfig);
+    }
 
-  @Override
-  public Jsonb getContext(Class<?> type) {
-    return jsonb;
-  }
+    @Override
+    public Jsonb getContext(Class<?> type) {
+        return jsonb;
+    }
 }

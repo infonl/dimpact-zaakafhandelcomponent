@@ -10,7 +10,7 @@ package net.atos.zac.shared.exception;
  */
 public class FoutmeldingException extends RuntimeException {
 
-  public FoutmeldingException(final String message) {
-    super(message);
-  }
+    public FoutmeldingException(final String message) {
+        super(message);
+    }
 }

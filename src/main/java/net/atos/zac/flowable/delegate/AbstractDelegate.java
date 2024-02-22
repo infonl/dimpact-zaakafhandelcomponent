@@ -11,7 +11,7 @@ import org.flowable.engine.delegate.JavaDelegate;
 
 public abstract class AbstractDelegate implements JavaDelegate {
 
-  protected String getZaakIdentificatie(final DelegateExecution delegateExecution) {
-    return (String) delegateExecution.getParent().getVariable(VAR_ZAAK_IDENTIFICATIE);
-  }
+    protected String getZaakIdentificatie(final DelegateExecution delegateExecution) {
+        return (String) delegateExecution.getParent().getVariable(VAR_ZAAK_IDENTIFICATIE);
+    }
 }

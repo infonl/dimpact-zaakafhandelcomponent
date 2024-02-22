@@ -10,25 +10,25 @@ import net.atos.zac.formulieren.model.FormulierVeldtype;
 
 public class RESTFormulierVeldDefinitie {
 
-  public Long id;
+    public Long id;
 
-  public String systeemnaam;
+    public String systeemnaam;
 
-  public int volgorde;
+    public int volgorde;
 
-  public String label;
+    public String label;
 
-  public FormulierVeldtype veldtype;
+    public FormulierVeldtype veldtype;
 
-  public String beschrijving;
+    public String beschrijving;
 
-  public String helptekst;
+    public String helptekst;
 
-  public boolean verplicht;
+    public boolean verplicht;
 
-  public String defaultWaarde;
+    public String defaultWaarde;
 
-  public String meerkeuzeOpties;
+    public String meerkeuzeOpties;
 
-  public List<String> validaties;
+    public List<String> validaties;
 }

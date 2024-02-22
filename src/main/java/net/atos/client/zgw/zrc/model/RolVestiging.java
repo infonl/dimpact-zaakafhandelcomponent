@@ -13,51 +13,51 @@ import net.atos.client.zgw.ztc.model.generated.RolType;
 
 public class RolVestiging extends Rol<Vestiging> {
 
-  public RolVestiging() {}
+    public RolVestiging() {}
 
-  public RolVestiging(
-      final URI zaak,
-      final RolType roltype,
-      final String roltoelichting,
-      final Vestiging betrokkeneIdentificatie) {
-    super(zaak, roltype, BetrokkeneType.VESTIGING, betrokkeneIdentificatie, roltoelichting);
-  }
-
-  @Override
-  protected boolean equalBetrokkeneIdentificatie(final Vestiging identificatie) {
-    final Vestiging betrokkeneIdentificatie = getBetrokkeneIdentificatie();
-    if (betrokkeneIdentificatie == identificatie) {
-      return true;
+    public RolVestiging(
+            final URI zaak,
+            final RolType roltype,
+            final String roltoelichting,
+            final Vestiging betrokkeneIdentificatie) {
+        super(zaak, roltype, BetrokkeneType.VESTIGING, betrokkeneIdentificatie, roltoelichting);
     }
-    if (identificatie == null) {
-      return false;
-    }
-    return Objects.equals(
-        betrokkeneIdentificatie.getVestigingsNummer(), identificatie.getVestigingsNummer());
-  }
 
-  @Override
-  public String getNaam() {
-    if (getBetrokkeneIdentificatie() == null) {
-      return null;
+    @Override
+    protected boolean equalBetrokkeneIdentificatie(final Vestiging identificatie) {
+        final Vestiging betrokkeneIdentificatie = getBetrokkeneIdentificatie();
+        if (betrokkeneIdentificatie == identificatie) {
+            return true;
+        }
+        if (identificatie == null) {
+            return false;
+        }
+        return Objects.equals(
+                betrokkeneIdentificatie.getVestigingsNummer(), identificatie.getVestigingsNummer());
     }
-    final String namen =
-        getBetrokkeneIdentificatie().getHandelsnaam() != null
-            ? String.join("; ", getBetrokkeneIdentificatie().getHandelsnaam())
-            : null;
-    return StringUtils.isNotEmpty(namen) ? namen : getIdentificatienummer();
-  }
 
-  @Override
-  public String getIdentificatienummer() {
-    if (getBetrokkeneIdentificatie() == null) {
-      return null;
+    @Override
+    public String getNaam() {
+        if (getBetrokkeneIdentificatie() == null) {
+            return null;
+        }
+        final String namen =
+                getBetrokkeneIdentificatie().getHandelsnaam() != null
+                        ? String.join("; ", getBetrokkeneIdentificatie().getHandelsnaam())
+                        : null;
+        return StringUtils.isNotEmpty(namen) ? namen : getIdentificatienummer();
     }
-    return getBetrokkeneIdentificatie().getVestigingsNummer();
-  }
 
-  @Override
-  protected int hashCodeBetrokkeneIdentificatie() {
-    return Objects.hash(getBetrokkeneIdentificatie().getVestigingsNummer());
-  }
+    @Override
+    public String getIdentificatienummer() {
+        if (getBetrokkeneIdentificatie() == null) {
+            return null;
+        }
+        return getBetrokkeneIdentificatie().getVestigingsNummer();
+    }
+
+    @Override
+    protected int hashCodeBetrokkeneIdentificatie() {
+        return Objects.hash(getBetrokkeneIdentificatie().getVestigingsNummer());
+    }
 }

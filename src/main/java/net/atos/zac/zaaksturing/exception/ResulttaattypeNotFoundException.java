@@ -5,7 +5,7 @@
 package net.atos.zac.zaaksturing.exception;
 
 public class ResulttaattypeNotFoundException extends RuntimeException {
-  public ResulttaattypeNotFoundException(final String message) {
-    super(message);
-  }
+    public ResulttaattypeNotFoundException(final String message) {
+        super(message);
+    }
 }

@@ -26,83 +26,88 @@ import net.atos.zac.util.UriUtil;
 
 public class RESTBesluitConverter {
 
-  @Inject private RESTBesluittypeConverter restBesluittypeConverter;
+    @Inject private RESTBesluittypeConverter restBesluittypeConverter;
 
-  @Inject private ZTCClientService ztcClientService;
+    @Inject private ZTCClientService ztcClientService;
 
-  @Inject private BRCClientService brcClientService;
+    @Inject private BRCClientService brcClientService;
 
-  @Inject private RESTInformatieobjectConverter informatieobjectConverter;
+    @Inject private RESTInformatieobjectConverter informatieobjectConverter;
 
-  @Inject private DRCClientService drcClientService;
+    @Inject private DRCClientService drcClientService;
 
-  public RESTBesluit convertToRESTBesluit(final Besluit besluit) {
-    final RESTBesluit restBesluit = new RESTBesluit();
-    restBesluit.uuid = UriUtil.uuidFromURI(besluit.getUrl());
-    restBesluit.besluittype =
-        restBesluittypeConverter.convertToRESTBesluittype(besluit.getBesluittype());
-    restBesluit.datum = besluit.getDatum();
-    restBesluit.identificatie = besluit.getIdentificatie();
-    restBesluit.url = besluit.getUrl();
-    restBesluit.toelichting = besluit.getToelichting();
-    restBesluit.ingangsdatum = besluit.getIngangsdatum();
-    restBesluit.vervaldatum = besluit.getVervaldatum();
-    restBesluit.vervalreden = besluit.getVervalreden();
-    restBesluit.isIngetrokken =
-        restBesluit.vervaldatum != null
-            && (restBesluit.vervalreden == Besluit.VervalredenEnum.INGETROKKEN_BELANGHEBBENDE
-                || restBesluit.vervalreden == Besluit.VervalredenEnum.INGETROKKEN_OVERHEID);
-    restBesluit.informatieobjecten =
-        informatieobjectConverter.convertInformatieobjectenToREST(
-            listBesluitInformatieobjecten(besluit));
-    return restBesluit;
-  }
-
-  public List<RESTBesluit> convertToRESTBesluit(final List<Besluit> besluiten) {
-    return besluiten.stream().map(this::convertToRESTBesluit).toList();
-  }
-
-  public Besluit convertToBesluit(
-      final Zaak zaak, final RESTBesluitVastleggenGegevens besluitToevoegenGegevens) {
-    final Besluit besluit = new Besluit();
-    besluit.setZaak(zaak.getUrl());
-    besluit.setBesluittype(
-        ztcClientService.readBesluittype(besluitToevoegenGegevens.besluittypeUuid).getUrl());
-    besluit.setDatum(LocalDate.now());
-    besluit.setIngangsdatum(besluitToevoegenGegevens.ingangsdatum);
-    besluit.setVervaldatum(besluitToevoegenGegevens.vervaldatum);
-    if (besluitToevoegenGegevens.vervaldatum != null) {
-      besluit.setVervalreden(Besluit.VervalredenEnum.TIJDELIJK);
+    public RESTBesluit convertToRESTBesluit(final Besluit besluit) {
+        final RESTBesluit restBesluit = new RESTBesluit();
+        restBesluit.uuid = UriUtil.uuidFromURI(besluit.getUrl());
+        restBesluit.besluittype =
+                restBesluittypeConverter.convertToRESTBesluittype(besluit.getBesluittype());
+        restBesluit.datum = besluit.getDatum();
+        restBesluit.identificatie = besluit.getIdentificatie();
+        restBesluit.url = besluit.getUrl();
+        restBesluit.toelichting = besluit.getToelichting();
+        restBesluit.ingangsdatum = besluit.getIngangsdatum();
+        restBesluit.vervaldatum = besluit.getVervaldatum();
+        restBesluit.vervalreden = besluit.getVervalreden();
+        restBesluit.isIngetrokken =
+                restBesluit.vervaldatum != null
+                        && (restBesluit.vervalreden
+                                        == Besluit.VervalredenEnum.INGETROKKEN_BELANGHEBBENDE
+                                || restBesluit.vervalreden
+                                        == Besluit.VervalredenEnum.INGETROKKEN_OVERHEID);
+        restBesluit.informatieobjecten =
+                informatieobjectConverter.convertInformatieobjectenToREST(
+                        listBesluitInformatieobjecten(besluit));
+        return restBesluit;
     }
-    besluit.setVerantwoordelijkeOrganisatie(ConfiguratieService.VERANTWOORDELIJKE_ORGANISATIE);
-    besluit.setToelichting(besluitToevoegenGegevens.toelichting);
-    return besluit;
-  }
 
-  public Besluit convertToBesluit(
-      final Besluit besluit, final RESTBesluitWijzigenGegevens besluitWijzigenGegevens) {
-    besluit.setToelichting(besluitWijzigenGegevens.toelichting);
-    besluit.setIngangsdatum(besluitWijzigenGegevens.ingangsdatum);
-    besluit.setVervaldatum(besluitWijzigenGegevens.vervaldatum);
-    if (besluit.getVervaldatum() != null) {
-      besluit.setVervalreden(Besluit.VervalredenEnum.TIJDELIJK);
+    public List<RESTBesluit> convertToRESTBesluit(final List<Besluit> besluiten) {
+        return besluiten.stream().map(this::convertToRESTBesluit).toList();
     }
-    return besluit;
-  }
 
-  public Besluit convertToBesluit(
-      final Besluit besluit, final RESTBesluitIntrekkenGegevens besluitIntrekkenGegevens) {
-    besluit.setVervaldatum(besluitIntrekkenGegevens.vervaldatum);
-    besluit.setVervalreden(Besluit.VervalredenEnum.valueOf(besluitIntrekkenGegevens.vervalreden));
-    return besluit;
-  }
+    public Besluit convertToBesluit(
+            final Zaak zaak, final RESTBesluitVastleggenGegevens besluitToevoegenGegevens) {
+        final Besluit besluit = new Besluit();
+        besluit.setZaak(zaak.getUrl());
+        besluit.setBesluittype(
+                ztcClientService
+                        .readBesluittype(besluitToevoegenGegevens.besluittypeUuid)
+                        .getUrl());
+        besluit.setDatum(LocalDate.now());
+        besluit.setIngangsdatum(besluitToevoegenGegevens.ingangsdatum);
+        besluit.setVervaldatum(besluitToevoegenGegevens.vervaldatum);
+        if (besluitToevoegenGegevens.vervaldatum != null) {
+            besluit.setVervalreden(Besluit.VervalredenEnum.TIJDELIJK);
+        }
+        besluit.setVerantwoordelijkeOrganisatie(ConfiguratieService.VERANTWOORDELIJKE_ORGANISATIE);
+        besluit.setToelichting(besluitToevoegenGegevens.toelichting);
+        return besluit;
+    }
 
-  public List<EnkelvoudigInformatieObject> listBesluitInformatieobjecten(final Besluit besluit) {
-    return brcClientService.listBesluitInformatieobjecten(besluit.getUrl()).stream()
-        .map(
-            besluitInformatieobject ->
-                drcClientService.readEnkelvoudigInformatieobject(
-                    besluitInformatieobject.getInformatieobject()))
-        .collect(Collectors.toList());
-  }
+    public Besluit convertToBesluit(
+            final Besluit besluit, final RESTBesluitWijzigenGegevens besluitWijzigenGegevens) {
+        besluit.setToelichting(besluitWijzigenGegevens.toelichting);
+        besluit.setIngangsdatum(besluitWijzigenGegevens.ingangsdatum);
+        besluit.setVervaldatum(besluitWijzigenGegevens.vervaldatum);
+        if (besluit.getVervaldatum() != null) {
+            besluit.setVervalreden(Besluit.VervalredenEnum.TIJDELIJK);
+        }
+        return besluit;
+    }
+
+    public Besluit convertToBesluit(
+            final Besluit besluit, final RESTBesluitIntrekkenGegevens besluitIntrekkenGegevens) {
+        besluit.setVervaldatum(besluitIntrekkenGegevens.vervaldatum);
+        besluit.setVervalreden(
+                Besluit.VervalredenEnum.valueOf(besluitIntrekkenGegevens.vervalreden));
+        return besluit;
+    }
+
+    public List<EnkelvoudigInformatieObject> listBesluitInformatieobjecten(final Besluit besluit) {
+        return brcClientService.listBesluitInformatieobjecten(besluit.getUrl()).stream()
+                .map(
+                        besluitInformatieobject ->
+                                drcClientService.readEnkelvoudigInformatieobject(
+                                        besluitInformatieobject.getInformatieobject()))
+                .collect(Collectors.toList());
+    }
 }

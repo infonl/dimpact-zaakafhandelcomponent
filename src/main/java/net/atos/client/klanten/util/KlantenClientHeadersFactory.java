@@ -17,23 +17,23 @@ import net.atos.zac.authentication.LoggedInUser;
 
 public class KlantenClientHeadersFactory implements ClientHeadersFactory {
 
-  @Inject private Instance<LoggedInUser> loggedInUserInstance;
+    @Inject private Instance<LoggedInUser> loggedInUserInstance;
 
-  @Inject
-  @ConfigProperty(name = "KLANTEN_API_CLIENTID")
-  private String clientId;
+    @Inject
+    @ConfigProperty(name = "KLANTEN_API_CLIENTID")
+    private String clientId;
 
-  @Inject
-  @ConfigProperty(name = "KLANTEN_API_SECRET")
-  private String secret;
+    @Inject
+    @ConfigProperty(name = "KLANTEN_API_SECRET")
+    private String secret;
 
-  @Override
-  public MultivaluedMap<String, String> update(
-      final MultivaluedMap<String, String> incomingHeaders,
-      final MultivaluedMap<String, String> outgoingHeaders) {
-    outgoingHeaders.add(
-        HttpHeaders.AUTHORIZATION,
-        JWTTokenGenerator.generate(clientId, secret, loggedInUserInstance.get()));
-    return outgoingHeaders;
-  }
+    @Override
+    public MultivaluedMap<String, String> update(
+            final MultivaluedMap<String, String> incomingHeaders,
+            final MultivaluedMap<String, String> outgoingHeaders) {
+        outgoingHeaders.add(
+                HttpHeaders.AUTHORIZATION,
+                JWTTokenGenerator.generate(clientId, secret, loggedInUserInstance.get()));
+        return outgoingHeaders;
+    }
 }

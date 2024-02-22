@@ -10,17 +10,17 @@ import net.atos.zac.mailtemplates.model.MailTemplateVariabelen;
 
 public class RESTMailtemplate {
 
-  public Long id;
+    public Long id;
 
-  public String mailTemplateNaam;
+    public String mailTemplateNaam;
 
-  public String onderwerp;
+    public String onderwerp;
 
-  public String body;
+    public String body;
 
-  public String mail;
+    public String mail;
 
-  public Set<MailTemplateVariabelen> variabelen;
+    public Set<MailTemplateVariabelen> variabelen;
 
-  public boolean defaultMailtemplate;
+    public boolean defaultMailtemplate;
 }

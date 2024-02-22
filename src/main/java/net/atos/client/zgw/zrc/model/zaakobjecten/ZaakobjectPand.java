@@ -13,20 +13,20 @@ import net.atos.client.zgw.zrc.model.Objecttype;
  */
 public class ZaakobjectPand extends ZaakobjectMetObjectIdentificatie<ObjectPand> {
 
-  /**
-   * Constructor for JSONB deserialization
-   */
-  public ZaakobjectPand() {}
+    /**
+     * Constructor for JSONB deserialization
+     */
+    public ZaakobjectPand() {}
 
-  /**
-   * Constructor with all required fields.
-   */
-  public ZaakobjectPand(final URI zaak, final URI bagobjectUri, final ObjectPand pand) {
-    super(zaak, bagobjectUri, Objecttype.PAND, pand);
-  }
+    /**
+     * Constructor with all required fields.
+     */
+    public ZaakobjectPand(final URI zaak, final URI bagobjectUri, final ObjectPand pand) {
+        super(zaak, bagobjectUri, Objecttype.PAND, pand);
+    }
 
-  @Override
-  public String getWaarde() {
-    return getObjectIdentificatie().getIdentificatie();
-  }
+    @Override
+    public String getWaarde() {
+        return getObjectIdentificatie().getIdentificatie();
+    }
 }

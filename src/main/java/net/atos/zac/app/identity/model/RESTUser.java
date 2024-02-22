@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 
 public class RESTUser {
 
-  @NotNull public String id;
+    @NotNull public String id;
 
-  public String naam;
+    public String naam;
 }

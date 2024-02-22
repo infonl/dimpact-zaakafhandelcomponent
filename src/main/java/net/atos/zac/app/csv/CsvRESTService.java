@@ -30,23 +30,25 @@ import net.atos.zac.zoeken.model.ZoekResultaat;
 @Singleton
 public class CsvRESTService {
 
-  @Inject private ZoekenService zoekenService;
+    @Inject private ZoekenService zoekenService;
 
-  @Inject private RESTZoekParametersConverter restZoekParametersConverter;
+    @Inject private RESTZoekParametersConverter restZoekParametersConverter;
 
-  @Inject private CsvService csvService;
+    @Inject private CsvService csvService;
 
-  @POST
-  @Path("export")
-  public Response downloadCSV(final RESTZoekParameters restZoekParameters) {
-    final ZoekParameters zoekParameters = restZoekParametersConverter.convert(restZoekParameters);
-    if (zoekParameters.getRows() == 0) { // If rows isn't set, use max per page.
-      zoekParameters.setRows(AANTAL_PER_PAGINA_MAX);
+    @POST
+    @Path("export")
+    public Response downloadCSV(final RESTZoekParameters restZoekParameters) {
+        final ZoekParameters zoekParameters =
+                restZoekParametersConverter.convert(restZoekParameters);
+        if (zoekParameters.getRows() == 0) { // If rows isn't set, use max per page.
+            zoekParameters.setRows(AANTAL_PER_PAGINA_MAX);
+        }
+        final ZoekResultaat<? extends ZoekObject> zoekResultaat =
+                zoekenService.zoek(zoekParameters);
+
+        final StreamingOutput streamingOutput = csvService.exportToCsv(zoekResultaat);
+
+        return Response.ok(streamingOutput).header("Content-Type", "text/csv").build();
     }
-    final ZoekResultaat<? extends ZoekObject> zoekResultaat = zoekenService.zoek(zoekParameters);
-
-    final StreamingOutput streamingOutput = csvService.exportToCsv(zoekResultaat);
-
-    return Response.ok(streamingOutput).header("Content-Type", "text/csv").build();
-  }
 }

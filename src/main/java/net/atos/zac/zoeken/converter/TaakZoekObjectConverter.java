@@ -30,81 +30,88 @@ import net.atos.zac.zoeken.model.zoekobject.TaakZoekObject;
 
 public class TaakZoekObjectConverter extends AbstractZoekObjectConverter<TaakZoekObject> {
 
-  @Inject private IdentityService identityService;
+    @Inject private IdentityService identityService;
 
-  @Inject private TakenService takenService;
+    @Inject private TakenService takenService;
 
-  @Inject private TaakVariabelenService taakVariabelenService;
+    @Inject private TaakVariabelenService taakVariabelenService;
 
-  @Inject private ZTCClientService ztcClientService;
+    @Inject private ZTCClientService ztcClientService;
 
-  @Inject private ZRCClientService zrcClientService;
+    @Inject private ZRCClientService zrcClientService;
 
-  @Override
-  public TaakZoekObject convert(final String taskID) {
-    final TaskInfo taskInfo = takenService.readTask(taskID);
-    final TaakZoekObject taakZoekObject = new TaakZoekObject();
+    @Override
+    public TaakZoekObject convert(final String taskID) {
+        final TaskInfo taskInfo = takenService.readTask(taskID);
+        final TaakZoekObject taakZoekObject = new TaakZoekObject();
 
-    taakZoekObject.setNaam(taskInfo.getName());
-    taakZoekObject.setId(taskInfo.getId());
-    taakZoekObject.setType(ZoekObjectType.TAAK);
-    taakZoekObject.setCreatiedatum(taskInfo.getCreateTime());
-    taakZoekObject.setToekenningsdatum(taskInfo.getClaimTime());
-    taakZoekObject.setFataledatum(taskInfo.getDueDate());
-    taakZoekObject.setToelichting(taskInfo.getDescription());
+        taakZoekObject.setNaam(taskInfo.getName());
+        taakZoekObject.setId(taskInfo.getId());
+        taakZoekObject.setType(ZoekObjectType.TAAK);
+        taakZoekObject.setCreatiedatum(taskInfo.getCreateTime());
+        taakZoekObject.setToekenningsdatum(taskInfo.getClaimTime());
+        taakZoekObject.setFataledatum(taskInfo.getDueDate());
+        taakZoekObject.setToelichting(taskInfo.getDescription());
 
-    if (taskInfo.getAssignee() != null) {
-      final User user = identityService.readUser(taskInfo.getAssignee());
-      taakZoekObject.setBehandelaarNaam(user.getFullName());
-      taakZoekObject.setBehandelaarGebruikersnaam(user.getId());
-      taakZoekObject.setToegekend(true);
+        if (taskInfo.getAssignee() != null) {
+            final User user = identityService.readUser(taskInfo.getAssignee());
+            taakZoekObject.setBehandelaarNaam(user.getFullName());
+            taakZoekObject.setBehandelaarGebruikersnaam(user.getId());
+            taakZoekObject.setToegekend(true);
+        }
+
+        taakZoekObject.setStatus(getTaakStatus(taskInfo));
+        final String groupID = extractGroupId(taskInfo.getIdentityLinks());
+        if (groupID != null) {
+            final Group group = identityService.readGroup(groupID);
+            taakZoekObject.setGroepID(group.getId());
+            taakZoekObject.setGroepNaam(group.getName());
+        }
+
+        final ZaakType zaaktype =
+                ztcClientService.readZaaktype(taakVariabelenService.readZaaktypeUUID(taskInfo));
+        taakZoekObject.setZaaktypeIdentificatie(zaaktype.getIdentificatie());
+        taakZoekObject.setZaaktypeOmschrijving(zaaktype.getOmschrijving());
+        taakZoekObject.setZaaktypeUuid(
+                URIUtil.parseUUIDFromResourceURI(zaaktype.getUrl()).toString());
+
+        final UUID zaakUUID = taakVariabelenService.readZaakUUID(taskInfo);
+        taakZoekObject.setZaakUUID(zaakUUID.toString());
+        taakZoekObject.setZaakIdentificatie(taakVariabelenService.readZaakIdentificatie(taskInfo));
+
+        final Zaak zaak = zrcClientService.readZaak(zaakUUID);
+        taakZoekObject.setZaakOmschrijving(zaak.getOmschrijving());
+        taakZoekObject.setZaakToelichting(zaak.getToelichting());
+
+        taakZoekObject.setTaakData(
+                taakVariabelenService.readTaakdata(taskInfo).entrySet().stream()
+                        .map(data -> "%s|%s".formatted(data.getKey(), data.getValue()))
+                        .toList());
+
+        taakZoekObject.setTaakInformatie(
+                taakVariabelenService.readTaakinformatie(taskInfo).entrySet().stream()
+                        .map(
+                                informatie ->
+                                        "%s|%s"
+                                                .formatted(
+                                                        informatie.getKey(), informatie.getValue()))
+                        .toList());
+
+        return taakZoekObject;
     }
 
-    taakZoekObject.setStatus(getTaakStatus(taskInfo));
-    final String groupID = extractGroupId(taskInfo.getIdentityLinks());
-    if (groupID != null) {
-      final Group group = identityService.readGroup(groupID);
-      taakZoekObject.setGroepID(group.getId());
-      taakZoekObject.setGroepNaam(group.getName());
+    @Override
+    public boolean supports(final ZoekObjectType objectType) {
+        return objectType == ZoekObjectType.TAAK;
     }
 
-    final ZaakType zaaktype =
-        ztcClientService.readZaaktype(taakVariabelenService.readZaaktypeUUID(taskInfo));
-    taakZoekObject.setZaaktypeIdentificatie(zaaktype.getIdentificatie());
-    taakZoekObject.setZaaktypeOmschrijving(zaaktype.getOmschrijving());
-    taakZoekObject.setZaaktypeUuid(URIUtil.parseUUIDFromResourceURI(zaaktype.getUrl()).toString());
-
-    final UUID zaakUUID = taakVariabelenService.readZaakUUID(taskInfo);
-    taakZoekObject.setZaakUUID(zaakUUID.toString());
-    taakZoekObject.setZaakIdentificatie(taakVariabelenService.readZaakIdentificatie(taskInfo));
-
-    final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-    taakZoekObject.setZaakOmschrijving(zaak.getOmschrijving());
-    taakZoekObject.setZaakToelichting(zaak.getToelichting());
-
-    taakZoekObject.setTaakData(
-        taakVariabelenService.readTaakdata(taskInfo).entrySet().stream()
-            .map(data -> "%s|%s".formatted(data.getKey(), data.getValue()))
-            .toList());
-
-    taakZoekObject.setTaakInformatie(
-        taakVariabelenService.readTaakinformatie(taskInfo).entrySet().stream()
-            .map(informatie -> "%s|%s".formatted(informatie.getKey(), informatie.getValue()))
-            .toList());
-
-    return taakZoekObject;
-  }
-
-  @Override
-  public boolean supports(final ZoekObjectType objectType) {
-    return objectType == ZoekObjectType.TAAK;
-  }
-
-  private String extractGroupId(final List<? extends IdentityLinkInfo> identityLinks) {
-    return identityLinks.stream()
-        .filter(identityLinkInfo -> IdentityLinkType.CANDIDATE.equals(identityLinkInfo.getType()))
-        .findAny()
-        .map(IdentityLinkInfo::getGroupId)
-        .orElse(null);
-  }
+    private String extractGroupId(final List<? extends IdentityLinkInfo> identityLinks) {
+        return identityLinks.stream()
+                .filter(
+                        identityLinkInfo ->
+                                IdentityLinkType.CANDIDATE.equals(identityLinkInfo.getType()))
+                .findAny()
+                .map(IdentityLinkInfo::getGroupId)
+                .orElse(null);
+    }
 }

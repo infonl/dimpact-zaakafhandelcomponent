@@ -15,15 +15,15 @@ import net.atos.client.zgw.shared.model.ValidatieFout;
  *
  */
 public class ValidatieFoutExceptionMapper
-    implements ResponseExceptionMapper<ValidatieFoutException> {
+        implements ResponseExceptionMapper<ValidatieFoutException> {
 
-  @Override
-  public boolean handles(final int status, final MultivaluedMap<String, Object> headers) {
-    return status == Response.Status.BAD_REQUEST.getStatusCode();
-  }
+    @Override
+    public boolean handles(final int status, final MultivaluedMap<String, Object> headers) {
+        return status == Response.Status.BAD_REQUEST.getStatusCode();
+    }
 
-  @Override
-  public ValidatieFoutException toThrowable(final Response response) {
-    return new ValidatieFoutException(response.readEntity(ValidatieFout.class));
-  }
+    @Override
+    public ValidatieFoutException toThrowable(final Response response) {
+        return new ValidatieFoutException(response.readEntity(ValidatieFout.class));
+    }
 }

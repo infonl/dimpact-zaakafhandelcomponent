@@ -5,6 +5,6 @@
 package net.atos.zac.signalering.model;
 
 public enum SignaleringDetail {
-  STREEFDATUM,
-  FATALE_DATUM;
+    STREEFDATUM,
+    FATALE_DATUM;
 }

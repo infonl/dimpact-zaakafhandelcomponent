@@ -24,14 +24,14 @@ import net.atos.zac.util.event.JobId;
 @Produces(MediaType.APPLICATION_JSON)
 public class SignalerenRESTService {
 
-  @Inject private EventingService eventingService;
+    @Inject private EventingService eventingService;
 
-  @Inject @ActiveSession private Instance<HttpSession> httpSession;
+    @Inject @ActiveSession private Instance<HttpSession> httpSession;
 
-  @GET
-  public String zaakSignaleringenVerzenden() {
-    SecurityUtil.setFunctioneelGebruiker(httpSession.get());
-    eventingService.send(new JobEvent(JobId.SIGNALERINGEN_JOB));
-    return String.format("%s: gestart...", JobId.SIGNALERINGEN_JOB.getName());
-  }
+    @GET
+    public String zaakSignaleringenVerzenden() {
+        SecurityUtil.setFunctioneelGebruiker(httpSession.get());
+        eventingService.send(new JobEvent(JobId.SIGNALERINGEN_JOB));
+        return String.format("%s: gestart...", JobId.SIGNALERINGEN_JOB.getName());
+    }
 }

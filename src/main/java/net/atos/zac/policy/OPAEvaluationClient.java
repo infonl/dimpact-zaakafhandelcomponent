@@ -29,23 +29,23 @@ import net.atos.zac.policy.output.ZaakRechten;
 @Produces(APPLICATION_JSON)
 public interface OPAEvaluationClient {
 
-  @POST
-  @Path("zaak/zaak_rechten")
-  RuleResponse<ZaakRechten> readZaakRechten(final RuleQuery<ZaakInput> query);
+    @POST
+    @Path("zaak/zaak_rechten")
+    RuleResponse<ZaakRechten> readZaakRechten(final RuleQuery<ZaakInput> query);
 
-  @POST
-  @Path("taak/taak_rechten")
-  RuleResponse<TaakRechten> readTaakRechten(final RuleQuery<TaakInput> query);
+    @POST
+    @Path("taak/taak_rechten")
+    RuleResponse<TaakRechten> readTaakRechten(final RuleQuery<TaakInput> query);
 
-  @POST
-  @Path("document/document_rechten")
-  RuleResponse<DocumentRechten> readDocumentRechten(final RuleQuery<DocumentInput> query);
+    @POST
+    @Path("document/document_rechten")
+    RuleResponse<DocumentRechten> readDocumentRechten(final RuleQuery<DocumentInput> query);
 
-  @POST
-  @Path("overig/overige_rechten")
-  RuleResponse<OverigeRechten> readOverigeRechten(final RuleQuery<UserInput> query);
+    @POST
+    @Path("overig/overige_rechten")
+    RuleResponse<OverigeRechten> readOverigeRechten(final RuleQuery<UserInput> query);
 
-  @POST
-  @Path("werklijst/werklijst_rechten")
-  RuleResponse<WerklijstRechten> readWerklijstRechten(final RuleQuery<UserInput> query);
+    @POST
+    @Path("werklijst/werklijst_rechten")
+    RuleResponse<WerklijstRechten> readWerklijstRechten(final RuleQuery<UserInput> query);
 }

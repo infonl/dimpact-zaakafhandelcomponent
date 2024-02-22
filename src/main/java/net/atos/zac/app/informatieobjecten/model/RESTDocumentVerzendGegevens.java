@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.UUID;
 
 public class RESTDocumentVerzendGegevens {
-  public UUID zaakUuid;
+    public UUID zaakUuid;
 
-  public LocalDate verzenddatum;
+    public LocalDate verzenddatum;
 
-  public List<UUID> informatieobjecten;
+    public List<UUID> informatieobjecten;
 
-  public String toelichting;
+    public String toelichting;
 }

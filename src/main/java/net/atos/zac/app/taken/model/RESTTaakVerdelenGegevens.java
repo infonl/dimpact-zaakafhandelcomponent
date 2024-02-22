@@ -8,11 +8,11 @@ import java.util.List;
 
 public class RESTTaakVerdelenGegevens {
 
-  public List<RESTTaakVerdelenTaak> taken;
+    public List<RESTTaakVerdelenTaak> taken;
 
-  public String behandelaarGebruikersnaam;
+    public String behandelaarGebruikersnaam;
 
-  public String groepId;
+    public String groepId;
 
-  public String reden;
+    public String reden;
 }

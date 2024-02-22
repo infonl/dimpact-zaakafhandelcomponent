@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class RESTProcessTaskData {
 
-  public String planItemInstanceId;
+    public String planItemInstanceId;
 
-  public Map<String, Object> data;
+    public Map<String, Object> data;
 }

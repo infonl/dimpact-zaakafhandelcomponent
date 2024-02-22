@@ -8,9 +8,9 @@ import net.atos.zac.zoeken.model.index.ZoekObjectType;
 
 public abstract class AbstractRESTZoekObject {
 
-  public String id;
+    public String id;
 
-  public ZoekObjectType type;
+    public ZoekObjectType type;
 
-  public String identificatie;
+    public String identificatie;
 }

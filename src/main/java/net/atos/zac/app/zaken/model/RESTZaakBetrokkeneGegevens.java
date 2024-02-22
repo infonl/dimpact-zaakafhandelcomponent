@@ -13,13 +13,13 @@ import net.atos.zac.app.klanten.model.klant.IdentificatieType;
 
 public class RESTZaakBetrokkeneGegevens {
 
-  @NotNull public UUID zaakUUID;
+    @NotNull public UUID zaakUUID;
 
-  @NotNull public UUID roltypeUUID;
+    @NotNull public UUID roltypeUUID;
 
-  @NotBlank public String roltoelichting;
+    @NotBlank public String roltoelichting;
 
-  @NotNull public IdentificatieType betrokkeneIdentificatieType;
+    @NotNull public IdentificatieType betrokkeneIdentificatieType;
 
-  @NotBlank public String betrokkeneIdentificatie;
+    @NotBlank public String betrokkeneIdentificatie;
 }

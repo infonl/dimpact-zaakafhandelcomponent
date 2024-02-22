@@ -10,14 +10,14 @@ import jakarta.json.bind.annotation.JsonbProperty;
 
 public class RelevantezaakZaakPatch extends Zaak {
 
-  @JsonbProperty(nillable = true)
-  private final List<RelevanteZaak> relevanteAndereZaken;
+    @JsonbProperty(nillable = true)
+    private final List<RelevanteZaak> relevanteAndereZaken;
 
-  public RelevantezaakZaakPatch(final List<RelevanteZaak> relevanteAndereZaken) {
-    this.relevanteAndereZaken = relevanteAndereZaken;
-  }
+    public RelevantezaakZaakPatch(final List<RelevanteZaak> relevanteAndereZaken) {
+        this.relevanteAndereZaken = relevanteAndereZaken;
+    }
 
-  public List<RelevanteZaak> getRelevanteAndereZaken() {
-    return relevanteAndereZaken;
-  }
+    public List<RelevanteZaak> getRelevanteAndereZaken() {
+        return relevanteAndereZaken;
+    }
 }

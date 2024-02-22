@@ -15,23 +15,23 @@ import java.util.UUID;
  */
 public final class UriUtil {
 
-  private UriUtil() {}
+    private UriUtil() {}
 
-  public static UUID uuidFromURI(final URI uri) {
-    return uuidFromURI(uri.getPath());
-  }
+    public static UUID uuidFromURI(final URI uri) {
+        return uuidFromURI(uri.getPath());
+    }
 
-  public static UUID uuidFromURI(final String uri) {
-    return UUID.fromString(extractUUID(uri));
-  }
+    public static UUID uuidFromURI(final String uri) {
+        return UUID.fromString(extractUUID(uri));
+    }
 
-  public static boolean isEqual(final URI a, final URI b) {
-    return (a != null && b != null)
-        ? extractUUID(a.getPath()).equals(extractUUID(b.getPath()))
-        : a == null && b == null;
-  }
+    public static boolean isEqual(final URI a, final URI b) {
+        return (a != null && b != null)
+                ? extractUUID(a.getPath()).equals(extractUUID(b.getPath()))
+                : a == null && b == null;
+    }
 
-  private static String extractUUID(final String path) {
-    return contains(path, "/") ? substringAfterLast(path, "/") : path;
-  }
+    private static String extractUUID(final String path) {
+        return contains(path, "/") ? substringAfterLast(path, "/") : path;
+    }
 }

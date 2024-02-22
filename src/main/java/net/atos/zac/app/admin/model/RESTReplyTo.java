@@ -8,14 +8,14 @@ import net.atos.zac.zaaksturing.model.ZaakAfzender;
 
 public class RESTReplyTo {
 
-  public String mail;
+    public String mail;
 
-  public boolean speciaal;
+    public boolean speciaal;
 
-  public RESTReplyTo() {}
+    public RESTReplyTo() {}
 
-  public RESTReplyTo(ZaakAfzender.Speciaal speciaal) {
-    this.mail = speciaal.name();
-    this.speciaal = true;
-  }
+    public RESTReplyTo(ZaakAfzender.Speciaal speciaal) {
+        this.mail = speciaal.name();
+        this.speciaal = true;
+    }
 }

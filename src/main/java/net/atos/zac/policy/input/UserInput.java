@@ -10,19 +10,19 @@ import net.atos.zac.authentication.LoggedInUser;
 
 public class UserInput {
 
-  @JsonbProperty("user")
-  private final UserData userData = new UserData();
+    @JsonbProperty("user")
+    private final UserData userData = new UserData();
 
-  public UserInput(final LoggedInUser loggedInUser) {
-    userData.id = loggedInUser.getId();
-    userData.rollen = loggedInUser.getRoles();
-    userData.zaaktypen =
-        loggedInUser.isGeautoriseerdVoorAlleZaaktypen()
-            ? null
-            : loggedInUser.getGeautoriseerdeZaaktypen();
-  }
+    public UserInput(final LoggedInUser loggedInUser) {
+        userData.id = loggedInUser.getId();
+        userData.rollen = loggedInUser.getRoles();
+        userData.zaaktypen =
+                loggedInUser.isGeautoriseerdVoorAlleZaaktypen()
+                        ? null
+                        : loggedInUser.getGeautoriseerdeZaaktypen();
+    }
 
-  public UserData getUser() {
-    return userData;
-  }
+    public UserData getUser() {
+        return userData;
+    }
 }

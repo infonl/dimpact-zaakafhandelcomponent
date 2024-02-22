@@ -38,58 +38,60 @@ import net.atos.zac.util.ValidationUtil;
 @Produces(MediaType.APPLICATION_JSON)
 public class MailRESTService {
 
-  @Inject private MailService mailService;
+    @Inject private MailService mailService;
 
-  @Inject private ZaakVariabelenService zaakVariabelenService;
+    @Inject private ZaakVariabelenService zaakVariabelenService;
 
-  @Inject private PolicyService policyService;
+    @Inject private PolicyService policyService;
 
-  @Inject private ZRCClientService zrcClientService;
+    @Inject private ZRCClientService zrcClientService;
 
-  @Inject private ZTCClientService ztcClientService;
+    @Inject private ZTCClientService ztcClientService;
 
-  @Inject private RESTMailGegevensConverter restMailGegevensConverter;
+    @Inject private RESTMailGegevensConverter restMailGegevensConverter;
 
-  @POST
-  @Path("send/{zaakUuid}")
-  public void sendMail(
-      @PathParam("zaakUuid") final UUID zaakUUID, final RESTMailGegevens restMailGegevens)
-      throws MailjetException {
-    final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-    assertPolicy(policyService.readZaakRechten(zaak).behandelen());
-    validateEmail(restMailGegevens.verzender);
-    validateEmail(restMailGegevens.ontvanger);
-    mailService.sendMail(
-        restMailGegevensConverter.convert(restMailGegevens), Bronnen.fromZaak(zaak));
-  }
-
-  @POST
-  @Path("acknowledge/{zaakUuid}")
-  public void sendAcknowledgmentReceiptMail(
-      @PathParam("zaakUuid") final UUID zaakUuid, final RESTMailGegevens restMailGegevens)
-      throws MailjetException {
-    final Zaak zaak = zrcClientService.readZaak(zaakUuid);
-    assertPolicy(
-        !zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.getUuid()).orElse(false)
-            && policyService.readZaakRechten(zaak).behandelen());
-    validateEmail(restMailGegevens.verzender);
-    validateEmail(restMailGegevens.ontvanger);
-    mailService.sendMail(
-        restMailGegevensConverter.convert(restMailGegevens), Bronnen.fromZaak(zaak));
-
-    final StatusType statustype =
-        zaak.getStatus() != null
-            ? ztcClientService.readStatustype(
-                zrcClientService.readStatus(zaak.getStatus()).getStatustype())
-            : null;
-    if (!isHeropend(statustype)) {
-      zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaakUuid, Boolean.TRUE);
+    @POST
+    @Path("send/{zaakUuid}")
+    public void sendMail(
+            @PathParam("zaakUuid") final UUID zaakUUID, final RESTMailGegevens restMailGegevens)
+            throws MailjetException {
+        final Zaak zaak = zrcClientService.readZaak(zaakUUID);
+        assertPolicy(policyService.readZaakRechten(zaak).behandelen());
+        validateEmail(restMailGegevens.verzender);
+        validateEmail(restMailGegevens.ontvanger);
+        mailService.sendMail(
+                restMailGegevensConverter.convert(restMailGegevens), Bronnen.fromZaak(zaak));
     }
-  }
 
-  private void validateEmail(final String email) {
-    if (!ValidationUtil.isValidEmail(email)) {
-      throw new RuntimeException(String.format("E-Mail '%s' is not valid", email));
+    @POST
+    @Path("acknowledge/{zaakUuid}")
+    public void sendAcknowledgmentReceiptMail(
+            @PathParam("zaakUuid") final UUID zaakUuid, final RESTMailGegevens restMailGegevens)
+            throws MailjetException {
+        final Zaak zaak = zrcClientService.readZaak(zaakUuid);
+        assertPolicy(
+                !zaakVariabelenService
+                                .findOntvangstbevestigingVerstuurd(zaak.getUuid())
+                                .orElse(false)
+                        && policyService.readZaakRechten(zaak).behandelen());
+        validateEmail(restMailGegevens.verzender);
+        validateEmail(restMailGegevens.ontvanger);
+        mailService.sendMail(
+                restMailGegevensConverter.convert(restMailGegevens), Bronnen.fromZaak(zaak));
+
+        final StatusType statustype =
+                zaak.getStatus() != null
+                        ? ztcClientService.readStatustype(
+                                zrcClientService.readStatus(zaak.getStatus()).getStatustype())
+                        : null;
+        if (!isHeropend(statustype)) {
+            zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaakUuid, Boolean.TRUE);
+        }
     }
-  }
+
+    private void validateEmail(final String email) {
+        if (!ValidationUtil.isValidEmail(email)) {
+            throw new RuntimeException(String.format("E-Mail '%s' is not valid", email));
+        }
+    }
 }

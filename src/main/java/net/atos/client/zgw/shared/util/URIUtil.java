@@ -17,22 +17,22 @@ import org.apache.commons.lang3.StringUtils;
  */
 public final class URIUtil {
 
-  public static boolean equals(final URI resourceURI1, final URI resourceURI2) {
-    return StringUtils.equals(
-        parseUUIDAsStringFromResourceURI(resourceURI1),
-        parseUUIDAsStringFromResourceURI(resourceURI2));
-  }
+    public static boolean equals(final URI resourceURI1, final URI resourceURI2) {
+        return StringUtils.equals(
+                parseUUIDAsStringFromResourceURI(resourceURI1),
+                parseUUIDAsStringFromResourceURI(resourceURI2));
+    }
 
-  public static UUID parseUUIDFromResourceURI(final URI resourceURI) {
-    return UUID.fromString(parseUUIDAsStringFromResourceURI(resourceURI));
-  }
+    public static UUID parseUUIDFromResourceURI(final URI resourceURI) {
+        return UUID.fromString(parseUUIDAsStringFromResourceURI(resourceURI));
+    }
 
-  private static String parseUUIDAsStringFromResourceURI(final URI resourceURI) {
-    final String resourceURIString = resourceURI.toString();
-    return contains(resourceURIString, "/")
-        ? substringAfterLast(resourceURIString, "/")
-        : resourceURIString;
-  }
+    private static String parseUUIDAsStringFromResourceURI(final URI resourceURI) {
+        final String resourceURIString = resourceURI.toString();
+        return contains(resourceURIString, "/")
+                ? substringAfterLast(resourceURIString, "/")
+                : resourceURIString;
+    }
 
-  private URIUtil() {}
+    private URIUtil() {}
 }

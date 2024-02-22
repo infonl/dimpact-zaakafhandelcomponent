@@ -235,7 +235,7 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
     java {
         targetExclude("**/src/generated/**", "**/build/generated/**")
 
-        googleJavaFormat().reflowLongStrings().skipJavadocFormatting()
+        googleJavaFormat().aosp().reflowLongStrings().skipJavadocFormatting()
 
         removeUnusedImports()
         importOrder("java", "javax", "jakarta", "com", "org", "net.atos")

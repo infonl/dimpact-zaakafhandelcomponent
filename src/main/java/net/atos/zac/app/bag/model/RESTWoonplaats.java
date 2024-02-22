@@ -8,19 +8,19 @@ import net.atos.client.bag.model.StatusWoonplaats;
 
 public class RESTWoonplaats extends RESTBAGObject {
 
-  public String naam;
+    public String naam;
 
-  public StatusWoonplaats status;
+    public StatusWoonplaats status;
 
-  public RESTWoonplaats() {}
+    public RESTWoonplaats() {}
 
-  @Override
-  public BAGObjectType getBagObjectType() {
-    return BAGObjectType.WOONPLAATS;
-  }
+    @Override
+    public BAGObjectType getBagObjectType() {
+        return BAGObjectType.WOONPLAATS;
+    }
 
-  @Override
-  public String getOmschrijving() {
-    return naam;
-  }
+    @Override
+    public String getOmschrijving() {
+        return naam;
+    }
 }
