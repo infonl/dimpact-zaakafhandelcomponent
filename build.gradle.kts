@@ -150,7 +150,7 @@ dependencies {
 
     // integration test dependencies
     "itestImplementation"("org.testcontainers:testcontainers:1.19.5")
-    "itestImplementation"("org.testcontainers:mockserver:1.19.5")
+    "itestImplementation"("org.testcontainers:mockserver:1.19.6")
     "itestImplementation"("org.testcontainers:postgresql:1.19.5")
     "itestImplementation"("io.kotest:kotest-runner-junit5:5.8.0")
     "itestImplementation"("io.kotest:kotest-assertions-json:5.8.0")
