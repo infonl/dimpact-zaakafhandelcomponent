@@ -247,7 +247,7 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
              * SPDX-FileCopyrightText: ${'$'}YEAR Lifely
              * SPDX-License-Identifier: EUPL-1.2+
              */
-        """.trimIndent()).updateYearWithLatest(true)
+        """.trimIndent()).onlyIfContentMatches("FileCopyrightText: 2[0-9-]+ Lifely").updateYearWithLatest(true)
     }
 }
 
