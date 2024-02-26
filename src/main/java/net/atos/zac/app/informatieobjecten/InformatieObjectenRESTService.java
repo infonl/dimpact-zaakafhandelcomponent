@@ -85,6 +85,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertByteArrayToBase64String;
@@ -101,6 +102,7 @@ import static org.apache.commons.lang3.BooleanUtils.isFalse;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class InformatieObjectenRESTService {
+    private static final Logger LOG = Logger.getLogger(InformatieObjectenRESTService.class.getName());
 
     private static final String MEDIA_TYPE_PDF = "application/pdf";
 
@@ -285,6 +287,9 @@ public class InformatieObjectenRESTService {
         assertPolicy(policyService.readZaakRechten(zaak).wijzigen());
 
         final RESTFileUpload file = (RESTFileUpload) httpSession.get().getAttribute("FILE_" + documentReferentieId);
+
+        LOG.info("File: " + file);
+
         try {
             final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData = taakObject ?
                     informatieobjectConverter.convertTaakObject(restEnkelvoudigInformatieobject, file) :
@@ -374,12 +379,21 @@ public class InformatieObjectenRESTService {
     @POST
     @Path("informatieobject/upload/{documentReferentieId}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public Response uploadFile(@PathParam("documentReferentieId") final String documentReferentieId,
-            @MultipartForm final RESTFileUpload data) {
+    public Response uploadFile(
+            @PathParam("documentReferentieId") final String documentReferentieId,
+            @MultipartForm final RESTFileUpload data
+    ) {
         // note that there is no guarantee that the file will be removed from the session afterwards
         // since the user may abandon the upload process
         // this should to be improved at some point
         httpSession.get().setAttribute("FILE_" + documentReferentieId, data);
+
+        LOG.info("File uploaded for documentReferentieId: " + documentReferentieId + ", data: " + data.file + ", " + data.fileSize + ", " + data.filename + ", " + data.type);
+
+        final RESTFileUpload file = (RESTFileUpload) httpSession.get().getAttribute("FILE_" + documentReferentieId);
+
+        LOG.info("File: " + file);
+
         return Response.ok("\"Success\"").build();
     }
 
