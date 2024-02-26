@@ -6,8 +6,10 @@
 package net.atos.zac.app.taken.model
 
 import net.atos.zac.app.identity.model.RESTUser
+import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjecttype
+import net.atos.zac.app.informatieobjecten.model.createRESTInformatieobjecttype
 import net.atos.zac.app.zaken.model.createRESTUser
-import java.util.UUID
+import java.util.*
 
 fun createRESTTaak(
     id: String = "dummyId",
@@ -19,6 +21,16 @@ fun createRESTTaak(
     this.zaakUuid = zaakUuid
     this.behandelaar = behandelaar
     this.taakdata = taakData
+}
+
+fun createRESTTaakDocumentData(
+    bestandsnaam: String = "dummyBestandsNaam",
+    documentTitel: String = "dummyDocumentTitel",
+    documentType: RESTInformatieobjecttype = createRESTInformatieobjecttype()
+) = RESTTaakDocumentData().apply {
+    this.bestandsnaam = bestandsnaam
+    this.documentTitel = documentTitel
+    this.documentType = documentType
 }
 
 fun createRESTTaakToekennenGegevens(
