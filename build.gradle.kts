@@ -202,7 +202,7 @@ jsonSchema2Pojo {
 
 node {
     download.set(true)
-    version.set("18.13.0")
+    version.set("20.11.1")
     distBaseUrl.set("https://nodejs.org/dist")
     nodeProjectDir.set(file("$rootDir/src/main/app"))
     if (System.getenv("CI") != null) {
