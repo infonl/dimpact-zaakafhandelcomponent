@@ -16,9 +16,9 @@
                         (click)="$event.stopPropagation(); edit.emit(persoon)">
                     <mat-icon>edit</mat-icon>
                 </button>
-                <button *ngIf="persoon && isVerwijderbaar" [title]="'actie.verwijderen' | translate" mat-icon-button
+                <button *ngIf="persoon && isVerwijderbaar" [title]="'actie.ontkoppelen' | translate" mat-icon-button
                         (click)="$event.stopPropagation(); delete.emit(persoon)">
-                    <mat-icon>delete</mat-icon>
+                    <mat-icon>link_off</mat-icon>
                 </button>
                 <a *ngIf="persoon" mat-icon-button [routerLink]="['/persoon', persoon.bsn]"
                    (click)="$event.stopPropagation()"
