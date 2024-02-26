@@ -5,7 +5,6 @@
 
 package nl.lifely.zac.itest
 
-import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.HttpStatus
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
@@ -23,7 +22,6 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.File
 
@@ -54,23 +52,24 @@ class InformatieObjectenTest : BehaviorSpec() {
                     val endpointUrl = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/documentcreatie"
                     logger.info { "Calling $endpointUrl endpoint" }
 
-                    khttp.post(
+                    zacClient.performPostRequest(
                         url = endpointUrl,
-                        headers = mapOf(
-                            "Content-Type" to "application/json",
-                            "Authorization" to "Bearer ${KeycloakClient.requestAccessToken()}"
-                        ),
-                        data = JSONObject(
+                        postBody = JSONObject(
                             mapOf(
                                 "zaakUUID" to zaak1UUID
                             )
-                        )
-                    ).apply {
-                        logger.info { "$endpointUrl response: $text" }
+                        ).toString()
+                    ).use { response ->
+                        val responseBody = response.body!!.string()
+                        logger.info { "Response: $responseBody" }
+                        response.isSuccessful shouldBe true
 
-                        statusCode shouldBe HttpStatus.SC_OK
-                        JSONObject(text).getString("redirectURL") shouldBe
-                            "$SMARTDOCUMENTS_MOCK_BASE_URI/smartdocuments/wizard?ticket=dummySmartdocumentsTicketID"
+                        with(responseBody) {
+                            shouldContainJsonKeyValue(
+                                "redirectURL",
+                                "$SMARTDOCUMENTS_MOCK_BASE_URI/smartdocuments/wizard?ticket=dummySmartdocumentsTicketID"
+                            )
+                        }
                     }
                 }
             }
@@ -135,16 +134,13 @@ class InformatieObjectenTest : BehaviorSpec() {
                         "\"auteur\":\"$USER_FULL_NAME\",\n" +
                         "\"taal\":\"dut\"\n" +
                         "}"
-                    val request = Request.Builder()
-                        .header("Authorization", "Bearer ${KeycloakClient.requestAccessToken()}")
-                        .header("Content-Type", "application/json")
-                        .url(endpointUrl)
-                        .post(postBody.toRequestBody("application/json".toMediaType()))
-                        .build()
-                    zacClient.okHttpClient.newCall(request).execute().use { response ->
+                    zacClient.performPostRequest(
+                        url = endpointUrl,
+                        postBody = postBody
+
+                    ).use { response ->
                         val responseBody = response.body!!.string()
                         logger.info { "$endpointUrl response: $responseBody" }
-
                         response.isSuccessful shouldBe true
                         with(responseBody) {
                             shouldContainJsonKeyValue("auteur", USER_FULL_NAME)

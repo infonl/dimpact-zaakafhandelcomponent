@@ -381,17 +381,10 @@ public class InformatieObjectenRESTService {
             @PathParam("documentReferentieId") final String documentReferentieId,
             @MultipartForm final RESTFileUpload data
     ) {
-        // note that there is no guarantee that the file will be removed from the session afterwards
+        // note that there is no guarantee that the file will be removed from the session
         // since the user may abandon the upload process
-        // this should to be improved at some point
+        // this should be improved at some point
         httpSession.get().setAttribute("FILE_" + documentReferentieId, data);
-
-        LOG.info("File uploaded for documentReferentieId: " + documentReferentieId + ", data: " + data.file + ", " + data.fileSize + ", " + data.filename + ", " + data.type);
-
-        final RESTFileUpload file = (RESTFileUpload) httpSession.get().getAttribute("FILE_" + documentReferentieId);
-
-        LOG.info("File: " + file);
-
         return Response.ok("\"Success\"").build();
     }
 
