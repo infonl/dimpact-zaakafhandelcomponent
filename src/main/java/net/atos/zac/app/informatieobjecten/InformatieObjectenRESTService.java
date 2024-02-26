@@ -288,8 +288,6 @@ public class InformatieObjectenRESTService {
 
         final RESTFileUpload file = (RESTFileUpload) httpSession.get().getAttribute("FILE_" + documentReferentieId);
 
-        LOG.info("File: " + file);
-
         try {
             final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData = taakObject ?
                     informatieobjectConverter.convertTaakObject(restEnkelvoudigInformatieobject, file) :
