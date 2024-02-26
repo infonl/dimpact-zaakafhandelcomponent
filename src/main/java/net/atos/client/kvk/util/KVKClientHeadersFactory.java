@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-FileCopyrightText: 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.kvk.util;
 
 import jakarta.ws.rs.core.MultivaluedMap;
@@ -20,8 +19,8 @@ public class KVKClientHeadersFactory implements ClientHeadersFactory {
 
     @Override
     public final MultivaluedMap<String, String> update(
-            final MultivaluedMap<String, String> incomingHeaders,
-            final MultivaluedMap<String, String> clientOutgoingHeaders) {
+                                                       final MultivaluedMap<String, String> incomingHeaders,
+                                                       final MultivaluedMap<String, String> clientOutgoingHeaders) {
         clientOutgoingHeaders.add(KVK_API_KEY_HEADER_FIELD, API_KEY);
         return clientOutgoingHeaders;
     }

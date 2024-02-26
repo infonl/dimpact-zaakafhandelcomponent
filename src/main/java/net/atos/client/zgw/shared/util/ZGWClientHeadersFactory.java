@@ -40,7 +40,7 @@ public class ZGWClientHeadersFactory implements ClientHeadersFactory {
 
     @Override
     public MultivaluedMap<String, String> update(final MultivaluedMap<String, String> incomingHeaders,
-            final MultivaluedMap<String, String> outgoingHeaders) {
+                                                 final MultivaluedMap<String, String> outgoingHeaders) {
         final LoggedInUser loggedInUser = loggedInUserInstance.get();
         try {
             addAutorizationHeader(outgoingHeaders, loggedInUser);
@@ -71,13 +71,13 @@ public class ZGWClientHeadersFactory implements ClientHeadersFactory {
     }
 
     private void addAutorizationHeader(final MultivaluedMap<String, String> outgoingHeaders,
-            final LoggedInUser loggedInUser) {
+                                       final LoggedInUser loggedInUser) {
         outgoingHeaders.add(HttpHeaders.AUTHORIZATION, JWTTokenGenerator.generate(clientId, secret, loggedInUser));
     }
 
     private void addXAuditToelichtingHeader(
-            final MultivaluedMap<String, String> outgoingHeaders,
-            final @Nullable LoggedInUser loggedInUser
+                                            final MultivaluedMap<String, String> outgoingHeaders,
+                                            final @Nullable LoggedInUser loggedInUser
     ) {
         if (loggedInUser != null) {
             final String toelichting = AUDIT_TOELICHTINGEN.get(loggedInUser.getId());

@@ -47,13 +47,11 @@ public class Signalering {
     @Column(name = "id_signalering")
     private Long id;
 
-    @NotNull
-    @ManyToOne
+    @NotNull @ManyToOne
     @JoinColumn(name = "signaleringtype_enum", referencedColumnName = "signaleringtype_enum", nullable = false)
     private SignaleringType type;
 
-    @NotNull
-    @Column(name = "targettype_enum", nullable = false)
+    @NotNull @Column(name = "targettype_enum", nullable = false)
     @Enumerated(EnumType.STRING)
     private SignaleringTarget targettype;
 
@@ -68,8 +66,7 @@ public class Signalering {
     @Column(name = "detail")
     private String detail;
 
-    @NotNull
-    @Column(name = "tijdstip", nullable = false)
+    @NotNull @Column(name = "tijdstip", nullable = false)
     private ZonedDateTime tijdstip;
 
     public Long getId() {
@@ -136,7 +133,7 @@ public class Signalering {
     private void validSubjecttype(final SignaleringSubject subjecttype) {
         if (type.getSubjecttype() != subjecttype) {
             throw new IllegalArgumentException(
-                    String.format("SignaleringType %s expects a %s-type subject", type, type.getSubjecttype()));
+                                               String.format("SignaleringType %s expects a %s-type subject", type, type.getSubjecttype()));
         }
     }
 

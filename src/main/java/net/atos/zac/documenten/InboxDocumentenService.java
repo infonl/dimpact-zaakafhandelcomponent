@@ -51,8 +51,7 @@ public class InboxDocumentenService {
     private DRCClientService drcClientService;
 
     public InboxDocument create(final UUID enkelvoudiginformatieobejctUUID) {
-        final EnkelvoudigInformatieObject informatieobject =
-                drcClientService.readEnkelvoudigInformatieobject(enkelvoudiginformatieobejctUUID);
+        final EnkelvoudigInformatieObject informatieobject = drcClientService.readEnkelvoudigInformatieobject(enkelvoudiginformatieobejctUUID);
         final InboxDocument inboxDocument = new InboxDocument();
         inboxDocument.setEnkelvoudiginformatieobjectID(informatieobject.getIdentificatie());
         inboxDocument.setEnkelvoudiginformatieobjectUUID(enkelvoudiginformatieobejctUUID);
@@ -80,7 +79,7 @@ public class InboxDocumentenService {
 
     public InboxDocument read(final UUID enkelvoudiginformatieobjectUUID) {
         return find(enkelvoudiginformatieobjectUUID).orElseThrow(() -> new RuntimeException(
-                "InboxDocument with uuid '%s' not found.".formatted(enkelvoudiginformatieobjectUUID)));
+                                                                                            "InboxDocument with uuid '%s' not found.".formatted(enkelvoudiginformatieobjectUUID)));
     }
 
     public int count(final InboxDocumentListParameters listParameters) {
@@ -102,7 +101,7 @@ public class InboxDocumentenService {
 
     public void delete(final UUID zaakinformatieobjectUUID) {
         final ZaakInformatieobject zaakInformatieobject = zrcClientService.readZaakinformatieobject(
-                zaakinformatieobjectUUID);
+                                                                                                    zaakinformatieobjectUUID);
         final UUID enkelvoudiginformatieobjectUUID = UriUtil.uuidFromURI(zaakInformatieobject.getInformatieobject());
         find(enkelvoudiginformatieobjectUUID).ifPresent(entityManager::remove);
     }
@@ -143,8 +142,8 @@ public class InboxDocumentenService {
     }
 
     private void addCreatiedatumPredicates(final DatumRange creatiedatum, final List<Predicate> predicates,
-            final Root<InboxDocument> root,
-            final CriteriaBuilder builder) {
+                                           final Root<InboxDocument> root,
+                                           final CriteriaBuilder builder) {
         if (creatiedatum != null) {
             if (creatiedatum.van() != null) {
                 predicates.add(builder.greaterThanOrEqualTo(root.get(InboxDocument.CREATIEDATUM),
@@ -153,7 +152,7 @@ public class InboxDocumentenService {
             if (creatiedatum.tot() != null) {
                 predicates.add(builder.lessThanOrEqualTo(root.get(InboxDocument.CREATIEDATUM),
                                                          DateTimeUtil.convertToDateTime(creatiedatum.tot()).plusDays(1)
-                                                                 .minusSeconds(1)));
+                                                                     .minusSeconds(1)));
             }
         }
     }

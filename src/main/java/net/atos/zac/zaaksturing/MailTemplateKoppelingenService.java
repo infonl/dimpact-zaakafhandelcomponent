@@ -7,9 +7,8 @@ package net.atos.zac.zaaksturing;
 
 import static net.atos.zac.util.ValidationUtil.valideerObject;
 
-import java.util.Optional;
-
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
@@ -53,7 +52,7 @@ public class MailTemplateKoppelingenService {
             return mailtemplateKoppeling;
         } else {
             throw new RuntimeException(String.format("%s with id=%d not found",
-                    MailtemplateKoppeling.class.getSimpleName(), id));
+                                                     MailtemplateKoppeling.class.getSimpleName(), id));
         }
     }
 

@@ -35,18 +35,19 @@ public class RESTExceptionMapper implements ExceptionMapper<Exception> {
     @Override
     public Response toResponse(final Exception e) {
         if (e instanceof WebApplicationException &&
-                Response.Status.Family.familyOf(((WebApplicationException) e).getResponse().getStatus()) != Response.Status.Family.SERVER_ERROR) {
+            Response.Status.Family.familyOf(((WebApplicationException) e).getResponse().getStatus()) !=
+                                                    Response.Status.Family.SERVER_ERROR) {
             final WebApplicationException wae = (WebApplicationException) e;
             return Response.status(wae.getResponse().getStatus())
-                    .type(MediaType.APPLICATION_JSON)
-                    .entity(getJSONMessage(e, wae.getMessage()))
-                    .build();
+                           .type(MediaType.APPLICATION_JSON)
+                           .entity(getJSONMessage(e, wae.getMessage()))
+                           .build();
         } else {
             LOG.log(Level.SEVERE, e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .type(MediaType.APPLICATION_JSON)
-                    .entity(getJSONMessage(e, "Algemene Fout"))
-                    .build();
+                           .type(MediaType.APPLICATION_JSON)
+                           .entity(getJSONMessage(e, "Algemene Fout"))
+                           .build();
         }
     }
 

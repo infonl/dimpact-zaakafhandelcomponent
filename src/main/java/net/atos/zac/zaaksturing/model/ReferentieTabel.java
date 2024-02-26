@@ -83,15 +83,15 @@ public class ReferentieTabel {
     public boolean isSysteem() {
         if (systeem == null) {
             systeem = Arrays.stream(Systeem.values())
-                    .anyMatch(value -> value.name().equals(code));
+                            .anyMatch(value -> value.name().equals(code));
         }
         return systeem;
     }
 
     public List<ReferentieTabelWaarde> getWaarden() {
         return Collections.unmodifiableList(waarden.stream()
-                                                    .sorted(Comparator.comparingInt(ReferentieTabelWaarde::getVolgorde))
-                                                    .toList());
+                                                   .sorted(Comparator.comparingInt(ReferentieTabelWaarde::getVolgorde))
+                                                   .toList());
     }
 
     public void setWaarden(final List<ReferentieTabelWaarde> waarden) {

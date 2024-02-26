@@ -11,7 +11,7 @@ public class InformatieObjectTypeUtil {
     public static boolean isNuGeldig(InformatieObjectType informatieObjectType) {
         LocalDate eindeGeldigheid = informatieObjectType.getEindeGeldigheid();
         return informatieObjectType.getBeginGeldigheid().isBefore(
-                LocalDate.now().plusDays(1)) && (eindeGeldigheid == null || eindeGeldigheid.isAfter(LocalDate.now())
-        );
+                                                                  LocalDate.now().plusDays(1)) && (eindeGeldigheid == null ||
+                                                                                                   eindeGeldigheid.isAfter(LocalDate.now()));
     }
 }

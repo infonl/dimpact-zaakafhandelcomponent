@@ -48,10 +48,10 @@ public class WebdavHelper {
     private final Map<String, Gegevens> tokenMap = Collections.synchronizedMap(new LRUMap<>(1000));
 
     public URI createRedirectURL(final UUID enkelvoudigInformatieobjectUUID, final UriInfo uriInfo) {
-        final EnkelvoudigInformatieObject enkelvoudigInformatieobject =
-                drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID);
+        final EnkelvoudigInformatieObject enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID);
         final String scheme = format("%s:%s", getWebDAVApp(enkelvoudigInformatieobject.getFormaat()), uriInfo.getBaseUri().getScheme());
-        final String filename = format("%s.%s", createToken(enkelvoudigInformatieobjectUUID), getExtension(enkelvoudigInformatieobject.getBestandsnaam()));
+        final String filename = format("%s.%s", createToken(enkelvoudigInformatieobjectUUID), getExtension(enkelvoudigInformatieobject
+                                                                                                                                      .getBestandsnaam()));
         return uriInfo.getBaseUriBuilder().scheme(scheme).replacePath("webdav/folder/{filename}").build(filename);
     }
 
@@ -82,5 +82,6 @@ public class WebdavHelper {
         return null;
     }
 
-    public record Gegevens(UUID enkelvoudigInformatieibjectUUID, LoggedInUser loggedInUser) {}
+    public record Gegevens(UUID enkelvoudigInformatieibjectUUID, LoggedInUser loggedInUser) {
+    }
 }

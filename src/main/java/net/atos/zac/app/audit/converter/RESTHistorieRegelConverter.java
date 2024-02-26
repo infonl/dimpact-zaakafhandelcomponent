@@ -26,14 +26,15 @@ public class RESTHistorieRegelConverter {
 
     public List<RESTHistorieRegel> convert(final List<AuditTrailRegel> auditTrail) {
         return auditTrail.stream()
-                .sorted(Comparator.comparing(AuditTrailRegel::getAanmaakdatum).reversed())
-                .flatMap(this::convert)
-                .collect(Collectors.toList());
+                         .sorted(Comparator.comparing(AuditTrailRegel::getAanmaakdatum).reversed())
+                         .flatMap(this::convert)
+                         .collect(Collectors.toList());
     }
 
     private Stream<RESTHistorieRegel> convert(final AuditTrailRegel auditTrailRegel) {
         return convertWijziging(auditTrailRegel.getWijzigingen())
-                .peek(historieRegel -> convertAuditTrailBasis(historieRegel, auditTrailRegel));
+                                                                 .peek(historieRegel -> convertAuditTrailBasis(historieRegel,
+                                                                                                               auditTrailRegel));
     }
 
     private Stream<RESTHistorieRegel> convertWijziging(final AuditWijziging<?> wijziging) {

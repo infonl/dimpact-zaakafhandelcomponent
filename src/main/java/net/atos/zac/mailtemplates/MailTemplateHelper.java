@@ -151,7 +151,7 @@ public class MailTemplateHelper {
             }
 
             if (resolvedTekst.contains(ZAAK_INITIATOR.getVariabele()) ||
-                    resolvedTekst.contains(ZAAK_INITIATOR_ADRES.getVariabele())) {
+                resolvedTekst.contains(ZAAK_INITIATOR_ADRES.getVariabele())) {
                 resolvedTekst = replaceInitiatorVariabelen(resolvedTekst,
                                                            zgwApiService.findInitiatorForZaak(zaak));
             }
@@ -159,13 +159,13 @@ public class MailTemplateHelper {
             if (resolvedTekst.contains(ZAAK_BEHANDELAAR_GROEP.getVariabele())) {
                 resolvedTekst = replaceVariabele(resolvedTekst, ZAAK_BEHANDELAAR_GROEP,
                                                  zgwApiService.findGroepForZaak(zaak)
-                                                         .map(RolOrganisatorischeEenheid::getNaam));
+                                                              .map(RolOrganisatorischeEenheid::getNaam));
             }
 
             if (resolvedTekst.contains(ZAAK_BEHANDELAAR_MEDEWERKER.getVariabele())) {
                 resolvedTekst = replaceVariabele(resolvedTekst, ZAAK_BEHANDELAAR_MEDEWERKER,
                                                  zgwApiService.findBehandelaarForZaak(zaak)
-                                                         .map(RolMedewerker::getNaam));
+                                                              .map(RolMedewerker::getNaam));
             }
         }
         return resolvedTekst;
@@ -180,14 +180,13 @@ public class MailTemplateHelper {
 
             resolvedTekst = replaceVariabele(resolvedTekst, TAAK_FATALEDATUM,
                                              DateTimeConverterUtil.convertToLocalDate(taskInfo.getDueDate())
-                                                     .format(DATE_FORMATTER));
+                                                                  .format(DATE_FORMATTER));
 
             if (resolvedTekst.contains(TAAK_BEHANDELAAR_GROEP.getVariabele())) {
                 resolvedTekst = replaceVariabele(resolvedTekst, TAAK_BEHANDELAAR_GROEP,
                                                  taskInfo.getIdentityLinks().stream()
-                                                         .filter(identityLinkInfo ->
-                                                                         IdentityLinkType.CANDIDATE.equals(
-                                                                                 identityLinkInfo.getType()))
+                                                         .filter(identityLinkInfo -> IdentityLinkType.CANDIDATE.equals(
+                                                                                                                       identityLinkInfo.getType()))
                                                          .findAny()
                                                          .map(IdentityLinkInfo::getGroupId)
                                                          .map(identityService::readGroup)
@@ -205,7 +204,7 @@ public class MailTemplateHelper {
     }
 
     public String resolveVariabelen(final String tekst,
-            final EnkelvoudigInformatieObject document) {
+                                    final EnkelvoudigInformatieObject document) {
         String resolvedTekst = tekst;
         if (document != null) {
             resolvedTekst = replaceVariabele(resolvedTekst, DOCUMENT_TITEL, document.getTitel());
@@ -234,10 +233,10 @@ public class MailTemplateHelper {
 
     private MailLink getLink(final EnkelvoudigInformatieObject document) {
         return new MailLink(
-                document.getTitel(),
-                configuratieService.informatieobjectTonenUrl(parseUUIDFromResourceURI(document.getUrl())),
-                "het document",
-                null
+                            document.getTitel(),
+                            configuratieService.informatieobjectTonenUrl(parseUUIDFromResourceURI(document.getUrl())),
+                            "het document",
+                            null
         );
     }
 
@@ -247,14 +246,14 @@ public class MailTemplateHelper {
             final BetrokkeneType betrokkene = initiator.get().getBetrokkeneType();
             return switch (betrokkene) {
                 case NATUURLIJK_PERSOON -> replaceInitiatorVariabelenPersoon(
-                        resolvedTekst,
-                        brpClientService.findPersoon(identificatie));
+                                                                             resolvedTekst,
+                                                                             brpClientService.findPersoon(identificatie));
                 case VESTIGING -> replaceInitiatorVariabelenResultaatItem(
-                        resolvedTekst,
-                        kvkClientService.findVestiging(identificatie));
+                                                                          resolvedTekst,
+                                                                          kvkClientService.findVestiging(identificatie));
                 case NIET_NATUURLIJK_PERSOON -> replaceInitiatorVariabelenResultaatItem(
-                        resolvedTekst,
-                        kvkClientService.findRechtspersoon(identificatie));
+                                                                                        resolvedTekst,
+                                                                                        kvkClientService.findRechtspersoon(identificatie));
                 default -> throw new IllegalStateException(String.format("unexpected betrokkenetype %s", betrokkene));
             };
         }
@@ -262,18 +261,18 @@ public class MailTemplateHelper {
     }
 
     private static String replaceInitiatorVariabelenPersoon(final String resolvedTekst,
-            final Optional<Persoon> initiator) {
+                                                            final Optional<Persoon> initiator) {
         return initiator
-                .map(persoon -> replaceInitiatorVariabelen(resolvedTekst, persoon.getNaam().getVolledigeNaam(),
-                                                           convertAdres(persoon)))
-                .orElseGet(() -> replaceInitiatorVariabelenOnbekend(resolvedTekst));
+                        .map(persoon -> replaceInitiatorVariabelen(resolvedTekst, persoon.getNaam().getVolledigeNaam(),
+                                                                   convertAdres(persoon)))
+                        .orElseGet(() -> replaceInitiatorVariabelenOnbekend(resolvedTekst));
     }
 
     private static String replaceInitiatorVariabelenResultaatItem(final String resolvedTekst,
-            final Optional<ResultaatItem> initiator) {
+                                                                  final Optional<ResultaatItem> initiator) {
         return initiator
-                .map(item -> replaceInitiatorVariabelen(resolvedTekst, item.getHandelsnaam(), convertAdres(item)))
-                .orElseGet(() -> replaceInitiatorVariabelenOnbekend(resolvedTekst));
+                        .map(item -> replaceInitiatorVariabelen(resolvedTekst, item.getHandelsnaam(), convertAdres(item)))
+                        .orElseGet(() -> replaceInitiatorVariabelenOnbekend(resolvedTekst));
     }
 
     private static String convertAdres(final Persoon persoon) {
@@ -287,12 +286,12 @@ public class MailTemplateHelper {
 
     private static String convertAdres(final VerblijfadresBinnenland adres) {
         return "%s %s%s%s, %s %s".formatted(
-                defaultIfBlank(adres.getOfficieleStraatnaam(), EMPTY),
-                defaultIfNull(adres.getHuisnummer(), EMPTY),
-                defaultIfBlank(adres.getHuisletter(), EMPTY),
-                defaultIfBlank(adres.getHuisnummertoevoeging(), EMPTY),
-                defaultIfBlank(adres.getPostcode(), EMPTY),
-                adres.getWoonplaats());
+                                            defaultIfBlank(adres.getOfficieleStraatnaam(), EMPTY),
+                                            defaultIfNull(adres.getHuisnummer(), EMPTY),
+                                            defaultIfBlank(adres.getHuisletter(), EMPTY),
+                                            defaultIfBlank(adres.getHuisnummertoevoeging(), EMPTY),
+                                            defaultIfBlank(adres.getPostcode(), EMPTY),
+                                            adres.getWoonplaats());
     }
 
     private static String convertAdres(final VerblijfadresBuitenland adres) {
@@ -301,11 +300,11 @@ public class MailTemplateHelper {
 
     private static String convertAdres(final ResultaatItem adres) {
         return "%s %s%s, %s %s".formatted(
-                adres.getStraatnaam(),
-                defaultIfNull(adres.getHuisnummer(), EMPTY),
-                defaultIfBlank(adres.getHuisnummerToevoeging(), EMPTY),
-                defaultIfBlank(adres.getPostcode(), EMPTY),
-                adres.getPlaats());
+                                          adres.getStraatnaam(),
+                                          defaultIfNull(adres.getHuisnummer(), EMPTY),
+                                          defaultIfBlank(adres.getHuisnummerToevoeging(), EMPTY),
+                                          defaultIfBlank(adres.getPostcode(), EMPTY),
+                                          adres.getPlaats());
     }
 
     private static String replaceInitiatorVariabelenOnbekend(final String resolvedTekst) {
@@ -313,23 +312,23 @@ public class MailTemplateHelper {
     }
 
     private static String replaceInitiatorVariabelen(final String resolvedTekst, final String naam,
-            final String adres) {
+                                                     final String adres) {
         return replaceVariabele(replaceVariabele(resolvedTekst, ZAAK_INITIATOR, naam), ZAAK_INITIATOR_ADRES, adres);
     }
 
     private static <T> String replaceVariabele(final String target, final MailTemplateVariabelen variabele,
-            final Optional<T> waarde) {
+                                               final Optional<T> waarde) {
         return replaceVariabele(target, variabele, waarde.map(T::toString).orElse(null));
     }
 
     private static String replaceVariabele(final String target, final MailTemplateVariabelen variabele,
-            final String waarde) {
+                                           final String waarde) {
         return replaceVariabeleHtml(target, variabele, StringEscapeUtils.escapeHtml4(waarde));
     }
 
     // Make sure that what is passed in the html argument is FULLY encoded HTML (no injection vulnerabilities please!)
     private static String replaceVariabeleHtml(final String target, final MailTemplateVariabelen variabele,
-            final String html) {
+                                               final String html) {
         return StringUtils.replace(target, variabele.getVariabele(),
                                    variabele.isResolveVariabeleAlsLegeString() ?
                                            defaultIfBlank(html, EMPTY) : html);

@@ -31,7 +31,8 @@ public class indexRewriteFilter implements Filter {
     private static final Pattern REGEX_RESOURCES = Pattern.compile("\\.(js(on|\\.map)?|css|txt|jpe?g|png|gif|svg|ico|webmanifest|eot|ttf|woff2?)$");
 
     @Override
-    public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException, ServletException {
+    public void doFilter(final ServletRequest request, final ServletResponse response,
+                         final FilterChain chain) throws IOException, ServletException {
         if (request instanceof final HttpServletRequest httpRequest) {
             final String path = httpRequest.getServletPath();
             if (isResourcePath(path) || isResource(path)) {

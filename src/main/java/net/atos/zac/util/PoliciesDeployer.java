@@ -39,7 +39,8 @@ public class PoliciesDeployer {
     private OPAAdminClient opaAdminClient;
 
     public void onStartup(@Observes @Initialized(ApplicationScoped.class) Object event) {
-        try (final InputStream policiesInputStream = getClass().getClassLoader().getResourceAsStream(format("%s/%s", POLICIES_FOLDER_NAME, POLICIES_FILE_NAME));
+        try (final InputStream policiesInputStream = getClass().getClassLoader().getResourceAsStream(format("%s/%s", POLICIES_FOLDER_NAME,
+                                                                                                            POLICIES_FILE_NAME));
              final BufferedReader policiesReader = new BufferedReader(new InputStreamReader(policiesInputStream, StandardCharsets.UTF_8))) {
             policiesReader.lines().filter(StringUtils::isNotBlank).forEach(this::deployPolicy);
         } catch (final IOException e) {
@@ -48,7 +49,8 @@ public class PoliciesDeployer {
     }
 
     private void deployPolicy(final String policyFileName) {
-        try (final InputStream policyInputStream = getClass().getClassLoader().getResourceAsStream(format("%s/%s", POLICIES_FOLDER_NAME, policyFileName))) {
+        try (final InputStream policyInputStream = getClass().getClassLoader().getResourceAsStream(format("%s/%s", POLICIES_FOLDER_NAME,
+                                                                                                          policyFileName))) {
             final String policy = new String(policyInputStream.readAllBytes(), StandardCharsets.UTF_8);
             final String moduleId = StringUtils.substringBefore(policyFileName, POLICIES_FILE_EXTENSION);
             LOG.info(String.format("Deploying policy module: %s", moduleId));

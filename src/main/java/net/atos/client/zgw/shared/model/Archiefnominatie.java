@@ -40,9 +40,9 @@ public enum Archiefnominatie {
 
     public static Archiefnominatie fromValue(final String value) {
         return Arrays.stream(values())
-                .filter(archiefnominatie -> archiefnominatie.value.equals(value))
-                .findAny()
-                .orElseThrow();
+                     .filter(archiefnominatie -> archiefnominatie.value.equals(value))
+                     .findAny()
+                     .orElseThrow();
     }
 
     static class Adapter implements JsonbAdapter<Archiefnominatie, String> {

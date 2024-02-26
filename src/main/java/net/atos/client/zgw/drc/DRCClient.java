@@ -67,7 +67,7 @@ public interface DRCClient {
     @GET
     @Path("enkelvoudiginformatieobjecten/{uuid}")
     EnkelvoudigInformatieObject enkelvoudigInformatieobjectReadVersie(@PathParam("uuid") final UUID uuid,
-            @QueryParam("versie") final Integer versie);
+                                                                      @QueryParam("versie") final Integer versie);
 
     @GET
     @Produces(APPLICATION_OCTET_STREAM)
@@ -82,7 +82,7 @@ public interface DRCClient {
     @PATCH
     @Path("enkelvoudiginformatieobjecten/{uuid}")
     EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieobjectPartialUpdate(@PathParam("uuid") final UUID uuid,
-            final EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieObjectWithInhoudAndLock);
+                                                                                     final EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieObjectWithInhoudAndLock);
 
     @DELETE
     @Path("enkelvoudiginformatieobjecten/{uuid}")
@@ -91,8 +91,8 @@ public interface DRCClient {
     @POST
     @Path("enkelvoudiginformatieobjecten/{uuid}/lock")
     Lock enkelvoudigInformatieobjectLock(
-            @PathParam("uuid") final UUID uuid,
-            final Lock enkelvoudigInformatieObjectLock
+                                         @PathParam("uuid") final UUID uuid,
+                                         final Lock enkelvoudigInformatieObjectLock
     );
 
     @POST

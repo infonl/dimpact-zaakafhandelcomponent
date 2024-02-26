@@ -17,12 +17,12 @@ public class RESTMailGegevensConverter {
         // Please do not move it here, because MailGegevens do not always get constructed here.
         final String afzender = configuratieService.readGemeenteNaam();
         return new MailGegevens(
-                new MailAdres(restMailGegevens.verzender, afzender),
-                new MailAdres(restMailGegevens.ontvanger),
-                restMailGegevens.replyTo == null ? null : new MailAdres(restMailGegevens.replyTo, afzender),
-                restMailGegevens.onderwerp,
-                restMailGegevens.body,
-                restMailGegevens.bijlagen,
-                restMailGegevens.createDocumentFromMail);
+                                new MailAdres(restMailGegevens.verzender, afzender),
+                                new MailAdres(restMailGegevens.ontvanger),
+                                restMailGegevens.replyTo == null ? null : new MailAdres(restMailGegevens.replyTo, afzender),
+                                restMailGegevens.onderwerp,
+                                restMailGegevens.body,
+                                restMailGegevens.bijlagen,
+                                restMailGegevens.createDocumentFromMail);
     }
 }

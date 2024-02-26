@@ -32,7 +32,8 @@ public class RESTInformatieobjecttypeConverter {
     }
 
     public List<RESTInformatieobjecttype> convert(final Set<URI> informatieobjecttypen) {
-        return informatieobjecttypen.stream().map(ztcClientService::readInformatieobjecttype).map(this::convert).collect(Collectors.toList());
+        return informatieobjecttypen.stream().map(ztcClientService::readInformatieobjecttype).map(this::convert).collect(Collectors
+                                                                                                                                   .toList());
     }
 
     public List<RESTInformatieobjecttype> convert(final List<InformatieObjectType> informatieobjecttypen) {

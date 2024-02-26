@@ -35,8 +35,8 @@ public class RESTBesluittypeConverter {
 
     public List<RESTBesluittype> convertToRESTBesluittypes(final List<BesluitType> besluittypes) {
         return besluittypes.stream()
-                .map(this::convertToRESTBesluittype)
-                .toList();
+                           .map(this::convertToRESTBesluittype)
+                           .toList();
     }
 
 }

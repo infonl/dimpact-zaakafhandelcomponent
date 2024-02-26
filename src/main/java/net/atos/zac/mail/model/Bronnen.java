@@ -14,9 +14,9 @@ public class Bronnen {
     public final TaskInfo taskInfo;
 
     private Bronnen(
-            final Zaak zaak,
-            final EnkelvoudigInformatieObject document,
-            final TaskInfo taskInfo
+                    final Zaak zaak,
+                    final EnkelvoudigInformatieObject document,
+                    final TaskInfo taskInfo
     ) {
         this.zaak = zaak;
         this.document = document;

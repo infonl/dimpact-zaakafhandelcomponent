@@ -66,8 +66,8 @@ public class RESTTaakConverter {
 
     public List<RESTTaak> convert(final List<? extends TaskInfo> tasks) {
         return tasks.stream()
-                .map(this::convert)
-                .toList();
+                    .map(this::convert)
+                    .toList();
     }
 
     public RESTTaak convert(final TaskInfo taskInfo) {
@@ -93,13 +93,13 @@ public class RESTTaakConverter {
             restTaak.taakdocumenten = taakVariabelenService.readTaakdocumenten(taskInfo);
             if (TaskUtil.isCmmnTask(taskInfo)) {
                 convertFormulierDefinitieEnReferentieTabellen(
-                        restTaak,
-                        taakVariabelenService.readZaaktypeUUID(taskInfo),
-                        taskInfo.getTaskDefinitionKey()
+                                                              restTaak,
+                                                              taakVariabelenService.readZaaktypeUUID(taskInfo),
+                                                              taskInfo.getTaskDefinitionKey()
                 );
             } else {
                 final FormulierDefinitie formulierDefinitie = formulierDefinitieService.readFormulierDefinitie(
-                        taskInfo.getFormKey()
+                                                                                                               taskInfo.getFormKey()
                 );
                 restTaak.formulierDefinitie = formulierDefinitieConverter.convert(formulierDefinitie, true, false);
             }
@@ -109,30 +109,30 @@ public class RESTTaakConverter {
 
     public String extractGroupId(final List<? extends IdentityLinkInfo> identityLinks) {
         return identityLinks.stream()
-                .filter(identityLinkInfo -> IdentityLinkType.CANDIDATE.equals(identityLinkInfo.getType()))
-                .findAny()
-                .map(IdentityLinkInfo::getGroupId)
-                .orElse(null);
+                            .filter(identityLinkInfo -> IdentityLinkType.CANDIDATE.equals(identityLinkInfo.getType()))
+                            .findAny()
+                            .map(IdentityLinkInfo::getGroupId)
+                            .orElse(null);
     }
 
     private void convertFormulierDefinitieEnReferentieTabellen(final RESTTaak restTaak, final UUID zaaktypeUUID,
-            final String taskDefinitionKey) {
+                                                               final String taskDefinitionKey) {
         zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUUID)
-                .getHumanTaskParametersCollection().stream()
-                .filter(zaakafhandelParameters -> taskDefinitionKey.equals(
-                        zaakafhandelParameters.getPlanItemDefinitionID()))
-                .findAny()
-                .ifPresent(zaakafhandelParameters -> verwerkZaakafhandelParameters(restTaak, zaakafhandelParameters));
+                                    .getHumanTaskParametersCollection().stream()
+                                    .filter(zaakafhandelParameters -> taskDefinitionKey.equals(
+                                                                                               zaakafhandelParameters.getPlanItemDefinitionID()))
+                                    .findAny()
+                                    .ifPresent(zaakafhandelParameters -> verwerkZaakafhandelParameters(restTaak, zaakafhandelParameters));
     }
 
     private void verwerkZaakafhandelParameters(final RESTTaak restTaak,
-            final HumanTaskParameters humanTaskParameters) {
+                                               final HumanTaskParameters humanTaskParameters) {
         restTaak.formulierDefinitieId = humanTaskParameters.getFormulierDefinitieID();
         humanTaskParameters.getReferentieTabellen()
-                .forEach(referentieTabel -> restTaak.tabellen.put(
-                        referentieTabel.getVeld(),
-                        referentieTabel.getTabel().getWaarden().stream()
-                                .map(ReferentieTabelWaarde::getNaam)
-                                .toList()));
+                           .forEach(referentieTabel -> restTaak.tabellen.put(
+                                                                             referentieTabel.getVeld(),
+                                                                             referentieTabel.getTabel().getWaarden().stream()
+                                                                                            .map(ReferentieTabelWaarde::getNaam)
+                                                                                            .toList()));
     }
 }

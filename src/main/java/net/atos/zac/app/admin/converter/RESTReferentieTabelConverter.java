@@ -24,8 +24,8 @@ public class RESTReferentieTabelConverter {
         restReferentieTabel.aantalWaarden = referentieTabel.getWaarden().size();
         if (inclusiefWaarden) {
             restReferentieTabel.waarden = referentieTabel.getWaarden().stream()
-                    .map(restReferentieWaardeConverter::convert)
-                    .toList();
+                                                         .map(restReferentieWaardeConverter::convert)
+                                                         .toList();
         }
         return restReferentieTabel;
     }
@@ -38,8 +38,8 @@ public class RESTReferentieTabelConverter {
         referentieTabel.setCode(restReferentieTabel.code);
         referentieTabel.setNaam(restReferentieTabel.naam);
         referentieTabel.setWaarden(restReferentieTabel.waarden.stream()
-                                           .map(restReferentieWaardeConverter::convert)
-                                           .toList());
+                                                              .map(restReferentieWaardeConverter::convert)
+                                                              .toList());
         return referentieTabel;
     }
 }

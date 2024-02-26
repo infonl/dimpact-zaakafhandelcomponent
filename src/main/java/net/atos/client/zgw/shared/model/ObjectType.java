@@ -115,7 +115,8 @@ public enum ObjectType {
         return auditClass;
     }
 
-    public Class<? extends AuditWijziging<? extends Zaakobject>> getAuditClass(final Objecttype objectType, final String objectTypeOverige) {
+    public Class<? extends AuditWijziging<? extends Zaakobject>> getAuditClass(final Objecttype objectType,
+                                                                               final String objectTypeOverige) {
         return switch (objectType) {
             case ADRES -> ZaakobjectAdresWijziging.class;
             case OPENBARE_RUIMTE -> ZaakobjectOpenbareRuimteWijziging.class;
@@ -132,6 +133,7 @@ public enum ObjectType {
         } else if (StringUtils.equals(objectTypeOverige, ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE)) {
             return ZaakobjectProductaanvraagWijziging.class;
         }
-        throw new RuntimeException(String.format("objecttype 'OVERIGE' met objectTypeOverige '%s' wordt niet ondersteund", objectTypeOverige));
+        throw new RuntimeException(String.format("objecttype 'OVERIGE' met objectTypeOverige '%s' wordt niet ondersteund",
+                                                 objectTypeOverige));
     }
 }

@@ -14,6 +14,7 @@ import jakarta.json.JsonObject;
 import jakarta.json.bind.serializer.DeserializationContext;
 import jakarta.json.bind.serializer.JsonbDeserializer;
 import jakarta.json.stream.JsonParser;
+
 import net.atos.client.zgw.zrc.model.Geometry;
 import net.atos.client.zgw.zrc.model.GeometryCollection;
 import net.atos.client.zgw.zrc.model.GeometryType;
@@ -24,9 +25,9 @@ public class GeometryJsonbDeserializer implements JsonbDeserializer<Geometry> {
 
     @Override
     public Geometry deserialize(
-            final JsonParser parser,
-            final DeserializationContext ctx,
-            final Type rtType
+                                final JsonParser parser,
+                                final DeserializationContext ctx,
+                                final Type rtType
     ) {
         if (!parser.hasNext()) {
             // workaround for WildFly 30 (?) issue
@@ -37,13 +38,12 @@ public class GeometryJsonbDeserializer implements JsonbDeserializer<Geometry> {
         }
         final JsonObject jsonObject = parser.getObject();
         final GeometryType geometryType = GeometryType.fromValue(
-                jsonObject.getJsonString(GEOMETRY_TYPE_NAAM).getString());
+                                                                 jsonObject.getJsonString(GEOMETRY_TYPE_NAAM).getString());
 
         return switch (geometryType) {
             case POINT -> JSONB.fromJson(jsonObject.toString(), Point.class);
             case POLYGON -> JSONB.fromJson(jsonObject.toString(), Polygon.class);
-            case GEOMETRYCOLLECTION ->
-                    JSONB.fromJson(jsonObject.toString(), GeometryCollection.class);
+            case GEOMETRYCOLLECTION -> JSONB.fromJson(jsonObject.toString(), GeometryCollection.class);
         };
     }
 }

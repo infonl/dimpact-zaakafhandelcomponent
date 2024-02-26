@@ -172,8 +172,8 @@ public class ZaakListParameters extends AbstractListParameters {
     public String getArchiefnominatieIn() {
         if (CollectionUtils.isNotEmpty(archiefnominatieIn)) {
             return archiefnominatieIn.stream()
-                    .map(Archiefnominatie::getValue)
-                    .collect(joining(","));
+                                     .map(Archiefnominatie::getValue)
+                                     .collect(joining(","));
         } else {
             return null;
         }
@@ -220,8 +220,8 @@ public class ZaakListParameters extends AbstractListParameters {
     public String getArchiefstatusIn() {
         if (CollectionUtils.isNotEmpty(archiefstatusIn)) {
             return archiefstatusIn.stream()
-                    .map(Archiefstatus::toValue)
-                    .collect(joining(","));
+                                  .map(Archiefstatus::toValue)
+                                  .collect(joining(","));
         } else {
             return null;
         }

@@ -18,7 +18,7 @@ public class RolVestiging extends Rol<Vestiging> {
     }
 
     public RolVestiging(final URI zaak, final RolType roltype, final String roltoelichting,
-            final Vestiging betrokkeneIdentificatie) {
+                        final Vestiging betrokkeneIdentificatie) {
         super(zaak, roltype, BetrokkeneType.VESTIGING, betrokkeneIdentificatie, roltoelichting);
     }
 
@@ -39,12 +39,10 @@ public class RolVestiging extends Rol<Vestiging> {
         if (getBetrokkeneIdentificatie() == null) {
             return null;
         }
-        final String namen = getBetrokkeneIdentificatie().getHandelsnaam() != null
-                ? String.join("; ", getBetrokkeneIdentificatie().getHandelsnaam())
-                : null;
-        return StringUtils.isNotEmpty(namen)
-                ? namen
-                : getIdentificatienummer();
+        final String namen = getBetrokkeneIdentificatie().getHandelsnaam() != null ? String.join("; ", getBetrokkeneIdentificatie()
+                                                                                                                                   .getHandelsnaam()) :
+                null;
+        return StringUtils.isNotEmpty(namen) ? namen : getIdentificatienummer();
     }
 
     @Override

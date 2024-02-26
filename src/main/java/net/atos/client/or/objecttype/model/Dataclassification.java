@@ -46,9 +46,10 @@ public enum Dataclassification {
                 return null;
             }
             return stream(values())
-                    .filter(dataclassification -> StringUtils.equals(dataclassification.value, json))
-                    .findFirst()
-                    .orElseThrow(() -> new RuntimeException(String.format("Unkown value for %s: '%s'", Dataclassification.class.getSimpleName(), json)));
+                                   .filter(dataclassification -> StringUtils.equals(dataclassification.value, json))
+                                   .findFirst()
+                                   .orElseThrow(() -> new RuntimeException(String.format("Unkown value for %s: '%s'",
+                                                                                         Dataclassification.class.getSimpleName(), json)));
         }
     }
 

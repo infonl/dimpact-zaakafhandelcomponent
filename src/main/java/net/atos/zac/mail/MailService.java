@@ -76,11 +76,9 @@ import net.atos.zac.mailtemplates.model.MailGegevens;
 
 @ApplicationScoped
 public class MailService {
-    private static final String MAILJET_API_KEY =
-            ConfigProvider.getConfig().getValue("mailjet.api.key", String.class);
+    private static final String MAILJET_API_KEY = ConfigProvider.getConfig().getValue("mailjet.api.key", String.class);
 
-    private static final String MAILJET_API_SECRET_KEY =
-            ConfigProvider.getConfig().getValue("mailjet.api.secret.key", String.class);
+    private static final String MAILJET_API_SECRET_KEY = ConfigProvider.getConfig().getValue("mailjet.api.secret.key", String.class);
 
     // http://www.faqs.org/rfcs/rfc2822.html
     private static final int SUBJECT_MAXWIDTH = 78;
@@ -131,33 +129,33 @@ public class MailService {
 
     public String sendMail(final MailGegevens mailGegevens, final Bronnen bronnen) {
         final String subject = StringUtils.abbreviate(
-                resolveVariabelen(mailGegevens.getSubject(), bronnen),
-                SUBJECT_MAXWIDTH
+                                                      resolveVariabelen(mailGegevens.getSubject(), bronnen),
+                                                      SUBJECT_MAXWIDTH
         );
         final String body = resolveVariabelen(mailGegevens.getBody(), bronnen);
         final List<Attachment> attachments = getAttachments(mailGegevens.getAttachments());
 
         final EMail eMail = new EMail(
-                mailGegevens.getFrom(),
-                List.of(mailGegevens.getTo()),
-                mailGegevens.getReplyTo(),
-                subject,
-                body,
-                attachments
+                                      mailGegevens.getFrom(),
+                                      List.of(mailGegevens.getTo()),
+                                      mailGegevens.getReplyTo(),
+                                      subject,
+                                      body,
+                                      attachments
         );
         final MailjetRequest request = new MailjetRequest(Emailv31.resource)
-                .setBody(JSONB.toJson(new EMails(List.of(eMail))));
+                                                                            .setBody(JSONB.toJson(new EMails(List.of(eMail))));
         try {
             final int status = mailjetClient.post(request).getStatus();
             if (status < 300) {
                 if (mailGegevens.isCreateDocumentFromMail()) {
                     createZaakDocumentFromMail(
-                            mailGegevens.getFrom().getEmail(),
-                            mailGegevens.getTo().getEmail(),
-                            subject,
-                            body,
-                            attachments,
-                            bronnen.zaak
+                                               mailGegevens.getFrom().getEmail(),
+                                               mailGegevens.getTo().getEmail(),
+                                               subject,
+                                               body,
+                                               attachments,
+                                               bronnen.zaak
                     );
                 }
             } else {
@@ -172,12 +170,12 @@ public class MailService {
     }
 
     private void createZaakDocumentFromMail(
-            final String verzender,
-            final String ontvanger,
-            final String subject,
-            final String body,
-            final List<Attachment> attachments,
-            final Zaak zaak
+                                            final String verzender,
+                                            final String ontvanger,
+                                            final String subject,
+                                            final String body,
+                                            final List<Attachment> attachments,
+                                            final Zaak zaak
     ) {
         final InformatieObjectType eMailObjectType = getEmailInformatieObjectType(zaak);
         final byte[] pdfDocument = createPdfDocument(verzender, ontvanger, subject, body, attachments);
@@ -191,36 +189,36 @@ public class MailService {
         enkelvoudigInformatieobjectWithInhoud.setInformatieobjecttype(eMailObjectType.getUrl());
         enkelvoudigInformatieobjectWithInhoud.setInhoud(convertByteArrayToBase64String(pdfDocument));
         enkelvoudigInformatieobjectWithInhoud.setVertrouwelijkheidaanduiding(
-                EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.OPENBAAR);
+                                                                             EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.OPENBAAR);
         enkelvoudigInformatieobjectWithInhoud.setFormaat(MEDIA_TYPE_PDF);
         enkelvoudigInformatieobjectWithInhoud.setBestandsnaam(String.format("%s.pdf", subject));
         enkelvoudigInformatieobjectWithInhoud.setStatus(EnkelvoudigInformatieObjectData.StatusEnum.DEFINITIEF);
         enkelvoudigInformatieobjectWithInhoud.setVertrouwelijkheidaanduiding(
-                EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.OPENBAAR);
+                                                                             EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.OPENBAAR);
         enkelvoudigInformatieobjectWithInhoud.setVerzenddatum(LocalDate.now());
 
         zgwApiService.createZaakInformatieobjectForZaak(
-                zaak,
-                enkelvoudigInformatieobjectWithInhoud,
-                subject,
-                subject,
-                OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
+                                                        zaak,
+                                                        enkelvoudigInformatieobjectWithInhoud,
+                                                        subject,
+                                                        subject,
+                                                        OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
         );
     }
 
     private byte[] createPdfDocument(
-            final String verzender,
-            final String ontvanger,
-            final String subject,
-            final String body,
-            final List<Attachment> attachments
+                                     final String verzender,
+                                     final String ontvanger,
+                                     final String subject,
+                                     final String body,
+                                     final List<Attachment> attachments
     ) {
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try (
-                final PdfWriter pdfWriter = new PdfWriter(byteArrayOutputStream);
-                final PdfDocument pdfDoc = new PdfDocument(pdfWriter);
-                final Document document = new Document(pdfDoc);
-            ) {
+             final PdfWriter pdfWriter = new PdfWriter(byteArrayOutputStream);
+             final PdfDocument pdfDoc = new PdfDocument(pdfWriter);
+             final Document document = new Document(pdfDoc);
+        ) {
             final Paragraph headerParagraph = new Paragraph();
             final PdfFont font = PdfFontFactory.createFont(StandardFonts.COURIER);
 
@@ -229,7 +227,7 @@ public class MailService {
             headerParagraph.add(String.format("%s: %s %n %n", MAIL_ONTVANGER, ontvanger));
             if (!attachments.isEmpty()) {
                 String content = attachments.stream().map(attachment -> String.valueOf(attachment.getFilename()))
-                        .collect(joining(", "));
+                                            .collect(joining(", "));
                 headerParagraph.add(String.format("%s: %s %n %n", MAIL_BIJLAGE, content));
             }
 
@@ -262,10 +260,10 @@ public class MailService {
     private InformatieObjectType getEmailInformatieObjectType(final Zaak zaak) {
         final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
         return zaaktype.getInformatieobjecttypen().stream()
-                .map(ztcClientService::readInformatieobjecttype)
-                .filter(infoObject -> infoObject.getOmschrijving()
-                        .equals(ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL)).findFirst()
-                .orElseThrow();
+                       .map(ztcClientService::readInformatieobjecttype)
+                       .filter(infoObject -> infoObject.getOmschrijving()
+                                                       .equals(ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL)).findFirst()
+                       .orElseThrow();
     }
 
     private List<Attachment> getAttachments(final String[] bijlagenString) {
@@ -278,15 +276,14 @@ public class MailService {
 
         final List<Attachment> attachments = new ArrayList<>();
         bijlagen.forEach(uuid -> {
-            final EnkelvoudigInformatieObject enkelvoudigInformatieobject =
-                    drcClientService.readEnkelvoudigInformatieobject(
-                    uuid);
+            final EnkelvoudigInformatieObject enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
+                                                                                                                             uuid);
             final ByteArrayInputStream byteArrayInputStream = drcClientService.downloadEnkelvoudigInformatieobject(
-                    uuid);
+                                                                                                                   uuid);
             final Attachment attachment = new Attachment(enkelvoudigInformatieobject.getFormaat(),
                                                          enkelvoudigInformatieobject.getBestandsnaam(),
                                                          new String(Base64.getEncoder()
-                                                                            .encode(byteArrayInputStream.readAllBytes())));
+                                                                          .encode(byteArrayInputStream.readAllBytes())));
             attachments.add(attachment);
         });
 
@@ -295,20 +292,19 @@ public class MailService {
 
     private String resolveVariabelen(final String tekst, final Bronnen bronnen) {
         return mailTemplateHelper.resolveVariabelen(
-                mailTemplateHelper.resolveVariabelen(
-                        mailTemplateHelper.resolveVariabelen(
-                                mailTemplateHelper.resolveVariabelen(tekst),
-                                getZaakBron(bronnen)
-                        ),
-                        bronnen.document
-                ),
-                bronnen.taskInfo
+                                                    mailTemplateHelper.resolveVariabelen(
+                                                                                         mailTemplateHelper.resolveVariabelen(
+                                                                                                                              mailTemplateHelper.resolveVariabelen(tekst),
+                                                                                                                              getZaakBron(bronnen)
+                                                                                         ),
+                                                                                         bronnen.document
+                                                    ),
+                                                    bronnen.taskInfo
         );
     }
 
     private Zaak getZaakBron(final Bronnen bronnen) {
-        return (bronnen.zaak != null || bronnen.taskInfo == null)
-                ? bronnen.zaak
-                : zrcClientService.readZaak(taakVariabelenService.readZaakUUID(bronnen.taskInfo));
+        return (bronnen.zaak != null || bronnen.taskInfo == null) ? bronnen.zaak : zrcClientService.readZaak(taakVariabelenService
+                                                                                                                                  .readZaakUUID(bronnen.taskInfo));
     }
 }

@@ -76,8 +76,7 @@ public class ProductaanvraagService {
 
     private static final String FORMULIER_KLEINE_EVENEMENTEN_MELDING_EIGENSCHAPNAAM_NAAM_EVENEMENT = "naamEvenement";
 
-    private static final String FORMULIER_KLEINE_EVENEMENTEN_MELDING_EIGENSCHAPNAAM_OMSCHRIJVING_EVENEMENT =
-            "omschrijvingEvenement";
+    private static final String FORMULIER_KLEINE_EVENEMENTEN_MELDING_EIGENSCHAPNAAM_OMSCHRIJVING_EVENEMENT = "omschrijvingEvenement";
 
     private static final String FORMULIER_VELD_ZAAK_TOELICHTING = "zaak_toelichting";
 
@@ -131,7 +130,7 @@ public class ProductaanvraagService {
         final var productaanvraagObject = objectsClientService.readObject(uuidFromURI(productaanvraagUrl));
         final var productaanvraag = getProductaanvraag(productaanvraagObject);
         final Optional<UUID> zaaktypeUUID = zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(
-                productaanvraag.getType());
+                                                                                                                     productaanvraag.getType());
         if (zaaktypeUUID.isPresent()) {
             try {
                 LOG.fine(() -> "Start zaak met CMMN case. Zaaktype: %s".formatted(zaaktypeUUID.get().toString()));
@@ -154,7 +153,7 @@ public class ProductaanvraagService {
             } else {
                 LOG.info(message(productaanvraag,
                                  "Er is geen zaaktype gevonden voor het type '%s'. Er wordt geen zaak aangemaakt."
-                                         .formatted(productaanvraag.getType())));
+                                                                                                                  .formatted(productaanvraag.getType())));
                 registreerInbox(productaanvraag, productaanvraagObject);
             }
         }
@@ -163,17 +162,17 @@ public class ProductaanvraagService {
     private void warning(final String type, final ProductaanvraagDenhaag productaanvraag, final RuntimeException ex) {
         LOG.log(Level.WARNING,
                 message(productaanvraag, "Er is iets fout gegaan bij het aanmaken van een %s-zaak."
-                        .formatted(type)), ex);
+                                                                                                   .formatted(type)), ex);
     }
 
     private String message(final ProductaanvraagDenhaag productaanvraag, final String message) {
         return "Productaanvraag %s: %s"
-                .formatted(productaanvraag.getSubmissionId(), message);
+                                       .formatted(productaanvraag.getSubmissionId(), message);
     }
 
     private void registreerZaakMetBPMNProces(final ZaakType zaaktype,
-            final ProductaanvraagDenhaag productaanvraag,
-            final ORObject productaanvraagObject) {
+                                             final ProductaanvraagDenhaag productaanvraag,
+                                             final ORObject productaanvraagObject) {
         final Map<String, Object> formulierData = getFormulierData(productaanvraagObject);
         var zaak = new Zaak();
         zaak.setZaaktype(zaaktype.getUrl());
@@ -199,7 +198,8 @@ public class ProductaanvraagService {
     public Map<String, Object> getFormulierData(final ORObject productaanvraagObject) {
         final Map<String, Object> formulierData = new HashMap<>();
         ((Map<String, Object>) productaanvraagObject.getRecord().getData().get(PRODUCT_AANVRAAG_FORMULIER_DATA_VELD))
-                .forEach((stap, velden) -> formulierData.putAll((Map<String, Object>) velden));
+                                                                                                                     .forEach((stap,
+                                                                                                                               velden) -> formulierData.putAll((Map<String, Object>) velden));
         return formulierData;
     }
 
@@ -211,10 +211,10 @@ public class ProductaanvraagService {
     private void addInitiator(final String bsn, final URI zaak, final URI zaaktype) {
         final RolType initiator = ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.INITIATOR, zaaktype);
         final RolNatuurlijkPersoon rolNatuurlijkPersoon = new RolNatuurlijkPersoon(
-                zaak,
-                initiator,
-                ROL_TOELICHTING,
-                new NatuurlijkPersoon(bsn)
+                                                                                   zaak,
+                                                                                   initiator,
+                                                                                   ROL_TOELICHTING,
+                                                                                   new NatuurlijkPersoon(bsn)
         );
         zrcClientService.createRol(rolNatuurlijkPersoon);
     }
@@ -240,24 +240,24 @@ public class ProductaanvraagService {
 
     private void deleteInboxDocument(final UUID documentUUID) {
         inboxDocumentenService.find(documentUUID)
-                .ifPresent(inboxDocument -> inboxDocumentenService.delete(inboxDocument.getId()));
+                              .ifPresent(inboxDocument -> inboxDocumentenService.delete(inboxDocument.getId()));
     }
 
     private void registreerZaakMetCMMNCase(final UUID zaaktypeUuid, final ProductaanvraagDenhaag productaanvraag,
-            final ORObject productaanvraagObject) {
+                                           final ORObject productaanvraagObject) {
         final var formulierData = getFormulierData(productaanvraagObject);
         var zaak = new Zaak();
         final var zaaktype = ztcClientService.readZaaktype(zaaktypeUuid);
         zaak.setZaaktype(zaaktype.getUrl());
         zaak.setOmschrijving(
-                (String) formulierData.get(FORMULIER_KLEINE_EVENEMENTEN_MELDING_EIGENSCHAPNAAM_NAAM_EVENEMENT));
+                             (String) formulierData.get(FORMULIER_KLEINE_EVENEMENTEN_MELDING_EIGENSCHAPNAAM_NAAM_EVENEMENT));
         zaak.setToelichting(
-                (String) formulierData.get(FORMULIER_KLEINE_EVENEMENTEN_MELDING_EIGENSCHAPNAAM_OMSCHRIJVING_EVENEMENT));
+                            (String) formulierData.get(FORMULIER_KLEINE_EVENEMENTEN_MELDING_EIGENSCHAPNAAM_OMSCHRIJVING_EVENEMENT));
         zaak.setStartdatum(productaanvraagObject.getRecord().getStartAt());
         zaak.setBronorganisatie(BRON_ORGANISATIE);
         zaak.setVerantwoordelijkeOrganisatie(BRON_ORGANISATIE);
         final Optional<CommunicatieKanaal> communicatiekanaal = vrlClientService.findCommunicatiekanaal(
-                COMMUNICATIEKANAAL_EFORMULIER);
+                                                                                                        COMMUNICATIEKANAAL_EFORMULIER);
         if (communicatiekanaal.isPresent()) {
             zaak.setCommunicatiekanaal(communicatiekanaal.get().getUrl());
         }
@@ -265,14 +265,14 @@ public class ProductaanvraagService {
         LOG.fine("Creating zaak using the ZGW API: " + zaak);
         zaak = zgwApiService.createZaak(zaak);
         final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                zaaktypeUuid);
+                                                                                                                      zaaktypeUuid);
         toekennenZaak(zaak, zaakafhandelParameters);
         pairProductaanvraagInfoWithZaak(productaanvraag, productaanvraagObject, zaak);
         cmmnService.startCase(zaak, zaaktype, zaakafhandelParameters, formulierData);
     }
 
     private void pairProductaanvraagInfoWithZaak(final ProductaanvraagDenhaag productaanvraag,
-            final ORObject productaanvraagObject, final Zaak zaak) {
+                                                 final ORObject productaanvraagObject, final Zaak zaak) {
         pairProductaanvraagWithZaak(productaanvraagObject, zaak.getUrl());
         pairAanvraagPDFWithZaak(productaanvraag, zaak.getUrl());
         pairBijlagenWithZaak(productaanvraag.getAttachments(), zaak.getUrl());
@@ -299,8 +299,7 @@ public class ProductaanvraagService {
 
     public void pairBijlagenWithZaak(final List<URI> bijlageURIs, final URI zaakUrl) {
         for (final URI bijlageURI : ListUtils.emptyIfNull(bijlageURIs)) {
-            final EnkelvoudigInformatieObject bijlage =
-                    drcClientService.readEnkelvoudigInformatieobject(bijlageURI);
+            final EnkelvoudigInformatieObject bijlage = drcClientService.readEnkelvoudigInformatieobject(bijlageURI);
             final ZaakInformatieobject zaakInformatieobject = new ZaakInformatieobject();
             zaakInformatieobject.setInformatieobject(bijlage.getUrl());
             zaakInformatieobject.setZaak(zaakUrl);
@@ -346,7 +345,7 @@ public class ProductaanvraagService {
 
     private Optional<ZaakType> findZaaktypeByIdentificatie(final String zaaktypeIdentificatie) {
         return ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI()).stream()
-                .filter(zaak -> zaak.getIdentificatie().equals(zaaktypeIdentificatie))
-                .findFirst();
+                               .filter(zaak -> zaak.getIdentificatie().equals(zaaktypeIdentificatie))
+                               .findFirst();
     }
 }

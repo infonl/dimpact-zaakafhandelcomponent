@@ -69,10 +69,10 @@ public class Status {
      */
     @JsonbCreator
     public Status(@JsonbProperty("url") final URI url,
-            @JsonbProperty("uuid") final UUID uuid,
-            @JsonbProperty("zaak") final URI zaak,
-            @JsonbProperty("statustype") final URI statustype,
-            @JsonbProperty("datumStatusGezet") final ZonedDateTime datumStatusGezet) {
+                  @JsonbProperty("uuid") final UUID uuid,
+                  @JsonbProperty("zaak") final URI zaak,
+                  @JsonbProperty("statustype") final URI statustype,
+                  @JsonbProperty("datumStatusGezet") final ZonedDateTime datumStatusGezet) {
         this.url = url;
         this.uuid = uuid;
         this.zaak = zaak;

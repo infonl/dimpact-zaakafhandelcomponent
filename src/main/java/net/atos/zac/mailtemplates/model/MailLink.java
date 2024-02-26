@@ -24,6 +24,7 @@ public final class MailLink {
     // Make sure that what is returned is FULLY encoded HTML (no injection vulnerabilities please!)
     public String toHtml() {
         return "Klik om naar %s<a href=\"%s\" title=\"de zaakafhandelcomponent...\">%s</a>%s te gaan."
-                .formatted(prefix, url, identificatie, suffix);
+                                                                                                      .formatted(prefix, url, identificatie,
+                                                                                                                 suffix);
     }
 }

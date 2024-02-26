@@ -54,7 +54,8 @@ public class ProcessEngineLookupImpl implements ProcessEngineLookup {
 
     public static CmmnEngineConfiguration getCmmnEngineConfiguration() {
         return (CmmnEngineConfiguration) getSharedProcessEngine().getProcessEngineConfiguration()
-                .getEngineConfigurations().get(EngineConfigurationConstants.KEY_CMMN_ENGINE_CONFIG);
+                                                                 .getEngineConfigurations().get(
+                                                                                                EngineConfigurationConstants.KEY_CMMN_ENGINE_CONFIG);
     }
 
     private static ProcessEngine getSharedProcessEngine() {
@@ -94,8 +95,9 @@ public class ProcessEngineLookupImpl implements ProcessEngineLookup {
         cmmnEngineConfiguration.setDelegateExpressionFieldInjectionMode(DelegateExpressionFieldInjectionMode.DISABLED);
         cmmnEngineConfiguration.setEnableHistoricTaskLogging(true);
         CaseInstanceState.END_STATES.forEach(
-                endState -> cmmnEngineConfiguration.addCaseInstanceLifeCycleListener(
-                        new EndCaseLifecycleListener(CaseInstanceState.ACTIVE, endState)));
+                                             endState -> cmmnEngineConfiguration.addCaseInstanceLifeCycleListener(
+                                                                                                                  new EndCaseLifecycleListener(CaseInstanceState.ACTIVE,
+                                                                                                                                               endState)));
         cmmnEngineConfiguration.setCreateHumanTaskInterceptor(new CreateHumanTaskInterceptor());
         cmmnEngineConfiguration.setIdentityLinkInterceptor(new CompleteTaskInterceptor(cmmnEngineConfiguration));
         cmmnEngineConfiguration.setDisableIdmEngine(true);

@@ -15,15 +15,14 @@ public class DocumentCreatieGegevens {
 
     private String taskId;
 
-    private EnkelvoudigInformatieObject.StatusEnum informatieobjectStatus =
-            EnkelvoudigInformatieObject.StatusEnum.TER_VASTSTELLING;
+    private EnkelvoudigInformatieObject.StatusEnum informatieobjectStatus = EnkelvoudigInformatieObject.StatusEnum.TER_VASTSTELLING;
 
     private InformatieObjectType informatieobjecttype;
 
     public DocumentCreatieGegevens(
-            final Zaak zaak,
-            final String taskId,
-            final InformatieObjectType informatieobjecttype
+                                   final Zaak zaak,
+                                   final String taskId,
+                                   final InformatieObjectType informatieobjecttype
     ) {
         this.zaak = zaak;
         this.taskId = taskId;
@@ -38,7 +37,9 @@ public class DocumentCreatieGegevens {
         return informatieobjectStatus;
     }
 
-    public InformatieObjectType getInformatieobjecttype() { return informatieobjecttype; }
+    public InformatieObjectType getInformatieobjecttype() {
+        return informatieobjecttype;
+    }
 
     public String getTaskId() {
         return taskId;

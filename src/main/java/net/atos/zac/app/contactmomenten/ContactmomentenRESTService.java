@@ -53,27 +53,26 @@ public class ContactmomentenRESTService {
                 klantenClientService.findPersoon(parameters.bsn) :
                 klantenClientService.findVestiging(parameters.vestigingsnummer);
         return klantOptional.map(klant -> listContactmomenten(klant, parameters.page, parameters.pageSize))
-                .orElseGet(() -> new RESTResultaat<>());
+                            .orElseGet(() -> new RESTResultaat<>());
     }
 
     private RESTResultaat<RESTContactmoment> listContactmomenten(final Klant klant, final Integer page,
-            final Integer pageSize) {
+                                                                 final Integer pageSize) {
         final var klantcontactmomentListParameters = new KlantcontactmomentListParameters();
         klantcontactmomentListParameters.setPage(1 + page * pageSize / 100);
         klantcontactmomentListParameters.setKlant(klant.getUrl());
-        final var klantcontactmomentenResponse =
-                contactmomentenClientService.listKlantcontactmomenten(klantcontactmomentListParameters);
+        final var klantcontactmomentenResponse = contactmomentenClientService.listKlantcontactmomenten(klantcontactmomentListParameters);
         final List<RESTContactmoment> contactmomenten = klantcontactmomentenResponse.getResults().stream()
-                .skip(page * pageSize % NUM_ITEMS_PER_PAGE)
-                .limit(pageSize)
-                .map(this::convertToRESTContactmoment)
-                .toList();
+                                                                                    .skip(page * pageSize % NUM_ITEMS_PER_PAGE)
+                                                                                    .limit(pageSize)
+                                                                                    .map(this::convertToRESTContactmoment)
+                                                                                    .toList();
         return new RESTResultaat<>(contactmomenten, klantcontactmomentenResponse.getCount());
     }
 
     private RESTContactmoment convertToRESTContactmoment(final KlantContactMoment klantContactMoment) {
         final ContactMoment contactMoment = contactmomentenClientService.readContactmoment(
-                uuidFromURI(klantContactMoment.getContactmoment()));
+                                                                                           uuidFromURI(klantContactMoment.getContactmoment()));
         return contactmomentConverter.convert(contactMoment);
 
     }

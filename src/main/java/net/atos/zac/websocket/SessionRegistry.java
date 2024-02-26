@@ -34,7 +34,7 @@ public class SessionRegistry {
     private static final Pattern QUOTED = Pattern.compile("^\"(.*)\"$");
 
     private final SetMultimap<ScreenEvent, Session> eventSessions = Multimaps.synchronizedSetMultimap(
-            HashMultimap.create());
+                                                                                                      HashMultimap.create());
 
     /**
      * Return a set of all active sessions for a particular event.
@@ -66,7 +66,7 @@ public class SessionRegistry {
     public void delete(final ScreenEvent wildcarded, final Session session) {
         if (session != null) {
             glob(fix(wildcarded)).forEach(
-                event -> eventSessions.get(event).remove(session));
+                                          event -> eventSessions.get(event).remove(session));
         }
     }
 
@@ -87,19 +87,19 @@ public class SessionRegistry {
             anyOpcode.remove(Opcode.CREATED);// There will not be any websocket subscriptions with this opcode, so skip it in globbing.
             if (event.getObjectType() == ScreenEventType.ANY) {
                 return anyOpcode.stream()
-                        .flatMap(operation -> ScreenEventType.any().stream()
-                                .map(objectType -> new Wrapper(operation, objectType)))
-                        .map(wrapper -> new ScreenEvent(wrapper.opcode, wrapper.objecType, event.getObjectId()))
-                        .collect(Collectors.toList());
+                                .flatMap(operation -> ScreenEventType.any().stream()
+                                                                     .map(objectType -> new Wrapper(operation, objectType)))
+                                .map(wrapper -> new ScreenEvent(wrapper.opcode, wrapper.objecType, event.getObjectId()))
+                                .collect(Collectors.toList());
             }
             return anyOpcode.stream()
-                    .map(operation -> new ScreenEvent(operation, event.getObjectType(), event.getObjectId()))
-                    .collect(Collectors.toList());
+                            .map(operation -> new ScreenEvent(operation, event.getObjectType(), event.getObjectId()))
+                            .collect(Collectors.toList());
         }
         if (event.getObjectType() == ScreenEventType.ANY) {
             return ScreenEventType.any().stream()
-                    .map(objectType -> new ScreenEvent(event.getOpcode(), objectType, event.getObjectId()))
-                    .collect(Collectors.toList());
+                                  .map(objectType -> new ScreenEvent(event.getOpcode(), objectType, event.getObjectId()))
+                                  .collect(Collectors.toList());
         }
         return Collections.singletonList(event);
     }

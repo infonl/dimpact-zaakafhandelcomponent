@@ -62,8 +62,9 @@ public class MailTemplateService {
 
     public MailTemplate readMailtemplate(final Mail mail) {
         return findDefaultMailtemplate(mail)
-                .orElseThrow(() -> new RuntimeException(
-                        "%s for '%s' not found".formatted(MailTemplate.class.getSimpleName(), mail)));
+                                            .orElseThrow(() -> new RuntimeException(
+                                                                                    "%s for '%s' not found".formatted(MailTemplate.class.getSimpleName(),
+                                                                                                                      mail)));
     }
 
     public MailTemplate readMailtemplate(final long id) {
@@ -78,9 +79,9 @@ public class MailTemplateService {
     public List<MailTemplate> listMailtemplates() {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<net.atos.zac.mailtemplates.model.MailTemplate> query = builder.createQuery(
-                net.atos.zac.mailtemplates.model.MailTemplate.class);
+                                                                                                       net.atos.zac.mailtemplates.model.MailTemplate.class);
         final Root<net.atos.zac.mailtemplates.model.MailTemplate> root = query.from(
-                net.atos.zac.mailtemplates.model.MailTemplate.class);
+                                                                                    net.atos.zac.mailtemplates.model.MailTemplate.class);
         query.orderBy(builder.asc(root.get("mailTemplateNaam")));
         query.select(root);
         return entityManager.createQuery(query).getResultList();
@@ -89,9 +90,9 @@ public class MailTemplateService {
     public List<MailTemplate> listKoppelbareMailtemplates() {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<net.atos.zac.mailtemplates.model.MailTemplate> query = builder.createQuery(
-                net.atos.zac.mailtemplates.model.MailTemplate.class);
+                                                                                                       net.atos.zac.mailtemplates.model.MailTemplate.class);
         final Root<net.atos.zac.mailtemplates.model.MailTemplate> root = query.from(
-                net.atos.zac.mailtemplates.model.MailTemplate.class);
+                                                                                    net.atos.zac.mailtemplates.model.MailTemplate.class);
         query.where(root.get(MailTemplate.MAIL).in(Mail.getKoppelbareMails()));
 
         return entityManager.createQuery(query).getResultList();

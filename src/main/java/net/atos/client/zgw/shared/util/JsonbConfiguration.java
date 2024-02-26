@@ -20,7 +20,8 @@ public class JsonbConfiguration implements ContextResolver<Jsonb> {
 
     public JsonbConfiguration() {
         final JsonbConfig jsonbConfig = new JsonbConfig().withDeserializers(
-                new RolJsonbDeserializer(), new ZaakObjectJsonbDeserializer(), new GeometryJsonbDeserializer(), new URIJsonbDeserializer());
+                                                                            new RolJsonbDeserializer(), new ZaakObjectJsonbDeserializer(),
+                                                                            new GeometryJsonbDeserializer(), new URIJsonbDeserializer());
         jsonb = JsonbBuilder.create(jsonbConfig);
     }
 

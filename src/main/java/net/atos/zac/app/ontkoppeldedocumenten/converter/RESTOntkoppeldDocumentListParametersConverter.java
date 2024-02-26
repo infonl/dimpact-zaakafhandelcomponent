@@ -10,10 +10,12 @@ import net.atos.zac.app.shared.RESTListParametersConverter;
 import net.atos.zac.documenten.model.OntkoppeldDocumentListParameters;
 import net.atos.zac.zoeken.model.DatumRange;
 
-public class RESTOntkoppeldDocumentListParametersConverter extends RESTListParametersConverter<OntkoppeldDocumentListParameters, RESTOntkoppeldDocumentListParameters> {
+public class RESTOntkoppeldDocumentListParametersConverter extends
+                                                           RESTListParametersConverter<OntkoppeldDocumentListParameters, RESTOntkoppeldDocumentListParameters> {
 
     @Override
-    protected void doConvert(final OntkoppeldDocumentListParameters listParameters, final RESTOntkoppeldDocumentListParameters restListParameters) {
+    protected void doConvert(final OntkoppeldDocumentListParameters listParameters,
+                             final RESTOntkoppeldDocumentListParameters restListParameters) {
         listParameters.setReden(restListParameters.reden);
         listParameters.setTitel(restListParameters.titel);
 

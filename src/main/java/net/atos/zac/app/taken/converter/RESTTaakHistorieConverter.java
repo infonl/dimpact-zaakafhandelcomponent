@@ -48,19 +48,16 @@ public class RESTTaakHistorieConverter {
 
     public List<RESTTaakHistorieRegel> convert(final List<HistoricTaskLogEntry> historicTaskLogEntries) {
         return historicTaskLogEntries.stream()
-                .map(this::convert)
-                .filter(Objects::nonNull)
-                .toList();
+                                     .map(this::convert)
+                                     .filter(Objects::nonNull)
+                                     .toList();
     }
 
     private RESTTaakHistorieRegel convert(final HistoricTaskLogEntry historicTaskLogEntry) {
         final RESTTaakHistorieRegel restTaakHistorieRegel = switch (historicTaskLogEntry.getType()) {
-            case USER_TASK_DESCRIPTION_CHANGED ->
-                    convertValueChangeData(TOELICHTING_ATTRIBUUT_LABEL, historicTaskLogEntry.getData());
-            case USER_TASK_ASSIGNEE_CHANGED_CUSTOM ->
-                    convertValueChangeData(BEHANDELAAR_ATTRIBUUT_LABEL, historicTaskLogEntry.getData());
-            case USER_TASK_GROUP_CHANGED ->
-                    convertValueChangeData(GROEP_ATTRIBUUT_LABEL, historicTaskLogEntry.getData());
+            case USER_TASK_DESCRIPTION_CHANGED -> convertValueChangeData(TOELICHTING_ATTRIBUUT_LABEL, historicTaskLogEntry.getData());
+            case USER_TASK_ASSIGNEE_CHANGED_CUSTOM -> convertValueChangeData(BEHANDELAAR_ATTRIBUUT_LABEL, historicTaskLogEntry.getData());
+            case USER_TASK_GROUP_CHANGED -> convertValueChangeData(GROEP_ATTRIBUUT_LABEL, historicTaskLogEntry.getData());
             default -> convertData(HistoricTaskLogEntryType.valueOf(historicTaskLogEntry.getType()),
                                    historicTaskLogEntry.getData());
         };

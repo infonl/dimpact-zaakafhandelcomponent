@@ -45,16 +45,16 @@ public class FormulierDefinitieRESTService {
     public List<RESTFormulierDefinitie> list() {
         assertPolicy(policyService.readOverigeRechten().beheren());
         return service.listFormulierDefinities().stream()
-                .map(formulierDefinitie -> converter.convert(formulierDefinitie, false, false))
-                .toList();
+                      .map(formulierDefinitie -> converter.convert(formulierDefinitie, false, false))
+                      .toList();
     }
 
     @POST
     public RESTFormulierDefinitie create(final RESTFormulierDefinitie restFormulierDefinitie) {
         assertPolicy(policyService.readOverigeRechten().beheren());
         return converter.convert(
-                service.createFormulierDefinitie(
-                        converter.convert(restFormulierDefinitie)), true, false);
+                                 service.createFormulierDefinitie(
+                                                                  converter.convert(restFormulierDefinitie)), true, false);
     }
 
     @GET
@@ -62,7 +62,7 @@ public class FormulierDefinitieRESTService {
     public RESTFormulierDefinitie read(@PathParam("id") final long id) {
         assertPolicy(policyService.readOverigeRechten().beheren());
         return converter.convert(
-                service.readFormulierDefinitie(id), true, false);
+                                 service.readFormulierDefinitie(id), true, false);
     }
 
     @GET
@@ -75,8 +75,8 @@ public class FormulierDefinitieRESTService {
     public RESTFormulierDefinitie update(final RESTFormulierDefinitie restFormulierDefinitie) {
         assertPolicy(policyService.readOverigeRechten().beheren());
         return converter.convert(
-                service.updateFormulierDefinitie(
-                        converter.convert(restFormulierDefinitie)), true, false);
+                                 service.updateFormulierDefinitie(
+                                                                  converter.convert(restFormulierDefinitie)), true, false);
     }
 
     @DELETE

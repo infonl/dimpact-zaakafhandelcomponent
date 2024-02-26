@@ -56,8 +56,8 @@ public class ReferentieTabelRESTService {
         assertPolicy(policyService.readOverigeRechten().beheren());
         final List<ReferentieTabel> referentieTabellen = referentieTabelService.listReferentieTabellen();
         return referentieTabellen.stream()
-                .map(referentieTabel -> restReferentieTabelConverter.convert(referentieTabel, false))
-                .toList();
+                                 .map(referentieTabel -> restReferentieTabelConverter.convert(referentieTabel, false))
+                                 .toList();
     }
 
     @GET
@@ -65,15 +65,16 @@ public class ReferentieTabelRESTService {
     public RESTReferentieTabel newReferentieTabel() {
         assertPolicy(policyService.readOverigeRechten().beheren());
         return restReferentieTabelConverter.convert(
-                referentieTabelBeheerService.newReferentieTabel(), true);
+                                                    referentieTabelBeheerService.newReferentieTabel(), true);
     }
 
     @POST
     public RESTReferentieTabel createReferentieTabel(final RESTReferentieTabel referentieTabel) {
         assertPolicy(policyService.readOverigeRechten().beheren());
         return restReferentieTabelConverter.convert(
-                referentieTabelBeheerService.createReferentieTabel(
-                        restReferentieTabelConverter.convert(referentieTabel)), true);
+                                                    referentieTabelBeheerService.createReferentieTabel(
+                                                                                                       restReferentieTabelConverter.convert(referentieTabel)),
+                                                    true);
     }
 
     @GET
@@ -81,18 +82,19 @@ public class ReferentieTabelRESTService {
     public RESTReferentieTabel readReferentieTabel(@PathParam("id") final long id) {
         assertPolicy(policyService.readOverigeRechten().beheren());
         return restReferentieTabelConverter.convert(
-                referentieTabelService.readReferentieTabel(id), true);
+                                                    referentieTabelService.readReferentieTabel(id), true);
     }
 
     @PUT
     @Path("{id}")
     public RESTReferentieTabel updateReferentieTabel(@PathParam("id") final long id,
-            final RESTReferentieTabel referentieTabel) {
+                                                     final RESTReferentieTabel referentieTabel) {
         assertPolicy(policyService.readOverigeRechten().beheren());
         return restReferentieTabelConverter.convert(
-                referentieTabelBeheerService.updateReferentieTabel(
-                        restReferentieTabelConverter.convert(referentieTabel,
-                                                             referentieTabelService.readReferentieTabel(id))), true);
+                                                    referentieTabelBeheerService.updateReferentieTabel(
+                                                                                                       restReferentieTabelConverter.convert(referentieTabel,
+                                                                                                                                            referentieTabelService.readReferentieTabel(id))),
+                                                    true);
     }
 
     @DELETE
@@ -107,7 +109,7 @@ public class ReferentieTabelRESTService {
     public List<String> listAfzenders() {
         assertPolicy(policyService.readOverigeRechten().beheren());
         return restReferentieWaardeConverter.convert(
-                referentieTabelService.readReferentieTabel(AFZENDER.name()).getWaarden());
+                                                     referentieTabelService.readReferentieTabel(AFZENDER.name()).getWaarden());
     }
 
     @GET
@@ -115,6 +117,6 @@ public class ReferentieTabelRESTService {
     public List<String> listDomeinen() {
         assertPolicy(policyService.readOverigeRechten().beheren());
         return restReferentieWaardeConverter.convert(
-                referentieTabelService.readReferentieTabel(DOMEIN.name()).getWaarden());
+                                                     referentieTabelService.readReferentieTabel(DOMEIN.name()).getWaarden());
     }
 }

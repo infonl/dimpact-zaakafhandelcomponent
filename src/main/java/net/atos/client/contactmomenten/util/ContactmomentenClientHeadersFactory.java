@@ -31,7 +31,7 @@ public class ContactmomentenClientHeadersFactory implements ClientHeadersFactory
 
     @Override
     public MultivaluedMap<String, String> update(final MultivaluedMap<String, String> incomingHeaders,
-            final MultivaluedMap<String, String> outgoingHeaders) {
+                                                 final MultivaluedMap<String, String> outgoingHeaders) {
         outgoingHeaders.add(HttpHeaders.AUTHORIZATION, JWTTokenGenerator.generate(clientId, secret,
                                                                                   loggedInUserInstance.get()));
         return outgoingHeaders;

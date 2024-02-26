@@ -49,7 +49,7 @@ public class RESTZaaktypeConverter {
         restZaaktype.verlengingMogelijk = zaaktype.getVerlengingMogelijk();
         if (restZaaktype.verlengingMogelijk) {
             restZaaktype.verlengingstermijn = PeriodUtil.aantalDagenVanafHeden(
-                    Period.parse(zaaktype.getVerlengingstermijn())
+                                                                               Period.parse(zaaktype.getVerlengingstermijn())
             );
         }
         restZaaktype.zaaktypeRelaties = new ArrayList<>();
@@ -71,9 +71,9 @@ public class RESTZaaktypeConverter {
             restZaaktype.referentieproces = zaaktype.getReferentieproces().getNaam();
         }
         final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                restZaaktype.uuid);
+                                                                                                                      restZaaktype.uuid);
         restZaaktype.zaakafhandelparameters = zaakafhandelParametersConverter.convertZaakafhandelParameters(
-                zaakafhandelParameters, true);
+                                                                                                            zaakafhandelParameters, true);
         return restZaaktype;
     }
 }

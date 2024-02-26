@@ -61,7 +61,7 @@ public class UserPrincipalFilter implements Filter {
                 LoggedInUser loggedInUser = SecurityUtil.getLoggedInUser(httpSession);
                 if (loggedInUser != null && !loggedInUser.getId().equals(principal.getName())) {
                     LOG.info(String.format("HTTP session of user '%s' on context path %s is invalidated",
-                            loggedInUser.getId(), httpServletRequest.getServletContext().getContextPath()));
+                                           loggedInUser.getId(), httpServletRequest.getServletContext().getContextPath()));
                     httpSession.invalidate();
                     loggedInUser = null;
                     httpSession = httpServletRequest.getSession(true);
@@ -91,13 +91,13 @@ public class UserPrincipalFilter implements Filter {
         final AccessToken accessToken = context.getToken();
         final Set<String> roles = Set.copyOf(accessToken.getRealmAccessClaim().getRoles());
         return new LoggedInUser(accessToken.getPreferredUsername(),
-                accessToken.getGivenName(),
-                accessToken.getFamilyName(),
-                accessToken.getName(),
-                accessToken.getEmail(),
-                roles,
-                Set.copyOf(accessToken.getStringListClaimValue(GROUP_MEMBERSHIP_CLAIM_NAME)),
-                getGeautoriseerdeZaaktypen(roles));
+                                accessToken.getGivenName(),
+                                accessToken.getFamilyName(),
+                                accessToken.getName(),
+                                accessToken.getEmail(),
+                                roles,
+                                Set.copyOf(accessToken.getStringListClaimValue(GROUP_MEMBERSHIP_CLAIM_NAME)),
+                                getGeautoriseerdeZaaktypen(roles));
     }
 
     private Set<String> getGeautoriseerdeZaaktypen(final Set<String> roles) {
@@ -105,10 +105,10 @@ public class UserPrincipalFilter implements Filter {
             return null;
         } else {
             return zaakafhandelParameterService.listZaakafhandelParameters().stream()
-                    .filter(zaakafhandelParameters -> zaakafhandelParameters.getDomein() != null &&
-                            roles.contains(zaakafhandelParameters.getDomein()))
-                    .map(ZaakafhandelParameters::getZaaktypeOmschrijving)
-                    .collect(Collectors.toUnmodifiableSet());
+                                               .filter(zaakafhandelParameters -> zaakafhandelParameters.getDomein() != null &&
+                                                                                 roles.contains(zaakafhandelParameters.getDomein()))
+                                               .map(ZaakafhandelParameters::getZaaktypeOmschrijving)
+                                               .collect(Collectors.toUnmodifiableSet());
         }
     }
 }

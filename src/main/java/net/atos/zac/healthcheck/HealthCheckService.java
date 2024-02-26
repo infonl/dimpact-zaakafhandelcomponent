@@ -72,7 +72,7 @@ public class HealthCheckService {
         ztcClientService.readCacheTime();
         final ZaakType zaaktype = ztcClientService.readZaaktype(zaaktypeUrl);
         final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterBeheerService.readZaakafhandelParameters(
-                URIUtil.parseUUIDFromResourceURI(zaaktype.getUrl())
+                                                                                                                            URIUtil.parseUUIDFromResourceURI(zaaktype.getUrl())
         );
         final ZaaktypeInrichtingscheck zaaktypeInrichtingscheck = new ZaaktypeInrichtingscheck(zaaktype);
         zaaktypeInrichtingscheck.setZaakafhandelParametersValide(zaakafhandelParameters.isValide());
@@ -96,8 +96,7 @@ public class HealthCheckService {
         final File buildDatumTijdFile = new File(BUILD_TIMESTAMP_FILE);
         if (buildDatumTijdFile.exists()) {
             try {
-                buildDatumTijd =
-                        convertToLocalDateTime(ZonedDateTime.parse(readAllLines(buildDatumTijdFile.toPath()).get(0)));
+                buildDatumTijd = convertToLocalDateTime(ZonedDateTime.parse(readAllLines(buildDatumTijdFile.toPath()).get(0)));
             } catch (final IOException e) {
                 throw new RuntimeException(e);
             }
@@ -105,15 +104,15 @@ public class HealthCheckService {
             buildDatumTijd = null;
         }
         return new BuildInformatie(
-                commitHash.orElse(null),
-                branchName.orElse(null),
-                buildDatumTijd,
-                versionNumber.orElse(null));
+                                   commitHash.orElse(null),
+                                   branchName.orElse(null),
+                                   buildDatumTijd,
+                                   versionNumber.orElse(null));
     }
 
     private void controleerZaaktypeStatustypeInrichting(final ZaaktypeInrichtingscheck zaaktypeInrichtingscheck) {
         final List<StatusType> statustypes = ztcClientService.readStatustypen(
-                zaaktypeInrichtingscheck.getZaaktype().getUrl());
+                                                                              zaaktypeInrichtingscheck.getZaaktype().getUrl());
         int afgerondVolgnummer = 0;
         int hoogsteVolgnummer = 0;
         for (StatusType statustype : statustypes) {
@@ -121,12 +120,9 @@ public class HealthCheckService {
                 hoogsteVolgnummer = statustype.getVolgnummer();
             }
             switch (statustype.getOmschrijving()) {
-                case ConfiguratieService.STATUSTYPE_OMSCHRIJVING_INTAKE ->
-                        zaaktypeInrichtingscheck.setStatustypeIntakeAanwezig(true);
-                case ConfiguratieService.STATUSTYPE_OMSCHRIJVING_IN_BEHANDELING ->
-                        zaaktypeInrichtingscheck.setStatustypeInBehandelingAanwezig(true);
-                case ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND ->
-                        zaaktypeInrichtingscheck.setStatustypeHeropendAanwezig(true);
+                case ConfiguratieService.STATUSTYPE_OMSCHRIJVING_INTAKE -> zaaktypeInrichtingscheck.setStatustypeIntakeAanwezig(true);
+                case ConfiguratieService.STATUSTYPE_OMSCHRIJVING_IN_BEHANDELING -> zaaktypeInrichtingscheck.setStatustypeInBehandelingAanwezig(true);
+                case ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND -> zaaktypeInrichtingscheck.setStatustypeHeropendAanwezig(true);
                 case ConfiguratieService.STATUSTYPE_OMSCHRIJVING_AFGEROND -> {
                     afgerondVolgnummer = statustype.getVolgnummer();
                     zaaktypeInrichtingscheck.setStatustypeAfgerondAanwezig(true);
@@ -140,17 +136,17 @@ public class HealthCheckService {
 
     private void controleerZaaktypeResultaattypeInrichting(final ZaaktypeInrichtingscheck zaaktypeInrichtingscheck) {
         final List<ResultaatType> resultaattypes = ztcClientService.readResultaattypen(
-                zaaktypeInrichtingscheck.getZaaktype().getUrl()
+                                                                                       zaaktypeInrichtingscheck.getZaaktype().getUrl()
         );
         if (CollectionUtils.isNotEmpty(resultaattypes)) {
             zaaktypeInrichtingscheck.setResultaattypeAanwezig(true);
             resultaattypes.forEach(resultaattype -> {
-                final BrondatumArchiefprocedure.AfleidingswijzeEnum afleidingswijze =
-                        resultaattype.getBrondatumArchiefprocedure().getAfleidingswijze();
+                final BrondatumArchiefprocedure.AfleidingswijzeEnum afleidingswijze = resultaattype.getBrondatumArchiefprocedure()
+                                                                                                   .getAfleidingswijze();
                 // compare enum values and not the enums themselves because we have multiple functionally
                 // identical enums in our Java client code generated by the OpenAPI Generator
                 if (Afleidingswijze.VERVALDATUM_BESLUIT.toValue().equals(afleidingswijze.value()) ||
-                        Afleidingswijze.INGANGSDATUM_BESLUIT.toValue().equals(afleidingswijze.value())) {
+                    Afleidingswijze.INGANGSDATUM_BESLUIT.toValue().equals(afleidingswijze.value())) {
                     zaaktypeInrichtingscheck.addResultaattypesMetVerplichtBesluit(resultaattype.getOmschrijving());
                 }
             });
@@ -159,23 +155,21 @@ public class HealthCheckService {
 
     private void controleerZaaktypeBesluittypeInrichting(final ZaaktypeInrichtingscheck zaaktypeInrichtingscheck) {
         final List<BesluitType> besluittypes = ztcClientService.readBesluittypen(
-                        zaaktypeInrichtingscheck.getZaaktype().getUrl()).stream()
-                .filter(LocalDateUtil::dateNowIsBetween)
-                .toList();
+                                                                                 zaaktypeInrichtingscheck.getZaaktype().getUrl()).stream()
+                                                               .filter(LocalDateUtil::dateNowIsBetween)
+                                                               .toList();
         if (CollectionUtils.isNotEmpty(besluittypes)) {
             zaaktypeInrichtingscheck.setBesluittypeAanwezig(true);
         }
     }
 
     private void controleerZaaktypeRoltypeInrichting(final ZaaktypeInrichtingscheck zaaktypeInrichtingscheck) {
-        final List<RolType> roltypes =
-                ztcClientService.listRoltypen(zaaktypeInrichtingscheck.getZaaktype().getUrl());
+        final List<RolType> roltypes = ztcClientService.listRoltypen(zaaktypeInrichtingscheck.getZaaktype().getUrl());
         if (CollectionUtils.isNotEmpty(roltypes)) {
             roltypes.forEach(roltype -> {
                 switch (roltype.getOmschrijvingGeneriek()) {
-                    case ADVISEUR, MEDE_INITIATOR, BELANGHEBBENDE, BESLISSER, KLANTCONTACTER, ZAAKCOORDINATOR ->
-                            zaaktypeInrichtingscheck.setRolOverigeAanwezig(
-                                    true);
+                    case ADVISEUR, MEDE_INITIATOR, BELANGHEBBENDE, BESLISSER, KLANTCONTACTER, ZAAKCOORDINATOR -> zaaktypeInrichtingscheck.setRolOverigeAanwezig(
+                                                                                                                                                                true);
                     case BEHANDELAAR -> zaaktypeInrichtingscheck.setRolBehandelaarAanwezig(true);
                     case INITIATOR -> zaaktypeInrichtingscheck.setRolInitiatorAanwezig(true);
                 }
@@ -184,13 +178,13 @@ public class HealthCheckService {
     }
 
     private void controleerZaaktypeInformatieobjecttypeInrichting(
-            final ZaaktypeInrichtingscheck zaaktypeInrichtingscheck) {
-        final List<InformatieObjectType> informatieobjecttypes =
-                ztcClientService.readInformatieobjecttypen(
-                zaaktypeInrichtingscheck.getZaaktype().getUrl());
+                                                                  final ZaaktypeInrichtingscheck zaaktypeInrichtingscheck) {
+        final List<InformatieObjectType> informatieobjecttypes = ztcClientService.readInformatieobjecttypen(
+                                                                                                            zaaktypeInrichtingscheck.getZaaktype()
+                                                                                                                                    .getUrl());
         informatieobjecttypes.forEach(informatieobjecttype -> {
             if (isNuGeldig(informatieobjecttype) && ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL.equals(
-                    informatieobjecttype.getOmschrijving())) {
+                                                                                                                       informatieobjecttype.getOmschrijving())) {
                 zaaktypeInrichtingscheck.setInformatieobjecttypeEmailAanwezig(true);
             }
         });

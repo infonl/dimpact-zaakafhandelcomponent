@@ -17,12 +17,12 @@ public class RESTZaakAfzenderConverter {
 
     public List<RESTZaakAfzender> convertZaakAfzenders(final Set<ZaakAfzender> zaakAfzender) {
         final List<RESTZaakAfzender> restZaakAfzenders = zaakAfzender.stream()
-                .map(this::convertZaakAfzender)
-                .collect(Collectors.toList());
+                                                                     .map(this::convertZaakAfzender)
+                                                                     .collect(Collectors.toList());
         for (final ZaakAfzender.Speciaal speciaal : ZaakAfzender.Speciaal.values()) {
             if (zaakAfzender.stream()
-                    .map(ZaakAfzender::getMail)
-                    .noneMatch(speciaal::is)) {
+                            .map(ZaakAfzender::getMail)
+                            .noneMatch(speciaal::is)) {
                 restZaakAfzenders.add(new RESTZaakAfzender(speciaal));
             }
         }
@@ -31,14 +31,14 @@ public class RESTZaakAfzenderConverter {
 
     public List<ZaakAfzender> convertRESTZaakAfzenders(final List<RESTZaakAfzender> restZaakAfzender) {
         return restZaakAfzender.stream()
-                .peek(afzender -> {
-                    if (afzender.mail.equals(afzender.replyTo)) {
-                        afzender.replyTo = null;
-                    }
-                })
-                .filter(afzender -> !afzender.speciaal || afzender.defaultMail || afzender.replyTo != null)
-                .map(this::convertRESTZaakAfzender)
-                .toList();
+                               .peek(afzender -> {
+                                   if (afzender.mail.equals(afzender.replyTo)) {
+                                       afzender.replyTo = null;
+                                   }
+                               })
+                               .filter(afzender -> !afzender.speciaal || afzender.defaultMail || afzender.replyTo != null)
+                               .map(this::convertRESTZaakAfzender)
+                               .toList();
     }
 
     public RESTZaakAfzender convertZaakAfzender(final ZaakAfzender zaakAfzender) {
@@ -48,7 +48,7 @@ public class RESTZaakAfzenderConverter {
         restZaakAfzender.mail = zaakAfzender.getMail();
         restZaakAfzender.replyTo = zaakAfzender.getReplyTo();
         restZaakAfzender.speciaal = Arrays.stream(ZaakAfzender.Speciaal.values())
-                .anyMatch(speciaal -> speciaal.is(restZaakAfzender.mail));
+                                          .anyMatch(speciaal -> speciaal.is(restZaakAfzender.mail));
         return restZaakAfzender;
     }
 

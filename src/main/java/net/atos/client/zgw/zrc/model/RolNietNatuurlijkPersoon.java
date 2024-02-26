@@ -18,7 +18,7 @@ public class RolNietNatuurlijkPersoon extends Rol<NietNatuurlijkPersoon> {
     }
 
     public RolNietNatuurlijkPersoon(final URI zaak, final RolType roltype,
-            final String roltoelichting, final NietNatuurlijkPersoon betrokkeneIdentificatie) {
+                                    final String roltoelichting, final NietNatuurlijkPersoon betrokkeneIdentificatie) {
         super(zaak, roltype, BetrokkeneType.NIET_NATUURLIJK_PERSOON, betrokkeneIdentificatie, roltoelichting);
     }
 
@@ -46,9 +46,8 @@ public class RolNietNatuurlijkPersoon extends Rol<NietNatuurlijkPersoon> {
         if (getBetrokkeneIdentificatie() == null) {
             return null;
         }
-        return StringUtils.isNotEmpty(getBetrokkeneIdentificatie().getStatutaireNaam())
-                ? getBetrokkeneIdentificatie().getStatutaireNaam()
-                : getIdentificatienummer();
+        return StringUtils.isNotEmpty(getBetrokkeneIdentificatie().getStatutaireNaam()) ? getBetrokkeneIdentificatie().getStatutaireNaam() :
+                getIdentificatienummer();
     }
 
     @Override
@@ -56,9 +55,9 @@ public class RolNietNatuurlijkPersoon extends Rol<NietNatuurlijkPersoon> {
         if (getBetrokkeneIdentificatie() == null) {
             return null;
         }
-        return StringUtils.isNotEmpty(getBetrokkeneIdentificatie().getAnnIdentificatie())
-                ? getBetrokkeneIdentificatie().getAnnIdentificatie()
-                : getBetrokkeneIdentificatie().getInnNnpId();
+        return StringUtils.isNotEmpty(getBetrokkeneIdentificatie().getAnnIdentificatie()) ? getBetrokkeneIdentificatie()
+                                                                                                                        .getAnnIdentificatie() :
+                getBetrokkeneIdentificatie().getInnNnpId();
     }
 
     @Override

@@ -10,10 +10,11 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.logging.Logger;
 
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+
 import net.atos.client.kvk.exception.KvKClientNoResultException;
 import net.atos.client.kvk.model.KVKZoekenParameters;
 import net.atos.client.kvk.vestigingsprofiel.model.Vestiging;
@@ -46,7 +47,7 @@ public class KVKClientService {
 
     public CompletionStage<Resultaat> listAsync(final KVKZoekenParameters parameters) {
         return zoekenClient.getResultsAsync(parameters)
-                .handle(this::handleListAsync);
+                           .handle(this::handleListAsync);
     }
 
     public Optional<Vestiging> findVestigingsprofiel(final String vestigingsnummer) {

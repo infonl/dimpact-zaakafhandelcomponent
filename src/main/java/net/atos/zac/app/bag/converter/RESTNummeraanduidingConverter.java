@@ -46,7 +46,8 @@ public class RESTNummeraanduidingConverter {
         restNummeraanduiding.url = URI.create(nummeraanduidingIO.getLinks().getSelf().getHref());
         if (nummeraanduidingIO.getEmbedded() != null) {
             restNummeraanduiding.woonplaats = woonplaatsConverter.convertToREST(nummeraanduidingIO.getEmbedded().getLigtInWoonplaats());
-            restNummeraanduiding.openbareRuimte = openbareRuimteConverter.convertToREST(nummeraanduidingIO.getEmbedded().getLigtAanOpenbareRuimte());
+            restNummeraanduiding.openbareRuimte = openbareRuimteConverter.convertToREST(nummeraanduidingIO.getEmbedded()
+                                                                                                          .getLigtAanOpenbareRuimte());
         }
         return restNummeraanduiding;
     }
@@ -71,13 +72,16 @@ public class RESTNummeraanduidingConverter {
 
     public ZaakobjectNummeraanduiding convertToZaakobject(final RESTNummeraanduiding nummeraanduiding, final Zaak zaak) {
         final ObjectNummeraanduiding objectNummeraanduiding = new ObjectNummeraanduiding(
-                nummeraanduiding.identificatie,
-                nummeraanduiding.huisnummer,
-                nummeraanduiding.huisletter,
-                nummeraanduiding.huisnummertoevoeging,
-                nummeraanduiding.postcode,
-                nummeraanduiding.typeAdresseerbaarObject != null ? nummeraanduiding.typeAdresseerbaarObject.toString() : null,
-                nummeraanduiding.status != null ? nummeraanduiding.status.toString() : null
+                                                                                         nummeraanduiding.identificatie,
+                                                                                         nummeraanduiding.huisnummer,
+                                                                                         nummeraanduiding.huisletter,
+                                                                                         nummeraanduiding.huisnummertoevoeging,
+                                                                                         nummeraanduiding.postcode,
+                                                                                         nummeraanduiding.typeAdresseerbaarObject != null ?
+                                                                                                 nummeraanduiding.typeAdresseerbaarObject.toString() :
+                                                                                                 null,
+                                                                                         nummeraanduiding.status != null ?
+                                                                                                 nummeraanduiding.status.toString() : null
         );
         return new ZaakobjectNummeraanduiding(zaak.getUrl(), nummeraanduiding.url, objectNummeraanduiding);
     }

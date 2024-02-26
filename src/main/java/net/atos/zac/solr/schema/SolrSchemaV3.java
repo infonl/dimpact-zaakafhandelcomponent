@@ -38,11 +38,11 @@ class SolrSchemaV3 implements SolrSchemaUpdate {
 
     private List<SchemaRequest.Update> updateZaakSchema() {
         return List.of(
-                addDynamicField("zaak_betrokkene_*", STRING, true, true, true),
-                addFieldMultiValued("zaak_betrokkenen", STRING, true, true),
-                addCopyField("zaak_betrokkene_*", "zaak_betrokkenen"),
-                addCopyField("zaak_betrokkene_*", "zaak_betrokkenen"),
-                addCopyField("zaak_initiatorIdentificatie", "zaak_betrokkenen")
+                       addDynamicField("zaak_betrokkene_*", STRING, true, true, true),
+                       addFieldMultiValued("zaak_betrokkenen", STRING, true, true),
+                       addCopyField("zaak_betrokkene_*", "zaak_betrokkenen"),
+                       addCopyField("zaak_betrokkene_*", "zaak_betrokkenen"),
+                       addCopyField("zaak_initiatorIdentificatie", "zaak_betrokkenen")
         );
     }
 

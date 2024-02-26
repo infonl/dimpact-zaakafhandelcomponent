@@ -33,7 +33,7 @@ public class RESTDashboardCardInstellingConverter {
 
     public List<RESTDashboardCardInstelling> convert(final List<DashboardCardInstelling> cards) {
         return cards.stream()
-                .map(this::convert)
-                .toList();
+                    .map(this::convert)
+                    .toList();
     }
 }

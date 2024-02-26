@@ -52,8 +52,7 @@ public class ZaakafhandelParameters {
     @Column(name = "id_zaakafhandelparameters")
     private Long id;
 
-    @NotNull
-    @Column(name = "uuid_zaaktype", nullable = false)
+    @NotNull @Column(name = "uuid_zaaktype", nullable = false)
     private UUID zaakTypeUUID;
 
     @NotBlank
@@ -221,7 +220,7 @@ public class ZaakafhandelParameters {
     }
 
     public void setUserEventListenerParametersCollection(
-            final Collection<UserEventListenerParameters> userEventListenerParametersCollection) {
+                                                         final Collection<UserEventListenerParameters> userEventListenerParametersCollection) {
         if (this.userEventListenerParametersCollection == null) {
             this.userEventListenerParametersCollection = new HashSet<>();
         } else {
@@ -323,31 +322,35 @@ public class ZaakafhandelParameters {
      */
     public boolean isValide() {
         return StringUtils.isNotBlank(groepID) && StringUtils.isNotBlank(
-                caseDefinitionID) && nietOntvankelijkResultaattype != null;
+                                                                         caseDefinitionID) && nietOntvankelijkResultaattype != null;
     }
 
 
     public ZaakbeeindigParameter readZaakbeeindigParameter(final Long zaakbeeindigRedenId) {
         return getZaakbeeindigParameters().stream()
-                .filter(zaakbeeindigParameter -> zaakbeeindigParameter.getZaakbeeindigReden().getId().equals(zaakbeeindigRedenId))
-                .findAny().orElseThrow(() -> new RuntimeException(
-                        String.format("No ZaakbeeindigParameter found for zaaktypeUUID: '%s' and zaakbeeindigRedenId: '%d'", zaakTypeUUID,
-                                      zaakbeeindigRedenId)));
+                                          .filter(zaakbeeindigParameter -> zaakbeeindigParameter.getZaakbeeindigReden().getId().equals(
+                                                                                                                                       zaakbeeindigRedenId))
+                                          .findAny().orElseThrow(() -> new RuntimeException(
+                                                                                            String.format("No ZaakbeeindigParameter found for zaaktypeUUID: '%s' and zaakbeeindigRedenId: '%d'",
+                                                                                                          zaakTypeUUID,
+                                                                                                          zaakbeeindigRedenId)));
     }
 
 
     public UserEventListenerParameters readUserEventListenerParameters(final String planitemDefinitionID) {
         return getUserEventListenerParametersCollection().stream()
-                .filter(userEventListenerParameters -> userEventListenerParameters.getPlanItemDefinitionID().equals(planitemDefinitionID))
-                .findAny().orElseThrow(() -> new RuntimeException(
-                        String.format("No UserEventListenerParameters found for zaaktypeUUID: '%s' and planitemDefinitionID: '%s'", zaakTypeUUID,
-                                      planitemDefinitionID)));
+                                                         .filter(userEventListenerParameters -> userEventListenerParameters.getPlanItemDefinitionID()
+                                                                                                                           .equals(planitemDefinitionID))
+                                                         .findAny().orElseThrow(() -> new RuntimeException(
+                                                                                                           String.format("No UserEventListenerParameters found for zaaktypeUUID: '%s' and planitemDefinitionID: '%s'",
+                                                                                                                         zaakTypeUUID,
+                                                                                                                         planitemDefinitionID)));
     }
 
     public Optional<HumanTaskParameters> findHumanTaskParameter(final String planitemDefinitionID) {
         return getHumanTaskParametersCollection().stream()
-                .filter(humanTaskParameter -> humanTaskParameter.getPlanItemDefinitionID().equals(planitemDefinitionID))
-                .findAny();
+                                                 .filter(humanTaskParameter -> humanTaskParameter.getPlanItemDefinitionID().equals(
+                                                                                                                                   planitemDefinitionID))
+                                                 .findAny();
     }
 }
-

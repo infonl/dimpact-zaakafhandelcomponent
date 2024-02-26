@@ -40,7 +40,7 @@ public class RESTZaakZoekObjectConverter {
         restZoekItem.einddatum = DateTimeConverterUtil.convertToLocalDate(zoekItem.getEinddatum());
         restZoekItem.einddatumGepland = DateTimeConverterUtil.convertToLocalDate(zoekItem.getEinddatumGepland());
         restZoekItem.uiterlijkeEinddatumAfdoening = DateTimeConverterUtil.convertToLocalDate(
-                zoekItem.getUiterlijkeEinddatumAfdoening());
+                                                                                             zoekItem.getUiterlijkeEinddatumAfdoening());
         restZoekItem.publicatiedatum = DateTimeConverterUtil.convertToLocalDate(zoekItem.getPublicatiedatum());
         restZoekItem.communicatiekanaal = zoekItem.getCommunicatiekanaal();
         restZoekItem.vertrouwelijkheidaanduiding = zoekItem.getVertrouwelijkheidaanduiding();
@@ -67,17 +67,18 @@ public class RESTZaakZoekObjectConverter {
         restZoekItem.betrokkenen = new EnumMap<>(RolType.OmschrijvingGeneriekEnum.class);
         if (zoekItem.getInitiatorIdentificatie() != null) {
             restZoekItem.betrokkenen.put(
-                    RolType.OmschrijvingGeneriekEnum.INITIATOR,
-                    List.of(zoekItem.getInitiatorIdentificatie())
+                                         RolType.OmschrijvingGeneriekEnum.INITIATOR,
+                                         List.of(zoekItem.getInitiatorIdentificatie())
             );
         }
         if (zoekItem.getBetrokkenen() != null) {
             zoekItem.getBetrokkenen().forEach((betrokkenheid, ids) -> {
                 restZoekItem.betrokkenen.put(
-                        RolType.OmschrijvingGeneriekEnum.valueOf(
-                                betrokkenheid.replace(ZaakZoekObject.ZAAK_BETROKKENE_PREFIX, "").toUpperCase()
-                        ),
-                        ids
+                                             RolType.OmschrijvingGeneriekEnum.valueOf(
+                                                                                      betrokkenheid.replace(ZaakZoekObject.ZAAK_BETROKKENE_PREFIX,
+                                                                                                            "").toUpperCase()
+                                             ),
+                                             ids
                 );
             });
         }

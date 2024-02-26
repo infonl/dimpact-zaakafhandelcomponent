@@ -24,9 +24,8 @@ import net.atos.client.brp.model.VolledigeDatum;
 
 public class AbstractDatumJsonbDeserializer implements JsonbDeserializer<AbstractDatum> {
 
-    private static final Jsonb JSONB =
-            JsonbBuilder.create(
-                    new JsonbConfig().withPropertyVisibilityStrategy(new FieldPropertyVisibilityStrategy()));
+    private static final Jsonb JSONB = JsonbBuilder.create(
+                                                           new JsonbConfig().withPropertyVisibilityStrategy(new FieldPropertyVisibilityStrategy()));
 
     @Override
     public AbstractDatum deserialize(final JsonParser parser, final DeserializationContext ctx, final Type rtType) {

@@ -29,7 +29,8 @@ public class ZaakobjectListParameters {
     private URI object;
 
     /**
-     * Beschrijft het type OBJECT gerelateerd aan de ZAAK. Als er geen passend type is, dan moet het type worden opgegeven onder `objectTypeOverige`
+     * Beschrijft het type OBJECT gerelateerd aan de ZAAK. Als er geen passend type is, dan moet het type worden opgegeven onder
+     * `objectTypeOverige`
      */
     @QueryParam("objectType")
     private String objectType;

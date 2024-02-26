@@ -100,17 +100,17 @@ public class KlantenRESTService {
     @Path("persoon/{bsn}")
     public RESTPersoon readPersoon(@PathParam("bsn") final String bsn) throws ExecutionException, InterruptedException {
         return brpClientService.findPersoonAsync(bsn)
-                .thenCombine(klantenClientService.findPersoonAsync(bsn),
-                             this::convertToRESTPersoon)
-                .toCompletableFuture()
-                .get();
+                               .thenCombine(klantenClientService.findPersoonAsync(bsn),
+                                            this::convertToRESTPersoon)
+                               .toCompletableFuture()
+                               .get();
     }
 
     private RESTPersoon convertToRESTPersoon(final Optional<Persoon> persoon, final Optional<Klant> klant) {
         return persoon
-                .map(persoonConverter::convertPersoon)
-                .map(restPersoon -> (RESTPersoon) addKlantData(restPersoon, klant))
-                .orElse(ONBEKEND_PERSOON);
+                      .map(persoonConverter::convertPersoon)
+                      .map(restPersoon -> (RESTPersoon) addKlantData(restPersoon, klant))
+                      .orElse(ONBEKEND_PERSOON);
     }
 
     private RESTKlant addKlantData(final RESTKlant restKlant, final Optional<Klant> klantOptional) {
@@ -123,13 +123,12 @@ public class KlantenRESTService {
 
     @GET
     @Path("vestiging/{vestigingsnummer}")
-    public RESTBedrijf readVestiging(@PathParam("vestigingsnummer") final String vestigingsnummer)
-            throws ExecutionException, InterruptedException {
+    public RESTBedrijf readVestiging(@PathParam("vestigingsnummer") final String vestigingsnummer) throws ExecutionException, InterruptedException {
         return kvkClientService.findVestigingAsync(vestigingsnummer)
-                .thenCombine(klantenClientService.findVestigingAsync(vestigingsnummer),
-                             this::convertToRESTBedrijf)
-                .toCompletableFuture()
-                .get();
+                               .thenCombine(klantenClientService.findVestigingAsync(vestigingsnummer),
+                                            this::convertToRESTBedrijf)
+                               .toCompletableFuture()
+                               .get();
     }
 
     @GET
@@ -144,17 +143,17 @@ public class KlantenRESTService {
 
     private RESTBedrijf convertToRESTBedrijf(final Optional<ResultaatItem> vestiging, final Optional<Klant> klant) {
         return vestiging
-                .map(bedrijfConverter::convert)
-                .map(restBedrijf -> (RESTBedrijf) addKlantData(restBedrijf, klant))
-                .orElseGet(RESTBedrijf::new);
+                        .map(bedrijfConverter::convert)
+                        .map(restBedrijf -> (RESTBedrijf) addKlantData(restBedrijf, klant))
+                        .orElseGet(RESTBedrijf::new);
     }
 
     @GET
     @Path("rechtspersoon/{rsin}")
     public RESTBedrijf readRechtspersoon(@PathParam("rsin") final String rsin) {
         return kvkClientService.findRechtspersoon(rsin)
-                .map(bedrijfConverter::convert)
-                .orElseGet(RESTBedrijf::new);
+                               .map(bedrijfConverter::convert)
+                               .orElseGet(RESTBedrijf::new);
     }
 
     @GET
@@ -177,9 +176,9 @@ public class KlantenRESTService {
         final KVKZoekenParameters zoekenParameters = bedrijfConverter.convert(restParameters);
         final Resultaat resultaat = kvkClientService.list(zoekenParameters);
         return new RESTResultaat<>(resultaat.getResultaten().stream()
-                                           .filter(KlantenRESTService::isKoppelbaar)
-                                           .map(bedrijfConverter::convert)
-                                           .toList());
+                                            .filter(KlantenRESTService::isKoppelbaar)
+                                            .map(bedrijfConverter::convert)
+                                            .toList());
     }
 
     private static boolean isKoppelbaar(final ResultaatItem item) {
@@ -190,18 +189,18 @@ public class KlantenRESTService {
     @Path("roltype/{zaaktypeUuid}/betrokkene")
     public List<RESTRoltype> listBetrokkeneRoltypen(@PathParam("zaaktypeUuid") final UUID zaaktype) {
         return roltypeConverter.convert(
-                ztcClientService.listRoltypen(ztcClientService.readZaaktype(zaaktype).getUrl())
-                        .stream()
-                        .filter(roltype -> betrokkenen.contains(roltype.getOmschrijvingGeneriek())
-                    ).sorted(Comparator.comparing(RolType::getOmschrijving))
+                                        ztcClientService.listRoltypen(ztcClientService.readZaaktype(zaaktype).getUrl())
+                                                        .stream()
+                                                        .filter(roltype -> betrokkenen.contains(roltype.getOmschrijvingGeneriek())
+                                                        ).sorted(Comparator.comparing(RolType::getOmschrijving))
         );
     }
 
     @GET
     @Path("contactgegevens/{identificatieType}/{initiatorIdentificatie}")
     public RESTContactGegevens ophalenContactGegevens(
-            @PathParam("identificatieType") final IdentificatieType identificatieType,
-            @PathParam("initiatorIdentificatie") final String initiatorIdentificatie) {
+                                                      @PathParam("identificatieType") final IdentificatieType identificatieType,
+                                                      @PathParam("initiatorIdentificatie") final String initiatorIdentificatie) {
         final RESTContactGegevens restContactGegevens = new RESTContactGegevens();
         if (identificatieType == null) {
             return restContactGegevens;

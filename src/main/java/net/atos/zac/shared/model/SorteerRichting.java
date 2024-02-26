@@ -27,9 +27,9 @@ public enum SorteerRichting {
             return SorteerRichting.DESCENDING;
         }
         return Stream.of(SorteerRichting.values())
-                .filter(filter -> String.valueOf(filter.value).equals(waarde))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(String.format("Onbekende waarde '%s'", waarde)));
+                     .filter(filter -> String.valueOf(filter.value).equals(waarde))
+                     .findFirst()
+                     .orElseThrow(() -> new IllegalArgumentException(String.format("Onbekende waarde '%s'", waarde)));
 
 
     }

@@ -15,8 +15,8 @@ public class RESTCommunicatiekanaalConverter {
 
     public List<RESTCommunicatiekanaal> convert(final List<CommunicatieKanaal> communicatieKanalen) {
         return communicatieKanalen.stream()
-                .map(this::convert)
-                .toList();
+                                  .map(this::convert)
+                                  .toList();
     }
 
     public RESTCommunicatiekanaal convert(final CommunicatieKanaal communicatieKanaal) {

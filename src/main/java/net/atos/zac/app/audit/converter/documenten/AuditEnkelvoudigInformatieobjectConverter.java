@@ -40,7 +40,8 @@ public class AuditEnkelvoudigInformatieobjectConverter extends AbstractAuditWijz
         final List<RESTHistorieRegel> historieRegels = new LinkedList<>();
         checkAttribuut("titel", oud.getTitel(), nieuw.getTitel(), historieRegels);
         checkAttribuut("identificatie", oud.getIdentificatie(), nieuw.getIdentificatie(), historieRegels);
-        checkAttribuut("vertrouwelijkheidaanduiding", oud.getVertrouwelijkheidaanduiding(), nieuw.getVertrouwelijkheidaanduiding(), historieRegels);
+        checkAttribuut("vertrouwelijkheidaanduiding", oud.getVertrouwelijkheidaanduiding(), nieuw.getVertrouwelijkheidaanduiding(),
+                       historieRegels);
         checkAttribuut("bestandsnaam", oud.getBestandsnaam(), nieuw.getBestandsnaam(), historieRegels);
         checkAttribuut("taal", oud.getTaal(), nieuw.getTaal(), historieRegels);
         checkInformatieobjecttype(oud.getInformatieobjecttype(), nieuw.getInformatieobjecttype(), historieRegels);
@@ -61,7 +62,8 @@ public class AuditEnkelvoudigInformatieobjectConverter extends AbstractAuditWijz
 
     private void checkInformatieobjecttype(final URI oud, final URI nieuw, final List<RESTHistorieRegel> historieRegels) {
         if (ObjectUtils.notEqual(oud, nieuw)) {
-            historieRegels.add(new RESTHistorieRegel("documentType", informatieobjecttypeToWaarde(oud), informatieobjecttypeToWaarde(nieuw)));
+            historieRegels.add(new RESTHistorieRegel("documentType", informatieobjecttypeToWaarde(oud), informatieobjecttypeToWaarde(
+                                                                                                                                     nieuw)));
         }
     }
 

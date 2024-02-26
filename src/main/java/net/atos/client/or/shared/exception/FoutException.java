@@ -27,11 +27,11 @@ public class FoutException extends RuntimeException {
     @Override
     public String getMessage() {
         return "%s [%d %s] %s (%s)"
-                .formatted(fout.getTitle(),
-                           fout.getStatus(),
-                           fout.getCode(),
-                           fout.getDetail(),
-                           uri(fout.getInstance()));
+                                   .formatted(fout.getTitle(),
+                                              fout.getStatus(),
+                                              fout.getCode(),
+                                              fout.getDetail(),
+                                              uri(fout.getInstance()));
     }
 
     private String uri(final URI uri) {

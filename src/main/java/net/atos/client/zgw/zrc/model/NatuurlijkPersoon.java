@@ -73,7 +73,8 @@ public class NatuurlijkPersoon {
      */
     private SubVerblijfBuitenland subVerblijfBuitenland;
 
-    public NatuurlijkPersoon() {}
+    public NatuurlijkPersoon() {
+    }
 
     public NatuurlijkPersoon(final String inpBsn) {
         this.inpBsn = inpBsn;

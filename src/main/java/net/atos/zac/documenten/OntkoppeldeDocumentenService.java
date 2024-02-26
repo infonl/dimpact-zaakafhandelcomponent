@@ -54,8 +54,8 @@ public class OntkoppeldeDocumentenService {
 
 
     public OntkoppeldDocument create(final EnkelvoudigInformatieObject informatieobject,
-            final Zaak zaak,
-            final String reden) {
+                                     final Zaak zaak,
+                                     final String reden) {
         final OntkoppeldDocument ontkoppeldDocument = new OntkoppeldDocument();
         ontkoppeldDocument.setDocumentID(informatieobject.getIdentificatie());
         ontkoppeldDocument.setDocumentUUID(UriUtil.uuidFromURI(informatieobject.getUrl()));
@@ -143,12 +143,12 @@ public class OntkoppeldeDocumentenService {
     }
 
     private Predicate getWhere(final OntkoppeldDocumentListParameters listParameters,
-            final Root<OntkoppeldDocument> root) {
+                               final Root<OntkoppeldDocument> root) {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final List<Predicate> predicates = new ArrayList<>();
         if (StringUtils.isNotBlank(listParameters.getZaakID())) {
             predicates.add(
-                    builder.like(root.get(OntkoppeldDocument.ZAAK_ID), LIKE.formatted(listParameters.getZaakID())));
+                           builder.like(root.get(OntkoppeldDocument.ZAAK_ID), LIKE.formatted(listParameters.getZaakID())));
         }
         if (StringUtils.isNotBlank(listParameters.getTitel())) {
             String titel = LIKE.formatted(listParameters.getTitel().toLowerCase().replace(" ", "%"));
@@ -161,7 +161,7 @@ public class OntkoppeldeDocumentenService {
 
         if (StringUtils.isNotBlank(listParameters.getOntkoppeldDoor())) {
             predicates.add(
-                    builder.equal(root.get(OntkoppeldDocument.ONTKOPPELD_DOOR), listParameters.getOntkoppeldDoor()));
+                           builder.equal(root.get(OntkoppeldDocument.ONTKOPPELD_DOOR), listParameters.getOntkoppeldDoor()));
         }
         addDatumRangePredicates(listParameters.getCreatiedatum(), OntkoppeldDocument.CREATIEDATUM, predicates, root,
                                 builder);
@@ -173,8 +173,8 @@ public class OntkoppeldeDocumentenService {
 
 
     private void addDatumRangePredicates(final DatumRange datumRange, final String veld,
-            final List<Predicate> predicates,
-            final Root<OntkoppeldDocument> root, final CriteriaBuilder builder) {
+                                         final List<Predicate> predicates,
+                                         final Root<OntkoppeldDocument> root, final CriteriaBuilder builder) {
         if (datumRange != null) {
             if (datumRange.van() != null) {
                 predicates.add(builder.greaterThanOrEqualTo(root.get(veld),
@@ -183,7 +183,7 @@ public class OntkoppeldeDocumentenService {
             if (datumRange.tot() != null) {
                 predicates.add(builder.lessThanOrEqualTo(root.get(veld),
                                                          DateTimeUtil.convertToDateTime(datumRange.tot()).plusDays(1)
-                                                                 .minusSeconds(1)));
+                                                                     .minusSeconds(1)));
             }
         }
     }

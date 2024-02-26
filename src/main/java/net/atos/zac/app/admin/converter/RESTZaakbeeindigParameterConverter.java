@@ -28,14 +28,14 @@ public class RESTZaakbeeindigParameterConverter {
 
     public List<RESTZaakbeeindigParameter> convertZaakbeeindigParameters(final Set<ZaakbeeindigParameter> zaakbeeindigRedenen) {
         return zaakbeeindigRedenen.stream()
-                .map(this::convertZaakbeeindigParameter)
-                .toList();
+                                  .map(this::convertZaakbeeindigParameter)
+                                  .toList();
     }
 
     public List<ZaakbeeindigParameter> convertRESTZaakbeeindigParameters(final List<RESTZaakbeeindigParameter> restZaakbeeindigParameters) {
         return restZaakbeeindigParameters.stream()
-                .map(this::convertRESTZaakbeeindigParameter)
-                .toList();
+                                         .map(this::convertRESTZaakbeeindigParameter)
+                                         .toList();
     }
 
     private RESTZaakbeeindigParameter convertZaakbeeindigParameter(final ZaakbeeindigParameter zaakbeeindigParameter) {
@@ -43,7 +43,7 @@ public class RESTZaakbeeindigParameterConverter {
         restZaakbeeindigParameter.id = zaakbeeindigParameter.getId();
         restZaakbeeindigParameter.zaakbeeindigReden = restZaakbeeindigRedenConverter.convertZaakbeeindigReden(zaakbeeindigParameter.getZaakbeeindigReden());
         restZaakbeeindigParameter.resultaattype = restResultaattypeConverter.convertResultaattype(
-                ztcClientService.readResultaattype(zaakbeeindigParameter.getResultaattype()));
+                                                                                                  ztcClientService.readResultaattype(zaakbeeindigParameter.getResultaattype()));
         return restZaakbeeindigParameter;
     }
 

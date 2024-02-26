@@ -22,13 +22,13 @@ public class RESTUserConverter {
 
     public List<RESTUser> convertUsers(final List<User> users) {
         return users.stream()
-                .map(this::convertUser).toList();
+                    .map(this::convertUser).toList();
     }
 
     public List<RESTUser> convertUserIds(final List<String> userIds) {
         return userIds.stream()
-                .map(this::convertUserId)
-                .toList();
+                      .map(this::convertUserId)
+                      .toList();
     }
 
     public RESTUser convertUser(final User user) {

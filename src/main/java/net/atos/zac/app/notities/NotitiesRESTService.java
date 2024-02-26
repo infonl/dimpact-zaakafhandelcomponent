@@ -43,8 +43,8 @@ public class NotitiesRESTService {
     public List<RESTNotitie> listNotities(@PathParam("type") final String type, @PathParam("uuid") final String uuid) {
         final UUID notitieUUID = UUID.fromString(uuid);
         return notitieService.listNotitiesForZaak(notitieUUID).stream()
-                .map(notitieConverter::convertToRESTNotitie)
-                .collect(Collectors.toList());
+                             .map(notitieConverter::convertToRESTNotitie)
+                             .collect(Collectors.toList());
     }
 
     @POST

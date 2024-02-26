@@ -212,7 +212,7 @@ public class KlantListParameters {
     }
 
     public void setSubjectNietNatuurlijkPersoonAnnIdentificatie(
-            final String subjectNietNatuurlijkPersoonAnnIdentificatie) {
+                                                                final String subjectNietNatuurlijkPersoonAnnIdentificatie) {
         this.subjectNietNatuurlijkPersoonAnnIdentificatie = subjectNietNatuurlijkPersoonAnnIdentificatie;
     }
 

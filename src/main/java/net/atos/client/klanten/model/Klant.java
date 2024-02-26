@@ -5,7 +5,13 @@
 
 /**
  * Klanten API
- * Een API om klanten te benaderen.  Een API om zowel klanten te registreren als op te vragen. Een klant is een natuurlijk persoon, niet-natuurlijk persoon (bedrijf) of vestiging waarbij het gaat om niet geverifieerde gegevens. De Klanten API kan zelfstandig of met andere API's samen werken om tot volledige functionaliteit te komen.  **Afhankelijkheden**  Deze API is afhankelijk van:  * Autorisaties API * Notificaties API * Zaken API *(optioneel)* * Documenten API *(optioneel)*  **Autorisatie**  Deze API vereist autorisatie. Je kan de [token-tool](https://zaken-auth.vng.cloud/) gebruiken om JWT-tokens te genereren.  ** Notificaties  Deze API publiceert notificaties op het kanaal `klanten`.  **Main resource**  `klant`    **Kenmerken**  * `subject_type`: Type van de `subject`.  **Resources en acties**   **Handige links**  * [Documentatie](https://zaakgerichtwerken.vng.cloud/standaard) * [Zaakgericht werken](https://zaakgerichtwerken.vng.cloud)
+ * Een API om klanten te benaderen. Een API om zowel klanten te registreren als op te vragen. Een klant is een natuurlijk persoon,
+ * niet-natuurlijk persoon (bedrijf) of vestiging waarbij het gaat om niet geverifieerde gegevens. De Klanten API kan zelfstandig of met
+ * andere API's samen werken om tot volledige functionaliteit te komen. **Afhankelijkheden** Deze API is afhankelijk van: * Autorisaties API
+ * * Notificaties API * Zaken API *(optioneel)* * Documenten API *(optioneel)* **Autorisatie** Deze API vereist autorisatie. Je kan de
+ * [token-tool](https://zaken-auth.vng.cloud/) gebruiken om JWT-tokens te genereren. ** Notificaties Deze API publiceert notificaties op het
+ * kanaal `klanten`. **Main resource** `klant` **Kenmerken** * `subject_type`: Type van de `subject`. **Resources en acties** **Handige
+ * links** * [Documentatie](https://zaakgerichtwerken.vng.cloud/standaard) * [Zaakgericht werken](https://zaakgerichtwerken.vng.cloud)
  * <p>
  * The version of the OpenAPI document: 1.0.0
  * Contact: standaarden.ondersteuning@vng.nl
@@ -41,7 +47,8 @@ public class Klant {
     protected URI url;
 
     /**
-     * Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie die de klant heeft gecreeerd. Dit moet een geldig RSIN zijn van 9 nummers en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
+     * Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie die de klant heeft gecreeerd. Dit moet een geldig RSIN zijn van 9
+     * nummers en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
      **/
     @JsonbProperty("bronorganisatie")
     private String bronorganisatie;
@@ -65,7 +72,8 @@ public class Klant {
     private String functie;
 
     /**
-     * Het label of etiket dat aan de specifieke informatiebron, zoals een webpagina, een bestand of een plaatje op internet is toegewezen waar de KLANT in de regel op het internet vindbaar is.
+     * Het label of etiket dat aan de specifieke informatiebron, zoals een webpagina, een bestand of een plaatje op internet is toegewezen
+     * waar de KLANT in de regel op het internet vindbaar is.
      **/
     @JsonbProperty("websiteUrl")
     private URI websiteUrl;
@@ -114,7 +122,8 @@ public class Klant {
     public enum SubjectTypeEnum {
 
         NATUURLIJK_PERSOON(String.valueOf("natuurlijk_persoon")),
-        NIET_NATUURLIJK_PERSOON(String.valueOf("niet_natuurlijk_persoon")), VESTIGING(String.valueOf("vestiging"));
+        NIET_NATUURLIJK_PERSOON(String.valueOf("niet_natuurlijk_persoon")),
+        VESTIGING(String.valueOf("vestiging"));
 
 
         String value;
@@ -153,7 +162,8 @@ public class Klant {
     }
 
     /**
-     * Type van de `subject`.  Uitleg bij mogelijke waarden:  * `natuurlijk_persoon` - Natuurlijk persoon * `niet_natuurlijk_persoon` - Niet-natuurlijk persoon * `vestiging` - Vestiging
+     * Type van de `subject`. Uitleg bij mogelijke waarden: * `natuurlijk_persoon` - Natuurlijk persoon * `niet_natuurlijk_persoon` -
+     * Niet-natuurlijk persoon * `vestiging` - Vestiging
      **/
     @JsonbProperty("subjectType")
     private SubjectTypeEnum subjectType;
@@ -163,13 +173,14 @@ public class Klant {
 
     @JsonbCreator
     public Klant(
-            @JsonbProperty(value = "url", nillable = true) URI url
+                 @JsonbProperty(value = "url", nillable = true) URI url
     ) {
         this.url = url;
     }
 
     /**
      * URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object.
+     * 
      * @return url
      **/
     public URI getUrl() {
@@ -178,7 +189,9 @@ public class Klant {
 
 
     /**
-     * Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie die de klant heeft gecreeerd. Dit moet een geldig RSIN zijn van 9 nummers en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
+     * Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie die de klant heeft gecreeerd. Dit moet een geldig RSIN zijn van 9
+     * nummers en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
+     * 
      * @return bronorganisatie
      **/
     public String getBronorganisatie() {
@@ -199,6 +212,7 @@ public class Klant {
 
     /**
      * De unieke identificatie van de klant binnen de bronorganisatie.
+     * 
      * @return klantnummer
      **/
     public String getKlantnummer() {
@@ -219,6 +233,7 @@ public class Klant {
 
     /**
      * De bedrijfsnaam van de klant.
+     * 
      * @return bedrijfsnaam
      **/
     public String getBedrijfsnaam() {
@@ -239,6 +254,7 @@ public class Klant {
 
     /**
      * De functie van de klant.
+     * 
      * @return functie
      **/
     public String getFunctie() {
@@ -258,7 +274,9 @@ public class Klant {
     }
 
     /**
-     * Het label of etiket dat aan de specifieke informatiebron, zoals een webpagina, een bestand of een plaatje op internet is toegewezen waar de KLANT in de regel op het internet vindbaar is.
+     * Het label of etiket dat aan de specifieke informatiebron, zoals een webpagina, een bestand of een plaatje op internet is toegewezen
+     * waar de KLANT in de regel op het internet vindbaar is.
+     * 
      * @return websiteUrl
      **/
     public URI getWebsiteUrl() {
@@ -279,6 +297,7 @@ public class Klant {
 
     /**
      * De voornaam, voorletters of roepnaam van de klant.
+     * 
      * @return voornaam
      **/
     public String getVoornaam() {
@@ -299,6 +318,7 @@ public class Klant {
 
     /**
      * Het voorvoegsel van de achternaam van de klant.
+     * 
      * @return voorvoegselAchternaam
      **/
     public String getVoorvoegselAchternaam() {
@@ -319,6 +339,7 @@ public class Klant {
 
     /**
      * De achternaam van de klant.
+     * 
      * @return achternaam
      **/
     public String getAchternaam() {
@@ -339,6 +360,7 @@ public class Klant {
 
     /**
      * Het mobiele of vaste telefoonnummer van de klant.
+     * 
      * @return telefoonnummer
      **/
     public String getTelefoonnummer() {
@@ -359,6 +381,7 @@ public class Klant {
 
     /**
      * Het e-mail adres van de klant.
+     * 
      * @return emailadres
      **/
     public String getEmailadres() {
@@ -379,6 +402,7 @@ public class Klant {
 
     /**
      * Get adres
+     * 
      * @return adres
      **/
     public KlantAdres getAdres() {
@@ -399,6 +423,7 @@ public class Klant {
 
     /**
      * URL-referentie naar een subject
+     * 
      * @return subject
      **/
     public URI getSubject() {
@@ -418,7 +443,9 @@ public class Klant {
     }
 
     /**
-     * Type van de &#x60;subject&#x60;.  Uitleg bij mogelijke waarden:  * &#x60;natuurlijk_persoon&#x60; - Natuurlijk persoon * &#x60;niet_natuurlijk_persoon&#x60; - Niet-natuurlijk persoon * &#x60;vestiging&#x60; - Vestiging
+     * Type van de &#x60;subject&#x60;. Uitleg bij mogelijke waarden: * &#x60;natuurlijk_persoon&#x60; - Natuurlijk persoon *
+     * &#x60;niet_natuurlijk_persoon&#x60; - Niet-natuurlijk persoon * &#x60;vestiging&#x60; - Vestiging
+     * 
      * @return subjectType
      **/
     public SubjectTypeEnum getSubjectType() {
@@ -475,4 +502,3 @@ public class Klant {
         return o.toString().replace("\n", "\n    ");
     }
 }
-

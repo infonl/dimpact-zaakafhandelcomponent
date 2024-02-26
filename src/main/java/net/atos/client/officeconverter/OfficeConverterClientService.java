@@ -5,14 +5,15 @@
 
 package net.atos.client.officeconverter;
 
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
+import java.io.ByteArrayInputStream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import java.io.ByteArrayInputStream;
+
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 
 @ApplicationScoped
 public class OfficeConverterClientService {

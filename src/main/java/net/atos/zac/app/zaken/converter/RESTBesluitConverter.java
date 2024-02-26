@@ -53,19 +53,18 @@ public class RESTBesluitConverter {
         restBesluit.ingangsdatum = besluit.getIngangsdatum();
         restBesluit.vervaldatum = besluit.getVervaldatum();
         restBesluit.vervalreden = besluit.getVervalreden();
-        restBesluit.isIngetrokken =
-                restBesluit.vervaldatum != null &&
-                        (restBesluit.vervalreden == Besluit.VervalredenEnum.INGETROKKEN_BELANGHEBBENDE ||
-                                restBesluit.vervalreden == Besluit.VervalredenEnum.INGETROKKEN_OVERHEID);
+        restBesluit.isIngetrokken = restBesluit.vervaldatum != null &&
+                                    (restBesluit.vervalreden == Besluit.VervalredenEnum.INGETROKKEN_BELANGHEBBENDE ||
+                                     restBesluit.vervalreden == Besluit.VervalredenEnum.INGETROKKEN_OVERHEID);
         restBesluit.informatieobjecten = informatieobjectConverter.convertInformatieobjectenToREST(
-                listBesluitInformatieobjecten(besluit));
+                                                                                                   listBesluitInformatieobjecten(besluit));
         return restBesluit;
     }
 
     public List<RESTBesluit> convertToRESTBesluit(final List<Besluit> besluiten) {
         return besluiten.stream()
-                .map(this::convertToRESTBesluit)
-                .toList();
+                        .map(this::convertToRESTBesluit)
+                        .toList();
     }
 
     public Besluit convertToBesluit(final Zaak zaak, final RESTBesluitVastleggenGegevens besluitToevoegenGegevens) {
@@ -94,7 +93,7 @@ public class RESTBesluitConverter {
     }
 
     public Besluit convertToBesluit(final Besluit besluit,
-            final RESTBesluitIntrekkenGegevens besluitIntrekkenGegevens) {
+                                    final RESTBesluitIntrekkenGegevens besluitIntrekkenGegevens) {
         besluit.setVervaldatum(besluitIntrekkenGegevens.vervaldatum);
         besluit.setVervalreden(Besluit.VervalredenEnum.valueOf(besluitIntrekkenGegevens.vervalreden));
         return besluit;
@@ -102,8 +101,8 @@ public class RESTBesluitConverter {
 
     public List<EnkelvoudigInformatieObject> listBesluitInformatieobjecten(final Besluit besluit) {
         return brcClientService.listBesluitInformatieobjecten(besluit.getUrl()).stream()
-                .map(besluitInformatieobject -> drcClientService.readEnkelvoudigInformatieobject(
-                        besluitInformatieobject.getInformatieobject()))
-                .collect(Collectors.toList());
+                               .map(besluitInformatieobject -> drcClientService.readEnkelvoudigInformatieobject(
+                                                                                                                besluitInformatieobject.getInformatieobject()))
+                               .collect(Collectors.toList());
     }
 }

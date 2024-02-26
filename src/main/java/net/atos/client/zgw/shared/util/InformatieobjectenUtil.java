@@ -27,7 +27,7 @@ public class InformatieobjectenUtil {
      * separate Java classes with two separate enums.
      */
     public static EnkelvoudigInformatieObject.StatusEnum convertToEnkelvoudigInformatieObjectStatusEnum(
-            EnkelvoudigInformatieObjectWithLockData.StatusEnum statusEnum
+                                                                                                        EnkelvoudigInformatieObjectWithLockData.StatusEnum statusEnum
     ) {
         return EnkelvoudigInformatieObject.StatusEnum.valueOf(statusEnum.name());
     }
@@ -40,7 +40,7 @@ public class InformatieobjectenUtil {
      * separate Java classes with two separate enums.
      */
     public static EnkelvoudigInformatieObjectData.StatusEnum convertToEnkelvoudigInformatieObjectDataStatusEnum(
-            EnkelvoudigInformatieObject.StatusEnum statusEnum
+                                                                                                                EnkelvoudigInformatieObject.StatusEnum statusEnum
     ) {
         return EnkelvoudigInformatieObjectData.StatusEnum.valueOf(statusEnum.name());
     }
@@ -53,25 +53,24 @@ public class InformatieobjectenUtil {
      * separate Java classes with two separate enums.
      */
     public static EnkelvoudigInformatieObjectWithLockData.StatusEnum convertToEnkelvoudigInformatieObjectWithLockDataStatusEnum(
-            EnkelvoudigInformatieObject.StatusEnum statusEnum
+                                                                                                                                EnkelvoudigInformatieObject.StatusEnum statusEnum
     ) {
         return EnkelvoudigInformatieObjectWithLockData.StatusEnum.valueOf(statusEnum.name());
     }
 
-    public static EnkelvoudigInformatieObjectWithLockData.VertrouwelijkheidaanduidingEnum
-    convertToEnkelvoudigInformatieObjectWithLockDataVertrouwelijkheidaanduidingEnum(
-            String vertrouwelijkheidaanduidingEnumString
+    public static EnkelvoudigInformatieObjectWithLockData.VertrouwelijkheidaanduidingEnum convertToEnkelvoudigInformatieObjectWithLockDataVertrouwelijkheidaanduidingEnum(
+                                                                                                                                                                          String vertrouwelijkheidaanduidingEnumString
     ) {
         return EnkelvoudigInformatieObjectWithLockData.VertrouwelijkheidaanduidingEnum.valueOf(
-                vertrouwelijkheidaanduidingEnumString.toUpperCase()
+                                                                                               vertrouwelijkheidaanduidingEnumString.toUpperCase()
         );
     }
 
     public static EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum convertToVertrouwelijkheidaanduidingEnum(
-            String vertrouwelijkheidaanduidingEnumString
+                                                                                                                       String vertrouwelijkheidaanduidingEnumString
     ) {
         return EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum.valueOf(
-                vertrouwelijkheidaanduidingEnumString.toUpperCase()
+                                                                                   vertrouwelijkheidaanduidingEnumString.toUpperCase()
         );
     }
 }

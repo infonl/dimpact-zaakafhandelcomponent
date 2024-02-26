@@ -22,6 +22,7 @@ public class RuntimeExceptionMapper implements ResponseExceptionMapper<RuntimeEx
 
     @Override
     public RuntimeException toThrowable(final Response response) {
-        return new RuntimeException(String.format("Server response from VNG Referentielijsten: %d (%s)", response.getStatus(), response.getStatusInfo()));
+        return new RuntimeException(String.format("Server response from VNG Referentielijsten: %d (%s)", response.getStatus(), response
+                                                                                                                                       .getStatusInfo()));
     }
 }

@@ -38,7 +38,8 @@ public class EnkelvoudigInformatieObjectUpdateService {
         final var update = new EnkelvoudigInformatieObjectWithLockData();
         update.setVerzenddatum(verzenddatum);
         updateEnkelvoudigInformatieObjectWithLockData(uuid, update, isNotEmpty(toelichting) ? "%s: %s".formatted(
-                VERZEND_TOELICHTING_PREFIX, toelichting) :
+                                                                                                                 VERZEND_TOELICHTING_PREFIX,
+                                                                                                                 toelichting) :
                 VERZEND_TOELICHTING_PREFIX);
     }
 
@@ -53,9 +54,9 @@ public class EnkelvoudigInformatieObjectUpdateService {
     }
 
     public EnkelvoudigInformatieObjectWithLockData updateEnkelvoudigInformatieObjectWithLockData(
-            final UUID uuid,
-            final EnkelvoudigInformatieObjectWithLockData update,
-            final String toelichting
+                                                                                                 final UUID uuid,
+                                                                                                 final EnkelvoudigInformatieObjectWithLockData update,
+                                                                                                 final String toelichting
     ) {
         EnkelvoudigInformatieObjectLock tempLock = null;
         try {

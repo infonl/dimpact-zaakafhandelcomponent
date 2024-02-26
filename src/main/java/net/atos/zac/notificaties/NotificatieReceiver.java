@@ -99,7 +99,7 @@ public class NotificatieReceiver {
         SecurityUtil.setFunctioneelGebruiker(httpSession.get());
         if (isAuthenticated(headers)) {
             LOG.info(() -> "Notificatie ontvangen: %s"
-                    .formatted(notificatie.toString()));
+                                                      .formatted(notificatie.toString()));
             handleWebsockets(notificatie);
             if (!configuratieService.isLocalDevelopment()) {
                 handleSignaleringen(notificatie);
@@ -123,7 +123,7 @@ public class NotificatieReceiver {
             if (notificatie.getChannel() != null && notificatie.getResource() != null) {
                 ScreenEventType.getEvents(notificatie.getChannel(), notificatie.getMainResourceInfo(),
                                           notificatie.getResourceInfo())
-                        .forEach(eventingService::send);
+                               .forEach(eventingService::send);
             }
         } catch (RuntimeException ex) {
             warning("Websockets", notificatie, ex);
@@ -135,7 +135,7 @@ public class NotificatieReceiver {
             if (notificatie.getChannel() != null && notificatie.getResource() != null) {
                 SignaleringEventUtil.getEvents(notificatie.getChannel(), notificatie.getMainResourceInfo(),
                                                notificatie.getResourceInfo())
-                        .forEach(eventingService::send);
+                                    .forEach(eventingService::send);
             }
         } catch (RuntimeException ex) {
             warning("Signaleringen", notificatie, ex);
@@ -173,12 +173,12 @@ public class NotificatieReceiver {
                         indexeerService.removeZaak(uuidFromURI(notificatie.getResourceUrl()));
                     }
                 } else if (notificatie.getResource() == STATUS || notificatie.getResource() == RESULTAAT ||
-                        notificatie.getResource() == ROL || notificatie.getResource() == ZAAKOBJECT) {
-                    indexeerService.addOrUpdateZaak(uuidFromURI(notificatie.getMainResourceUrl()), false);
-                } else if (notificatie.getResource() == ZAAKINFORMATIEOBJECT && notificatie.getAction() == CREATE) {
-                    indexeerService.addOrUpdateInformatieobjectByZaakinformatieobject(
-                            uuidFromURI(notificatie.getResourceUrl()));
-                }
+                           notificatie.getResource() == ROL || notificatie.getResource() == ZAAKOBJECT) {
+                               indexeerService.addOrUpdateZaak(uuidFromURI(notificatie.getMainResourceUrl()), false);
+                           } else if (notificatie.getResource() == ZAAKINFORMATIEOBJECT && notificatie.getAction() == CREATE) {
+                               indexeerService.addOrUpdateInformatieobjectByZaakinformatieobject(
+                                                                                                 uuidFromURI(notificatie.getResourceUrl()));
+                           }
             }
             if (notificatie.getChannel() == Channel.INFORMATIEOBJECTEN) {
                 if (notificatie.getResource() == INFORMATIEOBJECT) {
@@ -223,7 +223,7 @@ public class NotificatieReceiver {
     private void warning(final String handler, final Notificatie notificatie, final RuntimeException ex) {
         LOG.log(Level.WARNING,
                 "Er is iets fout gegaan in de %s-handler bij het afhandelen van notificatie: %s"
-                        .formatted(handler, notificatie.toString()),
+                                                                                                .formatted(handler, notificatie.toString()),
                 ex);
     }
 }

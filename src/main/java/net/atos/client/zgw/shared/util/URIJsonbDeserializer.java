@@ -9,19 +9,19 @@ import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.apache.commons.lang3.StringUtils;
-
 import jakarta.json.bind.serializer.DeserializationContext;
 import jakarta.json.bind.serializer.JsonbDeserializer;
 import jakarta.json.stream.JsonParser;
+
+import org.apache.commons.lang3.StringUtils;
 
 public class URIJsonbDeserializer implements JsonbDeserializer<URI> {
 
     @Override
     public URI deserialize(
-            final JsonParser parser,
-            final DeserializationContext ctx,
-            final Type rtType
+                           final JsonParser parser,
+                           final DeserializationContext ctx,
+                           final Type rtType
     ) {
         try {
             final String uri = parser.getString();

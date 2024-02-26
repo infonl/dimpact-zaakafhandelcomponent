@@ -30,7 +30,8 @@ public class VRLClientService {
         if (results.getNext() == null) {
             return results.getResults();
         } else {
-            throw new IllegalStateException(String.format("Number of '%s' instances do not fit on a single page.", CommunicatieKanaal.class.getName()));
+            throw new IllegalStateException(String.format("Number of '%s' instances do not fit on a single page.", CommunicatieKanaal.class
+                                                                                                                                           .getName()));
         }
     }
 
@@ -44,7 +45,7 @@ public class VRLClientService {
 
     public Optional<CommunicatieKanaal> findCommunicatiekanaal(final String communicatiekanaalNaam) {
         return listCommunicatiekanalen().stream()
-                .filter(communicatieKanaal -> communicatieKanaal.getNaam().equals(communicatiekanaalNaam))
-                .findAny();
+                                        .filter(communicatieKanaal -> communicatieKanaal.getNaam().equals(communicatiekanaalNaam))
+                                        .findAny();
     }
 }

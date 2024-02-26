@@ -99,7 +99,7 @@ public class BAGClientService {
 
     private Invocation.Builder createInvocationBuilder(final URI uri) {
         return JAXRSClientFactory.getOrCreateClient().target(uri)
-                .request("application/hal+json", "application/problem+json")
-                .header(X_API_KEY, API_KEY);
+                                 .request("application/hal+json", "application/problem+json")
+                                 .header(X_API_KEY, API_KEY);
     }
 }

@@ -19,7 +19,8 @@ public class PostDelegate extends AbstractDelegate {
     @Override
     public void execute(final DelegateExecution delegateExecution) {
         LOG.info("Verstuur per post besluit van zaak '%s' via %s met template '%s'."
-                         .formatted(getZaakIdentificatie(delegateExecution), PostDelegate.class.getSimpleName(),
-                                    template.getExpressionText()));
+                                                                                    .formatted(getZaakIdentificatie(delegateExecution),
+                                                                                               PostDelegate.class.getSimpleName(),
+                                                                                               template.getExpressionText()));
     }
 }

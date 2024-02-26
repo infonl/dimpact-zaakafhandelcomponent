@@ -38,11 +38,11 @@ public class Fout {
 
     @JsonbCreator
     public Fout(@JsonbProperty("type") final URI type,
-            @JsonbProperty("code") final String code,
-            @JsonbProperty("title") final String title,
-            @JsonbProperty("status") final int status,
-            @JsonbProperty("detail") final String detail,
-            @JsonbProperty("instance") final URI instance) {
+                @JsonbProperty("code") final String code,
+                @JsonbProperty("title") final String title,
+                @JsonbProperty("status") final int status,
+                @JsonbProperty("detail") final String detail,
+                @JsonbProperty("instance") final URI instance) {
         this.type = type;
         this.code = code;
         this.title = title;

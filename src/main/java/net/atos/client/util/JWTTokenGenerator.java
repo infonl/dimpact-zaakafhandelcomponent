@@ -25,9 +25,9 @@ public final class JWTTokenGenerator {
         headerClaims.put("client_identifier", clientId);
         final JWTCreator.Builder jwtBuilder = JWT.create();
         jwtBuilder.withIssuer(clientId)
-                .withIssuedAt(new Date())
-                .withHeader(headerClaims)
-                .withClaim("client_id", clientId);
+                  .withIssuedAt(new Date())
+                  .withHeader(headerClaims)
+                  .withClaim("client_id", clientId);
         if (loggedInUser != null) {
             jwtBuilder.withClaim("user_id", loggedInUser.getId());
             jwtBuilder.withClaim("user_representation", loggedInUser.getFullName());

@@ -31,8 +31,7 @@ import net.atos.zac.app.planitems.model.DefaultHumanTaskFormulierKoppeling;
 
 @Entity
 @Table(schema = SCHEMA, name = "humantask_parameters")
-@SequenceGenerator(schema = SCHEMA, name = "sq_humantask_parameters", sequenceName = "sq_humantask_parameters",
-        allocationSize = 1)
+@SequenceGenerator(schema = SCHEMA, name = "sq_humantask_parameters", sequenceName = "sq_humantask_parameters", allocationSize = 1)
 public class HumanTaskParameters {
 
     @Id
@@ -40,8 +39,7 @@ public class HumanTaskParameters {
     @Column(name = "id_humantask_parameters")
     private Long id;
 
-    @NotNull
-    @ManyToOne
+    @NotNull @ManyToOne
     @JoinColumn(name = "id_zaakafhandelparameters", referencedColumnName = "id_zaakafhandelparameters")
     private ZaakafhandelParameters zaakafhandelParameters;
 
@@ -82,7 +80,9 @@ public class HumanTaskParameters {
     }
 
     public String getFormulierDefinitieID() {
-        return formulierDefinitieID != null ? formulierDefinitieID : DefaultHumanTaskFormulierKoppeling.readFormulierDefinitie(planItemDefinitionID).name();
+        return formulierDefinitieID != null ? formulierDefinitieID : DefaultHumanTaskFormulierKoppeling.readFormulierDefinitie(
+                                                                                                                               planItemDefinitionID)
+                                                                                                       .name();
     }
 
     public void setFormulierDefinitieID(final String formulierDefinitieID) {
@@ -124,9 +124,9 @@ public class HumanTaskParameters {
 
     private HumanTaskReferentieTabel getReferentieTabel(final String veld) {
         return referentieTabellen.stream()
-                .filter(referentieTabel -> referentieTabel.getVeld().equals(veld))
-                .findAny()
-                .orElse(null);
+                                 .filter(referentieTabel -> referentieTabel.getVeld().equals(veld))
+                                 .findAny()
+                                 .orElse(null);
     }
 
     private boolean addReferentieTabel(final HumanTaskReferentieTabel referentieTabel) {

@@ -20,7 +20,7 @@ public class RolMedewerker extends Rol<Medewerker> {
     }
 
     public RolMedewerker(final URI zaak, final RolType roltype, final String roltoelichting,
-            final Medewerker betrokkeneIdentificatie) {
+                         final Medewerker betrokkeneIdentificatie) {
         super(zaak, roltype, BetrokkeneType.MEDEWERKER, betrokkeneIdentificatie, roltoelichting);
     }
 

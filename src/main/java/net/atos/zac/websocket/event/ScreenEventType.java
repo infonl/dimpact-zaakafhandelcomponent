@@ -49,7 +49,7 @@ public enum ScreenEventType {
     ENKELVOUDIG_INFORMATIEOBJECT {
         @Override
         public ScreenEvent event(final Opcode opcode,
-                final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
+                                 final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
             return instance(opcode, this, enkelvoudigInformatieobject);
         }
     },
@@ -57,7 +57,7 @@ public enum ScreenEventType {
     SIGNALERINGEN {
         @Override
         public ScreenEvent event(final Opcode opcode,
-                final Signalering signalering) {
+                                 final Signalering signalering) {
             return instance(opcode, this, signalering);
         }
     },
@@ -115,20 +115,20 @@ public enum ScreenEventType {
 
     // This is the factory method.
     private static ScreenEvent instance(final Opcode opcode, final ScreenEventType type, final String id,
-            final String detail) {
+                                        final String detail) {
         return new ScreenEvent(opcode, type, new ScreenEventId(id, detail));
     }
 
     // In these methods you determine what is used as an id, make sure that this is consistent with the other methods
     private static ScreenEvent instance(final Opcode opcode, final ScreenEventType type, final UUID uuid,
-            final UUID detail) {
+                                        final UUID detail) {
         return instance(opcode, type,
                         uuid.toString(),
                         detail != null ? detail.toString() : null);
     }
 
     private static ScreenEvent instance(final Opcode opcode, final ScreenEventType type, final URI url,
-            final URI detail) {
+                                        final URI detail) {
         return instance(opcode, type, uuidFromURI(url), detail != null ? uuidFromURI(detail) : null);
     }
 
@@ -147,12 +147,12 @@ public enum ScreenEventType {
     }
 
     private static ScreenEvent instance(final Opcode opcode, final ScreenEventType type,
-            final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
+                                        final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
         return instance(opcode, type, enkelvoudigInformatieobject.getUrl(), null);
     }
 
     private static ScreenEvent instance(final Opcode opcode, final ScreenEventType type,
-            final Signalering signalering) {
+                                        final Signalering signalering) {
         return instance(opcode, type, signalering.getTarget(), signalering.getType().getType().name());
     }
 
@@ -166,8 +166,8 @@ public enum ScreenEventType {
     }
 
     private ScreenEvent event(final Opcode opcode,
-            final Notificatie.ResourceInfo resource,
-            final Notificatie.ResourceInfo detail) {
+                              final Notificatie.ResourceInfo resource,
+                              final Notificatie.ResourceInfo detail) {
         return instance(opcode, this,
                         resource.getUrl(),
                         detail != null ? detail.getUrl() : null); // Allowed with all object types
@@ -186,7 +186,7 @@ public enum ScreenEventType {
     }
 
     public ScreenEvent event(final Opcode opcode,
-            final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
+                             final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
         throw new IllegalArgumentException(); // Not allowed except for object types where this method has an override
     }
 
@@ -330,7 +330,7 @@ public enum ScreenEventType {
     }
 
     private void addEvent(final Set<ScreenEvent> events, final Notificatie.ResourceInfo resource,
-            final Notificatie.ResourceInfo detail) {
+                          final Notificatie.ResourceInfo detail) {
         switch (resource.getAction()) {
             case CREATE:
                 // There cannot be any websockets listeners for Opcode.CREATED, so don't send the event.
@@ -356,7 +356,7 @@ public enum ScreenEventType {
      * @return the set of events that the parameters map to
      */
     public static Set<ScreenEvent> getEvents(final Channel channel, final Notificatie.ResourceInfo mainResource,
-            final Notificatie.ResourceInfo resource) {
+                                             final Notificatie.ResourceInfo resource) {
         final Set<ScreenEvent> events = new HashSet<>();
         switch (channel) {
             case BESLUITEN:

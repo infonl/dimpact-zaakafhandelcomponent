@@ -48,9 +48,8 @@ public class DocumentZoekObjectConverter extends AbstractZoekObjectConverter<Doc
 
     @Override
     public DocumentZoekObject convert(final String documentUUID) {
-        final EnkelvoudigInformatieObject document =
-                drcClientService.readEnkelvoudigInformatieobject(
-                UUID.fromString(documentUUID));
+        final EnkelvoudigInformatieObject document = drcClientService.readEnkelvoudigInformatieobject(
+                                                                                                      UUID.fromString(documentUUID));
         final List<ZaakInformatieobject> zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(document);
         if (zaakInformatieobjecten.isEmpty()) {
             return null;
@@ -59,11 +58,11 @@ public class DocumentZoekObjectConverter extends AbstractZoekObjectConverter<Doc
     }
 
     private DocumentZoekObject convert(final EnkelvoudigInformatieObject informatieobject,
-            final ZaakInformatieobject gekoppeldeZaakInformatieobject) {
+                                       final ZaakInformatieobject gekoppeldeZaakInformatieobject) {
         final Zaak zaak = zrcClientService.readZaak(gekoppeldeZaakInformatieobject.getZaakUUID());
         final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
         final InformatieObjectType informatieobjecttype = ztcClientService.readInformatieobjecttype(
-                informatieobject.getInformatieobjecttype());
+                                                                                                    informatieobject.getInformatieobjecttype());
         final DocumentZoekObject documentZoekObject = new DocumentZoekObject();
         final UUID informatieobjectUUID = parseUUIDFromResourceURI(informatieobject.getUrl());
         documentZoekObject.setType(ZoekObjectType.DOCUMENT);
@@ -82,11 +81,12 @@ public class DocumentZoekObjectConverter extends AbstractZoekObjectConverter<Doc
         documentZoekObject.setZaakAfgehandeld(zaak.isOpen());
         documentZoekObject.setCreatiedatum(DateTimeConverterUtil.convertToDate(informatieobject.getCreatiedatum()));
         documentZoekObject.setRegistratiedatum(
-                DateTimeConverterUtil.convertToDate(informatieobject.getBeginRegistratie().toZonedDateTime()));
+                                               DateTimeConverterUtil.convertToDate(informatieobject.getBeginRegistratie()
+                                                                                                   .toZonedDateTime()));
         documentZoekObject.setOntvangstdatum(DateTimeConverterUtil.convertToDate(informatieobject.getOntvangstdatum()));
         documentZoekObject.setVerzenddatum(DateTimeConverterUtil.convertToDate(informatieobject.getVerzenddatum()));
         documentZoekObject.setOndertekeningDatum(
-                DateTimeConverterUtil.convertToDate(informatieobject.getOntvangstdatum()));
+                                                 DateTimeConverterUtil.convertToDate(informatieobject.getOntvangstdatum()));
         documentZoekObject.setVertrouwelijkheidaanduiding(informatieobject.getVertrouwelijkheidaanduiding().toString());
         documentZoekObject.setAuteur(informatieobject.getAuteur());
         if (informatieobject.getStatus() != null) {
@@ -103,16 +103,17 @@ public class DocumentZoekObjectConverter extends AbstractZoekObjectConverter<Doc
                 documentZoekObject.setOndertekeningSoort(informatieobject.getOndertekening().getSoort().value());
             }
             documentZoekObject.setOndertekeningDatum(
-                    DateTimeConverterUtil.convertToDate(informatieobject.getOndertekening().getDatum()));
+                                                     DateTimeConverterUtil.convertToDate(informatieobject.getOndertekening().getDatum()));
             documentZoekObject.setIndicatie(DocumentIndicatie.ONDERTEKEND, true);
         }
         documentZoekObject.setIndicatie(DocumentIndicatie.VERGRENDELD, informatieobject.getLocked());
         documentZoekObject.setIndicatie(DocumentIndicatie.GEBRUIKSRECHT, informatieobject.getIndicatieGebruiksrecht());
-        documentZoekObject.setIndicatie(DocumentIndicatie.BESLUIT, brcClientService.isInformatieObjectGekoppeldAanBesluit(informatieobject.getUrl()));
+        documentZoekObject.setIndicatie(DocumentIndicatie.BESLUIT, brcClientService.isInformatieObjectGekoppeldAanBesluit(informatieobject
+                                                                                                                                          .getUrl()));
         documentZoekObject.setIndicatie(DocumentIndicatie.VERZONDEN, informatieobject.getVerzenddatum() != null);
         if (informatieobject.getLocked()) {
             final EnkelvoudigInformatieObjectLock lock = enkelvoudigInformatieObjectLockService.readLock(
-                    informatieobjectUUID
+                                                                                                         informatieobjectUUID
             );
             documentZoekObject.setVergrendeldDoorGebruikersnaam(lock.getUserId());
             documentZoekObject.setVergrendeldDoorNaam(identityService.readUser(lock.getUserId()).getFullName());

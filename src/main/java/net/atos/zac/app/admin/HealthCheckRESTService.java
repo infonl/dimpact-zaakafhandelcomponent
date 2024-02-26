@@ -85,9 +85,9 @@ public class HealthCheckRESTService {
 
     private List<ZaakType> listZaaktypes() {
         return ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI()).stream()
-                .filter(zaaktype -> !zaaktype.getConcept())
-                .filter(ZaakTypeUtil::isNuGeldig)
-                .toList();
+                               .filter(zaaktype -> !zaaktype.getConcept())
+                               .filter(ZaakTypeUtil::isNuGeldig)
+                               .toList();
     }
 
     private RESTZaaktypeInrichtingscheck convertToREST(final ZaaktypeInrichtingscheck check) {

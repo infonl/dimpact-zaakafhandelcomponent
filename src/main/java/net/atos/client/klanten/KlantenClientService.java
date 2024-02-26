@@ -31,7 +31,7 @@ public class KlantenClientService {
 
     public CompletionStage<Optional<Klant>> findPersoonAsync(final String bsn) {
         return klantenClient.klantListAsync(createFindPersoonListParameters(bsn))
-                .thenApply(this::convertToSingleItem);
+                            .thenApply(this::convertToSingleItem);
     }
 
     public Optional<Klant> findVestiging(final String vestigingsnummer) {
@@ -40,7 +40,7 @@ public class KlantenClientService {
 
     public CompletionStage<Optional<Klant>> findVestigingAsync(final String vestigingsnummer) {
         return klantenClient.klantListAsync(createFindVestigingListParameters(vestigingsnummer))
-                .thenApply(this::convertToSingleItem);
+                            .thenApply(this::convertToSingleItem);
     }
 
     private KlantListParameters createFindPersoonListParameters(final String bsn) {

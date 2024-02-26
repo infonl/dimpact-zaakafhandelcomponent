@@ -31,8 +31,8 @@ public class UtilRESTService {
     @GET
     public String index() {
         return body(h(1, "Util") +
-                            links(Stream.of("cache", "cache/ztc")) +
-                            links(Stream.of("cache/clear", "cache/ztc/clear")));
+                    links(Stream.of("cache", "cache/ztc")) +
+                    links(Stream.of("cache/clear", "cache/ztc/clear")));
     }
 
     private String links(final Stream<String> url) {

@@ -22,13 +22,13 @@ public final class StringUtil {
 
     public static String joinNonBlankWith(final String delimiter, final String... parts) {
         return Arrays.stream(parts)
-                .filter(StringUtils::isNotBlank)
-                .collect(joining(delimiter));
+                     .filter(StringUtils::isNotBlank)
+                     .collect(joining(delimiter));
     }
 
     public static String joinNonBlank(final String... parts) {
         return Arrays.stream(parts)
-                .filter(StringUtils::isNotBlank)
-                .collect(joining());
+                     .filter(StringUtils::isNotBlank)
+                     .collect(joining());
     }
 }

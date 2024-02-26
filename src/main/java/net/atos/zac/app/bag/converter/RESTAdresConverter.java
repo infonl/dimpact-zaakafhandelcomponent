@@ -51,10 +51,9 @@ public class RESTAdresConverter {
         restBAGAdres.woonplaatsNaam = adres.getWoonplaatsNaam();
         if (adres.getGeconstateerd() != null) {
             final Geconstateerd geconstateerd = adres.getGeconstateerd();
-            restBAGAdres.geconstateerd =
-                    BooleanUtils.isTrue(geconstateerd.getNummeraanduiding()) &&
-                            BooleanUtils.isTrue(geconstateerd.getWoonplaats()) &&
-                            BooleanUtils.isTrue(geconstateerd.getOpenbareRuimte());
+            restBAGAdres.geconstateerd = BooleanUtils.isTrue(geconstateerd.getNummeraanduiding()) &&
+                                         BooleanUtils.isTrue(geconstateerd.getWoonplaats()) &&
+                                         BooleanUtils.isTrue(geconstateerd.getOpenbareRuimte());
         }
 
         if (adres.getEmbedded() != null) {
@@ -95,10 +94,12 @@ public class RESTAdresConverter {
     }
 
     private String convertToVolledigHuisnummer(final AdresIOHal adresHal) {
-        return RESTBAGConverter.getHuisnummerWeergave(adresHal.getHuisnummer(), adresHal.getHuisletter(), adresHal.getHuisnummertoevoeging());
+        return RESTBAGConverter.getHuisnummerWeergave(adresHal.getHuisnummer(), adresHal.getHuisletter(), adresHal
+                                                                                                                  .getHuisnummertoevoeging());
     }
 
     private String convertToVolledigHuisnummer(final ObjectAdres objectAdres) {
-        return RESTBAGConverter.getHuisnummerWeergave(objectAdres.getHuisnummer(), objectAdres.getHuisletter(), objectAdres.getHuisnummertoevoeging());
+        return RESTBAGConverter.getHuisnummerWeergave(objectAdres.getHuisnummer(), objectAdres.getHuisletter(), objectAdres
+                                                                                                                           .getHuisnummertoevoeging());
     }
 }

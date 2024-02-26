@@ -37,12 +37,12 @@ public class RESTCaseDefinitionConverter {
         final RESTCaseDefinition restCaseDefinition = new RESTCaseDefinition(caseDefinition.getName(), caseDefinition.getKey());
         if (inclusiefRelaties) {
             restCaseDefinition.humanTaskDefinitions = cmmnService.listHumanTasks(caseDefinition.getId()).stream()
-                    .map(this::convertHumanTaskDefinition)
-                    .toList();
+                                                                 .map(this::convertHumanTaskDefinition)
+                                                                 .toList();
             restCaseDefinition.userEventListenerDefinitions = cmmnService.listUserEventListeners(caseDefinition.getId())
-                    .stream()
-                    .map(this::convertUserEventListenerDefinition)
-                    .toList();
+                                                                         .stream()
+                                                                         .map(this::convertUserEventListenerDefinition)
+                                                                         .toList();
         }
         return restCaseDefinition;
     }

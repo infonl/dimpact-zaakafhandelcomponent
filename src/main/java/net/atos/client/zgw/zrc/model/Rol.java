@@ -73,11 +73,13 @@ public abstract class Rol<T> {
      * Uitleg bij mogelijke waarden:
      * 'adviseur' - (Adviseur) Kennis in dienst stellen van de behandeling van (een deel van) een zaak.
      * 'behandelaar' - (Behandelaar) De vakinhoudelijke behandeling doen van (een deel van) een zaak.
-     * 'belanghebbende' - (Belanghebbende) Vanuit eigen en objectief belang rechtstreeks betrokken zijn bij de behandeling en/of de uitkomst van een zaak.
+     * 'belanghebbende' - (Belanghebbende) Vanuit eigen en objectief belang rechtstreeks betrokken zijn bij de behandeling en/of de uitkomst
+     * van een zaak.
      * 'beslisser' - (Beslisser) Nemen van besluiten die voor de uitkomst van een zaak noodzakelijk zijn.
      * 'initiator' - (Initiator) Aanleiding geven tot de start van een zaak
      * 'klantcontacter' - (Klantcontacter) Het eerste aanspreekpunt zijn voor vragen van burgers en bedrijven
-     * 'zaakcoordinator' - (Zaakcoordinator) Er voor zorg dragen dat de behandeling van de zaak in samenhang uitgevoerd wordt conform de daarover gemaakte afspraken.
+     * 'zaakcoordinator' - (Zaakcoordinator) Er voor zorg dragen dat de behandeling van de zaak in samenhang uitgevoerd wordt conform de
+     * daarover gemaakte afspraken.
      * 'mede_initiator' - 'Mede-initiator'
      */
     private String omschrijvingGeneriek;
@@ -103,8 +105,8 @@ public abstract class Rol<T> {
      * Constructor with required attributes for POST and PUT requests
      */
     public Rol(final URI zaak, final RolType roltype, final BetrokkeneType betrokkeneType,
-            final T betrokkeneIdentificatie,
-            final String roltoelichting) {
+               final T betrokkeneIdentificatie,
+               final String roltoelichting) {
         this.zaak = zaak;
         this.betrokkeneIdentificatie = betrokkeneIdentificatie;
         this.betrokkeneType = betrokkeneType;
@@ -189,7 +191,7 @@ public abstract class Rol<T> {
 
     public boolean equalBetrokkeneRol(final Rol<?> other) {
         return getBetrokkeneType() == other.getBetrokkeneType() &&
-                getRoltype().equals(other.getRoltype());
+               getRoltype().equals(other.getRoltype());
     }
 
     protected abstract boolean equalBetrokkeneIdentificatie(final T identificatie);

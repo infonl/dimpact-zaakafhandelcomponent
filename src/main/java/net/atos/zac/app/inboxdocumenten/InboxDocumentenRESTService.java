@@ -67,7 +67,8 @@ public class InboxDocumentenRESTService {
         PolicyService.assertPolicy(policyService.readWerklijstRechten().inbox());
         final InboxDocumentListParameters listParameters = listParametersConverter.convert(restListParameters);
         return new RESTResultaat<>(inboxDocumentConverter.convert(
-                inboxDocumentenService.list(listParameters)), inboxDocumentenService.count(listParameters));
+                                                                  inboxDocumentenService.list(listParameters)), inboxDocumentenService
+                                                                                                                                      .count(listParameters));
     }
 
     @DELETE
@@ -78,20 +79,20 @@ public class InboxDocumentenRESTService {
         if (inboxDocument.isEmpty()) {
             return; // reeds verwijderd
         }
-        final EnkelvoudigInformatieObject enkelvoudigInformatieobject =
-                drcClientService.readEnkelvoudigInformatieobject(
-                        inboxDocument.get().getEnkelvoudiginformatieobjectUUID());
+        final EnkelvoudigInformatieObject enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
+                                                                                                                         inboxDocument.get()
+                                                                                                                                      .getEnkelvoudiginformatieobjectUUID());
         final List<ZaakInformatieobject> zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
-                enkelvoudigInformatieobject);
+                                                                                                              enkelvoudigInformatieobject);
         if (!zaakInformatieobjecten.isEmpty()) {
             final UUID zaakUuid = UriUtil.uuidFromURI(zaakInformatieobjecten.get(0).getZaak());
             LOG.warning(
-                    String.format(
-                            "Het inbox-document is verwijderd maar het informatieobject is niet verwijderd. Reden: informatieobject '%s' is gekoppeld aan zaak '%s'.",
-                            enkelvoudigInformatieobject.getIdentificatie(), zaakUuid));
+                        String.format(
+                                      "Het inbox-document is verwijderd maar het informatieobject is niet verwijderd. Reden: informatieobject '%s' is gekoppeld aan zaak '%s'.",
+                                      enkelvoudigInformatieobject.getIdentificatie(), zaakUuid));
         } else {
             drcClientService.deleteEnkelvoudigInformatieobject(
-                    inboxDocument.get().getEnkelvoudiginformatieobjectUUID());
+                                                               inboxDocument.get().getEnkelvoudiginformatieobjectUUID());
         }
         inboxDocumentenService.delete(id);
     }

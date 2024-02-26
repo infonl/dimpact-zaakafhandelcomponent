@@ -5,7 +5,8 @@ public class ListParameters {
 
     private Paging paging;
 
-    public ListParameters() {}
+    public ListParameters() {
+    }
 
     public Sorting getSorting() {
         return sorting;

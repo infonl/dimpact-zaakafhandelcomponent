@@ -22,8 +22,8 @@ public class RESTZaakStatusConverter {
     private ZTCClientService ztcClientService;
 
     public RESTZaakStatus convertToRESTZaakStatus(
-            final Status status,
-            final StatusType statustype
+                                                  final Status status,
+                                                  final StatusType statustype
     ) {
         final RESTZaakStatus restZaakStatus = new RESTZaakStatus();
         restZaakStatus.toelichting = status.getStatustoelichting();

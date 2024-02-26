@@ -21,8 +21,8 @@ public class RESTReferentieWaardeConverter {
 
     public List<String> convert(final List<ReferentieTabelWaarde> referentieTabelWaarden) {
         return referentieTabelWaarden.stream()
-                .map(ReferentieTabelWaarde::getNaam)
-                .toList();
+                                     .map(ReferentieTabelWaarde::getNaam)
+                                     .toList();
     }
 
     public ReferentieTabelWaarde convert(final RESTReferentieTabelWaarde restReferentieTabelWaarde) {

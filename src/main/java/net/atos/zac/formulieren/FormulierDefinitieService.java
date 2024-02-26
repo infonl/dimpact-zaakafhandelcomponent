@@ -48,8 +48,9 @@ public class FormulierDefinitieService {
 
     public FormulierDefinitie readFormulierDefinitie(final String systeemnaam) {
         return findFormulierDefinitie(systeemnaam)
-                .orElseThrow(() -> new RuntimeException(
-                        "%s with code='%s' not found".formatted(FormulierDefinitie.class.getSimpleName(), systeemnaam)));
+                                                  .orElseThrow(() -> new RuntimeException(
+                                                                                          "%s with code='%s' not found".formatted(FormulierDefinitie.class.getSimpleName(),
+                                                                                                                                  systeemnaam)));
     }
 
     public Optional<FormulierDefinitie> findFormulierDefinitie(final String systeemnaam) {
@@ -69,7 +70,7 @@ public class FormulierDefinitieService {
         findFormulierDefinitie(formulierDefinitie.getSysteemnaam()).ifPresent(e -> {
             if (!e.getId().equals(formulierDefinitie.getId())) {
                 throw new RuntimeException("Er bestaat al een formulier definitie met systeemnaam '%s'".formatted(
-                        formulierDefinitie.getSysteemnaam()));
+                                                                                                                  formulierDefinitie.getSysteemnaam()));
             }
         });
         return entityManager.merge(formulierDefinitie);

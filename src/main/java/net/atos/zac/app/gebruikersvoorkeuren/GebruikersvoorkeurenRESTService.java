@@ -62,7 +62,9 @@ public class GebruikersvoorkeurenRESTService {
     @Path("zoekopdracht/{lijstID}")
     public List<RESTZoekopdracht> listZoekopdrachten(@PathParam("lijstID") final Werklijst lijstID) {
         final List<Zoekopdracht> zoekopdrachten = gebruikersvoorkeurenService.listZoekopdrachten(
-                new ZoekopdrachtListParameters(lijstID, loggedInUserInstance.get().getId()));
+                                                                                                 new ZoekopdrachtListParameters(lijstID,
+                                                                                                                                loggedInUserInstance.get()
+                                                                                                                                                    .getId()));
         return zoekopdrachtConverter.convert(zoekopdrachten);
     }
 
@@ -96,7 +98,8 @@ public class GebruikersvoorkeurenRESTService {
     @Path("tabel-gegevens/{werklijst}")
     public RESTTabelGegevens readTabelGegevens(@PathParam("werklijst") final Werklijst werklijst) {
         final RESTTabelGegevens restTabelGegevens = new RESTTabelGegevens();
-        final TabelInstellingen tabelInstellingen = gebruikersvoorkeurenService.readTabelInstellingen(werklijst, loggedInUserInstance.get().getId());
+        final TabelInstellingen tabelInstellingen = gebruikersvoorkeurenService.readTabelInstellingen(werklijst, loggedInUserInstance.get()
+                                                                                                                                     .getId());
         restTabelGegevens.aantalPerPagina = tabelInstellingen.getAantalPerPagina();
         restTabelGegevens.pageSizeOptions = TabelInstellingen.PAGE_SIZE_OPTIONS;
         restTabelGegevens.werklijstRechten = rechtenConverter.convert(policyService.readWerklijstRechten());
@@ -119,15 +122,15 @@ public class GebruikersvoorkeurenRESTService {
     @Path("dasboardcard/actief")
     public List<RESTDashboardCardInstelling> listDashboardCards() {
         return dashboardCardInstellingConverter.convert(
-                gebruikersvoorkeurenService.listDashboardCards(loggedInUserInstance.get().getId()));
+                                                        gebruikersvoorkeurenService.listDashboardCards(loggedInUserInstance.get().getId()));
     }
 
     @PUT
     @Path("dasboardcard/actief")
     public List<RESTDashboardCardInstelling> updateDashboardCards(final List<RESTDashboardCardInstelling> instellingen) {
         gebruikersvoorkeurenService.updateDashboardCards(
-                loggedInUserInstance.get().getId(),
-                instellingen.stream().map(dashboardCardInstellingConverter::convert).toList());
+                                                         loggedInUserInstance.get().getId(),
+                                                         instellingen.stream().map(dashboardCardInstellingConverter::convert).toList());
         return listDashboardCards();
     }
 
@@ -135,8 +138,8 @@ public class GebruikersvoorkeurenRESTService {
     @Path("dasboardcard")
     public List<RESTDashboardCardInstelling> addDashboardCard(RESTDashboardCardInstelling instelling) {
         gebruikersvoorkeurenService.addDashboardCard(
-                loggedInUserInstance.get().getId(),
-                dashboardCardInstellingConverter.convert(instelling));
+                                                     loggedInUserInstance.get().getId(),
+                                                     dashboardCardInstellingConverter.convert(instelling));
         return listDashboardCards();
     }
 
@@ -144,8 +147,8 @@ public class GebruikersvoorkeurenRESTService {
     @Path("dasboardcard")
     public List<RESTDashboardCardInstelling> deleteDashboardCard(final RESTDashboardCardInstelling instelling) {
         gebruikersvoorkeurenService.deleteDashboardCard(
-                loggedInUserInstance.get().getId(),
-                dashboardCardInstellingConverter.convert(instelling));
+                                                        loggedInUserInstance.get().getId(),
+                                                        dashboardCardInstellingConverter.convert(instelling));
         return listDashboardCards();
     }
 }

@@ -26,21 +26,23 @@ public class RESTHumanTaskReferentieTabelConverter {
 
     public List<RESTHumanTaskReferentieTabel> convertDefault(final Collection<FormulierVeldDefinitie> veldDefinities) {
         return veldDefinities.stream()
-                .map(this::convertDefault)
-                .collect(Collectors.toList());
+                             .map(this::convertDefault)
+                             .collect(Collectors.toList());
     }
 
     public RESTHumanTaskReferentieTabel convertDefault(final FormulierVeldDefinitie veldDefinitie) {
         final RESTHumanTaskReferentieTabel referentieTabel = new RESTHumanTaskReferentieTabel(veldDefinitie);
         referentieTabel.tabel = restReferentieTabelConverter.convert(
-                referentieTabelService.readReferentieTabel(veldDefinitie.getDefaultTabel().name()), false);
+                                                                     referentieTabelService.readReferentieTabel(veldDefinitie.getDefaultTabel()
+                                                                                                                             .name()),
+                                                                     false);
         return referentieTabel;
     }
 
     public List<RESTHumanTaskReferentieTabel> convert(final Collection<HumanTaskReferentieTabel> humanTaskReferentieTabellen) {
         return humanTaskReferentieTabellen.stream()
-                .map(this::convert)
-                .collect(Collectors.toList());
+                                          .map(this::convert)
+                                          .collect(Collectors.toList());
     }
 
     private RESTHumanTaskReferentieTabel convert(final HumanTaskReferentieTabel humanTaskReferentieTabel) {
@@ -53,8 +55,8 @@ public class RESTHumanTaskReferentieTabelConverter {
 
     public List<HumanTaskReferentieTabel> convert(final List<RESTHumanTaskReferentieTabel> restHumanTaskrestHumanTaskReferentieTabellen) {
         return restHumanTaskrestHumanTaskReferentieTabellen.stream()
-                .map(this::convert)
-                .toList();
+                                                           .map(this::convert)
+                                                           .toList();
     }
 
     private HumanTaskReferentieTabel convert(final RESTHumanTaskReferentieTabel restHumanTaskReferentieTabel) {

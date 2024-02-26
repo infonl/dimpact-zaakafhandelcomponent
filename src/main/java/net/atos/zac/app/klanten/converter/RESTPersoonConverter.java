@@ -54,31 +54,31 @@ import net.atos.zac.app.klanten.model.personen.RESTPersoon;
 public class RESTPersoonConverter {
     // Moet overeenkomen met wat er in convertToPersonenQuery gebeurt.
     public static final List<RESTPersonenParameters> VALID_PERSONEN_QUERIES = List.of(
-            new RESTPersonenParameters(REQ,
-                                       NON, NON, NON,
-                                       NON,
-                                       NON,
-                                       NON, NON, NON),
-            new RESTPersonenParameters(NON,
-                                       REQ, OPT, OPT,
-                                       REQ,
-                                       NON,
-                                       NON, NON, NON),
-            new RESTPersonenParameters(NON,
-                                       REQ, REQ, OPT,
-                                       NON,
-                                       REQ,
-                                       NON, NON, NON),
-            new RESTPersonenParameters(NON,
-                                       NON, NON, NON,
-                                       NON,
-                                       NON,
-                                       REQ, REQ, NON),
-            new RESTPersonenParameters(NON,
-                                       NON, NON, NON,
-                                       NON,
-                                       REQ,
-                                       NON, REQ, REQ)
+                                                                                      new RESTPersonenParameters(REQ,
+                                                                                                                 NON, NON, NON,
+                                                                                                                 NON,
+                                                                                                                 NON,
+                                                                                                                 NON, NON, NON),
+                                                                                      new RESTPersonenParameters(NON,
+                                                                                                                 REQ, OPT, OPT,
+                                                                                                                 REQ,
+                                                                                                                 NON,
+                                                                                                                 NON, NON, NON),
+                                                                                      new RESTPersonenParameters(NON,
+                                                                                                                 REQ, REQ, OPT,
+                                                                                                                 NON,
+                                                                                                                 REQ,
+                                                                                                                 NON, NON, NON),
+                                                                                      new RESTPersonenParameters(NON,
+                                                                                                                 NON, NON, NON,
+                                                                                                                 NON,
+                                                                                                                 NON,
+                                                                                                                 REQ, REQ, NON),
+                                                                                      new RESTPersonenParameters(NON,
+                                                                                                                 NON, NON, NON,
+                                                                                                                 NON,
+                                                                                                                 REQ,
+                                                                                                                 NON, REQ, REQ)
     );
 
     public List<RESTPersoon> convertPersonen(final List<Persoon> personen) {
@@ -144,7 +144,7 @@ public class RESTPersoonConverter {
             return query;
         }
         if (isNotBlank(parameters.geslachtsnaam) && isNotBlank(parameters.voornamen) &&
-                isNotBlank(parameters.gemeenteVanInschrijving)) {
+            isNotBlank(parameters.gemeenteVanInschrijving)) {
             final var query = new ZoekMetNaamEnGemeenteVanInschrijving();
             query.setGeslachtsnaam(parameters.geslachtsnaam);
             query.setVoornamen(parameters.voornamen);
@@ -158,8 +158,7 @@ public class RESTPersoonConverter {
             query.setHuisnummer(parameters.huisnummer);
             return query;
         }
-        if (isNotBlank(parameters.straat) && parameters.huisnummer != null
-                && isNotBlank(parameters.gemeenteVanInschrijving)) {
+        if (isNotBlank(parameters.straat) && parameters.huisnummer != null && isNotBlank(parameters.gemeenteVanInschrijving)) {
             final var query = new ZoekMetStraatHuisnummerEnGemeenteVanInschrijving();
             query.setStraat(parameters.straat);
             query.setHuisnummer(parameters.huisnummer);

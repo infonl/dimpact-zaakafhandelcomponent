@@ -5,7 +5,13 @@
 
 /**
  * Klanten API
- * Een API om klanten te benaderen.  Een API om zowel klanten te registreren als op te vragen. Een klant is een natuurlijk persoon, niet-natuurlijk persoon (bedrijf) of vestiging waarbij het gaat om niet geverifieerde gegevens. De Klanten API kan zelfstandig of met andere API's samen werken om tot volledige functionaliteit te komen.  **Afhankelijkheden**  Deze API is afhankelijk van:  * Autorisaties API * Notificaties API * Zaken API *(optioneel)* * Documenten API *(optioneel)*  **Autorisatie**  Deze API vereist autorisatie. Je kan de [token-tool](https://zaken-auth.vng.cloud/) gebruiken om JWT-tokens te genereren.  ** Notificaties  Deze API publiceert notificaties op het kanaal `klanten`.  **Main resource**  `klant`    **Kenmerken**  * `subject_type`: Type van de `subject`.  **Resources en acties**   **Handige links**  * [Documentatie](https://zaakgerichtwerken.vng.cloud/standaard) * [Zaakgericht werken](https://zaakgerichtwerken.vng.cloud)
+ * Een API om klanten te benaderen. Een API om zowel klanten te registreren als op te vragen. Een klant is een natuurlijk persoon,
+ * niet-natuurlijk persoon (bedrijf) of vestiging waarbij het gaat om niet geverifieerde gegevens. De Klanten API kan zelfstandig of met
+ * andere API's samen werken om tot volledige functionaliteit te komen. **Afhankelijkheden** Deze API is afhankelijk van: * Autorisaties API
+ * * Notificaties API * Zaken API *(optioneel)* * Documenten API *(optioneel)* **Autorisatie** Deze API vereist autorisatie. Je kan de
+ * [token-tool](https://zaken-auth.vng.cloud/) gebruiken om JWT-tokens te genereren. ** Notificaties Deze API publiceert notificaties op het
+ * kanaal `klanten`. **Main resource** `klant` **Kenmerken** * `subject_type`: Type van de `subject`. **Resources en acties** **Handige
+ * links** * [Documentatie](https://zaakgerichtwerken.vng.cloud/standaard) * [Zaakgericht werken](https://zaakgerichtwerken.vng.cloud)
  * <p>
  * The version of the OpenAPI document: 1.0.0
  * Contact: standaarden.ondersteuning@vng.nl
@@ -38,6 +44,7 @@ public class Vestiging extends Klant {
 
     /**
      * Get subjectIdentificatie
+     * 
      * @return subjectIdentificatie
      **/
     public Vestiging getSubjectIdentificatie() {
@@ -81,4 +88,3 @@ public class Vestiging extends Klant {
         return o.toString().replace("\n", "\n    ");
     }
 }
-

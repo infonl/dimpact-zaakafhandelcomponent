@@ -18,7 +18,7 @@ public class RolNatuurlijkPersoon extends Rol<NatuurlijkPersoon> {
     }
 
     public RolNatuurlijkPersoon(final URI zaak, final RolType roltype,
-            final String roltoelichting, final NatuurlijkPersoon betrokkeneIdentificatie) {
+                                final String roltoelichting, final NatuurlijkPersoon betrokkeneIdentificatie) {
         super(zaak, roltype, BetrokkeneType.NATUURLIJK_PERSOON, betrokkeneIdentificatie, roltoelichting);
     }
 
@@ -49,9 +49,9 @@ public class RolNatuurlijkPersoon extends Rol<NatuurlijkPersoon> {
         if (getBetrokkeneIdentificatie() == null) {
             return null;
         }
-        return StringUtils.isNotEmpty(getBetrokkeneIdentificatie().getVoorvoegselGeslachtsnaam())
-                ? getBetrokkeneIdentificatie().getVoorvoegselGeslachtsnaam()
-                : getIdentificatienummer();
+        return StringUtils.isNotEmpty(getBetrokkeneIdentificatie().getVoorvoegselGeslachtsnaam()) ? getBetrokkeneIdentificatie()
+                                                                                                                                .getVoorvoegselGeslachtsnaam() :
+                getIdentificatienummer();
     }
 
     @Override

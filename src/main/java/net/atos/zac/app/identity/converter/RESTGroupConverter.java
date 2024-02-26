@@ -23,8 +23,8 @@ public class RESTGroupConverter {
 
     public List<RESTGroup> convertGroups(final List<Group> groups) {
         return groups.stream()
-                .map(this::convertGroup)
-                .collect(Collectors.toList());
+                     .map(this::convertGroup)
+                     .collect(Collectors.toList());
     }
 
     public RESTGroup convertGroup(final Group group) {

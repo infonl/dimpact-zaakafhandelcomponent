@@ -16,8 +16,8 @@ public class RESTReplyToConverter {
 
     public List<RESTReplyTo> convertReplyTos(final List<ReferentieTabelWaarde> waarden) {
         final List<RESTReplyTo> restReplyTos = waarden.stream()
-                .map(this::convertReplyTo)
-                .collect(Collectors.toList());
+                                                      .map(this::convertReplyTo)
+                                                      .collect(Collectors.toList());
         for (final ZaakAfzender.Speciaal speciaal : ZaakAfzender.Speciaal.values()) {
             restReplyTos.add(new RESTReplyTo(speciaal));
         }

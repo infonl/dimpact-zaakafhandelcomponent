@@ -121,13 +121,14 @@ public class DataConverter {
 
         if (zaak.getStatus() != null) {
             zaakData.status = ztcClientService.readStatustype(
-                    zrcClientService.readStatus(zaak.getStatus()).getStatustype()).getOmschrijving();
+                                                              zrcClientService.readStatus(zaak.getStatus()).getStatustype())
+                                              .getOmschrijving();
         }
 
         if (zaak.getResultaat() != null) {
             zaakData.resultaat = ztcClientService.readResultaattype(
-                            zrcClientService.readResultaat(zaak.getResultaat()).getResultaattype())
-                    .getOmschrijving();
+                                                                    zrcClientService.readResultaat(zaak.getResultaat()).getResultaattype())
+                                                 .getOmschrijving();
         }
 
         if (zaak.isOpgeschort()) {
@@ -143,17 +144,17 @@ public class DataConverter {
         }
 
         zgwApiService.findGroepForZaak(zaak)
-                .map(RolOrganisatorischeEenheid::getNaam)
-                .ifPresent(groep -> zaakData.groep = groep);
+                     .map(RolOrganisatorischeEenheid::getNaam)
+                     .ifPresent(groep -> zaakData.groep = groep);
 
         zgwApiService.findBehandelaarForZaak(zaak)
-                .map(RolMedewerker::getNaam)
-                .ifPresent(behandelaar -> zaakData.behandelaar = behandelaar);
+                     .map(RolMedewerker::getNaam)
+                     .ifPresent(behandelaar -> zaakData.behandelaar = behandelaar);
 
         if (zaak.getCommunicatiekanaal() != null) {
             vrlClientService.findCommunicatiekanaal(uuidFromURI(zaak.getCommunicatiekanaal()))
-                    .map(CommunicatieKanaal::getNaam)
-                    .ifPresent(communicatiekanaal -> zaakData.communicatiekanaal = communicatiekanaal);
+                            .map(CommunicatieKanaal::getNaam)
+                            .ifPresent(communicatiekanaal -> zaakData.communicatiekanaal = communicatiekanaal);
         }
 
         return zaakData;
@@ -161,26 +162,27 @@ public class DataConverter {
 
     private AanvragerData createAanvragerData(final Zaak zaak) {
         return zgwApiService.findInitiatorForZaak(zaak)
-                .map(this::convertToAanvragerData)
-                .orElse(null);
+                            .map(this::convertToAanvragerData)
+                            .orElse(null);
     }
 
     private AanvragerData convertToAanvragerData(final Rol<?> initiator) {
         return switch (initiator.getBetrokkeneType()) {
             case NATUURLIJK_PERSOON -> createAanvragerDataNatuurlijkPersoon(initiator.getIdentificatienummer());
             case VESTIGING -> createAanvragerDataVestiging(initiator.getIdentificatienummer());
-            case NIET_NATUURLIJK_PERSOON ->
-                    createAanvragerDataNietNatuurlijkPersoon(initiator.getIdentificatienummer());
+            case NIET_NATUURLIJK_PERSOON -> createAanvragerDataNietNatuurlijkPersoon(initiator.getIdentificatienummer());
             default -> throw new NotImplementedException(
-                    String.format("Initiator of type '%s' is not supported", initiator.getBetrokkeneType().toValue())
+                                                         String.format("Initiator of type '%s' is not supported", initiator
+                                                                                                                           .getBetrokkeneType()
+                                                                                                                           .toValue())
             );
         };
     }
 
     private AanvragerData createAanvragerDataNatuurlijkPersoon(final String bsn) {
         return brpClientService.findPersoon(bsn)
-                .map(this::convertToAanvragerDataPersoon)
-                .orElse(null);
+                               .map(this::convertToAanvragerDataPersoon)
+                               .orElse(null);
     }
 
     private AanvragerData convertToAanvragerDataPersoon(final Persoon persoon) {
@@ -188,7 +190,7 @@ public class DataConverter {
         if (persoon.getNaam() != null) {
             aanvragerData.naam = persoon.getNaam().getVolledigeNaam();
         }
-        if (persoon.getVerblijfplaats() instanceof Adres adres && adres.getVerblijfadres() != null) {
+        if (persoon.getVerblijfplaats()instanceof Adres adres && adres.getVerblijfadres() != null) {
             final var verblijfadres = adres.getVerblijfadres();
             aanvragerData.straat = verblijfadres.getOfficieleStraatnaam();
             aanvragerData.huisnummer = convertToHuisnummer(verblijfadres);
@@ -206,14 +208,14 @@ public class DataConverter {
 
     private AanvragerData createAanvragerDataVestiging(final String vestigingsnummer) {
         return kvkClientService.findVestiging(vestigingsnummer)
-                .map(this::convertToAanvragerDataBedrijf)
-                .orElse(null);
+                               .map(this::convertToAanvragerDataBedrijf)
+                               .orElse(null);
     }
 
     private AanvragerData createAanvragerDataNietNatuurlijkPersoon(final String rsin) {
         return kvkClientService.findRechtspersoon(rsin)
-                .map(this::convertToAanvragerDataBedrijf)
-                .orElse(null);
+                               .map(this::convertToAanvragerDataBedrijf)
+                               .orElse(null);
     }
 
     private AanvragerData convertToAanvragerDataBedrijf(final ResultaatItem vestiging) {
@@ -236,10 +238,10 @@ public class DataConverter {
         listParameters.setZaak(zaak);
         listParameters.setObjectType(OVERIGE);
         return zrcClientService.listZaakobjecten(listParameters).getResults().stream()
-                .filter(zo -> ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE.equals(zo.getObjectTypeOverige()))
-                .findAny()
-                .map(this::convertToStartformulierData)
-                .orElse(null);
+                               .filter(zo -> ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE.equals(zo.getObjectTypeOverige()))
+                               .findAny()
+                               .map(this::convertToStartformulierData)
+                               .orElse(null);
     }
 
     private StartformulierData convertToStartformulierData(final Zaakobject zaakobject) {

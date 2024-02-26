@@ -10,12 +10,13 @@ import static jakarta.ejb.TransactionManagementType.BEAN;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import javax.sql.DataSource;
+
 import jakarta.annotation.Resource;
 import jakarta.ejb.TransactionManagement;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Initialized;
 import jakarta.enterprise.event.Observes;
-import javax.sql.DataSource;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.MigrationInfo;
@@ -44,19 +45,20 @@ public class FlywayIntegrator {
         }
 
         final Flyway flyway = Flyway.configure()
-                .dataSource(dataSource)
-                .locations(SCHEMA_FILES_LOCATION)
-                .schemas(SCHEMA)
-                .placeholders(Map.of(SCHEMA_PLACEHOLDER, SCHEMA))
-                .outOfOrder(true)
-                .load();
+                                    .dataSource(dataSource)
+                                    .locations(SCHEMA_FILES_LOCATION)
+                                    .schemas(SCHEMA)
+                                    .placeholders(Map.of(SCHEMA_PLACEHOLDER, SCHEMA))
+                                    .outOfOrder(true)
+                                    .load();
 
         final MigrationInfo migrationInfo = flyway.info().current();
 
         if (migrationInfo == null) {
             LOG.info("No existing database at the actual datasource");
         } else {
-            LOG.info(String.format("Found a database with the version: %s : %s", migrationInfo.getVersion(), migrationInfo.getDescription()));
+            LOG.info(String.format("Found a database with the version: %s : %s", migrationInfo.getVersion(), migrationInfo
+                                                                                                                          .getDescription()));
         }
 
         flyway.migrate();

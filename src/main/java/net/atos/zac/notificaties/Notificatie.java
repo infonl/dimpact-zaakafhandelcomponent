@@ -100,9 +100,9 @@ public class Notificatie {
     @JsonbTransient
     public ResourceInfo getResourceInfo() {
         return new ResourceInfo(
-                getResource(),
-                getResourceUrl(),
-                getAction());
+                                getResource(),
+                                getResourceUrl(),
+                                getAction());
     }
 
     @JsonbTransient
@@ -113,9 +113,10 @@ public class Notificatie {
     @JsonbTransient
     public ResourceInfo getMainResourceInfo() {
         return new ResourceInfo(
-                getMainResourceType(),
-                getMainResourceUrl(),
-                getMainResourceType() == getResource() && getMainResourceUrl().equals(getResourceUrl()) ? getAction() : UPDATE);
+                                getMainResourceType(),
+                                getMainResourceUrl(),
+                                getMainResourceType() == getResource() && getMainResourceUrl().equals(getResourceUrl()) ? getAction() :
+                                        UPDATE);
     }
 
     @Override

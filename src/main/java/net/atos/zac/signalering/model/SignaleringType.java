@@ -34,8 +34,7 @@ public class SignaleringType implements Comparable<SignaleringType> {
     @Column(name = "signaleringtype_enum", updatable = false, insertable = false)
     private String id;
 
-    @NotNull
-    @Column(name = "subjecttype_enum", updatable = false, insertable = false)
+    @NotNull @Column(name = "subjecttype_enum", updatable = false, insertable = false)
     @Enumerated(EnumType.STRING)
     private SignaleringSubject subjecttype;
 
@@ -80,7 +79,8 @@ public class SignaleringType implements Comparable<SignaleringType> {
         Type(final String naam, final String bericht, SignaleringTarget... targets) {
             this.naam = naam;
             this.bericht = bericht;
-            this.targets = Collections.unmodifiableSet(Arrays.stream(targets).collect(Collectors.toCollection(() -> EnumSet.noneOf(SignaleringTarget.class))));
+            this.targets = Collections.unmodifiableSet(Arrays.stream(targets).collect(Collectors.toCollection(() -> EnumSet.noneOf(
+                                                                                                                                   SignaleringTarget.class))));
         }
 
         public String getNaam() {
@@ -91,7 +91,9 @@ public class SignaleringType implements Comparable<SignaleringType> {
             return bericht;
         }
 
-        public boolean isTarget(final SignaleringTarget target) {return targets.contains(target);}
+        public boolean isTarget(final SignaleringTarget target) {
+            return targets.contains(target);
+        }
 
         public boolean isDashboard() {
             return true;
