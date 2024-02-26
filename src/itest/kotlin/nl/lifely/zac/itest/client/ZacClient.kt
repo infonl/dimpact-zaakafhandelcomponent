@@ -13,8 +13,12 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVEN
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.zaak1UUID
+import okhttp3.Headers
 import okhttp3.JavaNetCookieJar
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.net.CookieManager
 import java.net.CookiePolicy
 import java.util.UUID
@@ -31,6 +35,42 @@ class ZacClient {
         okHttpClient = OkHttpClient.Builder()
             .cookieJar(JavaNetCookieJar(cookieManager))
             .build()
+    }
+
+    fun performGetRequest(url: String): okhttp3.Response {
+        logger.info { "Performing GET request on: '$url'" }
+
+        val request = Request.Builder()
+            .headers(
+                Headers.headersOf(
+                    "Authorization",
+                    "Bearer ${KeycloakClient.requestAccessToken()}",
+                    "Accept",
+                    "application/json"
+                )
+            )
+            .url(url)
+            .get()
+            .build()
+        return okHttpClient.newCall(request).execute()
+    }
+
+    fun performPostRequest(url: String, postBody: String): okhttp3.Response {
+        logger.info { "Performing POST request on: '$url'" }
+
+        val request = Request.Builder()
+            .headers(
+                Headers.headersOf(
+                    "Authorization",
+                    "Bearer ${KeycloakClient.requestAccessToken()}",
+                    "Accept",
+                    "application/json"
+                )
+            )
+            .url(url)
+            .post(postBody.toRequestBody("application/json".toMediaType()))
+            .build()
+        return okHttpClient.newCall(request).execute()
     }
 
     @Suppress("LongMethod")
