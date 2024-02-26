@@ -202,7 +202,6 @@ jsonSchema2Pojo {
 
 node {
     download.set(true)
-    // try to keep this (LTS) Node version as much in sync with the version used in our package.json as possible
     version.set("20.11.1")
     distBaseUrl.set("https://nodejs.org/dist")
     nodeProjectDir.set(file("$rootDir/src/main/app"))
