@@ -12,6 +12,8 @@ import java.util.UUID
  * used in the entire integration test flow such as: Keycloak, Objecten, Objecttypen, Open Zaak, ZAC.
  */
 object ItestConfiguration {
+    const val GROUP_A_ID = "test-group-a"
+    const val GROUP_A_NAME = "test-group-a-name"
     const val KEYCLOAK_HOSTNAME_URL = "http://localhost:8081"
     const val KEYCLOAK_HEALTH_READY_URL = "$KEYCLOAK_HOSTNAME_URL/health/ready"
     const val KEYCLOAK_REALM = "zaakafhandelcomponent"
