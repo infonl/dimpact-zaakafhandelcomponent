@@ -12,7 +12,7 @@ import io.kotest.core.config.AbstractProjectConfig
 import io.kotest.core.spec.SpecExecutionOrder
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.KeycloakClient
-import nl.lifely.zac.itest.client.createZaakAfhandelParameters
+import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
 import nl.lifely.zac.itest.config.ItestConfiguration.SMARTDOCUMENTS_MOCK_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_DEFAULT_DOCKER_IMAGE
@@ -81,7 +81,7 @@ object ProjectConfig : AbstractProjectConfig() {
 
             KeycloakClient.authenticate()
 
-            val response = createZaakAfhandelParameters()
+            val response = ZacClient().createZaakAfhandelParameters()
             response.statusCode shouldBe HttpStatus.SC_OK
         } catch (exception: ContainerLaunchException) {
             logger.error(exception) { "Failed to start Docker containers" }

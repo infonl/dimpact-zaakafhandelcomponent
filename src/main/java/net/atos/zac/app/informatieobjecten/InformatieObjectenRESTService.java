@@ -103,7 +103,6 @@ import net.atos.zac.webdav.WebdavHelper;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class InformatieObjectenRESTService {
-
     private static final String MEDIA_TYPE_PDF = "application/pdf";
 
     private static final String TOELICHTING_PDF = "Geconverteerd naar PDF";
