@@ -441,6 +441,12 @@ services:
     ports:
       - "8080:8080"
       - "9990:9990"
+    deploy:
+      resources:
+        limits:
+          # Set a maximum memory limit for the ZAC container for a more realistic
+          # scenario when testing ZAC locally or when running our integration tests.
+          memory: 4G
     depends_on:
       zac-database:
         condition: service_healthy

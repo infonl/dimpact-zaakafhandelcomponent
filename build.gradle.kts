@@ -115,8 +115,8 @@ dependencies {
     // enable detekt formatting rules. see: https://detekt.dev/docs/rules/formatting/
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.5")
 
-    runtimeOnly("org.infinispan:infinispan-jcache:14.0.24.Final")
-    runtimeOnly("org.infinispan:infinispan-cdi-embedded:14.0.24.Final")
+    runtimeOnly("org.infinispan:infinispan-jcache:14.0.25.Final")
+    runtimeOnly("org.infinispan:infinispan-cdi-embedded:14.0.25.Final")
 
     // declare dependencies that are required in the generated WAR; see war section below
     // simply marking them as 'compileOnly' or 'implementation' does not work
@@ -201,7 +201,7 @@ jsonSchema2Pojo {
 
 node {
     download.set(true)
-    version.set("18.13.0")
+    version.set("20.11.1")
     distBaseUrl.set("https://nodejs.org/dist")
     nodeProjectDir.set(file("$rootDir/src/main/app"))
     if (System.getenv("CI") != null) {
