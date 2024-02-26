@@ -116,14 +116,14 @@ This command runs a temporary Alpine Linux container and pings host.docker.inter
 
 under services -> keycloack -> command
 ```diff
--      - CONTEXT_URL=http://host.docker.internal:8080
-+      - CONTEXT_URL=http://host.docker.internal:8080
+-      - "--hostname-url=http://localhost:8081"
++      - "--hostname-url=http://host.docker.internal:8081"
 ```
 
 under services -> zac -> environment
 ```diff
--      - "--hostname-url=http://host.docker.internal:8081"
-+      - "--hostname-url=http://host.docker.internal:8081"
+-      - CONTEXT_URL=http://localhost:8080
++      - CONTEXT_URL=http://host.docker.internal:8080
 ```
 
 ## GitHub Action Tests
