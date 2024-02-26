@@ -10,8 +10,7 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import nl.lifely.zac.itest.client.assignZaakToGroup
-import nl.lifely.zac.itest.client.createZaak
+import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_2_IDENTIFICATION
@@ -22,6 +21,8 @@ const val GROUP_ID_A = "test-group-a"
 const val GROUP_ID_THAT_IS_TOO_LONG = "test-group-that-is-way-too-long"
 const val GROUP_NAME = "test-group-a-name"
 
+private val zacClient = ZacClient()
+
 /**
  * This test assumes a zaak has been created in a previously run test.
  */
@@ -30,7 +31,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
     given("ZAC Docker container is running and zaakafhandelparameters have been created") {
         When("the create zaak endpoint is called and the user has permissions for the zaaktype used") {
             then("the response should be a 200 HTTP response with the created zaak") {
-                val response = createZaak(ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID, GROUP_ID_A, GROUP_NAME)
+                val response = zacClient.createZaak(ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID, GROUP_ID_A, GROUP_NAME)
                 response.statusCode shouldBe HttpStatus.SC_OK
                 JSONObject(response.text).apply {
                     getJSONObject("zaaktype").getString("identificatie") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
@@ -46,7 +47,11 @@ class ZakenRESTServiceTest : BehaviorSpec({
     given("ZAC Docker container is running and zaakafhandelparameters have been created") {
         When("the create zaak endpoint is called with a group name that is longer than 24 characters") {
             then("the response should be a 400 invalid request with an expected error message") {
-                val response = createZaak(ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID, GROUP_ID_THAT_IS_TOO_LONG, GROUP_NAME)
+                val response = zacClient.createZaak(
+                    ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID,
+                    GROUP_ID_THAT_IS_TOO_LONG,
+                    GROUP_NAME
+                )
                 response.statusCode shouldBe HttpStatus.SC_BAD_REQUEST
                 response.text shouldEqualJson """
                         {
@@ -69,7 +74,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
     given("ZAC Docker container is running and a zaak has been created") {
         When("the zaak toekennen endpoint is called with a group name that is longer than 24 characters") {
             then("the response should be a 400 invalid request with an expected error message") {
-                val response = assignZaakToGroup(GROUP_ID_THAT_IS_TOO_LONG)
+                val response = zacClient.assignZaakToGroup(GROUP_ID_THAT_IS_TOO_LONG)
                 response.statusCode shouldBe HttpStatus.SC_BAD_REQUEST
                 response.text shouldEqualJson """
                         {
