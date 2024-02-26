@@ -1,7 +1,6 @@
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.github.gradle.node.npm.task.NpmTask
 import io.smallrye.openapi.api.OpenApiConfig
-import java.time.Year
 import java.util.Locale
 
 /*
@@ -236,18 +235,23 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
     java {
         targetExclude("**/src/generated/**", "**/build/generated/**")
 
-        googleJavaFormat().aosp().reflowLongStrings().skipJavadocFormatting()
-
         removeUnusedImports()
-        importOrder("java", "javax", "jakarta", "com", "org", "net.atos")
+        importOrderFile("config/importOrder.txt")
 
         formatAnnotations()
-        licenseHeader("""
+
+        // Latest supported vesion:
+        // https://github.com/diffplug/spotless/tree/main/lib-extra/src/main/resources/com/diffplug/spotless/extra/eclipse_wtp_formatter
+        eclipse("4.21").configFile("config/Dimpact.xml")
+
+        licenseHeader(
+            """
             /*
              * SPDX-FileCopyrightText: ${'$'}YEAR Lifely
              * SPDX-License-Identifier: EUPL-1.2+
              */
-        """.trimIndent()).onlyIfContentMatches("FileCopyrightText: 2[0-9-]+ Lifely").updateYearWithLatest(true)
+            """.trimIndent()
+        ).onlyIfContentMatches("FileCopyrightText: 2[0-9-]+ Lifely").updateYearWithLatest(true)
     }
 }
 
@@ -300,17 +304,19 @@ tasks {
     withType<JacocoReport> {
         // exclude Java client code that was auto generated at build time
         afterEvaluate {
-            classDirectories.setFrom(classDirectories.files.map {
-                fileTree(it).matching {
-                    exclude("net/atos/client/bag/model/**")
-                    exclude("net/atos/client/brp/model/**")
-                    exclude("net/atos/client/contactmomenten/model/**")
-                    exclude("net/atos/client/kvk/**/model/**")
-                    exclude("net/atos/client/vrl/model/**")
-                    exclude("net/atos/zac/aanvraag/**")
-                    exclude("**/generated/**")
+            classDirectories.setFrom(
+                classDirectories.files.map {
+                    fileTree(it).matching {
+                        exclude("net/atos/client/bag/model/**")
+                        exclude("net/atos/client/brp/model/**")
+                        exclude("net/atos/client/contactmomenten/model/**")
+                        exclude("net/atos/client/kvk/**/model/**")
+                        exclude("net/atos/client/vrl/model/**")
+                        exclude("net/atos/zac/aanvraag/**")
+                        exclude("**/generated/**")
+                    }
                 }
-            })
+            )
         }
     }
 
