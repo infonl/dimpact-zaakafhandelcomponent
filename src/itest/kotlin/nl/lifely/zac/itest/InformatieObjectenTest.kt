@@ -24,6 +24,8 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
 import org.json.JSONObject
 import java.io.File
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 /**
  * This test assumes a zaak has been created, and a task has been started in a previously run test.
@@ -115,7 +117,7 @@ class InformatieObjectenTest : BehaviorSpec() {
             }
         }
         given(
-            "A zaak exsits and a file has been uploaded"
+            "A zaak exists and a file has been uploaded"
         ) {
             When("the create enkelvoudig informatie object endpoint is called for the zaak") {
                 then(
@@ -123,14 +125,13 @@ class InformatieObjectenTest : BehaviorSpec() {
                 ) {
                     val endpointUrl = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/$zaak1UUID/$zaak1UUID"
                     logger.info { "Calling $endpointUrl endpoint" }
-
                     val postBody = "{\n" +
                         "\"bestandsnaam\":\"$FILE_NAME\",\n" +
                         "\"titel\":\"$FILE_TITLE\",\n" +
                         "\"informatieobjectTypeUUID\":\"$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID\",\n" +
                         "\"vertrouwelijkheidaanduiding\":\"$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING\",\n" +
                         "\"status\":\"$DOCUMENT_STATUS\",\n" +
-                        "\"creatiedatum\":\"2024-02-26T11:32:04+01:00\",\n" +
+                        "\"creatiedatum\":\"${DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm+01:00").format(ZonedDateTime.now())}\",\n" +
                         "\"auteur\":\"$USER_FULL_NAME\",\n" +
                         "\"taal\":\"dut\"\n" +
                         "}"
