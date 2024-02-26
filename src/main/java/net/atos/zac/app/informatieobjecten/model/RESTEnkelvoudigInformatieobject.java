@@ -53,6 +53,7 @@ public class RESTEnkelvoudigInformatieobject {
 
     public String formaat;
 
+    // taal is not always mandatory
     @NotNull
     public String taal;
 

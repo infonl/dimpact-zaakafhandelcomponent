@@ -5,22 +5,8 @@
 
 package net.atos.zac.app.informatieobjecten.converter;
 
-import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertByteArrayToBase64String;
-import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToEnkelvoudigInformatieObjectDataStatusEnum;
-import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToEnkelvoudigInformatieObjectStatusEnum;
-import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToEnkelvoudigInformatieObjectWithLockDataStatusEnum;
-import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToEnkelvoudigInformatieObjectWithLockDataVertrouwelijkheidaanduidingEnum;
-import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToVertrouwelijkheidaanduidingEnum;
-import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
-import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
-
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
-
 import net.atos.client.zgw.brc.BRCClientService;
 import net.atos.client.zgw.drc.DRCClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
@@ -47,6 +33,19 @@ import net.atos.zac.identity.IdentityService;
 import net.atos.zac.policy.PolicyService;
 import net.atos.zac.policy.output.DocumentRechten;
 import net.atos.zac.util.UriUtil;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
+
+import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertByteArrayToBase64String;
+import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToEnkelvoudigInformatieObjectDataStatusEnum;
+import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToEnkelvoudigInformatieObjectStatusEnum;
+import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToEnkelvoudigInformatieObjectWithLockDataStatusEnum;
+import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToEnkelvoudigInformatieObjectWithLockDataVertrouwelijkheidaanduidingEnum;
+import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToVertrouwelijkheidaanduidingEnum;
+import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
+import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT;
 
 public class RESTInformatieobjectConverter {
 
@@ -242,6 +241,7 @@ public class RESTInformatieobjectConverter {
         enkelvoudigInformatieobjectWithInhoud.setFormaat(bestand.type);
         enkelvoudigInformatieobjectWithInhoud.setBestandsnaam(bestand.filename);
         enkelvoudigInformatieobjectWithInhoud.setStatus(EnkelvoudigInformatieObjectData.StatusEnum.DEFINITIEF);
+        // TODO: check upper case?
         enkelvoudigInformatieobjectWithInhoud.setVertrouwelijkheidaanduiding(
                 EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.valueOf(
                         documentData.documentType.vertrouwelijkheidaanduiding)
