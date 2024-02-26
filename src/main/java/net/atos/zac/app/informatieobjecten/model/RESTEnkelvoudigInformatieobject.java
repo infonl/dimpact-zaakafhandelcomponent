@@ -26,7 +26,6 @@ import java.util.UUID;
  */
 public class RESTEnkelvoudigInformatieobject {
 
-
     public UUID uuid;
 
     public String identificatie;
@@ -36,7 +35,7 @@ public class RESTEnkelvoudigInformatieobject {
 
     public String beschrijving;
 
-    @NotNull
+    // not always required
     public LocalDate creatiedatum;
 
     public ZonedDateTime registratiedatumTijd;
@@ -47,25 +46,23 @@ public class RESTEnkelvoudigInformatieobject {
 
     public String bronorganisatie;
 
-    @NotNull
+    // not always required
     public String vertrouwelijkheidaanduiding;
 
-    @NotNull
+    // not always required
     public String auteur;
 
     public EnkelvoudigInformatieObject.StatusEnum status;
 
     public String formaat;
 
-    // taal is not always mandatory
-    @NotNull
+    // not always required
     public String taal;
 
     public Integer versie;
 
     @NotNull
     public UUID informatieobjectTypeUUID;
-
 
     public String informatieobjectTypeOmschrijving;
 
