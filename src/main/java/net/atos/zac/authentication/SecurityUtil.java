@@ -26,8 +26,8 @@ public class SecurityUtil implements Serializable {
     public static final String LOGGED_IN_USER_SESSION_ATTRIBUTE = "logged-in-user";
 
     public static final LoggedInUser FUNCTIONEEL_GEBRUIKER = new LoggedInUser("FG", "", "Functionele gebruiker", "Functionele gebruiker",
-                                                                              null,
-                                                                              Set.of("functionele_gebruiker"), Collections.emptySet());
+            null,
+            Set.of("functionele_gebruiker"), Collections.emptySet());
 
     @Inject
     @ActiveSession

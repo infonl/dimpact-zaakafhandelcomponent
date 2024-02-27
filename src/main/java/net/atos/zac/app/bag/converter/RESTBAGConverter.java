@@ -95,12 +95,11 @@ public class RESTBAGConverter {
         final RESTGeometry geometry = new RESTGeometry();
         geometry.type = surface.getType().value();
         geometry.polygon = surface.getCoordinates()
-                                  .stream()
-                                  .map(coords -> coords.stream()
-                                                       .map(punt -> new RESTCoordinates(punt.get(0).doubleValue(), punt.get(1)
-                                                                                                                       .doubleValue()))
-                                                       .toList())
-                                  .toList();
+                .stream()
+                .map(coords -> coords.stream()
+                        .map(punt -> new RESTCoordinates(punt.get(0).doubleValue(), punt.get(1).doubleValue()))
+                        .toList())
+                .toList();
         return geometry;
     }
 

@@ -46,7 +46,7 @@ public class CreateHumanTaskInterceptor implements org.flowable.cmmn.engine.inte
             context.setOwner(owner);
         }
         final String candidateGroupId = (String) context.getPlanItemInstanceEntity()
-                                                        .getTransientVariable(VAR_TRANSIENT_CANDIDATE_GROUP);
+                .getTransientVariable(VAR_TRANSIENT_CANDIDATE_GROUP);
         if (candidateGroupId != null) {
             context.setCandidateGroups(List.of(candidateGroupId));
         }
@@ -59,12 +59,12 @@ public class CreateHumanTaskInterceptor implements org.flowable.cmmn.engine.inte
     @Override
     public void afterCreateHumanTask(final CreateHumanTaskAfterContext context) {
         final Map<String, String> taakdata = (Map<String, String>) context.getPlanItemInstanceEntity()
-                                                                          .getTransientVariable(VAR_TRANSIENT_TAAKDATA);
+                .getTransientVariable(VAR_TRANSIENT_TAAKDATA);
         FlowableHelper.getInstance().getTaakVariabelenService().setTaakdata(context.getTaskEntity(), taakdata);
         context.getTaskEntity().setDueDate((Date) context.getPlanItemInstanceEntity()
-                                                         .getTransientVariable(VAR_TRANSIENT_DUE_DATE));
+                .getTransientVariable(VAR_TRANSIENT_DUE_DATE));
         context.getTaskEntity().setDescription((String) context.getPlanItemInstanceEntity()
-                                                               .getTransientVariable(VAR_TRANSIENT_DESCRIPTION));
+                .getTransientVariable(VAR_TRANSIENT_DESCRIPTION));
         final UUID zaakUUID = (UUID) context.getPlanItemInstanceEntity().getTransientVariable(VAR_TRANSIENT_ZAAK_UUID);
         final ScreenEvent screenEvent = ScreenEventType.ZAAK_TAKEN.updated(zaakUUID);
         // Wait some time before handling the event to make sure that the task has been created.
@@ -74,8 +74,7 @@ public class CreateHumanTaskInterceptor implements org.flowable.cmmn.engine.inte
         if (context.getTaskEntity().getAssignee() != null) {
             // On creation of a human task the event observer will assume its owner is the actor who created it.
             final SignaleringEvent<?> signaleringEvent = SignaleringEventUtil.event(SignaleringType.Type.TAAK_OP_NAAM, context
-                                                                                                                              .getTaskEntity(),
-                                                                                    null);
+                    .getTaskEntity(), null);
             // Wait some time before handling the event to make sure that the task has been created.
             signaleringEvent.setDelay(SECONDS_TO_DELAY);
             FlowableHelper.getInstance().getEventingService().send(signaleringEvent);

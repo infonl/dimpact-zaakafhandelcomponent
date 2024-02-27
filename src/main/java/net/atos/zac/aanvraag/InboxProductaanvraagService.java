@@ -100,7 +100,7 @@ public class InboxProductaanvraagService {
         final List<Predicate> predicates = new ArrayList<>();
         if (StringUtils.isNotBlank(listParameters.getInitiatorID())) {
             predicates.add(
-                           builder.like(root.get(InboxProductaanvraag.INITIATOR), LIKE.formatted(listParameters.getInitiatorID())));
+                    builder.like(root.get(InboxProductaanvraag.INITIATOR), LIKE.formatted(listParameters.getInitiatorID())));
         }
 
         if (StringUtils.isNotBlank(listParameters.getType())) {
@@ -110,12 +110,11 @@ public class InboxProductaanvraagService {
         if (listParameters.getOntvangstdatum() != null) {
             if (listParameters.getOntvangstdatum().van() != null) {
                 predicates.add(builder.greaterThanOrEqualTo(root.get(InboxProductaanvraag.ONTVANGSTDATUM), listParameters
-                                                                                                                         .getOntvangstdatum()
-                                                                                                                         .van()));
+                        .getOntvangstdatum().van()));
             }
             if (listParameters.getOntvangstdatum().tot() != null) {
                 predicates.add(builder.lessThanOrEqualTo(root.get(InboxProductaanvraag.ONTVANGSTDATUM), listParameters.getOntvangstdatum()
-                                                                                                                      .tot()));
+                        .tot()));
             }
         }
         return builder.and(predicates.toArray(new Predicate[0]));

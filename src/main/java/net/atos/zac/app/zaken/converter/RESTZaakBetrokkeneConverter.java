@@ -51,7 +51,7 @@ public class RESTZaakBetrokkeneConverter {
 
     public List<RESTZaakBetrokkene> convert(final Stream<Rol<?>> rollen) {
         return rollen
-                     .map(this::convert)
-                     .toList();
+                .map(this::convert)
+                .toList();
     }
 }

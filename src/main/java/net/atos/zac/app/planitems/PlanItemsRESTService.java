@@ -117,8 +117,8 @@ public class PlanItemsRESTService {
         final List<PlanItemInstance> humanTaskPlanItems = cmmnService.listHumanTaskPlanItems(zaakUUID);
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
         return planItemConverter.convertPlanItems(humanTaskPlanItems, zaak).stream()
-                                .filter(restPlanItem -> restPlanItem.actief)
-                                .toList();
+                .filter(restPlanItem -> restPlanItem.actief)
+                .toList();
     }
 
     @GET
@@ -144,7 +144,7 @@ public class PlanItemsRESTService {
         final UUID zaakUUID = zaakVariabelenService.readZaakUUID(humanTaskPlanItem);
         final UUID zaaktypeUUID = zaakVariabelenService.readZaaktypeUUID(humanTaskPlanItem);
         final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                                                                                                                      zaaktypeUUID);
+                zaaktypeUUID);
         return planItemConverter.convertPlanItem(humanTaskPlanItem, zaakUUID, zaakafhandelParameters);
     }
 
@@ -155,7 +155,7 @@ public class PlanItemsRESTService {
         final UUID zaakUUID = zaakVariabelenService.readZaakUUID(processTaskPlanItem);
         final UUID zaaktypeUUID = zaakVariabelenService.readZaaktypeUUID(processTaskPlanItem);
         final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                                                                                                                      zaaktypeUUID);
+                zaaktypeUUID);
         return planItemConverter.convertPlanItem(processTaskPlanItem, zaakUUID, zaakafhandelParameters);
     }
 
@@ -167,9 +167,10 @@ public class PlanItemsRESTService {
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
         final Map<String, String> taakdata = humanTaskData.taakdata;
         assertPolicy(policyService.readZaakRechten(zaak).behandelen());
-        final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(UriUtil.uuidFromURI(zaak.getZaaktype()));
+        final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(UriUtil.uuidFromURI(
+                zaak.getZaaktype()));
         final Optional<HumanTaskParameters> humanTaskParameters = zaakafhandelParameters
-                                                                                        .findHumanTaskParameter(planItem.getPlanItemDefinitionId());
+                .findHumanTaskParameter(planItem.getPlanItemDefinitionId());
 
         final LocalDate fataleDatum;
         if (humanTaskData.fataledatum != null) {
@@ -187,39 +188,35 @@ public class PlanItemsRESTService {
             final Mail mail = Mail.valueOf(humanTaskData.taakStuurGegevens.mail);
 
             final MailTemplate mailTemplate = zaakafhandelParameters.getMailtemplateKoppelingen().stream()
-                                                                    .map(MailtemplateKoppeling::getMailTemplate)
-                                                                    .filter(template -> template.getMail().equals(mail))
-                                                                    .findFirst()
-                                                                    .orElseGet(() -> mailTemplateService.readMailtemplate(mail));
+                    .map(MailtemplateKoppeling::getMailTemplate)
+                    .filter(template -> template.getMail().equals(mail))
+                    .findFirst()
+                    .orElseGet(() -> mailTemplateService.readMailtemplate(mail));
 
             final String afzender = configuratieService.readGemeenteNaam();
             taakVariabelenService.setMailBody(taakdata, mailService.sendMail(
-                                                                             new MailGegevens(
-                                                                                              taakVariabelenService.readMailFrom(taakdata)
-                                                                                                                   .map(email -> new MailAdres(email,
-                                                                                                                                               afzender))
-                                                                                                                   .orElseGet(() -> mailService.getGemeenteMailAdres()),
-                                                                                              taakVariabelenService.readMailTo(taakdata)
-                                                                                                                   .map(MailAdres::new)
-                                                                                                                   .orElse(null),
-                                                                                              taakVariabelenService.readMailReplyTo(taakdata)
-                                                                                                                   .map(email -> new MailAdres(email,
-                                                                                                                                               afzender))
-                                                                                                                   .orElse(null),
-                                                                                              mailTemplate.getOnderwerp(),
-                                                                                              taakVariabelenService.readMailBody(taakdata)
-                                                                                                                   .orElse(null),
-                                                                                              taakVariabelenService.readMailBijlagen(taakdata)
-                                                                                                                   .orElse(null),
-                                                                                              true),
-                                                                             Bronnen.fromZaak(zaak)));
+                    new MailGegevens(
+                            taakVariabelenService.readMailFrom(taakdata)
+                                    .map(email -> new MailAdres(email, afzender))
+                                    .orElseGet(() -> mailService.getGemeenteMailAdres()),
+                            taakVariabelenService.readMailTo(taakdata)
+                                    .map(MailAdres::new)
+                                    .orElse(null),
+                            taakVariabelenService.readMailReplyTo(taakdata)
+                                    .map(email -> new MailAdres(email, afzender))
+                                    .orElse(null),
+                            mailTemplate.getOnderwerp(),
+                            taakVariabelenService.readMailBody(taakdata).orElse(null),
+                            taakVariabelenService.readMailBijlagen(taakdata).orElse(null),
+                            true),
+                    Bronnen.fromZaak(zaak)));
         }
         cmmnService.startHumanTaskPlanItem(humanTaskData.planItemInstanceId, humanTaskData.groep.id,
-                                           humanTaskData.medewerker != null && !humanTaskData.medewerker.toString().isEmpty() ?
-                                                   humanTaskData.medewerker.id :
-                                                   null,
-                                           DateTimeConverterUtil.convertToDate(fataleDatum),
-                                           humanTaskData.toelichting, taakdata, zaakUUID);
+                humanTaskData.medewerker != null && !humanTaskData.medewerker.toString().isEmpty() ?
+                        humanTaskData.medewerker.id :
+                        null,
+                DateTimeConverterUtil.convertToDate(fataleDatum),
+                humanTaskData.toelichting, taakdata, zaakUUID);
         indexeerService.addOrUpdateZaak(zaakUUID, false);
     }
 
@@ -237,15 +234,15 @@ public class PlanItemsRESTService {
         switch (userEventListenerData.actie) {
             case INTAKE_AFRONDEN -> {
                 final PlanItemInstance planItemInstance = cmmnService.readOpenPlanItem(
-                                                                                       userEventListenerData.planItemInstanceId);
+                        userEventListenerData.planItemInstanceId);
                 zaakVariabelenService.setOntvankelijk(planItemInstance, userEventListenerData.zaakOntvankelijk);
                 if (!userEventListenerData.zaakOntvankelijk) {
                     policyService.checkZaakAfsluitbaar(zaak);
                     final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                                                                                                                                  UriUtil.uuidFromURI(zaak.getZaaktype()));
+                            UriUtil.uuidFromURI(zaak.getZaaktype()));
                     zgwApiService.createResultaatForZaak(zaak,
-                                                         zaakafhandelParameters.getNietOntvankelijkResultaattype(),
-                                                         userEventListenerData.resultaatToelichting);
+                            zaakafhandelParameters.getNietOntvankelijkResultaattype(),
+                            userEventListenerData.resultaatToelichting);
                 }
             }
             case ZAAK_AFHANDELEN -> {
@@ -256,7 +253,7 @@ public class PlanItemsRESTService {
                     zrcClientService.updateResultaat(resultaat);
                 } else {
                     zgwApiService.createResultaatForZaak(zaak, userEventListenerData.resultaattypeUuid,
-                                                         userEventListenerData.resultaatToelichting);
+                            userEventListenerData.resultaatToelichting);
                 }
             }
         }

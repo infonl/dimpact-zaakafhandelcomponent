@@ -54,31 +54,31 @@ import net.atos.zac.app.klanten.model.personen.RESTPersoon;
 public class RESTPersoonConverter {
     // Moet overeenkomen met wat er in convertToPersonenQuery gebeurt.
     public static final List<RESTPersonenParameters> VALID_PERSONEN_QUERIES = List.of(
-                                                                                      new RESTPersonenParameters(REQ,
-                                                                                                                 NON, NON, NON,
-                                                                                                                 NON,
-                                                                                                                 NON,
-                                                                                                                 NON, NON, NON),
-                                                                                      new RESTPersonenParameters(NON,
-                                                                                                                 REQ, OPT, OPT,
-                                                                                                                 REQ,
-                                                                                                                 NON,
-                                                                                                                 NON, NON, NON),
-                                                                                      new RESTPersonenParameters(NON,
-                                                                                                                 REQ, REQ, OPT,
-                                                                                                                 NON,
-                                                                                                                 REQ,
-                                                                                                                 NON, NON, NON),
-                                                                                      new RESTPersonenParameters(NON,
-                                                                                                                 NON, NON, NON,
-                                                                                                                 NON,
-                                                                                                                 NON,
-                                                                                                                 REQ, REQ, NON),
-                                                                                      new RESTPersonenParameters(NON,
-                                                                                                                 NON, NON, NON,
-                                                                                                                 NON,
-                                                                                                                 REQ,
-                                                                                                                 NON, REQ, REQ)
+            new RESTPersonenParameters(REQ,
+                    NON, NON, NON,
+                    NON,
+                    NON,
+                    NON, NON, NON),
+            new RESTPersonenParameters(NON,
+                    REQ, OPT, OPT,
+                    REQ,
+                    NON,
+                    NON, NON, NON),
+            new RESTPersonenParameters(NON,
+                    REQ, REQ, OPT,
+                    NON,
+                    REQ,
+                    NON, NON, NON),
+            new RESTPersonenParameters(NON,
+                    NON, NON, NON,
+                    NON,
+                    NON,
+                    REQ, REQ, NON),
+            new RESTPersonenParameters(NON,
+                    NON, NON, NON,
+                    NON,
+                    REQ,
+                    NON, REQ, REQ)
     );
 
     public List<RESTPersoon> convertPersonen(final List<Persoon> personen) {
@@ -122,9 +122,9 @@ public class RESTPersoonConverter {
         if (persoon.getAdressering() != null) {
             final AdresseringBeperkt adressering = persoon.getAdressering();
             restPersoon.verblijfplaats = joinNonBlankWith(", ",
-                                                          adressering.getAdresregel1(),
-                                                          adressering.getAdresregel2(),
-                                                          adressering.getAdresregel3());
+                    adressering.getAdresregel1(),
+                    adressering.getAdresregel2(),
+                    adressering.getAdresregel3());
         }
         return restPersoon;
     }
@@ -211,11 +211,11 @@ public class RESTPersoonConverter {
 
     private String convertVerblijfadresBinnenland(final VerblijfadresBinnenland verblijfadresBinnenland) {
         final String adres = replace(joinNonBlankWith(NON_BREAKING_SPACE,
-                                                      verblijfadresBinnenland.getOfficieleStraatnaam(),
-                                                      Objects.toString(verblijfadresBinnenland.getHuisnummer(), null),
-                                                      verblijfadresBinnenland.getHuisnummertoevoeging(),
-                                                      verblijfadresBinnenland.getHuisletter()),
-                                     SPACE, NON_BREAKING_SPACE);
+                verblijfadresBinnenland.getOfficieleStraatnaam(),
+                Objects.toString(verblijfadresBinnenland.getHuisnummer(), null),
+                verblijfadresBinnenland.getHuisnummertoevoeging(),
+                verblijfadresBinnenland.getHuisletter()),
+                SPACE, NON_BREAKING_SPACE);
         final String postcode = replace(verblijfadresBinnenland.getPostcode(), SPACE, NON_BREAKING_SPACE);
         final String woonplaats = replace(verblijfadresBinnenland.getWoonplaats(), SPACE, NON_BREAKING_SPACE);
         return joinNonBlankWith(", ", adres, postcode, woonplaats);
@@ -223,8 +223,8 @@ public class RESTPersoonConverter {
 
     private String convertVerblijfadresBuitenland(VerblijfadresBuitenland verblijfadresBuitenland) {
         return joinNonBlankWith(", ", verblijfadresBuitenland.getRegel1(),
-                                verblijfadresBuitenland.getRegel2(),
-                                verblijfadresBuitenland.getRegel3());
+                verblijfadresBuitenland.getRegel2(),
+                verblijfadresBuitenland.getRegel3());
     }
 
 }

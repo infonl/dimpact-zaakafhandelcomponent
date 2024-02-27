@@ -20,12 +20,12 @@ public class ValidatieFout extends Fout {
 
     @JsonbCreator
     public ValidatieFout(@JsonbProperty("type") final URI type,
-                         @JsonbProperty("code") final String code,
-                         @JsonbProperty("title") final String title,
-                         @JsonbProperty("status") final int status,
-                         @JsonbProperty("detail") final String detail,
-                         @JsonbProperty("instance") final URI instance,
-                         @JsonbProperty("invalidParams") final List<FieldValidationError> invalidParams) {
+            @JsonbProperty("code") final String code,
+            @JsonbProperty("title") final String title,
+            @JsonbProperty("status") final int status,
+            @JsonbProperty("detail") final String detail,
+            @JsonbProperty("instance") final URI instance,
+            @JsonbProperty("invalidParams") final List<FieldValidationError> invalidParams) {
         super(type, code, title, status, detail, instance);
         this.invalidParams = invalidParams;
     }

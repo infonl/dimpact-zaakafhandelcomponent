@@ -47,7 +47,7 @@ public class RESTNummeraanduidingConverter {
         if (nummeraanduidingIO.getEmbedded() != null) {
             restNummeraanduiding.woonplaats = woonplaatsConverter.convertToREST(nummeraanduidingIO.getEmbedded().getLigtInWoonplaats());
             restNummeraanduiding.openbareRuimte = openbareRuimteConverter.convertToREST(nummeraanduidingIO.getEmbedded()
-                                                                                                          .getLigtAanOpenbareRuimte());
+                    .getLigtAanOpenbareRuimte());
         }
         return restNummeraanduiding;
     }
@@ -72,28 +72,25 @@ public class RESTNummeraanduidingConverter {
 
     public ZaakobjectNummeraanduiding convertToZaakobject(final RESTNummeraanduiding nummeraanduiding, final Zaak zaak) {
         final ObjectNummeraanduiding objectNummeraanduiding = new ObjectNummeraanduiding(
-                                                                                         nummeraanduiding.identificatie,
-                                                                                         nummeraanduiding.huisnummer,
-                                                                                         nummeraanduiding.huisletter,
-                                                                                         nummeraanduiding.huisnummertoevoeging,
-                                                                                         nummeraanduiding.postcode,
-                                                                                         nummeraanduiding.typeAdresseerbaarObject != null ?
-                                                                                                 nummeraanduiding.typeAdresseerbaarObject.toString() :
-                                                                                                 null,
-                                                                                         nummeraanduiding.status != null ?
-                                                                                                 nummeraanduiding.status.toString() : null
+                nummeraanduiding.identificatie,
+                nummeraanduiding.huisnummer,
+                nummeraanduiding.huisletter,
+                nummeraanduiding.huisnummertoevoeging,
+                nummeraanduiding.postcode,
+                nummeraanduiding.typeAdresseerbaarObject != null ? nummeraanduiding.typeAdresseerbaarObject.toString() : null,
+                nummeraanduiding.status != null ? nummeraanduiding.status.toString() : null
         );
         return new ZaakobjectNummeraanduiding(zaak.getUrl(), nummeraanduiding.url, objectNummeraanduiding);
     }
 
     private String convertHuisnummerWeergave(final Nummeraanduiding nummeraanduiding) {
         return RESTBAGConverter.getHuisnummerWeergave(nummeraanduiding.getHuisnummer(), nummeraanduiding.getHuisletter(),
-                                                      nummeraanduiding.getHuisnummertoevoeging());
+                nummeraanduiding.getHuisnummertoevoeging());
     }
 
     private String convertHuisnummerWeergave(final ObjectNummeraanduiding nummeraanduiding) {
         return RESTBAGConverter.getHuisnummerWeergave(nummeraanduiding.getHuisnummer(), nummeraanduiding.getHuisletter(),
-                                                      nummeraanduiding.getHuisnummertoevoeging());
+                nummeraanduiding.getHuisnummertoevoeging());
     }
 
     public RESTNummeraanduiding convertToREST(final Nummeraanduiding nummeraanduiding) {

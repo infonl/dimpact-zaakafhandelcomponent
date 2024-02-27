@@ -40,8 +40,8 @@ public final class JAXRSClientFactory {
             final ClientBuilder clientBuilder = ClientBuilder.newBuilder().sslContext(SSLContext.getDefault());
             if (StringUtils.isNotEmpty(proxyHost) && StringUtils.isNumeric(proxyPort)) {
                 clientBuilder
-                             .property("org.jboss.resteasy.jaxrs.client.proxy.host", proxyHost)
-                             .property("org.jboss.resteasy.jaxrs.client.proxy.port", proxyPort);
+                        .property("org.jboss.resteasy.jaxrs.client.proxy.host", proxyHost)
+                        .property("org.jboss.resteasy.jaxrs.client.proxy.port", proxyPort);
             }
             return clientBuilder.build();
         } catch (final NoSuchAlgorithmException e) {

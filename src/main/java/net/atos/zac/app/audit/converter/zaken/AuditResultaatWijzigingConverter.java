@@ -29,11 +29,11 @@ public class AuditResultaatWijzigingConverter extends AbstractAuditWijzigingConv
     @Override
     protected Stream<RESTHistorieRegel> doConvert(final ResultaatWijziging resultaatWijziging) {
         return Stream.of(
-                         new RESTHistorieRegel(
-                                               "resultaat",
-                                               toWaarde(resultaatWijziging.getOud()),
-                                               toWaarde(resultaatWijziging.getNieuw())
-                         )
+                new RESTHistorieRegel(
+                        "resultaat",
+                        toWaarde(resultaatWijziging.getOud()),
+                        toWaarde(resultaatWijziging.getNieuw())
+                )
         );
     }
 

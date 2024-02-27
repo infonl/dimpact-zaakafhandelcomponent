@@ -118,8 +118,8 @@ public class RESTZaakConverter {
         final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
 
         brcClientService.listBesluiten(zaak)
-                        .map(besluitConverter::convertToRESTBesluit)
-                        .ifPresent(besluiten -> restZaak.besluiten = besluiten);
+                .map(besluitConverter::convertToRESTBesluit)
+                .ifPresent(besluiten -> restZaak.besluiten = besluiten);
         restZaak.identificatie = zaak.getIdentificatie();
         restZaak.uuid = zaak.getUuid();
         restZaak.bronorganisatie = zaak.getBronorganisatie();
@@ -160,37 +160,37 @@ public class RESTZaakConverter {
 
         if (zaak.getKenmerken() != null) {
             restZaak.kenmerken = zaak.getKenmerken().stream()
-                                     .map(zaakKenmerk -> new RESTZaakKenmerk(zaakKenmerk.getKenmerk(), zaakKenmerk.getBron()))
-                                     .collect(Collectors.toList());
+                    .map(zaakKenmerk -> new RESTZaakKenmerk(zaakKenmerk.getKenmerk(), zaakKenmerk.getBron()))
+                    .collect(Collectors.toList());
         }
 
         if (zaak.getCommunicatiekanaal() != null) {
             vrlClientService.findCommunicatiekanaal(uuidFromURI(zaak.getCommunicatiekanaal()))
-                            .map(communicatiekanaalConverter::convert)
-                            .ifPresent(communicatiekanaal -> restZaak.communicatiekanaal = communicatiekanaal);
+                    .map(communicatiekanaalConverter::convert)
+                    .ifPresent(communicatiekanaal -> restZaak.communicatiekanaal = communicatiekanaal);
         }
 
         restZaak.vertrouwelijkheidaanduiding = zaak.getVertrouwelijkheidaanduiding().toString();
 
         zgwApiService.findGroepForZaak(zaak)
-                     .map(groep -> groupConverter.convertGroupId(groep.getBetrokkeneIdentificatie().getIdentificatie()))
-                     .ifPresent(groep -> restZaak.groep = groep);
+                .map(groep -> groupConverter.convertGroupId(groep.getBetrokkeneIdentificatie().getIdentificatie()))
+                .ifPresent(groep -> restZaak.groep = groep);
 
         zgwApiService.findBehandelaarForZaak(zaak)
-                     .map(behandelaar -> userConverter.convertUserId(
-                                                                     behandelaar.getBetrokkeneIdentificatie().getIdentificatie()))
-                     .ifPresent(behandelaar -> restZaak.behandelaar = behandelaar);
+                .map(behandelaar -> userConverter.convertUserId(
+                        behandelaar.getBetrokkeneIdentificatie().getIdentificatie()))
+                .ifPresent(behandelaar -> restZaak.behandelaar = behandelaar);
 
         zgwApiService.findInitiatorForZaak(zaak)
-                     .ifPresent(initiator -> {
-                         restZaak.initiatorIdentificatieType = switch (initiator.getBetrokkeneType()) {
-                             case NATUURLIJK_PERSOON -> BSN;
-                             case VESTIGING -> VN;
-                             case NIET_NATUURLIJK_PERSOON -> RSIN;
-                             default -> null;
-                         };
-                         restZaak.initiatorIdentificatie = initiator.getIdentificatienummer();
-                     });
+                .ifPresent(initiator -> {
+                    restZaak.initiatorIdentificatieType = switch (initiator.getBetrokkeneType()) {
+                        case NATUURLIJK_PERSOON -> BSN;
+                        case VESTIGING -> VN;
+                        case NIET_NATUURLIJK_PERSOON -> RSIN;
+                        default -> null;
+                    };
+                    restZaak.initiatorIdentificatie = initiator.getIdentificatienummer();
+                });
 
         restZaak.isHoofdzaak = zaak.is_Hoofdzaak();
         restZaak.isDeelzaak = zaak.isDeelzaak();
@@ -209,8 +209,8 @@ public class RESTZaakConverter {
 
     public Zaak convert(final RESTZaak restZaak, final ZaakType zaaktype) {
         final Zaak zaak = new Zaak(zaaktype.getUrl(), restZaak.startdatum,
-                                   ConfiguratieService.BRON_ORGANISATIE,
-                                   ConfiguratieService.VERANTWOORDELIJKE_ORGANISATIE);
+                ConfiguratieService.BRON_ORGANISATIE,
+                ConfiguratieService.VERANTWOORDELIJKE_ORGANISATIE);
         //aanvullen
         zaak.setOmschrijving(restZaak.omschrijving);
         zaak.setToelichting(restZaak.toelichting);
@@ -218,13 +218,13 @@ public class RESTZaakConverter {
 
         if (restZaak.communicatiekanaal != null) {
             vrlClientService.findCommunicatiekanaal(restZaak.communicatiekanaal.uuid)
-                            .map(CommunicatieKanaal::getUrl)
-                            .ifPresent(zaak::setCommunicatiekanaal);
+                    .map(CommunicatieKanaal::getUrl)
+                    .ifPresent(zaak::setCommunicatiekanaal);
         }
 
         if (restZaak.vertrouwelijkheidaanduiding != null) {
             zaak.setVertrouwelijkheidaanduiding(
-                                                convertToVertrouwelijkheidaanduidingEnum(restZaak.vertrouwelijkheidaanduiding)
+                    convertToVertrouwelijkheidaanduidingEnum(restZaak.vertrouwelijkheidaanduiding)
             );
         }
 
@@ -242,13 +242,13 @@ public class RESTZaakConverter {
         zaak.setUiterlijkeEinddatumAfdoening(restZaak.uiterlijkeEinddatumAfdoening);
         if (restZaak.vertrouwelijkheidaanduiding != null) {
             zaak.setVertrouwelijkheidaanduiding(
-                                                convertToVertrouwelijkheidaanduidingEnum(restZaak.vertrouwelijkheidaanduiding)
+                    convertToVertrouwelijkheidaanduidingEnum(restZaak.vertrouwelijkheidaanduiding)
             );
         }
         if (restZaak.communicatiekanaal != null) {
             vrlClientService.findCommunicatiekanaal(restZaak.communicatiekanaal.uuid)
-                            .map(CommunicatieKanaal::getUrl)
-                            .ifPresent(zaak::setCommunicatiekanaal);
+                    .map(CommunicatieKanaal::getUrl)
+                    .ifPresent(zaak::setCommunicatiekanaal);
         }
         zaak.setZaakgeometrie(restGeometryConverter.convert(restZaak.zaakgeometrie));
         return zaak;
@@ -260,13 +260,12 @@ public class RESTZaakConverter {
         zaak.setUiterlijkeEinddatumAfdoening(verlengGegevens.uiterlijkeEinddatumAfdoening);
         final Verlenging verlenging = zrcClientService.readZaak(zaakUUID).getVerlenging();
         zaak.setVerlenging(
-                           verlenging != null && verlenging.getDuur() != null ? new Verlenging(
-                                                                                               verlengGegevens.redenVerlenging,
-                                                                                               verlenging.getDuur().plusDays(
-                                                                                                                             verlengGegevens.duurDagen)
-                           ) : new Verlenging(
-                                              verlengGegevens.redenVerlenging,
-                                              Period.ofDays(verlengGegevens.duurDagen))
+                verlenging != null && verlenging.getDuur() != null ? new Verlenging(
+                        verlengGegevens.redenVerlenging,
+                        verlenging.getDuur().plusDays(verlengGegevens.duurDagen)
+                ) : new Verlenging(
+                        verlengGegevens.redenVerlenging,
+                        Period.ofDays(verlengGegevens.duurDagen))
         );
         return zaak;
     }
@@ -275,15 +274,15 @@ public class RESTZaakConverter {
         final List<RESTGerelateerdeZaak> gerelateerdeZaken = new ArrayList<>();
         if (zaak.getHoofdzaak() != null) {
             gerelateerdeZaken.add(gerelateerdeZaakConverter.convert(zrcClientService.readZaak(zaak.getHoofdzaak()),
-                                                                    RelatieType.HOOFDZAAK));
+                    RelatieType.HOOFDZAAK));
         }
         zaak.getDeelzaken().stream()
-            .map(zrcClientService::readZaak)
-            .map(deelzaak -> gerelateerdeZaakConverter.convert(deelzaak, RelatieType.DEELZAAK))
-            .forEach(gerelateerdeZaken::add);
+                .map(zrcClientService::readZaak)
+                .map(deelzaak -> gerelateerdeZaakConverter.convert(deelzaak, RelatieType.DEELZAAK))
+                .forEach(gerelateerdeZaken::add);
         zaak.getRelevanteAndereZaken().stream()
-            .map(gerelateerdeZaakConverter::convert)
-            .forEach(gerelateerdeZaken::add);
+                .map(gerelateerdeZaakConverter::convert)
+                .forEach(gerelateerdeZaken::add);
         return gerelateerdeZaken;
     }
 }

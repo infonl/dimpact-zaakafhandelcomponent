@@ -52,7 +52,7 @@ public class MailTemplateKoppelingenService {
             return mailtemplateKoppeling;
         } else {
             throw new RuntimeException(String.format("%s with id=%d not found",
-                                                     MailtemplateKoppeling.class.getSimpleName(), id));
+                    MailtemplateKoppeling.class.getSimpleName(), id));
         }
     }
 

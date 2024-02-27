@@ -19,9 +19,9 @@ public enum TaakSortering {
             return null;
         }
         return Arrays.stream(values())
-                     .filter(taakSortering -> taakSortering.name().equalsIgnoreCase(value))
-                     .findAny()
-                     .orElseThrow(() -> new IllegalArgumentException(
-                                                                     String.format("Onbekende TaakSortering met waarde: '%s'", value)));
+                .filter(taakSortering -> taakSortering.name().equalsIgnoreCase(value))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException(
+                        String.format("Onbekende TaakSortering met waarde: '%s'", value)));
     }
 }

@@ -28,7 +28,7 @@ public class AuditRolWijzigingConverter extends AbstractAuditWijzigingConverter<
 
     private String toAttribuutLabel(final AuditWijziging<Rol> wijziging) {
         final BetrokkeneType betrokkeneType = wijziging.getOud() != null ? wijziging.getOud().getBetrokkeneType() : wijziging.getNieuw()
-                                                                                                                             .getBetrokkeneType();
+                .getBetrokkeneType();
         return "betrokkenetype." + betrokkeneType.name();
     }
 

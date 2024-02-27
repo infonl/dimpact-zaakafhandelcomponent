@@ -62,8 +62,8 @@ public enum SorteerVeld {
 
     public static SorteerVeld fromValue(final String veld) {
         return Stream.of(SorteerVeld.values())
-                     .filter(filter -> String.valueOf(filter.veld).equals(veld))
-                     .findFirst()
-                     .orElseThrow(() -> new IllegalArgumentException(String.format("Onbekend SorteerVeld '%s'", veld)));
+                .filter(filter -> String.valueOf(filter.veld).equals(veld))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(String.format("Onbekend SorteerVeld '%s'", veld)));
     }
 }

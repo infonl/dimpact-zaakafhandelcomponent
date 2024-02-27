@@ -84,22 +84,22 @@ public class RESTAdresConverter {
 
     public ZaakobjectAdres convertToZaakobject(final RESTBAGAdres restBAGAdres, final Zaak zaak) {
         ObjectAdres objectAdres = new ObjectAdres(restBAGAdres.identificatie,
-                                                  restBAGAdres.woonplaatsNaam,
-                                                  restBAGAdres.openbareRuimteNaam,
-                                                  restBAGAdres.huisnummer,
-                                                  restBAGAdres.huisletter,
-                                                  restBAGAdres.huisnummertoevoeging,
-                                                  restBAGAdres.postcode);
+                restBAGAdres.woonplaatsNaam,
+                restBAGAdres.openbareRuimteNaam,
+                restBAGAdres.huisnummer,
+                restBAGAdres.huisletter,
+                restBAGAdres.huisnummertoevoeging,
+                restBAGAdres.postcode);
         return new ZaakobjectAdres(zaak.getUrl(), restBAGAdres.url, objectAdres);
     }
 
     private String convertToVolledigHuisnummer(final AdresIOHal adresHal) {
         return RESTBAGConverter.getHuisnummerWeergave(adresHal.getHuisnummer(), adresHal.getHuisletter(), adresHal
-                                                                                                                  .getHuisnummertoevoeging());
+                .getHuisnummertoevoeging());
     }
 
     private String convertToVolledigHuisnummer(final ObjectAdres objectAdres) {
         return RESTBAGConverter.getHuisnummerWeergave(objectAdres.getHuisnummer(), objectAdres.getHuisletter(), objectAdres
-                                                                                                                           .getHuisnummertoevoeging());
+                .getHuisnummertoevoeging());
     }
 }

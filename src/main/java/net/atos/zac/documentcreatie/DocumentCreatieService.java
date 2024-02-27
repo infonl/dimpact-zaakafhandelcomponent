@@ -83,16 +83,16 @@ public class DocumentCreatieService {
         try {
             LOG.fine(String.format("Starting Smart Documents wizard for user: '%s'", userName));
             final WizardResponse wizardResponse = smartDocumentsClient.wizardDeposit(
-                                                                                     format("Basic %s", authenticationToken),
-                                                                                     userName,
-                                                                                     wizardRequest
+                    format("Basic %s", authenticationToken),
+                    userName,
+                    wizardRequest
             );
             return new DocumentCreatieResponse(
-                                               UriBuilder.fromUri(smartDocumentsURL).path("smartdocuments/wizard").queryParam("ticket",
-                                                                                                                              wizardResponse.ticket)
-                                                         .build());
+                    UriBuilder.fromUri(smartDocumentsURL).path("smartdocuments/wizard").queryParam("ticket", wizardResponse.ticket)
+                            .build());
         } catch (final BadRequestException badRequestException) {
-            return new DocumentCreatieResponse("Aanmaken van een document is helaas niet mogelijk. (ben je als user geregistreerd in SmartDocuments?)");
+            return new DocumentCreatieResponse(
+                    "Aanmaken van een document is helaas niet mogelijk. (ben je als user geregistreerd in SmartDocuments?)");
         }
     }
 
@@ -100,7 +100,7 @@ public class DocumentCreatieService {
         final SmartDocument smartDocument = new SmartDocument();
         smartDocument.selection = new Selection();
         smartDocument.selection.templateGroup = ztcClientService.readZaaktype(documentCreatieGegevens.getZaak().getZaaktype())
-                                                                .getOmschrijving();
+                .getOmschrijving();
         return smartDocument;
     }
 

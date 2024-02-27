@@ -25,7 +25,7 @@ public class RESTTaalConverter {
 
     public List<RESTTaal> convert(final List<Taal> talen) {
         return talen.stream()
-                    .map(this::convert)
-                    .collect(Collectors.toList());
+                .map(this::convert)
+                .collect(Collectors.toList());
     }
 }

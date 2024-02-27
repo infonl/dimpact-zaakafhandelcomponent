@@ -34,7 +34,7 @@ public class Verlenging {
      */
     @JsonbCreator
     public Verlenging(@JsonbProperty("reden") final String reden,
-                      @JsonbProperty("duur") final Period duur) {
+            @JsonbProperty("duur") final Period duur) {
         this.reden = reden;
         this.duur = duur;
     }

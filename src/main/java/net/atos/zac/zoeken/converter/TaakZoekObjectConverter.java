@@ -70,7 +70,7 @@ public class TaakZoekObjectConverter extends AbstractZoekObjectConverter<TaakZoe
         }
 
         final ZaakType zaaktype = ztcClientService.readZaaktype(
-                                                                taakVariabelenService.readZaaktypeUUID(taskInfo));
+                taakVariabelenService.readZaaktypeUUID(taskInfo));
         taakZoekObject.setZaaktypeIdentificatie(zaaktype.getIdentificatie());
         taakZoekObject.setZaaktypeOmschrijving(zaaktype.getOmschrijving());
         taakZoekObject.setZaaktypeUuid(URIUtil.parseUUIDFromResourceURI(zaaktype.getUrl()).toString());
@@ -84,15 +84,14 @@ public class TaakZoekObjectConverter extends AbstractZoekObjectConverter<TaakZoe
         taakZoekObject.setZaakToelichting(zaak.getToelichting());
 
         taakZoekObject.setTaakData(
-                                   taakVariabelenService.readTaakdata(taskInfo).entrySet().stream()
-                                                        .map(data -> "%s|%s".formatted(data.getKey(), data.getValue()))
-                                                        .toList());
+                taakVariabelenService.readTaakdata(taskInfo).entrySet().stream()
+                        .map(data -> "%s|%s".formatted(data.getKey(), data.getValue()))
+                        .toList());
 
         taakZoekObject.setTaakInformatie(
-                                         taakVariabelenService.readTaakinformatie(taskInfo).entrySet().stream()
-                                                              .map(informatie -> "%s|%s".formatted(informatie.getKey(), informatie
-                                                                                                                                  .getValue()))
-                                                              .toList());
+                taakVariabelenService.readTaakinformatie(taskInfo).entrySet().stream()
+                        .map(informatie -> "%s|%s".formatted(informatie.getKey(), informatie.getValue()))
+                        .toList());
 
         return taakZoekObject;
     }
@@ -104,9 +103,9 @@ public class TaakZoekObjectConverter extends AbstractZoekObjectConverter<TaakZoe
 
     private String extractGroupId(final List<? extends IdentityLinkInfo> identityLinks) {
         return identityLinks.stream()
-                            .filter(identityLinkInfo -> IdentityLinkType.CANDIDATE.equals(identityLinkInfo.getType()))
-                            .findAny()
-                            .map(IdentityLinkInfo::getGroupId)
-                            .orElse(null);
+                .filter(identityLinkInfo -> IdentityLinkType.CANDIDATE.equals(identityLinkInfo.getType()))
+                .findAny()
+                .map(IdentityLinkInfo::getGroupId)
+                .orElse(null);
     }
 }

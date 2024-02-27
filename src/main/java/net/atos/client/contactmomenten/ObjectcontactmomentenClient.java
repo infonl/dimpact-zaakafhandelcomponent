@@ -44,9 +44,8 @@ public interface ObjectcontactmomentenClient {
     @GET
     @Produces({"application/json", "application/problem+json"})
     public ObjectcontactmomentList200Response objectcontactmomentList(@QueryParam("object") URI _object,
-                                                                      @QueryParam("contactmoment") URI contactmoment,
-                                                                      @QueryParam("objectType") String objectType,
-                                                                      @QueryParam("page") Integer page) throws ProcessingException;
+            @QueryParam("contactmoment") URI contactmoment, @QueryParam("objectType") String objectType,
+            @QueryParam("page") Integer page) throws ProcessingException;
 
     /**
      * Een specifiek OBJECT-CONTACTMOMENT relatie opvragen.
@@ -55,5 +54,5 @@ public interface ObjectcontactmomentenClient {
     @Path("/{uuid}")
     @Produces({"application/json", "application/problem+json"})
     public ObjectContactMoment objectcontactmomentRead(@PathParam("uuid") UUID uuid,
-                                                       @HeaderParam("If-None-Match") String ifNoneMatch) throws ProcessingException;
+            @HeaderParam("If-None-Match") String ifNoneMatch) throws ProcessingException;
 }

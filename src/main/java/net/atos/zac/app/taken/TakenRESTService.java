@@ -177,7 +177,7 @@ public class TakenRESTService {
     @Path("lijst/verdelen")
     public void verdelenVanuitLijst(final RESTTaakVerdelenGegevens restTaakVerdelenGegevens) {
         assertPolicy(
-                     policyService.readWerklijstRechten().zakenTaken() && policyService.readWerklijstRechten().zakenTakenVerdelen()
+                policyService.readWerklijstRechten().zakenTaken() && policyService.readWerklijstRechten().zakenTakenVerdelen()
         );
         final List<String> taakIds = new ArrayList<>();
         restTaakVerdelenGegevens.taken.forEach(taak -> {
@@ -185,13 +185,13 @@ public class TakenRESTService {
             boolean changed = false;
             if (restTaakVerdelenGegevens.behandelaarGebruikersnaam != null) {
                 task = assignTaak(task.getId(), restTaakVerdelenGegevens.behandelaarGebruikersnaam,
-                                  restTaakVerdelenGegevens.reden);
+                        restTaakVerdelenGegevens.reden);
                 changed = true;
             }
 
             if (restTaakVerdelenGegevens.groepId != null) {
                 task = takenService.assignTaskToGroup(task, restTaakVerdelenGegevens.groepId,
-                                                      restTaakVerdelenGegevens.reden);
+                        restTaakVerdelenGegevens.reden);
                 changed = true;
             }
 
@@ -208,7 +208,7 @@ public class TakenRESTService {
     @Path("lijst/vrijgeven")
     public void vrijgevenVanuitLijst(final RESTTaakVerdelenGegevens restTaakVerdelenGegevens) {
         assertPolicy(policyService.readWerklijstRechten().zakenTaken() && policyService.readWerklijstRechten()
-                                                                                       .zakenTakenVerdelen());
+                .zakenTakenVerdelen());
         final List<String> taakIds = new ArrayList<>();
         restTaakVerdelenGegevens.taken.forEach(taak -> {
             final var task = assignTaak(taak.taakId, null, restTaakVerdelenGegevens.reden);
@@ -221,7 +221,7 @@ public class TakenRESTService {
     @PATCH
     @Path("lijst/toekennen/mij")
     public RESTTaak toekennenAanIngelogdeMedewerkerVanuitLijst(
-                                                               final RESTTaakToekennenGegevens restTaakToekennenGegevens) {
+            final RESTTaakToekennenGegevens restTaakToekennenGegevens) {
         assertPolicy(policyService.readWerklijstRechten().zakenTaken());
         final Task task = ingelogdeMedewerkerToekennenAanTaak(restTaakToekennenGegevens);
         return restTaakConverter.convert(task);
@@ -232,7 +232,7 @@ public class TakenRESTService {
     public void toekennen(final RESTTaakToekennenGegevens restTaakToekennenGegevens) {
         Task task = takenService.readOpenTask(restTaakToekennenGegevens.taakId);
         assertPolicy(
-                     getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).toekennen());
+                getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).toekennen());
         final String behandelaar = task.getAssignee();
         final String groep = restTaakConverter.extractGroupId(task.getIdentityLinks());
         boolean changed = false;
@@ -243,7 +243,7 @@ public class TakenRESTService {
 
         if (!StringUtils.equals(groep, restTaakToekennenGegevens.groepId)) {
             task = takenService.assignTaskToGroup(task, restTaakToekennenGegevens.groepId,
-                                                  restTaakToekennenGegevens.reden);
+                    restTaakToekennenGegevens.reden);
             changed = true;
         }
         if (changed) {
@@ -263,7 +263,7 @@ public class TakenRESTService {
     public RESTTaak updateTaak(final RESTTaak restTaak) {
         Task task = takenService.readOpenTask(restTaak.id);
         assertPolicy(
-                     getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).wijzigen()
+                getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).wijzigen()
         );
         task.setDescription(restTaak.toelichting);
         task.setDueDate(convertToDate(restTaak.fataledatum));
@@ -279,7 +279,7 @@ public class TakenRESTService {
         Task task = takenService.readOpenTask(restTaak.id);
         final Zaak zaak = zrcClientService.readZaak(restTaak.zaakUuid);
         assertPolicy(
-                     isOpen(task) && policyService.readTaakRechten(task).wijzigen()
+                isOpen(task) && policyService.readTaakRechten(task).wijzigen()
         );
         final String loggedInUserId = loggedInUserInstance.get().getId();
         if (restTaak.behandelaar == null || !restTaak.behandelaar.id.equals(loggedInUserId)) {
@@ -291,9 +291,9 @@ public class TakenRESTService {
         }
         if (restTaak.taakdata.containsKey(TAAK_DATA_DOCUMENTEN_VERZENDEN_POST)) {
             updateVerzenddatumEnkelvoudigInformatieObjecten(
-                                                            restTaak.taakdata.get(TAAK_DATA_DOCUMENTEN_VERZENDEN_POST),
-                                                            restTaak.taakdata.get(TAAK_DATA_VERZENDDATUM),
-                                                            restTaak.taakdata.get(TAAK_DATA_TOELICHTING));
+                    restTaak.taakdata.get(TAAK_DATA_DOCUMENTEN_VERZENDEN_POST),
+                    restTaak.taakdata.get(TAAK_DATA_VERZENDDATUM),
+                    restTaak.taakdata.get(TAAK_DATA_TOELICHTING));
         }
         ondertekenEnkelvoudigInformatieObjecten(restTaak.taakdata, zaak);
         taakVariabelenService.setTaakdata(task, restTaak.taakdata);
@@ -309,7 +309,7 @@ public class TakenRESTService {
     @Path("upload/{uuid}/{field}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response uploadFile(@PathParam("field") final String field, @PathParam("uuid") final UUID uuid,
-                               @MultipartForm final RESTFileUpload data) {
+            @MultipartForm final RESTFileUpload data) {
         String fileKey = String.format("_FILE__%s__%s", uuid, field);
         httpSession.get().setAttribute(fileKey, data);
         return Response.ok("\"Success\"").build();
@@ -326,7 +326,7 @@ public class TakenRESTService {
     private Task ingelogdeMedewerkerToekennenAanTaak(final RESTTaakToekennenGegevens restTaakToekennenGegevens) {
         Task task = takenService.readOpenTask(restTaakToekennenGegevens.taakId);
         assertPolicy(
-                     getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).toekennen()
+                getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).toekennen()
         );
         task = assignTaak(task.getId(), loggedInUserInstance.get().getId(), restTaakToekennenGegevens.reden);
         taakBehandelaarGewijzigd(task, restTaakToekennenGegevens.zaakUuid);
@@ -337,7 +337,7 @@ public class TakenRESTService {
     private Task assignTaak(final String taskId, final String assignee, final String reden) {
         final Task task = takenService.assignTaskToUser(taskId, assignee, reden);
         eventingService.send(
-                             SignaleringEventUtil.event(SignaleringType.Type.TAAK_OP_NAAM, task, loggedInUserInstance.get()));
+                SignaleringEventUtil.event(SignaleringType.Type.TAAK_OP_NAAM, task, loggedInUserInstance.get()));
         return task;
     }
 
@@ -359,18 +359,18 @@ public class TakenRESTService {
                     throw new RuntimeException(e.getMessage(), e); //invalid form-group data
                 }
                 final EnkelvoudigInformatieObjectData document = restInformatieobjectConverter.convert(
-                                                                                                       restTaakDocumentData,
-                                                                                                       uploadedFile
+                        restTaakDocumentData,
+                        uploadedFile
                 );
                 final ZaakInformatieobject zaakInformatieobject = zgwApiService.createZaakInformatieobjectForZaak(
-                                                                                                                  zaak,
-                                                                                                                  document,
-                                                                                                                  document.getTitel(),
-                                                                                                                  OMSCHRIJVING_TAAK_DOCUMENT,
-                                                                                                                  OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
+                        zaak,
+                        document,
+                        document.getTitel(),
+                        OMSCHRIJVING_TAAK_DOCUMENT,
+                        OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
                 );
                 restTaak.taakdata.replace(key,
-                                          UriUtil.uuidFromURI(zaakInformatieobject.getInformatieobject()).toString());
+                        UriUtil.uuidFromURI(zaakInformatieobject.getInformatieobject()).toString());
                 httpSession.removeAttribute(fileKey);
             }
         }
@@ -379,34 +379,31 @@ public class TakenRESTService {
     private void ondertekenEnkelvoudigInformatieObjecten(final Map<String, String> taakdata, final Zaak zaak) {
         final Optional<String> ondertekenen = taakVariabelenService.readOndertekeningen(taakdata);
         ondertekenen.ifPresent(s -> Arrays.stream(s.split(TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER))
-                                          .filter(StringUtils::isNotEmpty)
-                                          .map(UUID::fromString)
-                                          .map(drcClientService::readEnkelvoudigInformatieobject)
-                                          .forEach(enkelvoudigInformatieobject -> {
-                                              assertPolicy(
-                                                           (enkelvoudigInformatieobject.getOndertekening() == null ||
-                                                            // this extra check is because the API can return an empty ondertekening soort
-                                                            // when no signature is present (even if this is not
-                                                            // permitted according to the original OpenAPI spec)
-                                                            enkelvoudigInformatieobject.getOndertekening().getSoort() ==
-                                                                                                                      Ondertekening.SoortEnum.EMPTY) &&
-                                                           policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak)
-                                                                        .ondertekenen()
-                                              );
-                                              enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
-                                                                                                                             parseUUIDFromResourceURI(enkelvoudigInformatieobject.getUrl())
-                                              );
-                                          }));
+                .filter(StringUtils::isNotEmpty)
+                .map(UUID::fromString)
+                .map(drcClientService::readEnkelvoudigInformatieobject)
+                .forEach(enkelvoudigInformatieobject -> {
+                    assertPolicy(
+                            (enkelvoudigInformatieobject.getOndertekening() == null ||
+                             // this extra check is because the API can return an empty ondertekening soort
+                             // when no signature is present (even if this is not
+                             // permitted according to the original OpenAPI spec)
+                             enkelvoudigInformatieobject.getOndertekening().getSoort() == Ondertekening.SoortEnum.EMPTY) && policyService
+                                     .readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen()
+                    );
+                    enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
+                            parseUUIDFromResourceURI(enkelvoudigInformatieobject.getUrl())
+                    );
+                }));
     }
 
     private void deleteSignaleringen(final TaskInfo taskInfo) {
         final LoggedInUser loggedInUser = loggedInUserInstance.get();
         signaleringenService.deleteSignaleringen(new SignaleringZoekParameters(loggedInUser)
-                                                                                            .types(SignaleringType.Type.TAAK_OP_NAAM)
-                                                                                            .subject(taskInfo));
+                .types(SignaleringType.Type.TAAK_OP_NAAM).subject(taskInfo));
         signaleringenService.deleteSignaleringen(new SignaleringZoekParameters(loggedInUser)
-                                                                                            .types(SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD)
-                                                                                            .subjectZaak(taakVariabelenService.readZaakUUID(taskInfo)));
+                .types(SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD)
+                .subjectZaak(taakVariabelenService.readZaakUUID(taskInfo)));
     }
 
     private void taakBehandelaarGewijzigd(final Task task, final UUID zaakUuid) {
@@ -415,21 +412,21 @@ public class TakenRESTService {
     }
 
     private void updateVerzenddatumEnkelvoudigInformatieObjecten(final String documenten,
-                                                                 final String verzenddatumString,
-                                                                 final String toelichting) {
+            final String verzenddatumString,
+            final String toelichting) {
         final LocalDate verzenddatum = ZonedDateTime.parse(verzenddatumString).toLocalDate();
         Arrays.stream(documenten.split(TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER))
-              .forEach(documentUUID -> setVerzenddatumEnkelvoudigInformatieObject(UUID.fromString(documentUUID),
-                                                                                  verzenddatum, toelichting));
+                .forEach(documentUUID -> setVerzenddatumEnkelvoudigInformatieObject(UUID.fromString(documentUUID),
+                        verzenddatum, toelichting));
     }
 
     private void setVerzenddatumEnkelvoudigInformatieObject(final UUID uuid, final LocalDate verzenddatum,
-                                                            final String toelichting) {
+            final String toelichting) {
         final var informatieobject = drcClientService.readEnkelvoudigInformatieobject(uuid);
         enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
-                                                                                    parseUUIDFromResourceURI(informatieobject.getUrl()),
-                                                                                    verzenddatum,
-                                                                                    toelichting
+                parseUUIDFromResourceURI(informatieobject.getUrl()),
+                verzenddatum,
+                toelichting
         );
     }
 }

@@ -53,7 +53,7 @@ public class WebSocketServerEndPoint {
     public void processMessage(final SubscriptionType.SubscriptionMessage message, final Session session) {
         if (message != null) {
             LOG.fine(() -> String.format("WebSocket subscription %s for %s (%s)", message.getSubscriptionType(),
-                                         user(session), message.getEvent()));
+                    user(session), message.getEvent()));
             message.register(registry, session);
         }
     }
@@ -67,7 +67,7 @@ public class WebSocketServerEndPoint {
     @OnClose
     public void close(final Session session, final CloseReason reason) {
         LOG.fine(() -> String.format("WebSocket closed for %s (%s)", user(session),
-                                     CloseReason.CloseCodes.getCloseCode(reason.getCloseCode().getCode())));
+                CloseReason.CloseCodes.getCloseCode(reason.getCloseCode().getCode())));
         // Prevent resource leaks by always processing a fictitious DELETE_ALL message when closing.
         processMessage(DELETE_ALL.message(), session);
     }

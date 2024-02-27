@@ -36,8 +36,8 @@ class SolrSchemaV4 implements SolrSchemaUpdate {
 
     private List<SchemaRequest.Update> updateZaakSchema() {
         return List.of(
-                       addField("zaak_archiefNominatie", STRING, true),
-                       addField("zaak_archiefActiedatum", PDATE)
+                addField("zaak_archiefNominatie", STRING, true),
+                addField("zaak_archiefActiedatum", PDATE)
         );
     }
 }

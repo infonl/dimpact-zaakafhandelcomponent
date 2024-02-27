@@ -30,7 +30,7 @@ public class RESTTaakZoekObjectConverter {
         restTaakZoekObject.toelichting = taakZoekObject.getToelichting();
         restTaakZoekObject.creatiedatum = DateTimeConverterUtil.convertToLocalDate(taakZoekObject.getCreatiedatum());
         restTaakZoekObject.toekenningsdatum = DateTimeConverterUtil.convertToLocalDate(
-                                                                                       taakZoekObject.getToekenningsdatum());
+                taakZoekObject.getToekenningsdatum());
         restTaakZoekObject.fataledatum = DateTimeConverterUtil.convertToLocalDate(taakZoekObject.getFataledatum());
         restTaakZoekObject.groepNaam = taakZoekObject.getGroepNaam();
         restTaakZoekObject.behandelaarNaam = taakZoekObject.getBehandelaarNaam();

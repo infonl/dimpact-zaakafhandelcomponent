@@ -24,11 +24,11 @@ import net.atos.client.brp.model.VerblijfplaatsOnbekend;
 public class AbstractVerblijfplaatsJsonbDeserializer implements JsonbDeserializer<AbstractVerblijfplaats> {
 
     private static final Jsonb JSONB = JsonbBuilder.create(
-                                                           new JsonbConfig().withPropertyVisibilityStrategy(new FieldPropertyVisibilityStrategy()));
+            new JsonbConfig().withPropertyVisibilityStrategy(new FieldPropertyVisibilityStrategy()));
 
     @Override
     public AbstractVerblijfplaats deserialize(final JsonParser parser, final DeserializationContext ctx,
-                                              final Type rtType) {
+            final Type rtType) {
         final JsonObject jsonObject = parser.getObject();
         final String type = jsonObject.getString("type");
         return switch (type) {

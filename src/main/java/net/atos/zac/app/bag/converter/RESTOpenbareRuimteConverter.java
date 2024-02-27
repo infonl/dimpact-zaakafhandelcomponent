@@ -69,9 +69,9 @@ public class RESTOpenbareRuimteConverter {
 
     public ZaakobjectOpenbareRuimte convertToZaakobject(final RESTOpenbareRuimte openbareRuimte, final Zaak zaak) {
         final ObjectOpenbareRuimte objectOpenbareRuimte = new ObjectOpenbareRuimte(
-                                                                                   openbareRuimte.identificatie,
-                                                                                   openbareRuimte.naam,
-                                                                                   openbareRuimte.woonplaatsNaam);
+                openbareRuimte.identificatie,
+                openbareRuimte.naam,
+                openbareRuimte.woonplaatsNaam);
         return new ZaakobjectOpenbareRuimte(zaak.getUrl(), openbareRuimte.url, objectOpenbareRuimte);
     }
 

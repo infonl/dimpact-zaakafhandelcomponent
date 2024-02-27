@@ -40,8 +40,8 @@ public class RESTSignaleringInstellingenConverter {
 
     public List<RESTSignaleringInstellingen> convert(final Collection<SignaleringInstellingen> instellingen) {
         return instellingen.stream()
-                           .map(this::convert)
-                           .collect(Collectors.toList());
+                .map(this::convert)
+                .collect(Collectors.toList());
     }
 
     public SignaleringInstellingen convert(final RESTSignaleringInstellingen restInstellingen, final Group group) {

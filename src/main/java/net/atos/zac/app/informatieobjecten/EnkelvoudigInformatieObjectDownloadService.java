@@ -53,9 +53,8 @@ public class EnkelvoudigInformatieObjectDownloadService {
             try (final ZipOutputStream zipOutputStream = new ZipOutputStream(new BufferedOutputStream(outputStream))) {
                 final Map<String, Map<String, List<String>>> samenvatting = new HashMap<>();
                 informatieobjecten.forEach(
-                                           informatieobject -> samenvattingAddInformatieObject(addInformatieObjectToZip(informatieobject,
-                                                                                                                        zipOutputStream),
-                                                                                               samenvatting));
+                        informatieobject -> samenvattingAddInformatieObject(addInformatieObjectToZip(informatieobject, zipOutputStream),
+                                samenvatting));
                 zipAddSamenvatting(samenvatting, zipOutputStream);
                 zipOutputStream.finish();
             }
@@ -72,7 +71,7 @@ public class EnkelvoudigInformatieObjectDownloadService {
      * @return {@link String} pad naar het toegevoegde bestand in het zip-bestand
      */
     private String addInformatieObjectToZip(final EnkelvoudigInformatieObject informatieobject,
-                                            final ZipOutputStream zipOutputStream) {
+            final ZipOutputStream zipOutputStream) {
         final String pad = getInformatieObjectZipPath(informatieobject);
         final ZipEntry zipEntry = new ZipEntry(pad);
         try {
@@ -103,7 +102,8 @@ public class EnkelvoudigInformatieObjectDownloadService {
      * @return {@link String} pad naar het informatieobject
      */
     private String getInformatieObjectZipPath(final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
-        final List<ZaakInformatieobject> zaakInformatieObjectenList = zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieobject);
+        final List<ZaakInformatieobject> zaakInformatieObjectenList = zrcClientService.listZaakinformatieobjecten(
+                enkelvoudigInformatieobject);
         final URI zaakUri = zaakInformatieObjectenList.get(0).getZaak();
         final String zaakId = zrcClientService.readZaak(zaakUri).getIdentificatie();
         final String subfolder = enkelvoudigInformatieobject.getOntvangstdatum() != null ? RICHTING_INKOMEND :
@@ -111,7 +111,7 @@ public class EnkelvoudigInformatieObjectDownloadService {
                 RICHTING_INTERN;
         final String[] bestandsnaamExtensie = enkelvoudigInformatieobject.getBestandsnaam().split("\\.");
         return String.format("%s/%s/%s-%s.%s", zaakId, subfolder, bestandsnaamExtensie[0], enkelvoudigInformatieobject.getIdentificatie(),
-                             bestandsnaamExtensie[1]);
+                bestandsnaamExtensie[1]);
     }
 
     /**

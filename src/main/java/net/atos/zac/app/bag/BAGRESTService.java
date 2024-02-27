@@ -86,10 +86,10 @@ public class BAGRESTService {
         final BevraagAdressenParameters bevraagAdressenParameters = new BevraagAdressenParameters();
         bevraagAdressenParameters.setQ(listAdressenParameters.trefwoorden);
         bevraagAdressenParameters.setExpand(getExpand(BAGObjectType.NUMMERAANDUIDING, BAGObjectType.OPENBARE_RUIMTE, BAGObjectType.PAND,
-                                                      BAGObjectType.WOONPLAATS));
+                BAGObjectType.WOONPLAATS));
         return new RESTResultaat<>(bagClientService.listAdressen(bevraagAdressenParameters).stream()
-                                                   .map(adres -> adresConverter.convertToREST(adres))
-                                                   .toList());
+                .map(adres -> adresConverter.convertToREST(adres))
+                .toList());
     }
 
     @GET
@@ -132,9 +132,9 @@ public class BAGRESTService {
         final Results<Zaakobject> zaakobjecten = zrcClientService.listZaakobjecten(zaakobjectListParameters);
         if (zaakobjecten.getCount() > 0) {
             return zaakobjecten.getResults().stream()
-                               .filter(Zaakobject::isBagObject)
-                               .map(bagConverter::convertToRESTBAGObjectGegevens)
-                               .toList();
+                    .filter(Zaakobject::isBagObject)
+                    .map(bagConverter::convertToRESTBAGObjectGegevens)
+                    .toList();
         } else {
             return Collections.emptyList();
         }
@@ -142,8 +142,8 @@ public class BAGRESTService {
 
     private String getExpand(final BAGObjectType... bagObjectTypes) {
         return Arrays.stream(bagObjectTypes)
-                     .map(BAGObjectType::getExpand)
-                     .collect(joining(","));
+                .map(BAGObjectType::getExpand)
+                .collect(joining(","));
     }
 
     private boolean isNogNietGekoppeld(final RESTBAGObject restbagObject, final Zaak zaak) {

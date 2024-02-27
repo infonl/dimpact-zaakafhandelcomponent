@@ -15,9 +15,9 @@ public interface AbstractEnum<T extends AbstractEnum> {
 
     static <T extends AbstractEnum> T fromValue(final T[] enums, final String value) {
         return Arrays.stream(enums)
-                     .filter(anEnum -> anEnum.toValue().equals(value))
-                     .findAny()
-                     .orElseThrow();
+                .filter(anEnum -> anEnum.toValue().equals(value))
+                .findAny()
+                .orElseThrow();
     }
 
     abstract class Adapter<T extends AbstractEnum> implements JsonbAdapter<T, String> {
@@ -30,9 +30,9 @@ public interface AbstractEnum<T extends AbstractEnum> {
         @Override
         public T adaptFromJson(final String json) {
             return Arrays.stream(getEnums())
-                         .filter(anEnum -> anEnum.toValue().equals(json))
-                         .findAny()
-                         .orElse(null);
+                    .filter(anEnum -> anEnum.toValue().equals(json))
+                    .findAny()
+                    .orElse(null);
         }
 
         protected abstract T[] getEnums();

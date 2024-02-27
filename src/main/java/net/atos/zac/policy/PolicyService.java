@@ -74,7 +74,7 @@ public class PolicyService {
 
     public OverigeRechten readOverigeRechten() {
         return evaluationClient.readOverigeRechten(new RuleQuery<>(new UserInput(loggedInUserInstance.get())))
-                               .getResult();
+                .getResult();
     }
 
     public ZaakRechten readZaakRechten(final Zaak zaak) {
@@ -86,7 +86,7 @@ public class PolicyService {
         zaakData.open = zaak.isOpen();
         zaakData.zaaktype = zaaktype.getOmschrijving();
         return evaluationClient.readZaakRechten(new RuleQuery<>(new ZaakInput(loggedInUserInstance.get(), zaakData)))
-                               .getResult();
+                .getResult();
     }
 
     public ZaakRechten readZaakRechten(final ZaakZoekObject zaakZoekObject) {
@@ -94,7 +94,7 @@ public class PolicyService {
         zaakData.open = !zaakZoekObject.isAfgehandeld();
         zaakData.zaaktype = zaakZoekObject.getZaaktypeOmschrijving();
         return evaluationClient.readZaakRechten(new RuleQuery<>(new ZaakInput(loggedInUserInstance.get(), zaakData)))
-                               .getResult();
+                .getResult();
     }
 
     public DocumentRechten readDocumentRechten(final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
@@ -103,16 +103,16 @@ public class PolicyService {
 
     public DocumentRechten readDocumentRechten(final EnkelvoudigInformatieObject enkelvoudigInformatieobject, final Zaak zaak) {
         return readDocumentRechten(
-                                   enkelvoudigInformatieobject,
-                                   lockService.findLock(parseUUIDFromResourceURI(enkelvoudigInformatieobject.getUrl())).orElse(null),
-                                   zaak
+                enkelvoudigInformatieobject,
+                lockService.findLock(parseUUIDFromResourceURI(enkelvoudigInformatieobject.getUrl())).orElse(null),
+                zaak
         );
     }
 
     public DocumentRechten readDocumentRechten(
-                                               final EnkelvoudigInformatieObject enkelvoudigInformatieobject,
-                                               final EnkelvoudigInformatieObjectLock lock,
-                                               final Zaak zaak
+            final EnkelvoudigInformatieObject enkelvoudigInformatieobject,
+            final EnkelvoudigInformatieObjectLock lock,
+            final Zaak zaak
     ) {
         final DocumentData documentData = new DocumentData();
         documentData.definitief = enkelvoudigInformatieobject.getStatus() == DEFINITIEF;
@@ -123,8 +123,7 @@ public class PolicyService {
             documentData.zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype()).getOmschrijving();
         }
         return evaluationClient.readDocumentRechten(
-                                                    new RuleQuery<>(new DocumentInput(loggedInUserInstance.get(), documentData)))
-                               .getResult();
+                new RuleQuery<>(new DocumentInput(loggedInUserInstance.get(), documentData))).getResult();
     }
 
     public DocumentRechten readDocumentRechten(final DocumentZoekObject enkelvoudigInformatieobject) {
@@ -135,8 +134,7 @@ public class PolicyService {
         documentData.zaakOpen = !enkelvoudigInformatieobject.isZaakAfgehandeld();
         documentData.zaaktype = enkelvoudigInformatieobject.getZaaktypeOmschrijving();
         return evaluationClient.readDocumentRechten(
-                                                    new RuleQuery<>(new DocumentInput(loggedInUserInstance.get(), documentData)))
-                               .getResult();
+                new RuleQuery<>(new DocumentInput(loggedInUserInstance.get(), documentData))).getResult();
     }
 
     public TaakRechten readTaakRechten(final TaskInfo taskInfo, Zaak zaak) {
@@ -159,22 +157,22 @@ public class PolicyService {
         taakData.zaakOpen = zaak.isOpen();
         taakData.zaaktype = zaaktypeOmschrijving;
         return evaluationClient.readTaakRechten(new RuleQuery<>(new TaakInput(loggedInUserInstance.get(), taakData)))
-                               .getResult();
+                .getResult();
     }
 
     public TaakRechten readTaakRechten(final TaakZoekObject taakZoekObject) {
         final TaakData taakData = new TaakData();
         taakData.zaakOpen = zrcClientService.readZaak(
-                                                      UUID.fromString(taakZoekObject.getZaakUUID())
+                UUID.fromString(taakZoekObject.getZaakUUID())
         ).isOpen();
         taakData.zaaktype = taakZoekObject.getZaaktypeOmschrijving();
         return evaluationClient.readTaakRechten(new RuleQuery<>(new TaakInput(loggedInUserInstance.get(), taakData)))
-                               .getResult();
+                .getResult();
     }
 
     public WerklijstRechten readWerklijstRechten() {
         return evaluationClient.readWerklijstRechten(new RuleQuery<>(new UserInput(loggedInUserInstance.get())))
-                               .getResult();
+                .getResult();
     }
 
     public void checkZaakAfsluitbaar(final Zaak zaak) {

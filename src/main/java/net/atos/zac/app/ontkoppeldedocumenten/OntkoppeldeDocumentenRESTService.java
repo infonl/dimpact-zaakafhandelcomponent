@@ -74,8 +74,8 @@ public class OntkoppeldeDocumentenRESTService {
         assertPolicy(policyService.readWerklijstRechten().inbox());
         final OntkoppeldDocumentListParameters listParameters = listParametersConverter.convert(restListParameters);
         final OntkoppeldeDocumentenResultaat resultaat = ontkoppeldeDocumentenService.getResultaat(listParameters);
-        final RESTOntkoppeldDocumentResultaat restOntkoppeldDocumentResultaat = new RESTOntkoppeldDocumentResultaat(ontkoppeldDocumentConverter.convert(resultaat.getItems()),
-                                                                                                                    resultaat.getCount());
+        final RESTOntkoppeldDocumentResultaat restOntkoppeldDocumentResultaat = new RESTOntkoppeldDocumentResultaat(
+                ontkoppeldDocumentConverter.convert(resultaat.getItems()), resultaat.getCount());
         final List<String> ontkoppeldDoor = resultaat.getOntkoppeldDoorFilter();
         if (CollectionUtils.isEmpty(ontkoppeldDoor)) {
             if (restListParameters.ontkoppeldDoor != null) {
@@ -95,10 +95,10 @@ public class OntkoppeldeDocumentenRESTService {
         if (ontkoppeldDocument.isEmpty()) {
             return; // al verwijderd
         }
-        final EnkelvoudigInformatieObject enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(ontkoppeldDocument.get()
-                                                                                                                                           .getDocumentUUID());
+        final EnkelvoudigInformatieObject enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(ontkoppeldDocument
+                .get().getDocumentUUID());
         final List<ZaakInformatieobject> zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
-                                                                                                              enkelvoudigInformatieobject);
+                enkelvoudigInformatieobject);
         if (!zaakInformatieobjecten.isEmpty()) {
             final UUID zaakUuid = UriUtil.uuidFromURI(zaakInformatieobjecten.get(0).getZaak());
             throw new IllegalStateException(String.format("Informatieobject is gekoppeld aan zaak '%s'", zaakUuid));

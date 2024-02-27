@@ -116,7 +116,7 @@ public enum ObjectType {
     }
 
     public Class<? extends AuditWijziging<? extends Zaakobject>> getAuditClass(final Objecttype objectType,
-                                                                               final String objectTypeOverige) {
+            final String objectTypeOverige) {
         return switch (objectType) {
             case ADRES -> ZaakobjectAdresWijziging.class;
             case OPENBARE_RUIMTE -> ZaakobjectOpenbareRuimteWijziging.class;
@@ -134,6 +134,6 @@ public enum ObjectType {
             return ZaakobjectProductaanvraagWijziging.class;
         }
         throw new RuntimeException(String.format("objecttype 'OVERIGE' met objectTypeOverige '%s' wordt niet ondersteund",
-                                                 objectTypeOverige));
+                objectTypeOverige));
     }
 }

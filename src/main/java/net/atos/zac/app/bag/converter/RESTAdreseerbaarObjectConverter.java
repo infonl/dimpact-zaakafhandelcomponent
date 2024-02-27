@@ -63,8 +63,7 @@ public class RESTAdreseerbaarObjectConverter {
         restAdresseerbaarObject.status = verblijfsobject.getStatus().toString();
         restAdresseerbaarObject.geconstateerd = Indicatie.J.equals(verblijfsobject.getGeconstateerd());
         restAdresseerbaarObject.vboDoel = ListUtils.emptyIfNull(
-                                                                verblijfsobject.getGebruiksdoelen()).stream().map(Gebruiksdoel::toString)
-                                                   .collect(Collectors.joining(", "));
+                verblijfsobject.getGebruiksdoelen()).stream().map(Gebruiksdoel::toString).collect(Collectors.joining(", "));
         restAdresseerbaarObject.vboOppervlakte = verblijfsobject.getOppervlakte() != null ? verblijfsobject.getOppervlakte() : 0;
         restAdresseerbaarObject.geometry = RESTBAGConverter.convertPuntOrVlak(verblijfsobject.getGeometrie());
         return restAdresseerbaarObject;

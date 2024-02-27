@@ -81,127 +81,126 @@ public class IdentityService {
 
     public IdentityService() {
         environment = Map.of(
-                             Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory",
-                             Context.PROVIDER_URL, getConfig().getValue("LDAP_URL", String.class),
-                             Context.SECURITY_AUTHENTICATION, "simple",
-                             Context.SECURITY_PRINCIPAL, getConfig().getValue("LDAP_USER", String.class),
-                             Context.SECURITY_CREDENTIALS, getConfig().getValue("LDAP_PASSWORD", String.class)
+                Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory",
+                Context.PROVIDER_URL, getConfig().getValue("LDAP_URL", String.class),
+                Context.SECURITY_AUTHENTICATION, "simple",
+                Context.SECURITY_PRINCIPAL, getConfig().getValue("LDAP_USER", String.class),
+                Context.SECURITY_CREDENTIALS, getConfig().getValue("LDAP_PASSWORD", String.class)
         );
     }
 
     public List<User> listUsers() {
         return search(
-                      usersDN,
-                      Filter.createANDFilter(Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS)),
-                      USER_ATTRIBUTES
+                usersDN,
+                Filter.createANDFilter(Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS)),
+                USER_ATTRIBUTES
         ).stream()
-         .map(this::convertToUser)
-         .sorted(Comparator.comparing(User::getFullName))
-         .toList();
+                .map(this::convertToUser)
+                .sorted(Comparator.comparing(User::getFullName))
+                .toList();
     }
 
     public List<Group> listGroups() {
         return search(
-                      groupsDN,
-                      Filter.createANDFilter(Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS)),
-                      GROUP_ATTRIBUTES
+                groupsDN,
+                Filter.createANDFilter(Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS)),
+                GROUP_ATTRIBUTES
         ).stream()
-         .map(this::convertToGroup)
-         .sorted(Comparator.comparing(Group::getName))
-         .toList();
+                .map(this::convertToGroup)
+                .sorted(Comparator.comparing(Group::getName))
+                .toList();
     }
 
     public User readUser(final String userId) {
         return search(
-                      usersDN,
-                      Filter.createANDFilter(
-                                             Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS),
-                                             Filter.createEqualityFilter(USER_ID_ATTRIBUTE, userId)
-                      ),
-                      USER_ATTRIBUTES
+                usersDN,
+                Filter.createANDFilter(
+                        Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS),
+                        Filter.createEqualityFilter(USER_ID_ATTRIBUTE, userId)
+                ),
+                USER_ATTRIBUTES
         ).stream()
-         .findAny()
-         .map(this::convertToUser)
-         .orElseGet(() -> new User(userId));
+                .findAny()
+                .map(this::convertToUser)
+                .orElseGet(() -> new User(userId));
     }
 
     public Group readGroup(final String groupId) {
         return search(
-                      groupsDN,
-                      Filter.createANDFilter(
-                                             Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS),
-                                             Filter.createEqualityFilter(GROUP_ID_ATTRIBUTE, groupId)
-                      ),
-                      GROUP_ATTRIBUTES
+                groupsDN,
+                Filter.createANDFilter(
+                        Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS),
+                        Filter.createEqualityFilter(GROUP_ID_ATTRIBUTE, groupId)
+                ),
+                GROUP_ATTRIBUTES
         ).stream()
-         .findAny()
-         .map(this::convertToGroup)
-         .orElseGet(() -> new Group(groupId));
+                .findAny()
+                .map(this::convertToGroup)
+                .orElseGet(() -> new Group(groupId));
 
     }
 
     public List<User> listUsersInGroup(final String groupId) {
         return search(
-                      groupsDN,
-                      Filter.createANDFilter(
-                                             Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS),
-                                             Filter.createEqualityFilter(GROUP_ID_ATTRIBUTE, groupId)
-                      ),
-                      GROUP_MEMBERSHIP_ATTRIBUTES
+                groupsDN,
+                Filter.createANDFilter(
+                        Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS),
+                        Filter.createEqualityFilter(GROUP_ID_ATTRIBUTE, groupId)
+                ),
+                GROUP_MEMBERSHIP_ATTRIBUTES
         ).stream()
-         .map(this::convertToMembers)
-         .flatMap(this::readUsers)
-         .sorted(Comparator.comparing(User::getFullName))
-         .toList();
+                .map(this::convertToMembers)
+                .flatMap(this::readUsers)
+                .sorted(Comparator.comparing(User::getFullName))
+                .toList();
     }
 
     private Stream<User> readUsers(final Collection<String> userIds) {
         return search(
-                      usersDN,
-                      Filter.createANDFilter(
-                                             Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS),
-                                             Filter.createORFilter(
-                                                                   userIds.stream()
-                                                                          .map(userId -> Filter.createEqualityFilter(USER_ID_ATTRIBUTE,
-                                                                                                                     userId))
-                                                                          .toList()
-                                             )
-                      ),
-                      USER_ATTRIBUTES
+                usersDN,
+                Filter.createANDFilter(
+                        Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS),
+                        Filter.createORFilter(
+                                userIds.stream()
+                                        .map(userId -> Filter.createEqualityFilter(USER_ID_ATTRIBUTE, userId))
+                                        .toList()
+                        )
+                ),
+                USER_ATTRIBUTES
         ).stream().map(this::convertToUser);
     }
 
     private User convertToUser(final Attributes attributes) {
         return new User(readAttributeToString(attributes, USER_ID_ATTRIBUTE),
-                        readAttributeToString(attributes, USER_FIRST_NAME_ATTRIBUTE),
-                        readAttributeToString(attributes, USER_LAST_NAME_ATTRIBUTE),
-                        readAttributeToString(attributes, USER_MAIL_ATTRIBUTE));
+                readAttributeToString(attributes, USER_FIRST_NAME_ATTRIBUTE),
+                readAttributeToString(attributes, USER_LAST_NAME_ATTRIBUTE),
+                readAttributeToString(attributes, USER_MAIL_ATTRIBUTE));
     }
 
     private Group convertToGroup(final Attributes attributes) {
         return new Group(readAttributeToString(attributes, GROUP_ID_ATTRIBUTE),
-                         readAttributeToString(attributes, GROUP_NAME_ATTRIBUTE),
-                         readAttributeToString(attributes, GROUP_MAIL_ATTRIBUTE));
+                readAttributeToString(attributes, GROUP_NAME_ATTRIBUTE),
+                readAttributeToString(attributes, GROUP_MAIL_ATTRIBUTE));
     }
 
     private List<String> convertToMembers(final Attributes attributes) {
         return readAttributeToListOfStrings(attributes).stream()
-                                                       .map(member -> substringBetween(member, "cn=", ","))
-                                                       .filter(Objects::nonNull)
-                                                       .toList();
+                .map(member -> substringBetween(member, "cn=", ","))
+                .filter(Objects::nonNull)
+                .toList();
     }
 
     private List<Attributes> search(final String root, final Filter filter,
-                                    final String[] attributesToReturn) {
+            final String[] attributesToReturn) {
         final SearchControls searchControls = new SearchControls();
         searchControls.setReturningAttributes(attributesToReturn);
         searchControls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
         try {
             final DirContext dirContext = new InitialDirContext(new Hashtable<>(environment));
             final NamingEnumeration<SearchResult> namingEnumeration = dirContext.search(
-                                                                                        root,
-                                                                                        filter.toString(),
-                                                                                        searchControls
+                    root,
+                    filter.toString(),
+                    searchControls
             );
             final List<Attributes> attributesList = new LinkedList<>();
             while (namingEnumeration.hasMore()) {

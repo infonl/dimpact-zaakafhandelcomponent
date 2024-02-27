@@ -23,14 +23,14 @@ public record ZaakRechten(
 
     @JsonbCreator
     public ZaakRechten(
-                       @JsonbProperty("lezen") final boolean lezen,
-                       @JsonbProperty("wijzigen") final boolean wijzigen,
-                       @JsonbProperty("toekennen") final boolean toekennen,
-                       @JsonbProperty("behandelen") final boolean behandelen,
-                       @JsonbProperty("afbreken") final boolean afbreken,
-                       @JsonbProperty("heropenen") final boolean heropenen,
-                       @JsonbProperty("wijzigenZaakdata") final boolean wijzigenZaakdata,
-                       @JsonbProperty("wijzigenDoorlooptijd") final boolean wijzigenDoorlooptijd) {
+            @JsonbProperty("lezen") final boolean lezen,
+            @JsonbProperty("wijzigen") final boolean wijzigen,
+            @JsonbProperty("toekennen") final boolean toekennen,
+            @JsonbProperty("behandelen") final boolean behandelen,
+            @JsonbProperty("afbreken") final boolean afbreken,
+            @JsonbProperty("heropenen") final boolean heropenen,
+            @JsonbProperty("wijzigenZaakdata") final boolean wijzigenZaakdata,
+            @JsonbProperty("wijzigenDoorlooptijd") final boolean wijzigenDoorlooptijd) {
         this.lezen = lezen;
         this.wijzigen = wijzigen;
         this.toekennen = toekennen;

@@ -47,7 +47,7 @@ public class KVKClientService {
 
     public CompletionStage<Resultaat> listAsync(final KVKZoekenParameters parameters) {
         return zoekenClient.getResultsAsync(parameters)
-                           .handle(this::handleListAsync);
+                .handle(this::handleListAsync);
     }
 
     public Optional<Vestiging> findVestigingsprofiel(final String vestigingsnummer) {

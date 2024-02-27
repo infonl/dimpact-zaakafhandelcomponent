@@ -19,10 +19,10 @@ public record TaakRechten(
 
     @JsonbCreator
     public TaakRechten(
-                       @JsonbProperty("lezen") final boolean lezen,
-                       @JsonbProperty("wijzigen") final boolean wijzigen,
-                       @JsonbProperty("toekennen") final boolean toekennen,
-                       @JsonbProperty("toevoegen_document") final boolean toevoegenDocument
+            @JsonbProperty("lezen") final boolean lezen,
+            @JsonbProperty("wijzigen") final boolean wijzigen,
+            @JsonbProperty("toekennen") final boolean toekennen,
+            @JsonbProperty("toevoegen_document") final boolean toevoegenDocument
     ) {
         this.lezen = lezen;
         this.wijzigen = wijzigen;

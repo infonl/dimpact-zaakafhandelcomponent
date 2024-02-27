@@ -25,9 +25,9 @@ public class GeometryJsonbDeserializer implements JsonbDeserializer<Geometry> {
 
     @Override
     public Geometry deserialize(
-                                final JsonParser parser,
-                                final DeserializationContext ctx,
-                                final Type rtType
+            final JsonParser parser,
+            final DeserializationContext ctx,
+            final Type rtType
     ) {
         if (!parser.hasNext()) {
             // workaround for WildFly 30 (?) issue
@@ -38,7 +38,7 @@ public class GeometryJsonbDeserializer implements JsonbDeserializer<Geometry> {
         }
         final JsonObject jsonObject = parser.getObject();
         final GeometryType geometryType = GeometryType.fromValue(
-                                                                 jsonObject.getJsonString(GEOMETRY_TYPE_NAAM).getString());
+                jsonObject.getJsonString(GEOMETRY_TYPE_NAAM).getString());
 
         return switch (geometryType) {
             case POINT -> JSONB.fromJson(jsonObject.toString(), Point.class);

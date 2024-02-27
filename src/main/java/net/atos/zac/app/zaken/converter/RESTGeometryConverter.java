@@ -48,7 +48,7 @@ public class RESTGeometryConverter {
 
     private RESTCoordinates createRESTPoint(final Point point) {
         return new RESTCoordinates(point.getCoordinates().getX().doubleValue(),
-                                   point.getCoordinates().getY().doubleValue());
+                point.getCoordinates().getY().doubleValue());
     }
 
     private Point createPoint(final RESTGeometry restGeometry) {
@@ -58,27 +58,25 @@ public class RESTGeometryConverter {
 
     private List<List<RESTCoordinates>> createRESTPolygon(final Polygon polygon) {
         return polygon.getCoordinates().stream()
-                      .map(point2DS -> point2DS.stream()
-                                               .map(point2D -> new RESTCoordinates(point2D.getX().doubleValue(), point2D.getY()
-                                                                                                                        .doubleValue()))
-                                               .toList())
-                      .toList();
+                .map(point2DS -> point2DS.stream()
+                        .map(point2D -> new RESTCoordinates(point2D.getX().doubleValue(), point2D.getY().doubleValue()))
+                        .toList())
+                .toList();
     }
 
     private Polygon createPolygon(final RESTGeometry restGeometry) {
         final List<List<Point2D>> polygonCoordinates = restGeometry.polygon.stream()
-                                                                           .map(polygon -> polygon.stream()
-                                                                                                  .map(coordinates -> new Point2D(coordinates.x,
-                                                                                                                                  coordinates.y))
-                                                                                                  .toList())
-                                                                           .toList();
+                .map(polygon -> polygon.stream()
+                        .map(coordinates -> new Point2D(coordinates.x, coordinates.y))
+                        .toList())
+                .toList();
         return new Polygon(polygonCoordinates);
     }
 
     private List<RESTGeometry> createRESTGeometryCollection(final GeometryCollection geometryCollection) {
         return geometryCollection.getGeometries().stream()
-                                 .map(geometry1 -> convert(geometryCollection))
-                                 .toList();
+                .map(geometry1 -> convert(geometryCollection))
+                .toList();
     }
 
     private GeometryCollection createGeometryCollection(final RESTGeometry restGeometry) {

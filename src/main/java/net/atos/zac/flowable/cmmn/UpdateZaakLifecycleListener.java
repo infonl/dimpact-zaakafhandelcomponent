@@ -45,7 +45,7 @@ public class UpdateZaakLifecycleListener implements PlanItemInstanceLifecycleLis
 
     @Override
     public void stateChanged(final DelegatePlanItemInstance planItemInstance, final String oldState,
-                             final String newState) {
+            final String newState) {
         if (statusExpression != null) {
             updateZaak(planItemInstance, statusExpression.getValue(planItemInstance).toString());
         }
@@ -56,6 +56,6 @@ public class UpdateZaakLifecycleListener implements PlanItemInstanceLifecycleLis
         final Zaak zaak = FlowableHelper.getInstance().getZrcClientService().readZaak(zaakUUID);
         LOG.info(format("Zaak %s: Change Status to '%s'", zaakUUID, statustypeOmschrijving));
         FlowableHelper.getInstance().getZgwApiService()
-                      .createStatusForZaak(zaak, statustypeOmschrijving, STATUS_TOELICHTING);
+                .createStatusForZaak(zaak, statustypeOmschrijving, STATUS_TOELICHTING);
     }
 }

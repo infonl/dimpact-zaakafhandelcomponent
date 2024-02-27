@@ -45,9 +45,8 @@ public class ReferentieTabelService {
 
     public ReferentieTabel readReferentieTabel(final String code) {
         return findReferentieTabel(code)
-                                        .orElseThrow(() -> new RuntimeException(
-                                                                                "%s with code='%s' not found".formatted(ReferentieTabel.class.getSimpleName(),
-                                                                                                                        code)));
+                .orElseThrow(() -> new RuntimeException(
+                        "%s with code='%s' not found".formatted(ReferentieTabel.class.getSimpleName(), code)));
     }
 
     public Optional<ReferentieTabel> findReferentieTabel(final String code) {

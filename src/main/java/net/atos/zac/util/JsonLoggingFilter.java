@@ -58,9 +58,8 @@ public class JsonLoggingFilter implements ClientRequestFilter, ClientResponseFil
         if (LOG.isLoggable(LOG_LEVEL)) {
             final StringBuilder message = new StringBuilder("REST Response\n");
             message.append(
-                           String.format("Status: %d (%s)\n", responseContext.getStatusInfo().getStatusCode(), responseContext
-                                                                                                                              .getStatusInfo()
-                                                                                                                              .getReasonPhrase()));
+                    String.format("Status: %d (%s)\n", responseContext.getStatusInfo().getStatusCode(), responseContext.getStatusInfo()
+                            .getReasonPhrase()));
             message.append(String.format("Media type: %s\n", responseContext.getMediaType()));
             message.append("Headers:\n");
             responseContext.getHeaders().forEach((header, value) -> message.append(String.format("   %s : %s\n", header, value)));

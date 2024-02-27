@@ -49,14 +49,14 @@ public class RESTZaaktypeConverter {
         restZaaktype.verlengingMogelijk = zaaktype.getVerlengingMogelijk();
         if (restZaaktype.verlengingMogelijk) {
             restZaaktype.verlengingstermijn = PeriodUtil.aantalDagenVanafHeden(
-                                                                               Period.parse(zaaktype.getVerlengingstermijn())
+                    Period.parse(zaaktype.getVerlengingstermijn())
             );
         }
         restZaaktype.zaaktypeRelaties = new ArrayList<>();
         if (zaaktype.getDeelzaaktypen() != null) {
             zaaktype.getDeelzaaktypen().stream()
                     .map(deelzaaktype -> zaaktypeRelatieConverter.convertToRESTZaaktypeRelatie(deelzaaktype,
-                                                                                               RelatieType.DEELZAAK))
+                            RelatieType.DEELZAAK))
                     .forEach(restZaaktype.zaaktypeRelaties::add);
         }
         if (zaaktype.getGerelateerdeZaaktypen() != null) {
@@ -71,9 +71,9 @@ public class RESTZaaktypeConverter {
             restZaaktype.referentieproces = zaaktype.getReferentieproces().getNaam();
         }
         final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                                                                                                                      restZaaktype.uuid);
+                restZaaktype.uuid);
         restZaaktype.zaakafhandelparameters = zaakafhandelParametersConverter.convertZaakafhandelParameters(
-                                                                                                            zaakafhandelParameters, true);
+                zaakafhandelParameters, true);
         return restZaaktype;
     }
 }

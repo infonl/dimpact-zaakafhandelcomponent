@@ -470,7 +470,7 @@ public class ZaakZoekObject implements ZoekObject {
             return EnumSet.noneOf(ZaakIndicatie.class);
         }
         return this.indicaties.stream().map(ZaakIndicatie::valueOf)
-                              .collect(Collectors.toCollection(() -> EnumSet.noneOf(ZaakIndicatie.class)));
+                .collect(Collectors.toCollection(() -> EnumSet.noneOf(ZaakIndicatie.class)));
     }
 
     public void setIndicatie(final ZaakIndicatie indicatie, final boolean value) {

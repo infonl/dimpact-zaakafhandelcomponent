@@ -95,11 +95,10 @@ public interface NummeraanduidingApi {
     @Path("/{nummeraanduidingIdentificatie}")
     @Produces({"application/hal+json", "application/problem+json"})
     public NummeraanduidingIOHal nummeraanduidingIdentificatie(
-                                                               @PathParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie,
-                                                               @QueryParam("geldigOp") LocalDate geldigOp,
-                                                               @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
-                                                               @QueryParam("expand") String expand,
-                                                               @QueryParam("huidig") @DefaultValue("false") Boolean huidig) throws ProcessingException;
+            @PathParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie,
+            @QueryParam("geldigOp") LocalDate geldigOp, @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
+            @QueryParam("expand") String expand,
+            @QueryParam("huidig") @DefaultValue("false") Boolean huidig) throws ProcessingException;
 
     /**
      * bevragen van een voorkomen van een nummeraanduiding, op basis van de identificatie van een nummeraanduiding en de identificatie van
@@ -112,9 +111,9 @@ public interface NummeraanduidingApi {
     @Path("/{nummeraanduidingIdentificatie}/{versie}/{timestampRegistratieLv}")
     @Produces({"application/hal+json", "application/problem+json"})
     public NummeraanduidingIOHal nummeraanduidingIdentificatieVoorkomen(
-                                                                        @PathParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie,
-                                                                        @PathParam("versie") Integer versie,
-                                                                        @PathParam("timestampRegistratieLv") String timestampRegistratieLv) throws ProcessingException;
+            @PathParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie,
+            @PathParam("versie") Integer versie,
+            @PathParam("timestampRegistratieLv") String timestampRegistratieLv) throws ProcessingException;
 
     /**
      * bevragen levenscyclus van een nummeraanduiding met de identificatie van een nummeraanduiding.
@@ -125,8 +124,8 @@ public interface NummeraanduidingApi {
     @Path("/{nummeraanduidingIdentificatie}/lvc")
     @Produces({"application/hal+json", "application/problem+json"})
     public NummeraanduidingIOLvcHalCollection nummeraanduidingLvcIdentificatie(
-                                                                               @PathParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie,
-                                                                               @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc) throws ProcessingException;
+            @PathParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie,
+            @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc) throws ProcessingException;
 
     /**
      * bevragen nummeraanduiding(en) op basis van verschillende combinaties van parameters.
@@ -151,18 +150,16 @@ public interface NummeraanduidingApi {
     @GET
     @Produces({"application/hal+json", "application/problem+json"})
     public NummeraanduidingIOHalCollection zoekNummeraanduiding(@QueryParam("postcode") String postcode,
-                                                                @QueryParam("huisnummer") Integer huisnummer,
-                                                                @QueryParam("huisnummertoevoeging") String huisnummertoevoeging,
-                                                                @QueryParam("huisletter") String huisletter,
-                                                                @QueryParam("exacteMatch") @DefaultValue("false") Boolean exacteMatch,
-                                                                @QueryParam("woonplaatsNaam") String woonplaatsNaam,
-                                                                @QueryParam("openbareRuimteNaam") String openbareRuimteNaam,
-                                                                @QueryParam("openbareRuimteIdentificatie") String openbareRuimteIdentificatie,
-                                                                @QueryParam("huidig") @DefaultValue("false") Boolean huidig,
-                                                                @QueryParam("geldigOp") LocalDate geldigOp,
-                                                                @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
-                                                                @QueryParam("page") @DefaultValue("1") Integer page,
-                                                                @QueryParam("pageSize") @DefaultValue("20") Integer pageSize,
-                                                                @QueryParam("expand") String expand,
-                                                                @QueryParam("pandIdentificatie") String pandIdentificatie) throws ProcessingException;
+            @QueryParam("huisnummer") Integer huisnummer,
+            @QueryParam("huisnummertoevoeging") String huisnummertoevoeging,
+            @QueryParam("huisletter") String huisletter,
+            @QueryParam("exacteMatch") @DefaultValue("false") Boolean exacteMatch,
+            @QueryParam("woonplaatsNaam") String woonplaatsNaam,
+            @QueryParam("openbareRuimteNaam") String openbareRuimteNaam,
+            @QueryParam("openbareRuimteIdentificatie") String openbareRuimteIdentificatie,
+            @QueryParam("huidig") @DefaultValue("false") Boolean huidig, @QueryParam("geldigOp") LocalDate geldigOp,
+            @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
+            @QueryParam("page") @DefaultValue("1") Integer page,
+            @QueryParam("pageSize") @DefaultValue("20") Integer pageSize, @QueryParam("expand") String expand,
+            @QueryParam("pandIdentificatie") String pandIdentificatie) throws ProcessingException;
 }

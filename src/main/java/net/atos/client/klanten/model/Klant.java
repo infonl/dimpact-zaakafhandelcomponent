@@ -173,7 +173,7 @@ public class Klant {
 
     @JsonbCreator
     public Klant(
-                 @JsonbProperty(value = "url", nillable = true) URI url
+            @JsonbProperty(value = "url", nillable = true) URI url
     ) {
         this.url = url;
     }

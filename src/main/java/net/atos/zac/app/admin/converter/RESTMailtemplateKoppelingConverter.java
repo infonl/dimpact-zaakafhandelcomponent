@@ -29,7 +29,7 @@ public class RESTMailtemplateKoppelingConverter {
     public MailtemplateKoppeling convert(final RESTMailtemplateKoppeling restMailtemplateKoppeling) {
         final MailtemplateKoppeling mailtemplateKoppeling = new MailtemplateKoppeling();
         mailtemplateKoppeling.setMailTemplate(
-                                              restMailtemplateConverter.convert(restMailtemplateKoppeling.mailtemplate));
+                restMailtemplateConverter.convert(restMailtemplateKoppeling.mailtemplate));
         return mailtemplateKoppeling;
     }
 
@@ -38,7 +38,7 @@ public class RESTMailtemplateKoppelingConverter {
     }
 
     public List<MailtemplateKoppeling> convertRESTmailtemplateKoppelingen(
-                                                                          final List<RESTMailtemplateKoppeling> restMailtemplateKoppelingen) {
+            final List<RESTMailtemplateKoppeling> restMailtemplateKoppelingen) {
         return restMailtemplateKoppelingen.stream().map(this::convert).toList();
     }
 }

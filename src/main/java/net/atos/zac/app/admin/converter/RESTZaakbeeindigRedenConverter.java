@@ -21,8 +21,8 @@ public class RESTZaakbeeindigRedenConverter {
 
     public List<RESTZaakbeeindigReden> convertZaakbeeindigRedenen(final List<ZaakbeeindigReden> zaakbeeindigRedenen) {
         return zaakbeeindigRedenen.stream()
-                                  .map(this::convertZaakbeeindigReden)
-                                  .toList();
+                .map(this::convertZaakbeeindigReden)
+                .toList();
     }
 
     public ZaakbeeindigReden convertRESTZaakbeeindigReden(final RESTZaakbeeindigReden restZaakbeeindigReden) {

@@ -48,10 +48,9 @@ public class GebruikersvoorkeurenService {
         } else {
             if (existsZoekopdracht(zoekopdracht)) {
                 throw new RuntimeException(
-                                           "Er bestaat al een zoekopdracht met naam '%s' en lijst '%s' en medewerker: '%s'"
-                                                                                                                           .formatted(zoekopdracht.getNaam(),
-                                                                                                                                      zoekopdracht.getLijstID(),
-                                                                                                                                      zoekopdracht.getMedewerkerID()));
+                        "Er bestaat al een zoekopdracht met naam '%s' en lijst '%s' en medewerker: '%s'"
+                                .formatted(zoekopdracht.getNaam(), zoekopdracht.getLijstID(),
+                                        zoekopdracht.getMedewerkerID()));
             }
             zoekopdracht.setActief(true);
             entityManager.persist(zoekopdracht);
@@ -103,7 +102,7 @@ public class GebruikersvoorkeurenService {
 
     public void updateTabelInstellingen(final TabelInstellingen tabelInstellingen) {
         final TabelInstellingen bestaandeTabelInstellingen = readTabelInstellingen(tabelInstellingen.getLijstID(), tabelInstellingen
-                                                                                                                                    .getMedewerkerID());
+                .getMedewerkerID());
         bestaandeTabelInstellingen.setAantalPerPagina(tabelInstellingen.getAantalPerPagina());
         entityManager.merge(bestaandeTabelInstellingen);
     }
@@ -116,7 +115,7 @@ public class GebruikersvoorkeurenService {
         predicates.add(builder.equal(root.get(Zoekopdracht.LIJST_ID), zoekopdracht.getLijstID()));
         predicates.add(builder.equal(root.get(Zoekopdracht.MEDEWERKER_ID), zoekopdracht.getMedewerkerID()));
         predicates.add(builder.equal(builder.lower(root.get(Zoekopdracht.NAAM)),
-                                     zoekopdracht.getNaam().toLowerCase(Locale.ROOT)));
+                zoekopdracht.getNaam().toLowerCase(Locale.ROOT)));
         query.where(builder.and(predicates.toArray(new Predicate[0])));
         final TypedQuery<Zoekopdracht> emQuery = entityManager.createQuery(query);
         return CollectionUtils.isNotEmpty(emQuery.getResultList());
@@ -128,8 +127,7 @@ public class GebruikersvoorkeurenService {
 
     public void setActief(final Zoekopdracht zoekopdracht) {
         final List<Zoekopdracht> zoekopdrachten = listZoekopdrachten(
-                                                                     new ZoekopdrachtListParameters(zoekopdracht.getLijstID(), zoekopdracht
-                                                                                                                                           .getMedewerkerID()));
+                new ZoekopdrachtListParameters(zoekopdracht.getLijstID(), zoekopdracht.getMedewerkerID()));
         zoekopdrachten.forEach(z -> {
             final boolean huidigeWaarde = z.isActief();
             z.setActief(z.getId().equals(zoekopdracht.getId()));
@@ -162,8 +160,8 @@ public class GebruikersvoorkeurenService {
         final List<DashboardCardInstelling> existingCards = listDashboardCards(medewerkerId);
         existingCards.forEach(existingCard -> {
             final Optional<DashboardCardInstelling> updatedCard = cards.stream()
-                                                                       .filter(card -> existingCard.getCardId().equals(card.getCardId()))
-                                                                       .findAny();
+                    .filter(card -> existingCard.getCardId().equals(card.getCardId()))
+                    .findAny();
             if (updatedCard.isPresent()) {
                 existingCard.setKolom(updatedCard.get().getKolom());
                 existingCard.setVolgorde(updatedCard.get().getVolgorde());
@@ -173,17 +171,17 @@ public class GebruikersvoorkeurenService {
             }
         });
         cards.stream()
-             .filter(card -> card.getId() == null)
-             .forEach(newCard -> {
-                 newCard.setMedewerkerId(medewerkerId);
-                 entityManager.persist(newCard);
-             });
+                .filter(card -> card.getId() == null)
+                .forEach(newCard -> {
+                    newCard.setMedewerkerId(medewerkerId);
+                    entityManager.persist(newCard);
+                });
     }
 
     public void addDashboardCard(final String medewerkerId, final DashboardCardInstelling card) {
         if (card.getSignaleringType() != null) {
             final SignaleringInstellingen instellingen = signaleringenService.readInstellingenUser(
-                                                                                                   card.getSignaleringType(), medewerkerId);
+                    card.getSignaleringType(), medewerkerId);
             instellingen.setDashboard(true);
             signaleringenService.createUpdateOrDeleteInstellingen(instellingen);
         }
@@ -196,7 +194,7 @@ public class GebruikersvoorkeurenService {
     public void deleteDashboardCard(final String medewerkerId, final DashboardCardInstelling card) {
         if (card.getSignaleringType() != null) {
             final SignaleringInstellingen instellingen = signaleringenService.readInstellingenUser(
-                                                                                                   card.getSignaleringType(), medewerkerId);
+                    card.getSignaleringType(), medewerkerId);
             instellingen.setDashboard(false);
             signaleringenService.createUpdateOrDeleteInstellingen(instellingen);
         }

@@ -78,7 +78,7 @@ public class MailtemplateBeheerRESTService {
     public RESTMailtemplate persistMailtemplate(final RESTMailtemplate mailtemplate) {
         assertPolicy(policyService.readOverigeRechten().beheren());
         return restMailtemplateConverter.convert(
-                                                 mailTemplateService.storeMailtemplate(restMailtemplateConverter.convert(mailtemplate)));
+                mailTemplateService.storeMailtemplate(restMailtemplateConverter.convert(mailtemplate)));
     }
 
     @GET

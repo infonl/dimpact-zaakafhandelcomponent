@@ -49,11 +49,10 @@ public enum Updatefrequency {
                 return null;
             }
             return stream(values())
-                                   .filter(updatefrequency -> StringUtils.equals(updatefrequency.value, json))
-                                   .findFirst()
-                                   .orElseThrow(() -> new RuntimeException(String.format("Unkown value for %s: '%s'", Updatefrequency.class
-                                                                                                                                           .getSimpleName(),
-                                                                                         json)));
+                    .filter(updatefrequency -> StringUtils.equals(updatefrequency.value, json))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException(String.format("Unkown value for %s: '%s'", Updatefrequency.class
+                            .getSimpleName(), json)));
         }
     }
 }

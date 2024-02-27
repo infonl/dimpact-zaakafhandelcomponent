@@ -105,12 +105,10 @@ public interface AdresseerbaarObjectApi {
     @Path("/{adresseerbaarObjectIdentificatie}")
     @Produces({"application/hal+json", "application/problem+json"})
     public AdresseerbaarObjectIOHal bevragenAdresseerbaarObject(
-                                                                @PathParam("adresseerbaarObjectIdentificatie") String adresseerbaarObjectIdentificatie,
-                                                                @QueryParam("geldigOp") LocalDate geldigOp,
-                                                                @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
-                                                                @QueryParam("expand") String expand,
-                                                                @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
-                                                                @QueryParam("huidig") @DefaultValue("false") Boolean huidig) throws ProcessingException;
+            @PathParam("adresseerbaarObjectIdentificatie") String adresseerbaarObjectIdentificatie,
+            @QueryParam("geldigOp") LocalDate geldigOp, @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
+            @QueryParam("expand") String expand, @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
+            @QueryParam("huidig") @DefaultValue("false") Boolean huidig) throws ProcessingException;
 
     /**
      * Bevragen van de levenscyclus van een adresseerbaar object met een adresseerbaar object identificatie.
@@ -124,9 +122,9 @@ public interface AdresseerbaarObjectApi {
     @Path("/{adresseerbaarObjectIdentificatie}/lvc")
     @Produces({"application/hal+json", "application/problem+json"})
     public AdresseerbaarObjectLvcIOHalCollection bevragenAdresseerbaarObjectLvc(
-                                                                                @PathParam("adresseerbaarObjectIdentificatie") String adresseerbaarObjectIdentificatie,
-                                                                                @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc,
-                                                                                @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs) throws ProcessingException;
+            @PathParam("adresseerbaarObjectIdentificatie") String adresseerbaarObjectIdentificatie,
+            @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs) throws ProcessingException;
 
     /**
      * Bevragen van één of meer adresseerbare objecten op basis van een nummeraanduiding identificatie.
@@ -145,19 +143,15 @@ public interface AdresseerbaarObjectApi {
     @GET
     @Produces({"application/hal+json", "application/problem+json"})
     public AdresseerbareObjectenIOHalCollection zoekAdresseerbareObjecten(
-                                                                          @QueryParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie,
-                                                                          @QueryParam("huidig") @DefaultValue("false") Boolean huidig,
-                                                                          @QueryParam("geldigOp") LocalDate geldigOp,
-                                                                          @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
-                                                                          @QueryParam("expand") String expand,
-                                                                          @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
-                                                                          @HeaderParam("Content-Crs") String contentCrs,
-                                                                          @QueryParam("page") @DefaultValue("1") Integer page,
-                                                                          @QueryParam("pageSize") @DefaultValue("20") Integer pageSize,
-                                                                          @QueryParam("bbox") List<BigDecimal> bbox,
-                                                                          @QueryParam("geconstateerd") Boolean geconstateerd,
-                                                                          @QueryParam("oppervlakte") OppervlakteFilter oppervlakte,
-                                                                          @QueryParam("gebruiksdoelen") List<Gebruiksdoel> gebruiksdoelen,
-                                                                          @QueryParam("type") TypeAdresseerbaarObject type,
-                                                                          @QueryParam("pandIdentificaties") List<String> pandIdentificaties) throws ProcessingException;
+            @QueryParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie,
+            @QueryParam("huidig") @DefaultValue("false") Boolean huidig, @QueryParam("geldigOp") LocalDate geldigOp,
+            @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp, @QueryParam("expand") String expand,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs, @HeaderParam("Content-Crs") String contentCrs,
+            @QueryParam("page") @DefaultValue("1") Integer page,
+            @QueryParam("pageSize") @DefaultValue("20") Integer pageSize, @QueryParam("bbox") List<BigDecimal> bbox,
+            @QueryParam("geconstateerd") Boolean geconstateerd,
+            @QueryParam("oppervlakte") OppervlakteFilter oppervlakte,
+            @QueryParam("gebruiksdoelen") List<Gebruiksdoel> gebruiksdoelen,
+            @QueryParam("type") TypeAdresseerbaarObject type,
+            @QueryParam("pandIdentificaties") List<String> pandIdentificaties) throws ProcessingException;
 }

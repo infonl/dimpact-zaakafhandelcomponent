@@ -65,7 +65,7 @@ public class BAGClientService {
 
     public AdresIOHal readAdres(final String nummeraanduidingIdentificatie) {
         return adresApi.bevraagAdressenMetNumId(nummeraanduidingIdentificatie, ADRES_EXPAND,
-                                                null);
+                null);
     }
 
     public WoonplaatsIOHal readWoonplaats(final String woonplaatswIdentificatie) {
@@ -99,7 +99,7 @@ public class BAGClientService {
 
     private Invocation.Builder createInvocationBuilder(final URI uri) {
         return JAXRSClientFactory.getOrCreateClient().target(uri)
-                                 .request("application/hal+json", "application/problem+json")
-                                 .header(X_API_KEY, API_KEY);
+                .request("application/hal+json", "application/problem+json")
+                .header(X_API_KEY, API_KEY);
     }
 }

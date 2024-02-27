@@ -89,7 +89,7 @@ public class WebdavStore implements IWebdavStore {
         final String token = extraheerToken(resourceUri);
         if (StringUtils.isNotEmpty(token)) {
             final UUID enkelvoudigInformatieobjectUUID = webdavHelper.readGegevens(token)
-                                                                     .enkelvoudigInformatieibjectUUID();
+                    .enkelvoudigInformatieibjectUUID();
             return drcClientService.downloadEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID);
         } else {
             return null;
@@ -98,29 +98,27 @@ public class WebdavStore implements IWebdavStore {
 
     @Override
     public long setResourceContent(
-                                   final ITransaction transaction,
-                                   final String resourceUri,
-                                   final InputStream content,
-                                   final String contentType,
-                                   final String characterEncoding
+            final ITransaction transaction,
+            final String resourceUri,
+            final InputStream content,
+            final String contentType,
+            final String characterEncoding
     ) {
         final String token = extraheerToken(resourceUri);
         if (StringUtils.isNotEmpty(token)) {
             final WebdavHelper.Gegevens webdavGegevens = webdavHelper.readGegevens(token);
             try {
                 SecurityUtil.setLoggedInUser(
-                                             CDI.current().select(HttpSession.class).get(),
-                                             webdavGegevens.loggedInUser()
+                        CDI.current().select(HttpSession.class).get(),
+                        webdavGegevens.loggedInUser()
                 );
                 final var update = new EnkelvoudigInformatieObjectWithLockData();
                 final byte[] inhoud = IOUtils.toByteArray(content);
                 update.setInhoud(convertByteArrayToBase64String(inhoud));
                 update.setBestandsomvang(inhoud.length);
                 return enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                                                                                                              webdavGegevens.enkelvoudigInformatieibjectUUID(),
-                                                                                                              update,
-                                                                                                              UPDATE_INHOUD_TOELICHTING)
-                                                               .getBestandsomvang();
+                        webdavGegevens.enkelvoudigInformatieibjectUUID(), update, UPDATE_INHOUD_TOELICHTING)
+                        .getBestandsomvang();
             } catch (final IOException e) {
                 throw new RuntimeException(e);
             } finally {
@@ -175,9 +173,9 @@ public class WebdavStore implements IWebdavStore {
     private StoredObject getFileStoredObject(final String token) {
         return fileStoredObjectMap.computeIfAbsent(token, key -> {
             final UUID enkelvoudigInformatieobjectUUID = webdavHelper.readGegevens(token)
-                                                                     .enkelvoudigInformatieibjectUUID();
+                    .enkelvoudigInformatieibjectUUID();
             final EnkelvoudigInformatieObject enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
-                                                                                                                             enkelvoudigInformatieobjectUUID);
+                    enkelvoudigInformatieobjectUUID);
             final StoredObject storedObject = new StoredObject();
             storedObject.setFolder(false);
             storedObject.setCreationDate(convertToDate(enkelvoudigInformatieobject.getCreatiedatum()));

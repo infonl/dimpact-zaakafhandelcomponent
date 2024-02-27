@@ -31,13 +31,13 @@ public class WebdavHelper {
      * De mapping naar applicaties met WebDAV support
      */
     private static final Set<String> WEBDAV_WORD = Set.of("application/msword",
-                                                          "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
 
     private static final Set<String> WEBDAV_POWERPOINT = Set.of("application/vnd.ms-powerpoint",
-                                                                "application/vnd.openxmlformats-officedocument.presentationml.presentation");
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation");
 
     private static final Set<String> WEBDAV_EXCEL = Set.of("application/vnd.ms-excel",
-                                                           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
     @Inject
     private DRCClientService drcClientService;
@@ -48,10 +48,11 @@ public class WebdavHelper {
     private final Map<String, Gegevens> tokenMap = Collections.synchronizedMap(new LRUMap<>(1000));
 
     public URI createRedirectURL(final UUID enkelvoudigInformatieobjectUUID, final UriInfo uriInfo) {
-        final EnkelvoudigInformatieObject enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID);
+        final EnkelvoudigInformatieObject enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
+                enkelvoudigInformatieobjectUUID);
         final String scheme = format("%s:%s", getWebDAVApp(enkelvoudigInformatieobject.getFormaat()), uriInfo.getBaseUri().getScheme());
         final String filename = format("%s.%s", createToken(enkelvoudigInformatieobjectUUID), getExtension(enkelvoudigInformatieobject
-                                                                                                                                      .getBestandsnaam()));
+                .getBestandsnaam()));
         return uriInfo.getBaseUriBuilder().scheme(scheme).replacePath("webdav/folder/{filename}").build(filename);
     }
 

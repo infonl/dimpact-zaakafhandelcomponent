@@ -22,8 +22,7 @@ public class LoggedInUser extends User {
     private final Set<String> geautoriseerdeZaaktypen;
 
     public LoggedInUser(final String id, final String firstName, final String lastName, final String displayName,
-                        final String email, final Set<String> roles, final Set<String> groupIds,
-                        final Set<String> geautoriseerdeZaaktypen) {
+            final String email, final Set<String> roles, final Set<String> groupIds, final Set<String> geautoriseerdeZaaktypen) {
         super(id, firstName, lastName, displayName, email);
         this.roles = unmodifiableSet(roles);
         this.groupIds = unmodifiableSet(groupIds);
@@ -31,7 +30,7 @@ public class LoggedInUser extends User {
     }
 
     public LoggedInUser(final String id, final String firstName, final String lastName, final String displayName,
-                        final String email, final Set<String> roles, final Set<String> groupIds) {
+            final String email, final Set<String> roles, final Set<String> groupIds) {
         this(id, firstName, lastName, displayName, email, roles, groupIds, null);
     }
 
@@ -47,7 +46,8 @@ public class LoggedInUser extends User {
         if (geautoriseerdeZaaktypen != null) {
             return geautoriseerdeZaaktypen;
         } else {
-            throw new IllegalStateException("Ingelogde gebruiker is geautoriseerd voor alle zaaktypen. Deze kunnen echter niet worden opgevraagd.");
+            throw new IllegalStateException(
+                    "Ingelogde gebruiker is geautoriseerd voor alle zaaktypen. Deze kunnen echter niet worden opgevraagd.");
         }
     }
 

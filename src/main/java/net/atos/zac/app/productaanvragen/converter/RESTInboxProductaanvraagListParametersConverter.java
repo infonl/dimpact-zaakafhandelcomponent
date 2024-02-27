@@ -15,7 +15,7 @@ public class RESTInboxProductaanvraagListParametersConverter extends
 
     @Override
     protected void doConvert(final InboxProductaanvraagListParameters listParameters,
-                             final RESTInboxProductaanvraagListParameters restListParameters) {
+            final RESTInboxProductaanvraagListParameters restListParameters) {
         listParameters.setType(restListParameters.type);
         listParameters.setInitiatorID(restListParameters.initiatorID);
 

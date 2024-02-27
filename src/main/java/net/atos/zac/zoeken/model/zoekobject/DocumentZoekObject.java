@@ -363,7 +363,7 @@ public class DocumentZoekObject implements ZoekObject {
             return EnumSet.noneOf(DocumentIndicatie.class);
         }
         return this.indicaties.stream().map(DocumentIndicatie::valueOf)
-                              .collect(Collectors.toCollection(() -> EnumSet.noneOf(DocumentIndicatie.class)));
+                .collect(Collectors.toCollection(() -> EnumSet.noneOf(DocumentIndicatie.class)));
     }
 
     public void setIndicatie(final DocumentIndicatie indicatie, final Boolean value) {

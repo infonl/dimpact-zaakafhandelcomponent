@@ -145,7 +145,7 @@ public abstract class Zaakobject {
         }
         final Zaakobject that = (Zaakobject) o;
         return new EqualsBuilder().append(zaak, that.zaak).append(object, that.object).append(objectType, that.objectType)
-                                  .append(objectTypeOverige, that.objectTypeOverige).isEquals();
+                .append(objectTypeOverige, that.objectTypeOverige).isEquals();
     }
 
     @Override

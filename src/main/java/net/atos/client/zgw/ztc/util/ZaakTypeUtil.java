@@ -17,7 +17,7 @@ public class ZaakTypeUtil {
     public static boolean isNuGeldig(ZaakType zaakType) {
         final LocalDate eindeGeldigheid = zaakType.getEindeGeldigheid();
         return zaakType.getBeginGeldigheid().isBefore(
-                                                      LocalDate.now().plusDays(1)
+                LocalDate.now().plusDays(1)
         ) && (eindeGeldigheid == null || eindeGeldigheid.isAfter(LocalDate.now()));
     }
 }

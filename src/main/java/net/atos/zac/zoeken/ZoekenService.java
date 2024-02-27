@@ -91,46 +91,43 @@ public class ZoekenService {
         zoekParameters.getDatums().forEach((dateField, date) -> {
             if (date != null) {
                 query.addFilterQuery(
-                                     format("%s:[%s TO %s]", dateField.getVeld(),
-                                            date.van() == null ? "*" : DateTimeFormatter.ISO_INSTANT.format(
-                                                                                                            date.van().atStartOfDay(ZoneId
-                                                                                                                                          .systemDefault())),
-                                            date.tot() == null ? "*" : DateTimeFormatter.ISO_INSTANT.format(
-                                                                                                            date.tot().atStartOfDay(ZoneId
-                                                                                                                                          .systemDefault()))));
+                        format("%s:[%s TO %s]", dateField.getVeld(),
+                                date.van() == null ? "*" : DateTimeFormatter.ISO_INSTANT.format(
+                                        date.van().atStartOfDay(ZoneId.systemDefault())),
+                                date.tot() == null ? "*" : DateTimeFormatter.ISO_INSTANT.format(
+                                        date.tot().atStartOfDay(ZoneId.systemDefault()))));
             }
         });
 
         zoekParameters.getFilters()
-                      .forEach((filterVeld, filterParameters) -> query.addFacetField(
-                                                                                     format("{!ex=%s}%s", filterVeld, filterVeld
-                                                                                                                                .getVeld())));
+                .forEach((filterVeld, filterParameters) -> query.addFacetField(
+                        format("{!ex=%s}%s", filterVeld, filterVeld.getVeld())));
 
         zoekParameters.getFilters().forEach((filter, filterParameters) -> {
             if (CollectionUtils.isNotEmpty(filterParameters.waarden())) {
                 final String special = filterParameters.waarden().size() == 1 ? filterParameters.waarden()
-                                                                                                .get(0) : null;
+                        .get(0) : null;
                 if (LEEG.is(special)) {
                     query.addFilterQuery(format("{!tag=%s}!%s:(*)",
-                                                filter,
-                                                filter.getVeld()));
+                            filter,
+                            filter.getVeld()));
                 } else if (NIET_LEEG.is(special)) {
                     query.addFilterQuery(format("{!tag=%s}%s:(*)",
-                                                filter,
-                                                filter.getVeld()));
+                            filter,
+                            filter.getVeld()));
                 } else {
                     query.addFilterQuery(format("{!tag=%s}%s%s:(%s)", filter,
-                                                filterParameters.inverse() ? "-" : StringUtils.EMPTY,
-                                                filter.getVeld(),
-                                                filterParameters.waarden().stream()
-                                                                .map(ZoekenService::quoted)
-                                                                .collect(joining(" OR "))));
+                            filterParameters.inverse() ? "-" : StringUtils.EMPTY,
+                            filter.getVeld(),
+                            filterParameters.waarden().stream()
+                                    .map(ZoekenService::quoted)
+                                    .collect(joining(" OR "))));
                 }
             }
         });
 
         zoekParameters.getFilterQueries()
-                      .forEach((veld, waarde) -> query.addFilterQuery(format("%s:%s", veld, quoted(waarde))));
+                .forEach((veld, waarde) -> query.addFilterQuery(format("%s:%s", veld, quoted(waarde))));
 
         query.setFacetMinCount(1);
         query.setFacetMissing(!zoekParameters.isGlobaalZoeken());
@@ -139,8 +136,8 @@ public class ZoekenService {
         query.setRows(zoekParameters.getRows());
         query.setStart(zoekParameters.getStart());
         query.addSort(zoekParameters.getSortering().sorteerVeld().getVeld(),
-                      zoekParameters.getSortering()
-                                    .richting() == SorteerRichting.DESCENDING ? SolrQuery.ORDER.desc : SolrQuery.ORDER.asc);
+                zoekParameters.getSortering()
+                        .richting() == SorteerRichting.DESCENDING ? SolrQuery.ORDER.desc : SolrQuery.ORDER.asc);
 
         if (zoekParameters.getSortering().sorteerVeld() != SorteerVeld.CREATED) {
             query.addSort(SorteerVeld.CREATED.getVeld(), SolrQuery.ORDER.desc);
@@ -149,7 +146,7 @@ public class ZoekenService {
             query.addSort(SorteerVeld.ZAAK_IDENTIFICATIE.getVeld(), SolrQuery.ORDER.desc);
         }
         query.addSort("id",
-                      SolrQuery.ORDER.desc); // uniek veld, zodat resultaten (van dezelfde query) altijd in dezelfde volgorde staan
+                SolrQuery.ORDER.desc); // uniek veld, zodat resultaten (van dezelfde query) altijd in dezelfde volgorde staan
 
         try {
             final QueryResponse response = solrClient.query(query);
@@ -160,16 +157,16 @@ public class ZoekenService {
             }).collect(Collectors.toList());
 
             final ZoekResultaat<? extends ZoekObject> zoekResultaat = new ZoekResultaat<>(zoekObjecten,
-                                                                                          response.getResults()
-                                                                                                  .getNumFound());
+                    response.getResults()
+                            .getNumFound());
             response.getFacetFields().forEach(facetField -> {
                 final FilterVeld facetVeld = FilterVeld.fromValue(facetField.getName());
                 final List<FilterResultaat> waardes = new ArrayList<>();
                 facetField.getValues().stream()
-                          .filter(facet -> facet.getCount() > 0)
-                          .forEach(facet -> waardes.add(
-                                                        new FilterResultaat(facet.getName() == null ? LEEG.toString() : facet.getName(),
-                                                                            facet.getCount())));
+                        .filter(facet -> facet.getCount() > 0)
+                        .forEach(facet -> waardes.add(
+                                new FilterResultaat(facet.getName() == null ? LEEG.toString() : facet.getName(),
+                                        facet.getCount())));
                 zoekResultaat.addFilter(facetVeld, waardes);
             });
             return zoekResultaat;
@@ -185,9 +182,9 @@ public class ZoekenService {
                 query.addFilterQuery(format("%s:%s", ZAAKTYPE_OMSCHRIJVING_VELD, NON_EXISTING_ZAAKTYPE));
             } else {
                 query.addFilterQuery(loggedInUser.getGeautoriseerdeZaaktypen().stream()
-                                                 .map(ZoekenService::quoted)
-                                                 .map(zaaktype -> format("%s:%s", ZAAKTYPE_OMSCHRIJVING_VELD, zaaktype))
-                                                 .collect(joining(" OR ")));
+                        .map(ZoekenService::quoted)
+                        .map(zaaktype -> format("%s:%s", ZAAKTYPE_OMSCHRIJVING_VELD, zaaktype))
+                        .collect(joining(" OR ")));
             }
         }
     }

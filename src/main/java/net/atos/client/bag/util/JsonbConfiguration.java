@@ -17,14 +17,14 @@ public class JsonbConfiguration implements ContextResolver<Jsonb> {
 
     public JsonbConfiguration() {
         final JsonbConfig jsonbConfig = new JsonbConfig().withAdapters(
-                                                                       new IndicatieEnumAdapter(),
-                                                                       new StatusNaamgevingEnumAdapter(),
-                                                                       new StatusPandEnumAdapter(),
-                                                                       new StatusWoonplaatsEnumAdapter(),
-                                                                       new StatusVerblijfsobjectEnumAdapter(),
-                                                                       new TypeAdresseerbaarObjectEnumAdapter(),
-                                                                       new GebruiksdoelEnumAdapter(),
-                                                                       new TypeOpenbareRuimteEnumAdapter());
+                new IndicatieEnumAdapter(),
+                new StatusNaamgevingEnumAdapter(),
+                new StatusPandEnumAdapter(),
+                new StatusWoonplaatsEnumAdapter(),
+                new StatusVerblijfsobjectEnumAdapter(),
+                new TypeAdresseerbaarObjectEnumAdapter(),
+                new GebruiksdoelEnumAdapter(),
+                new TypeOpenbareRuimteEnumAdapter());
         jsonb = JsonbBuilder.create(jsonbConfig);
     }
 

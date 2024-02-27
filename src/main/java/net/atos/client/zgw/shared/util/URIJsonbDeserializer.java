@@ -19,9 +19,9 @@ public class URIJsonbDeserializer implements JsonbDeserializer<URI> {
 
     @Override
     public URI deserialize(
-                           final JsonParser parser,
-                           final DeserializationContext ctx,
-                           final Type rtType
+            final JsonParser parser,
+            final DeserializationContext ctx,
+            final Type rtType
     ) {
         try {
             final String uri = parser.getString();

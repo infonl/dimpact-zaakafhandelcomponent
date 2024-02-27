@@ -48,10 +48,10 @@ public class RESTFormulierVeldDefinitieConverter {
             if (StringUtils.isNotBlank(referentietabelCode)) {
                 final ReferentieTabel referentieTabel = referentieTabelService.readReferentieTabel(referentietabelCode);
                 restVeldDefinitie.meerkeuzeOpties = referentieTabel.getWaarden()
-                                                                   .stream()
-                                                                   .sorted(Comparator.comparingInt(ReferentieTabelWaarde::getVolgorde))
-                                                                   .map(ReferentieTabelWaarde::getNaam)
-                                                                   .collect(Collectors.joining(SEPARATOR));
+                        .stream()
+                        .sorted(Comparator.comparingInt(ReferentieTabelWaarde::getVolgorde))
+                        .map(ReferentieTabelWaarde::getNaam)
+                        .collect(Collectors.joining(SEPARATOR));
             }
         }
         return restVeldDefinitie;

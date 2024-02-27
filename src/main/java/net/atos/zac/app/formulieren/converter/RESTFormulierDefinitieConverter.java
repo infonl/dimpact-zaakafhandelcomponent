@@ -19,7 +19,7 @@ public class RESTFormulierDefinitieConverter {
     private RESTFormulierVeldDefinitieConverter veldDefinitieConverter;
 
     public RESTFormulierDefinitie convert(final FormulierDefinitie formulierDefinitie,
-                                          boolean inclusiefVelden, boolean runtime) {
+            boolean inclusiefVelden, boolean runtime) {
         final RESTFormulierDefinitie restFormulierDefinitie = new RESTFormulierDefinitie();
         restFormulierDefinitie.id = formulierDefinitie.getId();
         restFormulierDefinitie.beschrijving = formulierDefinitie.getBeschrijving();
@@ -30,9 +30,9 @@ public class RESTFormulierDefinitieConverter {
         restFormulierDefinitie.systeemnaam = formulierDefinitie.getSysteemnaam();
         if (inclusiefVelden) {
             restFormulierDefinitie.veldDefinities = formulierDefinitie.getVeldDefinities().stream()
-                                                                      .sorted(Comparator.comparingInt(FormulierVeldDefinitie::getVolgorde))
-                                                                      .map(vd -> veldDefinitieConverter.convert(vd, runtime))
-                                                                      .toList();
+                    .sorted(Comparator.comparingInt(FormulierVeldDefinitie::getVolgorde))
+                    .map(vd -> veldDefinitieConverter.convert(vd, runtime))
+                    .toList();
         }
         return restFormulierDefinitie;
     }
@@ -48,8 +48,8 @@ public class RESTFormulierDefinitieConverter {
         formulierDefinitie.setBeschrijving(restFormulierDefinitie.beschrijving);
         formulierDefinitie.setUitleg(restFormulierDefinitie.uitleg);
         formulierDefinitie.setVeldDefinities(restFormulierDefinitie.veldDefinities.stream()
-                                                                                  .map(veldDefinitieConverter::convert)
-                                                                                  .toList());
+                .map(veldDefinitieConverter::convert)
+                .toList());
         return formulierDefinitie;
     }
 }

@@ -81,8 +81,7 @@ public class HumanTaskParameters {
 
     public String getFormulierDefinitieID() {
         return formulierDefinitieID != null ? formulierDefinitieID : DefaultHumanTaskFormulierKoppeling.readFormulierDefinitie(
-                                                                                                                               planItemDefinitionID)
-                                                                                                       .name();
+                planItemDefinitionID).name();
     }
 
     public void setFormulierDefinitieID(final String formulierDefinitieID) {
@@ -124,9 +123,9 @@ public class HumanTaskParameters {
 
     private HumanTaskReferentieTabel getReferentieTabel(final String veld) {
         return referentieTabellen.stream()
-                                 .filter(referentieTabel -> referentieTabel.getVeld().equals(veld))
-                                 .findAny()
-                                 .orElse(null);
+                .filter(referentieTabel -> referentieTabel.getVeld().equals(veld))
+                .findAny()
+                .orElse(null);
     }
 
     private boolean addReferentieTabel(final HumanTaskReferentieTabel referentieTabel) {

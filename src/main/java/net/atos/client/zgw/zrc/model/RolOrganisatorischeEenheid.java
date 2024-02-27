@@ -18,8 +18,8 @@ public class RolOrganisatorischeEenheid extends Rol<OrganisatorischeEenheid> {
     }
 
     public RolOrganisatorischeEenheid(final URI zaak, final RolType roltype,
-                                      final String roltoelichting,
-                                      final OrganisatorischeEenheid betrokkeneIdentificatie) {
+            final String roltoelichting,
+            final OrganisatorischeEenheid betrokkeneIdentificatie) {
         super(zaak, roltype, BetrokkeneType.ORGANISATORISCHE_EENHEID, betrokkeneIdentificatie, roltoelichting);
     }
 

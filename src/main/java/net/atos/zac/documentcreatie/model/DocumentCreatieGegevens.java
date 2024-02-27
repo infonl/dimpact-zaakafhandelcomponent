@@ -20,9 +20,9 @@ public class DocumentCreatieGegevens {
     private InformatieObjectType informatieobjecttype;
 
     public DocumentCreatieGegevens(
-                                   final Zaak zaak,
-                                   final String taskId,
-                                   final InformatieObjectType informatieobjecttype
+            final Zaak zaak,
+            final String taskId,
+            final InformatieObjectType informatieobjecttype
     ) {
         this.zaak = zaak;
         this.taskId = taskId;

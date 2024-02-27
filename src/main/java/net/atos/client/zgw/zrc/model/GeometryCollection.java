@@ -45,7 +45,7 @@ public class GeometryCollection extends Geometry {
         final GeometryCollection geometryCollection = (GeometryCollection) o;
 
         return new EqualsBuilder().append(super.getType(), geometryCollection.getType()).append(geometries, geometryCollection.geometries)
-                                  .isEquals();
+                .isEquals();
     }
 
     @Override

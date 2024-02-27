@@ -40,7 +40,7 @@ public interface BasisprofielClient {
      */
     @GET
     Basisprofiel getBasisprofielByKvkNummer(@PathParam("kvkNummer") String kvkNummer,
-                                            @QueryParam("geoData") @DefaultValue("false") Boolean geoData);
+            @QueryParam("geoData") @DefaultValue("false") Boolean geoData);
 
     /**
      * Voor een specifiek bedrijf eigenaar informatie opvragen.

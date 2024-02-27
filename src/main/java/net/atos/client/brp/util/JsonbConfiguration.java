@@ -16,7 +16,7 @@ public class JsonbConfiguration implements ContextResolver<Jsonb> {
 
     public JsonbConfiguration() {
         final JsonbConfig jsonbConfig = new JsonbConfig()
-                                                         .withDeserializers(new PersonenQueryResponseJsonbDeserializer());
+                .withDeserializers(new PersonenQueryResponseJsonbDeserializer());
         jsonb = JsonbBuilder.create(jsonbConfig);
     }
 

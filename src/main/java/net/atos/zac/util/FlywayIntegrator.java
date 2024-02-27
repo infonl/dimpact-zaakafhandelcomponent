@@ -45,12 +45,12 @@ public class FlywayIntegrator {
         }
 
         final Flyway flyway = Flyway.configure()
-                                    .dataSource(dataSource)
-                                    .locations(SCHEMA_FILES_LOCATION)
-                                    .schemas(SCHEMA)
-                                    .placeholders(Map.of(SCHEMA_PLACEHOLDER, SCHEMA))
-                                    .outOfOrder(true)
-                                    .load();
+                .dataSource(dataSource)
+                .locations(SCHEMA_FILES_LOCATION)
+                .schemas(SCHEMA)
+                .placeholders(Map.of(SCHEMA_PLACEHOLDER, SCHEMA))
+                .outOfOrder(true)
+                .load();
 
         final MigrationInfo migrationInfo = flyway.info().current();
 
@@ -58,7 +58,7 @@ public class FlywayIntegrator {
             LOG.info("No existing database at the actual datasource");
         } else {
             LOG.info(String.format("Found a database with the version: %s : %s", migrationInfo.getVersion(), migrationInfo
-                                                                                                                          .getDescription()));
+                    .getDescription()));
         }
 
         flyway.migrate();

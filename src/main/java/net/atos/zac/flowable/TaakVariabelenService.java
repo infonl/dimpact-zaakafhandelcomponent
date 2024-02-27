@@ -160,11 +160,9 @@ public class TaakVariabelenService {
 
     private Object readVariable(final TaskInfo taskInfo, final String variableName) {
         return findVariable(taskInfo, variableName)
-                                                   .orElseThrow(() -> new RuntimeException(
-                                                                                           "No variable found with name '%s' for task with name '%s' and id '%s'"
-                                                                                                                                                                 .formatted(variableName,
-                                                                                                                                                                            taskInfo.getName(),
-                                                                                                                                                                            taskInfo.getId())));
+                .orElseThrow(() -> new RuntimeException(
+                        "No variable found with name '%s' for task with name '%s' and id '%s'"
+                                .formatted(variableName, taskInfo.getName(), taskInfo.getId())));
     }
 
     private Optional<Object> findTaskVariable(final TaskInfo taskInfo, final String variableName) {

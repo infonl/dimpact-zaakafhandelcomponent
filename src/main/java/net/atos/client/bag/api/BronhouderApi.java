@@ -87,8 +87,8 @@ public interface BronhouderApi {
     @Path("/{identificatie}")
     @Produces({"application/hal+json", "application/problem+json"})
     public BronhouderHal bevragenBronhouder(@PathParam("identificatie") String identificatie,
-                                            @QueryParam("geldigOp") LocalDate geldigOp,
-                                            @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp) throws ProcessingException;
+            @QueryParam("geldigOp") LocalDate geldigOp,
+            @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp) throws ProcessingException;
 
     /**
      * bevragen voorkomen van een bronhouder met de identificatie van een bronhouder en de identificatie van een voorkomen, bestaande uit
@@ -101,8 +101,8 @@ public interface BronhouderApi {
     @Path("/{identificatie}/{versie}/{timestampRegistratieLv}")
     @Produces({"application/hal+json", "application/problem+json"})
     public BronhouderHal bronhouderIdentificatieVoorkomen(@PathParam("identificatie") String identificatie,
-                                                          @PathParam("versie") Integer versie,
-                                                          @PathParam("timestampRegistratieLv") String timestampRegistratieLv) throws ProcessingException;
+            @PathParam("versie") Integer versie,
+            @PathParam("timestampRegistratieLv") String timestampRegistratieLv) throws ProcessingException;
 
     /**
      * Bevragen bronhouder met een object identificatie.
@@ -115,7 +115,6 @@ public interface BronhouderApi {
     @GET
     @Produces({"application/hal+json", "application/problem+json"})
     public BronhouderHalCollection zoekBronhouder(@QueryParam("woonplaatsIdentificatie") String woonplaatsIdentificatie,
-                                                  @QueryParam("objectIdentificatie") String objectIdentificatie,
-                                                  @QueryParam("geldigOp") LocalDate geldigOp,
-                                                  @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp) throws ProcessingException;
+            @QueryParam("objectIdentificatie") String objectIdentificatie, @QueryParam("geldigOp") LocalDate geldigOp,
+            @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp) throws ProcessingException;
 }

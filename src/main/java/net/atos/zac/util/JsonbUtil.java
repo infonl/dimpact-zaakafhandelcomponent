@@ -29,7 +29,8 @@ public final class JsonbUtil {
 
     public static final Jsonb JSONB = JsonbBuilder.create();
 
-    public static final Jsonb FIELD_VISIBILITY_STRATEGY = JsonbBuilder.create(new JsonbConfig().withPropertyVisibilityStrategy(JsonbUtil.visibilityStrategy));
+    public static final Jsonb FIELD_VISIBILITY_STRATEGY = JsonbBuilder.create(new JsonbConfig().withPropertyVisibilityStrategy(
+            JsonbUtil.visibilityStrategy));
 
     private JsonbUtil() {
     }

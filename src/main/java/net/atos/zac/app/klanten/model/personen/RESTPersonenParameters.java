@@ -26,10 +26,10 @@ public class RESTPersonenParameters {
     public Cardinaliteit straat;
 
     public RESTPersonenParameters(final Cardinaliteit bsn,
-                                  final Cardinaliteit geslachtsnaam, final Cardinaliteit voornamen, final Cardinaliteit voorvoegsel,
-                                  final Cardinaliteit geboortedatum,
-                                  final Cardinaliteit gemeenteVanInschrijving,
-                                  final Cardinaliteit postcode, final Cardinaliteit huisnummer, final Cardinaliteit straat) {
+            final Cardinaliteit geslachtsnaam, final Cardinaliteit voornamen, final Cardinaliteit voorvoegsel,
+            final Cardinaliteit geboortedatum,
+            final Cardinaliteit gemeenteVanInschrijving,
+            final Cardinaliteit postcode, final Cardinaliteit huisnummer, final Cardinaliteit straat) {
         this.bsn = bsn;
         this.geslachtsnaam = geslachtsnaam;
         this.voornamen = voornamen;

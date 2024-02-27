@@ -40,7 +40,7 @@ public class TabelInstellingen {
     public static final int AANTAL_PER_PAGINA_MIN = 10;
 
     public static final List<Integer> PAGE_SIZE_OPTIONS = List.of(AANTAL_PER_PAGINA_MIN, AANTAL_PER_PAGINA_DEFAULT, 50,
-                                                                  AANTAL_PER_PAGINA_MAX);
+            AANTAL_PER_PAGINA_MAX);
 
 
     @Id

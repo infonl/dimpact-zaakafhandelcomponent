@@ -60,11 +60,11 @@ public class ReferentieTabelBeheerService {
     public ReferentieTabel updateReferentieTabel(final ReferentieTabel referentieTabel) {
         valideerObject(referentieTabel);
         referentieTabelService.findReferentieTabel(referentieTabel.getCode())
-                              .ifPresent(existing -> {
-                                  if (!existing.getId().equals(referentieTabel.getId())) {
-                                      throw new FoutmeldingException(String.format(UNIQUE_CONSTRAINT, referentieTabel.getCode()));
-                                  }
-                              });
+                .ifPresent(existing -> {
+                    if (!existing.getId().equals(referentieTabel.getId())) {
+                        throw new FoutmeldingException(String.format(UNIQUE_CONSTRAINT, referentieTabel.getCode()));
+                    }
+                });
         return entityManager.merge(referentieTabel);
     }
 
@@ -77,9 +77,9 @@ public class ReferentieTabelBeheerService {
         final List<HumanTaskReferentieTabel> resultList = entityManager.createQuery(query).getResultList();
         if (!resultList.isEmpty()) {
             throw new FoutmeldingException(String.format(FOREIGN_KEY_CONSTRAINT, resultList.stream()
-                                                                                           .map(HumanTaskReferentieTabel::getVeld)
-                                                                                           .distinct()
-                                                                                           .collect(Collectors.joining(", "))
+                    .map(HumanTaskReferentieTabel::getVeld)
+                    .distinct()
+                    .collect(Collectors.joining(", "))
             ));
         }
         entityManager.remove(tabel);

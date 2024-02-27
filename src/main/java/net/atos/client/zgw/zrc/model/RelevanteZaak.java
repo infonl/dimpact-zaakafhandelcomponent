@@ -30,7 +30,7 @@ public class RelevanteZaak {
      */
     @JsonbCreator
     public RelevanteZaak(@JsonbProperty("url") final URI url,
-                         @JsonbProperty("aardRelatie") final AardRelatie aardRelatie) {
+            @JsonbProperty("aardRelatie") final AardRelatie aardRelatie) {
         this.url = url;
         this.aardRelatie = aardRelatie;
     }

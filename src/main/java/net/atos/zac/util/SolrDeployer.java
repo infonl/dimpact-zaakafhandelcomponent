@@ -70,8 +70,8 @@ public class SolrDeployer {
     @Inject
     public void setSchemaUpdates(final Instance<SolrSchemaUpdate> schemaUpdates) {
         this.schemaUpdates = schemaUpdates.stream()
-                                          .sorted(Comparator.comparingInt(SolrSchemaUpdate::getVersie))
-                                          .toList();
+                .sorted(Comparator.comparingInt(SolrSchemaUpdate::getVersie))
+                .toList();
     }
 
     public void onStartup(@Observes @Initialized(ApplicationScoped.class) Object event) {
@@ -84,14 +84,14 @@ public class SolrDeployer {
                 LOG.info("Solr core '%s' is up to date. No Solr schema migration needed.".formatted(SOLR_CORE));
             } else {
                 schemaUpdates.stream()
-                             .skip(currentVersion)
-                             .forEach(this::apply);
+                        .skip(currentVersion)
+                        .forEach(this::apply);
 
                 schemaUpdates.stream()
-                             .skip(currentVersion)
-                             .flatMap(schemaUpdate -> schemaUpdate.getTeHerindexerenZoekObjectTypes().stream())
-                             .collect(Collectors.toSet())
-                             .forEach(this::startHerindexeren);
+                        .skip(currentVersion)
+                        .flatMap(schemaUpdate -> schemaUpdate.getTeHerindexerenZoekObjectTypes().stream())
+                        .collect(Collectors.toSet())
+                        .forEach(this::startHerindexeren);
 
             }
         } catch (final SolrServerException | IOException e) {
@@ -110,7 +110,7 @@ public class SolrDeployer {
                 LOG.info(() -> "Solr core is not available yet. Exception: %s".formatted(e.getMessage()));
             }
             LOG.warning("Waiting for %d seconds for Solr core '%s' to become available...".formatted(
-                                                                                                     WAIT_FOR_SOLR_SECONDS, SOLR_CORE));
+                    WAIT_FOR_SOLR_SECONDS, SOLR_CORE));
             try {
                 Thread.sleep(Duration.ofSeconds(WAIT_FOR_SOLR_SECONDS).toMillis());
             } catch (InterruptedException e) {
@@ -127,13 +127,12 @@ public class SolrDeployer {
 
     private int getCurrentVersion() throws SolrServerException, IOException {
         return new SchemaRequest.Fields().process(solrClient).getFields().stream()
-                                         .map(field -> field.get(NAME).toString())
-                                         .filter(fieldName -> fieldName.startsWith(VERSION_FIELD_PREFIX))
-                                         .findAny()
-                                         .map(versionFieldName -> Integer.valueOf(
-                                                                                  StringUtils.substringAfter(versionFieldName,
-                                                                                                             VERSION_FIELD_PREFIX)))
-                                         .orElse(0);
+                .map(field -> field.get(NAME).toString())
+                .filter(fieldName -> fieldName.startsWith(VERSION_FIELD_PREFIX))
+                .findAny()
+                .map(versionFieldName -> Integer.valueOf(
+                        StringUtils.substringAfter(versionFieldName, VERSION_FIELD_PREFIX)))
+                .orElse(0);
     }
 
     private void apply(final SolrSchemaUpdate schemaUpdate) {

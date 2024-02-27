@@ -161,7 +161,7 @@ public class ConfiguratieService {
 
     public URI informatieobjectTonenUrl(final UUID enkelvoudigInformatieobjectUUID) {
         return UriBuilder.fromUri(contextUrl).path("informatie-objecten/{enkelvoudigInformatieobjectUUID}")
-                         .build(enkelvoudigInformatieobjectUUID.toString());
+                .build(enkelvoudigInformatieobjectUUID.toString());
     }
 
     public String readGemeenteCode() {

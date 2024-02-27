@@ -45,11 +45,10 @@ public enum Status {
                 return null;
             }
             return stream(values())
-                                   .filter(status -> StringUtils.equals(status.value, json))
-                                   .findFirst()
-                                   .orElseThrow(() -> new RuntimeException(String.format("Unkown value for %s: '%s'", Status.class
-                                                                                                                                  .getSimpleName(),
-                                                                                         json)));
+                    .filter(status -> StringUtils.equals(status.value, json))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException(String.format("Unkown value for %s: '%s'", Status.class.getSimpleName(),
+                            json)));
         }
     }
 }

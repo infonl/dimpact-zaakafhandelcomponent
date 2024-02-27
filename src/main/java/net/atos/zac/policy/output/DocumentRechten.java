@@ -16,12 +16,12 @@ public record DocumentRechten(boolean lezen, boolean wijzigen, boolean verwijder
 
     @JsonbCreator
     public DocumentRechten(
-                           @JsonbProperty("lezen") final boolean lezen,
-                           @JsonbProperty("wijzigen") final boolean wijzigen,
-                           @JsonbProperty("verwijderen") final boolean verwijderen,
-                           @JsonbProperty("vergrendelen") final boolean vergrendelen,
-                           @JsonbProperty("ontgrendelen") final boolean ontgrendelen,
-                           @JsonbProperty("ondertekenen") final boolean ondertekenen) {
+            @JsonbProperty("lezen") final boolean lezen,
+            @JsonbProperty("wijzigen") final boolean wijzigen,
+            @JsonbProperty("verwijderen") final boolean verwijderen,
+            @JsonbProperty("vergrendelen") final boolean vergrendelen,
+            @JsonbProperty("ontgrendelen") final boolean ontgrendelen,
+            @JsonbProperty("ondertekenen") final boolean ondertekenen) {
         this.lezen = lezen;
         this.verwijderen = verwijderen;
         this.wijzigen = wijzigen;

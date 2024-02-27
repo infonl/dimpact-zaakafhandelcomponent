@@ -34,11 +34,11 @@ public class ObjectNummeraanduiding extends ObjectBAGObject {
      * Constructor with required attributes
      */
     public ObjectNummeraanduiding(
-                                  final String identificatie,
-                                  final int huisnummer,
-                                  final String huisletter,
-                                  final String huisnummertoevoeging, final String postcode,
-                                  final String typeAdresseerbaarObject, final String status) {
+            final String identificatie,
+            final int huisnummer,
+            final String huisletter,
+            final String huisnummertoevoeging, final String postcode,
+            final String typeAdresseerbaarObject, final String status) {
         super(identificatie);
         this.huisnummer = huisnummer;
         this.huisletter = huisletter;

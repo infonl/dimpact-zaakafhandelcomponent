@@ -19,7 +19,7 @@ public class BRPClientHeadersFactory implements ClientHeadersFactory {
 
     @Override
     public MultivaluedMap<String, String> update(final MultivaluedMap<String, String> incomingHeaders,
-                                                 final MultivaluedMap<String, String> clientOutgoingHeaders) {
+            final MultivaluedMap<String, String> clientOutgoingHeaders) {
         clientOutgoingHeaders.add(X_API_KEY, API_KEY);
         return clientOutgoingHeaders;
     }

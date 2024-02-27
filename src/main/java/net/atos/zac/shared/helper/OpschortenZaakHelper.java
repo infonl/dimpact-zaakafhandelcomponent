@@ -47,7 +47,7 @@ public class OpschortenZaakHelper {
         final StatusType statustype = status != null ?
                 ztcClientService.readStatustype(status.getStatustype()) : null;
         assertPolicy(zaak.isOpen() && !isHeropend(statustype) && !zaak.isOpgeschort() && StringUtils.isEmpty(zaak.getOpschorting()
-                                                                                                                 .getReden()));
+                .getReden()));
         final String toelichting = String.format("%s: %s", OPSCHORTING, redenOpschorting);
         LocalDate einddatumGepland = null;
         if (zaak.getEinddatumGepland() != null) {
@@ -55,9 +55,9 @@ public class OpschortenZaakHelper {
         }
         final LocalDate uiterlijkeEinddatumAfdoening = zaak.getUiterlijkeEinddatumAfdoening().plusDays(aantalDagen);
         final Zaak updatedZaak = zrcClientService.patchZaak(
-                                                            zaakUUID,
-                                                            toPatch(einddatumGepland, uiterlijkeEinddatumAfdoening, redenOpschorting, true),
-                                                            toelichting
+                zaakUUID,
+                toPatch(einddatumGepland, uiterlijkeEinddatumAfdoening, redenOpschorting, true),
+                toelichting
         );
         zaakVariabelenService.setDatumtijdOpgeschort(zaakUUID, ZonedDateTime.now());
         zaakVariabelenService.setVerwachteDagenOpgeschort(zaakUUID, Math.toIntExact(aantalDagen));
@@ -69,9 +69,9 @@ public class OpschortenZaakHelper {
         assertPolicy(zaak.isOpgeschort());
         final UUID zaakUUID = zaak.getUuid();
         final ZonedDateTime datumOpgeschort = zaakVariabelenService.findDatumtijdOpgeschort(zaak.getUuid()).orElseGet(() -> ZonedDateTime
-                                                                                                                                         .now());
+                .now());
         final int verwachteDagenOpgeschort = zaakVariabelenService.findVerwachteDagenOpgeschort(zaak.getUuid())
-                                                                  .orElse(0);
+                .orElse(0);
         final long dagenVerschil = ChronoUnit.DAYS.between(datumOpgeschort, ZonedDateTime.now());
         final long offset = dagenVerschil - verwachteDagenOpgeschort;
         LocalDate einddatumGepland = null;
@@ -82,9 +82,9 @@ public class OpschortenZaakHelper {
 
         final String toelichting = String.format("%s: %s", HERVATTING, redenHervatting);
         final Zaak updatedZaak = zrcClientService.patchZaak(
-                                                            zaakUUID,
-                                                            toPatch(einddatumGepland, uiterlijkeEinddatumAfdoening, redenHervatting, false),
-                                                            toelichting
+                zaakUUID,
+                toPatch(einddatumGepland, uiterlijkeEinddatumAfdoening, redenHervatting, false),
+                toelichting
         );
         zaakVariabelenService.removeDatumtijdOpgeschort(zaakUUID);
         zaakVariabelenService.removeVerwachteDagenOpgeschort(zaakUUID);
@@ -100,10 +100,10 @@ public class OpschortenZaakHelper {
      * @return zaak voor patch
      */
     public Zaak toPatch(
-                        final LocalDate einddatumGepland,
-                        final LocalDate uiterlijkeEinddatumAfdoening,
-                        final String reden,
-                        final boolean isOpschorting
+            final LocalDate einddatumGepland,
+            final LocalDate uiterlijkeEinddatumAfdoening,
+            final String reden,
+            final boolean isOpschorting
     ) {
         final Zaak zaak = new Zaak();
         if (einddatumGepland != null) {

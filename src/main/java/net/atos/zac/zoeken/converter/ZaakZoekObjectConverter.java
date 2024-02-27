@@ -73,7 +73,7 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
         zaakZoekObject.setEinddatumGepland(DateTimeConverterUtil.convertToDate(zaak.getEinddatumGepland()));
         zaakZoekObject.setEinddatum(DateTimeConverterUtil.convertToDate(zaak.getEinddatum()));
         zaakZoekObject.setUiterlijkeEinddatumAfdoening(
-                                                       DateTimeConverterUtil.convertToDate(zaak.getUiterlijkeEinddatumAfdoening()));
+                DateTimeConverterUtil.convertToDate(zaak.getUiterlijkeEinddatumAfdoening()));
         zaakZoekObject.setPublicatiedatum(DateTimeConverterUtil.convertToDate(zaak.getPublicatiedatum()));
         zaakZoekObject.setVertrouwelijkheidaanduiding(zaak.getVertrouwelijkheidaanduiding().toString());
         zaakZoekObject.setAfgehandeld(!zaak.isOpen());
@@ -84,8 +84,8 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
 
         if (zaak.getCommunicatiekanaal() != null) {
             vrlClientService.findCommunicatiekanaal(uuidFromURI(zaak.getCommunicatiekanaal()))
-                            .map(CommunicatieKanaal::getNaam)
-                            .ifPresent(zaakZoekObject::setCommunicatiekanaal);
+                    .map(CommunicatieKanaal::getNaam)
+                    .ifPresent(zaakZoekObject::setCommunicatiekanaal);
         }
 
         final Group groep = findGroep(zaak);
@@ -159,8 +159,7 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
     private void addBetrokkenen(final Zaak zaak, final ZaakZoekObject zaakZoekObject) {
         for (Rol<?> rol : zrcClientService.listRollen(zaak)) {
             final RolType.OmschrijvingGeneriekEnum rolTypeOmschrijvingGeneriek = RolType.OmschrijvingGeneriekEnum.valueOf(
-                                                                                                                          rol.getOmschrijvingGeneriek()
-                                                                                                                             .toUpperCase()
+                    rol.getOmschrijvingGeneriek().toUpperCase()
             );
             if (KlantenRESTService.betrokkenen.contains(rolTypeOmschrijvingGeneriek)) {
                 zaakZoekObject.addBetrokkene(rolTypeOmschrijvingGeneriek, rol.getIdentificatienummer());
@@ -170,16 +169,16 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
 
     private User findBehandelaar(final Zaak zaak) {
         return zgwApiService.findBehandelaarForZaak(zaak)
-                            .map(behandelaar -> identityService.readUser(
-                                                                         behandelaar.getBetrokkeneIdentificatie().getIdentificatie()))
-                            .orElse(null);
+                .map(behandelaar -> identityService.readUser(
+                        behandelaar.getBetrokkeneIdentificatie().getIdentificatie()))
+                .orElse(null);
     }
 
 
     private Group findGroep(final Zaak zaak) {
         return zgwApiService.findGroepForZaak(zaak)
-                            .map(groep -> identityService.readGroup(groep.getBetrokkeneIdentificatie().getIdentificatie()))
-                            .orElse(null);
+                .map(groep -> identityService.readGroup(groep.getBetrokkeneIdentificatie().getIdentificatie()))
+                .orElse(null);
     }
 
 
@@ -189,10 +188,10 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
         final Results<Zaakobject> zaakobjecten = zrcClientService.listZaakobjecten(zaakobjectListParameters);
         if (zaakobjecten.getCount() > 0) {
             return zaakobjecten.getResults()
-                               .stream()
-                               .filter(Zaakobject::isBagObject)
-                               .map(Zaakobject::getWaarde)
-                               .toList();
+                    .stream()
+                    .filter(Zaakobject::isBagObject)
+                    .map(Zaakobject::getWaarde)
+                    .toList();
         } else {
             return Collections.emptyList();
         }

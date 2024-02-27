@@ -50,5 +50,5 @@ public interface ObjecttypesClient {
     @GET
     @Path("objecttypes/{objecttype-uuid}/versions/{version}")
     ObjecttypeVersion objectversionRead(@PathParam("objecttype-uuid") final UUID objecttypeUUID,
-                                        @PathParam("version") final Integer version);
+            @PathParam("version") final Integer version);
 }

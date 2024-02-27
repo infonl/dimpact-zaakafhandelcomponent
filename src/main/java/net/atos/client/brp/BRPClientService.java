@@ -73,7 +73,7 @@ public class BRPClientService {
     public Optional<Persoon> findPersoon(final String burgerservicenummer) {
         try {
             final var response = (RaadpleegMetBurgerservicenummerResponse) personenApi.personen(
-                                                                                                createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer));
+                    createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer));
             if (!CollectionUtils.isEmpty(response.getPersonen())) {
                 return Optional.of(response.getPersonen().get(0));
             } else {
@@ -93,13 +93,12 @@ public class BRPClientService {
      */
     public CompletionStage<Optional<Persoon>> findPersoonAsync(final String burgerservicenummer) {
         return personenApi.personenAsync(createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer))
-                          .handle((response, exception) -> handleFindPersoonAsync(
-                                                                                  (RaadpleegMetBurgerservicenummerResponse) response,
-                                                                                  exception));
+                .handle((response, exception) -> handleFindPersoonAsync(
+                        (RaadpleegMetBurgerservicenummerResponse) response, exception));
     }
 
     private Optional<Persoon> handleFindPersoonAsync(final RaadpleegMetBurgerservicenummerResponse response,
-                                                     final Throwable exception) {
+            final Throwable exception) {
         if (!CollectionUtils.isEmpty(response.getPersonen())) {
             return Optional.of(response.getPersonen().get(0));
         } else {
@@ -109,7 +108,7 @@ public class BRPClientService {
     }
 
     private static RaadpleegMetBurgerservicenummer createRaadpleegMetBurgerservicenummerQuery(
-                                                                                              final String burgerservicenummer) {
+            final String burgerservicenummer) {
         final var query = new RaadpleegMetBurgerservicenummer();
         complementQuery(query);
         query.addBurgerservicenummerItem(burgerservicenummer);

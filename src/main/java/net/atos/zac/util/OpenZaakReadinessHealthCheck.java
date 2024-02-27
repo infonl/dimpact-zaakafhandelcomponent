@@ -39,10 +39,10 @@ public class OpenZaakReadinessHealthCheck implements HealthCheck {
             return HealthCheckResponse.up(OpenZaakReadinessHealthCheck.class.getName());
         } catch (final Exception exception) {
             return HealthCheckResponse.named(OpenZaakReadinessHealthCheck.class.getName())
-                                      .withData("time", LocalDateTime.now().toString())
-                                      .withData("error", exception.getMessage())
-                                      .down()
-                                      .build();
+                    .withData("time", LocalDateTime.now().toString())
+                    .withData("error", exception.getMessage())
+                    .down()
+                    .build();
         }
     }
 }

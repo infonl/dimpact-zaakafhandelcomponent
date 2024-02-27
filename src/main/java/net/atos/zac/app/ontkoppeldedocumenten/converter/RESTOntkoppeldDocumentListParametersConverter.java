@@ -15,7 +15,7 @@ public class RESTOntkoppeldDocumentListParametersConverter extends
 
     @Override
     protected void doConvert(final OntkoppeldDocumentListParameters listParameters,
-                             final RESTOntkoppeldDocumentListParameters restListParameters) {
+            final RESTOntkoppeldDocumentListParameters restListParameters) {
         listParameters.setReden(restListParameters.reden);
         listParameters.setTitel(restListParameters.titel);
 

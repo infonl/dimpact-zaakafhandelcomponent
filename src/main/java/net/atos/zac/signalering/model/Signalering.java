@@ -133,7 +133,7 @@ public class Signalering {
     private void validSubjecttype(final SignaleringSubject subjecttype) {
         if (type.getSubjecttype() != subjecttype) {
             throw new IllegalArgumentException(
-                                               String.format("SignaleringType %s expects a %s-type subject", type, type.getSubjecttype()));
+                    String.format("SignaleringType %s expects a %s-type subject", type, type.getSubjecttype()));
         }
     }
 
@@ -160,6 +160,6 @@ public class Signalering {
     @Override
     public String toString() {
         return String.format("%s-signalering voor %s %s (over %s %s)", getType(), getTargettype(), getTarget(),
-                             getSubjecttype(), getSubject());
+                getSubjecttype(), getSubject());
     }
 }

@@ -39,7 +39,7 @@ public class NatuurlijkPersoon extends Klant {
 
     @JsonbCreator
     public NatuurlijkPersoon(
-                             @JsonbProperty(value = "url", nillable = true) URI url
+            @JsonbProperty(value = "url", nillable = true) URI url
     ) {
         this.url = url;
     }

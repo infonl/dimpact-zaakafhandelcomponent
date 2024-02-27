@@ -80,7 +80,7 @@ public class SignaleringType implements Comparable<SignaleringType> {
             this.naam = naam;
             this.bericht = bericht;
             this.targets = Collections.unmodifiableSet(Arrays.stream(targets).collect(Collectors.toCollection(() -> EnumSet.noneOf(
-                                                                                                                                   SignaleringTarget.class))));
+                    SignaleringTarget.class))));
         }
 
         public String getNaam() {

@@ -193,7 +193,7 @@ public class AuditTrail {
 
     @JsonbCreator
     public AuditTrail(
-                      @JsonbProperty(value = "aanmaakdatum", nillable = true) OffsetDateTime aanmaakdatum
+            @JsonbProperty(value = "aanmaakdatum", nillable = true) OffsetDateTime aanmaakdatum
     ) {
         this.aanmaakdatum = aanmaakdatum;
     }

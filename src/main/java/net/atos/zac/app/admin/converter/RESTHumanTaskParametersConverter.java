@@ -22,27 +22,26 @@ public class RESTHumanTaskParametersConverter {
     private RESTHumanTaskReferentieTabelConverter restHumanTaskReferentieTabelConverter;
 
     public List<RESTHumanTaskParameters> convertHumanTaskParametersCollection(
-                                                                              final Collection<HumanTaskParameters> humanTaskParametersCollection,
-                                                                              final List<RESTPlanItemDefinition> humanTaskDefinitions) {
+            final Collection<HumanTaskParameters> humanTaskParametersCollection,
+            final List<RESTPlanItemDefinition> humanTaskDefinitions) {
         return humanTaskDefinitions.stream()
-                                   .map(humanTaskDefinition -> convertHumanTaskDefinition(humanTaskDefinition,
-                                                                                          humanTaskParametersCollection))
-                                   .toList();
+                .map(humanTaskDefinition -> convertHumanTaskDefinition(humanTaskDefinition,
+                        humanTaskParametersCollection))
+                .toList();
     }
 
     private RESTHumanTaskParameters convertHumanTaskDefinition(final RESTPlanItemDefinition humanTaskDefinition,
-                                                               final Collection<HumanTaskParameters> humanTaskParametersCollection) {
+            final Collection<HumanTaskParameters> humanTaskParametersCollection) {
         return humanTaskParametersCollection.stream()
-                                            .filter(humanTaskParameters -> humanTaskParameters.getPlanItemDefinitionID()
-                                                                                              .equals(humanTaskDefinition.id))
-                                            .findAny()
-                                            .map(humanTaskParameters -> convertToRESTHumanTaskParameters(humanTaskParameters,
-                                                                                                         humanTaskDefinition))
-                                            .orElseGet(() -> convertToRESTHumanTaskParameters(humanTaskDefinition));
+                .filter(humanTaskParameters -> humanTaskParameters.getPlanItemDefinitionID()
+                        .equals(humanTaskDefinition.id))
+                .findAny()
+                .map(humanTaskParameters -> convertToRESTHumanTaskParameters(humanTaskParameters, humanTaskDefinition))
+                .orElseGet(() -> convertToRESTHumanTaskParameters(humanTaskDefinition));
     }
 
     private RESTHumanTaskParameters convertToRESTHumanTaskParameters(final HumanTaskParameters humanTaskParameters,
-                                                                     final RESTPlanItemDefinition humanTaskDefinition) {
+            final RESTPlanItemDefinition humanTaskDefinition) {
         final RESTHumanTaskParameters restHumanTaskParameters = new RESTHumanTaskParameters();
         restHumanTaskParameters.id = humanTaskParameters.getId();
         restHumanTaskParameters.actief = humanTaskParameters.isActief();
@@ -51,20 +50,19 @@ public class RESTHumanTaskParametersConverter {
         restHumanTaskParameters.formulierDefinitieId = humanTaskParameters.getFormulierDefinitieID();
         restHumanTaskParameters.doorlooptijd = humanTaskParameters.getDoorlooptijd();
         restHumanTaskParameters.referentieTabellen = convertReferentieTabellen(humanTaskParameters,
-                                                                               humanTaskDefinition);
+                humanTaskDefinition);
         return restHumanTaskParameters;
     }
 
     private List<RESTHumanTaskReferentieTabel> convertReferentieTabellen(final HumanTaskParameters humanTaskParameters,
-                                                                         final RESTPlanItemDefinition humanTaskDefinition) {
+            final RESTPlanItemDefinition humanTaskDefinition) {
         final List<RESTHumanTaskReferentieTabel> referentieTabellen = restHumanTaskReferentieTabelConverter.convert(
-                                                                                                                    humanTaskParameters.getReferentieTabellen());
+                humanTaskParameters.getReferentieTabellen());
         DefaultHumanTaskFormulierKoppeling.readFormulierVeldDefinities(humanTaskDefinition.id).stream()
-                                          .filter(veldDefinitie -> referentieTabellen.stream()
-                                                                                     .noneMatch(referentieTabel -> veldDefinitie.name()
-                                                                                                                                .equals(referentieTabel.veld)))
-                                          .map(restHumanTaskReferentieTabelConverter::convertDefault)
-                                          .forEach(referentieTabellen::add);
+                .filter(veldDefinitie -> referentieTabellen.stream()
+                        .noneMatch(referentieTabel -> veldDefinitie.name().equals(referentieTabel.veld)))
+                .map(restHumanTaskReferentieTabelConverter::convertDefault)
+                .forEach(referentieTabellen::add);
         return referentieTabellen;
     }
 
@@ -73,16 +71,15 @@ public class RESTHumanTaskParametersConverter {
         restHumanTaskParameters.planItemDefinition = humanTaskDefinition;
         restHumanTaskParameters.actief = false;
         restHumanTaskParameters.formulierDefinitieId = DefaultHumanTaskFormulierKoppeling.readFormulierDefinitie(
-                                                                                                                 humanTaskDefinition.id)
-                                                                                         .name();
+                humanTaskDefinition.id).name();
         return restHumanTaskParameters;
     }
 
     public List<HumanTaskParameters> convertRESTHumanTaskParameters(
-                                                                    final List<RESTHumanTaskParameters> restHumanTaskParametersList) {
+            final List<RESTHumanTaskParameters> restHumanTaskParametersList) {
         return restHumanTaskParametersList.stream()
-                                          .map(this::convertRESTHumanTaskParameters)
-                                          .toList();
+                .map(this::convertRESTHumanTaskParameters)
+                .toList();
     }
 
     private HumanTaskParameters convertRESTHumanTaskParameters(final RESTHumanTaskParameters restHumanTaskParameters) {
@@ -94,7 +91,7 @@ public class RESTHumanTaskParametersConverter {
         humanTaskParameters.setGroepID(restHumanTaskParameters.defaultGroepId);
         humanTaskParameters.setFormulierDefinitieID(restHumanTaskParameters.formulierDefinitieId);
         humanTaskParameters.setReferentieTabellen(
-                                                  restHumanTaskReferentieTabelConverter.convert(restHumanTaskParameters.referentieTabellen));
+                restHumanTaskReferentieTabelConverter.convert(restHumanTaskParameters.referentieTabellen));
         return humanTaskParameters;
     }
 }

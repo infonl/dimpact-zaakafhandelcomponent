@@ -40,7 +40,7 @@ public class EnkelvoudigInformatieObjectLockService {
         enkelvoudigInformatieobjectLock.setEnkelvoudiginformatieobjectUUID(enkelvoudiginformatieobejctUUID);
         enkelvoudigInformatieobjectLock.setUserId(idUser);
         enkelvoudigInformatieobjectLock.setLock(
-                                                drcClientService.lockEnkelvoudigInformatieobject(enkelvoudiginformatieobejctUUID));
+                drcClientService.lockEnkelvoudigInformatieobject(enkelvoudiginformatieobejctUUID));
         entityManager.persist(enkelvoudigInformatieobjectLock);
         return enkelvoudigInformatieobjectLock;
     }
@@ -48,39 +48,37 @@ public class EnkelvoudigInformatieObjectLockService {
     public Optional<EnkelvoudigInformatieObjectLock> findLock(final UUID enkelvoudiginformatieobjectUUID) {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<EnkelvoudigInformatieObjectLock> query = builder.createQuery(
-                                                                                         EnkelvoudigInformatieObjectLock.class);
+                EnkelvoudigInformatieObjectLock.class);
         final Root<EnkelvoudigInformatieObjectLock> root = query.from(EnkelvoudigInformatieObjectLock.class);
         query.select(root)
-             .where(builder.equal(root.get("enkelvoudiginformatieobjectUUID"), enkelvoudiginformatieobjectUUID));
+                .where(builder.equal(root.get("enkelvoudiginformatieobjectUUID"), enkelvoudiginformatieobjectUUID));
         final List<EnkelvoudigInformatieObjectLock> resultList = entityManager.createQuery(query).getResultList();
         return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
     }
 
     public EnkelvoudigInformatieObjectLock readLock(final UUID enkelvoudiginformatieobjectUUID) {
         return findLock(enkelvoudiginformatieobjectUUID).orElseThrow(() -> new RuntimeException(
-                                                                                                "Lock for EnkelvoudigInformatieObject with uuid '%s' not found".formatted(
-                                                                                                                                                                          enkelvoudiginformatieobjectUUID)));
+                "Lock for EnkelvoudigInformatieObject with uuid '%s' not found".formatted(
+                        enkelvoudiginformatieobjectUUID)));
     }
 
     public void deleteLock(final UUID enkelvoudigInformatieObjectUUID) {
         findLock(enkelvoudigInformatieObjectUUID)
-                                                 .ifPresent(lock -> {
-                                                     drcClientService.unlockEnkelvoudigInformatieobject(enkelvoudigInformatieObjectUUID,
-                                                                                                        lock.getLock());
-                                                     entityManager.remove(lock);
-                                                 });
+                .ifPresent(lock -> {
+                    drcClientService.unlockEnkelvoudigInformatieobject(enkelvoudigInformatieObjectUUID, lock.getLock());
+                    entityManager.remove(lock);
+                });
     }
 
     public boolean hasLockedInformatieobjecten(final Zaak zaak) {
         final List<UUID> informatieobjectUUIDs = zrcClientService.listZaakinformatieobjecten(zaak).stream()
-                                                                 .map(zaakInformatieobject -> UriUtil.uuidFromURI(zaakInformatieobject.getInformatieobject()))
-                                                                 .toList();
+                .map(zaakInformatieobject -> UriUtil.uuidFromURI(zaakInformatieobject.getInformatieobject())).toList();
         if (CollectionUtils.isEmpty(informatieobjectUUIDs)) {
             return false;
         }
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<EnkelvoudigInformatieObjectLock> query = builder.createQuery(
-                                                                                         EnkelvoudigInformatieObjectLock.class);
+                EnkelvoudigInformatieObjectLock.class);
         final Root<EnkelvoudigInformatieObjectLock> root = query.from(EnkelvoudigInformatieObjectLock.class);
         query.select(root).where(root.get("enkelvoudiginformatieobjectUUID").in(informatieobjectUUIDs));
         final List<EnkelvoudigInformatieObjectLock> resultList = entityManager.createQuery(query).getResultList();

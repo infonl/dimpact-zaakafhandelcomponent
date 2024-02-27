@@ -35,11 +35,11 @@ public enum DefaultHumanTaskFormulierKoppeling {
 
     public static FormulierDefinitie readFormulierDefinitie(final String planItemDefinitionId) {
         return Arrays.stream(values())
-                     .filter(humanTaskFormulierKoppeling -> humanTaskFormulierKoppeling.planItemDefinitionId.equals(
-                                                                                                                    planItemDefinitionId))
-                     .map(DefaultHumanTaskFormulierKoppeling::getFormulierDefinitie)
-                     .findAny()
-                     .orElse(DefaultHumanTaskFormulierKoppeling.DEFAULT.getFormulierDefinitie());
+                .filter(humanTaskFormulierKoppeling -> humanTaskFormulierKoppeling.planItemDefinitionId.equals(
+                        planItemDefinitionId))
+                .map(DefaultHumanTaskFormulierKoppeling::getFormulierDefinitie)
+                .findAny()
+                .orElse(DefaultHumanTaskFormulierKoppeling.DEFAULT.getFormulierDefinitie());
     }
 
     public static Set<FormulierVeldDefinitie> readFormulierVeldDefinities(final String planItemDefinitionId) {

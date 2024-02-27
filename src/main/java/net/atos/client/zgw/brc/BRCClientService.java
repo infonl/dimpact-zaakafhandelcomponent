@@ -67,7 +67,7 @@ public class BRCClientService {
     }
 
     public BesluitInformatieObject createBesluitInformatieobject(final BesluitInformatieObject besluitInformatieobject,
-                                                                 final String toelichting) {
+            final String toelichting) {
         zgwClientHeadersFactory.setAuditToelichting(toelichting);
         return brcClient.besluitinformatieobjectCreate(besluitInformatieobject);
     }
@@ -81,7 +81,8 @@ public class BRCClientService {
     }
 
     public boolean isInformatieObjectGekoppeldAanBesluit(final URI informatieobject) {
-        final List<BesluitInformatieObject> besluitInformatieobjecten = brcClient.listBesluitInformatieobjectenByInformatieObject(informatieobject);
+        final List<BesluitInformatieObject> besluitInformatieobjecten = brcClient.listBesluitInformatieobjectenByInformatieObject(
+                informatieobject);
         return !besluitInformatieobjecten.isEmpty();
     }
 }

@@ -26,7 +26,7 @@ public class RESTResultaattypeConverter {
 
     public RESTResultaattype convertResultaattype(final ResultaatType resultaattype) {
         final BrondatumArchiefprocedure.AfleidingswijzeEnum afleidingswijze = resultaattype.getBrondatumArchiefprocedure()
-                                                                                           .getAfleidingswijze();
+                .getAfleidingswijze();
         final RESTResultaattype restResultaattype = new RESTResultaattype();
         restResultaattype.id = UriUtil.uuidFromURI(resultaattype.getUrl());
         restResultaattype.naam = resultaattype.getOmschrijving();
@@ -48,8 +48,8 @@ public class RESTResultaattypeConverter {
 
     public List<RESTResultaattype> convertResultaattypes(final List<ResultaatType> resultaattypes) {
         return resultaattypes.stream()
-                             .map(this::convertResultaattype)
-                             .toList();
+                .map(this::convertResultaattype)
+                .toList();
     }
 
 }

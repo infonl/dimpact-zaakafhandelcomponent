@@ -41,29 +41,20 @@ public enum FilterVeld {
     DOCUMENT_INDICATIES("informatieobject_indicaties");
 
     public static final Set<FilterVeld> ZAAK_FACETTEN = Collections.unmodifiableSet(
-                                                                                    EnumSet.of(ZAAKTYPE, ZAAK_STATUS, BEHANDELAAR, GROEP,
-                                                                                               ZAAK_RESULTAAT,
-                                                                                               ZAAK_VERTROUWELIJKHEIDAANDUIDING,
-                                                                                               ZAAK_COMMUNICATIEKANAAL,
-                                                                                               ZAAK_ARCHIEF_NOMINATIE, ZAAK_INDICATIES));
+            EnumSet.of(ZAAKTYPE, ZAAK_STATUS, BEHANDELAAR, GROEP, ZAAK_RESULTAAT, ZAAK_VERTROUWELIJKHEIDAANDUIDING, ZAAK_COMMUNICATIEKANAAL,
+                    ZAAK_ARCHIEF_NOMINATIE, ZAAK_INDICATIES));
 
     public static final Set<FilterVeld> DOCUMENT_FACETTEN = Collections.unmodifiableSet(
-                                                                                        EnumSet.of(DOCUMENT_STATUS, DOCUMENT_TYPE,
-                                                                                                   DOCUMENT_VERGRENDELD_DOOR, ZAAKTYPE,
-                                                                                                   DOCUMENT_INDICATIES));
+            EnumSet.of(DOCUMENT_STATUS, DOCUMENT_TYPE, DOCUMENT_VERGRENDELD_DOOR, ZAAKTYPE, DOCUMENT_INDICATIES));
 
     public static final Set<FilterVeld> TAAK_FACETTEN = Collections.unmodifiableSet(
-                                                                                    EnumSet.of(TAAK_NAAM, TAAK_STATUS, GROEP, BEHANDELAAR,
-                                                                                               ZAAKTYPE));
+            EnumSet.of(TAAK_NAAM, TAAK_STATUS, GROEP, BEHANDELAAR, ZAAKTYPE));
 
     public static final Set<FilterVeld> FACETTEN = Collections.unmodifiableSet(
-                                                                               EnumSet.of(TYPE, ZAAKTYPE, TOEGEKEND, BEHANDELAAR, GROEP,
-                                                                                          ZAAK_STATUS, ZAAK_INDICATIES, ZAAK_RESULTAAT,
-                                                                                          ZAAK_VERTROUWELIJKHEIDAANDUIDING,
-                                                                                          ZAAK_COMMUNICATIEKANAAL, ZAAK_ARCHIEF_NOMINATIE,
-                                                                                          TAAK_NAAM, TAAK_STATUS, DOCUMENT_STATUS,
-                                                                                          DOCUMENT_INDICATIES, DOCUMENT_TYPE,
-                                                                                          DOCUMENT_VERGRENDELD_DOOR));
+            EnumSet.of(TYPE, ZAAKTYPE, TOEGEKEND, BEHANDELAAR, GROEP, ZAAK_STATUS, ZAAK_INDICATIES, ZAAK_RESULTAAT,
+                    ZAAK_VERTROUWELIJKHEIDAANDUIDING, ZAAK_COMMUNICATIEKANAAL, ZAAK_ARCHIEF_NOMINATIE,
+                    TAAK_NAAM, TAAK_STATUS, DOCUMENT_STATUS, DOCUMENT_INDICATIES, DOCUMENT_TYPE,
+                    DOCUMENT_VERGRENDELD_DOOR));
 
     private final String veld;
 
@@ -77,9 +68,9 @@ public enum FilterVeld {
 
     public static FilterVeld fromValue(final String veld) {
         return Stream.of(FilterVeld.values())
-                     .filter(filter -> String.valueOf(filter.veld).equals(veld))
-                     .findFirst()
-                     .orElseThrow(() -> new IllegalArgumentException(String.format("Onbekend Filterveld '%s'", veld)));
+                .filter(filter -> String.valueOf(filter.veld).equals(veld))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(String.format("Onbekend Filterveld '%s'", veld)));
     }
 
     public static Set<FilterVeld> getFacetten() {

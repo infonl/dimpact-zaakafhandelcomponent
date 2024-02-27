@@ -67,16 +67,15 @@ public class RESTZaakOverzichtConverter {
             restZaakOverzicht.resultaat = zaakResultaatConverter.convert(zaak.getResultaat());
             if (zaak.getStatus() != null) {
                 restZaakOverzicht.status = ztcClientService.readStatustype(
-                                                                           zrcClientService.readStatus(zaak.getStatus()).getStatustype())
-                                                           .getOmschrijving();
+                        zrcClientService.readStatus(zaak.getStatus()).getStatustype()).getOmschrijving();
             }
             zgwApiService.findBehandelaarForZaak(zaak)
-                         .map(behandelaar -> userConverter.convertUserId(
-                                                                         behandelaar.getBetrokkeneIdentificatie().getIdentificatie()))
-                         .ifPresent(behandelaar -> restZaakOverzicht.behandelaar = behandelaar);
+                    .map(behandelaar -> userConverter.convertUserId(
+                            behandelaar.getBetrokkeneIdentificatie().getIdentificatie()))
+                    .ifPresent(behandelaar -> restZaakOverzicht.behandelaar = behandelaar);
             zgwApiService.findGroepForZaak(zaak)
-                         .map(groep -> groupConverter.convertGroupId(groep.getBetrokkeneIdentificatie().getIdentificatie()))
-                         .ifPresent(groep -> restZaakOverzicht.groep = groep);
+                    .map(groep -> groupConverter.convertGroupId(groep.getBetrokkeneIdentificatie().getIdentificatie()))
+                    .ifPresent(groep -> restZaakOverzicht.groep = groep);
         }
         return restZaakOverzicht;
     }

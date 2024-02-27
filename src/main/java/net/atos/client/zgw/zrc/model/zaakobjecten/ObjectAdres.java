@@ -59,8 +59,8 @@ public class ObjectAdres extends ObjectBAGObject {
      * Constructor with required attributes
      */
     public ObjectAdres(final String identificatie, final String wplWoonplaatsNaam, final String gorOpenbareRuimteNaam, final int huisnummer,
-                       final String huisletter, final String huisnummertoevoeging,
-                       final String postcode) {
+            final String huisletter, final String huisnummertoevoeging,
+            final String postcode) {
         super(identificatie);
         this.wplWoonplaatsNaam = wplWoonplaatsNaam;
         this.gorOpenbareRuimteNaam = gorOpenbareRuimteNaam;

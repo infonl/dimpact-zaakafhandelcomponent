@@ -46,17 +46,17 @@ public class RESTHistorieRegel {
     }
 
     public RESTHistorieRegel(
-                             final String attribuutLabel,
-                             final EnkelvoudigInformatieObject.StatusEnum oudeWaarde,
-                             final EnkelvoudigInformatieObject.StatusEnum nieuweWaarde
+            final String attribuutLabel,
+            final EnkelvoudigInformatieObject.StatusEnum oudeWaarde,
+            final EnkelvoudigInformatieObject.StatusEnum nieuweWaarde
     ) {
         this(attribuutLabel, HistorieUtil.toWaarde(oudeWaarde), HistorieUtil.toWaarde(nieuweWaarde));
     }
 
     public RESTHistorieRegel(
-                             final String attribuutLabel,
-                             final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum oudeWaarde,
-                             final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum nieuweWaarde
+            final String attribuutLabel,
+            final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum oudeWaarde,
+            final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum nieuweWaarde
     ) {
         this(attribuutLabel, HistorieUtil.toWaarde(oudeWaarde), HistorieUtil.toWaarde(nieuweWaarde));
     }
