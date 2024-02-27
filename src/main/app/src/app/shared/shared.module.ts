@@ -48,6 +48,7 @@ import { ZaakIndicatiesComponent } from "./indicaties/zaak-indicaties/zaak-indic
 import { VersionComponent } from "./version/version.component";
 import { SortPipe } from "./dynamic-table/pipes/sort.pipe";
 import { BesluitIndicatiesComponent } from "./indicaties/besluit-indicaties/besluit-indicaties.component";
+import { ZacNarrowMatCheckboxDirective } from "./material/narrow-checkbox.directive";
 
 @NgModule({
   declarations: [
@@ -83,6 +84,7 @@ import { BesluitIndicatiesComponent } from "./indicaties/besluit-indicaties/besl
     ZaakIndicatiesComponent,
     VersionComponent,
     SortPipe,
+    ZacNarrowMatCheckboxDirective,
   ],
   imports: [
     FormsModule,
@@ -131,6 +133,7 @@ import { BesluitIndicatiesComponent } from "./indicaties/besluit-indicaties/besl
     ZaakIndicatiesComponent,
     VersionComponent,
     SortPipe,
+    ZacNarrowMatCheckboxDirective,
   ],
   providers: [
     Title,
