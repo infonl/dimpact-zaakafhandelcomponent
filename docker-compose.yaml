@@ -110,7 +110,6 @@ services:
     volumes:
       - ./scripts/docker-compose/imports/openzaak/zac-scripts:/zac-scripts
       - ./scripts/docker-compose/imports/openzaak/uploads/dummy-test-document.pdf:/dummy-test-document.pdf
-      - ./scripts/docker-compose/volume-data/openzaak-private-media:/app/private-media
     command: ["/zac-scripts/copy-test-pdf-and-start-openzaak.sh"]
     depends_on:
       openzaak-database:
