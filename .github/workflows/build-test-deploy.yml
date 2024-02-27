@@ -159,7 +159,10 @@ jobs:
         uses: jlumbroso/free-disk-space@v1.3.1
         with:
           tool-cache: true
+          # do not clean up Docker images since we need them
           docker-images: false
+          # disable cleaning up large packages since this takes a long time
+          large-packages: false
 
       - uses: actions/checkout@v4
 

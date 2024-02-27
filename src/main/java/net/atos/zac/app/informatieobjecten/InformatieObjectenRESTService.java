@@ -103,7 +103,6 @@ import net.atos.zac.webdav.WebdavHelper;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class InformatieObjectenRESTService {
-
     private static final String MEDIA_TYPE_PDF = "application/pdf";
 
     private static final String TOELICHTING_PDF = "Geconverteerd naar PDF";
@@ -290,6 +289,7 @@ public class InformatieObjectenRESTService {
         assertPolicy(policyService.readZaakRechten(zaak).wijzigen());
 
         final RESTFileUpload file = (RESTFileUpload) httpSession.get().getAttribute("FILE_" + documentReferentieId);
+
         try {
             final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData = taakObject ?
                     informatieobjectConverter.convertTaakObject(restEnkelvoudigInformatieobject, file) :
@@ -379,9 +379,9 @@ public class InformatieObjectenRESTService {
             @PathParam("documentReferentieId") final String documentReferentieId,
             @MultipartForm final RESTFileUpload data
     ) {
-        // note that there is no guarantee that the file will be removed from the session afterwards
+        // note that there is no guarantee that the file will be removed from the session
         // since the user may abandon the upload process
-        // this should to be improved at some point
+        // this should be improved at some point
         httpSession.get().setAttribute("FILE_" + documentReferentieId, data);
         return Response.ok("\"Success\"").build();
     }

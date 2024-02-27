@@ -242,6 +242,7 @@ public class RESTInformatieobjectConverter {
         enkelvoudigInformatieobjectWithInhoud.setFormaat(bestand.type);
         enkelvoudigInformatieobjectWithInhoud.setBestandsnaam(bestand.filename);
         enkelvoudigInformatieobjectWithInhoud.setStatus(EnkelvoudigInformatieObjectData.StatusEnum.DEFINITIEF);
+        // TODO: check upper case?
         enkelvoudigInformatieobjectWithInhoud.setVertrouwelijkheidaanduiding(
                 EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.valueOf(
                         documentData.documentType.vertrouwelijkheidaanduiding)
