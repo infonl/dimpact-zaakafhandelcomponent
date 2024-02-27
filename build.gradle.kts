@@ -156,6 +156,8 @@ dependencies {
     "itestImplementation"("org.slf4j:slf4j-simple:2.0.12")
     "itestImplementation"("io.github.oshai:kotlin-logging-jvm:6.0.3")
     "itestImplementation"("org.danilopianini:khttp:1.5.0")
+    "itestImplementation"("com.squareup.okhttp3:okhttp:4.12.0")
+    "itestImplementation"("com.squareup.okhttp3:okhttp-urlconnection:4.12.0")
     "itestImplementation"("org.awaitility:awaitility-kotlin:4.2.0")
     "itestImplementation"("org.mock-server:mockserver-client-java:5.15.0")
 }
