@@ -167,7 +167,8 @@ When('{string} clicks on Create Document for zaak', { timeout: ONE_MINUTE_IN_MS 
 });
 
 Then('{string} closes the SmartDocuments tab', { timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld, user) {
-    await this.page.close();
+    const allPages = this.page.context().pages();
+    await allPages[1].close();
 });
 
 Then("Employee {string} clicks on the first zaak in the zaak-werkvoorraad with delay", { timeout: ONE_MINUTE_IN_MS + 30000 }, async function (this: CustomWorld, user) {
@@ -193,8 +194,8 @@ Then("Employee {string} sees the zaak that {string} created in open-forms", { ti
     const filePath = 'ExportData/' + suggestedFileName;
     await download.saveAs(filePath);
 
-    var pdf = require('pdf-parse');
-    var dataBuffer = fs.readFileSync('./ExportData/' + suggestedFileName);
+    const pdf = require('pdf-parse');
+    const dataBuffer = fs.readFileSync('./ExportData/' + suggestedFileName);
     await pdf(dataBuffer).then(function(data: any) {
         fs.writeFileSync('./ExportData/actual.txt', data.text);
     });
