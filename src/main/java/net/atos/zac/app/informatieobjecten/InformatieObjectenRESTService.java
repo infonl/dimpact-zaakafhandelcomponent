@@ -20,7 +20,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.inject.Instance;
@@ -104,8 +103,6 @@ import net.atos.zac.webdav.WebdavHelper;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class InformatieObjectenRESTService {
-    private static final Logger LOG = Logger.getLogger(InformatieObjectenRESTService.class.getName());
-
     private static final String MEDIA_TYPE_PDF = "application/pdf";
 
     private static final String TOELICHTING_PDF = "Geconverteerd naar PDF";
