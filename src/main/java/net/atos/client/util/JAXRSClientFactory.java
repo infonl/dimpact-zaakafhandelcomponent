@@ -8,6 +8,7 @@ package net.atos.client.util;
 import java.security.NoSuchAlgorithmException;
 
 import javax.net.ssl.SSLContext;
+
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 

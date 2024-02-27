@@ -84,7 +84,8 @@ public enum SubscriptionType {
     }
 
     /**
-     * Message which, depending on the subscriptionType, indicates to which event the client wishes to subscribe, or which event the client no longer wishes to receive.
+     * Message which, depending on the subscriptionType, indicates to which event the client wishes to subscribe, or which event the client
+     * no longer wishes to receive.
      * <p>
      * No public constructor, use the factory methods!
      */

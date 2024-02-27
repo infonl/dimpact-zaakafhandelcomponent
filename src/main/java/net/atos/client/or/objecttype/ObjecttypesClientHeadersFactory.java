@@ -20,8 +20,10 @@ public class ObjecttypesClientHeadersFactory implements ClientHeadersFactory {
     private static final String TOKEN = ConfigProvider.getConfig().getValue("objecttypes.api.token", String.class);
 
     @Override
-    public MultivaluedMap<String, String> update(final MultivaluedMap<String, String> incomingHeaders,
-            final MultivaluedMap<String, String> clientOutgoingHeaders) {
+    public MultivaluedMap<String, String> update(
+            final MultivaluedMap<String, String> incomingHeaders,
+            final MultivaluedMap<String, String> clientOutgoingHeaders
+    ) {
         clientOutgoingHeaders.add(AUTHORIZATION, generateToken());
         return clientOutgoingHeaders;
     }

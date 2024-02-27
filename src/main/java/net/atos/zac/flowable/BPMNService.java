@@ -43,19 +43,18 @@ public class BPMNService {
 
     public InputStream getProcessDiagram(final UUID zaakUUID) {
         final var processInstance = findProcessInstance(zaakUUID);
-        final var processDefinition =
-                repositoryService.getProcessDefinition(processInstance.getProcessDefinitionId());
+        final var processDefinition = repositoryService.getProcessDefinition(processInstance.getProcessDefinitionId());
         final var bpmnModel = repositoryService.getBpmnModel(processDefinition.getId());
         final var processEngineConfiguration = processEngine.getProcessEngineConfiguration();
         return processEngineConfiguration.getProcessDiagramGenerator()
                 .generateDiagram(bpmnModel, "gif",
-                                 runtimeService.getActiveActivityIds(processInstance.getId()),
-                                 Collections.emptyList(),
-                                 processEngineConfiguration.getActivityFontName(),
-                                 processEngineConfiguration.getLabelFontName(),
-                                 processEngineConfiguration.getAnnotationFontName(),
-                                 processEngineConfiguration.getClassLoader(), 1.0,
-                                 processEngineConfiguration.isDrawSequenceFlowNameWithNoLabelDI());
+                        runtimeService.getActiveActivityIds(processInstance.getId()),
+                        Collections.emptyList(),
+                        processEngineConfiguration.getActivityFontName(),
+                        processEngineConfiguration.getLabelFontName(),
+                        processEngineConfiguration.getAnnotationFontName(),
+                        processEngineConfiguration.getClassLoader(), 1.0,
+                        processEngineConfiguration.isDrawSequenceFlowNameWithNoLabelDI());
     }
 
     public boolean isProcesGestuurd(final UUID zaakUUID) {
@@ -75,9 +74,12 @@ public class BPMNService {
         }
     }
 
-    public void startProcess(final Zaak zaak, final ZaakType zaaktype,
+    public void startProcess(
+            final Zaak zaak,
+            final ZaakType zaaktype,
             final Map<String, Object> zaakData,
-            final String processDefinitionKey) {
+            final String processDefinitionKey
+    ) {
         try {
             runtimeService.createProcessInstanceBuilder()
                     .processDefinitionKey(processDefinitionKey)
@@ -91,7 +93,7 @@ public class BPMNService {
             LOG.info("Zaak %s gestart met BPMN model '%s'".formatted(zaak.getUuid(), processDefinitionKey));
         } catch (final FlowableObjectNotFoundException flowableObjectNotFoundException) {
             LOG.severe("Zaak %s niet gestart omdat BPMN model '%s' niet bestaat"
-                               .formatted(zaak.getUuid(), processDefinitionKey));
+                    .formatted(zaak.getUuid(), processDefinitionKey));
         }
     }
 

@@ -101,7 +101,7 @@ public class KlantenRESTService {
     public RESTPersoon readPersoon(@PathParam("bsn") final String bsn) throws ExecutionException, InterruptedException {
         return brpClientService.findPersoonAsync(bsn)
                 .thenCombine(klantenClientService.findPersoonAsync(bsn),
-                             this::convertToRESTPersoon)
+                        this::convertToRESTPersoon)
                 .toCompletableFuture()
                 .get();
     }
@@ -124,10 +124,11 @@ public class KlantenRESTService {
     @GET
     @Path("vestiging/{vestigingsnummer}")
     public RESTBedrijf readVestiging(@PathParam("vestigingsnummer") final String vestigingsnummer)
-            throws ExecutionException, InterruptedException {
+                                                                                                   throws ExecutionException,
+                                                                                                   InterruptedException {
         return kvkClientService.findVestigingAsync(vestigingsnummer)
                 .thenCombine(klantenClientService.findVestigingAsync(vestigingsnummer),
-                             this::convertToRESTBedrijf)
+                        this::convertToRESTBedrijf)
                 .toCompletableFuture()
                 .get();
     }
@@ -139,7 +140,8 @@ public class KlantenRESTService {
         if (vestiging.isPresent()) {
             return vestigingsprofielConverter.convert(vestiging.get());
         }
-        throw new NotFoundException("Geen vestigingsprofiel gevonden voor vestiging met vestigingsnummer \"%s\"".formatted(vestigingsnummer));
+        throw new NotFoundException("Geen vestigingsprofiel gevonden voor vestiging met vestigingsnummer \"%s\"".formatted(
+                vestigingsnummer));
     }
 
     private RESTBedrijf convertToRESTBedrijf(final Optional<ResultaatItem> vestiging, final Optional<Klant> klant) {
@@ -177,9 +179,9 @@ public class KlantenRESTService {
         final KVKZoekenParameters zoekenParameters = bedrijfConverter.convert(restParameters);
         final Resultaat resultaat = kvkClientService.list(zoekenParameters);
         return new RESTResultaat<>(resultaat.getResultaten().stream()
-                                           .filter(KlantenRESTService::isKoppelbaar)
-                                           .map(bedrijfConverter::convert)
-                                           .toList());
+                .filter(KlantenRESTService::isKoppelbaar)
+                .map(bedrijfConverter::convert)
+                .toList());
     }
 
     private static boolean isKoppelbaar(final ResultaatItem item) {
@@ -193,7 +195,7 @@ public class KlantenRESTService {
                 ztcClientService.listRoltypen(ztcClientService.readZaaktype(zaaktype).getUrl())
                         .stream()
                         .filter(roltype -> betrokkenen.contains(roltype.getOmschrijvingGeneriek())
-                    ).sorted(Comparator.comparing(RolType::getOmschrijving))
+                        ).sorted(Comparator.comparing(RolType::getOmschrijving))
         );
     }
 
@@ -201,7 +203,8 @@ public class KlantenRESTService {
     @Path("contactgegevens/{identificatieType}/{initiatorIdentificatie}")
     public RESTContactGegevens ophalenContactGegevens(
             @PathParam("identificatieType") final IdentificatieType identificatieType,
-            @PathParam("initiatorIdentificatie") final String initiatorIdentificatie) {
+            @PathParam("initiatorIdentificatie") final String initiatorIdentificatie
+    ) {
         final RESTContactGegevens restContactGegevens = new RESTContactGegevens();
         if (identificatieType == null) {
             return restContactGegevens;

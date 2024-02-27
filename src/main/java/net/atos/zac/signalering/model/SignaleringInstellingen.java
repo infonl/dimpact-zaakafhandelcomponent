@@ -32,8 +32,7 @@ public class SignaleringInstellingen {
     @Column(name = "id_signalering_instellingen")
     private Long id;
 
-    @NotNull
-    @ManyToOne
+    @NotNull @ManyToOne
     @JoinColumn(name = "signaleringtype_enum", referencedColumnName = "signaleringtype_enum", nullable = false)
     private SignaleringType type;
 

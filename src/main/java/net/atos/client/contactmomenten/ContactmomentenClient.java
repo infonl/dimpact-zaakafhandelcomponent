@@ -52,7 +52,8 @@ public interface ContactmomentenClient {
     @Path("/{contactmoment_uuid}/audittrail")
     @Produces({"application/json", "application/problem+json"})
     public List<AuditTrail> audittrailList(
-            @PathParam("contactmoment_uuid") UUID contactmomentUuid) throws ProcessingException;
+            @PathParam("contactmoment_uuid") UUID contactmomentUuid
+    ) throws ProcessingException;
 
     /**
      * Een specifieke audit trail regel opvragen.
@@ -60,9 +61,11 @@ public interface ContactmomentenClient {
     @GET
     @Path("/{contactmoment_uuid}/audittrail/{uuid}")
     @Produces({"application/json", "application/problem+json"})
-    public AuditTrail audittrailRead(@PathParam("contactmoment_uuid") UUID contactmomentUuid,
+    public AuditTrail audittrailRead(
+            @PathParam("contactmoment_uuid") UUID contactmomentUuid,
             @PathParam("uuid") UUID uuid,
-            @HeaderParam("If-None-Match") String ifNoneMatch) throws ProcessingException;
+            @HeaderParam("If-None-Match") String ifNoneMatch
+    ) throws ProcessingException;
 
     /**
      * Maak een CONTACTMOMENT aan.
@@ -70,9 +73,12 @@ public interface ContactmomentenClient {
     @POST
     @Consumes({"application/json"})
     @Produces({"application/json", "application/problem+json"})
-    public ContactMoment contactmomentCreate(@HeaderParam("Content-Type") String contentType,
-            ContactMoment contactMoment, @HeaderParam("X-NLX-Logrecord-ID") String xNLXLogrecordID,
-            @HeaderParam("X-Audit-Toelichting") String xAuditToelichting) throws ProcessingException;
+    public ContactMoment contactmomentCreate(
+            @HeaderParam("Content-Type") String contentType,
+            ContactMoment contactMoment,
+            @HeaderParam("X-NLX-Logrecord-ID") String xNLXLogrecordID,
+            @HeaderParam("X-Audit-Toelichting") String xAuditToelichting
+    ) throws ProcessingException;
 
     /**
      * Verwijder een CONTACTMOMENT.
@@ -80,27 +86,34 @@ public interface ContactmomentenClient {
     @DELETE
     @Path("/{uuid}")
     @Produces({"application/problem+json"})
-    public void contactmomentDelete(@PathParam("uuid") UUID uuid,
+    public void contactmomentDelete(
+            @PathParam("uuid") UUID uuid,
             @HeaderParam("X-NLX-Logrecord-ID") String xNLXLogrecordID,
-            @HeaderParam("X-Audit-Toelichting") String xAuditToelichting) throws ProcessingException;
+            @HeaderParam("X-Audit-Toelichting") String xAuditToelichting
+    ) throws ProcessingException;
 
     /**
      * Alle CONTACTMOMENTen opvragen.
      */
     @GET
     @Produces({"application/json", "application/problem+json"})
-    public ContactmomentList200Response contactmomentList(@QueryParam("vorigContactmoment") URI vorigContactmoment,
+    public ContactmomentList200Response contactmomentList(
+            @QueryParam("vorigContactmoment") URI vorigContactmoment,
             @QueryParam("volgendContactmoment") URI volgendContactmoment,
             @QueryParam("bronorganisatie") String bronorganisatie,
             @QueryParam("registratiedatum") String registratiedatum,
             @QueryParam("registratiedatum__gt") String registratiedatumGt,
             @QueryParam("registratiedatum__gte") String registratiedatumGte,
             @QueryParam("registratiedatum__lt") String registratiedatumLt,
-            @QueryParam("registratiedatum__lte") String registratiedatumLte, @QueryParam("kanaal") String kanaal,
-            @QueryParam("voorkeurskanaal") String voorkeurskanaal, @QueryParam("voorkeurstaal") String voorkeurstaal,
-            @QueryParam("initiatiefnemer") String initiatiefnemer, @QueryParam("medewerker") URI medewerker,
+            @QueryParam("registratiedatum__lte") String registratiedatumLte,
+            @QueryParam("kanaal") String kanaal,
+            @QueryParam("voorkeurskanaal") String voorkeurskanaal,
+            @QueryParam("voorkeurstaal") String voorkeurstaal,
+            @QueryParam("initiatiefnemer") String initiatiefnemer,
+            @QueryParam("medewerker") URI medewerker,
             @QueryParam("ordering") String ordering,
-            @QueryParam("page") Integer page) throws ProcessingException;
+            @QueryParam("page") Integer page
+    ) throws ProcessingException;
 
     /**
      * Werk een CONTACTMOMENT deels bij.
@@ -109,10 +122,13 @@ public interface ContactmomentenClient {
     @Path("/{uuid}")
     @Consumes({"application/json"})
     @Produces({"application/json", "application/problem+json"})
-    public ContactMoment contactmomentPartialUpdate(@PathParam("uuid") UUID uuid,
-            @HeaderParam("Content-Type") String contentType, ContactMoment contactMoment,
+    public ContactMoment contactmomentPartialUpdate(
+            @PathParam("uuid") UUID uuid,
+            @HeaderParam("Content-Type") String contentType,
+            ContactMoment contactMoment,
             @HeaderParam("X-NLX-Logrecord-ID") String xNLXLogrecordID,
-            @HeaderParam("X-Audit-Toelichting") String xAuditToelichting) throws ProcessingException;
+            @HeaderParam("X-Audit-Toelichting") String xAuditToelichting
+    ) throws ProcessingException;
 
     /**
      * Een specifiek CONTACTMOMENT opvragen.
@@ -120,8 +136,10 @@ public interface ContactmomentenClient {
     @GET
     @Path("/{uuid}")
     @Produces({"application/json", "application/problem+json"})
-    public ContactMoment contactmomentRead(@PathParam("uuid") UUID uuid,
-            @HeaderParam("If-None-Match") String ifNoneMatch) throws ProcessingException;
+    public ContactMoment contactmomentRead(
+            @PathParam("uuid") UUID uuid,
+            @HeaderParam("If-None-Match") String ifNoneMatch
+    ) throws ProcessingException;
 
     /**
      * Werk een CONTACTMOMENT in zijn geheel bij.
@@ -130,8 +148,11 @@ public interface ContactmomentenClient {
     @Path("/{uuid}")
     @Consumes({"application/json"})
     @Produces({"application/json", "application/problem+json"})
-    public ContactMoment contactmomentUpdate(@PathParam("uuid") UUID uuid,
-            @HeaderParam("Content-Type") String contentType, ContactMoment contactMoment,
+    public ContactMoment contactmomentUpdate(
+            @PathParam("uuid") UUID uuid,
+            @HeaderParam("Content-Type") String contentType,
+            ContactMoment contactMoment,
             @HeaderParam("X-NLX-Logrecord-ID") String xNLXLogrecordID,
-            @HeaderParam("X-Audit-Toelichting") String xAuditToelichting) throws ProcessingException;
+            @HeaderParam("X-Audit-Toelichting") String xAuditToelichting
+    ) throws ProcessingException;
 }

@@ -48,7 +48,8 @@ public class IdentityService {
 
     private static final String USER_MAIL_ATTRIBUTE = "mail";
 
-    private static final String[] USER_ATTRIBUTES = {USER_ID_ATTRIBUTE, USER_FIRST_NAME_ATTRIBUTE, USER_LAST_NAME_ATTRIBUTE, USER_MAIL_ATTRIBUTE};
+    private static final String[] USER_ATTRIBUTES = {USER_ID_ATTRIBUTE, USER_FIRST_NAME_ATTRIBUTE, USER_LAST_NAME_ATTRIBUTE,
+                                                     USER_MAIL_ATTRIBUTE};
 
     private static final String GROUP_ID_ATTRIBUTE = "cn";
 
@@ -171,15 +172,15 @@ public class IdentityService {
 
     private User convertToUser(final Attributes attributes) {
         return new User(readAttributeToString(attributes, USER_ID_ATTRIBUTE),
-                        readAttributeToString(attributes, USER_FIRST_NAME_ATTRIBUTE),
-                        readAttributeToString(attributes, USER_LAST_NAME_ATTRIBUTE),
-                        readAttributeToString(attributes, USER_MAIL_ATTRIBUTE));
+                readAttributeToString(attributes, USER_FIRST_NAME_ATTRIBUTE),
+                readAttributeToString(attributes, USER_LAST_NAME_ATTRIBUTE),
+                readAttributeToString(attributes, USER_MAIL_ATTRIBUTE));
     }
 
     private Group convertToGroup(final Attributes attributes) {
         return new Group(readAttributeToString(attributes, GROUP_ID_ATTRIBUTE),
-                         readAttributeToString(attributes, GROUP_NAME_ATTRIBUTE),
-                         readAttributeToString(attributes, GROUP_MAIL_ATTRIBUTE));
+                readAttributeToString(attributes, GROUP_NAME_ATTRIBUTE),
+                readAttributeToString(attributes, GROUP_MAIL_ATTRIBUTE));
     }
 
     private List<String> convertToMembers(final Attributes attributes) {
@@ -189,14 +190,16 @@ public class IdentityService {
                 .toList();
     }
 
-    private List<Attributes> search(final String root, final Filter filter,
-            final String[] attributesToReturn) {
+    private List<Attributes> search(
+            final String root,
+            final Filter filter,
+            final String[] attributesToReturn
+    ) {
         final SearchControls searchControls = new SearchControls();
         searchControls.setReturningAttributes(attributesToReturn);
         searchControls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
         try {
-            final DirContext dirContext =
-                    new InitialDirContext(new Hashtable<>(environment));
+            final DirContext dirContext = new InitialDirContext(new Hashtable<>(environment));
             final NamingEnumeration<SearchResult> namingEnumeration = dirContext.search(
                     root,
                     filter.toString(),

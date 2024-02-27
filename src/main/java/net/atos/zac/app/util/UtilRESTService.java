@@ -31,8 +31,8 @@ public class UtilRESTService {
     @GET
     public String index() {
         return body(h(1, "Util") +
-                            links(Stream.of("cache", "cache/ztc")) +
-                            links(Stream.of("cache/clear", "cache/ztc/clear")));
+                    links(Stream.of("cache", "cache/ztc")) +
+                    links(Stream.of("cache/clear", "cache/ztc/clear")));
     }
 
     private String links(final Stream<String> url) {
@@ -69,13 +69,13 @@ public class UtilRESTService {
 
     private String clearZtcClientCaches() {
         return ZTC + ul(Stream.of(ztcClientService.clearZaaktypeCache(),
-                                  ztcClientService.clearStatustypeCache(),
-                                  ztcClientService.clearResultaattypeCache(),
-                                  ztcClientService.clearInformatieobjecttypeCache(),
-                                  ztcClientService.clearZaaktypeInformatieobjecttypeCache(),
-                                  ztcClientService.clearBesluittypeCache(),
-                                  ztcClientService.clearRoltypeCache(),
-                                  ztcClientService.clearCacheTime()));
+                ztcClientService.clearStatustypeCache(),
+                ztcClientService.clearResultaattypeCache(),
+                ztcClientService.clearInformatieobjecttypeCache(),
+                ztcClientService.clearZaaktypeInformatieobjecttypeCache(),
+                ztcClientService.clearBesluittypeCache(),
+                ztcClientService.clearRoltypeCache(),
+                ztcClientService.clearCacheTime()));
     }
 
     private static String body(final Stream<String> utils) {

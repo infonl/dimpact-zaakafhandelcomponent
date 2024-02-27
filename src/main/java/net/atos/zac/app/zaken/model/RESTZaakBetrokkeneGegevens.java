@@ -8,7 +8,6 @@ package net.atos.zac.app.zaken.model;
 import java.util.UUID;
 
 import jakarta.validation.constraints.NotBlank;
-
 import jakarta.validation.constraints.NotNull;
 
 import net.atos.zac.app.klanten.model.klant.IdentificatieType;

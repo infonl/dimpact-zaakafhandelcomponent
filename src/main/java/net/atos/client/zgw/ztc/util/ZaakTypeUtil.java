@@ -11,7 +11,7 @@ public class ZaakTypeUtil {
 
     public static boolean isServicenormBeschikbaar(ZaakType zaakType) {
         return zaakType.getServicenorm() != null &&
-                !Period.parse(zaakType.getServicenorm()).normalized().isZero();
+               !Period.parse(zaakType.getServicenorm()).normalized().isZero();
     }
 
     public static boolean isNuGeldig(ZaakType zaakType) {

@@ -27,26 +27,24 @@ public class RESTVestigingsprofielConverter {
 
         restVestigingsprofiel.type = isIndicatie(
                 vestiging.getIndHoofdvestiging()) ? "HOOFDVESTIGING" : "NEVENVESTIGING";
-        restVestigingsprofiel.sbiHoofdActiviteit =
-                vestiging.getSbiActiviteiten()
-                        .stream()
-                        .filter(a -> isIndicatie(a.getIndHoofdactiviteit()))
-                        .findAny()
-                        .map(SBIActiviteit::getSbiOmschrijving)
-                        .orElse(null);
+        restVestigingsprofiel.sbiHoofdActiviteit = vestiging.getSbiActiviteiten()
+                .stream()
+                .filter(a -> isIndicatie(a.getIndHoofdactiviteit()))
+                .findAny()
+                .map(SBIActiviteit::getSbiOmschrijving)
+                .orElse(null);
 
-        restVestigingsprofiel.sbiActiviteiten =
-                vestiging.getSbiActiviteiten()
-                        .stream()
-                        .filter(a -> !isIndicatie(a.getIndHoofdactiviteit()))
-                        .map(SBIActiviteit::getSbiOmschrijving)
-                        .toList();
+        restVestigingsprofiel.sbiActiviteiten = vestiging.getSbiActiviteiten()
+                .stream()
+                .filter(a -> !isIndicatie(a.getIndHoofdactiviteit()))
+                .map(SBIActiviteit::getSbiOmschrijving)
+                .toList();
 
         restVestigingsprofiel.adressen = vestiging.getAdressen()
                 .stream()
                 .map(adres -> new RESTKlantenAdres(adres.getType(),
-                                            isIndicatie(adres.getIndAfgeschermd()),
-                                            adres.getVolledigAdres()))
+                        isIndicatie(adres.getIndAfgeschermd()),
+                        adres.getVolledigAdres()))
                 .toList();
 
         restVestigingsprofiel.website = CollectionUtils.emptyIfNull(vestiging.getWebsites()).stream().findFirst().orElse(null);

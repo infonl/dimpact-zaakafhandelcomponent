@@ -41,9 +41,9 @@ public class ZaakVariabelenService {
     private static final String VAR_ONTVANKELIJK = "ontvankelijk";
 
     public static final List<String> VARS = List.of(VAR_ZAAK_UUID, VAR_ZAAK_IDENTIFICATIE, VAR_ZAAKTYPE_UUUID,
-                                                    VAR_ZAAKTYPE_OMSCHRIJVING, VAR_ONTVANGSTBEVESTIGING_VERSTUURD,
-                                                    VAR_DATUMTIJD_OPGESCHORT, VAR_VERWACHTE_DAGEN_OPGESCHORT,
-                                                    VAR_ONTVANKELIJK);
+            VAR_ZAAKTYPE_OMSCHRIJVING, VAR_ONTVANGSTBEVESTIGING_VERSTUURD,
+            VAR_DATUMTIJD_OPGESCHORT, VAR_VERWACHTE_DAGEN_OPGESCHORT,
+            VAR_ONTVANKELIJK);
 
     @Inject
     private CmmnRuntimeService cmmnRuntimeService;
@@ -136,7 +136,7 @@ public class ZaakVariabelenService {
 
         throw new RuntimeException(
                 String.format("No variable found with name '%s' for case instance id '%s'", variableName,
-                              planItemInstance.getCaseInstanceId()));
+                        planItemInstance.getCaseInstanceId()));
     }
 
     private Object findCaseVariable(final UUID zaakUUID, final String variableName) {

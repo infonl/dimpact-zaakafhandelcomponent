@@ -133,4 +133,3 @@ public class FormulierDefinitie {
         veldDefinities.add(veldDefinitie);
     }
 }
-

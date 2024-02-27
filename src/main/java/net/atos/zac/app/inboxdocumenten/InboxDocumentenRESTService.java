@@ -78,9 +78,8 @@ public class InboxDocumentenRESTService {
         if (inboxDocument.isEmpty()) {
             return; // reeds verwijderd
         }
-        final EnkelvoudigInformatieObject enkelvoudigInformatieobject =
-                drcClientService.readEnkelvoudigInformatieobject(
-                        inboxDocument.get().getEnkelvoudiginformatieobjectUUID());
+        final EnkelvoudigInformatieObject enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
+                inboxDocument.get().getEnkelvoudiginformatieobjectUUID());
         final List<ZaakInformatieobject> zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
                 enkelvoudigInformatieobject);
         if (!zaakInformatieobjecten.isEmpty()) {

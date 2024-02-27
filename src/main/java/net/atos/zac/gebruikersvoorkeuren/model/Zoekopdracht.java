@@ -39,16 +39,14 @@ public class Zoekopdracht {
     @Column(name = "id_zoekopdracht")
     private Long id;
 
-    @NotNull
-    @Column(name = "creatiedatum", nullable = false)
+    @NotNull @Column(name = "creatiedatum", nullable = false)
     private ZonedDateTime creatiedatum;
 
     @NotBlank
     @Column(name = "naam", nullable = false)
     private String naam;
 
-    @NotNull
-    @Column(name = "id_lijst", nullable = false)
+    @NotNull @Column(name = "id_lijst", nullable = false)
     @Enumerated(EnumType.STRING)
     private Werklijst lijstID;
 

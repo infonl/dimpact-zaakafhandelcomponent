@@ -32,13 +32,11 @@ public class SignaleringVerzonden {
     @Column(name = "id_signalering_verzonden")
     private Long id;
 
-    @NotNull
-    @ManyToOne
+    @NotNull @ManyToOne
     @JoinColumn(name = "signaleringtype_enum", referencedColumnName = "signaleringtype_enum", nullable = false)
     private SignaleringType type;
 
-    @NotNull
-    @Column(name = "targettype_enum", nullable = false)
+    @NotNull @Column(name = "targettype_enum", nullable = false)
     @Enumerated(EnumType.STRING)
     private SignaleringTarget targettype;
 
@@ -53,8 +51,7 @@ public class SignaleringVerzonden {
     @Column(name = "detail")
     private String detail;
 
-    @NotNull
-    @Column(name = "tijdstip", nullable = false)
+    @NotNull @Column(name = "tijdstip", nullable = false)
     private ZonedDateTime tijdstip;
 
     public Long getId() {

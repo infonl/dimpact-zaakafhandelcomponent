@@ -5,9 +5,9 @@
 
 package net.atos.zac.mail.model;
 
-import jakarta.json.bind.annotation.JsonbProperty;
-
 import java.util.List;
+
+import jakarta.json.bind.annotation.JsonbProperty;
 
 public class EMails {
 

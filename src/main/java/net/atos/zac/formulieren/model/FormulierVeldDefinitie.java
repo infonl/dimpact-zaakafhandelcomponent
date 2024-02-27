@@ -32,8 +32,7 @@ public class FormulierVeldDefinitie {
     @Column(name = "id_formulier_veld_definitie")
     private Long id;
 
-    @NotNull
-    @ManyToOne
+    @NotNull @ManyToOne
     @JoinColumn(name = "id_formulier_definitie", referencedColumnName = "id_formulier_definitie")
     private FormulierDefinitie formulierDefinitie;
 
@@ -49,8 +48,7 @@ public class FormulierVeldDefinitie {
     @Column(name = "label", nullable = false)
     private String label;
 
-    @NotNull
-    @Column(name = "veldtype", nullable = false)
+    @NotNull @Column(name = "veldtype", nullable = false)
     @Enumerated(EnumType.STRING)
     private FormulierVeldtype veldtype;
 

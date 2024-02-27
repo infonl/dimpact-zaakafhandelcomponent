@@ -86,10 +86,10 @@ public class BAGRESTService {
         final BevraagAdressenParameters bevraagAdressenParameters = new BevraagAdressenParameters();
         bevraagAdressenParameters.setQ(listAdressenParameters.trefwoorden);
         bevraagAdressenParameters.setExpand(getExpand(BAGObjectType.NUMMERAANDUIDING, BAGObjectType.OPENBARE_RUIMTE, BAGObjectType.PAND,
-                                                      BAGObjectType.WOONPLAATS));
+                BAGObjectType.WOONPLAATS));
         return new RESTResultaat<>(bagClientService.listAdressen(bevraagAdressenParameters).stream()
-                                           .map(adres -> adresConverter.convertToREST(adres))
-                                           .toList());
+                .map(adres -> adresConverter.convertToREST(adres))
+                .toList());
     }
 
     @GET

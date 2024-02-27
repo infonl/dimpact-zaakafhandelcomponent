@@ -44,7 +44,8 @@ public class RESTGerelateerdeZaakConverter {
             restGerelateerdeZaak.zaaktypeOmschrijving = zaaktype.getOmschrijving();
             restGerelateerdeZaak.startdatum = zaak.getStartdatum();
             if (zaak.getStatus() != null) {
-                restGerelateerdeZaak.statustypeOmschrijving = ztcClientService.readStatustype(zrcClientService.readStatus(zaak.getStatus()).getStatustype())
+                restGerelateerdeZaak.statustypeOmschrijving = ztcClientService.readStatustype(zrcClientService.readStatus(zaak.getStatus())
+                        .getStatustype())
                         .getOmschrijving();
             }
         }

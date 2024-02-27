@@ -21,8 +21,7 @@ public class RESTZaakToekennenGegevens {
      * {@link net.atos.client.zgw.zrc.model.OrganisatorischeEenheid}
      * we need to make sure it adheres to the same constraints.
      */
-    @Nullable
-    @Size(max = 24)
+    @Nullable @Size(max = 24)
     public String groepId;
 
     public String behandelaarGebruikersnaam;

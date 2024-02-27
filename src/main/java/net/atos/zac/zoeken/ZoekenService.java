@@ -117,11 +117,11 @@ public class ZoekenService {
                             filter.getVeld()));
                 } else {
                     query.addFilterQuery(format("{!tag=%s}%s%s:(%s)", filter,
-                                                filterParameters.inverse() ? "-" : StringUtils.EMPTY,
-                                                filter.getVeld(),
-                                                filterParameters.waarden().stream()
-                                                        .map(ZoekenService::quoted)
-                                                        .collect(joining(" OR "))));
+                            filterParameters.inverse() ? "-" : StringUtils.EMPTY,
+                            filter.getVeld(),
+                            filterParameters.waarden().stream()
+                                    .map(ZoekenService::quoted)
+                                    .collect(joining(" OR "))));
                 }
             }
         });

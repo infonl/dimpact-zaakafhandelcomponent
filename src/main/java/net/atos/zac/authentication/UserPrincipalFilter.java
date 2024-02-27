@@ -50,8 +50,11 @@ public class UserPrincipalFilter implements Filter {
     }
 
     @Override
-    public void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,
-                         final FilterChain filterChain) throws ServletException, IOException {
+    public void doFilter(
+            final ServletRequest servletRequest,
+            final ServletResponse servletResponse,
+            final FilterChain filterChain
+    ) throws ServletException, IOException {
         if (servletRequest instanceof HttpServletRequest) {
             final HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
             final OidcPrincipal principal = (OidcPrincipal) httpServletRequest.getUserPrincipal();
@@ -71,10 +74,10 @@ public class UserPrincipalFilter implements Filter {
                     loggedInUser = createLoggedInUser(principal.getOidcSecurityContext());
                     SecurityUtil.setLoggedInUser(httpSession, loggedInUser);
                     LOG.info(String.format("User logged in: '%s' with roles: %s, groups: %s en zaaktypen: %s",
-                                           loggedInUser.getId(),
-                                           loggedInUser.getRoles(), loggedInUser.getGroupIds(),
-                                           loggedInUser.isGeautoriseerdVoorAlleZaaktypen() ? "ELK-ZAAKTYPE" :
-                                                   loggedInUser.getGeautoriseerdeZaaktypen()));
+                            loggedInUser.getId(),
+                            loggedInUser.getRoles(), loggedInUser.getGroupIds(),
+                            loggedInUser.isGeautoriseerdVoorAlleZaaktypen() ? "ELK-ZAAKTYPE" :
+                                    loggedInUser.getGeautoriseerdeZaaktypen()));
                 }
             }
         }
@@ -106,7 +109,7 @@ public class UserPrincipalFilter implements Filter {
         } else {
             return zaakafhandelParameterService.listZaakafhandelParameters().stream()
                     .filter(zaakafhandelParameters -> zaakafhandelParameters.getDomein() != null &&
-                            roles.contains(zaakafhandelParameters.getDomein()))
+                                                      roles.contains(zaakafhandelParameters.getDomein()))
                     .map(ZaakafhandelParameters::getZaaktypeOmschrijving)
                     .collect(Collectors.toUnmodifiableSet());
         }

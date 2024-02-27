@@ -7,9 +7,8 @@ package net.atos.zac.zaaksturing;
 
 import static net.atos.zac.util.ValidationUtil.valideerObject;
 
-import java.util.Optional;
-
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;

@@ -17,9 +17,12 @@ public class RolOrganisatorischeEenheid extends Rol<OrganisatorischeEenheid> {
     public RolOrganisatorischeEenheid() {
     }
 
-    public RolOrganisatorischeEenheid(final URI zaak, final RolType roltype,
+    public RolOrganisatorischeEenheid(
+            final URI zaak,
+            final RolType roltype,
             final String roltoelichting,
-            final OrganisatorischeEenheid betrokkeneIdentificatie) {
+            final OrganisatorischeEenheid betrokkeneIdentificatie
+    ) {
         super(zaak, roltype, BetrokkeneType.ORGANISATORISCHE_EENHEID, betrokkeneIdentificatie, roltoelichting);
     }
 
@@ -40,9 +43,8 @@ public class RolOrganisatorischeEenheid extends Rol<OrganisatorischeEenheid> {
         if (getBetrokkeneIdentificatie() == null) {
             return null;
         }
-        return StringUtils.isNotEmpty(getBetrokkeneIdentificatie().getNaam())
-                ? getBetrokkeneIdentificatie().getNaam()
-                : getIdentificatienummer();
+        return StringUtils.isNotEmpty(getBetrokkeneIdentificatie().getNaam()) ? getBetrokkeneIdentificatie().getNaam() :
+                getIdentificatienummer();
     }
 
     @Override

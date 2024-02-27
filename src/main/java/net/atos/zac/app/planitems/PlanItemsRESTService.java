@@ -167,8 +167,8 @@ public class PlanItemsRESTService {
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
         final Map<String, String> taakdata = humanTaskData.taakdata;
         assertPolicy(policyService.readZaakRechten(zaak).behandelen());
-            final ZaakafhandelParameters zaakafhandelParameters =
-                zaakafhandelParameterService.readZaakafhandelParameters(UriUtil.uuidFromURI(zaak.getZaaktype()));
+        final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(UriUtil.uuidFromURI(
+                zaak.getZaaktype()));
         final Optional<HumanTaskParameters> humanTaskParameters = zaakafhandelParameters
                 .findHumanTaskParameter(planItem.getPlanItemDefinitionId());
 
@@ -212,12 +212,11 @@ public class PlanItemsRESTService {
                     Bronnen.fromZaak(zaak)));
         }
         cmmnService.startHumanTaskPlanItem(humanTaskData.planItemInstanceId, humanTaskData.groep.id,
-                                           humanTaskData.medewerker != null && !humanTaskData.medewerker.toString().isEmpty()
-                                            ?
-                                                   humanTaskData.medewerker.id :
-                                                   null,
-                                           DateTimeConverterUtil.convertToDate(fataleDatum),
-                                           humanTaskData.toelichting, taakdata, zaakUUID);
+                humanTaskData.medewerker != null && !humanTaskData.medewerker.toString().isEmpty() ?
+                        humanTaskData.medewerker.id :
+                        null,
+                DateTimeConverterUtil.convertToDate(fataleDatum),
+                humanTaskData.toelichting, taakdata, zaakUUID);
         indexeerService.addOrUpdateZaak(zaakUUID, false);
     }
 
@@ -242,8 +241,8 @@ public class PlanItemsRESTService {
                     final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
                             UriUtil.uuidFromURI(zaak.getZaaktype()));
                     zgwApiService.createResultaatForZaak(zaak,
-                                                         zaakafhandelParameters.getNietOntvankelijkResultaattype(),
-                                                         userEventListenerData.resultaatToelichting);
+                            zaakafhandelParameters.getNietOntvankelijkResultaattype(),
+                            userEventListenerData.resultaatToelichting);
                 }
             }
             case ZAAK_AFHANDELEN -> {
@@ -254,7 +253,7 @@ public class PlanItemsRESTService {
                     zrcClientService.updateResultaat(resultaat);
                 } else {
                     zgwApiService.createResultaatForZaak(zaak, userEventListenerData.resultaattypeUuid,
-                                                         userEventListenerData.resultaatToelichting);
+                            userEventListenerData.resultaatToelichting);
                 }
             }
         }

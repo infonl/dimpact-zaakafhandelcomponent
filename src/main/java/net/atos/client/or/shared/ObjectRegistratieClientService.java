@@ -50,7 +50,8 @@ public class ObjectRegistratieClientService {
         final ObjecttypeVersion objecttypeVersion = objecttypesClientService.listObjecttypeVersions(objecttype.getUuid()).stream()
                 .filter(_objecttypeVersion -> _objecttypeVersion.getStatus() == PUBLISHED)
                 .max(Comparator.comparing(ObjecttypeVersion::getVersion))
-                .orElseThrow(() -> new RuntimeException(format("No ObjecttypeVersion found for Objecttype with UUID: '%s'", objecttype.getUuid().toString())));
+                .orElseThrow(() -> new RuntimeException(format("No ObjecttypeVersion found for Objecttype with UUID: '%s'", objecttype
+                        .getUuid().toString())));
 
         // Create ObjectRecord
         final ObjectRecord record = new ObjectRecord();

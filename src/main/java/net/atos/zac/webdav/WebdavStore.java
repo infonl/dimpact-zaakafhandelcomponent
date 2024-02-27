@@ -56,8 +56,7 @@ public class WebdavStore implements IWebdavStore {
     public WebdavStore(final File ignoredDummy) {
         webdavHelper = CDI.current().select(WebdavHelper.class).get();
         drcClientService = CDI.current().select(DRCClientService.class).get();
-        enkelvoudigInformatieObjectUpdateService =
-                CDI.current().select(EnkelvoudigInformatieObjectUpdateService.class).get();
+        enkelvoudigInformatieObjectUpdateService = CDI.current().select(EnkelvoudigInformatieObjectUpdateService.class).get();
     }
 
     @Override
@@ -66,19 +65,24 @@ public class WebdavStore implements IWebdavStore {
     }
 
     @Override
-    public void checkAuthentication(final ITransaction transaction) {}
+    public void checkAuthentication(final ITransaction transaction) {
+    }
 
     @Override
-    public void commit(final ITransaction transaction) {}
+    public void commit(final ITransaction transaction) {
+    }
 
     @Override
-    public void rollback(final ITransaction transaction) {}
+    public void rollback(final ITransaction transaction) {
+    }
 
     @Override
-    public void createFolder(final ITransaction transaction, final String folderUri) {}
+    public void createFolder(final ITransaction transaction, final String folderUri) {
+    }
 
     @Override
-    public void createResource(final ITransaction transaction, final String resourceUri) {}
+    public void createResource(final ITransaction transaction, final String resourceUri) {
+    }
 
     @Override
     public InputStream getResourceContent(final ITransaction transaction, final String resourceUri) {
@@ -170,8 +174,7 @@ public class WebdavStore implements IWebdavStore {
         return fileStoredObjectMap.computeIfAbsent(token, key -> {
             final UUID enkelvoudigInformatieobjectUUID = webdavHelper.readGegevens(token)
                     .enkelvoudigInformatieibjectUUID();
-            final EnkelvoudigInformatieObject enkelvoudigInformatieobject =
-                    drcClientService.readEnkelvoudigInformatieobject(
+            final EnkelvoudigInformatieObject enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
                     enkelvoudigInformatieobjectUUID);
             final StoredObject storedObject = new StoredObject();
             storedObject.setFolder(false);

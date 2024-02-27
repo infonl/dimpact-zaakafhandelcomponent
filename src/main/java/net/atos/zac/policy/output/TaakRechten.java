@@ -7,13 +7,14 @@ package net.atos.zac.policy.output;
 
 import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
+
 import net.atos.zac.util.DummyInterface;
 
 public record TaakRechten(
-        boolean lezen,
-        boolean wijzigen,
-        boolean toekennen,
-        boolean toevoegenDocument
+                          boolean lezen,
+                          boolean wijzigen,
+                          boolean toekennen,
+                          boolean toevoegenDocument
 ) implements DummyInterface {
 
     @JsonbCreator

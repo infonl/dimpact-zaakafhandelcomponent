@@ -33,8 +33,10 @@ public class Verlenging {
      * Constructor for required attributes for POST and PUT requests and GET response
      */
     @JsonbCreator
-    public Verlenging(@JsonbProperty("reden") final String reden,
-            @JsonbProperty("duur") final Period duur) {
+    public Verlenging(
+            @JsonbProperty("reden") final String reden,
+            @JsonbProperty("duur") final Period duur
+    ) {
         this.reden = reden;
         this.duur = duur;
     }

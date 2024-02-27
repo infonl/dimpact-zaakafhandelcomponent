@@ -29,17 +29,17 @@ public class ValidatieFoutException extends RuntimeException {
     public String getMessage() {
         return "%s [%d %s] %s: %s (%s %s)"
                 .formatted(validatieFout.getTitle(),
-                           validatieFout.getStatus(),
-                           validatieFout.getCode(),
-                           validatieFout.getDetail(),
-                           validatieFout.getInvalidParams().stream()
-                                   .map(error -> "%s [%s] %s"
-                                           .formatted(error.getName(),
-                                                      error.getCode(),
-                                                      error.getReason()))
-                                   .collect(Collectors.joining(", ")),
-                           uri(validatieFout.getType()),
-                           uri(validatieFout.getInstance()));
+                        validatieFout.getStatus(),
+                        validatieFout.getCode(),
+                        validatieFout.getDetail(),
+                        validatieFout.getInvalidParams().stream()
+                                .map(error -> "%s [%s] %s"
+                                        .formatted(error.getName(),
+                                                error.getCode(),
+                                                error.getReason()))
+                                .collect(Collectors.joining(", ")),
+                        uri(validatieFout.getType()),
+                        uri(validatieFout.getInstance()));
     }
 
     private String uri(final URI uri) {

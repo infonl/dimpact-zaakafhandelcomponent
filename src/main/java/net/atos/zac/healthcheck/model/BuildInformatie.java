@@ -17,8 +17,12 @@ public class BuildInformatie {
 
     private final String versienummer;
 
-    public BuildInformatie(final String commit, final String buildId, final LocalDateTime buildDatumTijd,
-            final String versienummer) {
+    public BuildInformatie(
+            final String commit,
+            final String buildId,
+            final LocalDateTime buildDatumTijd,
+            final String versienummer
+    ) {
         this.commit = commit;
         this.buildId = buildId;
         this.buildDatumTijd = buildDatumTijd;

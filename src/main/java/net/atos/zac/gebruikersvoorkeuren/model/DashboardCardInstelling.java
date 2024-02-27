@@ -35,20 +35,17 @@ public class DashboardCardInstelling {
     @Column(name = "id_medewerker", nullable = false)
     private String medewerkerId;
 
-    @NotNull
-    @Column(name = "dashboard_card_enum", nullable = false)
+    @NotNull @Column(name = "dashboard_card_enum", nullable = false)
     @Enumerated(EnumType.STRING)
     private DashboardCardId cardId;
 
     @Transient
     private SignaleringType.Type signaleringType;
 
-    @NotNull
-    @Column(name = "kolom", nullable = false)
+    @NotNull @Column(name = "kolom", nullable = false)
     private int kolom;
 
-    @NotNull
-    @Column(name = "volgorde", nullable = false)
+    @NotNull @Column(name = "volgorde", nullable = false)
     private int volgorde;
 
     public Long getId() {
