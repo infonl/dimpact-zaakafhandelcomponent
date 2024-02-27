@@ -7,17 +7,18 @@ package net.atos.zac.policy.output;
 
 import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
+
 import net.atos.zac.util.DummyInterface;
 
 public record ZaakRechten(
-        boolean lezen,
-        boolean wijzigen,
-        boolean toekennen,
-        boolean behandelen,
-        boolean afbreken,
-        boolean heropenen,
-        boolean wijzigenZaakdata,
-        boolean wijzigenDoorlooptijd
+                          boolean lezen,
+                          boolean wijzigen,
+                          boolean toekennen,
+                          boolean behandelen,
+                          boolean afbreken,
+                          boolean heropenen,
+                          boolean wijzigenZaakdata,
+                          boolean wijzigenDoorlooptijd
 ) implements DummyInterface {
 
     @JsonbCreator
@@ -29,7 +30,8 @@ public record ZaakRechten(
             @JsonbProperty("afbreken") final boolean afbreken,
             @JsonbProperty("heropenen") final boolean heropenen,
             @JsonbProperty("wijzigenZaakdata") final boolean wijzigenZaakdata,
-            @JsonbProperty("wijzigenDoorlooptijd") final boolean wijzigenDoorlooptijd) {
+            @JsonbProperty("wijzigenDoorlooptijd") final boolean wijzigenDoorlooptijd
+    ) {
         this.lezen = lezen;
         this.wijzigen = wijzigen;
         this.toekennen = toekennen;

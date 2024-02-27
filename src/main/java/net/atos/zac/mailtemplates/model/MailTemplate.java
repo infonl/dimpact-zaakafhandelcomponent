@@ -51,13 +51,11 @@ public class MailTemplate {
     @Column(name = "body", nullable = false)
     private String body;
 
-    @NotNull
-    @Column(name = "mail_template_enum", nullable = false)
+    @NotNull @Column(name = "mail_template_enum", nullable = false)
     @Enumerated(EnumType.STRING)
     private Mail mail;
 
-    @NotNull
-    @Column(name = "default_mailtemplate", nullable = false)
+    @NotNull @Column(name = "default_mailtemplate", nullable = false)
     private Boolean defaultMailtemplate;
 
     public Long getId() {

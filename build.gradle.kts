@@ -1,8 +1,6 @@
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.github.gradle.node.npm.task.NpmTask
 import io.smallrye.openapi.api.OpenApiConfig
-import org.jetbrains.kotlin.backend.common.serialization.mangle.collectForMangler
-import org.jetbrains.kotlin.fir.declarations.builder.buildConstructor
 import java.util.Locale
 
 /*
@@ -24,6 +22,7 @@ plugins {
     id("org.hidetake.swagger.generator") version "2.19.2"
     id("io.gitlab.arturbosch.detekt") version "1.23.5"
     id("com.bmuschko.docker-remote-api") version "9.4.0"
+    id("com.diffplug.spotless") version "6.25.0"
 }
 
 repositories {
@@ -157,6 +156,8 @@ dependencies {
     "itestImplementation"("org.slf4j:slf4j-simple:2.0.12")
     "itestImplementation"("io.github.oshai:kotlin-logging-jvm:6.0.3")
     "itestImplementation"("org.danilopianini:khttp:1.5.0")
+    "itestImplementation"("com.squareup.okhttp3:okhttp:4.12.0")
+    "itestImplementation"("com.squareup.okhttp3:okhttp-urlconnection:4.12.0")
     "itestImplementation"("org.awaitility:awaitility-kotlin:4.2.0")
     "itestImplementation"("org.mock-server:mockserver-client-java:5.15.0")
 }
@@ -225,6 +226,37 @@ swaggerSources {
     }
 }
 
+configure<com.diffplug.gradle.spotless.SpotlessExtension> {
+    format("misc") {
+        target("*.gradle", ".gitattributes", ".gitignore", ".containerignore", ".dockerignore")
+
+        trimTrailingWhitespace()
+        indentWithSpaces()
+        endWithNewline()
+    }
+    java {
+        targetExclude("**/src/generated/**", "**/build/generated/**")
+
+        removeUnusedImports()
+        importOrderFile("config/importOrder.txt")
+
+        formatAnnotations()
+
+        // Latest supported vesion:
+        // https://github.com/diffplug/spotless/tree/main/lib-extra/src/main/resources/com/diffplug/spotless/extra/eclipse_wtp_formatter
+        eclipse("4.21").configFile("config/Dimpact.xml")
+
+        licenseHeader(
+            """
+            /*
+             * SPDX-FileCopyrightText: ${'$'}YEAR Lifely
+             * SPDX-License-Identifier: EUPL-1.2+
+             */
+            """.trimIndent()
+        ).onlyIfContentMatches("FileCopyrightText: 2[0-9-]+ Lifely").updateYearWithLatest(true)
+    }
+}
+
 // run npm install task after generating the Java clients because they
 // share the same output folder (= $rootDir)
 tasks.getByName("npmInstall").setMustRunAfter(listOf("generateJavaClients"))
@@ -274,17 +306,19 @@ tasks {
     withType<JacocoReport> {
         // exclude Java client code that was auto generated at build time
         afterEvaluate {
-            classDirectories.setFrom(classDirectories.files.map {
-                fileTree(it).matching {
-                    exclude("net/atos/client/bag/model/**")
-                    exclude("net/atos/client/brp/model/**")
-                    exclude("net/atos/client/contactmomenten/model/**")
-                    exclude("net/atos/client/kvk/**/model/**")
-                    exclude("net/atos/client/vrl/model/**")
-                    exclude("net/atos/zac/aanvraag/**")
-                    exclude("**/generated/**")
+            classDirectories.setFrom(
+                classDirectories.files.map {
+                    fileTree(it).matching {
+                        exclude("net/atos/client/bag/model/**")
+                        exclude("net/atos/client/brp/model/**")
+                        exclude("net/atos/client/contactmomenten/model/**")
+                        exclude("net/atos/client/kvk/**/model/**")
+                        exclude("net/atos/client/vrl/model/**")
+                        exclude("net/atos/zac/aanvraag/**")
+                        exclude("**/generated/**")
+                    }
                 }
-            })
+            )
         }
     }
 
@@ -381,7 +415,8 @@ tasks {
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKlantenClient") {
-        // this task was not enabled in the original Maven build either; these model files were added to the code base manually instead
+        // this task was not enabled in the original Maven build either;
+        // these model files were added to the code base manually instead
         isEnabled = false
 
         inputSpec.set("$rootDir/src/main/resources/api-specs/klanten/openapi.yaml")

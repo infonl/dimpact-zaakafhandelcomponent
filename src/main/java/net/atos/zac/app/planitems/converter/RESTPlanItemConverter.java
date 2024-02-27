@@ -45,8 +45,11 @@ public class RESTPlanItemConverter {
                 .toList();
     }
 
-    public RESTPlanItem convertPlanItem(final PlanItemInstance planItem, final UUID zaakUuid,
-            final ZaakafhandelParameters zaakafhandelParameters) {
+    public RESTPlanItem convertPlanItem(
+            final PlanItemInstance planItem,
+            final UUID zaakUuid,
+            final ZaakafhandelParameters zaakafhandelParameters
+    ) {
         final RESTPlanItem restPlanItem = new RESTPlanItem();
         restPlanItem.id = planItem.getId();
         restPlanItem.naam = planItem.getName();
@@ -59,8 +62,11 @@ public class RESTPlanItemConverter {
         };
     }
 
-    private RESTPlanItem convertUserEventListener(final RESTPlanItem restPlanItem,
-            final PlanItemInstance UserEventListenerPlanItem, final ZaakafhandelParameters zaakafhandelParameters) {
+    private RESTPlanItem convertUserEventListener(
+            final RESTPlanItem restPlanItem,
+            final PlanItemInstance UserEventListenerPlanItem,
+            final ZaakafhandelParameters zaakafhandelParameters
+    ) {
         restPlanItem.userEventListenerActie = UserEventListenerActie.valueOf(
                 UserEventListenerPlanItem.getPlanItemDefinitionId());
         restPlanItem.toelichting = zaakafhandelParameters.readUserEventListenerParameters(
@@ -68,8 +74,11 @@ public class RESTPlanItemConverter {
         return restPlanItem;
     }
 
-    private RESTPlanItem convertHumanTask(final RESTPlanItem restPlanItem, final PlanItemInstance humanTaskPlanItem,
-            final ZaakafhandelParameters zaakafhandelParameters) {
+    private RESTPlanItem convertHumanTask(
+            final RESTPlanItem restPlanItem,
+            final PlanItemInstance humanTaskPlanItem,
+            final ZaakafhandelParameters zaakafhandelParameters
+    ) {
         zaakafhandelParameters.findHumanTaskParameter(humanTaskPlanItem.getPlanItemDefinitionId())
                 .ifPresent(humanTaskParameters -> {
                     restPlanItem.actief = humanTaskParameters.isActief();
@@ -100,7 +109,7 @@ public class RESTPlanItemConverter {
         } else {
             throw new IllegalArgumentException(
                     String.format("Conversie van plan item definition type '%s' wordt niet ondersteund",
-                                  planItemDefinitionType));
+                            planItemDefinitionType));
         }
     }
 }

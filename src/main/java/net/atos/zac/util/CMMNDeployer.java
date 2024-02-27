@@ -90,7 +90,8 @@ public class CMMNDeployer {
                 deployModel(modelFileName, modelBytes, modelXml, key, xPath);
             } else {
                 try (final InputStream modelInputStream = new ByteArrayInputStream(modelBytes);
-                     final InputStream deployedModelInputStream = cmmnRepositoryService.getResourceAsStream(cmmnDeployment.getId(), modelFileName)) {
+                     final InputStream deployedModelInputStream = cmmnRepositoryService.getResourceAsStream(cmmnDeployment.getId(),
+                             modelFileName)) {
                     if (!IOUtils.contentEquals(modelInputStream, deployedModelInputStream)) {
                         deployModel(modelFileName, modelBytes, modelXml, key, xPath);
                     }
@@ -101,8 +102,13 @@ public class CMMNDeployer {
         }
     }
 
-    private void deployModel(final String modelFileName, final byte[] modelBytes, final Document modelXml, final String key,
-            final XPath xPath) throws XPathExpressionException {
+    private void deployModel(
+            final String modelFileName,
+            final byte[] modelBytes,
+            final Document modelXml,
+            final String key,
+            final XPath xPath
+    ) throws XPathExpressionException {
         final String name = (String) xPath.evaluate(CASE_NAME_XPATH_EXPRESSION, modelXml, XPathConstants.STRING);
         cmmnRepositoryService.createDeployment().key(key).name(name).addBytes(modelFileName, modelBytes).deploy();
         LOG.info(format("Successfully deployed CMMN model with key '%s' and name '%s' from file '%s'", key, name, modelFileName));

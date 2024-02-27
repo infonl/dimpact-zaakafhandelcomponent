@@ -5,7 +5,11 @@
 
 /**
  * BRP Personen Bevragen
- * API voor het bevragen van personen uit de basisregistratie personen (BRP), inclusief de registratie niet-ingezeten (RNI). Met deze API kun je personen zoeken en actuele gegevens over personen, kinderen, partners en ouders raadplegen.  Gegevens die er niet zijn of niet actueel zijn krijg je niet terug. Had een persoon bijvoorbeeld een verblijfstitel die nu niet meer geldig is, dan wordt die verblijfstitel niet opgenomen. In partners wordt alleen de actuele of de laatst ontbonden partner geleverd.  Zie de [Functionele documentatie](https://brp-api.github.io/Haal-Centraal-BRP-bevragen) voor nadere toelichting.
+ * API voor het bevragen van personen uit de basisregistratie personen (BRP), inclusief de registratie niet-ingezeten (RNI). Met deze API
+ * kun je personen zoeken en actuele gegevens over personen, kinderen, partners en ouders raadplegen. Gegevens die er niet zijn of niet
+ * actueel zijn krijg je niet terug. Had een persoon bijvoorbeeld een verblijfstitel die nu niet meer geldig is, dan wordt die
+ * verblijfstitel niet opgenomen. In partners wordt alleen de actuele of de laatst ontbonden partner geleverd. Zie de [Functionele
+ * documentatie](https://brp-api.github.io/Haal-Centraal-BRP-bevragen) voor nadere toelichting.
  * <p>
  * The version of the OpenAPI document: 2.0.0
  * <p>
@@ -61,12 +65,12 @@ public interface PersonenApi {
      * Zoek personen
      * <p>
      * Zoek personen met één van de onderstaande verplichte combinaties van parameters en vul ze evt. aan met optionele parameters.
-     * 1.  Raadpleeg met burgerservicenummer
-     * 2.  Zoek met geslachtsnaam en geboortedatum
-     * 3.  Zoek met geslachtsnaam, voornamen en gemeente van inschrijving
-     * 4.  Zoek met postcode en huisnummer
-     * 5.  Zoek met straat, huisnummer en gemeente van inschrijving
-     * 6.  Zoek met nummeraanduiding identificatie
+     * 1. Raadpleeg met burgerservicenummer
+     * 2. Zoek met geslachtsnaam en geboortedatum
+     * 3. Zoek met geslachtsnaam, voornamen en gemeente van inschrijving
+     * 4. Zoek met postcode en huisnummer
+     * 5. Zoek met straat, huisnummer en gemeente van inschrijving
+     * 6. Zoek met nummeraanduiding identificatie
      * <p>
      * Default krijg je personen terug die nog in leven zijn, tenzij je de inclusiefoverledenpersonen=true opgeeft.
      * Gebruik de fields parameter om alleen die gegevens op te vragen die je nodig hebt en waarvoor je geautoriseerd bent.

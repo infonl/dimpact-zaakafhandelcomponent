@@ -14,6 +14,7 @@ import jakarta.json.JsonObject;
 import jakarta.json.bind.serializer.DeserializationContext;
 import jakarta.json.bind.serializer.JsonbDeserializer;
 import jakarta.json.stream.JsonParser;
+
 import net.atos.client.zgw.zrc.model.Geometry;
 import net.atos.client.zgw.zrc.model.GeometryCollection;
 import net.atos.client.zgw.zrc.model.GeometryType;
@@ -42,8 +43,7 @@ public class GeometryJsonbDeserializer implements JsonbDeserializer<Geometry> {
         return switch (geometryType) {
             case POINT -> JSONB.fromJson(jsonObject.toString(), Point.class);
             case POLYGON -> JSONB.fromJson(jsonObject.toString(), Polygon.class);
-            case GEOMETRYCOLLECTION ->
-                    JSONB.fromJson(jsonObject.toString(), GeometryCollection.class);
+            case GEOMETRYCOLLECTION -> JSONB.fromJson(jsonObject.toString(), GeometryCollection.class);
         };
     }
 }

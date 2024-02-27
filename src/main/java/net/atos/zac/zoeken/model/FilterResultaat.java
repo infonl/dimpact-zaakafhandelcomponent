@@ -5,4 +5,5 @@
 
 package net.atos.zac.zoeken.model;
 
-public record FilterResultaat(String naam, long aantal) {}
+public record FilterResultaat(String naam, long aantal) {
+}

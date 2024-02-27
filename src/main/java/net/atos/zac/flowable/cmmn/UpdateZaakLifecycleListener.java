@@ -44,8 +44,11 @@ public class UpdateZaakLifecycleListener implements PlanItemInstanceLifecycleLis
     }
 
     @Override
-    public void stateChanged(final DelegatePlanItemInstance planItemInstance, final String oldState,
-            final String newState) {
+    public void stateChanged(
+            final DelegatePlanItemInstance planItemInstance,
+            final String oldState,
+            final String newState
+    ) {
         if (statusExpression != null) {
             updateZaak(planItemInstance, statusExpression.getValue(planItemInstance).toString());
         }

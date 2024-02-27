@@ -55,14 +55,11 @@ public class RESTTaakHistorieConverter {
 
     private RESTTaakHistorieRegel convert(final HistoricTaskLogEntry historicTaskLogEntry) {
         final RESTTaakHistorieRegel restTaakHistorieRegel = switch (historicTaskLogEntry.getType()) {
-            case USER_TASK_DESCRIPTION_CHANGED ->
-                    convertValueChangeData(TOELICHTING_ATTRIBUUT_LABEL, historicTaskLogEntry.getData());
-            case USER_TASK_ASSIGNEE_CHANGED_CUSTOM ->
-                    convertValueChangeData(BEHANDELAAR_ATTRIBUUT_LABEL, historicTaskLogEntry.getData());
-            case USER_TASK_GROUP_CHANGED ->
-                    convertValueChangeData(GROEP_ATTRIBUUT_LABEL, historicTaskLogEntry.getData());
+            case USER_TASK_DESCRIPTION_CHANGED -> convertValueChangeData(TOELICHTING_ATTRIBUUT_LABEL, historicTaskLogEntry.getData());
+            case USER_TASK_ASSIGNEE_CHANGED_CUSTOM -> convertValueChangeData(BEHANDELAAR_ATTRIBUUT_LABEL, historicTaskLogEntry.getData());
+            case USER_TASK_GROUP_CHANGED -> convertValueChangeData(GROEP_ATTRIBUUT_LABEL, historicTaskLogEntry.getData());
             default -> convertData(HistoricTaskLogEntryType.valueOf(historicTaskLogEntry.getType()),
-                                   historicTaskLogEntry.getData());
+                    historicTaskLogEntry.getData());
         };
         if (restTaakHistorieRegel != null) {
             restTaakHistorieRegel.datumTijd = convertToZonedDateTime(historicTaskLogEntry.getTimeStamp());
@@ -83,7 +80,7 @@ public class RESTTaakHistorieConverter {
     private RESTTaakHistorieRegel convertValueChangeData(final String attribuutLabel, final String data) {
         final TakenService.ValueChangeData valueChangeData = JSONB.fromJson(data, TakenService.ValueChangeData.class);
         return new RESTTaakHistorieRegel(attribuutLabel, valueChangeData.oldValue, valueChangeData.newValue,
-                                         valueChangeData.explanation);
+                valueChangeData.explanation);
     }
 
     public static class AssigneeChangedData {
@@ -95,8 +92,8 @@ public class RESTTaakHistorieConverter {
     private RESTTaakHistorieRegel convertOwnerChanged(final String data) {
         final AssigneeChangedData assigneeChangedData = JSONB.fromJson(data, AssigneeChangedData.class);
         return new RESTTaakHistorieRegel(AANGEMAAKT_DOOR_ATTRIBUUT_LABEL,
-                                         getMedewerkerFullName(assigneeChangedData.previousAssigneeId),
-                                         getMedewerkerFullName(assigneeChangedData.newAssigneeId), null);
+                getMedewerkerFullName(assigneeChangedData.previousAssigneeId),
+                getMedewerkerFullName(assigneeChangedData.newAssigneeId), null);
     }
 
     private String getMedewerkerFullName(final String medewerkerId) {
@@ -114,7 +111,7 @@ public class RESTTaakHistorieConverter {
     private RESTTaakHistorieRegel convertDuedateChanged(final String data) {
         final DuedateChangedData duedateChangedData = JSONB.fromJson(data, DuedateChangedData.class);
         return new RESTTaakHistorieRegel(FATALEDATUM_ATTRIBUUT_LABEL,
-                                         convertToLocalDate(duedateChangedData.previousDueDate),
-                                         convertToLocalDate(duedateChangedData.newDueDate), null);
+                convertToLocalDate(duedateChangedData.previousDueDate),
+                convertToLocalDate(duedateChangedData.newDueDate), null);
     }
 }

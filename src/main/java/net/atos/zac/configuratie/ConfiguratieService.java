@@ -5,6 +5,12 @@
 
 package net.atos.zac.configuratie;
 
+import java.net.URI;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -15,16 +21,12 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.UriBuilder;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
 import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.client.zgw.ztc.model.CatalogusListParameters;
 import net.atos.zac.configuratie.model.Taal;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
-import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @ApplicationScoped
 @Transactional

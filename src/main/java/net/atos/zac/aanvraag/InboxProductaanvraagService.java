@@ -109,10 +109,12 @@ public class InboxProductaanvraagService {
 
         if (listParameters.getOntvangstdatum() != null) {
             if (listParameters.getOntvangstdatum().van() != null) {
-                predicates.add(builder.greaterThanOrEqualTo(root.get(InboxProductaanvraag.ONTVANGSTDATUM), listParameters.getOntvangstdatum().van()));
+                predicates.add(builder.greaterThanOrEqualTo(root.get(InboxProductaanvraag.ONTVANGSTDATUM), listParameters
+                        .getOntvangstdatum().van()));
             }
             if (listParameters.getOntvangstdatum().tot() != null) {
-                predicates.add(builder.lessThanOrEqualTo(root.get(InboxProductaanvraag.ONTVANGSTDATUM), listParameters.getOntvangstdatum().tot()));
+                predicates.add(builder.lessThanOrEqualTo(root.get(InboxProductaanvraag.ONTVANGSTDATUM), listParameters.getOntvangstdatum()
+                        .tot()));
             }
         }
         return builder.and(predicates.toArray(new Predicate[0]));

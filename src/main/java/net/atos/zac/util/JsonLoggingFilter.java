@@ -58,7 +58,8 @@ public class JsonLoggingFilter implements ClientRequestFilter, ClientResponseFil
         if (LOG.isLoggable(LOG_LEVEL)) {
             final StringBuilder message = new StringBuilder("REST Response\n");
             message.append(
-                    String.format("Status: %d (%s)\n", responseContext.getStatusInfo().getStatusCode(), responseContext.getStatusInfo().getReasonPhrase()));
+                    String.format("Status: %d (%s)\n", responseContext.getStatusInfo().getStatusCode(), responseContext.getStatusInfo()
+                            .getReasonPhrase()));
             message.append(String.format("Media type: %s\n", responseContext.getMediaType()));
             message.append("Headers:\n");
             responseContext.getHeaders().forEach((header, value) -> message.append(String.format("   %s : %s\n", header, value)));
@@ -88,8 +89,8 @@ public class JsonLoggingFilter implements ClientRequestFilter, ClientResponseFil
             final StringWriter payloadWriter = new StringWriter();
 
             try (
-                final var jsonWriter = Json.createWriterFactory(jsonConfig).createWriter(payloadWriter);
-                final var jsonReader = Json.createReader(new StringReader(payload))
+                 final var jsonWriter = Json.createWriterFactory(jsonConfig).createWriter(payloadWriter);
+                 final var jsonReader = Json.createReader(new StringReader(payload))
             ) {
                 jsonWriter.write(jsonReader.read());
                 return payloadWriter.toString();

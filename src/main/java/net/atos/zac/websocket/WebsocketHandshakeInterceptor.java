@@ -5,7 +5,8 @@ import jakarta.websocket.HandshakeResponse;
 import jakarta.websocket.server.HandshakeRequest;
 import jakarta.websocket.server.ServerEndpointConfig;
 
-/* This interceptor is only needed to access the httpSession when opening a websocket.
+/*
+ * This interceptor is only needed to access the httpSession when opening a websocket.
  */
 public class WebsocketHandshakeInterceptor extends ServerEndpointConfig.Configurator {
 

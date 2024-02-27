@@ -59,8 +59,7 @@ public class DRCClientUtil {
         return EnkelvoudigInformatieObjectWithLockData.StatusEnum.valueOf(statusEnum.name());
     }
 
-    public static EnkelvoudigInformatieObjectWithLockData.VertrouwelijkheidaanduidingEnum
-    convertToEnkelvoudigInformatieObjectWithLockDataVertrouwelijkheidaanduidingEnum(
+    public static EnkelvoudigInformatieObjectWithLockData.VertrouwelijkheidaanduidingEnum convertToEnkelvoudigInformatieObjectWithLockDataVertrouwelijkheidaanduidingEnum(
             String vertrouwelijkheidaanduidingEnumString
     ) {
         return EnkelvoudigInformatieObjectWithLockData.VertrouwelijkheidaanduidingEnum.valueOf(vertrouwelijkheidaanduidingEnumString);
@@ -88,13 +87,13 @@ public class DRCClientUtil {
 
     public static boolean isOndertekend(EnkelvoudigInformatieObject enkelvoudigInformatieObject) {
         return enkelvoudigInformatieObject.getOndertekening() != null &&
-                enkelvoudigInformatieObject.getOndertekening().getDatum() != null &&
-                enkelvoudigInformatieObject.getOndertekening().getSoort() != null &&
-                // this extra check is because the API can return an empty ondertekening soort
-                // when no signature is present (even if this is not permitted according to the
-                // original OpenAPI spec)
-                !enkelvoudigInformatieObject.getOndertekening().getSoort().equals(
-                        Ondertekening.SoortEnum.EMPTY
-                );
+               enkelvoudigInformatieObject.getOndertekening().getDatum() != null &&
+               enkelvoudigInformatieObject.getOndertekening().getSoort() != null &&
+               // this extra check is because the API can return an empty ondertekening soort
+               // when no signature is present (even if this is not permitted according to the
+               // original OpenAPI spec)
+               !enkelvoudigInformatieObject.getOndertekening().getSoort().equals(
+                       Ondertekening.SoortEnum.EMPTY
+               );
     }
 }

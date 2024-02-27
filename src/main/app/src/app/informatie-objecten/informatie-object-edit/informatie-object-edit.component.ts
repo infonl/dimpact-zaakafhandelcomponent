@@ -37,6 +37,7 @@ import { EnkelvoudigInformatieObjectVersieGegevens } from "../model/enkelvoudig-
 import { FileFormFieldBuilder } from "../../shared/material-form-builder/form-components/file/file-form-field-builder";
 import { Subscription } from "rxjs";
 import { OrderUtil } from "../../shared/order/order-util";
+import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 
 @Component({
   selector: "zac-informatie-object-edit",
@@ -66,6 +67,7 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
     private configuratieService: ConfiguratieService,
     private translateService: TranslateService,
     private identityService: IdentityService,
+    private vertrouwelijkaanduidingToTranslationKeyPipe: VertrouwelijkaanduidingToTranslationKeyPipe,
   ) {}
 
   ngOnInit(): void {
@@ -156,8 +158,9 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
 
     const vertrouwelijk = new SelectFormFieldBuilder({
       label: this.translateService.instant(
-        "vertrouwelijkheidaanduiding." +
-          this.infoObject.vertrouwelijkheidaanduiding.toUpperCase(),
+        this.vertrouwelijkaanduidingToTranslationKeyPipe.transform(
+          this.infoObject.vertrouwelijkheidaanduiding,
+        ),
       ),
       value: this.infoObject.vertrouwelijkheidaanduiding.toUpperCase(),
     })

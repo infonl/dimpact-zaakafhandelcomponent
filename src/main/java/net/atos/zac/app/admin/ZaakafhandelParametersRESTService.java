@@ -158,7 +158,8 @@ public class ZaakafhandelParametersRESTService {
      */
     @PUT
     public RESTZaakafhandelParameters updateZaakafhandelparameters(
-            final RESTZaakafhandelParameters restZaakafhandelParameters) {
+            final RESTZaakafhandelParameters restZaakafhandelParameters
+    ) {
         assertPolicy(policyService.readOverigeRechten().beheren());
         ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParametersConverter.convertRESTZaakafhandelParameters(
                 restZaakafhandelParameters);
@@ -194,9 +195,10 @@ public class ZaakafhandelParametersRESTService {
     @GET
     @Path("zaakbeeindigRedenen/{zaaktypeUUID}")
     public List<RESTZaakbeeindigReden> listZaakbeeindigRedenenForZaaktype(
-            @PathParam("zaaktypeUUID") final UUID zaaktypeUUID) {
+            @PathParam("zaaktypeUUID") final UUID zaaktypeUUID
+    ) {
         final List<ZaakbeeindigReden> zaakbeeindigRedenen = zaakafhandelParameterService.readZaakafhandelParameters(
-                        zaaktypeUUID)
+                zaaktypeUUID)
                 .getZaakbeeindigParameters().stream()
                 .map(ZaakbeeindigParameter::getZaakbeeindigReden)
                 .toList();
@@ -231,13 +233,13 @@ public class ZaakafhandelParametersRESTService {
     public List<RESTTaakFormulierDefinitie> listFormulierDefinities() {
         return Arrays.stream(FormulierDefinitie.values())
                 .map(formulierDefinitie -> new RESTTaakFormulierDefinitie(formulierDefinitie.name(),
-                                                                      formulierDefinitie.getVeldDefinities()
-                                                                              .stream()
-                                                                              .map(formulierVeldDefinitie -> new RESTTaakFormulierVeldDefinitie(
-                                                                                      formulierVeldDefinitie.name(),
-                                                                                      formulierVeldDefinitie.getDefaultTabel()
-                                                                                              .name()))
-                                                                              .collect(Collectors.toList())))
+                        formulierDefinitie.getVeldDefinities()
+                                .stream()
+                                .map(formulierVeldDefinitie -> new RESTTaakFormulierVeldDefinitie(
+                                        formulierVeldDefinitie.name(),
+                                        formulierVeldDefinitie.getDefaultTabel()
+                                                .name()))
+                                .collect(Collectors.toList())))
                 .collect(Collectors.toList());
     }
 

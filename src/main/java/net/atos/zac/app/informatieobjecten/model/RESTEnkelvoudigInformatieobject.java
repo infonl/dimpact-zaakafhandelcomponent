@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.EnumSet;
 import java.util.UUID;
+
 import jakarta.validation.constraints.NotNull;
 
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
@@ -21,7 +22,6 @@ import net.atos.zac.zoeken.model.DocumentIndicatie;
  */
 public class RESTEnkelvoudigInformatieobject {
 
-
     public UUID uuid;
 
     public String identificatie;
@@ -31,7 +31,7 @@ public class RESTEnkelvoudigInformatieobject {
 
     public String beschrijving;
 
-    @NotNull
+    // not always required
     public LocalDate creatiedatum;
 
     public ZonedDateTime registratiedatumTijd;
@@ -42,24 +42,23 @@ public class RESTEnkelvoudigInformatieobject {
 
     public String bronorganisatie;
 
-    @NotNull
+    // not always required
     public String vertrouwelijkheidaanduiding;
 
-    @NotNull
+    // not always required
     public String auteur;
 
     public EnkelvoudigInformatieObject.StatusEnum status;
 
     public String formaat;
 
-    @NotNull
+    // not always required
     public String taal;
 
     public Integer versie;
 
     @NotNull
     public UUID informatieobjectTypeUUID;
-
 
     public String informatieobjectTypeOmschrijving;
 

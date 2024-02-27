@@ -59,12 +59,14 @@ public class AuditZaakWijzigingConverter extends AbstractAuditWijzigingConverter
         checkCommunicatieKanaal(oud.getCommunicatiekanaal(), nieuw.getCommunicatiekanaal(), historieRegels);
         checkZaakgeometrie(oud.getZaakgeometrie(), nieuw.getZaakgeometrie(), historieRegels);
         checkHoofdzaak(oud.getHoofdzaak(), nieuw.getHoofdzaak(), historieRegels);
-        checkAttribuut("vertrouwelijkheidaanduiding", oud.getVertrouwelijkheidaanduiding(), nieuw.getVertrouwelijkheidaanduiding(), historieRegels);
+        checkAttribuut("vertrouwelijkheidaanduiding", oud.getVertrouwelijkheidaanduiding(), nieuw.getVertrouwelijkheidaanduiding(),
+                historieRegels);
         checkAttribuut("registratiedatum", oud.getRegistratiedatum(), nieuw.getRegistratiedatum(), historieRegels);
         checkAttribuut("startdatum", oud.getStartdatum(), nieuw.getStartdatum(), historieRegels);
         checkAttribuut("einddatumGepland", oud.getEinddatumGepland(), nieuw.getEinddatumGepland(), historieRegels);
         checkAttribuut("einddatum", oud.getEinddatum(), nieuw.getEinddatum(), historieRegels);
-        checkAttribuut("uiterlijkeEinddatumAfdoening", oud.getUiterlijkeEinddatumAfdoening(), nieuw.getUiterlijkeEinddatumAfdoening(), historieRegels);
+        checkAttribuut("uiterlijkeEinddatumAfdoening", oud.getUiterlijkeEinddatumAfdoening(), nieuw.getUiterlijkeEinddatumAfdoening(),
+                historieRegels);
         checkAttribuut("omschrijving", oud.getOmschrijving(), nieuw.getOmschrijving(), historieRegels);
         checkAttribuut("toelichting", oud.getToelichting(), nieuw.getToelichting(), historieRegels);
 
@@ -86,7 +88,7 @@ public class AuditZaakWijzigingConverter extends AbstractAuditWijzigingConverter
     private void checkCommunicatieKanaal(final URI oud, final URI nieuw, final List<RESTHistorieRegel> historieRegels) {
         if (ObjectUtils.notEqual(oud, nieuw)) {
             historieRegels.add(new RESTHistorieRegel("communicatiekanaal", communicatieKanaalToWaarde(oud),
-                                                     communicatieKanaalToWaarde(nieuw)));
+                    communicatieKanaalToWaarde(nieuw)));
         }
     }
 

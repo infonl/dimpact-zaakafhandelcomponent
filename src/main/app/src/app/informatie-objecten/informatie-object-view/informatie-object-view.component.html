@@ -37,7 +37,7 @@
                                     <zac-static-text [label]="'identificatie' | translate"
                                                      [value]="infoObject.identificatie"></zac-static-text>
                                     <zac-static-text [label]="'vertrouwelijkheidaanduiding' | translate"
-                                                     [value]="'vertrouwelijkheidaanduiding.'+infoObject.vertrouwelijkheidaanduiding | translate"></zac-static-text>
+                                                     [value]="infoObject.vertrouwelijkheidaanduiding | vertrouwelijkaanduidingToTranslationKey | translate"></zac-static-text>
                                     <zac-static-text [label]="'bestandsnaam' | translate"
                                                      [value]="infoObject.bestandsnaam">
                                         <zac-document-icon position="content-before" [bestandsnaam]="infoObject.bestandsnaam"></zac-document-icon>

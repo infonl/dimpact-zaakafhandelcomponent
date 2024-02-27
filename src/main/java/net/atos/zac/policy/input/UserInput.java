@@ -5,9 +5,9 @@
 
 package net.atos.zac.policy.input;
 
-import net.atos.zac.authentication.LoggedInUser;
-
 import jakarta.json.bind.annotation.JsonbProperty;
+
+import net.atos.zac.authentication.LoggedInUser;
 
 public class UserInput {
 

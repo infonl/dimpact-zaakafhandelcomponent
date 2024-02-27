@@ -50,8 +50,8 @@ public interface ObjectsClient {
     @POST
     @Path("objects")
     @ClientHeaderParams({
-            @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-            @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
+                         @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
+                         @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
     ORObject objectCreate(final ORObject object);
 
     @GET
@@ -61,7 +61,7 @@ public interface ObjectsClient {
     @PUT
     @Path("objects/{object-uuid}")
     @ClientHeaderParams({
-            @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-            @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
+                         @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
+                         @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
     ORObject objectUpdate(@PathParam("object-uuid") final UUID objectUUID, final ORObject object);
 }

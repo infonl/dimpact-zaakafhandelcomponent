@@ -52,8 +52,7 @@ public class ZaakafhandelParameters {
     @Column(name = "id_zaakafhandelparameters")
     private Long id;
 
-    @NotNull
-    @Column(name = "uuid_zaaktype", nullable = false)
+    @NotNull @Column(name = "uuid_zaaktype", nullable = false)
     private UUID zaakTypeUUID;
 
     @NotBlank
@@ -221,7 +220,8 @@ public class ZaakafhandelParameters {
     }
 
     public void setUserEventListenerParametersCollection(
-            final Collection<UserEventListenerParameters> userEventListenerParametersCollection) {
+            final Collection<UserEventListenerParameters> userEventListenerParametersCollection
+    ) {
         if (this.userEventListenerParametersCollection == null) {
             this.userEventListenerParametersCollection = new HashSet<>();
         } else {
@@ -332,7 +332,7 @@ public class ZaakafhandelParameters {
                 .filter(zaakbeeindigParameter -> zaakbeeindigParameter.getZaakbeeindigReden().getId().equals(zaakbeeindigRedenId))
                 .findAny().orElseThrow(() -> new RuntimeException(
                         String.format("No ZaakbeeindigParameter found for zaaktypeUUID: '%s' and zaakbeeindigRedenId: '%d'", zaakTypeUUID,
-                                      zaakbeeindigRedenId)));
+                                zaakbeeindigRedenId)));
     }
 
 
@@ -340,8 +340,9 @@ public class ZaakafhandelParameters {
         return getUserEventListenerParametersCollection().stream()
                 .filter(userEventListenerParameters -> userEventListenerParameters.getPlanItemDefinitionID().equals(planitemDefinitionID))
                 .findAny().orElseThrow(() -> new RuntimeException(
-                        String.format("No UserEventListenerParameters found for zaaktypeUUID: '%s' and planitemDefinitionID: '%s'", zaakTypeUUID,
-                                      planitemDefinitionID)));
+                        String.format("No UserEventListenerParameters found for zaaktypeUUID: '%s' and planitemDefinitionID: '%s'",
+                                zaakTypeUUID,
+                                planitemDefinitionID)));
     }
 
     public Optional<HumanTaskParameters> findHumanTaskParameter(final String planitemDefinitionID) {
@@ -350,4 +351,3 @@ public class ZaakafhandelParameters {
                 .findAny();
     }
 }
-

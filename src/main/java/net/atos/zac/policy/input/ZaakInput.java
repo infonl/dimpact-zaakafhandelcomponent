@@ -20,4 +20,3 @@ public class ZaakInput extends UserInput {
         return zaak;
     }
 }
-

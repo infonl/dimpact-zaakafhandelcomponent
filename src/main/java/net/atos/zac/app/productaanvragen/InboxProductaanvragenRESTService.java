@@ -67,8 +67,8 @@ public class InboxProductaanvragenRESTService {
         assertPolicy(policyService.readWerklijstRechten().inbox());
         final InboxProductaanvraagListParameters listParameters = listParametersConverter.convert(restListParameters);
         final InboxProductaanvraagResultaat resultaat = inboxProductaanvraagService.list(listParameters);
-        final RESTInboxProductaanvraagResultaat restInboxProductaanvraagResultaat =
-                new RESTInboxProductaanvraagResultaat(inboxProductaanvraagConverter.convert(resultaat.getItems()), resultaat.getCount());
+        final RESTInboxProductaanvraagResultaat restInboxProductaanvraagResultaat = new RESTInboxProductaanvraagResultaat(
+                inboxProductaanvraagConverter.convert(resultaat.getItems()), resultaat.getCount());
         final List<String> types = resultaat.getTypeFilter();
         if (CollectionUtils.isEmpty(types)) {
             if (restListParameters.type != null) {
@@ -84,8 +84,7 @@ public class InboxProductaanvragenRESTService {
     @Path("/{uuid}/pdfPreview")
     public Response pdfPreview(@PathParam("uuid") final UUID uuid) {
         assertPolicy(policyService.readWerklijstRechten().inbox());
-        EnkelvoudigInformatieObject enkelvoudigInformatieobject =
-                drcClientService.readEnkelvoudigInformatieobject(uuid);
+        EnkelvoudigInformatieObject enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(uuid);
         try (ByteArrayInputStream is = drcClientService.downloadEnkelvoudigInformatieobject(uuid)) {
             return Response.ok(is)
                     .header("Content-Disposition",

@@ -46,7 +46,8 @@ public class RESTNummeraanduidingConverter {
         restNummeraanduiding.url = URI.create(nummeraanduidingIO.getLinks().getSelf().getHref());
         if (nummeraanduidingIO.getEmbedded() != null) {
             restNummeraanduiding.woonplaats = woonplaatsConverter.convertToREST(nummeraanduidingIO.getEmbedded().getLigtInWoonplaats());
-            restNummeraanduiding.openbareRuimte = openbareRuimteConverter.convertToREST(nummeraanduidingIO.getEmbedded().getLigtAanOpenbareRuimte());
+            restNummeraanduiding.openbareRuimte = openbareRuimteConverter.convertToREST(nummeraanduidingIO.getEmbedded()
+                    .getLigtAanOpenbareRuimte());
         }
         return restNummeraanduiding;
     }
@@ -84,12 +85,12 @@ public class RESTNummeraanduidingConverter {
 
     private String convertHuisnummerWeergave(final Nummeraanduiding nummeraanduiding) {
         return RESTBAGConverter.getHuisnummerWeergave(nummeraanduiding.getHuisnummer(), nummeraanduiding.getHuisletter(),
-                                                      nummeraanduiding.getHuisnummertoevoeging());
+                nummeraanduiding.getHuisnummertoevoeging());
     }
 
     private String convertHuisnummerWeergave(final ObjectNummeraanduiding nummeraanduiding) {
         return RESTBAGConverter.getHuisnummerWeergave(nummeraanduiding.getHuisnummer(), nummeraanduiding.getHuisletter(),
-                                                      nummeraanduiding.getHuisnummertoevoeging());
+                nummeraanduiding.getHuisnummertoevoeging());
     }
 
     public RESTNummeraanduiding convertToREST(final Nummeraanduiding nummeraanduiding) {

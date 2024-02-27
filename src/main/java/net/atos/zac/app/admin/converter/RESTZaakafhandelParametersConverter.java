@@ -46,8 +46,10 @@ public class RESTZaakafhandelParametersConverter {
     @Inject
     private ZaakafhandelParameterService zaakafhandelParameterService;
 
-    public RESTZaakafhandelParameters convertZaakafhandelParameters(final ZaakafhandelParameters zaakafhandelParameters,
-            final boolean inclusiefRelaties) {
+    public RESTZaakafhandelParameters convertZaakafhandelParameters(
+            final ZaakafhandelParameters zaakafhandelParameters,
+            final boolean inclusiefRelaties
+    ) {
         final RESTZaakafhandelParameters restZaakafhandelParameters = new RESTZaakafhandelParameters();
         restZaakafhandelParameters.id = zaakafhandelParameters.getId();
         restZaakafhandelParameters.zaaktype = restZaaktypeOverzichtConverter.convert(
@@ -55,7 +57,8 @@ public class RESTZaakafhandelParametersConverter {
         restZaakafhandelParameters.defaultGroepId = zaakafhandelParameters.getGroepID();
         restZaakafhandelParameters.defaultBehandelaarId = zaakafhandelParameters.getGebruikersnaamMedewerker();
         restZaakafhandelParameters.einddatumGeplandWaarschuwing = zaakafhandelParameters.getEinddatumGeplandWaarschuwing();
-        restZaakafhandelParameters.uiterlijkeEinddatumAfdoeningWaarschuwing = zaakafhandelParameters.getUiterlijkeEinddatumAfdoeningWaarschuwing();
+        restZaakafhandelParameters.uiterlijkeEinddatumAfdoeningWaarschuwing = zaakafhandelParameters
+                .getUiterlijkeEinddatumAfdoeningWaarschuwing();
         restZaakafhandelParameters.creatiedatum = zaakafhandelParameters.getCreatiedatum();
         restZaakafhandelParameters.valide = zaakafhandelParameters.isValide();
 
@@ -71,9 +74,10 @@ public class RESTZaakafhandelParametersConverter {
             restZaakafhandelParameters.humanTaskParameters = humanTaskParametersConverter.convertHumanTaskParametersCollection(
                     zaakafhandelParameters.getHumanTaskParametersCollection(),
                     restZaakafhandelParameters.caseDefinition.humanTaskDefinitions);
-            restZaakafhandelParameters.userEventListenerParameters = userEventListenerParametersConverter.convertUserEventListenerParametersCollection(
-                    zaakafhandelParameters.getUserEventListenerParametersCollection(),
-                    restZaakafhandelParameters.caseDefinition.userEventListenerDefinitions);
+            restZaakafhandelParameters.userEventListenerParameters = userEventListenerParametersConverter
+                    .convertUserEventListenerParametersCollection(
+                            zaakafhandelParameters.getUserEventListenerParametersCollection(),
+                            restZaakafhandelParameters.caseDefinition.userEventListenerDefinitions);
             restZaakafhandelParameters.zaakbeeindigParameters = zaakbeeindigParameterConverter.convertZaakbeeindigParameters(
                     zaakafhandelParameters.getZaakbeeindigParameters());
             restZaakafhandelParameters.mailtemplateKoppelingen = mailtemplateKoppelingConverter.convert(
@@ -96,7 +100,8 @@ public class RESTZaakafhandelParametersConverter {
     }
 
     public ZaakafhandelParameters convertRESTZaakafhandelParameters(
-            final RESTZaakafhandelParameters restZaakafhandelParameters) {
+            final RESTZaakafhandelParameters restZaakafhandelParameters
+    ) {
         final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
                 restZaakafhandelParameters.zaaktype.uuid);
         zaakafhandelParameters.setId(restZaakafhandelParameters.id);

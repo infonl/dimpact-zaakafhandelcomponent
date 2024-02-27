@@ -10,10 +10,14 @@ import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraagListParam
 import net.atos.zac.app.shared.RESTListParametersConverter;
 import net.atos.zac.zoeken.model.DatumRange;
 
-public class RESTInboxProductaanvraagListParametersConverter extends RESTListParametersConverter<InboxProductaanvraagListParameters, RESTInboxProductaanvraagListParameters> {
+public class RESTInboxProductaanvraagListParametersConverter extends
+                                                             RESTListParametersConverter<InboxProductaanvraagListParameters, RESTInboxProductaanvraagListParameters> {
 
     @Override
-    protected void doConvert(final InboxProductaanvraagListParameters listParameters, final RESTInboxProductaanvraagListParameters restListParameters) {
+    protected void doConvert(
+            final InboxProductaanvraagListParameters listParameters,
+            final RESTInboxProductaanvraagListParameters restListParameters
+    ) {
         listParameters.setType(restListParameters.type);
         listParameters.setInitiatorID(restListParameters.initiatorID);
 

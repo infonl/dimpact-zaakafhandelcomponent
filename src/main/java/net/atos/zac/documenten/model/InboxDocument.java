@@ -50,16 +50,14 @@ public class InboxDocument {
     @Column(name = "id_inbox_document")
     private Long id;
 
-    @NotNull
-    @Column(name = "uuid_enkelvoudiginformatieobject", nullable = false)
+    @NotNull @Column(name = "uuid_enkelvoudiginformatieobject", nullable = false)
     private UUID enkelvoudiginformatieobjectUUID;
 
     @NotBlank
     @Column(name = "id_enkelvoudiginformatieobject", nullable = false)
     private String enkelvoudiginformatieobjectID;
 
-    @NotNull
-    @Column(name = "creatiedatum", nullable = false)
+    @NotNull @Column(name = "creatiedatum", nullable = false)
     private ZonedDateTime creatiedatum;
 
     @NotBlank

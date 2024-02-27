@@ -110,9 +110,11 @@ public class SignaleringenService {
      * @param ownerId          the id of the owner of the instellingen to construct
      * @return the constructed instance (subject and target are still null, type and tijdstip have been set)
      */
-    public SignaleringInstellingen signaleringInstellingenInstance(final SignaleringType.Type signaleringsType,
+    public SignaleringInstellingen signaleringInstellingenInstance(
+            final SignaleringType.Type signaleringsType,
             final SignaleringTarget ownerType,
-            final String ownerId) {
+            final String ownerId
+    ) {
         return new SignaleringInstellingen(signaleringTypeInstance(signaleringsType), ownerType, ownerId);
     }
 
@@ -134,7 +136,8 @@ public class SignaleringenService {
     }
 
     /**
-     * Business logic for deciding if signalling is necessary. Groep-targets will always get signalled but user-targets only when they are not themselves
+     * Business logic for deciding if signalling is necessary. Groep-targets will always get signalled but user-targets only when they are
+     * not themselves
      * the actor that caused the event (or when the actor is unknown).
      *
      * @param signalering the signalering (should have the target set)
@@ -168,9 +171,9 @@ public class SignaleringenService {
         final CriteriaQuery<Signalering> query = builder.createQuery(Signalering.class);
         final Root<Signalering> root = query.from(Signalering.class);
         return entityManager.createQuery(
-                        query.select(root)
-                                .where(getSignaleringWhere(parameters, builder, root))
-                                .orderBy(builder.desc(root.get("tijdstip"))))
+                query.select(root)
+                        .where(getSignaleringWhere(parameters, builder, root))
+                        .orderBy(builder.desc(root.get("tijdstip"))))
                 .getResultList();
     }
 
@@ -193,8 +196,11 @@ public class SignaleringenService {
         }
     }
 
-    private Predicate getSignaleringWhere(final SignaleringZoekParameters parameters, final CriteriaBuilder builder,
-            final Root<Signalering> root) {
+    private Predicate getSignaleringWhere(
+            final SignaleringZoekParameters parameters,
+            final CriteriaBuilder builder,
+            final Root<Signalering> root
+    ) {
         final List<Predicate> where = new ArrayList<>();
         where.add(builder.equal(root.get("targettype"), parameters.getTargettype()));
         if (parameters.getTarget() != null) {
@@ -202,7 +208,7 @@ public class SignaleringenService {
         }
         if (!parameters.getTypes().isEmpty()) {
             where.add(root.get("type").get("id")
-                              .in(parameters.getTypes().stream().map(Enum::toString).collect(Collectors.toList())));
+                    .in(parameters.getTypes().stream().map(Enum::toString).collect(Collectors.toList())));
         }
         if (parameters.getSubjecttype() != null) {
             where.add(builder.equal(root.get("type").get("subjecttype"), parameters.getSubjecttype()));
@@ -232,7 +238,7 @@ public class SignaleringenService {
                 case DOCUMENT -> bronnenBuilder.add(getDocument(signalering.getSubject()));
             }
             mailService.sendMail(new MailGegevens(from, to, mailTemplate.getOnderwerp(), mailTemplate.getBody()),
-                                 bronnenBuilder.build());
+                    bronnenBuilder.build());
         }
     }
 
@@ -251,14 +257,14 @@ public class SignaleringenService {
     private MailTemplate getMailtemplate(final Signalering signalering) {
         return mailTemplateService.readMailtemplate(
                 switch (signalering.getType().getType()) {
-                    case TAAK_OP_NAAM -> Mail.SIGNALERING_TAAK_OP_NAAM;
-                    case TAAK_VERLOPEN -> Mail.SIGNALERING_TAAK_VERLOPEN;
-                    case ZAAK_DOCUMENT_TOEGEVOEGD -> Mail.SIGNALERING_ZAAK_DOCUMENT_TOEGEVOEGD;
-                    case ZAAK_OP_NAAM -> Mail.SIGNALERING_ZAAK_OP_NAAM;
-                    case ZAAK_VERLOPEND -> switch (SignaleringDetail.valueOf(signalering.getDetail())) {
-                        case STREEFDATUM -> Mail.SIGNALERING_ZAAK_VERLOPEND_STREEFDATUM;
-                        case FATALE_DATUM -> Mail.SIGNALERING_ZAAK_VERLOPEND_FATALE_DATUM;
-                    };
+                case TAAK_OP_NAAM -> Mail.SIGNALERING_TAAK_OP_NAAM;
+                case TAAK_VERLOPEN -> Mail.SIGNALERING_TAAK_VERLOPEN;
+                case ZAAK_DOCUMENT_TOEGEVOEGD -> Mail.SIGNALERING_ZAAK_DOCUMENT_TOEGEVOEGD;
+                case ZAAK_OP_NAAM -> Mail.SIGNALERING_ZAAK_OP_NAAM;
+                case ZAAK_VERLOPEND -> switch (SignaleringDetail.valueOf(signalering.getDetail())) {
+                case STREEFDATUM -> Mail.SIGNALERING_ZAAK_VERLOPEND_STREEFDATUM;
+                case FATALE_DATUM -> Mail.SIGNALERING_ZAAK_VERLOPEND_FATALE_DATUM;
+                };
                 });
     }
 
@@ -299,14 +305,16 @@ public class SignaleringenService {
         final CriteriaQuery<SignaleringInstellingen> query = builder.createQuery(SignaleringInstellingen.class);
         final Root<SignaleringInstellingen> root = query.from(SignaleringInstellingen.class);
         return entityManager.createQuery(
-                        query.select(root)
-                                .where(getSignaleringInstellingenWhere(parameters, builder, root)))
+                query.select(root)
+                        .where(getSignaleringInstellingenWhere(parameters, builder, root)))
                 .getResultList();
     }
 
-    private Predicate getSignaleringInstellingenWhere(final SignaleringInstellingenZoekParameters parameters,
+    private Predicate getSignaleringInstellingenWhere(
+            final SignaleringInstellingenZoekParameters parameters,
             final CriteriaBuilder builder,
-            final Root<SignaleringInstellingen> root) {
+            final Root<SignaleringInstellingen> root
+    ) {
         final List<Predicate> where = new ArrayList<>();
         if (parameters.getOwner() != null) {
             switch (parameters.getOwnertype()) {
@@ -331,14 +339,15 @@ public class SignaleringenService {
     }
 
     public List<SignaleringInstellingen> listInstellingenInclusiefMogelijke(
-            final SignaleringInstellingenZoekParameters parameters) {
+            final SignaleringInstellingenZoekParameters parameters
+    ) {
         final Map<SignaleringType.Type, SignaleringInstellingen> map = listInstellingen(parameters).stream()
                 .collect(Collectors.toMap(instellingen -> instellingen.getType().getType(), Function.identity()));
         Arrays.stream(SignaleringType.Type.values())
                 .filter(type -> type.isTarget(parameters.getOwnertype()))
                 .filter(type -> !map.containsKey(type))
                 .forEach(type -> map.put(type, signaleringInstellingenInstance(type, parameters.getOwnertype(),
-                                                                               parameters.getOwner())));
+                        parameters.getOwner())));
         return map.values().stream()
                 .sorted(Comparator.comparing(SignaleringInstellingen::getType))
                 .toList();
@@ -359,20 +368,23 @@ public class SignaleringenService {
     }
 
     public Optional<SignaleringVerzonden> findSignaleringVerzonden(
-            final SignaleringVerzondenZoekParameters parameters) {
+            final SignaleringVerzondenZoekParameters parameters
+    ) {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<SignaleringVerzonden> query = builder.createQuery(SignaleringVerzonden.class);
         final Root<SignaleringVerzonden> root = query.from(SignaleringVerzonden.class);
         final List<SignaleringVerzonden> result = entityManager.createQuery(
-                        query.select(root)
-                                .where(getSignaleringVerzondenWhere(parameters, builder, root)))
+                query.select(root)
+                        .where(getSignaleringVerzondenWhere(parameters, builder, root)))
                 .getResultList();
         return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
     }
 
-    private Predicate getSignaleringVerzondenWhere(final SignaleringVerzondenZoekParameters parameters,
+    private Predicate getSignaleringVerzondenWhere(
+            final SignaleringVerzondenZoekParameters parameters,
             final CriteriaBuilder builder,
-            final Root<SignaleringVerzonden> root) {
+            final Root<SignaleringVerzonden> root
+    ) {
         final List<Predicate> where = new ArrayList<>();
         where.add(builder.equal(root.get("targettype"), parameters.getTargettype()));
         if (parameters.getTarget() != null) {
@@ -380,7 +392,7 @@ public class SignaleringenService {
         }
         if (!parameters.getTypes().isEmpty()) {
             where.add(root.get("type").get("id")
-                              .in(parameters.getTypes().stream().map(Enum::toString).collect(Collectors.toList())));
+                    .in(parameters.getTypes().stream().map(Enum::toString).collect(Collectors.toList())));
         }
         if (parameters.getSubjecttype() != null) {
             where.add(builder.equal(root.get("type").get("subjecttype"), parameters.getSubjecttype()));

@@ -77,9 +77,9 @@ public class RESTBedrijfConverter {
     private String convertAdres(final ResultaatItem bedrijf) {
 
         final String adres = replace(joinNonBlankWith(NON_BREAKING_SPACE, bedrijf.getStraatnaam(),
-                                                      Objects.toString(bedrijf.getHuisnummer(), null),
-                                                      bedrijf.getHuisnummerToevoeging()),
-                                     SPACE, NON_BREAKING_SPACE);
+                Objects.toString(bedrijf.getHuisnummer(), null),
+                bedrijf.getHuisnummerToevoeging()),
+                SPACE, NON_BREAKING_SPACE);
         final String postcode = replace(bedrijf.getPostcode(), SPACE, NON_BREAKING_SPACE);
         final String woonplaats = replace(bedrijf.getPlaats(), SPACE, NON_BREAKING_SPACE);
         return joinNonBlankWith(", ", adres, postcode, woonplaats);

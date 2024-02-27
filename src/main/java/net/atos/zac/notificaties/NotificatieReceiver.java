@@ -122,7 +122,7 @@ public class NotificatieReceiver {
         try {
             if (notificatie.getChannel() != null && notificatie.getResource() != null) {
                 ScreenEventType.getEvents(notificatie.getChannel(), notificatie.getMainResourceInfo(),
-                                          notificatie.getResourceInfo())
+                        notificatie.getResourceInfo())
                         .forEach(eventingService::send);
             }
         } catch (RuntimeException ex) {
@@ -134,7 +134,7 @@ public class NotificatieReceiver {
         try {
             if (notificatie.getChannel() != null && notificatie.getResource() != null) {
                 SignaleringEventUtil.getEvents(notificatie.getChannel(), notificatie.getMainResourceInfo(),
-                                               notificatie.getResourceInfo())
+                        notificatie.getResourceInfo())
                         .forEach(eventingService::send);
             }
         } catch (RuntimeException ex) {
@@ -168,12 +168,12 @@ public class NotificatieReceiver {
                     if (notificatie.getAction() == CREATE || notificatie.getAction() == UPDATE) {
                         // Updaten van taak is nodig bij afsluiten zaak
                         indexeerService.addOrUpdateZaak(uuidFromURI(notificatie.getResourceUrl()),
-                                                        notificatie.getAction() == UPDATE);
+                                notificatie.getAction() == UPDATE);
                     } else if (notificatie.getAction() == DELETE) {
                         indexeerService.removeZaak(uuidFromURI(notificatie.getResourceUrl()));
                     }
                 } else if (notificatie.getResource() == STATUS || notificatie.getResource() == RESULTAAT ||
-                        notificatie.getResource() == ROL || notificatie.getResource() == ZAAKOBJECT) {
+                           notificatie.getResource() == ROL || notificatie.getResource() == ZAAKOBJECT) {
                     indexeerService.addOrUpdateZaak(uuidFromURI(notificatie.getMainResourceUrl()), false);
                 } else if (notificatie.getResource() == ZAAKINFORMATIEOBJECT && notificatie.getAction() == CREATE) {
                     indexeerService.addOrUpdateInformatieobjectByZaakinformatieobject(

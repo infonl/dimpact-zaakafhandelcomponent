@@ -48,8 +48,7 @@ public class OntkoppeldDocument {
     @Column(name = "id_ontkoppeld_document")
     private Long id;
 
-    @NotNull
-    @Column(name = "uuid_document", nullable = false)
+    @NotNull @Column(name = "uuid_document", nullable = false)
     private UUID documentUUID;
 
     @NotBlank
@@ -60,8 +59,7 @@ public class OntkoppeldDocument {
     @Column(name = "id_zaak", nullable = false)
     private String zaakID;
 
-    @NotNull
-    @Column(name = "creatiedatum", nullable = false)
+    @NotNull @Column(name = "creatiedatum", nullable = false)
     private ZonedDateTime creatiedatum;
 
     @NotBlank
@@ -71,8 +69,7 @@ public class OntkoppeldDocument {
     @Column(name = "bestandsnaam")
     private String bestandsnaam;
 
-    @NotNull
-    @Column(name = "ontkoppeld_op", nullable = false)
+    @NotNull @Column(name = "ontkoppeld_op", nullable = false)
     private ZonedDateTime ontkoppeldOp;
 
     @NotBlank
@@ -162,4 +159,3 @@ public class OntkoppeldDocument {
         this.reden = reden;
     }
 }
-

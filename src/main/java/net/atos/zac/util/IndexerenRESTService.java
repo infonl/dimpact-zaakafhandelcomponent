@@ -56,8 +56,8 @@ public class IndexerenRESTService {
         Arrays.stream(ZoekObjectType.values()).forEach(type -> {
             final IndexeerService.Resultaat resultaat = indexeerService.indexeer(aantal, type);
             info.append(("[%s] geindexeerd: %d, verwijderd: %d, resterend: %d\n")
-                                .formatted(type.toString(), resultaat.indexed(), resultaat.removed(),
-                                           resultaat.remaining()));
+                    .formatted(type.toString(), resultaat.indexed(), resultaat.removed(),
+                            resultaat.remaining()));
         });
         return info.toString();
     }

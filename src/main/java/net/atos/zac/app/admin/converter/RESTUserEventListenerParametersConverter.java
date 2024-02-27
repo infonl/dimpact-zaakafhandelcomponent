@@ -15,32 +15,42 @@ import net.atos.zac.zaaksturing.model.UserEventListenerParameters;
 public class RESTUserEventListenerParametersConverter {
 
     public List<RESTUserEventListenerParameter> convertUserEventListenerParametersCollection(
-            final Set<UserEventListenerParameters> userEventListenerParametersCollection, final List<RESTPlanItemDefinition> userEventListenerDefinitions) {
+            final Set<UserEventListenerParameters> userEventListenerParametersCollection,
+            final List<RESTPlanItemDefinition> userEventListenerDefinitions
+    ) {
         return userEventListenerDefinitions.stream()
-                .map(userEventListenerDefinition -> convertUserEventListenerDefinition(userEventListenerDefinition, userEventListenerParametersCollection))
+                .map(userEventListenerDefinition -> convertUserEventListenerDefinition(userEventListenerDefinition,
+                        userEventListenerParametersCollection))
                 .toList();
     }
 
-    private RESTUserEventListenerParameter convertUserEventListenerDefinition(final RESTPlanItemDefinition userEventListenerDefinition,
-            final Set<UserEventListenerParameters> userEventListenerParametersCollection) {
+    private RESTUserEventListenerParameter convertUserEventListenerDefinition(
+            final RESTPlanItemDefinition userEventListenerDefinition,
+            final Set<UserEventListenerParameters> userEventListenerParametersCollection
+    ) {
         final RESTUserEventListenerParameter restUserEventListenerParameter = new RESTUserEventListenerParameter();
         restUserEventListenerParameter.id = userEventListenerDefinition.id;
         restUserEventListenerParameter.naam = userEventListenerDefinition.naam;
         userEventListenerParametersCollection.stream()
-                .filter(userEventListenerParameters -> userEventListenerParameters.getPlanItemDefinitionID().equals(userEventListenerDefinition.id))
+                .filter(userEventListenerParameters -> userEventListenerParameters.getPlanItemDefinitionID().equals(
+                        userEventListenerDefinition.id))
                 .findAny()
-                .ifPresent(userEventListenerParameters -> restUserEventListenerParameter.toelichting = userEventListenerParameters.getToelichting());
+                .ifPresent(userEventListenerParameters -> restUserEventListenerParameter.toelichting = userEventListenerParameters
+                        .getToelichting());
         return restUserEventListenerParameter;
     }
 
     public List<UserEventListenerParameters> convertRESTUserEventListenerParameters(
-            final List<RESTUserEventListenerParameter> restUserEventListenerParameters) {
+            final List<RESTUserEventListenerParameter> restUserEventListenerParameters
+    ) {
         return restUserEventListenerParameters.stream()
                 .map(this::convertRESTUserEventListenerParameter)
                 .toList();
     }
 
-    private UserEventListenerParameters convertRESTUserEventListenerParameter(final RESTUserEventListenerParameter restUserEventListenerParameter) {
+    private UserEventListenerParameters convertRESTUserEventListenerParameter(
+            final RESTUserEventListenerParameter restUserEventListenerParameter
+    ) {
         final UserEventListenerParameters userEventListenerParameters = new UserEventListenerParameters();
         userEventListenerParameters.setPlanItemDefinitionID(restUserEventListenerParameter.id);
         userEventListenerParameters.setToelichting(restUserEventListenerParameter.toelichting);

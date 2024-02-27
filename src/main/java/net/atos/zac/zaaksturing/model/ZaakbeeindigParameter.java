@@ -30,18 +30,15 @@ public class ZaakbeeindigParameter {
     @Column(name = "id_zaakbeeindigparameter")
     private Long id;
 
-    @NotNull
-    @ManyToOne
+    @NotNull @ManyToOne
     @JoinColumn(name = "id_zaakafhandelparameters", referencedColumnName = "id_zaakafhandelparameters")
     private ZaakafhandelParameters zaakafhandelParameters;
 
-    @NotNull
-    @ManyToOne
+    @NotNull @ManyToOne
     @JoinColumn(name = "id_zaakbeeindigreden", referencedColumnName = "id_zaakbeeindigreden")
     private ZaakbeeindigReden zaakbeeindigReden;
 
-    @NotNull
-    @Column(name = "resultaattype_uuid", nullable = false)
+    @NotNull @Column(name = "resultaattype_uuid", nullable = false)
     private UUID resultaattype;
 
     public Long getId() {

@@ -53,10 +53,9 @@ public class RESTBesluitConverter {
         restBesluit.ingangsdatum = besluit.getIngangsdatum();
         restBesluit.vervaldatum = besluit.getVervaldatum();
         restBesluit.vervalreden = besluit.getVervalreden();
-        restBesluit.isIngetrokken =
-                restBesluit.vervaldatum != null &&
-                        (restBesluit.vervalreden == Besluit.VervalredenEnum.INGETROKKEN_BELANGHEBBENDE ||
-                                restBesluit.vervalreden == Besluit.VervalredenEnum.INGETROKKEN_OVERHEID);
+        restBesluit.isIngetrokken = restBesluit.vervaldatum != null &&
+                                    (restBesluit.vervalreden == Besluit.VervalredenEnum.INGETROKKEN_BELANGHEBBENDE ||
+                                     restBesluit.vervalreden == Besluit.VervalredenEnum.INGETROKKEN_OVERHEID);
         restBesluit.informatieobjecten = informatieobjectConverter.convertInformatieobjectenToREST(
                 listBesluitInformatieobjecten(besluit));
         return restBesluit;
@@ -93,8 +92,10 @@ public class RESTBesluitConverter {
         return besluit;
     }
 
-    public Besluit convertToBesluit(final Besluit besluit,
-            final RESTBesluitIntrekkenGegevens besluitIntrekkenGegevens) {
+    public Besluit convertToBesluit(
+            final Besluit besluit,
+            final RESTBesluitIntrekkenGegevens besluitIntrekkenGegevens
+    ) {
         besluit.setVervaldatum(besluitIntrekkenGegevens.vervaldatum);
         besluit.setVervalreden(Besluit.VervalredenEnum.valueOf(besluitIntrekkenGegevens.vervalreden));
         return besluit;

@@ -14,8 +14,7 @@ public class RESTGroup {
      * {@link net.atos.client.zgw.zrc.model.OrganisatorischeEenheid}
      * we need to make sure it adheres to the same constraints.
      */
-    @NotNull
-    @Size(max = 24)
+    @NotNull @Size(max = 24)
     public String id;
 
     /**
@@ -23,7 +22,6 @@ public class RESTGroup {
      * {@link net.atos.client.zgw.zrc.model.OrganisatorischeEenheid}
      * we need to make sure it adheres to the same constraints.
      */
-    @NotNull
-    @Size(max = 50)
+    @NotNull @Size(max = 50)
     public String naam;
 }

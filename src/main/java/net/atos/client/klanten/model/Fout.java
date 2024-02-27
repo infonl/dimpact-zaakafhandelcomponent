@@ -5,7 +5,13 @@
 
 /**
  * Klanten API
- * Een API om klanten te benaderen.  Een API om zowel klanten te registreren als op te vragen. Een klant is een natuurlijk persoon, niet-natuurlijk persoon (bedrijf) of vestiging waarbij het gaat om niet geverifieerde gegevens. De Klanten API kan zelfstandig of met andere API's samen werken om tot volledige functionaliteit te komen.  **Afhankelijkheden**  Deze API is afhankelijk van:  * Autorisaties API * Notificaties API * Zaken API *(optioneel)* * Documenten API *(optioneel)*  **Autorisatie**  Deze API vereist autorisatie. Je kan de [token-tool](https://zaken-auth.vng.cloud/) gebruiken om JWT-tokens te genereren.  ** Notificaties  Deze API publiceert notificaties op het kanaal `klanten`.  **Main resource**  `klant`    **Kenmerken**  * `subject_type`: Type van de `subject`.  **Resources en acties**   **Handige links**  * [Documentatie](https://zaakgerichtwerken.vng.cloud/standaard) * [Zaakgericht werken](https://zaakgerichtwerken.vng.cloud)
+ * Een API om klanten te benaderen. Een API om zowel klanten te registreren als op te vragen. Een klant is een natuurlijk persoon,
+ * niet-natuurlijk persoon (bedrijf) of vestiging waarbij het gaat om niet geverifieerde gegevens. De Klanten API kan zelfstandig of met
+ * andere API's samen werken om tot volledige functionaliteit te komen. **Afhankelijkheden** Deze API is afhankelijk van: * Autorisaties API
+ * * Notificaties API * Zaken API *(optioneel)* * Documenten API *(optioneel)* **Autorisatie** Deze API vereist autorisatie. Je kan de
+ * [token-tool](https://zaken-auth.vng.cloud/) gebruiken om JWT-tokens te genereren. ** Notificaties Deze API publiceert notificaties op het
+ * kanaal `klanten`. **Main resource** `klant` **Kenmerken** * `subject_type`: Type van de `subject`. **Resources en acties** **Handige
+ * links** * [Documentatie](https://zaakgerichtwerken.vng.cloud/standaard) * [Zaakgericht werken](https://zaakgerichtwerken.vng.cloud)
  * <p>
  * The version of the OpenAPI document: 1.0.0
  * Contact: standaarden.ondersteuning@vng.nl
@@ -61,6 +67,7 @@ public class Fout {
 
     /**
      * URI referentie naar het type fout, bedoeld voor developers
+     * 
      * @return type
      **/
     public String getType() {
@@ -81,6 +88,7 @@ public class Fout {
 
     /**
      * Systeemcode die het type fout aangeeft
+     * 
      * @return code
      **/
     public String getCode() {
@@ -101,6 +109,7 @@ public class Fout {
 
     /**
      * Generieke titel voor het type fout
+     * 
      * @return title
      **/
     public String getTitle() {
@@ -121,6 +130,7 @@ public class Fout {
 
     /**
      * De HTTP status code
+     * 
      * @return status
      **/
     public Integer getStatus() {
@@ -141,6 +151,7 @@ public class Fout {
 
     /**
      * Extra informatie bij de fout, indien beschikbaar
+     * 
      * @return detail
      **/
     public String getDetail() {
@@ -161,6 +172,7 @@ public class Fout {
 
     /**
      * URI met referentie naar dit specifiek voorkomen van de fout. Deze kan gebruikt worden in combinatie met server logs, bijvoorbeeld.
+     * 
      * @return instance
      **/
     public String getInstance() {
@@ -209,4 +221,3 @@ public class Fout {
         return o.toString().replace("\n", "\n    ");
     }
 }
-
