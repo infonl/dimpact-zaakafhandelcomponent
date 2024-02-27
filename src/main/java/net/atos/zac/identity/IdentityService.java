@@ -190,8 +190,11 @@ public class IdentityService {
                 .toList();
     }
 
-    private List<Attributes> search(final String root, final Filter filter,
-            final String[] attributesToReturn) {
+    private List<Attributes> search(
+            final String root,
+            final Filter filter,
+            final String[] attributesToReturn
+    ) {
         final SearchControls searchControls = new SearchControls();
         searchControls.setReturningAttributes(attributesToReturn);
         searchControls.setSearchScope(SearchControls.ONELEVEL_SCOPE);

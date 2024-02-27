@@ -59,8 +59,10 @@ public class MailRESTService {
 
     @POST
     @Path("send/{zaakUuid}")
-    public void sendMail(@PathParam("zaakUuid") final UUID zaakUUID,
-            final RESTMailGegevens restMailGegevens) throws MailjetException {
+    public void sendMail(
+            @PathParam("zaakUuid") final UUID zaakUUID,
+            final RESTMailGegevens restMailGegevens
+    ) throws MailjetException {
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
         assertPolicy(policyService.readZaakRechten(zaak).behandelen());
         validateEmail(restMailGegevens.verzender);
@@ -71,8 +73,10 @@ public class MailRESTService {
 
     @POST
     @Path("acknowledge/{zaakUuid}")
-    public void sendAcknowledgmentReceiptMail(@PathParam("zaakUuid") final UUID zaakUuid,
-            final RESTMailGegevens restMailGegevens) throws MailjetException {
+    public void sendAcknowledgmentReceiptMail(
+            @PathParam("zaakUuid") final UUID zaakUuid,
+            final RESTMailGegevens restMailGegevens
+    ) throws MailjetException {
         final Zaak zaak = zrcClientService.readZaak(zaakUuid);
         assertPolicy(!zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.getUuid()).orElse(false) &&
                      policyService.readZaakRechten(zaak).behandelen());

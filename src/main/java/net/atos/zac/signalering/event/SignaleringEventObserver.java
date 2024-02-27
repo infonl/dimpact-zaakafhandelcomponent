@@ -89,13 +89,19 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
         return addTarget(signalering, rol);
     }
 
-    private Signalering getSignaleringVoorMedewerker(final SignaleringEvent<?> event, final Zaak subject,
-            final RolMedewerker rol) {
+    private Signalering getSignaleringVoorMedewerker(
+            final SignaleringEvent<?> event,
+            final Zaak subject,
+            final RolMedewerker rol
+    ) {
         return getSignaleringVoorRol(event, subject, rol);
     }
 
-    private Signalering getSignaleringVoorGroup(final SignaleringEvent<?> event, final Zaak subject,
-            final RolOrganisatorischeEenheid rol) {
+    private Signalering getSignaleringVoorGroup(
+            final SignaleringEvent<?> event,
+            final Zaak subject,
+            final RolOrganisatorischeEenheid rol
+    ) {
         if (getRolBehandelaarMedewerker(subject).isEmpty()) {
             return getSignaleringVoorRol(event, subject, rol);
         }
@@ -189,8 +195,11 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
         return getRol(zaak, getRoltypeBehandelaar(zaak), BetrokkeneType.ORGANISATORISCHE_EENHEID);
     }
 
-    private Optional<Rol<?>> getRol(final Zaak zaak, final RolType roltype,
-            final BetrokkeneType betrokkeneType) {
+    private Optional<Rol<?>> getRol(
+            final Zaak zaak,
+            final RolType roltype,
+            final BetrokkeneType betrokkeneType
+    ) {
         return zrcClientService.listRollen(new RolListParameters(zaak.getUrl(), roltype.getUrl(), betrokkeneType))
                 .getSingleResult();
     }

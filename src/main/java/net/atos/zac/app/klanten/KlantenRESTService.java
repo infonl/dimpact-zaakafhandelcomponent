@@ -123,8 +123,9 @@ public class KlantenRESTService {
 
     @GET
     @Path("vestiging/{vestigingsnummer}")
-    public RESTBedrijf readVestiging(
-            @PathParam("vestigingsnummer") final String vestigingsnummer) throws ExecutionException, InterruptedException {
+    public RESTBedrijf readVestiging(@PathParam("vestigingsnummer") final String vestigingsnummer)
+                                                                                                   throws ExecutionException,
+                                                                                                   InterruptedException {
         return kvkClientService.findVestigingAsync(vestigingsnummer)
                 .thenCombine(klantenClientService.findVestigingAsync(vestigingsnummer),
                         this::convertToRESTBedrijf)
@@ -202,7 +203,8 @@ public class KlantenRESTService {
     @Path("contactgegevens/{identificatieType}/{initiatorIdentificatie}")
     public RESTContactGegevens ophalenContactGegevens(
             @PathParam("identificatieType") final IdentificatieType identificatieType,
-            @PathParam("initiatorIdentificatie") final String initiatorIdentificatie) {
+            @PathParam("initiatorIdentificatie") final String initiatorIdentificatie
+    ) {
         final RESTContactGegevens restContactGegevens = new RESTContactGegevens();
         if (identificatieType == null) {
             return restContactGegevens;

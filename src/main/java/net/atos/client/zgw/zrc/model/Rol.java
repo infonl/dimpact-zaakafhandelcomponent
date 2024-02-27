@@ -104,9 +104,13 @@ public abstract class Rol<T> {
     /**
      * Constructor with required attributes for POST and PUT requests
      */
-    public Rol(final URI zaak, final RolType roltype, final BetrokkeneType betrokkeneType,
+    public Rol(
+            final URI zaak,
+            final RolType roltype,
+            final BetrokkeneType betrokkeneType,
             final T betrokkeneIdentificatie,
-            final String roltoelichting) {
+            final String roltoelichting
+    ) {
         this.zaak = zaak;
         this.betrokkeneIdentificatie = betrokkeneIdentificatie;
         this.betrokkeneType = betrokkeneType;

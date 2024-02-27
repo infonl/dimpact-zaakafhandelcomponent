@@ -30,7 +30,8 @@ public record ZaakRechten(
             @JsonbProperty("afbreken") final boolean afbreken,
             @JsonbProperty("heropenen") final boolean heropenen,
             @JsonbProperty("wijzigenZaakdata") final boolean wijzigenZaakdata,
-            @JsonbProperty("wijzigenDoorlooptijd") final boolean wijzigenDoorlooptijd) {
+            @JsonbProperty("wijzigenDoorlooptijd") final boolean wijzigenDoorlooptijd
+    ) {
         this.lezen = lezen;
         this.wijzigen = wijzigen;
         this.toekennen = toekennen;

@@ -17,8 +17,12 @@ public class RolNietNatuurlijkPersoon extends Rol<NietNatuurlijkPersoon> {
     public RolNietNatuurlijkPersoon() {
     }
 
-    public RolNietNatuurlijkPersoon(final URI zaak, final RolType roltype,
-            final String roltoelichting, final NietNatuurlijkPersoon betrokkeneIdentificatie) {
+    public RolNietNatuurlijkPersoon(
+            final URI zaak,
+            final RolType roltype,
+            final String roltoelichting,
+            final NietNatuurlijkPersoon betrokkeneIdentificatie
+    ) {
         super(zaak, roltype, BetrokkeneType.NIET_NATUURLIJK_PERSOON, betrokkeneIdentificatie, roltoelichting);
     }
 

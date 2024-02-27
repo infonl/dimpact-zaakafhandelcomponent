@@ -57,8 +57,10 @@ public class DocumentZoekObjectConverter extends AbstractZoekObjectConverter<Doc
         return convert(document, zaakInformatieobjecten.get(0));
     }
 
-    private DocumentZoekObject convert(final EnkelvoudigInformatieObject informatieobject,
-            final ZaakInformatieobject gekoppeldeZaakInformatieobject) {
+    private DocumentZoekObject convert(
+            final EnkelvoudigInformatieObject informatieobject,
+            final ZaakInformatieobject gekoppeldeZaakInformatieobject
+    ) {
         final Zaak zaak = zrcClientService.readZaak(gekoppeldeZaakInformatieobject.getZaakUUID());
         final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
         final InformatieObjectType informatieobjecttype = ztcClientService.readInformatieobjecttype(

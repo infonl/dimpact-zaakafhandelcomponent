@@ -380,7 +380,8 @@ public class Zaak {
     }
 
     public void setVertrouwelijkheidaanduiding(
-            final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum vertrouwelijkheidaanduiding) {
+            final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum vertrouwelijkheidaanduiding
+    ) {
         this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding;
     }
 

@@ -86,10 +86,12 @@ public class ZaakInformatieobject {
      * Constructor with readOnly attributes for GET response
      */
     @JsonbCreator
-    public ZaakInformatieobject(@JsonbProperty("url") final URI url,
+    public ZaakInformatieobject(
+            @JsonbProperty("url") final URI url,
             @JsonbProperty("uuid") final UUID uuid,
             @JsonbProperty("aardRelatieWeergave") final AardRelatieWeergave aardRelatieWeergave,
-            @JsonbProperty("registratiedatum") final ZonedDateTime registratiedatum) {
+            @JsonbProperty("registratiedatum") final ZonedDateTime registratiedatum
+    ) {
         this.url = url;
         this.uuid = uuid;
         this.aardRelatieWeergave = aardRelatieWeergave;

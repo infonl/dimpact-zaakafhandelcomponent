@@ -32,7 +32,9 @@ public class RESTZoekResultaatConverter {
     private RESTDocumentZoekObjectConverter restDocumentZoekObjectConverter;
 
     public RESTZoekResultaat<? extends AbstractRESTZoekObject> convert(
-            final ZoekResultaat<? extends ZoekObject> zoekResultaat, final RESTZoekParameters zoekParameters) {
+            final ZoekResultaat<? extends ZoekObject> zoekResultaat,
+            final RESTZoekParameters zoekParameters
+    ) {
 
         final RESTZoekResultaat<? extends AbstractRESTZoekObject> restZoekResultaat = new RESTZoekResultaat<>(zoekResultaat.getItems()
                 .stream().map(this::convert).toList(), zoekResultaat.getCount());

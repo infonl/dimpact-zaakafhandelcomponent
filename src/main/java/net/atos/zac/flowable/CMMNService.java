@@ -99,9 +99,12 @@ public class CMMNService {
                 .list();
     }
 
-    public void startCase(final Zaak zaak, final ZaakType zaaktype,
+    public void startCase(
+            final Zaak zaak,
+            final ZaakType zaaktype,
             final ZaakafhandelParameters zaakafhandelParameters,
-            final Map<String, Object> zaakData) {
+            final Map<String, Object> zaakData
+    ) {
         final String caseDefinitionKey = zaakafhandelParameters.getCaseDefinitionID();
         LOG.info(() -> String.format("Zaak %s: Starten zaak met CMMN model '%s'", zaak.getUuid(), caseDefinitionKey));
         try {
@@ -138,8 +141,15 @@ public class CMMNService {
         }
     }
 
-    public void startHumanTaskPlanItem(final String planItemInstanceId, final String groupId, final String assignee,
-            final Date dueDate, final String description, final Map<String, String> taakdata, final UUID zaakUUID) {
+    public void startHumanTaskPlanItem(
+            final String planItemInstanceId,
+            final String groupId,
+            final String assignee,
+            final Date dueDate,
+            final String description,
+            final Map<String, String> taakdata,
+            final UUID zaakUUID
+    ) {
 
         cmmnRuntimeService.createPlanItemInstanceTransitionBuilder(planItemInstanceId)
                 .transientVariable(VAR_TRANSIENT_OWNER, loggedInUserInstance.get().getId())

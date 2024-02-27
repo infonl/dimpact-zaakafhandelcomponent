@@ -180,7 +180,8 @@ public class HealthCheckService {
     }
 
     private void controleerZaaktypeInformatieobjecttypeInrichting(
-            final ZaaktypeInrichtingscheck zaaktypeInrichtingscheck) {
+            final ZaaktypeInrichtingscheck zaaktypeInrichtingscheck
+    ) {
         final List<InformatieObjectType> informatieobjecttypes = ztcClientService.readInformatieobjecttypen(
                 zaaktypeInrichtingscheck.getZaaktype().getUrl());
         informatieobjecttypes.forEach(informatieobjecttype -> {

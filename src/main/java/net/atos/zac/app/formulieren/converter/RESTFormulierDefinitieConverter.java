@@ -18,8 +18,11 @@ public class RESTFormulierDefinitieConverter {
     @Inject
     private RESTFormulierVeldDefinitieConverter veldDefinitieConverter;
 
-    public RESTFormulierDefinitie convert(final FormulierDefinitie formulierDefinitie,
-            boolean inclusiefVelden, boolean runtime) {
+    public RESTFormulierDefinitie convert(
+            final FormulierDefinitie formulierDefinitie,
+            boolean inclusiefVelden,
+            boolean runtime
+    ) {
         final RESTFormulierDefinitie restFormulierDefinitie = new RESTFormulierDefinitie();
         restFormulierDefinitie.id = formulierDefinitie.getId();
         restFormulierDefinitie.beschrijving = formulierDefinitie.getBeschrijving();

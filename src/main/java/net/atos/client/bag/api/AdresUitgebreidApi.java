@@ -93,7 +93,8 @@ public interface AdresUitgebreidApi {
     public AdresUitgebreidHal bevraagAdresUitgebreidMetNumId(
             @PathParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie,
             @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
-            @QueryParam("inclusiefEindStatus") @DefaultValue("false") Boolean inclusiefEindStatus) throws ProcessingException;
+            @QueryParam("inclusiefEindStatus") @DefaultValue("false") Boolean inclusiefEindStatus
+    ) throws ProcessingException;
 
     /**
      * Bevragen van de uitgebreide informatie van één of meer huidige adressen op basis van verschillende combinaties van parameters.
@@ -114,7 +115,8 @@ public interface AdresUitgebreidApi {
      */
     @GET
     @Produces({"application/hal+json", "application/problem+json"})
-    public AdresUitgebreidHalCollection zoekAdresUitgebreid(@QueryParam("postcode") String postcode,
+    public AdresUitgebreidHalCollection zoekAdresUitgebreid(
+            @QueryParam("postcode") String postcode,
             @QueryParam("huisnummer") Integer huisnummer,
             @QueryParam("huisnummertoevoeging") String huisnummertoevoeging,
             @QueryParam("huisletter") String huisletter,
@@ -124,6 +126,8 @@ public interface AdresUitgebreidApi {
             @QueryParam("openbareRuimteNaam") String openbareRuimteNaam,
             @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
             @QueryParam("page") @DefaultValue("1") Integer page,
-            @QueryParam("pageSize") @DefaultValue("20") Integer pageSize, @QueryParam("q") String q,
-            @QueryParam("inclusiefEindStatus") @DefaultValue("false") Boolean inclusiefEindStatus) throws ProcessingException;
+            @QueryParam("pageSize") @DefaultValue("20") Integer pageSize,
+            @QueryParam("q") String q,
+            @QueryParam("inclusiefEindStatus") @DefaultValue("false") Boolean inclusiefEindStatus
+    ) throws ProcessingException;
 }

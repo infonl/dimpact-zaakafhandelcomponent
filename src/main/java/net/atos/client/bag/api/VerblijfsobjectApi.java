@@ -98,10 +98,14 @@ public interface VerblijfsobjectApi {
     @GET
     @Path("/{identificatie}")
     @Produces({"application/hal+json", "application/problem+json"})
-    public VerblijfsobjectIOHal verblijfsobjectIdentificatie(@PathParam("identificatie") String identificatie,
-            @QueryParam("geldigOp") LocalDate geldigOp, @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
-            @QueryParam("expand") String expand, @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
-            @QueryParam("huidig") @DefaultValue("false") Boolean huidig) throws ProcessingException;
+    public VerblijfsobjectIOHal verblijfsobjectIdentificatie(
+            @PathParam("identificatie") String identificatie,
+            @QueryParam("geldigOp") LocalDate geldigOp,
+            @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
+            @QueryParam("expand") String expand,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
+            @QueryParam("huidig") @DefaultValue("false") Boolean huidig
+    ) throws ProcessingException;
 
     /**
      * bevragen voorkomen van een verblijfsobject, op basis van de identificatie van een verblijfsobject en de identificatie van een
@@ -113,9 +117,12 @@ public interface VerblijfsobjectApi {
     @GET
     @Path("/{identificatie}/{versie}/{timestampRegistratieLv}")
     @Produces({"application/hal+json", "application/problem+json"})
-    public VerblijfsobjectIOHal verblijfsobjectIdentificatieVoorkomen(@PathParam("identificatie") String identificatie,
-            @PathParam("versie") Integer versie, @PathParam("timestampRegistratieLv") String timestampRegistratieLv,
-            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs) throws ProcessingException;
+    public VerblijfsobjectIOHal verblijfsobjectIdentificatieVoorkomen(
+            @PathParam("identificatie") String identificatie,
+            @PathParam("versie") Integer versie,
+            @PathParam("timestampRegistratieLv") String timestampRegistratieLv,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs
+    ) throws ProcessingException;
 
     /**
      * bevragen levenscyclus van een verblijfsobject met de identificatie van een verblijfsobject.
@@ -128,7 +135,8 @@ public interface VerblijfsobjectApi {
     public VerblijfsobjectIOLvcHalCollection verblijfsobjectLvcIdentificatie(
             @PathParam("identificatie") String identificatie,
             @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc,
-            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs) throws ProcessingException;
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs
+    ) throws ProcessingException;
 
     /**
      * Zoeken van alle aan een pand gerelateerde verblijfsobjecten of binnen een bounding box (met paginering).
@@ -146,13 +154,17 @@ public interface VerblijfsobjectApi {
     @Produces({"application/hal+json", "application/problem+json"})
     public VerblijfsobjectIOHalCollection zoekVerblijfsobjecten(
             @QueryParam("pandIdentificatie") String pandIdentificatie,
-            @QueryParam("huidig") @DefaultValue("false") Boolean huidig, @QueryParam("geldigOp") LocalDate geldigOp,
-            @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp, @QueryParam("expand") String expand,
+            @QueryParam("huidig") @DefaultValue("false") Boolean huidig,
+            @QueryParam("geldigOp") LocalDate geldigOp,
+            @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
+            @QueryParam("expand") String expand,
             @QueryParam("page") @DefaultValue("1") Integer page,
             @QueryParam("pageSize") @DefaultValue("20") Integer pageSize,
             @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
-            @HeaderParam("Content-Crs") String contentCrs, @QueryParam("bbox") List<BigDecimal> bbox,
+            @HeaderParam("Content-Crs") String contentCrs,
+            @QueryParam("bbox") List<BigDecimal> bbox,
             @QueryParam("geconstateerd") Boolean geconstateerd,
             @QueryParam("oppervlakte") OppervlakteFilter oppervlakte,
-            @QueryParam("gebruiksdoelen") List<Gebruiksdoel> gebruiksdoelen) throws ProcessingException;
+            @QueryParam("gebruiksdoelen") List<Gebruiksdoel> gebruiksdoelen
+    ) throws ProcessingException;
 }

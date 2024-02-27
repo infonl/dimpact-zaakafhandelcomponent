@@ -154,8 +154,11 @@ public class ZRCClientService {
      *
      * @param zaakInformatieobjectUuid zaakInformatieobjectUuid
      */
-    public void deleteZaakInformatieobject(final UUID zaakInformatieobjectUuid, final String toelichting,
-            final String toelichtingPrefix) {
+    public void deleteZaakInformatieobject(
+            final UUID zaakInformatieobjectUuid,
+            final String toelichting,
+            final String toelichtingPrefix
+    ) {
         final String fullToelichting = StringUtils.isEmpty(toelichting) ?
                 toelichtingPrefix :
                 String.format("%s: %s", toelichtingPrefix, toelichting);
@@ -380,8 +383,11 @@ public class ZRCClientService {
         return zaakResults.getResults().get(0);
     }
 
-    public void verplaatsInformatieobject(final EnkelvoudigInformatieObject informatieobject,
-            final Zaak oudeZaak, final Zaak nieuweZaak) {
+    public void verplaatsInformatieobject(
+            final EnkelvoudigInformatieObject informatieobject,
+            final Zaak oudeZaak,
+            final Zaak nieuweZaak
+    ) {
         final ZaakInformatieobjectListParameters parameters = new ZaakInformatieobjectListParameters();
         parameters.setInformatieobject(informatieobject.getUrl());
         parameters.setZaak(oudeZaak.getUrl());
@@ -405,8 +411,11 @@ public class ZRCClientService {
         deleteZaakInformatieobject(oudeZaakInformatieobject.getUuid(), toelichting, "Verplaatst");
     }
 
-    public void koppelInformatieobject(final EnkelvoudigInformatieObject informatieobject,
-            final Zaak nieuweZaak, final String toelichting) {
+    public void koppelInformatieobject(
+            final EnkelvoudigInformatieObject informatieobject,
+            final Zaak nieuweZaak,
+            final String toelichting
+    ) {
         List<ZaakInformatieobject> zaakInformatieobjecten = listZaakinformatieobjecten(informatieobject);
         if (!zaakInformatieobjecten.isEmpty()) {
             final UUID zaakUuid = UriUtil.uuidFromURI(zaakInformatieobjecten.get(0).getZaak());

@@ -142,9 +142,12 @@ public class InboxDocumentenService {
         return builder.and(predicates.toArray(new Predicate[0]));
     }
 
-    private void addCreatiedatumPredicates(final DatumRange creatiedatum, final List<Predicate> predicates,
+    private void addCreatiedatumPredicates(
+            final DatumRange creatiedatum,
+            final List<Predicate> predicates,
             final Root<InboxDocument> root,
-            final CriteriaBuilder builder) {
+            final CriteriaBuilder builder
+    ) {
         if (creatiedatum != null) {
             if (creatiedatum.van() != null) {
                 predicates.add(builder.greaterThanOrEqualTo(root.get(InboxDocument.CREATIEDATUM),

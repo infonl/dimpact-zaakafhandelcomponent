@@ -23,15 +23,18 @@ public class RESTHumanTaskParametersConverter {
 
     public List<RESTHumanTaskParameters> convertHumanTaskParametersCollection(
             final Collection<HumanTaskParameters> humanTaskParametersCollection,
-            final List<RESTPlanItemDefinition> humanTaskDefinitions) {
+            final List<RESTPlanItemDefinition> humanTaskDefinitions
+    ) {
         return humanTaskDefinitions.stream()
                 .map(humanTaskDefinition -> convertHumanTaskDefinition(humanTaskDefinition,
                         humanTaskParametersCollection))
                 .toList();
     }
 
-    private RESTHumanTaskParameters convertHumanTaskDefinition(final RESTPlanItemDefinition humanTaskDefinition,
-            final Collection<HumanTaskParameters> humanTaskParametersCollection) {
+    private RESTHumanTaskParameters convertHumanTaskDefinition(
+            final RESTPlanItemDefinition humanTaskDefinition,
+            final Collection<HumanTaskParameters> humanTaskParametersCollection
+    ) {
         return humanTaskParametersCollection.stream()
                 .filter(humanTaskParameters -> humanTaskParameters.getPlanItemDefinitionID()
                         .equals(humanTaskDefinition.id))
@@ -40,8 +43,10 @@ public class RESTHumanTaskParametersConverter {
                 .orElseGet(() -> convertToRESTHumanTaskParameters(humanTaskDefinition));
     }
 
-    private RESTHumanTaskParameters convertToRESTHumanTaskParameters(final HumanTaskParameters humanTaskParameters,
-            final RESTPlanItemDefinition humanTaskDefinition) {
+    private RESTHumanTaskParameters convertToRESTHumanTaskParameters(
+            final HumanTaskParameters humanTaskParameters,
+            final RESTPlanItemDefinition humanTaskDefinition
+    ) {
         final RESTHumanTaskParameters restHumanTaskParameters = new RESTHumanTaskParameters();
         restHumanTaskParameters.id = humanTaskParameters.getId();
         restHumanTaskParameters.actief = humanTaskParameters.isActief();
@@ -54,8 +59,10 @@ public class RESTHumanTaskParametersConverter {
         return restHumanTaskParameters;
     }
 
-    private List<RESTHumanTaskReferentieTabel> convertReferentieTabellen(final HumanTaskParameters humanTaskParameters,
-            final RESTPlanItemDefinition humanTaskDefinition) {
+    private List<RESTHumanTaskReferentieTabel> convertReferentieTabellen(
+            final HumanTaskParameters humanTaskParameters,
+            final RESTPlanItemDefinition humanTaskDefinition
+    ) {
         final List<RESTHumanTaskReferentieTabel> referentieTabellen = restHumanTaskReferentieTabelConverter.convert(
                 humanTaskParameters.getReferentieTabellen());
         DefaultHumanTaskFormulierKoppeling.readFormulierVeldDefinities(humanTaskDefinition.id).stream()
@@ -76,7 +83,8 @@ public class RESTHumanTaskParametersConverter {
     }
 
     public List<HumanTaskParameters> convertRESTHumanTaskParameters(
-            final List<RESTHumanTaskParameters> restHumanTaskParametersList) {
+            final List<RESTHumanTaskParameters> restHumanTaskParametersList
+    ) {
         return restHumanTaskParametersList.stream()
                 .map(this::convertRESTHumanTaskParameters)
                 .toList();

@@ -158,7 +158,8 @@ public class ZaakafhandelParametersRESTService {
      */
     @PUT
     public RESTZaakafhandelParameters updateZaakafhandelparameters(
-            final RESTZaakafhandelParameters restZaakafhandelParameters) {
+            final RESTZaakafhandelParameters restZaakafhandelParameters
+    ) {
         assertPolicy(policyService.readOverigeRechten().beheren());
         ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParametersConverter.convertRESTZaakafhandelParameters(
                 restZaakafhandelParameters);
@@ -194,7 +195,8 @@ public class ZaakafhandelParametersRESTService {
     @GET
     @Path("zaakbeeindigRedenen/{zaaktypeUUID}")
     public List<RESTZaakbeeindigReden> listZaakbeeindigRedenenForZaaktype(
-            @PathParam("zaaktypeUUID") final UUID zaaktypeUUID) {
+            @PathParam("zaaktypeUUID") final UUID zaaktypeUUID
+    ) {
         final List<ZaakbeeindigReden> zaakbeeindigRedenen = zaakafhandelParameterService.readZaakafhandelParameters(
                 zaaktypeUUID)
                 .getZaakbeeindigParameters().stream()

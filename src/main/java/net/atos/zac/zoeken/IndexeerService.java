@@ -152,8 +152,10 @@ public class IndexeerService {
         throw new RuntimeException("[%s] No converter found".formatted(objectType.toString()));
     }
 
-    private ZoekObject convertToZoekObject(final ZoekIndexEntity zoekIndexEntity,
-            final AbstractZoekObjectConverter<? extends ZoekObject> converter) {
+    private ZoekObject convertToZoekObject(
+            final ZoekIndexEntity zoekIndexEntity,
+            final AbstractZoekObjectConverter<? extends ZoekObject> converter
+    ) {
         ZoekObject zoekObject = null;
         try {
             zoekObject = converter.convert(zoekIndexEntity.getObjectId());
@@ -302,7 +304,8 @@ public class IndexeerService {
     }
 
     private boolean markInformatieobjectenForReindexing(
-            final EnkelvoudigInformatieobjectListParameters listParameters) {
+            final EnkelvoudigInformatieobjectListParameters listParameters
+    ) {
         final Results<EnkelvoudigInformatieObject> results = drcClientService.listEnkelvoudigInformatieObjecten(listParameters);
         helper.markObjectsForReindexing(
                 results.getResults().stream()

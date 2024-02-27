@@ -72,8 +72,10 @@ public interface KlantcontactmomentenClient {
     @POST
     @Consumes({"application/json"})
     @Produces({"application/json", "application/problem+json"})
-    public KlantContactMoment klantcontactmomentCreate(@HeaderParam("Content-Type") String contentType,
-            KlantContactMoment klantContactMoment) throws ProcessingException;
+    public KlantContactMoment klantcontactmomentCreate(
+            @HeaderParam("Content-Type") String contentType,
+            KlantContactMoment klantContactMoment
+    ) throws ProcessingException;
 
     /**
      * Verwijder een KLANT-CONTACTMOMENT relatie.
@@ -91,7 +93,8 @@ public interface KlantcontactmomentenClient {
     @GET
     @Produces({"application/json", "application/problem+json"})
     public KlantcontactmomentList200Response klantcontactmomentList(
-            @BeanParam final KlantcontactmomentListParameters parameters) throws ProcessingException;
+            @BeanParam final KlantcontactmomentListParameters parameters
+    ) throws ProcessingException;
 
     /**
      * Een specifieke KLANT-CONTACTMOMENT relatie opvragen.
@@ -99,6 +102,8 @@ public interface KlantcontactmomentenClient {
     @GET
     @Path("/{uuid}")
     @Produces({"application/json", "application/problem+json"})
-    public KlantContactMoment klantcontactmomentRead(@PathParam("uuid") UUID uuid,
-            @HeaderParam("If-None-Match") String ifNoneMatch) throws ProcessingException;
+    public KlantContactMoment klantcontactmomentRead(
+            @PathParam("uuid") UUID uuid,
+            @HeaderParam("If-None-Match") String ifNoneMatch
+    ) throws ProcessingException;
 }

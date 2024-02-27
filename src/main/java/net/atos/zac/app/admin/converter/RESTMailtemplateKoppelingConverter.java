@@ -38,7 +38,8 @@ public class RESTMailtemplateKoppelingConverter {
     }
 
     public List<MailtemplateKoppeling> convertRESTmailtemplateKoppelingen(
-            final List<RESTMailtemplateKoppeling> restMailtemplateKoppelingen) {
+            final List<RESTMailtemplateKoppeling> restMailtemplateKoppelingen
+    ) {
         return restMailtemplateKoppelingen.stream().map(this::convert).toList();
     }
 }

@@ -52,8 +52,12 @@ public final class SolrSchemaUpdateHelper {
                 ));
     }
 
-    public static SchemaRequest.AddField addField(final String name, final FieldType type, final boolean indexed,
-            final boolean stored) {
+    public static SchemaRequest.AddField addField(
+            final String name,
+            final FieldType type,
+            final boolean indexed,
+            final boolean stored
+    ) {
         return new SchemaRequest.AddField(
                 Map.of(NAME, name,
                         TYPE, type.getValue(),
@@ -62,8 +66,13 @@ public final class SolrSchemaUpdateHelper {
                 ));
     }
 
-    public static SchemaRequest.AddField addField(final String name, final FieldType type, final boolean indexed,
-            final boolean stored, final boolean docValues) {
+    public static SchemaRequest.AddField addField(
+            final String name,
+            final FieldType type,
+            final boolean indexed,
+            final boolean stored,
+            final boolean docValues
+    ) {
         return new SchemaRequest.AddField(
                 Map.of(NAME, name,
                         TYPE, type.getValue(),
@@ -81,8 +90,11 @@ public final class SolrSchemaUpdateHelper {
                 ));
     }
 
-    public static SchemaRequest.AddField addFieldMultiValued(final String name, final FieldType type,
-            final boolean docValues) {
+    public static SchemaRequest.AddField addFieldMultiValued(
+            final String name,
+            final FieldType type,
+            final boolean docValues
+    ) {
         return new SchemaRequest.AddField(
                 Map.of(NAME, name,
                         TYPE, type.getValue(),
@@ -91,8 +103,12 @@ public final class SolrSchemaUpdateHelper {
                 ));
     }
 
-    public static SchemaRequest.AddField addFieldMultiValued(final String name, final FieldType type,
-            final boolean indexed, final boolean stored) {
+    public static SchemaRequest.AddField addFieldMultiValued(
+            final String name,
+            final FieldType type,
+            final boolean indexed,
+            final boolean stored
+    ) {
         return new SchemaRequest.AddField(
                 Map.of(NAME, name,
                         TYPE, type.getValue(),
@@ -110,8 +126,12 @@ public final class SolrSchemaUpdateHelper {
         return new SchemaRequest.DeleteCopyField(source, List.of(dest));
     }
 
-    public static SchemaRequest.AddDynamicField addDynamicField(final String name, final FieldType type,
-            final boolean indexed, final boolean stored) {
+    public static SchemaRequest.AddDynamicField addDynamicField(
+            final String name,
+            final FieldType type,
+            final boolean indexed,
+            final boolean stored
+    ) {
         return new SchemaRequest.AddDynamicField(
                 Map.of(NAME, name,
                         TYPE, type.getValue(),
@@ -120,8 +140,13 @@ public final class SolrSchemaUpdateHelper {
                 ));
     }
 
-    public static SchemaRequest.AddDynamicField addDynamicField(final String name, final FieldType type,
-            final boolean indexed, final boolean stored, final boolean multiValued) {
+    public static SchemaRequest.AddDynamicField addDynamicField(
+            final String name,
+            final FieldType type,
+            final boolean indexed,
+            final boolean stored,
+            final boolean multiValued
+    ) {
         return new SchemaRequest.AddDynamicField(
                 Map.of(NAME, name,
                         TYPE, type.getValue(),

@@ -95,9 +95,11 @@ public interface OpenbareRuimteApi {
     @Produces({"application/hal+json", "application/problem+json"})
     public OpenbareRuimteIOHal openbareruimteIdentificatie(
             @PathParam("openbareRuimteIdentificatie") String openbareRuimteIdentificatie,
-            @QueryParam("geldigOp") LocalDate geldigOp, @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
+            @QueryParam("geldigOp") LocalDate geldigOp,
+            @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
             @QueryParam("expand") String expand,
-            @QueryParam("huidig") @DefaultValue("false") Boolean huidig) throws ProcessingException;
+            @QueryParam("huidig") @DefaultValue("false") Boolean huidig
+    ) throws ProcessingException;
 
     /**
      * bevragen van een voorkomen van een openbare ruimte met de identificatie van een openbare ruimte en de identificatie van een
@@ -112,7 +114,8 @@ public interface OpenbareRuimteApi {
     public OpenbareRuimteIOHal openbareruimteIdentificatieVoorkomen(
             @PathParam("openbareRuimteIdentificatie") String openbareRuimteIdentificatie,
             @PathParam("versie") Integer versie,
-            @PathParam("timestampRegistratieLv") String timestampRegistratieLv) throws ProcessingException;
+            @PathParam("timestampRegistratieLv") String timestampRegistratieLv
+    ) throws ProcessingException;
 
     /**
      * bevragen levenscyclus van een openbare ruimte met de identificatie van een openbare ruimte.
@@ -124,7 +127,8 @@ public interface OpenbareRuimteApi {
     @Produces({"application/hal+json", "application/problem+json"})
     public OpenbareRuimteIOLvcHalCollection openbareruimteLvcIdentificatie(
             @PathParam("openbareRuimteIdentificatie") String openbareRuimteIdentificatie,
-            @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc) throws ProcessingException;
+            @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc
+    ) throws ProcessingException;
 
     /**
      * bevragen openbare ruimte(n) op basis van de verschillende combinaties van parameters.
@@ -144,12 +148,15 @@ public interface OpenbareRuimteApi {
      */
     @GET
     @Produces({"application/hal+json", "application/problem+json"})
-    public OpenbareRuimteIOHalCollection zoekOpenbareRuimten(@QueryParam("woonplaatsNaam") String woonplaatsNaam,
+    public OpenbareRuimteIOHalCollection zoekOpenbareRuimten(
+            @QueryParam("woonplaatsNaam") String woonplaatsNaam,
             @QueryParam("openbareRuimteNaam") String openbareRuimteNaam,
             @QueryParam("woonplaatsIdentificatie") String woonplaatsIdentificatie,
-            @QueryParam("huidig") @DefaultValue("false") Boolean huidig, @QueryParam("geldigOp") LocalDate geldigOp,
+            @QueryParam("huidig") @DefaultValue("false") Boolean huidig,
+            @QueryParam("geldigOp") LocalDate geldigOp,
             @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
             @QueryParam("page") @DefaultValue("1") Integer page,
             @QueryParam("pageSize") @DefaultValue("20") Integer pageSize,
-            @QueryParam("expand") String expand) throws ProcessingException;
+            @QueryParam("expand") String expand
+    ) throws ProcessingException;
 }

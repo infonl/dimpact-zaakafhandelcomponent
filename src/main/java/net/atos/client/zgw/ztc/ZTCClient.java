@@ -92,7 +92,8 @@ public interface ZTCClient {
     @GET
     @Path("zaaktype-informatieobjecttypen")
     Results<ZaakTypeInformatieObjectType> zaaktypeinformatieobjecttypeList(
-            @BeanParam final ZaaktypeInformatieobjecttypeListParameters parameters);
+            @BeanParam final ZaaktypeInformatieobjecttypeListParameters parameters
+    );
 
     @GET
     @Path("statustypen/{uuid}")

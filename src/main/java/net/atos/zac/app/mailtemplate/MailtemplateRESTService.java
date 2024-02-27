@@ -41,8 +41,10 @@ public class MailtemplateRESTService {
 
     @GET
     @Path("{mailtemplateEnum}/{zaakUUID}")
-    public RESTMailtemplate findMailtemplate(@PathParam("mailtemplateEnum") final Mail mail,
-            @PathParam("zaakUUID") final UUID zaakUUID) {
+    public RESTMailtemplate findMailtemplate(
+            @PathParam("mailtemplateEnum") final Mail mail,
+            @PathParam("zaakUUID") final UUID zaakUUID
+    ) {
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
         final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(UriUtil.uuidFromURI(
                 zaak.getZaaktype()));

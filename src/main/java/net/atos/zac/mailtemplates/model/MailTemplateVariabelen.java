@@ -87,20 +87,23 @@ public enum MailTemplateVariabelen {
             DOCUMENT_VARIABELEN), DOCUMENT_BEHANDELAAR_VARIABELEN);
 
     private static Set<MailTemplateVariabelen> toSet(
-            final MailTemplateVariabelen... values) {
+            final MailTemplateVariabelen... values
+    ) {
         return Collections.unmodifiableSet(toEnumSet(Arrays.asList(values)));
     }
 
     private static Set<MailTemplateVariabelen> add(
             final Set<MailTemplateVariabelen> set,
-            final Set<MailTemplateVariabelen> values) {
+            final Set<MailTemplateVariabelen> values
+    ) {
         final EnumSet<MailTemplateVariabelen> copy = toEnumSet(set);
         copy.addAll(values);
         return Collections.unmodifiableSet(copy);
     }
 
     private static EnumSet<MailTemplateVariabelen> toEnumSet(
-            final Collection<MailTemplateVariabelen> values) {
+            final Collection<MailTemplateVariabelen> values
+    ) {
         return values.isEmpty() ? EnumSet.noneOf(MailTemplateVariabelen.class) : EnumSet.copyOf(values);
     }
 

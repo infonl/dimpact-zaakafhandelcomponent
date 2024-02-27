@@ -56,22 +56,34 @@ public abstract class AbstractAuditWijzigingConverter<W extends AuditWijziging<?
         }
     }
 
-    protected void checkAttribuut(final String label, final Boolean oud, final Boolean nieuw,
-            final List<RESTHistorieRegel> historieRegels) {
+    protected void checkAttribuut(
+            final String label,
+            final Boolean oud,
+            final Boolean nieuw,
+            final List<RESTHistorieRegel> historieRegels
+    ) {
         if (ObjectUtils.notEqual(oud, nieuw)) {
             historieRegels.add(new RESTHistorieRegel(label, oud, nieuw));
         }
     }
 
-    protected void checkAttribuut(final String label, final LocalDate oud, final LocalDate nieuw,
-            final List<RESTHistorieRegel> historieRegels) {
+    protected void checkAttribuut(
+            final String label,
+            final LocalDate oud,
+            final LocalDate nieuw,
+            final List<RESTHistorieRegel> historieRegels
+    ) {
         if (ObjectUtils.notEqual(oud, nieuw)) {
             historieRegels.add(new RESTHistorieRegel(label, oud, nieuw));
         }
     }
 
-    protected void checkAttribuut(final String label, final ZonedDateTime oud, final ZonedDateTime nieuw,
-            final List<RESTHistorieRegel> historieRegels) {
+    protected void checkAttribuut(
+            final String label,
+            final ZonedDateTime oud,
+            final ZonedDateTime nieuw,
+            final List<RESTHistorieRegel> historieRegels
+    ) {
         if (ObjectUtils.notEqual(oud, nieuw)) {
             historieRegels.add(new RESTHistorieRegel(label, oud, nieuw));
         }

@@ -21,16 +21,31 @@ public class LoggedInUser extends User {
     // De waarde null betekend dat de gebruiker geautoriseerd is voor elk zaaktype.
     private final Set<String> geautoriseerdeZaaktypen;
 
-    public LoggedInUser(final String id, final String firstName, final String lastName, final String displayName,
-            final String email, final Set<String> roles, final Set<String> groupIds, final Set<String> geautoriseerdeZaaktypen) {
+    public LoggedInUser(
+            final String id,
+            final String firstName,
+            final String lastName,
+            final String displayName,
+            final String email,
+            final Set<String> roles,
+            final Set<String> groupIds,
+            final Set<String> geautoriseerdeZaaktypen
+    ) {
         super(id, firstName, lastName, displayName, email);
         this.roles = unmodifiableSet(roles);
         this.groupIds = unmodifiableSet(groupIds);
         this.geautoriseerdeZaaktypen = geautoriseerdeZaaktypen != null ? unmodifiableSet(geautoriseerdeZaaktypen) : null;
     }
 
-    public LoggedInUser(final String id, final String firstName, final String lastName, final String displayName,
-            final String email, final Set<String> roles, final Set<String> groupIds) {
+    public LoggedInUser(
+            final String id,
+            final String firstName,
+            final String lastName,
+            final String displayName,
+            final String email,
+            final Set<String> roles,
+            final Set<String> groupIds
+    ) {
         this(id, firstName, lastName, displayName, email, roles, groupIds, null);
     }
 

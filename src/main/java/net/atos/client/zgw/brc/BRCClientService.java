@@ -66,8 +66,10 @@ public class BRCClientService {
         return brcClient.besluitRead(uuid);
     }
 
-    public BesluitInformatieObject createBesluitInformatieobject(final BesluitInformatieObject besluitInformatieobject,
-            final String toelichting) {
+    public BesluitInformatieObject createBesluitInformatieobject(
+            final BesluitInformatieObject besluitInformatieobject,
+            final String toelichting
+    ) {
         zgwClientHeadersFactory.setAuditToelichting(toelichting);
         return brcClient.besluitinformatieobjectCreate(besluitInformatieobject);
     }

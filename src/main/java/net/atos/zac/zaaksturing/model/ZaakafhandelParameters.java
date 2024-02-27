@@ -220,7 +220,8 @@ public class ZaakafhandelParameters {
     }
 
     public void setUserEventListenerParametersCollection(
-            final Collection<UserEventListenerParameters> userEventListenerParametersCollection) {
+            final Collection<UserEventListenerParameters> userEventListenerParametersCollection
+    ) {
         if (this.userEventListenerParametersCollection == null) {
             this.userEventListenerParametersCollection = new HashSet<>();
         } else {

@@ -27,8 +27,11 @@ public class AbstractVerblijfplaatsJsonbDeserializer implements JsonbDeserialize
             new JsonbConfig().withPropertyVisibilityStrategy(new FieldPropertyVisibilityStrategy()));
 
     @Override
-    public AbstractVerblijfplaats deserialize(final JsonParser parser, final DeserializationContext ctx,
-            final Type rtType) {
+    public AbstractVerblijfplaats deserialize(
+            final JsonParser parser,
+            final DeserializationContext ctx,
+            final Type rtType
+    ) {
         final JsonObject jsonObject = parser.getObject();
         final String type = jsonObject.getString("type");
         return switch (type) {

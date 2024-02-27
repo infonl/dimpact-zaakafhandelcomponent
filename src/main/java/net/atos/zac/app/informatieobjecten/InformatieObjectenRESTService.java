@@ -180,8 +180,10 @@ public class InformatieObjectenRESTService {
 
     @GET
     @Path("informatieobject/{uuid}")
-    public RESTEnkelvoudigInformatieobject readEnkelvoudigInformatieobject(@PathParam("uuid") final UUID uuid,
-            @QueryParam("zaak") final UUID zaakUUID) {
+    public RESTEnkelvoudigInformatieobject readEnkelvoudigInformatieobject(
+            @PathParam("uuid") final UUID uuid,
+            @QueryParam("zaak") final UUID zaakUUID
+    ) {
         final EnkelvoudigInformatieObject enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(
                 uuid);
         final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject;
@@ -197,8 +199,10 @@ public class InformatieObjectenRESTService {
 
     @GET
     @Path("informatieobject/versie/{uuid}/{versie}")
-    public RESTEnkelvoudigInformatieobject readEnkelvoudigInformatieobject(@PathParam("uuid") final UUID uuid,
-            @PathParam("versie") final int versie) {
+    public RESTEnkelvoudigInformatieobject readEnkelvoudigInformatieobject(
+            @PathParam("uuid") final UUID uuid,
+            @PathParam("versie") final int versie
+    ) {
         final EnkelvoudigInformatieObject huidigeVersie = drcClientService.readEnkelvoudigInformatieobject(uuid);
         final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject;
         if (versie < huidigeVersie.getVersie()) {
@@ -213,7 +217,8 @@ public class InformatieObjectenRESTService {
     @PUT
     @Path("informatieobjectenList")
     public List<RESTEnkelvoudigInformatieobject> listEnkelvoudigInformatieobjecten(
-            final RESTInformatieobjectZoekParameters zoekParameters) {
+            final RESTInformatieobjectZoekParameters zoekParameters
+    ) {
         final Zaak zaak = zoekParameters.zaakUUID != null ? zrcClientService.readZaak(zoekParameters.zaakUUID) : null;
         if (zoekParameters.informatieobjectUUIDs != null) {
             return informatieobjectConverter.convertUUIDsToREST(zoekParameters.informatieobjectUUIDs, zaak);
@@ -244,7 +249,8 @@ public class InformatieObjectenRESTService {
     @GET
     @Path("informatieobjecten/zaak/{zaakUuid}/teVerzenden")
     public List<RESTEnkelvoudigInformatieobject> listEnkelvoudigInformatieobjectenVoorVerzenden(
-            @PathParam("zaakUuid") final UUID zaakUuid) {
+            @PathParam("zaakUuid") final UUID zaakUuid
+    ) {
         final Zaak zaak = zrcClientService.readZaak(zaakUuid);
         assertPolicy(policyService.readZaakRechten(zaak).lezen());
         return zrcClientService.listZaakinformatieobjecten(zaak).stream()
@@ -278,7 +284,8 @@ public class InformatieObjectenRESTService {
             @PathParam("zaakUuid") final UUID zaakUuid,
             @PathParam("documentReferentieId") final String documentReferentieId,
             @QueryParam("taakObject") final boolean taakObject,
-            @Valid final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject) {
+            @Valid final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
+    ) {
         final Zaak zaak = zrcClientService.readZaak(zaakUuid);
         assertPolicy(policyService.readZaakRechten(zaak).wijzigen());
 
@@ -368,8 +375,10 @@ public class InformatieObjectenRESTService {
     @POST
     @Path("informatieobject/upload/{documentReferentieId}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public Response uploadFile(@PathParam("documentReferentieId") final String documentReferentieId,
-            @MultipartForm final RESTFileUpload data) {
+    public Response uploadFile(
+            @PathParam("documentReferentieId") final String documentReferentieId,
+            @MultipartForm final RESTFileUpload data
+    ) {
         // note that there is no guarantee that the file will be removed from the session afterwards
         // since the user may abandon the upload process
         // this should to be improved at some point
@@ -380,7 +389,8 @@ public class InformatieObjectenRESTService {
     @GET
     @Path("zaakinformatieobject/{uuid}/informatieobject")
     public RESTEnkelvoudigInformatieobject readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID(
-            @PathParam("uuid") final UUID uuid) {
+            @PathParam("uuid") final UUID uuid
+    ) {
         return informatieobjectConverter.convertToREST(
                 drcClientService.readEnkelvoudigInformatieobject(
                         zrcClientService.readZaakinformatieobject(uuid).getInformatieobject()));
@@ -399,9 +409,11 @@ public class InformatieObjectenRESTService {
 
     @GET
     @Path("informatieobject/{uuid}/edit")
-    public Response editEnkelvoudigInformatieobjectInhoud(@PathParam("uuid") final UUID uuid,
+    public Response editEnkelvoudigInformatieobjectInhoud(
+            @PathParam("uuid") final UUID uuid,
             @QueryParam("zaak") final UUID zaakUUID,
-            @Context final UriInfo uriInfo) {
+            @Context final UriInfo uriInfo
+    ) {
         assertPolicy(
                 policyService.readDocumentRechten(drcClientService.readEnkelvoudigInformatieobject(uuid),
                         zrcClientService.readZaak(zaakUUID)).wijzigen());
@@ -419,8 +431,10 @@ public class InformatieObjectenRESTService {
     @DELETE
     @Path("/informatieobject/{uuid}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public Response deleteEnkelvoudigInformatieObject(@PathParam("uuid") final UUID uuid,
-            final RESTDocumentVerwijderenGegevens documentVerwijderenGegevens) {
+    public Response deleteEnkelvoudigInformatieObject(
+            @PathParam("uuid") final UUID uuid,
+            final RESTDocumentVerwijderenGegevens documentVerwijderenGegevens
+    ) {
         final EnkelvoudigInformatieObject enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
                 uuid);
         final Zaak zaak = documentVerwijderenGegevens.zaakUuid != null ?
@@ -491,7 +505,8 @@ public class InformatieObjectenRESTService {
     @GET
     @Path("informatieobject/{uuid}/huidigeversie")
     public RESTEnkelvoudigInformatieObjectVersieGegevens readHuidigeVersieInformatieObject(
-            @PathParam("uuid") final UUID uuid) {
+            @PathParam("uuid") final UUID uuid
+    ) {
         final EnkelvoudigInformatieObject enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(
                 uuid);
         assertPolicy(policyService.readDocumentRechten(enkelvoudigInformatieObject).lezen());
@@ -589,7 +604,8 @@ public class InformatieObjectenRESTService {
     @GET
     @Path("informatieobject/{informatieObjectUuid}/zaakidentificaties")
     public List<String> listZaakIdentificatiesForInformatieobject(
-            @PathParam("informatieObjectUuid") UUID informatieobjectUuid) {
+            @PathParam("informatieObjectUuid") UUID informatieobjectUuid
+    ) {
         final EnkelvoudigInformatieObject enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
                 informatieobjectUuid);
         assertPolicy(policyService.readDocumentRechten(enkelvoudigInformatieobject).lezen());
@@ -602,8 +618,10 @@ public class InformatieObjectenRESTService {
 
     @POST
     @Path("/informatieobject/{uuid}/onderteken")
-    public Response ondertekenInformatieObject(@PathParam("uuid") final UUID uuid,
-            @QueryParam("zaak") final UUID zaakUUID) {
+    public Response ondertekenInformatieObject(
+            @PathParam("uuid") final UUID uuid,
+            @QueryParam("zaak") final UUID zaakUUID
+    ) {
         final EnkelvoudigInformatieObject enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
                 uuid);
         assertPolicy(enkelvoudigInformatieobject.getOndertekening() == null &&
@@ -619,8 +637,10 @@ public class InformatieObjectenRESTService {
 
     @POST
     @Path("/informatieobject/{uuid}/convert")
-    public Response convertInformatieObjectToPDF(@PathParam("uuid") final UUID enkelvoudigInformatieobjectUUID,
-            @QueryParam("zaak") final UUID zaakUUID) throws IOException {
+    public Response convertInformatieObjectToPDF(
+            @PathParam("uuid") final UUID enkelvoudigInformatieobjectUUID,
+            @QueryParam("zaak") final UUID zaakUUID
+    ) throws IOException {
         final EnkelvoudigInformatieObject document = drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID);
         assertPolicy(policyService.readDocumentRechten(document, zrcClientService.readZaak(zaakUUID)).wijzigen());
         try (final ByteArrayInputStream documentInputStream = drcClientService.downloadEnkelvoudigInformatieobject(
@@ -658,7 +678,9 @@ public class InformatieObjectenRESTService {
     }
 
     private List<RESTGekoppeldeZaakEnkelvoudigInformatieObject> listGekoppeldeZaakEnkelvoudigInformatieobjectenVoorZaak(
-            final URI zaakURI, final RelatieType relatieType) {
+            final URI zaakURI,
+            final RelatieType relatieType
+    ) {
         final Zaak zaak = zrcClientService.readZaak(zaakURI);
         return zrcClientService.listZaakinformatieobjecten(zaak).stream()
                 .map(zaakInformatieobject -> informatieobjectConverter.convertToREST(zaakInformatieobject, relatieType,
@@ -667,7 +689,8 @@ public class InformatieObjectenRESTService {
     }
 
     private List<RESTGekoppeldeZaakEnkelvoudigInformatieObject> listGekoppeldeZaakInformatieObjectenVoorZaak(
-            final Zaak zaak) {
+            final Zaak zaak
+    ) {
         final List<RESTGekoppeldeZaakEnkelvoudigInformatieObject> enkelvoudigInformatieobjectList = new ArrayList<>();
         zaak.getDeelzaken().forEach(deelzaak -> enkelvoudigInformatieobjectList.addAll(
                 listGekoppeldeZaakEnkelvoudigInformatieobjectenVoorZaak(deelzaak, RelatieType.DEELZAAK)));

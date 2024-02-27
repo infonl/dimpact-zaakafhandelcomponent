@@ -70,8 +70,10 @@ public class EnkelvoudigInformatieObjectDownloadService {
      * @param zipOutputStream        {@link ZipOutputStream} van het te updaten zip-bestand
      * @return {@link String} pad naar het toegevoegde bestand in het zip-bestand
      */
-    private String addInformatieObjectToZip(final EnkelvoudigInformatieObject informatieobject,
-            final ZipOutputStream zipOutputStream) {
+    private String addInformatieObjectToZip(
+            final EnkelvoudigInformatieObject informatieobject,
+            final ZipOutputStream zipOutputStream
+    ) {
         final String pad = getInformatieObjectZipPath(informatieobject);
         final ZipEntry zipEntry = new ZipEntry(pad);
         try {

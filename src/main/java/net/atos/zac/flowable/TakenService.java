@@ -72,8 +72,12 @@ public class TakenService {
         }
     }
 
-    public List<Task> listOpenTasks(final TaakSortering taakSortering, final SorteerRichting sorteerRichting,
-            final int firstResult, final int maxResults) {
+    public List<Task> listOpenTasks(
+            final TaakSortering taakSortering,
+            final SorteerRichting sorteerRichting,
+            final int firstResult,
+            final int maxResults
+    ) {
         final var taskQuery = taskService.createTaskQuery();
         if (taakSortering != null) {
             switch (taakSortering) {
@@ -195,8 +199,13 @@ public class TakenService {
         return readOpenTask(task.getId());
     }
 
-    private void createHistoricTaskLogEntry(final Task task, final String type, final String oldValue,
-            final String newValue, final String explanation) {
+    private void createHistoricTaskLogEntry(
+            final Task task,
+            final String type,
+            final String oldValue,
+            final String newValue,
+            final String explanation
+    ) {
         if (!StringUtils.equals(oldValue, newValue)) {
             historyService.createHistoricTaskLogEntryBuilder(task)
                     .type(type)

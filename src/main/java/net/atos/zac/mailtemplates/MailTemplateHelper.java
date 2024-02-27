@@ -203,8 +203,10 @@ public class MailTemplateHelper {
         return resolvedTekst;
     }
 
-    public String resolveVariabelen(final String tekst,
-            final EnkelvoudigInformatieObject document) {
+    public String resolveVariabelen(
+            final String tekst,
+            final EnkelvoudigInformatieObject document
+    ) {
         String resolvedTekst = tekst;
         if (document != null) {
             resolvedTekst = replaceVariabele(resolvedTekst, DOCUMENT_TITEL, document.getTitel());
@@ -260,16 +262,20 @@ public class MailTemplateHelper {
         return replaceInitiatorVariabelen(resolvedTekst, null, null);
     }
 
-    private static String replaceInitiatorVariabelenPersoon(final String resolvedTekst,
-            final Optional<Persoon> initiator) {
+    private static String replaceInitiatorVariabelenPersoon(
+            final String resolvedTekst,
+            final Optional<Persoon> initiator
+    ) {
         return initiator
                 .map(persoon -> replaceInitiatorVariabelen(resolvedTekst, persoon.getNaam().getVolledigeNaam(),
                         convertAdres(persoon)))
                 .orElseGet(() -> replaceInitiatorVariabelenOnbekend(resolvedTekst));
     }
 
-    private static String replaceInitiatorVariabelenResultaatItem(final String resolvedTekst,
-            final Optional<ResultaatItem> initiator) {
+    private static String replaceInitiatorVariabelenResultaatItem(
+            final String resolvedTekst,
+            final Optional<ResultaatItem> initiator
+    ) {
         return initiator
                 .map(item -> replaceInitiatorVariabelen(resolvedTekst, item.getHandelsnaam(), convertAdres(item)))
                 .orElseGet(() -> replaceInitiatorVariabelenOnbekend(resolvedTekst));
@@ -311,24 +317,36 @@ public class MailTemplateHelper {
         return replaceInitiatorVariabelen(resolvedTekst, "Onbekend", null);
     }
 
-    private static String replaceInitiatorVariabelen(final String resolvedTekst, final String naam,
-            final String adres) {
+    private static String replaceInitiatorVariabelen(
+            final String resolvedTekst,
+            final String naam,
+            final String adres
+    ) {
         return replaceVariabele(replaceVariabele(resolvedTekst, ZAAK_INITIATOR, naam), ZAAK_INITIATOR_ADRES, adres);
     }
 
-    private static <T> String replaceVariabele(final String target, final MailTemplateVariabelen variabele,
-            final Optional<T> waarde) {
+    private static <T> String replaceVariabele(
+            final String target,
+            final MailTemplateVariabelen variabele,
+            final Optional<T> waarde
+    ) {
         return replaceVariabele(target, variabele, waarde.map(T::toString).orElse(null));
     }
 
-    private static String replaceVariabele(final String target, final MailTemplateVariabelen variabele,
-            final String waarde) {
+    private static String replaceVariabele(
+            final String target,
+            final MailTemplateVariabelen variabele,
+            final String waarde
+    ) {
         return replaceVariabeleHtml(target, variabele, StringEscapeUtils.escapeHtml4(waarde));
     }
 
     // Make sure that what is passed in the html argument is FULLY encoded HTML (no injection vulnerabilities please!)
-    private static String replaceVariabeleHtml(final String target, final MailTemplateVariabelen variabele,
-            final String html) {
+    private static String replaceVariabeleHtml(
+            final String target,
+            final MailTemplateVariabelen variabele,
+            final String html
+    ) {
         return StringUtils.replace(target, variabele.getVariabele(),
                 variabele.isResolveVariabeleAlsLegeString() ?
                         defaultIfBlank(html, EMPTY) : html);

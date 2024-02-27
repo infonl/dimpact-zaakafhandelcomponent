@@ -17,7 +17,8 @@ public record OverigeRechten(boolean startenZaak, boolean beheren,
     public OverigeRechten(
             @JsonbProperty("starten_zaak") final boolean startenZaak,
             @JsonbProperty("beheren") final boolean beheren,
-            @JsonbProperty("zoeken") final boolean zoeken) {
+            @JsonbProperty("zoeken") final boolean zoeken
+    ) {
         this.startenZaak = startenZaak;
         this.beheren = beheren;
         this.zoeken = zoeken;

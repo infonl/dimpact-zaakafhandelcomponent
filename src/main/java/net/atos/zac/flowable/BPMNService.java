@@ -74,9 +74,12 @@ public class BPMNService {
         }
     }
 
-    public void startProcess(final Zaak zaak, final ZaakType zaaktype,
+    public void startProcess(
+            final Zaak zaak,
+            final ZaakType zaaktype,
             final Map<String, Object> zaakData,
-            final String processDefinitionKey) {
+            final String processDefinitionKey
+    ) {
         try {
             runtimeService.createProcessInstanceBuilder()
                     .processDefinitionKey(processDefinitionKey)

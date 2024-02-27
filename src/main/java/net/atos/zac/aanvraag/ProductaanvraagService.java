@@ -170,9 +170,11 @@ public class ProductaanvraagService {
                 .formatted(productaanvraag.getSubmissionId(), message);
     }
 
-    private void registreerZaakMetBPMNProces(final ZaakType zaaktype,
+    private void registreerZaakMetBPMNProces(
+            final ZaakType zaaktype,
             final ProductaanvraagDenhaag productaanvraag,
-            final ORObject productaanvraagObject) {
+            final ORObject productaanvraagObject
+    ) {
         final Map<String, Object> formulierData = getFormulierData(productaanvraagObject);
         var zaak = new Zaak();
         zaak.setZaaktype(zaaktype.getUrl());
@@ -242,8 +244,11 @@ public class ProductaanvraagService {
                 .ifPresent(inboxDocument -> inboxDocumentenService.delete(inboxDocument.getId()));
     }
 
-    private void registreerZaakMetCMMNCase(final UUID zaaktypeUuid, final ProductaanvraagDenhaag productaanvraag,
-            final ORObject productaanvraagObject) {
+    private void registreerZaakMetCMMNCase(
+            final UUID zaaktypeUuid,
+            final ProductaanvraagDenhaag productaanvraag,
+            final ORObject productaanvraagObject
+    ) {
         final var formulierData = getFormulierData(productaanvraagObject);
         var zaak = new Zaak();
         final var zaaktype = ztcClientService.readZaaktype(zaaktypeUuid);
@@ -270,8 +275,11 @@ public class ProductaanvraagService {
         cmmnService.startCase(zaak, zaaktype, zaakafhandelParameters, formulierData);
     }
 
-    private void pairProductaanvraagInfoWithZaak(final ProductaanvraagDenhaag productaanvraag,
-            final ORObject productaanvraagObject, final Zaak zaak) {
+    private void pairProductaanvraagInfoWithZaak(
+            final ProductaanvraagDenhaag productaanvraag,
+            final ORObject productaanvraagObject,
+            final Zaak zaak
+    ) {
         pairProductaanvraagWithZaak(productaanvraagObject, zaak.getUrl());
         pairAanvraagPDFWithZaak(productaanvraag, zaak.getUrl());
         pairBijlagenWithZaak(productaanvraag.getAttachments(), zaak.getUrl());

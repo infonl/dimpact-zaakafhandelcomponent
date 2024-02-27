@@ -99,11 +99,15 @@ public interface StandplaatsApi {
     @POST
     @Consumes({"application/json"})
     @Produces({"application/hal+json", "application/problem+json"})
-    public StandplaatsIOHalCollection standplaatsGeometrie(PointGeoJSON pointGeoJSON,
-            @QueryParam("geldigOp") LocalDate geldigOp, @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
-            @QueryParam("huidig") @DefaultValue("false") Boolean huidig, @QueryParam("expand") String expand,
+    public StandplaatsIOHalCollection standplaatsGeometrie(
+            PointGeoJSON pointGeoJSON,
+            @QueryParam("geldigOp") LocalDate geldigOp,
+            @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
+            @QueryParam("huidig") @DefaultValue("false") Boolean huidig,
+            @QueryParam("expand") String expand,
             @HeaderParam("Content-Crs") String contentCrs,
-            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs) throws ProcessingException;
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs
+    ) throws ProcessingException;
 
     /**
      * bevragen van een standplaats met de identificatie van een standplaats.
@@ -118,10 +122,14 @@ public interface StandplaatsApi {
     @GET
     @Path("/{identificatie}")
     @Produces({"application/hal+json", "application/problem+json"})
-    public StandplaatsIOHal standplaatsIdentificatie(@PathParam("identificatie") String identificatie,
-            @QueryParam("geldigOp") LocalDate geldigOp, @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
-            @QueryParam("expand") String expand, @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
-            @QueryParam("huidig") @DefaultValue("false") Boolean huidig) throws ProcessingException;
+    public StandplaatsIOHal standplaatsIdentificatie(
+            @PathParam("identificatie") String identificatie,
+            @QueryParam("geldigOp") LocalDate geldigOp,
+            @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
+            @QueryParam("expand") String expand,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
+            @QueryParam("huidig") @DefaultValue("false") Boolean huidig
+    ) throws ProcessingException;
 
     /**
      * bevragen van een voorkomen van een standplaats met de identificatie van een standplaats en de identificatie van een voorkomen,
@@ -133,9 +141,12 @@ public interface StandplaatsApi {
     @GET
     @Path("/{identificatie}/{versie}/{timestampRegistratieLv}")
     @Produces({"application/hal+json", "application/problem+json"})
-    public StandplaatsIOHal standplaatsIdentificatieVoorkomen(@PathParam("identificatie") String identificatie,
-            @PathParam("versie") Integer versie, @PathParam("timestampRegistratieLv") String timestampRegistratieLv,
-            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs) throws ProcessingException;
+    public StandplaatsIOHal standplaatsIdentificatieVoorkomen(
+            @PathParam("identificatie") String identificatie,
+            @PathParam("versie") Integer versie,
+            @PathParam("timestampRegistratieLv") String timestampRegistratieLv,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs
+    ) throws ProcessingException;
 
     /**
      * bevragen levenscyclus van een standplaats met de identificatie van een standplaats.
@@ -145,9 +156,11 @@ public interface StandplaatsApi {
     @GET
     @Path("/{identificatie}/lvc")
     @Produces({"application/hal+json", "application/problem+json"})
-    public StandplaatsIOLvcHalCollection standplaatsLvcIdentificatie(@PathParam("identificatie") String identificatie,
+    public StandplaatsIOLvcHalCollection standplaatsLvcIdentificatie(
+            @PathParam("identificatie") String identificatie,
             @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc,
-            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs) throws ProcessingException;
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs
+    ) throws ProcessingException;
 
     /**
      * zoeken van standplaatsen met een geometrische locatie of binnen een bounding box.
@@ -162,11 +175,16 @@ public interface StandplaatsApi {
      */
     @GET
     @Produces({"application/hal+json", "application/problem+json"})
-    public StandplaatsIOHalCollection zoekStandplaatsen(@QueryParam("geldigOp") LocalDate geldigOp,
+    public StandplaatsIOHalCollection zoekStandplaatsen(
+            @QueryParam("geldigOp") LocalDate geldigOp,
             @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
-            @QueryParam("huidig") @DefaultValue("false") Boolean huidig, @QueryParam("expand") String expand,
-            @HeaderParam("Content-Crs") String contentCrs, @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
+            @QueryParam("huidig") @DefaultValue("false") Boolean huidig,
+            @QueryParam("expand") String expand,
+            @HeaderParam("Content-Crs") String contentCrs,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
             @QueryParam("page") @DefaultValue("1") Integer page,
-            @QueryParam("pageSize") @DefaultValue("20") Integer pageSize, @QueryParam("point") PointGeoJSON point,
-            @QueryParam("bbox") List<BigDecimal> bbox) throws ProcessingException;
+            @QueryParam("pageSize") @DefaultValue("20") Integer pageSize,
+            @QueryParam("point") PointGeoJSON point,
+            @QueryParam("bbox") List<BigDecimal> bbox
+    ) throws ProcessingException;
 }

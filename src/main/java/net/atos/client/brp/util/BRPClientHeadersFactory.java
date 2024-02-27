@@ -18,8 +18,10 @@ public class BRPClientHeadersFactory implements ClientHeadersFactory {
     private static final String API_KEY = ConfigProvider.getConfig().getValue("brp.api.key", String.class);
 
     @Override
-    public MultivaluedMap<String, String> update(final MultivaluedMap<String, String> incomingHeaders,
-            final MultivaluedMap<String, String> clientOutgoingHeaders) {
+    public MultivaluedMap<String, String> update(
+            final MultivaluedMap<String, String> incomingHeaders,
+            final MultivaluedMap<String, String> clientOutgoingHeaders
+    ) {
         clientOutgoingHeaders.add(X_API_KEY, API_KEY);
         return clientOutgoingHeaders;
     }

@@ -101,10 +101,14 @@ public interface PandApi {
     @POST
     @Consumes({"application/json"})
     @Produces({"application/hal+json", "application/problem+json"})
-    public PandIOHalCollection pandGeometrie(PointGeoJSON pointGeoJSON, @QueryParam("geldigOp") LocalDate geldigOp,
+    public PandIOHalCollection pandGeometrie(
+            PointGeoJSON pointGeoJSON,
+            @QueryParam("geldigOp") LocalDate geldigOp,
             @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
-            @QueryParam("huidig") @DefaultValue("false") Boolean huidig, @HeaderParam("Content-Crs") String contentCrs,
-            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs) throws ProcessingException;
+            @QueryParam("huidig") @DefaultValue("false") Boolean huidig,
+            @HeaderParam("Content-Crs") String contentCrs,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs
+    ) throws ProcessingException;
 
     /**
      * bevragen van een pand met de identificatie van een pand.
@@ -117,10 +121,13 @@ public interface PandApi {
     @GET
     @Path("/{identificatie}")
     @Produces({"application/hal+json", "application/problem+json"})
-    public PandIOHal pandIdentificatie(@PathParam("identificatie") String identificatie,
-            @QueryParam("geldigOp") LocalDate geldigOp, @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
+    public PandIOHal pandIdentificatie(
+            @PathParam("identificatie") String identificatie,
+            @QueryParam("geldigOp") LocalDate geldigOp,
+            @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
             @HeaderParam("Accept-Crs") @DefaultValue("epsg:28992") String acceptCrs,
-            @QueryParam("huidig") @DefaultValue("false") Boolean huidig) throws ProcessingException;
+            @QueryParam("huidig") @DefaultValue("false") Boolean huidig
+    ) throws ProcessingException;
 
     /**
      * bevragen voorkomen van een pand met de identificatie van een pand en de identificatie van een voorkomen, bestaande uit een versie en
@@ -132,9 +139,12 @@ public interface PandApi {
     @GET
     @Path("/{identificatie}/{versie}/{timestampRegistratieLv}")
     @Produces({"application/hal+json", "application/problem+json"})
-    public PandIOHal pandIdentificatieVoorkomen(@PathParam("identificatie") String identificatie,
-            @PathParam("versie") Integer versie, @PathParam("timestampRegistratieLv") String timestampRegistratieLv,
-            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs) throws ProcessingException;
+    public PandIOHal pandIdentificatieVoorkomen(
+            @PathParam("identificatie") String identificatie,
+            @PathParam("versie") Integer versie,
+            @PathParam("timestampRegistratieLv") String timestampRegistratieLv,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs
+    ) throws ProcessingException;
 
     /**
      * bevragen levenscyclus van een pand met de identificatie van een pand.
@@ -144,9 +154,11 @@ public interface PandApi {
     @GET
     @Path("/{identificatie}/lvc")
     @Produces({"application/hal+json", "application/problem+json"})
-    public PandIOLvcHalCollection pandLvcIdentificatie(@PathParam("identificatie") String identificatie,
+    public PandIOLvcHalCollection pandLvcIdentificatie(
+            @PathParam("identificatie") String identificatie,
             @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc,
-            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs) throws ProcessingException;
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs
+    ) throws ProcessingException;
 
     /**
      * Zoek panden met een geometrische locatie, binnen een bounding box, met een adresseerbaar object identificatie of met een
@@ -162,13 +174,20 @@ public interface PandApi {
      */
     @GET
     @Produces({"application/hal+json", "application/problem+json"})
-    public PandIOHalCollection zoekPanden(@QueryParam("geldigOp") LocalDate geldigOp,
+    public PandIOHalCollection zoekPanden(
+            @QueryParam("geldigOp") LocalDate geldigOp,
             @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
-            @QueryParam("huidig") @DefaultValue("false") Boolean huidig, @HeaderParam("Content-Crs") String contentCrs,
-            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs, @QueryParam("page") @DefaultValue("1") Integer page,
-            @QueryParam("pageSize") @DefaultValue("20") Integer pageSize, @QueryParam("point") PointGeoJSON point,
-            @QueryParam("bbox") List<BigDecimal> bbox, @QueryParam("statusPand") List<StatusPand> statusPand,
-            @QueryParam("geconstateerd") Boolean geconstateerd, @QueryParam("bouwjaar") BouwjaarFilter bouwjaar,
+            @QueryParam("huidig") @DefaultValue("false") Boolean huidig,
+            @HeaderParam("Content-Crs") String contentCrs,
+            @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
+            @QueryParam("page") @DefaultValue("1") Integer page,
+            @QueryParam("pageSize") @DefaultValue("20") Integer pageSize,
+            @QueryParam("point") PointGeoJSON point,
+            @QueryParam("bbox") List<BigDecimal> bbox,
+            @QueryParam("statusPand") List<StatusPand> statusPand,
+            @QueryParam("geconstateerd") Boolean geconstateerd,
+            @QueryParam("bouwjaar") BouwjaarFilter bouwjaar,
             @QueryParam("adresseerbaarObjectIdentificatie") String adresseerbaarObjectIdentificatie,
-            @QueryParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie) throws ProcessingException;
+            @QueryParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie
+    ) throws ProcessingException;
 }

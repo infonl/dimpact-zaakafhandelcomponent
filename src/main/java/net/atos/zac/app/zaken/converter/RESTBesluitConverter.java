@@ -92,8 +92,10 @@ public class RESTBesluitConverter {
         return besluit;
     }
 
-    public Besluit convertToBesluit(final Besluit besluit,
-            final RESTBesluitIntrekkenGegevens besluitIntrekkenGegevens) {
+    public Besluit convertToBesluit(
+            final Besluit besluit,
+            final RESTBesluitIntrekkenGegevens besluitIntrekkenGegevens
+    ) {
         besluit.setVervaldatum(besluitIntrekkenGegevens.vervaldatum);
         besluit.setVervalreden(Besluit.VervalredenEnum.valueOf(besluitIntrekkenGegevens.vervalreden));
         return besluit;

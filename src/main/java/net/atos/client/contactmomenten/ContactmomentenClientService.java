@@ -30,7 +30,8 @@ public class ContactmomentenClientService {
     private ContactmomentenClient contactmomentenClient;
 
     public KlantcontactmomentList200Response listKlantcontactmomenten(
-            final KlantcontactmomentListParameters parameters) {
+            final KlantcontactmomentListParameters parameters
+    ) {
         try {
             return klantcontactmomentenClient.klantcontactmomentList(parameters);
         } catch (final NotFoundException exception) {

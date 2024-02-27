@@ -53,9 +53,11 @@ public class OntkoppeldeDocumentenService {
     private Instance<LoggedInUser> loggedInUserInstance;
 
 
-    public OntkoppeldDocument create(final EnkelvoudigInformatieObject informatieobject,
+    public OntkoppeldDocument create(
+            final EnkelvoudigInformatieObject informatieobject,
             final Zaak zaak,
-            final String reden) {
+            final String reden
+    ) {
         final OntkoppeldDocument ontkoppeldDocument = new OntkoppeldDocument();
         ontkoppeldDocument.setDocumentID(informatieobject.getIdentificatie());
         ontkoppeldDocument.setDocumentUUID(UriUtil.uuidFromURI(informatieobject.getUrl()));
@@ -142,8 +144,10 @@ public class OntkoppeldeDocumentenService {
         }
     }
 
-    private Predicate getWhere(final OntkoppeldDocumentListParameters listParameters,
-            final Root<OntkoppeldDocument> root) {
+    private Predicate getWhere(
+            final OntkoppeldDocumentListParameters listParameters,
+            final Root<OntkoppeldDocument> root
+    ) {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final List<Predicate> predicates = new ArrayList<>();
         if (StringUtils.isNotBlank(listParameters.getZaakID())) {
@@ -172,9 +176,13 @@ public class OntkoppeldeDocumentenService {
     }
 
 
-    private void addDatumRangePredicates(final DatumRange datumRange, final String veld,
+    private void addDatumRangePredicates(
+            final DatumRange datumRange,
+            final String veld,
             final List<Predicate> predicates,
-            final Root<OntkoppeldDocument> root, final CriteriaBuilder builder) {
+            final Root<OntkoppeldDocument> root,
+            final CriteriaBuilder builder
+    ) {
         if (datumRange != null) {
             if (datumRange.van() != null) {
                 predicates.add(builder.greaterThanOrEqualTo(root.get(veld),

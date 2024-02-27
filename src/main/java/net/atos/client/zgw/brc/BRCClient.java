@@ -110,8 +110,10 @@ public interface BRCClient {
 
     @GET
     @Path("besluitinformatieobjecten")
-    List<BesluitInformatieObject> listBesluitInformatieobjectenByInformatieObject(@QueryParam(
-        "informatieobject") final URI informatieobject);
+    List<BesluitInformatieObject> listBesluitInformatieobjectenByInformatieObject(
+            @QueryParam(
+                "informatieobject") final URI informatieobject
+    );
 
     @POST
     @Path("besluitinformatieobjecten")

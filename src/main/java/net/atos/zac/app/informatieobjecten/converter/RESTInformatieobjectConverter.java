@@ -251,7 +251,8 @@ public class RESTInformatieobjectConverter {
 
 
     public RESTEnkelvoudigInformatieObjectVersieGegevens convertToRESTEnkelvoudigInformatieObjectVersieGegevens(
-            final EnkelvoudigInformatieObject informatieobject) {
+            final EnkelvoudigInformatieObject informatieobject
+    ) {
         final RESTEnkelvoudigInformatieObjectVersieGegevens restEnkelvoudigInformatieObjectVersieGegevens = new RESTEnkelvoudigInformatieObjectVersieGegevens();
 
         restEnkelvoudigInformatieObjectVersieGegevens.uuid = UriUtil.uuidFromURI(informatieobject.getUrl());
@@ -333,8 +334,10 @@ public class RESTInformatieobjectConverter {
         return enkelvoudigInformatieObjectWithLockData;
     }
 
-    public List<RESTEnkelvoudigInformatieobject> convertUUIDsToREST(final List<UUID> enkelvoudigInformatieobjectUUIDs,
-            final Zaak zaak) {
+    public List<RESTEnkelvoudigInformatieobject> convertUUIDsToREST(
+            final List<UUID> enkelvoudigInformatieobjectUUIDs,
+            final Zaak zaak
+    ) {
         return enkelvoudigInformatieobjectUUIDs.stream()
                 .map(enkelvoudigInformatieobjectUUID -> convertToREST(
                         drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID), zaak))
@@ -400,7 +403,8 @@ public class RESTInformatieobjectConverter {
     }
 
     public List<RESTEnkelvoudigInformatieobject> convertInformatieobjectenToREST(
-            final List<EnkelvoudigInformatieObject> informatieobjecten) {
+            final List<EnkelvoudigInformatieObject> informatieobjecten
+    ) {
         return informatieobjecten.stream().map(this::convertToREST).toList();
     }
 

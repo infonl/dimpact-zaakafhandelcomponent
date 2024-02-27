@@ -109,7 +109,8 @@ public interface AdresApi {
     @GET
     @Produces({"application/hal+json", "application/problem+json"})
     public AdresIOHalCollection bevraagAdressen(
-            @BeanParam BevraagAdressenParameters parameters) throws ProcessingException;
+            @BeanParam BevraagAdressenParameters parameters
+    ) throws ProcessingException;
 
     /**
      * Bevragen van een huidig adres met de identificatie van een nummeraanduiding.
@@ -127,7 +128,8 @@ public interface AdresApi {
     public AdresIOHal bevraagAdressenMetNumId(
             @PathParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie,
             @QueryParam("expand") String expand,
-            @QueryParam("inclusiefEindStatus") @DefaultValue("false") Boolean inclusiefEindStatus) throws ProcessingException;
+            @QueryParam("inclusiefEindStatus") @DefaultValue("false") Boolean inclusiefEindStatus
+    ) throws ProcessingException;
 
     /**
      * Zoeken van huidige adressen
@@ -143,7 +145,9 @@ public interface AdresApi {
     @GET
     @Path("/zoek")
     @Produces({"application/hal+json", "application/problem+json"})
-    public ZoekResultaatHalCollection zoek(@QueryParam("zoek") String zoek,
+    public ZoekResultaatHalCollection zoek(
+            @QueryParam("zoek") String zoek,
             @QueryParam("page") @DefaultValue("1") Integer page,
-            @QueryParam("pageSize") @DefaultValue("20") Integer pageSize) throws ProcessingException;
+            @QueryParam("pageSize") @DefaultValue("20") Integer pageSize
+    ) throws ProcessingException;
 }

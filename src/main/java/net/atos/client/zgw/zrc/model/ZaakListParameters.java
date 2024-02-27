@@ -304,7 +304,8 @@ public class ZaakListParameters extends AbstractListParameters {
     }
 
     public void setMaximaleVertrouwelijkheidaanduiding(
-            final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum maximaleVertrouwelijkheidaanduiding) {
+            final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum maximaleVertrouwelijkheidaanduiding
+    ) {
         this.maximaleVertrouwelijkheidaanduiding = maximaleVertrouwelijkheidaanduiding;
     }
 
@@ -329,7 +330,8 @@ public class ZaakListParameters extends AbstractListParameters {
     }
 
     public void setRolBetrokkeneIdentificatieOrganisatorischeEenheidIdentificatie(
-            final String rolBetrokkeneIdentificatieOrganisatorischeEenheidIdentificatie) {
+            final String rolBetrokkeneIdentificatieOrganisatorischeEenheidIdentificatie
+    ) {
         this.rolBetrokkeneIdentificatieOrganisatorischeEenheidIdentificatie = rolBetrokkeneIdentificatieOrganisatorischeEenheidIdentificatie;
     }
 

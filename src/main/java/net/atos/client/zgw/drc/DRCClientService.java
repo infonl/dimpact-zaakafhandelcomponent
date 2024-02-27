@@ -70,8 +70,10 @@ public class DRCClientService {
      * @param versie Required version
      * @return {@link EnkelvoudigInformatieObject}. Never 'null'!
      */
-    public EnkelvoudigInformatieObject readEnkelvoudigInformatieobjectVersie(final UUID uuid,
-            final int versie) {
+    public EnkelvoudigInformatieObject readEnkelvoudigInformatieobjectVersie(
+            final UUID uuid,
+            final int versie
+    ) {
         return drcClient.enkelvoudigInformatieobjectReadVersie(uuid, versie);
     }
 
@@ -97,8 +99,11 @@ public class DRCClientService {
         return createInvocationBuilder(enkelvoudigInformatieobjectURI).get(EnkelvoudigInformatieObject.class);
     }
 
-    public EnkelvoudigInformatieObjectWithLockData updateEnkelvoudigInformatieobject(final UUID uuid,
-            final EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieobject, final String toelichting) {
+    public EnkelvoudigInformatieObjectWithLockData updateEnkelvoudigInformatieobject(
+            final UUID uuid,
+            final EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieobject,
+            final String toelichting
+    ) {
         zgwClientHeadersFactory.setAuditToelichting(toelichting);
         return drcClient.enkelvoudigInformatieobjectPartialUpdate(uuid, enkelvoudigInformatieobject);
     }
@@ -147,8 +152,10 @@ public class DRCClientService {
      * @param versie                          Required version
      * @return Content of {@link EnkelvoudigInformatieObject}.
      */
-    public ByteArrayInputStream downloadEnkelvoudigInformatieobjectVersie(final UUID enkelvoudigInformatieobjectUUID,
-            final Integer versie) {
+    public ByteArrayInputStream downloadEnkelvoudigInformatieobjectVersie(
+            final UUID enkelvoudigInformatieobjectUUID,
+            final Integer versie
+    ) {
         final Response response = drcClient.enkelvoudigInformatieobjectDownloadVersie(enkelvoudigInformatieobjectUUID,
                 versie);
         if (!response.bufferEntity()) {
@@ -184,7 +191,8 @@ public class DRCClientService {
     }
 
     public EnkelvoudigInformatieObject createEnkelvoudigInformatieobject(
-            final EnkelvoudigInformatieObjectData informatieobject) {
+            final EnkelvoudigInformatieObjectData informatieobject
+    ) {
         return drcClient.enkelvoudigInformatieobjectCreate(informatieobject);
     }
 

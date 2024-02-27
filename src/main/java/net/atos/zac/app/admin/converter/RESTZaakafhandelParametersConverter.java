@@ -46,8 +46,10 @@ public class RESTZaakafhandelParametersConverter {
     @Inject
     private ZaakafhandelParameterService zaakafhandelParameterService;
 
-    public RESTZaakafhandelParameters convertZaakafhandelParameters(final ZaakafhandelParameters zaakafhandelParameters,
-            final boolean inclusiefRelaties) {
+    public RESTZaakafhandelParameters convertZaakafhandelParameters(
+            final ZaakafhandelParameters zaakafhandelParameters,
+            final boolean inclusiefRelaties
+    ) {
         final RESTZaakafhandelParameters restZaakafhandelParameters = new RESTZaakafhandelParameters();
         restZaakafhandelParameters.id = zaakafhandelParameters.getId();
         restZaakafhandelParameters.zaaktype = restZaaktypeOverzichtConverter.convert(
@@ -98,7 +100,8 @@ public class RESTZaakafhandelParametersConverter {
     }
 
     public ZaakafhandelParameters convertRESTZaakafhandelParameters(
-            final RESTZaakafhandelParameters restZaakafhandelParameters) {
+            final RESTZaakafhandelParameters restZaakafhandelParameters
+    ) {
         final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
                 restZaakafhandelParameters.zaaktype.uuid);
         zaakafhandelParameters.setId(restZaakafhandelParameters.id);

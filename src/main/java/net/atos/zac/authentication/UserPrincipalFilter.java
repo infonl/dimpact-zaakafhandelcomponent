@@ -50,8 +50,11 @@ public class UserPrincipalFilter implements Filter {
     }
 
     @Override
-    public void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,
-            final FilterChain filterChain) throws ServletException, IOException {
+    public void doFilter(
+            final ServletRequest servletRequest,
+            final ServletResponse servletResponse,
+            final FilterChain filterChain
+    ) throws ServletException, IOException {
         if (servletRequest instanceof HttpServletRequest) {
             final HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
             final OidcPrincipal principal = (OidcPrincipal) httpServletRequest.getUserPrincipal();

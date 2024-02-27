@@ -221,7 +221,8 @@ public class TakenRESTService {
     @PATCH
     @Path("lijst/toekennen/mij")
     public RESTTaak toekennenAanIngelogdeMedewerkerVanuitLijst(
-            final RESTTaakToekennenGegevens restTaakToekennenGegevens) {
+            final RESTTaakToekennenGegevens restTaakToekennenGegevens
+    ) {
         assertPolicy(policyService.readWerklijstRechten().zakenTaken());
         final Task task = ingelogdeMedewerkerToekennenAanTaak(restTaakToekennenGegevens);
         return restTaakConverter.convert(task);
@@ -308,8 +309,11 @@ public class TakenRESTService {
     @POST
     @Path("upload/{uuid}/{field}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public Response uploadFile(@PathParam("field") final String field, @PathParam("uuid") final UUID uuid,
-            @MultipartForm final RESTFileUpload data) {
+    public Response uploadFile(
+            @PathParam("field") final String field,
+            @PathParam("uuid") final UUID uuid,
+            @MultipartForm final RESTFileUpload data
+    ) {
         String fileKey = String.format("_FILE__%s__%s", uuid, field);
         httpSession.get().setAttribute(fileKey, data);
         return Response.ok("\"Success\"").build();
@@ -411,17 +415,22 @@ public class TakenRESTService {
         eventingService.send(ZAAK_TAKEN.updated(zaakUuid));
     }
 
-    private void updateVerzenddatumEnkelvoudigInformatieObjecten(final String documenten,
+    private void updateVerzenddatumEnkelvoudigInformatieObjecten(
+            final String documenten,
             final String verzenddatumString,
-            final String toelichting) {
+            final String toelichting
+    ) {
         final LocalDate verzenddatum = ZonedDateTime.parse(verzenddatumString).toLocalDate();
         Arrays.stream(documenten.split(TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER))
                 .forEach(documentUUID -> setVerzenddatumEnkelvoudigInformatieObject(UUID.fromString(documentUUID),
                         verzenddatum, toelichting));
     }
 
-    private void setVerzenddatumEnkelvoudigInformatieObject(final UUID uuid, final LocalDate verzenddatum,
-            final String toelichting) {
+    private void setVerzenddatumEnkelvoudigInformatieObject(
+            final UUID uuid,
+            final LocalDate verzenddatum,
+            final String toelichting
+    ) {
         final var informatieobject = drcClientService.readEnkelvoudigInformatieobject(uuid);
         enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
                 parseUUIDFromResourceURI(informatieobject.getUrl()),

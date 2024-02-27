@@ -43,8 +43,11 @@ public class PersonenQueryResponseJsonbDeserializer implements JsonbDeserializer
                     new AbstractVerblijfplaatsJsonbDeserializer()));
 
     @Override
-    public PersonenQueryResponse deserialize(final JsonParser parser, final DeserializationContext ctx,
-            final Type rtType) {
+    public PersonenQueryResponse deserialize(
+            final JsonParser parser,
+            final DeserializationContext ctx,
+            final Type rtType
+    ) {
         final JsonObject jsonObject = parser.getObject();
         final String type = jsonObject.getString("type");
         return switch (type) {

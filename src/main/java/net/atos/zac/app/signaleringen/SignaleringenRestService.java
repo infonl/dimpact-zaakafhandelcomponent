@@ -86,7 +86,8 @@ public class SignaleringenRestService {
     @GET
     @Path("/zaken/{type}")
     public List<RESTZaakOverzicht> listZakenSignaleringen(
-            @PathParam("type") final SignaleringType.Type signaleringsType) {
+            @PathParam("type") final SignaleringType.Type signaleringsType
+    ) {
         final SignaleringZoekParameters parameters = new SignaleringZoekParameters(loggedInUserInstance.get())
                 .types(signaleringsType)
                 .subjecttype(SignaleringSubject.ZAAK);
@@ -111,7 +112,8 @@ public class SignaleringenRestService {
     @GET
     @Path("/informatieobjecten/{type}")
     public List<RESTEnkelvoudigInformatieobject> listInformatieobjectenSignaleringen(
-            @PathParam("type") final SignaleringType.Type signaleringsType) {
+            @PathParam("type") final SignaleringType.Type signaleringsType
+    ) {
         final SignaleringZoekParameters parameters = new SignaleringZoekParameters(loggedInUserInstance.get())
                 .types(signaleringsType)
                 .subjecttype(SignaleringSubject.DOCUMENT);
@@ -141,7 +143,8 @@ public class SignaleringenRestService {
     @GET
     @Path("group/{groupId}/instellingen")
     public List<RESTSignaleringInstellingen> listGroupSignaleringInstellingen(
-            @PathParam("groupId") final String groupId) {
+            @PathParam("groupId") final String groupId
+    ) {
         final Group group = identityService.readGroup(groupId);
         final SignaleringInstellingenZoekParameters parameters = new SignaleringInstellingenZoekParameters(group);
         return restSignaleringInstellingenConverter.convert(
@@ -150,8 +153,10 @@ public class SignaleringenRestService {
 
     @PUT
     @Path("group/{groupId}/instellingen")
-    public void updateGroupSignaleringInstellingen(@PathParam("groupId") final String groupId,
-            final RESTSignaleringInstellingen restInstellingen) {
+    public void updateGroupSignaleringInstellingen(
+            @PathParam("groupId") final String groupId,
+            final RESTSignaleringInstellingen restInstellingen
+    ) {
         final Group group = identityService.readGroup(groupId);
         signaleringenService.createUpdateOrDeleteInstellingen(
                 restSignaleringInstellingenConverter.convert(restInstellingen, group));

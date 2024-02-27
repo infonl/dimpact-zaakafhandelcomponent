@@ -86,8 +86,10 @@ public class ReferentieTabelRESTService {
 
     @PUT
     @Path("{id}")
-    public RESTReferentieTabel updateReferentieTabel(@PathParam("id") final long id,
-            final RESTReferentieTabel referentieTabel) {
+    public RESTReferentieTabel updateReferentieTabel(
+            @PathParam("id") final long id,
+            final RESTReferentieTabel referentieTabel
+    ) {
         assertPolicy(policyService.readOverigeRechten().beheren());
         return restReferentieTabelConverter.convert(
                 referentieTabelBeheerService.updateReferentieTabel(

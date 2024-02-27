@@ -59,7 +59,8 @@ public interface DRCClient {
     @GET
     @Path("enkelvoudiginformatieobjecten")
     Results<EnkelvoudigInformatieObject> enkelvoudigInformatieobjectList(
-            @BeanParam final EnkelvoudigInformatieobjectListParameters parameters);
+            @BeanParam final EnkelvoudigInformatieobjectListParameters parameters
+    );
 
     @GET
     @Path("enkelvoudiginformatieobjecten/{uuid}")
@@ -67,8 +68,10 @@ public interface DRCClient {
 
     @GET
     @Path("enkelvoudiginformatieobjecten/{uuid}")
-    EnkelvoudigInformatieObject enkelvoudigInformatieobjectReadVersie(@PathParam("uuid") final UUID uuid,
-            @QueryParam("versie") final Integer versie);
+    EnkelvoudigInformatieObject enkelvoudigInformatieobjectReadVersie(
+            @PathParam("uuid") final UUID uuid,
+            @QueryParam("versie") final Integer versie
+    );
 
     @GET
     @Produces(APPLICATION_OCTET_STREAM)
@@ -82,8 +85,10 @@ public interface DRCClient {
 
     @PATCH
     @Path("enkelvoudiginformatieobjecten/{uuid}")
-    EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieobjectPartialUpdate(@PathParam("uuid") final UUID uuid,
-            final EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieObjectWithInhoudAndLock);
+    EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieobjectPartialUpdate(
+            @PathParam("uuid") final UUID uuid,
+            final EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieObjectWithInhoudAndLock
+    );
 
     @DELETE
     @Path("enkelvoudiginformatieobjecten/{uuid}")

@@ -20,7 +20,8 @@ public class KVKClientHeadersFactory implements ClientHeadersFactory {
     @Override
     public final MultivaluedMap<String, String> update(
             final MultivaluedMap<String, String> incomingHeaders,
-            final MultivaluedMap<String, String> clientOutgoingHeaders) {
+            final MultivaluedMap<String, String> clientOutgoingHeaders
+    ) {
         clientOutgoingHeaders.add(KVK_API_KEY_HEADER_FIELD, API_KEY);
         return clientOutgoingHeaders;
     }
