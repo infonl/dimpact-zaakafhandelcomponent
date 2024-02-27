@@ -125,6 +125,12 @@ object ProjectConfig : AbstractProjectConfig() {
                 )
             )
             .withLogConsumer(
+                "openzaak.local",
+                Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
+                    "OPENZAAK"
+                )
+            )
+            .withLogConsumer(
                 "zac",
                 Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
                     "ZAC"
