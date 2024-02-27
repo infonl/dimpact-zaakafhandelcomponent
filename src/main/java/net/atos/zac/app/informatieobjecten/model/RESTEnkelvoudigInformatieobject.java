@@ -5,16 +5,17 @@
 
 package net.atos.zac.app.informatieobjecten.model;
 
-import jakarta.validation.constraints.NotNull;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.zac.app.identity.model.RESTUser;
-import net.atos.zac.app.policy.model.RESTDocumentRechten;
-import net.atos.zac.zoeken.model.DocumentIndicatie;
-
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.EnumSet;
 import java.util.UUID;
+
+import jakarta.validation.constraints.NotNull;
+
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import net.atos.zac.app.identity.model.RESTUser;
+import net.atos.zac.app.policy.model.RESTDocumentRechten;
+import net.atos.zac.zoeken.model.DocumentIndicatie;
 
 /**
  * Representation of an 'enkelvoudig informatieobject' (e.g. a document) in the ZAC REST API.
