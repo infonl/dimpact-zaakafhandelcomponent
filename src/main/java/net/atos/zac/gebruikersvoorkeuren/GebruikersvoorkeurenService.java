@@ -50,7 +50,7 @@ public class GebruikersvoorkeurenService {
                 throw new RuntimeException(
                         "Er bestaat al een zoekopdracht met naam '%s' en lijst '%s' en medewerker: '%s'"
                                 .formatted(zoekopdracht.getNaam(), zoekopdracht.getLijstID(),
-                                           zoekopdracht.getMedewerkerID()));
+                                        zoekopdracht.getMedewerkerID()));
             }
             zoekopdracht.setActief(true);
             entityManager.persist(zoekopdracht);
@@ -101,7 +101,8 @@ public class GebruikersvoorkeurenService {
     }
 
     public void updateTabelInstellingen(final TabelInstellingen tabelInstellingen) {
-        final TabelInstellingen bestaandeTabelInstellingen = readTabelInstellingen(tabelInstellingen.getLijstID(), tabelInstellingen.getMedewerkerID());
+        final TabelInstellingen bestaandeTabelInstellingen = readTabelInstellingen(tabelInstellingen.getLijstID(), tabelInstellingen
+                .getMedewerkerID());
         bestaandeTabelInstellingen.setAantalPerPagina(tabelInstellingen.getAantalPerPagina());
         entityManager.merge(bestaandeTabelInstellingen);
     }
@@ -114,7 +115,7 @@ public class GebruikersvoorkeurenService {
         predicates.add(builder.equal(root.get(Zoekopdracht.LIJST_ID), zoekopdracht.getLijstID()));
         predicates.add(builder.equal(root.get(Zoekopdracht.MEDEWERKER_ID), zoekopdracht.getMedewerkerID()));
         predicates.add(builder.equal(builder.lower(root.get(Zoekopdracht.NAAM)),
-                                     zoekopdracht.getNaam().toLowerCase(Locale.ROOT)));
+                zoekopdracht.getNaam().toLowerCase(Locale.ROOT)));
         query.where(builder.and(predicates.toArray(new Predicate[0])));
         final TypedQuery<Zoekopdracht> emQuery = entityManager.createQuery(query);
         return CollectionUtils.isNotEmpty(emQuery.getResultList());

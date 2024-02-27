@@ -7,4 +7,5 @@ package net.atos.zac.zoeken.model;
 
 import java.time.LocalDate;
 
-public record DatumRange(LocalDate van, LocalDate tot) {}
+public record DatumRange(LocalDate van, LocalDate tot) {
+}

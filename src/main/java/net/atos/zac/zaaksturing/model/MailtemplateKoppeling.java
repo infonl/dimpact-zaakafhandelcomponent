@@ -22,8 +22,7 @@ import net.atos.zac.mailtemplates.model.MailTemplate;
 
 @Entity
 @Table(schema = SCHEMA, name = "mail_template_koppelingen")
-@SequenceGenerator(schema = SCHEMA, name = "sq_mail_template_koppelingen",
-        sequenceName = "sq_mail_template_koppelingen", allocationSize = 1)
+@SequenceGenerator(schema = SCHEMA, name = "sq_mail_template_koppelingen", sequenceName = "sq_mail_template_koppelingen", allocationSize = 1)
 public class MailtemplateKoppeling {
 
     @Id
@@ -31,13 +30,11 @@ public class MailtemplateKoppeling {
     @Column(name = "id_mail_template_koppelingen")
     private Long id;
 
-    @NotNull
-    @ManyToOne
+    @NotNull @ManyToOne
     @JoinColumn(name = "id_zaakafhandelparameters", referencedColumnName = "id_zaakafhandelparameters")
     private ZaakafhandelParameters zaakafhandelParameters;
 
-    @NotNull
-    @ManyToOne
+    @NotNull @ManyToOne
     @JoinColumn(name = "id_mail_template", referencedColumnName = "id_mail_template")
     private MailTemplate mailTemplate;
 

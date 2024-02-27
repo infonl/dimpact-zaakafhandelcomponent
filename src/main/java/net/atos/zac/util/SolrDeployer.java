@@ -115,10 +115,10 @@ public class SolrDeployer {
                 Thread.sleep(Duration.ofSeconds(WAIT_FOR_SOLR_SECONDS).toMillis());
             } catch (InterruptedException e) {
                 LOG.log(
-                    Level.WARNING,
-                    "Thread was interrupted while waiting for Solr core to become available. " +
-                            "Re-interrupting thread.",
-                    e
+                        Level.WARNING,
+                        "Thread was interrupted while waiting for Solr core to become available. " +
+                                       "Re-interrupting thread.",
+                        e
                 );
                 Thread.currentThread().interrupt();
             }

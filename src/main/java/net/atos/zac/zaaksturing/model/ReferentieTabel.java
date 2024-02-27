@@ -90,8 +90,8 @@ public class ReferentieTabel {
 
     public List<ReferentieTabelWaarde> getWaarden() {
         return Collections.unmodifiableList(waarden.stream()
-                                                    .sorted(Comparator.comparingInt(ReferentieTabelWaarde::getVolgorde))
-                                                    .toList());
+                .sorted(Comparator.comparingInt(ReferentieTabelWaarde::getVolgorde))
+                .toList());
     }
 
     public void setWaarden(final List<ReferentieTabelWaarde> waarden) {

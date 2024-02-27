@@ -154,8 +154,11 @@ public class ZRCClientService {
      *
      * @param zaakInformatieobjectUuid zaakInformatieobjectUuid
      */
-    public void deleteZaakInformatieobject(final UUID zaakInformatieobjectUuid, final String toelichting,
-            final String toelichtingPrefix) {
+    public void deleteZaakInformatieobject(
+            final UUID zaakInformatieobjectUuid,
+            final String toelichting,
+            final String toelichtingPrefix
+    ) {
         final String fullToelichting = StringUtils.isEmpty(toelichting) ?
                 toelichtingPrefix :
                 String.format("%s: %s", toelichtingPrefix, toelichting);
@@ -221,8 +224,7 @@ public class ZRCClientService {
     public void deleteRol(final Zaak zaak, final BetrokkeneType betrokkeneType, final String toelichting) {
         final List<Rol<?>> rollen = listRollen(zaak);
 
-        final Optional<Rol<?>> rolMedewerker =
-                rollen.stream().filter(rol -> rol.getBetrokkeneType() == betrokkeneType).findFirst();
+        final Optional<Rol<?>> rolMedewerker = rollen.stream().filter(rol -> rol.getBetrokkeneType() == betrokkeneType).findFirst();
 
         rolMedewerker.ifPresent(betrokkene -> rollen.removeIf(rol -> rol.equalBetrokkeneRol(betrokkene)));
 
@@ -381,16 +383,19 @@ public class ZRCClientService {
         return zaakResults.getResults().get(0);
     }
 
-    public void verplaatsInformatieobject(final EnkelvoudigInformatieObject informatieobject,
-            final Zaak oudeZaak, final Zaak nieuweZaak) {
+    public void verplaatsInformatieobject(
+            final EnkelvoudigInformatieObject informatieobject,
+            final Zaak oudeZaak,
+            final Zaak nieuweZaak
+    ) {
         final ZaakInformatieobjectListParameters parameters = new ZaakInformatieobjectListParameters();
         parameters.setInformatieobject(informatieobject.getUrl());
         parameters.setZaak(oudeZaak.getUrl());
         List<ZaakInformatieobject> zaakInformatieobjecten = listZaakinformatieobjecten(parameters);
         if (zaakInformatieobjecten.isEmpty()) {
             throw new NotFoundException(String.format("Geen ZaakInformatieobject gevonden voor Zaak: '%s' en InformatieObject: '%s'",
-                                                      oudeZaak.getIdentificatie(),
-                                                      UriUtil.uuidFromURI(informatieobject.getInhoud())));
+                    oudeZaak.getIdentificatie(),
+                    UriUtil.uuidFromURI(informatieobject.getInhoud())));
         }
 
         final ZaakInformatieobject oudeZaakInformatieobject = zaakInformatieobjecten.get(0);
@@ -406,8 +411,11 @@ public class ZRCClientService {
         deleteZaakInformatieobject(oudeZaakInformatieobject.getUuid(), toelichting, "Verplaatst");
     }
 
-    public void koppelInformatieobject(final EnkelvoudigInformatieObject informatieobject,
-            final Zaak nieuweZaak, final String toelichting) {
+    public void koppelInformatieobject(
+            final EnkelvoudigInformatieObject informatieobject,
+            final Zaak nieuweZaak,
+            final String toelichting
+    ) {
         List<ZaakInformatieobject> zaakInformatieobjecten = listZaakinformatieobjecten(informatieobject);
         if (!zaakInformatieobjecten.isEmpty()) {
             final UUID zaakUuid = UriUtil.uuidFromURI(zaakInformatieobjecten.get(0).getZaak());
@@ -461,8 +469,7 @@ public class ZRCClientService {
 
     public boolean heeftOpenDeelzaken(final Zaak zaak) {
         return zaak.getDeelzaken().stream()
-                .map(this::readZaak).
-                anyMatch(Zaak::isOpen);
+                .map(this::readZaak).anyMatch(Zaak::isOpen);
     }
 
     private void deleteDeletedRollen(final Collection<Rol<?>> current, final Collection<Rol<?>> rollen, final String toelichting) {
@@ -501,7 +508,7 @@ public class ZRCClientService {
         if (!uri.toString().startsWith(configuratieService.readZgwApiClientMpRestUrl())) {
             throw new RuntimeException(format(
                     "URI '%s' does not start with value for environment variable " +
-                            "'%s': '%s'",
+                                              "'%s': '%s'",
                     uri,
                     ENV_VAR_ZGW_API_CLIENT_MP_REST_URL,
                     configuratieService.readZgwApiClientMpRestUrl()

@@ -155,8 +155,10 @@ public class ZaaktypeInrichtingscheck {
     }
 
     public boolean isValide() {
-        return statustypeIntakeAanwezig && statustypeInBehandelingAanwezig && statustypeHeropendAanwezig && statustypeAfgerondAanwezig && statustypeAfgerondLaatsteVolgnummer &&
-                rolInitiatorAanwezig && rolBehandelaarAanwezig && rolOverigeAanwezig && informatieobjecttypeEmailAanwezig && resultaattypeAanwezig &&
-                zaakafhandelParametersValide && (resultaattypesMetVerplichtBesluit.isEmpty() || besluittypeAanwezig);
+        return statustypeIntakeAanwezig && statustypeInBehandelingAanwezig && statustypeHeropendAanwezig && statustypeAfgerondAanwezig &&
+               statustypeAfgerondLaatsteVolgnummer &&
+               rolInitiatorAanwezig && rolBehandelaarAanwezig && rolOverigeAanwezig && informatieobjecttypeEmailAanwezig &&
+               resultaattypeAanwezig &&
+               zaakafhandelParametersValide && (resultaattypesMetVerplichtBesluit.isEmpty() || besluittypeAanwezig);
     }
 }

@@ -140,8 +140,7 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
         if (zaak.getResultaat() != null) {
             final Resultaat resultaat = zrcClientService.readResultaat(zaak.getResultaat());
             if (resultaat != null) {
-                final ResultaatType resultaattype =
-                        ztcClientService.readResultaattype(resultaat.getResultaattype());
+                final ResultaatType resultaattype = ztcClientService.readResultaattype(resultaat.getResultaattype());
                 zaakZoekObject.setResultaattypeOmschrijving(resultaattype.getOmschrijving());
                 zaakZoekObject.setResultaatToelichting(resultaat.getToelichting());
             }
@@ -159,8 +158,7 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
 
     private void addBetrokkenen(final Zaak zaak, final ZaakZoekObject zaakZoekObject) {
         for (Rol<?> rol : zrcClientService.listRollen(zaak)) {
-            final RolType.OmschrijvingGeneriekEnum rolTypeOmschrijvingGeneriek =
-                    RolType.OmschrijvingGeneriekEnum.valueOf(
+            final RolType.OmschrijvingGeneriekEnum rolTypeOmschrijvingGeneriek = RolType.OmschrijvingGeneriekEnum.valueOf(
                     rol.getOmschrijvingGeneriek().toUpperCase()
             );
             if (KlantenRESTService.betrokkenen.contains(rolTypeOmschrijvingGeneriek)) {

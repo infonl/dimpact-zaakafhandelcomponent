@@ -41,7 +41,8 @@ public class RESTZaakbeeindigParameterConverter {
     private RESTZaakbeeindigParameter convertZaakbeeindigParameter(final ZaakbeeindigParameter zaakbeeindigParameter) {
         final RESTZaakbeeindigParameter restZaakbeeindigParameter = new RESTZaakbeeindigParameter();
         restZaakbeeindigParameter.id = zaakbeeindigParameter.getId();
-        restZaakbeeindigParameter.zaakbeeindigReden = restZaakbeeindigRedenConverter.convertZaakbeeindigReden(zaakbeeindigParameter.getZaakbeeindigReden());
+        restZaakbeeindigParameter.zaakbeeindigReden = restZaakbeeindigRedenConverter.convertZaakbeeindigReden(zaakbeeindigParameter
+                .getZaakbeeindigReden());
         restZaakbeeindigParameter.resultaattype = restResultaattypeConverter.convertResultaattype(
                 ztcClientService.readResultaattype(zaakbeeindigParameter.getResultaattype()));
         return restZaakbeeindigParameter;
@@ -50,7 +51,8 @@ public class RESTZaakbeeindigParameterConverter {
     private ZaakbeeindigParameter convertRESTZaakbeeindigParameter(final RESTZaakbeeindigParameter restZaakbeeindigParameter) {
         final ZaakbeeindigParameter zaakbeeindigParameter = new ZaakbeeindigParameter();
         zaakbeeindigParameter.setId(restZaakbeeindigParameter.id);
-        zaakbeeindigParameter.setZaakbeeindigReden(restZaakbeeindigRedenConverter.convertRESTZaakbeeindigReden(restZaakbeeindigParameter.zaakbeeindigReden));
+        zaakbeeindigParameter.setZaakbeeindigReden(restZaakbeeindigRedenConverter.convertRESTZaakbeeindigReden(
+                restZaakbeeindigParameter.zaakbeeindigReden));
         zaakbeeindigParameter.setResultaattype(restZaakbeeindigParameter.resultaattype.id);
         return zaakbeeindigParameter;
     }

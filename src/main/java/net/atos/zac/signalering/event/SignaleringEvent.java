@@ -33,8 +33,11 @@ public class SignaleringEvent<ID> extends AbstractEvent<SignaleringType.Type, Si
      * @param objectId   the identification of the object the operation was done on
      * @param actor      the user that initiated the operation directly or indirectly
      */
-    public SignaleringEvent(final SignaleringType.Type objectType, final SignaleringEventId<ID> objectId,
-            final User actor) {
+    public SignaleringEvent(
+            final SignaleringType.Type objectType,
+            final SignaleringEventId<ID> objectId,
+            final User actor
+    ) {
         super(Opcode.UPDATED, objectId);
         this.objectType = objectType;
         this.actor = actor == null ? null : actor.getId();

@@ -124,48 +124,48 @@ public class MailTemplateHelper {
             resolvedTekst = replaceVariabele(resolvedTekst, ZAAK_OMSCHRIJVING, zaak.getOmschrijving());
             resolvedTekst = replaceVariabele(resolvedTekst, ZAAK_TOELICHTING, zaak.getToelichting());
             resolvedTekst = replaceVariabele(resolvedTekst, ZAAK_REGISTRATIEDATUM,
-                                             zaak.getRegistratiedatum().format(DATE_FORMATTER));
+                    zaak.getRegistratiedatum().format(DATE_FORMATTER));
             resolvedTekst = replaceVariabele(resolvedTekst, ZAAK_STARTDATUM,
-                                             zaak.getStartdatum().format(DATE_FORMATTER));
+                    zaak.getStartdatum().format(DATE_FORMATTER));
             resolvedTekst = replaceVariabele(resolvedTekst, ZAAK_STREEFDATUM,
-                                             Optional.ofNullable(zaak.getEinddatumGepland())
-                                                     .map(datum -> datum.format(DATE_FORMATTER)));
+                    Optional.ofNullable(zaak.getEinddatumGepland())
+                            .map(datum -> datum.format(DATE_FORMATTER)));
             resolvedTekst = replaceVariabele(resolvedTekst, ZAAK_FATALEDATUM,
-                                             zaak.getUiterlijkeEinddatumAfdoening().format(DATE_FORMATTER));
+                    zaak.getUiterlijkeEinddatumAfdoening().format(DATE_FORMATTER));
 
             if (resolvedTekst.contains(ZAAK_STATUS.getVariabele())) {
                 resolvedTekst = replaceVariabele(resolvedTekst, ZAAK_STATUS,
-                                                 Optional.of(zaak.getStatus())
-                                                         .map(zrcClientService::readStatus)
-                                                         .map(Status::getStatustype)
-                                                         .map(ztcClientService::readStatustype)
-                                                         .map(StatusType::getOmschrijving)
+                        Optional.of(zaak.getStatus())
+                                .map(zrcClientService::readStatus)
+                                .map(Status::getStatustype)
+                                .map(ztcClientService::readStatustype)
+                                .map(StatusType::getOmschrijving)
                 );
             }
 
             if (resolvedTekst.contains(ZAAK_TYPE.getVariabele())) {
                 resolvedTekst = replaceVariabele(resolvedTekst, ZAAK_TYPE,
-                                                 Optional.of(zaak.getZaaktype())
-                                                         .map(ztcClientService::readZaaktype)
-                                                         .map(ZaakType::getOmschrijving));
+                        Optional.of(zaak.getZaaktype())
+                                .map(ztcClientService::readZaaktype)
+                                .map(ZaakType::getOmschrijving));
             }
 
             if (resolvedTekst.contains(ZAAK_INITIATOR.getVariabele()) ||
-                    resolvedTekst.contains(ZAAK_INITIATOR_ADRES.getVariabele())) {
+                resolvedTekst.contains(ZAAK_INITIATOR_ADRES.getVariabele())) {
                 resolvedTekst = replaceInitiatorVariabelen(resolvedTekst,
-                                                           zgwApiService.findInitiatorForZaak(zaak));
+                        zgwApiService.findInitiatorForZaak(zaak));
             }
 
             if (resolvedTekst.contains(ZAAK_BEHANDELAAR_GROEP.getVariabele())) {
                 resolvedTekst = replaceVariabele(resolvedTekst, ZAAK_BEHANDELAAR_GROEP,
-                                                 zgwApiService.findGroepForZaak(zaak)
-                                                         .map(RolOrganisatorischeEenheid::getNaam));
+                        zgwApiService.findGroepForZaak(zaak)
+                                .map(RolOrganisatorischeEenheid::getNaam));
             }
 
             if (resolvedTekst.contains(ZAAK_BEHANDELAAR_MEDEWERKER.getVariabele())) {
                 resolvedTekst = replaceVariabele(resolvedTekst, ZAAK_BEHANDELAAR_MEDEWERKER,
-                                                 zgwApiService.findBehandelaarForZaak(zaak)
-                                                         .map(RolMedewerker::getNaam));
+                        zgwApiService.findBehandelaarForZaak(zaak)
+                                .map(RolMedewerker::getNaam));
             }
         }
         return resolvedTekst;
@@ -179,33 +179,34 @@ public class MailTemplateHelper {
             resolvedTekst = replaceVariabeleHtml(resolvedTekst, TAAK_LINK, link.toHtml());
 
             resolvedTekst = replaceVariabele(resolvedTekst, TAAK_FATALEDATUM,
-                                             DateTimeConverterUtil.convertToLocalDate(taskInfo.getDueDate())
-                                                     .format(DATE_FORMATTER));
+                    DateTimeConverterUtil.convertToLocalDate(taskInfo.getDueDate())
+                            .format(DATE_FORMATTER));
 
             if (resolvedTekst.contains(TAAK_BEHANDELAAR_GROEP.getVariabele())) {
                 resolvedTekst = replaceVariabele(resolvedTekst, TAAK_BEHANDELAAR_GROEP,
-                                                 taskInfo.getIdentityLinks().stream()
-                                                         .filter(identityLinkInfo ->
-                                                                         IdentityLinkType.CANDIDATE.equals(
-                                                                                 identityLinkInfo.getType()))
-                                                         .findAny()
-                                                         .map(IdentityLinkInfo::getGroupId)
-                                                         .map(identityService::readGroup)
-                                                         .map(Group::getName));
+                        taskInfo.getIdentityLinks().stream()
+                                .filter(identityLinkInfo -> IdentityLinkType.CANDIDATE.equals(
+                                        identityLinkInfo.getType()))
+                                .findAny()
+                                .map(IdentityLinkInfo::getGroupId)
+                                .map(identityService::readGroup)
+                                .map(Group::getName));
             }
 
             if (resolvedTekst.contains(TAAK_BEHANDELAAR_MEDEWERKER.getVariabele())) {
                 resolvedTekst = replaceVariabele(resolvedTekst, TAAK_BEHANDELAAR_MEDEWERKER,
-                                                 Optional.of(taskInfo.getAssignee())
-                                                         .map(identityService::readUser)
-                                                         .map(User::getFullName));
+                        Optional.of(taskInfo.getAssignee())
+                                .map(identityService::readUser)
+                                .map(User::getFullName));
             }
         }
         return resolvedTekst;
     }
 
-    public String resolveVariabelen(final String tekst,
-            final EnkelvoudigInformatieObject document) {
+    public String resolveVariabelen(
+            final String tekst,
+            final EnkelvoudigInformatieObject document
+    ) {
         String resolvedTekst = tekst;
         if (document != null) {
             resolvedTekst = replaceVariabele(resolvedTekst, DOCUMENT_TITEL, document.getTitel());
@@ -220,16 +221,16 @@ public class MailTemplateHelper {
     private MailLink getLink(final Zaak zaak) {
         final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
         return new MailLink(zaak.getIdentificatie(),
-                            configuratieService.zaakTonenUrl(zaak.getIdentificatie()),
-                            "de zaak", "(%s)".formatted(zaaktype.getOmschrijving()));
+                configuratieService.zaakTonenUrl(zaak.getIdentificatie()),
+                "de zaak", "(%s)".formatted(zaaktype.getOmschrijving()));
     }
 
     private MailLink getLink(final TaskInfo taskInfo) {
         final String zaakIdentificatie = taakVariabelenService.readZaakIdentificatie(taskInfo);
         final String zaaktypeOmschrijving = taakVariabelenService.readZaaktypeOmschrijving(taskInfo);
         return new MailLink(taskInfo.getName(),
-                            configuratieService.taakTonenUrl(taskInfo.getId()),
-                            "de taak", "voor zaak %s (%s)".formatted(zaakIdentificatie, zaaktypeOmschrijving));
+                configuratieService.taakTonenUrl(taskInfo.getId()),
+                "de taak", "voor zaak %s (%s)".formatted(zaakIdentificatie, zaaktypeOmschrijving));
     }
 
     private MailLink getLink(final EnkelvoudigInformatieObject document) {
@@ -261,16 +262,20 @@ public class MailTemplateHelper {
         return replaceInitiatorVariabelen(resolvedTekst, null, null);
     }
 
-    private static String replaceInitiatorVariabelenPersoon(final String resolvedTekst,
-            final Optional<Persoon> initiator) {
+    private static String replaceInitiatorVariabelenPersoon(
+            final String resolvedTekst,
+            final Optional<Persoon> initiator
+    ) {
         return initiator
                 .map(persoon -> replaceInitiatorVariabelen(resolvedTekst, persoon.getNaam().getVolledigeNaam(),
-                                                           convertAdres(persoon)))
+                        convertAdres(persoon)))
                 .orElseGet(() -> replaceInitiatorVariabelenOnbekend(resolvedTekst));
     }
 
-    private static String replaceInitiatorVariabelenResultaatItem(final String resolvedTekst,
-            final Optional<ResultaatItem> initiator) {
+    private static String replaceInitiatorVariabelenResultaatItem(
+            final String resolvedTekst,
+            final Optional<ResultaatItem> initiator
+    ) {
         return initiator
                 .map(item -> replaceInitiatorVariabelen(resolvedTekst, item.getHandelsnaam(), convertAdres(item)))
                 .orElseGet(() -> replaceInitiatorVariabelenOnbekend(resolvedTekst));
@@ -312,26 +317,38 @@ public class MailTemplateHelper {
         return replaceInitiatorVariabelen(resolvedTekst, "Onbekend", null);
     }
 
-    private static String replaceInitiatorVariabelen(final String resolvedTekst, final String naam,
-            final String adres) {
+    private static String replaceInitiatorVariabelen(
+            final String resolvedTekst,
+            final String naam,
+            final String adres
+    ) {
         return replaceVariabele(replaceVariabele(resolvedTekst, ZAAK_INITIATOR, naam), ZAAK_INITIATOR_ADRES, adres);
     }
 
-    private static <T> String replaceVariabele(final String target, final MailTemplateVariabelen variabele,
-            final Optional<T> waarde) {
+    private static <T> String replaceVariabele(
+            final String target,
+            final MailTemplateVariabelen variabele,
+            final Optional<T> waarde
+    ) {
         return replaceVariabele(target, variabele, waarde.map(T::toString).orElse(null));
     }
 
-    private static String replaceVariabele(final String target, final MailTemplateVariabelen variabele,
-            final String waarde) {
+    private static String replaceVariabele(
+            final String target,
+            final MailTemplateVariabelen variabele,
+            final String waarde
+    ) {
         return replaceVariabeleHtml(target, variabele, StringEscapeUtils.escapeHtml4(waarde));
     }
 
     // Make sure that what is passed in the html argument is FULLY encoded HTML (no injection vulnerabilities please!)
-    private static String replaceVariabeleHtml(final String target, final MailTemplateVariabelen variabele,
-            final String html) {
+    private static String replaceVariabeleHtml(
+            final String target,
+            final MailTemplateVariabelen variabele,
+            final String html
+    ) {
         return StringUtils.replace(target, variabele.getVariabele(),
-                                   variabele.isResolveVariabeleAlsLegeString() ?
-                                           defaultIfBlank(html, EMPTY) : html);
+                variabele.isResolveVariabeleAlsLegeString() ?
+                        defaultIfBlank(html, EMPTY) : html);
     }
 }

@@ -47,7 +47,8 @@ public enum Status {
             return stream(values())
                     .filter(status -> StringUtils.equals(status.value, json))
                     .findFirst()
-                    .orElseThrow(() -> new RuntimeException(String.format("Unkown value for %s: '%s'", Status.class.getSimpleName(), json)));
+                    .orElseThrow(() -> new RuntimeException(String.format("Unkown value for %s: '%s'", Status.class.getSimpleName(),
+                            json)));
         }
     }
 }

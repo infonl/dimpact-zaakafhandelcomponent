@@ -66,7 +66,7 @@ public class SessionRegistry {
     public void delete(final ScreenEvent wildcarded, final Session session) {
         if (session != null) {
             glob(fix(wildcarded)).forEach(
-                event -> eventSessions.get(event).remove(session));
+                    event -> eventSessions.get(event).remove(session));
         }
     }
 
@@ -127,7 +127,7 @@ public class SessionRegistry {
         final String detail = fix(event.getObjectId().getDetail());
         if (resource != null || detail != null) {
             return new ScreenEvent(event.getOpcode(), event.getObjectType(),
-                                   new ScreenEventId(resource, detail));
+                    new ScreenEventId(resource, detail));
         }
         return event;
     }

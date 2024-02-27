@@ -29,13 +29,11 @@ public class HumanTaskReferentieTabel {
     @Column(name = "id_humantask_referentie_tabel")
     private Long id;
 
-    @NotNull
-    @ManyToOne
+    @NotNull @ManyToOne
     @JoinColumn(name = "id_referentie_tabel", referencedColumnName = "id_referentie_tabel")
     private ReferentieTabel tabel;
 
-    @NotNull
-    @ManyToOne
+    @NotNull @ManyToOne
     @JoinColumn(name = "id_humantask_parameters", referencedColumnName = "id_humantask_parameters")
     private HumanTaskParameters humantask;
 

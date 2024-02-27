@@ -32,19 +32,22 @@ public enum Afleidingswijze implements AbstractEnum<Afleidingswijze> {
     EIGENSCHAP("eigenschap"),
 
     /**
-     * De termijn start op de datum waarop de gerelateerde zaak is afgehandeld (`ZAAK.Einddatum` of `ZAAK.Gerelateerde_zaak.Einddatum` in het RGBZ).
+     * De termijn start op de datum waarop de gerelateerde zaak is afgehandeld (`ZAAK.Einddatum` of `ZAAK.Gerelateerde_zaak.Einddatum` in
+     * het RGBZ).
      * `Resultaattype.ZaakType` heeft gerelateerd `ZaakType
      */
     GERELATEERDE_ZAAK("gerelateerde_zaak"),
 
     /**
-     * De termijn start op de datum waarop de gerelateerde zaak is afgehandeld, waarvan de zaak een deelzaak is (`ZAAK.Einddatum` van de hoofdzaak in het RGBZ).
+     * De termijn start op de datum waarop de gerelateerde zaak is afgehandeld, waarvan de zaak een deelzaak is (`ZAAK.Einddatum` van de
+     * hoofdzaak in het RGBZ).
      * Resultaattype.ZaakType is deelzaaktype van ZaakType.
      */
     HOOFDZAAK("hoofdzaak"),
 
     /**
-     * De termijn start op de datum waarop het besluit van kracht wordt (`BESLUIT.Ingangsdatum` in het RGBZ).\tResultaatType.ZaakType heeft relevant BesluitTyp
+     * De termijn start op de datum waarop het besluit van kracht wordt (`BESLUIT.Ingangsdatum` in het RGBZ).\tResultaatType.ZaakType heeft
+     * relevant BesluitTyp
      */
     INGANGSDATUM_BESLUIT("ingangsdatum_besluit"),
 
@@ -60,7 +63,8 @@ public enum Afleidingswijze implements AbstractEnum<Afleidingswijze> {
     VERVALDATUM_BESLUIT("vervaldatum_besluit"),
 
     /**
-     * De termijn start op de einddatum geldigheid van het zaakobject waarop de zaak betrekking heeft (bijvoorbeeld de overlijdendatum van een Persoon).
+     * De termijn start op de einddatum geldigheid van het zaakobject waarop de zaak betrekking heeft (bijvoorbeeld de overlijdendatum van
+     * een Persoon).
      * M.b.v. de attribuutsoort `Objecttype` wordt vastgelegd om welke zaakobjecttype het gaat;
      * m.b.v. de attribuutsoort `Datumkenmerk` wordt vastgelegd welke datum-attribuutsoort van het zaakobjecttype het betreft.
      */

@@ -58,8 +58,7 @@ public class InformatieobjectenUtil {
         return EnkelvoudigInformatieObjectWithLockData.StatusEnum.valueOf(statusEnum.name());
     }
 
-    public static EnkelvoudigInformatieObjectWithLockData.VertrouwelijkheidaanduidingEnum
-    convertToEnkelvoudigInformatieObjectWithLockDataVertrouwelijkheidaanduidingEnum(
+    public static EnkelvoudigInformatieObjectWithLockData.VertrouwelijkheidaanduidingEnum convertToEnkelvoudigInformatieObjectWithLockDataVertrouwelijkheidaanduidingEnum(
             String vertrouwelijkheidaanduidingEnumString
     ) {
         return EnkelvoudigInformatieObjectWithLockData.VertrouwelijkheidaanduidingEnum.valueOf(

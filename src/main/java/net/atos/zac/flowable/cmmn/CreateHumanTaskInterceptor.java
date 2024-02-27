@@ -73,8 +73,8 @@ public class CreateHumanTaskInterceptor implements org.flowable.cmmn.engine.inte
 
         if (context.getTaskEntity().getAssignee() != null) {
             // On creation of a human task the event observer will assume its owner is the actor who created it.
-            final SignaleringEvent<?> signaleringEvent =
-                    SignaleringEventUtil.event(SignaleringType.Type.TAAK_OP_NAAM, context.getTaskEntity(), null);
+            final SignaleringEvent<?> signaleringEvent = SignaleringEventUtil.event(SignaleringType.Type.TAAK_OP_NAAM, context
+                    .getTaskEntity(), null);
             // Wait some time before handling the event to make sure that the task has been created.
             signaleringEvent.setDelay(SECONDS_TO_DELAY);
             FlowableHelper.getInstance().getEventingService().send(signaleringEvent);

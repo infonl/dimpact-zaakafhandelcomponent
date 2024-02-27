@@ -13,4 +13,3 @@ public class RESTDocumentCreatieGegevens {
 
     public String taskId;
 }
-

@@ -86,9 +86,8 @@ public class IndexeerServiceHelper {
         final Root<ZoekIndexEntity> root = query.from(ZoekIndexEntity.class);
         final Predicate predicate = builder.equal(root.get(ZoekIndexEntity.TYPE), objectType.toString());
         query.select(builder.count(root));
-        query.where(status != null
-                            ? builder.and(predicate, builder.equal(root.get(ZoekIndexEntity.STATUS), status.toString()))
-                            : predicate);
+        query.where(status != null ? builder.and(predicate, builder.equal(root.get(ZoekIndexEntity.STATUS), status.toString())) :
+                predicate);
         return entityManager.createQuery(query).getSingleResult();
     }
 

@@ -91,7 +91,8 @@ public class FixUtilRESTService {
     public Response logTasksMissingScopeId() {
         final List<Task> tasks = cmmnTaskService.createTaskQuery().list().stream().filter(task -> task.getScopeId() == null).toList();
         LOG.info(String.format("Number of tasks missing scopeId : %d", tasks.size()));
-        tasks.forEach(task -> LOG.info(String.format("%s : name = '%s', createTime = '%s'", task.getId(), task.getName(), task.getCreateTime().toString())));
+        tasks.forEach(task -> LOG.info(String.format("%s : name = '%s', createTime = '%s'", task.getId(), task.getName(), task
+                .getCreateTime().toString())));
         return Response.noContent().build();
     }
 

@@ -17,7 +17,8 @@ import net.atos.client.zgw.shared.model.AbstractListParameters;
 public class BesluitenListParameters extends AbstractListParameters {
 
     /**
-     * Identificatie van het besluit binnen de organisatie die het besluit heeft vastgesteld. Indien deze niet opgegeven is, dan wordt die gegenereerd.
+     * Identificatie van het besluit binnen de organisatie die het besluit heeft vastgesteld. Indien deze niet opgegeven is, dan wordt die
+     * gegenereerd.
      */
     @QueryParam("identificatie")
     private String identificatie;

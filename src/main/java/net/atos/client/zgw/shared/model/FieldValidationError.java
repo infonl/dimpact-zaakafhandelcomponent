@@ -25,9 +25,11 @@ public class FieldValidationError {
     private final String reason;
 
     @JsonbCreator
-    public FieldValidationError(@JsonbProperty("name") final String name,
+    public FieldValidationError(
+            @JsonbProperty("name") final String name,
             @JsonbProperty("code") final String code,
-            @JsonbProperty("reason") final String reason) {
+            @JsonbProperty("reason") final String reason
+    ) {
         this.name = name;
         this.code = code;
         this.reason = reason;

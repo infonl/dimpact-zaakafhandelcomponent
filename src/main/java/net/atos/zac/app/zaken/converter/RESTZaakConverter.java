@@ -150,8 +150,7 @@ public class RESTZaakConverter {
 
         restZaak.isVerlengd = zaak.isVerlengd();
         if (restZaak.isVerlengd) {
-            restZaak.duurVerlenging =
-                    PeriodUtil.format(zaak.getVerlenging().getDuur());
+            restZaak.duurVerlenging = PeriodUtil.format(zaak.getVerlenging().getDuur());
             restZaak.redenVerlenging = zaak.getVerlenging().getReden();
         }
 
@@ -198,8 +197,7 @@ public class RESTZaakConverter {
         restZaak.isOpen = zaak.isOpen();
         restZaak.isHeropend = isHeropend(statustype);
         restZaak.isInIntakeFase = isIntake(statustype);
-        restZaak.isOntvangstbevestigingVerstuurd =
-                zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.getUuid()).orElse(false);
+        restZaak.isOntvangstbevestigingVerstuurd = zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.getUuid()).orElse(false);
         restZaak.isBesluittypeAanwezig = isNotEmpty(zaaktype.getBesluittypen());
         restZaak.isProcesGestuurd = bpmnService.isProcesGestuurd(zaak.getUuid());
         restZaak.rechten = rechtenConverter.convert(policyService.readZaakRechten(zaak, zaaktype));
@@ -211,8 +209,8 @@ public class RESTZaakConverter {
 
     public Zaak convert(final RESTZaak restZaak, final ZaakType zaaktype) {
         final Zaak zaak = new Zaak(zaaktype.getUrl(), restZaak.startdatum,
-                                   ConfiguratieService.BRON_ORGANISATIE,
-                                   ConfiguratieService.VERANTWOORDELIJKE_ORGANISATIE);
+                ConfiguratieService.BRON_ORGANISATIE,
+                ConfiguratieService.VERANTWOORDELIJKE_ORGANISATIE);
         //aanvullen
         zaak.setOmschrijving(restZaak.omschrijving);
         zaak.setToelichting(restZaak.toelichting);
@@ -276,7 +274,7 @@ public class RESTZaakConverter {
         final List<RESTGerelateerdeZaak> gerelateerdeZaken = new ArrayList<>();
         if (zaak.getHoofdzaak() != null) {
             gerelateerdeZaken.add(gerelateerdeZaakConverter.convert(zrcClientService.readZaak(zaak.getHoofdzaak()),
-                                                                    RelatieType.HOOFDZAAK));
+                    RelatieType.HOOFDZAAK));
         }
         zaak.getDeelzaken().stream()
                 .map(zrcClientService::readZaak)

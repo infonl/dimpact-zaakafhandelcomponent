@@ -62,11 +62,9 @@ public class MailtemplateKoppelingRESTService {
     @GET
     public List<RESTMailtemplateKoppeling> listMailtemplateKoppelingen() {
         assertPolicy(policyService.readOverigeRechten().beheren());
-        final List<MailtemplateKoppeling> mailtemplateKoppelingList =
-                mailTemplateKoppelingenService.listMailtemplateKoppelingen();
+        final List<MailtemplateKoppeling> mailtemplateKoppelingList = mailTemplateKoppelingenService.listMailtemplateKoppelingen();
         return mailtemplateKoppelingList.stream().map(mailtemplateKoppeling -> {
-            final RESTMailtemplateKoppeling restMailtemplateKoppeling =
-                    restMailtemplateKoppelingConverter.convert(mailtemplateKoppeling);
+            final RESTMailtemplateKoppeling restMailtemplateKoppeling = restMailtemplateKoppelingConverter.convert(mailtemplateKoppeling);
             restMailtemplateKoppeling.zaakafhandelParameters = restZaakafhandelParametersConverter
                     .convertZaakafhandelParameters(mailtemplateKoppeling.getZaakafhandelParameters(), false);
             return restMailtemplateKoppeling;
@@ -76,7 +74,8 @@ public class MailtemplateKoppelingRESTService {
     @PUT
     @Path("")
     public RESTMailtemplateKoppeling storeMailtemplateKoppeling(
-            final RESTMailtemplateKoppeling mailtemplateKoppeling) {
+            final RESTMailtemplateKoppeling mailtemplateKoppeling
+    ) {
         assertPolicy(policyService.readOverigeRechten().beheren());
         return restMailtemplateKoppelingConverter.convert(
                 mailTemplateKoppelingenService.storeMailtemplateKoppeling(

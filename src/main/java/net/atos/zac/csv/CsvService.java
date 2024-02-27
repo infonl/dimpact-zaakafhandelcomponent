@@ -34,8 +34,8 @@ public class CsvService {
     private final static String LINE_END = "\n";
 
     private final static List<String> uitzonderingen = List.of("class", "uuid", "zaaktypeUuid", "type",
-                                                       "zaakUUID", "taakData", "taakInformatie", "id",
-                                                               "zaaktypeIdentificatie");
+            "zaakUUID", "taakData", "taakInformatie", "id",
+            "zaaktypeIdentificatie");
 
     public StreamingOutput exportToCsv(final ZoekResultaat<? extends ZoekObject> zoekResultaat) {
         final AtomicInteger headerCounter = new AtomicInteger();
@@ -75,7 +75,7 @@ public class CsvService {
 
         return outputStream -> {
             try (final CSVWriter writer = new CSVWriter(new OutputStreamWriter(outputStream), SEPARATOR,
-                                                        QUOTE_ESCAPE_CHAR, QUOTE_ESCAPE_CHAR, LINE_END)) {
+                    QUOTE_ESCAPE_CHAR, QUOTE_ESCAPE_CHAR, LINE_END)) {
                 writer.writeNext(headers.toArray(new String[0]));
                 writer.writeAll(records);
             }

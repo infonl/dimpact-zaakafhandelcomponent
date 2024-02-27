@@ -153,7 +153,8 @@ public class Zaak {
     private Opschorting opschorting;
 
     /**
-     * URL-referentie naar de categorie in de gehanteerde 'Selectielijst Archiefbescheiden' die, gezien het zaaktype en het resultaattype van de zaak,
+     * URL-referentie naar de categorie in de gehanteerde 'Selectielijst Archiefbescheiden' die, gezien het zaaktype en het resultaattype
+     * van de zaak,
      * bepalend is voor het archiefregime van de zaak.
      */
     private URI selectielijstklasse;
@@ -378,7 +379,9 @@ public class Zaak {
         return vertrouwelijkheidaanduiding;
     }
 
-    public void setVertrouwelijkheidaanduiding(final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum vertrouwelijkheidaanduiding) {
+    public void setVertrouwelijkheidaanduiding(
+            final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum vertrouwelijkheidaanduiding
+    ) {
         this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding;
     }
 
@@ -523,39 +526,39 @@ public class Zaak {
     @Override
     public String toString() {
         return "Zaak{" +
-                "url=" + url +
-                ", uuid=" + uuid +
-                ", identificatie='" + identificatie + '\'' +
-                ", bronorganisatie='" + bronorganisatie + '\'' +
-                ", omschrijving='" + omschrijving + '\'' +
-                ", toelichting='" + toelichting + '\'' +
-                ", zaaktype=" + zaaktype +
-                ", registratiedatum=" + registratiedatum +
-                ", verantwoordelijkeOrganisatie='" + verantwoordelijkeOrganisatie + '\'' +
-                ", startdatum=" + startdatum +
-                ", einddatum=" + einddatum +
-                ", einddatumGepland=" + einddatumGepland +
-                ", uiterlijkeEinddatumAfdoening=" + uiterlijkeEinddatumAfdoening +
-                ", publicatiedatum=" + publicatiedatum +
-                ", communicatiekanaal=" + communicatiekanaal +
-                ", productenOfDiensten=" + productenOfDiensten +
-                ", vertrouwelijkheidaanduiding=" + vertrouwelijkheidaanduiding +
-                ", betalingsindicatie=" + betalingsindicatie +
-                ", betalingsindicatieWeergave='" + betalingsindicatieWeergave + '\'' +
-                ", laatsteBetaaldatum=" + laatsteBetaaldatum +
-                ", zaakgeometrie=" + zaakgeometrie +
-                ", verlenging=" + verlenging +
-                ", opschorting=" + opschorting +
-                ", selectielijstklasse=" + selectielijstklasse +
-                ", hoofdzaak=" + hoofdzaak +
-                ", deelzaken=" + deelzaken +
-                ", relevanteAndereZaken=" + relevanteAndereZaken +
-                ", status=" + status +
-                ", kenmerken=" + kenmerken +
-                ", archiefnominatie=" + archiefnominatie +
-                ", archiefstatus=" + archiefstatus +
-                ", archiefactiedatum=" + archiefactiedatum +
-                ", resultaat=" + resultaat +
-                '}';
+               "url=" + url +
+               ", uuid=" + uuid +
+               ", identificatie='" + identificatie + '\'' +
+               ", bronorganisatie='" + bronorganisatie + '\'' +
+               ", omschrijving='" + omschrijving + '\'' +
+               ", toelichting='" + toelichting + '\'' +
+               ", zaaktype=" + zaaktype +
+               ", registratiedatum=" + registratiedatum +
+               ", verantwoordelijkeOrganisatie='" + verantwoordelijkeOrganisatie + '\'' +
+               ", startdatum=" + startdatum +
+               ", einddatum=" + einddatum +
+               ", einddatumGepland=" + einddatumGepland +
+               ", uiterlijkeEinddatumAfdoening=" + uiterlijkeEinddatumAfdoening +
+               ", publicatiedatum=" + publicatiedatum +
+               ", communicatiekanaal=" + communicatiekanaal +
+               ", productenOfDiensten=" + productenOfDiensten +
+               ", vertrouwelijkheidaanduiding=" + vertrouwelijkheidaanduiding +
+               ", betalingsindicatie=" + betalingsindicatie +
+               ", betalingsindicatieWeergave='" + betalingsindicatieWeergave + '\'' +
+               ", laatsteBetaaldatum=" + laatsteBetaaldatum +
+               ", zaakgeometrie=" + zaakgeometrie +
+               ", verlenging=" + verlenging +
+               ", opschorting=" + opschorting +
+               ", selectielijstklasse=" + selectielijstklasse +
+               ", hoofdzaak=" + hoofdzaak +
+               ", deelzaken=" + deelzaken +
+               ", relevanteAndereZaken=" + relevanteAndereZaken +
+               ", status=" + status +
+               ", kenmerken=" + kenmerken +
+               ", archiefnominatie=" + archiefnominatie +
+               ", archiefstatus=" + archiefstatus +
+               ", archiefactiedatum=" + archiefactiedatum +
+               ", resultaat=" + resultaat +
+               '}';
     }
 }

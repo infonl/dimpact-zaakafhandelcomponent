@@ -56,13 +56,15 @@ public class ContactmomentenRESTService {
                 .orElseGet(() -> new RESTResultaat<>());
     }
 
-    private RESTResultaat<RESTContactmoment> listContactmomenten(final Klant klant, final Integer page,
-            final Integer pageSize) {
+    private RESTResultaat<RESTContactmoment> listContactmomenten(
+            final Klant klant,
+            final Integer page,
+            final Integer pageSize
+    ) {
         final var klantcontactmomentListParameters = new KlantcontactmomentListParameters();
         klantcontactmomentListParameters.setPage(1 + page * pageSize / 100);
         klantcontactmomentListParameters.setKlant(klant.getUrl());
-        final var klantcontactmomentenResponse =
-                contactmomentenClientService.listKlantcontactmomenten(klantcontactmomentListParameters);
+        final var klantcontactmomentenResponse = contactmomentenClientService.listKlantcontactmomenten(klantcontactmomentListParameters);
         final List<RESTContactmoment> contactmomenten = klantcontactmomentenResponse.getResults().stream()
                 .skip(page * pageSize % NUM_ITEMS_PER_PAGE)
                 .limit(pageSize)

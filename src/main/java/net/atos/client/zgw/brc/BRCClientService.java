@@ -16,9 +16,9 @@ import jakarta.inject.Inject;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
+import net.atos.client.zgw.brc.model.BesluitenListParameters;
 import net.atos.client.zgw.brc.model.generated.Besluit;
 import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject;
-import net.atos.client.zgw.brc.model.BesluitenListParameters;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel;
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
@@ -66,8 +66,10 @@ public class BRCClientService {
         return brcClient.besluitRead(uuid);
     }
 
-    public BesluitInformatieObject createBesluitInformatieobject(final BesluitInformatieObject besluitInformatieobject,
-            final String toelichting) {
+    public BesluitInformatieObject createBesluitInformatieobject(
+            final BesluitInformatieObject besluitInformatieobject,
+            final String toelichting
+    ) {
         zgwClientHeadersFactory.setAuditToelichting(toelichting);
         return brcClient.besluitinformatieobjectCreate(besluitInformatieobject);
     }
@@ -81,8 +83,8 @@ public class BRCClientService {
     }
 
     public boolean isInformatieObjectGekoppeldAanBesluit(final URI informatieobject) {
-        final List<BesluitInformatieObject> besluitInformatieobjecten =
-                brcClient.listBesluitInformatieobjectenByInformatieObject(informatieobject);
+        final List<BesluitInformatieObject> besluitInformatieobjecten = brcClient.listBesluitInformatieobjectenByInformatieObject(
+                informatieobject);
         return !besluitInformatieobjecten.isEmpty();
     }
 }

@@ -29,8 +29,10 @@ public class RelevanteZaak {
      * Constructor with required attributes for POST and PUT requests and GET response
      */
     @JsonbCreator
-    public RelevanteZaak(@JsonbProperty("url") final URI url,
-            @JsonbProperty("aardRelatie") final AardRelatie aardRelatie) {
+    public RelevanteZaak(
+            @JsonbProperty("url") final URI url,
+            @JsonbProperty("aardRelatie") final AardRelatie aardRelatie
+    ) {
         this.url = url;
         this.aardRelatie = aardRelatie;
     }

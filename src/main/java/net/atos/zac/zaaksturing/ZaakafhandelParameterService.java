@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import javax.cache.annotation.CacheRemove;
 import javax.cache.annotation.CacheResult;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -35,5 +36,6 @@ public class ZaakafhandelParameterService {
     }
 
     @CacheRemove(cacheName = ZAC_ZAAKAFHANDELPARAMETERS_MANAGED)
-    public void cacheRemoveZaakafhandelParameters(final UUID zaaktypeUUID) {}
+    public void cacheRemoveZaakafhandelParameters(final UUID zaaktypeUUID) {
+    }
 }

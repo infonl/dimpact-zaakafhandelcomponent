@@ -17,4 +17,3 @@ public class AanvragerData {
 
     public String woonplaats;
 }
-

@@ -5,7 +5,13 @@
 
 /**
  * Klanten API
- * Een API om klanten te benaderen.  Een API om zowel klanten te registreren als op te vragen. Een klant is een natuurlijk persoon, niet-natuurlijk persoon (bedrijf) of vestiging waarbij het gaat om niet geverifieerde gegevens. De Klanten API kan zelfstandig of met andere API's samen werken om tot volledige functionaliteit te komen.  **Afhankelijkheden**  Deze API is afhankelijk van:  * Autorisaties API * Notificaties API * Zaken API *(optioneel)* * Documenten API *(optioneel)*  **Autorisatie**  Deze API vereist autorisatie. Je kan de [token-tool](https://zaken-auth.vng.cloud/) gebruiken om JWT-tokens te genereren.  ** Notificaties  Deze API publiceert notificaties op het kanaal `klanten`.  **Main resource**  `klant`    **Kenmerken**  * `subject_type`: Type van de `subject`.  **Resources en acties**   **Handige links**  * [Documentatie](https://zaakgerichtwerken.vng.cloud/standaard) * [Zaakgericht werken](https://zaakgerichtwerken.vng.cloud)
+ * Een API om klanten te benaderen. Een API om zowel klanten te registreren als op te vragen. Een klant is een natuurlijk persoon,
+ * niet-natuurlijk persoon (bedrijf) of vestiging waarbij het gaat om niet geverifieerde gegevens. De Klanten API kan zelfstandig of met
+ * andere API's samen werken om tot volledige functionaliteit te komen. **Afhankelijkheden** Deze API is afhankelijk van: * Autorisaties API
+ * * Notificaties API * Zaken API *(optioneel)* * Documenten API *(optioneel)* **Autorisatie** Deze API vereist autorisatie. Je kan de
+ * [token-tool](https://zaken-auth.vng.cloud/) gebruiken om JWT-tokens te genereren. ** Notificaties Deze API publiceert notificaties op het
+ * kanaal `klanten`. **Main resource** `klant` **Kenmerken** * `subject_type`: Type van de `subject`. **Resources en acties** **Handige
+ * links** * [Documentatie](https://zaakgerichtwerken.vng.cloud/standaard) * [Zaakgericht werken](https://zaakgerichtwerken.vng.cloud)
  * <p>
  * The version of the OpenAPI document: 1.0.0
  * Contact: standaarden.ondersteuning@vng.nl
@@ -55,6 +61,7 @@ public class VerblijfsAdres {
 
     /**
      * De unieke identificatie van het OBJECT
+     * 
      * @return aoaIdentificatie
      **/
     public String getAoaIdentificatie() {
@@ -75,6 +82,7 @@ public class VerblijfsAdres {
 
     /**
      * Get wplWoonplaatsNaam
+     * 
      * @return wplWoonplaatsNaam
      **/
     public String getWplWoonplaatsNaam() {
@@ -95,6 +103,7 @@ public class VerblijfsAdres {
 
     /**
      * Een door het bevoegde gemeentelijke orgaan aan een OPENBARE RUIMTE toegekende benaming
+     * 
      * @return gorOpenbareRuimteNaam
      **/
     public String getGorOpenbareRuimteNaam() {
@@ -115,6 +124,7 @@ public class VerblijfsAdres {
 
     /**
      * Get aoaPostcode
+     * 
      * @return aoaPostcode
      **/
     public String getAoaPostcode() {
@@ -137,6 +147,7 @@ public class VerblijfsAdres {
      * Get aoaHuisnummer
      * minimum: 0
      * maximum: 99999
+     * 
      * @return aoaHuisnummer
      **/
     public Integer getAoaHuisnummer() {
@@ -157,6 +168,7 @@ public class VerblijfsAdres {
 
     /**
      * Get aoaHuisletter
+     * 
      * @return aoaHuisletter
      **/
     public String getAoaHuisletter() {
@@ -177,6 +189,7 @@ public class VerblijfsAdres {
 
     /**
      * Get aoaHuisnummertoevoeging
+     * 
      * @return aoaHuisnummertoevoeging
      **/
     public String getAoaHuisnummertoevoeging() {
@@ -197,6 +210,7 @@ public class VerblijfsAdres {
 
     /**
      * Get inpLocatiebeschrijving
+     * 
      * @return inpLocatiebeschrijving
      **/
     public String getInpLocatiebeschrijving() {
@@ -247,4 +261,3 @@ public class VerblijfsAdres {
         return o.toString().replace("\n", "\n    ");
     }
 }
-

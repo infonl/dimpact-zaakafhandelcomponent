@@ -39,8 +39,10 @@ public class ZGWClientHeadersFactory implements ClientHeadersFactory {
     private static final Map<String, String> AUDIT_TOELICHTINGEN = new ConcurrentHashMap<>();
 
     @Override
-    public MultivaluedMap<String, String> update(final MultivaluedMap<String, String> incomingHeaders,
-            final MultivaluedMap<String, String> outgoingHeaders) {
+    public MultivaluedMap<String, String> update(
+            final MultivaluedMap<String, String> incomingHeaders,
+            final MultivaluedMap<String, String> outgoingHeaders
+    ) {
         final LoggedInUser loggedInUser = loggedInUserInstance.get();
         try {
             addAutorizationHeader(outgoingHeaders, loggedInUser);
@@ -70,8 +72,10 @@ public class ZGWClientHeadersFactory implements ClientHeadersFactory {
         }
     }
 
-    private void addAutorizationHeader(final MultivaluedMap<String, String> outgoingHeaders,
-            final LoggedInUser loggedInUser) {
+    private void addAutorizationHeader(
+            final MultivaluedMap<String, String> outgoingHeaders,
+            final LoggedInUser loggedInUser
+    ) {
         outgoingHeaders.add(HttpHeaders.AUTHORIZATION, JWTTokenGenerator.generate(clientId, secret, loggedInUser));
     }
 

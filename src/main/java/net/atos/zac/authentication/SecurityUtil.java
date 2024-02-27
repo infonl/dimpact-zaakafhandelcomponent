@@ -25,9 +25,9 @@ public class SecurityUtil implements Serializable {
      */
     public static final String LOGGED_IN_USER_SESSION_ATTRIBUTE = "logged-in-user";
 
-    public static final LoggedInUser FUNCTIONEEL_GEBRUIKER =
-            new LoggedInUser("FG", "", "Functionele gebruiker", "Functionele gebruiker", null,
-                    Set.of("functionele_gebruiker"), Collections.emptySet());
+    public static final LoggedInUser FUNCTIONEEL_GEBRUIKER = new LoggedInUser("FG", "", "Functionele gebruiker", "Functionele gebruiker",
+            null,
+            Set.of("functionele_gebruiker"), Collections.emptySet());
 
     @Inject
     @ActiveSession
@@ -35,7 +35,8 @@ public class SecurityUtil implements Serializable {
 
     /**
      * Produces an authenticated {@link LoggedInUser} for use in CDI Beans.
-     * The authenticated {@link LoggedInUser} instance is retrieved from the current user session, where it is set via the {@link UserPrincipalFilter}
+     * The authenticated {@link LoggedInUser} instance is retrieved from the current user session, where it is set via the
+     * {@link UserPrincipalFilter}
      *
      * @return - {@link LoggedInUser} - The current logged in user.
      */

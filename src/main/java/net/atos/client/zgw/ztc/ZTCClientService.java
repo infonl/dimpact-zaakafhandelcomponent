@@ -174,7 +174,8 @@ public class ZTCClientService implements Caching {
      */
     @CacheResult(cacheName = ZTC_ZAAKTYPE_INFORMATIEOBJECTTYPE)
     public List<ZaakTypeInformatieObjectType> readZaaktypeInformatieobjecttypen(final URI zaaktypeURI) {
-        return ztcClient.zaaktypeinformatieobjecttypeList(new ZaaktypeInformatieobjecttypeListParameters(zaaktypeURI)).getSinglePageResults();
+        return ztcClient.zaaktypeinformatieobjecttypeList(new ZaaktypeInformatieobjecttypeListParameters(zaaktypeURI))
+                .getSinglePageResults();
     }
 
     /**
@@ -186,7 +187,8 @@ public class ZTCClientService implements Caching {
     @CacheResult(cacheName = ZTC_INFORMATIEOBJECTTYPE)
     public List<InformatieObjectType> readInformatieobjecttypen(final URI zaaktypeURI) {
         return readZaaktypeInformatieobjecttypen(zaaktypeURI).stream()
-                .map(zaaktypeInformatieobjecttype -> readInformatieobjecttype(zaaktypeInformatieobjecttype.getInformatieobjecttype())).toList();
+                .map(zaaktypeInformatieobjecttype -> readInformatieobjecttype(zaaktypeInformatieobjecttype.getInformatieobjecttype()))
+                .toList();
     }
 
     /**
@@ -263,8 +265,8 @@ public class ZTCClientService implements Caching {
      * Find {@link RolType} of {@link ZaakType} and {@link RolType.OmschrijvingGeneriekEnum}.
      * returns null if the {@link ResultaatType} can not be found
      *
-     * @param zaaktypeURI URI of {@link ZaakType}.
-     * @param omschrijvingGeneriekEnum  {@link RolType.OmschrijvingGeneriekEnum}.
+     * @param zaaktypeURI              URI of {@link ZaakType}.
+     * @param omschrijvingGeneriekEnum {@link RolType.OmschrijvingGeneriekEnum}.
      * @return {@link RolType} or NULL
      */
     @CacheResult(cacheName = ZTC_ROLTYPE)
@@ -276,15 +278,16 @@ public class ZTCClientService implements Caching {
      * Read {@link RolType} of {@link ZaakType} and {@link RolType.OmschrijvingGeneriekEnum}.
      * Throws a RuntimeException if the {@link ResultaatType} can not be read.
      *
-     * @param zaaktypeURI URI of {@link ZaakType}.
-     * @param omschrijvingGeneriekEnum  {@link RolType.OmschrijvingGeneriekEnum}.
+     * @param zaaktypeURI              URI of {@link ZaakType}.
+     * @param omschrijvingGeneriekEnum {@link RolType.OmschrijvingGeneriekEnum}.
      * @return {@link RolType}. Never 'null'!
      */
     @CacheResult(cacheName = ZTC_ROLTYPE)
     public RolType readRoltype(final RolType.OmschrijvingGeneriekEnum omschrijvingGeneriekEnum, final URI zaaktypeURI) {
         return ztcClient.roltypeList(new RoltypeListParameters(zaaktypeURI, omschrijvingGeneriekEnum)).getSingleResult()
                 .orElseThrow(
-                        () -> new RuntimeException(format("Zaaktype '%s': Roltype with aard '%s' not found.", zaaktypeURI.toString(), omschrijvingGeneriekEnum.toString())));
+                        () -> new RuntimeException(format("Zaaktype '%s': Roltype with aard '%s' not found.", zaaktypeURI.toString(),
+                                omschrijvingGeneriekEnum.toString())));
     }
 
     /**
@@ -385,7 +388,7 @@ public class ZTCClientService implements Caching {
         if (!uri.toString().startsWith(configuratieService.readZgwApiClientMpRestUrl())) {
             throw new RuntimeException(format(
                     "URI '%s' does not start with value for environment variable " +
-                            "'%s': '%s'",
+                                              "'%s': '%s'",
                     uri,
                     ENV_VAR_ZGW_API_CLIENT_MP_REST_URL,
                     configuratieService.readZgwApiClientMpRestUrl()

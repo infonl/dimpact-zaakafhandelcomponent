@@ -7,4 +7,5 @@ package net.atos.zac.zoeken.model;
 
 import java.util.List;
 
-public record FilterParameters(List<String> waarden, boolean inverse) {}
+public record FilterParameters(List<String> waarden, boolean inverse) {
+}

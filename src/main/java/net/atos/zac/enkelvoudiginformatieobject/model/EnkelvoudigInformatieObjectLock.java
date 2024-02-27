@@ -5,6 +5,10 @@
 
 package net.atos.zac.enkelvoudiginformatieobject.model;
 
+import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
+
+import java.util.UUID;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -15,14 +19,9 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.UUID;
-
-import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
-
 @Entity
 @Table(schema = SCHEMA, name = "enkelvoudiginformatieobject_lock")
-@SequenceGenerator(schema = SCHEMA, name = "sq_enkelvoudiginformatieobject_lock", sequenceName =
-        "sq_enkelvoudiginformatieobject_lock", allocationSize = 1)
+@SequenceGenerator(schema = SCHEMA, name = "sq_enkelvoudiginformatieobject_lock", sequenceName = "sq_enkelvoudiginformatieobject_lock", allocationSize = 1)
 public class EnkelvoudigInformatieObjectLock {
 
     @Id
@@ -30,8 +29,7 @@ public class EnkelvoudigInformatieObjectLock {
     @Column(name = "id_enkelvoudiginformatieobject_lock")
     private Long id;
 
-    @NotNull
-    @Column(name = "uuid_enkelvoudiginformatieobject", nullable = false)
+    @NotNull @Column(name = "uuid_enkelvoudiginformatieobject", nullable = false)
     private UUID enkelvoudiginformatieobjectUUID;
 
     @NotBlank
