@@ -99,7 +99,7 @@
             <th mat-header-cell cdkDrag *matHeaderCellDef [mat-sort-header]="sorteerVeld.ZAAK_VERTROUWELIJKHEIDAANDUIDING">
                 {{ 'vertrouwelijkheidaanduiding' | translate }}</th>
             <td mat-cell *matCellDef="let row">
-                {{ row.vertrouwelijkheidaanduiding ? ('vertrouwelijkheidaanduiding.' + row.vertrouwelijkheidaanduiding | translate) : '-'}}
+                {{ row.vertrouwelijkheidaanduiding ? (row.vertrouwelijkheidaanduiding | vertrouwelijkaanduidingToTranslationKey | translate) : '-'}}
             </td>
         </ng-container>
         <ng-container matColumnDef="vertrouwelijkheidaanduiding_filter">
@@ -310,7 +310,7 @@
                             <zac-static-text *ngSwitchCase="zoekenColumn.COMMUNICATIEKANAAL" [value]="row.communicatiekanaal"
                                              class="flex-1 w33" [label]="column | translate"></zac-static-text>
                             <zac-static-text *ngSwitchCase="zoekenColumn.VERTROUWELIJKHEIDAANDUIDING"
-                                             [value]="row.vertrouwelijkheidaanduiding ? ('vertrouwelijkheidaanduiding.'+row.vertrouwelijkheidaanduiding | translate) : '-'"
+                                             [value]="row.vertrouwelijkheidaanduiding ? (row.vertrouwelijkheidaanduiding | vertrouwelijkaanduidingToTranslationKey | translate) : '-'"
                                              class="flex-1 w33" [label]="column | translate"></zac-static-text>
                             <zac-static-text *ngSwitchCase="zoekenColumn.BEHANDELAAR" [label]="column | translate"
                                              class="flex-1 w33" [value]="row.behandelaarNaam | empty"></zac-static-text>

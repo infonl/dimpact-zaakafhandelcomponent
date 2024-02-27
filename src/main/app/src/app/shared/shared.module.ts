@@ -48,6 +48,7 @@ import { ZaakIndicatiesComponent } from "./indicaties/zaak-indicaties/zaak-indic
 import { VersionComponent } from "./version/version.component";
 import { SortPipe } from "./dynamic-table/pipes/sort.pipe";
 import { BesluitIndicatiesComponent } from "./indicaties/besluit-indicaties/besluit-indicaties.component";
+import { VertrouwelijkaanduidingToTranslationKeyPipe } from "./pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 
 @NgModule({
   declarations: [
@@ -92,6 +93,7 @@ import { BesluitIndicatiesComponent } from "./indicaties/besluit-indicaties/besl
     MaterialModule,
     MaterialFormBuilderModule.forRoot(),
     TranslateModule,
+    VertrouwelijkaanduidingToTranslationKeyPipe,
   ],
   exports: [
     BrowserAnimationsModule,
@@ -131,6 +133,7 @@ import { BesluitIndicatiesComponent } from "./indicaties/besluit-indicaties/besl
     ZaakIndicatiesComponent,
     VersionComponent,
     SortPipe,
+    VertrouwelijkaanduidingToTranslationKeyPipe,
   ],
   providers: [
     Title,
@@ -145,6 +148,10 @@ import { BesluitIndicatiesComponent } from "./indicaties/besluit-indicaties/besl
       useFactory: paginatorLanguageInitializerFactory,
       deps: [TranslateService, Injector],
       multi: true,
+    },
+    {
+      provide: VertrouwelijkaanduidingToTranslationKeyPipe,
+      useClass: VertrouwelijkaanduidingToTranslationKeyPipe,
     },
   ],
 })
