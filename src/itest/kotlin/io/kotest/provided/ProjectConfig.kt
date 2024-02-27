@@ -95,6 +95,7 @@ object ProjectConfig : AbstractProjectConfig() {
 
     override val specExecutionOrder = SpecExecutionOrder.Annotated
 
+    @Suppress("UNCHECKED_CAST")
     private fun createDockerComposeContainer(): ComposeContainer {
         val zacDockerImage = System.getProperty("zacDockerImage") ?: run {
             ZAC_DEFAULT_DOCKER_IMAGE
