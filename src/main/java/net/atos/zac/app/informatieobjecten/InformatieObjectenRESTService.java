@@ -5,6 +5,24 @@
 
 package net.atos.zac.app.informatieobjecten;
 
+import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertByteArrayToBase64String;
+import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
+import static net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter.convertToEnkelvoudigInformatieObject;
+import static net.atos.zac.configuratie.ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE;
+import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN;
+import static net.atos.zac.policy.PolicyService.assertPolicy;
+import static net.atos.zac.websocket.event.ScreenEventType.ENKELVOUDIG_INFORMATIEOBJECT;
+import static org.apache.commons.lang3.BooleanUtils.isFalse;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -25,6 +43,11 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
 import jakarta.ws.rs.core.UriInfo;
+
+import org.apache.commons.lang3.StringUtils;
+import org.flowable.task.api.Task;
+import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
+
 import net.atos.client.officeconverter.OfficeConverterClientService;
 import net.atos.client.zgw.drc.DRCClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
@@ -75,27 +98,6 @@ import net.atos.zac.flowable.TakenService;
 import net.atos.zac.policy.PolicyService;
 import net.atos.zac.util.UriUtil;
 import net.atos.zac.webdav.WebdavHelper;
-import org.apache.commons.lang3.StringUtils;
-import org.flowable.task.api.Task;
-import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
-import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertByteArrayToBase64String;
-import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
-import static net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter.convertToEnkelvoudigInformatieObject;
-import static net.atos.zac.configuratie.ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE;
-import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN;
-import static net.atos.zac.policy.PolicyService.assertPolicy;
-import static net.atos.zac.websocket.event.ScreenEventType.ENKELVOUDIG_INFORMATIEOBJECT;
-import static org.apache.commons.lang3.BooleanUtils.isFalse;
 
 @Singleton
 @Path("informatieobjecten")
