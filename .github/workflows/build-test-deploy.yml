@@ -217,6 +217,9 @@ jobs:
           image-ref: '${{ env.ZAC_DOCKER_IMAGE }}'
           format: 'sarif'
           output: 'trivy-results.sarif'
+          # limit the severities even when using Sarif
+          # or else all vulnerabilities will be reported
+          limitSeveritiesForSARIF: true
           severity: 'CRITICAL,HIGH'
 
       - name: Upload Trivy scan results to GitHub Security tab
