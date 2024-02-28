@@ -48,8 +48,7 @@ public class DocumentZoekObjectConverter extends AbstractZoekObjectConverter<Doc
 
     @Override
     public DocumentZoekObject convert(final String documentUUID) {
-        final EnkelvoudigInformatieObject document =
-                drcClientService.readEnkelvoudigInformatieobject(
+        final EnkelvoudigInformatieObject document = drcClientService.readEnkelvoudigInformatieobject(
                 UUID.fromString(documentUUID));
         final List<ZaakInformatieobject> zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(document);
         if (zaakInformatieobjecten.isEmpty()) {
@@ -58,8 +57,10 @@ public class DocumentZoekObjectConverter extends AbstractZoekObjectConverter<Doc
         return convert(document, zaakInformatieobjecten.get(0));
     }
 
-    private DocumentZoekObject convert(final EnkelvoudigInformatieObject informatieobject,
-            final ZaakInformatieobject gekoppeldeZaakInformatieobject) {
+    private DocumentZoekObject convert(
+            final EnkelvoudigInformatieObject informatieobject,
+            final ZaakInformatieobject gekoppeldeZaakInformatieobject
+    ) {
         final Zaak zaak = zrcClientService.readZaak(gekoppeldeZaakInformatieobject.getZaakUUID());
         final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
         final InformatieObjectType informatieobjecttype = ztcClientService.readInformatieobjecttype(
@@ -108,7 +109,8 @@ public class DocumentZoekObjectConverter extends AbstractZoekObjectConverter<Doc
         }
         documentZoekObject.setIndicatie(DocumentIndicatie.VERGRENDELD, informatieobject.getLocked());
         documentZoekObject.setIndicatie(DocumentIndicatie.GEBRUIKSRECHT, informatieobject.getIndicatieGebruiksrecht());
-        documentZoekObject.setIndicatie(DocumentIndicatie.BESLUIT, brcClientService.isInformatieObjectGekoppeldAanBesluit(informatieobject.getUrl()));
+        documentZoekObject.setIndicatie(DocumentIndicatie.BESLUIT, brcClientService.isInformatieObjectGekoppeldAanBesluit(informatieobject
+                .getUrl()));
         documentZoekObject.setIndicatie(DocumentIndicatie.VERZONDEN, informatieobject.getVerzenddatum() != null);
         if (informatieobject.getLocked()) {
             final EnkelvoudigInformatieObjectLock lock = enkelvoudigInformatieObjectLockService.readLock(

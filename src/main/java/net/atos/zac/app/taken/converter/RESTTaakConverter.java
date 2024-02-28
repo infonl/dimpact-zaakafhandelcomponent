@@ -115,8 +115,11 @@ public class RESTTaakConverter {
                 .orElse(null);
     }
 
-    private void convertFormulierDefinitieEnReferentieTabellen(final RESTTaak restTaak, final UUID zaaktypeUUID,
-            final String taskDefinitionKey) {
+    private void convertFormulierDefinitieEnReferentieTabellen(
+            final RESTTaak restTaak,
+            final UUID zaaktypeUUID,
+            final String taskDefinitionKey
+    ) {
         zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUUID)
                 .getHumanTaskParametersCollection().stream()
                 .filter(zaakafhandelParameters -> taskDefinitionKey.equals(
@@ -125,8 +128,10 @@ public class RESTTaakConverter {
                 .ifPresent(zaakafhandelParameters -> verwerkZaakafhandelParameters(restTaak, zaakafhandelParameters));
     }
 
-    private void verwerkZaakafhandelParameters(final RESTTaak restTaak,
-            final HumanTaskParameters humanTaskParameters) {
+    private void verwerkZaakafhandelParameters(
+            final RESTTaak restTaak,
+            final HumanTaskParameters humanTaskParameters
+    ) {
         restTaak.formulierDefinitieId = humanTaskParameters.getFormulierDefinitieID();
         humanTaskParameters.getReferentieTabellen()
                 .forEach(referentieTabel -> restTaak.tabellen.put(

@@ -76,11 +76,9 @@ import net.atos.zac.mailtemplates.model.MailGegevens;
 
 @ApplicationScoped
 public class MailService {
-    private static final String MAILJET_API_KEY =
-            ConfigProvider.getConfig().getValue("mailjet.api.key", String.class);
+    private static final String MAILJET_API_KEY = ConfigProvider.getConfig().getValue("mailjet.api.key", String.class);
 
-    private static final String MAILJET_API_SECRET_KEY =
-            ConfigProvider.getConfig().getValue("mailjet.api.secret.key", String.class);
+    private static final String MAILJET_API_SECRET_KEY = ConfigProvider.getConfig().getValue("mailjet.api.secret.key", String.class);
 
     // http://www.faqs.org/rfcs/rfc2822.html
     private static final int SUBJECT_MAXWIDTH = 78;
@@ -217,10 +215,10 @@ public class MailService {
     ) {
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try (
-                final PdfWriter pdfWriter = new PdfWriter(byteArrayOutputStream);
-                final PdfDocument pdfDoc = new PdfDocument(pdfWriter);
-                final Document document = new Document(pdfDoc);
-            ) {
+             final PdfWriter pdfWriter = new PdfWriter(byteArrayOutputStream);
+             final PdfDocument pdfDoc = new PdfDocument(pdfWriter);
+             final Document document = new Document(pdfDoc);
+        ) {
             final Paragraph headerParagraph = new Paragraph();
             final PdfFont font = PdfFontFactory.createFont(StandardFonts.COURIER);
 
@@ -278,15 +276,14 @@ public class MailService {
 
         final List<Attachment> attachments = new ArrayList<>();
         bijlagen.forEach(uuid -> {
-            final EnkelvoudigInformatieObject enkelvoudigInformatieobject =
-                    drcClientService.readEnkelvoudigInformatieobject(
+            final EnkelvoudigInformatieObject enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
                     uuid);
             final ByteArrayInputStream byteArrayInputStream = drcClientService.downloadEnkelvoudigInformatieobject(
                     uuid);
             final Attachment attachment = new Attachment(enkelvoudigInformatieobject.getFormaat(),
-                                                         enkelvoudigInformatieobject.getBestandsnaam(),
-                                                         new String(Base64.getEncoder()
-                                                                            .encode(byteArrayInputStream.readAllBytes())));
+                    enkelvoudigInformatieobject.getBestandsnaam(),
+                    new String(Base64.getEncoder()
+                            .encode(byteArrayInputStream.readAllBytes())));
             attachments.add(attachment);
         });
 
@@ -307,8 +304,7 @@ public class MailService {
     }
 
     private Zaak getZaakBron(final Bronnen bronnen) {
-        return (bronnen.zaak != null || bronnen.taskInfo == null)
-                ? bronnen.zaak
-                : zrcClientService.readZaak(taakVariabelenService.readZaakUUID(bronnen.taskInfo));
+        return (bronnen.zaak != null || bronnen.taskInfo == null) ? bronnen.zaak : zrcClientService.readZaak(taakVariabelenService
+                .readZaakUUID(bronnen.taskInfo));
     }
 }

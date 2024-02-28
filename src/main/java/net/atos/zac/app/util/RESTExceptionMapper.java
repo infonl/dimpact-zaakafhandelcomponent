@@ -35,7 +35,8 @@ public class RESTExceptionMapper implements ExceptionMapper<Exception> {
     @Override
     public Response toResponse(final Exception e) {
         if (e instanceof WebApplicationException &&
-                Response.Status.Family.familyOf(((WebApplicationException) e).getResponse().getStatus()) != Response.Status.Family.SERVER_ERROR) {
+            Response.Status.Family.familyOf(((WebApplicationException) e).getResponse().getStatus()) !=
+                                                    Response.Status.Family.SERVER_ERROR) {
             final WebApplicationException wae = (WebApplicationException) e;
             return Response.status(wae.getResponse().getStatus())
                     .type(MediaType.APPLICATION_JSON)

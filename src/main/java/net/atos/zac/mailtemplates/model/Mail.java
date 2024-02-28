@@ -37,6 +37,6 @@ public enum Mail {
 
     public static List<Mail> getKoppelbareMails() {
         return Stream.of(ZAAK_ALGEMEEN, ZAAK_ONTVANKELIJK, ZAAK_NIET_ONTVANKELIJK, ZAAK_AFGEHANDELD,
-                         TAAK_AANVULLENDE_INFORMATIE, TAAK_ADVIES_EXTERN, TAAK_ONTVANGSTBEVESTIGING).toList();
+                TAAK_AANVULLENDE_INFORMATIE, TAAK_ADVIES_EXTERN, TAAK_ONTVANGSTBEVESTIGING).toList();
     }
 }

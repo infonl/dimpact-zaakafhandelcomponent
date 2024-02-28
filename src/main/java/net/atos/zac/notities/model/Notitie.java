@@ -46,8 +46,7 @@ public class Notitie {
     @Column(nullable = false)
     private String tekst;
 
-    @NotNull
-    @Column(name = "tijdstip_laatste_wijziging", nullable = false)
+    @NotNull @Column(name = "tijdstip_laatste_wijziging", nullable = false)
     private ZonedDateTime tijdstipLaatsteWijziging;
 
     @NotBlank

@@ -126,7 +126,7 @@ public class DataConverter {
 
         if (zaak.getResultaat() != null) {
             zaakData.resultaat = ztcClientService.readResultaattype(
-                            zrcClientService.readResultaat(zaak.getResultaat()).getResultaattype())
+                    zrcClientService.readResultaat(zaak.getResultaat()).getResultaattype())
                     .getOmschrijving();
         }
 
@@ -169,8 +169,7 @@ public class DataConverter {
         return switch (initiator.getBetrokkeneType()) {
             case NATUURLIJK_PERSOON -> createAanvragerDataNatuurlijkPersoon(initiator.getIdentificatienummer());
             case VESTIGING -> createAanvragerDataVestiging(initiator.getIdentificatienummer());
-            case NIET_NATUURLIJK_PERSOON ->
-                    createAanvragerDataNietNatuurlijkPersoon(initiator.getIdentificatienummer());
+            case NIET_NATUURLIJK_PERSOON -> createAanvragerDataNietNatuurlijkPersoon(initiator.getIdentificatienummer());
             default -> throw new NotImplementedException(
                     String.format("Initiator of type '%s' is not supported", initiator.getBetrokkeneType().toValue())
             );
@@ -188,7 +187,7 @@ public class DataConverter {
         if (persoon.getNaam() != null) {
             aanvragerData.naam = persoon.getNaam().getVolledigeNaam();
         }
-        if (persoon.getVerblijfplaats() instanceof Adres adres && adres.getVerblijfadres() != null) {
+        if (persoon.getVerblijfplaats()instanceof Adres adres && adres.getVerblijfadres() != null) {
             final var verblijfadres = adres.getVerblijfadres();
             aanvragerData.straat = verblijfadres.getOfficieleStraatnaam();
             aanvragerData.huisnummer = convertToHuisnummer(verblijfadres);
@@ -200,8 +199,8 @@ public class DataConverter {
 
     private String convertToHuisnummer(final VerblijfadresBinnenland verblijfadres) {
         return joinNonBlank(Objects.toString(verblijfadres.getHuisnummer(), null),
-                            verblijfadres.getHuisnummertoevoeging(),
-                            verblijfadres.getHuisletter());
+                verblijfadres.getHuisnummertoevoeging(),
+                verblijfadres.getHuisletter());
     }
 
     private AanvragerData createAanvragerDataVestiging(final String vestigingsnummer) {
@@ -228,7 +227,7 @@ public class DataConverter {
 
     private String convertToHuisnummer(final ResultaatItem vestiging) {
         return joinNonBlank(Objects.toString(vestiging.getHuisnummer(), null),
-                            vestiging.getHuisnummerToevoeging());
+                vestiging.getHuisnummerToevoeging());
     }
 
     private StartformulierData createStartformulierData(final URI zaak) {

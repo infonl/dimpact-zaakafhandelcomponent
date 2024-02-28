@@ -14,6 +14,7 @@ public class TaskUtil {
     public static boolean isOpen(final TaskInfo taskInfo) {
         return getTaakStatus(taskInfo) != AFGEROND;
     }
+
     public static boolean isCmmnTask(final TaskInfo taskInfo) {
         return ScopeTypes.CMMN.equals(taskInfo.getScopeType());
     }

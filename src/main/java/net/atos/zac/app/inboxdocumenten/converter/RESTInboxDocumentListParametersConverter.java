@@ -10,7 +10,8 @@ import net.atos.zac.app.shared.RESTListParametersConverter;
 import net.atos.zac.documenten.model.InboxDocumentListParameters;
 import net.atos.zac.zoeken.model.DatumRange;
 
-public class RESTInboxDocumentListParametersConverter extends RESTListParametersConverter<InboxDocumentListParameters, RESTInboxDocumentListParameters> {
+public class RESTInboxDocumentListParametersConverter extends
+                                                      RESTListParametersConverter<InboxDocumentListParameters, RESTInboxDocumentListParameters> {
 
     @Override
     protected void doConvert(final InboxDocumentListParameters listParameters, final RESTInboxDocumentListParameters restListParameters) {

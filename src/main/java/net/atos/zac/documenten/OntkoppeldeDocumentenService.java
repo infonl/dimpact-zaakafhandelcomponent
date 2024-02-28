@@ -53,9 +53,11 @@ public class OntkoppeldeDocumentenService {
     private Instance<LoggedInUser> loggedInUserInstance;
 
 
-    public OntkoppeldDocument create(final EnkelvoudigInformatieObject informatieobject,
+    public OntkoppeldDocument create(
+            final EnkelvoudigInformatieObject informatieobject,
             final Zaak zaak,
-            final String reden) {
+            final String reden
+    ) {
         final OntkoppeldDocument ontkoppeldDocument = new OntkoppeldDocument();
         ontkoppeldDocument.setDocumentID(informatieobject.getIdentificatie());
         ontkoppeldDocument.setDocumentUUID(UriUtil.uuidFromURI(informatieobject.getUrl()));
@@ -73,7 +75,7 @@ public class OntkoppeldeDocumentenService {
 
     public OntkoppeldeDocumentenResultaat getResultaat(final OntkoppeldDocumentListParameters listParameters) {
         return new OntkoppeldeDocumentenResultaat(list(listParameters), count(listParameters),
-                                                  getOntkoppeldDoor(listParameters));
+                getOntkoppeldDoor(listParameters));
     }
 
     public OntkoppeldDocument read(final UUID enkelvoudiginformatieobjectUUID) {
@@ -142,8 +144,10 @@ public class OntkoppeldeDocumentenService {
         }
     }
 
-    private Predicate getWhere(final OntkoppeldDocumentListParameters listParameters,
-            final Root<OntkoppeldDocument> root) {
+    private Predicate getWhere(
+            final OntkoppeldDocumentListParameters listParameters,
+            final Root<OntkoppeldDocument> root
+    ) {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final List<Predicate> predicates = new ArrayList<>();
         if (StringUtils.isNotBlank(listParameters.getZaakID())) {
@@ -164,26 +168,30 @@ public class OntkoppeldeDocumentenService {
                     builder.equal(root.get(OntkoppeldDocument.ONTKOPPELD_DOOR), listParameters.getOntkoppeldDoor()));
         }
         addDatumRangePredicates(listParameters.getCreatiedatum(), OntkoppeldDocument.CREATIEDATUM, predicates, root,
-                                builder);
+                builder);
         addDatumRangePredicates(listParameters.getOntkoppeldOp(), OntkoppeldDocument.ONTKOPPELD_OP, predicates, root,
-                                builder);
+                builder);
 
         return builder.and(predicates.toArray(new Predicate[0]));
     }
 
 
-    private void addDatumRangePredicates(final DatumRange datumRange, final String veld,
+    private void addDatumRangePredicates(
+            final DatumRange datumRange,
+            final String veld,
             final List<Predicate> predicates,
-            final Root<OntkoppeldDocument> root, final CriteriaBuilder builder) {
+            final Root<OntkoppeldDocument> root,
+            final CriteriaBuilder builder
+    ) {
         if (datumRange != null) {
             if (datumRange.van() != null) {
                 predicates.add(builder.greaterThanOrEqualTo(root.get(veld),
-                                                            DateTimeUtil.convertToDateTime(datumRange.van())));
+                        DateTimeUtil.convertToDateTime(datumRange.van())));
             }
             if (datumRange.tot() != null) {
                 predicates.add(builder.lessThanOrEqualTo(root.get(veld),
-                                                         DateTimeUtil.convertToDateTime(datumRange.tot()).plusDays(1)
-                                                                 .minusSeconds(1)));
+                        DateTimeUtil.convertToDateTime(datumRange.tot()).plusDays(1)
+                                .minusSeconds(1)));
             }
         }
     }

@@ -29,8 +29,7 @@ public class ReferentieTabelWaarde {
     @Column(name = "id_referentie_waarde")
     private Long id;
 
-    @NotNull
-    @ManyToOne
+    @NotNull @ManyToOne
     @JoinColumn(name = "id_referentie_tabel", referencedColumnName = "id_referentie_tabel")
     private ReferentieTabel tabel;
 
@@ -65,7 +64,11 @@ public class ReferentieTabelWaarde {
         this.naam = naam;
     }
 
-    public int getVolgorde() {return volgorde;}
+    public int getVolgorde() {
+        return volgorde;
+    }
 
-    public void setVolgorde(final int volgorde) {this.volgorde = volgorde;}
+    public void setVolgorde(final int volgorde) {
+        this.volgorde = volgorde;
+    }
 }

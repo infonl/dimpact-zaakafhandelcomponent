@@ -51,8 +51,8 @@ public class InboxDocumentenService {
     private DRCClientService drcClientService;
 
     public InboxDocument create(final UUID enkelvoudiginformatieobejctUUID) {
-        final EnkelvoudigInformatieObject informatieobject =
-                drcClientService.readEnkelvoudigInformatieobject(enkelvoudiginformatieobejctUUID);
+        final EnkelvoudigInformatieObject informatieobject = drcClientService.readEnkelvoudigInformatieobject(
+                enkelvoudiginformatieobejctUUID);
         final InboxDocument inboxDocument = new InboxDocument();
         inboxDocument.setEnkelvoudiginformatieobjectID(informatieobject.getIdentificatie());
         inboxDocument.setEnkelvoudiginformatieobjectUUID(enkelvoudiginformatieobejctUUID);
@@ -73,7 +73,7 @@ public class InboxDocumentenService {
         final CriteriaQuery<InboxDocument> query = builder.createQuery(InboxDocument.class);
         final Root<InboxDocument> root = query.from(InboxDocument.class);
         query.select(root).where(builder.equal(root.get(InboxDocument.ENKELVOUDIGINFORMATIEOBJECT_UUID),
-                                               enkelvoudiginformatieobjectUUID));
+                enkelvoudiginformatieobjectUUID));
         final List<InboxDocument> resultList = entityManager.createQuery(query).getResultList();
         return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
     }
@@ -132,7 +132,7 @@ public class InboxDocumentenService {
         final List<Predicate> predicates = new ArrayList<>();
         if (StringUtils.isNotBlank(listParameters.getIdentificatie())) {
             predicates.add(builder.like(root.get(InboxDocument.ENKELVOUDIGINFORMATIEOBJECT_ID),
-                                        LIKE.formatted(listParameters.getIdentificatie())));
+                    LIKE.formatted(listParameters.getIdentificatie())));
         }
         if (StringUtils.isNotBlank(listParameters.getTitel())) {
             String titel = LIKE.formatted(listParameters.getTitel().toLowerCase().replace(" ", "%"));
@@ -142,18 +142,21 @@ public class InboxDocumentenService {
         return builder.and(predicates.toArray(new Predicate[0]));
     }
 
-    private void addCreatiedatumPredicates(final DatumRange creatiedatum, final List<Predicate> predicates,
+    private void addCreatiedatumPredicates(
+            final DatumRange creatiedatum,
+            final List<Predicate> predicates,
             final Root<InboxDocument> root,
-            final CriteriaBuilder builder) {
+            final CriteriaBuilder builder
+    ) {
         if (creatiedatum != null) {
             if (creatiedatum.van() != null) {
                 predicates.add(builder.greaterThanOrEqualTo(root.get(InboxDocument.CREATIEDATUM),
-                                                            DateTimeUtil.convertToDateTime(creatiedatum.van())));
+                        DateTimeUtil.convertToDateTime(creatiedatum.van())));
             }
             if (creatiedatum.tot() != null) {
                 predicates.add(builder.lessThanOrEqualTo(root.get(InboxDocument.CREATIEDATUM),
-                                                         DateTimeUtil.convertToDateTime(creatiedatum.tot()).plusDays(1)
-                                                                 .minusSeconds(1)));
+                        DateTimeUtil.convertToDateTime(creatiedatum.tot()).plusDays(1)
+                                .minusSeconds(1)));
             }
         }
     }

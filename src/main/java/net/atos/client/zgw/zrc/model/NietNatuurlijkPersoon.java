@@ -22,7 +22,8 @@ public class NietNatuurlijkPersoon {
     private String annIdentificatie;
 
     /**
-     * Naam van de niet-natuurlijke persoon zoals deze is vastgelegd in de statuten (rechtspersoon) of in de vennootschapsovereenkomst is overeengekomen
+     * Naam van de niet-natuurlijke persoon zoals deze is vastgelegd in de statuten (rechtspersoon) of in de vennootschapsovereenkomst is
+     * overeengekomen
      * (Vennootschap onder firma of Commanditaire vennootschap).
      * - maxLength: 500
      */

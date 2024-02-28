@@ -27,29 +27,44 @@ import net.atos.zac.signalering.model.SignaleringType;
  */
 public class SignaleringEventUtil {
 
-    private static <ID> SignaleringEvent<ID> instance(final SignaleringType.Type signaleringType, final ID id,
-            final ID detail, final User actor) {
+    private static <ID> SignaleringEvent<ID> instance(
+            final SignaleringType.Type signaleringType,
+            final ID id,
+            final ID detail,
+            final User actor
+    ) {
         return new SignaleringEvent<>(signaleringType, new SignaleringEventId<ID>(id, detail), actor);
     }
 
-    public static SignaleringEvent<URI> event(final SignaleringType.Type signaleringType, final Zaak zaak,
-            final User actor) {
+    public static SignaleringEvent<URI> event(
+            final SignaleringType.Type signaleringType,
+            final Zaak zaak,
+            final User actor
+    ) {
         return instance(signaleringType, zaak.getUrl(), null, actor);
     }
 
-    public static SignaleringEvent<URI> event(final SignaleringType.Type signaleringType,
+    public static SignaleringEvent<URI> event(
+            final SignaleringType.Type signaleringType,
             final EnkelvoudigInformatieObject enkelvoudigInformatieobject,
-            final User actor) {
+            final User actor
+    ) {
         return instance(signaleringType, enkelvoudigInformatieobject.getUrl(), null, actor);
     }
 
-    public static SignaleringEvent<String> event(final SignaleringType.Type signaleringType, final TaskInfo taak,
-            final User actor) {
+    public static SignaleringEvent<String> event(
+            final SignaleringType.Type signaleringType,
+            final TaskInfo taak,
+            final User actor
+    ) {
         return instance(signaleringType, taak.getId(), null, actor);
     }
 
-    private static SignaleringEvent<URI> event(final SignaleringType.Type signaleringType,
-            final Notificatie.ResourceInfo resource, final Notificatie.ResourceInfo detail) {
+    private static SignaleringEvent<URI> event(
+            final SignaleringType.Type signaleringType,
+            final Notificatie.ResourceInfo resource,
+            final Notificatie.ResourceInfo detail
+    ) {
         // There is no actor information in notifications
         return instance(signaleringType, resource.getUrl(), detail != null ? detail.getUrl() : null, null);
     }
@@ -62,9 +77,11 @@ public class SignaleringEventUtil {
      * @param resource     the actually modified resource
      * @return the set of events that the parameters map to
      */
-    public static Set<SignaleringEvent<URI>> getEvents(final Channel channel,
+    public static Set<SignaleringEvent<URI>> getEvents(
+            final Channel channel,
             final Notificatie.ResourceInfo mainResource,
-            final Notificatie.ResourceInfo resource) {
+            final Notificatie.ResourceInfo resource
+    ) {
         final Set<SignaleringEvent<URI>> events = new HashSet<>();
         if (Objects.requireNonNull(channel) == Channel.ZAKEN) {
             switch (resource.getType()) {

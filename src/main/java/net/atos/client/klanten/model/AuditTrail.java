@@ -5,7 +5,13 @@
 
 /**
  * Klanten API
- * Een API om klanten te benaderen.  Een API om zowel klanten te registreren als op te vragen. Een klant is een natuurlijk persoon, niet-natuurlijk persoon (bedrijf) of vestiging waarbij het gaat om niet geverifieerde gegevens. De Klanten API kan zelfstandig of met andere API's samen werken om tot volledige functionaliteit te komen.  **Afhankelijkheden**  Deze API is afhankelijk van:  * Autorisaties API * Notificaties API * Zaken API *(optioneel)* * Documenten API *(optioneel)*  **Autorisatie**  Deze API vereist autorisatie. Je kan de [token-tool](https://zaken-auth.vng.cloud/) gebruiken om JWT-tokens te genereren.  ** Notificaties  Deze API publiceert notificaties op het kanaal `klanten`.  **Main resource**  `klant`    **Kenmerken**  * `subject_type`: Type van de `subject`.  **Resources en acties**   **Handige links**  * [Documentatie](https://zaakgerichtwerken.vng.cloud/standaard) * [Zaakgericht werken](https://zaakgerichtwerken.vng.cloud)
+ * Een API om klanten te benaderen. Een API om zowel klanten te registreren als op te vragen. Een klant is een natuurlijk persoon,
+ * niet-natuurlijk persoon (bedrijf) of vestiging waarbij het gaat om niet geverifieerde gegevens. De Klanten API kan zelfstandig of met
+ * andere API's samen werken om tot volledige functionaliteit te komen. **Afhankelijkheden** Deze API is afhankelijk van: * Autorisaties API
+ * * Notificaties API * Zaken API *(optioneel)* * Documenten API *(optioneel)* **Autorisatie** Deze API vereist autorisatie. Je kan de
+ * [token-tool](https://zaken-auth.vng.cloud/) gebruiken om JWT-tokens te genereren. ** Notificaties Deze API publiceert notificaties op het
+ * kanaal `klanten`. **Main resource** `klant` **Kenmerken** * `subject_type`: Type van de `subject`. **Resources en acties** **Handige
+ * links** * [Documentatie](https://zaakgerichtwerken.vng.cloud/standaard) * [Zaakgericht werken](https://zaakgerichtwerken.vng.cloud)
  * <p>
  * The version of the OpenAPI document: 1.0.0
  * Contact: standaarden.ondersteuning@vng.nl
@@ -46,8 +52,14 @@ public class AuditTrail {
     @JsonbTypeDeserializer(BronEnum.Deserializer.class)
     public enum BronEnum {
 
-        AC(String.valueOf("ac")), NRC(String.valueOf("nrc")), ZRC(String.valueOf("zrc")), ZTC(String.valueOf("ztc")),
-        DRC(String.valueOf("drc")), BRC(String.valueOf("brc")), CMC(String.valueOf("cmc")), KC(String.valueOf("kc"));
+        AC(String.valueOf("ac")),
+        NRC(String.valueOf("nrc")),
+        ZRC(String.valueOf("zrc")),
+        ZTC(String.valueOf("ztc")),
+        DRC(String.valueOf("drc")),
+        BRC(String.valueOf("brc")),
+        CMC(String.valueOf("cmc")),
+        KC(String.valueOf("kc"));
 
 
         String value;
@@ -86,7 +98,9 @@ public class AuditTrail {
     }
 
     /**
-     * De naam van het component waar de wijziging in is gedaan.  Uitleg bij mogelijke waarden:  * `ac` - Autorisaties API * `nrc` - Notificaties API * `zrc` - Zaken API * `ztc` - Catalogi API * `drc` - Documenten API * `brc` - Besluiten API * `cmc` - Contactmomenten API * `kc` - Klanten API
+     * De naam van het component waar de wijziging in is gedaan. Uitleg bij mogelijke waarden: * `ac` - Autorisaties API * `nrc` -
+     * Notificaties API * `zrc` - Zaken API * `ztc` - Catalogi API * `drc` - Documenten API * `brc` - Besluiten API * `cmc` -
+     * Contactmomenten API * `kc` - Klanten API
      **/
     @JsonbProperty("bron")
     private BronEnum bron;
@@ -116,7 +130,9 @@ public class AuditTrail {
     private String gebruikersWeergave;
 
     /**
-     * De uitgevoerde handeling.  De bekende waardes voor dit veld zijn hieronder aangegeven,                         maar andere waardes zijn ook toegestaan  Uitleg bij mogelijke waarden:  * `create` - Object aangemaakt * `list` - Lijst van objecten opgehaald * `retrieve` - Object opgehaald * `destroy` - Object verwijderd * `update` - Object bijgewerkt * `partial_update` - Object deels bijgewerkt
+     * De uitgevoerde handeling. De bekende waardes voor dit veld zijn hieronder aangegeven, maar andere waardes zijn ook toegestaan Uitleg
+     * bij mogelijke waarden: * `create` - Object aangemaakt * `list` - Lijst van objecten opgehaald * `retrieve` - Object opgehaald *
+     * `destroy` - Object verwijderd * `update` - Object bijgewerkt * `partial_update` - Object deels bijgewerkt
      **/
     @JsonbProperty("actie")
     private String actie;
@@ -184,6 +200,7 @@ public class AuditTrail {
 
     /**
      * Unieke identificatie van de audit regel.
+     * 
      * @return uuid
      **/
     public UUID getUuid() {
@@ -203,7 +220,10 @@ public class AuditTrail {
     }
 
     /**
-     * De naam van het component waar de wijziging in is gedaan.  Uitleg bij mogelijke waarden:  * &#x60;ac&#x60; - Autorisaties API * &#x60;nrc&#x60; - Notificaties API * &#x60;zrc&#x60; - Zaken API * &#x60;ztc&#x60; - Catalogi API * &#x60;drc&#x60; - Documenten API * &#x60;brc&#x60; - Besluiten API * &#x60;cmc&#x60; - Contactmomenten API * &#x60;kc&#x60; - Klanten API
+     * De naam van het component waar de wijziging in is gedaan. Uitleg bij mogelijke waarden: * &#x60;ac&#x60; - Autorisaties API *
+     * &#x60;nrc&#x60; - Notificaties API * &#x60;zrc&#x60; - Zaken API * &#x60;ztc&#x60; - Catalogi API * &#x60;drc&#x60; - Documenten API
+     * * &#x60;brc&#x60; - Besluiten API * &#x60;cmc&#x60; - Contactmomenten API * &#x60;kc&#x60; - Klanten API
+     * 
      * @return bron
      **/
     public BronEnum getBron() {
@@ -224,6 +244,7 @@ public class AuditTrail {
 
     /**
      * Unieke identificatie van de applicatie, binnen de organisatie.
+     * 
      * @return applicatieId
      **/
     public String getApplicatieId() {
@@ -244,6 +265,7 @@ public class AuditTrail {
 
     /**
      * Vriendelijke naam van de applicatie.
+     * 
      * @return applicatieWeergave
      **/
     public String getApplicatieWeergave() {
@@ -264,6 +286,7 @@ public class AuditTrail {
 
     /**
      * Unieke identificatie van de gebruiker die binnen de organisatie herleid kan worden naar een persoon.
+     * 
      * @return gebruikersId
      **/
     public String getGebruikersId() {
@@ -284,6 +307,7 @@ public class AuditTrail {
 
     /**
      * Vriendelijke naam van de gebruiker.
+     * 
      * @return gebruikersWeergave
      **/
     public String getGebruikersWeergave() {
@@ -303,7 +327,11 @@ public class AuditTrail {
     }
 
     /**
-     * De uitgevoerde handeling.  De bekende waardes voor dit veld zijn hieronder aangegeven,                         maar andere waardes zijn ook toegestaan  Uitleg bij mogelijke waarden:  * &#x60;create&#x60; - Object aangemaakt * &#x60;list&#x60; - Lijst van objecten opgehaald * &#x60;retrieve&#x60; - Object opgehaald * &#x60;destroy&#x60; - Object verwijderd * &#x60;update&#x60; - Object bijgewerkt * &#x60;partial_update&#x60; - Object deels bijgewerkt
+     * De uitgevoerde handeling. De bekende waardes voor dit veld zijn hieronder aangegeven, maar andere waardes zijn ook toegestaan Uitleg
+     * bij mogelijke waarden: * &#x60;create&#x60; - Object aangemaakt * &#x60;list&#x60; - Lijst van objecten opgehaald *
+     * &#x60;retrieve&#x60; - Object opgehaald * &#x60;destroy&#x60; - Object verwijderd * &#x60;update&#x60; - Object bijgewerkt *
+     * &#x60;partial_update&#x60; - Object deels bijgewerkt
+     * 
      * @return actie
      **/
     public String getActie() {
@@ -324,6 +352,7 @@ public class AuditTrail {
 
     /**
      * Vriendelijke naam van de actie.
+     * 
      * @return actieWeergave
      **/
     public String getActieWeergave() {
@@ -346,6 +375,7 @@ public class AuditTrail {
      * HTTP status code van de API response van de uitgevoerde handeling.
      * minimum: 100
      * maximum: 599
+     * 
      * @return resultaat
      **/
     public Integer getResultaat() {
@@ -366,6 +396,7 @@ public class AuditTrail {
 
     /**
      * De URL naar het hoofdobject van een component.
+     * 
      * @return hoofdObject
      **/
     public URI getHoofdObject() {
@@ -386,6 +417,7 @@ public class AuditTrail {
 
     /**
      * Het type resource waarop de actie gebeurde.
+     * 
      * @return resource
      **/
     public String getResource() {
@@ -406,6 +438,7 @@ public class AuditTrail {
 
     /**
      * De URL naar het object.
+     * 
      * @return resourceUrl
      **/
     public URI getResourceUrl() {
@@ -426,6 +459,7 @@ public class AuditTrail {
 
     /**
      * Toelichting waarom de handeling is uitgevoerd.
+     * 
      * @return toelichting
      **/
     public String getToelichting() {
@@ -446,6 +480,7 @@ public class AuditTrail {
 
     /**
      * Vriendelijke identificatie van het object.
+     * 
      * @return resourceWeergave
      **/
     public String getResourceWeergave() {
@@ -466,6 +501,7 @@ public class AuditTrail {
 
     /**
      * De datum waarop de handeling is gedaan.
+     * 
      * @return aanmaakdatum
      **/
     public OffsetDateTime getAanmaakdatum() {
@@ -475,6 +511,7 @@ public class AuditTrail {
 
     /**
      * Get wijzigingen
+     * 
      * @return wijzigingen
      **/
     public Wijzigingen getWijzigingen() {
@@ -533,4 +570,3 @@ public class AuditTrail {
         return o.toString().replace("\n", "\n    ");
     }
 }
-

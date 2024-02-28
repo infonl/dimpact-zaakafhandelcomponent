@@ -65,7 +65,7 @@ public class BAGClientService {
 
     public AdresIOHal readAdres(final String nummeraanduidingIdentificatie) {
         return adresApi.bevraagAdressenMetNumId(nummeraanduidingIdentificatie, ADRES_EXPAND,
-                                                null);
+                null);
     }
 
     public WoonplaatsIOHal readWoonplaats(final String woonplaatswIdentificatie) {

@@ -39,7 +39,8 @@ public class TabelInstellingen {
 
     public static final int AANTAL_PER_PAGINA_MIN = 10;
 
-    public static final List<Integer> PAGE_SIZE_OPTIONS = List.of(AANTAL_PER_PAGINA_MIN, AANTAL_PER_PAGINA_DEFAULT, 50, AANTAL_PER_PAGINA_MAX);
+    public static final List<Integer> PAGE_SIZE_OPTIONS = List.of(AANTAL_PER_PAGINA_MIN, AANTAL_PER_PAGINA_DEFAULT, 50,
+            AANTAL_PER_PAGINA_MAX);
 
 
     @Id
@@ -47,8 +48,7 @@ public class TabelInstellingen {
     @Column(name = "id_tabel_instellingen")
     private Long id;
 
-    @NotNull
-    @Column(name = "id_lijst_enum", nullable = false)
+    @NotNull @Column(name = "id_lijst_enum", nullable = false)
     @Enumerated(EnumType.STRING)
     private Werklijst lijstID;
 

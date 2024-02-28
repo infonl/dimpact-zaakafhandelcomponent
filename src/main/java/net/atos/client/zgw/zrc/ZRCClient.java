@@ -67,30 +67,30 @@ public interface ZRCClient {
     @GET
     @Path("zaken")
     @ClientHeaderParams({
-            @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-            @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
+                         @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
+                         @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
     Results<Zaak> zaakList(@BeanParam final ZaakListParameters parameters);
 
 
     @POST
     @Path("zaken")
     @ClientHeaderParams({
-            @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-            @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
+                         @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
+                         @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
     Zaak zaakCreate(final Zaak zaak);
 
     @PATCH
     @Path("zaken/{uuid}")
     @ClientHeaderParams({
-            @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-            @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
+                         @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
+                         @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
     Zaak zaakPartialUpdate(@PathParam("uuid") final UUID uuid, final Zaak zaak);
 
     @GET
     @Path("zaken/{uuid}")
     @ClientHeaderParams({
-            @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-            @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
+                         @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
+                         @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
     Zaak zaakRead(@PathParam("uuid") final UUID uuid);
 
     @GET

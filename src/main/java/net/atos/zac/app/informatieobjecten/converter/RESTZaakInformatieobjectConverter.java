@@ -12,7 +12,6 @@ import net.atos.client.zgw.zrc.model.Status;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.ztc.ZTCClientService;
-
 import net.atos.client.zgw.ztc.model.generated.StatusType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.app.informatieobjecten.model.RESTZaakInformatieobject;
@@ -51,8 +50,7 @@ public class RESTZaakInformatieobjectConverter {
             restZaakInformatieobject.zaaktypeOmschrijving = zaaktype.getOmschrijving();
             if (zaak.getStatus() != null) {
                 final Status status = zrcClientService.readStatus(zaak.getStatus());
-                final StatusType statustype =
-                        ztcClientService.readStatustype(status.getStatustype());
+                final StatusType statustype = ztcClientService.readStatustype(status.getStatustype());
                 restZaakInformatieobject.zaakStatus = restZaakStatusConverter.convertToRESTZaakStatus(status, statustype);
             }
         }

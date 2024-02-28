@@ -5,13 +5,7 @@
 
 package net.atos.zac.app.csv;
 
-import net.atos.zac.app.zoeken.converter.RESTZoekParametersConverter;
-import net.atos.zac.app.zoeken.model.RESTZoekParameters;
-import net.atos.zac.csv.CsvService;
-import net.atos.zac.zoeken.ZoekenService;
-import net.atos.zac.zoeken.model.ZoekObject;
-import net.atos.zac.zoeken.model.ZoekParameters;
-import net.atos.zac.zoeken.model.ZoekResultaat;
+import static net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen.AANTAL_PER_PAGINA_MAX;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -23,7 +17,13 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
 
-import static net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen.AANTAL_PER_PAGINA_MAX;
+import net.atos.zac.app.zoeken.converter.RESTZoekParametersConverter;
+import net.atos.zac.app.zoeken.model.RESTZoekParameters;
+import net.atos.zac.csv.CsvService;
+import net.atos.zac.zoeken.ZoekenService;
+import net.atos.zac.zoeken.model.ZoekObject;
+import net.atos.zac.zoeken.model.ZoekParameters;
+import net.atos.zac.zoeken.model.ZoekResultaat;
 
 @Path("csv")
 @Consumes(MediaType.APPLICATION_JSON)

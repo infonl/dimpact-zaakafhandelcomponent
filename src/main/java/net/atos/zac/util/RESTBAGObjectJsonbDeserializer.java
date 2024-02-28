@@ -15,8 +15,8 @@ import jakarta.json.bind.serializer.JsonbDeserializer;
 import jakarta.json.stream.JsonParser;
 
 import net.atos.zac.app.bag.model.BAGObjectType;
-import net.atos.zac.app.bag.model.RESTBAGAdres;
 import net.atos.zac.app.bag.model.RESTAdresseerbaarObject;
+import net.atos.zac.app.bag.model.RESTBAGAdres;
 import net.atos.zac.app.bag.model.RESTBAGObject;
 import net.atos.zac.app.bag.model.RESTNummeraanduiding;
 import net.atos.zac.app.bag.model.RESTOpenbareRuimte;

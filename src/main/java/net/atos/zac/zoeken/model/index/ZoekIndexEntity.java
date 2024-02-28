@@ -33,16 +33,13 @@ public class ZoekIndexEntity {
     @Column(name = "id_zoek_index")
     private Long id;
 
-    @NotNull
-    @Column(name = "object_id", nullable = false)
+    @NotNull @Column(name = "object_id", nullable = false)
     private String objectId;
 
-    @NotNull
-    @Column(name = "type", nullable = false)
+    @NotNull @Column(name = "type", nullable = false)
     private String type;
 
-    @NotNull
-    @Column(name = "status", nullable = false)
+    @NotNull @Column(name = "status", nullable = false)
     private String status;
 
     public ZoekIndexEntity() {

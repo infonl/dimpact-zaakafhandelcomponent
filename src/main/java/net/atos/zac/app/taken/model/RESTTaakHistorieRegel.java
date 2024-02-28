@@ -22,8 +22,12 @@ public class RESTTaakHistorieRegel {
 
     public ZonedDateTime datumTijd;
 
-    public RESTTaakHistorieRegel(final String attribuutLabel, final String oudeWaarde, final String nieuweWaarde,
-            final String toelichting) {
+    public RESTTaakHistorieRegel(
+            final String attribuutLabel,
+            final String oudeWaarde,
+            final String nieuweWaarde,
+            final String toelichting
+    ) {
         this.attribuutLabel = attribuutLabel;
         this.oudeWaarde = oudeWaarde;
         this.nieuweWaarde = nieuweWaarde;
@@ -34,8 +38,12 @@ public class RESTTaakHistorieRegel {
         this(attribuutLabel, (String) null, null, null);
     }
 
-    public RESTTaakHistorieRegel(final String attribuutLabel, final LocalDate oudeWaarde,
-            final LocalDate nieuweWaarde, final String toelichting) {
+    public RESTTaakHistorieRegel(
+            final String attribuutLabel,
+            final LocalDate oudeWaarde,
+            final LocalDate nieuweWaarde,
+            final String toelichting
+    ) {
         this(attribuutLabel, HistorieUtil.toWaarde(oudeWaarde), HistorieUtil.toWaarde(nieuweWaarde), toelichting);
     }
 }

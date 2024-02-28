@@ -19,7 +19,8 @@ public class ZaakobjectNummeraanduiding extends ZaakobjectMetObjectIdentificatie
     /**
      * Constructor for JSONB deserialization
      */
-    public ZaakobjectNummeraanduiding() {}
+    public ZaakobjectNummeraanduiding() {
+    }
 
     /**
      * Constructor with required attributes

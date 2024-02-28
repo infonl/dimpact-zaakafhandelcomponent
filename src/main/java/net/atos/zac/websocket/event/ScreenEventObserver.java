@@ -21,7 +21,8 @@ import net.atos.zac.event.AbstractEventObserver;
 import net.atos.zac.websocket.SessionRegistry;
 
 /**
- * This bean listens for {@link ScreenEvent}, converts them to a Websockets event and then forwards it to the browsers that have subscribed to it.
+ * This bean listens for {@link ScreenEvent}, converts them to a Websockets event and then forwards it to the browsers that have subscribed
+ * to it.
  */
 @ManagedBean
 public class ScreenEventObserver extends AbstractEventObserver<ScreenEvent> {

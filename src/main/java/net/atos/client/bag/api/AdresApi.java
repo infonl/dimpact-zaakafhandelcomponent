@@ -5,7 +5,20 @@
 
 /**
  * IMBAG API - van de LVBAG
- * Dit is de [BAG API](https://zakelijk.kadaster.nl/-/bag-api) Individuele Bevragingen van de Landelijke Voorziening Basisregistratie Adressen en Gebouwen (LVBAG).  Meer informatie over de Basisregistratie Adressen en Gebouwen is te vinden op de website van het [Ministerie van Binnenlandse Zaken en Koninkrijksrelaties](https://www.geobasisregistraties.nl/basisregistraties/adressen-en-gebouwen) en [Kadaster](https://zakelijk.kadaster.nl/bag).  De BAG API levert informatie conform de [BAG Catalogus 2018](https://www.geobasisregistraties.nl/documenten/publicatie/2018/03/12/catalogus-2018) en het informatiemodel IMBAG 2.0. De API specificatie volgt de [Nederlandse API-Strategie](https://docs.geostandaarden.nl/api/API-Strategie) specificatie versie van 20200204 en is opgesteld in [OpenAPI Specificatie](https://www.forumstandaardisatie.nl/standaard/openapi-specification) (OAS) v3.  Het standaard mediatype HAL (`application/hal+json`) wordt gebruikt. Dit is een mediatype voor het weergeven van resources en hun relaties via hyperlinks.  Deze API is vooral gericht op individuele bevragingen (op basis van de identificerende gegevens van een object). Om gebruik te kunnen maken van de BAG API is een API key nodig, deze kan verkregen worden door het [aanvraagformulier](https://formulieren.kadaster.nl/aanvraag_bag_api_individuele_bevragingen_productie) in te vullen.  Voor vragen, neem contact op met de LVBAG beheerder o.v.v. BAG API 2.0. We zijn aan het kijken naar een geschikt medium hiervoor, mede ook om de API iteratief te kunnen opstellen of doorontwikkelen samen met de community. Als de API iets (nog) niet kan, wat u wel graag wilt, neem dan contact op.
+ * Dit is de [BAG API](https://zakelijk.kadaster.nl/-/bag-api) Individuele Bevragingen van de Landelijke Voorziening Basisregistratie
+ * Adressen en Gebouwen (LVBAG). Meer informatie over de Basisregistratie Adressen en Gebouwen is te vinden op de website van het
+ * [Ministerie van Binnenlandse Zaken en Koninkrijksrelaties](https://www.geobasisregistraties.nl/basisregistraties/adressen-en-gebouwen) en
+ * [Kadaster](https://zakelijk.kadaster.nl/bag). De BAG API levert informatie conform de [BAG Catalogus
+ * 2018](https://www.geobasisregistraties.nl/documenten/publicatie/2018/03/12/catalogus-2018) en het informatiemodel IMBAG 2.0. De API
+ * specificatie volgt de [Nederlandse API-Strategie](https://docs.geostandaarden.nl/api/API-Strategie) specificatie versie van 20200204 en
+ * is opgesteld in [OpenAPI Specificatie](https://www.forumstandaardisatie.nl/standaard/openapi-specification) (OAS) v3. Het standaard
+ * mediatype HAL (`application/hal+json`) wordt gebruikt. Dit is een mediatype voor het weergeven van resources en hun relaties via
+ * hyperlinks. Deze API is vooral gericht op individuele bevragingen (op basis van de identificerende gegevens van een object). Om gebruik
+ * te kunnen maken van de BAG API is een API key nodig, deze kan verkregen worden door het
+ * [aanvraagformulier](https://formulieren.kadaster.nl/aanvraag_bag_api_individuele_bevragingen_productie) in te vullen. Voor vragen, neem
+ * contact op met de LVBAG beheerder o.v.v. BAG API 2.0. We zijn aan het kijken naar een geschikt medium hiervoor, mede ook om de API
+ * iteratief te kunnen opstellen of doorontwikkelen samen met de community. Als de API iets (nog) niet kan, wat u wel graag wilt, neem dan
+ * contact op.
  * <p>
  * The version of the OpenAPI document: 2.6.0
  * <p>
@@ -44,16 +57,23 @@ import net.atos.client.brp.exception.RuntimeExceptionMapper;
 /**
  * IMBAG API - van de LVBAG
  *
- * <p>Dit is de [BAG API](https://zakelijk.kadaster.nl/-/bag-api) Individuele Bevragingen van de Landelijke Voorziening Basisregistratie Adressen en Gebouwen (LVBAG).
- * Meer informatie over de Basisregistratie Adressen en Gebouwen is te vinden op de website van het [Ministerie van Binnenlandse Zaken en Koninkrijksrelaties](https://www.geobasisregistraties.nl/basisregistraties/adressen-en-gebouwen) en [Kadaster](https://zakelijk.kadaster.nl/bag).
- * De BAG API levert informatie conform de [BAG Catalogus 2018](https://www.geobasisregistraties.nl/documenten/publicatie/2018/03/12/catalogus-2018) en het informatiemodel IMBAG 2.0.
- * De API specificatie volgt de [Nederlandse API-Strategie](https://docs.geostandaarden.nl/api/API-Strategie) specificatie versie van 20200204 en is opgesteld in [OpenAPI Specificatie](https://www.forumstandaardisatie.nl/standaard/openapi-specification) (OAS) v3.
+ * <p>Dit is de [BAG API](https://zakelijk.kadaster.nl/-/bag-api) Individuele Bevragingen van de Landelijke Voorziening Basisregistratie
+ * Adressen en Gebouwen (LVBAG).
+ * Meer informatie over de Basisregistratie Adressen en Gebouwen is te vinden op de website van het [Ministerie van Binnenlandse Zaken en
+ * Koninkrijksrelaties](https://www.geobasisregistraties.nl/basisregistraties/adressen-en-gebouwen) en
+ * [Kadaster](https://zakelijk.kadaster.nl/bag).
+ * De BAG API levert informatie conform de [BAG Catalogus
+ * 2018](https://www.geobasisregistraties.nl/documenten/publicatie/2018/03/12/catalogus-2018) en het informatiemodel IMBAG 2.0.
+ * De API specificatie volgt de [Nederlandse API-Strategie](https://docs.geostandaarden.nl/api/API-Strategie) specificatie versie van
+ * 20200204 en is opgesteld in [OpenAPI Specificatie](https://www.forumstandaardisatie.nl/standaard/openapi-specification) (OAS) v3.
  * Het standaard mediatype HAL (`application/hal+json`) wordt gebruikt.
  * Dit is een mediatype voor het weergeven van resources en hun relaties via hyperlinks.
  * Deze API is vooral gericht op individuele bevragingen (op basis van de identificerende gegevens van een object).
- * Om gebruik te kunnen maken van de BAG API is een API key nodig, deze kan verkregen worden door het [aanvraagformulier](https://formulieren.kadaster.nl/aanvraag_bag_api_individuele_bevragingen_productie) in te vullen.
+ * Om gebruik te kunnen maken van de BAG API is een API key nodig, deze kan verkregen worden door het
+ * [aanvraagformulier](https://formulieren.kadaster.nl/aanvraag_bag_api_individuele_bevragingen_productie) in te vullen.
  * Voor vragen, neem contact op met de LVBAG beheerder o.v.v. BAG API 2.0.
- * We zijn aan het kijken naar een geschikt medium hiervoor, mede ook om de API iteratief te kunnen opstellen of doorontwikkelen samen met de community.
+ * We zijn aan het kijken naar een geschikt medium hiervoor, mede ook om de API iteratief te kunnen opstellen of doorontwikkelen samen met
+ * de community.
  * Als de API iets (nog) niet kan, wat u wel graag wilt, neem dan contact op.
  */
 
@@ -72,23 +92,35 @@ public interface AdresApi {
      * 1. Bevragen van één of meer huidige adressen met postcode, huisnummer en optioneel huisnummertoevoeging en huisletter.
      * Parameter exacteMatch kan worden toegepast.
      * 2. Bevragen van één of meer huidige adressen met de identificatie van een adresseerbaar object.
-     * 3. Bevragen van één of meer huidige adressen met woonplaats naam, openbare ruimte naam, huisnummer en optioneel huisnummertoevoeging en/of huisletter.    Parameter exacteMatch kan worden toegepast.
+     * 3. Bevragen van één of meer huidige adressen met woonplaats naam, openbare ruimte naam, huisnummer en optioneel huisnummertoevoeging
+     * en/of huisletter. Parameter exacteMatch kan worden toegepast.
      * 4. Bevragen van één of meer huidige adressen met de identificatie van een pand.
      * Expand wordt niet ondersteund.
      * 5. Zoek huidige adressen met een zoekterm.
      * Bij de bovenstaande bevragingen
-     * kunnen eveneens de volgende parameters worden gebruikt (tenzij anders vermeld):  Als expand&#x3D;nummeraanduiding, openbareRuimte, woonplaats, adresseerbaarObject, panden (of een combinatie daarvan) of als expand&#x3D;true, dan worden de gevraagde of alle gerelateerde resources als geneste resource geleverd, zie [functionele specificatie expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).  Voor paginering, zie: [functionele specificatie paginering](https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature).  Als inclusiefEindStatus&#x3D;true, dan worden ook actuele adressen met een eind status geleverd, zie [functionele specificatie inclusiefEindstatus](https://github.com/lvbag/BAG-API/blob/master/Features/inclusief-eind-status.feature).
+     * kunnen eveneens de volgende parameters worden gebruikt (tenzij anders vermeld): Als expand&#x3D;nummeraanduiding, openbareRuimte,
+     * woonplaats, adresseerbaarObject, panden (of een combinatie daarvan) of als expand&#x3D;true, dan worden de gevraagde of alle
+     * gerelateerde resources als geneste resource geleverd, zie [functionele specificatie
+     * expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature). Voor paginering, zie: [functionele specificatie
+     * paginering](https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature). Als inclusiefEindStatus&#x3D;true, dan worden
+     * ook actuele adressen met een eind status geleverd, zie [functionele specificatie
+     * inclusiefEindstatus](https://github.com/lvbag/BAG-API/blob/master/Features/inclusief-eind-status.feature).
      */
     @GET
     @Produces({"application/hal+json", "application/problem+json"})
     public AdresIOHalCollection bevraagAdressen(
-            @BeanParam BevraagAdressenParameters parameters) throws ProcessingException;
+            @BeanParam BevraagAdressenParameters parameters
+    ) throws ProcessingException;
 
     /**
      * Bevragen van een huidig adres met de identificatie van een nummeraanduiding.
      * <p>
      * Bevragen van een huidig adres met de identificatie van een nummeraanduiding.
-     * Als expand&#x3D;nummeraanduiding, openbareRuimte, woonplaats, adresseerbaarObject, panden (of een combinatie daarvan) of als expand&#x3D;true, dan worden de gevraagde of alle gerelateerde resources als geneste resource geleverd, zie [functionele specificatie expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).  Als inclusiefEindStatus&#x3D;true, dan worden ook actuele adressen met een eind status geleverd, zie [functionele specificatie inclusiefEindstatus](https://github.com/lvbag/BAG-API/blob/master/Features/inclusief-eind-status.feature).
+     * Als expand&#x3D;nummeraanduiding, openbareRuimte, woonplaats, adresseerbaarObject, panden (of een combinatie daarvan) of als
+     * expand&#x3D;true, dan worden de gevraagde of alle gerelateerde resources als geneste resource geleverd, zie [functionele specificatie
+     * expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature). Als inclusiefEindStatus&#x3D;true, dan worden ook
+     * actuele adressen met een eind status geleverd, zie [functionele specificatie
+     * inclusiefEindstatus](https://github.com/lvbag/BAG-API/blob/master/Features/inclusief-eind-status.feature).
      */
     @GET
     @Path("/{nummeraanduidingIdentificatie}")
@@ -96,14 +128,16 @@ public interface AdresApi {
     public AdresIOHal bevraagAdressenMetNumId(
             @PathParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie,
             @QueryParam("expand") String expand,
-            @QueryParam("inclusiefEindStatus") @DefaultValue("false") Boolean inclusiefEindStatus) throws ProcessingException;
+            @QueryParam("inclusiefEindStatus") @DefaultValue("false") Boolean inclusiefEindStatus
+    ) throws ProcessingException;
 
     /**
      * Zoeken van huidige adressen
      * <p>
      * Zoeken van huidige adressen met postcode, woonplaats, straatnaam, huisnummer, huisletter, huisnummertoevoeging.
      * Een adres kan worden gevonden door de zoekresultaatidentificatie uit het antwoord als parameter mee te geven in get /adressen.
-     * Voor paginering, zie: [functionele specificatie paginering](https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature).
+     * Voor paginering, zie: [functionele specificatie
+     * paginering](https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature).
      *
      * @deprecated
      */
@@ -111,7 +145,9 @@ public interface AdresApi {
     @GET
     @Path("/zoek")
     @Produces({"application/hal+json", "application/problem+json"})
-    public ZoekResultaatHalCollection zoek(@QueryParam("zoek") String zoek,
+    public ZoekResultaatHalCollection zoek(
+            @QueryParam("zoek") String zoek,
             @QueryParam("page") @DefaultValue("1") Integer page,
-            @QueryParam("pageSize") @DefaultValue("20") Integer pageSize) throws ProcessingException;
+            @QueryParam("pageSize") @DefaultValue("20") Integer pageSize
+    ) throws ProcessingException;
 }

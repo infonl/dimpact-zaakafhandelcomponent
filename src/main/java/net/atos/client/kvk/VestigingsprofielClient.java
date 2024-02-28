@@ -38,7 +38,9 @@ public interface VestigingsprofielClient {
      */
     @GET
     @Path("{vestigingsnummer}")
-    Vestiging getVestigingByVestigingsnummer(@PathParam("vestigingsnummer") String vestigingsnummer,
-            @QueryParam("geoData") @DefaultValue("false") Boolean geoData);
+    Vestiging getVestigingByVestigingsnummer(
+            @PathParam("vestigingsnummer") String vestigingsnummer,
+            @QueryParam("geoData") @DefaultValue("false") Boolean geoData
+    );
 
 }

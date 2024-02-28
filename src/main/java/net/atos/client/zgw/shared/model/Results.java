@@ -39,10 +39,12 @@ public class Results<T> {
     }
 
     @JsonbCreator
-    public Results(@JsonbProperty("count") final int count,
+    public Results(
+            @JsonbProperty("count") final int count,
             @JsonbProperty("results") final List<T> results,
             @JsonbProperty("next") final URI next,
-            @JsonbProperty("previous") final URI previous) {
+            @JsonbProperty("previous") final URI previous
+    ) {
         this.count = count;
         this.results = results;
         this.next = next;

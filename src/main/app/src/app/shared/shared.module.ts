@@ -49,6 +49,7 @@ import { VersionComponent } from "./version/version.component";
 import { SortPipe } from "./dynamic-table/pipes/sort.pipe";
 import { BesluitIndicatiesComponent } from "./indicaties/besluit-indicaties/besluit-indicaties.component";
 import { ZacNarrowMatCheckboxDirective } from "./material/narrow-checkbox.directive";
+import { VertrouwelijkaanduidingToTranslationKeyPipe } from "./pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 
 @NgModule({
   declarations: [
@@ -94,6 +95,7 @@ import { ZacNarrowMatCheckboxDirective } from "./material/narrow-checkbox.direct
     MaterialModule,
     MaterialFormBuilderModule.forRoot(),
     TranslateModule,
+    VertrouwelijkaanduidingToTranslationKeyPipe,
   ],
   exports: [
     BrowserAnimationsModule,
@@ -134,6 +136,7 @@ import { ZacNarrowMatCheckboxDirective } from "./material/narrow-checkbox.direct
     VersionComponent,
     SortPipe,
     ZacNarrowMatCheckboxDirective,
+    VertrouwelijkaanduidingToTranslationKeyPipe,
   ],
   providers: [
     Title,
@@ -148,6 +151,10 @@ import { ZacNarrowMatCheckboxDirective } from "./material/narrow-checkbox.direct
       useFactory: paginatorLanguageInitializerFactory,
       deps: [TranslateService, Injector],
       multi: true,
+    },
+    {
+      provide: VertrouwelijkaanduidingToTranslationKeyPipe,
+      useClass: VertrouwelijkaanduidingToTranslationKeyPipe,
     },
   ],
 })

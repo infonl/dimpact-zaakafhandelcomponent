@@ -185,13 +185,13 @@ public class TakenRESTService {
             boolean changed = false;
             if (restTaakVerdelenGegevens.behandelaarGebruikersnaam != null) {
                 task = assignTaak(task.getId(), restTaakVerdelenGegevens.behandelaarGebruikersnaam,
-                                  restTaakVerdelenGegevens.reden);
+                        restTaakVerdelenGegevens.reden);
                 changed = true;
             }
 
             if (restTaakVerdelenGegevens.groepId != null) {
                 task = takenService.assignTaskToGroup(task, restTaakVerdelenGegevens.groepId,
-                                                      restTaakVerdelenGegevens.reden);
+                        restTaakVerdelenGegevens.reden);
                 changed = true;
             }
 
@@ -221,7 +221,8 @@ public class TakenRESTService {
     @PATCH
     @Path("lijst/toekennen/mij")
     public RESTTaak toekennenAanIngelogdeMedewerkerVanuitLijst(
-            final RESTTaakToekennenGegevens restTaakToekennenGegevens) {
+            final RESTTaakToekennenGegevens restTaakToekennenGegevens
+    ) {
         assertPolicy(policyService.readWerklijstRechten().zakenTaken());
         final Task task = ingelogdeMedewerkerToekennenAanTaak(restTaakToekennenGegevens);
         return restTaakConverter.convert(task);
@@ -243,7 +244,7 @@ public class TakenRESTService {
 
         if (!StringUtils.equals(groep, restTaakToekennenGegevens.groepId)) {
             task = takenService.assignTaskToGroup(task, restTaakToekennenGegevens.groepId,
-                                                  restTaakToekennenGegevens.reden);
+                    restTaakToekennenGegevens.reden);
             changed = true;
         }
         if (changed) {
@@ -308,8 +309,11 @@ public class TakenRESTService {
     @POST
     @Path("upload/{uuid}/{field}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public Response uploadFile(@PathParam("field") final String field, @PathParam("uuid") final UUID uuid,
-            @MultipartForm final RESTFileUpload data) {
+    public Response uploadFile(
+            @PathParam("field") final String field,
+            @PathParam("uuid") final UUID uuid,
+            @MultipartForm final RESTFileUpload data
+    ) {
         String fileKey = String.format("_FILE__%s__%s", uuid, field);
         httpSession.get().setAttribute(fileKey, data);
         return Response.ok("\"Success\"").build();
@@ -362,16 +366,15 @@ public class TakenRESTService {
                         restTaakDocumentData,
                         uploadedFile
                 );
-                final ZaakInformatieobject zaakInformatieobject =
-                        zgwApiService.createZaakInformatieobjectForZaak(
-                                zaak,
-                                document,
-                                document.getTitel(),
-                                OMSCHRIJVING_TAAK_DOCUMENT,
-                                OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
-                        );
+                final ZaakInformatieobject zaakInformatieobject = zgwApiService.createZaakInformatieobjectForZaak(
+                        zaak,
+                        document,
+                        document.getTitel(),
+                        OMSCHRIJVING_TAAK_DOCUMENT,
+                        OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
+                );
                 restTaak.taakdata.replace(key,
-                                          UriUtil.uuidFromURI(zaakInformatieobject.getInformatieobject()).toString());
+                        UriUtil.uuidFromURI(zaakInformatieobject.getInformatieobject()).toString());
                 httpSession.removeAttribute(fileKey);
             }
         }
@@ -385,14 +388,12 @@ public class TakenRESTService {
                 .map(drcClientService::readEnkelvoudigInformatieobject)
                 .forEach(enkelvoudigInformatieobject -> {
                     assertPolicy(
-                            (
-                                    enkelvoudigInformatieobject.getOndertekening() == null ||
-                                            // this extra check is because the API can return an empty ondertekening soort
-                                            // when no signature is present (even if this is not
-                                            // permitted according to the original OpenAPI spec)
-                                            enkelvoudigInformatieobject.getOndertekening().getSoort() == Ondertekening.SoortEnum.EMPTY
-                            )
-                                    && policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen()
+                            (enkelvoudigInformatieobject.getOndertekening() == null ||
+                             // this extra check is because the API can return an empty ondertekening soort
+                             // when no signature is present (even if this is not
+                             // permitted according to the original OpenAPI spec)
+                             enkelvoudigInformatieobject.getOndertekening().getSoort() == Ondertekening.SoortEnum.EMPTY) && policyService
+                                     .readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen()
                     );
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
                             parseUUIDFromResourceURI(enkelvoudigInformatieobject.getUrl())
@@ -403,10 +404,10 @@ public class TakenRESTService {
     private void deleteSignaleringen(final TaskInfo taskInfo) {
         final LoggedInUser loggedInUser = loggedInUserInstance.get();
         signaleringenService.deleteSignaleringen(new SignaleringZoekParameters(loggedInUser)
-                                                         .types(SignaleringType.Type.TAAK_OP_NAAM).subject(taskInfo));
+                .types(SignaleringType.Type.TAAK_OP_NAAM).subject(taskInfo));
         signaleringenService.deleteSignaleringen(new SignaleringZoekParameters(loggedInUser)
-                                                         .types(SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD)
-                                                         .subjectZaak(taakVariabelenService.readZaakUUID(taskInfo)));
+                .types(SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD)
+                .subjectZaak(taakVariabelenService.readZaakUUID(taskInfo)));
     }
 
     private void taakBehandelaarGewijzigd(final Task task, final UUID zaakUuid) {
@@ -414,17 +415,22 @@ public class TakenRESTService {
         eventingService.send(ZAAK_TAKEN.updated(zaakUuid));
     }
 
-    private void updateVerzenddatumEnkelvoudigInformatieObjecten(final String documenten,
+    private void updateVerzenddatumEnkelvoudigInformatieObjecten(
+            final String documenten,
             final String verzenddatumString,
-            final String toelichting) {
+            final String toelichting
+    ) {
         final LocalDate verzenddatum = ZonedDateTime.parse(verzenddatumString).toLocalDate();
         Arrays.stream(documenten.split(TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER))
                 .forEach(documentUUID -> setVerzenddatumEnkelvoudigInformatieObject(UUID.fromString(documentUUID),
-                                                                                    verzenddatum, toelichting));
+                        verzenddatum, toelichting));
     }
 
-    private void setVerzenddatumEnkelvoudigInformatieObject(final UUID uuid, final LocalDate verzenddatum,
-            final String toelichting) {
+    private void setVerzenddatumEnkelvoudigInformatieObject(
+            final UUID uuid,
+            final LocalDate verzenddatum,
+            final String toelichting
+    ) {
         final var informatieobject = drcClientService.readEnkelvoudigInformatieobject(uuid);
         enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
                 parseUUIDFromResourceURI(informatieobject.getUrl()),

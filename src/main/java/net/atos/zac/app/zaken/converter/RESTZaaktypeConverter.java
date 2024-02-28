@@ -56,7 +56,7 @@ public class RESTZaaktypeConverter {
         if (zaaktype.getDeelzaaktypen() != null) {
             zaaktype.getDeelzaaktypen().stream()
                     .map(deelzaaktype -> zaaktypeRelatieConverter.convertToRESTZaaktypeRelatie(deelzaaktype,
-                                                                                               RelatieType.DEELZAAK))
+                            RelatieType.DEELZAAK))
                     .forEach(restZaaktype.zaaktypeRelaties::add);
         }
         if (zaaktype.getGerelateerdeZaaktypen() != null) {

@@ -45,15 +45,13 @@ public class InboxProductaanvraag {
     @Column(name = "id_inbox_productaanvraag")
     private Long id;
 
-    @NotNull
-    @Column(name = "uuid_productaanvraag_object", nullable = false)
+    @NotNull @Column(name = "uuid_productaanvraag_object", nullable = false)
     private UUID productaanvraagObjectUUID;
 
     @Column(name = "uuid_aanvraagdocument")
     private UUID aanvraagdocumentUUID;
 
-    @NotNull
-    @Column(name = "ontvangstdatum", nullable = false)
+    @NotNull @Column(name = "ontvangstdatum", nullable = false)
     private LocalDate ontvangstdatum;
 
     @NotBlank

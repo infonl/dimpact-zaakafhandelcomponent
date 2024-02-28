@@ -38,8 +38,7 @@ public class ZaakAfzender {
     @Column(name = "id_zaakafzender")
     private Long id;
 
-    @NotNull
-    @ManyToOne
+    @NotNull @ManyToOne
     @JoinColumn(name = "id_zaakafhandelparameters", referencedColumnName = "id_zaakafhandelparameters")
     private ZaakafhandelParameters zaakafhandelParameters;
 

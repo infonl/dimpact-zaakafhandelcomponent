@@ -86,6 +86,7 @@ import { BesluitIntrekkenGegevens } from "../model/besluit-intrekken-gegevens";
 import { GeometryGegevens } from "../model/geometry-gegevens";
 import { OrderUtil } from "../../shared/order/order-util";
 import { ReadonlyFormFieldBuilder } from "../../shared/material-form-builder/form-components/readonly/readonly-form-field-builder";
+import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 
 @Component({
   templateUrl: "./zaak-view.component.html",
@@ -199,6 +200,7 @@ export class ZaakViewComponent
     private locationService: LocationService,
     private zaakKoppelenService: ZaakKoppelenService,
     private bagService: BAGService,
+    private vertrouwelijkaanduidingToTranslationKeyPipe: VertrouwelijkaanduidingToTranslationKeyPipe,
   ) {
     super();
   }
@@ -364,8 +366,9 @@ export class ZaakViewComponent
       "vertrouwelijkheidaanduiding",
       new SelectFormFieldBuilder({
         label: this.translate.instant(
-          "vertrouwelijkheidaanduiding." +
+          this.vertrouwelijkaanduidingToTranslationKeyPipe.transform(
             this.zaak.vertrouwelijkheidaanduiding,
+          ),
         ),
         value:
           "vertrouwelijkheidaanduiding." +

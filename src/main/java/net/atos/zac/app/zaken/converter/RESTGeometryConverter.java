@@ -48,7 +48,7 @@ public class RESTGeometryConverter {
 
     private RESTCoordinates createRESTPoint(final Point point) {
         return new RESTCoordinates(point.getCoordinates().getX().doubleValue(),
-                                   point.getCoordinates().getY().doubleValue());
+                point.getCoordinates().getY().doubleValue());
     }
 
     private Point createPoint(final RESTGeometry restGeometry) {

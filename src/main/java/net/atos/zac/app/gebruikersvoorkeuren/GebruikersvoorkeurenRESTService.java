@@ -96,7 +96,8 @@ public class GebruikersvoorkeurenRESTService {
     @Path("tabel-gegevens/{werklijst}")
     public RESTTabelGegevens readTabelGegevens(@PathParam("werklijst") final Werklijst werklijst) {
         final RESTTabelGegevens restTabelGegevens = new RESTTabelGegevens();
-        final TabelInstellingen tabelInstellingen = gebruikersvoorkeurenService.readTabelInstellingen(werklijst, loggedInUserInstance.get().getId());
+        final TabelInstellingen tabelInstellingen = gebruikersvoorkeurenService.readTabelInstellingen(werklijst, loggedInUserInstance.get()
+                .getId());
         restTabelGegevens.aantalPerPagina = tabelInstellingen.getAantalPerPagina();
         restTabelGegevens.pageSizeOptions = TabelInstellingen.PAGE_SIZE_OPTIONS;
         restTabelGegevens.werklijstRechten = rechtenConverter.convert(policyService.readWerklijstRechten());
