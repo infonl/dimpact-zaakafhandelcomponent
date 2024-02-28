@@ -170,6 +170,11 @@ Then('{string} closes the SmartDocuments tab', { timeout: ONE_MINUTE_IN_MS }, as
     await allPages[1].close();
 });
 
+Then('{string} should not get an error', { timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld, user) {
+    const caseNumber = this.testStorage.get('caseNumber');
+    await this.page.getByText(caseNumber);
+});
+
 Then("Employee {string} clicks on the first zaak in the zaak-werkvoorraad with delay", { timeout: ONE_MINUTE_IN_MS + 30000 }, async function (this: CustomWorld, user) {
     await this.page.waitForTimeout(ONE_MINUTE_IN_MS + 10000)
     await this.page.reload();
