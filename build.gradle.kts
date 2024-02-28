@@ -110,7 +110,7 @@ dependencies {
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
     implementation("com.unboundid:unboundid-ldapsdk:6.0.11")
 
-    swaggerUI("org.webjars:swagger-ui:5.10.3")
+    swaggerUI("org.webjars:swagger-ui:5.11.8")
 
     // enable detekt formatting rules. see: https://detekt.dev/docs/rules/formatting/
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.5")
