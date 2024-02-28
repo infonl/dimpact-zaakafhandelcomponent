@@ -110,7 +110,7 @@ dependencies {
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
     implementation("com.unboundid:unboundid-ldapsdk:6.0.11")
 
-    swaggerUI("org.webjars:swagger-ui:5.10.3")
+    swaggerUI("org.webjars:swagger-ui:5.11.8")
 
     // enable detekt formatting rules. see: https://detekt.dev/docs/rules/formatting/
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.5")
@@ -244,7 +244,7 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
 
         // Latest supported vesion:
         // https://github.com/diffplug/spotless/tree/main/lib-extra/src/main/resources/com/diffplug/spotless/extra/eclipse_wtp_formatter
-        eclipse("4.21").configFile("config/Dimpact.xml")
+        eclipse("4.21").configFile("config/zac.xml")
 
         licenseHeader(
             """
