@@ -150,7 +150,6 @@ Then("{string} sees the created zaak", { timeout: ONE_MINUTE_IN_MS }, async func
     await this.page.getByText(caseNumber);
 });
 
-
 Then("{string} sees the created zaak with a delay", { timeout: ONE_MINUTE_IN_MS + 15000 }, async function (this: CustomWorld, user) {
     // at least a minute and 10 seconds just to be sure
     await this.page.waitForTimeout(ONE_MINUTE_IN_MS + 10000)
