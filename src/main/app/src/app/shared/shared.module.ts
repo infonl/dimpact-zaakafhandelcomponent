@@ -48,6 +48,7 @@ import { ZaakIndicatiesComponent } from "./indicaties/zaak-indicaties/zaak-indic
 import { VersionComponent } from "./version/version.component";
 import { SortPipe } from "./dynamic-table/pipes/sort.pipe";
 import { BesluitIndicatiesComponent } from "./indicaties/besluit-indicaties/besluit-indicaties.component";
+import { ZacNarrowMatCheckboxDirective } from "./material/narrow-checkbox.directive";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "./pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 
 @NgModule({
@@ -84,6 +85,7 @@ import { VertrouwelijkaanduidingToTranslationKeyPipe } from "./pipes/vertrouweli
     ZaakIndicatiesComponent,
     VersionComponent,
     SortPipe,
+    ZacNarrowMatCheckboxDirective,
   ],
   imports: [
     FormsModule,
@@ -133,6 +135,7 @@ import { VertrouwelijkaanduidingToTranslationKeyPipe } from "./pipes/vertrouweli
     ZaakIndicatiesComponent,
     VersionComponent,
     SortPipe,
+    ZacNarrowMatCheckboxDirective,
     VertrouwelijkaanduidingToTranslationKeyPipe,
   ],
   providers: [

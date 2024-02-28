@@ -11,7 +11,7 @@
     </mat-card-title-group>
     <mat-card-content>
         <div *ngFor="let facetWaarde of opties;" class="flex-row space-between">
-            <mat-checkbox (change)="checkboxChange()" [formControlName]="facetWaarde.naam">
+            <mat-checkbox zacNarrowMatCheckbox (change)="checkboxChange()" [formControlName]="facetWaarde.naam">
                 <read-more *ngIf="isVertaalbaar(label)"
                            [text]="VERTAALBARE_FACETTEN[label]+facetWaarde.naam | translate"
                            [maxLength]="30"></read-more>
