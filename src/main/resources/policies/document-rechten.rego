@@ -64,8 +64,13 @@ wijzigen {
 
 default verwijderen := false
 verwijderen {
-    { behandelaar, recordmanager }[_].rol in user.rollen
+    recordmanager.rol in user.rollen
     zaaktype_allowed
+}
+verwijderen {
+    behandelaar.rol in user.rollen
+    zaaktype_allowed
+    document.vergrendeld == false
 }
 
 default vergrendelen := false
