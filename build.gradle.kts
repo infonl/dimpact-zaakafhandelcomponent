@@ -244,7 +244,7 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
 
         // Latest supported vesion:
         // https://github.com/diffplug/spotless/tree/main/lib-extra/src/main/resources/com/diffplug/spotless/extra/eclipse_wtp_formatter
-        eclipse("4.21").configFile("config/Dimpact.xml")
+        eclipse("4.21").configFile("config/zac.xml")
 
         licenseHeader(
             """
