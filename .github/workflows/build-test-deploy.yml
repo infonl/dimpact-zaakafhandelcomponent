@@ -219,7 +219,7 @@ jobs:
           output: 'trivy-results.sarif'
           # limit the severities even when using Sarif
           # or else all vulnerabilities will be reported
-          limitSeveritiesForSARIF: true
+          limit-severities-for-sarif: true
           severity: 'CRITICAL,HIGH'
 
       - name: Upload Trivy scan results to GitHub Security tab
