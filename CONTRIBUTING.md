@@ -77,7 +77,7 @@ When you create a Pull Request (PR) please follow the following instructions to 
 
 For example:
 
-![conventional-commit-checker.png](./attachments/images/conventional-commit-checker.png)
+![conventional-commit-checker.png](./docs/development/attachments/images/conventional-commit-checker.png)
 
 We use the [Conventional Commits GitHub Action](https://github.com/agenthunt/conventional-commit-checker-action) to check
 if a new PR complies to our Conventional Commits guidelines described above.
@@ -85,4 +85,3 @@ if a new PR complies to our Conventional Commits guidelines described above.
 This plugin unfortunately only checks on PR creation time and not when you merge your PR.
 So when merging a PR in GitHub using Squash and Merge please copy the PR body into the
 GitHub Squash and Merge description text area.
-
