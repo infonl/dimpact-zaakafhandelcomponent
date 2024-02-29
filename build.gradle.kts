@@ -145,7 +145,7 @@ dependencies {
     // where we do not have the WildFly runtime environment available
     testImplementation("org.eclipse:yasson:3.0.3")
     testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
-    testImplementation("io.mockk:mockk:1.13.9")
+    testImplementation("io.mockk:mockk:1.13.10")
 
     // integration test dependencies
     "itestImplementation"("org.testcontainers:testcontainers:1.19.6")
