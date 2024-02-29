@@ -1,7 +1,7 @@
 /*
  * SPDX-FileCopyrightText: 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
-*/
+ */
 
 import { World, setWorldConstructor } from "@cucumber/cucumber";
 import playwright from "playwright";

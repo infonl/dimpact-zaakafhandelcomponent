@@ -235,25 +235,27 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         endWithNewline()
     }
     java {
-        targetExclude("**/src/generated/**", "**/build/generated/**")
+        targetExclude("src/generated/**", "build/generated/**")
 
         removeUnusedImports()
         importOrderFile("config/importOrder.txt")
 
         formatAnnotations()
 
-        // Latest supported vesion:
+        // Latest supported version:
         // https://github.com/diffplug/spotless/tree/main/lib-extra/src/main/resources/com/diffplug/spotless/extra/eclipse_wtp_formatter
         eclipse("4.21").configFile("config/zac.xml")
 
-        licenseHeader(
-            """
-            /*
-             * SPDX-FileCopyrightText: ${'$'}YEAR Lifely
-             * SPDX-License-Identifier: EUPL-1.2+
-             */
-            """.trimIndent()
-        ).onlyIfContentMatches("FileCopyrightText: 2[0-9-]+ Lifely").updateYearWithLatest(true)
+        licenseHeaderFile("config/licenseHeader.txt")
+                .onlyIfContentMatches("FileCopyrightText: 2[0-9-]+ Lifely").updateYearWithLatest(true)
+    }
+    javascript {
+        target("src/**/*.js", "src/**/*.ts")
+        targetExclude("src/e2e/node_modules/**", "src/main/app/node_modules/**",
+                "src/main/app/dist/**", "src/main/app/.angular/**")
+
+        licenseHeaderFile("config/licenseHeader.txt", ".*")
+                .onlyIfContentMatches("FileCopyrightText: 2[0-9-]+ Lifely").updateYearWithLatest(true)
     }
 }
 
