@@ -41,15 +41,4 @@ class ZakenRESTServiceTest : BehaviorSpec({
             }
         }
     }
-
-    // test for Intake afronden
-    // POST on planitems/doUserEventListenerPlanItem met payload:
-    // {"zaakUuid":"626a8987-14be-4b1f-b63e-17375b382eb3","planItemInstanceId":"2546",
-    // "actie":"INTAKE_AFRONDEN","zaakOntvankelijk":true,"resultaatToelichting":""}
-
-    //  test for Besluit toevoegen
-    // POST on zaken/besluit met payload:
-    // {"zaakUuid":"626a8987-14be-4b1f-b63e-17375b382eb3","resultaattypeUuid":"b0ed0590-a1fe-4448-9f9a-9e8e848be727",
-    // "besluittypeUuid":"1a282535-09cc-480c-a5cf-cef0a76a1c5b","toelichting":"Dummy toelichting",
-    // "ingangsdatum":"2024-01-30T14:54:53+01:00","vervaldatum":null,"informatieobjecten":[]}
 })

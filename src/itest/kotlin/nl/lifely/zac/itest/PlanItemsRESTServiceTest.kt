@@ -36,7 +36,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec() {
     private lateinit var humanTaskItemAanvullendeInformatieId: String
 
     init {
-        given("ZAC Docker container is running and a zaak has been created") {
+        given("A zaak has been created") {
             When("the list human task plan items endpoint is called") {
                 then(
                     "the list of human task plan items for this zaak is returned and contains the task 'aanvullende informatie'"
@@ -63,7 +63,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec() {
                 }
             }
         }
-        given("ZAC Docker container is running and a zaak has been created") {
+        given("A zaak has been created") {
             When("the get human task plan item endpoint is called for the task 'aanvullende informatie'") {
                 then("the human task plan item data for this task is returned") {
                     zacClient.performGetRequest(
@@ -84,8 +84,8 @@ class PlanItemsRESTServiceTest : BehaviorSpec() {
                 }
             }
         }
-        given("ZAC Docker container is running and a zaak has been created") {
-            When("the human task plan items endpoint is called") {
+        given("A zaak has been created") {
+            When("the start human task plan items endpoint is called") {
                 then("a task is started for this zaak") {
                     val fataleDatum = LocalDate.now().plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                     zacClient.performPostRequest(

@@ -13,7 +13,9 @@ import java.util.UUID
  */
 object ItestConfiguration {
     const val GROUP_A_ID = "test-group-a"
-    const val GROUP_A_NAME = "test-group-a-name"
+
+    // must be the same as the group name used in our Docker Compose import scripts
+    const val GROUP_A_NAME = "Test group A"
     const val KEYCLOAK_HOSTNAME_URL = "http://localhost:8081"
     const val KEYCLOAK_HEALTH_READY_URL = "$KEYCLOAK_HOSTNAME_URL/health/ready"
     const val KEYCLOAK_REALM = "zaakafhandelcomponent"

@@ -5,15 +5,6 @@
 
 package net.atos.zac.app.planitems;
 
-import static net.atos.zac.policy.PolicyService.assertPolicy;
-
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.validation.Valid;
@@ -24,9 +15,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-
-import org.flowable.cmmn.api.runtime.PlanItemInstance;
-
 import net.atos.client.zgw.brc.BRCClientService;
 import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.zrc.ZRCClientService;
@@ -57,9 +45,19 @@ import net.atos.zac.zaaksturing.model.HumanTaskParameters;
 import net.atos.zac.zaaksturing.model.MailtemplateKoppeling;
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
 import net.atos.zac.zoeken.IndexeerService;
+import org.flowable.cmmn.api.runtime.PlanItemInstance;
+
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+import static net.atos.zac.policy.PolicyService.assertPolicy;
 
 /**
- *
+ * Provides REST endpoints for CMMN plan items.
  */
 @Singleton
 @Path("planitems")
