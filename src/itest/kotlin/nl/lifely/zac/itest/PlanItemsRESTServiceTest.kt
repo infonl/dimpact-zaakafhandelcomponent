@@ -16,6 +16,7 @@ import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.GROUP_A_NAME
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import org.json.JSONArray
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -23,7 +24,7 @@ import java.time.format.DateTimeFormatter
 /**
  * This test assumes a zaak has been created in a previously run test.
  */
-@Order(1)
+@Order(TEST_SPEC_ORDER_AFTER_ZAAK_CREATED)
 class PlanItemsRESTServiceTest : BehaviorSpec() {
     companion object {
         const val FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE = "AANVULLENDE_INFORMATIE"

@@ -28,6 +28,10 @@ object ItestConfiguration {
     const val OBJECTTYPE_UUID_PRODUCTAANVRAAG_DENHAAG = "021f685e-9482-4620-b157-34cd4003da6b"
     const val OPEN_NOTIFICATIONS_API_SECRET_KEY = "openNotificatiesApiSecretKey"
     const val PRODUCT_AANVRAAG_TYPE = "productaanvraag"
+    const val TEST_SPEC_ORDER_INITIAL = 0
+    const val TEST_SPEC_ORDER_AFTER_ZAAK_CREATED = 1
+    const val TEST_SPEC_ORDER_AFTER_TASK_CREATED = 2
+    const val TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED = 3
     const val USER_FULL_NAME = "Test User1"
     const val ZAC_CONTAINER_PORT = 8080
 

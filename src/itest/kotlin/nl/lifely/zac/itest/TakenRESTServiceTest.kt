@@ -7,6 +7,7 @@ package nl.lifely.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldBeJsonArray
+import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
@@ -17,15 +18,18 @@ import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.GROUP_A_NAME
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_CREATED
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_IDENTIFICATION
 import org.json.JSONArray
 import org.json.JSONObject
 
+lateinit var task1ID: String
+
 /**
  * This test assumes a human task plan item (=task) has been started for a zaak in a previously run test.
  */
-@Order(2)
+@Order(TEST_SPEC_ORDER_AFTER_TASK_CREATED)
 class TakenRESTServiceTest : BehaviorSpec() {
     private val logger = KotlinLogging.logger {}
     private val zacClient: ZacClient = ZacClient()
@@ -63,6 +67,8 @@ class TakenRESTServiceTest : BehaviorSpec() {
                                 getString("id") shouldBe GROUP_A_ID
                                 getString("naam") shouldBe GROUP_A_NAME
                             }
+                            shouldContainJsonKey("id")
+                            task1ID = JSONObject(this).getString("id")
                         }
                     }
                 }
