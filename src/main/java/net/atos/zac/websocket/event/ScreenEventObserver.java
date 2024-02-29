@@ -5,34 +5,35 @@
 
 package net.atos.zac.websocket.event;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.ObservesAsync;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.websocket.Session;
+import net.atos.zac.event.AbstractEventObserver;
+import net.atos.zac.websocket.SessionRegistry;
+
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import jakarta.annotation.ManagedBean;
-import jakarta.enterprise.event.ObservesAsync;
-import jakarta.inject.Inject;
-import jakarta.websocket.Session;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import net.atos.zac.event.AbstractEventObserver;
-import net.atos.zac.websocket.SessionRegistry;
 
 /**
  * This bean listens for {@link ScreenEvent}, converts them to a Websockets event and then forwards it to the browsers that have subscribed
  * to it.
  */
-@ManagedBean
+@Named
+@ApplicationScoped
 public class ScreenEventObserver extends AbstractEventObserver<ScreenEvent> {
-
     private static final Logger LOG = Logger.getLogger(ScreenEventObserver.class.getName());
-
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
+    private final SessionRegistry sessionRegistry;
 
     @Inject
-    private SessionRegistry sessionRegistry;
+    public ScreenEventObserver(SessionRegistry sessionRegistry) {
+        this.sessionRegistry = sessionRegistry;
+    }
 
     public void onFire(final @ObservesAsync ScreenEvent event) {
         try {
