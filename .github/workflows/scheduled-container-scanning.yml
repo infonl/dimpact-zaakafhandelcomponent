@@ -18,13 +18,16 @@ jobs:
     steps:
       - name: Pull Docker Image
         run: docker pull ${{ env.ZAC_IMAGE_URL }}
-  
+
       - name: Run Trivy Vulnerability Scanner
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.ZAC_IMAGE_URL }}
           format: 'sarif'
           output: 'trivy-results.sarif'
+          # limit the severities even when using Sarif
+          # or else all vulnerabilities will be reported
+          limit-severities-for-sarif: true
           severity: 'CRITICAL,HIGH'
 
       - name: Upload Trivy Scan Results to GitHub Security Tab
@@ -47,4 +50,4 @@ jobs:
         with:
           sarif_file: 'snyk.sarif'
 
-          
+
