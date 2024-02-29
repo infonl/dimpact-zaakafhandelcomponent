@@ -25,12 +25,23 @@ data-source add \
 # Enlarge Undertow max POST size
 /subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=max-post-size,value=1000000000)
 
-# To set the log level to DEBUG (default is INFO) uncomment the following lines.
-# Note that this will result in _a lot_ of logging including security sensitive data
-# so use with care and only enable this for debugging purposes.
-#/subsystem=logging/root-logger=ROOT:write-attribute(name=level,value=DEBUG)
-#/subsystem=logging/console-handler=CONSOLE:write-attribute(name=level,value=DEBUG)
+# Set read and write socket timeouts to infinite (=0) to avoid websocket timeouts
+# Also see: https://stackoverflow.com/questions/77127050/websocket-server-is-being-timeout-after-90-seconds
+/subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=read-timeout,value=0)
+/subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=write-timeout,value=0)
 
 # This sets the max post size accepted by the RESTEasy framework in WildFly
 # NOTE: This needs to set higher than our max file size setting in ZAC because of the way RESTEasy handles file uploads.
 /subsystem=microprofile-config-smallrye/config-source=props:add(properties={"dev.resteasy.entity.file.threshold" = "120MB"})
+
+# To set the log level to DEBUG (default is INFO) uncomment the following lines.
+# Note that this will result in _a lot_ of logging including SessionRegistry sessionRegistry security sensitive data
+# so use with care and only enable this for debugging purposes.
+#/subsystem=logging/console-handler=CONSOLE:write-attribute(name=level,value=DEBUG)
+#/subsystem=logging/root-logger=ROOT:write-attribute(name=level,value=DEBUG)
+
+# To set the log level to TRACE for the ZAC packages uncomment the following lines.
+# Note that this will result in _a lot_ of logging including potentially security sensitive data
+# so use with care and only enable this for debugging purposes.
+#/subsystem=logging/console-handler=CONSOLE:write-attribute(name=level,value=TRACE)
+#/subsystem=logging/logger=net.atos:add(level=TRACE)
