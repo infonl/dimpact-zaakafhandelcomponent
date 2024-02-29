@@ -12,13 +12,12 @@
 ![code_style_settings.png](./attachments/images/code_style_settings.png)
 4. Open `./config/zac.xml` from the project root
 5. Save the configuration
-7. Install [Spotless Gradle plugin](https://plugins.jetbrains.com/plugin/18321-spotless-gradle)
-8. Open Actions pop-up (Ctrl+⇧+A / ⇧⌘A) and select "Reformat File With Spotless"
-![intellij-popup-spotless](./attachments/images/intellij-actions-popup-spotless.png)
-9. Click on "Assign Shortcut" at the bottom
-10. Assign the default reformat shortcut (Crtl+Alt+L / ⌘⌥L)
-![intellij-reformat-keybinding](./attachments/images/intellij-reformat-keybinding.png)
-11. Select "Remove" from the next Warning dialog
+6. Install [Spotless Gradle plugin](https://plugins.jetbrains.com/plugin/18321-spotless-gradle)
+7. Open Settings and navigate to Keymap.
+8. Search for "spotless" and select "Reformat File with Spotless" action
+![intellij-keymap-spotless](./attachments/images/intellij-keymap-spotless.png)
+9. Add the default Reformat (Crtl+Alt+L / ⌘⌥L) and Optimise imports (Ctrl+Alt+O / ⌘⌥O) shortcuts 
+10. Select "Remove" from the next Warning dialog for both shortcuts
 ![intellij-remove-default-assignment](./attachments/images/intellij-remove-default-assignment.png)
 
 ### Run ZAC in IntelliJ
