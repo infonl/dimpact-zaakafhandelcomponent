@@ -74,6 +74,12 @@ val warLib by configurations.creating {
     extendsFrom(configurations["compileOnly"])
 }
 
+// create custom configuration for the JaCoCo agent JAR used to generate code coverage of our integration tests
+// see: https://blog.akquinet.de/2018/09/06/test-coverage-for-containerized-java-apps/
+val jacocoAgentJarForItest by configurations.creating {
+    isTransitive = false
+}
+
 sourceSets {
     // create custom integration test source set
     create("itest") {
@@ -160,6 +166,8 @@ dependencies {
     "itestImplementation"("com.squareup.okhttp3:okhttp-urlconnection:4.12.0")
     "itestImplementation"("org.awaitility:awaitility-kotlin:4.2.0")
     "itestImplementation"("org.mock-server:mockserver-client-java:5.15.0")
+
+    jacocoAgentJarForItest("org.jacoco:org.jacoco.agent:0.8.11:runtime")
 }
 
 detekt {
@@ -267,7 +275,11 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
 // share the same output folder (= $rootDir)
 tasks.getByName("npmInstall").setMustRunAfter(listOf("generateJavaClients"))
 tasks.getByName("generateSwaggerUIZaakafhandelcomponent").setDependsOn(listOf("generateOpenApiSpec"))
-tasks.getByName("compileItestKotlin").setMustRunAfter(listOf("buildDockerImage"))
+
+tasks.getByName("compileItestKotlin") {
+    dependsOn("copyJacocoAgentForItest")
+    mustRunAfter("buildDockerImage")
+}
 
 tasks.war {
     dependsOn("npmRunBuild")
@@ -516,7 +528,16 @@ tasks {
         images.add(zacDockerImage)
     }
 
+    register<Copy>("copyJacocoAgentForItest") {
+        // TODO: strip the version from the JAR file name
+        // so that our Docker Compose file does not need to know the JaCoCo version
+        from(configurations.getByName("jacocoAgentJarForItest"))
+        into("$rootDir/build/jacoco-agent")
+    }
+
     register<Test>("itest") {
+        finalizedBy("jacocoIntegrationTestReport")
+
         inputs.files(project.tasks.findByPath("compileItestKotlin")!!.outputs.files)
 
         testClassesDirs = sourceSets["itest"].output.classesDirs
@@ -527,6 +548,18 @@ tasks {
         // require the following environment variable to be set
         // see: https://github.com/lojewalo/khttp/issues/88
         environment("JAVA_TOOL_OPTIONS", "--add-opens=java.base/java.net=ALL-UNNAMED")
+    }
+
+    register<JacocoReport>("jacocoIntegrationTestReport") {
+        dependsOn("itest")
+
+        description = "Generates code coverage report for the integration tests"
+        executionData.setFrom("$rootDir/build/jacoco-report/jacoco-it.exec")
+
+        reports {
+            xml.required.set(true)
+            html.required.set(true)
+        }
     }
 
     register<Exec>("generateWildflyBootableJar") {

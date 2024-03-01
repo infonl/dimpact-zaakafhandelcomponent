@@ -27,6 +27,7 @@ import java.io.File
 import java.net.SocketException
 import java.time.Duration
 
+
 private val logger = KotlinLogging.logger {}
 
 object ProjectConfig : AbstractProjectConfig() {
@@ -90,6 +91,12 @@ object ProjectConfig : AbstractProjectConfig() {
     }
 
     override suspend fun afterProject() {
+        // wait 10 seconds to give JaCoCo a change to generate the code coverage report
+        // see: https://blog.akquinet.de/2018/09/06/test-coverage-for-containerized-java-apps/
+        val noMessageWait = Duration.ofSeconds(10)
+        await.during(noMessageWait)
+            .atMost(noMessageWait.plus(Duration.ofSeconds(1)))
+            .until { true }
         dockerComposeContainer.stop()
     }
 
