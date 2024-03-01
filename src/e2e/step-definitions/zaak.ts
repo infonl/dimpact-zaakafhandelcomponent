@@ -158,12 +158,14 @@ Then("{string} sees the created zaak with a delay", { timeout: ONE_MINUTE_IN_MS 
     await this.page.getByText(caseNumber);
 });
 
-When('{string} clicks on Create Document for zaak', { timeout: ONE_MINUTE_IN_MS + 15000 }, async function (this: CustomWorld, user) {
+When('{string} clicks on Create Document for zaak with a delay', { timeout: ONE_MINUTE_IN_MS + 30000 }, async function (this: CustomWorld, user) {
+    await this.page.waitForTimeout(ONE_MINUTE_IN_MS)
+
     await this.page.getByText('note_addDocument maken').click();
 
     const smartDocumentsPage = await this.page.waitForEvent('popup');
     await this.expect(smartDocumentsPage.getByRole('link', { name: 'SmartDocuments' })).toBeVisible();
-});
+})
 
 Then('{string} closes the SmartDocuments tab', { timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld, user) {
     const allPages = this.page.context().pages();
