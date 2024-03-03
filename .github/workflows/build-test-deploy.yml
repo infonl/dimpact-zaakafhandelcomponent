@@ -211,6 +211,14 @@ jobs:
           files: |
             build/test-results/itest/**/*.xml
 
+      - name: Generate JaCoCo integration test code coverage report
+        run: ./gradlew -x compileJava -x processResources -x compileKotlin -x classes -x itest jacocoIntegrationTestReport --info
+
+      - name: Upload integration test coverage report to Codecov
+        uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
