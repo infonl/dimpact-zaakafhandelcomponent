@@ -212,13 +212,7 @@ jobs:
             build/test-results/itest/**/*.xml\
 
       # JaCoCo requires our Java class files to be able to generate a report
-      - name: Restore generated Java clients
-        uses: actions/cache/restore@v4
-        with:
-          path: |
-            src/generated/java
-          key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
-
+      # so restore the Gradle build artefacts from the cache
       - name: Restore Gradle build artefacts
         uses: actions/cache/restore@v4
         with:
@@ -227,7 +221,7 @@ jobs:
           key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Generate JaCoCo integration test code coverage report
-        run: ./gradlew jacocoIntegrationTestReport --info
+        run: ./gradlew jacocoIntegrationTestReport -x itest --info
 
       - name: TEST ONLY - dumpy JaCoCo itest report
         run: echo "$(cat build/reports/jacoco/jacocoIntegrationTestReport/jacocoIntegrationTestReport.xml)" >> $GITHUB_OUTPUT
