@@ -209,7 +209,7 @@ jobs:
         with:
           check_name: integration-test-results
           files: |
-            build/test-results/itest/**/*.xml\
+            build/test-results/itest/**/*.xml
 
       # JaCoCo requires our Java class files to be able to generate a report
       # so restore the Gradle build artefacts from the cache
