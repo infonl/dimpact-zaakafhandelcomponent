@@ -536,8 +536,6 @@ tasks {
     }
 
     register<Test>("itest") {
-        finalizedBy("jacocoIntegrationTestReport")
-
         inputs.files(project.tasks.findByPath("compileItestKotlin")!!.outputs.files)
 
         testClassesDirs = sourceSets["itest"].output.classesDirs
