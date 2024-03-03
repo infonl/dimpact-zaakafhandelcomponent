@@ -529,9 +529,12 @@ tasks {
     }
 
     register<Copy>("copyJacocoAgentForItest") {
-        // TODO: strip the version from the JAR file name
-        // so that our Docker Compose file does not need to know the JaCoCo version
+        description = "Copies and renames the JaCoCo agent runtime JAR file for instrumentation during the integration tests"
         from(configurations.getByName("jacocoAgentJarForItest"))
+        // simply rename the JaCoCo agent runtime JAR file name to strip away the version number
+        rename {
+            "org.jacoco.agent-runtime.jar"
+        }
         into("$rootDir/build/jacoco/itest/jacoco-agent")
     }
 

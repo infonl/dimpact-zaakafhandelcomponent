@@ -448,7 +448,7 @@ services:
     # override entrypoint to enable the JaCoCo agent to generate test coverage for our integration tests
     entrypoint: [
       "java",
-      "-javaagent:/jacoco-agent/org.jacoco.agent-0.8.11-runtime.jar=destfile=/jacoco-report/jacoco-it.exec",
+      "-javaagent:/jacoco-agent/org.jacoco.agent-runtime.jar=destfile=/jacoco-report/jacoco-it.exec",
       "-Xms1024m",
       "-Xmx1024m",
       "-jar",
