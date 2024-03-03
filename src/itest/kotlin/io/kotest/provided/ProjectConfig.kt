@@ -15,6 +15,7 @@ import nl.lifely.zac.itest.client.KeycloakClient
 import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
 import nl.lifely.zac.itest.config.ItestConfiguration.SMARTDOCUMENTS_MOCK_BASE_URI
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_CONTAINER_SERVICE_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_DEFAULT_DOCKER_IMAGE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_HEALTH_READY_URL
 import org.awaitility.kotlin.await
@@ -26,7 +27,6 @@ import org.testcontainers.containers.wait.strategy.Wait
 import java.io.File
 import java.net.SocketException
 import java.time.Duration
-
 
 private val logger = KotlinLogging.logger {}
 
@@ -91,12 +91,16 @@ object ProjectConfig : AbstractProjectConfig() {
     }
 
     override suspend fun afterProject() {
-        // wait 10 seconds to give JaCoCo a change to generate the code coverage report
-        // see: https://blog.akquinet.de/2018/09/06/test-coverage-for-containerized-java-apps/
-        val noMessageWait = Duration.ofSeconds(10)
-        await.during(noMessageWait)
-            .atMost(noMessageWait.plus(Duration.ofSeconds(1)))
-            .until { true }
+        // stop ZAC Docker Container gracefully to give JaCoCo a change to generate the code coverage report
+        with(dockerComposeContainer.getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME).get()) {
+            logger.info { "Stopping ZAC Docker container" }
+            dockerClient
+                .stopContainerCmd(containerId)
+                .withTimeout(THIRTY_SECONDS.toSecondsPart())
+                .exec()
+            logger.info { "Stopped ZAC Docker container" }
+        }
+        // now stop the rest of the Docker Compose containers (TestContainers just kills and removes the containers)
         dockerComposeContainer.stop()
     }
 
@@ -139,7 +143,7 @@ object ProjectConfig : AbstractProjectConfig() {
                 )
             )
             .withLogConsumer(
-                "zac",
+                ZAC_CONTAINER_SERVICE_NAME,
                 Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
                     "ZAC"
                 )

@@ -27,6 +27,7 @@ object ItestConfiguration {
     const val OPEN_NOTIFICATIONS_API_SECRET_KEY = "openNotificatiesApiSecretKey"
     const val PRODUCT_AANVRAAG_TYPE = "productaanvraag"
     const val USER_FULL_NAME = "Test User1"
+    const val ZAC_CONTAINER_SERVICE_NAME = "zac"
     const val ZAC_CONTAINER_PORT = 8080
 
     /**

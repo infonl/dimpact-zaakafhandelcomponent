@@ -443,8 +443,8 @@ services:
     volumes:
       # mount volumes for JaCoCo test coverage for our integration tests
       # see: https://blog.akquinet.de/2018/09/06/test-coverage-for-containerized-java-apps/
-      - ./build/jacoco-agent:/jacoco-agent
-      - ./build/jacoco-report:/jacoco-report
+      - ./build/jacoco/itest/jacoco-agent:/jacoco-agent
+      - ./build/jacoco/itest/jacoco-report:/jacoco-report
     # override entrypoint to enable the JaCoCo agent to generate test coverage for our integration tests
     entrypoint: [
       "java",

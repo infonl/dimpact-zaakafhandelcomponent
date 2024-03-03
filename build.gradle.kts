@@ -532,7 +532,7 @@ tasks {
         // TODO: strip the version from the JAR file name
         // so that our Docker Compose file does not need to know the JaCoCo version
         from(configurations.getByName("jacocoAgentJarForItest"))
-        into("$rootDir/build/jacoco-agent")
+        into("$rootDir/build/jacoco/itest/jacoco-agent")
     }
 
     register<Test>("itest") {
@@ -554,11 +554,12 @@ tasks {
         dependsOn("itest")
 
         description = "Generates code coverage report for the integration tests"
-        executionData.setFrom("$rootDir/build/jacoco-report/jacoco-it.exec")
-
+        executionData.setFrom("$rootDir/build/jacoco/itest/jacoco-report/jacoco-it.exec")
+        // tell JaCoCo to report on our code base
+        sourceSets(sourceSets["main"])
         reports {
-            xml.required.set(true)
-            html.required.set(true)
+            xml.required = true
+            html.required = false
         }
     }
 
