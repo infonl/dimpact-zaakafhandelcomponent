@@ -247,15 +247,19 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         eclipse("4.21").configFile("config/zac.xml")
 
         licenseHeaderFile("config/licenseHeader.txt")
-                .onlyIfContentMatches("FileCopyrightText: 2[0-9-]+ Lifely").updateYearWithLatest(true)
+            .onlyIfContentMatches("FileCopyrightText: 2[0-9-]+ Lifely").updateYearWithLatest(true)
     }
     javascript {
         target("src/**/*.js", "src/**/*.ts")
-        targetExclude("src/e2e/node_modules/**", "src/main/app/node_modules/**",
-                "src/main/app/dist/**", "src/main/app/.angular/**")
+        targetExclude(
+            "src/e2e/node_modules/**",
+            "src/main/app/node_modules/**",
+            "src/main/app/dist/**",
+            "src/main/app/.angular/**"
+        )
 
         licenseHeaderFile("config/licenseHeader.txt", ".*")
-                .onlyIfContentMatches("FileCopyrightText: 2[0-9-]+ Lifely").updateYearWithLatest(true)
+            .onlyIfContentMatches("FileCopyrightText: 2[0-9-]+ Lifely").updateYearWithLatest(true)
     }
 }
 
