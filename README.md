@@ -1,6 +1,6 @@
 # Dimpact Zaakafhandelcomponent (ZAC)
 
-[![GitHub CI](https://github.com/infonl/dimpact-zaakafhandelcomponent/actions/workflows/build-test-deploy.yml/badge.svg)](https://github.com/infonl/dimpact-zaakafhandelcomponent/actions/workflows/build-test-deploy.yml)
+[![GitHub CI](https://github.com/infonl/dimpact-zaakafhandelcomponent/actions/workflows/build-test-deploy.yml/badge.svg?branch=main)](https://github.com/infonl/dimpact-zaakafhandelcomponent/actions/workflows/build-test-deploy.yml)
 [![Codecov](https://codecov.io/gh/infonl/dimpact-zaakafhandelcomponent/branch/main/graph/badge.svg)](https://app.codecov.io/gh/infonl/dimpact-zaakafhandelcomponent/)
 [![License](https://img.shields.io/badge/License-EUPL_1.2-blue.svg)](https://opensource.org/licenses/https://opensource.org/license/eupl-1-2/)
 
