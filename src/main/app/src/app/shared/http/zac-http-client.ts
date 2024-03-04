@@ -30,7 +30,8 @@ type Response<
         ? Paths[P][T]
         : unknown
       : never
-    : never
+    : never,
+  {}
 >["data"];
 
 @Injectable({
