@@ -7,7 +7,7 @@ import { CustomWorld } from "../support/worlds/world";
 import { worldPossibleZacUrls, worldUsers } from "../utils/schemes";
 import { login } from "./authentication";
 
-const ONE_MINUTE_IN_MS = 60 * 1000;
+const ONE_MINUTE_IN_MS = 60_000;
 
 When("Employee {string} opens zac", { timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld, user) {
     const expectedUrl = this.worldParameters.urls[worldPossibleZacUrls.Values.zac];

@@ -9,7 +9,7 @@ import { worldParametersScheme } from "../../utils/schemes";
 import {z} from 'zod'
 import fs from 'fs';
 import { expect } from '@playwright/test';
-import { TestStorageService } from "../../utils/TestStorage.service"
+import {testStorageFile, TestStorageService} from "../../utils/TestStorage.service"
 
 export const authFile = 'user.json';
 
@@ -44,6 +44,13 @@ export class CustomWorld extends World {
         });
         this.page = await this.context.newPage();
         this.initialized = true;
+    }
+
+    async cleanup() {
+        fs.unlinkSync(testStorageFile);
+        console.log("Deleted test storage file successfully.");
+        fs.unlinkSync(authFile);
+        console.log("Deleted auth file successfully.");
     }
 
     async stop() {

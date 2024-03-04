@@ -7,7 +7,8 @@ import uniqid from 'uniqid';
 
 export const profilesSchema = z.enum(['Alice'])
 
-Given("Resident {string} fills in the indienen-aansprakelijkheid-behandelen open-forms form", { timeout: 60 * 1000 }, async function (this: CustomWorld, profileType: z.infer<typeof profilesSchema>) {
+const ONE_MINUTE_IN_MS = 60_000;
+Given("Resident {string} fills in the indienen-aansprakelijkheid-behandelen open-forms form", { timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld, profileType: z.infer<typeof profilesSchema>) {
     const parsedProfile = profilesSchema.parse(profileType)
     const profile = profiles[parsedProfile]
     const id = uniqid();
@@ -99,7 +100,7 @@ Given("Resident {string} fills in the indienen-aansprakelijkheid-behandelen open
 })
 
 
-When("Resident {string} submits the open-forms form", { timeout: 60 * 1000 }, async function (this: CustomWorld, profileType: z.infer<typeof profilesSchema>) {
+When("Resident {string} submits the open-forms form", { timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld, profileType: z.infer<typeof profilesSchema>) {
     profilesSchema.parse(profileType)
     await this.page.getByText('Verzenden').click()
 })

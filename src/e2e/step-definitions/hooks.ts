@@ -3,34 +3,19 @@ import { CustomWorld, authFile } from "../support/worlds/world"
 import fs from 'fs'
 import { testStorageFile } from "../utils/TestStorage.service";
 
-const ONE_MINUTE_IN_MS = 60 * 1000;
+const ONE_MINUTE_IN_MS = 60_000;
 
 Before(async function (this: CustomWorld) {
     await this.init();
 })
 
 After({ timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld) {
-    const storageState = await this.context.storageState();
-    fs.writeFileSync(authFile, JSON.stringify(storageState));
+    await this.context.storageState({ path: authFile });
     await this.stop();
 })
 
 AfterAll(async function (this: CustomWorld) {
-    fs.unlink(testStorageFile, (err) => {
-        if (err) {
-            throw err;
-        }
-
-        console.log("Deleted test storage file successfully.");
-    });
-    fs.unlink(authFile, (err) => {
-        if (err) {
-            throw err;
-        }
-
-        console.log("Deleted auth file successfully.");
-    });
-    return
+    await this.cleanup();
 })
 
 AfterStep(async function (this: CustomWorld, { result, testStepId }) {
