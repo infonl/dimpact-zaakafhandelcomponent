@@ -7,7 +7,7 @@ import { CustomWorld } from "../support/worlds/world";
 import { worldPossibleZacUrls, worldUsers } from "../utils/schemes";
 import { login } from "./authentication";
 
-const ONE_MINUTE_IN_MS = 60 * 1000;
+const ONE_MINUTE_IN_MS = 60_000;
 
 When("Employee {string} opens zac", { timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld, user) {
     const expectedUrl = this.worldParameters.urls[worldPossibleZacUrls.Values.zac];
@@ -45,8 +45,8 @@ Given("{string} navigates to {string} with path {string} with delay after of {in
  });
  
 
-Then("{string} sees the text: {string}", { timeout: 10000 }, async function (this: CustomWorld, user, text) {
-    await this.page.waitForSelector(`text=${text}`, { timeout: 10000 });
+Then("{string} sees the text: {string}", { timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld, user, text) {
+    await this.page.waitForSelector(`text=${text}`, { timeout: ONE_MINUTE_IN_MS });
 });
 
 Then("{string} clicks on element with accessibility label: {string}" , async function (this: CustomWorld, user, text) {

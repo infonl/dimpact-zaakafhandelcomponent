@@ -10,7 +10,7 @@ import { worldUsers, zaakStatus } from "../utils/schemes";
 import { z } from "zod";
 import { profiles } from "../support/worlds/userProfiles";
 
-const ONE_MINUTE_IN_MS = 60 * 1000;
+const ONE_MINUTE_IN_MS = 60_000;
 
 async function checkZaakAssignment(this: CustomWorld, zaakNumber: any, user1Profile: any) {
     this.expect(await this.page.getByText(`Aanvullende informatie nodig voor zaak ${zaakNumber}`)).toBeTruthy();

@@ -40,7 +40,7 @@ export class CustomWorld extends World {
         this.context = await this.browser.newContext({
             storageState: authFile,
             locale: 'nl-NL',
-            recordVideo: { dir: 'reports/videos/' }
+            recordVideo: {dir: 'reports/videos/'}
         });
         this.page = await this.context.newPage();
         this.initialized = true;

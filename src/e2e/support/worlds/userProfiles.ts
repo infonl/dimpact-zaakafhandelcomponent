@@ -8,7 +8,6 @@ const Bob = {
     group: 'Test Group A',
 }
 
-
 export const profiles = {
     Bob,
     Oscar,
