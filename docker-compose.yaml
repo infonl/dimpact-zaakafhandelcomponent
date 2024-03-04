@@ -440,6 +440,17 @@ services:
     ports:
       - "8080:8080"
       - "9990:9990"
+    volumes:
+      # mount volumes for (optional) JaCoCo test coverage for our integration tests
+      # see: https://blog.akquinet.de/2018/09/06/test-coverage-for-containerized-java-apps/
+      - ./build/jacoco/itest/jacoco-agent:/jacoco-agent
+      - ./build/jacoco/itest/jacoco-report:/jacoco-report
+    entrypoint: [
+      "sh",
+      "-c",
+      # entrypoint may be overridden by environment variable to pass on extra arguments
+      "${ZAC_DOCKER_ENTRYPOINT:-java -Xms1024m -Xmx1024m -jar zaakafhandelcomponent.jar}",
+    ]
     deploy:
       resources:
         limits:

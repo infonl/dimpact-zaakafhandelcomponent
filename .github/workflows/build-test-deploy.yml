@@ -211,6 +211,23 @@ jobs:
           files: |
             build/test-results/itest/**/*.xml
 
+      # JaCoCo requires our Java class files to be able to generate a report
+      # so restore the Gradle build artefacts from the cache
+      - name: Restore Gradle build artefacts
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            build/
+          key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+
+      - name: Generate JaCoCo integration test code coverage report
+        run: ./gradlew jacocoIntegrationTestReport -x itest --info
+
+      - name: Upload integration test coverage report to Codecov
+        uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:

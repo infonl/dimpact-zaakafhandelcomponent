@@ -15,6 +15,7 @@ import nl.lifely.zac.itest.client.KeycloakClient
 import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
 import nl.lifely.zac.itest.config.ItestConfiguration.SMARTDOCUMENTS_MOCK_BASE_URI
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_CONTAINER_SERVICE_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_DEFAULT_DOCKER_IMAGE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_HEALTH_READY_URL
 import org.awaitility.kotlin.await
@@ -90,6 +91,16 @@ object ProjectConfig : AbstractProjectConfig() {
     }
 
     override suspend fun afterProject() {
+        // stop ZAC Docker Container gracefully to give JaCoCo a change to generate the code coverage report
+        with(dockerComposeContainer.getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME).get()) {
+            logger.info { "Stopping ZAC Docker container" }
+            dockerClient
+                .stopContainerCmd(containerId)
+                .withTimeout(THIRTY_SECONDS.toSecondsPart())
+                .exec()
+            logger.info { "Stopped ZAC Docker container" }
+        }
+        // now stop the rest of the Docker Compose containers (TestContainers just kills and removes the containers)
         dockerComposeContainer.stop()
     }
 
@@ -106,6 +117,13 @@ object ProjectConfig : AbstractProjectConfig() {
             .withLocalCompose(true)
             .withEnv(
                 mapOf(
+                    // override default entrypoint for ZAC Docker container to add JaCoCo agent
+                    "ZAC_DOCKER_ENTRYPOINT" to
+                        "java" +
+                        " -javaagent:/jacoco-agent/org.jacoco.agent-runtime.jar=destfile=/jacoco-report/jacoco-it.exec" +
+                        " -Xms1024m" +
+                        " -Xmx1024m" +
+                        " -jar zaakafhandelcomponent.jar",
                     "ZAC_DOCKER_IMAGE" to zacDockerImage,
                     "SD_CLIENT_MP_REST_URL" to SMARTDOCUMENTS_MOCK_BASE_URI
                 )
@@ -132,7 +150,7 @@ object ProjectConfig : AbstractProjectConfig() {
                 )
             )
             .withLogConsumer(
-                "zac",
+                ZAC_CONTAINER_SERVICE_NAME,
                 Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
                     "ZAC"
                 )
