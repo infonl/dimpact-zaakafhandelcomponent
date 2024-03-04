@@ -9,7 +9,7 @@ import { worldParametersScheme } from "../../utils/schemes";
 import {z} from 'zod'
 import fs from 'fs';
 import { expect } from '@playwright/test';
-import {testStorageFile, TestStorageService} from "../../utils/TestStorage.service"
+import { TestStorageService } from "../../utils/TestStorage.service"
 
 export const authFile = 'user.json';
 
@@ -29,6 +29,15 @@ export class CustomWorld extends World {
         this.testStorage = new TestStorageService();
     }
 
+    private async initContextAndPage() {
+        this.context = await this.browser.newContext({
+            storageState: authFile,
+            locale: 'nl-NL',
+            recordVideo: {dir: 'reports/videos/'}
+        });
+        this.page = await this.context.newPage();
+    }
+
     async init() {
         if (!fs.existsSync(authFile)) {
             fs.writeFileSync(authFile, '{}');
@@ -37,20 +46,13 @@ export class CustomWorld extends World {
             headless: this.worldParameters.headless,
             args: ['--lang=nl-NL'],
         });
-        this.context = await this.browser.newContext({
-            storageState: authFile,
-            locale: 'nl-NL',
-            recordVideo: { dir: 'reports/videos/' }
-        });
-        this.page = await this.context.newPage();
+        await this.initContextAndPage();
         this.initialized = true;
     }
 
-    async cleanup() {
-        fs.unlinkSync(testStorageFile);
-        console.log("Deleted test storage file successfully.");
-        fs.unlinkSync(authFile);
-        console.log("Deleted auth file successfully.");
+    async cleanupStorageState() {
+        fs.writeFileSync(authFile, '{}');
+        await this.initContextAndPage();
     }
 
     async stop() {

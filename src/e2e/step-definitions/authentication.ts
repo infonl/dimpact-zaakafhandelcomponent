@@ -4,7 +4,7 @@
  */
 
 import { When } from "@cucumber/cucumber";
-import { CustomWorld, authFile } from "../support/worlds/world";
+import { CustomWorld } from "../support/worlds/world";
 import { worldUsers } from "../utils/schemes";
 
 const ONE_MINUTE_IN_MS = 60_000;
@@ -31,6 +31,8 @@ When("Employee {string} logs in to zac", { timeout: ONE_MINUTE_IN_MS }, async fu
 When("Employee {string} logs out of zac", async function (this: CustomWorld, user: string) {
     await this.page.getByText("account_circle").first().click();
     await this.page.getByText("Uitloggen").first().click();
+
+    await this.cleanupStorageState();
 });
 
 // @deprecated 
