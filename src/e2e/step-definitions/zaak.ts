@@ -159,7 +159,6 @@ Then("{string} sees the created zaak with a delay", { timeout: ONE_MINUTE_IN_MS 
 });
 
 When('Employee {string} clicks on Create Document for zaak', { timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld, user) {
-    console.log('>>>>>>>>>>>>>>> create document')
     await this.page.getByText('note_addDocument maken').click();
 
     const smartDocumentsPage = await this.page.waitForEvent('popup');
