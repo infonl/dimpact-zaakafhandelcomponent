@@ -28,6 +28,12 @@ When("Employee {string} logs in to zac", { timeout: ONE_MINUTE_IN_MS }, async fu
     await loginToZac.call(this, user);
 });
 
+When("Employee {string} logs in to zac with a delay", { timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld, user: string) {
+    await this.page.waitForTimeout(30000)
+    await loginToZac.call(this, user);
+});
+
+
 When("Employee {string} logs out of zac", async function (this: CustomWorld, user: string) {
     await this.page.getByText("account_circle").first().click();
     await this.page.getByText("Uitloggen").first().click();
