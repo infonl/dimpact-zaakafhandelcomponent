@@ -9,7 +9,8 @@ Before(async function (this: CustomWorld) {
 })
 
 After(async function (this: CustomWorld) {
-    fs.writeFileSync(authFile, JSON.stringify(await this.context.storageState()));
+    const storageState = await this.context.storageState();
+    fs.writeFileSync(authFile, JSON.stringify(storageState));
     await this.stop();
 })
 

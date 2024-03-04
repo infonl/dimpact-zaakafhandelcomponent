@@ -16,7 +16,7 @@ echo "Install Playwright Browsers ..."
 npx playwright install --with-deps
 
 echo "Cleanup screenshots ..."
-rm -rf reports/screenshots/* reports/videos/*
+rm -rf reports/*
 
 echo "Define world-parameters JSON ..."
 world_params='{"urls": { "zac": "'$ZAC_URL'", "openForms": "'$OPEN_FORMS_URL'"}, "headless": '${HEADLESS:-false}', "users": {"Bob": {"username": "'$E2E_TEST_USER_1_USERNAME'", "password": "'$E2E_TEST_USER_1_PASSWORD'"}, "Oscar": {"username": "'$E2E_TEST_USER_2_USERNAME'", "password": "'$E2E_TEST_USER_2_PASSWORD'"}}}'
