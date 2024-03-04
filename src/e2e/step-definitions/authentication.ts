@@ -7,7 +7,7 @@ import { When } from "@cucumber/cucumber";
 import { CustomWorld, authFile } from "../support/worlds/world";
 import { worldUsers } from "../utils/schemes";
 
-const ONE_MINUTE_IN_MS = 60 * 1000;
+const ONE_MINUTE_IN_MS = 60_1000;
 
 export async function login(world: CustomWorld, username: string, password: string) {
     await world.page.getByLabel("Username or email").click();
