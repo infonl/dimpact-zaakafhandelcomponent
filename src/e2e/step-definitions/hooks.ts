@@ -1,6 +1,5 @@
 import { After, AfterAll, AfterStep, Before, Status } from "@cucumber/cucumber";
 import { CustomWorld, authFile } from "../support/worlds/world"
-import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs'
 import { testStorageFile } from "../utils/TestStorage.service";
 
@@ -34,9 +33,9 @@ AfterAll(async function (this: CustomWorld) {
     return
 })
 
-AfterStep(async function (this: CustomWorld, { result }) {
+AfterStep(async function (this: CustomWorld, { result, testStepId }) {
     if (result.status === Status.FAILED) {
-        const screenshot = await this.page.screenshot({ path: `./reports/screenshots/${uuidv4()}.png` });
+        const screenshot = await this.page.screenshot({ path: `./reports/screenshots/${testStepId}.png` });
         this.attach(screenshot, "image/png");
     }
 })
