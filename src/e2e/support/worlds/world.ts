@@ -29,15 +29,6 @@ export class CustomWorld extends World {
         this.testStorage = new TestStorageService();
     }
 
-    private async initContextAndPage() {
-        this.context = await this.browser.newContext({
-            storageState: authFile,
-            locale: 'nl-NL',
-            recordVideo: {dir: 'reports/videos/'}
-        });
-        this.page = await this.context.newPage();
-    }
-
     async init() {
         if (!fs.existsSync(authFile)) {
             fs.writeFileSync(authFile, '{}');
@@ -46,13 +37,13 @@ export class CustomWorld extends World {
             headless: this.worldParameters.headless,
             args: ['--lang=nl-NL'],
         });
-        await this.initContextAndPage();
+        this.context = await this.browser.newContext({
+            storageState: authFile,
+            locale: 'nl-NL',
+            recordVideo: {dir: 'reports/videos/'}
+        });
+        this.page = await this.context.newPage();
         this.initialized = true;
-    }
-
-    async cleanupStorageState() {
-        fs.writeFileSync(authFile, '{}');
-        await this.initContextAndPage();
     }
 
     async stop() {
