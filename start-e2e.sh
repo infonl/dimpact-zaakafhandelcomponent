@@ -5,19 +5,23 @@
 # SPDX-License-Identifier: EUPL-1.2+
 #
 
-# Change Directory to your test directory
+set -e
+
+echo "Change Directory to e2e test directory .."
 cd ./src/e2e
-# Install dependencies
+echo "Install dependencies ..."
 npm ci
 
-# Install Playwright Browsers
+echo "Install Playwright Browsers ..."
 npx playwright install --with-deps
 
-# Define world-parameters JSON
-world_params='{"urls": { "zac": "'$ZAC_URL'", "openForms": "'$OPEN_FORMS_URL'"}, "headless": false, "users": {"Bob": {"username": "'$E2E_TEST_USER_1_USERNAME'", "password": "'$E2E_TEST_USER_1_PASSWORD'"}, "Oscar": {"username": "'$E2E_TEST_USER_2_USERNAME'", "password": "'$E2E_TEST_USER_2_PASSWORD'"}}}'
+echo "Cleanup screenshots ..."
+rm -rf reports/screenshots/* reports/videos/*
 
-# Run your Playwright tests
+echo "Define world-parameters JSON ..."
+world_params='{"urls": { "zac": "'$ZAC_URL'", "openForms": "'$OPEN_FORMS_URL'"}, "headless": '${HEADLESS:-false}', "users": {"Bob": {"username": "'$E2E_TEST_USER_1_USERNAME'", "password": "'$E2E_TEST_USER_1_PASSWORD'"}, "Oscar": {"username": "'$E2E_TEST_USER_2_USERNAME'", "password": "'$E2E_TEST_USER_2_PASSWORD'"}}}'
 
+echo "Run your Playwright tests ..."
 if [ "$EXCLUDE_LIVE_SCENARIO_TAGS" = "true" ]; then
     npm run e2e:run -- --world-parameters "$world_params" --tags "not @live-env-only"
 else

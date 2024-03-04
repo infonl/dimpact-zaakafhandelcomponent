@@ -16,24 +16,23 @@ export async function login(world: CustomWorld, username: string, password: stri
     await world.page.getByRole("button", { name: "Sign In" }).click();
 }
 
-When("Employee {string} logs in to zac", async function (this: CustomWorld, user) {
+async function loginToZac(this: CustomWorld, user: any) {
     const parsedUser = worldUsers.parse(user)
     const {username, password} = this.worldParameters.users[parsedUser]
 
     await login(this, username, password);
+}
+
+When("Employee {string} logs in to zac", async function (this: CustomWorld, user) {
+    await loginToZac.call(this, user);
 });
 
 When("Employee {string} logs out of zac", async function (this: CustomWorld, user) {
-    const parsedUser = worldUsers.parse(user)
-
     await this.page.getByText("account_circle").first().click();
     await this.page.getByText("Uitloggen").first().click();
 });
 
 // @deprecated 
 When("{string} logs in", async function (this: CustomWorld, user) {
-    const parsedUser = worldUsers.parse(user)
-    const {username, password} = this.worldParameters.users[parsedUser]
-
-    await login(this, username, password);
+    await loginToZac.call(this, user);
 });

@@ -47,7 +47,7 @@ Then("{string} sees the text: {string}", async function (this: CustomWorld, user
     await this.page.waitForSelector(`text=${text}`, {'timeout': 10000 });
 });
 
-Then("{string} clicks on element with accessabillity label: {string}" , async function (this: CustomWorld, user, text) {
+Then("{string} clicks on element with accessibility label: {string}" , async function (this: CustomWorld, user, text) {
     await this.page.getByLabel(text).click()
 })
 

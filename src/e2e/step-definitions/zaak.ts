@@ -158,19 +158,19 @@ Then("{string} sees the created zaak with a delay", { timeout: ONE_MINUTE_IN_MS 
     await this.page.getByText(caseNumber);
 });
 
-When('{string} clicks on Create Document for zaak', { timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld, user) {
+When('Employee {string} clicks on Create Document for zaak', { timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld, user) {
     await this.page.getByText('note_addDocument maken').click();
 
     const smartDocumentsPage = await this.page.waitForEvent('popup');
     await this.expect(smartDocumentsPage.getByRole('link', { name: 'SmartDocuments' })).toBeVisible();
 })
 
-Then('{string} closes the SmartDocuments tab', { timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld, user) {
+Then('Employee {string} closes the SmartDocuments tab', { timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld, user) {
     const allPages = this.page.context().pages();
     await allPages[1].close();
 });
 
-Then('{string} should not get an error', { timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld, user) {
+Then('Employee {string} should not get an error', { timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld, user) {
     const caseNumber = this.testStorage.get('caseNumber');
     await this.page.getByText(caseNumber);
 });
