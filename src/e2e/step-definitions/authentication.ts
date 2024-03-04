@@ -5,7 +5,7 @@
 
 import { When } from "@cucumber/cucumber";
 import { CustomWorld } from "../support/worlds/world";
-import { worldUsers } from "../utils/schemes";
+import {worldPossibleZacUrls, worldUsers} from "../utils/schemes";
 
 const ONE_MINUTE_IN_MS = 60_000;
 
@@ -28,17 +28,14 @@ When("Employee {string} logs in to zac", { timeout: ONE_MINUTE_IN_MS }, async fu
     await loginToZac.call(this, user);
 });
 
-When("Employee {string} logs in to zac with a delay", { timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld, user: string) {
-    await this.page.waitForTimeout(30000)
-    await loginToZac.call(this, user);
-});
-
-
 When("Employee {string} logs out of zac", async function (this: CustomWorld, user: string) {
     await this.page.getByText("account_circle").first().click();
     await this.page.getByText("Uitloggen").first().click();
 
     await this.cleanupStorageState();
+
+    const expectedUrl = this.worldParameters.urls[worldPossibleZacUrls.Values.zac] + "/";
+    await this.openUrl(expectedUrl);
 });
 
 // @deprecated 
