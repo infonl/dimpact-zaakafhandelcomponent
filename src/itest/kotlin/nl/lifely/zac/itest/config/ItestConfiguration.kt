@@ -13,7 +13,9 @@ import java.util.UUID
  */
 object ItestConfiguration {
     const val GROUP_A_ID = "test-group-a"
-    const val GROUP_A_NAME = "test-group-a-name"
+
+    // must be the same as the group name used in our Docker Compose import scripts
+    const val GROUP_A_NAME = "Test group A"
     const val KEYCLOAK_HOSTNAME_URL = "http://localhost:8081"
     const val KEYCLOAK_HEALTH_READY_URL = "$KEYCLOAK_HOSTNAME_URL/health/ready"
     const val KEYCLOAK_REALM = "zaakafhandelcomponent"
@@ -26,6 +28,10 @@ object ItestConfiguration {
     const val OBJECTTYPE_UUID_PRODUCTAANVRAAG_DENHAAG = "021f685e-9482-4620-b157-34cd4003da6b"
     const val OPEN_NOTIFICATIONS_API_SECRET_KEY = "openNotificatiesApiSecretKey"
     const val PRODUCT_AANVRAAG_TYPE = "productaanvraag"
+    const val TEST_SPEC_ORDER_INITIAL = 0
+    const val TEST_SPEC_ORDER_AFTER_ZAAK_CREATED = 1
+    const val TEST_SPEC_ORDER_AFTER_TASK_CREATED = 2
+    const val TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED = 3
     const val USER_FULL_NAME = "Test User1"
     const val ZAC_CONTAINER_SERVICE_NAME = "zac"
     const val ZAC_CONTAINER_PORT = 8080

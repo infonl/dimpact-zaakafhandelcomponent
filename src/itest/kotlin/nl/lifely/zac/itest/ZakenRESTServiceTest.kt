@@ -12,6 +12,7 @@ import io.kotest.matchers.shouldNotBe
 import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration.GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.GROUP_A_NAME
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_2_IDENTIFICATION
@@ -23,7 +24,7 @@ private val zacClient = ZacClient()
 /**
  * This test assumes a zaak has been created in a previously run test.
  */
-@Order(1)
+@Order(TEST_SPEC_ORDER_AFTER_ZAAK_CREATED)
 class ZakenRESTServiceTest : BehaviorSpec({
     given("ZAC Docker container is running and zaakafhandelparameters have been created") {
         When("the create zaak endpoint is called and the user has permissions for the zaaktype used") {
@@ -41,15 +42,4 @@ class ZakenRESTServiceTest : BehaviorSpec({
             }
         }
     }
-
-    // test for Intake afronden
-    // POST on planitems/doUserEventListenerPlanItem met payload:
-    // {"zaakUuid":"626a8987-14be-4b1f-b63e-17375b382eb3","planItemInstanceId":"2546",
-    // "actie":"INTAKE_AFRONDEN","zaakOntvankelijk":true,"resultaatToelichting":""}
-
-    //  test for Besluit toevoegen
-    // POST on zaken/besluit met payload:
-    // {"zaakUuid":"626a8987-14be-4b1f-b63e-17375b382eb3","resultaattypeUuid":"b0ed0590-a1fe-4448-9f9a-9e8e848be727",
-    // "besluittypeUuid":"1a282535-09cc-480c-a5cf-cef0a76a1c5b","toelichting":"Dummy toelichting",
-    // "ingangsdatum":"2024-01-30T14:54:53+01:00","vervaldatum":null,"informatieobjecten":[]}
 })
