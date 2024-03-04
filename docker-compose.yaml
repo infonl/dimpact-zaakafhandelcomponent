@@ -441,18 +441,15 @@ services:
       - "8080:8080"
       - "9990:9990"
     volumes:
-      # mount volumes for JaCoCo test coverage for our integration tests
+      # mount volumes for (optional) JaCoCo test coverage for our integration tests
       # see: https://blog.akquinet.de/2018/09/06/test-coverage-for-containerized-java-apps/
       - ./build/jacoco/itest/jacoco-agent:/jacoco-agent
       - ./build/jacoco/itest/jacoco-report:/jacoco-report
-    # override entrypoint to enable the JaCoCo agent to generate test coverage for our integration tests
     entrypoint: [
-      "java",
-      "-javaagent:/jacoco-agent/org.jacoco.agent-runtime.jar=destfile=/jacoco-report/jacoco-it.exec",
-      "-Xms1024m",
-      "-Xmx1024m",
-      "-jar",
-      "zaakafhandelcomponent.jar"
+      "sh",
+      "-c",
+      # entrypoint may be overridden by environment variable to pass on extra arguments
+      "${ZAC_DOCKER_ENTRYPOINT:-java -Xms1024m -Xmx1024m -jar zaakafhandelcomponent.jar}",
     ]
     deploy:
       resources:

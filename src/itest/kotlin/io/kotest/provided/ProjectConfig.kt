@@ -117,6 +117,13 @@ object ProjectConfig : AbstractProjectConfig() {
             .withLocalCompose(true)
             .withEnv(
                 mapOf(
+                    // override default entrypoint for ZAC Docker container to add JaCoCo agent
+                    "ZAC_DOCKER_ENTRYPOINT" to
+                        "java" +
+                        " -javaagent:/jacoco-agent/org.jacoco.agent-runtime.jar=destfile=/jacoco-report/jacoco-it.exec" +
+                        " -Xms1024m" +
+                        " -Xmx1024m" +
+                        " -jar zaakafhandelcomponent.jar",
                     "ZAC_DOCKER_IMAGE" to zacDockerImage,
                     "SD_CLIENT_MP_REST_URL" to SMARTDOCUMENTS_MOCK_BASE_URI
                 )
