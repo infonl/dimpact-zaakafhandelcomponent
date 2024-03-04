@@ -141,6 +141,7 @@ jobs:
         uses: codecov/codecov-action@v4
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          flags: unittests
 
   build-docker-image-and-run-itests:
     needs: [build]
@@ -227,6 +228,7 @@ jobs:
         uses: codecov/codecov-action@v4
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          flags: integrationtests
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
