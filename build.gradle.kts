@@ -298,6 +298,7 @@ tasks {
         delete("$rootDir/src/main/app/dist")
         delete("$rootDir/src/main/app/reports")
         delete("$rootDir/src/generated")
+        delete("$rootDir/src/e2e/reports")
     }
 
     build {

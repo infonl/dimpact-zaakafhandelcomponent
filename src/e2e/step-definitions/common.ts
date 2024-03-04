@@ -7,25 +7,27 @@ import { CustomWorld } from "../support/worlds/world";
 import { worldPossibleZacUrls, worldUsers } from "../utils/schemes";
 import { login } from "./authentication";
 
-When("Employee {string} opens zac", { timeout: 60 * 1000 }, async function (this: CustomWorld, user) {
+const ONE_MINUTE_IN_MS = 60 * 1000;
+
+When("Employee {string} opens zac", { timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld, user) {
     const expectedUrl = this.worldParameters.urls[worldPossibleZacUrls.Values.zac];
     await this.openUrl(expectedUrl);
 })
 
-When("Employee {string} navigates to {string}", { timeout: 60 * 1000 }, async function (this: CustomWorld, user, path) {
+When("Employee {string} navigates to {string}", { timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld, user, path) {
     const expectedUrl = this.worldParameters.urls[worldPossibleZacUrls.Values.zac] + path;
  
     await this.openUrl(expectedUrl);
  });
 
-Given("{string} navigates to {string} with path {string}", { timeout: 60 * 1000 }, async function (this: CustomWorld, user, urlKey, path) {
+Given("{string} navigates to {string} with path {string}", { timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld, user, urlKey, path) {
    const res = worldPossibleZacUrls.parse(urlKey);
    const expectedUrl = this.worldParameters.urls[res] + path;
 
    await this.openUrl(expectedUrl);
 });
 
-Given("{string} navigates to {string} with path {string} with delay after of {int} ms", { timeout: 60 * 1000 }, async function (this: CustomWorld, user, urlKey, path, delay) {
+Given("{string} navigates to {string} with path {string} with delay after of {int} ms", { timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld, user, urlKey, path, delay) {
     const res = worldPossibleZacUrls.parse(urlKey);
     const expectedUrl = this.worldParameters.urls[res] + path;
  
@@ -43,11 +45,11 @@ Given("{string} navigates to {string} with path {string} with delay after of {in
  });
  
 
-Then("{string} sees the text: {string}", async function (this: CustomWorld, user, text) {
-    await this.page.waitForSelector(`text=${text}`, {'timeout': 10000 });
+Then("{string} sees the text: {string}", { timeout: 10000 }, async function (this: CustomWorld, user, text) {
+    await this.page.waitForSelector(`text=${text}`, { timeout: 10000 });
 });
 
-Then("{string} clicks on element with accessabillity label: {string}" , async function (this: CustomWorld, user, text) {
+Then("{string} clicks on element with accessibility label: {string}" , async function (this: CustomWorld, user, text) {
     await this.page.getByLabel(text).click()
 })
 

@@ -7,6 +7,7 @@ import { When } from "@cucumber/cucumber";
 import { CustomWorld, authFile } from "../support/worlds/world";
 import { worldUsers } from "../utils/schemes";
 
+const LOGIN_TIMEOUT_MS = 20000;
 
 export async function login(world: CustomWorld, username: string, password: string) {
     await world.page.getByLabel("Username or email").click();
@@ -16,24 +17,23 @@ export async function login(world: CustomWorld, username: string, password: stri
     await world.page.getByRole("button", { name: "Sign In" }).click();
 }
 
-When("Employee {string} logs in to zac", async function (this: CustomWorld, user) {
+async function loginToZac(this: CustomWorld, user: string) {
     const parsedUser = worldUsers.parse(user)
     const {username, password} = this.worldParameters.users[parsedUser]
 
     await login(this, username, password);
+}
+
+When("Employee {string} logs in to zac", { timeout: LOGIN_TIMEOUT_MS }, async function (this: CustomWorld, user: string) {
+    await loginToZac.call(this, user);
 });
 
-When("Employee {string} logs out of zac", async function (this: CustomWorld, user) {
-    const parsedUser = worldUsers.parse(user)
-
+When("Employee {string} logs out of zac", async function (this: CustomWorld, user: string) {
     await this.page.getByText("account_circle").first().click();
     await this.page.getByText("Uitloggen").first().click();
 });
 
 // @deprecated 
-When("{string} logs in", async function (this: CustomWorld, user) {
-    const parsedUser = worldUsers.parse(user)
-    const {username, password} = this.worldParameters.users[parsedUser]
-
-    await login(this, username, password);
+When("{string} logs in", { timeout: LOGIN_TIMEOUT_MS }, async function (this: CustomWorld, user: string) {
+    await loginToZac.call(this, user);
 });
