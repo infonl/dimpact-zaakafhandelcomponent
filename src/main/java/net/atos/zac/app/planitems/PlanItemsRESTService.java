@@ -59,7 +59,7 @@ import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
 import net.atos.zac.zoeken.IndexeerService;
 
 /**
- *
+ * Provides REST endpoints for CMMN plan items.
  */
 @Singleton
 @Path("planitems")

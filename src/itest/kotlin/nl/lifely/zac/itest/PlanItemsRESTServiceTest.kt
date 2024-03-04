@@ -16,6 +16,7 @@ import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.GROUP_A_NAME
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import org.json.JSONArray
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -23,7 +24,7 @@ import java.time.format.DateTimeFormatter
 /**
  * This test assumes a zaak has been created in a previously run test.
  */
-@Order(1)
+@Order(TEST_SPEC_ORDER_AFTER_ZAAK_CREATED)
 class PlanItemsRESTServiceTest : BehaviorSpec() {
     companion object {
         const val FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE = "AANVULLENDE_INFORMATIE"
@@ -36,7 +37,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec() {
     private lateinit var humanTaskItemAanvullendeInformatieId: String
 
     init {
-        given("ZAC Docker container is running and a zaak has been created") {
+        given("A zaak has been created") {
             When("the list human task plan items endpoint is called") {
                 then(
                     "the list of human task plan items for this zaak is returned and contains the task 'aanvullende informatie'"
@@ -63,7 +64,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec() {
                 }
             }
         }
-        given("ZAC Docker container is running and a zaak has been created") {
+        given("A zaak has been created") {
             When("the get human task plan item endpoint is called for the task 'aanvullende informatie'") {
                 then("the human task plan item data for this task is returned") {
                     zacClient.performGetRequest(
@@ -84,8 +85,8 @@ class PlanItemsRESTServiceTest : BehaviorSpec() {
                 }
             }
         }
-        given("ZAC Docker container is running and a zaak has been created") {
-            When("the human task plan items endpoint is called") {
+        given("A zaak has been created") {
+            When("the start human task plan items endpoint is called") {
                 then("a task is started for this zaak") {
                     val fataleDatum = LocalDate.now().plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                     zacClient.performPostRequest(
