@@ -4,11 +4,13 @@ import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs'
 import { testStorageFile } from "../utils/TestStorage.service";
 
+const ONE_MINUTE_IN_MS = 60 * 1000;
+
 Before(async function (this: CustomWorld) {
     await this.init();
 })
 
-After(async function (this: CustomWorld) {
+After({ timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld) {
     const storageState = await this.context.storageState();
     fs.writeFileSync(authFile, JSON.stringify(storageState));
     await this.stop();

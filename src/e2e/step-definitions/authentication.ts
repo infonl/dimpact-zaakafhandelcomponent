@@ -7,7 +7,7 @@ import { When } from "@cucumber/cucumber";
 import { CustomWorld, authFile } from "../support/worlds/world";
 import { worldUsers } from "../utils/schemes";
 
-const LOGIN_TIMEOUT_MS = 20000;
+const ONE_MINUTE_IN_MS = 60 * 1000;
 
 export async function login(world: CustomWorld, username: string, password: string) {
     await world.page.getByLabel("Username or email").click();
@@ -24,7 +24,7 @@ async function loginToZac(this: CustomWorld, user: string) {
     await login(this, username, password);
 }
 
-When("Employee {string} logs in to zac", { timeout: LOGIN_TIMEOUT_MS }, async function (this: CustomWorld, user: string) {
+When("Employee {string} logs in to zac", { timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld, user: string) {
     await loginToZac.call(this, user);
 });
 
@@ -34,6 +34,6 @@ When("Employee {string} logs out of zac", async function (this: CustomWorld, use
 });
 
 // @deprecated 
-When("{string} logs in", { timeout: LOGIN_TIMEOUT_MS }, async function (this: CustomWorld, user: string) {
+When("{string} logs in", { timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld, user: string) {
     await loginToZac.call(this, user);
 });

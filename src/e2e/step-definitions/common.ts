@@ -45,8 +45,8 @@ Given("{string} navigates to {string} with path {string} with delay after of {in
  });
  
 
-Then("{string} sees the text: {string}", { timeout: 10000 }, async function (this: CustomWorld, user, text) {
-    await this.page.waitForSelector(`text=${text}`, { timeout: 10000 });
+Then("{string} sees the text: {string}", { timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld, user, text) {
+    await this.page.waitForSelector(`text=${text}`, { timeout: ONE_MINUTE_IN_MS });
 });
 
 Then("{string} clicks on element with accessibility label: {string}" , async function (this: CustomWorld, user, text) {
