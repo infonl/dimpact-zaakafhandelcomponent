@@ -5,9 +5,9 @@
 
 import { TestBed } from "@angular/core/testing";
 
-import { LocationService } from "./location.service";
-import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { HttpClientModule } from "@angular/common/http";
+import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
+import { LocationService } from "./location.service";
 
 describe("LocationService", () => {
   let service: LocationService;

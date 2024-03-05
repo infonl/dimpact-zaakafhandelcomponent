@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { UtilService } from "../../core/service/util.service";
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
+import { UtilService } from "../../core/service/util.service";
+import { KlantenService } from "../klanten.service";
 import { Bedrijf } from "../model/bedrijven/bedrijf";
 import { Vestigingsprofiel } from "../model/bedrijven/vestigingsprofiel";
-import { KlantenService } from "../klanten.service";
 
 @Component({
   templateUrl: "./bedrijf-view.component.html",

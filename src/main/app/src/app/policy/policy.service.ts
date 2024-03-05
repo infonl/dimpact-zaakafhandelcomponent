@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
-import { HttpClient } from "@angular/common/http";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { WerklijstRechten } from "./model/werklijst-rechten";
 import { OverigeRechten } from "./model/overige-rechten";
+import { WerklijstRechten } from "./model/werklijst-rechten";
 
 @Injectable({
   providedIn: "root",

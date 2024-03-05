@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { Conditionals } from "../../../edit/conditional-fn";
+import { TextIcon } from "../../../edit/text-icon";
+import { AbstractFormFieldBuilder } from "../../model/abstract-form-field-builder";
 import { MessageFormField } from "./message-form-field";
 import { MessageLevel } from "./message-level.enum";
-import { TextIcon } from "../../../edit/text-icon";
-import { Conditionals } from "../../../edit/conditional-fn";
-import { AbstractFormFieldBuilder } from "../../model/abstract-form-field-builder";
 
 export class MessageFormFieldBuilder extends AbstractFormFieldBuilder {
   public readonly formField: MessageFormField;

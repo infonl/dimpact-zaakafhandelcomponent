@@ -3,15 +3,15 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { PlanItem } from "../../plan-items/model/plan-item";
-import { Taak } from "../../taken/model/taak";
-import { MedewerkerGroepFieldBuilder } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-field-builder";
-import { HumanTaskData } from "../../plan-items/model/human-task-data";
-import { DividerFormFieldBuilder } from "../../shared/material-form-builder/form-components/divider/divider-form-field-builder";
-import { TaakStatus } from "../../taken/model/taak-status.enum";
 import { Group } from "../../identity/model/group";
-import { AbstractTaakFormulier } from "./abstract-taak-formulier";
+import { HumanTaskData } from "../../plan-items/model/human-task-data";
+import { PlanItem } from "../../plan-items/model/plan-item";
+import { DividerFormFieldBuilder } from "../../shared/material-form-builder/form-components/divider/divider-form-field-builder";
+import { MedewerkerGroepFieldBuilder } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-field-builder";
+import { Taak } from "../../taken/model/taak";
+import { TaakStatus } from "../../taken/model/taak-status.enum";
 import { Zaak } from "../../zaken/model/zaak";
+import { AbstractTaakFormulier } from "./abstract-taak-formulier";
 
 export class TaakFormulierBuilder {
   protected readonly _formulier: AbstractTaakFormulier;

@@ -4,9 +4,9 @@
  */
 
 import { Component, OnInit } from "@angular/core";
-import { DividerFormField } from "./divider-form-field";
-import { FormComponent } from "../../model/form-component";
 import { TranslateService } from "@ngx-translate/core";
+import { FormComponent } from "../../model/form-component";
+import { DividerFormField } from "./divider-form-field";
 
 @Component({
   templateUrl: "./divider.component.html",

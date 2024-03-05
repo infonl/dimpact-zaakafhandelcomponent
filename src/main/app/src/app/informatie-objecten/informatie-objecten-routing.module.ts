@@ -5,9 +5,9 @@
 
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
+import { ZaakUuidResolver } from "../zaken/zaak-uuid.resolver";
 import { InformatieObjectViewComponent } from "./informatie-object-view/informatie-object-view.component";
 import { InformatieObjectResolver } from "./informatie-object.resolver";
-import { ZaakUuidResolver } from "../zaken/zaak-uuid.resolver";
 
 const routes: Routes = [
   {

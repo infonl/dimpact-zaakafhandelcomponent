@@ -3,23 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
-import { AdminComponent } from "../admin/admin.component";
-import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
-import { MatTableDataSource } from "@angular/material/table";
-import { Mailtemplate } from "../model/mailtemplate";
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogData,
-} from "../../shared/confirm-dialog/confirm-dialog.component";
-import { IdentityService } from "../../identity/identity.service";
-import { MatDialog } from "@angular/material/dialog";
-import { TranslateService } from "@ngx-translate/core";
-import { UtilService } from "../../core/service/util.service";
-import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
-import { MailtemplateKoppelingService } from "../mailtemplate-koppeling.service";
-import { MailtemplateKoppeling } from "../model/mailtemplate-koppeling";
-import { forkJoin } from "rxjs";
 import {
   animate,
   state,
@@ -27,7 +10,24 @@ import {
   transition,
   trigger,
 } from "@angular/animations";
+import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
+import { MatDialog } from "@angular/material/dialog";
+import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { Sort } from "@angular/material/sort";
+import { MatTableDataSource } from "@angular/material/table";
+import { TranslateService } from "@ngx-translate/core";
+import { forkJoin } from "rxjs";
+import { UtilService } from "../../core/service/util.service";
+import { IdentityService } from "../../identity/identity.service";
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from "../../shared/confirm-dialog/confirm-dialog.component";
+import { AdminComponent } from "../admin/admin.component";
+import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
+import { MailtemplateKoppelingService } from "../mailtemplate-koppeling.service";
+import { Mailtemplate } from "../model/mailtemplate";
+import { MailtemplateKoppeling } from "../model/mailtemplate-koppeling";
 
 @Component({
   templateUrl: "./mailtemplates.component.html",

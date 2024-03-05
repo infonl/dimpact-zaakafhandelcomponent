@@ -12,32 +12,32 @@ import {
   Output,
   ViewChild,
 } from "@angular/core";
-import { EnkelvoudigInformatieobject } from "../model/enkelvoudig-informatieobject";
+import { FormGroup, Validators } from "@angular/forms";
+import { MatDrawer } from "@angular/material/sidenav";
+import { TranslateService } from "@ngx-translate/core";
+import { Subscription } from "rxjs";
+import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
+import { ConfiguratieService } from "../../configuratie/configuratie.service";
+import { UtilService } from "../../core/service/util.service";
+import { IdentityService } from "../../identity/identity.service";
+import { User } from "../../identity/model/user";
+import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
+import { FileFormFieldBuilder } from "../../shared/material-form-builder/form-components/file/file-form-field-builder";
+import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
+import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
+import { FormComponent } from "../../shared/material-form-builder/form/form/form.component";
+import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
+import { FormConfig } from "../../shared/material-form-builder/model/form-config";
+import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
+import { NavigationService } from "../../shared/navigation/navigation.service";
+import { OrderUtil } from "../../shared/order/order-util";
 import { ZakenService } from "../../zaken/zaken.service";
 import { InformatieObjectenService } from "../informatie-objecten.service";
-import { UtilService } from "../../core/service/util.service";
-import { MatDrawer } from "@angular/material/sidenav";
-import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
-import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
-import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
-import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { FormGroup, Validators } from "@angular/forms";
-import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
-import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
-import { NavigationService } from "../../shared/navigation/navigation.service";
-import { ConfiguratieService } from "../../configuratie/configuratie.service";
-import { TranslateService } from "@ngx-translate/core";
-import { IdentityService } from "../../identity/identity.service";
-import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
-import { Informatieobjecttype } from "../model/informatieobjecttype";
-import { FormConfig } from "../../shared/material-form-builder/model/form-config";
-import { User } from "../../identity/model/user";
-import { FormComponent } from "../../shared/material-form-builder/form/form/form.component";
 import { EnkelvoudigInformatieObjectVersieGegevens } from "../model/enkelvoudig-informatie-object-versie-gegevens";
-import { FileFormFieldBuilder } from "../../shared/material-form-builder/form-components/file/file-form-field-builder";
-import { Subscription } from "rxjs";
-import { OrderUtil } from "../../shared/order/order-util";
-import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
+import { EnkelvoudigInformatieobject } from "../model/enkelvoudig-informatieobject";
+import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
+import { Informatieobjecttype } from "../model/informatieobjecttype";
+import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
 
 @Component({
   selector: "zac-informatie-object-edit",

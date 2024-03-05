@@ -3,21 +3,21 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { InformatieobjectZoekParameters } from "../../../informatie-objecten/model/informatieobject-zoek-parameters";
-import { TextareaFormFieldBuilder } from "../../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { Validators } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
-import { TakenService } from "../../../taken/taken.service";
-import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
-import { ParagraphFormFieldBuilder } from "../../../shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
-import { ReadonlyFormFieldBuilder } from "../../../shared/material-form-builder/form-components/readonly/readonly-form-field-builder";
-import { RadioFormFieldBuilder } from "../../../shared/material-form-builder/form-components/radio/radio-form-field-builder";
 import { Observable, of } from "rxjs";
-import { AbstractTaakFormulier } from "../abstract-taak-formulier";
-import { Goedkeuring } from "../goedkeuring.enum";
+import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { EnkelvoudigInformatieobject } from "../../../informatie-objecten/model/enkelvoudig-informatieobject";
+import { InformatieobjectZoekParameters } from "../../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { DocumentenLijstFieldBuilder } from "../../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
 import { DocumentenOndertekenenFieldBuilder } from "../../../shared/material-form-builder/form-components/documenten-ondertekenen/documenten-ondertekenen-field-builder";
+import { ParagraphFormFieldBuilder } from "../../../shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
+import { RadioFormFieldBuilder } from "../../../shared/material-form-builder/form-components/radio/radio-form-field-builder";
+import { ReadonlyFormFieldBuilder } from "../../../shared/material-form-builder/form-components/readonly/readonly-form-field-builder";
+import { TextareaFormFieldBuilder } from "../../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
+import { TakenService } from "../../../taken/taken.service";
+import { AbstractTaakFormulier } from "../abstract-taak-formulier";
+import { Goedkeuring } from "../goedkeuring.enum";
 
 export class Goedkeuren extends AbstractTaakFormulier {
   private readonly GOEDKEUREN_ENUM_PREFIX: string = "goedkeuren.";

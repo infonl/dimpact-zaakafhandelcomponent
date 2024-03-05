@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Zaak } from "./zaak";
-import { InboxProductaanvraag } from "../../productaanvragen/model/inbox-productaanvraag";
 import { BAGObject } from "../../bag/model/bagobject";
+import { InboxProductaanvraag } from "../../productaanvragen/model/inbox-productaanvraag";
+import { Zaak } from "./zaak";
 
 export class ZaakAanmaakGegevens {
   constructor(

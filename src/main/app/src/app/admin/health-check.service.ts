@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
-import { ZaaktypeInrichtingscheck } from "./model/zaaktype-inrichtingscheck";
+import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { BuildInformatie } from "./model/build-informatie";
+import { ZaaktypeInrichtingscheck } from "./model/zaaktype-inrichtingscheck";
 
 @Injectable({
   providedIn: "root",
@@ -32,9 +32,9 @@ export class HealthCheckService {
 
   readBestaatCommunicatiekanaalEformulier(): Observable<boolean> {
     return this.http
-      .get<ZaaktypeInrichtingscheck[]>(
-        `${this.basepath}/bestaat-communicatiekanaal-eformulier`,
-      )
+      .get<
+        ZaaktypeInrichtingscheck[]
+      >(`${this.basepath}/bestaat-communicatiekanaal-eformulier`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

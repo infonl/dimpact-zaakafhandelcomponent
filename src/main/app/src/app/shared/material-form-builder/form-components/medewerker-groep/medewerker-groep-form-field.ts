@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { FieldType } from "../../model/field-type.enum";
+import { FormControl } from "@angular/forms";
 import { Group } from "../../../../identity/model/group";
 import { User } from "../../../../identity/model/user";
-import { FormControl } from "@angular/forms";
 import { AbstractFormGroupField } from "../../model/abstract-form-group-field";
+import { FieldType } from "../../model/field-type.enum";
 
 export class MedewerkerGroepFormField extends AbstractFormGroupField {
   fieldType = FieldType.MEDEWERKER_GROEP;
@@ -15,8 +15,8 @@ export class MedewerkerGroepFormField extends AbstractFormGroupField {
   medewerkerLabel: string;
   maxlength: number;
 
-  maxGroupNameLength: number
-  maxGroupIdLength: number
+  maxGroupNameLength: number;
+  maxGroupIdLength: number;
 
   constructor() {
     super();

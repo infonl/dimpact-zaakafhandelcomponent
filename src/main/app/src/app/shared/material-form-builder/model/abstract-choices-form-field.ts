@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Observable, tap } from "rxjs";
 import { EventEmitter } from "@angular/core";
-import { AbstractFormControlField } from "./abstract-form-control-field";
+import { Observable, tap } from "rxjs";
 import { OrderUtil } from "../../order/order-util";
+import { AbstractFormControlField } from "./abstract-form-control-field";
 
 /**
  * Abstract class voor Form Fields die meerdere waardes tonen (checkbox, radiobutton, select)
@@ -35,8 +35,8 @@ export abstract class AbstractChoicesFormField extends AbstractFormControlField 
       return this.optionValue
         ? this.compare(object1, object2, this.optionValue)
         : this.optionLabel
-        ? this.compare(object1, object2, this.optionLabel)
-        : object1 === object2;
+          ? this.compare(object1, object2, this.optionLabel)
+          : object1 === object2;
     }
     return false;
   };

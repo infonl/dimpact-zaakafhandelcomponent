@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
-import { TranslateService } from "@ngx-translate/core";
 import { FormGroup } from "@angular/forms";
+import { TranslateService } from "@ngx-translate/core";
+import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { Zaak } from "../../zaken/model/zaak";
 
 export abstract class AbstractZaakFormulier {

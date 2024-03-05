@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AbstractFormFieldBuilder } from "../../model/abstract-form-field-builder";
-import { ActionIcon } from "../../../edit/action-icon";
-import { HtmlEditorFormField } from "./html-editor-form-field";
 import { Observable } from "rxjs";
 import { Mailtemplate } from "../../../../admin/model/mailtemplate";
 import { MailtemplateVariabele } from "../../../../admin/model/mailtemplate-variabele";
+import { ActionIcon } from "../../../edit/action-icon";
+import { AbstractFormFieldBuilder } from "../../model/abstract-form-field-builder";
+import { HtmlEditorFormField } from "./html-editor-form-field";
 
 export class HtmlEditorFormFieldBuilder extends AbstractFormFieldBuilder {
   readonly formField: HtmlEditorFormField;

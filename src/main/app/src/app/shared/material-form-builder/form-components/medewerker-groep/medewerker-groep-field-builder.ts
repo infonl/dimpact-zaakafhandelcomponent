@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { ValidatorFn, Validators } from "@angular/forms";
+import { Group } from "../../../../identity/model/group";
+import { User } from "../../../../identity/model/user";
+import { AbstractFormField } from "../../model/abstract-form-field";
 import { AbstractFormFieldBuilder } from "../../model/abstract-form-field-builder";
 import { MedewerkerGroepFormField } from "./medewerker-groep-form-field";
-import { ValidatorFn, Validators } from "@angular/forms";
-import { AbstractFormField } from "../../model/abstract-form-field";
-import { User } from "../../../../identity/model/user";
-import { Group } from "../../../../identity/model/group";
 
 export class MedewerkerGroepFieldBuilder extends AbstractFormFieldBuilder {
   readonly formField: MedewerkerGroepFormField;
@@ -20,8 +20,8 @@ export class MedewerkerGroepFieldBuilder extends AbstractFormFieldBuilder {
       groep: AbstractFormField.formControlInstance(groep),
       medewerker: AbstractFormField.formControlInstance(medewerker),
     });
-    this.maxGroupIdlength(24)
-    this.maxGroupNamelength(50)
+    this.maxGroupIdlength(24);
+    this.maxGroupNamelength(50);
   }
 
   groepLabel(groepLabel: string): this {

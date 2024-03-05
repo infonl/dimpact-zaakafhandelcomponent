@@ -4,11 +4,11 @@
  */
 
 import { AfterViewInit, Component, OnDestroy } from "@angular/core";
-import { FormComponent } from "../../model/form-component";
-import { AutocompleteFormField } from "./autocomplete-form-field";
+import { TranslateService } from "@ngx-translate/core";
 import { Observable, Subscription } from "rxjs";
 import { map, startWith } from "rxjs/operators";
-import { TranslateService } from "@ngx-translate/core";
+import { FormComponent } from "../../model/form-component";
+import { AutocompleteFormField } from "./autocomplete-form-field";
 import { AutocompleteValidators } from "./autocomplete-validators";
 
 @Component({
@@ -52,8 +52,8 @@ export class AutocompleteComponent
           typeof value === "string"
             ? value
             : value
-            ? value[this.data.optionLabel]
-            : null,
+              ? value[this.data.optionLabel]
+              : null,
         ),
         map((name) => (name ? this._filter(name) : this.options.slice())),
       );

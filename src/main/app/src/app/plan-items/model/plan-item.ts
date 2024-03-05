@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { FormulierDefinitieID } from "../../admin/model/formulier-definitie";
 import { PlanItemType } from "./plan-item-type.enum";
 import { UserEventListenerActie } from "./user-event-listener-actie-enum";
-import { FormulierDefinitieID } from "../../admin/model/formulier-definitie";
 
 export class PlanItem {
   id: string;

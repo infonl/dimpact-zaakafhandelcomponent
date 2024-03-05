@@ -10,24 +10,24 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
-import { AdminComponent } from "../admin/admin.component";
-import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
-import { Mailtemplate } from "../model/mailtemplate";
-import { IdentityService } from "../../identity/identity.service";
-import { UtilService } from "../../core/service/util.service";
-import { ActivatedRoute, Router } from "@angular/router";
-import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { Validators } from "@angular/forms";
+import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
+import { ActivatedRoute, Router } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
 import { Observable, of } from "rxjs";
 import { catchError } from "rxjs/operators";
-import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
+import { UtilService } from "../../core/service/util.service";
+import { IdentityService } from "../../identity/identity.service";
+import { HtmlEditorFormField } from "../../shared/material-form-builder/form-components/html-editor/html-editor-form-field";
 import { HtmlEditorFormFieldBuilder } from "../../shared/material-form-builder/form-components/html-editor/html-editor-form-field-builder";
+import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
+import { ReadonlyFormFieldBuilder } from "../../shared/material-form-builder/form-components/readonly/readonly-form-field-builder";
 import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
 import { AbstractFormControlField } from "../../shared/material-form-builder/model/abstract-form-control-field";
+import { AdminComponent } from "../admin/admin.component";
+import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { Mail } from "../model/mail";
-import { ReadonlyFormFieldBuilder } from "../../shared/material-form-builder/form-components/readonly/readonly-form-field-builder";
-import { TranslateService } from "@ngx-translate/core";
-import { HtmlEditorFormField } from "../../shared/material-form-builder/form-components/html-editor/html-editor-form-field";
+import { Mailtemplate } from "../model/mailtemplate";
 
 @Component({
   templateUrl: "./mailtemplate.component.html",

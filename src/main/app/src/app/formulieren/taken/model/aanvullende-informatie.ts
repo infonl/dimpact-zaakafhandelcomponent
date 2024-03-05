@@ -4,35 +4,34 @@
  */
 
 import { Validators } from "@angular/forms";
-import { TextareaFormFieldBuilder } from "../../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
-import { ReadonlyFormFieldBuilder } from "../../../shared/material-form-builder/form-components/readonly/readonly-form-field-builder";
-import { DateFormFieldBuilder } from "../../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { TranslateService } from "@ngx-translate/core";
-import { InputFormFieldBuilder } from "../../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { CustomValidators } from "../../../shared/validators/customValidators";
-import { Observable, of, Subject } from "rxjs";
-import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
-import { TakenService } from "../../../taken/taken.service";
 import moment from "moment/moment";
-import { RadioFormFieldBuilder } from "../../../shared/material-form-builder/form-components/radio/radio-form-field-builder";
-import { HiddenFormFieldBuilder } from "../../../shared/material-form-builder/form-components/hidden/hidden-form-field-builder";
-import { InformatieobjectZoekParameters } from "../../../informatie-objecten/model/informatieobject-zoek-parameters";
-import { HtmlEditorFormFieldBuilder } from "../../../shared/material-form-builder/form-components/html-editor/html-editor-form-field-builder";
-import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
-import { Mailtemplate } from "../../../admin/model/mailtemplate";
+import { Observable, of, Subject } from "rxjs";
 import { Mail } from "../../../admin/model/mail";
-import { AbstractTaakFormulier } from "../abstract-taak-formulier";
-import { CheckboxFormFieldBuilder } from "../../../shared/material-form-builder/form-components/checkbox/checkbox-form-field-builder";
-import { ZaakIndicatie } from "../../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
-import { KlantenService } from "../../../klanten/klanten.service";
-import { ActionIcon } from "../../../shared/edit/action-icon";
-import { InputFormField } from "../../../shared/material-form-builder/form-components/input/input-form-field";
-import { ZakenService } from "../../../zaken/zaken.service";
-import { SelectFormFieldBuilder } from "../../../shared/material-form-builder/form-components/select/select-form-field-builder";
+import { Mailtemplate } from "../../../admin/model/mailtemplate";
 import { ZaakAfzender } from "../../../admin/model/zaakafzender";
-import { SelectFormField } from "../../../shared/material-form-builder/form-components/select/select-form-field";
-import { DocumentenLijstFieldBuilder } from "../../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
+import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
+import { InformatieobjectZoekParameters } from "../../../informatie-objecten/model/informatieobject-zoek-parameters";
+import { KlantenService } from "../../../klanten/klanten.service";
+import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
+import { ActionIcon } from "../../../shared/edit/action-icon";
+import { ZaakIndicatie } from "../../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
+import { CheckboxFormFieldBuilder } from "../../../shared/material-form-builder/form-components/checkbox/checkbox-form-field-builder";
+import { DateFormFieldBuilder } from "../../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { DividerFormFieldBuilder } from "../../../shared/material-form-builder/form-components/divider/divider-form-field-builder";
+import { DocumentenLijstFieldBuilder } from "../../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
+import { HiddenFormFieldBuilder } from "../../../shared/material-form-builder/form-components/hidden/hidden-form-field-builder";
+import { HtmlEditorFormFieldBuilder } from "../../../shared/material-form-builder/form-components/html-editor/html-editor-form-field-builder";
+import { InputFormField } from "../../../shared/material-form-builder/form-components/input/input-form-field";
+import { InputFormFieldBuilder } from "../../../shared/material-form-builder/form-components/input/input-form-field-builder";
+import { RadioFormFieldBuilder } from "../../../shared/material-form-builder/form-components/radio/radio-form-field-builder";
+import { ReadonlyFormFieldBuilder } from "../../../shared/material-form-builder/form-components/readonly/readonly-form-field-builder";
+import { SelectFormField } from "../../../shared/material-form-builder/form-components/select/select-form-field";
+import { SelectFormFieldBuilder } from "../../../shared/material-form-builder/form-components/select/select-form-field-builder";
+import { CustomValidators } from "../../../shared/validators/customValidators";
+import { TakenService } from "../../../taken/taken.service";
+import { ZakenService } from "../../../zaken/zaken.service";
+import { AbstractTaakFormulier } from "../abstract-taak-formulier";
 
 export class AanvullendeInformatie extends AbstractTaakFormulier {
   fields = {

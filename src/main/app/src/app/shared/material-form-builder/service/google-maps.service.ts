@@ -3,15 +3,15 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Inject, Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
+import { Inject, Injectable } from "@angular/core";
 import { BehaviorSubject, Observable, of } from "rxjs";
 import { catchError, map } from "rxjs/operators";
+import { environment } from "src/environments/environment";
 import {
   BUILDER_CONFIG,
   MaterialFormBuilderConfig,
 } from "../material-form-builder-config";
-import { environment } from "src/environments/environment";
 
 /**
  * Singleton service voor het 1-malig inladen van de googlemaps api

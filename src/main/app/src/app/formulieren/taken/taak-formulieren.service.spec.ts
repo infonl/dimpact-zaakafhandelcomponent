@@ -6,9 +6,9 @@
 import { TestBed } from "@angular/core/testing";
 
 import { HttpClientModule } from "@angular/common/http";
+import { TranslateService } from "@ngx-translate/core";
 import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { TaakFormulierenService } from "./taak-formulieren.service";
-import { TranslateService } from "@ngx-translate/core";
 
 describe("TaakFormulierenService", () => {
   let service: TaakFormulierenService;

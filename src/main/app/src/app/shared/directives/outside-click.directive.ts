@@ -1,3 +1,4 @@
+import { DOCUMENT, isPlatformBrowser } from "@angular/common";
 import {
   Directive,
   ElementRef,
@@ -9,8 +10,7 @@ import {
   Output,
   PLATFORM_ID,
 } from "@angular/core";
-import { fromEvent, Subscription } from "rxjs";
-import { DOCUMENT, isPlatformBrowser } from "@angular/common";
+import { Subscription, fromEvent } from "rxjs";
 import { filter } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 

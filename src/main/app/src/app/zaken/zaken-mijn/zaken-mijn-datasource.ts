@@ -4,12 +4,12 @@
  */
 
 import { UtilService } from "../../core/service/util.service";
-import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
-import { ZoekenService } from "../../zoeken/zoeken.service";
-import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
 import { ZoekenDataSource } from "../../shared/dynamic-table/datasource/zoeken-data-source";
+import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZoekObjectType } from "../../zoeken/model/zoek-object-type";
+import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
+import { ZoekenService } from "../../zoeken/zoeken.service";
 
 /**
  * Datasource voor de mijn zaken. Via deze class wordt de data voor de tabel opgehaald

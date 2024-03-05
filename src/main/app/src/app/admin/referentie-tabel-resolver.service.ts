@@ -6,8 +6,8 @@
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from "@angular/router";
 import { Observable } from "rxjs";
-import { ReferentieTabelService } from "./referentie-tabel.service";
 import { ReferentieTabel } from "./model/referentie-tabel";
+import { ReferentieTabelService } from "./referentie-tabel.service";
 
 @Injectable({
   providedIn: "root",

@@ -4,33 +4,33 @@
  */
 
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import {
   AbstractControl,
   FormBuilder,
   FormGroup,
   Validators,
 } from "@angular/forms";
-import { Zaak } from "../model/zaak";
-import { UserEventListenerData } from "../../plan-items/model/user-event-listener-data";
-import { UserEventListenerActie } from "../../plan-items/model/user-event-listener-actie-enum";
-import { PlanItemsService } from "../../plan-items/plan-items.service";
-import { PlanItem } from "../../plan-items/model/plan-item";
-import { MailService } from "../../mail/mail.service";
-import { MailGegevens } from "../../mail/model/mail-gegevens";
-import { CustomValidators } from "../../shared/validators/customValidators";
-import { ZakenService } from "../zaken.service";
-import { takeUntil } from "rxjs/operators";
-import { Resultaattype } from "../model/resultaattype";
+import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { TranslateService } from "@ngx-translate/core";
 import { Observable, Subject } from "rxjs";
-import { ZaakStatusmailOptie } from "../model/zaak-statusmail-optie";
-import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
+import { takeUntil } from "rxjs/operators";
 import { Mail } from "../../admin/model/mail";
 import { Mailtemplate } from "../../admin/model/mailtemplate";
-import { TranslateService } from "@ngx-translate/core";
-import { KlantenService } from "../../klanten/klanten.service";
-import { ActionIcon } from "../../shared/edit/action-icon";
 import { ZaakAfzender } from "../../admin/model/zaakafzender";
+import { KlantenService } from "../../klanten/klanten.service";
+import { MailService } from "../../mail/mail.service";
+import { MailGegevens } from "../../mail/model/mail-gegevens";
+import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
+import { PlanItem } from "../../plan-items/model/plan-item";
+import { UserEventListenerActie } from "../../plan-items/model/user-event-listener-actie-enum";
+import { UserEventListenerData } from "../../plan-items/model/user-event-listener-data";
+import { PlanItemsService } from "../../plan-items/plan-items.service";
+import { ActionIcon } from "../../shared/edit/action-icon";
+import { CustomValidators } from "../../shared/validators/customValidators";
+import { Resultaattype } from "../model/resultaattype";
+import { Zaak } from "../model/zaak";
+import { ZaakStatusmailOptie } from "../model/zaak-statusmail-optie";
+import { ZakenService } from "../zaken.service";
 
 @Component({
   templateUrl: "zaak-afhandelen-dialog.component.html",

@@ -3,17 +3,17 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
-import { ZaakafhandelParameters } from "./model/zaakafhandel-parameters";
-import { CaseDefinition } from "./model/case-definition";
-import { ZaakbeeindigReden } from "./model/zaakbeeindig-reden";
+import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { Resultaattype } from "../zaken/model/resultaattype";
+import { CaseDefinition } from "./model/case-definition";
 import { FormulierDefinitie } from "./model/formulier-definitie";
 import { ReplyTo } from "./model/replyto";
+import { ZaakafhandelParameters } from "./model/zaakafhandel-parameters";
+import { ZaakbeeindigReden } from "./model/zaakbeeindig-reden";
 
 @Injectable({
   providedIn: "root",
@@ -56,9 +56,9 @@ export class ZaakafhandelParametersService {
     zaaktypeUuid: string,
   ): Observable<ZaakbeeindigReden[]> {
     return this.http
-      .get<ZaakbeeindigReden[]>(
-        `${this.basepath}/zaakbeeindigRedenen/${zaaktypeUuid}`,
-      )
+      .get<
+        ZaakbeeindigReden[]
+      >(`${this.basepath}/zaakbeeindigRedenen/${zaaktypeUuid}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

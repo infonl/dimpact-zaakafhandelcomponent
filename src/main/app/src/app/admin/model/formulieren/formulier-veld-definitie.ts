@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { FormulierVeldtype } from "./formulier-veld-type.enum";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { FormulierVeldtype } from "./formulier-veld-type.enum";
 
 export class FormulierVeldDefinitie {
   id: number;

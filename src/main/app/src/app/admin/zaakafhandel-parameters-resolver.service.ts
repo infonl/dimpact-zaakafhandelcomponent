@@ -6,8 +6,8 @@
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from "@angular/router";
 import { Observable } from "rxjs";
-import { ZaakafhandelParametersService } from "./zaakafhandel-parameters.service";
 import { ZaakafhandelParameters } from "./model/zaakafhandel-parameters";
+import { ZaakafhandelParametersService } from "./zaakafhandel-parameters.service";
 
 @Injectable({
   providedIn: "root",

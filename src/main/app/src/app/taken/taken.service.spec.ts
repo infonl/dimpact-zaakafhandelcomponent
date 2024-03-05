@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { TakenService } from "./taken.service";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { TestBed } from "@angular/core/testing";
 import { HttpClientModule } from "@angular/common/http";
+import { TestBed } from "@angular/core/testing";
+import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { TakenService } from "./taken.service";
 
 describe("TaakService", () => {
   let service;

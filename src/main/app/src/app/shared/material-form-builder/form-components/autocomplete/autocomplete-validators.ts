@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Observable, of } from "rxjs";
 import {
   AbstractControl,
   AsyncValidatorFn,
   ValidationErrors,
   ValidatorFn,
 } from "@angular/forms";
+import { Observable, of } from "rxjs";
 import { map } from "rxjs/operators";
 
 export class AutocompleteValidators {

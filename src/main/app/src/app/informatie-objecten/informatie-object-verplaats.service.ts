@@ -4,19 +4,19 @@
  */
 
 import { Injectable } from "@angular/core";
-import { EnkelvoudigInformatieobject } from "./model/enkelvoudig-informatieobject";
-import { DocumentVerplaatsGegevens } from "./model/document-verplaats-gegevens";
-import { SessionStorageUtil } from "../shared/storage/session-storage.util";
+import { Router } from "@angular/router";
 import { Subject } from "rxjs";
 import {
   ActionBarAction,
   ActionEntityType,
 } from "../core/actionbar/model/action-bar-action";
-import { ActionIcon } from "../shared/edit/action-icon";
 import { UtilService } from "../core/service/util.service";
-import { Router } from "@angular/router";
-import { InformatieObjectenService } from "./informatie-objecten.service";
 import { ViewResourceUtil } from "../locatie/view-resource.util";
+import { ActionIcon } from "../shared/edit/action-icon";
+import { SessionStorageUtil } from "../shared/storage/session-storage.util";
+import { InformatieObjectenService } from "./informatie-objecten.service";
+import { DocumentVerplaatsGegevens } from "./model/document-verplaats-gegevens";
+import { EnkelvoudigInformatieobject } from "./model/enkelvoudig-informatieobject";
 
 @Injectable({
   providedIn: "root",

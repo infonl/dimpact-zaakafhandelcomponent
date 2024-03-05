@@ -3,34 +3,34 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HttpClient } from "@angular/common/http";
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
-import { MailGegevens } from "../model/mail-gegevens";
-import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
-import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { CustomValidators } from "../../shared/validators/customValidators";
-import { ZakenService } from "../../zaken/zaken.service";
-import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { ActivatedRoute, Router } from "@angular/router";
-import { NavigationService } from "../../shared/navigation/navigation.service";
-import { HttpClient } from "@angular/common/http";
-import { MailService } from "../mail.service";
-import { TakenService } from "../../taken/taken.service";
-import { UtilService } from "../../core/service/util.service";
-import { FormConfig } from "../../shared/material-form-builder/model/form-config";
-import { Zaak } from "../../zaken/model/zaak";
-import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
-import { TranslateService } from "@ngx-translate/core";
-import { InformatieobjectZoekParameters } from "../../informatie-objecten/model/informatieobject-zoek-parameters";
-import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
-import { HtmlEditorFormFieldBuilder } from "../../shared/material-form-builder/form-components/html-editor/html-editor-form-field-builder";
-import { Mail } from "../../admin/model/mail";
-import { KlantenService } from "../../klanten/klanten.service";
-import { ActionIcon } from "../../shared/edit/action-icon";
-import { Subject } from "rxjs";
-import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
-import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
 import { MatDrawer } from "@angular/material/sidenav";
+import { ActivatedRoute, Router } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
+import { Subject } from "rxjs";
+import { Mail } from "../../admin/model/mail";
+import { UtilService } from "../../core/service/util.service";
+import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
+import { InformatieobjectZoekParameters } from "../../informatie-objecten/model/informatieobject-zoek-parameters";
+import { KlantenService } from "../../klanten/klanten.service";
+import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
+import { ActionIcon } from "../../shared/edit/action-icon";
+import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
+import { HtmlEditorFormFieldBuilder } from "../../shared/material-form-builder/form-components/html-editor/html-editor-form-field-builder";
+import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
+import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
+import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
+import { FormConfig } from "../../shared/material-form-builder/model/form-config";
+import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
+import { NavigationService } from "../../shared/navigation/navigation.service";
+import { CustomValidators } from "../../shared/validators/customValidators";
+import { TakenService } from "../../taken/taken.service";
+import { Zaak } from "../../zaken/model/zaak";
+import { ZakenService } from "../../zaken/zaken.service";
+import { MailService } from "../mail.service";
+import { MailGegevens } from "../model/mail-gegevens";
 
 @Component({
   selector: "zac-ontvangstbevestiging",

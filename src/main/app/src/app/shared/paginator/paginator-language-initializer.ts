@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { LOCATION_INITIALIZED } from "@angular/common";
 import { Injector } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { LOCATION_INITIALIZED } from "@angular/common";
 
 export function paginatorLanguageInitializerFactory(
   translateService: TranslateService,

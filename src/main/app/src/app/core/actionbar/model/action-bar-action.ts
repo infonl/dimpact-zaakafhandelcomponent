@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ActionIcon } from "../../../shared/edit/action-icon";
 import { Subject } from "rxjs";
+import { ActionIcon } from "../../../shared/edit/action-icon";
 
 export class ActionBarAction {
   public actionEnabled: () => boolean;

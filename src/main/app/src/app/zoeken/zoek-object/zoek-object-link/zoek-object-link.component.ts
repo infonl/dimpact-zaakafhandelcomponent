@@ -5,14 +5,14 @@
 
 import { Component, HostListener, Input } from "@angular/core";
 
-import { ZaakZoekObject } from "../../model/zaken/zaak-zoek-object";
-import { Router } from "@angular/router";
 import { MatSidenav } from "@angular/material/sidenav";
+import { Router } from "@angular/router";
+import { IndicatiesLayout } from "../../../shared/indicaties/indicaties.component";
+import { DocumentZoekObject } from "../../model/documenten/document-zoek-object";
+import { TaakZoekObject } from "../../model/taken/taak-zoek-object";
+import { ZaakZoekObject } from "../../model/zaken/zaak-zoek-object";
 import { ZoekObject } from "../../model/zoek-object";
 import { ZoekObjectType } from "../../model/zoek-object-type";
-import { IndicatiesLayout } from "../../../shared/indicaties/indicaties.component";
-import { TaakZoekObject } from "../../model/taken/taak-zoek-object";
-import { DocumentZoekObject } from "../../model/documenten/document-zoek-object";
 
 @Component({
   selector: "zac-zoek-object-link",

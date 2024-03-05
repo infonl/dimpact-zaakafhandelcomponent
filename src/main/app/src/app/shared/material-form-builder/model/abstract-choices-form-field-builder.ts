@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AbstractFormFieldBuilder } from "./abstract-form-field-builder";
-import { AbstractChoicesFormField } from "./abstract-choices-form-field";
 import { isObservable, Observable, of as observableOf } from "rxjs";
+import { AbstractChoicesFormField } from "./abstract-choices-form-field";
+import { AbstractFormFieldBuilder } from "./abstract-form-field-builder";
 
 export abstract class AbstractChoicesFormFieldBuilder extends AbstractFormFieldBuilder {
   abstract readonly formField: AbstractChoicesFormField;

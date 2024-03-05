@@ -5,12 +5,12 @@
 
 import { NgModule } from "@angular/core";
 
-import { SharedModule } from "../shared/shared.module";
-import { DocumentenRoutingModule } from "./documenten-routing.module";
-import { OntkoppeldeDocumentenListComponent } from "./ontkoppelde-documenten-list/ontkoppelde-documenten-list.component";
-import { InboxDocumentenListComponent } from "./inbox-documenten-list/inbox-documenten-list.component";
-import { ZoekenModule } from "../zoeken/zoeken.module";
 import { GebruikersvoorkeurenModule } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.module";
+import { SharedModule } from "../shared/shared.module";
+import { ZoekenModule } from "../zoeken/zoeken.module";
+import { DocumentenRoutingModule } from "./documenten-routing.module";
+import { InboxDocumentenListComponent } from "./inbox-documenten-list/inbox-documenten-list.component";
+import { OntkoppeldeDocumentenListComponent } from "./ontkoppelde-documenten-list/ontkoppelde-documenten-list.component";
 
 @NgModule({
   declarations: [

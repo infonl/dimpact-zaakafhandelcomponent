@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { FileFormat } from "./file-format";
 import { User } from "../../identity/model/user";
 import { DocumentRechten } from "../../policy/model/document-rechten";
-import { EnkelvoudigInformatieobjectOndertekening } from "./enkelvoudig-informatieobject-ondertekening";
 import { InformatieobjectIndicatie } from "../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
+import { EnkelvoudigInformatieobjectOndertekening } from "./enkelvoudig-informatieobject-ondertekening";
+import { FileFormat } from "./file-format";
 import { InformatieobjectStatus } from "./informatieobject-status.enum";
 
 export class EnkelvoudigInformatieobject {

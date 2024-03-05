@@ -5,13 +5,13 @@
 
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { ListAdressenParameters } from "./model/list-adressen-parameters";
-import { Adres } from "./model/adres";
-import { Resultaat } from "../shared/model/resultaat";
 import { catchError, Observable } from "rxjs";
-import { BAGObjectGegevens } from "./model/bagobject-gegevens";
+import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { Resultaat } from "../shared/model/resultaat";
+import { Adres } from "./model/adres";
 import { BAGObject } from "./model/bagobject";
+import { BAGObjectGegevens } from "./model/bagobject-gegevens";
+import { ListAdressenParameters } from "./model/list-adressen-parameters";
 
 @Injectable({
   providedIn: "root",

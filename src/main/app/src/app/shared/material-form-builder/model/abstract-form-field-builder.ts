@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AbstractFormField } from "./abstract-form-field";
 import { ValidatorFn, Validators } from "@angular/forms";
+import { Observable, first } from "rxjs";
+import { AbstractFormField } from "./abstract-form-field";
 import { FormFieldHint } from "./form-field-hint";
-import { first, Observable } from "rxjs";
 
 export abstract class AbstractFormFieldBuilder {
   abstract readonly formField: AbstractFormField;

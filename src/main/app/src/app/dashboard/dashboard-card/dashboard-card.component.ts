@@ -11,17 +11,17 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
-import { DashboardCard } from "../model/dashboard-card";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
-import { interval, Observable, Subject, Subscription } from "rxjs";
-import { Opcode } from "../../core/websocket/model/opcode";
+import { Observable, Subject, Subscription, interval } from "rxjs";
 import { ObjectType } from "../../core/websocket/model/object-type";
+import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
-import { IdentityService } from "../../identity/identity.service";
 import { WebsocketService } from "../../core/websocket/websocket.service";
+import { IdentityService } from "../../identity/identity.service";
 import { SignaleringType } from "../../shared/signaleringen/signalering-type";
+import { DashboardCard } from "../model/dashboard-card";
 
 @Component({
   template: "",

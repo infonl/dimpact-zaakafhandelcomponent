@@ -5,10 +5,10 @@
 
 import { NgModule } from "@angular/core";
 
-import { HumanTaskDoComponent } from "./human-task-do/human-task-do.component";
-import { SharedModule } from "../shared/shared.module";
-import { ProcessTaskDoComponent } from "./process-task-do/process-task-do.component";
 import { FormulierenModule } from "../formulieren/formulieren.module";
+import { SharedModule } from "../shared/shared.module";
+import { HumanTaskDoComponent } from "./human-task-do/human-task-do.component";
+import { ProcessTaskDoComponent } from "./process-task-do/process-task-do.component";
 
 @NgModule({
   declarations: [HumanTaskDoComponent, ProcessTaskDoComponent],

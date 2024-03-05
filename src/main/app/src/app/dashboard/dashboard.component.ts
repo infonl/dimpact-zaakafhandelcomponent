@@ -3,25 +3,25 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, OnInit, ViewChild } from "@angular/core";
-import { BreakpointObserver } from "@angular/cdk/layout";
-import { UtilService } from "../core/service/util.service";
-import moment from "moment";
-import { SignaleringenService } from "../signaleringen.service";
-import { DashboardCard } from "./model/dashboard-card";
-import { SignaleringType } from "../shared/signaleringen/signalering-type";
-import { SessionStorageUtil } from "../shared/storage/session-storage.util";
-import { DashboardCardType } from "./model/dashboard-card-type";
-import { DashboardCardId } from "./model/dashboard-card-id";
 import {
   CdkDragDrop,
   moveItemInArray,
   transferArrayItem,
 } from "@angular/cdk/drag-drop";
-import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
-import { forkJoin } from "rxjs";
-import { DashboardCardInstelling } from "./model/dashboard-card-instelling";
+import { BreakpointObserver } from "@angular/cdk/layout";
+import { Component, OnInit, ViewChild } from "@angular/core";
 import { MatMenuTrigger } from "@angular/material/menu";
+import moment from "moment";
+import { forkJoin } from "rxjs";
+import { UtilService } from "../core/service/util.service";
+import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
+import { SignaleringType } from "../shared/signaleringen/signalering-type";
+import { SessionStorageUtil } from "../shared/storage/session-storage.util";
+import { SignaleringenService } from "../signaleringen.service";
+import { DashboardCard } from "./model/dashboard-card";
+import { DashboardCardId } from "./model/dashboard-card-id";
+import { DashboardCardInstelling } from "./model/dashboard-card-instelling";
+import { DashboardCardType } from "./model/dashboard-card-type";
 
 @Component({
   templateUrl: "./dashboard.component.html",

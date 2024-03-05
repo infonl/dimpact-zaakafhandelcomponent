@@ -4,13 +4,6 @@
  */
 
 import { Component, OnInit, ViewChild } from "@angular/core";
-import { UtilService } from "../../core/service/util.service";
-import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
-import { IdentityService } from "../../identity/identity.service";
-import { AdminComponent } from "../admin/admin.component";
-import { MatDialog } from "@angular/material/dialog";
-import { FormulierDefinitieService } from "../formulier-defintie.service";
-import { FormulierDefinitie } from "../model/formulieren/formulier-definitie";
 import {
   AbstractControl,
   FormArray,
@@ -18,11 +11,18 @@ import {
   FormGroup,
   Validators,
 } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
-import { FormulierVeldDefinitie } from "../model/formulieren/formulier-veld-definitie";
-import { MatTableDataSource } from "@angular/material/table";
-import { FormulierVeldtype } from "../model/formulieren/formulier-veld-type.enum";
+import { MatDialog } from "@angular/material/dialog";
 import { MatSelectChange } from "@angular/material/select";
+import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
+import { MatTableDataSource } from "@angular/material/table";
+import { ActivatedRoute, Router } from "@angular/router";
+import { UtilService } from "../../core/service/util.service";
+import { IdentityService } from "../../identity/identity.service";
+import { AdminComponent } from "../admin/admin.component";
+import { FormulierDefinitieService } from "../formulier-defintie.service";
+import { FormulierDefinitie } from "../model/formulieren/formulier-definitie";
+import { FormulierVeldDefinitie } from "../model/formulieren/formulier-veld-definitie";
+import { FormulierVeldtype } from "../model/formulieren/formulier-veld-type.enum";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { TekstvlakEditDialogComponent } from "./tekstvlak-edit-dialog/tekstvlak-edit-dialog.component";
 

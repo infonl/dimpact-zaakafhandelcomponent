@@ -5,14 +5,14 @@
 
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
-import { ZaakViewComponent } from "./zaak-view/zaak-view.component";
+import { Werklijst } from "../gebruikersvoorkeuren/model/werklijst";
+import { TabelGegevensResolver } from "../shared/dynamic-table/datasource/tabel-gegevens-resolver.service";
 import { ZaakCreateComponent } from "./zaak-create/zaak-create.component";
 import { ZaakIdentificatieResolver } from "./zaak-identificatie-resolver.service";
-import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorraad.component";
-import { ZakenMijnComponent } from "./zaken-mijn/zaken-mijn.component";
+import { ZaakViewComponent } from "./zaak-view/zaak-view.component";
 import { ZakenAfgehandeldComponent } from "./zaken-afgehandeld/zaken-afgehandeld.component";
-import { TabelGegevensResolver } from "../shared/dynamic-table/datasource/tabel-gegevens-resolver.service";
-import { Werklijst } from "../gebruikersvoorkeuren/model/werklijst";
+import { ZakenMijnComponent } from "./zaken-mijn/zaken-mijn.component";
+import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorraad.component";
 
 const routes: Routes = [
   {

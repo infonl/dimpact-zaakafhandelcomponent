@@ -8,11 +8,11 @@ import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 
 import { HttpClient } from "@angular/common/http";
+import { DashboardCardInstelling } from "../dashboard/model/dashboard-card-instelling";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { TabelGegevens } from "../shared/dynamic-table/model/tabel-gegevens";
 import { Werklijst } from "./model/werklijst";
 import { Zoekopdracht } from "./model/zoekopdracht";
-import { DashboardCardInstelling } from "../dashboard/model/dashboard-card-instelling";
-import { TabelGegevens } from "../shared/dynamic-table/model/tabel-gegevens";
 
 @Injectable({
   providedIn: "root",
@@ -101,10 +101,9 @@ export class GebruikersvoorkeurenService {
     cards: DashboardCardInstelling[],
   ): Observable<DashboardCardInstelling[]> {
     return this.http
-      .put<DashboardCardInstelling[]>(
-        `${this.basepath}/dasboardcard/actief`,
-        cards,
-      )
+      .put<
+        DashboardCardInstelling[]
+      >(`${this.basepath}/dasboardcard/actief`, cards)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

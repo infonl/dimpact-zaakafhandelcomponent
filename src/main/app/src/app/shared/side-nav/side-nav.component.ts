@@ -4,11 +4,11 @@
  */
 
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { MenuItem, MenuItemType } from "./menu-item/menu-item";
+import { rotate180, sideNavToggle } from "../animations/animations";
 import { ButtonMenuItem } from "./menu-item/button-menu-item";
 import { HrefMenuItem } from "./menu-item/href-menu-item";
 import { LinkMenuItem } from "./menu-item/link-menu-item";
-import { rotate180, sideNavToggle } from "../animations/animations";
+import { MenuItem, MenuItemType } from "./menu-item/menu-item";
 import { SideNavUtil } from "./side-nav.util";
 
 @Component({

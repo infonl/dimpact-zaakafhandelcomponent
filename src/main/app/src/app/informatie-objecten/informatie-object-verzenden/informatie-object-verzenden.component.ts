@@ -13,21 +13,21 @@ import {
   SimpleChanges,
   ViewChild,
 } from "@angular/core";
-import { ZakenService } from "../../zaken/zaken.service";
-import { InformatieObjectenService } from "../informatie-objecten.service";
-import { UtilService } from "../../core/service/util.service";
-import { Zaak } from "../../zaken/model/zaak";
-import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormGroup, Validators } from "@angular/forms";
-import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
-import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
-import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
-import { FormComponent } from "../../shared/material-form-builder/form/form/form.component";
 import { MatDrawer } from "@angular/material/sidenav";
+import { UtilService } from "../../core/service/util.service";
+import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
 import { DocumentenLijstFormField } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-form-field";
-import { DocumentVerzendGegevens } from "../model/document-verzend-gegevens";
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
+import { FormComponent } from "../../shared/material-form-builder/form/form/form.component";
+import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
+import { FormConfig } from "../../shared/material-form-builder/model/form-config";
+import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
+import { Zaak } from "../../zaken/model/zaak";
+import { ZakenService } from "../../zaken/zaken.service";
+import { InformatieObjectenService } from "../informatie-objecten.service";
+import { DocumentVerzendGegevens } from "../model/document-verzend-gegevens";
 
 @Component({
   selector: "zac-informatie-verzenden",

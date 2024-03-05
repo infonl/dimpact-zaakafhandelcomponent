@@ -4,11 +4,11 @@
  */
 
 import { Component } from "@angular/core";
+import { WebsocketService } from "../../core/websocket/websocket.service";
+import { IdentityService } from "../../identity/identity.service";
+import { EnkelvoudigInformatieobject } from "../../informatie-objecten/model/enkelvoudig-informatieobject";
 import { SignaleringenService } from "../../signaleringen.service";
 import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
-import { EnkelvoudigInformatieobject } from "../../informatie-objecten/model/enkelvoudig-informatieobject";
-import { IdentityService } from "../../identity/identity.service";
-import { WebsocketService } from "../../core/websocket/websocket.service";
 
 @Component({
   selector: "zac-informatieobjecten-card",

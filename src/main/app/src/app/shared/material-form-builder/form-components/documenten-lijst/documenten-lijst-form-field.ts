@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { FieldType } from "../../model/field-type.enum";
 import { Observable } from "rxjs";
 import { EnkelvoudigInformatieobject } from "../../../../informatie-objecten/model/enkelvoudig-informatieobject";
 import { AbstractFormControlField } from "../../model/abstract-form-control-field";
+import { FieldType } from "../../model/field-type.enum";
 
 export class DocumentenLijstFormField extends AbstractFormControlField {
   fieldType = FieldType.DOCUMENTEN_LIJST;

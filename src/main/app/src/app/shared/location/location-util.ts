@@ -1,5 +1,5 @@
-import { GeometryCoordinate } from "../../zaken/model/geometryCoordinate";
 import { Geometry } from "../../zaken/model/geometry";
+import { GeometryCoordinate } from "../../zaken/model/geometryCoordinate";
 import { GeometryType } from "../../zaken/model/geometryType";
 
 export class LocationUtil {

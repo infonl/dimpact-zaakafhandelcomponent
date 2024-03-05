@@ -12,8 +12,8 @@ import {
   Output,
   SimpleChanges,
 } from "@angular/core";
-import { FilterResultaat } from "../../../zoeken/model/filter-resultaat";
 import { FilterParameters } from "../../../zoeken/model/filter-parameters";
+import { FilterResultaat } from "../../../zoeken/model/filter-resultaat";
 
 @Component({
   selector: "zac-facet-filter",

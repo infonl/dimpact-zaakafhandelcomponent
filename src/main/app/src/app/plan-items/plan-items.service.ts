@@ -3,15 +3,15 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
-import { PlanItem } from "./model/plan-item";
-import { UserEventListenerData } from "./model/user-event-listener-data";
+import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { HumanTaskData } from "./model/human-task-data";
+import { PlanItem } from "./model/plan-item";
 import { ProcessTaskData } from "./model/process-task-data";
+import { UserEventListenerData } from "./model/user-event-listener-data";
 
 @Injectable({
   providedIn: "root",
@@ -58,19 +58,18 @@ export class PlanItemsService {
 
   listUserEventListenerPlanItems(zaakUuid: string): Observable<PlanItem[]> {
     return this.http
-      .get<PlanItem[]>(
-        `${this.basepath}/zaak/${zaakUuid}/userEventListenerPlanItems`,
-      )
+      .get<
+        PlanItem[]
+      >(`${this.basepath}/zaak/${zaakUuid}/userEventListenerPlanItems`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
 
   doHumanTaskPlanItem(humanTaskData: HumanTaskData): Observable<void> {
-
-      if (!humanTaskData.medewerker?.id)  {
-            humanTaskData.medewerker = null;
-      }
+    if (!humanTaskData.medewerker?.id) {
+      humanTaskData.medewerker = null;
+    }
 
     return this.http
       .post<void>(`${this.basepath}/doHumanTaskPlanItem`, humanTaskData)

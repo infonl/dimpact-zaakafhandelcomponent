@@ -4,20 +4,20 @@
  */
 
 import { Validators } from "@angular/forms";
-import { TextareaFormFieldBuilder } from "../../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
-import { ReadonlyFormFieldBuilder } from "../../../shared/material-form-builder/form-components/readonly/readonly-form-field-builder";
 import { TranslateService } from "@ngx-translate/core";
-import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
-import { InformatieobjectZoekParameters } from "../../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { Observable, of } from "rxjs";
-import { EnkelvoudigInformatieobject } from "../../../informatie-objecten/model/enkelvoudig-informatieobject";
-import { TakenService } from "../../../taken/taken.service";
-import { RadioFormFieldBuilder } from "../../../shared/material-form-builder/form-components/radio/radio-form-field-builder";
-import { ParagraphFormFieldBuilder } from "../../../shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
-import { ZakenService } from "../../../zaken/zaken.service";
 import { ZaakafhandelParametersService } from "../../../admin/zaakafhandel-parameters.service";
-import { AbstractTaakFormulier } from "../abstract-taak-formulier";
+import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
+import { EnkelvoudigInformatieobject } from "../../../informatie-objecten/model/enkelvoudig-informatieobject";
+import { InformatieobjectZoekParameters } from "../../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { DocumentenLijstFieldBuilder } from "../../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
+import { ParagraphFormFieldBuilder } from "../../../shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
+import { RadioFormFieldBuilder } from "../../../shared/material-form-builder/form-components/radio/radio-form-field-builder";
+import { ReadonlyFormFieldBuilder } from "../../../shared/material-form-builder/form-components/readonly/readonly-form-field-builder";
+import { TextareaFormFieldBuilder } from "../../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
+import { TakenService } from "../../../taken/taken.service";
+import { ZakenService } from "../../../zaken/zaken.service";
+import { AbstractTaakFormulier } from "../abstract-taak-formulier";
 
 export class Advies extends AbstractTaakFormulier {
   fields = {

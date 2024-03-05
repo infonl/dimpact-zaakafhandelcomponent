@@ -4,8 +4,8 @@
  */
 
 import { User } from "../../identity/model/user";
-import { ZaakResultaat } from "./zaak-resultaat";
 import { ZaakRechten } from "../../policy/model/zaak-rechten";
+import { ZaakResultaat } from "./zaak-resultaat";
 
 export class ZaakOverzicht {
   identificatie: string;

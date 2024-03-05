@@ -4,24 +4,24 @@
  */
 
 import { Component, Inject, OnInit } from "@angular/core";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { ZakenService } from "../zaken.service";
-import { MaterialFormBuilderService } from "../../shared/material-form-builder/material-form-builder.service";
-import { Zaak } from "../model/zaak";
-import { ZaakKoppelGegevens } from "../model/zaak-koppel-gegevens";
-import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
 import { Validators } from "@angular/forms";
-import { UtilService } from "../../core/service/util.service";
-import { ZaakKoppelenService } from "./zaak-koppelen.service";
-import { forkJoin } from "rxjs";
-import { RadioFormField } from "../../shared/material-form-builder/form-components/radio/radio-form-field";
-import { SelectFormField } from "../../shared/material-form-builder/form-components/select/select-form-field";
-import { RadioFormFieldBuilder } from "../../shared/material-form-builder/form-components/radio/radio-form-field-builder";
+import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { TranslateService } from "@ngx-translate/core";
-import { ZaakRelatietype } from "../model/zaak-relatietype";
-import { ZaakKoppelDialogGegevens } from "../model/zaak-koppel-dialog-gegevens";
+import { forkJoin } from "rxjs";
+import { UtilService } from "../../core/service/util.service";
+import { RadioFormField } from "../../shared/material-form-builder/form-components/radio/radio-form-field";
+import { RadioFormFieldBuilder } from "../../shared/material-form-builder/form-components/radio/radio-form-field-builder";
 import { ReadonlyFormField } from "../../shared/material-form-builder/form-components/readonly/readonly-form-field";
 import { ReadonlyFormFieldBuilder } from "../../shared/material-form-builder/form-components/readonly/readonly-form-field-builder";
+import { SelectFormField } from "../../shared/material-form-builder/form-components/select/select-form-field";
+import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
+import { MaterialFormBuilderService } from "../../shared/material-form-builder/material-form-builder.service";
+import { Zaak } from "../model/zaak";
+import { ZaakKoppelDialogGegevens } from "../model/zaak-koppel-dialog-gegevens";
+import { ZaakKoppelGegevens } from "../model/zaak-koppel-gegevens";
+import { ZaakRelatietype } from "../model/zaak-relatietype";
+import { ZakenService } from "../zaken.service";
+import { ZaakKoppelenService } from "./zaak-koppelen.service";
 
 @Component({
   templateUrl: "zaak-koppelen-dialog.component.html",

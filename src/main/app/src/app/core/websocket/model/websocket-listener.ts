@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ScreenEvent } from "./screen-event";
 import { EventCallback } from "./event-callback";
+import { ScreenEvent } from "./screen-event";
 
 export class WebsocketListener {
   private static sequence = 0;

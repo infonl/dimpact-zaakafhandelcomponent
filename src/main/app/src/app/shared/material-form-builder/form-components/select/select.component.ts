@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, OnDestroy, OnInit, input } from "@angular/core";
-import { FormComponent } from "../../model/form-component";
-import { SelectFormField } from "./select-form-field";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { Subscription } from "rxjs";
+import { FormComponent } from "../../model/form-component";
+import { SelectFormField } from "./select-form-field";
 
 @Component({
   templateUrl: "./select.component.html",

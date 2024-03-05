@@ -3,18 +3,18 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, DoCheck, OnInit } from "@angular/core";
-import { FormComponent } from "../../model/form-component";
-import { EnkelvoudigInformatieobject } from "../../../../informatie-objecten/model/enkelvoudig-informatieobject";
 import { SelectionModel } from "@angular/cdk/collections";
-import { MatTableDataSource } from "@angular/material/table";
+import { Component, DoCheck, OnInit } from "@angular/core";
 import { MatCheckboxChange } from "@angular/material/checkbox";
-import { DatumPipe } from "../../../pipes/datum.pipe";
-import { InformatieObjectenService } from "../../../../informatie-objecten/informatie-objecten.service";
+import { MatTableDataSource } from "@angular/material/table";
 import { TranslateService } from "@ngx-translate/core";
-import { DocumentenLijstFormField } from "./documenten-lijst-form-field";
 import { Observable } from "rxjs";
+import { InformatieObjectenService } from "../../../../informatie-objecten/informatie-objecten.service";
+import { EnkelvoudigInformatieobject } from "../../../../informatie-objecten/model/enkelvoudig-informatieobject";
 import { IndicatiesLayout } from "../../../indicaties/indicaties.component";
+import { DatumPipe } from "../../../pipes/datum.pipe";
+import { FormComponent } from "../../model/form-component";
+import { DocumentenLijstFormField } from "./documenten-lijst-form-field";
 
 @Component({
   templateUrl: "./documenten-lijst.component.html",

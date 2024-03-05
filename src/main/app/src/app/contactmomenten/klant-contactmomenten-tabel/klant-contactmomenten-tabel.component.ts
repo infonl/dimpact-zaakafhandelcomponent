@@ -14,13 +14,13 @@ import {
 } from "@angular/core";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatTableDataSource } from "@angular/material/table";
-import { Contactmoment } from "../model/contactmoment";
-import { ContactmomentenService } from "../contactmomenten.service";
 import { Observable } from "rxjs";
-import { Resultaat } from "../../shared/model/resultaat";
-import { ListContactmomentenParameters } from "../model/list-contactmomenten-parameters";
-import { UtilService } from "../../core/service/util.service";
 import { map, startWith, switchMap } from "rxjs/operators";
+import { UtilService } from "../../core/service/util.service";
+import { Resultaat } from "../../shared/model/resultaat";
+import { ContactmomentenService } from "../contactmomenten.service";
+import { Contactmoment } from "../model/contactmoment";
+import { ListContactmomentenParameters } from "../model/list-contactmomenten-parameters";
 
 @Component({
   selector: "zac-klant-contactmomenten-tabel",

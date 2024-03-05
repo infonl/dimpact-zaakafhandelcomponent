@@ -4,8 +4,8 @@
  */
 
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { UtilService } from "../service/util.service";
 import { Subscription } from "rxjs";
+import { UtilService } from "../service/util.service";
 
 @Component({
   selector: "zac-loading",

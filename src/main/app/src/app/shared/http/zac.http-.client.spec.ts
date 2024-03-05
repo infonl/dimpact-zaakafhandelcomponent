@@ -6,9 +6,7 @@ import {
 import { expectType } from "ts-expect";
 // Other imports
 import { TestBed } from "@angular/core/testing";
-import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 
-import { HttpHeaders } from "@angular/common/http";
 import { Paths, ZacHttpClient } from "./zac-http-client";
 
 describe("HttpClient testing", () => {

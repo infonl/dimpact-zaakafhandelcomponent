@@ -4,20 +4,20 @@
  */
 
 import { Injectable } from "@angular/core";
-import { Zaak } from "../model/zaak";
+import { MatDialog } from "@angular/material/dialog";
+import { Router } from "@angular/router";
 import { Subject } from "rxjs";
-import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import {
   ActionBarAction,
   ActionEntityType,
 } from "../../core/actionbar/model/action-bar-action";
-import { ActionIcon } from "../../shared/edit/action-icon";
-import { ZaakKoppelenDialogComponent } from "./zaak-koppelen-dialog.component";
 import { UtilService } from "../../core/service/util.service";
-import { Router } from "@angular/router";
-import { MatDialog } from "@angular/material/dialog";
 import { ViewResourceUtil } from "../../locatie/view-resource.util";
+import { ActionIcon } from "../../shared/edit/action-icon";
+import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
+import { Zaak } from "../model/zaak";
 import { ZaakKoppelDialogGegevens } from "../model/zaak-koppel-dialog-gegevens";
+import { ZaakKoppelenDialogComponent } from "./zaak-koppelen-dialog.component";
 
 @Injectable({
   providedIn: "root",

@@ -4,25 +4,25 @@
  */
 
 import { CollectionViewer, DataSource } from "@angular/cdk/collections";
-import { BehaviorSubject, merge, Observable, Subscription } from "rxjs";
+import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
+import { EventEmitter } from "@angular/core";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
+import { BehaviorSubject, Observable, Subscription, merge } from "rxjs";
 import { finalize, tap } from "rxjs/operators";
-import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
-import { ColumnPickerValue } from "../column-picker/column-picker-value";
-import { ZoekResultaat } from "../../../zoeken/model/zoek-resultaat";
-import { SessionStorageUtil } from "../../storage/session-storage.util";
-import { ZoekParameters } from "../../../zoeken/model/zoek-parameters";
-import { ZoekenService } from "../../../zoeken/zoeken.service";
 import { UtilService } from "../../../core/service/util.service";
-import { ZoekObject } from "../../../zoeken/model/zoek-object";
 import { Werklijst } from "../../../gebruikersvoorkeuren/model/werklijst";
 import { Zoekopdracht } from "../../../gebruikersvoorkeuren/model/zoekopdracht";
-import { EventEmitter } from "@angular/core";
-import { ZoekenColumn } from "../model/zoeken-column";
-import { SorteerVeld } from "../../../zoeken/model/sorteer-veld";
-import { FilterVeld } from "../../../zoeken/model/filter-veld";
 import { FilterResultaat } from "../../../zoeken/model/filter-resultaat";
+import { FilterVeld } from "../../../zoeken/model/filter-veld";
+import { SorteerVeld } from "../../../zoeken/model/sorteer-veld";
+import { ZoekObject } from "../../../zoeken/model/zoek-object";
+import { ZoekParameters } from "../../../zoeken/model/zoek-parameters";
+import { ZoekResultaat } from "../../../zoeken/model/zoek-resultaat";
+import { ZoekenService } from "../../../zoeken/zoeken.service";
+import { SessionStorageUtil } from "../../storage/session-storage.util";
+import { ColumnPickerValue } from "../column-picker/column-picker-value";
+import { ZoekenColumn } from "../model/zoeken-column";
 
 export abstract class ZoekenDataSource<
   OBJECT extends ZoekObject,

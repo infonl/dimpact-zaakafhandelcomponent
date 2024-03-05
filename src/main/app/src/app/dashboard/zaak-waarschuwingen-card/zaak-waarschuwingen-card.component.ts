@@ -4,12 +4,12 @@
  */
 
 import { Component } from "@angular/core";
-import { ZaakOverzicht } from "../../zaken/model/zaak-overzicht";
-import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
-import { ZakenService } from "../../zaken/zaken.service";
-import { Conditionals } from "../../shared/edit/conditional-fn";
-import { IdentityService } from "../../identity/identity.service";
 import { WebsocketService } from "../../core/websocket/websocket.service";
+import { IdentityService } from "../../identity/identity.service";
+import { Conditionals } from "../../shared/edit/conditional-fn";
+import { ZaakOverzicht } from "../../zaken/model/zaak-overzicht";
+import { ZakenService } from "../../zaken/zaken.service";
+import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
 
 @Component({
   selector: "zac-zaak-waarschuwingen-card",

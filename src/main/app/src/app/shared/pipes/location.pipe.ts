@@ -4,8 +4,8 @@
  */
 
 import { Pipe, PipeTransform } from "@angular/core";
-import { LocationUtil } from "../location/location-util";
 import { Geometry } from "../../zaken/model/geometry";
+import { LocationUtil } from "../location/location-util";
 
 @Pipe({
   name: "location",

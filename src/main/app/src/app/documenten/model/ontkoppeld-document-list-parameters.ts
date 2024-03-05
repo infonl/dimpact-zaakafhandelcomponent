@@ -4,10 +4,10 @@
  */
 
 import { SortDirection } from "@angular/material/sort";
-import { ListParameters } from "../../shared/model/list-parameters";
-import { User } from "../../identity/model/user";
-import { DatumRange } from "../../zoeken/model/datum-range";
 import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
+import { User } from "../../identity/model/user";
+import { ListParameters } from "../../shared/model/list-parameters";
+import { DatumRange } from "../../zoeken/model/datum-range";
 
 export class OntkoppeldDocumentListParameters
   extends ListParameters

@@ -4,16 +4,16 @@
  */
 
 import { Component, OnInit, ViewChild } from "@angular/core";
-import { UtilService } from "../../core/service/util.service";
+import { MatDialog } from "@angular/material/dialog";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
-import { IdentityService } from "../../identity/identity.service";
 import { MatTableDataSource } from "@angular/material/table";
-import { AdminComponent } from "../admin/admin.component";
+import { UtilService } from "../../core/service/util.service";
+import { IdentityService } from "../../identity/identity.service";
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
-import { MatDialog } from "@angular/material/dialog";
+import { AdminComponent } from "../admin/admin.component";
 import { FormulierDefinitieService } from "../formulier-defintie.service";
 import { FormulierDefinitie } from "../model/formulieren/formulier-definitie";
 

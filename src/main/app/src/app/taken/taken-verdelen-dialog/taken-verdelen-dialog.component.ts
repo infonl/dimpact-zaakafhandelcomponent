@@ -5,15 +5,15 @@
 
 import { Component, Inject, OnInit } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { TakenService } from "../taken.service";
-import { MaterialFormBuilderService } from "../../shared/material-form-builder/material-form-builder.service";
-import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
-import { MedewerkerGroepFormField } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-form-field";
-import { MedewerkerGroepFieldBuilder } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-field-builder";
 import { Group } from "../../identity/model/group";
 import { User } from "../../identity/model/user";
 import { InputFormField } from "../../shared/material-form-builder/form-components/input/input-form-field";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
+import { MedewerkerGroepFieldBuilder } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-field-builder";
+import { MedewerkerGroepFormField } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-form-field";
+import { MaterialFormBuilderService } from "../../shared/material-form-builder/material-form-builder.service";
+import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
+import { TakenService } from "../taken.service";
 
 @Component({
   selector: "zac-taken-verdelen-dialog",

@@ -3,20 +3,20 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { FormGroup } from "@angular/forms";
-import { Taak } from "../../taken/model/taak";
 import { TranslateService } from "@ngx-translate/core";
-import { TaakStuurGegevens } from "../../plan-items/model/taak-stuur-gegevens";
-import { Taakinformatie } from "../../taken/model/taakinformatie";
-import { HumanTaskData } from "../../plan-items/model/human-task-data";
+import { Observable } from "rxjs";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { EnkelvoudigInformatieobject } from "../../informatie-objecten/model/enkelvoudig-informatieobject";
-import { Observable } from "rxjs";
 import { InformatieobjectZoekParameters } from "../../informatie-objecten/model/informatieobject-zoek-parameters";
-import { Zaak } from "../../zaken/model/zaak";
+import { HumanTaskData } from "../../plan-items/model/human-task-data";
+import { TaakStuurGegevens } from "../../plan-items/model/taak-stuur-gegevens";
 import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
+import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
+import { Taak } from "../../taken/model/taak";
+import { Taakinformatie } from "../../taken/model/taakinformatie";
+import { Zaak } from "../../zaken/model/zaak";
 
 export abstract class AbstractTaakFormulier {
   public static TAAK_TOEKENNING = "taakToekenning";

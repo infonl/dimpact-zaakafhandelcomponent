@@ -3,19 +3,19 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
 import { HttpClient, HttpParams } from "@angular/common/http";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
-import { Taak } from "./model/taak";
-import { TableRequest } from "../shared/dynamic-table/datasource/table-request";
-import { TaakToekennenGegevens } from "./model/taak-toekennen-gegevens";
+import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { Group } from "../identity/model/group";
 import { User } from "../identity/model/user";
-import { TaakVerdelenGegevens } from "./model/taak-verdelen-gegevens";
+import { TableRequest } from "../shared/dynamic-table/datasource/table-request";
 import { TaakHistorieRegel } from "../shared/historie/model/taak-historie-regel";
 import { TaakZoekObject } from "../zoeken/model/taken/taak-zoek-object";
-import { Group } from "../identity/model/group";
+import { Taak } from "./model/taak";
+import { TaakToekennenGegevens } from "./model/taak-toekennen-gegevens";
+import { TaakVerdelenGegevens } from "./model/taak-verdelen-gegevens";
 
 @Injectable({
   providedIn: "root",

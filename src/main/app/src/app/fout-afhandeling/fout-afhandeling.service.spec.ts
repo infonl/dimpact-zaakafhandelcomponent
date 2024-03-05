@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HttpClientModule } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
 import { FoutAfhandelingService } from "./fout-afhandeling.service";
-import { HttpClientModule } from "@angular/common/http";
 
 describe("FoutAfhandelingService", () => {
   let service: FoutAfhandelingService;

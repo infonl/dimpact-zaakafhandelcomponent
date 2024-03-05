@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ZakenService } from "./zaken.service";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { TestBed } from "@angular/core/testing";
 import { HttpClientModule } from "@angular/common/http";
+import { TestBed } from "@angular/core/testing";
+import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { ZakenService } from "./zaken.service";
 
 describe("ZaakService", () => {
   let service: ZakenService;

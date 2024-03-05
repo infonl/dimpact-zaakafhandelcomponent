@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ZoekObject } from "../zoek-object";
 import { TaakRechten } from "../../../policy/model/taak-rechten";
+import { ZoekObject } from "../zoek-object";
 import { ZoekObjectType } from "../zoek-object-type";
 
 export class TaakZoekObject implements ZoekObject {

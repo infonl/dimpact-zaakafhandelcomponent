@@ -3,14 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
+import { DatumRange } from "./datum-range";
 import { DatumVeld } from "./datum-veld";
-import { ZoekVeld } from "./zoek-veld";
+import { FilterParameters } from "./filter-parameters";
 import { FilterVeld } from "./filter-veld";
 import { SorteerVeld } from "./sorteer-veld";
 import { ZoekObjectType } from "./zoek-object-type";
-import { DatumRange } from "./datum-range";
-import { FilterParameters } from "./filter-parameters";
-import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
+import { ZoekVeld } from "./zoek-veld";
 
 export class ZoekParameters implements ZoekFilters {
   readonly filtersType = "ZoekParameters";

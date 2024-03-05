@@ -4,8 +4,8 @@
  */
 
 import { Type } from "@angular/core";
-import { FormComponent } from "./form-component";
 import { AbstractFormField } from "./abstract-form-field";
+import { FormComponent } from "./form-component";
 
 export class FormItem {
   constructor(

@@ -5,22 +5,22 @@
 
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { MatSidenav } from "@angular/material/sidenav";
+import { MatTableDataSource } from "@angular/material/table";
+import { Router } from "@angular/router";
+import { Subject, forkJoin } from "rxjs";
+import { ConfiguratieService } from "../../../configuratie/configuratie.service";
+import { UtilService } from "../../../core/service/util.service";
+import { ActionIcon } from "../../../shared/edit/action-icon";
 import { DateFormFieldBuilder } from "../../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { InputFormFieldBuilder } from "../../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { ListPersonenParameters } from "../../model/personen/list-personen-parameters";
-import { KlantenService } from "../../klanten.service";
-import { Persoon } from "../../model/personen/persoon";
-import { MatTableDataSource } from "@angular/material/table";
-import { CustomValidators } from "../../../shared/validators/customValidators";
 import { AbstractFormControlField } from "../../../shared/material-form-builder/model/abstract-form-control-field";
-import { MatSidenav } from "@angular/material/sidenav";
-import { Router } from "@angular/router";
-import { UtilService } from "../../../core/service/util.service";
-import { PersonenParameters } from "../../model/personen/personen-parameters";
+import { CustomValidators } from "../../../shared/validators/customValidators";
+import { KlantenService } from "../../klanten.service";
 import { Cardinaliteit } from "../../model/personen/cardinaliteit";
-import { ActionIcon } from "../../../shared/edit/action-icon";
-import { forkJoin, Subject } from "rxjs";
-import { ConfiguratieService } from "../../../configuratie/configuratie.service";
+import { ListPersonenParameters } from "../../model/personen/list-personen-parameters";
+import { PersonenParameters } from "../../model/personen/personen-parameters";
+import { Persoon } from "../../model/personen/persoon";
 
 @Component({
   selector: "zac-persoon-zoek",

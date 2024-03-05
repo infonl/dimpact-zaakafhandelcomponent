@@ -7,29 +7,29 @@ import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
 
 import { detailExpand } from "../../shared/animations/animations";
 
-import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
-import { UtilService } from "../../core/service/util.service";
 import { SelectionModel } from "@angular/cdk/collections";
-import { IdentityService } from "../../identity/identity.service";
 import { MatDialog } from "@angular/material/dialog";
-import { MatTable } from "@angular/material/table";
 import { MatPaginator, PageEvent } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
-import { ZoekenService } from "../../zoeken/zoeken.service";
-import { LoggedInUser } from "../../identity/model/logged-in-user";
-import { TextIcon } from "../../shared/edit/text-icon";
-import { Conditionals } from "../../shared/edit/conditional-fn";
-import { SorteerVeld } from "src/app/zoeken/model/sorteer-veld";
-import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
-import { TakenWerkvoorraadDatasource } from "./taken-werkvoorraad-datasource";
-import { TakenService } from "../taken.service";
+import { MatTable } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
+import { SorteerVeld } from "src/app/zoeken/model/sorteer-veld";
+import { UtilService } from "../../core/service/util.service";
+import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
+import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
+import { IdentityService } from "../../identity/identity.service";
+import { LoggedInUser } from "../../identity/model/logged-in-user";
+import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
+import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
+import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
+import { Conditionals } from "../../shared/edit/conditional-fn";
+import { TextIcon } from "../../shared/edit/text-icon";
+import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
+import { ZoekenService } from "../../zoeken/zoeken.service";
 import { TakenVerdelenDialogComponent } from "../taken-verdelen-dialog/taken-verdelen-dialog.component";
 import { TakenVrijgevenDialogComponent } from "../taken-vrijgeven-dialog/taken-vrijgeven-dialog.component";
-import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
-import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
-import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
-import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
+import { TakenService } from "../taken.service";
+import { TakenWerkvoorraadDatasource } from "./taken-werkvoorraad-datasource";
 
 @Component({
   templateUrl: "./taken-werkvoorraad.component.html",

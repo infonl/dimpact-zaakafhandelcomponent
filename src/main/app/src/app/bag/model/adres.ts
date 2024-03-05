@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { BAGObject } from "./bagobject";
-import { Woonplaats } from "./woonplaats";
-import { OpenbareRuimte } from "./openbare-ruimte";
-import { Nummeraanduiding } from "./nummeraanduiding";
-import { Pand } from "./pand";
-import { AdresseerbaarObject } from "./adresseerbaar-object";
 import { Geometry } from "../../zaken/model/geometry";
+import { AdresseerbaarObject } from "./adresseerbaar-object";
+import { BAGObject } from "./bagobject";
+import { Nummeraanduiding } from "./nummeraanduiding";
+import { OpenbareRuimte } from "./openbare-ruimte";
+import { Pand } from "./pand";
+import { Woonplaats } from "./woonplaats";
 
 export class Adres extends BAGObject {
   postcode: string;

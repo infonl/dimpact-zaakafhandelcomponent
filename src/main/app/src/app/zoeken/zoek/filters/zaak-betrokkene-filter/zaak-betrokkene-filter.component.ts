@@ -4,11 +4,11 @@
  */
 
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { MatDialog } from "@angular/material/dialog";
-import { KlantZoekDialog } from "./klant-zoek-dialog.component";
-import { ZoekParameters } from "../../../model/zoek-parameters";
 import { FormControl } from "@angular/forms";
+import { MatDialog } from "@angular/material/dialog";
+import { ZoekParameters } from "../../../model/zoek-parameters";
 import { ZoekVeld } from "../../../model/zoek-veld";
+import { KlantZoekDialog } from "./klant-zoek-dialog.component";
 
 @Component({
   selector: "zac-zaak-betrokkene-filter",

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from "@angular/core";
-import { BuildInformatie } from "../../admin/model/build-informatie";
 import { HealthCheckService } from "../../admin/health-check.service";
+import { BuildInformatie } from "../../admin/model/build-informatie";
 
 export enum VersionLayout {
   VERBOSE = "VERBOSE",

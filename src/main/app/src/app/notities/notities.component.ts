@@ -4,9 +4,9 @@
  */
 
 import { Component, Input, OnInit, ViewChild } from "@angular/core";
-import { Notitie } from "./model/notitie";
-import { User } from "../identity/model/user";
 import { IdentityService } from "../identity/identity.service";
+import { User } from "../identity/model/user";
+import { Notitie } from "./model/notitie";
 import { NotitieService } from "./notities.service";
 
 @Component({

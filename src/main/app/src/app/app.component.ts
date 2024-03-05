@@ -4,13 +4,13 @@
  */
 
 import { AfterViewInit, Component, OnInit } from "@angular/core";
-import { TranslateService } from "@ngx-translate/core";
 import { Title } from "@angular/platform-browser";
+import { TranslateService } from "@ngx-translate/core";
 import { UtilService } from "./core/service/util.service";
-import { ZaakKoppelenService } from "./zaken/zaak-koppelen/zaak-koppelen.service";
-import { InformatieObjectVerplaatsService } from "./informatie-objecten/informatie-object-verplaats.service";
 import { IdentityService } from "./identity/identity.service";
+import { InformatieObjectVerplaatsService } from "./informatie-objecten/informatie-object-verplaats.service";
 import { SessionStorageUtil } from "./shared/storage/session-storage.util";
+import { ZaakKoppelenService } from "./zaken/zaak-koppelen/zaak-koppelen.service";
 
 @Component({
   selector: "zac-root",

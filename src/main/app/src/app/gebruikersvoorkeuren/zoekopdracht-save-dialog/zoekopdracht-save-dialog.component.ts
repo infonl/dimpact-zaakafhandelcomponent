@@ -4,14 +4,14 @@
  */
 
 import { Component, Inject, OnInit } from "@angular/core";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
-import { Zoekopdracht } from "../model/zoekopdracht";
 import { FormControl } from "@angular/forms";
-import { Werklijst } from "../model/werklijst";
+import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { Observable } from "rxjs";
 import { map, startWith } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
+import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
+import { Werklijst } from "../model/werklijst";
+import { Zoekopdracht } from "../model/zoekopdracht";
 
 @Component({
   templateUrl: "./zoekopdracht-save-dialog.component.html",

@@ -5,9 +5,9 @@
 
 import { NgModule } from "@angular/core";
 
+import { GebruikersvoorkeurenModule } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.module";
 import { SharedModule } from "../shared/shared.module";
 import { ZoekenModule } from "../zoeken/zoeken.module";
-import { GebruikersvoorkeurenModule } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.module";
 import { InboxProductaanvragenListComponent } from "./inbox-productaanvragen-list/inbox-productaanvragen-list.component";
 import { ProductaanvragenRoutingModule } from "./productaanvragen-routing.module";
 

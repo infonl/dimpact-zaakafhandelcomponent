@@ -1,8 +1,8 @@
+import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { Mailtemplate } from "../admin/model/mailtemplate";
 import { catchError } from "rxjs/operators";
-import { HttpClient } from "@angular/common/http";
+import { Mailtemplate } from "../admin/model/mailtemplate";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 
 @Injectable({

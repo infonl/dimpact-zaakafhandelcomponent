@@ -4,19 +4,18 @@
  */
 
 import { NgModule } from "@angular/core";
-import { SharedModule } from "../shared/shared.module";
-import { PersoonZoekComponent } from "./zoek/personen/persoon-zoek.component";
-import { BedrijfZoekComponent } from "./zoek/bedrijven/bedrijf-zoek.component";
-import { PersoonsgegevensComponent } from "./persoonsgegevens/persoonsgegevens.component";
-import { BedrijfsgegevensComponent } from "./bedrijfsgegevens/bedrijfsgegevens.component";
-import { KlantZoekComponent } from "./zoek/klanten/klant-zoek.component";
-import { KlantKoppelComponent } from "./koppel/klanten/klant-koppel.component";
 import { RouterLink } from "@angular/router";
+import { ContactmomentenModule } from "../contactmomenten/contactmomenten.module";
+import { SharedModule } from "../shared/shared.module";
+import { BedrijfViewComponent } from "./bedrijf-view/bedrijf-view.component";
+import { BedrijfsgegevensComponent } from "./bedrijfsgegevens/bedrijfsgegevens.component";
+import { KlantZakenTabelComponent } from "./klant-zaken-tabel/klant-zaken-tabel.component";
 import { KlantenRoutingModule } from "./klanten-routing.module";
 import { PersoonViewComponent } from "./persoon-view/persoon-view.component";
-import { BedrijfViewComponent } from "./bedrijf-view/bedrijf-view.component";
-import { KlantZakenTabelComponent } from "./klant-zaken-tabel/klant-zaken-tabel.component";
-import { ContactmomentenModule } from "../contactmomenten/contactmomenten.module";
+import { PersoonsgegevensComponent } from "./persoonsgegevens/persoonsgegevens.component";
+import { BedrijfZoekComponent } from "./zoek/bedrijven/bedrijf-zoek.component";
+import { KlantZoekComponent } from "./zoek/klanten/klant-zoek.component";
+import { PersoonZoekComponent } from "./zoek/personen/persoon-zoek.component";
 
 @NgModule({
   declarations: [

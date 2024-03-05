@@ -11,9 +11,9 @@ import {
   FormControl,
   FormGroup,
 } from "@angular/forms";
+import { MatDrawer } from "@angular/material/sidenav";
 import { Zaak } from "../model/zaak";
 import { ZakenService } from "../zaken.service";
-import { MatDrawer } from "@angular/material/sidenav";
 
 @Component({
   selector: "zac-zaakdata",

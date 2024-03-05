@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { UtilService } from "../../core/service/util.service";
 import { AfterViewInit, Component, OnInit } from "@angular/core";
 import { MatTableDataSource } from "@angular/material/table";
-import { SignaleringenSettingsService } from "../signaleringen-settings.service";
+import { UtilService } from "../../core/service/util.service";
 import { SignaleringSettings } from "../model/signalering-settings";
+import { SignaleringenSettingsService } from "../signaleringen-settings.service";
 
 @Component({
   templateUrl: "./signaleringen-settings.component.html",

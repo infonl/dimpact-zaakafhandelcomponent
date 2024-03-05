@@ -6,8 +6,8 @@
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from "@angular/router";
 import { Observable } from "rxjs";
-import { EnkelvoudigInformatieobject } from "./model/enkelvoudig-informatieobject";
 import { InformatieObjectenService } from "./informatie-objecten.service";
+import { EnkelvoudigInformatieobject } from "./model/enkelvoudig-informatieobject";
 
 @Injectable({
   providedIn: "root",

@@ -5,8 +5,8 @@
 
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
-import { BAGViewComponent } from "./bag-view/bag-view.component";
 import { BAGResolverService } from "./bag-view/bag-resolver.service";
+import { BAGViewComponent } from "./bag-view/bag-view.component";
 
 const routes: Routes = [
   {

@@ -22,21 +22,28 @@ import { KlantGegevens } from "../../model/klanten/klant-gegevens";
   ],
   template: `
     <ng-template mat-tab-label>
-      @if (type === 'bedrijf') {
-      <mat-icon>business</mat-icon>
-      } @if (type === 'persoon') {
-      <mat-icon>emoji_people</mat-icon>
-
-      } @if (type === 'bedrijf') {
-      <span>{{ "betrokkene.bedrijf" | translate }}</span>
-      } @if (type === 'persoon') {
-      <span> {{ "betrokkene.persoon" | translate }}</span>
+      @if (type === "bedrijf") {
+        <mat-icon>business</mat-icon>
+      }
+      @if (type === "persoon") {
+        <mat-icon>emoji_people</mat-icon>
+      }
+      @if (type === "bedrijf") {
+        <span>{{ "betrokkene.bedrijf" | translate }}</span>
+      }
+      @if (type === "persoon") {
+        <span> {{ "betrokkene.persoon" | translate }}</span>
       }
     </ng-template>
     @if (type === "persoon") {
-    <zac-persoon-zoek (persoon)="klantGeselecteerd($event)"></zac-persoon-zoek>
-    } @if (type === "bedrijf") {
-    <zac-bedrijf-zoek (bedrijf)="klantGeselecteerd($event)"></zac-bedrijf-zoek>
+      <zac-persoon-zoek
+        (persoon)="klantGeselecteerd($event)"
+      ></zac-persoon-zoek>
+    }
+    @if (type === "bedrijf") {
+      <zac-bedrijf-zoek
+        (bedrijf)="klantGeselecteerd($event)"
+      ></zac-bedrijf-zoek>
     }
   `,
 })

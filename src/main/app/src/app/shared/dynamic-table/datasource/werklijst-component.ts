@@ -4,9 +4,9 @@
  */
 
 import { Component, OnInit } from "@angular/core";
-import { GebruikersvoorkeurenService } from "../../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
-import { ActivatedRoute } from "@angular/router";
 import { PageEvent } from "@angular/material/paginator";
+import { ActivatedRoute } from "@angular/router";
+import { GebruikersvoorkeurenService } from "../../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { Werklijst } from "../../../gebruikersvoorkeuren/model/werklijst";
 
 import { WerklijstRechten } from "../../../policy/model/werklijst-rechten";

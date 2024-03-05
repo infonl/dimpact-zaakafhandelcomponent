@@ -3,34 +3,34 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable, isDevMode } from "@angular/core";
-import {Observable, throwError} from "rxjs";
-import { Router } from "@angular/router";
 import { HttpErrorResponse } from "@angular/common/http";
+import { Injectable, isDevMode } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
-import { FoutDialogComponent } from "./dialog/fout-dialog.component";
+import { Router } from "@angular/router";
+import { Observable, throwError } from "rxjs";
+import { P, match } from "ts-pattern";
 import { UtilService } from "../core/service/util.service";
-import { match, P } from 'ts-pattern';
-import {FoutDetailedDialogComponent} from "./dialog/fout-detailed-dialog.component";
+import { FoutDetailedDialogComponent } from "./dialog/fout-detailed-dialog.component";
+import { FoutDialogComponent } from "./dialog/fout-dialog.component";
 
 const ViolationPattern = {
-  "constraintType": P.string,
-  "message": P.string,
-  "path": P.string,
-  "value": P.string
-}
+  constraintType: P.string,
+  message: P.string,
+  path: P.string,
+  value: P.string,
+};
 
 const ValidationErrorPattern = {
-  statusText: 'Bad Request',
+  statusText: "Bad Request",
   error: {
     classViolations: P.array(ViolationPattern),
     parameterViolations: P.array(ViolationPattern),
     propertyViolations: P.array(ViolationPattern),
-    returnValueViolations: P.array(ViolationPattern)
-  }
-}
+    returnValueViolations: P.array(ViolationPattern),
+  },
+};
 
-type JakartaBeanValidationError = P.infer<typeof ValidationErrorPattern>
+type JakartaBeanValidationError = P.infer<typeof ValidationErrorPattern>;
 
 @Injectable({
   providedIn: "root",
@@ -47,22 +47,30 @@ export class FoutAfhandelingService {
     private utilService: UtilService,
   ) {}
 
-  public foutAfhandelen(err: HttpErrorResponse | JakartaBeanValidationError): Observable<any> {
-
-   return match(err)
-       .with(ValidationErrorPattern, (e: JakartaBeanValidationError) => this.validatieErrorAfhandelen(e))
-       .otherwise((err: HttpErrorResponse) => this.httpErrorAfhandelen(err))
+  public foutAfhandelen(
+    err: HttpErrorResponse | JakartaBeanValidationError,
+  ): Observable<any> {
+    return match(err)
+      .with(ValidationErrorPattern, (e: JakartaBeanValidationError) =>
+        this.validatieErrorAfhandelen(e),
+      )
+      .otherwise((err: HttpErrorResponse) => this.httpErrorAfhandelen(err));
   }
 
   public validatieErrorAfhandelen(err: JakartaBeanValidationError) {
-      const flattenedErrorList = [
-        err.error.propertyViolations,
-        err.error.returnValueViolations,
-        err.error.classViolations,
-        err.error.parameterViolations,
-      ].flat()
-      const firstError = flattenedErrorList.find(Boolean)
-      return firstError ? this.openFoutDetailedDialog("Validatie fout", JSON.stringify(firstError)) : throwError(() => new Error('No violations found'))
+    const flattenedErrorList = [
+      err.error.propertyViolations,
+      err.error.returnValueViolations,
+      err.error.classViolations,
+      err.error.parameterViolations,
+    ].flat();
+    const firstError = flattenedErrorList.find(Boolean);
+    return firstError
+      ? this.openFoutDetailedDialog(
+          "Validatie fout",
+          JSON.stringify(firstError),
+        )
+      : throwError(() => new Error("No violations found"));
   }
 
   public httpErrorAfhandelen(err: HttpErrorResponse) {
@@ -81,7 +89,10 @@ export class FoutAfhandelingService {
     return throwError(() => "Fout!");
   }
 
-  public openFoutDetailedDialog(error: string, details: string): Observable<any> {
+  public openFoutDetailedDialog(
+    error: string,
+    details: string,
+  ): Observable<any> {
     this.dialog.open(FoutDetailedDialogComponent, {
       data: {
         error,

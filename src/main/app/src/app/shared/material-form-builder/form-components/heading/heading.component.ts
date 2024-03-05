@@ -4,9 +4,9 @@
  */
 
 import { Component, OnInit } from "@angular/core";
+import { TranslateService } from "@ngx-translate/core";
 import { FormComponent } from "../../model/form-component";
 import { HeadingFormField, HeadingLevel } from "./heading-form-field";
-import { TranslateService } from "@ngx-translate/core";
 
 @Component({
   templateUrl: "./heading.component.html",

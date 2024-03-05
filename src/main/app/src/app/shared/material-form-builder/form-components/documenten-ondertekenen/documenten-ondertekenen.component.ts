@@ -4,8 +4,8 @@
  */
 
 import { Component, DoCheck, OnInit } from "@angular/core";
-import { InformatieObjectenService } from "../../../../informatie-objecten/informatie-objecten.service";
 import { TranslateService } from "@ngx-translate/core";
+import { InformatieObjectenService } from "../../../../informatie-objecten/informatie-objecten.service";
 import { DocumentenLijstComponent } from "../documenten-lijst/documenten-lijst.component";
 import { DocumentenOndertekenenFormField } from "./documenten-ondertekenen-form-field";
 

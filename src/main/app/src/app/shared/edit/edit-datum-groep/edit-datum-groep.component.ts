@@ -12,32 +12,32 @@ import {
   Output,
   SimpleChanges,
 } from "@angular/core";
-import { EditComponent } from "../edit.component";
-import { MaterialFormBuilderService } from "../../material-form-builder/material-form-builder.service";
-import { DateFormField } from "../../material-form-builder/form-components/date/date-form-field";
-import { UtilService } from "../../../core/service/util.service";
-import { TextIcon } from "../text-icon";
 import {
   FormControlStatus,
   FormGroup,
   ValidatorFn,
   Validators,
 } from "@angular/forms";
-import { InputFormField } from "../../material-form-builder/form-components/input/input-form-field";
+import { MatDialog } from "@angular/material/dialog";
+import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
 import { Moment } from "moment/moment";
-import { DialogComponent } from "../../dialog/dialog.component";
-import { MatDialog } from "@angular/material/dialog";
-import { DialogData } from "../../dialog/dialog-data";
+import { Observable, Subscription, of } from "rxjs";
+import { UtilService } from "../../../core/service/util.service";
 import { ZakenService } from "../../../zaken/zaken.service";
-import { InputFormFieldBuilder } from "../../material-form-builder/form-components/input/input-form-field-builder";
-import { TranslateService } from "@ngx-translate/core";
-import { Observable, of, Subscription } from "rxjs";
-import { CheckboxFormFieldBuilder } from "../../material-form-builder/form-components/checkbox/checkbox-form-field-builder";
+import { DialogData } from "../../dialog/dialog-data";
+import { DialogComponent } from "../../dialog/dialog.component";
 import { CheckboxFormField } from "../../material-form-builder/form-components/checkbox/checkbox-form-field";
-import { HiddenFormFieldBuilder } from "../../material-form-builder/form-components/hidden/hidden-form-field-builder";
+import { CheckboxFormFieldBuilder } from "../../material-form-builder/form-components/checkbox/checkbox-form-field-builder";
+import { DateFormField } from "../../material-form-builder/form-components/date/date-form-field";
 import { HiddenFormField } from "../../material-form-builder/form-components/hidden/hidden-form-field";
+import { HiddenFormFieldBuilder } from "../../material-form-builder/form-components/hidden/hidden-form-field-builder";
+import { InputFormField } from "../../material-form-builder/form-components/input/input-form-field";
+import { InputFormFieldBuilder } from "../../material-form-builder/form-components/input/input-form-field-builder";
+import { MaterialFormBuilderService } from "../../material-form-builder/material-form-builder.service";
 import { AbstractFormField } from "../../material-form-builder/model/abstract-form-field";
+import { EditComponent } from "../edit.component";
+import { TextIcon } from "../text-icon";
 
 @Component({
   selector: "zac-edit-datum-groep",

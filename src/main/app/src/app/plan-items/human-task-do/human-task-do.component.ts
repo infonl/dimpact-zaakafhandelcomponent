@@ -4,18 +4,18 @@
  */
 
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { FormConfig } from "../../shared/material-form-builder/model/form-config";
-import { ActivatedRoute } from "@angular/router";
-import { PlanItemsService } from "../plan-items.service";
 import { FormGroup } from "@angular/forms";
+import { MatDrawer } from "@angular/material/sidenav";
+import { ActivatedRoute } from "@angular/router";
+import { AbstractTaakFormulier } from "../../formulieren/taken/abstract-taak-formulier";
+import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
+import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
+import { FormConfig } from "../../shared/material-form-builder/model/form-config";
+import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
+import { Zaak } from "../../zaken/model/zaak";
 import { PlanItem } from "../model/plan-item";
 import { PlanItemType } from "../model/plan-item-type.enum";
-import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
-import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
-import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
-import { AbstractTaakFormulier } from "../../formulieren/taken/abstract-taak-formulier";
-import { Zaak } from "../../zaken/model/zaak";
-import { MatDrawer } from "@angular/material/sidenav";
+import { PlanItemsService } from "../plan-items.service";
 
 @Component({
   selector: "zac-human-task-do",

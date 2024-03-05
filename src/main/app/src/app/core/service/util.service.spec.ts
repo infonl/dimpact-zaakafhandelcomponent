@@ -5,9 +5,9 @@
 
 import { TestBed } from "@angular/core/testing";
 
-import { UtilService } from "./util.service";
-import { TranslateService } from "@ngx-translate/core";
 import { MatSnackBar } from "@angular/material/snack-bar";
+import { TranslateService } from "@ngx-translate/core";
+import { UtilService } from "./util.service";
 
 describe("UtilService", () => {
   let service: UtilService;

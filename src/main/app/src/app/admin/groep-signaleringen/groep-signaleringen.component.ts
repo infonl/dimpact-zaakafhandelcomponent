@@ -4,15 +4,15 @@
  */
 
 import { Component, OnInit, ViewChild } from "@angular/core";
-import { UtilService } from "../../core/service/util.service";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
-import { Group } from "../../identity/model/group";
-import { IdentityService } from "../../identity/identity.service";
-import { Observable } from "rxjs";
 import { MatTableDataSource } from "@angular/material/table";
+import { Observable } from "rxjs";
+import { UtilService } from "../../core/service/util.service";
+import { IdentityService } from "../../identity/identity.service";
+import { Group } from "../../identity/model/group";
 import { SignaleringSettings } from "../../signaleringen/model/signalering-settings";
-import { SignaleringenSettingsBeheerService } from "../signaleringen-settings-beheer.service";
 import { AdminComponent } from "../admin/admin.component";
+import { SignaleringenSettingsBeheerService } from "../signaleringen-settings-beheer.service";
 
 @Component({
   templateUrl: "./groep-signaleringen.component.html",

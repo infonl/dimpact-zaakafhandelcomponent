@@ -4,20 +4,20 @@
  */
 
 import { Injectable, OnDestroy } from "@angular/core";
-import { webSocket, WebSocketSubject } from "rxjs/webSocket";
-import { forkJoin, Observable, of, Subject } from "rxjs";
+import { TranslateService } from "@ngx-translate/core";
+import { Observable, Subject, forkJoin, of } from "rxjs";
 import { delay, retryWhen, switchMap, takeUntil } from "rxjs/operators";
+import { WebSocketSubject, webSocket } from "rxjs/webSocket";
+import { UtilService } from "../service/util.service";
+import { EventCallback } from "./model/event-callback";
+import { EventSuspension } from "./model/event-suspension";
+import { ObjectType } from "./model/object-type";
+import { Opcode } from "./model/opcode";
+import { ScreenEvent } from "./model/screen-event";
+import { ScreenEventId } from "./model/screen-event-id";
 import { SubscriptionMessage } from "./model/subscription-message";
 import { SubscriptionType } from "./model/subscription-type";
-import { Opcode } from "./model/opcode";
-import { ObjectType } from "./model/object-type";
-import { ScreenEvent } from "./model/screen-event";
-import { EventCallback } from "./model/event-callback";
-import { TranslateService } from "@ngx-translate/core";
 import { WebsocketListener } from "./model/websocket-listener";
-import { EventSuspension } from "./model/event-suspension";
-import { UtilService } from "../service/util.service";
-import { ScreenEventId } from "./model/screen-event-id";
 
 @Injectable({
   providedIn: "root",
