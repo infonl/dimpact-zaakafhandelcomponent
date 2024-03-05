@@ -32,8 +32,7 @@ To do this you will first need to do the following:
     ./gradlew buildZacDockerImage
     ```
 3. If BAG integration is part of the test suite: create a 'run configuration' in your IDE where the following two environment variables are set: `BAG_API_CLIENT_MP_REST_URL` and `BAG_API_KEY`.
-4. Add the following environment variable to this 'run configuration': `JAVA_TOOL_OPTIONS=--add-opens=java.base/java.net=ALL-UNNAMED` (see: https://github.com/lojewalo/khttp/issues/88 for details).
-5. Run the integration tests from your IDE using this run configuration.
+4. Run the integration tests from your IDE using this run configuration.
 
 Running the integration tests will first start up all required services (Keycloak, Open Zaak, etc) as Docker containers using our [Docker Compose file](installDockerCompose.md),
 then start up ZAC as Docker container and finally run the integration tests.

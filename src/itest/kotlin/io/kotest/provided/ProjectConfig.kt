@@ -5,7 +5,6 @@
 
 package io.kotest.provided
 
-import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.HttpStatus
 import io.github.oshai.kotlinlogging.DelegatingKLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.config.AbstractProjectConfig
@@ -18,7 +17,9 @@ import nl.lifely.zac.itest.config.ItestConfiguration.SMARTDOCUMENTS_MOCK_BASE_UR
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_CONTAINER_SERVICE_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_DEFAULT_DOCKER_IMAGE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_HEALTH_READY_URL
+import okhttp3.Headers
 import org.awaitility.kotlin.await
+import org.json.JSONObject
 import org.slf4j.Logger
 import org.testcontainers.containers.ComposeContainer
 import org.testcontainers.containers.ContainerLaunchException
@@ -38,6 +39,7 @@ object ProjectConfig : AbstractProjectConfig() {
     val THIRTY_SECONDS = Duration.ofSeconds(30)
 
     lateinit var dockerComposeContainer: ComposeContainer
+    private val zacClient = ZacClient()
 
     override suspend fun beforeProject() {
         try {
@@ -50,14 +52,10 @@ object ProjectConfig : AbstractProjectConfig() {
             await.atMost(THIRTY_SECONDS)
                 .until {
                     try {
-                        khttp.get(
-                            url = KEYCLOAK_HEALTH_READY_URL,
-                            headers = mapOf(
-                                "Content-Type" to "application/json",
-                            )
-                        ).let {
-                            it.statusCode == HttpStatus.SC_OK
-                        }
+                        zacClient.performGetRequest(
+                            headers = Headers.headersOf("Content-Type", "application/json"),
+                            url = KEYCLOAK_HEALTH_READY_URL
+                        ).isSuccessful
                     } catch (socketException: SocketException) {
                         logger.info(socketException) {
                             "SocketException while requesting Keycloak health endpoint. Ignoring."
@@ -69,21 +67,20 @@ object ProjectConfig : AbstractProjectConfig() {
             logger.info { "Waiting until ZAC is healthy by calling the health endpoint and checking the response" }
             await.atMost(THIRTY_SECONDS)
                 .until {
-                    khttp.get(
-                        url = ZAC_HEALTH_READY_URL,
-                        headers = mapOf(
-                            "Content-Type" to "application/json",
-                        )
-                    ).let {
-                        it.statusCode == HttpStatus.SC_OK && it.jsonObject.getString("status") == "UP"
+                    zacClient.performGetRequest(
+                        headers = Headers.headersOf("Content-Type", "application/json"),
+                        url = ZAC_HEALTH_READY_URL
+                    ).use { response ->
+                        response.isSuccessful && JSONObject(response.body!!.string()).getString("status") == "UP"
                     }
                 }
             logger.info { "ZAC is healthy" }
 
             KeycloakClient.authenticate()
 
-            val response = ZacClient().createZaakAfhandelParameters()
-            response.statusCode shouldBe HttpStatus.SC_OK
+            ZacClient().createZaakAfhandelParameters().use { response ->
+                response.isSuccessful shouldBe true
+            }
         } catch (exception: ContainerLaunchException) {
             logger.error(exception) { "Failed to start Docker containers" }
             dockerComposeContainer.stop()

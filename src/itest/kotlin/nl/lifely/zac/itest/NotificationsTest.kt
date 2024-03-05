@@ -119,26 +119,26 @@ class NotificationsTest : BehaviorSpec({
             then(
                 "a corresponding error message should be logged in ZAC"
             ) {
-                khttp.post(
+                zacClient.performPostRequest(
                     url = "${ZAC_API_URI}/notificaties",
-                    headers = mapOf(
-                        "Content-Type" to "application/json",
+                    headers = Headers.headersOf(
+                        "Content-Type",
+                        "application/json",
                         // this test simulates that Open Notificaties sends the request to ZAC
                         // using the secret API key that is configured in ZAC
-                        "Authorization" to OPEN_NOTIFICATIONS_API_SECRET_KEY
+                        "Authorization",
+                        OPEN_NOTIFICATIONS_API_SECRET_KEY
                     ),
-                    data = JSONObject(
+                    requestBodyAsString = JSONObject(
                         mapOf(
                             "resource" to "zaaktype",
                             "resourceUrl" to "http://example.com/dummyResourceUrl",
                             "actie" to "create",
                             "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                         )
-                    )
-                ).apply {
-                    // Note that the 'notificaties' endpoint always returns 'no content' even if things go wrong
-                    // since it is a fire-and-forget kind of endpoint.
-                    statusCode shouldBe HttpStatus.SC_NO_CONTENT
+                    ).toString()
+                ).use { response ->
+                    response.isSuccessful shouldBe true
 
                     // we expect ZAC to log an error message indicating that the resourceURL is invalid
                     ProjectConfig.dockerComposeContainer.waitingFor(

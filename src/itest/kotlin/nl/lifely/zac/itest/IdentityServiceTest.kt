@@ -5,12 +5,10 @@
 
 package nl.lifely.zac.itest
 
-import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.HttpStatus
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.assertions.json.shouldEqualSpecifiedJsonIgnoringOrder
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import nl.lifely.zac.itest.client.KeycloakClient
 import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration
 
@@ -137,17 +135,12 @@ class IdentityServiceTest : BehaviorSpec() {
                 then(
                     "an empty list is returned"
                 ) {
-                    khttp.get(
-                        url = "${ItestConfiguration.ZAC_API_URI}/identity/groups/*/users",
-                        headers = mapOf(
-                            "Content-Type" to "application/json",
-                            "Authorization" to "Bearer ${KeycloakClient.requestAccessToken()}"
-                        )
-                    ).apply {
-                        statusCode shouldBe HttpStatus.SC_OK
-                        text shouldEqualJson """
-                            [
-                        ]
+                    zacClient.performGetRequest(
+                        url = "${ItestConfiguration.ZAC_API_URI}/identity/groups/*/users"
+                    ).use { response ->
+                        response.isSuccessful shouldBe true
+                        response.body!!.string() shouldEqualJson """
+                            []
                         """.trimIndent()
                     }
                 }

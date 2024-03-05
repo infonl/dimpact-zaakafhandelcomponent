@@ -6,13 +6,11 @@
 package nl.lifely.zac.itest.client
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import khttp.responses.Response
 import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCT_AANVRAAG_TYPE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.lifely.zac.itest.zaak1UUID
 import okhttp3.Headers
 import okhttp3.JavaNetCookieJar
 import okhttp3.MediaType.Companion.toMediaType
@@ -20,9 +18,10 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
 import java.net.CookieManager
 import java.net.CookiePolicy
-import java.util.UUID
+import java.util.*
 
 class ZacClient {
     private var okHttpClient: OkHttpClient
@@ -39,13 +38,8 @@ class ZacClient {
 
     fun performGetRequest(
         url: String,
-        headers: Headers = Headers.headersOf(
-            "Authorization",
-            "Bearer ${KeycloakClient.requestAccessToken()}",
-            "Accept",
-            "application/json"
-        )
-    ): okhttp3.Response {
+        headers: Headers = getDefaultHeaders()
+    ): Response {
         logger.info { "Performing GET request on: '$url'" }
         val request = Request.Builder()
             .headers(headers)
@@ -57,14 +51,9 @@ class ZacClient {
 
     fun performPostRequest(
         url: String,
-        headers: Headers = Headers.headersOf(
-            "Authorization",
-            "Bearer ${KeycloakClient.requestAccessToken()}",
-            "Accept",
-            "application/json"
-        ),
+        headers: Headers = getDefaultHeaders(),
         requestBody: RequestBody
-    ): okhttp3.Response {
+    ): Response {
         logger.info { "Performing POST request on: '$url'" }
         val request = Request.Builder()
             .headers(headers)
@@ -76,19 +65,42 @@ class ZacClient {
 
     fun performPostRequest(
         url: String,
-        headers: Headers = Headers.headersOf(
-            "Authorization",
-            "Bearer ${KeycloakClient.requestAccessToken()}",
-            "Accept",
-            "application/json"
-        ),
+        headers: Headers = getDefaultHeaders(),
         requestBodyAsString: String
-    ): okhttp3.Response {
+    ): Response {
         return performPostRequest(
             url = url,
             headers = headers,
             requestBody = requestBodyAsString.toRequestBody("application/json".toMediaType())
         )
+    }
+
+    fun performPatchRequest(
+        url: String,
+        headers: Headers = getDefaultHeaders(),
+        requestBodyAsString: String
+    ): Response {
+        logger.info { "Performing PATCH request on: '$url'" }
+        val request = Request.Builder()
+            .headers(headers)
+            .url(url)
+            .patch(requestBodyAsString.toRequestBody("application/json".toMediaType()))
+            .build()
+        return okHttpClient.newCall(request).execute()
+    }
+
+    fun performPutRequest(
+        url: String,
+        headers: Headers = getDefaultHeaders(),
+        requestBodyAsString: String
+    ): Response {
+        logger.info { "Performing PUT request on: '$url'" }
+        val request = Request.Builder()
+            .headers(headers)
+            .url(url)
+            .put(requestBodyAsString.toRequestBody("application/json".toMediaType()))
+            .build()
+        return okHttpClient.newCall(request).execute()
     }
 
     @Suppress("LongMethod")
@@ -97,14 +109,9 @@ class ZacClient {
             "Creating zaakafhandelparameters in ZAC for zaaktype with identificatie: $ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE " +
                 "and UUID: $ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
         }
-
-        val response = khttp.put(
+        return performPutRequest(
             url = "$ZAC_API_URI/zaakafhandelParameters",
-            headers = mapOf(
-                "Content-Type" to "application/json",
-                "Authorization" to "Bearer ${KeycloakClient.requestAccessToken()}"
-            ),
-            data = "{\n" +
+            requestBodyAsString = "{\n" +
                 "  \"humanTaskParameters\": [\n" +
                 "    {\n" +
                 "      \"planItemDefinition\": {\n" +
@@ -281,8 +288,6 @@ class ZacClient {
                 "  }\n" +
                 "}\n"
         )
-        logger.info { "PUT zaakafhandelParameters response: ${response.text}" }
-        return response
     }
 
     @Suppress("LongMethod")
@@ -290,14 +295,9 @@ class ZacClient {
         logger.info {
             "Creating zaak with group id: $groupId and group name: $groupName"
         }
-        val response = khttp.post(
+        return performPostRequest(
             url = "${ZAC_API_URI}/zaken/zaak",
-            headers = mapOf(
-                "Accept" to "application/json",
-                "Content-Type" to "application/json",
-                "Authorization" to "Bearer ${KeycloakClient.requestAccessToken()}"
-            ),
-            data = "{\n" +
+            requestBodyAsString = "{\n" +
                 "  \"zaak\": {\n" +
                 "    \"zaaktype\": {\n" +
                 "      \"uuid\": \"$zaakTypeUUID\"\n" +
@@ -319,32 +319,14 @@ class ZacClient {
                 "  \"bagObjecten\": []\n" +
                 "}"
         )
-        logger.info { "POST zaak create response: ${response.text}" }
-        return response
     }
 
-    @Suppress("LongMethod")
-    fun assignZaakToGroup(groupId: String): Response {
-        logger.info {
-            "Assigning a zaak to a group with group name: $groupId"
-        }
-        // note that this HTTP request currently requires the following environment variable
-        // to be set when running this test: JAVA_TOOL_OPTIONS=--add-opens=java.base/java.net=ALL-UNNAMED
-        // see: https://github.com/lojewalo/khttp/issues/88
-        val response = khttp.patch(
-            url = "${ZAC_API_URI}/zaken/toekennen",
-            headers = mapOf(
-                "Accept" to "application/json",
-                "Content-Type" to "application/json",
-                "Authorization" to "Bearer ${KeycloakClient.requestAccessToken()}"
-            ),
-            data = "{\n" +
-                "  \"zaakUUID\": \"$zaak1UUID\",\n" +
-                "  \"groepId\": \"$groupId\",\n" +
-                "  \"reden\": \"dummyReason\"\n" +
-                "}"
-        )
-        logger.info { "POST zaak toekennen response: ${response.text}" }
-        return response
-    }
+    private fun getDefaultHeaders() = Headers.headersOf(
+        "Authorization",
+        // perform a request to Keycloak to get an access token
+        // this can only be done after a successfull authentication
+        "Bearer ${KeycloakClient.requestAccessToken()}",
+        "Accept",
+        "application/json"
+    )
 }
