@@ -130,7 +130,7 @@ dependencies {
     warLib("org.reactivestreams:reactive-streams:1.0.4")
     // WildFly does already include the Jakarta Mail API lib so not sure why, but we need to
     // include it in the WAR or else ZAC will fail to be deployed
-    warLib("jakarta.mail:jakarta.mail-api:2.1.2")
+    warLib("jakarta.mail:jakarta.mail-api:2.1.3")
 
     // dependencies provided by Wildfly
     // update these versions when upgrading WildFly
