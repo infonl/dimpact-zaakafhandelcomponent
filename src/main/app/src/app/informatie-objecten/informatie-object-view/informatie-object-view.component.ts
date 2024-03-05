@@ -279,7 +279,6 @@ export class InformatieObjectViewComponent
     }
 
     if (
-      this.infoObject.status === InformatieobjectStatus.DEFINITIEF &&
       this.laatsteVersieInfoObject.rechten.wijzigen &&
       FileFormatUtil.isOffice(this.infoObject.formaat)
     ) {
