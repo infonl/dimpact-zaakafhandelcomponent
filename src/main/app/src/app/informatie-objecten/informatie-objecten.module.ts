@@ -15,6 +15,7 @@ import { InformatieObjectAddComponent } from "./informatie-object-add/informatie
 import { InformatieObjectVerzendenComponent } from "./informatie-object-verzenden/informatie-object-verzenden.component";
 import { DocumentIconComponent } from "../shared/document-icon/document-icon.component";
 import { InformatieObjectIndicatiesComponent } from "../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
+import { MimetypeToExtensionPipe } from "../shared/pipes/mimetypeToExtension.pipe";
 
 @NgModule({
   declarations: [
@@ -24,14 +25,15 @@ import { InformatieObjectIndicatiesComponent } from "../shared/indicaties/inform
     InformatieObjectVerzendenComponent,
   ],
   exports: [InformatieObjectAddComponent, InformatieObjectVerzendenComponent],
+  providers: [
+    { provide: RouteReuseStrategy, useClass: RouteReuseStrategyService },
+  ],
   imports: [
     SharedModule,
     InformatieObjectenRoutingModule,
     DocumentIconComponent,
     InformatieObjectIndicatiesComponent,
-  ],
-  providers: [
-    { provide: RouteReuseStrategy, useClass: RouteReuseStrategyService },
+    MimetypeToExtensionPipe,
   ],
 })
 export class InformatieObjectenModule {}

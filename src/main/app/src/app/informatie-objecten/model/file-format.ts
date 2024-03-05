@@ -21,6 +21,24 @@ export enum FileFormat {
   RTF = "application/rtf",
 }
 
+export const FileFormatExtensionMapping = {
+  [FileFormat["PDF"]]: ".pdf",
+  [FileFormat["JPEG"]]: ".jpg/.jpeg",
+  [FileFormat["BMP"]]: ".bmp",
+  [FileFormat["GIF"]]: ".gif",
+  [FileFormat["PNG"]]: ".png",
+  [FileFormat["TEXT"]]: ".txt",
+  [FileFormat["XLSX"]]: ".xlsx",
+  [FileFormat["XLS"]]: ".xls",
+  [FileFormat["PPTX"]]: ".pptx",
+  [FileFormat["PPT"]]: ".ppt",
+  [FileFormat["DOCX"]]: ".docx",
+  [FileFormat["DOC"]]: ".doc",
+  [FileFormat["ODT"]]: ".odt",
+  [FileFormat["VSD"]]: ".vsd",
+  [FileFormat["RTF"]]: ".rtf",
+};
+
 export class FileFormatUtil {
   static isPreviewAvailable(format: FileFormat): boolean {
     return (

@@ -17,6 +17,7 @@ import { InformatieObjectenModule } from "../informatie-objecten/informatie-obje
 import { ZoekenModule } from "../zoeken/zoeken.module";
 import { GebruikersvoorkeurenModule } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.module";
 import { FormulierenModule } from "../formulieren/formulieren.module";
+import { MimetypeToExtensionPipe } from "../shared/pipes/mimetypeToExtension.pipe";
 
 @NgModule({
   declarations: [
@@ -34,6 +35,7 @@ import { FormulierenModule } from "../formulieren/formulieren.module";
     ZoekenModule,
     GebruikersvoorkeurenModule,
     FormulierenModule,
+    MimetypeToExtensionPipe,
   ],
 })
 export class TakenModule {}

@@ -38,6 +38,7 @@ import { DocumentIconComponent } from "../shared/document-icon/document-icon.com
 import { InformatieObjectIndicatiesComponent } from "../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { ZaakdataFormComponent } from "./zaakdata/zaakdata-form/zaakdata-form.component";
 import { KlantKoppelComponent } from "../klanten/koppel/klanten/klant-koppel.component";
+import { MimetypeToExtensionPipe } from "../shared/pipes/mimetypeToExtension.pipe";
 
 @NgModule({
   declarations: [
@@ -77,6 +78,7 @@ import { KlantKoppelComponent } from "../klanten/koppel/klanten/klant-koppel.com
     DocumentIconComponent,
     InformatieObjectIndicatiesComponent,
     KlantKoppelComponent,
+    MimetypeToExtensionPipe,
   ],
 })
 export class ZakenModule {}

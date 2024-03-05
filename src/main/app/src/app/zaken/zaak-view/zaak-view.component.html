@@ -297,10 +297,10 @@
                                         <th mat-header-cell *matHeaderCellDef> {{'waarde.nieuw' | translate}} </th>
                                         <td mat-cell *matCellDef="let regel">
                                             <read-more *ngIf="regel.attribuutLabel !== 'zaakgeometrie'"
-                                                       [text]="regel.nieuweWaarde | empty"
+                                                       [text]="regel.nieuweWaarde | empty | mimetypeToExtension"
                                                        [maxLength]="20"></read-more>
                                             <read-more *ngIf="regel.attribuutLabel === 'zaakgeometrie'"
-                                                       [text]="regel.nieuweWaarde | location | empty"
+                                                       [text]="regel.nieuweWaarde | location | empty | mimetypeToExtension"
                                                        [maxLength]="20"></read-more>
                                         </td>
                                     </ng-container>
