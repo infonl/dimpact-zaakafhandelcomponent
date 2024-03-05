@@ -257,17 +257,18 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         licenseHeaderFile("config/licenseHeader.txt")
             .onlyIfContentMatches("FileCopyrightText: 2[0-9-]+ Lifely").updateYearWithLatest(true)
     }
-    javascript {
-        target("src/**/*.js", "src/**/*.ts")
-        targetExclude(
-            "src/e2e/node_modules/**",
-            "src/main/app/node_modules/**",
-            "src/main/app/dist/**",
-            "src/main/app/.angular/**"
-        )
+    format("e2e") {
+        target("src/e2e/**/*.js", "src/e2e/**/*.ts")
+        targetExclude("src/e2e/node_modules/**")
 
-        licenseHeaderFile("config/licenseHeader.txt", ".*")
-            .onlyIfContentMatches("FileCopyrightText: 2[0-9-]+ Lifely").updateYearWithLatest(true)
+        prettier(mapOf("prettier" to "3.2.5", "prettier-plugin-organize-imports" to "3.2.4"))
+            .config(mapOf("parser" to "typescript", "plugins" to arrayOf("prettier-plugin-organize-imports")))
+    }
+    gherkin {
+        target("src/e2e/**/*.feature")
+        targetExclude("src/e2e/node_modules/**")
+
+        gherkinUtils()
     }
 }
 
