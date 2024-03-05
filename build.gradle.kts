@@ -162,7 +162,6 @@ dependencies {
     "itestImplementation"("io.kotest:kotest-assertions-json:5.8.0")
     "itestImplementation"("org.slf4j:slf4j-simple:2.0.12")
     "itestImplementation"("io.github.oshai:kotlin-logging-jvm:6.0.3")
-    "itestImplementation"("org.danilopianini:khttp:1.6.0")         // TODO
     "itestImplementation"("com.squareup.okhttp3:okhttp:4.12.0")
     "itestImplementation"("com.squareup.okhttp3:okhttp-urlconnection:4.12.0")
     "itestImplementation"("org.awaitility:awaitility-kotlin:4.2.0")
