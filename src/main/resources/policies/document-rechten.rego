@@ -59,6 +59,7 @@ wijzigen {
 }
 wijzigen {
     recordmanager.rol in user.rollen
+    document.vergrendeld == false
     zaaktype_allowed
 }
 
