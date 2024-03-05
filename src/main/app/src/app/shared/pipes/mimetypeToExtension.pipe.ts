@@ -29,7 +29,6 @@ export class MimetypeToExtensionPipe implements PipeTransform {
       mimetype as FileFormat,
     );
     if (!isMimetypeSupported) {
-      console.log(`Unsupported mimetype: ${mimetype}`);
       return mimetype;
     }
     return this.fileFormatExtesions[mimetype];
