@@ -170,9 +170,14 @@ dependencies {
     jacocoAgentJarForItest("org.jacoco:org.jacoco.agent:0.8.11:runtime")
 }
 
-detekt {
+tasks.register<io.gitlab.arturbosch.detekt.Detekt>("detektApply") {
+    description = "Apply detekt fixes."
+    autoCorrect = true
+    ignoreFailures = true
+}
+tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
     config.setFrom("$rootDir/config/detekt.yml")
-    source.setFrom("src/main/kotlin", "src/test/kotlin", "src/itest/kotlin")
+    setSource(files("src/main/kotlin", "src/test/kotlin", "src/itest/kotlin"))
     // our Detekt configuration build builds upon the default configuration
     buildUponDefaultConfig = true
 }
@@ -271,6 +276,7 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         gherkinUtils()
     }
 }
+tasks.getByName("spotlessApply").finalizedBy(listOf("detektApply"))
 
 // run npm install task after generating the Java clients because they
 // share the same output folder (= $rootDir)
