@@ -12,14 +12,14 @@ import {
   Output,
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
-import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
-import { Zoekopdracht } from "../model/zoekopdracht";
-import { Werklijst } from "../model/werklijst";
 import { Subscription } from "rxjs";
-import { ZoekopdrachtSaveDialogComponent } from "../zoekopdracht-save-dialog/zoekopdracht-save-dialog.component";
-import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
-import { OntkoppeldDocumentListParameters } from "../../documenten/model/ontkoppeld-document-list-parameters";
 import { InboxDocumentListParameters } from "../../documenten/model/inbox-document-list-parameters";
+import { OntkoppeldDocumentListParameters } from "../../documenten/model/ontkoppeld-document-list-parameters";
+import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
+import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
+import { Werklijst } from "../model/werklijst";
+import { Zoekopdracht } from "../model/zoekopdracht";
+import { ZoekopdrachtSaveDialogComponent } from "../zoekopdracht-save-dialog/zoekopdracht-save-dialog.component";
 
 @Component({
   selector: "zac-zoekopdracht",

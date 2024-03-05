@@ -4,9 +4,9 @@
  */
 
 import { Component } from "@angular/core";
+import { TranslateService } from "@ngx-translate/core";
 import { FormComponent } from "../../model/form-component";
 import { MessageFormField } from "./message-form-field";
-import { TranslateService } from "@ngx-translate/core";
 
 @Component({
   templateUrl: "./message.component.html",

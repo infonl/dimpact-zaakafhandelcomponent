@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
+import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { SignaleringSettings } from "../signaleringen/model/signalering-settings";
 
 @Injectable({
@@ -23,9 +23,9 @@ export class SignaleringenSettingsBeheerService {
 
   list(groupId: string): Observable<SignaleringSettings[]> {
     return this.http
-      .get<SignaleringSettings[]>(
-        `${this.basepath}/group/${groupId}/instellingen`,
-      )
+      .get<
+        SignaleringSettings[]
+      >(`${this.basepath}/group/${groupId}/instellingen`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

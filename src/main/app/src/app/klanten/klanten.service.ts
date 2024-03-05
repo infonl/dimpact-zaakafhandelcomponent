@@ -3,21 +3,21 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
-import { ListPersonenParameters } from "./model/personen/list-personen-parameters";
-import { Persoon } from "./model/personen/persoon";
-import { ListBedrijvenParameters } from "./model/bedrijven/list-bedrijven-parameters";
-import { Bedrijf } from "./model/bedrijven/bedrijf";
+import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { Resultaat } from "../shared/model/resultaat";
-import { Roltype } from "./model/klanten/roltype";
-import { IdentificatieType } from "./model/klanten/identificatieType";
-import { ContactGegevens } from "./model/klanten/contact-gegevens";
-import { PersonenParameters } from "./model/personen/personen-parameters";
+import { Bedrijf } from "./model/bedrijven/bedrijf";
+import { ListBedrijvenParameters } from "./model/bedrijven/list-bedrijven-parameters";
 import { Vestigingsprofiel } from "./model/bedrijven/vestigingsprofiel";
+import { ContactGegevens } from "./model/klanten/contact-gegevens";
+import { IdentificatieType } from "./model/klanten/identificatieType";
+import { Roltype } from "./model/klanten/roltype";
+import { ListPersonenParameters } from "./model/personen/list-personen-parameters";
+import { PersonenParameters } from "./model/personen/personen-parameters";
+import { Persoon } from "./model/personen/persoon";
 
 @Injectable({
   providedIn: "root",
@@ -82,10 +82,9 @@ export class KlantenService {
     listPersonenParameters: ListPersonenParameters,
   ): Observable<Resultaat<Persoon>> {
     return this.http
-      .put<Resultaat<Persoon>>(
-        `${this.basepath}/personen`,
-        listPersonenParameters,
-      )
+      .put<
+        Resultaat<Persoon>
+      >(`${this.basepath}/personen`, listPersonenParameters)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -95,10 +94,9 @@ export class KlantenService {
     listBedrijvenParameters: ListBedrijvenParameters,
   ): Observable<Resultaat<Bedrijf>> {
     return this.http
-      .put<Resultaat<Bedrijf>>(
-        `${this.basepath}/bedrijven`,
-        listBedrijvenParameters,
-      )
+      .put<
+        Resultaat<Bedrijf>
+      >(`${this.basepath}/bedrijven`, listBedrijvenParameters)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { UtilService } from "../../core/service/util.service";
-import { InboxDocumentenService } from "../inbox-documenten.service";
 import {
   AfterViewInit,
   Component,
@@ -12,27 +10,29 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
+import { MatDialog } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
+import { MatTableDataSource } from "@angular/material/table";
+import { ActivatedRoute } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
 import { merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
+import { UtilService } from "../../core/service/util.service";
+import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
+import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
+import { Zoekopdracht } from "../../gebruikersvoorkeuren/model/zoekopdracht";
+import { InformatieObjectVerplaatsService } from "../../informatie-objecten/informatie-object-verplaats.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { MatTableDataSource } from "@angular/material/table";
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
-import { MatDialog } from "@angular/material/dialog";
-import { TranslateService } from "@ngx-translate/core";
-import { InboxDocument } from "../model/inbox-document";
-import { InformatieObjectVerplaatsService } from "../../informatie-objecten/informatie-object-verplaats.service";
-import { InboxDocumentListParameters } from "../model/inbox-document-list-parameters";
-import { Zoekopdracht } from "../../gebruikersvoorkeuren/model/zoekopdracht";
-import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
-import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
-import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
-import { ActivatedRoute } from "@angular/router";
+import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
+import { InboxDocumentenService } from "../inbox-documenten.service";
+import { InboxDocument } from "../model/inbox-document";
+import { InboxDocumentListParameters } from "../model/inbox-document-list-parameters";
 
 @Component({
   templateUrl: "./inbox-documenten-list.component.html",

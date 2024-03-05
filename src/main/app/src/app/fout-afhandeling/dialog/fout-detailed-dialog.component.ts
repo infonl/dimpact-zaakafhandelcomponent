@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import {TranslateModule} from "@ngx-translate/core";
-import {MaterialModule} from "../../shared/material/material.module";
-import {NgIf} from "@angular/common";
+import { TranslateModule } from "@ngx-translate/core";
+import { MaterialModule } from "../../shared/material/material.module";
 
 @Component({
   standalone: true,
@@ -15,18 +15,19 @@ import {NgIf} from "@angular/common";
   imports: [TranslateModule, MaterialModule, NgIf],
   styles: `
     .details {
-      background: #EEEEEE;
+      background: #eeeeee;
       padding: 12px 12px 12px;
       overflow-x: scroll;
     }
-  `
+  `,
 })
 export class FoutDetailedDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<FoutDetailedDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: {
-      error: string
-      details: string
+    @Inject(MAT_DIALOG_DATA)
+    public data: {
+      error: string;
+      details: string;
     },
   ) {}
 

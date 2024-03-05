@@ -3,14 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
+import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { ListParameters } from "../shared/model/list-parameters";
-import { InboxProductaanvraagResultaat } from "./model/inbox-productaanvraag-resultaat";
 import { InboxProductaanvraag } from "./model/inbox-productaanvraag";
+import { InboxProductaanvraagResultaat } from "./model/inbox-productaanvraag-resultaat";
 
 @Injectable({
   providedIn: "root",

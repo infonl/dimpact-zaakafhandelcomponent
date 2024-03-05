@@ -4,22 +4,22 @@
  */
 
 import { Injectable } from "@angular/core";
+import { TranslateService } from "@ngx-translate/core";
+import { FormulierDefinitieID } from "../../admin/model/formulier-definitie";
+import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
+import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
+import { KlantenService } from "../../klanten/klanten.service";
+import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
+import { TakenService } from "../../taken/taken.service";
+import { ZakenService } from "../../zaken/zaken.service";
 import { AanvullendeInformatie } from "./model/aanvullende-informatie";
-import { TaakFormulierBuilder } from "./taak-formulier-builder";
 import { Advies } from "./model/advies";
 import { DefaultTaakformulier } from "./model/default-taakformulier";
-import { TranslateService } from "@ngx-translate/core";
-import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { TakenService } from "../../taken/taken.service";
-import { Goedkeuren } from "./model/goedkeuren";
-import { ExternAdviesVastleggen } from "./model/extern-advies-vastleggen";
-import { ZakenService } from "../../zaken/zaken.service";
-import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
-import { ExternAdviesMail } from "./model/extern-advies-mail";
-import { FormulierDefinitieID } from "../../admin/model/formulier-definitie";
-import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
-import { KlantenService } from "../../klanten/klanten.service";
 import { DocumentVerzendenPost } from "./model/document-verzenden-post";
+import { ExternAdviesMail } from "./model/extern-advies-mail";
+import { ExternAdviesVastleggen } from "./model/extern-advies-vastleggen";
+import { Goedkeuren } from "./model/goedkeuren";
+import { TaakFormulierBuilder } from "./taak-formulier-builder";
 
 @Injectable({
   providedIn: "root",

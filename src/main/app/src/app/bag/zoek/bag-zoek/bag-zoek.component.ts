@@ -10,16 +10,16 @@ import {
   Output,
   ViewChild,
 } from "@angular/core";
-import { MatTable, MatTableDataSource } from "@angular/material/table";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { BAGService } from "../../bag.service";
-import { ListAdressenParameters } from "../../model/list-adressen-parameters";
+import { MatDrawer, MatSidenav } from "@angular/material/sidenav";
+import { MatTable, MatTableDataSource } from "@angular/material/table";
+import { Router } from "@angular/router";
 import { UtilService } from "../../../core/service/util.service";
+import { BAGService } from "../../bag.service";
+import { Adres } from "../../model/adres";
 import { BAGObject } from "../../model/bagobject";
 import { BAGObjecttype } from "../../model/bagobjecttype";
-import { Adres } from "../../model/adres";
-import { MatDrawer, MatSidenav } from "@angular/material/sidenav";
-import { Router } from "@angular/router";
+import { ListAdressenParameters } from "../../model/list-adressen-parameters";
 
 @Component({
   selector: "zac-bag-zoek",

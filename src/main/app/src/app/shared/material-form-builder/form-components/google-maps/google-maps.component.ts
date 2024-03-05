@@ -10,12 +10,12 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
-import { FormComponent } from "../../model/form-component";
-import { GoogleMapsFormField } from "./google-maps-form-field";
 import { GoogleMap, MapInfoWindow } from "@angular/google-maps";
-import { GoogleMapsService } from "../../service/google-maps.service";
-import { Subscription } from "rxjs";
 import { TranslateService } from "@ngx-translate/core";
+import { Subscription } from "rxjs";
+import { FormComponent } from "../../model/form-component";
+import { GoogleMapsService } from "../../service/google-maps.service";
+import { GoogleMapsFormField } from "./google-maps-form-field";
 import LatLng = google.maps.LatLng;
 
 @Component({

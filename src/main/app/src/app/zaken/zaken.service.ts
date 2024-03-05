@@ -3,47 +3,47 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
-import { Zaak } from "./model/zaak";
-import { Observable } from "rxjs";
 import { HttpClient, HttpParams } from "@angular/common/http";
+import { Injectable } from "@angular/core";
+import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
-import { TableRequest } from "../shared/dynamic-table/datasource/table-request";
-import { Zaaktype } from "./model/zaaktype";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { ZaakOverzicht } from "./model/zaak-overzicht";
-import { ZaakToekennenGegevens } from "./model/zaak-toekennen-gegevens";
-import { User } from "../identity/model/user";
-import { ZakenVerdeelGegevens } from "./model/zaken-verdeel-gegevens";
-import { HistorieRegel } from "../shared/historie/model/historie-regel";
-import { Group } from "../identity/model/group";
-import { ZaakEditMetRedenGegevens } from "./model/zaak-edit-met-reden-gegevens";
-import { ZaakBetrokkeneGegevens } from "./model/zaak-betrokkene-gegevens";
+import { ZaakAfzender } from "../admin/model/zaakafzender";
 import { ZaakbeeindigReden } from "../admin/model/zaakbeeindig-reden";
-import { ZaakAfbrekenGegevens } from "./model/zaak-afbreken-gegevens";
+import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { Group } from "../identity/model/group";
+import { User } from "../identity/model/user";
+import { EnkelvoudigInformatieobject } from "../informatie-objecten/model/enkelvoudig-informatieobject";
+import { Klant } from "../klanten/model/klanten/klant";
+import { Roltype } from "../klanten/model/klanten/roltype";
+import { TableRequest } from "../shared/dynamic-table/datasource/table-request";
+import { HistorieRegel } from "../shared/historie/model/historie-regel";
+import { ZaakZoekObject } from "../zoeken/model/zaken/zaak-zoek-object";
+import { Besluit } from "./model/besluit";
+import { BesluitIntrekkenGegevens } from "./model/besluit-intrekken-gegevens";
+import { BesluitVastleggenGegevens } from "./model/besluit-vastleggen-gegevens";
+import { BesluitWijzigenGegevens } from "./model/besluit-wijzigen-gegevens";
+import { Besluittype } from "./model/besluittype";
 import { DocumentOntkoppelGegevens } from "./model/document-ontkoppel-gegevens";
+import { Geometry } from "./model/geometry";
+import { Resultaattype } from "./model/resultaattype";
+import { Zaak } from "./model/zaak";
+import { ZaakAanmaakGegevens } from "./model/zaak-aanmaak-gegevens";
+import { ZaakAfbrekenGegevens } from "./model/zaak-afbreken-gegevens";
+import { ZaakAfsluitenGegevens } from "./model/zaak-afsluiten-gegevens";
+import { ZaakBetrokkene } from "./model/zaak-betrokkene";
+import { ZaakBetrokkeneGegevens } from "./model/zaak-betrokkene-gegevens";
+import { ZaakEditMetRedenGegevens } from "./model/zaak-edit-met-reden-gegevens";
+import { ZaakHeropenenGegevens } from "./model/zaak-heropenen-gegevens";
+import { ZaakKoppelGegevens } from "./model/zaak-koppel-gegevens";
+import { ZaakLocatieGegevens } from "./model/zaak-locatie-gegevens";
+import { ZaakOntkoppelGegevens } from "./model/zaak-ontkoppel-gegevens";
 import { ZaakOpschortGegevens } from "./model/zaak-opschort-gegevens";
 import { ZaakOpschorting } from "./model/zaak-opschorting";
+import { ZaakOverzicht } from "./model/zaak-overzicht";
+import { ZaakToekennenGegevens } from "./model/zaak-toekennen-gegevens";
 import { ZaakVerlengGegevens } from "./model/zaak-verleng-gegevens";
-import { ZaakZoekObject } from "../zoeken/model/zaken/zaak-zoek-object";
-import { ZaakHeropenenGegevens } from "./model/zaak-heropenen-gegevens";
-import { ZaakAfsluitenGegevens } from "./model/zaak-afsluiten-gegevens";
-import { ZaakKoppelGegevens } from "./model/zaak-koppel-gegevens";
-import { ZaakOntkoppelGegevens } from "./model/zaak-ontkoppel-gegevens";
-import { Roltype } from "../klanten/model/klanten/roltype";
-import { ZaakBetrokkene } from "./model/zaak-betrokkene";
-import { Klant } from "../klanten/model/klanten/klant";
-import { BesluitVastleggenGegevens } from "./model/besluit-vastleggen-gegevens";
-import { Besluit } from "./model/besluit";
-import { Resultaattype } from "./model/resultaattype";
-import { Besluittype } from "./model/besluittype";
-import { EnkelvoudigInformatieobject } from "../informatie-objecten/model/enkelvoudig-informatieobject";
-import { BesluitWijzigenGegevens } from "./model/besluit-wijzigen-gegevens";
-import { ZaakAfzender } from "../admin/model/zaakafzender";
-import { ZaakAanmaakGegevens } from "./model/zaak-aanmaak-gegevens";
-import { BesluitIntrekkenGegevens } from "./model/besluit-intrekken-gegevens";
-import { ZaakLocatieGegevens } from "./model/zaak-locatie-gegevens";
-import { Geometry } from "./model/geometry";
+import { Zaaktype } from "./model/zaaktype";
+import { ZakenVerdeelGegevens } from "./model/zaken-verdeel-gegevens";
 
 @Injectable({
   providedIn: "root",
@@ -447,9 +447,9 @@ export class ZakenService {
     inclusiefEFormulier?: boolean,
   ): Observable<{ naam: string; uuid: string }[]> {
     return this.http
-      .get<string[]>(
-        `${this.basepath}/communicatiekanalen/${inclusiefEFormulier}`,
-      )
+      .get<
+        string[]
+      >(`${this.basepath}/communicatiekanalen/${inclusiefEFormulier}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -477,9 +477,9 @@ export class ZakenService {
     besluitUuid: string,
   ): Observable<EnkelvoudigInformatieobject[]> {
     return this.http
-      .get<EnkelvoudigInformatieobject[]>(
-        `${this.basepath}/listBesluitInformatieobjecten/${besluitUuid}`,
-      )
+      .get<
+        EnkelvoudigInformatieobject[]
+      >(`${this.basepath}/listBesluitInformatieobjecten/${besluitUuid}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

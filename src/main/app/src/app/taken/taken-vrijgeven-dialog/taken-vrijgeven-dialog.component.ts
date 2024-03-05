@@ -5,10 +5,10 @@
 
 import { Component, Inject, OnInit } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { TakenService } from "../taken.service";
-import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { InputFormField } from "../../shared/material-form-builder/form-components/input/input-form-field";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
+import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
+import { TakenService } from "../taken.service";
 
 @Component({
   selector: "zac-taken-vrijgeven-dialog",

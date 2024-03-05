@@ -3,26 +3,26 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
-import { TaakDocumentUploadFormField } from "./taak-document-upload-form-field";
-import { FormComponent } from "../../model/form-component";
 import {
   HttpClient,
   HttpEvent,
   HttpEventType,
   HttpHeaders,
 } from "@angular/common/http";
-import { Observable, Subscription } from "rxjs";
-import { FoutAfhandelingService } from "../../../../fout-afhandeling/fout-afhandeling.service";
+import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import {
   FormBuilder,
   FormControl,
   FormGroup,
   Validators,
 } from "@angular/forms";
+import { TranslateService } from "@ngx-translate/core";
+import { Observable, Subscription } from "rxjs";
+import { FoutAfhandelingService } from "../../../../fout-afhandeling/fout-afhandeling.service";
 import { InformatieObjectenService } from "../../../../informatie-objecten/informatie-objecten.service";
 import { Informatieobjecttype } from "../../../../informatie-objecten/model/informatieobjecttype";
-import { TranslateService } from "@ngx-translate/core";
+import { FormComponent } from "../../model/form-component";
+import { TaakDocumentUploadFormField } from "./taak-document-upload-form-field";
 
 @Component({
   templateUrl: "./taak-document-upload.component.html",

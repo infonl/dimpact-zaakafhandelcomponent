@@ -4,10 +4,10 @@
  */
 
 import { Component, OnInit } from "@angular/core";
-import { FormComponent } from "../../model/form-component";
-import { DateFormField } from "./date-form-field";
 import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
+import { FormComponent } from "../../model/form-component";
+import { DateFormField } from "./date-form-field";
 
 @Component({
   templateUrl: "./date.component.html",

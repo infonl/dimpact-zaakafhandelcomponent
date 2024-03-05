@@ -5,20 +5,20 @@
 
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
-import { ParametersComponent } from "./parameters/parameters.component";
-import { ParameterEditComponent } from "./parameter-edit/parameter-edit.component";
-import { ZaakafhandelParametersResolver } from "./zaakafhandel-parameters-resolver.service";
-import { GroepSignaleringenComponent } from "./groep-signaleringen/groep-signaleringen.component";
+import { FormulierDefinitieEditComponent } from "./formulier-definitie-edit/formulier-definitie-edit.component";
+import { FormulierDefinitieResolverService } from "./formulier-definitie-edit/formulier-definitie-resolver.service";
 import { FormulierDefinitiesComponent } from "./formulier-definities/formulier-definities.component";
+import { GroepSignaleringenComponent } from "./groep-signaleringen/groep-signaleringen.component";
+import { InrichtingscheckComponent } from "./inrichtingscheck/inrichtingscheck.component";
+import { MailtemplateResolver } from "./mailtemplate-resolver.service";
+import { MailtemplateComponent } from "./mailtemplate/mailtemplate.component";
+import { MailtemplatesComponent } from "./mailtemplates/mailtemplates.component";
+import { ParameterEditComponent } from "./parameter-edit/parameter-edit.component";
+import { ParametersComponent } from "./parameters/parameters.component";
 import { ReferentieTabelResolver } from "./referentie-tabel-resolver.service";
 import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.component";
-import { InrichtingscheckComponent } from "./inrichtingscheck/inrichtingscheck.component";
-import { MailtemplatesComponent } from "./mailtemplates/mailtemplates.component";
-import { MailtemplateComponent } from "./mailtemplate/mailtemplate.component";
-import { MailtemplateResolver } from "./mailtemplate-resolver.service";
 import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-tabellen.component";
-import { FormulierDefinitieResolverService } from "./formulier-definitie-edit/formulier-definitie-resolver.service";
-import { FormulierDefinitieEditComponent } from "./formulier-definitie-edit/formulier-definitie-edit.component";
+import { ZaakafhandelParametersResolver } from "./zaakafhandel-parameters-resolver.service";
 
 const routes: Routes = [
   {

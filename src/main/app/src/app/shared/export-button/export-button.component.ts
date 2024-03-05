@@ -4,9 +4,9 @@
  */
 
 import { Component, Input } from "@angular/core";
-import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
-import { CsvService } from "../../csv/csv.service";
 import { UtilService } from "../../core/service/util.service";
+import { CsvService } from "../../csv/csv.service";
+import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
 
 @Component({
   selector: "zac-export-button[zoekParameters][filename]",

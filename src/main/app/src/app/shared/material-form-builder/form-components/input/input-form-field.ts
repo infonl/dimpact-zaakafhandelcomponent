@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { FieldType } from "../../model/field-type.enum";
+import { EventEmitter } from "@angular/core";
+import { Subject } from "rxjs";
 import { ActionIcon } from "../../../edit/action-icon";
 import { AbstractFormControlField } from "../../model/abstract-form-control-field";
-import { Subject } from "rxjs";
-import { EventEmitter } from "@angular/core";
+import { FieldType } from "../../model/field-type.enum";
 
 export class InputFormField extends AbstractFormControlField {
   fieldType: FieldType = FieldType.INPUT;

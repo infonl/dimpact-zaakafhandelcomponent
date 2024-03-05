@@ -12,22 +12,22 @@ import {
   ViewChild,
 } from "@angular/core";
 
-import { ZoekObject } from "../model/zoek-object";
-import { ZoekenService } from "../zoeken.service";
-import { ZoekParameters } from "../model/zoek-parameters";
+import { FormControl } from "@angular/forms";
 import { MatPaginator } from "@angular/material/paginator";
+import { MatSidenav } from "@angular/material/sidenav";
 import { merge } from "rxjs";
 import { map, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
-import { MatSidenav } from "@angular/material/sidenav";
-import { ZaakZoekObject } from "../model/zaken/zaak-zoek-object";
-import { FormControl } from "@angular/forms";
+import { DocumentZoekObject } from "../model/documenten/document-zoek-object";
 import { TaakZoekObject } from "../model/taken/taak-zoek-object";
+import { ZaakZoekObject } from "../model/zaken/zaak-zoek-object";
+import { ZoekObject } from "../model/zoek-object";
+import { ZoekObjectType } from "../model/zoek-object-type";
+import { ZoekParameters } from "../model/zoek-parameters";
 import { ZoekResultaat } from "../model/zoek-resultaat";
 import { ZoekType } from "../model/zoek-type";
-import { DocumentZoekObject } from "../model/documenten/document-zoek-object";
-import { ZoekObjectType } from "../model/zoek-object-type";
 import { ZoekVeld } from "../model/zoek-veld";
+import { ZoekenService } from "../zoeken.service";
 
 @Component({
   selector: "zac-zoeken",

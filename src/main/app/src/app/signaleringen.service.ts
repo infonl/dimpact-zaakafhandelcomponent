@@ -3,15 +3,15 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
-import { SignaleringType } from "./shared/signaleringen/signalering-type";
-import { BehaviorSubject, Observable } from "rxjs";
-import { ZaakOverzicht } from "./zaken/model/zaak-overzicht";
-import { catchError, switchMap } from "rxjs/operators";
 import { HttpClient } from "@angular/common/http";
+import { Injectable } from "@angular/core";
+import { BehaviorSubject, Observable } from "rxjs";
+import { catchError, switchMap } from "rxjs/operators";
 import { FoutAfhandelingService } from "./fout-afhandeling/fout-afhandeling.service";
-import { Taak } from "./taken/model/taak";
 import { EnkelvoudigInformatieobject } from "./informatie-objecten/model/enkelvoudig-informatieobject";
+import { SignaleringType } from "./shared/signaleringen/signalering-type";
+import { Taak } from "./taken/model/taak";
+import { ZaakOverzicht } from "./zaken/model/zaak-overzicht";
 
 @Injectable({
   providedIn: "root",
@@ -64,9 +64,9 @@ export class SignaleringenService {
     signaleringType: SignaleringType,
   ): Observable<EnkelvoudigInformatieobject[]> {
     return this.http
-      .get<EnkelvoudigInformatieobject[]>(
-        `${this.basepath}/informatieobjecten/${signaleringType}`,
-      )
+      .get<
+        EnkelvoudigInformatieobject[]
+      >(`${this.basepath}/informatieobjecten/${signaleringType}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

@@ -4,8 +4,8 @@
  */
 
 import { Observable, Subject } from "rxjs";
-import { AbstractFormControlField } from "./abstract-form-control-field";
 import { FileIcon } from "../../../informatie-objecten/model/file-icon";
+import { AbstractFormControlField } from "./abstract-form-control-field";
 
 export abstract class AbstractFileFormField extends AbstractFormControlField {
   fileIcons = [...FileIcon.fileIcons];

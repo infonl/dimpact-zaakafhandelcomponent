@@ -3,21 +3,21 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { LOCALE_ID, NgModule, Optional, SkipSelf } from "@angular/core";
-import { EnsureModuleLoadedOnceGuard } from "./ensure-module-loaded-once.guard";
-import { HttpClient, HttpClientModule } from "@angular/common/http";
-import { TranslateHttpLoader } from "@ngx-translate/http-loader";
-import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
-import { UtilService } from "./service/util.service";
-import { MAT_DATE_LOCALE } from "@angular/material/core";
 import { registerLocaleData } from "@angular/common";
+import { HttpClient, HttpClientModule } from "@angular/common/http";
 import localeNl from "@angular/common/locales/nl";
-import { LoadingComponent } from "./loading/loading.component";
-import { SharedModule } from "../shared/shared.module";
+import { LOCALE_ID, NgModule, Optional, SkipSelf } from "@angular/core";
+import { MAT_DATE_LOCALE } from "@angular/material/core";
 import {
   MAT_DIALOG_DEFAULT_OPTIONS,
   MatDialogConfig,
 } from "@angular/material/dialog";
+import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
+import { TranslateHttpLoader } from "@ngx-translate/http-loader";
+import { SharedModule } from "../shared/shared.module";
+import { EnsureModuleLoadedOnceGuard } from "./ensure-module-loaded-once.guard";
+import { LoadingComponent } from "./loading/loading.component";
+import { UtilService } from "./service/util.service";
 
 registerLocaleData(localeNl, "nl-NL");
 

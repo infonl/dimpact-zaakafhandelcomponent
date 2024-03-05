@@ -3,13 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Input, OnInit } from "@angular/core";
-import { MaterialFormBuilderService } from "../../material-form-builder/material-form-builder.service";
+import { Component, Input } from "@angular/core";
 import { UtilService } from "../../../core/service/util.service";
-import { SelectFormField } from "../../material-form-builder/form-components/select/select-form-field";
-import { EditComponent } from "../edit.component";
 import { InputFormField } from "../../material-form-builder/form-components/input/input-form-field";
-import { Validators } from "@angular/forms";
+import { SelectFormField } from "../../material-form-builder/form-components/select/select-form-field";
+import { MaterialFormBuilderService } from "../../material-form-builder/material-form-builder.service";
+import { EditComponent } from "../edit.component";
 
 @Component({
   selector: "zac-edit-select",

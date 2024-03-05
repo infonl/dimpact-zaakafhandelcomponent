@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { Injectable } from "@angular/core";
 import {
   ActivatedRouteSnapshot,
   DetachedRouteHandle,
   RouteReuseStrategy,
 } from "@angular/router";
-import { Injectable } from "@angular/core";
 
 @Injectable({
   providedIn: "root",

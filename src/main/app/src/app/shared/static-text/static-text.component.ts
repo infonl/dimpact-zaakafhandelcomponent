@@ -12,8 +12,8 @@ import {
   Output,
   SimpleChanges,
 } from "@angular/core";
-import { TextIcon } from "../edit/text-icon";
 import { FormControl } from "@angular/forms";
+import { TextIcon } from "../edit/text-icon";
 
 @Component({
   selector: "zac-static-text",

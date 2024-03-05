@@ -8,18 +8,16 @@ import {
   EventEmitter,
   HostBinding,
   Input,
-  OnChanges,
   OnDestroy,
   OnInit,
   Output,
-  SimpleChanges,
 } from "@angular/core";
-import { AbstractFormField } from "../material-form-builder/model/abstract-form-field";
-import { MaterialFormBuilderService } from "../material-form-builder/material-form-builder.service";
-import { StaticTextComponent } from "../static-text/static-text.component";
+import { FormControlStatus, FormGroup } from "@angular/forms";
 import { Subscription } from "rxjs";
 import { UtilService } from "../../core/service/util.service";
-import { FormControlStatus, FormGroup } from "@angular/forms";
+import { MaterialFormBuilderService } from "../material-form-builder/material-form-builder.service";
+import { AbstractFormField } from "../material-form-builder/model/abstract-form-field";
+import { StaticTextComponent } from "../static-text/static-text.component";
 
 @Component({
   template: "",

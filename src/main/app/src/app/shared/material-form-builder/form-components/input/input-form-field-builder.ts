@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { ActionIcon } from "../../../edit/action-icon";
 import { AbstractFormFieldBuilder } from "../../model/abstract-form-field-builder";
 import { InputFormField } from "./input-form-field";
-import { ActionIcon } from "../../../edit/action-icon";
 
 export class InputFormFieldBuilder extends AbstractFormFieldBuilder {
   readonly formField: InputFormField;

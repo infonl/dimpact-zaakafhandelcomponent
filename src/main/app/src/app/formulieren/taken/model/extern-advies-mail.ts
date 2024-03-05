@@ -4,25 +4,25 @@
  */
 
 import { Validators } from "@angular/forms";
-import { TextareaFormFieldBuilder } from "../../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { TranslateService } from "@ngx-translate/core";
+import { Mail } from "../../../admin/model/mail";
+import { ZaakAfzender } from "../../../admin/model/zaakafzender";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
-import { TakenService } from "../../../taken/taken.service";
+import { InformatieobjectZoekParameters } from "../../../informatie-objecten/model/informatieobject-zoek-parameters";
+import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
+import { DocumentenLijstFieldBuilder } from "../../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
+import { HiddenFormFieldBuilder } from "../../../shared/material-form-builder/form-components/hidden/hidden-form-field-builder";
+import { HtmlEditorFormFieldBuilder } from "../../../shared/material-form-builder/form-components/html-editor/html-editor-form-field-builder";
+import { InputFormFieldBuilder } from "../../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { ParagraphFormFieldBuilder } from "../../../shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
 import { ReadonlyFormFieldBuilder } from "../../../shared/material-form-builder/form-components/readonly/readonly-form-field-builder";
-import { InputFormFieldBuilder } from "../../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { CustomValidators } from "../../../shared/validators/customValidators";
-import { InformatieobjectZoekParameters } from "../../../informatie-objecten/model/informatieobject-zoek-parameters";
-import { Mail } from "../../../admin/model/mail";
-import { HtmlEditorFormFieldBuilder } from "../../../shared/material-form-builder/form-components/html-editor/html-editor-form-field-builder";
-import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
-import { AbstractTaakFormulier } from "../abstract-taak-formulier";
-import { SelectFormFieldBuilder } from "../../../shared/material-form-builder/form-components/select/select-form-field-builder";
-import { ZakenService } from "../../../zaken/zaken.service";
-import { HiddenFormFieldBuilder } from "../../../shared/material-form-builder/form-components/hidden/hidden-form-field-builder";
-import { ZaakAfzender } from "../../../admin/model/zaakafzender";
 import { SelectFormField } from "../../../shared/material-form-builder/form-components/select/select-form-field";
-import { DocumentenLijstFieldBuilder } from "../../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
+import { SelectFormFieldBuilder } from "../../../shared/material-form-builder/form-components/select/select-form-field-builder";
+import { TextareaFormFieldBuilder } from "../../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
+import { CustomValidators } from "../../../shared/validators/customValidators";
+import { TakenService } from "../../../taken/taken.service";
+import { ZakenService } from "../../../zaken/zaken.service";
+import { AbstractTaakFormulier } from "../abstract-taak-formulier";
 
 export class ExternAdviesMail extends AbstractTaakFormulier {
   fields = {

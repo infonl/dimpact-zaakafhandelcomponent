@@ -5,8 +5,8 @@
 
 import { Component, Input } from "@angular/core";
 
-import { ZaakZoekObject } from "../../model/zaken/zaak-zoek-object";
 import { MatSidenav } from "@angular/material/sidenav";
+import { ZaakZoekObject } from "../../model/zaken/zaak-zoek-object";
 import { ZoekObjectComponent } from "../zoek-object/zoek-object-component";
 
 @Component({

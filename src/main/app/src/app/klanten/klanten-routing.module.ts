@@ -5,10 +5,10 @@
 
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
-import { PersoonViewComponent } from "./persoon-view/persoon-view.component";
-import { BedrijfViewComponent } from "./bedrijf-view/bedrijf-view.component";
 import { BedrijfResolverService } from "./bedrijf-view/bedrijf-resolver.service";
+import { BedrijfViewComponent } from "./bedrijf-view/bedrijf-view.component";
 import { PersoonResolverService } from "./persoon-view/persoon-resolver.service";
+import { PersoonViewComponent } from "./persoon-view/persoon-view.component";
 
 const routes: Routes = [
   {

@@ -4,8 +4,8 @@
  */
 
 import { Pipe, PipeTransform } from "@angular/core";
-import moment from "moment";
 import { TranslateService } from "@ngx-translate/core";
+import moment from "moment";
 
 @Pipe({ name: "dagen" })
 export class DagenPipe implements PipeTransform {

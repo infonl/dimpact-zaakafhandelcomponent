@@ -7,24 +7,24 @@ import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
 
 import { detailExpand } from "../../shared/animations/animations";
 
-import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
-import { UtilService } from "../../core/service/util.service";
-import { ZakenService } from "../zaken.service";
-import { MatTable } from "@angular/material/table";
-import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
-import { ZoekenService } from "../../zoeken/zoeken.service";
-import { TextIcon } from "../../shared/edit/text-icon";
-import { Conditionals } from "../../shared/edit/conditional-fn";
-import { SorteerVeld } from "../../zoeken/model/sorteer-veld";
-import { ZakenAfgehandeldDatasource } from "./zaken-afgehandeld-datasource";
-import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
-import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
-import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
+import { MatTable } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
+import { UtilService } from "../../core/service/util.service";
+import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
+import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
+import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
+import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
+import { Conditionals } from "../../shared/edit/conditional-fn";
+import { TextIcon } from "../../shared/edit/text-icon";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
+import { SorteerVeld } from "../../zoeken/model/sorteer-veld";
+import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
+import { ZoekenService } from "../../zoeken/zoeken.service";
+import { ZakenService } from "../zaken.service";
+import { ZakenAfgehandeldDatasource } from "./zaken-afgehandeld-datasource";
 
 @Component({
   templateUrl: "./zaken-afgehandeld.component.html",

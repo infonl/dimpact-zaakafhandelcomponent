@@ -4,30 +4,30 @@
  */
 
 import { Injectable, Type } from "@angular/core";
-import { FieldType } from "./model/field-type.enum";
-import { FormItem } from "./model/form-item";
-import { AbstractFormField } from "./model/abstract-form-field";
-import { InputComponent } from "./form-components/input/input.component";
-import { FormComponent } from "./model/form-component";
-import { DateComponent } from "./form-components/date/date.component";
-import { TextareaComponent } from "./form-components/textarea/textarea.component";
-import { HeadingComponent } from "./form-components/heading/heading.component";
-import { SelectComponent } from "./form-components/select/select.component";
-import { GoogleMapsComponent } from "./form-components/google-maps/google-maps.component";
-import { ReadonlyComponent } from "./form-components/readonly/readonly.component";
-import { FileComponent } from "./form-components/file/file.component";
 import { AutocompleteComponent } from "./form-components/autocomplete/autocomplete.component";
 import { CheckboxComponent } from "./form-components/checkbox/checkbox.component";
-import { TaakDocumentUploadComponent } from "./form-components/taak-document-upload/taak-document-upload.component";
-import { RadioComponent } from "./form-components/radio/radio.component";
-import { ParagraphComponent } from "./form-components/paragraph/paragraph.component";
-import { MedewerkerGroepComponent } from "./form-components/medewerker-groep/medewerker-groep.component";
+import { DateComponent } from "./form-components/date/date.component";
 import { DividerComponent } from "./form-components/divider/divider.component";
-import { HiddenComponent } from "./form-components/hidden/hidden.component";
-import { HtmlEditorComponent } from "./form-components/html-editor/html-editor.component";
 import { DocumentenLijstComponent } from "./form-components/documenten-lijst/documenten-lijst.component";
 import { DocumentenOndertekenenComponent } from "./form-components/documenten-ondertekenen/documenten-ondertekenen.component";
+import { FileComponent } from "./form-components/file/file.component";
+import { GoogleMapsComponent } from "./form-components/google-maps/google-maps.component";
+import { HeadingComponent } from "./form-components/heading/heading.component";
+import { HiddenComponent } from "./form-components/hidden/hidden.component";
+import { HtmlEditorComponent } from "./form-components/html-editor/html-editor.component";
+import { InputComponent } from "./form-components/input/input.component";
+import { MedewerkerGroepComponent } from "./form-components/medewerker-groep/medewerker-groep.component";
 import { MessageComponent } from "./form-components/message/message.component";
+import { ParagraphComponent } from "./form-components/paragraph/paragraph.component";
+import { RadioComponent } from "./form-components/radio/radio.component";
+import { ReadonlyComponent } from "./form-components/readonly/readonly.component";
+import { SelectComponent } from "./form-components/select/select.component";
+import { TaakDocumentUploadComponent } from "./form-components/taak-document-upload/taak-document-upload.component";
+import { TextareaComponent } from "./form-components/textarea/textarea.component";
+import { AbstractFormField } from "./model/abstract-form-field";
+import { FieldType } from "./model/field-type.enum";
+import { FormComponent } from "./model/form-component";
+import { FormItem } from "./model/form-item";
 
 @Injectable({
   providedIn: "root",

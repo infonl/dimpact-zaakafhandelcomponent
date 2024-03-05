@@ -14,32 +14,32 @@ import {
   Output,
   ViewChild,
 } from "@angular/core";
+import { FormControl } from "@angular/forms";
+import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
+import { MatDrawer } from "@angular/material/sidenav";
+import * as control from "ol/control.js";
+import { Coordinate } from "ol/coordinate.js";
+import * as extent from "ol/extent.js";
+import * as geom from "ol/geom.js";
 import * as ol from "ol/index.js";
+import * as interaction from "ol/interaction.js";
 import * as layer from "ol/layer.js";
 import * as proj from "ol/proj.js";
-import * as geom from "ol/geom.js";
 import * as source from "ol/source.js";
-import WMTSTileGrid from "ol/tilegrid/WMTS.js";
-import * as extent from "ol/extent.js";
-import * as control from "ol/control.js";
 import * as style from "ol/style.js";
-import { Coordinate } from "ol/coordinate.js";
-import * as interaction from "ol/interaction.js";
+import WMTSTileGrid from "ol/tilegrid/WMTS.js";
+import { Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
+import { environment } from "src/environments/environment";
+import { LocationUtil } from "../../../shared/location/location-util";
 import {
   AddressResult,
   LocationService,
   SuggestResult,
 } from "../../../shared/location/location.service";
-import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
-import { FormControl } from "@angular/forms";
-import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
-import { LocationUtil } from "../../../shared/location/location-util";
 import { Geometry } from "../../model/geometry";
-import { GeometryType } from "../../model/geometryType";
 import { GeometryGegevens } from "../../model/geometry-gegevens";
-import { MatDrawer } from "@angular/material/sidenav";
-import { environment } from "src/environments/environment";
+import { GeometryType } from "../../model/geometryType";
 
 @Component({
   selector: "zac-locatie-zoek",

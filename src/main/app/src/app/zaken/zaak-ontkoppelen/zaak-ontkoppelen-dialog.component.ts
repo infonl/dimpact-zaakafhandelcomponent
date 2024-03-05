@@ -4,12 +4,12 @@
  */
 
 import { Component, Inject, OnInit } from "@angular/core";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { ZakenService } from "../zaken.service";
-import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
-import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
-import { ZaakOntkoppelGegevens } from "../model/zaak-ontkoppel-gegevens";
 import { Validators } from "@angular/forms";
+import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
+import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
+import { ZaakOntkoppelGegevens } from "../model/zaak-ontkoppel-gegevens";
+import { ZakenService } from "../zaken.service";
 
 @Component({
   templateUrl: "zaak-ontkoppelen-dialog.component.html",

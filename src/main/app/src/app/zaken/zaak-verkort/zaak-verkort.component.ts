@@ -4,10 +4,10 @@
  */
 
 import { Component, Input, OnChanges } from "@angular/core";
-import { Zaak } from "../model/zaak";
 import { UtilService } from "../../core/service/util.service";
-import { TextIcon } from "../../shared/edit/text-icon";
 import { Conditionals } from "../../shared/edit/conditional-fn";
+import { TextIcon } from "../../shared/edit/text-icon";
+import { Zaak } from "../model/zaak";
 
 @Component({
   selector: "zac-zaak-verkort",

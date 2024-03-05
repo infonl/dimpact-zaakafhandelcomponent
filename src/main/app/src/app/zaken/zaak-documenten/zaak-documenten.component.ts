@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { SelectionModel } from "@angular/cdk/collections";
 import {
   AfterViewInit,
   Component,
@@ -13,38 +14,37 @@ import {
   SimpleChanges,
   ViewChild,
 } from "@angular/core";
-import { ScreenEvent } from "../../core/websocket/model/screen-event";
-import { InformatieobjectZoekParameters } from "../../informatie-objecten/model/informatieobject-zoek-parameters";
-import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
+import { Validators } from "@angular/forms";
+import { MatCheckboxChange } from "@angular/material/checkbox";
+import { MatDialog } from "@angular/material/dialog";
+import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
+import { Router } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
+import { map } from "rxjs/operators";
+import { UtilService } from "../../core/service/util.service";
+import { ObjectType } from "../../core/websocket/model/object-type";
+import { Opcode } from "../../core/websocket/model/opcode";
+import { ScreenEvent } from "../../core/websocket/model/screen-event";
+import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
+import { WebsocketService } from "../../core/websocket/websocket.service";
+import { InformatieObjectVerplaatsService } from "../../informatie-objecten/informatie-object-verplaats.service";
+import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { EnkelvoudigInformatieobject } from "../../informatie-objecten/model/enkelvoudig-informatieobject";
 import {
   FileFormat,
   FileFormatUtil,
 } from "../../informatie-objecten/model/file-format";
-import { Zaak } from "../model/zaak";
-import { Opcode } from "../../core/websocket/model/opcode";
-import { ObjectType } from "../../core/websocket/model/object-type";
-import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
-import { WebsocketService } from "../../core/websocket/websocket.service";
-import { MatSort } from "@angular/material/sort";
-import { map } from "rxjs/operators";
-import { DialogData } from "../../shared/dialog/dialog-data";
-import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
-import { DialogComponent } from "../../shared/dialog/dialog.component";
-import { UtilService } from "../../core/service/util.service";
-import { ZakenService } from "../zaken.service";
-import { MatDialog } from "@angular/material/dialog";
-import { TranslateService } from "@ngx-translate/core";
-import { detailExpand } from "../../shared/animations/animations";
-import { InformatieObjectVerplaatsService } from "../../informatie-objecten/informatie-object-verplaats.service";
-import { GekoppeldeZaakEnkelvoudigInformatieobject } from "../../informatie-objecten/model/gekoppelde.zaak.enkelvoudig.informatieobject";
-import { SelectionModel } from "@angular/cdk/collections";
-import { MatCheckboxChange } from "@angular/material/checkbox";
-import { Validators } from "@angular/forms";
-import { Router } from "@angular/router";
-import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { FileIcon } from "../../informatie-objecten/model/file-icon";
+import { GekoppeldeZaakEnkelvoudigInformatieobject } from "../../informatie-objecten/model/gekoppelde.zaak.enkelvoudig.informatieobject";
+import { InformatieobjectZoekParameters } from "../../informatie-objecten/model/informatieobject-zoek-parameters";
+import { detailExpand } from "../../shared/animations/animations";
+import { DialogData } from "../../shared/dialog/dialog-data";
+import { DialogComponent } from "../../shared/dialog/dialog.component";
+import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
+import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
+import { Zaak } from "../model/zaak";
+import { ZakenService } from "../zaken.service";
 
 @Component({
   selector: "zac-zaak-documenten",

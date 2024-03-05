@@ -5,12 +5,12 @@
 
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
+import { Werklijst } from "../gebruikersvoorkeuren/model/werklijst";
+import { TabelGegevensResolver } from "../shared/dynamic-table/datasource/tabel-gegevens-resolver.service";
 import { TaakViewComponent } from "./taak-view/taak-view.component";
 import { TaakResolver } from "./taak.resolver";
 import { TakenMijnComponent } from "./taken-mijn/taken-mijn.component";
 import { TakenWerkvoorraadComponent } from "./taken-werkvoorraad/taken-werkvoorraad.component";
-import { TabelGegevensResolver } from "../shared/dynamic-table/datasource/tabel-gegevens-resolver.service";
-import { Werklijst } from "../gebruikersvoorkeuren/model/werklijst";
 
 const routes: Routes = [
   {

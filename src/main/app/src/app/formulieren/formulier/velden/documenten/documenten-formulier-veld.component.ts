@@ -3,17 +3,17 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { SelectionModel } from "@angular/cdk/collections";
 import { Component, Input, OnInit } from "@angular/core";
 import { FormControl } from "@angular/forms";
-import { FormulierVeldDefinitie } from "../../../../admin/model/formulieren/formulier-veld-definitie";
-import { MatTableDataSource } from "@angular/material/table";
-import { EnkelvoudigInformatieobject } from "../../../../informatie-objecten/model/enkelvoudig-informatieobject";
-import { InformatieObjectenService } from "../../../../informatie-objecten/informatie-objecten.service";
-import { Zaak } from "../../../../zaken/model/zaak";
-import { InformatieobjectZoekParameters } from "../../../../informatie-objecten/model/informatieobject-zoek-parameters";
-import { SelectionModel } from "@angular/cdk/collections";
 import { MatCheckboxChange } from "@angular/material/checkbox";
+import { MatTableDataSource } from "@angular/material/table";
 import { Observable, of } from "rxjs";
+import { FormulierVeldDefinitie } from "../../../../admin/model/formulieren/formulier-veld-definitie";
+import { InformatieObjectenService } from "../../../../informatie-objecten/informatie-objecten.service";
+import { EnkelvoudigInformatieobject } from "../../../../informatie-objecten/model/enkelvoudig-informatieobject";
+import { InformatieobjectZoekParameters } from "../../../../informatie-objecten/model/informatieobject-zoek-parameters";
+import { Zaak } from "../../../../zaken/model/zaak";
 
 @Component({
   selector: "zac-documenten-formulier-veld",

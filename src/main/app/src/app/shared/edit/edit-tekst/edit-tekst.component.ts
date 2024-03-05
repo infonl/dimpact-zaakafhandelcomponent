@@ -4,12 +4,11 @@
  */
 
 import { Component, Input } from "@angular/core";
-import { EditComponent } from "../edit.component";
-import { TextareaFormField } from "../../material-form-builder/form-components/textarea/textarea-form-field";
-import { MaterialFormBuilderService } from "../../material-form-builder/material-form-builder.service";
 import { UtilService } from "../../../core/service/util.service";
 import { InputFormField } from "../../material-form-builder/form-components/input/input-form-field";
-import { Validators } from "@angular/forms";
+import { TextareaFormField } from "../../material-form-builder/form-components/textarea/textarea-form-field";
+import { MaterialFormBuilderService } from "../../material-form-builder/material-form-builder.service";
+import { EditComponent } from "../edit.component";
 
 @Component({
   selector: "zac-edit-tekst",

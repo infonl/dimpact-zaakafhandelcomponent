@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ZaakStatus } from "../../zaken/model/zaak-status";
 import { ZaakRechten } from "../../policy/model/zaak-rechten";
+import { ZaakStatus } from "../../zaken/model/zaak-status";
 
 export class ZaakInformatieobject {
   zaakIdentificatie: string;

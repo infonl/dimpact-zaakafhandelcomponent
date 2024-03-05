@@ -4,8 +4,8 @@
  */
 
 import { SignaleringType } from "../../shared/signaleringen/signalering-type";
-import { DashboardCardType } from "./dashboard-card-type";
 import { DashboardCardId } from "./dashboard-card-id";
+import { DashboardCardType } from "./dashboard-card-type";
 
 export class DashboardCard {
   readonly id: DashboardCardId;

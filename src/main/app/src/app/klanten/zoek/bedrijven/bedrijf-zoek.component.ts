@@ -5,17 +5,17 @@
 
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { InputFormFieldBuilder } from "../../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { MatTableDataSource } from "@angular/material/table";
-import { CustomValidators } from "../../../shared/validators/customValidators";
-import { Bedrijf } from "../../model/bedrijven/bedrijf";
-import { SelectFormFieldBuilder } from "../../../shared/material-form-builder/form-components/select/select-form-field-builder";
-import { ListBedrijvenParameters } from "../../model/bedrijven/list-bedrijven-parameters";
-import { KlantenService } from "../../klanten.service";
-import { AbstractFormControlField } from "../../../shared/material-form-builder/model/abstract-form-control-field";
 import { MatSidenav } from "@angular/material/sidenav";
+import { MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
 import { UtilService } from "../../../core/service/util.service";
+import { InputFormFieldBuilder } from "../../../shared/material-form-builder/form-components/input/input-form-field-builder";
+import { SelectFormFieldBuilder } from "../../../shared/material-form-builder/form-components/select/select-form-field-builder";
+import { AbstractFormControlField } from "../../../shared/material-form-builder/model/abstract-form-control-field";
+import { CustomValidators } from "../../../shared/validators/customValidators";
+import { KlantenService } from "../../klanten.service";
+import { Bedrijf } from "../../model/bedrijven/bedrijf";
+import { ListBedrijvenParameters } from "../../model/bedrijven/list-bedrijven-parameters";
 
 @Component({
   selector: "zac-bedrijf-zoek",

@@ -3,15 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  AfterViewInit,
-  Component,
-  OnDestroy,
-  OnInit,
-  ViewEncapsulation,
-} from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { BehaviorSubject, Subject, map, take, takeUntil, tap } from "rxjs";
+import { BehaviorSubject, Subject, takeUntil } from "rxjs";
 import { ActionIcon } from "../../../edit/action-icon";
 import { FormComponent } from "../../model/form-component";
 import { InputFormField } from "./input-form-field";

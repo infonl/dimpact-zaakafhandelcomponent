@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AbstractFormField } from "./abstract-form-field";
 import { TranslateService } from "@ngx-translate/core";
 import { CustomValidators } from "../../validators/customValidators";
+import { AbstractFormField } from "./abstract-form-field";
 
 export abstract class FormComponent {
   abstract translate: TranslateService;

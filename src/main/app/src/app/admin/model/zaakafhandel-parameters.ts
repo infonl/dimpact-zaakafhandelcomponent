@@ -3,15 +3,15 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { Resultaattype } from "../../zaken/model/resultaattype";
+import { ZaakStatusmailOptie } from "../../zaken/model/zaak-statusmail-optie";
 import { Zaaktype } from "../../zaken/model/zaaktype";
 import { CaseDefinition } from "./case-definition";
 import { HumanTaskParameter } from "./human-task-parameter";
-import { ZaakbeeindigParameter } from "./zaakbeeindig-parameter";
-import { UserEventListenerParameter } from "./user-event-listener-parameter";
-import { Resultaattype } from "../../zaken/model/resultaattype";
-import { ZaakStatusmailOptie } from "../../zaken/model/zaak-statusmail-optie";
 import { MailtemplateKoppeling } from "./mailtemplate-koppeling";
+import { UserEventListenerParameter } from "./user-event-listener-parameter";
 import { ZaakAfzender } from "./zaakafzender";
+import { ZaakbeeindigParameter } from "./zaakbeeindig-parameter";
 
 export class ZaakafhandelParameters {
   zaaktype: Zaaktype;

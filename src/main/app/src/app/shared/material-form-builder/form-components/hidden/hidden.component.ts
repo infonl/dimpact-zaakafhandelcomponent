@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
-import { FormComponent } from "../../model/form-component";
 import { TranslateService } from "@ngx-translate/core";
+import { FormComponent } from "../../model/form-component";
 import { HiddenFormField } from "./hidden-form-field";
 
 @Component({

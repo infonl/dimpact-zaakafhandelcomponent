@@ -10,44 +10,43 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
-import { EnkelvoudigInformatieobject } from "../model/enkelvoudig-informatieobject";
-import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
-import { InformatieObjectenService } from "../informatie-objecten.service";
-import { ActivatedRoute, Router } from "@angular/router";
-import { UtilService } from "../../core/service/util.service";
-import { ZaakInformatieobject } from "../model/zaak-informatieobject";
-import { HrefMenuItem } from "../../shared/side-nav/menu-item/href-menu-item";
-import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
-import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
-import { WebsocketService } from "../../core/websocket/websocket.service";
-import { Opcode } from "../../core/websocket/model/opcode";
-import { ObjectType } from "../../core/websocket/model/object-type";
-import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
-import { MatTableDataSource } from "@angular/material/table";
-import { HistorieRegel } from "../../shared/historie/model/historie-regel";
-import { MatSort } from "@angular/material/sort";
-import { FileFormatUtil } from "../model/file-format";
-import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item";
-import { SideNavAction } from "../../shared/side-nav/side-nav-action";
-import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
-import { EnkelvoudigInformatieObjectVersieGegevens } from "../model/enkelvoudig-informatie-object-versie-gegevens";
-import { TranslateService } from "@ngx-translate/core";
-import { FileIcon } from "../model/file-icon";
-import { Zaak } from "../../zaken/model/zaak";
-import { DialogData } from "../../shared/dialog/dialog-data";
-import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { DialogComponent } from "../../shared/dialog/dialog.component";
 import { Validators } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
+import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
+import { MatSort } from "@angular/material/sort";
+import { MatTableDataSource } from "@angular/material/table";
+import { ActivatedRoute, Router } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
+import { Observable } from "rxjs";
 import { tap } from "rxjs/operators";
+import { UtilService } from "../../core/service/util.service";
+import { ObjectType } from "../../core/websocket/model/object-type";
+import { Opcode } from "../../core/websocket/model/opcode";
+import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
+import { WebsocketService } from "../../core/websocket/websocket.service";
+import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
-import { Observable } from "rxjs";
+import { DialogData } from "../../shared/dialog/dialog-data";
+import { DialogComponent } from "../../shared/dialog/dialog.component";
+import { HistorieRegel } from "../../shared/historie/model/historie-regel";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
-import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
+import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
+import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item";
+import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
+import { HrefMenuItem } from "../../shared/side-nav/menu-item/href-menu-item";
+import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
+import { SideNavAction } from "../../shared/side-nav/side-nav-action";
+import { Zaak } from "../../zaken/model/zaak";
 import { ZakenService } from "../../zaken/zaken.service";
+import { InformatieObjectenService } from "../informatie-objecten.service";
+import { EnkelvoudigInformatieObjectVersieGegevens } from "../model/enkelvoudig-informatie-object-versie-gegevens";
+import { EnkelvoudigInformatieobject } from "../model/enkelvoudig-informatieobject";
+import { FileFormatUtil } from "../model/file-format";
+import { FileIcon } from "../model/file-icon";
+import { ZaakInformatieobject } from "../model/zaak-informatieobject";
 
 @Component({
   templateUrl: "./informatie-object-view.component.html",

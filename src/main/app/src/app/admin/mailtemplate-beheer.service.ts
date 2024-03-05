@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
-import { Mailtemplate } from "./model/mailtemplate";
+import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { Mail } from "./model/mail";
+import { Mailtemplate } from "./model/mailtemplate";
 import { MailtemplateVariabele } from "./model/mailtemplate-variabele";
 
 @Injectable({

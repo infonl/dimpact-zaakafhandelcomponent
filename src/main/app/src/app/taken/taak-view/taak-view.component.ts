@@ -10,49 +10,49 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
-import { Taak } from "../model/taak";
-import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
-import { ActivatedRoute } from "@angular/router";
-import { TakenService } from "../taken.service";
-import { UtilService } from "../../core/service/util.service";
-import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
-import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
-import { WebsocketService } from "../../core/websocket/websocket.service";
-import { Opcode } from "../../core/websocket/model/opcode";
-import { ObjectType } from "../../core/websocket/model/object-type";
 import { FormGroup } from "@angular/forms";
-import { FormConfig } from "../../shared/material-form-builder/model/form-config";
+import { MatDialog } from "@angular/material/dialog";
+import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
+import { MatSort } from "@angular/material/sort";
+import { MatTableDataSource } from "@angular/material/table";
+import { ActivatedRoute } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
+import { FormulierDefinitie } from "../../admin/model/formulieren/formulier-definitie";
+import { UtilService } from "../../core/service/util.service";
+import { ObjectType } from "../../core/websocket/model/object-type";
+import { Opcode } from "../../core/websocket/model/opcode";
+import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
+import { WebsocketService } from "../../core/websocket/websocket.service";
+import { AbstractTaakFormulier } from "../../formulieren/taken/abstract-taak-formulier";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
 import { IdentityService } from "../../identity/identity.service";
-import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
-import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
-import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { User } from "../../identity/model/user";
-import { TextIcon } from "../../shared/edit/text-icon";
-import { Conditionals } from "../../shared/edit/conditional-fn";
-import { TranslateService } from "@ngx-translate/core";
-import { MatTableDataSource } from "@angular/material/table";
-import { MatSort } from "@angular/material/sort";
-import { TaakHistorieRegel } from "../../shared/historie/model/taak-historie-regel";
-import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item";
-import { SideNavAction } from "../../shared/side-nav/side-nav-action";
-import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
-import { EnkelvoudigInformatieobject } from "../../informatie-objecten/model/enkelvoudig-informatieobject";
-import { TaakStatus } from "../model/taak-status.enum";
-import { MedewerkerGroepFieldBuilder } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-field-builder";
-import { AbstractTaakFormulier } from "../../formulieren/taken/abstract-taak-formulier";
-import { Zaak } from "../../zaken/model/zaak";
-import { ZakenService } from "../../zaken/zaken.service";
+import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { DocumentCreatieGegevens } from "../../informatie-objecten/model/document-creatie-gegevens";
+import { EnkelvoudigInformatieobject } from "../../informatie-objecten/model/enkelvoudig-informatieobject";
+import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
+import { Conditionals } from "../../shared/edit/conditional-fn";
+import { TextIcon } from "../../shared/edit/text-icon";
+import { TaakHistorieRegel } from "../../shared/historie/model/taak-historie-regel";
+import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
+import { MedewerkerGroepFieldBuilder } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-field-builder";
+import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
+import { FormConfig } from "../../shared/material-form-builder/model/form-config";
+import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import {
   NotificationDialogComponent,
   NotificationDialogData,
 } from "../../shared/notification-dialog/notification-dialog.component";
-import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { MatDialog } from "@angular/material/dialog";
+import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item";
+import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
+import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
+import { SideNavAction } from "../../shared/side-nav/side-nav-action";
+import { Zaak } from "../../zaken/model/zaak";
 import { Zaaktype } from "../../zaken/model/zaaktype";
-import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { FormulierDefinitie } from "../../admin/model/formulieren/formulier-definitie";
+import { ZakenService } from "../../zaken/zaken.service";
+import { Taak } from "../model/taak";
+import { TaakStatus } from "../model/taak-status.enum";
+import { TakenService } from "../taken.service";
 
 @Component({
   templateUrl: "./taak-view.component.html",

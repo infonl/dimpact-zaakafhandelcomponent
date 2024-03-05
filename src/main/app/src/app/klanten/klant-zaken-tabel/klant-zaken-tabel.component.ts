@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { UtilService } from "../../core/service/util.service";
 import {
   AfterViewInit,
   Component,
@@ -14,19 +13,20 @@ import {
   SimpleChanges,
   ViewChild,
 } from "@angular/core";
-import { merge, Observable } from "rxjs";
-import { ZoekenService } from "../../zoeken/zoeken.service";
-import { MatTableDataSource } from "@angular/material/table";
-import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
-import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
-import { ZoekObjectType } from "../../zoeken/model/zoek-object-type";
-import { ZoekResultaat } from "../../zoeken/model/zoek-resultaat";
+import { FormControl } from "@angular/forms";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
+import { MatTableDataSource } from "@angular/material/table";
+import { Observable, merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
+import { UtilService } from "../../core/service/util.service";
 import { SorteerVeld } from "../../zoeken/model/sorteer-veld";
+import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
+import { ZoekObjectType } from "../../zoeken/model/zoek-object-type";
+import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
+import { ZoekResultaat } from "../../zoeken/model/zoek-resultaat";
 import { ZoekVeld } from "../../zoeken/model/zoek-veld";
-import { FormControl } from "@angular/forms";
+import { ZoekenService } from "../../zoeken/zoeken.service";
 
 @Component({
   selector: "zac-klant-zaken-tabel",

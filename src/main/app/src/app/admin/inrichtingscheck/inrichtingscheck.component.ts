@@ -3,15 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
-import { UtilService } from "../../core/service/util.service";
-import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
-import { MatTableDataSource } from "@angular/material/table";
-import { MatSort, Sort } from "@angular/material/sort";
-import { AdminComponent } from "../admin/admin.component";
-import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
-import { HealthCheckService } from "../health-check.service";
-import { ZaaktypeInrichtingscheck } from "../model/zaaktype-inrichtingscheck";
 import {
   animate,
   state,
@@ -19,7 +10,16 @@ import {
   transition,
   trigger,
 } from "@angular/animations";
+import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
+import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
+import { MatSort, Sort } from "@angular/material/sort";
+import { MatTableDataSource } from "@angular/material/table";
+import { UtilService } from "../../core/service/util.service";
+import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
 import { VersionLayout } from "../../shared/version/version.component";
+import { AdminComponent } from "../admin/admin.component";
+import { HealthCheckService } from "../health-check.service";
+import { ZaaktypeInrichtingscheck } from "../model/zaaktype-inrichtingscheck";
 
 @Component({
   templateUrl: "./inrichtingscheck.component.html",

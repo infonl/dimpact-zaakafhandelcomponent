@@ -6,8 +6,8 @@
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from "@angular/router";
 import { Observable } from "rxjs";
-import { Bedrijf } from "../model/bedrijven/bedrijf";
 import { KlantenService } from "../klanten.service";
+import { Bedrijf } from "../model/bedrijven/bedrijf";
 
 @Injectable({
   providedIn: "root",

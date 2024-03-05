@@ -8,11 +8,11 @@ import { Injectable } from "@angular/core";
 import { Observable, of } from "rxjs";
 import { catchError, tap } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { SessionStorageUtil } from "../shared/storage/session-storage.util";
 import { Group } from "./model/group";
 import { LoggedInUser } from "./model/logged-in-user";
 import { User } from "./model/user";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
 
 @Injectable({
   providedIn: "root",

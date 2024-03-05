@@ -4,16 +4,16 @@
  */
 
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormGroup } from "@angular/forms";
-import { PlanItem } from "../model/plan-item";
-import { PlanItemsService } from "../plan-items.service";
-import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
-import { ProcessTaskData } from "../model/process-task-data";
 import { AbstractProcessFormulier } from "../../formulieren/process/abstract-process-formulier";
-import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { ProcessFormulierenService } from "../../formulieren/process/process-formulieren.service";
+import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
+import { FormConfig } from "../../shared/material-form-builder/model/form-config";
+import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { Zaak } from "../../zaken/model/zaak";
+import { PlanItem } from "../model/plan-item";
+import { ProcessTaskData } from "../model/process-task-data";
+import { PlanItemsService } from "../plan-items.service";
 
 @Component({
   selector: "zac-process-task-do",

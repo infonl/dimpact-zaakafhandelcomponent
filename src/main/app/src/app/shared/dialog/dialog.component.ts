@@ -5,8 +5,8 @@
 
 import { Component, Inject, OnInit } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { DialogData } from "./dialog-data";
 import { FieldType } from "../material-form-builder/model/field-type.enum";
+import { DialogData } from "./dialog-data";
 
 @Component({
   templateUrl: "dialog.component.html",

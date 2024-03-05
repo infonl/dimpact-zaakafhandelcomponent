@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AbstractFormFieldBuilder } from "./abstract-form-field-builder";
-import { AbstractFileFormField } from "./abstract-file-form-field";
-import { FormFieldHint } from "./form-field-hint";
 import { Observable } from "rxjs";
 import { FileIcon } from "../../../informatie-objecten/model/file-icon";
+import { AbstractFileFormField } from "./abstract-file-form-field";
+import { AbstractFormFieldBuilder } from "./abstract-form-field-builder";
+import { FormFieldHint } from "./form-field-hint";
 
 export abstract class AbstractFileFormFieldBuilder extends AbstractFormFieldBuilder {
   abstract readonly formField: AbstractFileFormField;

@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ZoekParameters } from "../zoeken/model/zoek-parameters";
-import { catchError } from "rxjs/operators";
-import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
+import { catchError } from "rxjs/operators";
+import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { ZoekParameters } from "../zoeken/model/zoek-parameters";
 
 @Injectable({
   providedIn: "root",

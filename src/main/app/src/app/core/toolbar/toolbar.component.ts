@@ -4,24 +4,24 @@
  */
 
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
-import { NavigationService } from "../../shared/navigation/navigation.service";
-import { UtilService } from "../service/util.service";
+import { FormControl } from "@angular/forms";
+import { MatSidenav } from "@angular/material/sidenav";
+import moment from "moment";
+import { Observable, Subscription } from "rxjs";
 import { IdentityService } from "../../identity/identity.service";
 import { User } from "../../identity/model/user";
-import { Observable, Subscription } from "rxjs";
-import { SignaleringenService } from "../../signaleringen.service";
-import { Opcode } from "../websocket/model/opcode";
-import { ObjectType } from "../websocket/model/object-type";
-import { WebsocketService } from "../websocket/websocket.service";
-import { WebsocketListener } from "../websocket/model/websocket-listener";
-import moment from "moment";
-import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
-import { PolicyService } from "../../policy/policy.service";
 import { OverigeRechten } from "../../policy/model/overige-rechten";
 import { WerklijstRechten } from "../../policy/model/werklijst-rechten";
-import { FormControl } from "@angular/forms";
+import { PolicyService } from "../../policy/policy.service";
+import { NavigationService } from "../../shared/navigation/navigation.service";
+import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
+import { SignaleringenService } from "../../signaleringen.service";
 import { ZoekenService } from "../../zoeken/zoeken.service";
-import { MatSidenav } from "@angular/material/sidenav";
+import { UtilService } from "../service/util.service";
+import { ObjectType } from "../websocket/model/object-type";
+import { Opcode } from "../websocket/model/opcode";
+import { WebsocketListener } from "../websocket/model/websocket-listener";
+import { WebsocketService } from "../websocket/websocket.service";
 
 @Component({
   selector: "zac-toolbar",

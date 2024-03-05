@@ -3,12 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { BackButtonDirective } from "./back-button.directive";
-import { NavigationService } from "./navigation.service";
 import { TestBed } from "@angular/core/testing";
 import { RouterTestingModule } from "@angular/router/testing";
-import { Router } from "@angular/router";
-import { SessionStorageUtil } from "../storage/session-storage.util";
+import { BackButtonDirective } from "./back-button.directive";
+import { NavigationService } from "./navigation.service";
 
 jest.autoMockOn();
 describe("BackButtonDirective", () => {

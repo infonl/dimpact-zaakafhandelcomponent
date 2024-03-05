@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { BAGObject } from "./bagobject";
 import { Geometry } from "../../zaken/model/geometry";
+import { BAGObject } from "./bagobject";
 
 export class AdresseerbaarObject extends BAGObject {
   status: string;

@@ -270,6 +270,24 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
 
         gherkinUtils()
     }
+    format("app") {
+        target("src/main/app/**/*.js", "src/main/app/**/*.ts")
+        targetExclude(
+            "src/main/app/node_modules/**",
+            "src/main/app/dist/**",
+            "src/main/app/.angular/**"
+        )
+        targetExclude(
+            "src/main/app/node_modules/**",
+            "src/main/app/src/generated/**",
+            "src/main/app/coverage/**",
+            "src/main/app/dist/**",
+            "src/main/app/.angular/**"
+        )
+
+        prettier(mapOf("prettier" to "3.2.5", "prettier-plugin-organize-imports" to "3.2.4"))
+            .config(mapOf("parser" to "typescript", "plugins" to arrayOf("prettier-plugin-organize-imports")))
+    }
 }
 
 // run npm install task after generating the Java clients because they

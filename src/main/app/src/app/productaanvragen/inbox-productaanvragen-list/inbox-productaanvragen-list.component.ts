@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { UtilService } from "../../core/service/util.service";
 import {
   AfterViewInit,
   Component,
@@ -11,28 +10,29 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
+import { MatDialog } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
+import { MatTableDataSource } from "@angular/material/table";
+import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
+import { ActivatedRoute, Router } from "@angular/router";
 import { merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
-import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { MatTableDataSource } from "@angular/material/table";
-import { MatDialog } from "@angular/material/dialog";
+import { UtilService } from "../../core/service/util.service";
+import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
 import { Zoekopdracht } from "../../gebruikersvoorkeuren/model/zoekopdracht";
-import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
-import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
-import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
-import { ActivatedRoute, Router } from "@angular/router";
-import { InboxProductaanvragenService } from "../inbox-productaanvragen.service";
-import { InboxProductaanvraag } from "../model/inbox-productaanvraag";
-import { InboxProductaanvraagListParameters } from "../model/inbox-productaanvraag-list-parameters";
+import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { detailExpand } from "../../shared/animations/animations";
-import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
+import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
+import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
+import { InboxProductaanvragenService } from "../inbox-productaanvragen.service";
+import { InboxProductaanvraag } from "../model/inbox-productaanvraag";
+import { InboxProductaanvraagListParameters } from "../model/inbox-productaanvraag-list-parameters";
 
 @Component({
   templateUrl: "./inbox-productaanvragen-list.component.html",

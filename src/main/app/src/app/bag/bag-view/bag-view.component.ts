@@ -3,17 +3,17 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { UtilService } from "../../core/service/util.service";
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { BAGObject } from "../model/bagobject";
-import { Adres } from "../model/adres";
-import { BAGObjecttype } from "../model/bagobjecttype";
-import { OpenbareRuimte } from "../model/openbare-ruimte";
-import { Woonplaats } from "../model/woonplaats";
-import { Pand } from "../model/pand";
-import { Nummeraanduiding } from "../model/nummeraanduiding";
+import { UtilService } from "../../core/service/util.service";
 import { Geometry } from "../../zaken/model/geometry";
+import { Adres } from "../model/adres";
+import { BAGObject } from "../model/bagobject";
+import { BAGObjecttype } from "../model/bagobjecttype";
+import { Nummeraanduiding } from "../model/nummeraanduiding";
+import { OpenbareRuimte } from "../model/openbare-ruimte";
+import { Pand } from "../model/pand";
+import { Woonplaats } from "../model/woonplaats";
 
 @Component({
   templateUrl: "./bag-view.component.html",

@@ -12,27 +12,27 @@ import {
   Output,
 } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
-import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
-import { FormConfig } from "../../shared/material-form-builder/model/form-config";
-import { UtilService } from "../../core/service/util.service";
-import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
-import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
-import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
-import { ZakenService } from "../zaken.service";
-import { Zaak } from "../model/zaak";
-import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
-import { Resultaattype } from "../model/resultaattype";
-import { takeUntil } from "rxjs/operators";
+import { MatDrawer } from "@angular/material/sidenav";
 import { Observable, Subject } from "rxjs";
-import { DateFormField } from "../../shared/material-form-builder/form-components/date/date-form-field";
-import { Besluit } from "../model/besluit";
-import { InformatieobjectZoekParameters } from "../../informatie-objecten/model/informatieobject-zoek-parameters";
+import { takeUntil } from "rxjs/operators";
+import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { EnkelvoudigInformatieobject } from "../../informatie-objecten/model/enkelvoudig-informatieobject";
-import { BesluitWijzigenGegevens } from "../model/besluit-wijzigen-gegevens";
-import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
+import { InformatieobjectZoekParameters } from "../../informatie-objecten/model/informatieobject-zoek-parameters";
+import { DateFormField } from "../../shared/material-form-builder/form-components/date/date-form-field";
+import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
-import { MatDrawer } from "@angular/material/sidenav";
+import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
+import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
+import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
+import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
+import { FormConfig } from "../../shared/material-form-builder/model/form-config";
+import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
+import { Besluit } from "../model/besluit";
+import { BesluitWijzigenGegevens } from "../model/besluit-wijzigen-gegevens";
+import { Resultaattype } from "../model/resultaattype";
+import { Zaak } from "../model/zaak";
+import { ZakenService } from "../zaken.service";
 
 @Component({
   selector: "zac-besluit-edit",

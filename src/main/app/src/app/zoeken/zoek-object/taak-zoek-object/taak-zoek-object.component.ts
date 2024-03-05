@@ -5,8 +5,8 @@
 
 import { Component, Input } from "@angular/core";
 import { MatSidenav } from "@angular/material/sidenav";
-import { ZoekObjectComponent } from "../zoek-object/zoek-object-component";
 import { TaakZoekObject } from "../../model/taken/taak-zoek-object";
+import { ZoekObjectComponent } from "../zoek-object/zoek-object-component";
 
 @Component({
   selector: "zac-taak-zoek-object",

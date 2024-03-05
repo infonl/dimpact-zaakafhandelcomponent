@@ -4,9 +4,9 @@
  */
 
 import { SortDirection } from "@angular/material/sort";
+import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
 import { ListParameters } from "../../shared/model/list-parameters";
 import { DatumRange } from "../../zoeken/model/datum-range";
-import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
 
 export class InboxProductaanvraagListParameters
   extends ListParameters

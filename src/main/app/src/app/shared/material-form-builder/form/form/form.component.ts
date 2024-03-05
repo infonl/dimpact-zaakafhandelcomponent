@@ -5,8 +5,8 @@
 
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { FormGroup } from "@angular/forms";
-import { FormConfig } from "../../model/form-config";
 import { AbstractFormField } from "../../model/abstract-form-field";
+import { FormConfig } from "../../model/form-config";
 
 @Component({
   selector: "mfb-form",

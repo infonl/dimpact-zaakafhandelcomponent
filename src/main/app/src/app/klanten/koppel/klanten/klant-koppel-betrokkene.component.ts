@@ -54,15 +54,16 @@ import { PersoonZoekComponent } from "../../zoek/personen/persoon-zoek.component
       </div>
     </div>
     @if (type === "persoon") {
-    <zac-persoon-zoek
-      #zoek
-      (persoon)="klantGeselecteerd($event)"
-    ></zac-persoon-zoek>
-    } @if (type === "bedrijf") {
-    <zac-bedrijf-zoek
-      #zoek
-      (bedrijf)="klantGeselecteerd($event)"
-    ></zac-bedrijf-zoek>
+      <zac-persoon-zoek
+        #zoek
+        (persoon)="klantGeselecteerd($event)"
+      ></zac-persoon-zoek>
+    }
+    @if (type === "bedrijf") {
+      <zac-bedrijf-zoek
+        #zoek
+        (bedrijf)="klantGeselecteerd($event)"
+      ></zac-bedrijf-zoek>
     }
   `,
 })

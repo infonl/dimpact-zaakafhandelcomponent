@@ -3,9 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { UtilService } from "../../core/service/util.service";
-import { OntkoppeldDocument } from "../model/ontkoppeld-document";
-import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service";
 import {
   AfterViewInit,
   Component,
@@ -13,27 +10,30 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
+import { MatDialog } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
+import { MatTableDataSource } from "@angular/material/table";
+import { ActivatedRoute } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
 import { merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
+import { UtilService } from "../../core/service/util.service";
+import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
+import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
+import { Zoekopdracht } from "../../gebruikersvoorkeuren/model/zoekopdracht";
+import { User } from "../../identity/model/user";
+import { InformatieObjectVerplaatsService } from "../../informatie-objecten/informatie-object-verplaats.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { MatTableDataSource } from "@angular/material/table";
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
-import { MatDialog } from "@angular/material/dialog";
-import { TranslateService } from "@ngx-translate/core";
-import { InformatieObjectVerplaatsService } from "../../informatie-objecten/informatie-object-verplaats.service";
-import { OntkoppeldDocumentListParameters } from "../model/ontkoppeld-document-list-parameters";
-import { User } from "../../identity/model/user";
-import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
-import { Zoekopdracht } from "../../gebruikersvoorkeuren/model/zoekopdracht";
-import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
-import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
-import { ActivatedRoute } from "@angular/router";
+import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
+import { OntkoppeldDocument } from "../model/ontkoppeld-document";
+import { OntkoppeldDocumentListParameters } from "../model/ontkoppeld-document-list-parameters";
+import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service";
 
 @Component({
   templateUrl: "./ontkoppelde-documenten-list.component.html",

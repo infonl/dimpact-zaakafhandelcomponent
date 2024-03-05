@@ -1,7 +1,7 @@
 import { TestBed } from "@angular/core/testing";
 
-import { ZaakFormulierenService } from "./zaak-formulieren.service";
 import { TranslateService } from "@ngx-translate/core";
+import { ZaakFormulierenService } from "./zaak-formulieren.service";
 
 describe("ZaakFormulierenService", () => {
   let service: ZaakFormulierenService;

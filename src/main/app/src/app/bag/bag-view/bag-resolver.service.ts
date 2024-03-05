@@ -6,8 +6,8 @@
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from "@angular/router";
 import { Observable } from "rxjs";
-import { BAGObject } from "../model/bagobject";
 import { BAGService } from "../bag.service";
+import { BAGObject } from "../model/bagobject";
 
 @Injectable({
   providedIn: "root",

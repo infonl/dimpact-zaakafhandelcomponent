@@ -5,21 +5,21 @@
 
 import { NgModule } from "@angular/core";
 
-import { SharedModule } from "../shared/shared.module";
-import { ParametersComponent } from "./parameters/parameters.component";
-import { AdminRoutingModule } from "./admin-routing.module";
-import { ParameterEditComponent } from "./parameter-edit/parameter-edit.component";
-import { ZoekenModule } from "../zoeken/zoeken.module";
-import { GroepSignaleringenComponent } from "./groep-signaleringen/groep-signaleringen.component";
-import { FormulierDefinitiesComponent } from "./formulier-definities/formulier-definities.component";
-import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.component";
-import { InrichtingscheckComponent } from "./inrichtingscheck/inrichtingscheck.component";
-import { MailtemplatesComponent } from "./mailtemplates/mailtemplates.component";
-import { MailtemplateComponent } from "./mailtemplate/mailtemplate.component";
 import { NgxEditorModule } from "ngx-editor";
-import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-tabellen.component";
+import { SharedModule } from "../shared/shared.module";
+import { ZoekenModule } from "../zoeken/zoeken.module";
+import { AdminRoutingModule } from "./admin-routing.module";
 import { FormulierDefinitieEditComponent } from "./formulier-definitie-edit/formulier-definitie-edit.component";
 import { TekstvlakEditDialogComponent } from "./formulier-definitie-edit/tekstvlak-edit-dialog/tekstvlak-edit-dialog.component";
+import { FormulierDefinitiesComponent } from "./formulier-definities/formulier-definities.component";
+import { GroepSignaleringenComponent } from "./groep-signaleringen/groep-signaleringen.component";
+import { InrichtingscheckComponent } from "./inrichtingscheck/inrichtingscheck.component";
+import { MailtemplateComponent } from "./mailtemplate/mailtemplate.component";
+import { MailtemplatesComponent } from "./mailtemplates/mailtemplates.component";
+import { ParameterEditComponent } from "./parameter-edit/parameter-edit.component";
+import { ParametersComponent } from "./parameters/parameters.component";
+import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.component";
+import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-tabellen.component";
 
 @NgModule({
   declarations: [

@@ -11,8 +11,8 @@ import {
   Output,
   SimpleChanges,
 } from "@angular/core";
-import { DatumRange } from "../../../zoeken/model/datum-range";
 import { FormControl } from "@angular/forms";
+import { DatumRange } from "../../../zoeken/model/datum-range";
 
 @Component({
   selector: "zac-date-range-filter",

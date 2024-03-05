@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { Location } from "@angular/common";
 import { Injectable } from "@angular/core";
 import {
   NavigationCancel,
@@ -11,10 +12,9 @@ import {
   NavigationStart,
   Router,
 } from "@angular/router";
-import { Location } from "@angular/common";
 import { BehaviorSubject, Observable } from "rxjs";
-import { UtilService } from "../../core/service/util.service";
 import { filter } from "rxjs/operators";
+import { UtilService } from "../../core/service/util.service";
 import { SessionStorageUtil } from "../storage/session-storage.util";
 
 @Injectable({

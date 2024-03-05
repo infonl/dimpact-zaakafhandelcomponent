@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { MaterialFormBuilderService } from "../../material-form-builder/material-form-builder.service";
+import { Component, Input } from "@angular/core";
 import { UtilService } from "../../../core/service/util.service";
-import { EditAutocompleteComponent } from "../edit-autocomplete/edit-autocomplete.component";
-import { InputFormField } from "../../material-form-builder/form-components/input/input-form-field";
 import { IdentityService } from "../../../identity/identity.service";
 import { User } from "../../../identity/model/user";
+import { InputFormField } from "../../material-form-builder/form-components/input/input-form-field";
+import { MaterialFormBuilderService } from "../../material-form-builder/material-form-builder.service";
+import { EditAutocompleteComponent } from "../edit-autocomplete/edit-autocomplete.component";
 
 @Component({
   selector: "zac-edit-behandelaar",

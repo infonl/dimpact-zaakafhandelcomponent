@@ -4,12 +4,12 @@
  */
 
 import { Component, OnDestroy } from "@angular/core";
-import { ZaakOverzicht } from "../../zaken/model/zaak-overzicht";
-import { SignaleringenService } from "../../signaleringen.service";
-import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
+import { SignaleringenService } from "../../signaleringen.service";
+import { ZaakOverzicht } from "../../zaken/model/zaak-overzicht";
+import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
 
 @Component({
   selector: "zac-zaken-card",

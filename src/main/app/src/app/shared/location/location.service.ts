@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
-import { catchError, mergeMap } from "rxjs/operators";
 import { Observable } from "rxjs";
+import { catchError, mergeMap } from "rxjs/operators";
 import { environment } from "src/environments/environment";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 
 @Injectable({
   providedIn: "root",

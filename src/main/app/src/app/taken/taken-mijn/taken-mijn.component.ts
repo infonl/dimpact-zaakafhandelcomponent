@@ -7,25 +7,25 @@ import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
 
 import { detailExpand } from "../../shared/animations/animations";
 
-import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
-import { UtilService } from "../../core/service/util.service";
-import { IdentityService } from "../../identity/identity.service";
-import { MatTable } from "@angular/material/table";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
-import { ZoekenService } from "../../zoeken/zoeken.service";
-import { TextIcon } from "../../shared/edit/text-icon";
-import { Conditionals } from "../../shared/edit/conditional-fn";
-import { SorteerVeld } from "src/app/zoeken/model/sorteer-veld";
-import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
-import { TakenService } from "../taken.service";
+import { MatTable } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
+import { SorteerVeld } from "src/app/zoeken/model/sorteer-veld";
+import { UtilService } from "../../core/service/util.service";
+import { IdentityService } from "../../identity/identity.service";
+import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
+import { Conditionals } from "../../shared/edit/conditional-fn";
+import { TextIcon } from "../../shared/edit/text-icon";
+import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
+import { ZoekenService } from "../../zoeken/zoeken.service";
+import { TakenService } from "../taken.service";
 
-import { TakenMijnDatasource } from "./taken-mijn-datasource";
-import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
-import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
+import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
+import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
+import { TakenMijnDatasource } from "./taken-mijn-datasource";
 
 @Component({
   templateUrl: "./taken-mijn.component.html",

@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
-import { ZaakFormulierBuilder } from "./zaak-formulier-builder";
-import { MeldingKleinEvenement } from "./model/melding-klein-evenement";
 import { TranslateService } from "@ngx-translate/core";
+import { MeldingKleinEvenement } from "./model/melding-klein-evenement";
+import { ZaakFormulierBuilder } from "./zaak-formulier-builder";
 
 @Injectable({
   providedIn: "root",

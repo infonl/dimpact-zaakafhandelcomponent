@@ -12,13 +12,13 @@ import {
   Output,
   ViewChild,
 } from "@angular/core";
-import { FormItem } from "../../model/form-item";
-import { FormFieldDirective } from "./form-field.directive";
+import { Subscription } from "rxjs";
 import { ReadonlyFormFieldBuilder } from "../../form-components/readonly/readonly-form-field-builder";
 import { ReadonlyComponent } from "../../form-components/readonly/readonly.component";
 import { MaterialFormBuilderService } from "../../material-form-builder.service";
 import { AbstractFormField } from "../../model/abstract-form-field";
-import { Subscription } from "rxjs";
+import { FormItem } from "../../model/form-item";
+import { FormFieldDirective } from "./form-field.directive";
 
 @Component({
   selector: "mfb-form-field",

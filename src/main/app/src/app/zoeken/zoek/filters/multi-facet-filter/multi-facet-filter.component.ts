@@ -5,8 +5,8 @@
 
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
-import { FilterResultaat } from "../../../model/filter-resultaat";
 import { FilterParameters } from "../../../model/filter-parameters";
+import { FilterResultaat } from "../../../model/filter-resultaat";
 
 @Component({
   selector: "zac-multi-facet-filter",

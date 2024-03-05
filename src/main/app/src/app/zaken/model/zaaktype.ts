@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Vertrouwelijkheidaanduiding } from "../../informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { ZaakafhandelParameters } from "../../admin/model/zaakafhandel-parameters";
+import { Vertrouwelijkheidaanduiding } from "../../informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { ZaaktypeRelatie } from "./zaaktype-relatie";
 
 export class Zaaktype {

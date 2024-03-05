@@ -4,14 +4,14 @@
  */
 
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
-import { MaterialFormBuilderService } from "../../material-form-builder/material-form-builder.service";
-import { UtilService } from "../../../core/service/util.service";
-import { InputFormField } from "../../material-form-builder/form-components/input/input-form-field";
-import { IdentityService } from "../../../identity/identity.service";
-import { EditComponent } from "../edit.component";
-import { MedewerkerGroepFormField } from "../../material-form-builder/form-components/medewerker-groep/medewerker-groep-form-field";
 import { FormControl } from "@angular/forms";
+import { UtilService } from "../../../core/service/util.service";
+import { IdentityService } from "../../../identity/identity.service";
 import { LoggedInUser } from "../../../identity/model/logged-in-user";
+import { InputFormField } from "../../material-form-builder/form-components/input/input-form-field";
+import { MedewerkerGroepFormField } from "../../material-form-builder/form-components/medewerker-groep/medewerker-groep-form-field";
+import { MaterialFormBuilderService } from "../../material-form-builder/material-form-builder.service";
+import { EditComponent } from "../edit.component";
 
 @Component({
   selector: "zac-edit-groep-behandelaar",

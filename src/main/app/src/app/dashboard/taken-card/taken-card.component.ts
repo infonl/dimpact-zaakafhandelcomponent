@@ -4,11 +4,11 @@
  */
 
 import { Component } from "@angular/core";
-import { SignaleringenService } from "../../signaleringen.service";
-import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
-import { Taak } from "../../taken/model/taak";
-import { IdentityService } from "../../identity/identity.service";
 import { WebsocketService } from "../../core/websocket/websocket.service";
+import { IdentityService } from "../../identity/identity.service";
+import { SignaleringenService } from "../../signaleringen.service";
+import { Taak } from "../../taken/model/taak";
+import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
 
 @Component({
   selector: "zac-taken-card",

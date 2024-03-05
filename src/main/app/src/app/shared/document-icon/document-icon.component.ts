@@ -1,6 +1,6 @@
 import { Component, Input } from "@angular/core";
-import { FileIcon } from "../../informatie-objecten/model/file-icon";
 import { TranslateService } from "@ngx-translate/core";
+import { FileIcon } from "../../informatie-objecten/model/file-icon";
 
 @Component({
   standalone: true,

@@ -3,12 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { TestBed } from "@angular/core/testing";
-import { FormFieldDirective } from "./form-field.directive";
 import { CUSTOM_ELEMENTS_SCHEMA, Component } from "@angular/core";
-import { FormFieldComponent } from "./form-field.component";
+import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { MaterialFormBuilderService } from "../../material-form-builder.service";
+import { FormFieldDirective } from "./form-field.directive";
 
 @Component({
   selector: "mfb-test-component",

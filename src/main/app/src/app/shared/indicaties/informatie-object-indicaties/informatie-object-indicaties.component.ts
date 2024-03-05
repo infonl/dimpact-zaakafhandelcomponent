@@ -3,16 +3,16 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { EnkelvoudigInformatieobject } from "../../../informatie-objecten/model/enkelvoudig-informatieobject";
 import { DocumentZoekObject } from "../../../zoeken/model/documenten/document-zoek-object";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { DatumPipe } from "../../pipes/datum.pipe";
-import { Indicatie } from "../../model/indicatie";
-import { IndicatiesComponent } from "../indicaties.component";
 import { MaterialModule } from "../../material/material.module";
+import { Indicatie } from "../../model/indicatie";
+import { DatumPipe } from "../../pipes/datum.pipe";
 import { PipesModule } from "../../pipes/pipes.module";
-import { CommonModule } from "@angular/common";
+import { IndicatiesComponent } from "../indicaties.component";
 
 export enum InformatieobjectIndicatie {
   VERGRENDELD = "VERGRENDELD",

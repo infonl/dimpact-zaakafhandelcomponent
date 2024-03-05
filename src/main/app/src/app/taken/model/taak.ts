@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { TaakStatus } from "./taak-status.enum";
-import { Group } from "../../identity/model/group";
-import { User } from "../../identity/model/user";
-import { Taakinformatie } from "./taakinformatie";
-import { TaakRechten } from "../../policy/model/taak-rechten";
 import { FormulierDefinitieID } from "../../admin/model/formulier-definitie";
 import { FormulierDefinitie } from "../../admin/model/formulieren/formulier-definitie";
+import { Group } from "../../identity/model/group";
+import { User } from "../../identity/model/user";
+import { TaakRechten } from "../../policy/model/taak-rechten";
+import { TaakStatus } from "./taak-status.enum";
+import { Taakinformatie } from "./taakinformatie";
 
 export class Taak {
   id: string;

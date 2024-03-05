@@ -4,9 +4,9 @@
  */
 
 import { Component, OnInit } from "@angular/core";
+import { TranslateService } from "@ngx-translate/core";
 import { FormComponent } from "../../model/form-component";
 import { TextareaFormField } from "./textarea-form-field";
-import { TranslateService } from "@ngx-translate/core";
 
 @Component({
   templateUrl: "./textarea.component.html",

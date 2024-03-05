@@ -5,10 +5,10 @@
 
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
-import { OntkoppeldeDocumentenListComponent } from "./ontkoppelde-documenten-list/ontkoppelde-documenten-list.component";
-import { InboxDocumentenListComponent } from "./inbox-documenten-list/inbox-documenten-list.component";
-import { TabelGegevensResolver } from "../shared/dynamic-table/datasource/tabel-gegevens-resolver.service";
 import { Werklijst } from "../gebruikersvoorkeuren/model/werklijst";
+import { TabelGegevensResolver } from "../shared/dynamic-table/datasource/tabel-gegevens-resolver.service";
+import { InboxDocumentenListComponent } from "./inbox-documenten-list/inbox-documenten-list.component";
+import { OntkoppeldeDocumentenListComponent } from "./ontkoppelde-documenten-list/ontkoppelde-documenten-list.component";
 
 const routes: Routes = [
   {

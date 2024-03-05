@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Klant } from "../klanten/klant";
 import { IdentificatieType } from "../klanten/identificatieType";
+import { Klant } from "../klanten/klant";
 
 export class Bedrijf implements Klant {
   vestigingsnummer: string;

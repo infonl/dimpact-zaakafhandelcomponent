@@ -5,8 +5,8 @@
 
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { MatSelectionListChange } from "@angular/material/list";
-import { ColumnPickerValue } from "./column-picker-value";
 import { TranslateService } from "@ngx-translate/core";
+import { ColumnPickerValue } from "./column-picker-value";
 
 @Component({
   selector: "zac-column-picker",

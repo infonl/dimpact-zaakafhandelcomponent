@@ -4,11 +4,11 @@
  */
 
 import { Component } from "@angular/core";
-import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
-import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
-import { ViewComponent } from "../../shared/abstract-view/view-component";
-import { LinkMenuItem } from "../../shared/side-nav/menu-item/link-menu-item";
 import { UtilService } from "../../core/service/util.service";
+import { ViewComponent } from "../../shared/abstract-view/view-component";
+import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
+import { LinkMenuItem } from "../../shared/side-nav/menu-item/link-menu-item";
+import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
 
 @Component({ template: "" })
 export abstract class AdminComponent extends ViewComponent {

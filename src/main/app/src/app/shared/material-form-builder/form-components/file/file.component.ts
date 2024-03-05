@@ -4,24 +4,24 @@
  */
 
 import {
+  HttpClient,
+  HttpEvent,
+  HttpEventType,
+  HttpHeaders,
+} from "@angular/common/http";
+import {
   ChangeDetectorRef,
   Component,
   ElementRef,
   OnInit,
   ViewChild,
 } from "@angular/core";
-import { FileFormField } from "./file-form-field";
-import { FormComponent } from "../../model/form-component";
-import {
-  HttpClient,
-  HttpEvent,
-  HttpEventType,
-  HttpHeaders,
-} from "@angular/common/http";
-import { Observable, Subscription } from "rxjs";
-import { UploadStatus } from "./upload-status.enum";
-import { FoutAfhandelingService } from "../../../../fout-afhandeling/fout-afhandeling.service";
 import { TranslateService } from "@ngx-translate/core";
+import { Observable, Subscription } from "rxjs";
+import { FoutAfhandelingService } from "../../../../fout-afhandeling/fout-afhandeling.service";
+import { FormComponent } from "../../model/form-component";
+import { FileFormField } from "./file-form-field";
+import { UploadStatus } from "./upload-status.enum";
 
 @Component({
   templateUrl: "./file.component.html",

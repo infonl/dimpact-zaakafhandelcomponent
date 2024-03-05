@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { SubscriptionType } from "./subscription-type";
 import { ScreenEvent } from "./screen-event";
+import { SubscriptionType } from "./subscription-type";
 
 export class SubscriptionMessage {
   subscriptionType: SubscriptionType;

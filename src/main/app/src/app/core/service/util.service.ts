@@ -3,17 +3,17 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Inject, Injectable, Optional } from "@angular/core";
-import { BehaviorSubject, iif, Observable, of, Subject } from "rxjs";
-import { delay, map, shareReplay, switchMap } from "rxjs/operators";
 import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
-import { TranslateService } from "@ngx-translate/core";
-import { Title } from "@angular/platform-browser";
-import { MatSnackBar } from "@angular/material/snack-bar";
 import { DOCUMENT } from "@angular/common";
+import { Inject, Injectable, Optional } from "@angular/core";
+import { MatSnackBar } from "@angular/material/snack-bar";
+import { Title } from "@angular/platform-browser";
 import { Router } from "@angular/router";
-import { ActionBarAction } from "../actionbar/model/action-bar-action";
+import { TranslateService } from "@ngx-translate/core";
+import { BehaviorSubject, Observable, Subject, iif, of } from "rxjs";
+import { delay, map, shareReplay, switchMap } from "rxjs/operators";
 import { OrderUtil } from "../../shared/order/order-util";
+import { ActionBarAction } from "../actionbar/model/action-bar-action";
 
 @Injectable({
   providedIn: "root",

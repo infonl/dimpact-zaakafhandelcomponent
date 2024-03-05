@@ -4,19 +4,19 @@
  */
 
 import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
-import { UtilService } from "../../core/service/util.service";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
-import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
-import { MatTableDataSource } from "@angular/material/table";
-import { ZaakafhandelParameters } from "../model/zaakafhandel-parameters";
 import { MatSort } from "@angular/material/sort";
-import { ZaakafhandelParametersListParameters } from "./zaakafhandel-parameters-list-parameters";
+import { MatTableDataSource } from "@angular/material/table";
+import { UtilService } from "../../core/service/util.service";
 import { ClientMatcher } from "../../shared/dynamic-table/filter/clientMatcher";
-import { AdminComponent } from "../admin/admin.component";
-import { Zaaktype } from "../../zaken/model/zaaktype";
-import { CaseDefinition } from "../model/case-definition";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
+import { Zaaktype } from "../../zaken/model/zaaktype";
+import { AdminComponent } from "../admin/admin.component";
+import { CaseDefinition } from "../model/case-definition";
+import { ZaakafhandelParameters } from "../model/zaakafhandel-parameters";
+import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
+import { ZaakafhandelParametersListParameters } from "./zaakafhandel-parameters-list-parameters";
 
 @Component({
   templateUrl: "./parameters.component.html",

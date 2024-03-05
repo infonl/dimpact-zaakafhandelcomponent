@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { FileFormField } from "./file-form-field";
 import { AbstractFileFormFieldBuilder } from "../../model/abstract-file-form-field-builder";
+import { FileFormField } from "./file-form-field";
 
 export class FileFormFieldBuilder extends AbstractFileFormFieldBuilder {
   readonly formField: FileFormField;

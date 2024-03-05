@@ -13,21 +13,21 @@ import {
   SimpleChanges,
   ViewChild,
 } from "@angular/core";
+import { Coordinate } from "ol/coordinate.js";
+import * as extent from "ol/extent.js";
+import * as geom from "ol/geom.js";
 import * as ol from "ol/index.js";
+import * as interaction from "ol/interaction";
 import * as layer from "ol/layer.js";
 import * as proj from "ol/proj.js";
-import * as geom from "ol/geom.js";
+import { register } from "ol/proj/proj4.js";
 import * as source from "ol/source.js";
-import WMTSTileGrid from "ol/tilegrid/WMTS.js";
-import * as extent from "ol/extent.js";
 import * as style from "ol/style.js";
-import { Coordinate } from "ol/coordinate.js";
+import WMTSTileGrid from "ol/tilegrid/WMTS.js";
+import proj4 from "proj4";
+import { environment } from "src/environments/environment";
 import { Geometry } from "../../zaken/model/geometry";
 import { GeometryType } from "../../zaken/model/geometryType";
-import proj4 from "proj4";
-import { register } from "ol/proj/proj4.js";
-import * as interaction from "ol/interaction";
-import { environment } from "src/environments/environment";
 
 @Component({
   selector: "zac-bag-locatie",

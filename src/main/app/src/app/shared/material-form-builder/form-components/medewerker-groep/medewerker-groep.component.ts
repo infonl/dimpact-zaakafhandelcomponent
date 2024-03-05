@@ -4,17 +4,23 @@
  */
 
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { FormComponent } from "../../model/form-component";
+import {
+  AbstractControl,
+  FormControl,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
-import { IdentityService } from "../../../../identity/identity.service";
-import {AbstractControl, FormControl, ValidationErrors, ValidatorFn, Validators} from "@angular/forms";
 import { Observable, Subscription } from "rxjs";
+import { map, startWith, tap } from "rxjs/operators";
+import { IdentityService } from "../../../../identity/identity.service";
 import { Group } from "../../../../identity/model/group";
 import { User } from "../../../../identity/model/user";
-import { MedewerkerGroepFormField } from "./medewerker-groep-form-field";
-import { AutocompleteValidators } from "../autocomplete/autocomplete-validators";
-import { map, startWith, tap } from "rxjs/operators";
 import { OrderUtil } from "../../../order/order-util";
+import { FormComponent } from "../../model/form-component";
+import { AutocompleteValidators } from "../autocomplete/autocomplete-validators";
+import { MedewerkerGroepFormField } from "./medewerker-groep-form-field";
 
 @Component({
   templateUrl: "./medewerker-groep.component.html",
@@ -79,23 +85,27 @@ export class MedewerkerGroepComponent
           validators.push(Validators.required);
         }
         validators.push((control: AbstractControl): ValidationErrors | null => {
-              if (!control.value || typeof control.value !== 'object') {
-                  return null; // or return an error if this is unexpected
-              }
+          if (!control.value || typeof control.value !== "object") {
+            return null; // or return an error if this is unexpected
+          }
 
-              const naamToolong = control.value.naam && control.value.naam.length > this.data.maxGroupNameLength;
+          const naamToolong =
+            control.value.naam &&
+            control.value.naam.length > this.data.maxGroupNameLength;
 
-              return (naamToolong) ? { naamToolong: true } : null;
+          return naamToolong ? { naamToolong: true } : null;
         });
-          validators.push((control: AbstractControl): ValidationErrors | null => {
-              if (!control.value || typeof control.value !== 'object') {
-                  return null; // or return an error if this is unexpected
-              }
+        validators.push((control: AbstractControl): ValidationErrors | null => {
+          if (!control.value || typeof control.value !== "object") {
+            return null; // or return an error if this is unexpected
+          }
 
-              const idTooLong = control.value.id && control.value.id.length > this.data.maxGroupIdLength;
+          const idTooLong =
+            control.value.id &&
+            control.value.id.length > this.data.maxGroupIdLength;
 
-              return idTooLong ? { idTooLong: true } : null;
-          });
+          return idTooLong ? { idTooLong: true } : null;
+        });
 
         this.data.groep.setValidators(validators);
         this.data.groep.updateValueAndValidity();
@@ -173,18 +183,22 @@ export class MedewerkerGroepComponent
   }
 
   getMessage(formControl: FormControl, label: string): string {
-      if (formControl.hasError("required")) {
-          return this.translate.instant("msg.error.required", { label: label });
-      }
-      if (formControl.hasError("match")) {
-          return this.translate.instant("msg.error.invalid.match");
-      }
-      if (formControl.hasError("idTooLong")) {
-          return this.translate.instant("msg.error.group.invalid.id", { max: this.data.maxGroupIdLength });
-      }
-      if (formControl.hasError("naamToolong")) {
-          return this.translate.instant("msg.error.group.invalid.name", { max: this.data.maxGroupNameLength });
-      }
-      return "This field has a error";
+    if (formControl.hasError("required")) {
+      return this.translate.instant("msg.error.required", { label: label });
+    }
+    if (formControl.hasError("match")) {
+      return this.translate.instant("msg.error.invalid.match");
+    }
+    if (formControl.hasError("idTooLong")) {
+      return this.translate.instant("msg.error.group.invalid.id", {
+        max: this.data.maxGroupIdLength,
+      });
+    }
+    if (formControl.hasError("naamToolong")) {
+      return this.translate.instant("msg.error.group.invalid.name", {
+        max: this.data.maxGroupNameLength,
+      });
+    }
+    return "This field has a error";
   }
 }

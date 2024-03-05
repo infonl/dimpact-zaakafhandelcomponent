@@ -3,17 +3,17 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { FormulierDefinitie } from "../../admin/model/formulieren/formulier-definitie";
-import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
-import { FormulierVeldtype } from "../../admin/model/formulieren/formulier-veld-type.enum";
 import { SelectionModel } from "@angular/cdk/collections";
-import { IdentityService } from "../../identity/identity.service";
-import { User } from "../../identity/model/user";
-import { Group } from "../../identity/model/group";
-import { Zaak } from "../../zaken/model/zaak";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import moment from "moment";
+import { FormulierDefinitie } from "../../admin/model/formulieren/formulier-definitie";
 import { FormulierVeldDefinitie } from "../../admin/model/formulieren/formulier-veld-definitie";
+import { FormulierVeldtype } from "../../admin/model/formulieren/formulier-veld-type.enum";
+import { IdentityService } from "../../identity/identity.service";
+import { Group } from "../../identity/model/group";
+import { User } from "../../identity/model/user";
+import { Zaak } from "../../zaken/model/zaak";
 
 @Component({
   selector: "zac-formulier",

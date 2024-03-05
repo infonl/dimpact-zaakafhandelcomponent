@@ -5,13 +5,13 @@ import {
   OnInit,
   SimpleChanges,
 } from "@angular/core";
-import { EnkelvoudigInformatieobject } from "../../informatie-objecten/model/enkelvoudig-informatieobject";
+import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
+import { EnkelvoudigInformatieobject } from "../../informatie-objecten/model/enkelvoudig-informatieobject";
 import {
   FileFormat,
   FileFormatUtil,
 } from "../../informatie-objecten/model/file-format";
-import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
 
 @Component({
   selector: "zac-document-viewer",

@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { TaakDocumentUploadFormField } from "./taak-document-upload-form-field";
 import { AbstractFileFormFieldBuilder } from "../../model/abstract-file-form-field-builder";
+import { TaakDocumentUploadFormField } from "./taak-document-upload-form-field";
 
 export class TaakDocumentUploadFieldBuilder extends AbstractFileFormFieldBuilder {
   readonly formField: TaakDocumentUploadFormField;

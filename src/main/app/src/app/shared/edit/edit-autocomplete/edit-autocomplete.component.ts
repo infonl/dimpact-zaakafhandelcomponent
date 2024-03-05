@@ -4,10 +4,10 @@
  */
 
 import { Component, Input } from "@angular/core";
-import { EditComponent } from "../edit.component";
-import { MaterialFormBuilderService } from "../../material-form-builder/material-form-builder.service";
-import { AutocompleteFormField } from "../../material-form-builder/form-components/autocomplete/autocomplete-form-field";
 import { UtilService } from "../../../core/service/util.service";
+import { AutocompleteFormField } from "../../material-form-builder/form-components/autocomplete/autocomplete-form-field";
+import { MaterialFormBuilderService } from "../../material-form-builder/material-form-builder.service";
+import { EditComponent } from "../edit.component";
 
 @Component({
   selector: "zac-edit-autocomplete",

@@ -3,23 +3,23 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import { Component, OnInit, ViewChild } from "@angular/core";
-import { UtilService } from "../../core/service/util.service";
-import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
-import { IdentityService } from "../../identity/identity.service";
-import { AdminComponent } from "../admin/admin.component";
-import { ReferentieTabelService } from "../referentie-tabel.service";
-import { ReferentieTabel } from "../model/referentie-tabel";
 import { Validators } from "@angular/forms";
+import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
+import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
+import { Observable, of } from "rxjs";
+import { catchError } from "rxjs/operators";
+import { UtilService } from "../../core/service/util.service";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
+import { IdentityService } from "../../identity/identity.service";
 import { InputFormField } from "../../shared/material-form-builder/form-components/input/input-form-field";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { MatTableDataSource } from "@angular/material/table";
+import { AdminComponent } from "../admin/admin.component";
+import { ReferentieTabel } from "../model/referentie-tabel";
 import { ReferentieTabelWaarde } from "../model/referentie-tabel-waarde";
-import { Observable, of } from "rxjs";
-import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
-import { catchError } from "rxjs/operators";
-import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
+import { ReferentieTabelService } from "../referentie-tabel.service";
 
 @Component({
   templateUrl: "./referentie-tabel.component.html",

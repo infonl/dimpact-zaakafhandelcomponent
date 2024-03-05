@@ -4,14 +4,14 @@
  */
 
 import { CollectionViewer, DataSource } from "@angular/cdk/collections";
-import { BehaviorSubject, merge, Observable, Subscription } from "rxjs";
+import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
+import { BehaviorSubject, Observable, Subscription, merge } from "rxjs";
 import { tap } from "rxjs/operators";
+import { ColumnPickerValue } from "../column-picker/column-picker-value";
 import { TableRequest } from "./table-request";
 import { TableResponse } from "./table-response";
-import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
-import { ColumnPickerValue } from "../column-picker/column-picker-value";
 
 export abstract class TableDataSource<OBJECT> extends DataSource<OBJECT> {
   private tableSubject = new BehaviorSubject<OBJECT[]>([]);

@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { EmptyPipe } from "./empty.pipe";
 import { User } from "../../identity/model/user";
+import { EmptyPipe } from "./empty.pipe";
 
 describe("EmptyPipe", () => {
   let pipe;

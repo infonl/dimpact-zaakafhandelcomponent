@@ -6,8 +6,8 @@
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from "@angular/router";
 import { Observable } from "rxjs";
-import { TakenService } from "./taken.service";
 import { Taak } from "./model/taak";
+import { TakenService } from "./taken.service";
 
 @Injectable({
   providedIn: "root",

@@ -5,9 +5,9 @@
 
 import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
+import { Besluit } from "../../../zaken/model/besluit";
 import { Indicatie } from "../../model/indicatie";
 import { IndicatiesComponent } from "../indicaties.component";
-import { Besluit } from "../../../zaken/model/besluit";
 
 export enum BesluitIndicatie {
   INGETROKKEN = "INGETROKKEN",

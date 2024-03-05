@@ -1,12 +1,12 @@
-import { InputFormFieldBuilder } from "../../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { CustomValidators } from "../../../shared/validators/customValidators";
-import { AbstractFormField } from "../../../shared/material-form-builder/model/abstract-form-field";
-import { DateFormFieldBuilder } from "../../../shared/material-form-builder/form-components/date/date-form-field-builder";
-import { AbstractZaakFormulier } from "../abstract-zaak-formulier";
 import { TranslateService } from "@ngx-translate/core";
-import { TextareaFormFieldBuilder } from "../../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
-import { HeadingFormFieldBuilder } from "../../../shared/material-form-builder/form-components/heading/heading-form-field-builder";
+import { DateFormFieldBuilder } from "../../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { HeadingLevel } from "../../../shared/material-form-builder/form-components/heading/heading-form-field";
+import { HeadingFormFieldBuilder } from "../../../shared/material-form-builder/form-components/heading/heading-form-field-builder";
+import { InputFormFieldBuilder } from "../../../shared/material-form-builder/form-components/input/input-form-field-builder";
+import { TextareaFormFieldBuilder } from "../../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
+import { AbstractFormField } from "../../../shared/material-form-builder/model/abstract-form-field";
+import { CustomValidators } from "../../../shared/validators/customValidators";
+import { AbstractZaakFormulier } from "../abstract-zaak-formulier";
 
 export class MeldingKleinEvenement extends AbstractZaakFormulier {
   fields = {

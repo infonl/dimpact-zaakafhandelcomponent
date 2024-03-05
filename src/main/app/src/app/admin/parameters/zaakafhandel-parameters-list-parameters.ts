@@ -5,10 +5,10 @@
 
 import { SortDirection } from "@angular/material/sort";
 import { ListParameters } from "../../shared/model/list-parameters";
-import { Zaaktype } from "../../zaken/model/zaaktype";
-import { CaseDefinition } from "../model/case-definition";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
+import { Zaaktype } from "../../zaken/model/zaaktype";
 import { DatumRange } from "../../zoeken/model/datum-range";
+import { CaseDefinition } from "../model/case-definition";
 
 export class ZaakafhandelParametersListParameters extends ListParameters {
   valide: ToggleSwitchOptions = ToggleSwitchOptions.INDETERMINATE;

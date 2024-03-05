@@ -3,14 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { TestBed } from "@angular/core/testing";
-import { GoogleMapsService } from "./google-maps.service";
 import { HttpClientModule } from "@angular/common/http";
+import { TestBed } from "@angular/core/testing";
 import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
-import {
-  BUILDER_CONFIG,
-  MaterialFormBuilderConfig,
-} from "../material-form-builder-config";
+import { BUILDER_CONFIG } from "../material-form-builder-config";
+import { GoogleMapsService } from "./google-maps.service";
 
 describe("GoogleMapsServiceService", () => {
   let service: GoogleMapsService;

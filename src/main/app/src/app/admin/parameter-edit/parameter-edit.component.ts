@@ -3,51 +3,51 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { SelectionModel } from "@angular/cdk/collections";
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
-import { UtilService } from "../../core/service/util.service";
-import { ActivatedRoute } from "@angular/router";
-import { ZaakafhandelParameters } from "../model/zaakafhandel-parameters";
 import {
   FormBuilder,
   FormControl,
   FormGroup,
   Validators,
 } from "@angular/forms";
-import { forkJoin, Subscription } from "rxjs";
-import { CaseDefinition } from "../model/case-definition";
-import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
-import { Group } from "../../identity/model/group";
-import { IdentityService } from "../../identity/identity.service";
-import { User } from "../../identity/model/user";
-import { HumanTaskParameter } from "../model/human-task-parameter";
+import { MatCheckboxChange } from "@angular/material/checkbox";
 import { MatSelectChange } from "@angular/material/select";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
-import { ZaakbeeindigParameter } from "../model/zaakbeeindig-parameter";
-import { ZaakbeeindigReden } from "../model/zaakbeeindig-reden";
-import { SelectionModel } from "@angular/cdk/collections";
-import { MatCheckboxChange } from "@angular/material/checkbox";
-import { UserEventListenerParameter } from "../model/user-event-listener-parameter";
-import { ZaaknietontvankelijkReden } from "../model/zaaknietontvankelijk-reden";
-import { ZaaknietontvankelijkParameter } from "../model/zaaknietontvankelijk-parameter";
-import { AdminComponent } from "../admin/admin.component";
+import { MatTableDataSource } from "@angular/material/table";
+import { ActivatedRoute } from "@angular/router";
+import { Subscription, forkJoin } from "rxjs";
+import { switchMap, tap } from "rxjs/operators";
+import { UtilService } from "../../core/service/util.service";
+import { IdentityService } from "../../identity/identity.service";
+import { Group } from "../../identity/model/group";
+import { User } from "../../identity/model/user";
 import { Resultaattype } from "../../zaken/model/resultaattype";
 import { ZaakStatusmailOptie } from "../../zaken/model/zaak-statusmail-optie";
-import { ReferentieTabel } from "../model/referentie-tabel";
-import { ReferentieTabelService } from "../referentie-tabel.service";
+import { AdminComponent } from "../admin/admin.component";
+import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
+import { CaseDefinition } from "../model/case-definition";
 import { FormulierDefinitie } from "../model/formulier-definitie";
-import { HumanTaskReferentieTabel } from "../model/human-task-referentie-tabel";
 import { FormulierVeldDefinitie } from "../model/formulier-veld-definitie";
+import { HumanTaskParameter } from "../model/human-task-parameter";
+import { HumanTaskReferentieTabel } from "../model/human-task-referentie-tabel";
+import { Mailtemplate } from "../model/mailtemplate";
 import { MailtemplateKoppeling } from "../model/mailtemplate-koppeling";
 import {
   MailtemplateKoppelingMail,
   MailtemplateKoppelingMailUtil,
 } from "../model/mailtemplate-koppeling-mail";
-import { Mailtemplate } from "../model/mailtemplate";
-import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
-import { ZaakAfzender } from "../model/zaakafzender";
-import { MatTableDataSource } from "@angular/material/table";
+import { ReferentieTabel } from "../model/referentie-tabel";
 import { ReplyTo } from "../model/replyto";
-import { switchMap, tap } from "rxjs/operators";
+import { UserEventListenerParameter } from "../model/user-event-listener-parameter";
+import { ZaakafhandelParameters } from "../model/zaakafhandel-parameters";
+import { ZaakAfzender } from "../model/zaakafzender";
+import { ZaakbeeindigParameter } from "../model/zaakbeeindig-parameter";
+import { ZaakbeeindigReden } from "../model/zaakbeeindig-reden";
+import { ZaaknietontvankelijkParameter } from "../model/zaaknietontvankelijk-parameter";
+import { ZaaknietontvankelijkReden } from "../model/zaaknietontvankelijk-reden";
+import { ReferentieTabelService } from "../referentie-tabel.service";
+import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 
 @Component({
   templateUrl: "./parameter-edit.component.html",

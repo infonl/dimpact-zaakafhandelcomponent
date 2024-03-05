@@ -4,8 +4,8 @@
  */
 
 import { MatDrawerMode } from "@angular/material/sidenav";
-import { MenuMode } from "./side-nav.component";
 import { SessionStorageUtil } from "../storage/session-storage.util";
+import { MenuMode } from "./side-nav.component";
 
 export class SideNavUtil {
   static getMode(): MatDrawerMode {

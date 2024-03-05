@@ -4,14 +4,14 @@
  */
 
 import { Component } from "@angular/core";
-import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
-import { ZoekenService } from "../../zoeken/zoeken.service";
-import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
-import { ZoekObject } from "../../zoeken/model/zoek-object";
+import { WebsocketService } from "../../core/websocket/websocket.service";
+import { IdentityService } from "../../identity/identity.service";
 import { ZakenMijnDatasource } from "../../zaken/zaken-mijn/zaken-mijn-datasource";
 import { SorteerVeld } from "../../zoeken/model/sorteer-veld";
-import { IdentityService } from "../../identity/identity.service";
-import { WebsocketService } from "../../core/websocket/websocket.service";
+import { ZoekObject } from "../../zoeken/model/zoek-object";
+import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
+import { ZoekenService } from "../../zoeken/zoeken.service";
+import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
 
 @Component({
   selector: "zac-zaak-zoeken-card",

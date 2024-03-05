@@ -12,36 +12,36 @@ import {
   Output,
 } from "@angular/core";
 
-import { Besluit } from "../model/besluit";
-import { Observable, of } from "rxjs";
-import { MatTableDataSource } from "@angular/material/table";
-import { HistorieRegel } from "../../shared/historie/model/historie-regel";
-import { ZakenService } from "../zaken.service";
-import { TextIcon } from "../../shared/edit/text-icon";
-import { Conditionals } from "../../shared/edit/conditional-fn";
-import { DocumentenLijstFormField } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-form-field";
-import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
-import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
-import { DialogData } from "../../shared/dialog/dialog-data";
 import { Validators } from "@angular/forms";
-import moment from "moment";
-import { DialogComponent } from "../../shared/dialog/dialog.component";
 import { MatDialog } from "@angular/material/dialog";
+import { MatTableDataSource } from "@angular/material/table";
 import { TranslateService } from "@ngx-translate/core";
-import { InputFormField } from "../../shared/material-form-builder/form-components/input/input-form-field";
-import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
-import { DateFormField } from "../../shared/material-form-builder/form-components/date/date-form-field";
-import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
-import { SelectFormField } from "../../shared/material-form-builder/form-components/select/select-form-field";
+import moment from "moment";
+import { Observable, of } from "rxjs";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
-import { VervalReden } from "../model/vervalReden";
+import { UtilService } from "../../core/service/util.service";
+import { DialogData } from "../../shared/dialog/dialog-data";
+import { DialogComponent } from "../../shared/dialog/dialog.component";
+import { Conditionals } from "../../shared/edit/conditional-fn";
+import { TextIcon } from "../../shared/edit/text-icon";
+import { HistorieRegel } from "../../shared/historie/model/historie-regel";
+import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
+import { DateFormField } from "../../shared/material-form-builder/form-components/date/date-form-field";
+import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
+import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
+import { DocumentenLijstFormField } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-form-field";
 import { HiddenFormField } from "../../shared/material-form-builder/form-components/hidden/hidden-form-field";
 import { HiddenFormFieldBuilder } from "../../shared/material-form-builder/form-components/hidden/hidden-form-field-builder";
-import { UtilService } from "../../core/service/util.service";
+import { InputFormField } from "../../shared/material-form-builder/form-components/input/input-form-field";
+import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { MessageFormField } from "../../shared/material-form-builder/form-components/message/message-form-field";
 import { MessageFormFieldBuilder } from "../../shared/material-form-builder/form-components/message/message-form-field-builder";
 import { MessageLevel } from "../../shared/material-form-builder/form-components/message/message-level.enum";
+import { SelectFormField } from "../../shared/material-form-builder/form-components/select/select-form-field";
+import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
+import { Besluit } from "../model/besluit";
+import { VervalReden } from "../model/vervalReden";
+import { ZakenService } from "../zaken.service";
 
 @Component({
   selector: "zac-besluit-view",
