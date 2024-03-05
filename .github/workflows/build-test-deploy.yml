@@ -139,6 +139,8 @@ jobs:
 
       - name: Upload unit test coverage report to Codecov
         uses: codecov/codecov-action@v4
+        with:
+          flags: unittests
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -225,6 +227,8 @@ jobs:
 
       - name: Upload integration test coverage report to Codecov
         uses: codecov/codecov-action@v4
+        with:
+          flags: integrationtests
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
