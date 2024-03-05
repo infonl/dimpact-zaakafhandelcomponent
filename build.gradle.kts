@@ -157,11 +157,11 @@ dependencies {
     "itestImplementation"("org.testcontainers:testcontainers:1.19.6")
     "itestImplementation"("org.testcontainers:mockserver:1.19.6")
     "itestImplementation"("org.testcontainers:postgresql:1.19.6")
+    "itestImplementation"("org.json:json:20240303")
     "itestImplementation"("io.kotest:kotest-runner-junit5:5.8.0")
     "itestImplementation"("io.kotest:kotest-assertions-json:5.8.0")
     "itestImplementation"("org.slf4j:slf4j-simple:2.0.12")
     "itestImplementation"("io.github.oshai:kotlin-logging-jvm:6.0.3")
-    "itestImplementation"("org.danilopianini:khttp:1.6.0")
     "itestImplementation"("com.squareup.okhttp3:okhttp:4.12.0")
     "itestImplementation"("com.squareup.okhttp3:okhttp-urlconnection:4.12.0")
     "itestImplementation"("org.awaitility:awaitility-kotlin:4.2.0")
@@ -547,10 +547,6 @@ tasks {
         classpath = sourceSets["itest"].runtimeClasspath
 
         systemProperty("zacDockerImage", zacDockerImage)
-        // note that the PATCH (and PUT?) HTTP requests in the integration tests currently
-        // require the following environment variable to be set
-        // see: https://github.com/lojewalo/khttp/issues/88
-        environment("JAVA_TOOL_OPTIONS", "--add-opens=java.base/java.net=ALL-UNNAMED")
     }
 
     register<JacocoReport>("jacocoIntegrationTestReport") {

@@ -11,7 +11,6 @@ import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import nl.lifely.zac.itest.client.KeycloakClient
 import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
@@ -21,7 +20,6 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_
 import nl.lifely.zac.itest.config.ItestConfiguration.USER_FULL_NAME
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
-import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
 import org.json.JSONObject
 import java.io.File
@@ -61,7 +59,7 @@ class InformatieObjectenTest : BehaviorSpec() {
 
                     zacClient.performPostRequest(
                         url = endpointUrl,
-                        postBody = JSONObject(
+                        requestBodyAsString = JSONObject(
                             mapOf(
                                 "zaakUUID" to zaak1UUID
                             )
@@ -91,31 +89,24 @@ class InformatieObjectenTest : BehaviorSpec() {
                     val file = Thread.currentThread().getContextClassLoader().getResource("dummyTestDocument.pdf").let {
                         File(it!!.path)
                     }
-                    val endpointUrl = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/upload/$zaak1UUID"
-                    logger.info { "Calling $endpointUrl endpoint" }
-
-                    val request = Request.Builder()
-                        .header("Authorization", "Bearer ${KeycloakClient.requestAccessToken()}")
-                        .url(endpointUrl)
-                        .post(
-                            MultipartBody.Builder()
-                                .setType(MultipartBody.FORM)
-                                .addFormDataPart("filename", FILE_NAME)
-                                .addFormDataPart("filesize", file.length().toString())
-                                .addFormDataPart("type", FILE_FORMAAT)
-                                .addFormDataPart(
-                                    "file",
-                                    FILE_NAME,
-                                    file.asRequestBody("application/pdf".toMediaType())
-                                )
-                                .build()
-                        )
-                        .build()
-
-                    zacClient.okHttpClient.newCall(request).execute().use { response ->
+                    val requestBody =
+                        MultipartBody.Builder()
+                            .setType(MultipartBody.FORM)
+                            .addFormDataPart("filename", FILE_NAME)
+                            .addFormDataPart("filesize", file.length().toString())
+                            .addFormDataPart("type", FILE_FORMAAT)
+                            .addFormDataPart(
+                                "file",
+                                FILE_NAME,
+                                file.asRequestBody("application/pdf".toMediaType())
+                            )
+                            .build()
+                    zacClient.performPostRequest(
+                        url = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/upload/$zaak1UUID",
+                        requestBody = requestBody
+                    ).use { response ->
                         val responseBody = response.body!!.string()
-                        logger.info { "$endpointUrl response: $responseBody" }
-
+                        logger.info { "Response: $responseBody" }
                         response.isSuccessful shouldBe true
                     }
                 }
@@ -142,7 +133,7 @@ class InformatieObjectenTest : BehaviorSpec() {
                         "}"
                     zacClient.performPostRequest(
                         url = endpointUrl,
-                        postBody = postBody
+                        requestBodyAsString = postBody
 
                     ).use { response ->
                         val responseBody = response.body!!.string()
@@ -180,31 +171,26 @@ class InformatieObjectenTest : BehaviorSpec() {
                     val file = Thread.currentThread().getContextClassLoader().getResource("dummyTestDocument.pdf").let {
                         File(it!!.path)
                     }
-                    val endpointUrl = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/upload/$task1ID"
-                    logger.info { "Calling $endpointUrl endpoint" }
 
-                    val request = Request.Builder()
-                        .header("Authorization", "Bearer ${KeycloakClient.requestAccessToken()}")
-                        .url(endpointUrl)
-                        .post(
-                            MultipartBody.Builder()
-                                .setType(MultipartBody.FORM)
-                                .addFormDataPart("filename", FILE_NAME)
-                                .addFormDataPart("filesize", file.length().toString())
-                                .addFormDataPart("type", FILE_FORMAAT)
-                                .addFormDataPart(
-                                    "file",
-                                    FILE_NAME,
-                                    file.asRequestBody("application/pdf".toMediaType())
-                                )
-                                .build()
-                        )
-                        .build()
+                    val requestBody =
+                        MultipartBody.Builder()
+                            .setType(MultipartBody.FORM)
+                            .addFormDataPart("filename", FILE_NAME)
+                            .addFormDataPart("filesize", file.length().toString())
+                            .addFormDataPart("type", FILE_FORMAAT)
+                            .addFormDataPart(
+                                "file",
+                                FILE_NAME,
+                                file.asRequestBody("application/pdf".toMediaType())
+                            )
+                            .build()
 
-                    zacClient.okHttpClient.newCall(request).execute().use { response ->
+                    zacClient.performPostRequest(
+                        url = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/upload/$task1ID",
+                        requestBody = requestBody
+                    ).use { response ->
                         val responseBody = response.body!!.string()
-                        logger.info { "$endpointUrl response: $responseBody" }
-
+                        logger.info { "Response: $responseBody" }
                         response.isSuccessful shouldBe true
                     }
                 }
@@ -227,7 +213,7 @@ class InformatieObjectenTest : BehaviorSpec() {
                         "}"
                     zacClient.performPostRequest(
                         url = endpointUrl,
-                        postBody = postBody
+                        requestBodyAsString = postBody
 
                     ).use { response ->
                         val responseBody = response.body!!.string()

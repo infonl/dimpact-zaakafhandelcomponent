@@ -11,7 +11,7 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.provided.ProjectConfig
-import nl.lifely.zac.itest.client.KeycloakClient
+import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTS_API_HOSTNAME_URL
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANVRAAG_DENHAAG
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_UUID
@@ -20,6 +20,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_INITIAL
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import okhttp3.Headers
 import org.json.JSONObject
 import org.testcontainers.containers.wait.strategy.Wait
 import java.time.ZoneId
@@ -27,7 +28,7 @@ import java.time.ZonedDateTime
 import java.util.UUID
 
 private val logger = KotlinLogging.logger {}
-
+private val zacClient = ZacClient()
 lateinit var zaak1UUID: UUID
 
 /**
@@ -38,16 +39,16 @@ class NotificationsTest : BehaviorSpec({
     given("ZAC and all related Docker containers are running") {
         When("the notificaties endpoint is called with dummy payload without authentication header") {
             then("the response should be forbidden") {
-                khttp.post(
+                zacClient.performPostRequest(
                     url = "${ZAC_API_URI}/notificaties",
-                    headers = mapOf("Content-Type" to "application/json"),
-                    data = JSONObject(
+                    headers = Headers.headersOf("Content-Type", "application/json"),
+                    requestBodyAsString = JSONObject(
                         mapOf(
                             "dummy" to "dummy"
                         )
-                    )
-                ).apply {
-                    statusCode shouldBe HttpStatus.SC_FORBIDDEN
+                    ).toString()
+                ).use { response ->
+                    response.code shouldBe HttpStatus.SC_FORBIDDEN
                 }
             }
         }
@@ -61,15 +62,17 @@ class NotificationsTest : BehaviorSpec({
                 "the response should be 'no content', a zaak should be created in OpenZaak " +
                     "and a zaak productaanvraag proces of type 'Productaanvraag-Denhaag' should be started in ZAC"
             ) {
-                khttp.post(
+                zacClient.performPostRequest(
                     url = "${ZAC_API_URI}/notificaties",
-                    headers = mapOf(
-                        "Content-Type" to "application/json",
+                    headers = Headers.headersOf(
+                        "Content-Type",
+                        "application/json",
                         // this test simulates that Open Notificaties sends the request to ZAC
                         // using the secret API key that is configured in ZAC
-                        "Authorization" to OPEN_NOTIFICATIONS_API_SECRET_KEY
+                        "Authorization",
+                        OPEN_NOTIFICATIONS_API_SECRET_KEY
                     ),
-                    data = JSONObject(
+                    requestBodyAsString = JSONObject(
                         mapOf(
                             "resource" to "object",
                             "resourceUrl" to "$OBJECTS_API_HOSTNAME_URL/$OBJECT_PRODUCTAANVRAAG_UUID",
@@ -79,24 +82,17 @@ class NotificationsTest : BehaviorSpec({
                             ),
                             "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                         )
-                    )
-                ).apply {
-                    // Note that the 'notificaties' endpoint always returns 'no content' even if things go wrong
-                    // since it is a fire-and-forget kind of endpoint.
-                    statusCode shouldBe HttpStatus.SC_NO_CONTENT
+                    ).toString()
+                ).use { response ->
+                    response.isSuccessful shouldBe true
 
                     // retrieve the newly created zaak and check the contents
-                    khttp.get(
-                        url = "${ZAC_API_URI}/zaken/zaak/id/$ZAAK_1_IDENTIFICATION",
-                        headers = mapOf(
-                            "Content-Type" to "application/json",
-                            "Authorization" to "Bearer ${KeycloakClient.requestAccessToken()}"
-                        ),
-                    ).apply {
-                        logger.info { "Response: $text" }
-
-                        statusCode shouldBe HttpStatus.SC_OK
-                        val zaak = JSONObject(text)
+                    zacClient.performGetRequest(
+                        "${ZAC_API_URI}/zaken/zaak/id/$ZAAK_1_IDENTIFICATION"
+                    ).use { getZaakResponse ->
+                        val responseBody = getZaakResponse.body!!.string()
+                        logger.info { "Response: $responseBody" }
+                        val zaak = JSONObject(responseBody)
                         zaak.getString("identificatie") shouldBe ZAAK_1_IDENTIFICATION
                         zaak.getJSONObject("zaaktype")
                             .getString("uuid") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID.toString()
@@ -123,26 +119,26 @@ class NotificationsTest : BehaviorSpec({
             then(
                 "a corresponding error message should be logged in ZAC"
             ) {
-                khttp.post(
+                zacClient.performPostRequest(
                     url = "${ZAC_API_URI}/notificaties",
-                    headers = mapOf(
-                        "Content-Type" to "application/json",
+                    headers = Headers.headersOf(
+                        "Content-Type",
+                        "application/json",
                         // this test simulates that Open Notificaties sends the request to ZAC
                         // using the secret API key that is configured in ZAC
-                        "Authorization" to OPEN_NOTIFICATIONS_API_SECRET_KEY
+                        "Authorization",
+                        OPEN_NOTIFICATIONS_API_SECRET_KEY
                     ),
-                    data = JSONObject(
+                    requestBodyAsString = JSONObject(
                         mapOf(
                             "resource" to "zaaktype",
                             "resourceUrl" to "http://example.com/dummyResourceUrl",
                             "actie" to "create",
                             "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                         )
-                    )
-                ).apply {
-                    // Note that the 'notificaties' endpoint always returns 'no content' even if things go wrong
-                    // since it is a fire-and-forget kind of endpoint.
-                    statusCode shouldBe HttpStatus.SC_NO_CONTENT
+                    ).toString()
+                ).use { response ->
+                    response.isSuccessful shouldBe true
 
                     // we expect ZAC to log an error message indicating that the resourceURL is invalid
                     ProjectConfig.dockerComposeContainer.waitingFor(
