@@ -1,28 +1,15 @@
 import { Pipe, PipeTransform } from "@angular/core";
-import { FileFormat } from "src/app/informatie-objecten/model/file-format";
+import {
+  FileFormat,
+  FileFormatExtensionMapping,
+} from "src/app/informatie-objecten/model/file-format";
 
 @Pipe({
   name: "mimetypeToExtension",
   standalone: true,
 })
 export class MimetypeToExtensionPipe implements PipeTransform {
-  fileFormatExtesions = {
-    [FileFormat["PDF"]]: ".pdf",
-    [FileFormat["JPEG"]]: ".jpg/.jpeg",
-    [FileFormat["BMP"]]: ".bmp",
-    [FileFormat["GIF"]]: ".gif",
-    [FileFormat["PNG"]]: ".png",
-    [FileFormat["TEXT"]]: ".txt",
-    [FileFormat["XLSX"]]: ".xlsx",
-    [FileFormat["XLS"]]: ".xls",
-    [FileFormat["PPTX"]]: ".pptx",
-    [FileFormat["PPT"]]: ".ppt",
-    [FileFormat["DOCX"]]: ".docx",
-    [FileFormat["DOC"]]: ".doc",
-    [FileFormat["ODT"]]: ".odt",
-    [FileFormat["VSD"]]: ".vsd",
-    [FileFormat["RTF"]]: ".rtf",
-  };
+  fileFormatExtesions = FileFormatExtensionMapping;
 
   transform(mimetype: string): string {
     const isMimetypeSupported = Object.keys(this.fileFormatExtesions).includes(
