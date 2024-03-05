@@ -18,15 +18,15 @@ import okhttp3.JavaNetCookieJar
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.net.CookieManager
 import java.net.CookiePolicy
 import java.util.UUID
 
-private val logger = KotlinLogging.logger {}
-
 class ZacClient {
-    var okHttpClient: OkHttpClient
+    private var okHttpClient: OkHttpClient
+    private val logger = KotlinLogging.logger {}
 
     init {
         // use a non-persistent cookie manager to we can reuse HTTP sessions across requests in ZAC
@@ -37,40 +37,58 @@ class ZacClient {
             .build()
     }
 
-    fun performGetRequest(url: String): okhttp3.Response {
+    fun performGetRequest(
+        url: String,
+        headers: Headers = Headers.headersOf(
+            "Authorization",
+            "Bearer ${KeycloakClient.requestAccessToken()}",
+            "Accept",
+            "application/json"
+        )
+    ): okhttp3.Response {
         logger.info { "Performing GET request on: '$url'" }
-
         val request = Request.Builder()
-            .headers(
-                Headers.headersOf(
-                    "Authorization",
-                    "Bearer ${KeycloakClient.requestAccessToken()}",
-                    "Accept",
-                    "application/json"
-                )
-            )
+            .headers(headers)
             .url(url)
             .get()
             .build()
         return okHttpClient.newCall(request).execute()
     }
 
-    fun performPostRequest(url: String, postBody: String): okhttp3.Response {
+    fun performPostRequest(
+        url: String,
+        headers: Headers = Headers.headersOf(
+            "Authorization",
+            "Bearer ${KeycloakClient.requestAccessToken()}",
+            "Accept",
+            "application/json"
+        ),
+        requestBody: RequestBody
+    ): okhttp3.Response {
         logger.info { "Performing POST request on: '$url'" }
-
         val request = Request.Builder()
-            .headers(
-                Headers.headersOf(
-                    "Authorization",
-                    "Bearer ${KeycloakClient.requestAccessToken()}",
-                    "Accept",
-                    "application/json"
-                )
-            )
+            .headers(headers)
             .url(url)
-            .post(postBody.toRequestBody("application/json".toMediaType()))
+            .post(requestBody)
             .build()
         return okHttpClient.newCall(request).execute()
+    }
+
+    fun performPostRequest(
+        url: String,
+        headers: Headers = Headers.headersOf(
+            "Authorization",
+            "Bearer ${KeycloakClient.requestAccessToken()}",
+            "Accept",
+            "application/json"
+        ),
+        requestBodyAsString: String
+    ): okhttp3.Response {
+        return performPostRequest(
+            url = url,
+            headers = headers,
+            requestBody = requestBodyAsString.toRequestBody("application/json".toMediaType())
+        )
     }
 
     @Suppress("LongMethod")

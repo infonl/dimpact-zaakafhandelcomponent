@@ -11,6 +11,7 @@ import io.kotest.assertions.json.shouldEqualSpecifiedJsonIgnoringOrder
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.KeycloakClient
+import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration
 
 class IdentityServiceTest : BehaviorSpec() {
@@ -31,6 +32,8 @@ class IdentityServiceTest : BehaviorSpec() {
         const val TEST_GROUP_RECORD_MANAGERS_DESCRIPTION = "Test group record managers"
     }
 
+    private val zacClient: ZacClient = ZacClient()
+
     init {
         given(
             "Keycloak contains 'test group a' and 'test group functional beheerders'"
@@ -39,28 +42,24 @@ class IdentityServiceTest : BehaviorSpec() {
                 then(
                     "'test group a' and 'test group functional beheerders' are returned"
                 ) {
-                    khttp.get(
+                    zacClient.performGetRequest(
                         url = "${ItestConfiguration.ZAC_API_URI}/identity/groups",
-                        headers = mapOf(
-                            "Content-Type" to "application/json",
-                            "Authorization" to "Bearer ${KeycloakClient.requestAccessToken()}"
-                        )
-                    ).apply {
-                        statusCode shouldBe HttpStatus.SC_OK
-                        text shouldEqualJson """
+                    ).use { response ->
+                        response.isSuccessful shouldBe true
+                        response.body!!.string() shouldEqualJson """
                             [
                                 {
                                     "id": "$TEST_GROUP_A_ID",
                                     "naam": "$TEST_GROUP_A_DESCRIPTION"
                                 },
-                                  {
+                                {
                                     "id": "$TEST_GROUP_FUNCTIONAL_ADMINS_ID",
                                     "naam": "$TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION"
                                 },
-                                  {
+                                {
                                     "id": "$TEST_GROUP_RECORD_MANAGERS_ID",
                                     "naam": "$TEST_GROUP_RECORD_MANAGERS_DESCRIPTION"
-                                  }
+                                }
                             ]
                         """.trimIndent()
                     }
@@ -74,15 +73,11 @@ class IdentityServiceTest : BehaviorSpec() {
                 then(
                     "'test user 1' and 'test user 2' are returned"
                 ) {
-                    khttp.get(
+                    zacClient.performGetRequest(
                         url = "${ItestConfiguration.ZAC_API_URI}/identity/users",
-                        headers = mapOf(
-                            "Content-Type" to "application/json",
-                            "Authorization" to "Bearer ${KeycloakClient.requestAccessToken()}"
-                        )
-                    ).apply {
-                        statusCode shouldBe HttpStatus.SC_OK
-                        text shouldEqualJson """
+                    ).use { response ->
+                        response.isSuccessful shouldBe true
+                        response.body!!.string() shouldEqualJson """
                             [
                                 {
                                     "id": "$TEST_FUNCTIONAL_ADMIN_1_ID",
@@ -113,25 +108,21 @@ class IdentityServiceTest : BehaviorSpec() {
                 then(
                     "'testuser 1' and 'testuser 2' are returned"
                 ) {
-                    khttp.get(
-                        url = "${ItestConfiguration.ZAC_API_URI}/identity/groups/$TEST_GROUP_A_ID/users",
-                        headers = mapOf(
-                            "Content-Type" to "application/json",
-                            "Authorization" to "Bearer ${KeycloakClient.requestAccessToken()}"
-                        )
-                    ).apply {
-                        statusCode shouldBe HttpStatus.SC_OK
-                        text shouldEqualJson """
-                            [
-                                {
-                                    "id": "testuser1",
-                                    "naam": "Test User1"
-                                },
-                                {
-                                    "id": "testuser2",
-                                    "naam": "Test User2"
-                                }
-                            ]
+                    zacClient.performGetRequest(
+                        url = "${ItestConfiguration.ZAC_API_URI}/identity/groups/$TEST_GROUP_A_ID/users"
+                    ).use { response ->
+                        response.isSuccessful shouldBe true
+                        response.body!!.string() shouldEqualJson """
+                        [
+                            {
+                                "id": "$TEST_USER_1_ID",
+                                "naam": "$TEST_USER_1_NAME"
+                            },
+                            {
+                                "id": "$TEST_USER_2_ID",
+                                "naam": "$TEST_USER_2_NAME"
+                            }
+                        ]
                         """.trimIndent()
                     }
                 }
@@ -169,18 +160,14 @@ class IdentityServiceTest : BehaviorSpec() {
                 then(
                     "both groups are returned"
                 ) {
-                    khttp.get(
-                        url = "${ItestConfiguration.ZAC_API_URI}/identity/loggedInUser",
-                        headers = mapOf(
-                            "Content-Type" to "application/json",
-                            "Authorization" to "Bearer ${KeycloakClient.requestAccessToken()}"
-                        )
-                    ).apply {
-                        statusCode shouldBe HttpStatus.SC_OK
-                        text shouldEqualSpecifiedJsonIgnoringOrder """
+                    zacClient.performGetRequest(
+                        url = "${ItestConfiguration.ZAC_API_URI}/identity/loggedInUser"
+                    ).use { response ->
+                        response.isSuccessful shouldBe true
+                        response.body!!.string() shouldEqualSpecifiedJsonIgnoringOrder """
                             {
-                                "id": "testuser1",
-                                "naam": "Test User1",
+                                "id": "$TEST_USER_1_ID",
+                                "naam": "$TEST_USER_1_NAME",
                                 "groupIds": [
                                     "$TEST_GROUP_A_ID",
                                     "$TEST_GROUP_FUNCTIONAL_ADMINS_ID"

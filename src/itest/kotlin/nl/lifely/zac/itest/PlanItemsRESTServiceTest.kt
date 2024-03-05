@@ -91,7 +91,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec() {
                     val fataleDatum = LocalDate.now().plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                     zacClient.performPostRequest(
                         url = "${ItestConfiguration.ZAC_API_URI}/planitems/doHumanTaskPlanItem",
-                        postBody = "{\n" +
+                        requestBodyAsString = "{\n" +
                             "\"planItemInstanceId\":\"$humanTaskItemAanvullendeInformatieId\",\n" +
                             "\"fataledatum\":\"$fataleDatum\",\n" +
                             "\"taakStuurGegevens\":{\"sendMail\":false},\n" +
