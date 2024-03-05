@@ -279,6 +279,8 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         )
         targetExclude(
             "src/main/app/node_modules/**",
+            "src/main/app/src/generated/**",
+            "src/main/app/coverage/**",
             "src/main/app/dist/**",
             "src/main/app/.angular/**"
         )
