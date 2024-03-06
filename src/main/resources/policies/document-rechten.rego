@@ -56,16 +56,19 @@ wijzigen {
     document.zaak_open == true
     document.definitief == false
     onvergrendeld_of_vergrendeld_door_user == true
+    document.vergrendeld == false
 }
 wijzigen {
     recordmanager.rol in user.rollen
     zaaktype_allowed
+    document.vergrendeld == false
 }
 
 default verwijderen := false
 verwijderen {
     recordmanager.rol in user.rollen
     zaaktype_allowed
+    document.vergrendeld == false
 }
 verwijderen {
     behandelaar.rol in user.rollen
