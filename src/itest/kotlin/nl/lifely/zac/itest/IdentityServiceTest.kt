@@ -9,7 +9,7 @@ import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.assertions.json.shouldEqualSpecifiedJsonIgnoringOrder
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import nl.lifely.zac.itest.client.ZacClient
+import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration
 
 class IdentityServiceTest : BehaviorSpec() {
@@ -30,7 +30,7 @@ class IdentityServiceTest : BehaviorSpec() {
         const val TEST_GROUP_RECORD_MANAGERS_DESCRIPTION = "Test group record managers"
     }
 
-    private val zacClient: ZacClient = ZacClient()
+    private val itestHttpClient = ItestHttpClient()
 
     init {
         given(
@@ -40,8 +40,8 @@ class IdentityServiceTest : BehaviorSpec() {
                 then(
                     "'test group a' and 'test group functional beheerders' are returned"
                 ) {
-                    zacClient.performGetRequest(
-                        url = "${ItestConfiguration.ZAC_API_URI}/identity/groups",
+                    itestHttpClient.performGetRequest(
+                        url = "${ItestConfiguration.ZAC_API_URI}/identity/groups"
                     ).use { response ->
                         response.isSuccessful shouldBe true
                         response.body!!.string() shouldEqualJson """
@@ -71,8 +71,8 @@ class IdentityServiceTest : BehaviorSpec() {
                 then(
                     "'test user 1' and 'test user 2' are returned"
                 ) {
-                    zacClient.performGetRequest(
-                        url = "${ItestConfiguration.ZAC_API_URI}/identity/users",
+                    itestHttpClient.performGetRequest(
+                        url = "${ItestConfiguration.ZAC_API_URI}/identity/users"
                     ).use { response ->
                         response.isSuccessful shouldBe true
                         response.body!!.string() shouldEqualJson """
@@ -106,7 +106,7 @@ class IdentityServiceTest : BehaviorSpec() {
                 then(
                     "'testuser 1' and 'testuser 2' are returned"
                 ) {
-                    zacClient.performGetRequest(
+                    itestHttpClient.performGetRequest(
                         url = "${ItestConfiguration.ZAC_API_URI}/identity/groups/$TEST_GROUP_A_ID/users"
                     ).use { response ->
                         response.isSuccessful shouldBe true
@@ -135,7 +135,7 @@ class IdentityServiceTest : BehaviorSpec() {
                 then(
                     "an empty list is returned"
                 ) {
-                    zacClient.performGetRequest(
+                    itestHttpClient.performGetRequest(
                         url = "${ItestConfiguration.ZAC_API_URI}/identity/groups/*/users"
                     ).use { response ->
                         response.isSuccessful shouldBe true
@@ -153,7 +153,7 @@ class IdentityServiceTest : BehaviorSpec() {
                 then(
                     "both groups are returned"
                 ) {
-                    zacClient.performGetRequest(
+                    itestHttpClient.performGetRequest(
                         url = "${ItestConfiguration.ZAC_API_URI}/identity/loggedInUser"
                     ).use { response ->
                         response.isSuccessful shouldBe true

@@ -11,7 +11,7 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.provided.ProjectConfig
-import nl.lifely.zac.itest.client.ZacClient
+import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTS_API_HOSTNAME_URL
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANVRAAG_DENHAAG
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_UUID
@@ -28,7 +28,7 @@ import java.time.ZonedDateTime
 import java.util.UUID
 
 private val logger = KotlinLogging.logger {}
-private val zacClient = ZacClient()
+private val itestHttpClient = ItestHttpClient()
 lateinit var zaak1UUID: UUID
 
 /**
@@ -39,7 +39,7 @@ class NotificationsTest : BehaviorSpec({
     given("ZAC and all related Docker containers are running") {
         When("the notificaties endpoint is called with dummy payload without authentication header") {
             then("the response should be forbidden") {
-                zacClient.performPostRequest(
+                itestHttpClient.performJSONPostRequest(
                     url = "${ZAC_API_URI}/notificaties",
                     headers = Headers.headersOf("Content-Type", "application/json"),
                     requestBodyAsString = JSONObject(
@@ -62,7 +62,7 @@ class NotificationsTest : BehaviorSpec({
                 "the response should be 'no content', a zaak should be created in OpenZaak " +
                     "and a zaak productaanvraag proces of type 'Productaanvraag-Denhaag' should be started in ZAC"
             ) {
-                zacClient.performPostRequest(
+                itestHttpClient.performJSONPostRequest(
                     url = "${ZAC_API_URI}/notificaties",
                     headers = Headers.headersOf(
                         "Content-Type",
@@ -82,12 +82,13 @@ class NotificationsTest : BehaviorSpec({
                             ),
                             "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                         )
-                    ).toString()
+                    ).toString(),
+                    addAuthorizationHeader = false
                 ).use { response ->
                     response.isSuccessful shouldBe true
 
                     // retrieve the newly created zaak and check the contents
-                    zacClient.performGetRequest(
+                    itestHttpClient.performGetRequest(
                         "${ZAC_API_URI}/zaken/zaak/id/$ZAAK_1_IDENTIFICATION"
                     ).use { getZaakResponse ->
                         val responseBody = getZaakResponse.body!!.string()
@@ -119,7 +120,7 @@ class NotificationsTest : BehaviorSpec({
             then(
                 "a corresponding error message should be logged in ZAC"
             ) {
-                zacClient.performPostRequest(
+                itestHttpClient.performJSONPostRequest(
                     url = "${ZAC_API_URI}/notificaties",
                     headers = Headers.headersOf(
                         "Content-Type",
@@ -136,7 +137,8 @@ class NotificationsTest : BehaviorSpec({
                             "actie" to "create",
                             "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                         )
-                    ).toString()
+                    ).toString(),
+                    addAuthorizationHeader = false
                 ).use { response ->
                     response.isSuccessful shouldBe true
 
