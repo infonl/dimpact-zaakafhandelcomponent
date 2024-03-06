@@ -11,97 +11,12 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVEN
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import okhttp3.Headers
-import okhttp3.JavaNetCookieJar
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
-import java.net.CookieManager
-import java.net.CookiePolicy
 import java.util.*
 
 class ZacClient {
-    private var okHttpClient: OkHttpClient
     private val logger = KotlinLogging.logger {}
-
-    init {
-        // use a non-persistent cookie manager to we can reuse HTTP sessions across requests in ZAC
-        val cookieManager = CookieManager()
-        cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL)
-        okHttpClient = OkHttpClient.Builder()
-            .cookieJar(JavaNetCookieJar(cookieManager))
-            .build()
-    }
-
-    fun performGetRequest(
-        url: String,
-        headers: Headers = getDefaultHeaders()
-    ): Response {
-        logger.info { "Performing GET request on: '$url'" }
-        val request = Request.Builder()
-            .headers(headers)
-            .url(url)
-            .get()
-            .build()
-        return okHttpClient.newCall(request).execute()
-    }
-
-    fun performPostRequest(
-        url: String,
-        headers: Headers = getDefaultHeaders(),
-        requestBody: RequestBody
-    ): Response {
-        logger.info { "Performing POST request on: '$url'" }
-        val request = Request.Builder()
-            .headers(headers)
-            .url(url)
-            .post(requestBody)
-            .build()
-        return okHttpClient.newCall(request).execute()
-    }
-
-    fun performPostRequest(
-        url: String,
-        headers: Headers = getDefaultHeaders(),
-        requestBodyAsString: String
-    ): Response {
-        return performPostRequest(
-            url = url,
-            headers = headers,
-            requestBody = requestBodyAsString.toRequestBody("application/json".toMediaType())
-        )
-    }
-
-    fun performPatchRequest(
-        url: String,
-        headers: Headers = getDefaultHeaders(),
-        requestBodyAsString: String
-    ): Response {
-        logger.info { "Performing PATCH request on: '$url'" }
-        val request = Request.Builder()
-            .headers(headers)
-            .url(url)
-            .patch(requestBodyAsString.toRequestBody("application/json".toMediaType()))
-            .build()
-        return okHttpClient.newCall(request).execute()
-    }
-
-    fun performPutRequest(
-        url: String,
-        headers: Headers = getDefaultHeaders(),
-        requestBodyAsString: String
-    ): Response {
-        logger.info { "Performing PUT request on: '$url'" }
-        val request = Request.Builder()
-            .headers(headers)
-            .url(url)
-            .put(requestBodyAsString.toRequestBody("application/json".toMediaType()))
-            .build()
-        return okHttpClient.newCall(request).execute()
-    }
+    private var itestHttpClient: ItestHttpClient = ItestHttpClient()
 
     @Suppress("LongMethod")
     fun createZaakAfhandelParameters(): Response {
@@ -109,7 +24,7 @@ class ZacClient {
             "Creating zaakafhandelparameters in ZAC for zaaktype with identificatie: $ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE " +
                 "and UUID: $ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
         }
-        return performPutRequest(
+        return itestHttpClient.performPutRequest(
             url = "$ZAC_API_URI/zaakafhandelParameters",
             requestBodyAsString = "{\n" +
                 "  \"humanTaskParameters\": [\n" +
@@ -295,7 +210,7 @@ class ZacClient {
         logger.info {
             "Creating zaak with group id: $groupId and group name: $groupName"
         }
-        return performPostRequest(
+        return itestHttpClient.performJSONPostRequest(
             url = "${ZAC_API_URI}/zaken/zaak",
             requestBodyAsString = "{\n" +
                 "  \"zaak\": {\n" +
@@ -320,13 +235,4 @@ class ZacClient {
                 "}"
         )
     }
-
-    private fun getDefaultHeaders() = Headers.headersOf(
-        "Authorization",
-        // perform a request to Keycloak to get an access token
-        // this can only be done after a successfull authentication
-        "Bearer ${KeycloakClient.requestAccessToken()}",
-        "Accept",
-        "application/json"
-    )
 }

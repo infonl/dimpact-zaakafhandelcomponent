@@ -10,6 +10,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.config.AbstractProjectConfig
 import io.kotest.core.spec.SpecExecutionOrder
 import io.kotest.matchers.shouldBe
+import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.client.KeycloakClient
 import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
@@ -39,7 +40,7 @@ object ProjectConfig : AbstractProjectConfig() {
     val THIRTY_SECONDS = Duration.ofSeconds(30)
 
     lateinit var dockerComposeContainer: ComposeContainer
-    private val zacClient = ZacClient()
+    private val itestHttpClient = ItestHttpClient()
 
     override suspend fun beforeProject() {
         try {
@@ -52,7 +53,7 @@ object ProjectConfig : AbstractProjectConfig() {
             await.atMost(THIRTY_SECONDS)
                 .until {
                     try {
-                        zacClient.performGetRequest(
+                        itestHttpClient.performGetRequest(
                             headers = Headers.headersOf("Content-Type", "application/json"),
                             url = KEYCLOAK_HEALTH_READY_URL
                         ).isSuccessful
@@ -67,7 +68,7 @@ object ProjectConfig : AbstractProjectConfig() {
             logger.info { "Waiting until ZAC is healthy by calling the health endpoint and checking the response" }
             await.atMost(THIRTY_SECONDS)
                 .until {
-                    zacClient.performGetRequest(
+                    itestHttpClient.performGetRequest(
                         headers = Headers.headersOf("Content-Type", "application/json"),
                         url = ZAC_HEALTH_READY_URL
                     ).use { response ->

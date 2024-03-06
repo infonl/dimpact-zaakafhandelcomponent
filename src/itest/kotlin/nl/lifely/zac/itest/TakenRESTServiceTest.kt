@@ -14,7 +14,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.PlanItemsRESTServiceTest.Companion.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
 import nl.lifely.zac.itest.PlanItemsRESTServiceTest.Companion.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
-import nl.lifely.zac.itest.client.ZacClient
+import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.GROUP_A_NAME
@@ -32,7 +32,7 @@ lateinit var task1ID: String
 @Order(TEST_SPEC_ORDER_AFTER_TASK_CREATED)
 class TakenRESTServiceTest : BehaviorSpec() {
     private val logger = KotlinLogging.logger {}
-    private val zacClient: ZacClient = ZacClient()
+    private val itestHttpClient = ItestHttpClient()
 
     init {
         given("A zaak has been created") {
@@ -41,7 +41,7 @@ class TakenRESTServiceTest : BehaviorSpec() {
                     "the list of taken for this zaak is returned and contains the task 'aanvullende informatie' which was started " +
                         "previously"
                 ) {
-                    zacClient.performGetRequest(
+                    itestHttpClient.performGetRequest(
                         "${ItestConfiguration.ZAC_API_URI}/taken/zaak/$zaak1UUID"
                     ).use { response ->
                         val responseBody = response.body!!.string()

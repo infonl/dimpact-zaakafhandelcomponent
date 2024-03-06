@@ -17,10 +17,10 @@ object KeycloakClient {
     private const val ACCESS_TOKEN_ATTRIBUTE = "access_token"
     private const val REFRESH_TOKEN_ATTRIBUTE = "refresh_token"
 
-    private val zacClient = ZacClient()
+    private val itestHttpClient = ItestHttpClient()
     private lateinit var refreshToken: String
 
-    fun authenticate() = zacClient.performPostRequest(
+    fun authenticate() = itestHttpClient.performPostRequest(
         url = "$KEYCLOAK_HOSTNAME_URL/realms/$KEYCLOAK_REALM/protocol/openid-connect/token",
         headers = Headers.headersOf("Content-Type", "application/x-www-form-urlencoded"),
         requestBody = FormBody.Builder()
@@ -41,7 +41,7 @@ object KeycloakClient {
      * refresh token does not expire in the meantime.
      */
     fun requestAccessToken(): String {
-        zacClient.performPostRequest(
+        itestHttpClient.performPostRequest(
             url = "$KEYCLOAK_HOSTNAME_URL/realms/$KEYCLOAK_REALM/protocol/openid-connect/token",
             headers = Headers.headersOf("Content-Type", "application/x-www-form-urlencoded"),
             requestBody = FormBody.Builder()

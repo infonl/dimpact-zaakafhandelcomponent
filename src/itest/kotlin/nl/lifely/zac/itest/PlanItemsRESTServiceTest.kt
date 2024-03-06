@@ -12,7 +12,7 @@ import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import nl.lifely.zac.itest.client.ZacClient
+import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.GROUP_A_NAME
@@ -33,7 +33,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec() {
     }
 
     private val logger = KotlinLogging.logger {}
-    private val zacClient: ZacClient = ZacClient()
+    private val itestHttpClient = ItestHttpClient()
     private lateinit var humanTaskItemAanvullendeInformatieId: String
 
     init {
@@ -42,7 +42,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec() {
                 then(
                     "the list of human task plan items for this zaak is returned and contains the task 'aanvullende informatie'"
                 ) {
-                    zacClient.performGetRequest(
+                    itestHttpClient.performGetRequest(
                         "${ItestConfiguration.ZAC_API_URI}/planitems/zaak/$zaak1UUID/humanTaskPlanItems"
                     ).use { response ->
                         val responseBody = response.body!!.string()
@@ -67,7 +67,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec() {
         given("A zaak has been created") {
             When("the get human task plan item endpoint is called for the task 'aanvullende informatie'") {
                 then("the human task plan item data for this task is returned") {
-                    zacClient.performGetRequest(
+                    itestHttpClient.performGetRequest(
                         "${ItestConfiguration.ZAC_API_URI}/planitems/humanTaskPlanItem/$humanTaskItemAanvullendeInformatieId"
                     ).use { response ->
                         val responseBody = response.body!!.string()
@@ -89,7 +89,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec() {
             When("the start human task plan items endpoint is called") {
                 then("a task is started for this zaak") {
                     val fataleDatum = LocalDate.now().plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                    zacClient.performPostRequest(
+                    itestHttpClient.performJSONPostRequest(
                         url = "${ItestConfiguration.ZAC_API_URI}/planitems/doHumanTaskPlanItem",
                         requestBodyAsString = "{\n" +
                             "\"planItemInstanceId\":\"$humanTaskItemAanvullendeInformatieId\",\n" +

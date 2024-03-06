@@ -11,7 +11,7 @@ import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import nl.lifely.zac.itest.client.ZacClient
+import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
 import nl.lifely.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
@@ -44,7 +44,7 @@ class InformatieObjectenTest : BehaviorSpec() {
     }
 
     private val logger = KotlinLogging.logger {}
-    private val zacClient: ZacClient = ZacClient()
+    private val itestHttpClient = ItestHttpClient()
 
     init {
         given(
@@ -57,7 +57,7 @@ class InformatieObjectenTest : BehaviorSpec() {
                     val endpointUrl = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/documentcreatie"
                     logger.info { "Calling $endpointUrl endpoint" }
 
-                    zacClient.performPostRequest(
+                    itestHttpClient.performJSONPostRequest(
                         url = endpointUrl,
                         requestBodyAsString = JSONObject(
                             mapOf(
@@ -101,7 +101,7 @@ class InformatieObjectenTest : BehaviorSpec() {
                                 file.asRequestBody("application/pdf".toMediaType())
                             )
                             .build()
-                    zacClient.performPostRequest(
+                    itestHttpClient.performPostRequest(
                         url = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/upload/$zaak1UUID",
                         requestBody = requestBody
                     ).use { response ->
@@ -131,7 +131,7 @@ class InformatieObjectenTest : BehaviorSpec() {
                         "\"auteur\":\"$USER_FULL_NAME\",\n" +
                         "\"taal\":\"dut\"\n" +
                         "}"
-                    zacClient.performPostRequest(
+                    itestHttpClient.performJSONPostRequest(
                         url = endpointUrl,
                         requestBodyAsString = postBody
 
@@ -185,7 +185,7 @@ class InformatieObjectenTest : BehaviorSpec() {
                             )
                             .build()
 
-                    zacClient.performPostRequest(
+                    itestHttpClient.performPostRequest(
                         url = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/upload/$task1ID",
                         requestBody = requestBody
                     ).use { response ->
@@ -211,7 +211,7 @@ class InformatieObjectenTest : BehaviorSpec() {
                         "\"titel\":\"$FILE_TITLE\",\n" +
                         "\"informatieobjectTypeUUID\":\"$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID\"\n" +
                         "}"
-                    zacClient.performPostRequest(
+                    itestHttpClient.performJSONPostRequest(
                         url = endpointUrl,
                         requestBodyAsString = postBody
 

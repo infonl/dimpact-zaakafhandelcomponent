@@ -12,6 +12,7 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration.GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.GROUP_A_NAME
@@ -22,6 +23,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_2_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONObject
 
+private val itestHttpClient = ItestHttpClient()
 private val zacClient = ZacClient()
 private val logger = KotlinLogging.logger {}
 
@@ -56,7 +58,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 // note that this HTTP request currently requires the following environment variable
                 // to be set when running this test: JAVA_TOOL_OPTIONS=--add-opens=java.base/java.net=ALL-UNNAMED
                 // see: https://github.com/lojewalo/khttp/issues/88
-                zacClient.performPatchRequest(
+                itestHttpClient.performPatchRequest(
                     url = "${ZAC_API_URI}/zaken/toekennen",
                     requestBodyAsString = "{\n" +
                         "  \"zaakUUID\": \"$zaak1UUID\",\n" +
