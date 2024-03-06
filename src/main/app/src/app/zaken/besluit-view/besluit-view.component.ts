@@ -22,7 +22,6 @@ import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { DialogData } from "../../shared/dialog/dialog-data";
 import { DialogComponent } from "../../shared/dialog/dialog.component";
-import { Conditionals } from "../../shared/edit/conditional-fn";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { HistorieRegel } from "../../shared/historie/model/historie-regel";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
@@ -42,6 +41,7 @@ import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-
 import { Besluit } from "../model/besluit";
 import { VervalReden } from "../model/vervalReden";
 import { ZakenService } from "../zaken.service";
+import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 
 @Component({
   selector: "zac-besluit-view",
@@ -58,7 +58,7 @@ export class BesluitViewComponent implements OnInit, OnChanges {
 
   besluitInformatieobjecten: Record<string, DocumentenLijstFormField> = {};
   toolTipIcon = new TextIcon(
-    Conditionals.always,
+    DateConditionals.provideFormControlValue(DateConditionals.always),
     "info",
     "toolTip_icon",
     "",

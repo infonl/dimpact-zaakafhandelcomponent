@@ -6,7 +6,7 @@
 import { Component } from "@angular/core";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
-import { Conditionals } from "../../shared/edit/conditional-fn";
+import { DateConditionals } from "../../shared/utils/date-conditionals";
 import { ZaakOverzicht } from "../../zaken/model/zaak-overzicht";
 import { ZakenService } from "../../zaken/zaken.service";
 import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
@@ -38,7 +38,7 @@ export class ZaakWaarschuwingenCardComponent extends DashboardCardComponent<Zaak
   }
 
   isAfterDate(datum, actual): boolean {
-    return Conditionals.isOverschreden(datum, actual);
+    return DateConditionals.isExceeded(datum, actual);
   }
 
   protected onLoad(afterLoad: () => void): void {

@@ -17,7 +17,6 @@ import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
 import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
-import { Conditionals } from "../../shared/edit/conditional-fn";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { SorteerVeld } from "../../zoeken/model/sorteer-veld";
@@ -25,6 +24,7 @@ import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { ZakenService } from "../zaken.service";
 import { ZakenAfgehandeldDatasource } from "./zaken-afgehandeld-datasource";
+import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 
 @Component({
   templateUrl: "./zaken-afgehandeld.component.html",
@@ -45,14 +45,14 @@ export class ZakenAfgehandeldComponent
   sorteerVeld = SorteerVeld;
 
   einddatumGeplandIcon: TextIcon = new TextIcon(
-    Conditionals.isAfterDate(),
+    DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
     "report_problem",
     "warningVerlopen_icon",
     "msg.datum.overschreden",
     "warning",
   );
   uiterlijkeEinddatumAfdoeningIcon: TextIcon = new TextIcon(
-    Conditionals.isAfterDate(),
+    DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
     "report_problem",
     "errorVerlopen_icon",
     "msg.datum.overschreden",
@@ -113,7 +113,7 @@ export class ZakenAfgehandeldComponent
   }
 
   isAfterDate(datum): boolean {
-    return Conditionals.isOverschreden(datum);
+    return DateConditionals.isExceeded(datum);
   }
 
   resetColumns(): void {

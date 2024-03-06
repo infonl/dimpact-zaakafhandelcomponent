@@ -4,10 +4,10 @@
  */
 
 import { Component, Input } from "@angular/core";
-import { UtilService } from "../../../core/service/util.service";
-import { InputFormField } from "../../material-form-builder/form-components/input/input-form-field";
 import { MaterialFormBuilderService } from "../../material-form-builder/material-form-builder.service";
+import { UtilService } from "../../../core/service/util.service";
 import { EditAutocompleteComponent } from "../edit-autocomplete/edit-autocomplete.component";
+import { InputFormField } from "../../material-form-builder/form-components/input/input-form-field";
 
 @Component({
   selector: "zac-edit-groep",

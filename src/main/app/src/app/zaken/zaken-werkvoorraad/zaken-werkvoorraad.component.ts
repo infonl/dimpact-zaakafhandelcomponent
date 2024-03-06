@@ -16,7 +16,6 @@ import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { LoggedInUser } from "../../identity/model/logged-in-user";
 import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
-import { Conditionals } from "../../shared/edit/conditional-fn";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZoekenService } from "../../zoeken/zoeken.service";
@@ -32,6 +31,7 @@ import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { ZakenVerdelenDialogComponent } from "../zaken-verdelen-dialog/zaken-verdelen-dialog.component";
 import { ZakenVrijgevenDialogComponent } from "../zaken-vrijgeven-dialog/zaken-vrijgeven-dialog.component";
 import { ZakenWerkvoorraadDatasource } from "./zaken-werkvoorraad-datasource";
+import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 
 @Component({
   templateUrl: "./zaken-werkvoorraad.component.html",
@@ -54,14 +54,14 @@ export class ZakenWerkvoorraadComponent
   sorteerVeld = SorteerVeld;
 
   einddatumGeplandIcon: TextIcon = new TextIcon(
-    Conditionals.isAfterDate(),
+    DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
     "report_problem",
     "warningVerlopen_icon",
     "msg.datum.overschreden",
     "warning",
   );
   uiterlijkeEinddatumAfdoeningIcon: TextIcon = new TextIcon(
-    Conditionals.isAfterDate(),
+    DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
     "report_problem",
     "errorVerlopen_icon",
     "msg.datum.overschreden",
@@ -178,7 +178,7 @@ export class ZakenWerkvoorraadComponent
   }
 
   isAfterDate(datum): boolean {
-    return Conditionals.isOverschreden(datum);
+    return DateConditionals.isExceeded(datum);
   }
 
   resetColumns(): void {
