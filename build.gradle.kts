@@ -110,7 +110,7 @@ dependencies {
     implementation("com.itextpdf:io:8.0.3")
     implementation("com.itextpdf:html2pdf:5.0.3")
     implementation("org.flywaydb:flyway-core:10.9.0")
-    implementation("org.flywaydb:flyway-database-postgresql:10.8.1")
+    implementation("org.flywaydb:flyway-database-postgresql:10.9.0")
     implementation("org.apache.solr:solr-solrj:9.5.0")
     implementation("nl.info.webdav:webdav-servlet:1.2.39")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
@@ -154,9 +154,9 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.10")
 
     // integration test dependencies
-    "itestImplementation"("org.testcontainers:testcontainers:1.19.6")
-    "itestImplementation"("org.testcontainers:mockserver:1.19.6")
-    "itestImplementation"("org.testcontainers:postgresql:1.19.6")
+    "itestImplementation"("org.testcontainers:testcontainers:1.19.7")
+    "itestImplementation"("org.testcontainers:mockserver:1.19.7")
+    "itestImplementation"("org.testcontainers:postgresql:1.19.7")
     "itestImplementation"("org.json:json:20240303")
     "itestImplementation"("io.kotest:kotest-runner-junit5:5.8.0")
     "itestImplementation"("io.kotest:kotest-assertions-json:5.8.0")
