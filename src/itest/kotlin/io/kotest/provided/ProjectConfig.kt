@@ -55,7 +55,8 @@ object ProjectConfig : AbstractProjectConfig() {
                     try {
                         itestHttpClient.performGetRequest(
                             headers = Headers.headersOf("Content-Type", "application/json"),
-                            url = KEYCLOAK_HEALTH_READY_URL
+                            url = KEYCLOAK_HEALTH_READY_URL,
+                            addAuthorizationHeader = false
                         ).isSuccessful
                     } catch (socketException: SocketException) {
                         logger.info(socketException) {
@@ -70,7 +71,8 @@ object ProjectConfig : AbstractProjectConfig() {
                 .until {
                     itestHttpClient.performGetRequest(
                         headers = Headers.headersOf("Content-Type", "application/json"),
-                        url = ZAC_HEALTH_READY_URL
+                        url = ZAC_HEALTH_READY_URL,
+                        addAuthorizationHeader = false
                     ).use { response ->
                         response.isSuccessful && JSONObject(response.body!!.string()).getString("status") == "UP"
                     }

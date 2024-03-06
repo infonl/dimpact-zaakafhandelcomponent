@@ -11,26 +11,32 @@ import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_HOSTNAME_URL
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_REALM
 import okhttp3.FormBody
 import okhttp3.Headers
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.json.JSONObject
+
+lateinit var refreshToken: String
+private val okHttpClient = OkHttpClient.Builder().build()
 
 object KeycloakClient {
     private const val ACCESS_TOKEN_ATTRIBUTE = "access_token"
     private const val REFRESH_TOKEN_ATTRIBUTE = "refresh_token"
 
-    private val itestHttpClient = ItestHttpClient()
-    private lateinit var refreshToken: String
-
-    fun authenticate() = itestHttpClient.performPostRequest(
-        url = "$KEYCLOAK_HOSTNAME_URL/realms/$KEYCLOAK_REALM/protocol/openid-connect/token",
-        headers = Headers.headersOf("Content-Type", "application/x-www-form-urlencoded"),
-        requestBody = FormBody.Builder()
-            .add("client_id", KEYCLOAK_CLIENT)
-            .add("grant_type", "password")
-            .add("username", "testuser1")
-            .add("password", "testuser1")
-            .add("client_secret", KEYCLOAK_CLIENT_SECRET)
+    fun authenticate() = okHttpClient.newCall(
+        Request.Builder()
+            .headers(Headers.headersOf("Content-Type", "application/x-www-form-urlencoded"))
+            .url("$KEYCLOAK_HOSTNAME_URL/realms/$KEYCLOAK_REALM/protocol/openid-connect/token")
+            .post(
+                FormBody.Builder()
+                    .add("client_id", KEYCLOAK_CLIENT)
+                    .add("grant_type", "password")
+                    .add("username", "testuser1")
+                    .add("password", "testuser1")
+                    .add("client_secret", KEYCLOAK_CLIENT_SECRET)
+                    .build()
+            )
             .build()
-    ).apply {
+    ).execute().apply {
         refreshToken = JSONObject(this.body!!.string()).getString(REFRESH_TOKEN_ATTRIBUTE)
     }
 
@@ -41,16 +47,20 @@ object KeycloakClient {
      * refresh token does not expire in the meantime.
      */
     fun requestAccessToken(): String {
-        itestHttpClient.performPostRequest(
-            url = "$KEYCLOAK_HOSTNAME_URL/realms/$KEYCLOAK_REALM/protocol/openid-connect/token",
-            headers = Headers.headersOf("Content-Type", "application/x-www-form-urlencoded"),
-            requestBody = FormBody.Builder()
-                .add("client_id", KEYCLOAK_CLIENT)
-                .add("grant_type", REFRESH_TOKEN_ATTRIBUTE)
-                .add(REFRESH_TOKEN_ATTRIBUTE, refreshToken)
-                .add("client_secret", KEYCLOAK_CLIENT_SECRET)
+        okHttpClient.newCall(
+            Request.Builder()
+                .headers(Headers.headersOf("Content-Type", "application/x-www-form-urlencoded"))
+                .url("$KEYCLOAK_HOSTNAME_URL/realms/$KEYCLOAK_REALM/protocol/openid-connect/token")
+                .post(
+                    FormBody.Builder()
+                        .add("client_id", KEYCLOAK_CLIENT)
+                        .add("grant_type", REFRESH_TOKEN_ATTRIBUTE)
+                        .add(REFRESH_TOKEN_ATTRIBUTE, refreshToken)
+                        .add("client_secret", KEYCLOAK_CLIENT_SECRET)
+                        .build()
+                )
                 .build()
-        ).apply {
+        ).execute().apply {
             with(JSONObject(this.body!!.string())) {
                 if (has(REFRESH_TOKEN_ATTRIBUTE)) {
                     refreshToken = getString(REFRESH_TOKEN_ATTRIBUTE)

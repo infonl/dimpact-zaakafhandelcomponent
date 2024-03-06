@@ -82,7 +82,8 @@ class NotificationsTest : BehaviorSpec({
                             ),
                             "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                         )
-                    ).toString()
+                    ).toString(),
+                    addAuthorizationHeader = false
                 ).use { response ->
                     response.isSuccessful shouldBe true
 
@@ -136,7 +137,8 @@ class NotificationsTest : BehaviorSpec({
                             "actie" to "create",
                             "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                         )
-                    ).toString()
+                    ).toString(),
+                    addAuthorizationHeader = false
                 ).use { response ->
                     response.isSuccessful shouldBe true
 

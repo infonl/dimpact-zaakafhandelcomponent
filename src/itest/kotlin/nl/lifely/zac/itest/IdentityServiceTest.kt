@@ -41,7 +41,7 @@ class IdentityServiceTest : BehaviorSpec() {
                     "'test group a' and 'test group functional beheerders' are returned"
                 ) {
                     itestHttpClient.performGetRequest(
-                        url = "${ItestConfiguration.ZAC_API_URI}/identity/groups",
+                        url = "${ItestConfiguration.ZAC_API_URI}/identity/groups"
                     ).use { response ->
                         response.isSuccessful shouldBe true
                         response.body!!.string() shouldEqualJson """
@@ -72,7 +72,7 @@ class IdentityServiceTest : BehaviorSpec() {
                     "'test user 1' and 'test user 2' are returned"
                 ) {
                     itestHttpClient.performGetRequest(
-                        url = "${ItestConfiguration.ZAC_API_URI}/identity/users",
+                        url = "${ItestConfiguration.ZAC_API_URI}/identity/users"
                     ).use { response ->
                         response.isSuccessful shouldBe true
                         response.body!!.string() shouldEqualJson """

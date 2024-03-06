@@ -16,7 +16,7 @@ import java.util.*
 
 class ZacClient {
     private val logger = KotlinLogging.logger {}
-    private var itestHttpClient: ItestHttpClient = ItestHttpClient()
+    private var itestHttpClient = ItestHttpClient()
 
     @Suppress("LongMethod")
     fun createZaakAfhandelParameters(): Response {

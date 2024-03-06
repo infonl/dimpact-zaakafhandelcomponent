@@ -27,11 +27,18 @@ class ItestHttpClient {
 
     fun performGetRequest(
         url: String,
-        headers: Headers = getDefaultJSONGETHeaders()
+        headers: Headers = getDefaultJSONGETHeaders(),
+        addAuthorizationHeader: Boolean = true,
     ): Response {
         logger.info { "Performing GET request on: '$url'" }
         val request = Request.Builder()
-            .headers(headers)
+            .headers(
+                if (addAuthorizationHeader) {
+                    cloneHeadersWithAuthorization(headers)
+                } else {
+                    headers
+                }
+            )
             .url(url)
             .get()
             .build()
@@ -41,11 +48,18 @@ class ItestHttpClient {
     fun performPostRequest(
         url: String,
         headers: Headers = getDefaultJSONHeaders(),
-        requestBody: RequestBody
+        requestBody: RequestBody,
+        addAuthorizationHeader: Boolean = true,
     ): Response {
         logger.info { "Performing POST request on: '$url'" }
         val request = Request.Builder()
-            .headers(headers)
+            .headers(
+                if (addAuthorizationHeader) {
+                    cloneHeadersWithAuthorization(headers)
+                } else {
+                    headers
+                }
+            )
             .url(url)
             .post(requestBody)
             .build()
@@ -55,21 +69,30 @@ class ItestHttpClient {
     fun performJSONPostRequest(
         url: String,
         headers: Headers = getDefaultJSONHeaders(),
-        requestBodyAsString: String
+        requestBodyAsString: String,
+        addAuthorizationHeader: Boolean = true,
     ) = performPostRequest(
         url = url,
         headers = headers,
-        requestBody = requestBodyAsString.toRequestBody("application/json".toMediaType())
+        requestBody = requestBodyAsString.toRequestBody("application/json".toMediaType()),
+        addAuthorizationHeader = addAuthorizationHeader
     )
 
     fun performPatchRequest(
         url: String,
         headers: Headers = getDefaultJSONHeaders(),
-        requestBodyAsString: String
+        requestBodyAsString: String,
+        addAuthorizationHeader: Boolean = true,
     ): Response {
         logger.info { "Performing PATCH request on: '$url'" }
         val request = Request.Builder()
-            .headers(headers)
+            .headers(
+                if (addAuthorizationHeader) {
+                    cloneHeadersWithAuthorization(headers)
+                } else {
+                    headers
+                }
+            )
             .url(url)
             .patch(requestBodyAsString.toRequestBody("application/json".toMediaType()))
             .build()
@@ -79,22 +102,28 @@ class ItestHttpClient {
     fun performPutRequest(
         url: String,
         headers: Headers = getDefaultJSONHeaders(),
-        requestBodyAsString: String
+        requestBodyAsString: String,
+        addAuthorizationHeader: Boolean = true,
     ): Response {
         logger.info { "Performing PUT request on: '$url'" }
         val request = Request.Builder()
-            .headers(headers)
-            .url(url)
+            .headers(
+                if (addAuthorizationHeader) {
+                    cloneHeadersWithAuthorization(headers)
+                } else {
+                    headers
+                }
+            ).url(url)
             .put(requestBodyAsString.toRequestBody("application/json".toMediaType()))
             .build()
         return okHttpClient.newCall(request).execute()
     }
 
     private fun getDefaultJSONGETHeaders() = Headers.headersOf(
-        "Authorization",
+        // "Authorization",
         // perform a request to Keycloak to get an access token
         // this can only be done after a successfull authentication
-        "Bearer ${KeycloakClient.requestAccessToken()}",
+        // "Bearer ${KeycloakClient.requestAccessToken()}",
         "Accept",
         "application/json"
     )
@@ -104,4 +133,7 @@ class ItestHttpClient {
             .newBuilder()
             .add("Content-Type", "application/json")
             .build()
+
+    private fun cloneHeadersWithAuthorization(headers: Headers): Headers =
+        headers.newBuilder().add("Authorization", "Bearer ${KeycloakClient.requestAccessToken()}").build()
 }
