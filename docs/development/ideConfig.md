@@ -19,6 +19,8 @@
 9. Add the default Reformat (Crtl+Alt+L / ⌘⌥L) and Optimise imports (Ctrl+Alt+O / ⌘⌥O) shortcuts 
 10. Select "Remove" from the next Warning dialog for both shortcuts
 ![intellij-remove-default-assignment](./attachments/images/intellij-remove-default-assignment.png)
+11. Make sure "Optimize imports on the fly" is turned off
+ ![intellij-imports-on-the-fly](./attachments/images/intellij-imports-on-the-fly.png)
 
 ### Run ZAC in IntelliJ
 
