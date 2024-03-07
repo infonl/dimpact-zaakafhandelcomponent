@@ -9,8 +9,16 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.core.test.TestCase
 import io.kotest.matchers.shouldBe
-import io.mockk.*
+import io.mockk.MockKAnnotations
+import io.mockk.clearAllMocks
+import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.runs
+import io.mockk.slot
+import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
 import net.atos.client.zgw.drc.DRCClientService
@@ -27,14 +35,16 @@ import net.atos.client.zgw.ztc.ZTCClientService
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter.convertToEnkelvoudigInformatieObject
-import net.atos.zac.app.informatieobjecten.model.*
+import net.atos.zac.app.informatieobjecten.model.RESTDocumentCreatieGegevens
+import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatieObjectVersieGegevens
+import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatieobject
+import net.atos.zac.app.informatieobjecten.model.createRESTFileUpload
 import net.atos.zac.documentcreatie.DocumentCreatieService
 import net.atos.zac.documentcreatie.model.DocumentCreatieGegevens
 import net.atos.zac.documentcreatie.model.createDocumentCreatieResponse
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.output.ZaakRechten
 import net.atos.zac.policy.output.createDocumentRechten
-import java.util.*
 
 class InformatieObjectenRESTServiceTest : BehaviorSpec() {
     private val documentCreatieService = mockk<DocumentCreatieService>()
