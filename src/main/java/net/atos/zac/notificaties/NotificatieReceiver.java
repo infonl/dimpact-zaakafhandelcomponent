@@ -5,34 +5,6 @@
 
 package net.atos.zac.notificaties;
 
-import jakarta.enterprise.inject.Instance;
-import jakarta.inject.Inject;
-import jakarta.servlet.http.HttpSession;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import net.atos.client.or.objecttype.ObjecttypesClientService;
-import net.atos.client.or.objecttype.model.Objecttype;
-import net.atos.zac.aanvraag.ProductaanvraagService;
-import net.atos.zac.authentication.ActiveSession;
-import net.atos.zac.authentication.SecurityUtil;
-import net.atos.zac.configuratie.ConfiguratieService;
-import net.atos.zac.documenten.InboxDocumentenService;
-import net.atos.zac.event.EventingService;
-import net.atos.zac.signalering.event.SignaleringEventUtil;
-import net.atos.zac.websocket.event.ScreenEventType;
-import net.atos.zac.zaaksturing.ZaakafhandelParameterBeheerService;
-import net.atos.zac.zoeken.IndexeerService;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import static jakarta.ws.rs.core.Response.noContent;
 import static net.atos.zac.notificaties.Action.CREATE;
 import static net.atos.zac.notificaties.Action.DELETE;
@@ -49,6 +21,36 @@ import static net.atos.zac.notificaties.Resource.ZAAKTYPE;
 import static net.atos.zac.util.UriUtil.uuidFromURI;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpSession;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import net.atos.client.or.objecttype.ObjecttypesClientService;
+import net.atos.client.or.objecttype.model.Objecttype;
+import net.atos.zac.aanvraag.ProductaanvraagService;
+import net.atos.zac.authentication.ActiveSession;
+import net.atos.zac.authentication.SecurityUtil;
+import net.atos.zac.configuratie.ConfiguratieService;
+import net.atos.zac.documenten.InboxDocumentenService;
+import net.atos.zac.event.EventingService;
+import net.atos.zac.signalering.event.SignaleringEventUtil;
+import net.atos.zac.websocket.event.ScreenEventType;
+import net.atos.zac.zaaksturing.ZaakafhandelParameterBeheerService;
+import net.atos.zac.zoeken.IndexeerService;
+
 /**
  *
  */
@@ -56,41 +58,48 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class NotificatieReceiver {
-
     private static final Logger LOG = Logger.getLogger(NotificatieReceiver.class.getName());
-
     private static final String OBJECTTYPE_KENMERK = "objectType";
-
     private static final String PRODUCTAANVRAAGTYPE_NAAM_DENHAAG = "Productaanvraag-Denhaag";
 
-    @Inject
     private EventingService eventingService;
-
-    @Inject
     private ProductaanvraagService productaanvraagService;
-
-    @Inject
     private ConfiguratieService configuratieService;
-
-    @Inject
     private IndexeerService indexeerService;
-
-    @Inject
     private InboxDocumentenService inboxDocumentenService;
-
-    @Inject
     private ZaakafhandelParameterBeheerService zaakafhandelParameterBeheerService;
-
-    @Inject
     private ObjecttypesClientService objecttypesClientService;
-
-    @Inject
-    @ConfigProperty(name = "OPEN_NOTIFICATIONS_API_SECRET_KEY")
     private String secret;
+    private Instance<HttpSession> httpSession;
+
+    /**
+     * Empty no-op constructor as required by JAX-RS.
+     */
+    public NotificatieReceiver() {
+    }
 
     @Inject
-    @ActiveSession
-    private Instance<HttpSession> httpSession;
+    public NotificatieReceiver(
+            EventingService eventingService,
+            ProductaanvraagService productaanvraagService,
+            ConfiguratieService configuratieService,
+            IndexeerService indexeerService,
+            InboxDocumentenService inboxDocumentenService,
+            ZaakafhandelParameterBeheerService zaakafhandelParameterBeheerService,
+            ObjecttypesClientService objecttypesClientService,
+            @ConfigProperty(name = "OPEN_NOTIFICATIONS_API_SECRET_KEY") String secret,
+            @ActiveSession Instance<HttpSession> httpSession
+    ) {
+        this.eventingService = eventingService;
+        this.productaanvraagService = productaanvraagService;
+        this.configuratieService = configuratieService;
+        this.indexeerService = indexeerService;
+        this.inboxDocumentenService = inboxDocumentenService;
+        this.zaakafhandelParameterBeheerService = zaakafhandelParameterBeheerService;
+        this.objecttypesClientService = objecttypesClientService;
+        this.secret = secret;
+        this.httpSession = httpSession;
+    }
 
     @POST
     public Response notificatieReceive(@Context HttpHeaders headers, final Notificatie notificatie) {
