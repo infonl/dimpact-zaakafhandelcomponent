@@ -203,7 +203,7 @@ jsonSchema2Pojo {
     setSource(files("$rootDir/src/main/resources/json-schema"))
     targetDirectory = file("$rootDir/src/generated/java")
     setFileExtensions(".schema.json")
-    targetPackage = "net.atos.zac.aanvraag"
+    targetPackage = "net.atos.zac.aanvraag.model.generated"
     setAnnotationStyle("JSONB2")
     dateType = "java.time.LocalDate"
     dateTimeType = "java.time.ZonedDateTime"
@@ -358,7 +358,6 @@ tasks {
                         exclude("net/atos/client/contactmomenten/model/**")
                         exclude("net/atos/client/kvk/**/model/**")
                         exclude("net/atos/client/vrl/model/**")
-                        exclude("net/atos/zac/aanvraag/**")
                         exclude("**/generated/**")
                     }
                 }

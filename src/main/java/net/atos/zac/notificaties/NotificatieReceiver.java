@@ -58,41 +58,48 @@ import net.atos.zac.zoeken.IndexeerService;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class NotificatieReceiver {
-
     private static final Logger LOG = Logger.getLogger(NotificatieReceiver.class.getName());
-
     private static final String OBJECTTYPE_KENMERK = "objectType";
-
     private static final String PRODUCTAANVRAAGTYPE_NAAM_DENHAAG = "Productaanvraag-Denhaag";
 
-    @Inject
     private EventingService eventingService;
-
-    @Inject
     private ProductaanvraagService productaanvraagService;
-
-    @Inject
     private ConfiguratieService configuratieService;
-
-    @Inject
     private IndexeerService indexeerService;
-
-    @Inject
     private InboxDocumentenService inboxDocumentenService;
-
-    @Inject
     private ZaakafhandelParameterBeheerService zaakafhandelParameterBeheerService;
-
-    @Inject
     private ObjecttypesClientService objecttypesClientService;
-
-    @Inject
-    @ConfigProperty(name = "OPEN_NOTIFICATIONS_API_SECRET_KEY")
     private String secret;
+    private Instance<HttpSession> httpSession;
+
+    /**
+     * Empty no-op constructor as required by JAX-RS.
+     */
+    public NotificatieReceiver() {
+    }
 
     @Inject
-    @ActiveSession
-    private Instance<HttpSession> httpSession;
+    public NotificatieReceiver(
+            EventingService eventingService,
+            ProductaanvraagService productaanvraagService,
+            ConfiguratieService configuratieService,
+            IndexeerService indexeerService,
+            InboxDocumentenService inboxDocumentenService,
+            ZaakafhandelParameterBeheerService zaakafhandelParameterBeheerService,
+            ObjecttypesClientService objecttypesClientService,
+            @ConfigProperty(name = "OPEN_NOTIFICATIONS_API_SECRET_KEY") String secret,
+            @ActiveSession Instance<HttpSession> httpSession
+    ) {
+        this.eventingService = eventingService;
+        this.productaanvraagService = productaanvraagService;
+        this.configuratieService = configuratieService;
+        this.indexeerService = indexeerService;
+        this.inboxDocumentenService = inboxDocumentenService;
+        this.zaakafhandelParameterBeheerService = zaakafhandelParameterBeheerService;
+        this.objecttypesClientService = objecttypesClientService;
+        this.secret = secret;
+        this.httpSession = httpSession;
+    }
 
     @POST
     public Response notificatieReceive(@Context HttpHeaders headers, final Notificatie notificatie) {
