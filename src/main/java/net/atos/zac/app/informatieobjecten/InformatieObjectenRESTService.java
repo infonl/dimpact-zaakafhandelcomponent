@@ -518,7 +518,8 @@ public class InformatieObjectenRESTService {
     @POST
     @Path("/informatieobject/update")
     public RESTEnkelvoudigInformatieobject updateEnkelvoudigInformatieobject(
-            final RESTEnkelvoudigInformatieObjectVersieGegevens enkelvoudigInformatieObjectVersieGegevens
+            final RESTEnkelvoudigInformatieObjectVersieGegevens enkelvoudigInformatieObjectVersieGegevens,
+            @MultipartForm final RESTFileUpload data
     ) {
         final var document = drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieObjectVersieGegevens.uuid);
         assertPolicy(
@@ -527,8 +528,8 @@ public class InformatieObjectenRESTService {
                         zrcClientService.readZaak(enkelvoudigInformatieObjectVersieGegevens.zaakUuid)
                 ).wijzigen()
         );
-        final var file = (RESTFileUpload) httpSession.get()
-                .getAttribute("FILE_" + enkelvoudigInformatieObjectVersieGegevens.zaakUuid);
+        final var file = data != null ? data : (RESTFileUpload) httpSession.get().getAttribute("FILE_" +
+                                                                                               enkelvoudigInformatieObjectVersieGegevens.zaakUuid);
         try {
             var updatedDocument = informatieobjectConverter.convert(enkelvoudigInformatieObjectVersieGegevens, file);
             updatedDocument = enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(

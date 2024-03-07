@@ -9,6 +9,12 @@ fun createRESTEnkelvoudigInformatieobject(
     this.uuid = uuid
 }
 
+fun createRESTEnkelvoudigInformatieObjectVersieGegevens(
+    uuid: UUID = UUID.randomUUID(),
+) = RESTEnkelvoudigInformatieObjectVersieGegevens().apply {
+    this.uuid = uuid
+}
+
 fun createRESTFileUpload(
     file: ByteArray = "dummyFile".toByteArray(),
     fileSize: Long = 123L,
@@ -31,4 +37,12 @@ fun createRESTInformatieobjecttype(
     this.omschrijving = omschrijving
     this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
     this.concept = concept
+}
+
+fun createRESTEnkelvoudigInformatieObjectVersieGegevens(
+    uuid: UUID = UUID.randomUUID(),
+    zaakUuid: UUID
+) = RESTEnkelvoudigInformatieObjectVersieGegevens().apply {
+    this.uuid = uuid
+    this.zaakUuid = zaakUuid
 }
