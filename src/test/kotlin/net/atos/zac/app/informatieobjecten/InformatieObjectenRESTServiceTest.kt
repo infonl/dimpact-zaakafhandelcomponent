@@ -233,10 +233,12 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                     val restFileUpload = createRESTFileUpload()
                     val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectData()
                     val zaakInformatieobject = createZaakInformatieobject()
+                    val httpSessionFileAttribute = "FILE_$documentReferentieId"
 
                     every { zrcClientService.readZaak(zaak.uuid) } returns zaak
                     every { policyService.readZaakRechten(zaak) } returns zaakRechtenWijzigen
                     every { httpSessionInstance.get() } returns httpSession
+                    every { httpSession.removeAttribute(httpSessionFileAttribute) } just runs
                     every {
                         restInformatieobjectConverter.convertZaakObject(
                             restEnkelvoudigInformatieobject,
