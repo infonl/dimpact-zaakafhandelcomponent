@@ -22,6 +22,7 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
 import { ZakenService } from "../zaken.service";
 
 import { ActivatedRoute } from "@angular/router";
+import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { SorteerVeld } from "src/app/zoeken/model/sorteer-veld";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
@@ -31,7 +32,6 @@ import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { ZakenVerdelenDialogComponent } from "../zaken-verdelen-dialog/zaken-verdelen-dialog.component";
 import { ZakenVrijgevenDialogComponent } from "../zaken-vrijgeven-dialog/zaken-vrijgeven-dialog.component";
 import { ZakenWerkvoorraadDatasource } from "./zaken-werkvoorraad-datasource";
-import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 
 @Component({
   templateUrl: "./zaken-werkvoorraad.component.html",

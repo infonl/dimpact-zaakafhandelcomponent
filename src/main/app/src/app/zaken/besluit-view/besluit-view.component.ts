@@ -18,6 +18,7 @@ import { MatTableDataSource } from "@angular/material/table";
 import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
 import { Observable, of } from "rxjs";
+import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { DialogData } from "../../shared/dialog/dialog-data";
@@ -41,7 +42,6 @@ import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-
 import { Besluit } from "../model/besluit";
 import { VervalReden } from "../model/vervalReden";
 import { ZakenService } from "../zaken.service";
-import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 
 @Component({
   selector: "zac-besluit-view",

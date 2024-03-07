@@ -11,6 +11,7 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { MatTable } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
+import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
@@ -24,7 +25,6 @@ import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { ZakenService } from "../zaken.service";
 import { ZakenMijnDatasource } from "./zaken-mijn-datasource";
-import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 
 @Component({
   templateUrl: "./zaken-mijn.component.html",
