@@ -141,7 +141,8 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                             zaak.uuid,
                             documentReferentieId,
                             false,
-                            restEnkelvoudigInformatieobject
+                            restEnkelvoudigInformatieobject,
+                            null
                         )
 
                     returnedRESTEnkelvoudigInformatieobject shouldBe responseRestEnkelvoudigInformatieobject
@@ -157,8 +158,6 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                     }
                 }
             }
-        }
-        given("an enkelvoudig informatieobject has been uploaded, and the zaak is open") {
             When("createEnkelvoudigInformatieobject is called but the ZGW client service throws an exception") {
                 then("the enkelvoudig informatieobject is not added to the zaak but is removed from the HTTP session") {
                     val zaak = createZaak()
@@ -194,7 +193,8 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                             zaak.uuid,
                             documentReferentieId,
                             false,
-                            restEnkelvoudigInformatieobject
+                            restEnkelvoudigInformatieobject,
+                            null
                         )
                     }
 
@@ -255,7 +255,8 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                             closedZaak.uuid,
                             documentReferentieId,
                             false,
-                            restEnkelvoudigInformatieobject
+                            restEnkelvoudigInformatieobject,
+                            null
                         )
 
                     returnedRESTEnkelvoudigInformatieobject shouldBe responseRestEnkelvoudigInformatieobject

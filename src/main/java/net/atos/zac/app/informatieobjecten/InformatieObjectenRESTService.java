@@ -283,12 +283,13 @@ public class InformatieObjectenRESTService {
             @PathParam("zaakUuid") final UUID zaakUuid,
             @PathParam("documentReferentieId") final String documentReferentieId,
             @QueryParam("taakObject") final boolean taakObject,
-            @Valid final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
+            @Valid final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject,
+            @MultipartForm final RESTFileUpload data
     ) {
         final Zaak zaak = zrcClientService.readZaak(zaakUuid);
         assertPolicy(policyService.readZaakRechten(zaak).wijzigen());
 
-        final RESTFileUpload file = (RESTFileUpload) httpSession.get().getAttribute("FILE_" + documentReferentieId);
+        final RESTFileUpload file = data != null ? data : (RESTFileUpload) httpSession.get().getAttribute("FILE_" + documentReferentieId);
 
         try {
             final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData = taakObject ?
@@ -528,13 +529,18 @@ public class InformatieObjectenRESTService {
         );
         final var file = (RESTFileUpload) httpSession.get()
                 .getAttribute("FILE_" + enkelvoudigInformatieObjectVersieGegevens.zaakUuid);
-        var updatedDocument = informatieobjectConverter.convert(enkelvoudigInformatieObjectVersieGegevens, file);
-        updatedDocument = enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                parseUUIDFromResourceURI(document.getUrl()),
-                updatedDocument,
-                enkelvoudigInformatieObjectVersieGegevens.toelichting
-        );
-        return informatieobjectConverter.convertToREST(convertToEnkelvoudigInformatieObject(updatedDocument));
+        try {
+            var updatedDocument = informatieobjectConverter.convert(enkelvoudigInformatieObjectVersieGegevens, file);
+            updatedDocument = enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
+                    parseUUIDFromResourceURI(document.getUrl()),
+                    updatedDocument,
+                    enkelvoudigInformatieObjectVersieGegevens.toelichting
+            );
+            return informatieobjectConverter.convertToREST(convertToEnkelvoudigInformatieObject(updatedDocument));
+        } finally {
+            // always remove the uploaded file from the HTTP session even if exceptions are thrown
+            httpSession.get().removeAttribute("FILE_" + enkelvoudigInformatieObjectVersieGegevens.zaakUuid);
+        }
     }
 
     @POST
