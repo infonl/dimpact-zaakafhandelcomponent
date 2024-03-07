@@ -5,27 +5,8 @@
 
 package net.atos.zac.aanvraag;
 
-import static net.atos.zac.configuratie.ConfiguratieService.BRON_ORGANISATIE;
-import static net.atos.zac.configuratie.ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER;
-import static net.atos.zac.util.UriUtil.uuidFromURI;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
-import java.net.URI;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import net.atos.client.or.object.ObjectsClientService;
 import net.atos.client.or.object.model.ORObject;
 import net.atos.client.vrl.VRLClientService;
@@ -47,6 +28,7 @@ import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.aanvraag.model.InboxProductaanvraag;
+import net.atos.zac.aanvraag.model.generated.ProductaanvraagDenhaag;
 import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.documenten.InboxDocumentenService;
 import net.atos.zac.flowable.BPMNService;
@@ -58,6 +40,23 @@ import net.atos.zac.util.JsonbUtil;
 import net.atos.zac.zaaksturing.ZaakafhandelParameterBeheerService;
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService;
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import java.net.URI;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static net.atos.zac.configuratie.ConfiguratieService.BRON_ORGANISATIE;
+import static net.atos.zac.configuratie.ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER;
+import static net.atos.zac.util.UriUtil.uuidFromURI;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @ApplicationScoped
 public class ProductaanvraagService {
@@ -205,8 +204,10 @@ public class ProductaanvraagService {
     }
 
     public ProductaanvraagDenhaag getProductaanvraag(final ORObject productaanvraagObject) {
-        return JsonbUtil.JSONB.fromJson(JsonbUtil.JSONB.toJson(productaanvraagObject.getRecord().getData()),
-                ProductaanvraagDenhaag.class);
+        return JsonbUtil.JSONB.fromJson(
+                JsonbUtil.JSONB.toJson(productaanvraagObject.getRecord().getData()),
+                ProductaanvraagDenhaag.class
+        );
     }
 
     private void addInitiator(final String bsn, final URI zaak, final URI zaaktype) {

@@ -5,6 +5,8 @@
 
 package net.atos.zac.aanvraag
 
+import net.atos.zac.aanvraag.model.generated.Data
+import net.atos.zac.aanvraag.model.generated.ProductaanvraagDenhaag
 import java.net.URI
 
 @Suppress("LongParameterList")
