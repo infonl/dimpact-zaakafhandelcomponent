@@ -5,8 +5,8 @@
 
 import { Component, Input, OnChanges } from "@angular/core";
 import { UtilService } from "../../core/service/util.service";
-import { Conditionals } from "../../shared/edit/conditional-fn";
 import { TextIcon } from "../../shared/edit/text-icon";
+import { DateConditionals } from "../../shared/utils/date-conditionals";
 import { Zaak } from "../model/zaak";
 
 @Component({
@@ -23,7 +23,10 @@ export class ZaakVerkortComponent implements OnChanges {
 
   ngOnChanges(): void {
     this.einddatumGeplandIcon = new TextIcon(
-      Conditionals.isAfterDate(this.zaak.einddatum),
+      DateConditionals.provideFormControlValue(
+        DateConditionals.isExceeded,
+        this.zaak.einddatum,
+      ),
       "report_problem",
       "warningZaakVerkortVerlopen_icon",
       "msg.datum.overschreden",

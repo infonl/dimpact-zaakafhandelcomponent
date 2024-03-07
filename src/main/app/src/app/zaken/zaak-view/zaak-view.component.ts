@@ -20,6 +20,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { forkJoin } from "rxjs";
 import { map, tap } from "rxjs/operators";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
+import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
 import { BAGObject } from "../../bag/model/bagobject";
@@ -47,7 +48,6 @@ import { detailExpand } from "../../shared/animations/animations";
 import { DialogData } from "../../shared/dialog/dialog-data";
 import { DialogComponent } from "../../shared/dialog/dialog.component";
 import { ExpandableTableData } from "../../shared/dynamic-table/model/expandable-table-data";
-import { Conditionals } from "../../shared/edit/conditional-fn";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { HistorieRegel } from "../../shared/historie/model/historie-regel";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
@@ -162,7 +162,7 @@ export class ZaakViewComponent
   editFormFieldIcons: Map<string, TextIcon> = new Map<string, TextIcon>();
   viewInitialized = false;
   toolTipIcon = new TextIcon(
-    Conditionals.always,
+    DateConditionals.provideFormControlValue(DateConditionals.always),
     "info",
     "toolTip_icon",
     "",
@@ -413,7 +413,10 @@ export class ZaakViewComponent
     this.editFormFieldIcons.set(
       "einddatumGepland",
       new TextIcon(
-        Conditionals.isAfterDate(this.zaak.einddatum),
+        DateConditionals.provideFormControlValue(
+          DateConditionals.isExceeded,
+          this.zaak.einddatum,
+        ),
         "report_problem",
         "warningVerlopen_icon",
         "msg.datum.overschreden",
@@ -432,7 +435,7 @@ export class ZaakViewComponent
     this.editFormFieldIcons.set(
       "uiterlijkeEinddatumAfdoening",
       new TextIcon(
-        Conditionals.isAfterDate(this.zaak.einddatum),
+        DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
         "report_problem",
         "errorVerlopen_icon",
         "msg.datum.overschreden",

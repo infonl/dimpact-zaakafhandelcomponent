@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ConditionalFn } from "./conditional-fn";
+import { ConditionalFn } from "../utils/date-conditionals";
 
 export class TextIcon {
   showIcon: ConditionalFn;
