@@ -31,7 +31,6 @@ import { InformatieObjectenService } from "../../informatie-objecten/informatie-
 import { DocumentCreatieGegevens } from "../../informatie-objecten/model/document-creatie-gegevens";
 import { EnkelvoudigInformatieobject } from "../../informatie-objecten/model/enkelvoudig-informatieobject";
 import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
-import { Conditionals } from "../../shared/edit/conditional-fn";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { TaakHistorieRegel } from "../../shared/historie/model/taak-historie-regel";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
@@ -47,6 +46,7 @@ import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item
 import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
 import { SideNavAction } from "../../shared/side-nav/side-nav-action";
+import { DateConditionals } from "../../shared/utils/date-conditionals";
 import { Zaak } from "../../zaken/model/zaak";
 import { Zaaktype } from "../../zaken/model/zaaktype";
 import { ZakenService } from "../../zaken/zaken.service";
@@ -234,7 +234,7 @@ export class TaakViewComponent
     );
 
     this.fataledatumIcon = new TextIcon(
-      Conditionals.isAfterDate(),
+      DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
       "report_problem",
       "errorTaakVerlopen_icon",
       "msg.datum.overschreden",

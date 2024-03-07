@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Conditionals } from "../../../edit/conditional-fn";
+import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { TextIcon } from "../../../edit/text-icon";
 import { AbstractFormFieldBuilder } from "../../model/abstract-form-field-builder";
 import { MessageFormField } from "./message-form-field";
@@ -49,7 +49,7 @@ export class MessageFormFieldBuilder extends AbstractFormFieldBuilder {
 
   private icon(level: string) {
     return new TextIcon(
-      Conditionals.always,
+      DateConditionals.provideFormControlValue(DateConditionals.always),
       level,
       this.formField.id + "_icon",
       "msg.message." + level,

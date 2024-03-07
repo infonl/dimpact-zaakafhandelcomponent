@@ -15,8 +15,8 @@ import { SorteerVeld } from "src/app/zoeken/model/sorteer-veld";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
-import { Conditionals } from "../../shared/edit/conditional-fn";
 import { TextIcon } from "../../shared/edit/text-icon";
+import { DateConditionals } from "../../shared/utils/date-conditionals";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { TakenService } from "../taken.service";
@@ -45,7 +45,7 @@ export class TakenMijnComponent
   sorteerVeld = SorteerVeld;
 
   fataledatumIcon: TextIcon = new TextIcon(
-    Conditionals.isAfterDate(),
+    DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
     "report_problem",
     "errorVerlopen_icon",
     "msg.datum.overschreden",
@@ -79,7 +79,7 @@ export class TakenMijnComponent
   }
 
   isAfterDate(datum): boolean {
-    return Conditionals.isOverschreden(datum);
+    return DateConditionals.isExceeded(datum);
   }
 
   defaultColumns(): Map<ZoekenColumn, ColumnPickerValue> {

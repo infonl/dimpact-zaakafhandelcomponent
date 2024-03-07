@@ -18,11 +18,11 @@ import { MatTableDataSource } from "@angular/material/table";
 import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
 import { Observable, of } from "rxjs";
+import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { DialogData } from "../../shared/dialog/dialog-data";
 import { DialogComponent } from "../../shared/dialog/dialog.component";
-import { Conditionals } from "../../shared/edit/conditional-fn";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { HistorieRegel } from "../../shared/historie/model/historie-regel";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
@@ -58,7 +58,7 @@ export class BesluitViewComponent implements OnInit, OnChanges {
 
   besluitInformatieobjecten: Record<string, DocumentenLijstFormField> = {};
   toolTipIcon = new TextIcon(
-    Conditionals.always,
+    DateConditionals.provideFormControlValue(DateConditionals.always),
     "info",
     "toolTip_icon",
     "",
