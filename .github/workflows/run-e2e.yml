@@ -24,7 +24,7 @@ jobs:
           my_ip=$(curl https://api.ipify.org)
           echo "my_ip=$my_ip" >> $GITHUB_ENV
       - name: add ip to nsg
-        uses: azure/CLI@v1
+        uses: azure/CLI@v2
         with:
           azcliversion: "latest"
           inlineScript: |
@@ -134,7 +134,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       - name: remove nsg rule by name
         if: always()
-        uses: azure/CLI@v1
+        uses: azure/CLI@v2
         with:
           azcliversion: "latest"
           inlineScript: |
