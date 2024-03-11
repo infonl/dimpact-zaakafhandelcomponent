@@ -10,7 +10,7 @@ import java.util.Locale
 
 plugins {
     java
-    kotlin("jvm") version "1.9.22"
+    kotlin("jvm") version "1.9.23"
     war
     jacoco
 
@@ -109,8 +109,8 @@ dependencies {
     implementation("com.itextpdf:layout:8.0.3")
     implementation("com.itextpdf:io:8.0.3")
     implementation("com.itextpdf:html2pdf:5.0.3")
-    implementation("org.flywaydb:flyway-core:10.9.0")
-    implementation("org.flywaydb:flyway-database-postgresql:10.9.0")
+    implementation("org.flywaydb:flyway-core:10.9.1")
+    implementation("org.flywaydb:flyway-database-postgresql:10.9.1")
     implementation("org.apache.solr:solr-solrj:9.5.0")
     implementation("nl.info.webdav:webdav-servlet:1.2.40")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
@@ -203,7 +203,7 @@ jsonSchema2Pojo {
     setSource(files("$rootDir/src/main/resources/json-schema"))
     targetDirectory = file("$rootDir/src/generated/java")
     setFileExtensions(".schema.json")
-    targetPackage = "net.atos.zac.aanvraag"
+    targetPackage = "net.atos.zac.aanvraag.model.generated"
     setAnnotationStyle("JSONB2")
     dateType = "java.time.LocalDate"
     dateTimeType = "java.time.ZonedDateTime"
@@ -358,7 +358,6 @@ tasks {
                         exclude("net/atos/client/contactmomenten/model/**")
                         exclude("net/atos/client/kvk/**/model/**")
                         exclude("net/atos/client/vrl/model/**")
-                        exclude("net/atos/zac/aanvraag/**")
                         exclude("**/generated/**")
                     }
                 }

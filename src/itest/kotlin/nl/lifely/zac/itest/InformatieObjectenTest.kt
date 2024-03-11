@@ -22,6 +22,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import org.json.JSONObject
+import org.mockserver.model.HttpStatusCode
 import java.io.File
 import java.time.LocalDate
 import java.time.ZonedDateTime
@@ -47,209 +48,200 @@ class InformatieObjectenTest : BehaviorSpec() {
     private val itestHttpClient = ItestHttpClient()
 
     init {
-        given(
+        Given(
             "ZAC and all related Docker containers are running and zaak exists"
         ) {
             When("the create document informatie objecten endpoint is called") {
-                then(
-                    "the 'unattended document creation wizard' is started in Smartdocuments"
+                val endpointUrl = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/documentcreatie"
+                logger.info { "Calling $endpointUrl endpoint" }
+
+                val response = itestHttpClient.performJSONPostRequest(
+                    url = endpointUrl,
+                    requestBodyAsString = JSONObject(
+                        mapOf(
+                            "zaakUUID" to zaak1UUID
+                        )
+                    ).toString()
+                )
+                Then(
+                    "the response should be OK and the response should contain a redirect URL to Smartdocuments"
                 ) {
-                    val endpointUrl = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/documentcreatie"
-                    logger.info { "Calling $endpointUrl endpoint" }
+                    val responseBody = response.body!!.string()
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HttpStatusCode.OK_200.code()
 
-                    itestHttpClient.performJSONPostRequest(
-                        url = endpointUrl,
-                        requestBodyAsString = JSONObject(
-                            mapOf(
-                                "zaakUUID" to zaak1UUID
-                            )
-                        ).toString()
-                    ).use { response ->
-                        val responseBody = response.body!!.string()
-                        logger.info { "Response: $responseBody" }
-                        response.isSuccessful shouldBe true
-
-                        with(responseBody) {
-                            shouldContainJsonKeyValue(
-                                "redirectURL",
-                                "$SMARTDOCUMENTS_MOCK_BASE_URI/smartdocuments/wizard?ticket=dummySmartdocumentsTicketID"
-                            )
-                        }
+                    with(responseBody) {
+                        shouldContainJsonKeyValue(
+                            "redirectURL",
+                            "$SMARTDOCUMENTS_MOCK_BASE_URI/smartdocuments/wizard?ticket=dummySmartdocumentsTicketID"
+                        )
                     }
                 }
             }
         }
-        given(
+        Given(
             "ZAC and all related Docker containers are running and zaak exists"
         ) {
             When("the upload file endpoint is called for a zaak") {
-                then(
-                    "the file is temporarily stored in ZAC"
+                val file = Thread.currentThread().getContextClassLoader().getResource("dummyTestDocument.pdf").let {
+                    File(it!!.path)
+                }
+                val requestBody =
+                    MultipartBody.Builder()
+                        .setType(MultipartBody.FORM)
+                        .addFormDataPart("filename", FILE_NAME)
+                        .addFormDataPart("filesize", file.length().toString())
+                        .addFormDataPart("type", FILE_FORMAAT)
+                        .addFormDataPart(
+                            "file",
+                            FILE_NAME,
+                            file.asRequestBody("application/pdf".toMediaType())
+                        )
+                        .build()
+                val response = itestHttpClient.performPostRequest(
+                    url = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/upload/$zaak1UUID",
+                    requestBody = requestBody
+                )
+                Then(
+                    "the response should be OK"
                 ) {
-                    val file = Thread.currentThread().getContextClassLoader().getResource("dummyTestDocument.pdf").let {
-                        File(it!!.path)
-                    }
-                    val requestBody =
-                        MultipartBody.Builder()
-                            .setType(MultipartBody.FORM)
-                            .addFormDataPart("filename", FILE_NAME)
-                            .addFormDataPart("filesize", file.length().toString())
-                            .addFormDataPart("type", FILE_FORMAAT)
-                            .addFormDataPart(
-                                "file",
-                                FILE_NAME,
-                                file.asRequestBody("application/pdf".toMediaType())
-                            )
-                            .build()
-                    itestHttpClient.performPostRequest(
-                        url = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/upload/$zaak1UUID",
-                        requestBody = requestBody
-                    ).use { response ->
-                        val responseBody = response.body!!.string()
-                        logger.info { "Response: $responseBody" }
-                        response.isSuccessful shouldBe true
-                    }
+                    val responseBody = response.body!!.string()
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HttpStatusCode.OK_200.code()
                 }
             }
         }
-        given(
+        Given(
             "A zaak exists and a file has been uploaded"
         ) {
             When("the create enkelvoudig informatie object endpoint is called for the zaak") {
-                then(
-                    "the document is created in Open Zaak and is attached to the zaak"
+                val endpointUrl = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/$zaak1UUID/$zaak1UUID"
+                logger.info { "Calling $endpointUrl endpoint" }
+                val postBody = "{\n" +
+                    "\"bestandsnaam\":\"$FILE_NAME\",\n" +
+                    "\"titel\":\"$FILE_TITLE\",\n" +
+                    "\"informatieobjectTypeUUID\":\"$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID\",\n" +
+                    "\"vertrouwelijkheidaanduiding\":\"$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK\",\n" +
+                    "\"status\":\"$DOCUMENT_STATUS_IN_BEWERKING\",\n" +
+                    "\"creatiedatum\":\"${DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm+01:00").format(ZonedDateTime.now())}\",\n" +
+                    "\"auteur\":\"$USER_FULL_NAME\",\n" +
+                    "\"taal\":\"dut\"\n" +
+                    "}"
+                val response = itestHttpClient.performJSONPostRequest(
+                    url = endpointUrl,
+                    requestBodyAsString = postBody
+                )
+                Then(
+                    "the response should be OK and should contain information about the created document"
                 ) {
-                    val endpointUrl = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/$zaak1UUID/$zaak1UUID"
-                    logger.info { "Calling $endpointUrl endpoint" }
-                    val postBody = "{\n" +
-                        "\"bestandsnaam\":\"$FILE_NAME\",\n" +
-                        "\"titel\":\"$FILE_TITLE\",\n" +
-                        "\"informatieobjectTypeUUID\":\"$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID\",\n" +
-                        "\"vertrouwelijkheidaanduiding\":\"$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK\",\n" +
-                        "\"status\":\"$DOCUMENT_STATUS_IN_BEWERKING\",\n" +
-                        "\"creatiedatum\":\"${DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm+01:00").format(ZonedDateTime.now())}\",\n" +
-                        "\"auteur\":\"$USER_FULL_NAME\",\n" +
-                        "\"taal\":\"dut\"\n" +
-                        "}"
-                    itestHttpClient.performJSONPostRequest(
-                        url = endpointUrl,
-                        requestBodyAsString = postBody
-
-                    ).use { response ->
-                        val responseBody = response.body!!.string()
-                        logger.info { "$endpointUrl response: $responseBody" }
-                        response.isSuccessful shouldBe true
-                        with(responseBody) {
-                            shouldContainJsonKeyValue("auteur", USER_FULL_NAME)
-                            shouldContainJsonKeyValue("bestandsnaam", FILE_NAME)
-                            shouldContainJsonKeyValue("status", DOCUMENT_STATUS_IN_BEWERKING)
-                            shouldContainJsonKeyValue("taal", "Nederlands")
-                            shouldContainJsonKeyValue("titel", FILE_TITLE)
-                            shouldContainJsonKeyValue(
-                                "vertrouwelijkheidaanduiding",
-                                DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
-                            )
-                            shouldContainJsonKeyValue("formaat", FILE_FORMAAT)
-                            shouldContainJsonKeyValue(
-                                "informatieobjectTypeOmschrijving",
-                                INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
-                            )
-                            shouldContainJsonKey("informatieobjectTypeUUID")
-                            shouldContainJsonKey("identificatie")
-                        }
+                    val responseBody = response.body!!.string()
+                    logger.info { "$endpointUrl response: $responseBody" }
+                    response.code shouldBe HttpStatusCode.OK_200.code()
+                    with(responseBody) {
+                        shouldContainJsonKeyValue("auteur", USER_FULL_NAME)
+                        shouldContainJsonKeyValue("bestandsnaam", FILE_NAME)
+                        shouldContainJsonKeyValue("status", DOCUMENT_STATUS_IN_BEWERKING)
+                        shouldContainJsonKeyValue("taal", "Nederlands")
+                        shouldContainJsonKeyValue("titel", FILE_TITLE)
+                        shouldContainJsonKeyValue(
+                            "vertrouwelijkheidaanduiding",
+                            DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
+                        )
+                        shouldContainJsonKeyValue("formaat", FILE_FORMAAT)
+                        shouldContainJsonKeyValue(
+                            "informatieobjectTypeOmschrijving",
+                            INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
+                        )
+                        shouldContainJsonKey("informatieobjectTypeUUID")
+                        shouldContainJsonKey("identificatie")
                     }
                 }
             }
         }
-        given(
+        Given(
             "ZAC and all related Docker containers are running and zaak exists"
         ) {
             When("the upload file endpoint is called for a task") {
-                then(
-                    "the file is temporarily stored in ZAC"
+                val file = Thread.currentThread().getContextClassLoader().getResource("dummyTestDocument.pdf").let {
+                    File(it!!.path)
+                }
+                val requestBody =
+                    MultipartBody.Builder()
+                        .setType(MultipartBody.FORM)
+                        .addFormDataPart("filename", FILE_NAME)
+                        .addFormDataPart("filesize", file.length().toString())
+                        .addFormDataPart("type", FILE_FORMAAT)
+                        .addFormDataPart(
+                            "file",
+                            FILE_NAME,
+                            file.asRequestBody("application/pdf".toMediaType())
+                        )
+                        .build()
+                val response = itestHttpClient.performPostRequest(
+                    url = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/upload/$task1ID",
+                    requestBody = requestBody
+                )
+                Then(
+                    "the response should be OK"
                 ) {
-                    val file = Thread.currentThread().getContextClassLoader().getResource("dummyTestDocument.pdf").let {
-                        File(it!!.path)
-                    }
-
-                    val requestBody =
-                        MultipartBody.Builder()
-                            .setType(MultipartBody.FORM)
-                            .addFormDataPart("filename", FILE_NAME)
-                            .addFormDataPart("filesize", file.length().toString())
-                            .addFormDataPart("type", FILE_FORMAAT)
-                            .addFormDataPart(
-                                "file",
-                                FILE_NAME,
-                                file.asRequestBody("application/pdf".toMediaType())
-                            )
-                            .build()
-
-                    itestHttpClient.performPostRequest(
-                        url = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/upload/$task1ID",
-                        requestBody = requestBody
-                    ).use { response ->
-                        val responseBody = response.body!!.string()
-                        logger.info { "Response: $responseBody" }
-                        response.isSuccessful shouldBe true
-                    }
+                    val responseBody = response.body!!.string()
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HttpStatusCode.OK_200.code()
                 }
             }
         }
-        given(
+        Given(
             "A task exists for a zaak and a file has been uploaded for the task"
         ) {
             When("the create enkelvoudig informatie object endpoint is called for the task") {
-                then(
-                    "the document is created in Open Zaak and is attached to the zaak and to the task"
+                val endpointUrl = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/" +
+                    "$zaak1UUID/$task1ID?taakObject=true"
+                logger.info { "Calling $endpointUrl endpoint" }
+                val postBody = "{\n" +
+                    "\"bestandsnaam\":\"$FILE_NAME\",\n" +
+                    "\"titel\":\"$FILE_TITLE\",\n" +
+                    "\"informatieobjectTypeUUID\":\"$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID\"\n" +
+                    "}"
+                val response = itestHttpClient.performJSONPostRequest(
+                    url = endpointUrl,
+                    requestBodyAsString = postBody
+                )
+                Then(
+                    "the response should be OK and should contain information about the created document"
                 ) {
-                    val endpointUrl = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/" +
-                        "$zaak1UUID/$task1ID?taakObject=true"
-                    logger.info { "Calling $endpointUrl endpoint" }
-                    val postBody = "{\n" +
-                        "\"bestandsnaam\":\"$FILE_NAME\",\n" +
-                        "\"titel\":\"$FILE_TITLE\",\n" +
-                        "\"informatieobjectTypeUUID\":\"$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID\"\n" +
-                        "}"
-                    itestHttpClient.performJSONPostRequest(
-                        url = endpointUrl,
-                        requestBodyAsString = postBody
-
-                    ).use { response ->
-                        val responseBody = response.body!!.string()
-                        logger.info { "$endpointUrl response: $responseBody" }
-                        response.isSuccessful shouldBe true
-                        with(responseBody) {
-                            shouldContainJsonKeyValue("auteur", USER_FULL_NAME)
-                            shouldContainJsonKeyValue("beschrijving", "taak-document")
-                            shouldContainJsonKeyValue("bestandsnaam", FILE_NAME)
-                            shouldContainJsonKeyValue("bestandsomvang", FILE_SIZE)
-                            shouldContainJsonKeyValue(
-                                "creatiedatum",
-                                LocalDate.now().format(DateTimeFormatter.ISO_DATE)
-                            )
-                            shouldContainJsonKeyValue("formaat", FILE_FORMAAT)
-                            shouldContainJsonKey("identificatie")
-                            shouldContainJsonKeyValue(
-                                "informatieobjectTypeOmschrijving",
-                                INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
-                            )
-                            shouldContainJsonKeyValue(
-                                "informatieobjectTypeUUID",
-                                INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
-                            )
-                            shouldContainJsonKeyValue("isBesluitDocument", false)
-                            // a document added to a task should _always_ have the status 'definitief'
-                            shouldContainJsonKeyValue("status", DOCUMENT_STATUS_DEFINITIEF)
-                            shouldContainJsonKeyValue("taal", "Nederlands")
-                            shouldContainJsonKeyValue("titel", FILE_TITLE)
-                            shouldContainJsonKeyValue("versie", 1)
-                            shouldContainJsonKey("uuid")
-                            shouldContainJsonKeyValue(
-                                "vertrouwelijkheidaanduiding",
-                                DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
-                            )
-                        }
+                    val responseBody = response.body!!.string()
+                    logger.info { "$endpointUrl response: $responseBody" }
+                    response.code shouldBe HttpStatusCode.OK_200.code()
+                    with(responseBody) {
+                        shouldContainJsonKeyValue("auteur", USER_FULL_NAME)
+                        shouldContainJsonKeyValue("beschrijving", "taak-document")
+                        shouldContainJsonKeyValue("bestandsnaam", FILE_NAME)
+                        shouldContainJsonKeyValue("bestandsomvang", FILE_SIZE)
+                        shouldContainJsonKeyValue(
+                            "creatiedatum",
+                            LocalDate.now().format(DateTimeFormatter.ISO_DATE)
+                        )
+                        shouldContainJsonKeyValue("formaat", FILE_FORMAAT)
+                        shouldContainJsonKey("identificatie")
+                        shouldContainJsonKeyValue(
+                            "informatieobjectTypeOmschrijving",
+                            INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
+                        )
+                        shouldContainJsonKeyValue(
+                            "informatieobjectTypeUUID",
+                            INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
+                        )
+                        shouldContainJsonKeyValue("isBesluitDocument", false)
+                        // a document added to a task should _always_ have the status 'definitief'
+                        shouldContainJsonKeyValue("status", DOCUMENT_STATUS_DEFINITIEF)
+                        shouldContainJsonKeyValue("taal", "Nederlands")
+                        shouldContainJsonKeyValue("titel", FILE_TITLE)
+                        shouldContainJsonKeyValue("versie", 1)
+                        shouldContainJsonKey("uuid")
+                        shouldContainJsonKeyValue(
+                            "vertrouwelijkheidaanduiding",
+                            DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+                        )
                     }
                 }
             }

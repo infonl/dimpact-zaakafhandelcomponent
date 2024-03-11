@@ -47,6 +47,7 @@ import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.aanvraag.model.InboxProductaanvraag;
+import net.atos.zac.aanvraag.model.generated.ProductaanvraagDenhaag;
 import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.documenten.InboxDocumentenService;
 import net.atos.zac.flowable.BPMNService;
@@ -205,8 +206,10 @@ public class ProductaanvraagService {
     }
 
     public ProductaanvraagDenhaag getProductaanvraag(final ORObject productaanvraagObject) {
-        return JsonbUtil.JSONB.fromJson(JsonbUtil.JSONB.toJson(productaanvraagObject.getRecord().getData()),
-                ProductaanvraagDenhaag.class);
+        return JsonbUtil.JSONB.fromJson(
+                JsonbUtil.JSONB.toJson(productaanvraagObject.getRecord().getData()),
+                ProductaanvraagDenhaag.class
+        );
     }
 
     private void addInitiator(final String bsn, final URI zaak, final URI zaaktype) {
