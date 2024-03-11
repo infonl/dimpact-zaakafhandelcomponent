@@ -5,6 +5,34 @@
 
 package net.atos.zac.notificaties;
 
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpSession;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import net.atos.client.or.objecttype.ObjecttypesClientService;
+import net.atos.client.or.objecttype.model.Objecttype;
+import net.atos.zac.aanvraag.ProductaanvraagService;
+import net.atos.zac.authentication.ActiveSession;
+import net.atos.zac.authentication.SecurityUtil;
+import net.atos.zac.configuratie.ConfiguratieService;
+import net.atos.zac.documenten.InboxDocumentenService;
+import net.atos.zac.event.EventingService;
+import net.atos.zac.signalering.event.SignaleringEventUtil;
+import net.atos.zac.websocket.event.ScreenEventType;
+import net.atos.zac.zaaksturing.ZaakafhandelParameterBeheerService;
+import net.atos.zac.zoeken.IndexeerService;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import static jakarta.ws.rs.core.Response.noContent;
 import static net.atos.zac.notificaties.Action.CREATE;
 import static net.atos.zac.notificaties.Action.DELETE;
@@ -21,36 +49,6 @@ import static net.atos.zac.notificaties.Resource.ZAAKTYPE;
 import static net.atos.zac.util.UriUtil.uuidFromURI;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import jakarta.enterprise.inject.Instance;
-import jakarta.inject.Inject;
-import jakarta.servlet.http.HttpSession;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
-import net.atos.client.or.objecttype.ObjecttypesClientService;
-import net.atos.client.or.objecttype.model.Objecttype;
-import net.atos.zac.aanvraag.ProductaanvraagService;
-import net.atos.zac.authentication.ActiveSession;
-import net.atos.zac.authentication.SecurityUtil;
-import net.atos.zac.configuratie.ConfiguratieService;
-import net.atos.zac.documenten.InboxDocumentenService;
-import net.atos.zac.event.EventingService;
-import net.atos.zac.signalering.event.SignaleringEventUtil;
-import net.atos.zac.websocket.event.ScreenEventType;
-import net.atos.zac.zaaksturing.ZaakafhandelParameterBeheerService;
-import net.atos.zac.zoeken.IndexeerService;
-
 /**
  *
  */
@@ -60,7 +58,7 @@ import net.atos.zac.zoeken.IndexeerService;
 public class NotificatieReceiver {
     private static final Logger LOG = Logger.getLogger(NotificatieReceiver.class.getName());
     private static final String OBJECTTYPE_KENMERK = "objectType";
-    private static final String PRODUCTAANVRAAGTYPE_NAAM_DENHAAG = "Productaanvraag-Denhaag";
+    private static final String PRODUCTAANVRAAG_DIMPACT_OBJECTTYPE_NAAM = "Productaanvraag-Dimpact";
 
     private EventingService eventingService;
     private ProductaanvraagService productaanvraagService;
@@ -151,7 +149,9 @@ public class NotificatieReceiver {
 
     private void handleProductaanvraag(final Notificatie notificatie) {
         try {
-            if (isProductaanvraagDenHaag(notificatie)) {
+            if (isProductaanvraagDimpact(notificatie)) {
+                LOG.info(() -> "Verwerken productaanvraag Dimpact: %s"
+                        .formatted(notificatie.toString()));
                 productaanvraagService.verwerkProductaanvraag(notificatie.getResourceUrl());
             }
         } catch (RuntimeException ex) {
@@ -159,13 +159,13 @@ public class NotificatieReceiver {
         }
     }
 
-    private boolean isProductaanvraagDenHaag(final Notificatie notificatie) {
+    private boolean isProductaanvraagDimpact(final Notificatie notificatie) {
         final String producttypeUri = notificatie.getProperties().get(OBJECTTYPE_KENMERK);
         if (notificatie.getResource() != OBJECT || notificatie.getAction() != CREATE || isEmpty(producttypeUri)) {
             return false;
         }
         final Objecttype objecttype = objecttypesClientService.readObjecttype(uuidFromURI(producttypeUri));
-        return PRODUCTAANVRAAGTYPE_NAAM_DENHAAG.equals(objecttype.getName());
+        return PRODUCTAANVRAAG_DIMPACT_OBJECTTYPE_NAAM.equals(objecttype.getName());
     }
 
     private void handleIndexering(final Notificatie notificatie) {

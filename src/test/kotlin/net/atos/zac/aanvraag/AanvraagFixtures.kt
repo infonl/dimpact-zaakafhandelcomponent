@@ -5,15 +5,20 @@
 
 package net.atos.zac.aanvraag
 
-import net.atos.zac.aanvraag.model.generated.Data
-import net.atos.zac.aanvraag.model.generated.ProductaanvraagDenhaag
+import net.atos.zac.aanvraag.model.generated.Betrokkene
+import net.atos.zac.aanvraag.model.generated.Betrokkene.RolOmschrijvingGeneriek
+import net.atos.zac.aanvraag.model.generated.ProductaanvraagDimpact
 import java.net.URI
 
 @Suppress("LongParameterList")
-fun createProductaanvraagDenhaag(
-    data: Data = Data(),
+fun createProductaanvraagDimpact(
     type: String = "dummyType",
-    bsn: String = "dummyBsn",
+    betrokkenen: List<Betrokkene> = listOf(
+        createBetrokkene(
+            inBsn = "dummyBsn",
+            rolOmschrijvingGeneriek = RolOmschrijvingGeneriek.INITIATOR
+        )
+    ),
     pdfUrl: URI = URI("http://example.com/dummyPdf"),
     csvUrl: URI = URI("http://example.com/dummyCsv"),
     attachments: List<URI> = listOf(
@@ -21,11 +26,19 @@ fun createProductaanvraagDenhaag(
         URI("http://example.com/dummyAttachment2")
     )
 ) =
-    ProductaanvraagDenhaag().apply {
-        this.data = data
+    ProductaanvraagDimpact().apply {
         this.type = type
-        this.bsn = bsn
-        this.pdfUrl = pdfUrl
-        this.csvUrl = csvUrl
-        this.attachments = attachments
+        this.betrokkenen = betrokkenen
+        this.pdf = pdfUrl
+        this.csv = csvUrl
+        this.bijlagen = attachments
+    }
+
+fun createBetrokkene(
+    inBsn: String = "dummyBsn",
+    rolOmschrijvingGeneriek: RolOmschrijvingGeneriek = RolOmschrijvingGeneriek.INITIATOR
+) =
+    Betrokkene().apply {
+        this.inpBsn = inBsn
+        this.rolOmschrijvingGeneriek = rolOmschrijvingGeneriek
     }

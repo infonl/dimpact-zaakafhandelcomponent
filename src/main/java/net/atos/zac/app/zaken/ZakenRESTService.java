@@ -5,36 +5,6 @@
 
 package net.atos.zac.app.zaken;
 
-import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
-import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend;
-import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isIntake;
-import static net.atos.zac.configuratie.ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER;
-import static net.atos.zac.configuratie.ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND;
-import static net.atos.zac.policy.PolicyService.assertPolicy;
-import static net.atos.zac.util.DateTimeConverterUtil.convertToDate;
-import static net.atos.zac.util.DateTimeConverterUtil.convertToLocalDate;
-import static net.atos.zac.util.UriUtil.uuidFromURI;
-import static net.atos.zac.websocket.event.ScreenEventType.TAAK;
-import static net.atos.zac.websocket.event.ScreenEventType.ZAAK;
-import static net.atos.zac.websocket.event.ScreenEventType.ZAAK_TAKEN;
-import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
-
-import java.net.URI;
-import java.time.LocalDate;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.annotation.Nullable;
-
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -51,10 +21,6 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import net.atos.client.or.object.ObjectsClientService;
 import net.atos.client.or.object.model.ORObject;
 import net.atos.client.vrl.VRLClientService;
@@ -100,7 +66,7 @@ import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.client.zgw.ztc.util.ZaakTypeUtil;
 import net.atos.zac.aanvraag.InboxProductaanvraagService;
 import net.atos.zac.aanvraag.ProductaanvraagService;
-import net.atos.zac.aanvraag.model.generated.ProductaanvraagDenhaag;
+import net.atos.zac.aanvraag.model.generated.ProductaanvraagDimpact;
 import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter;
 import net.atos.zac.app.admin.model.RESTZaakAfzender;
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter;
@@ -172,6 +138,37 @@ import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
 import net.atos.zac.zaaksturing.model.ZaakbeeindigParameter;
 import net.atos.zac.zoeken.IndexeerService;
 import net.atos.zac.zoeken.model.index.ZoekObjectType;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.annotation.Nullable;
+import java.net.URI;
+import java.time.LocalDate;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
+import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend;
+import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isIntake;
+import static net.atos.zac.configuratie.ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER;
+import static net.atos.zac.configuratie.ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND;
+import static net.atos.zac.policy.PolicyService.assertPolicy;
+import static net.atos.zac.util.DateTimeConverterUtil.convertToDate;
+import static net.atos.zac.util.DateTimeConverterUtil.convertToLocalDate;
+import static net.atos.zac.util.UriUtil.uuidFromURI;
+import static net.atos.zac.websocket.event.ScreenEventType.TAAK;
+import static net.atos.zac.websocket.event.ScreenEventType.ZAAK;
+import static net.atos.zac.websocket.event.ScreenEventType.ZAAK_TAKEN;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 @Path("zaken")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -1217,19 +1214,25 @@ public class ZakenRESTService {
             final RESTInboxProductaanvraag inboxProductaanvraag
     ) {
         final ORObject productaanvraagObject = objectsClientService.readObject(
-                inboxProductaanvraag.productaanvraagObjectUUID);
-        final ProductaanvraagDenhaag productaanvraag = productaanvraagService.getProductaanvraag(
-                productaanvraagObject);
+                inboxProductaanvraag.productaanvraagObjectUUID
+        );
+        final ProductaanvraagDimpact productaanvraag = productaanvraagService.getProductaanvraag(
+                productaanvraagObject
+        );
 
         productaanvraagService.pairProductaanvraagWithZaak(productaanvraagObject, zaak.getUrl());
         productaanvraagService.pairAanvraagPDFWithZaak(productaanvraag, zaak.getUrl());
-        productaanvraagService.pairBijlagenWithZaak(productaanvraag.getAttachments(),
-                zaak.getUrl());
+        productaanvraagService.pairBijlagenWithZaak(
+                productaanvraag.getBijlagen(),
+                zaak.getUrl()
+        );
 
         //verwijder het verwerkte inbox productaanvraag item
         inboxProductaanvraagService.delete(inboxProductaanvraag.id);
-        zaakVariabelenService.setZaakdata(zaak.getUuid(), productaanvraagService.getFormulierData(
-                productaanvraagObject));
+        zaakVariabelenService.setZaakdata(
+                zaak.getUuid(),
+                productaanvraagService.getFormulierData(productaanvraagObject)
+        );
     }
 
     private void koppelRelevantezaken(

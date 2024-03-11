@@ -39,7 +39,7 @@ import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.client.zgw.ztc.model.generated.RolType
 import net.atos.zac.aanvraag.InboxProductaanvraagService
 import net.atos.zac.aanvraag.ProductaanvraagService
-import net.atos.zac.aanvraag.createProductaanvraagDenhaag
+import net.atos.zac.aanvraag.createProductaanvraagDimpact
 import net.atos.zac.app.bag.converter.RESTBAGConverter
 import net.atos.zac.app.zaken.converter.RESTZaakConverter
 import net.atos.zac.app.zaken.model.ZAAK_TYPE_1_OMSCHRIJVING
@@ -97,7 +97,7 @@ class ZakenRESTServiceTest : BehaviorSpec() {
                     val formulierData = mapOf(Pair("dummyKey", "dummyValue"))
                     val natuurlijkPersoon = createNatuurlijkPersoon()
                     val objectRegistratieObject = createObjectRegistratieObject()
-                    val productaanvraagDenhaag = createProductaanvraagDenhaag()
+                    val productaanvraagDimpact = createProductaanvraagDimpact()
                     val restZaak = createRESTZaak()
                     val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
                     val zaakTypeUUID = URIUtil.parseUUIDFromResourceURI(zaakType.url)
@@ -125,10 +125,10 @@ class ZakenRESTServiceTest : BehaviorSpec() {
                     every { productaanvraagService.getFormulierData(objectRegistratieObject) } returns formulierData
                     every {
                         productaanvraagService.getProductaanvraag(objectRegistratieObject)
-                    } returns productaanvraagDenhaag
-                    every { productaanvraagService.pairAanvraagPDFWithZaak(productaanvraagDenhaag, zaak.url) } just runs
+                    } returns productaanvraagDimpact
+                    every { productaanvraagService.pairAanvraagPDFWithZaak(productaanvraagDimpact, zaak.url) } just runs
                     every {
-                        productaanvraagService.pairBijlagenWithZaak(productaanvraagDenhaag.attachments, zaak.url)
+                        productaanvraagService.pairBijlagenWithZaak(productaanvraagDimpact.bijlagen, zaak.url)
                     } just runs
                     every {
                         productaanvraagService.pairProductaanvraagWithZaak(

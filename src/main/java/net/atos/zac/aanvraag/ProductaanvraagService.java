@@ -5,27 +5,10 @@
 
 package net.atos.zac.aanvraag;
 
-import static net.atos.zac.configuratie.ConfiguratieService.BRON_ORGANISATIE;
-import static net.atos.zac.configuratie.ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER;
-import static net.atos.zac.util.UriUtil.uuidFromURI;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
-import java.net.URI;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.lang3.StringUtils;
-
+import jakarta.json.bind.JsonbBuilder;
+import jakarta.json.bind.JsonbConfig;
 import net.atos.client.or.object.ObjectsClientService;
 import net.atos.client.or.object.model.ORObject;
 import net.atos.client.vrl.VRLClientService;
@@ -47,7 +30,10 @@ import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.aanvraag.model.InboxProductaanvraag;
-import net.atos.zac.aanvraag.model.generated.ProductaanvraagDenhaag;
+import net.atos.zac.aanvraag.model.IndicatieMachtigingJsonAdapter;
+import net.atos.zac.aanvraag.model.RolOmschrijvingGeneriekJsonAdapter;
+import net.atos.zac.aanvraag.model.generated.Betrokkene;
+import net.atos.zac.aanvraag.model.generated.ProductaanvraagDimpact;
 import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.documenten.InboxDocumentenService;
 import net.atos.zac.flowable.BPMNService;
@@ -59,71 +45,91 @@ import net.atos.zac.util.JsonbUtil;
 import net.atos.zac.zaaksturing.ZaakafhandelParameterBeheerService;
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService;
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import java.net.URI;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static net.atos.zac.configuratie.ConfiguratieService.BRON_ORGANISATIE;
+import static net.atos.zac.configuratie.ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER;
+import static net.atos.zac.util.UriUtil.uuidFromURI;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @ApplicationScoped
 public class ProductaanvraagService {
-
-    private static final Logger LOG = Logger.getLogger(ProductaanvraagService.class.getName());
-
     public static final String AANVRAAG_PDF_TITEL = "Aanvraag PDF";
-
     public static final String AANVRAAG_PDF_BESCHRIJVING = "PDF document met de aanvraag gegevens van de zaak";
-
     public static final String ZAAK_INFORMATIEOBJECT_REDEN = "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag";
 
+    private static final Logger LOG = Logger.getLogger(ProductaanvraagService.class.getName());
     private static final String ROL_TOELICHTING = "Overgenomen vanuit de product aanvraag";
-
     private static final String PRODUCT_AANVRAAG_FORMULIER_DATA_VELD = "data";
-
     private static final String FORMULIER_KLEINE_EVENEMENTEN_MELDING_EIGENSCHAPNAAM_NAAM_EVENEMENT = "naamEvenement";
-
     private static final String FORMULIER_KLEINE_EVENEMENTEN_MELDING_EIGENSCHAPNAAM_OMSCHRIJVING_EVENEMENT = "omschrijvingEvenement";
-
     private static final String FORMULIER_VELD_ZAAK_TOELICHTING = "zaak_toelichting";
-
     private static final String FORMULIER_VELD_ZAAK_OMSCHRIJVING = "zaak_omschrijving";
 
-    @Inject
     private ObjectsClientService objectsClientService;
-
-    @Inject
     private ZGWApiService zgwApiService;
-
-    @Inject
     private ZRCClientService zrcClientService;
-
-    @Inject
     private DRCClientService drcClientService;
-
-    @Inject
     private ZTCClientService ztcClientService;
-
-    @Inject
     private VRLClientService vrlClientService;
-
-    @Inject
     private IdentityService identityService;
-
-    @Inject
     private ZaakafhandelParameterService zaakafhandelParameterService;
-
-    @Inject
     private ZaakafhandelParameterBeheerService zaakafhandelParameterBeheerService;
-
-    @Inject
     private InboxDocumentenService inboxDocumentenService;
-
-    @Inject
     private InboxProductaanvraagService inboxProductaanvraagService;
-
-    @Inject
     private CMMNService cmmnService;
-
-    @Inject
     private BPMNService bpmnService;
+    private ConfiguratieService configuratieService;
+
+    /**
+     * Empty no-op constructor as required by Weld.
+     */
+    public ProductaanvraagService() {
+    }
 
     @Inject
-    private ConfiguratieService configuratieService;
+    public ProductaanvraagService(
+            ObjectsClientService objectsClientService,
+            ZGWApiService zgwApiService,
+            ZRCClientService zrcClientService,
+            DRCClientService drcClientService,
+            ZTCClientService ztcClientService,
+            VRLClientService vrlClientService,
+            IdentityService identityService,
+            ZaakafhandelParameterService zaakafhandelParameterService,
+            ZaakafhandelParameterBeheerService zaakafhandelParameterBeheerService,
+            InboxDocumentenService inboxDocumentenService,
+            InboxProductaanvraagService inboxProductaanvraagService,
+            CMMNService cmmnService,
+            BPMNService bpmnService,
+            ConfiguratieService configuratieService
+    ) {
+        this.objectsClientService = objectsClientService;
+        this.zgwApiService = zgwApiService;
+        this.zrcClientService = zrcClientService;
+        this.drcClientService = drcClientService;
+        this.ztcClientService = ztcClientService;
+        this.vrlClientService = vrlClientService;
+        this.identityService = identityService;
+        this.zaakafhandelParameterService = zaakafhandelParameterService;
+        this.zaakafhandelParameterBeheerService = zaakafhandelParameterBeheerService;
+        this.inboxDocumentenService = inboxDocumentenService;
+        this.inboxProductaanvraagService = inboxProductaanvraagService;
+        this.cmmnService = cmmnService;
+        this.bpmnService = bpmnService;
+        this.configuratieService = configuratieService;
+    }
 
     public void verwerkProductaanvraag(final URI productaanvraagUrl) {
         LOG.fine(() -> "Verwerken productaanvraag: %s".formatted(productaanvraagUrl));
@@ -160,20 +166,22 @@ public class ProductaanvraagService {
         }
     }
 
-    private void warning(final String type, final ProductaanvraagDenhaag productaanvraag, final RuntimeException ex) {
+    private void warning(final String type, final ProductaanvraagDimpact productaanvraag, final RuntimeException ex) {
         LOG.log(Level.WARNING,
                 message(productaanvraag, "Er is iets fout gegaan bij het aanmaken van een %s-zaak."
                         .formatted(type)), ex);
     }
 
-    private String message(final ProductaanvraagDenhaag productaanvraag, final String message) {
-        return "Productaanvraag %s: %s"
-                .formatted(productaanvraag.getSubmissionId(), message);
+    private String message(final ProductaanvraagDimpact productaanvraag, final String message) {
+        return "Productaanvraag %s: %s".formatted(
+                productaanvraag.getAanvraaggegevens(),
+                message
+        );
     }
 
     private void registreerZaakMetBPMNProces(
             final ZaakType zaaktype,
-            final ProductaanvraagDenhaag productaanvraag,
+            final ProductaanvraagDimpact productaanvraag,
             final ORObject productaanvraagObject
     ) {
         final Map<String, Object> formulierData = getFormulierData(productaanvraagObject);
@@ -200,16 +208,31 @@ public class ProductaanvraagService {
 
     public Map<String, Object> getFormulierData(final ORObject productaanvraagObject) {
         final Map<String, Object> formulierData = new HashMap<>();
+        // TODO: is different field now
         ((Map<String, Object>) productaanvraagObject.getRecord().getData().get(PRODUCT_AANVRAAG_FORMULIER_DATA_VELD))
                 .forEach((stap, velden) -> formulierData.putAll((Map<String, Object>) velden));
         return formulierData;
     }
 
-    public ProductaanvraagDenhaag getProductaanvraag(final ORObject productaanvraagObject) {
-        return JsonbUtil.JSONB.fromJson(
+    public ProductaanvraagDimpact getProductaanvraag(final ORObject productaanvraagObject) {
+        // TODO: enum conversions fail
+        // e.g. jakarta.json.bind.JsonbException: Internal error: No enum constant
+        // net.atos.zac.aanvraag.model.generated.Betrokkene.IndicatieMachtiging.gemachtigde
+        return JsonbBuilder.create(
+                new JsonbConfig().withAdapters(
+                        new IndicatieMachtigingJsonAdapter(),
+                        new RolOmschrijvingGeneriekJsonAdapter()
+                )
+        //.withPropertyNamingStrategy(PropertyNamingStrategy.CASE_INSENSITIVE)
+        ).fromJson(
                 JsonbUtil.JSONB.toJson(productaanvraagObject.getRecord().getData()),
-                ProductaanvraagDenhaag.class
+                ProductaanvraagDimpact.class
         );
+
+        //        return JsonbUtil.JSONB.fromJson(
+        //                JsonbUtil.JSONB.toJson(productaanvraagObject.getRecord().getData()),
+        //                ProductaanvraagDimpact.class
+        //        );
     }
 
     private void addInitiator(final String bsn, final URI zaak, final URI zaaktype) {
@@ -223,20 +246,22 @@ public class ProductaanvraagService {
         zrcClientService.createRol(rolNatuurlijkPersoon);
     }
 
-    private void registreerInbox(final ProductaanvraagDenhaag productaanvraag, final ORObject productaanvraagObject) {
+    private void registreerInbox(final ProductaanvraagDimpact productaanvraag, final ORObject productaanvraagObject) {
         final InboxProductaanvraag inboxProductaanvraag = new InboxProductaanvraag();
         inboxProductaanvraag.setProductaanvraagObjectUUID(productaanvraagObject.getUuid());
         inboxProductaanvraag.setType(productaanvraag.getType());
         inboxProductaanvraag.setOntvangstdatum(productaanvraagObject.getRecord().getRegistrationAt());
-        if (StringUtils.isNotBlank(productaanvraag.getBsn())) {
-            inboxProductaanvraag.setInitiatorID(productaanvraag.getBsn());
-        }
-        if (productaanvraag.getPdfUrl() != null) {
-            final UUID aanvraagDocumentUUID = uuidFromURI(productaanvraag.getPdfUrl());
+        productaanvraag.getBetrokkenen().stream()
+                .filter(betrokkene -> betrokkene.getRolOmschrijvingGeneriek().equals(Betrokkene.RolOmschrijvingGeneriek.INITIATOR))
+                // TODO: check; there can be only one initiator for a particular zaak?
+                .forEach(betrokkene -> inboxProductaanvraag.setInitiatorID(betrokkene.getInpBsn()));
+
+        if (productaanvraag.getPdf() != null) {
+            final UUID aanvraagDocumentUUID = uuidFromURI(productaanvraag.getPdf());
             inboxProductaanvraag.setAanvraagdocumentUUID(aanvraagDocumentUUID);
             deleteInboxDocument(aanvraagDocumentUUID);
         }
-        final List<URI> bijlagen = ListUtils.emptyIfNull(productaanvraag.getAttachments());
+        final List<URI> bijlagen = ListUtils.emptyIfNull(productaanvraag.getBijlagen());
         inboxProductaanvraag.setAantalBijlagen(bijlagen.size());
         bijlagen.forEach(bijlage -> deleteInboxDocument(uuidFromURI(bijlage)));
         inboxProductaanvraagService.create(inboxProductaanvraag);
@@ -249,7 +274,7 @@ public class ProductaanvraagService {
 
     private void registreerZaakMetCMMNCase(
             final UUID zaaktypeUuid,
-            final ProductaanvraagDenhaag productaanvraag,
+            final ProductaanvraagDimpact productaanvraag,
             final ORObject productaanvraagObject
     ) {
         final var formulierData = getFormulierData(productaanvraagObject);
@@ -279,16 +304,17 @@ public class ProductaanvraagService {
     }
 
     private void pairProductaanvraagInfoWithZaak(
-            final ProductaanvraagDenhaag productaanvraag,
+            final ProductaanvraagDimpact productaanvraag,
             final ORObject productaanvraagObject,
             final Zaak zaak
     ) {
         pairProductaanvraagWithZaak(productaanvraagObject, zaak.getUrl());
         pairAanvraagPDFWithZaak(productaanvraag, zaak.getUrl());
-        pairBijlagenWithZaak(productaanvraag.getAttachments(), zaak.getUrl());
-        if (isNotBlank(productaanvraag.getBsn())) {
-            addInitiator(productaanvraag.getBsn(), zaak.getUrl(), zaak.getZaaktype());
-        }
+        pairBijlagenWithZaak(productaanvraag.getBijlagen(), zaak.getUrl());
+        productaanvraag.getBetrokkenen().stream()
+                .filter(betrokkene -> betrokkene.getRolOmschrijvingGeneriek().equals(Betrokkene.RolOmschrijvingGeneriek.INITIATOR))
+                // TODO: check; there can be only one initiator for a particular zaak..
+                .forEach(betrokkene -> addInitiator(betrokkene.getInpBsn(), zaak.getUrl(), zaak.getZaaktype()));
     }
 
     public void pairProductaanvraagWithZaak(final ORObject productaanvraag, final URI zaakUrl) {
@@ -296,9 +322,9 @@ public class ProductaanvraagService {
         zrcClientService.createZaakobject(zaakobject);
     }
 
-    public void pairAanvraagPDFWithZaak(final ProductaanvraagDenhaag productaanvraag, final URI zaakUrl) {
+    public void pairAanvraagPDFWithZaak(final ProductaanvraagDimpact productaanvraag, final URI zaakUrl) {
         final ZaakInformatieobject zaakInformatieobject = new ZaakInformatieobject();
-        zaakInformatieobject.setInformatieobject(productaanvraag.getPdfUrl());
+        zaakInformatieobject.setInformatieobject(productaanvraag.getPdf());
         zaakInformatieobject.setZaak(zaakUrl);
         zaakInformatieobject.setTitel(AANVRAAG_PDF_TITEL);
         zaakInformatieobject.setBeschrijving(AANVRAAG_PDF_BESCHRIJVING);

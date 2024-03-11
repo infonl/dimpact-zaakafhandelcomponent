@@ -32,7 +32,7 @@
         "fields": {
             "service": 1,
             "uuid": "021f685e-9482-4620-b157-34cd4003da6b",
-            "_name": "Productaanvraag-Denhaag"
+            "_name": "Productaanvraag-Dimpact"
         }
     },
     {
@@ -813,21 +813,33 @@
             "object": 32,
             "version": 1,
             "data": {
-                "data": {
-                  "stap1": {
-                      "naam" : "Jan Jansen",
-                      "telefoonnummer" : "0612345678"
-                  },
-                  "stap2": {
-                      "omschrijving" : "Ik heb een vraag over mijn paspoort"
-                  }
+                "bron": {
+                    "naam" : "Open Formulieren",
+                    "kenmerk" : "a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"
                 },
                 "type": "productaanvraag",
-                "bsn": "111222333",
-                "pdf_url": "https://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e",
-                "csv_url": "",
-                "attachments": [],
-                "submission_id": "a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"
+                "aanvraaggegevens": {
+                    "dummyField": "dummyValue"
+                },
+                "betrokkenen" : [
+                    {
+                        "inpBsn" : "111222333",
+                        "rolOmschrijvingGeneriek" : "initiator",
+                        "indicatieMachtiging" : "gemachtigde",
+                        "indicatieCorrespondentie" : true
+                    },
+                    {
+                        "inpBsn" : "222333444",
+                        "rolOmschrijvingGeneriek" : "mede_initiator",
+                        "indicatieMachtiging" : "machtiginggever",
+                        "indicatieCorrespondentie" : false
+                    },
+                    {
+                        "medewerkerIdentificatie" : "MDW123",
+                        "rolOmschrijvingGeneriek" : "klantcontacter"
+                    }
+                ],
+                "pdf": "https://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e"
             },
             "start_at": "2023-10-25",
             "end_at": null,
