@@ -37,74 +37,71 @@ class PlanItemsRESTServiceTest : BehaviorSpec() {
     private lateinit var humanTaskItemAanvullendeInformatieId: String
 
     init {
-        given("A zaak has been created") {
+        Given("A zaak has been created") {
             When("the list human task plan items endpoint is called") {
-                then(
+                val response = itestHttpClient.performGetRequest(
+                    "${ItestConfiguration.ZAC_API_URI}/planitems/zaak/$zaak1UUID/humanTaskPlanItems"
+                )
+                Then(
                     "the list of human task plan items for this zaak is returned and contains the task 'aanvullende informatie'"
                 ) {
-                    itestHttpClient.performGetRequest(
-                        "${ItestConfiguration.ZAC_API_URI}/planitems/zaak/$zaak1UUID/humanTaskPlanItems"
-                    ).use { response ->
-                        val responseBody = response.body!!.string()
-                        logger.info { "Response: $responseBody" }
-                        response.isSuccessful shouldBe true
-                        responseBody.shouldBeJsonArray()
-                        // the zaak is in the intake phase, so there should be only be one human task plan item: 'aanvullende informatie'
-                        JSONArray(responseBody).length() shouldBe 1
-                        with(JSONArray(responseBody)[0].toString()) {
-                            shouldContainJsonKeyValue("actief", "true")
-                            shouldContainJsonKeyValue("formulierDefinitie", FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE)
-                            shouldContainJsonKeyValue("naam", HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM)
-                            shouldContainJsonKeyValue("type", HUMAN_TASK_TYPE)
-                            shouldContainJsonKeyValue("zaakUuid", zaak1UUID.toString())
-                            shouldContainJsonKey("id")
-                        }
-                        humanTaskItemAanvullendeInformatieId = JSONArray(responseBody).getJSONObject(0).getString("id")
+                    val responseBody = response.body!!.string()
+                    logger.info { "Response: $responseBody" }
+                    response.isSuccessful shouldBe true
+                    responseBody.shouldBeJsonArray()
+                    // the zaak is in the intake phase, so there should be only be one human task plan item: 'aanvullende informatie'
+                    JSONArray(responseBody).length() shouldBe 1
+                    with(JSONArray(responseBody)[0].toString()) {
+                        shouldContainJsonKeyValue("actief", "true")
+                        shouldContainJsonKeyValue("formulierDefinitie", FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE)
+                        shouldContainJsonKeyValue("naam", HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM)
+                        shouldContainJsonKeyValue("type", HUMAN_TASK_TYPE)
+                        shouldContainJsonKeyValue("zaakUuid", zaak1UUID.toString())
+                        shouldContainJsonKey("id")
                     }
+                    humanTaskItemAanvullendeInformatieId = JSONArray(responseBody).getJSONObject(0).getString("id")
                 }
             }
         }
-        given("A zaak has been created") {
+        Given("A zaak has been created") {
             When("the get human task plan item endpoint is called for the task 'aanvullende informatie'") {
-                then("the human task plan item data for this task is returned") {
-                    itestHttpClient.performGetRequest(
-                        "${ItestConfiguration.ZAC_API_URI}/planitems/humanTaskPlanItem/$humanTaskItemAanvullendeInformatieId"
-                    ).use { response ->
-                        val responseBody = response.body!!.string()
-                        logger.info { "Response: $responseBody" }
-                        response.isSuccessful shouldBe true
-                        with(responseBody) {
-                            shouldContainJsonKeyValue("actief", "true")
-                            shouldContainJsonKeyValue("formulierDefinitie", FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE)
-                            shouldContainJsonKeyValue("naam", HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM)
-                            shouldContainJsonKeyValue("type", HUMAN_TASK_TYPE)
-                            shouldContainJsonKeyValue("zaakUuid", zaak1UUID.toString())
-                            shouldContainJsonKeyValue("id", humanTaskItemAanvullendeInformatieId)
-                        }
+                val response = itestHttpClient.performGetRequest(
+                    "${ItestConfiguration.ZAC_API_URI}/planitems/humanTaskPlanItem/$humanTaskItemAanvullendeInformatieId"
+                )
+                Then("the human task plan item data for this task is returned") {
+                    val responseBody = response.body!!.string()
+                    logger.info { "Response: $responseBody" }
+                    response.isSuccessful shouldBe true
+                    with(responseBody) {
+                        shouldContainJsonKeyValue("actief", "true")
+                        shouldContainJsonKeyValue("formulierDefinitie", FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE)
+                        shouldContainJsonKeyValue("naam", HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM)
+                        shouldContainJsonKeyValue("type", HUMAN_TASK_TYPE)
+                        shouldContainJsonKeyValue("zaakUuid", zaak1UUID.toString())
+                        shouldContainJsonKeyValue("id", humanTaskItemAanvullendeInformatieId)
                     }
                 }
             }
         }
-        given("A zaak has been created") {
+        Given("A zaak has been created") {
             When("the start human task plan items endpoint is called") {
-                then("a task is started for this zaak") {
-                    val fataleDatum = LocalDate.now().plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                    itestHttpClient.performJSONPostRequest(
-                        url = "${ItestConfiguration.ZAC_API_URI}/planitems/doHumanTaskPlanItem",
-                        requestBodyAsString = "{\n" +
-                            "\"planItemInstanceId\":\"$humanTaskItemAanvullendeInformatieId\",\n" +
-                            "\"fataledatum\":\"$fataleDatum\",\n" +
-                            "\"taakStuurGegevens\":{\"sendMail\":false},\n" +
-                            "\"medewerker\":null,\"groep\":{\"id\":\"$GROUP_A_ID\",\"naam\":\"$GROUP_A_NAME\"},\n" +
-                            // taakdata must be present, even if it is empty
-                            "\"taakdata\":{}\n" +
-                            "}"
-                    ).use { response ->
-                        val responseBody = response.body!!.string()
-                        logger.info { "Response: $responseBody" }
+                val fataleDatum = LocalDate.now().plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                val response = itestHttpClient.performJSONPostRequest(
+                    url = "${ItestConfiguration.ZAC_API_URI}/planitems/doHumanTaskPlanItem",
+                    requestBodyAsString = "{\n" +
+                        "\"planItemInstanceId\":\"$humanTaskItemAanvullendeInformatieId\",\n" +
+                        "\"fataledatum\":\"$fataleDatum\",\n" +
+                        "\"taakStuurGegevens\":{\"sendMail\":false},\n" +
+                        "\"medewerker\":null,\"groep\":{\"id\":\"$GROUP_A_ID\",\"naam\":\"$GROUP_A_NAME\"},\n" +
+                        // taakdata must be present, even if it is empty
+                        "\"taakdata\":{}\n" +
+                        "}"
+                )
+                Then("a task is started for this zaak") {
+                    val responseBody = response.body!!.string()
+                    logger.info { "Response: $responseBody" }
 
-                        response.isSuccessful shouldBe true
-                    }
+                    response.isSuccessful shouldBe true
                 }
             }
         }
