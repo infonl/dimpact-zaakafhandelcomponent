@@ -3,6 +3,7 @@ package net.atos.client.zgw.drc.model
 import net.atos.client.zgw.drc.model.generated.BestandsDeel
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockData
 import java.net.URI
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -37,3 +38,5 @@ fun createEnkelvoudigInformatieObjectData(
     locked,
     bestandsdelen
 )
+
+fun createEnkelvoudigInformatieObjectWithLockData() = EnkelvoudigInformatieObjectWithLockData()
