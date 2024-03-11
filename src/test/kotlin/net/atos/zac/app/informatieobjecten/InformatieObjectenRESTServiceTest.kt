@@ -33,6 +33,7 @@ import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakInformatieobject
 import net.atos.client.zgw.ztc.ZTCClientService
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
+import net.atos.zac.app.informatieobjecten.InformatieObjectenRESTService.FILE_SESSION_ATTRIBUTE_PREFIX
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter.convertToEnkelvoudigInformatieObject
 import net.atos.zac.app.informatieobjecten.model.RESTDocumentCreatieGegevens
@@ -121,7 +122,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                     val restFileUpload = createRESTFileUpload()
                     val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectData()
                     val zaakInformatieobject = createZaakInformatieobject()
-                    val httpSessionFileAttribute = "FILE_$documentReferentieId"
+                    val httpSessionFileAttribute = "$FILE_SESSION_ATTRIBUTE_PREFIX$documentReferentieId"
 
                     every { zrcClientService.readZaak(zaak.uuid) } returns zaak
                     every { policyService.readZaakRechten(zaak) } returns zaakRechtenWijzigen
@@ -177,7 +178,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                     val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
                     val restFileUpload = createRESTFileUpload()
                     val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectData()
-                    val httpSessionFileAttribute = "FILE_$documentReferentieId"
+                    val httpSessionFileAttribute = "$FILE_SESSION_ATTRIBUTE_PREFIX$documentReferentieId"
 
                     every { zrcClientService.readZaak(zaak.uuid) } returns zaak
                     every { policyService.readZaakRechten(zaak) } returns zaakRechtenWijzigen
@@ -233,7 +234,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                     val restFileUpload = createRESTFileUpload()
                     val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectData()
                     val zaakInformatieobject = createZaakInformatieobject()
-                    val httpSessionFileAttribute = "FILE_$documentReferentieId"
+                    val httpSessionFileAttribute = "$FILE_SESSION_ATTRIBUTE_PREFIX$documentReferentieId"
 
                     every { zrcClientService.readZaak(zaak.uuid) } returns zaak
                     every { policyService.readZaakRechten(zaak) } returns zaakRechtenWijzigen
@@ -294,7 +295,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                     val restFileUpload = createRESTFileUpload()
                     val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectData()
                     val zaakInformatieobject = createZaakInformatieobject()
-                    val httpSessionFileAttribute = "FILE_$documentReferentieId"
+                    val httpSessionFileAttribute = "$FILE_SESSION_ATTRIBUTE_PREFIX$documentReferentieId"
 
                     every { zrcClientService.readZaak(closedZaak.uuid) } returns closedZaak
                     every { policyService.readZaakRechten(closedZaak) } returns zaakRechtenWijzigen
@@ -354,7 +355,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                     val restEnkelvoudigInformatieObjectVersieGegevens =
                         createRESTEnkelvoudigInformatieObjectVersieGegevens(zaakUuid = zaak.uuid)
                     val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
-                    val httpSessionFileAttribute = "FILE_${restEnkelvoudigInformatieObjectVersieGegevens.zaakUuid}"
+                    val httpSessionFileAttribute = "$FILE_SESSION_ATTRIBUTE_PREFIX${restEnkelvoudigInformatieObjectVersieGegevens.zaakUuid}"
                     val documentRechten = createDocumentRechten()
 
                     every {
@@ -416,7 +417,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                     val restEnkelvoudigInformatieObjectVersieGegevens =
                         createRESTEnkelvoudigInformatieObjectVersieGegevens(zaakUuid = zaak.uuid)
                     val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
-                    val httpSessionFileAttribute = "FILE_${restEnkelvoudigInformatieObjectVersieGegevens.zaakUuid}"
+                    val httpSessionFileAttribute = "$FILE_SESSION_ATTRIBUTE_PREFIX${restEnkelvoudigInformatieObjectVersieGegevens.zaakUuid}"
                     val documentRechten = createDocumentRechten()
 
                     every {
