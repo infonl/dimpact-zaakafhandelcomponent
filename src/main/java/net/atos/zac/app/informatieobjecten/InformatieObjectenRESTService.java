@@ -107,7 +107,7 @@ public class InformatieObjectenRESTService {
 
     private static final String TOELICHTING_PDF = "Geconverteerd naar PDF";
 
-    protected static final String FILE_SESSION_ATTRIBUTE_PREFIX = "FILE_";
+    static final String FILE_SESSION_ATTRIBUTE_PREFIX = "FILE_";
 
     @Inject
     private DRCClientService drcClientService;
