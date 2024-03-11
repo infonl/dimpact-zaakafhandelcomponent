@@ -6,6 +6,7 @@
 package net.atos.zac.app.informatieobjecten
 
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.core.test.TestCase
 import io.kotest.matchers.shouldBe
@@ -67,39 +68,44 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
     @InjectMockKs
     lateinit var informatieObjectenRESTService: InformatieObjectenRESTService
 
-    override suspend fun beforeTest(testCase: TestCase) {
+    override suspend fun beforeContainer(testCase: TestCase) {
+        super.beforeContainer(testCase)
+
+        // Only run before Given
+        if (testCase.parent != null) return
+
         MockKAnnotations.init(this)
         clearAllMocks()
     }
 
     init {
         Given("document creation data is provided and zaaktype can use the 'bijlage' informatieobjecttype") {
-            When("createDocument is called by a role that is allowed to change the zaak") {
-                Then("the document creation service is called to create the document") {
-                    val zaak = createZaak()
-                    val restDocumentCreatieGegevens = RESTDocumentCreatieGegevens().apply {
-                        zaakUUID = zaak.uuid
-                        taskId = "dummyTaskId"
-                    }
-                    val documentCreatieResponse = createDocumentCreatieResponse()
-                    val documentCreatieGegevens = slot<DocumentCreatieGegevens>()
+            val zaak = createZaak()
+            val restDocumentCreatieGegevens = RESTDocumentCreatieGegevens().apply {
+                zaakUUID = zaak.uuid
+                taskId = "dummyTaskId"
+            }
+            val documentCreatieResponse = createDocumentCreatieResponse()
+            val documentCreatieGegevens = slot<DocumentCreatieGegevens>()
 
-                    every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-                    every { policyService.readZaakRechten(zaak) } returns zaakRechtenWijzigen
-                    every { ztcClientService.readInformatieobjecttypen(zaak.zaaktype) } returns listOf(
-                        createInformatieObjectType(omschrijving = "bijlage")
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { policyService.readZaakRechten(zaak) } returns zaakRechtenWijzigen
+            every { ztcClientService.readInformatieobjecttypen(zaak.zaaktype) } returns listOf(
+                createInformatieObjectType(omschrijving = "bijlage")
+            )
+            every {
+                documentCreatieService.creeerDocumentAttendedSD(
+                    capture(
+                        documentCreatieGegevens
                     )
-                    every {
-                        documentCreatieService.creeerDocumentAttendedSD(
-                            capture(
-                                documentCreatieGegevens
-                            )
-                        )
-                    } returns documentCreatieResponse
+                )
+            } returns documentCreatieResponse
 
-                    val restDocumentCreatieResponse =
-                        informatieObjectenRESTService.createDocument(restDocumentCreatieGegevens)
+            When("createDocument is called by a role that is allowed to change the zaak") {
+                val restDocumentCreatieResponse =
+                    informatieObjectenRESTService.createDocument(restDocumentCreatieGegevens)
 
+                Then("the document creation service is called to create the document") {
                     restDocumentCreatieResponse.message shouldBe null
                     restDocumentCreatieResponse.redirectURL shouldBe documentCreatieResponse.redirectUrl
                     with(documentCreatieGegevens.captured) {
@@ -112,51 +118,50 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
         }
 
         Given("an enkelvoudig informatieobject has been uploaded, and the zaak is open") {
+            val zaak = createZaak()
+            val documentReferentieId: String = "dummyDocumentReferentieId"
+            val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
+            val responseRestEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
+            val restFileUpload = createRESTFileUpload()
+            val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectData()
+            val zaakInformatieobject = createZaakInformatieobject()
+            val httpSessionFileAttribute = "$FILE_SESSION_ATTRIBUTE_PREFIX$documentReferentieId"
+
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { policyService.readZaakRechten(zaak) } returns zaakRechtenWijzigen
+            every { httpSessionInstance.get() } returns httpSession
+            every { httpSession.getAttribute(httpSessionFileAttribute) } returns restFileUpload
+            every { httpSession.removeAttribute(httpSessionFileAttribute) } just runs
+            every {
+                restInformatieobjectConverter.convertZaakObject(
+                    restEnkelvoudigInformatieobject,
+                    restFileUpload
+                )
+            } returns enkelvoudigInformatieObjectData
+            every {
+                restInformatieobjectConverter.convertToREST(zaakInformatieobject)
+            } returns responseRestEnkelvoudigInformatieobject
+            every {
+                zgwApiService.createZaakInformatieobjectForZaak(
+                    zaak,
+                    enkelvoudigInformatieObjectData,
+                    enkelvoudigInformatieObjectData.titel,
+                    enkelvoudigInformatieObjectData.beschrijving,
+                    "geen"
+                )
+            } returns zaakInformatieobject
+
             When("createEnkelvoudigInformatieobject is called by a role that is allowed to change the zaak") {
+                val returnedRESTEnkelvoudigInformatieobject =
+                    informatieObjectenRESTService.createEnkelvoudigInformatieobject(
+                        zaak.uuid,
+                        documentReferentieId,
+                        false,
+                        restEnkelvoudigInformatieobject,
+                        null
+                    )
+
                 Then("the enkelvoudig informatieobject is added to the zaak") {
-                    val zaak = createZaak()
-                    val documentReferentieId = "dummyDocumentReferentieId"
-                    val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
-                    val responseRestEnkelvoudigInformatieobject =
-                        createRESTEnkelvoudigInformatieobject()
-                    val restFileUpload = createRESTFileUpload()
-                    val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectData()
-                    val zaakInformatieobject = createZaakInformatieobject()
-                    val httpSessionFileAttribute = "$FILE_SESSION_ATTRIBUTE_PREFIX$documentReferentieId"
-
-                    every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-                    every { policyService.readZaakRechten(zaak) } returns zaakRechtenWijzigen
-                    every { httpSessionInstance.get() } returns httpSession
-                    every { httpSession.getAttribute(httpSessionFileAttribute) } returns restFileUpload
-                    every { httpSession.removeAttribute(httpSessionFileAttribute) } just runs
-                    every {
-                        restInformatieobjectConverter.convertZaakObject(
-                            restEnkelvoudigInformatieobject,
-                            restFileUpload
-                        )
-                    } returns enkelvoudigInformatieObjectData
-                    every {
-                        zgwApiService.createZaakInformatieobjectForZaak(
-                            zaak,
-                            enkelvoudigInformatieObjectData,
-                            enkelvoudigInformatieObjectData.titel,
-                            enkelvoudigInformatieObjectData.beschrijving,
-                            "geen"
-                        )
-                    } returns zaakInformatieobject
-                    every {
-                        restInformatieobjectConverter.convertToREST(zaakInformatieobject)
-                    } returns responseRestEnkelvoudigInformatieobject
-
-                    val returnedRESTEnkelvoudigInformatieobject =
-                        informatieObjectenRESTService.createEnkelvoudigInformatieobject(
-                            zaak.uuid,
-                            documentReferentieId,
-                            false,
-                            restEnkelvoudigInformatieobject,
-                            null
-                        )
-
                     returnedRESTEnkelvoudigInformatieobject shouldBe responseRestEnkelvoudigInformatieobject
                     verify(exactly = 1) {
                         zgwApiService.createZaakInformatieobjectForZaak(
@@ -172,45 +177,27 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             }
 
             When("createEnkelvoudigInformatieobject is called but the ZGW client service throws an exception") {
+                every {
+                    zgwApiService.createZaakInformatieobjectForZaak(
+                        zaak,
+                        enkelvoudigInformatieObjectData,
+                        enkelvoudigInformatieObjectData.titel,
+                        enkelvoudigInformatieObjectData.beschrijving,
+                        "geen"
+                    )
+                } throws RuntimeException("dummy exception")
+
+                shouldThrow<RuntimeException> {
+                    informatieObjectenRESTService.createEnkelvoudigInformatieobject(
+                        zaak.uuid,
+                        documentReferentieId,
+                        false,
+                        restEnkelvoudigInformatieobject,
+                        null
+                    )
+                }
+
                 Then("the enkelvoudig informatieobject is not added to the zaak but is removed from the HTTP session") {
-                    val zaak = createZaak()
-                    val documentReferentieId = "dummyDocumentReferentieId"
-                    val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
-                    val restFileUpload = createRESTFileUpload()
-                    val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectData()
-                    val httpSessionFileAttribute = "$FILE_SESSION_ATTRIBUTE_PREFIX$documentReferentieId"
-
-                    every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-                    every { policyService.readZaakRechten(zaak) } returns zaakRechtenWijzigen
-                    every { httpSessionInstance.get() } returns httpSession
-                    every { httpSession.getAttribute(httpSessionFileAttribute) } returns restFileUpload
-                    every { httpSession.removeAttribute(httpSessionFileAttribute) } just runs
-                    every {
-                        restInformatieobjectConverter.convertZaakObject(
-                            restEnkelvoudigInformatieobject,
-                            restFileUpload
-                        )
-                    } returns enkelvoudigInformatieObjectData
-                    every {
-                        zgwApiService.createZaakInformatieobjectForZaak(
-                            zaak,
-                            enkelvoudigInformatieObjectData,
-                            enkelvoudigInformatieObjectData.titel,
-                            enkelvoudigInformatieObjectData.beschrijving,
-                            "geen"
-                        )
-                    } throws RuntimeException("dummy exception")
-
-                    shouldThrow<RuntimeException> {
-                        informatieObjectenRESTService.createEnkelvoudigInformatieobject(
-                            zaak.uuid,
-                            documentReferentieId,
-                            false,
-                            restEnkelvoudigInformatieobject,
-                            null
-                        )
-                    }
-
                     verify(exactly = 1) {
                         zgwApiService.createZaakInformatieobjectForZaak(
                             zaak,
@@ -225,49 +212,16 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             }
 
             When("file for upload is provided") {
+                val returnedRESTEnkelvoudigInformatieobject =
+                    informatieObjectenRESTService.createEnkelvoudigInformatieobject(
+                        zaak.uuid,
+                        documentReferentieId,
+                        false,
+                        restEnkelvoudigInformatieobject,
+                        restFileUpload
+                    )
+
                 Then("the enkelvoudig informatieobject is added to the zaak") {
-                    val zaak = createZaak()
-                    val documentReferentieId = "dummyDocumentReferentieId"
-                    val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
-                    val responseRestEnkelvoudigInformatieobject =
-                        createRESTEnkelvoudigInformatieobject()
-                    val restFileUpload = createRESTFileUpload()
-                    val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectData()
-                    val zaakInformatieobject = createZaakInformatieobject()
-                    val httpSessionFileAttribute = "$FILE_SESSION_ATTRIBUTE_PREFIX$documentReferentieId"
-
-                    every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-                    every { policyService.readZaakRechten(zaak) } returns zaakRechtenWijzigen
-                    every { httpSessionInstance.get() } returns httpSession
-                    every { httpSession.removeAttribute(httpSessionFileAttribute) } just runs
-                    every {
-                        restInformatieobjectConverter.convertZaakObject(
-                            restEnkelvoudigInformatieobject,
-                            restFileUpload
-                        )
-                    } returns enkelvoudigInformatieObjectData
-                    every {
-                        zgwApiService.createZaakInformatieobjectForZaak(
-                            zaak,
-                            enkelvoudigInformatieObjectData,
-                            enkelvoudigInformatieObjectData.titel,
-                            enkelvoudigInformatieObjectData.beschrijving,
-                            "geen"
-                        )
-                    } returns zaakInformatieobject
-                    every {
-                        restInformatieobjectConverter.convertToREST(zaakInformatieobject)
-                    } returns responseRestEnkelvoudigInformatieobject
-
-                    val returnedRESTEnkelvoudigInformatieobject =
-                        informatieObjectenRESTService.createEnkelvoudigInformatieobject(
-                            zaak.uuid,
-                            documentReferentieId,
-                            false,
-                            restEnkelvoudigInformatieobject,
-                            restFileUpload
-                        )
-
                     returnedRESTEnkelvoudigInformatieobject shouldBe responseRestEnkelvoudigInformatieobject
                     verify(exactly = 1) {
                         zgwApiService.createZaakInformatieobjectForZaak(
@@ -283,53 +237,53 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
         }
 
         Given("an enkelvoudig informatieobject has been uploaded, and the zaak is closed") {
+            val closedZaak = createZaak(
+                archiefnominatie = Archiefnominatie.VERNIETIGEN
+            )
+            val documentReferentieId = "dummyDocumentReferentieId"
+            val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
+            val responseRestEnkelvoudigInformatieobject =
+                createRESTEnkelvoudigInformatieobject()
+            val restFileUpload = createRESTFileUpload()
+            val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectData()
+            val zaakInformatieobject = createZaakInformatieobject()
+            val httpSessionFileAttribute = "$FILE_SESSION_ATTRIBUTE_PREFIX$documentReferentieId"
+
+            every { zrcClientService.readZaak(closedZaak.uuid) } returns closedZaak
+            every { policyService.readZaakRechten(closedZaak) } returns zaakRechtenWijzigen
+            every { httpSessionInstance.get() } returns httpSession
+            every { httpSession.getAttribute(httpSessionFileAttribute) } returns restFileUpload
+            every { httpSession.removeAttribute(httpSessionFileAttribute) } just runs
+            every {
+                restInformatieobjectConverter.convertZaakObject(
+                    restEnkelvoudigInformatieobject,
+                    restFileUpload
+                )
+            } returns enkelvoudigInformatieObjectData
+            every {
+                zgwApiService.createZaakInformatieobjectForZaak(
+                    closedZaak,
+                    enkelvoudigInformatieObjectData,
+                    enkelvoudigInformatieObjectData.titel,
+                    enkelvoudigInformatieObjectData.beschrijving,
+                    "geen"
+                )
+            } returns zaakInformatieobject
+            every {
+                restInformatieobjectConverter.convertToREST(zaakInformatieobject)
+            } returns responseRestEnkelvoudigInformatieobject
+
             When("createEnkelvoudigInformatieobject is called by a role that is allowed to change the zaak") {
-                Then("the enkelvoudig informatieobject is added to the zaak") {
-                    val closedZaak = createZaak(
-                        archiefnominatie = Archiefnominatie.VERNIETIGEN
+                val returnedRESTEnkelvoudigInformatieobject =
+                    informatieObjectenRESTService.createEnkelvoudigInformatieobject(
+                        closedZaak.uuid,
+                        documentReferentieId,
+                        false,
+                        restEnkelvoudigInformatieobject,
+                        null
                     )
-                    val documentReferentieId = "dummyDocumentReferentieId"
-                    val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
-                    val responseRestEnkelvoudigInformatieobject =
-                        createRESTEnkelvoudigInformatieobject()
-                    val restFileUpload = createRESTFileUpload()
-                    val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectData()
-                    val zaakInformatieobject = createZaakInformatieobject()
-                    val httpSessionFileAttribute = "$FILE_SESSION_ATTRIBUTE_PREFIX$documentReferentieId"
 
-                    every { zrcClientService.readZaak(closedZaak.uuid) } returns closedZaak
-                    every { policyService.readZaakRechten(closedZaak) } returns zaakRechtenWijzigen
-                    every { httpSessionInstance.get() } returns httpSession
-                    every { httpSession.getAttribute(httpSessionFileAttribute) } returns restFileUpload
-                    every { httpSession.removeAttribute(httpSessionFileAttribute) } just runs
-                    every {
-                        restInformatieobjectConverter.convertZaakObject(
-                            restEnkelvoudigInformatieobject,
-                            restFileUpload
-                        )
-                    } returns enkelvoudigInformatieObjectData
-                    every {
-                        zgwApiService.createZaakInformatieobjectForZaak(
-                            closedZaak,
-                            enkelvoudigInformatieObjectData,
-                            enkelvoudigInformatieObjectData.titel,
-                            enkelvoudigInformatieObjectData.beschrijving,
-                            "geen"
-                        )
-                    } returns zaakInformatieobject
-                    every {
-                        restInformatieobjectConverter.convertToREST(zaakInformatieobject)
-                    } returns responseRestEnkelvoudigInformatieobject
-
-                    val returnedRESTEnkelvoudigInformatieobject =
-                        informatieObjectenRESTService.createEnkelvoudigInformatieobject(
-                            closedZaak.uuid,
-                            documentReferentieId,
-                            false,
-                            restEnkelvoudigInformatieobject,
-                            null
-                        )
-
+                Then("the enkelvoudig informatieobject is added to the zaak") {
                     returnedRESTEnkelvoudigInformatieobject shouldBe responseRestEnkelvoudigInformatieobject
                     verify(exactly = 1) {
                         zgwApiService.createZaakInformatieobjectForZaak(
@@ -346,53 +300,53 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
         }
 
         Given("enkelvoudig informatieobject has been uploaded, and the zaak is open") {
+            val zaak = createZaak()
+            val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
+            val enkelvoudigInformatieObjectWithLockData = createEnkelvoudigInformatieObjectWithLockData()
+            val restFileUpload = createRESTFileUpload()
+            val restEnkelvoudigInformatieObjectVersieGegevens =
+                createRESTEnkelvoudigInformatieObjectVersieGegevens(zaakUuid = zaak.uuid)
+            val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+            val httpSessionFileAttribute = "$FILE_SESSION_ATTRIBUTE_PREFIX${restEnkelvoudigInformatieObjectVersieGegevens.zaakUuid}"
+            val documentRechten = createDocumentRechten()
+
+            every {
+                drcClientService.readEnkelvoudigInformatieobject(restEnkelvoudigInformatieObjectVersieGegevens.uuid)
+            } returns enkelvoudigInformatieObject
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak) } returns documentRechten
+            every { httpSessionInstance.get() } returns httpSession
+            every { httpSession.getAttribute(httpSessionFileAttribute) } returns restFileUpload
+            every { httpSession.removeAttribute(httpSessionFileAttribute) } just runs
+            every {
+                restInformatieobjectConverter.convert(
+                    restEnkelvoudigInformatieObjectVersieGegevens,
+                    restFileUpload
+                )
+            } returns enkelvoudigInformatieObjectWithLockData
+            every {
+                enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
+                    parseUUIDFromResourceURI(enkelvoudigInformatieObject.url),
+                    enkelvoudigInformatieObjectWithLockData,
+                    null
+                )
+            } returns enkelvoudigInformatieObjectWithLockData
+            mockkStatic(RESTInformatieobjectConverter::convertToEnkelvoudigInformatieObject)
+            every {
+                convertToEnkelvoudigInformatieObject(enkelvoudigInformatieObjectWithLockData)
+            } returns enkelvoudigInformatieObject
+            every {
+                restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject)
+            } returns restEnkelvoudigInformatieobject
+
             When("updateEnkelvoudigInformatieobject is called") {
+                val returnedRESTEnkelvoudigInformatieobject =
+                    informatieObjectenRESTService.updateEnkelvoudigInformatieobject(
+                        restEnkelvoudigInformatieObjectVersieGegevens,
+                        null
+                    )
+
                 Then("the enkelvoudig informatieobject is updated") {
-                    val zaak = createZaak()
-                    val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
-                    val enkelvoudigInformatieObjectWithLockData = createEnkelvoudigInformatieObjectWithLockData()
-                    val restFileUpload = createRESTFileUpload()
-                    val restEnkelvoudigInformatieObjectVersieGegevens =
-                        createRESTEnkelvoudigInformatieObjectVersieGegevens(zaakUuid = zaak.uuid)
-                    val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
-                    val httpSessionFileAttribute = "$FILE_SESSION_ATTRIBUTE_PREFIX${restEnkelvoudigInformatieObjectVersieGegevens.zaakUuid}"
-                    val documentRechten = createDocumentRechten()
-
-                    every {
-                        drcClientService.readEnkelvoudigInformatieobject(restEnkelvoudigInformatieObjectVersieGegevens.uuid)
-                    } returns enkelvoudigInformatieObject
-                    every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-                    every { policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak) } returns documentRechten
-                    every { httpSessionInstance.get() } returns httpSession
-                    every { httpSession.getAttribute(httpSessionFileAttribute) } returns restFileUpload
-                    every { httpSession.removeAttribute(httpSessionFileAttribute) } just runs
-                    every {
-                        restInformatieobjectConverter.convert(
-                            restEnkelvoudigInformatieObjectVersieGegevens,
-                            restFileUpload
-                        )
-                    } returns enkelvoudigInformatieObjectWithLockData
-                    every {
-                        enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                            parseUUIDFromResourceURI(enkelvoudigInformatieObject.url),
-                            enkelvoudigInformatieObjectWithLockData,
-                            null
-                        )
-                    } returns enkelvoudigInformatieObjectWithLockData
-                    mockkStatic(RESTInformatieobjectConverter::convertToEnkelvoudigInformatieObject)
-                    every {
-                        convertToEnkelvoudigInformatieObject(enkelvoudigInformatieObjectWithLockData)
-                    } returns enkelvoudigInformatieObject
-                    every {
-                        restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject)
-                    } returns restEnkelvoudigInformatieobject
-
-                    val returnedRESTEnkelvoudigInformatieobject =
-                        informatieObjectenRESTService.updateEnkelvoudigInformatieobject(
-                            restEnkelvoudigInformatieObjectVersieGegevens,
-                            null
-                        )
-
                     returnedRESTEnkelvoudigInformatieobject shouldBe restEnkelvoudigInformatieobject
                     verify(exactly = 1) {
                         drcClientService.readEnkelvoudigInformatieobject(
@@ -409,51 +363,13 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             }
 
             When("updateEnkelvoudigInformatieobject is called with file to upload") {
+                val returnedRESTEnkelvoudigInformatieobject =
+                    informatieObjectenRESTService.updateEnkelvoudigInformatieobject(
+                        restEnkelvoudigInformatieObjectVersieGegevens,
+                        restFileUpload
+                    )
+
                 Then("the enkelvoudig informatieobject is updated") {
-                    val zaak = createZaak()
-                    val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
-                    val enkelvoudigInformatieObjectWithLockData = createEnkelvoudigInformatieObjectWithLockData()
-                    val restFileUpload = createRESTFileUpload()
-                    val restEnkelvoudigInformatieObjectVersieGegevens =
-                        createRESTEnkelvoudigInformatieObjectVersieGegevens(zaakUuid = zaak.uuid)
-                    val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
-                    val httpSessionFileAttribute = "$FILE_SESSION_ATTRIBUTE_PREFIX${restEnkelvoudigInformatieObjectVersieGegevens.zaakUuid}"
-                    val documentRechten = createDocumentRechten()
-
-                    every {
-                        drcClientService.readEnkelvoudigInformatieobject(restEnkelvoudigInformatieObjectVersieGegevens.uuid)
-                    } returns enkelvoudigInformatieObject
-                    every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-                    every { policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak) } returns documentRechten
-                    every { httpSessionInstance.get() } returns httpSession
-                    every { httpSession.removeAttribute(httpSessionFileAttribute) } just runs
-                    every {
-                        restInformatieobjectConverter.convert(
-                            restEnkelvoudigInformatieObjectVersieGegevens,
-                            restFileUpload
-                        )
-                    } returns enkelvoudigInformatieObjectWithLockData
-                    every {
-                        enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                            parseUUIDFromResourceURI(enkelvoudigInformatieObject.url),
-                            enkelvoudigInformatieObjectWithLockData,
-                            null
-                        )
-                    } returns enkelvoudigInformatieObjectWithLockData
-                    mockkStatic(RESTInformatieobjectConverter::convertToEnkelvoudigInformatieObject)
-                    every {
-                        convertToEnkelvoudigInformatieObject(enkelvoudigInformatieObjectWithLockData)
-                    } returns enkelvoudigInformatieObject
-                    every {
-                        restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject)
-                    } returns restEnkelvoudigInformatieobject
-
-                    val returnedRESTEnkelvoudigInformatieobject =
-                        informatieObjectenRESTService.updateEnkelvoudigInformatieobject(
-                            restEnkelvoudigInformatieObjectVersieGegevens,
-                            restFileUpload
-                        )
-
                     returnedRESTEnkelvoudigInformatieobject shouldBe restEnkelvoudigInformatieobject
                     verify(exactly = 1) {
                         drcClientService.readEnkelvoudigInformatieobject(
@@ -469,4 +385,6 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             }
         }
     }
+
+    override fun isolationMode() = IsolationMode.InstancePerTest
 }
