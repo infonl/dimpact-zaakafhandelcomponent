@@ -10,7 +10,7 @@ import java.util.Locale
 
 plugins {
     java
-    kotlin("jvm") version "1.9.22"
+    kotlin("jvm") version "1.9.23"
     war
     jacoco
 
@@ -109,7 +109,7 @@ dependencies {
     implementation("com.itextpdf:layout:8.0.3")
     implementation("com.itextpdf:io:8.0.3")
     implementation("com.itextpdf:html2pdf:5.0.3")
-    implementation("org.flywaydb:flyway-core:10.9.0")
+    implementation("org.flywaydb:flyway-core:10.9.1")
     implementation("org.flywaydb:flyway-database-postgresql:10.9.1")
     implementation("org.apache.solr:solr-solrj:9.5.0")
     implementation("nl.info.webdav:webdav-servlet:1.2.40")
