@@ -25,13 +25,24 @@ class EnkelvoudigInformatieObjectStatusEnumReaderTest : DescribeSpec({
     describe("readFrom") {
         it("parses a well formatted fully specified enum value") {
             statusReader.readFrom(
-                null, null, null, null, null,
+                null,
+                null,
+                null,
+                null,
+                null,
                 "net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject.StatusEnum.in_bewerking".byteInputStream()
             ) shouldBe EnkelvoudigInformatieObject.StatusEnum.valueOf("IN_BEWERKING")
         }
 
         it("parses a well formatted enum value") {
-            statusReader.readFrom(null, null, null, null, null, "in_bewerking".byteInputStream()) shouldBe EnkelvoudigInformatieObject.StatusEnum.valueOf("IN_BEWERKING")
+            statusReader.readFrom(
+                null,
+                null,
+                null,
+                null,
+                null,
+                "in_bewerking".byteInputStream()
+            ) shouldBe EnkelvoudigInformatieObject.StatusEnum.valueOf("IN_BEWERKING")
         }
 
         describe("with mis-formatted data") {

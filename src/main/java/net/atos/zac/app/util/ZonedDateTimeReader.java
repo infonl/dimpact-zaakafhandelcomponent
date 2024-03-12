@@ -1,20 +1,19 @@
 package net.atos.zac.app.util;
 
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.MultivaluedMap;
-import jakarta.ws.rs.ext.MessageBodyReader;
-import jakarta.ws.rs.ext.Provider;
+import static java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 
-import static java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.ext.MessageBodyReader;
+import jakarta.ws.rs.ext.Provider;
 
 @Provider
 @Produces(MediaType.TEXT_PLAIN)
