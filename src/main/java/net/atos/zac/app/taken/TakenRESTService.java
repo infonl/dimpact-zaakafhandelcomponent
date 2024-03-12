@@ -165,11 +165,13 @@ public class TakenRESTService {
     @PUT
     @Path("taakdata")
     public RESTTaak updateTaakdata(final RESTTaak restTaak) {
-        final Task task = takenService.readOpenTask(restTaak.id);
+        Task task = takenService.readOpenTask(restTaak.id);
         assertPolicy(getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).wijzigen());
         taakVariabelenService.setTaakdata(task, restTaak.taakdata);
         taakVariabelenService.setTaakinformatie(task, restTaak.taakinformatie);
-        updateTaak(restTaak);
+        task = updateTaak(restTaak);
+        eventingService.send(TAAK.updated(task));
+        eventingService.send(ZAAK_TAKEN.updated(restTaak.zaakUuid));
         return restTaak;
     }
 
@@ -260,18 +262,12 @@ public class TakenRESTService {
         return restTaakConverter.convert(task);
     }
 
-    @PATCH
-    public RESTTaak updateTaak(final RESTTaak restTaak) {
+    private Task updateTaak(RESTTaak restTaak) {
         Task task = takenService.readOpenTask(restTaak.id);
-        assertPolicy(
-                getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).wijzigen()
-        );
         task.setDescription(restTaak.toelichting);
         task.setDueDate(convertToDate(restTaak.fataledatum));
         task = takenService.updateTask(task);
-        eventingService.send(TAAK.updated(task));
-        eventingService.send(ZAAK_TAKEN.updated(restTaak.zaakUuid));
-        return restTaakConverter.convert(task);
+        return task;
     }
 
     @PATCH
