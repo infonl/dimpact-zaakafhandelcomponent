@@ -21,6 +21,8 @@ import java.util.UUID;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
+import org.jetbrains.annotations.NotNull;
+
 import net.atos.client.zgw.brc.BRCClientService;
 import net.atos.client.zgw.drc.DRCClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
@@ -173,6 +175,26 @@ public class RESTInformatieobjectConverter {
             final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject,
             final RESTFileUpload bestand
     ) {
+        final EnkelvoudigInformatieObjectData enkelvoudigInformatieobjectWithInhoud = buildZaacEnkelvoudigInformatieObjectData(
+                restEnkelvoudigInformatieobject);
+        enkelvoudigInformatieobjectWithInhoud.setInhoud(convertByteArrayToBase64String(bestand.file));
+        enkelvoudigInformatieobjectWithInhoud.setFormaat(bestand.type);
+        return enkelvoudigInformatieobjectWithInhoud;
+    }
+
+    public EnkelvoudigInformatieObjectData convertZaakObject(
+            final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
+    ) {
+        final EnkelvoudigInformatieObjectData enkelvoudigInformatieobjectWithInhoud = buildZaacEnkelvoudigInformatieObjectData(
+                restEnkelvoudigInformatieobject);
+        enkelvoudigInformatieobjectWithInhoud.setInhoud(convertByteArrayToBase64String(restEnkelvoudigInformatieobject.file));
+        return enkelvoudigInformatieobjectWithInhoud;
+    }
+
+    @NotNull
+    private EnkelvoudigInformatieObjectData buildZaacEnkelvoudigInformatieObjectData(
+            RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
+    ) {
         final EnkelvoudigInformatieObjectData enkelvoudigInformatieobjectWithInhoud = new EnkelvoudigInformatieObjectData();
         enkelvoudigInformatieobjectWithInhoud.setBronorganisatie(ConfiguratieService.BRON_ORGANISATIE);
         enkelvoudigInformatieobjectWithInhoud.setCreatiedatum(restEnkelvoudigInformatieobject.creatiedatum);
@@ -182,8 +204,6 @@ public class RESTInformatieobjectConverter {
         enkelvoudigInformatieobjectWithInhoud.setInformatieobjecttype(
                 ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID)
                         .getUrl());
-        enkelvoudigInformatieobjectWithInhoud.setInhoud(convertByteArrayToBase64String(bestand.file));
-        enkelvoudigInformatieobjectWithInhoud.setFormaat(bestand.type);
         enkelvoudigInformatieobjectWithInhoud.setBestandsnaam(restEnkelvoudigInformatieobject.bestandsnaam);
         enkelvoudigInformatieobjectWithInhoud.setBeschrijving(restEnkelvoudigInformatieobject.beschrijving);
         enkelvoudigInformatieobjectWithInhoud.setStatus(
@@ -205,6 +225,27 @@ public class RESTInformatieobjectConverter {
             final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject,
             final RESTFileUpload bestand
     ) {
+        final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData = buildTaakEnkelvoudigInformatieObjectData(
+                restEnkelvoudigInformatieobject);
+        enkelvoudigInformatieObjectData.setInhoud(convertByteArrayToBase64String(bestand.file));
+        enkelvoudigInformatieObjectData.setFormaat(bestand.type);
+        enkelvoudigInformatieObjectData.setBestandsnaam(bestand.filename);
+        return enkelvoudigInformatieObjectData;
+    }
+
+    public EnkelvoudigInformatieObjectData convertTaakObject(
+            final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
+    ) {
+        final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData = buildTaakEnkelvoudigInformatieObjectData(
+                restEnkelvoudigInformatieobject);
+        enkelvoudigInformatieObjectData.setInhoud(convertByteArrayToBase64String(restEnkelvoudigInformatieobject.file));
+        return enkelvoudigInformatieObjectData;
+    }
+
+    @NotNull
+    private EnkelvoudigInformatieObjectData buildTaakEnkelvoudigInformatieObjectData(
+            RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
+    ) {
         final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData = new EnkelvoudigInformatieObjectData();
         enkelvoudigInformatieObjectData.setBronorganisatie(ConfiguratieService.BRON_ORGANISATIE);
         enkelvoudigInformatieObjectData.setCreatiedatum(LocalDate.now());
@@ -214,9 +255,6 @@ public class RESTInformatieobjectConverter {
         enkelvoudigInformatieObjectData.setInformatieobjecttype(
                 ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID)
                         .getUrl());
-        enkelvoudigInformatieObjectData.setInhoud(convertByteArrayToBase64String(bestand.file));
-        enkelvoudigInformatieObjectData.setFormaat(bestand.type);
-        enkelvoudigInformatieObjectData.setBestandsnaam(bestand.filename);
         enkelvoudigInformatieObjectData.setBeschrijving(OMSCHRIJVING_TAAK_DOCUMENT);
         enkelvoudigInformatieObjectData.setStatus(EnkelvoudigInformatieObjectData.StatusEnum.DEFINITIEF);
         enkelvoudigInformatieObjectData.setVerzenddatum(restEnkelvoudigInformatieobject.verzenddatum);

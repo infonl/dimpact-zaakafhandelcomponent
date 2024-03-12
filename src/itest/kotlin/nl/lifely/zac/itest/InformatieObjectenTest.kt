@@ -18,6 +18,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJL
 import nl.lifely.zac.itest.config.ItestConfiguration.SMARTDOCUMENTS_MOCK_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED
 import nl.lifely.zac.itest.config.ItestConfiguration.USER_FULL_NAME
+import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -82,54 +83,47 @@ class InformatieObjectenTest : BehaviorSpec() {
         Given(
             "ZAC and all related Docker containers are running and zaak exists"
         ) {
-            When("the upload file endpoint is called for a zaak") {
-                val file = Thread.currentThread().getContextClassLoader().getResource("dummyTestDocument.pdf").let {
+            When("the create enkelvoudig informatie object endpoint is called for the zaak") {
+                val endpointUrl =
+                    "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/$zaak1UUID/$zaak1UUID"
+                logger.info { "Calling $endpointUrl endpoint" }
+                val file = Thread.currentThread().contextClassLoader.getResource("dummyTestDocument.pdf").let {
                     File(it!!.path)
                 }
                 val requestBody =
                     MultipartBody.Builder()
                         .setType(MultipartBody.FORM)
-                        .addFormDataPart("filename", FILE_NAME)
-                        .addFormDataPart("filesize", file.length().toString())
-                        .addFormDataPart("type", FILE_FORMAAT)
+                        .addFormDataPart("bestandsnaam", FILE_NAME)
+                        .addFormDataPart("titel", FILE_TITLE)
+                        .addFormDataPart("bestandsomvang", file.length().toString())
+                        .addFormDataPart("formaat", FILE_FORMAAT)
                         .addFormDataPart(
                             "file",
                             FILE_NAME,
-                            file.asRequestBody("application/pdf".toMediaType())
+                            file.asRequestBody(FILE_FORMAAT.toMediaType())
                         )
+                        .addFormDataPart("informatieobjectTypeUUID", INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID)
+                        .addFormDataPart(
+                            "vertrouwelijkheidaanduiding",
+                            DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
+                        )
+                        .addFormDataPart("status", DOCUMENT_STATUS_IN_BEWERKING)
+                        .addFormDataPart(
+                            "creatiedatum",
+                            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm+01:00").format(ZonedDateTime.now())
+                        )
+                        .addFormDataPart("auteur", USER_FULL_NAME)
+                        .addFormDataPart("taal", "dut")
                         .build()
                 val response = itestHttpClient.performPostRequest(
-                    url = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/upload/$zaak1UUID",
-                    requestBody = requestBody
-                )
-                Then(
-                    "the response should be OK"
-                ) {
-                    val responseBody = response.body!!.string()
-                    logger.info { "Response: $responseBody" }
-                    response.code shouldBe HttpStatusCode.OK_200.code()
-                }
-            }
-        }
-        Given(
-            "A zaak exists and a file has been uploaded"
-        ) {
-            When("the create enkelvoudig informatie object endpoint is called for the zaak") {
-                val endpointUrl = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/$zaak1UUID/$zaak1UUID"
-                logger.info { "Calling $endpointUrl endpoint" }
-                val postBody = "{\n" +
-                    "\"bestandsnaam\":\"$FILE_NAME\",\n" +
-                    "\"titel\":\"$FILE_TITLE\",\n" +
-                    "\"informatieobjectTypeUUID\":\"$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID\",\n" +
-                    "\"vertrouwelijkheidaanduiding\":\"$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK\",\n" +
-                    "\"status\":\"$DOCUMENT_STATUS_IN_BEWERKING\",\n" +
-                    "\"creatiedatum\":\"${DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm+01:00").format(ZonedDateTime.now())}\",\n" +
-                    "\"auteur\":\"$USER_FULL_NAME\",\n" +
-                    "\"taal\":\"dut\"\n" +
-                    "}"
-                val response = itestHttpClient.performJSONPostRequest(
                     url = endpointUrl,
-                    requestBodyAsString = postBody
+                    headers = Headers.headersOf(
+                        "Accept",
+                        "application/json",
+                        "Content-Type",
+                        "multipart/form-data"
+                    ),
+                    requestBody = requestBody
                 )
                 Then(
                     "the response should be OK and should contain information about the created document"
@@ -162,7 +156,7 @@ class InformatieObjectenTest : BehaviorSpec() {
             "ZAC and all related Docker containers are running and zaak exists"
         ) {
             When("the upload file endpoint is called for a task") {
-                val file = Thread.currentThread().getContextClassLoader().getResource("dummyTestDocument.pdf").let {
+                val file = Thread.currentThread().contextClassLoader.getResource("dummyTestDocument.pdf").let {
                     File(it!!.path)
                 }
                 val requestBody =

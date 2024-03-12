@@ -11,6 +11,7 @@ import java.util.EnumSet;
 import java.util.UUID;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.FormParam;
 
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.zac.app.identity.model.RESTUser;
@@ -24,53 +25,74 @@ public class RESTEnkelvoudigInformatieobject {
 
     public UUID uuid;
 
+    @FormParam("identificatie")
     public String identificatie;
 
-    @NotNull
+    @NotNull @FormParam("titel")
     public String titel;
 
+    @FormParam("beschrijving")
     public String beschrijving;
 
     // not always required
+    @FormParam("creatiedatum")
     public LocalDate creatiedatum;
 
+    @FormParam("registratiedatumTijd")
     public ZonedDateTime registratiedatumTijd;
 
+    @FormParam("ontvangstdatum")
     public LocalDate ontvangstdatum;
 
+    @FormParam("verzenddatum")
     public LocalDate verzenddatum;
 
+    @FormParam("bronorganisatie")
     public String bronorganisatie;
 
     // not always required
+    @FormParam("vertrouwelijkheidaanduiding")
     public String vertrouwelijkheidaanduiding;
 
     // not always required
+    @FormParam("vertrouwelijkheidaanduiding")
     public String auteur;
 
+    @FormParam("status")
     public EnkelvoudigInformatieObject.StatusEnum status;
 
+    @FormParam("formaat")
     public String formaat;
 
+    @FormParam("file")
+    public byte[] file;
+
     // not always required
+    @FormParam("taal")
     public String taal;
 
+    @FormParam("versie")
     public Integer versie;
 
-    @NotNull
+    @NotNull @FormParam("informatieobjectTypeUUID")
     public UUID informatieobjectTypeUUID;
 
+    @FormParam("informatieobjectTypeOmschrijving")
     public String informatieobjectTypeOmschrijving;
 
-    @NotNull
+    @NotNull @FormParam("bestandsnaam")
     public String bestandsnaam;
 
+    @FormParam("bestandsomvang")
     public Long bestandsomvang;
 
+    @FormParam("link")
     public String link;
 
+    @FormParam("ondertekening")
     public RESTOndertekening ondertekening;
 
+    @FormParam("indicatieGebruiksrecht")
     public boolean indicatieGebruiksrecht;
 
     public EnumSet<DocumentIndicatie> getIndicaties() {
@@ -93,9 +115,12 @@ public class RESTEnkelvoudigInformatieobject {
         return indicaties;
     }
 
+    @FormParam("gelockedDoor")
     public RESTUser gelockedDoor;
 
+    @FormParam("isBesluitDocument")
     public boolean isBesluitDocument;
 
+    @FormParam("rechten")
     public RESTDocumentRechten rechten;
 }
