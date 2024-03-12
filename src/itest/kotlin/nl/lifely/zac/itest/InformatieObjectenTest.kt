@@ -83,7 +83,88 @@ class InformatieObjectenTest : BehaviorSpec() {
         Given(
             "ZAC and all related Docker containers are running and zaak exists"
         ) {
+            When("the upload file endpoint is called for a zaak") {
+                val file = Thread.currentThread().contextClassLoader.getResource("dummyTestDocument.pdf").let {
+                    File(it!!.path)
+                }
+                val requestBody =
+                    MultipartBody.Builder()
+                        .setType(MultipartBody.FORM)
+                        .addFormDataPart("filename", FILE_NAME)
+                        .addFormDataPart("filesize", file.length().toString())
+                        .addFormDataPart("type", FILE_FORMAAT)
+                        .addFormDataPart(
+                            "file",
+                            FILE_NAME,
+                            file.asRequestBody("application/pdf".toMediaType())
+                        )
+                        .build()
+                val response = itestHttpClient.performPostRequest(
+                    url = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/upload/$zaak1UUID",
+                    requestBody = requestBody
+                )
+                Then(
+                    "the response should be OK"
+                ) {
+                    val responseBody = response.body!!.string()
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HttpStatusCode.OK_200.code()
+                }
+            }
+        }
+        Given(
+            "A zaak exists and a file has been uploaded"
+        ) {
             When("the create enkelvoudig informatie object endpoint is called for the zaak") {
+                val endpointUrl =
+                        "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/$zaak1UUID/$zaak1UUID"
+                logger.info { "Calling $endpointUrl endpoint" }
+                val createDate = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm+01:00").format(ZonedDateTime.now())
+                val postBody = "{\n" +
+                    "\"bestandsnaam\":\"$FILE_NAME\",\n" +
+                    "\"titel\":\"$FILE_TITLE\",\n" +
+                    "\"informatieobjectTypeUUID\":\"$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID\",\n" +
+                    "\"vertrouwelijkheidaanduiding\":\"$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK\",\n" +
+                    "\"status\":\"$DOCUMENT_STATUS_IN_BEWERKING\",\n" +
+                    "\"creatiedatum\":\"${createDate}\",\n" +
+                    "\"auteur\":\"$USER_FULL_NAME\",\n" +
+                    "\"taal\":\"dut\"\n" +
+                    "}"
+                val response = itestHttpClient.performJSONPostRequest(
+                    url = endpointUrl,
+                    requestBodyAsString = postBody
+                )
+                Then(
+                    "the response should be OK and should contain information about the created document"
+                ) {
+                    val responseBody = response.body!!.string()
+                    logger.info { "$endpointUrl response: $responseBody" }
+                    response.code shouldBe HttpStatusCode.OK_200.code()
+                    with(responseBody) {
+                        shouldContainJsonKeyValue("auteur", USER_FULL_NAME)
+                        shouldContainJsonKeyValue("bestandsnaam", FILE_NAME)
+                        shouldContainJsonKeyValue("status", DOCUMENT_STATUS_IN_BEWERKING)
+                        shouldContainJsonKeyValue("taal", "Nederlands")
+                        shouldContainJsonKeyValue("titel", FILE_TITLE)
+                        shouldContainJsonKeyValue(
+                            "vertrouwelijkheidaanduiding",
+                            DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
+                        )
+                        shouldContainJsonKeyValue("formaat", FILE_FORMAAT)
+                        shouldContainJsonKeyValue(
+                            "informatieobjectTypeOmschrijving",
+                            INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
+                        )
+                        shouldContainJsonKey("informatieobjectTypeUUID")
+                        shouldContainJsonKey("identificatie")
+                    }
+                }
+            }
+        }
+        Given(
+            "ZAC and all related Docker containers are running and zaak exists"
+        ) {
+            When("the create enkelvoudig informatie object with file upload endpoint is called for the zaak") {
                 val endpointUrl =
                     "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/$zaak1UUID/$zaak1UUID"
                 logger.info { "Calling $endpointUrl endpoint" }
@@ -126,14 +207,13 @@ class InformatieObjectenTest : BehaviorSpec() {
                     requestBody = requestBody
                 )
                 Then(
-                    "the response should be OK and should contain information about the created document"
+                    "the response should be OK and should contain information about the created document and uploaded file"
                 ) {
                     val responseBody = response.body!!.string()
                     logger.info { "$endpointUrl response: $responseBody" }
                     response.code shouldBe HttpStatusCode.OK_200.code()
                     with(responseBody) {
                         shouldContainJsonKeyValue("auteur", USER_FULL_NAME)
-                        shouldContainJsonKeyValue("bestandsnaam", FILE_NAME)
                         shouldContainJsonKeyValue("status", DOCUMENT_STATUS_IN_BEWERKING)
                         shouldContainJsonKeyValue("taal", "Nederlands")
                         shouldContainJsonKeyValue("titel", FILE_TITLE)
@@ -141,13 +221,15 @@ class InformatieObjectenTest : BehaviorSpec() {
                             "vertrouwelijkheidaanduiding",
                             DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
                         )
-                        shouldContainJsonKeyValue("formaat", FILE_FORMAAT)
                         shouldContainJsonKeyValue(
                             "informatieobjectTypeOmschrijving",
                             INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
                         )
                         shouldContainJsonKey("informatieobjectTypeUUID")
                         shouldContainJsonKey("identificatie")
+                        shouldContainJsonKeyValue("bestandsnaam", FILE_NAME)
+                        shouldContainJsonKeyValue("bestandsomvang", file.length().toString())
+                        shouldContainJsonKeyValue("formaat", FILE_FORMAAT)
                     }
                 }
             }

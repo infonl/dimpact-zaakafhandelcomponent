@@ -179,6 +179,7 @@ public class RESTInformatieobjectConverter {
                 restEnkelvoudigInformatieobject);
         enkelvoudigInformatieobjectWithInhoud.setInhoud(convertByteArrayToBase64String(bestand.file));
         enkelvoudigInformatieobjectWithInhoud.setFormaat(bestand.type);
+        enkelvoudigInformatieobjectWithInhoud.setBestandsomvang(bestand.file.length);
         return enkelvoudigInformatieobjectWithInhoud;
     }
 
@@ -188,6 +189,8 @@ public class RESTInformatieobjectConverter {
         final EnkelvoudigInformatieObjectData enkelvoudigInformatieobjectWithInhoud = buildZaacEnkelvoudigInformatieObjectData(
                 restEnkelvoudigInformatieobject);
         enkelvoudigInformatieobjectWithInhoud.setInhoud(convertByteArrayToBase64String(restEnkelvoudigInformatieobject.file));
+        enkelvoudigInformatieobjectWithInhoud.setBestandsomvang(restEnkelvoudigInformatieobject.file.length);
+        enkelvoudigInformatieobjectWithInhoud.setFormaat(restEnkelvoudigInformatieobject.formaat);
         return enkelvoudigInformatieobjectWithInhoud;
     }
 
@@ -230,6 +233,7 @@ public class RESTInformatieobjectConverter {
         enkelvoudigInformatieObjectData.setInhoud(convertByteArrayToBase64String(bestand.file));
         enkelvoudigInformatieObjectData.setFormaat(bestand.type);
         enkelvoudigInformatieObjectData.setBestandsnaam(bestand.filename);
+        enkelvoudigInformatieObjectData.setBestandsomvang(bestand.file.length);
         return enkelvoudigInformatieObjectData;
     }
 
@@ -239,6 +243,8 @@ public class RESTInformatieobjectConverter {
         final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData = buildTaakEnkelvoudigInformatieObjectData(
                 restEnkelvoudigInformatieobject);
         enkelvoudigInformatieObjectData.setInhoud(convertByteArrayToBase64String(restEnkelvoudigInformatieobject.file));
+        enkelvoudigInformatieObjectData.setBestandsomvang(restEnkelvoudigInformatieobject.file.length);
+        enkelvoudigInformatieObjectData.setFormaat(restEnkelvoudigInformatieobject.formaat);
         return enkelvoudigInformatieObjectData;
     }
 

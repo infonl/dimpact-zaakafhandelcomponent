@@ -328,7 +328,6 @@ public class InformatieObjectenRESTService {
             boolean taakObject,
             Zaak zaak
     ) {
-        System.err.println(">>> enkelvoudigInformatieObjectData = " + enkelvoudigInformatieObjectData);
         final ZaakInformatieobject zaakInformatieobject = zgwApiService.createZaakInformatieobjectForZaak(
                 zaak,
                 enkelvoudigInformatieObjectData,
@@ -349,7 +348,6 @@ public class InformatieObjectenRESTService {
             taakdocumenten.add(UriUtil.uuidFromURI(zaakInformatieobject.getInformatieobject()));
             taakVariabelenService.setTaakdocumenten(task, taakdocumenten);
         }
-        System.err.println(">>> zaakInformatieobject = " + zaakInformatieobject);
         return informatieobjectConverter.convertToREST(zaakInformatieobject);
     }
 
