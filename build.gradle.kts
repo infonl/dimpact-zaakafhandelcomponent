@@ -15,7 +15,7 @@ plugins {
     jacoco
 
     id("org.jsonschema2pojo") version "1.2.1"
-    id("org.openapi.generator") version "7.3.0"
+    id("org.openapi.generator") version "7.4.0"
     id("com.github.node-gradle.node") version "7.0.2"
     id("org.barfuin.gradle.taskinfo") version "2.2.0"
     id("io.smallrye.openapi") version "3.10.0"
@@ -150,7 +150,7 @@ dependencies {
     // yasson is required for using a JSONB context in our unit tests
     // where we do not have the WildFly runtime environment available
     testImplementation("org.eclipse:yasson:3.0.3")
-    testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
+    testImplementation("io.kotest:kotest-runner-junit5:5.8.1")
     testImplementation("io.mockk:mockk:1.13.10")
 
     // integration test dependencies
@@ -158,7 +158,7 @@ dependencies {
     "itestImplementation"("org.testcontainers:mockserver:1.19.7")
     "itestImplementation"("org.testcontainers:postgresql:1.19.7")
     "itestImplementation"("org.json:json:20240303")
-    "itestImplementation"("io.kotest:kotest-runner-junit5:5.8.0")
+    "itestImplementation"("io.kotest:kotest-runner-junit5:5.8.1")
     "itestImplementation"("io.kotest:kotest-assertions-json:5.8.1")
     "itestImplementation"("org.slf4j:slf4j-simple:2.0.12")
     "itestImplementation"("io.github.oshai:kotlin-logging-jvm:6.0.3")
