@@ -7,7 +7,7 @@ package net.atos.client.bag.util;
 
 import jakarta.json.bind.adapter.JsonbAdapter;
 
-import net.atos.client.bag.model.StatusNaamgeving;
+import net.atos.client.bag.model.generated.StatusNaamgeving;
 
 public class StatusNaamgevingEnumAdapter implements JsonbAdapter<StatusNaamgeving, String> {
 

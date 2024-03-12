@@ -38,7 +38,7 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import net.atos.client.vrl.exception.RuntimeExceptionMapper;
-import net.atos.client.vrl.model.ProcesType;
+import net.atos.client.vrl.model.generated.ProcesType;
 
 /**
  * Referentielijsten & Selectielijst API

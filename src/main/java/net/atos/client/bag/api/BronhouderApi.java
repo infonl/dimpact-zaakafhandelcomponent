@@ -46,8 +46,8 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import net.atos.client.bag.model.BronhouderHal;
-import net.atos.client.bag.model.BronhouderHalCollection;
+import net.atos.client.bag.model.generated.BronhouderHal;
+import net.atos.client.bag.model.generated.BronhouderHalCollection;
 import net.atos.client.bag.util.BAGClientHeadersFactory;
 import net.atos.client.brp.exception.RuntimeExceptionMapper;
 

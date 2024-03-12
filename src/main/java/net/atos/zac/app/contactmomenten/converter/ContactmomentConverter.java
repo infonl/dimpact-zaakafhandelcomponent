@@ -9,8 +9,8 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import org.apache.commons.lang3.StringUtils;
 
-import net.atos.client.contactmomenten.model.ContactMoment;
-import net.atos.client.contactmomenten.model.Medewerker;
+import net.atos.client.contactmomenten.model.generated.ContactMoment;
+import net.atos.client.contactmomenten.model.generated.Medewerker;
 import net.atos.zac.app.contactmomenten.model.RESTContactmoment;
 
 public class ContactmomentConverter {

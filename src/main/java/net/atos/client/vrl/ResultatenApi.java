@@ -37,8 +37,8 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import net.atos.client.vrl.exception.RuntimeExceptionMapper;
-import net.atos.client.vrl.model.CommunicatiekanaalList200Response;
-import net.atos.client.vrl.model.Resultaat;
+import net.atos.client.vrl.model.generated.CommunicatiekanaalList200Response;
+import net.atos.client.vrl.model.generated.Resultaat;
 
 /**
  * Referentielijsten & Selectielijst API

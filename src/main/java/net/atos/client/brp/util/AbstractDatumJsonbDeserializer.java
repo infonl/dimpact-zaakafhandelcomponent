@@ -16,11 +16,11 @@ import jakarta.json.bind.serializer.DeserializationContext;
 import jakarta.json.bind.serializer.JsonbDeserializer;
 import jakarta.json.stream.JsonParser;
 
-import net.atos.client.brp.model.AbstractDatum;
-import net.atos.client.brp.model.DatumOnbekend;
-import net.atos.client.brp.model.JaarDatum;
-import net.atos.client.brp.model.JaarMaandDatum;
-import net.atos.client.brp.model.VolledigeDatum;
+import net.atos.client.brp.model.generated.AbstractDatum;
+import net.atos.client.brp.model.generated.DatumOnbekend;
+import net.atos.client.brp.model.generated.JaarDatum;
+import net.atos.client.brp.model.generated.JaarMaandDatum;
+import net.atos.client.brp.model.generated.VolledigeDatum;
 
 public class AbstractDatumJsonbDeserializer implements JsonbDeserializer<AbstractDatum> {
 

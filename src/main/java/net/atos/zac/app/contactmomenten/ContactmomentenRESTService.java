@@ -19,8 +19,8 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
 import net.atos.client.contactmomenten.ContactmomentenClientService;
-import net.atos.client.contactmomenten.model.ContactMoment;
-import net.atos.client.contactmomenten.model.KlantContactMoment;
+import net.atos.client.contactmomenten.model.generated.ContactMoment;
+import net.atos.client.contactmomenten.model.generated.KlantContactMoment;
 import net.atos.client.contactmomenten.model.KlantcontactmomentListParameters;
 import net.atos.client.klanten.KlantenClientService;
 import net.atos.client.klanten.model.Klant;

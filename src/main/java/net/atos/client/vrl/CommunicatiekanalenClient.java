@@ -38,8 +38,8 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import net.atos.client.vrl.exception.CommunicatiekanaalNotFoundException;
 import net.atos.client.vrl.exception.CommunicatiekanaalNotFoundExceptionMapping;
 import net.atos.client.vrl.exception.RuntimeExceptionMapper;
-import net.atos.client.vrl.model.CommunicatieKanaal;
-import net.atos.client.vrl.model.CommunicatiekanaalList200Response;
+import net.atos.client.vrl.model.generated.CommunicatieKanaal;
+import net.atos.client.vrl.model.generated.CommunicatiekanaalList200Response;
 
 /**
  * Referentielijsten & Selectielijst API

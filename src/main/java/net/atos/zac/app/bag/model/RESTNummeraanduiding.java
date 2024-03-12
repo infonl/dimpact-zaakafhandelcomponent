@@ -5,8 +5,8 @@
 
 package net.atos.zac.app.bag.model;
 
-import net.atos.client.bag.model.StatusNaamgeving;
-import net.atos.client.bag.model.TypeAdresseerbaarObject;
+import net.atos.client.bag.model.generated.StatusNaamgeving;
+import net.atos.client.bag.model.generated.TypeAdresseerbaarObject;
 
 public class RESTNummeraanduiding extends RESTBAGObject {
 

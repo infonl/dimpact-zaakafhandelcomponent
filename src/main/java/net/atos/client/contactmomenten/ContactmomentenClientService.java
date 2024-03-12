@@ -14,8 +14,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import net.atos.client.contactmomenten.exception.NotFoundException;
-import net.atos.client.contactmomenten.model.ContactMoment;
-import net.atos.client.contactmomenten.model.KlantcontactmomentList200Response;
+import net.atos.client.contactmomenten.model.generated.ContactMoment;
+import net.atos.client.contactmomenten.model.generated.KlantcontactmomentList200Response;
 import net.atos.client.contactmomenten.model.KlantcontactmomentListParameters;
 
 @Singleton

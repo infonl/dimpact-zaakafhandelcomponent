@@ -7,10 +7,10 @@ package net.atos.zac.app.bag.converter;
 
 import java.net.URI;
 
-import net.atos.client.bag.model.Indicatie;
-import net.atos.client.bag.model.Woonplaats;
-import net.atos.client.bag.model.WoonplaatsIOHal;
-import net.atos.client.bag.model.WoonplaatsIOHalBasis;
+import net.atos.client.bag.model.generated.Indicatie;
+import net.atos.client.bag.model.generated.Woonplaats;
+import net.atos.client.bag.model.generated.WoonplaatsIOHal;
+import net.atos.client.bag.model.generated.WoonplaatsIOHalBasis;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectWoonplaats;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaats;

@@ -24,7 +24,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import net.atos.client.kvk.exception.RuntimeExceptionMapper;
 import net.atos.client.kvk.util.KVKClientHeadersFactory;
-import net.atos.client.kvk.vestigingsprofiel.model.Vestiging;
+import net.atos.client.kvk.vestigingsprofiel.model.generated.Vestiging;
 
 @RegisterRestClient(configKey = "KVK-API-Client")
 @RegisterClientHeaders(KVKClientHeadersFactory.class)

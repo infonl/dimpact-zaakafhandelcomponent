@@ -18,8 +18,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import net.atos.client.kvk.model.KVKZoekenParameters;
-import net.atos.client.kvk.zoeken.model.Resultaat;
-import net.atos.client.kvk.zoeken.model.ResultaatItem;
+import net.atos.client.kvk.zoeken.model.generated.Resultaat;
+import net.atos.client.kvk.zoeken.model.generated.ResultaatItem;
 import net.atos.zac.app.klanten.model.bedrijven.RESTBedrijf;
 import net.atos.zac.app.klanten.model.bedrijven.RESTListBedrijvenParameters;
 

@@ -16,10 +16,10 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import net.atos.client.kvk.basisprofiel.model.Basisprofiel;
-import net.atos.client.kvk.basisprofiel.model.Eigenaar;
-import net.atos.client.kvk.basisprofiel.model.Vestiging;
-import net.atos.client.kvk.basisprofiel.model.VestigingList;
+import net.atos.client.kvk.basisprofiel.model.generated.Basisprofiel;
+import net.atos.client.kvk.basisprofiel.model.generated.Eigenaar;
+import net.atos.client.kvk.basisprofiel.model.generated.Vestiging;
+import net.atos.client.kvk.basisprofiel.model.generated.VestigingList;
 import net.atos.client.kvk.exception.RuntimeExceptionMapper;
 import net.atos.client.kvk.util.KVKClientHeadersFactory;
 
