@@ -208,7 +208,6 @@ public class ProductaanvraagService {
 
     public Map<String, Object> getFormulierData(final ORObject productaanvraagObject) {
         final Map<String, Object> formulierData = new HashMap<>();
-        // TODO: is different field now
         ((Map<String, Object>) productaanvraagObject.getRecord().getData().get(PRODUCT_AANVRAAG_FORMULIER_DATA_VELD))
                 .forEach((stap, velden) -> formulierData.putAll((Map<String, Object>) velden));
         return formulierData;
@@ -224,7 +223,6 @@ public class ProductaanvraagService {
                         new IndicatieMachtigingJsonAdapter(),
                         new RolOmschrijvingGeneriekJsonAdapter()
                 )
-        //.withPropertyNamingStrategy(PropertyNamingStrategy.CASE_INSENSITIVE)
         ).fromJson(
                 JsonbUtil.JSONB.toJson(productaanvraagObject.getRecord().getData()),
                 ProductaanvraagDimpact.class

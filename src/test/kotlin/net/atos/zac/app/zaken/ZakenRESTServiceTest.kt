@@ -18,7 +18,7 @@ import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.client.or.`object`.ObjectsClientService
-import net.atos.client.or.`object`.model.createObjectRegistratieObject
+import net.atos.client.or.`object`.model.createORObject
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.ZRCClientService
@@ -96,7 +96,7 @@ class ZakenRESTServiceTest : BehaviorSpec() {
                     val group = createGroup()
                     val formulierData = mapOf(Pair("dummyKey", "dummyValue"))
                     val natuurlijkPersoon = createNatuurlijkPersoon()
-                    val objectRegistratieObject = createObjectRegistratieObject()
+                    val objectRegistratieObject = createORObject()
                     val productaanvraagDimpact = createProductaanvraagDimpact()
                     val restZaak = createRESTZaak()
                     val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)

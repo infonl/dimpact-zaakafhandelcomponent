@@ -7,8 +7,26 @@ package net.atos.zac.aanvraag
 
 import net.atos.zac.aanvraag.model.generated.Betrokkene
 import net.atos.zac.aanvraag.model.generated.Betrokkene.RolOmschrijvingGeneriek
+import net.atos.zac.aanvraag.model.generated.Bron
 import net.atos.zac.aanvraag.model.generated.ProductaanvraagDimpact
 import java.net.URI
+
+fun createBetrokkene(
+    inBsn: String = "dummyBsn",
+    rolOmschrijvingGeneriek: RolOmschrijvingGeneriek = RolOmschrijvingGeneriek.INITIATOR
+) =
+    Betrokkene().apply {
+        this.inpBsn = inBsn
+        this.rolOmschrijvingGeneriek = rolOmschrijvingGeneriek
+    }
+
+fun createBron(
+    naam: String = "dummyNaam",
+    kenmerk: String = "dummyKenmerk"
+) = Bron().apply {
+    this.naam = naam
+    this.kenmerk = kenmerk
+}
 
 @Suppress("LongParameterList")
 fun createProductaanvraagDimpact(
@@ -32,13 +50,4 @@ fun createProductaanvraagDimpact(
         this.pdf = pdfUrl
         this.csv = csvUrl
         this.bijlagen = attachments
-    }
-
-fun createBetrokkene(
-    inBsn: String = "dummyBsn",
-    rolOmschrijvingGeneriek: RolOmschrijvingGeneriek = RolOmschrijvingGeneriek.INITIATOR
-) =
-    Betrokkene().apply {
-        this.inpBsn = inBsn
-        this.rolOmschrijvingGeneriek = rolOmschrijvingGeneriek
     }
