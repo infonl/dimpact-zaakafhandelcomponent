@@ -190,7 +190,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                 } throws RuntimeException("dummy exception")
 
                 shouldThrow<RuntimeException> {
-                    informatieObjectenRESTService.createEnkelvoudigInformatieobjectAndUploadFile(
+                    informatieObjectenRESTService.createEnkelvoudigInformatieobjectWithUploadedFile(
                         zaak.uuid,
                         documentReferentieId,
                         false,
