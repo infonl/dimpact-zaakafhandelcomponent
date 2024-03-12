@@ -295,6 +295,7 @@ public class TakenRESTService {
         ondertekenEnkelvoudigInformatieObjecten(restTaak.taakdata, zaak);
         taakVariabelenService.setTaakdata(task, restTaak.taakdata);
         taakVariabelenService.setTaakinformatie(task, restTaak.taakinformatie);
+        task = updateTaak(restTaak);
         final HistoricTaskInstance completedTask = takenService.completeTask(task);
         indexeerService.addOrUpdateZaak(restTaak.zaakUuid, false);
         eventingService.send(TAAK.updated(completedTask));
