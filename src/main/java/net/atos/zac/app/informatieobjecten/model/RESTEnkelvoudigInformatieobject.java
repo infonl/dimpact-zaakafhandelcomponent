@@ -55,7 +55,7 @@ public class RESTEnkelvoudigInformatieobject {
     public String vertrouwelijkheidaanduiding;
 
     // not always required
-    @FormParam("vertrouwelijkheidaanduiding")
+    @FormParam("auteur")
     public String auteur;
 
     @FormParam("status")
