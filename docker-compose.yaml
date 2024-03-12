@@ -26,6 +26,8 @@ services:
       - "--import-realm"
       - "--hostname-url=http://localhost:8081"
       - "--health-enabled=true"
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -45,6 +47,8 @@ services:
       - POSTGRES_DB=keycloak
     volumes:
       - ./scripts/docker-compose/volume-data/zac-keycloak-database-data:/var/lib/postgresql/data
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -65,6 +69,8 @@ services:
     volumes:
       - ./scripts/docker-compose/imports/zac-database/init-zac-database.sql:/docker-entrypoint-initdb.d/init-zac-database.sql
       - ./scripts/docker-compose/volume-data/zac-database-data:/var/lib/postgresql/data
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -88,6 +94,8 @@ services:
     volumes:
       - ./scripts/docker-compose/imports/openzaak-database:/docker-entrypoint-initdb.d
       - ./scripts/docker-compose/volume-data/openzaak-database-data:/var/lib/postgresql/data
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -124,11 +132,15 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
   redis:
     image: redis:6.2.6
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -150,6 +162,8 @@ services:
     depends_on:
       objecten-api-database:
         condition: service_healthy
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -168,6 +182,8 @@ services:
       - POSTGRES_USER=objects
       - POSTGRES_PASSWORD=objects
       - POSTGRES_DB=objects
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -182,6 +198,8 @@ services:
       - ./scripts/docker-compose/imports/objects-api/init:/app/init
     depends_on:
       - objecten-api.local
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -201,6 +219,8 @@ services:
     depends_on:
       objecttypen-api-database:
         condition: service_healthy
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -218,6 +238,8 @@ services:
       - POSTGRES_USER=objecttypes
       - POSTGRES_PASSWORD=objecttypes
       - POSTGRES_DB=objecttypes
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -231,6 +253,8 @@ services:
       - ./scripts/docker-compose/imports/objecttypes-api/init:/app/init
     depends_on:
       - objecttypen-api
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -247,6 +271,8 @@ services:
     command: bash -c "
       chown -R 8983:8983 /var/solr
       && runuser -u solr -- solr-precreate zac"
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -256,6 +282,8 @@ services:
     command: run --server --log-level debug
     ports:
       - "8181:8181"
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -282,6 +310,8 @@ services:
       - ZAC_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS:-test-group-record-managers@example.com}
     entrypoint: ["/zac-scripts/generate-zac-import-ldif-and-start-openldap.sh"]
     command: ["/opt/bitnami/scripts/openldap/run.sh"]
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -296,6 +326,8 @@ services:
       - POSTGRES_DB=vrl
     volumes:
       - ./scripts/docker-compose/volume-data/zgw-referentielijsten-database-data:/var/lib/postgresql/data
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -320,6 +352,8 @@ services:
       start_period: 30s
     depends_on:
       - zgw-referentielijsten-database
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -332,6 +366,8 @@ services:
     depends_on:
       zgw-referentielijsten.local:
         condition: service_healthy
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -349,6 +385,8 @@ services:
       - ASPNETCORE_hostBuilder__reloadConfigOnChange=false
     ports:
       - "5010:5010"
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -367,6 +405,8 @@ services:
       - "5001:5000"
     depends_on:
       - gbamock
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -387,6 +427,8 @@ services:
     volumes:
       - ./scripts/docker-compose/imports/openklant-database:/docker-entrypoint-initdb.d
       - ./scripts/docker-compose/volume-data/openklant-database-data:/var/lib/postgresql/data
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -412,7 +454,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-    extra_hosts:
+        # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
       - "host.docker.internal:host-gateway"
 
   smartdocuments-wiremock:
@@ -423,6 +466,8 @@ services:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/smartdocuments-wiremock/mappings:/home/wiremock/mappings
     entrypoint: [ "/docker-entrypoint.sh", "--global-response-templating", "--disable-gzip", "--verbose" ]
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -431,6 +476,8 @@ services:
     platform: linux/amd64
     ports:
       - "8083:8080"
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -509,5 +556,7 @@ services:
       zac-database:
         condition: service_healthy
     profiles: ["zac"]
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
