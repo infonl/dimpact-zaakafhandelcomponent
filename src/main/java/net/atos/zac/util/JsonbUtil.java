@@ -5,13 +5,13 @@
 
 package net.atos.zac.util;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.json.bind.JsonbConfig;
 import jakarta.json.bind.config.PropertyVisibilityStrategy;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 public final class JsonbUtil {
     private JsonbUtil() {

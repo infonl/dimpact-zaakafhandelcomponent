@@ -5,6 +5,23 @@
 
 package net.atos.zac.zaaksturing;
 
+import static net.atos.client.zgw.shared.cache.Caching.ZAC_ZAAKAFHANDELPARAMETERS;
+import static net.atos.zac.util.ValidationUtil.valideerObject;
+import static net.atos.zac.zaaksturing.model.ZaakafhandelParameters.CREATIEDATUM;
+import static net.atos.zac.zaaksturing.model.ZaakafhandelParameters.PRODUCTAANVRAAGTYPE;
+import static net.atos.zac.zaaksturing.model.ZaakafhandelParameters.ZAAKTYPE_OMSCHRIJVING;
+import static net.atos.zac.zaaksturing.model.ZaakafhandelParameters.ZAAKTYPE_UUID;
+
+import java.net.URI;
+import java.time.ZonedDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.logging.Logger;
+
+import javax.cache.annotation.CacheRemoveAll;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -14,6 +31,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
+
 import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.client.zgw.ztc.model.generated.ResultaatType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
@@ -25,22 +43,6 @@ import net.atos.zac.zaaksturing.model.UserEventListenerParameters;
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
 import net.atos.zac.zaaksturing.model.ZaakbeeindigParameter;
 import net.atos.zac.zaaksturing.model.ZaakbeeindigReden;
-
-import javax.cache.annotation.CacheRemoveAll;
-import java.net.URI;
-import java.time.ZonedDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.logging.Logger;
-
-import static net.atos.client.zgw.shared.cache.Caching.ZAC_ZAAKAFHANDELPARAMETERS;
-import static net.atos.zac.util.ValidationUtil.valideerObject;
-import static net.atos.zac.zaaksturing.model.ZaakafhandelParameters.CREATIEDATUM;
-import static net.atos.zac.zaaksturing.model.ZaakafhandelParameters.PRODUCTAANVRAAGTYPE;
-import static net.atos.zac.zaaksturing.model.ZaakafhandelParameters.ZAAKTYPE_OMSCHRIJVING;
-import static net.atos.zac.zaaksturing.model.ZaakafhandelParameters.ZAAKTYPE_UUID;
 
 @ApplicationScoped
 @Transactional

@@ -5,11 +5,30 @@
 
 package net.atos.zac.aanvraag;
 
+import static net.atos.zac.configuratie.ConfiguratieService.BRON_ORGANISATIE;
+import static net.atos.zac.configuratie.ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER;
+import static net.atos.zac.util.UriUtil.uuidFromURI;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
+import java.net.URI;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.json.bind.JsonbConfig;
+
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import net.atos.client.or.object.ObjectsClientService;
 import net.atos.client.or.object.model.ORObject;
 import net.atos.client.vrl.VRLClientService;
@@ -47,23 +66,6 @@ import net.atos.zac.util.JsonbUtil;
 import net.atos.zac.zaaksturing.ZaakafhandelParameterBeheerService;
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService;
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
-import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import java.net.URI;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static net.atos.zac.configuratie.ConfiguratieService.BRON_ORGANISATIE;
-import static net.atos.zac.configuratie.ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER;
-import static net.atos.zac.util.UriUtil.uuidFromURI;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @ApplicationScoped
 public class ProductaanvraagService {
@@ -139,7 +141,8 @@ public class ProductaanvraagService {
         final var productaanvraagObject = objectsClientService.readObject(uuidFromURI(productaanvraagUrl));
         final var productaanvraag = getProductaanvraag(productaanvraagObject);
         final Optional<UUID> zaaktypeUUID = zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(
-                productaanvraag.getType());
+                productaanvraag.getType()
+        );
         if (zaaktypeUUID.isPresent()) {
             try {
                 LOG.fine(() -> "Start zaak met CMMN case. Zaaktype: %s".formatted(zaaktypeUUID.get().toString()));
@@ -253,8 +256,10 @@ public class ProductaanvraagService {
         inboxProductaanvraag.setOntvangstdatum(productaanvraagObject.getRecord().getRegistrationAt());
         productaanvraag.getBetrokkenen().stream()
                 .filter(betrokkene -> betrokkene.getRolOmschrijvingGeneriek().equals(Betrokkene.RolOmschrijvingGeneriek.INITIATOR))
-                // TODO: check; there can be only one initiator for a particular zaak?
-                .forEach(betrokkene -> inboxProductaanvraag.setInitiatorID(betrokkene.getInpBsn()));
+                // there can be at most only one initiator for a particular zaak so even if there are multiple (theorically possible)
+                // we are only interested in the first one
+                .findFirst()
+                .ifPresent(betrokkene -> inboxProductaanvraag.setInitiatorID(betrokkene.getInpBsn()));
 
         if (productaanvraag.getPdf() != null) {
             final UUID aanvraagDocumentUUID = uuidFromURI(productaanvraag.getPdf());
@@ -311,10 +316,12 @@ public class ProductaanvraagService {
         pairProductaanvraagWithZaak(productaanvraagObject, zaak.getUrl());
         pairAanvraagPDFWithZaak(productaanvraag, zaak.getUrl());
         pairBijlagenWithZaak(productaanvraag.getBijlagen(), zaak.getUrl());
-        productaanvraag.getBetrokkenen().stream()
+        ListUtils.emptyIfNull(productaanvraag.getBetrokkenen()).stream()
                 .filter(betrokkene -> betrokkene.getRolOmschrijvingGeneriek().equals(Betrokkene.RolOmschrijvingGeneriek.INITIATOR))
-                // TODO: check; there can be only one initiator for a particular zaak..
-                .forEach(betrokkene -> addInitiator(betrokkene.getInpBsn(), zaak.getUrl(), zaak.getZaaktype()));
+                // there can be at most only one initiator for a particular zaak so even if there are multiple (theorically possible)
+                // we are only interested in the first one
+                .findFirst()
+                .ifPresent(betrokkene -> addInitiator(betrokkene.getInpBsn(), zaak.getUrl(), zaak.getZaaktype()));
     }
 
     public void pairProductaanvraagWithZaak(final ORObject productaanvraag, final URI zaakUrl) {

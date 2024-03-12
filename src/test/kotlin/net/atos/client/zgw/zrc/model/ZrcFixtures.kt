@@ -6,6 +6,7 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectPand
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
+import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.generated.RolType
 import java.net.URI
@@ -88,6 +89,15 @@ fun createZaakInformatieobject(
     informatieObjectURL,
     zaakURL
 )
+
+fun createZaakobjectProductaanvraag(
+    zaakURI: URI = URI("http://example.com/${UUID.randomUUID()}"),
+    productaanvraagURI: URI = URI("http://example.com/${UUID.randomUUID()}")
+) =
+    ZaakobjectProductaanvraag(
+        zaakURI,
+        productaanvraagURI
+    )
 
 fun createZaakobjectPand(
     zaakURI: URI = URI("http://example.com/${UUID.randomUUID()}"),

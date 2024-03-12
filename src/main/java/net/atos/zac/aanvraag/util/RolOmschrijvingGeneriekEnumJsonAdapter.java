@@ -1,6 +1,7 @@
 package net.atos.zac.aanvraag.util;
 
 import jakarta.json.bind.adapter.JsonbAdapter;
+
 import net.atos.zac.aanvraag.model.generated.Betrokkene;
 
 /**

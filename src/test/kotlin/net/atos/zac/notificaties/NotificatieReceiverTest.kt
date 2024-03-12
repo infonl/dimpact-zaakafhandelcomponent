@@ -53,7 +53,7 @@ class NotificatieReceiverTest : BehaviorSpec({
 
     given(
         "a request containing a authorization header, a productaanvraag notificatie with a object type UUID " +
-            "for the 'productaanvraag DenHaag' object type"
+            "for the productaanvraag object type"
     ) {
         `when`("notificatieReceive is called") {
             then(

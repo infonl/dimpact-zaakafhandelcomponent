@@ -5,34 +5,6 @@
 
 package net.atos.zac.notificaties;
 
-import jakarta.enterprise.inject.Instance;
-import jakarta.inject.Inject;
-import jakarta.servlet.http.HttpSession;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import net.atos.client.or.objecttype.ObjecttypesClientService;
-import net.atos.client.or.objecttype.model.Objecttype;
-import net.atos.zac.aanvraag.ProductaanvraagService;
-import net.atos.zac.authentication.ActiveSession;
-import net.atos.zac.authentication.SecurityUtil;
-import net.atos.zac.configuratie.ConfiguratieService;
-import net.atos.zac.documenten.InboxDocumentenService;
-import net.atos.zac.event.EventingService;
-import net.atos.zac.signalering.event.SignaleringEventUtil;
-import net.atos.zac.websocket.event.ScreenEventType;
-import net.atos.zac.zaaksturing.ZaakafhandelParameterBeheerService;
-import net.atos.zac.zoeken.IndexeerService;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import static jakarta.ws.rs.core.Response.noContent;
 import static net.atos.zac.notificaties.Action.CREATE;
 import static net.atos.zac.notificaties.Action.DELETE;
@@ -48,6 +20,36 @@ import static net.atos.zac.notificaties.Resource.ZAAKOBJECT;
 import static net.atos.zac.notificaties.Resource.ZAAKTYPE;
 import static net.atos.zac.util.UriUtil.uuidFromURI;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpSession;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import net.atos.client.or.objecttype.ObjecttypesClientService;
+import net.atos.client.or.objecttype.model.Objecttype;
+import net.atos.zac.aanvraag.ProductaanvraagService;
+import net.atos.zac.authentication.ActiveSession;
+import net.atos.zac.authentication.SecurityUtil;
+import net.atos.zac.configuratie.ConfiguratieService;
+import net.atos.zac.documenten.InboxDocumentenService;
+import net.atos.zac.event.EventingService;
+import net.atos.zac.signalering.event.SignaleringEventUtil;
+import net.atos.zac.websocket.event.ScreenEventType;
+import net.atos.zac.zaaksturing.ZaakafhandelParameterBeheerService;
+import net.atos.zac.zoeken.IndexeerService;
 
 /**
  *
