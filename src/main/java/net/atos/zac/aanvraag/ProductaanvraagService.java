@@ -7,6 +7,7 @@ package net.atos.zac.aanvraag;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.json.bind.JsonbConfig;
 import net.atos.client.or.object.ObjectsClientService;
@@ -30,10 +31,11 @@ import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.aanvraag.model.InboxProductaanvraag;
-import net.atos.zac.aanvraag.model.IndicatieMachtigingJsonAdapter;
-import net.atos.zac.aanvraag.model.RolOmschrijvingGeneriekJsonAdapter;
 import net.atos.zac.aanvraag.model.generated.Betrokkene;
 import net.atos.zac.aanvraag.model.generated.ProductaanvraagDimpact;
+import net.atos.zac.aanvraag.util.BetalingStatusEnumJsonAdapter;
+import net.atos.zac.aanvraag.util.IndicatieMachtigingEnumJsonAdapter;
+import net.atos.zac.aanvraag.util.RolOmschrijvingGeneriekEnumJsonAdapter;
 import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.documenten.InboxDocumentenService;
 import net.atos.zac.flowable.BPMNService;
@@ -214,19 +216,23 @@ public class ProductaanvraagService {
     }
 
     public ProductaanvraagDimpact getProductaanvraag(final ORObject productaanvraagObject) {
-        // TODO: enum conversions fail
-        // e.g. jakarta.json.bind.JsonbException: Internal error: No enum constant
-        // net.atos.zac.aanvraag.model.generated.Betrokkene.IndicatieMachtiging.gemachtigde
-        // for now add workaround using custom JSON enum adapters
-        return JsonbBuilder.create(
-                new JsonbConfig().withAdapters(
-                        new IndicatieMachtigingJsonAdapter(),
-                        new RolOmschrijvingGeneriekJsonAdapter()
-                )
-        ).fromJson(
-                JsonbUtil.JSONB.toJson(productaanvraagObject.getRecord().getData()),
-                ProductaanvraagDimpact.class
-        );
+        try (Jsonb jsonb = JsonbBuilder.create(new JsonbConfig()
+                // register our custom enum JSON adapters because by default enums are deserialized using the enum's name
+                // instead of the value and this fails because in the generated model classes the enum names are
+                // capitalized and the values are not
+                .withAdapters(
+                        new IndicatieMachtigingEnumJsonAdapter(),
+                        new RolOmschrijvingGeneriekEnumJsonAdapter(),
+                        new BetalingStatusEnumJsonAdapter()
+                ))
+        ) {
+            return jsonb.fromJson(
+                    JsonbUtil.JSONB.toJson(productaanvraagObject.getRecord().getData()),
+                    ProductaanvraagDimpact.class
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void addInitiator(final String bsn, final URI zaak, final URI zaaktype) {

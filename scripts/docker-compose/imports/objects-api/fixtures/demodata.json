@@ -827,6 +827,13 @@
                         "omschrijving" : "Ik heb een vraag over mijn paspoort"
                     }
                 },
+                "taal" : "nld",
+                "zaakgegevens" : {
+                    "identificatie" : "ZAAK-2023-0000000001",
+                    "communicatiekanaal" : "https://referentielijsten-api.vng.cloud/api/v1/communicatiekanalen/f56552a8-a082-4306-9111-eb1664fcb05d",
+                    "omschrijving" : "dummyZaakOmschrijving",
+                    "toelichting" : "dummyZaakToelichting"
+                },
                 "betrokkenen" : [
                     {
                         "inpBsn" : "111222333",
@@ -845,7 +852,17 @@
                         "rolOmschrijvingGeneriek" : "klantcontacter"
                     }
                 ],
-                "pdf": "https://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e"
+                "betaling" : {
+                    "kenmerk" : "2022ESUITE0320",
+                    "bedrag" : 19.20,
+                    "status" : "niet_geslaagd",
+                    "transactieId" : "123456784",
+                    "transactiedatumtijd" : "2021-04-25T21:30:05.000+00:00",
+                    "statusCode" : "5",
+                    "melding" : "Saldo tekort"
+                },
+                "pdf": "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e",
+                "csv" : "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/aeaba696-4968-46a6-8b1e-016f503ed88d"
             },
             "start_at": "2023-10-25",
             "end_at": null,

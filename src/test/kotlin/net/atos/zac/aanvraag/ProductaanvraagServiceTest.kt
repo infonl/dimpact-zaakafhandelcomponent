@@ -4,25 +4,17 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import net.atos.client.or.`object`.model.createORObject
 import net.atos.client.or.`object`.model.createObjectRecord
-import net.atos.zac.aanvraag.model.generated.Betrokkene
 
 class ProductaanvraagServiceTest : BehaviorSpec({
     val productaanvraagService = ProductaanvraagService()
 
     Given("an object registration object") {
         val bron = createBron()
-        val betrokkenen = listOf(
-            createBetrokkene(
-                inBsn = "dummyBsn",
-                rolOmschrijvingGeneriek = Betrokkene.RolOmschrijvingGeneriek.INITIATOR
-            )
-        )
         val orObject = createORObject(
             record = createObjectRecord(
                 data = mapOf(
                     "bron" to bron,
-                    "type" to "productaanvraag",
-                    "betrokkenen" to betrokkenen
+                    "type" to "productaanvraag"
                 )
             )
         )
@@ -36,10 +28,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         kenmerk shouldBe bron.kenmerk
                     }
                     type shouldBe "productaanvraag"
-                    with(betrokkenen[0]) {
-                        inpBsn shouldBe betrokkenen[0].inpBsn
-                        rolOmschrijvingGeneriek shouldBe betrokkenen[0].rolOmschrijvingGeneriek
-                    }
                 }
             }
         }
