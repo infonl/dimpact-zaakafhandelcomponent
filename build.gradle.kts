@@ -15,7 +15,7 @@ plugins {
     jacoco
 
     id("org.jsonschema2pojo") version "1.2.1"
-    id("org.openapi.generator") version "7.3.0"
+    id("org.openapi.generator") version "7.4.0"
     id("com.github.node-gradle.node") version "7.0.2"
     id("org.barfuin.gradle.taskinfo") version "2.2.0"
     id("io.smallrye.openapi") version "3.10.0"
