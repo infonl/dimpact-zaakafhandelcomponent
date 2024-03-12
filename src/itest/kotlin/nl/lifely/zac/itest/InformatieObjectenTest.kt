@@ -117,7 +117,7 @@ class InformatieObjectenTest : BehaviorSpec() {
         ) {
             When("the create enkelvoudig informatie object endpoint is called for the zaak") {
                 val endpointUrl =
-                        "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/$zaak1UUID/$zaak1UUID"
+                    "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/$zaak1UUID/$zaak1UUID"
                 logger.info { "Calling $endpointUrl endpoint" }
                 val createDate = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm+01:00").format(ZonedDateTime.now())
                 val postBody = "{\n" +
