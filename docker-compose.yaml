@@ -26,6 +26,8 @@ services:
       - "--import-realm"
       - "--hostname-url=http://localhost:8081"
       - "--health-enabled=true"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   keycloak-database:
     image: postgres:15.4
@@ -43,6 +45,8 @@ services:
       - POSTGRES_DB=keycloak
     volumes:
       - ./scripts/docker-compose/volume-data/zac-keycloak-database-data:/var/lib/postgresql/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   zac-database:
     image: postgres:15.4
@@ -61,6 +65,8 @@ services:
     volumes:
       - ./scripts/docker-compose/imports/zac-database/init-zac-database.sql:/docker-entrypoint-initdb.d/init-zac-database.sql
       - ./scripts/docker-compose/volume-data/zac-database-data:/var/lib/postgresql/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   openzaak-database:
     image: postgis/postgis:15-3.4
@@ -82,6 +88,8 @@ services:
     volumes:
       - ./scripts/docker-compose/imports/openzaak-database:/docker-entrypoint-initdb.d
       - ./scripts/docker-compose/volume-data/openzaak-database-data:/var/lib/postgresql/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
@@ -116,9 +124,13 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   redis:
     image: redis:6.2.6
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
@@ -138,6 +150,8 @@ services:
     depends_on:
       objecten-api-database:
         condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   objecten-api-database:
     image: postgis/postgis:15-3.4
@@ -154,6 +168,8 @@ services:
       - POSTGRES_USER=objects
       - POSTGRES_PASSWORD=objects
       - POSTGRES_DB=objects
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   objecten-api-import:
     image: maykinmedia/objects-api:2.1.1
@@ -166,6 +182,8 @@ services:
       - ./scripts/docker-compose/imports/objects-api/init:/app/init
     depends_on:
       - objecten-api.local
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   objecttypen-api:
     image: maykinmedia/objecttypes-api:2.1.0
@@ -183,6 +201,8 @@ services:
     depends_on:
       objecttypen-api-database:
         condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   objecttypen-api-database:
     image: postgres:15.4
@@ -198,6 +218,8 @@ services:
       - POSTGRES_USER=objecttypes
       - POSTGRES_PASSWORD=objecttypes
       - POSTGRES_DB=objecttypes
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   objecttypen-api-import:
     image: maykinmedia/objecttypes-api:2.1.0
@@ -209,6 +231,8 @@ services:
       - ./scripts/docker-compose/imports/objecttypes-api/init:/app/init
     depends_on:
       - objecttypen-api
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   solr:
     image: solr:9.5.0-slim
@@ -223,6 +247,8 @@ services:
     command: bash -c "
       chown -R 8983:8983 /var/solr
       && runuser -u solr -- solr-precreate zac"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   # Open Policy Agent (OPA)
   opa:
@@ -230,6 +256,8 @@ services:
     command: run --server --log-level debug
     ports:
       - "8181:8181"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   openldap:
     image: bitnami/openldap:2.6.7
@@ -254,6 +282,8 @@ services:
       - ZAC_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS:-test-group-record-managers@example.com}
     entrypoint: ["/zac-scripts/generate-zac-import-ldif-and-start-openldap.sh"]
     command: ["/opt/bitnami/scripts/openldap/run.sh"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   # VNG ZGW referentielijsten ('VRL') (see: https://github.com/VNG-Realisatie/VNG-referentielijsten)
   zgw-referentielijsten-database:
@@ -266,6 +296,8 @@ services:
       - POSTGRES_DB=vrl
     volumes:
       - ./scripts/docker-compose/volume-data/zgw-referentielijsten-database-data:/var/lib/postgresql/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
@@ -288,6 +320,8 @@ services:
       start_period: 30s
     depends_on:
       - zgw-referentielijsten-database
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   # Insert required test data into the VRL database after the VRL application has started up and finished initializing the database
   zgw-referentielijsten-database-init:
@@ -298,6 +332,8 @@ services:
     depends_on:
       zgw-referentielijsten.local:
         condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   # The GBA mock is required by the BRP proxy
   gbamock:
@@ -313,6 +349,8 @@ services:
       - ASPNETCORE_hostBuilder__reloadConfigOnChange=false
     ports:
       - "5010:5010"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   brpproxy:
     image: ghcr.io/brp-api/haal-centraal-brp-bevragen-proxy:2.1.1
@@ -329,6 +367,8 @@ services:
       - "5001:5000"
     depends_on:
       - gbamock
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   openklant-database:
     image: postgres:15.4
@@ -347,6 +387,8 @@ services:
     volumes:
       - ./scripts/docker-compose/imports/openklant-database:/docker-entrypoint-initdb.d
       - ./scripts/docker-compose/volume-data/openklant-database-data:/var/lib/postgresql/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   openklant:
     image: docker.io/maykinmedia/open-klant:0.5-pre
@@ -370,6 +412,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   smartdocuments-wiremock:
     image: "wiremock/wiremock:3.3.1"
@@ -379,12 +423,16 @@ services:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/smartdocuments-wiremock/mappings:/home/wiremock/mappings
     entrypoint: [ "/docker-entrypoint.sh", "--global-response-templating", "--disable-gzip", "--verbose" ]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   office-converter:
     image: ghcr.io/eugenmayer/kontextwork-converter:1.5.0
     platform: linux/amd64
     ports:
       - "8083:8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   zac:
     # By default, we use the latest ZAC Docker Image. Change this if you wish to use a specific version.
@@ -461,3 +509,5 @@ services:
       zac-database:
         condition: service_healthy
     profiles: ["zac"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
