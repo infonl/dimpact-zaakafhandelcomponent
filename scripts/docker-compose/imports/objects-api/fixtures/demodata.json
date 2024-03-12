@@ -819,7 +819,13 @@
                 },
                 "type": "productaanvraag",
                 "aanvraaggegevens": {
-                    "dummyField": "dummyValue"
+                    "stap1": {
+                        "naam" : "Jan Jansen",
+                        "telefoonnummer" : "0612345678"
+                    },
+                    "stap2": {
+                        "omschrijving" : "Ik heb een vraag over mijn paspoort"
+                    }
                 },
                 "betrokkenen" : [
                     {

@@ -71,7 +71,7 @@ public class ProductaanvraagService {
 
     private static final Logger LOG = Logger.getLogger(ProductaanvraagService.class.getName());
     private static final String ROL_TOELICHTING = "Overgenomen vanuit de product aanvraag";
-    private static final String PRODUCT_AANVRAAG_FORMULIER_DATA_VELD = "data";
+    private static final String PRODUCT_AANVRAAG_FORMULIER_DATA_VELD = "aanvraaggegevens";
     private static final String FORMULIER_KLEINE_EVENEMENTEN_MELDING_EIGENSCHAPNAAM_NAAM_EVENEMENT = "naamEvenement";
     private static final String FORMULIER_KLEINE_EVENEMENTEN_MELDING_EIGENSCHAPNAAM_OMSCHRIJVING_EVENEMENT = "omschrijvingEvenement";
     private static final String FORMULIER_VELD_ZAAK_TOELICHTING = "zaak_toelichting";
@@ -218,6 +218,7 @@ public class ProductaanvraagService {
         // TODO: enum conversions fail
         // e.g. jakarta.json.bind.JsonbException: Internal error: No enum constant
         // net.atos.zac.aanvraag.model.generated.Betrokkene.IndicatieMachtiging.gemachtigde
+        // for now add workaround using custom JSON enum adapters
         return JsonbBuilder.create(
                 new JsonbConfig().withAdapters(
                         new IndicatieMachtigingJsonAdapter(),
@@ -228,11 +229,6 @@ public class ProductaanvraagService {
                 JsonbUtil.JSONB.toJson(productaanvraagObject.getRecord().getData()),
                 ProductaanvraagDimpact.class
         );
-
-        //        return JsonbUtil.JSONB.fromJson(
-        //                JsonbUtil.JSONB.toJson(productaanvraagObject.getRecord().getData()),
-        //                ProductaanvraagDimpact.class
-        //        );
     }
 
     private void addInitiator(final String bsn, final URI zaak, final URI zaaktype) {
