@@ -337,7 +337,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             } returns enkelvoudigInformatieObjectWithLockData
             every {
                 enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                    parseUUIDFromResourceURI(enkelvoudigInformatieObjectWithLockData.url),
+                    parseUUIDFromResourceURI(enkelvoudigInformatieObject.url),
                     enkelvoudigInformatieObjectWithLockData,
                     null
                 )
@@ -363,7 +363,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                             restEnkelvoudigInformatieObjectVersieGegevens.uuid
                         )
                         enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                            parseUUIDFromResourceURI(enkelvoudigInformatieObjectWithLockData.url),
+                            parseUUIDFromResourceURI(enkelvoudigInformatieObject.url),
                             enkelvoudigInformatieObjectWithLockData,
                             null
                         )
@@ -385,7 +385,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                             restEnkelvoudigInformatieObjectVersieGegevens.uuid
                         )
                         enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                            parseUUIDFromResourceURI(enkelvoudigInformatieObjectWithLockData.url),
+                            parseUUIDFromResourceURI(enkelvoudigInformatieObject.url),
                             enkelvoudigInformatieObjectWithLockData,
                             null
                         )
