@@ -114,7 +114,7 @@ dependencies {
     implementation("org.apache.solr:solr-solrj:9.5.0")
     implementation("nl.info.webdav:webdav-servlet:1.2.40")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
-    implementation("com.unboundid:unboundid-ldapsdk:6.0.11")
+    implementation("com.unboundid:unboundid-ldapsdk:7.0.0")
 
     swaggerUI("org.webjars:swagger-ui:5.11.8")
 
