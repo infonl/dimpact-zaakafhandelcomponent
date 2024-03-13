@@ -114,15 +114,15 @@ dependencies {
     implementation("org.apache.solr:solr-solrj:9.5.0")
     implementation("nl.info.webdav:webdav-servlet:1.2.40")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
-    implementation("com.unboundid:unboundid-ldapsdk:6.0.11")
+    implementation("com.unboundid:unboundid-ldapsdk:7.0.0")
 
-    swaggerUI("org.webjars:swagger-ui:5.11.8")
+    swaggerUI("org.webjars:swagger-ui:5.11.10")
 
     // enable detekt formatting rules. see: https://detekt.dev/docs/rules/formatting/
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.5")
 
-    runtimeOnly("org.infinispan:infinispan-jcache:14.0.25.Final")
-    runtimeOnly("org.infinispan:infinispan-cdi-embedded:14.0.25.Final")
+    runtimeOnly("org.infinispan:infinispan-jcache:15.0.0.Final")
+    runtimeOnly("org.infinispan:infinispan-cdi-embedded:15.0.0.Final")
 
     // declare dependencies that are required in the generated WAR; see war section below
     // simply marking them as 'compileOnly' or 'implementation' does not work
