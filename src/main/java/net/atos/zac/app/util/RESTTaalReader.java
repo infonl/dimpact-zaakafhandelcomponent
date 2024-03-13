@@ -4,15 +4,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.UUID;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.ext.MessageBodyReader;
 import jakarta.ws.rs.ext.Provider;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.atos.zac.app.configuratie.model.RESTTaal;
 
@@ -35,10 +35,6 @@ public class RESTTaalReader implements MessageBodyReader<RESTTaal> {
             MultivaluedMap<String, String> multivaluedMap,
             InputStream inputStream
     ) throws IOException, WebApplicationException {
-        if (inputStream == null) {
-            return null;
-        }
-
         ObjectMapper mapper = new ObjectMapper();
         return mapper.readValue(inputStream, RESTTaal.class);
     }

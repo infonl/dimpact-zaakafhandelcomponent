@@ -32,15 +32,30 @@ class UUIDReaderTest : DescribeSpec({
         }
 
         describe("with mis-formatted data") {
-            it("returns null on missing data") {
-                uuidReader.readFrom(
-                    null, null, null,
-                    null, null, null
-                ) shouldBe null
-                uuidReader.readFrom(
-                    null, null, null,
-                    null, null, "".byteInputStream()
-                ) shouldBe null
+            it("errors on missing data") {
+                shouldThrow<NullPointerException> {
+                    uuidReader.readFrom(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    )
+                }
+            }
+
+            it("errors on empty string") {
+                shouldThrow<IllegalArgumentException> {
+                    uuidReader.readFrom(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        "".byteInputStream()
+                    )
+                }
             }
 
             it("errors on mis-formatted string") {

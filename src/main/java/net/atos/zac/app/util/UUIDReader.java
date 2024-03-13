@@ -32,15 +32,7 @@ public class UUIDReader implements MessageBodyReader<UUID> {
             MultivaluedMap<String, String> multivaluedMap,
             InputStream inputStream
     ) throws IOException, WebApplicationException {
-        if (inputStream == null) {
-            return null;
-        }
-
         byte[] uuidBytes = inputStream.readAllBytes();
-        if (uuidBytes.length == 0) {
-            return null;
-        }
-
         return UUID.fromString(new String(uuidBytes));
     }
 }

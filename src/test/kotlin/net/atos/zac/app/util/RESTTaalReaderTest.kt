@@ -47,19 +47,29 @@ class RESTTaalReaderTest : DescribeSpec({
         }
 
         describe("with mis-formatted data") {
-            it("returns null on missing data") {
-                taalReader.readFrom(
-                    null, null, null,
-                    null, null, null
-                ) shouldBe null
+            it("errors on missing data") {
+                shouldThrow<IllegalArgumentException> {
+                    taalReader.readFrom(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    )
+                }
             }
 
             it("errors on incorrect data") {
                 shouldThrow<JsonParseException> {
                     taalReader.readFrom(
-                        null, null, null,
-                        null, null, ByteArrayInputStream(byteArrayOf(12, 13, 14))
-                    ) shouldBe null
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        ByteArrayInputStream(byteArrayOf(12, 13, 14))
+                    )
                 }
             }
 

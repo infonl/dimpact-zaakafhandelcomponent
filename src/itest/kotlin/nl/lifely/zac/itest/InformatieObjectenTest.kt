@@ -440,18 +440,18 @@ class InformatieObjectenTest : BehaviorSpec() {
                         shouldContainJsonKeyValue("bestandsnaam", PDF_FILE_NAME)
                         shouldContainJsonKeyValue("bestandsomvang", PDF_FILE_SIZE)
                         shouldContainJsonKeyValue(
-                                "creatiedatum",
-                                LocalDate.now().format(DateTimeFormatter.ISO_DATE)
+                            "creatiedatum",
+                            LocalDate.now().format(DateTimeFormatter.ISO_DATE)
                         )
                         shouldContainJsonKeyValue("formaat", PDF_FILE_FORMAAT)
                         shouldContainJsonKey("identificatie")
                         shouldContainJsonKeyValue(
-                                "informatieobjectTypeOmschrijving",
-                                INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
+                            "informatieobjectTypeOmschrijving",
+                            INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
                         )
                         shouldContainJsonKeyValue(
-                                "informatieobjectTypeUUID",
-                                INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
+                            "informatieobjectTypeUUID",
+                            INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
                         )
                         shouldContainJsonKeyValue("isBesluitDocument", false)
                         // a document added to a task should _always_ have the status 'definitief'
@@ -461,8 +461,8 @@ class InformatieObjectenTest : BehaviorSpec() {
                         shouldContainJsonKeyValue("versie", 1)
                         shouldContainJsonKey("uuid")
                         shouldContainJsonKeyValue(
-                                "vertrouwelijkheidaanduiding",
-                                DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+                            "vertrouwelijkheidaanduiding",
+                            DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
                         )
                     }
 

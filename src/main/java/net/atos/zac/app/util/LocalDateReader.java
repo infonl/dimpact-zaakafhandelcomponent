@@ -34,15 +34,7 @@ public class LocalDateReader implements MessageBodyReader<LocalDate> {
             MultivaluedMap<String, String> multivaluedMap,
             InputStream inputStream
     ) throws IOException, WebApplicationException {
-        if (inputStream == null) {
-            return null;
-        }
-
         byte[] localDateBytes = inputStream.readAllBytes();
-        if (localDateBytes.length == 0) {
-            return null;
-        }
-
         return LocalDate.parse(new String(localDateBytes), DEFAULT_FORMATTER);
     }
 }

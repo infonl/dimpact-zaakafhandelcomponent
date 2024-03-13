@@ -3,6 +3,7 @@ package net.atos.zac.app.util
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
+import java.io.ByteArrayInputStream
 import java.time.ZonedDateTime
 import java.time.format.DateTimeParseException
 
@@ -33,15 +34,43 @@ class ZonedDateTimeReaderTest : DescribeSpec({
         }
 
         describe("with mis-formatted data") {
-            it("returns null on missing data") {
-                zonedDateTimeReader.readFrom(
-                    null, null, null,
-                    null, null, null
-                ) shouldBe null
-                zonedDateTimeReader.readFrom(
-                    null, null, null,
-                    null, null, "".byteInputStream()
-                ) shouldBe null
+            it("errors on missing data") {
+                shouldThrow<NullPointerException> {
+                    zonedDateTimeReader.readFrom(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    )
+                }
+            }
+
+            it("errors on empty string") {
+                shouldThrow<DateTimeParseException> {
+                    zonedDateTimeReader.readFrom(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        "".byteInputStream()
+                    )
+                }
+            }
+
+            it("errors with empty stream") {
+                shouldThrow<DateTimeParseException> {
+                    zonedDateTimeReader.readFrom(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        ByteArrayInputStream(byteArrayOf())
+                    )
+                }
             }
 
             it("errors on mis-formatted string") {

@@ -33,15 +33,7 @@ public class ZonedDateTimeReader implements MessageBodyReader<ZonedDateTime> {
             MultivaluedMap<String, String> multivaluedMap,
             InputStream inputStream
     ) throws IOException, WebApplicationException {
-        if (inputStream == null) {
-            return null;
-        }
-
         byte[] zonedDateTimeBytes = inputStream.readAllBytes();
-        if (zonedDateTimeBytes.length == 0) {
-            return null;
-        }
-
         return ZonedDateTime.parse(new String(zonedDateTimeBytes), ISO_ZONED_DATE_TIME);
     }
 }

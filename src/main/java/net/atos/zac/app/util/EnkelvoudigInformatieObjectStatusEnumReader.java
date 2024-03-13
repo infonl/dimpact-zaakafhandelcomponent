@@ -36,16 +36,7 @@ public class EnkelvoudigInformatieObjectStatusEnumReader implements MessageBodyR
             MultivaluedMap<String, String> multivaluedMap,
             InputStream inputStream
     ) throws IOException, WebApplicationException {
-        if (inputStream == null) {
-            return null;
-        }
-
-        byte[] localDateBytes = inputStream.readAllBytes();
-        if (localDateBytes.length == 0) {
-            return null;
-        }
-
-        String enumValueAsString = new String(localDateBytes);
+        String enumValueAsString = new String(inputStream.readAllBytes());
         enumValueAsString = StringUtils.removeStart(enumValueAsString, CLASS_PREFIX);
 
         return EnkelvoudigInformatieObject.StatusEnum.valueOf(enumValueAsString.toUpperCase());
