@@ -5,21 +5,11 @@
 
 package net.atos.zac.flowable;
 
-import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_UUID;
-import static net.atos.zac.flowable.util.TaskUtil.isCmmnTask;
-import static net.atos.zac.util.JsonbUtil.FIELD_VISIBILITY_STRATEGY;
-import static org.apache.commons.lang3.StringUtils.defaultString;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-
+import net.atos.zac.app.taken.model.TaakSortering;
+import net.atos.zac.shared.model.SorteerRichting;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.flowable.cmmn.api.CmmnTaskService;
@@ -32,8 +22,16 @@ import org.flowable.task.api.TaskInfo;
 import org.flowable.task.api.history.HistoricTaskInstance;
 import org.flowable.task.api.history.HistoricTaskLogEntry;
 
-import net.atos.zac.app.taken.model.TaakSortering;
-import net.atos.zac.shared.model.SorteerRichting;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
+import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_UUID;
+import static net.atos.zac.flowable.util.TaskUtil.isCmmnTask;
+import static net.atos.zac.util.JsonbUtil.FIELD_VISIBILITY_STRATEGY;
+import static org.apache.commons.lang3.StringUtils.defaultString;
 
 @ApplicationScoped
 @Transactional
