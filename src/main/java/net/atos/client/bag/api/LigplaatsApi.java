@@ -54,10 +54,10 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import net.atos.client.bag.model.LigplaatsIOHal;
-import net.atos.client.bag.model.LigplaatsIOHalCollection;
-import net.atos.client.bag.model.LigplaatsIOLvcHalCollection;
-import net.atos.client.bag.model.PointGeoJSON;
+import net.atos.client.bag.model.generated.LigplaatsIOHal;
+import net.atos.client.bag.model.generated.LigplaatsIOHalCollection;
+import net.atos.client.bag.model.generated.LigplaatsIOLvcHalCollection;
+import net.atos.client.bag.model.generated.PointGeoJSON;
 import net.atos.client.bag.util.BAGClientHeadersFactory;
 import net.atos.client.brp.exception.RuntimeExceptionMapper;
 

@@ -9,11 +9,11 @@ import java.net.URI;
 
 import jakarta.inject.Inject;
 
-import net.atos.client.bag.model.AdresIOHal;
-import net.atos.client.bag.model.Indicatie;
-import net.atos.client.bag.model.OpenbareRuimte;
-import net.atos.client.bag.model.OpenbareRuimteIOHal;
-import net.atos.client.bag.model.OpenbareRuimteIOHalBasis;
+import net.atos.client.bag.model.generated.AdresIOHal;
+import net.atos.client.bag.model.generated.Indicatie;
+import net.atos.client.bag.model.generated.OpenbareRuimte;
+import net.atos.client.bag.model.generated.OpenbareRuimteIOHal;
+import net.atos.client.bag.model.generated.OpenbareRuimteIOHalBasis;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectOpenbareRuimte;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte;

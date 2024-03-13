@@ -48,8 +48,8 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import net.atos.client.bag.model.AdresUitgebreidHal;
-import net.atos.client.bag.model.AdresUitgebreidHalCollection;
+import net.atos.client.bag.model.generated.AdresUitgebreidHal;
+import net.atos.client.bag.model.generated.AdresUitgebreidHalCollection;
 import net.atos.client.bag.util.BAGClientHeadersFactory;
 import net.atos.client.bag.util.JsonbConfiguration;
 import net.atos.client.brp.exception.RuntimeExceptionMapper;

@@ -47,9 +47,9 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import net.atos.client.bag.model.OpenbareRuimteIOHal;
-import net.atos.client.bag.model.OpenbareRuimteIOHalCollection;
-import net.atos.client.bag.model.OpenbareRuimteIOLvcHalCollection;
+import net.atos.client.bag.model.generated.OpenbareRuimteIOHal;
+import net.atos.client.bag.model.generated.OpenbareRuimteIOHalCollection;
+import net.atos.client.bag.model.generated.OpenbareRuimteIOLvcHalCollection;
 import net.atos.client.bag.util.BAGClientHeadersFactory;
 import net.atos.client.bag.util.JsonbConfiguration;
 import net.atos.client.brp.exception.RuntimeExceptionMapper;

@@ -23,13 +23,13 @@ import net.atos.client.bag.api.NummeraanduidingApi;
 import net.atos.client.bag.api.OpenbareRuimteApi;
 import net.atos.client.bag.api.PandApi;
 import net.atos.client.bag.api.WoonplaatsApi;
-import net.atos.client.bag.model.AdresIOHal;
-import net.atos.client.bag.model.AdresIOHalCollectionEmbedded;
 import net.atos.client.bag.model.BevraagAdressenParameters;
-import net.atos.client.bag.model.NummeraanduidingIOHal;
-import net.atos.client.bag.model.OpenbareRuimteIOHal;
-import net.atos.client.bag.model.PandIOHal;
-import net.atos.client.bag.model.WoonplaatsIOHal;
+import net.atos.client.bag.model.generated.AdresIOHal;
+import net.atos.client.bag.model.generated.AdresIOHalCollectionEmbedded;
+import net.atos.client.bag.model.generated.NummeraanduidingIOHal;
+import net.atos.client.bag.model.generated.OpenbareRuimteIOHal;
+import net.atos.client.bag.model.generated.PandIOHal;
+import net.atos.client.bag.model.generated.WoonplaatsIOHal;
 import net.atos.client.util.JAXRSClientFactory;
 
 @ApplicationScoped

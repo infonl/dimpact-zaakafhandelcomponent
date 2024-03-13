@@ -7,7 +7,7 @@ package net.atos.zac.app.zaken.converter;
 
 import java.util.List;
 
-import net.atos.client.vrl.model.CommunicatieKanaal;
+import net.atos.client.vrl.model.generated.CommunicatieKanaal;
 import net.atos.zac.app.zaken.model.RESTCommunicatiekanaal;
 import net.atos.zac.util.UriUtil;
 
