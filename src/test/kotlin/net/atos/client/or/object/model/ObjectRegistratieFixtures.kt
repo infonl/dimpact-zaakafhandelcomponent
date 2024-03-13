@@ -6,11 +6,22 @@ import net.atos.client.or.objecttype.model.Objecttype
 import java.net.URI
 import java.util.UUID
 
-fun createObjectRegistratieObject() =
+fun createORObject(
+    url: URI = URI("https://example.com/objects/1"),
+    uuid: UUID = UUID.randomUUID(),
+    record: ObjectRecord? = null
+) =
     ORObject().apply {
-        url = URI("https://example.com/objects/1")
-        uuid = UUID.randomUUID()
+        this.url = url
+        this.uuid = uuid
+        this.record = record
     }
+
+fun createObjectRecord(
+    data: Map<String, Any> = mapOf("dummyKey" to "dummyValue")
+) = ObjectRecord().apply {
+    this.data = data
+}
 
 fun createObjecttype(
     url: URI = URI("https://example.com/objecttypes/1"),
