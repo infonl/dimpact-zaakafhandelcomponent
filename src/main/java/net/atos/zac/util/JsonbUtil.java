@@ -14,6 +14,8 @@ import jakarta.json.bind.JsonbConfig;
 import jakarta.json.bind.config.PropertyVisibilityStrategy;
 
 public final class JsonbUtil {
+    private JsonbUtil() {
+    }
 
     public static final PropertyVisibilityStrategy visibilityStrategy = new PropertyVisibilityStrategy() {
         @Override
@@ -29,9 +31,7 @@ public final class JsonbUtil {
 
     public static final Jsonb JSONB = JsonbBuilder.create();
 
-    public static final Jsonb FIELD_VISIBILITY_STRATEGY = JsonbBuilder.create(new JsonbConfig().withPropertyVisibilityStrategy(
-            JsonbUtil.visibilityStrategy));
-
-    private JsonbUtil() {
-    }
+    public static final Jsonb FIELD_VISIBILITY_STRATEGY = JsonbBuilder.create(
+            new JsonbConfig().withPropertyVisibilityStrategy(JsonbUtil.visibilityStrategy)
+    );
 }

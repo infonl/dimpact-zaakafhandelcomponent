@@ -32,7 +32,7 @@
         "fields": {
             "service": 1,
             "uuid": "021f685e-9482-4620-b157-34cd4003da6b",
-            "_name": "Productaanvraag-Denhaag"
+            "_name": "Productaanvraag-Dimpact"
         }
     },
     {
@@ -309,9 +309,9 @@
                 "feestverlichting": "fugiat laboris in ad eiusmod",
                 "beoogdeomlooptijd": "50-75 jaar",
                 "boomhoogteactueel": 36041386,
-                "controlefrequentie": "TODO",
-                "stamdiameterklasse": "TODO",
-                "boomboomvoorziening": "TODO",
+                "controlefrequentie": "dummyControleFrequentie",
+                "stamdiameterklasse": "dummyStamdiameterklasse",
+                "boomboomvoorziening": "dummyBoomBoomVoorziening",
                 "monetaireboomwaarde": 57683332.93245277,
                 "takvrijezoneprimair": 31910366,
                 "boomveiligheidsklasse": "Boom zonder gebreken",
@@ -319,13 +319,13 @@
                 "takvrijezonesecundair": -42898474,
                 "typebeschermingsstatus": "Monumentale boom",
                 "typevermeerderingsvorm": "Eigen wortel",
-                "boomhoogteklasseactueel": "TODO",
+                "boomhoogteklasseactueel": "dummyBoomHoogteKlasseActueel",
                 "takvrijeruimtetotgebouw": -83544453,
-                "boomhoogteklasseeindbeeld": "TODO",
+                "boomhoogteklasseeindbeeld": "dummyBoomHoogteKlasseEindbeeld",
                 "typeomgevingsrisicoklasse": "Laag",
-                "kroondiameterklasseactueel": "TODO",
-                "kroondiameterklasseeindbeeld": "TODO",
-                "boomtypebeschermingsstatusplus": "TODO"
+                "kroondiameterklasseactueel": "dummyKroondiameterklasseactueel",
+                "kroondiameterklasseeindbeeld": "dummyKroondiameterklasseeindbeeld",
+                "boomtypebeschermingsstatusplus": "dummyBoomtypebeschermingsstatusplus"
             },
             "start_at": "2020-09-22",
             "end_at": null,
@@ -349,9 +349,9 @@
                 "boombeschermer": "anim incididunt velit Lorem non",
                 "beoogdeomlooptijd": "10-20 jaar",
                 "boomhoogteactueel": 259791,
-                "boomboomvoorziening": "TODO",
-                "boomhoogteklasseactueel": "TODO",
-                "boomhoogteklasseeindbeeld": "TODO"
+                "boomboomvoorziening": "dummyBoomboomvoorziening",
+                "boomhoogteklasseactueel": "dummyBoomhoogteklasseactueel",
+                "boomhoogteklasseeindbeeld": "dummyBoomhoogteklasseeindbeeld"
             },
             "start_at": "2020-09-30",
             "end_at": null,
@@ -385,20 +385,20 @@
                 "feestverlichting": "non id eu est proident",
                 "beoogdeomlooptijd": "Onbekend",
                 "boomhoogteactueel": -42577886,
-                "controlefrequentie": "TODO",
-                "stamdiameterklasse": "TODO",
+                "controlefrequentie": "dummyControlefrequentie",
+                "stamdiameterklasse": "dummyStamdiameterklasse",
                 "boomboomvoorziening": "TODO",
                 "monetaireboomwaarde": -34831998.8124679,
                 "takvrijezoneprimair": -55485849,
                 "boomveiligheidsklasse": "Risicoboom",
                 "groeiplaatsinrichting": "id nulla",
                 "takvrijezonesecundair": -56030012,
-                "boomhoogteklasseactueel": "TODO",
+                "boomhoogteklasseactueel": "dummyBoomhoogteklasseactueel",
                 "takvrijeruimtetotgebouw": -84303815,
-                "boomhoogteklasseeindbeeld": "TODO",
-                "kroondiameterklasseactueel": "TODO",
-                "kroondiameterklasseeindbeeld": "TODO",
-                "boomtypebeschermingsstatusplus": "TODO"
+                "boomhoogteklasseeindbeeld": "dummmyBoomhoogteklasseeindbeeld",
+                "kroondiameterklasseactueel": "dummyKroondiameterklasseactueel",
+                "kroondiameterklasseeindbeeld": "dummyKroondiameterklasseeindbeeld",
+                "boomtypebeschermingsstatusplus": "dummyBoomtypebeschermingsstatusplus"
             },
             "start_at": "2020-09-30",
             "end_at": null,
@@ -813,21 +813,56 @@
             "object": 32,
             "version": 1,
             "data": {
-                "data": {
-                  "stap1": {
-                      "naam" : "Jan Jansen",
-                      "telefoonnummer" : "0612345678"
-                  },
-                  "stap2": {
-                      "omschrijving" : "Ik heb een vraag over mijn paspoort"
-                  }
+                "bron": {
+                    "naam" : "Open Formulieren",
+                    "kenmerk" : "a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"
                 },
                 "type": "productaanvraag",
-                "bsn": "111222333",
-                "pdf_url": "https://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e",
-                "csv_url": "",
-                "attachments": [],
-                "submission_id": "a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"
+                "aanvraaggegevens": {
+                    "stap1": {
+                        "naam" : "Jan Jansen",
+                        "telefoonnummer" : "0612345678"
+                    },
+                    "stap2": {
+                        "omschrijving" : "Ik heb een vraag over mijn paspoort"
+                    }
+                },
+                "taal" : "nld",
+                "zaakgegevens" : {
+                    "identificatie" : "ZAAK-2023-0000000001",
+                    "communicatiekanaal" : "https://referentielijsten-api.vng.cloud/api/v1/communicatiekanalen/f56552a8-a082-4306-9111-eb1664fcb05d",
+                    "omschrijving" : "dummyZaakOmschrijving",
+                    "toelichting" : "dummyZaakToelichting"
+                },
+                "betrokkenen" : [
+                    {
+                        "inpBsn" : "111222333",
+                        "rolOmschrijvingGeneriek" : "initiator",
+                        "indicatieMachtiging" : "gemachtigde",
+                        "indicatieCorrespondentie" : true
+                    },
+                    {
+                        "inpBsn" : "222333444",
+                        "rolOmschrijvingGeneriek" : "mede_initiator",
+                        "indicatieMachtiging" : "machtiginggever",
+                        "indicatieCorrespondentie" : false
+                    },
+                    {
+                        "medewerkerIdentificatie" : "MDW123",
+                        "rolOmschrijvingGeneriek" : "klantcontacter"
+                    }
+                ],
+                "betaling" : {
+                    "kenmerk" : "2022ESUITE0320",
+                    "bedrag" : 19.20,
+                    "status" : "niet_geslaagd",
+                    "transactieId" : "123456784",
+                    "transactiedatumtijd" : "2021-04-25T21:30:05.000+00:00",
+                    "statusCode" : "5",
+                    "melding" : "Saldo tekort"
+                },
+                "pdf": "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e",
+                "csv" : "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/aeaba696-4968-46a6-8b1e-016f503ed88d"
             },
             "start_at": "2023-10-25",
             "end_at": null,

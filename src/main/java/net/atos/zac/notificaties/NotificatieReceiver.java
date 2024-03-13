@@ -60,7 +60,7 @@ import net.atos.zac.zoeken.IndexeerService;
 public class NotificatieReceiver {
     private static final Logger LOG = Logger.getLogger(NotificatieReceiver.class.getName());
     private static final String OBJECTTYPE_KENMERK = "objectType";
-    private static final String PRODUCTAANVRAAGTYPE_NAAM_DENHAAG = "Productaanvraag-Denhaag";
+    private static final String PRODUCTAANVRAAG_DIMPACT_OBJECTTYPE_NAAM = "Productaanvraag-Dimpact";
 
     private EventingService eventingService;
     private ProductaanvraagService productaanvraagService;
@@ -151,7 +151,9 @@ public class NotificatieReceiver {
 
     private void handleProductaanvraag(final Notificatie notificatie) {
         try {
-            if (isProductaanvraagDenHaag(notificatie)) {
+            if (isProductaanvraagDimpact(notificatie)) {
+                LOG.info(() -> "Verwerken productaanvraag Dimpact: %s"
+                        .formatted(notificatie.toString()));
                 productaanvraagService.verwerkProductaanvraag(notificatie.getResourceUrl());
             }
         } catch (RuntimeException ex) {
@@ -159,13 +161,13 @@ public class NotificatieReceiver {
         }
     }
 
-    private boolean isProductaanvraagDenHaag(final Notificatie notificatie) {
+    private boolean isProductaanvraagDimpact(final Notificatie notificatie) {
         final String producttypeUri = notificatie.getProperties().get(OBJECTTYPE_KENMERK);
         if (notificatie.getResource() != OBJECT || notificatie.getAction() != CREATE || isEmpty(producttypeUri)) {
             return false;
         }
         final Objecttype objecttype = objecttypesClientService.readObjecttype(uuidFromURI(producttypeUri));
-        return PRODUCTAANVRAAGTYPE_NAAM_DENHAAG.equals(objecttype.getName());
+        return PRODUCTAANVRAAG_DIMPACT_OBJECTTYPE_NAAM.equals(objecttype.getName());
     }
 
     private void handleIndexering(final Notificatie notificatie) {

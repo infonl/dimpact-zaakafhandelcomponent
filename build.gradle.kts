@@ -199,7 +199,7 @@ java {
 }
 
 jsonSchema2Pojo {
-    // generates Java model files for the "gemeente Den Haag productaanvraag" JSON schema
+    // generates Java model files for the "productaanvraag" JSON schema(s)
     setSource(files("$rootDir/src/main/resources/json-schema"))
     targetDirectory = file("$rootDir/src/generated/java")
     setFileExtensions(".schema.json")
