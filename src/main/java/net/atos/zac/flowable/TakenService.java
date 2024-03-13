@@ -8,7 +8,6 @@ package net.atos.zac.flowable;
 import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_UUID;
 import static net.atos.zac.flowable.util.TaskUtil.isCmmnTask;
 import static net.atos.zac.util.JsonbUtil.FIELD_VISIBILITY_STRATEGY;
-import static org.apache.commons.lang3.StringUtils.defaultString;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -168,28 +167,26 @@ public class TakenService {
             return task;
         }
         final HistoricTaskInstance historicTaskInstance = findClosedTask(taskId);
-        if (historicTaskInstance != null) {
-            return historicTaskInstance;
+        if (historicTaskInstance == null) {
+            throw new RuntimeException(String.format("No task found with task id '%s'", taskId));
         }
-        throw new RuntimeException(String.format("No task found with task id '%s'", taskId));
+        return historicTaskInstance;
     }
 
     public Task readOpenTask(final String taskId) {
         final Task task = findOpenTask(taskId);
-        if (task != null) {
-            return task;
-        } else {
+        if (task == null) {
             throw new RuntimeException(String.format("No open task found with task id '%s'", taskId));
         }
+        return task;
     }
 
     public HistoricTaskInstance readClosedTask(final String taskId) {
         final HistoricTaskInstance historicTaskInstance = findClosedTask(taskId);
-        if (historicTaskInstance != null) {
-            return historicTaskInstance;
-        } else {
+        if (historicTaskInstance == null) {
             throw new RuntimeException(String.format("No closed task found with task id '%s'", taskId));
         }
+        return historicTaskInstance;
     }
 
     public Task updateTask(final Task task) {
@@ -210,20 +207,20 @@ public class TakenService {
             historyService.createHistoricTaskLogEntryBuilder(task)
                     .type(type)
                     .data(FIELD_VISIBILITY_STRATEGY.toJson(new ValueChangeData(
-                            defaultString(oldValue, StringUtils.EMPTY),
-                            defaultString(newValue, StringUtils.EMPTY),
+                            Objects.toString(oldValue, StringUtils.EMPTY),
+                            Objects.toString(newValue, StringUtils.EMPTY),
                             explanation)))
                     .create();
         }
     }
 
-    public HistoricTaskInstance completeTask(final Task Task) {
-        if (isCmmnTask(Task)) {
-            cmmnTaskService.complete(Task.getId());
+    public HistoricTaskInstance completeTask(final Task task) {
+        if (isCmmnTask(task)) {
+            cmmnTaskService.complete(task.getId());
         } else {
-            taskService.complete(Task.getId());
+            taskService.complete(task.getId());
         }
-        return readClosedTask(Task.getId());
+        return readClosedTask(task.getId());
     }
 
     public Task assignTaskToUser(final String taskId, final String userId, final String reason) {
