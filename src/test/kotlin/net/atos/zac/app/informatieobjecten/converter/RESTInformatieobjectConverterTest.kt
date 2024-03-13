@@ -24,15 +24,19 @@ import java.util.*
 class RESTInformatieobjectConverterTest : BehaviorSpec() {
     private val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     private val ztcClientService = mockk<ZTCClientService>()
-
-    val loggedInUser = createLoggedInUser()
+    private val loggedInUser = createLoggedInUser()
 
     // We have to use @InjectMockKs since the class under test uses field injection instead of constructor injection.
     // This is because WildFly does not support constructor injection for JAX-RS REST services completely.
     @InjectMockKs
     lateinit var restInformatieobjectConverter: RESTInformatieobjectConverter
 
-    override suspend fun beforeTest(testCase: TestCase) {
+    override suspend fun beforeContainer(testCase: TestCase) {
+        super.beforeContainer(testCase)
+
+        // Only run before Given
+        if (testCase.parent != null) return
+
         MockKAnnotations.init(this)
         clearAllMocks()
 
@@ -40,22 +44,21 @@ class RESTInformatieobjectConverterTest : BehaviorSpec() {
     }
 
     init {
-        given("REST taak document data and REST file upload are provided") {
+        Given("REST taak document data and REST file upload are provided") {
+            val restTaakDocumentData = createRESTTaakDocumentData()
+            val restFileUpload = createRESTFileUpload()
+            val providedInformatieObjectType = createInformatieObjectType()
+
+            every {
+                ztcClientService.readInformatieobjecttype(restTaakDocumentData.documentType.uuid)
+            } returns providedInformatieObjectType
+
             When("convert is invoked") {
-                then("the provided data is converted correctly") {
-                    val restTaakDocumentData = createRESTTaakDocumentData()
-                    val restFileUpload = createRESTFileUpload()
-                    val providedInformatieObjectType = createInformatieObjectType()
-
-                    every {
-                        ztcClientService.readInformatieobjecttype(restTaakDocumentData.documentType.uuid)
-                    } returns providedInformatieObjectType
-
-                    val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convert(
-                        restTaakDocumentData,
-                        restFileUpload
-                    )
-
+                val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convert(
+                    restTaakDocumentData,
+                    restFileUpload
+                )
+                Then("the provided data is converted correctly") {
                     with(enkelvoudigInformatieObjectData) {
                         // currently hardcoded
                         bronorganisatie shouldBe "123443210"
@@ -77,22 +80,21 @@ class RESTInformatieobjectConverterTest : BehaviorSpec() {
                 }
             }
         }
-        given("REST enkelvoudig informatie object data and REST file upload are provided") {
+        Given("REST enkelvoudig informatie object data and REST file upload are provided") {
+            val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
+            val restFileUpload = createRESTFileUpload()
+            val providedInformatieObjectType = createInformatieObjectType()
+
+            every {
+                ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID)
+            } returns providedInformatieObjectType
+
             When("convert taak object is invoked") {
-                then("the provided data is converted correctly") {
-                    val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
-                    val restFileUpload = createRESTFileUpload()
-                    val providedInformatieObjectType = createInformatieObjectType()
-
-                    every {
-                        ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID)
-                    } returns providedInformatieObjectType
-
-                    val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convertTaakObject(
-                        restEnkelvoudigInformatieobject,
-                        restFileUpload
-                    )
-
+                val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convertTaakObject(
+                    restEnkelvoudigInformatieobject,
+                    restFileUpload
+                )
+                Then("the provided data is converted correctly") {
                     with(enkelvoudigInformatieObjectData) {
                         // currently hardcoded
                         bronorganisatie shouldBe "123443210"
@@ -109,6 +111,46 @@ class RESTInformatieobjectConverterTest : BehaviorSpec() {
                         status shouldBe EnkelvoudigInformatieObjectData.StatusEnum.DEFINITIEF
                         // vertrouwelijkheidaanduiding should always be OPENBAAR
                         vertrouwelijkheidaanduiding shouldBe EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.OPENBAAR
+                    }
+                }
+            }
+        }
+        Given("REST enkelvoudig informatie object data and REST file upload are provided") {
+            // when converting a zaak more fields in the RESTEnkelvoudigInformatieobject are used in the
+            // conversion compared to when converting a taak
+            val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject(
+                vertrouwelijkheidaanduiding = "vertrouwelijk",
+                creatieDatum = LocalDate.now(),
+                auteur = "dummyAuteur",
+                taal = "dummyTaal",
+                bestandsNaam = "dummyBestandsNaam"
+            )
+            val restFileUpload = createRESTFileUpload()
+            val providedInformatieObjectType = createInformatieObjectType()
+
+            every {
+                ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID)
+            } returns providedInformatieObjectType
+
+            When("convert zaak object is invoked") {
+                val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convertZaakObject(
+                    restEnkelvoudigInformatieobject,
+                    restFileUpload
+                )
+                Then("the provided data is converted correctly") {
+                    with(enkelvoudigInformatieObjectData) {
+                        // currently hardcoded
+                        bronorganisatie shouldBe "123443210"
+                        creatiedatum shouldHaveSameDayAs LocalDate.now()
+                        titel shouldBe restEnkelvoudigInformatieobject.titel
+                        auteur shouldBe restEnkelvoudigInformatieobject.auteur
+                        taal shouldBe restEnkelvoudigInformatieobject.taal
+                        informatieobjecttype shouldBe providedInformatieObjectType.url
+                        inhoud shouldBe Base64.getEncoder().encodeToString(restFileUpload.file)
+                        formaat shouldBe restFileUpload.type
+                        bestandsnaam shouldBe restEnkelvoudigInformatieobject.bestandsnaam
+                        status.value() shouldBe restEnkelvoudigInformatieobject.status.value()
+                        vertrouwelijkheidaanduiding.value() shouldBe restEnkelvoudigInformatieobject.vertrouwelijkheidaanduiding
                     }
                 }
             }
