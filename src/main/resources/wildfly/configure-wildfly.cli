@@ -43,5 +43,5 @@ data-source add \
 # To set the log level to TRACE for the ZAC packages uncomment the following lines.
 # Note that this will result in _a lot_ of logging including potentially security sensitive data
 # so use with care and only enable this for debugging purposes.
-/subsystem=logging/console-handler=CONSOLE:write-attribute(name=level,value=TRACE)
-/subsystem=logging/logger=net.atos:add(level=TRACE)
+#/subsystem=logging/console-handler=CONSOLE:write-attribute(name=level,value=TRACE)
+#/subsystem=logging/logger=net.atos:add(level=TRACE)
