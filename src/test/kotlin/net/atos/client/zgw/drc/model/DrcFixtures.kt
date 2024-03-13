@@ -39,4 +39,16 @@ fun createEnkelvoudigInformatieObjectData(
     bestandsdelen
 )
 
-fun createEnkelvoudigInformatieObjectWithLockData() = EnkelvoudigInformatieObjectWithLockData()
+fun createEnkelvoudigInformatieObjectWithLockData(
+    url: URI = URI("http://example.com/${UUID.randomUUID()}"),
+    versie: Int = 1234,
+    beginRegistratie: OffsetDateTime = OffsetDateTime.now(),
+    locked: Boolean = false,
+    bestandsdelen: List<BestandsDeel> = emptyList()
+) = EnkelvoudigInformatieObjectWithLockData(
+    url,
+    versie,
+    beginRegistratie,
+    locked,
+    bestandsdelen
+)

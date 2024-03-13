@@ -327,55 +327,72 @@ public class RESTInformatieobjectConverter {
             final RESTEnkelvoudigInformatieObjectVersieGegevens restEnkelvoudigInformatieObjectVersieGegevens,
             final RESTFileUpload file
     ) {
-        final EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieObjectWithLockData = new EnkelvoudigInformatieObjectWithLockData();
-
-        if (restEnkelvoudigInformatieObjectVersieGegevens.status != null) {
-            enkelvoudigInformatieObjectWithLockData.setStatus(
-                    convertToEnkelvoudigInformatieObjectWithLockDataStatusEnum(
-                            restEnkelvoudigInformatieObjectVersieGegevens.status
-                    )
-            );
-        }
-        if (restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding != null) {
-            enkelvoudigInformatieObjectWithLockData.setVertrouwelijkheidaanduiding(
-                    convertToEnkelvoudigInformatieObjectWithLockDataVertrouwelijkheidaanduidingEnum(
-                            restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding
-                    )
-            );
-        }
-        if (restEnkelvoudigInformatieObjectVersieGegevens.beschrijving != null) {
-            enkelvoudigInformatieObjectWithLockData.setBeschrijving(
-                    restEnkelvoudigInformatieObjectVersieGegevens.beschrijving);
-        }
-        if (restEnkelvoudigInformatieObjectVersieGegevens.verzenddatum != null) {
-            enkelvoudigInformatieObjectWithLockData.setVerzenddatum(
-                    restEnkelvoudigInformatieObjectVersieGegevens.verzenddatum);
-        }
-        if (restEnkelvoudigInformatieObjectVersieGegevens.ontvangstdatum != null) {
-            enkelvoudigInformatieObjectWithLockData.setOntvangstdatum(
-                    restEnkelvoudigInformatieObjectVersieGegevens.ontvangstdatum);
-        }
-        if (restEnkelvoudigInformatieObjectVersieGegevens.titel != null) {
-            enkelvoudigInformatieObjectWithLockData.setTitel(restEnkelvoudigInformatieObjectVersieGegevens.titel);
-        }
-        if (restEnkelvoudigInformatieObjectVersieGegevens.taal != null) {
-            enkelvoudigInformatieObjectWithLockData.setTaal(
-                    restEnkelvoudigInformatieObjectVersieGegevens.taal.code);
-        }
-        if (restEnkelvoudigInformatieObjectVersieGegevens.auteur != null) {
-            enkelvoudigInformatieObjectWithLockData.setAuteur(
-                    restEnkelvoudigInformatieObjectVersieGegevens.auteur);
-        }
-        if (restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam != null) {
-            enkelvoudigInformatieObjectWithLockData.setBestandsnaam(
-                    (restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam));
-        }
+        final EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieObjectWithLockData = createEnkelvoudigInformatieObjectWithLockData(restEnkelvoudigInformatieObjectVersieGegevens);
         if (file != null && file.file != null) {
             enkelvoudigInformatieObjectWithLockData.setInhoud(convertByteArrayToBase64String(file.file));
             enkelvoudigInformatieObjectWithLockData.setBestandsomvang(file.file.length);
             enkelvoudigInformatieObjectWithLockData.setFormaat(file.type);
         }
 
+        return enkelvoudigInformatieObjectWithLockData;
+    }
+
+    public EnkelvoudigInformatieObjectWithLockData convert(
+        final RESTEnkelvoudigInformatieObjectVersieGegevens restEnkelvoudigInformatieObjectVersieGegevens
+    ) {
+        final EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieObjectWithLockData = createEnkelvoudigInformatieObjectWithLockData(restEnkelvoudigInformatieObjectVersieGegevens);
+        enkelvoudigInformatieObjectWithLockData.setInhoud(convertByteArrayToBase64String(restEnkelvoudigInformatieObjectVersieGegevens.file));
+        enkelvoudigInformatieObjectWithLockData.setBestandsnaam(restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam);
+        enkelvoudigInformatieObjectWithLockData.setBestandsomvang(restEnkelvoudigInformatieObjectVersieGegevens.file.length);
+        enkelvoudigInformatieObjectWithLockData.setFormaat(restEnkelvoudigInformatieObjectVersieGegevens.formaat);
+
+        return enkelvoudigInformatieObjectWithLockData;
+    }
+
+    private static EnkelvoudigInformatieObjectWithLockData createEnkelvoudigInformatieObjectWithLockData(RESTEnkelvoudigInformatieObjectVersieGegevens restEnkelvoudigInformatieObjectVersieGegevens) {
+        final EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieObjectWithLockData = new EnkelvoudigInformatieObjectWithLockData();
+
+        if (restEnkelvoudigInformatieObjectVersieGegevens.status != null) {
+            enkelvoudigInformatieObjectWithLockData.setStatus(
+                convertToEnkelvoudigInformatieObjectWithLockDataStatusEnum(
+                    restEnkelvoudigInformatieObjectVersieGegevens.status
+                )
+            );
+        }
+        if (restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding != null) {
+            enkelvoudigInformatieObjectWithLockData.setVertrouwelijkheidaanduiding(
+                convertToEnkelvoudigInformatieObjectWithLockDataVertrouwelijkheidaanduidingEnum(
+                    restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding
+                )
+            );
+        }
+        if (restEnkelvoudigInformatieObjectVersieGegevens.beschrijving != null) {
+            enkelvoudigInformatieObjectWithLockData.setBeschrijving(
+                restEnkelvoudigInformatieObjectVersieGegevens.beschrijving);
+        }
+        if (restEnkelvoudigInformatieObjectVersieGegevens.verzenddatum != null) {
+            enkelvoudigInformatieObjectWithLockData.setVerzenddatum(
+                restEnkelvoudigInformatieObjectVersieGegevens.verzenddatum);
+        }
+        if (restEnkelvoudigInformatieObjectVersieGegevens.ontvangstdatum != null) {
+            enkelvoudigInformatieObjectWithLockData.setOntvangstdatum(
+                restEnkelvoudigInformatieObjectVersieGegevens.ontvangstdatum);
+        }
+        if (restEnkelvoudigInformatieObjectVersieGegevens.titel != null) {
+            enkelvoudigInformatieObjectWithLockData.setTitel(restEnkelvoudigInformatieObjectVersieGegevens.titel);
+        }
+        if (restEnkelvoudigInformatieObjectVersieGegevens.taal != null) {
+            enkelvoudigInformatieObjectWithLockData.setTaal(
+                restEnkelvoudigInformatieObjectVersieGegevens.taal.code);
+        }
+        if (restEnkelvoudigInformatieObjectVersieGegevens.auteur != null) {
+            enkelvoudigInformatieObjectWithLockData.setAuteur(
+                restEnkelvoudigInformatieObjectVersieGegevens.auteur);
+        }
+        if (restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam != null) {
+            enkelvoudigInformatieObjectWithLockData.setBestandsnaam(
+                (restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam));
+        }
         return enkelvoudigInformatieObjectWithLockData;
     }
 

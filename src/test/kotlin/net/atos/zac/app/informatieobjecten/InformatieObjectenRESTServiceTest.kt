@@ -154,7 +154,9 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                 )
             } returns zaakInformatieobject
 
-            When("createEnkelvoudigInformatieobject is called by a role that is allowed to change the zaak") {
+            When(
+                "createEnkelvoudigInformatieobjectWithUploadedFile is called by a role that is allowed to change the zaak"
+            ) {
                 val returnedRESTEnkelvoudigInformatieobject =
                     informatieObjectenRESTService.createEnkelvoudigInformatieobjectWithUploadedFile(
                         zaak.uuid,
@@ -178,7 +180,9 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                 }
             }
 
-            When("createEnkelvoudigInformatieobject is called but the ZGW client service throws an exception") {
+            When(
+                "createEnkelvoudigInformatieobjectWithUploadedFile is called but the ZGW client service throws an exception"
+            ) {
                 every {
                     zgwApiService.createZaakInformatieobjectForZaak(
                         zaak,
@@ -211,7 +215,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                 }
             }
 
-            When("file for upload is provided") {
+            When("createEnkelvoudigInformatieobjectAndUploadFile is called") {
                 restEnkelvoudigInformatieobject.file = restFileUpload.file
                 restEnkelvoudigInformatieobject.formaat = restFileUpload.type
 
@@ -275,7 +279,9 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                 restInformatieobjectConverter.convertToREST(zaakInformatieobject)
             } returns responseRestEnkelvoudigInformatieobject
 
-            When("createEnkelvoudigInformatieobject is called by a role that is allowed to change the zaak") {
+            When(
+                "createEnkelvoudigInformatieobjectWithUploadedFile is called by a role that is allowed to change the zaak"
+            ) {
                 val returnedRESTEnkelvoudigInformatieobject =
                     informatieObjectenRESTService.createEnkelvoudigInformatieobjectWithUploadedFile(
                         closedZaak.uuid,
@@ -308,7 +314,8 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             val restEnkelvoudigInformatieObjectVersieGegevens =
                 createRESTEnkelvoudigInformatieObjectVersieGegevens(zaakUuid = zaak.uuid)
             val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
-            val httpSessionFileAttribute = "$FILE_SESSION_ATTRIBUTE_PREFIX${restEnkelvoudigInformatieObjectVersieGegevens.zaakUuid}"
+            val httpSessionFileAttribute =
+                "$FILE_SESSION_ATTRIBUTE_PREFIX${restEnkelvoudigInformatieObjectVersieGegevens.zaakUuid}"
             val documentRechten = createDocumentRechten()
 
             every {
@@ -326,8 +333,11 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                 )
             } returns enkelvoudigInformatieObjectWithLockData
             every {
+                restInformatieobjectConverter.convert(restEnkelvoudigInformatieObjectVersieGegevens)
+            } returns enkelvoudigInformatieObjectWithLockData
+            every {
                 enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                    parseUUIDFromResourceURI(enkelvoudigInformatieObject.url),
+                    parseUUIDFromResourceURI(enkelvoudigInformatieObjectWithLockData.url),
                     enkelvoudigInformatieObjectWithLockData,
                     null
                 )
@@ -340,11 +350,10 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                 restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject)
             } returns restEnkelvoudigInformatieobject
 
-            When("updateEnkelvoudigInformatieobject is called") {
+            When("updateEnkelvoudigInformatieobjectWithUploadedFile is called") {
                 val returnedRESTEnkelvoudigInformatieobject =
-                    informatieObjectenRESTService.updateEnkelvoudigInformatieobject(
-                        restEnkelvoudigInformatieObjectVersieGegevens,
-                        null
+                    informatieObjectenRESTService.updateEnkelvoudigInformatieobjectWithUploadedFile(
+                        restEnkelvoudigInformatieObjectVersieGegevens
                     )
 
                 Then("the enkelvoudig informatieobject is updated") {
@@ -354,7 +363,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                             restEnkelvoudigInformatieObjectVersieGegevens.uuid
                         )
                         enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                            parseUUIDFromResourceURI(enkelvoudigInformatieObject.url),
+                            parseUUIDFromResourceURI(enkelvoudigInformatieObjectWithLockData.url),
                             enkelvoudigInformatieObjectWithLockData,
                             null
                         )
@@ -363,11 +372,10 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                 }
             }
 
-            When("updateEnkelvoudigInformatieobject is called with file to upload") {
+            When("updateEnkelvoudigInformatieobjectAndUploadFile is called") {
                 val returnedRESTEnkelvoudigInformatieobject =
-                    informatieObjectenRESTService.updateEnkelvoudigInformatieobject(
-                        restEnkelvoudigInformatieObjectVersieGegevens,
-                        restFileUpload
+                    informatieObjectenRESTService.updateEnkelvoudigInformatieobjectAndUploadFile(
+                        restEnkelvoudigInformatieObjectVersieGegevens
                     )
 
                 Then("the enkelvoudig informatieobject is updated") {
@@ -377,7 +385,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                             restEnkelvoudigInformatieObjectVersieGegevens.uuid
                         )
                         enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                            parseUUIDFromResourceURI(enkelvoudigInformatieObject.url),
+                            parseUUIDFromResourceURI(enkelvoudigInformatieObjectWithLockData.url),
                             enkelvoudigInformatieObjectWithLockData,
                             null
                         )

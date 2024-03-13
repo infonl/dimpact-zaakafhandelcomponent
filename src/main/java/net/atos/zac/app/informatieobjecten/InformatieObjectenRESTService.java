@@ -546,9 +546,8 @@ public class InformatieObjectenRESTService {
 
     @POST
     @Path("/informatieobject/update")
-    public RESTEnkelvoudigInformatieobject updateEnkelvoudigInformatieobject(
-            final RESTEnkelvoudigInformatieObjectVersieGegevens enkelvoudigInformatieObjectVersieGegevens,
-            @MultipartForm final RESTFileUpload data
+    public RESTEnkelvoudigInformatieobject updateEnkelvoudigInformatieobjectWithUploadedFile(
+            RESTEnkelvoudigInformatieObjectVersieGegevens enkelvoudigInformatieObjectVersieGegevens
     ) {
         final var document = drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieObjectVersieGegevens.uuid);
         assertPolicy(
@@ -557,20 +556,44 @@ public class InformatieObjectenRESTService {
                         zrcClientService.readZaak(enkelvoudigInformatieObjectVersieGegevens.zaakUuid)
                 ).wijzigen()
         );
-        final var file = data != null ? data : (RESTFileUpload) httpSession.get().getAttribute(FILE_SESSION_ATTRIBUTE_PREFIX +
-                                                                                               enkelvoudigInformatieObjectVersieGegevens.zaakUuid);
+        final var file = (RESTFileUpload) httpSession.get().getAttribute(FILE_SESSION_ATTRIBUTE_PREFIX +
+                                                                         enkelvoudigInformatieObjectVersieGegevens.zaakUuid);
         try {
             var updatedDocument = informatieobjectConverter.convert(enkelvoudigInformatieObjectVersieGegevens, file);
-            updatedDocument = enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                    parseUUIDFromResourceURI(document.getUrl()),
-                    updatedDocument,
-                    enkelvoudigInformatieObjectVersieGegevens.toelichting
-            );
-            return informatieobjectConverter.convertToREST(convertToEnkelvoudigInformatieObject(updatedDocument));
+            return updateEnkelvoudigInformatieobject(enkelvoudigInformatieObjectVersieGegevens, updatedDocument);
         } finally {
             // always remove the uploaded file from the HTTP session even if exceptions are thrown
             httpSession.get().removeAttribute(FILE_SESSION_ATTRIBUTE_PREFIX + enkelvoudigInformatieObjectVersieGegevens.zaakUuid);
         }
+    }
+
+    @POST
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Path("/informatieobject/update")
+    public RESTEnkelvoudigInformatieobject updateEnkelvoudigInformatieobjectAndUploadFile(
+            @Valid @MultipartForm final RESTEnkelvoudigInformatieObjectVersieGegevens enkelvoudigInformatieObjectVersieGegevens
+    ) {
+        final var document = drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieObjectVersieGegevens.uuid);
+        assertPolicy(
+                policyService.readDocumentRechten(
+                        document,
+                        zrcClientService.readZaak(enkelvoudigInformatieObjectVersieGegevens.zaakUuid)
+                ).wijzigen()
+        );
+        var updatedDocument = informatieobjectConverter.convert(enkelvoudigInformatieObjectVersieGegevens);
+        return updateEnkelvoudigInformatieobject(enkelvoudigInformatieObjectVersieGegevens, updatedDocument);
+    }
+
+    private RESTEnkelvoudigInformatieobject updateEnkelvoudigInformatieobject(
+            RESTEnkelvoudigInformatieObjectVersieGegevens enkelvoudigInformatieObjectVersieGegevens,
+            EnkelvoudigInformatieObjectWithLockData document
+    ) {
+        var updatedDocument = enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
+                parseUUIDFromResourceURI(document.getUrl()),
+                document,
+                enkelvoudigInformatieObjectVersieGegevens.toelichting
+        );
+        return informatieobjectConverter.convertToREST(convertToEnkelvoudigInformatieObject(updatedDocument));
     }
 
     @POST
