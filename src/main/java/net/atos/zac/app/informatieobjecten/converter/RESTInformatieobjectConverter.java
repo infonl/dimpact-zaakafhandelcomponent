@@ -243,6 +243,7 @@ public class RESTInformatieobjectConverter {
         final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData = buildTaakEnkelvoudigInformatieObjectData(
                 restEnkelvoudigInformatieobject);
         enkelvoudigInformatieObjectData.setInhoud(convertByteArrayToBase64String(restEnkelvoudigInformatieobject.file));
+        enkelvoudigInformatieObjectData.setBestandsnaam(restEnkelvoudigInformatieobject.bestandsnaam);
         enkelvoudigInformatieObjectData.setBestandsomvang(restEnkelvoudigInformatieobject.file.length);
         enkelvoudigInformatieObjectData.setFormaat(restEnkelvoudigInformatieobject.formaat);
         return enkelvoudigInformatieObjectData;

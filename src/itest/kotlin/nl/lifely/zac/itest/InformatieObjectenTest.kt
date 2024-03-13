@@ -215,7 +215,7 @@ class InformatieObjectenTest : BehaviorSpec() {
                     requestBody = requestBody
                 )
                 Then(
-                    "the response should be OK and should contain information about the created document and uploaded file"
+                    "the response should be OK and contain information for the created document and uploaded file"
                 ) {
                     val responseBody = response.body!!.string()
                     logger.info { "$endpointUrl response: $responseBody" }
@@ -391,6 +391,83 @@ class InformatieObjectenTest : BehaviorSpec() {
                             DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
                         )
                     }
+                }
+            }
+        }
+        Given(
+            "ZAC and all related Docker containers are running and a task exists"
+        ) {
+            When("the create enkelvoudig informatie object with file upload endpoint is called for the task") {
+                val endpointUrl = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/" +
+                    "$zaak1UUID/$task1ID?taakObject=true"
+                logger.info { "Calling $endpointUrl endpoint" }
+                val file = Thread.currentThread().contextClassLoader.getResource(PDF_FILE_NAME).let {
+                    File(it!!.path)
+                }
+                val requestBody =
+                    MultipartBody.Builder()
+                        .setType(MultipartBody.FORM)
+                        .addFormDataPart("bestandsnaam", PDF_FILE_NAME)
+                        .addFormDataPart("titel", FILE_TITLE)
+                        .addFormDataPart("bestandsomvang", file.length().toString())
+                        .addFormDataPart("formaat", PDF_FILE_FORMAAT)
+                        .addFormDataPart(
+                            "file",
+                            PDF_FILE_NAME,
+                            file.asRequestBody(PDF_FILE_FORMAAT.toMediaType())
+                        )
+                        .addFormDataPart("informatieobjectTypeUUID", INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID)
+                        .build()
+                val response = itestHttpClient.performPostRequest(
+                    url = endpointUrl,
+                    headers = Headers.headersOf(
+                        "Accept",
+                        "application/json",
+                        "Content-Type",
+                        "multipart/form-data"
+                    ),
+                    requestBody = requestBody
+                )
+                Then(
+                    "the response should be OK and contain information for the created document and uploaded file"
+                ) {
+                    val responseBody = response.body!!.string()
+                    logger.info { "$endpointUrl response: $responseBody" }
+                    response.code shouldBe HttpStatusCode.OK_200.code()
+                    with(responseBody) {
+                        shouldContainJsonKeyValue("auteur", USER_FULL_NAME)
+                        shouldContainJsonKeyValue("beschrijving", "taak-document")
+                        shouldContainJsonKeyValue("bestandsnaam", PDF_FILE_NAME)
+                        shouldContainJsonKeyValue("bestandsomvang", PDF_FILE_SIZE)
+                        shouldContainJsonKeyValue(
+                                "creatiedatum",
+                                LocalDate.now().format(DateTimeFormatter.ISO_DATE)
+                        )
+                        shouldContainJsonKeyValue("formaat", PDF_FILE_FORMAAT)
+                        shouldContainJsonKey("identificatie")
+                        shouldContainJsonKeyValue(
+                                "informatieobjectTypeOmschrijving",
+                                INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
+                        )
+                        shouldContainJsonKeyValue(
+                                "informatieobjectTypeUUID",
+                                INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
+                        )
+                        shouldContainJsonKeyValue("isBesluitDocument", false)
+                        // a document added to a task should _always_ have the status 'definitief'
+                        shouldContainJsonKeyValue("status", DOCUMENT_STATUS_DEFINITIEF)
+                        shouldContainJsonKeyValue("taal", "Nederlands")
+                        shouldContainJsonKeyValue("titel", FILE_TITLE)
+                        shouldContainJsonKeyValue("versie", 1)
+                        shouldContainJsonKey("uuid")
+                        shouldContainJsonKeyValue(
+                                "vertrouwelijkheidaanduiding",
+                                DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+                        )
+                    }
+
+                    val enkelvoudigInformatieObjectAsJSON = JSONObject(responseBody)
+                    enkelvoudigInformatieObjectUUID = enkelvoudigInformatieObjectAsJSON.getString("uuid")
                 }
             }
         }

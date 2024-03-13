@@ -560,7 +560,7 @@ public class InformatieObjectenRESTService {
                                                                          enkelvoudigInformatieObjectVersieGegevens.zaakUuid);
         try {
             var updatedDocument = informatieobjectConverter.convert(enkelvoudigInformatieObjectVersieGegevens, file);
-            return updateEnkelvoudigInformatieobject(enkelvoudigInformatieObjectVersieGegevens, updatedDocument);
+            return updateEnkelvoudigInformatieobject(enkelvoudigInformatieObjectVersieGegevens, document, updatedDocument);
         } finally {
             // always remove the uploaded file from the HTTP session even if exceptions are thrown
             httpSession.get().removeAttribute(FILE_SESSION_ATTRIBUTE_PREFIX + enkelvoudigInformatieObjectVersieGegevens.zaakUuid);
@@ -581,16 +581,17 @@ public class InformatieObjectenRESTService {
                 ).wijzigen()
         );
         var updatedDocument = informatieobjectConverter.convert(enkelvoudigInformatieObjectVersieGegevens);
-        return updateEnkelvoudigInformatieobject(enkelvoudigInformatieObjectVersieGegevens, updatedDocument);
+        return updateEnkelvoudigInformatieobject(enkelvoudigInformatieObjectVersieGegevens, document, updatedDocument);
     }
 
     private RESTEnkelvoudigInformatieobject updateEnkelvoudigInformatieobject(
             RESTEnkelvoudigInformatieObjectVersieGegevens enkelvoudigInformatieObjectVersieGegevens,
-            EnkelvoudigInformatieObjectWithLockData document
+            EnkelvoudigInformatieObject enkelvoudigInformatieObject,
+            EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieObjectWithLockData
     ) {
         var updatedDocument = enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                parseUUIDFromResourceURI(document.getUrl()),
-                document,
+                parseUUIDFromResourceURI(enkelvoudigInformatieObject.getUrl()),
+                enkelvoudigInformatieObjectWithLockData,
                 enkelvoudigInformatieObjectVersieGegevens.toelichting
         );
         return informatieobjectConverter.convertToREST(convertToEnkelvoudigInformatieObject(updatedDocument));
