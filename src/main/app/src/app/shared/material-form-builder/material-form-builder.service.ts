@@ -10,7 +10,7 @@ import { DateComponent } from "./form-components/date/date.component";
 import { DividerComponent } from "./form-components/divider/divider.component";
 import { DocumentenLijstComponent } from "./form-components/documenten-lijst/documenten-lijst.component";
 import { DocumentenOndertekenenComponent } from "./form-components/documenten-ondertekenen/documenten-ondertekenen.component";
-import { FileComponent } from "./form-components/file/file.component";
+import { FileInputComponent } from "./form-components/file-input/file-input.component";
 import { GoogleMapsComponent } from "./form-components/google-maps/google-maps.component";
 import { HeadingComponent } from "./form-components/heading/heading.component";
 import { HiddenComponent } from "./form-components/hidden/hidden.component";
@@ -28,6 +28,7 @@ import { AbstractFormField } from "./model/abstract-form-field";
 import { FieldType } from "./model/field-type.enum";
 import { FormComponent } from "./model/form-component";
 import { FormItem } from "./model/form-item";
+import { FileComponent } from "./form-components/file/file.component";
 
 @Injectable({
   providedIn: "root",
@@ -60,6 +61,8 @@ export class MaterialFormBuilderService {
         return InputComponent;
       case FieldType.FILE:
         return FileComponent;
+      case FieldType.FILE_INPUT:
+        return FileInputComponent;
       case FieldType.TEXTAREA:
         return TextareaComponent;
       case FieldType.HEADING:

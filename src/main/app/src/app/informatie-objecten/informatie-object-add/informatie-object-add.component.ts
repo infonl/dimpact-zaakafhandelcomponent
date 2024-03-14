@@ -37,6 +37,7 @@ import { InformatieObjectenService } from "../informatie-objecten.service";
 import { EnkelvoudigInformatieobject } from "../model/enkelvoudig-informatieobject";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
 import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
+import { FileInputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/file-input/file-input-form-field-builder";
 
 @Component({
   selector: "zac-informatie-object-add",
@@ -110,14 +111,9 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
       .maxlength(100)
       .build();
 
-    const inhoudField = new FileFormFieldBuilder()
-      .id("bestandsnaam")
+    const inhoudField = new FileInputFormFieldBuilder()
+      .id("bestand")
       .label("bestandsnaam")
-      .uploadURL(
-        this.zaak
-          ? this.informatieObjectenService.getUploadURL(this.zaak.uuid)
-          : this.informatieObjectenService.getUploadURL(this.taak.id),
-      )
       .validators(Validators.required)
       .maxFileSizeMB(this.configuratieService.readMaxFileSizeMB())
       .additionalAllowedFileTypes(
