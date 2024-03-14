@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -166,11 +167,7 @@ public class TakenService {
         if (task != null) {
             return task;
         }
-        final HistoricTaskInstance historicTaskInstance = findClosedTask(taskId);
-        if (historicTaskInstance == null) {
-            throw new RuntimeException(String.format("No task found with task id '%s'", taskId));
-        }
-        return historicTaskInstance;
+        return readClosedTask(taskId);
     }
 
     public Task readOpenTask(final String taskId) {
