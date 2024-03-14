@@ -3,9 +3,7 @@ package net.atos.zac.app.taken.converter
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.inspectors.forOne
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
-import net.atos.zac.app.taken.model.RESTTaakHistorieRegel
 import org.flowable.task.api.history.HistoricTaskLogEntryType
 import org.flowable.task.service.impl.persistence.entity.HistoricTaskLogEntryEntityImpl
 import java.util.*
@@ -13,10 +11,12 @@ import java.util.*
 class RESTTaakHistorieConverterTest : BehaviorSpec({
 
     Given("A converter history with USER_TASK_CREATED item") {
-        val converter = RESTTaakHistorieConverter();
-        val history = listOf(HistoricTaskLogEntryEntityImpl().apply {
-            this.type = HistoricTaskLogEntryType.USER_TASK_CREATED.toString()
-        })
+        val converter = RESTTaakHistorieConverter()
+        val history = listOf(
+            HistoricTaskLogEntryEntityImpl().apply {
+                this.type = HistoricTaskLogEntryType.USER_TASK_CREATED.toString()
+            }
+        )
 
         When("convert is called") {
             val historieRegel = converter.convert(history)
@@ -33,10 +33,12 @@ class RESTTaakHistorieConverterTest : BehaviorSpec({
     }
 
     Given("A converter history with USER_TASK_COMPLETED item") {
-        val converter = RESTTaakHistorieConverter();
-        val history = listOf(HistoricTaskLogEntryEntityImpl().apply {
-            this.type = HistoricTaskLogEntryType.USER_TASK_COMPLETED.toString()
-        })
+        val converter = RESTTaakHistorieConverter()
+        val history = listOf(
+            HistoricTaskLogEntryEntityImpl().apply {
+                this.type = HistoricTaskLogEntryType.USER_TASK_COMPLETED.toString()
+            }
+        )
 
         When("convert is called") {
             val historieRegel = converter.convert(history)
@@ -53,10 +55,12 @@ class RESTTaakHistorieConverterTest : BehaviorSpec({
     }
 
     Given("A converter history with non-supported item") {
-        val converter = RESTTaakHistorieConverter();
-        val history = listOf(HistoricTaskLogEntryEntityImpl().apply {
-            this.type = HistoricTaskLogEntryType.USER_TASK_IDENTITY_LINK_ADDED.toString()
-        })
+        val converter = RESTTaakHistorieConverter()
+        val history = listOf(
+            HistoricTaskLogEntryEntityImpl().apply {
+                this.type = HistoricTaskLogEntryType.USER_TASK_IDENTITY_LINK_ADDED.toString()
+            }
+        )
 
         When("convert is called") {
             val historieRegel = converter.convert(history)
@@ -66,5 +70,4 @@ class RESTTaakHistorieConverterTest : BehaviorSpec({
             }
         }
     }
-
 })
