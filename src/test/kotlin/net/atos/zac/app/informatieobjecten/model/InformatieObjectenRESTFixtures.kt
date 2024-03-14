@@ -1,12 +1,27 @@
 package net.atos.zac.app.informatieobjecten.model
 
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject.StatusEnum
 import net.atos.client.zgw.ztc.model.generated.ZaakType.VertrouwelijkheidaanduidingEnum
+import java.time.LocalDate
 import java.util.*
 
+@Suppress("LongParameterList")
 fun createRESTEnkelvoudigInformatieobject(
     uuid: UUID = UUID.randomUUID(),
+    status: StatusEnum = StatusEnum.IN_BEWERKING,
+    vertrouwelijkheidaanduiding: String? = null,
+    creatieDatum: LocalDate? = null,
+    auteur: String? = null,
+    taal: String? = null,
+    bestandsNaam: String? = null
 ) = RESTEnkelvoudigInformatieobject().apply {
     this.uuid = uuid
+    this.status = status
+    this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
+    this.creatiedatum = creatieDatum
+    this.auteur = auteur
+    this.taal = taal
+    this.bestandsnaam = bestandsNaam
 }
 
 fun createRESTEnkelvoudigInformatieObjectVersieGegevens(
