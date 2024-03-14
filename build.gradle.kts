@@ -103,7 +103,7 @@ dependencies {
     implementation("org.slf4j:slf4j-jdk14:2.0.12")
     implementation("com.auth0:java-jwt:4.4.0")
     implementation("javax.cache:cache-api:1.1.1")
-    implementation("com.google.guava:guava:33.0.0-jre")
+    implementation("com.google.guava:guava:33.1.0-jre")
     implementation("com.mailjet:mailjet-client:5.2.5")
     implementation("com.itextpdf:kernel:8.0.3")
     implementation("com.itextpdf:layout:8.0.3")
