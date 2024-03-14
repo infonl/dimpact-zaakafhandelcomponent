@@ -29,19 +29,19 @@ import net.atos.zac.identity.IdentityService;
 
 public class RESTTaakHistorieConverter {
 
-    private static final String CREATED_ATTRIBUUT_LABEL = "aangemaakt";
+    static final String CREATED_ATTRIBUUT_LABEL = "aangemaakt";
 
-    private static final String COMPLETED_ATTRIBUUT_LABEL = "afgerond";
+    static final String COMPLETED_ATTRIBUUT_LABEL = "afgerond";
 
-    private static final String GROEP_ATTRIBUUT_LABEL = "groep";
+    static final String GROEP_ATTRIBUUT_LABEL = "groep";
 
-    private static final String BEHANDELAAR_ATTRIBUUT_LABEL = "behandelaar";
+    static final String BEHANDELAAR_ATTRIBUUT_LABEL = "behandelaar";
 
-    private static final String TOELICHTING_ATTRIBUUT_LABEL = "toelichting";
+    static final String TOELICHTING_ATTRIBUUT_LABEL = "toelichting";
 
-    private static final String AANGEMAAKT_DOOR_ATTRIBUUT_LABEL = "aangemaaktDoor";
+    static final String AANGEMAAKT_DOOR_ATTRIBUUT_LABEL = "aangemaaktDoor";
 
-    private static final String FATALEDATUM_ATTRIBUUT_LABEL = "fataledatum";
+    static final String FATALEDATUM_ATTRIBUUT_LABEL = "fataledatum";
 
     @Inject
     private IdentityService identityService;
