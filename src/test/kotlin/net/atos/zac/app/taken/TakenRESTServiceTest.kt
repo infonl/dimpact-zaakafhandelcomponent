@@ -22,14 +22,11 @@ import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
 import net.atos.client.zgw.drc.DRCClientService
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
-import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.app.identity.model.createRESTUser
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
-import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
 import net.atos.zac.app.taken.converter.RESTTaakConverter
-import net.atos.zac.app.taken.converter.RESTTaakHistorieConverter
 import net.atos.zac.app.taken.model.TaakStatus
 import net.atos.zac.app.taken.model.createRESTTaak
 import net.atos.zac.app.taken.model.createRESTTaakToekennenGegevens
@@ -43,8 +40,6 @@ import net.atos.zac.flowable.util.TaskUtil.getTaakStatus
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.output.createDocumentRechten
 import net.atos.zac.policy.output.createTaakRechten
-import net.atos.zac.shared.helper.OpschortenZaakHelper
-import net.atos.zac.signalering.SignaleringenService
 import net.atos.zac.signalering.event.SignaleringEvent
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.websocket.event.ScreenEvent
@@ -67,15 +62,10 @@ class TakenRESTServiceTest : BehaviorSpec() {
     val httpSessionInstance = mockk<Instance<HttpSession>>()
     val indexeerService = mockk<IndexeerService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-    val opschortenZaakHelper = mockk<OpschortenZaakHelper>()
     val policyService = mockk<PolicyService>()
-    val restInformatieobjectConverter = mockk<RESTInformatieobjectConverter>()
-    val signaleringenService = mockk<SignaleringenService>()
     val taakVariabelenService = mockk<TaakVariabelenService>()
     val restTaakConverter = mockk<RESTTaakConverter>()
-    val taakHistorieConverter = mockk<RESTTaakHistorieConverter>()
     val takenService = mockk<TakenService>()
-    val zgwApiService = mockk<ZGWApiService>()
     val zrcClientService = mockk<ZRCClientService>()
 
     // We have to use @InjectMockKs since the class under test uses field injection instead of constructor injection.
