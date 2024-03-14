@@ -293,6 +293,18 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         prettier(mapOf("prettier" to "3.2.5", "prettier-plugin-organize-imports" to "3.2.4"))
             .config(mapOf("parser" to "typescript", "plugins" to arrayOf("prettier-plugin-organize-imports")))
     }
+    format("json") {
+        target("src/**/*.json")
+        targetExclude(
+                "src/e2e/node_modules/**",
+                "src/main/app/node_modules/**",
+                "src/main/app/dist/**",
+                "src/main/app/.angular/**",
+                "src/**/package-lock.json"
+        )
+
+        prettier(mapOf("prettier" to "3.2.5")).config(mapOf("parser" to "json"))
+    }
 }
 tasks.getByName("spotlessApply").finalizedBy(listOf("detektApply"))
 

@@ -1,112 +1,95 @@
 {
-  "$schema" : "https://json-schema.org/draft/2020-12/schema",
-  "$id" : "https://open-objecten.org/schemas/productaanvraag",
-  "title" : "Productaanvraag",
-  "type" : "object",
-  "properties" : {
-    "bron" : {
-      "title" : "Bron",
-      "description" : "Bron waaruit de productaanvraag voortkomt",
-      "type" : "object",
-      "properties" : {
-        "naam" : {
-          "title" : "Naam",
-          "description" : "Naam van de bron",
-          "type" : "string",
-          "examples" : [
-            "Open Formulieren"
-          ]
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://open-objecten.org/schemas/productaanvraag",
+  "title": "Productaanvraag",
+  "type": "object",
+  "properties": {
+    "bron": {
+      "title": "Bron",
+      "description": "Bron waaruit de productaanvraag voortkomt",
+      "type": "object",
+      "properties": {
+        "naam": {
+          "title": "Naam",
+          "description": "Naam van de bron",
+          "type": "string",
+          "examples": ["Open Formulieren"]
         },
-        "kenmerk" : {
-          "title" : "Kenmerk",
-          "description" : "Kenmerk van de productaanvraag zoals bekend bij de bron. Bijvoorbeeld ID van de submission in Open Forms",
-          "type" : "string",
-          "examples" : [
-            "a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"
-          ]
+        "kenmerk": {
+          "title": "Kenmerk",
+          "description": "Kenmerk van de productaanvraag zoals bekend bij de bron. Bijvoorbeeld ID van de submission in Open Forms",
+          "type": "string",
+          "examples": ["a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"]
         }
       },
-      "required" : [
-        "naam",
-        "kenmerk"
-      ]
+      "required": ["naam", "kenmerk"]
     },
-    "type" : {
-      "title" : "Type",
-      "description" : "Type productaanvraag",
-      "type" : "string",
-      "examples" : [
-        "verhuizing",
-        "terugbelnotitie"
-      ]
+    "type": {
+      "title": "Type",
+      "description": "Type productaanvraag",
+      "type": "string",
+      "examples": ["verhuizing", "terugbelnotitie"]
     },
-    "aanvraaggegevens" : {
-      "title" : "Aanvraaggegevens",
-      "description" : "Gegevens uit de aanvraag van het product",
-      "type" : "object",
-      "examples" : [
+    "aanvraaggegevens": {
+      "title": "Aanvraaggegevens",
+      "description": "Gegevens uit de aanvraag van het product",
+      "type": "object",
+      "examples": [
         {
-          "uw-gegevens" : {
-            "voornaam" : "Voorbeeld",
-            "achternaam" : "Vries",
-            "tussenvoegsel" : "de",
-            "geboortedatum" : "1980-12-31"
+          "uw-gegevens": {
+            "voornaam": "Voorbeeld",
+            "achternaam": "Vries",
+            "tussenvoegsel": "de",
+            "geboortedatum": "1980-12-31"
           },
-          "uw-verhuizing" : {
-            "beschrijving" : "Lorem ipsum..."
+          "uw-verhuizing": {
+            "beschrijving": "Lorem ipsum..."
           }
         }
       ]
     },
-    "taal" : {
-      "title" : "Taal",
-      "description" : "ISO 639-2/B taalcode waarin de productaanvraag is vastgelegd. Zie: https://www.iso.org/standard/4767.html",
-      "type" : "string",
-      "minLength" : 3,
-      "maxLength" : 3,
-      "default" : "nld"
+    "taal": {
+      "title": "Taal",
+      "description": "ISO 639-2/B taalcode waarin de productaanvraag is vastgelegd. Zie: https://www.iso.org/standard/4767.html",
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 3,
+      "default": "nld"
     },
-    "zaakgegevens" : {
-      "title" : "Zaakgegevens",
-      "description" : "Gegevens voor de zaak welke kan voortvloeien uit de productaanvraag",
-      "type" : "object",
-      "properties" : {
-        "identificatie" : {
-          "title" : "Identificatie",
-          "description" : "Unieke identificatie van de zaak binnen de organisatie die verantwoordelijk is voor de behandeling van de zaak",
-          "type" : "string",
-          "maxLength" : 40,
-          "examples" : [
-            "123123",
-            "ZAAK-2023-0000000121"
-          ]
+    "zaakgegevens": {
+      "title": "Zaakgegevens",
+      "description": "Gegevens voor de zaak welke kan voortvloeien uit de productaanvraag",
+      "type": "object",
+      "properties": {
+        "identificatie": {
+          "title": "Identificatie",
+          "description": "Unieke identificatie van de zaak binnen de organisatie die verantwoordelijk is voor de behandeling van de zaak",
+          "type": "string",
+          "maxLength": 40,
+          "examples": ["123123", "ZAAK-2023-0000000121"]
         },
-        "communicatiekanaal" : {
-          "title" : "Communicatiekanaal",
-          "description" : "Medium waarlangs de aanleiding om een zaak te starten is ontvangen. URL naar een communicatiekanaal in de VNG-Referentielijst van communicatiekanalen.",
-          "type" : "string",
-          "formaat" : "uri",
-          "examples" : [
+        "communicatiekanaal": {
+          "title": "Communicatiekanaal",
+          "description": "Medium waarlangs de aanleiding om een zaak te starten is ontvangen. URL naar een communicatiekanaal in de VNG-Referentielijst van communicatiekanalen.",
+          "type": "string",
+          "formaat": "uri",
+          "examples": [
             "https://referentielijsten-api.vng.cloud/api/v1/communicatiekanalen/f56552a8-a082-4306-9111-eb1664fcb05d"
           ]
         },
-        "omschrijving" : {
-          "title" : "Omschrijving",
-          "description" : "Korte omschrijving van de zaak",
-          "type" : "string",
-          "maxLength" : 80,
-          "examples" : [
-            "Verhuizing Blaak 27"
-          ]
+        "omschrijving": {
+          "title": "Omschrijving",
+          "description": "Korte omschrijving van de zaak",
+          "type": "string",
+          "maxLength": 80,
+          "examples": ["Verhuizing Blaak 27"]
         },
-        "toelichting" : {
-          "title" : "Toelichting",
-          "description" : "Toelichting op de zaak",
-          "type" : "string",
-          "maxLength" : 1000,
-          "examples" : [
-            "Nieuw huis gekocht"
-          ]
+        "toelichting": {
+          "title": "Toelichting",
+          "description": "Toelichting op de zaak",
+          "type": "string",
+          "maxLength": 1000,
+          "examples": ["Nieuw huis gekocht"]
         },
         "geometry": {
           "title": "Geometry",
@@ -117,9 +100,7 @@
               "title": "Type",
               "description": "Geometry type",
               "type": "string",
-              "enum": [
-                "Point"
-              ]
+              "enum": ["Point"]
             },
             "coordinates": {
               "title": "Coordinates",
@@ -130,254 +111,224 @@
               },
               "minItems": 2,
               "maxItems": 2,
-              "examples": [
-                "[52.36673378967122, 4.893164274470299]"
-              ]
+              "examples": ["[52.36673378967122, 4.893164274470299]"]
             }
           },
-          "required": [
-            "type",
-            "coordinates"
-          ]
+          "required": ["type", "coordinates"]
         }
       }
     },
-    "betrokkenen" : {
-      "title" : "Betrokkenen",
-      "type" : "array",
-      "items" : {
-        "$ref" : "#/$defs/betrokkene"
+    "betrokkenen": {
+      "title": "Betrokkenen",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/betrokkene"
       }
     },
-    "betaling" : {
-      "title" : "Betaling",
-      "description" : "Gegevens aangaande de betaling van de productaanvraag",
-      "type" : "object",
-      "properties" : {
-        "kenmerk" : {
-          "title" : "Kenmerk",
-          "description" : "Betalingskenmerk; Uniek kenmerk waarmee de betaling geidentificeerd kan worden",
-          "type" : "string",
-          "examples" : [
-            "2022ESUITE0320"
-          ]
+    "betaling": {
+      "title": "Betaling",
+      "description": "Gegevens aangaande de betaling van de productaanvraag",
+      "type": "object",
+      "properties": {
+        "kenmerk": {
+          "title": "Kenmerk",
+          "description": "Betalingskenmerk; Uniek kenmerk waarmee de betaling geidentificeerd kan worden",
+          "type": "string",
+          "examples": ["2022ESUITE0320"]
         },
-        "bedrag" : {
-          "title" : "Bedrag",
-          "type" : "number",
-          "examples" : [
-            19.20
-          ]
+        "bedrag": {
+          "title": "Bedrag",
+          "type": "number",
+          "examples": [19.2]
         },
-        "status" : {
-          "title" : "Status",
-          "description" : "Status van de betaling",
-          "type" : "string",
-          "enum" : [
-            "in_behandeling",
-            "geslaagd",
-            "niet_geslaagd",
-            "geannuleerd"
-          ]
+        "status": {
+          "title": "Status",
+          "description": "Status van de betaling",
+          "type": "string",
+          "enum": ["in_behandeling", "geslaagd", "niet_geslaagd", "geannuleerd"]
         },
-        "transactieId" : {
-          "title" : "Transactie ID",
-          "description" : "Identificatie van de transactie uit het betaalsysteem",
-          "type" : "string",
-          "examples" : [
-            "123456784"
-          ]
+        "transactieId": {
+          "title": "Transactie ID",
+          "description": "Identificatie van de transactie uit het betaalsysteem",
+          "type": "string",
+          "examples": ["123456784"]
         },
-        "transactiedatumtijd" : {
-          "title" : "Transactie datum/tijd",
-          "description" : "Tijdstip waarop de transactie met het betaalsysteem heeft plaatsgevonden",
-          "type" : "string",
+        "transactiedatumtijd": {
+          "title": "Transactie datum/tijd",
+          "description": "Tijdstip waarop de transactie met het betaalsysteem heeft plaatsgevonden",
+          "type": "string",
           "format": "date-time",
-          "examples": [
-            "2022-03-15T22:15:30.123+01:00"
-          ]
+          "examples": ["2022-03-15T22:15:30.123+01:00"]
         },
-        "statusCode" : {
-          "title" : "Status code",
-          "description" : "Originele code van de betalingsstatus uit het betaalsysteem",
-          "type" : "string",
-          "examples" : [
-            "5"
-          ]
+        "statusCode": {
+          "title": "Status code",
+          "description": "Originele code van de betalingsstatus uit het betaalsysteem",
+          "type": "string",
+          "examples": ["5"]
         },
-        "melding" : {
-          "title" : "Melding",
-          "description" : "Toelichtende melding uit het betaalsysteem",
-          "type" : "string"
+        "melding": {
+          "title": "Melding",
+          "description": "Toelichtende melding uit het betaalsysteem",
+          "type": "string"
         }
       },
-      "required" : [
-        "kenmerk",
-        "bedrag",
-        "status"
-      ]
+      "required": ["kenmerk", "bedrag", "status"]
     },
-    "pdf" : {
-      "title" : "PDF",
-      "description" : "URL naar het informatieobject (in de Documenten API) dat de bevestigings PDF van de productaanvraag bevat",
-      "type" : "string",
-      "format" : "uri",
-      "examples" : [
+    "pdf": {
+      "title": "PDF",
+      "description": "URL naar het informatieobject (in de Documenten API) dat de bevestigings PDF van de productaanvraag bevat",
+      "type": "string",
+      "format": "uri",
+      "examples": [
         "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/230bab4a-4b51-40c6-91b2-f2022008a7f8"
       ]
     },
-    "csv" : {
-      "title" : "CSV",
-      "description" : "URL naar het informatieobject (in de Documenten API) dat de CSV met ingezonden productaanvraag gegevens bevat",
-      "type" : "string",
-      "format" : "uri",
-      "examples" : [
+    "csv": {
+      "title": "CSV",
+      "description": "URL naar het informatieobject (in de Documenten API) dat de CSV met ingezonden productaanvraag gegevens bevat",
+      "type": "string",
+      "format": "uri",
+      "examples": [
         "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/aeaba696-4968-46a6-8b1e-016f503ed88d"
       ]
     },
-    "bijlagen" : {
-      "title" : "Bijlagen",
-      "description" : "Lijst met URLs naar informatieobjecten (in de Documenten API) zijnde de bijlagen van de productaanvraag",
-      "type" : "array",
-      "items" : {
-        "type" : "string",
-        "format" : "uri"
+    "bijlagen": {
+      "title": "Bijlagen",
+      "description": "Lijst met URLs naar informatieobjecten (in de Documenten API) zijnde de bijlagen van de productaanvraag",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri"
       },
-      "examples" : [
+      "examples": [
         [
           "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/94ff43d6-0ee5-4b5c-8ed7-b86eaa908718",
           "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"
         ]
       ]
     },
-    "additionalProperties" : true
+    "additionalProperties": true
   },
-  "required" : [
-    "bron",
-    "type",
-    "aanvraaggegevens"
-  ],
-  "examples" : [
+  "required": ["bron", "type", "aanvraaggegevens"],
+  "examples": [
     {
-      "bron" : {
-        "naam" : "Open Formulieren"
+      "bron": {
+        "naam": "Open Formulieren"
       },
-      "type" : "verhuizing",
-      "aanvraaggegevens" : {
-        "uw-gegevens" : {
-          "voornaam" : "Voorbeeld",
-          "achternaam" : "Vries",
-          "tussenvoegsel" : "de",
-          "geboortedatum" : "1980-12-31"
+      "type": "verhuizing",
+      "aanvraaggegevens": {
+        "uw-gegevens": {
+          "voornaam": "Voorbeeld",
+          "achternaam": "Vries",
+          "tussenvoegsel": "de",
+          "geboortedatum": "1980-12-31"
         },
-        "uw-verhuizing" : {
-          "beschrijving" : "Lorem ipsum..."
+        "uw-verhuizing": {
+          "beschrijving": "Lorem ipsum..."
         }
       }
     },
     {
-      "bron" : {
-        "naam" : "Open Formulieren",
-        "kenmerk" : "f56552a8-a082-4306-9111-eb1664fcb05d"
+      "bron": {
+        "naam": "Open Formulieren",
+        "kenmerk": "f56552a8-a082-4306-9111-eb1664fcb05d"
       },
-      "type" : "verhuizing",
-      "aanvraaggegevens" : {
-        "uw-gegevens" : {
-          "voornaam" : "Voorbeeld",
-          "achternaam" : "Vries",
-          "tussenvoegsel" : "de",
-          "geboortedatum" : "1980-12-31"
+      "type": "verhuizing",
+      "aanvraaggegevens": {
+        "uw-gegevens": {
+          "voornaam": "Voorbeeld",
+          "achternaam": "Vries",
+          "tussenvoegsel": "de",
+          "geboortedatum": "1980-12-31"
         },
-        "uw-verhuizing" : {
-          "beschrijving" : "Lorem ipsum..."
+        "uw-verhuizing": {
+          "beschrijving": "Lorem ipsum..."
         }
       },
-      "taal" : "nld",
-      "zaakgegevens" : {
-        "identificatie" : "ZAAK-2023-0000000121",
-        "communicatiekanaal" : "https://referentielijsten-api.vng.cloud/api/v1/communicatiekanalen/f56552a8-a082-4306-9111-eb1664fcb05d",
-        "omschrijving" : "Verhuizing Blaak 27",
-        "toelichting" : "Nieuw huis gekocht"
+      "taal": "nld",
+      "zaakgegevens": {
+        "identificatie": "ZAAK-2023-0000000121",
+        "communicatiekanaal": "https://referentielijsten-api.vng.cloud/api/v1/communicatiekanalen/f56552a8-a082-4306-9111-eb1664fcb05d",
+        "omschrijving": "Verhuizing Blaak 27",
+        "toelichting": "Nieuw huis gekocht"
       },
-      "betrokkenen" : [
+      "betrokkenen": [
         {
-          "inpBsn" : "111222333",
-          "rolOmschrijvingGeneriek" : "initiator",
-          "indicatieMachtiging" : "gemachtigde",
-          "indicatieCorrespondentie" : true
+          "inpBsn": "111222333",
+          "rolOmschrijvingGeneriek": "initiator",
+          "indicatieMachtiging": "gemachtigde",
+          "indicatieCorrespondentie": true
         },
         {
-          "inpBsn" : "222333444",
-          "rolOmschrijvingGeneriek" : "mede_initiator",
-          "indicatieMachtiging" : "machtiginggever",
-          "indicatieCorrespondentie" : false
+          "inpBsn": "222333444",
+          "rolOmschrijvingGeneriek": "mede_initiator",
+          "indicatieMachtiging": "machtiginggever",
+          "indicatieCorrespondentie": false
         },
         {
-          "medewerkerIdentificatie" : "MDW123",
-          "rolOmschrijvingGeneriek" : "klantcontacter"
+          "medewerkerIdentificatie": "MDW123",
+          "rolOmschrijvingGeneriek": "klantcontacter"
         }
       ],
-      "betaling" : {
-        "kenmerk" : "2022ESUITE0320",
-        "bedrag" : 19.20,
-        "status" : "niet_geslaagd",
-        "transactieId" : "123456784",
-        "transactiedatumtijd" : "2021-04-25T21:30:05+00",
-        "statusCode" : "5",
-        "melding" : "Saldo tekort"
+      "betaling": {
+        "kenmerk": "2022ESUITE0320",
+        "bedrag": 19.2,
+        "status": "niet_geslaagd",
+        "transactieId": "123456784",
+        "transactiedatumtijd": "2021-04-25T21:30:05+00",
+        "statusCode": "5",
+        "melding": "Saldo tekort"
       },
-      "pdf" : "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/230bab4a-4b51-40c6-91b2-f2022008a7f8",
-      "csv" : "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/aeaba696-4968-46a6-8b1e-016f503ed88d",
-      "bijlagen" : [
+      "pdf": "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/230bab4a-4b51-40c6-91b2-f2022008a7f8",
+      "csv": "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/aeaba696-4968-46a6-8b1e-016f503ed88d",
+      "bijlagen": [
         "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/94ff43d6-0ee5-4b5c-8ed7-b86eaa908718",
         "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"
       ]
     }
   ],
-  "$defs" : {
-    "betrokkene" : {
-      "title" : "Betrokkene",
-      "type" : "object",
-      "properties" : {
-        "inpBsn" : {
-          "title" : "Inp bsn",
-          "description" : "Burgerservicenummer, bedoeld in artikel 1.1 van de Wet algemene bepalingen burgerservicenummer",
-          "type" : "string",
-          "minLength" : 9,
-          "maxLength" : 9,
-          "examples" : [
-            "111222333"
-          ]
+  "$defs": {
+    "betrokkene": {
+      "title": "Betrokkene",
+      "type": "object",
+      "properties": {
+        "inpBsn": {
+          "title": "Inp bsn",
+          "description": "Burgerservicenummer, bedoeld in artikel 1.1 van de Wet algemene bepalingen burgerservicenummer",
+          "type": "string",
+          "minLength": 9,
+          "maxLength": 9,
+          "examples": ["111222333"]
         },
-        "innNnpId" : {
-          "title" : "Inn nnp id",
-          "description" : "Door een kamer toegekend uniek nummer voor de ingeschreven niet-natuurlijke-persoon",
-          "type" : "string",
-          "maxLength" : 9
+        "innNnpId": {
+          "title": "Inn nnp id",
+          "description": "Door een kamer toegekend uniek nummer voor de ingeschreven niet-natuurlijke-persoon",
+          "type": "string",
+          "maxLength": 9
         },
-        "vestigingsNummer" : {
-          "title" : "Vestigings nummer",
-          "description" : "Korte unieke aanduiding van de Vestiging",
-          "type" : "string",
-          "maxLength" : 24
+        "vestigingsNummer": {
+          "title": "Vestigings nummer",
+          "description": "Korte unieke aanduiding van de Vestiging",
+          "type": "string",
+          "maxLength": 24
         },
-        "organisatorischeEenheidIdentificatie" : {
-          "title" : "Organisatorische eenheid identificatie",
-          "description" : "Korte identificatie van de organisatorische eenheid",
-          "type" : "string",
-          "maxLength" : 24
+        "organisatorischeEenheidIdentificatie": {
+          "title": "Organisatorische eenheid identificatie",
+          "description": "Korte identificatie van de organisatorische eenheid",
+          "type": "string",
+          "maxLength": 24
         },
-        "medewerkerIdentificatie" : {
-          "title" : "Medewerker identificatie",
-          "description" : "Korte unieke aanduiding van de medewerker",
-          "type" : "string",
-          "maxLength" : 24
+        "medewerkerIdentificatie": {
+          "title": "Medewerker identificatie",
+          "description": "Korte unieke aanduiding van de medewerker",
+          "type": "string",
+          "maxLength": 24
         },
-        "rolOmschrijvingGeneriek" : {
-          "title" : "Rol omschrijving generiek",
-          "description" : "Algemeen gehanteerde benaming van de aard van de rol van de betrokkene",
-          "type" : "string",
-          "enum" : [
+        "rolOmschrijvingGeneriek": {
+          "title": "Rol omschrijving generiek",
+          "description": "Algemeen gehanteerde benaming van de aard van de rol van de betrokkene",
+          "type": "string",
+          "enum": [
             "adviseur",
             "behandelaar",
             "belanghebbende",
@@ -388,51 +339,36 @@
             "mede_initiator"
           ]
         },
-        "indicatieMachtiging" : {
-          "title" : "Indicatie machtiging",
-          "description" : "Uitleg bij mogelijke waarden: `gemachtigde` - Betrokkene is door een andere betrokkene gemachtigd om namens hem of haar te handelen. * `machtiginggever` - Betrokkene heeft een andere betrokkene gemachtigd om namens hem of haar te handelen",
-          "type" : "string",
-          "enum" : [
-            "gemachtigde",
-            "machtiginggever"
-          ]
+        "indicatieMachtiging": {
+          "title": "Indicatie machtiging",
+          "description": "Uitleg bij mogelijke waarden: `gemachtigde` - Betrokkene is door een andere betrokkene gemachtigd om namens hem of haar te handelen. * `machtiginggever` - Betrokkene heeft een andere betrokkene gemachtigd om namens hem of haar te handelen",
+          "type": "string",
+          "enum": ["gemachtigde", "machtiginggever"]
         },
-        "indicatieCorrespondentie" : {
-          "title" : "Indicatie correspondentie",
-          "description" : "Indicatie of met de betrokkene gecorrespondeerd moet/mag worden inzake de productaanvraag",
-          "type" : "boolean"
+        "indicatieCorrespondentie": {
+          "title": "Indicatie correspondentie",
+          "description": "Indicatie of met de betrokkene gecorrespondeerd moet/mag worden inzake de productaanvraag",
+          "type": "boolean"
         }
       },
-      "oneOf" : [
+      "oneOf": [
         {
-          "required" : [
-            "inpBsn",
-            "rolOmschrijvingGeneriek"
-          ]
+          "required": ["inpBsn", "rolOmschrijvingGeneriek"]
         },
         {
-          "required" : [
-            "innNnpId",
-            "rolOmschrijvingGeneriek"
-          ]
+          "required": ["innNnpId", "rolOmschrijvingGeneriek"]
         },
         {
-          "required" : [
-            "vestigingsNummer",
-            "rolOmschrijvingGeneriek"
-          ]
+          "required": ["vestigingsNummer", "rolOmschrijvingGeneriek"]
         },
         {
-          "required" : [
+          "required": [
             "organisatorischeEenheidIdentificatie",
             "rolOmschrijvingGeneriek"
           ]
         },
         {
-          "required" : [
-            "medewerkerIdentificatie",
-            "rolOmschrijvingGeneriek"
-          ]
+          "required": ["medewerkerIdentificatie", "rolOmschrijvingGeneriek"]
         }
       ]
     }
