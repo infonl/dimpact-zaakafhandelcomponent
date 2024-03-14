@@ -45,6 +45,7 @@
    Uncheck the `use default` for the startup script and select the `startupwithenv.sh` script from the project root.
    Next add a new env var called `APP_ENV` and set the value to `devlocal`.
    ![zac-intellij-runtime-wildfly-4.png](./attachments/images/zac-intellij-runtime-wildfly-4.png)
+6. Make sure you configured 1Password startup script for both `Run` and `Debug`
 
 #### KVK integration
 The KVK integration of ZAC is based on the [KVK API](https://developers.kvk.nl/).
