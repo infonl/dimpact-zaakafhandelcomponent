@@ -6,7 +6,6 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import org.flowable.task.api.history.HistoricTaskLogEntryType
 import org.flowable.task.service.impl.persistence.entity.HistoricTaskLogEntryEntityImpl
-import java.util.*
 
 class RESTTaakHistorieConverterTest : BehaviorSpec({
 
