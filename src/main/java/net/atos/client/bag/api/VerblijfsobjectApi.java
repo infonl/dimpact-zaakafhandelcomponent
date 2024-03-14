@@ -52,11 +52,11 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import net.atos.client.bag.model.Gebruiksdoel;
-import net.atos.client.bag.model.OppervlakteFilter;
-import net.atos.client.bag.model.VerblijfsobjectIOHal;
-import net.atos.client.bag.model.VerblijfsobjectIOHalCollection;
-import net.atos.client.bag.model.VerblijfsobjectIOLvcHalCollection;
+import net.atos.client.bag.model.generated.Gebruiksdoel;
+import net.atos.client.bag.model.generated.OppervlakteFilter;
+import net.atos.client.bag.model.generated.VerblijfsobjectIOHal;
+import net.atos.client.bag.model.generated.VerblijfsobjectIOHalCollection;
+import net.atos.client.bag.model.generated.VerblijfsobjectIOLvcHalCollection;
 import net.atos.client.bag.util.BAGClientHeadersFactory;
 import net.atos.client.brp.exception.RuntimeExceptionMapper;
 

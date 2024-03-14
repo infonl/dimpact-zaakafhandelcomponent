@@ -7,7 +7,7 @@ package net.atos.client.bag.util;
 
 import jakarta.json.bind.adapter.JsonbAdapter;
 
-import net.atos.client.bag.model.StatusVerblijfsobject;
+import net.atos.client.bag.model.generated.StatusVerblijfsobject;
 
 public class StatusVerblijfsobjectEnumAdapter implements JsonbAdapter<StatusVerblijfsobject, String> {
 

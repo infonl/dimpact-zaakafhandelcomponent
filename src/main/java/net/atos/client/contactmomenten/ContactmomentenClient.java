@@ -28,9 +28,9 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import net.atos.client.contactmomenten.exception.NotFoundExceptionMapper;
 import net.atos.client.contactmomenten.exception.RuntimeExceptionMapper;
-import net.atos.client.contactmomenten.model.AuditTrail;
-import net.atos.client.contactmomenten.model.ContactMoment;
-import net.atos.client.contactmomenten.model.ContactmomentList200Response;
+import net.atos.client.contactmomenten.model.generated.AuditTrail;
+import net.atos.client.contactmomenten.model.generated.ContactMoment;
+import net.atos.client.contactmomenten.model.generated.ContactmomentList200Response;
 import net.atos.client.contactmomenten.util.ContactmomentenClientHeadersFactory;
 
 /**

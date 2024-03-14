@@ -15,8 +15,8 @@ import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import net.atos.client.vrl.exception.CommunicatiekanaalNotFoundException;
-import net.atos.client.vrl.model.CommunicatieKanaal;
-import net.atos.client.vrl.model.CommunicatiekanaalList200Response;
+import net.atos.client.vrl.model.generated.CommunicatieKanaal;
+import net.atos.client.vrl.model.generated.CommunicatiekanaalList200Response;
 
 @ApplicationScoped
 public class VRLClientService {

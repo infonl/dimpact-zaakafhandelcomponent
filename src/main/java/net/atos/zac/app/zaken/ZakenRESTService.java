@@ -58,7 +58,7 @@ import org.apache.commons.lang3.StringUtils;
 import net.atos.client.or.object.ObjectsClientService;
 import net.atos.client.or.object.model.ORObject;
 import net.atos.client.vrl.VRLClientService;
-import net.atos.client.vrl.model.CommunicatieKanaal;
+import net.atos.client.vrl.model.generated.CommunicatieKanaal;
 import net.atos.client.zgw.brc.BRCClientService;
 import net.atos.client.zgw.brc.model.generated.Besluit;
 import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject;

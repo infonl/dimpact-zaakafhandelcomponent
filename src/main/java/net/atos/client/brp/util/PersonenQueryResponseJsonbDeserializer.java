@@ -15,13 +15,13 @@ import jakarta.json.bind.serializer.DeserializationContext;
 import jakarta.json.bind.serializer.JsonbDeserializer;
 import jakarta.json.stream.JsonParser;
 
-import net.atos.client.brp.model.PersonenQueryResponse;
-import net.atos.client.brp.model.RaadpleegMetBurgerservicenummerResponse;
-import net.atos.client.brp.model.ZoekMetGeslachtsnaamEnGeboortedatumResponse;
-import net.atos.client.brp.model.ZoekMetNaamEnGemeenteVanInschrijvingResponse;
-import net.atos.client.brp.model.ZoekMetNummeraanduidingIdentificatieResponse;
-import net.atos.client.brp.model.ZoekMetPostcodeEnHuisnummerResponse;
-import net.atos.client.brp.model.ZoekMetStraatHuisnummerEnGemeenteVanInschrijvingResponse;
+import net.atos.client.brp.model.generated.PersonenQueryResponse;
+import net.atos.client.brp.model.generated.RaadpleegMetBurgerservicenummerResponse;
+import net.atos.client.brp.model.generated.ZoekMetGeslachtsnaamEnGeboortedatumResponse;
+import net.atos.client.brp.model.generated.ZoekMetNaamEnGemeenteVanInschrijvingResponse;
+import net.atos.client.brp.model.generated.ZoekMetNummeraanduidingIdentificatieResponse;
+import net.atos.client.brp.model.generated.ZoekMetPostcodeEnHuisnummerResponse;
+import net.atos.client.brp.model.generated.ZoekMetStraatHuisnummerEnGemeenteVanInschrijvingResponse;
 
 public class PersonenQueryResponseJsonbDeserializer implements JsonbDeserializer<PersonenQueryResponse> {
 

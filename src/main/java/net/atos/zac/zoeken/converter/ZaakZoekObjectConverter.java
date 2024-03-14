@@ -10,7 +10,7 @@ import java.util.UUID;
 import jakarta.inject.Inject;
 
 import net.atos.client.vrl.VRLClientService;
-import net.atos.client.vrl.model.CommunicatieKanaal;
+import net.atos.client.vrl.model.generated.CommunicatieKanaal;
 import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.zrc.ZRCClientService;
