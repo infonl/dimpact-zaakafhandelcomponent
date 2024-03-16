@@ -13,20 +13,14 @@
     <version>${revision}</version>
     <packaging>pom</packaging>
 
-    <!--
-    Environment variables have to be passed (in the command line):
-     wildfly-jar-maven-plugin.version - the version of the wildfly maven plugin
-     wildfly.version - the version of the installed wildfly
-     wildfly-jar-maven-plugin.version - the version of galleon used
-
-    These environment variables will be passed by the gradle build, and are taken from the libs.versions.toml file.
-
-    Please follow the instructions in 'updatingDependencies.md' when upgrading WildFly
-    -->
     <properties>
         <revision>latest-SNAPSHOT</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <!-- please follow the instructions in 'updatingDependencies.md' when upgrading WildFly -->
+        <wildfly.version>31.0.0.Final</wildfly.version>
+        <wildfly-jar-maven-plugin.version>10.0.0.Final</wildfly-jar-maven-plugin.version>
+        <wildfly-datasources-galleon-pack.version>7.0.0.Final</wildfly-datasources-galleon-pack.version>
     </properties>
 
     <build>

@@ -1,9 +1,6 @@
 [versions]
 kotlin = "1.9.23"
 nodejs = "20.11.1"
-wildfly-wildfly = "31.0.0.Final"
-wildfly-galleon = "7.0.0.Final"
-wildfly-maven-plugin = "10.0.0.Final"
 jsonschema2pojo = "1.2.1"
 openapi = "3.10.0"
 openapi-generator = "7.4.0"

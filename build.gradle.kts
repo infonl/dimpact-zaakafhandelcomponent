@@ -1,7 +1,8 @@
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.github.gradle.node.npm.task.NpmTask
 import io.smallrye.openapi.api.OpenApiConfig
-import java.util.Locale
+import java.util.*
+import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 
 /*
  * SPDX-FileCopyrightText: 2023 Lifely
@@ -392,7 +393,7 @@ tasks {
         options.encoding = "UTF-8"
     }
 
-    withType<org.openapitools.generator.gradle.plugin.tasks.GenerateTask> {
+    withType<GenerateTask> {
         generatorName.set("java")
         outputDir.set("$rootDir/src/generated/java")
         generateApiTests.set(false)
@@ -424,32 +425,32 @@ tasks {
         templateDir.set("$rootDir/src/main/resources/openapi-generator-templates")
     }
 
-    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKvkZoekenClient") {
+    register<GenerateTask>("generateKvkZoekenClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/zoeken-openapi.yaml")
         modelPackage.set("net.atos.client.kvk.zoeken.model.generated")
     }
 
-    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKvkBasisProfielClient") {
+    register<GenerateTask>("generateKvkBasisProfielClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/basisprofiel-openapi.yaml")
         modelPackage.set("net.atos.client.kvk.basisprofiel.model.generated")
     }
 
-    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKvkVestigingsProfielClient") {
+    register<GenerateTask>("generateKvkVestigingsProfielClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/vestigingsprofiel-openapi.yaml")
         modelPackage.set("net.atos.client.kvk.vestigingsprofiel.model.generated")
     }
 
-    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateBrpClient") {
+    register<GenerateTask>("generateBrpClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/brp/openapi.yaml")
         modelPackage.set("net.atos.client.brp.model.generated")
     }
 
-    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateVrlClient") {
+    register<GenerateTask>("generateVrlClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/vrl/openapi.yaml")
         modelPackage.set("net.atos.client.vrl.model.generated")
     }
 
-    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateBagClient") {
+    register<GenerateTask>("generateBagClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/bag/openapi.yaml")
         modelPackage.set("net.atos.client.bag.model.generated")
         // we use a different date library for this client
@@ -466,7 +467,7 @@ tasks {
         )
     }
 
-    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKlantenClient") {
+    register<GenerateTask>("generateKlantenClient") {
         // this task was not enabled in the original Maven build either;
         // these model files were added to the code base manually instead
         isEnabled = false
@@ -475,27 +476,27 @@ tasks {
         modelPackage.set("net.atos.client.klanten.model.generated")
     }
 
-    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateContactMomentenClient") {
+    register<GenerateTask>("generateContactMomentenClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/contactmomenten/openapi.yaml")
         modelPackage.set("net.atos.client.contactmomenten.model.generated")
     }
 
-    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateZgwBrcClient") {
+    register<GenerateTask>("generateZgwBrcClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/brc-openapi.yaml")
         modelPackage.set("net.atos.client.zgw.brc.model.generated")
     }
 
-    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateZgwDrcClient") {
+    register<GenerateTask>("generateZgwDrcClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/drc-openapi.yaml")
         modelPackage.set("net.atos.client.zgw.drc.model.generated")
     }
 
-    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateZrcDrcClient") {
+    register<GenerateTask>("generateZrcDrcClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/zrc-openapi.yaml")
         modelPackage.set("net.atos.client.zgw.zrc.model.generated")
     }
 
-    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateZtcDrcClient") {
+    register<GenerateTask>("generateZtcDrcClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/ztc-openapi.yaml")
         modelPackage.set("net.atos.client.zgw.ztc.model.generated")
     }
@@ -595,24 +596,25 @@ tasks {
     }
 
     // Simple function to invoke a maven goal, dependent on the os, with optional
-    fun AbstractExecTask<*>.mavenGoal(goal: String, vararg args: String) = commandLine(
-                if (System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")) {
-                    "./mvnw.cmd"
-                } else {
-                    "./mvnw"
-                },
-                goal,
-                "-Dwildfly-jar-maven-plugin.version=" + libs.versions.wildfly.maven.plugin.get(),
-                "-Dwildfly.version=" + libs.versions.wildfly.wildfly.get(),
-                "-Dwildfly-datasources-galleon-pack.version=" + libs.versions.wildfly.galleon.get(),
-                *args)
-
-    register<Exec>("generateWildflyBootableJar") {
+    register<Maven>("generateWildflyBootableJar") {
         dependsOn("war")
-        mavenGoal("wildfly-jar:package")
+        execGoal("wildfly-jar:package")
     }
 
-    register<Exec>("mavenClean") {
-        mavenGoal("clean")
+    register<Maven>("mavenClean") {
+        execGoal("clean")
     }
+}
+
+@DisableCachingByDefault(because = "Gradle would require more information to cache this task")
+abstract class Maven : Exec() {
+    // Simple function to invoke a maven goal, dependent on the os, with optional
+    fun execGoal(goal: String, vararg args: String) = commandLine(
+            if (System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")) {
+                "./mvnw.cmd"
+            } else {
+                "./mvnw"
+            },
+            goal,
+            *args)
 }
