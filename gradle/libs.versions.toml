@@ -132,25 +132,25 @@ hibernate-validator = { group = "org.hibernate.validator", name = "hibernate-val
 eclipse-yasson = { group = "org.eclipse", name = "yasson", version.ref = "eclipse-yasson" }
 
 kotest-runner-junit5 = { group = "io.kotest", name = "kotest-runner-junit5", version.ref = "kotest-runner-junit5" }
-kotest-assertions-json = { group = "kotest", name = "kotest-assertions-json", version.ref = "kotest-assertions-json" }
+kotest-assertions-json = { group = "io.kotest", name = "kotest-assertions-json", version.ref = "kotest-assertions-json" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 
 
 # integration test dependencies
-testcontainers-testcontainers = { group = "testcontainers", name = "testcontainers", version.ref = "testcontainers-testcontainers" }
-testcontainers-mockserver = { group = "testcontainers", name = "mockserver", version.ref = "testcontainers-mockserver" }
-testcontainers-postgresql = { group = "testcontainers", name = "postgresql", version.ref = "testcontainers-postgresql" }
-json = { group = "json", name = "json", version.ref = "json-json" }
+testcontainers-testcontainers = { group = "org.testcontainers", name = "testcontainers", version.ref = "testcontainers-testcontainers" }
+testcontainers-mockserver = { group = "org.testcontainers", name = "mockserver", version.ref = "testcontainers-mockserver" }
+testcontainers-postgresql = { group = "org.testcontainers", name = "postgresql", version.ref = "testcontainers-postgresql" }
+json = { group = "org.json", name = "json", version.ref = "json-json" }
 
-slf4j-simple = { group = "slf4j", name = "slf4j-simple", version.ref = "slf4j-simple" }
+slf4j-simple = { group = "org.slf4j", name = "slf4j-simple", version.ref = "slf4j-simple" }
 
-github-kotlin-logging = { group = "github.oshai", name = "kotlin-logging-jvm", version.ref = "github-kotlin-logging" }
-squareup-okhttp = { group = "squareup.okhttp3", name = "okhttp", version.ref = "squareup-okhttp" }
-squareup-okhttp-urlconnection = { group = "squareup.okhttp3", name = "okhttp-urlconnection", version.ref = "squareup-okhttp-urlconnection" }
-awaitility = { group = "awaitility", name = "awaitility-kotlin", version.ref = "awaitility" }
+github-kotlin-logging = { group = "io.github.oshai", name = "kotlin-logging-jvm", version.ref = "github-kotlin-logging" }
+squareup-okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "squareup-okhttp" }
+squareup-okhttp-urlconnection = { group = "com.squareup.okhttp3", name = "okhttp-urlconnection", version.ref = "squareup-okhttp-urlconnection" }
+awaitility = { group = "org.awaitility", name = "awaitility-kotlin", version.ref = "awaitility" }
 mockserver-client = { group = "org.mock-server", name = "mockserver-client-java", version.ref = "mockserver-client" }
 
-jacoco-agent = { group = "jacoco", name="org.jacoco.agent", version.ref = "jacoco" }
+jacoco-agent = { group = "org.jacoco", name="org.jacoco.agent", version.ref = "jacoco" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

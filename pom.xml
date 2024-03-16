@@ -16,8 +16,8 @@
     <!--
     Environment variables have to be passed (in the command line):
      wildfly-jar-maven-plugin.version - the version of the wildfly maven plugin
-     wildfly-version - the version of the installed wildfly
-     wildfly-galleon-version - the version of galleon used
+     wildfly.version - the version of the installed wildfly
+     wildfly-jar-maven-plugin.version - the version of galleon used
 
     These environment variables will be passed by the gradle build, and are taken from the libs.versions.toml file.
 
