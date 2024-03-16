@@ -1,0 +1,165 @@
+[versions]
+kotlin = "1.9.23"
+nodejs = "20.11.1"
+wildfly-wildfly = "31.0.0.Final"
+wildfly-galleon = "7.0.0.Final"
+wildfly-maven-plugin = "10.0.0.Final"
+jsonschema2pojo = "1.2.1"
+openapi = "3.10.0"
+openapi-generator = "7.4.0"
+node-gradle = "7.0.2"
+taskinfo = "2.2.0"
+swagger-generator = "2.19.2"
+detekt = "1.23.5"
+docker-remote-api = "9.4.0"
+spotless = "6.25.0"
+spotless-eclipse-formatter = "4.21"
+spotless-prettier-base = "3.2.5"
+spotless-prettier-organize-imports = "3.2.4"
+microprofile-rest-client = "3.0"
+jacoco = "0.8.11"
+
+apache-commons-lang = "3.14.0"
+apache-commons-text = "1.11.0"
+apache-commons-collections = "4.4"
+commons-io = "2.15.1"
+opencsv = "5.9"
+flowable = "7.0.1"
+slf4j = "2.0.12"
+auth0-java-jwt = "4.4.0"
+javax-cache = "1.1.1"
+google-guava = "33.1.0-jre"
+mailjet = "5.2.5"
+itextpdf = "8.0.3"
+itextpdf-html2pdf = "5.0.3"
+flyway = "10.9.1"
+apache-solr = "9.5.0"
+webdav-servlet = "1.2.41"
+htmlcleaner = "2.29"
+unboundid = "7.0.0"
+swagger = "5.11.10"
+infinispan = "15.0.0.Final"
+apache-httpclient = "4.5.14"
+reactive-streams = "1.0.4"
+
+jakarta-jakartaee = "10.0.0"
+jakarta-mail = "2.1.3"
+
+eclipse-microprofile-rest-client-api = "3.0.1"
+eclipse-microprofile-config-api = "3.1"
+eclipse-microprofile-health-api = "4.0.1"
+eclipse-microprofile-fault-tolerance-api = "4.0.2"
+
+jboss-resteasy-multipart-provider = "6.2.7.Final"
+wildfly-security-elytron-http-oidc = "2.2.3.Final"
+hibernate-validator = "8.0.1.Final"
+
+eclipse-yasson = "3.0.3"
+
+kotest-runner-junit5 = "5.8.1"
+kotest-assertions-json = "5.8.1"
+mockk = "1.13.10"
+
+testcontainers-testcontainers = "1.19.7"
+testcontainers-mockserver = "1.19.7"
+testcontainers-postgresql = "1.19.7"
+
+json-json = "20240303"
+slf4j-simple = "2.0.12"
+
+github-kotlin-logging = "6.0.3"
+squareup-okhttp = "4.12.0"
+squareup-okhttp-urlconnection = "4.12.0"
+awaitility = "4.2.0"
+mockserver-client = "5.15.0"
+
+[libraries]
+apache-commons-lang = { group = "org.apache.commons", name = "commons-lang3", version.ref = "apache-commons-lang" }
+apache-commons-text = { group = "org.apache.commons", name = "commons-text", version.ref = "apache-commons-text" }
+apache-commons-collections = { group = "org.apache.commons", name = "commons-collections4", version.ref = "apache-commons-collections" }
+commons-io = { group = "commons-io", name = "commons-io", version.ref = "commons-io" }
+opencsv = { group = "com.opencsv", name = "opencsv", version.ref = "opencsv" }
+flowable-engine = { group = "org.flowable", name = "flowable-engine", version.ref = "flowable" }
+flowable-cdi = { group = "org.flowable", name = "flowable-cdi", version.ref = "flowable" }
+flowable-cmmn-engine = { group = "org.flowable", name = "flowable-cmmn-engine", version.ref = "flowable" }
+flowable-cmmn-cdi = { group = "org.flowable", name = "flowable-cmmn-cdi", version.ref = "flowable" }
+flowable-cmmn-engine-configurator = { group = "org.flowable", name = "flowable-cmmn-engine-configurator", version.ref = "flowable" }
+slf4j-jdk14 = { group = "org.slf4j", name = "slf4j-jdk14", version.ref = "slf4j" }
+auth0-java-jwt = { group = "com.auth0", name = "java-jwt", version.ref = "auth0-java-jwt" }
+javax-cache-api = { group = "javax.cache", name = "cache-api", version.ref = "javax-cache" }
+google-guava = { group = "com.google.guava", name = "guava", version.ref = "google-guava" }
+mailjet-client = { group = "com.mailjet", name = "mailjet-client", version.ref = "mailjet" }
+itextpdf-kernel = { group = "com.itextpdf", name = "kernel", version.ref = "itextpdf" }
+itextpdf-layout = { group = "com.itextpdf", name = "layout", version.ref = "itextpdf" }
+itextpdf-io = { group = "com.itextpdf", name = "io", version.ref = "itextpdf" }
+itextpdf-html2pdf = { group = "com.itextpdf", name = "html2pdf", version.ref = "itextpdf-html2pdf" }
+flyway-core = { group = "org.flywaydb", name = "flyway-core", version.ref = "flyway" }
+flyway-postgresql = { group = "org.flywaydb", name = "flyway-database-postgresql", version.ref = "flyway" }
+apache-solr = { group = "org.apache.solr", name = "solr-solrj", version.ref = "apache-solr" }
+webdav-servlet = { group = "nl.info.webdav", name = "webdav-servlet", version.ref = "webdav-servlet" }
+htmlcleaner = { group = "net.sourceforge.htmlcleaner", name = "htmlcleaner", version.ref = "htmlcleaner" }
+unboundid-ldapsdk = { group = "com.unboundid", name = "unboundid-ldapsdk", version.ref = "unboundid" }
+
+swagger-ui = { group = "org.webjars", name = "swagger-ui", version.ref = "swagger" }
+
+detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
+
+infinispan-jcache = { group = "org.infinispan", name = "infinispan-jcache", version.ref = "infinispan" }
+infinispan-cdi-embedded = { group = "org.infinispan", name = "infinispan-cdi-embedded", version.ref = "infinispan" }
+
+apache-httpclient = { group = "org.apache.httpcomponents", name = "httpclient", version.ref = "apache-httpclient" }
+reactive-streams = { group = "org.reactivestreams", name = "reactive-streams", version.ref = "reactive-streams" }
+jakarta-mail = { group = "jakarta.mail", name = "jakarta.mail-api", version.ref = "jakarta-mail" }
+
+# dependencies provided by Wildfly
+# update these versions when upgrading WildFly
+# you can find most of these dependencies in the WildFly pom.xml file
+# of the WidFly version you are using on https://github.com/wildfly/wildfly
+# for others you need to check the 'modules' directory of your local WildFly installtion
+jakarta-jakartaee = { group = "jakarta.platform", name = "jakarta.jakartaee-api", version.ref = "jakarta-jakartaee" }
+
+eclipse-microprofile-rest-client-api = { group = "org.eclipse.microprofile.rest.client", name = "microprofile-rest-client-api", version.ref = "eclipse-microprofile-rest-client-api" }
+eclipse-microprofile-config-api = { group = "org.eclipse.microprofile.config", name = "microprofile-config-api", version.ref = "eclipse-microprofile-config-api" }
+eclipse-microprofile-health-api = { group = "org.eclipse.microprofile.health", name = "microprofile-health-api", version.ref = "eclipse-microprofile-health-api" }
+eclipse-microprofile-fault-tolerance-api = { group = "org.eclipse.microprofile.fault-tolerance", name = "microprofile-fault-tolerance-api", version.ref = "eclipse-microprofile-fault-tolerance-api" }
+jboss-resteasy-multipart-provider = { group = "org.jboss.resteasy", name = "resteasy-multipart-provider", version.ref = "jboss-resteasy-multipart-provider" }
+wildfly-security-elytron-http-oidc = { group = "org.wildfly.security", name = "wildfly-elytron-http-oidc", version.ref = "wildfly-security-elytron-http-oidc" }
+hibernate-validator = { group = "org.hibernate.validator", name = "hibernate-validator", version.ref = "hibernate-validator" }
+# ~dependencies provided by Wildfly
+
+# yasson is required for using a JSONB context in our unit tests
+# where we do not have the WildFly runtime environment available
+eclipse-yasson = { group = "org.eclipse", name = "yasson", version.ref = "eclipse-yasson" }
+
+kotest-runner-junit5 = { group = "io.kotest", name = "kotest-runner-junit5", version.ref = "kotest-runner-junit5" }
+kotest-assertions-json = { group = "kotest", name = "kotest-assertions-json", version.ref = "kotest-assertions-json" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+
+
+# integration test dependencies
+testcontainers-testcontainers = { group = "testcontainers", name = "testcontainers", version.ref = "testcontainers-testcontainers" }
+testcontainers-mockserver = { group = "testcontainers", name = "mockserver", version.ref = "testcontainers-mockserver" }
+testcontainers-postgresql = { group = "testcontainers", name = "postgresql", version.ref = "testcontainers-postgresql" }
+json = { group = "json", name = "json", version.ref = "json-json" }
+
+slf4j-simple = { group = "slf4j", name = "slf4j-simple", version.ref = "slf4j-simple" }
+
+github-kotlin-logging = { group = "github.oshai", name = "kotlin-logging-jvm", version.ref = "github-kotlin-logging" }
+squareup-okhttp = { group = "squareup.okhttp3", name = "okhttp", version.ref = "squareup-okhttp" }
+squareup-okhttp-urlconnection = { group = "squareup.okhttp3", name = "okhttp-urlconnection", version.ref = "squareup-okhttp-urlconnection" }
+awaitility = { group = "awaitility", name = "awaitility-kotlin", version.ref = "awaitility" }
+mockserver-client = { group = "org.mock-server", name = "mockserver-client-java", version.ref = "mockserver-client" }
+
+jacoco-agent = { group = "jacoco", name="org.jacoco.agent", version.ref = "jacoco" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+jsonschema2pojo = { id = "org.jsonschema2pojo", version.ref = "jsonschema2pojo" }
+openapi = { id = "io.smallrye.openapi", version.ref = "openapi" }
+openapi-generator = { id = "org.openapi.generator", version.ref = "openapi-generator" }
+gradle-node = { id = "com.github.node-gradle.node", version.ref = "node-gradle" }
+taskinfo = { id = "org.barfuin.gradle.taskinfo", version.ref = "taskinfo" }
+swagger-generator = { id = "org.hidetake.swagger.generator", version.ref = "swagger-generator" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+docker-remote-api = { id = "com.bmuschko.docker-remote-api", version.ref = "docker-remote-api" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
