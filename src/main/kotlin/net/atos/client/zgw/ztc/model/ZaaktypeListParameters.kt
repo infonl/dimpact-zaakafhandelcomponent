@@ -2,65 +2,36 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.client.zgw.ztc.model
 
-package net.atos.client.zgw.ztc.model;
-
-import java.net.URI;
-
-import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.QueryParam
+import java.net.URI
 
 /**
  *
  */
-public class ZaaktypeListParameters extends AbstractZTCListParameters {
-
+class ZaaktypeListParameters : AbstractZTCListParameters {
     /**
      * URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
      */
     @QueryParam("catalogus")
-    private URI catalogus;
+    var catalogus: URI? = null
 
     /**
      * Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt.
      */
     @QueryParam("identificatie")
-    private String identificatie;
+    var identificatie: String? = null
 
     /**
      * Multiple values may be separated by commas.
      */
     @QueryParam("trefwoorden")
-    private String trefwoorden;
+    var trefwoorden: String? = null
 
+    constructor()
 
-    public ZaaktypeListParameters() {
-    }
-
-    public ZaaktypeListParameters(final URI catalogus) {
-        this.catalogus = catalogus;
-    }
-
-    public URI getCatalogus() {
-        return catalogus;
-    }
-
-    public void setCatalogus(final URI catalogus) {
-        this.catalogus = catalogus;
-    }
-
-    public String getIdentificatie() {
-        return identificatie;
-    }
-
-    public void setIdentificatie(final String identificatie) {
-        this.identificatie = identificatie;
-    }
-
-    public String getTrefwoorden() {
-        return trefwoorden;
-    }
-
-    public void setTrefwoorden(final String trefwoorden) {
-        this.trefwoorden = trefwoorden;
+    constructor(catalogus: URI?) {
+        this.catalogus = catalogus
     }
 }

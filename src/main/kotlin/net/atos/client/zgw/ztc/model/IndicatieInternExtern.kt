@@ -2,43 +2,33 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.client.zgw.ztc.model
 
-package net.atos.client.zgw.ztc.model;
-
-import jakarta.json.bind.annotation.JsonbTypeAdapter;
-
-import net.atos.client.zgw.shared.model.AbstractEnum;
+import jakarta.json.bind.annotation.JsonbTypeAdapter
+import net.atos.client.zgw.shared.model.AbstractEnum
 
 /**
  *
  */
-@JsonbTypeAdapter(IndicatieInternExtern.Adapter.class)
-public enum IndicatieInternExtern implements AbstractEnum<IndicatieInternExtern> {
-
+@JsonbTypeAdapter(IndicatieInternExtern.Adapter::class)
+enum class IndicatieInternExtern(private val value: String) : AbstractEnum<IndicatieInternExtern> {
     INTERN("intern"),
 
     EXTERN("extern");
 
-    private final String value;
-
-    IndicatieInternExtern(final String value) {
-        this.value = value;
+    override fun toValue(): String {
+        return value
     }
 
-    @Override
-    public String toValue() {
-        return value;
+    internal class Adapter : AbstractEnum.Adapter<IndicatieInternExtern?>() {
+        override fun getEnums(): Array<IndicatieInternExtern> {
+            return entries.toTypedArray()
+        }
     }
 
-    public static IndicatieInternExtern fromValue(final String value) {
-        return AbstractEnum.fromValue(values(), value);
-    }
-
-    static class Adapter extends AbstractEnum.Adapter<IndicatieInternExtern> {
-
-        @Override
-        protected IndicatieInternExtern[] getEnums() {
-            return values();
+    companion object {
+        fun fromValue(value: String?): IndicatieInternExtern {
+            return AbstractEnum.fromValue(entries.toTypedArray(), value)
         }
     }
 }

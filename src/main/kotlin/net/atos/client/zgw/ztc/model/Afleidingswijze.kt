@@ -2,18 +2,16 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.client.zgw.ztc.model
 
-package net.atos.client.zgw.ztc.model;
-
-import jakarta.json.bind.annotation.JsonbTypeAdapter;
-
-import net.atos.client.zgw.shared.model.AbstractEnum;
+import jakarta.json.bind.annotation.JsonbTypeAdapter
+import net.atos.client.zgw.shared.model.AbstractEnum
 
 /**
  *
  */
-@JsonbTypeAdapter(Afleidingswijze.Adapter.class)
-public enum Afleidingswijze implements AbstractEnum<Afleidingswijze> {
+@JsonbTypeAdapter(Afleidingswijze.Adapter::class)
+enum class Afleidingswijze(private val value: String) : AbstractEnum<Afleidingswijze> {
     /**
      * De termijn start op de datum waarop de zaak is afgehandeld (ZAAK.Einddatum in het RGBZ).
      */
@@ -70,26 +68,19 @@ public enum Afleidingswijze implements AbstractEnum<Afleidingswijze> {
      */
     ZAAKOBJECT("zaakobject");
 
-    private final String value;
-
-    Afleidingswijze(final String value) {
-        this.value = value;
+    override fun toValue(): String {
+        return value
     }
 
-    @Override
-    public String toValue() {
-        return value;
+    internal class Adapter : AbstractEnum.Adapter<Afleidingswijze?>() {
+        override fun getEnums(): Array<Afleidingswijze> {
+            return entries.toTypedArray()
+        }
     }
 
-    public static Afleidingswijze fromValue(final String value) {
-        return AbstractEnum.fromValue(values(), value);
-    }
-
-    static class Adapter extends AbstractEnum.Adapter<Afleidingswijze> {
-
-        @Override
-        protected Afleidingswijze[] getEnums() {
-            return values();
+    companion object {
+        fun fromValue(value: String?): Afleidingswijze {
+            return AbstractEnum.fromValue(entries.toTypedArray(), value)
         }
     }
 }

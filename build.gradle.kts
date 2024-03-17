@@ -23,6 +23,7 @@ plugins {
     id("io.gitlab.arturbosch.detekt") version "1.23.5"
     id("com.bmuschko.docker-remote-api") version "9.4.0"
     id("com.diffplug.spotless") version "6.25.0"
+    id("org.jetbrains.kotlin.plugin.allopen") version "1.9.23"
 }
 
 repositories {
@@ -180,6 +181,13 @@ tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
     setSource(files("src/main/kotlin", "src/test/kotlin", "src/itest/kotlin"))
     // our Detekt configuration build builds upon the default configuration
     buildUponDefaultConfig = true
+}
+
+allOpen {
+    // enable all-open plugin for Kotlin so that WildFly's dependency injection framework (Weld)
+    // can proxy our Kotlin classes when they have our custom annotation
+    // because by default Kotlin classes are final
+    annotation("nl.info.zac.util.AllOpen")
 }
 
 jacoco {
@@ -348,6 +356,10 @@ tasks {
     }
 
     compileJava {
+        dependsOn("generateJavaClients")
+    }
+
+    compileKotlin {
         dependsOn("generateJavaClients")
     }
 

@@ -2,19 +2,16 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.client.zgw.ztc.model
 
-package net.atos.client.zgw.ztc.model;
-
-import jakarta.json.bind.annotation.JsonbTypeAdapter;
-
-import net.atos.client.zgw.shared.model.AbstractEnum;
+import jakarta.json.bind.annotation.JsonbTypeAdapter
+import net.atos.client.zgw.shared.model.AbstractEnum
 
 /**
  *
  */
-@JsonbTypeAdapter(Formaat.Adapter.class)
-public enum Formaat implements AbstractEnum<Formaat> {
-
+@JsonbTypeAdapter(Formaat.Adapter::class)
+enum class Formaat(private val value: String) : AbstractEnum<Formaat> {
     TEKST("tekst"),
 
     GETAL("getal"),
@@ -23,26 +20,19 @@ public enum Formaat implements AbstractEnum<Formaat> {
 
     DATUM_TIJD("datum_tijd");
 
-    private final String value;
-
-    Formaat(final String value) {
-        this.value = value;
+    override fun toValue(): String {
+        return value
     }
 
-    @Override
-    public String toValue() {
-        return value;
+    internal class Adapter : AbstractEnum.Adapter<Formaat?>() {
+        override fun getEnums(): Array<Formaat> {
+            return entries.toTypedArray()
+        }
     }
 
-    public static Formaat fromValue(final String value) {
-        return AbstractEnum.fromValue(values(), value);
-    }
-
-    static class Adapter extends AbstractEnum.Adapter<Formaat> {
-
-        @Override
-        protected Formaat[] getEnums() {
-            return values();
+    companion object {
+        fun fromValue(value: String?): Formaat {
+            return AbstractEnum.fromValue(entries.toTypedArray(), value)
         }
     }
 }

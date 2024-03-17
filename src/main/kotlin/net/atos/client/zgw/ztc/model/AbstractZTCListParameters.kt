@@ -2,27 +2,25 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.client.zgw.ztc.model
 
-package net.atos.client.zgw.ztc.model;
-
-import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.QueryParam
 
 /**
  *
  */
-public abstract class AbstractZTCListParameters {
-
+abstract class AbstractZTCListParameters {
     /*
      * Filter objects depending on their concept status
      */
-    private ObjectStatusFilter status;
+    private var status: ObjectStatusFilter? = null
 
     @QueryParam("status")
-    public String getStatus() {
-        return status != null ? status.toValue() : null;
+    fun getStatus(): String? {
+        return if (status != null) status!!.toValue() else null
     }
 
-    public void setStatus(final ObjectStatusFilter status) {
-        this.status = status;
+    fun setStatus(status: ObjectStatusFilter?) {
+        this.status = status
     }
 }

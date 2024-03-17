@@ -26,7 +26,7 @@ public class OpenZaakReadinessHealthCheck implements HealthCheck {
     private static final CatalogusListParameters CATALOGUS_LIST_PARAMETERS = new CatalogusListParameters();
 
     static {
-        CATALOGUS_LIST_PARAMETERS.setDomein(CATALOGUS_DOMEIN);
+        CATALOGUS_LIST_PARAMETERS.domein = CATALOGUS_DOMEIN;
     }
 
     @Inject

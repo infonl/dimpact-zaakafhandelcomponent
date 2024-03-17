@@ -2,49 +2,34 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.client.zgw.ztc.model
 
-package net.atos.client.zgw.ztc.model;
-
-import java.net.URI;
-
-import jakarta.json.bind.annotation.JsonbCreator;
-import jakarta.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbCreator
+import jakarta.json.bind.annotation.JsonbProperty
+import java.net.URI
 
 /**
  * Het Referentieproces dat ten grondslag ligt aan dit ZAAKTYPE.
  */
-public class Referentieproces {
-
-    public static final int NAAM_MAX_LENGTH = 80;
-
+class Referentieproces
+/**
+ * Constructor with required attributes for POST and PUT requests and GET response
+ */
+@JsonbCreator constructor(
     /**
      * De naam van het Referentieproces.
-     * maxLength: {@link Referentieproces#NAAM_MAX_LENGTH}
+     * maxLength: [Referentieproces.NAAM_MAX_LENGTH]
      */
-    private final String naam;
-
+    @param:JsonbProperty(
+        "naam"
+    ) val naam: String
+) {
     /**
      * De URL naar de beschrijving van het Referentieproces
      */
-    private URI link;
+    var link: URI? = null
 
-    /**
-     * Constructor with required attributes for POST and PUT requests and GET response
-     */
-    @JsonbCreator
-    public Referentieproces(@JsonbProperty("naam") final String naam) {
-        this.naam = naam;
-    }
-
-    public String getNaam() {
-        return naam;
-    }
-
-    public URI getLink() {
-        return link;
-    }
-
-    public void setLink(final URI link) {
-        this.link = link;
+    companion object {
+        const val NAAM_MAX_LENGTH: Int = 80
     }
 }
