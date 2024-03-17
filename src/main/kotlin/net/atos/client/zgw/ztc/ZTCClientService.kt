@@ -6,7 +6,6 @@ package net.atos.client.zgw.ztc
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import jakarta.ws.rs.client.Invocation
 import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.util.JAXRSClientFactory
@@ -40,7 +39,7 @@ import javax.cache.annotation.CacheRemoveAll
 import javax.cache.annotation.CacheResult
 
 /**
- * Encapsulates the [ZTCClient] by providing caching and authentication.
+ * Encapsulates {@link ZTCClient} by providing caching and authentication.
  */
 @ApplicationScoped
 @AllOpen
@@ -56,9 +55,8 @@ class ZTCClientService : Caching {
     @Inject
     private lateinit var configuratieService: ConfiguratieService
 
-    fun listCatalogus(catalogusListParameters: CatalogusListParameters): Results<Catalogus> {
-        return ztcClient.catalogusList(catalogusListParameters)
-    }
+    fun listCatalogus(catalogusListParameters: CatalogusListParameters): Results<Catalogus> =
+        ztcClient.catalogusList(catalogusListParameters)
 
     /**
      * Read [Catalogus] filtered by [CatalogusListParameters].
@@ -67,16 +65,13 @@ class ZTCClientService : Caching {
      * @param filter [CatalogusListParameters].
      * @return [Catalogus]. Never 'null'!
      */
-    fun readCatalogus(filter: CatalogusListParameters): Catalogus {
-        return ztcClient.catalogusList(filter)
+    fun readCatalogus(filter: CatalogusListParameters): Catalogus =
+        ztcClient.catalogusList(filter)
             .singleResult
             .orElseThrow { RuntimeException("Catalogus not found.") }
-    }
 
     @CacheResult(cacheName = Caching.ZTC_CACHE_TIME)
-    fun readCacheTime(): ZonedDateTime {
-        return ZonedDateTime.now()
-    }
+    fun readCacheTime() = ZonedDateTime.now()
 
     /**
      * Read [ZaakType] via URI.
@@ -86,9 +81,8 @@ class ZTCClientService : Caching {
      * @return [ZaakType]. Never 'null'!
      */
     @CacheResult(cacheName = Caching.ZTC_ZAAKTYPE)
-    fun readZaaktype(zaaktypeURI: URI): ZaakType {
-        return createInvocationBuilder(zaaktypeURI).get(ZaakType::class.java)
-    }
+    fun readZaaktype(zaaktypeURI: URI): ZaakType =
+        createInvocationBuilder(zaaktypeURI).get(ZaakType::class.java)
 
     /**
      * Read [ZaakType] via UUID.
@@ -98,9 +92,8 @@ class ZTCClientService : Caching {
      * @return [ZaakType]. Never 'null'!
      */
     @CacheResult(cacheName = Caching.ZTC_ZAAKTYPE)
-    fun readZaaktype(zaaktypeUuid: UUID?): ZaakType? {
-        return ztcClient.zaaktypeRead(zaaktypeUuid)
-    }
+    fun readZaaktype(zaaktypeUuid: UUID): ZaakType =
+        ztcClient.zaaktypeRead(zaaktypeUuid)
 
     /**
      * List instances of [ZaakType] in [Catalogus].
@@ -109,21 +102,19 @@ class ZTCClientService : Caching {
      * @return List of [ZaakType] instances
      */
     @CacheResult(cacheName = Caching.ZTC_ZAAKTYPE)
-    fun listZaaktypen(catalogusURI: URI?): List<ZaakType?> {
-        return ztcClient.zaaktypeList(ZaaktypeListParameters(catalogusURI)).results
-    }
+    fun listZaaktypen(catalogusURI: URI): List<ZaakType> =
+        ztcClient.zaaktypeList(ZaaktypeListParameters(catalogusURI)).results
 
     /**
-     * Read [StatusType] via URI.
+     * Reads a {@link StatusType} via URI.
      * Throws a RuntimeException if the [StatusType] can not be read.
      *
      * @param statustypeURI URI of [StatusType].
      * @return [StatusType]. Never 'null'!
      */
     @CacheResult(cacheName = Caching.ZTC_STATUSTYPE)
-    fun readStatustype(statustypeURI: URI): StatusType {
-        return createInvocationBuilder(statustypeURI).get(StatusType::class.java)
-    }
+    fun readStatustype(statustypeURI: URI): StatusType =
+        createInvocationBuilder(statustypeURI).get(StatusType::class.java)
 
     /**
      * Read [StatusType] via its UUID.
@@ -133,9 +124,8 @@ class ZTCClientService : Caching {
      * @return [StatusType]. Never 'null'!
      */
     @CacheResult(cacheName = Caching.ZTC_STATUSTYPE)
-    fun readStatustype(statustypeUUID: UUID?): StatusType? {
-        return ztcClient.statustypeRead(statustypeUUID)
-    }
+    fun readStatustype(statustypeUUID: UUID): StatusType =
+        ztcClient.statustypeRead(statustypeUUID)
 
     /**
      * Read the [StatusType] of [ZaakType].
@@ -144,9 +134,8 @@ class ZTCClientService : Caching {
      * @return list of [StatusType].
      */
     @CacheResult(cacheName = Caching.ZTC_STATUSTYPE)
-    fun readStatustypen(zaaktypeURI: URI): List<StatusType?> {
-        return ztcClient.statustypeList(StatustypeListParameters(zaaktypeURI)).singlePageResults
-    }
+    fun readStatustypen(zaaktypeURI: URI): List<StatusType> =
+        ztcClient.statustypeList(StatustypeListParameters(zaaktypeURI)).singlePageResults
 
     /**
      * Read the [ZaakTypeInformatieObjectType] of [ZaakType].
@@ -155,10 +144,9 @@ class ZTCClientService : Caching {
      * @return list of [ZaakTypeInformatieObjectType].
      */
     @CacheResult(cacheName = Caching.ZTC_ZAAKTYPE_INFORMATIEOBJECTTYPE)
-    fun readZaaktypeInformatieobjecttypen(zaaktypeURI: URI): List<ZaakTypeInformatieObjectType?> {
-        return ztcClient.zaaktypeinformatieobjecttypeList(ZaaktypeInformatieobjecttypeListParameters(zaaktypeURI))
+    fun readZaaktypeInformatieobjecttypen(zaaktypeURI: URI): List<ZaakTypeInformatieObjectType> =
+        ztcClient.zaaktypeinformatieobjecttypeList(ZaaktypeInformatieobjecttypeListParameters(zaaktypeURI))
             .singlePageResults
-    }
 
     /**
      * Read the [InformatieObjectType] of [ZaakType].
@@ -167,15 +155,14 @@ class ZTCClientService : Caching {
      * @return list of [InformatieObjectType].
      */
     @CacheResult(cacheName = Caching.ZTC_INFORMATIEOBJECTTYPE)
-    fun readInformatieobjecttypen(zaaktypeURI: URI): List<InformatieObjectType> {
-        return readZaaktypeInformatieobjecttypen(zaaktypeURI).stream()
-            .map { zaaktypeInformatieobjecttype: ZaakTypeInformatieObjectType? ->
+    fun readInformatieobjecttypen(zaaktypeURI: URI): List<InformatieObjectType> =
+        readZaaktypeInformatieobjecttypen(zaaktypeURI).stream()
+            .map { zaaktypeInformatieobjecttype: ZaakTypeInformatieObjectType ->
                 readInformatieobjecttype(
-                    zaaktypeInformatieobjecttype!!.informatieobjecttype
+                    zaaktypeInformatieobjecttype.informatieobjecttype
                 )
             }
             .toList()
-    }
 
     /**
      * Read [ResultaatType] via its URI.
@@ -185,9 +172,8 @@ class ZTCClientService : Caching {
      * @return [ResultaatType]. Never 'null'!
      */
     @CacheResult(cacheName = Caching.ZTC_RESULTAATTYPE)
-    fun readResultaattype(resultaattypeURI: URI): ResultaatType {
-        return createInvocationBuilder(resultaattypeURI).get(ResultaatType::class.java)
-    }
+    fun readResultaattype(resultaattypeURI: URI): ResultaatType =
+        createInvocationBuilder(resultaattypeURI).get(ResultaatType::class.java)
 
     /**
      * Read [BesluitType] via its URI.
@@ -197,9 +183,8 @@ class ZTCClientService : Caching {
      * @return [BesluitType]. Never 'null'!
      */
     @CacheResult(cacheName = Caching.ZTC_BESLUITTYPE)
-    fun readBesluittype(besluittypeURI: URI): BesluitType {
-        return createInvocationBuilder(besluittypeURI).get(BesluitType::class.java)
-    }
+    fun readBesluittype(besluittypeURI: URI): BesluitType =
+        createInvocationBuilder(besluittypeURI).get(BesluitType::class.java)
 
     /**
      * Read [BesluitType] via its UUID.
@@ -209,9 +194,8 @@ class ZTCClientService : Caching {
      * @return [BesluitType]. Never 'null'!
      */
     @CacheResult(cacheName = Caching.ZTC_BESLUITTYPE)
-    fun readBesluittype(besluittypeUUID: UUID?): BesluitType? {
-        return ztcClient.besluittypeRead(besluittypeUUID)
-    }
+    fun readBesluittype(besluittypeUUID: UUID): BesluitType =
+        ztcClient.besluittypeRead(besluittypeUUID)
 
     /**
      * Read the [BesluitType] of [ZaakType].
@@ -220,9 +204,8 @@ class ZTCClientService : Caching {
      * @return list of [BesluitType].
      */
     @CacheResult(cacheName = Caching.ZTC_BESLUITTYPE)
-    fun readBesluittypen(zaaktypeURI: URI): List<BesluitType?> {
-        return ztcClient.besluittypeList(BesluittypeListParameters(zaaktypeURI)).singlePageResults
-    }
+    fun readBesluittypen(zaaktypeURI: URI): List<BesluitType> =
+        ztcClient.besluittypeList(BesluittypeListParameters(zaaktypeURI)).singlePageResults
 
     /**
      * Read [ResultaatType] via its UUID.
@@ -232,9 +215,8 @@ class ZTCClientService : Caching {
      * @return [ResultaatType]. Never 'null'!
      */
     @CacheResult(cacheName = Caching.ZTC_RESULTAATTYPE)
-    fun readResultaattype(resultaattypeUUID: UUID?): ResultaatType? {
-        return ztcClient.resultaattypeRead(resultaattypeUUID)
-    }
+    fun readResultaattype(resultaattypeUUID: UUID): ResultaatType =
+        ztcClient.resultaattypeRead(resultaattypeUUID)
 
     /**
      * Read the [ResultaatType] of [ZaakType].
@@ -243,9 +225,8 @@ class ZTCClientService : Caching {
      * @return list of [ResultaatType].
      */
     @CacheResult(cacheName = Caching.ZTC_RESULTAATTYPE)
-    fun readResultaattypen(zaaktypeURI: URI): List<ResultaatType?> {
-        return ztcClient.resultaattypeList(ResultaattypeListParameters(zaaktypeURI)).singlePageResults
-    }
+    fun readResultaattypen(zaaktypeURI: URI): List<ResultaatType> =
+        ztcClient.resultaattypeList(ResultaattypeListParameters(zaaktypeURI)).singlePageResults
 
     /**
      * Find [RolType] of [ZaakType] and [RolType.OmschrijvingGeneriekEnum].
@@ -256,9 +237,8 @@ class ZTCClientService : Caching {
      * @return [RolType] or NULL
      */
     @CacheResult(cacheName = Caching.ZTC_ROLTYPE)
-    fun findRoltype(zaaktypeURI: URI?, omschrijvingGeneriekEnum: OmschrijvingGeneriekEnum?): Optional<RolType?> {
-        return ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI, omschrijvingGeneriekEnum)).singleResult
-    }
+    fun findRoltype(zaaktypeURI: URI, omschrijvingGeneriekEnum: OmschrijvingGeneriekEnum): Optional<RolType> =
+        ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI, omschrijvingGeneriekEnum)).singleResult
 
     /**
      * Read [RolType] of [ZaakType] and [RolType.OmschrijvingGeneriekEnum].
@@ -269,12 +249,11 @@ class ZTCClientService : Caching {
      * @return [RolType]. Never 'null'!
      */
     @CacheResult(cacheName = Caching.ZTC_ROLTYPE)
-    fun readRoltype(omschrijvingGeneriekEnum: OmschrijvingGeneriekEnum, zaaktypeURI: URI): RolType? {
-        return ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI, omschrijvingGeneriekEnum)).singleResult
+    fun readRoltype(omschrijvingGeneriekEnum: OmschrijvingGeneriekEnum, zaaktypeURI: URI): RolType =
+        ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI, omschrijvingGeneriekEnum)).singleResult
             .orElseThrow {
                 RuntimeException("Zaaktype '$zaaktypeURI': Roltype with aard '$omschrijvingGeneriekEnum' not found.")
             }
-    }
 
     /**
      * Read [RolType]s of [ZaakType].
@@ -283,9 +262,8 @@ class ZTCClientService : Caching {
      * @return list of [RolType]s.
      */
     @CacheResult(cacheName = Caching.ZTC_ROLTYPE)
-    fun listRoltypen(zaaktypeURI: URI?): List<RolType?> {
-        return ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI)).results
-    }
+    fun listRoltypen(zaaktypeURI: URI): List<RolType> =
+        ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI)).results
 
     /**
      * Read [RolType] via its UUID.
@@ -295,9 +273,8 @@ class ZTCClientService : Caching {
      * @return [RolType]. Never 'null'!
      */
     @CacheResult(cacheName = Caching.ZTC_ROLTYPE)
-    fun readRoltype(roltypeUUID: UUID?): RolType? {
-        return ztcClient.roltypeRead(roltypeUUID)
-    }
+    fun readRoltype(roltypeUUID: UUID): RolType =
+        ztcClient.roltypeRead(roltypeUUID)
 
     /**
      * Read [InformatieObjectType] via its URI.
@@ -307,9 +284,8 @@ class ZTCClientService : Caching {
      * @return [InformatieObjectType]. Never 'null'!
      */
     @CacheResult(cacheName = Caching.ZTC_INFORMATIEOBJECTTYPE)
-    fun readInformatieobjecttype(informatieobjecttypeURI: URI): InformatieObjectType {
-        return createInvocationBuilder(informatieobjecttypeURI).get(InformatieObjectType::class.java)
-    }
+    fun readInformatieobjecttype(informatieobjecttypeURI: URI): InformatieObjectType =
+        createInvocationBuilder(informatieobjecttypeURI).get(InformatieObjectType::class.java)
 
     /**
      * Read [InformatieObjectType] via its UUID.
@@ -319,69 +295,47 @@ class ZTCClientService : Caching {
      * @return [InformatieObjectType].
      */
     @CacheResult(cacheName = Caching.ZTC_INFORMATIEOBJECTTYPE)
-    fun readInformatieobjecttype(informatieobjecttypeUUID: UUID?): InformatieObjectType? {
-        return ztcClient.informatieObjectTypeRead(informatieobjecttypeUUID)
-    }
+    fun readInformatieobjecttype(informatieobjecttypeUUID: UUID): InformatieObjectType =
+        ztcClient.informatieObjectTypeRead(informatieobjecttypeUUID)
 
     @CacheRemoveAll(cacheName = Caching.ZTC_ZAAKTYPE)
-    fun clearZaaktypeCache(): String {
-        return cleared(Caching.ZTC_ZAAKTYPE)
-    }
+    fun clearZaaktypeCache(): String = cleared(Caching.ZTC_ZAAKTYPE)
 
     @CacheRemoveAll(cacheName = Caching.ZTC_STATUSTYPE)
-    fun clearStatustypeCache(): String {
-        return cleared(Caching.ZTC_STATUSTYPE)
-    }
+    fun clearStatustypeCache(): String = cleared(Caching.ZTC_STATUSTYPE)
 
     @CacheRemoveAll(cacheName = Caching.ZTC_RESULTAATTYPE)
-    fun clearResultaattypeCache(): String {
-        return cleared(Caching.ZTC_RESULTAATTYPE)
-    }
+    fun clearResultaattypeCache(): String = cleared(Caching.ZTC_RESULTAATTYPE)
 
     @CacheRemoveAll(cacheName = Caching.ZTC_INFORMATIEOBJECTTYPE)
-    fun clearInformatieobjecttypeCache(): String {
-        return cleared(Caching.ZTC_INFORMATIEOBJECTTYPE)
-    }
+    fun clearInformatieobjecttypeCache(): String = cleared(Caching.ZTC_INFORMATIEOBJECTTYPE)
 
     @CacheRemoveAll(cacheName = Caching.ZTC_ZAAKTYPE_INFORMATIEOBJECTTYPE)
-    fun clearZaaktypeInformatieobjecttypeCache(): String {
-        return cleared(Caching.ZTC_ZAAKTYPE_INFORMATIEOBJECTTYPE)
-    }
+    fun clearZaaktypeInformatieobjecttypeCache(): String = cleared(Caching.ZTC_ZAAKTYPE_INFORMATIEOBJECTTYPE)
 
     @CacheRemoveAll(cacheName = Caching.ZTC_BESLUITTYPE)
-    fun clearBesluittypeCache(): String {
-        return cleared(Caching.ZTC_BESLUITTYPE)
-    }
+    fun clearBesluittypeCache(): String = cleared(Caching.ZTC_BESLUITTYPE)
 
     @CacheRemoveAll(cacheName = Caching.ZTC_ROLTYPE)
-    fun clearRoltypeCache(): String {
-        return cleared(Caching.ZTC_ROLTYPE)
-    }
+    fun clearRoltypeCache(): String = cleared(Caching.ZTC_ROLTYPE)
 
     @CacheRemoveAll(cacheName = Caching.ZTC_CACHE_TIME)
-    fun clearCacheTime(): String {
-        return cleared(Caching.ZTC_CACHE_TIME)
-    }
+    fun clearCacheTime(): String = cleared(Caching.ZTC_CACHE_TIME)
 
-    override fun cacheNames(): List<String> {
-        return CACHES
-    }
+    override fun cacheNames() = CACHES
 
-    private fun createInvocationBuilder(uri: URI): Invocation.Builder {
+    private fun createInvocationBuilder(uri: URI) =
         // for security reasons check if the provided URI starts with the value of the
         // environment variable that we use to configure the ztcClient
-        if (!uri.toString().startsWith(configuratieService.readZgwApiClientMpRestUrl())) {
-            throw IllegalArgumentException(
-                "URI '$uri' does not start with value for environment variable " +
-                    "'${ConfiguratieService.ENV_VAR_ZGW_API_CLIENT_MP_REST_URL}': " +
-                    "'${configuratieService.readZgwApiClientMpRestUrl()}'"
-            )
-        }
-
-        return JAXRSClientFactory.getOrCreateClient().target(uri)
-            .request(MediaType.APPLICATION_JSON)
-            .header(HttpHeaders.AUTHORIZATION, zgwClientHeadersFactory.generateJWTToken())
-    }
+        uri.toString().startsWith(configuratieService.readZgwApiClientMpRestUrl()).let {
+            JAXRSClientFactory.getOrCreateClient().target(uri)
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, zgwClientHeadersFactory.generateJWTToken())
+        } ?: throw IllegalStateException(
+            "URI '$uri' does not start with value for environment variable " +
+                "'${ConfiguratieService.ENV_VAR_ZGW_API_CLIENT_MP_REST_URL}': " +
+                "'${configuratieService.readZgwApiClientMpRestUrl()}'"
+        )
 
     companion object {
         private val CACHES: List<String> = java.util.List.of(

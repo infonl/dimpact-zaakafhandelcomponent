@@ -64,59 +64,59 @@ interface ZTCClient {
 
     @GET
     @Path("eigenschappen")
-    fun eigenschapList(@BeanParam parameters: EigenschapListParameters?): Results<Eigenschap?>?
+    fun eigenschapList(@BeanParam parameters: EigenschapListParameters): Results<Eigenschap>
 
     @GET
     @Path("informatieobjecttypen")
-    fun informatieobjecttypeList(): Results<InformatieObjectType?>?
+    fun informatieobjecttypeList(): Results<InformatieObjectType>
 
     @GET
     @Path("resultaattypen/{uuid}")
-    fun resultaattypeRead(@PathParam("uuid") uuid: UUID?): ResultaatType?
+    fun resultaattypeRead(@PathParam("uuid") uuid: UUID): ResultaatType
 
     @GET
     @Path("resultaattypen")
-    fun resultaattypeList(@BeanParam parameters: ResultaattypeListParameters?): Results<ResultaatType?>
+    fun resultaattypeList(@BeanParam parameters: ResultaattypeListParameters): Results<ResultaatType>
 
     @GET
     @Path("roltypen/{uuid}")
-    fun roltypeRead(@PathParam("uuid") uuid: UUID?): RolType?
+    fun roltypeRead(@PathParam("uuid") uuid: UUID): RolType
 
     @GET
     @Path("roltypen")
-    fun roltypeList(@BeanParam parameters: RoltypeListParameters?): Results<RolType?>
+    fun roltypeList(@BeanParam parameters: RoltypeListParameters): Results<RolType>
 
     @GET
     @Path("statustypen")
-    fun statustypeList(@BeanParam parameters: StatustypeListParameters?): Results<StatusType?>
+    fun statustypeList(@BeanParam parameters: StatustypeListParameters): Results<StatusType>
 
     @GET
     @Path("zaaktype-informatieobjecttypen")
     fun zaaktypeinformatieobjecttypeList(
-        @BeanParam parameters: ZaaktypeInformatieobjecttypeListParameters?
-    ): Results<ZaakTypeInformatieObjectType?>
+        @BeanParam parameters: ZaaktypeInformatieobjecttypeListParameters
+    ): Results<ZaakTypeInformatieObjectType>
 
     @GET
     @Path("statustypen/{uuid}")
-    fun statustypeRead(@PathParam("uuid") uuid: UUID?): StatusType?
+    fun statustypeRead(@PathParam("uuid") uuid: UUID): StatusType
 
     @GET
     @Path("zaaktypen")
-    fun zaaktypeList(@BeanParam parameters: ZaaktypeListParameters?): Results<ZaakType?>
+    fun zaaktypeList(@BeanParam parameters: ZaaktypeListParameters): Results<ZaakType>
 
     @GET
     @Path("zaaktypen/{uuid}")
-    fun zaaktypeRead(@PathParam("uuid") uuid: UUID?): ZaakType?
+    fun zaaktypeRead(@PathParam("uuid") uuid: UUID): ZaakType
 
     @GET
     @Path("informatieobjecttypen/{uuid}")
-    fun informatieObjectTypeRead(@PathParam("uuid") informatieObjectTypeUUID: UUID?): InformatieObjectType?
+    fun informatieObjectTypeRead(@PathParam("uuid") informatieObjectTypeUUID: UUID): InformatieObjectType
 
     @GET
     @Path("besluittypen")
-    fun besluittypeList(@BeanParam parameters: BesluittypeListParameters?): Results<BesluitType?>
+    fun besluittypeList(@BeanParam parameters: BesluittypeListParameters): Results<BesluitType>
 
     @GET
     @Path("besluittypen/{uuid}")
-    fun besluittypeRead(@PathParam("uuid") uuid: UUID?): BesluitType?
+    fun besluittypeRead(@PathParam("uuid") uuid: UUID): BesluitType
 }
