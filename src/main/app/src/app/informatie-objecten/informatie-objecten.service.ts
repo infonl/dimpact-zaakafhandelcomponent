@@ -64,9 +64,9 @@ export class InformatieObjectenService {
 
   listInformatieobjecttypes(zaakTypeID): Observable<Informatieobjecttype[]> {
     return this.http
-      .get<Informatieobjecttype[]>(
-        `${this.basepath}/informatieobjecttypes/${zaakTypeID}`,
-      )
+      .get<
+        Informatieobjecttype[]
+      >(`${this.basepath}/informatieobjecttypes/${zaakTypeID}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -76,9 +76,9 @@ export class InformatieObjectenService {
     zaakUUID,
   ): Observable<Informatieobjecttype[]> {
     return this.http
-      .get<Informatieobjecttype[]>(
-        `${this.basepath}/informatieobjecttypes/zaak/${zaakUUID}`,
-      )
+      .get<
+        Informatieobjecttype[]
+      >(`${this.basepath}/informatieobjecttypes/zaak/${zaakUUID}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -226,10 +226,9 @@ export class InformatieObjectenService {
     zoekParameters: InformatieobjectZoekParameters,
   ): Observable<EnkelvoudigInformatieobject[]> {
     return this.http
-      .put<EnkelvoudigInformatieobject[]>(
-        `${this.basepath}/informatieobjectenList`,
-        zoekParameters,
-      )
+      .put<
+        EnkelvoudigInformatieobject[]
+      >(`${this.basepath}/informatieobjectenList`, zoekParameters)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -249,9 +248,9 @@ export class InformatieObjectenService {
 
   listZaakInformatieobjecten(uuid: string): Observable<ZaakInformatieobject[]> {
     return this.http
-      .get<ZaakInformatieobject[]>(
-        `${this.basepath}/informatieobject/${uuid}/zaakinformatieobjecten`,
-      )
+      .get<
+        ZaakInformatieobject[]
+      >(`${this.basepath}/informatieobject/${uuid}/zaakinformatieobjecten`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -261,9 +260,9 @@ export class InformatieObjectenService {
     zaakUuid: string,
   ): Observable<EnkelvoudigInformatieobject[]> {
     return this.http
-      .get<EnkelvoudigInformatieobject[]>(
-        `${this.basepath}/informatieobjecten/zaak/${zaakUuid}/teVerzenden`,
-      )
+      .get<
+        EnkelvoudigInformatieobject[]
+      >(`${this.basepath}/informatieobjecten/zaak/${zaakUuid}/teVerzenden`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -282,9 +281,9 @@ export class InformatieObjectenService {
 
   listHistorie(uuid: string): Observable<HistorieRegel[]> {
     return this.http
-      .get<HistorieRegel[]>(
-        `${this.basepath}/informatieobject/${uuid}/historie`,
-      )
+      .get<
+        HistorieRegel[]
+      >(`${this.basepath}/informatieobject/${uuid}/historie`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -408,9 +407,9 @@ export class InformatieObjectenService {
     documentUUID: string,
   ): Observable<string[]> {
     return this.http
-      .get<string[]>(
-        `${this.basepath}/informatieobject/${documentUUID}/zaakidentificaties`,
-      )
+      .get<
+        string[]
+      >(`${this.basepath}/informatieobject/${documentUUID}/zaakidentificaties`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
