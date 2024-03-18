@@ -42,6 +42,7 @@ import net.atos.zac.policy.output.createDocumentRechten
 import net.atos.zac.policy.output.createTaakRechten
 import net.atos.zac.signalering.event.SignaleringEvent
 import net.atos.zac.signalering.model.SignaleringType
+import net.atos.zac.util.DateTimeConverterUtil
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zoeken.IndexeerService
@@ -51,6 +52,7 @@ import org.flowable.task.api.Task
 import org.flowable.task.api.history.HistoricTaskInstance
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.net.URI
+import java.time.LocalDate
 import java.util.Optional
 import java.util.UUID
 
@@ -77,7 +79,6 @@ class TakenRESTServiceTest : BehaviorSpec() {
 
     override suspend fun beforeTest(testCase: TestCase) {
         MockKAnnotations.init(this)
-
         every { loggedInUserInstance.get() } returns loggedInUser
     }
 
@@ -94,16 +95,16 @@ class TakenRESTServiceTest : BehaviorSpec() {
             every { getTaakStatus(task) } returns TaakStatus.NIET_TOEGEKEND
             every {
                 takenService.assignTaskToUser(
-                        restTaakToekennenGegevens.taakId,
-                        restTaakToekennenGegevens.behandelaarId,
-                        restTaakToekennenGegevens.reden
+                    restTaakToekennenGegevens.taakId,
+                    restTaakToekennenGegevens.behandelaarId,
+                    restTaakToekennenGegevens.reden
                 )
             } returns task
             every {
                 takenService.assignTaskToGroup(
-                        task,
-                        restTaakToekennenGegevens.groepId,
-                        restTaakToekennenGegevens.reden
+                    task,
+                    restTaakToekennenGegevens.groepId,
+                    restTaakToekennenGegevens.reden
                 )
             } returns task
             every { policyService.readTaakRechten(task) } returns createTaakRechten()
@@ -115,8 +116,8 @@ class TakenRESTServiceTest : BehaviorSpec() {
             every { eventingService.send(capture(screenEventSlots)) } just runs
             every {
                 indexeerService.indexeerDirect(
-                        restTaakToekennenGegevens.taakId,
-                        ZoekObjectType.TAAK
+                    restTaakToekennenGegevens.taakId,
+                    ZoekObjectType.TAAK
                 )
             } just runs
 
@@ -181,14 +182,14 @@ class TakenRESTServiceTest : BehaviorSpec() {
             val httpSession = mockk<HttpSession>()
             val historicTaskInstance = mockk<HistoricTaskInstance>()
             val restUser = createRESTUser(
-                    id = loggedInUser.id,
-                    name = loggedInUser.fullName
+                id = loggedInUser.id,
+                name = loggedInUser.fullName
             )
             val restTaak = createRESTTaak(
-                    behandelaar = restUser
+                behandelaar = restUser
             )
             val restTaakConverted = createRESTTaak(
-                    behandelaar = restUser
+                behandelaar = restUser
             )
 
             every { task.assignee } returns "dummyAssignee"
@@ -229,24 +230,22 @@ class TakenRESTServiceTest : BehaviorSpec() {
             val historicTaskInstance = mockk<HistoricTaskInstance>()
 
             val restUser = createRESTUser(
-                    id = loggedInUser.id,
-                    name = loggedInUser.fullName
+                id = loggedInUser.id,
+                name = loggedInUser.fullName
             )
             val restTaak = createRESTTaak(
-                    behandelaar = restUser
+                behandelaar = restUser
             )
             val restTaakConverted = createRESTTaak(
-                    behandelaar = restUser
+                behandelaar = restUser
             )
             val enkelvoudigInformatieObjectUUID = UUID.randomUUID()
             val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
-                    url = URI("http://example.com/$enkelvoudigInformatieObjectUUID")
+                url = URI("http://example.com/$enkelvoudigInformatieObjectUUID")
             )
             val documentenRechten = createDocumentRechten()
 
             every { task.assignee } returns "dummyAssignee"
-            every { task.description = restTaak.toelichting } just runs
-            every { task.dueDate = any() } just runs
             every { takenService.readOpenTask(restTaak.id) } returns task
             every { takenService.updateTask(task) } returns task
             every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
@@ -254,7 +253,7 @@ class TakenRESTServiceTest : BehaviorSpec() {
             every { httpSessionInstance.get() } returns httpSession
             every { taakVariabelenService.isZaakHervatten(restTaak.taakdata) } returns false
             every { taakVariabelenService.readOndertekeningen(restTaak.taakdata) } returns Optional.of(
-                    enkelvoudigInformatieObjectUUID.toString()
+                enkelvoudigInformatieObjectUUID.toString()
             )
             every { taakVariabelenService.setTaakdata(task, restTaak.taakdata) } just runs
             every { taakVariabelenService.setTaakinformatie(task, null) } just runs
@@ -267,18 +266,41 @@ class TakenRESTServiceTest : BehaviorSpec() {
             } returns enkelvoudigInformatieObject
             every {
                 policyService.readDocumentRechten(
-                        enkelvoudigInformatieObject,
-                        zaak
+                    enkelvoudigInformatieObject,
+                    zaak
                 )
             } returns documentenRechten
             every {
                 enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
-                        enkelvoudigInformatieObjectUUID
+                    enkelvoudigInformatieObjectUUID
                 )
             } just runs
             every { eventingService.send(any<ScreenEvent>()) } just runs
 
+            When("'updateTaakdata' is called with changed description and due date") {
+                restTaak.apply {
+                    toelichting = "changed"
+                    fataledatum = LocalDate.parse("2024-03-19")
+                }
+
+                every { task.description = restTaak.toelichting } just runs
+                every { task.dueDate = DateTimeConverterUtil.convertToDate(restTaak.fataledatum) } just runs
+                every { task.id } returns restTaak.id
+
+                val restTaakReturned = takenRESTService.updateTaakdata(restTaak)
+
+                Then("the changes are stored") {
+                    restTaakReturned shouldBe restTaak
+                    verify(exactly = 1) {
+                        takenService.updateTask(task)
+                    }
+                }
+            }
+
             When("'complete' is called") {
+                every { task.description = restTaak.toelichting } just runs
+                every { task.dueDate = any() } just runs
+
                 val restTaakReturned = takenRESTService.completeTaak(restTaak)
 
                 Then(
