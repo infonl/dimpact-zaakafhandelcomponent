@@ -19,6 +19,7 @@ import { EnkelvoudigInformatieobject } from "./model/enkelvoudig-informatieobjec
 import { InformatieobjectZoekParameters } from "./model/informatieobject-zoek-parameters";
 import { Informatieobjecttype } from "./model/informatieobjecttype";
 import { ZaakInformatieobject } from "./model/zaak-informatieobject";
+import moment from "moment";
 
 @Injectable({
   providedIn: "root",
@@ -90,12 +91,10 @@ export class InformatieObjectenService {
     taakobject: boolean,
   ): Observable<EnkelvoudigInformatieobject> {
     const formData = new FormData();
-    console.log(infoObject.bestand);
     formData.append("bestandsnaam", infoObject.bestandsnaam);
     formData.append("titel", infoObject.titel);
     formData.append("bestandomvang", infoObject.bestandsomvang.toString());
     formData.append("formaat", infoObject.formaat);
-    formData.append("file", infoObject.bestand, infoObject.bestandsnaam);
     formData.append(
       "informatieobjectTypeUUID",
       infoObject.informatieobjectTypeUUID,
@@ -105,9 +104,14 @@ export class InformatieObjectenService {
       infoObject.vertrouwelijkheidaanduiding,
     );
     formData.append("status", infoObject.status);
-    formData.append("creatiedatum", infoObject.creatiedatum);
+    formData.append(
+      "creatiedatum",
+      moment(infoObject.creatiedatum).format("YYYY-MM-DDThh:mmZ"),
+    );
     formData.append("auteur", infoObject.auteur);
     formData.append("taal", infoObject.taal);
+
+    formData.append("file", infoObject.bestand, infoObject.bestandsnaam);
 
     return this.http
       .post<EnkelvoudigInformatieobject>(
@@ -115,7 +119,6 @@ export class InformatieObjectenService {
         formData,
         {
           headers: {
-            "Content-Type": "multipart/form-data",
             Accept: "application/json",
           },
           params: {
