@@ -82,7 +82,9 @@ export class NotitiesComponent implements OnInit {
   updateNotitie(notitie: Notitie, notitieTekst: string) {
     if (notitieTekst.length <= this.maxLengteTextArea) {
       notitie.tekst = notitieTekst;
-      this.notitieService.updateNotitie(notitie).subscribe(() => {
+      notitie.gebruikersnaamMedewerker = this.ingelogdeMedewerker.id;
+      this.notitieService.updateNotitie(notitie).subscribe((updatedNotitie) => {
+        Object.assign(notitie, updatedNotitie)
         this.geselecteerdeNotitieId = null;
       });
     }

@@ -50,7 +50,7 @@ public class Notitie {
     private ZonedDateTime tijdstipLaatsteWijziging;
 
     @NotBlank
-    @Column(name = "gebruikersnaam_medewerker", nullable = false, updatable = false)
+    @Column(name = "gebruikersnaam_medewerker", nullable = false, updatable = true)
     private String gebruikersnaamMedewerker;
 
     public Long getId() {
