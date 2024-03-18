@@ -300,7 +300,8 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
                 "src/main/app/node_modules/**",
                 "src/main/app/dist/**",
                 "src/main/app/.angular/**",
-                "src/**/package-lock.json"
+                "src/**/package-lock.json",
+                "src/main/app/coverage/**.json"
         )
 
         prettier(mapOf("prettier" to "3.2.5")).config(mapOf("parser" to "json"))
