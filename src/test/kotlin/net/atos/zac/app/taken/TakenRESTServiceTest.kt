@@ -195,7 +195,10 @@ class TakenRESTServiceTest : BehaviorSpec() {
                     )
 
                     every { task.assignee } returns "dummyAssignee"
+                    every { task.setDescription(restTaak.toelichting) } just runs
+                    every { task.setDueDate(any()) } just runs
                     every { takenService.readOpenTask(restTaak.id) } returns task
+                    every { takenService.updateTask(task) } returns task
                     every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
                     every { policyService.readTaakRechten(task) } returns createTaakRechten()
                     every { httpSessionInstance.get() } returns httpSession
@@ -244,7 +247,10 @@ class TakenRESTServiceTest : BehaviorSpec() {
                     val documentenRechten = createDocumentRechten()
 
                     every { task.assignee } returns "dummyAssignee"
+                    every { task.setDescription(restTaak.toelichting) } just runs
+                    every { task.setDueDate(any()) } just runs
                     every { takenService.readOpenTask(restTaak.id) } returns task
+                    every { takenService.updateTask(task) } returns task
                     every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
                     every { policyService.readTaakRechten(task) } returns createTaakRechten()
                     every { httpSessionInstance.get() } returns httpSession
