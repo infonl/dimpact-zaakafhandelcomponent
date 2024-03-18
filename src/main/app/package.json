@@ -52,7 +52,7 @@
     "@angular/compiler-cli": "^17.3.0",
     "@angular/language-service": "^17.2.1",
     "@types/jest": "^29.5.12",
-    "@types/node": "^20.11.27",
+    "@types/node": "^20.11.28",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
     "codelyzer": "^6.0.0",
@@ -66,6 +66,6 @@
     "openapi-typescript": "^6.7.5",
     "protractor": "~7.0.0",
     "ts-node": "~10.9.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.2"
   }
 }

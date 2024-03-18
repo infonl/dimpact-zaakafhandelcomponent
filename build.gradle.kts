@@ -117,8 +117,6 @@ dependencies {
     implementation(libs.htmlcleaner)
     implementation(libs.unboundid.ldapsdk)
 
-    swaggerUI(libs.swagger.ui)
-
     // enable detekt formatting rules. see: https://detekt.dev/docs/rules/formatting/
     detektPlugins(libs.detekt.formatting)
 
@@ -303,7 +301,8 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
                 "src/main/app/node_modules/**",
                 "src/main/app/dist/**",
                 "src/main/app/.angular/**",
-                "src/**/package-lock.json"
+                "src/**/package-lock.json",
+                "src/main/app/coverage/**.json"
         )
 
         prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get())).config(mapOf("parser" to "json"))
