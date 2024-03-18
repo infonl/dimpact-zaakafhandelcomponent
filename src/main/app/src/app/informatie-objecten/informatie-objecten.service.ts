@@ -202,9 +202,15 @@ export class InformatieObjectenService {
     formData.append("file", infoObject.file, infoObject.bestandsnaam);
     formData.append("beschrijving", infoObject.beschrijving);
     if (infoObject.verzenddatum)
-      formData.append("verzenddatum", infoObject.verzenddatum);
+      formData.append(
+        "verzenddatum",
+        moment(infoObject.verzenddatum).format("YYYY-MM-DDThh:mmZ"),
+      );
     if (infoObject.ontvangstdatum)
-      formData.append("ontvangstdatum", infoObject.ontvangstdatum);
+      formData.append(
+        "ontvangstdatum",
+        moment(infoObject.ontvangstdatum).format("YYYY-MM-DDThh:mmZ"),
+      );
     formData.append("toelichting", infoObject.toelichting);
 
     return this.http
