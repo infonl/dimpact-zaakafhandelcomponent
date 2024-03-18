@@ -349,6 +349,11 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
           infoObject[key] = InformatieobjectStatus[value.value];
         } else if (key === "vertrouwelijkheidaanduiding") {
           infoObject[key] = value.value;
+        } else if (key === "bestand") {
+          infoObject["bestandsomvang"] = value.size;
+          infoObject["bestandsnaam"] = value.name;
+          infoObject["bestand"] = value;
+          infoObject["formaat"] = value.type;
         } else {
           infoObject[key] = value;
         }

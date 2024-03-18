@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
@@ -87,17 +87,39 @@ export class InformatieObjectenService {
     zaakUuid: string,
     documentReferentieId: string,
     infoObject: EnkelvoudigInformatieobject,
-    taakObject: boolean,
+    taakobject: boolean,
   ): Observable<EnkelvoudigInformatieobject> {
     const formData = new FormData();
-    formData.append("file", infoObject.bestand);
+    console.log(infoObject.bestand);
+    formData.append("bestandsnaam", infoObject.bestandsnaam);
+    formData.append("titel", infoObject.titel);
+    formData.append("bestandomvang", infoObject.bestandsomvang.toString());
+    formData.append("formaat", infoObject.formaat);
+    formData.append("file", infoObject.bestand, infoObject.bestandsnaam);
+    formData.append(
+      "informatieobjectTypeUUID",
+      infoObject.informatieobjectTypeUUID,
+    );
+    formData.append(
+      "vertrouwelijkheidaanduiding",
+      infoObject.vertrouwelijkheidaanduiding,
+    );
+    formData.append("status", infoObject.status);
+    formData.append("creatiedatum", infoObject.creatiedatum);
+    formData.append("auteur", infoObject.auteur);
+    formData.append("taal", infoObject.taal);
+
     return this.http
       .post<EnkelvoudigInformatieobject>(
         `${this.basepath}/informatieobject/${zaakUuid}/${documentReferentieId}`,
         formData,
         {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Accept: "application/json",
+          },
           params: {
-            taakObject: taakObject,
+            taakobject,
           },
         },
       )
