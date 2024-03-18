@@ -349,7 +349,7 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
         } else if (key === "taal") {
           infoObject[key] = value.code;
         } else if (key === "status") {
-          infoObject[key] = InformatieobjectStatus[value.value];
+          infoObject[key] = InformatieobjectStatus[value.value.toUpperCase()];
         } else if (key === "vertrouwelijkheidaanduiding") {
           infoObject[key] = value.value;
         } else if (key === "bestand") {

@@ -181,12 +181,39 @@ export class InformatieObjectenService {
   }
 
   updateEnkelvoudigInformatieobject(
-    documentNieuweVersieGegevens: EnkelvoudigInformatieObjectVersieGegevens,
+    uuid: string,
+    zaakUuid: string,
+    infoObject: EnkelvoudigInformatieObjectVersieGegevens,
   ): Observable<EnkelvoudigInformatieobject> {
+    const formData = new FormData();
+    formData.append("uuid", uuid);
+    formData.append("zaakUuid", zaakUuid);
+    formData.append("titel", infoObject.titel);
+    formData.append(
+      "vertrouwelijkheidaanduiding",
+      infoObject.vertrouwelijkheidaanduiding,
+    );
+
+    formData.append("auteur", infoObject.auteur);
+    formData.append("status", infoObject.status);
+    formData.append("taal", JSON.stringify(infoObject.taal));
+    formData.append("bestandsnaam", infoObject.bestandsnaam);
+    formData.append("formaat", infoObject.formaat);
+    formData.append("file", infoObject.file, infoObject.bestandsnaam);
+    formData.append("beschrijving", infoObject.beschrijving);
+    formData.append("verzenddatum", infoObject.verzenddatum);
+    formData.append("ontvangstdatum", infoObject.ontvangstdatum);
+    formData.append("toelichting", infoObject.toelichting);
+
     return this.http
       .post<EnkelvoudigInformatieobject>(
         `${this.basepath}/informatieobject/update`,
-        documentNieuweVersieGegevens,
+        formData,
+        {
+          headers: {
+            Accept: "application/json",
+          },
+        },
       )
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),

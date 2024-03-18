@@ -10,12 +10,14 @@ export class EnkelvoudigInformatieObjectVersieGegevens {
   uuid: string;
   zaakUuid: string;
   titel: string;
-  beschrijving: string;
   vertrouwelijkheidaanduiding: string;
   auteur: string;
   status: InformatieobjectStatus;
   taal: Taal;
   bestandsnaam: string;
+  formaat: string;
+  file: File;
+  beschrijving: string;
   verzenddatum: string;
   ontvangstdatum: string;
   toelichting: string;
