@@ -84,7 +84,7 @@ export class NotitiesComponent implements OnInit {
       notitie.tekst = notitieTekst;
       notitie.gebruikersnaamMedewerker = this.ingelogdeMedewerker.id;
       this.notitieService.updateNotitie(notitie).subscribe((updatedNotitie) => {
-        Object.assign(notitie, updatedNotitie)
+        Object.assign(notitie, updatedNotitie);
         this.geselecteerdeNotitieId = null;
       });
     }
