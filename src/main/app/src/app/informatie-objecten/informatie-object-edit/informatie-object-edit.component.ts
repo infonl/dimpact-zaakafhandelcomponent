@@ -15,14 +15,15 @@ import {
 import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateService } from "@ngx-translate/core";
+import moment from "moment";
 import { Subscription } from "rxjs";
+import { FileInputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/file-input/file-input-form-field-builder";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { User } from "../../identity/model/user";
 import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
-import { FileFormFieldBuilder } from "../../shared/material-form-builder/form-components/file/file-form-field-builder";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
 import { FormComponent } from "../../shared/material-form-builder/form/form/form.component";
@@ -38,8 +39,6 @@ import { EnkelvoudigInformatieobject } from "../model/enkelvoudig-informatieobje
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
 import { Informatieobjecttype } from "../model/informatieobjecttype";
 import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
-import { FileInputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/file-input/file-input-form-field-builder";
-import moment from "moment";
 
 @Component({
   selector: "zac-informatie-object-edit",

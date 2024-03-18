@@ -18,12 +18,12 @@ import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
 import { BehaviorSubject, Subscription, combineLatest, map, tap } from "rxjs";
 import { LoggedInUser } from "src/app/identity/model/logged-in-user";
+import { FileInputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/file-input/file-input-form-field-builder";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { CheckboxFormFieldBuilder } from "../../shared/material-form-builder/form-components/checkbox/checkbox-form-field-builder";
 import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
-import { FileFormFieldBuilder } from "../../shared/material-form-builder/form-components/file/file-form-field-builder";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { SelectFormField } from "../../shared/material-form-builder/form-components/select/select-form-field";
 import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
@@ -37,7 +37,6 @@ import { InformatieObjectenService } from "../informatie-objecten.service";
 import { EnkelvoudigInformatieobject } from "../model/enkelvoudig-informatieobject";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
 import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
-import { FileInputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/file-input/file-input-form-field-builder";
 
 @Component({
   selector: "zac-informatie-object-add",

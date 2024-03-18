@@ -1,22 +1,21 @@
+import { AsyncPipe } from "@angular/common";
 import {
   ChangeDetectorRef,
   Component,
   ElementRef,
   OnInit,
-  ViewChild,
   inject,
   viewChild,
 } from "@angular/core";
-import { FormComponent } from "../../model/form-component";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { FileFormField } from "../file/file-form-field";
-import { MatInputModule } from "@angular/material/input";
-import { MatIconModule } from "@angular/material/icon";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { FileDragAndDropDirective } from "../../../directives/file-drag-and-drop.directive";
-import { Observable, map, tap } from "rxjs";
 import { MatMiniFabButton } from "@angular/material/button";
-import { AsyncPipe, CommonModule } from "@angular/common";
+import { MatIconModule } from "@angular/material/icon";
+import { MatInputModule } from "@angular/material/input";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { Observable, map, tap } from "rxjs";
+import { FileDragAndDropDirective } from "../../../directives/file-drag-and-drop.directive";
+import { FormComponent } from "../../model/form-component";
+import { FileFormField } from "../file/file-form-field";
 
 export const UploadStatus = {
   SELECT_FILE: "SELECT_FILE",
@@ -50,24 +49,28 @@ export const UploadStatus = {
           matInput
         />
 
-        @if (status === 'SELECT_FILE') {
-        <button mat-mini-fab matSuffix type="button">
-          <mat-icon>upload</mat-icon>
-        </button>
-        } @if (status === 'SELECTED') {
-        <button mat-mini-fab matSuffix (click)="reset($event)" type="button">
-          <mat-icon>delete</mat-icon>
-        </button>
+        @if (status === "SELECT_FILE") {
+          <button mat-mini-fab matSuffix type="button">
+            <mat-icon>upload</mat-icon>
+          </button>
+        }
+        @if (status === "SELECTED") {
+          <button mat-mini-fab matSuffix (click)="reset($event)" type="button">
+            <mat-icon>delete</mat-icon>
+          </button>
         }
 
         <mat-hint>
-          @if ((data.formControl.invalid && data.formControl.touched) ||
-          data.uploadError) {
-          <div class="error">
-            {{ getErrorMessage() }}
-          </div>
-          } @if (data.hint) {
-          <div>{{ data.hint?.label }}</div>
+          @if (
+            (data.formControl.invalid && data.formControl.touched) ||
+            data.uploadError
+          ) {
+            <div class="error">
+              {{ getErrorMessage() }}
+            </div>
+          }
+          @if (data.hint) {
+            <div>{{ data.hint?.label }}</div>
           }
         </mat-hint>
 
