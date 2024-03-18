@@ -341,15 +341,6 @@ export class TaakViewComponent
     }
   }
 
-  partialEditTaak(value: string, field: string): void {
-    this.taak[field] = value[field];
-    this.websocketService.suspendListener(this.taakListener);
-    this.takenService.update(this.taak).subscribe((taak) => {
-      this.utilService.openSnackbar("msg.taak.opgeslagen");
-      this.initTaakGegevens(taak);
-    });
-  }
-
   private reloadTaak() {
     this.takenService.readTaak(this.taak.id).subscribe((taak) => {
       this.init(taak, true);

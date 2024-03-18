@@ -42,6 +42,7 @@ import net.atos.zac.policy.output.createDocumentRechten
 import net.atos.zac.policy.output.createTaakRechten
 import net.atos.zac.signalering.event.SignaleringEvent
 import net.atos.zac.signalering.model.SignaleringType
+import net.atos.zac.util.DateTimeConverterUtil
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zoeken.IndexeerService
@@ -51,6 +52,7 @@ import org.flowable.task.api.Task
 import org.flowable.task.api.history.HistoricTaskInstance
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.net.URI
+import java.time.LocalDate
 import java.util.Optional
 import java.util.UUID
 
@@ -77,57 +79,56 @@ class TakenRESTServiceTest : BehaviorSpec() {
 
     override suspend fun beforeTest(testCase: TestCase) {
         MockKAnnotations.init(this)
-
         every { loggedInUserInstance.get() } returns loggedInUser
     }
 
     init {
-        given("a task is not yet assigned") {
+        Given("a task is not yet assigned") {
+            val restTaakToekennenGegevens = createRESTTaakToekennenGegevens()
+            val task = mockk<Task>()
+            val identityLinkInfo = mockk<IdentityLinkInfo>()
+            val identityLinks = listOf(identityLinkInfo)
+            val signaleringEventSlot = slot<SignaleringEvent<*>>()
+            val screenEventSlots = mutableListOf<ScreenEvent>()
+
+            every { takenService.readOpenTask(restTaakToekennenGegevens.taakId) } returns task
+            every { getTaakStatus(task) } returns TaakStatus.NIET_TOEGEKEND
+            every {
+                takenService.assignTaskToUser(
+                    restTaakToekennenGegevens.taakId,
+                    restTaakToekennenGegevens.behandelaarId,
+                    restTaakToekennenGegevens.reden
+                )
+            } returns task
+            every {
+                takenService.assignTaskToGroup(
+                    task,
+                    restTaakToekennenGegevens.groepId,
+                    restTaakToekennenGegevens.reden
+                )
+            } returns task
+            every { policyService.readTaakRechten(task) } returns createTaakRechten()
+            every { task.assignee } returns ""
+            every { task.identityLinks } returns identityLinks
+            every { task.id } returns restTaakToekennenGegevens.taakId
+            every { restTaakConverter.extractGroupId(identityLinks) } returns "dummyGroupId"
+            every { eventingService.send(capture(signaleringEventSlot)) } just runs
+            every { eventingService.send(capture(screenEventSlots)) } just runs
+            every {
+                indexeerService.indexeerDirect(
+                    restTaakToekennenGegevens.taakId,
+                    ZoekObjectType.TAAK
+                )
+            } just runs
+
             When("'toekennen' is called") {
-                then(
+                takenRESTService.toekennen(restTaakToekennenGegevens)
+
+                Then(
                     "the task is assigned to the provided user and group, " +
-                        "an signalering event and two screen events are sent,  " +
+                        "a signalling event and two screen events are sent,  " +
                         "and the indexed task data is updated"
                 ) {
-                    val restTaakToekennenGegevens = createRESTTaakToekennenGegevens()
-                    val task = mockk<Task>()
-                    val identityLinkInfo = mockk<IdentityLinkInfo>()
-                    val identityLinks = listOf(identityLinkInfo)
-                    val signaleringEventSlot = slot<SignaleringEvent<*>>()
-                    val screenEventSlots = mutableListOf<ScreenEvent>()
-
-                    every { takenService.readOpenTask(restTaakToekennenGegevens.taakId) } returns task
-                    every { getTaakStatus(task) } returns TaakStatus.NIET_TOEGEKEND
-                    every {
-                        takenService.assignTaskToUser(
-                            restTaakToekennenGegevens.taakId,
-                            restTaakToekennenGegevens.behandelaarId,
-                            restTaakToekennenGegevens.reden
-                        )
-                    } returns task
-                    every {
-                        takenService.assignTaskToGroup(
-                            task,
-                            restTaakToekennenGegevens.groepId,
-                            restTaakToekennenGegevens.reden
-                        )
-                    } returns task
-                    every { policyService.readTaakRechten(task) } returns createTaakRechten()
-                    every { task.assignee } returns ""
-                    every { task.identityLinks } returns identityLinks
-                    every { task.id } returns restTaakToekennenGegevens.taakId
-                    every { restTaakConverter.extractGroupId(identityLinks) } returns "dummyGroupId"
-                    every { eventingService.send(capture(signaleringEventSlot)) } just runs
-                    every { eventingService.send(capture(screenEventSlots)) } just runs
-                    every {
-                        indexeerService.indexeerDirect(
-                            restTaakToekennenGegevens.taakId,
-                            ZoekObjectType.TAAK
-                        )
-                    } just runs
-
-                    takenRESTService.toekennen(restTaakToekennenGegevens)
-
                     verify(exactly = 1) {
                         takenService.assignTaskToUser(
                             restTaakToekennenGegevens.taakId,
@@ -174,42 +175,46 @@ class TakenRESTServiceTest : BehaviorSpec() {
                 }
             }
         }
-        given("a task is assigned to the current user") {
+
+        Given("a task is assigned to the current user") {
+            val task = mockk<Task>()
+            val zaak = mockk<Zaak>()
+            val httpSession = mockk<HttpSession>()
+            val historicTaskInstance = mockk<HistoricTaskInstance>()
+            val restUser = createRESTUser(
+                id = loggedInUser.id,
+                name = loggedInUser.fullName
+            )
+            val restTaak = createRESTTaak(
+                behandelaar = restUser
+            )
+            val restTaakConverted = createRESTTaak(
+                behandelaar = restUser
+            )
+
+            every { task.assignee } returns "dummyAssignee"
+            every { task.description = restTaak.toelichting } just runs
+            every { task.dueDate = any() } just runs
+            every { takenService.readOpenTask(restTaak.id) } returns task
+            every { takenService.updateTask(task) } returns task
+            every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
+            every { policyService.readTaakRechten(task) } returns createTaakRechten()
+            every { httpSessionInstance.get() } returns httpSession
+            every { taakVariabelenService.isZaakHervatten(restTaak.taakdata) } returns false
+            every { taakVariabelenService.readOndertekeningen(restTaak.taakdata) } returns Optional.empty()
+            every { taakVariabelenService.setTaakdata(task, restTaak.taakdata) } just runs
+            every { taakVariabelenService.setTaakinformatie(task, null) } just runs
+            every { takenService.completeTask(task) } returns historicTaskInstance
+            every { indexeerService.addOrUpdateZaak(restTaak.zaakUuid, false) } just runs
+            every { historicTaskInstance.id } returns restTaak.id
+            every { restTaakConverter.convert(historicTaskInstance) } returns restTaakConverted
+
             When("'complete' is called") {
-                then(
+                val restTaakReturned = takenRESTService.completeTaak(restTaak)
+
+                Then(
                     "the task is completed and the search index service is invoked"
                 ) {
-                    val task = mockk<Task>()
-                    val zaak = mockk<Zaak>()
-                    val httpSession = mockk<HttpSession>()
-                    val historicTaskInstance = mockk<HistoricTaskInstance>()
-                    val restUser = createRESTUser(
-                        id = loggedInUser.id,
-                        name = loggedInUser.fullName
-                    )
-                    val restTaak = createRESTTaak(
-                        behandelaar = restUser
-                    )
-                    val restTaakConverted = createRESTTaak(
-                        behandelaar = restUser
-                    )
-
-                    every { task.assignee } returns "dummyAssignee"
-                    every { takenService.readOpenTask(restTaak.id) } returns task
-                    every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
-                    every { policyService.readTaakRechten(task) } returns createTaakRechten()
-                    every { httpSessionInstance.get() } returns httpSession
-                    every { taakVariabelenService.isZaakHervatten(restTaak.taakdata) } returns false
-                    every { taakVariabelenService.readOndertekeningen(restTaak.taakdata) } returns Optional.empty()
-                    every { taakVariabelenService.setTaakdata(task, restTaak.taakdata) } just runs
-                    every { taakVariabelenService.setTaakinformatie(task, null) } just runs
-                    every { takenService.completeTask(task) } returns historicTaskInstance
-                    every { indexeerService.addOrUpdateZaak(restTaak.zaakUuid, false) } just runs
-                    every { historicTaskInstance.id } returns restTaak.id
-                    every { restTaakConverter.convert(historicTaskInstance) } returns restTaakConverted
-
-                    val restTaakReturned = takenRESTService.completeTaak(restTaak)
-
                     restTaakReturned shouldBe restTaakConverted
                     verify(exactly = 1) {
                         takenService.completeTask(task)
@@ -217,65 +222,90 @@ class TakenRESTServiceTest : BehaviorSpec() {
                 }
             }
         }
-        given("a task is assigned to the current user with a document that is signed") {
+
+        Given("a task is assigned to the current user with a document that is signed") {
+            val task = mockk<Task>()
+            val zaak = mockk<Zaak>()
+            val httpSession = mockk<HttpSession>()
+            val historicTaskInstance = mockk<HistoricTaskInstance>()
+
+            val restUser = createRESTUser(
+                id = loggedInUser.id,
+                name = loggedInUser.fullName
+            )
+            val restTaak = createRESTTaak(
+                behandelaar = restUser
+            )
+            val restTaakConverted = createRESTTaak(
+                behandelaar = restUser
+            )
+            val enkelvoudigInformatieObjectUUID = UUID.randomUUID()
+            val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
+                url = URI("http://example.com/$enkelvoudigInformatieObjectUUID")
+            )
+            val documentenRechten = createDocumentRechten()
+
+            every { task.assignee } returns "dummyAssignee"
+            every { takenService.readOpenTask(restTaak.id) } returns task
+            every { takenService.updateTask(task) } returns task
+            every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
+            every { policyService.readTaakRechten(task) } returns createTaakRechten()
+            every { httpSessionInstance.get() } returns httpSession
+            every { taakVariabelenService.isZaakHervatten(restTaak.taakdata) } returns false
+            every { taakVariabelenService.readOndertekeningen(restTaak.taakdata) } returns Optional.of(
+                enkelvoudigInformatieObjectUUID.toString()
+            )
+            every { taakVariabelenService.setTaakdata(task, restTaak.taakdata) } just runs
+            every { taakVariabelenService.setTaakinformatie(task, null) } just runs
+            every { takenService.completeTask(task) } returns historicTaskInstance
+            every { indexeerService.addOrUpdateZaak(restTaak.zaakUuid, false) } just runs
+            every { historicTaskInstance.id } returns restTaak.id
+            every { restTaakConverter.convert(historicTaskInstance) } returns restTaakConverted
+            every {
+                drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieObjectUUID)
+            } returns enkelvoudigInformatieObject
+            every {
+                policyService.readDocumentRechten(
+                    enkelvoudigInformatieObject,
+                    zaak
+                )
+            } returns documentenRechten
+            every {
+                enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
+                    enkelvoudigInformatieObjectUUID
+                )
+            } just runs
+            every { eventingService.send(any<ScreenEvent>()) } just runs
+
+            When("'updateTaakdata' is called with changed description and due date") {
+                restTaak.apply {
+                    toelichting = "changed"
+                    fataledatum = LocalDate.parse("2024-03-19")
+                }
+
+                every { task.description = restTaak.toelichting } just runs
+                every { task.dueDate = DateTimeConverterUtil.convertToDate(restTaak.fataledatum) } just runs
+                every { task.id } returns restTaak.id
+
+                val restTaakReturned = takenRESTService.updateTaakdata(restTaak)
+
+                Then("the changes are stored") {
+                    restTaakReturned shouldBe restTaak
+                    verify(exactly = 1) {
+                        takenService.updateTask(task)
+                    }
+                }
+            }
+
             When("'complete' is called") {
-                then(
+                every { task.description = restTaak.toelichting } just runs
+                every { task.dueDate = any() } just runs
+
+                val restTaakReturned = takenRESTService.completeTaak(restTaak)
+
+                Then(
                     "the document is signed, the task is completed and the search index service is invoked"
                 ) {
-                    val task = mockk<Task>()
-                    val zaak = mockk<Zaak>()
-                    val httpSession = mockk<HttpSession>()
-                    val historicTaskInstance = mockk<HistoricTaskInstance>()
-
-                    val restUser = createRESTUser(
-                        id = loggedInUser.id,
-                        name = loggedInUser.fullName
-                    )
-                    val restTaak = createRESTTaak(
-                        behandelaar = restUser
-                    )
-                    val restTaakConverted = createRESTTaak(
-                        behandelaar = restUser
-                    )
-                    val enkelvoudigInformatieObjectUUID = UUID.randomUUID()
-                    val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
-                        url = URI("http://example.com/$enkelvoudigInformatieObjectUUID")
-                    )
-                    val documentenRechten = createDocumentRechten()
-
-                    every { task.assignee } returns "dummyAssignee"
-                    every { takenService.readOpenTask(restTaak.id) } returns task
-                    every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
-                    every { policyService.readTaakRechten(task) } returns createTaakRechten()
-                    every { httpSessionInstance.get() } returns httpSession
-                    every { taakVariabelenService.isZaakHervatten(restTaak.taakdata) } returns false
-                    every { taakVariabelenService.readOndertekeningen(restTaak.taakdata) } returns Optional.of(
-                        enkelvoudigInformatieObjectUUID.toString()
-                    )
-                    every { taakVariabelenService.setTaakdata(task, restTaak.taakdata) } just runs
-                    every { taakVariabelenService.setTaakinformatie(task, null) } just runs
-                    every { takenService.completeTask(task) } returns historicTaskInstance
-                    every { indexeerService.addOrUpdateZaak(restTaak.zaakUuid, false) } just runs
-                    every { historicTaskInstance.id } returns restTaak.id
-                    every { restTaakConverter.convert(historicTaskInstance) } returns restTaakConverted
-                    every {
-                        drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieObjectUUID)
-                    } returns enkelvoudigInformatieObject
-                    every {
-                        policyService.readDocumentRechten(
-                            enkelvoudigInformatieObject,
-                            zaak
-                        )
-                    } returns documentenRechten
-                    every {
-                        enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
-                            enkelvoudigInformatieObjectUUID
-                        )
-                    } just runs
-                    every { eventingService.send(any<ScreenEvent>()) } just runs
-
-                    val restTaakReturned = takenRESTService.completeTaak(restTaak)
-
                     restTaakReturned shouldBe restTaakConverted
                     verify(exactly = 1) {
                         enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
