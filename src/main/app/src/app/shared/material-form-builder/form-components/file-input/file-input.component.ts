@@ -18,10 +18,10 @@ import { Observable, map, tap } from "rxjs";
 import { MatMiniFabButton } from "@angular/material/button";
 import { AsyncPipe, CommonModule } from "@angular/common";
 
-export enum UploadStatus {
-  SELECT_FILE = "SELECT_FILE",
-  SELECTED = "SELECTED",
-}
+export const UploadStatus = {
+  SELECT_FILE: "SELECT_FILE",
+  SELECTED: "SELECTED",
+};
 
 @Component({
   standalone: true,
@@ -101,7 +101,7 @@ export class FileInputComponent extends FormComponent implements OnInit {
   changeDetector = inject(ChangeDetectorRef);
 
   data: FileFormField;
-  status: UploadStatus = UploadStatus.SELECT_FILE;
+  status = UploadStatus.SELECT_FILE;
 
   triggerResetFromParent$: Observable<void>;
   fileName$: Observable<string>;
@@ -129,6 +129,7 @@ export class FileInputComponent extends FormComponent implements OnInit {
     this.fileInput().nativeElement.value = null;
     this.data.formControl.setValue(null);
     this.changeDetector.detectChanges();
+    this.data.fileUploaded$.next(null);
   }
 
   getErrorMessage(): string {
@@ -139,12 +140,14 @@ export class FileInputComponent extends FormComponent implements OnInit {
   }
 
   selectFile(file: File): void {
-    this.validateFile(file);
-    this.data.formControl.setValue(file);
-    this.data.formControl.updateValueAndValidity();
-    this.data.fileUploaded$.next(file.name);
-    this.status = UploadStatus.SELECTED;
-    this.changeDetector.detectChanges();
+    const validated = this.validateFile(file);
+    if (validated) {
+      this.data.fileUploaded$.next(file.name);
+      this.status = UploadStatus.SELECTED;
+      this.data.formControl.setValue(file);
+      this.data.formControl.updateValueAndValidity();
+      this.changeDetector.detectChanges();
+    }
   }
 
   handleChange(event: Event) {
@@ -157,20 +160,22 @@ export class FileInputComponent extends FormComponent implements OnInit {
     if (!file) {
       this.data.formControl.setValue(null);
       this.changeDetector.detectChanges();
+      return false;
     }
 
     if (!this.data.isBestandstypeToegestaan(file)) {
       this.data.uploadError = `Het bestandstype is niet toegestaan (${this.data.getBestandsextensie(
         file,
       )})`;
-      return;
+      return false;
     }
 
     if (!this.data.isBestandsgrootteToegestaan(file)) {
       this.data.uploadError = `Het bestand is te groot (${this.data.getBestandsgrootteMB(
         file,
       )}MB)`;
-      return;
+      return false;
     }
+    return true;
   }
 }
