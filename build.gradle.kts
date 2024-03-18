@@ -164,7 +164,7 @@ dependencies {
     "itestImplementation"("io.github.oshai:kotlin-logging-jvm:6.0.3")
     "itestImplementation"("com.squareup.okhttp3:okhttp:4.12.0")
     "itestImplementation"("com.squareup.okhttp3:okhttp-urlconnection:4.12.0")
-    "itestImplementation"("org.awaitility:awaitility-kotlin:4.2.0")
+    "itestImplementation"("org.awaitility:awaitility-kotlin:4.2.1")
     "itestImplementation"("org.mock-server:mockserver-client-java:5.15.0")
 
     jacocoAgentJarForItest("org.jacoco:org.jacoco.agent:0.8.11:runtime")
