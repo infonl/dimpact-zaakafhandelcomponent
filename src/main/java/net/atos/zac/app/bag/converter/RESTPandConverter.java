@@ -8,10 +8,10 @@ package net.atos.zac.app.bag.converter;
 import java.net.URI;
 import java.util.List;
 
-import net.atos.client.bag.model.Indicatie;
-import net.atos.client.bag.model.Pand;
-import net.atos.client.bag.model.PandIOHal;
-import net.atos.client.bag.model.PandIOHalBasis;
+import net.atos.client.bag.model.generated.Indicatie;
+import net.atos.client.bag.model.generated.Pand;
+import net.atos.client.bag.model.generated.PandIOHal;
+import net.atos.client.bag.model.generated.PandIOHalBasis;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectPand;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand;

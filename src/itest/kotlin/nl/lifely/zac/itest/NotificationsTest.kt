@@ -13,7 +13,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.provided.ProjectConfig
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTS_API_HOSTNAME_URL
-import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANVRAAG_DENHAAG
+import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_INITIAL
@@ -76,7 +76,7 @@ class NotificationsTest : BehaviorSpec({
                         "resourceUrl" to "$OBJECTS_API_HOSTNAME_URL/$OBJECT_PRODUCTAANVRAAG_UUID",
                         "actie" to "create",
                         "kenmerken" to mapOf(
-                            "objectType" to "$OBJECTS_API_HOSTNAME_URL/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DENHAAG"
+                            "objectType" to "$OBJECTS_API_HOSTNAME_URL/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT"
                         ),
                         "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                     )
@@ -85,7 +85,7 @@ class NotificationsTest : BehaviorSpec({
             )
             Then(
                 "the response should be 'no content', a zaak should be created in OpenZaak " +
-                    "and a zaak productaanvraag proces of type 'Productaanvraag-Denhaag' should be started in ZAC"
+                    "and a zaak productaanvraag proces of type 'Productaanvraag-Dimpact' should be started in ZAC"
             ) {
                 response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
 

@@ -11,8 +11,8 @@ import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.BooleanUtils;
 
-import net.atos.client.bag.model.AdresIOHal;
-import net.atos.client.bag.model.Geconstateerd;
+import net.atos.client.bag.model.generated.AdresIOHal;
+import net.atos.client.bag.model.generated.Geconstateerd;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectAdres;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectAdres;

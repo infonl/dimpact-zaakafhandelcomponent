@@ -15,11 +15,11 @@ import jakarta.json.bind.serializer.DeserializationContext;
 import jakarta.json.bind.serializer.JsonbDeserializer;
 import jakarta.json.stream.JsonParser;
 
-import net.atos.client.brp.model.AbstractVerblijfplaats;
-import net.atos.client.brp.model.Adres;
-import net.atos.client.brp.model.Locatie;
-import net.atos.client.brp.model.VerblijfplaatsBuitenland;
-import net.atos.client.brp.model.VerblijfplaatsOnbekend;
+import net.atos.client.brp.model.generated.AbstractVerblijfplaats;
+import net.atos.client.brp.model.generated.Adres;
+import net.atos.client.brp.model.generated.Locatie;
+import net.atos.client.brp.model.generated.VerblijfplaatsBuitenland;
+import net.atos.client.brp.model.generated.VerblijfplaatsOnbekend;
 
 public class AbstractVerblijfplaatsJsonbDeserializer implements JsonbDeserializer<AbstractVerblijfplaats> {
 

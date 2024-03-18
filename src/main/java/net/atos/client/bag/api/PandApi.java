@@ -54,12 +54,12 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import net.atos.client.bag.model.BouwjaarFilter;
-import net.atos.client.bag.model.PandIOHal;
-import net.atos.client.bag.model.PandIOHalCollection;
-import net.atos.client.bag.model.PandIOLvcHalCollection;
-import net.atos.client.bag.model.PointGeoJSON;
-import net.atos.client.bag.model.StatusPand;
+import net.atos.client.bag.model.generated.BouwjaarFilter;
+import net.atos.client.bag.model.generated.PandIOHal;
+import net.atos.client.bag.model.generated.PandIOHalCollection;
+import net.atos.client.bag.model.generated.PandIOLvcHalCollection;
+import net.atos.client.bag.model.generated.PointGeoJSON;
+import net.atos.client.bag.model.generated.StatusPand;
 import net.atos.client.bag.util.BAGClientHeadersFactory;
 import net.atos.client.bag.util.JsonbConfiguration;
 import net.atos.client.brp.exception.RuntimeExceptionMapper;

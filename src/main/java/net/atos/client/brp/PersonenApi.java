@@ -35,8 +35,8 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import net.atos.client.brp.exception.RuntimeExceptionMapper;
-import net.atos.client.brp.model.PersonenQuery;
-import net.atos.client.brp.model.PersonenQueryResponse;
+import net.atos.client.brp.model.generated.PersonenQuery;
+import net.atos.client.brp.model.generated.PersonenQueryResponse;
 import net.atos.client.brp.util.BRPClientHeadersFactory;
 import net.atos.client.brp.util.JsonbConfiguration;
 

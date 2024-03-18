@@ -103,16 +103,16 @@ dependencies {
     implementation("org.slf4j:slf4j-jdk14:2.0.12")
     implementation("com.auth0:java-jwt:4.4.0")
     implementation("javax.cache:cache-api:1.1.1")
-    implementation("com.google.guava:guava:33.0.0-jre")
+    implementation("com.google.guava:guava:33.1.0-jre")
     implementation("com.mailjet:mailjet-client:5.2.5")
     implementation("com.itextpdf:kernel:8.0.3")
     implementation("com.itextpdf:layout:8.0.3")
     implementation("com.itextpdf:io:8.0.3")
     implementation("com.itextpdf:html2pdf:5.0.3")
-    implementation("org.flywaydb:flyway-core:10.9.1")
-    implementation("org.flywaydb:flyway-database-postgresql:10.9.1")
+    implementation("org.flywaydb:flyway-core:10.10.0")
+    implementation("org.flywaydb:flyway-database-postgresql:10.10.0")
     implementation("org.apache.solr:solr-solrj:9.5.0")
-    implementation("nl.info.webdav:webdav-servlet:1.2.40")
+    implementation("nl.info.webdav:webdav-servlet:1.2.41")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
     implementation("com.unboundid:unboundid-ldapsdk:7.0.0")
 
@@ -164,7 +164,7 @@ dependencies {
     "itestImplementation"("io.github.oshai:kotlin-logging-jvm:6.0.3")
     "itestImplementation"("com.squareup.okhttp3:okhttp:4.12.0")
     "itestImplementation"("com.squareup.okhttp3:okhttp-urlconnection:4.12.0")
-    "itestImplementation"("org.awaitility:awaitility-kotlin:4.2.0")
+    "itestImplementation"("org.awaitility:awaitility-kotlin:4.2.1")
     "itestImplementation"("org.mock-server:mockserver-client-java:5.15.0")
 
     jacocoAgentJarForItest("org.jacoco:org.jacoco.agent:0.8.11:runtime")
@@ -199,7 +199,7 @@ java {
 }
 
 jsonSchema2Pojo {
-    // generates Java model files for the "gemeente Den Haag productaanvraag" JSON schema
+    // generates Java model files for the "productaanvraag" JSON schema(s)
     setSource(files("$rootDir/src/main/resources/json-schema"))
     targetDirectory = file("$rootDir/src/generated/java")
     setFileExtensions(".schema.json")
@@ -293,6 +293,19 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         prettier(mapOf("prettier" to "3.2.5", "prettier-plugin-organize-imports" to "3.2.4"))
             .config(mapOf("parser" to "typescript", "plugins" to arrayOf("prettier-plugin-organize-imports")))
     }
+    format("json") {
+        target("src/**/*.json")
+        targetExclude(
+                "src/e2e/node_modules/**",
+                "src/main/app/node_modules/**",
+                "src/main/app/dist/**",
+                "src/main/app/.angular/**",
+                "src/**/package-lock.json",
+                "src/main/app/coverage/**.json"
+        )
+
+        prettier(mapOf("prettier" to "3.2.5")).config(mapOf("parser" to "json"))
+    }
 }
 tasks.getByName("spotlessApply").finalizedBy(listOf("detektApply"))
 
@@ -353,11 +366,6 @@ tasks {
             classDirectories.setFrom(
                 classDirectories.files.map {
                     fileTree(it).matching {
-                        exclude("net/atos/client/bag/model/**")
-                        exclude("net/atos/client/brp/model/**")
-                        exclude("net/atos/client/contactmomenten/model/**")
-                        exclude("net/atos/client/kvk/**/model/**")
-                        exclude("net/atos/client/vrl/model/**")
                         exclude("**/generated/**")
                     }
                 }
@@ -417,32 +425,32 @@ tasks {
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKvkZoekenClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/zoeken-openapi.yaml")
-        modelPackage.set("net.atos.client.kvk.zoeken.model")
+        modelPackage.set("net.atos.client.kvk.zoeken.model.generated")
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKvkBasisProfielClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/basisprofiel-openapi.yaml")
-        modelPackage.set("net.atos.client.kvk.basisprofiel.model")
+        modelPackage.set("net.atos.client.kvk.basisprofiel.model.generated")
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKvkVestigingsProfielClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/vestigingsprofiel-openapi.yaml")
-        modelPackage.set("net.atos.client.kvk.vestigingsprofiel.model")
+        modelPackage.set("net.atos.client.kvk.vestigingsprofiel.model.generated")
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateBrpClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/brp/openapi.yaml")
-        modelPackage.set("net.atos.client.brp.model")
+        modelPackage.set("net.atos.client.brp.model.generated")
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateVrlClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/vrl/openapi.yaml")
-        modelPackage.set("net.atos.client.vrl.model")
+        modelPackage.set("net.atos.client.vrl.model.generated")
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateBagClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/bag/openapi.yaml")
-        modelPackage.set("net.atos.client.bag.model")
+        modelPackage.set("net.atos.client.bag.model.generated")
         // we use a different date library for this client
         configOptions.set(
             mapOf(
@@ -463,12 +471,12 @@ tasks {
         isEnabled = false
 
         inputSpec.set("$rootDir/src/main/resources/api-specs/klanten/openapi.yaml")
-        modelPackage.set("net.atos.client.klanten.model")
+        modelPackage.set("net.atos.client.klanten.model.generated")
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateContactMomentenClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/contactmomenten/openapi.yaml")
-        modelPackage.set("net.atos.client.contactmomenten.model")
+        modelPackage.set("net.atos.client.contactmomenten.model.generated")
     }
 
     register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateZgwBrcClient") {

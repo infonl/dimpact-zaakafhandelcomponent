@@ -7,8 +7,8 @@ package net.atos.zac.app.klanten.converter;
 
 import org.apache.commons.collections4.CollectionUtils;
 
-import net.atos.client.kvk.vestigingsprofiel.model.SBIActiviteit;
-import net.atos.client.kvk.vestigingsprofiel.model.Vestiging;
+import net.atos.client.kvk.vestigingsprofiel.model.generated.SBIActiviteit;
+import net.atos.client.kvk.vestigingsprofiel.model.generated.Vestiging;
 import net.atos.zac.app.klanten.model.bedrijven.RESTKlantenAdres;
 import net.atos.zac.app.klanten.model.bedrijven.RESTVestigingsprofiel;
 

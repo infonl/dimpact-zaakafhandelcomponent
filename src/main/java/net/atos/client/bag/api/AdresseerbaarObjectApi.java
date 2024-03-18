@@ -52,12 +52,12 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import net.atos.client.bag.model.AdresseerbaarObjectIOHal;
-import net.atos.client.bag.model.AdresseerbaarObjectLvcIOHalCollection;
-import net.atos.client.bag.model.AdresseerbareObjectenIOHalCollection;
-import net.atos.client.bag.model.Gebruiksdoel;
-import net.atos.client.bag.model.OppervlakteFilter;
-import net.atos.client.bag.model.TypeAdresseerbaarObject;
+import net.atos.client.bag.model.generated.AdresseerbaarObjectIOHal;
+import net.atos.client.bag.model.generated.AdresseerbaarObjectLvcIOHalCollection;
+import net.atos.client.bag.model.generated.AdresseerbareObjectenIOHalCollection;
+import net.atos.client.bag.model.generated.Gebruiksdoel;
+import net.atos.client.bag.model.generated.OppervlakteFilter;
+import net.atos.client.bag.model.generated.TypeAdresseerbaarObject;
 import net.atos.client.bag.util.BAGClientHeadersFactory;
 import net.atos.client.bag.util.JsonbConfiguration;
 import net.atos.client.brp.exception.RuntimeExceptionMapper;

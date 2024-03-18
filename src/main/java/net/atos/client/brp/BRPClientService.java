@@ -23,16 +23,16 @@ import jakarta.inject.Inject;
 import org.apache.commons.collections4.CollectionUtils;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-import net.atos.client.brp.model.PersonenQuery;
-import net.atos.client.brp.model.PersonenQueryResponse;
-import net.atos.client.brp.model.Persoon;
-import net.atos.client.brp.model.RaadpleegMetBurgerservicenummer;
-import net.atos.client.brp.model.RaadpleegMetBurgerservicenummerResponse;
-import net.atos.client.brp.model.ZoekMetGeslachtsnaamEnGeboortedatum;
-import net.atos.client.brp.model.ZoekMetNaamEnGemeenteVanInschrijving;
-import net.atos.client.brp.model.ZoekMetNummeraanduidingIdentificatie;
-import net.atos.client.brp.model.ZoekMetPostcodeEnHuisnummer;
-import net.atos.client.brp.model.ZoekMetStraatHuisnummerEnGemeenteVanInschrijving;
+import net.atos.client.brp.model.generated.PersonenQuery;
+import net.atos.client.brp.model.generated.PersonenQueryResponse;
+import net.atos.client.brp.model.generated.Persoon;
+import net.atos.client.brp.model.generated.RaadpleegMetBurgerservicenummer;
+import net.atos.client.brp.model.generated.RaadpleegMetBurgerservicenummerResponse;
+import net.atos.client.brp.model.generated.ZoekMetGeslachtsnaamEnGeboortedatum;
+import net.atos.client.brp.model.generated.ZoekMetNaamEnGemeenteVanInschrijving;
+import net.atos.client.brp.model.generated.ZoekMetNummeraanduidingIdentificatie;
+import net.atos.client.brp.model.generated.ZoekMetPostcodeEnHuisnummer;
+import net.atos.client.brp.model.generated.ZoekMetStraatHuisnummerEnGemeenteVanInschrijving;
 
 @ApplicationScoped
 public class BRPClientService {

@@ -10,12 +10,12 @@ import java.net.URI;
 
 import jakarta.inject.Inject;
 
-import net.atos.client.bag.model.Indicatie;
-import net.atos.client.bag.model.Nummeraanduiding;
-import net.atos.client.bag.model.NummeraanduidingIOHal;
-import net.atos.client.bag.model.NummeraanduidingIOHalBasis;
-import net.atos.client.bag.model.StatusNaamgeving;
-import net.atos.client.bag.model.TypeAdresseerbaarObject;
+import net.atos.client.bag.model.generated.Indicatie;
+import net.atos.client.bag.model.generated.Nummeraanduiding;
+import net.atos.client.bag.model.generated.NummeraanduidingIOHal;
+import net.atos.client.bag.model.generated.NummeraanduidingIOHalBasis;
+import net.atos.client.bag.model.generated.StatusNaamgeving;
+import net.atos.client.bag.model.generated.TypeAdresseerbaarObject;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectNummeraanduiding;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduiding;

@@ -1579,11 +1579,11 @@
         "pk": 4,
         "fields": {
             "uuid": "021f685e-9482-4620-b157-34cd4003da6b",
-            "name": "Productaanvraag-Denhaag",
-            "name_plural": "productaanvragen",
-            "description": "Aanvragen van terugbelverzoeken voor Den Haag",
+            "name": "Productaanvraag-Dimpact",
+            "name_plural": "Productaanvragen-Dimpact",
+            "description": "Productaanvraag Dimpact",
             "data_classification": "intern",
-            "maintainer_organization": "Den Haag",
+            "maintainer_organization": "Dimpact",
             "maintainer_department": "",
             "contact_person": "",
             "contact_email": "",
@@ -1606,77 +1606,151 @@
             "modified_at": "2021-08-02",
             "published_at": "2021-07-12",
             "json_schema": {
-                "title": "Productaanvraag tbv terugbelnotitie Den Haag",
+                "title": "Productaanvraag Dimpact",
                 "default": {},
                 "examples": [
                     {
-                        "data": {
-                            "naam": "Jan Jansen",
-                            "omschrijving": "Ik heb een vraag over mijn paspoort",
-                            "telefoonnummer": "0612345678"
+                        "bron" : {
+                            "naam" : "Open Formulieren",
+                            "kenmerk" : "f56552a8-a082-4306-9111-eb1664fcb05d"
                         },
-                        "type": "terugbelnotitie",
-                        "submission_id": "a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"
+                        "type" : "verhuizing",
+                        "aanvraaggegevens" : {
+                            "uw-gegevens" : {
+                                "voornaam" : "Voorbeeld",
+                                "achternaam" : "Vries",
+                                "tussenvoegsel" : "de",
+                                "geboortedatum" : "1980-12-31"
+                            },
+                            "uw-verhuizing" : {
+                                "beschrijving" : "Lorem ipsum..."
+                            }
+                        },
+                        "taal" : "nld",
+                        "zaakgegevens" : {
+                            "identificatie" : "ZAAK-2023-0000000121",
+                            "communicatiekanaal" : "https://referentielijsten-api.vng.cloud/api/v1/communicatiekanalen/f56552a8-a082-4306-9111-eb1664fcb05d",
+                            "omschrijving" : "Verhuizing Blaak 27",
+                            "toelichting" : "Nieuw huis gekocht"
+                        },
+                        "betrokkenen" : [
+                            {
+                                "inpBsn" : "111222333",
+                                "rolOmschrijvingGeneriek" : "initiator",
+                                "indicatieMachtiging" : "gemachtigde",
+                                "indicatieCorrespondentie" : true
+                            },
+                            {
+                                "inpBsn" : "222333444",
+                                "rolOmschrijvingGeneriek" : "mede_initiator",
+                                "indicatieMachtiging" : "machtiginggever",
+                                "indicatieCorrespondentie" : false
+                            },
+                            {
+                                "medewerkerIdentificatie" : "MDW123",
+                                "rolOmschrijvingGeneriek" : "klantcontacter"
+                            }
+                        ],
+                        "betaling" : {
+                            "kenmerk" : "2022ESUITE0320",
+                            "bedrag" : 19.20,
+                            "status" : "niet_geslaagd",
+                            "transactieId" : "123456784",
+                            "transactiedatumtijd" : "2021-04-25T21:30:05+00",
+                            "statusCode" : "5",
+                            "melding" : "Saldo tekort"
+                        },
+                        "pdf" : "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/230bab4a-4b51-40c6-91b2-f2022008a7f8",
+                        "csv" : "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/aeaba696-4968-46a6-8b1e-016f503ed88d",
+                        "bijlagen" : [
+                            "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/94ff43d6-0ee5-4b5c-8ed7-b86eaa908718",
+                            "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"
+                        ]
                     }
                 ],
-                "required": [
-                    "submission_id",
+                "required" : [
+                    "bron",
                     "type",
-                    "data"
+                    "aanvraaggegevens"
                 ],
                 "properties": {
-                    "data": {
-                        "$id": "#/properties/data",
+                    "bron": {
+                        "$id": "#/properties/bron",
                         "type": "object",
-                        "title": "Object met de ingezonden formulierdata",
+                        "title": "Bron",
+                        "description" : "Bron waaruit de productaanvraag voortkomt",
                         "default": {},
+                        "properties" : {
+                            "naam" : {
+                                "title" : "Naam",
+                                "description" : "Naam van de bron",
+                                "type" : "string",
+                                "examples" : [
+                                    "Open Formulieren"
+                                ]
+                            },
+                            "kenmerk" : {
+                                "title" : "Kenmerk",
+                                "description" : "Kenmerk van de productaanvraag zoals bekend bij de bron. Bijvoorbeeld ID van de submission in Open Forms",
+                                "type" : "string",
+                                "examples" : [
+                                    "a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"
+                                ]
+                            }
+                        },
                         "examples": [
                             {
-                                "field1": "value1"
+                                "naam": "Open Formulieren",
+                                "kenmerk": "f56552a8-a082-4306-9111-eb1664fcb05d"
                             }
                         ]
                     },
                     "type": {
                         "$id": "#/properties/type",
                         "type": "string",
-                        "title": "Type productaanvraag",
+                        "title": "Type",
+                        "description" : "Type productaanvraag",
                         "default": "",
                         "examples": [
+                            "verhuizing",
                             "terugbelnotitie"
                         ]
                     },
-                    "pdf_url": {
-                        "$id": "#/properties/pdf_url",
+                    "betrokkenen": {
+                        "$id": "#/properties/betrokkenen",
+                        "type": "array",
+                        "title": "Betrokkenen",
+                        "default": [],
+                        "items" : {
+                            "$ref" : "#/$defs/betrokkene"
+                        }
+                    },
+                    "pdf": {
+                        "$id": "#/properties/pdf",
                         "type": "string",
-                        "title": "URL van de pdf van bevestiging in Open Forms",
+                        "title": "PDF",
+                        "description" : "URL naar het informatieobject (in de Documenten API) dat de bevestigings PDF van de productaanvraag bevat",
                         "format": "uri",
                         "default": "",
-                        "examples": [
-                            "https://openforms.nl/media/submission.pdf"
+                        "examples" : [
+                            "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/230bab4a-4b51-40c6-91b2-f2022008a7f8"
                         ]
                     },
-                    "attachments": {
-                        "$id": "#/properties/attachments",
+                    "bijlagen": {
+                        "$id": "#/properties/bijlagen",
                         "type": "array",
                         "items": {
                             "type": "string",
                             "format": "uri"
                         },
-                        "title": "Lijst met URLs van de bijlagen in een Documenten API",
+                        "title": "Bijlagen",
+                        "description" : "Lijst met URLs naar informatieobjecten (in de Documenten API) zijnde de bijlagen van de productaanvraag",
                         "default": [],
-                        "examples": [
+                        "examples" : [
                             [
-                                "https://documenten.nl/api/v1/enkelvoudiginformatieobjecten/1"
+                                "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/94ff43d6-0ee5-4b5c-8ed7-b86eaa908718",
+                                "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"
                             ]
-                        ]
-                    },
-                    "submission_id": {
-                        "$id": "#/properties/submission_id",
-                        "type": "string",
-                        "title": "ID van de submission in Open Forms",
-                        "default": "",
-                        "examples": [
-                            "a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"
                         ]
                     },
                     "additionalProperties": true

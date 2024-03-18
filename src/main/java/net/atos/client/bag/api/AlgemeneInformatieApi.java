@@ -42,7 +42,7 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import net.atos.client.bag.model.APIInfo;
+import net.atos.client.bag.model.generated.APIInfo;
 import net.atos.client.bag.util.BAGClientHeadersFactory;
 import net.atos.client.brp.exception.RuntimeExceptionMapper;
 

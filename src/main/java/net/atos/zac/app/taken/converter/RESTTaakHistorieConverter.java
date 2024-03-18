@@ -29,19 +29,19 @@ import net.atos.zac.identity.IdentityService;
 
 public class RESTTaakHistorieConverter {
 
-    private static final String CREATED_ATTRIBUUT_LABEL = "aangemaakt";
+    static final String CREATED_ATTRIBUUT_LABEL = "aangemaakt";
 
-    private static final String COMPLETED_ATTRIBUUT_LABEL = "afgerond";
+    static final String COMPLETED_ATTRIBUUT_LABEL = "afgerond";
 
-    private static final String GROEP_ATTRIBUUT_LABEL = "groep";
+    static final String GROEP_ATTRIBUUT_LABEL = "groep";
 
-    private static final String BEHANDELAAR_ATTRIBUUT_LABEL = "behandelaar";
+    static final String BEHANDELAAR_ATTRIBUUT_LABEL = "behandelaar";
 
-    private static final String TOELICHTING_ATTRIBUUT_LABEL = "toelichting";
+    static final String TOELICHTING_ATTRIBUUT_LABEL = "toelichting";
 
-    private static final String AANGEMAAKT_DOOR_ATTRIBUUT_LABEL = "aangemaaktDoor";
+    static final String AANGEMAAKT_DOOR_ATTRIBUUT_LABEL = "aangemaaktDoor";
 
-    private static final String FATALEDATUM_ATTRIBUUT_LABEL = "fataledatum";
+    static final String FATALEDATUM_ATTRIBUUT_LABEL = "fataledatum";
 
     @Inject
     private IdentityService identityService;
@@ -58,8 +58,10 @@ public class RESTTaakHistorieConverter {
             case USER_TASK_DESCRIPTION_CHANGED -> convertValueChangeData(TOELICHTING_ATTRIBUUT_LABEL, historicTaskLogEntry.getData());
             case USER_TASK_ASSIGNEE_CHANGED_CUSTOM -> convertValueChangeData(BEHANDELAAR_ATTRIBUUT_LABEL, historicTaskLogEntry.getData());
             case USER_TASK_GROUP_CHANGED -> convertValueChangeData(GROEP_ATTRIBUUT_LABEL, historicTaskLogEntry.getData());
-            default -> convertData(HistoricTaskLogEntryType.valueOf(historicTaskLogEntry.getType()),
-                    historicTaskLogEntry.getData());
+            default -> convertData(
+                    HistoricTaskLogEntryType.valueOf(historicTaskLogEntry.getType()),
+                    historicTaskLogEntry.getData()
+            );
         };
         if (restTaakHistorieRegel != null) {
             restTaakHistorieRegel.datumTijd = convertToZonedDateTime(historicTaskLogEntry.getTimeStamp());
@@ -69,8 +71,18 @@ public class RESTTaakHistorieConverter {
 
     private RESTTaakHistorieRegel convertData(final HistoricTaskLogEntryType type, final String data) {
         return switch (type) {
-            case USER_TASK_CREATED -> new RESTTaakHistorieRegel(CREATED_ATTRIBUUT_LABEL);
-            case USER_TASK_COMPLETED -> new RESTTaakHistorieRegel(COMPLETED_ATTRIBUUT_LABEL);
+            case USER_TASK_CREATED -> new RESTTaakHistorieRegel(
+                    CREATED_ATTRIBUUT_LABEL,
+                    null,
+                    CREATED_ATTRIBUUT_LABEL,
+                    null
+            );
+            case USER_TASK_COMPLETED -> new RESTTaakHistorieRegel(
+                    COMPLETED_ATTRIBUUT_LABEL,
+                    CREATED_ATTRIBUUT_LABEL,
+                    COMPLETED_ATTRIBUUT_LABEL,
+                    null
+            );
             case USER_TASK_OWNER_CHANGED -> convertOwnerChanged(data);
             case USER_TASK_DUEDATE_CHANGED -> convertDuedateChanged(data);
             default -> null;
@@ -79,8 +91,12 @@ public class RESTTaakHistorieConverter {
 
     private RESTTaakHistorieRegel convertValueChangeData(final String attribuutLabel, final String data) {
         final TakenService.ValueChangeData valueChangeData = JSONB.fromJson(data, TakenService.ValueChangeData.class);
-        return new RESTTaakHistorieRegel(attribuutLabel, valueChangeData.oldValue, valueChangeData.newValue,
-                valueChangeData.explanation);
+        return new RESTTaakHistorieRegel(
+                attribuutLabel,
+                valueChangeData.oldValue,
+                valueChangeData.newValue,
+                valueChangeData.explanation
+        );
     }
 
     public static class AssigneeChangedData {

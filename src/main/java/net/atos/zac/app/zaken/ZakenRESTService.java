@@ -58,7 +58,7 @@ import org.apache.commons.lang3.StringUtils;
 import net.atos.client.or.object.ObjectsClientService;
 import net.atos.client.or.object.model.ORObject;
 import net.atos.client.vrl.VRLClientService;
-import net.atos.client.vrl.model.CommunicatieKanaal;
+import net.atos.client.vrl.model.generated.CommunicatieKanaal;
 import net.atos.client.zgw.brc.BRCClientService;
 import net.atos.client.zgw.brc.model.generated.Besluit;
 import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject;
@@ -100,7 +100,7 @@ import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.client.zgw.ztc.util.ZaakTypeUtil;
 import net.atos.zac.aanvraag.InboxProductaanvraagService;
 import net.atos.zac.aanvraag.ProductaanvraagService;
-import net.atos.zac.aanvraag.model.generated.ProductaanvraagDenhaag;
+import net.atos.zac.aanvraag.model.generated.ProductaanvraagDimpact;
 import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter;
 import net.atos.zac.app.admin.model.RESTZaakAfzender;
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter;
@@ -1217,19 +1217,25 @@ public class ZakenRESTService {
             final RESTInboxProductaanvraag inboxProductaanvraag
     ) {
         final ORObject productaanvraagObject = objectsClientService.readObject(
-                inboxProductaanvraag.productaanvraagObjectUUID);
-        final ProductaanvraagDenhaag productaanvraag = productaanvraagService.getProductaanvraag(
-                productaanvraagObject);
+                inboxProductaanvraag.productaanvraagObjectUUID
+        );
+        final ProductaanvraagDimpact productaanvraag = productaanvraagService.getProductaanvraag(
+                productaanvraagObject
+        );
 
         productaanvraagService.pairProductaanvraagWithZaak(productaanvraagObject, zaak.getUrl());
         productaanvraagService.pairAanvraagPDFWithZaak(productaanvraag, zaak.getUrl());
-        productaanvraagService.pairBijlagenWithZaak(productaanvraag.getAttachments(),
-                zaak.getUrl());
+        productaanvraagService.pairBijlagenWithZaak(
+                productaanvraag.getBijlagen(),
+                zaak.getUrl()
+        );
 
         //verwijder het verwerkte inbox productaanvraag item
         inboxProductaanvraagService.delete(inboxProductaanvraag.id);
-        zaakVariabelenService.setZaakdata(zaak.getUuid(), productaanvraagService.getFormulierData(
-                productaanvraagObject));
+        zaakVariabelenService.setZaakdata(
+                zaak.getUuid(),
+                productaanvraagService.getFormulierData(productaanvraagObject)
+        );
     }
 
     private void koppelRelevantezaken(

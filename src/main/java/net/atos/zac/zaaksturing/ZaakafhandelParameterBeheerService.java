@@ -145,7 +145,6 @@ public class ZaakafhandelParameterBeheerService {
             nieuweZaakafhandelParameters.setCaseDefinitionID(vorigeZaakafhandelparameters.getCaseDefinitionID());
             nieuweZaakafhandelParameters.setGroepID(vorigeZaakafhandelparameters.getGroepID());
             nieuweZaakafhandelParameters.setGebruikersnaamMedewerker(vorigeZaakafhandelparameters.getGebruikersnaamMedewerker());
-            // TODO; Lifely compare with old code
             if (zaaktype.getServicenorm() != null) {
                 nieuweZaakafhandelParameters.setEinddatumGeplandWaarschuwing(vorigeZaakafhandelparameters
                         .getEinddatumGeplandWaarschuwing());

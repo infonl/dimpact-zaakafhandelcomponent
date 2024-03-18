@@ -53,7 +53,7 @@ class NotificatieReceiverTest : BehaviorSpec({
 
     given(
         "a request containing a authorization header, a productaanvraag notificatie with a object type UUID " +
-            "for the 'productaanvraag DenHaag' object type"
+            "for the productaanvraag object type"
     ) {
         `when`("notificatieReceive is called") {
             then(
@@ -69,7 +69,7 @@ class NotificatieReceiverTest : BehaviorSpec({
                     resourceUrl = URI("http://example.com/dummyproductaanvraag/$objectTypeUUID"),
                     properties = mapOf("objectType" to "http://example.com/dummyproducttype/$productTypeUUID")
                 )
-                val objectType = createObjecttype(name = "Productaanvraag-Denhaag")
+                val objectType = createObjecttype(name = "Productaanvraag-Dimpact")
                 every { httpHeaders.getHeaderString("Authorization") } returns secret
                 every { httpSessionInstance.get() } returns httpSession
                 every { httpSession.setAttribute("logged-in-user", any()) } just runs

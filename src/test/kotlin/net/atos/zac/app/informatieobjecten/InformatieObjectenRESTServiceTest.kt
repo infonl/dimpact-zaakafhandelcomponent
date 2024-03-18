@@ -139,6 +139,9 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                 )
             } returns enkelvoudigInformatieObjectData
             every {
+                restInformatieobjectConverter.convertZaakObject(restEnkelvoudigInformatieobject)
+            } returns enkelvoudigInformatieObjectData
+            every {
                 restInformatieobjectConverter.convertToREST(zaakInformatieobject)
             } returns responseRestEnkelvoudigInformatieobject
             every {
@@ -151,14 +154,15 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                 )
             } returns zaakInformatieobject
 
-            When("createEnkelvoudigInformatieobject is called by a role that is allowed to change the zaak") {
+            When(
+                "createEnkelvoudigInformatieobjectWithUploadedFile is called by a role that is allowed to change the zaak"
+            ) {
                 val returnedRESTEnkelvoudigInformatieobject =
-                    informatieObjectenRESTService.createEnkelvoudigInformatieobject(
+                    informatieObjectenRESTService.createEnkelvoudigInformatieobjectWithUploadedFile(
                         zaak.uuid,
                         documentReferentieId,
                         false,
-                        restEnkelvoudigInformatieobject,
-                        null
+                        restEnkelvoudigInformatieobject
                     )
 
                 Then("the enkelvoudig informatieobject is added to the zaak") {
@@ -176,7 +180,9 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                 }
             }
 
-            When("createEnkelvoudigInformatieobject is called but the ZGW client service throws an exception") {
+            When(
+                "createEnkelvoudigInformatieobjectWithUploadedFile is called but the ZGW client service throws an exception"
+            ) {
                 every {
                     zgwApiService.createZaakInformatieobjectForZaak(
                         zaak,
@@ -188,12 +194,11 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                 } throws RuntimeException("dummy exception")
 
                 shouldThrow<RuntimeException> {
-                    informatieObjectenRESTService.createEnkelvoudigInformatieobject(
+                    informatieObjectenRESTService.createEnkelvoudigInformatieobjectWithUploadedFile(
                         zaak.uuid,
                         documentReferentieId,
                         false,
-                        restEnkelvoudigInformatieobject,
-                        null
+                        restEnkelvoudigInformatieobject
                     )
                 }
 
@@ -206,19 +211,20 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                             enkelvoudigInformatieObjectData.beschrijving,
                             "geen"
                         )
-                        httpSession.removeAttribute(httpSessionFileAttribute)
                     }
                 }
             }
 
-            When("file for upload is provided") {
+            When("createEnkelvoudigInformatieobjectAndUploadFile is called") {
+                restEnkelvoudigInformatieobject.file = restFileUpload.file
+                restEnkelvoudigInformatieobject.formaat = restFileUpload.type
+
                 val returnedRESTEnkelvoudigInformatieobject =
-                    informatieObjectenRESTService.createEnkelvoudigInformatieobject(
+                    informatieObjectenRESTService.createEnkelvoudigInformatieobjectAndUploadFile(
                         zaak.uuid,
                         documentReferentieId,
                         false,
                         restEnkelvoudigInformatieobject,
-                        restFileUpload
                     )
 
                 Then("the enkelvoudig informatieobject is added to the zaak") {
@@ -273,14 +279,15 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                 restInformatieobjectConverter.convertToREST(zaakInformatieobject)
             } returns responseRestEnkelvoudigInformatieobject
 
-            When("createEnkelvoudigInformatieobject is called by a role that is allowed to change the zaak") {
+            When(
+                "createEnkelvoudigInformatieobjectWithUploadedFile is called by a role that is allowed to change the zaak"
+            ) {
                 val returnedRESTEnkelvoudigInformatieobject =
-                    informatieObjectenRESTService.createEnkelvoudigInformatieobject(
+                    informatieObjectenRESTService.createEnkelvoudigInformatieobjectWithUploadedFile(
                         closedZaak.uuid,
                         documentReferentieId,
                         false,
-                        restEnkelvoudigInformatieobject,
-                        null
+                        restEnkelvoudigInformatieobject
                     )
 
                 Then("the enkelvoudig informatieobject is added to the zaak") {
@@ -307,7 +314,8 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             val restEnkelvoudigInformatieObjectVersieGegevens =
                 createRESTEnkelvoudigInformatieObjectVersieGegevens(zaakUuid = zaak.uuid)
             val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
-            val httpSessionFileAttribute = "$FILE_SESSION_ATTRIBUTE_PREFIX${restEnkelvoudigInformatieObjectVersieGegevens.zaakUuid}"
+            val httpSessionFileAttribute =
+                "$FILE_SESSION_ATTRIBUTE_PREFIX${restEnkelvoudigInformatieObjectVersieGegevens.zaakUuid}"
             val documentRechten = createDocumentRechten()
 
             every {
@@ -325,6 +333,9 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                 )
             } returns enkelvoudigInformatieObjectWithLockData
             every {
+                restInformatieobjectConverter.convert(restEnkelvoudigInformatieObjectVersieGegevens)
+            } returns enkelvoudigInformatieObjectWithLockData
+            every {
                 enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
                     parseUUIDFromResourceURI(enkelvoudigInformatieObject.url),
                     enkelvoudigInformatieObjectWithLockData,
@@ -339,11 +350,10 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                 restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject)
             } returns restEnkelvoudigInformatieobject
 
-            When("updateEnkelvoudigInformatieobject is called") {
+            When("updateEnkelvoudigInformatieobjectWithUploadedFile is called") {
                 val returnedRESTEnkelvoudigInformatieobject =
-                    informatieObjectenRESTService.updateEnkelvoudigInformatieobject(
-                        restEnkelvoudigInformatieObjectVersieGegevens,
-                        null
+                    informatieObjectenRESTService.updateEnkelvoudigInformatieobjectWithUploadedFile(
+                        restEnkelvoudigInformatieObjectVersieGegevens
                     )
 
                 Then("the enkelvoudig informatieobject is updated") {
@@ -362,11 +372,10 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                 }
             }
 
-            When("updateEnkelvoudigInformatieobject is called with file to upload") {
+            When("updateEnkelvoudigInformatieobjectAndUploadFile is called") {
                 val returnedRESTEnkelvoudigInformatieobject =
-                    informatieObjectenRESTService.updateEnkelvoudigInformatieobject(
-                        restEnkelvoudigInformatieObjectVersieGegevens,
-                        restFileUpload
+                    informatieObjectenRESTService.updateEnkelvoudigInformatieobjectAndUploadFile(
+                        restEnkelvoudigInformatieObjectVersieGegevens
                     )
 
                 Then("the enkelvoudig informatieobject is updated") {

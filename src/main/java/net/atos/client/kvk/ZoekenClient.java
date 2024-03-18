@@ -28,7 +28,7 @@ import net.atos.client.kvk.exception.KvKClientNoResultExceptionMapper;
 import net.atos.client.kvk.exception.RuntimeExceptionMapper;
 import net.atos.client.kvk.model.KVKZoekenParameters;
 import net.atos.client.kvk.util.KVKClientHeadersFactory;
-import net.atos.client.kvk.zoeken.model.Resultaat;
+import net.atos.client.kvk.zoeken.model.generated.Resultaat;
 
 
 @RegisterRestClient(configKey = "KVK-API-Client")
