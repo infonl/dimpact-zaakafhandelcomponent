@@ -42,7 +42,7 @@
 4. Add the 'exploded zaakafhandelcomponent WAR' artifact to the deployment:
    ![zac-intellij-runtime-wildfly-3.png](./attachments/images/zac-intellij-runtime-wildfly-3.png)
 5. Configure 1Password CLI extensions to populate the required environment variables in Startup/Connection.
-   Uncheck the `use default` for the startup script and select the `startupwithenv.sh` script from the project root.
+   Uncheck the `use default` for the startup script and select the `startupwithenv.sh` script from the project root (or `startupwithenv.bat` for windows).
    Next add a new env var called `APP_ENV` and set the value to `devlocal`.
    ![zac-intellij-runtime-wildfly-4.png](./attachments/images/zac-intellij-runtime-wildfly-4.png)
 6. Make sure you configured 1Password startup script for both `Run` and `Debug`
