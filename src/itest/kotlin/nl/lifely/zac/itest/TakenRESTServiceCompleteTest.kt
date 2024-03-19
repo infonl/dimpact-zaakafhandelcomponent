@@ -11,7 +11,6 @@ import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import net.atos.zac.app.taken.model.TaakStatus
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
@@ -46,7 +45,7 @@ class TakenRESTServiceCompleteTest : BehaviorSpec() {
                 val taskArray = JSONArray(responseBody)
                 val taskObject = taskArray.getJSONObject(0)
                 taskObject.put("toelichting", "completed")
-                taskObject.put("status", TaakStatus.AFGEROND)
+                taskObject.put("status", "AFGEROND")
 
                 val response = itestHttpClient.performPatchRequest(
                     url = "${ItestConfiguration.ZAC_API_URI}/taken/complete",
@@ -59,7 +58,7 @@ class TakenRESTServiceCompleteTest : BehaviorSpec() {
                     response.isSuccessful shouldBe true
                     responseBody.shouldBeJsonObject()
                     responseBody.shouldContainJsonKeyValue("toelichting", "completed")
-                    responseBody.shouldContainJsonKeyValue("status", TaakStatus.AFGEROND.toString())
+                    responseBody.shouldContainJsonKeyValue("status", "AFGEROND")
                 }
             }
         }
