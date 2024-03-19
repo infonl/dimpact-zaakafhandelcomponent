@@ -21,9 +21,9 @@
                     <mat-icon>link_off</mat-icon>
                 </button>
                 <a *ngIf="persoon" mat-icon-button [routerLink]="['/persoon', persoon.bsn]"
-                (click)="$event.stopPropagation()"
-                [id]="'persoonBekijken_' + persoon.bsn +'_button'"
-                title="{{ 'actie.persoon.bekijken' | translate }}">
+                   (click)="$event.stopPropagation()"
+                   [id]="'persoonBekijken_' + persoon.bsn +'_button'"
+                   title="{{ 'actie.persoon.bekijken' | translate }}">
                     <mat-icon>visibility</mat-icon>
                 </a>
             </div>

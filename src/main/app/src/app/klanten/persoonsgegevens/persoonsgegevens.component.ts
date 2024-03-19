@@ -4,36 +4,37 @@
  */
 
 import {
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  Output,
-  input,
+    Component,
+    EventEmitter,
+    Input,
+    OnChanges,
+    Output,
+    input,
 } from "@angular/core";
-import { KlantenService } from "../klanten.service";
-import { Persoon } from "../model/personen/persoon";
-import { toObservable } from "@angular/core/rxjs-interop";
-import { switchMap, tap } from "rxjs";
+import {KlantenService} from "../klanten.service";
+import {Persoon} from "../model/personen/persoon";
+import {toObservable} from "@angular/core/rxjs-interop";
+import {switchMap, tap} from "rxjs";
 
 @Component({
-  selector: "zac-persoongegevens",
-  styleUrls: ["./persoonsgegevens.component.less"],
-  templateUrl: "./persoonsgegevens.component.html",
+    selector: "zac-persoongegevens",
+    styleUrls: ["./persoonsgegevens.component.less"],
+    templateUrl: "./persoonsgegevens.component.html",
 })
 export class PersoonsgegevensComponent {
-  @Output() delete = new EventEmitter<Persoon>();
-  @Output() edit = new EventEmitter<Persoon>();
+    @Output() delete = new EventEmitter<Persoon>();
+    @Output() edit = new EventEmitter<Persoon>();
 
-  isVerwijderbaar = input<boolean>();
-  isWijzigbaar = input<boolean>();
-  bsn = input<string>();
+    isVerwijderbaar = input<boolean>();
+    isWijzigbaar = input<boolean>();
+    bsn = input<string>();
 
-  bsn$ = toObservable(this.bsn);
+    bsn$ = toObservable(this.bsn);
 
-  persoon$ = this.bsn$.pipe(
-    switchMap((bsn) => this.klantenService.readPersoon(bsn)),
-  );
+    persoon$ = this.bsn$.pipe(
+        switchMap((bsn) => this.klantenService.readPersoon(bsn)),
+    );
 
-  constructor(private klantenService: KlantenService) {}
+    constructor(private klantenService: KlantenService) {
+    }
 }
