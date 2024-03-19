@@ -52,6 +52,7 @@ import net.atos.client.zgw.drc.DRCClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockData;
+import net.atos.client.zgw.drc.model.generated.Ondertekening;
 import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel;
 import net.atos.client.zgw.zrc.ZRCClientService;
@@ -95,6 +96,7 @@ import net.atos.zac.event.EventingService;
 import net.atos.zac.flowable.TaakVariabelenService;
 import net.atos.zac.flowable.TakenService;
 import net.atos.zac.policy.PolicyService;
+import net.atos.zac.policy.output.DocumentRechten;
 import net.atos.zac.util.UriUtil;
 import net.atos.zac.webdav.WebdavHelper;
 
@@ -684,9 +686,14 @@ public class InformatieObjectenRESTService {
     ) {
         final EnkelvoudigInformatieObject enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
                 uuid);
-        assertPolicy(enkelvoudigInformatieobject.getOndertekening() == null &&
-                     policyService.readDocumentRechten(enkelvoudigInformatieobject,
-                             zrcClientService.readZaak(zaakUUID)).ondertekenen());
+        Zaak zaak = zrcClientService.readZaak(zaakUUID);
+        DocumentRechten documentRechten = policyService.readDocumentRechten(
+                enkelvoudigInformatieobject,
+                zaak
+        );
+        Ondertekening ondertekening = enkelvoudigInformatieobject.getOndertekening();
+        boolean hasOndertekening = ondertekening != null && ondertekening.getDatum() != null;
+        assertPolicy(!hasOndertekening && documentRechten.ondertekenen());
         enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(uuid);
 
         // Hiervoor wordt door open zaak geen notificatie verstuurd. Dus zelf het ScreenEvent versturen!
