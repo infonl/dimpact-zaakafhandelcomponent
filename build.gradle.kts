@@ -299,12 +299,12 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
     format("json") {
         target("src/**/*.json")
         targetExclude(
-                "src/e2e/node_modules/**",
-                "src/main/app/node_modules/**",
-                "src/main/app/dist/**",
-                "src/main/app/.angular/**",
-                "src/**/package-lock.json",
-                "src/main/app/coverage/**.json"
+            "src/e2e/node_modules/**",
+            "src/main/app/node_modules/**",
+            "src/main/app/dist/**",
+            "src/main/app/.angular/**",
+            "src/**/package-lock.json",
+            "src/main/app/coverage/**.json"
         )
 
         prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get())).config(mapOf("parser" to "json"))
@@ -338,6 +338,7 @@ tasks {
 
         delete("$rootDir/src/main/app/dist")
         delete("$rootDir/src/main/app/reports")
+        delete("$rootDir/src/main/app/coverage")
         delete("$rootDir/src/generated")
         delete("$rootDir/src/e2e/reports")
     }
@@ -537,16 +538,20 @@ tasks {
     register<NpmTask>("npmRunTest") {
         dependsOn("npmRunBuild")
 
-        npmCommand.set(listOf("run", "test:report"))
+        npmCommand.set(listOf("run", "test"))
         // avoid running this task when there are no changes in the input or output files
         // see: https://github.com/node-gradle/gradle-node-plugin/blob/master/docs/faq.md
         inputs.files(fileTree("src/main/app/node_modules"))
         inputs.files(fileTree("src/main/app/src"))
         inputs.file("src/main/app/package.json")
         inputs.file("src/main/app/package-lock.json")
+    }
 
-        // the Jest junit reporter generates file: src/main/app/reports/report.xml
-        outputs.dir("src/main/app/reports")
+    register<NpmTask>("npmRunTestCoverage") {
+        dependsOn("npmRunTest")
+
+        npmCommand.set(listOf("run", "test:report"))
+        outputs.dir("src/main/app/coverage")
     }
 
     register<DockerBuildImage>("buildDockerImage") {
