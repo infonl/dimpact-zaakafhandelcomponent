@@ -307,15 +307,15 @@ class InformatieObjectenTest : BehaviorSpec() {
             }
             When("ondertekenInformatieObject endpoint is called") {
                 val endpointUrl =
-                        "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/${enkelvoudigInformatieObjectUUID}/onderteken?zaak=${zaak1UUID}"
+                    "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUUID/onderteken?zaak=$zaak1UUID"
                 logger.info { "Calling $endpointUrl endpoint" }
 
                 val response = itestHttpClient.performPostRequest(
-                        url = endpointUrl,
-                        requestBody = "".toRequestBody()
+                    url = endpointUrl,
+                    requestBody = "".toRequestBody()
                 )
                 Then(
-                        "the response should be OK and should contain information about the updates"
+                    "the response should be OK and should contain information about the updates"
                 ) {
                     val responseBody = response.body!!.string()
                     logger.info { "$endpointUrl response: $responseBody" }
