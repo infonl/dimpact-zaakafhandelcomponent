@@ -3,13 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  Output,
-} from "@angular/core";
+import { Component, EventEmitter, Output, input } from "@angular/core";
+import { toObservable } from "@angular/core/rxjs-interop";
+import { switchMap } from "rxjs";
 import { KlantenService } from "../klanten.service";
 import { Persoon } from "../model/personen/persoon";
 
@@ -18,26 +14,19 @@ import { Persoon } from "../model/personen/persoon";
   styleUrls: ["./persoonsgegevens.component.less"],
   templateUrl: "./persoonsgegevens.component.html",
 })
-export class PersoonsgegevensComponent implements OnChanges {
-  @Input() isVerwijderbaar: boolean;
-  @Input() isWijzigbaar: boolean;
+export class PersoonsgegevensComponent {
   @Output() delete = new EventEmitter<Persoon>();
   @Output() edit = new EventEmitter<Persoon>();
-  @Input() bsn: string;
 
-  persoon: Persoon;
-  klantExpanded: boolean;
+  isVerwijderbaar = input<boolean>();
+  isWijzigbaar = input<boolean>();
+  bsn = input<string>();
+
+  bsn$ = toObservable(this.bsn);
+
+  persoon$ = this.bsn$.pipe(
+    switchMap((bsn) => this.klantenService.readPersoon(bsn)),
+  );
 
   constructor(private klantenService: KlantenService) {}
-
-  ngOnChanges(): void {
-    this.persoon = null;
-    this.klantExpanded = false;
-    if (this.bsn) {
-      this.klantenService.readPersoon(this.bsn).subscribe((persoon) => {
-        this.persoon = persoon;
-        this.klantExpanded = true;
-      });
-    }
-  }
 }
