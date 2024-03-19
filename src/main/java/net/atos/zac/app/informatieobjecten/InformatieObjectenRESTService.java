@@ -693,7 +693,12 @@ public class InformatieObjectenRESTService {
         );
         Ondertekening ondertekening = enkelvoudigInformatieobject.getOndertekening();
         boolean hasOndertekening = ondertekening != null && ondertekening.getDatum() != null;
-        assertPolicy(!hasOndertekening && documentRechten.ondertekenen());
+        assertPolicy(
+           !hasOndertekening && policyService.readDocumentRechten(
+                enkelvoudigInformatieobject,
+                zaak
+            ).ondertekenen()
+        );
         enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(uuid);
 
         // Hiervoor wordt door open zaak geen notificatie verstuurd. Dus zelf het ScreenEvent versturen!
