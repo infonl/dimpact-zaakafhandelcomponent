@@ -32,6 +32,7 @@ object ItestConfiguration {
     const val TEST_SPEC_ORDER_AFTER_ZAAK_CREATED = 1
     const val TEST_SPEC_ORDER_AFTER_TASK_CREATED = 2
     const val TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED = 3
+    const val TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED = 4
     const val USER_FULL_NAME = "Test User1"
     const val ZAC_CONTAINER_SERVICE_NAME = "zac"
     const val ZAC_CONTAINER_PORT = 8080

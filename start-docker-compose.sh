@@ -7,11 +7,11 @@ set -e
 # SPDX-License-Identifier: EUPL-1.2+
 #
 
-Help()
+help()
 {
    echo "Starts the ZAC Docker Compose environment using the 1Password CLI tools to retrieve secrets."
    echo
-   echo "Syntax: start-docker-compose.sh [-d|z|l|h]"
+   echo "Syntax: $0 [-d|z|l|h]"
    echo "options:"
    echo "-d     Delete local Docker volume data before starting Docker Compose."
    echo "-z     Also start last-known-good ZAC Docker container as part of the Docker Compose environment."
@@ -31,7 +31,7 @@ while getopts ':dzlh' OPTION; do
       echo "Done"
       ;;
     h)
-      Help
+      help
       exit;;
     z)
       echo "Pulling latest ZAC Docker Image ..."
@@ -46,7 +46,7 @@ while getopts ':dzlh' OPTION; do
       ;;
     \?)
       echo "Error: Invalid option"
-      Help
+      help
       exit;;
   esac
 done

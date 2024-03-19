@@ -43,13 +43,15 @@ class PlanItemsRESTServiceTest : BehaviorSpec() {
                     "${ItestConfiguration.ZAC_API_URI}/planitems/zaak/$zaak1UUID/humanTaskPlanItems"
                 )
                 Then(
-                    "the list of human task plan items for this zaak is returned and contains the task 'aanvullende informatie'"
+                    "the list of human task plan items for this zaak is returned and contains " +
+                        "the task 'aanvullende informatie'"
                 ) {
                     val responseBody = response.body!!.string()
                     logger.info { "Response: $responseBody" }
                     response.isSuccessful shouldBe true
                     responseBody.shouldBeJsonArray()
-                    // the zaak is in the intake phase, so there should be only be one human task plan item: 'aanvullende informatie'
+                    // the zaak is in the intake phase, so there should be only be one human task
+                    // plan item: 'aanvullende informatie'
                     JSONArray(responseBody).length() shouldBe 1
                     with(JSONArray(responseBody)[0].toString()) {
                         shouldContainJsonKeyValue("actief", "true")
@@ -66,7 +68,8 @@ class PlanItemsRESTServiceTest : BehaviorSpec() {
         Given("A zaak has been created") {
             When("the get human task plan item endpoint is called for the task 'aanvullende informatie'") {
                 val response = itestHttpClient.performGetRequest(
-                    "${ItestConfiguration.ZAC_API_URI}/planitems/humanTaskPlanItem/$humanTaskItemAanvullendeInformatieId"
+                    "${ItestConfiguration.ZAC_API_URI}" +
+                        "/planitems/humanTaskPlanItem/$humanTaskItemAanvullendeInformatieId"
                 )
                 Then("the human task plan item data for this task is returned") {
                     val responseBody = response.body!!.string()
@@ -88,14 +91,14 @@ class PlanItemsRESTServiceTest : BehaviorSpec() {
                 val fataleDatum = LocalDate.now().plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                 val response = itestHttpClient.performJSONPostRequest(
                     url = "${ItestConfiguration.ZAC_API_URI}/planitems/doHumanTaskPlanItem",
-                    requestBodyAsString = "{\n" +
-                        "\"planItemInstanceId\":\"$humanTaskItemAanvullendeInformatieId\",\n" +
-                        "\"fataledatum\":\"$fataleDatum\",\n" +
-                        "\"taakStuurGegevens\":{\"sendMail\":false},\n" +
-                        "\"medewerker\":null,\"groep\":{\"id\":\"$GROUP_A_ID\",\"naam\":\"$GROUP_A_NAME\"},\n" +
-                        // taakdata must be present, even if it is empty
-                        "\"taakdata\":{}\n" +
-                        "}"
+                    requestBodyAsString = """{
+                        "planItemInstanceId":"$humanTaskItemAanvullendeInformatieId",
+                        "fataledatum":"$fataleDatum",
+                        "taakStuurGegevens":{"sendMail":false},
+                        "medewerker":null,"groep":{"id":"$GROUP_A_ID","naam":"$GROUP_A_NAME"},
+                        "taakdata":{}
+                    }
+                    """.trimIndent()
                 )
                 Then("a task is started for this zaak") {
                     val responseBody = response.body!!.string()
