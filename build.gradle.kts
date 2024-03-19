@@ -1,7 +1,7 @@
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.github.gradle.node.npm.task.NpmTask
 import io.smallrye.openapi.api.OpenApiConfig
-import java.util.*
+import java.util.Locale
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 
 /*
@@ -617,5 +617,6 @@ abstract class Maven : Exec() {
                 "./mvnw"
             },
             goal,
-            *args)
+            *args
+    )
 }
