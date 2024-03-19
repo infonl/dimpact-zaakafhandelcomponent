@@ -51,12 +51,12 @@ class NotificatieReceiverTest : BehaviorSpec({
         httpSessionInstance
     )
 
-    given(
+    Given(
         "a request containing a authorization header, a productaanvraag notificatie with a object type UUID " +
             "for the productaanvraag object type"
     ) {
-        `when`("notificatieReceive is called") {
-            then(
+        When("notificatieReceive is called") {
+            Then(
                 "the 'functional user' is added to the HTTP sessionm the productaanvraag service is invoked " +
                     "and a 'no content' response is returned"
             ) {

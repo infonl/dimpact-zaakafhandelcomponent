@@ -37,24 +37,29 @@ import net.atos.zac.zoeken.model.index.ZoekObjectType;
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
 
 public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoekObject> {
+    private final ZRCClientService zrcClientService;
+    private final ZTCClientService ztcClientService;
+    private final VRLClientService vrlClientService;
+    private final ZGWApiService zgwApiService;
+    private final IdentityService identityService;
+    private final TakenService takenService;
 
     @Inject
-    private ZRCClientService zrcClientService;
-
-    @Inject
-    private ZTCClientService ztcClientService;
-
-    @Inject
-    private VRLClientService vrlClientService;
-
-    @Inject
-    private ZGWApiService zgwApiService;
-
-    @Inject
-    private IdentityService identityService;
-
-    @Inject
-    private TakenService takenService;
+    public ZaakZoekObjectConverter(
+            ZRCClientService zrcClientService,
+            ZTCClientService ztcClientService,
+            VRLClientService vrlClientService,
+            ZGWApiService zgwApiService,
+            IdentityService identityService,
+            TakenService takenService
+    ) {
+        this.zrcClientService = zrcClientService;
+        this.ztcClientService = ztcClientService;
+        this.vrlClientService = vrlClientService;
+        this.zgwApiService = zgwApiService;
+        this.identityService = identityService;
+        this.takenService = takenService;
+    }
 
     public ZaakZoekObject convert(final String zaakUUID) {
         final Zaak zaak = zrcClientService.readZaak(UUID.fromString(zaakUUID));
