@@ -52,7 +52,8 @@ import net.atos.zac.zaaksturing.ZaakafhandelParameterBeheerService;
 import net.atos.zac.zoeken.IndexeerService;
 
 /**
- *
+ * Provides REST endpoints for receiving notifications about events that ZAC needs to know about
+ * so that it can take appropriate action.
  */
 @Path("notificaties")
 @Consumes(MediaType.APPLICATION_JSON)
