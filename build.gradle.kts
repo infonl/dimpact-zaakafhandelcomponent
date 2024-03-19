@@ -545,6 +545,9 @@ tasks {
         inputs.files(fileTree("src/main/app/src"))
         inputs.file("src/main/app/package.json")
         inputs.file("src/main/app/package-lock.json")
+
+        // the Jest junit reporter generates file: src/main/app/reports/report.xml
+        outputs.dir("src/main/app/reports")
     }
 
     register<NpmTask>("npmRunTestCoverage") {
