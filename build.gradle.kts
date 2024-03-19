@@ -168,7 +168,7 @@ dependencies {
     "itestImplementation"(libs.awaitility)
     "itestImplementation"(libs.mockserver.client)
 
-    jacocoAgentJarForItest(libs.jacoco.agent)
+    jacocoAgentJarForItest(variantOf(libs.jacoco.agent) { classifier("runtime") })
 }
 
 tasks.register<io.gitlab.arturbosch.detekt.Detekt>("detektApply") {
