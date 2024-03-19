@@ -52,7 +52,7 @@ public abstract class AbstractEvent<TYPE, ID> implements Serializable {
         return objectId;
     }
 
-    public boolean delay() {
+    public void delay() {
         if (0 < delay) {
             try {
                 TimeUnit.SECONDS.sleep(delay);
@@ -60,9 +60,7 @@ public abstract class AbstractEvent<TYPE, ID> implements Serializable {
                 LOG.log(Level.WARNING, "Thread interrupted", e);
                 Thread.currentThread().interrupt();
             }
-            return true;
         }
-        return false;
     }
 
     public void setDelay(final int seconds) {

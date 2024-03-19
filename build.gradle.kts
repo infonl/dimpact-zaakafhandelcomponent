@@ -2,6 +2,7 @@ import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.github.gradle.node.npm.task.NpmTask
 import io.smallrye.openapi.api.OpenApiConfig
 import java.util.Locale
+import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 
 /*
  * SPDX-FileCopyrightText: 2023 Lifely
@@ -10,19 +11,20 @@ import java.util.Locale
 
 plugins {
     java
-    kotlin("jvm") version "1.9.23"
     war
     jacoco
 
-    id("org.jsonschema2pojo") version "1.2.1"
-    id("org.openapi.generator") version "7.4.0"
-    id("com.github.node-gradle.node") version "7.0.2"
-    id("org.barfuin.gradle.taskinfo") version "2.2.0"
-    id("io.smallrye.openapi") version "3.10.0"
-    id("org.hidetake.swagger.generator") version "2.19.2"
-    id("io.gitlab.arturbosch.detekt") version "1.23.5"
-    id("com.bmuschko.docker-remote-api") version "9.4.0"
-    id("com.diffplug.spotless") version "6.25.0"
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.jsonschema2pojo)
+    alias(libs.plugins.openapi.generator)
+    alias(libs.plugins.gradle.node)
+    alias(libs.plugins.taskinfo)
+    alias(libs.plugins.openapi)
+    alias(libs.plugins.swagger.generator)
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.docker.remote.api)
+    alias(libs.plugins.spotless)
+        
     id("org.jetbrains.kotlin.plugin.allopen") version "1.9.23"
 }
 
@@ -91,84 +93,84 @@ sourceSets {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation("org.apache.commons:commons-lang3:3.14.0")
-    implementation("org.apache.commons:commons-text:1.11.0")
-    implementation("org.apache.commons:commons-collections4:4.4")
-    implementation("commons-io:commons-io:2.15.1")
-    implementation("com.opencsv:opencsv:5.9")
-    implementation("org.flowable:flowable-engine:7.0.1")
-    implementation("org.flowable:flowable-cdi:7.0.1")
-    implementation("org.flowable:flowable-cmmn-engine:7.0.1")
-    implementation("org.flowable:flowable-cmmn-cdi:7.0.1")
-    implementation("org.flowable:flowable-cmmn-engine-configurator:7.0.1")
-    implementation("org.slf4j:slf4j-jdk14:2.0.12")
-    implementation("com.auth0:java-jwt:4.4.0")
-    implementation("javax.cache:cache-api:1.1.1")
-    implementation("com.google.guava:guava:33.1.0-jre")
-    implementation("com.mailjet:mailjet-client:5.2.5")
-    implementation("com.itextpdf:kernel:8.0.3")
-    implementation("com.itextpdf:layout:8.0.3")
-    implementation("com.itextpdf:io:8.0.3")
-    implementation("com.itextpdf:html2pdf:5.0.3")
-    implementation("org.flywaydb:flyway-core:10.10.0")
-    implementation("org.flywaydb:flyway-database-postgresql:10.10.0")
-    implementation("org.apache.solr:solr-solrj:9.5.0")
-    implementation("nl.info.webdav:webdav-servlet:1.2.42")
-    implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
-    implementation("com.unboundid:unboundid-ldapsdk:7.0.0")
+    implementation(libs.apache.commons.lang)
+    implementation(libs.apache.commons.text)
+    implementation(libs.apache.commons.collections)
+    implementation(libs.commons.io)
+    implementation(libs.opencsv)
+    implementation(libs.flowable.engine)
+    implementation(libs.flowable.cdi)
+    implementation(libs.flowable.cmmn.engine)
+    implementation(libs.flowable.cmmn.cdi)
+    implementation(libs.flowable.cmmn.engine.configurator)
+    implementation(libs.slf4j.jdk14)
+    implementation(libs.auth0.java.jwt)
+    implementation(libs.javax.cache.api)
+    implementation(libs.google.guava)
+    implementation(libs.mailjet.client)
+    implementation(libs.itextpdf.kernel)
+    implementation(libs.itextpdf.layout)
+    implementation(libs.itextpdf.io)
+    implementation(libs.itextpdf.html2pdf)
+    implementation(libs.flyway.core)
+    implementation(libs.flyway.postgresql)
+    implementation(libs.apache.solr)
+    implementation(libs.webdav.servlet)
+    implementation(libs.htmlcleaner)
+    implementation(libs.unboundid.ldapsdk)
 
-    swaggerUI("org.webjars:swagger-ui:5.12.0")
+    swaggerUI(libs.swagger.ui)
 
     // enable detekt formatting rules. see: https://detekt.dev/docs/rules/formatting/
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.5")
+    detektPlugins(libs.detekt.formatting)
 
-    runtimeOnly("org.infinispan:infinispan-jcache:15.0.0.Final")
-    runtimeOnly("org.infinispan:infinispan-cdi-embedded:15.0.0.Final")
+    runtimeOnly(libs.infinispan.jcache)
+    runtimeOnly(libs.infinispan.cdi.embedded)
 
     // declare dependencies that are required in the generated WAR; see war section below
     // simply marking them as 'compileOnly' or 'implementation' does not work
-    warLib("org.apache.httpcomponents:httpclient:4.5.14")
-    warLib("org.reactivestreams:reactive-streams:1.0.4")
+    warLib(libs.apache.httpclient)
+    warLib(libs.reactive.streams)
     // WildFly does already include the Jakarta Mail API lib so not sure why, but we need to
     // include it in the WAR or else ZAC will fail to be deployed
-    warLib("jakarta.mail:jakarta.mail-api:2.1.3")
+    warLib(libs.jakarta.mail)
 
     // dependencies provided by Wildfly
     // update these versions when upgrading WildFly
     // you can find most of these dependencies in the WildFly pom.xml file
     // of the WidFly version you are using on https://github.com/wildfly/wildfly
-    // for others you need to check the 'modules' directory of your local WildFly installtion
-    providedCompile("jakarta.platform:jakarta.jakartaee-api:10.0.0")
-    providedCompile("org.eclipse.microprofile.rest.client:microprofile-rest-client-api:3.0.1")
-    providedCompile("org.eclipse.microprofile.config:microprofile-config-api:3.1")
-    providedCompile("org.eclipse.microprofile.health:microprofile-health-api:4.0.1")
-    providedCompile("org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api:4.0.2")
-    providedCompile("org.jboss.resteasy:resteasy-multipart-provider:6.2.7.Final")
-    providedCompile("org.wildfly.security:wildfly-elytron-http-oidc:2.2.3.Final")
-    providedCompile("org.hibernate.validator:hibernate-validator:8.0.1.Final")
+    // for others you need to check the 'modules' directory of your local WildFly installation
+    providedCompile(libs.jakarta.jakartaee)
+    providedCompile(libs.eclipse.microprofile.rest.client.api)
+    providedCompile(libs.eclipse.microprofile.config.api)
+    providedCompile(libs.eclipse.microprofile.health.api)
+    providedCompile(libs.eclipse.microprofile.fault.tolerance.api)
+    providedCompile(libs.jboss.resteasy.multipart.provider)
+    providedCompile(libs.wildfly.security.elytron.http.oidc)
+    providedCompile(libs.hibernate.validator)
     // ~dependencies provided by Wildfly
 
     // yasson is required for using a JSONB context in our unit tests
     // where we do not have the WildFly runtime environment available
-    testImplementation("org.eclipse:yasson:3.0.3")
-    testImplementation("io.kotest:kotest-runner-junit5:5.8.1")
-    testImplementation("io.mockk:mockk:1.13.10")
+    testImplementation(libs.eclipse.yasson)
+    testImplementation(libs.kotest.runner.junit5)
+    testImplementation(libs.mockk)
 
     // integration test dependencies
-    "itestImplementation"("org.testcontainers:testcontainers:1.19.7")
-    "itestImplementation"("org.testcontainers:mockserver:1.19.7")
-    "itestImplementation"("org.testcontainers:postgresql:1.19.7")
-    "itestImplementation"("org.json:json:20240303")
-    "itestImplementation"("io.kotest:kotest-runner-junit5:5.8.1")
-    "itestImplementation"("io.kotest:kotest-assertions-json:5.8.1")
-    "itestImplementation"("org.slf4j:slf4j-simple:2.0.12")
-    "itestImplementation"("io.github.oshai:kotlin-logging-jvm:6.0.3")
-    "itestImplementation"("com.squareup.okhttp3:okhttp:4.12.0")
-    "itestImplementation"("com.squareup.okhttp3:okhttp-urlconnection:4.12.0")
-    "itestImplementation"("org.awaitility:awaitility-kotlin:4.2.1")
-    "itestImplementation"("org.mock-server:mockserver-client-java:5.15.0")
+    "itestImplementation"(libs.testcontainers.testcontainers)
+    "itestImplementation"(libs.testcontainers.mockserver)
+    "itestImplementation"(libs.testcontainers.postgresql)
+    "itestImplementation"(libs.json)
+    "itestImplementation"(libs.kotest.runner.junit5)
+    "itestImplementation"(libs.kotest.assertions.json)
+    "itestImplementation"(libs.slf4j.simple)
+    "itestImplementation"(libs.github.kotlin.logging)
+    "itestImplementation"(libs.squareup.okhttp)
+    "itestImplementation"(libs.squareup.okhttp.urlconnection)
+    "itestImplementation"(libs.awaitility)
+    "itestImplementation"(libs.mockserver.client)
 
-    jacocoAgentJarForItest("org.jacoco:org.jacoco.agent:0.8.11:runtime")
+    jacocoAgentJarForItest(variantOf(libs.jacoco.agent) { classifier("runtime") })
 }
 
 tasks.register<io.gitlab.arturbosch.detekt.Detekt>("detektApply") {
@@ -191,7 +193,7 @@ allOpen {
 }
 
 jacoco {
-    toolVersion = "0.8.11"
+    toolVersion = libs.versions.jacoco.get()
 }
 
 java {
@@ -224,7 +226,7 @@ jsonSchema2Pojo {
 
 node {
     download.set(true)
-    version.set("20.11.1")
+    version.set(libs.versions.nodejs.get())
     distBaseUrl.set("https://nodejs.org/dist")
     nodeProjectDir.set(file("$rootDir/src/main/app"))
     if (System.getenv("CI") != null) {
@@ -265,7 +267,7 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
 
         // Latest supported version:
         // https://github.com/diffplug/spotless/tree/main/lib-extra/src/main/resources/com/diffplug/spotless/extra/eclipse_wtp_formatter
-        eclipse("4.21").configFile("config/zac.xml")
+        eclipse(libs.versions.spotless.eclipse.formatter.get()).configFile("config/zac.xml")
 
         licenseHeaderFile("config/licenseHeader.txt")
             .onlyIfContentMatches("FileCopyrightText: 2[0-9-]+ Lifely").updateYearWithLatest(true)
@@ -274,7 +276,8 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         target("src/e2e/**/*.js", "src/e2e/**/*.ts")
         targetExclude("src/e2e/node_modules/**")
 
-        prettier(mapOf("prettier" to "3.2.5", "prettier-plugin-organize-imports" to "3.2.4"))
+        prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get(),
+                "prettier-plugin-organize-imports" to libs.versions.spotless.prettier.organize.imports.get()))
             .config(mapOf("parser" to "typescript", "plugins" to arrayOf("prettier-plugin-organize-imports")))
     }
     gherkin {
@@ -298,21 +301,22 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
             "src/main/app/.angular/**"
         )
 
-        prettier(mapOf("prettier" to "3.2.5", "prettier-plugin-organize-imports" to "3.2.4"))
+        prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get(),
+                "prettier-plugin-organize-imports" to libs.versions.spotless.prettier.organize.imports.get()))
             .config(mapOf("parser" to "typescript", "plugins" to arrayOf("prettier-plugin-organize-imports")))
     }
     format("json") {
         target("src/**/*.json")
         targetExclude(
-                "src/e2e/node_modules/**",
-                "src/main/app/node_modules/**",
-                "src/main/app/dist/**",
-                "src/main/app/.angular/**",
-                "src/**/package-lock.json",
-                "src/main/app/coverage/**.json"
+            "src/e2e/node_modules/**",
+            "src/main/app/node_modules/**",
+            "src/main/app/dist/**",
+            "src/main/app/.angular/**",
+            "src/**/package-lock.json",
+            "src/main/app/coverage/**.json"
         )
 
-        prettier(mapOf("prettier" to "3.2.5")).config(mapOf("parser" to "json"))
+        prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get())).config(mapOf("parser" to "json"))
     }
 }
 tasks.getByName("spotlessApply").finalizedBy(listOf("detektApply"))
@@ -343,6 +347,7 @@ tasks {
 
         delete("$rootDir/src/main/app/dist")
         delete("$rootDir/src/main/app/reports")
+        delete("$rootDir/src/main/app/coverage")
         delete("$rootDir/src/generated")
         delete("$rootDir/src/e2e/reports")
     }
@@ -403,7 +408,7 @@ tasks {
         options.encoding = "UTF-8"
     }
 
-    withType<org.openapitools.generator.gradle.plugin.tasks.GenerateTask> {
+    withType<GenerateTask> {
         generatorName.set("java")
         outputDir.set("$rootDir/src/generated/java")
         generateApiTests.set(false)
@@ -421,7 +426,7 @@ tasks {
         configOptions.set(
             mapOf(
                 "library" to "microprofile",
-                "microprofileRestClientVersion" to "3.0",
+                "microprofileRestClientVersion" to libs.versions.microprofile.rest.client.get(),
                 "sourceFolder" to "",
                 "dateLibrary" to "java8",
                 "disallowAdditionalPropertiesIfNotPresent" to "false",
@@ -435,39 +440,39 @@ tasks {
         templateDir.set("$rootDir/src/main/resources/openapi-generator-templates")
     }
 
-    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKvkZoekenClient") {
+    register<GenerateTask>("generateKvkZoekenClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/zoeken-openapi.yaml")
         modelPackage.set("net.atos.client.kvk.zoeken.model.generated")
     }
 
-    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKvkBasisProfielClient") {
+    register<GenerateTask>("generateKvkBasisProfielClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/basisprofiel-openapi.yaml")
         modelPackage.set("net.atos.client.kvk.basisprofiel.model.generated")
     }
 
-    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKvkVestigingsProfielClient") {
+    register<GenerateTask>("generateKvkVestigingsProfielClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/vestigingsprofiel-openapi.yaml")
         modelPackage.set("net.atos.client.kvk.vestigingsprofiel.model.generated")
     }
 
-    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateBrpClient") {
+    register<GenerateTask>("generateBrpClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/brp/openapi.yaml")
         modelPackage.set("net.atos.client.brp.model.generated")
     }
 
-    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateVrlClient") {
+    register<GenerateTask>("generateVrlClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/vrl/openapi.yaml")
         modelPackage.set("net.atos.client.vrl.model.generated")
     }
 
-    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateBagClient") {
+    register<GenerateTask>("generateBagClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/bag/openapi.yaml")
         modelPackage.set("net.atos.client.bag.model.generated")
         // we use a different date library for this client
         configOptions.set(
             mapOf(
                 "library" to "microprofile",
-                "microprofileRestClientVersion" to "3.0",
+                "microprofileRestClientVersion" to libs.versions.microprofile.rest.client.get(),
                 "sourceFolder" to "",
                 "dateLibrary" to "java8-localdatetime",
                 "disallowAdditionalPropertiesIfNotPresent" to "false",
@@ -477,7 +482,7 @@ tasks {
         )
     }
 
-    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateKlantenClient") {
+    register<GenerateTask>("generateKlantenClient") {
         // this task was not enabled in the original Maven build either;
         // these model files were added to the code base manually instead
         isEnabled = false
@@ -486,27 +491,27 @@ tasks {
         modelPackage.set("net.atos.client.klanten.model.generated")
     }
 
-    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateContactMomentenClient") {
+    register<GenerateTask>("generateContactMomentenClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/contactmomenten/openapi.yaml")
         modelPackage.set("net.atos.client.contactmomenten.model.generated")
     }
 
-    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateZgwBrcClient") {
+    register<GenerateTask>("generateZgwBrcClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/brc-openapi.yaml")
         modelPackage.set("net.atos.client.zgw.brc.model.generated")
     }
 
-    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateZgwDrcClient") {
+    register<GenerateTask>("generateZgwDrcClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/drc-openapi.yaml")
         modelPackage.set("net.atos.client.zgw.drc.model.generated")
     }
 
-    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateZrcDrcClient") {
+    register<GenerateTask>("generateZrcDrcClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/zrc-openapi.yaml")
         modelPackage.set("net.atos.client.zgw.zrc.model.generated")
     }
 
-    register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("generateZtcDrcClient") {
+    register<GenerateTask>("generateZtcDrcClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/ztc-openapi.yaml")
         modelPackage.set("net.atos.client.zgw.ztc.model.generated")
     }
@@ -546,16 +551,20 @@ tasks {
     register<NpmTask>("npmRunTest") {
         dependsOn("npmRunBuild")
 
-        npmCommand.set(listOf("run", "test:report"))
+        npmCommand.set(listOf("run", "test"))
         // avoid running this task when there are no changes in the input or output files
         // see: https://github.com/node-gradle/gradle-node-plugin/blob/master/docs/faq.md
         inputs.files(fileTree("src/main/app/node_modules"))
         inputs.files(fileTree("src/main/app/src"))
         inputs.file("src/main/app/package.json")
         inputs.file("src/main/app/package-lock.json")
+    }
 
-        // the Jest junit reporter generates file: src/main/app/reports/report.xml
-        outputs.dir("src/main/app/reports")
+    register<NpmTask>("npmRunTestCoverage") {
+        dependsOn("npmRunTest")
+
+        npmCommand.set(listOf("run", "test:report"))
+        outputs.dir("src/main/app/coverage")
     }
 
     register<DockerBuildImage>("buildDockerImage") {
@@ -605,20 +614,27 @@ tasks {
         }
     }
 
-    register<Exec>("generateWildflyBootableJar") {
+    // Simple function to invoke a maven goal, dependent on the os, with optional
+    register<Maven>("generateWildflyBootableJar") {
         dependsOn("war")
-        if (System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")) {
-            commandLine("./mvnw.cmd", "wildfly-jar:package")
-        } else {
-            commandLine("./mvnw", "wildfly-jar:package")
-        }
+        execGoal("wildfly-jar:package")
     }
 
-    register<Exec>("mavenClean") {
-        if (System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")) {
-            commandLine("./mvnw.cmd", "clean")
-        } else {
-            commandLine("./mvnw", "clean")
-        }
+    register<Maven>("mavenClean") {
+        execGoal("clean")
     }
+}
+
+@DisableCachingByDefault(because = "Gradle would require more information to cache this task")
+abstract class Maven : Exec() {
+    // Simple function to invoke a maven goal, dependent on the os, with optional
+    fun execGoal(goal: String, vararg args: String) = commandLine(
+            if (System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")) {
+                "./mvnw.cmd"
+            } else {
+                "./mvnw"
+            },
+            goal,
+            *args
+    )
 }
