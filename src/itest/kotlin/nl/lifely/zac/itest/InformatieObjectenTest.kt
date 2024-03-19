@@ -307,7 +307,8 @@ class InformatieObjectenTest : BehaviorSpec() {
             }
             When("ondertekenInformatieObject endpoint is called") {
                 val endpointUrl =
-                    "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUUID/onderteken?zaak=$zaak1UUID"
+                    "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject" +
+                        "/$enkelvoudigInformatieObjectUUID/onderteken?zaak=$zaak1UUID"
                 logger.info { "Calling $endpointUrl endpoint" }
 
                 val response = itestHttpClient.performPostRequest(
