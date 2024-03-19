@@ -4,12 +4,12 @@
   -->
 
 
-<mat-expansion-panel [expanded]="klantExpanded">
+<mat-expansion-panel>
     <mat-expansion-panel-header>
         <mat-panel-title>
             {{'initiator.titel'| translate}}
         </mat-panel-title>
-        <mat-panel-description>
+        <mat-panel-description *ngIf="persoon$ | async as persoon">
             {{persoon ? persoon.naam : ('msg.loading'| translate)}}
             <div class="flex-row">
                 <button *ngIf="persoon && isWijzigbaar" [title]="'actie.initiator.wijzigen' | translate" mat-icon-button
@@ -21,15 +21,15 @@
                     <mat-icon>link_off</mat-icon>
                 </button>
                 <a *ngIf="persoon" mat-icon-button [routerLink]="['/persoon', persoon.bsn]"
-                   (click)="$event.stopPropagation()"
-                   [id]="'persoonBekijken_' + persoon.bsn +'_button'"
-                   title="{{ 'actie.persoon.bekijken' | translate }}">
+                (click)="$event.stopPropagation()"
+                [id]="'persoonBekijken_' + persoon.bsn +'_button'"
+                title="{{ 'actie.persoon.bekijken' | translate }}">
                     <mat-icon>visibility</mat-icon>
                 </a>
             </div>
         </mat-panel-description>
     </mat-expansion-panel-header>
-    <div *ngIf="persoon" id="persoonsgegevens" class="content flex-row flex-wrap">
+    <div *ngIf="persoon$ | async as persoon" id="persoonsgegevens" class="content flex-row flex-wrap">
         <zac-static-text class="flex-1" [label]="'naam' | translate"
                          [value]="persoon?.naam"></zac-static-text>
         <zac-static-text class="flex-1" [label]="'burgerservicenummer' | translate"
