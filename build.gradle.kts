@@ -546,7 +546,7 @@ tasks {
         inputs.file("src/main/app/package.json")
         inputs.file("src/main/app/package-lock.json")
 
-        // the Jest junit reporter generates file: src/main/app/reports/report.xml
+        // directory used by the Jest reporter(s) that we have configured
         outputs.dir("src/main/app/reports")
     }
 
