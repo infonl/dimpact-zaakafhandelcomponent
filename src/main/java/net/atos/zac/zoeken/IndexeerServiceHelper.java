@@ -5,6 +5,13 @@
 
 package net.atos.zac.zoeken;
 
+import static net.atos.zac.zoeken.model.index.IndexStatus.ADD;
+import static net.atos.zac.zoeken.model.index.IndexStatus.REMOVE;
+import static net.atos.zac.zoeken.model.index.IndexStatus.UPDATE;
+
+import java.util.List;
+import java.util.stream.Stream;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -14,16 +21,10 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
+
 import net.atos.zac.zoeken.model.index.IndexStatus;
 import net.atos.zac.zoeken.model.index.ZoekIndexEntity;
 import net.atos.zac.zoeken.model.index.ZoekObjectType;
-
-import java.util.List;
-import java.util.stream.Stream;
-
-import static net.atos.zac.zoeken.model.index.IndexStatus.ADD;
-import static net.atos.zac.zoeken.model.index.IndexStatus.REMOVE;
-import static net.atos.zac.zoeken.model.index.IndexStatus.UPDATE;
 
 public class IndexeerServiceHelper {
 
