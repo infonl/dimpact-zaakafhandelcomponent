@@ -18,12 +18,12 @@ import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
 import { BehaviorSubject, Subscription, combineLatest, map, tap } from "rxjs";
 import { LoggedInUser } from "src/app/identity/model/logged-in-user";
+import { FileInputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/file-input/file-input-form-field-builder";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { CheckboxFormFieldBuilder } from "../../shared/material-form-builder/form-components/checkbox/checkbox-form-field-builder";
 import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
-import { FileFormFieldBuilder } from "../../shared/material-form-builder/form-components/file/file-form-field-builder";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { SelectFormField } from "../../shared/material-form-builder/form-components/select/select-form-field";
 import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
@@ -110,14 +110,9 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
       .maxlength(100)
       .build();
 
-    const inhoudField = new FileFormFieldBuilder()
-      .id("bestandsnaam")
+    const inhoudField = new FileInputFormFieldBuilder()
+      .id("bestand")
       .label("bestandsnaam")
-      .uploadURL(
-        this.zaak
-          ? this.informatieObjectenService.getUploadURL(this.zaak.uuid)
-          : this.informatieObjectenService.getUploadURL(this.taak.id),
-      )
       .validators(Validators.required)
       .maxFileSizeMB(this.configuratieService.readMaxFileSizeMB())
       .additionalAllowedFileTypes(
@@ -302,6 +297,9 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
     this.subscriptions.push(
       inhoudField.fileUploaded.subscribe((bestandsnaam) => {
         const titelCtrl = titel.formControl;
+        if (!bestandsnaam) {
+          titelCtrl.setValue(null);
+        }
         if (!titelCtrl.value || titelCtrl.value === vorigeBestandsnaam) {
           titelCtrl.setValue(bestandsnaam.replace(/\.[^/.]+$/, ""));
           vorigeBestandsnaam = "" + titelCtrl.value;
@@ -350,9 +348,14 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
         } else if (key === "taal") {
           infoObject[key] = value.code;
         } else if (key === "status") {
-          infoObject[key] = InformatieobjectStatus[value.value];
+          infoObject[key] = InformatieobjectStatus[value.value.toUpperCase()];
         } else if (key === "vertrouwelijkheidaanduiding") {
           infoObject[key] = value.value;
+        } else if (key === "bestand") {
+          infoObject["bestandsomvang"] = value.size;
+          infoObject["bestandsnaam"] = value.name;
+          infoObject["bestand"] = value;
+          infoObject["formaat"] = value.type;
         } else {
           infoObject[key] = value;
         }

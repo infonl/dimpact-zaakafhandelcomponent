@@ -117,6 +117,8 @@ dependencies {
     implementation(libs.htmlcleaner)
     implementation(libs.unboundid.ldapsdk)
 
+    swaggerUI(libs.swagger-ui)
+
     // enable detekt formatting rules. see: https://detekt.dev/docs/rules/formatting/
     detektPlugins(libs.detekt.formatting)
 

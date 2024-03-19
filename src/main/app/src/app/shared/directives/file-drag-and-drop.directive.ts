@@ -8,8 +8,9 @@ import {
 
 @Directive({
   selector: "[DropZone]",
+  standalone: true,
 })
-export class DragAndDropDirective {
+export class FileDragAndDropDirective {
   @Output() onFileDropped = new EventEmitter<any>();
   @HostBinding("style.border") private border = "solid transparent";
 

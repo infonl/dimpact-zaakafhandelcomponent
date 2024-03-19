@@ -165,12 +165,22 @@ public class TakenRESTService {
     @PUT
     @Path("taakdata")
     public RESTTaak updateTaakdata(final RESTTaak restTaak) {
-        final Task task = takenService.readOpenTask(restTaak.id);
-        assertPolicy(getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).wijzigen());
+        Task task = takenService.readOpenTask(restTaak.id);
+        assertPolicy(isOpen(task) && policyService.readTaakRechten(task).wijzigen());
         taakVariabelenService.setTaakdata(task, restTaak.taakdata);
         taakVariabelenService.setTaakinformatie(task, restTaak.taakinformatie);
-        updateTaak(restTaak);
+        task = updateDescriptionAndDueDate(restTaak);
+        eventingService.send(TAAK.updated(task));
+        eventingService.send(ZAAK_TAKEN.updated(restTaak.zaakUuid));
         return restTaak;
+    }
+
+    private Task updateDescriptionAndDueDate(RESTTaak restTaak) {
+        Task task = takenService.readOpenTask(restTaak.id);
+        task.setDescription(restTaak.toelichting);
+        task.setDueDate(convertToDate(restTaak.fataledatum));
+        task = takenService.updateTask(task);
+        return task;
     }
 
     @PUT
@@ -260,32 +270,20 @@ public class TakenRESTService {
         return restTaakConverter.convert(task);
     }
 
-    @PATCH
-    public RESTTaak updateTaak(final RESTTaak restTaak) {
-        Task task = takenService.readOpenTask(restTaak.id);
-        assertPolicy(
-                getTaakStatus(task) != AFGEROND && policyService.readTaakRechten(task).wijzigen()
-        );
-        task.setDescription(restTaak.toelichting);
-        task.setDueDate(convertToDate(restTaak.fataledatum));
-        task = takenService.updateTask(task);
-        eventingService.send(TAAK.updated(task));
-        eventingService.send(ZAAK_TAKEN.updated(restTaak.zaakUuid));
-        return restTaakConverter.convert(task);
-    }
 
     @PATCH
     @Path("complete")
     public RESTTaak completeTaak(final RESTTaak restTaak) {
         Task task = takenService.readOpenTask(restTaak.id);
         final Zaak zaak = zrcClientService.readZaak(restTaak.zaakUuid);
-        assertPolicy(
-                isOpen(task) && policyService.readTaakRechten(task).wijzigen()
-        );
+        assertPolicy(isOpen(task) && policyService.readTaakRechten(task).wijzigen());
+
         final String loggedInUserId = loggedInUserInstance.get().getId();
         if (restTaak.behandelaar == null || !restTaak.behandelaar.id.equals(loggedInUserId)) {
-            task = takenService.assignTaskToUser(task.getId(), loggedInUserId, REDEN_TAAK_AFGESLOTEN);
+            takenService.assignTaskToUser(task.getId(), loggedInUserId, REDEN_TAAK_AFGESLOTEN);
         }
+        task = updateDescriptionAndDueDate(restTaak);
+
         createDocuments(restTaak, zaak);
         if (taakVariabelenService.isZaakHervatten(restTaak.taakdata)) {
             opschortenZaakHelper.hervattenZaak(zaak, REDEN_ZAAK_HERVATTEN);
