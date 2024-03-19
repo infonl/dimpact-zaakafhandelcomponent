@@ -694,10 +694,10 @@ public class InformatieObjectenRESTService {
         Ondertekening ondertekening = enkelvoudigInformatieobject.getOndertekening();
         boolean hasOndertekening = ondertekening != null && ondertekening.getDatum() != null;
         assertPolicy(
-           !hasOndertekening && policyService.readDocumentRechten(
-                enkelvoudigInformatieobject,
-                zaak
-            ).ondertekenen()
+                !hasOndertekening && policyService.readDocumentRechten(
+                        enkelvoudigInformatieobject,
+                        zaak
+                ).ondertekenen()
         );
         enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(uuid);
 
