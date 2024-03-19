@@ -67,7 +67,7 @@ slf4j-simple = "2.0.12"
 github-kotlin-logging = "6.0.3"
 squareup-okhttp = "4.12.0"
 squareup-okhttp-urlconnection = "4.12.0"
-awaitility = "4.2.0"
+awaitility = "4.2.1"
 mockserver-client = "5.15.0"
 
 [libraries]
