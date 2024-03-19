@@ -5,7 +5,7 @@ import java.util.Locale
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 
 /*
- * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -24,8 +24,7 @@ plugins {
     alias(libs.plugins.detekt)
     alias(libs.plugins.docker.remote.api)
     alias(libs.plugins.spotless)
-        
-    id("org.jetbrains.kotlin.plugin.allopen") version "1.9.23"
+    alias(libs.plugins.allopen)
 }
 
 repositories {
