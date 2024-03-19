@@ -22,6 +22,7 @@ import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import org.mockserver.model.HttpStatusCode
 import java.io.File
@@ -302,6 +303,42 @@ class InformatieObjectenTest : BehaviorSpec() {
                         shouldContainJsonKeyValue("bestandsomvang", TXT_FILE_SIZE)
                         shouldContainJsonKeyValue("formaat", TXT_FILE_FORMAAT)
                     }
+                }
+            }
+            When("ondertekenInformatieObject endpoint is called") {
+                val endpointUrl =
+                        "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/${enkelvoudigInformatieObjectUUID}/onderteken?zaak=${zaak1UUID}"
+                logger.info { "Calling $endpointUrl endpoint" }
+
+                val response = itestHttpClient.performPostRequest(
+                        url = endpointUrl,
+                        requestBody = "".toRequestBody()
+                )
+                Then(
+                        "the response should be OK and should contain information about the updates"
+                ) {
+                    val responseBody = response.body!!.string()
+                    logger.info { "$endpointUrl response: $responseBody" }
+                    response.code shouldBe HttpStatusCode.OK_200.code()
+//                    with(responseBody) {
+//                        shouldContainJsonKeyValue("auteur", USER_FULL_NAME)
+//                        shouldContainJsonKeyValue("status", DOCUMENT_STATUS_IN_BEWERKING)
+//                        shouldContainJsonKeyValue("taal", "Nederlands")
+//                        shouldContainJsonKeyValue("titel", UPDATED_FILE_TITLE)
+//                        shouldContainJsonKeyValue(
+//                                "vertrouwelijkheidaanduiding",
+//                                DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
+//                        )
+//                        shouldContainJsonKeyValue(
+//                                "informatieobjectTypeOmschrijving",
+//                                INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
+//                        )
+//                        shouldContainJsonKey("informatieobjectTypeUUID")
+//                        shouldContainJsonKey("identificatie")
+//                        shouldContainJsonKeyValue("bestandsnaam", TXT_FILE_NAME)
+//                        shouldContainJsonKeyValue("bestandsomvang", TXT_FILE_SIZE)
+//                        shouldContainJsonKeyValue("formaat", TXT_FILE_FORMAAT)
+//                    }
                 }
             }
         }
