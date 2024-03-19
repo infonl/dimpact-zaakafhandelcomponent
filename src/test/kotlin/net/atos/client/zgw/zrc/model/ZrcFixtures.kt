@@ -1,5 +1,6 @@
 package net.atos.client.zgw.zrc.model
 
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.shared.model.Archiefnominatie
 import net.atos.client.zgw.zrc.model.generated.Opschorting
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectOpenbareRuimte
@@ -12,6 +13,18 @@ import net.atos.client.zgw.ztc.model.generated.RolType
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
+
+fun createMedewerker(
+    identificatie: String = "dummyIdentificatie",
+    achternaam: String = "dummyAchternaam",
+    voorletters: String = "dummyVoorletters",
+    voorvoegselAchternaam: String? = null
+) = Medewerker().apply {
+    this.identificatie = identificatie
+    this.achternaam = achternaam
+    this.voorletters = voorletters
+    this.voorvoegselAchternaam = voorvoegselAchternaam
+}
 
 fun createNatuurlijkPersoon(bsn: String = "dummyBsn") = NatuurlijkPersoon(bsn)
 
@@ -35,6 +48,18 @@ fun createOpschorting(
     this.indicatie = indicatie
 }
 
+fun createRolMedewerker(
+    zaak: URI = URI("http://example.com/${UUID.randomUUID()}"),
+    roltype: RolType = createRolType(),
+    roltoelichting: String = "dummyToelichting",
+    betrokkeneIdentificatie: Medewerker = createMedewerker()
+) = RolMedewerker(
+    zaak,
+    roltype,
+    roltoelichting,
+    betrokkeneIdentificatie
+)
+
 fun createRolNatuurlijkPersoon(
     zaaktypeURI: URI = URI("http://example.com/${UUID.randomUUID()}"),
     rolType: RolType = createRolType(zaaktypeURI),
@@ -57,7 +82,9 @@ fun createZaak(
     archiefnominatie: Archiefnominatie? = null,
     opschorting: Opschorting? = null,
     einddatumGepland: LocalDate? = null,
-    uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.now().plusDays(1)
+    registratiedatum: LocalDate = LocalDate.now(),
+    uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.now().plusDays(1),
+    vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR
 ) = Zaak(
     zaaktypeURI,
     startDate,
@@ -69,7 +96,9 @@ fun createZaak(
     this.archiefnominatie = archiefnominatie
     this.opschorting = opschorting
     this.einddatumGepland = einddatumGepland
+    this.registratiedatum = registratiedatum
     this.uiterlijkeEinddatumAfdoening = uiterlijkeEinddatumAfdoening
+    this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
 }
 
 fun createZaakobjectOpenbareRuimte(
