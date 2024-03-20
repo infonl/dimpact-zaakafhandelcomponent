@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.client.zgw.ztc
@@ -29,7 +29,7 @@ import net.atos.client.zgw.ztc.model.generated.StatusType
 import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.client.zgw.ztc.model.generated.ZaakTypeInformatieObjectType
 import net.atos.zac.configuratie.ConfiguratieService
-import nl.info.zac.util.AllOpen
+import nl.lifely.zac.util.AllOpen
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.net.URI
 import java.time.ZonedDateTime
@@ -338,7 +338,7 @@ class ZTCClientService : Caching {
         )
 
     companion object {
-        private val CACHES: List<String> = java.util.List.of(
+        private val CACHES = listOf(
             Caching.ZTC_BESLUITTYPE,
             Caching.ZTC_CACHE_TIME,
             Caching.ZTC_RESULTAATTYPE,

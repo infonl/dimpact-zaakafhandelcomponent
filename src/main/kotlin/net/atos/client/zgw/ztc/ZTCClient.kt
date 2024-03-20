@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.client.zgw.ztc
@@ -39,7 +39,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 import java.util.UUID
 
 /**
- * Note that this client should normally only be used by [ZTCClientService] and not directly
+ * Note that this client should normally only be used by {@link ZTCClientService} and not directly
  * because of caching purposes.
  */
 @RegisterRestClient(configKey = "ZGW-API-Client")
