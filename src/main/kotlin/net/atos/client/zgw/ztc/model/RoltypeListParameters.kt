@@ -8,37 +8,19 @@ import jakarta.ws.rs.QueryParam
 import net.atos.client.zgw.ztc.model.generated.RolType.OmschrijvingGeneriekEnum
 import java.net.URI
 
-/**
- *
- */
-class RoltypeListParameters : AbstractZTCListParameters {
-    /*
+class RoltypeListParameters(
+    private val zaaktype: URI,
+    private val omschrijvingGeneriek: OmschrijvingGeneriekEnum? = null
+) : AbstractZTCListParameters() {
+    /**
+     * Algemeen gehanteerde omschrijving van de aard van de ROL.
+     */
+    @QueryParam("omschrijvingGeneriek")
+    fun getOmschrijvingGeneriek() = omschrijvingGeneriek?.value()
+
+    /**
      * URL-referentie naar het ZAAKTYPE waar deze ROLTYPEn betrokken kunnen zijn.
      */
     @QueryParam("zaaktype")
-    var zaaktype: URI? = null
-        private set
-
-    /*
-     * Algemeen gehanteerde omschrijving van de aard van de ROL.
-     */
-    private var omschrijvingGeneriek: OmschrijvingGeneriekEnum? = null
-
-    constructor(zaaktype: URI?) {
-        this.zaaktype = zaaktype
-    }
-
-    constructor(omschrijvingGeneriek: OmschrijvingGeneriekEnum?) {
-        this.omschrijvingGeneriek = omschrijvingGeneriek
-    }
-
-    constructor(zaaktype: URI?, omschrijvingGeneriek: OmschrijvingGeneriekEnum?) {
-        this.zaaktype = zaaktype
-        this.omschrijvingGeneriek = omschrijvingGeneriek
-    }
-
-    @QueryParam("omschrijvingGeneriek")
-    fun getOmschrijvingGeneriek(): String? {
-        return if (omschrijvingGeneriek == null) null else omschrijvingGeneriek!!.value()
-    }
+    fun getZaaktype() = zaaktype
 }

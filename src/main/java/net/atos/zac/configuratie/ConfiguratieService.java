@@ -141,7 +141,7 @@ public class ConfiguratieService {
     public URI readDefaultCatalogusURI() {
         if (catalogusURI == null) {
             final CatalogusListParameters catalogusListParameters = new CatalogusListParameters();
-            catalogusListParameters.domein = CATALOGUS_DOMEIN;
+            catalogusListParameters.setDomein(CATALOGUS_DOMEIN);
             catalogusURI = ztcClientService.readCatalogus(catalogusListParameters).getUrl();
         }
         return catalogusURI;

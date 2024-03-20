@@ -7,12 +7,12 @@ package net.atos.client.zgw.ztc.model
 import jakarta.ws.rs.QueryParam
 import java.net.URI
 
-/**
- *
- */
 class ResultaattypeListParameters(
+    private val zaaktype: URI
+) : AbstractZTCListParameters() {
     /**
      * URL-referentie naar het ZAAKTYPE van ZAAKen waarin resultaten van dit RESULTAATTYPE bereikt kunnen worden.
      */
-    @field:QueryParam("zaaktype") val zaaktype: URI
-) : AbstractZTCListParameters()
+    @QueryParam("zaaktype")
+    fun getZaaktype() = zaaktype
+}

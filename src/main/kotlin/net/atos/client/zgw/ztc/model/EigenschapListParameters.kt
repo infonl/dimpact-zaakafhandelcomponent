@@ -4,11 +4,10 @@
  */
 package net.atos.client.zgw.ztc.model
 
+import jakarta.ws.rs.QueryParam
 import java.net.URI
 
-/**
- *
- */
 class EigenschapListParameters {
+    @field:QueryParam("zaaktype")
     var zaaktype: URI? = null
 }

@@ -8,18 +8,11 @@ import jakarta.ws.rs.QueryParam
 import net.atos.client.zgw.shared.model.AbstractListParameters
 import java.net.URI
 
-/**
- * ListParameters for Besluittype
- */
 class BesluittypeListParameters(zaaktype: URI) : AbstractListParameters() {
 
     /**
      * URL-referentie naar het ZAAKTYPE van ZAAKen waarin resultaten van dit RESULTAATTYPE bereikt kunnen worden.
      */
-    @QueryParam("zaaktypen")
-    private var zaaktypen: List<URI>? = null
-
-    init {
-        this.zaaktypen = listOf(zaaktype)
-    }
+    @field:QueryParam("zaaktypen")
+    val zaaktypen: List<URI> = listOf(zaaktype)
 }

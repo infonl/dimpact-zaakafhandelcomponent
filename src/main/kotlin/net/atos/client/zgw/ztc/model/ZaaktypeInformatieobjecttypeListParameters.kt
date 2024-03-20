@@ -7,5 +7,9 @@ package net.atos.client.zgw.ztc.model
 import jakarta.ws.rs.QueryParam
 import java.net.URI
 
-class ZaaktypeInformatieobjecttypeListParameters(@field:QueryParam("zaaktype") val zaaktype: URI) :
-    AbstractZTCListParameters()
+class ZaaktypeInformatieobjecttypeListParameters(
+    private val zaaktype: URI
+) : AbstractZTCListParameters() {
+    @QueryParam("zaaktype")
+    fun getZaaktype() = zaaktype
+}

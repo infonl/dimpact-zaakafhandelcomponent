@@ -6,21 +6,16 @@ package net.atos.client.zgw.ztc.model
 
 import jakarta.ws.rs.QueryParam
 
-/**
- *
- */
 abstract class AbstractZTCListParameters {
-    /*
+    /**
      * Filter objects depending on their concept status
      */
     private var status: ObjectStatusFilter? = null
 
     @QueryParam("status")
-    fun getStatus(): String? {
-        return if (status != null) status!!.toValue() else null
-    }
+    fun getStatus() = status?.toValue()
 
-    fun setStatus(status: ObjectStatusFilter?) {
+    fun setStatus(status: ObjectStatusFilter) {
         this.status = status
     }
 }
