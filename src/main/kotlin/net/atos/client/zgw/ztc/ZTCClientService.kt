@@ -39,7 +39,7 @@ import javax.cache.annotation.CacheRemoveAll
 import javax.cache.annotation.CacheResult
 
 /**
- * Encapsulates {@link ZTCClient} by providing caching and authentication.
+ * Encapsulates [ZTCClient] by providing caching and authentication.
  */
 @ApplicationScoped
 @AllOpen
@@ -106,7 +106,7 @@ class ZTCClientService : Caching {
         ztcClient.zaaktypeList(ZaaktypeListParameters(catalogusURI)).results
 
     /**
-     * Reads a {@link StatusType} via URI.
+     * Reads a [StatusType] via URI.
      * Throws a RuntimeException if the [StatusType] can not be read.
      *
      * @param statustypeURI URI of [StatusType].
