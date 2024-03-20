@@ -188,7 +188,7 @@ allOpen {
     // enable all-open plugin for Kotlin so that WildFly's dependency injection framework (Weld)
     // can proxy our Kotlin classes when they have our custom annotation
     // because by default Kotlin classes are final
-    annotation("nl.info.zac.util.AllOpen")
+    annotation("nl.lifely.zac.util.AllOpen")
 }
 
 jacoco {
