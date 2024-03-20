@@ -7,6 +7,11 @@ const config: Config = {
   moduleNameMapper: {
     "^src/(.*)$": "<rootDir>/src/$1",
   },
+  reporters: [
+    ["github-actions", { silent: false }],
+    ["jest-junit", { outputDirectory: "reports", outputName: "report.xml" }],
+    "summary",
+  ],
 };
 
 export default config;
