@@ -557,6 +557,9 @@ tasks {
         inputs.files(fileTree("src/main/app/src"))
         inputs.file("src/main/app/package.json")
         inputs.file("src/main/app/package-lock.json")
+
+        // directory used by the Jest reporter(s) that we have configured
+        outputs.dir("src/main/app/reports")
     }
 
     register<NpmTask>("npmRunTestCoverage") {
