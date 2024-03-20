@@ -88,30 +88,35 @@ export class InformatieObjectenService {
     zaakUuid: string,
     documentReferentieId: string,
     infoObject: EnkelvoudigInformatieobject,
-    taakobject: boolean,
+    taakObject: boolean,
   ): Observable<EnkelvoudigInformatieobject> {
     const formData = new FormData();
-    formData.append("bestandsnaam", infoObject.bestandsnaam);
-    formData.append("titel", infoObject.titel);
-    formData.append("bestandomvang", infoObject.bestandsomvang.toString());
-    formData.append("formaat", infoObject.formaat);
-    formData.append(
-      "informatieobjectTypeUUID",
-      infoObject.informatieobjectTypeUUID,
-    );
-    formData.append(
-      "vertrouwelijkheidaanduiding",
-      infoObject.vertrouwelijkheidaanduiding,
-    );
-    formData.append("status", infoObject.status);
-    formData.append(
-      "creatiedatum",
-      moment(infoObject.creatiedatum).format("YYYY-MM-DDThh:mmZ"),
-    );
-    formData.append("auteur", infoObject.auteur);
-    formData.append("taal", infoObject.taal);
-
-    formData.append("file", infoObject.bestand, infoObject.bestandsnaam);
+    if (infoObject.bestandsnaam)
+      formData.append("bestandsnaam", infoObject.bestandsnaam);
+    if (infoObject.titel) formData.append("titel", infoObject.titel);
+    if (infoObject.bestandsomvang)
+      formData.append("bestandomvang", infoObject.bestandsomvang.toString());
+    if (infoObject.formaat) formData.append("formaat", infoObject.formaat);
+    if (infoObject.informatieobjectTypeUUID)
+      formData.append(
+        "informatieobjectTypeUUID",
+        infoObject.informatieobjectTypeUUID,
+      );
+    if (infoObject.vertrouwelijkheidaanduiding)
+      formData.append(
+        "vertrouwelijkheidaanduiding",
+        infoObject.vertrouwelijkheidaanduiding,
+      );
+    if (infoObject.status) formData.append("status", infoObject.status);
+    if (infoObject.creatiedatum)
+      formData.append(
+        "creatiedatum",
+        moment(infoObject.creatiedatum).format("YYYY-MM-DDThh:mmZ"),
+      );
+    if (infoObject.auteur) formData.append("auteur", infoObject.auteur);
+    if (infoObject.taal) formData.append("taal", infoObject.taal);
+    if (infoObject.bestand)
+      formData.append("file", infoObject.bestand, infoObject.bestandsnaam);
 
     return this.http
       .post<EnkelvoudigInformatieobject>(
@@ -122,7 +127,7 @@ export class InformatieObjectenService {
             Accept: "application/json",
           },
           params: {
-            taakobject,
+            taakObject,
           },
         },
       )
@@ -186,21 +191,25 @@ export class InformatieObjectenService {
     infoObject: EnkelvoudigInformatieObjectVersieGegevens,
   ): Observable<EnkelvoudigInformatieobject> {
     const formData = new FormData();
-    formData.append("uuid", uuid);
-    formData.append("zaakUuid", zaakUuid);
-    formData.append("titel", infoObject.titel);
-    formData.append(
-      "vertrouwelijkheidaanduiding",
-      infoObject.vertrouwelijkheidaanduiding,
-    );
-
-    formData.append("auteur", infoObject.auteur);
-    formData.append("status", infoObject.status);
-    formData.append("taal", JSON.stringify(infoObject.taal));
-    formData.append("bestandsnaam", infoObject.bestandsnaam);
-    formData.append("formaat", infoObject.formaat);
-    formData.append("file", infoObject.file, infoObject.bestandsnaam);
-    formData.append("beschrijving", infoObject.beschrijving);
+    if (uuid) formData.append("uuid", uuid);
+    if (zaakUuid) formData.append("zaakUuid", zaakUuid);
+    if (infoObject.titel) formData.append("titel", infoObject.titel);
+    if (infoObject.vertrouwelijkheidaanduiding)
+      formData.append(
+        "vertrouwelijkheidaanduiding",
+        infoObject.vertrouwelijkheidaanduiding,
+      );
+    if (infoObject.auteur) formData.append("auteur", infoObject.auteur);
+    if (infoObject.status) formData.append("status", infoObject.status);
+    if (infoObject.taal)
+      formData.append("taal", JSON.stringify(infoObject.taal));
+    if (infoObject.bestandsnaam)
+      formData.append("bestandsnaam", infoObject.bestandsnaam);
+    if (infoObject.formaat) formData.append("formaat", infoObject.formaat);
+    if (infoObject.file)
+      formData.append("file", infoObject.file, infoObject.bestandsnaam);
+    if (infoObject.beschrijving)
+      formData.append("beschrijving", infoObject.beschrijving);
     if (infoObject.verzenddatum)
       formData.append(
         "verzenddatum",
@@ -211,7 +220,8 @@ export class InformatieObjectenService {
         "ontvangstdatum",
         moment(infoObject.ontvangstdatum).format("YYYY-MM-DDThh:mmZ"),
       );
-    formData.append("toelichting", infoObject.toelichting);
+    if (infoObject.toelichting)
+      formData.append("toelichting", infoObject.toelichting);
 
     return this.http
       .post<EnkelvoudigInformatieobject>(
