@@ -22,7 +22,7 @@ class RESTTaakHistorieConverterTest : BehaviorSpec({
 
             Then("it returns correct history lines") {
                 historieRegel.forOne { line ->
-                    line.attribuutLabel shouldBe RESTTaakHistorieConverter.CREATED_ATTRIBUUT_LABEL
+                    line.attribuutLabel shouldBe RESTTaakHistorieConverter.STATUS_ATTRIBUUT_LABEL
                     line.oudeWaarde shouldBe null
                     line.nieuweWaarde shouldBe RESTTaakHistorieConverter.CREATED_ATTRIBUUT_LABEL
                     line.toelichting shouldBe null
@@ -44,7 +44,7 @@ class RESTTaakHistorieConverterTest : BehaviorSpec({
 
             Then("it returns correct history lines") {
                 historieRegel.forOne { line ->
-                    line.attribuutLabel shouldBe RESTTaakHistorieConverter.COMPLETED_ATTRIBUUT_LABEL
+                    line.attribuutLabel shouldBe RESTTaakHistorieConverter.STATUS_ATTRIBUUT_LABEL
                     line.oudeWaarde shouldBe RESTTaakHistorieConverter.CREATED_ATTRIBUUT_LABEL
                     line.nieuweWaarde shouldBe RESTTaakHistorieConverter.COMPLETED_ATTRIBUUT_LABEL
                     line.toelichting shouldBe null
