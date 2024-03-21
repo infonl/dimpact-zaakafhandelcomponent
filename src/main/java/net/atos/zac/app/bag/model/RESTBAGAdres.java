@@ -5,10 +5,10 @@
 
 package net.atos.zac.app.bag.model;
 
-import net.atos.zac.app.zaken.model.RESTGeometry;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import net.atos.zac.app.zaken.model.RESTGeometry;
 
 public class RESTBAGAdres extends RESTBAGObject {
 
@@ -58,10 +58,10 @@ public class RESTBAGAdres extends RESTBAGObject {
             restGeometries.add(panden.getFirst().geometry);
         }
         RESTGeometry restGeometry = new RESTGeometry(
-            "GeometryCollection",
-            null,
-        null,
-            restGeometries
+                "GeometryCollection",
+                null,
+                null,
+                restGeometries
         );
 
         if (restGeometries.size() == 1) {

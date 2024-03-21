@@ -93,24 +93,24 @@ public class RESTBAGConverter {
 
     public static RESTGeometry convertVlak(final Surface surface) {
         return new RESTGeometry(
-            surface.getType().value(),
-            null,
-            surface.getCoordinates()
-                .stream()
-                .map(coords -> coords.stream()
-                        .map(punt -> new RESTCoordinates(punt.getFirst().doubleValue(), punt.get(1).doubleValue()))
-                        .toList())
-                .toList(),
+                surface.getType().value(),
+                null,
+                surface.getCoordinates()
+                        .stream()
+                        .map(coords -> coords.stream()
+                                .map(punt -> new RESTCoordinates(punt.getFirst().doubleValue(), punt.get(1).doubleValue()))
+                                .toList())
+                        .toList(),
                 null
         );
     }
 
     public static RESTGeometry convertPunt(PointGeoJSON punt) {
         return new RESTGeometry(
-            punt.getType().value(),
-            new RESTCoordinates(punt.getCoordinates().get(0).doubleValue(), punt.getCoordinates().get(1).doubleValue()),
-            null,
-            null);
+                punt.getType().value(),
+                new RESTCoordinates(punt.getCoordinates().get(0).doubleValue(), punt.getCoordinates().get(1).doubleValue()),
+                null,
+                null);
     }
 
     public static RESTGeometry convertPuntOrVlak(PuntOfVlak puntOfVlak) {
