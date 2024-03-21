@@ -2,30 +2,17 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
+import net.atos.zac.app.klanten.model.klant.IdentificatieType
+import java.util.*
 
-import java.util.UUID;
-
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-
-import net.atos.zac.app.klanten.model.klant.IdentificatieType;
-
-public class RESTZaakBetrokkeneGegevens {
-
-    @NotNull
-    public UUID zaakUUID;
-
-    @NotNull
-    public UUID roltypeUUID;
-
-    @NotBlank
-    public String roltoelichting;
-
-    @NotNull
-    public IdentificatieType betrokkeneIdentificatieType;
-
-    @NotBlank
-    public String betrokkeneIdentificatie;
-}
+data class RESTZaakBetrokkeneGegevens(
+    val zaakUUID: @NotNull UUID,
+    val roltypeUUID: @NotNull UUID,
+    val roltoelichting: @NotBlank String,
+    var betrokkeneIdentificatieType: @NotNull IdentificatieType,
+    var betrokkeneIdentificatie: @NotBlank String
+)

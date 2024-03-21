@@ -2,52 +2,47 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+import jakarta.validation.constraints.NotNull
+import net.atos.client.zgw.ztc.model.generated.ZaakType
+import net.atos.zac.app.admin.model.RESTZaakafhandelParameters
+import java.time.LocalDate
+import java.util.*
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
-
-import jakarta.validation.constraints.NotNull;
-
-import net.atos.client.zgw.ztc.model.generated.ZaakType;
-import net.atos.zac.app.admin.model.RESTZaakafhandelParameters;
-
-public class RESTZaaktype {
-
+class RESTZaaktype {
     @NotNull
-    public UUID uuid;
+    var uuid: UUID? = null
 
-    public String identificatie;
+    var identificatie: String? = null
 
-    public String doel;
+    var doel: String? = null
 
-    public String omschrijving;
+    var omschrijving: String? = null
 
-    public String referentieproces;
+    var referentieproces: String? = null
 
-    public boolean servicenorm;
+    var servicenorm: Boolean = false
 
-    public LocalDate versiedatum;
+    var versiedatum: LocalDate? = null
 
-    public LocalDate beginGeldigheid;
+    var beginGeldigheid: LocalDate? = null
 
-    public LocalDate eindeGeldigheid;
+    var eindeGeldigheid: LocalDate? = null
 
-    public ZaakType.VertrouwelijkheidaanduidingEnum vertrouwelijkheidaanduiding;
+    var vertrouwelijkheidaanduiding: ZaakType.VertrouwelijkheidaanduidingEnum? = null
 
-    public boolean nuGeldig;
+    var nuGeldig: Boolean = false
 
-    public boolean opschortingMogelijk;
+    var opschortingMogelijk: Boolean = false
 
-    public boolean verlengingMogelijk;
+    var verlengingMogelijk: Boolean = false
 
-    public Integer verlengingstermijn;
+    var verlengingstermijn: Int? = null
 
-    public List<RESTZaaktypeRelatie> zaaktypeRelaties;
+    var zaaktypeRelaties: List<RESTZaaktypeRelatie>? = null
 
-    public List<UUID> informatieobjecttypes;
+    var informatieobjecttypes: List<UUID>? = null
 
-    public RESTZaakafhandelParameters zaakafhandelparameters;
+    var zaakafhandelparameters: RESTZaakafhandelParameters? = null
 }

@@ -2,50 +2,36 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+import net.atos.client.zgw.brc.model.generated.Besluit.VervalredenEnum
+import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieobject
+import java.net.URI
+import java.time.LocalDate
+import java.util.*
 
-import java.net.URI;
-import java.time.LocalDate;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.UUID;
+data class RESTBesluit(
+    val url: URI,
 
-import net.atos.client.zgw.brc.model.generated.Besluit;
-import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieobject;
-import net.atos.zac.zoeken.model.BesluitIndicatie;
+    var uuid: UUID,
 
-public class RESTBesluit {
+    val identificatie: String? = null,
 
-    public URI url;
+    val datum: LocalDate? = null,
 
-    public UUID uuid;
+    val besluittype: RESTBesluittype? = null,
 
-    public String identificatie;
+    val ingangsdatum: LocalDate? = null,
 
-    public LocalDate datum;
+    val vervaldatum: LocalDate? = null,
 
-    public RESTBesluittype besluittype;
+    val vervalreden: VervalredenEnum? = null,
 
-    public LocalDate ingangsdatum;
+    val isIngetrokken: Boolean = false,
 
-    public LocalDate vervaldatum;
+    val toelichting: String? = null,
 
-    public Besluit.VervalredenEnum vervalreden;
+    val zaakUuid: UUID? = null,
 
-    public boolean isIngetrokken;
-
-    public String toelichting;
-
-    public UUID zaakUuid;
-
-    public List<RESTEnkelvoudigInformatieobject> informatieobjecten;
-
-    public EnumSet<BesluitIndicatie> getIndicaties() {
-        final EnumSet<BesluitIndicatie> indicaties = EnumSet.noneOf(BesluitIndicatie.class);
-        if (isIngetrokken) {
-            indicaties.add(BesluitIndicatie.INGETROKKEN);
-        }
-        return indicaties;
-    }
-}
+    val informatieobjecten: List<RESTEnkelvoudigInformatieobject>? = null,
+)

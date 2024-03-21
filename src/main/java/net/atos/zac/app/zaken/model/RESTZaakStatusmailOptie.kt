@@ -1,6 +1,6 @@
-package net.atos.zac.app.zaken.model;
+package net.atos.zac.app.zaken.model
 
-public enum RESTZaakStatusmailOptie {
+enum class RESTZaakStatusmailOptie {
     BESCHIKBAAR_AAN,
     BESCHIKBAAR_UIT,
     NIET_BESCHIKBAAR

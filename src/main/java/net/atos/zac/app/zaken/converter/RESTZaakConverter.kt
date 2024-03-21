@@ -2,287 +2,264 @@
  * SPDX-FileCopyrightText: 2021 - 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.converter
 
-package net.atos.zac.app.zaken.converter;
+import jakarta.inject.Inject
+import net.atos.client.vrl.VRLClientService
+import net.atos.client.vrl.model.generated.CommunicatieKanaal
+import net.atos.client.zgw.brc.BRCClientService
+import net.atos.client.zgw.shared.ZGWApiService
+import net.atos.client.zgw.shared.util.InformatieobjectenUtil
+import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.model.BetrokkeneType
+import net.atos.client.zgw.zrc.model.RolMedewerker
+import net.atos.client.zgw.zrc.model.Status
+import net.atos.client.zgw.zrc.model.Verlenging
+import net.atos.client.zgw.zrc.model.Zaak
+import net.atos.client.zgw.zrc.util.StatusTypeUtil
+import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.model.generated.StatusType
+import net.atos.client.zgw.ztc.model.generated.ZaakType
+import net.atos.zac.app.identity.converter.RESTGroupConverter
+import net.atos.zac.app.identity.converter.RESTUserConverter
+import net.atos.zac.app.klanten.model.klant.IdentificatieType
+import net.atos.zac.app.policy.converter.RESTRechtenConverter
+import net.atos.zac.app.zaken.model.RESTGerelateerdeZaak
+import net.atos.zac.app.zaken.model.RESTZaak
+import net.atos.zac.app.zaken.model.RESTZaakKenmerk
+import net.atos.zac.app.zaken.model.RESTZaakVerlengGegevens
+import net.atos.zac.app.zaken.model.RelatieType
+import net.atos.zac.configuratie.ConfiguratieService
+import net.atos.zac.flowable.BPMNService
+import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.policy.PolicyService
+import net.atos.zac.util.PeriodUtil
+import net.atos.zac.util.UriUtil
+import org.apache.commons.collections4.CollectionUtils
+import org.apache.commons.lang3.StringUtils
+import java.time.LocalDate
+import java.time.Period
+import java.util.*
+import java.util.stream.Collectors
+import kotlin.jvm.optionals.getOrNull
 
-import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertToVertrouwelijkheidaanduidingEnum;
-import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend;
-import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isIntake;
-import static net.atos.zac.app.klanten.model.klant.IdentificatieType.BSN;
-import static net.atos.zac.app.klanten.model.klant.IdentificatieType.RSIN;
-import static net.atos.zac.app.klanten.model.klant.IdentificatieType.VN;
-import static net.atos.zac.util.UriUtil.uuidFromURI;
-import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
-
-import java.time.LocalDate;
-import java.time.Period;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import jakarta.inject.Inject;
-
-import org.apache.commons.lang3.StringUtils;
-
-import net.atos.client.vrl.VRLClientService;
-import net.atos.client.vrl.model.generated.CommunicatieKanaal;
-import net.atos.client.zgw.brc.BRCClientService;
-import net.atos.client.zgw.shared.ZGWApiService;
-import net.atos.client.zgw.zrc.ZRCClientService;
-import net.atos.client.zgw.zrc.model.Status;
-import net.atos.client.zgw.zrc.model.Verlenging;
-import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.generated.StatusType;
-import net.atos.client.zgw.ztc.model.generated.ZaakType;
-import net.atos.zac.app.identity.converter.RESTGroupConverter;
-import net.atos.zac.app.identity.converter.RESTUserConverter;
-import net.atos.zac.app.policy.converter.RESTRechtenConverter;
-import net.atos.zac.app.zaken.model.RESTGerelateerdeZaak;
-import net.atos.zac.app.zaken.model.RESTZaak;
-import net.atos.zac.app.zaken.model.RESTZaakKenmerk;
-import net.atos.zac.app.zaken.model.RESTZaakVerlengGegevens;
-import net.atos.zac.app.zaken.model.RelatieType;
-import net.atos.zac.configuratie.ConfiguratieService;
-import net.atos.zac.flowable.BPMNService;
-import net.atos.zac.flowable.ZaakVariabelenService;
-import net.atos.zac.policy.PolicyService;
-import net.atos.zac.util.PeriodUtil;
-
-public class RESTZaakConverter {
+class RESTZaakConverter {
+    @Inject
+    private lateinit var ztcClientService: ZTCClientService
 
     @Inject
-    private ZTCClientService ztcClientService;
+    private lateinit var zrcClientService: ZRCClientService
 
     @Inject
-    private ZRCClientService zrcClientService;
+    private lateinit var brcClientService: BRCClientService
 
     @Inject
-    private BRCClientService brcClientService;
+    private lateinit var zgwApiService: ZGWApiService
 
     @Inject
-    private ZGWApiService zgwApiService;
+    private lateinit var zaakResultaatConverter: RESTZaakResultaatConverter
 
     @Inject
-    private RESTZaakStatusConverter zaakStatusConverter;
+    private lateinit var groupConverter: RESTGroupConverter
 
     @Inject
-    private RESTZaakResultaatConverter zaakResultaatConverter;
+    private lateinit var gerelateerdeZaakConverter: RESTGerelateerdeZaakConverter
 
     @Inject
-    private RESTGroupConverter groupConverter;
+    private lateinit var userConverter: RESTUserConverter
 
     @Inject
-    private RESTGerelateerdeZaakConverter gerelateerdeZaakConverter;
+    private lateinit var besluitConverter: RESTBesluitConverter
 
     @Inject
-    private RESTUserConverter userConverter;
+    private lateinit var zaaktypeConverter: RESTZaaktypeConverter
 
     @Inject
-    private RESTBesluitConverter besluitConverter;
+    private lateinit var rechtenConverter: RESTRechtenConverter
 
     @Inject
-    private RESTZaaktypeConverter zaaktypeConverter;
+    private lateinit var vrlClientService: VRLClientService
 
     @Inject
-    private RESTRechtenConverter rechtenConverter;
+    private lateinit var restGeometryConverter: RESTGeometryConverter
 
     @Inject
-    private VRLClientService vrlClientService;
+    private lateinit var policyService: PolicyService
 
     @Inject
-    private RESTCommunicatiekanaalConverter communicatiekanaalConverter;
+    private lateinit var zaakVariabelenService: ZaakVariabelenService
 
     @Inject
-    private RESTGeometryConverter restGeometryConverter;
+    private lateinit var bpmnService: BPMNService
 
-    @Inject
-    private PolicyService policyService;
-
-    @Inject
-    private ZaakVariabelenService zaakVariabelenService;
-
-    @Inject
-    private BPMNService bpmnService;
-
-    public RESTZaak convert(final Zaak zaak) {
-        final Status status = zaak.getStatus() != null ? zrcClientService.readStatus(zaak.getStatus()) : null;
-        final StatusType statustype = status != null ?
-                ztcClientService.readStatustype(status.getStatustype()) : null;
-        return convert(zaak, status, statustype);
+    fun convert(zaak: Zaak): RESTZaak {
+        val status = if (zaak.status != null) zrcClientService.readStatus(zaak.status) else null
+        val statustype = if (status != null) ztcClientService.readStatustype(status.statustype) else null
+        return convert(zaak, status, statustype)
     }
 
-    public RESTZaak convert(final Zaak zaak, final Status status, final StatusType statustype) {
-        final RESTZaak restZaak = new RESTZaak();
-        final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
-
-        brcClientService.listBesluiten(zaak)
-                .map(besluitConverter::convertToRESTBesluit)
-                .ifPresent(besluiten -> restZaak.besluiten = besluiten);
-        restZaak.identificatie = zaak.getIdentificatie();
-        restZaak.uuid = zaak.getUuid();
-        restZaak.bronorganisatie = zaak.getBronorganisatie();
-        restZaak.verantwoordelijkeOrganisatie = zaak.getVerantwoordelijkeOrganisatie();
-        restZaak.startdatum = zaak.getStartdatum();
-        restZaak.einddatum = zaak.getEinddatum();
-        restZaak.einddatumGepland = zaak.getEinddatumGepland();
-        restZaak.uiterlijkeEinddatumAfdoening = zaak.getUiterlijkeEinddatumAfdoening();
-        restZaak.publicatiedatum = zaak.getPublicatiedatum();
-        restZaak.registratiedatum = zaak.getRegistratiedatum();
-        if (zaak.getArchiefnominatie() != null) {
-            restZaak.archiefNominatie = zaak.getArchiefnominatie().name();
-            restZaak.archiefActiedatum = zaak.getArchiefactiedatum();
+    @Suppress("LongMethod")
+    fun convert(zaak: Zaak, status: Status?, statustype: StatusType?): RESTZaak {
+        val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
+        val groep = zgwApiService.findGroepForZaak(zaak)
+            .map { groep -> groupConverter.convertGroupId(groep.betrokkeneIdentificatie.identificatie) }
+            .orElse(null)
+        val besluiten = brcClientService.listBesluiten(zaak)
+            .map { besluiten -> besluitConverter.convertToRESTBesluit(besluiten) }
+            .orElse(null)
+        val behandelaar = zgwApiService.findBehandelaarForZaak(zaak)
+            .map { behandelaar: RolMedewerker ->
+                userConverter.convertUserId(behandelaar.betrokkeneIdentificatie.identificatie)
+            }
+            .orElse(null)
+        val communicatiekanaal = zaak.communicatiekanaal?.let {
+            vrlClientService.findCommunicatiekanaal(UriUtil.uuidFromURI(zaak.communicatiekanaal))
+                .map { communicatieKanaal -> convertToRESTCommunicatiekanaal(communicatieKanaal) }
+                .orElse(null)
         }
-        restZaak.omschrijving = zaak.getOmschrijving();
-        restZaak.toelichting = zaak.getToelichting();
-        restZaak.zaaktype = zaaktypeConverter.convert(zaaktype);
-        if (status != null) {
-            restZaak.status = zaakStatusConverter.convertToRESTZaakStatus(status, statustype);
-        }
+        val initiator = zgwApiService.findInitiatorForZaak(zaak)
+        val restZaak = RESTZaak(
+            identificatie = zaak.identificatie,
+            uuid = zaak.uuid,
+            besluiten = besluiten,
+            eigenschappen = null, // TODO: not used
+            bronorganisatie = zaak.bronorganisatie,
+            verantwoordelijkeOrganisatie = zaak.verantwoordelijkeOrganisatie,
+            startdatum = zaak.startdatum,
+            einddatum = zaak.einddatum,
+            einddatumGepland = zaak.einddatumGepland,
+            uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
+            publicatiedatum = zaak.publicatiedatum,
+            registratiedatum = zaak.registratiedatum,
+            archiefNominatie = zaak.archiefnominatie?.name,
+            archiefActiedatum = zaak.archiefactiedatum,
+            omschrijving = zaak.omschrijving,
+            toelichting = zaak.toelichting,
+            zaaktype = zaaktypeConverter.convert(zaaktype),
+            status = status?.let { convertToRESTZaakStatus(it, statustype!!) },
+            resultaat = zaakResultaatConverter.convert(zaak.resultaat),
+            isOpgeschort = zaak.isOpgeschort,
+            redenOpschorting = (zaak.isOpgeschort || StringUtils.isNotEmpty(zaak.opschorting.reden)).let {
+                zaak.opschorting.reden
+            },
+            isVerlengd = zaak.isVerlengd,
+            duurVerlenging = zaak.isVerlengd.let { PeriodUtil.format(zaak.verlenging.duur) },
+            redenVerlenging = zaak.isVerlengd.let { zaak.verlenging.reden },
+            gerelateerdeZaken = convertGerelateerdeZaken(zaak),
+            zaakgeometrie = zaak.zaakgeometrie?.let { restGeometryConverter.convert(zaak.zaakgeometrie) },
+            kenmerken = zaak.kenmerken?.let {
+                zaak.kenmerken.stream()
+                    .map { zaakKenmerk -> RESTZaakKenmerk(zaakKenmerk.kenmerk, zaakKenmerk.bron) }
+                    .collect(Collectors.toList())
+            },
+            communicatiekanaal = communicatiekanaal,
+            vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.toString(),
+            groep = groep,
+            behandelaar = behandelaar,
+            initiatorIdentificatie = initiator.getOrNull()?.identificatienummer,
+            initiatorIdentificatieType = initiator.isPresent.let {
+                when (initiator.get().betrokkeneType) {
+                    BetrokkeneType.NATUURLIJK_PERSOON -> IdentificatieType.BSN
+                    BetrokkeneType.VESTIGING -> IdentificatieType.VN
+                    BetrokkeneType.NIET_NATUURLIJK_PERSOON -> IdentificatieType.RSIN
+                    else -> null
+                }
+            },
+            isHoofdzaak = zaak.is_Hoofdzaak,
+            isDeelzaak = zaak.isDeelzaak,
+            isOpen = zaak.isOpen,
+            isHeropend = StatusTypeUtil.isHeropend(statustype),
+            isInIntakeFase = StatusTypeUtil.isIntake(statustype),
+            isOntvangstbevestigingVerstuurd = zaakVariabelenService.findOntvangstbevestigingVerstuurd(
+                zaak.uuid
+            ).orElse(false),
+            isBesluittypeAanwezig = CollectionUtils.isNotEmpty(zaaktype.besluittypen),
+            isProcesGestuurd = bpmnService.isProcesGestuurd(zaak.uuid),
+            rechten = rechtenConverter.convert(policyService.readZaakRechten(zaak, zaaktype)),
+            zaakdata = zaakVariabelenService.readZaakdata(zaak.uuid)
+        )
 
-        restZaak.resultaat = zaakResultaatConverter.convert(zaak.getResultaat());
-
-        restZaak.isOpgeschort = zaak.isOpgeschort();
-        if (restZaak.isOpgeschort || StringUtils.isNotEmpty(zaak.getOpschorting().getReden())) {
-            restZaak.redenOpschorting = zaak.getOpschorting().getReden();
-        }
-
-        restZaak.isVerlengd = zaak.isVerlengd();
-        if (restZaak.isVerlengd) {
-            restZaak.duurVerlenging = PeriodUtil.format(zaak.getVerlenging().getDuur());
-            restZaak.redenVerlenging = zaak.getVerlenging().getReden();
-        }
-
-        restZaak.gerelateerdeZaken = convertGerelateerdeZaken(zaak);
-
-        restZaak.zaakgeometrie = restGeometryConverter.convert(zaak.getZaakgeometrie());
-
-        if (zaak.getKenmerken() != null) {
-            restZaak.kenmerken = zaak.getKenmerken().stream()
-                    .map(zaakKenmerk -> new RESTZaakKenmerk(zaakKenmerk.getKenmerk(), zaakKenmerk.getBron()))
-                    .collect(Collectors.toList());
-        }
-
-        if (zaak.getCommunicatiekanaal() != null) {
-            vrlClientService.findCommunicatiekanaal(uuidFromURI(zaak.getCommunicatiekanaal()))
-                    .map(communicatiekanaalConverter::convert)
-                    .ifPresent(communicatiekanaal -> restZaak.communicatiekanaal = communicatiekanaal);
-        }
-
-        restZaak.vertrouwelijkheidaanduiding = zaak.getVertrouwelijkheidaanduiding().toString();
-
-        zgwApiService.findGroepForZaak(zaak)
-                .map(groep -> groupConverter.convertGroupId(groep.getBetrokkeneIdentificatie().getIdentificatie()))
-                .ifPresent(groep -> restZaak.groep = groep);
-
-        zgwApiService.findBehandelaarForZaak(zaak)
-                .map(behandelaar -> userConverter.convertUserId(
-                        behandelaar.getBetrokkeneIdentificatie().getIdentificatie()))
-                .ifPresent(behandelaar -> restZaak.behandelaar = behandelaar);
-
-        zgwApiService.findInitiatorForZaak(zaak)
-                .ifPresent(initiator -> {
-                    restZaak.initiatorIdentificatieType = switch (initiator.getBetrokkeneType()) {
-                        case NATUURLIJK_PERSOON -> BSN;
-                        case VESTIGING -> VN;
-                        case NIET_NATUURLIJK_PERSOON -> RSIN;
-                        default -> null;
-                    };
-                    restZaak.initiatorIdentificatie = initiator.getIdentificatienummer();
-                });
-
-        restZaak.isHoofdzaak = zaak.is_Hoofdzaak();
-        restZaak.isDeelzaak = zaak.isDeelzaak();
-        restZaak.isOpen = zaak.isOpen();
-        restZaak.isHeropend = isHeropend(statustype);
-        restZaak.isInIntakeFase = isIntake(statustype);
-        restZaak.isOntvangstbevestigingVerstuurd = zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.getUuid()).orElse(false);
-        restZaak.isBesluittypeAanwezig = isNotEmpty(zaaktype.getBesluittypen());
-        restZaak.isProcesGestuurd = bpmnService.isProcesGestuurd(zaak.getUuid());
-        restZaak.rechten = rechtenConverter.convert(policyService.readZaakRechten(zaak, zaaktype));
-
-        restZaak.zaakdata = zaakVariabelenService.readZaakdata(zaak.getUuid());
-
-        return restZaak;
+        return restZaak
     }
 
-    public Zaak convert(final RESTZaak restZaak, final ZaakType zaaktype) {
-        final Zaak zaak = new Zaak(zaaktype.getUrl(), restZaak.startdatum,
-                ConfiguratieService.BRON_ORGANISATIE,
-                ConfiguratieService.VERANTWOORDELIJKE_ORGANISATIE);
-        //aanvullen
-        zaak.setOmschrijving(restZaak.omschrijving);
-        zaak.setToelichting(restZaak.toelichting);
-        zaak.setRegistratiedatum(LocalDate.now());
-
-        if (restZaak.communicatiekanaal != null) {
+    fun convert(restZaak: RESTZaak, zaaktype: ZaakType): Zaak {
+        val zaak = Zaak(
+            zaaktype.url,
+            restZaak.startdatum,
+            ConfiguratieService.BRON_ORGANISATIE,
+            ConfiguratieService.VERANTWOORDELIJKE_ORGANISATIE
+        )
+        // aanvullen
+        zaak.omschrijving = restZaak.omschrijving
+        zaak.toelichting = restZaak.toelichting
+        zaak.registratiedatum = LocalDate.now()
+        restZaak.communicatiekanaal?.let {
             vrlClientService.findCommunicatiekanaal(restZaak.communicatiekanaal.uuid)
-                    .map(CommunicatieKanaal::getUrl)
-                    .ifPresent(zaak::setCommunicatiekanaal);
+                .map { obj: CommunicatieKanaal -> obj.url }
+                .ifPresent { communicatiekanaal -> zaak.communicatiekanaal = communicatiekanaal }
         }
-
-        if (restZaak.vertrouwelijkheidaanduiding != null) {
-            zaak.setVertrouwelijkheidaanduiding(
-                    convertToVertrouwelijkheidaanduidingEnum(restZaak.vertrouwelijkheidaanduiding)
-            );
-        }
-
-        zaak.setZaakgeometrie(restGeometryConverter.convert(restZaak.zaakgeometrie));
-
-        return zaak;
+        zaak.vertrouwelijkheidaanduiding = InformatieobjectenUtil.convertToVertrouwelijkheidaanduidingEnum(
+            restZaak.vertrouwelijkheidaanduiding
+        )
+        zaak.zaakgeometrie = restZaak.zaakgeometrie?.let { restGeometryConverter.convert(restZaak.zaakgeometrie) }
+        return zaak
     }
 
-    public Zaak convertToPatch(final RESTZaak restZaak) {
-        final Zaak zaak = new Zaak();
-        zaak.setToelichting(restZaak.toelichting);
-        zaak.setOmschrijving(restZaak.omschrijving);
-        zaak.setStartdatum(restZaak.startdatum);
-        zaak.setEinddatumGepland(restZaak.einddatumGepland);
-        zaak.setUiterlijkeEinddatumAfdoening(restZaak.uiterlijkeEinddatumAfdoening);
-        if (restZaak.vertrouwelijkheidaanduiding != null) {
-            zaak.setVertrouwelijkheidaanduiding(
-                    convertToVertrouwelijkheidaanduidingEnum(restZaak.vertrouwelijkheidaanduiding)
-            );
-        }
-        if (restZaak.communicatiekanaal != null) {
+    fun convertToPatch(restZaak: RESTZaak): Zaak {
+        val zaak = Zaak()
+        zaak.toelichting = restZaak.toelichting
+        zaak.omschrijving = restZaak.omschrijving
+        zaak.startdatum = restZaak.startdatum
+        zaak.einddatumGepland = restZaak.einddatumGepland
+        zaak.uiterlijkeEinddatumAfdoening = restZaak.uiterlijkeEinddatumAfdoening
+        zaak.vertrouwelijkheidaanduiding = InformatieobjectenUtil.convertToVertrouwelijkheidaanduidingEnum(
+            restZaak.vertrouwelijkheidaanduiding
+        )
+        restZaak.communicatiekanaal?.let {
             vrlClientService.findCommunicatiekanaal(restZaak.communicatiekanaal.uuid)
-                    .map(CommunicatieKanaal::getUrl)
-                    .ifPresent(zaak::setCommunicatiekanaal);
+                .map { obj -> obj.url }
+                .ifPresent { communicatiekanaal -> zaak.communicatiekanaal = communicatiekanaal }
         }
-        zaak.setZaakgeometrie(restGeometryConverter.convert(restZaak.zaakgeometrie));
-        return zaak;
+        zaak.zaakgeometrie = restZaak.zaakgeometrie?.let { restGeometryConverter.convert(restZaak.zaakgeometrie) }
+        return zaak
     }
 
-    public Zaak convertToPatch(final UUID zaakUUID, final RESTZaakVerlengGegevens verlengGegevens) {
-        final Zaak zaak = new Zaak();
-        zaak.setEinddatumGepland(verlengGegevens.einddatumGepland);
-        zaak.setUiterlijkeEinddatumAfdoening(verlengGegevens.uiterlijkeEinddatumAfdoening);
-        final Verlenging verlenging = zrcClientService.readZaak(zaakUUID).getVerlenging();
-        zaak.setVerlenging(
-                verlenging != null && verlenging.getDuur() != null ? new Verlenging(
-                        verlengGegevens.redenVerlenging,
-                        verlenging.getDuur().plusDays(verlengGegevens.duurDagen)
-                ) : new Verlenging(
-                        verlengGegevens.redenVerlenging,
-                        Period.ofDays(verlengGegevens.duurDagen))
-        );
-        return zaak;
+    fun convertToPatch(zaakUUID: UUID?, verlengGegevens: RESTZaakVerlengGegevens): Zaak {
+        val zaak = Zaak()
+        zaak.einddatumGepland = verlengGegevens.einddatumGepland
+        zaak.uiterlijkeEinddatumAfdoening = verlengGegevens.uiterlijkeEinddatumAfdoening
+        val verlenging = zrcClientService.readZaak(zaakUUID).verlenging
+        zaak.verlenging = if (verlenging != null && verlenging.duur != null) {
+            Verlenging(
+                verlengGegevens.redenVerlenging,
+                verlenging.duur.plusDays(verlengGegevens.duurDagen.toLong())
+            )
+        } else {
+            Verlenging(
+                verlengGegevens.redenVerlenging,
+                Period.ofDays(verlengGegevens.duurDagen)
+            )
+        }
+        return zaak
     }
 
-    private List<RESTGerelateerdeZaak> convertGerelateerdeZaken(final Zaak zaak) {
-        final List<RESTGerelateerdeZaak> gerelateerdeZaken = new ArrayList<>();
-        if (zaak.getHoofdzaak() != null) {
-            gerelateerdeZaken.add(gerelateerdeZaakConverter.convert(zrcClientService.readZaak(zaak.getHoofdzaak()),
-                    RelatieType.HOOFDZAAK));
+    private fun convertGerelateerdeZaken(zaak: Zaak): List<RESTGerelateerdeZaak> {
+        val gerelateerdeZaken: MutableList<RESTGerelateerdeZaak> = ArrayList()
+        if (zaak.hoofdzaak != null) {
+            gerelateerdeZaken.add(
+                gerelateerdeZaakConverter.convert(
+                    zrcClientService.readZaak(zaak.hoofdzaak),
+                    RelatieType.HOOFDZAAK
+                )
+            )
         }
-        zaak.getDeelzaken().stream()
-                .map(zrcClientService::readZaak)
-                .map(deelzaak -> gerelateerdeZaakConverter.convert(deelzaak, RelatieType.DEELZAAK))
-                .forEach(gerelateerdeZaken::add);
-        zaak.getRelevanteAndereZaken().stream()
-                .map(gerelateerdeZaakConverter::convert)
-                .forEach(gerelateerdeZaken::add);
-        return gerelateerdeZaken;
+        zaak.deelzaken.stream()
+            .map { zaakURI -> zrcClientService.readZaak(zaakURI) }
+            .map { deelzaak -> gerelateerdeZaakConverter.convert(deelzaak, RelatieType.DEELZAAK) }
+            .forEach { restGerelateerdeZaak -> gerelateerdeZaken.add(restGerelateerdeZaak) }
+        zaak.relevanteAndereZaken.stream()
+            .map { relevanteZaak -> gerelateerdeZaakConverter.convert(relevanteZaak) }
+            .forEach { restGerelateerdeZaak -> gerelateerdeZaken.add(restGerelateerdeZaak) }
+        return gerelateerdeZaken
     }
 }

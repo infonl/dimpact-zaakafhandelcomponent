@@ -2,14 +2,13 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+data class RESTZaakEigenschap(
+    // TODO: not used?
+    val type: String? = null,
 
-public class RESTZaakEigenschap {
+    val naam: String,
 
-    public String type;
-
-    public String naam;
-
-    public String waarde;
-}
+    val waarde: String
+)
