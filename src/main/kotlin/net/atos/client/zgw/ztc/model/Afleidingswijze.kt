@@ -72,14 +72,14 @@ enum class Afleidingswijze(private val value: String) : AbstractEnum<Afleidingsw
         return value
     }
 
-    internal class Adapter : AbstractEnum.Adapter<Afleidingswijze?>() {
+    internal class Adapter : AbstractEnum.Adapter<Afleidingswijze>() {
         override fun getEnums(): Array<Afleidingswijze> {
             return entries.toTypedArray()
         }
     }
 
     companion object {
-        fun fromValue(value: String?): Afleidingswijze {
+        fun fromValue(value: String): Afleidingswijze {
             return AbstractEnum.fromValue(entries.toTypedArray(), value)
         }
     }
