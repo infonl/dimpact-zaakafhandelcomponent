@@ -345,7 +345,7 @@ services:
     ports:
       - "8020:8000"
     healthcheck:
-      test: ["CMD", "wget", "--spider", "http://localhost:8000"]
+      test: ["CMD", "wget", "--spider", "http://0.0.0.0:8000"]
       interval: 20s
       timeout: 60s
       retries: 5
