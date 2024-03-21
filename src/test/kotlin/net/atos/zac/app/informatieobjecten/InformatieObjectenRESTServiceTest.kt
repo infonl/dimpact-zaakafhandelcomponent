@@ -141,7 +141,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             } returns zaakInformatieobject
 
             When(
-                "createEnkelvoudigInformatieobjectAndUploadFile is called by a role that is allowed to change the zaak"
+                "the enkelvoudig informatieobject update is done by a role that is allowed to change the zaak"
             ) {
                 val returnedRESTEnkelvoudigInformatieobject =
                     informatieObjectenRESTService.createEnkelvoudigInformatieobjectAndUploadFile(
@@ -166,7 +166,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             }
 
             When(
-                "createEnkelvoudigInformatieobjectAndUploadFile is called but the ZGW client service throws an exception"
+                "the enkelvoudig informatieobject update is triggered but the ZGW client service throws an exception"
             ) {
                 every {
                     zgwApiService.createZaakInformatieobjectForZaak(
@@ -200,7 +200,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                 }
             }
 
-            When("createEnkelvoudigInformatieobjectAndUploadFile is called") {
+            When("the enkelvoudig informatieobject is updated") {
                 restEnkelvoudigInformatieobject.file = restFileUpload.file
                 restEnkelvoudigInformatieobject.formaat = restFileUpload.type
 
@@ -257,7 +257,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             } returns responseRestEnkelvoudigInformatieobject
 
             When(
-                "createEnkelvoudigInformatieobjectAndUploadFile is called by a role that is allowed to change the zaak"
+                "the enkelvoudig informatieobject is updated by a role that is allowed to change the zaak"
             ) {
                 val returnedRESTEnkelvoudigInformatieobject =
                     informatieObjectenRESTService.createEnkelvoudigInformatieobjectAndUploadFile(
@@ -314,13 +314,13 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                 restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject)
             } returns restEnkelvoudigInformatieobject
 
-            When("updateEnkelvoudigInformatieobjectAndUploadFile is called") {
+            When("the enkelvoudig informatieobject is updated") {
                 val returnedRESTEnkelvoudigInformatieobject =
                     informatieObjectenRESTService.updateEnkelvoudigInformatieobjectAndUploadFile(
                         restEnkelvoudigInformatieObjectVersieGegevens
                     )
 
-                Then("the enkelvoudig informatieobject is updated") {
+                Then("the changes are stored in the backing services") {
                     returnedRESTEnkelvoudigInformatieobject shouldBe restEnkelvoudigInformatieobject
                     verify(exactly = 1) {
                         drcClientService.readEnkelvoudigInformatieobject(
