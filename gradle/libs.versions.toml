@@ -1,4 +1,5 @@
 [versions]
+allopen = "1.9.23"
 kotlin = "1.9.23"
 nodejs = "20.11.1"
 jsonschema2pojo = "1.2.1"
@@ -160,3 +161,4 @@ swagger-generator = { id = "org.hidetake.swagger.generator", version.ref = "swag
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 docker-remote-api = { id = "com.bmuschko.docker-remote-api", version.ref = "docker-remote-api" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+allopen = { id = "org.jetbrains.kotlin.plugin.allopen", version.ref = "allopen" }

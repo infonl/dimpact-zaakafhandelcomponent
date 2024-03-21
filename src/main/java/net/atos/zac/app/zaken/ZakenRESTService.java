@@ -97,7 +97,7 @@ import net.atos.client.zgw.ztc.model.generated.ResultaatType;
 import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.client.zgw.ztc.model.generated.StatusType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
-import net.atos.client.zgw.ztc.util.ZaakTypeUtil;
+import net.atos.client.zgw.ztc.util.ZaakTypeUtilKt;
 import net.atos.zac.aanvraag.InboxProductaanvraagService;
 import net.atos.zac.aanvraag.ProductaanvraagService;
 import net.atos.zac.aanvraag.model.generated.ProductaanvraagDimpact;
@@ -563,7 +563,7 @@ public class ZakenRESTService {
                 .filter(zaaktype -> loggedInUserInstance.get()
                         .isGeautoriseerdZaaktype(zaaktype.getOmschrijving()))
                 .filter(zaaktype -> !zaaktype.getConcept())
-                .filter(ZaakTypeUtil::isNuGeldig)
+                .filter(ZaakTypeUtilKt::isNuGeldig)
                 .filter(zaaktype -> healthCheckService.controleerZaaktype(zaaktype.getUrl())
                         .isValide())
                 .map(zaaktypeConverter::convert)

@@ -19,7 +19,7 @@ import jakarta.ws.rs.core.MediaType;
 
 import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
-import net.atos.client.zgw.ztc.util.ZaakTypeUtil;
+import net.atos.client.zgw.ztc.util.ZaakTypeUtilKt;
 import net.atos.zac.app.admin.converter.RESTZaaktypeOverzichtConverter;
 import net.atos.zac.app.admin.model.RESTBuildInformatie;
 import net.atos.zac.app.admin.model.RESTZaaktypeInrichtingscheck;
@@ -86,7 +86,7 @@ public class HealthCheckRESTService {
     private List<ZaakType> listZaaktypes() {
         return ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI()).stream()
                 .filter(zaaktype -> !zaaktype.getConcept())
-                .filter(ZaakTypeUtil::isNuGeldig)
+                .filter(ZaakTypeUtilKt::isNuGeldig)
                 .toList();
     }
 

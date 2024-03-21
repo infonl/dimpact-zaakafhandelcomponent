@@ -5,8 +5,8 @@
 
 package net.atos.zac.app.zaken.converter;
 
-import static net.atos.client.zgw.ztc.util.ZaakTypeUtil.isNuGeldig;
-import static net.atos.client.zgw.ztc.util.ZaakTypeUtil.isServicenormBeschikbaar;
+import static net.atos.client.zgw.ztc.util.ZaakTypeUtilKt.isNuGeldig;
+import static net.atos.client.zgw.ztc.util.ZaakTypeUtilKt.isServicenormBeschikbaar;
 
 import java.time.Period;
 import java.util.ArrayList;

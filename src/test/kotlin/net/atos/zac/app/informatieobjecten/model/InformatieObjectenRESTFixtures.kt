@@ -13,7 +13,8 @@ fun createRESTEnkelvoudigInformatieobject(
     creatieDatum: LocalDate? = null,
     auteur: String? = null,
     taal: String? = null,
-    bestandsNaam: String? = null
+    bestandsNaam: String? = null,
+    informatieobjectTypeUUID: UUID = UUID.randomUUID()
 ) = RESTEnkelvoudigInformatieobject().apply {
     this.uuid = uuid
     this.status = status
@@ -22,6 +23,7 @@ fun createRESTEnkelvoudigInformatieobject(
     this.auteur = auteur
     this.taal = taal
     this.bestandsnaam = bestandsNaam
+    this.informatieobjectTypeUUID = informatieobjectTypeUUID
 }
 
 fun createRESTEnkelvoudigInformatieObjectVersieGegevens(
