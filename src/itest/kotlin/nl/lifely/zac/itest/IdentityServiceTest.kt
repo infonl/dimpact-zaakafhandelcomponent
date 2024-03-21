@@ -11,25 +11,22 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_ID
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_NAME
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_FUNCTIONAL_ADMINS_ID
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_RECORD_MANAGERS_DESCRIPTION
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_RECORD_MANAGERS_ID
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_RECORD_MANAGER_1_ID
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_RECORD_MANAGER_1_NAME
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_ID
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_2_NAME
 
 class IdentityServiceTest : BehaviorSpec() {
-    companion object {
-        const val TEST_USER_1_ID = "testuser1"
-        const val TEST_USER_1_NAME = "Test User1"
-        const val TEST_USER_2_ID = "testuser2"
-        const val TEST_USER_2_NAME = "Test User2"
-        const val TEST_RECORD_MANAGER_1_ID = "recordmanager1"
-        const val TEST_RECORD_MANAGER_1_NAME = "Test Recordmanager1"
-        const val TEST_FUNCTIONAL_ADMIN_1_ID = "functioneelbeheerder1"
-        const val TEST_FUNCTIONAL_ADMIN_1_NAME = "Test Functioneelbeheerder1"
-        const val TEST_GROUP_A_ID = "test-group-a"
-        const val TEST_GROUP_A_DESCRIPTION = "Test group A"
-        const val TEST_GROUP_FUNCTIONAL_ADMINS_ID = "test-group-fb"
-        const val TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION = "Test group functional admins"
-        const val TEST_GROUP_RECORD_MANAGERS_ID = "test-group-rm"
-        const val TEST_GROUP_RECORD_MANAGERS_DESCRIPTION = "Test group record managers"
-    }
-
     private val itestHttpClient = ItestHttpClient()
 
     init {

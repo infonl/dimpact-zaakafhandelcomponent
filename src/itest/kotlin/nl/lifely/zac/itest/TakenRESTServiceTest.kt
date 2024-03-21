@@ -18,8 +18,8 @@ import nl.lifely.zac.itest.PlanItemsRESTServiceTest.Companion.FORMULIER_DEFINITI
 import nl.lifely.zac.itest.PlanItemsRESTServiceTest.Companion.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration
-import nl.lifely.zac.itest.config.ItestConfiguration.GROUP_A_ID
-import nl.lifely.zac.itest.config.ItestConfiguration.GROUP_A_NAME
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_CREATED
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_IDENTIFICATION
@@ -69,8 +69,8 @@ class TakenRESTServiceTest : BehaviorSpec() {
                         )
                         shouldContainJsonKeyValue("zaakUuid", zaak1UUID.toString())
                         JSONObject(this,).getJSONObject("groep").apply {
-                            getString("id") shouldBe GROUP_A_ID
-                            getString("naam") shouldBe GROUP_A_NAME
+                            getString("id") shouldBe TEST_GROUP_A_ID
+                            getString("naam") shouldBe TEST_GROUP_A_DESCRIPTION
                         }
                         shouldContainJsonKey("id")
                         shouldNotContainJsonKey("toelichting")

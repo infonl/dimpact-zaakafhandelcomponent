@@ -12,10 +12,6 @@ import java.util.UUID
  * used in the entire integration test flow such as: Keycloak, Objecten, Objecttypen, Open Zaak, ZAC.
  */
 object ItestConfiguration {
-    const val GROUP_A_ID = "test-group-a"
-
-    // must be the same as the group name used in our Docker Compose import scripts
-    const val GROUP_A_NAME = "Test group A"
     const val KEYCLOAK_HOSTNAME_URL = "http://localhost:8081"
     const val KEYCLOAK_HEALTH_READY_URL = "$KEYCLOAK_HOSTNAME_URL/health/ready"
     const val KEYCLOAK_REALM = "zaakafhandelcomponent"
@@ -33,6 +29,20 @@ object ItestConfiguration {
     const val TEST_SPEC_ORDER_AFTER_TASK_CREATED = 2
     const val TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED = 3
     const val TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED = 4
+    const val TEST_USER_1_ID = "testuser1"
+    const val TEST_USER_1_NAME = "Test User1"
+    const val TEST_USER_2_ID = "testuser2"
+    const val TEST_USER_2_NAME = "Test User2"
+    const val TEST_RECORD_MANAGER_1_ID = "recordmanager1"
+    const val TEST_RECORD_MANAGER_1_NAME = "Test Recordmanager1"
+    const val TEST_FUNCTIONAL_ADMIN_1_ID = "functioneelbeheerder1"
+    const val TEST_FUNCTIONAL_ADMIN_1_NAME = "Test Functioneelbeheerder1"
+    const val TEST_GROUP_A_ID = "test-group-a"
+    const val TEST_GROUP_A_DESCRIPTION = "Test group A"
+    const val TEST_GROUP_FUNCTIONAL_ADMINS_ID = "test-group-fb"
+    const val TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION = "Test group functional admins"
+    const val TEST_GROUP_RECORD_MANAGERS_ID = "test-group-rm"
+    const val TEST_GROUP_RECORD_MANAGERS_DESCRIPTION = "Test group record managers"
     const val USER_FULL_NAME = "Test User1"
     const val ZAC_CONTAINER_SERVICE_NAME = "zac"
     const val ZAC_CONTAINER_PORT = 8080
