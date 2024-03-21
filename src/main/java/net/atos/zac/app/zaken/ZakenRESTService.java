@@ -640,10 +640,10 @@ public class ZakenRESTService {
     public void verdelenVanuitLijst(final RESTZakenVerdeelGegevens verdeelGegevens) {
         assertPolicy(
                 policyService.readWerklijstRechten().zakenTaken() &&
-                policyService.readWerklijstRechten().zakenTakenVerdelen()
+                     policyService.readWerklijstRechten().zakenTakenVerdelen()
         );
         final Group group = !StringUtils.isEmpty(verdeelGegevens.groepId) ?
-                            identityService.readGroup(verdeelGegevens.groepId) : null;
+                identityService.readGroup(verdeelGegevens.groepId) : null;
         final User user = !StringUtils.isEmpty(verdeelGegevens.behandelaarGebruikersnaam) ?
                 identityService.readUser(verdeelGegevens.behandelaarGebruikersnaam) : null;
         verdeelGegevens.uuids.forEach(uuid -> {
@@ -674,7 +674,7 @@ public class ZakenRESTService {
     public void vrijgevenVanuitLijst(final RESTZakenVerdeelGegevens verdeelGegevens) {
         assertPolicy(
                 policyService.readWerklijstRechten().zakenTaken() &&
-                policyService.readWerklijstRechten().zakenTakenVerdelen()
+                     policyService.readWerklijstRechten().zakenTakenVerdelen()
         );
         verdeelGegevens.uuids.forEach(uuid -> {
             final Zaak zaak = zrcClientService.readZaak(uuid);
