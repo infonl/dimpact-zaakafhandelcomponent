@@ -5,9 +5,6 @@
 
 package net.atos.zac.app.admin;
 
-import java.time.ZonedDateTime;
-import java.util.List;
-
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.ws.rs.Consumes;
@@ -16,16 +13,18 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-
 import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
-import net.atos.client.zgw.ztc.util.ZaakTypeUtil;
+import net.atos.client.zgw.ztc.util.ZaakTypeUtilKt;
 import net.atos.zac.app.admin.converter.RESTZaaktypeOverzichtConverter;
 import net.atos.zac.app.admin.model.RESTBuildInformatie;
 import net.atos.zac.app.admin.model.RESTZaaktypeInrichtingscheck;
 import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.healthcheck.HealthCheckService;
 import net.atos.zac.healthcheck.model.ZaaktypeInrichtingscheck;
+
+import java.time.ZonedDateTime;
+import java.util.List;
 
 @Singleton
 @Path("health-check")
@@ -86,7 +85,7 @@ public class HealthCheckRESTService {
     private List<ZaakType> listZaaktypes() {
         return ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI()).stream()
                 .filter(zaaktype -> !zaaktype.getConcept())
-                .filter(ZaakTypeUtil::isNuGeldig)
+                .filter(ZaakTypeUtilKt::isNuGeldig)
                 .toList();
     }
 

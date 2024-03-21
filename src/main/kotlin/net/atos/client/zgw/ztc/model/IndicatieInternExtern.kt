@@ -20,14 +20,14 @@ enum class IndicatieInternExtern(private val value: String) : AbstractEnum<Indic
         return value
     }
 
-    internal class Adapter : AbstractEnum.Adapter<IndicatieInternExtern?>() {
+    internal class Adapter : AbstractEnum.Adapter<IndicatieInternExtern>() {
         override fun getEnums(): Array<IndicatieInternExtern> {
             return entries.toTypedArray()
         }
     }
 
     companion object {
-        fun fromValue(value: String?): IndicatieInternExtern {
+        fun fromValue(value: String): IndicatieInternExtern {
             return AbstractEnum.fromValue(entries.toTypedArray(), value)
         }
     }

@@ -24,14 +24,14 @@ enum class Formaat(private val value: String) : AbstractEnum<Formaat> {
         return value
     }
 
-    internal class Adapter : AbstractEnum.Adapter<Formaat?>() {
+    internal class Adapter : AbstractEnum.Adapter<Formaat>() {
         override fun getEnums(): Array<Formaat> {
             return entries.toTypedArray()
         }
     }
 
     companion object {
-        fun fromValue(value: String?): Formaat {
+        fun fromValue(value: String): Formaat {
             return AbstractEnum.fromValue(entries.toTypedArray(), value)
         }
     }

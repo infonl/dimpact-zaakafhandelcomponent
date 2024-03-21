@@ -22,14 +22,14 @@ enum class Richting(private val value: String) : AbstractEnum<Richting> {
         return value
     }
 
-    internal class Adapter : AbstractEnum.Adapter<Richting?>() {
+    internal class Adapter : AbstractEnum.Adapter<Richting>() {
         override fun getEnums(): Array<Richting> {
             return entries.toTypedArray()
         }
     }
 
     companion object {
-        fun fromValue(value: String?): Richting {
+        fun fromValue(value: String): Richting {
             return AbstractEnum.fromValue(entries.toTypedArray(), value)
         }
     }
