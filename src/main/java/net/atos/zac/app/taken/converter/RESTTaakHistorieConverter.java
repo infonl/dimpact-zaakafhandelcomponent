@@ -43,6 +43,8 @@ public class RESTTaakHistorieConverter {
 
     static final String FATALEDATUM_ATTRIBUUT_LABEL = "fataledatum";
 
+    static final String STATUS_ATTRIBUUT_LABEL = "taak.status";
+
     @Inject
     private IdentityService identityService;
 
@@ -72,13 +74,13 @@ public class RESTTaakHistorieConverter {
     private RESTTaakHistorieRegel convertData(final HistoricTaskLogEntryType type, final String data) {
         return switch (type) {
             case USER_TASK_CREATED -> new RESTTaakHistorieRegel(
-                    CREATED_ATTRIBUUT_LABEL,
+                    STATUS_ATTRIBUUT_LABEL,
                     null,
                     CREATED_ATTRIBUUT_LABEL,
                     null
             );
             case USER_TASK_COMPLETED -> new RESTTaakHistorieRegel(
-                    COMPLETED_ATTRIBUUT_LABEL,
+                    STATUS_ATTRIBUUT_LABEL,
                     CREATED_ATTRIBUUT_LABEL,
                     COMPLETED_ATTRIBUUT_LABEL,
                     null

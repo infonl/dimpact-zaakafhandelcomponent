@@ -29,6 +29,7 @@ export class EnkelvoudigInformatieobject {
   informatieobjectTypeUUID: string;
   informatieobjectTypeOmschrijving: string;
   bestandsnaam: string;
+  bestand: File;
   bestandsomvang: number;
   link: string;
   ondertekening: EnkelvoudigInformatieobjectOndertekening;

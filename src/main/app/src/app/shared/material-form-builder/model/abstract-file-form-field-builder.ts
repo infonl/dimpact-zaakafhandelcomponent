@@ -16,11 +16,6 @@ export abstract class AbstractFileFormFieldBuilder extends AbstractFormFieldBuil
     super();
   }
 
-  uploadURL(url: string): this {
-    this.formField.uploadURL = url;
-    return this;
-  }
-
   maxFileSizeMB(maxFileSizeMB$: Observable<number>): this {
     this.formField.maxFileSizeMB = 1; // Om de validate() te laten slagen.
     maxFileSizeMB$.subscribe((fileSizeMB) => {
@@ -50,9 +45,6 @@ export abstract class AbstractFileFormFieldBuilder extends AbstractFormFieldBuil
 
   validate(): void {
     super.validate();
-    if (!this.formField.uploadURL) {
-      throw new Error("Missing value for restURL");
-    }
     if (!this.formField.maxFileSizeMB) {
       throw new Error("Missing value for maxFileSizeMB");
     }

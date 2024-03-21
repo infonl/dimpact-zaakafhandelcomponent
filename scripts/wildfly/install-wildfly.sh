@@ -11,10 +11,10 @@
 # Change to directory where this script is located
 cd "$(dirname "$0")" || exit
 
-# WildFly version should match the version used in pom.xml
+# WildFly version is taken from pom.xml
 # Please follow the instructions in 'updatingDependencies.md' when upgrading WildFly.
-export WILDFLY_VERSION=31.0.0.Final
-export WILDFLY_DATASOURCES_GALLEON_PACK_VERSION=6.0.0.Final
+export WILDFLY_VERSION=$(grep -E '<wildfly.version>' ../../pom.xml | awk -F'[<>]' '{print $3}')
+export WILDFLY_DATASOURCES_GALLEON_PACK_VERSION=$(grep -E '<wildfly-datasources-galleon-pack.version>' ../../pom.xml | awk -F'[<>]' '{print $3}')
 
 export WILDFLY_SERVER_DIR=../../wildfly-$WILDFLY_VERSION
 export PATH=$PATH:$(pwd)/galleon/bin

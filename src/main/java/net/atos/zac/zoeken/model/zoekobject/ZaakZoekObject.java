@@ -508,8 +508,9 @@ public class ZaakZoekObject implements ZoekObject {
         }
         if (betrokkenen.containsKey(key)) {
             betrokkenen.get(key).add(identificatie);
+        } else {
+            betrokkenen.put(key, Lists.newArrayList(identificatie));
         }
-        betrokkenen.put(key, Lists.newArrayList(identificatie));
     }
 
     public Map<String, List<String>> getBetrokkenen() {

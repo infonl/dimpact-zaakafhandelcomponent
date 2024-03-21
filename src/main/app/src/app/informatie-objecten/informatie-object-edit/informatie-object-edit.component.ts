@@ -15,14 +15,15 @@ import {
 import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateService } from "@ngx-translate/core";
+import moment from "moment";
 import { Subscription } from "rxjs";
+import { FileInputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/file-input/file-input-form-field-builder";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { User } from "../../identity/model/user";
 import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
-import { FileFormFieldBuilder } from "../../shared/material-form-builder/form-components/file/file-form-field-builder";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
 import { FormComponent } from "../../shared/material-form-builder/form/form/form.component";
@@ -88,10 +89,9 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
         [InformatieobjectStatus.GEARCHIVEERD],
       );
 
-    const inhoudField = new FileFormFieldBuilder()
-      .id("bestandsnaam")
+    const inhoudField = new FileInputFormFieldBuilder()
+      .id("bestand")
       .label("bestandsnaam")
-      .uploadURL(this.informatieObjectenService.getUploadURL(this.zaakUuid))
       .maxFileSizeMB(this.configuratieService.readMaxFileSizeMB())
       .additionalAllowedFileTypes(
         this.configuratieService.readAdditionalAllowedFileTypes(),
@@ -245,22 +245,33 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
     if (formGroup) {
       const nieuweVersie = new EnkelvoudigInformatieObjectVersieGegevens();
       nieuweVersie.uuid = this.infoObject.uuid;
-      nieuweVersie.zaakUuid = this.zaakUuid;
       Object.keys(formGroup.controls).forEach((key) => {
         const control = formGroup.controls[key];
         const value = control.value;
-        if (key === "status") {
-          nieuweVersie[key] = this.infoObject[key] =
-            InformatieobjectStatus[value.value];
+        console.log(key, value);
+        if (value instanceof moment) {
+          nieuweVersie[key] = value; // conversie niet nodig, ISO-8601 in UTC gaat goed met java ZonedDateTime.parse
+        } else if (key === "taal") {
+          nieuweVersie[key] = value.value;
+        } else if (key === "status") {
+          nieuweVersie[key] = InformatieobjectStatus[value.value.toUpperCase()];
         } else if (key === "vertrouwelijkheidaanduiding") {
-          nieuweVersie[key] = this.infoObject[key] = value.value.toUpperCase();
+          nieuweVersie[key] = value.value;
+        } else if (key === "bestand") {
+          nieuweVersie["bestandsnaam"] = value.name;
+          nieuweVersie["file"] = value;
+          nieuweVersie["formaat"] = value.type;
         } else {
-          nieuweVersie[key] = this.infoObject[key] = value;
+          nieuweVersie[key] = value;
         }
       });
 
       this.informatieObjectenService
-        .updateEnkelvoudigInformatieobject(nieuweVersie)
+        .updateEnkelvoudigInformatieobject(
+          nieuweVersie.uuid,
+          this.zaakUuid,
+          nieuweVersie,
+        )
         .subscribe((document) => {
           this.document.emit(document);
           this.utilService.openSnackbar(

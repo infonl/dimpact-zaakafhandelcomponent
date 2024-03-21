@@ -22,6 +22,7 @@ import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import org.mockserver.model.HttpStatusCode
 import java.io.File
@@ -302,6 +303,23 @@ class InformatieObjectenTest : BehaviorSpec() {
                         shouldContainJsonKeyValue("bestandsomvang", TXT_FILE_SIZE)
                         shouldContainJsonKeyValue("formaat", TXT_FILE_FORMAAT)
                     }
+                }
+            }
+            When("ondertekenInformatieObject endpoint is called") {
+                val endpointUrl =
+                    "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject" +
+                        "/$enkelvoudigInformatieObjectUUID/onderteken?zaak=$zaak1UUID"
+                logger.info { "Calling $endpointUrl endpoint" }
+
+                val response = itestHttpClient.performPostRequest(
+                    url = endpointUrl,
+                    requestBody = "".toRequestBody()
+                )
+                Then(
+                    "the response should be OK"
+                ) {
+                    logger.info { "$endpointUrl status code: ${response.code}" }
+                    response.code shouldBe HttpStatusCode.OK_200.code()
                 }
             }
         }

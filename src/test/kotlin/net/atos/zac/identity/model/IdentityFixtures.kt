@@ -14,3 +14,17 @@ fun createGroup(
     name,
     email
 )
+
+fun createUser(
+    id: String = "dummyId",
+    firstName: String = "dummyFirstName",
+    lastName: String = "dummyLastName",
+    fullName: String = "dummyFullName",
+    email: String = "dummy@example.com"
+) = User(
+    id,
+    firstName,
+    lastName,
+    fullName,
+    email
+)

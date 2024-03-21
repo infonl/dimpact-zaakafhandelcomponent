@@ -58,14 +58,12 @@ If you need a new font-weight for example, you can find the css and assets for t
 ZAC runs in the WildFly Java application server. To upgrade the WildFly version, follow these steps:
 
 1. Check the WildFly release notes.
-2. Upgrade the locally installed WildFly version in: [the WildFly install script](../../scripts/wildfly/install-wildfly.sh).
-3. Check if [WildFly's Galleon tooling](https://github.com/wildfly/galleon) needs to be updated. This is used to configure the locally
-installed WildFly. To upgrade override the Galleon files in [the Galleon install folder](../../scripts/wildfly/galleon) with the new version.
-4. Re-install your local WildFly version using the WildFly install script.
-5. Upgrade WildFly in the [Maven build file](../../pom.xml). This is the actual WildFly that gets
-used in the ZAC Docker Image. Also check if the Maven WildFly plugins we use need to be updated.
-6. If you have configured your IntelliJ IDE to run ZAC in WildFly update the IntelliJ WildFly run configuration
-using the instructions in [INSTALL.md](INSTALL.md).
+2. Upgrade WildFly in the [Maven build file](../../pom.xml). This is the actual WildFly that gets used in the ZAC Docker Image. Also check if the Maven WildFly plugins we use need to be updated. 
+3. The WildFly version from the [Maven build file](../../pom.xml) will be used by [the WildFly install script](../../scripts/wildfly/install-wildfly.sh). 
+4. Check if [WildFly's Galleon tooling](https://github.com/wildfly/galleon) needs to be updated. This is used to configure the locally
+installed WildFly. To upgrade override the Galleon files in [the Galleon install folder](../../scripts/wildfly/galleon) with the new version. 
+5. Re-install your local WildFly version using the WildFly install script.
+6. If you have configured your IntelliJ IDE to run ZAC in WildFly update the IntelliJ WildFly run configuration using the instructions in [INSTALL.md](INSTALL.md).
 7. Update the WildFly installation directory in the [startupwithenv.sh](../../startupwithenv.sh) file (or [startupwithenv.bat](../../startupwithenv.bat) for windows).
 8. In the [Gradle build file](../../build.gradle.kts) manually upgrade all the 'dependencies provided by Wildfly'.
 These need to be in sync with the ones provided by the used version of WildFly.
