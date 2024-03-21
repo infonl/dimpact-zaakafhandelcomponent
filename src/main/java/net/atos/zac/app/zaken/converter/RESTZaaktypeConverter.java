@@ -5,7 +5,14 @@
 
 package net.atos.zac.app.zaken.converter;
 
+import static net.atos.client.zgw.ztc.util.ZaakTypeUtilKt.isNuGeldig;
+import static net.atos.client.zgw.ztc.util.ZaakTypeUtilKt.isServicenormBeschikbaar;
+
+import java.time.Period;
+import java.util.ArrayList;
+
 import jakarta.inject.Inject;
+
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.app.admin.converter.RESTZaakafhandelParametersConverter;
 import net.atos.zac.app.zaken.model.RESTZaaktype;
@@ -14,12 +21,6 @@ import net.atos.zac.util.PeriodUtil;
 import net.atos.zac.util.UriUtil;
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService;
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
-
-import java.time.Period;
-import java.util.ArrayList;
-
-import static net.atos.client.zgw.ztc.util.ZaakTypeUtilKt.isNuGeldig;
-import static net.atos.client.zgw.ztc.util.ZaakTypeUtilKt.isServicenormBeschikbaar;
 
 public class RESTZaaktypeConverter {
 
