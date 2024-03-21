@@ -5,6 +5,8 @@
 
 package net.atos.zac.app.informatieobjecten.converter;
 
+import static net.atos.zac.app.zaken.converter.RESTZaakStatusConverterKt.convertToRESTZaakStatus;
+
 import jakarta.inject.Inject;
 
 import net.atos.client.zgw.zrc.ZRCClientService;
@@ -18,8 +20,6 @@ import net.atos.zac.app.informatieobjecten.model.RESTZaakInformatieobject;
 import net.atos.zac.app.policy.converter.RESTRechtenConverter;
 import net.atos.zac.policy.PolicyService;
 import net.atos.zac.policy.output.ZaakRechten;
-
-import static net.atos.zac.app.zaken.converter.RESTZaakStatusConverterKt.convertToRESTZaakStatus;
 
 public class RESTZaakInformatieobjectConverter {
 
