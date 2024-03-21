@@ -106,7 +106,7 @@ class NotificationsTest : BehaviorSpec({
                     zaak.getBoolean("isProcesGestuurd") shouldBe false
                     zaak.getJSONObject("communicatiekanaal")
                         .getString("naam") shouldBe "E-formulier"
-                    zaak1UUID = UUID.fromString(zaak.getString("uuid"))
+                    zaak1UUID = zaak.getString("uuid").let(UUID::fromString)
                 }
             }
         }

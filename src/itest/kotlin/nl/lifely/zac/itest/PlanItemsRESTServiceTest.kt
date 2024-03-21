@@ -14,8 +14,8 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration
-import nl.lifely.zac.itest.config.ItestConfiguration.GROUP_A_ID
-import nl.lifely.zac.itest.config.ItestConfiguration.GROUP_A_NAME
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import org.json.JSONArray
 import java.time.LocalDate
@@ -95,7 +95,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec() {
                         "planItemInstanceId":"$humanTaskItemAanvullendeInformatieId",
                         "fataledatum":"$fataleDatum",
                         "taakStuurGegevens":{"sendMail":false},
-                        "medewerker":null,"groep":{"id":"$GROUP_A_ID","naam":"$GROUP_A_NAME"},
+                        "medewerker":null,"groep":{"id":"$TEST_GROUP_A_ID","naam":"$TEST_GROUP_A_DESCRIPTION"},
                         "taakdata":{}
                     }
                     """.trimIndent()
