@@ -88,6 +88,6 @@ public class RESTZaakZoekObject extends AbstractRESTZoekObject {
 
     public RESTZaakRechten rechten;
 
-    public Map<RolType.OmschrijvingGeneriekEnum, List<String>> betrokkenen;
+    public Map<String, List<String>> betrokkenen;
 
 }

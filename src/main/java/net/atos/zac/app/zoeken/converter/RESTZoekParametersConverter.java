@@ -8,6 +8,7 @@ package net.atos.zac.app.zoeken.converter;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
+import net.atos.zac.zoeken.model.ZoekVeld;
 import org.apache.commons.lang3.BooleanUtils;
 
 import net.atos.zac.app.zoeken.model.RESTZoekParameters;
@@ -18,7 +19,11 @@ import net.atos.zac.zoeken.model.ZoekParameters;
 import net.atos.zac.zoeken.model.zoekobject.TaakZoekObject;
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class RESTZoekParametersConverter {
+    private static final List<String> zoekvelden = Arrays.stream(ZoekVeld.values()).map(Enum::name).toList();
 
     @Inject
     private Instance<LoggedInUser> loggedInUserInstance;
@@ -51,7 +56,13 @@ public class RESTZoekParametersConverter {
         }
 
         if (restZoekParameters.zoeken != null) {
-            restZoekParameters.zoeken.forEach(zoekParameters::addZoekVeld);
+            restZoekParameters.zoeken.forEach((key, value) -> {
+                if(zoekvelden.contains(key)) {
+                    zoekParameters.addZoekVeld(ZoekVeld.valueOf(key), value);
+                } else if(key.startsWith(ZaakZoekObject.ZAAK_BETROKKENE_PREFIX)) {
+                    zoekParameters.addFilterQuery(key, value);
+                }
+            });
         }
 
         if (restZoekParameters.sorteerVeld != null) {

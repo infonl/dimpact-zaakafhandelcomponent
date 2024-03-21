@@ -163,12 +163,7 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
 
     private void addBetrokkenen(final Zaak zaak, final ZaakZoekObject zaakZoekObject) {
         for (Rol<?> rol : zrcClientService.listRollen(zaak)) {
-            final RolType.OmschrijvingGeneriekEnum rolTypeOmschrijvingGeneriek = RolType.OmschrijvingGeneriekEnum.valueOf(
-                    rol.getOmschrijvingGeneriek().toUpperCase()
-            );
-            if (KlantenRESTService.betrokkenen.contains(rolTypeOmschrijvingGeneriek)) {
-                zaakZoekObject.addBetrokkene(rolTypeOmschrijvingGeneriek, rol.getIdentificatienummer());
-            }
+            zaakZoekObject.addBetrokkene(rol.getOmschrijving(), rol.getIdentificatienummer());
         }
     }
 

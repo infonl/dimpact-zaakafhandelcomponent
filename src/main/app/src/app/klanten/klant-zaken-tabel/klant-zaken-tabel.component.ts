@@ -27,6 +27,7 @@ import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { ZoekResultaat } from "../../zoeken/model/zoek-resultaat";
 import { ZoekVeld } from "../../zoeken/model/zoek-veld";
 import { ZoekenService } from "../../zoeken/zoeken.service";
+import { KlantenService } from "../klanten.service";
 
 @Component({
   selector: "zac-klant-zaken-tabel",
@@ -66,13 +67,23 @@ export class KlantZakenTabelComponent
   betrokkeneSelectControl = new FormControl<ZoekVeld>(null);
   private laatsteBetrokkenheid: string;
 
+  roltypen$ = this.klantenService.listRoltypen()
+  distinctRoltypenOptions$ = this.roltypen$.pipe(map(typen => this.distinct(
+    typen.map(({naam}) => naam)
+  )))
+
   constructor(
     private utilService: UtilService,
     private zoekenService: ZoekenService,
+    private klantenService: KlantenService
   ) {}
 
   ngOnInit(): void {
     this.zoekParameters.type = ZoekObjectType.ZAAK;
+  }
+
+  private distinct<T>(values: T[]): T[]{
+    return [...new Set(values)]
   }
 
   private loadZaken(): Observable<ZoekResultaat<ZaakZoekObject>> {

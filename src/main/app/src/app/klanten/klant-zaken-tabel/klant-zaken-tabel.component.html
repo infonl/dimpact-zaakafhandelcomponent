@@ -31,13 +31,14 @@
                                         [formControl]="betrokkeneSelectControl"
                                         (selectionChange)="filtersChanged()">
                                 <mat-option>{{'betrokkeneRoltype.-kies-' | translate}}</mat-option>
-                                <mat-option [value]="ZoekVeld.ZAAK_INITIATOR">{{'betrokkeneRoltype.INITIATOR' | translate}}</mat-option>
-                                <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_MEDE_INITIATOR">{{'betrokkeneRoltype.MEDE_INITIATOR' | translate}}</mat-option>
-                                <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_BELANGHEBBENDE">{{'betrokkeneRoltype.BELANGHEBBENDE' | translate}}</mat-option>
-                                <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_BESLISSER">{{'betrokkeneRoltype.BESLISSER' | translate}}</mat-option>
-                                <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_ADVISEUR">{{'betrokkeneRoltype.ADVISEUR' | translate}}</mat-option>
-                                <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_KLANTCONTACTER">{{'betrokkeneRoltype.KLANTCONTACTER' | translate}}</mat-option>
-                                <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_ZAAKCOORDINATOR">{{'betrokkeneRoltype.ZAAKCOORDINATOR' | translate}}</mat-option>
+                                <ng-container *ngIf="distinctRoltypenOptions$ | async as roltypen" >
+                                    <mat-option 
+                                        *ngFor="let betrokkene of distinctRoltypenOptions$ | async"
+                                        [value]="'zaak_betrokkene_' + betrokkene"
+                                        >
+                                        {{betrokkene}}
+                                    </mat-option>
+                                </ng-container>
                             </mat-select>
                         </mat-form-field>
                     </th>
@@ -46,7 +47,7 @@
                     <th mat-header-cell *matHeaderCellDef>{{ 'betrokkeneRoltype' | translate }}</th>
                     <td mat-cell *matCellDef="let object">
                         <div *ngFor="let betrokkene of getBetrokkenheid(object)">
-                            {{'betrokkeneRoltype.' + betrokkene | translate}}
+                            {{betrokkene}}
                         </div>
                     </td>
                 </ng-container>

@@ -18,7 +18,7 @@ public class RESTZoekParameters {
 
     public ZoekObjectType type;
 
-    public Map<ZoekVeld, String> zoeken;
+    public Map<String, String> zoeken;
 
     public Map<FilterVeld, FilterParameters> filters;
 

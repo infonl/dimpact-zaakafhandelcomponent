@@ -266,6 +266,15 @@ class ZTCClientService : Caching {
         ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI)).results
 
     /**
+     * Read [RolType]s of [ZaakType].
+     *
+     * @return list of [RolType]s.
+     */
+    @CacheResult(cacheName = Caching.ZTC_ROLTYPE)
+    fun listRoltypen(): List<RolType> =
+            ztcClient.roltypeList().results
+
+    /**
      * Read [RolType] via its UUID.
      * Throws a RuntimeException if the [RolType] can not be read.
      *
