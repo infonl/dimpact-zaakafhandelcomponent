@@ -2,139 +2,108 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+import jakarta.validation.Valid
+import jakarta.validation.constraints.NotNull
+import net.atos.zac.app.identity.model.RESTGroup
+import net.atos.zac.app.identity.model.RESTUser
+import net.atos.zac.app.klanten.model.klant.IdentificatieType
+import net.atos.zac.app.policy.model.RESTZaakRechten
+import java.time.LocalDate
+import java.util.*
+import javax.annotation.Nullable
 
-import java.time.LocalDate;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+data class RESTZaak(
+    val uuid: UUID,
 
-import jakarta.annotation.Nullable;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
+    val identificatie: String,
 
-import net.atos.zac.app.identity.model.RESTGroup;
-import net.atos.zac.app.identity.model.RESTUser;
-import net.atos.zac.app.klanten.model.klant.IdentificatieType;
-import net.atos.zac.app.policy.model.RESTZaakRechten;
-import net.atos.zac.zoeken.model.ZaakIndicatie;
+    @NotNull
+    val omschrijving: String,
 
+    val toelichting: String?,
 
-public class RESTZaak {
+    @NotNull @Valid
+    val zaaktype: RESTZaaktype,
 
-    public UUID uuid;
+    val status: RESTZaakStatus?,
 
-    public String identificatie;
+    val resultaat: RESTZaakResultaat?,
 
-    @NotNull()
-    public String omschrijving;
+    val besluiten: List<RESTBesluit>?,
 
-    public String toelichting;
+    val bronorganisatie: String?,
 
-    @NotNull() @Valid
-    public RESTZaaktype zaaktype;
+    val verantwoordelijkeOrganisatie: String?,
 
-    public RESTZaakStatus status;
+    val registratiedatum: LocalDate?,
 
-    public RESTZaakResultaat resultaat;
+    @NotNull
+    val startdatum: LocalDate,
 
-    public List<RESTBesluit> besluiten;
+    val einddatumGepland: LocalDate?,
 
-    public String bronorganisatie;
+    val einddatum: LocalDate?,
 
-    public String verantwoordelijkeOrganisatie;
+    val uiterlijkeEinddatumAfdoening: LocalDate?,
 
-    public LocalDate registratiedatum;
+    val publicatiedatum: LocalDate?,
 
-    @NotNull()
-    public LocalDate startdatum;
+    val archiefActiedatum: LocalDate?,
 
-    public LocalDate einddatumGepland;
+    val archiefNominatie: String?,
 
-    public LocalDate einddatum;
+    val communicatiekanaal: RESTCommunicatiekanaal?,
 
-    public LocalDate uiterlijkeEinddatumAfdoening;
+    @NotNull
+    val vertrouwelijkheidaanduiding: String,
 
-    public LocalDate publicatiedatum;
+    val zaakgeometrie: RESTGeometry?,
 
+    val isOpgeschort: Boolean,
 
-    public LocalDate archiefActiedatum;
+    val redenOpschorting: String?,
 
-    public String archiefNominatie;
+    val isVerlengd: Boolean,
 
-    @NotNull()
-    public RESTCommunicatiekanaal communicatiekanaal;
+    val redenVerlenging: String?,
 
-    @NotNull()
-    public String vertrouwelijkheidaanduiding;
+    val duurVerlenging: String?,
 
-    public RESTGeometry zaakgeometrie;
-
-    public boolean isOpgeschort;
-
-    public String redenOpschorting;
-
-    public boolean isVerlengd;
-
-    public String redenVerlenging;
-
-    public String duurVerlenging;
-
-    @Valid
     @Nullable
-    public RESTGroup groep;
+    @Valid
+    val groep: RESTGroup?,
 
-    public RESTUser behandelaar;
+    val behandelaar: RESTUser?,
 
-    public List<RESTGerelateerdeZaak> gerelateerdeZaken;
+    val gerelateerdeZaken: List<RESTGerelateerdeZaak>?,
 
-    public List<RESTZaakKenmerk> kenmerken;
+    val kenmerken: List<RESTZaakKenmerk>?,
 
-    public List<RESTZaakEigenschap> eigenschappen;
+    val eigenschappen: List<RESTZaakEigenschap>?,
 
-    public Map<String, Object> zaakdata;
+    val zaakdata: Map<String, Any>?,
 
-    public IdentificatieType initiatorIdentificatieType;
+    val initiatorIdentificatieType: IdentificatieType?,
 
-    public String initiatorIdentificatie;
+    val initiatorIdentificatie: String?,
 
-    public boolean isOpen;
+    val isOpen: Boolean,
 
-    public boolean isHeropend;
+    val isHeropend: Boolean,
 
-    public boolean isHoofdzaak;
+    val isHoofdzaak: Boolean,
 
-    public boolean isDeelzaak;
+    val isDeelzaak: Boolean,
 
-    public boolean isOntvangstbevestigingVerstuurd;
+    val isOntvangstbevestigingVerstuurd: Boolean,
 
-    public boolean isBesluittypeAanwezig;
+    val isBesluittypeAanwezig: Boolean,
 
-    public boolean isInIntakeFase;
+    val isInIntakeFase: Boolean,
 
-    public boolean isProcesGestuurd;
+    val isProcesGestuurd: Boolean,
 
-    public RESTZaakRechten rechten;
-
-    public EnumSet<ZaakIndicatie> getIndicaties() {
-        final EnumSet<ZaakIndicatie> indicaties = EnumSet.noneOf(ZaakIndicatie.class);
-        if (isHoofdzaak) {
-            indicaties.add(ZaakIndicatie.HOOFDZAAK);
-        }
-        if (isDeelzaak) {
-            indicaties.add(ZaakIndicatie.DEELZAAK);
-        }
-        if (isHeropend) {
-            indicaties.add(ZaakIndicatie.HEROPEND);
-        }
-        if (isOpgeschort) {
-            indicaties.add(ZaakIndicatie.OPSCHORTING);
-        }
-        if (isVerlengd) {
-            indicaties.add(ZaakIndicatie.VERLENGD);
-        }
-        return indicaties;
-    }
-}
+    val rechten: RESTZaakRechten?
+)

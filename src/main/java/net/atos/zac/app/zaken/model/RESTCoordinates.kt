@@ -2,20 +2,17 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+class RESTCoordinates {
+    constructor()
 
-public class RESTCoordinates {
-
-    public RESTCoordinates() {
+    constructor(x: Double, y: Double) {
+        this.x = x
+        this.y = y
     }
 
-    public RESTCoordinates(final double x, final double y) {
-        this.x = x;
-        this.y = y;
-    }
+    var x: Double = 0.0
 
-    public double x;
-
-    public double y;
+    var y: Double = 0.0
 }

@@ -2,18 +2,16 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+data class RESTZaakBetrokkene(
+    val rolid: String,
 
-public class RESTZaakBetrokkene {
+    val roltype: String,
 
-    public String rolid;
+    val roltoelichting: String,
 
-    public String roltype;
+    val type: String,
 
-    public String roltoelichting;
-
-    public String type;
-
-    public String identificatie;
-}
+    val identificatie: String
+)

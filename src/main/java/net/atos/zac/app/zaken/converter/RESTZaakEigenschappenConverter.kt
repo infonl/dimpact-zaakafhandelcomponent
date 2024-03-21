@@ -2,42 +2,28 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.converter
 
-package net.atos.zac.app.zaken.converter;
+import jakarta.inject.Inject
+import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.zac.app.zaken.model.RESTZaakEigenschap
+import java.net.URI
+import java.util.stream.Collectors
 
-import java.net.URI;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import jakarta.inject.Inject;
-
-import net.atos.client.zgw.zrc.ZRCClientService;
-import net.atos.client.zgw.zrc.model.generated.ZaakEigenschap;
-import net.atos.zac.app.zaken.model.RESTZaakEigenschap;
-
-public class RESTZaakEigenschappenConverter {
-
+// TODO: not used at the moment
+class RESTZaakEigenschappenConverter {
     @Inject
-    private ZRCClientService zrcClientService;
+    private lateinit var zrcClientService: ZRCClientService
 
-    public RESTZaakEigenschap convert(final URI uri) {
-        if (uri != null) {
-            final ZaakEigenschap zaakeigenschap = zrcClientService.readZaakeigenschap(uri);
-            if (zaakeigenschap != null) {
-                final RESTZaakEigenschap restZaakEigenschap = new RESTZaakEigenschap();
-                restZaakEigenschap.naam = zaakeigenschap.getNaam();
-                restZaakEigenschap.waarde = zaakeigenschap.getWaarde();
-                return restZaakEigenschap;
-            }
+    fun convert(uri: URI): RESTZaakEigenschap =
+        zrcClientService.readZaakeigenschap(uri).let { zaakeigenschap ->
+            RESTZaakEigenschap(
+                naam = zaakeigenschap.naam,
+                waarde = zaakeigenschap.waarde
+            )
         }
-        return null;
-    }
 
-    public List<RESTZaakEigenschap> convert(final Collection<URI> eigenschappen) {
-        if (eigenschappen == null) {
-            return null;
-        }
-        return eigenschappen.stream().map(this::convert).collect(Collectors.toList());
+    fun convert(eigenschappen: Collection<URI>): List<RESTZaakEigenschap> {
+        return eigenschappen.stream().map { uri -> this.convert(uri) }.collect(Collectors.toList())
     }
 }

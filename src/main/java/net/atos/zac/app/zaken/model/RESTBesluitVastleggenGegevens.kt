@@ -2,26 +2,23 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+import java.time.LocalDate
+import java.util.*
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
+class RESTBesluitVastleggenGegevens {
+    var zaakUuid: UUID? = null
 
-public class RESTBesluitVastleggenGegevens {
+    var resultaattypeUuid: UUID? = null
 
-    public UUID zaakUuid;
+    var besluittypeUuid: UUID? = null
 
-    public UUID resultaattypeUuid;
+    var toelichting: String? = null
 
-    public UUID besluittypeUuid;
+    var ingangsdatum: LocalDate? = null
 
-    public String toelichting;
+    var vervaldatum: LocalDate? = null
 
-    public LocalDate ingangsdatum;
-
-    public LocalDate vervaldatum;
-
-    public List<UUID> informatieobjecten;
+    var informatieobjecten: List<UUID?>? = null
 }

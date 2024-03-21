@@ -110,15 +110,15 @@ class ZakenRESTServiceTest : BehaviorSpec() {
                     val zaak = createZaak(zaakType.url)
 
                     every { cmmnService.startCase(zaak, zaakType, zaakAfhandelParameters, null) } just runs
-                    every { identityService.readGroup(restZaakAanmaakGegevens.zaak.groep.id) } returns group
-                    every { identityService.readUser(restZaakAanmaakGegevens.zaak.behandelaar.id) } returns user
+                    every { identityService.readGroup(restZaakAanmaakGegevens.zaak.groep?.id) } returns group
+                    every { identityService.readUser(restZaakAanmaakGegevens.zaak.behandelaar?.id) } returns user
                     every {
-                        inboxProductaanvraagService.delete(restZaakAanmaakGegevens.inboxProductaanvraag.id)
+                        inboxProductaanvraagService.delete(restZaakAanmaakGegevens.inboxProductaanvraag?.id)
                     } just runs
                     every { loggedInUserInstance.get() } returns createLoggedInUser()
                     every {
                         objectsClientService
-                            .readObject(restZaakAanmaakGegevens.inboxProductaanvraag.productaanvraagObjectUUID)
+                            .readObject(restZaakAanmaakGegevens.inboxProductaanvraag?.productaanvraagObjectUUID)
                     } returns objectRegistratieObject
                     every { policyService.readOverigeRechten() } returns OverigeRechten(true, false, false)
                     every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
@@ -137,11 +137,11 @@ class ZakenRESTServiceTest : BehaviorSpec() {
                         )
                     } just runs
                     every {
-                        restBagConverter.convertToZaakobject(restZaakAanmaakGegevens.bagObjecten[0], zaak)
+                        restBagConverter.convertToZaakobject(restZaakAanmaakGegevens.bagObjecten?.get(0), zaak)
                     } returns zaakObjectPand
                     every {
                         restBagConverter.convertToZaakobject(
-                            restZaakAanmaakGegevens.bagObjecten[1],
+                            restZaakAanmaakGegevens.bagObjecten?.get(1),
                             zaak
                         )
                     } returns zaakObjectOpenbareRuimte
@@ -171,7 +171,7 @@ class ZakenRESTServiceTest : BehaviorSpec() {
                     val rolNatuurlijkPersoonSlot = slot<RolNatuurlijkPersoon>()
                     val rolGroupSlotOrganisatorischeEenheidSlot = slot<RolOrganisatorischeEenheid>()
                     verify(exactly = 1) {
-                        ztcClientService.readZaaktype(restZaakAanmaakGegevens.zaak.zaaktype.uuid)
+                        ztcClientService.readZaaktype(restZaakAanmaakGegevens.zaak.zaaktype.uuid!!)
                         zgwApiService.createZaak(capture(zaakCreatedSlot))
                         zrcClientService.createRol(
                             capture(rolNatuurlijkPersoonSlot),

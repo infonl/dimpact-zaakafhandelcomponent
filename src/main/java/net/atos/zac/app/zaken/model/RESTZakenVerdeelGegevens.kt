@@ -2,19 +2,16 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+import java.util.*
 
-import java.util.List;
-import java.util.UUID;
+class RESTZakenVerdeelGegevens {
+    var uuids: List<UUID>? = null
 
-public class RESTZakenVerdeelGegevens {
+    var groepId: String? = null
 
-    public List<UUID> uuids;
+    var behandelaarGebruikersnaam: String? = null
 
-    public String groepId;
-
-    public String behandelaarGebruikersnaam;
-
-    public String reden;
+    var reden: String? = null
 }

@@ -2,14 +2,12 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+import java.util.*
 
-import java.util.UUID;
+data class RESTCommunicatiekanaal(
+    val uuid: UUID,
 
-public class RESTCommunicatiekanaal {
-
-    public UUID uuid;
-
-    public String naam;
-}
+    val naam: String
+)

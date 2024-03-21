@@ -2,29 +2,27 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+import java.util.*
 
-import java.util.UUID;
+class RESTResultaattype {
+    @JvmField
+    var id: UUID? = null
 
+    var naam: String? = null
 
-public class RESTResultaattype {
+    var naamGeneriek: String? = null
 
-    public UUID id;
+    var vervaldatumBesluitVerplicht: Boolean = false
 
-    public String naam;
+    var besluitVerplicht: Boolean = false
 
-    public String naamGeneriek;
+    var toelichting: String? = null
 
-    public boolean vervaldatumBesluitVerplicht;
+    var archiefNominatie: String? = null
 
-    public boolean besluitVerplicht;
+    var archiefTermijn: String? = null
 
-    public String toelichting;
-
-    public String archiefNominatie;
-
-    public String archiefTermijn;
-
-    public String selectielijst;
+    var selectielijst: String? = null
 }

@@ -2,14 +2,12 @@
  * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+import java.util.*
 
-import java.util.UUID;
+data class RESTZaaktypeRelatie(
+    val zaaktypeUuid: UUID,
 
-public class RESTZaaktypeRelatie {
-
-    public UUID zaaktypeUuid;
-
-    public RelatieType relatieType;
-}
+    val relatieType: RelatieType
+)

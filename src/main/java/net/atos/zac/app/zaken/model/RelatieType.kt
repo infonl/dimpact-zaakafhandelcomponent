@@ -1,6 +1,6 @@
-package net.atos.zac.app.zaken.model;
+package net.atos.zac.app.zaken.model
 
-public enum RelatieType {
+enum class RelatieType {
     HOOFDZAAK,
     DEELZAAK,
     VERVOLG,

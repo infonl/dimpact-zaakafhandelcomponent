@@ -2,19 +2,14 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+data class RESTGeometry(
+    val type: String,
 
-import java.util.List;
+    val point: RESTCoordinates? = null,
 
-public class RESTGeometry {
+    val polygon: List<List<RESTCoordinates>>? = null,
 
-    public String type;
-
-    public RESTCoordinates point;
-
-    public List<List<RESTCoordinates>> polygon;
-
-    public List<RESTGeometry> geometrycollection;
-
-}
+    val geometrycollection: List<RESTGeometry>? = null
+)

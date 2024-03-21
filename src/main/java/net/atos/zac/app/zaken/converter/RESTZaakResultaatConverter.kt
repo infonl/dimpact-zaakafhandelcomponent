@@ -2,33 +2,25 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.converter
 
-package net.atos.zac.app.zaken.converter;
+import jakarta.inject.Inject
+import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.zac.app.zaken.model.RESTZaakResultaat
+import java.net.URI
 
-import java.net.URI;
-
-import jakarta.inject.Inject;
-
-import net.atos.client.zgw.zrc.ZRCClientService;
-import net.atos.client.zgw.zrc.model.generated.Resultaat;
-import net.atos.zac.app.zaken.model.RESTZaakResultaat;
-
-public class RESTZaakResultaatConverter {
+class RESTZaakResultaatConverter {
+    @Inject
+    private lateinit var zrcClientService: ZRCClientService
 
     @Inject
-    private ZRCClientService zrcClientService;
+    private lateinit var restResultaattypeConverter: RESTResultaattypeConverter
 
-    @Inject
-    private RESTResultaattypeConverter restResultaattypeConverter;
-
-    public RESTZaakResultaat convert(final URI resultaatURI) {
-        if (resultaatURI != null) {
-            final Resultaat resultaat = zrcClientService.readResultaat(resultaatURI);
-            final RESTZaakResultaat restZaakResultaat = new RESTZaakResultaat();
-            restZaakResultaat.toelichting = resultaat.getToelichting();
-            restZaakResultaat.resultaattype = restResultaattypeConverter.convertResultaattypeUri(resultaat.getResultaattype());
-            return restZaakResultaat;
-        }
-        return null;
+    fun convert(resultaatURI: URI): RESTZaakResultaat {
+        val resultaat = zrcClientService.readResultaat(resultaatURI)
+        val restZaakResultaat = RESTZaakResultaat()
+        restZaakResultaat.toelichting = resultaat.toelichting
+        restZaakResultaat.resultaattype = restResultaattypeConverter.convertResultaattypeUri(resultaat.resultaattype)
+        return restZaakResultaat
     }
 }

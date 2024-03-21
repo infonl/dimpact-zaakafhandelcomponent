@@ -16,9 +16,10 @@ import net.atos.client.zgw.ztc.model.generated.StatusType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.app.informatieobjecten.model.RESTZaakInformatieobject;
 import net.atos.zac.app.policy.converter.RESTRechtenConverter;
-import net.atos.zac.app.zaken.converter.RESTZaakStatusConverter;
 import net.atos.zac.policy.PolicyService;
 import net.atos.zac.policy.output.ZaakRechten;
+
+import static net.atos.zac.app.zaken.converter.RESTZaakStatusConverterKt.convertToRESTZaakStatus;
 
 public class RESTZaakInformatieobjectConverter {
 
@@ -27,9 +28,6 @@ public class RESTZaakInformatieobjectConverter {
 
     @Inject
     private ZRCClientService zrcClientService;
-
-    @Inject
-    private RESTZaakStatusConverter restZaakStatusConverter;
 
     @Inject
     private RESTRechtenConverter rechtenConverter;
@@ -51,7 +49,7 @@ public class RESTZaakInformatieobjectConverter {
             if (zaak.getStatus() != null) {
                 final Status status = zrcClientService.readStatus(zaak.getStatus());
                 final StatusType statustype = ztcClientService.readStatustype(status.getStatustype());
-                restZaakInformatieobject.zaakStatus = restZaakStatusConverter.convertToRESTZaakStatus(status, statustype);
+                restZaakInformatieobject.zaakStatus = convertToRESTZaakStatus(status, statustype);
             }
         }
         return restZaakInformatieobject;
