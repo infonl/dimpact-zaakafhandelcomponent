@@ -13,8 +13,10 @@ fun createRESTEnkelvoudigInformatieobject(
     creatieDatum: LocalDate? = null,
     auteur: String? = null,
     taal: String? = null,
-    bestandsNaam: String? = null,
-    informatieobjectTypeUUID: UUID = UUID.randomUUID()
+    informatieobjectTypeUUID: UUID = UUID.randomUUID(),
+    file: ByteArray = "dummyFile".toByteArray(),
+    bestandsNaam: String = "dummyFilename",
+    formaat: String = "dummyType"
 ) = RESTEnkelvoudigInformatieobject().apply {
     this.uuid = uuid
     this.status = status
@@ -22,14 +24,10 @@ fun createRESTEnkelvoudigInformatieobject(
     this.creatiedatum = creatieDatum
     this.auteur = auteur
     this.taal = taal
-    this.bestandsnaam = bestandsNaam
     this.informatieobjectTypeUUID = informatieobjectTypeUUID
-}
-
-fun createRESTEnkelvoudigInformatieObjectVersieGegevens(
-    uuid: UUID = UUID.randomUUID(),
-) = RESTEnkelvoudigInformatieObjectVersieGegevens().apply {
-    this.uuid = uuid
+    this.file = file
+    this.bestandsnaam = bestandsNaam
+    this.formaat = formaat
 }
 
 fun createRESTFileUpload(
