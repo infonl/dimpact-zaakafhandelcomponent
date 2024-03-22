@@ -121,10 +121,10 @@ fun createRESTZaakAanmaakGegevens(
     zaakTypeUUID: UUID = UUID.randomUUID()
 ) = RESTZaakAanmaakGegevens(
     zaak = createRESTZaak(
-        RESTZaaktype().apply {
+        RESTZaaktype(
             // we only need a UUID for the zaaktype when creating a zaak
             uuid = zaakTypeUUID
-        }
+        )
     ),
     inboxProductaanvraag = createRESTInboxProductaanvraag(),
     bagObjecten = listOf(createRESTPand(), createRESTOpenbareRuimte())
@@ -164,26 +164,26 @@ fun createRESTZaakStatus(
     toelichting = toelichting
 )
 
-fun createRESTZaaktype() = RESTZaaktype().apply {
-    uuid = UUID.randomUUID()
-    identificatie = "dummyIdentificatie"
-    doel = "Sample Doel"
-    omschrijving = ZAAK_TYPE_1_OMSCHRIJVING
-    referentieproces = "Sample Referentieproces"
-    servicenorm = true
-    versiedatum = LocalDate.now()
-    beginGeldigheid = LocalDate.of(2023, 1, 1)
-    eindeGeldigheid = LocalDate.of(2023, 12, 31)
-    vertrouwelijkheidaanduiding = ZaakType.VertrouwelijkheidaanduidingEnum.OPENBAAR
-    nuGeldig = true
-    opschortingMogelijk = false
-    verlengingMogelijk = false
-    verlengingstermijn = null
-    zaaktypeRelaties = emptyList()
-    informatieobjecttypes = emptyList()
+fun createRESTZaaktype() = RESTZaaktype(
+    uuid = UUID.randomUUID(),
+    identificatie = "dummyIdentificatie",
+    doel = "Sample Doel",
+    omschrijving = ZAAK_TYPE_1_OMSCHRIJVING,
+    referentieproces = "Sample Referentieproces",
+    servicenorm = true,
+    versiedatum = LocalDate.now(),
+    beginGeldigheid = LocalDate.of(2023, 1, 1),
+    eindeGeldigheid = LocalDate.of(2023, 12, 31),
+    vertrouwelijkheidaanduiding = ZaakType.VertrouwelijkheidaanduidingEnum.OPENBAAR,
+    nuGeldig = true,
+    opschortingMogelijk = false,
+    verlengingMogelijk = false,
+    verlengingstermijn = null,
+    zaaktypeRelaties = emptyList(),
+    informatieobjecttypes = emptyList(),
     // use empty zaakafhandelparameters object here
     zaakafhandelparameters = RESTZaakafhandelParameters()
-}
+)
 
 private fun createZaakData(): Map<String, Any> {
     val zaakdata = HashMap<String, Any>()

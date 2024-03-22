@@ -323,9 +323,9 @@ class ZakenRESTService {
 
     @POST
     @Path("zaak")
-    fun createZaak(restZaakAanmaakGegevens: @Valid RESTZaakAanmaakGegevens): RESTZaak {
-        val restZaak: RESTZaak = restZaakAanmaakGegevens.zaak
-        val zaaktype = ztcClientService.readZaaktype(restZaak.zaaktype.uuid!!)
+    fun createZaak(restZaakAanmaakGegevens: RESTZaakAanmaakGegevens): RESTZaak {
+        val restZaak = restZaakAanmaakGegevens.zaak
+        val zaaktype = ztcClientService.readZaaktype(restZaak.zaaktype.uuid)
 
         // make sure to use the omschrijving of the zaaktype that was retrieved to perform
         // authorisation on zaaktype
@@ -342,12 +342,12 @@ class ZakenRESTService {
                 zaak
             )
         }
-        if (restZaak.groep != null) {
-            val group = identityService.readGroup(restZaak.groep.id)
+        restZaak.groep?.let { restGroup ->
+            val group = identityService.readGroup(restGroup.id)
             zrcClientService.updateRol(zaak, bepaalRolGroep(group, zaak), AANMAKEN_ZAAK_REDEN)
         }
-        if (restZaak.behandelaar != null) {
-            val user = identityService.readUser(restZaak.behandelaar.id)
+        restZaak.behandelaar?.let { restBehandelaar ->
+            val user = identityService.readUser(restBehandelaar.id)
             zrcClientService.updateRol(zaak, bepaalRolMedewerker(user, zaak), AANMAKEN_ZAAK_REDEN)
         }
         cmmnService.startCase(
@@ -359,12 +359,12 @@ class ZakenRESTService {
             null
         )
 
-        if (restZaakAanmaakGegevens.inboxProductaanvraag != null) {
-            koppelInboxProductaanvraag(zaak, restZaakAanmaakGegevens.inboxProductaanvraag)
+        restZaakAanmaakGegevens.inboxProductaanvraag?.let {inboxProductaanvraag ->
+            koppelInboxProductaanvraag(zaak, inboxProductaanvraag)
         }
 
-        if (restZaakAanmaakGegevens.bagObjecten != null) {
-            for (restbagObject in restZaakAanmaakGegevens.bagObjecten) {
+        restZaakAanmaakGegevens.bagObjecten?.let { restbagObjecten ->
+            for (restbagObject in restbagObjecten) {
                 val zaakobject: Zaakobject = bagConverter.convertToZaakobject(restbagObject, zaak)
                 zrcClientService.createZaakobject(zaakobject)
             }

@@ -4,34 +4,38 @@
  */
 package net.atos.zac.app.zaken.model
 
-import net.atos.client.zgw.brc.model.generated.Besluit.VervalredenEnum
+import net.atos.client.zgw.brc.model.generated.Besluit
 import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieobject
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
 import java.net.URI
 import java.time.LocalDate
 import java.util.*
 
+@AllOpen
+@NoArgConstructor
 data class RESTBesluit(
-    val url: URI,
+    var url: URI,
 
     var uuid: UUID,
 
-    val identificatie: String? = null,
+    var identificatie: String? = null,
 
-    val datum: LocalDate? = null,
+    var datum: LocalDate? = null,
 
-    val besluittype: RESTBesluittype? = null,
+    var besluittype: RESTBesluittype? = null,
 
-    val ingangsdatum: LocalDate? = null,
+    var ingangsdatum: LocalDate? = null,
 
-    val vervaldatum: LocalDate? = null,
+    var vervaldatum: LocalDate? = null,
 
-    val vervalreden: VervalredenEnum? = null,
+    var vervalreden: Besluit.VervalredenEnum? = null,
 
-    val isIngetrokken: Boolean = false,
+    var isIngetrokken: Boolean = false,
 
-    val toelichting: String? = null,
+    var toelichting: String? = null,
 
-    val zaakUuid: UUID? = null,
+    var zaakUuid: UUID? = null,
 
-    val informatieobjecten: List<RESTEnkelvoudigInformatieobject>? = null,
+    var informatieobjecten: List<RESTEnkelvoudigInformatieobject>? = null,
 )

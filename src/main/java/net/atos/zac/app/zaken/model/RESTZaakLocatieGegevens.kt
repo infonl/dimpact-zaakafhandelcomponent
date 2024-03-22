@@ -4,8 +4,13 @@
  */
 package net.atos.zac.app.zaken.model
 
-data class RESTZaakLocatieGegevens(
-    val geometrie: RESTGeometry,
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
 
-    val reden: String
+@AllOpen
+@NoArgConstructor
+data class RESTZaakLocatieGegevens(
+    var geometrie: RESTGeometry,
+
+    var reden: String
 )

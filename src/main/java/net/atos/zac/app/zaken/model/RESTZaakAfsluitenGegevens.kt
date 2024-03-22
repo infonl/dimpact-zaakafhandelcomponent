@@ -4,7 +4,7 @@
  */
 package net.atos.zac.app.zaken.model
 
-import java.util.*
+import java.util.UUID
 
 class RESTZaakAfsluitenGegevens {
     var reden: String? = null

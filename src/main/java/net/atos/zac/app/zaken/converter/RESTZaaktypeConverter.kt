@@ -25,57 +25,52 @@ class RESTZaaktypeConverter {
     private lateinit var zaakafhandelParameterService: ZaakafhandelParameterService
 
     fun convert(zaaktype: ZaakType): RESTZaaktype {
-        val restZaaktype = RESTZaaktype()
-        restZaaktype.uuid = UriUtil.uuidFromURI(zaaktype.url)
-        restZaaktype.identificatie = zaaktype.identificatie
-        restZaaktype.doel = zaaktype.doel
-        restZaaktype.omschrijving = zaaktype.omschrijving
-        restZaaktype.servicenorm = isServicenormBeschikbaar(zaaktype)
-        restZaaktype.versiedatum = zaaktype.versiedatum
-        restZaaktype.nuGeldig = isNuGeldig(zaaktype)
-        restZaaktype.beginGeldigheid = zaaktype.beginGeldigheid
-        restZaaktype.eindeGeldigheid = zaaktype.eindeGeldigheid
-        restZaaktype.vertrouwelijkheidaanduiding = zaaktype.vertrouwelijkheidaanduiding
-        restZaaktype.opschortingMogelijk = zaaktype.opschortingEnAanhoudingMogelijk
-        restZaaktype.verlengingMogelijk = zaaktype.verlengingMogelijk
-        if (restZaaktype.verlengingMogelijk) {
-            restZaaktype.verlengingstermijn = PeriodUtil.aantalDagenVanafHeden(
-                Period.parse(zaaktype.verlengingstermijn)
-            )
-        }
-        restZaaktype.zaaktypeRelaties = ArrayList()
-        zaaktype.deelzaaktypen?.let {
-            zaaktype.deelzaaktypen.stream()
+        val zaaktypeRelaties = ArrayList<RESTZaaktypeRelatie>()
+        zaaktype.deelzaaktypen?.let { deelzaaktypen ->
+            deelzaaktypen.stream()
                 .map { deelzaaktype ->
                     convertToRESTZaaktypeRelatie(
                         deelzaaktype,
                         RelatieType.DEELZAAK
                     )
                 }
-                .forEach { restZaaktypeRelatie ->
-                    (restZaaktype.zaaktypeRelaties as ArrayList<RESTZaaktypeRelatie>).add(
-                        restZaaktypeRelatie
-                    )
-                }
+                .forEach { restZaaktypeRelatie -> zaaktypeRelaties.add(restZaaktypeRelatie) }
         }
-        if (zaaktype.gerelateerdeZaaktypen != null) {
-            zaaktype.gerelateerdeZaaktypen.stream()
+        zaaktype.gerelateerdeZaaktypen?.let { gerelateerdeZaaktypen ->
+            gerelateerdeZaaktypen.stream()
                 .map { zaakTypenRelatie -> convertToRESTZaaktypeRelatie(zaakTypenRelatie) }
                 .forEach {
-                        restZaaktypeRelatie ->
-                    (restZaaktype.zaaktypeRelaties as ArrayList<RESTZaaktypeRelatie>).add(restZaaktypeRelatie)
+                        restZaaktypeRelatie -> zaaktypeRelaties.add(restZaaktypeRelatie)
                 }
         }
-        restZaaktype.informatieobjecttypes = zaaktype.informatieobjecttypen.stream().map { uri -> UriUtil.uuidFromURI(uri) }.toList()
-        if (zaaktype.referentieproces != null) {
-            restZaaktype.referentieproces = zaaktype.referentieproces.naam
-        }
-        val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-            restZaaktype.uuid
+
+        return RESTZaaktype(
+        uuid = UriUtil.uuidFromURI(zaaktype.url),
+        identificatie = zaaktype.identificatie,
+        doel = zaaktype.doel,
+        omschrijving = zaaktype.omschrijving,
+        servicenorm = isServicenormBeschikbaar(zaaktype),
+        versiedatum = zaaktype.versiedatum,
+        nuGeldig = isNuGeldig(zaaktype),
+        beginGeldigheid = zaaktype.beginGeldigheid,
+        eindeGeldigheid = zaaktype.eindeGeldigheid,
+        vertrouwelijkheidaanduiding = zaaktype.vertrouwelijkheidaanduiding,
+        opschortingMogelijk = zaaktype.opschortingEnAanhoudingMogelijk,
+        verlengingMogelijk = zaaktype.verlengingMogelijk,
+        verlengingstermijn = zaaktype.verlengingMogelijk?.let{
+            PeriodUtil.aantalDagenVanafHeden(
+                Period.parse(zaaktype.verlengingstermijn)
+            )
+        },
+        zaaktypeRelaties = zaaktypeRelaties,
+            informatieobjecttypes = zaaktype.informatieobjecttypen.stream().map {
+                uri -> UriUtil.uuidFromURI(uri)
+            }.toList(),
+        referentieproces = zaaktype.referentieproces?.let { zaaktype.referentieproces.naam },
+            zaakafhandelparameters = zaakafhandelParametersConverter.convertZaakafhandelParameters(
+            zaakafhandelParameterService.readZaakafhandelParameters(UriUtil.uuidFromURI(zaaktype.url)),
+                true
+            )
         )
-        restZaaktype.zaakafhandelparameters = zaakafhandelParametersConverter.convertZaakafhandelParameters(
-            zaakafhandelParameters, true
-        )
-        return restZaaktype
     }
 }

@@ -4,14 +4,18 @@
  */
 package net.atos.zac.app.zaken.model
 
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
 import java.util.*
 
+@AllOpen
+@NoArgConstructor
 data class RESTZaakOntkoppelGegevens(
-    val zaakUuid: UUID,
+    var zaakUuid: UUID,
 
-    val gekoppeldeZaakIdentificatie: String,
+    var gekoppeldeZaakIdentificatie: String,
 
-    val relatietype: RelatieType,
+    var relatietype: RelatieType,
 
-    val reden: String
+    var reden: String
 )

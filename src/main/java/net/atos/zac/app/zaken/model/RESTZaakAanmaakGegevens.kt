@@ -4,15 +4,18 @@
  */
 package net.atos.zac.app.zaken.model
 
-import jakarta.validation.Valid
 import net.atos.zac.app.bag.model.RESTBAGObject
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
 
+@NoArgConstructor
+@AllOpen
 data class RESTZaakAanmaakGegevens(
-    @Valid
-    val zaak: RESTZaak,
+    // TODO: cannot use a val or else RESTEasy (JAX-RS?) will complain that the getter for this value returns null..
+    var zaak: RESTZaak,
 
-    val inboxProductaanvraag: RESTInboxProductaanvraag? = null,
+    var inboxProductaanvraag: RESTInboxProductaanvraag? = null,
 
-    val bagObjecten: List<RESTBAGObject>? = null
+    var bagObjecten: List<RESTBAGObject>? = null
 )

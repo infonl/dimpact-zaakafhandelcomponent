@@ -4,11 +4,16 @@
  */
 package net.atos.zac.app.zaken.model
 
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+
+@AllOpen
+@NoArgConstructor
 data class RESTZaakEigenschap(
     // TODO: not used?
-    val type: String? = null,
+    var type: String? = null,
 
-    val naam: String,
+    var naam: String,
 
-    val waarde: String
+    var waarde: String
 )

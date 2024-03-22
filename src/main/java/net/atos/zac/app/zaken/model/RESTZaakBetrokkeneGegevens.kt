@@ -4,15 +4,17 @@
  */
 package net.atos.zac.app.zaken.model
 
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotNull
 import net.atos.zac.app.klanten.model.klant.IdentificatieType
-import java.util.*
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+import java.util.UUID
 
+@AllOpen
+@NoArgConstructor
 data class RESTZaakBetrokkeneGegevens(
-    val zaakUUID: @NotNull UUID,
-    val roltypeUUID: @NotNull UUID,
-    val roltoelichting: @NotBlank String,
-    var betrokkeneIdentificatieType: @NotNull IdentificatieType,
-    var betrokkeneIdentificatie: @NotBlank String
+    var zaakUUID: UUID,
+    var roltypeUUID: UUID,
+    var roltoelichting: String,
+    var betrokkeneIdentificatieType: IdentificatieType,
+    var betrokkeneIdentificatie: String
 )

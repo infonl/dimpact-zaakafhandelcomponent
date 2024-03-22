@@ -4,8 +4,13 @@
  */
 package net.atos.zac.app.zaken.model
 
-data class RESTZaakStatus(
-    val naam: String,
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
 
-    val toelichting: String
+@AllOpen
+@NoArgConstructor
+data class RESTZaakStatus(
+    var naam: String,
+
+    var toelichting: String
 )

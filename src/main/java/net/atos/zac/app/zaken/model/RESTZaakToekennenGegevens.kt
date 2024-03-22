@@ -10,7 +10,8 @@ import jakarta.validation.constraints.Size
 import java.util.*
 
 class RESTZaakToekennenGegevens {
-    var zaakUUID: @NotNull UUID? = null
+    @NotNull
+    var zaakUUID: UUID? = null
 
     /**
      * Since this is used for the 'identificatie' field in
@@ -18,7 +19,8 @@ class RESTZaakToekennenGegevens {
      * we need to make sure it adheres to the same constraints.
      */
     @Nullable
-    var groepId: @Size(max = 24) String? = null
+    @Size(max = 24)
+    var groepId: String? = null
 
     var behandelaarGebruikersnaam: String? = null
 
