@@ -140,12 +140,12 @@ fun createRESTZaakToekennenGegevens(
     groepId: String = "dummyGroupId",
     behandelaarGebruikersnaam: String = "dummyBehandelaarGebruikersnaam",
     reden: String = "dummyReden"
-) = RESTZaakToekennenGegevens().apply {
-    this.zaakUUID = zaakUUID
-    this.groepId = groepId
-    this.behandelaarGebruikersnaam = behandelaarGebruikersnaam
-    this.reden = reden
-}
+) = RESTZaakToekennenGegevens(
+    zaakUUID = zaakUUID,
+    groepId = groepId,
+    behandelaarGebruikersnaam = behandelaarGebruikersnaam,
+    reden = reden
+)
 
 fun createRESTZaakRechten() = RESTZaakRechten()
 

@@ -68,7 +68,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec() {
         Given("A zaak has been created") {
             When("the get human task plan item endpoint is called for the task 'aanvullende informatie'") {
                 val response = itestHttpClient.performGetRequest(
-                    "${ItestConfiguration.ZAC_API_URI}" +
+                    ItestConfiguration.ZAC_API_URI +
                         "/planitems/humanTaskPlanItem/$humanTaskItemAanvullendeInformatieId"
                 )
                 Then("the human task plan item data for this task is returned") {
