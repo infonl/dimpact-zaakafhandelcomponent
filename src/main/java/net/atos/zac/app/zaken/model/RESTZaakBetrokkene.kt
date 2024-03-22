@@ -4,14 +4,19 @@
  */
 package net.atos.zac.app.zaken.model
 
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+
+@AllOpen
+@NoArgConstructor
 data class RESTZaakBetrokkene(
-    val rolid: String,
+    var rolid: String,
 
-    val roltype: String,
+    var roltype: String,
 
-    val roltoelichting: String,
+    var roltoelichting: String,
 
-    val type: String,
+    var type: String,
 
-    val identificatie: String
+    var identificatie: String
 )

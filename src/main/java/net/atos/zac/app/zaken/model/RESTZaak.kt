@@ -4,106 +4,101 @@
  */
 package net.atos.zac.app.zaken.model
 
-import jakarta.validation.Valid
-import jakarta.validation.constraints.NotNull
 import net.atos.zac.app.identity.model.RESTGroup
 import net.atos.zac.app.identity.model.RESTUser
 import net.atos.zac.app.klanten.model.klant.IdentificatieType
 import net.atos.zac.app.policy.model.RESTZaakRechten
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
 import java.time.LocalDate
 import java.util.*
-import javax.annotation.Nullable
 
+@NoArgConstructor
+@AllOpen
 data class RESTZaak(
-    val uuid: UUID,
+    var uuid: UUID,
 
-    val identificatie: String,
+    var identificatie: String,
 
-    @NotNull
-    val omschrijving: String,
+    var omschrijving: String,
 
-    val toelichting: String?,
+    var toelichting: String?,
 
-    @NotNull @Valid
-    val zaaktype: RESTZaaktype,
+    var zaaktype: RESTZaaktype,
 
-    val status: RESTZaakStatus?,
+    var status: RESTZaakStatus?,
 
-    val resultaat: RESTZaakResultaat?,
+    var resultaat: RESTZaakResultaat?,
 
-    val besluiten: List<RESTBesluit>?,
+    var besluiten: List<RESTBesluit>?,
 
-    val bronorganisatie: String?,
+    var bronorganisatie: String?,
 
-    val verantwoordelijkeOrganisatie: String?,
+    var verantwoordelijkeOrganisatie: String?,
 
-    val registratiedatum: LocalDate?,
+    var registratiedatum: LocalDate?,
 
-    @NotNull
-    val startdatum: LocalDate,
+    var startdatum: LocalDate,
 
-    val einddatumGepland: LocalDate?,
+    var einddatumGepland: LocalDate?,
 
-    val einddatum: LocalDate?,
+    var einddatum: LocalDate?,
 
-    val uiterlijkeEinddatumAfdoening: LocalDate?,
+    var uiterlijkeEinddatumAfdoening: LocalDate?,
 
-    val publicatiedatum: LocalDate?,
+    var publicatiedatum: LocalDate?,
 
-    val archiefActiedatum: LocalDate?,
+    var archiefActiedatum: LocalDate?,
 
-    val archiefNominatie: String?,
+    var archiefNominatie: String?,
 
-    val communicatiekanaal: RESTCommunicatiekanaal?,
+    var communicatiekanaal: RESTCommunicatiekanaal?,
 
-    @NotNull
-    val vertrouwelijkheidaanduiding: String,
+    var vertrouwelijkheidaanduiding: String,
 
-    val zaakgeometrie: RESTGeometry?,
+    var zaakgeometrie: RESTGeometry?,
 
-    val isOpgeschort: Boolean,
+    var isOpgeschort: Boolean,
 
-    val redenOpschorting: String?,
+    var redenOpschorting: String?,
 
-    val isVerlengd: Boolean,
+    var isVerlengd: Boolean,
 
-    val redenVerlenging: String?,
+    var redenVerlenging: String?,
 
-    val duurVerlenging: String?,
+    var duurVerlenging: String?,
 
-    @Nullable
-    @Valid
-    val groep: RESTGroup?,
+    var groep: RESTGroup?,
 
-    val behandelaar: RESTUser?,
+    var behandelaar: RESTUser?,
 
-    val gerelateerdeZaken: List<RESTGerelateerdeZaak>?,
+    var gerelateerdeZaken: List<RESTGerelateerdeZaak>?,
 
-    val kenmerken: List<RESTZaakKenmerk>?,
+    var kenmerken: List<RESTZaakKenmerk>?,
 
-    val eigenschappen: List<RESTZaakEigenschap>?,
+    var eigenschappen: List<RESTZaakEigenschap>?,
 
-    val zaakdata: Map<String, Any>?,
+    var zaakdata: Map<String, Any>?,
 
-    val initiatorIdentificatieType: IdentificatieType?,
+    var initiatorIdentificatieType: IdentificatieType?,
 
-    val initiatorIdentificatie: String?,
+    var initiatorIdentificatie: String?,
 
-    val isOpen: Boolean,
+    var isOpen: Boolean,
 
-    val isHeropend: Boolean,
+    var isHeropend: Boolean,
 
-    val isHoofdzaak: Boolean,
+    var isHoofdzaak: Boolean,
 
-    val isDeelzaak: Boolean,
+    var isDeelzaak: Boolean,
 
-    val isOntvangstbevestigingVerstuurd: Boolean,
+    var isOntvangstbevestigingVerstuurd: Boolean,
 
-    val isBesluittypeAanwezig: Boolean,
+    var isBesluittypeAanwezig: Boolean,
 
-    val isInIntakeFase: Boolean,
+    var isInIntakeFase: Boolean,
 
-    val isProcesGestuurd: Boolean,
+    var isProcesGestuurd: Boolean,
 
-    val rechten: RESTZaakRechten?
+    var rechten: RESTZaakRechten?
 )

@@ -24,6 +24,8 @@ import net.atos.zac.app.identity.converter.RESTGroupConverter
 import net.atos.zac.app.identity.converter.RESTUserConverter
 import net.atos.zac.app.klanten.model.klant.IdentificatieType
 import net.atos.zac.app.policy.converter.RESTRechtenConverter
+import net.atos.zac.app.zaken.model.RESTCommunicatiekanaal
+import net.atos.zac.app.zaken.model.RESTGeometry
 import net.atos.zac.app.zaken.model.RESTGerelateerdeZaak
 import net.atos.zac.app.zaken.model.RESTZaak
 import net.atos.zac.app.zaken.model.RESTZaakKenmerk
@@ -137,7 +139,7 @@ class RESTZaakConverter {
             toelichting = zaak.toelichting,
             zaaktype = zaaktypeConverter.convert(zaaktype),
             status = status?.let { convertToRESTZaakStatus(it, statustype!!) },
-            resultaat = zaakResultaatConverter.convert(zaak.resultaat),
+            resultaat = zaak.resultaat?.let { resultaat -> zaakResultaatConverter.convert(resultaat) },
             isOpgeschort = zaak.isOpgeschort,
             redenOpschorting = (zaak.isOpgeschort || StringUtils.isNotEmpty(zaak.opschorting.reden)).let {
                 zaak.opschorting.reden
@@ -193,15 +195,17 @@ class RESTZaakConverter {
         zaak.omschrijving = restZaak.omschrijving
         zaak.toelichting = restZaak.toelichting
         zaak.registratiedatum = LocalDate.now()
-        restZaak.communicatiekanaal?.let {
-            vrlClientService.findCommunicatiekanaal(restZaak.communicatiekanaal.uuid)
+        restZaak.communicatiekanaal?.let { restCommunicatiekanaal ->
+            vrlClientService.findCommunicatiekanaal(restCommunicatiekanaal.uuid)
                 .map { obj: CommunicatieKanaal -> obj.url }
                 .ifPresent { communicatiekanaal -> zaak.communicatiekanaal = communicatiekanaal }
         }
         zaak.vertrouwelijkheidaanduiding = InformatieobjectenUtil.convertToVertrouwelijkheidaanduidingEnum(
             restZaak.vertrouwelijkheidaanduiding
         )
-        zaak.zaakgeometrie = restZaak.zaakgeometrie?.let { restGeometryConverter.convert(restZaak.zaakgeometrie) }
+        zaak.zaakgeometrie = restZaak.zaakgeometrie?.let { restGeometry ->
+            restGeometryConverter.convert(restGeometry)
+        }
         return zaak
     }
 
@@ -215,12 +219,14 @@ class RESTZaakConverter {
         zaak.vertrouwelijkheidaanduiding = InformatieobjectenUtil.convertToVertrouwelijkheidaanduidingEnum(
             restZaak.vertrouwelijkheidaanduiding
         )
-        restZaak.communicatiekanaal?.let {
-            vrlClientService.findCommunicatiekanaal(restZaak.communicatiekanaal.uuid)
+        restZaak.communicatiekanaal?.let { restCommunicatiekanaal ->
+            vrlClientService.findCommunicatiekanaal(restCommunicatiekanaal.uuid)
                 .map { obj -> obj.url }
                 .ifPresent { communicatiekanaal -> zaak.communicatiekanaal = communicatiekanaal }
         }
-        zaak.zaakgeometrie = restZaak.zaakgeometrie?.let { restGeometryConverter.convert(restZaak.zaakgeometrie) }
+        zaak.zaakgeometrie = restZaak.zaakgeometrie?.let { restGeometry ->
+            restGeometryConverter.convert(restGeometry)
+        }
         return zaak
     }
 

@@ -53,7 +53,7 @@ class RESTGeometryConverter {
     }
 
     private fun createPoint(restGeometry: RESTGeometry): Point {
-        val point2D = Point2D(restGeometry.point!!.x, restGeometry.point.y)
+        val point2D = Point2D(restGeometry.point!!.x, restGeometry.point!!.y)
         return Point(point2D)
     }
 

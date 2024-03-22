@@ -4,10 +4,14 @@
  */
 package net.atos.zac.app.zaken.model
 
-import java.util.*
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+import java.util.UUID
 
+@AllOpen
+@NoArgConstructor
 data class RESTZaaktypeRelatie(
-    val zaaktypeUuid: UUID,
+    var zaaktypeUuid: UUID,
 
-    val relatieType: RelatieType
+    var relatieType: RelatieType
 )

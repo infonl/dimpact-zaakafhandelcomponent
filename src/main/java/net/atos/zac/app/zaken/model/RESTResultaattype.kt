@@ -4,10 +4,9 @@
  */
 package net.atos.zac.app.zaken.model
 
-import java.util.*
+import java.util.UUID
 
 class RESTResultaattype {
-    @JvmField
     var id: UUID? = null
 
     var naam: String? = null

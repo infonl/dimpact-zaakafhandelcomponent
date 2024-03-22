@@ -25,6 +25,7 @@ plugins {
     alias(libs.plugins.docker.remote.api)
     alias(libs.plugins.spotless)
     alias(libs.plugins.allopen)
+    alias(libs.plugins.noarg)
 }
 
 repositories {
@@ -189,6 +190,12 @@ allOpen {
     // can proxy our Kotlin classes when they have our custom annotation
     // because by default Kotlin classes are final
     annotation("nl.lifely.zac.util.AllOpen")
+}
+
+noArg {
+    // enable no-arg plugin for Kotlin so that WildFly's dependency injection framework (Weld)
+    // can instantiate our Kotlin classes without a no-arg constructor
+    annotation("nl.lifely.zac.util.NoArgConstructor")
 }
 
 jacoco {

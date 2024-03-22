@@ -4,10 +4,14 @@
  */
 package net.atos.zac.app.zaken.model
 
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
 import java.util.*
 
+@NoArgConstructor
+@AllOpen
 data class RESTCommunicatiekanaal(
-    val uuid: UUID,
+    var uuid: UUID,
 
-    val naam: String
+    var naam: String
 )

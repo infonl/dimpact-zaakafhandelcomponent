@@ -112,7 +112,7 @@ public class RESTZaakafhandelParametersConverter {
         zaakafhandelParameters.setUiterlijkeEinddatumAfdoeningWaarschuwing(
                 restZaakafhandelParameters.uiterlijkeEinddatumAfdoeningWaarschuwing);
         zaakafhandelParameters.setNietOntvankelijkResultaattype(
-                restZaakafhandelParameters.zaakNietOntvankelijkResultaattype.id);
+                restZaakafhandelParameters.zaakNietOntvankelijkResultaattype.getId());
         zaakafhandelParameters.setIntakeMail(restZaakafhandelParameters.intakeMail.name());
         zaakafhandelParameters.setAfrondenMail(restZaakafhandelParameters.afrondenMail.name());
         zaakafhandelParameters.setProductaanvraagtype(restZaakafhandelParameters.productaanvraagtype);

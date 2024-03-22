@@ -4,12 +4,17 @@
  */
 package net.atos.zac.app.zaken.model
 
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+
+@AllOpen
+@NoArgConstructor
 data class RESTGeometry(
-    val type: String,
+    var type: String,
 
-    val point: RESTCoordinates? = null,
+    var point: RESTCoordinates? = null,
 
-    val polygon: List<List<RESTCoordinates>>? = null,
+    var polygon: List<List<RESTCoordinates>>? = null,
 
-    val geometrycollection: List<RESTGeometry>? = null
+    var geometrycollection: List<RESTGeometry>? = null
 )
