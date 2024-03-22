@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -75,14 +74,12 @@ import net.atos.zac.app.informatieobjecten.model.RESTDocumentVerwijderenGegevens
 import net.atos.zac.app.informatieobjecten.model.RESTDocumentVerzendGegevens;
 import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieObjectVersieGegevens;
 import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieobject;
-import net.atos.zac.app.informatieobjecten.model.RESTFileUpload;
 import net.atos.zac.app.informatieobjecten.model.RESTGekoppeldeZaakEnkelvoudigInformatieObject;
 import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjectZoekParameters;
 import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjecttype;
 import net.atos.zac.app.informatieobjecten.model.RESTZaakInformatieobject;
 import net.atos.zac.app.zaken.converter.RESTGerelateerdeZaakConverter;
 import net.atos.zac.app.zaken.model.RelatieType;
-import net.atos.zac.authentication.ActiveSession;
 import net.atos.zac.authentication.LoggedInUser;
 import net.atos.zac.documentcreatie.DocumentCreatieService;
 import net.atos.zac.documentcreatie.model.DocumentCreatieGegevens;
@@ -96,7 +93,6 @@ import net.atos.zac.event.EventingService;
 import net.atos.zac.flowable.TaakVariabelenService;
 import net.atos.zac.flowable.TakenService;
 import net.atos.zac.policy.PolicyService;
-import net.atos.zac.policy.output.DocumentRechten;
 import net.atos.zac.util.UriUtil;
 import net.atos.zac.webdav.WebdavHelper;
 
@@ -108,8 +104,6 @@ public class InformatieObjectenRESTService {
     private static final String MEDIA_TYPE_PDF = "application/pdf";
 
     private static final String TOELICHTING_PDF = "Geconverteerd naar PDF";
-
-    static final String FILE_SESSION_ATTRIBUTE_PREFIX = "FILE_";
 
     @Inject
     private DRCClientService drcClientService;
@@ -164,10 +158,6 @@ public class InformatieObjectenRESTService {
 
     @Inject
     private WebdavHelper webdavHelper;
-
-    @Inject
-    @ActiveSession
-    private Instance<HttpSession> httpSession;
 
     @Inject
     private PolicyService policyService;
@@ -282,31 +272,6 @@ public class InformatieObjectenRESTService {
     }
 
     @POST
-    @Path("informatieobject/{zaakUuid}/{documentReferentieId}")
-    public RESTEnkelvoudigInformatieobject createEnkelvoudigInformatieobjectWithUploadedFile(
-            @PathParam("zaakUuid") final UUID zaakUuid,
-            @PathParam("documentReferentieId") final String documentReferentieId,
-            @QueryParam("taakObject") final boolean taakObject,
-            @Valid final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
-    ) {
-        final Zaak zaak = zrcClientService.readZaak(zaakUuid);
-        assertPolicy(policyService.readZaakRechten(zaak).wijzigen());
-
-        final RESTFileUpload file = (RESTFileUpload) httpSession.get().getAttribute(FILE_SESSION_ATTRIBUTE_PREFIX +
-                                                                                    documentReferentieId);
-
-        try {
-            final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData = taakObject ?
-                    informatieobjectConverter.convertTaakObject(restEnkelvoudigInformatieobject, file) :
-                    informatieobjectConverter.convertZaakObject(restEnkelvoudigInformatieobject, file);
-            return createEnkelvoudigInformatieobject(enkelvoudigInformatieObjectData, documentReferentieId, taakObject, zaak);
-        } finally {
-            // always remove the uploaded file from the HTTP session even if exceptions are thrown
-            httpSession.get().removeAttribute(FILE_SESSION_ATTRIBUTE_PREFIX + documentReferentieId);
-        }
-    }
-
-    @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Path("informatieobject/{zaakUuid}/{documentReferentieId}")
     public RESTEnkelvoudigInformatieobject createEnkelvoudigInformatieobjectAndUploadFile(
@@ -396,26 +361,6 @@ public class InformatieObjectenRESTService {
                 .filter(InformatieObjectTypeUtil::isNuGeldig)
                 .collect(Collectors.toList());
         return informatieobjecttypeConverter.convert(informatieObjectTypes);
-    }
-
-    /**
-     * Zet een {@link RESTFileUpload} bestand in de HTTP sessie.
-     *
-     * @param documentReferentieId Zaak-UUID of taak-ID van gerelateerde zaak/taak.
-     * @return Success response
-     */
-    @POST
-    @Path("informatieobject/upload/{documentReferentieId}")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public Response uploadFile(
-            @PathParam("documentReferentieId") final String documentReferentieId,
-            @MultipartForm final RESTFileUpload data
-    ) {
-        // note that there is no guarantee that the file will be removed from the session
-        // since the user may abandon the upload process
-        // this should be improved at some point
-        httpSession.get().setAttribute(FILE_SESSION_ATTRIBUTE_PREFIX + documentReferentieId, data);
-        return Response.ok("\"Success\"").build();
     }
 
     @GET
@@ -547,29 +492,6 @@ public class InformatieObjectenRESTService {
     }
 
     @POST
-    @Path("/informatieobject/update")
-    public RESTEnkelvoudigInformatieobject updateEnkelvoudigInformatieobjectWithUploadedFile(
-            RESTEnkelvoudigInformatieObjectVersieGegevens enkelvoudigInformatieObjectVersieGegevens
-    ) {
-        final var document = drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieObjectVersieGegevens.uuid);
-        assertPolicy(
-                policyService.readDocumentRechten(
-                        document,
-                        zrcClientService.readZaak(enkelvoudigInformatieObjectVersieGegevens.zaakUuid)
-                ).wijzigen()
-        );
-        final var file = (RESTFileUpload) httpSession.get().getAttribute(FILE_SESSION_ATTRIBUTE_PREFIX +
-                                                                         enkelvoudigInformatieObjectVersieGegevens.zaakUuid);
-        try {
-            var updatedDocument = informatieobjectConverter.convert(enkelvoudigInformatieObjectVersieGegevens, file);
-            return updateEnkelvoudigInformatieobject(enkelvoudigInformatieObjectVersieGegevens, document, updatedDocument);
-        } finally {
-            // always remove the uploaded file from the HTTP session even if exceptions are thrown
-            httpSession.get().removeAttribute(FILE_SESSION_ATTRIBUTE_PREFIX + enkelvoudigInformatieObjectVersieGegevens.zaakUuid);
-        }
-    }
-
-    @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Path("/informatieobject/update")
     public RESTEnkelvoudigInformatieobject updateEnkelvoudigInformatieobjectAndUploadFile(
@@ -687,10 +609,7 @@ public class InformatieObjectenRESTService {
         final EnkelvoudigInformatieObject enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
                 uuid);
         Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        DocumentRechten documentRechten = policyService.readDocumentRechten(
-                enkelvoudigInformatieobject,
-                zaak
-        );
+        policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak);
         Ondertekening ondertekening = enkelvoudigInformatieobject.getOndertekening();
         boolean hasOndertekening = ondertekening != null && ondertekening.getDatum() != null;
         assertPolicy(

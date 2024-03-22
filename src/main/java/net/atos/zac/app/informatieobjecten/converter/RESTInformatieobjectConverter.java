@@ -172,18 +172,6 @@ public class RESTInformatieobjectConverter {
     }
 
     public EnkelvoudigInformatieObjectData convertZaakObject(
-            final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject,
-            final RESTFileUpload bestand
-    ) {
-        final EnkelvoudigInformatieObjectData enkelvoudigInformatieobjectWithInhoud = buildZaacEnkelvoudigInformatieObjectData(
-                restEnkelvoudigInformatieobject);
-        enkelvoudigInformatieobjectWithInhoud.setInhoud(convertByteArrayToBase64String(bestand.file));
-        enkelvoudigInformatieobjectWithInhoud.setFormaat(bestand.type);
-        enkelvoudigInformatieobjectWithInhoud.setBestandsomvang(bestand.file.length);
-        return enkelvoudigInformatieobjectWithInhoud;
-    }
-
-    public EnkelvoudigInformatieObjectData convertZaakObject(
             final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
     ) {
         final EnkelvoudigInformatieObjectData enkelvoudigInformatieobjectWithInhoud = buildZaacEnkelvoudigInformatieObjectData(
@@ -222,19 +210,6 @@ public class RESTInformatieobjectConverter {
                 )
         );
         return enkelvoudigInformatieobjectWithInhoud;
-    }
-
-    public EnkelvoudigInformatieObjectData convertTaakObject(
-            final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject,
-            final RESTFileUpload bestand
-    ) {
-        final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData = buildTaakEnkelvoudigInformatieObjectData(
-                restEnkelvoudigInformatieobject);
-        enkelvoudigInformatieObjectData.setInhoud(convertByteArrayToBase64String(bestand.file));
-        enkelvoudigInformatieObjectData.setFormaat(bestand.type);
-        enkelvoudigInformatieObjectData.setBestandsnaam(bestand.filename);
-        enkelvoudigInformatieObjectData.setBestandsomvang(bestand.file.length);
-        return enkelvoudigInformatieObjectData;
     }
 
     public EnkelvoudigInformatieObjectData convertTaakObject(
@@ -322,21 +297,6 @@ public class RESTInformatieobjectConverter {
         restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam = informatieobject.getInhoud().toString();
 
         return restEnkelvoudigInformatieObjectVersieGegevens;
-    }
-
-    public EnkelvoudigInformatieObjectWithLockData convert(
-            final RESTEnkelvoudigInformatieObjectVersieGegevens restEnkelvoudigInformatieObjectVersieGegevens,
-            final RESTFileUpload file
-    ) {
-        final EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieObjectWithLockData = createEnkelvoudigInformatieObjectWithLockData(
-                restEnkelvoudigInformatieObjectVersieGegevens);
-        if (file != null && file.file != null) {
-            enkelvoudigInformatieObjectWithLockData.setInhoud(convertByteArrayToBase64String(file.file));
-            enkelvoudigInformatieObjectWithLockData.setBestandsomvang(file.file.length);
-            enkelvoudigInformatieObjectWithLockData.setFormaat(file.type);
-        }
-
-        return enkelvoudigInformatieObjectWithLockData;
     }
 
     public EnkelvoudigInformatieObjectWithLockData convert(
