@@ -12,6 +12,8 @@ import java.util.UUID
  * used in the entire integration test flow such as: Keycloak, Objecten, Objecttypen, Open Zaak, ZAC.
  */
 object ItestConfiguration {
+    const val BETROKKENE_TYPE_NATUURLIJK_PERSOON = "NATUURLIJK_PERSOON"
+    const val BETROKKENE_IDENTIFICATIE_TYPE_BSN = "BSN"
     const val KEYCLOAK_HOSTNAME_URL = "http://localhost:8081"
     const val KEYCLOAK_HEALTH_READY_URL = "$KEYCLOAK_HOSTNAME_URL/health/ready"
     const val KEYCLOAK_REALM = "zaakafhandelcomponent"
@@ -24,6 +26,9 @@ object ItestConfiguration {
     const val OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT = "021f685e-9482-4620-b157-34cd4003da6b"
     const val OPEN_NOTIFICATIONS_API_SECRET_KEY = "openNotificatiesApiSecretKey"
     const val PRODUCT_AANVRAAG_TYPE = "productaanvraag"
+    const val ROLTYPE_NAME_BETROKKENE = "Betrokkene"
+    const val ROLTYPE_UUID_BELANGHEBBENDE = "4c4cd850-8332-4bb9-adc4-dd046f0614ad"
+    const val TEST_BETROKKENE_BSN_HENDRIKA_JANSE = "999993896"
     const val TEST_SPEC_ORDER_INITIAL = 0
     const val TEST_SPEC_ORDER_AFTER_ZAAK_CREATED = 1
     const val TEST_SPEC_ORDER_AFTER_TASK_CREATED = 2
@@ -43,7 +48,6 @@ object ItestConfiguration {
     const val TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION = "Test group functional admins"
     const val TEST_GROUP_RECORD_MANAGERS_ID = "test-group-rm"
     const val TEST_GROUP_RECORD_MANAGERS_DESCRIPTION = "Test group record managers"
-    const val USER_FULL_NAME = "Test User1"
     const val ZAC_CONTAINER_SERVICE_NAME = "zac"
     const val ZAC_CONTAINER_PORT = 8080
 

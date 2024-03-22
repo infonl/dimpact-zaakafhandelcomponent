@@ -297,7 +297,7 @@ class ZakenRESTService {
     @POST
     @Path("betrokkene")
     fun createBetrokken(gegevens: @Valid RESTZaakBetrokkeneGegevens): RESTZaak {
-        val zaak: Zaak = zrcClientService.readZaak(gegevens.zaakUUID)
+        val zaak = zrcClientService.readZaak(gegevens.zaakUUID)
         addBetrokkene(
             gegevens.roltypeUUID,
             gegevens.betrokkeneIdentificatieType,
@@ -1126,7 +1126,7 @@ class ZakenRESTService {
         zaak: Zaak
     ) {
         assertPolicy(policyService.readZaakRechten(zaak).behandelen)
-        val betrokkene: RolType = ztcClientService.readRoltype(roltype)
+        val betrokkene = ztcClientService.readRoltype(roltype)
         when (identificatieType) {
             IdentificatieType.BSN -> addBetrokkenNatuurlijkPersoon(betrokkene, identificatie, zaak, toelichting)
             IdentificatieType.VN -> addBetrokkenVestiging(betrokkene, identificatie, zaak, toelichting)

@@ -11,7 +11,7 @@ import java.util.UUID
 @AllOpen
 @NoArgConstructor
 data class RESTResultaattype(
-    var id: UUID? = null,
+    var id: UUID,
 
     var naam: String? = null,
 

@@ -14,6 +14,11 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.client.ZacClient
+import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATIE_TYPE_BSN
+import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_TYPE_NATUURLIJK_PERSOON
+import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_BETROKKENE
+import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_UUID_BELANGHEBBENDE
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_BETROKKENE_BSN_HENDRIKA_JANSE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
@@ -22,6 +27,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVEN
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_2_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import org.json.JSONArray
 import org.json.JSONObject
 import org.mockserver.model.HttpStatusCode
 import java.util.*
@@ -68,6 +74,50 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     with(JSONObject(responseBody)) {
                         getString("identificatie") shouldBe ZAAK_2_IDENTIFICATION
                         getJSONObject("zaaktype").getString("identificatie") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
+                    }
+                }
+            }
+        }
+    }
+    Given("A zaak has been created") {
+        When("the add betrokkene to zaak endpoint is called") {
+            Then("the response should be a 200 HTTP response") {
+                val response = itestHttpClient.performJSONPostRequest(
+                    url = "$ZAC_API_URI/zaken/betrokkene",
+                    requestBodyAsString = "{\n" +
+                        "  \"zaakUUID\": \"$zaak2UUID\",\n" +
+                        "  \"roltypeUUID\": \"$ROLTYPE_UUID_BELANGHEBBENDE\",\n" +
+                        "  \"roltoelichting\": \"dummyToelichting\",\n" +
+                        "  \"betrokkeneIdentificatieType\": \"$BETROKKENE_IDENTIFICATIE_TYPE_BSN\",\n" +
+                        "  \"betrokkeneIdentificatie\": \"$TEST_BETROKKENE_BSN_HENDRIKA_JANSE\"\n" +
+                        "}"
+                )
+                response.code shouldBe HttpStatusCode.OK_200.code()
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                with(responseBody) {
+                    shouldContainJsonKeyValue("uuid", zaak2UUID.toString())
+                }
+            }
+        }
+    }
+    Given("A betrokkene had been added to a zaak") {
+        When("the get betrokkenen endpoint is called for a zaak") {
+            Then("the response should be a 200 HTTP response with the betrokkene") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID/betrokkene",
+                )
+                response.code shouldBe HttpStatusCode.OK_200.code()
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                with(JSONArray(responseBody)) {
+                    length() shouldBe 1
+                    getJSONObject(0).apply {
+                        getString("rolid") shouldNotBe null
+                        getString("roltype") shouldBe ROLTYPE_NAME_BETROKKENE
+                        getString("roltoelichting") shouldBe "dummyToelichting"
+                        getString("type") shouldBe BETROKKENE_TYPE_NATUURLIJK_PERSOON
+                        getString("identificatie") shouldBe TEST_BETROKKENE_BSN_HENDRIKA_JANSE
                     }
                 }
             }

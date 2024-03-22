@@ -17,7 +17,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJL
 import nl.lifely.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.SMARTDOCUMENTS_MOCK_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED
-import nl.lifely.zac.itest.config.ItestConfiguration.USER_FULL_NAME
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
@@ -121,7 +121,7 @@ class InformatieObjectenTest : BehaviorSpec() {
                                 "yyyy-MM-dd'T'hh:mm+01:00"
                             ).format(ZonedDateTime.now())
                         )
-                        .addFormDataPart("auteur", USER_FULL_NAME)
+                        .addFormDataPart("auteur", TEST_USER_1_NAME)
                         .addFormDataPart("taal", "dut")
                         .build()
                 val response = itestHttpClient.performPostRequest(
@@ -141,7 +141,7 @@ class InformatieObjectenTest : BehaviorSpec() {
                     logger.info { "$endpointUrl response: $responseBody" }
                     response.code shouldBe HttpStatusCode.OK_200.code()
                     with(responseBody) {
-                        shouldContainJsonKeyValue("auteur", USER_FULL_NAME)
+                        shouldContainJsonKeyValue("auteur", TEST_USER_1_NAME)
                         shouldContainJsonKeyValue("status", DOCUMENT_STATUS_IN_BEWERKING)
                         shouldContainJsonKeyValue("taal", "Nederlands")
                         shouldContainJsonKeyValue("titel", FILE_TITLE)
@@ -204,7 +204,7 @@ class InformatieObjectenTest : BehaviorSpec() {
                     logger.info { "$endpointUrl response: $responseBody" }
                     response.code shouldBe HttpStatusCode.OK_200.code()
                     with(responseBody) {
-                        shouldContainJsonKeyValue("auteur", USER_FULL_NAME)
+                        shouldContainJsonKeyValue("auteur", TEST_USER_1_NAME)
                         shouldContainJsonKeyValue("status", DOCUMENT_STATUS_IN_BEWERKING)
                         shouldContainJsonKeyValue("taal", "Nederlands")
                         shouldContainJsonKeyValue("titel", UPDATED_FILE_TITLE)
@@ -284,7 +284,7 @@ class InformatieObjectenTest : BehaviorSpec() {
                     logger.info { "$endpointUrl response: $responseBody" }
                     response.code shouldBe HttpStatusCode.OK_200.code()
                     with(responseBody) {
-                        shouldContainJsonKeyValue("auteur", USER_FULL_NAME)
+                        shouldContainJsonKeyValue("auteur", TEST_USER_1_NAME)
                         shouldContainJsonKeyValue("beschrijving", "taak-document")
                         shouldContainJsonKeyValue("bestandsnaam", PDF_FILE_NAME)
                         shouldContainJsonKeyValue("bestandsomvang", PDF_FILE_SIZE)
