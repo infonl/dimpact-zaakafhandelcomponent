@@ -105,7 +105,6 @@ fun createRESTZaak(
     behandelaar = createRESTUser(),
     gerelateerdeZaken = listOf(createRESTGerelateerdeZaak()),
     kenmerken = listOf(createRESTZaakKenmerk()),
-    eigenschappen = listOf(createRESTZaakEigenschap()),
     zaakdata = createZaakData(),
     indicaties = indicaties,
     initiatorIdentificatieType = IdentificatieType.BSN,
@@ -132,14 +131,6 @@ fun createRESTZaakAanmaakGegevens(
     ),
     inboxProductaanvraag = createRESTInboxProductaanvraag(),
     bagObjecten = listOf(createRESTPand(), createRESTOpenbareRuimte())
-)
-
-fun createRESTZaakEigenschap(
-    naam: String = "dummyName",
-    waarde: String = "dummyValue"
-) = RESTZaakEigenschap(
-    naam = naam,
-    waarde = waarde
 )
 
 fun createRESTZaakKenmerk() = RESTZaakKenmerk("Sample kenmerk", "Sample bron")
