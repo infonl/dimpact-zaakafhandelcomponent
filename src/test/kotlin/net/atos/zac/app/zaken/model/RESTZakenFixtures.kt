@@ -14,9 +14,11 @@ import net.atos.zac.app.identity.model.RESTUser
 import net.atos.zac.app.klanten.model.klant.IdentificatieType
 import net.atos.zac.app.policy.model.RESTZaakRechten
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
+import net.atos.zac.zoeken.model.ZaakIndicatie
 import java.net.URI
 import java.time.LocalDate
-import java.util.UUID
+import java.util.*
+import kotlin.collections.HashMap
 
 // note: the value of the zaak type 'omschrijving' field is used to determine whether users
 // are allowed access to a zaak type
@@ -70,6 +72,7 @@ fun createRESTPand() = RESTPand()
 fun createRESTUser() = RESTUser()
 
 fun createRESTZaak(
+    indicaties: EnumSet<ZaakIndicatie> = EnumSet.noneOf(ZaakIndicatie::class.java),
     restZaakType: RESTZaaktype = createRESTZaaktype()
 ) = RESTZaak(
     uuid = UUID.randomUUID(),
@@ -104,6 +107,7 @@ fun createRESTZaak(
     kenmerken = listOf(createRESTZaakKenmerk()),
     eigenschappen = listOf(createRESTZaakEigenschap()),
     zaakdata = createZaakData(),
+    indicaties = indicaties,
     initiatorIdentificatieType = IdentificatieType.BSN,
     initiatorIdentificatie = "Sample Initiator Identificatie",
     isOpen = true,
@@ -121,7 +125,7 @@ fun createRESTZaakAanmaakGegevens(
     zaakTypeUUID: UUID = UUID.randomUUID()
 ) = RESTZaakAanmaakGegevens(
     zaak = createRESTZaak(
-        RESTZaaktype(
+        restZaakType = RESTZaaktype(
             // we only need a UUID for the zaaktype when creating a zaak
             uuid = zaakTypeUUID
         )

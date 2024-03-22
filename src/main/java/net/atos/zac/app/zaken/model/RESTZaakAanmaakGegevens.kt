@@ -12,7 +12,6 @@ import nl.lifely.zac.util.NoArgConstructor
 @NoArgConstructor
 @AllOpen
 data class RESTZaakAanmaakGegevens(
-    // TODO: cannot use a val or else RESTEasy (JAX-RS?) will complain that the getter for this value returns null..
     var zaak: RESTZaak,
 
     var inboxProductaanvraag: RESTInboxProductaanvraag? = null,

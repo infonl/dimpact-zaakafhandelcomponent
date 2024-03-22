@@ -4,12 +4,16 @@
  */
 package net.atos.zac.app.zaken.model
 
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
 import java.util.*
 
-class RESTDocumentOntkoppelGegevens {
-    var zaakUUID: UUID? = null
+@NoArgConstructor
+@AllOpen
+data class RESTDocumentOntkoppelGegevens(
+    var zaakUUID: UUID? = null,
 
-    var documentUUID: UUID? = null
+    var documentUUID: UUID? = null,
 
     var reden: String? = null
-}
+)
