@@ -16,7 +16,7 @@ class RESTBesluittypeConverter {
     private lateinit var ztcClientService: ZTCClientService
 
     fun convertToRESTBesluittype(besluittypeURI: URI): RESTBesluittype {
-        return convertToRESTBesluittype(ztcClientService.readBesluittype(besluittypeURI!!))
+        return convertToRESTBesluittype(ztcClientService.readBesluittype(besluittypeURI))
     }
 
     fun convertToRESTBesluittypes(besluittypes: List<BesluitType>): List<RESTBesluittype> {

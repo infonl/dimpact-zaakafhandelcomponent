@@ -35,6 +35,7 @@ import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.util.PeriodUtil
 import net.atos.zac.util.UriUtil
+import net.atos.zac.zoeken.model.ZaakIndicatie
 import org.apache.commons.collections4.CollectionUtils
 import org.apache.commons.lang3.StringUtils
 import java.time.LocalDate
@@ -174,7 +175,15 @@ class RESTZaakConverter {
             isBesluittypeAanwezig = CollectionUtils.isNotEmpty(zaaktype.besluittypen),
             isProcesGestuurd = bpmnService.isProcesGestuurd(zaak.uuid),
             rechten = rechtenConverter.convert(policyService.readZaakRechten(zaak, zaaktype)),
-            zaakdata = zaakVariabelenService.readZaakdata(zaak.uuid)
+            zaakdata = zaakVariabelenService.readZaakdata(zaak.uuid),
+            indicaties = when {
+                zaak.is_Hoofdzaak -> EnumSet.of(ZaakIndicatie.HOOFDZAAK)
+                zaak.isDeelzaak -> EnumSet.of(ZaakIndicatie.DEELZAAK)
+                StatusTypeUtil.isHeropend(statustype) -> EnumSet.of(ZaakIndicatie.HEROPEND)
+                zaak.isOpgeschort -> EnumSet.of(ZaakIndicatie.OPSCHORTING)
+                zaak.isVerlengd -> EnumSet.of(ZaakIndicatie.VERLENGD)
+                else -> EnumSet.noneOf(ZaakIndicatie::class.java)
+            }
         )
     }
 

@@ -40,35 +40,37 @@ class RESTZaaktypeConverter {
             gerelateerdeZaaktypen.stream()
                 .map { zaakTypenRelatie -> convertToRESTZaaktypeRelatie(zaakTypenRelatie) }
                 .forEach {
-                        restZaaktypeRelatie -> zaaktypeRelaties.add(restZaaktypeRelatie)
+                        restZaaktypeRelatie ->
+                    zaaktypeRelaties.add(restZaaktypeRelatie)
                 }
         }
 
         return RESTZaaktype(
-        uuid = UriUtil.uuidFromURI(zaaktype.url),
-        identificatie = zaaktype.identificatie,
-        doel = zaaktype.doel,
-        omschrijving = zaaktype.omschrijving,
-        servicenorm = isServicenormBeschikbaar(zaaktype),
-        versiedatum = zaaktype.versiedatum,
-        nuGeldig = isNuGeldig(zaaktype),
-        beginGeldigheid = zaaktype.beginGeldigheid,
-        eindeGeldigheid = zaaktype.eindeGeldigheid,
-        vertrouwelijkheidaanduiding = zaaktype.vertrouwelijkheidaanduiding,
-        opschortingMogelijk = zaaktype.opschortingEnAanhoudingMogelijk,
-        verlengingMogelijk = zaaktype.verlengingMogelijk,
-        verlengingstermijn = zaaktype.verlengingMogelijk?.let{
-            PeriodUtil.aantalDagenVanafHeden(
-                Period.parse(zaaktype.verlengingstermijn)
-            )
-        },
-        zaaktypeRelaties = zaaktypeRelaties,
+            uuid = UriUtil.uuidFromURI(zaaktype.url),
+            identificatie = zaaktype.identificatie,
+            doel = zaaktype.doel,
+            omschrijving = zaaktype.omschrijving,
+            servicenorm = isServicenormBeschikbaar(zaaktype),
+            versiedatum = zaaktype.versiedatum,
+            nuGeldig = isNuGeldig(zaaktype),
+            beginGeldigheid = zaaktype.beginGeldigheid,
+            eindeGeldigheid = zaaktype.eindeGeldigheid,
+            vertrouwelijkheidaanduiding = zaaktype.vertrouwelijkheidaanduiding,
+            opschortingMogelijk = zaaktype.opschortingEnAanhoudingMogelijk,
+            verlengingMogelijk = zaaktype.verlengingMogelijk,
+            verlengingstermijn = if (zaaktype.verlengingMogelijk) {
+                PeriodUtil.aantalDagenVanafHeden(
+                    Period.parse(zaaktype.verlengingstermijn)
+                )
+            } else null,
+            zaaktypeRelaties = zaaktypeRelaties,
             informatieobjecttypes = zaaktype.informatieobjecttypen.stream().map {
-                uri -> UriUtil.uuidFromURI(uri)
+                    uri ->
+                UriUtil.uuidFromURI(uri)
             }.toList(),
-        referentieproces = zaaktype.referentieproces?.let { zaaktype.referentieproces.naam },
+            referentieproces = zaaktype.referentieproces?.let { zaaktype.referentieproces.naam },
             zaakafhandelparameters = zaakafhandelParametersConverter.convertZaakafhandelParameters(
-            zaakafhandelParameterService.readZaakafhandelParameters(UriUtil.uuidFromURI(zaaktype.url)),
+                zaakafhandelParameterService.readZaakafhandelParameters(UriUtil.uuidFromURI(zaaktype.url)),
                 true
             )
         )

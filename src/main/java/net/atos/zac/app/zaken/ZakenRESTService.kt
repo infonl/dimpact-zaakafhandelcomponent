@@ -260,8 +260,8 @@ class ZakenRESTService {
     @Path("zaak/{uuid}")
     fun readZaak(@PathParam("uuid") zaakUUID: UUID): RESTZaak {
         val zaak = zrcClientService.readZaak(zaakUUID)
-        val restZaak: RESTZaak = zaakConverter.convert(zaak)
-        PolicyService.assertPolicy(restZaak.rechten!!.lezen)
+        val restZaak = zaakConverter.convert(zaak)
+        assertPolicy(restZaak.rechten!!.lezen)
         deleteSignaleringen(zaak)
         return restZaak
     }
@@ -271,7 +271,7 @@ class ZakenRESTService {
     fun readZaakById(@PathParam("identificatie") identificatie: String): RESTZaak {
         val zaak = zrcClientService.readZaakByID(identificatie)
         val restZaak: RESTZaak = zaakConverter.convert(zaak)
-        PolicyService.assertPolicy(restZaak.rechten!!.lezen)
+        assertPolicy(restZaak.rechten!!.lezen)
         deleteSignaleringen(zaak)
         return restZaak
     }
@@ -1194,7 +1194,7 @@ class ZakenRESTService {
         zaak: Zaak
     ) {
         assertPolicy(policyService.readZaakRechten(zaak).behandelen)
-        val initiator: RolType = ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.INITIATOR, zaak.zaaktype)
+        val initiator = ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.INITIATOR, zaak.zaaktype)
         when (identificatieType) {
             IdentificatieType.BSN -> addBetrokkenNatuurlijkPersoon(initiator, identificatie, zaak, ROL_TOEVOEGEN_REDEN)
             IdentificatieType.VN -> addBetrokkenVestiging(initiator, identificatie, zaak, ROL_TOEVOEGEN_REDEN)
@@ -1204,7 +1204,6 @@ class ZakenRESTService {
                 zaak,
                 ROL_TOEVOEGEN_REDEN
             )
-            else -> error("Unexpected value for $identificatieType: '$identificatie'")
         }
     }
 
@@ -1215,11 +1214,7 @@ class ZakenRESTService {
     ): List<RelevanteZaak> {
         val relevanteZaak = RelevanteZaak(andereZaak, aardRelatie)
         if (relevanteZaken != null) {
-            if (relevanteZaken.stream().noneMatch {
-                        zaak: RelevanteZaak ->
-                    zaak.`is`(andereZaak, aardRelatie)
-                }
-            ) {
+            if (relevanteZaken.stream().noneMatch { zaak -> zaak.`is`(andereZaak, aardRelatie) }) {
                 relevanteZaken.add(relevanteZaak)
             }
             return relevanteZaken
