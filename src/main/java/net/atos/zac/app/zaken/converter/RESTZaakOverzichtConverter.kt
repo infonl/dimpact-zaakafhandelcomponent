@@ -7,14 +7,10 @@ package net.atos.zac.app.zaken.converter
 import jakarta.inject.Inject
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZRCClientService
-import net.atos.client.zgw.zrc.model.RolMedewerker
-import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZTCClientService
 import net.atos.zac.app.identity.converter.RESTGroupConverter
 import net.atos.zac.app.identity.converter.RESTUserConverter
-import net.atos.zac.app.identity.model.RESTGroup
-import net.atos.zac.app.identity.model.RESTUser
 import net.atos.zac.app.policy.converter.RESTRechtenConverter
 import net.atos.zac.app.zaken.model.RESTZaakOverzicht
 import net.atos.zac.policy.PolicyService
@@ -63,10 +59,13 @@ class RESTZaakOverzichtConverter {
             restZaakOverzicht.omschrijving = zaak.omschrijving
             restZaakOverzicht.zaaktype = zaaktype.omschrijving
             restZaakOverzicht.openstaandeTaken = openstaandeTakenConverter.convert(zaak.uuid)
-            restZaakOverzicht.resultaat = zaakResultaatConverter.convert(zaak.resultaat)
-            if (zaak.status != null) {
+            restZaakOverzicht.resultaat = zaak.resultaat?.let { resultaat ->
+                zaakResultaatConverter.convert(resultaat)
+            }
+            zaak.status?.let {
                 restZaakOverzicht.status = ztcClientService.readStatustype(
-                    zrcClientService.readStatus(zaak.status).statustype).omschrijving
+                    zrcClientService.readStatus(zaak.status).statustype
+                ).omschrijving
             }
             zgwApiService.findBehandelaarForZaak(zaak)
                 .map { behandelaar ->
