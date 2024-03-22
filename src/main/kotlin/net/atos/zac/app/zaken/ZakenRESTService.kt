@@ -1062,8 +1062,7 @@ class ZakenRESTService {
         val intrekToelichting = getIntrekToelichting(besluit.vervalreden)
         besluit = brcClientService.updateBesluit(
             besluit,
-            // TODO.. use Kotlin formatted string
-            intrekToelichting?.formatted(restBesluitIntrekkenGegevens.reden)
+            intrekToelichting?.let { String.format(it, restBesluitIntrekkenGegevens.reden) }
         )
         // This event should result from a ZAAKBESLUIT UPDATED notification on the ZAKEN channel
         // but open_zaak does not send that one, so emulate it here.
