@@ -4,6 +4,11 @@
  */
 package net.atos.zac.app.zaken.model
 
-class RESTZaakHeropenenGegevens {
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+
+@NoArgConstructor
+@AllOpen
+data class RESTZaakHeropenenGegevens(
     var reden: String? = null
-}
+)

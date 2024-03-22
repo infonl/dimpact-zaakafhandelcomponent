@@ -7,37 +7,41 @@ package net.atos.zac.app.zaken.model
 import net.atos.zac.app.identity.model.RESTGroup
 import net.atos.zac.app.identity.model.RESTUser
 import net.atos.zac.app.policy.model.RESTZaakRechten
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
 import java.time.LocalDate
 import java.util.*
 
-class RESTZaakOverzicht {
-    var identificatie: String? = null
+@NoArgConstructor
+@AllOpen
+data class RESTZaakOverzicht(
+    var identificatie: String? = null,
 
-    var toelichting: String? = null
+    var toelichting: String? = null,
 
-    var omschrijving: String? = null
+    var omschrijving: String? = null,
 
-    var uuid: UUID? = null
+    var uuid: UUID? = null,
 
-    var startdatum: LocalDate? = null
+    var startdatum: LocalDate? = null,
 
-    var einddatum: LocalDate? = null
+    var einddatum: LocalDate? = null,
 
-    var zaaktype: String? = null
+    var zaaktype: String? = null,
 
-    var status: String? = null
+    var status: String? = null,
 
-    var behandelaar: RESTUser? = null
+    var behandelaar: RESTUser? = null,
 
-    var einddatumGepland: LocalDate? = null
+    var einddatumGepland: LocalDate? = null,
 
-    var uiterlijkeEinddatumAfdoening: LocalDate? = null
+    var uiterlijkeEinddatumAfdoening: LocalDate? = null,
 
-    var groep: RESTGroup? = null
+    var groep: RESTGroup? = null,
 
-    var resultaat: RESTZaakResultaat? = null
+    var resultaat: RESTZaakResultaat? = null,
 
-    var openstaandeTaken: RESTOpenstaandeTaken? = null
+    var openstaandeTaken: RESTOpenstaandeTaken? = null,
 
     var rechten: RESTZaakRechten? = null
-}
+)

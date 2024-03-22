@@ -4,8 +4,13 @@
  */
 package net.atos.zac.app.zaken.model
 
-class RESTZaakEditMetRedenGegevens {
-    var zaak: RESTZaak? = null
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+
+@NoArgConstructor
+@AllOpen
+data class RESTZaakEditMetRedenGegevens(
+    var zaak: RESTZaak? = null,
 
     var reden: String? = null
-}
+)

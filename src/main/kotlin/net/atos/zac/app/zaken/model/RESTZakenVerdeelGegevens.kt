@@ -4,14 +4,18 @@
  */
 package net.atos.zac.app.zaken.model
 
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
 import java.util.UUID
 
-class RESTZakenVerdeelGegevens {
-    var uuids: List<UUID>? = null
+@NoArgConstructor
+@AllOpen
+data class RESTZakenVerdeelGegevens(
+    var uuids: List<UUID>,
 
-    var groepId: String? = null
+    var groepId: String? = null,
 
-    var behandelaarGebruikersnaam: String? = null
+    var behandelaarGebruikersnaam: String? = null,
 
     var reden: String? = null
-}
+)

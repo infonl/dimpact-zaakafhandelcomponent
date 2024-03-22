@@ -104,6 +104,7 @@ import net.atos.zac.app.zaken.model.RESTZaakOpschorting
 import net.atos.zac.app.zaken.model.RESTZaakOverzicht
 import net.atos.zac.app.zaken.model.RESTZaakToekennenGegevens
 import net.atos.zac.app.zaken.model.RESTZaakVerlengGegevens
+import net.atos.zac.app.zaken.model.RESTZaaktype
 import net.atos.zac.app.zaken.model.RESTZakenVerdeelGegevens
 import net.atos.zac.app.zaken.model.RelatieType
 import net.atos.zac.authentication.LoggedInUser
@@ -139,7 +140,6 @@ import org.apache.commons.collections4.CollectionUtils
 import org.apache.commons.lang3.StringUtils
 import java.net.URI
 import java.time.LocalDate
-import java.time.ZonedDateTime
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.function.Consumer
@@ -429,13 +429,13 @@ class ZakenRESTService {
 
     @GET
     @Path("zaak/{uuid}/opschorting")
-    fun readOpschortingZaak(@PathParam("uuid") zaakUUID: UUID?): RESTZaakOpschorting {
+    fun readOpschortingZaak(@PathParam("uuid") zaakUUID: UUID): RESTZaakOpschorting {
         assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).lezen)
         val zaakOpschorting = RESTZaakOpschorting()
         zaakVariabelenService.findDatumtijdOpgeschort(zaakUUID)
-            .ifPresent { datumtijdOpgeschort: ZonedDateTime -> zaakOpschorting.vanafDatumTijd = datumtijdOpgeschort }
+            .ifPresent { datumtijdOpgeschort -> zaakOpschorting.vanafDatumTijd = datumtijdOpgeschort }
         zaakVariabelenService.findVerwachteDagenOpgeschort(zaakUUID)
-            .ifPresent { verwachteDagenOpgeschort: Int -> zaakOpschorting.duurDagen = verwachteDagenOpgeschort }
+            .ifPresent { verwachteDagenOpgeschort -> zaakOpschorting.duurDagen = verwachteDagenOpgeschort }
         return zaakOpschorting
     }
 
@@ -558,19 +558,13 @@ class ZakenRESTService {
 
     @GET
     @Path("zaaktypes")
-    fun listZaaktypes() =
+    fun listZaaktypes(): List<RESTZaaktype> =
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             .stream()
-            .filter { zaaktype ->
-                loggedInUserInstance.get()
-                    .isGeautoriseerdZaaktype(zaaktype.omschrijving)
-            }
+            .filter { zaaktype -> loggedInUserInstance.get().isGeautoriseerdZaaktype(zaaktype.omschrijving) }
             .filter { zaaktype -> !zaaktype.concept }
             .filter { zaakType -> isNuGeldig(zaakType) }
-            .filter { zaaktype ->
-                healthCheckService.controleerZaaktype(zaaktype.url)
-                    .isValide
-            }
+            .filter { zaaktype -> healthCheckService.controleerZaaktype(zaaktype.url).isValide }
             .map { zaaktype: ZaakType -> zaaktypeConverter.convert(zaaktype) }
             .toList()
 
@@ -669,7 +663,7 @@ class ZakenRESTService {
         } else {
             null
         }
-        verdeelGegevens.uuids!!.forEach(
+        verdeelGegevens.uuids.forEach(
             Consumer { uuid ->
                 val zaak = zrcClientService.readZaak(uuid)
                 if (group != null) {
@@ -689,7 +683,7 @@ class ZakenRESTService {
             }
         )
         indexeerService.indexeerDirect(
-            verdeelGegevens.uuids!!.stream().map {
+            verdeelGegevens.uuids.stream().map {
                     obj ->
                 obj.toString()
             }.toList(),
@@ -704,14 +698,14 @@ class ZakenRESTService {
             policyService.readWerklijstRechten().zakenTaken &&
                 policyService.readWerklijstRechten().zakenTakenVerdelen
         )
-        verdeelGegevens.uuids!!.forEach(
+        verdeelGegevens.uuids.forEach(
             Consumer { uuid ->
                 val zaak = zrcClientService.readZaak(uuid)
                 zrcClientService.deleteRol(zaak, BetrokkeneType.MEDEWERKER, verdeelGegevens.reden)
             }
         )
         indexeerService.indexeerDirect(
-            verdeelGegevens.uuids!!.stream().map { obj -> obj.toString() }.toList(),
+            verdeelGegevens.uuids.stream().map { obj -> obj.toString() }.toList(),
             ZoekObjectType.ZAAK
         )
     }
@@ -793,20 +787,19 @@ class ZakenRESTService {
                 policyService.readZaakRechten(teKoppelenZaak).wijzigen
         )
 
-        when (gegevens.relatieType!!) {
+        when (gegevens.relatieType) {
             RelatieType.HOOFDZAAK -> koppelHoofdEnDeelzaak(teKoppelenZaak, zaak)
             RelatieType.DEELZAAK -> koppelHoofdEnDeelzaak(zaak, teKoppelenZaak)
             RelatieType.VERVOLG -> koppelRelevantezaken(zaak, teKoppelenZaak, AardRelatie.VERVOLG)
             RelatieType.ONDERWERP -> koppelRelevantezaken(zaak, teKoppelenZaak, AardRelatie.ONDERWERP)
             RelatieType.BIJDRAGE -> koppelRelevantezaken(zaak, teKoppelenZaak, AardRelatie.BIJDRAGE)
         }
-        if (gegevens.reverseRelatieType != null) {
-            when (gegevens.reverseRelatieType!!) {
+        gegevens.reverseRelatieType?.let { reverseRelatieType ->
+            when (reverseRelatieType) {
                 RelatieType.VERVOLG -> koppelRelevantezaken(teKoppelenZaak, zaak, AardRelatie.VERVOLG)
                 RelatieType.ONDERWERP -> koppelRelevantezaken(teKoppelenZaak, zaak, AardRelatie.ONDERWERP)
                 RelatieType.BIJDRAGE -> koppelRelevantezaken(teKoppelenZaak, zaak, AardRelatie.BIJDRAGE)
-                RelatieType.HOOFDZAAK -> TODO()
-                RelatieType.DEELZAAK -> TODO()
+                else -> error("Reverse relatie type $reverseRelatieType is not supported")
             }
         }
     }
@@ -881,7 +874,7 @@ class ZakenRESTService {
         )
     }
 
-    /**
+/**
      * Retrieve all possible afzenders for a zaak
      *
      * @param zaakUUID the id of the zaak
@@ -902,7 +895,7 @@ class ZakenRESTService {
         )
     }
 
-    /**
+/**
      * Retrieve the default afzender for a zaak
      *
      * @param zaakUUID the id of the zaak

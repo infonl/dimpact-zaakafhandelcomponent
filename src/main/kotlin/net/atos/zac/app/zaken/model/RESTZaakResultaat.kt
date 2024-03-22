@@ -4,8 +4,13 @@
  */
 package net.atos.zac.app.zaken.model
 
-class RESTZaakResultaat {
-    var toelichting: String? = null
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+
+@NoArgConstructor
+@AllOpen
+data class RESTZaakResultaat(
+    var toelichting: String? = null,
 
     var resultaattype: RESTResultaattype? = null
-}
+)

@@ -4,10 +4,14 @@
  */
 package net.atos.zac.app.zaken.model
 
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
 
-class RESTZaakOpschorting {
-    var vanafDatumTijd: ZonedDateTime? = null
+@NoArgConstructor
+@AllOpen
+data class RESTZaakOpschorting(
+    var vanafDatumTijd: ZonedDateTime? = null,
 
     var duurDagen: Int = 0
-}
+)

@@ -4,4 +4,12 @@
  */
 package net.atos.zac.app.zaken.model
 
-class RESTZaakKenmerk(var kenmerk: String, var bron: String)
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+
+@NoArgConstructor
+@AllOpen
+data class RESTZaakKenmerk(
+    var kenmerk: String,
+    var bron: String
+)

@@ -4,10 +4,14 @@
  */
 package net.atos.zac.app.zaken.model
 
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
 import java.util.UUID
 
-class RESTZaakAfsluitenGegevens {
-    var reden: String? = null
+@NoArgConstructor
+@AllOpen
+data class RESTZaakAfsluitenGegevens(
+    var reden: String? = null,
 
     var resultaattypeUuid: UUID? = null
-}
+)
