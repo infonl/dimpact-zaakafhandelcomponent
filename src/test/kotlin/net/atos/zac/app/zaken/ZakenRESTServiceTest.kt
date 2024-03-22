@@ -167,11 +167,14 @@ class ZakenRESTServiceTest : BehaviorSpec() {
 
                     val restZaakReturned = zakenRESTService.createZaak(restZaakAanmaakGegevens)
 
+                    with(restZaakReturned) {
+                        assertEquals(this, restZaak)
+                    }
                     val zaakCreatedSlot = slot<Zaak>()
                     val rolNatuurlijkPersoonSlot = slot<RolNatuurlijkPersoon>()
                     val rolGroupSlotOrganisatorischeEenheidSlot = slot<RolOrganisatorischeEenheid>()
                     verify(exactly = 1) {
-                        ztcClientService.readZaaktype(restZaakAanmaakGegevens.zaak.zaaktype.uuid!!)
+                        ztcClientService.readZaaktype(restZaakAanmaakGegevens.zaak.zaaktype.uuid)
                         zgwApiService.createZaak(capture(zaakCreatedSlot))
                         zrcClientService.createRol(
                             capture(rolNatuurlijkPersoonSlot),
@@ -185,9 +188,6 @@ class ZakenRESTServiceTest : BehaviorSpec() {
                         cmmnService.startCase(zaak, zaakType, zaakAfhandelParameters, null)
                         zrcClientService.createZaakobject(zaakObjectPand)
                         zrcClientService.createZaakobject(zaakObjectOpenbareRuimte)
-                    }
-                    with(restZaakReturned) {
-                        assert(uuid != null)
                     }
                     with(zaakCreatedSlot.captured) {
                         assertEquals(this, zaak)

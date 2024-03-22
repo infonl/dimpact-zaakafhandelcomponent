@@ -4,15 +4,13 @@
  */
 package net.atos.zac.app.zaken.model
 
-class RESTCoordinates {
-    constructor()
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
 
-    constructor(x: Double, y: Double) {
-        this.x = x
-        this.y = y
-    }
-
-    var x: Double = 0.0
+@NoArgConstructor
+@AllOpen
+data class RESTCoordinates(
+    var x: Double = 0.0,
 
     var y: Double = 0.0
-}
+)
