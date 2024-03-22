@@ -4,10 +4,12 @@
  */
 package net.atos.zac.app.zaken.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import net.atos.zac.app.identity.model.RESTGroup
 import net.atos.zac.app.identity.model.RESTUser
 import net.atos.zac.app.klanten.model.klant.IdentificatieType
 import net.atos.zac.app.policy.model.RESTZaakRechten
+import net.atos.zac.zoeken.model.ZaakIndicatie
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.LocalDate
@@ -16,89 +18,69 @@ import java.util.*
 @NoArgConstructor
 @AllOpen
 data class RESTZaak(
-    var uuid: UUID,
-
-    var identificatie: String,
-
-    var omschrijving: String,
-
-    var toelichting: String?,
-
-    var zaaktype: RESTZaaktype,
-
-    var status: RESTZaakStatus?,
-
-    var resultaat: RESTZaakResultaat?,
-
-    var besluiten: List<RESTBesluit>?,
-
-    var bronorganisatie: String?,
-
-    var verantwoordelijkeOrganisatie: String?,
-
-    var registratiedatum: LocalDate?,
-
-    var startdatum: LocalDate,
-
-    var einddatumGepland: LocalDate?,
-
-    var einddatum: LocalDate?,
-
-    var uiterlijkeEinddatumAfdoening: LocalDate?,
-
-    var publicatiedatum: LocalDate?,
-
     var archiefActiedatum: LocalDate?,
-
     var archiefNominatie: String?,
-
-    var communicatiekanaal: RESTCommunicatiekanaal?,
-
-    var vertrouwelijkheidaanduiding: String,
-
-    var zaakgeometrie: RESTGeometry?,
-
-    var isOpgeschort: Boolean,
-
-    var redenOpschorting: String?,
-
-    var isVerlengd: Boolean,
-
-    var redenVerlenging: String?,
-
-    var duurVerlenging: String?,
-
-    var groep: RESTGroup?,
-
     var behandelaar: RESTUser?,
-
-    var gerelateerdeZaken: List<RESTGerelateerdeZaak>?,
-
-    var kenmerken: List<RESTZaakKenmerk>?,
-
+    var besluiten: List<RESTBesluit>?,
+    var bronorganisatie: String?,
+    var communicatiekanaal: RESTCommunicatiekanaal?,
+    var duurVerlenging: String?,
     var eigenschappen: List<RESTZaakEigenschap>?,
-
-    var zaakdata: Map<String, Any>?,
-
+    var einddatumGepland: LocalDate?,
+    var einddatum: LocalDate?,
+    var gerelateerdeZaken: List<RESTGerelateerdeZaak>?,
+    var groep: RESTGroup?,
+    var identificatie: String,
+    var indicaties: EnumSet<ZaakIndicatie>,
+    var initiatorIdentificatie: String?,
     var initiatorIdentificatieType: IdentificatieType?,
 
-    var initiatorIdentificatie: String?,
+    @get:JsonbProperty("isOpgeschort")
+    var isOpgeschort: Boolean,
 
+    @get:JsonbProperty("isOpen")
     var isOpen: Boolean,
 
+    @get:JsonbProperty("isHeropend")
     var isHeropend: Boolean,
 
+    @get:JsonbProperty("isHoofdzaak")
     var isHoofdzaak: Boolean,
 
+    @get:JsonbProperty("isDeelzaak")
     var isDeelzaak: Boolean,
 
+    @get:JsonbProperty("isOntvangstbevestigingVerstuurd")
     var isOntvangstbevestigingVerstuurd: Boolean,
 
+    @get:JsonbProperty("isBesluittypeAanwezig")
     var isBesluittypeAanwezig: Boolean,
 
+    @get:JsonbProperty("isInIntakeFase")
     var isInIntakeFase: Boolean,
 
+    @get:JsonbProperty("isProcesGestuurd")
     var isProcesGestuurd: Boolean,
 
-    var rechten: RESTZaakRechten?
+    @get:JsonbProperty("isVerlengd")
+    var isVerlengd: Boolean,
+
+    var kenmerken: List<RESTZaakKenmerk>?,
+    var omschrijving: String,
+    var publicatiedatum: LocalDate?,
+    var rechten: RESTZaakRechten?,
+    var redenOpschorting: String?,
+    var redenVerlenging: String?,
+    var registratiedatum: LocalDate?,
+    var resultaat: RESTZaakResultaat?,
+    var startdatum: LocalDate,
+    var status: RESTZaakStatus?,
+    var toelichting: String?,
+    var uiterlijkeEinddatumAfdoening: LocalDate?,
+    var uuid: UUID,
+    var verantwoordelijkeOrganisatie: String?,
+    var vertrouwelijkheidaanduiding: String,
+    var zaakdata: Map<String, Any>?,
+    var zaakgeometrie: RESTGeometry?,
+    var zaaktype: RESTZaaktype
 )

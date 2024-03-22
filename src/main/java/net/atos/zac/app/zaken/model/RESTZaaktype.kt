@@ -22,17 +22,17 @@ data class RESTZaaktype(
 
     var omschrijving: String? = null,
 
-    var referentieproces: String? = null ,
+    var referentieproces: String? = null,
 
     var servicenorm: Boolean? = null,
 
-    var versiedatum: LocalDate? = null ,
+    var versiedatum: LocalDate? = null,
 
-    var beginGeldigheid: LocalDate? = null ,
+    var beginGeldigheid: LocalDate? = null,
 
-    var eindeGeldigheid: LocalDate? = null ,
+    var eindeGeldigheid: LocalDate? = null,
 
-    var vertrouwelijkheidaanduiding: ZaakType.VertrouwelijkheidaanduidingEnum? = null ,
+    var vertrouwelijkheidaanduiding: ZaakType.VertrouwelijkheidaanduidingEnum? = null,
 
     var nuGeldig: Boolean? = null,
 
@@ -40,11 +40,11 @@ data class RESTZaaktype(
 
     var verlengingMogelijk: Boolean? = null,
 
-    var verlengingstermijn: Int? = null ,
+    var verlengingstermijn: Int? = null,
 
-    var zaaktypeRelaties: List<RESTZaaktypeRelatie>? = null ,
+    var zaaktypeRelaties: List<RESTZaaktypeRelatie>? = null,
 
-    var informatieobjecttypes: List<UUID>? = null ,
+    var informatieobjecttypes: List<UUID>? = null,
 
     var zaakafhandelparameters: RESTZaakafhandelParameters? = null
 )
