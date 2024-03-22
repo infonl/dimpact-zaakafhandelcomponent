@@ -80,9 +80,9 @@ class RESTInformatieobjectConverterTest : BehaviorSpec() {
                 }
             }
         }
-        Given("REST enkelvoudig informatie object data and REST file upload are provided") {
-            val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
+        Given("REST enkelvoudig informatie object data and REST file upload are provided for a taak") {
             val restFileUpload = createRESTFileUpload()
+            val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
             val providedInformatieObjectType = createInformatieObjectType()
 
             every {
@@ -91,8 +91,7 @@ class RESTInformatieobjectConverterTest : BehaviorSpec() {
 
             When("convert taak object is invoked") {
                 val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convertTaakObject(
-                    restEnkelvoudigInformatieobject,
-                    restFileUpload
+                    restEnkelvoudigInformatieobject
                 )
                 Then("the provided data is converted correctly") {
                     with(enkelvoudigInformatieObjectData) {
@@ -115,7 +114,7 @@ class RESTInformatieobjectConverterTest : BehaviorSpec() {
                 }
             }
         }
-        Given("REST enkelvoudig informatie object data and REST file upload are provided") {
+        Given("REST enkelvoudig informatie object data and REST file upload are provided for a zaak") {
             // when converting a zaak more fields in the RESTEnkelvoudigInformatieobject are used in the
             // conversion compared to when converting a taak
             val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject(
@@ -134,8 +133,7 @@ class RESTInformatieobjectConverterTest : BehaviorSpec() {
 
             When("convert zaak object is invoked") {
                 val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convertZaakObject(
-                    restEnkelvoudigInformatieobject,
-                    restFileUpload
+                    restEnkelvoudigInformatieobject
                 )
                 Then("the provided data is converted correctly") {
                     with(enkelvoudigInformatieObjectData) {
