@@ -62,7 +62,9 @@ class RESTZaaktypeConverter {
                 PeriodUtil.aantalDagenVanafHeden(
                     Period.parse(zaaktype.verlengingstermijn)
                 )
-            } else null,
+            } else {
+                null
+            },
             zaaktypeRelaties = zaaktypeRelaties,
             informatieobjecttypes = zaaktype.informatieobjecttypen.stream().map {
                     uri ->

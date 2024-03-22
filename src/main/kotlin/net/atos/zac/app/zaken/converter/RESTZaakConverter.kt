@@ -123,7 +123,6 @@ class RESTZaakConverter {
             identificatie = zaak.identificatie,
             uuid = zaak.uuid,
             besluiten = besluiten,
-            eigenschappen = null, // TODO: not used
             bronorganisatie = zaak.bronorganisatie,
             verantwoordelijkeOrganisatie = zaak.verantwoordelijkeOrganisatie,
             startdatum = zaak.startdatum,
@@ -142,7 +141,9 @@ class RESTZaakConverter {
             isOpgeschort = zaak.isOpgeschort,
             redenOpschorting = if (zaak.isOpgeschort || StringUtils.isNotEmpty(zaak.opschorting.reden)) {
                 zaak.opschorting.reden
-            } else null,
+            } else {
+                null
+            },
             isVerlengd = zaak.isVerlengd,
             duurVerlenging = if (zaak.isVerlengd) PeriodUtil.format(zaak.verlenging.duur) else null,
             redenVerlenging = if (zaak.isVerlengd) zaak.verlenging.reden else null,

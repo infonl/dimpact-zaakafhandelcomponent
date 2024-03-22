@@ -143,7 +143,6 @@ import java.time.ZonedDateTime
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.function.Consumer
-import java.util.logging.Level
 import java.util.logging.Logger
 import java.util.stream.Collectors
 import java.util.stream.Stream
@@ -291,7 +290,7 @@ class ZakenRESTService {
     fun deleteInitiator(@PathParam("uuid") zaakUUID: UUID, reden: RESTReden): RESTZaak {
         val zaak = zrcClientService.readZaak(zaakUUID)
         zgwApiService.findInitiatorForZaak(zaak)
-            .ifPresent { initiator: Rol<*> -> removeInitiator(zaak, initiator, reden.reden!!) }
+            .ifPresent { initiator: Rol<*> -> removeInitiator(zaak, initiator, reden.reden) }
         return zaakConverter.convert(zaak)
     }
 
@@ -317,7 +316,7 @@ class ZakenRESTService {
     ): RESTZaak {
         val betrokkene = zrcClientService.readRol(betrokkeneUUID)
         val zaak = zrcClientService.readZaak(betrokkene.zaak)
-        removeBetrokkene(zaak, betrokkene, reden.reden!!)
+        removeBetrokkene(zaak, betrokkene, reden.reden)
         return zaakConverter.convert(zaak)
     }
 
@@ -359,7 +358,7 @@ class ZakenRESTService {
             null
         )
 
-        restZaakAanmaakGegevens.inboxProductaanvraag?.let {inboxProductaanvraag ->
+        restZaakAanmaakGegevens.inboxProductaanvraag?.let { inboxProductaanvraag ->
             koppelInboxProductaanvraag(zaak, inboxProductaanvraag)
         }
 
@@ -1070,7 +1069,7 @@ class ZakenRESTService {
         val intrekToelichting = getIntrekToelichting(besluit.vervalreden)
         besluit = brcClientService.updateBesluit(
             besluit,
-            // TODO..
+            // TODO.. use Kotlin formatted string
             intrekToelichting?.formatted(restBesluitIntrekkenGegevens.reden)
         )
         // This event should result from a ZAAKBESLUIT UPDATED notification on the ZAKEN channel
@@ -1268,7 +1267,7 @@ class ZakenRESTService {
             VervalredenEnum.INGETROKKEN_OVERHEID -> "Overheid: %s"
             VervalredenEnum.INGETROKKEN_BELANGHEBBENDE -> "Belanghebbende: %s"
             else -> {
-                LOG.log(Level.INFO, "Unknown vervalreden: '{0}'. Returning 'null'.", vervalreden)
+                LOG.info("Unknown vervalreden: '$vervalreden'. Returning 'null'.")
                 null
             }
         }

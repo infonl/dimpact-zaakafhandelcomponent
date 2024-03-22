@@ -5,7 +5,7 @@
 package net.atos.zac.app.zaken.model
 
 class RESTZaakResultaat {
-    var toelichting: String? = null /* Een toelichting op wat het resultaat van de zaak inhoudt. */
+    var toelichting: String? = null
 
     var resultaattype: RESTResultaattype? = null
 }
