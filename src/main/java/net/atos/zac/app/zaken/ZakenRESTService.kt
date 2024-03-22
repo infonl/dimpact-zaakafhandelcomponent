@@ -890,7 +890,7 @@ class ZakenRESTService {
      */
     @GET
     @Path("zaak/{uuid}/afzender")
-    fun listAfzendersVoorZaak(@PathParam("uuid") zaakUUID: UUID?): List<RESTZaakAfzender> {
+    fun listAfzendersVoorZaak(@PathParam("uuid") zaakUUID: UUID): List<RESTZaakAfzender> {
         val zaak = zrcClientService.readZaak(zaakUUID)
         return sortAndRemoveDuplicates(
             resolveZaakAfzenderMail(
@@ -1418,15 +1418,17 @@ class ZakenRESTService {
         afzenders: Stream<RESTZaakAfzender>
     ): Stream<RESTZaakAfzender> {
         return afzenders.peek { afzender ->
-            val speciaal: Speciaal? = speciaalMail(afzender.mail)
+            val speciaal = speciaalMail(afzender.mail)
             if (speciaal != null) {
                 afzender.suffix = "gegevens.mail.afzender.$speciaal"
                 afzender.mail = resolveMail(speciaal)
             }
-            // TODO: test.. else afzender.replyTo.?
-            afzender.replyTo = speciaalMail(afzender.replyTo)?.let { resolveMail(it) }
-        }
-            .filter { afzender: RESTZaakAfzender -> afzender.mail != null }
+            afzender.replyTo = afzender.replyTo?.let {
+                speciaalMail(afzender.replyTo)?.let { speciaalReplyTo ->
+                    resolveMail(speciaalReplyTo)
+                } ?: afzender.replyTo
+            }
+        }.filter { afzender: RESTZaakAfzender -> afzender.mail != null }
     }
 
     private fun resolveMail(speciaal: Speciaal): String {

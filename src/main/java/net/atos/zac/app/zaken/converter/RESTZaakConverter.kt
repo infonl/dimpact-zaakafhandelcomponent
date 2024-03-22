@@ -24,8 +24,6 @@ import net.atos.zac.app.identity.converter.RESTGroupConverter
 import net.atos.zac.app.identity.converter.RESTUserConverter
 import net.atos.zac.app.klanten.model.klant.IdentificatieType
 import net.atos.zac.app.policy.converter.RESTRechtenConverter
-import net.atos.zac.app.zaken.model.RESTCommunicatiekanaal
-import net.atos.zac.app.zaken.model.RESTGeometry
 import net.atos.zac.app.zaken.model.RESTGerelateerdeZaak
 import net.atos.zac.app.zaken.model.RESTZaak
 import net.atos.zac.app.zaken.model.RESTZaakKenmerk
@@ -100,7 +98,7 @@ class RESTZaakConverter {
         return convert(zaak, status, statustype)
     }
 
-    @Suppress("LongMethod")
+    @Suppress("LongMethod", "CyclomaticComplexMethod")
     fun convert(zaak: Zaak, status: Status?, statustype: StatusType?): RESTZaak {
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
         val groep = zgwApiService.findGroepForZaak(zaak)
@@ -120,7 +118,7 @@ class RESTZaakConverter {
                 .orElse(null)
         }
         val initiator = zgwApiService.findInitiatorForZaak(zaak)
-        val restZaak = RESTZaak(
+        return RESTZaak(
             identificatie = zaak.identificatie,
             uuid = zaak.uuid,
             besluiten = besluiten,
@@ -141,12 +139,12 @@ class RESTZaakConverter {
             status = status?.let { convertToRESTZaakStatus(it, statustype!!) },
             resultaat = zaak.resultaat?.let { resultaat -> zaakResultaatConverter.convert(resultaat) },
             isOpgeschort = zaak.isOpgeschort,
-            redenOpschorting = (zaak.isOpgeschort || StringUtils.isNotEmpty(zaak.opschorting.reden)).let {
+            redenOpschorting = if (zaak.isOpgeschort || StringUtils.isNotEmpty(zaak.opschorting.reden)) {
                 zaak.opschorting.reden
-            },
+            } else null,
             isVerlengd = zaak.isVerlengd,
-            duurVerlenging = zaak.isVerlengd.let { PeriodUtil.format(zaak.verlenging.duur) },
-            redenVerlenging = zaak.isVerlengd.let { zaak.verlenging.reden },
+            duurVerlenging = if (zaak.isVerlengd) PeriodUtil.format(zaak.verlenging.duur) else null,
+            redenVerlenging = if (zaak.isVerlengd) zaak.verlenging.reden else null,
             gerelateerdeZaken = convertGerelateerdeZaken(zaak),
             zaakgeometrie = zaak.zaakgeometrie?.let { restGeometryConverter.convert(zaak.zaakgeometrie) },
             kenmerken = zaak.kenmerken?.let {
@@ -159,13 +157,11 @@ class RESTZaakConverter {
             groep = groep,
             behandelaar = behandelaar,
             initiatorIdentificatie = initiator.getOrNull()?.identificatienummer,
-            initiatorIdentificatieType = initiator.isPresent.let {
-                when (initiator.get().betrokkeneType) {
-                    BetrokkeneType.NATUURLIJK_PERSOON -> IdentificatieType.BSN
-                    BetrokkeneType.VESTIGING -> IdentificatieType.VN
-                    BetrokkeneType.NIET_NATUURLIJK_PERSOON -> IdentificatieType.RSIN
-                    else -> null
-                }
+            initiatorIdentificatieType = when (initiator.getOrNull()?.betrokkeneType) {
+                BetrokkeneType.NATUURLIJK_PERSOON -> IdentificatieType.BSN
+                BetrokkeneType.VESTIGING -> IdentificatieType.VN
+                BetrokkeneType.NIET_NATUURLIJK_PERSOON -> IdentificatieType.RSIN
+                else -> null
             },
             isHoofdzaak = zaak.is_Hoofdzaak,
             isDeelzaak = zaak.isDeelzaak,
@@ -180,8 +176,6 @@ class RESTZaakConverter {
             rechten = rechtenConverter.convert(policyService.readZaakRechten(zaak, zaaktype)),
             zaakdata = zaakVariabelenService.readZaakdata(zaak.uuid)
         )
-
-        return restZaak
     }
 
     fun convert(restZaak: RESTZaak, zaaktype: ZaakType): Zaak {
