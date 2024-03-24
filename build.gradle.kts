@@ -25,6 +25,7 @@ plugins {
     alias(libs.plugins.docker.remote.api)
     alias(libs.plugins.spotless)
     alias(libs.plugins.allopen)
+    alias(libs.plugins.noarg)
 }
 
 repositories {
@@ -191,6 +192,12 @@ allOpen {
     annotation("nl.lifely.zac.util.AllOpen")
 }
 
+noArg {
+    // enable no-arg plugin for Kotlin so that WildFly's dependency injection framework (Weld)
+    // can instantiate our Kotlin classes without a no-arg constructor
+    annotation("nl.lifely.zac.util.NoArgConstructor")
+}
+
 jacoco {
     toolVersion = libs.versions.jacoco.get()
 }
@@ -276,7 +283,7 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         targetExclude("src/e2e/node_modules/**")
 
         prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get(),
-                "prettier-plugin-organize-imports" to libs.versions.spotless.prettier.organize.imports.get()))
+            "prettier-plugin-organize-imports" to libs.versions.spotless.prettier.organize.imports.get()))
             .config(mapOf("parser" to "typescript", "plugins" to arrayOf("prettier-plugin-organize-imports")))
     }
     gherkin {
@@ -301,7 +308,7 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         )
 
         prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get(),
-                "prettier-plugin-organize-imports" to libs.versions.spotless.prettier.organize.imports.get()))
+            "prettier-plugin-organize-imports" to libs.versions.spotless.prettier.organize.imports.get()))
             .config(mapOf("parser" to "typescript", "plugins" to arrayOf("prettier-plugin-organize-imports")))
     }
     format("json") {
@@ -631,12 +638,12 @@ tasks {
 abstract class Maven : Exec() {
     // Simple function to invoke a maven goal, dependent on the os, with optional
     fun execGoal(goal: String, vararg args: String) = commandLine(
-            if (System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")) {
-                "./mvnw.cmd"
-            } else {
-                "./mvnw"
-            },
-            goal,
-            *args
+        if (System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")) {
+            "./mvnw.cmd"
+        } else {
+            "./mvnw"
+        },
+        goal,
+        *args
     )
 }
