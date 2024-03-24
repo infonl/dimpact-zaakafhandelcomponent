@@ -15,13 +15,9 @@ class RESTOpenstaandeTakenConverter {
 
     fun convert(zaakUUID: UUID): RESTOpenstaandeTaken {
         val openstaandeTaken = takenService.listOpenTasksForZaak(zaakUUID)
-        val restOpenstaandeTaken = RESTOpenstaandeTaken()
-
-        if (openstaandeTaken != null) {
-            restOpenstaandeTaken.aantalOpenstaandeTaken = openstaandeTaken.size
-            restOpenstaandeTaken.taakNamen = openstaandeTaken.stream().map { obj -> obj.name }.toList()
-        }
-
-        return restOpenstaandeTaken
+        return RESTOpenstaandeTaken(
+            aantalOpenstaandeTaken = openstaandeTaken.size,
+            taakNamen = openstaandeTaken.stream().map { it.name }.toList()
+        )
     }
 }

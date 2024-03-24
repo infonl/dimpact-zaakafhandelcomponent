@@ -17,10 +17,11 @@ class RESTZaakResultaatConverter {
     private lateinit var restResultaattypeConverter: RESTResultaattypeConverter
 
     fun convert(resultaatURI: URI): RESTZaakResultaat {
-        val resultaat = zrcClientService.readResultaat(resultaatURI)
-        val restZaakResultaat = RESTZaakResultaat()
-        restZaakResultaat.toelichting = resultaat.toelichting
-        restZaakResultaat.resultaattype = restResultaattypeConverter.convertResultaattypeUri(resultaat.resultaattype)
-        return restZaakResultaat
+        zrcClientService.readResultaat(resultaatURI).let { resultaat ->
+            return RESTZaakResultaat(
+                toelichting = resultaat.toelichting,
+                resultaattype = restResultaattypeConverter.convertResultaattypeUri(resultaat.resultaattype)
+            )
+        }
     }
 }

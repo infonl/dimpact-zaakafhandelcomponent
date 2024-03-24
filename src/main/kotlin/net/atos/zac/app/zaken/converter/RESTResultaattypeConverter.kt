@@ -35,13 +35,11 @@ class RESTResultaattypeConverter {
         )
     }
 
-    fun convertResultaattypeUri(resultaattypeURI: URI?): RESTResultaattype {
-        return convertResultaattype(ztcClientService.readResultaattype(resultaattypeURI!!))
-    }
+    fun convertResultaattypeUri(resultaattypeURI: URI) =
+        convertResultaattype(ztcClientService.readResultaattype(resultaattypeURI))
 
-    fun convertResultaattypes(resultaattypes: List<ResultaatType>): List<RESTResultaattype> {
-        return resultaattypes.stream()
-            .map { resultaattype -> this.convertResultaattype(resultaattype) }
+    fun convertResultaattypes(resultaattypes: List<ResultaatType>) =
+        resultaattypes.stream()
+            .map { this.convertResultaattype(it) }
             .toList()
-    }
 }

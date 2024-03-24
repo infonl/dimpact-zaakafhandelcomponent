@@ -15,7 +15,7 @@ import net.atos.zac.app.zaken.model.RESTZaakBetrokkene
 import java.util.stream.Stream
 
 @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
-fun convertToRESTZaakBetrokkenen(rol: Rol<*>): RESTZaakBetrokkene =
+fun convertToRESTZaakBetrokkenen(rol: Rol<*>) =
     RESTZaakBetrokkene(
         rolid = rol.uuid.toString(),
         roltype = rol.omschrijving,
@@ -30,6 +30,7 @@ fun convertToRESTZaakBetrokkenen(rol: Rol<*>): RESTZaakBetrokkene =
         }
     )
 
-fun convertToRESTZaakBetrokkenen(rollen: Stream<Rol<*>>): List<RESTZaakBetrokkene> = rollen
-    .map { rol -> convertToRESTZaakBetrokkenen(rol) }
-    .toList()
+fun convertToRESTZaakBetrokkenen(rollen: Stream<Rol<*>>) =
+    rollen
+        .map { convertToRESTZaakBetrokkenen(it) }
+        .toList()

@@ -137,7 +137,7 @@ class RESTZaakConverter {
             toelichting = zaak.toelichting,
             zaaktype = zaaktypeConverter.convert(zaaktype),
             status = status?.let { convertToRESTZaakStatus(it, statustype!!) },
-            resultaat = zaak.resultaat?.let { resultaat -> zaakResultaatConverter.convert(resultaat) },
+            resultaat = zaak.resultaat?.let { zaakResultaatConverter.convert(it) },
             isOpgeschort = zaak.isOpgeschort,
             redenOpschorting = if (zaak.isOpgeschort || StringUtils.isNotEmpty(zaak.opschorting.reden)) {
                 zaak.opschorting.reden
