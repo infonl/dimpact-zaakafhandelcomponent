@@ -53,7 +53,7 @@ public class RESTZaakbeeindigParameterConverter {
         zaakbeeindigParameter.setId(restZaakbeeindigParameter.id);
         zaakbeeindigParameter.setZaakbeeindigReden(restZaakbeeindigRedenConverter.convertRESTZaakbeeindigReden(
                 restZaakbeeindigParameter.zaakbeeindigReden));
-        zaakbeeindigParameter.setResultaattype(restZaakbeeindigParameter.resultaattype.id);
+        zaakbeeindigParameter.setResultaattype(restZaakbeeindigParameter.resultaattype.getId());
         return zaakbeeindigParameter;
     }
 }

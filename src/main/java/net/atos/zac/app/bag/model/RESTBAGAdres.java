@@ -50,20 +50,25 @@ public class RESTBAGAdres extends RESTBAGObject {
     }
 
     public RESTGeometry getGeometry() {
-        RESTGeometry geometry = new RESTGeometry();
-        geometry.type = "GeometryCollection";
-        geometry.geometrycollection = new ArrayList<>();
+        List<RESTGeometry> restGeometries = new ArrayList<>();
         if (adresseerbaarObject != null && adresseerbaarObject.geometry != null) {
-            geometry.geometrycollection.add(adresseerbaarObject.geometry);
+            restGeometries.add(adresseerbaarObject.geometry);
         }
-        if (panden != null && !panden.isEmpty() && panden.get(0).geometry != null) {
-            geometry.geometrycollection.add(panden.get(0).geometry);
+        if (panden != null && !panden.isEmpty() && panden.getFirst().geometry != null) {
+            restGeometries.add(panden.getFirst().geometry);
         }
-        if (geometry.geometrycollection.size() == 1) {
-            return geometry.geometrycollection.get(0);
+        RESTGeometry restGeometry = new RESTGeometry(
+                "GeometryCollection",
+                null,
+                null,
+                restGeometries
+        );
+
+        if (restGeometries.size() == 1) {
+            return restGeometries.getFirst();
         }
-        if (geometry.geometrycollection.size() == 2) {
-            return geometry;
+        if (restGeometries.size() == 2) {
+            return restGeometry;
         }
         return null;
     }
