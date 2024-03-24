@@ -1,53 +1,50 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+import net.atos.client.zgw.ztc.model.generated.ZaakType
+import net.atos.zac.app.admin.model.RESTZaakafhandelParameters
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+import java.time.LocalDate
+import java.util.UUID
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
+@NoArgConstructor
+@AllOpen
+data class RESTZaaktype(
+    var uuid: UUID,
 
-import jakarta.validation.constraints.NotNull;
+    var identificatie: String? = null,
 
-import net.atos.client.zgw.ztc.model.generated.ZaakType;
-import net.atos.zac.app.admin.model.RESTZaakafhandelParameters;
+    var doel: String? = null,
 
-public class RESTZaaktype {
+    var omschrijving: String? = null,
 
-    @NotNull
-    public UUID uuid;
+    var referentieproces: String? = null,
 
-    public String identificatie;
+    var servicenorm: Boolean? = null,
 
-    public String doel;
+    var versiedatum: LocalDate? = null,
 
-    public String omschrijving;
+    var beginGeldigheid: LocalDate? = null,
 
-    public String referentieproces;
+    var eindeGeldigheid: LocalDate? = null,
 
-    public boolean servicenorm;
+    var vertrouwelijkheidaanduiding: ZaakType.VertrouwelijkheidaanduidingEnum? = null,
 
-    public LocalDate versiedatum;
+    var nuGeldig: Boolean? = null,
 
-    public LocalDate beginGeldigheid;
+    var opschortingMogelijk: Boolean? = null,
 
-    public LocalDate eindeGeldigheid;
+    var verlengingMogelijk: Boolean? = null,
 
-    public ZaakType.VertrouwelijkheidaanduidingEnum vertrouwelijkheidaanduiding;
+    var verlengingstermijn: Int? = null,
 
-    public boolean nuGeldig;
+    var zaaktypeRelaties: List<RESTZaaktypeRelatie>? = null,
 
-    public boolean opschortingMogelijk;
+    var informatieobjecttypes: List<UUID>? = null,
 
-    public boolean verlengingMogelijk;
-
-    public Integer verlengingstermijn;
-
-    public List<RESTZaaktypeRelatie> zaaktypeRelaties;
-
-    public List<UUID> informatieobjecttypes;
-
-    public RESTZaakafhandelParameters zaakafhandelparameters;
-}
+    var zaakafhandelparameters: RESTZaakafhandelParameters? = null
+)

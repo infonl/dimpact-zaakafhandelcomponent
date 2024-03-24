@@ -1,82 +1,81 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.converter
 
-package net.atos.zac.app.zaken.converter;
+import jakarta.inject.Inject
+import net.atos.client.zgw.shared.ZGWApiService
+import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.model.Zaak
+import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.zac.app.identity.converter.RESTGroupConverter
+import net.atos.zac.app.identity.converter.RESTUserConverter
+import net.atos.zac.app.policy.converter.RESTRechtenConverter
+import net.atos.zac.app.zaken.model.RESTZaakOverzicht
+import net.atos.zac.policy.PolicyService
 
-import jakarta.inject.Inject;
-
-import net.atos.client.zgw.shared.ZGWApiService;
-import net.atos.client.zgw.zrc.ZRCClientService;
-import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.generated.ZaakType;
-import net.atos.zac.app.identity.converter.RESTGroupConverter;
-import net.atos.zac.app.identity.converter.RESTUserConverter;
-import net.atos.zac.app.policy.converter.RESTRechtenConverter;
-import net.atos.zac.app.zaken.model.RESTZaakOverzicht;
-import net.atos.zac.policy.PolicyService;
-import net.atos.zac.policy.output.ZaakRechten;
-
-public class RESTZaakOverzichtConverter {
+class RESTZaakOverzichtConverter {
+    @Inject
+    private lateinit var ztcClientService: ZTCClientService
 
     @Inject
-    private ZTCClientService ztcClientService;
+    private lateinit var zgwApiService: ZGWApiService
 
     @Inject
-    private ZGWApiService zgwApiService;
+    private lateinit var zaakResultaatConverter: RESTZaakResultaatConverter
 
     @Inject
-    private RESTZaakResultaatConverter zaakResultaatConverter;
+    private lateinit var groupConverter: RESTGroupConverter
 
     @Inject
-    private RESTGroupConverter groupConverter;
+    private lateinit var userConverter: RESTUserConverter
 
     @Inject
-    private RESTUserConverter userConverter;
+    private lateinit var openstaandeTakenConverter: RESTOpenstaandeTakenConverter
 
     @Inject
-    private RESTOpenstaandeTakenConverter openstaandeTakenConverter;
+    private lateinit var rechtenConverter: RESTRechtenConverter
 
     @Inject
-    private RESTRechtenConverter rechtenConverter;
+    private lateinit var policyService: PolicyService
 
     @Inject
-    private PolicyService policyService;
+    private lateinit var zrcClientService: ZRCClientService
 
-    @Inject
-    private ZRCClientService zrcClientService;
-
-    public RESTZaakOverzicht convert(final Zaak zaak) {
-        final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
-        final ZaakRechten zaakrechten = policyService.readZaakRechten(zaak, zaaktype);
-        final RESTZaakOverzicht restZaakOverzicht = new RESTZaakOverzicht();
-        restZaakOverzicht.uuid = zaak.getUuid();
-        restZaakOverzicht.identificatie = zaak.getIdentificatie();
-        restZaakOverzicht.rechten = rechtenConverter.convert(zaakrechten);
-        if (zaakrechten.lezen()) {
-            restZaakOverzicht.startdatum = zaak.getStartdatum();
-            restZaakOverzicht.einddatum = zaak.getEinddatum();
-            restZaakOverzicht.einddatumGepland = zaak.getEinddatumGepland();
-            restZaakOverzicht.uiterlijkeEinddatumAfdoening = zaak.getUiterlijkeEinddatumAfdoening();
-            restZaakOverzicht.toelichting = zaak.getToelichting();
-            restZaakOverzicht.omschrijving = zaak.getOmschrijving();
-            restZaakOverzicht.zaaktype = zaaktype.getOmschrijving();
-            restZaakOverzicht.openstaandeTaken = openstaandeTakenConverter.convert(zaak.getUuid());
-            restZaakOverzicht.resultaat = zaakResultaatConverter.convert(zaak.getResultaat());
-            if (zaak.getStatus() != null) {
+    fun convert(zaak: Zaak): RESTZaakOverzicht {
+        val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
+        val zaakrechten = policyService.readZaakRechten(zaak, zaaktype)
+        val restZaakOverzicht = RESTZaakOverzicht()
+        restZaakOverzicht.uuid = zaak.uuid
+        restZaakOverzicht.identificatie = zaak.identificatie
+        restZaakOverzicht.rechten = rechtenConverter.convert(zaakrechten)
+        if (zaakrechten.lezen) {
+            restZaakOverzicht.startdatum = zaak.startdatum
+            restZaakOverzicht.einddatum = zaak.einddatum
+            restZaakOverzicht.einddatumGepland = zaak.einddatumGepland
+            restZaakOverzicht.uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening
+            restZaakOverzicht.toelichting = zaak.toelichting
+            restZaakOverzicht.omschrijving = zaak.omschrijving
+            restZaakOverzicht.zaaktype = zaaktype.omschrijving
+            restZaakOverzicht.openstaandeTaken = openstaandeTakenConverter.convert(zaak.uuid)
+            restZaakOverzicht.resultaat = zaak.resultaat?.let { resultaat ->
+                zaakResultaatConverter.convert(resultaat)
+            }
+            zaak.status?.let {
                 restZaakOverzicht.status = ztcClientService.readStatustype(
-                        zrcClientService.readStatus(zaak.getStatus()).getStatustype()).getOmschrijving();
+                    zrcClientService.readStatus(zaak.status).statustype
+                ).omschrijving
             }
             zgwApiService.findBehandelaarForZaak(zaak)
-                    .map(behandelaar -> userConverter.convertUserId(
-                            behandelaar.getBetrokkeneIdentificatie().getIdentificatie()))
-                    .ifPresent(behandelaar -> restZaakOverzicht.behandelaar = behandelaar);
+                .map { behandelaar ->
+                    userConverter.convertUserId(behandelaar.betrokkeneIdentificatie.identificatie)
+                }
+                .ifPresent { behandelaar -> restZaakOverzicht.behandelaar = behandelaar }
             zgwApiService.findGroepForZaak(zaak)
-                    .map(groep -> groupConverter.convertGroupId(groep.getBetrokkeneIdentificatie().getIdentificatie()))
-                    .ifPresent(groep -> restZaakOverzicht.groep = groep);
+                .map { groep -> groupConverter.convertGroupId(groep.betrokkeneIdentificatie.identificatie) }
+                .ifPresent { groep -> restZaakOverzicht.groep = groep }
         }
-        return restZaakOverzicht;
+        return restZaakOverzicht
     }
 }

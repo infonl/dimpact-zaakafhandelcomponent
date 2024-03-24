@@ -1,18 +1,15 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
 
-public class RESTZaakKenmerk {
-
-    public String kenmerk;
-
-    public String bron;
-
-    public RESTZaakKenmerk(final String kenmerk, final String bron) {
-        this.kenmerk = kenmerk;
-        this.bron = bron;
-    }
-}
+@NoArgConstructor
+@AllOpen
+data class RESTZaakKenmerk(
+    var kenmerk: String,
+    var bron: String
+)

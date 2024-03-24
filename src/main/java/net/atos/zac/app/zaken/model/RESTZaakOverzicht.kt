@@ -1,46 +1,47 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+import net.atos.zac.app.identity.model.RESTGroup
+import net.atos.zac.app.identity.model.RESTUser
+import net.atos.zac.app.policy.model.RESTZaakRechten
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+import java.time.LocalDate
+import java.util.*
 
-import java.time.LocalDate;
-import java.util.UUID;
+@NoArgConstructor
+@AllOpen
+data class RESTZaakOverzicht(
+    var identificatie: String? = null,
 
-import net.atos.zac.app.identity.model.RESTGroup;
-import net.atos.zac.app.identity.model.RESTUser;
-import net.atos.zac.app.policy.model.RESTZaakRechten;
+    var toelichting: String? = null,
 
-public class RESTZaakOverzicht {
+    var omschrijving: String? = null,
 
-    public String identificatie;
+    var uuid: UUID? = null,
 
-    public String toelichting;
+    var startdatum: LocalDate? = null,
 
-    public String omschrijving;
+    var einddatum: LocalDate? = null,
 
-    public UUID uuid;
+    var zaaktype: String? = null,
 
-    public LocalDate startdatum;
+    var status: String? = null,
 
-    public LocalDate einddatum;
+    var behandelaar: RESTUser? = null,
 
-    public String zaaktype;
+    var einddatumGepland: LocalDate? = null,
 
-    public String status;
+    var uiterlijkeEinddatumAfdoening: LocalDate? = null,
 
-    public RESTUser behandelaar;
+    var groep: RESTGroup? = null,
 
-    public LocalDate einddatumGepland;
+    var resultaat: RESTZaakResultaat? = null,
 
-    public LocalDate uiterlijkeEinddatumAfdoening;
+    var openstaandeTaken: RESTOpenstaandeTaken? = null,
 
-    public RESTGroup groep;
-
-    public RESTZaakResultaat resultaat;
-
-    public RESTOpenstaandeTaken openstaandeTaken;
-
-    public RESTZaakRechten rechten;
-}
+    var rechten: RESTZaakRechten? = null
+)

@@ -1,35 +1,27 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.converter
 
-package net.atos.zac.app.zaken.converter;
+import jakarta.inject.Inject
+import net.atos.zac.app.zaken.model.RESTOpenstaandeTaken
+import net.atos.zac.flowable.TakenService
+import java.util.*
 
-import java.util.List;
-import java.util.UUID;
-
-import jakarta.inject.Inject;
-
-import org.flowable.task.api.Task;
-import org.flowable.task.api.TaskInfo;
-
-import net.atos.zac.app.zaken.model.RESTOpenstaandeTaken;
-import net.atos.zac.flowable.TakenService;
-
-public class RESTOpenstaandeTakenConverter {
-
+class RESTOpenstaandeTakenConverter {
     @Inject
-    private TakenService takenService;
+    private lateinit var takenService: TakenService
 
-    public RESTOpenstaandeTaken convert(final UUID zaakUUID) {
-        final List<Task> openstaandeTaken = takenService.listOpenTasksForZaak(zaakUUID);
-        final RESTOpenstaandeTaken restOpenstaandeTaken = new RESTOpenstaandeTaken();
+    fun convert(zaakUUID: UUID): RESTOpenstaandeTaken {
+        val openstaandeTaken = takenService.listOpenTasksForZaak(zaakUUID)
+        val restOpenstaandeTaken = RESTOpenstaandeTaken()
 
         if (openstaandeTaken != null) {
-            restOpenstaandeTaken.aantalOpenstaandeTaken = openstaandeTaken.size();
-            restOpenstaandeTaken.taakNamen = openstaandeTaken.stream().map(TaskInfo::getName).toList();
+            restOpenstaandeTaken.aantalOpenstaandeTaken = openstaandeTaken.size
+            restOpenstaandeTaken.taakNamen = openstaandeTaken.stream().map { obj -> obj.name }.toList()
         }
 
-        return restOpenstaandeTaken;
+        return restOpenstaandeTaken
     }
 }

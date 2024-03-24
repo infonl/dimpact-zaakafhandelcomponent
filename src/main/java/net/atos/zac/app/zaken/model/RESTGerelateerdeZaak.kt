@@ -1,25 +1,26 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+import net.atos.zac.app.policy.model.RESTZaakRechten
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+import java.time.LocalDate
 
-import java.time.LocalDate;
+@AllOpen
+@NoArgConstructor
+data class RESTGerelateerdeZaak(
+    var relatieType: RelatieType? = null,
 
-import net.atos.zac.app.policy.model.RESTZaakRechten;
+    var identificatie: String? = null,
 
-public class RESTGerelateerdeZaak {
+    var zaaktypeOmschrijving: String? = null,
 
-    public RelatieType relatieType;
+    var statustypeOmschrijving: String? = null,
 
-    public String identificatie;
+    var startdatum: LocalDate? = null,
 
-    public String zaaktypeOmschrijving;
-
-    public String statustypeOmschrijving;
-
-    public LocalDate startdatum;
-
-    public RESTZaakRechten rechten;
-}
+    var rechten: RESTZaakRechten? = null,
+)

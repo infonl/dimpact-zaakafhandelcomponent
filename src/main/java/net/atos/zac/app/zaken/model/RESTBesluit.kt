@@ -1,51 +1,43 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+import jakarta.json.bind.annotation.JsonbProperty
+import net.atos.client.zgw.brc.model.generated.Besluit
+import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieobject
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+import java.net.URI
+import java.time.LocalDate
+import java.util.*
 
-import java.net.URI;
-import java.time.LocalDate;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.UUID;
+@AllOpen
+@NoArgConstructor
+data class RESTBesluit(
+    var url: URI,
 
-import net.atos.client.zgw.brc.model.generated.Besluit;
-import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieobject;
-import net.atos.zac.zoeken.model.BesluitIndicatie;
+    var uuid: UUID,
 
-public class RESTBesluit {
+    var identificatie: String? = null,
 
-    public URI url;
+    var datum: LocalDate? = null,
 
-    public UUID uuid;
+    var besluittype: RESTBesluittype? = null,
 
-    public String identificatie;
+    var ingangsdatum: LocalDate? = null,
 
-    public LocalDate datum;
+    var vervaldatum: LocalDate? = null,
 
-    public RESTBesluittype besluittype;
+    var vervalreden: Besluit.VervalredenEnum? = null,
 
-    public LocalDate ingangsdatum;
+    @get:JsonbProperty("isIngetrokken")
+    var isIngetrokken: Boolean = false,
 
-    public LocalDate vervaldatum;
+    var toelichting: String? = null,
 
-    public Besluit.VervalredenEnum vervalreden;
+    var zaakUuid: UUID? = null,
 
-    public boolean isIngetrokken;
-
-    public String toelichting;
-
-    public UUID zaakUuid;
-
-    public List<RESTEnkelvoudigInformatieobject> informatieobjecten;
-
-    public EnumSet<BesluitIndicatie> getIndicaties() {
-        final EnumSet<BesluitIndicatie> indicaties = EnumSet.noneOf(BesluitIndicatie.class);
-        if (isIngetrokken) {
-            indicaties.add(BesluitIndicatie.INGETROKKEN);
-        }
-        return indicaties;
-    }
-}
+    var informatieobjecten: List<RESTEnkelvoudigInformatieobject>? = null,
+)

@@ -1,23 +1,20 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+import net.atos.zac.app.bag.model.RESTBAGObject
+import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
 
-import java.util.List;
+@NoArgConstructor
+@AllOpen
+data class RESTZaakAanmaakGegevens(
+    var zaak: RESTZaak,
 
-import jakarta.validation.Valid;
+    var inboxProductaanvraag: RESTInboxProductaanvraag? = null,
 
-import net.atos.zac.app.bag.model.RESTBAGObject;
-import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag;
-
-public class RESTZaakAanmaakGegevens {
-
-    @Valid
-    public RESTZaak zaak;
-
-    public RESTInboxProductaanvraag inboxProductaanvraag;
-
-    public List<RESTBAGObject> bagObjecten;
-}
+    var bagObjecten: List<RESTBAGObject>? = null
+)

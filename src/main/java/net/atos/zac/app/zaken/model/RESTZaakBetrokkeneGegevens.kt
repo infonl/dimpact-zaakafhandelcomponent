@@ -1,31 +1,27 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+import jakarta.validation.constraints.NotBlank
+import net.atos.zac.app.klanten.model.klant.IdentificatieType
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+import java.util.*
 
-import java.util.UUID;
+@AllOpen
+@NoArgConstructor
+data class RESTZaakBetrokkeneGegevens(
+    var zaakUUID: UUID,
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+    var roltypeUUID: UUID,
 
-import net.atos.zac.app.klanten.model.klant.IdentificatieType;
+    @get:NotBlank
+    var roltoelichting: String,
 
-public class RESTZaakBetrokkeneGegevens {
+    var betrokkeneIdentificatieType: IdentificatieType,
 
-    @NotNull
-    public UUID zaakUUID;
-
-    @NotNull
-    public UUID roltypeUUID;
-
-    @NotBlank
-    public String roltoelichting;
-
-    @NotNull
-    public IdentificatieType betrokkeneIdentificatieType;
-
-    @NotBlank
-    public String betrokkeneIdentificatie;
-}
+    @get:NotBlank
+    var betrokkeneIdentificatie: String
+)

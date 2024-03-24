@@ -1,19 +1,21 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+import java.util.*
 
-import java.util.UUID;
+@NoArgConstructor
+@AllOpen
+data class RESTZaakKoppelGegevens(
+    var zaakUuid: UUID,
 
-public class RESTZaakKoppelGegevens {
+    var teKoppelenZaakUuid: UUID,
 
-    public UUID zaakUuid;
+    var relatieType: RelatieType,
 
-    public UUID teKoppelenZaakUuid;
-
-    public RelatieType relatieType;
-
-    public RelatieType reverseRelatieType;
-}
+    var reverseRelatieType: RelatieType?
+)
