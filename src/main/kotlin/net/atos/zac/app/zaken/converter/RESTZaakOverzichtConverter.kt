@@ -59,22 +59,18 @@ class RESTZaakOverzichtConverter {
             restZaakOverzicht.omschrijving = zaak.omschrijving
             restZaakOverzicht.zaaktype = zaaktype.omschrijving
             restZaakOverzicht.openstaandeTaken = openstaandeTakenConverter.convert(zaak.uuid)
-            restZaakOverzicht.resultaat = zaak.resultaat?.let { resultaat ->
-                zaakResultaatConverter.convert(resultaat)
-            }
+            restZaakOverzicht.resultaat = zaak.resultaat?.let { zaakResultaatConverter.convert(it) }
             zaak.status?.let {
                 restZaakOverzicht.status = ztcClientService.readStatustype(
                     zrcClientService.readStatus(it).statustype
                 ).omschrijving
             }
             zgwApiService.findBehandelaarForZaak(zaak)
-                .map { behandelaar ->
-                    userConverter.convertUserId(behandelaar.betrokkeneIdentificatie.identificatie)
-                }
-                .ifPresent { behandelaar -> restZaakOverzicht.behandelaar = behandelaar }
+                .map { userConverter.convertUserId(it.betrokkeneIdentificatie.identificatie) }
+                .ifPresent { restZaakOverzicht.behandelaar = it }
             zgwApiService.findGroepForZaak(zaak)
-                .map { groep -> groupConverter.convertGroupId(groep.betrokkeneIdentificatie.identificatie) }
-                .ifPresent { groep -> restZaakOverzicht.groep = groep }
+                .map { groupConverter.convertGroupId(it.betrokkeneIdentificatie.identificatie) }
+                .ifPresent { restZaakOverzicht.groep = it }
         }
         return restZaakOverzicht
     }
