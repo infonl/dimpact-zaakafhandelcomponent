@@ -64,7 +64,7 @@ class RESTZaakOverzichtConverter {
             }
             zaak.status?.let {
                 restZaakOverzicht.status = ztcClientService.readStatustype(
-                    zrcClientService.readStatus(zaak.status).statustype
+                    zrcClientService.readStatus(it).statustype
                 ).omschrijving
             }
             zgwApiService.findBehandelaarForZaak(zaak)
