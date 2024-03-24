@@ -1,20 +1,20 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
 
-import java.util.List;
+@AllOpen
+@NoArgConstructor
+data class RESTGeometry(
+    var type: String,
 
-public class RESTGeometry {
+    var point: RESTCoordinates? = null,
 
-    public String type;
+    var polygon: List<List<RESTCoordinates>>? = null,
 
-    public RESTCoordinates point;
-
-    public List<List<RESTCoordinates>> polygon;
-
-    public List<RESTGeometry> geometrycollection;
-
-}
+    var geometrycollection: List<RESTGeometry>? = null
+)

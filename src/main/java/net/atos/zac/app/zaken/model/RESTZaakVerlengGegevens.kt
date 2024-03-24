@@ -1,21 +1,23 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+import java.time.LocalDate
 
-import java.time.LocalDate;
+@NoArgConstructor
+@AllOpen
+data class RESTZaakVerlengGegevens(
+    var redenVerlenging: String? = null,
 
-public class RESTZaakVerlengGegevens {
+    var duurDagen: Int = 0,
 
-    public String redenVerlenging;
+    var takenVerlengen: Boolean,
 
-    public int duurDagen;
+    var einddatumGepland: LocalDate? = null,
 
-    public boolean takenVerlengen;
-
-    public LocalDate einddatumGepland;
-
-    public LocalDate uiterlijkeEinddatumAfdoening;
-}
+    var uiterlijkeEinddatumAfdoening: LocalDate? = null
+)

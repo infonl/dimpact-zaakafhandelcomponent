@@ -1,30 +1,31 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+import java.util.UUID
 
-import java.util.UUID;
+@AllOpen
+@NoArgConstructor
+data class RESTResultaattype(
+    var id: UUID,
 
+    var naam: String? = null,
 
-public class RESTResultaattype {
+    var naamGeneriek: String? = null,
 
-    public UUID id;
+    var vervaldatumBesluitVerplicht: Boolean,
 
-    public String naam;
+    var besluitVerplicht: Boolean,
 
-    public String naamGeneriek;
+    var toelichting: String? = null,
 
-    public boolean vervaldatumBesluitVerplicht;
+    var archiefNominatie: String? = null,
 
-    public boolean besluitVerplicht;
+    var archiefTermijn: String? = null,
 
-    public String toelichting;
-
-    public String archiefNominatie;
-
-    public String archiefTermijn;
-
-    public String selectielijst;
-}
+    var selectielijst: String? = null,
+)

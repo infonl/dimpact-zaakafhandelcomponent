@@ -1,21 +1,23 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+import java.time.LocalDate
 
-import java.time.LocalDate;
+@NoArgConstructor
+@AllOpen
+data class RESTZaakOpschortGegevens(
+    var indicatieOpschorting: Boolean,
 
-public class RESTZaakOpschortGegevens {
+    var redenOpschorting: String? = null,
 
-    public boolean indicatieOpschorting;
+    var duurDagen: Long = 0,
 
-    public String redenOpschorting;
+    var einddatumGepland: LocalDate? = null,
 
-    public long duurDagen;
-
-    public LocalDate einddatumGepland;
-
-    public LocalDate uiterlijkeEinddatumAfdoening;
-}
+    var uiterlijkeEinddatumAfdoening: LocalDate? = null
+)

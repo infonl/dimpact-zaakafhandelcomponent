@@ -1,20 +1,21 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+import java.util.UUID
 
-import java.util.List;
-import java.util.UUID;
+@NoArgConstructor
+@AllOpen
+data class RESTZakenVerdeelGegevens(
+    var uuids: List<UUID>,
 
-public class RESTZakenVerdeelGegevens {
+    var groepId: String? = null,
 
-    public List<UUID> uuids;
+    var behandelaarGebruikersnaam: String? = null,
 
-    public String groepId;
-
-    public String behandelaarGebruikersnaam;
-
-    public String reden;
-}
+    var reden: String? = null
+)

@@ -1,110 +1,105 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.converter
 
-package net.atos.zac.app.zaken.converter;
+import jakarta.inject.Inject
+import net.atos.client.zgw.brc.BRCClientService
+import net.atos.client.zgw.brc.model.generated.Besluit
+import net.atos.client.zgw.brc.model.generated.Besluit.VervalredenEnum
+import net.atos.client.zgw.drc.DRCClientService
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import net.atos.client.zgw.zrc.model.Zaak
+import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
+import net.atos.zac.app.zaken.model.RESTBesluit
+import net.atos.zac.app.zaken.model.RESTBesluitIntrekkenGegevens
+import net.atos.zac.app.zaken.model.RESTBesluitVastleggenGegevens
+import net.atos.zac.app.zaken.model.RESTBesluitWijzigenGegevens
+import net.atos.zac.configuratie.ConfiguratieService
+import net.atos.zac.util.UriUtil
+import java.time.LocalDate
+import java.util.stream.Collectors
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import jakarta.inject.Inject;
-
-import net.atos.client.zgw.brc.BRCClientService;
-import net.atos.client.zgw.brc.model.generated.Besluit;
-import net.atos.client.zgw.drc.DRCClientService;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter;
-import net.atos.zac.app.zaken.model.RESTBesluit;
-import net.atos.zac.app.zaken.model.RESTBesluitIntrekkenGegevens;
-import net.atos.zac.app.zaken.model.RESTBesluitVastleggenGegevens;
-import net.atos.zac.app.zaken.model.RESTBesluitWijzigenGegevens;
-import net.atos.zac.configuratie.ConfiguratieService;
-import net.atos.zac.util.UriUtil;
-
-public class RESTBesluitConverter {
+class RESTBesluitConverter {
+    @Inject
+    private lateinit var restBesluittypeConverter: RESTBesluittypeConverter
 
     @Inject
-    private RESTBesluittypeConverter restBesluittypeConverter;
+    private lateinit var ztcClientService: ZTCClientService
 
     @Inject
-    private ZTCClientService ztcClientService;
+    private lateinit var brcClientService: BRCClientService
 
     @Inject
-    private BRCClientService brcClientService;
+    private lateinit var informatieobjectConverter: RESTInformatieobjectConverter
 
     @Inject
-    private RESTInformatieobjectConverter informatieobjectConverter;
+    private lateinit var drcClientService: DRCClientService
 
-    @Inject
-    private DRCClientService drcClientService;
+    fun convertToRESTBesluit(besluit: Besluit) = RESTBesluit(
+        uuid = UriUtil.uuidFromURI(besluit.url),
+        besluittype = restBesluittypeConverter.convertToRESTBesluittype(besluit.besluittype),
+        datum = besluit.datum,
+        identificatie = besluit.identificatie,
+        url = besluit.url,
+        toelichting = besluit.toelichting,
+        ingangsdatum = besluit.ingangsdatum,
+        vervaldatum = besluit.vervaldatum,
+        vervalreden = besluit.vervalreden,
+        isIngetrokken = besluit.vervaldatum != null && (
+                besluit.vervalreden == VervalredenEnum.INGETROKKEN_BELANGHEBBENDE ||
+                        besluit.vervalreden == VervalredenEnum.INGETROKKEN_OVERHEID
+                ),
+        informatieobjecten = informatieobjectConverter.convertInformatieobjectenToREST(
+            listBesluitInformatieobjecten(besluit)
+        )
+    )
 
-    public RESTBesluit convertToRESTBesluit(final Besluit besluit) {
-        final RESTBesluit restBesluit = new RESTBesluit();
-        restBesluit.uuid = UriUtil.uuidFromURI(besluit.getUrl());
-        restBesluit.besluittype = restBesluittypeConverter.convertToRESTBesluittype(besluit.getBesluittype());
-        restBesluit.datum = besluit.getDatum();
-        restBesluit.identificatie = besluit.getIdentificatie();
-        restBesluit.url = besluit.getUrl();
-        restBesluit.toelichting = besluit.getToelichting();
-        restBesluit.ingangsdatum = besluit.getIngangsdatum();
-        restBesluit.vervaldatum = besluit.getVervaldatum();
-        restBesluit.vervalreden = besluit.getVervalreden();
-        restBesluit.isIngetrokken = restBesluit.vervaldatum != null &&
-                                    (restBesluit.vervalreden == Besluit.VervalredenEnum.INGETROKKEN_BELANGHEBBENDE ||
-                                     restBesluit.vervalreden == Besluit.VervalredenEnum.INGETROKKEN_OVERHEID);
-        restBesluit.informatieobjecten = informatieobjectConverter.convertInformatieobjectenToREST(
-                listBesluitInformatieobjecten(besluit));
-        return restBesluit;
-    }
+    fun convertToRESTBesluit(besluiten: List<Besluit>) = besluiten.stream()
+        .map { besluit -> convertToRESTBesluit(besluit) }
+        .toList()
 
-    public List<RESTBesluit> convertToRESTBesluit(final List<Besluit> besluiten) {
-        return besluiten.stream()
-                .map(this::convertToRESTBesluit)
-                .toList();
-    }
-
-    public Besluit convertToBesluit(final Zaak zaak, final RESTBesluitVastleggenGegevens besluitToevoegenGegevens) {
-        final Besluit besluit = new Besluit();
-        besluit.setZaak(zaak.getUrl());
-        besluit.setBesluittype(ztcClientService.readBesluittype(besluitToevoegenGegevens.besluittypeUuid).getUrl());
-        besluit.setDatum(LocalDate.now());
-        besluit.setIngangsdatum(besluitToevoegenGegevens.ingangsdatum);
-        besluit.setVervaldatum(besluitToevoegenGegevens.vervaldatum);
+    fun convertToBesluit(zaak: Zaak, besluitToevoegenGegevens: RESTBesluitVastleggenGegevens): Besluit {
+        val besluit = Besluit()
+        besluit.zaak = zaak.url
+        besluit.besluittype = ztcClientService.readBesluittype(besluitToevoegenGegevens.besluittypeUuid!!).url
+        besluit.datum = LocalDate.now()
+        besluit.ingangsdatum = besluitToevoegenGegevens.ingangsdatum
+        besluit.vervaldatum = besluitToevoegenGegevens.vervaldatum
         if (besluitToevoegenGegevens.vervaldatum != null) {
-            besluit.setVervalreden(Besluit.VervalredenEnum.TIJDELIJK);
+            besluit.vervalreden = VervalredenEnum.TIJDELIJK
         }
-        besluit.setVerantwoordelijkeOrganisatie(ConfiguratieService.VERANTWOORDELIJKE_ORGANISATIE);
-        besluit.setToelichting(besluitToevoegenGegevens.toelichting);
-        return besluit;
+        besluit.verantwoordelijkeOrganisatie = ConfiguratieService.VERANTWOORDELIJKE_ORGANISATIE
+        besluit.toelichting = besluitToevoegenGegevens.toelichting
+        return besluit
     }
 
-    public Besluit convertToBesluit(final Besluit besluit, final RESTBesluitWijzigenGegevens besluitWijzigenGegevens) {
-        besluit.setToelichting(besluitWijzigenGegevens.toelichting);
-        besluit.setIngangsdatum(besluitWijzigenGegevens.ingangsdatum);
-        besluit.setVervaldatum(besluitWijzigenGegevens.vervaldatum);
-        if (besluit.getVervaldatum() != null) {
-            besluit.setVervalreden(Besluit.VervalredenEnum.TIJDELIJK);
+    fun convertToBesluit(besluit: Besluit, besluitWijzigenGegevens: RESTBesluitWijzigenGegevens): Besluit {
+        besluit.toelichting = besluitWijzigenGegevens.toelichting
+        besluit.ingangsdatum = besluitWijzigenGegevens.ingangsdatum
+        besluit.vervaldatum = besluitWijzigenGegevens.vervaldatum
+        if (besluit.vervaldatum != null) {
+            besluit.vervalreden = VervalredenEnum.TIJDELIJK
         }
-        return besluit;
+        return besluit
     }
 
-    public Besluit convertToBesluit(
-            final Besluit besluit,
-            final RESTBesluitIntrekkenGegevens besluitIntrekkenGegevens
-    ) {
-        besluit.setVervaldatum(besluitIntrekkenGegevens.vervaldatum);
-        besluit.setVervalreden(Besluit.VervalredenEnum.valueOf(besluitIntrekkenGegevens.vervalreden));
-        return besluit;
+    fun convertToBesluit(
+        besluit: Besluit,
+        besluitIntrekkenGegevens: RESTBesluitIntrekkenGegevens
+    ): Besluit {
+        besluit.vervaldatum = besluitIntrekkenGegevens.vervaldatum
+        besluit.vervalreden = VervalredenEnum.valueOf(besluitIntrekkenGegevens.vervalreden!!)
+        return besluit
     }
 
-    public List<EnkelvoudigInformatieObject> listBesluitInformatieobjecten(final Besluit besluit) {
-        return brcClientService.listBesluitInformatieobjecten(besluit.getUrl()).stream()
-                .map(besluitInformatieobject -> drcClientService.readEnkelvoudigInformatieobject(
-                        besluitInformatieobject.getInformatieobject()))
-                .collect(Collectors.toList());
+    fun listBesluitInformatieobjecten(besluit: Besluit): List<EnkelvoudigInformatieObject> {
+        return brcClientService.listBesluitInformatieobjecten(besluit.url).stream()
+            .map { besluitInformatieobject ->
+                drcClientService.readEnkelvoudigInformatieobject(besluitInformatieobject.informatieobject)
+            }
+            .collect(Collectors.toList())
     }
 }

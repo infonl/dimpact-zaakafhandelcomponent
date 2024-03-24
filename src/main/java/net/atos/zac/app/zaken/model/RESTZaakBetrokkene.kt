@@ -1,19 +1,22 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
 
-public class RESTZaakBetrokkene {
+@AllOpen
+@NoArgConstructor
+data class RESTZaakBetrokkene(
+    var rolid: String,
 
-    public String rolid;
+    var roltype: String,
 
-    public String roltype;
+    var roltoelichting: String,
 
-    public String roltoelichting;
+    var type: String,
 
-    public String type;
-
-    public String identificatie;
-}
+    var identificatie: String
+)

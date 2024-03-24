@@ -1,20 +1,22 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+import java.time.LocalDate
+import java.util.*
 
-import java.time.LocalDate;
-import java.util.UUID;
+@AllOpen
+@NoArgConstructor
+data class RESTBesluitIntrekkenGegevens(
+    var besluitUuid: UUID? = null,
 
-public class RESTBesluitIntrekkenGegevens {
+    var vervaldatum: LocalDate? = null,
 
-    public UUID besluitUuid;
+    var vervalreden: String? = null,
 
-    public LocalDate vervaldatum;
-
-    public String vervalreden;
-
-    public String reden;
-}
+    var reden: String? = null
+)

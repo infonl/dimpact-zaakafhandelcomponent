@@ -1,15 +1,17 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zaken.model
 
-package net.atos.zac.app.zaken.model;
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+import java.util.UUID
 
-import java.util.UUID;
+@NoArgConstructor
+@AllOpen
+data class RESTZaakAfsluitenGegevens(
+    var reden: String? = null,
 
-public class RESTZaakAfsluitenGegevens {
-
-    public String reden;
-
-    public UUID resultaattypeUuid;
-}
+    var resultaattypeUuid: UUID? = null
+)
