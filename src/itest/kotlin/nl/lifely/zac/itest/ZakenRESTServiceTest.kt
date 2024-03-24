@@ -23,6 +23,9 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_ID
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_2_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_2_IDENTIFICATION
@@ -81,17 +84,17 @@ class ZakenRESTServiceTest : BehaviorSpec({
     }
     Given("A zaak has been created") {
         When("the add betrokkene to zaak endpoint is called") {
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/zaken/betrokkene",
+                requestBodyAsString = "{\n" +
+                    "  \"zaakUUID\": \"$zaak2UUID\",\n" +
+                    "  \"roltypeUUID\": \"$ROLTYPE_UUID_BELANGHEBBENDE\",\n" +
+                    "  \"roltoelichting\": \"dummyToelichting\",\n" +
+                    "  \"betrokkeneIdentificatieType\": \"$BETROKKENE_IDENTIFICATIE_TYPE_BSN\",\n" +
+                    "  \"betrokkeneIdentificatie\": \"$TEST_BETROKKENE_BSN_HENDRIKA_JANSE\"\n" +
+                    "}"
+            )
             Then("the response should be a 200 HTTP response") {
-                val response = itestHttpClient.performJSONPostRequest(
-                    url = "$ZAC_API_URI/zaken/betrokkene",
-                    requestBodyAsString = "{\n" +
-                        "  \"zaakUUID\": \"$zaak2UUID\",\n" +
-                        "  \"roltypeUUID\": \"$ROLTYPE_UUID_BELANGHEBBENDE\",\n" +
-                        "  \"roltoelichting\": \"dummyToelichting\",\n" +
-                        "  \"betrokkeneIdentificatieType\": \"$BETROKKENE_IDENTIFICATIE_TYPE_BSN\",\n" +
-                        "  \"betrokkeneIdentificatie\": \"$TEST_BETROKKENE_BSN_HENDRIKA_JANSE\"\n" +
-                        "}"
-                )
                 response.code shouldBe HttpStatusCode.OK_200.code()
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
@@ -101,12 +104,12 @@ class ZakenRESTServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("A betrokkene had been added to a zaak") {
-        When("the get betrokkenen endpoint is called for a zaak") {
-            Then("the response should be a 200 HTTP response with the betrokkene") {
-                val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID/betrokkene",
-                )
+    Given("A betrokkene has been added to a zaak") {
+        When("the get betrokkene endpoint is called for a zaak") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID/betrokkene",
+            )
+            Then("the response should be a 200 HTTP response with a list consisting of the betrokkene") {
                 response.code shouldBe HttpStatusCode.OK_200.code()
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
@@ -124,7 +127,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
         }
     }
     Given("A zaak has been created") {
-        When("the assign group to zaak endpoint is called") {
+        When("the assign to zaak endpoint is called with a group") {
             val response = itestHttpClient.performPatchRequest(
                 url = "${ZAC_API_URI}/zaken/toekennen",
                 requestBodyAsString = "{\n" +
@@ -150,13 +153,13 @@ class ZakenRESTServiceTest : BehaviorSpec({
         }
     }
     Given("Two zaken have been created") {
-        When("the 'lijst verdelen' endpoint is called to assign to the zaken to a group and a user") {
+        When("the 'lijst verdelen' endpoint is called to assign the two zaken to a group and a user") {
             val response = itestHttpClient.performPutRequest(
                 url = "${ZAC_API_URI}/zaken/lijst/verdelen",
                 requestBodyAsString = "{" +
                     "\"uuids\":[\"$zaak1UUID\", \"$zaak2UUID\"]," +
                     "\"groepId\":\"$TEST_GROUP_A_ID\"," +
-                    "\"behandelaarGebruikersnaam\":\"$TEST_USER_1_ID\"," +
+                    "\"behandelaarGebruikersnaam\":\"$TEST_USER_2_ID\"," +
                     "\"reden\":\"dummyLijstVerdelenReason\"" +
                     "}"
             )
@@ -170,7 +173,8 @@ class ZakenRESTServiceTest : BehaviorSpec({
                             getString("naam") shouldBe TEST_GROUP_A_DESCRIPTION
                         }
                         getJSONObject("behandelaar").apply {
-                            getString("id") shouldBe TEST_USER_1_ID
+                            getString("id") shouldBe TEST_USER_2_ID
+                            getString("naam") shouldBe TEST_USER_2_NAME
                         }
                     }
                 }
@@ -182,7 +186,43 @@ class ZakenRESTServiceTest : BehaviorSpec({
                             getString("naam") shouldBe TEST_GROUP_A_DESCRIPTION
                         }
                         getJSONObject("behandelaar").apply {
+                            getString("id") shouldBe TEST_USER_2_ID
+                            getString("naam") shouldBe TEST_USER_2_NAME
+                        }
+                    }
+                }
+            }
+        }
+    }
+    Given("A zaak has not been assigned to the currently logged in user") {
+        When("the 'assign to logged-in user from list' endpoint is called for the zaak") {
+            val response = itestHttpClient.performPutRequest(
+                url = "${ZAC_API_URI}/zaken/lijst/toekennen/mij",
+                requestBodyAsString = "{" +
+                    "\"zaakUUID\":\"$zaak1UUID\"," +
+                    "\"behandelaarGebruikersnaam\":\"$TEST_USER_1_ID\"," +
+                    "\"reden\":\"dummyAssignToMeFromListReason\"" +
+                    "}"
+            )
+            Then(
+                "the response should be a 200 HTTP response with zaak data and the zaak should be assigned to the user"
+            ) {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HttpStatusCode.OK_200.code()
+                with(responseBody) {
+                    shouldContainJsonKeyValue("uuid", zaak1UUID.toString())
+                    JSONObject(this).getJSONObject("behandelaar").apply {
+                        getString("id") shouldBe TEST_USER_1_ID
+                        getString("naam") shouldBe TEST_USER_1_NAME
+                    }
+                }
+                with(zacClient.retrieveZaak(zaak1UUID)) {
+                    code shouldBe HttpStatusCode.OK_200.code()
+                    JSONObject(body!!.string()).apply {
+                        getJSONObject("behandelaar").apply {
                             getString("id") shouldBe TEST_USER_1_ID
+                            getString("naam") shouldBe TEST_USER_1_NAME
                         }
                     }
                 }
@@ -198,7 +238,10 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     "\"reden\":\"dummyLijstVrijgevenReason\"" +
                     "}"
             )
-            Then("the response should be a 204 HTTP response and the zaak should be unassigned from the user") {
+            Then(
+                "the response should be a 204 HTTP response and the zaak should be unassigned from the user " +
+                    "but should still be assigned to the group"
+            ) {
                 response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
                 with(zacClient.retrieveZaak(zaak1UUID)) {
                     code shouldBe HttpStatusCode.OK_200.code()
