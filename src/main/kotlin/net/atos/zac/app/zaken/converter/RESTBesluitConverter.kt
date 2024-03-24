@@ -49,9 +49,9 @@ class RESTBesluitConverter {
         vervaldatum = besluit.vervaldatum,
         vervalreden = besluit.vervalreden,
         isIngetrokken = besluit.vervaldatum != null && (
-                besluit.vervalreden == VervalredenEnum.INGETROKKEN_BELANGHEBBENDE ||
-                        besluit.vervalreden == VervalredenEnum.INGETROKKEN_OVERHEID
-                ),
+            besluit.vervalreden == VervalredenEnum.INGETROKKEN_BELANGHEBBENDE ||
+                besluit.vervalreden == VervalredenEnum.INGETROKKEN_OVERHEID
+            ),
         informatieobjecten = informatieobjectConverter.convertInformatieobjectenToREST(
             listBesluitInformatieobjecten(besluit)
         )

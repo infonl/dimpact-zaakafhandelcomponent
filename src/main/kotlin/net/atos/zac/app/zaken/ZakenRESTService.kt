@@ -330,7 +330,7 @@ class ZakenRESTService {
         // authorisation on zaaktype
         assertPolicy(
             policyService.readOverigeRechten().startenZaak &&
-                    loggedInUserInstance.get().isGeautoriseerdZaaktype(zaaktype.omschrijving)
+                loggedInUserInstance.get().isGeautoriseerdZaaktype(zaaktype.omschrijving)
         )
 
         val zaak = zgwApiService.createZaak(zaakConverter.convert(restZaak, zaaktype))
@@ -458,9 +458,9 @@ class ZakenRESTService {
         }
         assertPolicy(
             zaak.isOpen &&
-                    !StatusTypeUtil.isHeropend(statustype) &&
-                    !zaak.isOpgeschort &&
-                    policyService.readZaakRechten(zaak).behandelen
+                !StatusTypeUtil.isHeropend(statustype) &&
+                !zaak.isOpgeschort &&
+                policyService.readZaakRechten(zaak).behandelen
         )
         val toelichting = "$VERLENGING: ${restZaakVerlengGegevens.redenVerlenging}"
         val updatedZaak = zrcClientService.patchZaak(
@@ -500,7 +500,7 @@ class ZakenRESTService {
         if (zaakInformatieobjecten.isEmpty()) {
             throw NotFoundException(
                 "Geen ZaakInformatieobject gevonden voor Zaak: '${ontkoppelGegevens.zaakUUID}' " +
-                        "en InformatieObject: '${ontkoppelGegevens.documentUUID}'"
+                    "en InformatieObject: '${ontkoppelGegevens.documentUUID}'"
             )
         }
         zaakInformatieobjecten.forEach(
@@ -651,7 +651,7 @@ class ZakenRESTService {
     fun verdelenVanuitLijst(verdeelGegevens: RESTZakenVerdeelGegevens) {
         assertPolicy(
             policyService.readWerklijstRechten().zakenTaken &&
-                    policyService.readWerklijstRechten().zakenTakenVerdelen
+                policyService.readWerklijstRechten().zakenTakenVerdelen
         )
         val group = if (!StringUtils.isEmpty(verdeelGegevens.groepId)) {
             identityService.readGroup(verdeelGegevens.groepId)
@@ -696,7 +696,7 @@ class ZakenRESTService {
     fun vrijgevenVanuitLijst(verdeelGegevens: RESTZakenVerdeelGegevens) {
         assertPolicy(
             policyService.readWerklijstRechten().zakenTaken &&
-                    policyService.readWerklijstRechten().zakenTakenVerdelen
+                policyService.readWerklijstRechten().zakenTakenVerdelen
         )
         verdeelGegevens.uuids.forEach(
             Consumer { uuid ->
@@ -726,7 +726,7 @@ class ZakenRESTService {
         }
         assertPolicy(
             zaak.isOpen && !StatusTypeUtil.isHeropend(statustype) &&
-                    policyService.readZaakRechten(zaak).afbreken
+                policyService.readZaakRechten(zaak).afbreken
         )
         policyService.checkZaakAfsluitbaar(zaak)
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
@@ -784,7 +784,7 @@ class ZakenRESTService {
         val teKoppelenZaak: Zaak = zrcClientService.readZaak(gegevens.teKoppelenZaakUuid)
         assertPolicy(
             policyService.readZaakRechten(zaak).wijzigen &&
-                    policyService.readZaakRechten(teKoppelenZaak).wijzigen
+                policyService.readZaakRechten(teKoppelenZaak).wijzigen
         )
 
         when (gegevens.relatieType) {
@@ -811,7 +811,7 @@ class ZakenRESTService {
         val gekoppeldeZaak = zrcClientService.readZaakByID(gegevens.gekoppeldeZaakIdentificatie)
         assertPolicy(
             policyService.readZaakRechten(zaak).wijzigen &&
-                    policyService.readZaakRechten(gekoppeldeZaak).wijzigen
+                policyService.readZaakRechten(gekoppeldeZaak).wijzigen
         )
 
         when (gegevens.relatietype) {
@@ -954,9 +954,9 @@ class ZakenRESTService {
         }
         assertPolicy(
             zaak.isOpen &&
-                    CollectionUtils.isNotEmpty(zaaktype.besluittypen) &&
-                    policyService.readZaakRechten(zaak, zaaktype).behandelen &&
-                    !StatusTypeUtil.isIntake(zaakStatustype)
+                CollectionUtils.isNotEmpty(zaaktype.besluittypen) &&
+                policyService.readZaakRechten(zaak, zaaktype).behandelen &&
+                !StatusTypeUtil.isIntake(zaakStatustype)
         )
         val besluit = besluitConverter.convertToBesluit(zaak, besluitToevoegenGegevens)
         if (zaak.resultaat != null) {
@@ -1284,16 +1284,16 @@ class ZakenRESTService {
     ): Boolean {
         val zaaktypeUUID = UriUtil.uuidFromURI(zaak.zaaktype)
         return (
-                zaak.einddatumGepland != null &&
-                        isWaarschuwing(
-                            vandaag, zaak.einddatumGepland,
-                            einddatumGeplandWaarschuwing[zaaktypeUUID]
-                        )
-                ) ||
+            zaak.einddatumGepland != null &&
                 isWaarschuwing(
-                    vandaag, zaak.uiterlijkeEinddatumAfdoening,
-                    uiterlijkeEinddatumAfdoeningWaarschuwing[zaaktypeUUID]
+                    vandaag, zaak.einddatumGepland,
+                    einddatumGeplandWaarschuwing[zaaktypeUUID]
                 )
+            ) ||
+            isWaarschuwing(
+                vandaag, zaak.uiterlijkeEinddatumAfdoening,
+                uiterlijkeEinddatumAfdoeningWaarschuwing[zaaktypeUUID]
+            )
     }
 
     private fun isWaarschuwing(
