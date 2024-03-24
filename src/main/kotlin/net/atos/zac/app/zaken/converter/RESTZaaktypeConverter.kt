@@ -66,8 +66,7 @@ class RESTZaaktypeConverter {
                 null
             },
             zaaktypeRelaties = zaaktypeRelaties,
-            informatieobjecttypes = zaaktype.informatieobjecttypen.stream().map {
-                    uri ->
+            informatieobjecttypes = zaaktype.informatieobjecttypen.stream().map { uri ->
                 UriUtil.uuidFromURI(uri)
             }.toList(),
             referentieproces = zaaktype.referentieproces?.let { zaaktype.referentieproces.naam },

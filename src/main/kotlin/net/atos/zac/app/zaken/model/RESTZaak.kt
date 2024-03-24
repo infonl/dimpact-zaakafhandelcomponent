@@ -67,7 +67,7 @@ data class RESTZaak(
     var kenmerken: List<RESTZaakKenmerk>?,
     var omschrijving: String,
     var publicatiedatum: LocalDate?,
-    var rechten: RESTZaakRechten?,
+    var rechten: RESTZaakRechten,
     var redenOpschorting: String?,
     var redenVerlenging: String?,
     var registratiedatum: LocalDate?,

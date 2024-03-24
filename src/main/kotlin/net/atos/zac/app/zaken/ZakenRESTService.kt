@@ -260,7 +260,7 @@ class ZakenRESTService {
     fun readZaak(@PathParam("uuid") zaakUUID: UUID): RESTZaak {
         val zaak = zrcClientService.readZaak(zaakUUID)
         val restZaak = zaakConverter.convert(zaak)
-        assertPolicy(restZaak.rechten!!.lezen)
+        assertPolicy(restZaak.rechten.lezen)
         deleteSignaleringen(zaak)
         return restZaak
     }
@@ -270,7 +270,7 @@ class ZakenRESTService {
     fun readZaakById(@PathParam("identificatie") identificatie: String): RESTZaak {
         val zaak = zrcClientService.readZaakByID(identificatie)
         val restZaak: RESTZaak = zaakConverter.convert(zaak)
-        assertPolicy(restZaak.rechten!!.lezen)
+        assertPolicy(restZaak.rechten.lezen)
         deleteSignaleringen(zaak)
         return restZaak
     }
@@ -1140,13 +1140,15 @@ class ZakenRESTService {
         zaak: Zaak,
         toelichting: String
     ) {
-        val rol = RolNatuurlijkPersoon(
-            zaak.url,
-            roltype,
-            toelichting,
-            NatuurlijkPersoon(bsn)
+        zrcClientService.createRol(
+            RolNatuurlijkPersoon(
+                zaak.url,
+                roltype,
+                toelichting,
+                NatuurlijkPersoon(bsn)
+            ),
+            toelichting
         )
-        zrcClientService.createRol(rol, toelichting)
     }
 
     private fun addBetrokkenVestiging(
@@ -1155,13 +1157,15 @@ class ZakenRESTService {
         zaak: Zaak,
         toelichting: String
     ) {
-        val rol = RolVestiging(
-            zaak.url,
-            roltype,
-            toelichting,
-            Vestiging(vestigingsnummer)
+        zrcClientService.createRol(
+            RolVestiging(
+                zaak.url,
+                roltype,
+                toelichting,
+                Vestiging(vestigingsnummer)
+            ),
+            toelichting
         )
-        zrcClientService.createRol(rol, toelichting)
     }
 
     private fun addBetrokkenNietNatuurlijkPersoon(
@@ -1170,13 +1174,15 @@ class ZakenRESTService {
         zaak: Zaak,
         toelichting: String
     ) {
-        val rol = RolNietNatuurlijkPersoon(
-            zaak.url,
-            roltype,
-            toelichting,
-            NietNatuurlijkPersoon(rsin)
+        zrcClientService.createRol(
+            RolNietNatuurlijkPersoon(
+                zaak.url,
+                roltype,
+                toelichting,
+                NietNatuurlijkPersoon(rsin)
+            ),
+            toelichting
         )
-        zrcClientService.createRol(rol, toelichting)
     }
 
     private fun addInitiator(
@@ -1215,31 +1221,34 @@ class ZakenRESTService {
     }
 
     private fun bepaalRolGroep(group: Group, zaak: Zaak): RolOrganisatorischeEenheid {
-        val groep = OrganisatorischeEenheid()
-        groep.identificatie = group.id
-        groep.naam = group.name
-        val roltype: RolType = ztcClientService.readRoltype(
-            RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
-            zaak.zaaktype
-        )
         return RolOrganisatorischeEenheid(
             zaak.url,
-            roltype,
+            ztcClientService.readRoltype(
+                RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
+                zaak.zaaktype
+            ),
             "Behandelend groep van de zaak",
-            groep
+            OrganisatorischeEenheid().apply {
+                identificatie = group.id
+                naam = group.name
+            }
         )
     }
 
     private fun bepaalRolMedewerker(user: User, zaak: Zaak): RolMedewerker {
-        val medewerker = Medewerker()
-        medewerker.identificatie = user.id
-        medewerker.voorletters = user.firstName
-        medewerker.achternaam = user.lastName
-        val roltype: RolType = ztcClientService.readRoltype(
-            RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
-            zaak.zaaktype
+        return RolMedewerker(
+            zaak.url,
+            ztcClientService.readRoltype(
+                RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
+                zaak.zaaktype
+            ),
+            "Behandelaar van de zaak",
+            Medewerker().apply {
+                identificatie = user.id
+                voorletters = user.firstName
+                achternaam = user.lastName
+            }
         )
-        return RolMedewerker(zaak.url, roltype, "Behandelaar van de zaak", medewerker)
     }
 
     private fun datumWaarschuwing(vandaag: LocalDate, dagen: Int): LocalDate {
@@ -1270,9 +1279,11 @@ class ZakenRESTService {
     ): Zaak {
         val zaak = zrcClientService.readZaak(toekennenGegevens.zaakUUID)
         assertPolicy(zaak.isOpen && policyService.readZaakRechten(zaak).toekennen)
-
-        val user = identityService.readUser(loggedInUserInstance.get().id)
-        zrcClientService.updateRol(zaak, bepaalRolMedewerker(user, zaak), toekennenGegevens.reden)
+        zrcClientService.updateRol(
+            zaak,
+            bepaalRolMedewerker(identityService.readUser(loggedInUserInstance.get().id), zaak),
+            toekennenGegevens.reden
+        )
         return zaak
     }
 
@@ -1286,12 +1297,14 @@ class ZakenRESTService {
         return (
             zaak.einddatumGepland != null &&
                 isWaarschuwing(
-                    vandaag, zaak.einddatumGepland,
+                    vandaag,
+                    zaak.einddatumGepland,
                     einddatumGeplandWaarschuwing[zaaktypeUUID]
                 )
             ) ||
             isWaarschuwing(
-                vandaag, zaak.uiterlijkeEinddatumAfdoening,
+                vandaag,
+                zaak.uiterlijkeEinddatumAfdoening,
                 uiterlijkeEinddatumAfdoeningWaarschuwing[zaaktypeUUID]
             )
     }
@@ -1300,15 +1313,12 @@ class ZakenRESTService {
         vandaag: LocalDate,
         datum: LocalDate,
         datumWaarschuwing: LocalDate?
-    ): Boolean {
-        return datumWaarschuwing != null && !datum.isBefore(vandaag) && datum.isBefore(
-            datumWaarschuwing
-        )
-    }
+    ) = datumWaarschuwing != null &&
+        !datum.isBefore(vandaag) &&
+        datum.isBefore(datumWaarschuwing)
 
     private fun koppelHoofdEnDeelzaak(hoofdZaak: Zaak, deelZaak: Zaak) {
-        val zaakPatch = HoofdzaakZaakPatch(hoofdZaak.url)
-        zrcClientService.patchZaak(deelZaak.uuid, zaakPatch)
+        zrcClientService.patchZaak(deelZaak.uuid, HoofdzaakZaakPatch(hoofdZaak.url))
         // Hiervoor wordt door open zaak alleen voor de deelzaak een notificatie verstuurd.
         // Dus zelf het ScreenEvent versturen voor de hoofdzaak!
         indexeerService.addOrUpdateZaak(hoofdZaak.uuid, false)
@@ -1325,7 +1335,6 @@ class ZakenRESTService {
         val productaanvraag = productaanvraagService.getProductaanvraag(
             productaanvraagObject
         )
-
         productaanvraagService.pairProductaanvraagWithZaak(productaanvraagObject, zaak.url)
         productaanvraagService.pairAanvraagPDFWithZaak(productaanvraag, zaak.url)
         productaanvraagService.pairBijlagenWithZaak(
@@ -1346,10 +1355,16 @@ class ZakenRESTService {
         andereZaak: Zaak,
         aardRelatie: AardRelatie
     ) {
-        val zaakPatch = RelevantezaakZaakPatch(
-            addRelevanteZaak(zaak.relevanteAndereZaken, andereZaak.url, aardRelatie)
+        zrcClientService.patchZaak(
+            zaak.uuid,
+            RelevantezaakZaakPatch(
+                addRelevanteZaak(
+                    zaak.relevanteAndereZaken,
+                    andereZaak.url,
+                    aardRelatie
+                )
+            )
         )
-        zrcClientService.patchZaak(zaak.uuid, zaakPatch)
     }
 
     private fun ontkoppelHoofdEnDeelzaak(
@@ -1357,8 +1372,7 @@ class ZakenRESTService {
         deelZaak: Zaak,
         reden: String
     ) {
-        val zaakPatch = HoofdzaakZaakPatch(null)
-        zrcClientService.patchZaak(deelZaak.uuid, zaakPatch, reden)
+        zrcClientService.patchZaak(deelZaak.uuid, HoofdzaakZaakPatch(null), reden)
         // Hiervoor wordt door open zaak alleen voor de deelzaak een notificatie verstuurd.
         // Dus zelf het ScreenEvent versturen voor de hoofdzaak!
         indexeerService.addOrUpdateZaak(hoofdZaak.uuid, false)
@@ -1371,10 +1385,13 @@ class ZakenRESTService {
         aardRelatie: AardRelatie,
         reden: String
     ) {
-        val zaakPatch = RelevantezaakZaakPatch(
-            removeRelevanteZaak(zaak.relevanteAndereZaken, andereZaak.url, aardRelatie)
+        zrcClientService.patchZaak(
+            zaak.uuid,
+            RelevantezaakZaakPatch(
+                removeRelevanteZaak(zaak.relevanteAndereZaken, andereZaak.url, aardRelatie)
+            ),
+            reden
         )
-        zrcClientService.patchZaak(zaak.uuid, zaakPatch, reden)
     }
 
     private fun removeBetrokkene(zaak: Zaak, betrokkene: Rol<*>, reden: String) {
