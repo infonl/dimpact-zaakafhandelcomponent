@@ -23,7 +23,7 @@ export class MailtemplateKoppelingService {
 
   readMailtemplateKoppeling(id: string): Observable<MailtemplateKoppeling> {
     return this.http
-      .get<MailtemplateKoppeling[]>(`${this.basepath}/${id}`)
+      .get<MailtemplateKoppeling>(`${this.basepath}/${id}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

@@ -21,7 +21,7 @@ export class MailtemplateService {
     zaakUUID: string,
   ): Observable<Mailtemplate> {
     return this.http
-      .get<Mailtemplate[]>(`${this.basepath}/${mailtemplateEnum}/${zaakUUID}`)
+      .get<Mailtemplate>(`${this.basepath}/${mailtemplateEnum}/${zaakUUID}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

@@ -6,5 +6,5 @@
 import { User } from "./user";
 
 export class LoggedInUser extends User {
-  groupIds: string[];
+  groupIds?: string[];
 }

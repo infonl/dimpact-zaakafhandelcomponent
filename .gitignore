@@ -8,6 +8,7 @@ wildfly-*
 .env*
 src/e2e/ExportData/*
 src/main/app/.nvmrc
+/bin
 
 ### INTELLIJ ###
 *.iml

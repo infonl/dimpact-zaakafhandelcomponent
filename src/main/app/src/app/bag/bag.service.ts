@@ -44,7 +44,7 @@ export class BAGService {
 
   list(zaakUuid: string): Observable<BAGObjectGegevens[]> {
     return this.http
-      .get<Adres[]>(`${this.basepath}/zaak/${zaakUuid}`)
+      .get<BAGObjectGegevens[]>(`${this.basepath}/zaak/${zaakUuid}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

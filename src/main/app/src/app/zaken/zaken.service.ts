@@ -45,6 +45,11 @@ import { ZaakVerlengGegevens } from "./model/zaak-verleng-gegevens";
 import { Zaaktype } from "./model/zaaktype";
 import { ZakenVerdeelGegevens } from "./model/zaken-verdeel-gegevens";
 
+type CommunicatieKanaal = {
+  naam: string;
+  uuid: string;
+};
+
 @Injectable({
   providedIn: "root",
 })
@@ -392,7 +397,7 @@ export class ZakenService {
     besluitVestleggenGegevens: BesluitVastleggenGegevens,
   ): Observable<Besluit> {
     return this.http
-      .post<BesluitVastleggenGegevens>(
+      .post<Besluit>(
         `${this.basepath}/besluit`,
         besluitVestleggenGegevens,
       )
@@ -405,7 +410,7 @@ export class ZakenService {
     besluitWijzigenGegevens: BesluitWijzigenGegevens,
   ): Observable<Besluit> {
     return this.http
-      .put<BesluitWijzigenGegevens>(
+      .put<Besluit>(
         `${this.basepath}/besluit`,
         besluitWijzigenGegevens,
       )
@@ -418,7 +423,7 @@ export class ZakenService {
     besluitIntrekkenGegevens: BesluitIntrekkenGegevens,
   ): Observable<Besluit> {
     return this.http
-      .put<BesluitIntrekkenGegevens>(
+      .put<Besluit>(
         `${this.basepath}/besluit/intrekken`,
         besluitIntrekkenGegevens,
       )
@@ -445,11 +450,9 @@ export class ZakenService {
 
   listCommunicatiekanalen(
     inclusiefEFormulier?: boolean,
-  ): Observable<{ naam: string; uuid: string }[]> {
+  ): Observable<CommunicatieKanaal[]> {
     return this.http
-      .get<
-        string[]
-      >(`${this.basepath}/communicatiekanalen/${inclusiefEFormulier}`)
+      .get<CommunicatieKanaal[]>(`${this.basepath}/communicatiekanalen/${inclusiefEFormulier}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
