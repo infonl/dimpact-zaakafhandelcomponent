@@ -156,11 +156,11 @@ class ZakenRESTServiceTest : BehaviorSpec({
         When("the 'lijst verdelen' endpoint is called to assign the two zaken to a group and a user") {
             val response = itestHttpClient.performPutRequest(
                 url = "${ZAC_API_URI}/zaken/lijst/verdelen",
-                requestBodyAsString = "{" +
-                    "\"uuids\":[\"$zaak1UUID\", \"$zaak2UUID\"]," +
-                    "\"groepId\":\"$TEST_GROUP_A_ID\"," +
-                    "\"behandelaarGebruikersnaam\":\"$TEST_USER_2_ID\"," +
-                    "\"reden\":\"dummyLijstVerdelenReason\"" +
+                requestBodyAsString = "{\n" +
+                    "\"uuids\":[\"$zaak1UUID\", \"$zaak2UUID\"],\n" +
+                    "\"groepId\":\"$TEST_GROUP_A_ID\",\n" +
+                    "\"behandelaarGebruikersnaam\":\"$TEST_USER_2_ID\",\n" +
+                    "\"reden\":\"dummyLijstVerdelenReason\"\n" +
                     "}"
             )
             Then("the response should be a 204 HTTP response and the zaken should be assigned correctly") {
@@ -197,11 +197,11 @@ class ZakenRESTServiceTest : BehaviorSpec({
     Given("A zaak has not been assigned to the currently logged in user") {
         When("the 'assign to logged-in user from list' endpoint is called for the zaak") {
             val response = itestHttpClient.performPutRequest(
-                url = "${ZAC_API_URI}/zaken/lijst/toekennen/mij",
-                requestBodyAsString = "{" +
-                    "\"zaakUUID\":\"$zaak1UUID\"," +
-                    "\"behandelaarGebruikersnaam\":\"$TEST_USER_1_ID\"," +
-                    "\"reden\":\"dummyAssignToMeFromListReason\"" +
+                url = "$ZAC_API_URI/zaken/lijst/toekennen/mij",
+                requestBodyAsString = "{\n" +
+                    "\"zaakUUID\":\"$zaak1UUID\",\n" +
+                    "\"behandelaarGebruikersnaam\":\"$TEST_USER_1_ID\",\n" +
+                    "\"reden\":\"dummyAssignToMeFromListReason\"\n" +
                     "}"
             )
             Then(
@@ -232,10 +232,10 @@ class ZakenRESTServiceTest : BehaviorSpec({
     Given("Zaken have been assigned to a user") {
         When("the 'lijst vrijgeven' endpoint is called for the zaken") {
             val response = itestHttpClient.performPutRequest(
-                url = "${ZAC_API_URI}/zaken/lijst/vrijgeven",
-                requestBodyAsString = "{" +
-                    "\"uuids\":[\"$zaak1UUID\", \"$zaak2UUID\"]," +
-                    "\"reden\":\"dummyLijstVrijgevenReason\"" +
+                url = "$ZAC_API_URI/zaken/lijst/vrijgeven\n",
+                requestBodyAsString = "{\n" +
+                    "\"uuids\":[\"$zaak1UUID\", \"$zaak2UUID\"],\n" +
+                    "\"reden\":\"dummyLijstVrijgevenReason\"\n" +
                     "}"
             )
             Then(
