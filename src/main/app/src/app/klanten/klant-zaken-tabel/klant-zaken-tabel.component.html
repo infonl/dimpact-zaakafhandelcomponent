@@ -31,14 +31,14 @@
                                         [formControl]="betrokkeneSelectControl"
                                         (selectionChange)="filtersChanged()">
                                 <mat-option>{{'betrokkeneRoltype.-kies-' | translate}}</mat-option>
-                                <ng-container *ngIf="distinctRoltypenOptions$ | async as roltypen" >
+                                @if(distinctRoltypenQuery.data(); as data) {
                                     <mat-option 
-                                        *ngFor="let betrokkene of distinctRoltypenOptions$ | async"
+                                        *ngFor="let betrokkene of data"
                                         [value]="'zaak_betrokkene_' + betrokkene"
                                         >
                                         {{betrokkene}}
                                     </mat-option>
-                                </ng-container>
+                                }
                             </mat-select>
                         </mat-form-field>
                     </th>

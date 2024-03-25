@@ -17,7 +17,8 @@ import { FormControl } from "@angular/forms";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
-import { Observable, merge } from "rxjs";
+import { injectQuery } from "@tanstack/angular-query-experimental";
+import { Observable, lastValueFrom, merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { SorteerVeld } from "../../zoeken/model/sorteer-veld";
@@ -67,23 +68,30 @@ export class KlantZakenTabelComponent
   betrokkeneSelectControl = new FormControl<ZoekVeld>(null);
   private laatsteBetrokkenheid: string;
 
-  roltypen$ = this.klantenService.listRoltypen()
-  distinctRoltypenOptions$ = this.roltypen$.pipe(map(typen => this.distinct(
-    typen.map(({naam}) => naam)
-  )))
+  distinctRoltypenQuery = injectQuery(() => ({
+    queryKey: ["roltypen", "distinct"],
+    queryFn: () => this.listDistinctRoltypen(),
+  }));
 
   constructor(
     private utilService: UtilService,
     private zoekenService: ZoekenService,
-    private klantenService: KlantenService
+    private klantenService: KlantenService,
   ) {}
 
   ngOnInit(): void {
     this.zoekParameters.type = ZoekObjectType.ZAAK;
   }
 
-  private distinct<T>(values: T[]): T[]{
-    return [...new Set(values)]
+  private distinct<T>(values: T[]): T[] {
+    return [...new Set(values)];
+  }
+
+  private listDistinctRoltypen() {
+    const distinctRoltypen$ = this.klantenService
+      .listRoltypen()
+      .pipe(map((typen) => this.distinct(typen.map(({ naam }) => naam))));
+    return lastValueFrom(distinctRoltypen$);
   }
 
   private loadZaken(): Observable<ZoekResultaat<ZaakZoekObject>> {
