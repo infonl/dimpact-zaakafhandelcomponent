@@ -201,9 +201,9 @@ class RESTZaakConverter {
                 .map { it.url }
                 .ifPresent { communicatiekanaal -> zaak.communicatiekanaal = communicatiekanaal }
         }
-        zaak.vertrouwelijkheidaanduiding = InformatieobjectenUtil.convertToVertrouwelijkheidaanduidingEnum(
-            restZaak.vertrouwelijkheidaanduiding
-        )
+        zaak.vertrouwelijkheidaanduiding = restZaak.vertrouwelijkheidaanduiding?.let {
+            InformatieobjectenUtil.convertToVertrouwelijkheidaanduidingEnum(it)
+        }
         zaak.zaakgeometrie = restZaak.zaakgeometrie?.let { restGeometryConverter.convert(it) }
         return zaak
     }
