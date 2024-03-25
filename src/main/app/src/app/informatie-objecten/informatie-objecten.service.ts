@@ -10,6 +10,7 @@ import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { HistorieRegel } from "../shared/historie/model/historie-regel";
+import { createFormData } from "../shared/utils/form-data";
 import { DocumentCreatieGegevens } from "./model/document-creatie-gegevens";
 import { DocumentCreatieResponse } from "./model/document-creatie-response";
 import { DocumentVerplaatsGegevens } from "./model/document-verplaats-gegevens";
@@ -90,33 +91,22 @@ export class InformatieObjectenService {
     infoObject: EnkelvoudigInformatieobject,
     taakObject: boolean,
   ): Observable<EnkelvoudigInformatieobject> {
-    const formData = new FormData();
-    if (infoObject.bestandsnaam)
-      formData.append("bestandsnaam", infoObject.bestandsnaam);
-    if (infoObject.titel) formData.append("titel", infoObject.titel);
-    if (infoObject.bestandsomvang)
-      formData.append("bestandomvang", infoObject.bestandsomvang.toString());
-    if (infoObject.formaat) formData.append("formaat", infoObject.formaat);
-    if (infoObject.informatieobjectTypeUUID)
-      formData.append(
-        "informatieobjectTypeUUID",
-        infoObject.informatieobjectTypeUUID,
-      );
-    if (infoObject.vertrouwelijkheidaanduiding)
-      formData.append(
-        "vertrouwelijkheidaanduiding",
-        infoObject.vertrouwelijkheidaanduiding,
-      );
-    if (infoObject.status) formData.append("status", infoObject.status);
-    if (infoObject.creatiedatum)
-      formData.append(
-        "creatiedatum",
-        moment(infoObject.creatiedatum).format("YYYY-MM-DDThh:mmZ"),
-      );
-    if (infoObject.auteur) formData.append("auteur", infoObject.auteur);
-    if (infoObject.taal) formData.append("taal", infoObject.taal);
-    if (infoObject.bestand)
-      formData.append("file", infoObject.bestand, infoObject.bestandsnaam);
+    const formData = createFormData(infoObject, {
+      bestandsnaam: true,
+      titel: true,
+      bestandsomvang: true,
+      formaat: true,
+      informatieobjectTypeUUID: true,
+      vertrouwelijkheidaanduiding: true,
+      status: true,
+      creatiedatum: ([key, value]) => [
+        key,
+        moment(value).format("YYYY-MM-DDThh:mmZ"),
+      ],
+      auteur: true,
+      taal: true,
+      bestand: ([, value]) => ["file", value, infoObject.bestandsnaam],
+    });
 
     return this.http
       .post<EnkelvoudigInformatieobject>(
