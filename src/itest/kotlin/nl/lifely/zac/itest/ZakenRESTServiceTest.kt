@@ -275,12 +275,11 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID",
                 requestBodyAsString = "{\n" +
                     "\"zaak\":{\n" +
-                    "\"startdatum\":\"$startDateNew\"," +
-                    "\"einddatumGepland\":null," +
-                    "\"uiterlijkeEinddatumAfdoening\":\"$fatalDateNew\"" +
-                    "}," +
-                    "\"reden\":\"dummyReason\"}" +
-                    "}"
+                    "  \"startdatum\":\"$startDateNew\",\n" +
+                    "  \"uiterlijkeEinddatumAfdoening\":\"$fatalDateNew\"\n" +
+                    "  },\n" +
+                    "  \"reden\":\"dummyReason\"\n" +
+                    "}\n"
             )
             Then("the response should be a 200 HTTP response with the changed zaak data") {
                 val responseBody = response.body!!.string()
