@@ -29,7 +29,7 @@ data class RESTZaak(
     var einddatumGepland: LocalDate?,
     var einddatum: LocalDate?,
     var gerelateerdeZaken: List<RESTGerelateerdeZaak>?,
-    @get:Valid
+    @field:Valid
     var groep: RESTGroup?,
     var identificatie: String,
     var indicaties: EnumSet<ZaakIndicatie>,

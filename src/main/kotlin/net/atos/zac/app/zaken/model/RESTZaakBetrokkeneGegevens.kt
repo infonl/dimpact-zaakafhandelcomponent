@@ -17,11 +17,11 @@ data class RESTZaakBetrokkeneGegevens(
 
     var roltypeUUID: UUID,
 
-    @get:NotBlank
+    @field:NotBlank
     var roltoelichting: String,
 
     var betrokkeneIdentificatieType: IdentificatieType,
 
-    @get:NotBlank
+    @field:NotBlank
     var betrokkeneIdentificatie: String
 )

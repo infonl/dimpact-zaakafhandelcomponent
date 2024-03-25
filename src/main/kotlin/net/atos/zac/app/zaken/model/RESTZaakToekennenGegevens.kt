@@ -19,7 +19,7 @@ data class RESTZaakToekennenGegevens(
      * [net.atos.client.zgw.zrc.model.OrganisatorischeEenheid]
      * we need to make sure it adheres to the same constraints.
      */
-    @get:Size(max = 24)
+    @field:Size(max = 24)
     var groepId: String? = null,
 
     var behandelaarGebruikersnaam: String? = null,

@@ -13,7 +13,7 @@ import nl.lifely.zac.util.NoArgConstructor
 @NoArgConstructor
 @AllOpen
 data class RESTZaakAanmaakGegevens(
-    @get:Valid
+    @field:Valid
     var zaak: RESTZaak,
 
     var inboxProductaanvraag: RESTInboxProductaanvraag? = null,
