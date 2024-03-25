@@ -32,9 +32,7 @@ export class HealthCheckService {
 
   readBestaatCommunicatiekanaalEformulier(): Observable<boolean> {
     return this.http
-      .get<
-        boolean
-      >(`${this.basepath}/bestaat-communicatiekanaal-eformulier`)
+      .get<boolean>(`${this.basepath}/bestaat-communicatiekanaal-eformulier`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

@@ -397,10 +397,7 @@ export class ZakenService {
     besluitVestleggenGegevens: BesluitVastleggenGegevens,
   ): Observable<Besluit> {
     return this.http
-      .post<Besluit>(
-        `${this.basepath}/besluit`,
-        besluitVestleggenGegevens,
-      )
+      .post<Besluit>(`${this.basepath}/besluit`, besluitVestleggenGegevens)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -410,10 +407,7 @@ export class ZakenService {
     besluitWijzigenGegevens: BesluitWijzigenGegevens,
   ): Observable<Besluit> {
     return this.http
-      .put<Besluit>(
-        `${this.basepath}/besluit`,
-        besluitWijzigenGegevens,
-      )
+      .put<Besluit>(`${this.basepath}/besluit`, besluitWijzigenGegevens)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -452,7 +446,9 @@ export class ZakenService {
     inclusiefEFormulier?: boolean,
   ): Observable<CommunicatieKanaal[]> {
     return this.http
-      .get<CommunicatieKanaal[]>(`${this.basepath}/communicatiekanalen/${inclusiefEFormulier}`)
+      .get<
+        CommunicatieKanaal[]
+      >(`${this.basepath}/communicatiekanalen/${inclusiefEFormulier}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

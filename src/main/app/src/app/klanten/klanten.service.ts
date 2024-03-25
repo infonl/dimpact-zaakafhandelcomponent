@@ -56,7 +56,9 @@ export class KlantenService {
     vestigingsnummer: string,
   ): Observable<Vestigingsprofiel> {
     return this.http
-      .get<Vestigingsprofiel>(`${this.basepath}/vestigingsprofiel/${vestigingsnummer}`)
+      .get<Vestigingsprofiel>(
+        `${this.basepath}/vestigingsprofiel/${vestigingsnummer}`,
+      )
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
