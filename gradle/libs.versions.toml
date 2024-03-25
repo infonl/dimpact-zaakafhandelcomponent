@@ -1,5 +1,4 @@
 [versions]
-allopen = "1.9.23"
 kotlin = "1.9.23"
 nodejs = "20.11.1"
 jsonschema2pojo = "1.2.1"
@@ -152,6 +151,8 @@ jacoco-agent = { group = "org.jacoco", name="org.jacoco.agent", version.ref = "j
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+allopen = { id = "org.jetbrains.kotlin.plugin.allopen", version.ref = "kotlin" }
+noarg = { id = "org.jetbrains.kotlin.plugin.noarg", version.ref = "kotlin" }
 jsonschema2pojo = { id = "org.jsonschema2pojo", version.ref = "jsonschema2pojo" }
 openapi = { id = "io.smallrye.openapi", version.ref = "openapi" }
 openapi-generator = { id = "org.openapi.generator", version.ref = "openapi-generator" }
@@ -161,4 +162,5 @@ swagger-generator = { id = "org.hidetake.swagger.generator", version.ref = "swag
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 docker-remote-api = { id = "com.bmuschko.docker-remote-api", version.ref = "docker-remote-api" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
-allopen = { id = "org.jetbrains.kotlin.plugin.allopen", version.ref = "allopen" }
+
+
