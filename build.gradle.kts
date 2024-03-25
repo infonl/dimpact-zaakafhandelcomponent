@@ -5,7 +5,7 @@ import java.util.Locale
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 
 /*
- * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -13,8 +13,8 @@ plugins {
     java
     war
     jacoco
-    alias(libs.plugins.kotlin.jvm)
 
+    alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.jsonschema2pojo)
     alias(libs.plugins.openapi.generator)
     alias(libs.plugins.gradle.node)
@@ -24,6 +24,7 @@ plugins {
     alias(libs.plugins.detekt)
     alias(libs.plugins.docker.remote.api)
     alias(libs.plugins.spotless)
+    alias(libs.plugins.allopen)
 }
 
 repositories {
@@ -181,6 +182,13 @@ tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
     setSource(files("src/main/kotlin", "src/test/kotlin", "src/itest/kotlin"))
     // our Detekt configuration build builds upon the default configuration
     buildUponDefaultConfig = true
+}
+
+allOpen {
+    // enable all-open plugin for Kotlin so that WildFly's dependency injection framework (Weld)
+    // can proxy our Kotlin classes when they have our custom annotation
+    // because by default Kotlin classes are final
+    annotation("nl.lifely.zac.util.AllOpen")
 }
 
 jacoco {
@@ -352,6 +360,10 @@ tasks {
     }
 
     compileJava {
+        dependsOn("generateJavaClients")
+    }
+
+    compileKotlin {
         dependsOn("generateJavaClients")
     }
 

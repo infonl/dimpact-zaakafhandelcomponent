@@ -254,7 +254,7 @@ export class InformatieObjectenService {
     uuid: string,
   ): Observable<EnkelvoudigInformatieobject> {
     return this.http
-      .get<ZaakInformatieobject>(
+      .get<EnkelvoudigInformatieobject>(
         `${this.basepath}/zaakinformatieobject/${uuid}/informatieobject`,
       )
       .pipe(
@@ -292,7 +292,7 @@ export class InformatieObjectenService {
       )
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+      ) as Observable<void>;
   }
 
   listHistorie(uuid: string): Observable<HistorieRegel[]> {

@@ -40,7 +40,7 @@ class NotificationsTest : BehaviorSpec({
     Given("ZAC and all related Docker containers are running") {
         When("the notificaties endpoint is called with dummy payload without authentication header") {
             val response = itestHttpClient.performJSONPostRequest(
-                url = "${ZAC_API_URI}/notificaties",
+                url = "$ZAC_API_URI/notificaties",
                 headers = Headers.headersOf("Content-Type", "application/json"),
                 requestBodyAsString = JSONObject(
                     mapOf(
@@ -61,7 +61,7 @@ class NotificationsTest : BehaviorSpec({
             "the notificaties endpoint is called with a 'create productaanvraag' payload with authentication header"
         ) {
             val response = itestHttpClient.performJSONPostRequest(
-                url = "${ZAC_API_URI}/notificaties",
+                url = "$ZAC_API_URI/notificaties",
                 headers = Headers.headersOf(
                     "Content-Type",
                     "application/json",
@@ -91,7 +91,7 @@ class NotificationsTest : BehaviorSpec({
 
                 // retrieve the newly created zaak and check the contents
                 itestHttpClient.performGetRequest(
-                    "${ZAC_API_URI}/zaken/zaak/id/$ZAAK_1_IDENTIFICATION"
+                    "$ZAC_API_URI/zaken/zaak/id/$ZAAK_1_IDENTIFICATION"
                 ).use { getZaakResponse ->
                     val responseBody = getZaakResponse.body!!.string()
                     logger.info { "Response: $responseBody" }
@@ -106,7 +106,7 @@ class NotificationsTest : BehaviorSpec({
                     zaak.getBoolean("isProcesGestuurd") shouldBe false
                     zaak.getJSONObject("communicatiekanaal")
                         .getString("naam") shouldBe "E-formulier"
-                    zaak1UUID = UUID.fromString(zaak.getString("uuid"))
+                    zaak1UUID = zaak.getString("uuid").let(UUID::fromString)
                 }
             }
         }

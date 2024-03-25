@@ -97,7 +97,7 @@ import net.atos.client.zgw.ztc.model.generated.ResultaatType;
 import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.client.zgw.ztc.model.generated.StatusType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
-import net.atos.client.zgw.ztc.util.ZaakTypeUtil;
+import net.atos.client.zgw.ztc.util.ZaakTypeUtilKt;
 import net.atos.zac.aanvraag.InboxProductaanvraagService;
 import net.atos.zac.aanvraag.ProductaanvraagService;
 import net.atos.zac.aanvraag.model.generated.ProductaanvraagDimpact;
@@ -563,7 +563,7 @@ public class ZakenRESTService {
                 .filter(zaaktype -> loggedInUserInstance.get()
                         .isGeautoriseerdZaaktype(zaaktype.getOmschrijving()))
                 .filter(zaaktype -> !zaaktype.getConcept())
-                .filter(ZaakTypeUtil::isNuGeldig)
+                .filter(ZaakTypeUtilKt::isNuGeldig)
                 .filter(zaaktype -> healthCheckService.controleerZaaktype(zaaktype.getUrl())
                         .isValide())
                 .map(zaaktypeConverter::convert)
@@ -638,42 +638,52 @@ public class ZakenRESTService {
     @PUT
     @Path("lijst/verdelen")
     public void verdelenVanuitLijst(final RESTZakenVerdeelGegevens verdeelGegevens) {
-        assertPolicy(policyService.readWerklijstRechten()
-                .zakenTaken() && policyService.readWerklijstRechten()
-                        .zakenTakenVerdelen());
-        final Group group = !StringUtils.isEmpty(
-                verdeelGegevens.groepId) ? identityService.readGroup(
-                        verdeelGegevens.groepId) : null;
+        assertPolicy(
+                policyService.readWerklijstRechten().zakenTaken() &&
+                     policyService.readWerklijstRechten().zakenTakenVerdelen()
+        );
+        final Group group = !StringUtils.isEmpty(verdeelGegevens.groepId) ?
+                identityService.readGroup(verdeelGegevens.groepId) : null;
         final User user = !StringUtils.isEmpty(verdeelGegevens.behandelaarGebruikersnaam) ?
                 identityService.readUser(verdeelGegevens.behandelaarGebruikersnaam) : null;
         verdeelGegevens.uuids.forEach(uuid -> {
             final Zaak zaak = zrcClientService.readZaak(uuid);
             if (group != null) {
-                zrcClientService.updateRol(zaak, bepaalRolGroep(group, zaak),
-                        verdeelGegevens.reden);
+                zrcClientService.updateRol(
+                        zaak,
+                        bepaalRolGroep(group, zaak),
+                        verdeelGegevens.reden
+                );
             }
             if (user != null) {
-                zrcClientService.updateRol(zaak, bepaalRolMedewerker(user, zaak),
-                        verdeelGegevens.reden);
+                zrcClientService.updateRol(
+                        zaak,
+                        bepaalRolMedewerker(user, zaak),
+                        verdeelGegevens.reden
+                );
             }
         });
         indexeerService.indexeerDirect(
                 verdeelGegevens.uuids.stream().map(UUID::toString).collect(Collectors.toList()),
-                ZoekObjectType.ZAAK);
+                ZoekObjectType.ZAAK
+        );
     }
 
     @PUT
     @Path("lijst/vrijgeven")
     public void vrijgevenVanuitLijst(final RESTZakenVerdeelGegevens verdeelGegevens) {
-        assertPolicy(policyService.readWerklijstRechten()
-                .zakenTaken() && policyService.readWerklijstRechten()
-                        .zakenTakenVerdelen());
+        assertPolicy(
+                policyService.readWerklijstRechten().zakenTaken() &&
+                     policyService.readWerklijstRechten().zakenTakenVerdelen()
+        );
         verdeelGegevens.uuids.forEach(uuid -> {
             final Zaak zaak = zrcClientService.readZaak(uuid);
             zrcClientService.deleteRol(zaak, BetrokkeneType.MEDEWERKER, verdeelGegevens.reden);
         });
-        indexeerService.indexeerDirect(verdeelGegevens.uuids.stream().map(UUID::toString).toList(),
-                ZoekObjectType.ZAAK);
+        indexeerService.indexeerDirect(
+                verdeelGegevens.uuids.stream().map(UUID::toString).toList(),
+                ZoekObjectType.ZAAK
+        );
     }
 
     @PATCH

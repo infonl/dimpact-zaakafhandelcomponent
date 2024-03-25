@@ -25,7 +25,7 @@ export class MailtemplateBeheerService {
 
   readMailtemplate(id: string): Observable<Mailtemplate> {
     return this.http
-      .get<Mailtemplate[]>(`${this.basepath}/${id}`)
+      .get<Mailtemplate>(`${this.basepath}/${id}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

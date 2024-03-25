@@ -39,7 +39,7 @@ export class ReferentieTabelService {
 
   readReferentieTabel(id: string): Observable<ReferentieTabel> {
     return this.http
-      .get<ReferentieTabel[]>(`${this.basepath}/${id}`)
+      .get<ReferentieTabel>(`${this.basepath}/${id}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

@@ -5,5 +5,5 @@
 
 export class User {
   id: string;
-  naam: string;
+  naam?: string;
 }

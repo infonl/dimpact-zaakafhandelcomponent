@@ -235,4 +235,13 @@ class ZacClient {
                 "}"
         )
     }
+
+    fun retrieveZaak(zaakUUID: UUID): Response {
+        logger.info {
+            "Retrieving zaak with UUID: $zaakUUID"
+        }
+        return itestHttpClient.performGetRequest(
+            url = "${ZAC_API_URI}/zaken/zaak/$zaakUUID"
+        )
+    }
 }
