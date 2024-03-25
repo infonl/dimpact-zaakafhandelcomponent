@@ -92,22 +92,25 @@ public class RESTBAGConverter {
     }
 
     public static RESTGeometry convertVlak(final Surface surface) {
-        final RESTGeometry geometry = new RESTGeometry();
-        geometry.type = surface.getType().value();
-        geometry.polygon = surface.getCoordinates()
-                .stream()
-                .map(coords -> coords.stream()
-                        .map(punt -> new RESTCoordinates(punt.get(0).doubleValue(), punt.get(1).doubleValue()))
-                        .toList())
-                .toList();
-        return geometry;
+        return new RESTGeometry(
+                surface.getType().value(),
+                null,
+                surface.getCoordinates()
+                        .stream()
+                        .map(coords -> coords.stream()
+                                .map(punt -> new RESTCoordinates(punt.getFirst().doubleValue(), punt.get(1).doubleValue()))
+                                .toList())
+                        .toList(),
+                null
+        );
     }
 
     public static RESTGeometry convertPunt(PointGeoJSON punt) {
-        final RESTGeometry geometry = new RESTGeometry();
-        geometry.type = punt.getType().value();
-        geometry.point = new RESTCoordinates(punt.getCoordinates().get(0).doubleValue(), punt.getCoordinates().get(1).doubleValue());
-        return geometry;
+        return new RESTGeometry(
+                punt.getType().value(),
+                new RESTCoordinates(punt.getCoordinates().get(0).doubleValue(), punt.getCoordinates().get(1).doubleValue()),
+                null,
+                null);
     }
 
     public static RESTGeometry convertPuntOrVlak(PuntOfVlak puntOfVlak) {
