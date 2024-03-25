@@ -215,9 +215,9 @@ class RESTZaakConverter {
         zaak.startdatum = restZaak.startdatum
         zaak.einddatumGepland = restZaak.einddatumGepland
         zaak.uiterlijkeEinddatumAfdoening = restZaak.uiterlijkeEinddatumAfdoening
-        zaak.vertrouwelijkheidaanduiding = InformatieobjectenUtil.convertToVertrouwelijkheidaanduidingEnum(
-            restZaak.vertrouwelijkheidaanduiding
-        )
+        zaak.vertrouwelijkheidaanduiding = restZaak.vertrouwelijkheidaanduiding?.let {
+            InformatieobjectenUtil.convertToVertrouwelijkheidaanduidingEnum(it)
+        }
         restZaak.communicatiekanaal?.let { restCommunicatiekanaal ->
             vrlClientService.findCommunicatiekanaal(restCommunicatiekanaal.uuid)
                 .map { it.url }
