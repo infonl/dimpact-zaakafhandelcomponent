@@ -18,7 +18,7 @@ class AppContainerTest : BehaviorSpec({
         When("the health endpoint is called") {
             then("the response should be ok and the status should be UP") {
                 itestHttpClient.performGetRequest(
-                    url = "${ZAC_MANAGEMENT_URI}/health"
+                    url = "$ZAC_MANAGEMENT_URI/health"
                 ).use { response ->
                     response.isSuccessful shouldBe true
                     with(response.body!!.string()) {
@@ -32,7 +32,7 @@ class AppContainerTest : BehaviorSpec({
         When("the metrics endpoint is called") {
             then("the response should be ok and the the uptime var should be present") {
                 itestHttpClient.performGetRequest(
-                    url = "${ZAC_MANAGEMENT_URI}/metrics"
+                    url = "$ZAC_MANAGEMENT_URI/metrics"
                 ).use { response ->
                     response.isSuccessful shouldBe true
                     with(response.body!!.string()) {
