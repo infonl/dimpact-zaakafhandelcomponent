@@ -38,6 +38,7 @@ class TaakVariabelenServiceTest : BehaviorSpec() {
 
             When("reading the zaak UUID") {
                 val uuid = service.readZaakUUID(taskInfo)
+                
                 Then("it returns the right information") {
                     uuid shouldBeEqual expectedUUID
                 }
@@ -52,9 +53,12 @@ class TaakVariabelenServiceTest : BehaviorSpec() {
             every { taskInfo.caseVariables } returns mapOf(ZaakVariabelenService.VAR_ZAAK_UUID to expectedUUID)
 
             When("reading the zaak UUID") {
-                val uuid = service.readZaakUUID(taskInfo)
-                Then("it returns the right information") {
-                    uuid shouldBeEqual UUID.fromString(expectedUUID)
+                val exception = shouldThrow<IllegalArgumentException> {
+                    service.readZaakUUID(taskInfo)
+                }
+
+                Then("it throws an exception") {
+                    exception.message should startWith("Invalid Zaak UUID")
                 }
             }
         }
@@ -70,10 +74,64 @@ class TaakVariabelenServiceTest : BehaviorSpec() {
                 val exception = shouldThrow<IllegalArgumentException> {
                     service.readZaakUUID(taskInfo)
                 }
+
                 Then("it throws an exception") {
-                    exception.message should startWith("Invalid UUID")
+                    exception.message should startWith("Invalid Zaak UUID")
                 }
             }
         }
+
+        Given("Task with correct zaak type UUID object") {
+            val service = TaakVariabelenService()
+            val expectedUUID = UUID.fromString("e58ed763-928c-4155-bee9-fdbaaadc15f3")
+
+            every { taskInfo.scopeType } returns ScopeTypes.CMMN
+            every { taskInfo.caseVariables } returns mapOf(ZaakVariabelenService.VAR_ZAAKTYPE_UUUID to expectedUUID)
+
+            When("reading the zaak type UUID") {
+                val uuid = service.readZaaktypeUUID(taskInfo)
+
+                Then("it returns the right information") {
+                    uuid shouldBeEqual expectedUUID
+                }
+            }
+        }
+
+        Given("Task with zaak type UUID as string") {
+            val service = TaakVariabelenService()
+            val expectedUUID = "e58ed763-928c-4155-bee9-fdbaaadc15f3"
+
+            every { taskInfo.scopeType } returns ScopeTypes.CMMN
+            every { taskInfo.caseVariables } returns mapOf(ZaakVariabelenService.VAR_ZAAKTYPE_UUUID to expectedUUID)
+
+            When("reading the zaak type UUID") {
+                val exception = shouldThrow<IllegalArgumentException> {
+                    service.readZaaktypeUUID(taskInfo)
+                }
+
+                Then("it throws an exception") {
+                    exception.message should startWith("Invalid Zaak Type UUID")
+                }
+            }
+        }
+
+        Given("Task with zaak type UUID as unknown object") {
+            val service = TaakVariabelenService()
+            val expectedUUID = File("e58ed763-928c-4155-bee9-fdbaaadc15f3")
+
+            every { taskInfo.scopeType } returns ScopeTypes.CMMN
+            every { taskInfo.caseVariables } returns mapOf(ZaakVariabelenService.VAR_ZAAKTYPE_UUUID to expectedUUID)
+
+            When("reading the zaak type UUID") {
+                val exception = shouldThrow<IllegalArgumentException> {
+                    service.readZaaktypeUUID(taskInfo)
+                }
+
+                Then("it throws an exception") {
+                    exception.message should startWith("Invalid Zaak Type UUID")
+                }
+            }
+        }
+
     }
 }

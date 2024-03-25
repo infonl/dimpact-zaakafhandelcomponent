@@ -136,10 +136,9 @@ public class TaakVariabelenService {
         Object obj = readVariable(taskInfo, VAR_ZAAK_UUID);
         return switch (obj) {
             case UUID uuid -> uuid;
-            case String uuidString -> UUID.fromString(uuidString);
             case Object o -> {
-                LOG.warning("Invalid UUID: " + o);
-                throw new IllegalArgumentException("Invalid UUID: " + o);
+                LOG.warning("Invalid Zaak UUID: " + o);
+                throw new IllegalArgumentException("Invalid Zaak UUID: " + o);
             }
         };
     }
@@ -149,7 +148,14 @@ public class TaakVariabelenService {
     }
 
     public UUID readZaaktypeUUID(final TaskInfo taskInfo) {
-        return (UUID) readVariable(taskInfo, VAR_ZAAKTYPE_UUUID);
+        Object obj = readVariable(taskInfo, VAR_ZAAKTYPE_UUUID);
+        return switch (obj) {
+            case UUID uuid -> uuid;
+            case Object o -> {
+                LOG.warning("Invalid Zaak Type UUID: " + o);
+                throw new IllegalArgumentException("Invalid Zaak Type UUID: " + o);
+            }
+        };
     }
 
     public String readZaaktypeOmschrijving(final TaskInfo taskInfo) {
