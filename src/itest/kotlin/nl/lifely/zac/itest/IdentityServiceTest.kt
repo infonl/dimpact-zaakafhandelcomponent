@@ -10,7 +10,6 @@ import io.kotest.assertions.json.shouldEqualSpecifiedJsonIgnoringOrder
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
-import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
@@ -25,6 +24,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_2_NAME
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 
 class IdentityServiceTest : BehaviorSpec() {
     private val itestHttpClient = ItestHttpClient()
@@ -35,7 +35,7 @@ class IdentityServiceTest : BehaviorSpec() {
         ) {
             When("the 'list groups' endpoint is called") {
                 val response = itestHttpClient.performGetRequest(
-                    url = "${ItestConfiguration.ZAC_API_URI}/identity/groups"
+                    url = "$ZAC_API_URI/identity/groups"
                 )
                 Then(
                     "'test group a' and 'test group functional beheerders' are returned"
@@ -65,7 +65,7 @@ class IdentityServiceTest : BehaviorSpec() {
         ) {
             When("the 'list users' endpoint is called") {
                 val response = itestHttpClient.performGetRequest(
-                    url = "${ItestConfiguration.ZAC_API_URI}/identity/users"
+                    url = "$ZAC_API_URI/identity/users"
                 )
                 Then(
                     "'test user 1' and 'test user 2' are returned"
@@ -99,7 +99,7 @@ class IdentityServiceTest : BehaviorSpec() {
         ) {
             When("the 'list users in group' endpoint is called for 'test group a'") {
                 val response = itestHttpClient.performGetRequest(
-                    url = "${ItestConfiguration.ZAC_API_URI}/identity/groups/$TEST_GROUP_A_ID/users"
+                    url = "$ZAC_API_URI/identity/groups/$TEST_GROUP_A_ID/users"
                 )
                 Then(
                     "'testuser 1' and 'testuser 2' are returned"
@@ -124,7 +124,7 @@ class IdentityServiceTest : BehaviorSpec() {
             "Keycloak contains groups and users as group members"
         ) {
             val response = itestHttpClient.performGetRequest(
-                url = "${ItestConfiguration.ZAC_API_URI}/identity/groups/*/users"
+                url = "$ZAC_API_URI/identity/groups/*/users"
             )
             When(
                 "the 'list users in group' endpoint is called with an illegal LDAP filter character using group name '*'"
@@ -144,7 +144,7 @@ class IdentityServiceTest : BehaviorSpec() {
         ) {
             When("the 'get logged in user' endpoint is called") {
                 val response = itestHttpClient.performGetRequest(
-                    url = "${ItestConfiguration.ZAC_API_URI}/identity/loggedInUser"
+                    url = "$ZAC_API_URI/identity/loggedInUser"
                 )
                 Then(
                     "both groups are returned"

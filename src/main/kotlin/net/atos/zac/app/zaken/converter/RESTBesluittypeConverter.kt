@@ -15,12 +15,15 @@ class RESTBesluittypeConverter {
     @Inject
     private lateinit var ztcClientService: ZTCClientService
 
-    fun convertToRESTBesluittype(besluittypeURI: URI) =
-        convertToRESTBesluittype(ztcClientService.readBesluittype(besluittypeURI))
+    fun convertToRESTBesluittype(besluittypeURI: URI): RESTBesluittype {
+        return convertToRESTBesluittype(ztcClientService.readBesluittype(besluittypeURI))
+    }
 
-    fun convertToRESTBesluittypes(besluittypes: List<BesluitType>) = besluittypes.stream()
-        .map { this.convertToRESTBesluittype(it) }
-        .toList()
+    fun convertToRESTBesluittypes(besluittypes: List<BesluitType>): List<RESTBesluittype> {
+        return besluittypes.stream()
+            .map { besluittype -> this.convertToRESTBesluittype(besluittype) }
+            .toList()
+    }
 
     private fun convertToRESTBesluittype(besluittype: BesluitType) = RESTBesluittype(
         id = UriUtil.uuidFromURI(besluittype.url),

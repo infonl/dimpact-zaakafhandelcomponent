@@ -17,12 +17,12 @@ import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.PlanItemsRESTServiceTest.Companion.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
 import nl.lifely.zac.itest.PlanItemsRESTServiceTest.Companion.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.lifely.zac.itest.client.ItestHttpClient
-import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_CREATED
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_IDENTIFICATION
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -42,7 +42,7 @@ class TakenRESTServiceTest : BehaviorSpec() {
 
             When("the get tasks for a zaak endpoint is called") {
                 val response = itestHttpClient.performGetRequest(
-                    "${ItestConfiguration.ZAC_API_URI}/taken/zaak/$zaak1UUID"
+                    "$ZAC_API_URI/taken/zaak/$zaak1UUID"
                 )
                 Then(
                     """the list of taken for this zaak is returned and contains the task 
@@ -84,7 +84,7 @@ class TakenRESTServiceTest : BehaviorSpec() {
                 taskObject.put("toelichting", "update")
 
                 val response = itestHttpClient.performPutRequest(
-                    url = "${ItestConfiguration.ZAC_API_URI}/taken/taakdata",
+                    url = "$ZAC_API_URI/taken/taakdata",
                     requestBodyAsString = taskArray.toString()
                 )
 

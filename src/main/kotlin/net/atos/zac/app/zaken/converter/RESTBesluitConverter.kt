@@ -58,22 +58,23 @@ class RESTBesluitConverter {
     )
 
     fun convertToRESTBesluit(besluiten: List<Besluit>) = besluiten.stream()
-        .map { convertToRESTBesluit(it) }
+        .map { besluit -> convertToRESTBesluit(besluit) }
         .toList()
 
-    fun convertToBesluit(zaak: Zaak, besluitToevoegenGegevens: RESTBesluitVastleggenGegevens) =
-        Besluit().apply {
-            this.zaak = zaak.url
-            this.besluittype = ztcClientService.readBesluittype(besluitToevoegenGegevens.besluittypeUuid!!).url
-            this.datum = LocalDate.now()
-            this.ingangsdatum = besluitToevoegenGegevens.ingangsdatum
-            this.vervaldatum = besluitToevoegenGegevens.vervaldatum
-            besluitToevoegenGegevens.vervaldatum?.let {
-                this.vervalreden = VervalredenEnum.TIJDELIJK
-            }
-            this.verantwoordelijkeOrganisatie = ConfiguratieService.VERANTWOORDELIJKE_ORGANISATIE
-            this.toelichting = besluitToevoegenGegevens.toelichting
+    fun convertToBesluit(zaak: Zaak, besluitToevoegenGegevens: RESTBesluitVastleggenGegevens): Besluit {
+        val besluit = Besluit()
+        besluit.zaak = zaak.url
+        besluit.besluittype = ztcClientService.readBesluittype(besluitToevoegenGegevens.besluittypeUuid!!).url
+        besluit.datum = LocalDate.now()
+        besluit.ingangsdatum = besluitToevoegenGegevens.ingangsdatum
+        besluit.vervaldatum = besluitToevoegenGegevens.vervaldatum
+        if (besluitToevoegenGegevens.vervaldatum != null) {
+            besluit.vervalreden = VervalredenEnum.TIJDELIJK
         }
+        besluit.verantwoordelijkeOrganisatie = ConfiguratieService.VERANTWOORDELIJKE_ORGANISATIE
+        besluit.toelichting = besluitToevoegenGegevens.toelichting
+        return besluit
+    }
 
     fun convertToBesluit(besluit: Besluit, besluitWijzigenGegevens: RESTBesluitWijzigenGegevens): Besluit {
         besluit.toelichting = besluitWijzigenGegevens.toelichting

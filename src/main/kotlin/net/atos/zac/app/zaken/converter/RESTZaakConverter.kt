@@ -6,6 +6,7 @@ package net.atos.zac.app.zaken.converter
 
 import jakarta.inject.Inject
 import net.atos.client.vrl.VRLClientService
+import net.atos.client.vrl.model.generated.CommunicatieKanaal
 import net.atos.client.zgw.brc.BRCClientService
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.util.InformatieobjectenUtil
@@ -147,10 +148,12 @@ class RESTZaakConverter {
             duurVerlenging = if (zaak.isVerlengd) PeriodUtil.format(zaak.verlenging.duur) else null,
             redenVerlenging = if (zaak.isVerlengd) zaak.verlenging.reden else null,
             gerelateerdeZaken = convertGerelateerdeZaken(zaak),
-            zaakgeometrie = zaak.zaakgeometrie?.let { restGeometryConverter.convert(it) },
-            kenmerken = zaak.kenmerken?.stream()?.map {
-                RESTZaakKenmerk(it.kenmerk, it.bron)
-            }?.collect(Collectors.toList()),
+            zaakgeometrie = zaak.zaakgeometrie?.let { restGeometryConverter.convert(zaak.zaakgeometrie) },
+            kenmerken = zaak.kenmerken?.let {
+                zaak.kenmerken.stream()
+                    .map { zaakKenmerk -> RESTZaakKenmerk(zaakKenmerk.kenmerk, zaakKenmerk.bron) }
+                    .collect(Collectors.toList())
+            },
             communicatiekanaal = communicatiekanaal,
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.toString(),
             groep = groep,
@@ -198,14 +201,14 @@ class RESTZaakConverter {
         zaak.registratiedatum = LocalDate.now()
         restZaak.communicatiekanaal?.let { restCommunicatiekanaal ->
             vrlClientService.findCommunicatiekanaal(restCommunicatiekanaal.uuid)
-                .map { it.url }
+                .map { obj: CommunicatieKanaal -> obj.url }
                 .ifPresent { communicatiekanaal -> zaak.communicatiekanaal = communicatiekanaal }
         }
         zaak.vertrouwelijkheidaanduiding = InformatieobjectenUtil.convertToVertrouwelijkheidaanduidingEnum(
             restZaak.vertrouwelijkheidaanduiding
         )
-        zaak.zaakgeometrie = restZaak.zaakgeometrie?.let {
-            restGeometryConverter.convert(it)
+        zaak.zaakgeometrie = restZaak.zaakgeometrie?.let { restGeometry ->
+            restGeometryConverter.convert(restGeometry)
         }
         return zaak
     }
