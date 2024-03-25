@@ -31,7 +31,7 @@ export class FormulierDefinitieService {
 
   read(id: number | string): Observable<FormulierDefinitie> {
     return this.http
-      .get<FormulierDefinitie[]>(`${this.basepath}/${id}`)
+      .get<FormulierDefinitie>(`${this.basepath}/${id}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -39,7 +39,7 @@ export class FormulierDefinitieService {
 
   run(systeemnaam: string): Observable<FormulierDefinitie> {
     return this.http
-      .get<FormulierDefinitie[]>(`${this.basepath}/runtime/${systeemnaam}`)
+      .get<FormulierDefinitie>(`${this.basepath}/runtime/${systeemnaam}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

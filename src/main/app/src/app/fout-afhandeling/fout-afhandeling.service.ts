@@ -49,7 +49,7 @@ export class FoutAfhandelingService {
 
   public foutAfhandelen(
     err: HttpErrorResponse | JakartaBeanValidationError,
-  ): Observable<any> {
+  ): Observable<never> {
     return match(err)
       .with(ValidationErrorPattern, (e: JakartaBeanValidationError) =>
         this.validatieErrorAfhandelen(e),
@@ -81,7 +81,7 @@ export class FoutAfhandelingService {
     }
   }
 
-  public openFoutDialog(error: string): Observable<any> {
+  public openFoutDialog(error: string): Observable<never> {
     this.dialog.open(FoutDialogComponent, {
       data: error,
     });
@@ -92,7 +92,7 @@ export class FoutAfhandelingService {
   public openFoutDetailedDialog(
     error: string,
     details: string,
-  ): Observable<any> {
+  ): Observable<never> {
     this.dialog.open(FoutDetailedDialogComponent, {
       data: {
         error,
