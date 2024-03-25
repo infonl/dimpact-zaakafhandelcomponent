@@ -4,6 +4,7 @@
  */
 package net.atos.zac.app.zaken.model
 
+import jakarta.validation.Valid
 import net.atos.zac.app.bag.model.RESTBAGObject
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import nl.lifely.zac.util.AllOpen
@@ -12,6 +13,7 @@ import nl.lifely.zac.util.NoArgConstructor
 @NoArgConstructor
 @AllOpen
 data class RESTZaakAanmaakGegevens(
+    @get:Valid
     var zaak: RESTZaak,
 
     var inboxProductaanvraag: RESTInboxProductaanvraag? = null,

@@ -322,7 +322,7 @@ class ZakenRESTService {
 
     @POST
     @Path("zaak")
-    fun createZaak(restZaakAanmaakGegevens: RESTZaakAanmaakGegevens): RESTZaak {
+    fun createZaak(restZaakAanmaakGegevens: @Valid RESTZaakAanmaakGegevens): RESTZaak {
         val restZaak = restZaakAanmaakGegevens.zaak
         val zaaktype = ztcClientService.readZaaktype(restZaak.zaaktype.uuid)
 
@@ -638,7 +638,7 @@ class ZakenRESTService {
     @PUT
     @Path("lijst/toekennen/mij")
     fun toekennenAanIngelogdeMedewerkerVanuitLijst(
-        toekennenGegevens: RESTZaakToekennenGegevens
+        toekennenGegevens: @Valid RESTZaakToekennenGegevens
     ): RESTZaakOverzicht {
         assertPolicy(policyService.readWerklijstRechten().zakenTaken)
         val zaak = ingelogdeMedewerkerToekennenAanZaak(toekennenGegevens)
@@ -841,7 +841,7 @@ class ZakenRESTService {
     @PUT
     @Path("toekennen/mij")
     fun toekennenAanIngelogdeMedewerker(
-        toekennenGegevens: RESTZaakToekennenGegevens
+        toekennenGegevens: @Valid RESTZaakToekennenGegevens
     ): RESTZaak {
         val zaak = ingelogdeMedewerkerToekennenAanZaak(toekennenGegevens)
         return zaakConverter.convert(zaak)
@@ -1275,7 +1275,7 @@ class ZakenRESTService {
     }
 
     private fun ingelogdeMedewerkerToekennenAanZaak(
-        toekennenGegevens: RESTZaakToekennenGegevens
+        toekennenGegevens: @Valid RESTZaakToekennenGegevens
     ): Zaak {
         val zaak = zrcClientService.readZaak(toekennenGegevens.zaakUUID)
         assertPolicy(zaak.isOpen && policyService.readZaakRechten(zaak).toekennen)

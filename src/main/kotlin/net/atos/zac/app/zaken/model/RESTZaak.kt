@@ -5,6 +5,7 @@
 package net.atos.zac.app.zaken.model
 
 import jakarta.json.bind.annotation.JsonbProperty
+import jakarta.validation.Valid
 import net.atos.zac.app.identity.model.RESTGroup
 import net.atos.zac.app.identity.model.RESTUser
 import net.atos.zac.app.klanten.model.klant.IdentificatieType
@@ -28,6 +29,7 @@ data class RESTZaak(
     var einddatumGepland: LocalDate?,
     var einddatum: LocalDate?,
     var gerelateerdeZaken: List<RESTGerelateerdeZaak>?,
+    @get:Valid
     var groep: RESTGroup?,
     var identificatie: String,
     var indicaties: EnumSet<ZaakIndicatie>,
