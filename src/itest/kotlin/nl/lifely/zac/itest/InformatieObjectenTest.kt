@@ -12,12 +12,12 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
-import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
 import nl.lifely.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.SMARTDOCUMENTS_MOCK_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
@@ -60,7 +60,7 @@ class InformatieObjectenTest : BehaviorSpec() {
             "ZAC and all related Docker containers are running and zaak exists"
         ) {
             When("the create document informatie objecten endpoint is called") {
-                val endpointUrl = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/documentcreatie"
+                val endpointUrl = "$ZAC_API_URI/informatieobjecten/documentcreatie"
                 logger.info { "Calling $endpointUrl endpoint" }
 
                 val response = itestHttpClient.performJSONPostRequest(
@@ -92,7 +92,7 @@ class InformatieObjectenTest : BehaviorSpec() {
         ) {
             When("the create enkelvoudig informatie object with file upload endpoint is called for the zaak") {
                 val endpointUrl =
-                    "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/$zaak1UUID/$zaak1UUID"
+                    "$ZAC_API_URI/informatieobjecten/informatieobject/$zaak1UUID/$zaak1UUID"
                 logger.info { "Calling $endpointUrl endpoint" }
                 val file = Thread.currentThread().contextClassLoader.getResource(PDF_FILE_NAME).let {
                     File(it!!.path)
@@ -166,7 +166,7 @@ class InformatieObjectenTest : BehaviorSpec() {
             }
             When("update of enkelvoudig informatie object with file upload endpoint is called") {
                 val endpointUrl =
-                    "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/update"
+                    "$ZAC_API_URI/informatieobjecten/informatieobject/update"
                 logger.info { "Calling $endpointUrl endpoint" }
                 val file = Thread.currentThread().contextClassLoader.getResource(TXT_FILE_NAME).let {
                     File(it!!.path)
@@ -226,7 +226,7 @@ class InformatieObjectenTest : BehaviorSpec() {
             }
             When("ondertekenInformatieObject endpoint is called") {
                 val endpointUrl =
-                    "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject" +
+                    "$ZAC_API_URI/informatieobjecten/informatieobject" +
                         "/$enkelvoudigInformatieObjectUUID/onderteken?zaak=$zaak1UUID"
                 logger.info { "Calling $endpointUrl endpoint" }
 
@@ -247,7 +247,7 @@ class InformatieObjectenTest : BehaviorSpec() {
             "ZAC and all related Docker containers are running and a task exists"
         ) {
             When("the create enkelvoudig informatie object with file upload endpoint is called for the task") {
-                val endpointUrl = "${ItestConfiguration.ZAC_API_URI}/informatieobjecten/informatieobject/" +
+                val endpointUrl = "$ZAC_API_URI/informatieobjecten/informatieobject/" +
                     "$zaak1UUID/$task1ID?taakObject=true"
                 logger.info { "Calling $endpointUrl endpoint" }
                 val file = Thread.currentThread().contextClassLoader.getResource(PDF_FILE_NAME).let {

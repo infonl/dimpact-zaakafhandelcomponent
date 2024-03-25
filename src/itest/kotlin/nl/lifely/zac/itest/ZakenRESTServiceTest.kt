@@ -129,7 +129,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
     Given("A zaak has been created") {
         When("the assign to zaak endpoint is called with a group") {
             val response = itestHttpClient.performPatchRequest(
-                url = "${ZAC_API_URI}/zaken/toekennen",
+                url = "$ZAC_API_URI/zaken/toekennen",
                 requestBodyAsString = "{\n" +
                     "  \"zaakUUID\": \"$zaak1UUID\",\n" +
                     "  \"groepId\": \"$TEST_GROUP_A_ID\",\n" +
@@ -155,7 +155,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
     Given("Two zaken have been created") {
         When("the 'lijst verdelen' endpoint is called to assign the two zaken to a group and a user") {
             val response = itestHttpClient.performPutRequest(
-                url = "${ZAC_API_URI}/zaken/lijst/verdelen",
+                url = "$ZAC_API_URI/zaken/lijst/verdelen",
                 requestBodyAsString = "{\n" +
                     "\"uuids\":[\"$zaak1UUID\", \"$zaak2UUID\"],\n" +
                     "\"groepId\":\"$TEST_GROUP_A_ID\",\n" +

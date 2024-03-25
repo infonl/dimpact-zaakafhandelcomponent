@@ -12,8 +12,8 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
-import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONArray
 
 /**
@@ -30,7 +30,7 @@ class TakenRESTServiceCompleteTest : BehaviorSpec() {
 
             When("the get tasks for a zaak endpoint is called") {
                 val response = itestHttpClient.performGetRequest(
-                    "${ItestConfiguration.ZAC_API_URI}/taken/zaak/$zaak1UUID"
+                    "$ZAC_API_URI/taken/zaak/$zaak1UUID"
                 )
                 Then(
                     """the list of taken for this zaak is returned and contains the task 
@@ -48,7 +48,7 @@ class TakenRESTServiceCompleteTest : BehaviorSpec() {
                 taskObject.put("status", "AFGEROND")
 
                 val response = itestHttpClient.performPatchRequest(
-                    url = "${ItestConfiguration.ZAC_API_URI}/taken/complete",
+                    url = "$ZAC_API_URI/taken/complete",
                     requestBodyAsString = taskObject.toString()
                 )
 

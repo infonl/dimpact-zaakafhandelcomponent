@@ -13,10 +13,10 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
-import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONArray
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -40,7 +40,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec() {
         Given("A zaak has been created") {
             When("the list human task plan items endpoint is called") {
                 val response = itestHttpClient.performGetRequest(
-                    "${ItestConfiguration.ZAC_API_URI}/planitems/zaak/$zaak1UUID/humanTaskPlanItems"
+                    "$ZAC_API_URI/planitems/zaak/$zaak1UUID/humanTaskPlanItems"
                 )
                 Then(
                     "the list of human task plan items for this zaak is returned and contains " +
@@ -68,8 +68,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec() {
         Given("A zaak has been created") {
             When("the get human task plan item endpoint is called for the task 'aanvullende informatie'") {
                 val response = itestHttpClient.performGetRequest(
-                    ItestConfiguration.ZAC_API_URI +
-                        "/planitems/humanTaskPlanItem/$humanTaskItemAanvullendeInformatieId"
+                    "$ZAC_API_URI/planitems/humanTaskPlanItem/$humanTaskItemAanvullendeInformatieId"
                 )
                 Then("the human task plan item data for this task is returned") {
                     val responseBody = response.body!!.string()
@@ -90,7 +89,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec() {
             When("the start human task plan items endpoint is called") {
                 val fataleDatum = LocalDate.now().plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                 val response = itestHttpClient.performJSONPostRequest(
-                    url = "${ItestConfiguration.ZAC_API_URI}/planitems/doHumanTaskPlanItem",
+                    url = "$ZAC_API_URI/planitems/doHumanTaskPlanItem",
                     requestBodyAsString = """{
                         "planItemInstanceId":"$humanTaskItemAanvullendeInformatieId",
                         "fataledatum":"$fataleDatum",
