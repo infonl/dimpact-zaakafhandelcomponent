@@ -46,7 +46,7 @@ INSERT INTO catalogi_zaaktype
 )
 VALUES
 (
-    1,
+  (SELECT COALESCE(MAX(id),0) FROM catalogi_zaaktype) + 1,
   '2023-09-21', -- datum_begin_geldigheid
   NULL,         -- datum_einde_geldigheid
   false,         -- concept
@@ -119,7 +119,7 @@ INSERT INTO catalogi_resultaattype
 )
 VALUES
 (
-  4,
+  (SELECT COALESCE(MAX(id),0) FROM catalogi_resultaattype) + 1,
   '2b774ae4-68b0-462c-b6a0-e48b861ee148',
   'Verleend',
   'https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/f7d2dc14-1b71-4179-aed3-4e7abcfbeb0d',
@@ -134,7 +134,7 @@ VALUES
   '',
   NULL,
   'Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen',
-  1,
+  (SELECT id FROM catalogi_zaaktype WHERE uuid = '448356ff-dcfb-4504-9501-7fe929077c4f'), -- Zaaktype ID
   '_etag',
   NULL,
   '',
@@ -171,7 +171,7 @@ INSERT INTO catalogi_resultaattype
 )
 VALUES
 (
-  5,
+  (SELECT COALESCE(MAX(id),0) FROM catalogi_resultaattype) + 1,
   'dd2bcd87-ed7e-4b23-a8e3-ea7fe7ef00c6',
   'Geweigerd',
   'https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/1f750958-431c-4916-bc01-af5d3a753b41',
@@ -186,7 +186,7 @@ VALUES
   '',
   NULL,
   'Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen',
-  1,
+  (SELECT id FROM catalogi_zaaktype WHERE uuid = '448356ff-dcfb-4504-9501-7fe929077c4f'), -- Zaaktype ID
   '_etag',
   NULL,
   '',
@@ -223,7 +223,7 @@ INSERT INTO catalogi_resultaattype
 )
 VALUES
 (
-  6,
+  (SELECT COALESCE(MAX(id),0) FROM catalogi_resultaattype) + 1,
   '060b1651-4795-4982-bf66-584391bf0421',
   'Afgebroken',
   'https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/ce8cf476-0b59-496f-8eee-957a7c6e2506',
@@ -238,7 +238,7 @@ VALUES
   '',
   NULL,
   'Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen.',
-  1,
+  (SELECT id FROM catalogi_zaaktype WHERE uuid = '448356ff-dcfb-4504-9501-7fe929077c4f'), -- Zaaktype ID
   '_etag',
   NULL,
   '',
@@ -269,7 +269,7 @@ INSERT INTO catalogi_statustype
 )
 VALUES
 (
-  1, -- id (Placeholder; adjust as needed)
+  (SELECT COALESCE(MAX(id),0) FROM catalogi_statustype) + 1, -- Adjust ID as needed
   'c626ada3-52af-4be2-bd24-734a20fc4f9c', -- uuid
   'Afgerond', -- statustype_omschrijving
   '',         -- statustype_omschrijving_generiek
@@ -277,7 +277,7 @@ VALUES
   false,      -- informeren
   '',         -- statustekst
   '',         -- toelichting
-  1,          -- zaaktype_id (Placeholder; adjust as needed)
+  (SELECT id FROM catalogi_zaaktype WHERE uuid = '448356ff-dcfb-4504-9501-7fe929077c4f'), -- Zaaktype ID
   '_etag',    -- _etag (Placeholder)
   NULL,       -- doorlooptijd
   NULL,       -- datum_begin_geldigheid
@@ -304,7 +304,7 @@ INSERT INTO catalogi_statustype
 )
 VALUES
 (
-  2, -- id (Placeholder; adjust as needed)
+  (SELECT COALESCE(MAX(id),0) FROM catalogi_statustype) + 1, -- Adjust ID as needed
   '77174c85-0b40-436e-af3c-e596393962f4', -- uuid
   'Heropend',  -- statustype_omschrijving
   '',         -- statustype_omschrijving_generiek
@@ -312,7 +312,7 @@ VALUES
   false,      -- informeren
   '',         -- statustekst
   '',         -- toelichting
-  1,          -- zaaktype_id (Placeholder; adjust as needed)
+  (SELECT id FROM catalogi_zaaktype WHERE uuid = '448356ff-dcfb-4504-9501-7fe929077c4f'), -- Zaaktype ID
   '_etag',    -- _etag (Placeholder)
   NULL,       -- doorlooptijd
   NULL,       -- datum_begin_geldigheid
@@ -338,7 +338,7 @@ INSERT INTO catalogi_statustype
 )
 VALUES
 (
-  3, -- id (Placeholder; adjust as needed)
+  (SELECT COALESCE(MAX(id),0) FROM catalogi_statustype) + 1, -- Adjust ID as needed
   '8eb24967-910c-4bf8-9f30-c44653b0c30c', -- uuid
   'In behandeling', -- statustype_omschrijving
   '',              -- statustype_omschrijving_generiek
@@ -346,7 +346,7 @@ VALUES
   false,           -- informeren
   '',              -- statustekst
   '',              -- toelichting
-  1,               -- zaaktype_id (Placeholder; adjust as needed)
+  (SELECT id FROM catalogi_zaaktype WHERE uuid = '448356ff-dcfb-4504-9501-7fe929077c4f'), -- Zaaktype ID
   '_etag',         -- _etag (Placeholder)
   NULL,            -- doorlooptijd
   NULL,            -- datum_begin_geldigheid
@@ -372,7 +372,7 @@ INSERT INTO catalogi_statustype
 )
 VALUES
 (
-  4, -- id (Placeholder; adjust as needed)
+  (SELECT COALESCE(MAX(id),0) FROM catalogi_statustype) + 1, -- Adjust ID as needed
   '485677e6-c20c-4a85-af92-ded14bcac8dd', -- uuid
   'Intake',       -- statustype_omschrijving
   '',             -- statustype_omschrijving_generiek
@@ -380,7 +380,7 @@ VALUES
   false,          -- informeren
   '',             -- statustekst
   '',             -- toelichting
-  1,              -- zaaktype_id (Placeholder; adjust as needed)
+  (SELECT id FROM catalogi_zaaktype WHERE uuid = '448356ff-dcfb-4504-9501-7fe929077c4f'), -- Zaaktype ID
   '_etag',         -- _etag (Placeholder)
   NULL,            -- doorlooptijd
   NULL,            -- datum_begin_geldigheid
@@ -407,11 +407,11 @@ INSERT INTO catalogi_roltype
 )
 VALUES
 (
-  1,                                -- id (Placeholder; adjust as needed)
+  (SELECT COALESCE(MAX(id),0) FROM catalogi_roltype) + 1,                                -- id (Placeholder; adjust as needed)
   'd6a6a357-84fc-4cba-b08b-865004f261d6', -- uuid
-  'Initiator',                      -- omschrijving
+  'Melder',                      -- omschrijving
   'initiator',                      -- omschrijving_generiek
-  1,                                -- zaaktype_id (Placeholder; adjust as needed)
+  (SELECT id FROM catalogi_zaaktype WHERE uuid = '448356ff-dcfb-4504-9501-7fe929077c4f'), -- Zaaktype ID
   '_etag',                          -- _etag (Placeholder)
   NULL,                             -- datum_begin_geldigheid
   NULL                              -- datum_einde_geldigheid
@@ -431,11 +431,11 @@ INSERT INTO catalogi_roltype
 )
 VALUES
 (
-  2,                                -- id (Placeholder; adjust as needed)
+  (SELECT COALESCE(MAX(id),0) FROM catalogi_roltype) + 1,                                -- id (Placeholder; adjust as needed)
   'f8617909-c166-4f2c-86cc-c0fc44b46725', -- uuid
   'Behandelaar',                    -- omschrijving
   'behandelaar',                    -- omschrijving_generiek
-  1,                                -- zaaktype_id (Placeholder; adjust as needed)
+  (SELECT id FROM catalogi_zaaktype WHERE uuid = '448356ff-dcfb-4504-9501-7fe929077c4f'), -- Zaaktype ID
   '_etag',                          -- _etag (Placeholder)
   NULL,                             -- datum_begin_geldigheid
   NULL                              -- datum_einde_geldigheid
@@ -455,11 +455,131 @@ INSERT INTO catalogi_roltype
 )
 VALUES
 (
-  3,                                -- id (Placeholder; adjust as needed)
+  (SELECT COALESCE(MAX(id),0) FROM catalogi_roltype) + 1,                                -- id (Placeholder; adjust as needed)
   '4c4cd850-8332-4bb9-adc4-dd046f0614ad', -- uuid
-  'Betrokkene',                     -- omschrijving
+  'Belanghebbende',                     -- omschrijving
   'belanghebbende',                 -- omschrijving_generiek
-  1,                                -- zaaktype_id (Placeholder; adjust as needed)
+  (SELECT id FROM catalogi_zaaktype WHERE uuid = '448356ff-dcfb-4504-9501-7fe929077c4f'), -- Zaaktype ID
+  '_etag',                          -- _etag (Placeholder)
+  NULL,                             -- datum_begin_geldigheid
+  NULL                              -- datum_einde_geldigheid
+);
+
+-- For the 4th JSON object
+INSERT INTO catalogi_roltype
+(
+  id,
+  uuid,
+  omschrijving,
+  omschrijving_generiek,
+  zaaktype_id,
+  _etag,
+  datum_begin_geldigheid,
+  datum_einde_geldigheid
+)
+VALUES
+(
+  (SELECT COALESCE(MAX(id),0) FROM catalogi_roltype) + 1,                                -- id (Placeholder; adjust as needed)
+  'b14cf056-0480-4060-a376-1dd522a50431', -- uuid
+  'Medeaanvrager',                     -- omschrijving
+  'mede_initiator',                 -- omschrijving_generiek
+  (SELECT id FROM catalogi_zaaktype WHERE uuid = '448356ff-dcfb-4504-9501-7fe929077c4f'), -- Zaaktype ID
+  '_etag',                          -- _etag (Placeholder)
+  NULL,                             -- datum_begin_geldigheid
+  NULL                              -- datum_einde_geldigheid
+);
+
+-- For the 5th JSON object
+INSERT INTO catalogi_roltype
+(
+  id,
+  uuid,
+  omschrijving,
+  omschrijving_generiek,
+  zaaktype_id,
+  _etag,
+  datum_begin_geldigheid,
+  datum_einde_geldigheid
+)
+VALUES
+(
+  (SELECT COALESCE(MAX(id),0) FROM catalogi_roltype) + 1,                                -- id (Placeholder; adjust as needed)
+  '35b9428f-80c3-41cd-98f5-a27b706bcf18', -- uuid
+  'Contactpersoon',                     -- omschrijving
+  'belanghebbende',                 -- omschrijving_generiek
+  (SELECT id FROM catalogi_zaaktype WHERE uuid = '448356ff-dcfb-4504-9501-7fe929077c4f'), -- Zaaktype ID
+  '_etag',                          -- _etag (Placeholder)
+  NULL,                             -- datum_begin_geldigheid
+  NULL                              -- datum_einde_geldigheid
+);
+
+-- For the 6th JSON object
+INSERT INTO catalogi_roltype
+(
+  id,
+  uuid,
+  omschrijving,
+  omschrijving_generiek,
+  zaaktype_id,
+  _etag,
+  datum_begin_geldigheid,
+  datum_einde_geldigheid
+)
+VALUES
+(
+  (SELECT COALESCE(MAX(id),0) FROM catalogi_roltype) + 1,                                -- id (Placeholder; adjust as needed)
+  'c5d13ecf-c703-4f12-91b9-eb7f15b90329', -- uuid
+  'Gemachtigde',                     -- omschrijving
+  'belanghebbende',                 -- omschrijving_generiek
+  (SELECT id FROM catalogi_zaaktype WHERE uuid = '448356ff-dcfb-4504-9501-7fe929077c4f'), -- Zaaktype ID
+  '_etag',                          -- _etag (Placeholder)
+  NULL,                             -- datum_begin_geldigheid
+  NULL                              -- datum_einde_geldigheid
+);
+
+-- For the 7th JSON object
+INSERT INTO catalogi_roltype
+(
+  id,
+  uuid,
+  omschrijving,
+  omschrijving_generiek,
+  zaaktype_id,
+  _etag,
+  datum_begin_geldigheid,
+  datum_einde_geldigheid
+)
+VALUES
+(
+  (SELECT COALESCE(MAX(id),0) FROM catalogi_roltype) + 1,                                -- id (Placeholder; adjust as needed)
+  '5e507487-d81f-4dc1-95c7-b6efd1b61741', -- uuid
+  'Plaatsvervanger',                     -- omschrijving
+  'belanghebbende',                 -- omschrijving_generiek
+  (SELECT id FROM catalogi_zaaktype WHERE uuid = '448356ff-dcfb-4504-9501-7fe929077c4f'), -- Zaaktype ID
+  '_etag',                          -- _etag (Placeholder)
+  NULL,                             -- datum_begin_geldigheid
+  NULL                              -- datum_einde_geldigheid
+);
+
+-- For the 8th JSON object
+INSERT INTO catalogi_roltype
+(
+  id,
+  uuid,
+  omschrijving,
+  omschrijving_generiek,
+  zaaktype_id,
+  _etag,
+  datum_begin_geldigheid,
+  datum_einde_geldigheid
+)
+VALUES
+(
+  (SELECT COALESCE(MAX(id),0) FROM catalogi_roltype) + 1,                                -- id (Placeholder; adjust as needed)
+  '24da3f16-2554-4a51-847d-46aacc876648', -- uuid
+  'Bewindvoerder',                     -- omschrijving
+  'belanghebbende',                 -- omschrijving_generiek
+  (SELECT id FROM catalogi_zaaktype WHERE uuid = '448356ff-dcfb-4504-9501-7fe929077c4f'), -- Zaaktype ID
   '_etag',                          -- _etag (Placeholder)
   NULL,                             -- datum_begin_geldigheid
   NULL                              -- datum_einde_geldigheid
@@ -469,8 +589,8 @@ VALUES
 -- ZAC required the informatie objecttype `e-mail` to be present (note the case sensitivity). Also see the 'ConfiguratieService.java' class in the ZAC code base.
 -- the informatie objecttype `bijlage` is used in the flow of creating a zaak by ZAC from an incoming 'productaanvraag' notification
 INSERT INTO catalogi_informatieobjecttype (id, datum_begin_geldigheid, datum_einde_geldigheid, concept, uuid, omschrijving, vertrouwelijkheidaanduiding, catalogus_id, _etag, omschrijving_generiek_definitie, omschrijving_generiek_herkomst, omschrijving_generiek_hierarchie, omschrijving_generiek_informatieobjecttype, omschrijving_generiek_opmerking, trefwoord, informatieobjectcategorie) VALUES (1, '2021-10-04', NULL, false, 'efc332f2-be3b-4bad-9e3c-49a6219c92ad', 'e-mail', 'zaakvertrouwelijk', 1, '_etag', '', '', '', '', '', '{}', 'onbekend');
-INSERT INTO catalogi_informatieobjecttype (id, datum_begin_geldigheid, datum_einde_geldigheid, concept, uuid, omschrijving, vertrouwelijkheidaanduiding, catalogus_id, _etag, omschrijving_generiek_definitie, omschrijving_generiek_herkomst, omschrijving_generiek_hierarchie, omschrijving_generiek_informatieobjecttype, omschrijving_generiek_opmerking, trefwoord, informatieobjectcategorie) VALUES ((SELECT id FROM catalogi_informatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '2021-10-04', NULL, false, 'b1933137-94d6-49bc-9e12-afe712512276', 'bijlage', 'zaakvertrouwelijk', 1, '_etag', '', '', '', '', '', '{}', 'onbekend');
+INSERT INTO catalogi_informatieobjecttype (id, datum_begin_geldigheid, datum_einde_geldigheid, concept, uuid, omschrijving, vertrouwelijkheidaanduiding, catalogus_id, _etag, omschrijving_generiek_definitie, omschrijving_generiek_herkomst, omschrijving_generiek_hierarchie, omschrijving_generiek_informatieobjecttype, omschrijving_generiek_opmerking, trefwoord, informatieobjectcategorie) VALUES ((SELECT COALESCE(MAX(id),0) FROM catalogi_informatieobjecttype) + 1, '2021-10-04', NULL, false, 'b1933137-94d6-49bc-9e12-afe712512276', 'bijlage', 'zaakvertrouwelijk', 1, '_etag', '', '', '', '', '', '{}', 'onbekend');
 
 -- ZAAK INFORMATIE OBJECT TYPES
 INSERT INTO catalogi_zaaktypeinformatieobjecttype (id, uuid, volgnummer, richting, informatieobjecttype_id, statustype_id, zaaktype_id, _etag) VALUES (1, '405da8a9-7296-439c-a2eb-a470b84f17ee', 1, 'inkomend', 1, NULL, 1, '_etag');
-INSERT INTO catalogi_zaaktypeinformatieobjecttype (id, uuid, volgnummer, richting, informatieobjecttype_id, statustype_id, zaaktype_id, _etag) VALUES ((SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY id DESC LIMIT 1) + 1, '809b5454-45f6-4368-b876-a61775c7e6a7', 2, 'inkomend', 2, NULL, 1, '_etag');
+INSERT INTO catalogi_zaaktypeinformatieobjecttype (id, uuid, volgnummer, richting, informatieobjecttype_id, statustype_id, zaaktype_id, _etag) VALUES ((SELECT COALESCE(MAX(id),0) FROM catalogi_zaaktypeinformatieobjecttype) + 1, '809b5454-45f6-4368-b876-a61775c7e6a7', 2, 'inkomend', 2, NULL, 1, '_etag');
