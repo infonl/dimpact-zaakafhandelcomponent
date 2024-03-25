@@ -22,6 +22,9 @@ import { InformatieobjectZoekParameters } from "./model/informatieobject-zoek-pa
 import { Informatieobjecttype } from "./model/informatieobjecttype";
 import { ZaakInformatieobject } from "./model/zaak-informatieobject";
 
+const formatDateForFormData = ([k, v]: [string, string]) =>
+  [k, moment(v).format("YYYY-MM-DDThh:mmZ")] as const;
+
 @Injectable({
   providedIn: "root",
 })
@@ -99,10 +102,7 @@ export class InformatieObjectenService {
       informatieobjectTypeUUID: true,
       vertrouwelijkheidaanduiding: true,
       status: true,
-      creatiedatum: ([key, value]) => [
-        key,
-        moment(value).format("YYYY-MM-DDThh:mmZ"),
-      ],
+      creatiedatum: formatDateForFormData,
       auteur: true,
       taal: true,
       bestand: ([, value]) => ["file", value, infoObject.bestandsnaam],
@@ -180,38 +180,27 @@ export class InformatieObjectenService {
     zaakUuid: string,
     infoObject: EnkelvoudigInformatieObjectVersieGegevens,
   ): Observable<EnkelvoudigInformatieobject> {
-    const formData = new FormData();
-    if (uuid) formData.append("uuid", uuid);
-    if (zaakUuid) formData.append("zaakUuid", zaakUuid);
-    if (infoObject.titel) formData.append("titel", infoObject.titel);
-    if (infoObject.vertrouwelijkheidaanduiding)
-      formData.append(
-        "vertrouwelijkheidaanduiding",
-        infoObject.vertrouwelijkheidaanduiding,
-      );
-    if (infoObject.auteur) formData.append("auteur", infoObject.auteur);
-    if (infoObject.status) formData.append("status", infoObject.status);
-    if (infoObject.taal)
-      formData.append("taal", JSON.stringify(infoObject.taal));
-    if (infoObject.bestandsnaam)
-      formData.append("bestandsnaam", infoObject.bestandsnaam);
-    if (infoObject.formaat) formData.append("formaat", infoObject.formaat);
-    if (infoObject.file)
-      formData.append("file", infoObject.file, infoObject.bestandsnaam);
-    if (infoObject.beschrijving)
-      formData.append("beschrijving", infoObject.beschrijving);
-    if (infoObject.verzenddatum)
-      formData.append(
-        "verzenddatum",
-        moment(infoObject.verzenddatum).format("YYYY-MM-DDThh:mmZ"),
-      );
-    if (infoObject.ontvangstdatum)
-      formData.append(
-        "ontvangstdatum",
-        moment(infoObject.ontvangstdatum).format("YYYY-MM-DDThh:mmZ"),
-      );
-    if (infoObject.toelichting)
-      formData.append("toelichting", infoObject.toelichting);
+    const mergedInfoObject = {
+      ...infoObject,
+      uuid,
+      zaakUuid,
+    };
+    const formData = createFormData(mergedInfoObject, {
+      uuid: true,
+      zaakUuid: true,
+      titel: true,
+      vertrouwelijkheidaanduiding: true,
+      auteur: true,
+      status: true,
+      taal: ([k, v]) => [k, JSON.stringify(v)],
+      bestandsnaam: true,
+      formaat: true,
+      file: ([k, v]) => [k, v, infoObject.bestandsnaam],
+      beschrijving: true,
+      verzenddatum: formatDateForFormData,
+      ontvangstdatum: formatDateForFormData,
+      toelichting: true,
+    });
 
     return this.http
       .post<EnkelvoudigInformatieobject>(
