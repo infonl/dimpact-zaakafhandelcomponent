@@ -11,7 +11,6 @@ import net.atos.zac.zoeken.model.DatumVeld;
 import net.atos.zac.zoeken.model.FilterParameters;
 import net.atos.zac.zoeken.model.FilterVeld;
 import net.atos.zac.zoeken.model.SorteerVeld;
-import net.atos.zac.zoeken.model.ZoekVeld;
 import net.atos.zac.zoeken.model.index.ZoekObjectType;
 
 public class RESTZoekParameters {

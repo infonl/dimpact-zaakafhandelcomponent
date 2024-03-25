@@ -18,7 +18,6 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.ztc.ZTCClientService
 import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.createZaakType
-import net.atos.client.zgw.ztc.model.generated.RolType
 import net.atos.zac.flowable.TakenService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.createUser

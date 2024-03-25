@@ -272,7 +272,7 @@ class ZTCClientService : Caching {
      */
     @CacheResult(cacheName = Caching.ZTC_ROLTYPE)
     fun listRoltypen(): List<RolType> =
-            ztcClient.roltypeList().results
+        ztcClient.roltypeList().results
 
     /**
      * Read [RolType] via its UUID.
