@@ -5,7 +5,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.core.test.TestCase
 import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.should
-import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.startWith
 import io.mockk.MockKAnnotations
 import io.mockk.clearAllMocks
@@ -76,6 +75,5 @@ class TaakVariabelenServiceTest : BehaviorSpec() {
                 }
             }
         }
-
     }
 }
