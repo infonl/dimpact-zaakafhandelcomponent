@@ -68,7 +68,7 @@ class RESTBesluitConverter {
         besluit.datum = LocalDate.now()
         besluit.ingangsdatum = besluitToevoegenGegevens.ingangsdatum
         besluit.vervaldatum = besluitToevoegenGegevens.vervaldatum
-        if (besluitToevoegenGegevens.vervaldatum != null) {
+        besluitToevoegenGegevens.vervaldatum?.apply {
             besluit.vervalreden = VervalredenEnum.TIJDELIJK
         }
         besluit.verantwoordelijkeOrganisatie = ConfiguratieService.VERANTWOORDELIJKE_ORGANISATIE
@@ -80,7 +80,7 @@ class RESTBesluitConverter {
         besluit.toelichting = besluitWijzigenGegevens.toelichting
         besluit.ingangsdatum = besluitWijzigenGegevens.ingangsdatum
         besluit.vervaldatum = besluitWijzigenGegevens.vervaldatum
-        if (besluit.vervaldatum != null) {
+        besluit.vervaldatum?.apply {
             besluit.vervalreden = VervalredenEnum.TIJDELIJK
         }
         return besluit
@@ -97,8 +97,8 @@ class RESTBesluitConverter {
 
     fun listBesluitInformatieobjecten(besluit: Besluit): List<EnkelvoudigInformatieObject> {
         return brcClientService.listBesluitInformatieobjecten(besluit.url).stream()
-            .map { besluitInformatieobject ->
-                drcClientService.readEnkelvoudigInformatieobject(besluitInformatieobject.informatieobject)
+            .map {
+                drcClientService.readEnkelvoudigInformatieobject(it.informatieobject)
             }
             .collect(Collectors.toList())
     }

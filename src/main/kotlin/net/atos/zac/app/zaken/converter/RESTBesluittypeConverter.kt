@@ -21,7 +21,7 @@ class RESTBesluittypeConverter {
 
     fun convertToRESTBesluittypes(besluittypes: List<BesluitType>): List<RESTBesluittype> {
         return besluittypes.stream()
-            .map { besluittype -> this.convertToRESTBesluittype(besluittype) }
+            .map { this.convertToRESTBesluittype(it) }
             .toList()
     }
 

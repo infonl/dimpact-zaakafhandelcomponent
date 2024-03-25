@@ -38,7 +38,7 @@ class RESTResultaattypeConverter {
     fun convertResultaattypeUri(resultaattypeURI: URI) =
         convertResultaattype(ztcClientService.readResultaattype(resultaattypeURI))
 
-    fun convertResultaattypes(resultaattypes: List<ResultaatType>) =
+    fun convertResultaattypes(resultaattypes: List<ResultaatType>): List<RESTResultaattype> =
         resultaattypes.stream()
             .map { this.convertResultaattype(it) }
             .toList()

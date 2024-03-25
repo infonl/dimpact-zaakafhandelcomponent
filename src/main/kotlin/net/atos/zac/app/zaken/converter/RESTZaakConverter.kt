@@ -6,7 +6,6 @@ package net.atos.zac.app.zaken.converter
 
 import jakarta.inject.Inject
 import net.atos.client.vrl.VRLClientService
-import net.atos.client.vrl.model.generated.CommunicatieKanaal
 import net.atos.client.zgw.brc.BRCClientService
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.util.InformatieobjectenUtil
@@ -149,11 +148,9 @@ class RESTZaakConverter {
             redenVerlenging = if (zaak.isVerlengd) zaak.verlenging.reden else null,
             gerelateerdeZaken = convertGerelateerdeZaken(zaak),
             zaakgeometrie = zaak.zaakgeometrie?.let { restGeometryConverter.convert(zaak.zaakgeometrie) },
-            kenmerken = zaak.kenmerken?.let {
-                zaak.kenmerken.stream()
-                    .map { zaakKenmerk -> RESTZaakKenmerk(zaakKenmerk.kenmerk, zaakKenmerk.bron) }
-                    .collect(Collectors.toList())
-            },
+            kenmerken = zaak.kenmerken?.stream()?.map {
+                RESTZaakKenmerk(it.kenmerk, it.bron)
+            }?.collect(Collectors.toList()),
             communicatiekanaal = communicatiekanaal,
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.toString(),
             groep = groep,
@@ -201,15 +198,13 @@ class RESTZaakConverter {
         zaak.registratiedatum = LocalDate.now()
         restZaak.communicatiekanaal?.let { restCommunicatiekanaal ->
             vrlClientService.findCommunicatiekanaal(restCommunicatiekanaal.uuid)
-                .map { obj: CommunicatieKanaal -> obj.url }
+                .map { it.url }
                 .ifPresent { communicatiekanaal -> zaak.communicatiekanaal = communicatiekanaal }
         }
         zaak.vertrouwelijkheidaanduiding = InformatieobjectenUtil.convertToVertrouwelijkheidaanduidingEnum(
             restZaak.vertrouwelijkheidaanduiding
         )
-        zaak.zaakgeometrie = restZaak.zaakgeometrie?.let { restGeometry ->
-            restGeometryConverter.convert(restGeometry)
-        }
+        zaak.zaakgeometrie = restZaak.zaakgeometrie?.let { restGeometryConverter.convert(it) }
         return zaak
     }
 
@@ -225,12 +220,10 @@ class RESTZaakConverter {
         )
         restZaak.communicatiekanaal?.let { restCommunicatiekanaal ->
             vrlClientService.findCommunicatiekanaal(restCommunicatiekanaal.uuid)
-                .map { obj -> obj.url }
-                .ifPresent { communicatiekanaal -> zaak.communicatiekanaal = communicatiekanaal }
+                .map { it.url }
+                .ifPresent { zaak.communicatiekanaal = it }
         }
-        zaak.zaakgeometrie = restZaak.zaakgeometrie?.let { restGeometry ->
-            restGeometryConverter.convert(restGeometry)
-        }
+        zaak.zaakgeometrie = restZaak.zaakgeometrie?.let { restGeometryConverter.convert(it) }
         return zaak
     }
 
@@ -255,21 +248,21 @@ class RESTZaakConverter {
 
     private fun convertGerelateerdeZaken(zaak: Zaak): List<RESTGerelateerdeZaak> {
         val gerelateerdeZaken: MutableList<RESTGerelateerdeZaak> = ArrayList()
-        if (zaak.hoofdzaak != null) {
+        zaak.hoofdzaak?.let {
             gerelateerdeZaken.add(
                 gerelateerdeZaakConverter.convert(
-                    zrcClientService.readZaak(zaak.hoofdzaak),
+                    zrcClientService.readZaak(it),
                     RelatieType.HOOFDZAAK
                 )
             )
         }
         zaak.deelzaken.stream()
-            .map { zaakURI -> zrcClientService.readZaak(zaakURI) }
-            .map { deelzaak -> gerelateerdeZaakConverter.convert(deelzaak, RelatieType.DEELZAAK) }
-            .forEach { restGerelateerdeZaak -> gerelateerdeZaken.add(restGerelateerdeZaak) }
+            .map { zrcClientService.readZaak(it) }
+            .map { gerelateerdeZaakConverter.convert(it, RelatieType.DEELZAAK) }
+            .forEach { gerelateerdeZaken.add(it) }
         zaak.relevanteAndereZaken.stream()
-            .map { relevanteZaak -> gerelateerdeZaakConverter.convert(relevanteZaak) }
-            .forEach { restGerelateerdeZaak -> gerelateerdeZaken.add(restGerelateerdeZaak) }
+            .map { gerelateerdeZaakConverter.convert(it) }
+            .forEach { gerelateerdeZaken.add(it) }
         return gerelateerdeZaken
     }
 }

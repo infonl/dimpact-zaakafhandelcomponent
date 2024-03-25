@@ -17,5 +17,5 @@ fun convertToRESTCommunicatiekanaal(communicatieKanaal: CommunicatieKanaal): RES
 fun convertToRESTCommunicatiekanalen(
     communicatieKanalen: List<CommunicatieKanaal>
 ): List<RESTCommunicatiekanaal> = communicatieKanalen.stream()
-    .map { communicatieKanaal -> convertToRESTCommunicatiekanaal(communicatieKanaal) }
+    .map { convertToRESTCommunicatiekanaal(it) }
     .toList()

@@ -30,7 +30,7 @@ fun convertToRESTZaakBetrokkenen(rol: Rol<*>) =
         }
     )
 
-fun convertToRESTZaakBetrokkenen(rollen: Stream<Rol<*>>) =
+fun convertToRESTZaakBetrokkenen(rollen: Stream<Rol<*>>): List<RESTZaakBetrokkene> =
     rollen
         .map { convertToRESTZaakBetrokkenen(it) }
         .toList()

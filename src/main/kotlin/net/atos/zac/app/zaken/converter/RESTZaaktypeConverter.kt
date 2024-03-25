@@ -26,23 +26,20 @@ class RESTZaaktypeConverter {
 
     fun convert(zaaktype: ZaakType): RESTZaaktype {
         val zaaktypeRelaties = ArrayList<RESTZaaktypeRelatie>()
-        zaaktype.deelzaaktypen?.let { deelzaaktypen ->
-            deelzaaktypen.stream()
+        zaaktype.deelzaaktypen?.let { deelzaakType ->
+            deelzaakType.stream()
                 .map { deelzaaktype ->
                     convertToRESTZaaktypeRelatie(
                         deelzaaktype,
                         RelatieType.DEELZAAK
                     )
                 }
-                .forEach { restZaaktypeRelatie -> zaaktypeRelaties.add(restZaaktypeRelatie) }
+                .forEach { zaaktypeRelaties.add(it) }
         }
         zaaktype.gerelateerdeZaaktypen?.let { gerelateerdeZaaktypen ->
             gerelateerdeZaaktypen.stream()
-                .map { zaakTypenRelatie -> convertToRESTZaaktypeRelatie(zaakTypenRelatie) }
-                .forEach {
-                        restZaaktypeRelatie ->
-                    zaaktypeRelaties.add(restZaaktypeRelatie)
-                }
+                .map { convertToRESTZaaktypeRelatie(it) }
+                .forEach { zaaktypeRelaties.add(it) }
         }
 
         return RESTZaaktype(
@@ -69,7 +66,7 @@ class RESTZaaktypeConverter {
             informatieobjecttypes = zaaktype.informatieobjecttypen.stream().map { uri ->
                 UriUtil.uuidFromURI(uri)
             }.toList(),
-            referentieproces = zaaktype.referentieproces?.let { zaaktype.referentieproces.naam },
+            referentieproces = zaaktype.referentieproces?.naam,
             zaakafhandelparameters = zaakafhandelParametersConverter.convertZaakafhandelParameters(
                 zaakafhandelParameterService.readZaakafhandelParameters(UriUtil.uuidFromURI(zaaktype.url)),
                 true
