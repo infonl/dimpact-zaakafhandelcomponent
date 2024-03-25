@@ -381,7 +381,7 @@ class ZakenRESTService {
         assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).wijzigen)
         val updatedZaak = zrcClientService.patchZaak(
             zaakUUID,
-            zaakConverter.convertToPatch(restZaakEditMetRedenGegevens.zaak!!),
+            zaakConverter.convertToPatch(restZaakEditMetRedenGegevens.zaak),
             restZaakEditMetRedenGegevens.reden
         )
         return zaakConverter.convert(updatedZaak)
