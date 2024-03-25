@@ -19,7 +19,7 @@ import net.atos.zac.app.taken.model.createRESTTaakDocumentData
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import java.time.LocalDate
-import java.util.*
+import java.util.Base64
 
 class RESTInformatieobjectConverterTest : BehaviorSpec() {
     private val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
