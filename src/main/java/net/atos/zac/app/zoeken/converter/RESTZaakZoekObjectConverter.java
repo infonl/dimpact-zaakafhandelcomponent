@@ -63,12 +63,6 @@ public class RESTZaakZoekObjectConverter {
         restZoekItem.indicaties = zoekItem.getZaakIndicaties();
         restZoekItem.rechten = restRechtenConverter.convert(policyService.readZaakRechten(zoekItem));
         restZoekItem.betrokkenen = new HashMap<>();
-        //        if (zoekItem.getInitiatorIdentificatie() != null) {
-        //            restZoekItem.betrokkenen.put(
-        //                    RolType.OmschrijvingGeneriekEnum.INITIATOR,
-        //                    List.of(zoekItem.getInitiatorIdentificatie())
-        //            );
-        //        }
         if (zoekItem.getBetrokkenen() != null) {
             zoekItem.getBetrokkenen().forEach((betrokkenheid, ids) -> {
                 restZoekItem.betrokkenen.put(
