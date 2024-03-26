@@ -65,6 +65,11 @@ object ItestConfiguration {
     const val ZAC_API_URI = "http://localhost:$ZAC_CONTAINER_PORT/rest"
 
     /**
+     * The ZAC websocket base URI from outside the Docker network.
+     */
+    const val ZAC_WEBSOCKET_BASE_URI = "ws://localhost:$ZAC_CONTAINER_PORT/websocket"
+
+    /**
      * The ZAC management URI from outside the Docker network.
      */
     const val ZAC_MANAGEMENT_URI = "http://localhost:$ZAC_MANAGEMENT_PORT"
