@@ -25,22 +25,22 @@ public class AuditZaakobjectWijzigingConverter extends AbstractAuditWijzigingCon
 
     @Override
     protected Stream<RESTHistorieRegel> doConvert(final AuditWijziging<Zaakobject> wijziging) {
-        return Stream.of(new RESTHistorieRegel(toAttribuutLabel(wijziging), toWaarde(wijziging.getOud()), toWaarde(wijziging.getNieuw())));
+        var oud = wijziging.getOud();
+        var nieuw = wijziging.getNieuw();
+
+        if((oud != null && oud.getObjectType() == Objecttype.OVERIGE )
+           || nieuw.getObjectType() == Objecttype.OVERIGE
+        ) return Stream.empty();
+
+        return Stream.of(new RESTHistorieRegel(toAttribuutLabel(wijziging), toWaarde(oud), toWaarde(nieuw)));
     }
 
     private String toAttribuutLabel(final AuditWijziging<Zaakobject> wijziging) {
         final Objecttype objecttype;
-        final String objecttypeOverige;
         if (wijziging.getOud() != null) {
             objecttype = wijziging.getOud().getObjectType();
-            objecttypeOverige = wijziging.getOud().getObjectTypeOverige();
         } else {
             objecttype = wijziging.getNieuw().getObjectType();
-            objecttypeOverige = wijziging.getNieuw().getObjectTypeOverige();
-        }
-
-        if (Objecttype.OVERIGE == objecttype) {
-            return "objecttype." + StringUtils.upperCase(objecttypeOverige);
         }
         return "objecttype." + objecttype.name();
     }
