@@ -7,8 +7,6 @@ package net.atos.zac.app.audit.converter.zaken;
 
 import java.util.stream.Stream;
 
-import org.apache.commons.lang3.StringUtils;
-
 import net.atos.client.zgw.shared.model.ObjectType;
 import net.atos.client.zgw.shared.model.audit.AuditWijziging;
 import net.atos.client.zgw.zrc.model.Objecttype;
@@ -28,9 +26,9 @@ public class AuditZaakobjectWijzigingConverter extends AbstractAuditWijzigingCon
         var oud = wijziging.getOud();
         var nieuw = wijziging.getNieuw();
 
-        if((oud != null && oud.getObjectType() == Objecttype.OVERIGE )
-           || nieuw.getObjectType() == Objecttype.OVERIGE
-        ) return Stream.empty();
+        if ((oud != null && oud.getObjectType() == Objecttype.OVERIGE) || nieuw.getObjectType() == Objecttype.OVERIGE
+        )
+            return Stream.empty();
 
         return Stream.of(new RESTHistorieRegel(toAttribuutLabel(wijziging), toWaarde(oud), toWaarde(nieuw)));
     }
