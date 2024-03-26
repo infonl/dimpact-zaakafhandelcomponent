@@ -1,18 +1,23 @@
+type FormCompatible = string | Blob | { toString: () => string }
+
 type FormDataMappingFunction<T> = (
   keyValuePair: readonly [string, T],
 ) => readonly [string, string | Blob] | readonly [string, Blob, string];
 
 type FormDataMapper<T> = Partial<{
-  [K in keyof T]: T[K] extends string | Blob | { toString: () => string }
-    ? FormDataMappingFunction<T[K]> | true
-    : FormDataMappingFunction<T[K]>;
+  [K in keyof T]: T[K] extends FormCompatible[]
+    ? FormDataMappingFunction<T[K][number]> | true
+    : T[K] extends FormCompatible 
+      ? FormDataMappingFunction<T[K]> | true
+      : T[K] extends Array<infer A>
+        ? FormDataMappingFunction<A>
+        : FormDataMappingFunction<T[K]>;
 }>;
 
 function parseFormValue(v: unknown) {
-  if (!v) return false;
+  if (v === undefined || v === null) return false;
   if (typeof v === "string" || v instanceof Blob) return v;
-  if (v.toString && typeof v.toString === "function") return v.toString();
-  return false;
+  return v.toString()
 }
 
 export function createFormData<T extends {}>(
@@ -26,19 +31,27 @@ export function createFormData<T extends {}>(
       FormDataMappingFunction<unknown> | true,
     ]) => {
       const value = obj[key];
-      if (typeof mappingFunction === "function") {
-        const [newKey, stringOrBlob, maybeFileName] = mappingFunction([
-          key,
-          value,
-        ]);
-        if (stringOrBlob instanceof Blob) {
-          formData.append(newKey, stringOrBlob, maybeFileName);
+      if(Array.isArray(value)) {
+        value.forEach(add)
+      }
+      else {
+        add(value)
+      }
+      function add(value: unknown) {
+        if (typeof mappingFunction === "function") {
+          const [newKey, stringOrBlob, maybeFileName] = mappingFunction([
+            key,
+            value,
+          ]);
+          if (stringOrBlob instanceof Blob) {
+            formData.append(newKey, stringOrBlob, maybeFileName);
+          } else {
+            formData.append(newKey, stringOrBlob);
+          }
         } else {
-          formData.append(newKey, stringOrBlob);
+          const parsed = parseFormValue(value);
+          parsed && formData.append(key, parsed);
         }
-      } else {
-        const parsed = parseFormValue(value);
-        parsed && formData.append(key, parsed);
       }
     },
   );
