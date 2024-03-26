@@ -172,19 +172,18 @@ public class TakenService {
 
     public Task readOpenTask(final String taskId) {
         final Task task = findOpenTask(taskId);
-        return validateTaskExistence(taskId, task);
-    }
-
-    public HistoricTaskInstance readClosedTask(final String taskId) {
-        final HistoricTaskInstance historicTaskInstance = findClosedTask(taskId);
-        return validateTaskExistence(taskId, historicTaskInstance);
-    }
-
-    private <T> T validateTaskExistence(String taskId, T task) throws RuntimeException {
         if (task == null) {
             throw new RuntimeException(String.format("Task with id '%s' not found", taskId));
         }
         return task;
+    }
+
+    public HistoricTaskInstance readClosedTask(final String taskId) {
+        final HistoricTaskInstance historicTaskInstance = findClosedTask(taskId);
+        if (historicTaskInstance == null) {
+            throw new RuntimeException(String.format("Task with id '%s' not found", taskId));
+        }
+        return historicTaskInstance;
     }
 
     public Task updateTask(final Task task) {
