@@ -29,7 +29,9 @@ import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.createNatuurlijkPersoon
+import net.atos.client.zgw.zrc.model.createRolMedewerker
 import net.atos.client.zgw.zrc.model.createRolNatuurlijkPersoon
+import net.atos.client.zgw.zrc.model.createRolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.createZaakobjectPand
@@ -57,6 +59,7 @@ import net.atos.zac.policy.output.OverigeRechten
 import net.atos.zac.policy.output.createZaakRechten
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import net.atos.zac.zaaksturing.model.createZaakafhandelParameters
+import net.atos.zac.zaken.ZakenService
 import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -64,21 +67,22 @@ import java.util.Optional
 
 @MockKExtension.CheckUnnecessaryStub
 class ZakenRESTServiceTest : BehaviorSpec() {
-    val cmmnService = mockk<CMMNService>()
-    val identityService = mockk<IdentityService>()
-    val inboxProductaanvraagService = mockk<InboxProductaanvraagService>()
-    val indexeerService = mockk<IndexeerService>()
-    val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-    val objectsClientService = mockk<ObjectsClientService>()
-    val policyService = mockk<PolicyService>()
-    val productaanvraagService = mockk<ProductaanvraagService>()
-    val restBagConverter = mockk<RESTBAGConverter>()
-    val restZaakConverter = mockk<RESTZaakConverter>()
-    val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
-    val zaakVariabelenService = mockk<ZaakVariabelenService>()
-    val zgwApiService = mockk<ZGWApiService>()
-    val zrcClientService = mockk<ZRCClientService>()
-    val ztcClientService = mockk<ZTCClientService>()
+    private val cmmnService = mockk<CMMNService>()
+    private val identityService = mockk<IdentityService>()
+    private val inboxProductaanvraagService = mockk<InboxProductaanvraagService>()
+    private val indexeerService = mockk<IndexeerService>()
+    private val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
+    private val objectsClientService = mockk<ObjectsClientService>()
+    private val policyService = mockk<PolicyService>()
+    private val productaanvraagService = mockk<ProductaanvraagService>()
+    private val restBagConverter = mockk<RESTBAGConverter>()
+    private val restZaakConverter = mockk<RESTZaakConverter>()
+    private val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
+    private val zaakVariabelenService = mockk<ZaakVariabelenService>()
+    private val zgwApiService = mockk<ZGWApiService>()
+    private val zrcClientService = mockk<ZRCClientService>()
+    private val ztcClientService = mockk<ZTCClientService>()
+    private val zakenService = mockk<ZakenService>()
 
     // We have to use @InjectMockKs since the class under test uses field injection instead of constructor injection.
     // This is because WildFly does not properly support constructor injection for JAX-RS REST services.
@@ -102,7 +106,9 @@ class ZakenRESTServiceTest : BehaviorSpec() {
                     val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
                     val zaakTypeUUID = URIUtil.parseUUIDFromResourceURI(zaakType.url)
                     val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens(zaakTypeUUID = zaakTypeUUID)
+                    val rolMedewerker = createRolMedewerker()
                     val rolNatuurlijkPersoon = createRolNatuurlijkPersoon(natuurlijkPersoon = natuurlijkPersoon)
+                    val rolOrganisatorischeEenheid = createRolOrganisatorischeEenheid()
                     val user = createLoggedInUser()
                     val zaakAfhandelParameters = createZaakafhandelParameters()
                     val zaakObjectPand = createZaakobjectPand()
@@ -164,6 +170,8 @@ class ZakenRESTServiceTest : BehaviorSpec() {
                     every {
                         ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.BEHANDELAAR, zaak.zaaktype)
                     } returns createRolType(omschrijvingGeneriek = RolType.OmschrijvingGeneriekEnum.BEHANDELAAR)
+                    every { zakenService.bepaalRolGroep(group, zaak) } returns rolOrganisatorischeEenheid
+                    every { zakenService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
 
                     val restZaakReturned = zakenRESTService.createZaak(restZaakAanmaakGegevens)
 
@@ -197,7 +205,7 @@ class ZakenRESTServiceTest : BehaviorSpec() {
                         assertEquals(this.betrokkeneType, BetrokkeneType.NATUURLIJK_PERSOON)
                     }
                     with(rolGroupSlotOrganisatorischeEenheidSlot.captured) {
-                        assertEquals(this.zaak, zaak.url)
+                        assertEquals(this.zaak, rolOrganisatorischeEenheid.zaak)
                         assertEquals(this.betrokkeneType, BetrokkeneType.ORGANISATORISCHE_EENHEID)
                     }
                 }
@@ -212,6 +220,7 @@ class ZakenRESTServiceTest : BehaviorSpec() {
                     val rolSlot = slot<Rol<*>>()
                     val restZaak = createRESTZaak()
                     val rolType = createRolType(omschrijvingGeneriek = RolType.OmschrijvingGeneriekEnum.BEHANDELAAR)
+                    val rolMedewerker = createRolMedewerker()
 
                     every { zrcClientService.readZaak(restZaakToekennenGegevens.zaakUUID) } returns zaak
                     every { zrcClientService.updateRol(zaak, capture(rolSlot), restZaakToekennenGegevens.reden) } just runs
@@ -224,6 +233,7 @@ class ZakenRESTServiceTest : BehaviorSpec() {
                     every { zgwApiService.findGroepForZaak(zaak) } returns Optional.empty()
                     every { restZaakConverter.convert(zaak) } returns restZaak
                     every { indexeerService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK) } just runs
+                    every { zakenService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
 
                     val returnedRestZaak = zakenRESTService.toekennen(restZaakToekennenGegevens)
 
@@ -233,10 +243,13 @@ class ZakenRESTServiceTest : BehaviorSpec() {
                         indexeerService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK)
                     }
                     with(rolSlot.captured) {
-                        assertEquals(BetrokkeneType.MEDEWERKER, this.betrokkeneType)
-                        assertEquals(user.id, (this.betrokkeneIdentificatie as Medewerker).identificatie)
-                        assertEquals(zaak.url, this.zaak)
-                        assertEquals(rolType.omschrijving, this.omschrijving)
+                        assertEquals(this.betrokkeneType, BetrokkeneType.MEDEWERKER)
+                        assertEquals(
+                            (this.betrokkeneIdentificatie as Medewerker).identificatie,
+                            rolMedewerker.betrokkeneIdentificatie.identificatie
+                        )
+                        assertEquals(this.zaak, rolMedewerker.zaak)
+                        assertEquals(this.omschrijving, rolType.omschrijving)
                     }
                 }
             }

@@ -48,6 +48,14 @@ fun createOpschorting(
     this.indicatie = indicatie
 }
 
+fun createOrganisatorischeEenheid(
+    identificatie: String = "dummyIdentificatie",
+    naam: String = "dummyNaam"
+) = OrganisatorischeEenheid().apply {
+    this.identificatie = identificatie
+    this.naam = naam
+}
+
 fun createRolMedewerker(
     zaak: URI = URI("http://example.com/${UUID.randomUUID()}"),
     roltype: RolType = createRolType(),
@@ -70,6 +78,18 @@ fun createRolNatuurlijkPersoon(
     rolType,
     toelichting,
     natuurlijkPersoon
+)
+
+fun createRolOrganisatorischeEenheid(
+    zaaktypeURI: URI = URI("http://example.com/${UUID.randomUUID()}"),
+    rolType: RolType = createRolType(zaaktypeURI),
+    toelichting: String = "dummyToelichting",
+    organisatorischeEenheid: OrganisatorischeEenheid = createOrganisatorischeEenheid()
+) = RolOrganisatorischeEenheid(
+    zaaktypeURI,
+    rolType,
+    toelichting,
+    organisatorischeEenheid
 )
 
 @Suppress("LongParameterList")
