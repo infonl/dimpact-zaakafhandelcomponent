@@ -38,7 +38,7 @@ class TaakVariabelenServiceTest : BehaviorSpec() {
 
             When("reading the zaak UUID") {
                 val uuid = service.readZaakUUID(taskInfo)
-                
+
                 Then("it returns the right information") {
                     uuid shouldBeEqual expectedUUID
                 }
@@ -132,6 +132,5 @@ class TaakVariabelenServiceTest : BehaviorSpec() {
                 }
             }
         }
-
     }
 }
