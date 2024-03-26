@@ -18,7 +18,7 @@ describe("createFormData", () => {
     const [key, value] = entries[0];
     expect(key).toBe("key");
     expect(value).toBe(file);
-    expect((<File>value).name).toBe("dummy")
+    expect((<File>value).name).toBe("dummy");
   });
 
   it("should preserve key and call toString on value if that method exists and no mapping is specified", () => {
@@ -52,7 +52,7 @@ describe("createFormData", () => {
     expect(key).toBe("new-key");
     expect(value).toBe("new-value");
   });
-  
+
   it("should skip keys that are null, undefined or an empty string", () => {
     const formData = createFormData(
       { emptyString: "", null: null, undefined: undefined },
@@ -63,24 +63,21 @@ describe("createFormData", () => {
   });
 
   it("should overwrite filename if specified in the mapper", () => {
-    const file = new File([], "replace-me")
+    const file = new File([], "replace-me");
     const formData = createFormData(
       { file },
-      { file: ([k,v]) => [k, v, "new-file-name"] },
+      { file: ([k, v]) => [k, v, "new-file-name"] },
     );
     const entries = Array.from(formData);
     expect(entries).toHaveLength(1);
     const [key, value] = entries[0];
     expect(key).toBe("file");
     expect(value).toBeInstanceOf(File);
-    expect((<File>value).name).toBe("new-file-name")
+    expect((<File>value).name).toBe("new-file-name");
   });
 
   it("should handle arrays without mapping functions", () => {
-    const formData = createFormData(
-      { key: [1,2] },
-      { key: true },
-    );
+    const formData = createFormData({ key: [1, 2] }, { key: true });
     const entries = Array.from(formData);
     expect(entries).toHaveLength(2);
     const [[key1, value1], [key2, value2]] = entries;
@@ -91,20 +88,20 @@ describe("createFormData", () => {
   });
 
   it("should handle arrays with mapping functions", () => {
-    const file1 = new File([], "replace-me-1")
-    const file2 = new File([], "replace-me-2")
+    const file1 = new File([], "replace-me-1");
+    const file2 = new File([], "replace-me-2");
     const formData = createFormData(
       { file: [file1, file2] },
-      { file: ([k,v]) => [k, v, "new-file-name"] },
+      { file: ([k, v]) => [k, v, "new-file-name"] },
     );
     const entries = Array.from(formData);
     expect(entries).toHaveLength(2);
     const [[key1, value1], [key2, value2]] = entries;
     expect(key1).toBe("file");
     expect(value1).toBeInstanceOf(File);
-    expect((<File>value1).name).toBe("new-file-name")
+    expect((<File>value1).name).toBe("new-file-name");
     expect(key2).toBe("file");
     expect(value2).toBeInstanceOf(File);
-    expect((<File>value2).name).toBe("new-file-name")
+    expect((<File>value2).name).toBe("new-file-name");
   });
 });

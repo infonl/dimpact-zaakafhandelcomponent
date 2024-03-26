@@ -1,4 +1,4 @@
-type FormCompatible = string | Blob | { toString: () => string }
+type FormCompatible = string | Blob | { toString: () => string };
 
 type FormDataMappingFunction<T> = (
   keyValuePair: readonly [string, T],
@@ -7,7 +7,7 @@ type FormDataMappingFunction<T> = (
 type FormDataMapper<T> = Partial<{
   [K in keyof T]: T[K] extends FormCompatible[]
     ? FormDataMappingFunction<T[K][number]> | true
-    : T[K] extends FormCompatible 
+    : T[K] extends FormCompatible
       ? FormDataMappingFunction<T[K]> | true
       : T[K] extends Array<infer A>
         ? FormDataMappingFunction<A>
@@ -17,7 +17,7 @@ type FormDataMapper<T> = Partial<{
 function parseFormValue(v: unknown) {
   if (v === undefined || v === null) return false;
   if (typeof v === "string" || v instanceof Blob) return v;
-  return v.toString()
+  return v.toString();
 }
 
 export function createFormData<T extends {}>(
@@ -31,11 +31,10 @@ export function createFormData<T extends {}>(
       FormDataMappingFunction<unknown> | true,
     ]) => {
       const value = obj[key];
-      if(Array.isArray(value)) {
-        value.forEach(add)
-      }
-      else {
-        add(value)
+      if (Array.isArray(value)) {
+        value.forEach(add);
+      } else {
+        add(value);
       }
       function add(value: unknown) {
         if (typeof mappingFunction === "function") {
