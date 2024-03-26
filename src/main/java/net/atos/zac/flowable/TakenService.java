@@ -173,7 +173,7 @@ public class TakenService {
     public Task readOpenTask(final String taskId) {
         final Task task = findOpenTask(taskId);
         if (task == null) {
-            throw new RuntimeException(String.format("No open task found with task id '%s'", taskId));
+            throw new RuntimeException(String.format("Task with id '%s' not found", taskId));
         }
         return task;
     }
@@ -181,7 +181,7 @@ public class TakenService {
     public HistoricTaskInstance readClosedTask(final String taskId) {
         final HistoricTaskInstance historicTaskInstance = findClosedTask(taskId);
         if (historicTaskInstance == null) {
-            throw new RuntimeException(String.format("No closed task found with task id '%s'", taskId));
+            throw new RuntimeException(String.format("Task with id '%s' not found", taskId));
         }
         return historicTaskInstance;
     }
