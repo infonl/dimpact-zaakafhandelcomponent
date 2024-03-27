@@ -32,7 +32,7 @@ class AuditZaakobjectWijzigingConverterTest : BehaviorSpec({
         }
     }
 
-    Given("A ZaakobjectWoonplaatsWijziging") {
+    Given("A ZaakobjectWoonplaatsWijziging with oud and nieuw") {
         val wijzigingen = ZaakobjectWoonplaatsWijziging()
         val zaakobjectWoonplaatsOud =
             ZaakobjectWoonplaats(
@@ -61,6 +61,46 @@ class AuditZaakobjectWijzigingConverterTest : BehaviorSpec({
                     oudeWaarde shouldBe "identificatie-oud"
                     nieuweWaarde shouldBe "identificatie-nieuw"
                     attribuutLabel shouldBe "objecttype.WOONPLAATS"
+                }
+            }
+        }
+    }
+
+    Given("A ZaakobjectWoonplaatsWijziging with only nieuw") {
+        val wijzigingen = ZaakobjectWoonplaatsWijziging()
+        val zaakobjectWoonplaatsNieuw =
+            ZaakobjectWoonplaats(
+                URI("www.google.nl/54321"),
+                URI("www.google.nl/54321"),
+                ObjectWoonplaats("identificatie-nieuw", "woonplaats-nieuw")
+            )
+        wijzigingen.nieuw = zaakobjectWoonplaatsNieuw
+
+        When("The wijziging is converted") {
+            val regels = converter.convert(wijzigingen).toList()
+            Then("It should show up in the list") {
+                with(regels) {
+                    size shouldBe 1
+                }
+            }
+            Then("The expected values are present") {
+                with(regels.first()) {
+                    oudeWaarde shouldBe null
+                    nieuweWaarde shouldBe "identificatie-nieuw"
+                    attribuutLabel shouldBe "objecttype.WOONPLAATS"
+                }
+            }
+        }
+    }
+
+    Given("A ZaakobjectWoonplaatsWijziging with neither oud nor new") {
+        val wijzigingen = ZaakobjectWoonplaatsWijziging()
+
+        When("The wijziging is converted") {
+            val regels = converter.convert(wijzigingen).toList()
+            Then("It should not show up in the list") {
+                with(regels) {
+                    size shouldBe 0
                 }
             }
         }
