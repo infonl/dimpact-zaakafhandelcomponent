@@ -26,7 +26,7 @@ import org.apache.commons.lang3.NotImplementedException;
 /**
  * Enumeratie die de kanalen bevat zoals die binnenkomen op de {@link NotificatieReceiver}.
  * <p>
- * http://open-zaak.default/ref/kanalen/
+ * <a href="http://open-zaak.default/ref/kanalen/">Kanalen</a>
  */
 @JsonbTypeAdapter(Channel.Adapter.class)
 public enum Channel {

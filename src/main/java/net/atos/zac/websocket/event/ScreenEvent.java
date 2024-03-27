@@ -8,9 +8,11 @@ package net.atos.zac.websocket.event;
 import net.atos.zac.event.AbstractEvent;
 import net.atos.zac.event.Opcode;
 
+import java.io.Serial;
+
 public class ScreenEvent extends AbstractEvent<ScreenEventType, ScreenEventId> {
 
-    private static final long serialVersionUID = -740125186878024703L;
+    @Serial private static final long serialVersionUID = -740125186878024703L;
 
     private ScreenEventType objectType;
 
