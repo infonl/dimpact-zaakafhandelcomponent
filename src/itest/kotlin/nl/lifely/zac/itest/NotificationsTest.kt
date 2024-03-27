@@ -19,6 +19,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANV
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
+import nl.lifely.zac.itest.config.ItestConfiguration.TEN_SECONDS
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_INITIAL
 import nl.lifely.zac.itest.config.ItestConfiguration.THIRTY_SECONDS
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
@@ -212,7 +213,7 @@ class NotificationsTest : BehaviorSpec({
                 "the response should be 'no content' and an event that the zaak has been updated should be sent to the websocket"
             ) {
                 response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
-                await.atMost(THIRTY_SECONDS).until {
+                await.atMost(TEN_SECONDS).until {
                     websocketListener.messagesReceived.size == 1
                 }
                 with(JSONObject(websocketListener.messagesReceived[0])) {
