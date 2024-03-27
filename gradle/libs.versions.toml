@@ -1,5 +1,6 @@
 [versions]
 kotlin = "1.9.23"
+kotlinx-coroutines = "1.8.0"
 nodejs = "20.11.1"
 jsonschema2pojo = "1.2.1"
 openapi = "3.10.0"
@@ -96,6 +97,7 @@ apache-solr = { group = "org.apache.solr", name = "solr-solrj", version.ref = "a
 webdav-servlet = { group = "nl.info.webdav", name = "webdav-servlet", version.ref = "webdav-servlet" }
 htmlcleaner = { group = "net.sourceforge.htmlcleaner", name = "htmlcleaner", version.ref = "htmlcleaner" }
 unboundid-ldapsdk = { group = "com.unboundid", name = "unboundid-ldapsdk", version.ref = "unboundid" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 
 swagger-ui = { group = "org.webjars", name = "swagger-ui", version.ref = "swagger" }
 

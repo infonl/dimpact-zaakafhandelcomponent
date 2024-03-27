@@ -5,6 +5,7 @@
 
 package nl.lifely.zac.itest.config
 
+import java.time.Duration
 import java.util.UUID
 
 /**
@@ -75,4 +76,13 @@ object ItestConfiguration {
     const val SMARTDOCUMENTS_MOCK_BASE_URI = "http://smartdocuments-wiremock:8080"
 
     val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
+
+    @Suppress("MagicNumber")
+    val DURATION_THREE_MINUTES: Duration = Duration.ofMinutes(3)
+
+    @Suppress("MagicNumber")
+    val DURATION_TEN_SECONDS: Duration = Duration.ofSeconds(10)
+
+    @Suppress("MagicNumber")
+    val DURATION_THIRTY_SECONDS: Duration = Duration.ofSeconds(30)
 }
