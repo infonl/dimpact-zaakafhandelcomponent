@@ -36,17 +36,14 @@ import net.atos.client.zgw.zrc.model.AardRelatie
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.HoofdzaakZaakPatch
 import net.atos.client.zgw.zrc.model.LocatieZaakPatch
-import net.atos.client.zgw.zrc.model.Medewerker
 import net.atos.client.zgw.zrc.model.NatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.NietNatuurlijkPersoon
-import net.atos.client.zgw.zrc.model.OrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.RelevanteZaak
 import net.atos.client.zgw.zrc.model.RelevantezaakZaakPatch
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
-import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.RolVestiging
 import net.atos.client.zgw.zrc.model.Vestiging
 import net.atos.client.zgw.zrc.model.Zaak
@@ -117,8 +114,6 @@ import net.atos.zac.flowable.TakenService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.healthcheck.HealthCheckService
 import net.atos.zac.identity.IdentityService
-import net.atos.zac.identity.model.Group
-import net.atos.zac.identity.model.User
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.shared.helper.OpschortenZaakHelper
@@ -134,6 +129,7 @@ import net.atos.zac.zaaksturing.model.ZaakAfzender
 import net.atos.zac.zaaksturing.model.ZaakAfzender.Speciaal
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters
 import net.atos.zac.zaaksturing.model.ZaakbeeindigParameter
+import net.atos.zac.zaken.ZakenService
 import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import org.apache.commons.collections4.CollectionUtils
@@ -153,6 +149,17 @@ import java.util.stream.Stream
 @Singleton
 @Suppress("TooManyFunctions", "LargeClass")
 class ZakenRESTService {
+    companion object {
+        private val LOG = Logger.getLogger(ZakenRESTService::class.java.name)
+
+        private const val ROL_VERWIJDER_REDEN = "Verwijderd door de medewerker tijdens het behandelen van de zaak"
+        private const val ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
+        private const val AANMAKEN_ZAAK_REDEN = "Aanmaken zaak"
+        private const val VERLENGING = "Verlenging"
+        private const val AANMAKEN_BESLUIT_TOELICHTING = "Aanmaken besluit"
+        private const val WIJZIGEN_BESLUIT_TOELICHTING = "Wijzigen besluit"
+    }
+
     @Inject
     private lateinit var zgwApiService: ZGWApiService
 
@@ -255,6 +262,9 @@ class ZakenRESTService {
     @Inject
     private lateinit var zaakAfzenderConverter: RESTZaakAfzenderConverter
 
+    @Inject
+    private lateinit var zakenService: ZakenService
+
     @GET
     @Path("zaak/{uuid}")
     fun readZaak(@PathParam("uuid") zaakUUID: UUID): RESTZaak {
@@ -341,13 +351,13 @@ class ZakenRESTService {
                 zaak
             )
         }
-        restZaak.groep?.let { restGroup ->
-            val group = identityService.readGroup(restGroup.id)
-            zrcClientService.updateRol(zaak, bepaalRolGroep(group, zaak), AANMAKEN_ZAAK_REDEN)
+        restZaak.groep?.let {
+            val group = identityService.readGroup(it.id)
+            zrcClientService.updateRol(zaak, zakenService.bepaalRolGroep(group, zaak), AANMAKEN_ZAAK_REDEN)
         }
-        restZaak.behandelaar?.let { restBehandelaar ->
-            val user = identityService.readUser(restBehandelaar.id)
-            zrcClientService.updateRol(zaak, bepaalRolMedewerker(user, zaak), AANMAKEN_ZAAK_REDEN)
+        restZaak.behandelaar?.let {
+            val user = identityService.readUser(it.id)
+            zrcClientService.updateRol(zaak, zakenService.bepaalRolMedewerker(user, zaak), AANMAKEN_ZAAK_REDEN)
         }
         cmmnService.startCase(
             zaak,
@@ -597,7 +607,7 @@ class ZakenRESTService {
                 )
                 zrcClientService.updateRol(
                     zaak,
-                    bepaalRolMedewerker(user, zaak),
+                    zakenService.bepaalRolMedewerker(user, zaak),
                     toekennenGegevens.reden
                 )
             } else {
@@ -621,7 +631,7 @@ class ZakenRESTService {
                     val group = identityService.readGroup(toekennenGegevens.groepId)
                     zrcClientService.updateRol(
                         zaak,
-                        bepaalRolGroep(group, zaak),
+                        zakenService.bepaalRolGroep(group, zaak),
                         toekennenGegevens.reden
                     )
                     isUpdated.set(true)
@@ -648,52 +658,25 @@ class ZakenRESTService {
 
     @PUT
     @Path("lijst/verdelen")
-    fun verdelenVanuitLijst(verdeelGegevens: RESTZakenVerdeelGegevens) {
+    fun verdelenVanuitLijst(verdeelGegevens: @Valid RESTZakenVerdeelGegevens) {
         assertPolicy(
             policyService.readWerklijstRechten().zakenTaken &&
                 policyService.readWerklijstRechten().zakenTakenVerdelen
         )
-        val group = if (!StringUtils.isEmpty(verdeelGegevens.groepId)) {
-            identityService.readGroup(verdeelGegevens.groepId)
-        } else {
-            null
-        }
-        val user = if (!StringUtils.isEmpty(verdeelGegevens.behandelaarGebruikersnaam)) {
-            identityService.readUser(verdeelGegevens.behandelaarGebruikersnaam)
-        } else {
-            null
-        }
-        verdeelGegevens.uuids.forEach(
-            Consumer { uuid ->
-                val zaak = zrcClientService.readZaak(uuid)
-                if (group != null) {
-                    zrcClientService.updateRol(
-                        zaak,
-                        bepaalRolGroep(group, zaak),
-                        verdeelGegevens.reden
-                    )
-                }
-                if (user != null) {
-                    zrcClientService.updateRol(
-                        zaak,
-                        bepaalRolMedewerker(user, zaak),
-                        verdeelGegevens.reden
-                    )
-                }
+        zakenService.assignZakenAsync(
+            zaakUUIDs = verdeelGegevens.uuids,
+            explanation = verdeelGegevens.reden,
+            group = verdeelGegevens.groepId?.let { identityService.readGroup(verdeelGegevens.groepId) },
+            user = verdeelGegevens.behandelaarGebruikersnaam?.let {
+                identityService.readUser(verdeelGegevens.behandelaarGebruikersnaam)
             }
         )
-        indexeerService.indexeerDirect(
-            verdeelGegevens.uuids.stream().map {
-                    obj ->
-                obj.toString()
-            }.toList(),
-            ZoekObjectType.ZAAK
-        )
+        LOG.fine { "Started asynchronous process to assign ${verdeelGegevens.uuids.size} zaken to group and/or user" }
     }
 
     @PUT
     @Path("lijst/vrijgeven")
-    fun vrijgevenVanuitLijst(verdeelGegevens: RESTZakenVerdeelGegevens) {
+    fun vrijgevenVanuitLijst(verdeelGegevens: @Valid RESTZakenVerdeelGegevens) {
         assertPolicy(
             policyService.readWerklijstRechten().zakenTaken &&
                 policyService.readWerklijstRechten().zakenTakenVerdelen
@@ -1220,37 +1203,6 @@ class ZakenRESTService {
         }
     }
 
-    private fun bepaalRolGroep(group: Group, zaak: Zaak): RolOrganisatorischeEenheid {
-        return RolOrganisatorischeEenheid(
-            zaak.url,
-            ztcClientService.readRoltype(
-                RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
-                zaak.zaaktype
-            ),
-            "Behandelend groep van de zaak",
-            OrganisatorischeEenheid().apply {
-                identificatie = group.id
-                naam = group.name
-            }
-        )
-    }
-
-    private fun bepaalRolMedewerker(user: User, zaak: Zaak): RolMedewerker {
-        return RolMedewerker(
-            zaak.url,
-            ztcClientService.readRoltype(
-                RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
-                zaak.zaaktype
-            ),
-            "Behandelaar van de zaak",
-            Medewerker().apply {
-                identificatie = user.id
-                voorletters = user.firstName
-                achternaam = user.lastName
-            }
-        )
-    }
-
     private fun datumWaarschuwing(vandaag: LocalDate, dagen: Int): LocalDate {
         return vandaag.plusDays(dagen + 1L)
     }
@@ -1281,7 +1233,7 @@ class ZakenRESTService {
         assertPolicy(zaak.isOpen && policyService.readZaakRechten(zaak).toekennen)
         zrcClientService.updateRol(
             zaak,
-            bepaalRolMedewerker(identityService.readUser(loggedInUserInstance.get().id), zaak),
+            zakenService.bepaalRolMedewerker(identityService.readUser(loggedInUserInstance.get().id), zaak),
             toekennenGegevens.reden
         )
         return zaak
@@ -1462,35 +1414,24 @@ class ZakenRESTService {
             }
         return count[0]
     }
+}
 
-    companion object {
-        private val LOG = Logger.getLogger(ZakenRESTService::class.java.name)
-
-        private const val ROL_VERWIJDER_REDEN = "Verwijderd door de medewerker tijdens het behandelen van de zaak"
-        private const val ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
-        private const val AANMAKEN_ZAAK_REDEN = "Aanmaken zaak"
-        private const val VERLENGING = "Verlenging"
-        private const val AANMAKEN_BESLUIT_TOELICHTING = "Aanmaken besluit"
-        private const val WIJZIGEN_BESLUIT_TOELICHTING = "Wijzigen besluit"
-
-        private fun sortAndRemoveDuplicates(
-            afzenders: Stream<RESTZaakAfzender>
-        ): List<RESTZaakAfzender> {
-            val list: MutableList<RESTZaakAfzender> = afzenders.sorted { a, b ->
-                val result: Int = a.mail.compareTo(b.mail)
-                if (result == 0) if (a.defaultMail) -1 else 0 else result
-            }.collect(Collectors.toList())
-            val i = list.iterator()
-            var previous: String? = null
-            while (i.hasNext()) {
-                val afzender: RESTZaakAfzender = i.next()
-                if (afzender.mail == previous) {
-                    i.remove()
-                } else {
-                    previous = afzender.mail
-                }
-            }
-            return list
+private fun sortAndRemoveDuplicates(
+    afzenders: Stream<RESTZaakAfzender>
+): List<RESTZaakAfzender> {
+    val list = afzenders.sorted { a, b ->
+        val result: Int = a.mail.compareTo(b.mail)
+        if (result == 0) if (a.defaultMail) -1 else 0 else result
+    }.collect(Collectors.toList())
+    val i = list.iterator()
+    var previous: String? = null
+    while (i.hasNext()) {
+        val afzender: RESTZaakAfzender = i.next()
+        if (afzender.mail == previous) {
+            i.remove()
+        } else {
+            previous = afzender.mail
         }
     }
+    return list
 }
