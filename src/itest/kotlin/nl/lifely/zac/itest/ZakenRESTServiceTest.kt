@@ -8,6 +8,7 @@ package nl.lifely.zac.itest
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
+import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -18,7 +19,6 @@ import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATIE_TY
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_TYPE_NATUURLIJK_PERSOON
 import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_BETROKKENE
 import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_UUID_BELANGHEBBENDE
-import nl.lifely.zac.itest.config.ItestConfiguration.TEN_SECONDS
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_BETROKKENE_BSN_HENDRIKA_JANSE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
@@ -30,12 +30,12 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVEN
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_2_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import org.awaitility.kotlin.await
 import org.json.JSONArray
 import org.json.JSONObject
 import org.mockserver.model.HttpStatusCode
 import java.time.LocalDate
 import java.util.*
+import kotlin.time.Duration.Companion.seconds
 
 private val itestHttpClient = ItestHttpClient()
 private val zacClient = ZacClient()
@@ -168,22 +168,22 @@ class ZakenRESTServiceTest : BehaviorSpec({
             Then("the response should be a 204 HTTP response and the zaken should be assigned correctly") {
                 response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
                 // the process is asynchronous, so we need to wait a bit until the zaken are assigned
-                await.atMost(TEN_SECONDS)
-                    .until {
-                        zacClient.retrieveZaak(zaak1UUID).use { response ->
-                            response.code == HttpStatusCode.OK_200.code() &&
-                                with(JSONObject(response.body!!.string())) {
-                                    has("groep") && getJSONObject("groep").getString("id") == TEST_GROUP_A_ID &&
-                                        has("behandelaar") && getJSONObject("behandelaar").getString("id") == TEST_USER_2_ID
-                                }
-                        } && zacClient.retrieveZaak(zaak2UUID).use { response ->
-                            response.code == HttpStatusCode.OK_200.code() &&
-                                with(JSONObject(response.body!!.string())) {
-                                    has("groep") && getJSONObject("groep").getString("id") == TEST_GROUP_A_ID &&
-                                        has("behandelaar") && getJSONObject("behandelaar").getString("id") == TEST_USER_2_ID
-                                }
+                eventually(10.seconds) {
+                    zacClient.retrieveZaak(zaak1UUID).use { response ->
+                        response.code shouldBe HttpStatusCode.OK_200.code()
+                        with(JSONObject(response.body!!.string())) {
+                            getJSONObject("groep").getString("id") shouldBe TEST_GROUP_A_ID
+                            getJSONObject("behandelaar").getString("id") shouldBe TEST_USER_2_ID
                         }
                     }
+                    zacClient.retrieveZaak(zaak2UUID).use { response ->
+                        response.code shouldBe HttpStatusCode.OK_200.code()
+                        with(JSONObject(response.body!!.string())) {
+                            getJSONObject("groep").getString("id") shouldBe TEST_GROUP_A_ID
+                            getJSONObject("behandelaar").getString("id") shouldBe TEST_USER_2_ID
+                        }
+                    }
+                }
             }
         }
     }
