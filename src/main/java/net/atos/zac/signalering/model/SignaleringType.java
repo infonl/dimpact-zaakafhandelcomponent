@@ -49,8 +49,16 @@ public class SignaleringType implements Comparable<SignaleringType> {
         return type;
     }
 
+    void setType(Type type) {
+        this.type = type;
+    }
+
     public SignaleringSubject getSubjecttype() {
         return subjecttype;
+    }
+
+    void setSubjecttype(SignaleringSubject subjecttype) {
+        this.subjecttype = subjecttype;
     }
 
     /**
