@@ -14,10 +14,11 @@ import io.kotest.provided.ProjectConfig
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.FIVE_HUNDRED_MILLISECONDS
-import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTS_API_HOSTNAME_URL
+import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTS_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
+import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_INITIAL
 import nl.lifely.zac.itest.config.ItestConfiguration.THIRTY_SECONDS
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
@@ -78,10 +79,10 @@ class NotificationsTest : BehaviorSpec({
                 requestBodyAsString = JSONObject(
                     mapOf(
                         "resource" to "object",
-                        "resourceUrl" to "$OBJECTS_API_HOSTNAME_URL/$OBJECT_PRODUCTAANVRAAG_UUID",
+                        "resourceUrl" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_UUID",
                         "actie" to "create",
                         "kenmerken" to mapOf(
-                            "objectType" to "$OBJECTS_API_HOSTNAME_URL/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT"
+                            "objectType" to "$OBJECTS_BASE_URI/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT"
                         ),
                         "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                     )
@@ -154,7 +155,7 @@ class NotificationsTest : BehaviorSpec({
                     Wait.forLogMessage(
                         ".* Er is iets fout gegaan in de Zaaktype-handler bij het afhandelen van notificatie: " +
                             "null ZAAKTYPE CREATE .*: java.lang.RuntimeException: URI 'http://example.com/dummyResourceUrl' does not " +
-                            "start with value for environment variable 'ZGW_API_CLIENT_MP_REST_URL': 'http://openzaak.local:8000/' .*",
+                            "start with value for environment variable 'ZGW_API_CLIENT_MP_REST_URL': '$OPEN_ZAAK_BASE_URI/' .*",
                         1
                     ).withStartupTimeout(THIRTY_SECONDS)
                 )
@@ -196,12 +197,12 @@ class NotificationsTest : BehaviorSpec({
                         "kanaal" to "zaken",
                         "resource" to "zaak",
                         "kenmerken" to mapOf(
-                            "zaaktype" to "http://openzaak.local:8000/catalogi/api/v1/zaaktypen/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID",
+                            "zaaktype" to "$OPEN_ZAAK_BASE_URI/catalogi/api/v1/zaaktypen/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID",
                             "bronorganisatie" to "123443210",
                             "vertrouwelijkheidaanduiding" to "openbaar"
                         ),
-                        "hoofdObject" to "http://openzaak.local:8000/zaken/api/v1/zaken/$zaak1UUID",
-                        "resourceUrl" to "http://openzaak.local:8000/zaken/api/v1/zaken/$zaak1UUID",
+                        "hoofdObject" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaak1UUID",
+                        "resourceUrl" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaak1UUID",
                         "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                     )
                 ).toString(),
