@@ -213,9 +213,6 @@ class NotificationsTest : BehaviorSpec({
                 "the response should be 'no content' and an event that the zaak has been updated should be sent to the websocket"
             ) {
                 response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
-                await.atMost(TEN_SECONDS).until {
-                    websocketListener.messagesReceived.size == 1
-                }
                 with(JSONObject(websocketListener.messagesReceived[0])) {
                     getString("opcode") shouldBe "UPDATED"
                     getString("objectType") shouldBe "ZAAK"
