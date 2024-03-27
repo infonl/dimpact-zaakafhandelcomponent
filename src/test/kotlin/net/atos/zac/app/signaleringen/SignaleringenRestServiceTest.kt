@@ -49,7 +49,7 @@ class SignaleringenRestServiceTest : BehaviorSpec() {
     init {
         Given("there are multiple ZAAK_OP_NAAM signals ") {
             val numberOfSignals = 100
-            val maxDelay = 10L
+            val maxDelay = 15L
 
             val zaakList = MutableList(numberOfSignals) { createZaak() }
             val signals: List<Signalering> =
