@@ -11,6 +11,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.core.test.TestCase
 import io.kotest.matchers.shouldBe
 import io.mockk.MockKAnnotations
+import io.mockk.called
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -18,6 +19,7 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.verify
+import jakarta.ws.rs.BadRequestException
 import net.atos.client.zgw.drc.DRCClientService
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObjectData
@@ -121,9 +123,6 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
 
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every { policyService.readZaakRechten(zaak) } returns zaakRechtenWijzigen
-            every {
-                restInformatieobjectConverter.convertZaakObject(restEnkelvoudigInformatieobject)
-            } returns enkelvoudigInformatieObjectData
             every {
                 restInformatieobjectConverter.convertZaakObject(restEnkelvoudigInformatieobject)
             } returns enkelvoudigInformatieObjectData
@@ -331,6 +330,67 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                             enkelvoudigInformatieObjectWithLockData,
                             null
                         )
+                    }
+                }
+            }
+        }
+
+        Given("an enkelvoudig informatieobject is created") {
+            val zaak = createZaak()
+            val documentReferentieId: String = "dummyDocumentReferentieId"
+            val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
+            val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectData().apply {
+                bestandsnaam = "emptyFile.txt"
+                formaat = "dummyType"
+                bestandsomvang = 0
+            }
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { policyService.readZaakRechten(zaak) } returns zaakRechtenWijzigen
+            every {
+                restInformatieobjectConverter.convertZaakObject(restEnkelvoudigInformatieobject)
+            } returns enkelvoudigInformatieObjectData
+
+            val restEnkelvoudigInformatieObjectVersieGegevens = createRESTEnkelvoudigInformatieObjectVersieGegevens(
+                zaakUuid = zaak.uuid,
+                file = "".toByteArray()
+            )
+            val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+            every {
+                drcClientService.readEnkelvoudigInformatieobject(restEnkelvoudigInformatieObjectVersieGegevens.uuid)
+            } returns enkelvoudigInformatieObject
+            every { policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak) } returns createDocumentRechten()
+
+            When("file upload with an empty file is attempted") {
+                shouldThrow<BadRequestException> {
+                    informatieObjectenRESTService.createEnkelvoudigInformatieobjectAndUploadFile(
+                        zaak.uuid,
+                        documentReferentieId,
+                        false,
+                        restEnkelvoudigInformatieobject
+                    )
+                }
+
+                Then("no information is changed") {
+                    verify {
+                        zgwApiService.createZaakInformatieobjectForZaak(
+                            any(), any(), any(), any(), any()
+                        ) wasNot called
+                    }
+                }
+            }
+
+            When("update with an empty file is attempted") {
+                shouldThrow<BadRequestException> {
+                    informatieObjectenRESTService.updateEnkelvoudigInformatieobjectAndUploadFile(
+                        restEnkelvoudigInformatieObjectVersieGegevens
+                    )
+                }
+
+                Then("no information is changed") {
+                    verify {
+                        enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
+                            any(), any(), any()
+                        ) wasNot called
                     }
                 }
             }

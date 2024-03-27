@@ -26,6 +26,7 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.validation.Valid;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -286,6 +287,13 @@ public class InformatieObjectenRESTService {
         final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData = taakObject ?
                 informatieobjectConverter.convertTaakObject(restEnkelvoudigInformatieobject) :
                 informatieobjectConverter.convertZaakObject(restEnkelvoudigInformatieobject);
+
+        Integer fileSize = enkelvoudigInformatieObjectData.getBestandsomvang();
+        String fileName = enkelvoudigInformatieObjectData.getBestandsnaam();
+        if (fileName != null && (fileSize == null || fileSize.longValue() == 0)) {
+            throw new BadRequestException("Empty file [" + fileName + "]");
+        }
+
         return createEnkelvoudigInformatieobject(enkelvoudigInformatieObjectData, documentReferentieId, taakObject, zaak);
     }
 
@@ -504,6 +512,11 @@ public class InformatieObjectenRESTService {
                         zrcClientService.readZaak(enkelvoudigInformatieObjectVersieGegevens.zaakUuid)
                 ).wijzigen()
         );
+        String fileName = enkelvoudigInformatieObjectVersieGegevens.bestandsnaam;
+        if (fileName != null && enkelvoudigInformatieObjectVersieGegevens.file != null &&
+            enkelvoudigInformatieObjectVersieGegevens.file.length == 0) {
+            throw new BadRequestException("Empty file [" + fileName + "]");
+        }
         var updatedDocument = informatieobjectConverter.convert(enkelvoudigInformatieObjectVersieGegevens);
         return updateEnkelvoudigInformatieobject(enkelvoudigInformatieObjectVersieGegevens, document, updatedDocument);
     }
