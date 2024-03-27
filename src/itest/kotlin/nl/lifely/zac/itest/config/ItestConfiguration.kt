@@ -83,11 +83,14 @@ object ItestConfiguration {
     val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
 
     @Suppress("MagicNumber")
-    val DURATION_THREE_MINUTES: Duration = Duration.ofMinutes(3)
+    val FIVE_HUNDRED_MILLISECONDS: Duration = Duration.ofMillis(500)
 
     @Suppress("MagicNumber")
-    val DURATION_TEN_SECONDS: Duration = Duration.ofSeconds(10)
+    val TEN_SECONDS: Duration = Duration.ofSeconds(10)
 
     @Suppress("MagicNumber")
-    val DURATION_THIRTY_SECONDS: Duration = Duration.ofSeconds(30)
+    val THIRTY_SECONDS: Duration = Duration.ofSeconds(30)
+
+    @Suppress("MagicNumber")
+    val THREE_MINUTES: Duration = Duration.ofMinutes(3)
 }

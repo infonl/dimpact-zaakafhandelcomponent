@@ -16,9 +16,9 @@ import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATIE_TYPE_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_TYPE_NATUURLIJK_PERSOON
-import nl.lifely.zac.itest.config.ItestConfiguration.DURATION_TEN_SECONDS
 import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_BETROKKENE
 import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_UUID_BELANGHEBBENDE
+import nl.lifely.zac.itest.config.ItestConfiguration.TEN_SECONDS
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_BETROKKENE_BSN_HENDRIKA_JANSE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
@@ -168,7 +168,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
             Then("the response should be a 204 HTTP response and the zaken should be assigned correctly") {
                 response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
                 // the process is asynchronous, so we need to wait a bit until the zaken are assigned
-                await.atMost(DURATION_TEN_SECONDS)
+                await.atMost(TEN_SECONDS)
                     .until {
                         zacClient.retrieveZaak(zaak1UUID).use { response ->
                             response.code == HttpStatusCode.OK_200.code() &&

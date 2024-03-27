@@ -15,6 +15,8 @@ import nl.lifely.zac.itest.client.KeycloakClient
 import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
 import nl.lifely.zac.itest.config.ItestConfiguration.SMARTDOCUMENTS_MOCK_BASE_URI
+import nl.lifely.zac.itest.config.ItestConfiguration.THIRTY_SECONDS
+import nl.lifely.zac.itest.config.ItestConfiguration.THREE_MINUTES
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_CONTAINER_SERVICE_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_DEFAULT_DOCKER_IMAGE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_HEALTH_READY_URL
@@ -28,17 +30,10 @@ import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.Wait
 import java.io.File
 import java.net.SocketException
-import java.time.Duration
 
 private val logger = KotlinLogging.logger {}
 
 object ProjectConfig : AbstractProjectConfig() {
-    @Suppress("MagicNumber")
-    val THREE_MINUTES = Duration.ofMinutes(3)
-
-    @Suppress("MagicNumber")
-    val THIRTY_SECONDS = Duration.ofSeconds(30)
-
     lateinit var dockerComposeContainer: ComposeContainer
     private val itestHttpClient = ItestHttpClient()
 

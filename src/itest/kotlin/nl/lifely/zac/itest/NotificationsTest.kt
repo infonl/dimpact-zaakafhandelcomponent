@@ -13,11 +13,13 @@ import io.kotest.matchers.shouldBe
 import io.kotest.provided.ProjectConfig
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration
+import nl.lifely.zac.itest.config.ItestConfiguration.FIVE_HUNDRED_MILLISECONDS
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTS_API_HOSTNAME_URL
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_INITIAL
+import nl.lifely.zac.itest.config.ItestConfiguration.THIRTY_SECONDS
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -154,7 +156,7 @@ class NotificationsTest : BehaviorSpec({
                             "null ZAAKTYPE CREATE .*: java.lang.RuntimeException: URI 'http://example.com/dummyResourceUrl' does not " +
                             "start with value for environment variable 'ZGW_API_CLIENT_MP_REST_URL': 'http://openzaak.local:8000/' .*",
                         1
-                    ).withStartupTimeout(ProjectConfig.THIRTY_SECONDS)
+                    ).withStartupTimeout(THIRTY_SECONDS)
                 )
             }
         }
@@ -178,7 +180,7 @@ class NotificationsTest : BehaviorSpec({
             webSocketListener = websocketListener
         )
         // we need to wait a bit to make sure the websocket subscription has been registered in ZAC
-        Thread.sleep(500)
+        Thread.sleep(FIVE_HUNDRED_MILLISECONDS)
         When("a notification is sent to ZAC that the zaak in question has been updated") {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/notificaties",
@@ -209,7 +211,7 @@ class NotificationsTest : BehaviorSpec({
                 "the response should be 'no content' and an event that the zaak has been updated should be sent to the websocket"
             ) {
                 response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
-                await.atMost(ProjectConfig.THIRTY_SECONDS).until {
+                await.atMost(THIRTY_SECONDS).until {
                     websocketListener.messagesReceived.size == 1
                 }
                 with(JSONObject(websocketListener.messagesReceived[0])) {
