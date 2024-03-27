@@ -24,7 +24,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 
-
 @Entity
 @Table(schema = SCHEMA, name = "signaleringtype")
 public class SignaleringType implements Comparable<SignaleringType> {
