@@ -8,6 +8,7 @@ package nl.lifely.zac.itest
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
+import io.kotest.assertions.json.shouldNotContainJsonKey
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -42,6 +43,9 @@ private val zacClient = ZacClient()
 private val logger = KotlinLogging.logger {}
 
 lateinit var zaak2UUID: UUID
+
+private const val GEOMETRIE_X = 4.806972888890921
+private const val GEOMETRIE_Y = 52.35339893489683
 
 /**
  * This test assumes a zaak has been created in a previously run test.
@@ -281,6 +285,62 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     shouldContainJsonKeyValue("uuid", zaak2UUID.toString())
                     shouldContainJsonKeyValue("startdatum", startDateNew.toString())
                     shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", fatalDateNew.toString())
+                }
+            }
+        }
+    }
+    Given("A zaak has been created") {
+        When("the 'update Zaak Locatie' endpoint is called with a valid location") {
+            val response = itestHttpClient.performPatchRequest(
+                url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID/zaaklocatie",
+                requestBodyAsString = """
+                        {
+                            "geometrie": {
+                                "point": {
+                                    "x": $GEOMETRIE_X,
+                                    "y": $GEOMETRIE_Y
+                                },
+                                "type": "Point"
+                            },
+                            "reden": "hier is het"
+                        }
+                """.trimIndent()
+            )
+            Then("the response should be a 200 HTTP response with the changed zaak data") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HttpStatusCode.OK_200.code()
+                with(responseBody) {
+                    shouldContainJsonKey("zaakgeometrie")
+                    val geometrie = JSONObject(responseBody)["zaakgeometrie"].toString()
+                    with(geometrie) {
+                        shouldContainJsonKeyValue("type", "Point")
+                        shouldContainJsonKey("point")
+                        with(JSONObject(geometrie)["point"].toString()) {
+                            shouldContainJsonKeyValue("x", GEOMETRIE_X)
+                            shouldContainJsonKeyValue("y", GEOMETRIE_Y)
+                        }
+                    }
+                }
+            }
+        }
+
+        When("the 'update Zaak Locatie' endpoint is called with a null value as location") {
+            val response = itestHttpClient.performPatchRequest(
+                url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID/zaaklocatie",
+                requestBodyAsString = """
+                        {
+                            "geometrie": null,
+                            "reden": "hier is het niet meer"
+                        }
+                """.trimIndent()
+            )
+            Then("the response should be a 200 HTTP response with the changed zaak data, so without zaakgeometrie") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HttpStatusCode.OK_200.code()
+                with(responseBody) {
+                    shouldNotContainJsonKey("zaakgeometrie")
                 }
             }
         }
