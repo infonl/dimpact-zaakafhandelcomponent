@@ -12,8 +12,8 @@ fun createSignalering(
     zaak: Zaak = createZaak()
 ) = Signalering().apply {
     this.type = SignaleringType().apply {
-        this.type = SignaleringType.Type.ZAAK_OP_NAAM
-        this.subjecttype = SignaleringSubject.ZAAK
+        type = SignaleringType.Type.ZAAK_OP_NAAM
+        subjecttype = SignaleringSubject.ZAAK
     }
     this.setSubject(zaak)
 }

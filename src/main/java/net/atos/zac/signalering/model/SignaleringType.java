@@ -50,7 +50,7 @@ public class SignaleringType implements Comparable<SignaleringType> {
         return type;
     }
 
-    public void setType(Type type) {
+    void setType(Type type) {
         this.type = type;
     }
 
@@ -58,7 +58,7 @@ public class SignaleringType implements Comparable<SignaleringType> {
         return subjecttype;
     }
 
-    public void setSubjecttype(SignaleringSubject subjecttype) {
+    void setSubjecttype(SignaleringSubject subjecttype) {
         this.subjecttype = subjecttype;
     }
 
