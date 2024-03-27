@@ -335,13 +335,13 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             }
         }
 
-        Given("an enkelvoudig informatieobject is created") {
+        Given("zaak is created") {
             val zaak = createZaak()
-            val documentReferentieId: String = "dummyDocumentReferentieId"
-            val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
 
             When("file upload with an empty file is attempted") {
+                val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
+                val documentReferentieId: String = "dummyDocumentReferentieId"
                 val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectData().apply {
                     bestandsnaam = "emptyFile.txt"
                     formaat = "dummyType"
