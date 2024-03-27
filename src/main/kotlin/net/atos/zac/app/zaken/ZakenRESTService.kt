@@ -405,7 +405,11 @@ class ZakenRESTService {
     ): RESTZaak {
         assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).wijzigen)
         val locatieZaakPatch = LocatieZaakPatch(
-            restGeometryConverter.convert(locatieGegevens.geometrie)
+            if (locatieGegevens.geometrie != null) {
+                restGeometryConverter.convert(locatieGegevens.geometrie!!)
+            } else {
+                null
+            }
         )
         val updatedZaak = zrcClientService.patchZaak(
             zaakUUID,
