@@ -198,7 +198,7 @@ jobs:
       # we do not want the ZAC Docker image to be cached.
       # See: https://github.com/ScribeMD/docker-cache/issues/532
       - name: Cache Docker images
-        uses: ScribeMD/docker-cache@0.4.0
+        uses: ScribeMD/docker-cache@0.5.0
         with:
           key: docker-${{ runner.os }}-${{ hashFiles('docker-compose.yaml') }}
 
