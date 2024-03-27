@@ -14,7 +14,7 @@ import java.util.UUID
 data class RESTZakenVerdeelGegevens(
     var uuids: List<UUID>,
 
-    var reden: String,
+    var reden: String?,
 
     @field:NotBlank
     var groepId: String? = null,
