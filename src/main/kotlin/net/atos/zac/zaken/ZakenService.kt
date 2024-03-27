@@ -30,7 +30,7 @@ class ZakenService @Inject constructor(
     /**
      * Asynchronously assigns a list of zaken to a group and/or user and updates the search index on the fly.
      */
-    fun assignZakenAsync(zaakUUIDs: List<UUID>, explanation: String, group: Group? = null, user: User? = null) =
+    fun assignZakenAsync(zaakUUIDs: List<UUID>, explanation: String? = null, group: Group? = null, user: User? = null) =
         defaultCoroutineScope.launch {
             zaakUUIDs.forEach { zaakUUID ->
                 val zaak = zrcClientService.readZaak(zaakUUID)
