@@ -200,6 +200,16 @@ public class KlantenRESTService {
     }
 
     @GET
+    @Path("roltype")
+    public List<RESTRoltype> listRoltypen() {
+        return roltypeConverter.convert(
+                ztcClientService.listRoltypen()
+                        .stream()
+                        .sorted(Comparator.comparing(RolType::getOmschrijving))
+        );
+    }
+
+    @GET
     @Path("contactgegevens/{identificatieType}/{initiatorIdentificatie}")
     public RESTContactGegevens ophalenContactGegevens(
             @PathParam("identificatieType") final IdentificatieType identificatieType,

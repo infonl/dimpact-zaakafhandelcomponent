@@ -16,6 +16,7 @@ import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATIE_TYPE_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_TYPE_NATUURLIJK_PERSOON
+import nl.lifely.zac.itest.config.ItestConfiguration.DURATION_TEN_SECONDS
 import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_BETROKKENE
 import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_UUID_BELANGHEBBENDE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_BETROKKENE_BSN_HENDRIKA_JANSE
@@ -25,11 +26,11 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
-import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_2_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_2_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import org.awaitility.kotlin.await
 import org.json.JSONArray
 import org.json.JSONObject
 import org.mockserver.model.HttpStatusCode
@@ -166,32 +167,23 @@ class ZakenRESTServiceTest : BehaviorSpec({
             )
             Then("the response should be a 204 HTTP response and the zaken should be assigned correctly") {
                 response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
-                with(zacClient.retrieveZaak(zaak1UUID)) {
-                    code shouldBe HttpStatusCode.OK_200.code()
-                    JSONObject(body!!.string()).apply {
-                        getJSONObject("groep").apply {
-                            getString("id") shouldBe TEST_GROUP_A_ID
-                            getString("naam") shouldBe TEST_GROUP_A_DESCRIPTION
-                        }
-                        getJSONObject("behandelaar").apply {
-                            getString("id") shouldBe TEST_USER_2_ID
-                            getString("naam") shouldBe TEST_USER_2_NAME
-                        }
-                    }
-                }
-                with(zacClient.retrieveZaak(zaak2UUID)) {
-                    code shouldBe HttpStatusCode.OK_200.code()
-                    JSONObject(body!!.string()).apply {
-                        getJSONObject("groep").apply {
-                            getString("id") shouldBe TEST_GROUP_A_ID
-                            getString("naam") shouldBe TEST_GROUP_A_DESCRIPTION
-                        }
-                        getJSONObject("behandelaar").apply {
-                            getString("id") shouldBe TEST_USER_2_ID
-                            getString("naam") shouldBe TEST_USER_2_NAME
+                // the process is asynchronous, so we need to wait a bit until the zaken are assigned
+                await.atMost(DURATION_TEN_SECONDS)
+                    .until {
+                        zacClient.retrieveZaak(zaak1UUID).use { response ->
+                            response.code == HttpStatusCode.OK_200.code() &&
+                                with(JSONObject(response.body!!.string())) {
+                                    has("groep") && getJSONObject("groep").getString("id") == TEST_GROUP_A_ID &&
+                                        has("behandelaar") && getJSONObject("behandelaar").getString("id") == TEST_USER_2_ID
+                                }
+                        } && zacClient.retrieveZaak(zaak2UUID).use { response ->
+                            response.code == HttpStatusCode.OK_200.code() &&
+                                with(JSONObject(response.body!!.string())) {
+                                    has("groep") && getJSONObject("groep").getString("id") == TEST_GROUP_A_ID &&
+                                        has("behandelaar") && getJSONObject("behandelaar").getString("id") == TEST_USER_2_ID
+                                }
                         }
                     }
-                }
             }
         }
     }

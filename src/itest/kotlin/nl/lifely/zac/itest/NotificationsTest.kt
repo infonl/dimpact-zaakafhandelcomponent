@@ -12,6 +12,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.provided.ProjectConfig
 import nl.lifely.zac.itest.client.ItestHttpClient
+import nl.lifely.zac.itest.config.ItestConfiguration.DURATION_THIRTY_SECONDS
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTS_API_HOSTNAME_URL
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_UUID
@@ -151,7 +152,7 @@ class NotificationsTest : BehaviorSpec({
                             "null ZAAKTYPE CREATE .*: java.lang.RuntimeException: URI 'http://example.com/dummyResourceUrl' does not " +
                             "start with value for environment variable 'ZGW_API_CLIENT_MP_REST_URL': 'http://openzaak.local:8000/' .*",
                         1
-                    ).withStartupTimeout(ProjectConfig.THIRTY_SECONDS)
+                    ).withStartupTimeout(DURATION_THIRTY_SECONDS)
                 )
             }
         }
