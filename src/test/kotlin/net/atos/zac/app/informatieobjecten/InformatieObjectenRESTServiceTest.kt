@@ -339,28 +339,19 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             val zaak = createZaak()
             val documentReferentieId: String = "dummyDocumentReferentieId"
             val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
-            val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectData().apply {
-                bestandsnaam = "emptyFile.txt"
-                formaat = "dummyType"
-                bestandsomvang = 0
-            }
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { policyService.readZaakRechten(zaak) } returns zaakRechtenWijzigen
-            every {
-                restInformatieobjectConverter.convertZaakObject(restEnkelvoudigInformatieobject)
-            } returns enkelvoudigInformatieObjectData
-
-            val restEnkelvoudigInformatieObjectVersieGegevens = createRESTEnkelvoudigInformatieObjectVersieGegevens(
-                zaakUuid = zaak.uuid,
-                file = "".toByteArray()
-            )
-            val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
-            every {
-                drcClientService.readEnkelvoudigInformatieobject(restEnkelvoudigInformatieObjectVersieGegevens.uuid)
-            } returns enkelvoudigInformatieObject
-            every { policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak) } returns createDocumentRechten()
 
             When("file upload with an empty file is attempted") {
+                val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectData().apply {
+                    bestandsnaam = "emptyFile.txt"
+                    formaat = "dummyType"
+                    bestandsomvang = 0
+                }
+                every { policyService.readZaakRechten(zaak) } returns zaakRechtenWijzigen
+                every {
+                    restInformatieobjectConverter.convertZaakObject(restEnkelvoudigInformatieobject)
+                } returns enkelvoudigInformatieObjectData
+
                 shouldThrow<BadRequestException> {
                     informatieObjectenRESTService.createEnkelvoudigInformatieobjectAndUploadFile(
                         zaak.uuid,
@@ -370,7 +361,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                     )
                 }
 
-                Then("no information is changed") {
+                Then("no zaak informatie object is created") {
                     verify {
                         zgwApiService.createZaakInformatieobjectForZaak(
                             any(), any(), any(), any(), any()
@@ -380,13 +371,24 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             }
 
             When("update with an empty file is attempted") {
+                val restEnkelvoudigInformatieObjectVersieGegevens = createRESTEnkelvoudigInformatieObjectVersieGegevens(
+                    zaakUuid = zaak.uuid,
+                    file = "".toByteArray()
+                )
+                val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+                every {
+                    drcClientService.readEnkelvoudigInformatieobject(restEnkelvoudigInformatieObjectVersieGegevens.uuid)
+                } returns enkelvoudigInformatieObject
+                every {
+                    policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
+                } returns createDocumentRechten()
                 shouldThrow<BadRequestException> {
                     informatieObjectenRESTService.updateEnkelvoudigInformatieobjectAndUploadFile(
                         restEnkelvoudigInformatieObjectVersieGegevens
                     )
                 }
 
-                Then("no information is changed") {
+                Then("enkelvoudig informatie object is not updated") {
                     verify {
                         enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
                             any(), any(), any()
