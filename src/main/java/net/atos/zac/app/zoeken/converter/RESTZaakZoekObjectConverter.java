@@ -5,12 +5,10 @@
 
 package net.atos.zac.app.zoeken.converter;
 
-import java.util.EnumMap;
-import java.util.List;
+import java.util.HashMap;
 
 import jakarta.inject.Inject;
 
-import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.zac.app.policy.converter.RESTRechtenConverter;
 import net.atos.zac.app.zoeken.model.RESTZaakZoekObject;
 import net.atos.zac.policy.PolicyService;
@@ -64,19 +62,11 @@ public class RESTZaakZoekObjectConverter {
         restZoekItem.statusToelichting = zoekItem.getStatusToelichting();
         restZoekItem.indicaties = zoekItem.getZaakIndicaties();
         restZoekItem.rechten = restRechtenConverter.convert(policyService.readZaakRechten(zoekItem));
-        restZoekItem.betrokkenen = new EnumMap<>(RolType.OmschrijvingGeneriekEnum.class);
-        if (zoekItem.getInitiatorIdentificatie() != null) {
-            restZoekItem.betrokkenen.put(
-                    RolType.OmschrijvingGeneriekEnum.INITIATOR,
-                    List.of(zoekItem.getInitiatorIdentificatie())
-            );
-        }
+        restZoekItem.betrokkenen = new HashMap<>();
         if (zoekItem.getBetrokkenen() != null) {
             zoekItem.getBetrokkenen().forEach((betrokkenheid, ids) -> {
                 restZoekItem.betrokkenen.put(
-                        RolType.OmschrijvingGeneriekEnum.valueOf(
-                                betrokkenheid.replace(ZaakZoekObject.ZAAK_BETROKKENE_PREFIX, "").toUpperCase()
-                        ),
+                        betrokkenheid.replace(ZaakZoekObject.ZAAK_BETROKKENE_PREFIX, ""),
                         ids
                 );
             });

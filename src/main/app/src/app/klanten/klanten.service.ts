@@ -112,6 +112,14 @@ export class KlantenService {
       );
   }
 
+  listRoltypen(): Observable<Roltype[]> {
+    return this.http
+      .get<Roltype[]>(`${this.basepath}/roltype`)
+      .pipe(
+        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+      );
+  }
+
   ophalenContactGegevens(
     identificatieType: IdentificatieType,
     initiatorIdentificatie: string,

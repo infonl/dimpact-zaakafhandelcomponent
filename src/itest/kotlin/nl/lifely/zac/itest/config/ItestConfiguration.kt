@@ -27,7 +27,7 @@ object ItestConfiguration {
     const val OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT = "021f685e-9482-4620-b157-34cd4003da6b"
     const val OPEN_NOTIFICATIONS_API_SECRET_KEY = "openNotificatiesApiSecretKey"
     const val PRODUCT_AANVRAAG_TYPE = "productaanvraag"
-    const val ROLTYPE_NAME_BETROKKENE = "Betrokkene"
+    const val ROLTYPE_NAME_BETROKKENE = "Belanghebbende"
     const val ROLTYPE_UUID_BELANGHEBBENDE = "4c4cd850-8332-4bb9-adc4-dd046f0614ad"
     const val TEST_BETROKKENE_BSN_HENDRIKA_JANSE = "999993896"
     const val TEST_SPEC_ORDER_INITIAL = 0

@@ -14,6 +14,10 @@ import {
 import { MatIconRegistry } from "@angular/material/icon";
 import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
 import { TranslateHttpLoader } from "@ngx-translate/http-loader";
+import {
+  QueryClient,
+  provideAngularQuery,
+} from "@tanstack/angular-query-experimental";
 import { AdminModule } from "./admin/admin.module";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -69,6 +73,7 @@ const httpLoaderFactory = (http: HttpClient) =>
   providers: [
     { provide: APP_BASE_HREF, useValue: "/" },
     { provide: LocationStrategy, useClass: PathLocationStrategy },
+    provideAngularQuery(new QueryClient()),
   ],
   bootstrap: [AppComponent],
 })

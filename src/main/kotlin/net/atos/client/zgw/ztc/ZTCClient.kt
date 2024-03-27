@@ -84,7 +84,7 @@ interface ZTCClient {
 
     @GET
     @Path("roltypen")
-    fun roltypeList(@BeanParam parameters: RoltypeListParameters): Results<RolType>
+    fun roltypeList(@BeanParam parameters: RoltypeListParameters? = null): Results<RolType>
 
     @GET
     @Path("statustypen")
