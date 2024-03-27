@@ -292,7 +292,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
     Given("A zaak has been created") {
         When("the 'update Zaak Locatie' endpoint is called with a valid location") {
             val response = itestHttpClient.performPatchRequest(
-                url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID/zaaklocatie",
+                url = "$ZAC_API_URI/zaken/$zaak2UUID/zaaklocatie",
                 requestBodyAsString = """
                         {
                             "geometrie": {
@@ -327,7 +327,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
 
         When("the 'update Zaak Locatie' endpoint is called with a null value as location") {
             val response = itestHttpClient.performPatchRequest(
-                url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID/zaaklocatie",
+                url = "$ZAC_API_URI/zaken/$zaak2UUID/zaaklocatie",
                 requestBodyAsString = """
                         {
                             "geometrie": null,
