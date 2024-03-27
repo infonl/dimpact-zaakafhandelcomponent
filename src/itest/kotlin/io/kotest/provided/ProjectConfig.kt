@@ -13,8 +13,6 @@ import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.client.KeycloakClient
 import nl.lifely.zac.itest.client.ZacClient
-import nl.lifely.zac.itest.config.ItestConfiguration.DURATION_THIRTY_SECONDS
-import nl.lifely.zac.itest.config.ItestConfiguration.DURATION_THREE_MINUTES
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
 import nl.lifely.zac.itest.config.ItestConfiguration.SMARTDOCUMENTS_MOCK_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_CONTAINER_SERVICE_NAME
@@ -30,10 +28,17 @@ import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.Wait
 import java.io.File
 import java.net.SocketException
+import java.time.Duration
 
 private val logger = KotlinLogging.logger {}
 
 object ProjectConfig : AbstractProjectConfig() {
+    @Suppress("MagicNumber")
+    val THREE_MINUTES = Duration.ofMinutes(3)
+
+    @Suppress("MagicNumber")
+    val THIRTY_SECONDS = Duration.ofSeconds(30)
+
     lateinit var dockerComposeContainer: ComposeContainer
     private val itestHttpClient = ItestHttpClient()
 
@@ -45,7 +50,7 @@ object ProjectConfig : AbstractProjectConfig() {
             dockerComposeContainer.start()
             logger.info { "Started ZAC Docker Compose containers" }
             logger.info { "Waiting until Keycloak is healthy by calling the health endpoint and checking the response" }
-            await.atMost(DURATION_THIRTY_SECONDS)
+            await.atMost(THIRTY_SECONDS)
                 .until {
                     try {
                         itestHttpClient.performGetRequest(
@@ -62,7 +67,7 @@ object ProjectConfig : AbstractProjectConfig() {
                 }
             logger.info { "Keycloak is healthy" }
             logger.info { "Waiting until ZAC is healthy by calling the health endpoint and checking the response" }
-            await.atMost(DURATION_THIRTY_SECONDS)
+            await.atMost(THIRTY_SECONDS)
                 .until {
                     itestHttpClient.performGetRequest(
                         headers = Headers.headersOf("Content-Type", "application/json"),
@@ -91,7 +96,7 @@ object ProjectConfig : AbstractProjectConfig() {
             logger.info { "Stopping ZAC Docker container" }
             dockerClient
                 .stopContainerCmd(containerId)
-                .withTimeout(DURATION_THIRTY_SECONDS.toSecondsPart())
+                .withTimeout(THIRTY_SECONDS.toSecondsPart())
                 .exec()
             logger.info { "Stopped ZAC Docker container" }
         }
@@ -153,12 +158,12 @@ object ProjectConfig : AbstractProjectConfig() {
             .waitingFor(
                 "openzaak.local",
                 Wait.forLogMessage(".*spawned uWSGI worker 2.*", 1)
-                    .withStartupTimeout(DURATION_THREE_MINUTES)
+                    .withStartupTimeout(THREE_MINUTES)
             )
             .waitingFor(
                 "zac",
                 Wait.forLogMessage(".* WildFly Full .* started .*", 1)
-                    .withStartupTimeout(DURATION_THREE_MINUTES)
+                    .withStartupTimeout(THREE_MINUTES)
             )
     }
 
