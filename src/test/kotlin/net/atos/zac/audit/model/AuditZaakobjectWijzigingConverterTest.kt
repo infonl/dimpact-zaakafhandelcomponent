@@ -19,7 +19,7 @@ class AuditZaakobjectWijzigingConverterTest : BehaviorSpec({
         val aanvraag = ZaakobjectProductaanvraag()
         wijzigingen.nieuw = aanvraag
         aanvraag.objectType = Objecttype.OVERIGE
-        aanvraag.`object` = URI("www.google.nl/12345")
+        aanvraag.`object` = URI("http://example.com/12345")
 
         When("The wijziging is converted") {
             val regels = converter.convert(wijzigingen).toList()
@@ -36,14 +36,14 @@ class AuditZaakobjectWijzigingConverterTest : BehaviorSpec({
         val wijzigingen = ZaakobjectWoonplaatsWijziging()
         val zaakobjectWoonplaatsOud =
             ZaakobjectWoonplaats(
-                URI("www.google.nl/12345"),
-                URI("www.google.nl/12345"),
+                URI("http://example.com/12345"),
+                URI("http://example.com/12345"),
                 ObjectWoonplaats("identificatie-oud", "woonplaats-oud")
             )
         val zaakobjectWoonplaatsNieuw =
             ZaakobjectWoonplaats(
-                URI("www.google.nl/54321"),
-                URI("www.google.nl/54321"),
+                URI("http://example.com/54321"),
+                URI("http://example.com/54321"),
                 ObjectWoonplaats("identificatie-nieuw", "woonplaats-nieuw")
             )
         wijzigingen.oud = zaakobjectWoonplaatsOud
@@ -70,8 +70,8 @@ class AuditZaakobjectWijzigingConverterTest : BehaviorSpec({
         val wijzigingen = ZaakobjectWoonplaatsWijziging()
         val zaakobjectWoonplaatsNieuw =
             ZaakobjectWoonplaats(
-                URI("www.google.nl/54321"),
-                URI("www.google.nl/54321"),
+                URI("http://example.com/54321"),
+                URI("http://example.com/54321"),
                 ObjectWoonplaats("identificatie-nieuw", "woonplaats-nieuw")
             )
         wijzigingen.nieuw = zaakobjectWoonplaatsNieuw
