@@ -187,3 +187,9 @@ private fun createZaakData(): Map<String, Any> {
     zaakdata["key3"] = LocalDate.of(2023, 9, 14)
     return zaakdata
 }
+
+fun createRESTZaakOverzicht(
+    uuid: UUID = UUID.randomUUID()
+) = RESTZaakOverzicht().apply {
+    this.uuid = uuid
+}
