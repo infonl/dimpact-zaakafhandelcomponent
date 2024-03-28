@@ -7,16 +7,21 @@ import io.kotest.matchers.shouldBe
 import io.mockk.MockKAnnotations
 import io.mockk.clearAllMocks
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
+import net.atos.client.zgw.drc.DRCClientService
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.createZaak
+import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
+import net.atos.zac.app.signaleringen.converter.RESTSignaleringInstellingenConverter
+import net.atos.zac.app.taken.converter.RESTTaakConverter
 import net.atos.zac.app.zaken.converter.RESTZaakOverzichtConverter
 import net.atos.zac.app.zaken.model.createRESTZaakOverzicht
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
+import net.atos.zac.flowable.TakenService
+import net.atos.zac.identity.IdentityService
 import net.atos.zac.signalering.SignaleringenService
 import net.atos.zac.signalering.model.Signalering
 import net.atos.zac.signalering.model.SignaleringType
@@ -27,12 +32,29 @@ import kotlin.random.Random
 class SignaleringenRestServiceTest : BehaviorSpec() {
     private val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     private val signaleringenService = mockk<SignaleringenService>()
-    private val restZaakOverzichtConverter = mockk<RESTZaakOverzichtConverter>()
     private val zrcClientService = mockk<ZRCClientService>()
+    private val takenService = mockk<TakenService>()
+    private val drcClientService = mockk<DRCClientService>()
+    private val identityService = mockk<IdentityService>()
+    private val restZaakOverzichtConverter = mockk<RESTZaakOverzichtConverter>()
+    private val restTaakConverter = mockk<RESTTaakConverter>()
+    private val restInformatieobjectConverter = mockk<RESTInformatieobjectConverter>()
+    private val restSignaleringInstellingenConverter = mockk<RESTSignaleringInstellingenConverter>()
+
     private val loggedInUser = createLoggedInUser()
 
-    @InjectMockKs
-    lateinit var signaleringenRestService: SignaleringenRestService
+    private val signaleringenRestService = SignaleringenRestService(
+        signaleringenService,
+        zrcClientService,
+        takenService,
+        drcClientService,
+        identityService,
+        restZaakOverzichtConverter,
+        restTaakConverter,
+        restInformatieobjectConverter,
+        restSignaleringInstellingenConverter,
+        loggedInUserInstance
+    )
 
     override suspend fun beforeContainer(testCase: TestCase) {
         super.beforeContainer(testCase)
