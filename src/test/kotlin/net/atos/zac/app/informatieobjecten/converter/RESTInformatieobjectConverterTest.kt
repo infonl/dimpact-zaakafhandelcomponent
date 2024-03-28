@@ -27,7 +27,7 @@ import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.output.createDocumentRechten
 import java.net.URI
 import java.time.LocalDate
-import java.util.*
+import java.util.Base64
 
 class RESTInformatieobjectConverterTest : BehaviorSpec() {
     private val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
