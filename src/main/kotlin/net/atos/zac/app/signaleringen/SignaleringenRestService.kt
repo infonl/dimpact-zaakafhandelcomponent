@@ -76,7 +76,7 @@ class SignaleringenRestService @Inject constructor(
             .subjecttype(SignaleringSubject.ZAAK)
         return signaleringenService.listSignaleringen(parameters).stream()
             .map { signalering: Signalering -> zrcClientService.readZaak(UUID.fromString(signalering.subject)) }
-            .map { zaak: Zaak? -> restZaakOverzichtConverter.convert(zaak!!) }
+            .map { restZaakOverzichtConverter.convert(it) }
             .toList()
     }
 
