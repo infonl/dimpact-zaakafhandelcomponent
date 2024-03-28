@@ -9,6 +9,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.assertions.json.shouldNotContainJsonKey
+import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -35,6 +36,7 @@ import org.json.JSONObject
 import org.mockserver.model.HttpStatusCode
 import java.time.LocalDate
 import java.util.*
+import kotlin.time.Duration.Companion.seconds
 
 private val itestHttpClient = ItestHttpClient()
 private val zacClient = ZacClient()
@@ -170,22 +172,22 @@ class ZakenRESTServiceTest : BehaviorSpec({
             Then("the response should be a 204 HTTP response and the zaken should be assigned correctly") {
                 response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
                 // the process is asynchronous, so we need to wait a bit until the zaken are assigned
-//                eventually(10.seconds) {
-//                    zacClient.retrieveZaak(zaak1UUID).use { response ->
-//                        response.code shouldBe HttpStatusCode.OK_200.code()
-//                        with(JSONObject(response.body!!.string())) {
-//                            getJSONObject("groep").getString("id") shouldBe TEST_GROUP_A_ID
-//                            getJSONObject("behandelaar").getString("id") shouldBe TEST_USER_2_ID
-//                        }
-//                    }
-//                    zacClient.retrieveZaak(zaak2UUID).use { response ->
-//                        response.code shouldBe HttpStatusCode.OK_200.code()
-//                        with(JSONObject(response.body!!.string())) {
-//                            getJSONObject("groep").getString("id") shouldBe TEST_GROUP_A_ID
-//                            getJSONObject("behandelaar").getString("id") shouldBe TEST_USER_2_ID
-//                        }
-//                    }
-//                }
+                eventually(10.seconds) {
+                    zacClient.retrieveZaak(zaak1UUID).use { response ->
+                        response.code shouldBe HttpStatusCode.OK_200.code()
+                        with(JSONObject(response.body!!.string())) {
+                            getJSONObject("groep").getString("id") shouldBe TEST_GROUP_A_ID
+                            getJSONObject("behandelaar").getString("id") shouldBe TEST_USER_2_ID
+                        }
+                    }
+                    zacClient.retrieveZaak(zaak2UUID).use { response ->
+                        response.code shouldBe HttpStatusCode.OK_200.code()
+                        with(JSONObject(response.body!!.string())) {
+                            getJSONObject("groep").getString("id") shouldBe TEST_GROUP_A_ID
+                            getJSONObject("behandelaar").getString("id") shouldBe TEST_USER_2_ID
+                        }
+                    }
+                }
             }
         }
     }
