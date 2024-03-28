@@ -158,7 +158,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
     }
     Given(
         "Two zaken have been created and a websocket subscription has been created to listen" +
-            " for the 'zaken verdelen' screen event for the asynchronous 'assign zaken from list' job"
+            " for a 'zaken verdelen' screen event which will be sent by the asynchronous 'assign zaken from list' job"
     ) {
         val uniqueResourceId = UUID.randomUUID()
         val websocketListener = WebSocketTestListener(
@@ -179,8 +179,8 @@ class ZakenRESTServiceTest : BehaviorSpec({
             webSocketListener = websocketListener
         )
         When(
-            "the 'assign zaken from list' endpoint is called to assign the two zaken " +
-                "to a group and a user with the unique resource ID used to create the websocket subscription"
+            "the 'assign zaken from list' endpoint is called to start an asynchronous process to assign the two zaken " +
+                "to a group and a user using the unique resource ID that was used to create the websocket subscription"
         ) {
             val lijstVerdelenResponse = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zaken/lijst/verdelen",
