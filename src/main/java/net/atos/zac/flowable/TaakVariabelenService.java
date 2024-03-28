@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -62,13 +61,8 @@ public class TaakVariabelenService {
 
     private static final String VAR_TASK_TAAKINFORMATIE = "taakinformatie";
 
-    private static final Logger LOG = Logger.getLogger(TaakVariabelenService.class.getName());
-
     @Inject
     private TaskService taskService;
-
-    @Inject
-    private TakenService takenService;
 
     public Map<String, String> readTaakdata(final TaskInfo taskInfo) {
         return (Map<String, String>) findTaskVariable(taskInfo, VAR_TASK_TAAKDATA).orElse(Collections.emptyMap());
@@ -133,14 +127,7 @@ public class TaakVariabelenService {
     }
 
     public UUID readZaakUUID(final TaskInfo taskInfo) {
-        Object obj = readVariable(taskInfo, VAR_ZAAK_UUID);
-        return switch (obj) {
-            case UUID uuid -> uuid;
-            case Object o -> {
-                LOG.warning("Invalid Zaak UUID: " + o);
-                throw new IllegalArgumentException("Invalid Zaak UUID: " + o);
-            }
-        };
+        return (UUID) readVariable(taskInfo, VAR_ZAAK_UUID);
     }
 
     public String readZaakIdentificatie(final TaskInfo taskInfo) {
@@ -148,14 +135,7 @@ public class TaakVariabelenService {
     }
 
     public UUID readZaaktypeUUID(final TaskInfo taskInfo) {
-        Object obj = readVariable(taskInfo, VAR_ZAAKTYPE_UUUID);
-        return switch (obj) {
-            case UUID uuid -> uuid;
-            case Object o -> {
-                LOG.warning("Invalid Zaak Type UUID: " + o);
-                throw new IllegalArgumentException("Invalid Zaak Type UUID: " + o);
-            }
-        };
+        return (UUID) readVariable(taskInfo, VAR_ZAAKTYPE_UUUID);
     }
 
     public String readZaaktypeOmschrijving(final TaskInfo taskInfo) {

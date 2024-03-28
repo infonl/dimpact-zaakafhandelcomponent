@@ -5,7 +5,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.core.test.TestCase
 import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.should
-import io.kotest.matchers.string.startWith
+import io.kotest.matchers.string.contain
 import io.mockk.MockKAnnotations
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -53,12 +53,12 @@ class TaakVariabelenServiceTest : BehaviorSpec() {
             every { taskInfo.caseVariables } returns mapOf(ZaakVariabelenService.VAR_ZAAK_UUID to expectedUUID)
 
             When("reading the zaak UUID") {
-                val exception = shouldThrow<IllegalArgumentException> {
+                val exception = shouldThrow<ClassCastException> {
                     service.readZaakUUID(taskInfo)
                 }
 
                 Then("it throws an exception") {
-                    exception.message should startWith("Invalid Zaak UUID")
+                    exception.message should contain("java.lang.String cannot be cast to class java.util.UUID")
                 }
             }
         }
@@ -71,12 +71,12 @@ class TaakVariabelenServiceTest : BehaviorSpec() {
             every { taskInfo.caseVariables } returns mapOf(ZaakVariabelenService.VAR_ZAAK_UUID to expectedUUID)
 
             When("reading the zaak UUID") {
-                val exception = shouldThrow<IllegalArgumentException> {
+                val exception = shouldThrow<ClassCastException> {
                     service.readZaakUUID(taskInfo)
                 }
 
                 Then("it throws an exception") {
-                    exception.message should startWith("Invalid Zaak UUID")
+                    exception.message should contain("java.io.File cannot be cast to class java.util.UUID")
                 }
             }
         }
@@ -105,12 +105,12 @@ class TaakVariabelenServiceTest : BehaviorSpec() {
             every { taskInfo.caseVariables } returns mapOf(ZaakVariabelenService.VAR_ZAAKTYPE_UUUID to expectedUUID)
 
             When("reading the zaak type UUID") {
-                val exception = shouldThrow<IllegalArgumentException> {
+                val exception = shouldThrow<ClassCastException> {
                     service.readZaaktypeUUID(taskInfo)
                 }
 
                 Then("it throws an exception") {
-                    exception.message should startWith("Invalid Zaak Type UUID")
+                    exception.message should contain("java.lang.String cannot be cast to class java.util.UUID")
                 }
             }
         }
@@ -123,12 +123,12 @@ class TaakVariabelenServiceTest : BehaviorSpec() {
             every { taskInfo.caseVariables } returns mapOf(ZaakVariabelenService.VAR_ZAAKTYPE_UUUID to expectedUUID)
 
             When("reading the zaak type UUID") {
-                val exception = shouldThrow<IllegalArgumentException> {
+                val exception = shouldThrow<ClassCastException> {
                     service.readZaaktypeUUID(taskInfo)
                 }
 
                 Then("it throws an exception") {
-                    exception.message should startWith("Invalid Zaak Type UUID")
+                    exception.message should contain("java.io.File cannot be cast to class java.util.UUID")
                 }
             }
         }
