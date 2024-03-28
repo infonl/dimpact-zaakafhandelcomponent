@@ -13,10 +13,9 @@ import net.atos.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringTarget
 import java.util.stream.Collectors
 
-class RESTSignaleringInstellingenConverter {
-    @Inject
-    private val signaleringenService: SignaleringenService? = null
-
+class RESTSignaleringInstellingenConverter @Inject constructor(
+    private var signaleringenService: SignaleringenService
+) {
     fun convert(instellingen: SignaleringInstellingen): RESTSignaleringInstellingen {
         val restInstellingen = RESTSignaleringInstellingen()
         restInstellingen.id = instellingen.id
@@ -33,19 +32,19 @@ class RESTSignaleringInstellingenConverter {
 
     fun convert(instellingen: Collection<SignaleringInstellingen>): List<RESTSignaleringInstellingen> {
         return instellingen.stream()
-            .map { instellingen: SignaleringInstellingen -> this.convert(instellingen) }
+            .map { signaleringInstellingen: SignaleringInstellingen -> this.convert(signaleringInstellingen) }
             .collect(Collectors.toList())
     }
 
     fun convert(restInstellingen: RESTSignaleringInstellingen, group: Group): SignaleringInstellingen {
-        val instellingen = signaleringenService!!.readInstellingenGroup(restInstellingen.type, group.id)
+        val instellingen = signaleringenService.readInstellingenGroup(restInstellingen.type, group.id)
         instellingen.isDashboard = false
         instellingen.isMail = instellingen.type.type.isMail && restInstellingen.mail!!
         return instellingen
     }
 
     fun convert(restInstellingen: RESTSignaleringInstellingen, user: User): SignaleringInstellingen {
-        val instellingen = signaleringenService!!.readInstellingenUser(restInstellingen.type, user.id)
+        val instellingen = signaleringenService.readInstellingenUser(restInstellingen.type, user.id)
         instellingen.isDashboard = instellingen.type.type.isDashboard && restInstellingen.dashboard!!
         instellingen.isMail = instellingen.type.type.isMail && restInstellingen.mail!!
         return instellingen
