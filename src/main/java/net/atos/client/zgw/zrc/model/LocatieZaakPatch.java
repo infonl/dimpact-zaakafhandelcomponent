@@ -6,6 +6,7 @@
 package net.atos.client.zgw.zrc.model;
 
 
+import jakarta.json.bind.annotation.JsonbNillable;
 import jakarta.json.bind.annotation.JsonbProperty;
 
 /**
@@ -20,6 +21,7 @@ public class LocatieZaakPatch extends Zaak {
         this.zaakgeometrie = zaakgeometrie;
     }
 
+    @JsonbNillable()
     public Geometry getZaakgeometrie() {
         return zaakgeometrie;
     }
