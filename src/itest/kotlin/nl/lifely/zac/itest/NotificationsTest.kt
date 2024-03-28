@@ -7,19 +7,23 @@ package nl.lifely.zac.itest
 
 import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.HttpStatus
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.provided.ProjectConfig
 import nl.lifely.zac.itest.client.ItestHttpClient
-import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTS_API_HOSTNAME_URL
+import nl.lifely.zac.itest.config.ItestConfiguration
+import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTS_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
+import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_INITIAL
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.lifely.zac.itest.util.WebSocketTestListener
 import okhttp3.Headers
 import org.json.JSONObject
 import org.mockserver.model.HttpStatusCode
@@ -27,6 +31,8 @@ import org.testcontainers.containers.wait.strategy.Wait
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
 
 private val logger = KotlinLogging.logger {}
 private val itestHttpClient = ItestHttpClient()
@@ -73,10 +79,10 @@ class NotificationsTest : BehaviorSpec({
                 requestBodyAsString = JSONObject(
                     mapOf(
                         "resource" to "object",
-                        "resourceUrl" to "$OBJECTS_API_HOSTNAME_URL/$OBJECT_PRODUCTAANVRAAG_UUID",
+                        "resourceUrl" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_UUID",
                         "actie" to "create",
                         "kenmerken" to mapOf(
-                            "objectType" to "$OBJECTS_API_HOSTNAME_URL/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT"
+                            "objectType" to "$OBJECTS_BASE_URI/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT"
                         ),
                         "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                     )
@@ -149,10 +155,71 @@ class NotificationsTest : BehaviorSpec({
                     Wait.forLogMessage(
                         ".* Er is iets fout gegaan in de Zaaktype-handler bij het afhandelen van notificatie: " +
                             "null ZAAKTYPE CREATE .*: java.lang.RuntimeException: URI 'http://example.com/dummyResourceUrl' does not " +
-                            "start with value for environment variable 'ZGW_API_CLIENT_MP_REST_URL': 'http://openzaak.local:8000/' .*",
+                            "start with value for environment variable 'ZGW_API_CLIENT_MP_REST_URL': '$OPEN_ZAAK_BASE_URI/' .*",
                         1
-                    ).withStartupTimeout(ProjectConfig.THIRTY_SECONDS)
+                    ).withStartupTimeout(30.seconds.toJavaDuration())
                 )
+            }
+        }
+    }
+    Given("A websocket subscription is created to listen to all changes made to a specific zaak") {
+        val websocketListener = WebSocketTestListener(
+            textToBeSentOnOpen = "{" +
+                "\"subscriptionType\":\"CREATE\"," +
+                "\"event\":{" +
+                "  \"opcode\":\"ANY\"," +
+                "  \"objectType\":\"ZAAK\"," +
+                "  \"objectId\":{" +
+                "    \"resource\":\"$zaak1UUID\"" +
+                "  }," +
+                "\"_key\":\"ANY;ZAAK;$zaak1UUID\"" +
+                "}" +
+                "}"
+        )
+        itestHttpClient.connectNewWebSocket(
+            url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
+            webSocketListener = websocketListener
+        )
+        When("a notification is sent to ZAC that the zaak in question has been updated") {
+            // we need eventually here because it takes some time before the new websocket has been
+            // successfully created in ZAC
+            eventually(1.seconds) {
+                val response = itestHttpClient.performJSONPostRequest(
+                    url = "$ZAC_API_URI/notificaties",
+                    headers = Headers.headersOf(
+                        "Content-Type",
+                        "application/json",
+                        "Authorization",
+                        OPEN_NOTIFICATIONS_API_SECRET_KEY
+                    ),
+                    requestBodyAsString = JSONObject(
+                        mapOf(
+                            "actie" to "partial_update",
+                            "kanaal" to "zaken",
+                            "resource" to "zaak",
+                            "kenmerken" to mapOf(
+                                "zaaktype" to "$OPEN_ZAAK_BASE_URI/catalogi/api/v1/zaaktypen/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID",
+                                "bronorganisatie" to "123443210",
+                                "vertrouwelijkheidaanduiding" to "openbaar"
+                            ),
+                            "hoofdObject" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaak1UUID",
+                            "resourceUrl" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaak1UUID",
+                            "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
+                        )
+                    ).toString(),
+                    addAuthorizationHeader = false
+                )
+                response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
+                websocketListener.messagesReceived.size shouldBe 1
+            }
+        }
+        Then(
+            "the response should be 'no content' and an event that the zaak has been updated should be sent to the websocket"
+        ) {
+            with(JSONObject(websocketListener.messagesReceived[0])) {
+                getString("opcode") shouldBe "UPDATED"
+                getString("objectType") shouldBe "ZAAK"
+                getJSONObject("objectId").getString("resource") shouldBe zaak1UUID.toString()
             }
         }
     }

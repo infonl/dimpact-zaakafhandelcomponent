@@ -10,14 +10,22 @@ import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
+import net.atos.client.zgw.brc.BRCClientService
+import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData
 import net.atos.client.zgw.ztc.ZTCClientService
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
 import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatieobject
 import net.atos.zac.app.informatieobjecten.model.createRESTFileUpload
+import net.atos.zac.app.policy.converter.RESTRechtenConverter
+import net.atos.zac.app.policy.model.createRESTDocumentRechten
 import net.atos.zac.app.taken.model.createRESTTaakDocumentData
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
+import net.atos.zac.configuratie.ConfiguratieService
+import net.atos.zac.policy.PolicyService
+import net.atos.zac.policy.output.createDocumentRechten
+import java.net.URI
 import java.time.LocalDate
 import java.util.Base64
 
@@ -25,6 +33,10 @@ class RESTInformatieobjectConverterTest : BehaviorSpec() {
     private val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     private val ztcClientService = mockk<ZTCClientService>()
     private val loggedInUser = createLoggedInUser()
+    private val policyService = mockk<PolicyService>()
+    private val rechtenConverter = mockk<RESTRechtenConverter>()
+    private val brcClientService = mockk<BRCClientService>()
+    private val configuratieService = mockk<ConfiguratieService>()
 
     // We have to use @InjectMockKs since the class under test uses field injection instead of constructor injection.
     // This is because WildFly does not support constructor injection for JAX-RS REST services completely.
@@ -80,6 +92,7 @@ class RESTInformatieobjectConverterTest : BehaviorSpec() {
                 }
             }
         }
+
         Given("REST enkelvoudig informatie object data and REST file upload are provided for a taak") {
             val restFileUpload = createRESTFileUpload()
             val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
@@ -114,6 +127,7 @@ class RESTInformatieobjectConverterTest : BehaviorSpec() {
                 }
             }
         }
+
         Given("REST enkelvoudig informatie object data and REST file upload are provided for a zaak") {
             // when converting a zaak more fields in the RESTEnkelvoudigInformatieobject are used in the
             // conversion compared to when converting a taak
@@ -149,6 +163,48 @@ class RESTInformatieobjectConverterTest : BehaviorSpec() {
                         bestandsnaam shouldBe restEnkelvoudigInformatieobject.bestandsnaam
                         status.value() shouldBe restEnkelvoudigInformatieobject.status.value()
                         vertrouwelijkheidaanduiding.value() shouldBe restEnkelvoudigInformatieobject.vertrouwelijkheidaanduiding
+                    }
+                }
+            }
+        }
+
+        Given("Enkelvoudig informatie object") {
+            val expectedUUID = UUID.randomUUID()
+            val uri = URI("https://example.com/informatieobjecten/$expectedUUID")
+            val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(url = uri).apply {
+                informatieobjecttype = uri
+            }
+            val documentRechten = createDocumentRechten()
+            val restDocumentRechten = createRESTDocumentRechten()
+
+            every {
+                policyService.readDocumentRechten(enkelvoudigInformatieObject, null, null)
+            } returns documentRechten
+            every {
+                rechtenConverter.convert(documentRechten)
+            } returns restDocumentRechten
+            every {
+                brcClientService.isInformatieObjectGekoppeldAanBesluit(enkelvoudigInformatieObject.url)
+            } returns true
+            every {
+                configuratieService.findTaal(any())
+            } returns Optional.empty()
+            every {
+                ztcClientService.readInformatieobjecttype(any<URI>())
+            } returns createInformatieObjectType()
+
+            When("converted to REST Enkelvoudig Informatie Object") {
+                val restEnkelvoudigInformatieObject = restInformatieobjectConverter.convertToREST(
+                    enkelvoudigInformatieObject
+                )
+
+                Then("the provided data is converted correctly") {
+                    with(restEnkelvoudigInformatieObject) {
+                        uuid shouldBe expectedUUID
+                        informatieobjectTypeOmschrijving shouldBe "dummyOmschrijving"
+                        informatieobjectTypeUUID shouldBe expectedUUID
+                        versie shouldBe 1234
+                        bestandsomvang shouldBe 0
                     }
                 }
             }

@@ -30,6 +30,7 @@
     "@angular/router": "^17.3.1",
     "@ngx-translate/core": "^15.0.0",
     "@ngx-translate/http-loader": "^8.0.0",
+    "@tanstack/angular-query-experimental": "^5.28.9",
     "@types/proj4": "^2.5.4",
     "moment": "^2.30.1",
     "ngx-editor": "^16.0.1",
@@ -42,7 +43,7 @@
     "zone.js": "^0.14.4"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^17.3.1",
+    "@angular-devkit/build-angular": "^17.3.2",
     "@angular-eslint/builder": "17.2.1",
     "@angular-eslint/eslint-plugin": "17.2.1",
     "@angular-eslint/eslint-plugin-template": "17.2.1",
@@ -53,8 +54,8 @@
     "@angular/language-service": "^17.2.1",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.11.30",
-    "@typescript-eslint/eslint-plugin": "^7.3.1",
-    "@typescript-eslint/parser": "^7.3.1",
+    "@typescript-eslint/eslint-plugin": "^7.4.0",
+    "@typescript-eslint/parser": "^7.4.0",
     "codelyzer": "^6.0.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",

@@ -125,9 +125,6 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                 restInformatieobjectConverter.convertZaakObject(restEnkelvoudigInformatieobject)
             } returns enkelvoudigInformatieObjectData
             every {
-                restInformatieobjectConverter.convertZaakObject(restEnkelvoudigInformatieobject)
-            } returns enkelvoudigInformatieObjectData
-            every {
                 restInformatieobjectConverter.convertToREST(zaakInformatieobject)
             } returns responseRestEnkelvoudigInformatieobject
             every {

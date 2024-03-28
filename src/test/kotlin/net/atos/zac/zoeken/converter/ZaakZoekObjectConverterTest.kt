@@ -18,7 +18,6 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.ztc.ZTCClientService
 import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.createZaakType
-import net.atos.client.zgw.ztc.model.generated.RolType
 import net.atos.zac.flowable.TakenService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.createUser
@@ -50,14 +49,14 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
             zaaktypeURI = zaakType.url
         )
         val rolInitiator = createRolNatuurlijkPersoon(
-            rolType = createRolType(omschrijvingGeneriek = RolType.OmschrijvingGeneriekEnum.INITIATOR)
+            rolType = createRolType(omschrijving = "dummy_role_initiator")
         )
         val rolAdviseur = createRolNatuurlijkPersoon(
-            rolType = createRolType(omschrijvingGeneriek = RolType.OmschrijvingGeneriekEnum.ADVISEUR),
+            rolType = createRolType(omschrijving = "dummy_role_adviseur"),
             natuurlijkPersoon = createNatuurlijkPersoon(bsn = "dummyBsnAdviseur")
         )
         val rolBelanghebbende = createRolNatuurlijkPersoon(
-            rolType = createRolType(omschrijvingGeneriek = RolType.OmschrijvingGeneriekEnum.BELANGHEBBENDE),
+            rolType = createRolType(omschrijving = "dummy_role_belanghebbende"),
             natuurlijkPersoon = createNatuurlijkPersoon(bsn = "dummyBsnBelanghebbende")
 
         )
@@ -99,11 +98,11 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
 
                     betrokkenen.size shouldBe rollenZaak.size
                     betrokkenen shouldContain Pair(
-                        "zaak_betrokkene_${rolAdviseur.omschrijvingGeneriek}",
+                        "zaak_betrokkene_${rolAdviseur.omschrijving}",
                         listOf(rolAdviseur.identificatienummer)
                     )
                     betrokkenen shouldContain Pair(
-                        "zaak_betrokkene_${rolBelanghebbende.omschrijvingGeneriek}",
+                        "zaak_betrokkene_${rolBelanghebbende.omschrijving}",
                         listOf(rolBelanghebbende.identificatienummer)
                     )
                 }

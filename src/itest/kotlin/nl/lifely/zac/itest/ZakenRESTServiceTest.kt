@@ -8,6 +8,7 @@ package nl.lifely.zac.itest
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
+import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -25,7 +26,6 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
-import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_2_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_2_IDENTIFICATION
@@ -33,7 +33,9 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONArray
 import org.json.JSONObject
 import org.mockserver.model.HttpStatusCode
+import java.time.LocalDate
 import java.util.*
+import kotlin.time.Duration.Companion.seconds
 
 private val itestHttpClient = ItestHttpClient()
 private val zacClient = ZacClient()
@@ -165,29 +167,20 @@ class ZakenRESTServiceTest : BehaviorSpec({
             )
             Then("the response should be a 204 HTTP response and the zaken should be assigned correctly") {
                 response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
-                with(zacClient.retrieveZaak(zaak1UUID)) {
-                    code shouldBe HttpStatusCode.OK_200.code()
-                    JSONObject(body!!.string()).apply {
-                        getJSONObject("groep").apply {
-                            getString("id") shouldBe TEST_GROUP_A_ID
-                            getString("naam") shouldBe TEST_GROUP_A_DESCRIPTION
-                        }
-                        getJSONObject("behandelaar").apply {
-                            getString("id") shouldBe TEST_USER_2_ID
-                            getString("naam") shouldBe TEST_USER_2_NAME
+                // the process is asynchronous, so we need to wait a bit until the zaken are assigned
+                eventually(10.seconds) {
+                    zacClient.retrieveZaak(zaak1UUID).use { response ->
+                        response.code shouldBe HttpStatusCode.OK_200.code()
+                        with(JSONObject(response.body!!.string())) {
+                            getJSONObject("groep").getString("id") shouldBe TEST_GROUP_A_ID
+                            getJSONObject("behandelaar").getString("id") shouldBe TEST_USER_2_ID
                         }
                     }
-                }
-                with(zacClient.retrieveZaak(zaak2UUID)) {
-                    code shouldBe HttpStatusCode.OK_200.code()
-                    JSONObject(body!!.string()).apply {
-                        getJSONObject("groep").apply {
-                            getString("id") shouldBe TEST_GROUP_A_ID
-                            getString("naam") shouldBe TEST_GROUP_A_DESCRIPTION
-                        }
-                        getJSONObject("behandelaar").apply {
-                            getString("id") shouldBe TEST_USER_2_ID
-                            getString("naam") shouldBe TEST_USER_2_NAME
+                    zacClient.retrieveZaak(zaak2UUID).use { response ->
+                        response.code shouldBe HttpStatusCode.OK_200.code()
+                        with(JSONObject(response.body!!.string())) {
+                            getJSONObject("groep").getString("id") shouldBe TEST_GROUP_A_ID
+                            getJSONObject("behandelaar").getString("id") shouldBe TEST_USER_2_ID
                         }
                     }
                 }
@@ -262,6 +255,32 @@ class ZakenRESTServiceTest : BehaviorSpec({
                         }
                         has("behandelaar") shouldBe false
                     }
+                }
+            }
+        }
+    }
+    Given("A zaak has been created") {
+        When("the 'update zaak' endpoint is called where the start and fatal dates are changed") {
+            val startDateNew = LocalDate.now()
+            val fatalDateNew = startDateNew.plusDays(1)
+            val response = itestHttpClient.performPatchRequest(
+                url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID",
+                requestBodyAsString = "{\n" +
+                    "\"zaak\":{\n" +
+                    "  \"startdatum\":\"$startDateNew\",\n" +
+                    "  \"uiterlijkeEinddatumAfdoening\":\"$fatalDateNew\"\n" +
+                    "  },\n" +
+                    "  \"reden\":\"dummyReason\"\n" +
+                    "}\n"
+            )
+            Then("the response should be a 200 HTTP response with the changed zaak data") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HttpStatusCode.OK_200.code()
+                with(responseBody) {
+                    shouldContainJsonKeyValue("uuid", zaak2UUID.toString())
+                    shouldContainJsonKeyValue("startdatum", startDateNew.toString())
+                    shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", fatalDateNew.toString())
                 }
             }
         }

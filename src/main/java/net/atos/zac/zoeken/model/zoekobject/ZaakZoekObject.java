@@ -18,7 +18,6 @@ import org.apache.solr.client.solrj.beans.Field;
 import com.google.common.collect.Lists;
 
 import net.atos.client.zgw.zrc.model.Rol;
-import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.zac.zoeken.model.ZaakIndicatie;
 import net.atos.zac.zoeken.model.ZoekObject;
 import net.atos.zac.zoeken.model.index.ZoekObjectType;
@@ -501,8 +500,8 @@ public class ZaakZoekObject implements ZoekObject {
         }
     }
 
-    public void addBetrokkene(final RolType.OmschrijvingGeneriekEnum rol, final String identificatie) {
-        final String key = "%s%s".formatted(ZAAK_BETROKKENE_PREFIX, rol.value());
+    public void addBetrokkene(final String rol, final String identificatie) {
+        final String key = "%s%s".formatted(ZAAK_BETROKKENE_PREFIX, rol);
         if (betrokkenen == null) {
             betrokkenen = new HashMap<>();
         }

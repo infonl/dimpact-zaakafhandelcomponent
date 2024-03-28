@@ -10,7 +10,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
-import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.zac.app.policy.model.RESTZaakRechten;
 import net.atos.zac.zoeken.model.ZaakIndicatie;
 
@@ -88,6 +87,6 @@ public class RESTZaakZoekObject extends AbstractRESTZoekObject {
 
     public RESTZaakRechten rechten;
 
-    public Map<RolType.OmschrijvingGeneriekEnum, List<String>> betrokkenen;
+    public Map<String, List<String>> betrokkenen;
 
 }

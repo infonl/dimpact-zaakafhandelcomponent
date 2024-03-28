@@ -22,11 +22,12 @@ object ItestConfiguration {
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING = "bijlage"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID = "b1933137-94d6-49bc-9e12-afe712512276"
     const val OBJECT_PRODUCTAANVRAAG_UUID = "9dbed186-89ca-48d7-8c6c-f9995ceb8e27"
-    const val OBJECTS_API_HOSTNAME_URL = "http://objecten-api.local:8000"
+    const val OBJECTS_BASE_URI = "http://objecten-api.local:8000"
     const val OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT = "021f685e-9482-4620-b157-34cd4003da6b"
     const val OPEN_NOTIFICATIONS_API_SECRET_KEY = "openNotificatiesApiSecretKey"
+    const val OPEN_ZAAK_BASE_URI = "http://open-zaak.local:8000"
     const val PRODUCT_AANVRAAG_TYPE = "productaanvraag"
-    const val ROLTYPE_NAME_BETROKKENE = "Betrokkene"
+    const val ROLTYPE_NAME_BETROKKENE = "Belanghebbende"
     const val ROLTYPE_UUID_BELANGHEBBENDE = "4c4cd850-8332-4bb9-adc4-dd046f0614ad"
     const val TEST_BETROKKENE_BSN_HENDRIKA_JANSE = "999993896"
     const val TEST_SPEC_ORDER_INITIAL = 0
@@ -62,6 +63,11 @@ object ItestConfiguration {
      * The ZAC API URI from outside the Docker network.
      */
     const val ZAC_API_URI = "http://localhost:$ZAC_CONTAINER_PORT/rest"
+
+    /**
+     * The ZAC websocket base URI from outside the Docker network.
+     */
+    const val ZAC_WEBSOCKET_BASE_URI = "ws://localhost:$ZAC_CONTAINER_PORT/websocket"
 
     /**
      * The ZAC management URI from outside the Docker network.

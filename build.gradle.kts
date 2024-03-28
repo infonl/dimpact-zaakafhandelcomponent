@@ -93,6 +93,7 @@ sourceSets {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
+    implementation(libs.kotlinx.coroutines.core)
     implementation(libs.apache.commons.lang)
     implementation(libs.apache.commons.text)
     implementation(libs.apache.commons.collections)

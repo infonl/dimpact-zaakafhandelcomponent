@@ -93,7 +93,10 @@ When(
       .first()
       .click();
     await this.page.getByLabel("E-mailadres").first().click();
-    await this.page.getByLabel("E-mailadres").first().fill("test@test.nl");
+    await this.page
+      .getByLabel("E-mailadres")
+      .first()
+      .fill("e2e-test@team-dimpact.info.nl");
 
     await this.page.getByPlaceholder("- Kies een groep -").first().click();
     await this.page
