@@ -56,8 +56,12 @@ fun createRESTInformatieobjecttype(
 
 fun createRESTEnkelvoudigInformatieObjectVersieGegevens(
     uuid: UUID = UUID.randomUUID(),
-    zaakUuid: UUID
+    zaakUuid: UUID,
+    bestandsnaam: String = "dummyFile.txt",
+    file: ByteArray = "dummyFile".toByteArray(),
 ) = RESTEnkelvoudigInformatieObjectVersieGegevens().apply {
     this.uuid = uuid
     this.zaakUuid = zaakUuid
+    this.bestandsnaam = bestandsnaam
+    this.file = file
 }

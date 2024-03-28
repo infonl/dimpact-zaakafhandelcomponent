@@ -33,6 +33,13 @@ class LocalDateReaderTest : DescribeSpec({
             ) shouldBe LocalDate.parse("2024-03-11")
         }
 
+        it("parses a different time zone") {
+            localDateReader.readFrom(
+                null, null, null, null, null,
+                "2024-03-11T10:44+02:00".byteInputStream()
+            ) shouldBe LocalDate.parse("2024-03-11")
+        }
+
         describe("with mis-formatted data") {
             it("returns null on missing data") {
                 shouldThrow<NullPointerException> {
