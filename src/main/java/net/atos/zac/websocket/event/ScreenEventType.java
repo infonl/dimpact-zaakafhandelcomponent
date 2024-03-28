@@ -5,14 +5,9 @@
 
 package net.atos.zac.websocket.event;
 
-import net.atos.client.zgw.brc.model.generated.Besluit;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.zac.event.Opcode;
-import net.atos.zac.notificaties.Channel;
-import net.atos.zac.notificaties.Notificatie;
-import net.atos.zac.signalering.model.Signalering;
-import org.flowable.task.api.TaskInfo;
+import static net.atos.zac.event.Opcode.DELETED;
+import static net.atos.zac.event.Opcode.UPDATED;
+import static net.atos.zac.util.UriUtil.uuidFromURI;
 
 import java.net.URI;
 import java.util.EnumSet;
@@ -20,9 +15,15 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import static net.atos.zac.event.Opcode.DELETED;
-import static net.atos.zac.event.Opcode.UPDATED;
-import static net.atos.zac.util.UriUtil.uuidFromURI;
+import org.flowable.task.api.TaskInfo;
+
+import net.atos.client.zgw.brc.model.generated.Besluit;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import net.atos.client.zgw.zrc.model.Zaak;
+import net.atos.zac.event.Opcode;
+import net.atos.zac.notificaties.Channel;
+import net.atos.zac.notificaties.Notificatie;
+import net.atos.zac.signalering.model.Signalering;
 
 /**
  * Enumeration of the type of objects that can be referenced by a {@link ScreenEvent} event.

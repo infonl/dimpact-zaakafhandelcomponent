@@ -51,48 +51,37 @@ class ZakenService @Inject constructor(
                 "${zaakUUIDs.size} zaken to group and/or user"
         }
         val zakenAssignedList = mutableListOf<UUID>()
-        zaakUUIDs.forEach { zaakUUID ->
-            withContext(Dispatchers.IO) {
-                val zaak = zrcClientService.readZaak(zaakUUID)
-                group?.let {
-                    zrcClientService.updateRol(
-                        zaak,
-                        bepaalRolGroep(it, zaak),
-                        explanation
+        withContext(Dispatchers.IO) {
+            zaakUUIDs
+                .map { zrcClientService.readZaak(it) }
+                .map { zaak ->
+                    group?.let {
+                        zrcClientService.updateRol(
+                            zaak,
+                            bepaalRolGroep(it, zaak),
+                            explanation
+                        )
+                    }
+                    user?.let {
+                        zrcClientService.updateRol(
+                            zaak,
+                            bepaalRolMedewerker(it, zaak),
+                            explanation
+                        )
+                    }
+                    indexeerService.indexeerDirect(
+                        zaak.uuid.toString(),
+                        ZoekObjectType.ZAAK
                     )
+                    zakenAssignedList.add(zaak.uuid)
                 }
-                user?.let {
-                    zrcClientService.updateRol(
-                        zaak,
-                        bepaalRolMedewerker(it, zaak),
-                        explanation
-                    )
-                }
-                indexeerService.indexeerDirect(
-                    zaakUUID.toString(),
-                    ZoekObjectType.ZAAK
-                )
-                zakenAssignedList.add(zaakUUID)
-            }
         }
-        assignZakenAsyncResult(
-            screenEventType,
-            jobUUID = jobUUID,
-            zakenAssignedList = zakenAssignedList
-        )
-    }
-
-    private fun assignZakenAsyncResult(
-        screenEventType: ScreenEventType,
-        jobUUID: UUID,
-        zakenAssignedList: List<UUID>
-    ) {
         LOG.fine(
-            "Asynchronous process with job UUID '$jobUUID' finished. " +
+            "Asynchronous assign zaken job with job UUID '$jobUUID' finished. " +
                 "Succesfully assigned ${zakenAssignedList.size} zaken to group and/or user"
         )
-        // send 'zaken_verdelen' screen event with job UUID so that it can be picked up by a client (e.g. a web browser)
-        // that has a websocket subscription to this event
+        // send an 'updated zaken_verdelen' screen event with the job UUID so that it can be picked
+        // up by a client (e.g. a web browser) that has a websocket subscription to this event
         eventingService.send(screenEventType.updated(jobUUID))
     }
 
