@@ -36,6 +36,7 @@ import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
+import nl.lifely.zac.util.NoArgConstructor
 import org.flowable.task.api.TaskInfo
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -44,6 +45,7 @@ import java.util.UUID
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Singleton
+@NoArgConstructor
 @Suppress("LongParameterList")
 class SignaleringenRestService @Inject constructor(
     private val signaleringenService: SignaleringenService,
@@ -59,7 +61,7 @@ class SignaleringenRestService @Inject constructor(
 ) {
     @GET
     @Path("/latest")
-    fun latestSignaleringen(): ZonedDateTime {
+    fun latestSignaleringen(): ZonedDateTime? {
         val parameters = SignaleringZoekParameters(loggedInUserInstance.get())
         return signaleringenService.latestSignalering(parameters)
     }
