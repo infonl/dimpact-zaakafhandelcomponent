@@ -5,7 +5,6 @@
 
 package nl.lifely.zac.itest.config
 
-import java.time.Duration
 import java.util.UUID
 
 /**
