@@ -103,6 +103,7 @@ import net.atos.zac.app.zaken.model.RESTZaakToekennenGegevens
 import net.atos.zac.app.zaken.model.RESTZaakVerlengGegevens
 import net.atos.zac.app.zaken.model.RESTZaaktype
 import net.atos.zac.app.zaken.model.RESTZakenVerdeelGegevens
+import net.atos.zac.app.zaken.model.RESTZakenVerdeelResultaat
 import net.atos.zac.app.zaken.model.RelatieType
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
@@ -591,12 +592,18 @@ class ZakenRESTService @Inject constructor(
 
     @PUT
     @Path("lijst/verdelen")
-    fun verdelenVanuitLijst(verdeelGegevens: @Valid RESTZakenVerdeelGegevens) {
+    fun verdelenVanuitLijst(verdeelGegevens: @Valid RESTZakenVerdeelGegevens): RESTZakenVerdeelResultaat {
         assertPolicy(
             policyService.readWerklijstRechten().zakenTaken &&
                 policyService.readWerklijstRechten().zakenTakenVerdelen
         )
+        // generate a random UUID as unique id for the async job
+        // so that the client can use this id to subscribe to updates on the job
+        // using a websocket
+        val assignZakenJobUUID = UUID.randomUUID()
         zakenService.assignZakenAsync(
+            screenEventType = ScreenEventType.ZAKEN_VERDELEN,
+            jobUUID = assignZakenJobUUID,
             zaakUUIDs = verdeelGegevens.uuids,
             explanation = verdeelGegevens.reden,
             group = verdeelGegevens.groepId?.let { identityService.readGroup(verdeelGegevens.groepId) },
@@ -604,7 +611,11 @@ class ZakenRESTService @Inject constructor(
                 identityService.readUser(verdeelGegevens.behandelaarGebruikersnaam)
             }
         )
-        LOG.fine { "Started asynchronous process to assign ${verdeelGegevens.uuids.size} zaken to group and/or user" }
+        LOG.fine("Started assign zaken async job with UUID: $assignZakenJobUUID")
+        return RESTZakenVerdeelResultaat(
+            screenEventType = ScreenEventType.ZAKEN_VERDELEN,
+            jobUUID = assignZakenJobUUID
+        )
     }
 
     @PUT

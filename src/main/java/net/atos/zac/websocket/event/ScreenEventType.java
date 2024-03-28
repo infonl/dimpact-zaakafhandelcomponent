@@ -108,6 +108,8 @@ public enum ScreenEventType {
         }
     },
 
+    ZAKEN_VERDELEN,
+
     ANY;
 
     /**
@@ -416,26 +418,14 @@ public enum ScreenEventType {
                     case ZAAK:
                         ScreenEventType.ZAAK.addEvent(events, resource, null);
                         break;
-                    case STATUS:
-                        ScreenEventType.ZAAK.addEvent(events, mainResource, resource);
-                        break;
-                    case ZAAKOBJECT:
+                    case STATUS, RESULTAAT, ZAAKEIGENSCHAP, KLANTCONTACT, ZAAKOBJECT:
                         ScreenEventType.ZAAK.addEvent(events, mainResource, resource);
                         break;
                     case ZAAKINFORMATIEOBJECT:
                         ScreenEventType.ZAAK_INFORMATIEOBJECTEN.addEvent(events, mainResource, resource);
                         break;
-                    case ZAAKEIGENSCHAP:
-                        ScreenEventType.ZAAK.addEvent(events, mainResource, resource);
-                        break;
-                    case KLANTCONTACT:
-                        ScreenEventType.ZAAK.addEvent(events, mainResource, resource);
-                        break;
                     case ROL:
                         ScreenEventType.ZAAK_ROLLEN.addEvent(events, mainResource, resource);
-                        break;
-                    case RESULTAAT:
-                        ScreenEventType.ZAAK.addEvent(events, mainResource, resource);
                         break;
                     case ZAAKBESLUIT:
                         ScreenEventType.ZAAK_BESLUITEN.addEvent(events, mainResource, resource);
