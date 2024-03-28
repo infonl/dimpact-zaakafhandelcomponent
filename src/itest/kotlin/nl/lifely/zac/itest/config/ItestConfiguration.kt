@@ -82,16 +82,4 @@ object ItestConfiguration {
     const val SMARTDOCUMENTS_MOCK_BASE_URI = "http://smartdocuments-wiremock:8080"
 
     val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
-
-    @Suppress("MagicNumber")
-    val FIVE_HUNDRED_MILLISECONDS: Duration = Duration.ofMillis(500)
-
-    @Suppress("MagicNumber")
-    val TEN_SECONDS: Duration = Duration.ofSeconds(10)
-
-    @Suppress("MagicNumber")
-    val THIRTY_SECONDS: Duration = Duration.ofSeconds(30)
-
-    @Suppress("MagicNumber")
-    val THREE_MINUTES: Duration = Duration.ofMinutes(3)
 }

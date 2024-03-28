@@ -17,8 +17,6 @@ import nl.lifely.zac.itest.client.KeycloakClient
 import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
 import nl.lifely.zac.itest.config.ItestConfiguration.SMARTDOCUMENTS_MOCK_BASE_URI
-import nl.lifely.zac.itest.config.ItestConfiguration.THIRTY_SECONDS
-import nl.lifely.zac.itest.config.ItestConfiguration.THREE_MINUTES
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_CONTAINER_SERVICE_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_DEFAULT_DOCKER_IMAGE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_HEALTH_READY_URL
@@ -32,7 +30,9 @@ import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.Wait
 import java.io.File
 import java.net.SocketException
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
 
 private val logger = KotlinLogging.logger {}
 
@@ -91,7 +91,7 @@ object ProjectConfig : AbstractProjectConfig() {
             logger.info { "Stopping ZAC Docker container" }
             dockerClient
                 .stopContainerCmd(containerId)
-                .withTimeout(THIRTY_SECONDS.toSecondsPart())
+                .withTimeout(30.seconds.inWholeSeconds.toInt())
                 .exec()
             logger.info { "Stopped ZAC Docker container" }
         }
@@ -153,12 +153,12 @@ object ProjectConfig : AbstractProjectConfig() {
             .waitingFor(
                 "openzaak.local",
                 Wait.forLogMessage(".*spawned uWSGI worker 2.*", 1)
-                    .withStartupTimeout(THREE_MINUTES)
+                    .withStartupTimeout(3.minutes.toJavaDuration())
             )
             .waitingFor(
                 "zac",
                 Wait.forLogMessage(".* WildFly Full .* started .*", 1)
-                    .withStartupTimeout(THREE_MINUTES)
+                    .withStartupTimeout(3.minutes.toJavaDuration())
             )
     }
 
