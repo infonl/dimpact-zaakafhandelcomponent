@@ -11,7 +11,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.core.test.TestCase
 import io.kotest.matchers.shouldBe
 import io.mockk.MockKAnnotations
-import io.mockk.called
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -19,7 +18,6 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.verify
-import jakarta.ws.rs.BadRequestException
 import net.atos.client.zgw.drc.DRCClientService
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObjectData

@@ -16,7 +16,7 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
 
         When("no file content provided") {
 
-            val result = validator.isValid(restEnkelvoudigInformatieobject, null);
+            val result = validator.isValid(restEnkelvoudigInformatieobject, null)
 
             Then("it detects it as invalid") {
                 result shouldBe false
@@ -24,9 +24,9 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
         }
 
         When("file is empty") {
-            restEnkelvoudigInformatieobject.file = "".toByteArray();
+            restEnkelvoudigInformatieobject.file = "".toByteArray()
 
-            val result = validator.isValid(restEnkelvoudigInformatieobject, null);
+            val result = validator.isValid(restEnkelvoudigInformatieobject, null)
 
             Then("it detects it as invalid") {
                 result shouldBe false
@@ -34,15 +34,13 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
         }
 
         When("file is provided") {
-            restEnkelvoudigInformatieobject.file = "dummy content".toByteArray();
+            restEnkelvoudigInformatieobject.file = "dummy content".toByteArray()
 
-            val result = validator.isValid(restEnkelvoudigInformatieobject, null);
+            val result = validator.isValid(restEnkelvoudigInformatieobject, null)
 
             Then("it detects it as valid") {
                 result shouldBe true
             }
         }
-
     }
-
 })

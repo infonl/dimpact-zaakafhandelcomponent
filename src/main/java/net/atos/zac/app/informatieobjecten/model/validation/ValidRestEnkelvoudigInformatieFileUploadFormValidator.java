@@ -7,7 +7,7 @@ import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieFileUp
 
 
 public class ValidRestEnkelvoudigInformatieFileUploadFormValidator implements
-                                                                         ConstraintValidator<ValidRestEnkelvoudigInformatieFileUploadForm, RESTEnkelvoudigInformatieFileUpload> {
+                                                                   ConstraintValidator<ValidRestEnkelvoudigInformatieFileUploadForm, RESTEnkelvoudigInformatieFileUpload> {
 
     @Override
     public boolean isValid(RESTEnkelvoudigInformatieFileUpload value, ConstraintValidatorContext context) {
