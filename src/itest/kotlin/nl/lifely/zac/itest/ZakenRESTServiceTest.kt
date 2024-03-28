@@ -165,9 +165,18 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     "\"reden\":\"dummyLijstVerdelenReason\"\n" +
                     "}"
             )
-            Then("the response should be a 204 HTTP response and the zaken should be assigned correctly") {
-                response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
-                // the process is asynchronous, so we need to wait a bit until the zaken are assigned
+            Then(
+                "the response should be a 200 HTTP response with the 'zaken verdelen' screen event type" +
+                    "and the asynchronous job UUID and eventually the zaken should be assigned correctly"
+            ) {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HttpStatusCode.OK_200.code()
+                with(responseBody) {
+                    shouldContainJsonKey("jobUUID")
+                    shouldContainJsonKeyValue("screenEventType", "ZAKEN_VERDELEN")
+                }
+                // the backend process is asynchronous, so we need to wait a bit until the zaken are assigned
                 eventually(10.seconds) {
                     zacClient.retrieveZaak(zaak1UUID).use { response ->
                         response.code shouldBe HttpStatusCode.OK_200.code()

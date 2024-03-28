@@ -5,18 +5,6 @@
 
 package net.atos.zac.websocket.event;
 
-import static net.atos.zac.event.Opcode.DELETED;
-import static net.atos.zac.event.Opcode.UPDATED;
-import static net.atos.zac.util.UriUtil.uuidFromURI;
-
-import java.net.URI;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
-
-import org.flowable.task.api.TaskInfo;
-
 import net.atos.client.zgw.brc.model.generated.Besluit;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.model.Zaak;
@@ -24,6 +12,17 @@ import net.atos.zac.event.Opcode;
 import net.atos.zac.notificaties.Channel;
 import net.atos.zac.notificaties.Notificatie;
 import net.atos.zac.signalering.model.Signalering;
+import org.flowable.task.api.TaskInfo;
+
+import java.net.URI;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
+import static net.atos.zac.event.Opcode.DELETED;
+import static net.atos.zac.event.Opcode.UPDATED;
+import static net.atos.zac.util.UriUtil.uuidFromURI;
 
 /**
  * Enumeration of the type of objects that can be referenced by a {@link ScreenEvent} event.
@@ -107,6 +106,8 @@ public enum ScreenEventType {
             return instance(opcode, this, zaak);
         }
     },
+
+    ZAKEN_VERDELEN,
 
     ANY;
 
@@ -416,26 +417,14 @@ public enum ScreenEventType {
                     case ZAAK:
                         ScreenEventType.ZAAK.addEvent(events, resource, null);
                         break;
-                    case STATUS:
-                        ScreenEventType.ZAAK.addEvent(events, mainResource, resource);
-                        break;
-                    case ZAAKOBJECT:
+                    case STATUS, RESULTAAT, ZAAKEIGENSCHAP, KLANTCONTACT, ZAAKOBJECT:
                         ScreenEventType.ZAAK.addEvent(events, mainResource, resource);
                         break;
                     case ZAAKINFORMATIEOBJECT:
                         ScreenEventType.ZAAK_INFORMATIEOBJECTEN.addEvent(events, mainResource, resource);
                         break;
-                    case ZAAKEIGENSCHAP:
-                        ScreenEventType.ZAAK.addEvent(events, mainResource, resource);
-                        break;
-                    case KLANTCONTACT:
-                        ScreenEventType.ZAAK.addEvent(events, mainResource, resource);
-                        break;
                     case ROL:
                         ScreenEventType.ZAAK_ROLLEN.addEvent(events, mainResource, resource);
-                        break;
-                    case RESULTAAT:
-                        ScreenEventType.ZAAK.addEvent(events, mainResource, resource);
                         break;
                     case ZAAKBESLUIT:
                         ScreenEventType.ZAAK_BESLUITEN.addEvent(events, mainResource, resource);
