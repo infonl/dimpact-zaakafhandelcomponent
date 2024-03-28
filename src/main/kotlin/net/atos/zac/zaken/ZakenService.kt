@@ -40,14 +40,14 @@ class ZakenService @Inject constructor(
     @Suppress("LongParameterList")
     fun assignZakenAsync(
         screenEventType: ScreenEventType,
-        jobUUID: UUID,
+        screenEventResourceId: String? = null,
         zaakUUIDs: List<UUID>,
         explanation: String? = null,
         group: Group? = null,
         user: User? = null
     ) = defaultCoroutineScope.launch(CoroutineName("AssignZakenCoroutine")) {
         LOG.fine {
-            "Started asynchronous job with UUID: $jobUUID to assign " +
+            "Started asynchronous job with ID: $screenEventResourceId to assign " +
                 "${zaakUUIDs.size} zaken to group and/or user"
         }
         val zakenAssignedList = mutableListOf<UUID>()
@@ -77,12 +77,15 @@ class ZakenService @Inject constructor(
                 }
         }
         LOG.fine(
-            "Asynchronous assign zaken job with job UUID '$jobUUID' finished. " +
+            "Asynchronous assign zaken job with job ID '$screenEventResourceId' finished. " +
                 "Succesfully assigned ${zakenAssignedList.size} zaken to group and/or user"
         )
-        // send an 'updated zaken_verdelen' screen event with the job UUID so that it can be picked
-        // up by a client (e.g. a web browser) that has a websocket subscription to this event
-        eventingService.send(screenEventType.updated(jobUUID))
+        // if a screen event resource ID was specified, send an 'updated zaken_verdelen' screen event
+        // with the job UUID so that it can be picked up by a client
+        // that has created a websocket subscription to this event
+        screenEventResourceId?.let {
+            eventingService.send(screenEventType.updated(it))
+        }
     }
 
     fun bepaalRolGroep(group: Group, zaak: Zaak) =

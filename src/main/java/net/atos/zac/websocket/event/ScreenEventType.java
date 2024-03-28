@@ -189,6 +189,11 @@ public enum ScreenEventType {
         return instance(opcode, this, url, null); // Allowed with all object types
     }
 
+    private ScreenEvent event(final Opcode opcode, final String eventResourceId1) {
+        return instance(opcode, this, eventResourceId1, null);
+    }
+
+
     private ScreenEvent event(
             final Opcode opcode,
             final Notificatie.ResourceInfo resource,
@@ -295,6 +300,17 @@ public enum ScreenEventType {
      */
     public final ScreenEvent updated(final Signalering signalering) {
         return event(UPDATED, signalering);
+    }
+
+
+    /**
+     * Factory method for ScreenEvent (with string identification of a custom resource).
+     *
+     * @param eventResourceId identification of the custom resource.
+     * @return instance of the event
+     */
+    public final ScreenEvent updated(final String eventResourceId) {
+        return event(UPDATED, eventResourceId);
     }
 
     /**
