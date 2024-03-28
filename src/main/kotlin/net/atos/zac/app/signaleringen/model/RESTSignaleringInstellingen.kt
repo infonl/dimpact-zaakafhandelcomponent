@@ -2,21 +2,24 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.signaleringen.model
 
-package net.atos.zac.app.signaleringen.model;
+import net.atos.zac.signalering.model.SignaleringSubject
+import net.atos.zac.signalering.model.SignaleringType
 
-import net.atos.zac.signalering.model.SignaleringSubject;
-import net.atos.zac.signalering.model.SignaleringType;
+class RESTSignaleringInstellingen {
+    @JvmField
+    var id: Long? = null
 
-public class RESTSignaleringInstellingen {
+    @JvmField
+    var type: SignaleringType.Type? = null
 
-    public Long id;
+    @JvmField
+    var subjecttype: SignaleringSubject? = null
 
-    public SignaleringType.Type type;
+    @JvmField
+    var dashboard: Boolean? = null
 
-    public SignaleringSubject subjecttype;
-
-    public Boolean dashboard;
-
-    public Boolean mail;
+    @JvmField
+    var mail: Boolean? = null
 }
