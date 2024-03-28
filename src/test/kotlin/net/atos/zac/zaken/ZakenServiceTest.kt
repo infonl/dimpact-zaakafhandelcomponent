@@ -77,8 +77,7 @@ class ZakenServiceTest : BehaviorSpec({
                     "and the search index should be updated and " +
                     "a screen event of type 'zaken verdelen' should sent"
             ) {
-                coroutine.onJoin.let {
-                }
+                coroutine.join()
                 verify(exactly = zaken.size) {
                     zaken.map {
                         zrcClientService.updateRol(it, any(), explanation)
