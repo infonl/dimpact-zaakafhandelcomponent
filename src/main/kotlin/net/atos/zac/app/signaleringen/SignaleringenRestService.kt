@@ -72,7 +72,7 @@ class SignaleringenRestService @Inject constructor(
             .types(signaleringsType)
             .subjecttype(SignaleringSubject.ZAAK)
         return signaleringenService.listSignaleringen(parameters).stream()
-            .map { signalering: Signalering -> zrcClientService.readZaak(UUID.fromString(signalering.subject)) }
+            .map { zrcClientService.readZaak(UUID.fromString(it.subject)) }
             .map { restZaakOverzichtConverter.convert(it) }
             .toList()
     }
@@ -84,7 +84,7 @@ class SignaleringenRestService @Inject constructor(
             .types(signaleringsType)
             .subjecttype(SignaleringSubject.TAAK)
         return signaleringenService.listSignaleringen(parameters).stream()
-            .map { signalering: Signalering -> takenService.readTask(signalering.subject) }
+            .map { takenService.readTask(it.subject) }
             .map { restTaakConverter.convert(it) }
             .toList()
     }
@@ -98,16 +98,8 @@ class SignaleringenRestService @Inject constructor(
             .types(signaleringsType)
             .subjecttype(SignaleringSubject.DOCUMENT)
         return signaleringenService.listSignaleringen(parameters).stream()
-            .map { signalering: Signalering ->
-                drcClientService.readEnkelvoudigInformatieobject(
-                    UUID.fromString(signalering.subject)
-                )
-            }
-            .map { enkelvoudigInformatieObject: EnkelvoudigInformatieObject? ->
-                restInformatieobjectConverter.convertToREST(
-                    enkelvoudigInformatieObject
-                )
-            }
+            .map { drcClientService.readEnkelvoudigInformatieobject(UUID.fromString(it.subject)) }
+            .map { restInformatieobjectConverter.convertToREST(it) }
             .toList()
     }
 
