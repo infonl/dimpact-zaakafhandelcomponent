@@ -39,12 +39,11 @@ class ZakenService @Inject constructor(
      */
     @Suppress("LongParameterList")
     fun assignZakenAsync(
-        screenEventType: ScreenEventType,
-        screenEventResourceId: String? = null,
         zaakUUIDs: List<UUID>,
         explanation: String? = null,
         group: Group? = null,
-        user: User? = null
+        user: User? = null,
+        screenEventResourceId: String? = null,
     ) = defaultCoroutineScope.launch(CoroutineName("AssignZakenCoroutine")) {
         LOG.fine {
             "Started asynchronous job with ID: $screenEventResourceId to assign " +
@@ -84,7 +83,7 @@ class ZakenService @Inject constructor(
         // with the job UUID so that it can be picked up by a client
         // that has created a websocket subscription to this event
         screenEventResourceId?.let {
-            eventingService.send(screenEventType.updated(it))
+            eventingService.send(ScreenEventType.ZAKEN_VERDELEN.updated(it))
         }
     }
 

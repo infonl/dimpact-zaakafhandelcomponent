@@ -597,14 +597,13 @@ class ZakenRESTService @Inject constructor(
                 policyService.readWerklijstRechten().zakenTakenVerdelen
         )
         zakenService.assignZakenAsync(
-            screenEventType = ScreenEventType.ZAKEN_VERDELEN,
-            screenEventResourceId = verdeelGegevens.screenEventResourceId,
             zaakUUIDs = verdeelGegevens.uuids,
             explanation = verdeelGegevens.reden,
             group = verdeelGegevens.groepId?.let { identityService.readGroup(verdeelGegevens.groepId) },
             user = verdeelGegevens.behandelaarGebruikersnaam?.let {
                 identityService.readUser(verdeelGegevens.behandelaarGebruikersnaam)
-            }
+            },
+            screenEventResourceId = verdeelGegevens.screenEventResourceId
         )
     }
 
