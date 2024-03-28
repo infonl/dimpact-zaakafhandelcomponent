@@ -17,7 +17,6 @@ import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.drc.DRCClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.zrc.ZRCClientService
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieobject
 import net.atos.zac.app.signaleringen.converter.RESTSignaleringInstellingenConverter
@@ -31,13 +30,11 @@ import net.atos.zac.flowable.TakenService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.signalering.SignaleringenService
 import net.atos.zac.signalering.model.Signalering
-import net.atos.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import nl.lifely.zac.util.NoArgConstructor
-import org.flowable.task.api.TaskInfo
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -88,7 +85,7 @@ class SignaleringenRestService @Inject constructor(
             .subjecttype(SignaleringSubject.TAAK)
         return signaleringenService.listSignaleringen(parameters).stream()
             .map { signalering: Signalering -> takenService.readTask(signalering.subject) }
-            .map { taskInfo: TaskInfo? -> restTaakConverter.convert(taskInfo) }
+            .map { restTaakConverter.convert(it) }
             .toList()
     }
 
@@ -160,12 +157,9 @@ class SignaleringenRestService @Inject constructor(
     @GET
     @Path("/typen/dashboard")
     fun listDashboardSignaleringTypen(): List<SignaleringType.Type> {
-        val parameters = SignaleringInstellingenZoekParameters(
-            loggedInUserInstance.get()
-        )
-            .dashboard()
+        val parameters = SignaleringInstellingenZoekParameters(loggedInUserInstance.get()).dashboard()
         return signaleringenService.listInstellingen(parameters).stream()
-            .map { instellingen: SignaleringInstellingen -> instellingen.type.type }
+            .map { it.type.type }
             .toList()
     }
 }
