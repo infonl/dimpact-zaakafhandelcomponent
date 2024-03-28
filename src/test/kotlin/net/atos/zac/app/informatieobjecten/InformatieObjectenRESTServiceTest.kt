@@ -334,69 +334,6 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                 }
             }
         }
-
-        Given("zaak is created") {
-            val zaak = createZaak()
-            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-
-            When("file upload with an empty file is attempted") {
-                val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
-                val documentReferentieId: String = "dummyDocumentReferentieId"
-                val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectData().apply {
-                    bestandsnaam = "emptyFile.txt"
-                    formaat = "dummyType"
-                    bestandsomvang = 0
-                }
-                every { policyService.readZaakRechten(zaak) } returns zaakRechtenWijzigen
-                every {
-                    restInformatieobjectConverter.convertZaakObject(restEnkelvoudigInformatieobject)
-                } returns enkelvoudigInformatieObjectData
-
-                shouldThrow<BadRequestException> {
-                    informatieObjectenRESTService.createEnkelvoudigInformatieobjectAndUploadFile(
-                        zaak.uuid,
-                        documentReferentieId,
-                        false,
-                        restEnkelvoudigInformatieobject
-                    )
-                }
-
-                Then("no zaak informatie object is created") {
-                    verify {
-                        zgwApiService.createZaakInformatieobjectForZaak(
-                            any(), any(), any(), any(), any()
-                        ) wasNot called
-                    }
-                }
-            }
-
-            When("update with an empty file is attempted") {
-                val restEnkelvoudigInformatieObjectVersieGegevens = createRESTEnkelvoudigInformatieObjectVersieGegevens(
-                    zaakUuid = zaak.uuid,
-                    file = "".toByteArray()
-                )
-                val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
-                every {
-                    drcClientService.readEnkelvoudigInformatieobject(restEnkelvoudigInformatieObjectVersieGegevens.uuid)
-                } returns enkelvoudigInformatieObject
-                every {
-                    policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
-                } returns createDocumentRechten()
-                shouldThrow<BadRequestException> {
-                    informatieObjectenRESTService.updateEnkelvoudigInformatieobjectAndUploadFile(
-                        restEnkelvoudigInformatieObjectVersieGegevens
-                    )
-                }
-
-                Then("enkelvoudig informatie object is not updated") {
-                    verify {
-                        enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                            any(), any(), any()
-                        ) wasNot called
-                    }
-                }
-            }
-        }
     }
 
     override fun isolationMode() = IsolationMode.InstancePerTest

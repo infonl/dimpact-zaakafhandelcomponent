@@ -21,7 +21,7 @@ import net.atos.zac.zoeken.model.DocumentIndicatie;
 /**
  * Representation of an 'enkelvoudig informatieobject' (e.g. a document) in the ZAC REST API.
  */
-public class RESTEnkelvoudigInformatieobject {
+public class RESTEnkelvoudigInformatieobject extends RESTEnkelvoudigInformatieFileUpload {
 
     public UUID uuid;
 
@@ -64,8 +64,8 @@ public class RESTEnkelvoudigInformatieobject {
     @FormParam("formaat")
     public String formaat;
 
-    @FormParam("file")
-    public byte[] file;
+    @FormParam("bestandsomvang")
+    public Long bestandsomvang;
 
     // not always required
     @FormParam("taal")
@@ -79,12 +79,6 @@ public class RESTEnkelvoudigInformatieobject {
 
     @FormParam("informatieobjectTypeOmschrijving")
     public String informatieobjectTypeOmschrijving;
-
-    @NotNull @FormParam("bestandsnaam")
-    public String bestandsnaam;
-
-    @FormParam("bestandsomvang")
-    public Long bestandsomvang;
 
     @FormParam("link")
     public String link;
