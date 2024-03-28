@@ -9,6 +9,8 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
+import okhttp3.WebSocket
+import okhttp3.WebSocketListener
 import java.net.CookieManager
 import java.net.CookiePolicy
 
@@ -118,6 +120,31 @@ class ItestHttpClient {
             .build()
         return okHttpClient.newCall(request).execute()
     }
+
+    fun connectNewWebSocket(
+        url: String,
+        webSocketListener: WebSocketListener,
+        headers: Headers = getDefaultJSONGETHeaders(),
+        addAuthorizationHeader: Boolean = true,
+    ): WebSocket {
+        logger.info { "Connecting new websocket on: '$url'" }
+        val request = Request.Builder()
+            .headers(
+                if (addAuthorizationHeader) {
+                    cloneHeadersWithAuthorization(headers)
+                } else {
+                    headers
+                }
+            )
+            .url(url)
+            .build()
+        return okHttpClient.newWebSocket(
+            request,
+            webSocketListener
+        )
+    }
+
+    fun shutdownClient() = okHttpClient.dispatcher.executorService.shutdown()
 
     private fun getDefaultJSONGETHeaders() = Headers.headersOf(
         // "Authorization",

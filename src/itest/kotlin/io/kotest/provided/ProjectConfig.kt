@@ -7,22 +7,22 @@ package io.kotest.provided
 
 import io.github.oshai.kotlinlogging.DelegatingKLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.kotest.assertions.nondeterministic.eventually
+import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.core.config.AbstractProjectConfig
 import io.kotest.core.spec.SpecExecutionOrder
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.client.KeycloakClient
 import nl.lifely.zac.itest.client.ZacClient
-import nl.lifely.zac.itest.config.ItestConfiguration.DURATION_THIRTY_SECONDS
-import nl.lifely.zac.itest.config.ItestConfiguration.DURATION_THREE_MINUTES
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
 import nl.lifely.zac.itest.config.ItestConfiguration.SMARTDOCUMENTS_MOCK_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_CONTAINER_SERVICE_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_DEFAULT_DOCKER_IMAGE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_HEALTH_READY_URL
 import okhttp3.Headers
-import org.awaitility.kotlin.await
 import org.json.JSONObject
+import org.mockserver.model.HttpStatusCode
 import org.slf4j.Logger
 import org.testcontainers.containers.ComposeContainer
 import org.testcontainers.containers.ContainerLaunchException
@@ -30,6 +30,9 @@ import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.Wait
 import java.io.File
 import java.net.SocketException
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
 
 private val logger = KotlinLogging.logger {}
 
@@ -45,33 +48,30 @@ object ProjectConfig : AbstractProjectConfig() {
             dockerComposeContainer.start()
             logger.info { "Started ZAC Docker Compose containers" }
             logger.info { "Waiting until Keycloak is healthy by calling the health endpoint and checking the response" }
-            await.atMost(DURATION_THIRTY_SECONDS)
-                .until {
-                    try {
-                        itestHttpClient.performGetRequest(
-                            headers = Headers.headersOf("Content-Type", "application/json"),
-                            url = KEYCLOAK_HEALTH_READY_URL,
-                            addAuthorizationHeader = false
-                        ).isSuccessful
-                    } catch (socketException: SocketException) {
-                        logger.info(socketException) {
-                            "SocketException while requesting Keycloak health endpoint. Ignoring."
-                        }
-                        false
-                    }
+            eventually(
+                eventuallyConfig {
+                    duration = 30.seconds
+                    expectedExceptions = setOf(SocketException::class)
                 }
+            ) {
+                itestHttpClient.performGetRequest(
+                    headers = Headers.headersOf("Content-Type", "application/json"),
+                    url = KEYCLOAK_HEALTH_READY_URL,
+                    addAuthorizationHeader = false
+                ).code shouldBe HttpStatusCode.OK_200.code()
+            }
             logger.info { "Keycloak is healthy" }
             logger.info { "Waiting until ZAC is healthy by calling the health endpoint and checking the response" }
-            await.atMost(DURATION_THIRTY_SECONDS)
-                .until {
-                    itestHttpClient.performGetRequest(
-                        headers = Headers.headersOf("Content-Type", "application/json"),
-                        url = ZAC_HEALTH_READY_URL,
-                        addAuthorizationHeader = false
-                    ).use { response ->
-                        response.isSuccessful && JSONObject(response.body!!.string()).getString("status") == "UP"
-                    }
+            eventually(30.seconds) {
+                itestHttpClient.performGetRequest(
+                    headers = Headers.headersOf("Content-Type", "application/json"),
+                    url = ZAC_HEALTH_READY_URL,
+                    addAuthorizationHeader = false
+                ).use { response ->
+                    response.code shouldBe HttpStatusCode.OK_200.code()
+                    JSONObject(response.body!!.string()).getString("status") shouldBe "UP"
                 }
+            }
             logger.info { "ZAC is healthy" }
 
             KeycloakClient.authenticate()
@@ -91,7 +91,7 @@ object ProjectConfig : AbstractProjectConfig() {
             logger.info { "Stopping ZAC Docker container" }
             dockerClient
                 .stopContainerCmd(containerId)
-                .withTimeout(DURATION_THIRTY_SECONDS.toSecondsPart())
+                .withTimeout(30.seconds.inWholeSeconds.toInt())
                 .exec()
             logger.info { "Stopped ZAC Docker container" }
         }
@@ -153,12 +153,12 @@ object ProjectConfig : AbstractProjectConfig() {
             .waitingFor(
                 "openzaak.local",
                 Wait.forLogMessage(".*spawned uWSGI worker 2.*", 1)
-                    .withStartupTimeout(DURATION_THREE_MINUTES)
+                    .withStartupTimeout(3.minutes.toJavaDuration())
             )
             .waitingFor(
                 "zac",
                 Wait.forLogMessage(".* WildFly Full .* started .*", 1)
-                    .withStartupTimeout(DURATION_THREE_MINUTES)
+                    .withStartupTimeout(3.minutes.toJavaDuration())
             )
     }
 
