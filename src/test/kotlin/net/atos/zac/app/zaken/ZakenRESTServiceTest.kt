@@ -6,10 +6,7 @@
 package net.atos.zac.app.zaken
 
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.core.test.TestCase
-import io.mockk.MockKAnnotations
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
@@ -19,6 +16,9 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createORObject
+import net.atos.client.vrl.VRLClientService
+import net.atos.client.zgw.brc.BRCClientService
+import net.atos.client.zgw.drc.DRCClientService
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.ZRCClientService
@@ -42,21 +42,37 @@ import net.atos.client.zgw.ztc.model.generated.RolType
 import net.atos.zac.aanvraag.InboxProductaanvraagService
 import net.atos.zac.aanvraag.ProductaanvraagService
 import net.atos.zac.aanvraag.createProductaanvraagDimpact
+import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter
+import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.bag.converter.RESTBAGConverter
+import net.atos.zac.app.zaken.converter.RESTBesluitConverter
+import net.atos.zac.app.zaken.converter.RESTBesluittypeConverter
+import net.atos.zac.app.zaken.converter.RESTGeometryConverter
+import net.atos.zac.app.zaken.converter.RESTResultaattypeConverter
 import net.atos.zac.app.zaken.converter.RESTZaakConverter
+import net.atos.zac.app.zaken.converter.RESTZaakOverzichtConverter
+import net.atos.zac.app.zaken.converter.RESTZaaktypeConverter
 import net.atos.zac.app.zaken.model.ZAAK_TYPE_1_OMSCHRIJVING
 import net.atos.zac.app.zaken.model.createRESTZaak
 import net.atos.zac.app.zaken.model.createRESTZaakAanmaakGegevens
 import net.atos.zac.app.zaken.model.createRESTZaakToekennenGegevens
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
+import net.atos.zac.configuratie.ConfiguratieService
+import net.atos.zac.documenten.OntkoppeldeDocumentenService
+import net.atos.zac.event.EventingService
+import net.atos.zac.flowable.BPMNService
 import net.atos.zac.flowable.CMMNService
+import net.atos.zac.flowable.TakenService
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.healthcheck.HealthCheckService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.createGroup
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.output.OverigeRechten
 import net.atos.zac.policy.output.createZaakRechten
+import net.atos.zac.shared.helper.OpschortenZaakHelper
+import net.atos.zac.signalering.SignaleringenService
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import net.atos.zac.zaaksturing.model.createZaakafhandelParameters
 import net.atos.zac.zaken.ZakenService
@@ -66,32 +82,81 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.Optional
 
 @MockKExtension.CheckUnnecessaryStub
+@Suppress("LongParameterList")
 class ZakenRESTServiceTest : BehaviorSpec() {
-    private val cmmnService = mockk<CMMNService>()
-    private val identityService = mockk<IdentityService>()
-    private val inboxProductaanvraagService = mockk<InboxProductaanvraagService>()
-    private val indexeerService = mockk<IndexeerService>()
-    private val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-    private val objectsClientService = mockk<ObjectsClientService>()
-    private val policyService = mockk<PolicyService>()
-    private val productaanvraagService = mockk<ProductaanvraagService>()
-    private val restBagConverter = mockk<RESTBAGConverter>()
-    private val restZaakConverter = mockk<RESTZaakConverter>()
-    private val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
-    private val zaakVariabelenService = mockk<ZaakVariabelenService>()
-    private val zgwApiService = mockk<ZGWApiService>()
-    private val zrcClientService = mockk<ZRCClientService>()
-    private val ztcClientService = mockk<ZTCClientService>()
-    private val zakenService = mockk<ZakenService>()
+    private val bpmnService: BPMNService = mockk<BPMNService>()
+    private val brcClientService: BRCClientService = mockk<BRCClientService>()
+    private val configuratieService: ConfiguratieService = mockk<ConfiguratieService>()
+    private val cmmnService: CMMNService = mockk<CMMNService>()
+    private val drcClientService: DRCClientService = mockk<DRCClientService>()
+    private val eventingService: EventingService = mockk<EventingService>()
+    private val healthCheckService: HealthCheckService = mockk<HealthCheckService>()
+    private val identityService: IdentityService = mockk<IdentityService>()
+    private val inboxProductaanvraagService: InboxProductaanvraagService = mockk<InboxProductaanvraagService>()
+    private val indexeerService: IndexeerService = mockk<IndexeerService>()
+    private val loggedInUserInstance: Instance<LoggedInUser> = mockk<Instance<LoggedInUser>>()
+    private val objectsClientService: ObjectsClientService = mockk<ObjectsClientService>()
+    private val ontkoppeldeDocumentenService: OntkoppeldeDocumentenService = mockk<OntkoppeldeDocumentenService>()
+    private val opschortenZaakHelper: OpschortenZaakHelper = mockk<OpschortenZaakHelper>()
+    private val policyService: PolicyService = mockk<PolicyService>()
+    private val productaanvraagService: ProductaanvraagService = mockk<ProductaanvraagService>()
+    private val restBAGConverter: RESTBAGConverter = mockk<RESTBAGConverter>()
+    private val restBesluitConverter: RESTBesluitConverter = mockk<RESTBesluitConverter>()
+    private val restBesluittypeConverter: RESTBesluittypeConverter = mockk<RESTBesluittypeConverter>()
+    private val restGeometryConverter: RESTGeometryConverter = mockk<RESTGeometryConverter>()
+    private val restResultaattypeConverter: RESTResultaattypeConverter = mockk<RESTResultaattypeConverter>()
+    private val restZaakConverter: RESTZaakConverter = mockk<RESTZaakConverter>()
+    private val restZaakAfzenderConverter: RESTZaakAfzenderConverter = mockk<RESTZaakAfzenderConverter>()
+    private val restZaakOverzichtConverter: RESTZaakOverzichtConverter = mockk<RESTZaakOverzichtConverter>()
+    private val restZaaktypeConverter: RESTZaaktypeConverter = mockk<RESTZaaktypeConverter>()
+    private val restHistorieRegelConverter: RESTHistorieRegelConverter = mockk<RESTHistorieRegelConverter>()
+    private val signaleringenService: SignaleringenService = mockk<SignaleringenService>()
+    private val takenService: TakenService = mockk<TakenService>()
+    private val vrlClientService: VRLClientService = mockk<VRLClientService>()
+    private val zaakafhandelParameterService: ZaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
+    private val zaakVariabelenService: ZaakVariabelenService = mockk<ZaakVariabelenService>()
+    private val zakenService: ZakenService = mockk<ZakenService>()
+    private val zgwApiService: ZGWApiService = mockk<ZGWApiService>()
+    private val zrcClientService: ZRCClientService = mockk<ZRCClientService>()
+    private val ztcClientService: ZTCClientService = mockk<ZTCClientService>()
 
-    // We have to use @InjectMockKs since the class under test uses field injection instead of constructor injection.
-    // This is because WildFly does not properly support constructor injection for JAX-RS REST services.
-    @InjectMockKs
-    lateinit var zakenRESTService: ZakenRESTService
-
-    override suspend fun beforeTest(testCase: TestCase) {
-        MockKAnnotations.init(this)
-    }
+    private val zakenRESTService = ZakenRESTService(
+        zgwApiService = zgwApiService,
+        cmmnService = cmmnService,
+        identityService = identityService,
+        inboxProductaanvraagService = inboxProductaanvraagService,
+        loggedInUserInstance = loggedInUserInstance,
+        objectsClientService = objectsClientService,
+        policyService = policyService,
+        productaanvraagService = productaanvraagService,
+        restBAGConverter = restBAGConverter,
+        restZaakConverter = restZaakConverter,
+        zaakafhandelParameterService = zaakafhandelParameterService,
+        zaakVariabelenService = zaakVariabelenService,
+        zrcClientService = zrcClientService,
+        ztcClientService = ztcClientService,
+        zakenService = zakenService,
+        indexeerService = indexeerService,
+        restHistorieRegelConverter = restHistorieRegelConverter,
+        restBesluitConverter = restBesluitConverter,
+        bpmnService = bpmnService,
+        brcClientService = brcClientService,
+        configuratieService = configuratieService,
+        drcClientService = drcClientService,
+        eventingService = eventingService,
+        healthCheckService = healthCheckService,
+        ontkoppeldeDocumentenService = ontkoppeldeDocumentenService,
+        opschortenZaakHelper = opschortenZaakHelper,
+        restBesluittypeConverter = restBesluittypeConverter,
+        restGeometryConverter = restGeometryConverter,
+        restResultaattypeConverter = restResultaattypeConverter,
+        restZaakOverzichtConverter = restZaakOverzichtConverter,
+        signaleringenService = signaleringenService,
+        takenService = takenService,
+        vrlClientService = vrlClientService,
+        restZaakAfzenderConverter = restZaakAfzenderConverter,
+        restZaaktypeConverter = restZaaktypeConverter
+    )
 
     init {
         given("zaak input data is provided") {
@@ -143,10 +208,10 @@ class ZakenRESTServiceTest : BehaviorSpec() {
                         )
                     } just runs
                     every {
-                        restBagConverter.convertToZaakobject(restZaakAanmaakGegevens.bagObjecten?.get(0), zaak)
+                        restBAGConverter.convertToZaakobject(restZaakAanmaakGegevens.bagObjecten?.get(0), zaak)
                     } returns zaakObjectPand
                     every {
-                        restBagConverter.convertToZaakobject(
+                        restBAGConverter.convertToZaakobject(
                             restZaakAanmaakGegevens.bagObjecten?.get(1),
                             zaak
                         )

@@ -32,7 +32,7 @@ data class RESTBesluit(
 
     var vervalreden: Besluit.VervalredenEnum? = null,
 
-    @get:JsonbProperty("isIngetrokken")
+    @field:JsonbProperty("isIngetrokken")
     var isIngetrokken: Boolean = false,
 
     var toelichting: String? = null,
