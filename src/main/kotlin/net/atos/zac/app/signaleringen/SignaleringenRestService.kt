@@ -44,90 +44,68 @@ import java.util.UUID
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Singleton
-class SignaleringenRestService {
-    @Inject
-    private val signaleringenService: SignaleringenService? = null
-
-    @Inject
-    private val zrcClientService: ZRCClientService? = null
-
-    @Inject
-    private val takenService: TakenService? = null
-
-    @Inject
-    private val drcClientService: DRCClientService? = null
-
-    @Inject
-    private val identityService: IdentityService? = null
-
-    @Inject
-    private val restZaakOverzichtConverter: RESTZaakOverzichtConverter? = null
-
-    @Inject
-    private val restTaakConverter: RESTTaakConverter? = null
-
-    @Inject
-    private val restInformatieobjectConverter: RESTInformatieobjectConverter? = null
-
-    @Inject
-    private val restSignaleringInstellingenConverter: RESTSignaleringInstellingenConverter? = null
-
-    @Inject
-    private val loggedInUserInstance: Instance<LoggedInUser>? = null
-
+@Suppress("LongParameterList")
+class SignaleringenRestService @Inject constructor(
+    private val signaleringenService: SignaleringenService,
+    private val zrcClientService: ZRCClientService,
+    private val takenService: TakenService,
+    private val drcClientService: DRCClientService,
+    private val identityService: IdentityService,
+    private val restZaakOverzichtConverter: RESTZaakOverzichtConverter,
+    private val restTaakConverter: RESTTaakConverter,
+    private val restInformatieobjectConverter: RESTInformatieobjectConverter,
+    private val restSignaleringInstellingenConverter: RESTSignaleringInstellingenConverter,
+    private val loggedInUserInstance: Instance<LoggedInUser>,
+) {
     @GET
     @Path("/latest")
     fun latestSignaleringen(): ZonedDateTime {
-        val parameters = SignaleringZoekParameters(loggedInUserInstance!!.get())
-        return signaleringenService!!.latestSignalering(parameters)
+        val parameters = SignaleringZoekParameters(loggedInUserInstance.get())
+        return signaleringenService.latestSignalering(parameters)
     }
 
     @GET
     @Path("/zaken/{type}")
     fun listZakenSignaleringen(
-        @PathParam("type") signaleringsType: SignaleringType.Type?
+        @PathParam("type") signaleringsType: SignaleringType.Type
     ): List<RESTZaakOverzicht> {
-        val parameters = SignaleringZoekParameters(loggedInUserInstance!!.get())
+        val parameters = SignaleringZoekParameters(loggedInUserInstance.get())
             .types(signaleringsType)
             .subjecttype(SignaleringSubject.ZAAK)
-        return signaleringenService!!.listSignaleringen(parameters).stream()
-            .map { signalering: Signalering -> zrcClientService!!.readZaak(UUID.fromString(signalering.subject)) }
-            .map { zaak: Zaak? ->
-                restZaakOverzichtConverter!!.convert(
-                    zaak!!
-                )
-            }
+        return signaleringenService.listSignaleringen(parameters).stream()
+            .map { signalering: Signalering -> zrcClientService.readZaak(UUID.fromString(signalering.subject)) }
+            .map { zaak: Zaak? -> restZaakOverzichtConverter.convert(zaak!!) }
             .toList()
     }
 
     @GET
     @Path("/taken/{type}")
-    fun listTakenSignaleringen(@PathParam("type") signaleringsType: SignaleringType.Type?): List<RESTTaak> {
-        val parameters = SignaleringZoekParameters(loggedInUserInstance!!.get())
+    fun listTakenSignaleringen(@PathParam("type") signaleringsType: SignaleringType.Type): List<RESTTaak> {
+        val parameters = SignaleringZoekParameters(loggedInUserInstance.get())
             .types(signaleringsType)
             .subjecttype(SignaleringSubject.TAAK)
-        return signaleringenService!!.listSignaleringen(parameters).stream()
-            .map { signalering: Signalering -> takenService!!.readTask(signalering.subject) }
-            .map { taskInfo: TaskInfo? -> restTaakConverter!!.convert(taskInfo) }
+        return signaleringenService.listSignaleringen(parameters).stream()
+            .map { signalering: Signalering -> takenService.readTask(signalering.subject) }
+            .map { taskInfo: TaskInfo? -> restTaakConverter.convert(taskInfo) }
             .toList()
     }
 
     @GET
     @Path("/informatieobjecten/{type}")
     fun listInformatieobjectenSignaleringen(
-        @PathParam("type") signaleringsType: SignaleringType.Type?
+        @PathParam("type") signaleringsType: SignaleringType.Type
     ): List<RESTEnkelvoudigInformatieobject> {
-        val parameters = SignaleringZoekParameters(loggedInUserInstance!!.get())
+        val parameters = SignaleringZoekParameters(loggedInUserInstance.get())
             .types(signaleringsType)
             .subjecttype(SignaleringSubject.DOCUMENT)
-        return signaleringenService!!.listSignaleringen(parameters).stream()
+        return signaleringenService.listSignaleringen(parameters).stream()
             .map { signalering: Signalering ->
-                drcClientService!!.readEnkelvoudigInformatieobject(
+                drcClientService.readEnkelvoudigInformatieobject(
                     UUID.fromString(signalering.subject)
                 )
             }
             .map { enkelvoudigInformatieObject: EnkelvoudigInformatieObject? ->
-                restInformatieobjectConverter!!.convertToREST(
+                restInformatieobjectConverter.convertToREST(
                     enkelvoudigInformatieObject
                 )
             }
@@ -138,42 +116,42 @@ class SignaleringenRestService {
     @Path("/instellingen")
     fun listUserSignaleringInstellingen(): List<RESTSignaleringInstellingen> {
         val parameters = SignaleringInstellingenZoekParameters(
-            loggedInUserInstance!!.get()
+            loggedInUserInstance.get()
         )
-        return restSignaleringInstellingenConverter!!.convert(
-            signaleringenService!!.listInstellingenInclusiefMogelijke(parameters)
+        return restSignaleringInstellingenConverter.convert(
+            signaleringenService.listInstellingenInclusiefMogelijke(parameters)
         )
     }
 
     @PUT
     @Path("/instellingen")
-    fun updateUserSignaleringInstellingen(restInstellingen: RESTSignaleringInstellingen?) {
-        signaleringenService!!.createUpdateOrDeleteInstellingen(
-            restSignaleringInstellingenConverter!!.convert(restInstellingen, loggedInUserInstance!!.get())
+    fun updateUserSignaleringInstellingen(restInstellingen: RESTSignaleringInstellingen) {
+        signaleringenService.createUpdateOrDeleteInstellingen(
+            restSignaleringInstellingenConverter.convert(restInstellingen, loggedInUserInstance.get())
         )
     }
 
     @GET
     @Path("group/{groupId}/instellingen")
     fun listGroupSignaleringInstellingen(
-        @PathParam("groupId") groupId: String?
+        @PathParam("groupId") groupId: String
     ): List<RESTSignaleringInstellingen> {
-        val group = identityService!!.readGroup(groupId)
+        val group = identityService.readGroup(groupId)
         val parameters = SignaleringInstellingenZoekParameters(group)
-        return restSignaleringInstellingenConverter!!.convert(
-            signaleringenService!!.listInstellingenInclusiefMogelijke(parameters)
+        return restSignaleringInstellingenConverter.convert(
+            signaleringenService.listInstellingenInclusiefMogelijke(parameters)
         )
     }
 
     @PUT
     @Path("group/{groupId}/instellingen")
     fun updateGroupSignaleringInstellingen(
-        @PathParam("groupId") groupId: String?,
-        restInstellingen: RESTSignaleringInstellingen?
+        @PathParam("groupId") groupId: String,
+        restInstellingen: RESTSignaleringInstellingen
     ) {
-        val group = identityService!!.readGroup(groupId)
-        signaleringenService!!.createUpdateOrDeleteInstellingen(
-            restSignaleringInstellingenConverter!!.convert(restInstellingen, group)
+        val group = identityService.readGroup(groupId)
+        signaleringenService.createUpdateOrDeleteInstellingen(
+            restSignaleringInstellingenConverter.convert(restInstellingen, group)
         )
     }
 
@@ -181,10 +159,10 @@ class SignaleringenRestService {
     @Path("/typen/dashboard")
     fun listDashboardSignaleringTypen(): List<SignaleringType.Type> {
         val parameters = SignaleringInstellingenZoekParameters(
-            loggedInUserInstance!!.get()
+            loggedInUserInstance.get()
         )
             .dashboard()
-        return signaleringenService!!.listInstellingen(parameters).stream()
+        return signaleringenService.listInstellingen(parameters).stream()
             .map { instellingen: SignaleringInstellingen -> instellingen.type.type }
             .toList()
     }
