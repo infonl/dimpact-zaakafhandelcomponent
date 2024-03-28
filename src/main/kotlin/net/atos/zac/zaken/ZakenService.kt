@@ -19,9 +19,9 @@ import net.atos.zac.zoeken.model.index.ZoekObjectType
 import java.util.UUID
 
 class ZakenService @Inject constructor(
-    val zrcClientService: ZRCClientService,
-    val ztcClientService: ZTCClientService,
-    val indexeerService: IndexeerService
+    private val zrcClientService: ZRCClientService,
+    private val ztcClientService: ZTCClientService,
+    private val indexeerService: IndexeerService
 ) {
     companion object {
         private val defaultCoroutineScope = CoroutineScope(Dispatchers.Default)
