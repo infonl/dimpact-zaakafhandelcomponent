@@ -1296,7 +1296,7 @@ class ZakenRESTService @Inject constructor(
     ): List<RelevanteZaak>? {
         relevanteZaken?.removeAll(
             relevanteZaken.stream()
-                .filter { zaak: RelevanteZaak -> zaak.`is`(andereZaak, aardRelatie) }
+                .filter { it.`is`(andereZaak, aardRelatie) }
                 .toList()
         )
         return relevanteZaken

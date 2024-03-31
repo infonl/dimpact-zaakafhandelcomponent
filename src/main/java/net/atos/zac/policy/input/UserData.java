@@ -7,7 +7,7 @@ package net.atos.zac.policy.input;
 
 import java.util.Set;
 
-class UserData {
+public class UserData {
 
     public String id;
 
