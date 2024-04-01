@@ -29,7 +29,8 @@ import net.atos.zac.zaaksturing.ZaakafhandelParameterBeheerService
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import net.atos.zac.zaaksturing.model.createZaakafhandelParameters
 import java.net.URI
-import java.util.*
+import java.util.Optional
+import java.util.UUID
 
 class ProductaanvraagServiceTest : BehaviorSpec({
     val objectsClientService = mockk<ObjectsClientService>()

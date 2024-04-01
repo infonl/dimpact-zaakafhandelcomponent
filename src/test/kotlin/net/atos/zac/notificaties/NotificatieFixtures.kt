@@ -2,7 +2,7 @@ package net.atos.zac.notificaties
 
 import java.net.URI
 import java.time.ZonedDateTime
-import java.util.*
+import java.util.UUID
 
 @Suppress("LongParameterList")
 fun createNotificatie(

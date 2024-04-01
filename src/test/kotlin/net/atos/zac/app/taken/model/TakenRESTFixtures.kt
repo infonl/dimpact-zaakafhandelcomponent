@@ -9,7 +9,7 @@ import net.atos.zac.app.identity.model.RESTUser
 import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjecttype
 import net.atos.zac.app.informatieobjecten.model.createRESTInformatieobjecttype
 import net.atos.zac.app.zaken.model.createRESTUser
-import java.util.*
+import java.util.UUID
 
 fun createRESTTaak(
     id: String = "dummyId",

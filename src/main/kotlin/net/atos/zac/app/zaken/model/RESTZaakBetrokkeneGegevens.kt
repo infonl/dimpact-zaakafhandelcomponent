@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotBlank
 import net.atos.zac.app.klanten.model.klant.IdentificatieType
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
-import java.util.*
+import java.util.UUID
 
 @AllOpen
 @NoArgConstructor

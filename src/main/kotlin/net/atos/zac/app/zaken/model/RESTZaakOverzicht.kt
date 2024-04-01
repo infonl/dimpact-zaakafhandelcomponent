@@ -10,7 +10,7 @@ import net.atos.zac.app.policy.model.RESTZaakRechten
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 @NoArgConstructor
 @AllOpen
