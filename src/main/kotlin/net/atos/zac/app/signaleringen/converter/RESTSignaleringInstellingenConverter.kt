@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.app.signaleringen.converter
@@ -16,37 +16,36 @@ import java.util.stream.Collectors
 class RESTSignaleringInstellingenConverter @Inject constructor(
     private var signaleringenService: SignaleringenService
 ) {
-    fun convert(instellingen: SignaleringInstellingen): RESTSignaleringInstellingen {
-        val restInstellingen = RESTSignaleringInstellingen()
-        restInstellingen.id = instellingen.id
-        restInstellingen.type = instellingen.type.type
-        restInstellingen.subjecttype = instellingen.type.subjecttype
-        if (instellingen.type.type.isDashboard && instellingen.ownerType != SignaleringTarget.GROUP) {
-            restInstellingen.dashboard = instellingen.isDashboard
+    fun convert(instellingen: SignaleringInstellingen): RESTSignaleringInstellingen =
+        RESTSignaleringInstellingen().let {
+            it.id = instellingen.id
+            it.type = instellingen.type.type
+            it.subjecttype = instellingen.type.subjecttype
+            if (instellingen.type.type.isDashboard && instellingen.ownerType != SignaleringTarget.GROUP) {
+                it.dashboard = instellingen.isDashboard
+            }
+            if (instellingen.type.type.isMail) {
+                it.mail = instellingen.isMail
+            }
+            return it
         }
-        if (instellingen.type.type.isMail) {
-            restInstellingen.mail = instellingen.isMail
-        }
-        return restInstellingen
-    }
 
-    fun convert(instellingen: Collection<SignaleringInstellingen>): List<RESTSignaleringInstellingen> {
-        return instellingen.stream()
-            .map { signaleringInstellingen: SignaleringInstellingen -> this.convert(signaleringInstellingen) }
+    fun convert(instellingen: Collection<SignaleringInstellingen>): List<RESTSignaleringInstellingen> =
+        instellingen.stream()
+            .map { this.convert(it) }
             .collect(Collectors.toList())
-    }
 
-    fun convert(restInstellingen: RESTSignaleringInstellingen, group: Group): SignaleringInstellingen {
-        val instellingen = signaleringenService.readInstellingenGroup(restInstellingen.type, group.id)
-        instellingen.isDashboard = false
-        instellingen.isMail = instellingen.type.type.isMail && restInstellingen.mail!!
-        return instellingen
-    }
+    fun convert(restInstellingen: RESTSignaleringInstellingen, group: Group): SignaleringInstellingen =
+        signaleringenService.readInstellingenGroup(restInstellingen.type, group.id).let {
+            it.isDashboard = false
+            it.isMail = it.type.type.isMail && restInstellingen.mail!!
+            return it
+        }
 
-    fun convert(restInstellingen: RESTSignaleringInstellingen, user: User): SignaleringInstellingen {
-        val instellingen = signaleringenService.readInstellingenUser(restInstellingen.type, user.id)
-        instellingen.isDashboard = instellingen.type.type.isDashboard && restInstellingen.dashboard!!
-        instellingen.isMail = instellingen.type.type.isMail && restInstellingen.mail!!
-        return instellingen
-    }
+    fun convert(restInstellingen: RESTSignaleringInstellingen, user: User): SignaleringInstellingen =
+        signaleringenService.readInstellingenUser(restInstellingen.type, user.id).let {
+            it.isDashboard = it.type.type.isDashboard && restInstellingen.dashboard!!
+            it.isMail = it.type.type.isMail && restInstellingen.mail!!
+            return it
+        }
 }
