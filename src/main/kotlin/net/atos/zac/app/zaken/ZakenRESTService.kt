@@ -132,6 +132,7 @@ import net.atos.zac.zaaksturing.model.ZaakbeeindigParameter
 import net.atos.zac.zaken.ZakenService
 import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
+import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.apache.commons.collections4.CollectionUtils
 import org.apache.commons.lang3.StringUtils
@@ -150,6 +151,7 @@ import java.util.stream.Stream
 @Singleton
 @Suppress("TooManyFunctions", "LargeClass", "LongParameterList")
 @NoArgConstructor
+@AllOpen
 class ZakenRESTService @Inject constructor(
     private val zgwApiService: ZGWApiService,
     private val productaanvraagService: ProductaanvraagService,
@@ -239,7 +241,7 @@ class ZakenRESTService @Inject constructor(
 
     @POST
     @Path("betrokkene")
-    fun createBetrokken(gegevens: @Valid RESTZaakBetrokkeneGegevens): RESTZaak {
+    fun createBetrokken(@Valid gegevens: RESTZaakBetrokkeneGegevens): RESTZaak {
         val zaak = zrcClientService.readZaak(gegevens.zaakUUID)
         addBetrokkene(
             gegevens.roltypeUUID,
@@ -265,7 +267,7 @@ class ZakenRESTService @Inject constructor(
 
     @POST
     @Path("zaak")
-    fun createZaak(restZaakAanmaakGegevens: @Valid RESTZaakAanmaakGegevens): RESTZaak {
+    fun createZaak(@Valid restZaakAanmaakGegevens: RESTZaakAanmaakGegevens): RESTZaak {
         val restZaak = restZaakAanmaakGegevens.zaak
         val zaaktype = ztcClientService.readZaaktype(restZaak.zaaktype.uuid)
 
@@ -523,7 +525,7 @@ class ZakenRESTService @Inject constructor(
 
     @PATCH
     @Path("toekennen")
-    fun toekennen(toekennenGegevens: @Valid RESTZaakToekennenGegevens): RESTZaak {
+    fun toekennen(@Valid toekennenGegevens: RESTZaakToekennenGegevens): RESTZaak {
         val zaak: Zaak = zrcClientService.readZaak(toekennenGegevens.zaakUUID)
         assertPolicy(zaak.isOpen && policyService.readZaakRechten(zaak).toekennen)
 
@@ -581,7 +583,7 @@ class ZakenRESTService @Inject constructor(
     @PUT
     @Path("lijst/toekennen/mij")
     fun toekennenAanIngelogdeMedewerkerVanuitLijst(
-        toekennenGegevens: @Valid RESTZaakToekennenGegevens
+        @Valid toekennenGegevens: RESTZaakToekennenGegevens
     ): RESTZaakOverzicht {
         assertPolicy(policyService.readWerklijstRechten().zakenTaken)
         val zaak = ingelogdeMedewerkerToekennenAanZaak(toekennenGegevens)
@@ -591,7 +593,7 @@ class ZakenRESTService @Inject constructor(
 
     @PUT
     @Path("lijst/verdelen")
-    fun verdelenVanuitLijst(verdeelGegevens: @Valid RESTZakenVerdeelGegevens) {
+    fun verdelenVanuitLijst(@Valid verdeelGegevens: RESTZakenVerdeelGegevens) {
         assertPolicy(
             policyService.readWerklijstRechten().zakenTaken &&
                 policyService.readWerklijstRechten().zakenTakenVerdelen
@@ -609,19 +611,16 @@ class ZakenRESTService @Inject constructor(
 
     @PUT
     @Path("lijst/vrijgeven")
-    fun vrijgevenVanuitLijst(verdeelGegevens: @Valid RESTZakenVerdeelGegevens) {
+    fun vrijgevenVanuitLijst(@Valid verdeelGegevens: RESTZakenVerdeelGegevens) {
         assertPolicy(
             policyService.readWerklijstRechten().zakenTaken &&
                 policyService.readWerklijstRechten().zakenTakenVerdelen
         )
-        verdeelGegevens.uuids.forEach(
-            Consumer { uuid ->
-                val zaak = zrcClientService.readZaak(uuid)
-                zrcClientService.deleteRol(zaak, BetrokkeneType.MEDEWERKER, verdeelGegevens.reden)
-            }
-        )
+        verdeelGegevens.uuids
+            .map { zrcClientService.readZaak(it) }
+            .forEach { zrcClientService.deleteRol(it, BetrokkeneType.MEDEWERKER, verdeelGegevens.reden) }
         indexeerService.indexeerDirect(
-            verdeelGegevens.uuids.stream().map { obj -> obj.toString() }.toList(),
+            verdeelGegevens.uuids.map { it.toString() }.toList(),
             ZoekObjectType.ZAAK
         )
     }
@@ -757,7 +756,7 @@ class ZakenRESTService @Inject constructor(
     @PUT
     @Path("toekennen/mij")
     fun toekennenAanIngelogdeMedewerker(
-        toekennenGegevens: @Valid RESTZaakToekennenGegevens
+        @Valid toekennenGegevens: RESTZaakToekennenGegevens
     ): RESTZaak {
         val zaak = ingelogdeMedewerkerToekennenAanZaak(toekennenGegevens)
         return restZaakConverter.convert(zaak)
@@ -1160,7 +1159,7 @@ class ZakenRESTService @Inject constructor(
     }
 
     private fun ingelogdeMedewerkerToekennenAanZaak(
-        toekennenGegevens: @Valid RESTZaakToekennenGegevens
+        @Valid toekennenGegevens: RESTZaakToekennenGegevens
     ): Zaak {
         val zaak = zrcClientService.readZaak(toekennenGegevens.zaakUUID)
         assertPolicy(zaak.isOpen && policyService.readZaakRechten(zaak).toekennen)

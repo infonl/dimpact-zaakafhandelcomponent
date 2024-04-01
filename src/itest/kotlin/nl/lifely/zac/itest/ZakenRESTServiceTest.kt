@@ -85,7 +85,33 @@ class ZakenRESTServiceTest : BehaviorSpec({
         }
     }
     Given("A zaak has been created") {
-        When("the add betrokkene to zaak endpoint is called") {
+        When("the add betrokkene to zaak endpoint is called with an empty 'rol toelichting'") {
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/zaken/betrokkene",
+                requestBodyAsString = "{\n" +
+                    "  \"zaakUUID\": \"$zaak2UUID\",\n" +
+                    "  \"roltypeUUID\": \"$ROLTYPE_UUID_BELANGHEBBENDE\",\n" +
+                    "  \"roltoelichting\": \"\",\n" +
+                    "  \"betrokkeneIdentificatieType\": \"$BETROKKENE_IDENTIFICATIE_TYPE_BSN\",\n" +
+                    "  \"betrokkeneIdentificatie\": \"$TEST_BETROKKENE_BSN_HENDRIKA_JANSE\"\n" +
+                    "}"
+            )
+            Then("the response should be a 400 bad request HTTP response") {
+                response.code shouldBe HttpStatusCode.BAD_REQUEST_400.code()
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                with(responseBody) {
+                    with(JSONObject(this).getJSONArray("parameterViolations")) {
+                        length() shouldBe 1
+                        getJSONObject(0).apply {
+                            getString("message") shouldBe "must not be blank"
+                            getString("path") shouldBe "createBetrokken.arg0.roltoelichting"
+                        }
+                    }
+                }
+            }
+        }
+        When("the add betrokkene to zaak endpoint is called with valid data") {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/zaken/betrokkene",
                 requestBodyAsString = "{\n" +
@@ -96,7 +122,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     "  \"betrokkeneIdentificatie\": \"$TEST_BETROKKENE_BSN_HENDRIKA_JANSE\"\n" +
                     "}"
             )
-            Then("the response should be a 200 HTTP response") {
+            Then("the response should be a 200 OK HTTP response") {
                 response.code shouldBe HttpStatusCode.OK_200.code()
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
@@ -235,6 +261,8 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 "the response should be a 204 HTTP response and the zaak should be unassigned from the user " +
                     "but should still be assigned to the group"
             ) {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
                 response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
                 with(zacClient.retrieveZaak(zaak1UUID)) {
                     code shouldBe HttpStatusCode.OK_200.code()
