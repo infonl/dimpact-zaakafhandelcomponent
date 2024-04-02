@@ -4,6 +4,7 @@
  */
 package net.atos.zac.app.zaken.model
 
+import jakarta.validation.constraints.NotBlank
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.util.UUID
@@ -13,6 +14,7 @@ import java.util.UUID
 data class RESTZakenVerdeelGegevens(
     var uuids: List<UUID>,
 
+    @field:NotBlank
     var groepId: String,
 
     var behandelaarGebruikersnaam: String? = null,
