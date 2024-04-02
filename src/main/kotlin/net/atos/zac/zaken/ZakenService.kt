@@ -20,7 +20,7 @@ import net.atos.zac.identity.model.User
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
-import java.util.*
+import java.util.UUID
 import java.util.logging.Logger
 
 class ZakenService @Inject constructor(
