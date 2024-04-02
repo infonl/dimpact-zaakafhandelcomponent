@@ -192,7 +192,12 @@ export class ZakenService {
     verdeelGegevens.behandelaarGebruikersnaam = medewerker?.id;
     verdeelGegevens.reden = reden;
     verdeelGegevens.screenEventResourceId = uuidv4();
-    const TIMEOUT = 60 * 60 * 1000;
+    /**
+     * In the unlikely scenario that the back end never responds with an event,
+     * we want to eventually cleanup the websocket connection to prevent memory leaks
+     * The back end process can take quite a while, so we chose a timeout of one hour.
+     */
+    const ARBITRARY_ONE_HOUR_TIMEOUT_TO_PREVENT_MEMORY_LEAKS_IN_EDGE_CASES = 60 * 60 * 1000;
 
     const socket = new Observable<void>((subscriber) => {
       const subscription = this.websocketService.addListener(
@@ -209,7 +214,7 @@ export class ZakenService {
       const timeout = setTimeout(() => {
         this.websocketService.removeListener(subscription);
         subscriber.error("timeout");
-      }, TIMEOUT);
+      }, ARBITRARY_ONE_HOUR_TIMEOUT_TO_PREVENT_MEMORY_LEAKS_IN_EDGE_CASES);
     });
 
     const http = this.http.put<void>(
