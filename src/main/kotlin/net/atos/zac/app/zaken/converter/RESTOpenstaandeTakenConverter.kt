@@ -7,7 +7,7 @@ package net.atos.zac.app.zaken.converter
 import jakarta.inject.Inject
 import net.atos.zac.app.zaken.model.RESTOpenstaandeTaken
 import net.atos.zac.flowable.TakenService
-import java.util.*
+import java.util.UUID
 
 class RESTOpenstaandeTakenConverter {
     @Inject

@@ -36,7 +36,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.mockserver.model.HttpStatusCode
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
 private val itestHttpClient = ItestHttpClient()

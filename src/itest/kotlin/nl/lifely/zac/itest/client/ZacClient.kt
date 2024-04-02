@@ -12,7 +12,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVEN
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import okhttp3.Response
-import java.util.*
+import java.util.UUID
 
 class ZacClient {
     private val logger = KotlinLogging.logger {}
