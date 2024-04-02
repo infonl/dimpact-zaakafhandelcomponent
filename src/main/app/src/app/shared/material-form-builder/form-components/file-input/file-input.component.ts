@@ -179,6 +179,15 @@ export class FileInputComponent extends FormComponent implements OnInit {
       )}MB)`;
       return false;
     }
+
+    if (!file.size) {
+      this.data.uploadError = "Het bestand is leeg";
+      this.data.formControl.setErrors({
+        emptyFile: true,
+      });
+      return false;
+    }
+
     return true;
   }
 }
