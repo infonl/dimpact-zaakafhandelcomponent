@@ -70,8 +70,8 @@ export class FileComponent extends FormComponent implements OnInit {
       if (!file.size) {
         this.data.uploadError = "Het bestand is leeg";
         this.data.formControl.setErrors({
-          emptyFile: true
-        })
+          emptyFile: true,
+        });
         return;
       }
 
