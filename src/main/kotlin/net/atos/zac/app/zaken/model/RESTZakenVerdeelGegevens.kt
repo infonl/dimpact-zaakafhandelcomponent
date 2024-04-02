@@ -4,7 +4,6 @@
  */
 package net.atos.zac.app.zaken.model
 
-import jakarta.validation.constraints.NotBlank
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.util.UUID
@@ -14,13 +13,11 @@ import java.util.UUID
 data class RESTZakenVerdeelGegevens(
     var uuids: List<UUID>,
 
-    var reden: String?,
+    var groepId: String,
 
-    @field:NotBlank
-    var groepId: String? = null,
-
-    @field:NotBlank
     var behandelaarGebruikersnaam: String? = null,
+
+    var reden: String? = null,
 
     /**
      * Unique screen event resource ID which can be used

@@ -600,7 +600,7 @@ class ZakenRESTService @Inject constructor(
         zakenService.assignZakenAsync(
             zaakUUIDs = verdeelGegevens.uuids,
             explanation = verdeelGegevens.reden,
-            group = verdeelGegevens.groepId?.let { identityService.readGroup(verdeelGegevens.groepId) },
+            group = verdeelGegevens.groepId.let { identityService.readGroup(verdeelGegevens.groepId) },
             user = verdeelGegevens.behandelaarGebruikersnaam?.let {
                 identityService.readUser(verdeelGegevens.behandelaarGebruikersnaam)
             },
