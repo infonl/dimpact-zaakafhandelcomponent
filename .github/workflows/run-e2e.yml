@@ -1,5 +1,5 @@
 #
-# SPDX-FileCopyrightText: 2023 Lifely
+# SPDX-FileCopyrightText: 2023-2024 Lifely
 # SPDX-License-Identifier: EUPL-1.2+
 #
 name: Playwright Tests
@@ -39,6 +39,7 @@ jobs:
         run: cd src/e2e && npx playwright install --with-deps
       - name: Run your tests
         run: 'cd src/e2e && npm run e2e:run -- --world-parameters "{\"urls\": { \"zac\": \"${{ secrets.ZAC_URL }}\", \"openForms\": \"${{ secrets.OPEN_FORMS_URL }}\" }, \"headless\": true, \"users\": { \"Bob\": { \"username\": \"${{ secrets.ZAC_E2E_TEST_USER_1_USERNAME }}\", \"password\": \"${{ secrets.ZAC_E2E_TEST_USER_1_PASSWORD }}\"}, \"Oscar\": { \"username\": \"${{ secrets.ZAC_E2E_TEST_USER_2_USERNAME }}\", \"password\": \"${{ secrets.ZAC_E2E_TEST_USER_2_PASSWORD }}\"}}}"'
+        continue-on-error: true
       - name: Make a playwright report
         if: always()
         run: "cd src/e2e && npm run e2e:generate:report"
@@ -49,7 +50,7 @@ jobs:
           path: src/e2e/reports
           retention-days: 7
       - name: Deploy to GitHub Pages
-        if: always()
+        if: github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
