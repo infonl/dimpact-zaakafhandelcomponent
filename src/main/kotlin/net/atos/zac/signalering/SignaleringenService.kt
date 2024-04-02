@@ -36,6 +36,7 @@ import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.util.ValidationUtil
 import net.atos.zac.websocket.event.ScreenEventType
+import nl.lifely.zac.util.NoArgConstructor
 import org.flowable.task.api.TaskInfo
 import java.time.ZonedDateTime
 import java.util.Arrays
@@ -47,31 +48,19 @@ import java.util.stream.Collectors
 
 @ApplicationScoped
 @Transactional
-@Suppress("TooManyFunctions")
-open class SignaleringenService {
+@Suppress("TooManyFunctions", "LongParameterList")
+@NoArgConstructor
+open class SignaleringenService @Inject constructor(
     @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
-    private lateinit var entityManager: EntityManager
-
-    @Inject
-    private lateinit var eventingService: EventingService
-
-    @Inject
-    private lateinit var mailService: MailService
-
-    @Inject
-    private lateinit var mailTemplateService: MailTemplateService
-
-    @Inject
-    private lateinit var signaleringenMailHelper: SignaleringenMailHelper
-
-    @Inject
-    private lateinit var zrcClientService: ZRCClientService
-
-    @Inject
-    private lateinit var takenService: TakenService
-
-    @Inject
-    private lateinit var drcClientService: DRCClientService
+    private val entityManager: EntityManager,
+    private val eventingService: EventingService,
+    private val mailService: MailService,
+    private val mailTemplateService: MailTemplateService,
+    private val signaleringenMailHelper: SignaleringenMailHelper,
+    private val zrcClientService: ZRCClientService,
+    private val takenService: TakenService,
+    private val drcClientService: DRCClientService
+) {
 
     private fun signaleringTypeInstance(signaleringsType: SignaleringType.Type?): SignaleringType {
         return entityManager.find(SignaleringType::class.java, signaleringsType.toString())
@@ -124,9 +113,8 @@ open class SignaleringenService {
     }
 
     /**
-     * Business logic for deciding if signalling is necessary. Groep-targets will always get signalled but user-targets only when they are
-     * not themselves
-     * the actor that caused the event (or when the actor is unknown).
+     * Business logic for deciding if signalling is necessary. Groep-targets will always get signalled but user-targets
+     * only when they are not themselves the actor that caused the event (or when the actor is unknown).
      *
      * @param signalering the signalering (should have the target set)
      * @param actor       the actor (a gebruikersnaam) or null if unknown

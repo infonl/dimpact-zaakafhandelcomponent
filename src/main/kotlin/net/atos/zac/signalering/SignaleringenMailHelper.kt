@@ -10,9 +10,9 @@ import net.atos.zac.mail.model.MailAdres
 import net.atos.zac.signalering.model.Signalering
 import net.atos.zac.signalering.model.SignaleringTarget
 
-class SignaleringenMailHelper {
-    @Inject
-    private lateinit var identityService: IdentityService
+class SignaleringenMailHelper @Inject constructor(
+    private val identityService: IdentityService
+) {
 
     fun getTargetMail(signalering: Signalering?): SignaleringTarget.Mail? {
         var mail: SignaleringTarget.Mail? = null
