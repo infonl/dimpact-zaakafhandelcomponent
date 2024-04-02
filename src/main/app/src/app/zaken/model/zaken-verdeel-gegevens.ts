@@ -8,4 +8,5 @@ export class ZakenVerdeelGegevens {
   groepId: string;
   behandelaarGebruikersnaam: string;
   reden: string;
+  screenEventResourceId?: string;
 }
