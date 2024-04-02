@@ -13,8 +13,7 @@ import jakarta.ws.rs.FormParam;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.zac.app.configuratie.model.RESTTaal;
 
-
-public class RESTEnkelvoudigInformatieObjectVersieGegevens {
+public class RESTEnkelvoudigInformatieObjectVersieGegevens extends RESTEnkelvoudigInformatieFileUpload {
 
     @FormParam("uuid")
     public UUID uuid;
@@ -37,14 +36,8 @@ public class RESTEnkelvoudigInformatieObjectVersieGegevens {
     @FormParam("taal")
     public RESTTaal taal;
 
-    @FormParam("bestandsnaam")
-    public String bestandsnaam;
-
     @FormParam("formaat")
     public String formaat;
-
-    @FormParam("file")
-    public byte[] file;
 
     @FormParam("beschrijving")
     public String beschrijving;

@@ -5,10 +5,14 @@
 
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
-import { catchError } from "rxjs/operators";
+import { Observable, forkJoin } from "rxjs";
+import { catchError, map } from "rxjs/operators";
+import { v4 as uuidv4 } from "uuid";
 import { ZaakAfzender } from "../admin/model/zaakafzender";
 import { ZaakbeeindigReden } from "../admin/model/zaakbeeindig-reden";
+import { ObjectType } from "../core/websocket/model/object-type";
+import { Opcode } from "../core/websocket/model/opcode";
+import { WebsocketService } from "../core/websocket/websocket.service";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { Group } from "../identity/model/group";
 import { User } from "../identity/model/user";
@@ -57,6 +61,7 @@ export class ZakenService {
   constructor(
     private http: HttpClient,
     private foutAfhandelingService: FoutAfhandelingService,
+    private websocketService: WebsocketService,
   ) {}
 
   private basepath = "/rest/zaken";
@@ -186,12 +191,42 @@ export class ZakenService {
     verdeelGegevens.groepId = groep?.id;
     verdeelGegevens.behandelaarGebruikersnaam = medewerker?.id;
     verdeelGegevens.reden = reden;
+    verdeelGegevens.screenEventResourceId = uuidv4();
+    /**
+     * In the unlikely scenario that the back end never responds with an event,
+     * we want to eventually cleanup the websocket connection to prevent memory leaks
+     * The back end process can take quite a while, so we chose a timeout of one hour.
+     */
+    const ARBITRARY_ONE_HOUR_TIMEOUT_TO_PREVENT_MEMORY_LEAKS_IN_EDGE_CASES =
+      60 * 60 * 1000;
 
-    return this.http
-      .put<void>(`${this.basepath}/lijst/verdelen`, verdeelGegevens)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+    const socket = new Observable<void>((subscriber) => {
+      const subscription = this.websocketService.addListener(
+        Opcode.UPDATED,
+        ObjectType.ZAKEN_VERDELEN,
+        verdeelGegevens.screenEventResourceId,
+        () => {
+          clearTimeout(timeout);
+          this.websocketService.removeListener(subscription);
+          subscriber.next();
+          subscriber.complete();
+        },
       );
+      const timeout = setTimeout(() => {
+        this.websocketService.removeListener(subscription);
+        subscriber.error("timeout");
+      }, ARBITRARY_ONE_HOUR_TIMEOUT_TO_PREVENT_MEMORY_LEAKS_IN_EDGE_CASES);
+    });
+
+    const http = this.http.put<void>(
+      `${this.basepath}/lijst/verdelen`,
+      verdeelGegevens,
+    );
+
+    return forkJoin([http, socket]).pipe(
+      map(() => void 1),
+      catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+    );
   }
 
   vrijgevenVanuitLijst(uuids: string[], reden?: string): Observable<void> {

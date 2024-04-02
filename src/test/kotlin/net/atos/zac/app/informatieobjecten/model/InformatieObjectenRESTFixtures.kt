@@ -3,7 +3,7 @@ package net.atos.zac.app.informatieobjecten.model
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject.StatusEnum
 import net.atos.client.zgw.ztc.model.generated.ZaakType.VertrouwelijkheidaanduidingEnum
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 @Suppress("LongParameterList")
 fun createRESTEnkelvoudigInformatieobject(
@@ -56,8 +56,12 @@ fun createRESTInformatieobjecttype(
 
 fun createRESTEnkelvoudigInformatieObjectVersieGegevens(
     uuid: UUID = UUID.randomUUID(),
-    zaakUuid: UUID
+    zaakUuid: UUID,
+    bestandsnaam: String = "dummyFile.txt",
+    file: ByteArray = "dummyFile".toByteArray(),
 ) = RESTEnkelvoudigInformatieObjectVersieGegevens().apply {
     this.uuid = uuid
     this.zaakUuid = zaakUuid
+    this.bestandsnaam = bestandsnaam
+    this.file = file
 }

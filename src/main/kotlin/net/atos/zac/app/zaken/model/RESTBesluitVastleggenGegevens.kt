@@ -7,7 +7,7 @@ package net.atos.zac.app.zaken.model
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 @AllOpen
 @NoArgConstructor

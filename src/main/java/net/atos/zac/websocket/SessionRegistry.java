@@ -126,8 +126,11 @@ public class SessionRegistry {
         final String resource = fix(event.getObjectId().getResource());
         final String detail = fix(event.getObjectId().getDetail());
         if (resource != null || detail != null) {
-            return new ScreenEvent(event.getOpcode(), event.getObjectType(),
-                    new ScreenEventId(resource, detail));
+            return new ScreenEvent(
+                    event.getOpcode(),
+                    event.getObjectType(),
+                    new ScreenEventId(resource, detail)
+            );
         }
         return event;
     }

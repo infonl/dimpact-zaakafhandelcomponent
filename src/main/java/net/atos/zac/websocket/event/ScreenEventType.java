@@ -108,6 +108,8 @@ public enum ScreenEventType {
         }
     },
 
+    ZAKEN_VERDELEN,
+
     ANY;
 
     /**
@@ -186,6 +188,11 @@ public enum ScreenEventType {
     private ScreenEvent event(final Opcode opcode, final URI url) {
         return instance(opcode, this, url, null); // Allowed with all object types
     }
+
+    private ScreenEvent event(final Opcode opcode, final String eventResourceId1) {
+        return instance(opcode, this, eventResourceId1, null);
+    }
+
 
     private ScreenEvent event(
             final Opcode opcode,
@@ -293,6 +300,17 @@ public enum ScreenEventType {
      */
     public final ScreenEvent updated(final Signalering signalering) {
         return event(UPDATED, signalering);
+    }
+
+
+    /**
+     * Factory method for ScreenEvent (with string identification of a custom resource).
+     *
+     * @param eventResourceId identification of the custom resource.
+     * @return instance of the event
+     */
+    public final ScreenEvent updated(final String eventResourceId) {
+        return event(UPDATED, eventResourceId);
     }
 
     /**
@@ -416,26 +434,14 @@ public enum ScreenEventType {
                     case ZAAK:
                         ScreenEventType.ZAAK.addEvent(events, resource, null);
                         break;
-                    case STATUS:
-                        ScreenEventType.ZAAK.addEvent(events, mainResource, resource);
-                        break;
-                    case ZAAKOBJECT:
+                    case STATUS, RESULTAAT, ZAAKEIGENSCHAP, KLANTCONTACT, ZAAKOBJECT:
                         ScreenEventType.ZAAK.addEvent(events, mainResource, resource);
                         break;
                     case ZAAKINFORMATIEOBJECT:
                         ScreenEventType.ZAAK_INFORMATIEOBJECTEN.addEvent(events, mainResource, resource);
                         break;
-                    case ZAAKEIGENSCHAP:
-                        ScreenEventType.ZAAK.addEvent(events, mainResource, resource);
-                        break;
-                    case KLANTCONTACT:
-                        ScreenEventType.ZAAK.addEvent(events, mainResource, resource);
-                        break;
                     case ROL:
                         ScreenEventType.ZAAK_ROLLEN.addEvent(events, mainResource, resource);
-                        break;
-                    case RESULTAAT:
-                        ScreenEventType.ZAAK.addEvent(events, mainResource, resource);
                         break;
                     case ZAAKBESLUIT:
                         ScreenEventType.ZAAK_BESLUITEN.addEvent(events, mainResource, resource);
