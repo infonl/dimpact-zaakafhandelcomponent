@@ -103,6 +103,7 @@ import net.atos.zac.app.zaken.model.RESTZaakToekennenGegevens
 import net.atos.zac.app.zaken.model.RESTZaakVerlengGegevens
 import net.atos.zac.app.zaken.model.RESTZaaktype
 import net.atos.zac.app.zaken.model.RESTZakenVerdeelGegevens
+import net.atos.zac.app.zaken.model.RESTZakenVrijgevenGegevens
 import net.atos.zac.app.zaken.model.RelatieType
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
@@ -612,16 +613,16 @@ class ZakenRESTService @Inject constructor(
 
     @PUT
     @Path("lijst/vrijgeven")
-    fun vrijgevenVanuitLijst(@Valid verdeelGegevens: RESTZakenVerdeelGegevens) {
+    fun vrijgevenVanuitLijst(@Valid vrijgevenGegevens: RESTZakenVrijgevenGegevens) {
         assertPolicy(
             policyService.readWerklijstRechten().zakenTaken &&
                 policyService.readWerklijstRechten().zakenTakenVerdelen
         )
-        verdeelGegevens.uuids
+        vrijgevenGegevens.uuids
             .map { zrcClientService.readZaak(it) }
-            .forEach { zrcClientService.deleteRol(it, BetrokkeneType.MEDEWERKER, verdeelGegevens.reden) }
+            .forEach { zrcClientService.deleteRol(it, BetrokkeneType.MEDEWERKER, vrijgevenGegevens.reden) }
         indexeerService.indexeerDirect(
-            verdeelGegevens.uuids.map { it.toString() }.toList(),
+            vrijgevenGegevens.uuids.map { it.toString() }.toList(),
             ZoekObjectType.ZAAK
         )
     }
