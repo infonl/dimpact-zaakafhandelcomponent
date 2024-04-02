@@ -202,7 +202,7 @@ export class ZakenService {
         () => {
           clearTimeout(timeout);
           this.websocketService.removeListener(subscription);
-          subscriber.next()
+          subscriber.next();
           subscriber.complete();
         },
       );
@@ -217,11 +217,10 @@ export class ZakenService {
       verdeelGegevens,
     );
 
-    return forkJoin([http, socket])
-      .pipe(
-        map(() => void 1),
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err))
-      )
+    return forkJoin([http, socket]).pipe(
+      map(() => void 1),
+      catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+    );
   }
 
   vrijgevenVanuitLijst(uuids: string[], reden?: string): Observable<void> {
