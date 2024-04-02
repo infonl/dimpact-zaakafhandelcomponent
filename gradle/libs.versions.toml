@@ -98,6 +98,7 @@ webdav-servlet = { group = "nl.info.webdav", name = "webdav-servlet", version.re
 htmlcleaner = { group = "net.sourceforge.htmlcleaner", name = "htmlcleaner", version.ref = "htmlcleaner" }
 unboundid-ldapsdk = { group = "com.unboundid", name = "unboundid-ldapsdk", version.ref = "unboundid" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-core-jvm = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core-jvm", version.ref = "kotlinx-coroutines" }
 
 swagger-ui = { group = "org.webjars", name = "swagger-ui", version.ref = "swagger" }
 
@@ -164,5 +165,3 @@ swagger-generator = { id = "org.hidetake.swagger.generator", version.ref = "swag
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 docker-remote-api = { id = "com.bmuschko.docker-remote-api", version.ref = "docker-remote-api" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
-
-

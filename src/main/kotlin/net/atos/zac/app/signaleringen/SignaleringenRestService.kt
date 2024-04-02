@@ -14,6 +14,11 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import net.atos.client.zgw.drc.DRCClientService
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
@@ -54,10 +59,17 @@ class SignaleringenRestService @Inject constructor(
     private val restSignaleringInstellingenConverter: RESTSignaleringInstellingenConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>,
 ) {
+    companion object {
+        private const val MAX_ZRC_REQUESTS = 5
+    }
+
     private fun Instance<LoggedInUser>.getSignaleringZoekParameters() =
         SignaleringZoekParameters(get())
     private fun Instance<LoggedInUser>.getSignaleringInstellingenZoekParameters() =
         SignaleringInstellingenZoekParameters(get())
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val openZaakDispatcher = Dispatchers.Default.limitedParallelism(MAX_ZRC_REQUESTS)
 
     @GET
     @Path("/latest")
@@ -74,10 +86,14 @@ class SignaleringenRestService @Inject constructor(
             .types(signaleringsType)
             .subjecttype(SignaleringSubject.ZAAK)
             .let { signaleringenService.listSignaleringen(it) }
-            .stream()
-            .map { zrcClientService.readZaak(UUID.fromString(it.subject)) }
-            .map { restZaakOverzichtConverter.convert(it) }
-            .toList()
+            .let {
+                runBlocking(openZaakDispatcher) {
+                    it.map { async { zrcClientService.readZaak(UUID.fromString(it.subject)) } }
+                        .awaitAll()
+                        .map { restZaakOverzichtConverter.convert(it) }
+                        .toList()
+                }
+            }
 
     @GET
     @Path("/taken/{type}")
