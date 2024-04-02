@@ -20,5 +20,12 @@ data class RESTZakenVerdeelGegevens(
     var groepId: String? = null,
 
     @field:NotBlank
-    var behandelaarGebruikersnaam: String? = null
+    var behandelaarGebruikersnaam: String? = null,
+
+    /**
+     * Unique screen event resource ID which can be used
+     * to track the progress of the 'assign zaken from list' asynchronous job
+     * using web sockets.
+     */
+    var screenEventResourceId: String? = null
 )

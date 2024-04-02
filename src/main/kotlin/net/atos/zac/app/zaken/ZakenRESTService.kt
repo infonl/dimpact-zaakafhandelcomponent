@@ -602,9 +602,9 @@ class ZakenRESTService @Inject constructor(
             group = verdeelGegevens.groepId?.let { identityService.readGroup(verdeelGegevens.groepId) },
             user = verdeelGegevens.behandelaarGebruikersnaam?.let {
                 identityService.readUser(verdeelGegevens.behandelaarGebruikersnaam)
-            }
+            },
+            screenEventResourceId = verdeelGegevens.screenEventResourceId
         )
-        LOG.fine { "Started asynchronous process to assign ${verdeelGegevens.uuids.size} zaken to group and/or user" }
     }
 
     @PUT

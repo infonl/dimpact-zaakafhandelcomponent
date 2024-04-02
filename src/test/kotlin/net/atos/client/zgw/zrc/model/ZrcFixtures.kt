@@ -58,12 +58,12 @@ fun createOrganisatorischeEenheid(
 
 fun createRolMedewerker(
     zaak: URI = URI("http://example.com/${UUID.randomUUID()}"),
-    roltype: RolType = createRolType(),
+    rolType: RolType = createRolType(),
     roltoelichting: String = "dummyToelichting",
     betrokkeneIdentificatie: Medewerker = createMedewerker()
 ) = RolMedewerker(
     zaak,
-    roltype,
+    rolType,
     roltoelichting,
     betrokkeneIdentificatie
 )
