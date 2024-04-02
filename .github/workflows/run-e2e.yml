@@ -57,7 +57,7 @@ jobs:
           publish_branch: gh-pages/dimpact-e2e-test-report # deploying to gh-pages branch
           keep_files: true # retains files that are not part of the current publish
       - name: Notify Slack
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
         uses: 8398a7/action-slack@v3
         with:
           status: custom
@@ -82,10 +82,6 @@ jobs:
                         {
                           "type": "mrkdwn",
                           "text": "*Repository:*\n${{ github.repository }}"
-                        },
-                        {
-                          "type": "mrkdwn",
-                          "text": "*Branch:*\n${{ github.type }} ${{ github.ref_name }}"
                         },
                         {
                           "type": "mrkdwn",
