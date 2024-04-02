@@ -17,8 +17,7 @@ data class RESTZakenVerdeelGegevens(
     var reden: String? = null,
 
     var groepId: String? = null,
-
-    @field:NotBlank
+    
     var behandelaarGebruikersnaam: String? = null,
 
     /**
