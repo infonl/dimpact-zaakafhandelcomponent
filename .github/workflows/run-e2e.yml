@@ -39,7 +39,6 @@ jobs:
         run: cd src/e2e && npx playwright install --with-deps
       - name: Run your tests
         run: 'cd src/e2e && npm run e2e:run -- --world-parameters "{\"urls\": { \"zac\": \"${{ secrets.ZAC_URL }}\", \"openForms\": \"${{ secrets.OPEN_FORMS_URL }}\" }, \"headless\": true, \"users\": { \"Bob\": { \"username\": \"${{ secrets.ZAC_E2E_TEST_USER_1_USERNAME }}\", \"password\": \"${{ secrets.ZAC_E2E_TEST_USER_1_PASSWORD }}\"}, \"Oscar\": { \"username\": \"${{ secrets.ZAC_E2E_TEST_USER_2_USERNAME }}\", \"password\": \"${{ secrets.ZAC_E2E_TEST_USER_2_PASSWORD }}\"}}}"'
-        continue-on-error: true
       - name: Make a playwright report
         if: always()
         run: "cd src/e2e && npm run e2e:generate:report"
@@ -58,7 +57,7 @@ jobs:
           publish_branch: gh-pages/dimpact-e2e-test-report # deploying to gh-pages branch
           keep_files: true # retains files that are not part of the current publish
       - name: Notify Slack
-        if: github.ref == 'refs/heads/main'
+        if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
         uses: 8398a7/action-slack@v3
         with:
           status: custom
