@@ -2,43 +2,39 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.signalering
 
-package net.atos.zac.signalering;
+import jakarta.inject.Inject
+import net.atos.zac.identity.IdentityService
+import net.atos.zac.mail.model.MailAdres
+import net.atos.zac.signalering.model.Signalering
+import net.atos.zac.signalering.model.SignaleringTarget
 
 
-import jakarta.inject.Inject;
-
-import net.atos.zac.identity.IdentityService;
-import net.atos.zac.identity.model.Group;
-import net.atos.zac.identity.model.User;
-import net.atos.zac.mail.model.MailAdres;
-import net.atos.zac.signalering.model.Signalering;
-import net.atos.zac.signalering.model.SignaleringTarget;
-
-public class SignaleringenMailHelper {
-
+class SignaleringenMailHelper {
     @Inject
-    private IdentityService identityService;
+    private val identityService: IdentityService? = null
 
-    public SignaleringTarget.Mail getTargetMail(final Signalering signalering) {
-        switch (signalering.getTargettype()) {
-            case GROUP -> {
-                final Group group = identityService.readGroup(signalering.getTarget());
-                if (group.getEmail() != null) {
-                    return new SignaleringTarget.Mail(group.getName(), group.getEmail());
+    fun getTargetMail(signalering: Signalering?): SignaleringTarget.Mail? {
+        when (signalering!!.targettype) {
+            SignaleringTarget.GROUP -> {
+                val group = identityService!!.readGroup(signalering.target)
+                if (group.email != null) {
+                    return SignaleringTarget.Mail(group.name, group.email)
                 }
             }
-            case USER -> {
-                final User user = identityService.readUser(signalering.getTarget());
-                if (user.getEmail() != null) {
-                    return new SignaleringTarget.Mail(user.getFullName(), user.getEmail());
+
+            SignaleringTarget.USER -> {
+                val user = identityService!!.readUser(signalering.target)
+                if (user.email != null) {
+                    return SignaleringTarget.Mail(user.fullName, user.email)
                 }
             }
         }
-        return null;
+        return null
     }
 
-    public MailAdres formatTo(final SignaleringTarget.Mail mail) {
-        return new MailAdres(mail.emailadres, mail.naam);
+    fun formatTo(mail: SignaleringTarget.Mail): MailAdres {
+        return MailAdres(mail.emailadres, mail.naam)
     }
 }
