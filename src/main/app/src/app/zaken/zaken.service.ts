@@ -197,7 +197,8 @@ export class ZakenService {
      * we want to eventually cleanup the websocket connection to prevent memory leaks
      * The back end process can take quite a while, so we chose a timeout of one hour.
      */
-    const ARBITRARY_ONE_HOUR_TIMEOUT_TO_PREVENT_MEMORY_LEAKS_IN_EDGE_CASES = 60 * 60 * 1000;
+    const ARBITRARY_ONE_HOUR_TIMEOUT_TO_PREVENT_MEMORY_LEAKS_IN_EDGE_CASES =
+      60 * 60 * 1000;
 
     const socket = new Observable<void>((subscriber) => {
       const subscription = this.websocketService.addListener(
