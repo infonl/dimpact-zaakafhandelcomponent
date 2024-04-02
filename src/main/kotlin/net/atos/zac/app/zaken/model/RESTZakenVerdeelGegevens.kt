@@ -13,11 +13,12 @@ import java.util.UUID
 data class RESTZakenVerdeelGegevens(
     var uuids: List<UUID>,
 
-    var reden: String? = null,
-
-    var groepId: String? = null,
+    @field:NotBlank
+    var groepId: String,
 
     var behandelaarGebruikersnaam: String? = null,
+
+    var reden: String? = null,
 
     /**
      * Unique screen event resource ID which can be used

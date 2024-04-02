@@ -14,7 +14,8 @@ import net.atos.zac.zoeken.model.ZaakIndicatie
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.LocalDate
-import java.util.*
+import java.util.EnumSet
+import java.util.UUID
 
 @NoArgConstructor
 @AllOpen

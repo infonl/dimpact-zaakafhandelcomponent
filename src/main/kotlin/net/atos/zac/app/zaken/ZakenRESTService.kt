@@ -138,7 +138,8 @@ import org.apache.commons.collections4.CollectionUtils
 import org.apache.commons.lang3.StringUtils
 import java.net.URI
 import java.time.LocalDate
-import java.util.*
+import java.util.Locale
+import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.function.Consumer
 import java.util.logging.Logger
@@ -601,7 +602,7 @@ class ZakenRESTService @Inject constructor(
         zakenService.assignZakenAsync(
             zaakUUIDs = verdeelGegevens.uuids,
             explanation = verdeelGegevens.reden,
-            group = verdeelGegevens.groepId?.let { identityService.readGroup(verdeelGegevens.groepId) },
+            group = verdeelGegevens.groepId.let { identityService.readGroup(verdeelGegevens.groepId) },
             user = verdeelGegevens.behandelaarGebruikersnaam?.let {
                 identityService.readUser(verdeelGegevens.behandelaarGebruikersnaam)
             },
@@ -1295,7 +1296,7 @@ class ZakenRESTService @Inject constructor(
     ): List<RelevanteZaak>? {
         relevanteZaken?.removeAll(
             relevanteZaken.stream()
-                .filter { zaak: RelevanteZaak -> zaak.`is`(andereZaak, aardRelatie) }
+                .filter { it.`is`(andereZaak, aardRelatie) }
                 .toList()
         )
         return relevanteZaken

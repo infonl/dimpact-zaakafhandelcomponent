@@ -3,7 +3,7 @@ package net.atos.zac.app.util
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import java.util.*
+import java.util.UUID
 
 class UUIDReaderTest : DescribeSpec({
 

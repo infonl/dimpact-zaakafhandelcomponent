@@ -23,7 +23,8 @@ import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.createUser
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import java.time.ZoneId
-import java.util.*
+import java.util.Date
+import java.util.Optional
 
 @MockKExtension.CheckUnnecessaryStub
 class ZaakZoekObjectConverterTest : BehaviorSpec({

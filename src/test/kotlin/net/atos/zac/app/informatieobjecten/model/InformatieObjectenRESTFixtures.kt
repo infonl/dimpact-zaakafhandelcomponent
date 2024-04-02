@@ -3,7 +3,7 @@ package net.atos.zac.app.informatieobjecten.model
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject.StatusEnum
 import net.atos.client.zgw.ztc.model.generated.ZaakType.VertrouwelijkheidaanduidingEnum
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 @Suppress("LongParameterList")
 fun createRESTEnkelvoudigInformatieobject(

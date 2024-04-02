@@ -57,8 +57,8 @@ class RESTBesluitConverter {
         )
     )
 
-    fun convertToRESTBesluit(besluiten: List<Besluit>) = besluiten.stream()
-        .map { besluit -> convertToRESTBesluit(besluit) }
+    fun convertToRESTBesluit(besluiten: List<Besluit>): List<RESTBesluit> = besluiten.stream()
+        .map { convertToRESTBesluit(it) }
         .toList()
 
     fun convertToBesluit(zaak: Zaak, besluitToevoegenGegevens: RESTBesluitVastleggenGegevens): Besluit {
