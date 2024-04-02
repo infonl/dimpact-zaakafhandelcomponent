@@ -340,16 +340,18 @@ class ZakenRESTService @Inject constructor(
         locatieGegevens: RESTZaakLocatieGegevens
     ): RESTZaak {
         assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).wijzigen)
-        val geometrie =
+        val locatieZaakPatch = LocatieZaakPatch(
             if (locatieGegevens.geometrie != null) {
                 restGeometryConverter.convert(locatieGegevens.geometrie!!)
             } else {
                 null
             }
-
-        val zaak = zrcClientService.readZaak(zaakUUID)
-        zaak.zaakgeometrie = geometrie
-        val updatedZaak = zrcClientService.updateZaak(zaakUUID, zaak, locatieGegevens.reden)
+        )
+        val updatedZaak = zrcClientService.patchZaak(
+            zaakUUID,
+            locatieZaakPatch,
+            locatieGegevens.reden
+        )
         return restZaakConverter.convert(updatedZaak)
     }
 
