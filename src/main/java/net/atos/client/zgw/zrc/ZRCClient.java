@@ -89,8 +89,8 @@ public interface ZRCClient {
     @PUT
     @Path("zaken/{uuid}")
     @ClientHeaderParams({
-            @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-            @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
+                         @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
+                         @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
     Zaak zaakUpdate(@PathParam("uuid") final UUID uuid, final Zaak zaak);
 
     @GET

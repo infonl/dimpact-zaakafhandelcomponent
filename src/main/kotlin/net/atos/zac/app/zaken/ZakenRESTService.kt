@@ -35,7 +35,6 @@ import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.AardRelatie
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.HoofdzaakZaakPatch
-import net.atos.client.zgw.zrc.model.LocatieZaakPatch
 import net.atos.client.zgw.zrc.model.NatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.NietNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RelevanteZaak
@@ -344,8 +343,8 @@ class ZakenRESTService @Inject constructor(
                 null
             }
 
-        val zaak = zrcClientService.readZaak(zaakUUID);
-        zaak.zaakgeometrie = geometrie;
+        val zaak = zrcClientService.readZaak(zaakUUID)
+        zaak.zaakgeometrie = geometrie
         val updatedZaak = zrcClientService.updateZaak(zaakUUID, zaak, locatieGegevens.reden)
         return restZaakConverter.convert(updatedZaak)
     }
