@@ -2,91 +2,79 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.signalering
 
-package net.atos.zac.signalering;
-
-import static net.atos.zac.util.ValidationUtil.valideerObject;
-
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.function.Function;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
-import jakarta.transaction.Transactional;
-
-import org.flowable.task.api.TaskInfo;
-
-import net.atos.client.zgw.drc.DRCClientService;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.zrc.ZRCClientService;
-import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.zac.event.EventingService;
-import net.atos.zac.flowable.TakenService;
-import net.atos.zac.mail.MailService;
-import net.atos.zac.mail.model.Bronnen;
-import net.atos.zac.mail.model.MailAdres;
-import net.atos.zac.mailtemplates.MailTemplateService;
-import net.atos.zac.mailtemplates.model.Mail;
-import net.atos.zac.mailtemplates.model.MailGegevens;
-import net.atos.zac.mailtemplates.model.MailTemplate;
-import net.atos.zac.signalering.model.Signalering;
-import net.atos.zac.signalering.model.SignaleringDetail;
-import net.atos.zac.signalering.model.SignaleringInstellingen;
-import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters;
-import net.atos.zac.signalering.model.SignaleringTarget;
-import net.atos.zac.signalering.model.SignaleringType;
-import net.atos.zac.signalering.model.SignaleringVerzonden;
-import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters;
-import net.atos.zac.signalering.model.SignaleringZoekParameters;
-import net.atos.zac.websocket.event.ScreenEventType;
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.inject.Inject
+import jakarta.persistence.EntityManager
+import jakarta.persistence.PersistenceContext
+import jakarta.persistence.criteria.CriteriaBuilder
+import jakarta.persistence.criteria.Predicate
+import jakarta.persistence.criteria.Root
+import jakarta.transaction.Transactional
+import net.atos.client.zgw.drc.DRCClientService
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.model.Zaak
+import net.atos.zac.event.EventingService
+import net.atos.zac.flowable.TakenService
+import net.atos.zac.mail.MailService
+import net.atos.zac.mail.model.Bronnen
+import net.atos.zac.mailtemplates.MailTemplateService
+import net.atos.zac.mailtemplates.model.Mail
+import net.atos.zac.mailtemplates.model.MailGegevens
+import net.atos.zac.mailtemplates.model.MailTemplate
+import net.atos.zac.signalering.model.Signalering
+import net.atos.zac.signalering.model.SignaleringDetail
+import net.atos.zac.signalering.model.SignaleringInstellingen
+import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
+import net.atos.zac.signalering.model.SignaleringSubject
+import net.atos.zac.signalering.model.SignaleringTarget
+import net.atos.zac.signalering.model.SignaleringType
+import net.atos.zac.signalering.model.SignaleringVerzonden
+import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
+import net.atos.zac.signalering.model.SignaleringZoekParameters
+import net.atos.zac.util.ValidationUtil
+import net.atos.zac.websocket.event.ScreenEventType
+import org.flowable.task.api.TaskInfo
+import java.time.ZonedDateTime
+import java.util.Arrays
+import java.util.Optional
+import java.util.UUID
+import java.util.function.Consumer
+import java.util.function.Function
+import java.util.logging.Logger
+import java.util.stream.Collectors
 
 @ApplicationScoped
 @Transactional
-public class SignaleringenService {
-    private static final Logger LOG = Logger.getLogger(SignaleringenService.class.getName());
-
+class SignaleringenService {
     @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
-    private EntityManager entityManager;
+    private val entityManager: EntityManager? = null
 
     @Inject
-    private EventingService eventingService;
+    private val eventingService: EventingService? = null
 
     @Inject
-    private MailService mailService;
+    private val mailService: MailService? = null
 
     @Inject
-    private MailTemplateService mailTemplateService;
+    private val mailTemplateService: MailTemplateService? = null
 
     @Inject
-    private SignaleringenMailHelper signaleringenMailHelper;
+    private val signaleringenMailHelper: SignaleringenMailHelper? = null
 
     @Inject
-    private ZRCClientService zrcClientService;
+    private val zrcClientService: ZRCClientService? = null
 
     @Inject
-    private TakenService takenService;
+    private val takenService: TakenService? = null
 
     @Inject
-    private DRCClientService drcClientService;
+    private val drcClientService: DRCClientService? = null
 
-    private SignaleringType signaleringTypeInstance(final SignaleringType.Type signaleringsType) {
-        return entityManager.find(SignaleringType.class, signaleringsType.toString());
+    private fun signaleringTypeInstance(signaleringsType: SignaleringType.Type): SignaleringType {
+        return entityManager!!.find(SignaleringType::class.java, signaleringsType.toString())
     }
 
     /**
@@ -95,11 +83,11 @@ public class SignaleringenService {
      * @param signaleringsType the type of the signalering to construct
      * @return the constructed instance (subject and target are still null, type and tijdstip have been set)
      */
-    public Signalering signaleringInstance(final SignaleringType.Type signaleringsType) {
-        final Signalering instance = new Signalering();
-        instance.setTijdstip(ZonedDateTime.now());
-        instance.setType(signaleringTypeInstance(signaleringsType));
-        return instance;
+    fun signaleringInstance(signaleringsType: SignaleringType.Type): Signalering {
+        val instance = Signalering()
+        instance.tijdstip = ZonedDateTime.now()
+        instance.type = signaleringTypeInstance(signaleringsType)
+        return instance
     }
 
     /**
@@ -110,12 +98,12 @@ public class SignaleringenService {
      * @param ownerId          the id of the owner of the instellingen to construct
      * @return the constructed instance (subject and target are still null, type and tijdstip have been set)
      */
-    public SignaleringInstellingen signaleringInstellingenInstance(
-            final SignaleringType.Type signaleringsType,
-            final SignaleringTarget ownerType,
-            final String ownerId
-    ) {
-        return new SignaleringInstellingen(signaleringTypeInstance(signaleringsType), ownerType, ownerId);
+    fun signaleringInstellingenInstance(
+        signaleringsType: SignaleringType.Type,
+        ownerType: SignaleringTarget?,
+        ownerId: String?
+    ): SignaleringInstellingen {
+        return SignaleringInstellingen(signaleringTypeInstance(signaleringsType), ownerType, ownerId)
     }
 
     /**
@@ -124,15 +112,15 @@ public class SignaleringenService {
      * @param signalering the signalering that has been sent
      * @return the constructed instance (all members have been set)
      */
-    public SignaleringVerzonden signaleringVerzondenInstance(final Signalering signalering) {
-        final SignaleringVerzonden instance = new SignaleringVerzonden();
-        instance.setTijdstip(ZonedDateTime.now());
-        instance.setType(signaleringTypeInstance(signalering.getType().getType()));
-        instance.setTargettype(signalering.getTargettype());
-        instance.setTarget(signalering.getTarget());
-        instance.setSubject(signalering.getSubject());
-        instance.setDetail(signalering.getDetail());
-        return instance;
+    fun signaleringVerzondenInstance(signalering: Signalering?): SignaleringVerzonden {
+        val instance = SignaleringVerzonden()
+        instance.tijdstip = ZonedDateTime.now()
+        instance.type = signaleringTypeInstance(signalering!!.type.type)
+        instance.targettype = signalering.targettype
+        instance.target = signalering.target
+        instance.subject = signalering.subject
+        instance.detail = signalering.detail
+        return instance
     }
 
     /**
@@ -144,265 +132,309 @@ public class SignaleringenService {
      * @param actor       the actor (a gebruikersnaam) or null if unknown
      * @return true if signalling is necessary
      */
-    public boolean isNecessary(final Signalering signalering, final String actor) {
-        return signalering.getTargettype() != SignaleringTarget.USER || !signalering.getTarget().equals(actor);
+    fun isNecessary(signalering: Signalering, actor: String): Boolean {
+        return signalering.targettype != SignaleringTarget.USER || signalering.target != actor
     }
 
-    public Signalering createSignalering(final Signalering signalering) {
-        valideerObject(signalering);
-        final Signalering created = entityManager.merge(signalering);
-        eventingService.send(ScreenEventType.SIGNALERINGEN.updated(created));
-        return created;
+    fun createSignalering(signalering: Signalering): Signalering {
+        ValidationUtil.valideerObject(signalering)
+        val created = entityManager!!.merge(signalering)
+        eventingService!!.send(ScreenEventType.SIGNALERINGEN.updated(created))
+        return created
     }
 
-    public void deleteSignaleringen(final SignaleringZoekParameters parameters) {
-        final Map<String, Signalering> removed = new HashMap<>();
+    fun deleteSignaleringen(parameters: SignaleringZoekParameters) {
+        val removed: MutableMap<String, Signalering> = HashMap()
         listSignaleringen(parameters)
-                .forEach(signalering -> {
-                    removed.put(signalering.getTarget() + ';' + signalering.getType().getType(), signalering);
-                    entityManager.remove(signalering);
-                });
-        removed.values()
-                .forEach(signalering -> eventingService.send(ScreenEventType.SIGNALERINGEN.updated(signalering)));
+            .forEach(Consumer<Signalering> { signalering: Signalering ->
+                removed[signalering.target + ';' + signalering.type.type] = signalering
+                entityManager!!.remove(signalering)
+            })
+        removed.values
+            .forEach(Consumer { signalering: Signalering? ->
+                eventingService!!.send(
+                    ScreenEventType.SIGNALERINGEN.updated(
+                        signalering
+                    )
+                )
+            })
     }
 
-    public List<Signalering> listSignaleringen(final SignaleringZoekParameters parameters) {
-        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<Signalering> query = builder.createQuery(Signalering.class);
-        final Root<Signalering> root = query.from(Signalering.class);
+    fun listSignaleringen(parameters: SignaleringZoekParameters): List<Signalering> {
+        val builder = entityManager!!.criteriaBuilder
+        val query = builder.createQuery(
+            Signalering::class.java
+        )
+        val root = query.from(Signalering::class.java)
         return entityManager.createQuery(
-                query.select(root)
-                        .where(getSignaleringWhere(parameters, builder, root))
-                        .orderBy(builder.desc(root.get("tijdstip"))))
-                .getResultList();
+            query.select(root)
+                .where(getSignaleringWhere(parameters, builder, root))
+                .orderBy(builder.desc(root.get<Any>("tijdstip")))
+        )
+            .resultList
     }
 
-    public ZonedDateTime latestSignalering(final SignaleringZoekParameters parameters) {
-        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<ZonedDateTime> query = builder.createQuery(ZonedDateTime.class);
-        final Root<Signalering> root = query.from(Signalering.class);
+    fun latestSignalering(parameters: SignaleringZoekParameters): ZonedDateTime? {
+        val builder = entityManager!!.criteriaBuilder
+        val query = builder.createQuery(
+            ZonedDateTime::class.java
+        )
+        val root = query.from(Signalering::class.java)
 
 
         query.select(root.get("tijdstip"))
-                .where(getSignaleringWhere(parameters, builder, root))
-                .orderBy(builder.desc(root.get("tijdstip")));
+            .where(getSignaleringWhere(parameters, builder, root))
+            .orderBy(builder.desc(root.get<Any>("tijdstip")))
 
-        final List<ZonedDateTime> resultList = entityManager.createQuery(query).getResultList();
+        val resultList = entityManager.createQuery(query).resultList
 
-        if (resultList != null && !resultList.isEmpty()) {
-            return resultList.get(0);
+        return if (resultList != null && !resultList.isEmpty()) {
+            resultList[0]
         } else {
-            return null;
+            null
         }
     }
 
-    private Predicate getSignaleringWhere(
-            final SignaleringZoekParameters parameters,
-            final CriteriaBuilder builder,
-            final Root<Signalering> root
-    ) {
-        final List<Predicate> where = new ArrayList<>();
-        where.add(builder.equal(root.get("targettype"), parameters.getTargettype()));
-        if (parameters.getTarget() != null) {
-            where.add(builder.equal(root.get("target"), parameters.getTarget()));
+    private fun getSignaleringWhere(
+        parameters: SignaleringZoekParameters,
+        builder: CriteriaBuilder,
+        root: Root<Signalering>
+    ): Predicate {
+        val where: MutableList<Predicate> = ArrayList()
+        where.add(builder.equal(root.get<Any>("targettype"), parameters.targettype))
+        if (parameters.target != null) {
+            where.add(builder.equal(root.get<Any>("target"), parameters.target))
         }
-        if (!parameters.getTypes().isEmpty()) {
-            where.add(root.get("type").get("id")
-                    .in(parameters.getTypes().stream().map(Enum::toString).collect(Collectors.toList())));
+        if (!parameters.types.isEmpty()) {
+            where.add(root.get<Any>("type").get<Any>("id")
+                .`in`(parameters.types.stream().map { obj: SignaleringType.Type -> obj.toString() }
+                    .collect(Collectors.toList()))
+            )
         }
-        if (parameters.getSubjecttype() != null) {
-            where.add(builder.equal(root.get("type").get("subjecttype"), parameters.getSubjecttype()));
-            if (parameters.getSubject() != null) {
-                where.add(builder.equal(root.get("subject"), parameters.getSubject()));
+        if (parameters.subjecttype != null) {
+            where.add(builder.equal(root.get<Any>("type").get<Any>("subjecttype"), parameters.subjecttype))
+            if (parameters.subject != null) {
+                where.add(builder.equal(root.get<Any>("subject"), parameters.subject))
             }
         }
-        return builder.and(where.toArray(new Predicate[0]));
+        return builder.and(*where.toTypedArray<Predicate>())
     }
 
-    public void sendSignalering(final Signalering signalering) {
-        valideerObject(signalering);
-        final SignaleringTarget.Mail mail = signaleringenMailHelper.getTargetMail(signalering);
+    fun sendSignalering(signalering: Signalering?) {
+        ValidationUtil.valideerObject(signalering)
+        val mail = signaleringenMailHelper!!.getTargetMail(signalering)
         if (mail != null) {
-            final MailAdres from = mailService.getGemeenteMailAdres();
-            final MailAdres to = signaleringenMailHelper.formatTo(mail);
-            final MailTemplate mailTemplate = getMailtemplate(signalering);
-            final Bronnen.Builder bronnenBuilder = new Bronnen.Builder();
-            switch (signalering.getSubjecttype()) {
-                case ZAAK -> {
-                    bronnenBuilder.add(getZaak(signalering.getSubject()));
-                    if (signalering.getType().getType() == SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD) {
-                        bronnenBuilder.add(getDocument(signalering.getDetail()));
+            val from = mailService!!.gemeenteMailAdres
+            val to = signaleringenMailHelper.formatTo(mail)
+            val mailTemplate = getMailtemplate(signalering)
+            val bronnenBuilder = Bronnen.Builder()
+            when (signalering!!.subjecttype) {
+                SignaleringSubject.ZAAK -> {
+                    bronnenBuilder.add(getZaak(signalering.subject))
+                    if (signalering.type.type === SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD) {
+                        bronnenBuilder.add(getDocument(signalering.detail))
                     }
                 }
-                case TAAK -> bronnenBuilder.add(getTaak(signalering.getSubject()));
-                case DOCUMENT -> bronnenBuilder.add(getDocument(signalering.getSubject()));
+
+                SignaleringSubject.TAAK -> bronnenBuilder.add(getTaak(signalering.subject))
+                SignaleringSubject.DOCUMENT -> bronnenBuilder.add(getDocument(signalering.subject))
             }
-            mailService.sendMail(new MailGegevens(from, to, mailTemplate.getOnderwerp(), mailTemplate.getBody()),
-                    bronnenBuilder.build());
+            mailService.sendMail(
+                MailGegevens(from, to, mailTemplate.onderwerp, mailTemplate.body),
+                bronnenBuilder.build()
+            )
         }
     }
 
-    private Zaak getZaak(final String zaakUUID) {
-        return zrcClientService.readZaak(UUID.fromString(zaakUUID));
+    private fun getZaak(zaakUUID: String): Zaak {
+        return zrcClientService!!.readZaak(UUID.fromString(zaakUUID))
     }
 
-    private TaskInfo getTaak(final String taakID) {
-        return takenService.readTask(taakID);
+    private fun getTaak(taakID: String): TaskInfo {
+        return takenService!!.readTask(taakID)
     }
 
-    private EnkelvoudigInformatieObject getDocument(final String documentUUID) {
-        return drcClientService.readEnkelvoudigInformatieobject(UUID.fromString(documentUUID));
+    private fun getDocument(documentUUID: String): EnkelvoudigInformatieObject {
+        return drcClientService!!.readEnkelvoudigInformatieobject(UUID.fromString(documentUUID))
     }
 
-    private MailTemplate getMailtemplate(final Signalering signalering) {
-        return mailTemplateService.readMailtemplate(
-                switch (signalering.getType().getType()) {
-                case TAAK_OP_NAAM -> Mail.SIGNALERING_TAAK_OP_NAAM;
-                case TAAK_VERLOPEN -> Mail.SIGNALERING_TAAK_VERLOPEN;
-                case ZAAK_DOCUMENT_TOEGEVOEGD -> Mail.SIGNALERING_ZAAK_DOCUMENT_TOEGEVOEGD;
-                case ZAAK_OP_NAAM -> Mail.SIGNALERING_ZAAK_OP_NAAM;
-                case ZAAK_VERLOPEND -> switch (SignaleringDetail.valueOf(signalering.getDetail())) {
-                case STREEFDATUM -> Mail.SIGNALERING_ZAAK_VERLOPEND_STREEFDATUM;
-                case FATALE_DATUM -> Mail.SIGNALERING_ZAAK_VERLOPEND_FATALE_DATUM;
-                };
-                });
-    }
-
-    public SignaleringInstellingen createUpdateOrDeleteInstellingen(final SignaleringInstellingen instellingen) {
-        valideerObject(instellingen);
-        if (instellingen.isEmpty()) {
-            if (instellingen.getId() != null) {
-                entityManager.remove(entityManager.find(SignaleringInstellingen.class, instellingen.getId()));
+    private fun getMailtemplate(signalering: Signalering?): MailTemplate {
+        return mailTemplateService!!.readMailtemplate(
+            when (signalering!!.type.type) {
+                SignaleringType.Type.TAAK_OP_NAAM -> Mail.SIGNALERING_TAAK_OP_NAAM
+                SignaleringType.Type.TAAK_VERLOPEN -> Mail.SIGNALERING_TAAK_VERLOPEN
+                SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD -> Mail.SIGNALERING_ZAAK_DOCUMENT_TOEGEVOEGD
+                SignaleringType.Type.ZAAK_OP_NAAM -> Mail.SIGNALERING_ZAAK_OP_NAAM
+                SignaleringType.Type.ZAAK_VERLOPEND -> when (SignaleringDetail.valueOf(signalering.detail)) {
+                    SignaleringDetail.STREEFDATUM -> Mail.SIGNALERING_ZAAK_VERLOPEND_STREEFDATUM
+                    SignaleringDetail.FATALE_DATUM -> Mail.SIGNALERING_ZAAK_VERLOPEND_FATALE_DATUM
+                }
             }
-            return null;
+        )
+    }
+
+    fun createUpdateOrDeleteInstellingen(instellingen: SignaleringInstellingen): SignaleringInstellingen? {
+        ValidationUtil.valideerObject(instellingen)
+        if (instellingen.isEmpty) {
+            if (instellingen.id != null) {
+                entityManager!!.remove(entityManager.find(SignaleringInstellingen::class.java, instellingen.id))
+            }
+            return null
         }
-        return entityManager.merge(instellingen);
+        return entityManager!!.merge(instellingen)
     }
 
-    public SignaleringInstellingen readInstellingenGroup(final SignaleringType.Type type, final String target) {
-        final Signalering signalering = signaleringInstance(type);
-        signalering.setTargetGroup(target);
-        return readInstellingen(signalering);
+    fun readInstellingenGroup(type: SignaleringType.Type, target: String?): SignaleringInstellingen {
+        val signalering = signaleringInstance(type)
+        signalering.setTargetGroup(target)
+        return readInstellingen(signalering)
     }
 
-    public SignaleringInstellingen readInstellingenUser(final SignaleringType.Type type, final String target) {
-        final Signalering signalering = signaleringInstance(type);
-        signalering.setTargetUser(target);
-        return readInstellingen(signalering);
+    fun readInstellingenUser(type: SignaleringType.Type, target: String?): SignaleringInstellingen {
+        val signalering = signaleringInstance(type)
+        signalering.setTargetUser(target)
+        return readInstellingen(signalering)
     }
 
-    public SignaleringInstellingen readInstellingen(final Signalering signalering) {
-        final List<SignaleringInstellingen> instellingen = listInstellingen(
-                new SignaleringInstellingenZoekParameters(signalering));
-        if (instellingen.size() == 1) {
-            return instellingen.get(0);
+    fun readInstellingen(signalering: Signalering): SignaleringInstellingen {
+        val instellingen = listInstellingen(
+            SignaleringInstellingenZoekParameters(signalering)
+        )
+        if (instellingen.size == 1) {
+            return instellingen[0]
         }
-        return new SignaleringInstellingen(signalering.getType(), signalering.getTargettype(), signalering.getTarget());
+        return SignaleringInstellingen(signalering.type, signalering.targettype, signalering.target)
     }
 
-    public List<SignaleringInstellingen> listInstellingen(final SignaleringInstellingenZoekParameters parameters) {
-        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<SignaleringInstellingen> query = builder.createQuery(SignaleringInstellingen.class);
-        final Root<SignaleringInstellingen> root = query.from(SignaleringInstellingen.class);
+    fun listInstellingen(parameters: SignaleringInstellingenZoekParameters): List<SignaleringInstellingen> {
+        val builder = entityManager!!.criteriaBuilder
+        val query = builder.createQuery(
+            SignaleringInstellingen::class.java
+        )
+        val root = query.from(
+            SignaleringInstellingen::class.java
+        )
         return entityManager.createQuery(
-                query.select(root)
-                        .where(getSignaleringInstellingenWhere(parameters, builder, root)))
-                .getResultList();
+            query.select(root)
+                .where(getSignaleringInstellingenWhere(parameters, builder, root))
+        )
+            .resultList
     }
 
-    private Predicate getSignaleringInstellingenWhere(
-            final SignaleringInstellingenZoekParameters parameters,
-            final CriteriaBuilder builder,
-            final Root<SignaleringInstellingen> root
-    ) {
-        final List<Predicate> where = new ArrayList<>();
-        if (parameters.getOwner() != null) {
-            switch (parameters.getOwnertype()) {
-                case GROUP -> {
-                    where.add(builder.equal(root.get("groep"), parameters.getOwner()));
+    private fun getSignaleringInstellingenWhere(
+        parameters: SignaleringInstellingenZoekParameters,
+        builder: CriteriaBuilder,
+        root: Root<SignaleringInstellingen>
+    ): Predicate {
+        val where: MutableList<Predicate> = ArrayList()
+        if (parameters.owner != null) {
+            when (parameters.ownertype) {
+                SignaleringTarget.GROUP -> {
+                    where.add(builder.equal(root.get<Any>("groep"), parameters.owner))
                 }
-                case USER -> {
-                    where.add(builder.equal(root.get("medewerker"), parameters.getOwner()));
+
+                SignaleringTarget.USER -> {
+                    where.add(builder.equal(root.get<Any>("medewerker"), parameters.owner))
                 }
             }
         }
-        if (parameters.getType() != null) {
-            where.add(builder.equal(root.get("type").get("id"), parameters.getType().toString()));
+        if (parameters.type != null) {
+            where.add(builder.equal(root.get<Any>("type").get<Any>("id"), parameters.type.toString()))
         }
-        if (parameters.getDashboard()) {
-            where.add(builder.isTrue(root.get("dashboard")));
+        if (parameters.dashboard) {
+            where.add(builder.isTrue(root.get("dashboard")))
         }
-        if (parameters.getMail()) {
-            where.add(builder.isTrue(root.get("mail")));
+        if (parameters.mail) {
+            where.add(builder.isTrue(root.get("mail")))
         }
-        return builder.and(where.toArray(new Predicate[0]));
+        return builder.and(*where.toTypedArray<Predicate>())
     }
 
-    public List<SignaleringInstellingen> listInstellingenInclusiefMogelijke(
-            final SignaleringInstellingenZoekParameters parameters
-    ) {
-        final Map<SignaleringType.Type, SignaleringInstellingen> map = listInstellingen(parameters).stream()
-                .collect(Collectors.toMap(instellingen -> instellingen.getType().getType(), Function.identity()));
-        Arrays.stream(SignaleringType.Type.values())
-                .filter(type -> type.isTarget(parameters.getOwnertype()))
-                .filter(type -> !map.containsKey(type))
-                .forEach(type -> map.put(type, signaleringInstellingenInstance(type, parameters.getOwnertype(),
-                        parameters.getOwner())));
-        return map.values().stream()
-                .sorted(Comparator.comparing(SignaleringInstellingen::getType))
-                .toList();
+    fun listInstellingenInclusiefMogelijke(
+        parameters: SignaleringInstellingenZoekParameters
+    ): List<SignaleringInstellingen> {
+        val map = listInstellingen(parameters).stream()
+            .collect(Collectors.toMap(
+                Function { instellingen: SignaleringInstellingen -> instellingen.type.type }, Function.identity()
+            )
+            )
+        Arrays.stream<SignaleringType.Type>(SignaleringType.Type.SignaleringType.Type.entries.toTypedArray())
+            .filter { type: SignaleringType.Type -> type.isTarget(parameters.ownertype) }
+            .filter { type: SignaleringType.Type -> !map.containsKey(type) }
+            .forEach { type: SignaleringType.Type ->
+                map[type] = signaleringInstellingenInstance(
+                    type, parameters.ownertype,
+                    parameters.owner
+                )
+            }
+        return map.values.stream()
+            .sorted(Comparator.comparing { obj: SignaleringInstellingen -> obj.type })
+            .toList()
     }
 
-    public int count() {
-        return SignaleringType.Type.values().length;
+    fun count(): Int {
+        return SignaleringType.Type.SignaleringType.Type.entries.toTypedArray().size
     }
 
-    public SignaleringVerzonden createSignaleringVerzonden(final Signalering signalering) {
-        final SignaleringVerzonden signaleringVerzonden = signaleringVerzondenInstance(signalering);
-        valideerObject(signaleringVerzonden);
-        return entityManager.merge(signaleringVerzonden);
+    fun createSignaleringVerzonden(signalering: Signalering?): SignaleringVerzonden {
+        val signaleringVerzonden = signaleringVerzondenInstance(signalering)
+        ValidationUtil.valideerObject(signaleringVerzonden)
+        return entityManager!!.merge(signaleringVerzonden)
     }
 
-    public void deleteSignaleringVerzonden(final SignaleringVerzondenZoekParameters verzonden) {
-        findSignaleringVerzonden(verzonden).ifPresent(entityManager::remove);
+    fun deleteSignaleringVerzonden(verzonden: SignaleringVerzondenZoekParameters) {
+        findSignaleringVerzonden(verzonden).ifPresent { entity: SignaleringVerzonden? -> entityManager!!.remove(entity) }
     }
 
-    public Optional<SignaleringVerzonden> findSignaleringVerzonden(
-            final SignaleringVerzondenZoekParameters parameters
-    ) {
-        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<SignaleringVerzonden> query = builder.createQuery(SignaleringVerzonden.class);
-        final Root<SignaleringVerzonden> root = query.from(SignaleringVerzonden.class);
-        final List<SignaleringVerzonden> result = entityManager.createQuery(
-                query.select(root)
-                        .where(getSignaleringVerzondenWhere(parameters, builder, root)))
-                .getResultList();
-        return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
+    fun findSignaleringVerzonden(
+        parameters: SignaleringVerzondenZoekParameters
+    ): Optional<SignaleringVerzonden?> {
+        val builder = entityManager!!.criteriaBuilder
+        val query = builder.createQuery(
+            SignaleringVerzonden::class.java
+        )
+        val root = query.from(
+            SignaleringVerzonden::class.java
+        )
+        val result = entityManager.createQuery(
+            query.select(root)
+                .where(getSignaleringVerzondenWhere(parameters, builder, root))
+        )
+            .resultList
+        return if (result.isEmpty()) Optional.empty() else Optional.of(
+            result[0]
+        )
     }
 
-    private Predicate getSignaleringVerzondenWhere(
-            final SignaleringVerzondenZoekParameters parameters,
-            final CriteriaBuilder builder,
-            final Root<SignaleringVerzonden> root
-    ) {
-        final List<Predicate> where = new ArrayList<>();
-        where.add(builder.equal(root.get("targettype"), parameters.getTargettype()));
-        if (parameters.getTarget() != null) {
-            where.add(builder.equal(root.get("target"), parameters.getTarget()));
+    private fun getSignaleringVerzondenWhere(
+        parameters: SignaleringVerzondenZoekParameters,
+        builder: CriteriaBuilder,
+        root: Root<SignaleringVerzonden>
+    ): Predicate {
+        val where: MutableList<Predicate> = ArrayList()
+        where.add(builder.equal(root.get<Any>("targettype"), parameters.targettype))
+        if (parameters.target != null) {
+            where.add(builder.equal(root.get<Any>("target"), parameters.target))
         }
-        if (!parameters.getTypes().isEmpty()) {
-            where.add(root.get("type").get("id")
-                    .in(parameters.getTypes().stream().map(Enum::toString).collect(Collectors.toList())));
+        if (!parameters.types.isEmpty()) {
+            where.add(root.get<Any>("type").get<Any>("id")
+                .`in`(parameters.types.stream().map { obj: SignaleringType.Type -> obj.toString() }
+                    .collect(Collectors.toList()))
+            )
         }
-        if (parameters.getSubjecttype() != null) {
-            where.add(builder.equal(root.get("type").get("subjecttype"), parameters.getSubjecttype()));
-            if (parameters.getSubject() != null) {
-                where.add(builder.equal(root.get("subject"), parameters.getSubject()));
+        if (parameters.subjecttype != null) {
+            where.add(builder.equal(root.get<Any>("type").get<Any>("subjecttype"), parameters.subjecttype))
+            if (parameters.subject != null) {
+                where.add(builder.equal(root.get<Any>("subject"), parameters.subject))
             }
         }
-        if (parameters.getDetail() != null) {
-            where.add(builder.equal(root.get("detail"), parameters.getDetail().toString()));
+        if (parameters.detail != null) {
+            where.add(builder.equal(root.get<Any>("detail"), parameters.detail.toString()))
         }
-        return builder.and(where.toArray(new Predicate[0]));
+        return builder.and(*where.toTypedArray<Predicate>())
+    }
+
+    companion object {
+        private val LOG: Logger = Logger.getLogger(SignaleringenService::class.java.name)
     }
 }
