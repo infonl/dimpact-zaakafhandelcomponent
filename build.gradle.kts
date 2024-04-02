@@ -73,13 +73,13 @@ val commitHash by extra {
 }
 
 // create custom configuration for extra dependencies that are required in the generated WAR
-val warLib by configurations.creating {
+val warLib: Configuration by configurations.creating {
     extendsFrom(configurations["compileOnly"])
 }
 
 // create custom configuration for the JaCoCo agent JAR used to generate code coverage of our integration tests
 // see: https://blog.akquinet.de/2018/09/06/test-coverage-for-containerized-java-apps/
-val jacocoAgentJarForItest by configurations.creating {
+val jacocoAgentJarForItest: Configuration by configurations.creating {
     isTransitive = false
 }
 

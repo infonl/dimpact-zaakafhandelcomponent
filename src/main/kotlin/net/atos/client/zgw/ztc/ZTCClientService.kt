@@ -71,7 +71,7 @@ class ZTCClientService : Caching {
             .orElseThrow { RuntimeException("Catalogus not found.") }
 
     @CacheResult(cacheName = Caching.ZTC_CACHE_TIME)
-    fun readCacheTime() = ZonedDateTime.now()
+    fun readCacheTime(): ZonedDateTime = ZonedDateTime.now()
 
     /**
      * Read [ZaakType] via URI.

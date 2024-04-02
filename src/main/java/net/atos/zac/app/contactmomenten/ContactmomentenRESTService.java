@@ -66,7 +66,7 @@ public class ContactmomentenRESTService {
         klantcontactmomentListParameters.setKlant(klant.getUrl());
         final var klantcontactmomentenResponse = contactmomentenClientService.listKlantcontactmomenten(klantcontactmomentListParameters);
         final List<RESTContactmoment> contactmomenten = klantcontactmomentenResponse.getResults().stream()
-                .skip(page * pageSize % NUM_ITEMS_PER_PAGE)
+                .skip((long) page * pageSize % NUM_ITEMS_PER_PAGE)
                 .limit(pageSize)
                 .map(this::convertToRESTContactmoment)
                 .toList();
