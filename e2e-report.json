@@ -14,7 +14,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 3569872333
+              "duration": 1096736323
             }
           },
           {
@@ -27,7 +27,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 3382017680
+              "duration": 1854747084
             }
           },
           {
@@ -40,7 +40,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 1075807307
+              "duration": 675294843
             }
           },
           {
@@ -53,7 +53,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 2367014701
+              "duration": 1808925567
             }
           },
           {
@@ -61,7 +61,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 233894018
+              "duration": 117270908
             }
           }
         ],
@@ -80,7 +80,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 156462412
+              "duration": 145044672
             }
           },
           {
@@ -93,7 +93,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 2202514614
+              "duration": 1532372467
             }
           },
           {
@@ -106,7 +106,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 509918319
+              "duration": 436527111
             }
           },
           {
@@ -119,7 +119,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 1463625146
+              "duration": 800648213
             }
           },
           {
@@ -132,7 +132,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 21414169
+              "duration": 20392685
             }
           },
           {
@@ -140,7 +140,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 205358574
+              "duration": 138340095
             }
           }
         ],
@@ -159,7 +159,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 142127550
+              "duration": 138574918
             }
           },
           {
@@ -172,7 +172,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 2483334115
+              "duration": 1496973079
             }
           },
           {
@@ -185,7 +185,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 30498454
+              "duration": 25583899
             }
           },
           {
@@ -198,7 +198,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 805069545
+              "duration": 555531074
             }
           },
           {
@@ -211,7 +211,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 2904238079
+              "duration": 1329631640
             }
           },
           {
@@ -219,7 +219,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 144825484
+              "duration": 216400490
             }
           }
         ],
@@ -238,7 +238,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 161102516
+              "duration": 139696163
             }
           },
           {
@@ -251,7 +251,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 2546380350
+              "duration": 1486343498
             }
           },
           {
@@ -264,7 +264,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 490483634
+              "duration": 341507408
             }
           },
           {
@@ -277,7 +277,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 1164525588
+              "duration": 641439267
             }
           },
           {
@@ -290,7 +290,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 20915784
+              "duration": 19268786
             }
           },
           {
@@ -298,7 +298,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 187166228
+              "duration": 125757459
             }
           }
         ],
@@ -317,7 +317,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 139505717
+              "duration": 151846754
             }
           },
           {
@@ -330,7 +330,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 2482057445
+              "duration": 1486811317
             }
           },
           {
@@ -343,7 +343,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 26197931
+              "duration": 27260510
             }
           },
           {
@@ -356,7 +356,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 855480022
+              "duration": 535961069
             }
           },
           {
@@ -369,7 +369,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 2350954279
+              "duration": 1822436918
             }
           },
           {
@@ -377,7 +377,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 249482393
+              "duration": 105376144
             }
           }
         ],
@@ -407,7 +407,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 161934789
+              "duration": 149240324
             }
           },
           {
@@ -420,7 +420,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 2515913093
+              "duration": 1852570326
             }
           },
           {
@@ -433,7 +433,7 @@
             },
             "result": {
               "status": "failed",
-              "duration": 40168398051,
+              "duration": 38047829066,
               "error_message": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByRole('row', { name: 'Gerelateerde gegevens tonen 0384200000005901 Adres Meelbeskamp 49, 1112GV Diemen Selecteren' }).getByTitle('Selecteren')\n\n    at CustomWorld.<anonymous> (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/zaak.ts:163:8)"
             },
             "embeddings": [
@@ -487,7 +487,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 2178645581
+              "duration": 2137094392
             }
           }
         ],
@@ -517,7 +517,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 153995823
+              "duration": 167744629
             }
           },
           {
@@ -530,7 +530,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 23507070099
+              "duration": 22553682362
             }
           },
           {
@@ -543,7 +543,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 54473846
+              "duration": 51481807
             }
           },
           {
@@ -556,7 +556,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 2500750747
+              "duration": 1483631339
             }
           },
           {
@@ -569,7 +569,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 1372071039
+              "duration": 1027187474
             }
           },
           {
@@ -582,7 +582,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 75226180511
+              "duration": 73531594514
             }
           },
           {
@@ -595,7 +595,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 5844164228
+              "duration": 4940035334
             }
           },
           {
@@ -603,7 +603,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 227196434
+              "duration": 224116427
             }
           }
         ],
@@ -638,7 +638,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 153155911
+              "duration": 153086825
             }
           },
           {
@@ -651,7 +651,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 4385941963
+              "duration": 3468302363
             }
           },
           {
@@ -664,7 +664,7 @@
             },
             "result": {
               "status": "failed",
-              "duration": 30086389180,
+              "duration": 30086959761,
               "error_message": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByText('note_addDocument maken')\n\n    at CustomWorld.<anonymous> (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/zaak.ts:276:57)"
             },
             "embeddings": [
@@ -705,7 +705,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 2335061538
+              "duration": 2392472240
             }
           }
         ],
@@ -735,7 +735,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 165501692
+              "duration": 151093628
             }
           },
           {
@@ -748,7 +748,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 4465364605
+              "duration": 3516087986
             }
           },
           {
@@ -761,7 +761,7 @@
             },
             "result": {
               "status": "failed",
-              "duration": 30079786592,
+              "duration": 30088903312,
               "error_message": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByText('Aanvullende informatie').first()\n\n    at CustomWorld.<anonymous> (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/zaak.ts:88:65)"
             },
             "embeddings": [
@@ -841,7 +841,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 2321800510
+              "duration": 2414019674
             }
           }
         ],
