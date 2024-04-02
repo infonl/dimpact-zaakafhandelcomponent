@@ -3,6 +3,7 @@ package net.atos.zac.zaken
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.just
@@ -22,6 +23,7 @@ import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
+import java.lang.RuntimeException
 
 @MockKExtension.CheckUnnecessaryStub
 class ZakenServiceTest : BehaviorSpec({
@@ -35,19 +37,23 @@ class ZakenServiceTest : BehaviorSpec({
         zrcClientService = zrcClientService,
         ztcClientService = ztcClientService
     )
+    val explanation = "dummyExplanation"
+    val screenEventResourceId = "dummyResourceId"
+    val zaken = listOf(
+        createZaak(),
+        createZaak()
+    )
+    val group = createGroup()
+    val user = createUser()
+    val rolTypeBehandelaar = createRolType(
+        omschrijvingGeneriek = RolType.OmschrijvingGeneriekEnum.BEHANDELAAR
+    )
+
+    afterTest {
+        clearAllMocks()
+    }
 
     Given("A list of zaken") {
-        val explanation = "dummyExplanation"
-        val screenEventResourceId = "dummyResourceId"
-        val zaken = listOf(
-            createZaak(),
-            createZaak()
-        )
-        val group = createGroup()
-        val user = createUser()
-        val rolTypeBehandelaar = createRolType(
-            omschrijvingGeneriek = RolType.OmschrijvingGeneriekEnum.BEHANDELAAR
-        )
         val screenEventSlot = slot<ScreenEvent>()
         zaken.map {
             every { zrcClientService.readZaak(it.uuid) } returns it
@@ -62,8 +68,8 @@ class ZakenServiceTest : BehaviorSpec({
             every { eventingService.send(capture(screenEventSlot)) } just Runs
         }
         When(
-            "the assign zaken async function is called with a group, a user " +
-                "and a screen event resource id"
+            """the assign zaken async function is called with a group, a user
+                and a screen event resource id"""
         ) {
             val coroutine = zakenService.assignZakenAsync(
                 zaakUUIDs = zaken.map { it.uuid },
@@ -73,9 +79,9 @@ class ZakenServiceTest : BehaviorSpec({
                 screenEventResourceId = screenEventResourceId
             )
             Then(
-                "for both zaken the group and user roles " +
-                    "and the search index should be updated and " +
-                    "a screen event of type 'zaken verdelen' should sent"
+                """for both zaken the group and user roles 
+                    and the search index should be updated and
+                    a screen event of type 'zaken verdelen' should sent"""
             ) {
                 coroutine.join()
                 verify(exactly = zaken.size) {
@@ -87,6 +93,31 @@ class ZakenServiceTest : BehaviorSpec({
                     opcode shouldBe Opcode.UPDATED
                     objectType shouldBe ScreenEventType.ZAKEN_VERDELEN
                     objectId.resource shouldBe screenEventResourceId
+                }
+            }
+        }
+    }
+    Given("A list of zaken and a failing ZRC client service when retrieving the second zaak ") {
+        every { zrcClientService.readZaak(zaken[0].uuid) } returns zaken[0]
+        every { zrcClientService.readZaak(zaken[1].uuid) } throws RuntimeException("dummyRuntimeException")
+        When(
+            """the assign zaken async function is called with a group
+                and a screen event resource id"""
+        ) {
+            zakenService.assignZakenAsync(
+                zaakUUIDs = zaken.map { it.uuid },
+                explanation = explanation,
+                group = group,
+                screenEventResourceId = screenEventResourceId
+            ).join()
+            Then(
+                """for neither of the zaken the group and user roles 
+                    nor the search index should be updated          
+                    and no screen event of type 'zaken verdelen' should be sent"""
+            ) {
+                verify(exactly = 0) {
+                    zrcClientService.updateRol(any(), any(), explanation)
+                    eventingService.send(any<ScreenEvent>())
                 }
             }
         }
