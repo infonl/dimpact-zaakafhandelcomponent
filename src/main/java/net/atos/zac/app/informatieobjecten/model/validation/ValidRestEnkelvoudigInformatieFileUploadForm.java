@@ -16,7 +16,7 @@ import jakarta.validation.Payload;
 @Constraint(validatedBy = {ValidRestEnkelvoudigInformatieFileUploadFormValidator.class})
 public @interface ValidRestEnkelvoudigInformatieFileUploadForm {
 
-    String INVALID_FILE_UPLOAD_FORM = "Uploaded file is empty";
+    String INVALID_FILE_UPLOAD_FORM = "Een leeg bestand is niet toegestaan";
 
     String message() default INVALID_FILE_UPLOAD_FORM;
 
