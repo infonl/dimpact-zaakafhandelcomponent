@@ -5,6 +5,7 @@
 
 import { HttpClientModule } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
+import { TranslateService } from "@ngx-translate/core";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { ZakenService } from "./zaken.service";
 
@@ -13,7 +14,10 @@ describe("ZaakService", () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [{ provide: FoutAfhandelingService, useValue: {} }],
+      providers: [
+        { provide: FoutAfhandelingService, useValue: {} },
+        { provide: TranslateService, useValue: {} },
+      ],
       imports: [HttpClientModule],
     });
 
