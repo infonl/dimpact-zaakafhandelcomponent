@@ -64,9 +64,6 @@ public class TaakVariabelenService {
     @Inject
     private TaskService taskService;
 
-    @Inject
-    private TakenService takenService;
-
     public Map<String, String> readTaakdata(final TaskInfo taskInfo) {
         return (Map<String, String>) findTaskVariable(taskInfo, VAR_TASK_TAAKDATA).orElse(Collections.emptyMap());
     }
