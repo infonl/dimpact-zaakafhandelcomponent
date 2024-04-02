@@ -41,7 +41,7 @@ import java.util.UUID
 @Produces(MediaType.APPLICATION_JSON)
 @Singleton
 @NoArgConstructor
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 class SignaleringenRestService @Inject constructor(
     private val signaleringenService: SignaleringenService,
     private val zrcClientService: ZRCClientService,
