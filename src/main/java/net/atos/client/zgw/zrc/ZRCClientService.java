@@ -320,6 +320,18 @@ public class ZRCClientService {
     }
 
     /**
+     * Update {@link Zaak}.
+     *
+     * @param zaakUUID UUID of {@link Zaak}.
+     * @param zaak     {@link Zaak}
+     * @return Updated {@link Zaak}
+     */
+    public Zaak updateZaak(final UUID zaakUUID, final Zaak zaak, final String toelichting) {
+        zgwClientHeadersFactory.setAuditToelichting(toelichting);
+        return zrcClient.zaakUpdate(zaakUUID, zaak);
+    }
+
+    /**
      * List instances of {@link Zaak} filtered by {@link ZaakListParameters}.
      *
      * @param filter {@link ZaakListParameters}.
