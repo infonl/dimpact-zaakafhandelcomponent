@@ -6,6 +6,7 @@
 export class ZakenVerdeelGegevens {
   uuids: string[];
   groepId: string;
-  behandelaarGebruikersnaam: string;
+  behandelaarGebruikersnaam?: string;
   reden: string;
+  screenEventResourceId?: string;
 }
