@@ -90,6 +90,10 @@ export class TaakDocumentUploadComponent
         )}MB)`;
         return;
       }
+      if (!file.size) {
+        this.data.uploadError = "Het bestand is leeg";
+        return;
+      }
       this.uploadControl.setValue(file.name);
       this.updateValue();
       this.subscription = this.createRequest(file).subscribe({

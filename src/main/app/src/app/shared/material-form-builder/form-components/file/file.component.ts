@@ -67,6 +67,11 @@ export class FileComponent extends FormComponent implements OnInit {
         return;
       }
 
+      if (!file.size) {
+        this.data.uploadError = "Het bestand is leeg";
+        return;
+      }
+
       this.subscription = this.createRequest(file).subscribe({
         next: (event: HttpEvent<any>) => {
           switch (event.type) {
