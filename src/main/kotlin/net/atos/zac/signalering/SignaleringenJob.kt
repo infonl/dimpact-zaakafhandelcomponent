@@ -40,24 +40,25 @@ import java.util.logging.Logger
 
 @ApplicationScoped
 @Transactional
-class SignaleringenJob {
+@Suppress("TooManyFunctions")
+open class SignaleringenJob {
     @Inject
-    private val signaleringenService: SignaleringenService? = null
+    private lateinit var signaleringenService: SignaleringenService
 
     @Inject
-    private val configuratieService: ConfiguratieService? = null
+    private lateinit var configuratieService: ConfiguratieService
 
     @Inject
-    private val ztcClientService: ZTCClientService? = null
+    private lateinit var ztcClientService: ZTCClientService
 
     @Inject
-    private val zaakafhandelParameterService: ZaakafhandelParameterService? = null
+    private lateinit var zaakafhandelParameterService: ZaakafhandelParameterService
 
     @Inject
-    private val zoekenService: ZoekenService? = null
+    private lateinit var zoekenService: ZoekenService
 
     @Inject
-    private val takenService: TakenService? = null
+    private lateinit var takenService: TakenService
 
     fun signaleringenVerzenden() {
         zaakSignaleringenVerzenden()
@@ -65,44 +66,44 @@ class SignaleringenJob {
     }
 
     /**
-     * This is the batchjob to send E-Mail warnings about cases that are approaching their einddatum gepland or their uiterlijke einddatum
-     * afdoening.
+     * This is the batchjob to send E-Mail warnings about cases that are approaching their einddatum gepland or their
+     * uiterlijke einddatum afdoening.
      */
     private fun zaakSignaleringenVerzenden() {
         val info = SignaleringVerzendInfo()
         LOG.info("Zaak signaleringen verzenden: gestart...")
-        ztcClientService!!.listZaaktypen(configuratieService!!.readDefaultCatalogusURI())
-            .forEach(Consumer<ZaakType> { zaaktype: ZaakType ->
-                val parameters = zaakafhandelParameterService!!.readZaakafhandelParameters(
-                    URIUtil.parseUUIDFromResourceURI(zaaktype.url)
-                )
-                if (parameters.einddatumGeplandWaarschuwing != null) {
-                    info.streefdatumVerzonden += zaakEinddatumGeplandVerzenden(
-                        zaaktype,
-                        parameters.einddatumGeplandWaarschuwing
+        ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
+            .forEach(
+                Consumer<ZaakType> { zaaktype: ZaakType ->
+                    val parameters = zaakafhandelParameterService.readZaakafhandelParameters(
+                        URIUtil.parseUUIDFromResourceURI(zaaktype.url)
                     )
-                    zaakEinddatumGeplandOnterechtVerzondenVerwijderen(
-                        zaaktype,
-                        parameters.einddatumGeplandWaarschuwing
-                    )
+                    if (parameters.einddatumGeplandWaarschuwing != null) {
+                        info.streefdatumVerzonden += zaakEinddatumGeplandVerzenden(
+                            zaaktype,
+                            parameters.einddatumGeplandWaarschuwing
+                        )
+                        zaakEinddatumGeplandOnterechtVerzondenVerwijderen(
+                            zaaktype,
+                            parameters.einddatumGeplandWaarschuwing
+                        )
+                    }
+                    if (parameters.uiterlijkeEinddatumAfdoeningWaarschuwing != null) {
+                        info.fataledatumVerzonden += zaakUiterlijkeEinddatumAfdoeningVerzenden(
+                            zaaktype,
+                            parameters.uiterlijkeEinddatumAfdoeningWaarschuwing
+                        )
+                        zaakUiterlijkeEinddatumAfdoeningOnterechtVerzondenVerwijderen(
+                            zaaktype,
+                            parameters.uiterlijkeEinddatumAfdoeningWaarschuwing
+                        )
+                    }
                 }
-                if (parameters.uiterlijkeEinddatumAfdoeningWaarschuwing != null) {
-                    info.fataledatumVerzonden += zaakUiterlijkeEinddatumAfdoeningVerzenden(
-                        zaaktype,
-                        parameters.uiterlijkeEinddatumAfdoeningWaarschuwing
-                    )
-                    zaakUiterlijkeEinddatumAfdoeningOnterechtVerzondenVerwijderen(
-                        zaaktype,
-                        parameters.uiterlijkeEinddatumAfdoeningWaarschuwing
-                    )
-                }
-            })
-        LOG.info(
-            String.format(
-                "Zaak signaleringen verzenden: gestopt (%d streefdatum waarschuwingen, %d fatale datum waarschuwingen)",
-                info.streefdatumVerzonden,
-                info.fataledatumVerzonden
             )
+        LOG.info(
+            """Zaak signaleringen verzenden: gestopt (${info.streefdatumVerzonden} streefdatum waarschuwingen,
+            | ${info.fataledatumVerzonden} fatale datum waarschuwingen)
+            """.trimMargin()
         )
     }
 
@@ -113,7 +114,7 @@ class SignaleringenJob {
      */
     private fun zaakEinddatumGeplandVerzenden(zaaktype: ZaakType, venster: Int): Int {
         val verzonden = IntArray(1)
-        zoekenService!!.zoek(getZaakSignaleringTeVerzendenZoekParameters(DatumVeld.ZAAK_STREEFDATUM, zaaktype, venster))
+        zoekenService.zoek(getZaakSignaleringTeVerzendenZoekParameters(DatumVeld.ZAAK_STREEFDATUM, zaaktype, venster))
             .items.stream()
             .map { zaakZoekObject: ZoekObject? -> zaakZoekObject as ZaakZoekObject? }
             .map { zaakZoekObject: ZaakZoekObject? ->
@@ -138,7 +139,7 @@ class SignaleringenJob {
         venster: Int
     ): Int {
         val verzonden = IntArray(1)
-        zoekenService!!.zoek(
+        zoekenService.zoek(
             getZaakSignaleringTeVerzendenZoekParameters(
                 DatumVeld.ZAAK_FATALE_DATUM,
                 zaaktype,
@@ -160,7 +161,7 @@ class SignaleringenJob {
     }
 
     private fun getZaakSignaleringTarget(zaak: ZaakZoekObject?, detail: SignaleringDetail): String? {
-        if (signaleringenService!!.readInstellingenUser(
+        if (signaleringenService.readInstellingenUser(
                 SignaleringType.Type.ZAAK_VERLOPEND,
                 zaak!!.behandelaarGebruikersnaam
             ).isMail &&
@@ -184,10 +185,10 @@ class SignaleringenJob {
         if (target != null) {
             val zaak = Zaak()
             zaak.uuid = UUID.fromString(zaakZoekObject!!.uuid)
-            val signalering = signaleringenService!!.signaleringInstance(
+            val signalering = signaleringenService.signaleringInstance(
                 SignaleringType.Type.ZAAK_VERLOPEND
             )
-            signalering!!.setTargetUser(target)
+            signalering.setTargetUser(target)
             signalering.setSubject(zaak)
             signalering.setDetail(detail)
             return signalering
@@ -196,7 +197,7 @@ class SignaleringenJob {
     }
 
     private fun verzendZaakSignalering(signalering: Signalering?): Int {
-        signaleringenService!!.sendSignalering(signalering)
+        signaleringenService.sendSignalering(signalering)
         signaleringenService.createSignaleringVerzonden(signalering)
         return 1
     }
@@ -208,7 +209,7 @@ class SignaleringenJob {
         zaaktype: ZaakType,
         venster: Int
     ) {
-        zoekenService!!.zoek(
+        zoekenService.zoek(
             getZaakSignaleringLaterTeVerzendenZoekParameters(DatumVeld.ZAAK_STREEFDATUM, zaaktype, venster)
         )
             .items.stream()
@@ -221,20 +222,21 @@ class SignaleringenJob {
                 )
             }
             .forEach { verzonden: SignaleringVerzondenZoekParameters ->
-                signaleringenService!!.deleteSignaleringVerzonden(
+                signaleringenService.deleteSignaleringVerzonden(
                     verzonden
                 )
             }
     }
 
     /**
-     * Make sure already sent E-Mail warnings will get send again (in cases where the uiterlijke einddatum afdoening has changed)
+     * Make sure already sent E-Mail warnings will get send again
+     * (in cases where the uiterlijke einddatum afdoening has changed)
      */
     private fun zaakUiterlijkeEinddatumAfdoeningOnterechtVerzondenVerwijderen(
         zaaktype: ZaakType,
         venster: Int
     ) {
-        zoekenService!!.zoek(
+        zoekenService.zoek(
             getZaakSignaleringLaterTeVerzendenZoekParameters(DatumVeld.ZAAK_FATALE_DATUM, zaaktype, venster)
         )
             .items.stream()
@@ -247,7 +249,7 @@ class SignaleringenJob {
                 )
             }
             .forEach { verzonden: SignaleringVerzondenZoekParameters ->
-                signaleringenService!!.deleteSignaleringVerzonden(
+                signaleringenService.deleteSignaleringVerzonden(
                     verzonden
                 )
             }
@@ -303,12 +305,7 @@ class SignaleringenJob {
         LOG.info("Taak signaleringen verzenden: gestart...")
         info.fataledatumVerzonden += taakDueVerzenden()
         taakDueOnterechtVerzondenVerwijderen()
-        LOG.info(
-            String.format(
-                "Taak signaleringen verzenden: gestopt (%d fatale datum waarschuwingen)",
-                info.fataledatumVerzonden
-            )
-        )
+        LOG.info("Taak signaleringen verzenden: gestopt (${info.fataledatumVerzonden} fatale datum waarschuwingen)")
     }
 
     /**
@@ -318,7 +315,7 @@ class SignaleringenJob {
      */
     private fun taakDueVerzenden(): Int {
         val verzonden = IntArray(1)
-        takenService!!.listOpenTasksDueNow().stream()
+        takenService.listOpenTasksDueNow().stream()
             .map { task: Task -> buildTaakSignalering(getTaakSignaleringTarget(task), task) }
             .filter { obj: Signalering? -> Objects.nonNull(obj) }
             .forEach { signalering: Signalering? -> verzonden[0] += verzendTaakSignalering(signalering) }
@@ -326,7 +323,7 @@ class SignaleringenJob {
     }
 
     private fun getTaakSignaleringTarget(task: Task): String? {
-        if (signaleringenService!!.readInstellingenUser(SignaleringType.Type.TAAK_VERLOPEN, task.assignee)
+        if (signaleringenService.readInstellingenUser(SignaleringType.Type.TAAK_VERLOPEN, task.assignee)
                 .isMail &&
             !signaleringenService.findSignaleringVerzonden(
                 getTaakSignaleringVerzondenParameters(task.assignee, task.id)
@@ -339,10 +336,10 @@ class SignaleringenJob {
 
     private fun buildTaakSignalering(target: String?, task: Task): Signalering? {
         if (target != null) {
-            val signalering = signaleringenService!!.signaleringInstance(
+            val signalering = signaleringenService.signaleringInstance(
                 SignaleringType.Type.TAAK_VERLOPEN
             )
-            signalering!!.setTargetUser(target)
+            signalering.setTargetUser(target)
             signalering.setSubject(task)
             signalering.setDetail(SignaleringDetail.STREEFDATUM)
             return signalering
@@ -351,7 +348,7 @@ class SignaleringenJob {
     }
 
     private fun verzendTaakSignalering(signalering: Signalering?): Int {
-        signaleringenService!!.sendSignalering(signalering)
+        signaleringenService.sendSignalering(signalering)
         signaleringenService.createSignaleringVerzonden(signalering)
         return 1
     }
@@ -360,10 +357,10 @@ class SignaleringenJob {
      * Make sure already sent E-Mail warnings will get send again (in cases where the due date has changed)
      */
     private fun taakDueOnterechtVerzondenVerwijderen() {
-        takenService!!.listOpenTasksDueLater().stream()
+        takenService.listOpenTasksDueLater().stream()
             .map { task: Task -> getTaakSignaleringVerzondenParameters(task.assignee, task.id) }
             .forEach { verzonden: SignaleringVerzondenZoekParameters ->
-                signaleringenService!!.deleteSignaleringVerzonden(
+                signaleringenService.deleteSignaleringVerzonden(
                     verzonden
                 )
             }

@@ -45,29 +45,29 @@ public class Signalering {
     @Id
     @GeneratedValue(generator = "sq_signalering", strategy = GenerationType.SEQUENCE)
     @Column(name = "id_signalering")
-    private Long id;
+    Long id;
 
     @NotNull @ManyToOne
     @JoinColumn(name = "signaleringtype_enum", referencedColumnName = "signaleringtype_enum", nullable = false)
-    private SignaleringType type;
+    SignaleringType type;
 
     @NotNull @Column(name = "targettype_enum", nullable = false)
     @Enumerated(EnumType.STRING)
-    private SignaleringTarget targettype;
+    SignaleringTarget targettype;
 
     @NotBlank
     @Column(name = "target", nullable = false)
-    private String target;
+    String target;
 
     @NotBlank
     @Column(name = "subject", nullable = false)
-    private String subject;
+    String subject;
 
     @Column(name = "detail")
-    private String detail;
+    String detail;
 
     @NotNull @Column(name = "tijdstip", nullable = false)
-    private ZonedDateTime tijdstip;
+    ZonedDateTime tijdstip;
 
     public Long getId() {
         return id;

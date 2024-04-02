@@ -10,28 +10,29 @@ import net.atos.zac.mail.model.MailAdres
 import net.atos.zac.signalering.model.Signalering
 import net.atos.zac.signalering.model.SignaleringTarget
 
-
 class SignaleringenMailHelper {
     @Inject
-    private val identityService: IdentityService? = null
+    private lateinit var identityService: IdentityService
 
     fun getTargetMail(signalering: Signalering?): SignaleringTarget.Mail? {
-        when (signalering!!.targettype) {
+        var mail: SignaleringTarget.Mail? = null
+
+        when (signalering!!.targettype!!) {
             SignaleringTarget.GROUP -> {
-                val group = identityService!!.readGroup(signalering.target)
+                val group = identityService.readGroup(signalering.target)
                 if (group.email != null) {
-                    return SignaleringTarget.Mail(group.name, group.email)
+                    mail = SignaleringTarget.Mail(group.name, group.email)
                 }
             }
 
             SignaleringTarget.USER -> {
-                val user = identityService!!.readUser(signalering.target)
+                val user = identityService.readUser(signalering.target)
                 if (user.email != null) {
-                    return SignaleringTarget.Mail(user.fullName, user.email)
+                    mail = SignaleringTarget.Mail(user.fullName, user.email)
                 }
             }
         }
-        return null
+        return mail
     }
 
     fun formatTo(mail: SignaleringTarget.Mail): MailAdres {

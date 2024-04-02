@@ -13,9 +13,11 @@ import net.atos.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringTarget
 import java.util.stream.Collectors
 
-class RESTSignaleringInstellingenConverter @Inject constructor(
-    private var signaleringenService: SignaleringenService
-) {
+class RESTSignaleringInstellingenConverter {
+
+    @Inject
+    private lateinit var signaleringenService: SignaleringenService
+
     fun convert(instellingen: SignaleringInstellingen): RESTSignaleringInstellingen =
         RESTSignaleringInstellingen().let {
             it.id = instellingen.id

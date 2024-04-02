@@ -43,38 +43,38 @@ import java.util.Optional
 import java.util.UUID
 import java.util.function.Consumer
 import java.util.function.Function
-import java.util.logging.Logger
 import java.util.stream.Collectors
 
 @ApplicationScoped
 @Transactional
-class SignaleringenService {
+@Suppress("TooManyFunctions")
+open class SignaleringenService {
     @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
-    private val entityManager: EntityManager? = null
+    private lateinit var entityManager: EntityManager
 
     @Inject
-    private val eventingService: EventingService? = null
+    private lateinit var eventingService: EventingService
 
     @Inject
-    private val mailService: MailService? = null
+    private lateinit var mailService: MailService
 
     @Inject
-    private val mailTemplateService: MailTemplateService? = null
+    private lateinit var mailTemplateService: MailTemplateService
 
     @Inject
-    private val signaleringenMailHelper: SignaleringenMailHelper? = null
+    private lateinit var signaleringenMailHelper: SignaleringenMailHelper
 
     @Inject
-    private val zrcClientService: ZRCClientService? = null
+    private lateinit var zrcClientService: ZRCClientService
 
     @Inject
-    private val takenService: TakenService? = null
+    private lateinit var takenService: TakenService
 
     @Inject
-    private val drcClientService: DRCClientService? = null
+    private lateinit var drcClientService: DRCClientService
 
-    private fun signaleringTypeInstance(signaleringsType: SignaleringType.Type): SignaleringType {
-        return entityManager!!.find(SignaleringType::class.java, signaleringsType.toString())
+    private fun signaleringTypeInstance(signaleringsType: SignaleringType.Type?): SignaleringType {
+        return entityManager.find(SignaleringType::class.java, signaleringsType.toString())
     }
 
     /**
@@ -83,7 +83,7 @@ class SignaleringenService {
      * @param signaleringsType the type of the signalering to construct
      * @return the constructed instance (subject and target are still null, type and tijdstip have been set)
      */
-    fun signaleringInstance(signaleringsType: SignaleringType.Type): Signalering {
+    fun signaleringInstance(signaleringsType: SignaleringType.Type?): Signalering {
         val instance = Signalering()
         instance.tijdstip = ZonedDateTime.now()
         instance.type = signaleringTypeInstance(signaleringsType)
@@ -138,30 +138,34 @@ class SignaleringenService {
 
     fun createSignalering(signalering: Signalering): Signalering {
         ValidationUtil.valideerObject(signalering)
-        val created = entityManager!!.merge(signalering)
-        eventingService!!.send(ScreenEventType.SIGNALERINGEN.updated(created))
+        val created = entityManager.merge(signalering)
+        eventingService.send(ScreenEventType.SIGNALERINGEN.updated(created))
         return created
     }
 
     fun deleteSignaleringen(parameters: SignaleringZoekParameters) {
         val removed: MutableMap<String, Signalering> = HashMap()
         listSignaleringen(parameters)
-            .forEach(Consumer<Signalering> { signalering: Signalering ->
-                removed[signalering.target + ';' + signalering.type.type] = signalering
-                entityManager!!.remove(signalering)
-            })
+            .forEach(
+                Consumer<Signalering> { signalering: Signalering ->
+                    removed[signalering.target + ';' + signalering.type.type] = signalering
+                    entityManager.remove(signalering)
+                }
+            )
         removed.values
-            .forEach(Consumer { signalering: Signalering? ->
-                eventingService!!.send(
-                    ScreenEventType.SIGNALERINGEN.updated(
-                        signalering
+            .forEach(
+                Consumer { signalering: Signalering? ->
+                    eventingService.send(
+                        ScreenEventType.SIGNALERINGEN.updated(
+                            signalering
+                        )
                     )
-                )
-            })
+                }
+            )
     }
 
     fun listSignaleringen(parameters: SignaleringZoekParameters): List<Signalering> {
-        val builder = entityManager!!.criteriaBuilder
+        val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(
             Signalering::class.java
         )
@@ -175,12 +179,11 @@ class SignaleringenService {
     }
 
     fun latestSignalering(parameters: SignaleringZoekParameters): ZonedDateTime? {
-        val builder = entityManager!!.criteriaBuilder
+        val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(
             ZonedDateTime::class.java
         )
         val root = query.from(Signalering::class.java)
-
 
         query.select(root.get("tijdstip"))
             .where(getSignaleringWhere(parameters, builder, root))
@@ -206,9 +209,12 @@ class SignaleringenService {
             where.add(builder.equal(root.get<Any>("target"), parameters.target))
         }
         if (!parameters.types.isEmpty()) {
-            where.add(root.get<Any>("type").get<Any>("id")
-                .`in`(parameters.types.stream().map { obj: SignaleringType.Type -> obj.toString() }
-                    .collect(Collectors.toList()))
+            where.add(
+                root.get<Any>("type").get<Any>("id")
+                    .`in`(
+                        parameters.types.stream().map { obj: SignaleringType.Type -> obj.toString() }
+                            .collect(Collectors.toList())
+                    )
             )
         }
         if (parameters.subjecttype != null) {
@@ -217,18 +223,19 @@ class SignaleringenService {
                 where.add(builder.equal(root.get<Any>("subject"), parameters.subject))
             }
         }
+        @Suppress("SpreadOperator")
         return builder.and(*where.toTypedArray<Predicate>())
     }
 
     fun sendSignalering(signalering: Signalering?) {
         ValidationUtil.valideerObject(signalering)
-        val mail = signaleringenMailHelper!!.getTargetMail(signalering)
+        val mail = signaleringenMailHelper.getTargetMail(signalering)
         if (mail != null) {
-            val from = mailService!!.gemeenteMailAdres
+            val from = mailService.gemeenteMailAdres
             val to = signaleringenMailHelper.formatTo(mail)
             val mailTemplate = getMailtemplate(signalering)
             val bronnenBuilder = Bronnen.Builder()
-            when (signalering!!.subjecttype) {
+            when (signalering!!.subjecttype!!) {
                 SignaleringSubject.ZAAK -> {
                     bronnenBuilder.add(getZaak(signalering.subject))
                     if (signalering.type.type === SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD) {
@@ -247,20 +254,20 @@ class SignaleringenService {
     }
 
     private fun getZaak(zaakUUID: String): Zaak {
-        return zrcClientService!!.readZaak(UUID.fromString(zaakUUID))
+        return zrcClientService.readZaak(UUID.fromString(zaakUUID))
     }
 
     private fun getTaak(taakID: String): TaskInfo {
-        return takenService!!.readTask(taakID)
+        return takenService.readTask(taakID)
     }
 
     private fun getDocument(documentUUID: String): EnkelvoudigInformatieObject {
-        return drcClientService!!.readEnkelvoudigInformatieobject(UUID.fromString(documentUUID))
+        return drcClientService.readEnkelvoudigInformatieobject(UUID.fromString(documentUUID))
     }
 
     private fun getMailtemplate(signalering: Signalering?): MailTemplate {
-        return mailTemplateService!!.readMailtemplate(
-            when (signalering!!.type.type) {
+        return mailTemplateService.readMailtemplate(
+            when (signalering!!.type.type!!) {
                 SignaleringType.Type.TAAK_OP_NAAM -> Mail.SIGNALERING_TAAK_OP_NAAM
                 SignaleringType.Type.TAAK_VERLOPEN -> Mail.SIGNALERING_TAAK_VERLOPEN
                 SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD -> Mail.SIGNALERING_ZAAK_DOCUMENT_TOEGEVOEGD
@@ -277,20 +284,20 @@ class SignaleringenService {
         ValidationUtil.valideerObject(instellingen)
         if (instellingen.isEmpty) {
             if (instellingen.id != null) {
-                entityManager!!.remove(entityManager.find(SignaleringInstellingen::class.java, instellingen.id))
+                entityManager.remove(entityManager.find(SignaleringInstellingen::class.java, instellingen.id))
             }
             return null
         }
-        return entityManager!!.merge(instellingen)
+        return entityManager.merge(instellingen)
     }
 
-    fun readInstellingenGroup(type: SignaleringType.Type, target: String?): SignaleringInstellingen {
+    fun readInstellingenGroup(type: SignaleringType.Type?, target: String?): SignaleringInstellingen {
         val signalering = signaleringInstance(type)
         signalering.setTargetGroup(target)
         return readInstellingen(signalering)
     }
 
-    fun readInstellingenUser(type: SignaleringType.Type, target: String?): SignaleringInstellingen {
+    fun readInstellingenUser(type: SignaleringType.Type?, target: String?): SignaleringInstellingen {
         val signalering = signaleringInstance(type)
         signalering.setTargetUser(target)
         return readInstellingen(signalering)
@@ -307,7 +314,7 @@ class SignaleringenService {
     }
 
     fun listInstellingen(parameters: SignaleringInstellingenZoekParameters): List<SignaleringInstellingen> {
-        val builder = entityManager!!.criteriaBuilder
+        val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(
             SignaleringInstellingen::class.java
         )
@@ -328,7 +335,7 @@ class SignaleringenService {
     ): Predicate {
         val where: MutableList<Predicate> = ArrayList()
         if (parameters.owner != null) {
-            when (parameters.ownertype) {
+            when (parameters.ownertype!!) {
                 SignaleringTarget.GROUP -> {
                     where.add(builder.equal(root.get<Any>("groep"), parameters.owner))
                 }
@@ -347,6 +354,7 @@ class SignaleringenService {
         if (parameters.mail) {
             where.add(builder.isTrue(root.get("mail")))
         }
+        @Suppress("SpreadOperator")
         return builder.and(*where.toTypedArray<Predicate>())
     }
 
@@ -354,11 +362,13 @@ class SignaleringenService {
         parameters: SignaleringInstellingenZoekParameters
     ): List<SignaleringInstellingen> {
         val map = listInstellingen(parameters).stream()
-            .collect(Collectors.toMap(
-                Function { instellingen: SignaleringInstellingen -> instellingen.type.type }, Function.identity()
+            .collect(
+                Collectors.toMap(
+                    Function { instellingen: SignaleringInstellingen -> instellingen.type.type },
+                    Function.identity()
+                )
             )
-            )
-        Arrays.stream<SignaleringType.Type>(SignaleringType.Type.SignaleringType.Type.entries.toTypedArray())
+        Arrays.stream(SignaleringType.Type.entries.toTypedArray())
             .filter { type: SignaleringType.Type -> type.isTarget(parameters.ownertype) }
             .filter { type: SignaleringType.Type -> !map.containsKey(type) }
             .forEach { type: SignaleringType.Type ->
@@ -373,23 +383,25 @@ class SignaleringenService {
     }
 
     fun count(): Int {
-        return SignaleringType.Type.SignaleringType.Type.entries.toTypedArray().size
+        return SignaleringType.Type.entries.size
     }
 
     fun createSignaleringVerzonden(signalering: Signalering?): SignaleringVerzonden {
         val signaleringVerzonden = signaleringVerzondenInstance(signalering)
         ValidationUtil.valideerObject(signaleringVerzonden)
-        return entityManager!!.merge(signaleringVerzonden)
+        return entityManager.merge(signaleringVerzonden)
     }
 
     fun deleteSignaleringVerzonden(verzonden: SignaleringVerzondenZoekParameters) {
-        findSignaleringVerzonden(verzonden).ifPresent { entity: SignaleringVerzonden? -> entityManager!!.remove(entity) }
+        findSignaleringVerzonden(
+            verzonden
+        ).ifPresent { entity: SignaleringVerzonden? -> entityManager.remove(entity) }
     }
 
     fun findSignaleringVerzonden(
         parameters: SignaleringVerzondenZoekParameters
-    ): Optional<SignaleringVerzonden?> {
-        val builder = entityManager!!.criteriaBuilder
+    ): Optional<SignaleringVerzonden> {
+        val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(
             SignaleringVerzonden::class.java
         )
@@ -401,9 +413,7 @@ class SignaleringenService {
                 .where(getSignaleringVerzondenWhere(parameters, builder, root))
         )
             .resultList
-        return if (result.isEmpty()) Optional.empty() else Optional.of(
-            result[0]
-        )
+        return if (result.isEmpty()) { Optional.empty() } else { Optional.of(result[0]) }
     }
 
     private fun getSignaleringVerzondenWhere(
@@ -417,9 +427,12 @@ class SignaleringenService {
             where.add(builder.equal(root.get<Any>("target"), parameters.target))
         }
         if (!parameters.types.isEmpty()) {
-            where.add(root.get<Any>("type").get<Any>("id")
-                .`in`(parameters.types.stream().map { obj: SignaleringType.Type -> obj.toString() }
-                    .collect(Collectors.toList()))
+            where.add(
+                root.get<Any>("type").get<Any>("id")
+                    .`in`(
+                        parameters.types.stream().map { obj: SignaleringType.Type -> obj.toString() }
+                            .collect(Collectors.toList())
+                    )
             )
         }
         if (parameters.subjecttype != null) {
@@ -431,10 +444,7 @@ class SignaleringenService {
         if (parameters.detail != null) {
             where.add(builder.equal(root.get<Any>("detail"), parameters.detail.toString()))
         }
+        @Suppress("SpreadOperator")
         return builder.and(*where.toTypedArray<Predicate>())
-    }
-
-    companion object {
-        private val LOG: Logger = Logger.getLogger(SignaleringenService::class.java.name)
     }
 }
