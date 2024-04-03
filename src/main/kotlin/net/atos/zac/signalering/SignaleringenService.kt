@@ -49,7 +49,7 @@ class SignaleringenService @Inject constructor(
         @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
         private lateinit var entityManager: EntityManager
 
-        private fun signaleringTypeInstance(signaleringsType: SignaleringType.Type?): SignaleringType {
+        private fun signaleringTypeInstance(signaleringsType: SignaleringType.Type): SignaleringType {
             return entityManager.find(SignaleringType::class.java, signaleringsType.toString())
         }
     }
@@ -60,7 +60,7 @@ class SignaleringenService @Inject constructor(
      * @param signaleringsType the type of the signalering to construct
      * @return the constructed instance (subject and target are still null, type and tijdstip have been set)
      */
-    fun signaleringInstance(signaleringsType: SignaleringType.Type?): Signalering {
+    fun signaleringInstance(signaleringsType: SignaleringType.Type): Signalering {
         val instance = Signalering()
         instance.tijdstip = ZonedDateTime.now()
         instance.type = signaleringTypeInstance(signaleringsType)
@@ -89,10 +89,10 @@ class SignaleringenService @Inject constructor(
      * @param signalering the signalering that has been sent
      * @return the constructed instance (all members have been set)
      */
-    fun signaleringVerzondenInstance(signalering: Signalering?): SignaleringVerzonden =
+    fun signaleringVerzondenInstance(signalering: Signalering): SignaleringVerzonden =
         SignaleringVerzonden().let {
             it.tijdstip = ZonedDateTime.now()
-            it.type = signaleringTypeInstance(signalering!!.type.type)
+            it.type = signaleringTypeInstance(signalering.type.type)
             it.targettype = signalering.targettype
             it.target = signalering.target
             it.subject = signalering.subject
@@ -159,7 +159,7 @@ class SignaleringenService @Inject constructor(
 
         val resultList = entityManager.createQuery(query).resultList
 
-        return if (resultList != null && resultList.isNotEmpty()) {
+        return if (resultList?.isNotEmpty() == true) {
             resultList[0]
         } else {
             null
@@ -168,10 +168,9 @@ class SignaleringenService @Inject constructor(
 
     fun sendSignalering(signalering: Signalering) {
         ValidationUtil.valideerObject(signalering)
-        val mail = signaleringenMailHelper.getTargetMail(signalering)
-        if (mail != null) {
+        signaleringenMailHelper.getTargetMail(signalering)?.let {
             val from = mailService.gemeenteMailAdres
-            val to = signaleringenMailHelper.formatTo(mail)
+            val to = signaleringenMailHelper.formatTo(it)
             val mailTemplate = signaleringenMailHelper.getMailTemplate(signalering)
             val bronnenBuilder = Bronnen.Builder()
             when (signalering.subjecttype!!) {
@@ -197,7 +196,7 @@ class SignaleringenService @Inject constructor(
     fun createUpdateOrDeleteInstellingen(instellingen: SignaleringInstellingen): SignaleringInstellingen? {
         ValidationUtil.valideerObject(instellingen)
         if (instellingen.isEmpty) {
-            if (instellingen.id != null) {
+            instellingen.id?.let {
                 entityManager.remove(entityManager.find(SignaleringInstellingen::class.java, instellingen.id))
             }
             return null
@@ -205,13 +204,13 @@ class SignaleringenService @Inject constructor(
         return entityManager.merge(instellingen)
     }
 
-    fun readInstellingenGroup(type: SignaleringType.Type?, target: String?): SignaleringInstellingen {
+    fun readInstellingenGroup(type: SignaleringType.Type, target: String?): SignaleringInstellingen {
         val signalering = signaleringInstance(type)
         signalering.setTargetGroup(target)
         return readInstellingen(signalering)
     }
 
-    fun readInstellingenUser(type: SignaleringType.Type?, target: String?): SignaleringInstellingen {
+    fun readInstellingenUser(type: SignaleringType.Type, target: String?): SignaleringInstellingen {
         val signalering = signaleringInstance(type)
         signalering.setTargetUser(target)
         return readInstellingen(signalering)
@@ -274,9 +273,7 @@ class SignaleringenService @Inject constructor(
     }
 
     fun deleteSignaleringVerzonden(verzonden: SignaleringVerzondenZoekParameters) {
-        findSignaleringVerzonden(
-            verzonden
-        ).ifPresent { entity: SignaleringVerzonden? -> entityManager.remove(entity) }
+        findSignaleringVerzonden(verzonden).ifPresent { entityManager.remove(it) }
     }
 
     fun findSignaleringVerzonden(

@@ -18,15 +18,10 @@ class SignaleringenZACHelper @Inject constructor(
     private val takenService: TakenService,
     private val drcClientService: DRCClientService
 ) {
-    fun getZaak(zaakUUID: String): Zaak {
-        return zrcClientService.readZaak(UUID.fromString(zaakUUID))
-    }
+    fun getZaak(zaakUUID: String): Zaak = zrcClientService.readZaak(UUID.fromString(zaakUUID))
 
-    fun getTaak(taakID: String): TaskInfo {
-        return takenService.readTask(taakID)
-    }
+    fun getTaak(taakID: String): TaskInfo = takenService.readTask(taakID)
 
-    fun getDocument(documentUUID: String): EnkelvoudigInformatieObject {
-        return drcClientService.readEnkelvoudigInformatieobject(UUID.fromString(documentUUID))
-    }
+    fun getDocument(documentUUID: String): EnkelvoudigInformatieObject =
+        drcClientService.readEnkelvoudigInformatieobject(UUID.fromString(documentUUID))
 }

@@ -53,7 +53,7 @@ class SignaleringenJob @Inject constructor(
 
     companion object {
         private val LOG = Logger.getLogger(SignaleringenJob::class.java.name)
-        const val ZAAK_AFGEHANDELD_QUERY: String = "zaak_afgehandeld"
+        const val ZAAK_AFGEHANDELD_QUERY = "zaak_afgehandeld"
     }
 
     fun signaleringenVerzenden() {
