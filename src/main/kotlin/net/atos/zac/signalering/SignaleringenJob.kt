@@ -31,6 +31,7 @@ import net.atos.zac.zoeken.model.ZoekObject
 import net.atos.zac.zoeken.model.ZoekParameters
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject
+import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.flowable.task.api.Task
 import java.time.LocalDate
@@ -43,7 +44,8 @@ import java.util.logging.Logger
 @Transactional
 @Suppress("TooManyFunctions")
 @NoArgConstructor
-open class SignaleringenJob @Inject constructor(
+@AllOpen
+class SignaleringenJob @Inject constructor(
     private val signaleringenService: SignaleringenService,
     private val configuratieService: ConfiguratieService,
     private val ztcClientService: ZTCClientService,
@@ -57,7 +59,7 @@ open class SignaleringenJob @Inject constructor(
         const val ZAAK_AFGEHANDELD_QUERY: String = "zaak_afgehandeld"
     }
 
-    open fun signaleringenVerzenden() {
+    fun signaleringenVerzenden() {
         zaakSignaleringenVerzenden()
         taakSignaleringenVerzenden()
     }
@@ -66,7 +68,7 @@ open class SignaleringenJob @Inject constructor(
      * This is the batchjob to send E-Mail warnings about cases that are approaching their einddatum gepland or their
      * uiterlijke einddatum afdoening.
      */
-    private fun zaakSignaleringenVerzenden() {
+    fun zaakSignaleringenVerzenden() {
         val info = SignaleringVerzendInfo()
         LOG.info("Zaak signaleringen verzenden: gestart...")
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
@@ -109,7 +111,7 @@ open class SignaleringenJob @Inject constructor(
      *
      * @return the number of E-Mails sent
      */
-    private fun zaakEinddatumGeplandVerzenden(zaaktype: ZaakType, venster: Int): Int {
+    fun zaakEinddatumGeplandVerzenden(zaaktype: ZaakType, venster: Int): Int {
         val verzonden = IntArray(1)
         zoekenService.zoek(getZaakSignaleringTeVerzendenZoekParameters(DatumVeld.ZAAK_STREEFDATUM, zaaktype, venster))
             .items.stream()
@@ -131,7 +133,7 @@ open class SignaleringenJob @Inject constructor(
      *
      * @return the number of E-Mails sent
      */
-    private fun zaakUiterlijkeEinddatumAfdoeningVerzenden(
+    fun zaakUiterlijkeEinddatumAfdoeningVerzenden(
         zaaktype: ZaakType,
         venster: Int
     ): Int {
@@ -157,7 +159,7 @@ open class SignaleringenJob @Inject constructor(
         return verzonden[0]
     }
 
-    private fun getZaakSignaleringTarget(zaak: ZaakZoekObject?, detail: SignaleringDetail): String? {
+    fun getZaakSignaleringTarget(zaak: ZaakZoekObject?, detail: SignaleringDetail): String? {
         if (signaleringenService.readInstellingenUser(
                 SignaleringType.Type.ZAAK_VERLOPEND,
                 zaak!!.behandelaarGebruikersnaam
@@ -174,7 +176,7 @@ open class SignaleringenJob @Inject constructor(
         return null
     }
 
-    private fun buildZaakSignalering(
+    fun buildZaakSignalering(
         target: String?,
         zaakZoekObject: ZaakZoekObject?,
         detail: SignaleringDetail
@@ -193,7 +195,7 @@ open class SignaleringenJob @Inject constructor(
         return null
     }
 
-    private fun verzendZaakSignalering(signalering: Signalering?): Int {
+    fun verzendZaakSignalering(signalering: Signalering?): Int {
         signaleringenService.sendSignalering(signalering)
         signaleringenService.createSignaleringVerzonden(signalering)
         return 1
@@ -202,7 +204,7 @@ open class SignaleringenJob @Inject constructor(
     /**
      * Make sure already sent E-Mail warnings will get send again (in cases where the einddatum gepland has changed)
      */
-    private fun zaakEinddatumGeplandOnterechtVerzondenVerwijderen(
+    fun zaakEinddatumGeplandOnterechtVerzondenVerwijderen(
         zaaktype: ZaakType,
         venster: Int
     ) {
@@ -229,7 +231,7 @@ open class SignaleringenJob @Inject constructor(
      * Make sure already sent E-Mail warnings will get send again
      * (in cases where the uiterlijke einddatum afdoening has changed)
      */
-    private fun zaakUiterlijkeEinddatumAfdoeningOnterechtVerzondenVerwijderen(
+    fun zaakUiterlijkeEinddatumAfdoeningOnterechtVerzondenVerwijderen(
         zaaktype: ZaakType,
         venster: Int
     ) {
@@ -252,7 +254,7 @@ open class SignaleringenJob @Inject constructor(
             }
     }
 
-    private fun getZaakSignaleringTeVerzendenZoekParameters(
+    fun getZaakSignaleringTeVerzendenZoekParameters(
         veld: DatumVeld,
         zaaktype: ZaakType,
         venster: Int
@@ -263,7 +265,7 @@ open class SignaleringenJob @Inject constructor(
         return parameters
     }
 
-    private fun getZaakSignaleringLaterTeVerzendenZoekParameters(
+    fun getZaakSignaleringLaterTeVerzendenZoekParameters(
         veld: DatumVeld,
         zaaktype: ZaakType,
         venster: Int
@@ -274,7 +276,7 @@ open class SignaleringenJob @Inject constructor(
         return parameters
     }
 
-    private fun getOpenZaakMetBehandelaarZoekParameters(zaaktype: ZaakType): ZoekParameters {
+    fun getOpenZaakMetBehandelaarZoekParameters(zaaktype: ZaakType): ZoekParameters {
         val parameters = ZoekParameters(ZoekObjectType.ZAAK)
         parameters.addFilter(FilterVeld.ZAAK_ZAAKTYPE_UUID, UriUtil.uuidFromURI(zaaktype.url).toString())
         parameters.addFilter(FilterVeld.ZAAK_BEHANDELAAR, FilterWaarde.NIET_LEEG.toString())
@@ -283,7 +285,7 @@ open class SignaleringenJob @Inject constructor(
         return parameters
     }
 
-    private fun getZaakSignaleringVerzondenParameters(
+    fun getZaakSignaleringVerzondenParameters(
         target: String,
         zaakUUID: String,
         detail: SignaleringDetail
@@ -297,7 +299,7 @@ open class SignaleringenJob @Inject constructor(
     /**
      * This is the batchjob to send E-Mail warnings about tasks that are at or past their due date.
      */
-    private fun taakSignaleringenVerzenden() {
+    fun taakSignaleringenVerzenden() {
         val info = SignaleringVerzendInfo()
         LOG.info("Taak signaleringen verzenden: gestart...")
         info.fataledatumVerzonden += taakDueVerzenden()
@@ -310,7 +312,7 @@ open class SignaleringenJob @Inject constructor(
      *
      * @return the number of E-Mails sent
      */
-    private fun taakDueVerzenden(): Int {
+    fun taakDueVerzenden(): Int {
         val verzonden = IntArray(1)
         takenService.listOpenTasksDueNow().stream()
             .map { task: Task -> buildTaakSignalering(getTaakSignaleringTarget(task), task) }
@@ -319,7 +321,7 @@ open class SignaleringenJob @Inject constructor(
         return verzonden[0]
     }
 
-    private fun getTaakSignaleringTarget(task: Task): String? {
+    fun getTaakSignaleringTarget(task: Task): String? {
         if (signaleringenService.readInstellingenUser(SignaleringType.Type.TAAK_VERLOPEN, task.assignee)
                 .isMail &&
             !signaleringenService.findSignaleringVerzonden(
@@ -331,7 +333,7 @@ open class SignaleringenJob @Inject constructor(
         return null
     }
 
-    private fun buildTaakSignalering(target: String?, task: Task): Signalering? {
+    fun buildTaakSignalering(target: String?, task: Task): Signalering? {
         if (target != null) {
             val signalering = signaleringenService.signaleringInstance(
                 SignaleringType.Type.TAAK_VERLOPEN
@@ -344,7 +346,7 @@ open class SignaleringenJob @Inject constructor(
         return null
     }
 
-    private fun verzendTaakSignalering(signalering: Signalering?): Int {
+    fun verzendTaakSignalering(signalering: Signalering?): Int {
         signaleringenService.sendSignalering(signalering)
         signaleringenService.createSignaleringVerzonden(signalering)
         return 1
@@ -353,7 +355,7 @@ open class SignaleringenJob @Inject constructor(
     /**
      * Make sure already sent E-Mail warnings will get send again (in cases where the due date has changed)
      */
-    private fun taakDueOnterechtVerzondenVerwijderen() {
+    fun taakDueOnterechtVerzondenVerwijderen() {
         takenService.listOpenTasksDueLater().stream()
             .map { task: Task -> getTaakSignaleringVerzondenParameters(task.assignee, task.id) }
             .forEach { verzonden: SignaleringVerzondenZoekParameters ->
@@ -363,7 +365,7 @@ open class SignaleringenJob @Inject constructor(
             }
     }
 
-    private fun getTaakSignaleringVerzondenParameters(
+    fun getTaakSignaleringVerzondenParameters(
         target: String,
         taakId: String
     ): SignaleringVerzondenZoekParameters {

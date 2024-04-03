@@ -24,6 +24,7 @@ import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.util.ValidationUtil
 import net.atos.zac.websocket.event.ScreenEventType
+import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
 import java.util.Arrays
@@ -36,7 +37,8 @@ import java.util.stream.Collectors
 @Transactional
 @Suppress("TooManyFunctions")
 @NoArgConstructor
-open class SignaleringenService @Inject constructor(
+@AllOpen
+class SignaleringenService @Inject constructor(
     private val eventingService: EventingService,
     private val mailService: MailService,
     private val signaleringenMailHelper: SignaleringenMailHelper,
@@ -59,7 +61,7 @@ open class SignaleringenService @Inject constructor(
      * @param signaleringsType the type of the signalering to construct
      * @return the constructed instance (subject and target are still null, type and tijdstip have been set)
      */
-    open fun signaleringInstance(signaleringsType: SignaleringType.Type?): Signalering {
+    fun signaleringInstance(signaleringsType: SignaleringType.Type?): Signalering {
         val instance = Signalering()
         instance.tijdstip = ZonedDateTime.now()
         instance.type = signaleringTypeInstance(signaleringsType)
@@ -74,7 +76,7 @@ open class SignaleringenService @Inject constructor(
      * @param ownerId          the id of the owner of the instellingen to construct
      * @return the constructed instance (subject and target are still null, type and tijdstip have been set)
      */
-    open fun signaleringInstellingenInstance(
+    fun signaleringInstellingenInstance(
         signaleringsType: SignaleringType.Type,
         ownerType: SignaleringTarget?,
         ownerId: String?
@@ -88,7 +90,7 @@ open class SignaleringenService @Inject constructor(
      * @param signalering the signalering that has been sent
      * @return the constructed instance (all members have been set)
      */
-    open fun signaleringVerzondenInstance(signalering: Signalering?): SignaleringVerzonden {
+    fun signaleringVerzondenInstance(signalering: Signalering?): SignaleringVerzonden {
         val instance = SignaleringVerzonden()
         instance.tijdstip = ZonedDateTime.now()
         instance.type = signaleringTypeInstance(signalering!!.type.type)
@@ -107,18 +109,18 @@ open class SignaleringenService @Inject constructor(
      * @param actor       the actor (a gebruikersnaam) or null if unknown
      * @return true if signalling is necessary
      */
-    open fun isNecessary(signalering: Signalering, actor: String): Boolean {
+    fun isNecessary(signalering: Signalering, actor: String): Boolean {
         return signalering.targettype != SignaleringTarget.USER || signalering.target != actor
     }
 
-    open fun createSignalering(signalering: Signalering): Signalering {
+    fun createSignalering(signalering: Signalering): Signalering {
         ValidationUtil.valideerObject(signalering)
         val created = entityManager.merge(signalering)
         eventingService.send(ScreenEventType.SIGNALERINGEN.updated(created))
         return created
     }
 
-    open fun deleteSignaleringen(parameters: SignaleringZoekParameters) {
+    fun deleteSignaleringen(parameters: SignaleringZoekParameters) {
         val removed: MutableMap<String, Signalering> = HashMap()
         listSignaleringen(parameters)
             .forEach(
@@ -139,7 +141,7 @@ open class SignaleringenService @Inject constructor(
             )
     }
 
-    open fun listSignaleringen(parameters: SignaleringZoekParameters): List<Signalering> {
+    fun listSignaleringen(parameters: SignaleringZoekParameters): List<Signalering> {
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(
             Signalering::class.java
@@ -153,7 +155,7 @@ open class SignaleringenService @Inject constructor(
             .resultList
     }
 
-    open fun latestSignalering(parameters: SignaleringZoekParameters): ZonedDateTime? {
+    fun latestSignalering(parameters: SignaleringZoekParameters): ZonedDateTime? {
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(
             ZonedDateTime::class.java
@@ -173,7 +175,7 @@ open class SignaleringenService @Inject constructor(
         }
     }
 
-    open fun sendSignalering(signalering: Signalering?) {
+    fun sendSignalering(signalering: Signalering?) {
         ValidationUtil.valideerObject(signalering)
         val mail = signaleringenMailHelper.getTargetMail(signalering)
         if (mail != null) {
@@ -201,7 +203,7 @@ open class SignaleringenService @Inject constructor(
         }
     }
 
-    open fun createUpdateOrDeleteInstellingen(instellingen: SignaleringInstellingen): SignaleringInstellingen? {
+    fun createUpdateOrDeleteInstellingen(instellingen: SignaleringInstellingen): SignaleringInstellingen? {
         ValidationUtil.valideerObject(instellingen)
         if (instellingen.isEmpty) {
             if (instellingen.id != null) {
@@ -212,19 +214,19 @@ open class SignaleringenService @Inject constructor(
         return entityManager.merge(instellingen)
     }
 
-    open fun readInstellingenGroup(type: SignaleringType.Type?, target: String?): SignaleringInstellingen {
+    fun readInstellingenGroup(type: SignaleringType.Type?, target: String?): SignaleringInstellingen {
         val signalering = signaleringInstance(type)
         signalering.setTargetGroup(target)
         return readInstellingen(signalering)
     }
 
-    open fun readInstellingenUser(type: SignaleringType.Type?, target: String?): SignaleringInstellingen {
+    fun readInstellingenUser(type: SignaleringType.Type?, target: String?): SignaleringInstellingen {
         val signalering = signaleringInstance(type)
         signalering.setTargetUser(target)
         return readInstellingen(signalering)
     }
 
-    open fun readInstellingen(signalering: Signalering): SignaleringInstellingen {
+    fun readInstellingen(signalering: Signalering): SignaleringInstellingen {
         val instellingen = listInstellingen(
             SignaleringInstellingenZoekParameters(signalering)
         )
@@ -234,7 +236,7 @@ open class SignaleringenService @Inject constructor(
         return SignaleringInstellingen(signalering.type, signalering.targettype, signalering.target)
     }
 
-    open fun listInstellingen(parameters: SignaleringInstellingenZoekParameters): List<SignaleringInstellingen> {
+    fun listInstellingen(parameters: SignaleringInstellingenZoekParameters): List<SignaleringInstellingen> {
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(
             SignaleringInstellingen::class.java
@@ -249,7 +251,7 @@ open class SignaleringenService @Inject constructor(
             .resultList
     }
 
-    open fun listInstellingenInclusiefMogelijke(
+    fun listInstellingenInclusiefMogelijke(
         parameters: SignaleringInstellingenZoekParameters
     ): List<SignaleringInstellingen> {
         val map = listInstellingen(parameters).stream()
@@ -273,23 +275,23 @@ open class SignaleringenService @Inject constructor(
             .toList()
     }
 
-    open fun count(): Int {
+    fun count(): Int {
         return SignaleringType.Type.entries.size
     }
 
-    open fun createSignaleringVerzonden(signalering: Signalering?): SignaleringVerzonden {
+    fun createSignaleringVerzonden(signalering: Signalering?): SignaleringVerzonden {
         val signaleringVerzonden = signaleringVerzondenInstance(signalering)
         ValidationUtil.valideerObject(signaleringVerzonden)
         return entityManager.merge(signaleringVerzonden)
     }
 
-    open fun deleteSignaleringVerzonden(verzonden: SignaleringVerzondenZoekParameters) {
+    fun deleteSignaleringVerzonden(verzonden: SignaleringVerzondenZoekParameters) {
         findSignaleringVerzonden(
             verzonden
         ).ifPresent { entity: SignaleringVerzonden? -> entityManager.remove(entity) }
     }
 
-    open fun findSignaleringVerzonden(
+    fun findSignaleringVerzonden(
         parameters: SignaleringVerzondenZoekParameters
     ): Optional<SignaleringVerzonden> {
         val builder = entityManager.criteriaBuilder
