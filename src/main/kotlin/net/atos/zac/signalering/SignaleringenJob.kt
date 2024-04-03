@@ -27,7 +27,6 @@ import net.atos.zac.zoeken.model.DatumRange
 import net.atos.zac.zoeken.model.DatumVeld
 import net.atos.zac.zoeken.model.FilterVeld
 import net.atos.zac.zoeken.model.FilterWaarde
-import net.atos.zac.zoeken.model.ZoekObject
 import net.atos.zac.zoeken.model.ZoekParameters
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject
@@ -73,29 +72,30 @@ class SignaleringenJob @Inject constructor(
         LOG.info("Zaak signaleringen verzenden: gestart...")
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             .forEach(
-                Consumer<ZaakType> { zaaktype ->
-                    val parameters = zaakafhandelParameterService.readZaakafhandelParameters(
+                Consumer { zaaktype ->
+                    zaakafhandelParameterService.readZaakafhandelParameters(
                         URIUtil.parseUUIDFromResourceURI(zaaktype.url)
-                    )
-                    parameters.einddatumGeplandWaarschuwing?.let {
-                        info.streefdatumVerzonden += zaakEinddatumGeplandVerzenden(
-                            zaaktype,
-                            it
-                        )
-                        zaakEinddatumGeplandOnterechtVerzondenVerwijderen(
-                            zaaktype,
-                            parameters.einddatumGeplandWaarschuwing
-                        )
-                    }
-                    parameters.uiterlijkeEinddatumAfdoeningWaarschuwing?. let {
-                        info.fataledatumVerzonden += zaakUiterlijkeEinddatumAfdoeningVerzenden(
-                            zaaktype,
-                            it
-                        )
-                        zaakUiterlijkeEinddatumAfdoeningOnterechtVerzondenVerwijderen(
-                            zaaktype,
-                            parameters.uiterlijkeEinddatumAfdoeningWaarschuwing
-                        )
+                    ).let { parameters ->
+                        parameters.einddatumGeplandWaarschuwing?.let {
+                            info.streefdatumVerzonden += zaakEinddatumGeplandVerzenden(
+                                zaaktype,
+                                it
+                            )
+                            zaakEinddatumGeplandOnterechtVerzondenVerwijderen(
+                                zaaktype,
+                                parameters.einddatumGeplandWaarschuwing
+                            )
+                        }
+                        parameters.uiterlijkeEinddatumAfdoeningWaarschuwing?.let {
+                            info.fataledatumVerzonden += zaakUiterlijkeEinddatumAfdoeningVerzenden(
+                                zaaktype,
+                                it
+                            )
+                            zaakUiterlijkeEinddatumAfdoeningOnterechtVerzondenVerwijderen(
+                                zaaktype,
+                                parameters.uiterlijkeEinddatumAfdoeningWaarschuwing
+                            )
+                        }
                     }
                 }
             )
@@ -115,16 +115,16 @@ class SignaleringenJob @Inject constructor(
         val verzonden = IntArray(1)
         zoekenService.zoek(getZaakSignaleringTeVerzendenZoekParameters(DatumVeld.ZAAK_STREEFDATUM, zaaktype, venster))
             .items.stream()
-            .map { zaakZoekObject: ZoekObject? -> zaakZoekObject as ZaakZoekObject? }
-            .map { zaakZoekObject: ZaakZoekObject? ->
+            .map { it as ZaakZoekObject? }
+            .map {
                 buildZaakSignalering(
-                    getZaakSignaleringTarget(zaakZoekObject, SignaleringDetail.STREEFDATUM),
-                    zaakZoekObject,
+                    getZaakSignaleringTarget(it, SignaleringDetail.STREEFDATUM),
+                    it,
                     SignaleringDetail.STREEFDATUM
                 )
             }
-            .filter { obj: Signalering? -> Objects.nonNull(obj) }
-            .forEach { signalering: Signalering? -> verzonden[0] += verzendZaakSignalering(signalering) }
+            .filter { Objects.nonNull(it) }
+            .forEach { verzonden[0] += verzendZaakSignalering(it) }
         return verzonden[0]
     }
 
@@ -146,11 +146,11 @@ class SignaleringenJob @Inject constructor(
             )
         )
             .items.stream()
-            .map { zaakZoekObject: ZoekObject? -> zaakZoekObject as ZaakZoekObject? }
-            .map { zaakZoekObject: ZaakZoekObject? ->
+            .map { it as ZaakZoekObject? }
+            .map {
                 buildZaakSignalering(
-                    getZaakSignaleringTarget(zaakZoekObject, SignaleringDetail.FATALE_DATUM),
-                    zaakZoekObject,
+                    getZaakSignaleringTarget(it, SignaleringDetail.FATALE_DATUM),
+                    it,
                     SignaleringDetail.FATALE_DATUM
                 )
             }
@@ -212,19 +212,15 @@ class SignaleringenJob @Inject constructor(
             getZaakSignaleringLaterTeVerzendenZoekParameters(DatumVeld.ZAAK_STREEFDATUM, zaaktype, venster)
         )
             .items.stream()
-            .map { zaakZoekObject: ZoekObject? -> zaakZoekObject as ZaakZoekObject? }
-            .map { zaakZoekObject: ZaakZoekObject? ->
+            .map { it as ZaakZoekObject? }
+            .map {
                 getZaakSignaleringVerzondenParameters(
-                    zaakZoekObject!!.behandelaarGebruikersnaam,
-                    zaakZoekObject.uuid,
+                    it!!.behandelaarGebruikersnaam,
+                    it.uuid,
                     SignaleringDetail.STREEFDATUM
                 )
             }
-            .forEach { verzonden: SignaleringVerzondenZoekParameters ->
-                signaleringenService.deleteSignaleringVerzonden(
-                    verzonden
-                )
-            }
+            .forEach { signaleringenService.deleteSignaleringVerzonden(it) }
     }
 
     /**
@@ -239,19 +235,15 @@ class SignaleringenJob @Inject constructor(
             getZaakSignaleringLaterTeVerzendenZoekParameters(DatumVeld.ZAAK_FATALE_DATUM, zaaktype, venster)
         )
             .items.stream()
-            .map { zaakZoekObject: ZoekObject? -> zaakZoekObject as ZaakZoekObject? }
-            .map { zaakZoekObject: ZaakZoekObject? ->
+            .map { it as ZaakZoekObject? }
+            .map {
                 getZaakSignaleringVerzondenParameters(
-                    zaakZoekObject!!.behandelaarGebruikersnaam,
-                    zaakZoekObject.uuid,
+                    it!!.behandelaarGebruikersnaam,
+                    it.uuid,
                     SignaleringDetail.FATALE_DATUM
                 )
             }
-            .forEach { verzonden: SignaleringVerzondenZoekParameters ->
-                signaleringenService.deleteSignaleringVerzonden(
-                    verzonden
-                )
-            }
+            .forEach { signaleringenService.deleteSignaleringVerzonden(it) }
     }
 
     fun getZaakSignaleringTeVerzendenZoekParameters(
@@ -357,21 +349,16 @@ class SignaleringenJob @Inject constructor(
      */
     fun taakDueOnterechtVerzondenVerwijderen() {
         takenService.listOpenTasksDueLater().stream()
-            .map { task: Task -> getTaakSignaleringVerzondenParameters(task.assignee, task.id) }
-            .forEach { verzonden: SignaleringVerzondenZoekParameters ->
-                signaleringenService.deleteSignaleringVerzonden(
-                    verzonden
-                )
-            }
+            .map { getTaakSignaleringVerzondenParameters(it.assignee, it.id) }
+            .forEach { signaleringenService.deleteSignaleringVerzonden(it) }
     }
 
     fun getTaakSignaleringVerzondenParameters(
         target: String,
         taakId: String
-    ): SignaleringVerzondenZoekParameters {
-        return SignaleringVerzondenZoekParameters(SignaleringTarget.USER, target)
+    ): SignaleringVerzondenZoekParameters =
+        SignaleringVerzondenZoekParameters(SignaleringTarget.USER, target)
             .types(SignaleringType.Type.TAAK_VERLOPEN)
             .subjectTaak(taakId)
             .detail(SignaleringDetail.STREEFDATUM)
-    }
 }
