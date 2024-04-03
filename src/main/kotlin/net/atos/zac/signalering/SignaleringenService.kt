@@ -90,16 +90,16 @@ class SignaleringenService @Inject constructor(
      * @param signalering the signalering that has been sent
      * @return the constructed instance (all members have been set)
      */
-    fun signaleringVerzondenInstance(signalering: Signalering?): SignaleringVerzonden {
-        val instance = SignaleringVerzonden()
-        instance.tijdstip = ZonedDateTime.now()
-        instance.type = signaleringTypeInstance(signalering!!.type.type)
-        instance.targettype = signalering.targettype
-        instance.target = signalering.target
-        instance.subject = signalering.subject
-        instance.detail = signalering.detail
-        return instance
-    }
+    fun signaleringVerzondenInstance(signalering: Signalering?): SignaleringVerzonden =
+        SignaleringVerzonden().let {
+            it.tijdstip = ZonedDateTime.now()
+            it.type = signaleringTypeInstance(signalering!!.type.type)
+            it.targettype = signalering.targettype
+            it.target = signalering.target
+            it.subject = signalering.subject
+            it.detail = signalering.detail
+            return it
+        }
 
     /**
      * Business logic for deciding if signalling is necessary. Groep-targets will always get signalled but user-targets
@@ -124,19 +124,15 @@ class SignaleringenService @Inject constructor(
         val removed: MutableMap<String, Signalering> = HashMap()
         listSignaleringen(parameters)
             .forEach(
-                Consumer<Signalering> { signalering: Signalering ->
-                    removed[signalering.target + ';' + signalering.type.type] = signalering
-                    entityManager.remove(signalering)
+                Consumer {
+                    removed[it.target + ';' + it.type.type] = it
+                    entityManager.remove(it)
                 }
             )
         removed.values
             .forEach(
-                Consumer { signalering: Signalering? ->
-                    eventingService.send(
-                        ScreenEventType.SIGNALERINGEN.updated(
-                            signalering
-                        )
-                    )
+                Consumer {
+                    eventingService.send(ScreenEventType.SIGNALERINGEN.updated(it))
                 }
             )
     }
@@ -168,7 +164,7 @@ class SignaleringenService @Inject constructor(
 
         val resultList = entityManager.createQuery(query).resultList
 
-        return if (resultList != null && !resultList.isEmpty()) {
+        return if (resultList != null && resultList.isNotEmpty()) {
             resultList[0]
         } else {
             null
@@ -262,16 +258,13 @@ class SignaleringenService @Inject constructor(
                 )
             )
         Arrays.stream(SignaleringType.Type.entries.toTypedArray())
-            .filter { type: SignaleringType.Type -> type.isTarget(parameters.ownertype) }
-            .filter { type: SignaleringType.Type -> !map.containsKey(type) }
-            .forEach { type: SignaleringType.Type ->
-                map[type] = signaleringInstellingenInstance(
-                    type, parameters.ownertype,
-                    parameters.owner
-                )
+            .filter { it.isTarget(parameters.ownertype) }
+            .filter { !map.containsKey(it) }
+            .forEach {
+                map[it] = signaleringInstellingenInstance(it, parameters.ownertype, parameters.owner)
             }
         return map.values.stream()
-            .sorted(Comparator.comparing { obj: SignaleringInstellingen -> obj.type })
+            .sorted(Comparator.comparing { it.type })
             .toList()
     }
 
