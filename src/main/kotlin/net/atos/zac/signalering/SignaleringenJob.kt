@@ -36,7 +36,6 @@ import org.flowable.task.api.Task
 import java.time.LocalDate
 import java.util.Objects
 import java.util.UUID
-import java.util.function.Consumer
 import java.util.logging.Logger
 
 @ApplicationScoped
@@ -68,40 +67,39 @@ class SignaleringenJob @Inject constructor(
      * uiterlijke einddatum afdoening.
      */
     fun zaakSignaleringenVerzenden() {
-        val info = SignaleringVerzendInfo()
-        LOG.info("Zaak signaleringen verzenden: gestart...")
+        val signaleringVerzendInfo = SignaleringVerzendInfo()
+        LOG.fine("Zaak signaleringen verzenden: gestart...")
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
-            .forEach(
-                Consumer { zaaktype ->
-                    zaakafhandelParameterService.readZaakafhandelParameters(
-                        URIUtil.parseUUIDFromResourceURI(zaaktype.url)
-                    ).let { parameters ->
-                        parameters.einddatumGeplandWaarschuwing?.let {
-                            info.streefdatumVerzonden += zaakEinddatumGeplandVerzenden(
-                                zaaktype,
-                                it
-                            )
-                            zaakEinddatumGeplandOnterechtVerzondenVerwijderen(
-                                zaaktype,
-                                parameters.einddatumGeplandWaarschuwing
-                            )
-                        }
-                        parameters.uiterlijkeEinddatumAfdoeningWaarschuwing?.let {
-                            info.fataledatumVerzonden += zaakUiterlijkeEinddatumAfdoeningVerzenden(
-                                zaaktype,
-                                it
-                            )
-                            zaakUiterlijkeEinddatumAfdoeningOnterechtVerzondenVerwijderen(
-                                zaaktype,
-                                parameters.uiterlijkeEinddatumAfdoeningWaarschuwing
-                            )
-                        }
+            .forEach { zaaktype ->
+                zaakafhandelParameterService.readZaakafhandelParameters(
+                    URIUtil.parseUUIDFromResourceURI(zaaktype.url)
+                ).let { parameters ->
+                    parameters.einddatumGeplandWaarschuwing?.let {
+                        signaleringVerzendInfo.streefdatumVerzonden += zaakEinddatumGeplandVerzenden(
+                            zaaktype,
+                            it
+                        )
+                        zaakEinddatumGeplandOnterechtVerzondenVerwijderen(
+                            zaaktype,
+                            parameters.einddatumGeplandWaarschuwing
+                        )
+                    }
+                    parameters.uiterlijkeEinddatumAfdoeningWaarschuwing?.let {
+                        signaleringVerzendInfo.fataledatumVerzonden += zaakUiterlijkeEinddatumAfdoeningVerzenden(
+                            zaaktype,
+                            it
+                        )
+                        zaakUiterlijkeEinddatumAfdoeningOnterechtVerzondenVerwijderen(
+                            zaaktype,
+                            parameters.uiterlijkeEinddatumAfdoeningWaarschuwing
+                        )
                     }
                 }
-            )
-        LOG.info(
-            """Zaak signaleringen verzenden: gestopt (${info.streefdatumVerzonden} streefdatum waarschuwingen,
-            | ${info.fataledatumVerzonden} fatale datum waarschuwingen)
+            }
+        LOG.fine(
+            """Zaak signaleringen verzenden: gestopt (${signaleringVerzendInfo.streefdatumVerzonden} streefdatum
+                | waarschuwingen, ${signaleringVerzendInfo.fataledatumVerzonden} fatale datum waarschuwingen)
+                |
             """.trimMargin()
         )
     }
