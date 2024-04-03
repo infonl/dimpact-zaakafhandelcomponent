@@ -172,7 +172,7 @@ class SignaleringenService @Inject constructor(
         if (mail != null) {
             val from = mailService.gemeenteMailAdres
             val to = signaleringenMailHelper.formatTo(mail)
-            val mailTemplate = signaleringenMailHelper.getMailtemplate(signalering)
+            val mailTemplate = signaleringenMailHelper.getMailTemplate(signalering)
             val bronnenBuilder = Bronnen.Builder()
             when (signalering.subjecttype!!) {
                 SignaleringSubject.ZAAK -> {

@@ -28,7 +28,7 @@ class SignaleringenPredicateHelper {
         if (parameters.target != null) {
             where.add(builder.equal(root.get<Any>("target"), parameters.target))
         }
-        if (!parameters.types.isEmpty()) {
+        if (parameters.types.isNotEmpty()) {
             where.add(
                 root.get<Any>("type").get<Any>("id")
                     .`in`(
@@ -87,7 +87,7 @@ class SignaleringenPredicateHelper {
         if (parameters.target != null) {
             where.add(builder.equal(root.get<Any>("target"), parameters.target))
         }
-        if (!parameters.types.isEmpty()) {
+        if (parameters.types.isNotEmpty()) {
             where.add(
                 root.get<Any>("type").get<Any>("id")
                     .`in`(
