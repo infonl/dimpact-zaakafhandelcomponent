@@ -49,7 +49,7 @@ jobs:
           path: src/e2e/reports
           retention-days: 7
       - name: Deploy to GitHub Pages
-        if: github.ref == 'refs/heads/main'
+        if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
