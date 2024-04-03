@@ -29,7 +29,6 @@ import nl.lifely.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
 import java.util.Arrays
 import java.util.Optional
-import java.util.function.Consumer
 import java.util.function.Function
 import java.util.stream.Collectors
 
@@ -123,18 +122,14 @@ class SignaleringenService @Inject constructor(
     fun deleteSignaleringen(parameters: SignaleringZoekParameters) {
         val removed: MutableMap<String, Signalering> = HashMap()
         listSignaleringen(parameters)
-            .forEach(
-                Consumer {
-                    removed[it.target + ';' + it.type.type] = it
-                    entityManager.remove(it)
-                }
-            )
+            .forEach {
+                removed[it.target + ';' + it.type.type] = it
+                entityManager.remove(it)
+            }
         removed.values
-            .forEach(
-                Consumer {
-                    eventingService.send(ScreenEventType.SIGNALERINGEN.updated(it))
-                }
-            )
+            .forEach {
+                eventingService.send(ScreenEventType.SIGNALERINGEN.updated(it))
+            }
     }
 
     fun listSignaleringen(parameters: SignaleringZoekParameters): List<Signalering> {
