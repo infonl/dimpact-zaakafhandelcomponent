@@ -133,6 +133,30 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 }
             }
         }
+        When("the 'update zaak' endpoint is called where the start and fatal dates are changed") {
+            val startDateNew = LocalDate.now()
+            val fatalDateNew = startDateNew.plusDays(1)
+            val response = itestHttpClient.performPatchRequest(
+                url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID",
+                requestBodyAsString = "{\n" +
+                    "\"zaak\":{\n" +
+                    "  \"startdatum\":\"$startDateNew\",\n" +
+                    "  \"uiterlijkeEinddatumAfdoening\":\"$fatalDateNew\"\n" +
+                    "  },\n" +
+                    "  \"reden\":\"dummyReason\"\n" +
+                    "}\n"
+            )
+            Then("the response should be a 200 HTTP response with the changed zaak data") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HttpStatusCode.OK_200.code()
+                with(responseBody) {
+                    shouldContainJsonKeyValue("uuid", zaak2UUID.toString())
+                    shouldContainJsonKeyValue("startdatum", startDateNew.toString())
+                    shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", fatalDateNew.toString())
+                }
+            }
+        }
     }
     Given("A betrokkene has been added to a zaak") {
         When("the get betrokkene endpoint is called for a zaak") {
@@ -321,32 +345,6 @@ class ZakenRESTServiceTest : BehaviorSpec({
                         }
                         has("behandelaar") shouldBe false
                     }
-                }
-            }
-        }
-    }
-    Given("A zaak has been created") {
-        When("the 'update zaak' endpoint is called where the start and fatal dates are changed") {
-            val startDateNew = LocalDate.now()
-            val fatalDateNew = startDateNew.plusDays(1)
-            val response = itestHttpClient.performPatchRequest(
-                url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID",
-                requestBodyAsString = "{\n" +
-                    "\"zaak\":{\n" +
-                    "  \"startdatum\":\"$startDateNew\",\n" +
-                    "  \"uiterlijkeEinddatumAfdoening\":\"$fatalDateNew\"\n" +
-                    "  },\n" +
-                    "  \"reden\":\"dummyReason\"\n" +
-                    "}\n"
-            )
-            Then("the response should be a 200 HTTP response with the changed zaak data") {
-                val responseBody = response.body!!.string()
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HttpStatusCode.OK_200.code()
-                with(responseBody) {
-                    shouldContainJsonKeyValue("uuid", zaak2UUID.toString())
-                    shouldContainJsonKeyValue("startdatum", startDateNew.toString())
-                    shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", fatalDateNew.toString())
                 }
             }
         }
