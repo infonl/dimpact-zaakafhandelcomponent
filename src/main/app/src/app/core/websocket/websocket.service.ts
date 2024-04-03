@@ -6,7 +6,7 @@
 import { Injectable, OnDestroy } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { Observable, Subject, forkJoin, of } from "rxjs";
-import { delay, retryWhen, switchMap, takeUntil } from "rxjs/operators";
+import { delay, filter, retryWhen, switchMap, takeUntil } from "rxjs/operators";
 import { WebSocketSubject, webSocket } from "rxjs/webSocket";
 import { UtilService } from "../service/util.service";
 import { EventCallback } from "./model/event-callback";
@@ -18,6 +18,14 @@ import { ScreenEventId } from "./model/screen-event-id";
 import { SubscriptionMessage } from "./model/subscription-message";
 import { SubscriptionType } from "./model/subscription-type";
 import { WebsocketListener } from "./model/websocket-listener";
+
+const subscriptionState = {
+  subscribed: "SUBSCRIBED",
+  received: "RECEIVED",
+} as const;
+
+type SubscriptionState =
+  (typeof subscriptionState)[keyof typeof subscriptionState];
 
 @Injectable({
   providedIn: "root",
@@ -209,6 +217,51 @@ export class WebsocketService implements OnDestroy {
   public removeListeners(listeners: WebsocketListener[]): void {
     listeners.forEach((listener) => {
       this.removeListener(listener);
+    });
+  }
+
+  public longRunningOperation(
+    opcode: Opcode,
+    objectType: ObjectType,
+    objectId: string,
+    operation: () => Observable<void>,
+  ) {
+    return this.listenOnce(opcode, objectType, objectId).pipe(
+      switchMap((s) =>
+        s === subscriptionState.subscribed ? operation() : of(s),
+      ),
+      filter((x) => x === subscriptionState.received),
+    ) as Observable<void>;
+  }
+
+  private listenOnce(opcode: Opcode, objectType: ObjectType, objectId: string) {
+    /**
+     * In the unlikely scenario that the back end never responds with an event,
+     * we want to eventually cleanup the websocket connection to prevent memory leaks
+     * The back end process can take quite a while, so we chose a timeout of one hour.
+     */
+    const ARBITRARY_ONE_HOUR_TIMEOUT_TO_PREVENT_MEMORY_LEAKS_IN_EDGE_CASES =
+      60 * 60 * 1000;
+
+    return new Observable<SubscriptionState>((subscriber) => {
+      const subscription = this.addListener(
+        opcode,
+        objectType,
+        objectId,
+        () => {
+          clearTimeout(timeout);
+          this.removeListener(subscription);
+          subscriber.next(subscriptionState.received);
+          subscriber.complete();
+        },
+      );
+
+      const timeout = setTimeout(() => {
+        this.removeListener(subscription);
+        subscriber.error("timeout");
+      }, ARBITRARY_ONE_HOUR_TIMEOUT_TO_PREVENT_MEMORY_LEAKS_IN_EDGE_CASES);
+
+      subscriber.next(subscriptionState.subscribed);
     });
   }
 
