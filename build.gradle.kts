@@ -316,6 +316,7 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         target("src/**/*.json")
         targetExclude(
             "src/e2e/node_modules/**",
+            "src/e2e/reports/**",
             "src/main/app/node_modules/**",
             "src/main/app/dist/**",
             "src/main/app/.angular/**",
