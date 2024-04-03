@@ -20,34 +20,31 @@ class SignaleringenMailHelper @Inject constructor(
     private val mailTemplateService: MailTemplateService,
 ) {
 
-    fun getTargetMail(signalering: Signalering?): SignaleringTarget.Mail? {
-        var mail: SignaleringTarget.Mail? = null
-
-        when (signalering!!.targettype!!) {
+    fun getTargetMail(signalering: Signalering): SignaleringTarget.Mail? =
+        when (signalering.targettype!!) {
             SignaleringTarget.GROUP -> {
-                val group = identityService.readGroup(signalering.target)
-                if (group.email != null) {
-                    mail = SignaleringTarget.Mail(group.name, group.email)
+                identityService.readGroup(signalering.target).let { group ->
+                    group.email?.let {
+                        SignaleringTarget.Mail(group.name, it)
+                    }
                 }
             }
-
             SignaleringTarget.USER -> {
-                val user = identityService.readUser(signalering.target)
-                if (user.email != null) {
-                    mail = SignaleringTarget.Mail(user.fullName, user.email)
+                identityService.readUser(signalering.target).let { user ->
+                    user.email?.let {
+                        SignaleringTarget.Mail(user.fullName, it)
+                    }
                 }
             }
         }
-        return mail
-    }
 
     fun formatTo(mail: SignaleringTarget.Mail): MailAdres {
         return MailAdres(mail.emailadres, mail.naam)
     }
 
-    fun getMailTemplate(signalering: Signalering?): MailTemplate {
+    fun getMailTemplate(signalering: Signalering): MailTemplate {
         return mailTemplateService.readMailtemplate(
-            when (signalering!!.type.type!!) {
+            when (signalering.type.type!!) {
                 SignaleringType.Type.TAAK_OP_NAAM -> Mail.SIGNALERING_TAAK_OP_NAAM
                 SignaleringType.Type.TAAK_VERLOPEN -> Mail.SIGNALERING_TAAK_VERLOPEN
                 SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD -> Mail.SIGNALERING_ZAAK_DOCUMENT_TOEGEVOEGD

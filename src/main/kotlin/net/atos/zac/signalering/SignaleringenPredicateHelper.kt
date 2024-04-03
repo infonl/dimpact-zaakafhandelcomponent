@@ -25,8 +25,8 @@ class SignaleringenPredicateHelper {
     ): Predicate {
         val where: MutableList<Predicate> = ArrayList()
         where.add(builder.equal(root.get<Any>("targettype"), parameters.targettype))
-        if (parameters.target != null) {
-            where.add(builder.equal(root.get<Any>("target"), parameters.target))
+        parameters.target?.let {
+            where.add(builder.equal(root.get<Any>("target"), it))
         }
         if (parameters.types.isNotEmpty()) {
             where.add(
@@ -37,10 +37,10 @@ class SignaleringenPredicateHelper {
                     )
             )
         }
-        if (parameters.subjecttype != null) {
-            where.add(builder.equal(root.get<Any>("type").get<Any>("subjecttype"), parameters.subjecttype))
-            if (parameters.subject != null) {
-                where.add(builder.equal(root.get<Any>("subject"), parameters.subject))
+        parameters.subjecttype?.let { subjecttype ->
+            where.add(builder.equal(root.get<Any>("type").get<Any>("subjecttype"), subjecttype))
+            parameters.subject?.let { subject ->
+                where.add(builder.equal(root.get<Any>("subject"), subject))
             }
         }
         @Suppress("SpreadOperator")
@@ -53,19 +53,19 @@ class SignaleringenPredicateHelper {
         root: Root<SignaleringInstellingen>
     ): Predicate {
         val where: MutableList<Predicate> = ArrayList()
-        if (parameters.owner != null) {
+        parameters.owner?.let {
             when (parameters.ownertype!!) {
                 SignaleringTarget.GROUP -> {
-                    where.add(builder.equal(root.get<Any>("groep"), parameters.owner))
+                    where.add(builder.equal(root.get<Any>("groep"), it))
                 }
 
                 SignaleringTarget.USER -> {
-                    where.add(builder.equal(root.get<Any>("medewerker"), parameters.owner))
+                    where.add(builder.equal(root.get<Any>("medewerker"), it))
                 }
             }
         }
-        if (parameters.type != null) {
-            where.add(builder.equal(root.get<Any>("type").get<Any>("id"), parameters.type.toString()))
+        parameters.type?.let {
+            where.add(builder.equal(root.get<Any>("type").get<Any>("id"), it.toString()))
         }
         if (parameters.dashboard) {
             where.add(builder.isTrue(root.get("dashboard")))
@@ -84,8 +84,8 @@ class SignaleringenPredicateHelper {
     ): Predicate {
         val where: MutableList<Predicate> = ArrayList()
         where.add(builder.equal(root.get<Any>("targettype"), parameters.targettype))
-        if (parameters.target != null) {
-            where.add(builder.equal(root.get<Any>("target"), parameters.target))
+        parameters.target?.let {
+            where.add(builder.equal(root.get<Any>("target"), it))
         }
         if (parameters.types.isNotEmpty()) {
             where.add(
@@ -96,14 +96,14 @@ class SignaleringenPredicateHelper {
                     )
             )
         }
-        if (parameters.subjecttype != null) {
-            where.add(builder.equal(root.get<Any>("type").get<Any>("subjecttype"), parameters.subjecttype))
-            if (parameters.subject != null) {
-                where.add(builder.equal(root.get<Any>("subject"), parameters.subject))
+        parameters.subjecttype?.let { subjecttype ->
+            where.add(builder.equal(root.get<Any>("type").get<Any>("subjecttype"), subjecttype))
+            parameters.subject?.let { subject ->
+                where.add(builder.equal(root.get<Any>("subject"), subject))
             }
         }
-        if (parameters.detail != null) {
-            where.add(builder.equal(root.get<Any>("detail"), parameters.detail.toString()))
+        parameters.detail?.let {
+            where.add(builder.equal(root.get<Any>("detail"), it.toString()))
         }
         @Suppress("SpreadOperator")
         return builder.and(*where.toTypedArray<Predicate>())
