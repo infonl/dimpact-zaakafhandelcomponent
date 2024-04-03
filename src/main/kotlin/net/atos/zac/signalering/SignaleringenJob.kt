@@ -34,7 +34,6 @@ import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.flowable.task.api.Task
 import java.time.LocalDate
-import java.util.Objects
 import java.util.UUID
 import java.util.logging.Logger
 
@@ -70,7 +69,7 @@ class SignaleringenJob @Inject constructor(
         val signaleringVerzendInfo = SignaleringVerzendInfo()
         LOG.fine("Zaak signaleringen verzenden: gestart...")
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
-            .forEach { zaaktype ->
+            .map { zaaktype ->
                 zaakafhandelParameterService.readZaakafhandelParameters(
                     URIUtil.parseUUIDFromResourceURI(zaaktype.url)
                 ).let { parameters ->
@@ -113,15 +112,9 @@ class SignaleringenJob @Inject constructor(
         val verzonden = IntArray(1)
         zoekenService.zoek(getZaakSignaleringTeVerzendenZoekParameters(DatumVeld.ZAAK_STREEFDATUM, zaaktype, venster))
             .items.stream()
-            .map { it as ZaakZoekObject? }
-            .map {
-                buildZaakSignalering(
-                    getZaakSignaleringTarget(it, SignaleringDetail.STREEFDATUM),
-                    it,
-                    SignaleringDetail.STREEFDATUM
-                )
-            }
-            .filter { Objects.nonNull(it) }
+            .map { it as ZaakZoekObject }
+            .filter { hasZaakSignaleringTarget(it, SignaleringDetail.STREEFDATUM) }
+            .map { buildZaakSignalering(it.behandelaarGebruikersnaam, it, SignaleringDetail.STREEFDATUM) }
             .forEach { verzonden[0] += verzendZaakSignalering(it) }
         return verzonden[0]
     }
@@ -136,64 +129,40 @@ class SignaleringenJob @Inject constructor(
         venster: Int
     ): Int {
         val verzonden = IntArray(1)
-        zoekenService.zoek(
-            getZaakSignaleringTeVerzendenZoekParameters(
-                DatumVeld.ZAAK_FATALE_DATUM,
-                zaaktype,
-                venster
-            )
-        )
-            .items.stream()
-            .map { it as ZaakZoekObject? }
-            .map {
-                buildZaakSignalering(
-                    getZaakSignaleringTarget(it, SignaleringDetail.FATALE_DATUM),
-                    it,
-                    SignaleringDetail.FATALE_DATUM
-                )
-            }
-            .filter { obj: Signalering? -> Objects.nonNull(obj) }
-            .forEach { signalering: Signalering? -> verzonden[0] += verzendZaakSignalering(signalering) }
+        zoekenService.zoek(getZaakSignaleringTeVerzendenZoekParameters(DatumVeld.ZAAK_FATALE_DATUM, zaaktype, venster))
+            .items
+            .map { it as ZaakZoekObject }
+            .filter { hasZaakSignaleringTarget(it, SignaleringDetail.FATALE_DATUM) }
+            .map { buildZaakSignalering(it.behandelaarGebruikersnaam, it, SignaleringDetail.FATALE_DATUM) }
+            .forEach { verzonden[0] += verzendZaakSignalering(it) }
         return verzonden[0]
     }
 
-    fun getZaakSignaleringTarget(zaak: ZaakZoekObject?, detail: SignaleringDetail): String? {
-        if (signaleringenService.readInstellingenUser(
-                SignaleringType.Type.ZAAK_VERLOPEND,
-                zaak!!.behandelaarGebruikersnaam
-            ).isMail &&
+    fun hasZaakSignaleringTarget(zaak: ZaakZoekObject, detail: SignaleringDetail): Boolean =
+        signaleringenService.readInstellingenUser(
+            SignaleringType.Type.ZAAK_VERLOPEND, zaak.behandelaarGebruikersnaam
+        ).isMail &&
             !signaleringenService.findSignaleringVerzonden(
-                getZaakSignaleringVerzondenParameters(
-                    zaak.behandelaarGebruikersnaam, zaak.uuid,
-                    detail
-                )
+                getZaakSignaleringVerzondenParameters(zaak.behandelaarGebruikersnaam, zaak.uuid, detail)
             ).isPresent
-        ) {
-            return zaak.behandelaarGebruikersnaam
-        }
-        return null
-    }
 
     fun buildZaakSignalering(
-        target: String?,
-        zaakZoekObject: ZaakZoekObject?,
+        target: String,
+        zaakZoekObject: ZaakZoekObject,
         detail: SignaleringDetail
-    ): Signalering? {
-        if (target != null) {
-            val zaak = Zaak()
-            zaak.uuid = UUID.fromString(zaakZoekObject!!.uuid)
-            val signalering = signaleringenService.signaleringInstance(
-                SignaleringType.Type.ZAAK_VERLOPEND
-            )
-            signalering.setTargetUser(target)
-            signalering.setSubject(zaak)
-            signalering.setDetail(detail)
-            return signalering
-        }
-        return null
+    ): Signalering {
+        val zaak = Zaak()
+        zaak.uuid = UUID.fromString(zaakZoekObject.uuid)
+        val signalering = signaleringenService.signaleringInstance(
+            SignaleringType.Type.ZAAK_VERLOPEND
+        )
+        signalering.setTargetUser(target)
+        signalering.setSubject(zaak)
+        signalering.setDetail(detail)
+        return signalering
     }
 
-    fun verzendZaakSignalering(signalering: Signalering?): Int {
+    fun verzendZaakSignalering(signalering: Signalering): Int {
         signaleringenService.sendSignalering(signalering)
         signaleringenService.createSignaleringVerzonden(signalering)
         return 1
@@ -210,10 +179,10 @@ class SignaleringenJob @Inject constructor(
             getZaakSignaleringLaterTeVerzendenZoekParameters(DatumVeld.ZAAK_STREEFDATUM, zaaktype, venster)
         )
             .items.stream()
-            .map { it as ZaakZoekObject? }
+            .map { it as ZaakZoekObject }
             .map {
                 getZaakSignaleringVerzondenParameters(
-                    it!!.behandelaarGebruikersnaam,
+                    it.behandelaarGebruikersnaam,
                     it.uuid,
                     SignaleringDetail.STREEFDATUM
                 )
@@ -233,10 +202,10 @@ class SignaleringenJob @Inject constructor(
             getZaakSignaleringLaterTeVerzendenZoekParameters(DatumVeld.ZAAK_FATALE_DATUM, zaaktype, venster)
         )
             .items.stream()
-            .map { it as ZaakZoekObject? }
+            .map { it as ZaakZoekObject }
             .map {
                 getZaakSignaleringVerzondenParameters(
-                    it!!.behandelaarGebruikersnaam,
+                    it.behandelaarGebruikersnaam,
                     it.uuid,
                     SignaleringDetail.FATALE_DATUM
                 )
@@ -290,11 +259,15 @@ class SignaleringenJob @Inject constructor(
      * This is the batchjob to send E-Mail warnings about tasks that are at or past their due date.
      */
     fun taakSignaleringenVerzenden() {
-        val info = SignaleringVerzendInfo()
+        val signaleringVerzendInfo = SignaleringVerzendInfo()
         LOG.info("Taak signaleringen verzenden: gestart...")
-        info.fataledatumVerzonden += taakDueVerzenden()
+        signaleringVerzendInfo.fataledatumVerzonden += taakDueVerzenden()
         taakDueOnterechtVerzondenVerwijderen()
-        LOG.info("Taak signaleringen verzenden: gestopt (${info.fataledatumVerzonden} fatale datum waarschuwingen)")
+        LOG.info(
+            """Taak signaleringen verzenden: gestopt (${signaleringVerzendInfo.fataledatumVerzonden}
+            | fatale datum waarschuwingen)
+            """.trimMargin()
+        )
     }
 
     /**
@@ -305,38 +278,30 @@ class SignaleringenJob @Inject constructor(
     fun taakDueVerzenden(): Int {
         val verzonden = IntArray(1)
         takenService.listOpenTasksDueNow().stream()
-            .map { task: Task -> buildTaakSignalering(getTaakSignaleringTarget(task), task) }
-            .filter { obj: Signalering? -> Objects.nonNull(obj) }
-            .forEach { signalering: Signalering? -> verzonden[0] += verzendTaakSignalering(signalering) }
+            .filter { hasTaakSignaleringTarget(it) }
+            .map { buildTaakSignalering(it.assignee, it) }
+            .forEach { verzonden[0] += verzendTaakSignalering(it) }
         return verzonden[0]
     }
 
-    fun getTaakSignaleringTarget(task: Task): String? {
-        if (signaleringenService.readInstellingenUser(SignaleringType.Type.TAAK_VERLOPEN, task.assignee)
-                .isMail &&
+    fun hasTaakSignaleringTarget(task: Task): Boolean =
+        signaleringenService.readInstellingenUser(SignaleringType.Type.TAAK_VERLOPEN, task.assignee)
+            .isMail &&
             !signaleringenService.findSignaleringVerzonden(
                 getTaakSignaleringVerzondenParameters(task.assignee, task.id)
             ).isPresent
-        ) {
-            return task.assignee
-        }
-        return null
+
+    fun buildTaakSignalering(target: String, task: Task): Signalering {
+        val signalering = signaleringenService.signaleringInstance(
+            SignaleringType.Type.TAAK_VERLOPEN
+        )
+        signalering.setTargetUser(target)
+        signalering.setSubject(task)
+        signalering.setDetail(SignaleringDetail.STREEFDATUM)
+        return signalering
     }
 
-    fun buildTaakSignalering(target: String?, task: Task): Signalering? {
-        if (target != null) {
-            val signalering = signaleringenService.signaleringInstance(
-                SignaleringType.Type.TAAK_VERLOPEN
-            )
-            signalering.setTargetUser(target)
-            signalering.setSubject(task)
-            signalering.setDetail(SignaleringDetail.STREEFDATUM)
-            return signalering
-        }
-        return null
-    }
-
-    fun verzendTaakSignalering(signalering: Signalering?): Int {
+    fun verzendTaakSignalering(signalering: Signalering): Int {
         signaleringenService.sendSignalering(signalering)
         signaleringenService.createSignaleringVerzonden(signalering)
         return 1
