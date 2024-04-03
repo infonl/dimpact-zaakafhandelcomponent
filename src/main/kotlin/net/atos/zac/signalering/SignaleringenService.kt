@@ -244,13 +244,7 @@ class SignaleringenService @Inject constructor(
     fun listInstellingenInclusiefMogelijke(
         parameters: SignaleringInstellingenZoekParameters
     ): List<SignaleringInstellingen> {
-        val map = listInstellingen(parameters).stream()
-            .collect(
-                Collectors.toMap(
-                    { instellingen: SignaleringInstellingen -> instellingen.type.type },
-                    Function.identity()
-                )
-            )
+        val map = listInstellingen(parameters).associateBy { it.type.type }.toMutableMap()
         Arrays.stream(SignaleringType.Type.entries.toTypedArray())
             .filter { it.isTarget(parameters.ownertype) }
             .filter { !map.containsKey(it) }
