@@ -45,7 +45,7 @@ class SignaleringenMailHelper @Inject constructor(
         return MailAdres(mail.emailadres, mail.naam)
     }
 
-    fun getMailtemplate(signalering: Signalering?): MailTemplate {
+    fun getMailTemplate(signalering: Signalering?): MailTemplate {
         return mailTemplateService.readMailtemplate(
             when (signalering!!.type.type!!) {
                 SignaleringType.Type.TAAK_OP_NAAM -> Mail.SIGNALERING_TAAK_OP_NAAM
