@@ -55,7 +55,7 @@ class SignaleringenJob @Inject constructor(
 ) {
 
     companion object {
-        private val LOG: Logger = Logger.getLogger(SignaleringenJob::class.java.name)
+        private val LOG = Logger.getLogger(SignaleringenJob::class.java.name)
         const val ZAAK_AFGEHANDELD_QUERY: String = "zaak_afgehandeld"
     }
 
@@ -73,24 +73,24 @@ class SignaleringenJob @Inject constructor(
         LOG.info("Zaak signaleringen verzenden: gestart...")
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             .forEach(
-                Consumer<ZaakType> { zaaktype: ZaakType ->
+                Consumer<ZaakType> { zaaktype ->
                     val parameters = zaakafhandelParameterService.readZaakafhandelParameters(
                         URIUtil.parseUUIDFromResourceURI(zaaktype.url)
                     )
-                    if (parameters.einddatumGeplandWaarschuwing != null) {
+                    parameters.einddatumGeplandWaarschuwing?.let {
                         info.streefdatumVerzonden += zaakEinddatumGeplandVerzenden(
                             zaaktype,
-                            parameters.einddatumGeplandWaarschuwing
+                            it
                         )
                         zaakEinddatumGeplandOnterechtVerzondenVerwijderen(
                             zaaktype,
                             parameters.einddatumGeplandWaarschuwing
                         )
                     }
-                    if (parameters.uiterlijkeEinddatumAfdoeningWaarschuwing != null) {
+                    parameters.uiterlijkeEinddatumAfdoeningWaarschuwing?. let {
                         info.fataledatumVerzonden += zaakUiterlijkeEinddatumAfdoeningVerzenden(
                             zaaktype,
-                            parameters.uiterlijkeEinddatumAfdoeningWaarschuwing
+                            it
                         )
                         zaakUiterlijkeEinddatumAfdoeningOnterechtVerzondenVerwijderen(
                             zaaktype,
