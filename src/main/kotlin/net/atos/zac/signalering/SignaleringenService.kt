@@ -29,8 +29,6 @@ import nl.lifely.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
 import java.util.Arrays
 import java.util.Optional
-import java.util.function.Function
-import java.util.stream.Collectors
 
 @ApplicationScoped
 @Transactional
@@ -49,9 +47,8 @@ class SignaleringenService @Inject constructor(
         @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
         private lateinit var entityManager: EntityManager
 
-        private fun signaleringTypeInstance(signaleringsType: SignaleringType.Type): SignaleringType {
-            return entityManager.find(SignaleringType::class.java, signaleringsType.toString())
-        }
+        private fun signaleringTypeInstance(signaleringsType: SignaleringType.Type?): SignaleringType =
+            entityManager.find(SignaleringType::class.java, signaleringsType.toString())
     }
 
     /**
@@ -60,7 +57,7 @@ class SignaleringenService @Inject constructor(
      * @param signaleringsType the type of the signalering to construct
      * @return the constructed instance (subject and target are still null, type and tijdstip have been set)
      */
-    fun signaleringInstance(signaleringsType: SignaleringType.Type): Signalering {
+    fun signaleringInstance(signaleringsType: SignaleringType.Type?): Signalering {
         val instance = Signalering()
         instance.tijdstip = ZonedDateTime.now()
         instance.type = signaleringTypeInstance(signaleringsType)
@@ -204,13 +201,13 @@ class SignaleringenService @Inject constructor(
         return entityManager.merge(instellingen)
     }
 
-    fun readInstellingenGroup(type: SignaleringType.Type, target: String?): SignaleringInstellingen {
+    fun readInstellingenGroup(type: SignaleringType.Type?, target: String?): SignaleringInstellingen {
         val signalering = signaleringInstance(type)
         signalering.setTargetGroup(target)
         return readInstellingen(signalering)
     }
 
-    fun readInstellingenUser(type: SignaleringType.Type, target: String?): SignaleringInstellingen {
+    fun readInstellingenUser(type: SignaleringType.Type?, target: String?): SignaleringInstellingen {
         val signalering = signaleringInstance(type)
         signalering.setTargetUser(target)
         return readInstellingen(signalering)
