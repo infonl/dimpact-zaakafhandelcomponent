@@ -59,7 +59,9 @@ class ZakenRESTServiceTest : BehaviorSpec({
             )
             Then("the response should be a 200 HTTP response with the created zaak") {
                 response.code shouldBe HttpStatusCode.OK_200.code()
-                JSONObject(response.body!!.string()).apply {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                JSONObject(responseBody).apply {
                     getJSONObject("zaaktype").getString("identificatie") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
                     getJSONObject("zaakdata").apply {
                         getString("zaakUUID") shouldNotBe null
@@ -85,8 +87,6 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 }
             }
         }
-    }
-    Given("A zaak has been created") {
         When("the add betrokkene to zaak endpoint is called with an empty 'rol toelichting'") {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/zaken/betrokkene",
