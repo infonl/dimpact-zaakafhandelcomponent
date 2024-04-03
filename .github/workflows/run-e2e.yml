@@ -1,5 +1,5 @@
 #
-# SPDX-FileCopyrightText: 2023 Lifely
+# SPDX-FileCopyrightText: 2023-2024 Lifely
 # SPDX-License-Identifier: EUPL-1.2+
 #
 name: Playwright Tests
@@ -49,7 +49,7 @@ jobs:
           path: src/e2e/reports
           retention-days: 7
       - name: Deploy to GitHub Pages
-        if: always()
+        if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -57,7 +57,7 @@ jobs:
           publish_branch: gh-pages/dimpact-e2e-test-report # deploying to gh-pages branch
           keep_files: true # retains files that are not part of the current publish
       - name: Notify Slack
-        if: github.ref == 'refs/heads/main'
+        if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
         uses: 8398a7/action-slack@v3
         with:
           status: custom
