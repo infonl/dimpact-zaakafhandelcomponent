@@ -113,26 +113,6 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 }
             }
         }
-        When("the add betrokkene to zaak endpoint is called with valid data") {
-            val response = itestHttpClient.performJSONPostRequest(
-                url = "$ZAC_API_URI/zaken/betrokkene",
-                requestBodyAsString = "{\n" +
-                    "  \"zaakUUID\": \"$zaak2UUID\",\n" +
-                    "  \"roltypeUUID\": \"$ROLTYPE_UUID_BELANGHEBBENDE\",\n" +
-                    "  \"roltoelichting\": \"dummyToelichting\",\n" +
-                    "  \"betrokkeneIdentificatieType\": \"$BETROKKENE_IDENTIFICATIE_TYPE_BSN\",\n" +
-                    "  \"betrokkeneIdentificatie\": \"$TEST_BETROKKENE_BSN_HENDRIKA_JANSE\"\n" +
-                    "}"
-            )
-            Then("the response should be a 200 OK HTTP response") {
-                response.code shouldBe HttpStatusCode.OK_200.code()
-                val responseBody = response.body!!.string()
-                logger.info { "Response: $responseBody" }
-                with(responseBody) {
-                    shouldContainJsonKeyValue("uuid", zaak2UUID.toString())
-                }
-            }
-        }
         When("the 'update zaak' endpoint is called where the start and fatal dates are changed") {
             val startDateNew = LocalDate.now()
             val fatalDateNew = startDateNew.plusDays(1)
@@ -157,30 +137,6 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 }
             }
         }
-    }
-    Given("A betrokkene has been added to a zaak") {
-        When("the get betrokkene endpoint is called for a zaak") {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID/betrokkene",
-            )
-            Then("the response should be a 200 HTTP response with a list consisting of the betrokkene") {
-                response.code shouldBe HttpStatusCode.OK_200.code()
-                val responseBody = response.body!!.string()
-                logger.info { "Response: $responseBody" }
-                with(JSONArray(responseBody)) {
-                    length() shouldBe 1
-                    getJSONObject(0).apply {
-                        getString("rolid") shouldNotBe null
-                        getString("roltype") shouldBe ROLTYPE_NAME_BETROKKENE
-                        getString("roltoelichting") shouldBe "dummyToelichting"
-                        getString("type") shouldBe BETROKKENE_TYPE_NATUURLIJK_PERSOON
-                        getString("identificatie") shouldBe TEST_BETROKKENE_BSN_HENDRIKA_JANSE
-                    }
-                }
-            }
-        }
-    }
-    Given("A zaak has been created") {
         When("the 'assign to zaak' endpoint is called with a group") {
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/toekennen",
@@ -201,6 +157,48 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     JSONObject(this).getJSONObject("groep").apply {
                         getString("id") shouldBe TEST_GROUP_A_ID
                         getString("naam") shouldBe TEST_GROUP_A_DESCRIPTION
+                    }
+                }
+            }
+        }
+        When("the add betrokkene to zaak endpoint is called with valid data") {
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/zaken/betrokkene",
+                requestBodyAsString = "{\n" +
+                    "  \"zaakUUID\": \"$zaak2UUID\",\n" +
+                    "  \"roltypeUUID\": \"$ROLTYPE_UUID_BELANGHEBBENDE\",\n" +
+                    "  \"roltoelichting\": \"dummyToelichting\",\n" +
+                    "  \"betrokkeneIdentificatieType\": \"$BETROKKENE_IDENTIFICATIE_TYPE_BSN\",\n" +
+                    "  \"betrokkeneIdentificatie\": \"$TEST_BETROKKENE_BSN_HENDRIKA_JANSE\"\n" +
+                    "}"
+            )
+            Then("the response should be a 200 OK HTTP response") {
+                response.code shouldBe HttpStatusCode.OK_200.code()
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                with(responseBody) {
+                    shouldContainJsonKeyValue("uuid", zaak2UUID.toString())
+                }
+            }
+        }
+    }
+    Given("A betrokkene has been added to a zaak") {
+        When("the get betrokkene endpoint is called for a zaak") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID/betrokkene",
+            )
+            Then("the response should be a 200 HTTP response with a list consisting of the betrokkene") {
+                response.code shouldBe HttpStatusCode.OK_200.code()
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                with(JSONArray(responseBody)) {
+                    length() shouldBe 1
+                    getJSONObject(0).apply {
+                        getString("rolid") shouldNotBe null
+                        getString("roltype") shouldBe ROLTYPE_NAME_BETROKKENE
+                        getString("roltoelichting") shouldBe "dummyToelichting"
+                        getString("type") shouldBe BETROKKENE_TYPE_NATUURLIJK_PERSOON
+                        getString("identificatie") shouldBe TEST_BETROKKENE_BSN_HENDRIKA_JANSE
                     }
                 }
             }
