@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.signalering
@@ -31,6 +31,7 @@ import net.atos.zac.zoeken.model.ZoekObject
 import net.atos.zac.zoeken.model.ZoekParameters
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject
+import nl.lifely.zac.util.NoArgConstructor
 import org.flowable.task.api.Task
 import java.time.LocalDate
 import java.util.Objects
@@ -41,26 +42,22 @@ import java.util.logging.Logger
 @ApplicationScoped
 @Transactional
 @Suppress("TooManyFunctions")
-open class SignaleringenJob {
-    @Inject
-    private lateinit var signaleringenService: SignaleringenService
+@NoArgConstructor
+open class SignaleringenJob @Inject constructor(
+    private val signaleringenService: SignaleringenService,
+    private val configuratieService: ConfiguratieService,
+    private val ztcClientService: ZTCClientService,
+    private val zaakafhandelParameterService: ZaakafhandelParameterService,
+    private val zoekenService: ZoekenService,
+    private val takenService: TakenService
+) {
 
-    @Inject
-    private lateinit var configuratieService: ConfiguratieService
+    companion object {
+        private val LOG: Logger = Logger.getLogger(SignaleringenJob::class.java.name)
+        const val ZAAK_AFGEHANDELD_QUERY: String = "zaak_afgehandeld"
+    }
 
-    @Inject
-    private lateinit var ztcClientService: ZTCClientService
-
-    @Inject
-    private lateinit var zaakafhandelParameterService: ZaakafhandelParameterService
-
-    @Inject
-    private lateinit var zoekenService: ZoekenService
-
-    @Inject
-    private lateinit var takenService: TakenService
-
-    fun signaleringenVerzenden() {
+    open fun signaleringenVerzenden() {
         zaakSignaleringenVerzenden()
         taakSignaleringenVerzenden()
     }
@@ -374,11 +371,5 @@ open class SignaleringenJob {
             .types(SignaleringType.Type.TAAK_VERLOPEN)
             .subjectTaak(taakId)
             .detail(SignaleringDetail.STREEFDATUM)
-    }
-
-    companion object {
-        private val LOG: Logger = Logger.getLogger(SignaleringenJob::class.java.name)
-
-        const val ZAAK_AFGEHANDELD_QUERY: String = "zaak_afgehandeld"
     }
 }
