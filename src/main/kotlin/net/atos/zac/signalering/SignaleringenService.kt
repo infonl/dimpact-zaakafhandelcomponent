@@ -166,7 +166,7 @@ class SignaleringenService @Inject constructor(
         }
     }
 
-    fun sendSignalering(signalering: Signalering?) {
+    fun sendSignalering(signalering: Signalering) {
         ValidationUtil.valideerObject(signalering)
         val mail = signaleringenMailHelper.getTargetMail(signalering)
         if (mail != null) {
@@ -174,7 +174,7 @@ class SignaleringenService @Inject constructor(
             val to = signaleringenMailHelper.formatTo(mail)
             val mailTemplate = signaleringenMailHelper.getMailtemplate(signalering)
             val bronnenBuilder = Bronnen.Builder()
-            when (signalering!!.subjecttype!!) {
+            when (signalering.subjecttype!!) {
                 SignaleringSubject.ZAAK -> {
                     bronnenBuilder.add(signaleringenZACHelper.getZaak(signalering.subject))
                     if (signalering.type.type === SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD) {
@@ -267,7 +267,7 @@ class SignaleringenService @Inject constructor(
         return SignaleringType.Type.entries.size
     }
 
-    fun createSignaleringVerzonden(signalering: Signalering?): SignaleringVerzonden {
+    fun createSignaleringVerzonden(signalering: Signalering): SignaleringVerzonden {
         val signaleringVerzonden = signaleringVerzondenInstance(signalering)
         ValidationUtil.valideerObject(signaleringVerzonden)
         return entityManager.merge(signaleringVerzonden)
