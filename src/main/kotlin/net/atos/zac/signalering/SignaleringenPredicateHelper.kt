@@ -54,14 +54,14 @@ class SignaleringenPredicateHelper {
     ): Predicate {
         val where: MutableList<Predicate> = ArrayList()
         parameters.owner?.let {
-            when (parameters.ownertype!!) {
+            when (parameters.ownertype) {
                 SignaleringTarget.GROUP -> {
                     where.add(builder.equal(root.get<Any>("groep"), it))
                 }
-
                 SignaleringTarget.USER -> {
                     where.add(builder.equal(root.get<Any>("medewerker"), it))
                 }
+                else -> null
             }
         }
         parameters.type?.let {

@@ -170,7 +170,7 @@ class SignaleringenService @Inject constructor(
             val to = signaleringenMailHelper.formatTo(it)
             val mailTemplate = signaleringenMailHelper.getMailTemplate(signalering)
             val bronnenBuilder = Bronnen.Builder()
-            when (signalering.subjecttype!!) {
+            when (signalering.subjecttype) {
                 SignaleringSubject.ZAAK -> {
                     bronnenBuilder.add(signaleringenZACHelper.getZaak(signalering.subject))
                     if (signalering.type.type === SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD) {
@@ -182,6 +182,7 @@ class SignaleringenService @Inject constructor(
                 SignaleringSubject.DOCUMENT -> bronnenBuilder.add(
                     signaleringenZACHelper.getDocument(signalering.subject)
                 )
+                else -> {}
             }
             mailService.sendMail(
                 MailGegevens(from, to, mailTemplate.onderwerp, mailTemplate.body),
