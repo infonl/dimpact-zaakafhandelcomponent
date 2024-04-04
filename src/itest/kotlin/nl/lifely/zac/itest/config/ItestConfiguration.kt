@@ -5,6 +5,7 @@
 
 package nl.lifely.zac.itest.config
 
+import java.time.LocalDateTime
 import java.util.UUID
 
 /**
@@ -25,7 +26,7 @@ object ItestConfiguration {
     const val OBJECTS_BASE_URI = "http://objecten-api.local:8000"
     const val OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT = "021f685e-9482-4620-b157-34cd4003da6b"
     const val OPEN_NOTIFICATIONS_API_SECRET_KEY = "openNotificatiesApiSecretKey"
-    const val OPEN_ZAAK_BASE_URI = "http://open-zaak.local:8000"
+    const val OPEN_ZAAK_BASE_URI = "http://openzaak.local:8000"
     const val PRODUCT_AANVRAAG_TYPE = "productaanvraag"
     const val ROLTYPE_NAME_BETROKKENE = "Belanghebbende"
     const val ROLTYPE_UUID_BELANGHEBBENDE = "4c4cd850-8332-4bb9-adc4-dd046f0614ad"
@@ -35,6 +36,7 @@ object ItestConfiguration {
     const val TEST_SPEC_ORDER_AFTER_TASK_CREATED = 2
     const val TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED = 3
     const val TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED = 4
+    const val TEST_SPEC_ORDER_AFTER_TASK_COMPLETED = 5
     const val TEST_USER_1_ID = "testuser1"
     const val TEST_USER_1_NAME = "Test User1"
     const val TEST_USER_2_ID = "testuser2"
@@ -81,4 +83,5 @@ object ItestConfiguration {
     const val SMARTDOCUMENTS_MOCK_BASE_URI = "http://smartdocuments-wiremock:8080"
 
     val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
+    val START_DATE = LocalDateTime.now()
 }
