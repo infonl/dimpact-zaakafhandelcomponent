@@ -59,7 +59,9 @@ class ZakenRESTServiceTest : BehaviorSpec({
             )
             Then("the response should be a 200 HTTP response with the created zaak") {
                 response.code shouldBe HttpStatusCode.OK_200.code()
-                JSONObject(response.body!!.string()).apply {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                JSONObject(responseBody).apply {
                     getJSONObject("zaaktype").getString("identificatie") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
                     getJSONObject("zaakdata").apply {
                         getString("zaakUUID") shouldNotBe null
@@ -85,8 +87,6 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 }
             }
         }
-    }
-    Given("A zaak has been created") {
         When("the add betrokkene to zaak endpoint is called with an empty 'rol toelichting'") {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/zaken/betrokkene",
@@ -109,6 +109,54 @@ class ZakenRESTServiceTest : BehaviorSpec({
                             getString("message") shouldBe "must not be blank"
                             getString("path") shouldBe "createBetrokken.arg0.roltoelichting"
                         }
+                    }
+                }
+            }
+        }
+        When("the 'update zaak' endpoint is called where the start and fatal dates are changed") {
+            val startDateNew = LocalDate.now()
+            val fatalDateNew = startDateNew.plusDays(1)
+            val response = itestHttpClient.performPatchRequest(
+                url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID",
+                requestBodyAsString = "{\n" +
+                    "\"zaak\":{\n" +
+                    "  \"startdatum\":\"$startDateNew\",\n" +
+                    "  \"uiterlijkeEinddatumAfdoening\":\"$fatalDateNew\"\n" +
+                    "  },\n" +
+                    "  \"reden\":\"dummyReason\"\n" +
+                    "}\n"
+            )
+            Then("the response should be a 200 HTTP response with the changed zaak data") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HttpStatusCode.OK_200.code()
+                with(responseBody) {
+                    shouldContainJsonKeyValue("uuid", zaak2UUID.toString())
+                    shouldContainJsonKeyValue("startdatum", startDateNew.toString())
+                    shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", fatalDateNew.toString())
+                }
+            }
+        }
+        When("the 'assign to zaak' endpoint is called with a group") {
+            val response = itestHttpClient.performPatchRequest(
+                url = "$ZAC_API_URI/zaken/toekennen",
+                requestBodyAsString = "{\n" +
+                    "  \"zaakUUID\": \"$zaak1UUID\",\n" +
+                    "  \"groepId\": \"$TEST_GROUP_A_ID\",\n" +
+                    "  \"reden\": \"dummyReason\"\n" +
+                    "}"
+            )
+            Then("the group should be assigned to the zaak") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.isSuccessful shouldBe true
+
+                with(responseBody) {
+                    shouldContainJsonKeyValue("uuid", zaak1UUID.toString())
+                    shouldContainJsonKey("groep")
+                    JSONObject(this).getJSONObject("groep").apply {
+                        getString("id") shouldBe TEST_GROUP_A_ID
+                        getString("naam") shouldBe TEST_GROUP_A_DESCRIPTION
                     }
                 }
             }
@@ -151,32 +199,6 @@ class ZakenRESTServiceTest : BehaviorSpec({
                         getString("roltoelichting") shouldBe "dummyToelichting"
                         getString("type") shouldBe BETROKKENE_TYPE_NATUURLIJK_PERSOON
                         getString("identificatie") shouldBe TEST_BETROKKENE_BSN_HENDRIKA_JANSE
-                    }
-                }
-            }
-        }
-    }
-    Given("A zaak has been created") {
-        When("the 'assign to zaak' endpoint is called with a group") {
-            val response = itestHttpClient.performPatchRequest(
-                url = "$ZAC_API_URI/zaken/toekennen",
-                requestBodyAsString = "{\n" +
-                    "  \"zaakUUID\": \"$zaak1UUID\",\n" +
-                    "  \"groepId\": \"$TEST_GROUP_A_ID\",\n" +
-                    "  \"reden\": \"dummyReason\"\n" +
-                    "}"
-            )
-            Then("the group should be assigned to the zaak") {
-                val responseBody = response.body!!.string()
-                logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
-
-                with(responseBody) {
-                    shouldContainJsonKeyValue("uuid", zaak1UUID.toString())
-                    shouldContainJsonKey("groep")
-                    JSONObject(this).getJSONObject("groep").apply {
-                        getString("id") shouldBe TEST_GROUP_A_ID
-                        getString("naam") shouldBe TEST_GROUP_A_DESCRIPTION
                     }
                 }
             }
@@ -321,32 +343,6 @@ class ZakenRESTServiceTest : BehaviorSpec({
                         }
                         has("behandelaar") shouldBe false
                     }
-                }
-            }
-        }
-    }
-    Given("A zaak has been created") {
-        When("the 'update zaak' endpoint is called where the start and fatal dates are changed") {
-            val startDateNew = LocalDate.now()
-            val fatalDateNew = startDateNew.plusDays(1)
-            val response = itestHttpClient.performPatchRequest(
-                url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID",
-                requestBodyAsString = "{\n" +
-                    "\"zaak\":{\n" +
-                    "  \"startdatum\":\"$startDateNew\",\n" +
-                    "  \"uiterlijkeEinddatumAfdoening\":\"$fatalDateNew\"\n" +
-                    "  },\n" +
-                    "  \"reden\":\"dummyReason\"\n" +
-                    "}\n"
-            )
-            Then("the response should be a 200 HTTP response with the changed zaak data") {
-                val responseBody = response.body!!.string()
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HttpStatusCode.OK_200.code()
-                with(responseBody) {
-                    shouldContainJsonKeyValue("uuid", zaak2UUID.toString())
-                    shouldContainJsonKeyValue("startdatum", startDateNew.toString())
-                    shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", fatalDateNew.toString())
                 }
             }
         }
