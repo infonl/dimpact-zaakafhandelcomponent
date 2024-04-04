@@ -76,10 +76,14 @@ public class ProductaanvraagService {
     private static final Logger LOG = Logger.getLogger(ProductaanvraagService.class.getName());
     private static final String ROL_TOELICHTING = "Overgenomen vanuit de product aanvraag";
     private static final String PRODUCT_AANVRAAG_FORMULIER_DATA_VELD = "aanvraaggegevens";
-    private static final String FORMULIER_KLEINE_EVENEMENTEN_MELDING_EIGENSCHAPNAAM_NAAM_EVENEMENT = "naamEvenement";
-    private static final String FORMULIER_KLEINE_EVENEMENTEN_MELDING_EIGENSCHAPNAAM_OMSCHRIJVING_EVENEMENT = "omschrijvingEvenement";
     private static final String FORMULIER_VELD_ZAAK_TOELICHTING = "zaak_toelichting";
     private static final String FORMULIER_VELD_ZAAK_OMSCHRIJVING = "zaak_omschrijving";
+    private static final String ZAAK_DESCRIPTION_FORMAT = "Aangemaakt vanuit %s met kenmerk '%s'";
+
+    /**
+     * Maximum length of the description field in a zaak as defined by the ZGW ZRC API.
+     */
+    private static final int ZAAK_DESCRIPTION_MAX_LENGTH = 80;
 
     private ObjectsClientService objectsClientService;
     private ZGWApiService zgwApiService;
@@ -286,10 +290,23 @@ public class ProductaanvraagService {
         var zaak = new Zaak();
         final var zaaktype = ztcClientService.readZaaktype(zaaktypeUuid);
         zaak.setZaaktype(zaaktype.getUrl());
-        zaak.setOmschrijving(
-                (String) formulierData.get(FORMULIER_KLEINE_EVENEMENTEN_MELDING_EIGENSCHAPNAAM_NAAM_EVENEMENT));
-        zaak.setToelichting(
-                (String) formulierData.get(FORMULIER_KLEINE_EVENEMENTEN_MELDING_EIGENSCHAPNAAM_OMSCHRIJVING_EVENEMENT));
+        // we truncate the zaak description to the maximum length allowed by the ZGW ZRC API
+        // or else it will not be accepted by the ZGW API implementation component
+        var zaakOmschrijving = String.format(
+                ZAAK_DESCRIPTION_FORMAT,
+                productaanvraag.getBron().getNaam(),
+                productaanvraag.getBron().getKenmerk()
+        );
+        if (zaakOmschrijving.length() > ZAAK_DESCRIPTION_MAX_LENGTH) {
+            LOG.warning(String.format(
+                    "Truncating zaak description '%s' to the maximum length allowed by the ZGW ZRC API",
+                    zaakOmschrijving
+            )
+            );
+            zaakOmschrijving = zaakOmschrijving.substring(0, ZAAK_DESCRIPTION_MAX_LENGTH);
+        }
+        zaak.setOmschrijving(zaakOmschrijving);
+        // note that we leave the 'toelichting' field empty for a zaak created from a productaanvraag
         zaak.setStartdatum(productaanvraagObject.getRecord().getStartAt());
         zaak.setBronorganisatie(BRON_ORGANISATIE);
         zaak.setVerantwoordelijkeOrganisatie(BRON_ORGANISATIE);
@@ -301,8 +318,7 @@ public class ProductaanvraagService {
 
         LOG.fine("Creating zaak using the ZGW API: " + zaak);
         zaak = zgwApiService.createZaak(zaak);
-        final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                zaaktypeUuid);
+        final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid);
         toekennenZaak(zaak, zaakafhandelParameters);
         pairProductaanvraagInfoWithZaak(productaanvraag, productaanvraagObject, zaak);
         cmmnService.startCase(zaak, zaaktype, zaakafhandelParameters, formulierData);

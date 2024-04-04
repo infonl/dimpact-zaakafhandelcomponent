@@ -6,6 +6,7 @@ import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createORObject
@@ -15,12 +16,14 @@ import net.atos.client.vrl.model.generated.CommunicatieKanaal
 import net.atos.client.zgw.drc.DRCClientService
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakInformatieobject
 import net.atos.client.zgw.zrc.model.createZaakobjectProductaanvraag
 import net.atos.client.zgw.ztc.ZTCClientService
 import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.zac.configuratie.ConfiguratieService
+import net.atos.zac.configuratie.ConfiguratieService.BRON_ORGANISATIE
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.flowable.BPMNService
 import net.atos.zac.flowable.CMMNService
@@ -99,10 +102,11 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
         val createdZaakInformatieobject = createZaakInformatieobject()
         val zaakafhandelParameters = createZaakafhandelParameters()
+        val formulierBron = createBron()
         val productAanvraagORObject = createORObject(
             record = createObjectRecord(
                 data = mapOf(
-                    "bron" to createBron(),
+                    "bron" to formulierBron,
                     "type" to productAanvraagType,
                     // aanvraaggegevens must contain at least one key with a map value
                     "aanvraaggegevens" to mapOf("dummyKey" to mapOf("dummySubKey" to "dummyValue"))
@@ -110,13 +114,14 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             )
         )
         val productAanvraagURI = URI("http://example.com/dummyProductaanvraag/$productAanvraagObjectUUID")
+        val zaakToBeCreated = slot<Zaak>()
         every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
         every {
             zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(productAanvraagType)
         } returns Optional.of(zaakTypeUUID)
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
         every { vrlClientService.findCommunicatiekanaal("E-formulier") } returns Optional.of(communicatieKanaal)
-        every { zgwApiService.createZaak(any()) } returns createdZaak
+        every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
         every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID) } returns zaakafhandelParameters
         every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
         every {
@@ -135,6 +140,13 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     zgwApiService.createZaak(any())
                     zrcClientService.createZaakobject(any())
                     cmmnService.startCase(createdZaak, zaakType, zaakafhandelParameters, any())
+                }
+                with(zaakToBeCreated.captured) {
+                    zaaktype shouldBe zaakType.url
+                    communicatiekanaal shouldBe communicatieKanaal.url
+                    bronorganisatie shouldBe BRON_ORGANISATIE
+                    omschrijving shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'"
+                    toelichting shouldBe null
                 }
             }
         }
