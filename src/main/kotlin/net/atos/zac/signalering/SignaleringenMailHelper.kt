@@ -21,7 +21,7 @@ class SignaleringenMailHelper @Inject constructor(
 ) {
 
     fun getTargetMail(signalering: Signalering): SignaleringTarget.Mail? =
-        when (signalering.targettype!!) {
+        when (signalering.targettype) {
             SignaleringTarget.GROUP -> {
                 identityService.readGroup(signalering.target).let { group ->
                     group.email?.let {
@@ -36,15 +36,14 @@ class SignaleringenMailHelper @Inject constructor(
                     }
                 }
             }
+            else -> null
         }
 
-    fun formatTo(mail: SignaleringTarget.Mail): MailAdres {
-        return MailAdres(mail.emailadres, mail.naam)
-    }
+    fun formatTo(mail: SignaleringTarget.Mail): MailAdres = MailAdres(mail.emailadres, mail.naam)
 
-    fun getMailTemplate(signalering: Signalering): MailTemplate {
-        return mailTemplateService.readMailtemplate(
-            when (signalering.type.type!!) {
+    fun getMailTemplate(signalering: Signalering): MailTemplate =
+        mailTemplateService.readMailtemplate(
+            when (signalering.type.type) {
                 SignaleringType.Type.TAAK_OP_NAAM -> Mail.SIGNALERING_TAAK_OP_NAAM
                 SignaleringType.Type.TAAK_VERLOPEN -> Mail.SIGNALERING_TAAK_VERLOPEN
                 SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD -> Mail.SIGNALERING_ZAAK_DOCUMENT_TOEGEVOEGD
@@ -53,7 +52,7 @@ class SignaleringenMailHelper @Inject constructor(
                     SignaleringDetail.STREEFDATUM -> Mail.SIGNALERING_ZAAK_VERLOPEND_STREEFDATUM
                     SignaleringDetail.FATALE_DATUM -> Mail.SIGNALERING_ZAAK_VERLOPEND_FATALE_DATUM
                 }
+                else -> null
             }
         )
-    }
 }
