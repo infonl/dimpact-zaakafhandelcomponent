@@ -182,7 +182,7 @@ class SignaleringenRestServiceTest : BehaviorSpec() {
 
                     // application/json should be changed to text/plain in the endpoint to get rid of the quotes
                     val dateString = responseBody.replace("\"", "")
-                    
+
                     val date = ZonedDateTime.parse(dateString, DateTimeFormatter.ISO_DATE_TIME)
                         .withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime()
                     date.shouldBeBetween(START_DATE, LocalDateTime.now())
