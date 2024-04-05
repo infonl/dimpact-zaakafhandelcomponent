@@ -8,13 +8,14 @@ package nl.lifely.zac.itest
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldBeJsonArray
 import io.kotest.assertions.json.shouldContainJsonKey
+import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.date.shouldBeBetween
 import io.kotest.matchers.shouldBe
-import kotlinx.coroutines.delay
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
@@ -30,6 +31,8 @@ import org.mockserver.model.HttpStatusCode
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -49,17 +52,15 @@ class SignaleringenRestServiceTest : BehaviorSpec() {
                     """{"dashboard":true,"mail":false,"subjecttype":"ZAAK","type":"ZAAK_VERLOPEND"}""",
                     """{"dashboard":true,"mail":false,"subjecttype":"TAAK","type":"TAAK_OP_NAAM"}"""
                 )
-                notificationBodies.forEach() {
+                notificationBodies.forEach {
                     val response = itestHttpClient.performPutRequest(
                         url = "$ZAC_API_URI/signaleringen/instellingen",
                         headers = Headers.headersOf(
                             "Content-Type",
-                            "application/json",
-                            "Authorization",
-                            ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
+                            "application/json"
                         ),
                         requestBodyAsString = it,
-                        addAuthorizationHeader = false
+                        addAuthorizationHeader = true
                     )
 
                     Then("the responses should be 'ok'") {
@@ -75,13 +76,15 @@ class SignaleringenRestServiceTest : BehaviorSpec() {
                     url = "$ZAC_API_URI/zaken/toekennen",
                     headers = Headers.headersOf(
                         "Content-Type",
-                    "application/json"),
+                        "application/json"
+                    ),
                     requestBodyAsString = """{
                         "zaakUUID":"$zaak1UUID",
                         "behandelaarGebruikersnaam":"$TEST_USER_1_ID",
                         "groepId":"$TEST_GROUP_A_ID",
                         "reden":null
-                    }""".trimIndent()
+                    }
+                    """.trimIndent()
                 )
 
                 Then("the responses should be 'ok'") {
@@ -110,14 +113,16 @@ class SignaleringenRestServiceTest : BehaviorSpec() {
                         "Authorization",
                         ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
                     ),
-                    requestBodyAsString = JSONObject(mapOf(
-                        "actie" to "create",
-                        "kanaal" to "zaken",
-                        "resource" to "zaakinformatieobject",
-                        "hoofdObject" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaak1UUID",
-                        "resourceUrl" to zaakInformatieObjectenUrl,
-                        "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
-                    )).toString(),
+                    requestBodyAsString = JSONObject(
+                        mapOf(
+                            "actie" to "create",
+                            "kanaal" to "zaken",
+                            "resource" to "zaakinformatieobject",
+                            "hoofdObject" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaak1UUID",
+                            "resourceUrl" to zaakInformatieObjectenUrl,
+                            "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
+                        )
+                    ).toString(),
                     addAuthorizationHeader = false
                 )
 
@@ -130,24 +135,40 @@ class SignaleringenRestServiceTest : BehaviorSpec() {
         }
 
         Given("A zaak has been assigned") {
-
             When("the list of zaken signaleringen for ZAAK_DOCUMENT_TOEGEVOEGD is requested") {
                 lateinit var responseBody: String
 
-                eventually(eventuallyConfig {
-                    duration = 20.seconds
-                    interval = 1.seconds
-                }) {
+                eventually(
+                    eventuallyConfig {
+                        duration = 5.seconds
+                        interval = 500.milliseconds
+                    }
+                ) {
                     val response = itestHttpClient.performGetRequest(
                         "$ZAC_API_URI/signaleringen/zaken/ZAAK_DOCUMENT_TOEGEVOEGD"
                     )
                     response.isSuccessful shouldBe true
                     responseBody = response.body!!.string()
-                    responseBody shouldContainJsonKey "identificatie"
+                    logger.info { "Response: $responseBody" }
+                    responseBody.shouldBeJsonArray()
+                    JSONArray(responseBody) shouldHaveSize 1
                 }
 
                 Then("""it returns the correct signaleringen""") {
-                    logger.info { "Response: $responseBody" }
+                    with(JSONArray(responseBody).getJSONObject(0).toString()) {
+                        shouldContainJsonKey("behandelaar")
+                        shouldContainJsonKey("groep")
+                        shouldContainJsonKeyValue("identificatie", "ZAAK-2023-0000000001")
+                        shouldContainJsonKey("omschrijving")
+                        shouldContainJsonKey("openstaandeTaken")
+                        shouldContainJsonKey("rechten")
+                        shouldContainJsonKeyValue("startdatum", "2023-10-25")
+                        shouldContainJsonKeyValue("status", "Intake")
+                        shouldContainJsonKeyValue("toelichting", "")
+                        shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", "2023-11-08")
+                        shouldContainJsonKey("uuid")
+                        shouldContainJsonKeyValue("zaaktype", "Melding evenement organiseren behandelen")
+                    }
                 }
             }
 
@@ -159,11 +180,13 @@ class SignaleringenRestServiceTest : BehaviorSpec() {
                     logger.info { "Response: $responseBody" }
                     response.isSuccessful shouldBe true
 
-                    val date = ZonedDateTime.parse(responseBody).toLocalDateTime()
+                    // TODO: change application/json to text in the endpoint
+                    val dateString = responseBody.replace("\"", "")
+                    val date = ZonedDateTime.parse(dateString, DateTimeFormatter.ISO_DATE_TIME)
+                        .withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime()
                     date.shouldBeBetween(START_DATE, LocalDateTime.now())
                 }
             }
-
         }
     }
 }

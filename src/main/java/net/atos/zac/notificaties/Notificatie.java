@@ -120,7 +120,10 @@ public class Notificatie {
 
     @Override
     public String toString() {
-        return String.format("%s %s %s %s", channel, resource, action, creationDateTime.toString());
+        return String.format(
+                "channel: %s, resource: %s, action: %s, date: %s",
+                channel, resource, action, creationDateTime.toString()
+        );
     }
 
     public static class ResourceInfo {

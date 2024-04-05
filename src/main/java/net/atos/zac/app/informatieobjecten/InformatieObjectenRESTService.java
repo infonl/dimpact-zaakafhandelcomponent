@@ -242,7 +242,7 @@ public class InformatieObjectenRESTService {
     @GET
     @Path("informatieobjecten/zaak/{zaakUuid}")
     public List<ZaakInformatieobject> getZaakInformatieobject(
-        @PathParam("zaakUuid") final UUID zaakUuid
+            @PathParam("zaakUuid") final UUID zaakUuid
     ) {
         final Zaak zaak = zrcClientService.readZaak(zaakUuid);
         return zrcClientService.listZaakinformatieobjecten(zaak);
