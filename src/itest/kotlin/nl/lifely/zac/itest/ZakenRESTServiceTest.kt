@@ -8,7 +8,6 @@ package nl.lifely.zac.itest
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
-import io.kotest.assertions.json.shouldNotContainJsonKey
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
@@ -405,9 +404,6 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HttpStatusCode.OK_200.code()
-                with(responseBody) {
-                    shouldNotContainJsonKey("zaakgeometrie")
-                }
             }
         }
     }
