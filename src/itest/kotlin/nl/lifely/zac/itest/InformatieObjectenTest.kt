@@ -30,8 +30,6 @@ import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-lateinit var informatieobjectTypeUUID: String
-
 /**
  * This test assumes a zaak has been created, and a task has been started in a previously run test.
  */
@@ -224,10 +222,6 @@ class InformatieObjectenTest : BehaviorSpec() {
                         shouldContainJsonKeyValue("bestandsomvang", TXT_FILE_SIZE)
                         shouldContainJsonKeyValue("formaat", TXT_FILE_FORMAAT)
                     }
-
-                    val enkelvoudigInformatieObjectAsJSON = JSONObject(responseBody)
-                    enkelvoudigInformatieObjectUUID = enkelvoudigInformatieObjectAsJSON.getString("uuid")
-                    informatieobjectTypeUUID = enkelvoudigInformatieObjectAsJSON.getString("informatieobjectTypeUUID")
                 }
             }
             When("ondertekenInformatieObject endpoint is called") {
@@ -320,6 +314,9 @@ class InformatieObjectenTest : BehaviorSpec() {
                             DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
                         )
                     }
+
+                    val enkelvoudigInformatieObjectAsJSON = JSONObject(responseBody)
+                    enkelvoudigInformatieObjectUUID = enkelvoudigInformatieObjectAsJSON.getString("uuid")
                 }
             }
         }
