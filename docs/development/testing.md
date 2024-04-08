@@ -29,7 +29,7 @@ To do this you will first need to do the following:
 1. Start Docker.
 2. Build the ZAC Docker image using the following command:
     ```shell
-    ./gradlew buildZacDockerImage
+    ./gradlew buildDockerImage
     ```
 3. If BAG integration is part of the test suite: create a 'run configuration' in your IDE where the following two environment variables are set: `BAG_API_CLIENT_MP_REST_URL` and `BAG_API_KEY`.
 4. Run the integration tests from your IDE using this run configuration.
