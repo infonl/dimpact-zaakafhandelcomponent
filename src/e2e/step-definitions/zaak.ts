@@ -142,6 +142,7 @@ When(
       .getByRole("button", { name: "Zoeken" })
       .click();
     await this.page.getByRole("button", { name: "Select" }).click();
+    // TEMPORARY: disable searching in BAG until we find a solution for the fact that there is no longer an acceptance environment for BAG
     // await this.page
     //   .locator("div")
     //   .filter({ hasText: /^gps_fixed$/ })
