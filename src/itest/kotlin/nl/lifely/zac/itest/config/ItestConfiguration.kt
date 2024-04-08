@@ -25,6 +25,8 @@ object ItestConfiguration {
     const val OBJECT_PRODUCTAANVRAAG_UUID = "9dbed186-89ca-48d7-8c6c-f9995ceb8e27"
     const val OBJECTS_BASE_URI = "http://objecten-api.local:8000"
     const val OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT = "021f685e-9482-4620-b157-34cd4003da6b"
+    const val OPEN_FORMULIEREN_FORMULIER_BRON_KENMERK = "a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"
+    const val OPEN_FORMULIEREN_FORMULIER_BRON_NAAM = "open-forms"
     const val OPEN_NOTIFICATIONS_API_SECRET_KEY = "openNotificatiesApiSecretKey"
     const val OPEN_ZAAK_BASE_URI = "http://openzaak.local:8000"
     const val OPEN_ZAAK_EXTERNAL_PORT = 8001
