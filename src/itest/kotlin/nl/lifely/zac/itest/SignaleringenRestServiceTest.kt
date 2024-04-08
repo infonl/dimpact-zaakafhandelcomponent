@@ -96,6 +96,7 @@ class SignaleringenRestServiceTest : BehaviorSpec() {
 
         Given("A zaak with informatie objecten") {
             val zaakPath = "zaken/api/v1/zaken/$zaak1UUID"
+
             val zaakInformatieObjectenResponse = itestHttpClient.performGetRequest(
                 url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaakinformatieobjecten?zaak=$OPEN_ZAAK_EXTERNAL_URI/$zaakPath",
                 openZaakAuth = true
@@ -103,9 +104,24 @@ class SignaleringenRestServiceTest : BehaviorSpec() {
             var responseBody = zaakInformatieObjectenResponse.body!!.string()
             logger.info { "Response: $responseBody" }
             zaakInformatieObjectenResponse.code shouldBe HttpStatusCode.OK_200.code()
-
-            val zaakInformatieObjectenUrl = JSONArray(responseBody).getJSONObject(0).getString("url")
+            val zaakInformatieObjectenUrl = JSONArray(responseBody)
+                .getJSONObject(0)
+                .getString("url")
             logger.info { "Zaak informatie objecten URL: $zaakInformatieObjectenUrl" }
+
+            val zaakRollenResponse = itestHttpClient.performGetRequest(
+                url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/rollen?zaak=$OPEN_ZAAK_EXTERNAL_URI/$zaakPath",
+                openZaakAuth = true
+            )
+            responseBody = zaakRollenResponse.body!!.string()
+            logger.info { "Response: $responseBody" }
+            zaakRollenResponse.code shouldBe HttpStatusCode.OK_200.code()
+            val zaakRollenUrl = JSONObject(responseBody)
+                .getJSONArray("results")
+                .getJSONObject(0)
+                .getString("url")
+                .replace(OPEN_ZAAK_EXTERNAL_URI, OPEN_ZAAK_BASE_URI)
+            logger.info { "Zaak rollen URL: $zaakInformatieObjectenUrl" }
 
             When("a notification is sent to ZAC that a zaak is updated") {
                 val response = itestHttpClient.performJSONPostRequest(
@@ -135,6 +151,35 @@ class SignaleringenRestServiceTest : BehaviorSpec() {
                     response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
                 }
             }
+
+            When("a notification is sent to ZAC that a rol is updated") {
+                val response = itestHttpClient.performJSONPostRequest(
+                    url = "$ZAC_API_URI/notificaties",
+                    headers = Headers.headersOf(
+                        "Content-Type",
+                        "application/json",
+                        "Authorization",
+                        ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
+                    ),
+                    requestBodyAsString = JSONObject(
+                        mapOf(
+                            "actie" to "create",
+                            "kanaal" to "zaken",
+                            "resource" to "rol",
+                            "hoofdObject" to "$OPEN_ZAAK_BASE_URI/$zaakPath",
+                            "resourceUrl" to zaakRollenUrl,
+                            "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
+                        )
+                    ).toString(),
+                    addAuthorizationHeader = false
+                )
+
+                Then("the response should be 'no content'") {
+                    responseBody = response.body!!.string()
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
+                }
+            }
         }
 
         Given("A zaak has been assigned") {
@@ -149,6 +194,43 @@ class SignaleringenRestServiceTest : BehaviorSpec() {
                 ) {
                     val response = itestHttpClient.performGetRequest(
                         "$ZAC_API_URI/signaleringen/zaken/ZAAK_DOCUMENT_TOEGEVOEGD"
+                    )
+                    response.isSuccessful shouldBe true
+                    responseBody = response.body!!.string()
+                    logger.info { "Response: $responseBody" }
+                    responseBody.shouldBeJsonArray()
+                    JSONArray(responseBody) shouldHaveSize 1
+                }
+
+                Then("""it returns the correct signaleringen""") {
+                    with(JSONArray(responseBody).getJSONObject(0).toString()) {
+                        shouldContainJsonKey("behandelaar")
+                        shouldContainJsonKey("groep")
+                        shouldContainJsonKeyValue("identificatie", "ZAAK-2023-0000000001")
+                        shouldContainJsonKey("omschrijving")
+                        shouldContainJsonKey("openstaandeTaken")
+                        shouldContainJsonKey("rechten")
+                        shouldContainJsonKeyValue("startdatum", "2023-10-25")
+                        shouldContainJsonKeyValue("status", "Intake")
+                        shouldContainJsonKeyValue("toelichting", "")
+                        shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", "2023-11-08")
+                        shouldContainJsonKey("uuid")
+                        shouldContainJsonKeyValue("zaaktype", "Melding evenement organiseren behandelen")
+                    }
+                }
+            }
+
+            When("the list of zaken signaleringen for ZAAK_OP_NAAM is requested") {
+                lateinit var responseBody: String
+
+                eventually(
+                    eventuallyConfig {
+                        duration = 5.seconds
+                        interval = 500.milliseconds
+                    }
+                ) {
+                    val response = itestHttpClient.performGetRequest(
+                        "$ZAC_API_URI/signaleringen/zaken/ZAAK_OP_NAAM"
                     )
                     response.isSuccessful shouldBe true
                     responseBody = response.body!!.string()
