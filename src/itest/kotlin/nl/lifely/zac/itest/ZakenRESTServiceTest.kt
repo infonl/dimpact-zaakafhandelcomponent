@@ -14,6 +14,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import nl.lifely.zac.itest.client.ItestHttpClient
+import nl.lifely.zac.itest.client.KeycloakClient
 import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATIE_TYPE_BSN
@@ -342,6 +343,105 @@ class ZakenRESTServiceTest : BehaviorSpec({
                             getString("naam") shouldBe TEST_GROUP_A_DESCRIPTION
                         }
                         has("behandelaar") shouldBe false
+                    }
+                }
+            }
+        }
+    }
+    Given("A zaak that is ontvankelijk") {
+        var uuid: UUID? = null
+        var intakeId: Int? = null
+
+        with(
+            zacClient.createZaak(
+                ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID,
+                TEST_GROUP_A_ID,
+                TEST_GROUP_A_DESCRIPTION
+            )
+        ) {
+            with(JSONObject(body!!.string())) {
+                getJSONObject("zaakdata").apply {
+                    uuid = getString("zaakUUID").let(UUID::fromString)
+                }
+            }
+        }
+
+        with(itestHttpClient.performGetRequest("$ZAC_API_URI/planitems/zaak/$uuid/userEventListenerPlanItems")) {
+            with(JSONArray(body!!.string()).getJSONObject(0)) {
+                intakeId = getString("id").toInt()
+            }
+        }
+
+        itestHttpClient.performJSONPostRequest(
+            "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
+            requestBodyAsString = """
+            {
+                "zaakUuid":"$uuid",
+                "planItemInstanceId":"$intakeId",
+                "actie":"INTAKE_AFRONDEN",
+                "zaakOntvankelijk":true,
+                "resultaatToelichting":"intake"
+            }
+            """.trimIndent()
+        )
+
+        When("The zaak is closed") {
+            var afhandelenId: Int? = null
+
+            with(itestHttpClient.performGetRequest("$ZAC_API_URI/planitems/zaak/$uuid/userEventListenerPlanItems")) {
+                with(JSONArray(body!!.string()).getJSONObject(0)) {
+                    afhandelenId = getString("id").toInt()
+                }
+            }
+
+            itestHttpClient.performJSONPostRequest(
+                    "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
+                    requestBodyAsString = """
+            {
+                "zaakUuid":"$uuid",
+                "planItemInstanceId":"$afhandelenId",
+                "actie":"ZAAK_AFHANDELEN",
+                "zaakOntvankelijk":true,
+                "resultaattypeUuid": "2b774ae4-68b0-462c-b6a0-e48b861ee148",
+                "resultaatToelichting":"afronden"
+            }
+            """.trimIndent()
+            )
+
+            Then("The zaak should have a resultaat") {
+                with(zacClient.retrieveZaak(uuid!!)) {
+                    code shouldBe HttpStatusCode.OK_200.code()
+                    val str = body!!.string()
+                    JSONObject(str).apply {
+                        has("resultaat") shouldBe true
+                    }
+                }
+            }
+        }
+
+        When("The zaak is re-opened") {
+            KeycloakClient.authenticate("recordmanager1", "recordmanager1")
+
+            val heropenResult = itestHttpClient.performPatchRequest(
+                "$ZAC_API_URI/zaken/zaak/$uuid/heropenen",
+                requestBodyAsString = """
+            {"reden":"vxcvxcv"}
+                """.trimIndent()
+            )
+
+            KeycloakClient.authenticate()
+
+            val heropenBody = heropenResult.body!!.string()
+
+            logger.info { heropenResult }
+            logger.info { heropenBody }
+
+            Then("The zaak should not have a resultaat") {
+                with(zacClient.retrieveZaak(uuid!!)) {
+                    code shouldBe HttpStatusCode.OK_200.code()
+                    val str = body!!.string()
+                    JSONObject(str).apply {
+                        has("resultaat") shouldBe false
                     }
                 }
             }
