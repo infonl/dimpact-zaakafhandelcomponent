@@ -8,14 +8,11 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import java.util.Date
 
-object OpenZaakClient {
-
-    fun generateToken(): String =
-        JWT.create().withIssuer(OPEN_ZAAK_CLIENT_ID)
-            .withIssuedAt(Date())
-            .withHeader(mapOf("client_identifier" to OPEN_ZAAK_CLIENT_ID))
-            .withClaim("client_id", OPEN_ZAAK_CLIENT_ID)
-            .withClaim("user_id", TEST_USER_1_ID)
-            .withClaim("user_representation", TEST_USER_1_NAME)
-            .sign(HMAC256(OPEN_ZAAK_CLIENT_SECRET))
-}
+fun generateToken(): String =
+    JWT.create().withIssuer(OPEN_ZAAK_CLIENT_ID)
+        .withIssuedAt(Date())
+        .withHeader(mapOf("client_identifier" to OPEN_ZAAK_CLIENT_ID))
+        .withClaim("client_id", OPEN_ZAAK_CLIENT_ID)
+        .withClaim("user_id", TEST_USER_1_ID)
+        .withClaim("user_representation", TEST_USER_1_NAME)
+        .sign(HMAC256(OPEN_ZAAK_CLIENT_SECRET))

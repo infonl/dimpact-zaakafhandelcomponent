@@ -127,8 +127,7 @@ class ItestHttpClient {
         url: String,
         webSocketListener: WebSocketListener,
         headers: Headers = getDefaultJSONGETHeaders(),
-        addAuthorizationHeader: Boolean = true,
-        openZaakAuth: Boolean = false
+        addAuthorizationHeader: Boolean = true
     ): WebSocket {
         logger.info { "Connecting new websocket on: '$url'" }
         val request = Request.Builder()
@@ -152,7 +151,7 @@ class ItestHttpClient {
     private fun getDefaultJSONGETHeaders() = Headers.headersOf(
         // "Authorization",
         // perform a request to Keycloak to get an access token
-        // this can only be done after a successfull authentication
+        // this can only be done after a successful authentication
         // "Bearer ${KeycloakClient.requestAccessToken()}",
         "Accept",
         "application/json"
@@ -166,7 +165,7 @@ class ItestHttpClient {
 
     private fun cloneHeadersWithAuthorization(headers: Headers, url: String): Headers {
         val token = if (URI(url).port == OPEN_ZAAK_EXTERNAL_PORT) {
-            OpenZaakClient.generateToken()
+            generateToken()
         } else {
             KeycloakClient.requestAccessToken()
         }
