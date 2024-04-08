@@ -119,6 +119,9 @@ dependencies {
     implementation(libs.webdav.servlet)
     implementation(libs.htmlcleaner)
     implementation(libs.unboundid.ldapsdk)
+    implementation(libs.caffeine)
+    implementation(libs.caffeine.jcache)
+    implementation(libs.cache.annotations)
 
     swaggerUI(libs.swagger.ui)
 
