@@ -18,5 +18,4 @@ object OpenZaakClient {
             .withClaim("user_id", TEST_USER_1_ID)
             .withClaim("user_representation", TEST_USER_1_NAME)
             .sign(HMAC256(OPENZAAK_CLIENT_SECRET))
-
 }
