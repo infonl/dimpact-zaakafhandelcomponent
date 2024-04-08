@@ -395,8 +395,8 @@ class ZakenRESTServiceTest : BehaviorSpec({
             }
 
             itestHttpClient.performJSONPostRequest(
-                    "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
-                    requestBodyAsString = """
+                "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
+                requestBodyAsString = """
             {
                 "zaakUuid":"$uuid",
                 "planItemInstanceId":"$afhandelenId",
@@ -405,7 +405,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 "resultaattypeUuid": "2b774ae4-68b0-462c-b6a0-e48b861ee148",
                 "resultaatToelichting":"afronden"
             }
-            """.trimIndent()
+                """.trimIndent()
             )
 
             Then("The zaak should have a resultaat") {
