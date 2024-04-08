@@ -31,12 +31,13 @@ class ItestHttpClient {
         url: String,
         headers: Headers = getDefaultJSONGETHeaders(),
         addAuthorizationHeader: Boolean = true,
+        openZaakAuth: Boolean = false
     ): Response {
         logger.info { "Performing GET request on: '$url'" }
         val request = Request.Builder()
             .headers(
                 if (addAuthorizationHeader) {
-                    cloneHeadersWithAuthorization(headers)
+                    cloneHeadersWithAuthorization(headers, openZaakAuth)
                 } else {
                     headers
                 }
@@ -52,12 +53,13 @@ class ItestHttpClient {
         headers: Headers = getDefaultJSONHeaders(),
         requestBody: RequestBody,
         addAuthorizationHeader: Boolean = true,
+        openZaakAuth: Boolean = false
     ): Response {
         logger.info { "Performing POST request on: '$url'" }
         val request = Request.Builder()
             .headers(
                 if (addAuthorizationHeader) {
-                    cloneHeadersWithAuthorization(headers)
+                    cloneHeadersWithAuthorization(headers, openZaakAuth)
                 } else {
                     headers
                 }
@@ -73,11 +75,13 @@ class ItestHttpClient {
         headers: Headers = getDefaultJSONHeaders(),
         requestBodyAsString: String,
         addAuthorizationHeader: Boolean = true,
+        openZaakAuth: Boolean = false
     ) = performPostRequest(
         url = url,
         headers = headers,
         requestBody = requestBodyAsString.toRequestBody("application/json".toMediaType()),
-        addAuthorizationHeader = addAuthorizationHeader
+        addAuthorizationHeader = addAuthorizationHeader,
+        openZaakAuth
     )
 
     fun performPatchRequest(
@@ -85,12 +89,13 @@ class ItestHttpClient {
         headers: Headers = getDefaultJSONHeaders(),
         requestBodyAsString: String,
         addAuthorizationHeader: Boolean = true,
+        openZaakAuth: Boolean = false
     ): Response {
         logger.info { "Performing PATCH request on: '$url'" }
         val request = Request.Builder()
             .headers(
                 if (addAuthorizationHeader) {
-                    cloneHeadersWithAuthorization(headers)
+                    cloneHeadersWithAuthorization(headers, openZaakAuth)
                 } else {
                     headers
                 }
@@ -106,12 +111,13 @@ class ItestHttpClient {
         headers: Headers = getDefaultJSONHeaders(),
         requestBodyAsString: String,
         addAuthorizationHeader: Boolean = true,
+        openZaakAuth: Boolean = false
     ): Response {
         logger.info { "Performing PUT request on: '$url'" }
         val request = Request.Builder()
             .headers(
                 if (addAuthorizationHeader) {
-                    cloneHeadersWithAuthorization(headers)
+                    cloneHeadersWithAuthorization(headers, openZaakAuth)
                 } else {
                     headers
                 }
@@ -126,12 +132,13 @@ class ItestHttpClient {
         webSocketListener: WebSocketListener,
         headers: Headers = getDefaultJSONGETHeaders(),
         addAuthorizationHeader: Boolean = true,
+        openZaakAuth: Boolean = false
     ): WebSocket {
         logger.info { "Connecting new websocket on: '$url'" }
         val request = Request.Builder()
             .headers(
                 if (addAuthorizationHeader) {
-                    cloneHeadersWithAuthorization(headers)
+                    cloneHeadersWithAuthorization(headers, openZaakAuth)
                 } else {
                     headers
                 }
@@ -161,6 +168,8 @@ class ItestHttpClient {
             .add("Content-Type", "application/json")
             .build()
 
-    private fun cloneHeadersWithAuthorization(headers: Headers): Headers =
-        headers.newBuilder().add("Authorization", "Bearer ${KeycloakClient.requestAccessToken()}").build()
+    private fun cloneHeadersWithAuthorization(headers: Headers, openZaakAuth: Boolean = false): Headers {
+        val token = if (openZaakAuth) OpenZaakClient.generateToken() else KeycloakClient.requestAccessToken()
+        return headers.newBuilder().add("Authorization", "Bearer $token").build()
+    }
 }

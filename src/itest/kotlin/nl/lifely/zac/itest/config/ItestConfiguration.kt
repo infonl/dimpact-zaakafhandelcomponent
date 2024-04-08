@@ -18,8 +18,8 @@ object ItestConfiguration {
     const val KEYCLOAK_HOSTNAME_URL = "http://localhost:8081"
     const val KEYCLOAK_HEALTH_READY_URL = "$KEYCLOAK_HOSTNAME_URL/health/ready"
     const val KEYCLOAK_REALM = "zaakafhandelcomponent"
-    const val KEYCLOAK_CLIENT = "zaakafhandelcomponent"
-    const val KEYCLOAK_CLIENT_SECRET = "keycloakZaakafhandelcomponentClientSecret"
+    const val ZAC_KEYCLOAK_CLIENT = "zaakafhandelcomponent"
+    const val ZAC_KEYCLOAK_CLIENT_SECRET = "keycloakZaakafhandelcomponentClientSecret"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING = "bijlage"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID = "b1933137-94d6-49bc-9e12-afe712512276"
     const val OBJECT_PRODUCTAANVRAAG_UUID = "9dbed186-89ca-48d7-8c6c-f9995ceb8e27"
@@ -27,6 +27,7 @@ object ItestConfiguration {
     const val OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT = "021f685e-9482-4620-b157-34cd4003da6b"
     const val OPEN_NOTIFICATIONS_API_SECRET_KEY = "openNotificatiesApiSecretKey"
     const val OPEN_ZAAK_BASE_URI = "http://openzaak.local:8000"
+    const val OPEN_ZAAK_EXTERNAL_URI = "http://localhost:8001"
     const val PRODUCT_AANVRAAG_TYPE = "productaanvraag"
     const val ROLTYPE_NAME_BETROKKENE = "Belanghebbende"
     const val ROLTYPE_UUID_BELANGHEBBENDE = "4c4cd850-8332-4bb9-adc4-dd046f0614ad"
@@ -39,8 +40,10 @@ object ItestConfiguration {
     const val TEST_SPEC_ORDER_AFTER_TASK_COMPLETED = 5
     const val TEST_USER_1_ID = "testuser1"
     const val TEST_USER_1_NAME = "Test User1"
+    const val TEST_USER_1_PASSWORD = "testuser1"
     const val TEST_USER_2_ID = "testuser2"
     const val TEST_USER_2_NAME = "Test User2"
+    const val TEST_USER_2_PASSWORD = "testuser2"
     const val TEST_RECORD_MANAGER_1_ID = "recordmanager1"
     const val TEST_RECORD_MANAGER_1_NAME = "Test Recordmanager1"
     const val TEST_FUNCTIONAL_ADMIN_1_ID = "functioneelbeheerder1"
@@ -53,6 +56,8 @@ object ItestConfiguration {
     const val TEST_GROUP_RECORD_MANAGERS_DESCRIPTION = "Test group record managers"
     const val ZAC_CONTAINER_SERVICE_NAME = "zac"
     const val ZAC_CONTAINER_PORT = 8080
+    const val OPENZAAK_CLIENT_ID = "zac_client"
+    const val OPENZAAK_CLIENT_SECRET = "openzaakZaakafhandelcomponentClientSecret"
 
     /**
      * The default ZAC Docker image used when running the integration tests locally.

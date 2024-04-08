@@ -19,6 +19,7 @@ import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
+import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.START_DATE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_COMPLETED
@@ -94,8 +95,10 @@ class SignaleringenRestServiceTest : BehaviorSpec() {
         }
 
         Given("A zaak with informatie objecten") {
+            val zaakPath = "zaken/api/v1/zaken/$zaak1UUID"
             val zaakInformatieObjectenResponse = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/informatieobjecten/informatieobjecten/zaak/$zaak1UUID"
+                url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaakinformatieobjecten?zaak=$OPEN_ZAAK_EXTERNAL_URI/$zaakPath",
+                openZaakAuth = true
             )
             var responseBody = zaakInformatieObjectenResponse.body!!.string()
             logger.info { "Response: $responseBody" }
@@ -118,7 +121,7 @@ class SignaleringenRestServiceTest : BehaviorSpec() {
                             "actie" to "create",
                             "kanaal" to "zaken",
                             "resource" to "zaakinformatieobject",
-                            "hoofdObject" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaak1UUID",
+                            "hoofdObject" to "$OPEN_ZAAK_BASE_URI/$zaakPath",
                             "resourceUrl" to zaakInformatieObjectenUrl,
                             "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                         )

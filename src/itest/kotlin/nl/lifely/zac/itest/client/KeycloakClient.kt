@@ -5,10 +5,10 @@
 
 package nl.lifely.zac.itest.client
 
-import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_CLIENT
-import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_CLIENT_SECRET
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_HOSTNAME_URL
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_REALM
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_KEYCLOAK_CLIENT
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_KEYCLOAK_CLIENT_SECRET
 import okhttp3.FormBody
 import okhttp3.Headers
 import okhttp3.OkHttpClient
@@ -28,11 +28,11 @@ object KeycloakClient {
             .url("$KEYCLOAK_HOSTNAME_URL/realms/$KEYCLOAK_REALM/protocol/openid-connect/token")
             .post(
                 FormBody.Builder()
-                    .add("client_id", KEYCLOAK_CLIENT)
+                    .add("client_id", ZAC_KEYCLOAK_CLIENT)
                     .add("grant_type", "password")
                     .add("username", "testuser1")
                     .add("password", "testuser1")
-                    .add("client_secret", KEYCLOAK_CLIENT_SECRET)
+                    .add("client_secret", ZAC_KEYCLOAK_CLIENT_SECRET)
                     .build()
             )
             .build()
@@ -53,10 +53,10 @@ object KeycloakClient {
                 .url("$KEYCLOAK_HOSTNAME_URL/realms/$KEYCLOAK_REALM/protocol/openid-connect/token")
                 .post(
                     FormBody.Builder()
-                        .add("client_id", KEYCLOAK_CLIENT)
+                        .add("client_id", ZAC_KEYCLOAK_CLIENT)
                         .add("grant_type", REFRESH_TOKEN_ATTRIBUTE)
                         .add(REFRESH_TOKEN_ATTRIBUTE, refreshToken)
-                        .add("client_secret", KEYCLOAK_CLIENT_SECRET)
+                        .add("client_secret", ZAC_KEYCLOAK_CLIENT_SECRET)
                         .build()
                 )
                 .build()
