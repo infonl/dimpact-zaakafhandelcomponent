@@ -106,7 +106,8 @@ public class NotificatieReceiver {
     public Response notificatieReceive(@Context HttpHeaders headers, final Notificatie notificatie) {
         SecurityUtil.setFunctioneelGebruiker(httpSession.get());
         if (isAuthenticated(headers)) {
-            LOG.info(() -> "Notificatie ontvangen: %s".formatted(notificatie.toString()));
+            LOG.info(() -> "Notificatie ontvangen: %s"
+                    .formatted(notificatie.toString()));
             handleWebsockets(notificatie);
             if (!configuratieService.isLocalDevelopment()) {
                 handleSignaleringen(notificatie);
