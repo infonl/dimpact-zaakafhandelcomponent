@@ -1,6 +1,7 @@
 package nl.lifely.zac.itest.client
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_PORT
 import okhttp3.Headers
 import okhttp3.JavaNetCookieJar
 import okhttp3.MediaType.Companion.toMediaType
@@ -13,6 +14,7 @@ import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import java.net.CookieManager
 import java.net.CookiePolicy
+import java.net.URI
 
 class ItestHttpClient {
     private var okHttpClient: OkHttpClient
@@ -30,14 +32,13 @@ class ItestHttpClient {
     fun performGetRequest(
         url: String,
         headers: Headers = getDefaultJSONGETHeaders(),
-        addAuthorizationHeader: Boolean = true,
-        openZaakAuth: Boolean = false
+        addAuthorizationHeader: Boolean = true
     ): Response {
         logger.info { "Performing GET request on: '$url'" }
         val request = Request.Builder()
             .headers(
                 if (addAuthorizationHeader) {
-                    cloneHeadersWithAuthorization(headers, openZaakAuth)
+                    cloneHeadersWithAuthorization(headers, url)
                 } else {
                     headers
                 }
@@ -52,14 +53,13 @@ class ItestHttpClient {
         url: String,
         headers: Headers = getDefaultJSONHeaders(),
         requestBody: RequestBody,
-        addAuthorizationHeader: Boolean = true,
-        openZaakAuth: Boolean = false
+        addAuthorizationHeader: Boolean = true
     ): Response {
         logger.info { "Performing POST request on: '$url'" }
         val request = Request.Builder()
             .headers(
                 if (addAuthorizationHeader) {
-                    cloneHeadersWithAuthorization(headers, openZaakAuth)
+                    cloneHeadersWithAuthorization(headers, url)
                 } else {
                     headers
                 }
@@ -74,28 +74,25 @@ class ItestHttpClient {
         url: String,
         headers: Headers = getDefaultJSONHeaders(),
         requestBodyAsString: String,
-        addAuthorizationHeader: Boolean = true,
-        openZaakAuth: Boolean = false
+        addAuthorizationHeader: Boolean = true
     ) = performPostRequest(
         url = url,
         headers = headers,
         requestBody = requestBodyAsString.toRequestBody("application/json".toMediaType()),
-        addAuthorizationHeader = addAuthorizationHeader,
-        openZaakAuth
+        addAuthorizationHeader = addAuthorizationHeader
     )
 
     fun performPatchRequest(
         url: String,
         headers: Headers = getDefaultJSONHeaders(),
         requestBodyAsString: String,
-        addAuthorizationHeader: Boolean = true,
-        openZaakAuth: Boolean = false
+        addAuthorizationHeader: Boolean = true
     ): Response {
         logger.info { "Performing PATCH request on: '$url'" }
         val request = Request.Builder()
             .headers(
                 if (addAuthorizationHeader) {
-                    cloneHeadersWithAuthorization(headers, openZaakAuth)
+                    cloneHeadersWithAuthorization(headers, url)
                 } else {
                     headers
                 }
@@ -110,14 +107,13 @@ class ItestHttpClient {
         url: String,
         headers: Headers = getDefaultJSONHeaders(),
         requestBodyAsString: String,
-        addAuthorizationHeader: Boolean = true,
-        openZaakAuth: Boolean = false
+        addAuthorizationHeader: Boolean = true
     ): Response {
         logger.info { "Performing PUT request on: '$url'" }
         val request = Request.Builder()
             .headers(
                 if (addAuthorizationHeader) {
-                    cloneHeadersWithAuthorization(headers, openZaakAuth)
+                    cloneHeadersWithAuthorization(headers, url)
                 } else {
                     headers
                 }
@@ -138,7 +134,7 @@ class ItestHttpClient {
         val request = Request.Builder()
             .headers(
                 if (addAuthorizationHeader) {
-                    cloneHeadersWithAuthorization(headers, openZaakAuth)
+                    cloneHeadersWithAuthorization(headers, url)
                 } else {
                     headers
                 }
@@ -168,8 +164,12 @@ class ItestHttpClient {
             .add("Content-Type", "application/json")
             .build()
 
-    private fun cloneHeadersWithAuthorization(headers: Headers, openZaakAuth: Boolean = false): Headers {
-        val token = if (openZaakAuth) OpenZaakClient.generateToken() else KeycloakClient.requestAccessToken()
+    private fun cloneHeadersWithAuthorization(headers: Headers, url: String): Headers {
+        val token = if (URI(url).port == OPEN_ZAAK_EXTERNAL_PORT) {
+            OpenZaakClient.generateToken()
+        } else {
+            KeycloakClient.requestAccessToken()
+        }
         return headers.newBuilder().add("Authorization", "Bearer $token").build()
     }
 }

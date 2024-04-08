@@ -18,8 +18,8 @@ object ItestConfiguration {
     const val KEYCLOAK_HOSTNAME_URL = "http://localhost:8081"
     const val KEYCLOAK_HEALTH_READY_URL = "$KEYCLOAK_HOSTNAME_URL/health/ready"
     const val KEYCLOAK_REALM = "zaakafhandelcomponent"
-    const val ZAC_KEYCLOAK_CLIENT = "zaakafhandelcomponent"
-    const val ZAC_KEYCLOAK_CLIENT_SECRET = "keycloakZaakafhandelcomponentClientSecret"
+    const val KEYCLOAK_CLIENT = "zaakafhandelcomponent"
+    const val KEYCLOAK_CLIENT_SECRET = "keycloakZaakafhandelcomponentClientSecret"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING = "bijlage"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID = "b1933137-94d6-49bc-9e12-afe712512276"
     const val OBJECT_PRODUCTAANVRAAG_UUID = "9dbed186-89ca-48d7-8c6c-f9995ceb8e27"
@@ -27,7 +27,10 @@ object ItestConfiguration {
     const val OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT = "021f685e-9482-4620-b157-34cd4003da6b"
     const val OPEN_NOTIFICATIONS_API_SECRET_KEY = "openNotificatiesApiSecretKey"
     const val OPEN_ZAAK_BASE_URI = "http://openzaak.local:8000"
-    const val OPEN_ZAAK_EXTERNAL_URI = "http://localhost:8001"
+    const val OPEN_ZAAK_EXTERNAL_PORT = 8001
+    const val OPEN_ZAAK_EXTERNAL_URI = "http://localhost:$OPEN_ZAAK_EXTERNAL_PORT"
+    const val OPEN_ZAAK_CLIENT_ID = "zac_client"
+    const val OPEN_ZAAK_CLIENT_SECRET = "openzaakZaakafhandelcomponentClientSecret"
     const val PRODUCT_AANVRAAG_TYPE = "productaanvraag"
     const val ROLTYPE_NAME_BETROKKENE = "Belanghebbende"
     const val ROLTYPE_UUID_BELANGHEBBENDE = "4c4cd850-8332-4bb9-adc4-dd046f0614ad"
@@ -56,8 +59,6 @@ object ItestConfiguration {
     const val TEST_GROUP_RECORD_MANAGERS_DESCRIPTION = "Test group record managers"
     const val ZAC_CONTAINER_SERVICE_NAME = "zac"
     const val ZAC_CONTAINER_PORT = 8080
-    const val OPENZAAK_CLIENT_ID = "zac_client"
-    const val OPENZAAK_CLIENT_SECRET = "openzaakZaakafhandelcomponentClientSecret"
 
     /**
      * The default ZAC Docker image used when running the integration tests locally.

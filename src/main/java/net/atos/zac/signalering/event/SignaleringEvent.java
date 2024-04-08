@@ -57,6 +57,6 @@ public class SignaleringEvent<ID> extends AbstractEvent<SignaleringType.Type, Si
 
     @Override
     public String toString() {
-        return String.format("%s, actor: %s", super.toString(), getActor());
+        return String.format("%s %s", super.toString(), getActor());
     }
 }

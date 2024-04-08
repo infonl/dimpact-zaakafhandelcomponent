@@ -126,9 +126,6 @@ public class SignaleringInstellingen {
 
     @Override
     public String toString() {
-        return String.format(
-                "%s-signaleringinstellingen voor %s, dashboard: %s, mail: %s",
-                getType(), groep != null ? groep : medewerker, dashboard, mail
-        );
+        return String.format("%s-signaleringinstellingen voor %s", getType(), groep != null ? groep : medewerker);
     }
 }
