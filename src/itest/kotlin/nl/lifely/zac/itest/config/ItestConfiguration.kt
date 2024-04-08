@@ -43,10 +43,8 @@ object ItestConfiguration {
     const val TEST_SPEC_ORDER_AFTER_TASK_COMPLETED = 5
     const val TEST_USER_1_ID = "testuser1"
     const val TEST_USER_1_NAME = "Test User1"
-    const val TEST_USER_1_PASSWORD = "testuser1"
     const val TEST_USER_2_ID = "testuser2"
     const val TEST_USER_2_NAME = "Test User2"
-    const val TEST_USER_2_PASSWORD = "testuser2"
     const val TEST_RECORD_MANAGER_1_ID = "recordmanager1"
     const val TEST_RECORD_MANAGER_1_NAME = "Test Recordmanager1"
     const val TEST_FUNCTIONAL_ADMIN_1_ID = "functioneelbeheerder1"

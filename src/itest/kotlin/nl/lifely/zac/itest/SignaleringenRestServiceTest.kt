@@ -97,8 +97,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
         val zaakPath = "zaken/api/v1/zaken/$zaak1UUID"
 
         val zaakInformatieObjectenResponse = itestHttpClient.performGetRequest(
-            url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaakinformatieobjecten?zaak=$OPEN_ZAAK_EXTERNAL_URI/$zaakPath",
-            openZaakAuth = true
+            url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaakinformatieobjecten?zaak=$OPEN_ZAAK_EXTERNAL_URI/$zaakPath"
         )
         var responseBody = zaakInformatieObjectenResponse.body!!.string()
         logger.info { "Response: $responseBody" }
@@ -109,8 +108,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
         logger.info { "Zaak informatie objecten URL: $zaakInformatieObjectenUrl" }
 
         val zaakRollenResponse = itestHttpClient.performGetRequest(
-            url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/rollen?zaak=$OPEN_ZAAK_EXTERNAL_URI/$zaakPath",
-            openZaakAuth = true
+            url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/rollen?zaak=$OPEN_ZAAK_EXTERNAL_URI/$zaakPath"
         )
         responseBody = zaakRollenResponse.body!!.string()
         logger.info { "Response: $responseBody" }
@@ -201,7 +199,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                 JSONArray(responseBody) shouldHaveSize 1
             }
 
-            Then("""it returns the correct signaleringen""") {
+            Then("it returns the correct signaleringen") {
                 with(JSONArray(responseBody).getJSONObject(0).toString()) {
                     shouldContainJsonKey("behandelaar")
                     shouldContainJsonKey("groep")
@@ -238,7 +236,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                 JSONArray(responseBody) shouldHaveSize 1
             }
 
-            Then("""it returns the correct signaleringen""") {
+            Then("it returns the correct signaleringen") {
                 with(JSONArray(responseBody).getJSONObject(0).toString()) {
                     shouldContainJsonKey("behandelaar")
                     shouldContainJsonKey("groep")
@@ -259,7 +257,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
         When("the latest signaleringen date is requested") {
             val response = itestHttpClient.performGetRequest("$ZAC_API_URI/signaleringen/latest")
 
-            Then("""it returns a date between the start of the tests and current moment""") {
+            Then("it returns a date between the start of the tests and current moment") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
