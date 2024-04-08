@@ -31,6 +31,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVEN
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_2_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.lifely.zac.itest.config.ItestConfiguration.zaak1UUID
 import nl.lifely.zac.itest.util.WebSocketTestListener
 import org.json.JSONArray
 import org.json.JSONObject
@@ -39,17 +40,17 @@ import java.time.LocalDate
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
-private val itestHttpClient = ItestHttpClient()
-private val zacClient = ZacClient()
-private val logger = KotlinLogging.logger {}
-
-lateinit var zaak2UUID: UUID
-
 /**
  * This test assumes a zaak has been created in a previously run test.
  */
 @Order(TEST_SPEC_ORDER_AFTER_ZAAK_CREATED)
 class ZakenRESTServiceTest : BehaviorSpec({
+    val itestHttpClient = ItestHttpClient()
+    val zacClient = ZacClient()
+    val logger = KotlinLogging.logger {}
+
+    lateinit var zaak2UUID: UUID
+
     Given("ZAC Docker container is running and zaakafhandelparameters have been created") {
         When("the create zaak endpoint is called and the user has permissions for the zaaktype used") {
             val response = zacClient.createZaak(

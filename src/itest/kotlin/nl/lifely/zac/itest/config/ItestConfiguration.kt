@@ -14,6 +14,8 @@ import java.util.UUID
 object ItestConfiguration {
     const val BETROKKENE_TYPE_NATUURLIJK_PERSOON = "NATUURLIJK_PERSOON"
     const val BETROKKENE_IDENTIFICATIE_TYPE_BSN = "BSN"
+    const val FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE = "AANVULLENDE_INFORMATIE"
+    const val HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM = "Aanvullende informatie"
     const val KEYCLOAK_HOSTNAME_URL = "http://localhost:8081"
     const val KEYCLOAK_HEALTH_READY_URL = "$KEYCLOAK_HOSTNAME_URL/health/ready"
     const val KEYCLOAK_REALM = "zaakafhandelcomponent"
@@ -28,9 +30,15 @@ object ItestConfiguration {
     const val OPEN_FORMULIEREN_FORMULIER_BRON_NAAM = "open-forms"
     const val OPEN_NOTIFICATIONS_API_SECRET_KEY = "openNotificatiesApiSecretKey"
     const val OPEN_ZAAK_BASE_URI = "http://open-zaak.local:8000"
+    const val PDF_MIME_TYPE = "application/pdf"
     const val PRODUCT_AANVRAAG_TYPE = "productaanvraag"
     const val ROLTYPE_NAME_BETROKKENE = "Belanghebbende"
     const val ROLTYPE_UUID_BELANGHEBBENDE = "4c4cd850-8332-4bb9-adc4-dd046f0614ad"
+    const val ROLTYPE_COUNT = 16
+    const val TEST_PDF_FILE_NAME = "dummyTestDocument.pdf"
+    const val TEST_PDF_FILE_SIZE = 9268
+    const val TEST_TXT_FILE_NAME = "testTextDocument.txt"
+    const val TEST_TXT_FILE_SIZE = 63
     const val TEST_BETROKKENE_BSN_HENDRIKA_JANSE = "999993896"
     const val TEST_SPEC_ORDER_INITIAL = 0
     const val TEST_SPEC_ORDER_AFTER_ZAAK_CREATED = 1
@@ -51,6 +59,7 @@ object ItestConfiguration {
     const val TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION = "Test group functional admins"
     const val TEST_GROUP_RECORD_MANAGERS_ID = "test-group-rm"
     const val TEST_GROUP_RECORD_MANAGERS_DESCRIPTION = "Test group record managers"
+    const val TEXT_MIME_TYPE = "application/text"
     const val ZAC_CONTAINER_SERVICE_NAME = "zac"
     const val ZAC_CONTAINER_PORT = 8080
 
@@ -83,4 +92,14 @@ object ItestConfiguration {
     const val SMARTDOCUMENTS_MOCK_BASE_URI = "http://smartdocuments-wiremock:8080"
 
     val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
+
+    /**
+     * Global variable to store the UUID of a task that is created in the integration tests.
+     */
+    lateinit var task1ID: String
+
+    /**
+     * Global variable to store the UUID of a zaak that is created in the integration tests.
+     */
+    lateinit var zaak1UUID: UUID
 }
