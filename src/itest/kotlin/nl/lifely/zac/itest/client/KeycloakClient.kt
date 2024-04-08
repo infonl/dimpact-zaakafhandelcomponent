@@ -5,10 +5,10 @@
 
 package nl.lifely.zac.itest.client
 
-import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_HOSTNAME_URL
-import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_REALM
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_CLIENT
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_CLIENT_SECRET
+import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_HOSTNAME_URL
+import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_REALM
 import okhttp3.FormBody
 import okhttp3.Headers
 import okhttp3.OkHttpClient
