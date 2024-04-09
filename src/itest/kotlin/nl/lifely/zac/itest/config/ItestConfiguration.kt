@@ -5,6 +5,7 @@
 
 package nl.lifely.zac.itest.config
 
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -68,6 +69,9 @@ object ItestConfiguration {
     const val TEST_GROUP_RECORD_MANAGERS_ID = "test-group-rm"
     const val TEST_GROUP_RECORD_MANAGERS_DESCRIPTION = "Test group record managers"
     const val TEXT_MIME_TYPE = "application/text"
+    const val ZAAK_1_IDENTIFICATION = "ZAAK-2023-0000000001"
+    const val ZAAK_1_UITERLIJKE_EINDDATUM_AFDOENING = "2023-11-08"
+    const val ZAAK_2_IDENTIFICATION = "ZAAK-2023-0000000002"
     const val ZAC_CONTAINER_SERVICE_NAME = "zac"
     const val ZAC_CONTAINER_PORT = 8080
 
@@ -93,8 +97,6 @@ object ItestConfiguration {
      */
     const val ZAC_MANAGEMENT_URI = "http://localhost:$ZAC_MANAGEMENT_PORT"
     const val ZAC_HEALTH_READY_URL = "$ZAC_MANAGEMENT_URI/health/ready"
-    const val ZAAK_1_IDENTIFICATION = "ZAAK-2023-0000000001"
-    const val ZAAK_2_IDENTIFICATION = "ZAAK-2023-0000000002"
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE = "melding-evenement-organiseren-behandelen"
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION = "Melding evenement organiseren behandelen"
     const val SMARTDOCUMENTS_MOCK_BASE_URI = "http://smartdocuments-wiremock:8080"
@@ -111,4 +113,9 @@ object ItestConfiguration {
      * Global variable to store the UUID of a zaak that is created in the integration tests.
      */
     lateinit var zaak1UUID: UUID
+
+    /**
+     * Global variable to store the fatal date of a zaak that is created in the integration tests.
+     */
+    lateinit var zaak1uiterlijkeEinddatumAfdoening: LocalDate
 }

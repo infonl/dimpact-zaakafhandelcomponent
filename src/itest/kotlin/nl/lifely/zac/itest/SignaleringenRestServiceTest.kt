@@ -24,6 +24,8 @@ import nl.lifely.zac.itest.config.ItestConfiguration.START_DATE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_COMPLETED
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_IDENTIFICATION
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_UITERLIJKE_EINDDATUM_AFDOENING
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import okhttp3.Headers
 import org.json.JSONArray
@@ -203,14 +205,14 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                 with(JSONArray(responseBody).getJSONObject(0).toString()) {
                     shouldContainJsonKey("behandelaar")
                     shouldContainJsonKey("groep")
-                    shouldContainJsonKeyValue("identificatie", "ZAAK-2023-0000000001")
+                    shouldContainJsonKeyValue("identificatie", ZAAK_1_IDENTIFICATION)
                     shouldContainJsonKey("omschrijving")
                     shouldContainJsonKey("openstaandeTaken")
                     shouldContainJsonKey("rechten")
                     shouldContainJsonKeyValue("startdatum", "2023-10-25")
                     shouldContainJsonKeyValue("status", "Intake")
                     shouldContainJsonKeyValue("toelichting", "")
-                    shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", "2023-11-08")
+                    shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", ZAAK_1_UITERLIJKE_EINDDATUM_AFDOENING)
                     shouldContainJsonKey("uuid")
                     shouldContainJsonKeyValue("zaaktype", "Melding evenement organiseren behandelen")
                 }
@@ -240,14 +242,14 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                 with(JSONArray(responseBody).getJSONObject(0).toString()) {
                     shouldContainJsonKey("behandelaar")
                     shouldContainJsonKey("groep")
-                    shouldContainJsonKeyValue("identificatie", "ZAAK-2023-0000000001")
+                    shouldContainJsonKeyValue("identificatie", ZAAK_1_IDENTIFICATION)
                     shouldContainJsonKey("omschrijving")
                     shouldContainJsonKey("openstaandeTaken")
                     shouldContainJsonKey("rechten")
                     shouldContainJsonKeyValue("startdatum", "2023-10-25")
                     shouldContainJsonKeyValue("status", "Intake")
                     shouldContainJsonKeyValue("toelichting", "")
-                    shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", "2023-11-08")
+                    shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", ZAAK_1_UITERLIJKE_EINDDATUM_AFDOENING)
                     shouldContainJsonKey("uuid")
                     shouldContainJsonKeyValue("zaaktype", "Melding evenement organiseren behandelen")
                 }
