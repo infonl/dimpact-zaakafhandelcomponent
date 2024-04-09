@@ -5,6 +5,7 @@
 
 package nl.lifely.zac.itest.client
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_CLIENT
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_CLIENT_SECRET
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_HOSTNAME_URL
@@ -19,6 +20,7 @@ import org.json.JSONObject
 
 lateinit var refreshToken: String
 private val okHttpClient = OkHttpClient.Builder().build()
+private val logger = KotlinLogging.logger {}
 
 object KeycloakClient {
     private const val ACCESS_TOKEN_ATTRIBUTE = "access_token"
@@ -39,6 +41,7 @@ object KeycloakClient {
             )
             .build()
     ).execute().apply {
+        logger.info { "--- authenticate status code: $code ---" }
         refreshToken = JSONObject(this.body!!.string()).getString(REFRESH_TOKEN_ATTRIBUTE)
     }
 

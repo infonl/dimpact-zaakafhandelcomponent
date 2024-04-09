@@ -433,7 +433,9 @@ class ZakenRESTServiceTest : BehaviorSpec({
             Then("The zaak should have a resultaat") {
                 with(zacClient.retrieveZaak(uuid)) {
                     code shouldBe HttpStatusCode.OK_200.code()
-                    JSONObject(body!!.string()).apply {
+                    val bodyStr = body!!.string()
+                    logger.info { "--- zaak body after afronden: $bodyStr ---" }
+                    JSONObject(bodyStr).apply {
                         has("resultaat") shouldBe true
                     }
                 }
@@ -452,6 +454,10 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 )
             ) {
                 logger.info { "--- Heropenen status code: $code ---" }
+                if (code > 204) {
+                    val bodyStr = body!!.string()
+                    logger.info { "--- Heropenen error body: $bodyStr ---" }
+                }
             }
 
             // re-authenticate with the default user
