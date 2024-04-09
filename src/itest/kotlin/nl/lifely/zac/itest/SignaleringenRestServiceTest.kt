@@ -79,7 +79,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                     "application/json"
                 ),
                 requestBodyAsString = """{
-                    "zaakUUID":"$zaak1UUID",
+                    "zaakUUID":"${ItestConfiguration.zaak1UUID}",
                     "behandelaarGebruikersnaam":"$TEST_USER_1_ID",
                     "groepId":"$TEST_GROUP_A_ID",
                     "reden":null
@@ -94,7 +94,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
     }
 
     Given("A zaak with informatie objecten") {
-        val zaakPath = "zaken/api/v1/zaken/$zaak1UUID"
+        val zaakPath = "zaken/api/v1/zaken/${ItestConfiguration.zaak1UUID}"
 
         val zaakInformatieObjectenResponse = itestHttpClient.performGetRequest(
             url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaakinformatieobjecten?zaak=$OPEN_ZAAK_EXTERNAL_URI/$zaakPath"
