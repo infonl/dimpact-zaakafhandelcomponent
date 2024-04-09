@@ -22,6 +22,10 @@ public class RESTHumanTaskData {
     @Valid
     public RESTUser medewerker;
 
+    /**
+     * The 'final due date' of a task.
+     * Note that this fatal date cannot be later than the fatal date of the zaak to which this task belongs.
+     */
     public LocalDate fataledatum;
 
     public String toelichting;

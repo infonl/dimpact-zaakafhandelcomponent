@@ -37,6 +37,7 @@ import net.atos.zac.app.planitems.model.RESTHumanTaskData;
 import net.atos.zac.app.planitems.model.RESTPlanItem;
 import net.atos.zac.app.planitems.model.RESTProcessTaskData;
 import net.atos.zac.app.planitems.model.RESTUserEventListenerData;
+import net.atos.zac.app.util.InputValidationFailedException;
 import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.flowable.CMMNService;
 import net.atos.zac.flowable.TaakVariabelenService;
@@ -174,6 +175,15 @@ public class PlanItemsRESTService {
 
         final LocalDate fataleDatum;
         if (humanTaskData.fataledatum != null) {
+            if (humanTaskData.fataledatum.isAfter(zaak.getUiterlijkeEinddatumAfdoening())) {
+                throw new InputValidationFailedException(
+                        String.format(
+                                "Fatal date of a task (%s) cannot be later than the fatal date of the zaak (%s)",
+                                humanTaskData.fataledatum,
+                                zaak.getUiterlijkeEinddatumAfdoening()
+                        )
+                );
+            }
             fataleDatum = humanTaskData.fataledatum;
         } else {
             fataleDatum = humanTaskParameters.isPresent() && humanTaskParameters.get().getDoorlooptijd() != null ?
