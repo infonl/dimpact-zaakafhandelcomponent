@@ -58,55 +58,56 @@ class ZTCClientService : Caching {
     private lateinit var configuratieService: ConfiguratieService
 
     companion object {
-        private val CACHES = listOf(
-            Caching.ZTC_BESLUITTYPE,
-            Caching.ZTC_CACHE_TIME,
-            Caching.ZTC_RESULTAATTYPE,
-            Caching.ZTC_STATUSTYPE,
-            Caching.ZTC_INFORMATIEOBJECTTYPE,
-            Caching.ZTC_ZAAKTYPE_INFORMATIEOBJECTTYPE,
-            Caching.ZTC_ZAAKTYPE
-        )
+        private val CACHES = mutableMapOf<String, Cache<*, *>>()
 
         private val LOG = Logger.getLogger(ZTCClientService::class.java.name)
 
-        private fun <K, V> createCache(size: Long = 100): Cache<K, V> =
-            Caffeine.newBuilder()
+        private fun <K, V> createCache(name: String, size: Long = 100): Cache<K, V> {
+            val cache: Cache<K, V> = Caffeine.newBuilder()
                 .maximumSize(size)
                 .recordStats()
                 .removalListener { key: K?, _: V?, cause ->
                     LOG.info("Remove key : $key because : $cause")
                 }.build()
 
-        private val ztcTimeCache: Cache<String, ZonedDateTime> = createCache(1)
+            CACHES["ZTC $name"] = cache
+            return cache
+        }
 
-        private val uuidToZaakTypeCache: Cache<UUID, ZaakType> = createCache()
-        private val uriToZaakTypeCache: Cache<URI, ZaakType> = createCache()
-        private val uriToZaakTypeListCache: Cache<URI, List<ZaakType>> = createCache()
+        private val ztcTimeCache: Cache<String, ZonedDateTime> = createCache("Time", 1)
 
-        private val uriToStatusTypeCache: Cache<URI, StatusType> = createCache()
-        private val uuidToStatusTypeCache: Cache<UUID, StatusType> = createCache()
-        private val uriToStatusTypeListCache: Cache<URI, List<StatusType>> = createCache()
+        private val uuidToZaakTypeCache: Cache<UUID, ZaakType> = createCache("UUID -> ZaakType")
+        private val uriToZaakTypeCache: Cache<URI, ZaakType> = createCache("URI -> ZaakType")
+        private val uriToZaakTypeListCache: Cache<URI, List<ZaakType>> = createCache("URI -> List<ZaakType>")
+
+        private val uriToStatusTypeCache: Cache<URI, StatusType> = createCache("URI -> StatusType")
+        private val uuidToStatusTypeCache: Cache<UUID, StatusType> = createCache("UUID -> StatusType")
+        private val uriToStatusTypeListCache: Cache<URI, List<StatusType>> = createCache("URI -> List<StatusType>")
 
         private val uriToZaakTypeInformatieObjectTypeListCache: Cache<URI, List<ZaakTypeInformatieObjectType>> =
-            createCache()
+            createCache("URI -> List<ZaakTypeInformatieObjectType")
 
-        private val uriToInformatieObjectTypeCache: Cache<URI, InformatieObjectType> = createCache()
-        private val uuidToInformatieObjectTypeCache: Cache<UUID, InformatieObjectType> = createCache()
-        private val uriToInformatieObjectTypeListCache: Cache<URI, List<InformatieObjectType>> = createCache()
+        private val uriToInformatieObjectTypeCache: Cache<URI, InformatieObjectType> =
+            createCache("URI -> InformatieObjectType")
+        private val uuidToInformatieObjectTypeCache: Cache<UUID, InformatieObjectType> =
+            createCache("UUID -> InformatieObjectType")
+        private val uriToInformatieObjectTypeListCache: Cache<URI, List<InformatieObjectType>> =
+            createCache("URI -> List<InformatieObjectType>")
 
-        private val uriToResultaatTypeCache: Cache<URI, ResultaatType> = createCache()
-        private val uuidToResultaatTypeCache: Cache<UUID, ResultaatType> = createCache()
-        private val uriToResultaatTypeListCache: Cache<URI, List<ResultaatType>> = createCache()
+        private val uriToResultaatTypeCache: Cache<URI, ResultaatType> = createCache("URI -> ResultaatType")
+        private val uuidToResultaatTypeCache: Cache<UUID, ResultaatType> = createCache("UUID -> ResultaatType")
+        private val uriToResultaatTypeListCache: Cache<URI, List<ResultaatType>> =
+            createCache("URI -> List<ResultaatType>")
 
-        private val uriToBesluitTypeCache: Cache<URI, BesluitType> = createCache()
-        private val uuidToBesluitTypeCache: Cache<UUID, BesluitType> = createCache()
-        private val uriToBesluitTypeListCache: Cache<URI, List<BesluitType>> = createCache()
+        private val uriToBesluitTypeCache: Cache<URI, BesluitType> = createCache("URI -> BesluitType")
+        private val uuidToBesluitTypeCache: Cache<UUID, BesluitType> = createCache("UUID -> BesluitType")
+        private val uriToBesluitTypeListCache: Cache<URI, List<BesluitType>> = createCache("URI -> List<BesluitType>")
 
-        private val uriOmschrijvingGeneriekEnumToRolTypeCache: Cache<String, Optional<RolType>> = createCache()
-        private val uriToRolTypeListCache: Cache<URI, List<RolType>> = createCache()
-        private val rolTypeListCache: Cache<String, List<RolType>> = createCache(1)
-        private val uuidToRolTypeCache: Cache<UUID, RolType> = createCache()
+        private val uriOmschrijvingGeneriekEnumToRolTypeCache: Cache<String, Optional<RolType>> =
+            createCache("URI & OmschrijvingGeneriekEnumT -> RolType")
+        private val uriToRolTypeListCache: Cache<URI, List<RolType>> = createCache("URI -> List<RolType>")
+        private val rolTypeListCache: Cache<String, List<RolType>> = createCache("List<RolType>", 1)
+        private val uuidToRolTypeCache: Cache<UUID, RolType> = createCache("UUID -> RolType")
     }
 
     fun listCatalogus(catalogusListParameters: CatalogusListParameters): Results<Catalogus> =
@@ -414,36 +415,8 @@ class ZTCClientService : Caching {
         return cleared(Caching.ZTC_CACHE_TIME)
     }
 
-    override fun cacheStatistics(): Map<String, CacheStats> = buildMap {
-        put("ZTC Time", ztcTimeCache.stats())
-
-        put("ZTC UUID -> ZaakType", uuidToZaakTypeCache.stats())
-        put("ZTC URI -> ZaakType", uriToZaakTypeCache.stats())
-        put("ZTC URI -> List<ZaakType>", uriToZaakTypeListCache.stats())
-
-        put("ZTC URI -> StatusType", uriToStatusTypeCache.stats())
-        put("ZTC UUID -> StatusType", uuidToStatusTypeCache.stats())
-        put("ZTC URI -> List<StatusType>", uriToStatusTypeListCache.stats())
-
-        put("ZTC URI -> List<ZaakTypeInformatieObjectType>", uriToZaakTypeInformatieObjectTypeListCache.stats())
-
-        put("ZTC URI -> InformatieObjectType", uriToInformatieObjectTypeCache.stats())
-        put("ZTC UUID -> InformatieObjectType", uuidToInformatieObjectTypeCache.stats())
-        put("ZTC URI -> List<InformatieObjectType>", uriToInformatieObjectTypeListCache.stats())
-
-        put("ZTC URI -> ResultaatType", uriToResultaatTypeCache.stats())
-        put("ZTC UUID -> ResultaatType", uuidToResultaatTypeCache.stats())
-        put("ZTC URI -> List<ResultaatType>", uriToResultaatTypeListCache.stats())
-
-        put("ZTC URI -> BesluitType", uriToBesluitTypeCache.stats())
-        put("ZTC UUID -> BesluitType", uuidToBesluitTypeCache.stats())
-        put("ZTC URI -> List<BesluitType>", uriToBesluitTypeListCache.stats())
-
-        put("ZTC URI & OmschrijvingGeneriekEnumT -> RolType", uriOmschrijvingGeneriekEnumToRolTypeCache.stats())
-        put("ZTC URI -> List<RolType>", uriToRolTypeListCache.stats())
-        put("ZTC List<RolType>", rolTypeListCache.stats())
-        put("ZTC UUID -> RolType", uuidToRolTypeCache.stats())
-    }
+    override fun cacheStatistics(): Map<String, CacheStats> =
+        CACHES.mapValuesTo(mutableMapOf<String, CacheStats>()) { it.value.stats() }
 
     private fun createInvocationBuilder(uri: URI) =
         // for security reasons check if the provided URI starts with the value of the
