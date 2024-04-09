@@ -67,7 +67,7 @@ class ZTCClientService : Caching {
                 .maximumSize(size)
                 .recordStats()
                 .removalListener { key: K?, _: V?, cause ->
-                    LOG.info("Remove key : $key because : $cause")
+                    LOG.fine("Removing key: $key because of: $cause")
                 }.build()
 
             CACHES["ZTC $name"] = cache
