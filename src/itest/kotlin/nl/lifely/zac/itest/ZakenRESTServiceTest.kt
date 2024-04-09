@@ -433,7 +433,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
             }
 
             with(
-                itestHttpClient.performJSONPostRequest(
+                itestHttpClient.performPatchRequest(
                     "$ZAC_API_URI/zaken/zaak/$uuid/afsluiten",
                     requestBodyAsString = """
                 {"reden":"dummyReason","resultaattypeUuid":"$resultaatUuid"}
