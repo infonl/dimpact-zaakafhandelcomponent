@@ -6,6 +6,7 @@ package net.atos.client.zgw.ztc
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
+import com.github.benmanes.caffeine.cache.stats.CacheStats
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.HttpHeaders
@@ -413,7 +414,36 @@ class ZTCClientService : Caching {
         return cleared(Caching.ZTC_CACHE_TIME)
     }
 
-    override fun cacheNames() = CACHES
+    override fun cacheStatistics(): Map<String, CacheStats> = buildMap {
+        put("ZTC Time", ztcTimeCache.stats())
+
+        put("ZTC UUID -> ZaakType", uuidToZaakTypeCache.stats())
+        put("ZTC URI -> ZaakType", uriToZaakTypeCache.stats())
+        put("ZTC URI -> List<ZaakType>", uriToZaakTypeListCache.stats())
+
+        put("ZTC URI -> StatusType", uriToStatusTypeCache.stats())
+        put("ZTC UUID -> StatusType", uuidToStatusTypeCache.stats())
+        put("ZTC URI -> List<StatusType>", uriToStatusTypeListCache.stats())
+
+        put("ZTC URI -> List<ZaakTypeInformatieObjectType>", uriToZaakTypeInformatieObjectTypeListCache.stats())
+
+        put("ZTC URI -> InformatieObjectType", uriToInformatieObjectTypeCache.stats())
+        put("ZTC UUID -> InformatieObjectType", uuidToInformatieObjectTypeCache.stats())
+        put("ZTC URI -> List<InformatieObjectType>", uriToInformatieObjectTypeListCache.stats())
+
+        put("ZTC URI -> ResultaatType", uriToResultaatTypeCache.stats())
+        put("ZTC UUID -> ResultaatType", uuidToResultaatTypeCache.stats())
+        put("ZTC URI -> List<ResultaatType>", uriToResultaatTypeListCache.stats())
+
+        put("ZTC URI -> BesluitType", uriToBesluitTypeCache.stats())
+        put("ZTC UUID -> BesluitType", uuidToBesluitTypeCache.stats())
+        put("ZTC URI -> List<BesluitType>", uriToBesluitTypeListCache.stats())
+
+        put("ZTC URI & OmschrijvingGeneriekEnumT -> RolType", uriOmschrijvingGeneriekEnumToRolTypeCache.stats())
+        put("ZTC URI -> List<RolType>", uriToRolTypeListCache.stats())
+        put("ZTC List<RolType>", rolTypeListCache.stats())
+        put("ZTC UUID -> RolType", uuidToRolTypeCache.stats())
+    }
 
     private fun createInvocationBuilder(uri: URI) =
         // for security reasons check if the provided URI starts with the value of the

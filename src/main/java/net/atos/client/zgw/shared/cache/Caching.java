@@ -5,7 +5,10 @@
 
 package net.atos.client.zgw.shared.cache;
 
+import com.github.benmanes.caffeine.cache.stats.CacheStats;
+
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -36,7 +39,7 @@ public interface Caching {
 
     String ZAC_ZAAKAFHANDELPARAMETERS = "zac-zaakafhandelparameters-list";
 
-    List<String> cacheNames();
+    Map<String, CacheStats> cacheStatistics();
 
     default String cleared(final String cache) {
         final String message = String.format("%s cache cleared", cache);
