@@ -105,7 +105,7 @@ class SignaleringenService @Inject constructor(
      * @param actor       the actor (a gebruikersnaam) or null if unknown
      * @return true if signalling is necessary
      */
-    fun isNecessary(signalering: Signalering, actor: String): Boolean {
+    fun isNecessary(signalering: Signalering, actor: String?): Boolean {
         return signalering.targettype != SignaleringTarget.USER || signalering.target != actor
     }
 
