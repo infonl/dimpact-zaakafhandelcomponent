@@ -25,6 +25,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_INITIAL
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.lifely.zac.itest.config.ItestConfiguration.zaak1UUID
 import nl.lifely.zac.itest.util.WebSocketTestListener
 import okhttp3.Headers
 import org.json.JSONObject
@@ -36,15 +37,14 @@ import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
-private val logger = KotlinLogging.logger {}
-private val itestHttpClient = ItestHttpClient()
-lateinit var zaak1UUID: UUID
-
 /**
  * This test creates a zaak which we use in other tests, and therefore we run this test first.
  */
 @Order(TEST_SPEC_ORDER_INITIAL)
 class NotificationsTest : BehaviorSpec({
+    val logger = KotlinLogging.logger {}
+    val itestHttpClient = ItestHttpClient()
+
     Given("ZAC and all related Docker containers are running") {
         When("the notificaties endpoint is called with dummy payload without authentication header") {
             val response = itestHttpClient.performJSONPostRequest(
