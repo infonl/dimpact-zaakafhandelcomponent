@@ -23,7 +23,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.START_DATE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_COMPLETED
-import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_ID
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import okhttp3.Headers
 import org.json.JSONArray
@@ -80,7 +80,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                 ),
                 requestBodyAsString = """{
                     "zaakUUID":"${ItestConfiguration.zaak1UUID}",
-                    "behandelaarGebruikersnaam":"$TEST_USER_1_ID",
+                    "behandelaarGebruikersnaam":"$TEST_USER_1_USERNAME",
                     "groepId":"$TEST_GROUP_A_ID",
                     "reden":null
                 }

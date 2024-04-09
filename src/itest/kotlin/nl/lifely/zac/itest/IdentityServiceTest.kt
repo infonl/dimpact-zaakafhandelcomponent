@@ -18,10 +18,10 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_FUNCTIONAL_ADMIN
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_FUNCTIONAL_ADMINS_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_RECORD_MANAGERS_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_RECORD_MANAGERS_ID
-import nl.lifely.zac.itest.config.ItestConfiguration.TEST_RECORD_MANAGER_1_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_RECORD_MANAGER_1_NAME
-import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_ID
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_RECORD_MANAGER_1_USERNAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_2_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -71,11 +71,11 @@ class IdentityServiceTest : BehaviorSpec({
                                     "naam": "$TEST_FUNCTIONAL_ADMIN_1_NAME"
                                 },
                                 {
-                                    "id": "$TEST_RECORD_MANAGER_1_ID",
+                                    "id": "$TEST_RECORD_MANAGER_1_USERNAME",
                                     "naam": "$TEST_RECORD_MANAGER_1_NAME"
                                 },
                                 {
-                                    "id": "$TEST_USER_1_ID",
+                                    "id": "$TEST_USER_1_USERNAME",
                                     "naam": "$TEST_USER_1_NAME"
                                 },
                                 {
@@ -97,7 +97,7 @@ class IdentityServiceTest : BehaviorSpec({
                 response.body!!.string() shouldEqualJson """
                         [
                             {
-                                "id": "$TEST_USER_1_ID",
+                                "id": "$TEST_USER_1_USERNAME",
                                 "naam": "$TEST_USER_1_NAME"
                             },
                             {
@@ -133,7 +133,7 @@ class IdentityServiceTest : BehaviorSpec({
                 response.isSuccessful shouldBe true
                 response.body!!.string() shouldEqualSpecifiedJsonIgnoringOrder """
                             {
-                                "id": "$TEST_USER_1_ID",
+                                "id": "$TEST_USER_1_USERNAME",
                                 "naam": "$TEST_USER_1_NAME",
                                 "groupIds": [
                                     "$TEST_GROUP_A_ID",
