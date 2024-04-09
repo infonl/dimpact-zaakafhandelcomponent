@@ -175,15 +175,7 @@ public class PlanItemsRESTService {
 
         final LocalDate fataleDatum;
         if (humanTaskData.fataledatum != null) {
-            if (humanTaskData.fataledatum.isAfter(zaak.getUiterlijkeEinddatumAfdoening())) {
-                throw new InputValidationFailedException(
-                        String.format(
-                                "Fatal date of a task (%s) cannot be later than the fatal date of the zaak (%s)",
-                                humanTaskData.fataledatum,
-                                zaak.getUiterlijkeEinddatumAfdoening()
-                        )
-                );
-            }
+            validateFatalDate(humanTaskData.fataledatum, zaak.getUiterlijkeEinddatumAfdoening());
             fataleDatum = humanTaskData.fataledatum;
         } else {
             fataleDatum = humanTaskParameters.isPresent() && humanTaskParameters.get().getDoorlooptijd() != null ?
@@ -268,5 +260,17 @@ public class PlanItemsRESTService {
             }
         }
         cmmnService.startUserEventListenerPlanItem(userEventListenerData.planItemInstanceId);
+    }
+
+    private static void validateFatalDate(LocalDate taskFatalDate, LocalDate zaakFatalDate) {
+        if (taskFatalDate.isAfter(zaakFatalDate)) {
+            throw new InputValidationFailedException(
+                    String.format(
+                            "Fatal date of a task (%s) cannot be later than the fatal date of the zaak (%s)",
+                            taskFatalDate,
+                            zaakFatalDate
+                    )
+            );
+        }
     }
 }
