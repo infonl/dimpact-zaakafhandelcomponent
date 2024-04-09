@@ -5,16 +5,8 @@
 
 import { Injectable, OnDestroy } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { Observable, Subject, concat, forkJoin, of, throwError } from "rxjs";
-import {
-  catchError,
-  delay,
-  filter,
-  retryWhen,
-  switchMap,
-  takeUntil,
-  timeout,
-} from "rxjs/operators";
+import { Observable, Subject, forkJoin, of } from "rxjs";
+import { delay, filter, retryWhen, switchMap, takeUntil } from "rxjs/operators";
 import { WebSocketSubject, webSocket } from "rxjs/webSocket";
 import { UtilService } from "../service/util.service";
 import { EventCallback } from "./model/event-callback";
@@ -26,6 +18,14 @@ import { ScreenEventId } from "./model/screen-event-id";
 import { SubscriptionMessage } from "./model/subscription-message";
 import { SubscriptionType } from "./model/subscription-type";
 import { WebsocketListener } from "./model/websocket-listener";
+
+const subscriptionState = {
+  subscribed: "SUBSCRIBED",
+  received: "RECEIVED",
+} as const;
+
+type SubscriptionState =
+  (typeof subscriptionState)[keyof typeof subscriptionState];
 
 @Injectable({
   providedIn: "root",
@@ -226,6 +226,15 @@ export class WebsocketService implements OnDestroy {
     objectId: string,
     operation: () => Observable<void>,
   ) {
+    return this.listenOnce(opcode, objectType, objectId).pipe(
+      switchMap((s) =>
+        s === subscriptionState.subscribed ? operation() : of(s),
+      ),
+      filter((x) => x === subscriptionState.received),
+    ) as Observable<void>;
+  }
+
+  private listenOnce(opcode: Opcode, objectType: ObjectType, objectId: string) {
     /**
      * In the unlikely scenario that the back end never responds with an event,
      * we want to eventually cleanup the websocket connection to prevent memory leaks
@@ -233,24 +242,29 @@ export class WebsocketService implements OnDestroy {
      */
     const ARBITRARY_ONE_HOUR_TIMEOUT_TO_PREVENT_MEMORY_LEAKS_IN_EDGE_CASES =
       60 * 60 * 1000;
-    const LONG_RUNNING_RESPONSE = "LONG_RUNNING_RESPONSE" as const;
-    const subject = new Subject<typeof LONG_RUNNING_RESPONSE>();
-    const subscription = this.addListener(opcode, objectType, objectId, () => {
-      this.removeListener(subscription);
-      subject.next(LONG_RUNNING_RESPONSE);
-      subject.complete();
-    });
-    return concat(operation(), subject).pipe(
-      timeout({
-        each: ARBITRARY_ONE_HOUR_TIMEOUT_TO_PREVENT_MEMORY_LEAKS_IN_EDGE_CASES,
-      }),
-      catchError((e) => {
+
+    return new Observable<SubscriptionState>((subscriber) => {
+      const subscription = this.addListener(
+        opcode,
+        objectType,
+        objectId,
+        () => {
+          clearTimeout(timeout);
+          this.removeListener(subscription);
+          subscriber.next(subscriptionState.received);
+          subscriber.complete();
+        },
+      );
+
+      const timeout = setTimeout(() => {
         this.removeListener(subscription);
-        return throwError(() => e);
-      }),
-      filter((r) => r === LONG_RUNNING_RESPONSE),
-    );
+        subscriber.error("timeout");
+      }, ARBITRARY_ONE_HOUR_TIMEOUT_TO_PREVENT_MEMORY_LEAKS_IN_EDGE_CASES);
+
+      subscriber.next(subscriptionState.subscribed);
+    });
   }
+
   private addCallback(
     event: ScreenEvent,
     callback: EventCallback,
