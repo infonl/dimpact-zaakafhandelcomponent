@@ -24,13 +24,14 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_BETROKKENE_BSN_HENDRIK
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
-import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_2_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.lifely.zac.itest.config.ItestConfiguration.zaak1UUID
 import nl.lifely.zac.itest.util.WebSocketTestListener
 import org.json.JSONArray
 import org.json.JSONObject
@@ -39,11 +40,7 @@ import java.time.LocalDate
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
-private val itestHttpClient = ItestHttpClient()
-private val zacClient = ZacClient()
-private val logger = KotlinLogging.logger {}
-
-lateinit var zaak2UUID: UUID
+// private const val EXPECTED_STATUS_CODE_FOR_HEROPENEN = 204
 
 private const val GEOMETRIE_X = 4.806972888890921
 private const val GEOMETRIE_Y = 52.35339893489683
@@ -53,6 +50,12 @@ private const val GEOMETRIE_Y = 52.35339893489683
  */
 @Order(TEST_SPEC_ORDER_AFTER_ZAAK_CREATED)
 class ZakenRESTServiceTest : BehaviorSpec({
+    val itestHttpClient = ItestHttpClient()
+    val zacClient = ZacClient()
+    val logger = KotlinLogging.logger {}
+
+    lateinit var zaak2UUID: UUID
+
     Given("ZAC Docker container is running and zaakafhandelparameters have been created") {
         When("the create zaak endpoint is called and the user has permissions for the zaaktype used") {
             val response = zacClient.createZaak(
@@ -62,7 +65,9 @@ class ZakenRESTServiceTest : BehaviorSpec({
             )
             Then("the response should be a 200 HTTP response with the created zaak") {
                 response.code shouldBe HttpStatusCode.OK_200.code()
-                JSONObject(response.body!!.string()).apply {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                JSONObject(responseBody).apply {
                     getJSONObject("zaaktype").getString("identificatie") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
                     getJSONObject("zaakdata").apply {
                         getString("zaakUUID") shouldNotBe null
@@ -88,8 +93,6 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 }
             }
         }
-    }
-    Given("A zaak has been created") {
         When("the add betrokkene to zaak endpoint is called with an empty 'rol toelichting'") {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/zaken/betrokkene",
@@ -116,50 +119,30 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 }
             }
         }
-        When("the add betrokkene to zaak endpoint is called with valid data") {
-            val response = itestHttpClient.performJSONPostRequest(
-                url = "$ZAC_API_URI/zaken/betrokkene",
+        When("the 'update zaak' endpoint is called where the start and fatal dates are changed") {
+            val startDateNew = LocalDate.now()
+            val fatalDateNew = startDateNew.plusDays(1)
+            val response = itestHttpClient.performPatchRequest(
+                url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID",
                 requestBodyAsString = "{\n" +
-                    "  \"zaakUUID\": \"$zaak2UUID\",\n" +
-                    "  \"roltypeUUID\": \"$ROLTYPE_UUID_BELANGHEBBENDE\",\n" +
-                    "  \"roltoelichting\": \"dummyToelichting\",\n" +
-                    "  \"betrokkeneIdentificatieType\": \"$BETROKKENE_IDENTIFICATIE_TYPE_BSN\",\n" +
-                    "  \"betrokkeneIdentificatie\": \"$TEST_BETROKKENE_BSN_HENDRIKA_JANSE\"\n" +
-                    "}"
+                    "\"zaak\":{\n" +
+                    "  \"startdatum\":\"$startDateNew\",\n" +
+                    "  \"uiterlijkeEinddatumAfdoening\":\"$fatalDateNew\"\n" +
+                    "  },\n" +
+                    "  \"reden\":\"dummyReason\"\n" +
+                    "}\n"
             )
-            Then("the response should be a 200 OK HTTP response") {
-                response.code shouldBe HttpStatusCode.OK_200.code()
+            Then("the response should be a 200 HTTP response with the changed zaak data") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
+                response.code shouldBe HttpStatusCode.OK_200.code()
                 with(responseBody) {
                     shouldContainJsonKeyValue("uuid", zaak2UUID.toString())
+                    shouldContainJsonKeyValue("startdatum", startDateNew.toString())
+                    shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", fatalDateNew.toString())
                 }
             }
         }
-    }
-    Given("A betrokkene has been added to a zaak") {
-        When("the get betrokkene endpoint is called for a zaak") {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID/betrokkene",
-            )
-            Then("the response should be a 200 HTTP response with a list consisting of the betrokkene") {
-                response.code shouldBe HttpStatusCode.OK_200.code()
-                val responseBody = response.body!!.string()
-                logger.info { "Response: $responseBody" }
-                with(JSONArray(responseBody)) {
-                    length() shouldBe 1
-                    getJSONObject(0).apply {
-                        getString("rolid") shouldNotBe null
-                        getString("roltype") shouldBe ROLTYPE_NAME_BETROKKENE
-                        getString("roltoelichting") shouldBe "dummyToelichting"
-                        getString("type") shouldBe BETROKKENE_TYPE_NATUURLIJK_PERSOON
-                        getString("identificatie") shouldBe TEST_BETROKKENE_BSN_HENDRIKA_JANSE
-                    }
-                }
-            }
-        }
-    }
-    Given("A zaak has been created") {
         When("the 'assign to zaak' endpoint is called with a group") {
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/toekennen",
@@ -180,6 +163,99 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     JSONObject(this).getJSONObject("groep").apply {
                         getString("id") shouldBe TEST_GROUP_A_ID
                         getString("naam") shouldBe TEST_GROUP_A_DESCRIPTION
+                    }
+                }
+            }
+        }
+        When("the add betrokkene to zaak endpoint is called with valid data") {
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/zaken/betrokkene",
+                requestBodyAsString = "{\n" +
+                    "  \"zaakUUID\": \"$zaak2UUID\",\n" +
+                    "  \"roltypeUUID\": \"$ROLTYPE_UUID_BELANGHEBBENDE\",\n" +
+                    "  \"roltoelichting\": \"dummyToelichting\",\n" +
+                    "  \"betrokkeneIdentificatieType\": \"$BETROKKENE_IDENTIFICATIE_TYPE_BSN\",\n" +
+                    "  \"betrokkeneIdentificatie\": \"$TEST_BETROKKENE_BSN_HENDRIKA_JANSE\"\n" +
+                    "}"
+            )
+            Then("the response should be a 200 OK HTTP response") {
+                response.code shouldBe HttpStatusCode.OK_200.code()
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                with(responseBody) {
+                    shouldContainJsonKeyValue("uuid", zaak2UUID.toString())
+                }
+            }
+        }
+        When("the 'update Zaak Locatie' endpoint is called with a valid location") {
+            val response = itestHttpClient.performPatchRequest(
+                url = "$ZAC_API_URI/zaken/$zaak2UUID/zaaklocatie",
+                requestBodyAsString = """
+                        {
+                            "geometrie": {
+                                "point": {
+                                    "x": $GEOMETRIE_X,
+                                    "y": $GEOMETRIE_Y
+                                },
+                                "type": "Point"
+                            },
+                            "reden": "hier is het"
+                        }
+                """.trimIndent()
+            )
+            Then("the response should be a 200 HTTP response with the changed zaak data") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HttpStatusCode.OK_200.code()
+                with(responseBody) {
+                    shouldContainJsonKey("zaakgeometrie")
+                    val geometrie = JSONObject(responseBody)["zaakgeometrie"].toString()
+                    with(geometrie) {
+                        shouldContainJsonKeyValue("type", "Point")
+                        shouldContainJsonKey("point")
+                        with(JSONObject(geometrie)["point"].toString()) {
+                            shouldContainJsonKeyValue("x", GEOMETRIE_X)
+                            shouldContainJsonKeyValue("y", GEOMETRIE_Y)
+                        }
+                    }
+                }
+            }
+        }
+
+        When("the 'update Zaak Locatie' endpoint is called with a null value as location") {
+            val response = itestHttpClient.performPatchRequest(
+                url = "$ZAC_API_URI/zaken/$zaak2UUID/zaaklocatie",
+                requestBodyAsString = """
+                        {
+                            "geometrie": null,
+                            "reden": "hier is het niet meer"
+                        }
+                """.trimIndent()
+            )
+            Then("the response should be a 200 HTTP response with the changed zaak data, so without zaakgeometrie") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HttpStatusCode.OK_200.code()
+            }
+        }
+    }
+    Given("A betrokkene has been added to a zaak") {
+        When("the get betrokkene endpoint is called for a zaak") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID/betrokkene",
+            )
+            Then("the response should be a 200 HTTP response with a list consisting of the betrokkene") {
+                response.code shouldBe HttpStatusCode.OK_200.code()
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                with(JSONArray(responseBody)) {
+                    length() shouldBe 1
+                    getJSONObject(0).apply {
+                        getString("rolid") shouldNotBe null
+                        getString("roltype") shouldBe ROLTYPE_NAME_BETROKKENE
+                        getString("roltoelichting") shouldBe "dummyToelichting"
+                        getString("type") shouldBe BETROKKENE_TYPE_NATUURLIJK_PERSOON
+                        getString("identificatie") shouldBe TEST_BETROKKENE_BSN_HENDRIKA_JANSE
                     }
                 }
             }
@@ -260,7 +336,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/zaken/lijst/toekennen/mij",
                 requestBodyAsString = "{\n" +
                     "\"zaakUUID\":\"$zaak1UUID\",\n" +
-                    "\"behandelaarGebruikersnaam\":\"$TEST_USER_1_ID\",\n" +
+                    "\"behandelaarGebruikersnaam\":\"$TEST_USER_1_USERNAME\",\n" +
                     "\"reden\":\"dummyAssignToMeFromListReason\"\n" +
                     "}"
             )
@@ -273,7 +349,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 with(responseBody) {
                     shouldContainJsonKeyValue("uuid", zaak1UUID.toString())
                     JSONObject(this).getJSONObject("behandelaar").apply {
-                        getString("id") shouldBe TEST_USER_1_ID
+                        getString("id") shouldBe TEST_USER_1_USERNAME
                         getString("naam") shouldBe TEST_USER_1_NAME
                     }
                 }
@@ -281,7 +357,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     code shouldBe HttpStatusCode.OK_200.code()
                     JSONObject(body!!.string()).apply {
                         getJSONObject("behandelaar").apply {
-                            getString("id") shouldBe TEST_USER_1_ID
+                            getString("id") shouldBe TEST_USER_1_USERNAME
                             getString("naam") shouldBe TEST_USER_1_NAME
                         }
                     }
@@ -292,7 +368,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
     Given("Zaken have been assigned to a user") {
         When("the 'lijst vrijgeven' endpoint is called for the zaken") {
             val response = itestHttpClient.performPutRequest(
-                url = "$ZAC_API_URI/zaken/lijst/vrijgeven\n",
+                url = "$ZAC_API_URI/zaken/lijst/vrijgeven",
                 requestBodyAsString = "{\n" +
                     "\"uuids\":[\"$zaak1UUID\", \"$zaak2UUID\"],\n" +
                     "\"reden\":\"dummyLijstVrijgevenReason\"\n" +
@@ -328,83 +404,137 @@ class ZakenRESTServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("A zaak has been created") {
-        When("the 'update zaak' endpoint is called where the start and fatal dates are changed") {
-            val startDateNew = LocalDate.now()
-            val fatalDateNew = startDateNew.plusDays(1)
-            val response = itestHttpClient.performPatchRequest(
-                url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID",
-                requestBodyAsString = "{\n" +
-                    "\"zaak\":{\n" +
-                    "  \"startdatum\":\"$startDateNew\",\n" +
-                    "  \"uiterlijkeEinddatumAfdoening\":\"$fatalDateNew\"\n" +
-                    "  },\n" +
-                    "  \"reden\":\"dummyReason\"\n" +
-                    "}\n"
-            )
-            Then("the response should be a 200 HTTP response with the changed zaak data") {
-                val responseBody = response.body!!.string()
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HttpStatusCode.OK_200.code()
-                with(responseBody) {
-                    shouldContainJsonKeyValue("uuid", zaak2UUID.toString())
-                    shouldContainJsonKeyValue("startdatum", startDateNew.toString())
-                    shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", fatalDateNew.toString())
-                }
-            }
-        }
-    }
-    Given("A zaak has been created") {
-        When("the 'update Zaak Locatie' endpoint is called with a valid location") {
-            val response = itestHttpClient.performPatchRequest(
-                url = "$ZAC_API_URI/zaken/$zaak2UUID/zaaklocatie",
-                requestBodyAsString = """
-                        {
-                            "geometrie": {
-                                "point": {
-                                    "x": $GEOMETRIE_X,
-                                    "y": $GEOMETRIE_Y
-                                },
-                                "type": "Point"
-                            },
-                            "reden": "hier is het"
-                        }
-                """.trimIndent()
-            )
-            Then("the response should be a 200 HTTP response with the changed zaak data") {
-                val responseBody = response.body!!.string()
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HttpStatusCode.OK_200.code()
-                with(responseBody) {
-                    shouldContainJsonKey("zaakgeometrie")
-                    val geometrie = JSONObject(responseBody)["zaakgeometrie"].toString()
-                    with(geometrie) {
-                        shouldContainJsonKeyValue("type", "Point")
-                        shouldContainJsonKey("point")
-                        with(JSONObject(geometrie)["point"].toString()) {
-                            shouldContainJsonKeyValue("x", GEOMETRIE_X)
-                            shouldContainJsonKeyValue("y", GEOMETRIE_Y)
-                        }
-                    }
-                }
-            }
-        }
-
-        When("the 'update Zaak Locatie' endpoint is called with a null value as location") {
-            val response = itestHttpClient.performPatchRequest(
-                url = "$ZAC_API_URI/zaken/$zaak2UUID/zaaklocatie",
-                requestBodyAsString = """
-                        {
-                            "geometrie": null,
-                            "reden": "hier is het niet meer"
-                        }
-                """.trimIndent()
-            )
-            Then("the response should be a 200 HTTP response with the changed zaak data, so without zaakgeometrie") {
-                val responseBody = response.body!!.string()
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HttpStatusCode.OK_200.code()
-            }
-        }
-    }
+//    Given("A zaak that is ontvankelijk") {
+//        lateinit var uuid: UUID
+//        var intakeId: Int
+//        lateinit var resultaatUuid: UUID
+//
+//        with(
+//            zacClient.createZaak(
+//                ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID,
+//                TEST_GROUP_A_ID,
+//                TEST_GROUP_A_DESCRIPTION
+//            )
+//        ) {
+//            with(JSONObject(body!!.string())) {
+//                getJSONObject("zaakdata").apply {
+//                    uuid = getString("zaakUUID").let(UUID::fromString)
+//                }
+//            }
+//        }
+//
+//        with(itestHttpClient.performGetRequest("$ZAC_API_URI/planitems/zaak/$uuid/userEventListenerPlanItems")) {
+//            with(JSONArray(body!!.string()).getJSONObject(0)) {
+//                intakeId = getString("id").toInt()
+//            }
+//        }
+//
+//        with(
+//            itestHttpClient.performJSONPostRequest(
+//                "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
+//                requestBodyAsString = """
+//            {
+//                "zaakUuid":"$uuid",
+//                "planItemInstanceId":"$intakeId",
+//                "actie":"INTAKE_AFRONDEN",
+//                "zaakOntvankelijk":true,
+//                "resultaatToelichting":"intake"
+//            }
+//                """.trimIndent()
+//            )
+//        ) {
+//            logger.info { "--- intake afronden status code: $code ---" }
+//        }
+//
+//        with(
+//            itestHttpClient.performGetRequest(
+//                "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
+//            )
+//        ) {
+//            with(JSONArray(body!!.string()).getJSONObject(0)) {
+//                resultaatUuid = getString("id").let(UUID::fromString)
+//            }
+//        }
+//
+//        When("The zaak is closed") {
+//            var afhandelenId: Int
+//
+//            with(itestHttpClient.performGetRequest("$ZAC_API_URI/planitems/zaak/$uuid/userEventListenerPlanItems")) {
+//                with(JSONArray(body!!.string()).getJSONObject(0)) {
+//                    afhandelenId = getString("id").toInt()
+//                }
+//            }
+//
+//            with(
+//                itestHttpClient.performJSONPostRequest(
+//                    "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
+//                    requestBodyAsString = """
+//            {
+//                "zaakUuid":"$uuid",
+//                "planItemInstanceId":"$afhandelenId",
+//                "actie":"ZAAK_AFHANDELEN",
+//                "zaakOntvankelijk":true,
+//                "resultaattypeUuid": "$resultaatUuid",
+//                "resultaatToelichting":"afronden"
+//            }
+//                    """.trimIndent()
+//                )
+//            ) {
+//                logger.info { "--- afronden planItem status code: $code ---" }
+//            }
+//
+//            with(
+//                itestHttpClient.performPatchRequest(
+//                    "$ZAC_API_URI/zaken/zaak/$uuid/afsluiten",
+//                    requestBodyAsString = """
+//                {"reden":"dummyReason","resultaattypeUuid":"$resultaatUuid"}
+//                    """.trimIndent()
+//                )
+//            ) {
+//                logger.info { "--- afsluiten zaak status code: $code ---" }
+//            }
+//
+//            Then("The zaak should have a resultaat") {
+//                with(zacClient.retrieveZaak(uuid)) {
+//                    code shouldBe HttpStatusCode.OK_200.code()
+//                    val bodyStr = body!!.string()
+//                    logger.info { "--- zaak body after afronden: $bodyStr ---" }
+//                    JSONObject(bodyStr).apply {
+//                        has("resultaat") shouldBe true
+//                    }
+//                }
+//            }
+//        }
+//
+//        When("The zaak is re-opened") {
+//            KeycloakClient.authenticate(TEST_RECORD_MANAGER_1_USERNAME, TEST_RECORD_MANAGER_1_PASSWORD)
+//
+//            with(
+//                itestHttpClient.performPatchRequest(
+//                    "$ZAC_API_URI/zaken/zaak/$uuid/heropenen",
+//                    requestBodyAsString = """
+//            {"reden":"dummyReason"}
+//                    """.trimIndent()
+//                )
+//            ) {
+//                logger.info { "--- Heropenen status code: $code ---" }
+//                if (code > EXPECTED_STATUS_CODE_FOR_HEROPENEN) {
+//                    val bodyStr = body!!.string()
+//                    logger.info { "--- Heropenen error body: $bodyStr ---" }
+//                }
+//            }
+//
+//            // re-authenticate with the default user
+//            KeycloakClient.authenticate()
+//
+//            Then("The zaak should not have a resultaat") {
+//                with(zacClient.retrieveZaak(uuid)) {
+//                    code shouldBe HttpStatusCode.OK_200.code()
+//                    JSONObject(body!!.string()).apply {
+//                        has("resultaat") shouldBe false
+//                    }
+//                }
+//            }
+//        }
+//    }
 })

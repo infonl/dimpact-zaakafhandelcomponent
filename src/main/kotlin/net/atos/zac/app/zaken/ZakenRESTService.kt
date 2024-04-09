@@ -677,6 +677,9 @@ class ZakenRESTService @Inject constructor(
             ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND,
             heropenenGegevens.reden
         )
+        zaak.resultaat?.let {
+            zrcClientService.deleteResultaat(UriUtil.uuidFromURI(it))
+        }
     }
 
     @PATCH

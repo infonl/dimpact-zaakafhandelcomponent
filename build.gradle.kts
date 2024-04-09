@@ -119,6 +119,7 @@ dependencies {
     implementation(libs.webdav.servlet)
     implementation(libs.htmlcleaner)
     implementation(libs.unboundid.ldapsdk)
+    implementation(libs.caffeine)
 
     swaggerUI(libs.swagger.ui)
 
@@ -170,6 +171,7 @@ dependencies {
     "itestImplementation"(libs.squareup.okhttp.urlconnection)
     "itestImplementation"(libs.awaitility)
     "itestImplementation"(libs.mockserver.client)
+    "itestImplementation"(libs.auth0.java.jwt)
 
     jacocoAgentJarForItest(variantOf(libs.jacoco.agent) { classifier("runtime") })
 }
@@ -316,6 +318,7 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         target("src/**/*.json")
         targetExclude(
             "src/e2e/node_modules/**",
+            "src/e2e/reports/**",
             "src/main/app/node_modules/**",
             "src/main/app/dist/**",
             "src/main/app/.angular/**",

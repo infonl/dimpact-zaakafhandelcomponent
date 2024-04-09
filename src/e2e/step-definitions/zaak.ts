@@ -142,26 +142,27 @@ When(
       .getByRole("button", { name: "Zoeken" })
       .click();
     await this.page.getByRole("button", { name: "Select" }).click();
-    await this.page
-      .locator("div")
-      .filter({ hasText: /^gps_fixed$/ })
-      .click();
-    await this.page
-      .getByPlaceholder("Zoeken op adres, postcode of woonplaats")
-      .click();
-    await this.page
-      .getByPlaceholder("Zoeken op adres, postcode of woonplaats")
-      .fill("1112gv");
-    await this.page
-      .getByPlaceholder("Zoeken op adres, postcode of woonplaats")
-      .press("Enter");
-    await this.page
-      .getByRole("row", {
-        name: "Gerelateerde gegevens tonen 0384200000005901 Adres Meelbeskamp 49, 1112GV Diemen Selecteren",
-      })
-      .getByTitle("Selecteren")
-      .click();
-    await this.page.getByText("close").click();
+    // TEMPORARY: disable searching in BAG until we find a solution for the fact that there is no longer an acceptance environment for BAG
+    // await this.page
+    //   .locator("div")
+    //   .filter({ hasText: /^gps_fixed$/ })
+    //   .click();
+    // await this.page
+    //   .getByPlaceholder("Zoeken op adres, postcode of woonplaats")
+    //   .click();
+    // await this.page
+    //   .getByPlaceholder("Zoeken op adres, postcode of woonplaats")
+    //   .fill("1112gv");
+    // await this.page
+    //   .getByPlaceholder("Zoeken op adres, postcode of woonplaats")
+    //   .press("Enter");
+    // await this.page
+    //   .getByRole("row", {
+    //     name: "Gerelateerde gegevens tonen 0384200000005901 Adres Meelbeskamp 49, 1112GV Diemen Selecteren",
+    //   })
+    //   .getByTitle("Selecteren")
+    //   .click();
+    // await this.page.getByText("close").click();
     await this.page.getByLabel("Communicatiekanaal").click();
     await this.page.getByRole("option", { name: " E-mail " }).click();
     await this.page.waitForTimeout(1000);

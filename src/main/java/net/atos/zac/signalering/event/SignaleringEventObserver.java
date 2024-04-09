@@ -62,17 +62,26 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
     @Override
     public void onFire(final @ObservesAsync SignaleringEvent<?> event) {
         try {
-            LOG.fine(() -> String.format("Signalering event ontvangen: %s", event.toString()));
+            LOG.fine(() -> String.format("Signalering event ontvangen: %s", event));
             event.delay();
+
             final Signalering signalering = buildSignalering(event);
-            if (signalering != null && signaleringenService.isNecessary(signalering, event.getActor())) {
-                final SignaleringInstellingen subscriptions = signaleringenService.readInstellingen(signalering);
-                if (subscriptions.isDashboard()) {
-                    signaleringenService.createSignalering(signalering);
-                }
-                if (subscriptions.isMail()) {
-                    signaleringenService.sendSignalering(signalering);
-                }
+            if (signalering == null) {
+                LOG.fine(() -> String.format("No signal generated for received event: %s", event));
+                return;
+            }
+            if (!signaleringenService.isNecessary(signalering, event.getActor())) {
+                LOG.fine(() -> String.format("Unnecessary signalering: %s for actor %s", signalering, event.getActor()));
+                return;
+            }
+
+            final SignaleringInstellingen subscriptions = signaleringenService.readInstellingen(signalering);
+            LOG.fine(() -> String.format("Subscription settings: %s for signalering: %s", subscriptions, signalering));
+            if (subscriptions.isDashboard()) {
+                signaleringenService.createSignalering(signalering);
+            }
+            if (subscriptions.isMail()) {
+                signaleringenService.sendSignalering(signalering);
             }
         } catch (final Throwable ex) {
             LOG.log(Level.SEVERE, "asynchronous guard", ex);
