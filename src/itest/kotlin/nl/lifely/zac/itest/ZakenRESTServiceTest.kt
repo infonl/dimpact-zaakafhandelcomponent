@@ -387,7 +387,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
         )
 
         When("The zaak is closed") {
-            var afhandelenId: Int? = null
+            lateinit var afhandelenId: Int
 
             with(itestHttpClient.performGetRequest("$ZAC_API_URI/planitems/zaak/$uuid/userEventListenerPlanItems")) {
                 with(JSONArray(body!!.string()).getJSONObject(0)) {
