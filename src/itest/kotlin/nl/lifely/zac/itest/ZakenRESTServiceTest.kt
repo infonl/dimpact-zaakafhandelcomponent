@@ -43,6 +43,8 @@ import java.time.LocalDate
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
+private const val EXPECTED_STATUS_CODE_FOR_HEROPENEN = 204
+
 /**
  * This test assumes a zaak has been created in a previously run test.
  */
@@ -454,7 +456,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 )
             ) {
                 logger.info { "--- Heropenen status code: $code ---" }
-                if (code > 204) {
+                if (code > EXPECTED_STATUS_CODE_FOR_HEROPENEN) {
                     val bodyStr = body!!.string()
                     logger.info { "--- Heropenen error body: $bodyStr ---" }
                 }
