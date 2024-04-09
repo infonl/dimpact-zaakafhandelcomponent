@@ -67,50 +67,61 @@ import net.atos.zac.zoeken.IndexeerService;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class PlanItemsRESTService {
-
     private static final String REDEN_OPSCHORTING = "Aanvullende informatie opgevraagd";
 
-    @Inject
     private TaakVariabelenService taakVariabelenService;
-
-    @Inject
     private ZaakVariabelenService zaakVariabelenService;
-
-    @Inject
     private CMMNService cmmnService;
-
-    @Inject
     private ZRCClientService zrcClientService;
-
-    @Inject
     private BRCClientService brcClientService;
-
-    @Inject
     private ZaakafhandelParameterService zaakafhandelParameterService;
-
-    @Inject
     private RESTPlanItemConverter planItemConverter;
-
-    @Inject
     private ZGWApiService zgwApiService;
-
-    @Inject
     private IndexeerService indexeerService;
-
-    @Inject
     private MailService mailService;
-
-    @Inject
     private ConfiguratieService configuratieService;
-
-    @Inject
     private MailTemplateService mailTemplateService;
-
-    @Inject
     private PolicyService policyService;
+    private OpschortenZaakHelper opschortenZaakHelper;
+
+    /**
+     * Default empty constructor, required by JAX-RS
+     */
+    public PlanItemsRESTService() {
+    }
 
     @Inject
-    private OpschortenZaakHelper opschortenZaakHelper;
+    public PlanItemsRESTService(
+            TaakVariabelenService taakVariabelenService,
+            ZaakVariabelenService zaakVariabelenService,
+            CMMNService cmmnService,
+            ZRCClientService zrcClientService,
+            BRCClientService brcClientService,
+            ZaakafhandelParameterService zaakafhandelParameterService,
+            RESTPlanItemConverter planItemConverter,
+            ZGWApiService zgwApiService,
+            IndexeerService indexeerService,
+            MailService mailService,
+            ConfiguratieService configuratieService,
+            MailTemplateService mailTemplateService,
+            PolicyService policyService,
+            OpschortenZaakHelper opschortenZaakHelper
+    ) {
+        this.taakVariabelenService = taakVariabelenService;
+        this.zaakVariabelenService = zaakVariabelenService;
+        this.cmmnService = cmmnService;
+        this.zrcClientService = zrcClientService;
+        this.brcClientService = brcClientService;
+        this.zaakafhandelParameterService = zaakafhandelParameterService;
+        this.planItemConverter = planItemConverter;
+        this.zgwApiService = zgwApiService;
+        this.indexeerService = indexeerService;
+        this.mailService = mailService;
+        this.configuratieService = configuratieService;
+        this.mailTemplateService = mailTemplateService;
+        this.policyService = policyService;
+        this.opschortenZaakHelper = opschortenZaakHelper;
+    }
 
     @GET
     @Path("zaak/{uuid}/humanTaskPlanItems")
