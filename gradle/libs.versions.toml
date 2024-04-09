@@ -43,6 +43,8 @@ reactive-streams = "1.0.4"
 jakarta-jakartaee = "10.0.0"
 jakarta-mail = "2.1.3"
 
+caffeine = "3.1.8"
+
 eclipse-microprofile-rest-client-api = "3.0.1"
 eclipse-microprofile-config-api = "3.1"
 eclipse-microprofile-health-api = "4.0.1"
@@ -110,6 +112,8 @@ apache-httpclient = { group = "org.apache.httpcomponents", name = "httpclient", 
 reactive-streams = { group = "org.reactivestreams", name = "reactive-streams", version.ref = "reactive-streams" }
 jakarta-mail = { group = "jakarta.mail", name = "jakarta.mail-api", version.ref = "jakarta-mail" }
 
+caffeine = { group = "com.github.ben-manes.caffeine", name = "caffeine", version.ref = "caffeine" }
+
 # dependencies provided by Wildfly
 # update these versions when upgrading WildFly
 # you can find most of these dependencies in the WildFly pom.xml file
@@ -164,5 +168,3 @@ swagger-generator = { id = "org.hidetake.swagger.generator", version.ref = "swag
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 docker-remote-api = { id = "com.bmuschko.docker-remote-api", version.ref = "docker-remote-api" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
-
-
