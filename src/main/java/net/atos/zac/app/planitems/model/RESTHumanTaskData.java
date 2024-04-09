@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.Map;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 import net.atos.zac.app.identity.model.RESTGroup;
 import net.atos.zac.app.identity.model.RESTUser;
@@ -32,5 +33,6 @@ public class RESTHumanTaskData {
 
     public Map<String, String> taakdata;
 
+    @NotNull
     public RESTTaakStuurGegevens taakStuurGegevens;
 }
