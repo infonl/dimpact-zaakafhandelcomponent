@@ -25,7 +25,7 @@ public class RESTHumanTaskData {
 
     /**
      * The 'final due date' of a task.
-     * Note that this fatal date cannot be later than the fatal date of the zaak to which this task belongs.
+     * Note that this fatal date cannot come after the fatal date of the zaak to which this task belongs.
      */
     public LocalDate fataledatum;
 
