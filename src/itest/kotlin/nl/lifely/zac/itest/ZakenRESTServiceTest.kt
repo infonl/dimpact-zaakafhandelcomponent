@@ -24,8 +24,10 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_UUID_BELANGHEBBENDE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_BETROKKENE_BSN_HENDRIKA_JANSE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_RECORD_MANAGER_1_PASSWORD
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_RECORD_MANAGER_1_USERNAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
-import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_ID
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
@@ -281,7 +283,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/zaken/lijst/toekennen/mij",
                 requestBodyAsString = "{\n" +
                     "\"zaakUUID\":\"$zaak1UUID\",\n" +
-                    "\"behandelaarGebruikersnaam\":\"$TEST_USER_1_ID\",\n" +
+                    "\"behandelaarGebruikersnaam\":\"$TEST_USER_1_USERNAME\",\n" +
                     "\"reden\":\"dummyAssignToMeFromListReason\"\n" +
                     "}"
             )
@@ -294,7 +296,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 with(responseBody) {
                     shouldContainJsonKeyValue("uuid", zaak1UUID.toString())
                     JSONObject(this).getJSONObject("behandelaar").apply {
-                        getString("id") shouldBe TEST_USER_1_ID
+                        getString("id") shouldBe TEST_USER_1_USERNAME
                         getString("naam") shouldBe TEST_USER_1_NAME
                     }
                 }
@@ -302,7 +304,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     code shouldBe HttpStatusCode.OK_200.code()
                     JSONObject(body!!.string()).apply {
                         getJSONObject("behandelaar").apply {
-                            getString("id") shouldBe TEST_USER_1_ID
+                            getString("id") shouldBe TEST_USER_1_USERNAME
                             getString("naam") shouldBe TEST_USER_1_NAME
                         }
                     }
@@ -421,7 +423,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
         }
 
         When("The zaak is re-opened") {
-            KeycloakClient.authenticate("recordmanager1", "recordmanager1")
+            KeycloakClient.authenticate(TEST_RECORD_MANAGER_1_USERNAME, TEST_RECORD_MANAGER_1_PASSWORD)
 
             val heropenResult = itestHttpClient.performPatchRequest(
                 "$ZAC_API_URI/zaken/zaak/$uuid/heropenen",
