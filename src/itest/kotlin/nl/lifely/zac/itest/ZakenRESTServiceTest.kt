@@ -27,8 +27,8 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_RECORD_MANAGER_1_PASSWORD
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_RECORD_MANAGER_1_USERNAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
-import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID

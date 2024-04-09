@@ -4,8 +4,8 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm.HMAC256
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_CLIENT_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_CLIENT_SECRET
-import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import java.util.Date
 
 fun generateToken(): String =
