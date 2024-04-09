@@ -432,6 +432,17 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 logger.info { "--- afronden planItem status code: $code ---" }
             }
 
+            with(
+                itestHttpClient.performJSONPostRequest(
+                    "$ZAC_API_URI/zaken/zaak/$uuid/afsluiten",
+                    requestBodyAsString = """
+                {"reden":"dummyReason","resultaattypeUuid":"$resultaatUuid"}
+                    """.trimIndent()
+                )
+            ) {
+                logger.info { "--- afsluiten zaak status code: $code ---" }
+            }
+
             Then("The zaak should have a resultaat") {
                 with(zacClient.retrieveZaak(uuid)) {
                     code shouldBe HttpStatusCode.OK_200.code()
