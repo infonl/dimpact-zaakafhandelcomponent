@@ -11,12 +11,12 @@ import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_MANAGEMENT_URI
 
-private val itestHttpClient = ItestHttpClient()
-
 class AppContainerTest : BehaviorSpec({
-    given("ZAC Docker container and all related Docker containers are running") {
+    val itestHttpClient = ItestHttpClient()
+
+    Given("ZAC Docker container and all related Docker containers are running") {
         When("the health endpoint is called") {
-            then("the response should be ok and the status should be UP") {
+            Then("the response should be ok and the status should be UP") {
                 itestHttpClient.performGetRequest(
                     url = "$ZAC_MANAGEMENT_URI/health"
                 ).use { response ->
@@ -28,9 +28,9 @@ class AppContainerTest : BehaviorSpec({
             }
         }
     }
-    given("ZAC Docker container and all related Docker containers are running") {
+    Given("ZAC Docker container and all related Docker containers are running") {
         When("the metrics endpoint is called") {
-            then("the response should be ok and the the uptime var should be present") {
+            Then("the response should be ok and the the uptime var should be present") {
                 itestHttpClient.performGetRequest(
                     url = "$ZAC_MANAGEMENT_URI/metrics"
                 ).use { response ->
