@@ -375,9 +375,10 @@ class ZakenRESTServiceTest : BehaviorSpec({
             }
         }
 
-        itestHttpClient.performJSONPostRequest(
-            "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
-            requestBodyAsString = """
+        with(
+            itestHttpClient.performJSONPostRequest(
+                "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
+                requestBodyAsString = """
             {
                 "zaakUuid":"$uuid",
                 "planItemInstanceId":"$intakeId",
@@ -385,8 +386,11 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 "zaakOntvankelijk":true,
                 "resultaatToelichting":"intake"
             }
-            """.trimIndent()
-        )
+                """.trimIndent()
+            )
+        ) {
+            logger.info { "--- intake afronden status code: $code ---" }
+        }
 
         When("The zaak is closed") {
             var afhandelenId: Int
@@ -397,9 +401,10 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 }
             }
 
-            itestHttpClient.performJSONPostRequest(
-                "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
-                requestBodyAsString = """
+            with(
+                itestHttpClient.performJSONPostRequest(
+                    "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
+                    requestBodyAsString = """
             {
                 "zaakUuid":"$uuid",
                 "planItemInstanceId":"$afhandelenId",
@@ -408,14 +413,16 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 "resultaattypeUuid": "2b774ae4-68b0-462c-b6a0-e48b861ee148",
                 "resultaatToelichting":"afronden"
             }
-                """.trimIndent()
-            )
+                    """.trimIndent()
+                )
+            ) {
+                logger.info { "--- afronden planItem status code: $code ---" }
+            }
 
             Then("The zaak should have a resultaat") {
                 with(zacClient.retrieveZaak(uuid)) {
                     code shouldBe HttpStatusCode.OK_200.code()
-                    val str = body!!.string()
-                    JSONObject(str).apply {
+                    JSONObject(body!!.string()).apply {
                         has("resultaat") shouldBe true
                     }
                 }
@@ -425,26 +432,25 @@ class ZakenRESTServiceTest : BehaviorSpec({
         When("The zaak is re-opened") {
             KeycloakClient.authenticate(TEST_RECORD_MANAGER_1_USERNAME, TEST_RECORD_MANAGER_1_PASSWORD)
 
-            val heropenResult = itestHttpClient.performPatchRequest(
-                "$ZAC_API_URI/zaken/zaak/$uuid/heropenen",
-                requestBodyAsString = """
+            with(
+                itestHttpClient.performPatchRequest(
+                    "$ZAC_API_URI/zaken/zaak/$uuid/heropenen",
+                    requestBodyAsString = """
             {"reden":"dummyReason"}
-                """.trimIndent()
-            )
+                    """.trimIndent()
+                )
+            ) {
+                logger.info { "--- Heropenen status code: $code ---" }
+            }
 
+            // re-authenticate with the default user
             KeycloakClient.authenticate()
-
-            val heropenBody = heropenResult.body!!.string()
-
-            logger.info { heropenResult }
-            logger.info { heropenBody }
 
             Then("The zaak should not have a resultaat") {
                 with(zacClient.retrieveZaak(uuid)) {
-                    logger.info { code }
                     code shouldBe HttpStatusCode.OK_200.code()
                     val str = body!!.string()
-                    logger.info { str }
+                    logger.info { "--- Zaak body after heropenen: $str ---" }
                     JSONObject(str).apply {
                         has("resultaat") shouldBe false
                     }
