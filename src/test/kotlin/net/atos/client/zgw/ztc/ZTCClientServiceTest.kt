@@ -20,7 +20,6 @@ import java.util.UUID
 class ZTCClientServiceTest : BehaviorSpec() {
     private val ztcClient = mockk<ZTCClient>()
     private val configuratieService = mockk<ConfiguratieService>()
-    private val zgwClientHeadersFactory = mockk<ZGWClientHeadersFactory>()
 
     @InjectMockKs
     lateinit var ztcClientService: ZTCClientService
