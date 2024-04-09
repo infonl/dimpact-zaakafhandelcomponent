@@ -351,7 +351,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
     }
     Given("A zaak that is ontvankelijk") {
         lateinit var uuid: UUID
-        var intakeId: Int? = null
+        lateinit var intakeId: Int
 
         with(
             zacClient.createZaak(
