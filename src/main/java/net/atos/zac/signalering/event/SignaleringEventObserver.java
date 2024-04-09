@@ -67,7 +67,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
 
             final Signalering signalering = buildSignalering(event);
             if (signalering == null) {
-                LOG.warning(() -> String.format("Cannot build signalering from event ontvangen: %s", event));
+                LOG.fine(() -> String.format("No signal generated for received event: %s", event));
                 return;
             }
             if (!signaleringenService.isNecessary(signalering, event.getActor())) {
