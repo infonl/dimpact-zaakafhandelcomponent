@@ -16,8 +16,9 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-import net.atos.client.zgw.ztc.ZTCClientService;
 import org.apache.commons.text.StringEscapeUtils;
+
+import net.atos.client.zgw.ztc.ZTCClientService;
 
 @Path("util")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -55,8 +56,8 @@ public class UtilRESTService {
     private String getZtcClientCaches() {
         var statistics = ztcClientService.cacheStatistics();
         return ZTC + ul(
-            statistics.keySet().stream()
-                .map(cacheName -> String.format("%s %s<p/>", b(cacheName), ul(statistics.get(cacheName))))
+                statistics.keySet().stream()
+                        .map(cacheName -> String.format("%s %s<p/>", b(cacheName), ul(statistics.get(cacheName))))
         );
     }
 
