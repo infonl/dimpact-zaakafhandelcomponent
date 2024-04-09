@@ -351,7 +351,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
     }
     Given("A zaak that is ontvankelijk") {
         lateinit var uuid: UUID
-        lateinit var intakeId: Int
+        var intakeId: Int
 
         with(
             zacClient.createZaak(
@@ -387,7 +387,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
         )
 
         When("The zaak is closed") {
-            lateinit var afhandelenId: Int
+            var afhandelenId: Int
 
             with(itestHttpClient.performGetRequest("$ZAC_API_URI/planitems/zaak/$uuid/userEventListenerPlanItems")) {
                 with(JSONArray(body!!.string()).getJSONObject(0)) {
@@ -410,7 +410,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
             )
 
             Then("The zaak should have a resultaat") {
-                with(zacClient.retrieveZaak(uuid!!)) {
+                with(zacClient.retrieveZaak(uuid)) {
                     code shouldBe HttpStatusCode.OK_200.code()
                     val str = body!!.string()
                     JSONObject(str).apply {
@@ -438,7 +438,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
             logger.info { heropenBody }
 
             Then("The zaak should not have a resultaat") {
-                with(zacClient.retrieveZaak(uuid!!)) {
+                with(zacClient.retrieveZaak(uuid)) {
                     logger.info { code }
                     code shouldBe HttpStatusCode.OK_200.code()
                     val str = body!!.string()
