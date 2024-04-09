@@ -17,12 +17,15 @@ import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTS_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_UUID
+import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_KENMERK
+import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_INITIAL
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.lifely.zac.itest.config.ItestConfiguration.zaak1UUID
 import nl.lifely.zac.itest.util.WebSocketTestListener
 import okhttp3.Headers
 import org.json.JSONObject
@@ -34,15 +37,14 @@ import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
-private val logger = KotlinLogging.logger {}
-private val itestHttpClient = ItestHttpClient()
-lateinit var zaak1UUID: UUID
-
 /**
  * This test creates a zaak which we use in other tests, and therefore we run this test first.
  */
 @Order(TEST_SPEC_ORDER_INITIAL)
 class NotificationsTest : BehaviorSpec({
+    val logger = KotlinLogging.logger {}
+    val itestHttpClient = ItestHttpClient()
+
     Given("ZAC and all related Docker containers are running") {
         When("the notificaties endpoint is called with dummy payload without authentication header") {
             val response = itestHttpClient.performJSONPostRequest(
@@ -101,18 +103,21 @@ class NotificationsTest : BehaviorSpec({
                 ).use { getZaakResponse ->
                     val responseBody = getZaakResponse.body!!.string()
                     logger.info { "Response: $responseBody" }
-                    val zaak = JSONObject(responseBody)
-                    zaak.getString("identificatie") shouldBe ZAAK_1_IDENTIFICATION
-                    zaak.getJSONObject("zaaktype")
-                        .getString("uuid") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID.toString()
-                    zaak.getJSONObject("status").getString("naam") shouldBe "Intake"
-                    zaak.getJSONObject("groep").getString("id") shouldBe "test-group-a"
-                    // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
-                    // since we have defined zaakafhandelparameters for this zaaktype a CMMN proces should be started
-                    zaak.getBoolean("isProcesGestuurd") shouldBe false
-                    zaak.getJSONObject("communicatiekanaal")
-                        .getString("naam") shouldBe "E-formulier"
-                    zaak1UUID = zaak.getString("uuid").let(UUID::fromString)
+                    with(JSONObject(responseBody)) {
+                        getString("identificatie") shouldBe ZAAK_1_IDENTIFICATION
+                        getJSONObject("zaaktype")
+                            .getString("uuid") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID.toString()
+                        getJSONObject("status").getString("naam") shouldBe "Intake"
+                        getJSONObject("groep").getString("id") shouldBe "test-group-a"
+                        // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
+                        // since we have defined zaakafhandelparameters for this zaaktype a CMMN proces should be started
+                        getBoolean("isProcesGestuurd") shouldBe false
+                        getJSONObject("communicatiekanaal")
+                            .getString("naam") shouldBe "E-formulier"
+                        getString("omschrijving") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
+                            "met kenmerk '$OPEN_FORMULIEREN_FORMULIER_BRON_KENMERK'"
+                        zaak1UUID = getString("uuid").let(UUID::fromString)
+                    }
                 }
             }
         }

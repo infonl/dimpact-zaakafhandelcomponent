@@ -14,10 +14,10 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVEN
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 
-private val logger = KotlinLogging.logger {}
-private val itestHttpClient = ItestHttpClient()
-
 class ZaakafhandelParametersTest : BehaviorSpec({
+    val logger = KotlinLogging.logger {}
+    val itestHttpClient = ItestHttpClient()
+
     Given("ZAC Docker container is running and zaakafhandelparameters have been created") {
         When("the list zaakafhandelparameterts endpoint is called for our zaaktype under test") {
             val response = itestHttpClient.performGetRequest(

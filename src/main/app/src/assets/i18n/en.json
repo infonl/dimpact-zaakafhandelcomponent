@@ -520,6 +520,7 @@
   "actie.besluit.intrekken": "Revoke decision",
   "actie.betrokkene.toevoegen": "Add involved",
   "actie.betrokkene.verwijderen": "Remove involved",
+  "actie.betrokkene.ontkoppelen": "Unlink involved",
   "actie.bewerken": "Edit",
   "actie.card.toevoegen": "Add a dashboard card",
   "actie.card.verwijderen": "Delete this dashboard card",
