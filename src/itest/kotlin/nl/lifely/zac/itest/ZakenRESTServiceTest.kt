@@ -354,6 +354,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
     Given("A zaak that is ontvankelijk") {
         lateinit var uuid: UUID
         var intakeId: Int
+        lateinit var resultaatUuid: UUID
 
         with(
             zacClient.createZaak(
@@ -392,6 +393,16 @@ class ZakenRESTServiceTest : BehaviorSpec({
             logger.info { "--- intake afronden status code: $code ---" }
         }
 
+        with(
+            itestHttpClient.performGetRequest(
+                "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
+            )
+        ) {
+            with(JSONArray(body!!.string()).getJSONObject(0)) {
+                resultaatUuid = getString("id").let(UUID::fromString)
+            }
+        }
+
         When("The zaak is closed") {
             var afhandelenId: Int
 
@@ -410,7 +421,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 "planItemInstanceId":"$afhandelenId",
                 "actie":"ZAAK_AFHANDELEN",
                 "zaakOntvankelijk":true,
-                "resultaattypeUuid": "2b774ae4-68b0-462c-b6a0-e48b861ee148",
+                "resultaattypeUuid": "$resultaatUuid",
                 "resultaatToelichting":"afronden"
             }
                     """.trimIndent()
@@ -449,9 +460,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
             Then("The zaak should not have a resultaat") {
                 with(zacClient.retrieveZaak(uuid)) {
                     code shouldBe HttpStatusCode.OK_200.code()
-                    val str = body!!.string()
-                    logger.info { "--- Zaak body after heropenen: $str ---" }
-                    JSONObject(str).apply {
+                    JSONObject(body!!.string()).apply {
                         has("resultaat") shouldBe false
                     }
                 }
