@@ -5,11 +5,10 @@
 
 package net.atos.client.zgw.shared.cache;
 
-import com.github.benmanes.caffeine.cache.stats.CacheStats;
-
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+
+import com.github.benmanes.caffeine.cache.stats.CacheStats;
 
 /**
  * Never call methods with caching annotations from within the service (or it will not work).
