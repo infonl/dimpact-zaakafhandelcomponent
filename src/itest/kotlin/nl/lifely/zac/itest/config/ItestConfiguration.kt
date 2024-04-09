@@ -5,6 +5,7 @@
 
 package nl.lifely.zac.itest.config
 
+import java.time.LocalDateTime
 import java.util.UUID
 
 /**
@@ -29,7 +30,11 @@ object ItestConfiguration {
     const val OPEN_FORMULIEREN_FORMULIER_BRON_KENMERK = "a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"
     const val OPEN_FORMULIEREN_FORMULIER_BRON_NAAM = "open-forms"
     const val OPEN_NOTIFICATIONS_API_SECRET_KEY = "openNotificatiesApiSecretKey"
-    const val OPEN_ZAAK_BASE_URI = "http://open-zaak.local:8000"
+    const val OPEN_ZAAK_BASE_URI = "http://openzaak.local:8000"
+    const val OPEN_ZAAK_EXTERNAL_PORT = 8001
+    const val OPEN_ZAAK_EXTERNAL_URI = "http://localhost:$OPEN_ZAAK_EXTERNAL_PORT"
+    const val OPEN_ZAAK_CLIENT_ID = "zac_client"
+    const val OPEN_ZAAK_CLIENT_SECRET = "openzaakZaakafhandelcomponentClientSecret"
     const val PDF_MIME_TYPE = "application/pdf"
     const val PRODUCT_AANVRAAG_TYPE = "productaanvraag"
     const val ROLTYPE_NAME_BETROKKENE = "Belanghebbende"
@@ -45,6 +50,7 @@ object ItestConfiguration {
     const val TEST_SPEC_ORDER_AFTER_TASK_CREATED = 2
     const val TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED = 3
     const val TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED = 4
+    const val TEST_SPEC_ORDER_AFTER_TASK_COMPLETED = 5
     const val TEST_USER_1_ID = "testuser1"
     const val TEST_USER_1_NAME = "Test User1"
     const val TEST_USER_2_ID = "testuser2"
@@ -92,6 +98,7 @@ object ItestConfiguration {
     const val SMARTDOCUMENTS_MOCK_BASE_URI = "http://smartdocuments-wiremock:8080"
 
     val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
+    val START_DATE = LocalDateTime.now()
 
     /**
      * Global variable to store the UUID of a task that is created in the integration tests.

@@ -170,6 +170,7 @@ dependencies {
     "itestImplementation"(libs.squareup.okhttp.urlconnection)
     "itestImplementation"(libs.awaitility)
     "itestImplementation"(libs.mockserver.client)
+    "itestImplementation"(libs.auth0.java.jwt)
 
     jacocoAgentJarForItest(variantOf(libs.jacoco.agent) { classifier("runtime") })
 }
