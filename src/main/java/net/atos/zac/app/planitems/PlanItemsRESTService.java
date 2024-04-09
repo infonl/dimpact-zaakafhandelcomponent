@@ -179,8 +179,9 @@ public class PlanItemsRESTService {
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
         final Map<String, String> taakdata = humanTaskData.taakdata;
         assertPolicy(policyService.readZaakRechten(zaak).behandelen());
-        final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(UriUtil.uuidFromURI(
-                zaak.getZaaktype()));
+        final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
+                UriUtil.uuidFromURI(zaak.getZaaktype())
+        );
         final Optional<HumanTaskParameters> humanTaskParameters = zaakafhandelParameters
                 .findHumanTaskParameter(planItem.getPlanItemDefinitionId());
 
@@ -224,12 +225,17 @@ public class PlanItemsRESTService {
                             true),
                     Bronnen.fromZaak(zaak)));
         }
-        cmmnService.startHumanTaskPlanItem(humanTaskData.planItemInstanceId, humanTaskData.groep.id,
+        cmmnService.startHumanTaskPlanItem(
+                humanTaskData.planItemInstanceId,
+                humanTaskData.groep.id,
                 humanTaskData.medewerker != null && !humanTaskData.medewerker.toString().isEmpty() ?
                         humanTaskData.medewerker.id :
                         null,
                 DateTimeConverterUtil.convertToDate(fataleDatum),
-                humanTaskData.toelichting, taakdata, zaakUUID);
+                humanTaskData.toelichting,
+                taakdata,
+                zaakUUID
+        );
         indexeerService.addOrUpdateZaak(zaakUUID, false);
     }
 
