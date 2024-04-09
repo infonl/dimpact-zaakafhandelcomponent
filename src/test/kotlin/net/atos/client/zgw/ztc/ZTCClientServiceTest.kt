@@ -10,7 +10,6 @@ import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
-import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.configuratie.ConfiguratieService
 import java.time.ZonedDateTime
