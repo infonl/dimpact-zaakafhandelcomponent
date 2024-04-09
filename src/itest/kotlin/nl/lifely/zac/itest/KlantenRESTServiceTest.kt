@@ -12,20 +12,20 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
+import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_COUNT
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONArray
 import org.mockserver.model.HttpStatusCode
-
-private val itestHttpClient = ItestHttpClient()
-private val logger = KotlinLogging.logger {}
-private const val ROLTYPEN_COUNT = 16
 
 /**
  * This test assumes a roltype has been created in a previously run test.
  */
 @Order(TEST_SPEC_ORDER_AFTER_ZAAK_CREATED)
 class KlantenRESTServiceTest : BehaviorSpec({
+    val itestHttpClient = ItestHttpClient()
+    val logger = KotlinLogging.logger {}
+
     Given("ZAC Docker container is running") {
         When("the list roltypen endpoint is called") {
             val response = itestHttpClient.performGetRequest(
@@ -37,7 +37,7 @@ class KlantenRESTServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 with(responseBody) {
                     shouldBeJsonArray()
-                    JSONArray(responseBody).length() shouldBe ROLTYPEN_COUNT
+                    JSONArray(responseBody).length() shouldBe ROLTYPE_COUNT
                     with(JSONArray(responseBody)[0].toString()) {
                         shouldContainJsonKeyValue("naam", "Behandelaar")
                         shouldContainJsonKeyValue("omschrijvingGeneriekEnum", "behandelaar")

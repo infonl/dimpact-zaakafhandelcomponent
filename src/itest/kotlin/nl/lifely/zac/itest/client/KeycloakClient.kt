@@ -5,10 +5,13 @@
 
 package nl.lifely.zac.itest.client
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_CLIENT
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_CLIENT_SECRET
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_HOSTNAME_URL
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_REALM
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_PASSWORD
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import okhttp3.FormBody
 import okhttp3.Headers
 import okhttp3.OkHttpClient
@@ -17,12 +20,13 @@ import org.json.JSONObject
 
 lateinit var refreshToken: String
 private val okHttpClient = OkHttpClient.Builder().build()
+private val logger = KotlinLogging.logger {}
 
 object KeycloakClient {
     private const val ACCESS_TOKEN_ATTRIBUTE = "access_token"
     private const val REFRESH_TOKEN_ATTRIBUTE = "refresh_token"
 
-    fun authenticate() = okHttpClient.newCall(
+    fun authenticate(username: String = TEST_USER_1_USERNAME, password: String = TEST_USER_1_PASSWORD) = okHttpClient.newCall(
         Request.Builder()
             .headers(Headers.headersOf("Content-Type", "application/x-www-form-urlencoded"))
             .url("$KEYCLOAK_HOSTNAME_URL/realms/$KEYCLOAK_REALM/protocol/openid-connect/token")
@@ -30,13 +34,14 @@ object KeycloakClient {
                 FormBody.Builder()
                     .add("client_id", KEYCLOAK_CLIENT)
                     .add("grant_type", "password")
-                    .add("username", "testuser1")
-                    .add("password", "testuser1")
+                    .add("username", username)
+                    .add("password", password)
                     .add("client_secret", KEYCLOAK_CLIENT_SECRET)
                     .build()
             )
             .build()
     ).execute().apply {
+        logger.info { "--- authenticate status code: $code ---" }
         refreshToken = JSONObject(this.body!!.string()).getString(REFRESH_TOKEN_ATTRIBUTE)
     }
 
