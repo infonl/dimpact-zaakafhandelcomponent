@@ -14,6 +14,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import nl.lifely.zac.itest.client.ItestHttpClient
+import nl.lifely.zac.itest.client.KeycloakClient
 import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATIE_TYPE_BSN
@@ -23,9 +24,11 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_UUID_BELANGHEBBENDE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_BETROKKENE_BSN_HENDRIKA_JANSE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_RECORD_MANAGER_1_PASSWORD
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_RECORD_MANAGER_1_USERNAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
-import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
@@ -39,6 +42,8 @@ import org.mockserver.model.HttpStatusCode
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
+
+private const val EXPECTED_STATUS_CODE_FOR_HEROPENEN = 204
 
 /**
  * This test assumes a zaak has been created in a previously run test.
@@ -280,7 +285,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/zaken/lijst/toekennen/mij",
                 requestBodyAsString = "{\n" +
                     "\"zaakUUID\":\"$zaak1UUID\",\n" +
-                    "\"behandelaarGebruikersnaam\":\"$TEST_USER_1_ID\",\n" +
+                    "\"behandelaarGebruikersnaam\":\"$TEST_USER_1_USERNAME\",\n" +
                     "\"reden\":\"dummyAssignToMeFromListReason\"\n" +
                     "}"
             )
@@ -293,7 +298,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 with(responseBody) {
                     shouldContainJsonKeyValue("uuid", zaak1UUID.toString())
                     JSONObject(this).getJSONObject("behandelaar").apply {
-                        getString("id") shouldBe TEST_USER_1_ID
+                        getString("id") shouldBe TEST_USER_1_USERNAME
                         getString("naam") shouldBe TEST_USER_1_NAME
                     }
                 }
@@ -301,7 +306,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     code shouldBe HttpStatusCode.OK_200.code()
                     JSONObject(body!!.string()).apply {
                         getJSONObject("behandelaar").apply {
-                            getString("id") shouldBe TEST_USER_1_ID
+                            getString("id") shouldBe TEST_USER_1_USERNAME
                             getString("naam") shouldBe TEST_USER_1_NAME
                         }
                     }
@@ -343,6 +348,128 @@ class ZakenRESTServiceTest : BehaviorSpec({
                             getString("naam") shouldBe TEST_GROUP_A_DESCRIPTION
                         }
                         has("behandelaar") shouldBe false
+                    }
+                }
+            }
+        }
+    }
+    Given("A zaak that is ontvankelijk") {
+        lateinit var uuid: UUID
+        var intakeId: Int
+        lateinit var resultaatUuid: UUID
+
+        with(
+            zacClient.createZaak(
+                ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID,
+                TEST_GROUP_A_ID,
+                TEST_GROUP_A_DESCRIPTION
+            )
+        ) {
+            with(JSONObject(body!!.string())) {
+                getJSONObject("zaakdata").apply {
+                    uuid = getString("zaakUUID").let(UUID::fromString)
+                }
+            }
+        }
+
+        with(itestHttpClient.performGetRequest("$ZAC_API_URI/planitems/zaak/$uuid/userEventListenerPlanItems")) {
+            with(JSONArray(body!!.string()).getJSONObject(0)) {
+                intakeId = getString("id").toInt()
+            }
+        }
+
+        with(
+            itestHttpClient.performJSONPostRequest(
+                "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
+                requestBodyAsString = """
+            {
+                "zaakUuid":"$uuid",
+                "planItemInstanceId":"$intakeId",
+                "actie":"INTAKE_AFRONDEN",
+                "zaakOntvankelijk":true,
+                "resultaatToelichting":"intake"
+            }
+                """.trimIndent()
+            )
+        ) {
+            logger.info { "--- intake afronden status code: $code ---" }
+        }
+
+        with(
+            itestHttpClient.performGetRequest(
+                "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
+            )
+        ) {
+            with(JSONArray(body!!.string()).getJSONObject(0)) {
+                resultaatUuid = getString("id").let(UUID::fromString)
+            }
+        }
+
+        When("The zaak is closed") {
+            var afhandelenId: Int
+
+            with(itestHttpClient.performGetRequest("$ZAC_API_URI/planitems/zaak/$uuid/userEventListenerPlanItems")) {
+                with(JSONArray(body!!.string()).getJSONObject(0)) {
+                    afhandelenId = getString("id").toInt()
+                }
+            }
+
+            with(
+                itestHttpClient.performJSONPostRequest(
+                    "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
+                    requestBodyAsString = """
+            {
+                "zaakUuid":"$uuid",
+                "planItemInstanceId":"$afhandelenId",
+                "actie":"ZAAK_AFHANDELEN",
+                "zaakOntvankelijk":true,
+                "resultaattypeUuid": "$resultaatUuid",
+                "resultaatToelichting":"afronden"
+            }
+                    """.trimIndent()
+                )
+            ) {
+                logger.info { "--- afronden planItem status code: $code ---" }
+            }
+
+            Then("The zaak should have a resultaat") {
+                with(zacClient.retrieveZaak(uuid)) {
+                    code shouldBe HttpStatusCode.OK_200.code()
+                    val bodyStr = body!!.string()
+                    logger.info { "--- zaak body after afronden: $bodyStr ---" }
+                    JSONObject(bodyStr).apply {
+                        has("resultaat") shouldBe true
+                    }
+                }
+            }
+        }
+
+        When("The zaak is re-opened") {
+            KeycloakClient.authenticate(TEST_RECORD_MANAGER_1_USERNAME, TEST_RECORD_MANAGER_1_PASSWORD)
+
+            with(
+                itestHttpClient.performPatchRequest(
+                    "$ZAC_API_URI/zaken/zaak/$uuid/heropenen",
+                    requestBodyAsString = """
+            {"reden":"dummyReason"}
+                    """.trimIndent()
+                )
+            ) {
+                logger.info { "--- Heropenen status code: $code ---" }
+                if (code > EXPECTED_STATUS_CODE_FOR_HEROPENEN) {
+                    val bodyStr = body!!.string()
+                    logger.info { "--- Heropenen error body: $bodyStr ---" }
+                }
+            }
+
+            // re-authenticate with the default user
+            KeycloakClient.authenticate()
+
+            Then("The zaak should not have a resultaat") {
+                with(zacClient.retrieveZaak(uuid)) {
+                    code shouldBe HttpStatusCode.OK_200.code()
+                    JSONObject(body!!.string()).apply {
+                        has("resultaat") shouldBe false
                     }
                 }
             }
