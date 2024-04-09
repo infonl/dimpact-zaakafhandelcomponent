@@ -438,8 +438,10 @@ class ZakenRESTServiceTest : BehaviorSpec({
 
             Then("The zaak should not have a resultaat") {
                 with(zacClient.retrieveZaak(uuid!!)) {
+                    logger.info { code }
                     code shouldBe HttpStatusCode.OK_200.code()
                     val str = body!!.string()
+                    logger.info { str }
                     JSONObject(str).apply {
                         has("resultaat") shouldBe false
                     }
