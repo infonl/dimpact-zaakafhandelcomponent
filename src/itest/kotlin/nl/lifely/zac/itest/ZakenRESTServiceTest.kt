@@ -426,7 +426,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
             val heropenResult = itestHttpClient.performPatchRequest(
                 "$ZAC_API_URI/zaken/zaak/$uuid/heropenen",
                 requestBodyAsString = """
-            {"reden":"vxcvxcv"}
+            {"reden":"dummyReason"}
                 """.trimIndent()
             )
 
