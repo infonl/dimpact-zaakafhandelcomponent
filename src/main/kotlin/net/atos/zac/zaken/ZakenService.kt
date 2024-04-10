@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Medewerker
 import net.atos.client.zgw.zrc.model.OrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.RolMedewerker
@@ -115,4 +116,38 @@ class ZakenService @Inject constructor(
                 achternaam = user.lastName
             }
         )
+
+    /**
+     * Asynchronously releases a list of zaken from a user and updates the search index on the fly.
+     */
+    fun releaseZakenAsync(
+        zaakUUIDs: List<UUID>,
+        explanation: String? = null,
+        screenEventResourceId: String? = null
+    ) = defaultCoroutineScope.launch(CoroutineName("ReleaseZakenCoroutine")) {
+        LOG.fine {
+            "Started asynchronous job with ID: $screenEventResourceId to release ${zaakUUIDs.size} zaken"
+        }
+        withContext(Dispatchers.IO) {
+            zaakUUIDs
+                .map { zrcClientService.readZaak(it) }
+                .forEach {
+                    zrcClientService.deleteRol(it, BetrokkeneType.MEDEWERKER, explanation)
+                    indexeerService.indexeerDirect(
+                        it.uuid.toString(),
+                        ZoekObjectType.ZAAK
+                    )
+                }
+        }
+        LOG.fine(
+            """Asynchronous release zaken job with job ID '$screenEventResourceId' finished. "
+                    Succesfully released ${zaakUUIDs.size} zaken to group and/or user"""
+        )
+        // if a screen event resource ID was specified, send an 'updated zaken_verdelen' screen event
+        // with the job UUID so that it can be picked up by a client
+        // that has created a websocket subscription to this event
+        screenEventResourceId?.let {
+            eventingService.send(ScreenEventType.ZAKEN_VRIJGEVEN.updated(it))
+        }
+    }
 }

@@ -11,12 +11,14 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.ZTCClientService
 import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.generated.RolType
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
+import net.atos.zac.event.Opcode.any
 import net.atos.zac.identity.model.createGroup
 import net.atos.zac.identity.model.createUser
 import net.atos.zac.websocket.event.ScreenEvent
@@ -84,14 +86,58 @@ class ZakenServiceTest : BehaviorSpec({
                     a screen event of type 'zaken verdelen' should sent"""
             ) {
                 coroutine.join()
-                verify(exactly = zaken.size) {
-                    zaken.map {
+                zaken.map {
+                    // for every zaak both the user and group roles should have been updated
+                    verify(exactly = 2) {
                         zrcClientService.updateRol(it, any(), explanation)
                     }
                 }
                 with(screenEventSlot.captured) {
                     opcode shouldBe Opcode.UPDATED
                     objectType shouldBe ScreenEventType.ZAKEN_VERDELEN
+                    objectId.resource shouldBe screenEventResourceId
+                }
+            }
+        }
+    }
+    Given("A list of zaken") {
+        val screenEventSlot = slot<ScreenEvent>()
+        zaken.map {
+            every { zrcClientService.readZaak(it.uuid) } returns it
+            every {
+                ztcClientService.readRoltype(
+                    RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
+                    it.zaaktype
+                )
+            } returns rolTypeBehandelaar
+            every { zrcClientService.deleteRol(it, any(), explanation) } just Runs
+            every { indexeerService.indexeerDirect(it.uuid.toString(), ZoekObjectType.ZAAK) } just Runs
+            every { eventingService.send(capture(screenEventSlot)) } just Runs
+        }
+        When(
+            """the release zaken async function is called with
+                 a screen event resource id"""
+        ) {
+            val coroutine = zakenService.releaseZakenAsync(
+                zaakUUIDs = zaken.map { it.uuid },
+                explanation = explanation,
+                screenEventResourceId = screenEventResourceId
+            )
+            Then(
+                """both zaken should no longer have a user assigned
+                     but the group should still be assigned
+                    and the search index should be updated and
+                    a screen event of type 'zaken vrijgeven' should sent"""
+            ) {
+                coroutine.join()
+                zaken.map {
+                    verify(exactly = 1) {
+                        zrcClientService.deleteRol(it, BetrokkeneType.MEDEWERKER, explanation)
+                    }
+                }
+                with(screenEventSlot.captured) {
+                    opcode shouldBe Opcode.UPDATED
+                    objectType shouldBe ScreenEventType.ZAKEN_VRIJGEVEN
                     objectId.resource shouldBe screenEventResourceId
                 }
             }

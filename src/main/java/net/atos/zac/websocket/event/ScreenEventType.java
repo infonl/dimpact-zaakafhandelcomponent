@@ -110,6 +110,8 @@ public enum ScreenEventType {
 
     ZAKEN_VERDELEN,
 
+    ZAKEN_VRIJGEVEN,
+
     ANY;
 
     /**
@@ -395,7 +397,7 @@ public enum ScreenEventType {
     }
 
     /**
-     * This is the mapping.
+     * Maps incoming notifications to specific screen events.
      *
      * @param channel      the channel the notification came in on
      * @param mainResource the involved main resource (may be equal to the resource)

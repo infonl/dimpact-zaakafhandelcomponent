@@ -20,6 +20,8 @@ import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATIE_TY
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_TYPE_NATUURLIJK_PERSOON
 import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_BETROKKENE
 import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_UUID_BELANGHEBBENDE
+import nl.lifely.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAKEN_VERDELEN
+import nl.lifely.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAKEN_VRIJGEVEN
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_BETROKKENE_BSN_HENDRIKA_JANSE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
@@ -262,8 +264,8 @@ class ZakenRESTServiceTest : BehaviorSpec({
         }
     }
     Given(
-        "Two zaken have been created and a websocket subscription has been created to listen" +
-            " for a 'zaken verdelen' screen event which will be sent by the asynchronous 'assign zaken from list' job"
+        """Two zaken have been created and a websocket subscription has been created to listen
+                for a 'zaken verdelen' screen event which will be sent by the asynchronous 'assign zaken from list' job"""
     ) {
         val uniqueResourceId = UUID.randomUUID()
         val websocketListener = WebSocketTestListener(
@@ -271,11 +273,11 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 "\"subscriptionType\":\"CREATE\"," +
                 "\"event\":{" +
                 "  \"opcode\":\"UPDATED\"," +
-                "  \"objectType\":\"ZAKEN_VERDELEN\"," +
+                "  \"objectType\":\"$SCREEN_EVENT_TYPE_ZAKEN_VERDELEN\"," +
                 "  \"objectId\":{" +
                 "    \"resource\":\"$uniqueResourceId\"" +
                 "  }," +
-                "\"_key\":\"ANY;ZAKEN_VERDELEN;$uniqueResourceId\"" +
+                "\"_key\":\"ANY;$SCREEN_EVENT_TYPE_ZAKEN_VERDELEN;$uniqueResourceId\"" +
                 "}" +
                 "}"
         )
@@ -284,8 +286,8 @@ class ZakenRESTServiceTest : BehaviorSpec({
             webSocketListener = websocketListener
         )
         When(
-            "the 'assign zaken from list' endpoint is called to start an asynchronous process to assign the two zaken " +
-                "to a group and a user using the unique resource ID that was used to create the websocket subscription"
+            """the 'assign zaken from list' endpoint is called to start an asynchronous process to assign the two zaken 
+                     to a group and a user using the unique resource ID that was used to create the websocket subscription"""
         ) {
             val lijstVerdelenResponse = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zaken/lijst/verdelen",
@@ -298,8 +300,8 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     "}"
             )
             Then(
-                "the response should be a 204 HTTP response and eventually a screen event of type 'zaken verdelen' " +
-                    "should be received by the websocker listener and the two zaken should be assigned correctly"
+                """the response should be a 204 HTTP response and eventually a screen event of type 'zaken verdelen'
+                    should be received by the websocker listener and the two zaken should be assigned correctly"""
             ) {
                 val lijstVerdelenResponseBody = lijstVerdelenResponse.body!!.string()
                 logger.info { "Response: $lijstVerdelenResponseBody" }
@@ -365,40 +367,71 @@ class ZakenRESTServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("Zaken have been assigned to a user") {
+    Given(
+        """Zaken have been assigned and a websocket subscription has been created to listen
+                 for a 'zaken vrijgeven' screen event which will be sent by the asynchronous 'assign zaken from list' job"""
+    ) {
+        val uniqueResourceId = UUID.randomUUID()
+        val websocketListener = WebSocketTestListener(
+            textToBeSentOnOpen = """
+                {
+                    "subscriptionType":"CREATE",
+                    "event":{
+                        "opcode":"UPDATED",
+                        "objectType":"$SCREEN_EVENT_TYPE_ZAKEN_VRIJGEVEN",
+                        "objectId":{
+                            "resource":"$uniqueResourceId"
+                        },
+                    "_key":"ANY;$SCREEN_EVENT_TYPE_ZAKEN_VRIJGEVEN;$uniqueResourceId"
+                    }
+                }
+                """
+        )
+        itestHttpClient.connectNewWebSocket(
+            url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
+            webSocketListener = websocketListener
+        )
         When("the 'lijst vrijgeven' endpoint is called for the zaken") {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zaken/lijst/vrijgeven",
-                requestBodyAsString = "{\n" +
-                    "\"uuids\":[\"$zaak1UUID\", \"$zaak2UUID\"],\n" +
-                    "\"reden\":\"dummyLijstVrijgevenReason\"\n" +
-                    "}"
+                requestBodyAsString = """
+                    {
+                        "uuids":["$zaak1UUID", "$zaak2UUID"],
+                        "reden":"dummyLijstVrijgevenReason",
+                        "screenEventResourceId":"$uniqueResourceId"
+                    }
+                    """
             )
             Then(
-                "the response should be a 204 HTTP response and the zaak should be unassigned from the user " +
-                    "but should still be assigned to the group"
+                """the response should be a 204 HTTP response and eventually a screen event of type 'zaken vrijgeven'
+                                      should be received by the websocker listener and the zaak should be released from the user
+                    but should still be assigned to the group """
             ) {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
-                with(zacClient.retrieveZaak(zaak1UUID)) {
-                    code shouldBe HttpStatusCode.OK_200.code()
-                    JSONObject(body!!.string()).apply {
-                        getJSONObject("groep").apply {
-                            getString("id") shouldBe TEST_GROUP_A_ID
-                            getString("naam") shouldBe TEST_GROUP_A_DESCRIPTION
+                // the backend process is asynchronous, so we need to wait a bit until the zaken are assigned
+                eventually(10.seconds) {
+                    websocketListener.messagesReceived.size shouldBe 1
+                    with(zacClient.retrieveZaak(zaak1UUID)) {
+                        code shouldBe HttpStatusCode.OK_200.code()
+                        JSONObject(body!!.string()).apply {
+                            getJSONObject("groep").apply {
+                                getString("id") shouldBe TEST_GROUP_A_ID
+                                getString("naam") shouldBe TEST_GROUP_A_DESCRIPTION
+                            }
+                            has("behandelaar") shouldBe false
                         }
-                        has("behandelaar") shouldBe false
                     }
-                }
-                with(zacClient.retrieveZaak(zaak2UUID)) {
-                    code shouldBe HttpStatusCode.OK_200.code()
-                    JSONObject(body!!.string()).apply {
-                        getJSONObject("groep").apply {
-                            getString("id") shouldBe TEST_GROUP_A_ID
-                            getString("naam") shouldBe TEST_GROUP_A_DESCRIPTION
+                    with(zacClient.retrieveZaak(zaak2UUID)) {
+                        code shouldBe HttpStatusCode.OK_200.code()
+                        JSONObject(body!!.string()).apply {
+                            getJSONObject("groep").apply {
+                                getString("id") shouldBe TEST_GROUP_A_ID
+                                getString("naam") shouldBe TEST_GROUP_A_DESCRIPTION
+                            }
+                            has("behandelaar") shouldBe false
                         }
-                        has("behandelaar") shouldBe false
                     }
                 }
             }
