@@ -43,7 +43,7 @@ When(
 
 When(
   "{string} releases the zaken",
-  async function (this: CustomWorld, s: string, groep: string) {
+  async function (this: CustomWorld, s: string) {
     await this.page.getByTitle("Vrijgeven").click();
     await this.page.getByLabel("Reden").fill("Dummy reason");
     await this.page.locator("#zakenVrijgeven_button").click();
