@@ -136,7 +136,7 @@ export class TakenService {
       taakId: taak.id,
       zaakUuid: taak.zaakUuid,
     }));
-    taakBody.behandelaarGebruikersnaam = medewerker.id;
+    taakBody.behandelaarGebruikersnaam = medewerker?.id;
     taakBody.groepId = groep?.id;
     taakBody.reden = reden;
     return this.http
