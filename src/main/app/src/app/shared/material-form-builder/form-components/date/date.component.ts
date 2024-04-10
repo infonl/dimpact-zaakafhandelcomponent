@@ -33,10 +33,6 @@ export class DateComponent extends FormComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  showDays() {
-    return this.data.showDays && !!this.data.formControl.value;
-  }
-
   days() {
     return moment(this.data.formControl.value).diff(
       moment().startOf("day"),

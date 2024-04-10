@@ -70,6 +70,7 @@ import {
   BUILDER_CONFIG,
   MaterialFormBuilderConfig,
 } from "./material-form-builder-config";
+import { SharedModule } from "../shared.module";
 
 @NgModule({
   declarations: [
