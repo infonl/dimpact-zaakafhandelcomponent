@@ -212,12 +212,21 @@ export class ZakenService {
     const verdeelGegevens: ZakenVerdeelGegevens = new ZakenVerdeelGegevens();
     verdeelGegevens.uuids = uuids;
     verdeelGegevens.reden = reden;
+    verdeelGegevens.screenEventResourceId = uuidv4();
 
-    return this.http
-      .put<void>(`${this.basepath}/lijst/vrijgeven`, verdeelGegevens)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.websocketService.longRunningOperation(
+      Opcode.UPDATED,
+      ObjectType.ZAKEN_VRIJGEVEN,
+      verdeelGegevens.screenEventResourceId,
+      () =>
+        this.http
+          .put<void>(`${this.basepath}/lijst/vrijgeven`, verdeelGegevens)
+          .pipe(
+            catchError((err) =>
+              this.foutAfhandelingService.foutAfhandelen(err),
+            ),
+          ),
+    );
   }
 
   toekennenAanIngelogdeMedewerker(
