@@ -68,11 +68,13 @@ public class IndexeerService {
     private static final int SOLR_MAX_RESULT = 100;
     private static final int TAKEN_MAX_RESULTS = 50;
 
-    private Instance<AbstractZoekObjectConverter<? extends ZoekObject>> converterInstances;
-    private ZRCClientService zrcClientService;
-    private DRCClientService drcClientService;
-    private TakenService takenService;
-    private IndexeerServiceHelper helper;
+    private final Instance<AbstractZoekObjectConverter<? extends ZoekObject>> converterInstances;
+    private final ZRCClientService zrcClientService;
+    private final DRCClientService drcClientService;
+    private final TakenService takenService;
+    private final IndexeerServiceHelper helper;
+    private final SolrClient solrClient;
+    private final Set<ZoekObjectType> herindexerenBezig = new HashSet<>();
 
     @Inject
     IndexeerService(
@@ -89,21 +91,14 @@ public class IndexeerService {
         this.takenService = takenService;
         this.helper = helper;
 
+        final String solrUrl = ConfigProvider.getConfig().getValue("solr.url", String.class);
+        solrClient = new Http2SolrClient.Builder(String.format("%s/solr/%s", solrUrl, SOLR_CORE)).build();
     }
-
-    private SolrClient solrClient;
-
-    private final Set<ZoekObjectType> herindexerenBezig = new HashSet<>();
 
     public record Resultaat(long indexed, long removed, long remaining) {
         public Resultaat() {
             this(0, 0, 0);
         }
-    }
-
-    public IndexeerService() {
-        final String solrUrl = ConfigProvider.getConfig().getValue("solr.url", String.class);
-        solrClient = new Http2SolrClient.Builder(String.format("%s/solr/%s", solrUrl, SOLR_CORE)).build();
     }
 
     private void log(final ZoekObjectType objectType, final String message) {
