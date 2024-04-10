@@ -37,6 +37,7 @@ import net.atos.zac.app.planitems.model.RESTHumanTaskData;
 import net.atos.zac.app.planitems.model.RESTPlanItem;
 import net.atos.zac.app.planitems.model.RESTProcessTaskData;
 import net.atos.zac.app.planitems.model.RESTUserEventListenerData;
+import net.atos.zac.app.util.InputValidationFailedException;
 import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.flowable.CMMNService;
 import net.atos.zac.flowable.TaakVariabelenService;
@@ -66,50 +67,61 @@ import net.atos.zac.zoeken.IndexeerService;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class PlanItemsRESTService {
-
     private static final String REDEN_OPSCHORTING = "Aanvullende informatie opgevraagd";
 
-    @Inject
     private TaakVariabelenService taakVariabelenService;
-
-    @Inject
     private ZaakVariabelenService zaakVariabelenService;
-
-    @Inject
     private CMMNService cmmnService;
-
-    @Inject
     private ZRCClientService zrcClientService;
-
-    @Inject
     private BRCClientService brcClientService;
-
-    @Inject
     private ZaakafhandelParameterService zaakafhandelParameterService;
-
-    @Inject
     private RESTPlanItemConverter planItemConverter;
-
-    @Inject
     private ZGWApiService zgwApiService;
-
-    @Inject
     private IndexeerService indexeerService;
-
-    @Inject
     private MailService mailService;
-
-    @Inject
     private ConfiguratieService configuratieService;
-
-    @Inject
     private MailTemplateService mailTemplateService;
-
-    @Inject
     private PolicyService policyService;
+    private OpschortenZaakHelper opschortenZaakHelper;
+
+    /**
+     * Default empty constructor, required by JAX-RS
+     */
+    public PlanItemsRESTService() {
+    }
 
     @Inject
-    private OpschortenZaakHelper opschortenZaakHelper;
+    public PlanItemsRESTService(
+            TaakVariabelenService taakVariabelenService,
+            ZaakVariabelenService zaakVariabelenService,
+            CMMNService cmmnService,
+            ZRCClientService zrcClientService,
+            BRCClientService brcClientService,
+            ZaakafhandelParameterService zaakafhandelParameterService,
+            RESTPlanItemConverter planItemConverter,
+            ZGWApiService zgwApiService,
+            IndexeerService indexeerService,
+            MailService mailService,
+            ConfiguratieService configuratieService,
+            MailTemplateService mailTemplateService,
+            PolicyService policyService,
+            OpschortenZaakHelper opschortenZaakHelper
+    ) {
+        this.taakVariabelenService = taakVariabelenService;
+        this.zaakVariabelenService = zaakVariabelenService;
+        this.cmmnService = cmmnService;
+        this.zrcClientService = zrcClientService;
+        this.brcClientService = brcClientService;
+        this.zaakafhandelParameterService = zaakafhandelParameterService;
+        this.planItemConverter = planItemConverter;
+        this.zgwApiService = zgwApiService;
+        this.indexeerService = indexeerService;
+        this.mailService = mailService;
+        this.configuratieService = configuratieService;
+        this.mailTemplateService = mailTemplateService;
+        this.policyService = policyService;
+        this.opschortenZaakHelper = opschortenZaakHelper;
+    }
 
     @GET
     @Path("zaak/{uuid}/humanTaskPlanItems")
@@ -167,13 +179,15 @@ public class PlanItemsRESTService {
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
         final Map<String, String> taakdata = humanTaskData.taakdata;
         assertPolicy(policyService.readZaakRechten(zaak).behandelen());
-        final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(UriUtil.uuidFromURI(
-                zaak.getZaaktype()));
+        final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
+                UriUtil.uuidFromURI(zaak.getZaaktype())
+        );
         final Optional<HumanTaskParameters> humanTaskParameters = zaakafhandelParameters
                 .findHumanTaskParameter(planItem.getPlanItemDefinitionId());
 
         final LocalDate fataleDatum;
         if (humanTaskData.fataledatum != null) {
+            validateFatalDate(humanTaskData.fataledatum, zaak.getUiterlijkeEinddatumAfdoening());
             fataleDatum = humanTaskData.fataledatum;
         } else {
             fataleDatum = humanTaskParameters.isPresent() && humanTaskParameters.get().getDoorlooptijd() != null ?
@@ -211,12 +225,17 @@ public class PlanItemsRESTService {
                             true),
                     Bronnen.fromZaak(zaak)));
         }
-        cmmnService.startHumanTaskPlanItem(humanTaskData.planItemInstanceId, humanTaskData.groep.id,
+        cmmnService.startHumanTaskPlanItem(
+                humanTaskData.planItemInstanceId,
+                humanTaskData.groep.id,
                 humanTaskData.medewerker != null && !humanTaskData.medewerker.toString().isEmpty() ?
                         humanTaskData.medewerker.id :
                         null,
                 DateTimeConverterUtil.convertToDate(fataleDatum),
-                humanTaskData.toelichting, taakdata, zaakUUID);
+                humanTaskData.toelichting,
+                taakdata,
+                zaakUUID
+        );
         indexeerService.addOrUpdateZaak(zaakUUID, false);
     }
 
@@ -258,5 +277,17 @@ public class PlanItemsRESTService {
             }
         }
         cmmnService.startUserEventListenerPlanItem(userEventListenerData.planItemInstanceId);
+    }
+
+    private static void validateFatalDate(LocalDate taskFatalDate, LocalDate zaakFatalDate) {
+        if (taskFatalDate.isAfter(zaakFatalDate)) {
+            throw new InputValidationFailedException(
+                    String.format(
+                            "Fatal date of a task (%s) cannot be later than the fatal date of the zaak (%s)",
+                            taskFatalDate,
+                            zaakFatalDate
+                    )
+            );
+        }
     }
 }

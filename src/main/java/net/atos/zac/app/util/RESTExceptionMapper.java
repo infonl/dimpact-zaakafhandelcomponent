@@ -5,6 +5,8 @@
 
 package net.atos.zac.app.util;
 
+import static jakarta.ws.rs.core.Response.Status.Family.familyOf;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,14 +32,14 @@ public class RESTExceptionMapper implements ExceptionMapper<Exception> {
     private static final Logger LOG = Logger.getLogger(RESTExceptionMapper.class.getName());
 
     /**
-     * Retourneert een {@link Response} naar de Angular client.
+     * Retourneert een {@link Response} naar de client.
      */
     @Override
     public Response toResponse(final Exception e) {
-        if (e instanceof WebApplicationException &&
-            Response.Status.Family.familyOf(((WebApplicationException) e).getResponse().getStatus()) !=
-                                                    Response.Status.Family.SERVER_ERROR) {
-            final WebApplicationException wae = (WebApplicationException) e;
+        if (
+            e instanceof WebApplicationException wae &&
+            familyOf(((WebApplicationException) e).getResponse().getStatus()) != Response.Status.Family.SERVER_ERROR
+        ) {
             return Response.status(wae.getResponse().getStatus())
                     .type(MediaType.APPLICATION_JSON)
                     .entity(getJSONMessage(e, wae.getMessage()))
