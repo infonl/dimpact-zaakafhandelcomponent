@@ -1,4 +1,4 @@
-Feature: Taken verdelen
+Feature: Taken verdelen / vrijgeven
 
   Scenario: Bob distributes taken to a group
     Given "Bob" navigates to "zac" with path "/taken/werkvoorraad" with delay after of 5000 ms
