@@ -62,30 +62,34 @@ import net.atos.zac.zoeken.model.index.ZoekObjectType;
 @Singleton
 @Transactional
 public class IndexeerService {
-
     public static final String SOLR_CORE = "zac";
 
     private static final Logger LOG = Logger.getLogger(IndexeerService.class.getName());
-
     private static final int SOLR_MAX_RESULT = 100;
-
     private static final int TAKEN_MAX_RESULTS = 50;
 
-    @Inject
-    @Any
     private Instance<AbstractZoekObjectConverter<? extends ZoekObject>> converterInstances;
-
-    @Inject
     private ZRCClientService zrcClientService;
-
-    @Inject
     private DRCClientService drcClientService;
-
-    @Inject
     private TakenService takenService;
+    private IndexeerServiceHelper helper;
 
     @Inject
-    private IndexeerServiceHelper helper;
+    IndexeerService(
+            @Any
+            Instance<AbstractZoekObjectConverter<? extends ZoekObject>> converterInstances,
+            ZRCClientService zrcClientService,
+            DRCClientService drcClientService,
+            TakenService takenService,
+            IndexeerServiceHelper helper
+    ) {
+        this.converterInstances = converterInstances;
+        this.zrcClientService = zrcClientService;
+        this.drcClientService = drcClientService;
+        this.takenService = takenService;
+        this.helper = helper;
+
+    }
 
     private SolrClient solrClient;
 
@@ -176,7 +180,6 @@ public class IndexeerService {
         if (CollectionUtils.isNotEmpty(beansToBeAdded)) {
             try {
                 solrClient.addBeans(beansToBeAdded);
-                solrClient.commit();
             } catch (final IOException | SolrServerException e) {
                 throw new RuntimeException(e);
             }
@@ -190,7 +193,6 @@ public class IndexeerService {
         if (CollectionUtils.isNotEmpty(idsToBeDeleted)) {
             try {
                 solrClient.deleteById(idsToBeDeleted);
-                solrClient.commit();
             } catch (final IOException | SolrServerException e) {
                 throw new RuntimeException(e);
             }
