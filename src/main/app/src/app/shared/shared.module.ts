@@ -38,7 +38,6 @@ import { BackButtonDirective } from "./navigation/back-button.directive";
 import { NotificationDialogComponent } from "./notification-dialog/notification-dialog.component";
 import { paginatorLanguageInitializerFactory } from "./paginator/paginator-language-initializer";
 import { PaginatorTranslator } from "./paginator/paginator-translator";
-import { DagenPipe } from "./pipes/dagen.pipe";
 import { PipesModule } from "./pipes/pipes.module";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "./pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { ReadMoreComponent } from "./read-more/read-more.component";
@@ -78,7 +77,6 @@ import { VersionComponent } from "./version/version.component";
     ColumnPickerComponent,
     TooltipListPipe,
     DocumentViewerComponent,
-    DagenPipe,
     NotificationDialogComponent,
     ExportButtonComponent,
     BesluitIndicatiesComponent,
@@ -129,7 +127,6 @@ import { VersionComponent } from "./version/version.component";
     TooltipListPipe,
     DocumentViewerComponent,
     ColumnPickerComponent,
-    DagenPipe,
     ExportButtonComponent,
     BesluitIndicatiesComponent,
     ZaakIndicatiesComponent,
