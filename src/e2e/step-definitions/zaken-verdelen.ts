@@ -7,7 +7,7 @@ const zaakCheckmarkTitle = "Selecteren";
 let _noOfZaken = 0;
 
 Given(
-  "There at least {int} zaken",
+  "there are at least {int} zaken",
   async function (this: CustomWorld, noOfZaken: number) {
     _noOfZaken = noOfZaken;
     const zaakCount = await this.page
