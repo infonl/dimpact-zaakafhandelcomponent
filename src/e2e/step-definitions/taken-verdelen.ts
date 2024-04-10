@@ -29,12 +29,12 @@ When(
 );
 
 When(
-  "{string} distributes the taken to group {string}",
-  async function (this: CustomWorld, s: string, groep: string) {
+  "{string} distributes the taken to the first group available",
+  async function (this: CustomWorld, s: string) {
     await this.page.getByTitle("Verdelen").click();
     const expectedLabel = "Taak toekennen aan groep";
     await this.page.getByLabel(expectedLabel).click();
-    await this.page.getByRole("option", { name: groep }).click();
+    await this.page.getByRole("option", {name: "test gr"}).first().click();
     await this.page.getByLabel("Reden").fill("Dummy reason");
     await this.page.locator("#takenVerdelen_button").click();
   },

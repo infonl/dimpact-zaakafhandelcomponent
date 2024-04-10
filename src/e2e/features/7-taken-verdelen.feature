@@ -4,7 +4,7 @@ Feature: Taken verdelen / vrijgeven
     Given "Bob" navigates to "zac" with path "/taken/werkvoorraad" with delay after of 5000 ms
     And there are at least 3 taken
     When "Bob" selects that number of taken
-    And "Bob" distributes the taken to group "Test group A"
+    And "Bob" distributes the taken to the first group available
     Then "Bob" gets a message confirming that the distribution of taken is complete
 
   Scenario: Bob releases taken
