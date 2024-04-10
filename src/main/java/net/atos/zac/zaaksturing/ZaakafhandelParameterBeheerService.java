@@ -1,11 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 package net.atos.zac.zaaksturing;
 
-import static net.atos.client.zgw.shared.cache.Caching.ZAC_ZAAKAFHANDELPARAMETERS;
 import static net.atos.zac.util.ValidationUtil.valideerObject;
 import static net.atos.zac.zaaksturing.model.ZaakafhandelParameters.CREATIEDATUM;
 import static net.atos.zac.zaaksturing.model.ZaakafhandelParameters.PRODUCTAANVRAAGTYPE;
@@ -19,8 +18,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
-
-import javax.cache.annotation.CacheRemoveAll;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -56,6 +53,9 @@ public class ZaakafhandelParameterBeheerService {
     @Inject
     private ZTCClientService ztcClientService;
 
+    @Inject
+    private ZaakafhandelParameterService zaakafhandelParameterService;
+
     ZaakafhandelParameters readZaakafhandelParameters(final UUID zaaktypeUUID) {
         ztcClientService.readCacheTime();
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
@@ -81,8 +81,8 @@ public class ZaakafhandelParameterBeheerService {
         return entityManager.createQuery(query).getResultList();
     }
 
-    @CacheRemoveAll(cacheName = ZAC_ZAAKAFHANDELPARAMETERS)
     public ZaakafhandelParameters createZaakafhandelParameters(final ZaakafhandelParameters zaakafhandelParameters) {
+        zaakafhandelParameterService.clearListCache();
         valideerObject(zaakafhandelParameters);
         zaakafhandelParameters.getHumanTaskParametersCollection().forEach(ValidationUtil::valideerObject);
         zaakafhandelParameters.getUserEventListenerParametersCollection().forEach(ValidationUtil::valideerObject);
@@ -132,8 +132,8 @@ public class ZaakafhandelParameterBeheerService {
      *
      * @param zaaktypeUri uri van het nieuwe zaaktype
      */
-    @CacheRemoveAll(cacheName = ZAC_ZAAKAFHANDELPARAMETERS)
     public void zaaktypeAangepast(final URI zaaktypeUri) {
+        zaakafhandelParameterService.clearListCache();
         ztcClientService.clearZaaktypeCache();
         final ZaakType zaaktype = ztcClientService.readZaaktype(zaaktypeUri);
         if (!zaaktype.getConcept()) {
