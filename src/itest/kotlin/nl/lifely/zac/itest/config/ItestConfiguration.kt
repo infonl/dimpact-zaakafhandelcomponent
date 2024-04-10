@@ -41,6 +41,8 @@ object ItestConfiguration {
     const val ROLTYPE_NAME_BETROKKENE = "Belanghebbende"
     const val ROLTYPE_UUID_BELANGHEBBENDE = "4c4cd850-8332-4bb9-adc4-dd046f0614ad"
     const val ROLTYPE_COUNT = 16
+    const val SCREEN_EVENT_TYPE_ZAKEN_VERDELEN = "ZAKEN_VERDELEN"
+    const val SCREEN_EVENT_TYPE_ZAKEN_VRIJGEVEN = "ZAKEN_VRIJGEVEN"
     const val TEST_PDF_FILE_NAME = "dummyTestDocument.pdf"
     const val TEST_PDF_FILE_SIZE = 9268
     const val TEST_TXT_FILE_NAME = "testTextDocument.txt"

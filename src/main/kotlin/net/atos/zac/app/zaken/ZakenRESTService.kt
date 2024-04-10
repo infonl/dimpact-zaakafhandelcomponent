@@ -597,35 +597,37 @@ class ZakenRESTService @Inject constructor(
 
     @PUT
     @Path("lijst/verdelen")
-    fun verdelenVanuitLijst(@Valid verdeelGegevens: RESTZakenVerdeelGegevens) {
+    fun verdelenVanuitLijst(@Valid restZakenVerdeelGegevens: RESTZakenVerdeelGegevens) {
         assertPolicy(
             policyService.readWerklijstRechten().zakenTaken &&
                 policyService.readWerklijstRechten().zakenTakenVerdelen
         )
         zakenService.assignZakenAsync(
-            zaakUUIDs = verdeelGegevens.uuids,
-            explanation = verdeelGegevens.reden,
-            group = verdeelGegevens.groepId.let { identityService.readGroup(verdeelGegevens.groepId) },
-            user = verdeelGegevens.behandelaarGebruikersnaam?.let {
-                identityService.readUser(verdeelGegevens.behandelaarGebruikersnaam)
+            zaakUUIDs = restZakenVerdeelGegevens.uuids,
+            explanation = restZakenVerdeelGegevens.reden,
+            group = restZakenVerdeelGegevens.groepId.let {
+                identityService.readGroup(
+                    restZakenVerdeelGegevens.groepId
+                )
             },
-            screenEventResourceId = verdeelGegevens.screenEventResourceId
+            user = restZakenVerdeelGegevens.behandelaarGebruikersnaam?.let {
+                identityService.readUser(restZakenVerdeelGegevens.behandelaarGebruikersnaam)
+            },
+            screenEventResourceId = restZakenVerdeelGegevens.screenEventResourceId
         )
     }
 
     @PUT
     @Path("lijst/vrijgeven")
-    fun vrijgevenVanuitLijst(@Valid vrijgevenGegevens: RESTZakenVrijgevenGegevens) {
+    fun vrijgevenVanuitLijst(@Valid restZakenVrijgevenGegevens: RESTZakenVrijgevenGegevens) {
         assertPolicy(
             policyService.readWerklijstRechten().zakenTaken &&
                 policyService.readWerklijstRechten().zakenTakenVerdelen
         )
-        vrijgevenGegevens.uuids
-            .map { zrcClientService.readZaak(it) }
-            .forEach { zrcClientService.deleteRol(it, BetrokkeneType.MEDEWERKER, vrijgevenGegevens.reden) }
-        indexeerService.indexeerDirect(
-            vrijgevenGegevens.uuids.map { it.toString() }.toList(),
-            ZoekObjectType.ZAAK
+        zakenService.releaseZakenAsync(
+            zaakUUIDs = restZakenVrijgevenGegevens.uuids,
+            explanation = restZakenVrijgevenGegevens.reden,
+            screenEventResourceId = restZakenVrijgevenGegevens.screenEventResourceId
         )
     }
 

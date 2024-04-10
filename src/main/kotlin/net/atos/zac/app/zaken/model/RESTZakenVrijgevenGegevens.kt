@@ -13,5 +13,12 @@ import java.util.UUID
 data class RESTZakenVrijgevenGegevens(
     var uuids: List<UUID>,
 
-    var reden: String? = null
+    var reden: String? = null,
+
+    /**
+     * Unique screen event resource ID which can be used
+     * to track the progress of the 'assign zaken from list' asynchronous job
+     * using web sockets.
+     */
+    var screenEventResourceId: String? = null
 )
