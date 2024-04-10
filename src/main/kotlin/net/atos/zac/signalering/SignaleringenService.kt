@@ -9,6 +9,14 @@ import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
 import jakarta.transaction.Transactional
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.zac.app.zaken.converter.RESTZaakOverzichtConverter
+import net.atos.zac.app.zaken.model.RESTZaakOverzicht
 import net.atos.zac.event.EventingService
 import net.atos.zac.mail.MailService
 import net.atos.zac.mail.model.Bronnen
@@ -24,15 +32,18 @@ import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.util.ValidationUtil
 import net.atos.zac.websocket.event.ScreenEventType
+import net.atos.zac.zaken.ZakenService
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
 import java.util.Arrays
 import java.util.Optional
+import java.util.UUID
+import java.util.logging.Logger
 
 @ApplicationScoped
 @Transactional
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 @NoArgConstructor
 @AllOpen
 class SignaleringenService @Inject constructor(
@@ -40,7 +51,9 @@ class SignaleringenService @Inject constructor(
     private val mailService: MailService,
     private val signaleringenMailHelper: SignaleringenMailHelper,
     private val signaleringenZACHelper: SignaleringenZACHelper,
-    private val signaleringenPredicateHelper: SignaleringenPredicateHelper
+    private val signaleringenPredicateHelper: SignaleringenPredicateHelper,
+    private val zrcClientService: ZRCClientService,
+    private val restZaakOverzichtConverter: RESTZaakOverzichtConverter,
 ) {
 
     companion object {
@@ -49,6 +62,9 @@ class SignaleringenService @Inject constructor(
 
         private fun signaleringTypeInstance(signaleringsType: SignaleringType.Type?): SignaleringType =
             entityManager.find(SignaleringType::class.java, signaleringsType.toString())
+
+        private val defaultCoroutineScope = CoroutineScope(Dispatchers.Default)
+        private val LOG = Logger.getLogger(ZakenService::class.java.name)
     }
 
     /**
@@ -284,5 +300,38 @@ class SignaleringenService @Inject constructor(
         )
             .resultList
         return if (result.isEmpty()) { Optional.empty() } else { Optional.of(result[0]) }
+    }
+
+    fun startListingZakenSignaleringenAsync(
+        signaleringZoekParameters: SignaleringZoekParameters,
+        signaleringsType: SignaleringType.Type,
+        screenEventResourceId: String
+    ) = defaultCoroutineScope.launch(CoroutineName("ListZakenSignaleringen")) {
+        LOG.fine(
+            "Started asynchronous job with ID $screenEventResourceId to list zaken signaleringen of" +
+                " type $signaleringsType"
+        )
+
+        val zakenSignaleringen: List<RESTZaakOverzicht>
+        withContext(Dispatchers.IO) {
+            zakenSignaleringen = signaleringZoekParameters.types(signaleringsType)
+                .subjecttype(SignaleringSubject.ZAAK)
+                .let { listSignaleringen(it) }
+                .stream()
+                .map { zrcClientService.readZaak(UUID.fromString(it.subject)) }
+                .map { restZaakOverzichtConverter.convert(it) }
+                .toList()
+        }
+
+        LOG.fine(
+            "Asynchronous list zaken signaleringen job with ID $screenEventResourceId finished. " +
+                "Successfully listed ${zakenSignaleringen.size} zaken signaleringen of type $signaleringsType"
+        )
+
+        // Send an 'updated zaken_verdelen' screen event with the job id so that it can be picked up by a client
+        // that has created a websocket subscription to this event
+        screenEventResourceId.let {
+            eventingService.send(ScreenEventType.ZAKEN_SIGNALERINGEN.updated(it, zakenSignaleringen))
+        }
     }
 }

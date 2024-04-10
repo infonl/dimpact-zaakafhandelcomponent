@@ -25,6 +25,8 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_COMPLETED
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.lifely.zac.itest.config.ItestConfiguration.zaak1UUID
+import nl.lifely.zac.itest.util.WebSocketTestListener
 import okhttp3.Headers
 import org.json.JSONArray
 import org.json.JSONObject
@@ -33,6 +35,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
@@ -183,6 +186,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
         When("the list of zaken signaleringen for ZAAK_DOCUMENT_TOEGEVOEGD is requested") {
             lateinit var responseBody: String
 
+            // Wait for the notifications to get processed asynchronously on the backend
             eventually(
                 eventuallyConfig {
                     duration = 5.seconds
@@ -191,43 +195,6 @@ class SignaleringenRestServiceTest : BehaviorSpec({
             ) {
                 val response = itestHttpClient.performGetRequest(
                     "$ZAC_API_URI/signaleringen/zaken/ZAAK_DOCUMENT_TOEGEVOEGD"
-                )
-                response.isSuccessful shouldBe true
-                responseBody = response.body!!.string()
-                logger.info { "Response: $responseBody" }
-                responseBody.shouldBeJsonArray()
-                JSONArray(responseBody) shouldHaveSize 1
-            }
-
-            Then("it returns the correct signaleringen") {
-                with(JSONArray(responseBody).getJSONObject(0).toString()) {
-                    shouldContainJsonKey("behandelaar")
-                    shouldContainJsonKey("groep")
-                    shouldContainJsonKeyValue("identificatie", "ZAAK-2023-0000000001")
-                    shouldContainJsonKey("omschrijving")
-                    shouldContainJsonKey("openstaandeTaken")
-                    shouldContainJsonKey("rechten")
-                    shouldContainJsonKeyValue("startdatum", "2023-10-25")
-                    shouldContainJsonKeyValue("status", "Intake")
-                    shouldContainJsonKeyValue("toelichting", "")
-                    shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", "2023-11-08")
-                    shouldContainJsonKey("uuid")
-                    shouldContainJsonKeyValue("zaaktype", "Melding evenement organiseren behandelen")
-                }
-            }
-        }
-
-        When("the list of zaken signaleringen for ZAAK_OP_NAAM is requested") {
-            lateinit var responseBody: String
-
-            eventually(
-                eventuallyConfig {
-                    duration = 5.seconds
-                    interval = 500.milliseconds
-                }
-            ) {
-                val response = itestHttpClient.performGetRequest(
-                    "$ZAC_API_URI/signaleringen/zaken/ZAAK_OP_NAAM"
                 )
                 response.isSuccessful shouldBe true
                 responseBody = response.body!!.string()
@@ -268,6 +235,63 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                 val date = ZonedDateTime.parse(dateString, DateTimeFormatter.ISO_DATE_TIME)
                     .withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime()
                 date.shouldBeBetween(START_DATE, LocalDateTime.now())
+            }
+        }
+    }
+
+    Given(
+        "a zaaken has been assigned nd a websocket subscription has been created to listen for" +
+            " ZAKEN_SIGNALERINGEN lists"
+    ) {
+        val uniqueResourceId = UUID.randomUUID()
+        val websocketListener = WebSocketTestListener(
+            textToBeSentOnOpen = """{
+                "subscriptionType":"CREATE",
+                "event":{  
+                    "opcode":"UPDATED",
+                    "objectType":"ZAKEN_SIGNALERINGEN",
+                    "objectId":{ "resource":"$uniqueResourceId" },
+                    "_key":"ANY;ZAKEN_SIGNALERINGEN;$uniqueResourceId"
+                }
+            }"""
+        )
+        itestHttpClient.connectNewWebSocket(
+            url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
+            webSocketListener = websocketListener
+        )
+
+        When("the list of zaken signaleringen for ZAAK_OP_NAAM is requested") {
+            lateinit var responseBody: String
+            val response = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/signaleringen/zaken/ZAAK_OP_NAAM",
+                requestBodyAsString = """{ "screenEventResourceId": "$uniqueResourceId" }"""
+            )
+            response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
+
+            Then("it returns the correct signaleringen via websocket") {
+                // the backend process is asynchronous, so we need to wait a bit until the zaken are assigned
+                eventually(10.seconds) {
+                    websocketListener.messagesReceived.size shouldBe 1
+                    with(JSONObject(websocketListener.messagesReceived[0])) {
+                        getString("opcode") shouldBe "UPDATED"
+                        getString("objectType") shouldBe "ZAKEN_SIGNALERINGEN"
+                        getJSONObject("objectId").getString("resource") shouldBe uniqueResourceId.toString()
+                        with(getJSONArray("details").getJSONObject(0).toString()) {
+                            shouldContainJsonKey("behandelaar")
+                            shouldContainJsonKey("groep")
+                            shouldContainJsonKeyValue("identificatie", "ZAAK-2023-0000000001")
+                            shouldContainJsonKey("omschrijving")
+                            shouldContainJsonKey("openstaandeTaken")
+                            shouldContainJsonKey("rechten")
+                            shouldContainJsonKeyValue("startdatum", "2023-10-25")
+                            shouldContainJsonKeyValue("status", "Intake")
+                            shouldContainJsonKeyValue("toelichting", "")
+                            shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", "2023-11-08")
+                            shouldContainJsonKey("uuid")
+                            shouldContainJsonKeyValue("zaaktype", "Melding evenement organiseren behandelen")
+                        }
+                    }
+                }
             }
         }
     }

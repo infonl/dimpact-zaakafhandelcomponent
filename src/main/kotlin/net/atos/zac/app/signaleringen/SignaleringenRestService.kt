@@ -15,15 +15,12 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.drc.DRCClientService
-import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieobject
 import net.atos.zac.app.signaleringen.converter.RESTSignaleringInstellingenConverter
 import net.atos.zac.app.signaleringen.model.RESTSignaleringInstellingen
 import net.atos.zac.app.taken.converter.RESTTaakConverter
 import net.atos.zac.app.taken.model.RESTTaak
-import net.atos.zac.app.zaken.converter.RESTZaakOverzichtConverter
-import net.atos.zac.app.zaken.model.RESTZaakOverzicht
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.flowable.TakenService
 import net.atos.zac.identity.IdentityService
@@ -44,11 +41,9 @@ import java.util.UUID
 @Suppress("LongParameterList", "TooManyFunctions")
 class SignaleringenRestService @Inject constructor(
     private val signaleringenService: SignaleringenService,
-    private val zrcClientService: ZRCClientService,
     private val takenService: TakenService,
     private val drcClientService: DRCClientService,
     private val identityService: IdentityService,
-    private val restZaakOverzichtConverter: RESTZaakOverzichtConverter,
     private val restTaakConverter: RESTTaakConverter,
     private val restInformatieobjectConverter: RESTInformatieobjectConverter,
     private val restSignaleringInstellingenConverter: RESTSignaleringInstellingenConverter,
@@ -65,19 +60,13 @@ class SignaleringenRestService @Inject constructor(
         loggedInUserInstance.getSignaleringZoekParameters()
             .let { signaleringenService.latestSignalering(it) }
 
-    @GET
+    @PUT
     @Path("/zaken/{type}")
-    fun listZakenSignaleringen(
-        @PathParam("type") signaleringsType: SignaleringType.Type
-    ): List<RESTZaakOverzicht> =
-        loggedInUserInstance.getSignaleringZoekParameters()
-            .types(signaleringsType)
-            .subjecttype(SignaleringSubject.ZAAK)
-            .let { signaleringenService.listSignaleringen(it) }
-            .stream()
-            .map { zrcClientService.readZaak(UUID.fromString(it.subject)) }
-            .map { restZaakOverzichtConverter.convert(it) }
-            .toList()
+    fun startListingZakenSignaleringen(
+        @PathParam("type") signaleringsType: SignaleringType.Type,
+        screenEventResourceId: String
+    ) = loggedInUserInstance.getSignaleringZoekParameters()
+        .let { signaleringenService.startListingZakenSignaleringenAsync(it, signaleringsType, screenEventResourceId) }
 
     @GET
     @Path("/taken/{type}")
