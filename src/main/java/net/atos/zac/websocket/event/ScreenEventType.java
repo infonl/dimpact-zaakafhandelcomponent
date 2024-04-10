@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 import org.flowable.task.api.TaskInfo;
 
@@ -129,6 +130,8 @@ public enum ScreenEventType {
 
     ANY;
 
+    private static final Logger LOG = Logger.getLogger(ScreenEventObserver.class.getName());
+
     /**
      * Returns a set of all screen event types defined in this enum except for {@link #ANY}.
      */
@@ -205,6 +208,8 @@ public enum ScreenEventType {
     ) throws JsonProcessingException {
         ObjectWriter ow = new ObjectMapper().writer();
         String details = ow.writeValueAsString(restZaakOverzichtList);
+
+        LOG.info("Screen event for RESTZaakOverzicht list with ID " + eventResourceId + ", details: " + details);
 
         return instance(opcode, type, eventResourceId, details);
     }
@@ -349,8 +354,10 @@ public enum ScreenEventType {
         return event(UPDATED, eventResourceId);
     }
 
-    public final ScreenEvent updated(final String eventResourceId, final List<RESTZaakOverzicht> restZaakOverzichtList)
-                                                                                                                        throws JsonProcessingException {
+    public final ScreenEvent updated(
+            final String eventResourceId,
+            final List<RESTZaakOverzicht> restZaakOverzichtList
+    ) throws JsonProcessingException {
         return event(UPDATED, eventResourceId, restZaakOverzichtList);
     }
 

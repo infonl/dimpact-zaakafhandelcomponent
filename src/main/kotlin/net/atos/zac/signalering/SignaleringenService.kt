@@ -302,36 +302,43 @@ class SignaleringenService @Inject constructor(
         return if (result.isEmpty()) { Optional.empty() } else { Optional.of(result[0]) }
     }
 
+    fun listZakenSignaleringen(
+        signaleringZoekParameters: SignaleringZoekParameters,
+        signaleringsType: SignaleringType.Type
+    ) = signaleringZoekParameters.types(signaleringsType)
+        .subjecttype(SignaleringSubject.ZAAK)
+        .let { listSignaleringen(it) }
+        .stream()
+        .map { zrcClientService.readZaak(UUID.fromString(it.subject)) }
+        .map { restZaakOverzichtConverter.convert(it) }
+        .toList()
+
     fun startListingZakenSignaleringenAsync(
         signaleringZoekParameters: SignaleringZoekParameters,
         signaleringsType: SignaleringType.Type,
         screenEventResourceId: String
-    ) = defaultCoroutineScope.launch(CoroutineName("ListZakenSignaleringen")) {
-        LOG.fine(
-            "Started asynchronous job with ID $screenEventResourceId to list zaken signaleringen of" +
-                " type $signaleringsType"
-        )
+    ) {
+        defaultCoroutineScope.launch(CoroutineName("ListZakenSignaleringen")) {
+            LOG.info {
+                "Started asynchronous job with ID $screenEventResourceId to list zaken signaleringen of" +
+                    " type $signaleringsType"
+            }
 
-        val zakenSignaleringen: List<RESTZaakOverzicht>
-        withContext(Dispatchers.IO) {
-            zakenSignaleringen = signaleringZoekParameters.types(signaleringsType)
-                .subjecttype(SignaleringSubject.ZAAK)
-                .let { listSignaleringen(it) }
-                .stream()
-                .map { zrcClientService.readZaak(UUID.fromString(it.subject)) }
-                .map { restZaakOverzichtConverter.convert(it) }
-                .toList()
-        }
+            val zakenSignaleringen: List<RESTZaakOverzicht>
+            withContext(Dispatchers.IO) {
+                zakenSignaleringen = listZakenSignaleringen(signaleringZoekParameters, signaleringsType)
+            }
 
-        LOG.fine(
-            "Asynchronous list zaken signaleringen job with ID $screenEventResourceId finished. " +
-                "Successfully listed ${zakenSignaleringen.size} zaken signaleringen of type $signaleringsType"
-        )
+            LOG.info {
+                "Asynchronous list zaken signaleringen job with ID $screenEventResourceId finished. " +
+                    "Successfully listed ${zakenSignaleringen.size} zaken signaleringen of type $signaleringsType"
+            }
 
-        // Send an 'updated zaken_verdelen' screen event with the job id so that it can be picked up by a client
-        // that has created a websocket subscription to this event
-        screenEventResourceId.let {
-            eventingService.send(ScreenEventType.ZAKEN_SIGNALERINGEN.updated(it, zakenSignaleringen))
+            // Send an 'updated zaken_verdelen' screen event with the job id so that it can be picked up by a client
+            // that has created a websocket subscription to this event
+            screenEventResourceId.let {
+                eventingService.send(ScreenEventType.ZAKEN_SIGNALERINGEN.updated(it, zakenSignaleringen))
+            }
         }
     }
 }
