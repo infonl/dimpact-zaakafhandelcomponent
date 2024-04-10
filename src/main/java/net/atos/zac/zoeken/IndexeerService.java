@@ -78,8 +78,7 @@ public class IndexeerService {
 
     @Inject
     IndexeerService(
-            @Any
-            Instance<AbstractZoekObjectConverter<? extends ZoekObject>> converterInstances,
+            @Any Instance<AbstractZoekObjectConverter<? extends ZoekObject>> converterInstances,
             ZRCClientService zrcClientService,
             DRCClientService drcClientService,
             TakenService takenService,
