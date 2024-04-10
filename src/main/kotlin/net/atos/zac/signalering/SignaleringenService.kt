@@ -5,9 +5,11 @@
 package net.atos.zac.signalering
 
 import jakarta.enterprise.context.ApplicationScoped
+import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
+import jakarta.servlet.http.HttpSession
 import jakarta.transaction.Transactional
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -17,6 +19,7 @@ import kotlinx.coroutines.withContext
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.zac.app.zaken.converter.RESTZaakOverzichtConverter
 import net.atos.zac.app.zaken.model.RESTZaakOverzicht
+import net.atos.zac.authentication.ActiveSession
 import net.atos.zac.event.EventingService
 import net.atos.zac.mail.MailService
 import net.atos.zac.mail.model.Bronnen
@@ -305,13 +308,17 @@ class SignaleringenService @Inject constructor(
     fun listZakenSignaleringen(
         signaleringZoekParameters: SignaleringZoekParameters,
         signaleringsType: SignaleringType.Type
-    ) = signaleringZoekParameters.types(signaleringsType)
-        .subjecttype(SignaleringSubject.ZAAK)
-        .let { listSignaleringen(it) }
-        .stream()
-        .map { zrcClientService.readZaak(UUID.fromString(it.subject)) }
-        .map { restZaakOverzichtConverter.convert(it) }
-        .toList()
+    ): List<RESTZaakOverzicht> {
+        val list = signaleringZoekParameters.types(signaleringsType)
+            .subjecttype(SignaleringSubject.ZAAK)
+            .let { listSignaleringen(it) }
+            .stream()
+            .map { zrcClientService.readZaak(UUID.fromString(it.subject)) }
+            .map { restZaakOverzichtConverter.convert(it) }
+            .toList()
+        LOG.info { "Generated zaken signaleringen list $list for type $signaleringsType" }
+        return list
+    }
 
     fun startListingZakenSignaleringenAsync(
         signaleringZoekParameters: SignaleringZoekParameters,

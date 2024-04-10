@@ -206,6 +206,8 @@ public enum ScreenEventType {
             final String eventResourceId,
             final List<RESTZaakOverzicht> restZaakOverzichtList
     ) throws JsonProcessingException {
+        LOG.info("List: " + restZaakOverzichtList);
+
         ObjectWriter ow = new ObjectMapper().writer();
         String details = ow.writeValueAsString(restZaakOverzichtList);
 

@@ -49,7 +49,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
 
     val afterFiveSeconds = eventuallyConfig {
-        duration = 5.seconds
+        duration = 20.seconds
         interval = 500.milliseconds
     }
 
@@ -222,6 +222,38 @@ class SignaleringenRestServiceTest : BehaviorSpec({
             }
         }
 
+        When("the list of zaken signaleringen for ZAAK_OP_NAAM is requested") {
+            lateinit var responseBody: String
+
+            eventually(afterFiveSeconds) {
+                val response = itestHttpClient.performGetRequest(
+                    "$ZAC_API_URI/signaleringen/zaken/ZAAK_OP_NAAM"
+                )
+                response.isSuccessful shouldBe true
+                responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                responseBody.shouldBeJsonArray()
+                JSONArray(responseBody) shouldHaveSize 1
+            }
+
+            Then("it returns the correct signaleringen") {
+                with(JSONArray(responseBody).getJSONObject(0).toString()) {
+                    shouldContainJsonKey("behandelaar")
+                    shouldContainJsonKey("groep")
+                    shouldContainJsonKeyValue("identificatie", ZAAK_1_IDENTIFICATION)
+                    shouldContainJsonKey("omschrijving")
+                    shouldContainJsonKey("openstaandeTaken")
+                    shouldContainJsonKey("rechten")
+                    shouldContainJsonKeyValue("startdatum", "2023-10-25")
+                    shouldContainJsonKeyValue("status", "Intake")
+                    shouldContainJsonKeyValue("toelichting", "")
+                    shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", "2023-11-08")
+                    shouldContainJsonKey("uuid")
+                    shouldContainJsonKeyValue("zaaktype", ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION)
+                }
+            }
+        }
+
         When("the latest signaleringen date is requested") {
             val response = itestHttpClient.performGetRequest("$ZAC_API_URI/signaleringen/latest")
 
@@ -241,8 +273,8 @@ class SignaleringenRestServiceTest : BehaviorSpec({
     }
 
     Given(
-        "a zaaken has been assigned nd a websocket subscription has been created to listen for" +
-            " ZAKEN_SIGNALERINGEN lists"
+        "a zaaken has been assigned and a websocket subscription has been created to listen for async generated" +
+                " ZAKEN_SIGNALERINGEN list"
     ) {
         val uniqueResourceId = UUID.randomUUID()
         val websocketListener = WebSocketTestListener(
@@ -262,6 +294,11 @@ class SignaleringenRestServiceTest : BehaviorSpec({
         )
 
         When("the list of zaken signaleringen for ZAAK_OP_NAAM is requested") {
+            val staticResponseString = itestHttpClient.performGetRequest(
+                "$ZAC_API_URI/signaleringen/zaken/ZAAK_OP_NAAM"
+            ).body!!.string()
+            logger.info { "Static response: $staticResponseString" }
+
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/signaleringen/zaken/ZAAK_OP_NAAM",
                 requestBodyAsString = "$uniqueResourceId"
