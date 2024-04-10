@@ -10,6 +10,7 @@ import static net.atos.zac.event.Opcode.UPDATED;
 import static net.atos.zac.util.UriUtil.uuidFromURI;
 
 import java.net.URI;
+import java.text.SimpleDateFormat;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -17,6 +18,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.kotlin.KotlinModule;
 import org.flowable.task.api.TaskInfo;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -130,8 +133,6 @@ public enum ScreenEventType {
 
     ANY;
 
-    private static final Logger LOG = Logger.getLogger(ScreenEventObserver.class.getName());
-
     /**
      * Returns a set of all screen event types defined in this enum except for {@link #ANY}.
      */
@@ -200,19 +201,19 @@ public enum ScreenEventType {
         return instance(opcode, type, signalering.getTarget(), signalering.getType().getType().name());
     }
 
+    private final static KotlinModule KOTLIN_MODULE = (new KotlinModule.Builder()).build();
+    private final static ObjectWriter OBJECT_WRITER = new ObjectMapper()
+                                                          .registerModule(new JavaTimeModule())
+                                                          .registerModule(KOTLIN_MODULE)
+                                                          .writer();
+
     private static ScreenEvent instance(
             final Opcode opcode,
             final ScreenEventType type,
             final String eventResourceId,
             final List<RESTZaakOverzicht> restZaakOverzichtList
     ) throws JsonProcessingException {
-        LOG.info("List: " + restZaakOverzichtList);
-
-        ObjectWriter ow = new ObjectMapper().writer();
-        String details = ow.writeValueAsString(restZaakOverzichtList);
-
-        LOG.info("Screen event for RESTZaakOverzicht list with ID " + eventResourceId + ", details: " + details);
-
+        String details = OBJECT_WRITER.writeValueAsString(restZaakOverzichtList);
         return instance(opcode, type, eventResourceId, details);
     }
 

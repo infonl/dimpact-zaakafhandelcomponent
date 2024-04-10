@@ -303,7 +303,6 @@ class SignaleringenRestServiceTest : BehaviorSpec({
             Then("it returns the correct signaleringen via websocket") {
                 // the backend process is asynchronous, so we need to wait a bit until the zaken are assigned
                 eventually(afterFiveSeconds) {
-                    logger.info { "Messages received: ${websocketListener.messagesReceived}" }
                     websocketListener.messagesReceived.size shouldBe 1
 
                     with(JSONObject(websocketListener.messagesReceived[0])) {

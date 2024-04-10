@@ -4,6 +4,7 @@
  */
 package net.atos.zac.app.zaken.model
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import net.atos.zac.app.identity.model.RESTGroup
 import net.atos.zac.app.identity.model.RESTUser
 import net.atos.zac.app.policy.model.RESTZaakRechten
@@ -23,8 +24,10 @@ data class RESTZaakOverzicht(
 
     var uuid: UUID? = null,
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
     var startdatum: LocalDate? = null,
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
     var einddatum: LocalDate? = null,
 
     var zaaktype: String? = null,
@@ -33,8 +36,10 @@ data class RESTZaakOverzicht(
 
     var behandelaar: RESTUser? = null,
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
     var einddatumGepland: LocalDate? = null,
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
     var uiterlijkeEinddatumAfdoening: LocalDate? = null,
 
     var groep: RESTGroup? = null,

@@ -45,7 +45,7 @@ jakarta-mail = "2.1.3"
 
 caffeine = "3.1.8"
 
-jackson = "2.13.4"
+jackson = "2.17.0"
 
 eclipse-microprofile-rest-client-api = "3.0.1"
 eclipse-microprofile-config-api = "3.1"
@@ -116,7 +116,10 @@ jakarta-mail = { group = "jakarta.mail", name = "jakarta.mail-api", version.ref 
 
 caffeine = { group = "com.github.ben-manes.caffeine", name = "caffeine", version.ref = "caffeine" }
 
+jackson-core = { group = "com.fasterxml.jackson.core", name = "jackson-core", version.ref = "jackson" }
+jackson-annotations = { group = "com.fasterxml.jackson.core", name = "jackson-annotations", version.ref = "jackson" }
 jackson-jsr310 = { group = "com.fasterxml.jackson.datatype", name = "jackson-datatype-jsr310", version.ref = "jackson" }
+jackson-kotlin = { group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version.ref = "jackson" }
 
 # dependencies provided by Wildfly
 # update these versions when upgrading WildFly
