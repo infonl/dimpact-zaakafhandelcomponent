@@ -9,10 +9,10 @@ Given(
   "there are at at least {int} taken",
   async function (this: CustomWorld, noOfTaken: number) {
     _noOfTaken = noOfTaken;
-    const zaakCount = await this.page
+    const taakCount = await this.page
       .getByLabel("Selecteren", { exact: true })
       .count();
-    this.expect(zaakCount).toBeGreaterThanOrEqual(noOfTaken);
+    this.expect(taakCount).toBeGreaterThanOrEqual(noOfTaken);
   },
 );
 
@@ -40,12 +40,31 @@ When(
   },
 );
 
+When(
+  "{string} releases the taken",
+  async function (this: CustomWorld, s: string) {
+    await this.page.getByTitle("Vrijgeven").click();
+    await this.page.getByLabel("Reden").fill("Dummy reason");
+    await this.page.locator("#takenVrijgeven_button").click();
+  },
+);
+
 Then(
   "{string} gets a message confirming that the distribution of taken is complete",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, s: string) {
     await this.page
       .getByText(`${_noOfTaken} zaken zijn verdeeld`)
+      .waitFor({ timeout: ONE_MINUTE_IN_MS });
+  },
+);
+
+Then(
+  "{string} gets a message confirming that the releasement of taken is complete",
+  { timeout: ONE_MINUTE_IN_MS },
+  async function (this: CustomWorld, s: string) {
+    await this.page
+      .getByText(`${_noOfTaken} taken zijn vrijgegeven`)
       .waitFor({ timeout: ONE_MINUTE_IN_MS });
   },
 );
