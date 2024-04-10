@@ -274,7 +274,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
 
     Given(
         "a zaaken has been assigned and a websocket subscription has been created to listen for async generated" +
-                " ZAKEN_SIGNALERINGEN list"
+            " ZAKEN_SIGNALERINGEN list"
     ) {
         val uniqueResourceId = UUID.randomUUID()
         val websocketListener = WebSocketTestListener(
@@ -294,11 +294,6 @@ class SignaleringenRestServiceTest : BehaviorSpec({
         )
 
         When("the list of zaken signaleringen for ZAAK_OP_NAAM is requested") {
-            val staticResponseString = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/signaleringen/zaken/ZAAK_OP_NAAM"
-            ).body!!.string()
-            logger.info { "Static response: $staticResponseString" }
-
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/signaleringen/zaken/ZAAK_OP_NAAM",
                 requestBodyAsString = "$uniqueResourceId"

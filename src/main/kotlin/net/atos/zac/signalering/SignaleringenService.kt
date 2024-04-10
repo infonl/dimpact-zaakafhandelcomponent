@@ -5,11 +5,9 @@
 package net.atos.zac.signalering
 
 import jakarta.enterprise.context.ApplicationScoped
-import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
-import jakarta.servlet.http.HttpSession
 import jakarta.transaction.Transactional
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -19,7 +17,7 @@ import kotlinx.coroutines.withContext
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.zac.app.zaken.converter.RESTZaakOverzichtConverter
 import net.atos.zac.app.zaken.model.RESTZaakOverzicht
-import net.atos.zac.authentication.ActiveSession
+import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.event.EventingService
 import net.atos.zac.mail.MailService
 import net.atos.zac.mail.model.Bronnen
@@ -306,37 +304,38 @@ class SignaleringenService @Inject constructor(
     }
 
     fun listZakenSignaleringen(
-        signaleringZoekParameters: SignaleringZoekParameters,
+        user: LoggedInUser,
         signaleringsType: SignaleringType.Type
     ): List<RESTZaakOverzicht> {
-        val list = signaleringZoekParameters.types(signaleringsType)
+        val list = SignaleringZoekParameters(user)
+            .types(signaleringsType)
             .subjecttype(SignaleringSubject.ZAAK)
             .let { listSignaleringen(it) }
             .stream()
             .map { zrcClientService.readZaak(UUID.fromString(it.subject)) }
-            .map { restZaakOverzichtConverter.convert(it) }
+            .map { restZaakOverzichtConverter.convert(it, user) }
             .toList()
-        LOG.info { "Generated zaken signaleringen list $list for type $signaleringsType" }
+        LOG.fine { "Generated zaken signaleringen list $list for type $signaleringsType" }
         return list
     }
 
     fun startListingZakenSignaleringenAsync(
-        signaleringZoekParameters: SignaleringZoekParameters,
+        user: LoggedInUser,
         signaleringsType: SignaleringType.Type,
         screenEventResourceId: String
     ) {
         defaultCoroutineScope.launch(CoroutineName("ListZakenSignaleringen")) {
-            LOG.info {
+            LOG.fine {
                 "Started asynchronous job with ID $screenEventResourceId to list zaken signaleringen of" +
                     " type $signaleringsType"
             }
 
             val zakenSignaleringen: List<RESTZaakOverzicht>
             withContext(Dispatchers.IO) {
-                zakenSignaleringen = listZakenSignaleringen(signaleringZoekParameters, signaleringsType)
+                zakenSignaleringen = listZakenSignaleringen(user, signaleringsType)
             }
 
-            LOG.info {
+            LOG.fine {
                 "Asynchronous list zaken signaleringen job with ID $screenEventResourceId finished. " +
                     "Successfully listed ${zakenSignaleringen.size} zaken signaleringen of type $signaleringsType"
             }

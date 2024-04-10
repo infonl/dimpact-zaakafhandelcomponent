@@ -82,11 +82,15 @@ public class PolicyService {
     }
 
     public ZaakRechten readZaakRechten(final Zaak zaak, final ZaakType zaaktype) {
+        return readZaakRechten(zaak, zaaktype, null);
+    }
+
+    public ZaakRechten readZaakRechten(final Zaak zaak, final ZaakType zaaktype, final LoggedInUser user) {
         final ZaakData zaakData = new ZaakData();
         zaakData.open = zaak.isOpen();
         zaakData.zaaktype = zaaktype.getOmschrijving();
-        return evaluationClient.readZaakRechten(new RuleQuery<>(new ZaakInput(loggedInUserInstance.get(), zaakData)))
-                .getResult();
+        LoggedInUser loggedInUser = user == null ? loggedInUserInstance.get() : user;
+        return evaluationClient.readZaakRechten(new RuleQuery<>(new ZaakInput(loggedInUser, zaakData))).getResult();
     }
 
     public ZaakRechten readZaakRechten(final ZaakZoekObject zaakZoekObject) {

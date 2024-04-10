@@ -64,16 +64,18 @@ class SignaleringenRestService @Inject constructor(
     @Path("/zaken/{type}")
     fun startListingZakenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type,
-    ) = loggedInUserInstance.getSignaleringZoekParameters()
-        .let { signaleringenService.listZakenSignaleringen(it, signaleringsType) }
+    ) = signaleringenService.listZakenSignaleringen(loggedInUserInstance.get(), signaleringsType)
 
     @PUT
     @Path("/zaken/{type}")
     fun startListingZakenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type,
         screenEventResourceId: String
-    ) = loggedInUserInstance.getSignaleringZoekParameters()
-        .let { signaleringenService.startListingZakenSignaleringenAsync(it, signaleringsType, screenEventResourceId) }
+    ) = signaleringenService.startListingZakenSignaleringenAsync(
+        loggedInUserInstance.get(),
+        signaleringsType,
+        screenEventResourceId
+    )
 
     @GET
     @Path("/taken/{type}")
