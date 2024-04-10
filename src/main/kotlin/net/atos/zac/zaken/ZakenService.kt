@@ -131,13 +131,13 @@ class ZakenService @Inject constructor(
         withContext(Dispatchers.IO) {
             zaakUUIDs
                 .map { zrcClientService.readZaak(it) }
-                .forEach { zrcClientService.deleteRol(it, BetrokkeneType.MEDEWERKER, explanation) }
-            // perform the indexing for the entire batch of zaken as this is significantly quicker than
-            // indexing each zaak one by one
-            indexeerService.indexeerDirect(
-                zaakUUIDs.map { it.toString() }.toList(),
-                ZoekObjectType.ZAAK
-            )
+                .forEach {
+                    zrcClientService.deleteRol(it, BetrokkeneType.MEDEWERKER, explanation)
+                    indexeerService.indexeerDirect(
+                        it.uuid.toString(),
+                        ZoekObjectType.ZAAK
+                    )
+                }
         }
         LOG.fine(
             """Asynchronous release zaken job with job ID '$screenEventResourceId' finished. "
