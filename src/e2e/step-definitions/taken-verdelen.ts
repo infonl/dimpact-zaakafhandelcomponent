@@ -6,7 +6,7 @@ const ONE_MINUTE_IN_MS = 60_000;
 let _noOfTaken = 0;
 
 Given(
-  "there are at at least {int} taken",
+  "there are at least {int} taken",
   async function (this: CustomWorld, noOfTaken: number) {
     _noOfTaken = noOfTaken;
     const taakCount = await this.page
