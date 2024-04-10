@@ -33,7 +33,6 @@ import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.util.ValidationUtil
 import net.atos.zac.websocket.event.ScreenEventType
-import net.atos.zac.zaken.ZakenService
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
@@ -65,7 +64,7 @@ class SignaleringenService @Inject constructor(
             entityManager.find(SignaleringType::class.java, signaleringsType.toString())
 
         private val defaultCoroutineScope = CoroutineScope(Dispatchers.Default)
-        private val LOG = Logger.getLogger(ZakenService::class.java.name)
+        private val LOG = Logger.getLogger(SignaleringenService::class.java.name)
     }
 
     /**
