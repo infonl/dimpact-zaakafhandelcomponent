@@ -12,12 +12,13 @@ import java.util.UUID;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 
 import net.atos.client.zgw.shared.cache.Caching;
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
@@ -31,37 +32,36 @@ public class ZaakafhandelParameterService implements Caching {
     private ZaakafhandelParameterBeheerService beheerService;
 
     private static final Map<String, Cache> CACHES = new HashMap<>();
+
     private <K, V> Cache<K, V> createCache(String name) {
         Cache<K, V> cache = Caffeine.newBuilder()
-            .maximumSize(100)
-            .recordStats()
-            .removalListener(
-                (K key, V value, RemovalCause cause) ->
-                    LOG.info("Removing key: %s because of: %s".formatted(key, cause))
-            )
-            .build();
+                .maximumSize(100)
+                .recordStats()
+                .removalListener(
+                        (K key, V value, RemovalCause cause) -> LOG.info("Removing key: %s because of: %s".formatted(key, cause))
+                )
+                .build();
 
         CACHES.put(name, cache);
         return cache;
     }
 
-    private final Cache<UUID, ZaakafhandelParameters> uuidToZaakafhandelParametersCache =
-        createCache("UUID -> ZaakafhandelParameters");
-    private final Cache<String, List<ZaakafhandelParameters>> stringToZaakafhandelParametersListCache =
-        createCache("List<ZaakafhandelParameters>");
+    private final Cache<UUID, ZaakafhandelParameters> uuidToZaakafhandelParametersCache = createCache("UUID -> ZaakafhandelParameters");
+    private final Cache<String, List<ZaakafhandelParameters>> stringToZaakafhandelParametersListCache = createCache(
+            "List<ZaakafhandelParameters>");
 
 
     public ZaakafhandelParameters readZaakafhandelParameters(final UUID zaaktypeUUID) {
         return uuidToZaakafhandelParametersCache.get(
-            zaaktypeUUID,
-            uuid -> beheerService.readZaakafhandelParameters(zaaktypeUUID)
+                zaaktypeUUID,
+                uuid -> beheerService.readZaakafhandelParameters(zaaktypeUUID)
         );
     }
 
     public List<ZaakafhandelParameters> listZaakafhandelParameters() {
         return stringToZaakafhandelParametersListCache.get(
-            ZAC_ZAAKAFHANDELPARAMETERS,
-            s -> beheerService.listZaakafhandelParameters()
+                ZAC_ZAAKAFHANDELPARAMETERS,
+                s -> beheerService.listZaakafhandelParameters()
         );
     }
 
@@ -82,7 +82,7 @@ public class ZaakafhandelParameterService implements Caching {
     @Override
     public Map<String, CacheStats> cacheStatistics() {
         return CACHES.entrySet()
-            .stream()
-            .collect(Collectors.toMap(Map.Entry::getKey, cache -> cache.getValue().stats()));
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, cache -> cache.getValue().stats()));
     }
 }

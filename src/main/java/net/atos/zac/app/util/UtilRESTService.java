@@ -16,12 +16,11 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-import net.atos.client.zgw.shared.cache.Caching;
-import net.atos.zac.zaaksturing.ZaakafhandelParameterService;
 import org.apache.commons.text.StringEscapeUtils;
 
+import net.atos.client.zgw.shared.cache.Caching;
 import net.atos.client.zgw.ztc.ZTCClientService;
-import org.jetbrains.annotations.NotNull;
+import net.atos.zac.zaaksturing.ZaakafhandelParameterService;
 
 @Path("util")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -74,11 +73,11 @@ public class UtilRESTService {
         return getSeriviceCacheStatistics(ZHPS, zaakafhandelParameterService);
     }
 
-    private @NotNull String getSeriviceCacheStatistics(String prefix, Caching caching) {
+    private String getSeriviceCacheStatistics(String prefix, Caching caching) {
         var statistics = caching.cacheStatistics();
         return prefix + ul(
-            statistics.keySet().stream()
-                .map(cacheName -> String.format("%s %s<p/>", b(cacheName), ul(statistics.get(cacheName))))
+                statistics.keySet().stream()
+                        .map(cacheName -> String.format("%s %s<p/>", b(cacheName), ul(statistics.get(cacheName))))
         );
     }
 
@@ -113,7 +112,7 @@ public class UtilRESTService {
 
     private String clearAllZhpsCaches() {
         return ZHPS + ul(Stream.of(zaakafhandelParameterService.clearManagedCache(),
-            zaakafhandelParameterService.clearListCache()));
+                zaakafhandelParameterService.clearListCache()));
     }
 
     private static String body(final Stream<String> utils) {
