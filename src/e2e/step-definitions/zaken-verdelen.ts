@@ -30,7 +30,7 @@ When(
 );
 
 When(
-  "{string} verdeels the zaken to group {string}",
+  "{string} distributes the zaken to group {string}",
   async function (this: CustomWorld, s: string, groep: string) {
     await this.page.getByTitle("Verdelen").click();
     const expectedLabel = "Zaak toekennen aan groep";
@@ -42,7 +42,7 @@ When(
 );
 
 Then(
-  "{string} gets a message confirming that the verdelen of zaken is complete",
+  "{string} gets a message confirming that the distribution of zaken is complete",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, s: string) {
     await this.page
