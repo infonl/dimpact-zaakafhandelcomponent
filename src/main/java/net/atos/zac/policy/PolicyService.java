@@ -11,6 +11,7 @@ import static net.atos.zac.flowable.util.TaskUtil.isOpen;
 
 import java.util.UUID;
 
+import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -85,7 +86,7 @@ public class PolicyService {
         return readZaakRechten(zaak, zaaktype, null);
     }
 
-    public ZaakRechten readZaakRechten(final Zaak zaak, final ZaakType zaaktype, final LoggedInUser user) {
+    public ZaakRechten readZaakRechten(final Zaak zaak, final ZaakType zaaktype, @Nullable final LoggedInUser user) {
         final ZaakData zaakData = new ZaakData();
         zaakData.open = zaak.isOpen();
         zaakData.zaaktype = zaaktype.getOmschrijving();
