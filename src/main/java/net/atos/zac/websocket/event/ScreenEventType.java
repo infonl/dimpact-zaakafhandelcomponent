@@ -12,14 +12,22 @@ import static net.atos.zac.util.UriUtil.uuidFromURI;
 import java.net.URI;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import org.flowable.task.api.TaskInfo;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.kotlin.KotlinModule;
+
 import net.atos.client.zgw.brc.model.generated.Besluit;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.model.Zaak;
+import net.atos.zac.app.zaken.model.RESTZaakOverzicht;
 import net.atos.zac.event.Opcode;
 import net.atos.zac.notificaties.Channel;
 import net.atos.zac.notificaties.Notificatie;
@@ -112,6 +120,17 @@ public enum ScreenEventType {
 
     ZAKEN_VRIJGEVEN,
 
+    ZAKEN_SIGNALERINGEN {
+        @Override
+        public ScreenEvent event(
+                final Opcode opcode,
+                final String eventResourceId,
+                List<RESTZaakOverzicht> restZaakOverzichtList
+        ) throws JsonProcessingException {
+            return instance(opcode, this, eventResourceId, restZaakOverzichtList);
+        }
+    },
+
     ANY;
 
     /**
@@ -159,7 +178,7 @@ public enum ScreenEventType {
     }
 
     private static ScreenEvent instance(final Opcode opcode, final ScreenEventType type, final TaskInfo taskinfo) {
-        return instance(opcode, type, taskinfo.getId(), null);
+        return instance(opcode, type, taskinfo.getId(), (String) null);
     }
 
     private static ScreenEvent instance(final Opcode opcode, final ScreenEventType type, final Besluit besluit) {
@@ -182,6 +201,22 @@ public enum ScreenEventType {
         return instance(opcode, type, signalering.getTarget(), signalering.getType().getType().name());
     }
 
+    private final static KotlinModule KOTLIN_MODULE = (new KotlinModule.Builder()).build();
+    private final static ObjectWriter OBJECT_WRITER = new ObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .registerModule(KOTLIN_MODULE)
+            .writer();
+
+    private static ScreenEvent instance(
+            final Opcode opcode,
+            final ScreenEventType type,
+            final String eventResourceId,
+            final List<RESTZaakOverzicht> restZaakOverzichtList
+    ) throws JsonProcessingException {
+        String details = OBJECT_WRITER.writeValueAsString(restZaakOverzichtList);
+        return instance(opcode, type, eventResourceId, details);
+    }
+
     // These methods determine on which object types the different arguments are allowed
     private ScreenEvent event(final Opcode opcode, final UUID uuid) {
         return instance(opcode, this, uuid, null); // Allowed with all object types
@@ -191,10 +226,9 @@ public enum ScreenEventType {
         return instance(opcode, this, url, null); // Allowed with all object types
     }
 
-    private ScreenEvent event(final Opcode opcode, final String eventResourceId1) {
-        return instance(opcode, this, eventResourceId1, null);
+    private ScreenEvent event(final Opcode opcode, final String eventResourceId) {
+        return instance(opcode, this, eventResourceId, (String) null);
     }
-
 
     private ScreenEvent event(
             final Opcode opcode,
@@ -226,6 +260,14 @@ public enum ScreenEventType {
     }
 
     public ScreenEvent event(final Opcode opcode, final Signalering signalering) {
+        throw new IllegalArgumentException(); // Not allowed except for object types where this method has an override
+    }
+
+    public ScreenEvent event(
+            final Opcode opcode,
+            final String signaleringResourceId,
+            final List<RESTZaakOverzicht> restZaakOverzichtList
+    ) throws JsonProcessingException {
         throw new IllegalArgumentException(); // Not allowed except for object types where this method has an override
     }
 
@@ -313,6 +355,13 @@ public enum ScreenEventType {
      */
     public final ScreenEvent updated(final String eventResourceId) {
         return event(UPDATED, eventResourceId);
+    }
+
+    public final ScreenEvent updated(
+            final String eventResourceId,
+            final List<RESTZaakOverzicht> restZaakOverzichtList
+    ) throws JsonProcessingException {
+        return event(UPDATED, eventResourceId, restZaakOverzichtList);
     }
 
     /**

@@ -24,9 +24,11 @@ import nl.lifely.zac.itest.config.ItestConfiguration.START_DATE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_COMPLETED
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_UITERLIJKE_EINDDATUM_AFDOENING
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.lifely.zac.itest.util.WebSocketTestListener
 import okhttp3.Headers
 import org.json.JSONArray
 import org.json.JSONObject
@@ -35,6 +37,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
@@ -45,6 +48,11 @@ import kotlin.time.Duration.Companion.seconds
 class SignaleringenRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
+
+    val afterFiveSeconds = eventuallyConfig {
+        duration = 5.seconds
+        interval = 500.milliseconds
+    }
 
     Given("A test user") {
         When("a dashboard notification is turned on") {
@@ -185,12 +193,8 @@ class SignaleringenRestServiceTest : BehaviorSpec({
         When("the list of zaken signaleringen for ZAAK_DOCUMENT_TOEGEVOEGD is requested") {
             lateinit var responseBody: String
 
-            eventually(
-                eventuallyConfig {
-                    duration = 5.seconds
-                    interval = 500.milliseconds
-                }
-            ) {
+            // Wait for the notifications to get processed asynchronously on the backend
+            eventually(afterFiveSeconds) {
                 val response = itestHttpClient.performGetRequest(
                     "$ZAC_API_URI/signaleringen/zaken/ZAAK_DOCUMENT_TOEGEVOEGD"
                 )
@@ -214,7 +218,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                     shouldContainJsonKeyValue("toelichting", "")
                     shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", ZAAK_1_UITERLIJKE_EINDDATUM_AFDOENING)
                     shouldContainJsonKey("uuid")
-                    shouldContainJsonKeyValue("zaaktype", "Melding evenement organiseren behandelen")
+                    shouldContainJsonKeyValue("zaaktype", ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION)
                 }
             }
         }
@@ -222,12 +226,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
         When("the list of zaken signaleringen for ZAAK_OP_NAAM is requested") {
             lateinit var responseBody: String
 
-            eventually(
-                eventuallyConfig {
-                    duration = 5.seconds
-                    interval = 500.milliseconds
-                }
-            ) {
+            eventually(afterFiveSeconds) {
                 val response = itestHttpClient.performGetRequest(
                     "$ZAC_API_URI/signaleringen/zaken/ZAAK_OP_NAAM"
                 )
@@ -251,7 +250,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                     shouldContainJsonKeyValue("toelichting", "")
                     shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", ZAAK_1_UITERLIJKE_EINDDATUM_AFDOENING)
                     shouldContainJsonKey("uuid")
-                    shouldContainJsonKeyValue("zaaktype", "Melding evenement organiseren behandelen")
+                    shouldContainJsonKeyValue("zaaktype", ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION)
                 }
             }
         }
@@ -270,6 +269,66 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                 val date = ZonedDateTime.parse(dateString, DateTimeFormatter.ISO_DATE_TIME)
                     .withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime()
                 date.shouldBeBetween(START_DATE, LocalDateTime.now())
+            }
+        }
+    }
+
+    Given(
+        "a zaaken has been assigned and a websocket subscription has been created to listen for async generated" +
+            " ZAKEN_SIGNALERINGEN list"
+    ) {
+        val uniqueResourceId = UUID.randomUUID()
+        val websocketListener = WebSocketTestListener(
+            textToBeSentOnOpen = """{
+                "subscriptionType":"CREATE",
+                "event":{  
+                    "opcode":"UPDATED",
+                    "objectType":"ZAKEN_SIGNALERINGEN",
+                    "objectId":{ "resource":"$uniqueResourceId" },
+                    "_key":"ANY;ZAKEN_SIGNALERINGEN;$uniqueResourceId"
+                }
+            }"""
+        )
+        itestHttpClient.connectNewWebSocket(
+            url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
+            webSocketListener = websocketListener
+        )
+
+        When("the list of zaken signaleringen for ZAAK_OP_NAAM is requested") {
+            val response = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/signaleringen/zaken/ZAAK_OP_NAAM",
+                requestBodyAsString = "$uniqueResourceId"
+            )
+            response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
+
+            Then("it returns the correct signaleringen via websocket") {
+                // the backend process is asynchronous, so we need to wait a bit until the zaken are assigned
+                eventually(afterFiveSeconds) {
+                    websocketListener.messagesReceived.size shouldBe 1
+
+                    with(JSONObject(websocketListener.messagesReceived[0])) {
+                        getString("opcode") shouldBe "UPDATED"
+                        getString("objectType") shouldBe "ZAKEN_SIGNALERINGEN"
+                        with(getJSONObject("objectId")) {
+                            getString("resource") shouldBe uniqueResourceId.toString()
+                            val detail = JSONArray(getString("detail")).getJSONObject(0).toString()
+                            with(detail) {
+                                shouldContainJsonKey("behandelaar")
+                                shouldContainJsonKey("groep")
+                                shouldContainJsonKeyValue("identificatie", ZAAK_1_IDENTIFICATION)
+                                shouldContainJsonKey("omschrijving")
+                                shouldContainJsonKey("openstaandeTaken")
+                                shouldContainJsonKey("rechten")
+                                shouldContainJsonKey("uuid")
+                                shouldContainJsonKeyValue("startdatum", "2023-10-25")
+                                shouldContainJsonKeyValue("status", "Intake")
+                                shouldContainJsonKeyValue("toelichting", "")
+                                shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", "2023-11-08")
+                                shouldContainJsonKeyValue("zaaktype", ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION)
+                            }
+                        }
+                    }
+                }
             }
         }
     }

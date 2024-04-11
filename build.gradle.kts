@@ -120,6 +120,10 @@ dependencies {
     implementation(libs.htmlcleaner)
     implementation(libs.unboundid.ldapsdk)
     implementation(libs.caffeine)
+    implementation(libs.jackson.core)
+    implementation(libs.jackson.annotations)
+    implementation(libs.jackson.kotlin)
+    implementation(libs.jackson.jsr310)
 
     swaggerUI(libs.swagger.ui)
 

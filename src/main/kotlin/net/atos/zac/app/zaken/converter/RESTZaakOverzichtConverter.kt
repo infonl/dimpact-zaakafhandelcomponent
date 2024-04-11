@@ -13,6 +13,7 @@ import net.atos.zac.app.identity.converter.RESTGroupConverter
 import net.atos.zac.app.identity.converter.RESTUserConverter
 import net.atos.zac.app.policy.converter.RESTRechtenConverter
 import net.atos.zac.app.zaken.model.RESTZaakOverzicht
+import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.policy.PolicyService
 
 class RESTZaakOverzichtConverter {
@@ -43,9 +44,9 @@ class RESTZaakOverzichtConverter {
     @Inject
     private lateinit var zrcClientService: ZRCClientService
 
-    fun convert(zaak: Zaak): RESTZaakOverzicht {
+    fun convert(zaak: Zaak, user: LoggedInUser? = null): RESTZaakOverzicht {
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
-        val zaakrechten = policyService.readZaakRechten(zaak, zaaktype)
+        val zaakrechten = policyService.readZaakRechten(zaak, zaaktype, user)
         val restZaakOverzicht = RESTZaakOverzicht()
         restZaakOverzicht.uuid = zaak.uuid
         restZaakOverzicht.identificatie = zaak.identificatie
