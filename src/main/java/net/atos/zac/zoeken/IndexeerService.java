@@ -31,6 +31,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.transaction.Transactional;
 
+import net.atos.zac.zoeken.model.index.IndexResult;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
