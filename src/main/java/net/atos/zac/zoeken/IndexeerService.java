@@ -31,6 +31,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.transaction.Transactional;
 
+import net.atos.zac.zoeken.model.index.IndexResult;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -103,12 +104,6 @@ public class IndexeerService {
         return new Http2SolrClient.Builder(baseSolrUrl).build();
     }
 
-    public record Resultaat(long indexed, long removed, long remaining) {
-        public Resultaat() {
-            this(0, 0, 0);
-        }
-    }
-
     public void indexeerDirect(final String objectId, final ZoekObjectType objectType) {
         addToSolrIndex(Stream.of(getConverter(objectType).convert(objectId)));
     }
@@ -118,14 +113,14 @@ public class IndexeerService {
     }
 
     @Transactional(Transactional.TxType.NEVER)
-    public Resultaat indexeer(final int batchGrootte, final ZoekObjectType objectType) {
+    public IndexResult indexeer(final int batchGrootte, final ZoekObjectType objectType) {
         if (herindexerenBezig.contains(objectType)) {
             log(objectType, "Indexeren niet gestart, markeren voor herindexeren is nog bezig");
-            return new Resultaat();
+            return new IndexResult();
         }
         final long count = helper.countMarkedObjects(objectType);
         if (count == 0) {
-            return new Resultaat();
+            return new IndexResult();
         }
         final List<ZoekIndexEntity> entities = helper.retrieveMarkedObjects(objectType, batchGrootte);
         log(objectType, "Indexeren gestart");
@@ -139,11 +134,11 @@ public class IndexeerService {
                 entities.stream()
                         .filter(zoekIndexEntity -> zoekIndexEntity.getStatus() == REMOVE)
                         .map(ZoekIndexEntity::getObjectId));
-        final var resultaat = new Resultaat(added, removed, count - entities.size());
+        final var indexResult = new IndexResult(added, removed, count - entities.size());
         log(objectType, "Indexeren gestopt");
         log(objectType, "geindexeerd: %d, verwijderd: %d, resterend: %d"
-                .formatted(resultaat.indexed(), resultaat.removed(), resultaat.remaining()));
-        return resultaat;
+                .formatted(indexResult.indexed(), indexResult.removed(), indexResult.remaining()));
+        return indexResult;
     }
 
     @Transactional(Transactional.TxType.NEVER)
