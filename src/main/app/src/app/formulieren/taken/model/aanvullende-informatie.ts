@@ -90,6 +90,19 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
       );
     const morgen = new Date();
     morgen.setDate(morgen.getDate() + 1);
+    const fataledatumZaak =
+      this.zaak.uiterlijkeEinddatumAfdoening &&
+      new Date(this.zaak.uiterlijkeEinddatumAfdoening);
+    let fataleDatumBuilder = new DateFormFieldBuilder(
+      this.humanTaskData.fataledatum,
+    )
+      .id(AbstractTaakFormulier.TAAK_FATALEDATUM)
+      .minDate(morgen)
+      .label("fataledatum")
+      .showDays();
+    if (fataledatumZaak) {
+      fataleDatumBuilder = fataleDatumBuilder.maxDate(fataledatumZaak);
+    }
     const fields = this.fields;
     this.form.push(
       [
@@ -128,14 +141,7 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
           .openInNieuweTab()
           .build(),
       ],
-      [
-        new DateFormFieldBuilder(this.humanTaskData.fataledatum)
-          .id(AbstractTaakFormulier.TAAK_FATALEDATUM)
-          .minDate(morgen)
-          .label("fataledatum")
-          .showDays()
-          .build(),
-      ],
+      [fataleDatumBuilder.build()],
     );
 
     this.zakenService

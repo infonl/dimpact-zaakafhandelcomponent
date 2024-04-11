@@ -18,6 +18,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFO
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_UITERLIJKE_EINDDATUM_AFDOENING
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.zaak1UUID
 import org.json.JSONArray
@@ -85,7 +86,10 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
     }
     Given("A zaak has been created") {
         When("the start human task plan items endpoint is called") {
-            val fataleDatum = LocalDate.now().plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            // note that the fatal date of a task cannot be later than the fatal data of the related zaak
+            val fataleDatum = LocalDate.parse(ZAAK_1_UITERLIJKE_EINDDATUM_AFDOENING)
+                .minusDays(1)
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/planitems/doHumanTaskPlanItem",
                 requestBodyAsString = """{

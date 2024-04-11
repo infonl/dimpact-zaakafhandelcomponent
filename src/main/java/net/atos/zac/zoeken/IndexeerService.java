@@ -62,44 +62,42 @@ import net.atos.zac.zoeken.model.index.ZoekObjectType;
 @Singleton
 @Transactional
 public class IndexeerService {
-
     public static final String SOLR_CORE = "zac";
 
     private static final Logger LOG = Logger.getLogger(IndexeerService.class.getName());
-
     private static final int SOLR_MAX_RESULT = 100;
-
     private static final int TAKEN_MAX_RESULTS = 50;
 
-    @Inject
-    @Any
-    private Instance<AbstractZoekObjectConverter<? extends ZoekObject>> converterInstances;
-
-    @Inject
-    private ZRCClientService zrcClientService;
-
-    @Inject
-    private DRCClientService drcClientService;
-
-    @Inject
-    private TakenService takenService;
-
-    @Inject
-    private IndexeerServiceHelper helper;
-
-    private SolrClient solrClient;
-
+    private final Instance<AbstractZoekObjectConverter<? extends ZoekObject>> converterInstances;
+    private final ZRCClientService zrcClientService;
+    private final DRCClientService drcClientService;
+    private final TakenService takenService;
+    private final IndexeerServiceHelper helper;
+    private final SolrClient solrClient;
     private final Set<ZoekObjectType> herindexerenBezig = new HashSet<>();
+
+    @Inject
+    IndexeerService(
+            @Any Instance<AbstractZoekObjectConverter<? extends ZoekObject>> converterInstances,
+            ZRCClientService zrcClientService,
+            DRCClientService drcClientService,
+            TakenService takenService,
+            IndexeerServiceHelper helper
+    ) {
+        this.converterInstances = converterInstances;
+        this.zrcClientService = zrcClientService;
+        this.drcClientService = drcClientService;
+        this.takenService = takenService;
+        this.helper = helper;
+
+        final String solrUrl = ConfigProvider.getConfig().getValue("solr.url", String.class);
+        solrClient = new Http2SolrClient.Builder(String.format("%s/solr/%s", solrUrl, SOLR_CORE)).build();
+    }
 
     public record Resultaat(long indexed, long removed, long remaining) {
         public Resultaat() {
             this(0, 0, 0);
         }
-    }
-
-    public IndexeerService() {
-        final String solrUrl = ConfigProvider.getConfig().getValue("solr.url", String.class);
-        solrClient = new Http2SolrClient.Builder(String.format("%s/solr/%s", solrUrl, SOLR_CORE)).build();
     }
 
     private void log(final ZoekObjectType objectType, final String message) {
@@ -176,7 +174,6 @@ public class IndexeerService {
         if (CollectionUtils.isNotEmpty(beansToBeAdded)) {
             try {
                 solrClient.addBeans(beansToBeAdded);
-                solrClient.commit();
             } catch (final IOException | SolrServerException e) {
                 throw new RuntimeException(e);
             }
@@ -190,7 +187,6 @@ public class IndexeerService {
         if (CollectionUtils.isNotEmpty(idsToBeDeleted)) {
             try {
                 solrClient.deleteById(idsToBeDeleted);
-                solrClient.commit();
             } catch (final IOException | SolrServerException e) {
                 throw new RuntimeException(e);
             }

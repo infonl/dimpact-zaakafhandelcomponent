@@ -102,6 +102,7 @@ public class Zaak {
 
     /**
      * De laatste datum waarop volgens wet- en regelgeving de zaak afgerond dient te zijn.
+     * Ook bekend als 'fatale datum'.
      */
     private LocalDate uiterlijkeEinddatumAfdoening;
 

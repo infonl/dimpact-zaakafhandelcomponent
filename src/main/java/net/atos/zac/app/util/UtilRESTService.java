@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -15,6 +15,8 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+
+import org.apache.commons.text.StringEscapeUtils;
 
 import net.atos.client.zgw.ztc.ZTCClientService;
 
@@ -52,7 +54,11 @@ public class UtilRESTService {
     }
 
     private String getZtcClientCaches() {
-        return ZTC + ul(ztcClientService.cacheNames().stream());
+        var statistics = ztcClientService.cacheStatistics();
+        return ZTC + ul(
+                statistics.keySet().stream()
+                        .map(cacheName -> String.format("%s %s<p/>", b(cacheName), ul(statistics.get(cacheName))))
+        );
     }
 
     @GET
@@ -86,12 +92,20 @@ public class UtilRESTService {
         return "<html></head><body>" + utils + "</body></html>";
     }
 
+    private static String b(final String value) {
+        return "<b>" + StringEscapeUtils.escapeHtml4(value) + "</b>";
+    }
+
     private static String h(final int i, final String label) {
         return "<h" + i + ">" + label + "</h" + i + ">";
     }
 
+    private static String ul(final Object content) {
+        return "<ul>" + content + "</ul>";
+    }
+
     private static String ul(final Stream<String> li) {
-        return "<ul>" + li.sorted().collect(joining("</li><li>", "<li>", "</li>")) + "</ul>";
+        return ul(li.collect(joining("</li><li>", "<li>", "</li>")));
     }
 
     private static String a(final String url, final String label) {

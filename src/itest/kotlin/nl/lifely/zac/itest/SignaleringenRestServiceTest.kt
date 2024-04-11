@@ -215,7 +215,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                     shouldContainJsonKeyValue("startdatum", "2023-10-25")
                     shouldContainJsonKeyValue("status", "Intake")
                     shouldContainJsonKeyValue("toelichting", "")
-                    shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", "2023-11-08")
+                    shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", ZAAK_1_UITERLIJKE_EINDDATUM_AFDOENING)
                     shouldContainJsonKey("uuid")
                     shouldContainJsonKeyValue("zaaktype", ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION)
                 }
@@ -247,7 +247,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                     shouldContainJsonKeyValue("startdatum", "2023-10-25")
                     shouldContainJsonKeyValue("status", "Intake")
                     shouldContainJsonKeyValue("toelichting", "")
-                    shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", "2023-11-08")
+                    shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", ZAAK_1_UITERLIJKE_EINDDATUM_AFDOENING)
                     shouldContainJsonKey("uuid")
                     shouldContainJsonKeyValue("zaaktype", ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION)
                 }

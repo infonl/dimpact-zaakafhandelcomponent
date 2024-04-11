@@ -8,7 +8,7 @@
     <input [formControl]="data.formControl" [id]="data.id + '_datefield'"
            [min]="data.minDate" [max]="data.maxDate"
            [matDatepicker]="picker" [required]="data.required" matInput/>
-    <span *ngIf="data.showDays" class="daysSuffix" matSuffix>{{days()}} {{'dagen' | translate}}</span>
+    <span *ngIf="data.showDays" class="daysSuffix" matSuffix>{{ data.formControl.value | dagen }}</span>
     <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
 
     <mat-datepicker #picker></mat-datepicker>
