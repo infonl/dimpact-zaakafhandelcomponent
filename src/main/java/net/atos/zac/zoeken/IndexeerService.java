@@ -82,26 +82,31 @@ public class IndexeerService {
             ZRCClientService zrcClientService,
             DRCClientService drcClientService,
             TakenService takenService,
-            IndexeerServiceHelper helper
+            IndexeerServiceHelper indexeerServiceHelper
     ) {
         this.converterInstances = converterInstances;
         this.zrcClientService = zrcClientService;
         this.drcClientService = drcClientService;
         this.takenService = takenService;
-        this.helper = helper;
+        this.helper = indexeerServiceHelper;
 
-        final String solrUrl = ConfigProvider.getConfig().getValue("solr.url", String.class);
-        solrClient = new Http2SolrClient.Builder(String.format("%s/solr/%s", solrUrl, SOLR_CORE)).build();
+        solrClient = createSolrClient(
+                String.format(
+                        "%s/solr/%s",
+                        ConfigProvider.getConfig().getValue("solr.url", String.class),
+                        SOLR_CORE
+                )
+        );
+    }
+
+    public static SolrClient createSolrClient(final String baseSolrUrl) {
+        return new Http2SolrClient.Builder(baseSolrUrl).build();
     }
 
     public record Resultaat(long indexed, long removed, long remaining) {
         public Resultaat() {
             this(0, 0, 0);
         }
-    }
-
-    private void log(final ZoekObjectType objectType, final String message) {
-        LOG.info("[%s] %s".formatted(objectType.toString(), message));
     }
 
     public void indexeerDirect(final String objectId, final ZoekObjectType objectType) {
@@ -139,6 +144,72 @@ public class IndexeerService {
         log(objectType, "geindexeerd: %d, verwijderd: %d, resterend: %d"
                 .formatted(resultaat.indexed(), resultaat.removed(), resultaat.remaining()));
         return resultaat;
+    }
+
+    @Transactional(Transactional.TxType.NEVER)
+    public HerindexerenInfo herindexeren(final ZoekObjectType objectType) {
+        if (herindexerenBezig.contains(objectType)) {
+            log(objectType, "Markeren voor herindexeren niet gestart, is nog bezig");
+            return new HerindexerenInfo(0, 0, 0);
+        }
+        herindexerenBezig.add(objectType);
+        try {
+            log(objectType, "Markeren voor herindexeren gestart...");
+            helper.removeMarks(objectType);
+            markSolrEntitiesForRemoval(objectType);
+            switch (objectType) {
+                case ZAAK -> markAllZakenForReindexing();
+                case DOCUMENT -> markAllInformatieobjectenForReindexing();
+                case TAAK -> markAllTakenForReindexing();
+            }
+            final long removeCount = helper.countMarkedObjects(objectType, REMOVE);
+            final long addCount = helper.countMarkedObjects(objectType, ADD);
+            final long updateCount = helper.countMarkedObjects(objectType, UPDATE);
+            log(objectType, "Markeren voor herindexeren gestopt");
+            log(objectType, "toe te voegen: %d, bij te werken: %d, te verwijderen: %d"
+                    .formatted(addCount, updateCount, removeCount));
+            return new HerindexerenInfo(addCount, updateCount, removeCount);
+        } finally {
+            herindexerenBezig.remove(objectType);
+        }
+    }
+
+    public void addOrUpdateZaak(final UUID zaakUUID, boolean inclusiefTaken) {
+        helper.markObjectForIndexing(zaakUUID.toString(), ZAAK);
+        if (inclusiefTaken) {
+            takenService.listTasksForZaak(zaakUUID).stream()
+                    .map(TaskInfo::getId)
+                    .forEach(this::addOrUpdateTaak);
+        }
+    }
+
+    public void addOrUpdateInformatieobject(final UUID informatieobjectUUID) {
+        helper.markObjectForIndexing(informatieobjectUUID.toString(), DOCUMENT);
+    }
+
+    public void addOrUpdateInformatieobjectByZaakinformatieobject(final UUID zaakinformatieobjectUUID) {
+        addOrUpdateInformatieobject(uuidFromURI(
+                zrcClientService.readZaakinformatieobject(zaakinformatieobjectUUID).getInformatieobject()));
+    }
+
+    public void addOrUpdateTaak(final String taskID) {
+        helper.markObjectForIndexing(taskID, TAAK);
+    }
+
+    public void removeZaak(final UUID zaakUUID) {
+        helper.markObjectForRemoval(zaakUUID.toString(), ZAAK);
+    }
+
+    public void removeInformatieobject(final UUID informatieobjectUUID) {
+        helper.markObjectForRemoval(informatieobjectUUID.toString(), DOCUMENT);
+    }
+
+    public void removeTaak(final String taskID) {
+        helper.markObjectForRemoval(taskID, TAAK);
+    }
+
+    private void log(final ZoekObjectType objectType, final String message) {
+        LOG.info("[%s] %s".formatted(objectType.toString(), message));
     }
 
     private AbstractZoekObjectConverter<? extends ZoekObject> getConverter(ZoekObjectType objectType) {
@@ -193,34 +264,6 @@ public class IndexeerService {
             helper.removeMarks(idsToBeDeleted.stream());
         }
         return idsToBeDeleted.size();
-    }
-
-    @Transactional(Transactional.TxType.NEVER)
-    public HerindexerenInfo herindexeren(final ZoekObjectType objectType) {
-        if (herindexerenBezig.contains(objectType)) {
-            log(objectType, "Markeren voor herindexeren niet gestart, is nog bezig");
-            return new HerindexerenInfo(0, 0, 0);
-        }
-        herindexerenBezig.add(objectType);
-        try {
-            log(objectType, "Markeren voor herindexeren gestart...");
-            helper.removeMarks(objectType);
-            markSolrEntitiesForRemoval(objectType);
-            switch (objectType) {
-                case ZAAK -> markAllZakenForReindexing();
-                case DOCUMENT -> markAllInformatieobjectenForReindexing();
-                case TAAK -> markAllTakenForReindexing();
-            }
-            final long removeCount = helper.countMarkedObjects(objectType, REMOVE);
-            final long addCount = helper.countMarkedObjects(objectType, ADD);
-            final long updateCount = helper.countMarkedObjects(objectType, UPDATE);
-            log(objectType, "Markeren voor herindexeren gestopt");
-            log(objectType, "toe te voegen: %d, bij te werken: %d, te verwijderen: %d"
-                    .formatted(addCount, updateCount, removeCount));
-            return new HerindexerenInfo(addCount, updateCount, removeCount);
-        } finally {
-            herindexerenBezig.remove(objectType);
-        }
     }
 
     private void logProgress(final ZoekObjectType objectType, final long voortgang, final long grootte) {
@@ -325,39 +368,5 @@ public class IndexeerService {
             return tasks.size() == TAKEN_MAX_RESULTS;
         }
         return false;
-    }
-
-    public void addOrUpdateZaak(final UUID zaakUUID, boolean inclusiefTaken) {
-        helper.markObjectForIndexing(zaakUUID.toString(), ZAAK);
-        if (inclusiefTaken) {
-            takenService.listTasksForZaak(zaakUUID).stream()
-                    .map(TaskInfo::getId)
-                    .forEach(this::addOrUpdateTaak);
-        }
-    }
-
-    public void addOrUpdateInformatieobject(final UUID informatieobjectUUID) {
-        helper.markObjectForIndexing(informatieobjectUUID.toString(), DOCUMENT);
-    }
-
-    public void addOrUpdateInformatieobjectByZaakinformatieobject(final UUID zaakinformatieobjectUUID) {
-        addOrUpdateInformatieobject(uuidFromURI(
-                zrcClientService.readZaakinformatieobject(zaakinformatieobjectUUID).getInformatieobject()));
-    }
-
-    public void addOrUpdateTaak(final String taskID) {
-        helper.markObjectForIndexing(taskID, TAAK);
-    }
-
-    public void removeZaak(final UUID zaakUUID) {
-        helper.markObjectForRemoval(zaakUUID.toString(), ZAAK);
-    }
-
-    public void removeInformatieobject(final UUID informatieobjectUUID) {
-        helper.markObjectForRemoval(informatieobjectUUID.toString(), DOCUMENT);
-    }
-
-    public void removeTaak(final String taskID) {
-        helper.markObjectForRemoval(taskID, TAAK);
     }
 }
