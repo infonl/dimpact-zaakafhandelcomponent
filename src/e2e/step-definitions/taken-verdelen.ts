@@ -6,13 +6,13 @@ const ONE_MINUTE_IN_MS = 60_000;
 let _noOfTaken = 0;
 
 Given(
-  "there are at at least {int} taken",
+  "there are at least {int} taken",
   async function (this: CustomWorld, noOfTaken: number) {
     _noOfTaken = noOfTaken;
-    const zaakCount = await this.page
+    const taakCount = await this.page
       .getByLabel("Selecteren", { exact: true })
       .count();
-    this.expect(zaakCount).toBeGreaterThanOrEqual(noOfTaken);
+    this.expect(taakCount).toBeGreaterThanOrEqual(noOfTaken);
   },
 );
 
@@ -29,14 +29,23 @@ When(
 );
 
 When(
-  "{string} distributes the taken to group {string}",
-  async function (this: CustomWorld, s: string, groep: string) {
+  "{string} distributes the taken to the first group available",
+  async function (this: CustomWorld, s: string) {
     await this.page.getByTitle("Verdelen").click();
     const expectedLabel = "Taak toekennen aan groep";
     await this.page.getByLabel(expectedLabel).click();
-    await this.page.getByRole("option", { name: groep }).click();
+    await this.page.getByRole("option", { name: "test gr" }).first().click();
     await this.page.getByLabel("Reden").fill("Dummy reason");
     await this.page.locator("#takenVerdelen_button").click();
+  },
+);
+
+When(
+  "{string} releases the taken",
+  async function (this: CustomWorld, s: string) {
+    await this.page.getByTitle("Vrijgeven").click();
+    await this.page.getByLabel("Reden").fill("Dummy reason");
+    await this.page.locator("#taakVrijgeven_button").click();
   },
 );
 
@@ -46,6 +55,16 @@ Then(
   async function (this: CustomWorld, s: string) {
     await this.page
       .getByText(`${_noOfTaken} zaken zijn verdeeld`)
+      .waitFor({ timeout: ONE_MINUTE_IN_MS });
+  },
+);
+
+Then(
+  "{string} gets a message confirming that the releasement of taken is complete",
+  { timeout: ONE_MINUTE_IN_MS },
+  async function (this: CustomWorld, s: string) {
+    await this.page
+      .getByText(`${_noOfTaken} taken zijn vrijgegeven`)
       .waitFor({ timeout: ONE_MINUTE_IN_MS });
   },
 );
