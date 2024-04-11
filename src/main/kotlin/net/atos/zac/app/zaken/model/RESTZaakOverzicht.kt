@@ -24,10 +24,10 @@ data class RESTZaakOverzicht(
 
     var uuid: UUID? = null,
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     var startdatum: LocalDate? = null,
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     var einddatum: LocalDate? = null,
 
     var zaaktype: String? = null,
@@ -36,10 +36,10 @@ data class RESTZaakOverzicht(
 
     var behandelaar: RESTUser? = null,
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     var einddatumGepland: LocalDate? = null,
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     var uiterlijkeEinddatumAfdoening: LocalDate? = null,
 
     var groep: RESTGroup? = null,
