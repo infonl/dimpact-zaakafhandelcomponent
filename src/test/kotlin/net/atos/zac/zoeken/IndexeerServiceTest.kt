@@ -1,11 +1,16 @@
 package net.atos.zac.zoeken
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.ints.exactly
+import io.kotest.matchers.shouldBe
+import io.mockk.Runs
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
+import io.mockk.just
 import io.mockk.mockk
-import io.mockk.mockkConstructor
 import io.mockk.mockkStatic
+import io.mockk.slot
+import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.client.zgw.drc.DRCClientService
 import net.atos.client.zgw.zrc.ZRCClientService
@@ -17,37 +22,32 @@ import net.atos.zac.zoeken.converter.ZaakZoekObjectConverter
 import net.atos.zac.zoeken.model.ZoekObject
 import net.atos.zac.zoeken.model.createZaakZoekObject
 import net.atos.zac.zoeken.model.index.ZoekObjectType
-import org.apache.solr.client.solrj.impl.Http2SolrClient
+import org.apache.solr.client.solrj.SolrClient
+import org.apache.solr.client.solrj.response.UpdateResponse
 import org.eclipse.microprofile.config.ConfigProvider
 import java.net.URI
+import java.util.stream.Stream
 
 @MockKExtension.CheckUnnecessaryStub
 class IndexeerServiceTest : BehaviorSpec({
+    // add static mocking for config provider because the IndexeerService class
+    // references the config provider statically
     val solrUrl = "http://localhost/dummySolrUrl"
-    // add static mocking for config provider or else the IndexeerService class cannot be instantiated
-    // since it references the config provider statically
     mockkStatic(ConfigProvider::class)
     every {
         ConfigProvider.getConfig().getValue("solr.url", String::class.java)
     } returns solrUrl
 
-    // TODO: how to mock the Http2SolrClient that is created in the constructor of the IndexeerService class?
-    val http2SolrClient = mockk<Http2SolrClient>()
-    // mock the constructor for the Solr client builder to be able to mock the Solr client
-    // instantiated in the constructor of the IndexeerService class
-    mockkConstructor(Http2SolrClient.Builder::class)
-    mockkStatic(Http2SolrClient.Builder("$solrUrl/solr/zac")::class)
-    every { Http2SolrClient.Builder("$solrUrl/solr/zac") } returns mockk<Http2SolrClient.Builder>()
-    every { anyConstructed<Http2SolrClient.Builder>().build() } returns http2SolrClient
-
-    // https://stackoverflow.com/questions/52742926/how-to-mock-a-new-object-using-mockk
+    val solrClient = mockk<SolrClient>()
+    mockkStatic(IndexeerService::class)
+    every { IndexeerService.createSolrClient("$solrUrl/solr/zac") } returns solrClient
 
     val zaakZoekObjectConverter = mockk<ZaakZoekObjectConverter>()
     val converterInstances = mockk<Instance<AbstractZoekObjectConverter<out ZoekObject?>>>()
     val converterInstancesIterator = mockk<MutableIterator<AbstractZoekObjectConverter<out ZoekObject?>>>()
     val drcClientService = mockk<DRCClientService>()
     val takenService = mockk<TakenService>()
-    val helper = mockk<IndexeerServiceHelper>()
+    val indexeerServiceHelper = mockk<IndexeerServiceHelper>()
     val zrcClientService = mockk<ZRCClientService>()
 
     val indexeerService = IndexeerService(
@@ -55,7 +55,7 @@ class IndexeerServiceTest : BehaviorSpec({
         zrcClientService,
         drcClientService,
         takenService,
-        helper
+        indexeerServiceHelper
     )
 
     every { zaakZoekObjectConverter.supports(ZoekObjectType.ZAAK) } returns true
@@ -74,14 +74,27 @@ class IndexeerServiceTest : BehaviorSpec({
             createZaakZoekObject(),
             createZaakZoekObject()
         )
+        val objectIdsSlot = slot<Stream<String>>()
         zaken.forEachIndexed { index, zaak ->
             every { zaakZoekObjectConverter.convert(zaak.uuid.toString()) } returns zaakZoekObjecten[index]
         }
+        every { solrClient.addBeans(zaakZoekObjecten) } returns UpdateResponse()
+        every { indexeerServiceHelper.removeMarks(capture(objectIdsSlot)) } just Runs
 
         When("The indexeer direct method is called to index the two zaken") {
             indexeerService.indexeerDirect(zaken.map { it.uuid.toString() }, ZoekObjectType.ZAAK)
 
-            Then("") {
+            Then(
+                """
+                two zaak zoek objecten should be added to the Solr client and 
+                both related object ids should be removed as 'marked for indexing'                
+                """
+            ) {
+                verify(exactly = 1) {
+                    solrClient.addBeans(any<Collection<*>>())
+                    indexeerServiceHelper.removeMarks(any<Stream<String>>())
+                }
+                objectIdsSlot.captured.toList() shouldBe zaakZoekObjecten.map { it.uuid.toString() }
             }
         }
     }
