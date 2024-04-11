@@ -63,7 +63,9 @@ class IndexeerServiceTest : BehaviorSpec({
     every { converterInstancesIterator.hasNext() } returns true andThen true andThen false
     every { converterInstancesIterator.next() } returns zaakZoekObjectConverter andThen zaakZoekObjectConverter
 
-    Given("Two zaken") {
+    Given(
+        """Two zaken"""
+    ) {
         val zaakType = createZaakType()
         val zaaktypeURI = URI("http://example.com/${zaakType.url}")
         val zaken = listOf(
@@ -81,7 +83,9 @@ class IndexeerServiceTest : BehaviorSpec({
         every { solrClient.addBeans(zaakZoekObjecten) } returns UpdateResponse()
         every { indexeerServiceHelper.removeMarks(capture(objectIdsSlot)) } just Runs
 
-        When("The indexeer direct method is called to index the two zaken") {
+        When(
+            """The indexeer direct method is called to index the two zaken"""
+        ) {
             indexeerService.indexeerDirect(zaken.map { it.uuid.toString() }, ZoekObjectType.ZAAK)
 
             Then(

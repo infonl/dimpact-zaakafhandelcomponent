@@ -31,7 +31,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.transaction.Transactional;
 
-import net.atos.zac.zoeken.model.index.IndexResult;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -57,6 +56,7 @@ import net.atos.zac.shared.model.SorteerRichting;
 import net.atos.zac.zoeken.converter.AbstractZoekObjectConverter;
 import net.atos.zac.zoeken.model.ZoekObject;
 import net.atos.zac.zoeken.model.index.HerindexerenInfo;
+import net.atos.zac.zoeken.model.index.IndexResult;
 import net.atos.zac.zoeken.model.index.ZoekIndexEntity;
 import net.atos.zac.zoeken.model.index.ZoekObjectType;
 
