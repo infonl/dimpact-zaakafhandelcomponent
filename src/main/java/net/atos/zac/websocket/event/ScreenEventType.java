@@ -10,21 +10,19 @@ import static net.atos.zac.event.Opcode.UPDATED;
 import static net.atos.zac.util.UriUtil.uuidFromURI;
 
 import java.net.URI;
-import java.text.SimpleDateFormat;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Logger;
 
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.kotlin.KotlinModule;
 import org.flowable.task.api.TaskInfo;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.kotlin.KotlinModule;
 
 import net.atos.client.zgw.brc.model.generated.Besluit;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
@@ -205,9 +203,9 @@ public enum ScreenEventType {
 
     private final static KotlinModule KOTLIN_MODULE = (new KotlinModule.Builder()).build();
     private final static ObjectWriter OBJECT_WRITER = new ObjectMapper()
-                                                          .registerModule(new JavaTimeModule())
-                                                          .registerModule(KOTLIN_MODULE)
-                                                          .writer();
+            .registerModule(new JavaTimeModule())
+            .registerModule(KOTLIN_MODULE)
+            .writer();
 
     private static ScreenEvent instance(
             final Opcode opcode,
