@@ -35,7 +35,7 @@ When(
     await this.page.getByTitle("Verdelen").click();
     const expectedLabel = "Zaak toekennen aan groep";
     await this.page.getByLabel(expectedLabel).click();
-    await this.page.getByRole("option", {name: "test gr"}).first().click();
+    await this.page.getByRole("option", { name: "test gr" }).first().click();
     await this.page.getByLabel("Reden").fill("Dummy reason");
     await this.page.locator("#zakenVerdelen_button").click();
   },
