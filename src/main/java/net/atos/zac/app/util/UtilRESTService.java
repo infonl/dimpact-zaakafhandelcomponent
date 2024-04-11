@@ -18,7 +18,9 @@ import jakarta.ws.rs.core.MediaType;
 
 import org.apache.commons.text.StringEscapeUtils;
 
+import net.atos.client.zgw.shared.cache.Caching;
 import net.atos.client.zgw.ztc.ZTCClientService;
+import net.atos.zac.zaaksturing.ZaakafhandelParameterService;
 
 @Path("util")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -26,15 +28,19 @@ import net.atos.client.zgw.ztc.ZTCClientService;
 public class UtilRESTService {
 
     private static final String ZTC = h(2, "ztcClientService");
+    private static final String ZHPS = h(2, "zaakafhandelParameterService");
 
     @Inject
     private ZTCClientService ztcClientService;
 
+    @Inject
+    private ZaakafhandelParameterService zaakafhandelParameterService;
+
     @GET
     public String index() {
         return body(h(1, "Util") +
-                    links(Stream.of("cache", "cache/ztc")) +
-                    links(Stream.of("cache/clear", "cache/ztc/clear")));
+                    links(Stream.of("cache", "cache/ztc", "cache/zhps")) +
+                    links(Stream.of("cache/clear", "cache/ztc/clear", "cache/zhps/clear")));
     }
 
     private String links(final Stream<String> url) {
@@ -44,7 +50,7 @@ public class UtilRESTService {
     @GET
     @Path("cache")
     public String getCaches() {
-        return body(Stream.of(getZtcClientCaches()));
+        return body(Stream.of(getZtcClientCaches(), getZaakafhandelParameterServiceCaches()));
     }
 
     @GET
@@ -53,9 +59,23 @@ public class UtilRESTService {
         return body(getZtcClientCaches());
     }
 
+    @GET
+    @Path("cache/zhps")
+    public String getZhpsCaches() {
+        return body(getZaakafhandelParameterServiceCaches());
+    }
+
     private String getZtcClientCaches() {
-        var statistics = ztcClientService.cacheStatistics();
-        return ZTC + ul(
+        return getSeriviceCacheStatistics(ZTC, ztcClientService);
+    }
+
+    private String getZaakafhandelParameterServiceCaches() {
+        return getSeriviceCacheStatistics(ZHPS, zaakafhandelParameterService);
+    }
+
+    private String getSeriviceCacheStatistics(String prefix, Caching caching) {
+        var statistics = caching.cacheStatistics();
+        return prefix + ul(
                 statistics.keySet().stream()
                         .map(cacheName -> String.format("%s %s<p/>", b(cacheName), ul(statistics.get(cacheName))))
         );
@@ -64,13 +84,19 @@ public class UtilRESTService {
     @GET
     @Path("cache/clear")
     public String clearCaches() {
-        return body(Stream.of(clearZtcClientCaches()));
+        return body(Stream.of(clearZtcClientCaches(), clearAllZhpsCaches()));
     }
 
     @GET
     @Path("cache/ztc/clear")
-    public String clearZtcCaches() {
+    public String clearAllZtcClientCaches() {
         return body(clearZtcClientCaches());
+    }
+
+    @GET
+    @Path("cache/zhps/clear")
+    public String clearAllZaakafhandelParameterServiceCaches() {
+        return body(clearAllZhpsCaches());
     }
 
     private String clearZtcClientCaches() {
@@ -82,6 +108,11 @@ public class UtilRESTService {
                 ztcClientService.clearBesluittypeCache(),
                 ztcClientService.clearRoltypeCache(),
                 ztcClientService.clearCacheTime()));
+    }
+
+    private String clearAllZhpsCaches() {
+        return ZHPS + ul(Stream.of(zaakafhandelParameterService.clearManagedCache(),
+                zaakafhandelParameterService.clearListCache()));
     }
 
     private static String body(final Stream<String> utils) {
