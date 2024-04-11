@@ -120,6 +120,8 @@ public enum ScreenEventType {
 
     ZAKEN_VERDELEN,
 
+    ZAKEN_VRIJGEVEN,
+
     ZAKEN_SIGNALERINGEN {
         @Override
         public ScreenEvent event(
