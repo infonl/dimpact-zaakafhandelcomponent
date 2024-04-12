@@ -68,6 +68,11 @@ jobs:
       - name: Gradle build
         run: ./gradlew build -x test --info
 
+      - name: Upload Detekt scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: ${{ github.workspace }}/build/reports/detekt/detekt.sarif
+
       - name: Cache Gradle build artefacts
         uses: actions/cache/save@v4
         with:
