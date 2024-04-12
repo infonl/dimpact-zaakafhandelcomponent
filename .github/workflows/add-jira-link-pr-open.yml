@@ -1,0 +1,83 @@
+#
+# SPDX-FileCopyrightText: 2024 Lifely
+# SPDX-License-Identifier: EUPL-1.2+
+#
+name: Create Jira Link to the PR
+on:
+  pull_request:
+    types:
+      - opened
+
+jobs:
+  create-jira-web-link:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run Python script
+        run: |
+          pip install requests 
+          MY_PYTHON_SCRIPT=$(cat << EOF
+import re
+import requests
+import os
+import json
+
+
+def extract_jira_key(pr_message):
+  pattern = r"[Ss]olves ([A-Z]+-\d+)"
+  match = re.search(pattern, pr_message)
+  if match:
+    return match.group(1)
+  return None
+
+
+def get_pr_context():
+  event_path = '${{ github.event_path }}'
+  try:
+    with open(event_path, 'r', encoding='utf8') as event_file:
+      payload = json.load(event_file)
+      pr_description = payload.get('pull_request', {}).get('body')
+      pr_number = payload.get('pull_request', {}).get('number')
+      pr_url = payload.get('pull_request', {}).get('html_url')
+      issue_key = extract_jira_key(pr_description)
+      if jira_key:
+        return {
+          "id": pr_number,
+          "issue_key": issue_key,
+          "url": pr_url
+        }
+  except FileNotFoundError:
+    print(f"Error: File '{event_path}' not found.")
+  return None
+
+
+def add_remote_link(pr_context):
+  jira_url = '${{ secrets.jira_api }}'
+  url = f"{jira_url}/issue/{pr_context['issue_key']}/remotelink"
+  headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Basic ${{ secrets.jira_token }}'
+  }
+  payload = {
+    'object': {
+      'url': pr_context['url'],
+      'title': f"Pull Request #{pr_context['id']}"
+    }
+  }
+  response = requests.post(url, headers=standard_headers(), json=payload)
+  if response.status_code == 201:
+      print(f"Remote link added successfully to issue {pr_context['issue_key']}.")
+  else:
+      print(f"Error adding remote link: {response.status_code} - {response.text}")
+
+
+pr_context = get_pr_context()
+if pr_context:
+  add_remote_link(pr_context)
+          EOF
+          )
+          python -c "$MY_PYTHON_SCRIPT"
