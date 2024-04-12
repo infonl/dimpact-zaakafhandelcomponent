@@ -76,10 +76,12 @@ jobs:
           )
           echo "MY_PYTHON_SCRIPT=$MY_PYTHON_SCRIPT" >> $GITHUB_ENV
 
-      - name: Execute Python script
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
+      - name: Execute Python script
         run: |
           pip install requests 
           python -c "$MY_PYTHON_SCRIPT"
