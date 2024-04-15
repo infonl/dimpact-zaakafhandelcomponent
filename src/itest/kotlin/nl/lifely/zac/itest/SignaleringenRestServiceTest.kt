@@ -188,57 +188,6 @@ class SignaleringenRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A zaak has been assigned") {
-        When("the list of zaken signaleringen for ZAAK_DOCUMENT_TOEGEVOEGD is requested") {
-            lateinit var responseBody: String
-
-            // Wait for the notifications to get processed asynchronously on the backend
-            eventually(afterFiveSeconds) {
-                val response = itestHttpClient.performGetRequest(
-                    "$ZAC_API_URI/signaleringen/zaken/ZAAK_DOCUMENT_TOEGEVOEGD"
-                )
-                response.isSuccessful shouldBe true
-                responseBody = response.body!!.string()
-                logger.info { "Response: $responseBody" }
-                responseBody.shouldBeJsonArray()
-                JSONArray(responseBody) shouldHaveSize 1
-            }
-
-            Then("it returns the correct signaleringen") {
-                with(JSONArray(responseBody).getJSONObject(0).toString()) {
-                    shouldContainJsonKey("behandelaar")
-                    shouldContainJsonKey("groep")
-                    shouldContainJsonKeyValue("identificatie", ZAAK_1_IDENTIFICATION)
-                    shouldContainJsonKey("omschrijving")
-                    shouldContainJsonKey("openstaandeTaken")
-                    shouldContainJsonKey("rechten")
-                    shouldContainJsonKeyValue("startdatum", "2023-10-25")
-                    shouldContainJsonKeyValue("status", "Intake")
-                    shouldContainJsonKeyValue("toelichting", "")
-                    shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", ZAAK_1_UITERLIJKE_EINDDATUM_AFDOENING)
-                    shouldContainJsonKey("uuid")
-                    shouldContainJsonKeyValue("zaaktype", ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION)
-                }
-            }
-        }
-        When("the latest signaleringen date is requested") {
-            val response = itestHttpClient.performGetRequest("$ZAC_API_URI/signaleringen/latest")
-
-            Then("it returns a date between the start of the tests and current moment") {
-                val responseBody = response.body!!.string()
-                logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
-
-                // application/json should be changed to text/plain in the endpoint to get rid of the quotes
-                val dateString = responseBody.replace("\"", "")
-
-                val date = ZonedDateTime.parse(dateString, DateTimeFormatter.ISO_DATE_TIME)
-                    .withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime()
-                date.shouldBeBetween(START_DATE, LocalDateTime.now())
-            }
-        }
-    }
-
     Given(
         "a zaaken has been assigned and a websocket subscription has been created to listen for async generated" +
             " ZAKEN_SIGNALERINGEN list"
@@ -267,9 +216,9 @@ class SignaleringenRestServiceTest : BehaviorSpec({
             )
             response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
 
-            Then("it returns the correct signaleringen via websocket") {
+            Then("it returns the correct signaleringen for ZAAK_OP_NAAM via websocket") {
                 // the backend process is asynchronous, so we need to wait a bit until the zaken are assigned
-                eventually(afterFiveSeconds) {
+                eventually(15.seconds) {
                     websocketListener.messagesReceived.size shouldBe 1
 
                     with(JSONObject(websocketListener.messagesReceived[0])) {
@@ -295,6 +244,64 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                         }
                     }
                 }
+            }
+        }
+        When("the list of zaken signaleringen for ZAAK_DOCUMENT_TOEGEVOEGD is requested") {
+            val response = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/signaleringen/zaken/ZAAK_DOCUMENT_TOEGEVOEGD",
+                requestBodyAsString = "$uniqueResourceId"
+            )
+            response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
+
+            Then("it returns the correct signaleringen for ZAAK_DOCUMENT_TOEGEVOEGD via websocket") {
+                // the backend process is asynchronous, so we need to wait a bit until the zaken are assigned
+                eventually(afterFiveSeconds) {
+                    websocketListener.messagesReceived.size shouldBe 2
+
+                    with(JSONObject(websocketListener.messagesReceived[1])) {
+                        getString("opcode") shouldBe "UPDATED"
+                        getString("objectType") shouldBe "ZAKEN_SIGNALERINGEN"
+                        with(getJSONObject("objectId")) {
+                            getString("resource") shouldBe uniqueResourceId.toString()
+                            val detail = JSONArray(getString("detail")).getJSONObject(0).toString()
+                            with(detail) {
+                                shouldContainJsonKeyValue("identificatie", ZAAK_1_IDENTIFICATION)
+                                shouldContainJsonKeyValue("toelichting", "")
+                                shouldContainJsonKey("omschrijving")
+                                shouldContainJsonKey("uuid")
+                                shouldContainJsonKeyValue("startdatum", "2023-10-25")
+                                shouldContainJsonKey("einddatum")
+                                shouldContainJsonKeyValue("zaaktype", ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION)
+                                shouldContainJsonKeyValue("status", "Intake")
+                                shouldContainJsonKey("behandelaar")
+                                shouldContainJsonKey("einddatumGepland")
+                                shouldContainJsonKeyValue(
+                                    "uiterlijkeEinddatumAfdoening",
+                                    ZAAK_1_UITERLIJKE_EINDDATUM_AFDOENING
+                                )
+                                shouldContainJsonKey("groep")
+                                shouldContainJsonKey("openstaandeTaken")
+                                shouldContainJsonKey("rechten")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        When("the latest signaleringen date is requested") {
+            val response = itestHttpClient.performGetRequest("$ZAC_API_URI/signaleringen/latest")
+
+            Then("it returns a date between the start of the tests and current moment") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.isSuccessful shouldBe true
+
+                // application/json should be changed to text/plain in the endpoint to get rid of the quotes
+                val dateString = responseBody.replace("\"", "")
+
+                val date = ZonedDateTime.parse(dateString, DateTimeFormatter.ISO_DATE_TIME)
+                    .withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime()
+                date.shouldBeBetween(START_DATE, LocalDateTime.now())
             }
         }
     }
