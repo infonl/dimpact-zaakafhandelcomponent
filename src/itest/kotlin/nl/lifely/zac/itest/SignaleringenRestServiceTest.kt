@@ -189,7 +189,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
     }
 
     Given(
-        "a zaaken has been assigned and a websocket subscription has been created to listen for async generated" +
+        "a zaak has been assigned and a websocket subscription has been created to listen for async generated" +
             " ZAKEN_SIGNALERINGEN list"
     ) {
         val uniqueResourceId = UUID.randomUUID()
