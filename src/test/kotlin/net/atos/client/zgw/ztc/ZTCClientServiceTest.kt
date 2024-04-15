@@ -1,5 +1,6 @@
 package net.atos.client.zgw.ztc
 
+import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.core.test.TestCase
 import io.kotest.matchers.date.shouldBeAfter
@@ -14,6 +15,7 @@ import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.configuratie.ConfiguratieService
 import java.time.ZonedDateTime
 import java.util.UUID
+import kotlin.time.Duration.Companion.seconds
 
 @MockKExtension.CheckUnnecessaryStub
 class ZTCClientServiceTest : BehaviorSpec() {
@@ -90,10 +92,12 @@ class ZTCClientServiceTest : BehaviorSpec() {
                 }
 
                 Then("cache starts evicting") {
-                    with(ztcClientService.cacheStatistics()["ZTC UUID -> ZaakType"]) {
-                        this?.hitCount() shouldBe 0
-                        this?.missCount() shouldBe 102
-                        this?.evictionCount() shouldBe 2
+                    eventually(5.seconds) {
+                        with(ztcClientService.cacheStatistics()["ZTC UUID -> ZaakType"]) {
+                            this?.hitCount() shouldBe 0
+                            this?.missCount() shouldBe 102
+                            this?.evictionCount() shouldBe 2
+                        }
                     }
                 }
             }

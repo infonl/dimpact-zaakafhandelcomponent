@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 package nl.lifely.zac.itest.client
 
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -149,10 +153,6 @@ class ItestHttpClient {
     fun shutdownClient() = okHttpClient.dispatcher.executorService.shutdown()
 
     private fun getDefaultJSONGETHeaders() = Headers.headersOf(
-        // "Authorization",
-        // perform a request to Keycloak to get an access token
-        // this can only be done after a successful authentication
-        // "Bearer ${KeycloakClient.requestAccessToken()}",
         "Accept",
         "application/json"
     )

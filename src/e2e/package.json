@@ -4,7 +4,7 @@
   "scripts": {
     "e2e:run": "./node_modules/.bin/cucumber-js -p default",
     "e2e:start": "npm ci && npm run e2e:run",
-    "e2e:generate:report": "node generate-report.js"
+    "e2e:generate:report": "node generate-report.mjs"
   },
   "private": true,
   "dependencies": {
@@ -16,7 +16,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@playwright/test": "^1.43.0",
+    "@playwright/test": "^1.43.1",
     "@types/node": "^20.12.7",
     "cucumber-html-reporter": "^7.1.1",
     "cucumber-pretty": "^6.0.1",
