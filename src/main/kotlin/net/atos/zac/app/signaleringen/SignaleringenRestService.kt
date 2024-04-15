@@ -60,12 +60,6 @@ class SignaleringenRestService @Inject constructor(
         loggedInUserInstance.getSignaleringZoekParameters()
             .let { signaleringenService.latestSignalering(it) }
 
-    @GET
-    @Path("/zaken/{type}")
-    fun startListingZakenSignaleringen(
-        @PathParam("type") signaleringsType: SignaleringType.Type,
-    ) = signaleringenService.listZakenSignaleringen(loggedInUserInstance.get(), signaleringsType)
-
     @PUT
     @Path("/zaken/{type}")
     fun startListingZakenSignaleringen(
