@@ -39,7 +39,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
 /**
- * This test creates a zaak which we use in other tests, and therefore we run this test first.
+ * This test creates a zaak and a document (the form data PDF) which we use in other tests, and therefore we run this test first.
  */
 @Order(TEST_SPEC_ORDER_INITIAL)
 class NotificationsTest : BehaviorSpec({
