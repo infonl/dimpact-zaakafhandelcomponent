@@ -21,7 +21,6 @@ import net.atos.zac.authentication.ActiveSession;
 import net.atos.zac.authentication.SecurityUtil;
 import net.atos.zac.zoeken.IndexeerService;
 import net.atos.zac.zoeken.model.index.HerindexerenInfo;
-import net.atos.zac.zoeken.model.index.IndexResult;
 import net.atos.zac.zoeken.model.index.ZoekObjectType;
 
 @Path("indexeren")
