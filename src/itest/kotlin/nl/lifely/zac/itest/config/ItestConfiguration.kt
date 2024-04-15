@@ -2,7 +2,6 @@
  * SPDX-FileCopyrightText: 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package nl.lifely.zac.itest.config
 
 import java.time.LocalDate
