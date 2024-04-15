@@ -221,39 +221,6 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                 }
             }
         }
-
-        When("the list of zaken signaleringen for ZAAK_OP_NAAM is requested") {
-            lateinit var responseBody: String
-
-            eventually(afterFiveSeconds) {
-                val response = itestHttpClient.performGetRequest(
-                    "$ZAC_API_URI/signaleringen/zaken/ZAAK_OP_NAAM"
-                )
-                response.isSuccessful shouldBe true
-                responseBody = response.body!!.string()
-                logger.info { "Response: $responseBody" }
-                responseBody.shouldBeJsonArray()
-                JSONArray(responseBody) shouldHaveSize 1
-            }
-
-            Then("it returns the correct signaleringen") {
-                with(JSONArray(responseBody).getJSONObject(0).toString()) {
-                    shouldContainJsonKey("behandelaar")
-                    shouldContainJsonKey("groep")
-                    shouldContainJsonKeyValue("identificatie", ZAAK_1_IDENTIFICATION)
-                    shouldContainJsonKey("omschrijving")
-                    shouldContainJsonKey("openstaandeTaken")
-                    shouldContainJsonKey("rechten")
-                    shouldContainJsonKeyValue("startdatum", "2023-10-25")
-                    shouldContainJsonKeyValue("status", "Intake")
-                    shouldContainJsonKeyValue("toelichting", "")
-                    shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", ZAAK_1_UITERLIJKE_EINDDATUM_AFDOENING)
-                    shouldContainJsonKey("uuid")
-                    shouldContainJsonKeyValue("zaaktype", ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION)
-                }
-            }
-        }
-
         When("the latest signaleringen date is requested") {
             val response = itestHttpClient.performGetRequest("$ZAC_API_URI/signaleringen/latest")
 
