@@ -21,6 +21,7 @@ import net.atos.zac.authentication.ActiveSession;
 import net.atos.zac.authentication.SecurityUtil;
 import net.atos.zac.zoeken.IndexeerService;
 import net.atos.zac.zoeken.model.index.HerindexerenInfo;
+import net.atos.zac.zoeken.model.index.IndexResult;
 import net.atos.zac.zoeken.model.index.ZoekObjectType;
 
 @Path("indexeren")
@@ -54,7 +55,7 @@ public class IndexerenRESTService {
         SecurityUtil.setFunctioneelGebruiker(httpSession.get());
         final StringBuilder info = new StringBuilder();
         Arrays.stream(ZoekObjectType.values()).forEach(type -> {
-            final IndexeerService.Resultaat resultaat = indexeerService.indexeer(aantal, type);
+            final IndexResult resultaat = indexeerService.indexeer(aantal, type);
             info.append(
                     "[%s] geindexeerd: %d, verwijderd: %d, resterend: %d\n"
                             .formatted(type.toString(), resultaat.indexed(), resultaat.removed(), resultaat.remaining())
