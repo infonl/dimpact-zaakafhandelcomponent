@@ -237,7 +237,7 @@ export class WebsocketService implements OnDestroy {
 
     const subscription = this.addListener(opcode, objectType, objectId, (e) => {
       this.removeListener(subscription);
-      const response = e.objectId.detail && JSON.parse(e.objectId.detail)
+      const response = e.objectId.detail && JSON.parse(e.objectId.detail);
       subject.next(response);
       subject.complete();
     });

@@ -56,7 +56,11 @@ export class SignaleringenService {
       ObjectType.ZAKEN_SIGNALERINGEN,
       screenEventResourceId,
       () =>
-        this.http.put<void>(`${this.basepath}/zaken/${signaleringType}`, screenEventResourceId, {headers: {'content-type': 'application/json'}}),
+        this.http.put<void>(
+          `${this.basepath}/zaken/${signaleringType}`,
+          screenEventResourceId,
+          { headers: { "content-type": "application/json" } },
+        ),
     );
   }
 
