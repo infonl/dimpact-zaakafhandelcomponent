@@ -46,8 +46,8 @@ class NotificationsTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    Given("ZAC and all related Docker containers are running") {
-        When("the notificaties endpoint is called with dummy payload without authentication header") {
+    Given("""ZAC and all related Docker containers are running""") {
+        When(""""the notificaties endpoint is called with dummy payload without authentication header""") {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/notificaties",
                 headers = Headers.headersOf("Content-Type", "application/json"),
@@ -63,11 +63,11 @@ class NotificationsTest : BehaviorSpec({
         }
     }
     Given(
-        "ZAC and all related Docker containers are running, productaanvraag object exists in Objecten API " +
-            "and productaanvraag PDF exists in Open Zaak"
+        """"ZAC and all related Docker containers are running, productaanvraag object exists in Objecten API
+                    and productaanvraag PDF exists in Open Zaak"""
     ) {
         When(
-            "the notificaties endpoint is called with a 'create productaanvraag' payload with authentication header"
+            """the notificaties endpoint is called with a 'create productaanvraag' payload with authentication header"""
         ) {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/notificaties",
@@ -93,8 +93,8 @@ class NotificationsTest : BehaviorSpec({
                 addAuthorizationHeader = false
             )
             Then(
-                "the response should be 'no content', a zaak should be created in OpenZaak " +
-                    "and a zaak productaanvraag proces of type 'Productaanvraag-Dimpact' should be started in ZAC"
+                """the response should be 'no content', a zaak should be created in OpenZaak
+                        and a zaak productaanvraag proces of type 'Productaanvraag-Dimpact' should be started in ZAC"""
             ) {
                 response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
 
@@ -125,11 +125,11 @@ class NotificationsTest : BehaviorSpec({
         }
     }
     Given(
-        "ZAC and all related Docker containers are running"
+        """"ZAC and all related Docker containers are running"""
     ) {
         When(
-            "the notificaties endpoint is called with a 'create zaaktype' payload with a " +
-                "dummy resourceUrl that does not start with the 'ZGW_API_CLIENT_MP_REST_URL' environment variable"
+            """the notificaties endpoint is called with a 'create zaaktype' payload with a 
+                    dummy resourceUrl that does not start with the 'ZGW_API_CLIENT_MP_REST_URL' environment variable"""
         ) {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "${ZAC_API_URI}/notificaties",
@@ -152,7 +152,7 @@ class NotificationsTest : BehaviorSpec({
                 addAuthorizationHeader = false
             )
             Then(
-                "the response should be 'no content' and a corresponding error message should be logged in ZAC"
+                """the response should be 'no content' and a corresponding error message should be logged in ZAC"""
             ) {
                 response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
 
@@ -169,7 +169,7 @@ class NotificationsTest : BehaviorSpec({
             }
         }
     }
-    Given("A websocket subscription is created to listen to all changes made to a specific zaak") {
+    Given("""A websocket subscription is created to listen to all changes made to a specific zaak""") {
         val websocketListener = WebSocketTestListener(
             textToBeSentOnOpen = "{" +
                 "\"subscriptionType\":\"CREATE\"," +
@@ -187,7 +187,7 @@ class NotificationsTest : BehaviorSpec({
             url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
             webSocketListener = websocketListener
         )
-        When("a notification is sent to ZAC that the zaak in question has been updated") {
+        When(""""a notification is sent to ZAC that the zaak in question has been updated""") {
             // we need eventually here because it takes some time before the new websocket has been
             // successfully created in ZAC
             eventually(1.seconds) {
@@ -221,7 +221,7 @@ class NotificationsTest : BehaviorSpec({
             }
         }
         Then(
-            "the response should be 'no content' and an event that the zaak has been updated should be sent to the websocket"
+            """the response should be 'no content' and an event that the zaak has been updated should be sent to the websocket"""
         ) {
             with(JSONObject(websocketListener.messagesReceived[0])) {
                 getString("opcode") shouldBe "UPDATED"
