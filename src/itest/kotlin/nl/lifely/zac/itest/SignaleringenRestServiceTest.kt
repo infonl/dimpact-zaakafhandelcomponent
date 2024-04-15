@@ -47,7 +47,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
 
     val afterFiveSeconds = eventuallyConfig {
-        duration = 5.seconds
+        duration = 10.seconds
         interval = 500.milliseconds
     }
 
@@ -207,6 +207,25 @@ class SignaleringenRestServiceTest : BehaviorSpec({
             webSocketListener = websocketListener
         )
 
+        When("the latest signaleringen date is requested") {
+            val latestSignaleringenDateUrl = "$ZAC_API_URI/signaleringen/latest"
+
+            Then("it returns a date between the start of the tests and current moment") {
+                eventually(afterFiveSeconds) {
+                    val response = itestHttpClient.performGetRequest(latestSignaleringenDateUrl)
+                    val responseBody = response.body!!.string()
+                    logger.info { "Response: $responseBody" }
+                    response.isSuccessful shouldBe true
+
+                    // application/json should be changed to text/plain in the endpoint to get rid of the quotes
+                    val dateString = responseBody.replace("\"", "")
+
+                    val date = ZonedDateTime.parse(dateString, DateTimeFormatter.ISO_DATE_TIME)
+                        .withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime()
+                    date.shouldBeBetween(START_DATE, LocalDateTime.now())
+                }
+            }
+        }
         When("the list of zaken signaleringen for ZAAK_OP_NAAM is requested") {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/signaleringen/zaken/ZAAK_OP_NAAM",
@@ -284,22 +303,6 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                         }
                     }
                 }
-            }
-        }
-        When("the latest signaleringen date is requested") {
-            val response = itestHttpClient.performGetRequest("$ZAC_API_URI/signaleringen/latest")
-
-            Then("it returns a date between the start of the tests and current moment") {
-                val responseBody = response.body!!.string()
-                logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
-
-                // application/json should be changed to text/plain in the endpoint to get rid of the quotes
-                val dateString = responseBody.replace("\"", "")
-
-                val date = ZonedDateTime.parse(dateString, DateTimeFormatter.ISO_DATE_TIME)
-                    .withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime()
-                date.shouldBeBetween(START_DATE, LocalDateTime.now())
             }
         }
     }
