@@ -13,29 +13,31 @@ When adding a new source code file or modifying an existing one as a Lifely/INFO
 
 ### Adding a new source code file
 
-For most source code files (e.g. `.ts`, `.js` and `.java` files) please add the following SPDX license identifier to the top of the file:
+For most source code files (e.g. `.ts`, `.js`, `.kt` and `.java` files) please add the following SPDX license identifier to the top of the file:
 
 ```
 /*
- * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-FileCopyrightText: <YYYY> Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 ```
+
+Where `<YYYY>` is the current year. E.g. `2024`.
 
 For other file types (e.g. `.html` and `.xml` files) please add the following SPDX license identifier to the top of the file:
 
 ```
  <!--
-  ~ SPDX-FileCopyrightText: 2023 Lifely
+  ~ SPDX-FileCopyrightText: <YYYY> Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 ```
 
-Finally for e.g. `.sh` files please add:
+Finally, for e.g. `.sh` files please add:
 
 ```
 #
-# SPDX-FileCopyrightText: 2023 Lifely
+# SPDX-FileCopyrightText: <YYYY> Lifely
 # SPDX-License-Identifier: EUPL-1.2+
 #
 ```
@@ -45,15 +47,18 @@ For example, in IntelliJ IDEA please follow the instructions on https://www.jetb
 
 ### Modifying an existing source code file
 
-Please update the SPDX license identifier to the top of the file by adding a `, <YEAR> Lifely` to
-the `SPDX-FileCopyrightText` identifier. E.g.:
+If the file does not already include `Lifely` in the copyright text, please update the SPDX license identifier 
+on the top of the file by adding a `, <YYYY> Lifely` to the `SPDX-FileCopyrightText` identifier where `<YYYY>` is the current year. E.g.:
 
 ```
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 ```
+
+Note that each contributor should only be mentioned once in an SPDX header, where we use the convention that the year 
+indicates the _initial_ year when a contribution was made by that contributor.
 
 ## Conventional Commits
 
