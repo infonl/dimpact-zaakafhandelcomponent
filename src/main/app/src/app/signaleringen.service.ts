@@ -7,6 +7,10 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
 import { catchError, switchMap } from "rxjs/operators";
+import { v4 as uuidv4 } from "uuid";
+import { ObjectType } from "./core/websocket/model/object-type";
+import { Opcode } from "./core/websocket/model/opcode";
+import { WebsocketService } from "./core/websocket/websocket.service";
 import { FoutAfhandelingService } from "./fout-afhandeling/fout-afhandeling.service";
 import { EnkelvoudigInformatieobject } from "./informatie-objecten/model/enkelvoudig-informatieobject";
 import { SignaleringType } from "./shared/signaleringen/signalering-type";
@@ -28,6 +32,7 @@ export class SignaleringenService {
   constructor(
     private http: HttpClient,
     private foutAfhandelingService: FoutAfhandelingService,
+    private websocketService: WebsocketService,
   ) {}
 
   updateSignaleringen(): void {
@@ -45,11 +50,18 @@ export class SignaleringenService {
   listZakenSignalering(
     signaleringType: SignaleringType,
   ): Observable<ZaakOverzicht[]> {
-    return this.http
-      .get<ZaakOverzicht[]>(`${this.basepath}/zaken/${signaleringType}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    const screenEventResourceId = uuidv4();
+    return this.websocketService.longRunningOperation<ZaakOverzicht[]>(
+      Opcode.UPDATED,
+      ObjectType.ZAKEN_SIGNALERINGEN,
+      screenEventResourceId,
+      () =>
+        this.http.put<void>(
+          `${this.basepath}/zaken/${signaleringType}`,
+          screenEventResourceId,
+          { headers: { "content-type": "application/json" } },
+        ),
+    );
   }
 
   listTakenSignalering(signaleringType: SignaleringType): Observable<Taak[]> {

@@ -143,9 +143,11 @@ public class NotificatieReceiver {
     private void handleSignaleringen(final Notificatie notificatie) {
         try {
             if (notificatie.getChannel() != null && notificatie.getResource() != null) {
-                SignaleringEventUtil.getEvents(notificatie.getChannel(), notificatie.getMainResourceInfo(),
-                        notificatie.getResourceInfo())
-                        .forEach(eventingService::send);
+                SignaleringEventUtil.getEvents(
+                        notificatie.getChannel(),
+                        notificatie.getMainResourceInfo(),
+                        notificatie.getResourceInfo()
+                ).forEach(eventingService::send);
             }
         } catch (RuntimeException ex) {
             warning("Signaleringen", notificatie, ex);

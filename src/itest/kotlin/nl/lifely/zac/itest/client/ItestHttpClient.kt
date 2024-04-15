@@ -153,10 +153,6 @@ class ItestHttpClient {
     fun shutdownClient() = okHttpClient.dispatcher.executorService.shutdown()
 
     private fun getDefaultJSONGETHeaders() = Headers.headersOf(
-        // "Authorization",
-        // perform a request to Keycloak to get an access token
-        // this can only be done after a successful authentication
-        // "Bearer ${KeycloakClient.requestAccessToken()}",
         "Accept",
         "application/json"
     )

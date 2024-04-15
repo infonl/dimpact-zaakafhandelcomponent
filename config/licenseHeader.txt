@@ -1,4 +1,0 @@
-/*
- * SPDX-FileCopyrightText: $YEAR Lifely
- * SPDX-License-Identifier: EUPL-1.2+
- */
