@@ -281,9 +281,6 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         // Latest supported version:
         // https://github.com/diffplug/spotless/tree/main/lib-extra/src/main/resources/com/diffplug/spotless/extra/eclipse_wtp_formatter
         eclipse(libs.versions.spotless.eclipse.formatter.get()).configFile("config/zac.xml")
-
-        licenseHeaderFile("config/licenseHeader.txt")
-            .onlyIfContentMatches("FileCopyrightText: 2[0-9-]+ Lifely").updateYearWithLatest(true)
     }
     format("e2e") {
         target("src/e2e/**/*.js", "src/e2e/**/*.ts")
