@@ -5,14 +5,12 @@
 package nl.lifely.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.kotest.assertions.json.shouldBeJsonArray
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.date.shouldBeBetween
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
@@ -218,7 +216,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
 
             Then("it returns the correct signaleringen for ZAAK_OP_NAAM via websocket") {
                 // the backend process is asynchronous, so we need to wait a bit until the zaken are assigned
-                eventually(15.seconds) {
+                eventually(afterFiveSeconds) {
                     websocketListener.messagesReceived.size shouldBe 1
 
                     with(JSONObject(websocketListener.messagesReceived[0])) {
