@@ -1,14 +1,18 @@
 Feature: Taken verdelen / vrijgeven
 
   Scenario: Bob distributes taken to a group
-    Given "Bob" navigates to "zac" with path "/taken/werkvoorraad" with delay after of 5000 ms
+    Given "Bob" is logged in to zac
+    And "Bob" navigates to "zac" with path "/taken/werkvoorraad"
+    And the page is done searching
     And there are at least 3 taken
     When "Bob" selects that number of taken
     And "Bob" distributes the taken to the first group available
     Then "Bob" gets a message confirming that the distribution of taken is complete
 
   Scenario: Bob releases taken
-    Given "Bob" navigates to "zac" with path "/taken/werkvoorraad" with delay after of 5000 ms
+    Given "Bob" is logged in to zac
+    And "Bob" navigates to "zac" with path "/taken/werkvoorraad"
+    And the page is done searching
     And there are at least 3 taken
     When "Bob" selects that number of taken
     And "Bob" releases the taken

@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { When } from "@cucumber/cucumber";
+import { Given, When } from "@cucumber/cucumber";
+import { profiles } from "../support/worlds/userProfiles";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers } from "../utils/schemes";
 
@@ -28,6 +29,32 @@ async function loginToZac(this: CustomWorld, user: string) {
   await login(this, username, password);
 }
 
+async function waitForPage(world: CustomWorld) {
+  const account_circle = world.page.getByText("account_circle");
+  const loginHeader = world.page.getByText("ZAAKAFHANDELCOMPONENT");
+  return account_circle.or(loginHeader).waitFor();
+}
+
+async function logout(world: CustomWorld) {
+  await waitForPage(world);
+  if (!(await world.page.getByText("account_circle").isVisible())) return;
+  await world.page.getByText("account_circle").first().click();
+  await world.page.getByText("Uitloggen").first().click();
+}
+
+async function isLoggedIn(world: CustomWorld, user: keyof typeof profiles) {
+  await waitForPage(world);
+  const account_circle = world.page.getByText("account_circle");
+  if (!(await account_circle.isVisible())) return false;
+  await account_circle.click();
+  const { username } = profiles[user];
+  console.error(username);
+  const profileText = world.page.getByRole("menu").filter({
+    hasText: username,
+  });
+  return profileText.isVisible();
+}
+
 When(
   "Employee {string} logs in to zac",
   { timeout: ONE_MINUTE_IN_MS },
@@ -38,9 +65,8 @@ When(
 
 When(
   "Employee {string} logs out of zac",
-  async function (this: CustomWorld, user: string) {
-    await this.page.getByText("account_circle").first().click();
-    await this.page.getByText("Uitloggen").first().click();
+  async function (this: CustomWorld, _: string) {
+    await logout(this);
   },
 );
 
@@ -50,5 +76,18 @@ When(
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user: string) {
     await loginToZac.call(this, user);
+  },
+);
+
+Given(
+  "{string} is logged in to zac",
+  { timeout: ONE_MINUTE_IN_MS },
+  async function (this: CustomWorld, user: keyof typeof profiles) {
+    const expectedUrl = this.worldParameters.urls["zac"];
+    await this.openUrl(expectedUrl);
+    if (!(await isLoggedIn(this, user))) {
+      await logout(this);
+      await loginToZac.call(this, user);
+    }
   },
 );
