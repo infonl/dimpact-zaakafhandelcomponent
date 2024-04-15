@@ -47,7 +47,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
 
     val afterFiveSeconds = eventuallyConfig {
-        duration = 10.seconds
+        duration = 5.seconds
         interval = 500.milliseconds
     }
 
