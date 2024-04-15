@@ -5,8 +5,12 @@ import { testStorageFile } from "../utils/TestStorage.service";
 
 const ONE_MINUTE_IN_MS = 60_000;
 
-Before(async function (this: CustomWorld) {
-  await this.init();
+Before(async function (this: CustomWorld, { gherkinDocument, pickle }) {
+  const escape = (s?: string) => s && encodeURIComponent(s);
+  const scenario = escape(pickle.name);
+  const feature = escape(gherkinDocument.feature.name);
+  const videoFolder = [feature, scenario].filter(Boolean).join("/");
+  await this.init({ videoFolder });
 });
 
 After({ timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld) {
