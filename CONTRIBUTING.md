@@ -7,6 +7,7 @@ Please reach out to us if you have questions or wish to contribute.
 
 ## License
 
+The license information for this project can be found in [LICENSE.md](LICENSE.md).
 We use [SPDX](https://spdx.dev/) license identifiers in source code files.
 
 When adding a new source code file or modifying an existing one as a Lifely/INFO developer, please update the `SPDX` license identifier accordingly:
