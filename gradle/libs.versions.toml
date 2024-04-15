@@ -67,7 +67,7 @@ testcontainers-mockserver = "1.19.7"
 testcontainers-postgresql = "1.19.7"
 
 json-json = "20240303"
-slf4j-simple = "2.0.12"
+slf4j-simple = "2.0.13"
 
 github-kotlin-logging = "6.0.4"
 squareup-okhttp = "4.12.0"
