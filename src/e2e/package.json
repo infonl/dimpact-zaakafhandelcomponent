@@ -4,7 +4,7 @@
   "scripts": {
     "e2e:run": "./node_modules/.bin/cucumber-js -p default",
     "e2e:start": "npm ci && npm run e2e:run",
-    "e2e:generate:report": "node generate-report.js"
+    "e2e:generate:report": "node generate-report.mjs"
   },
   "private": true,
   "dependencies": {

@@ -29,7 +29,7 @@ export class CustomWorld extends World {
     this.testStorage = new TestStorageService();
   }
 
-  async init() {
+  async init({ videoFolder = "" }: { videoFolder?: string } = {}) {
     if (!fs.existsSync(authFile)) {
       fs.writeFileSync(authFile, "{}");
     }
@@ -40,7 +40,7 @@ export class CustomWorld extends World {
     this.context = await this.browser.newContext({
       storageState: authFile,
       locale: "nl-NL",
-      recordVideo: { dir: "reports/videos/" },
+      recordVideo: { dir: `reports/videos/${videoFolder}` },
     });
     this.page = await this.context.newPage();
     this.initialized = true;
