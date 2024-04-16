@@ -8,6 +8,7 @@
 package net.atos.zac.document
 
 import future.keywords
+import data.net.atos.zac.rol.beheerder
 import data.net.atos.zac.rol.behandelaar
 import data.net.atos.zac.rol.coordinator
 import data.net.atos.zac.rol.recordmanager
@@ -45,13 +46,13 @@ onvergrendeld_of_vergrendeld_door_user {
 
 default lezen := false
 lezen {
-    { behandelaar, coordinator, recordmanager }[_].rol in user.rollen
+    { behandelaar, coordinator, recordmanager, beheerder }[_].rol in user.rollen
     zaaktype_allowed
 }
 
 default wijzigen := false
 wijzigen {
-    behandelaar.rol in user.rollen
+    { behandelaar, coordinator }[_].rol in user.rollen
     zaaktype_allowed
     document.zaak_open == true
     document.definitief == false
@@ -59,52 +60,93 @@ wijzigen {
     document.vergrendeld == false
 }
 wijzigen {
-    recordmanager.rol in user.rollen
-    document.vergrendeld == false
+    { recordmanager, beheerder }[_].rol in user.rollen
     zaaktype_allowed
-    document.vergrendeld == false
 }
 
 default verwijderen := false
 verwijderen {
-    recordmanager.rol in user.rollen
+    { behandelaar, coordinator }[_].rol in user.rollen
     zaaktype_allowed
-    document.vergrendeld == false
+    document.zaak_open == true
+    document.definitief == false
+    onvergrendeld_of_vergrendeld_door_user == true
 }
 verwijderen {
-    behandelaar.rol in user.rollen
-    zaaktype_allowed
-    document.vergrendeld == false
+    { recordmanager, beheerder }[_].rol in user.rollen
+    document.zaak_open == true
 }
 
 default vergrendelen := false
 vergrendelen {
-    behandelaar.rol in user.rollen
+    { behandelaar, coordinator, recordmanager, beheerder }[_].rol in user.rollen
     zaaktype_allowed
     document.zaak_open == true
-}
-vergrendelen {
-    recordmanager.rol in user.rollen
-    zaaktype_allowed
 }
 
 default ontgrendelen := false
 ontgrendelen {
-    behandelaar.rol in user.rollen
+    { behandelaar, coordinator }[_].rol in user.rollen
     zaaktype_allowed
+    document.zaak_open == true
     document.vergrendeld_door == user.id
 }
 ontgrendelen {
-    recordmanager.rol in user.rollen
+    { recordmanager, beheerder }[_].rol in user.rollen
     zaaktype_allowed
+    document.zaak_open == true
 }
 
 default ondertekenen := false
 ondertekenen {
-    behandelaar.rol in user.rollen
+    { behandelaar, coordinator, recordmanager, beheerder }[_].rol in user.rollen
     zaaktype_allowed
     document.zaak_open == true
     onvergrendeld_of_vergrendeld_door_user == true
 }
 
+default toevoegen_nieuwe_versie := fasle
+toevoegen_nieuwe_versie {
+    { behandelaar, coordinator }[_].rol in user.rollen
+    zaaktype_allowed
+    document.zaak_open == true
+    onvergrendeld_of_vergrendeld_door_user == true
+    document.definitief == false
+}
+toevoegen_nieuwe_versie {
+    { recordmanager, beheerder }[_].rol in user.rollen
+    zaaktype_allowed
+    # how can we check for signed documents?
+}
 
+default verplaatsen := false
+verplaatsen {
+    { behandelaar, coordinator }[_].rol in user.rollen
+    zaaktype_allowed
+    document.zaak_open == true
+    onvergrendeld_of_vergrendeld_door_user == true
+    document.definitief == false
+}
+verplaatsen {
+    { recordmanager, beheerder }[_].rol in user.rollen
+    zaaktype_allowed
+}
+
+default ontkoppelen := false
+ontkoppelen {
+    { behandelaar, coordinator }[_].rol in user.rollen
+    zaaktype_allowed
+    document.zaak_open == true
+    onvergrendeld_of_vergrendeld_door_user == true
+    document.definitief == false
+}
+ontkoppelen {
+    { recordmanager, beheerder }[_].rol in user.rollen
+    zaaktype_allowed
+}
+
+default downloaden := false
+ontkoppelen {
+    { behandelaar, coordinator, recordmanager, beheerder }[_].rol in user.rollen
+    zaaktype_allowed
+}
