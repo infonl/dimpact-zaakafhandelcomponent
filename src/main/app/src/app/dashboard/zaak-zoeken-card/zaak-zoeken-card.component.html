@@ -4,7 +4,7 @@
   -->
 
 
-<div class="table-wrapper">
+<div class="table-wrapper" [ngClass]="{'loading':zoekQuery.isLoading()}">
     <table mat-table [dataSource]="dataSource" matSort>
         <ng-container matColumnDef="identificatie">
             <th mat-header-cell *matHeaderCellDef
@@ -40,9 +40,12 @@
         <tr mat-header-row *matHeaderRowDef="columns"></tr>
         <tr mat-row *matRowDef="let row; columns: columns;"></tr>
         <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell" colspan="5"><p>{{'msg.geen.gegevens.gevonden' | translate}}</p></td>
+            <td class="mat-cell" colspan="5">
+                <p *ngIf="zoekQuery.isLoading()">{{'msg.loading' | translate}}</p>
+                <p *ngIf="!zoekQuery.isLoading()">{{'msg.geen.gegevens.gevonden' | translate}}</p>
+            </td>
         </tr>
     </table>
 
-    <mat-paginator [pageSize]="5" [hidePageSize]="true"></mat-paginator>
+    <mat-paginator [pageSize]="pageSize" [hidePageSize]="true" (page)="onPageChange($event)"></mat-paginator>
 </div>
