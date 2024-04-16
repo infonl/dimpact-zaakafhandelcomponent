@@ -5,6 +5,7 @@ nodejs = "20.11.1"
 jsonschema2pojo = "1.2.1"
 openapi = "3.10.0"
 openapi-generator = "7.4.0"
+opentelemetry = "1.37.0"
 node-gradle = "7.0.2"
 taskinfo = "2.2.0"
 swagger-generator = "2.19.2"
@@ -120,6 +121,8 @@ jackson-core = { group = "com.fasterxml.jackson.core", name = "jackson-core", ve
 jackson-annotations = { group = "com.fasterxml.jackson.core", name = "jackson-annotations", version.ref = "jackson" }
 jackson-jsr310 = { group = "com.fasterxml.jackson.datatype", name = "jackson-datatype-jsr310", version.ref = "jackson" }
 jackson-kotlin = { group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version.ref = "jackson" }
+
+opentelemetry-api = { group = "io.opentelemetry", name = "opentelemetry-api", version.ref = "opentelemetry"}
 
 # dependencies provided by Wildfly
 # update these versions when upgrading WildFly
