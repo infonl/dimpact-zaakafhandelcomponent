@@ -302,7 +302,7 @@ class SignaleringenService @Inject constructor(
         return if (result.isEmpty()) { Optional.empty() } else { Optional.of(result[0]) }
     }
 
-    fun listZakenSignaleringen(
+    private fun listZakenSignaleringen(
         user: LoggedInUser,
         signaleringsType: SignaleringType.Type
     ): List<RESTZaakOverzicht> {

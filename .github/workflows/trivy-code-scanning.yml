@@ -9,9 +9,10 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
-    # ignore CodeQL analysis when only Markdown files have changed
+    # ignore code analysis when only Markdown files have changed
     paths-ignore:
       - '**/*.md'
+  merge_group:
   schedule:
     - cron: "21 11 * * 0"
 
