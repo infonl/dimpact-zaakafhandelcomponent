@@ -23,15 +23,12 @@ import net.atos.zac.event.EventingService
 import net.atos.zac.identity.model.Group
 import net.atos.zac.identity.model.User
 import net.atos.zac.websocket.event.ScreenEventType
-import net.atos.zac.zoeken.IndexeerService
-import net.atos.zac.zoeken.model.index.ZoekObjectType
 import java.util.UUID
 import java.util.logging.Logger
 
 class ZakenService @Inject constructor(
     private val zrcClientService: ZRCClientService,
     private val ztcClientService: ZTCClientService,
-    private val indexeerService: IndexeerService,
     private var eventingService: EventingService
 ) {
     companion object {
@@ -40,7 +37,7 @@ class ZakenService @Inject constructor(
     }
 
     /**
-     * Asynchronously assigns a list of zaken to a group and/or user and updates the search index on the fly.
+     * Asynchronously assigns a list of zaken to a group and/or user.
      */
     @Suppress("LongParameterList")
     fun assignZakenAsync(
@@ -73,10 +70,6 @@ class ZakenService @Inject constructor(
                             explanation
                         )
                     }
-                    indexeerService.indexeerDirect(
-                        zaak.uuid.toString(),
-                        ZoekObjectType.ZAAK
-                    )
                     zakenAssignedList.add(zaak.uuid)
                 }
         }
@@ -122,7 +115,7 @@ class ZakenService @Inject constructor(
         )
 
     /**
-     * Asynchronously releases a list of zaken from a user and updates the search index on the fly.
+     * Asynchronously releases a list of zaken from a user.
      */
     fun releaseZakenAsync(
         zaakUUIDs: List<UUID>,
@@ -137,10 +130,6 @@ class ZakenService @Inject constructor(
                 .map { zrcClientService.readZaak(it) }
                 .forEach {
                     zrcClientService.deleteRol(it, BetrokkeneType.MEDEWERKER, explanation)
-                    indexeerService.indexeerDirect(
-                        it.uuid.toString(),
-                        ZoekObjectType.ZAAK
-                    )
                 }
         }
         LOG.fine(

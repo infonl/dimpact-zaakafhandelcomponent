@@ -3,9 +3,9 @@ package net.atos.zac.zaken
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
+import io.mockk.checkUnnecessaryStub
 import io.mockk.clearAllMocks
 import io.mockk.every
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
@@ -18,24 +18,18 @@ import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.generated.RolType
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
-import net.atos.zac.event.Opcode.any
 import net.atos.zac.identity.model.createGroup
 import net.atos.zac.identity.model.createUser
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
-import net.atos.zac.zoeken.IndexeerService
-import net.atos.zac.zoeken.model.index.ZoekObjectType
 import java.lang.RuntimeException
 
-@MockKExtension.CheckUnnecessaryStub
 class ZakenServiceTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
-    val indexeerService = mockk<IndexeerService>()
     val zrcClientService = mockk<ZRCClientService>()
     val ztcClientService = mockk<ZTCClientService>()
     val zakenService = ZakenService(
         eventingService = eventingService,
-        indexeerService = indexeerService,
         zrcClientService = zrcClientService,
         ztcClientService = ztcClientService
     )
@@ -52,6 +46,7 @@ class ZakenServiceTest : BehaviorSpec({
     )
 
     afterTest {
+        checkUnnecessaryStub(eventingService, zrcClientService, ztcClientService)
         clearAllMocks()
     }
 
@@ -66,7 +61,6 @@ class ZakenServiceTest : BehaviorSpec({
                 )
             } returns rolTypeBehandelaar
             every { zrcClientService.updateRol(it, any(), explanation) } just Runs
-            every { indexeerService.indexeerDirect(it.uuid.toString(), ZoekObjectType.ZAAK) } just Runs
             every { eventingService.send(capture(screenEventSlot)) } just Runs
         }
         When(
@@ -104,14 +98,7 @@ class ZakenServiceTest : BehaviorSpec({
         val screenEventSlot = slot<ScreenEvent>()
         zaken.map {
             every { zrcClientService.readZaak(it.uuid) } returns it
-            every {
-                ztcClientService.readRoltype(
-                    RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
-                    it.zaaktype
-                )
-            } returns rolTypeBehandelaar
             every { zrcClientService.deleteRol(it, any(), explanation) } just Runs
-            every { indexeerService.indexeerDirect(it.uuid.toString(), ZoekObjectType.ZAAK) } just Runs
             every { eventingService.send(capture(screenEventSlot)) } just Runs
         }
         When(
