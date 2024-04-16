@@ -46,8 +46,8 @@ class SignaleringenRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    val afterFiveSeconds = eventuallyConfig {
-        duration = 5.seconds
+    val afterFifteenSeconds = eventuallyConfig {
+        duration = 15.seconds
         interval = 500.milliseconds
     }
 
@@ -211,7 +211,8 @@ class SignaleringenRestServiceTest : BehaviorSpec({
             val latestSignaleringenDateUrl = "$ZAC_API_URI/signaleringen/latest"
 
             Then("it returns a date between the start of the tests and current moment") {
-                eventually(afterFiveSeconds) {
+                // The backend event processing is asynchronous. Wait a bit until the events are processed
+                eventually(afterFifteenSeconds) {
                     val response = itestHttpClient.performGetRequest(latestSignaleringenDateUrl)
                     val responseBody = response.body!!.string()
                     logger.info { "Response: $responseBody" }
@@ -234,8 +235,8 @@ class SignaleringenRestServiceTest : BehaviorSpec({
             response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
 
             Then("it returns the correct signaleringen for ZAAK_OP_NAAM via websocket") {
-                // the backend process is asynchronous, so we need to wait a bit until the zaken are assigned
-                eventually(afterFiveSeconds) {
+                // the backend process is asynchronous, so we need to wait a bit until the DB is populated
+                eventually(afterFifteenSeconds) {
                     websocketListener.messagesReceived.size shouldBe 1
 
                     with(JSONObject(websocketListener.messagesReceived[0])) {
@@ -271,8 +272,8 @@ class SignaleringenRestServiceTest : BehaviorSpec({
             response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
 
             Then("it returns the correct signaleringen for ZAAK_DOCUMENT_TOEGEVOEGD via websocket") {
-                // the backend process is asynchronous, so we need to wait a bit until the zaken are assigned
-                eventually(afterFiveSeconds) {
+                // the backend process is asynchronous, so we need to wait a bit until DB is populated
+                eventually(afterFifteenSeconds) {
                     websocketListener.messagesReceived.size shouldBe 2
 
                     with(JSONObject(websocketListener.messagesReceived[1])) {
