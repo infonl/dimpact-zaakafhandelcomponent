@@ -481,6 +481,18 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
+  otel-collector:
+    image: otel/opentelemetry-collector:0.98.0
+    command: [ --config=/etc/otel-collector-config.yaml ]
+    volumes:
+      - ./scripts/docker-compose/imports/otel-collector/otel-collector-config.yaml:/etc/otel-collector-config.yaml:Z
+    ports:
+      - "1888:1888" # pprof extension
+      - "13133:13133" # health_check extension
+      - "4317:4317" # OTLP gRPC receiver
+      - "4318:4318" # OTLP http receiver
+      - "55679:55679" # zpages extension
+
   zac:
     # By default, we use the latest ZAC Docker Image. Change this if you wish to use a specific version.
     image: ${ZAC_DOCKER_IMAGE:-ghcr.io/infonl/zaakafhandelcomponent:latest}
@@ -535,6 +547,7 @@ services:
     ports:
       - "8080:8080"
       - "9990:9990"
+      - "14250:14250" # Open Telemetry endpoint
     volumes:
       # mount volumes for (optional) JaCoCo test coverage for our integration tests
       # see: https://blog.akquinet.de/2018/09/06/test-coverage-for-containerized-java-apps/
