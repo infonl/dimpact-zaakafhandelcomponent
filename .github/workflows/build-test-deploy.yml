@@ -250,11 +250,11 @@ jobs:
           sarif_file: 'trivy-results.sarif'
 
       - name: Save Docker Image
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' || github.ref_name == 'feature/PZ-2117-no-longer-perform-direct-solr-indexing-when-assigning-and-releasing-zaken'
         run: docker save --output docker-image.tar ${ZAC_DOCKER_IMAGE}
 
       - name: Cache ZAC Docker Image
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' || github.ref_name == 'feature/PZ-2117-no-longer-perform-direct-solr-indexing-when-assigning-and-releasing-zaken'
         uses: actions/cache/save@v4
         with:
           path: docker-image.tar
@@ -277,7 +277,7 @@ jobs:
           target: minor
 
   next-version:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.ref_name == 'feature/PZ-2117-no-longer-perform-direct-solr-indexing-when-assigning-and-releasing-zaken'
     runs-on: ubuntu-22.04
     outputs:
       version: ${{ steps.get-version.outputs.replaced }}
@@ -314,7 +314,7 @@ jobs:
     needs: [build, run-unit-tests, build-docker-image-and-run-itests, next-version]
     runs-on: ubuntu-22.04
     timeout-minutes: 30
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.ref_name == 'feature/PZ-2117-no-longer-perform-direct-solr-indexing-when-assigning-and-releasing-zaken'
     env:
       ZAC_DOCKER_IMAGE: ${{ needs.build.outputs.zac_docker_image }}
       NEXT_VERSION: ${{ needs.next-version.outputs.version }}
@@ -347,7 +347,7 @@ jobs:
 
   create-release:
     needs: [next-version, push-docker-image]
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.ref_name == 'feature/PZ-2117-no-longer-perform-direct-solr-indexing-when-assigning-and-releasing-zaken'
     runs-on: ubuntu-22.04
     env:
       NEXT_VERSION: ${{ needs.next-version.outputs.version }}
@@ -375,7 +375,7 @@ jobs:
     needs: [push-docker-image]
     runs-on: ubuntu-22.04
     timeout-minutes: 30
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.ref_name == 'feature/PZ-2117-no-longer-perform-direct-solr-indexing-when-assigning-and-releasing-zaken'
     steps:
       - uses: actions/github-script@v7
         with:
