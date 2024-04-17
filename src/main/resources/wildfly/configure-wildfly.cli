@@ -34,9 +34,12 @@ data-source add \
 # NOTE: This needs to set higher than our max file size setting in ZAC because of the way RESTEasy handles file uploads.
 /subsystem=microprofile-config-smallrye/config-source=props:add(properties={"dev.resteasy.entity.file.threshold" = "120MB"})
 
-# To change the default settings for the Open Telemetry subsystem use something like this
+# To change the default settings for the Open Telemetry subsystem you can use statements similar to:
 # (for details see: https://docs.wildfly.org/31/Admin_Guide.html#Observability_Tracing)
 #/subsystem=opentelemetry:exporter(name=endpoint):write-attribute(name=endpoint,value="http://localhost:4317")
+# By default we turn off the Open Telemetry sampler so that by deftault no traces are sent to an Open Telemetry Collector.
+# Using the correponding environment variable we turn this back on when required.
+/subsystem=opentelemetry/:write-attribute(name=sampler-type,value=off)
 
 # To set the log level to DEBUG (default is INFO) uncomment the following lines.
 # Note that this will result in _a lot_ of logging including SessionRegistry sessionRegistry security sensitive data
