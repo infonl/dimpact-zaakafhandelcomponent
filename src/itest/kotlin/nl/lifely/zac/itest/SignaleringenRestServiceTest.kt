@@ -12,6 +12,7 @@ import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.date.shouldBeBetween
+import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration
@@ -227,25 +228,32 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                 }
             }
         }
-        When("the list of zaken signaleringen for ZAAK_OP_NAAM is requested") {
+
+        fun requestZaakSignaleringen(type: String) {
             val response = itestHttpClient.performPutRequest(
-                url = "$ZAC_API_URI/signaleringen/zaken/ZAAK_OP_NAAM",
+                url = "$ZAC_API_URI/signaleringen/zaken/$type",
                 requestBodyAsString = "$uniqueResourceId"
             )
             response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
+        }
+
+        When("the list of zaken signaleringen for ZAAK_OP_NAAM is requested") {
+            requestZaakSignaleringen("ZAAK_OP_NAAM")
 
             Then("it returns the correct signaleringen for ZAAK_OP_NAAM via websocket") {
                 // the backend process is asynchronous, so we need to wait a bit until the DB is populated
                 eventually(afterFifteenSeconds) {
-                    websocketListener.messagesReceived.size shouldBe 1
-
-                    with(JSONObject(websocketListener.messagesReceived[0])) {
+                    with(JSONObject(websocketListener.messagesReceived.last())) {
                         getString("opcode") shouldBe "UPDATED"
                         getString("objectType") shouldBe "ZAKEN_SIGNALERINGEN"
                         with(getJSONObject("objectId")) {
                             getString("resource") shouldBe uniqueResourceId.toString()
-                            val detail = JSONArray(getString("detail")).getJSONObject(0).toString()
-                            with(detail) {
+                            val detail = JSONArray(getString("detail"))
+                            if (detail.isEmpty) {
+                                // we got an empty list - DB not populated. Request a new list
+                                requestZaakSignaleringen("ZAAK_OP_NAAM");
+                            }
+                            with(detail.getJSONObject(0).toString()) {
                                 shouldContainJsonKey("behandelaar")
                                 shouldContainJsonKey("groep")
                                 shouldContainJsonKeyValue("identificatie", ZAAK_1_IDENTIFICATION)
@@ -265,24 +273,22 @@ class SignaleringenRestServiceTest : BehaviorSpec({
             }
         }
         When("the list of zaken signaleringen for ZAAK_DOCUMENT_TOEGEVOEGD is requested") {
-            val response = itestHttpClient.performPutRequest(
-                url = "$ZAC_API_URI/signaleringen/zaken/ZAAK_DOCUMENT_TOEGEVOEGD",
-                requestBodyAsString = "$uniqueResourceId"
-            )
-            response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
+            requestZaakSignaleringen("ZAAK_DOCUMENT_TOEGEVOEGD")
 
             Then("it returns the correct signaleringen for ZAAK_DOCUMENT_TOEGEVOEGD via websocket") {
                 // the backend process is asynchronous, so we need to wait a bit until DB is populated
                 eventually(afterFifteenSeconds) {
-                    websocketListener.messagesReceived.size shouldBe 2
-
-                    with(JSONObject(websocketListener.messagesReceived[1])) {
+                    with(JSONObject(websocketListener.messagesReceived.last())) {
                         getString("opcode") shouldBe "UPDATED"
                         getString("objectType") shouldBe "ZAKEN_SIGNALERINGEN"
                         with(getJSONObject("objectId")) {
                             getString("resource") shouldBe uniqueResourceId.toString()
-                            val detail = JSONArray(getString("detail")).getJSONObject(0).toString()
-                            with(detail) {
+                            val detail = JSONArray(getString("detail"))
+                            if (detail.isEmpty) {
+                                // we got an empty list - DB not populated. Request a new list
+                                requestZaakSignaleringen("ZAAK_DOCUMENT_TOEGEVOEGD");
+                            }
+                            with(detail.getJSONObject(0).toString()) {
                                 shouldContainJsonKeyValue("identificatie", ZAAK_1_IDENTIFICATION)
                                 shouldContainJsonKeyValue("toelichting", "")
                                 shouldContainJsonKey("omschrijving")
