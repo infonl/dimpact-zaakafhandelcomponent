@@ -56,60 +56,60 @@ zaaktype_allowed {
 
 default lezen := false
 lezen {
-    { behandelaar, coordinator, recordmanager, beheerder }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed == true
 }
 
 default wijzigen := false
 wijzigen {
-    { behandelaar, coordinator }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
 }
 wijzigen {
-    { recordmanager, beheerder }[_].rol in user.rollen
+    recordmanager.rol in user.rollen
     zaaktype_allowed == true
 }
 
 default toekennen := false
 toekennen {
-    { behandelaar, coordinator, recordmanager, beheerder }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed == true
 }
 
 default behandelen := false
 behandelen {
-    { behandelaar, coordinator, recordmanager, beheerder }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed == true
 }
 
 default afbreken := false
 afbreken {
-    { behandelaar, coordinator, recordmanager, beheerder }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed == true
 }
 
 default heropenen := false
 heropenen {
-    { recordmanager, beheerder }[_].rol in user.rollen
+    recordmanager.rol in user.rollen
     zaaktype_allowed == true
 }
 
 default wijzigenZaakdata := false
 wijzigenZaakdata {
-    { beheerder }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed == true
 }
 
 default wijzigenDoorlooptijd := false
 wijzigenDoorlooptijd {
-    { behandelaar, coordinator, recordmanager, beheerder }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed == true
 }
 
 default verlengen := false
 verlengen {
-    { behandelaar, coordinator, recordmanager, beheerder }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
     # how do we check for reopened?
@@ -119,7 +119,7 @@ verlengen {
 
 default opschorten := false
 opschorten {
-    { behandelaar, coordinator, recordmanager, beheerder }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
     # how do we check for reopened?
@@ -129,142 +129,142 @@ opschorten {
 
 default hervatten := false
 hervatten {
-    { behandelaar, coordinator, recordmanager, beheerder }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed == true
 }
 
 default creeeren_document := false
 creeeren_document {
-    { behandelaar, coordinator, recordmanager, beheerder }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
 }
 
 default toevoegen_document := false
 toevoegen_document {
-    { behandelaar, coordinator }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
 }
 toevoegen_document {
-    { recordmanager, beheerder }[_].rol in user.rollen
+    recordmanager.rol in user.rollen
     zaaktype_allowed == true
 }
 
 default koppelen := false
 koppelen {
-    { behandelaar, coordinator, recordmanager, beheerder }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
 }
 
 default koppelen_gerelateerd := false
 koppelen_gerelateerd {
-    { behandelaar, coordinator, recordmanager, beheerder }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed == true
 }
 
 default versturen_email := false
 versturen_email {
-    { behandelaar, coordinator, recordmanager, beheerder }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
 }
 
 default versturen_ontvangstbevestiging := false
 versturen_ontvangstbevestiging {
-    { behandelaar, coordinator, recordmanager, beheerder }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
 }
 
 default toevoegen_initiator_persoon := false
 toevoegen_initiator_persoon {
-    { behandelaar, coordinator }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
 }
 toevoegen_initiator_persoon {
-    { recordmanager, beheerder }[_].rol in user.rollen
+    recordmanager.rol in user.rollen
     zaaktype_allowed == true
 }
 
 default toevoegen_initiator_bedrijf := false
 toevoegen_initiator_bedrijf {
-    { behandelaar, coordinator }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
 }
 toevoegen_initiator_bedrijf {
-    { recordmanager, beheerder }[_].rol in user.rollen
+    recordmanager.rol in user.rollen
     zaaktype_allowed == true
 }
 
 default verwijderen_initiator := false
 verwijderen_initiator {
-    { behandelaar, coordinator }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
 }
 verwijderen_initiator {
-    { recordmanager, beheerder }[_].rol in user.rollen
+    recordmanager.rol in user.rollen
     zaaktype_allowed == true
 }
 
 default toevoegen_betrokkene_persoon := false
 toevoegen_betrokkene_persoon {
-    { behandelaar, coordinator }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
 }
 toevoegen_betrokkene_persoon {
-    { recordmanager, beheerder }[_].rol in user.rollen
+    recordmanager.rol in user.rollen
     zaaktype_allowed == true
 }
 
 default toevoegen_betrokkene_bedrijf := false
 toevoegen_betrokkene_bedrijf {
-    { behandelaar, coordinator }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
 }
 toevoegen_betrokkene_bedrijf {
-    { recordmanager, beheerder }[_].rol in user.rollen
+    recordmanager.rol in user.rollen
     zaaktype_allowed == true
 }
 
 default verwijderen_betrokkene := false
 verwijderen_betrokkene {
-    { behandelaar, coordinator }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
 }
 verwijderen_betrokkene {
-    { recordmanager, beheerder }[_].rol in user.rollen
+    recordmanager.rol in user.rollen
     zaaktype_allowed == true
 }
 
 default toevoegen_bag_object := false
 toevoegen_bag_object {
-    { behandelaar, coordinator }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
 }
 toevoegen_bag_object {
-    { recordmanager, beheerder }[_].rol in user.rollen
+    recordmanager.rol in user.rollen
     zaaktype_allowed == true
 }
 
 default starten_taak := false
 starten_taak {
-    { behandelaar, coordinator, recordmanager, beheerder }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
 }
 
 default vastleggen_besluit := false
 vastleggen_besluit {
-    { behandelaar, coordinator, recordmanager, beheerder }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
     # how to check for intake?
@@ -273,7 +273,7 @@ vastleggen_besluit {
 
 default verlengen_doorlooptijd := false
 verlengen_doorlooptijd {
-    { behandelaar, coordinator, recordmanager, beheerder }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
     # how to check for suspended?
