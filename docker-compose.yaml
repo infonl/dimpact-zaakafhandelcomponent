@@ -547,7 +547,6 @@ services:
     ports:
       - "8080:8080"
       - "9990:9990"
-      - "14250:14250" # Open Telemetry endpoint
     volumes:
       # mount volumes for (optional) JaCoCo test coverage for our integration tests
       # see: https://blog.akquinet.de/2018/09/06/test-coverage-for-containerized-java-apps/
