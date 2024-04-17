@@ -1,6 +1,24 @@
 ### Create runtime image fase
 FROM docker.io/eclipse-temurin:21-ubi9-minimal as runtime
 
+LABEL name="zaakafhandelcomponent"
+LABEL summary="Zaakafhandelcomponent (ZAC) developed for Dimpact"
+LABEL description="The zaakafhandelcomponent (ZAC) is an open-source, generic, workflow-based component for managing 'zaken' in the context of zaakgericht werken, a Dutch approach to case management."
+LABEL maintainer="Lifely/INFO"
+LABEL vendor="Lifely/INFO"
+LABEL url="https://github.com/infonl/dimpact-zaakafhandelcomponent"
+# Unset labels set by the Temurin Ubi9 base Docker image
+LABEL build-date=""
+LABEL com.redhat.component=""
+LABEL com.redhat.license_terms=""
+LABEL io.buildah.version=""
+LABEL io.k8s.description=""
+LABEL io.k8s.display-name=""
+LABEL io.openshift.tags=""
+LABEL release=""
+LABEL vcs-ref=""
+LABEL version=""
+
 # Import certificates into Java truststore
 ADD certificates /certificates
 RUN keytool -importcert -cacerts -alias SmartDocuments -file /certificates/smartdocuments/smartdocuments_com.cer -storepass changeit -noprompt
@@ -13,6 +31,7 @@ COPY target/zaakafhandelcomponent.jar /
 
 # Copy build timestamp (used by HealthCheckService.java)
 RUN date -Iseconds > /build_timestamp.txt
+RUN export buildTimeStamp=$(echo /build_timestamp.txt)
 
 # Start zaakafhandelcomponent
 ENTRYPOINT ["java", "-Xms1024m", "-Xmx1024m", "-jar", "zaakafhandelcomponent.jar"]
