@@ -23,17 +23,25 @@ public final class UriUtil {
         return uuidFromURI(uri.getPath());
     }
 
+    public static Long longFromURI(final URI uri) {
+        return longFromURI(uri.getPath());
+    }
+
     public static UUID uuidFromURI(final String uri) {
-        return UUID.fromString(extractUUID(uri));
+        return UUID.fromString(extractLastPathParameter(uri));
+    }
+
+    public static Long longFromURI(final String uri) {
+        return Long.parseLong(extractLastPathParameter(uri));
     }
 
     public static boolean isEqual(final URI a, final URI b) {
         return (a != null && b != null) ?
-                extractUUID(a.getPath()).equals(extractUUID(b.getPath())) :
+               extractLastPathParameter(a.getPath()).equals(extractLastPathParameter(b.getPath())) :
                 a == null && b == null;
     }
 
-    private static String extractUUID(final String path) {
+    private static String extractLastPathParameter(final String path) {
         return contains(path, "/") ? substringAfterLast(path, "/") : path;
     }
 }

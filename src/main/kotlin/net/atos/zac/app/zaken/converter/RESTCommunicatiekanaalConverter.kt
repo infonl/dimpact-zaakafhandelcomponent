@@ -4,18 +4,17 @@
  */
 package net.atos.zac.app.zaken.converter
 
-import net.atos.client.vrl.model.generated.CommunicatieKanaal
 import net.atos.zac.app.zaken.model.RESTCommunicatiekanaal
-import net.atos.zac.util.UriUtil
+import net.atos.zac.zaaksturing.model.ReferentieTabelWaarde
 
-fun convertToRESTCommunicatiekanaal(communicatieKanaal: CommunicatieKanaal): RESTCommunicatiekanaal =
+fun convertToRESTCommunicatiekanaal(communicatieKanaal: ReferentieTabelWaarde): RESTCommunicatiekanaal =
     RESTCommunicatiekanaal(
-        uuid = UriUtil.uuidFromURI(communicatieKanaal.url),
+        id = communicatieKanaal.id,
         naam = communicatieKanaal.naam
     )
 
 fun convertToRESTCommunicatiekanalen(
-    communicatieKanalen: List<CommunicatieKanaal>
+    communicatieKanalen: List<ReferentieTabelWaarde>
 ): List<RESTCommunicatiekanaal> = communicatieKanalen.stream()
     .map { convertToRESTCommunicatiekanaal(it) }
     .toList()

@@ -34,9 +34,12 @@ import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.util.PeriodUtil
 import net.atos.zac.util.UriUtil
+import net.atos.zac.zaaksturing.ReferentieTabelService
+import net.atos.zac.zaaksturing.model.ReferentieTabel.Systeem
 import net.atos.zac.zoeken.model.ZaakIndicatie
 import org.apache.commons.collections4.CollectionUtils
 import org.apache.commons.lang3.StringUtils
+import java.net.URI
 import java.time.LocalDate
 import java.time.Period
 import java.util.EnumSet
@@ -79,7 +82,7 @@ class RESTZaakConverter {
     private lateinit var rechtenConverter: RESTRechtenConverter
 
     @Inject
-    private lateinit var vrlClientService: VRLClientService
+    private lateinit var referentieTabelService: ReferentieTabelService
 
     @Inject
     private lateinit var restGeometryConverter: RESTGeometryConverter
@@ -114,9 +117,10 @@ class RESTZaakConverter {
             }
             .orElse(null)
         val communicatiekanaal = zaak.communicatiekanaal?.let {
-            vrlClientService.findCommunicatiekanaal(UriUtil.uuidFromURI(zaak.communicatiekanaal))
+            referentieTabelService.readReferentieTabel(Systeem.DOMEIN.name).waarden
+                .filter { kanaal -> kanaal.id.equals(UriUtil.longFromURI(it)) }
                 .map { communicatieKanaal -> convertToRESTCommunicatiekanaal(communicatieKanaal) }
-                .orElse(null)
+                .firstOrNull()
         }
         val initiator = zgwApiService.findInitiatorForZaak(zaak)
         return RESTZaak(
@@ -197,11 +201,8 @@ class RESTZaakConverter {
         zaak.omschrijving = restZaak.omschrijving
         zaak.toelichting = restZaak.toelichting
         zaak.registratiedatum = LocalDate.now()
-        restZaak.communicatiekanaal?.let { restCommunicatiekanaal ->
-            vrlClientService.findCommunicatiekanaal(restCommunicatiekanaal.uuid)
-                .map { it.url }
-                .ifPresent { communicatiekanaal -> zaak.communicatiekanaal = communicatiekanaal }
-        }
+        zaak.communicatiekanaal = restZaak.communicatiekanaal?.let { createUriFromCommunicatieKanaalId(it.id) }
+
         zaak.vertrouwelijkheidaanduiding = restZaak.vertrouwelijkheidaanduiding?.let {
             InformatieobjectenUtil.convertToVertrouwelijkheidaanduidingEnum(it)
         }
@@ -219,13 +220,13 @@ class RESTZaakConverter {
         zaak.vertrouwelijkheidaanduiding = restZaak.vertrouwelijkheidaanduiding?.let {
             InformatieobjectenUtil.convertToVertrouwelijkheidaanduidingEnum(it)
         }
-        restZaak.communicatiekanaal?.let { restCommunicatiekanaal ->
-            vrlClientService.findCommunicatiekanaal(restCommunicatiekanaal.uuid)
-                .map { it.url }
-                .ifPresent { zaak.communicatiekanaal = it }
-        }
+        zaak.communicatiekanaal = restZaak.communicatiekanaal?.let { createUriFromCommunicatieKanaalId(it.id) }
         zaak.zaakgeometrie = restZaak.zaakgeometrie?.let { restGeometryConverter.convert(it) }
         return zaak
+    }
+
+    private fun createUriFromCommunicatieKanaalId(id: Long): URI {
+        throw NotImplementedError("Create URI from Communicatie Kanaal")
     }
 
     fun convertToPatch(zaakUUID: UUID?, verlengGegevens: RESTZaakVerlengGegevens): Zaak {

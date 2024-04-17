@@ -73,6 +73,7 @@ import net.atos.zac.policy.output.OverigeRechten
 import net.atos.zac.policy.output.createZaakRechten
 import net.atos.zac.shared.helper.OpschortenZaakHelper
 import net.atos.zac.signalering.SignaleringenService
+import net.atos.zac.zaaksturing.ReferentieTabelService
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import net.atos.zac.zaaksturing.model.createZaakafhandelParameters
 import net.atos.zac.zaken.ZakenService
@@ -112,13 +113,13 @@ class ZakenRESTServiceTest : BehaviorSpec({
     val restHistorieRegelConverter: RESTHistorieRegelConverter = mockk<RESTHistorieRegelConverter>()
     val signaleringenService: SignaleringenService = mockk<SignaleringenService>()
     val takenService: TakenService = mockk<TakenService>()
-    val vrlClientService: VRLClientService = mockk<VRLClientService>()
     val zaakafhandelParameterService: ZaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
     val zaakVariabelenService: ZaakVariabelenService = mockk<ZaakVariabelenService>()
     val zakenService: ZakenService = mockk<ZakenService>()
     val zgwApiService: ZGWApiService = mockk<ZGWApiService>()
     val zrcClientService: ZRCClientService = mockk<ZRCClientService>()
     val ztcClientService: ZTCClientService = mockk<ZTCClientService>()
+    var referentieTabelService: ReferentieTabelService = mockk<ReferentieTabelService>()
 
     val zakenRESTService = ZakenRESTService(
         zgwApiService = zgwApiService,
@@ -153,9 +154,9 @@ class ZakenRESTServiceTest : BehaviorSpec({
         restZaakOverzichtConverter = restZaakOverzichtConverter,
         signaleringenService = signaleringenService,
         takenService = takenService,
-        vrlClientService = vrlClientService,
         restZaakAfzenderConverter = restZaakAfzenderConverter,
-        restZaaktypeConverter = restZaaktypeConverter
+        restZaaktypeConverter = restZaaktypeConverter,
+        referentieTabelService = referentieTabelService
     )
 
     Given("zaak input data is provided") {

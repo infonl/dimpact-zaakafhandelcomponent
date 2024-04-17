@@ -34,11 +34,13 @@ fun createRESTBesluit(
     uuid = uuid
 )
 
+var incrementor: Long = 1
+
 fun createRESTCommunicatiekanaal(
-    uuid: UUID = UUID.randomUUID(),
+    id: Long = incrementor++,
     naam: String = "dummyName"
 ) = RESTCommunicatiekanaal(
-    uuid = uuid,
+    id = id,
     naam = naam
 )
 

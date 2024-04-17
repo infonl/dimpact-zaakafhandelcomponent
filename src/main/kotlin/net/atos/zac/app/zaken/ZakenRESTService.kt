@@ -8,20 +8,10 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.validation.Valid
-import jakarta.ws.rs.Consumes
-import jakarta.ws.rs.DELETE
-import jakarta.ws.rs.GET
-import jakarta.ws.rs.NotFoundException
-import jakarta.ws.rs.PATCH
-import jakarta.ws.rs.POST
-import jakarta.ws.rs.PUT
-import jakarta.ws.rs.Path
-import jakarta.ws.rs.PathParam
-import jakarta.ws.rs.Produces
+import jakarta.ws.rs.*
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import net.atos.client.or.`object`.ObjectsClientService
-import net.atos.client.vrl.VRLClientService
 import net.atos.client.zgw.brc.BRCClientService
 import net.atos.client.zgw.brc.model.generated.Besluit
 import net.atos.client.zgw.brc.model.generated.Besluit.VervalredenEnum
@@ -32,24 +22,7 @@ import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel
 import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.ZRCClientService
-import net.atos.client.zgw.zrc.model.AardRelatie
-import net.atos.client.zgw.zrc.model.BetrokkeneType
-import net.atos.client.zgw.zrc.model.HoofdzaakZaakPatch
-import net.atos.client.zgw.zrc.model.LocatieZaakPatch
-import net.atos.client.zgw.zrc.model.NatuurlijkPersoon
-import net.atos.client.zgw.zrc.model.NietNatuurlijkPersoon
-import net.atos.client.zgw.zrc.model.RelevanteZaak
-import net.atos.client.zgw.zrc.model.RelevantezaakZaakPatch
-import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.RolMedewerker
-import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
-import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
-import net.atos.client.zgw.zrc.model.RolVestiging
-import net.atos.client.zgw.zrc.model.Vestiging
-import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
-import net.atos.client.zgw.zrc.model.ZaakListParameters
+import net.atos.client.zgw.zrc.model.*
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.util.StatusTypeUtil
 import net.atos.client.zgw.ztc.ZTCClientService
@@ -67,44 +40,8 @@ import net.atos.zac.app.bag.converter.RESTBAGConverter
 import net.atos.zac.app.klanten.KlantenRESTService
 import net.atos.zac.app.klanten.model.klant.IdentificatieType
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
-import net.atos.zac.app.zaken.converter.RESTBesluitConverter
-import net.atos.zac.app.zaken.converter.RESTBesluittypeConverter
-import net.atos.zac.app.zaken.converter.RESTGeometryConverter
-import net.atos.zac.app.zaken.converter.RESTResultaattypeConverter
-import net.atos.zac.app.zaken.converter.RESTZaakConverter
-import net.atos.zac.app.zaken.converter.RESTZaakOverzichtConverter
-import net.atos.zac.app.zaken.converter.RESTZaaktypeConverter
-import net.atos.zac.app.zaken.converter.convertToRESTCommunicatiekanalen
-import net.atos.zac.app.zaken.converter.convertToRESTZaakBetrokkenen
-import net.atos.zac.app.zaken.model.RESTBesluit
-import net.atos.zac.app.zaken.model.RESTBesluitIntrekkenGegevens
-import net.atos.zac.app.zaken.model.RESTBesluitVastleggenGegevens
-import net.atos.zac.app.zaken.model.RESTBesluitWijzigenGegevens
-import net.atos.zac.app.zaken.model.RESTBesluittype
-import net.atos.zac.app.zaken.model.RESTCommunicatiekanaal
-import net.atos.zac.app.zaken.model.RESTDocumentOntkoppelGegevens
-import net.atos.zac.app.zaken.model.RESTReden
-import net.atos.zac.app.zaken.model.RESTResultaattype
-import net.atos.zac.app.zaken.model.RESTZaak
-import net.atos.zac.app.zaken.model.RESTZaakAanmaakGegevens
-import net.atos.zac.app.zaken.model.RESTZaakAfbrekenGegevens
-import net.atos.zac.app.zaken.model.RESTZaakAfsluitenGegevens
-import net.atos.zac.app.zaken.model.RESTZaakBetrokkene
-import net.atos.zac.app.zaken.model.RESTZaakBetrokkeneGegevens
-import net.atos.zac.app.zaken.model.RESTZaakEditMetRedenGegevens
-import net.atos.zac.app.zaken.model.RESTZaakHeropenenGegevens
-import net.atos.zac.app.zaken.model.RESTZaakKoppelGegevens
-import net.atos.zac.app.zaken.model.RESTZaakLocatieGegevens
-import net.atos.zac.app.zaken.model.RESTZaakOntkoppelGegevens
-import net.atos.zac.app.zaken.model.RESTZaakOpschortGegevens
-import net.atos.zac.app.zaken.model.RESTZaakOpschorting
-import net.atos.zac.app.zaken.model.RESTZaakOverzicht
-import net.atos.zac.app.zaken.model.RESTZaakToekennenGegevens
-import net.atos.zac.app.zaken.model.RESTZaakVerlengGegevens
-import net.atos.zac.app.zaken.model.RESTZaaktype
-import net.atos.zac.app.zaken.model.RESTZakenVerdeelGegevens
-import net.atos.zac.app.zaken.model.RESTZakenVrijgevenGegevens
-import net.atos.zac.app.zaken.model.RelatieType
+import net.atos.zac.app.zaken.converter.*
+import net.atos.zac.app.zaken.model.*
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
@@ -125,7 +62,9 @@ import net.atos.zac.util.DateTimeConverterUtil
 import net.atos.zac.util.LocalDateUtil
 import net.atos.zac.util.UriUtil
 import net.atos.zac.websocket.event.ScreenEventType
+import net.atos.zac.zaaksturing.ReferentieTabelService
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService
+import net.atos.zac.zaaksturing.model.ReferentieTabel.Systeem
 import net.atos.zac.zaaksturing.model.ZaakAfzender
 import net.atos.zac.zaaksturing.model.ZaakAfzender.Speciaal
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters
@@ -139,8 +78,7 @@ import org.apache.commons.collections4.CollectionUtils
 import org.apache.commons.lang3.StringUtils
 import java.net.URI
 import java.time.LocalDate
-import java.util.Locale
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.function.Consumer
 import java.util.logging.Logger
@@ -161,7 +99,6 @@ class ZakenRESTService @Inject constructor(
     private val drcClientService: DRCClientService,
     private val ztcClientService: ZTCClientService,
     private val zrcClientService: ZRCClientService,
-    private val vrlClientService: VRLClientService,
     private val eventingService: EventingService,
     private val identityService: IdentityService,
     private val signaleringenService: SignaleringenService,
@@ -189,7 +126,8 @@ class ZakenRESTService @Inject constructor(
     private val healthCheckService: HealthCheckService,
     private val opschortenZaakHelper: OpschortenZaakHelper,
     private val restZaakAfzenderConverter: RESTZaakAfzenderConverter,
-    private val zakenService: ZakenService
+    private val zakenService: ZakenService,
+    private val referentieTabelService: ReferentieTabelService
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZakenRESTService::class.java.name)
@@ -846,7 +784,7 @@ class ZakenRESTService @Inject constructor(
     fun listCommunicatiekanalen(
         @PathParam("inclusiefEFormulier") inclusiefEFormulier: Boolean
     ): List<RESTCommunicatiekanaal> {
-        val communicatieKanalen = vrlClientService.listCommunicatiekanalen()
+        val communicatieKanalen = referentieTabelService.readReferentieTabel(Systeem.DOMEIN.name).getWaarden()
         if (!inclusiefEFormulier) {
             communicatieKanalen.removeIf { communicatieKanaal ->
                 (communicatieKanaal.naam == ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER)
