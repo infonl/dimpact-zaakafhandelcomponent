@@ -21,7 +21,11 @@ document_rechten := {
     "verwijderen": verwijderen,
     "vergrendelen": vergrendelen,
     "ontgrendelen": ontgrendelen,
-    "ondertekenen": ondertekenen
+    "ondertekenen": ondertekenen,
+    "toevoegenNieuweVersie": toevoegenNieuweVersie,
+    "verplaatsen": verplaatsen,
+    "ontkoppelen": ontkoppelen,
+    "downloaden": downloaden
 }
 
 default zaaktype_allowed := false
@@ -105,15 +109,15 @@ ondertekenen {
     onvergrendeld_of_vergrendeld_door_user == true
 }
 
-default toevoegen_nieuwe_versie := fasle
-toevoegen_nieuwe_versie {
+default toevoegenNieuweVersie := fasle
+toevoegenNieuweVersie {
     { behandelaar, coordinator }[_].rol in user.rollen
     zaaktype_allowed
     document.zaak_open == true
     onvergrendeld_of_vergrendeld_door_user == true
     document.definitief == false
 }
-toevoegen_nieuwe_versie {
+toevoegenNieuweVersie {
     { recordmanager, beheerder }[_].rol in user.rollen
     zaaktype_allowed
     # how can we check for signed documents?
@@ -146,7 +150,7 @@ ontkoppelen {
 }
 
 default downloaden := false
-ontkoppelen {
+downloaden {
     { behandelaar, coordinator, recordmanager, beheerder }[_].rol in user.rollen
     zaaktype_allowed
 }
