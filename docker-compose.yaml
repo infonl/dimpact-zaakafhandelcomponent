@@ -481,17 +481,63 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
+  # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
     image: otel/opentelemetry-collector:0.98.0
-    command: [ --config=/etc/otel-collector-config.yaml ]
+    command: [ --config=/etc/otel-collector.yaml ]
     volumes:
-      - ./scripts/docker-compose/imports/otel-collector/otel-collector-config.yaml:/etc/otel-collector-config.yaml:Z
+      - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
     ports:
       - "1888:1888" # pprof extension
       - "13133:13133" # health_check extension
       - "4317:4317" # OTLP gRPC receiver
       - "4318:4318" # OTLP http receiver
       - "55679:55679" # zpages extension
+    profiles: [ "metrics" ]
+
+  # Observability traces data store
+  tempo:
+    image: grafana/tempo:latest
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      - ./scripts/docker-compose/imports/tempo/tempo.yaml:/etc/tempo.yaml
+    ports:
+      - "14268"  # jaeger ingest
+      - "3200"   # tempo
+      - "4317"  # otlp grpc
+      - "4318"  # otlp http
+      - "9411"   # zipkin
+    profiles: [ "metrics" ]
+
+  # Observability metrics data store
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - --config.file=/etc/prometheus.yaml
+      - --web.enable-remote-write-receiver
+      - --enable-feature=exemplar-storage
+    volumes:
+      - ./scripts/docker-compose/imports/prometheus/prometheus.yaml:/etc/prometheus.yaml
+    ports:
+      - "9090:9090"
+    profiles: [ "metrics" ]
+
+  # Visualizes metrics and traces data
+  grafana:
+    image: grafana/grafana:10.1.1
+    volumes:
+      - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_FEATURE_TOGGLES_ENABLE=traceqlEditor
+    ports:
+      - "3000:3000"
+    depends_on:
+      - tempo
+      - prometheus
+    profiles: [ "metrics" ]
 
   zac:
     # By default, we use the latest ZAC Docker Image. Change this if you wish to use a specific version.
