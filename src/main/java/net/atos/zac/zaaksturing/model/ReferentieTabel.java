@@ -34,7 +34,8 @@ public class ReferentieTabel {
     public enum Systeem {
         ADVIES,
         AFZENDER,
-        DOMEIN
+        DOMEIN,
+        COMMUNICATIEKANAAL
     }
 
     @Id
