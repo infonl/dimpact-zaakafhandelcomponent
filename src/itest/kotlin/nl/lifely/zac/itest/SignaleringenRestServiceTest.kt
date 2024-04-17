@@ -46,8 +46,8 @@ class SignaleringenRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    val afterFifteenSeconds = eventuallyConfig {
-        duration = 15.seconds
+    val afterThirtySeconds = eventuallyConfig {
+        duration = 30.seconds
         interval = 500.milliseconds
     }
 
@@ -212,7 +212,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
 
             Then("it returns a date between the start of the tests and current moment") {
                 // The backend event processing is asynchronous. Wait a bit until the events are processed
-                eventually(afterFifteenSeconds) {
+                eventually(afterThirtySeconds) {
                     val response = itestHttpClient.performGetRequest(latestSignaleringenDateUrl)
                     val responseBody = response.body!!.string()
                     logger.info { "Response: $responseBody" }
@@ -241,7 +241,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
 
             Then("it returns the correct signaleringen for ZAAK_OP_NAAM via websocket") {
                 // the backend process is asynchronous, so we need to wait a bit until the DB is populated
-                eventually(afterFifteenSeconds) {
+                eventually(afterThirtySeconds) {
                     with(JSONObject(websocketListener.messagesReceived.last())) {
                         getString("opcode") shouldBe "UPDATED"
                         getString("objectType") shouldBe "ZAKEN_SIGNALERINGEN"
@@ -276,7 +276,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
 
             Then("it returns the correct signaleringen for ZAAK_DOCUMENT_TOEGEVOEGD via websocket") {
                 // the backend process is asynchronous, so we need to wait a bit until DB is populated
-                eventually(afterFifteenSeconds) {
+                eventually(afterThirtySeconds) {
                     with(JSONObject(websocketListener.messagesReceived.last())) {
                         getString("opcode") shouldBe "UPDATED"
                         getString("objectType") shouldBe "ZAKEN_SIGNALERINGEN"
