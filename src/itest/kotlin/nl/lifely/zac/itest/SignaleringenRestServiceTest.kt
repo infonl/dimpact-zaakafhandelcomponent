@@ -12,7 +12,6 @@ import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.date.shouldBeBetween
-import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration
@@ -251,7 +250,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                             val detail = JSONArray(getString("detail"))
                             if (detail.isEmpty) {
                                 // we got an empty list - DB not populated. Request a new list
-                                requestZaakSignaleringen("ZAAK_OP_NAAM");
+                                requestZaakSignaleringen("ZAAK_OP_NAAM")
                             }
                             with(detail.getJSONObject(0).toString()) {
                                 shouldContainJsonKey("behandelaar")
@@ -286,7 +285,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                             val detail = JSONArray(getString("detail"))
                             if (detail.isEmpty) {
                                 // we got an empty list - DB not populated. Request a new list
-                                requestZaakSignaleringen("ZAAK_DOCUMENT_TOEGEVOEGD");
+                                requestZaakSignaleringen("ZAAK_DOCUMENT_TOEGEVOEGD")
                             }
                             with(detail.getJSONObject(0).toString()) {
                                 shouldContainJsonKeyValue("identificatie", ZAAK_1_IDENTIFICATION)
