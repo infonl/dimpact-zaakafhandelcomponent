@@ -539,7 +539,10 @@ services:
       - SD_CLIENT_MP_REST_URL=${SD_CLIENT_MP_REST_URL:-http://smartdocuments-wiremock:8080}
       - SD_FIXED_USER_NAME=${SD_FIXED_USER_NAME:-}
       - SOLR_URL=http://solr:8983
+      - SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE=on
       - VRL_API_CLIENT_MP_REST_URL=http://zgw-referentielijsten.local:8000/
+      # Enable the ability to override WildFly settings using environment variables
+      - WILDFLY_OVERRIDING_ENV_VARS=1
       - ZGW_API_CLIENT_MP_REST_URL=http://openzaak.local:8000/
       - ZGW_API_CLIENTID=zac_client
       - ZGW_API_SECRET=openzaakZaakafhandelcomponentClientSecret
