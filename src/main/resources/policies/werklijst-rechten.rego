@@ -24,7 +24,7 @@ werklijst_rechten := {
 
 default inbox := false
 inbox {
-    { behandelaar, recordmanager }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
 }
 
 default ontkoppelde_documenten_verwijderen := false
@@ -39,7 +39,7 @@ inbox_productaanvragen_verwijderen {
 
 default zaken_taken := false
 zaken_taken {
-    { behandelaar, coordinator, recordmanager, beheerder }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
 }
 
 default zaken_taken_verdelen := false

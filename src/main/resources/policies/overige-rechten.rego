@@ -9,9 +9,9 @@ package net.atos.zac.overig
 
 import future.keywords
 import data.net.atos.zac.rol.behandelaar
+import data.net.atos.zac.rol.beheerder
 import data.net.atos.zac.rol.coordinator
 import data.net.atos.zac.rol.recordmanager
-import data.net.atos.zac.rol.beheerder
 import input.user
 
 overige_rechten := {
@@ -32,5 +32,5 @@ beheren {
 
 default zoeken := false
 zoeken {
-    { behandelaar, coordinator, recordmanager }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
 }
