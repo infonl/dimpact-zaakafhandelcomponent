@@ -18,7 +18,7 @@ microprofile-rest-client = "3.0"
 jacoco = "0.8.12"
 
 apache-commons-lang = "3.14.0"
-apache-commons-text = "1.11.0"
+apache-commons-text = "1.12.0"
 apache-commons-collections = "4.4"
 commons-io = "2.16.1"
 opencsv = "5.9"
