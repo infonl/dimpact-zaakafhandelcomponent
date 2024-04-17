@@ -117,7 +117,7 @@ class RESTZaakConverter {
             }
             .orElse(null)
         val communicatiekanaal = zaak.communicatiekanaal?.let {
-            referentieTabelService.readReferentieTabel(Systeem.DOMEIN.name).waarden
+            referentieTabelService.readReferentieTabel(Systeem.COMMUNICATIEKANAAL.name).waarden
                 .filter { kanaal -> kanaal.id.equals(UriUtil.longFromURI(it)) }
                 .map { communicatieKanaal -> convertToRESTCommunicatiekanaal(communicatieKanaal) }
                 .firstOrNull()

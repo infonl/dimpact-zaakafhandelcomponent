@@ -784,7 +784,7 @@ class ZakenRESTService @Inject constructor(
     fun listCommunicatiekanalen(
         @PathParam("inclusiefEFormulier") inclusiefEFormulier: Boolean
     ): List<RESTCommunicatiekanaal> {
-        val communicatieKanalen = referentieTabelService.readReferentieTabel(Systeem.DOMEIN.name).getWaarden()
+        val communicatieKanalen = referentieTabelService.readReferentieTabel(Systeem.COMMUNICATIEKANAAL.name).getWaarden()
         if (!inclusiefEFormulier) {
             communicatieKanalen.removeIf { communicatieKanaal ->
                 (communicatieKanaal.naam == ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER)
