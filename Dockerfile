@@ -31,7 +31,6 @@ COPY target/zaakafhandelcomponent.jar /
 
 # Copy build timestamp (used by HealthCheckService.java)
 RUN date -Iseconds > /build_timestamp.txt
-RUN export buildTimeStamp=$(echo /build_timestamp.txt)
 
 # Start zaakafhandelcomponent
 ENTRYPOINT ["java", "-Xms1024m", "-Xmx1024m", "-jar", "zaakafhandelcomponent.jar"]
