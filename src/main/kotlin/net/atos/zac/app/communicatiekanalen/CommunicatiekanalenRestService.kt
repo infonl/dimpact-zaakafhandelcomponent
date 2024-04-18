@@ -39,9 +39,7 @@ class CommunicatiekanalenRestService @Inject constructor(
     fun readCommunicatiekanaal(
         @PathParam("id") id: Long
     ): RESTCommunicatiekanaal {
-        val kanaal = referentieTabelService.readReferentieTabel(
-            Systeem.COMMUNICATIEKANAAL.name
-        ).waarden.first { x -> x.id == id }
+        val kanaal = referentieTabelService.readReferentieTabelWaarde(id)
         return restCommunicatiekanaalConverter.convertToRESTCommunicatiekanaal(kanaal)
     }
 }

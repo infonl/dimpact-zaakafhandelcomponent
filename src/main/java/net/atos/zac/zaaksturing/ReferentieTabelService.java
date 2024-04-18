@@ -17,6 +17,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 import net.atos.zac.zaaksturing.model.ReferentieTabel;
+import net.atos.zac.zaaksturing.model.ReferentieTabelWaarde;
 
 @ApplicationScoped
 @Transactional
@@ -47,6 +48,15 @@ public class ReferentieTabelService {
         return findReferentieTabel(code)
                 .orElseThrow(() -> new RuntimeException(
                         "%s with code='%s' not found".formatted(ReferentieTabel.class.getSimpleName(), code)));
+    }
+
+    public ReferentieTabelWaarde readReferentieTabelWaarde(final long id) {
+        final ReferentieTabelWaarde referentieTabel = entityManager.find(ReferentieTabelWaarde.class, id);
+        if (referentieTabel != null) {
+            return referentieTabel;
+        } else {
+            throw new RuntimeException("%s with id=%d not found".formatted(ReferentieTabel.class.getSimpleName(), id));
+        }
     }
 
     public Optional<ReferentieTabel> findReferentieTabel(final String code) {

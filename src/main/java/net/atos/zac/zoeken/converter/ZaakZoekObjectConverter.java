@@ -89,13 +89,9 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
         addBetrokkenen(zaak, zaakZoekObject);
 
         if (zaak.getCommunicatiekanaal() != null) {
-            longFromURI(zaak.getCommunicatiekanaal()).flatMap(aLong -> referentieTabelService.readReferentieTabel(
-                    ReferentieTabel.Systeem.COMMUNICATIEKANAAL.name())
-                    .getWaarden()
-                    .stream()
-                    .filter(x -> Objects.equals(x.getId(), aLong))
-                    .findFirst()
-                    .map(ReferentieTabelWaarde::getNaam)).ifPresent(zaakZoekObject::setCommunicatiekanaal);
+            longFromURI(zaak.getCommunicatiekanaal())
+                .map(aLong -> referentieTabelService.readReferentieTabelWaarde(aLong).getNaam())
+                .ifPresent(zaakZoekObject::setCommunicatiekanaal);
         }
 
         final Group groep = findGroep(zaak);

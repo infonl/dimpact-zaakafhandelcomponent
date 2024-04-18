@@ -121,14 +121,7 @@ class RESTZaakConverter {
         val communicatiekanaal = zaak.communicatiekanaal?.let {
             UriUtil.longFromURI(it)
                 .map { id ->
-                    referentieTabelService.readReferentieTabel(Systeem.COMMUNICATIEKANAAL.name).waarden
-                        .filter { kanaal -> kanaal.id.equals(id) }
-                        .map { communicatieKanaal ->
-                            restCommunicatiekanaalConverter.convertToRESTCommunicatiekanaal(
-                                communicatieKanaal
-                            )
-                        }
-                        .firstOrNull()
+                    restCommunicatiekanaalConverter.convertToRESTCommunicatiekanaal(referentieTabelService.readReferentieTabelWaarde(id))
                 }
                 .orElse(null)
         }
