@@ -6,6 +6,7 @@ package net.atos.zac.app.zaken.model
 
 import jakarta.json.bind.annotation.JsonbProperty
 import jakarta.validation.Valid
+import net.atos.zac.app.communicatiekanalen.model.RESTCommunicatiekanaal
 import net.atos.zac.app.identity.model.RESTGroup
 import net.atos.zac.app.identity.model.RESTUser
 import net.atos.zac.app.klanten.model.klant.IdentificatieType

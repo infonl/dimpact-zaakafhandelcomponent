@@ -5,7 +5,6 @@
 package net.atos.zac.app.zaken.converter
 
 import jakarta.inject.Inject
-import net.atos.client.vrl.VRLClientService
 import net.atos.client.zgw.brc.BRCClientService
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.util.InformatieobjectenUtil
@@ -19,6 +18,7 @@ import net.atos.client.zgw.zrc.util.StatusTypeUtil
 import net.atos.client.zgw.ztc.ZTCClientService
 import net.atos.client.zgw.ztc.model.generated.StatusType
 import net.atos.client.zgw.ztc.model.generated.ZaakType
+import net.atos.zac.app.communicatiekanalen.converter.RestCommunicatiekanaalConverter
 import net.atos.zac.app.identity.converter.RESTGroupConverter
 import net.atos.zac.app.identity.converter.RESTUserConverter
 import net.atos.zac.app.klanten.model.klant.IdentificatieType
@@ -39,7 +39,6 @@ import net.atos.zac.zaaksturing.model.ReferentieTabel.Systeem
 import net.atos.zac.zoeken.model.ZaakIndicatie
 import org.apache.commons.collections4.CollectionUtils
 import org.apache.commons.lang3.StringUtils
-import java.net.URI
 import java.time.LocalDate
 import java.time.Period
 import java.util.EnumSet
@@ -96,6 +95,9 @@ class RESTZaakConverter {
     @Inject
     private lateinit var bpmnService: BPMNService
 
+    @Inject
+    private lateinit var restCommunicatiekanaalConverter: RestCommunicatiekanaalConverter
+
     fun convert(zaak: Zaak): RESTZaak {
         val status = if (zaak.status != null) zrcClientService.readStatus(zaak.status) else null
         val statustype = if (status != null) ztcClientService.readStatustype(status.statustype) else null
@@ -117,10 +119,18 @@ class RESTZaakConverter {
             }
             .orElse(null)
         val communicatiekanaal = zaak.communicatiekanaal?.let {
-            referentieTabelService.readReferentieTabel(Systeem.COMMUNICATIEKANAAL.name).waarden
-                .filter { kanaal -> kanaal.id.equals(UriUtil.longFromURI(it)) }
-                .map { communicatieKanaal -> convertToRESTCommunicatiekanaal(communicatieKanaal) }
-                .firstOrNull()
+            UriUtil.longFromURI(it)
+                .map { id ->
+                    referentieTabelService.readReferentieTabel(Systeem.COMMUNICATIEKANAAL.name).waarden
+                        .filter { kanaal -> kanaal.id.equals(id) }
+                        .map { communicatieKanaal ->
+                            restCommunicatiekanaalConverter.convertToRESTCommunicatiekanaal(
+                                communicatieKanaal
+                            )
+                        }
+                        .firstOrNull()
+                }
+                .orElse(null)
         }
         val initiator = zgwApiService.findInitiatorForZaak(zaak)
         return RESTZaak(
@@ -201,7 +211,7 @@ class RESTZaakConverter {
         zaak.omschrijving = restZaak.omschrijving
         zaak.toelichting = restZaak.toelichting
         zaak.registratiedatum = LocalDate.now()
-        zaak.communicatiekanaal = restZaak.communicatiekanaal?.let { createUriFromCommunicatieKanaalId(it.id) }
+        zaak.communicatiekanaal = restZaak.communicatiekanaal?.url
 
         zaak.vertrouwelijkheidaanduiding = restZaak.vertrouwelijkheidaanduiding?.let {
             InformatieobjectenUtil.convertToVertrouwelijkheidaanduidingEnum(it)
@@ -220,13 +230,9 @@ class RESTZaakConverter {
         zaak.vertrouwelijkheidaanduiding = restZaak.vertrouwelijkheidaanduiding?.let {
             InformatieobjectenUtil.convertToVertrouwelijkheidaanduidingEnum(it)
         }
-        zaak.communicatiekanaal = restZaak.communicatiekanaal?.let { createUriFromCommunicatieKanaalId(it.id) }
+        zaak.communicatiekanaal = restZaak.communicatiekanaal?.url
         zaak.zaakgeometrie = restZaak.zaakgeometrie?.let { restGeometryConverter.convert(it) }
         return zaak
-    }
-
-    private fun createUriFromCommunicatieKanaalId(id: Long): URI {
-        throw NotImplementedError("Create URI from Communicatie Kanaal")
     }
 
     fun convertToPatch(zaakUUID: UUID?, verlengGegevens: RESTZaakVerlengGegevens): Zaak {

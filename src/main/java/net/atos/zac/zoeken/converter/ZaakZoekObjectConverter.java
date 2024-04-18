@@ -1,16 +1,16 @@
 package net.atos.zac.zoeken.converter;
 
 import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend;
+import static net.atos.zac.util.UriUtil.longFromURI;
 import static net.atos.zac.util.UriUtil.uuidFromURI;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import jakarta.inject.Inject;
 
-import net.atos.client.vrl.VRLClientService;
-import net.atos.client.vrl.model.generated.CommunicatieKanaal;
 import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.zrc.ZRCClientService;
@@ -30,6 +30,9 @@ import net.atos.zac.identity.IdentityService;
 import net.atos.zac.identity.model.Group;
 import net.atos.zac.identity.model.User;
 import net.atos.zac.util.DateTimeConverterUtil;
+import net.atos.zac.zaaksturing.ReferentieTabelService;
+import net.atos.zac.zaaksturing.model.ReferentieTabel;
+import net.atos.zac.zaaksturing.model.ReferentieTabelWaarde;
 import net.atos.zac.zoeken.model.ZaakIndicatie;
 import net.atos.zac.zoeken.model.index.ZoekObjectType;
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
@@ -37,7 +40,7 @@ import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
 public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoekObject> {
     private final ZRCClientService zrcClientService;
     private final ZTCClientService ztcClientService;
-    private final VRLClientService vrlClientService;
+    private final ReferentieTabelService referentieTabelService;
     private final ZGWApiService zgwApiService;
     private final IdentityService identityService;
     private final TakenService takenService;
@@ -46,14 +49,14 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
     public ZaakZoekObjectConverter(
             ZRCClientService zrcClientService,
             ZTCClientService ztcClientService,
-            VRLClientService vrlClientService,
+            ReferentieTabelService referentieTabelService,
             ZGWApiService zgwApiService,
             IdentityService identityService,
             TakenService takenService
     ) {
         this.zrcClientService = zrcClientService;
         this.ztcClientService = ztcClientService;
-        this.vrlClientService = vrlClientService;
+        this.referentieTabelService = referentieTabelService;
         this.zgwApiService = zgwApiService;
         this.identityService = identityService;
         this.takenService = takenService;
@@ -86,9 +89,13 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
         addBetrokkenen(zaak, zaakZoekObject);
 
         if (zaak.getCommunicatiekanaal() != null) {
-            vrlClientService.findCommunicatiekanaal(uuidFromURI(zaak.getCommunicatiekanaal()))
-                    .map(CommunicatieKanaal::getNaam)
-                    .ifPresent(zaakZoekObject::setCommunicatiekanaal);
+            longFromURI(zaak.getCommunicatiekanaal()).flatMap(aLong -> referentieTabelService.readReferentieTabel(
+                    ReferentieTabel.Systeem.COMMUNICATIEKANAAL.name())
+                    .getWaarden()
+                    .stream()
+                    .filter(x -> Objects.equals(x.getId(), aLong))
+                    .findFirst()
+                    .map(ReferentieTabelWaarde::getNaam)).ifPresent(zaakZoekObject::setCommunicatiekanaal);
         }
 
         final Group groep = findGroep(zaak);

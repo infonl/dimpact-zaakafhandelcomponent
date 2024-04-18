@@ -9,6 +9,7 @@ import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.zac.app.admin.model.RESTZaakafhandelParameters
 import net.atos.zac.app.bag.model.RESTOpenbareRuimte
 import net.atos.zac.app.bag.model.RESTPand
+import net.atos.zac.app.communicatiekanalen.model.RESTCommunicatiekanaal
 import net.atos.zac.app.identity.model.RESTGroup
 import net.atos.zac.app.identity.model.RESTUser
 import net.atos.zac.app.klanten.model.klant.IdentificatieType

@@ -4,6 +4,7 @@
  */
 
 export class Communicatiekanaal {
-  uuid: string;
+  url: string;
   naam: string;
+  omschrijving: string;
 }

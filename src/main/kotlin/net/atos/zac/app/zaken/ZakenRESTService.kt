@@ -37,6 +37,8 @@ import net.atos.zac.app.admin.model.RESTZaakAfzender
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.audit.model.RESTHistorieRegel
 import net.atos.zac.app.bag.converter.RESTBAGConverter
+import net.atos.zac.app.communicatiekanalen.converter.RestCommunicatiekanaalConverter
+import net.atos.zac.app.communicatiekanalen.model.RESTCommunicatiekanaal
 import net.atos.zac.app.klanten.KlantenRESTService
 import net.atos.zac.app.klanten.model.klant.IdentificatieType
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
@@ -127,7 +129,8 @@ class ZakenRESTService @Inject constructor(
     private val opschortenZaakHelper: OpschortenZaakHelper,
     private val restZaakAfzenderConverter: RESTZaakAfzenderConverter,
     private val zakenService: ZakenService,
-    private val referentieTabelService: ReferentieTabelService
+    private val referentieTabelService: ReferentieTabelService,
+    private val restCommunicatiekanaalConverter: RestCommunicatiekanaalConverter
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZakenRESTService::class.java.name)
@@ -784,13 +787,15 @@ class ZakenRESTService @Inject constructor(
     fun listCommunicatiekanalen(
         @PathParam("inclusiefEFormulier") inclusiefEFormulier: Boolean
     ): List<RESTCommunicatiekanaal> {
-        val communicatieKanalen = referentieTabelService.readReferentieTabel(Systeem.COMMUNICATIEKANAAL.name).getWaarden()
+        var communicatieKanalen = referentieTabelService.readReferentieTabel(
+            Systeem.COMMUNICATIEKANAAL.name
+        ).waarden
         if (!inclusiefEFormulier) {
-            communicatieKanalen.removeIf { communicatieKanaal ->
-                (communicatieKanaal.naam == ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER)
+            communicatieKanalen = communicatieKanalen.filter { communicatieKanaal ->
+                (communicatieKanaal.naam != ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER)
             }
         }
-        return convertToRESTCommunicatiekanalen(communicatieKanalen)
+        return restCommunicatiekanaalConverter.convertToRESTCommunicatiekanalen(communicatieKanalen)
     }
 
     @GET

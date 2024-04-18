@@ -27,6 +27,7 @@ import { BesluitIntrekkenGegevens } from "./model/besluit-intrekken-gegevens";
 import { BesluitVastleggenGegevens } from "./model/besluit-vastleggen-gegevens";
 import { BesluitWijzigenGegevens } from "./model/besluit-wijzigen-gegevens";
 import { Besluittype } from "./model/besluittype";
+import { Communicatiekanaal } from "./model/communicatiekanaal";
 import { DocumentOntkoppelGegevens } from "./model/document-ontkoppel-gegevens";
 import { Geometry } from "./model/geometry";
 import { Resultaattype } from "./model/resultaattype";
@@ -48,11 +49,6 @@ import { ZaakToekennenGegevens } from "./model/zaak-toekennen-gegevens";
 import { ZaakVerlengGegevens } from "./model/zaak-verleng-gegevens";
 import { Zaaktype } from "./model/zaaktype";
 import { ZakenVerdeelGegevens } from "./model/zaken-verdeel-gegevens";
-
-type CommunicatieKanaal = {
-  naam: string;
-  uuid: string;
-};
 
 @Injectable({
   providedIn: "root",
@@ -467,10 +463,10 @@ export class ZakenService {
 
   listCommunicatiekanalen(
     inclusiefEFormulier?: boolean,
-  ): Observable<CommunicatieKanaal[]> {
+  ): Observable<Communicatiekanaal[]> {
     return this.http
       .get<
-        CommunicatieKanaal[]
+        Communicatiekanaal[]
       >(`${this.basepath}/communicatiekanalen/${inclusiefEFormulier}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),

@@ -16,7 +16,6 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createORObject
-import net.atos.client.vrl.VRLClientService
 import net.atos.client.zgw.brc.BRCClientService
 import net.atos.client.zgw.drc.DRCClientService
 import net.atos.client.zgw.shared.ZGWApiService

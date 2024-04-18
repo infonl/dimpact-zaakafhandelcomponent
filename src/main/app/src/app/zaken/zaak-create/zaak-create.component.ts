@@ -41,6 +41,7 @@ import { FormConfigBuilder } from "../../shared/material-form-builder/model/form
 import { NavigationService } from "../../shared/navigation/navigation.service";
 import { OrderUtil } from "../../shared/order/order-util";
 import { SideNavAction } from "../../shared/side-nav/side-nav-action";
+import { Communicatiekanaal } from "../model/communicatiekanaal";
 import { Zaak } from "../model/zaak";
 import { ZaakAanmaakGegevens } from "../model/zaak-aanmaak-gegevens";
 import { Zaaktype } from "../model/zaaktype";
@@ -79,7 +80,7 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
   );
   private initiator: Klant;
   private readonly inboxProductaanvraag: InboxProductaanvraag;
-  private communicatiekanalen: Observable<{ naam: string; uuid: string }[]>;
+  private communicatiekanalen: Observable<Communicatiekanaal[]>;
   private communicatiekanaalField: SelectFormField;
 
   constructor(

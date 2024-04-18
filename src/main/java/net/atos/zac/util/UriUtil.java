@@ -9,6 +9,7 @@ import static org.apache.commons.lang3.StringUtils.contains;
 import static org.apache.commons.lang3.StringUtils.substringAfterLast;
 
 import java.net.URI;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -23,7 +24,7 @@ public final class UriUtil {
         return uuidFromURI(uri.getPath());
     }
 
-    public static Long longFromURI(final URI uri) {
+    public static Optional<Long> longFromURI(final URI uri) {
         return longFromURI(uri.getPath());
     }
 
@@ -31,13 +32,17 @@ public final class UriUtil {
         return UUID.fromString(extractLastPathParameter(uri));
     }
 
-    public static Long longFromURI(final String uri) {
-        return Long.parseLong(extractLastPathParameter(uri));
+    public static Optional<Long> longFromURI(final String uri) {
+        try {
+            return Optional.of(Long.parseLong(extractLastPathParameter(uri)));
+        } catch (final NumberFormatException e) {
+            return Optional.empty();
+        }
     }
 
     public static boolean isEqual(final URI a, final URI b) {
         return (a != null && b != null) ?
-               extractLastPathParameter(a.getPath()).equals(extractLastPathParameter(b.getPath())) :
+                extractLastPathParameter(a.getPath()).equals(extractLastPathParameter(b.getPath())) :
                 a == null && b == null;
     }
 

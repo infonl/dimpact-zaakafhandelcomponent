@@ -17,7 +17,6 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 import net.atos.zac.zaaksturing.model.ReferentieTabel;
-import net.atos.zac.zaaksturing.model.ReferentieTabelWaarde;
 
 @ApplicationScoped
 @Transactional
