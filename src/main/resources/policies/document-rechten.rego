@@ -22,7 +22,7 @@ document_rechten := {
     "vergrendelen": vergrendelen,
     "ontgrendelen": ontgrendelen,
     "ondertekenen": ondertekenen,
-    "toevoegenNieuweVersie": toevoegenNieuweVersie,
+    "toevoegen_nieuwe_versie": toevoegen_nieuwe_versie,
     "verplaatsen": verplaatsen,
     "ontkoppelen": ontkoppelen,
     "downloaden": downloaden
@@ -50,7 +50,7 @@ onvergrendeld_of_vergrendeld_door_user {
 
 default lezen := false
 lezen {
-    { behandelaar, coordinator, recordmanager, beheerder }[_].rol in user.rollen
+    behandelaar.rol in user.rollen
     zaaktype_allowed
 }
 
@@ -109,15 +109,15 @@ ondertekenen {
     onvergrendeld_of_vergrendeld_door_user == true
 }
 
-default toevoegenNieuweVersie := fasle
-toevoegenNieuweVersie {
+default toevoegen_nieuwe_versie := false
+toevoegen_nieuwe_versie {
     behandelaar.rol in user.rollen
     zaaktype_allowed
     document.zaak_open == true
     onvergrendeld_of_vergrendeld_door_user == true
     document.definitief == false
 }
-toevoegenNieuweVersie {
+toevoegen_nieuwe_versie {
     recordmanager.rol in user.rollen
     zaaktype_allowed
     # how can we check for signed documents?
