@@ -26,6 +26,7 @@ plugins {
     alias(libs.plugins.spotless)
     alias(libs.plugins.allopen)
     alias(libs.plugins.noarg)
+    alias(libs.plugins.opa)
 }
 
 repositories {
@@ -369,6 +370,7 @@ tasks {
 
     test {
         dependsOn("npmRunTest")
+        dependsOn("testRego", "testRegoCoverage")
     }
 
     compileJava {
