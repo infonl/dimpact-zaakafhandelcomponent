@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import net.atos.client.zgw.zrc.model.generated.Opschorting;
 import org.apache.solr.client.solrj.beans.Field;
 
 import com.google.common.collect.Lists;
@@ -159,6 +160,9 @@ public class ZaakZoekObject implements ZoekObject {
 
     @Field("zaak_bagObjecten")
     private List<String> bagObjectIDs;
+
+    @Field("zaak_opgeschort")
+    private boolean opgeschort;
 
     public ZaakZoekObject() {
     }
@@ -526,5 +530,13 @@ public class ZaakZoekObject implements ZoekObject {
 
     public void setBagObjectIDs(final List<String> bagObjectIDs) {
         this.bagObjectIDs = bagObjectIDs;
+    }
+
+    public boolean isOpgeschort() {
+        return opgeschort;
+    }
+
+    public void setOpgeschort(boolean opgeschort) {
+        this.opgeschort = opgeschort;
     }
 }

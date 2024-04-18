@@ -90,6 +90,7 @@ public class PolicyService {
         final ZaakData zaakData = new ZaakData();
         zaakData.open = zaak.isOpen();
         zaakData.zaaktype = zaaktype.getOmschrijving();
+        zaakData.suspended = zaak.isOpgeschort();
         LoggedInUser loggedInUser = user == null ? loggedInUserInstance.get() : user;
         return evaluationClient.readZaakRechten(new RuleQuery<>(new ZaakInput(loggedInUser, zaakData))).getResult();
     }
@@ -98,6 +99,7 @@ public class PolicyService {
         final ZaakData zaakData = new ZaakData();
         zaakData.open = !zaakZoekObject.isAfgehandeld();
         zaakData.zaaktype = zaakZoekObject.getZaaktypeOmschrijving();
+        zaakData.suspended = zaakZoekObject.isOpgeschort();
         return evaluationClient.readZaakRechten(new RuleQuery<>(new ZaakInput(loggedInUserInstance.get(), zaakData)))
                 .getResult();
     }
