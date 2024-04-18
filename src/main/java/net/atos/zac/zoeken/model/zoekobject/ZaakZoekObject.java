@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import net.atos.client.zgw.zrc.model.generated.Opschorting;
 import org.apache.solr.client.solrj.beans.Field;
 
 import com.google.common.collect.Lists;
