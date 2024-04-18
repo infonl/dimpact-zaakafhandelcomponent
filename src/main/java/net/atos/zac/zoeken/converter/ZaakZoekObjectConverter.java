@@ -1,6 +1,7 @@
 package net.atos.zac.zoeken.converter;
 
 import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend;
+import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isIntake;
 import static net.atos.zac.util.UriUtil.uuidFromURI;
 
 import java.util.Collections;
@@ -33,6 +34,7 @@ import net.atos.zac.util.DateTimeConverterUtil;
 import net.atos.zac.zoeken.model.ZaakIndicatie;
 import net.atos.zac.zoeken.model.index.ZoekObjectType;
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
+import org.apache.commons.collections.CollectionUtils;
 
 public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoekObject> {
     private final ZRCClientService zrcClientService;
@@ -80,8 +82,7 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
         zaakZoekObject.setPublicatiedatum(DateTimeConverterUtil.convertToDate(zaak.getPublicatiedatum()));
         zaakZoekObject.setVertrouwelijkheidaanduiding(zaak.getVertrouwelijkheidaanduiding().toString());
         zaakZoekObject.setAfgehandeld(!zaak.isOpen());
-        zaakZoekObject.setOpgeschort(zaak.isOpgeschort());
-        zaakZoekObject.setVerlengd(zaak.isVerlengd());
+
         zgwApiService.findInitiatorForZaak(zaak).ifPresent(zaakZoekObject::setInitiator);
         zaakZoekObject.setLocatie(convertToLocatie(zaak.getZaakgeometrie()));
 
@@ -129,6 +130,7 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
         zaakZoekObject.setZaaktypeIdentificatie(zaaktype.getIdentificatie());
         zaakZoekObject.setZaaktypeOmschrijving(zaaktype.getOmschrijving());
         zaakZoekObject.setZaaktypeUuid(uuidFromURI(zaaktype.getUrl()).toString());
+        zaakZoekObject.setIndicatie(ZaakIndicatie.BESLOTEN, CollectionUtils.isNotEmpty(zaaktype.getBesluittypen()));
 
         if (zaak.getStatus() != null) {
             final Status status = zrcClientService.readStatus(zaak.getStatus());
@@ -138,6 +140,7 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
             zaakZoekObject.setStatustypeOmschrijving(statustype.getOmschrijving());
             zaakZoekObject.setStatusEindstatus(statustype.getIsEindstatus());
             zaakZoekObject.setIndicatie(ZaakIndicatie.HEROPEND, isHeropend(statustype));
+            zaakZoekObject.setIndicatie(ZaakIndicatie.INTAKE, isIntake(statustype));
         }
 
         zaakZoekObject.setAantalOpenstaandeTaken(takenService.countOpenTasksForZaak(zaak.getUuid()));

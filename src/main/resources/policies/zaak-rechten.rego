@@ -112,7 +112,7 @@ verlengen {
     behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
-    # how do we check for reopened?
+    zaak.heropend == false
     zaak.opgeschort == false
     zaak.verlengd == false
 }
@@ -122,7 +122,7 @@ opschorten {
     behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
-    # how do we check for reopened?
+    zaak.heropend == false
     zaak.opgeschort == false
 }
 
@@ -266,8 +266,8 @@ vastleggen_besluit {
     behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
-    # how to check for intake?
-    # how to check for decision types?
+    zaak.intake == false
+    zaak.besluitd == true
 }
 
 default verlengen_doorlooptijd := false

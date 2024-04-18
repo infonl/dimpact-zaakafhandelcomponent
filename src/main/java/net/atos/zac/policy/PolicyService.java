@@ -7,6 +7,8 @@ package net.atos.zac.policy;
 
 import static net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject.StatusEnum.DEFINITIEF;
 import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
+import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend;
+import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isIntake;
 import static net.atos.zac.flowable.util.TaskUtil.isOpen;
 
 import java.util.UUID;
@@ -16,6 +18,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
+import net.atos.client.zgw.zrc.util.StatusTypeUtil;
+import net.atos.zac.zoeken.model.ZaakIndicatie;
+import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.flowable.task.api.TaskInfo;
 
@@ -92,6 +97,12 @@ public class PolicyService {
         zaakData.zaaktype = zaaktype.getOmschrijving();
         zaakData.opgeschort = zaak.isOpgeschort();
         zaakData.verlengd = zaak.isVerlengd();
+        zaakData.besloten = CollectionUtils.isNotEmpty(zaaktype.getBesluittypen());
+        var status = zrcClientService.readStatus(zaak.getStatus());
+        var statusType  = ztcClientService.readStatustype(status.getStatustype());
+        zaakData.intake = isIntake(statusType);
+        zaakData.heropend = isHeropend(statusType);
+
         LoggedInUser loggedInUser = user == null ? loggedInUserInstance.get() : user;
         return evaluationClient.readZaakRechten(new RuleQuery<>(new ZaakInput(loggedInUser, zaakData))).getResult();
     }
@@ -100,8 +111,12 @@ public class PolicyService {
         final ZaakData zaakData = new ZaakData();
         zaakData.open = !zaakZoekObject.isAfgehandeld();
         zaakData.zaaktype = zaakZoekObject.getZaaktypeOmschrijving();
-        zaakData.opgeschort = zaakZoekObject.isOpgeschort();
-        zaakData.verlengd = zaakZoekObject.getDuurVerlenging() != null;
+        zaakData.opgeschort = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.OPSCHORTING);
+        zaakData.verlengd = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.VERLENGD);
+        zaakData.intake = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.INTAKE);
+        zaakData.besloten = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.BESLOTEN);
+        zaakData.heropend = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.HEROPEND);
+
         return evaluationClient.readZaakRechten(new RuleQuery<>(new ZaakInput(loggedInUserInstance.get(), zaakData)))
                 .getResult();
     }

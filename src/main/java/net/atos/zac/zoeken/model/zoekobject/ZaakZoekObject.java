@@ -105,9 +105,6 @@ public class ZaakZoekObject implements ZoekObject {
     @Field("zaak_locatie")
     private String locatie;
 
-    @Field("zaak_verlengd")
-    private boolean verlengd;
-
     @Field("zaak_duurVerlenging")
     private String duurVerlenging;
 
@@ -161,9 +158,6 @@ public class ZaakZoekObject implements ZoekObject {
 
     @Field("zaak_bagObjecten")
     private List<String> bagObjectIDs;
-
-    @Field("zaak_opgeschort")
-    private boolean opgeschort;
 
     public ZaakZoekObject() {
     }
@@ -533,19 +527,4 @@ public class ZaakZoekObject implements ZoekObject {
         this.bagObjectIDs = bagObjectIDs;
     }
 
-    public boolean isOpgeschort() {
-        return opgeschort;
-    }
-
-    public void setOpgeschort(boolean opgeschort) {
-        this.opgeschort = opgeschort;
-    }
-
-    public boolean isVerlengd() {
-        return verlengd;
-    }
-
-    public void setVerlengd(boolean verlengd) {
-        this.verlengd = verlengd;
-    }
 }

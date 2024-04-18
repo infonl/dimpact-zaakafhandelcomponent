@@ -15,4 +15,10 @@ public class ZaakData {
 
     public boolean verlengd;
 
+    public boolean intake;
+
+    public boolean besloten;
+
+    public boolean heropend;
+
 }
