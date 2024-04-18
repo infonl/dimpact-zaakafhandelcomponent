@@ -17,7 +17,7 @@ test_starten_zaak_with_behandelaar_role if {
     }
 }
 
-test_starten_zaak_with_unknown_role if {
+test_starten_zaak_with_unknown_role_fails if {
     not starten_zaak with input as {
         "user": {
             "rollen" : [ "basic" ]
