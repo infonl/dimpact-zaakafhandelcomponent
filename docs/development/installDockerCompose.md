@@ -16,7 +16,9 @@ It was extended and made specific for the needs of ZAC.
 - [1Password CLI extensions](https://developer.1password.com/docs/cli/) (optional)
 - [If on windows: git bash to run .sh scripts](https://gitforwindows.org/)
 
-## Running all required services but not ZAC itself
+## Starting Docker Compose
+
+### Running all required services but not ZAC itself
 
 This starts up all required services (like Keycloak, Open Zaak, etc) but does not start ZAC itself.
 From the root folder of this repository execute the following command:
@@ -55,12 +57,16 @@ The following services will be started:
 Note that it may take a while for all services to start up completely.
 You can check the logs of the various Docker containers if you want to see the status.
 
-## Running all required services including ZAC
+### Other options
 
-This starts up all required services mentioned above and will also start ZAC itself.
-This is useful if you do not need to develop on the ZAC backend or just want to run ZAC locally for testing purposes.
+Please consult the help of the `start-docker-compose.sh` script for more options including the option to also
+start up ZAC or even build the ZAC Docker Image first beforehand:
 
-### Prerequisites
+```
+./start-docker-compose.sh -h
+```
+
+### Notes
 
 #### Using the latest version of ZAC
 
@@ -70,24 +76,7 @@ environment variable.
 You can find the latest released version of the ZAC Docker Image on:
 https://github.com/infonl/dimpact-zaakafhandelcomponent/pkgs/container/zaakafhandelcomponent
 
-### Running Docker Compose with ZAC
-
-From the root folder of this repository execute the following command:
-
-```
-./start-docker-compose.sh -z
-```
-
-This will run Docker Compose with the `zac` Docker Compose profile and uses the 1Password CLI extensions
-to retrieve certain environment variables from 1Password.
-
-Note that by default the script above uses the latest stable version of ZAC published on our GitHub Docker registry.
-If instead you want to use the latest non-stable version of ZAC from your local ZAC codebase (e.g. when working on a Git branch)
-you first need to build the ZAC Docker Image locally and use that:
-
-```
-./gradlew buildDockerImage && ZAC_DOCKER_IMAGE=ghcr.io/infonl/zaakafhandelcomponent:dev ./start-docker-compose.sh -z
-```
+#### Docker container logs
 
 Note that it takes some time for ZAC to start up completely. You can see progress by checking the ZAC Docker container logs:
 
@@ -96,6 +85,8 @@ docker logs -f zac
 ```
 
 ## The various Docker containers
+
+This section contains some specific information about some of the Docker containers used in our Docker Compose setup.
 
 ### PostgreSQL ZAC database
 
