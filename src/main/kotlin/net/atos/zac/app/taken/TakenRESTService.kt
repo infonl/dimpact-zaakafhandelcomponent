@@ -37,6 +37,7 @@ import net.atos.zac.app.taken.model.RESTTaakDocumentData
 import net.atos.zac.app.taken.model.RESTTaakHistorieRegel
 import net.atos.zac.app.taken.model.RESTTaakToekennenGegevens
 import net.atos.zac.app.taken.model.RESTTaakVerdelenGegevens
+import net.atos.zac.app.taken.model.RESTTaakVrijgevenGegevens
 import net.atos.zac.app.taken.model.TaakStatus
 import net.atos.zac.authentication.ActiveSession
 import net.atos.zac.authentication.LoggedInUser
@@ -164,14 +165,14 @@ class TakenRESTService @Inject constructor(
 
     @PUT
     @Path("lijst/vrijgeven")
-    fun vrijgevenVanuitLijst(@Valid restTaakVerdelenGegevens: RESTTaakVerdelenGegevens) {
+    fun vrijgevenVanuitLijst(@Valid restTaakVrijgevenGegevens: RESTTaakVrijgevenGegevens) {
         PolicyService.assertPolicy(
             policyService.readWerklijstRechten().zakenTaken &&
                 policyService.readWerklijstRechten().zakenTakenVerdelen
         )
         val taakIds = mutableListOf<String>()
-        restTaakVerdelenGegevens.taken.forEach {
-            assignTaak(it.taakId, null, restTaakVerdelenGegevens.reden).let { updatedTask ->
+        restTaakVrijgevenGegevens.taken.forEach {
+            assignTaak(it.taakId, null, restTaakVrijgevenGegevens.reden).let { updatedTask ->
                 taakBehandelaarGewijzigd(updatedTask, it.zaakUuid)
                 taakIds.add(updatedTask.id)
             }
@@ -317,38 +318,39 @@ class TakenRESTService @Inject constructor(
         restTaak.taakdata?.let { taakdata ->
             for (key in taakdata.keys) {
                 val fileKey = "_FILE__${restTaak.id}__$key"
-                val uploadedFile = httpSession.getAttribute(fileKey) as RESTFileUpload
-                taakdata[key]?.let { jsonDocumentData ->
-                    try {
-                        val restTaakDocumentData = ObjectMapper().readValue(
-                            jsonDocumentData,
-                            RESTTaakDocumentData::class.java
-                        )
-                        val document = restInformatieobjectConverter.convert(
-                            restTaakDocumentData,
-                            uploadedFile
-                        )
-                        val zaakInformatieobject = zgwApiService.createZaakInformatieobjectForZaak(
-                            zaak,
-                            document,
-                            document.titel,
-                            ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT,
-                            ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
-                        )
-                        taakdata.replace(
-                            key,
-                            UriUtil.uuidFromURI(zaakInformatieobject.informatieobject).toString()
-                        )
-                    } catch (jsonProcessingException: JsonProcessingException) {
-                        throw IllegalArgumentException(
-                            "Invalid JSON document data received: '$jsonDocumentData'",
-                            jsonProcessingException
-                        )
-                    } finally {
-                        httpSession.removeAttribute(fileKey)
-                    }
-                    // document can be uploaded but removed afterwards
-                } ?: httpSession.removeAttribute(fileKey)
+                httpSession.getAttribute(fileKey)?.let { uploadedFile ->
+                    taakdata[key]?.let { jsonDocumentData ->
+                        try {
+                            val restTaakDocumentData = ObjectMapper().readValue(
+                                jsonDocumentData,
+                                RESTTaakDocumentData::class.java
+                            )
+                            val document = restInformatieobjectConverter.convert(
+                                restTaakDocumentData,
+                                uploadedFile as RESTFileUpload
+                            )
+                            val zaakInformatieobject = zgwApiService.createZaakInformatieobjectForZaak(
+                                zaak,
+                                document,
+                                document.titel,
+                                ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT,
+                                ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
+                            )
+                            taakdata.replace(
+                                key,
+                                UriUtil.uuidFromURI(zaakInformatieobject.informatieobject).toString()
+                            )
+                        } catch (jsonProcessingException: JsonProcessingException) {
+                            throw IllegalArgumentException(
+                                "Invalid JSON document data received: '$jsonDocumentData'",
+                                jsonProcessingException
+                            )
+                        } finally {
+                            httpSession.removeAttribute(fileKey)
+                        }
+                        // document can be uploaded but removed afterwards
+                    } ?: httpSession.removeAttribute(fileKey)
+                }
             }
         }
     }
