@@ -113,7 +113,7 @@ verlengen {
     zaaktype_allowed == true
     zaak.open == true
     # how do we check for reopened?
-    # how to check for suspended?
+    zaak.opgeschort == false
     # how to check for extended?
 }
 
@@ -123,7 +123,7 @@ opschorten {
     zaaktype_allowed == true
     zaak.open == true
     # how do we check for reopened?
-    # how to check for suspended?
+    zaak.opgeschort == false
     # how to check for extended?
 }
 
@@ -276,5 +276,5 @@ verlengen_doorlooptijd {
     behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
-    # how to check for suspended?
+    zaak.opgeschort == false
 }

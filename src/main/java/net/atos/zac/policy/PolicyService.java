@@ -90,7 +90,7 @@ public class PolicyService {
         final ZaakData zaakData = new ZaakData();
         zaakData.open = zaak.isOpen();
         zaakData.zaaktype = zaaktype.getOmschrijving();
-        zaakData.suspended = zaak.isOpgeschort();
+        zaakData.opgeschort = zaak.isOpgeschort();
         LoggedInUser loggedInUser = user == null ? loggedInUserInstance.get() : user;
         return evaluationClient.readZaakRechten(new RuleQuery<>(new ZaakInput(loggedInUser, zaakData))).getResult();
     }
@@ -99,7 +99,7 @@ public class PolicyService {
         final ZaakData zaakData = new ZaakData();
         zaakData.open = !zaakZoekObject.isAfgehandeld();
         zaakData.zaaktype = zaakZoekObject.getZaaktypeOmschrijving();
-        zaakData.suspended = zaakZoekObject.isOpgeschort();
+        zaakData.opgeschort = zaakZoekObject.isOpgeschort();
         return evaluationClient.readZaakRechten(new RuleQuery<>(new ZaakInput(loggedInUserInstance.get(), zaakData)))
                 .getResult();
     }
@@ -125,6 +125,7 @@ public class PolicyService {
         documentData.definitief = enkelvoudigInformatieobject.getStatus() == DEFINITIEF;
         documentData.vergrendeld = enkelvoudigInformatieobject.getLocked();
         documentData.vergrendeldDoor = lock != null ? lock.getUserId() : null;
+        documentData.ondertekend = enkelvoudigInformatieobject.getOndertekening() != null;
         if (zaak != null) {
             documentData.zaakOpen = zaak.isOpen();
             documentData.zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype()).getOmschrijving();
@@ -140,6 +141,7 @@ public class PolicyService {
         documentData.vergrendeldDoor = enkelvoudigInformatieobject.getVergrendeldDoorGebruikersnaam();
         documentData.zaakOpen = !enkelvoudigInformatieobject.isZaakAfgehandeld();
         documentData.zaaktype = enkelvoudigInformatieobject.getZaaktypeOmschrijving();
+        documentData.ondertekend = enkelvoudigInformatieobject.getOndertekeningDatum() != null;
         return evaluationClient.readDocumentRechten(
                 new RuleQuery<>(new DocumentInput(loggedInUserInstance.get(), documentData))).getResult();
     }

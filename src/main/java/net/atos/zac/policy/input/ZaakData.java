@@ -9,7 +9,7 @@ public class ZaakData {
 
     public boolean open;
 
-    public boolean suspended;
+    public boolean opgeschort;
 
     public String zaaktype;
 }

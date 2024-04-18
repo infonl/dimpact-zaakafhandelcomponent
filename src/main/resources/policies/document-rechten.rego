@@ -120,7 +120,7 @@ toevoegen_nieuwe_versie {
 toevoegen_nieuwe_versie {
     recordmanager.rol in user.rollen
     zaaktype_allowed
-    # how can we check for signed documents?
+    document.ondertekend == false
 }
 
 default verplaatsen := false

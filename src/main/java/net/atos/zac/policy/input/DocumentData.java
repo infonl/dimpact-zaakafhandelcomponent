@@ -13,6 +13,8 @@ public class DocumentData {
 
     public boolean vergrendeld;
 
+    public boolean ondertekend;
+
     @JsonbProperty("vergrendeld_door")
     public String vergrendeldDoor;
 
