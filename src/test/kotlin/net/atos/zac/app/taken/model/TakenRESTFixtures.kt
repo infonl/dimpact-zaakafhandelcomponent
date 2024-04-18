@@ -15,23 +15,25 @@ fun createRESTTaak(
     id: String = "dummyId",
     zaakUuid: UUID = UUID.randomUUID(),
     behandelaar: RESTUser = createRESTUser(),
-    taakData: Map<String, String> = emptyMap()
-) = RESTTaak().apply {
-    this.id = id
-    this.zaakUuid = zaakUuid
-    this.behandelaar = behandelaar
-    this.taakdata = taakData
-}
+    taakData: MutableMap<String, String> = emptyMap<String, String>().toMutableMap(),
+    tabellen: MutableMap<String, List<String>> = emptyMap<String, List<String>>().toMutableMap()
+) = RESTTaak(
+    id = id,
+    zaakUuid = zaakUuid,
+    behandelaar = behandelaar,
+    taakdata = taakData,
+    tabellen = tabellen
+)
 
 fun createRESTTaakDocumentData(
     bestandsnaam: String = "dummyBestandsNaam",
     documentTitel: String = "dummyDocumentTitel",
     documentType: RESTInformatieobjecttype = createRESTInformatieobjecttype()
-) = RESTTaakDocumentData().apply {
-    this.bestandsnaam = bestandsnaam
-    this.documentTitel = documentTitel
-    this.documentType = documentType
-}
+) = RESTTaakDocumentData(
+    bestandsnaam = bestandsnaam,
+    documentTitel = documentTitel,
+    documentType = documentType
+)
 
 fun createRESTTaakToekennenGegevens(
     taakId: String = "dummyTaakId",
@@ -39,10 +41,10 @@ fun createRESTTaakToekennenGegevens(
     groepId: String = "dummyGroepId",
     behandelaarId: String = "dummyBehandelaarId",
     reden: String = "dummyReden"
-) = RESTTaakToekennenGegevens().apply {
-    this.taakId = taakId
-    this.zaakUuid = zaakUuid
-    this.groepId = groepId
-    this.behandelaarId = behandelaarId
-    this.reden = reden
-}
+) = RESTTaakToekennenGegevens(
+    taakId = taakId,
+    zaakUuid = zaakUuid,
+    groepId = groepId,
+    behandelaarId = behandelaarId,
+    reden = reden
+)

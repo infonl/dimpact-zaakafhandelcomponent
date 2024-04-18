@@ -11,7 +11,6 @@ import io.kotest.inspectors.forExactly
 import io.kotest.matchers.shouldBe
 import io.mockk.MockKAnnotations
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
@@ -22,11 +21,14 @@ import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
 import net.atos.client.zgw.drc.DRCClientService
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
+import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.app.identity.model.createRESTUser
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
+import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
 import net.atos.zac.app.taken.converter.RESTTaakConverter
+import net.atos.zac.app.taken.converter.RESTTaakHistorieConverter
 import net.atos.zac.app.taken.model.TaakStatus
 import net.atos.zac.app.taken.model.createRESTTaak
 import net.atos.zac.app.taken.model.createRESTTaakToekennenGegevens
@@ -40,6 +42,8 @@ import net.atos.zac.flowable.util.TaskUtil.getTaakStatus
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.output.createDocumentRechten
 import net.atos.zac.policy.output.createTaakRechten
+import net.atos.zac.shared.helper.OpschortenZaakHelper
+import net.atos.zac.signalering.SignaleringenService
 import net.atos.zac.signalering.event.SignaleringEvent
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.util.DateTimeConverterUtil
@@ -69,11 +73,30 @@ class TakenRESTServiceTest : BehaviorSpec() {
     val restTaakConverter = mockk<RESTTaakConverter>()
     val takenService = mockk<TakenService>()
     val zrcClientService = mockk<ZRCClientService>()
+    val opschortenZaakHelper = mockk<OpschortenZaakHelper>()
+    val restInformatieobjectConverter = mockk<RESTInformatieobjectConverter>()
+    val signaleringenService = mockk<SignaleringenService>()
+    val taakHistorieConverter = mockk<RESTTaakHistorieConverter>()
+    val zgwApiService = mockk<ZGWApiService>()
 
-    // We have to use @InjectMockKs since the class under test uses field injection instead of constructor injection.
-    // This is because WildFly does not properly support constructor injection for JAX-RS REST services.
-    @InjectMockKs
-    lateinit var takenRESTService: TakenRESTService
+    val takenRESTService = TakenRESTService(
+        drcClientService = drcClientService,
+        enkelvoudigInformatieObjectUpdateService = enkelvoudigInformatieObjectUpdateService,
+        eventingService = eventingService,
+        httpSession = httpSessionInstance,
+        indexeerService = indexeerService,
+        loggedInUserInstance = loggedInUserInstance,
+        policyService = policyService,
+        taakVariabelenService = taakVariabelenService,
+        restTaakConverter = restTaakConverter,
+        takenService = takenService,
+        zrcClientService = zrcClientService,
+        opschortenZaakHelper = opschortenZaakHelper,
+        restInformatieobjectConverter = restInformatieobjectConverter,
+        signaleringenService = signaleringenService,
+        taakHistorieConverter = taakHistorieConverter,
+        zgwApiService = zgwApiService
+    )
 
     val loggedInUser = createLoggedInUser()
 
