@@ -105,12 +105,14 @@ public class ZaakZoekObject implements ZoekObject {
     @Field("zaak_locatie")
     private String locatie;
 
+    @Field("zaak_verlengd")
+    private boolean verlengd;
+
     @Field("zaak_duurVerlenging")
     private String duurVerlenging;
 
     @Field("zaak_redenVerlenging")
     private String redenVerlenging;
-
 
     @Field("zaak_redenOpschorting")
     private String redenOpschorting;
@@ -537,5 +539,13 @@ public class ZaakZoekObject implements ZoekObject {
 
     public void setOpgeschort(boolean opgeschort) {
         this.opgeschort = opgeschort;
+    }
+
+    public boolean isVerlengd() {
+        return verlengd;
+    }
+
+    public void setVerlengd(boolean verlengd) {
+        this.verlengd = verlengd;
     }
 }

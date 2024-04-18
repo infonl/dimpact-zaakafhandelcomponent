@@ -114,7 +114,7 @@ verlengen {
     zaak.open == true
     # how do we check for reopened?
     zaak.opgeschort == false
-    # how to check for extended?
+    zaak.verlengd == false
 }
 
 default opschorten := false
@@ -124,7 +124,6 @@ opschorten {
     zaak.open == true
     # how do we check for reopened?
     zaak.opgeschort == false
-    # how to check for extended?
 }
 
 default hervatten := false

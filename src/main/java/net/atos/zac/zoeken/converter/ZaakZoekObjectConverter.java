@@ -81,6 +81,7 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
         zaakZoekObject.setVertrouwelijkheidaanduiding(zaak.getVertrouwelijkheidaanduiding().toString());
         zaakZoekObject.setAfgehandeld(!zaak.isOpen());
         zaakZoekObject.setOpgeschort(zaak.isOpgeschort());
+        zaakZoekObject.setVerlengd(zaak.isVerlengd());
         zgwApiService.findInitiatorForZaak(zaak).ifPresent(zaakZoekObject::setInitiator);
         zaakZoekObject.setLocatie(convertToLocatie(zaak.getZaakgeometrie()));
 
