@@ -51,10 +51,12 @@ class RESTTaakHistorieConverter @Inject constructor(
                 GROEP_ATTRIBUUT_LABEL,
                 historicTaskLogEntry.data
             )
-            else -> convertData(
-                HistoricTaskLogEntryType.valueOf(historicTaskLogEntry.type),
-                historicTaskLogEntry.data
-            )
+            else -> historicTaskLogEntry.data?.let {
+                convertData(
+                    HistoricTaskLogEntryType.valueOf(historicTaskLogEntry.type),
+                    it
+                )
+            }
         }
         restTaakHistorieRegel?.datumTijd = DateTimeConverterUtil.convertToZonedDateTime(historicTaskLogEntry.timeStamp)
         return restTaakHistorieRegel
