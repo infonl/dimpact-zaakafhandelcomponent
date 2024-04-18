@@ -585,7 +585,10 @@ services:
       - SD_CLIENT_MP_REST_URL=${SD_CLIENT_MP_REST_URL:-http://smartdocuments-wiremock:8080}
       - SD_FIXED_USER_NAME=${SD_FIXED_USER_NAME:-}
       - SOLR_URL=http://solr:8983
-      - SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE=on
+      # Turn off the Open Telemetry sampler by default because it is not always needed
+      # Typically when using the Docker Compose profile 'metrics' you want to turn this on
+      - SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE=${SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE:-off}
+      # When running ZAC locally in IntelliJ and you want to use Open Telemetry please change this to http://localhost:4317
       - SUBSYSTEM_OPENTELEMETRY__ENDPOINT=http://otel-collector:4317
       - VRL_API_CLIENT_MP_REST_URL=http://zgw-referentielijsten.local:8000/
       # Enable the ability to override WildFly settings using environment variables
