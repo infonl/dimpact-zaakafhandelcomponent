@@ -12,11 +12,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.net.URI;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,12 +22,15 @@ import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.json.bind.JsonbConfig;
 
+import net.atos.zac.app.communicatiekanalen.converter.RestCommunicatiekanaalConverter;
+import net.atos.zac.app.communicatiekanalen.model.RESTCommunicatiekanaal;
+import net.atos.zac.zaaksturing.ReferentieTabelService;
+import net.atos.zac.zaaksturing.model.ReferentieTabel;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import net.atos.client.or.object.ObjectsClientService;
 import net.atos.client.or.object.model.ORObject;
-import net.atos.client.vrl.VRLClientService;
 import net.atos.client.vrl.model.generated.CommunicatieKanaal;
 import net.atos.client.zgw.drc.DRCClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
@@ -90,7 +89,7 @@ public class ProductaanvraagService {
     private ZRCClientService zrcClientService;
     private DRCClientService drcClientService;
     private ZTCClientService ztcClientService;
-    private VRLClientService vrlClientService;
+    private ReferentieTabelService referentieTabelService;
     private IdentityService identityService;
     private ZaakafhandelParameterService zaakafhandelParameterService;
     private ZaakafhandelParameterBeheerService zaakafhandelParameterBeheerService;
@@ -99,6 +98,7 @@ public class ProductaanvraagService {
     private CMMNService cmmnService;
     private BPMNService bpmnService;
     private ConfiguratieService configuratieService;
+    private RestCommunicatiekanaalConverter restCommunicatiekanaalConverter;
 
     /**
      * Empty no-op constructor as required by Weld.
@@ -113,7 +113,7 @@ public class ProductaanvraagService {
             ZRCClientService zrcClientService,
             DRCClientService drcClientService,
             ZTCClientService ztcClientService,
-            VRLClientService vrlClientService,
+            ReferentieTabelService referentieTabelService,
             IdentityService identityService,
             ZaakafhandelParameterService zaakafhandelParameterService,
             ZaakafhandelParameterBeheerService zaakafhandelParameterBeheerService,
@@ -121,14 +121,15 @@ public class ProductaanvraagService {
             InboxProductaanvraagService inboxProductaanvraagService,
             CMMNService cmmnService,
             BPMNService bpmnService,
-            ConfiguratieService configuratieService
+            ConfiguratieService configuratieService,
+            RestCommunicatiekanaalConverter restCommunicatiekanaalConverter
     ) {
         this.objectsClientService = objectsClientService;
         this.zgwApiService = zgwApiService;
         this.zrcClientService = zrcClientService;
         this.drcClientService = drcClientService;
         this.ztcClientService = ztcClientService;
-        this.vrlClientService = vrlClientService;
+        this.referentieTabelService = referentieTabelService;
         this.identityService = identityService;
         this.zaakafhandelParameterService = zaakafhandelParameterService;
         this.zaakafhandelParameterBeheerService = zaakafhandelParameterBeheerService;
@@ -137,6 +138,7 @@ public class ProductaanvraagService {
         this.cmmnService = cmmnService;
         this.bpmnService = bpmnService;
         this.configuratieService = configuratieService;
+        this.restCommunicatiekanaalConverter = restCommunicatiekanaalConverter;
     }
 
     public void verwerkProductaanvraag(final URI productaanvraagUrl) {
@@ -310,11 +312,16 @@ public class ProductaanvraagService {
         zaak.setStartdatum(productaanvraagObject.getRecord().getStartAt());
         zaak.setBronorganisatie(BRON_ORGANISATIE);
         zaak.setVerantwoordelijkeOrganisatie(BRON_ORGANISATIE);
-        final Optional<CommunicatieKanaal> communicatiekanaal = vrlClientService.findCommunicatiekanaal(
-                COMMUNICATIEKANAAL_EFORMULIER);
-        if (communicatiekanaal.isPresent()) {
-            zaak.setCommunicatiekanaal(communicatiekanaal.get().getUrl());
-        }
+
+        final Optional<URI> communicatiekanaalUri = referentieTabelService.readReferentieTabel(ReferentieTabel.Systeem.COMMUNICATIEKANAAL.name())
+                .getWaarden()
+                .stream()
+                .filter(x -> Objects.equals(x.getNaam(), COMMUNICATIEKANAAL_EFORMULIER))
+                .findFirst()
+                .map(x -> restCommunicatiekanaalConverter.convertToRESTCommunicatiekanaal(x))
+                .map(RESTCommunicatiekanaal::getUrl);
+
+        communicatiekanaalUri.ifPresent(zaak::setCommunicatiekanaal);
 
         LOG.fine("Creating zaak using the ZGW API: " + zaak);
         zaak = zgwApiService.createZaak(zaak);
