@@ -41,6 +41,7 @@
                             <version>${wildfly-datasources-galleon-pack.version}</version>
                         </featurePack>
                     </featurePacks>
+                    <!-- please keep these layers in sync with those in our `install-wildfly.sh` script -->
                     <layers>
                         <layer>jaxrs-server</layer>
                         <layer>microprofile-health</layer>
@@ -48,6 +49,7 @@
                         <layer>microprofile-fault-tolerance</layer>
                         <layer>elytron-oidc-client</layer>
                         <layer>postgresql-driver</layer>
+                        <layer>opentelemetry</layer>
                     </layers>
                     <excludedLayers>
                         <layer>deployment-scanner</layer>

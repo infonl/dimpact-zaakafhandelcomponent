@@ -3,7 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
+import { Component, computed, effect, signal } from "@angular/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
+import { firstValueFrom } from "rxjs";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { ZakenMijnDatasource } from "../../zaken/zaken-mijn/zaken-mijn-datasource";
@@ -29,6 +31,25 @@ export class ZaakZoekenCardComponent extends DashboardCardComponent<ZoekObject> 
     "omschrijving",
     "url",
   ];
+  pageSize = 5;
+  pageNumber = signal(0);
+
+  zoekParameters = computed(() => {
+    const zoekParameters = ZakenMijnDatasource.mijnLopendeZaken(
+      new ZoekParameters(),
+    );
+    zoekParameters.sorteerVeld = SorteerVeld.ZAAK_STREEFDATUM;
+    zoekParameters.sorteerRichting = "asc";
+    zoekParameters.rows = this.pageSize;
+    zoekParameters.page = this.pageNumber();
+    return zoekParameters;
+  });
+
+  zoekQuery = injectQuery(() => ({
+    queryKey: ["zaak zoeken dashboard", this.zoekParameters()],
+    queryFn: () =>
+      firstValueFrom(this.zoekenService.list(this.zoekParameters())),
+  }));
 
   constructor(
     private zoekenService: ZoekenService,
@@ -36,17 +57,18 @@ export class ZaakZoekenCardComponent extends DashboardCardComponent<ZoekObject> 
     protected websocketService: WebsocketService,
   ) {
     super(identityService, websocketService);
+    effect(() => {
+      const { resultaten = [], totaal = 0 } = this.zoekQuery.data() ?? {};
+      this.dataSource.data = resultaten;
+      this.paginator.length = totaal;
+    });
+  }
+
+  onPageChange({ pageIndex }: { pageIndex: number }) {
+    this.pageNumber.set(pageIndex);
   }
 
   protected onLoad(afterLoad: () => void): void {
-    const zoekParameters: ZoekParameters = ZakenMijnDatasource.mijnLopendeZaken(
-      new ZoekParameters(),
-    );
-    zoekParameters.sorteerVeld = SorteerVeld.ZAAK_STREEFDATUM;
-    zoekParameters.sorteerRichting = "asc";
-    this.zoekenService.list(zoekParameters).subscribe((zoekResultaat) => {
-      this.dataSource.data = zoekResultaat.resultaten;
-      afterLoad();
-    });
+    this.zoekQuery.refetch();
   }
 }

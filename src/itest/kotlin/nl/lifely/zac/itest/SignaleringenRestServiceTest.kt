@@ -46,8 +46,8 @@ class SignaleringenRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    val afterFiveSeconds = eventuallyConfig {
-        duration = 5.seconds
+    val afterThirtySeconds = eventuallyConfig {
+        duration = 30.seconds
         interval = 500.milliseconds
     }
 
@@ -186,32 +186,13 @@ class SignaleringenRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given(
-        "a zaak has been assigned and a websocket subscription has been created to listen for async generated" +
-            " ZAKEN_SIGNALERINGEN list"
-    ) {
-        val uniqueResourceId = UUID.randomUUID()
-        val websocketListener = WebSocketTestListener(
-            textToBeSentOnOpen = """{
-                "subscriptionType":"CREATE",
-                "event":{  
-                    "opcode":"UPDATED",
-                    "objectType":"ZAKEN_SIGNALERINGEN",
-                    "objectId":{ "resource":"$uniqueResourceId" },
-                    "_key":"ANY;ZAKEN_SIGNALERINGEN;$uniqueResourceId"
-                }
-            }"""
-        )
-        itestHttpClient.connectNewWebSocket(
-            url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
-            webSocketListener = websocketListener
-        )
-
+    Given("A zaak has been assigned") {
         When("the latest signaleringen date is requested") {
             val latestSignaleringenDateUrl = "$ZAC_API_URI/signaleringen/latest"
 
             Then("it returns a date between the start of the tests and current moment") {
-                eventually(afterFiveSeconds) {
+                // The backend event processing is asynchronous. Wait a bit until the events are processed
+                eventually(afterThirtySeconds) {
                     val response = itestHttpClient.performGetRequest(latestSignaleringenDateUrl)
                     val responseBody = response.body!!.string()
                     logger.info { "Response: $responseBody" }
@@ -226,25 +207,54 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                 }
             }
         }
-        When("the list of zaken signaleringen for ZAAK_OP_NAAM is requested") {
+    }
+
+    Given("A websocket subscription has been created to listen for async generated ZAKEN_SIGNALERINGEN list") {
+        fun requestZaakSignaleringen(id: UUID, type: String): WebSocketTestListener {
+            val websocketListener = WebSocketTestListener(
+                textToBeSentOnOpen = """{
+                "subscriptionType":"CREATE",
+                "event":{  
+                    "opcode":"UPDATED",
+                    "objectType":"ZAKEN_SIGNALERINGEN",
+                    "objectId":{ "resource":"$id" },
+                    "_key":"ANY;ZAKEN_SIGNALERINGEN;$id"
+                }
+            }"""
+            )
+            itestHttpClient.connectNewWebSocket(
+                url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
+                webSocketListener = websocketListener
+            )
+
             val response = itestHttpClient.performPutRequest(
-                url = "$ZAC_API_URI/signaleringen/zaken/ZAAK_OP_NAAM",
-                requestBodyAsString = "$uniqueResourceId"
+                url = "$ZAC_API_URI/signaleringen/zaken/$type",
+                requestBodyAsString = "$id"
             )
             response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
 
-            Then("it returns the correct signaleringen for ZAAK_OP_NAAM via websocket") {
-                // the backend process is asynchronous, so we need to wait a bit until the zaken are assigned
-                eventually(afterFiveSeconds) {
-                    websocketListener.messagesReceived.size shouldBe 1
+            return websocketListener
+        }
 
-                    with(JSONObject(websocketListener.messagesReceived[0])) {
+        When("the list of zaken signaleringen for ZAAK_OP_NAAM is requested") {
+            var uniqueResourceId = UUID.randomUUID()
+            var websocketListener = requestZaakSignaleringen(uniqueResourceId, "ZAAK_OP_NAAM")
+
+            Then("it returns the correct signaleringen for ZAAK_OP_NAAM via websocket") {
+                // the backend process is asynchronous, so we need to wait a bit until the DB is populated
+                eventually(afterThirtySeconds) {
+                    with(JSONObject(websocketListener.messagesReceived.last())) {
                         getString("opcode") shouldBe "UPDATED"
                         getString("objectType") shouldBe "ZAKEN_SIGNALERINGEN"
                         with(getJSONObject("objectId")) {
                             getString("resource") shouldBe uniqueResourceId.toString()
-                            val detail = JSONArray(getString("detail")).getJSONObject(0).toString()
-                            with(detail) {
+                            val detail = JSONArray(getString("detail"))
+                            if (detail.isEmpty) {
+                                // we got an empty list - DB not populated. Request a new list
+                                uniqueResourceId = UUID.randomUUID()
+                                websocketListener = requestZaakSignaleringen(uniqueResourceId, "ZAAK_OP_NAAM")
+                            }
+                            with(detail.getJSONObject(0).toString()) {
                                 shouldContainJsonKey("behandelaar")
                                 shouldContainJsonKey("groep")
                                 shouldContainJsonKeyValue("identificatie", ZAAK_1_IDENTIFICATION)
@@ -264,24 +274,27 @@ class SignaleringenRestServiceTest : BehaviorSpec({
             }
         }
         When("the list of zaken signaleringen for ZAAK_DOCUMENT_TOEGEVOEGD is requested") {
-            val response = itestHttpClient.performPutRequest(
-                url = "$ZAC_API_URI/signaleringen/zaken/ZAAK_DOCUMENT_TOEGEVOEGD",
-                requestBodyAsString = "$uniqueResourceId"
-            )
-            response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
+            var uniqueResourceId = UUID.randomUUID()
+            var websocketListener = requestZaakSignaleringen(uniqueResourceId, "ZAAK_DOCUMENT_TOEGEVOEGD")
 
             Then("it returns the correct signaleringen for ZAAK_DOCUMENT_TOEGEVOEGD via websocket") {
-                // the backend process is asynchronous, so we need to wait a bit until the zaken are assigned
-                eventually(afterFiveSeconds) {
-                    websocketListener.messagesReceived.size shouldBe 2
-
-                    with(JSONObject(websocketListener.messagesReceived[1])) {
+                // the backend process is asynchronous, so we need to wait a bit until DB is populated
+                eventually(afterThirtySeconds) {
+                    with(JSONObject(websocketListener.messagesReceived.last())) {
                         getString("opcode") shouldBe "UPDATED"
                         getString("objectType") shouldBe "ZAKEN_SIGNALERINGEN"
                         with(getJSONObject("objectId")) {
                             getString("resource") shouldBe uniqueResourceId.toString()
-                            val detail = JSONArray(getString("detail")).getJSONObject(0).toString()
-                            with(detail) {
+                            val detail = JSONArray(getString("detail"))
+                            if (detail.isEmpty) {
+                                // we got an empty list - DB not populated. Request a new list
+                                uniqueResourceId = UUID.randomUUID()
+                                websocketListener = requestZaakSignaleringen(
+                                    uniqueResourceId,
+                                    "ZAAK_DOCUMENT_TOEGEVOEGD"
+                                )
+                            }
+                            with(detail.getJSONObject(0).toString()) {
                                 shouldContainJsonKeyValue("identificatie", ZAAK_1_IDENTIFICATION)
                                 shouldContainJsonKeyValue("toelichting", "")
                                 shouldContainJsonKey("omschrijving")

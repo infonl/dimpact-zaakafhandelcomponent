@@ -14,6 +14,7 @@ help()
    echo "Syntax: $0 [-d|z|l|h]"
    echo "options:"
    echo "-d     Delete local Docker volume data before starting Docker Compose."
+   echo "-t     Also enable tracing and start the containers used for handling metrics and traces"
    echo "-z     Also start last-known-good ZAC Docker container as part of the Docker Compose environment."
    echo "-l     Build and start local ZAC Docker image in the Docker Compose environment."
    echo "-h     Print this Help."
@@ -22,8 +23,10 @@ help()
 
 volumeDataFolder="./scripts/docker-compose/volume-data"
 startZac=false
+enableTracing=false
+enableZacOpenTelemetrySampler=off
 
-while getopts ':dzlh' OPTION; do
+while getopts ':dtzlh' OPTION; do
   case $OPTION in
     d)
       echo "Deleting local Docker volume data folder: '$volumeDataFolder'.."
@@ -33,6 +36,11 @@ while getopts ':dzlh' OPTION; do
     h)
       help
       exit;;
+    t)
+      echo "Also enabling tracing and starting containers used for handling metrics and traces"
+      enableTracing=true
+      enableZacOpenTelemetrySampler=on
+      ;;
     z)
       echo "Pulling latest ZAC Docker Image ..."
       startZac=true
@@ -54,9 +62,19 @@ done
 # Uses the 1Password CLI tools to set up the environment variables for running Docker Compose and ZAC in IntelliJ.
 # Please see docs/INSTALL.md for details on how to use this script.
 if [ "$startZac" = true ] ; then
+  if [ "$enableTracing" = true ] ; then
+    profiles=zac,metrics
+  else
+    profiles=zac
+  fi
   echo "Starting Docker Compose environment with ${ZAC_DOCKER_IMAGE:-ZAC} ..."
-  export APP_ENV=devlocal && op run --env-file="./.env.tpl" --no-masking -- docker compose --profile zac --project-name zac up -d
+  export APP_ENV=devlocal && export COMPOSE_PROFILES=$profiles && export SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE=$enableZacOpenTelemetrySampler && op run --env-file="./.env.tpl" --no-masking -- docker compose --project-name zac up -d
 else
+    if [ "$enableTracing" = true ] ; then
+      profiles=metrics
+    else
+      profiles=
+    fi
   echo "Starting Docker Compose environment without ZAC ..."
-  export APP_ENV=devlocal && op run --env-file="./.env.tpl" --no-masking -- docker compose --project-name zac up -d
+  export APP_ENV=devlocal && export COMPOSE_PROFILES=$profiles && export SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE=$enableZacOpenTelemetrySampler && op run --env-file="./.env.tpl" --no-masking -- docker compose --project-name zac up -d
 fi
