@@ -1,3 +1,4 @@
+import com.bisnode.opa.configuration.ExecutableMode
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.github.gradle.node.npm.task.NpmTask
 import io.smallrye.openapi.api.OpenApiConfig
@@ -208,6 +209,14 @@ noArg {
 
 jacoco {
     toolVersion = libs.versions.jacoco.get()
+}
+
+opa {
+    srcDir = "$rootDir/src/main/resources/policies"
+    testDir = "$rootDir/src/main/resources/policies/tests"
+    version = libs.versions.opa.binary.get()
+    mode = ExecutableMode.DOWNLOAD
+    location = "$rootDir/build/opa/$version/opa"
 }
 
 java {
