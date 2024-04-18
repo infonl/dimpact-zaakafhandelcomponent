@@ -275,7 +275,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
         }
         When("the list of zaken signaleringen for ZAAK_DOCUMENT_TOEGEVOEGD is requested") {
             var uniqueResourceId = UUID.randomUUID()
-            var websocketListener = requestZaakSignaleringen(uniqueResourceId,"ZAAK_DOCUMENT_TOEGEVOEGD")
+            var websocketListener = requestZaakSignaleringen(uniqueResourceId, "ZAAK_DOCUMENT_TOEGEVOEGD")
 
             Then("it returns the correct signaleringen for ZAAK_DOCUMENT_TOEGEVOEGD via websocket") {
                 // the backend process is asynchronous, so we need to wait a bit until DB is populated
@@ -289,7 +289,10 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                             if (detail.isEmpty) {
                                 // we got an empty list - DB not populated. Request a new list
                                 uniqueResourceId = UUID.randomUUID()
-                                websocketListener = requestZaakSignaleringen(uniqueResourceId,"ZAAK_DOCUMENT_TOEGEVOEGD")
+                                websocketListener = requestZaakSignaleringen(
+                                    uniqueResourceId,
+                                    "ZAAK_DOCUMENT_TOEGEVOEGD"
+                                )
                             }
                             with(detail.getJSONObject(0).toString()) {
                                 shouldContainJsonKeyValue("identificatie", ZAAK_1_IDENTIFICATION)
