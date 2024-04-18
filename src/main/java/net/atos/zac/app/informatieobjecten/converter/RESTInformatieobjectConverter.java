@@ -266,11 +266,11 @@ public class RESTInformatieobjectConverter {
         final EnkelvoudigInformatieObjectData enkelvoudigInformatieobjectWithInhoud = new EnkelvoudigInformatieObjectData();
         enkelvoudigInformatieobjectWithInhoud.setBronorganisatie(ConfiguratieService.BRON_ORGANISATIE);
         enkelvoudigInformatieobjectWithInhoud.setCreatiedatum(LocalDate.now());
-        enkelvoudigInformatieobjectWithInhoud.setTitel(documentData.documentTitel);
+        enkelvoudigInformatieobjectWithInhoud.setTitel(documentData.getDocumentTitel());
         enkelvoudigInformatieobjectWithInhoud.setAuteur(loggedInUserInstance.get().getFullName());
         enkelvoudigInformatieobjectWithInhoud.setTaal(ConfiguratieService.TAAL_NEDERLANDS);
         enkelvoudigInformatieobjectWithInhoud.setInformatieobjecttype(
-                ztcClientService.readInformatieobjecttype(documentData.documentType.uuid).getUrl());
+                ztcClientService.readInformatieobjecttype(documentData.getDocumentType().uuid).getUrl());
         enkelvoudigInformatieobjectWithInhoud.setInhoud(convertByteArrayToBase64String(bestand.file));
         enkelvoudigInformatieobjectWithInhoud.setFormaat(bestand.type);
         enkelvoudigInformatieobjectWithInhoud.setBestandsnaam(bestand.filename);
@@ -278,7 +278,7 @@ public class RESTInformatieobjectConverter {
         // TODO: check upper case?
         enkelvoudigInformatieobjectWithInhoud.setVertrouwelijkheidaanduiding(
                 EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.valueOf(
-                        documentData.documentType.vertrouwelijkheidaanduiding)
+                        documentData.getDocumentType().vertrouwelijkheidaanduiding)
         );
         return enkelvoudigInformatieobjectWithInhoud;
     }
