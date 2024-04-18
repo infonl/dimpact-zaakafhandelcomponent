@@ -12,11 +12,6 @@ import nl.lifely.zac.util.NoArgConstructor
 @NoArgConstructor
 data class RESTTaakDocumentData(
     var bestandsnaam: String,
-
-    // TODO
-    // @JvmField
     var documentTitel: String,
-
-    // @JvmField
     var documentType: RESTInformatieobjecttype
 )
