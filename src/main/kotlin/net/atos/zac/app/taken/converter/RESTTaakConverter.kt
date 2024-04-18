@@ -17,8 +17,6 @@ import net.atos.zac.policy.PolicyService
 import net.atos.zac.util.DateTimeConverterUtil
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import net.atos.zac.zaaksturing.model.HumanTaskParameters
-import net.atos.zac.zaaksturing.model.HumanTaskReferentieTabel
-import net.atos.zac.zaaksturing.model.ReferentieTabelWaarde
 import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.TaskInfo
@@ -35,11 +33,9 @@ class RESTTaakConverter @Inject constructor(
     private val formulierDefinitieConverter: RESTFormulierDefinitieConverter,
     private val formulierDefinitieService: FormulierDefinitieService
 ) {
-    fun convert(tasks: List<TaskInfo>): List<RESTTaak> {
-        return tasks.stream()
-            .map { taskInfo: TaskInfo -> this.convert(taskInfo) }
-            .toList()
-    }
+    fun convert(tasks: List<TaskInfo>) = tasks
+        .map { convert(it) }
+        .toList()
 
     @Suppress("LongMethod")
     fun convert(taskInfo: TaskInfo): RESTTaak {
@@ -97,21 +93,17 @@ class RESTTaakConverter @Inject constructor(
                 taskInfo.taskDefinitionKey
             )
         } else {
-            val formulierDefinitie = formulierDefinitieService.readFormulierDefinitie(
+            formulierDefinitieService.readFormulierDefinitie(
                 taskInfo.formKey
-            )
-            restTaak.formulierDefinitie = formulierDefinitieConverter.convert(formulierDefinitie, true, false)
+            ).let {
+                restTaak.formulierDefinitie = formulierDefinitieConverter.convert(it, true, false)
+            }
         }
         return restTaak
     }
 
-    fun extractGroupId(identityLinks: List<IdentityLinkInfo>): String? {
-        return identityLinks.stream()
-            .filter { identityLinkInfo: IdentityLinkInfo -> IdentityLinkType.CANDIDATE == identityLinkInfo.type }
-            .findAny()
-            .map { obj: IdentityLinkInfo -> obj.groupId }
-            .orElse(null)
-    }
+    fun extractGroupId(identityLinks: List<IdentityLinkInfo>): String? =
+        identityLinks.firstOrNull { IdentityLinkType.CANDIDATE == it.type }?.groupId
 
     private fun convertFormulierDefinitieEnReferentieTabellen(
         restTaak: RESTTaak,
@@ -119,14 +111,9 @@ class RESTTaakConverter @Inject constructor(
         taskDefinitionKey: String
     ) {
         zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUUID)
-            .humanTaskParametersCollection.stream()
-            .filter { zaakafhandelParameters: HumanTaskParameters -> taskDefinitionKey == zaakafhandelParameters.planItemDefinitionID }
-            .findAny()
-            .ifPresent { zaakafhandelParameters: HumanTaskParameters ->
-                verwerkZaakafhandelParameters(
-                    restTaak,
-                    zaakafhandelParameters
-                )
+            .humanTaskParametersCollection
+            .first { taskDefinitionKey == it.planItemDefinitionID }?.let {
+                verwerkZaakafhandelParameters(restTaak, it)
             }
     }
 
@@ -135,9 +122,9 @@ class RESTTaakConverter @Inject constructor(
         humanTaskParameters: HumanTaskParameters
     ) {
         restTaak.formulierDefinitieId = humanTaskParameters.formulierDefinitieID
-        humanTaskParameters.referentieTabellen.forEach { referentieTabel: HumanTaskReferentieTabel ->
-            restTaak.tabellen[referentieTabel.veld] = referentieTabel.tabel.waarden.stream()
-                .map { obj: ReferentieTabelWaarde -> obj.naam }
+        humanTaskParameters.referentieTabellen.forEach {
+            restTaak.tabellen[it.veld] = it.tabel.waarden
+                .map { value -> value.naam }
                 .toList()
         }
     }

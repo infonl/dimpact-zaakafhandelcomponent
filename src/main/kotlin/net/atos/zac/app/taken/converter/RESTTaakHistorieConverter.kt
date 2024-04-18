@@ -32,7 +32,7 @@ class RESTTaakHistorieConverter @Inject constructor(
 
     fun convert(historicTaskLogEntries: List<HistoricTaskLogEntry>): List<RESTTaakHistorieRegel> =
         historicTaskLogEntries
-            .map { historicTaskLogEntry -> this.convert(historicTaskLogEntry) }
+            .map { convert(it) }
             .mapNotNull { it }
             .toList()
 
@@ -81,34 +81,34 @@ class RESTTaakHistorieConverter @Inject constructor(
         }
 
     private fun convertValueChangeData(attribuutLabel: String, data: String): RESTTaakHistorieRegel {
-        val valueChangeData = JsonbUtil.JSONB.fromJson(data, ValueChangeData::class.java)
-        return RESTTaakHistorieRegel(
-            attribuutLabel,
-            valueChangeData.oldValue,
-            valueChangeData.newValue,
-            valueChangeData.explanation
-        )
+        JsonbUtil.JSONB.fromJson(data, ValueChangeData::class.java).let {
+            return RESTTaakHistorieRegel(
+                attribuutLabel,
+                it.oldValue,
+                it.newValue,
+                it.explanation
+            )
+        }
     }
 
     class AssigneeChangedData {
         var newAssigneeId: String? = null
-
         var previousAssigneeId: String? = null
     }
 
     private fun convertOwnerChanged(data: String): RESTTaakHistorieRegel {
-        val assigneeChangedData = JsonbUtil.JSONB.fromJson(data, AssigneeChangedData::class.java)
-        return RESTTaakHistorieRegel(
-            AANGEMAAKT_DOOR_ATTRIBUUT_LABEL,
-            getMedewerkerFullName(assigneeChangedData.previousAssigneeId),
-            getMedewerkerFullName(assigneeChangedData.newAssigneeId),
-            null
-        )
+        JsonbUtil.JSONB.fromJson(data, AssigneeChangedData::class.java).let {
+            return RESTTaakHistorieRegel(
+                AANGEMAAKT_DOOR_ATTRIBUUT_LABEL,
+                getMedewerkerFullName(it.previousAssigneeId),
+                getMedewerkerFullName(it.newAssigneeId),
+                null
+            )
+        }
     }
 
-    private fun getMedewerkerFullName(medewerkerId: String?): String? {
-        return if (medewerkerId == null) null else identityService.readUser(medewerkerId).fullName
-    }
+    private fun getMedewerkerFullName(medewerkerId: String?): String? =
+        medewerkerId?.let { identityService.readUser(it).fullName }
 
     class DuedateChangedData {
         @JsonbDateFormat(JsonbDateFormat.TIME_IN_MILLIS)
@@ -119,12 +119,13 @@ class RESTTaakHistorieConverter @Inject constructor(
     }
 
     private fun convertDuedateChanged(data: String): RESTTaakHistorieRegel {
-        val duedateChangedData = JsonbUtil.JSONB.fromJson(data, DuedateChangedData::class.java)
-        return RESTTaakHistorieRegel(
-            FATALEDATUM_ATTRIBUUT_LABEL,
-            DateTimeConverterUtil.convertToLocalDate(duedateChangedData.previousDueDate),
-            DateTimeConverterUtil.convertToLocalDate(duedateChangedData.newDueDate),
-            null
-        )
+        JsonbUtil.JSONB.fromJson(data, DuedateChangedData::class.java).let {
+            return RESTTaakHistorieRegel(
+                FATALEDATUM_ATTRIBUUT_LABEL,
+                DateTimeConverterUtil.convertToLocalDate(it.previousDueDate),
+                DateTimeConverterUtil.convertToLocalDate(it.newDueDate),
+                null
+            )
+        }
     }
 }

@@ -16,7 +16,7 @@ enum class TaakSortering {
     companion object {
         fun fromValue(value: String): TaakSortering {
             return Arrays.stream(entries.toTypedArray())
-                .filter { taakSortering -> taakSortering.name.equals(value, ignoreCase = true) }
+                .filter { it.name.equals(value, ignoreCase = true) }
                 .findAny()
                 .orElseThrow {
                     IllegalArgumentException("Unsupported taak sortering value: '$value'")

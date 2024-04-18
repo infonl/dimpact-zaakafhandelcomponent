@@ -10,6 +10,7 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.servlet.http.HttpSession
+import jakarta.validation.Valid
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.PATCH
@@ -21,7 +22,6 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import net.atos.client.zgw.drc.DRCClientService
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.generated.Ondertekening
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.util.URIUtil
@@ -37,7 +37,6 @@ import net.atos.zac.app.taken.model.RESTTaakDocumentData
 import net.atos.zac.app.taken.model.RESTTaakHistorieRegel
 import net.atos.zac.app.taken.model.RESTTaakToekennenGegevens
 import net.atos.zac.app.taken.model.RESTTaakVerdelenGegevens
-import net.atos.zac.app.taken.model.RESTTaakVerdelenTaak
 import net.atos.zac.app.taken.model.TaakStatus
 import net.atos.zac.authentication.ActiveSession
 import net.atos.zac.authentication.LoggedInUser
@@ -59,14 +58,12 @@ import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
-import org.apache.commons.lang3.StringUtils
 import org.flowable.task.api.Task
 import org.flowable.task.api.TaskInfo
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.util.UUID
-import java.util.function.Consumer
 
 @Singleton
 @Path("taken")
@@ -109,75 +106,76 @@ class TakenRESTService @Inject constructor(
     @GET
     @Path("{taskId}")
     fun readTaak(@PathParam("taskId") taskId: String): RESTTaak {
-        val task = takenService.readTask(taskId)
-        PolicyService.assertPolicy(policyService.readTaakRechten(task).lezen)
-        deleteSignaleringen(task)
-        return restTaakConverter.convert(task)
+        takenService.readTask(taskId).let {
+            PolicyService.assertPolicy(policyService.readTaakRechten(it).lezen)
+            deleteSignaleringen(it)
+            return restTaakConverter.convert(it)
+        }
     }
 
     @PUT
     @Path("taakdata")
     fun updateTaakdata(restTaak: RESTTaak): RESTTaak {
-        var task = takenService.readOpenTask(restTaak.id)
-        PolicyService.assertPolicy(TaskUtil.isOpen(task) && policyService.readTaakRechten(task).wijzigen)
-        taakVariabelenService.setTaakdata(task, restTaak.taakdata)
-        taakVariabelenService.setTaakinformatie(task, restTaak.taakinformatie)
-        task = updateDescriptionAndDueDate(restTaak)
-        eventingService.send(ScreenEventType.TAAK.updated(task))
-        eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTaak.zaakUuid))
-        return restTaak
+        takenService.readOpenTask(restTaak.id).let {
+            PolicyService.assertPolicy(TaskUtil.isOpen(it) && policyService.readTaakRechten(it).wijzigen)
+            taakVariabelenService.setTaakdata(it, restTaak.taakdata)
+            taakVariabelenService.setTaakinformatie(it, restTaak.taakinformatie)
+            val updatedTask = updateDescriptionAndDueDate(restTaak)
+            eventingService.send(ScreenEventType.TAAK.updated(updatedTask))
+            eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTaak.zaakUuid))
+            return restTaak
+        }
     }
 
     private fun updateDescriptionAndDueDate(restTaak: RESTTaak): Task {
-        var task = takenService.readOpenTask(restTaak.id)
-        task.description = restTaak.toelichting
-        task.dueDate = DateTimeConverterUtil.convertToDate(restTaak.fataledatum)
-        task = takenService.updateTask(task)
-        return task
+        takenService.readOpenTask(restTaak.id).let {
+            it.description = restTaak.toelichting
+            it.dueDate = DateTimeConverterUtil.convertToDate(restTaak.fataledatum)
+            return takenService.updateTask(it)
+        }
     }
 
     @PUT
     @Path("lijst/verdelen")
-    fun verdelenVanuitLijst(restTaakVerdelenGegevens: RESTTaakVerdelenGegevens) {
+    fun verdelenVanuitLijst(@Valid restTaakVerdelenGegevens: RESTTaakVerdelenGegevens) {
         PolicyService.assertPolicy(
             policyService.readWerklijstRechten().zakenTaken && policyService.readWerklijstRechten().zakenTakenVerdelen
         )
         val taakIds: MutableList<String?> = ArrayList()
-        restTaakVerdelenGegevens.taken.forEach { taak ->
-            var task = takenService.readOpenTask(taak.taakId)
-            if (restTaakVerdelenGegevens.behandelaarGebruikersnaam != null) {
+        restTaakVerdelenGegevens.taken.forEach { restTaakVerdelenTaak ->
+            var task = takenService.readOpenTask(restTaakVerdelenTaak.taakId)
+            restTaakVerdelenGegevens.behandelaarGebruikersnaam?.let {
                 task = assignTaak(
                     task.id,
                     restTaakVerdelenGegevens.behandelaarGebruikersnaam,
                     restTaakVerdelenGegevens.reden
                 )
             }
-            task = takenService.assignTaskToGroup(
+            val updatedTask = takenService.assignTaskToGroup(
                 task,
                 restTaakVerdelenGegevens.groepId,
                 restTaakVerdelenGegevens.reden
             )
-            taakBehandelaarGewijzigd(task, taak.zaakUuid)
-            taakIds.add(taak.taakId)
+            taakBehandelaarGewijzigd(updatedTask, restTaakVerdelenTaak.zaakUuid)
+            taakIds.add(restTaakVerdelenTaak.taakId)
         }
         indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK)
     }
 
     @PUT
     @Path("lijst/vrijgeven")
-    fun vrijgevenVanuitLijst(restTaakVerdelenGegevens: RESTTaakVerdelenGegevens) {
+    fun vrijgevenVanuitLijst(@Valid restTaakVerdelenGegevens: RESTTaakVerdelenGegevens) {
         PolicyService.assertPolicy(
-            policyService.readWerklijstRechten().zakenTaken && policyService.readWerklijstRechten()
-                .zakenTakenVerdelen
+            policyService.readWerklijstRechten().zakenTaken &&
+                policyService.readWerklijstRechten().zakenTakenVerdelen
         )
-        val taakIds: MutableList<String> = ArrayList()
-        restTaakVerdelenGegevens.taken.forEach(
-            Consumer { taak: RESTTaakVerdelenTaak? ->
-                val task = assignTaak(taak!!.taakId, null, restTaakVerdelenGegevens.reden)
-                taakBehandelaarGewijzigd(task, taak.zaakUuid)
-                taakIds.add(task.id)
+        val taakIds = mutableListOf<String>()
+        restTaakVerdelenGegevens.taken.forEach {
+            assignTaak(it.taakId, null, restTaakVerdelenGegevens.reden).let { updatedTask ->
+                taakBehandelaarGewijzigd(updatedTask, it.zaakUuid)
+                taakIds.add(updatedTask.id)
             }
-        )
+        }
         indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK)
     }
 
@@ -187,8 +185,9 @@ class TakenRESTService @Inject constructor(
         restTaakToekennenGegevens: RESTTaakToekennenGegevens
     ): RESTTaak {
         PolicyService.assertPolicy(policyService.readWerklijstRechten().zakenTaken)
-        val task = ingelogdeMedewerkerToekennenAanTaak(restTaakToekennenGegevens)
-        return restTaakConverter.convert(task)
+        ingelogdeMedewerkerToekennenAanTaak(restTaakToekennenGegevens).let {
+            return restTaakConverter.convert(it)
+        }
     }
 
     @PATCH
@@ -198,17 +197,20 @@ class TakenRESTService @Inject constructor(
         PolicyService.assertPolicy(
             TaskUtil.getTaakStatus(task) != TaakStatus.AFGEROND && policyService.readTaakRechten(task).toekennen
         )
-        val behandelaar = task.assignee
         val groep = restTaakConverter.extractGroupId(task.identityLinks)
         var changed = false
-        if (!StringUtils.equals(behandelaar, restTaakToekennenGegevens.behandelaarId)) {
-            task = assignTaak(task.id, restTaakToekennenGegevens.behandelaarId, restTaakToekennenGegevens.reden)
+        if (task.assignee != restTaakToekennenGegevens.behandelaarId) {
+            task = assignTaak(
+                task.id,
+                restTaakToekennenGegevens.behandelaarId,
+                restTaakToekennenGegevens.reden
+            )
             changed = true
         }
-
-        if (!StringUtils.equals(groep, restTaakToekennenGegevens.groepId)) {
+        if (groep != restTaakToekennenGegevens.groepId) {
             task = takenService.assignTaskToGroup(
-                task, restTaakToekennenGegevens.groepId,
+                task,
+                restTaakToekennenGegevens.groepId,
                 restTaakToekennenGegevens.reden
             )
             changed = true
@@ -229,7 +231,7 @@ class TakenRESTService @Inject constructor(
     @PATCH
     @Path("complete")
     fun completeTaak(restTaak: RESTTaak): RESTTaak {
-        var task = takenService.readOpenTask(restTaak.id)
+        val task = takenService.readOpenTask(restTaak.id)
         val zaak = zrcClientService.readZaak(restTaak.zaakUuid)
         PolicyService.assertPolicy(TaskUtil.isOpen(task) && policyService.readTaakRechten(task).wijzigen)
 
@@ -237,8 +239,7 @@ class TakenRESTService @Inject constructor(
         if (restTaak.behandelaar == null || restTaak.behandelaar!!.id != loggedInUserId) {
             takenService.assignTaskToUser(task.id, loggedInUserId, REDEN_TAAK_AFGESLOTEN)
         }
-        task = updateDescriptionAndDueDate(restTaak)
-
+        val updatedTask = updateDescriptionAndDueDate(restTaak)
         createDocuments(restTaak, zaak)
         if (taakVariabelenService.isZaakHervatten(restTaak.taakdata)) {
             opschortenZaakHelper.hervattenZaak(zaak, REDEN_ZAAK_HERVATTEN)
@@ -252,17 +253,16 @@ class TakenRESTService @Inject constructor(
                     toelichting = taakdata[TaakVariabelenService.TAAK_DATA_TOELICHTING]!!
                 )
             }
+            ondertekenEnkelvoudigInformatieObjecten(taakdata, zaak)
         }
-        restTaak.taakdata?.let {
-            ondertekenEnkelvoudigInformatieObjecten(it, zaak)
+        taakVariabelenService.setTaakdata(updatedTask, restTaak.taakdata)
+        taakVariabelenService.setTaakinformatie(updatedTask, restTaak.taakinformatie)
+        takenService.completeTask(updatedTask).let {
+            indexeerService.addOrUpdateZaak(restTaak.zaakUuid, false)
+            eventingService.send(ScreenEventType.TAAK.updated(it))
+            eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTaak.zaakUuid))
+            return restTaakConverter.convert(it)
         }
-        taakVariabelenService.setTaakdata(task, restTaak.taakdata)
-        taakVariabelenService.setTaakinformatie(task, restTaak.taakinformatie)
-        val completedTask = takenService.completeTask(task)
-        indexeerService.addOrUpdateZaak(restTaak.zaakUuid, false)
-        eventingService.send(ScreenEventType.TAAK.updated(completedTask))
-        eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTaak.zaakUuid))
-        return restTaakConverter.convert(completedTask)
     }
 
     @POST
@@ -281,65 +281,74 @@ class TakenRESTService @Inject constructor(
     @Path("{taskId}/historie")
     fun listHistorie(@PathParam("taskId") taskId: String): List<RESTTaakHistorieRegel> {
         PolicyService.assertPolicy(policyService.readTaakRechten(takenService.readTask(taskId)).lezen)
-        val historicTaskLogEntries = takenService.listHistorieForTask(taskId)
-        return taakHistorieConverter.convert(historicTaskLogEntries)
+        takenService.listHistorieForTask(taskId).let {
+            return taakHistorieConverter.convert(it)
+        }
     }
 
     private fun ingelogdeMedewerkerToekennenAanTaak(restTaakToekennenGegevens: RESTTaakToekennenGegevens): Task {
-        var task = takenService.readOpenTask(restTaakToekennenGegevens.taakId)
+        val task = takenService.readOpenTask(restTaakToekennenGegevens.taakId)
         PolicyService.assertPolicy(
             TaskUtil.getTaakStatus(task) != TaakStatus.AFGEROND && policyService.readTaakRechten(task).toekennen
         )
-        task = assignTaak(task.id, loggedInUserInstance.get().id, restTaakToekennenGegevens.reden)
-        taakBehandelaarGewijzigd(task, restTaakToekennenGegevens.zaakUuid)
-        indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK)
-        return task
+        assignTaak(task.id, loggedInUserInstance.get().id, restTaakToekennenGegevens.reden).let {
+            taakBehandelaarGewijzigd(it, restTaakToekennenGegevens.zaakUuid)
+            indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK)
+            return it
+        }
     }
 
     private fun assignTaak(taskId: String, assignee: String?, reden: String?): Task {
-        val task = takenService.assignTaskToUser(taskId, assignee, reden)
-        eventingService.send(
-            SignaleringEventUtil.event(SignaleringType.Type.TAAK_OP_NAAM, task, loggedInUserInstance.get())
-        )
-        return task
+        takenService.assignTaskToUser(taskId, assignee, reden).let {
+            eventingService.send(
+                SignaleringEventUtil.event(
+                    SignaleringType.Type.TAAK_OP_NAAM,
+                    it,
+                    loggedInUserInstance.get()
+                )
+            )
+            return it
+        }
     }
 
+    @Suppress("NestedBlockDepth")
     private fun createDocuments(restTaak: RESTTaak, zaak: Zaak) {
         val httpSession = httpSession.get()
         restTaak.taakdata?.let { taakdata ->
             for (key in taakdata.keys) {
                 val fileKey = "_FILE__${restTaak.id}__$key"
                 val uploadedFile = httpSession.getAttribute(fileKey) as RESTFileUpload
-                val jsonDocumentData = taakdata.get(key)
-                if (StringUtils.isEmpty(jsonDocumentData)) { // document uploaded but removed afterwards
-                    httpSession.removeAttribute(fileKey)
-                    break
-                }
-                val restTaakDocumentData: RESTTaakDocumentData
-                try {
-                    restTaakDocumentData = ObjectMapper().readValue(jsonDocumentData, RESTTaakDocumentData::class.java)
-                } catch (jsonProcessingException: JsonProcessingException) {
-                    throw IllegalArgumentException(
-                        "Invalid JSON document data received: '$jsonDocumentData'",
-                        jsonProcessingException
-                    )
-                }
-                val document = restInformatieobjectConverter.convert(
-                    restTaakDocumentData,
-                    uploadedFile
-                )
-                val zaakInformatieobject = zgwApiService.createZaakInformatieobjectForZaak(
-                    zaak,
-                    document,
-                    document.titel,
-                    ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT,
-                    ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
-                )
-                taakdata.replace(
-                    key,
-                    UriUtil.uuidFromURI(zaakInformatieobject.informatieobject).toString()
-                )
-                httpSession.removeAttribute(fileKey)
+                taakdata[key]?.let { jsonDocumentData ->
+                    try {
+                        val restTaakDocumentData = ObjectMapper().readValue(
+                            jsonDocumentData,
+                            RESTTaakDocumentData::class.java
+                        )
+                        val document = restInformatieobjectConverter.convert(
+                            restTaakDocumentData,
+                            uploadedFile
+                        )
+                        val zaakInformatieobject = zgwApiService.createZaakInformatieobjectForZaak(
+                            zaak,
+                            document,
+                            document.titel,
+                            ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT,
+                            ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
+                        )
+                        taakdata.replace(
+                            key,
+                            UriUtil.uuidFromURI(zaakInformatieobject.informatieobject).toString()
+                        )
+                    } catch (jsonProcessingException: JsonProcessingException) {
+                        throw IllegalArgumentException(
+                            "Invalid JSON document data received: '$jsonDocumentData'",
+                            jsonProcessingException
+                        )
+                    } finally {
+                        httpSession.removeAttribute(fileKey)
+                    }
+                    // document can be uploaded but removed afterwards
+                } ?: httpSession.removeAttribute(fileKey)
             }
         }
     }
@@ -350,10 +359,10 @@ class TakenRESTService @Inject constructor(
             signature.split(
                 TaakVariabelenService.TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER.toRegex()
             ).dropLastWhile { it.isEmpty() }.toTypedArray()
-                .filter { cs: String? -> StringUtils.isNotEmpty(cs) }
-                .map { name: String? -> UUID.fromString(name) }
-                .map { uuid: UUID? -> drcClientService.readEnkelvoudigInformatieobject(uuid) }
-                .forEach { enkelvoudigInformatieobject: EnkelvoudigInformatieObject ->
+                .filter { it.isNotEmpty() }
+                .map { UUID.fromString(it) }
+                .map { drcClientService.readEnkelvoudigInformatieobject(it) }
+                .forEach { enkelvoudigInformatieobject ->
                     PolicyService.assertPolicy(
                         (
                             // this extra check is because the API can return an empty ondertekening soort
@@ -371,16 +380,17 @@ class TakenRESTService @Inject constructor(
     }
 
     private fun deleteSignaleringen(taskInfo: TaskInfo) {
-        val loggedInUser = loggedInUserInstance.get()
-        signaleringenService.deleteSignaleringen(
-            SignaleringZoekParameters(loggedInUser)
-                .types(SignaleringType.Type.TAAK_OP_NAAM).subject(taskInfo)
-        )
-        signaleringenService.deleteSignaleringen(
-            SignaleringZoekParameters(loggedInUser)
-                .types(SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD)
-                .subjectZaak(taakVariabelenService.readZaakUUID(taskInfo))
-        )
+        loggedInUserInstance.get().let { loggedInUser ->
+            signaleringenService.deleteSignaleringen(
+                SignaleringZoekParameters(loggedInUser)
+                    .types(SignaleringType.Type.TAAK_OP_NAAM).subject(taskInfo)
+            )
+            signaleringenService.deleteSignaleringen(
+                SignaleringZoekParameters(loggedInUser)
+                    .types(SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD)
+                    .subjectZaak(taakVariabelenService.readZaakUUID(taskInfo))
+            )
+        }
     }
 
     private fun taakBehandelaarGewijzigd(task: Task, zaakUuid: UUID) {
@@ -397,7 +407,7 @@ class TakenRESTService @Inject constructor(
         documenten.split(
             TaakVariabelenService.TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER.toRegex()
         ).dropLastWhile { it.isEmpty() }.toTypedArray()
-            .forEach { documentUUID: String? ->
+            .forEach { documentUUID ->
                 setVerzenddatumEnkelvoudigInformatieObject(
                     UUID.fromString(documentUUID),
                     verzenddatum,
