@@ -319,10 +319,10 @@ class TakenRESTService @Inject constructor(
                 try {
                     restTaakDocumentData = ObjectMapper().readValue(jsonDocumentData, RESTTaakDocumentData::class.java)
                 } catch (jsonProcessingException: JsonProcessingException) {
-                    throw RuntimeException(
-                        jsonProcessingException.message,
+                    throw IllegalArgumentException(
+                        "Invalid JSON document data received: '$jsonDocumentData'",
                         jsonProcessingException
-                    ) // invalid form-group data
+                    )
                 }
                 val document = restInformatieobjectConverter.convert(
                     restTaakDocumentData,
