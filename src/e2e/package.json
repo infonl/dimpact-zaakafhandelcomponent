@@ -13,7 +13,7 @@
     "cross-fetch": "^4.0.0",
     "pdf-parse": "^1.1.1",
     "uniqid": "^5.4.0",
-    "zod": "^3.22.4"
+    "zod": "^3.22.5"
   },
   "devDependencies": {
     "@playwright/test": "^1.43.1",
