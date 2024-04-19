@@ -3,7 +3,9 @@ name: zaakafhandelcomponent
 description: A Helm chart for installing Zaakafhandelcomponent
 version: 0.2.0
 appVersion: "latest"
-#dependencies:
-#  - name: solr
-#    version: ~6.2.3
-#    repository: https://charts.bitnami.com/bitnami
+# Note: open-telemetry requires cert-manager in order to get a self-signed certificate and secret
+dependencies:
+  - name: opentelemetry-collector
+    repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+    condition: open-telemetry-collector.enabled
+    version: 0.55.2
