@@ -3,7 +3,6 @@ name: zaakafhandelcomponent
 description: A Helm chart for installing Zaakafhandelcomponent
 version: 0.2.0
 appVersion: "latest"
-# Note: open-telemetry requires cert-manager in order to get a self-signed certificate and secret
 dependencies:
   - name: opentelemetry-collector
     repository: https://open-telemetry.github.io/opentelemetry-helm-charts
