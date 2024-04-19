@@ -293,3 +293,31 @@ office_converter:
 # Extra objects to deploy (value evaluated as a template)
 extraDeploy: [ ]
 
+opentelemetry-collector:
+  enabled: true
+  mode: deployment
+  replicaCount: 1
+  presets:
+    clusterMetrics:
+      enabled: false
+  ports:
+    jaeger-compact:
+      enabled: false
+    jaeger-thrift:
+      enabled: false
+    jaeger-rpc:
+      enabled: false
+    zipkin:
+      enabled: false
+  config:
+    receivers:
+      prometheus: null
+      jaeger: null
+      zipkin: null
+    service:
+      pipelines:
+        traces:
+          receivers:
+            - otlp
+        metrics: null
+        logs: null
