@@ -61,7 +61,7 @@ import java.time.LocalDate
 import java.util.Optional
 import java.util.UUID
 
-class TakenRESTServiceTest2 : BehaviorSpec({
+class TakenRESTServiceTest : BehaviorSpec({
     val drcClientService = mockk<DRCClientService>()
     val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
     val eventingService = mockk<EventingService>()
