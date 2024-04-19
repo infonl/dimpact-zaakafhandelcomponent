@@ -5,6 +5,13 @@
 
 package net.atos.zac.zaaksturing.model;
 
+import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,13 +24,6 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotBlank;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-
-import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
 
 @Entity
 @Table(schema = SCHEMA, name = "referentie_tabel")
