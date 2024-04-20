@@ -59,9 +59,9 @@ wijzigen {
     behandelaar.rol in user.rollen
     zaaktype_allowed
     document.zaak_open == true
+    # how do we check for reopened
     document.definitief == false
     onvergrendeld_of_vergrendeld_door_user == true
-    document.vergrendeld == false
 }
 wijzigen {
     recordmanager.rol in user.rollen
