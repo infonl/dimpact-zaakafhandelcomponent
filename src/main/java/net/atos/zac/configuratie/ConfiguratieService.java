@@ -63,6 +63,7 @@ public class ConfiguratieService {
 
     // Note that WildFly / RESTEasy also defines a max file upload size.
     // The value used in our WildFly configuration should be set higher to account for overhead. (e.g. 80MB -> 120MB).
+    // We use the Base2 system to calculate the max file size in bytes.
     public static final Integer MAX_FILE_SIZE_MB = 80;
 
     private static final String NONE = "<NONE>";
