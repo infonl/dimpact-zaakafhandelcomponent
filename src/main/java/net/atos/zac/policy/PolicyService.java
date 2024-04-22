@@ -18,6 +18,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
+import nl.lifely.zac.util.NoArgConstructor;
 import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.flowable.task.api.TaskInfo;
@@ -53,29 +54,30 @@ import net.atos.zac.zoeken.model.zoekobject.TaakZoekObject;
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
 
 @ApplicationScoped
+@NoArgConstructor
 public class PolicyService {
 
-    @Inject
     private Instance<LoggedInUser> loggedInUserInstance;
-
-    @Inject
     @RestClient
     private OPAEvaluationClient evaluationClient;
-
-    @Inject
     private ZTCClientService ztcClientService;
-
-    @Inject
     private EnkelvoudigInformatieObjectLockService lockService;
-
-    @Inject
     private TaakVariabelenService taakVariabelenService;
-
-    @Inject
     private ZRCClientService zrcClientService;
 
-    @Inject
-    private EnkelvoudigInformatieObjectLockService enkelvoudigInformatieObjectLockService;
+    public PolicyService(Instance<LoggedInUser> loggedInUserInstance,
+                         OPAEvaluationClient evaluationClient,
+                         ZTCClientService ztcClientService,
+                         EnkelvoudigInformatieObjectLockService lockService,
+                         TaakVariabelenService taakVariabelenService,
+                         ZRCClientService zrcClientService) {
+        this.loggedInUserInstance = loggedInUserInstance;
+        this.evaluationClient = evaluationClient;
+        this.ztcClientService = ztcClientService;
+        this.lockService = lockService;
+        this.taakVariabelenService = taakVariabelenService;
+        this.zrcClientService = zrcClientService;
+    }
 
     public OverigeRechten readOverigeRechten() {
         return evaluationClient.readOverigeRechten(new RuleQuery<>(new UserInput(loggedInUserInstance.get())))
@@ -204,7 +206,7 @@ public class PolicyService {
         if (zrcClientService.heeftOpenDeelzaken(zaak)) {
             throw new FoutmeldingException("Deze hoofdzaak heeft open deelzaken en kan niet afgesloten worden.");
         }
-        if (enkelvoudigInformatieObjectLockService.hasLockedInformatieobjecten(zaak)) {
+        if (lockService.hasLockedInformatieobjecten(zaak)) {
             throw new FoutmeldingException("Deze zaak heeft vergrendelde documenten en kan niet afgesloten worden.");
         }
     }

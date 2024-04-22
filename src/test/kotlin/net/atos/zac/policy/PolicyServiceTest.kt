@@ -1,0 +1,204 @@
+package net.atos.zac.policy
+
+import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.core.test.TestCase
+import io.kotest.matchers.shouldBe
+import io.mockk.MockKAnnotations
+import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.verify
+import jakarta.enterprise.inject.Instance
+import net.atos.client.opa.model.RuleQuery
+import net.atos.client.opa.model.RuleResponse
+import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.model.Zaak
+import net.atos.client.zgw.zrc.model.createVerlenging
+import net.atos.client.zgw.zrc.model.createZaak
+import net.atos.client.zgw.zrc.model.createZaakStatus
+import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.model.createStatusType
+import net.atos.client.zgw.ztc.model.createZaakType
+import net.atos.zac.authentication.LoggedInUser
+import net.atos.zac.authentication.createLoggedInUser
+import net.atos.zac.configuratie.ConfiguratieService
+import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
+import net.atos.zac.flowable.TaakVariabelenService
+import net.atos.zac.policy.input.ZaakInput
+import net.atos.zac.policy.output.createZaakRechten
+import net.atos.zac.zoeken.model.ZaakIndicatie
+import net.atos.zac.zoeken.model.createZaakZoekObject
+
+class PolicyServiceTest : BehaviorSpec() {
+    private val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
+    private val evaluationClient = mockk<OPAEvaluationClient>()
+    private val ztcClientService = mockk<ZTCClientService>()
+    private val lockService = mockk<EnkelvoudigInformatieObjectLockService>()
+    private val taakVariabelenService = mockk<TaakVariabelenService>()
+    private val zrcClientService = mockk<ZRCClientService>()
+
+    private val loggedInUser = createLoggedInUser()
+
+    var policyService: PolicyService = PolicyService(
+        loggedInUserInstance,
+        evaluationClient,
+        ztcClientService,
+        lockService,
+        taakVariabelenService,
+        zrcClientService
+    )
+
+    override suspend fun beforeContainer(testCase: TestCase) {
+        super.beforeContainer(testCase)
+
+        // Only run before Given
+        if (testCase.parent != null) return
+
+        MockKAnnotations.init(this)
+        clearAllMocks()
+
+        every { loggedInUserInstance.get() } returns loggedInUser
+    }
+
+    init {
+        Given("Zaak") {
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val zaakStatus = createZaakStatus()
+            val statusType = createStatusType()
+            val expectedZaakRechten = createZaakRechten()
+
+            val ruleQuerySlot = slot<RuleQuery<ZaakInput>>()
+
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+            every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
+            every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
+            every { evaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
+
+            When("Policy rights are requested") {
+                val zaakRechten = policyService.readZaakRechten(zaak)
+
+                Then("Correct ZaakData is sent to OPA") {
+                    zaakRechten shouldBe expectedZaakRechten
+                    verify(exactly = 1) {
+                        evaluationClient.readZaakRechten(any<RuleQuery<ZaakInput>>())
+                    }
+                    with(ruleQuerySlot.captured.input.zaak) {
+                        this.open shouldBe true
+                        this.zaaktype shouldBe zaakType.omschrijving
+                        this.opgeschort shouldBe zaak.isOpgeschort
+                        this.verlengd shouldBe zaak.isVerlengd
+                        this.besloten shouldBe zaakType.besluittypen.isNotEmpty()
+                        this.intake shouldBe false
+                        this.heropend shouldBe false
+                    }
+                }
+            }
+        }
+
+        Given("Locked zaak that is now in intake") {
+            val zaak = createZaak(verlenging = createVerlenging())
+            val zaakType = createZaakType()
+            val zaakStatus = createZaakStatus()
+            val statusType = createStatusType(omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_INTAKE)
+            val expectedZaakRechten = createZaakRechten()
+
+            val ruleQuerySlot = slot<RuleQuery<ZaakInput>>()
+
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+            every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
+            every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
+            every { evaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
+
+            When("Policy rights are requested") {
+                val zaakRechten = policyService.readZaakRechten(zaak)
+
+                Then("Correct ZaakData is sent to OPA") {
+                    zaakRechten shouldBe expectedZaakRechten
+                    verify(exactly = 1) {
+                        evaluationClient.readZaakRechten(any<RuleQuery<ZaakInput>>())
+                    }
+                    with(ruleQuerySlot.captured.input.zaak) {
+                        this.open shouldBe true
+                        this.zaaktype shouldBe zaakType.omschrijving
+                        this.opgeschort shouldBe zaak.isOpgeschort
+                        this.verlengd shouldBe zaak.isVerlengd
+                        this.besloten shouldBe zaakType.besluittypen.isNotEmpty()
+                        this.intake shouldBe true
+                        this.heropend shouldBe false
+                    }
+                }
+            }
+        }
+
+        Given("Zaak that was reopened") {
+            val zaak = createZaak(verlenging = createVerlenging())
+            val zaakType = createZaakType()
+            val zaakStatus = createZaakStatus()
+            val statusType = createStatusType(omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND)
+            val expectedZaakRechten = createZaakRechten()
+
+            val ruleQuerySlot = slot<RuleQuery<ZaakInput>>()
+
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+            every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
+            every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
+            every { evaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
+
+            When("Policy rights are requested") {
+                val zaakRechten = policyService.readZaakRechten(zaak)
+
+                Then("Correct ZaakData is sent to OPA") {
+                    zaakRechten shouldBe expectedZaakRechten
+                    verify(exactly = 1) {
+                        evaluationClient.readZaakRechten(any<RuleQuery<ZaakInput>>())
+                    }
+                    with(ruleQuerySlot.captured.input.zaak) {
+                        this.open shouldBe true
+                        this.zaaktype shouldBe zaakType.omschrijving
+                        this.opgeschort shouldBe zaak.isOpgeschort
+                        this.verlengd shouldBe zaak.isVerlengd
+                        this.besloten shouldBe zaakType.besluittypen.isNotEmpty()
+                        this.intake shouldBe false
+                        this.heropend shouldBe true
+                    }
+                }
+            }
+        }
+
+        Given("ZaakZoekObject") {
+            val zaakZoekObject = createZaakZoekObject().apply {
+                this.setIndicatie(ZaakIndicatie.OPSCHORTING, true)
+                this.setIndicatie(ZaakIndicatie.VERLENGD, true)
+                this.setIndicatie(ZaakIndicatie.INTAKE, true)
+                this.setIndicatie(ZaakIndicatie.BESLOTEN, true)
+                this.setIndicatie(ZaakIndicatie.HEROPEND, true)
+            }
+            val expectedZaakRechten = createZaakRechten()
+
+            val ruleQuerySlot = slot<RuleQuery<ZaakInput>>()
+            every { evaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
+
+            When("Policy rights are requested") {
+                val zaakRechten = policyService.readZaakRechten(zaakZoekObject)
+
+                Then("Correct ZaakData is sent to OPA") {
+                    zaakRechten shouldBe expectedZaakRechten
+                    verify(exactly = 1) {
+                        evaluationClient.readZaakRechten(any<RuleQuery<ZaakInput>>())
+                    }
+                    with(ruleQuerySlot.captured.input.zaak) {
+                        this.open shouldBe true
+                        this.zaaktype shouldBe zaakZoekObject.zaaktypeOmschrijving
+                        this.opgeschort shouldBe true
+                        this.verlengd shouldBe true
+                        this.besloten shouldBe true
+                        this.intake shouldBe true
+                        this.heropend shouldBe true
+                    }
+                }
+            }
+        }
+    }
+}

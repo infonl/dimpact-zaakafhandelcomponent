@@ -12,6 +12,8 @@ import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.generated.RolType
 import java.net.URI
 import java.time.LocalDate
+import java.time.Period
+import java.time.ZonedDateTime
 import java.util.UUID
 
 fun createMedewerker(
@@ -94,7 +96,7 @@ fun createRolOrganisatorischeEenheid(
 
 @Suppress("LongParameterList")
 fun createZaak(
-    zaaktypeURI: URI = URI("http://example.com/${UUID.randomUUID()}"),
+    zaaktypeURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     startDate: LocalDate = LocalDate.now(),
     bronOrganisatie: String = "dummyBronOrganisatie",
     verantwoordelijkeOrganisatie: String = "dummyVerantwoordelijkeOrganisatie",
@@ -104,7 +106,9 @@ fun createZaak(
     einddatumGepland: LocalDate? = null,
     registratiedatum: LocalDate = LocalDate.now(),
     uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.now().plusDays(1),
-    vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR
+    vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR,
+    status: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    verlenging: Verlenging? = null
 ) = Zaak(
     zaaktypeURI,
     startDate,
@@ -119,6 +123,8 @@ fun createZaak(
     this.registratiedatum = registratiedatum
     this.uiterlijkeEinddatumAfdoening = uiterlijkeEinddatumAfdoening
     this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
+    this.status = status
+    this.verlenging = verlenging
 }
 
 fun createZaakobjectOpenbareRuimte(
@@ -158,3 +164,16 @@ fun createZaakobjectPand(
         bagobjectURI,
         objectPand
     )
+
+fun createZaakStatus(
+    uuid: UUID = UUID.randomUUID(),
+    uri: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
+    zaak: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
+    statustype: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
+    datumStatusGezet: ZonedDateTime = ZonedDateTime.now()
+) = Status(uri, uuid, zaak, statustype, datumStatusGezet)
+
+fun createVerlenging(
+    reden: String = "dummyReden",
+    duur: Period = Period.ZERO
+) = Verlenging(reden, duur)
