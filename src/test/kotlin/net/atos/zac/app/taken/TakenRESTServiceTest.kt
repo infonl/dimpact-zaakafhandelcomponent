@@ -36,8 +36,8 @@ import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
+import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.flowable.TaakVariabelenService
-import net.atos.zac.flowable.TakenService
 import net.atos.zac.flowable.util.TaskUtil.getTaakStatus
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.output.createDocumentRechten
@@ -71,7 +71,7 @@ class TakenRESTServiceTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
     val taakVariabelenService = mockk<TaakVariabelenService>()
     val restTaakConverter = mockk<RESTTaakConverter>()
-    val takenService = mockk<TakenService>()
+    val flowableTaskService = mockk<FlowableTaskService>()
     val zrcClientService = mockk<ZRCClientService>()
     val opschortenZaakHelper = mockk<OpschortenZaakHelper>()
     val restInformatieobjectConverter = mockk<RESTInformatieobjectConverter>()
@@ -89,7 +89,7 @@ class TakenRESTServiceTest : BehaviorSpec({
         policyService = policyService,
         taakVariabelenService = taakVariabelenService,
         restTaakConverter = restTaakConverter,
-        takenService = takenService,
+        flowableTaskService = flowableTaskService,
         zrcClientService = zrcClientService,
         opschortenZaakHelper = opschortenZaakHelper,
         restInformatieobjectConverter = restInformatieobjectConverter,
@@ -110,7 +110,7 @@ class TakenRESTServiceTest : BehaviorSpec({
             policyService,
             taakVariabelenService,
             restTaakConverter,
-            takenService,
+            flowableTaskService,
             zrcClientService,
             opschortenZaakHelper,
             restInformatieobjectConverter,
@@ -133,17 +133,17 @@ class TakenRESTServiceTest : BehaviorSpec({
         val screenEventSlots = mutableListOf<ScreenEvent>()
 
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { takenService.readOpenTask(restTaakToekennenGegevens.taakId) } returns task
+        every { flowableTaskService.readOpenTask(restTaakToekennenGegevens.taakId) } returns task
         every { getTaakStatus(task) } returns TaakStatus.NIET_TOEGEKEND
         every {
-            takenService.assignTaskToUser(
+            flowableTaskService.assignTaskToUser(
                 restTaakToekennenGegevens.taakId,
                 restTaakToekennenGegevens.behandelaarId,
                 restTaakToekennenGegevens.reden
             )
         } returns task
         every {
-            takenService.assignTaskToGroup(
+            flowableTaskService.assignTaskToGroup(
                 task,
                 restTaakToekennenGegevens.groepId,
                 restTaakToekennenGegevens.reden
@@ -172,12 +172,12 @@ class TakenRESTServiceTest : BehaviorSpec({
                     "and the indexed task data is updated"
             ) {
                 verify(exactly = 1) {
-                    takenService.assignTaskToUser(
+                    flowableTaskService.assignTaskToUser(
                         restTaakToekennenGegevens.taakId,
                         restTaakToekennenGegevens.behandelaarId,
                         restTaakToekennenGegevens.reden
                     )
-                    takenService.assignTaskToGroup(
+                    flowableTaskService.assignTaskToGroup(
                         task,
                         restTaakToekennenGegevens.groepId,
                         restTaakToekennenGegevens.reden
@@ -238,8 +238,8 @@ class TakenRESTServiceTest : BehaviorSpec({
         every { task.assignee } returns "dummyAssignee"
         every { task.description = restTaak.toelichting } just runs
         every { task.dueDate = any() } just runs
-        every { takenService.readOpenTask(restTaak.id) } returns task
-        every { takenService.updateTask(task) } returns task
+        every { flowableTaskService.readOpenTask(restTaak.id) } returns task
+        every { flowableTaskService.updateTask(task) } returns task
         every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
         every { policyService.readTaakRechten(task) } returns createTaakRechten()
         every { httpSessionInstance.get() } returns httpSession
@@ -247,7 +247,7 @@ class TakenRESTServiceTest : BehaviorSpec({
         every { taakVariabelenService.readOndertekeningen(restTaak.taakdata) } returns Optional.empty()
         every { taakVariabelenService.setTaakdata(task, restTaak.taakdata) } just runs
         every { taakVariabelenService.setTaakinformatie(task, null) } just runs
-        every { takenService.completeTask(task) } returns historicTaskInstance
+        every { flowableTaskService.completeTask(task) } returns historicTaskInstance
         every { indexeerService.addOrUpdateZaak(restTaak.zaakUuid, false) } just runs
         every { historicTaskInstance.id } returns restTaak.id
         every { restTaakConverter.convert(historicTaskInstance) } returns restTaakConverted
@@ -261,7 +261,7 @@ class TakenRESTServiceTest : BehaviorSpec({
             ) {
                 restTaakReturned shouldBe restTaakConverted
                 verify(exactly = 1) {
-                    takenService.completeTask(task)
+                    flowableTaskService.completeTask(task)
                 }
             }
         }
@@ -286,8 +286,8 @@ class TakenRESTServiceTest : BehaviorSpec({
             behandelaar = restUser
         )
         every { task.assignee } returns "dummyAssignee"
-        every { takenService.readOpenTask(restTaak.id) } returns task
-        every { takenService.updateTask(task) } returns task
+        every { flowableTaskService.readOpenTask(restTaak.id) } returns task
+        every { flowableTaskService.updateTask(task) } returns task
         every { policyService.readTaakRechten(task) } returns createTaakRechten()
         every { taakVariabelenService.setTaakdata(task, restTaak.taakdata) } just runs
         every { taakVariabelenService.setTaakinformatie(task, null) } just runs
@@ -308,7 +308,7 @@ class TakenRESTServiceTest : BehaviorSpec({
             Then("the changes are stored") {
                 restTaakReturned shouldBe restTaak
                 verify(exactly = 1) {
-                    takenService.updateTask(task)
+                    flowableTaskService.updateTask(task)
                 }
             }
         }
@@ -324,7 +324,7 @@ class TakenRESTServiceTest : BehaviorSpec({
             )
             val documentRechten = createDocumentRechten()
             every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
-            every { takenService.completeTask(task) } returns historicTaskInstance
+            every { flowableTaskService.completeTask(task) } returns historicTaskInstance
             every { indexeerService.addOrUpdateZaak(restTaak.zaakUuid, false) } just runs
             every { restTaakConverter.convert(historicTaskInstance) } returns restTaakConverted
             every { httpSessionInstance.get() } returns httpSession
@@ -349,7 +349,7 @@ class TakenRESTServiceTest : BehaviorSpec({
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
                         enkelvoudigInformatieObjectUUID
                     )
-                    takenService.completeTask(task)
+                    flowableTaskService.completeTask(task)
                 }
             }
         }
