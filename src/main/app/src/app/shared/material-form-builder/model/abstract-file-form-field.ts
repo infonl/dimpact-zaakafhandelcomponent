@@ -5,6 +5,7 @@
 
 import { Observable, Subject } from "rxjs";
 import { FileIcon } from "../../../informatie-objecten/model/file-icon";
+import { MB_IN_BYTES } from "../../utils/constants";
 import { AbstractFormControlField } from "./abstract-form-control-field";
 
 export abstract class AbstractFileFormField extends AbstractFormControlField {
@@ -29,7 +30,7 @@ export abstract class AbstractFileFormField extends AbstractFormControlField {
   }
 
   isBestandsgrootteToegestaan(file: File): boolean {
-    return file.size <= this.maxFileSizeMB * 1000000;
+    return file.size <= this.maxFileSizeMB * MB_IN_BYTES;
   }
 
   getBestandsextensie(file: File) {
@@ -40,7 +41,7 @@ export abstract class AbstractFileFormField extends AbstractFormControlField {
   }
 
   getBestandsgrootteMB(file: File): string {
-    return parseFloat(String(file.size / 1000000)).toFixed(2);
+    return parseFloat(String(file.size / MB_IN_BYTES)).toFixed(2);
   }
 
   get fileUploaded(): Observable<string> {
