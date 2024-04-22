@@ -108,6 +108,12 @@ indexerenSchedule: "*/1 * * * *"
 # Schedule of the signaleren job in CRON job format
 signalerenSchedule: "0 2 * * *"
 
+# Overrides for opentelemetry
+#opentelemetry_zaakafhandelcomponent:
+#  sampler_type: "-off"
+#  endpoint: "http://otel-collector:4317"
+
+
 # Maximum size (in Mega Bytes) of files that can be uploaded.
 maxFileSizeMB: 80
 
@@ -294,7 +300,7 @@ office_converter:
 extraDeploy: [ ]
 
 opentelemetry-collector:
-  enabled: true
+  enabled: false
   mode: deployment
   replicaCount: 1
   presets:
