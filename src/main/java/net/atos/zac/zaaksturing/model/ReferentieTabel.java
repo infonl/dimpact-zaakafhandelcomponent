@@ -9,7 +9,6 @@ import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -89,9 +88,9 @@ public class ReferentieTabel {
     }
 
     public List<ReferentieTabelWaarde> getWaarden() {
-        return Collections.unmodifiableList(waarden.stream()
+        return waarden.stream()
                 .sorted(Comparator.comparingInt(ReferentieTabelWaarde::getVolgorde))
-                .toList());
+                .toList();
     }
 
     public void setWaarden(final List<ReferentieTabelWaarde> waarden) {

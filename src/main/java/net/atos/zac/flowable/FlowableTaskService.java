@@ -37,7 +37,7 @@ import net.atos.zac.shared.model.SorteerRichting;
 
 @ApplicationScoped
 @Transactional
-public class TakenService {
+public class FlowableTaskService {
 
     public static final String USER_TASK_DESCRIPTION_CHANGED = "USER_TASK_DESCRIPTION_CHANGED";
 

@@ -90,8 +90,8 @@ import net.atos.zac.documenten.model.InboxDocument;
 import net.atos.zac.documenten.model.OntkoppeldDocument;
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
 import net.atos.zac.event.EventingService;
+import net.atos.zac.flowable.FlowableTaskService;
 import net.atos.zac.flowable.TaakVariabelenService;
-import net.atos.zac.flowable.TakenService;
 import net.atos.zac.policy.PolicyService;
 import net.atos.zac.util.UriUtil;
 import net.atos.zac.webdav.WebdavHelper;
@@ -118,7 +118,7 @@ public class InformatieObjectenRESTService {
     private ZGWApiService zgwApiService;
 
     @Inject
-    private TakenService takenService;
+    private FlowableTaskService flowableTaskService;
 
     @Inject
     private TaakVariabelenService taakVariabelenService;
@@ -303,7 +303,7 @@ public class InformatieObjectenRESTService {
                 OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
         );
         if (taakObject) {
-            final Task task = takenService.findOpenTask(documentReferentieId);
+            final Task task = flowableTaskService.findOpenTask(documentReferentieId);
             if (task == null) {
                 throw new WebApplicationException((String.format("No open task found with task id: '%s'", documentReferentieId)),
                         Response.Status.CONFLICT
