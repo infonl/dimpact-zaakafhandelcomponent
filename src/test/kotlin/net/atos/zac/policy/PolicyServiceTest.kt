@@ -2,10 +2,13 @@ package net.atos.zac.policy
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.core.test.TestCase
+import io.kotest.core.test.TestResult
 import io.kotest.matchers.shouldBe
 import io.mockk.MockKAnnotations
+import io.mockk.checkUnnecessaryStub
 import io.mockk.clearAllMocks
 import io.mockk.every
+import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
@@ -33,20 +36,12 @@ class PolicyServiceTest : BehaviorSpec() {
     private val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     private val evaluationClient = mockk<OPAEvaluationClient>()
     private val ztcClientService = mockk<ZTCClientService>()
-    private val lockService = mockk<EnkelvoudigInformatieObjectLockService>()
-    private val taakVariabelenService = mockk<TaakVariabelenService>()
     private val zrcClientService = mockk<ZRCClientService>()
 
     private val loggedInUser = createLoggedInUser()
 
-    var policyService: PolicyService = PolicyService(
-        loggedInUserInstance,
-        evaluationClient,
-        ztcClientService,
-        lockService,
-        taakVariabelenService,
-        zrcClientService
-    )
+    @InjectMockKs
+    lateinit var policyService: PolicyService
 
     override suspend fun beforeContainer(testCase: TestCase) {
         super.beforeContainer(testCase)

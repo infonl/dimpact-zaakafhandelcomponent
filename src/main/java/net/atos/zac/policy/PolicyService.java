@@ -17,6 +17,7 @@ import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 
+import jakarta.inject.Inject;
 import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.flowable.task.api.TaskInfo;
@@ -50,35 +51,31 @@ import net.atos.zac.zoeken.model.ZaakIndicatie;
 import net.atos.zac.zoeken.model.zoekobject.DocumentZoekObject;
 import net.atos.zac.zoeken.model.zoekobject.TaakZoekObject;
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
-import nl.lifely.zac.util.NoArgConstructor;
 
 @ApplicationScoped
-@NoArgConstructor
 public class PolicyService {
 
-    private final Instance<LoggedInUser> loggedInUserInstance;
-    @RestClient
-    private final OPAEvaluationClient evaluationClient;
-    private final ZTCClientService ztcClientService;
-    private final EnkelvoudigInformatieObjectLockService lockService;
-    private final TaakVariabelenService taakVariabelenService;
-    private final ZRCClientService zrcClientService;
+    @Inject
+    private Instance<LoggedInUser> loggedInUserInstance;
 
-    public PolicyService(
-            Instance<LoggedInUser> loggedInUserInstance,
-            OPAEvaluationClient evaluationClient,
-            ZTCClientService ztcClientService,
-            EnkelvoudigInformatieObjectLockService lockService,
-            TaakVariabelenService taakVariabelenService,
-            ZRCClientService zrcClientService
-    ) {
-        this.loggedInUserInstance = loggedInUserInstance;
-        this.evaluationClient = evaluationClient;
-        this.ztcClientService = ztcClientService;
-        this.lockService = lockService;
-        this.taakVariabelenService = taakVariabelenService;
-        this.zrcClientService = zrcClientService;
-    }
+    @Inject
+    @RestClient
+    private OPAEvaluationClient evaluationClient;
+
+    @Inject
+    private ZTCClientService ztcClientService;
+
+    @Inject
+    private EnkelvoudigInformatieObjectLockService lockService;
+
+    @Inject
+    private TaakVariabelenService taakVariabelenService;
+
+    @Inject
+    private ZRCClientService zrcClientService;
+
+    @Inject
+    private EnkelvoudigInformatieObjectLockService enkelvoudigInformatieObjectLockService;
 
     public OverigeRechten readOverigeRechten() {
         return evaluationClient.readOverigeRechten(new RuleQuery<>(new UserInput(loggedInUserInstance.get())))
