@@ -218,18 +218,14 @@ public class FlowableTaskService {
         return readClosedTask(task.getId());
     }
 
-    public Task assignTaskToUser(final String taskId, final String userId, final String reason) {
+    public Task assignTaskToUser(final String taskId, final String userId, final String explanation) {
         final Task task = readOpenTask(taskId);
-        if (userId != null) {
-            taskService.setAssignee(taskId, userId);
-        } else {
-            taskService.unclaim(taskId);
-        }
-        createHistoricTaskLogEntry(task, USER_TASK_ASSIGNEE_CHANGED_CUSTOM, task.getAssignee(), userId, reason);
+        taskService.setAssignee(taskId, userId);
+        createHistoricTaskLogEntry(task, USER_TASK_ASSIGNEE_CHANGED_CUSTOM, task.getAssignee(), userId, explanation);
         return readOpenTask(taskId);
     }
 
-    public Task assignTaskToGroup(final Task task, final String groupId, final String reden) {
+    public Task assignTaskToGroup(final Task task, final String groupId, final String explanation) {
         final String currentGroupId = task.getIdentityLinks().stream()
                 .filter(identityLinkInfo -> IdentityLinkType.CANDIDATE.equals(identityLinkInfo.getType()))
                 .map(IdentityLinkInfo::getGroupId)
@@ -239,8 +235,15 @@ public class FlowableTaskService {
             taskService.deleteGroupIdentityLink(task.getId(), currentGroupId, IdentityLinkType.CANDIDATE);
         }
         taskService.addGroupIdentityLink(task.getId(), groupId, IdentityLinkType.CANDIDATE);
-        createHistoricTaskLogEntry(task, USER_TASK_GROUP_CHANGED, currentGroupId, groupId, reden);
+        createHistoricTaskLogEntry(task, USER_TASK_GROUP_CHANGED, currentGroupId, groupId, explanation);
         return readOpenTask(task.getId());
+    }
+
+    public Task releaseTask(final String taskId, final String explanation) {
+        final Task task = readOpenTask(taskId);
+        taskService.unclaim(taskId);
+        createHistoricTaskLogEntry(task, USER_TASK_ASSIGNEE_CHANGED_CUSTOM, task.getAssignee(), null, explanation);
+        return readOpenTask(taskId);
     }
 
     public Task findOpenTask(final String taskId) {
