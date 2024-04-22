@@ -62,8 +62,6 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
                 humanTaskItemAanvullendeInformatieId = JSONArray(responseBody).getJSONObject(0).getString("id")
             }
         }
-    }
-    Given("A zaak has been created") {
         When("the get human task plan item endpoint is called for the task 'aanvullende informatie'") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/planitems/humanTaskPlanItem/$humanTaskItemAanvullendeInformatieId"
@@ -82,8 +80,6 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
                 }
             }
         }
-    }
-    Given("A zaak has been created") {
         When("the start human task plan items endpoint is called") {
             // note that the fatal date of a task cannot be later than the fatal data of the related zaak
             val fataleDatum = LocalDate.parse(ZAAK_1_UITERLIJKE_EINDDATUM_AFDOENING)

@@ -1,6 +1,5 @@
 package net.atos.zac.task
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.inject.Inject
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -20,6 +19,7 @@ import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import org.flowable.task.api.Task
 import java.util.UUID
+import java.util.logging.Logger
 
 class TaskService @Inject constructor(
     private val flowableTaskService: FlowableTaskService,
@@ -29,7 +29,7 @@ class TaskService @Inject constructor(
 ) {
     companion object {
         private val defaultCoroutineScope = CoroutineScope(Dispatchers.Default)
-        private val logger = KotlinLogging.logger {}
+        private val LOG = Logger.getLogger(TaskService::class.java.name)
     }
 
     fun assignTask(
@@ -74,10 +74,9 @@ class TaskService @Inject constructor(
         loggedInUser: LoggedInUser,
         screenEventResourceId: String? = null,
     ) = defaultCoroutineScope.launch(CoroutineName("AssignTasksCoroutine")) {
-        logger.trace {
-            """Started asynchronous job with ID: $screenEventResourceId to assign 
-               ${restTaakVerdelenGegevens.taken.size} taken
-            """.trimIndent()
+        LOG.fine {
+            "Started asynchronous job with ID: $screenEventResourceId to assign " +
+                "${restTaakVerdelenGegevens.taken.size} taken."
         }
         val taakIds = mutableListOf<String>()
         restTaakVerdelenGegevens.taken.forEach { restTaakVerdelenTaak ->
@@ -99,10 +98,9 @@ class TaskService @Inject constructor(
             taakIds.add(restTaakVerdelenTaak.taakId)
         }
         indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK)
-        logger.trace {
-            """Asynchronous assign taken job with job ID '$screenEventResourceId' finished.
-                Succesfully assigned ${taakIds.size} taken.
-            """.trimIndent()
+        LOG.fine {
+            "Asynchronous assign taken job with job ID '$screenEventResourceId' finished. " +
+                "Successfully assigned ${taakIds.size} taken."
         }
         // if a screen event resource ID was specified, send an 'updated zaken_verdelen' screen event
         // with the job UUID so that it can be picked up by a client

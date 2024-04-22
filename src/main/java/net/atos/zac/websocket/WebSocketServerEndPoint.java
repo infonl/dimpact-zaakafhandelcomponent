@@ -52,8 +52,12 @@ public class WebSocketServerEndPoint {
     @OnMessage
     public void processMessage(final SubscriptionType.SubscriptionMessage message, final Session session) {
         if (message != null) {
-            LOG.fine(() -> String.format("WebSocket subscription %s for %s (%s)", message.getSubscriptionType(),
-                    user(session), message.getEvent()));
+            LOG.fine(() -> String.format(
+                    "WebSocket subscription %s for %s (%s)",
+                    message.getSubscriptionType(),
+                    user(session),
+                    message.getEvent()
+            ));
             message.register(registry, session);
         }
     }
