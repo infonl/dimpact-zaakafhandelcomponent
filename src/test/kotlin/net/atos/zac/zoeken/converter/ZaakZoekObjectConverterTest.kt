@@ -86,7 +86,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
         every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
         every { ztcClientService.readStatustype(zaakStatus.statustype) } returns zaakStatusType
-        every { takenService.countOpenTasksForZaak(zaak.uuid) } returns 0
+        every { flowableTaskService.countOpenTasksForZaak(zaak.uuid) } returns 0
         every { zrcClientService.listZaakobjecten(any()) } returns createResultsOfZaakObjecten(
             list = zaakObjectenList,
             count = zaakObjectenList.size
