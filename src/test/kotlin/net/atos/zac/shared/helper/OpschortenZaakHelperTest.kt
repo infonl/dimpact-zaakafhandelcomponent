@@ -47,13 +47,14 @@ class OpschortenZaakHelperTest : BehaviorSpec() {
                     val zaak = createZaak(
                         opschorting = createOpschorting(reden = null),
                         einddatumGepland = null,
-                        uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(1)
+                        uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(1),
+                        status = null
                     )
                     val postponedZaak = createZaak(
                         opschorting = createOpschorting(reden = "dummyReason"),
                         einddatumGepland = null,
-                        uiterlijkeEinddatumAfdoening = LocalDate.now()
-                            .plusDays(1 + numberOfDaysPostponed)
+                        uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(1 + numberOfDaysPostponed),
+                        status = null
                     )
                     val patchedZaak = slot<Zaak>()
 

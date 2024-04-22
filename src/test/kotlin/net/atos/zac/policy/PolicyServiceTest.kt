@@ -13,7 +13,6 @@ import jakarta.enterprise.inject.Instance
 import net.atos.client.opa.model.RuleQuery
 import net.atos.client.opa.model.RuleResponse
 import net.atos.client.zgw.zrc.ZRCClientService
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.createVerlenging
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakStatus
@@ -89,7 +88,7 @@ class PolicyServiceTest : BehaviorSpec() {
                         this.zaaktype shouldBe zaakType.omschrijving
                         this.opgeschort shouldBe zaak.isOpgeschort
                         this.verlengd shouldBe zaak.isVerlengd
-                        this.besloten shouldBe zaakType.besluittypen.isNotEmpty()
+                        this.besloten shouldBe false
                         this.intake shouldBe false
                         this.heropend shouldBe false
                     }
@@ -120,13 +119,13 @@ class PolicyServiceTest : BehaviorSpec() {
                         evaluationClient.readZaakRechten(any<RuleQuery<ZaakInput>>())
                     }
                     with(ruleQuerySlot.captured.input.zaak) {
-                        this.open shouldBe true
-                        this.zaaktype shouldBe zaakType.omschrijving
-                        this.opgeschort shouldBe zaak.isOpgeschort
-                        this.verlengd shouldBe zaak.isVerlengd
-                        this.besloten shouldBe zaakType.besluittypen.isNotEmpty()
-                        this.intake shouldBe true
-                        this.heropend shouldBe false
+                        open shouldBe true
+                        zaaktype shouldBe zaakType.omschrijving
+                        opgeschort shouldBe zaak.isOpgeschort
+                        verlengd shouldBe zaak.isVerlengd
+                        besloten shouldBe false
+                        intake shouldBe true
+                        heropend shouldBe false
                     }
                 }
             }
@@ -155,13 +154,13 @@ class PolicyServiceTest : BehaviorSpec() {
                         evaluationClient.readZaakRechten(any<RuleQuery<ZaakInput>>())
                     }
                     with(ruleQuerySlot.captured.input.zaak) {
-                        this.open shouldBe true
-                        this.zaaktype shouldBe zaakType.omschrijving
-                        this.opgeschort shouldBe zaak.isOpgeschort
-                        this.verlengd shouldBe zaak.isVerlengd
-                        this.besloten shouldBe zaakType.besluittypen.isNotEmpty()
-                        this.intake shouldBe false
-                        this.heropend shouldBe true
+                        open shouldBe true
+                        zaaktype shouldBe zaakType.omschrijving
+                        opgeschort shouldBe zaak.isOpgeschort
+                        verlengd shouldBe zaak.isVerlengd
+                        besloten shouldBe false
+                        intake shouldBe false
+                        heropend shouldBe true
                     }
                 }
             }
@@ -189,13 +188,13 @@ class PolicyServiceTest : BehaviorSpec() {
                         evaluationClient.readZaakRechten(any<RuleQuery<ZaakInput>>())
                     }
                     with(ruleQuerySlot.captured.input.zaak) {
-                        this.open shouldBe true
-                        this.zaaktype shouldBe zaakZoekObject.zaaktypeOmschrijving
-                        this.opgeschort shouldBe true
-                        this.verlengd shouldBe true
-                        this.besloten shouldBe true
-                        this.intake shouldBe true
-                        this.heropend shouldBe true
+                        open shouldBe true
+                        zaaktype shouldBe zaakZoekObject.zaaktypeOmschrijving
+                        opgeschort shouldBe true
+                        verlengd shouldBe true
+                        besloten shouldBe true
+                        intake shouldBe true
+                        heropend shouldBe true
                     }
                 }
             }

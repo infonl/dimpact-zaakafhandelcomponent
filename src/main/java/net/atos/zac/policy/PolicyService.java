@@ -16,9 +16,7 @@ import java.util.UUID;
 import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
-import jakarta.inject.Inject;
 
-import nl.lifely.zac.util.NoArgConstructor;
 import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.flowable.task.api.TaskInfo;
@@ -52,6 +50,7 @@ import net.atos.zac.zoeken.model.ZaakIndicatie;
 import net.atos.zac.zoeken.model.zoekobject.DocumentZoekObject;
 import net.atos.zac.zoeken.model.zoekobject.TaakZoekObject;
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
+import nl.lifely.zac.util.NoArgConstructor;
 
 @ApplicationScoped
 @NoArgConstructor
@@ -65,12 +64,14 @@ public class PolicyService {
     private TaakVariabelenService taakVariabelenService;
     private ZRCClientService zrcClientService;
 
-    public PolicyService(Instance<LoggedInUser> loggedInUserInstance,
-                         OPAEvaluationClient evaluationClient,
-                         ZTCClientService ztcClientService,
-                         EnkelvoudigInformatieObjectLockService lockService,
-                         TaakVariabelenService taakVariabelenService,
-                         ZRCClientService zrcClientService) {
+    public PolicyService(
+            Instance<LoggedInUser> loggedInUserInstance,
+            OPAEvaluationClient evaluationClient,
+            ZTCClientService ztcClientService,
+            EnkelvoudigInformatieObjectLockService lockService,
+            TaakVariabelenService taakVariabelenService,
+            ZRCClientService zrcClientService
+    ) {
         this.loggedInUserInstance = loggedInUserInstance;
         this.evaluationClient = evaluationClient;
         this.ztcClientService = ztcClientService;

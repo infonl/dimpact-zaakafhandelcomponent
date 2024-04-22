@@ -22,6 +22,7 @@ fun createZaakType(
     uuid: UUID = UUID.randomUUID(),
     omschrijving: String = "dummyZaakTypeOmschrijving",
     informatieObjectTypen: Set<URI>? = setOf(URI("dummyInformatieObjectType1"), URI("dummyInformatieObjectType2")),
+    besluittypen: Set<URI>? = null,
 ) = ZaakType(
     URI("http://example.com/zaaktypes/$uuid"),
     false,
@@ -35,6 +36,7 @@ fun createZaakType(
     null
 ).apply {
     this.omschrijving = omschrijving
+    this.besluittypen = besluittypen
 }
 
 fun createInformatieObjectType(
