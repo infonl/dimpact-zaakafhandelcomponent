@@ -123,8 +123,6 @@ class TakenRESTServiceTest : BehaviorSpec({
     Given("a task is not yet assigned") {
         val restTaakToekennenGegevens = createRESTTaakToekennenGegevens()
         val task = mockk<Task>()
-        val updatedTaskAfterUserAssignment = mockk<Task>()
-        val updatedTaskAfterGroupAssignment = mockk<Task>()
         val identityLinkInfo = mockk<IdentityLinkInfo>()
         val identityLinks = listOf(identityLinkInfo)
 

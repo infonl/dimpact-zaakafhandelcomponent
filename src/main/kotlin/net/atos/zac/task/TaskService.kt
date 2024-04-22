@@ -4,6 +4,7 @@ import jakarta.inject.Inject
 import net.atos.zac.app.taken.converter.RESTTaakConverter
 import net.atos.zac.app.taken.model.RESTTaakToekennenGegevens
 import net.atos.zac.app.taken.model.RESTTaakVerdelenGegevens
+import net.atos.zac.app.taken.model.RESTTaakVrijgevenGegevens
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.FlowableTaskService
@@ -42,44 +43,45 @@ class TaskService @Inject constructor(
             }
         }
         if (groep != restTaakToekennenGegevens.groepId) {
-            updatedTask = flowableTaskService.assignTaskToGroup(
-                task,
+            flowableTaskService.assignTaskToGroup(
+                updatedTask,
                 restTaakToekennenGegevens.groepId,
                 restTaakToekennenGegevens.reden
             )
             changed = true
         }
         if (changed) {
-            taakBehandelaarGewijzigd(updatedTask, restTaakToekennenGegevens.zaakUuid)
+            sendScreenEventsOnTaskChange(updatedTask, restTaakToekennenGegevens.zaakUuid)
             indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK)
         }
     }
 
     /**
-     * Assigns a list of tasks to a group and/or user and updates the search index.
+     * Assigns a list of tasks to a group and optionally also to a user,
+     * sends corresponding screen events and updates the search index.
      */
     @Suppress("LongParameterList")
     fun assignTasks(
         restTaakVerdelenGegevens: RESTTaakVerdelenGegevens,
         loggedInUser: LoggedInUser
     ) {
-        val taakIds: MutableList<String?> = ArrayList()
+        val taakIds: MutableList<String> = ArrayList()
         restTaakVerdelenGegevens.taken.forEach { restTaakVerdelenTaak ->
-            var task = flowableTaskService.readOpenTask(restTaakVerdelenTaak.taakId)
+            val task = flowableTaskService.readOpenTask(restTaakVerdelenTaak.taakId)
+            flowableTaskService.assignTaskToGroup(
+                task,
+                restTaakVerdelenGegevens.groepId,
+                restTaakVerdelenGegevens.reden
+            )
             restTaakVerdelenGegevens.behandelaarGebruikersnaam?.let {
-                task = assignTaskToUser(
+                assignTaskToUser(
                     taskId = task.id,
                     assignee = it,
                     loggedInUser = loggedInUser,
                     explanation = restTaakVerdelenGegevens.reden
                 )
             }
-            val updatedTask = flowableTaskService.assignTaskToGroup(
-                task,
-                restTaakVerdelenGegevens.groepId,
-                restTaakVerdelenGegevens.reden
-            )
-            taakBehandelaarGewijzigd(updatedTask, restTaakVerdelenTaak.zaakUuid)
+            sendScreenEventsOnTaskChange(task, restTaakVerdelenTaak.zaakUuid)
             taakIds.add(restTaakVerdelenTaak.taakId)
         }
         indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK)
@@ -120,7 +122,28 @@ class TaskService @Inject constructor(
         }
     }
 
-    fun taakBehandelaarGewijzigd(task: Task, zaakUuid: UUID) {
+    /**
+     * Releases a list of tasks, sends corresponding screen events and updated the search index.
+     */
+    fun releaseTasks(
+        restTaakVrijgevenGegevens: RESTTaakVrijgevenGegevens,
+        loggedInUser: LoggedInUser
+    ) {
+        val taakIds = mutableListOf<String>()
+        restTaakVrijgevenGegevens.taken.forEach {
+            releaseTask(
+                taskId = it.taakId,
+                loggedInUser = loggedInUser,
+                reden = restTaakVrijgevenGegevens.reden
+            ).let { updatedTask ->
+                sendScreenEventsOnTaskChange(updatedTask, it.zaakUuid)
+                taakIds.add(updatedTask.id)
+            }
+        }
+        indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK)
+    }
+
+    fun sendScreenEventsOnTaskChange(task: Task, zaakUuid: UUID) {
         eventingService.send(ScreenEventType.TAAK.updated(task))
         eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(zaakUuid))
     }
