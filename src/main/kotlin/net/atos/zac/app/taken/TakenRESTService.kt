@@ -153,18 +153,7 @@ class TakenRESTService @Inject constructor(
             policyService.readWerklijstRechten().zakenTaken &&
                 policyService.readWerklijstRechten().zakenTakenVerdelen
         )
-        val taakIds = mutableListOf<String>()
-        restTaakVrijgevenGegevens.taken.forEach {
-            taskService.releaseTask(
-                taskId = it.taakId,
-                loggedInUser = loggedInUserInstance.get(),
-                reden = restTaakVrijgevenGegevens.reden
-            ).let { updatedTask ->
-                taskService.taakBehandelaarGewijzigd(updatedTask, it.zaakUuid)
-                taakIds.add(updatedTask.id)
-            }
-        }
-        indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK)
+        taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUserInstance.get())
     }
 
     @PATCH
@@ -268,7 +257,7 @@ class TakenRESTService @Inject constructor(
             loggedInUser = loggedInUserInstance.get(),
             explanation = restTaakToekennenGegevens.reden
         ).let {
-            taskService.taakBehandelaarGewijzigd(it, restTaakToekennenGegevens.zaakUuid)
+            taskService.sendScreenEventsOnTaskChange(it, restTaakToekennenGegevens.zaakUuid)
             indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK)
             return it
         }
