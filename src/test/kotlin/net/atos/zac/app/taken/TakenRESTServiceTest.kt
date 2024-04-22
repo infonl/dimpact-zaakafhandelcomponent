@@ -7,8 +7,10 @@ package net.atos.zac.app.taken
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.Awaits
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -16,6 +18,8 @@ import io.mockk.runs
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
+import kotlinx.coroutines.CompletableJob
+import kotlinx.coroutines.Job
 import net.atos.client.zgw.drc.DRCClientService
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.ZGWApiService
@@ -306,15 +310,16 @@ class TakenRESTServiceTest : BehaviorSpec({
             )
         )
         val werklijstRechten = createWerklijstRechten()
+        val assignTasksAsyncJob = mockk<Job>()
         every { policyService.readWerklijstRechten() } returns werklijstRechten
-        every { taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser) } just runs
+        every { taskService.assignTasksAsync(restTaakVerdelenGegevens, loggedInUser) } returns assignTasksAsyncJob
 
         When("the 'verdelen vanuit lijst' function is called") {
             takenRESTService.verdelenVanuitLijst(restTaakVerdelenGegevens)
 
             Then("the tasks are assigned to the group and user") {
                 verify(exactly = 1) {
-                    taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser)
+                    taskService.assignTasksAsync(restTaakVerdelenGegevens, loggedInUser)
                 }
             }
         }

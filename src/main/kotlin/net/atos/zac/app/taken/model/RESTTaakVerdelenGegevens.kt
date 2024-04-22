@@ -18,5 +18,12 @@ data class RESTTaakVerdelenGegevens(
 
     var behandelaarGebruikersnaam: String? = null,
 
-    var reden: String? = null
+    var reden: String? = null,
+
+    /**
+     * Unique screen event resource ID which can be used
+     * to track the progress of the 'assign taken from list' asynchronous job
+     * using web sockets.
+     */
+    var screenEventResourceId: String? = null
 )

@@ -70,19 +70,18 @@ class ZakenServiceTest : BehaviorSpec({
             """the assign zaken async function is called with a group, a user
                 and a screen event resource id"""
         ) {
-            val coroutine = zakenService.assignZakenAsync(
+            zakenService.assignZakenAsync(
                 zaakUUIDs = zaken.map { it.uuid },
                 explanation = explanation,
                 group = group,
                 user = user,
                 screenEventResourceId = screenEventResourceId
-            )
+            ).join()
             Then(
                 """for both zaken the group and user roles 
                     and the search index should be updated and
                     a screen event of type 'zaken verdelen' should sent"""
             ) {
-                coroutine.join()
                 zaken.map {
                     // for every zaak both the user and group roles should have been updated
                     verify(exactly = 2) {

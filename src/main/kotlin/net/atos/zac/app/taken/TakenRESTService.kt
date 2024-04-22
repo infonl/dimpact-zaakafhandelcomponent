@@ -143,7 +143,11 @@ class TakenRESTService @Inject constructor(
         PolicyService.assertPolicy(
             policyService.readWerklijstRechten().zakenTaken && policyService.readWerklijstRechten().zakenTakenVerdelen
         )
-        taskService.assignTasks(restTaakVerdelenGegevens, loggedInUserInstance.get())
+        taskService.assignTasksAsync(
+            restTaakVerdelenGegevens = restTaakVerdelenGegevens,
+            loggedInUser = loggedInUserInstance.get(),
+            screenEventResourceId = restTaakVerdelenGegevens.screenEventResourceId
+        )
     }
 
     @PUT

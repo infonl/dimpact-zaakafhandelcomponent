@@ -1,6 +1,10 @@
 package net.atos.zac.task
 
 import jakarta.inject.Inject
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import net.atos.zac.app.taken.converter.RESTTaakConverter
 import net.atos.zac.app.taken.model.RESTTaakToekennenGegevens
 import net.atos.zac.app.taken.model.RESTTaakVerdelenGegevens
@@ -15,7 +19,7 @@ import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import org.flowable.task.api.Task
 import java.util.UUID
-import kotlin.collections.ArrayList
+import java.util.logging.Logger
 
 class TaskService @Inject constructor(
     private val flowableTaskService: FlowableTaskService,
@@ -23,6 +27,11 @@ class TaskService @Inject constructor(
     private val eventingService: EventingService,
     private val restTaakConverter: RESTTaakConverter
 ) {
+    companion object {
+        private val defaultCoroutineScope = CoroutineScope(Dispatchers.Default)
+        private val LOG = Logger.getLogger(TaskService::class.java.name)
+    }
+
     fun assignTask(
         restTaakToekennenGegevens: RESTTaakToekennenGegevens,
         task: Task,
@@ -60,11 +69,16 @@ class TaskService @Inject constructor(
      * Assigns a list of tasks to a group and optionally also to a user,
      * sends corresponding screen events and updates the search index.
      */
-    fun assignTasks(
+    fun assignTasksAsync(
         restTaakVerdelenGegevens: RESTTaakVerdelenGegevens,
-        loggedInUser: LoggedInUser
-    ) {
-        val taakIds: MutableList<String> = ArrayList()
+        loggedInUser: LoggedInUser,
+        screenEventResourceId: String? = null,
+    ) = defaultCoroutineScope.launch(CoroutineName("AssignTasksCoroutine")) {
+        LOG.fine {
+            "Started asynchronous job with ID: $screenEventResourceId to assign " +
+                "${restTaakVerdelenGegevens.taken.size} taken"
+        }
+        val taakIds = mutableListOf<String>()
         restTaakVerdelenGegevens.taken.forEach { restTaakVerdelenTaak ->
             val task = flowableTaskService.readOpenTask(restTaakVerdelenTaak.taakId)
             flowableTaskService.assignTaskToGroup(
@@ -84,6 +98,17 @@ class TaskService @Inject constructor(
             taakIds.add(restTaakVerdelenTaak.taakId)
         }
         indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK)
+        LOG.fine(
+            """Asynchronous assign taken job with job ID '$screenEventResourceId' finished.
+                Succesfully assigned ${taakIds.size} taken.
+            """.trimIndent()
+        )
+        // if a screen event resource ID was specified, send an 'updated zaken_verdelen' screen event
+        // with the job UUID so that it can be picked up by a client
+        // that has created a websocket subscription to this event
+        screenEventResourceId?.let {
+            eventingService.send(ScreenEventType.TAKEN_VERDELEN.updated(it))
+        }
     }
 
     /**

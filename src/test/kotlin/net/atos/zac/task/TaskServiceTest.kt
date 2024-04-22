@@ -152,8 +152,7 @@ class TaskServiceTest : BehaviorSpec({
         } just runs
 
         When("the 'assign tasks' function is called with REST taak verdelen gegevens") {
-            taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser)
-
+            taskService.assignTasksAsync(restTaakVerdelenGegevens, loggedInUser).join()
             Then("the tasks are assigned to the group and user") {
                 verify(exactly = 2) {
                     flowableTaskService.assignTaskToGroup(any(), any(), any())
