@@ -439,7 +439,8 @@ class ZakenRESTService @Inject constructor(
         val informatieobject: EnkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(
             ontkoppelGegevens.documentUUID
         )
-        assertPolicy(policyService.readDocumentRechten(informatieobject, zaak).wijzigen)
+        val documentRechten = policyService.readDocumentRechten(informatieobject, zaak)
+        assertPolicy(documentRechten.wijzigen && documentRechten.ontkoppelen)
         val parameters = ZaakInformatieobjectListParameters()
         parameters.informatieobject = informatieobject.url
         parameters.zaak = zaak.url
