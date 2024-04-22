@@ -30,6 +30,9 @@ import net.atos.zac.app.taken.converter.RESTTaakHistorieConverter
 import net.atos.zac.app.taken.model.TaakStatus
 import net.atos.zac.app.taken.model.createRESTTaak
 import net.atos.zac.app.taken.model.createRESTTaakToekennenGegevens
+import net.atos.zac.app.taken.model.createRESTTaakVerdelenGegevens
+import net.atos.zac.app.taken.model.createRESTTaakVerdelenTaak
+import net.atos.zac.app.taken.model.createRESTTaakVrijgevenGegevens
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.event.EventingService
@@ -39,6 +42,7 @@ import net.atos.zac.flowable.util.TaskUtil.getTaakStatus
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.output.createDocumentRechten
 import net.atos.zac.policy.output.createTaakRechten
+import net.atos.zac.policy.output.createWerklijstRechten
 import net.atos.zac.shared.helper.OpschortenZaakHelper
 import net.atos.zac.signalering.SignaleringenService
 import net.atos.zac.task.TaskService
@@ -290,6 +294,48 @@ class TakenRESTServiceTest : BehaviorSpec({
                         enkelvoudigInformatieObjectUUID
                     )
                     flowableTaskService.completeTask(task)
+                }
+            }
+        }
+    }
+    Given("REST taak verdeelgegevens to assign two tasks") {
+        val restTaakVerdelenGegevens = createRESTTaakVerdelenGegevens(
+            taken = listOf(
+                createRESTTaakVerdelenTaak(),
+                createRESTTaakVerdelenTaak()
+            )
+        )
+        val werklijstRechten = createWerklijstRechten()
+        every { policyService.readWerklijstRechten() } returns werklijstRechten
+        every { taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser) } just runs
+
+        When("the 'verdelen vanuit lijst' function is called") {
+            takenRESTService.verdelenVanuitLijst(restTaakVerdelenGegevens)
+
+            Then("the tasks are assigned to the group and user") {
+                verify(exactly = 1) {
+                    taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser)
+                }
+            }
+        }
+    }
+    Given("REST taak vrijgeven gegevens to release two tasks") {
+        val restTaakVrijgevenGegevens = createRESTTaakVrijgevenGegevens(
+            taken = listOf(
+                createRESTTaakVerdelenTaak(),
+                createRESTTaakVerdelenTaak()
+            )
+        )
+        val werklijstRechten = createWerklijstRechten()
+        every { policyService.readWerklijstRechten() } returns werklijstRechten
+        every { taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser) } just runs
+
+        When("the 'verdelen vanuit lijst' function is called") {
+            takenRESTService.vrijgevenVanuitLijst(restTaakVrijgevenGegevens)
+
+            Then("the tasks are assigned to the group and user") {
+                verify(exactly = 1) {
+                    taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser)
                 }
             }
         }

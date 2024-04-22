@@ -48,3 +48,31 @@ fun createRESTTaakToekennenGegevens(
     behandelaarId = behandelaarId,
     reden = reden
 )
+
+fun createRESTTaakVerdelenTaak(
+    taakId: String = "dummyTaakId",
+    zaakUuid: UUID = UUID.randomUUID()
+) = RESTTaakVerdelenTaak(
+    taakId = taakId,
+    zaakUuid = zaakUuid
+)
+
+fun createRESTTaakVerdelenGegevens(
+    taken: List<RESTTaakVerdelenTaak> = listOf(createRESTTaakVerdelenTaak()),
+    groepId: String = "dummyGroepId",
+    behandelaarGebruikersnaam: String = "dummyBehandelaarGebruikersnaam",
+    reden: String = "dummyReason"
+) = RESTTaakVerdelenGegevens(
+    taken = taken,
+    groepId = groepId,
+    behandelaarGebruikersnaam = behandelaarGebruikersnaam,
+    reden = reden
+)
+
+fun createRESTTaakVrijgevenGegevens(
+    taken: List<RESTTaakVerdelenTaak> = listOf(createRESTTaakVerdelenTaak()),
+    reden: String = "dummyReason"
+) = RESTTaakVrijgevenGegevens(
+    taken = taken,
+    reden = reden
+)

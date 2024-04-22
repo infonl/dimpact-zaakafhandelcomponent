@@ -10,9 +10,12 @@ import jakarta.json.bind.annotation.JsonbProperty;
 
 import net.atos.zac.util.DummyInterface;
 
-public record WerklijstRechten(boolean inbox, boolean ontkoppeldeDocumentenVerwijderen,
-                               boolean inboxProductaanvragenVerwijderen, boolean zakenTaken,
-                               boolean zakenTakenVerdelen) implements DummyInterface {
+public record WerklijstRechten(boolean inbox,
+                               boolean ontkoppeldeDocumentenVerwijderen,
+                               boolean inboxProductaanvragenVerwijderen,
+                               boolean zakenTaken,
+                               boolean zakenTakenVerdelen
+) implements DummyInterface {
 
     @JsonbCreator
     public WerklijstRechten(
