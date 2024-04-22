@@ -14,6 +14,7 @@ public record TaakRechten(
                           boolean lezen,
                           boolean wijzigen,
                           boolean toekennen,
+                          boolean creeerenDocument,
                           boolean toevoegenDocument
 ) implements DummyInterface {
 
@@ -22,11 +23,13 @@ public record TaakRechten(
             @JsonbProperty("lezen") final boolean lezen,
             @JsonbProperty("wijzigen") final boolean wijzigen,
             @JsonbProperty("toekennen") final boolean toekennen,
+            @JsonbProperty("creeeren_document") boolean creeerenDocument,
             @JsonbProperty("toevoegen_document") final boolean toevoegenDocument
     ) {
         this.lezen = lezen;
         this.wijzigen = wijzigen;
         this.toekennen = toekennen;
+        this.creeerenDocument = creeerenDocument;
         this.toevoegenDocument = toevoegenDocument;
     }
 }
