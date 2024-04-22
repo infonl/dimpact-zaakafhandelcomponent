@@ -379,7 +379,7 @@ tasks {
 
     test {
         dependsOn("npmRunTest")
-        dependsOn("testRego", "testRegoCoverage")
+        dependsOn("testRegoCoverage")
     }
 
     compileJava {
