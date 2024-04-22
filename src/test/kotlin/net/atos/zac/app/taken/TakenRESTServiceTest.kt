@@ -46,6 +46,7 @@ import net.atos.zac.shared.helper.OpschortenZaakHelper
 import net.atos.zac.signalering.SignaleringenService
 import net.atos.zac.signalering.event.SignaleringEvent
 import net.atos.zac.signalering.model.SignaleringType
+import net.atos.zac.task.TaskService
 import net.atos.zac.util.DateTimeConverterUtil
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
@@ -78,6 +79,7 @@ class TakenRESTServiceTest : BehaviorSpec({
     val signaleringenService = mockk<SignaleringenService>()
     val taakHistorieConverter = mockk<RESTTaakHistorieConverter>()
     val zgwApiService = mockk<ZGWApiService>()
+    val taskService = mockk<TaskService>()
 
     val takenRESTService = TakenRESTService(
         drcClientService = drcClientService,
@@ -95,7 +97,8 @@ class TakenRESTServiceTest : BehaviorSpec({
         restInformatieobjectConverter = restInformatieobjectConverter,
         signaleringenService = signaleringenService,
         taakHistorieConverter = taakHistorieConverter,
-        zgwApiService = zgwApiService
+        zgwApiService = zgwApiService,
+        taskService = taskService
     )
     val loggedInUser = createLoggedInUser()
 
@@ -116,7 +119,8 @@ class TakenRESTServiceTest : BehaviorSpec({
             restInformatieobjectConverter,
             signaleringenService,
             taakHistorieConverter,
-            zgwApiService
+            zgwApiService,
+            taskService
         )
     }
 
@@ -136,19 +140,12 @@ class TakenRESTServiceTest : BehaviorSpec({
         every { flowableTaskService.readOpenTask(restTaakToekennenGegevens.taakId) } returns task
         every { getTaakStatus(task) } returns TaakStatus.NIET_TOEGEKEND
         every {
-            flowableTaskService.assignTaskToUser(
-                restTaakToekennenGegevens.taakId,
-                restTaakToekennenGegevens.behandelaarId,
-                restTaakToekennenGegevens.reden
-            )
-        } returns task
-        every {
             flowableTaskService.assignTaskToGroup(
                 task,
                 restTaakToekennenGegevens.groepId,
                 restTaakToekennenGegevens.reden
             )
-        } returns task
+        } returns updatedTaskAfterGroupAssignment
         every { policyService.readTaakRechten(task) } returns createTaakRechten()
         every { task.assignee } returns ""
         every { task.identityLinks } returns identityLinks
@@ -162,27 +159,40 @@ class TakenRESTServiceTest : BehaviorSpec({
                 ZoekObjectType.TAAK
             )
         } just runs
+        every {
+            taskService.assignTaskToUser(
+                restTaakToekennenGegevens.taakId,
+                restTaakToekennenGegevens.behandelaarId!!,
+                loggedInUser,
+                restTaakToekennenGegevens.reden
+            )
+        } returns updatedTaskAfterUserAssignment
+        every {
+            taskService.taakBehandelaarGewijzigd(
+                updatedTaskAfterGroupAssignment,
+                restTaakToekennenGegevens.zaakUuid
+            )
+        } just runs
 
         When("'toekennen' is called") {
             takenRESTService.toekennen(restTaakToekennenGegevens)
 
             Then(
-                "the task is assigned to the provided user and group, " +
-                    "a signalling event and two screen events are sent,  " +
+                "the task is assigned to the provided user and group " +
                     "and the indexed task data is updated"
             ) {
                 verify(exactly = 1) {
-                    flowableTaskService.assignTaskToUser(
+                    taskService.assignTaskToUser(
                         restTaakToekennenGegevens.taakId,
-                        restTaakToekennenGegevens.behandelaarId,
+                        restTaakToekennenGegevens.behandelaarId!!,
+                        loggedInUser,
                         restTaakToekennenGegevens.reden
                     )
                     flowableTaskService.assignTaskToGroup(
-                        task,
+                        updatedTaskAfterUserAssignment,
                         restTaakToekennenGegevens.groepId,
                         restTaakToekennenGegevens.reden
                     )
-                    eventingService.send(any<SignaleringEvent<*>>())
                     indexeerService.indexeerDirect(
                         restTaakToekennenGegevens.taakId,
                         ZoekObjectType.TAAK
