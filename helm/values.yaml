@@ -311,7 +311,7 @@ opentelemetry-collector:
       enabled: false
     jaeger-thrift:
       enabled: false
-    jaeger-rpc:
+    jaeger-grpc:
       enabled: false
     zipkin:
       enabled: false
