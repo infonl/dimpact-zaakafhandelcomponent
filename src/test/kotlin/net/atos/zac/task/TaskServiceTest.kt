@@ -5,6 +5,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -13,6 +14,8 @@ import io.mockk.slot
 import io.mockk.verify
 import net.atos.zac.app.taken.converter.RESTTaakConverter
 import net.atos.zac.app.taken.model.createRESTTaakToekennenGegevens
+import net.atos.zac.app.taken.model.createRESTTaakVerdelenGegevens
+import net.atos.zac.app.taken.model.createRESTTaakVerdelenTaak
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
@@ -45,7 +48,11 @@ class TaskServiceTest : BehaviorSpec({
         )
     }
 
-    Given("A task that has not been assigned yet to a specific group and user") {
+    afterTest {
+        clearAllMocks()
+    }
+
+    Given("A task that has not yet been assigned to a specific group and user") {
         val restTaakToekennenGegevens = createRESTTaakToekennenGegevens()
         val taskId = "dummyTaskId"
         val task = mockk<Task>()
@@ -94,6 +101,75 @@ class TaskServiceTest : BehaviorSpec({
                 }
                 screenEventSlot.size shouldBe 2
                 screenEventSlot.map { it.objectType } shouldContainExactlyInAnyOrder listOf(
+                    ScreenEventType.TAAK,
+                    ScreenEventType.ZAAK_TAKEN
+                )
+                screenEventSlot.map { it.opcode } shouldContainOnly listOf(
+                    Opcode.UPDATED
+                )
+            }
+        }
+    }
+    Given("Two tasks that have not yet been assigned to a specific group and user") {
+        val restTaakVerdelenTaken = listOf(
+            createRESTTaakVerdelenTaak(),
+            createRESTTaakVerdelenTaak()
+        )
+        val restTaakVerdelenGegevens = createRESTTaakVerdelenGegevens(
+            taken = restTaakVerdelenTaken
+        )
+        val taskId1 = "dummyTaskId1"
+        val taskId2 = "dummyTaskId2"
+        val loggedInUser = mockk<LoggedInUser>()
+        val task1 = mockk<Task>()
+        val task2 = mockk<Task>()
+        val updatedTask1AfterAssigningGroup = mockk<Task>()
+        val updatedTask2AfterAssigningGroup = mockk<Task>()
+        val updatedTask1AfterAssigningUser = mockk<Task>()
+        val updatedTask2AfterAssigningUser = mockk<Task>()
+        val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
+        val screenEventSlot = mutableListOf<ScreenEvent>()
+
+        every { loggedInUser.id } returns "dummyLoggedInUserId"
+        every { task1.id } returns taskId1
+        every { task2.id } returns taskId2
+        every { updatedTask1AfterAssigningGroup.id } returns taskId1
+        every { updatedTask2AfterAssigningGroup.id } returns taskId2
+        every { updatedTask1AfterAssigningUser.id } returns taskId1
+        every { updatedTask2AfterAssigningUser.id } returns taskId2
+        every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId) } returns task1
+        every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[1].taakId) } returns task2
+        every {
+            flowableTaskService.assignTaskToGroup(any(), any(), any())
+        } returns updatedTask1AfterAssigningGroup andThen updatedTask2AfterAssigningGroup
+        every {
+            flowableTaskService.assignTaskToUser(any(), any(), any())
+        } returns updatedTask1AfterAssigningUser andThen updatedTask2AfterAssigningUser
+        every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
+        every { eventingService.send(capture(screenEventSlot)) } just runs
+        every {
+            indexeerService.indexeerDirect(restTaakVerdelenTaken.map { it.taakId }.toList(), ZoekObjectType.TAAK)
+        } just runs
+
+        When("the 'assign tasks' function is called with REST taak verdelen gegevens") {
+            taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser)
+
+            Then("the tasks are assigned to the group and user") {
+                verify(exactly = 2) {
+                    flowableTaskService.assignTaskToGroup(any(), any(), any())
+                    flowableTaskService.assignTaskToUser(any(), any(), any())
+                }
+                verify(exactly = 1) {
+                    indexeerService.indexeerDirect(
+                        restTaakVerdelenTaken.map { it.taakId }.toList(),
+                        ZoekObjectType.TAAK
+                    )
+                }
+                // we expect 4 screen events to be sent, 2 for each task
+                screenEventSlot.size shouldBe 4
+                screenEventSlot.map { it.objectType } shouldContainExactlyInAnyOrder listOf(
+                    ScreenEventType.TAAK,
+                    ScreenEventType.ZAAK_TAKEN,
                     ScreenEventType.TAAK,
                     ScreenEventType.ZAAK_TAKEN
                 )
