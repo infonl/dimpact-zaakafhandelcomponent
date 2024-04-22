@@ -17,7 +17,7 @@ import org.flowable.cmmn.model.UserEventListener;
 import net.atos.zac.app.admin.model.RESTCaseDefinition;
 import net.atos.zac.app.admin.model.RESTPlanItemDefinition;
 import net.atos.zac.flowable.CMMNService;
-import net.atos.zac.flowable.TakenService;
+import net.atos.zac.flowable.FlowableTaskService;
 
 public class RESTCaseDefinitionConverter {
 
@@ -25,7 +25,7 @@ public class RESTCaseDefinitionConverter {
     private CMMNService cmmnService;
 
     @Inject
-    private TakenService takenService;
+    private FlowableTaskService flowableTaskService;
 
 
     public RESTCaseDefinition convertToRESTCaseDefinition(final String caseDefinitionKey, final boolean inclusiefRelaties) {

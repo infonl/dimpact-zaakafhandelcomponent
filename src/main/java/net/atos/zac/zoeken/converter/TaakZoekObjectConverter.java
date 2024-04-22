@@ -16,8 +16,8 @@ import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
+import net.atos.zac.flowable.FlowableTaskService;
 import net.atos.zac.flowable.TaakVariabelenService;
-import net.atos.zac.flowable.TakenService;
 import net.atos.zac.identity.IdentityService;
 import net.atos.zac.identity.model.Group;
 import net.atos.zac.identity.model.User;
@@ -30,7 +30,7 @@ public class TaakZoekObjectConverter extends AbstractZoekObjectConverter<TaakZoe
     private IdentityService identityService;
 
     @Inject
-    private TakenService takenService;
+    private FlowableTaskService flowableTaskService;
 
     @Inject
     private TaakVariabelenService taakVariabelenService;
@@ -43,7 +43,7 @@ public class TaakZoekObjectConverter extends AbstractZoekObjectConverter<TaakZoe
 
     @Override
     public TaakZoekObject convert(final String taskID) {
-        final TaskInfo taskInfo = takenService.readTask(taskID);
+        final TaskInfo taskInfo = flowableTaskService.readTask(taskID);
         final TaakZoekObject taakZoekObject = new TaakZoekObject();
 
         taakZoekObject.setNaam(taskInfo.getName());

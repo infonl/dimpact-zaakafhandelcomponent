@@ -22,7 +22,7 @@ import net.atos.zac.app.signaleringen.model.RESTSignaleringInstellingen
 import net.atos.zac.app.taken.converter.RESTTaakConverter
 import net.atos.zac.app.taken.model.RESTTaak
 import net.atos.zac.authentication.LoggedInUser
-import net.atos.zac.flowable.TakenService
+import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.signalering.SignaleringenService
 import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
@@ -41,7 +41,7 @@ import java.util.UUID
 @Suppress("LongParameterList", "TooManyFunctions")
 class SignaleringenRestService @Inject constructor(
     private val signaleringenService: SignaleringenService,
-    private val takenService: TakenService,
+    private val flowableTaskService: FlowableTaskService,
     private val drcClientService: DRCClientService,
     private val identityService: IdentityService,
     private val restTaakConverter: RESTTaakConverter,
@@ -79,7 +79,7 @@ class SignaleringenRestService @Inject constructor(
             .subjecttype(SignaleringSubject.TAAK)
             .let { signaleringenService.listSignaleringen(it) }
             .stream()
-            .map { takenService.readTask(it.subject) }
+            .map { flowableTaskService.readTask(it.subject) }
             .map { restTaakConverter.convert(it) }
             .toList()
 

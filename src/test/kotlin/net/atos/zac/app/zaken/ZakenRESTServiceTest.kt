@@ -63,7 +63,7 @@ import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.BPMNService
 import net.atos.zac.flowable.CMMNService
-import net.atos.zac.flowable.TakenService
+import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.healthcheck.HealthCheckService
 import net.atos.zac.identity.IdentityService
@@ -111,7 +111,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
     val restZaaktypeConverter: RESTZaaktypeConverter = mockk<RESTZaaktypeConverter>()
     val restHistorieRegelConverter: RESTHistorieRegelConverter = mockk<RESTHistorieRegelConverter>()
     val signaleringenService: SignaleringenService = mockk<SignaleringenService>()
-    val takenService: TakenService = mockk<TakenService>()
+    val flowableTaskService: FlowableTaskService = mockk<FlowableTaskService>()
     val vrlClientService: VRLClientService = mockk<VRLClientService>()
     val zaakafhandelParameterService: ZaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
     val zaakVariabelenService: ZaakVariabelenService = mockk<ZaakVariabelenService>()
@@ -152,7 +152,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
         restResultaattypeConverter = restResultaattypeConverter,
         restZaakOverzichtConverter = restZaakOverzichtConverter,
         signaleringenService = signaleringenService,
-        takenService = takenService,
+        flowableTaskService = flowableTaskService,
         vrlClientService = vrlClientService,
         restZaakAfzenderConverter = restZaakAfzenderConverter,
         restZaaktypeConverter = restZaaktypeConverter

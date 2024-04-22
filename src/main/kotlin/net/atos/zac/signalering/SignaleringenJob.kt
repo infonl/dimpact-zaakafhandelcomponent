@@ -12,7 +12,7 @@ import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZTCClientService
 import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.zac.configuratie.ConfiguratieService
-import net.atos.zac.flowable.TakenService
+import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen
 import net.atos.zac.signalering.model.Signalering
 import net.atos.zac.signalering.model.SignaleringDetail
@@ -48,7 +48,7 @@ class SignaleringenJob @Inject constructor(
     private val ztcClientService: ZTCClientService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
     private val zoekenService: ZoekenService,
-    private val takenService: TakenService
+    private val flowableTaskService: FlowableTaskService
 ) {
 
     companion object {
@@ -277,7 +277,7 @@ class SignaleringenJob @Inject constructor(
      */
     fun taakDueVerzenden(): Int {
         val verzonden = IntArray(1)
-        takenService.listOpenTasksDueNow().stream()
+        flowableTaskService.listOpenTasksDueNow().stream()
             .filter { hasTaakSignaleringTarget(it) }
             .map { buildTaakSignalering(it.assignee, it) }
             .forEach { verzonden[0] += verzendTaakSignalering(it) }
@@ -311,7 +311,7 @@ class SignaleringenJob @Inject constructor(
      * Make sure already sent E-Mail warnings will get send again (in cases where the due date has changed)
      */
     fun taakDueOnterechtVerzondenVerwijderen() {
-        takenService.listOpenTasksDueLater().stream()
+        flowableTaskService.listOpenTasksDueLater().stream()
             .map { getTaakSignaleringVerzondenParameters(it.assignee, it.id) }
             .forEach { signaleringenService.deleteSignaleringVerzonden(it) }
     }
