@@ -60,7 +60,6 @@ class TaskService @Inject constructor(
      * Assigns a list of tasks to a group and optionally also to a user,
      * sends corresponding screen events and updates the search index.
      */
-    @Suppress("LongParameterList")
     fun assignTasks(
         restTaakVerdelenGegevens: RESTTaakVerdelenGegevens,
         loggedInUser: LoggedInUser
@@ -87,6 +86,9 @@ class TaskService @Inject constructor(
         indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK)
     }
 
+    /**
+     * Assigns a task to a user and sends the 'taak op naam' signalering event.
+     */
     fun assignTaskToUser(
         taskId: String,
         assignee: String,
@@ -94,23 +96,6 @@ class TaskService @Inject constructor(
         explanation: String?
     ): Task {
         flowableTaskService.assignTaskToUser(taskId, assignee, explanation).let { updatedTask ->
-            eventingService.send(
-                SignaleringEventUtil.event(
-                    SignaleringType.Type.TAAK_OP_NAAM,
-                    updatedTask,
-                    loggedInUser
-                )
-            )
-            return updatedTask
-        }
-    }
-
-    fun releaseTask(
-        taskId: String,
-        loggedInUser: LoggedInUser,
-        reden: String?
-    ): Task {
-        flowableTaskService.releaseTask(taskId, reden).let { updatedTask ->
             eventingService.send(
                 SignaleringEventUtil.event(
                     SignaleringType.Type.TAAK_OP_NAAM,
@@ -146,5 +131,22 @@ class TaskService @Inject constructor(
     fun sendScreenEventsOnTaskChange(task: Task, zaakUuid: UUID) {
         eventingService.send(ScreenEventType.TAAK.updated(task))
         eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(zaakUuid))
+    }
+
+    private fun releaseTask(
+        taskId: String,
+        loggedInUser: LoggedInUser,
+        reden: String?
+    ): Task {
+        flowableTaskService.releaseTask(taskId, reden).let { updatedTask ->
+            eventingService.send(
+                SignaleringEventUtil.event(
+                    SignaleringType.Type.TAAK_OP_NAAM,
+                    updatedTask,
+                    loggedInUser
+                )
+            )
+            return updatedTask
+        }
     }
 }
