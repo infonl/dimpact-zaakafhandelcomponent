@@ -143,7 +143,7 @@ class TakenRESTService @Inject constructor(
         PolicyService.assertPolicy(
             policyService.readWerklijstRechten().zakenTaken && policyService.readWerklijstRechten().zakenTakenVerdelen
         )
-        taskService.assignTasksAsync(restTaakVerdelenGegevens, loggedInUserInstance.get())
+        taskService.assignTasks(restTaakVerdelenGegevens, loggedInUserInstance.get())
     }
 
     @PUT
@@ -181,35 +181,15 @@ class TakenRESTService @Inject constructor(
     @PATCH
     @Path("toekennen")
     fun toekennen(restTaakToekennenGegevens: RESTTaakToekennenGegevens) {
-        var task = flowableTaskService.readOpenTask(restTaakToekennenGegevens.taakId)
+        val task = flowableTaskService.readOpenTask(restTaakToekennenGegevens.taakId)
         PolicyService.assertPolicy(
             TaskUtil.getTaakStatus(task) != TaakStatus.AFGEROND && policyService.readTaakRechten(task).toekennen
         )
-        val groep = restTaakConverter.extractGroupId(task.identityLinks)
-        var changed = false
-        restTaakToekennenGegevens.behandelaarId?.let {
-            if (task.assignee != it) {
-                task = taskService.assignTaskToUser(
-                    taskId = task.id,
-                    assignee = it,
-                    loggedInUser = loggedInUserInstance.get(),
-                    explanation = restTaakToekennenGegevens.reden
-                )
-                changed = true
-            }
-        }
-        if (groep != restTaakToekennenGegevens.groepId) {
-            task = flowableTaskService.assignTaskToGroup(
-                task,
-                restTaakToekennenGegevens.groepId,
-                restTaakToekennenGegevens.reden
-            )
-            changed = true
-        }
-        if (changed) {
-            taskService.taakBehandelaarGewijzigd(task, restTaakToekennenGegevens.zaakUuid)
-            indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK)
-        }
+        taskService.assignTask(
+            restTaakToekennenGegevens,
+            task,
+            loggedInUserInstance.get()
+        )
     }
 
     @PATCH
