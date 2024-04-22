@@ -32,6 +32,14 @@ class TaskService @Inject constructor(
         var changed = false
         var updatedTask = task
         restTaakToekennenGegevens.behandelaarId?.let {
+            if (groep != restTaakToekennenGegevens.groepId) {
+                flowableTaskService.assignTaskToGroup(
+                    updatedTask,
+                    restTaakToekennenGegevens.groepId,
+                    restTaakToekennenGegevens.reden
+                )
+                changed = true
+            }
             if (task.assignee != it) {
                 updatedTask = assignTaskToUser(
                     taskId = task.id,
@@ -41,14 +49,6 @@ class TaskService @Inject constructor(
                 )
                 changed = true
             }
-        }
-        if (groep != restTaakToekennenGegevens.groepId) {
-            flowableTaskService.assignTaskToGroup(
-                updatedTask,
-                restTaakToekennenGegevens.groepId,
-                restTaakToekennenGegevens.reden
-            )
-            changed = true
         }
         if (changed) {
             sendScreenEventsOnTaskChange(updatedTask, restTaakToekennenGegevens.zaakUuid)
