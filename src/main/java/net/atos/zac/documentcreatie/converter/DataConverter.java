@@ -8,7 +8,7 @@ package net.atos.zac.documentcreatie.converter;
 import static net.atos.client.or.shared.util.URIUtil.getUUID;
 import static net.atos.client.zgw.zrc.model.Objecttype.OVERIGE;
 import static net.atos.zac.util.StringUtil.joinNonBlank;
-import static net.atos.zac.util.UriUtil.uuidFromURI;
+import static net.atos.zac.util.UriUtil.longFromURI;
 
 import java.net.URI;
 import java.util.Objects;
@@ -25,8 +25,6 @@ import net.atos.client.brp.model.generated.VerblijfadresBinnenland;
 import net.atos.client.kvk.KVKClientService;
 import net.atos.client.kvk.zoeken.model.generated.ResultaatItem;
 import net.atos.client.or.object.ObjectsClientService;
-import net.atos.client.vrl.VRLClientService;
-import net.atos.client.vrl.model.generated.CommunicatieKanaal;
 import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Rol;
@@ -49,6 +47,7 @@ import net.atos.zac.documentcreatie.model.ZaakData;
 import net.atos.zac.flowable.TaakVariabelenService;
 import net.atos.zac.flowable.TakenService;
 import net.atos.zac.identity.IdentityService;
+import net.atos.zac.zaaksturing.ReferentieTabelService;
 
 public class DataConverter {
 
@@ -64,7 +63,7 @@ public class DataConverter {
     private ZTCClientService ztcClientService;
 
     @Inject
-    private VRLClientService vrlClientService;
+    private ReferentieTabelService referentieTabelService;
 
     @Inject
     private BRPClientService brpClientService;
@@ -151,8 +150,8 @@ public class DataConverter {
                 .ifPresent(behandelaar -> zaakData.behandelaar = behandelaar);
 
         if (zaak.getCommunicatiekanaal() != null) {
-            vrlClientService.findCommunicatiekanaal(uuidFromURI(zaak.getCommunicatiekanaal()))
-                    .map(CommunicatieKanaal::getNaam)
+            longFromURI(zaak.getCommunicatiekanaal())
+                    .map(x -> referentieTabelService.readReferentieTabelWaarde(x).getNaam())
                     .ifPresent(communicatiekanaal -> zaakData.communicatiekanaal = communicatiekanaal);
         }
 

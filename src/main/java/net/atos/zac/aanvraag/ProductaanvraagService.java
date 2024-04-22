@@ -22,16 +22,11 @@ import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.json.bind.JsonbConfig;
 
-import net.atos.zac.app.communicatiekanalen.converter.RestCommunicatiekanaalConverter;
-import net.atos.zac.app.communicatiekanalen.model.RESTCommunicatiekanaal;
-import net.atos.zac.zaaksturing.ReferentieTabelService;
-import net.atos.zac.zaaksturing.model.ReferentieTabel;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import net.atos.client.or.object.ObjectsClientService;
 import net.atos.client.or.object.model.ORObject;
-import net.atos.client.vrl.model.generated.CommunicatieKanaal;
 import net.atos.client.zgw.drc.DRCClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.ZGWApiService;
@@ -54,6 +49,8 @@ import net.atos.zac.aanvraag.model.generated.ProductaanvraagDimpact;
 import net.atos.zac.aanvraag.util.BetalingStatusEnumJsonAdapter;
 import net.atos.zac.aanvraag.util.IndicatieMachtigingEnumJsonAdapter;
 import net.atos.zac.aanvraag.util.RolOmschrijvingGeneriekEnumJsonAdapter;
+import net.atos.zac.app.communicatiekanalen.converter.RestCommunicatiekanaalConverter;
+import net.atos.zac.app.communicatiekanalen.model.RESTCommunicatiekanaal;
 import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.documenten.InboxDocumentenService;
 import net.atos.zac.flowable.BPMNService;
@@ -62,8 +59,10 @@ import net.atos.zac.identity.IdentityService;
 import net.atos.zac.identity.model.Group;
 import net.atos.zac.identity.model.User;
 import net.atos.zac.util.JsonbUtil;
+import net.atos.zac.zaaksturing.ReferentieTabelService;
 import net.atos.zac.zaaksturing.ZaakafhandelParameterBeheerService;
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService;
+import net.atos.zac.zaaksturing.model.ReferentieTabel;
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
 
 @ApplicationScoped
@@ -313,7 +312,8 @@ public class ProductaanvraagService {
         zaak.setBronorganisatie(BRON_ORGANISATIE);
         zaak.setVerantwoordelijkeOrganisatie(BRON_ORGANISATIE);
 
-        final Optional<URI> communicatiekanaalUri = referentieTabelService.readReferentieTabel(ReferentieTabel.Systeem.COMMUNICATIEKANAAL.name())
+        final Optional<URI> communicatiekanaalUri = referentieTabelService.readReferentieTabel(ReferentieTabel.Systeem.COMMUNICATIEKANAAL
+                .name())
                 .getWaarden()
                 .stream()
                 .filter(x -> Objects.equals(x.getNaam(), COMMUNICATIEKANAAL_EFORMULIER))

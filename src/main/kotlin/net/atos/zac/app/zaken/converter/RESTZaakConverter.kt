@@ -35,7 +35,6 @@ import net.atos.zac.policy.PolicyService
 import net.atos.zac.util.PeriodUtil
 import net.atos.zac.util.UriUtil
 import net.atos.zac.zaaksturing.ReferentieTabelService
-import net.atos.zac.zaaksturing.model.ReferentieTabel.Systeem
 import net.atos.zac.zoeken.model.ZaakIndicatie
 import org.apache.commons.collections4.CollectionUtils
 import org.apache.commons.lang3.StringUtils
@@ -121,7 +120,9 @@ class RESTZaakConverter {
         val communicatiekanaal = zaak.communicatiekanaal?.let {
             UriUtil.longFromURI(it)
                 .map { id ->
-                    restCommunicatiekanaalConverter.convertToRESTCommunicatiekanaal(referentieTabelService.readReferentieTabelWaarde(id))
+                    restCommunicatiekanaalConverter.convertToRESTCommunicatiekanaal(
+                        referentieTabelService.readReferentieTabelWaarde(id)
+                    )
                 }
                 .orElse(null)
         }

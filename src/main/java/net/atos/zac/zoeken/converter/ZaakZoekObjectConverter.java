@@ -6,7 +6,6 @@ import static net.atos.zac.util.UriUtil.uuidFromURI;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 import jakarta.inject.Inject;
@@ -31,8 +30,6 @@ import net.atos.zac.identity.model.Group;
 import net.atos.zac.identity.model.User;
 import net.atos.zac.util.DateTimeConverterUtil;
 import net.atos.zac.zaaksturing.ReferentieTabelService;
-import net.atos.zac.zaaksturing.model.ReferentieTabel;
-import net.atos.zac.zaaksturing.model.ReferentieTabelWaarde;
 import net.atos.zac.zoeken.model.ZaakIndicatie;
 import net.atos.zac.zoeken.model.index.ZoekObjectType;
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
@@ -90,8 +87,8 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
 
         if (zaak.getCommunicatiekanaal() != null) {
             longFromURI(zaak.getCommunicatiekanaal())
-                .map(aLong -> referentieTabelService.readReferentieTabelWaarde(aLong).getNaam())
-                .ifPresent(zaakZoekObject::setCommunicatiekanaal);
+                    .map(aLong -> referentieTabelService.readReferentieTabelWaarde(aLong).getNaam())
+                    .ifPresent(zaakZoekObject::setCommunicatiekanaal);
         }
 
         final Group groep = findGroep(zaak);

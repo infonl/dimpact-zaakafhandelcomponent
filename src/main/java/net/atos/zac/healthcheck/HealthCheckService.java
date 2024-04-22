@@ -2,6 +2,7 @@ package net.atos.zac.healthcheck;
 
 import static java.nio.file.Files.readAllLines;
 import static net.atos.client.zgw.ztc.util.InformatieObjectTypeUtil.isNuGeldig;
+import static net.atos.zac.configuratie.ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER;
 import static net.atos.zac.util.DateTimeConverterUtil.convertToLocalDateTime;
 
 import java.io.File;
@@ -18,7 +19,6 @@ import jakarta.inject.Singleton;
 import org.apache.commons.collections4.CollectionUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import net.atos.client.vrl.VRLClientService;
 import net.atos.client.zgw.shared.util.URIUtil;
 import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.client.zgw.ztc.model.Afleidingswijze;
@@ -33,7 +33,9 @@ import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.healthcheck.model.BuildInformatie;
 import net.atos.zac.healthcheck.model.ZaaktypeInrichtingscheck;
 import net.atos.zac.util.LocalDateUtil;
+import net.atos.zac.zaaksturing.ReferentieTabelService;
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService;
+import net.atos.zac.zaaksturing.model.ReferentieTabel;
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
 
 @Singleton
@@ -45,7 +47,7 @@ public class HealthCheckService {
     private ZTCClientService ztcClientService;
 
     @Inject
-    private VRLClientService vrlClientService;
+    private ReferentieTabelService referentieTabelService;
 
     @Inject
     private ZaakafhandelParameterService zaakafhandelParameterBeheerService;
@@ -65,7 +67,9 @@ public class HealthCheckService {
     private BuildInformatie buildInformatie;
 
     public boolean bestaatCommunicatiekanaalEformulier() {
-        return vrlClientService.findCommunicatiekanaal(ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER).isPresent();
+        return referentieTabelService.readReferentieTabel(ReferentieTabel.Systeem.COMMUNICATIEKANAAL.name())
+                .getWaarden().stream()
+                .anyMatch(x -> x.getNaam().equals(COMMUNICATIEKANAAL_EFORMULIER));
     }
 
     public ZaaktypeInrichtingscheck controleerZaaktype(final URI zaaktypeUrl) {
