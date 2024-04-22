@@ -124,7 +124,6 @@ dependencies {
     implementation(libs.jackson.annotations)
     implementation(libs.jackson.kotlin)
     implementation(libs.jackson.jsr310)
-    implementation(libs.github.kotlin.logging)
 
     swaggerUI(libs.swagger.ui)
 

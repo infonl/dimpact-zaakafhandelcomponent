@@ -4,7 +4,6 @@
 */
 package net.atos.zac.zaken
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.inject.Inject
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -27,6 +26,7 @@ import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import java.util.UUID
+import java.util.logging.Logger
 
 class ZakenService @Inject constructor(
     private val zrcClientService: ZRCClientService,
@@ -36,7 +36,7 @@ class ZakenService @Inject constructor(
 ) {
     companion object {
         private val defaultCoroutineScope = CoroutineScope(Dispatchers.Default)
-        private val logger = KotlinLogging.logger {}
+        private val LOG = Logger.getLogger(ZakenService::class.java.name)
     }
 
     /**
@@ -50,8 +50,8 @@ class ZakenService @Inject constructor(
         explanation: String? = null,
         screenEventResourceId: String? = null,
     ) = defaultCoroutineScope.launch(CoroutineName("AssignZakenCoroutine")) {
-        logger.trace {
-            """Started asynchronous job with ID: $screenEventResourceId to assign ${zaakUUIDs.size} zaken.""".trimIndent()
+        LOG.fine {
+            "Started asynchronous job with ID: $screenEventResourceId to assign ${zaakUUIDs.size} zaken."
         }
         val zakenAssignedList = mutableListOf<UUID>()
         withContext(Dispatchers.IO) {
@@ -79,10 +79,9 @@ class ZakenService @Inject constructor(
                     zakenAssignedList.add(zaak.uuid)
                 }
         }
-        logger.trace {
-            """Asynchronous assign zaken job with job ID '$screenEventResourceId' finished. 
-               Succesfully assigned ${zakenAssignedList.size} zaken to group and/or user.
-            """.trimIndent()
+        LOG.fine {
+            "Asynchronous assign zaken job with job ID '$screenEventResourceId' finished. " +
+                "Successfully assigned ${zakenAssignedList.size} zaken."
         }
         // if a screen event resource ID was specified, send an 'updated zaken_verdelen' screen event
         // with the job UUID so that it can be picked up by a client
@@ -129,8 +128,8 @@ class ZakenService @Inject constructor(
         explanation: String? = null,
         screenEventResourceId: String? = null
     ) = defaultCoroutineScope.launch(CoroutineName("ReleaseZakenCoroutine")) {
-        logger.trace {
-            """Started asynchronous job with ID: $screenEventResourceId to release ${zaakUUIDs.size} zaken""".trimIndent()
+        LOG.fine {
+            "Started asynchronous job with ID: $screenEventResourceId to release ${zaakUUIDs.size} zaken"
         }
         withContext(Dispatchers.IO) {
             zaakUUIDs
@@ -143,10 +142,9 @@ class ZakenService @Inject constructor(
                     )
                 }
         }
-        logger.trace {
-            """Asynchronous release zaken job with job ID '$screenEventResourceId' finished. "
-                    Succesfully released ${zaakUUIDs.size} zaken to group and/or user
-            """.trimIndent()
+        LOG.fine {
+            "Asynchronous release zaken job with job ID '$screenEventResourceId' finished. " +
+                "Successfully released ${zaakUUIDs.size} zaken."
         }
         // if a screen event resource ID was specified, send an 'updated zaken_verdelen' screen event
         // with the job UUID so that it can be picked up by a client
