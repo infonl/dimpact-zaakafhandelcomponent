@@ -473,6 +473,13 @@ test_toevoegen_nieuwe_versie_behandelaar_locked_by_other_user_fails if {
 test_toevoegen_nieuwe_versie_recordmanager if {
     toevoegen_nieuwe_versie
         with input.user.rollen as ["recordmanager"]
+        with input.document.ondertekend as false
+}
+
+test_toevoegen_nieuwe_versie_recordmanager_ondertekend_fails if {
+    not toevoegen_nieuwe_versie
+        with input.user.rollen as ["recordmanager"]
+        with input.document.ondertekend as true
 }
 
 test_toevoegen_nieuwe_versie_wrong_role_fails if {

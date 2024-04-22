@@ -10,6 +10,8 @@ import java.util.UUID;
 
 import jakarta.inject.Inject;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import net.atos.client.vrl.VRLClientService;
 import net.atos.client.vrl.model.generated.CommunicatieKanaal;
 import net.atos.client.zgw.shared.ZGWApiService;
@@ -34,7 +36,6 @@ import net.atos.zac.util.DateTimeConverterUtil;
 import net.atos.zac.zoeken.model.ZaakIndicatie;
 import net.atos.zac.zoeken.model.index.ZoekObjectType;
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
-import org.apache.commons.collections.CollectionUtils;
 
 public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoekObject> {
     private final ZRCClientService zrcClientService;

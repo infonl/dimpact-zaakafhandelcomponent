@@ -18,8 +18,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
-import net.atos.client.zgw.zrc.util.StatusTypeUtil;
-import net.atos.zac.zoeken.model.ZaakIndicatie;
 import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.flowable.task.api.TaskInfo;
@@ -49,6 +47,7 @@ import net.atos.zac.policy.output.WerklijstRechten;
 import net.atos.zac.policy.output.ZaakRechten;
 import net.atos.zac.shared.exception.FoutmeldingException;
 import net.atos.zac.zoeken.model.DocumentIndicatie;
+import net.atos.zac.zoeken.model.ZaakIndicatie;
 import net.atos.zac.zoeken.model.zoekobject.DocumentZoekObject;
 import net.atos.zac.zoeken.model.zoekobject.TaakZoekObject;
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
@@ -99,7 +98,7 @@ public class PolicyService {
         zaakData.verlengd = zaak.isVerlengd();
         zaakData.besloten = CollectionUtils.isNotEmpty(zaaktype.getBesluittypen());
         var status = zrcClientService.readStatus(zaak.getStatus());
-        var statusType  = ztcClientService.readStatustype(status.getStatustype());
+        var statusType = ztcClientService.readStatustype(status.getStatustype());
         zaakData.intake = isIntake(statusType);
         zaakData.heropend = isHeropend(statusType);
 

@@ -196,12 +196,45 @@ test_verlengen if {
     verlengen
         with input.user.rollen as [ "behandelaar" ]
         with input.zaak.open as true
+        with input.zaak.heropend as false
+        with input.zaak.opgeschort as false
+        with input.zaak.verlengd as false
 }
 
 test_verlengen_zaak_closed_fails if {
     not verlengen
         with input.user.rollen as [ "behandelaar" ]
         with input.zaak.open as false
+        with input.zaak.heropend as false
+        with input.zaak.opgeschort as false
+        with input.zaak.verlengd as false
+}
+
+test_verlengen_heropend_fails if {
+    not verlengen
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+        with input.zaak.heropend as true
+        with input.zaak.opgeschort as false
+        with input.zaak.verlengd as false
+}
+
+test_verlengen_opgeschort_fails if {
+    not verlengen
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+        with input.zaak.heropend as false
+        with input.zaak.opgeschort as true
+        with input.zaak.verlengd as false
+}
+
+test_verlengen_verlengd_fails if {
+    not verlengen
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+        with input.zaak.heropend as false
+        with input.zaak.opgeschort as true
+        with input.zaak.verlengd as true
 }
 
 test_verlengen_wrong_role_fails if {
@@ -219,12 +252,32 @@ test_opschorten if {
     opschorten
         with input.user.rollen as [ "behandelaar" ]
         with input.zaak.open as true
+        with input.zaak.heropend as false
+        with input.zaak.opgeschort as false
 }
 
 test_opschorten_zaak_closed_fails if {
     not opschorten
         with input.user.rollen as [ "behandelaar" ]
         with input.zaak.open as false
+        with input.zaak.heropend as false
+        with input.zaak.opgeschort as false
+}
+
+test_opschorten_heropend_fails if {
+    not opschorten
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+        with input.zaak.heropend as true
+        with input.zaak.opgeschort as false
+}
+
+test_opschorten_opgeschort_fails if {
+    not opschorten
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+        with input.zaak.heropend as false
+        with input.zaak.opgeschort as true
 }
 
 test_opschorten_wrong_role_fails if {
@@ -612,12 +665,32 @@ test_vastleggen_besluit if {
     vastleggen_besluit
         with input.user.rollen as [ "behandelaar" ]
         with input.zaak.open as true
+        with input.zaak.intake as false
+        with input.zaak.besluitd as true
 }
 
 test_vastleggen_besluit_zaak_closed_fails if {
     not vastleggen_besluit
         with input.user.rollen as [ "behandelaar" ]
         with input.zaak.open as false
+        with input.zaak.intake as false
+        with input.zaak.besluitd as true
+}
+
+test_vastleggen_besluit_in_intake_fails if {
+    not vastleggen_besluit
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+        with input.zaak.intake as true
+        with input.zaak.besluitd as true
+}
+
+test_vastleggen_besluit_not_besluitd_fails if {
+    not vastleggen_besluit
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+        with input.zaak.intake as false
+        with input.zaak.besluitd as false
 }
 
 test_vastleggen_besluit_wrong_role_fails if {
@@ -635,12 +708,21 @@ test_verlengen_doorlooptijd if {
     verlengen_doorlooptijd
         with input.user.rollen as [ "behandelaar" ]
         with input.zaak.open as true
+        with input.zaak.opgeschort as false
 }
 
 test_verlengen_doorlooptijd_zaak_closed_fails if {
     not verlengen_doorlooptijd
         with input.user.rollen as [ "behandelaar" ]
         with input.zaak.open as false
+        with input.zaak.opgeschort as false
+}
+
+test_verlengen_doorlooptijd_opgeschort_fails if {
+    not verlengen_doorlooptijd
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as false
+        with input.zaak.opgeschort as true
 }
 
 test_verlengen_doorlooptijd_wrong_role_fails if {
