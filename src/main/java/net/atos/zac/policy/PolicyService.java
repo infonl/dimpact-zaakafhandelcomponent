@@ -56,13 +56,13 @@ import nl.lifely.zac.util.NoArgConstructor;
 @NoArgConstructor
 public class PolicyService {
 
-    private Instance<LoggedInUser> loggedInUserInstance;
+    private final Instance<LoggedInUser> loggedInUserInstance;
     @RestClient
-    private OPAEvaluationClient evaluationClient;
-    private ZTCClientService ztcClientService;
-    private EnkelvoudigInformatieObjectLockService lockService;
-    private TaakVariabelenService taakVariabelenService;
-    private ZRCClientService zrcClientService;
+    private final OPAEvaluationClient evaluationClient;
+    private final ZTCClientService ztcClientService;
+    private final EnkelvoudigInformatieObjectLockService lockService;
+    private final TaakVariabelenService taakVariabelenService;
+    private final ZRCClientService zrcClientService;
 
     public PolicyService(
             Instance<LoggedInUser> loggedInUserInstance,
