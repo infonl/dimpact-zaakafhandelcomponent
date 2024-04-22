@@ -192,75 +192,461 @@ test_wijzigenDoorlooptijd_missing_role_fails if {
 ###########
 # verlengen
 ###########
+test_verlengen if {
+    verlengen
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+}
+
+test_verlengen_zaak_closed_fails if {
+    not verlengen
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as false
+}
+
+test_verlengen_wrong_role_fails if {
+    not verlengen with input.user.rollen as [ "functioneel" ]
+}
+
+test_verlengen_missing_role_fails if {
+    not verlengen with input.user.key as "value"
+}
 
 ############
 # opschorten
 ############
+test_opschorten if {
+    opschorten
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+}
+
+test_opschorten_zaak_closed_fails if {
+    not opschorten
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as false
+}
+
+test_opschorten_wrong_role_fails if {
+    not opschorten with input.user.rollen as [ "functioneel" ]
+}
+
+test_opschorten_missing_role_fails if {
+    not opschorten with input.user.key as "value"
+}
 
 ###########
 # hervatten
 ###########
+test_hervatten if {
+    hervatten with input.user.rollen as [ "behandelaar" ]
+}
+
+test_hervatten_wrong_role_fails if {
+    not hervatten with input.user.rollen as [ "functioneel" ]
+}
+
+test_hervatten_missing_role_fails if {
+    not hervatten with input.user.key as "value"
+}
 
 ###################
 # creeeren_document
 ###################
+test_creeeren_document if {
+    creeeren_document
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+}
+
+test_creeeren_document_zaak_closed_fails if {
+    not creeeren_document
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as false
+}
+
+test_creeeren_document_wrong_role_fails if {
+    not creeeren_document with input.user.rollen as [ "functioneel" ]
+}
+
+test_creeeren_document_missing_role_fails if {
+    not creeeren_document with input.user.key as "value"
+}
 
 ####################
 # toevoegen_document
 ####################
+test_toevoegen_document_behandelaar if {
+    toevoegen_document
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+}
+
+test_toevoegen_document_behandelaar_zaak_closed_fails if {
+    not toevoegen_document
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as false
+}
+
+test_toevoegen_document_recordmanager if {
+    toevoegen_document
+        with input.user.rollen as [ "recordmanager" ]
+        with input.zaak.open as true
+}
+
+test_toevoegen_document_wrong_role_fails if {
+    not toevoegen_document with input.user.rollen as [ "functioneel" ]
+}
+
+test_toevoegen_document_missing_role_fails if {
+    not toevoegen_document with input.user.key as "value"
+}
 
 ##########
 # koppelen
 ##########
+test_koppelen if {
+    koppelen
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+}
+
+test_koppelen_zaak_closed_fails if {
+    not koppelen
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as false
+}
+
+test_koppelen_wrong_role_fails if {
+    not koppelen with input.user.rollen as [ "functioneel" ]
+}
+
+test_koppelen_missing_role_fails if {
+    not koppelen with input.user.key as "value"
+}
 
 ######################
 # koppelen_gerelateerd
 ######################
+test_koppelen_gerelateerd if {
+    koppelen_gerelateerd with input.user.rollen as [ "behandelaar" ]
+}
+
+test_koppelen_gerelateerd_wrong_role_fails if {
+    not koppelen_gerelateerd with input.user.rollen as [ "functioneel" ]
+}
+
+test_koppelen_gerelateerd_missing_role_fails if {
+    not koppelen_gerelateerd with input.user.key as "value"
+}
 
 #################
 # versturen_email
 #################
+test_versturen_email if {
+    versturen_email
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+}
+
+test_versturen_email_zaak_closed_fails if {
+    not versturen_email
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as false
+}
+
+test_versturen_email_wrong_role_fails if {
+    not versturen_email with input.user.rollen as [ "functioneel" ]
+}
+
+test_versturen_email_missing_role_fails if {
+    not versturen_email with input.user.key as "value"
+}
 
 ################################
 # versturen_ontvangstbevestiging
 ################################
+test_versturen_ontvangstbevestiging if {
+    versturen_ontvangstbevestiging
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+}
+
+test_versturen_ontvangstbevestiging_zaak_closed_fails if {
+    not versturen_ontvangstbevestiging
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as false
+}
+
+test_versturen_ontvangstbevestiging_wrong_role_fails if {
+    not versturen_ontvangstbevestiging with input.user.rollen as [ "functioneel" ]
+}
+
+test_versturen_ontvangstbevestiging_missing_role_fails if {
+    not versturen_ontvangstbevestiging with input.user.key as "value"
+}
 
 #############################
 # toevoegen_initiator_persoon
 #############################
+test_toevoegen_initiator_persoon_behandelaar if {
+    toevoegen_initiator_persoon
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+}
+
+test_toevoegen_initiator_persoon_behandelaar_zaak_closed_fails if {
+    not toevoegen_initiator_persoon
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as false
+}
+
+test_toevoegen_initiator_persoon_recordmanager if {
+    toevoegen_initiator_persoon
+        with input.user.rollen as [ "recordmanager" ]
+}
+
+test_toevoegen_initiator_persoon_wrong_role_fails if {
+    not toevoegen_initiator_persoon with input.user.rollen as [ "functioneel" ]
+}
+
+test_toevoegen_initiator_persoon_missing_role_fails if {
+    not toevoegen_initiator_persoon with input.user.key as "value"
+}
 
 #############################
 # toevoegen_initiator_bedrijf
 #############################
+test_toevoegen_initiator_bedrijf_behandelaar if {
+    toevoegen_initiator_bedrijf
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+}
+
+test_toevoegen_initiator_bedrijf_behandelaar_zaak_closed_fails if {
+    not toevoegen_initiator_bedrijf
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as false
+}
+
+test_toevoegen_initiator_bedrijf_recordmanager if {
+    toevoegen_initiator_bedrijf
+        with input.user.rollen as [ "recordmanager" ]
+}
+
+test_toevoegen_initiator_bedrijf_wrong_role_fails if {
+    not toevoegen_initiator_bedrijf with input.user.rollen as [ "functioneel" ]
+}
+
+test_toevoegen_initiator_bedrijf_missing_role_fails if {
+    not toevoegen_initiator_bedrijf with input.user.key as "value"
+}
 
 #######################
 # verwijderen_initiator
 #######################
+test_verwijderen_initiator_behandelaar if {
+    verwijderen_initiator
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+}
+
+test_verwijderen_initiator_behandelaar_zaak_closed_fails if {
+    not verwijderen_initiator
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as false
+}
+
+test_verwijderen_initiator_recordmanager if {
+    verwijderen_initiator
+        with input.user.rollen as [ "recordmanager" ]
+}
+
+test_verwijderen_initiator_wrong_role_fails if {
+    not verwijderen_initiator with input.user.rollen as [ "functioneel" ]
+}
+
+test_verwijderen_initiator_missing_role_fails if {
+    not verwijderen_initiator with input.user.key as "value"
+}
 
 ##############################
 # toevoegen_betrokkene_persoon
 ##############################
+test_toevoegen_betrokkene_persoon_behandelaar if {
+    toevoegen_betrokkene_persoon
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+}
+
+test_toevoegen_betrokkene_persoon_behandelaar_zaak_closed_fails if {
+    not toevoegen_betrokkene_persoon
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as false
+}
+
+test_toevoegen_betrokkene_persoon_recordmanager if {
+    toevoegen_betrokkene_persoon
+        with input.user.rollen as [ "recordmanager" ]
+}
+
+test_toevoegen_betrokkene_persoon_wrong_role_fails if {
+    not toevoegen_betrokkene_persoon with input.user.rollen as [ "functioneel" ]
+}
+
+test_toevoegen_betrokkene_persoon_missing_role_fails if {
+    not toevoegen_betrokkene_persoon with input.user.key as "value"
+}
 
 ##############################
 # toevoegen_betrokkene_bedrijf
 ##############################
+test_toevoegen_betrokkene_bedrijf_behandelaar if {
+    toevoegen_betrokkene_bedrijf
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+}
+
+test_toevoegen_betrokkene_bedrijf_behandelaar_zaak_closed_fails if {
+    not toevoegen_betrokkene_bedrijf
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as false
+}
+
+test_toevoegen_betrokkene_bedrijf_recordmanager if {
+    toevoegen_betrokkene_bedrijf
+        with input.user.rollen as [ "recordmanager" ]
+}
+
+test_toevoegen_betrokkene_bedrijf_wrong_role_fails if {
+    not toevoegen_betrokkene_bedrijf with input.user.rollen as [ "functioneel" ]
+}
+
+test_toevoegen_betrokkene_bedrijf_missing_role_fails if {
+    not toevoegen_betrokkene_bedrijf with input.user.key as "value"
+}
 
 ########################
 # verwijderen_betrokkene
 ########################
+test_verwijderen_betrokkene_behandelaar if {
+    verwijderen_betrokkene
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+}
+
+test_verwijderen_betrokkene_behandelaar_zaak_closed_fails if {
+    not verwijderen_betrokkene
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as false
+}
+
+test_verwijderen_betrokkene_recordmanager if {
+    verwijderen_betrokkene
+        with input.user.rollen as [ "recordmanager" ]
+}
+
+test_verwijderen_betrokkene_wrong_role_fails if {
+    not verwijderen_betrokkene with input.user.rollen as [ "functioneel" ]
+}
+
+test_verwijderen_betrokkene_missing_role_fails if {
+    not verwijderen_betrokkene with input.user.key as "value"
+}
 
 ######################
 # toevoegen_bag_object
 ######################
+test_toevoegen_bag_object_behandelaar if {
+    toevoegen_bag_object
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+}
+
+test_toevoegen_bag_object_behandelaar_zaak_closed_fails if {
+    not toevoegen_bag_object
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as false
+}
+
+test_toevoegen_bag_object_recordmanager if {
+    toevoegen_bag_object
+        with input.user.rollen as [ "recordmanager" ]
+}
+
+test_toevoegen_bag_object_wrong_role_fails if {
+    not toevoegen_bag_object with input.user.rollen as [ "functioneel" ]
+}
+
+test_toevoegen_bag_object_missing_role_fails if {
+    not toevoegen_bag_object with input.user.key as "value"
+}
 
 ##############
 # starten_taak
 ##############
+test_starten_taak if {
+    starten_taak
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+}
+
+test_starten_taak_zaak_closed_fails if {
+    not starten_taak
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as false
+}
+
+test_starten_taak_wrong_role_fails if {
+    not starten_taak with input.user.rollen as [ "functioneel" ]
+}
+
+test_starten_taak_missing_role_fails if {
+    not starten_taak with input.user.key as "value"
+}
 
 ####################
 # vastleggen_besluit
 ####################
+test_vastleggen_besluit if {
+    vastleggen_besluit
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+}
+
+test_vastleggen_besluit_zaak_closed_fails if {
+    not vastleggen_besluit
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as false
+}
+
+test_vastleggen_besluit_wrong_role_fails if {
+    not vastleggen_besluit with input.user.rollen as [ "functioneel" ]
+}
+
+test_vastleggen_besluit_missing_role_fails if {
+    not vastleggen_besluit with input.user.key as "value"
+}
 
 ########################
 # verlengen_doorlooptijd
 ########################
+test_verlengen_doorlooptijd if {
+    verlengen_doorlooptijd
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+}
+
+test_verlengen_doorlooptijd_zaak_closed_fails if {
+    not verlengen_doorlooptijd
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as false
+}
+
+test_verlengen_doorlooptijd_wrong_role_fails if {
+    not verlengen_doorlooptijd with input.user.rollen as [ "functioneel" ]
+}
+
+test_verlengen_doorlooptijd_missing_role_fails if {
+    not verlengen_doorlooptijd with input.user.key as "value"
+}
