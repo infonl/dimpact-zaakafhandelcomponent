@@ -107,7 +107,7 @@ fun createZaak(
     registratiedatum: LocalDate = LocalDate.now(),
     uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.now().plusDays(1),
     vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR,
-    status: URI? = URI("https://example.com/${UUID.randomUUID()}"),
+    status: URI? = null,
     verlenging: Verlenging? = null
 ) = Zaak(
     zaaktypeURI,

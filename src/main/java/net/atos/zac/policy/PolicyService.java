@@ -16,8 +16,9 @@ import java.util.UUID;
 import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
-
 import jakarta.inject.Inject;
+
+import net.atos.client.zgw.ztc.model.generated.StatusType;
 import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.flowable.task.api.TaskInfo;
@@ -97,11 +98,13 @@ public class PolicyService {
         zaakData.opgeschort = zaak.isOpgeschort();
         zaakData.verlengd = zaak.isVerlengd();
         zaakData.besloten = CollectionUtils.isNotEmpty(zaaktype.getBesluittypen());
-        var status = zrcClientService.readStatus(zaak.getStatus());
-        var statusType = ztcClientService.readStatustype(status.getStatustype());
+        StatusType statusType = null;
+        if (zaak.getStatus() != null) {
+            var status = zrcClientService.readStatus(zaak.getStatus());
+            statusType = ztcClientService.readStatustype(status.getStatustype());
+        }
         zaakData.intake = isIntake(statusType);
         zaakData.heropend = isHeropend(statusType);
-
         LoggedInUser loggedInUser = user == null ? loggedInUserInstance.get() : user;
         return evaluationClient.readZaakRechten(new RuleQuery<>(new ZaakInput(loggedInUser, zaakData))).getResult();
     }
