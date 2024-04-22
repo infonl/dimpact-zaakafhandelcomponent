@@ -7,8 +7,8 @@ package net.atos.zac.app.taken.converter
 import jakarta.inject.Inject
 import jakarta.json.bind.annotation.JsonbDateFormat
 import net.atos.zac.app.taken.model.RESTTaakHistorieRegel
-import net.atos.zac.flowable.TakenService
-import net.atos.zac.flowable.TakenService.ValueChangeData
+import net.atos.zac.flowable.FlowableTaskService
+import net.atos.zac.flowable.FlowableTaskService.ValueChangeData
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.util.DateTimeConverterUtil
 import net.atos.zac.util.JsonbUtil
@@ -38,16 +38,16 @@ class RESTTaakHistorieConverter @Inject constructor(
 
     private fun convert(historicTaskLogEntry: HistoricTaskLogEntry): RESTTaakHistorieRegel? {
         val restTaakHistorieRegel = when (historicTaskLogEntry.type) {
-            TakenService.USER_TASK_DESCRIPTION_CHANGED -> convertValueChangeData(
+            FlowableTaskService.USER_TASK_DESCRIPTION_CHANGED -> convertValueChangeData(
                 TOELICHTING_ATTRIBUUT_LABEL,
                 historicTaskLogEntry.data
             )
 
-            TakenService.USER_TASK_ASSIGNEE_CHANGED_CUSTOM -> convertValueChangeData(
+            FlowableTaskService.USER_TASK_ASSIGNEE_CHANGED_CUSTOM -> convertValueChangeData(
                 BEHANDELAAR_ATTRIBUUT_LABEL,
                 historicTaskLogEntry.data
             )
-            TakenService.USER_TASK_GROUP_CHANGED -> convertValueChangeData(
+            FlowableTaskService.USER_TASK_GROUP_CHANGED -> convertValueChangeData(
                 GROEP_ATTRIBUUT_LABEL,
                 historicTaskLogEntry.data
             )
