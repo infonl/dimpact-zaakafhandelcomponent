@@ -53,8 +53,13 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
     private val zrcClientService = mockk<ZRCClientService>()
     private val ztcClientService = mockk<ZTCClientService>()
 
-    private val zaakRechtenWijzigen =
-        ZaakRechten(false, true, false, false, false, false, false, false)
+    private val zaakRechtenWijzigen = ZaakRechten(
+        false, true, false, false, false, false, false, false,
+        false, false, false, false, false, false,
+        false, false, false, false,
+        false, false, false, false,
+        false, false, false, false, false
+    )
 
     // We have to use @InjectMockKs since the class under test uses field injection instead of constructor injection.
     // This is because WildFly does not support constructor injection for JAX-RS REST services completely.
