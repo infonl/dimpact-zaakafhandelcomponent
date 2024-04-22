@@ -51,7 +51,7 @@ import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakListParameters;
 import net.atos.zac.app.taken.model.TaakSortering;
-import net.atos.zac.flowable.TakenService;
+import net.atos.zac.flowable.FlowableTaskService;
 import net.atos.zac.shared.model.SorteerRichting;
 import net.atos.zac.zoeken.converter.AbstractZoekObjectConverter;
 import net.atos.zac.zoeken.model.ZoekObject;
@@ -72,7 +72,7 @@ public class IndexeerService {
     private final Instance<AbstractZoekObjectConverter<? extends ZoekObject>> converterInstances;
     private final ZRCClientService zrcClientService;
     private final DRCClientService drcClientService;
-    private final TakenService takenService;
+    private final FlowableTaskService flowableTaskService;
     private final IndexeerServiceHelper helper;
     private final SolrClient solrClient;
     private final Set<ZoekObjectType> herindexerenBezig = new HashSet<>();
@@ -82,13 +82,13 @@ public class IndexeerService {
             @Any Instance<AbstractZoekObjectConverter<? extends ZoekObject>> converterInstances,
             ZRCClientService zrcClientService,
             DRCClientService drcClientService,
-            TakenService takenService,
+            FlowableTaskService flowableTaskService,
             IndexeerServiceHelper indexeerServiceHelper
     ) {
         this.converterInstances = converterInstances;
         this.zrcClientService = zrcClientService;
         this.drcClientService = drcClientService;
-        this.takenService = takenService;
+        this.flowableTaskService = flowableTaskService;
         this.helper = indexeerServiceHelper;
 
         solrClient = createSolrClient(
@@ -172,7 +172,7 @@ public class IndexeerService {
     public void addOrUpdateZaak(final UUID zaakUUID, boolean inclusiefTaken) {
         helper.markObjectForIndexing(zaakUUID.toString(), ZAAK);
         if (inclusiefTaken) {
-            takenService.listTasksForZaak(zaakUUID).stream()
+            flowableTaskService.listTasksForZaak(zaakUUID).stream()
                     .map(TaskInfo::getId)
                     .forEach(this::addOrUpdateTaak);
         }
@@ -317,7 +317,7 @@ public class IndexeerService {
     }
 
     private void markAllTakenForReindexing() {
-        final long numberOfTasks = takenService.countOpenTasks();
+        final long numberOfTasks = flowableTaskService.countOpenTasks();
         int page = 0;
         boolean hasMore;
         do {
@@ -355,7 +355,7 @@ public class IndexeerService {
 
     private boolean markTakenForReindexing(final int page, final long numberOfTasks) {
         final int firstResult = page * TAKEN_MAX_RESULTS;
-        final List<Task> tasks = takenService.listOpenTasks(TaakSortering.CREATIEDATUM, SorteerRichting.DESCENDING,
+        final List<Task> tasks = flowableTaskService.listOpenTasks(TaakSortering.CREATIEDATUM, SorteerRichting.DESCENDING,
                 firstResult, TAKEN_MAX_RESULTS);
         helper.markObjectsForReindexing(tasks.stream().map(TaskInfo::getId), TAAK);
         if (!tasks.isEmpty()) {

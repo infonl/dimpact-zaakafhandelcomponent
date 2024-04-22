@@ -23,7 +23,7 @@ import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.createStatusType
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.configuratie.ConfiguratieService
-import net.atos.zac.flowable.TakenService
+import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.createUser
 import net.atos.zac.zoeken.model.ZaakIndicatie
@@ -40,7 +40,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
     val vrlClientService = mockk<VRLClientService>()
     val zgwApiService = mockk<ZGWApiService>()
     val identityService = mockk<IdentityService>()
-    val takenService = mockk<TakenService>()
+    val flowableTaskService = mockk<FlowableTaskService>()
 
     val zaakZoekenObjectConverter = ZaakZoekObjectConverter(
         zrcClientService,
@@ -48,7 +48,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         vrlClientService,
         zgwApiService,
         identityService,
-        takenService
+        flowableTaskService
     )
 
     Given("a zaak with betrokkenen, without open tasks, zaak objecten and communication channels") {
@@ -164,7 +164,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
         every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
         every { ztcClientService.readStatustype(zaakStatus.statustype) } returns zaakStatusType
-        every { takenService.countOpenTasksForZaak(zaak.uuid) } returns 0
+        every { flowableTaskService.countOpenTasksForZaak(zaak.uuid) } returns 0
         every { zrcClientService.listZaakobjecten(any()) } returns createResultsOfZaakObjecten(
             list = zaakObjectenList,
             count = zaakObjectenList.size

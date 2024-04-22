@@ -4,7 +4,7 @@ import net.atos.client.vrl.VRLClientService
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.ztc.ZTCClientService
-import net.atos.zac.flowable.TakenService
+import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.identity.IdentityService
 
 @Suppress("LongParameterList")
@@ -14,7 +14,7 @@ fun createZaakZoekObjectConverter(
     vrlClientService: VRLClientService,
     zgwApiService: ZGWApiService,
     identityService: IdentityService,
-    takenService: TakenService
+    flowableTaskService: FlowableTaskService
 ) =
     ZaakZoekObjectConverter(
         zrcClientService,
@@ -22,5 +22,5 @@ fun createZaakZoekObjectConverter(
         vrlClientService,
         zgwApiService,
         identityService,
-        takenService
+        flowableTaskService
     )

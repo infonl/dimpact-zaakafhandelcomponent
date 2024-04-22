@@ -111,7 +111,7 @@ import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.BPMNService
 import net.atos.zac.flowable.CMMNService
-import net.atos.zac.flowable.TakenService
+import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.healthcheck.HealthCheckService
 import net.atos.zac.identity.IdentityService
@@ -170,7 +170,7 @@ class ZakenRESTService @Inject constructor(
     private val policyService: PolicyService,
     private val cmmnService: CMMNService,
     private val bpmnService: BPMNService,
-    private val takenService: TakenService,
+    private val flowableTaskService: FlowableTaskService,
     private val objectsClientService: ObjectsClientService,
     private val inboxProductaanvraagService: InboxProductaanvraagService,
     private val zaakVariabelenService: ZaakVariabelenService,
@@ -1343,13 +1343,13 @@ class ZakenRESTService @Inject constructor(
 
     private fun verlengOpenTaken(zaakUUID: UUID, duurDagen: Int): Int {
         val count = IntArray(1)
-        takenService.listOpenTasksForZaak(zaakUUID).stream()
+        flowableTaskService.listOpenTasksForZaak(zaakUUID).stream()
             .filter { task -> task.dueDate != null }
             .forEach { task ->
                 task.dueDate = DateTimeConverterUtil.convertToDate(
                     DateTimeConverterUtil.convertToLocalDate(task.dueDate).plusDays(duurDagen.toLong())
                 )
-                takenService.updateTask(task)
+                flowableTaskService.updateTask(task)
                 eventingService.send(ScreenEventType.TAAK.updated(task))
                 count[0]++
             }

@@ -28,7 +28,7 @@ import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.client.zgw.ztc.model.generated.ResultaatType;
 import net.atos.client.zgw.ztc.model.generated.StatusType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
-import net.atos.zac.flowable.TakenService;
+import net.atos.zac.flowable.FlowableTaskService;
 import net.atos.zac.identity.IdentityService;
 import net.atos.zac.identity.model.Group;
 import net.atos.zac.identity.model.User;
@@ -43,7 +43,7 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
     private final VRLClientService vrlClientService;
     private final ZGWApiService zgwApiService;
     private final IdentityService identityService;
-    private final TakenService takenService;
+    private final FlowableTaskService flowableTaskService;
 
     @Inject
     public ZaakZoekObjectConverter(
@@ -52,14 +52,14 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
             VRLClientService vrlClientService,
             ZGWApiService zgwApiService,
             IdentityService identityService,
-            TakenService takenService
+            FlowableTaskService flowableTaskService
     ) {
         this.zrcClientService = zrcClientService;
         this.ztcClientService = ztcClientService;
         this.vrlClientService = vrlClientService;
         this.zgwApiService = zgwApiService;
         this.identityService = identityService;
-        this.takenService = takenService;
+        this.flowableTaskService = flowableTaskService;
     }
 
     public ZaakZoekObject convert(final String zaakUUID) {
@@ -144,7 +144,7 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
             zaakZoekObject.setIndicatie(ZaakIndicatie.INTAKE, isIntake(statustype));
         }
 
-        zaakZoekObject.setAantalOpenstaandeTaken(takenService.countOpenTasksForZaak(zaak.getUuid()));
+        zaakZoekObject.setAantalOpenstaandeTaken(flowableTaskService.countOpenTasksForZaak(zaak.getUuid()));
 
         if (zaak.getResultaat() != null) {
             final Resultaat resultaat = zrcClientService.readResultaat(zaak.getResultaat());

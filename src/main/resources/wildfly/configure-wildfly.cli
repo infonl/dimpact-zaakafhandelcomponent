@@ -31,8 +31,8 @@ data-source add \
 /subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=write-timeout,value=0)
 
 # This sets the max post size accepted by the RESTEasy framework in WildFly
-# NOTE: This needs to set higher than our max file size setting in ZAC because of the way RESTEasy handles file uploads.
-/subsystem=microprofile-config-smallrye/config-source=props:add(properties={"dev.resteasy.entity.file.threshold" = "120MB"})
+# NOTE: This needs to set higher than our max file size setting in ZAC because of the way RESTEasy handles file uploads. This value corresponds with 120MB using the Base 2 format.
+/subsystem=microprofile-config-smallrye/config-source=props:add(properties={"dev.resteasy.entity.file.threshold" = "125829120B"})
 
 # We turn off the Open Telemetry sampler here so that by default no traces are sent to an Open Telemetry Collector
 # since there might be a collector available in the ZAC deployment environment.

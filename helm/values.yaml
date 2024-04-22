@@ -108,6 +108,12 @@ indexerenSchedule: "*/1 * * * *"
 # Schedule of the signaleren job in CRON job format
 signalerenSchedule: "0 2 * * *"
 
+# Overrides for opentelemetry
+#opentelemetry_zaakafhandelcomponent:
+#  sampler_type: "-off"
+#  endpoint: "http://otel-collector:4317"
+
+
 # Maximum size (in Mega Bytes) of files that can be uploaded.
 maxFileSizeMB: 80
 
@@ -293,3 +299,31 @@ office_converter:
 # Extra objects to deploy (value evaluated as a template)
 extraDeploy: [ ]
 
+opentelemetry-collector:
+  enabled: false
+  mode: deployment
+  replicaCount: 1
+  presets:
+    clusterMetrics:
+      enabled: false
+  ports:
+    jaeger-compact:
+      enabled: false
+    jaeger-thrift:
+      enabled: false
+    jaeger-grpc:
+      enabled: false
+    zipkin:
+      enabled: false
+  config:
+    receivers:
+      prometheus: null
+      jaeger: null
+      zipkin: null
+    service:
+      pipelines:
+        traces:
+          receivers:
+            - otlp
+        metrics: null
+        logs: null
