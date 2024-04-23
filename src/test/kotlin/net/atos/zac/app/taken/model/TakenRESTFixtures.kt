@@ -61,18 +61,22 @@ fun createRESTTaakVerdelenGegevens(
     taken: List<RESTTaakVerdelenTaak> = listOf(createRESTTaakVerdelenTaak()),
     groepId: String = "dummyGroepId",
     behandelaarGebruikersnaam: String = "dummyBehandelaarGebruikersnaam",
-    reden: String = "dummyReason"
+    reden: String = "dummyReason",
+    screenEventResourceId: String? = "dummyScreenEventResourceId"
 ) = RESTTaakVerdelenGegevens(
     taken = taken,
     groepId = groepId,
     behandelaarGebruikersnaam = behandelaarGebruikersnaam,
-    reden = reden
+    reden = reden,
+    screenEventResourceId = screenEventResourceId
 )
 
 fun createRESTTaakVrijgevenGegevens(
     taken: List<RESTTaakVerdelenTaak> = listOf(createRESTTaakVerdelenTaak()),
-    reden: String = "dummyReason"
+    reden: String = "dummyReason",
+    screenEventResourceId: String? = "dummyScreenEventResourceId"
 ) = RESTTaakVrijgevenGegevens(
     taken = taken,
-    reden = reden
+    reden = reden,
+    screenEventResourceId = screenEventResourceId
 )

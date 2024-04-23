@@ -40,7 +40,7 @@ class RESTTaakHistorieConverterTest : BehaviorSpec({
             val historieRegel = restTaakHistorieConverter.convert(history)
 
             Then("it returns correct history lines") {
-                historieRegel.first()!!.let { line ->
+                historieRegel.first().let { line ->
                     line.attribuutLabel shouldBe RESTTaakHistorieConverter.STATUS_ATTRIBUUT_LABEL
                     line.oudeWaarde shouldBe RESTTaakHistorieConverter.CREATED_ATTRIBUUT_LABEL
                     line.nieuweWaarde shouldBe RESTTaakHistorieConverter.COMPLETED_ATTRIBUUT_LABEL
