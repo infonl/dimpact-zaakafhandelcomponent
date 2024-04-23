@@ -75,9 +75,6 @@ public class PolicyService {
     @Inject
     private ZRCClientService zrcClientService;
 
-    @Inject
-    private EnkelvoudigInformatieObjectLockService enkelvoudigInformatieObjectLockService;
-
     public OverigeRechten readOverigeRechten() {
         return evaluationClient.readOverigeRechten(new RuleQuery<>(new UserInput(loggedInUserInstance.get())))
                 .getResult();
