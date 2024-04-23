@@ -8,7 +8,7 @@ package net.atos.zac.policy.output;
 import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
 
-import net.atos.zac.util.DummyInterface;
+import net.atos.zac.util.SerializableByYasson;
 
 public record ZaakRechten(
                           boolean lezen,
@@ -18,8 +18,27 @@ public record ZaakRechten(
                           boolean afbreken,
                           boolean heropenen,
                           boolean wijzigenZaakdata,
-                          boolean wijzigenDoorlooptijd
-) implements DummyInterface {
+                          boolean wijzigenDoorlooptijd,
+                          boolean verlengen,
+                          boolean opschorten,
+                          boolean hervatten,
+                          boolean creeerenDocument,
+                          boolean toevoegenDocument,
+                          boolean koppelen,
+                          boolean koppelenGerelateerd,
+                          boolean versturenEmail,
+                          boolean versturenOntvangstbevestiging,
+                          boolean toevoegenInitiatorPersoon,
+                          boolean toevoegenInitiatorBedrijf,
+                          boolean verwijderenInitiator,
+                          boolean toevoegenBetrokkenePersoon,
+                          boolean toevoegenBetrokkeneBedrijf,
+                          boolean verwijderenBetrokkene,
+                          boolean toevoegenBagObject,
+                          boolean startenTaak,
+                          boolean vastleggenBesluit,
+                          boolean verlengenDoorlooptijd
+) implements SerializableByYasson {
 
     @JsonbCreator
     public ZaakRechten(
@@ -29,8 +48,27 @@ public record ZaakRechten(
             @JsonbProperty("behandelen") final boolean behandelen,
             @JsonbProperty("afbreken") final boolean afbreken,
             @JsonbProperty("heropenen") final boolean heropenen,
-            @JsonbProperty("wijzigenZaakdata") final boolean wijzigenZaakdata,
-            @JsonbProperty("wijzigenDoorlooptijd") final boolean wijzigenDoorlooptijd
+            @JsonbProperty("wijzigen_zaakdata") final boolean wijzigenZaakdata,
+            @JsonbProperty("wijzigen_doorlooptijd") final boolean wijzigenDoorlooptijd,
+            @JsonbProperty("verlengen") final boolean verlengen,
+            @JsonbProperty("opschorten") final boolean opschorten,
+            @JsonbProperty("hervatten") final boolean hervatten,
+            @JsonbProperty("creeeren_document") final boolean creeerenDocument,
+            @JsonbProperty("toevoegen_document") final boolean toevoegenDocument,
+            @JsonbProperty("koppelen") final boolean koppelen,
+            @JsonbProperty("koppelen_gerelateerd") final boolean koppelenGerelateerd,
+            @JsonbProperty("versturen_email") final boolean versturenEmail,
+            @JsonbProperty("versturen_ontvangstbevestiging") final boolean versturenOntvangstbevestiging,
+            @JsonbProperty("toevoegen_initiator_persoon") final boolean toevoegenInitiatorPersoon,
+            @JsonbProperty("toevoegen_initiator_bedrijf") final boolean toevoegenInitiatorBedrijf,
+            @JsonbProperty("verwijderen_initiator") final boolean verwijderenInitiator,
+            @JsonbProperty("toevoegen_betrokkene_persoon") final boolean toevoegenBetrokkenePersoon,
+            @JsonbProperty("toevoegen_betrokkene_bedrijf") final boolean toevoegenBetrokkeneBedrijf,
+            @JsonbProperty("verwijderen_betrokkene") final boolean verwijderenBetrokkene,
+            @JsonbProperty("toevoegen_bag_object") final boolean toevoegenBagObject,
+            @JsonbProperty("starten_taak") final boolean startenTaak,
+            @JsonbProperty("vastleggen_besluit") final boolean vastleggenBesluit,
+            @JsonbProperty("verlengen_doorlooptijd") final boolean verlengenDoorlooptijd
     ) {
         this.lezen = lezen;
         this.wijzigen = wijzigen;
@@ -40,5 +78,24 @@ public record ZaakRechten(
         this.heropenen = heropenen;
         this.wijzigenZaakdata = wijzigenZaakdata;
         this.wijzigenDoorlooptijd = wijzigenDoorlooptijd;
+        this.verlengen = verlengen;
+        this.opschorten = opschorten;
+        this.hervatten = hervatten;
+        this.creeerenDocument = creeerenDocument;
+        this.toevoegenDocument = toevoegenDocument;
+        this.koppelen = koppelen;
+        this.koppelenGerelateerd = koppelenGerelateerd;
+        this.versturenEmail = versturenEmail;
+        this.versturenOntvangstbevestiging = versturenOntvangstbevestiging;
+        this.toevoegenInitiatorPersoon = toevoegenInitiatorPersoon;
+        this.toevoegenInitiatorBedrijf = toevoegenInitiatorBedrijf;
+        this.verwijderenInitiator = verwijderenInitiator;
+        this.toevoegenBetrokkenePersoon = toevoegenBetrokkenePersoon;
+        this.toevoegenBetrokkeneBedrijf = toevoegenBetrokkeneBedrijf;
+        this.verwijderenBetrokkene = verwijderenBetrokkene;
+        this.toevoegenBagObject = toevoegenBagObject;
+        this.startenTaak = startenTaak;
+        this.vastleggenBesluit = vastleggenBesluit;
+        this.verlengenDoorlooptijd = verlengenDoorlooptijd;
     }
 }

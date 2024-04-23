@@ -7,6 +7,8 @@ package net.atos.zac.policy;
 
 import static net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject.StatusEnum.DEFINITIEF;
 import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
+import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend;
+import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isIntake;
 import static net.atos.zac.flowable.util.TaskUtil.isOpen;
 
 import java.util.UUID;
@@ -16,6 +18,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.flowable.task.api.TaskInfo;
 
@@ -24,6 +27,7 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.ZTCClientService;
+import net.atos.client.zgw.ztc.model.generated.StatusType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.authentication.LoggedInUser;
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
@@ -44,6 +48,7 @@ import net.atos.zac.policy.output.WerklijstRechten;
 import net.atos.zac.policy.output.ZaakRechten;
 import net.atos.zac.shared.exception.FoutmeldingException;
 import net.atos.zac.zoeken.model.DocumentIndicatie;
+import net.atos.zac.zoeken.model.ZaakIndicatie;
 import net.atos.zac.zoeken.model.zoekobject.DocumentZoekObject;
 import net.atos.zac.zoeken.model.zoekobject.TaakZoekObject;
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
@@ -70,9 +75,6 @@ public class PolicyService {
     @Inject
     private ZRCClientService zrcClientService;
 
-    @Inject
-    private EnkelvoudigInformatieObjectLockService enkelvoudigInformatieObjectLockService;
-
     public OverigeRechten readOverigeRechten() {
         return evaluationClient.readOverigeRechten(new RuleQuery<>(new UserInput(loggedInUserInstance.get())))
                 .getResult();
@@ -90,6 +92,16 @@ public class PolicyService {
         final ZaakData zaakData = new ZaakData();
         zaakData.open = zaak.isOpen();
         zaakData.zaaktype = zaaktype.getOmschrijving();
+        zaakData.opgeschort = zaak.isOpgeschort();
+        zaakData.verlengd = zaak.isVerlengd();
+        zaakData.besloten = CollectionUtils.isNotEmpty(zaaktype.getBesluittypen());
+        StatusType statusType = null;
+        if (zaak.getStatus() != null) {
+            var status = zrcClientService.readStatus(zaak.getStatus());
+            statusType = ztcClientService.readStatustype(status.getStatustype());
+        }
+        zaakData.intake = isIntake(statusType);
+        zaakData.heropend = isHeropend(statusType);
         LoggedInUser loggedInUser = user == null ? loggedInUserInstance.get() : user;
         return evaluationClient.readZaakRechten(new RuleQuery<>(new ZaakInput(loggedInUser, zaakData))).getResult();
     }
@@ -98,6 +110,12 @@ public class PolicyService {
         final ZaakData zaakData = new ZaakData();
         zaakData.open = !zaakZoekObject.isAfgehandeld();
         zaakData.zaaktype = zaakZoekObject.getZaaktypeOmschrijving();
+        zaakData.opgeschort = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.OPSCHORTING);
+        zaakData.verlengd = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.VERLENGD);
+        zaakData.intake = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.INTAKE);
+        zaakData.besloten = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.BESLOTEN);
+        zaakData.heropend = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.HEROPEND);
+
         return evaluationClient.readZaakRechten(new RuleQuery<>(new ZaakInput(loggedInUserInstance.get(), zaakData)))
                 .getResult();
     }
@@ -123,6 +141,7 @@ public class PolicyService {
         documentData.definitief = enkelvoudigInformatieobject.getStatus() == DEFINITIEF;
         documentData.vergrendeld = enkelvoudigInformatieobject.getLocked();
         documentData.vergrendeldDoor = lock != null ? lock.getUserId() : null;
+        documentData.ondertekend = enkelvoudigInformatieobject.getOndertekening() != null;
         if (zaak != null) {
             documentData.zaakOpen = zaak.isOpen();
             documentData.zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype()).getOmschrijving();
@@ -138,6 +157,7 @@ public class PolicyService {
         documentData.vergrendeldDoor = enkelvoudigInformatieobject.getVergrendeldDoorGebruikersnaam();
         documentData.zaakOpen = !enkelvoudigInformatieobject.isZaakAfgehandeld();
         documentData.zaaktype = enkelvoudigInformatieobject.getZaaktypeOmschrijving();
+        documentData.ondertekend = enkelvoudigInformatieobject.getOndertekeningDatum() != null;
         return evaluationClient.readDocumentRechten(
                 new RuleQuery<>(new DocumentInput(loggedInUserInstance.get(), documentData))).getResult();
     }
@@ -184,7 +204,7 @@ public class PolicyService {
         if (zrcClientService.heeftOpenDeelzaken(zaak)) {
             throw new FoutmeldingException("Deze hoofdzaak heeft open deelzaken en kan niet afgesloten worden.");
         }
-        if (enkelvoudigInformatieObjectLockService.hasLockedInformatieobjecten(zaak)) {
+        if (lockService.hasLockedInformatieobjecten(zaak)) {
             throw new FoutmeldingException("Deze zaak heeft vergrendelde documenten en kan niet afgesloten worden.");
         }
     }

@@ -23,8 +23,8 @@ zaak_rechten := {
     "behandelen": behandelen,
     "afbreken": afbreken,
     "heropenen": heropenen,
-    "wijzigenZaakdata": wijzigenZaakdata,
-    "wijzigenDoorlooptijd": wijzigenDoorlooptijd,
+    "wijzigen_zaakdata": wijzigen_zaakdata,
+    "wijzigen_doorlooptijd": wijzigen_doorlooptijd,
     "verlengen": verlengen,
     "opschorten": opschorten,
     "hervatten": hervatten,
@@ -95,14 +95,14 @@ heropenen {
     zaaktype_allowed == true
 }
 
-default wijzigenZaakdata := false
-wijzigenZaakdata {
+default wijzigen_zaakdata := false
+wijzigen_zaakdata {
     behandelaar.rol in user.rollen
     zaaktype_allowed == true
 }
 
-default wijzigenDoorlooptijd := false
-wijzigenDoorlooptijd {
+default wijzigen_doorlooptijd := false
+wijzigen_doorlooptijd {
     behandelaar.rol in user.rollen
     zaaktype_allowed == true
 }
@@ -112,9 +112,9 @@ verlengen {
     behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
-    # how do we check for reopened?
-    # how to check for suspended?
-    # how to check for extended?
+    zaak.heropend == false
+    zaak.opgeschort == false
+    zaak.verlengd == false
 }
 
 default opschorten := false
@@ -122,9 +122,8 @@ opschorten {
     behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
-    # how do we check for reopened?
-    # how to check for suspended?
-    # how to check for extended?
+    zaak.heropend == false
+    zaak.opgeschort == false
 }
 
 default hervatten := false
@@ -267,8 +266,8 @@ vastleggen_besluit {
     behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
-    # how to check for intake?
-    # how to check for decision types?
+    zaak.intake == false
+    zaak.besluitd == true
 }
 
 default verlengen_doorlooptijd := false
@@ -276,5 +275,5 @@ verlengen_doorlooptijd {
     behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
-    # how to check for suspended?
+    zaak.opgeschort == false
 }

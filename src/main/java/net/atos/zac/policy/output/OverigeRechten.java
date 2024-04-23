@@ -8,10 +8,10 @@ package net.atos.zac.policy.output;
 import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
 
-import net.atos.zac.util.DummyInterface;
+import net.atos.zac.util.SerializableByYasson;
 
 public record OverigeRechten(boolean startenZaak, boolean beheren,
-                             boolean zoeken) implements DummyInterface {
+                             boolean zoeken) implements SerializableByYasson {
 
     @JsonbCreator
     public OverigeRechten(
