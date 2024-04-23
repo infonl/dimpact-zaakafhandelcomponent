@@ -127,6 +127,8 @@ dependencies {
     implementation(libs.jackson.annotations)
     implementation(libs.jackson.kotlin)
     implementation(libs.jackson.jsr310)
+    implementation(libs.opentelemetry.api)
+    implementation(libs.opentelemetry.instrumentation.annotations)
 
     swaggerUI(libs.swagger.ui)
 
