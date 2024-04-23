@@ -431,8 +431,7 @@ class ZakenRESTService @Inject constructor(
         val informatieobject: EnkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(
             ontkoppelGegevens.documentUUID
         )
-        val documentRechten = policyService.readDocumentRechten(informatieobject, zaak)
-        assertPolicy(documentRechten.wijzigen && documentRechten.ontkoppelen)
+        assertPolicy(policyService.readDocumentRechten(informatieobject, zaak).ontkoppelen)
         val parameters = ZaakInformatieobjectListParameters()
         parameters.informatieobject = informatieobject.url
         parameters.zaak = zaak.url
@@ -591,8 +590,7 @@ class ZakenRESTService @Inject constructor(
     @PUT
     @Path("lijst/verdelen")
     fun verdelenVanuitLijst(@Valid restZakenVerdeelGegevens: RESTZakenVerdeelGegevens) {
-        val werklijstRechten = policyService.readWerklijstRechten()
-        assertPolicy(werklijstRechten.zakenTakenVerdelen)
+        assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         zakenService.assignZakenAsync(
             zaakUUIDs = restZakenVerdeelGegevens.uuids,
             explanation = restZakenVerdeelGegevens.reden,
@@ -611,8 +609,7 @@ class ZakenRESTService @Inject constructor(
     @PUT
     @Path("lijst/vrijgeven")
     fun vrijgevenVanuitLijst(@Valid restZakenVrijgevenGegevens: RESTZakenVrijgevenGegevens) {
-        val werklijstRechten = policyService.readWerklijstRechten()
-        assertPolicy(werklijstRechten.zakenTakenVerdelen)
+        assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         zakenService.releaseZakenAsync(
             zaakUUIDs = restZakenVrijgevenGegevens.uuids,
             explanation = restZakenVrijgevenGegevens.reden,
@@ -693,10 +690,8 @@ class ZakenRESTService @Inject constructor(
     fun koppelZaak(gegevens: RESTZaakKoppelGegevens) {
         val zaak: Zaak = zrcClientService.readZaak(gegevens.zaakUuid)
         val teKoppelenZaak: Zaak = zrcClientService.readZaak(gegevens.teKoppelenZaakUuid)
-        val zaakRechten = policyService.readZaakRechten(zaak)
-        assertPolicy(zaakRechten.koppelen)
-        val teKoppelenZaakRechten = policyService.readZaakRechten(teKoppelenZaak)
-        assertPolicy(teKoppelenZaakRechten.koppelen)
+        assertPolicy(policyService.readZaakRechten(zaak).koppelen)
+        assertPolicy(policyService.readZaakRechten(teKoppelenZaak).koppelen)
 
         when (gegevens.relatieType) {
             RelatieType.HOOFDZAAK -> koppelHoofdEnDeelzaak(teKoppelenZaak, zaak)
