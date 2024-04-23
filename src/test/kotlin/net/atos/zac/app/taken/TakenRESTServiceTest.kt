@@ -102,7 +102,7 @@ class TakenRESTServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    beforeSpec {
+    afterSpec {
         clearAllMocks()
     }
 
@@ -138,6 +138,7 @@ class TakenRESTServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("a task is assigned to the current user") {
         val task = mockk<Task>()
         val zaak = mockk<Zaak>()
@@ -273,54 +274,46 @@ class TakenRESTServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("REST taak verdeelgegevens to assign two tasks asynchronously") {
-        val screenEventResourceId = "dummyScreenEventResourceId"
+    Given("REST taak verdeelgegevens to assign two tasks") {
         val restTaakVerdelenGegevens = createRESTTaakVerdelenGegevens(
             taken = listOf(
                 createRESTTaakVerdelenTaak(),
                 createRESTTaakVerdelenTaak()
-            ),
-            screenEventResourceId = screenEventResourceId
+            )
         )
         val werklijstRechten = createWerklijstRechten()
         val assignTasksAsyncJob = mockk<Job>()
         every { policyService.readWerklijstRechten() } returns werklijstRechten
-        every {
-            taskService.assignTasksAsync(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
-        } returns assignTasksAsyncJob
+        every { taskService.assignTasksAsync(restTaakVerdelenGegevens, loggedInUser) } returns assignTasksAsyncJob
 
         When("the 'verdelen vanuit lijst' function is called") {
             takenRESTService.verdelenVanuitLijst(restTaakVerdelenGegevens)
 
             Then("the tasks are assigned to the group and user") {
                 verify(exactly = 1) {
-                    taskService.assignTasksAsync(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
+                    taskService.assignTasksAsync(restTaakVerdelenGegevens, loggedInUser)
                 }
             }
         }
     }
-    Given("REST taak vrijgeven gegevens to release two tasks asynchronously") {
-        val screenEventResourceId = "dummyScreenEventResourceId"
+    Given("REST taak vrijgeven gegevens to release two tasks") {
         val restTaakVrijgevenGegevens = createRESTTaakVrijgevenGegevens(
             taken = listOf(
                 createRESTTaakVerdelenTaak(),
                 createRESTTaakVerdelenTaak()
-            ),
-            screenEventResourceId = screenEventResourceId
+            )
         )
         val werklijstRechten = createWerklijstRechten()
         val releaseTasksAsyncJob = mockk<Job>()
         every { policyService.readWerklijstRechten() } returns werklijstRechten
-        every {
-            taskService.releaseTasksAsync(restTaakVrijgevenGegevens, loggedInUser, screenEventResourceId)
-        } returns releaseTasksAsyncJob
+        every { taskService.releaseTasksAsync(restTaakVrijgevenGegevens, loggedInUser) } returns releaseTasksAsyncJob
 
         When("the 'verdelen vanuit lijst' function is called") {
             takenRESTService.vrijgevenVanuitLijst(restTaakVrijgevenGegevens)
 
             Then("the tasks are assigned to the group and user") {
                 verify(exactly = 1) {
-                    taskService.releaseTasksAsync(restTaakVrijgevenGegevens, loggedInUser, screenEventResourceId)
+                    taskService.releaseTasksAsync(restTaakVrijgevenGegevens, loggedInUser)
                 }
             }
         }
