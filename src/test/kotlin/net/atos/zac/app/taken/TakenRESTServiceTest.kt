@@ -50,7 +50,6 @@ import net.atos.zac.task.TaskService
 import net.atos.zac.util.DateTimeConverterUtil
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.zoeken.IndexeerService
-import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.task.api.Task
 import org.flowable.task.api.history.HistoricTaskInstance
 import org.flowable.task.api.history.createHistoricTaskInstanceEntityImpl
@@ -110,16 +109,11 @@ class TakenRESTServiceTest : BehaviorSpec({
     Given("a task is not yet assigned") {
         val restTaakToekennenGegevens = createRESTTaakToekennenGegevens()
         val task = mockk<Task>()
-        val identityLinkInfo = mockk<IdentityLinkInfo>()
-        val identityLinks = listOf(identityLinkInfo)
-
         every { loggedInUserInstance.get() } returns loggedInUser
         every { flowableTaskService.readOpenTask(restTaakToekennenGegevens.taakId) } returns task
         every { getTaakStatus(task) } returns TaakStatus.NIET_TOEGEKEND
         every { policyService.readTaakRechten(task) } returns createTaakRechten()
         every { task.assignee } returns ""
-        every { task.identityLinks } returns identityLinks
-        every { task.id } returns restTaakToekennenGegevens.taakId
         every {
             taskService.assignTask(
                 restTaakToekennenGegevens,
@@ -257,7 +251,6 @@ class TakenRESTServiceTest : BehaviorSpec({
             every { httpSessionInstance.get() } returns httpSession
             // in this test we assume there was no document uploaded to the http session beforehand
             every { httpSession.getAttribute("_FILE__${restTaak.id}__$restTaakDataKey") } returns null
-            every { httpSession.removeAttribute("_FILE__${restTaak.id}__$restTaakDataKey") } just runs
             every { taakVariabelenService.isZaakHervatten(restTaakData) } returns false
             every { taakVariabelenService.readOndertekeningen(restTaakData) } returns Optional.of(signatureUUID.toString())
             every { drcClientService.readEnkelvoudigInformatieobject(signatureUUID) } returns enkelvoudigInformatieObject

@@ -3,6 +3,7 @@ package net.atos.zac.zaken
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
+import io.mockk.checkUnnecessaryStub
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
@@ -13,8 +14,6 @@ import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.ZTCClientService
-import net.atos.client.zgw.ztc.model.createRolType
-import net.atos.client.zgw.ztc.model.generated.RolType
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
 import net.atos.zac.identity.model.createGroup
@@ -44,11 +43,12 @@ class ZakenServiceTest : BehaviorSpec({
     )
     val group = createGroup()
     val user = createUser()
-    val rolTypeBehandelaar = createRolType(
-        omschrijvingGeneriek = RolType.OmschrijvingGeneriekEnum.BEHANDELAAR
-    )
 
-    afterTest {
+    beforeEach {
+        checkUnnecessaryStub()
+    }
+
+    afterSpec {
         clearAllMocks()
     }
 
@@ -56,12 +56,6 @@ class ZakenServiceTest : BehaviorSpec({
         val screenEventSlot = slot<ScreenEvent>()
         zaken.map {
             every { zrcClientService.readZaak(it.uuid) } returns it
-            every {
-                ztcClientService.readRoltype(
-                    RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
-                    it.zaaktype
-                )
-            } returns rolTypeBehandelaar
             every { zrcClientService.updateRol(it, any(), explanation) } just Runs
             every { indexeerService.indexeerDirect(it.uuid.toString(), ZoekObjectType.ZAAK) } just Runs
             every { eventingService.send(capture(screenEventSlot)) } just Runs
@@ -100,12 +94,6 @@ class ZakenServiceTest : BehaviorSpec({
         val screenEventSlot = slot<ScreenEvent>()
         zaken.map {
             every { zrcClientService.readZaak(it.uuid) } returns it
-            every {
-                ztcClientService.readRoltype(
-                    RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
-                    it.zaaktype
-                )
-            } returns rolTypeBehandelaar
             every { zrcClientService.deleteRol(it, any(), explanation) } just Runs
             every { indexeerService.indexeerDirect(it.uuid.toString(), ZoekObjectType.ZAAK) } just Runs
             every { eventingService.send(capture(screenEventSlot)) } just Runs
