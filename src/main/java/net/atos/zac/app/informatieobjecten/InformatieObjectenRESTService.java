@@ -325,7 +325,7 @@ public class InformatieObjectenRESTService {
         final EnkelvoudigInformatieObject informatieobject = drcClientService.readEnkelvoudigInformatieobject(
                 enkelvoudigInformatieobjectUUID);
         final Zaak nieuweZaak = zrcClientService.readZaakByID(documentVerplaatsGegevens.nieuweZaakID);
-        assertPolicy(policyService.readDocumentRechten(informatieobject, nieuweZaak).wijzigen() &&
+        assertPolicy(policyService.readDocumentRechten(informatieobject, nieuweZaak).verplaatsen() &&
                      policyService.readZaakRechten(nieuweZaak).wijzigen());
         final String toelichting = "Verplaatst: %s -> %s".formatted(documentVerplaatsGegevens.bron,
                 nieuweZaak.getIdentificatie());
@@ -434,7 +434,7 @@ public class InformatieObjectenRESTService {
     public Response readFile(@PathParam("uuid") final UUID uuid, @PathParam("versie") final Integer versie) {
         final EnkelvoudigInformatieObject enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(
                 uuid);
-        assertPolicy(policyService.readDocumentRechten(enkelvoudigInformatieObject).lezen());
+        assertPolicy(policyService.readDocumentRechten(enkelvoudigInformatieObject).downloaden());
         try (final ByteArrayInputStream inhoud = (versie != null) ?
                 drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, versie) :
                 drcClientService.downloadEnkelvoudigInformatieobject(uuid)) {
@@ -473,7 +473,7 @@ public class InformatieObjectenRESTService {
                 .map(drcClientService::readEnkelvoudigInformatieobject)
                 .toList();
         informatieobjecten.forEach(
-                informatieobject -> assertPolicy(policyService.readDocumentRechten(informatieobject).lezen()));
+                informatieobject -> assertPolicy(policyService.readDocumentRechten(informatieobject).downloaden()));
         final StreamingOutput streamingOutput = enkelvoudigInformatieObjectDownloadService.getZipStreamOutput(
                 informatieobjecten);
         return Response.ok(streamingOutput).header("Content-Type", "application/zip").build();
