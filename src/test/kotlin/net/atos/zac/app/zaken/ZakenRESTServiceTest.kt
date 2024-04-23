@@ -6,6 +6,8 @@
 package net.atos.zac.app.zaken
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.mockk.checkUnnecessaryStub
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.just
@@ -158,6 +160,14 @@ class ZakenRESTServiceTest : BehaviorSpec({
         restZaaktypeConverter = restZaaktypeConverter
     )
 
+    beforeEach {
+        checkUnnecessaryStub()
+    }
+
+    afterSpec {
+        clearAllMocks()
+    }
+
     Given("zaak input data is provided") {
         When("createZaak is called for a zaaktype for which the logged in user has permissions") {
             Then("a zaak is created using the ZGW API and a zaak is started in the ZAC CMMN service") {
@@ -224,16 +234,12 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 every { zgwApiService.createZaak(zaak) } returns zaak
                 every { zrcClientService.createRol(any(), any()) } returns rolNatuurlijkPersoon
                 every { zrcClientService.updateRol(zaak, any(), any()) } just runs
-                every { zrcClientService.createZaak(zaak) } returns zaak
                 every { zrcClientService.createZaakobject(zaakObjectPand) } returns zaakObjectPand
                 every { zrcClientService.createZaakobject(zaakObjectOpenbareRuimte) } returns zaakObjectOpenbareRuimte
                 every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
                 every {
                     ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.INITIATOR, zaak.zaaktype)
                 } returns createRolType(omschrijvingGeneriek = RolType.OmschrijvingGeneriekEnum.INITIATOR)
-                every {
-                    ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.BEHANDELAAR, zaak.zaaktype)
-                } returns createRolType(omschrijvingGeneriek = RolType.OmschrijvingGeneriekEnum.BEHANDELAAR)
                 every { zakenService.bepaalRolGroep(group, zaak) } returns rolOrganisatorischeEenheid
                 every { zakenService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
 
@@ -291,9 +297,6 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
                 every { zgwApiService.findBehandelaarForZaak(zaak) } returns Optional.empty()
                 every { identityService.readUser(restZaakToekennenGegevens.behandelaarGebruikersnaam) } returns user
-                every {
-                    ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.BEHANDELAAR, zaak.zaaktype)
-                } returns rolType
                 every { zgwApiService.findGroepForZaak(zaak) } returns Optional.empty()
                 every { restZaakConverter.convert(zaak) } returns restZaak
                 every { indexeerService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK) } just runs
