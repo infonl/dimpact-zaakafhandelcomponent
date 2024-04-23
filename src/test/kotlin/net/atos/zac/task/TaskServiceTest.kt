@@ -40,6 +40,8 @@ class TaskServiceTest : BehaviorSpec({
     )
 
     beforeEach {
+        // only check for unnecessary stubs on our mocked services and not on all mocks
+        // using checkUnnecessaryStub() because that currently breaks the test
         checkUnnecessaryStub(
             flowableTaskService,
             indexeerService,
@@ -66,7 +68,6 @@ class TaskServiceTest : BehaviorSpec({
         every { loggedInUser.id } returns "dummyLoggedInUserId"
         every { task.assignee } returns "dummyCurrentAssignee"
         every { task.id } returns taskId
-        every { updatedTaskAfterAssigningGroup.id } returns taskId
         every { updatedTaskAfterAssigningUser.id } returns taskId
         every { restTaakConverter.extractGroupId(task.identityLinks) } returns groupId
         every {
@@ -133,8 +134,6 @@ class TaskServiceTest : BehaviorSpec({
         every { loggedInUser.id } returns "dummyLoggedInUserId"
         every { task1.id } returns taskId1
         every { task2.id } returns taskId2
-        every { updatedTask1AfterAssigningGroup.id } returns taskId1
-        every { updatedTask2AfterAssigningGroup.id } returns taskId2
         every { updatedTask1AfterAssigningUser.id } returns taskId1
         every { updatedTask2AfterAssigningUser.id } returns taskId2
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId) } returns task1
