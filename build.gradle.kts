@@ -2,6 +2,7 @@ import com.bisnode.opa.configuration.ExecutableMode
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.github.gradle.node.npm.task.NpmTask
 import io.smallrye.openapi.api.OpenApiConfig
+import org.apache.tools.ant.taskdefs.condition.Os
 import java.util.Locale
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 
@@ -211,12 +212,14 @@ jacoco {
     toolVersion = libs.versions.jacoco.get()
 }
 
-opa {
-    srcDir = "$rootDir/src/main/resources/policies"
-    testDir = "$rootDir/src/test/opa/policies"
-    version = libs.versions.opa.binary.get()
-    mode = ExecutableMode.DOWNLOAD
-    location = "$rootDir/build/opa/$version/opa"
+if(!Os.isFamily(Os.FAMILY_WINDOWS)) {
+    opa {
+        srcDir = "$rootDir/src/main/resources/policies"
+        testDir = "$rootDir/src/test/opa/policies"
+        version = libs.versions.opa.binary.get()
+        mode = ExecutableMode.DOWNLOAD
+        location = "$rootDir/build/opa/$version/opa"
+    }
 }
 
 java {
@@ -379,7 +382,9 @@ tasks {
 
     test {
         dependsOn("npmRunTest")
-        dependsOn("testRegoCoverage")
+        if(!Os.isFamily(Os.FAMILY_WINDOWS)) {
+            dependsOn("testRegoCoverage")
+        }
     }
 
     compileJava {
