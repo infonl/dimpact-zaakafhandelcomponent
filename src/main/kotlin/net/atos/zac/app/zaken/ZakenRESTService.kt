@@ -395,22 +395,7 @@ class ZakenRESTService @Inject constructor(
         restZaakVerlengGegevens: RESTZaakVerlengGegevens
     ): RESTZaak {
         val zaak = zrcClientService.readZaak(zaakUUID)
-        val status = if (zaak.status != null) {
-            zrcClientService.readStatus(zaak.status)
-        } else {
-            null
-        }
-        val statustype = if (status != null) {
-            ztcClientService.readStatustype(status.statustype)
-        } else {
-            null
-        }
-        assertPolicy(
-            zaak.isOpen &&
-                !StatusTypeUtil.isHeropend(statustype) &&
-                !zaak.isOpgeschort &&
-                policyService.readZaakRechten(zaak).behandelen
-        )
+        assertPolicy(policyService.readZaakRechten(zaak).verlengen)
         val toelichting = "$VERLENGING: ${restZaakVerlengGegevens.redenVerlenging}"
         val updatedZaak = zrcClientService.patchZaak(
             zaakUUID,
@@ -428,6 +413,16 @@ class ZakenRESTService @Inject constructor(
             if (aantalTakenVerlengd > 0) {
                 eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak))
             }
+        }
+        val status = if (zaak.status != null) {
+            zrcClientService.readStatus(zaak.status)
+        } else {
+            null
+        }
+        val statustype = if (status != null) {
+            ztcClientService.readStatustype(status.statustype)
+        } else {
+            null
         }
         return restZaakConverter.convert(updatedZaak, status, statustype)
     }
@@ -522,7 +517,7 @@ class ZakenRESTService @Inject constructor(
     @Path("zaakdata")
     fun updateZaakdata(restZaak: RESTZaak): RESTZaak {
         val zaak = zrcClientService.readZaak(restZaak.uuid)
-        assertPolicy(zaak.isOpen && policyService.readZaakRechten(zaak).wijzigen)
+        assertPolicy(policyService.readZaakRechten(zaak).wijzigen)
 
         zaakVariabelenService.setZaakdata(restZaak.uuid, restZaak.zaakdata)
         return restZaak
@@ -532,7 +527,7 @@ class ZakenRESTService @Inject constructor(
     @Path("toekennen")
     fun toekennen(@Valid toekennenGegevens: RESTZaakToekennenGegevens): RESTZaak {
         val zaak: Zaak = zrcClientService.readZaak(toekennenGegevens.zaakUUID)
-        assertPolicy(zaak.isOpen && policyService.readZaakRechten(zaak).toekennen)
+        assertPolicy(policyService.readZaakRechten(zaak).toekennen)
 
         val behandelaar = zgwApiService.findBehandelaarForZaak(zaak)
             .map { rolMedewerker: RolMedewerker -> rolMedewerker.betrokkeneIdentificatie.identificatie }
@@ -599,10 +594,8 @@ class ZakenRESTService @Inject constructor(
     @PUT
     @Path("lijst/verdelen")
     fun verdelenVanuitLijst(@Valid restZakenVerdeelGegevens: RESTZakenVerdeelGegevens) {
-        assertPolicy(
-            policyService.readWerklijstRechten().zakenTaken &&
-                policyService.readWerklijstRechten().zakenTakenVerdelen
-        )
+        assertPolicy(policyService.readWerklijstRechten().zakenTaken);
+        assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen);
         zakenService.assignZakenAsync(
             zaakUUIDs = restZakenVerdeelGegevens.uuids,
             explanation = restZakenVerdeelGegevens.reden,
@@ -621,10 +614,8 @@ class ZakenRESTService @Inject constructor(
     @PUT
     @Path("lijst/vrijgeven")
     fun vrijgevenVanuitLijst(@Valid restZakenVrijgevenGegevens: RESTZakenVrijgevenGegevens) {
-        assertPolicy(
-            policyService.readWerklijstRechten().zakenTaken &&
-                policyService.readWerklijstRechten().zakenTakenVerdelen
-        )
+        assertPolicy(policyService.readWerklijstRechten().zakenTaken);
+        assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen);
         zakenService.releaseZakenAsync(
             zaakUUIDs = restZakenVrijgevenGegevens.uuids,
             explanation = restZakenVrijgevenGegevens.reden,
@@ -646,10 +637,8 @@ class ZakenRESTService @Inject constructor(
         } else {
             null
         }
-        assertPolicy(
-            zaak.isOpen && !StatusTypeUtil.isHeropend(statustype) &&
-                policyService.readZaakRechten(zaak).afbreken
-        )
+        assertPolicy(zaak.isOpen && !StatusTypeUtil.isHeropend(statustype));
+        assertPolicy(policyService.readZaakRechten(zaak).afbreken);
         policyService.checkZaakAfsluitbaar(zaak)
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
             UriUtil.uuidFromURI(zaak.zaaktype)
