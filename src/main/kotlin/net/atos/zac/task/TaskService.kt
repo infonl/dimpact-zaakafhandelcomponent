@@ -79,7 +79,7 @@ class TaskService @Inject constructor(
             "Started asynchronous job with ID: $screenEventResourceId to assign " +
                 "${restTaakVerdelenGegevens.taken.size} tasks."
         }
-        val taakIds = mutableListOf<String>()
+        val taskIds = mutableListOf<String>()
         withContext(Dispatchers.IO) {
             restTaakVerdelenGegevens.taken.forEach { restTaakVerdelenTaak ->
                 val task = flowableTaskService.readOpenTask(restTaakVerdelenTaak.taakId)
@@ -97,9 +97,9 @@ class TaskService @Inject constructor(
                     )
                 }
                 sendScreenEventsOnTaskChange(task, restTaakVerdelenTaak.zaakUuid)
-                taakIds.add(restTaakVerdelenTaak.taakId)
+                taskIds.add(restTaakVerdelenTaak.taakId)
             }
-            indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK)
+            indexeerService.indexeerDirect(taskIds, ZoekObjectType.TAAK)
         }
         LOG.fine {
             "Asynchronous assign tasks job with ID '$screenEventResourceId' finished. " +
