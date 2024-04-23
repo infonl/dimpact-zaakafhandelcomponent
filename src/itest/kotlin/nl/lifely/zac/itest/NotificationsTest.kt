@@ -25,7 +25,6 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_UITERLIJKE_EINDDATUM_AFDOENING
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.zaak1UUID
-import nl.lifely.zac.itest.config.ProjectConfig
 import nl.lifely.zac.itest.config.dockerComposeContainer
 import nl.lifely.zac.itest.util.WebSocketTestListener
 import okhttp3.Headers
