@@ -1,5 +1,6 @@
 package net.atos.zac.shared.helper;
 
+import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend;
 import static net.atos.zac.policy.PolicyService.assertPolicy;
 
 import java.time.LocalDate;
@@ -18,20 +19,29 @@ import net.atos.zac.flowable.ZaakVariabelenService;
 import net.atos.zac.policy.PolicyService;
 
 public class OpschortenZaakHelper {
-
     private static final String OPSCHORTING = "Opschorting";
-
     private static final String HERVATTING = "Hervatting";
 
-
-    @Inject
     private PolicyService policyService;
-
-    @Inject
     private ZRCClientService zrcClientService;
+    private ZaakVariabelenService zaakVariabelenService;
+
+    /**
+     * Default empty constructor, required by JAX-RS
+     */
+    public OpschortenZaakHelper() {
+    }
 
     @Inject
-    private ZaakVariabelenService zaakVariabelenService;
+    OpschortenZaakHelper(
+            PolicyService policyService,
+            ZRCClientService zrcClientService,
+            ZaakVariabelenService zaakVariabelenService
+    ) {
+        this.policyService = policyService;
+        this.zrcClientService = zrcClientService;
+        this.zaakVariabelenService = zaakVariabelenService;
+    }
 
     public Zaak opschortenZaak(Zaak zaak, final long aantalDagen, final String redenOpschorting) {
         assertPolicy(policyService.readZaakRechten(zaak).opschorten());
