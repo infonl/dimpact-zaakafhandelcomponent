@@ -49,9 +49,9 @@ import net.atos.zac.flowable.util.TaskUtil
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.shared.helper.OpschortenZaakHelper
 import net.atos.zac.signalering.SignaleringenService
-import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
+import net.atos.zac.task.TaskService
 import net.atos.zac.util.DateTimeConverterUtil
 import net.atos.zac.util.UriUtil
 import net.atos.zac.websocket.event.ScreenEventType
@@ -74,6 +74,7 @@ import java.util.UUID
 @AllOpen
 @Suppress("TooManyFunctions", "LongParameterList")
 class TakenRESTService @Inject constructor(
+    private val taskService: TaskService,
     private val flowableTaskService: FlowableTaskService,
     private val taakVariabelenService: TaakVariabelenService,
     private val indexeerService: IndexeerService,
@@ -142,25 +143,11 @@ class TakenRESTService @Inject constructor(
         PolicyService.assertPolicy(
             policyService.readWerklijstRechten().zakenTaken && policyService.readWerklijstRechten().zakenTakenVerdelen
         )
-        val taakIds: MutableList<String?> = ArrayList()
-        restTaakVerdelenGegevens.taken.forEach { restTaakVerdelenTaak ->
-            var task = flowableTaskService.readOpenTask(restTaakVerdelenTaak.taakId)
-            restTaakVerdelenGegevens.behandelaarGebruikersnaam?.let {
-                task = assignTaak(
-                    task.id,
-                    restTaakVerdelenGegevens.behandelaarGebruikersnaam,
-                    restTaakVerdelenGegevens.reden
-                )
-            }
-            val updatedTask = flowableTaskService.assignTaskToGroup(
-                task,
-                restTaakVerdelenGegevens.groepId,
-                restTaakVerdelenGegevens.reden
-            )
-            taakBehandelaarGewijzigd(updatedTask, restTaakVerdelenTaak.zaakUuid)
-            taakIds.add(restTaakVerdelenTaak.taakId)
-        }
-        indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK)
+        taskService.assignTasksAsync(
+            restTaakVerdelenGegevens = restTaakVerdelenGegevens,
+            loggedInUser = loggedInUserInstance.get(),
+            screenEventResourceId = restTaakVerdelenGegevens.screenEventResourceId
+        )
     }
 
     @PUT
@@ -170,14 +157,7 @@ class TakenRESTService @Inject constructor(
             policyService.readWerklijstRechten().zakenTaken &&
                 policyService.readWerklijstRechten().zakenTakenVerdelen
         )
-        val taakIds = mutableListOf<String>()
-        restTaakVrijgevenGegevens.taken.forEach {
-            assignTaak(it.taakId, null, restTaakVrijgevenGegevens.reden).let { updatedTask ->
-                taakBehandelaarGewijzigd(updatedTask, it.zaakUuid)
-                taakIds.add(updatedTask.id)
-            }
-        }
-        indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK)
+        taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUserInstance.get())
     }
 
     @PATCH
@@ -194,32 +174,15 @@ class TakenRESTService @Inject constructor(
     @PATCH
     @Path("toekennen")
     fun toekennen(restTaakToekennenGegevens: RESTTaakToekennenGegevens) {
-        var task = flowableTaskService.readOpenTask(restTaakToekennenGegevens.taakId)
+        val task = flowableTaskService.readOpenTask(restTaakToekennenGegevens.taakId)
         PolicyService.assertPolicy(
             TaskUtil.getTaakStatus(task) != TaakStatus.AFGEROND && policyService.readTaakRechten(task).toekennen
         )
-        val groep = restTaakConverter.extractGroupId(task.identityLinks)
-        var changed = false
-        if (task.assignee != restTaakToekennenGegevens.behandelaarId) {
-            task = assignTaak(
-                task.id,
-                restTaakToekennenGegevens.behandelaarId,
-                restTaakToekennenGegevens.reden
-            )
-            changed = true
-        }
-        if (groep != restTaakToekennenGegevens.groepId) {
-            task = flowableTaskService.assignTaskToGroup(
-                task,
-                restTaakToekennenGegevens.groepId,
-                restTaakToekennenGegevens.reden
-            )
-            changed = true
-        }
-        if (changed) {
-            taakBehandelaarGewijzigd(task, restTaakToekennenGegevens.zaakUuid)
-            indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK)
-        }
+        taskService.assignTask(
+            restTaakToekennenGegevens,
+            task,
+            loggedInUserInstance.get()
+        )
     }
 
     @PATCH
@@ -292,22 +255,14 @@ class TakenRESTService @Inject constructor(
         PolicyService.assertPolicy(
             TaskUtil.getTaakStatus(task) != TaakStatus.AFGEROND && policyService.readTaakRechten(task).toekennen
         )
-        assignTaak(task.id, loggedInUserInstance.get().id, restTaakToekennenGegevens.reden).let {
-            taakBehandelaarGewijzigd(it, restTaakToekennenGegevens.zaakUuid)
+        taskService.assignTaskToUser(
+            taskId = task.id,
+            assignee = loggedInUserInstance.get().id,
+            loggedInUser = loggedInUserInstance.get(),
+            explanation = restTaakToekennenGegevens.reden
+        ).let {
+            taskService.sendScreenEventsOnTaskChange(it, restTaakToekennenGegevens.zaakUuid)
             indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK)
-            return it
-        }
-    }
-
-    private fun assignTaak(taskId: String, assignee: String?, reden: String?): Task {
-        flowableTaskService.assignTaskToUser(taskId, assignee, reden).let {
-            eventingService.send(
-                SignaleringEventUtil.event(
-                    SignaleringType.Type.TAAK_OP_NAAM,
-                    it,
-                    loggedInUserInstance.get()
-                )
-            )
             return it
         }
     }
@@ -393,11 +348,6 @@ class TakenRESTService @Inject constructor(
                     .subjectZaak(taakVariabelenService.readZaakUUID(taskInfo))
             )
         }
-    }
-
-    private fun taakBehandelaarGewijzigd(task: Task, zaakUuid: UUID) {
-        eventingService.send(ScreenEventType.TAAK.updated(task))
-        eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(zaakUuid))
     }
 
     private fun updateVerzenddatumEnkelvoudigInformatieObjecten(

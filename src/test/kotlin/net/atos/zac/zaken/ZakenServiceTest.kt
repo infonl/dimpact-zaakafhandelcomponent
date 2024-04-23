@@ -5,7 +5,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.clearAllMocks
 import io.mockk.every
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
@@ -18,7 +17,6 @@ import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.generated.RolType
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
-import net.atos.zac.event.Opcode.any
 import net.atos.zac.identity.model.createGroup
 import net.atos.zac.identity.model.createUser
 import net.atos.zac.websocket.event.ScreenEvent
@@ -27,7 +25,6 @@ import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import java.lang.RuntimeException
 
-@MockKExtension.CheckUnnecessaryStub
 class ZakenServiceTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
     val indexeerService = mockk<IndexeerService>()
@@ -73,19 +70,18 @@ class ZakenServiceTest : BehaviorSpec({
             """the assign zaken async function is called with a group, a user
                 and a screen event resource id"""
         ) {
-            val coroutine = zakenService.assignZakenAsync(
+            zakenService.assignZakenAsync(
                 zaakUUIDs = zaken.map { it.uuid },
                 explanation = explanation,
                 group = group,
                 user = user,
                 screenEventResourceId = screenEventResourceId
-            )
+            ).join()
             Then(
                 """for both zaken the group and user roles 
                     and the search index should be updated and
                     a screen event of type 'zaken verdelen' should sent"""
             ) {
-                coroutine.join()
                 zaken.map {
                     // for every zaak both the user and group roles should have been updated
                     verify(exactly = 2) {

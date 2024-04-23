@@ -81,6 +81,8 @@ public enum ScreenEventType {
         }
     },
 
+    TAKEN_VERDELEN,
+
     ZAAK {
         @Override
         public ScreenEvent event(final Opcode opcode, final Zaak zaak) {

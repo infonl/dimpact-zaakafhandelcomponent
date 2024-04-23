@@ -8,7 +8,7 @@ package net.atos.zac.policy.output;
 import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
 
-import net.atos.zac.util.DummyInterface;
+import net.atos.zac.util.MakeYassonSerializable;
 
 public record ZaakRechten(
                           boolean lezen,
@@ -38,7 +38,7 @@ public record ZaakRechten(
                           boolean startenTaak,
                           boolean vastleggenBesluit,
                           boolean verlengenDoorlooptijd
-) implements DummyInterface {
+) implements MakeYassonSerializable {
 
     @JsonbCreator
     public ZaakRechten(
@@ -48,8 +48,8 @@ public record ZaakRechten(
             @JsonbProperty("behandelen") final boolean behandelen,
             @JsonbProperty("afbreken") final boolean afbreken,
             @JsonbProperty("heropenen") final boolean heropenen,
-            @JsonbProperty("wijzigenZaakdata") final boolean wijzigenZaakdata,
-            @JsonbProperty("wijzigenDoorlooptijd") final boolean wijzigenDoorlooptijd,
+            @JsonbProperty("wijzigen_zaakdata") final boolean wijzigenZaakdata,
+            @JsonbProperty("wijzigen_doorlooptijd") final boolean wijzigenDoorlooptijd,
             @JsonbProperty("verlengen") final boolean verlengen,
             @JsonbProperty("opschorten") final boolean opschorten,
             @JsonbProperty("hervatten") final boolean hervatten,

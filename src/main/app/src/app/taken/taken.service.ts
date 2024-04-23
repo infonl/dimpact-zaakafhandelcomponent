@@ -7,6 +7,10 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
+import { v4 as uuidv4 } from "uuid";
+import { ObjectType } from "../core/websocket/model/object-type";
+import { Opcode } from "../core/websocket/model/opcode";
+import { WebsocketService } from "../core/websocket/websocket.service";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { Group } from "../identity/model/group";
 import { User } from "../identity/model/user";
@@ -24,6 +28,7 @@ export class TakenService {
   constructor(
     private http: HttpClient,
     private foutAfhandelingService: FoutAfhandelingService,
+    private websocketService: WebsocketService,
   ) {}
 
   private basepath = "/rest/taken";
@@ -131,7 +136,8 @@ export class TakenService {
     groep?: Group,
     medewerker?: User,
   ): Observable<void> {
-    const taakBody: TaakVerdelenGegevens = new TaakVerdelenGegevens();
+    const taakBody: TaakVerdelenGegevens & { screenEventResourceId?: string } =
+      new TaakVerdelenGegevens();
     taakBody.taken = taken.map((taak) => ({
       taakId: taak.id,
       zaakUuid: taak.zaakUuid,
@@ -139,11 +145,20 @@ export class TakenService {
     taakBody.behandelaarGebruikersnaam = medewerker?.id;
     taakBody.groepId = groep?.id;
     taakBody.reden = reden;
-    return this.http
-      .put<void>(`${this.basepath}/lijst/verdelen`, taakBody)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    taakBody.screenEventResourceId = uuidv4();
+    return this.websocketService.longRunningOperation(
+      Opcode.UPDATED,
+      ObjectType.TAKEN_VERDELEN,
+      taakBody.screenEventResourceId,
+      () =>
+        this.http
+          .put<void>(`${this.basepath}/lijst/verdelen`, taakBody)
+          .pipe(
+            catchError((err) =>
+              this.foutAfhandelingService.foutAfhandelen(err),
+            ),
+          ),
+    );
   }
 
   vrijgevenVanuitLijst(

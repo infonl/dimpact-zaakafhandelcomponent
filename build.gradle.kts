@@ -2,6 +2,7 @@ import com.bisnode.opa.configuration.ExecutableMode
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.github.gradle.node.npm.task.NpmTask
 import io.smallrye.openapi.api.OpenApiConfig
+import org.apache.tools.ant.taskdefs.condition.Os
 import java.util.Locale
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 
@@ -172,12 +173,12 @@ dependencies {
     "itestImplementation"(libs.kotest.runner.junit5)
     "itestImplementation"(libs.kotest.assertions.json)
     "itestImplementation"(libs.slf4j.simple)
-    "itestImplementation"(libs.github.kotlin.logging)
     "itestImplementation"(libs.squareup.okhttp)
     "itestImplementation"(libs.squareup.okhttp.urlconnection)
     "itestImplementation"(libs.awaitility)
     "itestImplementation"(libs.mockserver.client)
     "itestImplementation"(libs.auth0.java.jwt)
+    "itestImplementation"(libs.github.kotlin.logging)
 
     jacocoAgentJarForItest(variantOf(libs.jacoco.agent) { classifier("runtime") })
 }
@@ -211,12 +212,14 @@ jacoco {
     toolVersion = libs.versions.jacoco.get()
 }
 
-opa {
-    srcDir = "$rootDir/src/main/resources/policies"
-    testDir = "$rootDir/src/main/resources/policies/tests"
-    version = libs.versions.opa.binary.get()
-    mode = ExecutableMode.DOWNLOAD
-    location = "$rootDir/build/opa/$version/opa"
+if(!Os.isFamily(Os.FAMILY_WINDOWS)) {
+    opa {
+        srcDir = "$rootDir/src/main/resources/policies"
+        testDir = "$rootDir/src/test/opa/policies"
+        version = libs.versions.opa.binary.get()
+        mode = ExecutableMode.DOWNLOAD
+        location = "$rootDir/build/opa/$version/opa"
+    }
 }
 
 java {
@@ -379,7 +382,9 @@ tasks {
 
     test {
         dependsOn("npmRunTest")
-        dependsOn("testRego", "testRegoCoverage")
+        if(!Os.isFamily(Os.FAMILY_WINDOWS)) {
+            dependsOn("testRegoCoverage")
+        }
     }
 
     compileJava {

@@ -8,7 +8,7 @@ package net.atos.zac.policy.output;
 import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
 
-import net.atos.zac.util.DummyInterface;
+import net.atos.zac.util.MakeYassonSerializable;
 
 public record DocumentRechten(
                               boolean lezen,
@@ -21,7 +21,7 @@ public record DocumentRechten(
                               boolean verplaatsen,
                               boolean ontkoppelen,
                               boolean downloaden
-) implements DummyInterface {
+) implements MakeYassonSerializable {
 
     @JsonbCreator
     public DocumentRechten(

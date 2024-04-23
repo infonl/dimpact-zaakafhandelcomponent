@@ -13,8 +13,8 @@ import data.net.atos.zac.zaak.toekennen
 import data.net.atos.zac.zaak.behandelen
 import data.net.atos.zac.zaak.afbreken
 import data.net.atos.zac.zaak.heropenen
-import data.net.atos.zac.zaak.wijzigenZaakdata
-import data.net.atos.zac.zaak.wijzigenDoorlooptijd
+import data.net.atos.zac.zaak.wijzigen_zaakdata
+import data.net.atos.zac.zaak.wijzigen_doorlooptijd
 import data.net.atos.zac.zaak.verlengen
 import data.net.atos.zac.zaak.opschorten
 import data.net.atos.zac.zaak.hervatten
@@ -159,34 +159,34 @@ test_heropenen_missing_role_fails if {
     not heropenen with input.user.key as "value"
 }
 
-##################
-# wijzigenZaakdata
-##################
-test_wijzigenZaakdata if {
-    wijzigenZaakdata with input.user.rollen as [ "behandelaar" ]
+###################
+# wijzigen_zaakdata
+###################
+test_wijzigen_zaakdata if {
+    wijzigen_zaakdata with input.user.rollen as [ "behandelaar" ]
 }
 
-test_wijzigenZaakdata_wrong_role_fails if {
-    not wijzigenZaakdata with input.user.rollen as [ "functioneel" ]
+test_wijzigen_zaakdata_wrong_role_fails if {
+    not wijzigen_zaakdata with input.user.rollen as [ "functioneel" ]
 }
 
-test_wijzigenZaakdata_missing_role_fails if {
-    not wijzigenZaakdata with input.user.key as "value"
+test_wijzigen_zaakdata_missing_role_fails if {
+    not wijzigen_zaakdata with input.user.key as "value"
 }
 
-######################
-# wijzigenDoorlooptijd
-######################
-test_wijzigenDoorlooptijd if {
-    wijzigenDoorlooptijd with input.user.rollen as [ "behandelaar" ]
+#######################
+# wijzigen_doorlooptijd
+#######################
+test_wijzigen_doorlooptijd if {
+    wijzigen_doorlooptijd with input.user.rollen as [ "behandelaar" ]
 }
 
-test_wijzigenDoorlooptijd_wrong_role_fails if {
-    not wijzigenDoorlooptijd with input.user.rollen as [ "functioneel" ]
+test_wijzigen_doorlooptijd_wrong_role_fails if {
+    not wijzigen_doorlooptijd with input.user.rollen as [ "functioneel" ]
 }
 
-test_wijzigenDoorlooptijd_missing_role_fails if {
-    not wijzigenDoorlooptijd with input.user.key as "value"
+test_wijzigen_doorlooptijd_missing_role_fails if {
+    not wijzigen_doorlooptijd with input.user.key as "value"
 }
 
 ###########

@@ -39,7 +39,7 @@ public class ScreenEventObserver extends AbstractEventObserver<ScreenEvent> {
 
     public void onFire(final @ObservesAsync ScreenEvent event) {
         try {
-            LOG.fine(() -> String.format("Scherm event ontvangen: %s", event.toString()));
+            LOG.fine(() -> String.format("Received screen event: %s", event.toString()));
             event.delay();
             sendToWebsocketSubscribers(event);
         } catch (final Throwable ex) {
