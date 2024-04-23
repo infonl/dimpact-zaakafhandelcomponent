@@ -25,7 +25,7 @@ class JsonbConfigurationTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    afterSpec {
+    beforeSpec {
         clearAllMocks()
     }
 

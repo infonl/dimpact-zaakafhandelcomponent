@@ -61,14 +61,9 @@ class IndexeerServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    afterSpec {
+    beforeSpec {
         clearAllMocks()
     }
-
-    every { zaakZoekObjectConverter.supports(ZoekObjectType.ZAAK) } returns true
-    every { converterInstances.iterator() } returns converterInstancesIterator
-    every { converterInstancesIterator.hasNext() } returns true andThen true andThen false
-    every { converterInstancesIterator.next() } returns zaakZoekObjectConverter andThen zaakZoekObjectConverter
 
     Given(
         """Two zaken"""
@@ -84,6 +79,10 @@ class IndexeerServiceTest : BehaviorSpec({
             createZaakZoekObject()
         )
         val objectIdsSlot = slot<Stream<String>>()
+        every { zaakZoekObjectConverter.supports(ZoekObjectType.ZAAK) } returns true
+        every { converterInstances.iterator() } returns converterInstancesIterator
+        every { converterInstancesIterator.hasNext() } returns true andThen true andThen false
+        every { converterInstancesIterator.next() } returns zaakZoekObjectConverter andThen zaakZoekObjectConverter
         zaken.forEachIndexed { index, zaak ->
             every { zaakZoekObjectConverter.convert(zaak.uuid.toString()) } returns zaakZoekObjecten[index]
         }
