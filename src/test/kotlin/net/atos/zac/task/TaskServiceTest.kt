@@ -193,6 +193,7 @@ class TaskServiceTest : BehaviorSpec({
         }
     }
     Given("REST taak vrijgeven gegevens with two tasks") {
+        clearAllMocks()
         val restTaakVerdelenTaken = listOf(
             createRESTTaakVerdelenTaak(),
             createRESTTaakVerdelenTaak()
