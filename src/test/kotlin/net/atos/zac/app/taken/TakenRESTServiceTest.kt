@@ -6,7 +6,6 @@
 package net.atos.zac.app.taken
 
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.inspectors.forExactly
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearAllMocks
@@ -14,10 +13,10 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
-import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
+import kotlinx.coroutines.Job
 import net.atos.client.zgw.drc.DRCClientService
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.ZGWApiService
@@ -32,30 +31,29 @@ import net.atos.zac.app.taken.converter.RESTTaakHistorieConverter
 import net.atos.zac.app.taken.model.TaakStatus
 import net.atos.zac.app.taken.model.createRESTTaak
 import net.atos.zac.app.taken.model.createRESTTaakToekennenGegevens
+import net.atos.zac.app.taken.model.createRESTTaakVerdelenGegevens
+import net.atos.zac.app.taken.model.createRESTTaakVerdelenTaak
+import net.atos.zac.app.taken.model.createRESTTaakVrijgevenGegevens
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.event.EventingService
-import net.atos.zac.event.Opcode
 import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.flowable.TaakVariabelenService
 import net.atos.zac.flowable.util.TaskUtil.getTaakStatus
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.output.createDocumentRechten
 import net.atos.zac.policy.output.createTaakRechten
+import net.atos.zac.policy.output.createWerklijstRechten
 import net.atos.zac.shared.helper.OpschortenZaakHelper
 import net.atos.zac.signalering.SignaleringenService
-import net.atos.zac.signalering.event.SignaleringEvent
-import net.atos.zac.signalering.model.SignaleringType
+import net.atos.zac.task.TaskService
 import net.atos.zac.util.DateTimeConverterUtil
 import net.atos.zac.websocket.event.ScreenEvent
-import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zoeken.IndexeerService
-import net.atos.zac.zoeken.model.index.ZoekObjectType
 import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.task.api.Task
 import org.flowable.task.api.history.HistoricTaskInstance
 import org.flowable.task.api.history.createHistoricTaskInstanceEntityImpl
-import org.junit.jupiter.api.Assertions.assertEquals
 import java.net.URI
 import java.time.LocalDate
 import java.util.Optional
@@ -78,6 +76,7 @@ class TakenRESTServiceTest : BehaviorSpec({
     val signaleringenService = mockk<SignaleringenService>()
     val taakHistorieConverter = mockk<RESTTaakHistorieConverter>()
     val zgwApiService = mockk<ZGWApiService>()
+    val taskService = mockk<TaskService>()
 
     val takenRESTService = TakenRESTService(
         drcClientService = drcClientService,
@@ -95,7 +94,8 @@ class TakenRESTServiceTest : BehaviorSpec({
         restInformatieobjectConverter = restInformatieobjectConverter,
         signaleringenService = signaleringenService,
         taakHistorieConverter = taakHistorieConverter,
-        zgwApiService = zgwApiService
+        zgwApiService = zgwApiService,
+        taskService = taskService
     )
     val loggedInUser = createLoggedInUser()
 
@@ -116,7 +116,8 @@ class TakenRESTServiceTest : BehaviorSpec({
             restInformatieobjectConverter,
             signaleringenService,
             taakHistorieConverter,
-            zgwApiService
+            zgwApiService,
+            taskService
         )
     }
 
@@ -129,37 +130,19 @@ class TakenRESTServiceTest : BehaviorSpec({
         val task = mockk<Task>()
         val identityLinkInfo = mockk<IdentityLinkInfo>()
         val identityLinks = listOf(identityLinkInfo)
-        val signaleringEventSlot = slot<SignaleringEvent<*>>()
-        val screenEventSlots = mutableListOf<ScreenEvent>()
 
         every { loggedInUserInstance.get() } returns loggedInUser
         every { flowableTaskService.readOpenTask(restTaakToekennenGegevens.taakId) } returns task
         every { getTaakStatus(task) } returns TaakStatus.NIET_TOEGEKEND
-        every {
-            flowableTaskService.assignTaskToUser(
-                restTaakToekennenGegevens.taakId,
-                restTaakToekennenGegevens.behandelaarId,
-                restTaakToekennenGegevens.reden
-            )
-        } returns task
-        every {
-            flowableTaskService.assignTaskToGroup(
-                task,
-                restTaakToekennenGegevens.groepId,
-                restTaakToekennenGegevens.reden
-            )
-        } returns task
         every { policyService.readTaakRechten(task) } returns createTaakRechten()
         every { task.assignee } returns ""
         every { task.identityLinks } returns identityLinks
         every { task.id } returns restTaakToekennenGegevens.taakId
-        every { restTaakConverter.extractGroupId(identityLinks) } returns "dummyGroupId"
-        every { eventingService.send(capture(signaleringEventSlot)) } just runs
-        every { eventingService.send(capture(screenEventSlots)) } just runs
         every {
-            indexeerService.indexeerDirect(
-                restTaakToekennenGegevens.taakId,
-                ZoekObjectType.TAAK
+            taskService.assignTask(
+                restTaakToekennenGegevens,
+                task,
+                loggedInUser
             )
         } just runs
 
@@ -167,51 +150,13 @@ class TakenRESTServiceTest : BehaviorSpec({
             takenRESTService.toekennen(restTaakToekennenGegevens)
 
             Then(
-                "the task is assigned to the provided user and group, " +
-                    "a signalling event and two screen events are sent,  " +
-                    "and the indexed task data is updated"
+                "the task is assigned"
             ) {
                 verify(exactly = 1) {
-                    flowableTaskService.assignTaskToUser(
-                        restTaakToekennenGegevens.taakId,
-                        restTaakToekennenGegevens.behandelaarId,
-                        restTaakToekennenGegevens.reden
-                    )
-                    flowableTaskService.assignTaskToGroup(
+                    taskService.assignTask(
+                        restTaakToekennenGegevens,
                         task,
-                        restTaakToekennenGegevens.groepId,
-                        restTaakToekennenGegevens.reden
-                    )
-                    eventingService.send(any<SignaleringEvent<*>>())
-                    indexeerService.indexeerDirect(
-                        restTaakToekennenGegevens.taakId,
-                        ZoekObjectType.TAAK
-                    )
-                }
-                // we expect two screen events to be sent
-                verify(exactly = 2) {
-                    eventingService.send(any<ScreenEvent>())
-                }
-                with(signaleringEventSlot.captured) {
-                    assertEquals(this.objectType, SignaleringType.Type.TAAK_OP_NAAM)
-                    assertEquals(this.actor, loggedInUser.id)
-                    assertEquals(this.objectId.resource, restTaakToekennenGegevens.taakId)
-                }
-                // we expect both a taak screen event and a zaak_taken screen event to be sent
-                screenEventSlots.forExactly(1) { screenEvent ->
-                    assertEquals(screenEvent.opcode, Opcode.UPDATED)
-                    assertEquals(screenEvent.objectType, ScreenEventType.TAAK)
-                    assertEquals(
-                        screenEvent.objectId.resource,
-                        restTaakToekennenGegevens.taakId
-                    )
-                }
-                screenEventSlots.forExactly(1) { screenEvent ->
-                    assertEquals(screenEvent.opcode, Opcode.UPDATED)
-                    assertEquals(screenEvent.objectType, ScreenEventType.ZAAK_TAKEN)
-                    assertEquals(
-                        screenEvent.objectId.resource,
-                        restTaakToekennenGegevens.zaakUuid.toString()
+                        loggedInUser
                     )
                 }
             }
@@ -350,6 +295,49 @@ class TakenRESTServiceTest : BehaviorSpec({
                         enkelvoudigInformatieObjectUUID
                     )
                     flowableTaskService.completeTask(task)
+                }
+            }
+        }
+    }
+    Given("REST taak verdeelgegevens to assign two tasks") {
+        val restTaakVerdelenGegevens = createRESTTaakVerdelenGegevens(
+            taken = listOf(
+                createRESTTaakVerdelenTaak(),
+                createRESTTaakVerdelenTaak()
+            )
+        )
+        val werklijstRechten = createWerklijstRechten()
+        val assignTasksAsyncJob = mockk<Job>()
+        every { policyService.readWerklijstRechten() } returns werklijstRechten
+        every { taskService.assignTasksAsync(restTaakVerdelenGegevens, loggedInUser) } returns assignTasksAsyncJob
+
+        When("the 'verdelen vanuit lijst' function is called") {
+            takenRESTService.verdelenVanuitLijst(restTaakVerdelenGegevens)
+
+            Then("the tasks are assigned to the group and user") {
+                verify(exactly = 1) {
+                    taskService.assignTasksAsync(restTaakVerdelenGegevens, loggedInUser)
+                }
+            }
+        }
+    }
+    Given("REST taak vrijgeven gegevens to release two tasks") {
+        val restTaakVrijgevenGegevens = createRESTTaakVrijgevenGegevens(
+            taken = listOf(
+                createRESTTaakVerdelenTaak(),
+                createRESTTaakVerdelenTaak()
+            )
+        )
+        val werklijstRechten = createWerklijstRechten()
+        every { policyService.readWerklijstRechten() } returns werklijstRechten
+        every { taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser) } just runs
+
+        When("the 'verdelen vanuit lijst' function is called") {
+            takenRESTService.vrijgevenVanuitLijst(restTaakVrijgevenGegevens)
+
+            Then("the tasks are assigned to the group and user") {
+                verify(exactly = 1) {
+                    taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser)
                 }
             }
         }

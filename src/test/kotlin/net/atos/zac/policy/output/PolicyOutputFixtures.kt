@@ -55,3 +55,17 @@ fun createZaakRechten() = ZaakRechten(
     true,
     true,
 )
+
+fun createWerklijstRechten(
+    inbox: Boolean = true,
+    ontkoppeldeDocumentenVerwijderen: Boolean = true,
+    inboxProductaanvragenVerwijderen: Boolean = true,
+    zakenTaken: Boolean = true,
+    zakenTakenVerdelen: Boolean = true
+) = WerklijstRechten(
+    inbox,
+    ontkoppeldeDocumentenVerwijderen,
+    inboxProductaanvragenVerwijderen,
+    zakenTaken,
+    zakenTakenVerdelen
+)

@@ -172,12 +172,12 @@ dependencies {
     "itestImplementation"(libs.kotest.runner.junit5)
     "itestImplementation"(libs.kotest.assertions.json)
     "itestImplementation"(libs.slf4j.simple)
-    "itestImplementation"(libs.github.kotlin.logging)
     "itestImplementation"(libs.squareup.okhttp)
     "itestImplementation"(libs.squareup.okhttp.urlconnection)
     "itestImplementation"(libs.awaitility)
     "itestImplementation"(libs.mockserver.client)
     "itestImplementation"(libs.auth0.java.jwt)
+    "itestImplementation"(libs.github.kotlin.logging)
 
     jacocoAgentJarForItest(variantOf(libs.jacoco.agent) { classifier("runtime") })
 }
@@ -379,7 +379,7 @@ tasks {
 
     test {
         dependsOn("npmRunTest")
-        dependsOn("testRego", "testRegoCoverage")
+        dependsOn("testRegoCoverage")
     }
 
     compileJava {
