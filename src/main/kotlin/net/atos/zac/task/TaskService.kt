@@ -103,7 +103,7 @@ class TaskService @Inject constructor(
         }
         LOG.fine {
             "Asynchronous assign tasks job with ID '$screenEventResourceId' finished. " +
-                "Successfully assigned ${taakIds.size} tasks."
+                "Successfully assigned ${taskIds.size} tasks."
         }
         // if a screen event resource ID was specified, send a screen event
         // with the provided job ID so that it can be picked up by a client
