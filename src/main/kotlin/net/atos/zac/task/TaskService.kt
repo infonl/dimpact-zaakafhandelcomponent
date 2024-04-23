@@ -5,6 +5,7 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.atos.zac.app.taken.converter.RESTTaakConverter
 import net.atos.zac.app.taken.model.RESTTaakToekennenGegevens
 import net.atos.zac.app.taken.model.RESTTaakVerdelenGegevens
@@ -66,7 +67,7 @@ class TaskService @Inject constructor(
     }
 
     /**
-     * Assigns a list of tasks to a group and optionally also to a user,
+     * Asynchronously assigns a list of tasks to a group and optionally also to a user,
      * sends corresponding screen events and updates the search index.
      */
     fun assignTasksAsync(
@@ -76,34 +77,36 @@ class TaskService @Inject constructor(
     ) = defaultCoroutineScope.launch(CoroutineName("AssignTasksCoroutine")) {
         LOG.fine {
             "Started asynchronous job with ID: $screenEventResourceId to assign " +
-                "${restTaakVerdelenGegevens.taken.size} taken."
+                "${restTaakVerdelenGegevens.taken.size} tasks."
         }
-        val taskIds = mutableListOf<String>()
-        restTaakVerdelenGegevens.taken.forEach { restTaakVerdelenTaak ->
-            val task = flowableTaskService.readOpenTask(restTaakVerdelenTaak.taakId)
-            flowableTaskService.assignTaskToGroup(
-                task,
-                restTaakVerdelenGegevens.groepId,
-                restTaakVerdelenGegevens.reden
-            )
-            restTaakVerdelenGegevens.behandelaarGebruikersnaam?.let {
-                assignTaskToUser(
-                    taskId = task.id,
-                    assignee = it,
-                    loggedInUser = loggedInUser,
-                    explanation = restTaakVerdelenGegevens.reden
+        val taakIds = mutableListOf<String>()
+        withContext(Dispatchers.IO) {
+            restTaakVerdelenGegevens.taken.forEach { restTaakVerdelenTaak ->
+                val task = flowableTaskService.readOpenTask(restTaakVerdelenTaak.taakId)
+                flowableTaskService.assignTaskToGroup(
+                    task,
+                    restTaakVerdelenGegevens.groepId,
+                    restTaakVerdelenGegevens.reden
                 )
+                restTaakVerdelenGegevens.behandelaarGebruikersnaam?.let {
+                    assignTaskToUser(
+                        taskId = task.id,
+                        assignee = it,
+                        loggedInUser = loggedInUser,
+                        explanation = restTaakVerdelenGegevens.reden
+                    )
+                }
+                sendScreenEventsOnTaskChange(task, restTaakVerdelenTaak.zaakUuid)
+                taakIds.add(restTaakVerdelenTaak.taakId)
             }
-            sendScreenEventsOnTaskChange(task, restTaakVerdelenTaak.zaakUuid)
-            taskIds.add(restTaakVerdelenTaak.taakId)
+            indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK)
         }
-        indexeerService.indexeerDirect(taskIds, ZoekObjectType.TAAK)
         LOG.fine {
-            "Asynchronous assign taken job with job ID '$screenEventResourceId' finished. " +
-                "Successfully assigned ${taskIds.size} taken."
+            "Asynchronous assign tasks job with ID '$screenEventResourceId' finished. " +
+                "Successfully assigned ${taakIds.size} tasks."
         }
-        // if a screen event resource ID was specified, send an 'updated zaken_verdelen' screen event
-        // with the job UUID so that it can be picked up by a client
+        // if a screen event resource ID was specified, send a screen event
+        // with the provided job ID so that it can be picked up by a client
         // that has created a websocket subscription to this event
         screenEventResourceId?.let {
             eventingService.send(ScreenEventType.TAKEN_VERDELEN.updated(it))
@@ -132,24 +135,41 @@ class TaskService @Inject constructor(
     }
 
     /**
-     * Releases a list of tasks, sends corresponding screen events and updated the search index.
+     * Asynchronously releases a list of tasks, sends corresponding screen events and updates the search index.
      */
-    fun releaseTasks(
+    fun releaseTasksAsync(
         restTaakVrijgevenGegevens: RESTTaakVrijgevenGegevens,
-        loggedInUser: LoggedInUser
-    ) {
-        val taakIds = mutableListOf<String>()
-        restTaakVrijgevenGegevens.taken.forEach {
-            releaseTask(
-                taskId = it.taakId,
-                loggedInUser = loggedInUser,
-                reden = restTaakVrijgevenGegevens.reden
-            ).let { updatedTask ->
-                sendScreenEventsOnTaskChange(updatedTask, it.zaakUuid)
-                taakIds.add(updatedTask.id)
-            }
+        loggedInUser: LoggedInUser,
+        screenEventResourceId: String? = null
+    ) = defaultCoroutineScope.launch(CoroutineName("ReleaseTasksCoroutine")) {
+        LOG.fine {
+            "Started asynchronous job with ID: '$screenEventResourceId' to release " +
+                "${restTaakVrijgevenGegevens.taken.size} tasks."
         }
-        indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK)
+        val taakIds = mutableListOf<String>()
+        withContext(Dispatchers.IO) {
+            restTaakVrijgevenGegevens.taken.forEach {
+                releaseTask(
+                    taskId = it.taakId,
+                    loggedInUser = loggedInUser,
+                    reden = restTaakVrijgevenGegevens.reden
+                ).let { updatedTask ->
+                    sendScreenEventsOnTaskChange(updatedTask, it.zaakUuid)
+                    taakIds.add(updatedTask.id)
+                }
+            }
+            indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK)
+        }
+        LOG.fine {
+            "Asynchronous release tasks job with ID '$screenEventResourceId' finished. " +
+                "Successfully released ${taakIds.size} tasks."
+        }
+        // if a screen event resource ID was specified, send a screen event
+        // with the provided job ID so that it can be picked up by a client
+        // that has created a websocket subscription to this event
+        screenEventResourceId?.let {
+            eventingService.send(ScreenEventType.TAKEN_VRIJGEVEN.updated(it))
+        }
     }
 
     fun sendScreenEventsOnTaskChange(task: Task, zaakUuid: UUID) {

@@ -16,6 +16,7 @@ import net.atos.zac.app.taken.converter.RESTTaakConverter
 import net.atos.zac.app.taken.model.createRESTTaakToekennenGegevens
 import net.atos.zac.app.taken.model.createRESTTaakVerdelenGegevens
 import net.atos.zac.app.taken.model.createRESTTaakVerdelenTaak
+import net.atos.zac.app.taken.model.createRESTTaakVrijgevenGegevens
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
@@ -160,10 +161,77 @@ class TaskServiceTest : BehaviorSpec({
 
         When("the 'assign tasks' function is called with REST taak verdelen gegevens") {
             taskService.assignTasksAsync(restTaakVerdelenGegevens, loggedInUser).join()
-            Then("the tasks are assigned to the group and user") {
+
+            Then(
+                """
+                    the tasks are assigned to the group and user, the index is updated and 
+                    signalering and screen events are sent
+                    """
+            ) {
                 verify(exactly = 2) {
                     flowableTaskService.assignTaskToGroup(any(), any(), any())
                     flowableTaskService.assignTaskToUser(any(), any(), any())
+                }
+                verify(exactly = 1) {
+                    indexeerService.indexeerDirect(
+                        restTaakVerdelenTaken.map { it.taakId }.toList(),
+                        ZoekObjectType.TAAK
+                    )
+                }
+                // we expect 4 screen events to be sent, 2 for each task
+                screenEventSlot.size shouldBe 4
+                screenEventSlot.map { it.objectType } shouldContainExactlyInAnyOrder listOf(
+                    ScreenEventType.TAAK,
+                    ScreenEventType.ZAAK_TAKEN,
+                    ScreenEventType.TAAK,
+                    ScreenEventType.ZAAK_TAKEN
+                )
+                screenEventSlot.map { it.opcode } shouldContainOnly listOf(
+                    Opcode.UPDATED
+                )
+            }
+        }
+    }
+    Given("REST taak vrijgeven gegevens with two tasks") {
+        clearAllMocks()
+        val restTaakVerdelenTaken = listOf(
+            createRESTTaakVerdelenTaak(),
+            createRESTTaakVerdelenTaak()
+        )
+        val restTaakVrijgevenGegevens = createRESTTaakVrijgevenGegevens(
+            taken = restTaakVerdelenTaken
+        )
+        val loggedInUser = mockk<LoggedInUser>()
+        val updatedTaskAfterRelease1 = mockk<Task>()
+        val updatedTaskAfterRelease2 = mockk<Task>()
+        val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
+        val screenEventSlot = mutableListOf<ScreenEvent>()
+
+        every { loggedInUser.id } returns "dummyLoggedInUserId"
+        every { updatedTaskAfterRelease1.id } returns restTaakVerdelenTaken[0].taakId
+        every { updatedTaskAfterRelease2.id } returns restTaakVerdelenTaken[1].taakId
+        restTaakVrijgevenGegevens.let {
+            every { flowableTaskService.releaseTask(restTaakVerdelenTaken[0].taakId, it.reden) } returns updatedTaskAfterRelease1
+            every { flowableTaskService.releaseTask(restTaakVerdelenTaken[1].taakId, it.reden) } returns updatedTaskAfterRelease2
+        }
+        every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
+        every { eventingService.send(capture(screenEventSlot)) } just runs
+        every {
+            indexeerService.indexeerDirect(restTaakVerdelenTaken.map { it.taakId }.toList(), ZoekObjectType.TAAK)
+        } just runs
+
+        When(
+            """"
+                the 'release tasks' function is called with REST taak vrijgeven gegevens               
+            """
+        ) {
+            taskService.releaseTasksAsync(restTaakVrijgevenGegevens, loggedInUser).join()
+
+            Then(
+                """taken are released, the index is updated and signalering and signaleringen and screen events are sent"""
+            ) {
+                verify(exactly = 2) {
+                    flowableTaskService.releaseTask(any(), any())
                 }
                 verify(exactly = 1) {
                     indexeerService.indexeerDirect(
