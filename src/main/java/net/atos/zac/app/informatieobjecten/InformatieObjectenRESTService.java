@@ -49,7 +49,6 @@ import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 import net.atos.client.officeconverter.OfficeConverterClientService;
 import net.atos.client.zgw.drc.DRCClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockData;
 import net.atos.client.zgw.drc.model.generated.Ondertekening;
 import net.atos.client.zgw.shared.ZGWApiService;
@@ -280,42 +279,42 @@ public class InformatieObjectenRESTService {
             @QueryParam("taakObject") final boolean taakObject,
             @Valid @MultipartForm final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
     ) {
-        final Zaak zaak = zrcClientService.readZaak(zaakUuid);
-        assertPolicy(policyService.readZaakRechten(zaak).wijzigen());
+        var zaak = zrcClientService.readZaak(zaakUuid);
+        assertPolicy(policyService.readZaakRechten(zaak).toevoegenDocument());
 
-        final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData = taakObject ?
-                informatieobjectConverter.convertTaakObject(restEnkelvoudigInformatieobject) :
+        var enkelvoudigInformatieObjectData = taakObject ? informatieobjectConverter.convertTaakObject(restEnkelvoudigInformatieobject) :
                 informatieobjectConverter.convertZaakObject(restEnkelvoudigInformatieobject);
-        return createEnkelvoudigInformatieobject(enkelvoudigInformatieObjectData, documentReferentieId, taakObject, zaak);
-    }
-
-    private RESTEnkelvoudigInformatieobject createEnkelvoudigInformatieobject(
-            EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData,
-            String documentReferentieId,
-            boolean taakObject,
-            Zaak zaak
-    ) {
-        final ZaakInformatieobject zaakInformatieobject = zgwApiService.createZaakInformatieobjectForZaak(
+        var zaakInformatieobject = zgwApiService.createZaakInformatieobjectForZaak(
                 zaak,
                 enkelvoudigInformatieObjectData,
                 enkelvoudigInformatieObjectData.getTitel(),
                 enkelvoudigInformatieObjectData.getBeschrijving(),
                 OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
         );
-        if (taakObject) {
-            final Task task = flowableTaskService.findOpenTask(documentReferentieId);
-            if (task == null) {
-                throw new WebApplicationException((String.format("No open task found with task id: '%s'", documentReferentieId)),
-                        Response.Status.CONFLICT
-                );
-            }
-            assertPolicy(policyService.readTaakRechten(task, zaak).toevoegenDocument());
 
-            final List<UUID> taakdocumenten = new ArrayList<>(taakVariabelenService.readTaakdocumenten(task));
-            taakdocumenten.add(UriUtil.uuidFromURI(zaakInformatieobject.getInformatieobject()));
-            taakVariabelenService.setTaakdocumenten(task, taakdocumenten);
+        if (taakObject) {
+            addZaakInformatieobjectToTaak(zaakInformatieobject, documentReferentieId, zaak);
         }
         return informatieobjectConverter.convertToREST(zaakInformatieobject);
+    }
+
+    private void addZaakInformatieobjectToTaak(
+            ZaakInformatieobject zaakInformatieobject,
+            String documentReferentieId,
+            Zaak zaak
+    ) {
+        final Task task = flowableTaskService.findOpenTask(documentReferentieId);
+        if (task == null) {
+            throw new WebApplicationException(
+                    String.format("No open task found with task id: '%s'", documentReferentieId),
+                    Response.Status.CONFLICT
+            );
+        }
+        assertPolicy(policyService.readTaakRechten(task, zaak).toevoegenDocument());
+
+        final List<UUID> taakDocumenten = new ArrayList<>(taakVariabelenService.readTaakdocumenten(task));
+        taakDocumenten.add(UriUtil.uuidFromURI(zaakInformatieobject.getInformatieobject()));
+        taakVariabelenService.setTaakdocumenten(task, taakDocumenten);
     }
 
     @POST
@@ -498,12 +497,10 @@ public class InformatieObjectenRESTService {
             @Valid @MultipartForm final RESTEnkelvoudigInformatieObjectVersieGegevens enkelvoudigInformatieObjectVersieGegevens
     ) {
         final var document = drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieObjectVersieGegevens.uuid);
-        assertPolicy(
-                policyService.readDocumentRechten(
-                        document,
-                        zrcClientService.readZaak(enkelvoudigInformatieObjectVersieGegevens.zaakUuid)
-                ).wijzigen()
-        );
+        assertPolicy(policyService.readDocumentRechten(
+                document,
+                zrcClientService.readZaak(enkelvoudigInformatieObjectVersieGegevens.zaakUuid)
+        ).toevoegenNieuweVersie());
         var updatedDocument = informatieobjectConverter.convert(enkelvoudigInformatieObjectVersieGegevens);
         return updateEnkelvoudigInformatieobject(enkelvoudigInformatieObjectVersieGegevens, document, updatedDocument);
     }
@@ -559,7 +556,7 @@ public class InformatieObjectenRESTService {
     @Path("/documentcreatie")
     public RESTDocumentCreatieResponse createDocument(final RESTDocumentCreatieGegevens restDocumentCreatieGegevens) {
         final Zaak zaak = zrcClientService.readZaak(restDocumentCreatieGegevens.zaakUUID);
-        assertPolicy(policyService.readZaakRechten(zaak).wijzigen());
+        assertPolicy(policyService.readZaakRechten(zaak).creeerenDocument());
 
         // documents created by Smartdocuments are always of the type 'bijlage'
         // the zaaktype of the current zaak needs to be configured to be able to use this

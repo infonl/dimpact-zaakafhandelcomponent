@@ -108,7 +108,7 @@ public class BAGRESTService {
     @POST
     public void create(final RESTBAGObjectGegevens bagObjectGegevens) {
         final Zaak zaak = zrcClientService.readZaak(bagObjectGegevens.zaakUuid);
-        assertPolicy(policyService.readZaakRechten(zaak).behandelen());
+        assertPolicy(policyService.readZaakRechten(zaak).toevoegenBagObject());
         if (isNogNietGekoppeld(bagObjectGegevens.getBagObject(), zaak)) {
             zrcClientService.createZaakobject(bagConverter.convertToZaakobject(bagObjectGegevens.getBagObject(), zaak));
         }

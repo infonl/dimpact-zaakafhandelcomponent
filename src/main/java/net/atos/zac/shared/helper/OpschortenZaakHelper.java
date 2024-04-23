@@ -1,6 +1,5 @@
 package net.atos.zac.shared.helper;
 
-import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend;
 import static net.atos.zac.policy.PolicyService.assertPolicy;
 
 import java.time.LocalDate;
