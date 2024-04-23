@@ -8,9 +8,9 @@ package net.atos.client.opa.model;
 import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
 
-import net.atos.zac.util.DummyInterface;
+import net.atos.zac.util.SerializableByYasson;
 
-public class RuleResponse<T extends DummyInterface> {
+public class RuleResponse<T extends SerializableByYasson> {
 
     private final T result;
 

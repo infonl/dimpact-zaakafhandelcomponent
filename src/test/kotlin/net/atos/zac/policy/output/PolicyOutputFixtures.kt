@@ -11,10 +11,15 @@ fun createDocumentRechten() = DocumentRechten(
     true,
     true,
     true,
-    true
+    true,
+    true,
+    true,
+    true,
+    true,
 )
 
 fun createTaakRechten() = TaakRechten(
+    true,
     true,
     true,
     true,
@@ -29,7 +34,26 @@ fun createZaakRechten() = ZaakRechten(
     true,
     true,
     true,
-    true
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
 )
 
 fun createWerklijstRechten(

@@ -10,4 +10,15 @@ public class ZaakData {
     public boolean open;
 
     public String zaaktype;
+
+    public boolean opgeschort;
+
+    public boolean verlengd;
+
+    public boolean intake;
+
+    public boolean besloten;
+
+    public boolean heropend;
+
 }

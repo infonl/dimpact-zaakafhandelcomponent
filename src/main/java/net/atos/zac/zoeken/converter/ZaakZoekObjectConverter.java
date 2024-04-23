@@ -1,6 +1,7 @@
 package net.atos.zac.zoeken.converter;
 
 import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend;
+import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isIntake;
 import static net.atos.zac.util.UriUtil.uuidFromURI;
 
 import java.util.Collections;
@@ -8,6 +9,8 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.inject.Inject;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import net.atos.client.vrl.VRLClientService;
 import net.atos.client.vrl.model.generated.CommunicatieKanaal;
@@ -80,6 +83,7 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
         zaakZoekObject.setPublicatiedatum(DateTimeConverterUtil.convertToDate(zaak.getPublicatiedatum()));
         zaakZoekObject.setVertrouwelijkheidaanduiding(zaak.getVertrouwelijkheidaanduiding().toString());
         zaakZoekObject.setAfgehandeld(!zaak.isOpen());
+
         zgwApiService.findInitiatorForZaak(zaak).ifPresent(zaakZoekObject::setInitiator);
         zaakZoekObject.setLocatie(convertToLocatie(zaak.getZaakgeometrie()));
 
@@ -127,6 +131,7 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
         zaakZoekObject.setZaaktypeIdentificatie(zaaktype.getIdentificatie());
         zaakZoekObject.setZaaktypeOmschrijving(zaaktype.getOmschrijving());
         zaakZoekObject.setZaaktypeUuid(uuidFromURI(zaaktype.getUrl()).toString());
+        zaakZoekObject.setIndicatie(ZaakIndicatie.BESLOTEN, CollectionUtils.isNotEmpty(zaaktype.getBesluittypen()));
 
         if (zaak.getStatus() != null) {
             final Status status = zrcClientService.readStatus(zaak.getStatus());
@@ -136,6 +141,7 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
             zaakZoekObject.setStatustypeOmschrijving(statustype.getOmschrijving());
             zaakZoekObject.setStatusEindstatus(statustype.getIsEindstatus());
             zaakZoekObject.setIndicatie(ZaakIndicatie.HEROPEND, isHeropend(statustype));
+            zaakZoekObject.setIndicatie(ZaakIndicatie.INTAKE, isIntake(statustype));
         }
 
         zaakZoekObject.setAantalOpenstaandeTaken(flowableTaskService.countOpenTasksForZaak(zaak.getUuid()));

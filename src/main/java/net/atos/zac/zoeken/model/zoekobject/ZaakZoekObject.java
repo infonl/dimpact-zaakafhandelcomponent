@@ -111,7 +111,6 @@ public class ZaakZoekObject implements ZoekObject {
     @Field("zaak_redenVerlenging")
     private String redenVerlenging;
 
-
     @Field("zaak_redenOpschorting")
     private String redenOpschorting;
 
@@ -527,4 +526,5 @@ public class ZaakZoekObject implements ZoekObject {
     public void setBagObjectIDs(final List<String> bagObjectIDs) {
         this.bagObjectIDs = bagObjectIDs;
     }
+
 }

@@ -2,6 +2,7 @@ package net.atos.client.zgw.ztc.model
 
 import net.atos.client.zgw.ztc.model.generated.InformatieObjectType
 import net.atos.client.zgw.ztc.model.generated.RolType
+import net.atos.client.zgw.ztc.model.generated.StatusType
 import net.atos.client.zgw.ztc.model.generated.ZaakType
 import java.net.URI
 import java.time.LocalDate
@@ -21,6 +22,7 @@ fun createZaakType(
     uuid: UUID = UUID.randomUUID(),
     omschrijving: String = "dummyZaakTypeOmschrijving",
     informatieObjectTypen: Set<URI>? = setOf(URI("dummyInformatieObjectType1"), URI("dummyInformatieObjectType2")),
+    besluittypen: Set<URI>? = null,
 ) = ZaakType(
     URI("http://example.com/zaaktypes/$uuid"),
     false,
@@ -34,6 +36,7 @@ fun createZaakType(
     null
 ).apply {
     this.omschrijving = omschrijving
+    this.besluittypen = besluittypen
 }
 
 fun createInformatieObjectType(
@@ -53,4 +56,28 @@ fun createInformatieObjectType(
     this.omschrijving = omschrijving
     this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
     this.beginGeldigheid = beginGeldigheid
+}
+
+@Suppress("LongParameterList")
+fun createStatusType(
+    uri: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
+    zaaktypeIdentificatie: String? = null,
+    isEindstatus: Boolean = false,
+    catalogus: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
+    eigenschappen: Set<URI> = setOf(URI("http://example.com/catalogus/${UUID.randomUUID()}")),
+    zaakobjecttypen: Set<URI> = setOf(URI("http://example.com/catalogus/${UUID.randomUUID()}")),
+    beginObject: LocalDate = LocalDate.now(),
+    eindeObject: LocalDate = LocalDate.now(),
+    omschrijving: String? = null
+) = StatusType(
+    uri,
+    zaaktypeIdentificatie,
+    isEindstatus,
+    catalogus,
+    eigenschappen,
+    zaakobjecttypen,
+    beginObject,
+    eindeObject
+).apply {
+    this.omschrijving = omschrijving
 }

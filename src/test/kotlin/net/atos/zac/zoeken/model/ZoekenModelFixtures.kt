@@ -6,9 +6,11 @@ import java.util.UUID
 
 fun createZaakZoekObject(
     uuidAsString: String = UUID.randomUUID().toString(),
-    type: ZoekObjectType = ZoekObjectType.ZAAK
+    type: ZoekObjectType = ZoekObjectType.ZAAK,
+    zaaktypeOmschrijving: String = "dummyOmschrijving"
 ) =
     ZaakZoekObject().apply {
         this.uuid = uuidAsString
         this.type = type
+        this.zaaktypeOmschrijving = zaaktypeOmschrijving
     }
