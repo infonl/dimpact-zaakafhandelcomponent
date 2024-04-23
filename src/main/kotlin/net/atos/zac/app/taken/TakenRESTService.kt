@@ -157,7 +157,11 @@ class TakenRESTService @Inject constructor(
             policyService.readWerklijstRechten().zakenTaken &&
                 policyService.readWerklijstRechten().zakenTakenVerdelen
         )
-        taskService.releaseTasksAsync(restTaakVrijgevenGegevens, loggedInUserInstance.get())
+        taskService.releaseTasksAsync(
+            restTaakVrijgevenGegevens = restTaakVrijgevenGegevens,
+            loggedInUser = loggedInUserInstance.get(),
+            screenEventResourceId = restTaakVrijgevenGegevens.screenEventResourceId
+        )
     }
 
     @PATCH
