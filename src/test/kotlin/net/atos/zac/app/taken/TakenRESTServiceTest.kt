@@ -100,25 +100,7 @@ class TakenRESTServiceTest : BehaviorSpec({
     val loggedInUser = createLoggedInUser()
 
     beforeEach {
-        checkUnnecessaryStub(
-            drcClientService,
-            enkelvoudigInformatieObjectUpdateService,
-            eventingService,
-            httpSessionInstance,
-            indexeerService,
-            loggedInUserInstance,
-            policyService,
-            taakVariabelenService,
-            restTaakConverter,
-            flowableTaskService,
-            zrcClientService,
-            opschortenZaakHelper,
-            restInformatieobjectConverter,
-            signaleringenService,
-            taakHistorieConverter,
-            zgwApiService,
-            taskService
-        )
+        checkUnnecessaryStub()
     }
 
     afterSpec {
