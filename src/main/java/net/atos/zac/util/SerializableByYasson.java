@@ -13,5 +13,5 @@ package net.atos.zac.util;
  * "T needs to implement an interface or extends an abstract class. A dummy is fine, it is not added to the schema.
  * For java this means that T can not be a record, in kotlin a data class is possible."
  */
-public interface MakeYassonSerializable {
+public interface SerializableByYasson {
 }

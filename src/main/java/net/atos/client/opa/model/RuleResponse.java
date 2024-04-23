@@ -8,9 +8,9 @@ package net.atos.client.opa.model;
 import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
 
-import net.atos.zac.util.MakeYassonSerializable;
+import net.atos.zac.util.SerializableByYasson;
 
-public class RuleResponse<T extends MakeYassonSerializable> {
+public class RuleResponse<T extends SerializableByYasson> {
 
     private final T result;
 

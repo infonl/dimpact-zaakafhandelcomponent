@@ -8,7 +8,7 @@ package net.atos.zac.policy.output;
 import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
 
-import net.atos.zac.util.MakeYassonSerializable;
+import net.atos.zac.util.SerializableByYasson;
 
 public record ZaakRechten(
                           boolean lezen,
@@ -38,7 +38,7 @@ public record ZaakRechten(
                           boolean startenTaak,
                           boolean vastleggenBesluit,
                           boolean verlengenDoorlooptijd
-) implements MakeYassonSerializable {
+) implements SerializableByYasson {
 
     @JsonbCreator
     public ZaakRechten(
