@@ -212,12 +212,14 @@ jacoco {
     toolVersion = libs.versions.jacoco.get()
 }
 
-opa {
-    srcDir = "$rootDir/src/main/resources/policies"
-    testDir = "$rootDir/src/main/resources/policies/tests"
-    version = libs.versions.opa.binary.get()
-    mode = ExecutableMode.DOWNLOAD
-    location = "$rootDir/build/opa/$version/opa"
+if(!Os.isFamily(Os.FAMILY_WINDOWS)) {
+    opa {
+        srcDir = "$rootDir/src/main/resources/policies"
+        testDir = "$rootDir/src/main/resources/policies/tests"
+        version = libs.versions.opa.binary.get()
+        mode = ExecutableMode.DOWNLOAD
+        location = "$rootDir/build/opa/$version/opa"
+    }
 }
 
 java {
