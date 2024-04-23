@@ -23,8 +23,8 @@ zaak_rechten := {
     "behandelen": behandelen,
     "afbreken": afbreken,
     "heropenen": heropenen,
-    "wijzigenZaakdata": wijzigenZaakdata,
-    "wijzigenDoorlooptijd": wijzigenDoorlooptijd,
+    "wijzigen_zaakdata": wijzigen_zaakdata,
+    "wijzigen_doorlooptijd": wijzigen_doorlooptijd,
     "verlengen": verlengen,
     "opschorten": opschorten,
     "hervatten": hervatten,
@@ -95,14 +95,14 @@ heropenen {
     zaaktype_allowed == true
 }
 
-default wijzigenZaakdata := false
-wijzigenZaakdata {
+default wijzigen_zaakdata := false
+wijzigen_zaakdata {
     behandelaar.rol in user.rollen
     zaaktype_allowed == true
 }
 
-default wijzigenDoorlooptijd := false
-wijzigenDoorlooptijd {
+default wijzigen_doorlooptijd := false
+wijzigen_doorlooptijd {
     behandelaar.rol in user.rollen
     zaaktype_allowed == true
 }
