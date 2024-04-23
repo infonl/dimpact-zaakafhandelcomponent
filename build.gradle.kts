@@ -213,7 +213,7 @@ jacoco {
 
 opa {
     srcDir = "$rootDir/src/main/resources/policies"
-    testDir = "$rootDir/src/main/resources/policies/tests"
+    testDir = "$rootDir/src/test/opa/policies"
     version = libs.versions.opa.binary.get()
     mode = ExecutableMode.DOWNLOAD
     location = "$rootDir/build/opa/$version/opa"
