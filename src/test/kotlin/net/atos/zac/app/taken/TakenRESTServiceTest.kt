@@ -304,15 +304,16 @@ class TakenRESTServiceTest : BehaviorSpec({
             )
         )
         val werklijstRechten = createWerklijstRechten()
+        val releaseTasksAsyncJob = mockk<Job>()
         every { policyService.readWerklijstRechten() } returns werklijstRechten
-        every { taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser) } just runs
+        every { taskService.releaseTasksAsync(restTaakVrijgevenGegevens, loggedInUser) } returns releaseTasksAsyncJob
 
         When("the 'verdelen vanuit lijst' function is called") {
             takenRESTService.vrijgevenVanuitLijst(restTaakVrijgevenGegevens)
 
             Then("the tasks are assigned to the group and user") {
                 verify(exactly = 1) {
-                    taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser)
+                    taskService.releaseTasksAsync(restTaakVrijgevenGegevens, loggedInUser)
                 }
             }
         }
