@@ -160,9 +160,9 @@ export class TakenWerkvoorraadComponent
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         if (this.selection.selected.length === 1) {
-          this.utilService.openSnackbar("msg.verdeeld.zaak");
+          this.utilService.openSnackbar("msg.verdeeld.taak");
         } else {
-          this.utilService.openSnackbar("msg.verdeeld.zaken", {
+          this.utilService.openSnackbar("msg.verdeeld.taken", {
             aantal: this.selection.selected.length,
           });
         }
