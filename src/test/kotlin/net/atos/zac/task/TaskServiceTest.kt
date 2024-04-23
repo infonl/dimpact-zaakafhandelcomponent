@@ -25,6 +25,7 @@ import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
+import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.task.api.Task
 
 class TaskServiceTest : BehaviorSpec({
@@ -50,7 +51,7 @@ class TaskServiceTest : BehaviorSpec({
         )
     }
 
-    afterTest {
+    beforeSpec {
         clearAllMocks()
     }
 
@@ -58,6 +59,7 @@ class TaskServiceTest : BehaviorSpec({
         val restTaakToekennenGegevens = createRESTTaakToekennenGegevens()
         val taskId = "dummyTaskId"
         val task = mockk<Task>()
+        val identityLinks = mutableListOf<IdentityLinkInfo>()
         val updatedTaskAfterAssigningGroup = mockk<Task>()
         val updatedTaskAfterAssigningUser = mockk<Task>()
         val loggedInUser = mockk<LoggedInUser>()
@@ -68,8 +70,9 @@ class TaskServiceTest : BehaviorSpec({
         every { loggedInUser.id } returns "dummyLoggedInUserId"
         every { task.assignee } returns "dummyCurrentAssignee"
         every { task.id } returns taskId
+        every { task.identityLinks } returns identityLinks
         every { updatedTaskAfterAssigningUser.id } returns taskId
-        every { restTaakConverter.extractGroupId(task.identityLinks) } returns groupId
+        every { restTaakConverter.extractGroupId(identityLinks) } returns groupId
         every {
             flowableTaskService.assignTaskToGroup(
                 task,
@@ -96,7 +99,11 @@ class TaskServiceTest : BehaviorSpec({
             )
             Then("the tasks are assigned to the group and user") {
                 verify(exactly = 1) {
-                    flowableTaskService.assignTaskToGroup(any(), any(), any())
+                    flowableTaskService.assignTaskToGroup(
+                        task,
+                        restTaakToekennenGegevens.groepId,
+                        restTaakToekennenGegevens.reden
+                    )
                     flowableTaskService.assignTaskToUser(any(), any(), any())
                     indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK)
                 }
@@ -112,6 +119,7 @@ class TaskServiceTest : BehaviorSpec({
         }
     }
     Given("Two tasks that have not yet been assigned to a specific group and user") {
+        clearAllMocks()
         val restTaakVerdelenTaken = listOf(
             createRESTTaakVerdelenTaak(),
             createRESTTaakVerdelenTaak()

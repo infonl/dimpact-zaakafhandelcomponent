@@ -26,7 +26,7 @@ class SessionRegistryTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    afterSpec {
+    beforeSpec {
         clearAllMocks()
     }
 

@@ -3,9 +3,9 @@ package net.atos.zac.app.planitems
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.clearAllMocks
 import io.mockk.every
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -38,7 +38,6 @@ import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
 
-@MockKExtension.CheckUnnecessaryStub
 class PlanItemsRESTServiceTest : BehaviorSpec({
     // add static mocking for config provider or else the MailService class cannot be mocked
     // since it references the config provider statically
@@ -86,7 +85,11 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         zaakTypeUUID = zaakTypeUUID
     )
 
-    afterTest {
+    beforeEach {
+        checkUnnecessaryStub()
+    }
+
+    beforeSpec {
         clearAllMocks()
     }
 
@@ -135,6 +138,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         }
     }
     Given("Valid REST human task data with a fatal date and with zaak opschorten set to true") {
+        clearAllMocks()
         val opgeschorteZaak = createZaak()
         val restHumanTaskData = createRESTHumanTaskData(
             planItemInstanceId = planItemInstanceId,
@@ -183,7 +187,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         }
     }
     Given("REST human task data with a fatal date that comes after the fatal date of the related zaal") {
-        val opgeschorteZaak = createZaak()
+        clearAllMocks()
         val restHumanTaskData = createRESTHumanTaskData(
             planItemInstanceId = planItemInstanceId,
             taakdata = mapOf(
@@ -201,22 +205,6 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         every { policyService.readZaakRechten(zaak) } returns zaakRechtenAllAllowed
         every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID) } returns zaakafhandelParameters
         every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
-        every { indexeerService.addOrUpdateZaak(zaak.uuid, false) } just runs
-        every {
-            cmmnService.startHumanTaskPlanItem(
-                planItemInstanceId,
-                restHumanTaskData.groep.id,
-                null,
-                DateTimeConverterUtil.convertToDate(restHumanTaskData.fataledatum),
-                restHumanTaskData.toelichting,
-                any(),
-                zaak.uuid
-            )
-        } just runs
-        every { taakVariabelenService.isZaakOpschorten(any()) } returns true
-        every {
-            opschortenZaakHelper.opschortenZaak(zaak, 1, "Aanvullende informatie opgevraagd")
-        } returns opgeschorteZaak
 
         When("A human task plan item is started") {
             shouldThrow<InputValidationFailedException> { planItemsRESTService.doHumanTaskplanItem(restHumanTaskData) }

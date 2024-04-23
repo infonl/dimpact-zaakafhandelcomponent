@@ -14,6 +14,8 @@ import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.model.createRolType
+import net.atos.client.zgw.ztc.model.generated.RolType
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
 import net.atos.zac.identity.model.createGroup
@@ -22,7 +24,6 @@ import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
-import java.lang.RuntimeException
 
 class ZakenServiceTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
@@ -43,12 +44,15 @@ class ZakenServiceTest : BehaviorSpec({
     )
     val group = createGroup()
     val user = createUser()
+    val rolTypeBehandelaar = createRolType(
+        omschrijvingGeneriek = RolType.OmschrijvingGeneriekEnum.BEHANDELAAR
+    )
 
     beforeEach {
         checkUnnecessaryStub()
     }
 
-    afterSpec {
+    beforeSpec {
         clearAllMocks()
     }
 
@@ -56,6 +60,12 @@ class ZakenServiceTest : BehaviorSpec({
         val screenEventSlot = slot<ScreenEvent>()
         zaken.map {
             every { zrcClientService.readZaak(it.uuid) } returns it
+            every {
+                ztcClientService.readRoltype(
+                    RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
+                    it.zaaktype
+                )
+            } returns rolTypeBehandelaar
             every { zrcClientService.updateRol(it, any(), explanation) } just Runs
             every { indexeerService.indexeerDirect(it.uuid.toString(), ZoekObjectType.ZAAK) } just Runs
             every { eventingService.send(capture(screenEventSlot)) } just Runs
@@ -91,29 +101,29 @@ class ZakenServiceTest : BehaviorSpec({
         }
     }
     Given("A list of zaken") {
+        clearAllMocks()
         val screenEventSlot = slot<ScreenEvent>()
         zaken.map {
             every { zrcClientService.readZaak(it.uuid) } returns it
             every { zrcClientService.deleteRol(it, any(), explanation) } just Runs
             every { indexeerService.indexeerDirect(it.uuid.toString(), ZoekObjectType.ZAAK) } just Runs
-            every { eventingService.send(capture(screenEventSlot)) } just Runs
         }
+        every { eventingService.send(capture(screenEventSlot)) } just Runs
         When(
             """the release zaken async function is called with
                  a screen event resource id"""
         ) {
-            val coroutine = zakenService.releaseZakenAsync(
+            zakenService.releaseZakenAsync(
                 zaakUUIDs = zaken.map { it.uuid },
                 explanation = explanation,
                 screenEventResourceId = screenEventResourceId
-            )
+            ).join()
             Then(
                 """both zaken should no longer have a user assigned
                      but the group should still be assigned
                     and the search index should be updated and
                     a screen event of type 'zaken vrijgeven' should sent"""
             ) {
-                coroutine.join()
                 zaken.map {
                     verify(exactly = 1) {
                         zrcClientService.deleteRol(it, BetrokkeneType.MEDEWERKER, explanation)
@@ -128,6 +138,7 @@ class ZakenServiceTest : BehaviorSpec({
         }
     }
     Given("A list of zaken and a failing ZRC client service when retrieving the second zaak ") {
+        clearAllMocks()
         every { zrcClientService.readZaak(zaken[0].uuid) } returns zaken[0]
         every { zrcClientService.readZaak(zaken[1].uuid) } throws RuntimeException("dummyRuntimeException")
         When(
@@ -141,8 +152,8 @@ class ZakenServiceTest : BehaviorSpec({
                 screenEventResourceId = screenEventResourceId
             ).join()
             Then(
-                """for neither of the zaken the group and user roles 
-                    nor the search index should be updated          
+                """for neither of the zaken the group and user roles
+                    nor the search index should be updated
                     and no screen event of type 'zaken verdelen' should be sent"""
             ) {
                 verify(exactly = 0) {
