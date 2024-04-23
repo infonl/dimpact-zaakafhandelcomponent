@@ -594,8 +594,9 @@ class ZakenRESTService @Inject constructor(
     @PUT
     @Path("lijst/verdelen")
     fun verdelenVanuitLijst(@Valid restZakenVerdeelGegevens: RESTZakenVerdeelGegevens) {
-        assertPolicy(policyService.readWerklijstRechten().zakenTaken);
-        assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen);
+        val werklijstRechten = policyService.readWerklijstRechten()
+        assertPolicy(werklijstRechten.zakenTakenVerdelen)
+        assertPolicy(werklijstRechten.zakenTaken)
         zakenService.assignZakenAsync(
             zaakUUIDs = restZakenVerdeelGegevens.uuids,
             explanation = restZakenVerdeelGegevens.reden,
@@ -614,8 +615,9 @@ class ZakenRESTService @Inject constructor(
     @PUT
     @Path("lijst/vrijgeven")
     fun vrijgevenVanuitLijst(@Valid restZakenVrijgevenGegevens: RESTZakenVrijgevenGegevens) {
-        assertPolicy(policyService.readWerklijstRechten().zakenTaken);
-        assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen);
+        val werklijstRechten = policyService.readWerklijstRechten()
+        assertPolicy(werklijstRechten.zakenTakenVerdelen)
+        assertPolicy(werklijstRechten.zakenTaken)
         zakenService.releaseZakenAsync(
             zaakUUIDs = restZakenVrijgevenGegevens.uuids,
             explanation = restZakenVrijgevenGegevens.reden,
@@ -637,8 +639,8 @@ class ZakenRESTService @Inject constructor(
         } else {
             null
         }
-        assertPolicy(zaak.isOpen && !StatusTypeUtil.isHeropend(statustype));
-        assertPolicy(policyService.readZaakRechten(zaak).afbreken);
+        assertPolicy(policyService.readZaakRechten(zaak).afbreken)
+        assertPolicy(zaak.isOpen && !StatusTypeUtil.isHeropend(statustype))
         policyService.checkZaakAfsluitbaar(zaak)
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
             UriUtil.uuidFromURI(zaak.zaaktype)
@@ -696,10 +698,12 @@ class ZakenRESTService @Inject constructor(
     fun koppelZaak(gegevens: RESTZaakKoppelGegevens) {
         val zaak: Zaak = zrcClientService.readZaak(gegevens.zaakUuid)
         val teKoppelenZaak: Zaak = zrcClientService.readZaak(gegevens.teKoppelenZaakUuid)
-        assertPolicy(
-            policyService.readZaakRechten(zaak).wijzigen &&
-                policyService.readZaakRechten(teKoppelenZaak).wijzigen
-        )
+        val zaakRechten = policyService.readZaakRechten(zaak)
+        assertPolicy(zaakRechten.wijzigen)
+        assertPolicy(zaakRechten.koppelen)
+        val teKoppelenZaakRechten = policyService.readZaakRechten(teKoppelenZaak)
+        assertPolicy(teKoppelenZaakRechten.wijzigen)
+        assertPolicy(teKoppelenZaakRechten.koppelen)
 
         when (gegevens.relatieType) {
             RelatieType.HOOFDZAAK -> koppelHoofdEnDeelzaak(teKoppelenZaak, zaak)
@@ -723,10 +727,8 @@ class ZakenRESTService @Inject constructor(
     fun ontkoppelZaak(gegevens: RESTZaakOntkoppelGegevens) {
         val zaak: Zaak = zrcClientService.readZaak(gegevens.zaakUuid)
         val gekoppeldeZaak = zrcClientService.readZaakByID(gegevens.gekoppeldeZaakIdentificatie)
-        assertPolicy(
-            policyService.readZaakRechten(zaak).wijzigen &&
-                policyService.readZaakRechten(gekoppeldeZaak).wijzigen
-        )
+        assertPolicy(policyService.readZaakRechten(zaak).wijzigen)
+        assertPolicy(policyService.readZaakRechten(gekoppeldeZaak).wijzigen)
 
         when (gegevens.relatietype) {
             RelatieType.HOOFDZAAK -> ontkoppelHoofdEnDeelzaak(gekoppeldeZaak, zaak, gegevens.reden)
@@ -858,20 +860,9 @@ class ZakenRESTService @Inject constructor(
     fun createBesluit(besluitToevoegenGegevens: RESTBesluitVastleggenGegevens): RESTBesluit {
         val zaak = zrcClientService.readZaak(besluitToevoegenGegevens.zaakUuid)
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
-        val zaakStatus = if (zaak.status != null) zrcClientService.readStatus(zaak.status) else null
-        val zaakStatustype = if (zaakStatus != null) {
-            ztcClientService.readStatustype(
-                zaakStatus.statustype
-            )
-        } else {
-            null
-        }
-        assertPolicy(
-            zaak.isOpen &&
-                CollectionUtils.isNotEmpty(zaaktype.besluittypen) &&
-                policyService.readZaakRechten(zaak, zaaktype).behandelen &&
-                !StatusTypeUtil.isIntake(zaakStatustype)
-        )
+        assertPolicy(policyService.readZaakRechten(zaak, zaaktype).vastleggenBesluit)
+        assertPolicy(CollectionUtils.isNotEmpty(zaaktype.besluittypen))
+
         val besluit = restBesluitConverter.convertToBesluit(zaak, besluitToevoegenGegevens)
         if (zaak.resultaat != null) {
             zgwApiService.updateResultaatForZaak(zaak, besluitToevoegenGegevens.resultaattypeUuid, null)
@@ -901,7 +892,8 @@ class ZakenRESTService @Inject constructor(
     ): RESTBesluit {
         var besluit = brcClientService.readBesluit(restBesluitWijzigenGegevens.besluitUuid)
         val zaak = zrcClientService.readZaak(besluit!!.zaak)
-        assertPolicy(zaak.isOpen && policyService.readZaakRechten(zaak).behandelen)
+        assertPolicy(policyService.readZaakRechten(zaak).vastleggenBesluit)
+
         besluit = restBesluitConverter.convertToBesluit(besluit, restBesluitWijzigenGegevens)
         besluit = brcClientService.updateBesluit(besluit, restBesluitWijzigenGegevens.reden)
         if (zaak.resultaat != null) {
@@ -1104,17 +1096,21 @@ class ZakenRESTService @Inject constructor(
         identificatie: String,
         zaak: Zaak
     ) {
-        assertPolicy(policyService.readZaakRechten(zaak).behandelen)
         val initiator = ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.INITIATOR, zaak.zaaktype)
+        val zaakRechten = policyService.readZaakRechten(zaak)
         when (identificatieType) {
-            IdentificatieType.BSN -> addBetrokkenNatuurlijkPersoon(initiator, identificatie, zaak, ROL_TOEVOEGEN_REDEN)
-            IdentificatieType.VN -> addBetrokkenVestiging(initiator, identificatie, zaak, ROL_TOEVOEGEN_REDEN)
-            IdentificatieType.RSIN -> addBetrokkenNietNatuurlijkPersoon(
-                initiator,
-                identificatie,
-                zaak,
-                ROL_TOEVOEGEN_REDEN
-            )
+            IdentificatieType.BSN -> {
+                assertPolicy(zaakRechten.toevoegenInitiatorPersoon)
+                addBetrokkenNatuurlijkPersoon(initiator, identificatie, zaak, ROL_TOEVOEGEN_REDEN)
+            }
+            IdentificatieType.VN -> {
+                assertPolicy(zaakRechten.toevoegenBetrokkeneBedrijf)
+                addBetrokkenVestiging(initiator, identificatie, zaak, ROL_TOEVOEGEN_REDEN)
+            }
+            IdentificatieType.RSIN -> {
+                assertPolicy(zaakRechten.toevoegenBetrokkeneBedrijf)
+                addBetrokkenNietNatuurlijkPersoon(initiator, identificatie, zaak, ROL_TOEVOEGEN_REDEN)
+            }
         }
     }
 

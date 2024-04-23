@@ -1,6 +1,5 @@
 package net.atos.zac.shared.helper;
 
-import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend;
 import static net.atos.zac.policy.PolicyService.assertPolicy;
 
 import java.time.LocalDate;
@@ -13,11 +12,8 @@ import jakarta.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 
 import net.atos.client.zgw.zrc.ZRCClientService;
-import net.atos.client.zgw.zrc.model.Status;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.generated.Opschorting;
-import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.generated.StatusType;
 import net.atos.zac.flowable.ZaakVariabelenService;
 import net.atos.zac.policy.PolicyService;
 
@@ -61,10 +57,8 @@ public class OpschortenZaakHelper {
         assertPolicy(policyService.readZaakRechten(zaak).hervatten());
         assertPolicy(zaak.isOpgeschort());
         final UUID zaakUUID = zaak.getUuid();
-        final ZonedDateTime datumOpgeschort =
-            zaakVariabelenService.findDatumtijdOpgeschort(zaak.getUuid()).orElseGet(ZonedDateTime::now);
-        final int verwachteDagenOpgeschort =
-            zaakVariabelenService.findVerwachteDagenOpgeschort(zaak.getUuid()).orElse(0);
+        final ZonedDateTime datumOpgeschort = zaakVariabelenService.findDatumtijdOpgeschort(zaak.getUuid()).orElseGet(ZonedDateTime::now);
+        final int verwachteDagenOpgeschort = zaakVariabelenService.findVerwachteDagenOpgeschort(zaak.getUuid()).orElse(0);
         final long dagenVerschil = ChronoUnit.DAYS.between(datumOpgeschort, ZonedDateTime.now());
         final long offset = dagenVerschil - verwachteDagenOpgeschort;
         LocalDate einddatumGepland = null;
