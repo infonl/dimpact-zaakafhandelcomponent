@@ -666,7 +666,7 @@ test_vastleggen_besluit if {
         with input.user.rollen as [ "behandelaar" ]
         with input.zaak.open as true
         with input.zaak.intake as false
-        with input.zaak.besluitd as true
+        with input.zaak.besloten as true
 }
 
 test_vastleggen_besluit_zaak_closed_fails if {
@@ -674,7 +674,7 @@ test_vastleggen_besluit_zaak_closed_fails if {
         with input.user.rollen as [ "behandelaar" ]
         with input.zaak.open as false
         with input.zaak.intake as false
-        with input.zaak.besluitd as true
+        with input.zaak.besloten as true
 }
 
 test_vastleggen_besluit_in_intake_fails if {
@@ -682,7 +682,7 @@ test_vastleggen_besluit_in_intake_fails if {
         with input.user.rollen as [ "behandelaar" ]
         with input.zaak.open as true
         with input.zaak.intake as true
-        with input.zaak.besluitd as true
+        with input.zaak.besloten as true
 }
 
 test_vastleggen_besluit_not_besluitd_fails if {
@@ -690,7 +690,7 @@ test_vastleggen_besluit_not_besluitd_fails if {
         with input.user.rollen as [ "behandelaar" ]
         with input.zaak.open as true
         with input.zaak.intake as false
-        with input.zaak.besluitd as false
+        with input.zaak.besloten as false
 }
 
 test_vastleggen_besluit_wrong_role_fails if {
