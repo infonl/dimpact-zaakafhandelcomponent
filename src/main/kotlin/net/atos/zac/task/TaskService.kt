@@ -78,7 +78,7 @@ class TaskService @Inject constructor(
             "Started asynchronous job with ID: $screenEventResourceId to assign " +
                 "${restTaakVerdelenGegevens.taken.size} taken."
         }
-        val taakIds = mutableListOf<String>()
+        val taskIds = mutableListOf<String>()
         restTaakVerdelenGegevens.taken.forEach { restTaakVerdelenTaak ->
             val task = flowableTaskService.readOpenTask(restTaakVerdelenTaak.taakId)
             flowableTaskService.assignTaskToGroup(
@@ -95,12 +95,12 @@ class TaskService @Inject constructor(
                 )
             }
             sendScreenEventsOnTaskChange(task, restTaakVerdelenTaak.zaakUuid)
-            taakIds.add(restTaakVerdelenTaak.taakId)
+            taskIds.add(restTaakVerdelenTaak.taakId)
         }
-        indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK)
+        indexeerService.indexeerDirect(taskIds, ZoekObjectType.TAAK)
         LOG.fine {
             "Asynchronous assign taken job with job ID '$screenEventResourceId' finished. " +
-                "Successfully assigned ${taakIds.size} taken."
+                "Successfully assigned ${taskIds.size} taken."
         }
         // if a screen event resource ID was specified, send an 'updated zaken_verdelen' screen event
         // with the job UUID so that it can be picked up by a client

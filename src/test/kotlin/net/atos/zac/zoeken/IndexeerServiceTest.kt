@@ -3,8 +3,9 @@ package net.atos.zac.zoeken
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
+import io.mockk.checkUnnecessaryStub
+import io.mockk.clearAllMocks
 import io.mockk.every
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -27,7 +28,6 @@ import org.eclipse.microprofile.config.ConfigProvider
 import java.net.URI
 import java.util.stream.Stream
 
-@MockKExtension.CheckUnnecessaryStub
 class IndexeerServiceTest : BehaviorSpec({
     // add static mocking for config provider because the IndexeerService class
     // references the config provider statically
@@ -57,10 +57,13 @@ class IndexeerServiceTest : BehaviorSpec({
         indexeerServiceHelper
     )
 
-    every { zaakZoekObjectConverter.supports(ZoekObjectType.ZAAK) } returns true
-    every { converterInstances.iterator() } returns converterInstancesIterator
-    every { converterInstancesIterator.hasNext() } returns true andThen true andThen false
-    every { converterInstancesIterator.next() } returns zaakZoekObjectConverter andThen zaakZoekObjectConverter
+    beforeEach {
+        checkUnnecessaryStub()
+    }
+
+    beforeSpec {
+        clearAllMocks()
+    }
 
     Given(
         """Two zaken"""
@@ -76,6 +79,10 @@ class IndexeerServiceTest : BehaviorSpec({
             createZaakZoekObject()
         )
         val objectIdsSlot = slot<Stream<String>>()
+        every { zaakZoekObjectConverter.supports(ZoekObjectType.ZAAK) } returns true
+        every { converterInstances.iterator() } returns converterInstancesIterator
+        every { converterInstancesIterator.hasNext() } returns true andThen true andThen false
+        every { converterInstancesIterator.next() } returns zaakZoekObjectConverter andThen zaakZoekObjectConverter
         zaken.forEachIndexed { index, zaak ->
             every { zaakZoekObjectConverter.convert(zaak.uuid.toString()) } returns zaakZoekObjecten[index]
         }
