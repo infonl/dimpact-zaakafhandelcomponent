@@ -9,6 +9,8 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -16,7 +18,6 @@ import io.mockk.runs
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
-import kotlinx.coroutines.Job
 import net.atos.client.zgw.drc.DRCClientService
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.ZGWApiService
@@ -283,17 +284,16 @@ class TakenRESTServiceTest : BehaviorSpec({
             screenEventResourceId = screenEventResourceId
         )
         val werklijstRechten = createWerklijstRechten()
-        val assignTasksAsyncJob = mockk<Job>()
         every { policyService.readWerklijstRechten() } returns werklijstRechten
-        every {
+        coEvery {
             taskService.assignTasksAsync(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
-        } returns assignTasksAsyncJob
+        } returns mockk()
 
         When("the 'verdelen vanuit lijst' function is called") {
             takenRESTService.verdelenVanuitLijst(restTaakVerdelenGegevens)
 
             Then("the tasks are assigned to the group and user") {
-                verify(exactly = 1) {
+                coVerify(exactly = 1) {
                     taskService.assignTasksAsync(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
                 }
             }
@@ -309,17 +309,16 @@ class TakenRESTServiceTest : BehaviorSpec({
             screenEventResourceId = screenEventResourceId
         )
         val werklijstRechten = createWerklijstRechten()
-        val releaseTasksAsyncJob = mockk<Job>()
         every { policyService.readWerklijstRechten() } returns werklijstRechten
-        every {
+        coEvery {
             taskService.releaseTasksAsync(restTaakVrijgevenGegevens, loggedInUser, screenEventResourceId)
-        } returns releaseTasksAsyncJob
+        } returns mockk()
 
         When("the 'verdelen vanuit lijst' function is called") {
             takenRESTService.vrijgevenVanuitLijst(restTaakVrijgevenGegevens)
 
             Then("the tasks are assigned to the group and user") {
-                verify(exactly = 1) {
+                coVerify(exactly = 1) {
                     taskService.releaseTasksAsync(restTaakVrijgevenGegevens, loggedInUser, screenEventResourceId)
                 }
             }

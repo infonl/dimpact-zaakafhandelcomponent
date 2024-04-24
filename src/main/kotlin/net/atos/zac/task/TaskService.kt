@@ -2,11 +2,7 @@ package net.atos.zac.task
 
 import io.opentelemetry.api.trace.Tracer
 import jakarta.inject.Inject
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.atos.zac.app.taken.converter.RESTTaakConverter
 import net.atos.zac.app.taken.model.RESTTaakToekennenGegevens
 import net.atos.zac.app.taken.model.RESTTaakVerdelenGegevens
@@ -19,11 +15,13 @@ import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
-import nl.lifely.zac.opentelemetry.createOpenTelemetrySpanWithoutParent
+import nl.lifely.zac.opentelemetry.withSpan
+import nl.lifely.zac.util.AllOpen
 import org.flowable.task.api.Task
 import java.util.UUID
 import java.util.logging.Logger
 
+@AllOpen
 class TaskService @Inject constructor(
     private val flowableTaskService: FlowableTaskService,
     private val indexeerService: IndexeerService,
@@ -32,10 +30,7 @@ class TaskService @Inject constructor(
     private val tracer: Tracer
 ) {
     companion object {
-        private val defaultCoroutineScope = CoroutineScope(Dispatchers.Default)
         private val LOG = Logger.getLogger(TaskService::class.java.name)
-        private const val ASSIGN_TASKS_COROUTINE_NAME = "AssignTasksCoroutine"
-        private const val RELEASE_TASKS_COROUTINE_NAME = "ReleaseTasksCoroutine"
     }
 
     fun assignTask(
@@ -67,7 +62,7 @@ class TaskService @Inject constructor(
         }
         if (changed) {
             sendScreenEventsOnTaskChange(updatedTask, restTaakToekennenGegevens.zaakUuid)
-            indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, true)
+            indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK)
         }
     }
 
@@ -75,44 +70,39 @@ class TaskService @Inject constructor(
      * Asynchronously assigns a list of tasks to a group and optionally also to a user,
      * sends corresponding screen events and updates the search index.
      */
-    fun assignTasksAsync(
+    suspend fun assignTasksAsync(
         restTaakVerdelenGegevens: RESTTaakVerdelenGegevens,
         loggedInUser: LoggedInUser,
         screenEventResourceId: String? = null,
-    ) = defaultCoroutineScope.launch(CoroutineName(ASSIGN_TASKS_COROUTINE_NAME)) {
+    ) = withSpan(
+        tracer = tracer,
+        spanName = "${javaClass.kotlin.simpleName}.assignTasksAsync",
+        coroutineContext = Dispatchers.IO
+    ) { _ ->
         LOG.fine {
             "Started asynchronous job with ID: $screenEventResourceId to assign " +
                 "${restTaakVerdelenGegevens.taken.size} tasks."
         }
         val taakIds = mutableListOf<String>()
-        withContext(Dispatchers.IO) {
-            val openTelemetrySpan = createOpenTelemetrySpanWithoutParent(
-                tracer,
-                "${ASSIGN_TASKS_COROUTINE_NAME}.assignTasksAsync"
+        restTaakVerdelenGegevens.taken.forEach { restTaakVerdelenTaak ->
+            val task = flowableTaskService.readOpenTask(restTaakVerdelenTaak.taakId)
+            flowableTaskService.assignTaskToGroup(
+                task,
+                restTaakVerdelenGegevens.groepId,
+                restTaakVerdelenGegevens.reden
             )
-            openTelemetrySpan.makeCurrent().use {
-                restTaakVerdelenGegevens.taken.forEach { restTaakVerdelenTaak ->
-                    val task = flowableTaskService.readOpenTask(restTaakVerdelenTaak.taakId)
-                    flowableTaskService.assignTaskToGroup(
-                        task,
-                        restTaakVerdelenGegevens.groepId,
-                        restTaakVerdelenGegevens.reden
-                    )
-                    restTaakVerdelenGegevens.behandelaarGebruikersnaam?.let {
-                        assignTaskToUser(
-                            taskId = task.id,
-                            assignee = it,
-                            loggedInUser = loggedInUser,
-                            explanation = restTaakVerdelenGegevens.reden
-                        )
-                    }
-                    sendScreenEventsOnTaskChange(task, restTaakVerdelenTaak.zaakUuid)
-                    taakIds.add(restTaakVerdelenTaak.taakId)
-                }
-                indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK, true)
-                openTelemetrySpan.end()
+            restTaakVerdelenGegevens.behandelaarGebruikersnaam?.let {
+                assignTaskToUser(
+                    taskId = task.id,
+                    assignee = it,
+                    loggedInUser = loggedInUser,
+                    explanation = restTaakVerdelenGegevens.reden
+                )
             }
+            sendScreenEventsOnTaskChange(task, restTaakVerdelenTaak.zaakUuid)
+            taakIds.add(restTaakVerdelenTaak.taakId)
         }
+        indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK)
         LOG.fine {
             "Asynchronous assign tasks job with ID '$screenEventResourceId' finished. " +
                 "Successfully assigned ${taakIds.size} tasks."
@@ -125,6 +115,9 @@ class TaskService @Inject constructor(
         }
     }
 
+    /**
+     * Assigns a task to a user and sends the 'taak op naam' signalering event.
+     */
     /**
      * Assigns a task to a user and sends the 'taak op naam' signalering event.
      */
@@ -149,39 +142,37 @@ class TaskService @Inject constructor(
     /**
      * Asynchronously releases a list of tasks, sends corresponding screen events and updates the search index.
      */
-    fun releaseTasksAsync(
+    /**
+     * Asynchronously releases a list of tasks, sends corresponding screen events and updates the search index.
+     */
+    suspend fun releaseTasksAsync(
         restTaakVrijgevenGegevens: RESTTaakVrijgevenGegevens,
         loggedInUser: LoggedInUser,
         screenEventResourceId: String? = null
-    ) = defaultCoroutineScope.launch(CoroutineName(RELEASE_TASKS_COROUTINE_NAME)) {
+    ) = withSpan(
+        tracer = tracer,
+        spanName = "${javaClass.kotlin.simpleName}.releaseTasksAsync",
+        coroutineContext = Dispatchers.IO
+    ) { _ ->
         LOG.fine {
             "Started asynchronous job with ID: '$screenEventResourceId' to release " +
                 "${restTaakVrijgevenGegevens.taken.size} tasks."
         }
-        val taakIds = mutableListOf<String>()
-        withContext(Dispatchers.IO) {
-            val openTelemetrySpan = createOpenTelemetrySpanWithoutParent(
-                tracer,
-                "${RELEASE_TASKS_COROUTINE_NAME}.releaseTasksAsync"
-            )
-            openTelemetrySpan.makeCurrent().use {
-                restTaakVrijgevenGegevens.taken.forEach {
-                    releaseTask(
-                        taskId = it.taakId,
-                        loggedInUser = loggedInUser,
-                        reden = restTaakVrijgevenGegevens.reden
-                    ).let { updatedTask ->
-                        sendScreenEventsOnTaskChange(updatedTask, it.zaakUuid)
-                        taakIds.add(updatedTask.id)
-                    }
-                }
-                indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK, true)
-                openTelemetrySpan.end()
+        val taskIds = mutableListOf<String>()
+        restTaakVrijgevenGegevens.taken.forEach {
+            releaseTask(
+                taskId = it.taakId,
+                loggedInUser = loggedInUser,
+                reden = restTaakVrijgevenGegevens.reden
+            ).let { updatedTask ->
+                sendScreenEventsOnTaskChange(updatedTask, it.zaakUuid)
+                taskIds.add(updatedTask.id)
             }
         }
+        indexeerService.indexeerDirect(taskIds, ZoekObjectType.TAAK)
         LOG.fine {
             "Asynchronous release tasks job with ID '$screenEventResourceId' finished. " +
-                "Successfully released ${taakIds.size} tasks."
+                "Successfully released ${taskIds.size} tasks."
         }
         // if a screen event resource ID was specified, send a screen event
         // with the provided job ID so that it can be picked up by a client
