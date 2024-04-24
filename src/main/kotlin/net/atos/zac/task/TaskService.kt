@@ -1,5 +1,6 @@
 package net.atos.zac.task
 
+import io.opentelemetry.api.trace.Tracer
 import jakarta.inject.Inject
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -18,19 +19,25 @@ import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
+import nl.lifely.zac.opentelemetry.startOpenTelemetrySpanWithoutParent
+import nl.lifely.zac.util.AllOpen
 import org.flowable.task.api.Task
 import java.util.UUID
 import java.util.logging.Logger
 
+@AllOpen
 class TaskService @Inject constructor(
     private val flowableTaskService: FlowableTaskService,
     private val indexeerService: IndexeerService,
     private val eventingService: EventingService,
-    private val restTaakConverter: RESTTaakConverter
+    private val restTaakConverter: RESTTaakConverter,
+    private val tracer: Tracer
 ) {
     companion object {
         private val defaultCoroutineScope = CoroutineScope(Dispatchers.Default)
         private val LOG = Logger.getLogger(TaskService::class.java.name)
+        private const val ASSIGN_TASKS_COROUTINE_NAME = "AssignTasksCoroutine"
+        private const val RELEASE_TASKS_COROUTINE_NAME = "ReleaseTasksCoroutine"
     }
 
     fun assignTask(
@@ -74,13 +81,17 @@ class TaskService @Inject constructor(
         restTaakVerdelenGegevens: RESTTaakVerdelenGegevens,
         loggedInUser: LoggedInUser,
         screenEventResourceId: String? = null,
-    ) = defaultCoroutineScope.launch(CoroutineName("AssignTasksCoroutine")) {
+    ) = defaultCoroutineScope.launch(CoroutineName(ASSIGN_TASKS_COROUTINE_NAME)) {
         LOG.fine {
             "Started asynchronous job with ID: $screenEventResourceId to assign " +
                 "${restTaakVerdelenGegevens.taken.size} tasks."
         }
         val taakIds = mutableListOf<String>()
         withContext(Dispatchers.IO) {
+            val openTelemetrySpan = startOpenTelemetrySpanWithoutParent(
+                tracer,
+                "${ASSIGN_TASKS_COROUTINE_NAME}.assignTasksAsync"
+            )
             restTaakVerdelenGegevens.taken.forEach { restTaakVerdelenTaak ->
                 val task = flowableTaskService.readOpenTask(restTaakVerdelenTaak.taakId)
                 flowableTaskService.assignTaskToGroup(
@@ -100,6 +111,7 @@ class TaskService @Inject constructor(
                 taakIds.add(restTaakVerdelenTaak.taakId)
             }
             indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK)
+            openTelemetrySpan.end()
         }
         LOG.fine {
             "Asynchronous assign tasks job with ID '$screenEventResourceId' finished. " +
@@ -141,13 +153,17 @@ class TaskService @Inject constructor(
         restTaakVrijgevenGegevens: RESTTaakVrijgevenGegevens,
         loggedInUser: LoggedInUser,
         screenEventResourceId: String? = null
-    ) = defaultCoroutineScope.launch(CoroutineName("ReleaseTasksCoroutine")) {
+    ) = defaultCoroutineScope.launch(CoroutineName(RELEASE_TASKS_COROUTINE_NAME)) {
         LOG.fine {
             "Started asynchronous job with ID: '$screenEventResourceId' to release " +
                 "${restTaakVrijgevenGegevens.taken.size} tasks."
         }
         val taakIds = mutableListOf<String>()
         withContext(Dispatchers.IO) {
+            val openTelemetrySpan = startOpenTelemetrySpanWithoutParent(
+                tracer,
+                "${RELEASE_TASKS_COROUTINE_NAME}.releaseTasksAsync"
+            )
             restTaakVrijgevenGegevens.taken.forEach {
                 releaseTask(
                     taskId = it.taakId,
@@ -159,6 +175,7 @@ class TaskService @Inject constructor(
                 }
             }
             indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK)
+            openTelemetrySpan.end()
         }
         LOG.fine {
             "Asynchronous release tasks job with ID '$screenEventResourceId' finished. " +
