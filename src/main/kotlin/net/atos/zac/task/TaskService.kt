@@ -38,11 +38,11 @@ class TaskService @Inject constructor(
         task: Task,
         loggedInUser: LoggedInUser
     ) {
-        val groep = restTaakConverter.extractGroupId(task.identityLinks)
+        val groupId = restTaakConverter.extractGroupId(task.identityLinks)
         var changed = false
         var updatedTask = task
         restTaakToekennenGegevens.behandelaarId?.let {
-            if (groep != restTaakToekennenGegevens.groepId) {
+            if (groupId != restTaakToekennenGegevens.groepId) {
                 flowableTaskService.assignTaskToGroup(
                     updatedTask,
                     restTaakToekennenGegevens.groepId,
@@ -83,7 +83,7 @@ class TaskService @Inject constructor(
             "Started asynchronous job with ID: $screenEventResourceId to assign " +
                 "${restTaakVerdelenGegevens.taken.size} tasks."
         }
-        val taakIds = mutableListOf<String>()
+        val taskIds = mutableListOf<String>()
         restTaakVerdelenGegevens.taken.forEach { restTaakVerdelenTaak ->
             val task = flowableTaskService.readOpenTask(restTaakVerdelenTaak.taakId)
             flowableTaskService.assignTaskToGroup(
@@ -100,12 +100,12 @@ class TaskService @Inject constructor(
                 )
             }
             sendScreenEventsOnTaskChange(task, restTaakVerdelenTaak.zaakUuid)
-            taakIds.add(restTaakVerdelenTaak.taakId)
+            taskIds.add(restTaakVerdelenTaak.taakId)
         }
-        indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK)
+        indexeerService.indexeerDirect(taskIds, ZoekObjectType.TAAK)
         LOG.fine {
             "Asynchronous assign tasks job with ID '$screenEventResourceId' finished. " +
-                "Successfully assigned ${taakIds.size} tasks."
+                "Successfully assigned ${taskIds.size} tasks."
         }
         // if a screen event resource ID was specified, send a screen event
         // with the provided job ID so that it can be picked up by a client
@@ -118,30 +118,22 @@ class TaskService @Inject constructor(
     /**
      * Assigns a task to a user and sends the 'taak op naam' signalering event.
      */
-    /**
-     * Assigns a task to a user and sends the 'taak op naam' signalering event.
-     */
     fun assignTaskToUser(
         taskId: String,
         assignee: String,
         loggedInUser: LoggedInUser,
         explanation: String?
-    ): Task {
-        flowableTaskService.assignTaskToUser(taskId, assignee, explanation).let { updatedTask ->
-            eventingService.send(
-                SignaleringEventUtil.event(
-                    SignaleringType.Type.TAAK_OP_NAAM,
-                    updatedTask,
-                    loggedInUser
-                )
+    ) = flowableTaskService.assignTaskToUser(taskId, assignee, explanation).let { updatedTask ->
+        eventingService.send(
+            SignaleringEventUtil.event(
+                SignaleringType.Type.TAAK_OP_NAAM,
+                updatedTask,
+                loggedInUser
             )
-            return updatedTask
-        }
+        )
+        updatedTask
     }
 
-    /**
-     * Asynchronously releases a list of tasks, sends corresponding screen events and updates the search index.
-     */
     /**
      * Asynchronously releases a list of tasks, sends corresponding screen events and updates the search index.
      */
@@ -191,16 +183,14 @@ class TaskService @Inject constructor(
         taskId: String,
         loggedInUser: LoggedInUser,
         reden: String?
-    ): Task {
-        flowableTaskService.releaseTask(taskId, reden).let { updatedTask ->
-            eventingService.send(
-                SignaleringEventUtil.event(
-                    SignaleringType.Type.TAAK_OP_NAAM,
-                    updatedTask,
-                    loggedInUser
-                )
+    ) = flowableTaskService.releaseTask(taskId, reden).let { updatedTask ->
+        eventingService.send(
+            SignaleringEventUtil.event(
+                SignaleringType.Type.TAAK_OP_NAAM,
+                updatedTask,
+                loggedInUser
             )
-            return updatedTask
-        }
+        )
+        updatedTask
     }
 }
