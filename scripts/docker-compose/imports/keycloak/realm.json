@@ -428,14 +428,6 @@
           "attributes": {}
         },
         {
-          "id": "db9bd080-c5ac-40c6-8c20-5071cc31efc4",
-          "name": "zaakbehandelaar",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
-          "attributes": {}
-        },
-        {
           "id": "dda6494d-1dd0-4da2-8c9d-03a042f2a401",
           "name": "behandelaar",
           "composite": false,
