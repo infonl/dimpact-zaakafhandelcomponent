@@ -178,7 +178,7 @@ public class PlanItemsRESTService {
         final UUID zaakUUID = zaakVariabelenService.readZaakUUID(planItem);
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
         final Map<String, String> taakdata = humanTaskData.taakdata;
-        assertPolicy(policyService.readZaakRechten(zaak).behandelen());
+        assertPolicy(policyService.readZaakRechten(zaak).startenTaak());
         final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
                 UriUtil.uuidFromURI(zaak.getZaaktype())
         );
@@ -249,7 +249,7 @@ public class PlanItemsRESTService {
     @Path("doUserEventListenerPlanItem")
     public void doUserEventListenerPlanItem(final RESTUserEventListenerData userEventListenerData) {
         final Zaak zaak = zrcClientService.readZaak(userEventListenerData.zaakUuid);
-        assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).behandelen());
+        assertPolicy(policyService.readZaakRechten(zaak).startenTaak());
         switch (userEventListenerData.actie) {
             case INTAKE_AFRONDEN -> {
                 final PlanItemInstance planItemInstance = cmmnService.readOpenPlanItem(

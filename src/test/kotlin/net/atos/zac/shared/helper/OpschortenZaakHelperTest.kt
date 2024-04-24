@@ -15,7 +15,6 @@ import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.createOpschorting
 import net.atos.client.zgw.zrc.model.createZaak
-import net.atos.client.zgw.ztc.ZTCClientService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.output.createZaakRechten
@@ -25,13 +24,11 @@ import java.util.Optional
 class OpschortenZaakHelperTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
     val zrcClientService = mockk<ZRCClientService>()
-    val ztcClientService = mockk<ZTCClientService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
 
     val opschortenZaakHelper = OpschortenZaakHelper(
         policyService,
         zrcClientService,
-        ztcClientService,
         zaakVariabelenService
     )
 
