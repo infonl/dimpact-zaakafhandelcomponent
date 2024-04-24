@@ -92,7 +92,7 @@ public class UserPrincipalFilter implements Filter {
 
     private LoggedInUser createLoggedInUser(final OidcSecurityContext context) {
         final AccessToken accessToken = context.getToken();
-        final Set<String> roles = Set.copyOf(accessToken.getRealmAccessClaim().getRoles());
+        final Set<String> roles = Set.copyOf(accessToken.getRolesClaim());
         return new LoggedInUser(accessToken.getPreferredUsername(),
                 accessToken.getGivenName(),
                 accessToken.getFamilyName(),
