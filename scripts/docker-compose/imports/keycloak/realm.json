@@ -47,90 +47,9 @@
   "roles": {
     "realm": [
       {
-        "id": "73c07f94-2fa6-40ed-aa6a-d86fe0386956",
-        "name": "beheerder",
-        "composite": false,
-        "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
-        "attributes": {}
-      },
-      {
-        "id": "901ad566-0a1d-4720-a150-b4f89d81b1b5",
-        "name": "recordmanager",
-        "composite": false,
-        "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
-        "attributes": {}
-      },
-      {
-        "id": "dba9045d-71bc-4230-b75c-1b5c5ce0bdfd",
-        "name": "zaakafhandelcomponent_user",
-        "description": "Grants basic access to ZAC. Without this role a user cannot access ZAC.",
-        "composite": false,
-        "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
-        "attributes": {}
-      },
-      {
-        "id": "db9bd080-c5ac-40c6-8c20-5071cc31efc4",
-        "name": "zaakbehandelaar",
-        "composite": false,
-        "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
-        "attributes": {}
-      },
-      {
-        "id": "dda6494d-1dd0-4da2-8c9d-03a042f2a401",
-        "name": "behandelaar",
-        "composite": false,
-        "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
-        "attributes": {}
-      },
-      {
-        "id": "ffd29bf7-1bc1-461c-a3d0-98346e16cb4a",
-        "name": "domein_toestemming_verlenen",
-        "composite": false,
-        "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
-        "attributes": {}
-      },
-      {
-        "id": "b9b72e88-7b0e-46e9-8c9c-30249913c908",
-        "name": "coordinator",
-        "composite": false,
-        "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
-        "attributes": {}
-      },
-      {
-        "id": "929ab108-e957-4722-bf49-1394fa458284",
-        "name": "domein_elk_zaaktype",
-        "composite": false,
-        "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
-        "attributes": {}
-      },
-      {
-        "id": "899f4ec5-ed0e-4159-b4ed-207ed92f30b1",
-        "name": "domein_voorzieningen_verstrekken",
-        "composite": false,
-        "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
-        "attributes": {}
-      },
-      {
         "id": "0cc23b0e-f496-443c-aaa7-7143a256a929",
         "name": "offline_access",
         "description": "${role_offline-access}",
-        "composite": false,
-        "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
-        "attributes": {}
-      },
-      {
-        "id": "851b84b6-af9a-4932-8cf1-942d41ca3a58",
-        "name": "domein_test",
         "composite": false,
         "clientRole": false,
         "containerId": "zaakafhandelcomponent",
@@ -482,7 +401,89 @@
           "attributes": {}
         }
       ],
-      "zaakafhandelcomponent": []
+      "zaakafhandelcomponent": [
+        {
+          "id": "73c07f94-2fa6-40ed-aa6a-d86fe0386956",
+          "name": "beheerder",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
+          "attributes": {}
+        },
+        {
+          "id": "901ad566-0a1d-4720-a150-b4f89d81b1b5",
+          "name": "recordmanager",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
+          "attributes": {}
+        },
+        {
+          "id": "dba9045d-71bc-4230-b75c-1b5c5ce0bdfd",
+          "name": "zaakafhandelcomponent_user",
+          "description": "Grants basic access to ZAC. Without this role a user cannot access ZAC.",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
+          "attributes": {}
+        },
+        {
+          "id": "db9bd080-c5ac-40c6-8c20-5071cc31efc4",
+          "name": "zaakbehandelaar",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
+          "attributes": {}
+        },
+        {
+          "id": "dda6494d-1dd0-4da2-8c9d-03a042f2a401",
+          "name": "behandelaar",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
+          "attributes": {}
+        },
+        {
+          "id": "ffd29bf7-1bc1-461c-a3d0-98346e16cb4a",
+          "name": "domein_toestemming_verlenen",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
+          "attributes": {}
+        },
+        {
+          "id": "b9b72e88-7b0e-46e9-8c9c-30249913c908",
+          "name": "coordinator",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
+          "attributes": {}
+        },
+        {
+          "id": "929ab108-e957-4722-bf49-1394fa458284",
+          "name": "domein_elk_zaaktype",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
+          "attributes": {}
+        },
+        {
+          "id": "899f4ec5-ed0e-4159-b4ed-207ed92f30b1",
+          "name": "domein_voorzieningen_verstrekken",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
+          "attributes": {}
+        },
+        {
+          "id": "851b84b6-af9a-4932-8cf1-942d41ca3a58",
+          "name": "domein_test",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
+          "attributes": {}
+        }
+      ]
     }
   },
   "groups": [
@@ -498,14 +499,16 @@
           "${ZAC_GROUP_A_EMAIL_ADDRESS}"
         ]
       },
-      "realmRoles": [
-        "domein_elk_zaaktype",
-        "behandelaar",
-        "coordinator",
-        "recordmanager",
-        "beheerder",
-        "zaakafhandelcomponent_user"
-      ]
+      "clientRoles": {
+        "zaakafhandelcomponent": [
+          "domein_elk_zaaktype",
+          "behandelaar",
+          "coordinator",
+          "recordmanager",
+          "beheerder",
+          "zaakafhandelcomponent_user"
+        ]
+      }
     },
     {
       "id": "c06d7f98-16c8-4363-ac31-8449e0c2309c",
@@ -519,14 +522,16 @@
           "${ZAC_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS}"
         ]
       },
-      "realmRoles": [
-        "domein_elk_zaaktype",
-        "behandelaar",
-        "coordinator",
-        "recordmanager",
-        "beheerder",
-        "zaakafhandelcomponent_user"
-      ]
+      "clientRoles": {
+        "zaakafhandelcomponent": [
+          "domein_elk_zaaktype",
+          "behandelaar",
+          "coordinator",
+          "recordmanager",
+          "beheerder",
+          "zaakafhandelcomponent_user"
+        ]
+      }
     },
     {
       "id": "c06d7f98-16c8-4363-ac31-8449e0c2309d",
@@ -540,11 +545,13 @@
           "${ZAC_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS}"
         ]
       },
-      "realmRoles": [
-        "domein_elk_zaaktype",
-        "recordmanager",
-        "zaakafhandelcomponent_user"
-      ]
+      "clientRoles": {
+        "zaakafhandelcomponent": [
+          "domein_elk_zaaktype",
+          "recordmanager",
+          "zaakafhandelcomponent_user"
+        ]
+      }
     }
   ],
   "defaultRole": {
@@ -1121,6 +1128,20 @@
             "claim.name": "realm_access.roles",
             "jsonType.label": "String",
             "multivalued": "true"
+          }
+        },
+        {
+          "id": "f9d995eb-6d50-4630-8358-d974c393147a",
+          "name": "zac roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-client-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "multivalued": "true",
+            "access.token.claim": "true",
+            "claim.name": "roles",
+            "jsonType.label": "String",
+            "usermodel.clientRoleMapping.clientId": "zaakafhandelcomponent"
           }
         }
       ]
