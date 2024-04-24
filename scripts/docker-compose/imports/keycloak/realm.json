@@ -72,14 +72,6 @@
         "attributes": {}
       },
       {
-        "id": "db9bd080-c5ac-40c6-8c20-5071cc31efc4",
-        "name": "zaakbehandelaar",
-        "composite": false,
-        "clientRole": false,
-        "containerId": "zaakafhandelcomponent",
-        "attributes": {}
-      },
-      {
         "id": "dda6494d-1dd0-4da2-8c9d-03a042f2a401",
         "name": "behandelaar",
         "composite": false,
