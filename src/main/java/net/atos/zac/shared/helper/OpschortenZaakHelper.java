@@ -1,6 +1,5 @@
 package net.atos.zac.shared.helper;
 
-import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend;
 import static net.atos.zac.policy.PolicyService.assertPolicy;
 
 import java.time.LocalDate;
@@ -13,11 +12,8 @@ import jakarta.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 
 import net.atos.client.zgw.zrc.ZRCClientService;
-import net.atos.client.zgw.zrc.model.Status;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.generated.Opschorting;
-import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.generated.StatusType;
 import net.atos.zac.flowable.ZaakVariabelenService;
 import net.atos.zac.policy.PolicyService;
 
@@ -27,7 +23,6 @@ public class OpschortenZaakHelper {
 
     private PolicyService policyService;
     private ZRCClientService zrcClientService;
-    private ZTCClientService ztcClientService;
     private ZaakVariabelenService zaakVariabelenService;
 
     /**
@@ -40,23 +35,17 @@ public class OpschortenZaakHelper {
     OpschortenZaakHelper(
             PolicyService policyService,
             ZRCClientService zrcClientService,
-            ZTCClientService ztcClientService,
             ZaakVariabelenService zaakVariabelenService
     ) {
         this.policyService = policyService;
         this.zrcClientService = zrcClientService;
-        this.ztcClientService = ztcClientService;
         this.zaakVariabelenService = zaakVariabelenService;
     }
 
     public Zaak opschortenZaak(Zaak zaak, final long aantalDagen, final String redenOpschorting) {
-        assertPolicy(policyService.readZaakRechten(zaak).behandelen());
+        assertPolicy(policyService.readZaakRechten(zaak).opschorten());
+        assertPolicy(StringUtils.isEmpty(zaak.getOpschorting().getReden()));
         final UUID zaakUUID = zaak.getUuid();
-        final Status status = zaak.getStatus() != null ? zrcClientService.readStatus(zaak.getStatus()) : null;
-        final StatusType statustype = status != null ?
-                ztcClientService.readStatustype(status.getStatustype()) : null;
-        assertPolicy(zaak.isOpen() && !isHeropend(statustype) && !zaak.isOpgeschort() && StringUtils.isEmpty(zaak.getOpschorting()
-                .getReden()));
         final String toelichting = String.format("%s: %s", OPSCHORTING, redenOpschorting);
         LocalDate einddatumGepland = null;
         if (zaak.getEinddatumGepland() != null) {
@@ -74,13 +63,11 @@ public class OpschortenZaakHelper {
     }
 
     public Zaak hervattenZaak(final Zaak zaak, final String redenHervatting) {
-        assertPolicy(policyService.readZaakRechten(zaak).behandelen());
+        assertPolicy(policyService.readZaakRechten(zaak).hervatten());
         assertPolicy(zaak.isOpgeschort());
         final UUID zaakUUID = zaak.getUuid();
-        final ZonedDateTime datumOpgeschort = zaakVariabelenService.findDatumtijdOpgeschort(zaak.getUuid()).orElseGet(() -> ZonedDateTime
-                .now());
-        final int verwachteDagenOpgeschort = zaakVariabelenService.findVerwachteDagenOpgeschort(zaak.getUuid())
-                .orElse(0);
+        final ZonedDateTime datumOpgeschort = zaakVariabelenService.findDatumtijdOpgeschort(zaak.getUuid()).orElseGet(ZonedDateTime::now);
+        final int verwachteDagenOpgeschort = zaakVariabelenService.findVerwachteDagenOpgeschort(zaak.getUuid()).orElse(0);
         final long dagenVerschil = ChronoUnit.DAYS.between(datumOpgeschort, ZonedDateTime.now());
         final long offset = dagenVerschil - verwachteDagenOpgeschort;
         LocalDate einddatumGepland = null;
@@ -108,7 +95,7 @@ public class OpschortenZaakHelper {
      * @param isOpschorting                true indien opschorten, false indien hervatten
      * @return zaak voor patch
      */
-    public Zaak toPatch(
+    private Zaak toPatch(
             final LocalDate einddatumGepland,
             final LocalDate uiterlijkeEinddatumAfdoening,
             final String reden,

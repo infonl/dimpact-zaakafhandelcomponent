@@ -38,7 +38,6 @@ import net.atos.zac.app.taken.model.RESTTaakHistorieRegel
 import net.atos.zac.app.taken.model.RESTTaakToekennenGegevens
 import net.atos.zac.app.taken.model.RESTTaakVerdelenGegevens
 import net.atos.zac.app.taken.model.RESTTaakVrijgevenGegevens
-import net.atos.zac.app.taken.model.TaakStatus
 import net.atos.zac.authentication.ActiveSession
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
@@ -47,6 +46,7 @@ import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.flowable.TaakVariabelenService
 import net.atos.zac.flowable.util.TaskUtil
 import net.atos.zac.policy.PolicyService
+import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.shared.helper.OpschortenZaakHelper
 import net.atos.zac.signalering.SignaleringenService
 import net.atos.zac.signalering.model.SignaleringType
@@ -101,7 +101,7 @@ class TakenRESTService @Inject constructor(
     @GET
     @Path("zaak/{zaakUUID}")
     fun listTakenVoorZaak(@PathParam("zaakUUID") zaakUUID: UUID): List<RESTTaak> {
-        PolicyService.assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).lezen)
+        assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).lezen)
         return restTaakConverter.convert(flowableTaskService.listTasksForZaak(zaakUUID))
     }
 
@@ -109,7 +109,7 @@ class TakenRESTService @Inject constructor(
     @Path("{taskId}")
     fun readTaak(@PathParam("taskId") taskId: String): RESTTaak {
         flowableTaskService.readTask(taskId).let {
-            PolicyService.assertPolicy(policyService.readTaakRechten(it).lezen)
+            assertPolicy(policyService.readTaakRechten(it).lezen)
             deleteSignaleringen(it)
             return restTaakConverter.convert(it)
         }
@@ -119,7 +119,7 @@ class TakenRESTService @Inject constructor(
     @Path("taakdata")
     fun updateTaakdata(restTaak: RESTTaak): RESTTaak {
         flowableTaskService.readOpenTask(restTaak.id).let {
-            PolicyService.assertPolicy(TaskUtil.isOpen(it) && policyService.readTaakRechten(it).wijzigen)
+            assertPolicy(TaskUtil.isOpen(it) && policyService.readTaakRechten(it).wijzigen)
             taakVariabelenService.setTaakdata(it, restTaak.taakdata)
             taakVariabelenService.setTaakinformatie(it, restTaak.taakinformatie)
             val updatedTask = updateDescriptionAndDueDate(restTaak)
@@ -140,9 +140,7 @@ class TakenRESTService @Inject constructor(
     @PUT
     @Path("lijst/verdelen")
     fun verdelenVanuitLijst(@Valid restTaakVerdelenGegevens: RESTTaakVerdelenGegevens) {
-        PolicyService.assertPolicy(
-            policyService.readWerklijstRechten().zakenTaken && policyService.readWerklijstRechten().zakenTakenVerdelen
-        )
+        assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         taskService.assignTasksAsync(
             restTaakVerdelenGegevens = restTaakVerdelenGegevens,
             loggedInUser = loggedInUserInstance.get(),
@@ -153,10 +151,7 @@ class TakenRESTService @Inject constructor(
     @PUT
     @Path("lijst/vrijgeven")
     fun vrijgevenVanuitLijst(@Valid restTaakVrijgevenGegevens: RESTTaakVrijgevenGegevens) {
-        PolicyService.assertPolicy(
-            policyService.readWerklijstRechten().zakenTaken &&
-                policyService.readWerklijstRechten().zakenTakenVerdelen
-        )
+        assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         taskService.releaseTasksAsync(
             restTaakVrijgevenGegevens = restTaakVrijgevenGegevens,
             loggedInUser = loggedInUserInstance.get(),
@@ -169,7 +164,7 @@ class TakenRESTService @Inject constructor(
     fun toekennenAanIngelogdeMedewerkerVanuitLijst(
         restTaakToekennenGegevens: RESTTaakToekennenGegevens
     ): RESTTaak {
-        PolicyService.assertPolicy(policyService.readWerklijstRechten().zakenTaken)
+        assertPolicy(policyService.readWerklijstRechten().zakenTaken)
         ingelogdeMedewerkerToekennenAanTaak(restTaakToekennenGegevens).let {
             return restTaakConverter.convert(it)
         }
@@ -179,9 +174,7 @@ class TakenRESTService @Inject constructor(
     @Path("toekennen")
     fun toekennen(restTaakToekennenGegevens: RESTTaakToekennenGegevens) {
         val task = flowableTaskService.readOpenTask(restTaakToekennenGegevens.taakId)
-        PolicyService.assertPolicy(
-            TaskUtil.getTaakStatus(task) != TaakStatus.AFGEROND && policyService.readTaakRechten(task).toekennen
-        )
+        assertPolicy(TaskUtil.isOpen(task) && policyService.readTaakRechten(task).toekennen)
         taskService.assignTask(
             restTaakToekennenGegevens,
             task,
@@ -201,7 +194,7 @@ class TakenRESTService @Inject constructor(
     fun completeTaak(restTaak: RESTTaak): RESTTaak {
         val task = flowableTaskService.readOpenTask(restTaak.id)
         val zaak = zrcClientService.readZaak(restTaak.zaakUuid)
-        PolicyService.assertPolicy(TaskUtil.isOpen(task) && policyService.readTaakRechten(task).wijzigen)
+        assertPolicy(TaskUtil.isOpen(task) && policyService.readTaakRechten(task).wijzigen)
 
         val loggedInUserId = loggedInUserInstance.get().id
         if (restTaak.behandelaar == null || restTaak.behandelaar!!.id != loggedInUserId) {
@@ -248,7 +241,7 @@ class TakenRESTService @Inject constructor(
     @GET
     @Path("{taskId}/historie")
     fun listHistorie(@PathParam("taskId") taskId: String): List<RESTTaakHistorieRegel> {
-        PolicyService.assertPolicy(policyService.readTaakRechten(flowableTaskService.readTask(taskId)).lezen)
+        assertPolicy(policyService.readTaakRechten(flowableTaskService.readTask(taskId)).lezen)
         flowableTaskService.listHistorieForTask(taskId).let {
             return taakHistorieConverter.convert(it)
         }
@@ -256,9 +249,7 @@ class TakenRESTService @Inject constructor(
 
     private fun ingelogdeMedewerkerToekennenAanTaak(restTaakToekennenGegevens: RESTTaakToekennenGegevens): Task {
         val task = flowableTaskService.readOpenTask(restTaakToekennenGegevens.taakId)
-        PolicyService.assertPolicy(
-            TaskUtil.getTaakStatus(task) != TaakStatus.AFGEROND && policyService.readTaakRechten(task).toekennen
-        )
+        assertPolicy(TaskUtil.isOpen(task) && policyService.readTaakRechten(task).toekennen)
         taskService.assignTaskToUser(
             taskId = task.id,
             assignee = loggedInUserInstance.get().id,
@@ -324,7 +315,7 @@ class TakenRESTService @Inject constructor(
                 .map { UUID.fromString(it) }
                 .map { drcClientService.readEnkelvoudigInformatieobject(it) }
                 .forEach { enkelvoudigInformatieobject ->
-                    PolicyService.assertPolicy(
+                    assertPolicy(
                         (
                             // this extra check is because the API can return an empty ondertekening soort
                             enkelvoudigInformatieobject.ondertekening == null ||

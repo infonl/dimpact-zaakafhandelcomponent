@@ -55,7 +55,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
 
     private val zaakRechtenWijzigen = ZaakRechten(
         false, true, false, false, false, false, false, false,
-        false, false, false, false, false, false,
+        false, false, false, true, true, false,
         false, false, false, false,
         false, false, false, false,
         false, false, false, false, false
