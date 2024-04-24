@@ -19,7 +19,7 @@ import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
-import nl.lifely.zac.opentelemetry.startOpenTelemetrySpanWithoutParent
+import nl.lifely.zac.opentelemetry.createOpenTelemetrySpanWithoutParent
 import nl.lifely.zac.util.AllOpen
 import org.flowable.task.api.Task
 import java.util.UUID
@@ -88,30 +88,32 @@ class TaskService @Inject constructor(
         }
         val taakIds = mutableListOf<String>()
         withContext(Dispatchers.IO) {
-            val openTelemetrySpan = startOpenTelemetrySpanWithoutParent(
+            val openTelemetrySpan = createOpenTelemetrySpanWithoutParent(
                 tracer,
                 "${ASSIGN_TASKS_COROUTINE_NAME}.assignTasksAsync"
             )
-            restTaakVerdelenGegevens.taken.forEach { restTaakVerdelenTaak ->
-                val task = flowableTaskService.readOpenTask(restTaakVerdelenTaak.taakId)
-                flowableTaskService.assignTaskToGroup(
-                    task,
-                    restTaakVerdelenGegevens.groepId,
-                    restTaakVerdelenGegevens.reden
-                )
-                restTaakVerdelenGegevens.behandelaarGebruikersnaam?.let {
-                    assignTaskToUser(
-                        taskId = task.id,
-                        assignee = it,
-                        loggedInUser = loggedInUser,
-                        explanation = restTaakVerdelenGegevens.reden
+            openTelemetrySpan.makeCurrent().use {
+                restTaakVerdelenGegevens.taken.forEach { restTaakVerdelenTaak ->
+                    val task = flowableTaskService.readOpenTask(restTaakVerdelenTaak.taakId)
+                    flowableTaskService.assignTaskToGroup(
+                        task,
+                        restTaakVerdelenGegevens.groepId,
+                        restTaakVerdelenGegevens.reden
                     )
+                    restTaakVerdelenGegevens.behandelaarGebruikersnaam?.let {
+                        assignTaskToUser(
+                            taskId = task.id,
+                            assignee = it,
+                            loggedInUser = loggedInUser,
+                            explanation = restTaakVerdelenGegevens.reden
+                        )
+                    }
+                    sendScreenEventsOnTaskChange(task, restTaakVerdelenTaak.zaakUuid)
+                    taakIds.add(restTaakVerdelenTaak.taakId)
                 }
-                sendScreenEventsOnTaskChange(task, restTaakVerdelenTaak.zaakUuid)
-                taakIds.add(restTaakVerdelenTaak.taakId)
+                indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK)
+                openTelemetrySpan.end()
             }
-            indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK)
-            openTelemetrySpan.end()
         }
         LOG.fine {
             "Asynchronous assign tasks job with ID '$screenEventResourceId' finished. " +
@@ -160,22 +162,24 @@ class TaskService @Inject constructor(
         }
         val taakIds = mutableListOf<String>()
         withContext(Dispatchers.IO) {
-            val openTelemetrySpan = startOpenTelemetrySpanWithoutParent(
+            val openTelemetrySpan = createOpenTelemetrySpanWithoutParent(
                 tracer,
                 "${RELEASE_TASKS_COROUTINE_NAME}.releaseTasksAsync"
             )
-            restTaakVrijgevenGegevens.taken.forEach {
-                releaseTask(
-                    taskId = it.taakId,
-                    loggedInUser = loggedInUser,
-                    reden = restTaakVrijgevenGegevens.reden
-                ).let { updatedTask ->
-                    sendScreenEventsOnTaskChange(updatedTask, it.zaakUuid)
-                    taakIds.add(updatedTask.id)
+            openTelemetrySpan.makeCurrent().use {
+                restTaakVrijgevenGegevens.taken.forEach {
+                    releaseTask(
+                        taskId = it.taakId,
+                        loggedInUser = loggedInUser,
+                        reden = restTaakVrijgevenGegevens.reden
+                    ).let { updatedTask ->
+                        sendScreenEventsOnTaskChange(updatedTask, it.zaakUuid)
+                        taakIds.add(updatedTask.id)
+                    }
                 }
+                indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK)
+                openTelemetrySpan.end()
             }
-            indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK)
-            openTelemetrySpan.end()
         }
         LOG.fine {
             "Asynchronous release tasks job with ID '$screenEventResourceId' finished. " +
