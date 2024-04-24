@@ -74,7 +74,7 @@ class ZakenServiceTest : BehaviorSpec({
                 )
             } returns rolTypeBehandelaar
             every { zrcClientService.updateRol(it, any(), explanation) } just Runs
-            every { indexeerService.indexeerDirect(it.uuid.toString(), ZoekObjectType.ZAAK) } just Runs
+            every { indexeerService.indexeerDirect(it.uuid.toString(), ZoekObjectType.ZAAK, false) } just Runs
             every { eventingService.send(capture(screenEventSlot)) } just Runs
             every { tracer.spanBuilder(any()).setNoParent().startSpan() } returns span
             every { span.makeCurrent() } returns scope
@@ -117,7 +117,7 @@ class ZakenServiceTest : BehaviorSpec({
         zaken.map {
             every { zrcClientService.readZaak(it.uuid) } returns it
             every { zrcClientService.deleteRol(it, any(), explanation) } just Runs
-            every { indexeerService.indexeerDirect(it.uuid.toString(), ZoekObjectType.ZAAK) } just Runs
+            every { indexeerService.indexeerDirect(it.uuid.toString(), ZoekObjectType.ZAAK, false) } just Runs
         }
         every { eventingService.send(capture(screenEventSlot)) } just Runs
         every { tracer.spanBuilder(any()).setNoParent().startSpan() } returns span

@@ -296,7 +296,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
         every { identityService.readUser(restZaakToekennenGegevens.behandelaarGebruikersnaam) } returns user
         every { zgwApiService.findGroepForZaak(zaak) } returns Optional.empty()
         every { restZaakConverter.convert(zaak) } returns restZaak
-        every { indexeerService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK) } just runs
+        every { indexeerService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
         every { zakenService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
 
         When("toekennen is called") {
@@ -306,7 +306,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 assertEquals(returnedRestZaak, restZaak)
                 verify(exactly = 1) {
                     zrcClientService.updateRol(zaak, any(), restZaakToekennenGegevens.reden)
-                    indexeerService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK)
+                    indexeerService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
                 }
                 with(rolSlot.captured) {
                     assertEquals(this.betrokkeneType, BetrokkeneType.MEDEWERKER)

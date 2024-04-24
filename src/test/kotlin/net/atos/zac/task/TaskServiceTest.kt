@@ -98,7 +98,7 @@ class TaskServiceTest : BehaviorSpec({
         } returns updatedTaskAfterAssigningUser
         every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every { eventingService.send(capture(screenEventSlot)) } just runs
-        every { indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK) } just runs
+        every { indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, true) } just runs
 
         When("the 'assign task' function is called with REST taak toekennen gegevens with a group and user") {
             taskService.assignTask(
@@ -114,7 +114,7 @@ class TaskServiceTest : BehaviorSpec({
                         restTaakToekennenGegevens.reden
                     )
                     flowableTaskService.assignTaskToUser(any(), any(), any())
-                    indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK)
+                    indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, true)
                 }
                 screenEventSlot.size shouldBe 2
                 screenEventSlot.map { it.objectType } shouldContainExactlyInAnyOrder listOf(
@@ -164,7 +164,7 @@ class TaskServiceTest : BehaviorSpec({
         every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every { eventingService.send(capture(screenEventSlot)) } just runs
         every {
-            indexeerService.indexeerDirect(restTaakVerdelenTaken.map { it.taakId }.toList(), ZoekObjectType.TAAK)
+            indexeerService.indexeerDirect(restTaakVerdelenTaken.map { it.taakId }.toList(), ZoekObjectType.TAAK, true)
         } just runs
         every { tracer.spanBuilder(any()).setNoParent().startSpan() } returns span
         every { span.makeCurrent() } returns scope
@@ -187,7 +187,8 @@ class TaskServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     indexeerService.indexeerDirect(
                         restTaakVerdelenTaken.map { it.taakId }.toList(),
-                        ZoekObjectType.TAAK
+                        ZoekObjectType.TAAK,
+                        true
                     )
                 }
                 // we expect 4 screen events to be sent, 2 for each task
@@ -229,7 +230,7 @@ class TaskServiceTest : BehaviorSpec({
         every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every { eventingService.send(capture(screenEventSlot)) } just runs
         every {
-            indexeerService.indexeerDirect(restTaakVerdelenTaken.map { it.taakId }.toList(), ZoekObjectType.TAAK)
+            indexeerService.indexeerDirect(restTaakVerdelenTaken.map { it.taakId }.toList(), ZoekObjectType.TAAK, true)
         } just runs
         every { tracer.spanBuilder(any()).setNoParent().startSpan() } returns span
         every { span.makeCurrent() } returns scope
@@ -252,7 +253,8 @@ class TaskServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     indexeerService.indexeerDirect(
                         restTaakVerdelenTaken.map { it.taakId }.toList(),
-                        ZoekObjectType.TAAK
+                        ZoekObjectType.TAAK,
+                        true
                     )
                 }
                 // we expect 4 screen events to be sent, 2 for each task

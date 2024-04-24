@@ -5,43 +5,11 @@
 
 package net.atos.zac.zoeken;
 
-import static java.util.logging.Level.WARNING;
-import static net.atos.client.zgw.shared.ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS;
-import static net.atos.client.zgw.shared.model.Results.NUM_ITEMS_PER_PAGE;
-import static net.atos.zac.util.UriUtil.uuidFromURI;
-import static net.atos.zac.zoeken.model.index.IndexStatus.ADD;
-import static net.atos.zac.zoeken.model.index.IndexStatus.REMOVE;
-import static net.atos.zac.zoeken.model.index.IndexStatus.UPDATE;
-import static net.atos.zac.zoeken.model.index.ZoekObjectType.DOCUMENT;
-import static net.atos.zac.zoeken.model.index.ZoekObjectType.TAAK;
-import static net.atos.zac.zoeken.model.index.ZoekObjectType.ZAAK;
-
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-import java.util.logging.Logger;
-import java.util.stream.Stream;
-
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.transaction.Transactional;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.Http2SolrClient;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.params.CursorMarkParams;
-import org.eclipse.microprofile.config.ConfigProvider;
-import org.flowable.task.api.Task;
-import org.flowable.task.api.TaskInfo;
-
 import net.atos.client.zgw.drc.DRCClientService;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
@@ -59,6 +27,36 @@ import net.atos.zac.zoeken.model.index.HerindexerenInfo;
 import net.atos.zac.zoeken.model.index.IndexResult;
 import net.atos.zac.zoeken.model.index.ZoekIndexEntity;
 import net.atos.zac.zoeken.model.index.ZoekObjectType;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.Http2SolrClient;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.params.CursorMarkParams;
+import org.eclipse.microprofile.config.ConfigProvider;
+import org.flowable.task.api.Task;
+import org.flowable.task.api.TaskInfo;
+
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
+
+import static java.util.logging.Level.WARNING;
+import static net.atos.client.zgw.shared.ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS;
+import static net.atos.client.zgw.shared.model.Results.NUM_ITEMS_PER_PAGE;
+import static net.atos.zac.util.UriUtil.uuidFromURI;
+import static net.atos.zac.zoeken.model.index.IndexStatus.ADD;
+import static net.atos.zac.zoeken.model.index.IndexStatus.REMOVE;
+import static net.atos.zac.zoeken.model.index.IndexStatus.UPDATE;
+import static net.atos.zac.zoeken.model.index.ZoekObjectType.DOCUMENT;
+import static net.atos.zac.zoeken.model.index.ZoekObjectType.TAAK;
+import static net.atos.zac.zoeken.model.index.ZoekObjectType.ZAAK;
 
 @Singleton
 @Transactional
@@ -104,12 +102,30 @@ public class IndexeerService {
         return new Http2SolrClient.Builder(baseSolrUrl).build();
     }
 
-    public void indexeerDirect(final String objectId, final ZoekObjectType objectType) {
-        addToSolrIndex(Stream.of(getConverter(objectType).convert(objectId)));
+    /**
+     * Adds objectId to the Solr index and optionally performs a (hard) Solr commit so
+     * that the Solr index is updated immediately.
+     * Beware that hard Solr commits are relavitely expensive operations.
+     *
+     * @param objectId the object id to be indexed
+     * @param objectType the object type
+     * @param performCommit whether to perform a hard Solr commit
+     */
+    public void indexeerDirect(final String objectId, final ZoekObjectType objectType, final boolean performCommit) {
+        addToSolrIndex(Stream.of(getConverter(objectType).convert(objectId)), performCommit);
     }
 
-    public void indexeerDirect(final List<String> objectIds, final ZoekObjectType objectType) {
-        addToSolrIndex(objectIds.stream().map(objectId -> getConverter(objectType).convert(objectId)));
+    /**
+     * Add a list of objectIds to the Solr index and optionally performs a (hard) Solr commit so
+     * that the Solr index is updated immediately.
+     * Beware that hard Solr commits are relavitely expensive operations.
+     *
+     * @param objectIds the list of object ids to be indexed
+     * @param objectType the object type
+     * @param performCommit whether to perform a hard Solr commit
+     */
+    public void indexeerDirect(final List<String> objectIds, final ZoekObjectType objectType, final boolean performCommit) {
+        addToSolrIndex(objectIds.stream().map(objectId -> getConverter(objectType).convert(objectId)), performCommit);
     }
 
     @Transactional(Transactional.TxType.NEVER)
@@ -129,7 +145,9 @@ public class IndexeerService {
         final long added = addToSolrIndex(
                 entities.stream()
                         .filter(zoekIndexEntity -> zoekIndexEntity.getStatus() == ADD || zoekIndexEntity.getStatus() == UPDATE)
-                        .map(zoekIndexEntity -> convertToZoekObject(zoekIndexEntity, converter)));
+                        .map(zoekIndexEntity -> convertToZoekObject(zoekIndexEntity, converter)),
+                false // no hard commit here
+        );
         final long removed = removeFromSolrIndex(
                 entities.stream()
                         .filter(zoekIndexEntity -> zoekIndexEntity.getStatus() == REMOVE)
@@ -233,13 +251,16 @@ public class IndexeerService {
         return zoekObject;
     }
 
-    private long addToSolrIndex(final Stream<ZoekObject> zoekObjecten) {
+    private long addToSolrIndex(final Stream<ZoekObject> zoekObjecten, final boolean performCommit) {
         final List<ZoekObject> beansToBeAdded = zoekObjecten
                 .filter(Objects::nonNull)
                 .toList();
         if (CollectionUtils.isNotEmpty(beansToBeAdded)) {
             try {
                 solrClient.addBeans(beansToBeAdded);
+                if (performCommit) {
+                    solrClient.commit();
+                }
             } catch (final IOException | SolrServerException e) {
                 throw new RuntimeException(e);
             }

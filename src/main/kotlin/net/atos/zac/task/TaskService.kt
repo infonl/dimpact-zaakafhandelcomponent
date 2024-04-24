@@ -20,12 +20,10 @@ import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import nl.lifely.zac.opentelemetry.createOpenTelemetrySpanWithoutParent
-import nl.lifely.zac.util.AllOpen
 import org.flowable.task.api.Task
 import java.util.UUID
 import java.util.logging.Logger
 
-@AllOpen
 class TaskService @Inject constructor(
     private val flowableTaskService: FlowableTaskService,
     private val indexeerService: IndexeerService,
@@ -69,7 +67,7 @@ class TaskService @Inject constructor(
         }
         if (changed) {
             sendScreenEventsOnTaskChange(updatedTask, restTaakToekennenGegevens.zaakUuid)
-            indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK)
+            indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, true)
         }
     }
 
@@ -111,7 +109,7 @@ class TaskService @Inject constructor(
                     sendScreenEventsOnTaskChange(task, restTaakVerdelenTaak.zaakUuid)
                     taakIds.add(restTaakVerdelenTaak.taakId)
                 }
-                indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK)
+                indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK, true)
                 openTelemetrySpan.end()
             }
         }
@@ -177,7 +175,7 @@ class TaskService @Inject constructor(
                         taakIds.add(updatedTask.id)
                     }
                 }
-                indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK)
+                indexeerService.indexeerDirect(taakIds, ZoekObjectType.TAAK, true)
                 openTelemetrySpan.end()
             }
         }
