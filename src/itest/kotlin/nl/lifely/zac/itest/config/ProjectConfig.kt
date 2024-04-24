@@ -2,8 +2,7 @@
  * SPDX-FileCopyrightText: 2023 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
-package io.kotest.provided
+package nl.lifely.zac.itest.config
 
 import io.github.oshai.kotlinlogging.DelegatingKLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -36,8 +35,10 @@ import kotlin.time.toJavaDuration
 
 private val logger = KotlinLogging.logger {}
 
-object ProjectConfig : AbstractProjectConfig() {
-    lateinit var dockerComposeContainer: ComposeContainer
+// global variable so that it can be referenced elsewhere
+lateinit var dockerComposeContainer: ComposeContainer
+
+class ProjectConfig : AbstractProjectConfig() {
     private val itestHttpClient = ItestHttpClient()
 
     override suspend fun beforeProject() {

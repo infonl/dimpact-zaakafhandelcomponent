@@ -165,16 +165,26 @@ export class TakenService {
     taken: TaakZoekObject[],
     reden: string,
   ): Observable<void> {
-    const taakBody: TaakVerdelenGegevens = new TaakVerdelenGegevens();
+    const taakBody: TaakVerdelenGegevens & { screenEventResourceId?: string } =
+      new TaakVerdelenGegevens();
     taakBody.taken = taken.map((taak) => ({
       taakId: taak.id,
       zaakUuid: taak.zaakUuid,
     }));
     taakBody.reden = reden;
-    return this.http
-      .put<void>(`${this.basepath}/lijst/vrijgeven`, taakBody)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    taakBody.screenEventResourceId = uuidv4();
+    return this.websocketService.longRunningOperation(
+      Opcode.UPDATED,
+      ObjectType.TAKEN_VRIJGEVEN,
+      taakBody.screenEventResourceId,
+      () =>
+        this.http
+          .put<void>(`${this.basepath}/lijst/vrijgeven`, taakBody)
+          .pipe(
+            catchError((err) =>
+              this.foutAfhandelingService.foutAfhandelen(err),
+            ),
+          ),
+    );
   }
 }

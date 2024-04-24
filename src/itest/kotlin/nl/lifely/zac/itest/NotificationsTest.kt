@@ -10,7 +10,6 @@ import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.provided.ProjectConfig
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTS_BASE_URI
@@ -26,6 +25,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_UITERLIJKE_EINDDATUM_AFDOENING
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.zaak1UUID
+import nl.lifely.zac.itest.config.dockerComposeContainer
 import nl.lifely.zac.itest.util.WebSocketTestListener
 import okhttp3.Headers
 import org.json.JSONObject
@@ -156,7 +156,7 @@ class NotificationsTest : BehaviorSpec({
                 response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
 
                 // we expect ZAC to log an error message indicating that the resourceURL is invalid
-                ProjectConfig.dockerComposeContainer.waitingFor(
+                dockerComposeContainer.waitingFor(
                     "zac",
                     Wait.forLogMessage(
                         ".* Er is iets fout gegaan in de Zaaktype-handler bij het afhandelen van notificatie: " +

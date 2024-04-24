@@ -31,7 +31,8 @@ type Response<
         : unknown
       : never
     : never,
-  {}
+  {},
+  "application/json"
 >["data"];
 
 @Injectable({
