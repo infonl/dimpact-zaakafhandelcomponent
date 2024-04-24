@@ -24,7 +24,7 @@ import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.policy.input.ZaakInput
-import net.atos.zac.policy.output.createZaakRechten
+import net.atos.zac.policy.output.createZaakRechtenAllAllow
 import net.atos.zac.zoeken.model.ZaakIndicatie
 import net.atos.zac.zoeken.model.createZaakZoekObject
 import java.net.URI
@@ -59,7 +59,7 @@ class PolicyServiceTest : BehaviorSpec() {
             val zaakType = createZaakType()
             val zaakStatus = createZaakStatus()
             val statusType = createStatusType()
-            val expectedZaakRechten = createZaakRechten()
+            val expectedZaakRechten = createZaakRechtenAllAllow()
 
             val ruleQuerySlot = slot<RuleQuery<ZaakInput>>()
 
@@ -96,7 +96,7 @@ class PolicyServiceTest : BehaviorSpec() {
             val zaakType = createZaakType()
             val zaakStatus = createZaakStatus()
             val statusType = createStatusType()
-            val expectedZaakRechten = createZaakRechten()
+            val expectedZaakRechten = createZaakRechtenAllAllow()
 
             val ruleQuerySlot = slot<RuleQuery<ZaakInput>>()
 
@@ -133,7 +133,7 @@ class PolicyServiceTest : BehaviorSpec() {
             val zaakType = createZaakType()
             val zaakStatus = createZaakStatus()
             val statusType = createStatusType(omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_INTAKE)
-            val expectedZaakRechten = createZaakRechten()
+            val expectedZaakRechten = createZaakRechtenAllAllow()
 
             val ruleQuerySlot = slot<RuleQuery<ZaakInput>>()
 
@@ -171,7 +171,7 @@ class PolicyServiceTest : BehaviorSpec() {
             val zaakType = createZaakType()
             val zaakStatus = createZaakStatus()
             val statusType = createStatusType(omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND)
-            val expectedZaakRechten = createZaakRechten()
+            val expectedZaakRechten = createZaakRechtenAllAllow()
 
             val ruleQuerySlot = slot<RuleQuery<ZaakInput>>()
 
@@ -209,7 +209,7 @@ class PolicyServiceTest : BehaviorSpec() {
                 this.setIndicatie(ZaakIndicatie.BESLOTEN, true)
                 this.setIndicatie(ZaakIndicatie.HEROPEND, true)
             }
-            val expectedZaakRechten = createZaakRechten()
+            val expectedZaakRechten = createZaakRechtenAllAllow()
 
             val ruleQuerySlot = slot<RuleQuery<ZaakInput>>()
             every { evaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
