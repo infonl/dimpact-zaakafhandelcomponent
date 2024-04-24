@@ -15,6 +15,7 @@ import io.mockk.slot
 import io.mockk.verify
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.Tracer
+import io.opentelemetry.context.Scope
 import net.atos.zac.app.taken.converter.RESTTaakConverter
 import net.atos.zac.app.taken.model.createRESTTaakToekennenGegevens
 import net.atos.zac.app.taken.model.createRESTTaakVerdelenGegevens
@@ -39,6 +40,7 @@ class TaskServiceTest : BehaviorSpec({
     val restTaakConverter = mockk<RESTTaakConverter>()
     val tracer = mockk<Tracer>()
     val span = mockk<Span>()
+    val scope = mockk<Scope>()
     val taskService = TaskService(
         flowableTaskService = flowableTaskService,
         indexeerService = indexeerService,
@@ -165,8 +167,9 @@ class TaskServiceTest : BehaviorSpec({
             indexeerService.indexeerDirect(restTaakVerdelenTaken.map { it.taakId }.toList(), ZoekObjectType.TAAK)
         } just runs
         every { tracer.spanBuilder(any()).setNoParent().startSpan() } returns span
-        every { span.makeCurrent() } returns mockk()
+        every { span.makeCurrent() } returns scope
         every { span.end() } just Runs
+        every { scope.close() } just Runs
 
         When("the 'assign tasks' function is called with REST taak verdelen gegevens") {
             taskService.assignTasksAsync(restTaakVerdelenGegevens, loggedInUser).join()
@@ -229,8 +232,9 @@ class TaskServiceTest : BehaviorSpec({
             indexeerService.indexeerDirect(restTaakVerdelenTaken.map { it.taakId }.toList(), ZoekObjectType.TAAK)
         } just runs
         every { tracer.spanBuilder(any()).setNoParent().startSpan() } returns span
-        every { span.makeCurrent() } returns mockk()
+        every { span.makeCurrent() } returns scope
         every { span.end() } just Runs
+        every { scope.close() } just Runs
 
         When(
             """"

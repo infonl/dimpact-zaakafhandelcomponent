@@ -12,6 +12,7 @@ import io.mockk.slot
 import io.mockk.verify
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.Tracer
+import io.opentelemetry.context.Scope
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.createZaak
@@ -33,6 +34,8 @@ class ZakenServiceTest : BehaviorSpec({
     val zrcClientService = mockk<ZRCClientService>()
     val ztcClientService = mockk<ZTCClientService>()
     val tracer = mockk<Tracer>()
+    val span = mockk<Span>()
+    val scope = mockk<Scope>()
     val zakenService = ZakenService(
         eventingService = eventingService,
         indexeerService = indexeerService,
@@ -51,7 +54,6 @@ class ZakenServiceTest : BehaviorSpec({
     val rolTypeBehandelaar = createRolType(
         omschrijvingGeneriek = RolType.OmschrijvingGeneriekEnum.BEHANDELAAR
     )
-    val span = mockk<Span>()
 
     beforeEach {
         checkUnnecessaryStub()
@@ -75,8 +77,9 @@ class ZakenServiceTest : BehaviorSpec({
             every { indexeerService.indexeerDirect(it.uuid.toString(), ZoekObjectType.ZAAK) } just Runs
             every { eventingService.send(capture(screenEventSlot)) } just Runs
             every { tracer.spanBuilder(any()).setNoParent().startSpan() } returns span
-            every { span.makeCurrent() } returns mockk()
+            every { span.makeCurrent() } returns scope
             every { span.end() } just Runs
+            every { scope.close() } just Runs
         }
         When(
             """the assign zaken async function is called with a group, a user
@@ -118,8 +121,9 @@ class ZakenServiceTest : BehaviorSpec({
         }
         every { eventingService.send(capture(screenEventSlot)) } just Runs
         every { tracer.spanBuilder(any()).setNoParent().startSpan() } returns span
-        every { span.makeCurrent() } returns mockk()
+        every { span.makeCurrent() } returns scope
         every { span.end() } just Runs
+        every { scope.close() } just Runs
         When(
             """the release zaken async function is called with
                  a screen event resource id"""
@@ -153,7 +157,8 @@ class ZakenServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(zaken[0].uuid) } returns zaken[0]
         every { zrcClientService.readZaak(zaken[1].uuid) } throws RuntimeException("dummyRuntimeException")
         every { tracer.spanBuilder(any()).setNoParent().startSpan() } returns span
-        every { span.makeCurrent() } returns mockk()
+        every { span.makeCurrent() } returns scope
+        every { scope.close() } just Runs
         When(
             """the assign zaken async function is called with a group
                 and a screen event resource id"""

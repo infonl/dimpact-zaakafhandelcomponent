@@ -26,7 +26,7 @@ import net.atos.zac.identity.model.User
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
-import nl.lifely.zac.opentelemetry.startOpenTelemetrySpanWithoutParent
+import nl.lifely.zac.opentelemetry.createOpenTelemetrySpanWithoutParent
 import java.util.UUID
 import java.util.logging.Logger
 
@@ -60,34 +60,36 @@ class ZakenService @Inject constructor(
         }
         val zakenAssignedList = mutableListOf<UUID>()
         withContext(Dispatchers.IO) {
-            val openTelemetrySpan = startOpenTelemetrySpanWithoutParent(
+            val openTelemetrySpan = createOpenTelemetrySpanWithoutParent(
                 tracer = tracer,
                 spanName = "$ASSIGN_ZAKEN_COROUTINE_NAME.assignZakenAsync"
             )
-            zaakUUIDs
-                .map { zrcClientService.readZaak(it) }
-                .map { zaak ->
-                    group.let {
-                        zrcClientService.updateRol(
-                            zaak,
-                            bepaalRolGroep(it, zaak),
-                            explanation
+            openTelemetrySpan.makeCurrent().use {
+                zaakUUIDs
+                    .map { zrcClientService.readZaak(it) }
+                    .map { zaak ->
+                        group.let {
+                            zrcClientService.updateRol(
+                                zaak,
+                                bepaalRolGroep(it, zaak),
+                                explanation
+                            )
+                        }
+                        user?.let {
+                            zrcClientService.updateRol(
+                                zaak,
+                                bepaalRolMedewerker(it, zaak),
+                                explanation
+                            )
+                        }
+                        indexeerService.indexeerDirect(
+                            zaak.uuid.toString(),
+                            ZoekObjectType.ZAAK
                         )
+                        zakenAssignedList.add(zaak.uuid)
                     }
-                    user?.let {
-                        zrcClientService.updateRol(
-                            zaak,
-                            bepaalRolMedewerker(it, zaak),
-                            explanation
-                        )
-                    }
-                    indexeerService.indexeerDirect(
-                        zaak.uuid.toString(),
-                        ZoekObjectType.ZAAK
-                    )
-                    zakenAssignedList.add(zaak.uuid)
-                }
-            openTelemetrySpan.end()
+                openTelemetrySpan.end()
+            }
         }
         LOG.fine {
             "Asynchronous assign zaken job with job ID '$screenEventResourceId' finished. " +
@@ -143,17 +145,19 @@ class ZakenService @Inject constructor(
         }
         withContext(Dispatchers.IO) {
             val openTelemetrySpan =
-                startOpenTelemetrySpanWithoutParent(tracer, "$RELEASE_ZAKEN_COROUTINE_NAME.releaseZakenAsync")
-            zaakUUIDs
-                .map { zrcClientService.readZaak(it) }
-                .forEach {
-                    zrcClientService.deleteRol(it, BetrokkeneType.MEDEWERKER, explanation)
-                    indexeerService.indexeerDirect(
-                        it.uuid.toString(),
-                        ZoekObjectType.ZAAK
-                    )
-                }
-            openTelemetrySpan.end()
+                createOpenTelemetrySpanWithoutParent(tracer, "$RELEASE_ZAKEN_COROUTINE_NAME.releaseZakenAsync")
+            openTelemetrySpan.makeCurrent().use {
+                zaakUUIDs
+                    .map { zrcClientService.readZaak(it) }
+                    .forEach {
+                        zrcClientService.deleteRol(it, BetrokkeneType.MEDEWERKER, explanation)
+                        indexeerService.indexeerDirect(
+                            it.uuid.toString(),
+                            ZoekObjectType.ZAAK
+                        )
+                    }
+                openTelemetrySpan.end()
+            }
         }
         LOG.fine {
             "Asynchronous release zaken job with job ID '$screenEventResourceId' finished. " +
