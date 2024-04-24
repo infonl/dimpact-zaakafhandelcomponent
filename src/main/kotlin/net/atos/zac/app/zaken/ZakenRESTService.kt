@@ -570,7 +570,7 @@ class ZakenRESTService @Inject constructor(
             }
 
         if (isUpdated.get()) {
-            indexeerService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK)
+            indexeerService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
         }
 
         return restZaakConverter.convert(zaak)
@@ -583,7 +583,7 @@ class ZakenRESTService @Inject constructor(
     ): RESTZaakOverzicht {
         assertPolicy(policyService.readWerklijstRechten().zakenTaken)
         val zaak = ingelogdeMedewerkerToekennenAanZaak(toekennenGegevens)
-        indexeerService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK)
+        indexeerService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
         return restZaakOverzichtConverter.convert(zaak)
     }
 

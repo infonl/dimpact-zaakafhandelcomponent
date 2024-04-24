@@ -257,7 +257,7 @@ class TakenRESTService @Inject constructor(
             explanation = restTaakToekennenGegevens.reden
         ).let {
             taskService.sendScreenEventsOnTaskChange(it, restTaakToekennenGegevens.zaakUuid)
-            indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK)
+            indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, true)
             return it
         }
     }
