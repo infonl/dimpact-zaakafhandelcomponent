@@ -591,8 +591,6 @@ services:
       - SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE=${SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE:-off}
       - SUBSYSTEM_OPENTELEMETRY__ENDPOINT=http://otel-collector:4317
       - VRL_API_CLIENT_MP_REST_URL=http://zgw-referentielijsten.local:8000/
-      # Enable the ability to override WildFly settings using environment variables
-      - WILDFLY_OVERRIDING_ENV_VARS=1
       - ZGW_API_CLIENT_MP_REST_URL=http://openzaak.local:8000/
       - ZGW_API_CLIENTID=zac_client
       - ZGW_API_SECRET=openzaakZaakafhandelcomponentClientSecret
