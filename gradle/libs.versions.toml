@@ -127,6 +127,7 @@ jackson-kotlin = { group = "com.fasterxml.jackson.module", name = "jackson-modul
 
 opentelemetry-api = { group = "io.opentelemetry", name = "opentelemetry-api", version.ref = "opentelemetry" }
 opentelemetry-instrumentation-annotations = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-instrumentation-annotations", version.ref = "opentelemetry-instrumentation" }
+opentelemetry-extension-kotlin = { group = "io.opentelemetry", name = "opentelemetry-extension-kotlin", version.ref = "opentelemetry" }
 
 # dependencies provided by Wildfly
 # update these versions when upgrading WildFly

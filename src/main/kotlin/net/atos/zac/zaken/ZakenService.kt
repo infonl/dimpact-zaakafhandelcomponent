@@ -6,11 +6,7 @@ package net.atos.zac.zaken
 
 import io.opentelemetry.api.trace.Tracer
 import jakarta.inject.Inject
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Medewerker
@@ -26,7 +22,7 @@ import net.atos.zac.identity.model.User
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
-import nl.lifely.zac.opentelemetry.createOpenTelemetrySpanWithoutParent
+import nl.lifely.zac.opentelemetry.withSpan
 import java.util.UUID
 import java.util.logging.Logger
 
@@ -38,60 +34,49 @@ class ZakenService @Inject constructor(
     private val tracer: Tracer
 ) {
     companion object {
-        private val defaultCoroutineScope = CoroutineScope(Dispatchers.Default)
         private val LOG = Logger.getLogger(ZakenService::class.java.name)
-        private const val ASSIGN_ZAKEN_COROUTINE_NAME = "AssignZakenCoroutine"
-        private const val RELEASE_ZAKEN_COROUTINE_NAME = "ReleaseZakenCoroutine"
     }
 
     /**
      * Asynchronously assigns a list of zaken to a group and/or user and updates the search index on the fly.
      */
     @Suppress("LongParameterList")
-    fun assignZakenAsync(
+    suspend fun assignZakenAsync(
         zaakUUIDs: List<UUID>,
         group: Group,
         user: User? = null,
         explanation: String? = null,
         screenEventResourceId: String? = null,
-    ) = defaultCoroutineScope.launch(CoroutineName(ASSIGN_ZAKEN_COROUTINE_NAME)) {
-        LOG.fine {
-            "Started asynchronous job with ID: $screenEventResourceId to assign ${zaakUUIDs.size} zaken."
-        }
+    ) = withSpan(
+        tracer = tracer,
+        spanName = "${javaClass.kotlin.simpleName}.assignZakenAsync",
+        coroutineContext = Dispatchers.IO
+    ) { _ ->
+        LOG.fine { "Started asynchronous job with ID: $screenEventResourceId to assign ${zaakUUIDs.size} zaken." }
         val zakenAssignedList = mutableListOf<UUID>()
-        withContext(Dispatchers.IO) {
-            val openTelemetrySpan = createOpenTelemetrySpanWithoutParent(
-                tracer = tracer,
-                spanName = "$ASSIGN_ZAKEN_COROUTINE_NAME.assignZakenAsync"
-            )
-            openTelemetrySpan.makeCurrent().use {
-                zaakUUIDs
-                    .map { zrcClientService.readZaak(it) }
-                    .map { zaak ->
-                        group.let {
-                            zrcClientService.updateRol(
-                                zaak,
-                                bepaalRolGroep(it, zaak),
-                                explanation
-                            )
-                        }
-                        user?.let {
-                            zrcClientService.updateRol(
-                                zaak,
-                                bepaalRolMedewerker(it, zaak),
-                                explanation
-                            )
-                        }
-                        indexeerService.indexeerDirect(
-                            zaak.uuid.toString(),
-                            ZoekObjectType.ZAAK,
-                            false
-                        )
-                        zakenAssignedList.add(zaak.uuid)
-                    }
-                openTelemetrySpan.end()
+        zaakUUIDs
+            .map { zrcClientService.readZaak(it) }
+            .map { zaak ->
+                group.let {
+                    zrcClientService.updateRol(
+                        zaak,
+                        bepaalRolGroep(it, zaak),
+                        explanation
+                    )
+                }
+                user?.let {
+                    zrcClientService.updateRol(
+                        zaak,
+                        bepaalRolMedewerker(it, zaak),
+                        explanation
+                    )
+                }
+                indexeerService.indexeerDirect(
+                    zaak.uuid.toString(),
+                    ZoekObjectType.ZAAK
+                )
+                zakenAssignedList.add(zaak.uuid)
             }
-        }
         LOG.fine {
             "Asynchronous assign zaken job with job ID '$screenEventResourceId' finished. " +
                 "Successfully assigned ${zakenAssignedList.size} zaken."
@@ -136,31 +121,28 @@ class ZakenService @Inject constructor(
     /**
      * Asynchronously releases a list of zaken from a user and updates the search index on the fly.
      */
-    fun releaseZakenAsync(
+    suspend fun releaseZakenAsync(
         zaakUUIDs: List<UUID>,
         explanation: String? = null,
         screenEventResourceId: String? = null
-    ) = defaultCoroutineScope.launch(CoroutineName(RELEASE_ZAKEN_COROUTINE_NAME)) {
+    ) = withSpan(
+        tracer = tracer,
+        spanName = "${javaClass.kotlin.simpleName}.releaseZakenAsync",
+        coroutineContext = Dispatchers.IO
+    ) { _ ->
         LOG.fine {
             "Started asynchronous job with ID: $screenEventResourceId to release ${zaakUUIDs.size} zaken"
         }
-        withContext(Dispatchers.IO) {
-            val openTelemetrySpan =
-                createOpenTelemetrySpanWithoutParent(tracer, "$RELEASE_ZAKEN_COROUTINE_NAME.releaseZakenAsync")
-            openTelemetrySpan.makeCurrent().use {
-                zaakUUIDs
-                    .map { zrcClientService.readZaak(it) }
-                    .forEach {
-                        zrcClientService.deleteRol(it, BetrokkeneType.MEDEWERKER, explanation)
-                        indexeerService.indexeerDirect(
-                            it.uuid.toString(),
-                            ZoekObjectType.ZAAK,
-                            false
-                        )
-                    }
-                openTelemetrySpan.end()
+        zaakUUIDs
+            .map { zrcClientService.readZaak(it) }
+            .forEach {
+                zrcClientService.deleteRol(it, BetrokkeneType.MEDEWERKER, explanation)
+                indexeerService.indexeerDirect(
+                    it.uuid.toString(),
+                    ZoekObjectType.ZAAK
+                )
             }
-        }
+
         LOG.fine {
             "Asynchronous release zaken job with job ID '$screenEventResourceId' finished. " +
                 "Successfully released ${zaakUUIDs.size} zaken."

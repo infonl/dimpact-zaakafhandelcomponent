@@ -20,6 +20,9 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.vrl.VRLClientService
 import net.atos.client.zgw.brc.BRCClientService
@@ -193,6 +196,7 @@ class ZakenRESTService @Inject constructor(
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZakenRESTService::class.java.name)
+        private val defaultCoroutineScope = CoroutineScope(Dispatchers.Default)
 
         private const val ROL_VERWIJDER_REDEN = "Verwijderd door de medewerker tijdens het behandelen van de zaak"
         private const val ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
@@ -591,30 +595,34 @@ class ZakenRESTService @Inject constructor(
     @Path("lijst/verdelen")
     fun verdelenVanuitLijst(@Valid restZakenVerdeelGegevens: RESTZakenVerdeelGegevens) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
-        zakenService.assignZakenAsync(
-            zaakUUIDs = restZakenVerdeelGegevens.uuids,
-            explanation = restZakenVerdeelGegevens.reden,
-            group = restZakenVerdeelGegevens.groepId.let {
-                identityService.readGroup(
-                    restZakenVerdeelGegevens.groepId
-                )
-            },
-            user = restZakenVerdeelGegevens.behandelaarGebruikersnaam?.let {
-                identityService.readUser(restZakenVerdeelGegevens.behandelaarGebruikersnaam)
-            },
-            screenEventResourceId = restZakenVerdeelGegevens.screenEventResourceId
-        )
+        defaultCoroutineScope.launch {
+            zakenService.assignZakenAsync(
+                zaakUUIDs = restZakenVerdeelGegevens.uuids,
+                explanation = restZakenVerdeelGegevens.reden,
+                group = restZakenVerdeelGegevens.groepId.let {
+                    identityService.readGroup(
+                        restZakenVerdeelGegevens.groepId
+                    )
+                },
+                user = restZakenVerdeelGegevens.behandelaarGebruikersnaam?.let {
+                    identityService.readUser(restZakenVerdeelGegevens.behandelaarGebruikersnaam)
+                },
+                screenEventResourceId = restZakenVerdeelGegevens.screenEventResourceId
+            )
+        }
     }
 
     @PUT
     @Path("lijst/vrijgeven")
     fun vrijgevenVanuitLijst(@Valid restZakenVrijgevenGegevens: RESTZakenVrijgevenGegevens) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
-        zakenService.releaseZakenAsync(
-            zaakUUIDs = restZakenVrijgevenGegevens.uuids,
-            explanation = restZakenVrijgevenGegevens.reden,
-            screenEventResourceId = restZakenVrijgevenGegevens.screenEventResourceId
-        )
+        defaultCoroutineScope.launch {
+            zakenService.releaseZakenAsync(
+                zaakUUIDs = restZakenVrijgevenGegevens.uuids,
+                explanation = restZakenVrijgevenGegevens.reden,
+                screenEventResourceId = restZakenVrijgevenGegevens.screenEventResourceId
+            )
+        }
     }
 
     @PATCH

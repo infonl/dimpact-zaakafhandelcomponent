@@ -1,5 +1,6 @@
 package net.atos.zac.zaken
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
@@ -11,7 +12,10 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import io.opentelemetry.api.trace.Span
+import io.opentelemetry.api.trace.SpanBuilder
+import io.opentelemetry.api.trace.StatusCode
 import io.opentelemetry.api.trace.Tracer
+import io.opentelemetry.context.Context
 import io.opentelemetry.context.Scope
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
@@ -34,8 +38,10 @@ class ZakenServiceTest : BehaviorSpec({
     val zrcClientService = mockk<ZRCClientService>()
     val ztcClientService = mockk<ZTCClientService>()
     val tracer = mockk<Tracer>()
+    val spanBuilder = mockk<SpanBuilder>()
     val span = mockk<Span>()
     val scope = mockk<Scope>()
+    val context = mockk<Context>()
     val zakenService = ZakenService(
         eventingService = eventingService,
         indexeerService = indexeerService,
@@ -65,6 +71,12 @@ class ZakenServiceTest : BehaviorSpec({
 
     Given("A list of zaken") {
         val screenEventSlot = slot<ScreenEvent>()
+        every { tracer.spanBuilder("ZakenService.assignZakenAsync") } returns spanBuilder
+        every { spanBuilder.startSpan() } returns span
+        every { span.storeInContext(any()) } returns context
+        every { context.makeCurrent() } returns scope
+        every { span.end() } just Runs
+        every { scope.close() } just Runs
         zaken.map {
             every { zrcClientService.readZaak(it.uuid) } returns it
             every {
@@ -76,10 +88,6 @@ class ZakenServiceTest : BehaviorSpec({
             every { zrcClientService.updateRol(it, any(), explanation) } just Runs
             every { indexeerService.indexeerDirect(it.uuid.toString(), ZoekObjectType.ZAAK, false) } just Runs
             every { eventingService.send(capture(screenEventSlot)) } just Runs
-            every { tracer.spanBuilder(any()).setNoParent().startSpan() } returns span
-            every { span.makeCurrent() } returns scope
-            every { span.end() } just Runs
-            every { scope.close() } just Runs
         }
         When(
             """the assign zaken async function is called with a group, a user
@@ -91,7 +99,8 @@ class ZakenServiceTest : BehaviorSpec({
                 group = group,
                 user = user,
                 screenEventResourceId = screenEventResourceId
-            ).join()
+            )
+
             Then(
                 """for both zaken the group and user roles 
                     and the search index should be updated and
@@ -114,16 +123,18 @@ class ZakenServiceTest : BehaviorSpec({
     Given("A list of zaken") {
         clearAllMocks()
         val screenEventSlot = slot<ScreenEvent>()
+        every { tracer.spanBuilder("ZakenService.releaseZakenAsync") } returns spanBuilder
+        every { spanBuilder.startSpan() } returns span
+        every { span.storeInContext(any()) } returns context
+        every { context.makeCurrent() } returns scope
+        every { span.end() } just Runs
+        every { scope.close() } just Runs
         zaken.map {
             every { zrcClientService.readZaak(it.uuid) } returns it
             every { zrcClientService.deleteRol(it, any(), explanation) } just Runs
             every { indexeerService.indexeerDirect(it.uuid.toString(), ZoekObjectType.ZAAK, false) } just Runs
         }
         every { eventingService.send(capture(screenEventSlot)) } just Runs
-        every { tracer.spanBuilder(any()).setNoParent().startSpan() } returns span
-        every { span.makeCurrent() } returns scope
-        every { span.end() } just Runs
-        every { scope.close() } just Runs
         When(
             """the release zaken async function is called with
                  a screen event resource id"""
@@ -132,7 +143,7 @@ class ZakenServiceTest : BehaviorSpec({
                 zaakUUIDs = zaken.map { it.uuid },
                 explanation = explanation,
                 screenEventResourceId = screenEventResourceId
-            ).join()
+            )
             Then(
                 """both zaken should no longer have a user assigned
                      but the group should still be assigned
@@ -154,24 +165,31 @@ class ZakenServiceTest : BehaviorSpec({
     }
     Given("A list of zaken and a failing ZRC client service when retrieving the second zaak ") {
         clearAllMocks()
+        every { tracer.spanBuilder("ZakenService.assignZakenAsync") } returns spanBuilder
+        every { spanBuilder.startSpan() } returns span
+        every { span.storeInContext(any()) } returns context
+        every { context.makeCurrent() } returns scope
+        every { span.setStatus(StatusCode.ERROR) } returns span
+        every { span.recordException(any()) } returns span
+        every { span.end() } just Runs
+        every { scope.close() } just Runs
         every { zrcClientService.readZaak(zaken[0].uuid) } returns zaken[0]
         every { zrcClientService.readZaak(zaken[1].uuid) } throws RuntimeException("dummyRuntimeException")
-        every { tracer.spanBuilder(any()).setNoParent().startSpan() } returns span
-        every { span.makeCurrent() } returns scope
-        every { scope.close() } just Runs
         When(
             """the assign zaken async function is called with a group
                 and a screen event resource id"""
         ) {
-            zakenService.assignZakenAsync(
-                zaakUUIDs = zaken.map { it.uuid },
-                explanation = explanation,
-                group = group,
-                screenEventResourceId = screenEventResourceId
-            ).join()
+            shouldThrow<RuntimeException> {
+                zakenService.assignZakenAsync(
+                    zaakUUIDs = zaken.map { it.uuid },
+                    explanation = explanation,
+                    group = group,
+                    screenEventResourceId = screenEventResourceId
+                )
+            }
             Then(
-                """for neither of the zaken the group and user roles
-                    nor the search index should be updated
+                """the exception should be re-thrown and for neither of the zaken 
+                    the group and user role nor the search index should be updated
                     and no screen event of type 'zaken verdelen' should be sent"""
             ) {
                 verify(exactly = 0) {
