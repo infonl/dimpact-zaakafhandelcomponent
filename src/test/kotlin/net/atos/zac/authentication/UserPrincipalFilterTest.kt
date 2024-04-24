@@ -26,7 +26,6 @@ import net.atos.zac.zaaksturing.model.ZaakafhandelParameters
 import org.wildfly.security.http.oidc.AccessToken
 import org.wildfly.security.http.oidc.OidcPrincipal
 import org.wildfly.security.http.oidc.OidcSecurityContext
-import org.wildfly.security.http.oidc.RealmAccessClaim
 
 class UserPrincipalFilterTest : BehaviorSpec({
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
@@ -87,7 +86,6 @@ class UserPrincipalFilterTest : BehaviorSpec({
         )
         val oidcSecurityContext = mockk<OidcSecurityContext>()
         val accessToken = mockk<AccessToken>()
-        val realmAccessClaim = mockk<RealmAccessClaim>()
         val loggedInUserSlot = slot<LoggedInUser>()
 
         every { httpServletRequest.userPrincipal } returns oidcPrincipal
@@ -96,14 +94,13 @@ class UserPrincipalFilterTest : BehaviorSpec({
         every { SecurityUtil.getLoggedInUser(httpSession) } returns null
         every { oidcPrincipal.oidcSecurityContext } returns oidcSecurityContext
         every { oidcSecurityContext.token } returns accessToken
-        every { accessToken.realmAccessClaim } returns realmAccessClaim
         every { accessToken.preferredUsername } returns userName
         every { accessToken.givenName } returns givenName
         every { accessToken.familyName } returns familyName
         every { accessToken.name } returns fullName
         every { accessToken.email } returns email
         every { accessToken.getStringListClaimValue("group_membership") } returns groups
-        every { realmAccessClaim.roles } returns roles
+        every { accessToken.rolesClaim } returns roles
         every { zaakafhandelParameterService.listZaakafhandelParameters() } returns zaakafhandelParameters
         every { httpSession.setAttribute(any(), any()) } just runs
 
