@@ -32,7 +32,7 @@ COPY target/zaakafhandelcomponent.jar /
 # Copy build timestamp (used by HealthCheckService.java)
 RUN date -Iseconds > /build_timestamp.txt
 
-# Add system property to enable overriding WildFly settings using environment variables
+# Turn on ability to be able to override WildFly settings using environment variables
 ENV WILDFLY_OVERRIDING_ENV_VARS 1
 
 # Start zaakafhandelcomponent
