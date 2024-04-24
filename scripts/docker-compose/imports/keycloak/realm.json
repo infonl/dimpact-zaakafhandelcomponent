@@ -500,10 +500,11 @@
       },
       "realmRoles": [
         "domein_elk_zaaktype",
-        "beheerder",
-        "zaakafhandelcomponent_user",
         "behandelaar",
-        "coordinator"
+        "coordinator",
+        "recordmanager",
+        "beheerder",
+        "zaakafhandelcomponent_user"
       ]
     },
     {
@@ -520,6 +521,9 @@
       },
       "realmRoles": [
         "domein_elk_zaaktype",
+        "behandelaar",
+        "coordinator",
+        "recordmanager",
         "beheerder",
         "zaakafhandelcomponent_user"
       ]
