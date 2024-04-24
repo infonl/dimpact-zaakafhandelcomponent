@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 package nl.lifely.zac.opentelemetry
 
 import io.opentelemetry.api.trace.Span
@@ -8,9 +12,6 @@ import io.opentelemetry.extension.kotlin.asContextElement
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
-
-fun createOpenTelemetrySpanWithoutParent(tracer: Tracer, spanName: String): Span =
-    tracer.spanBuilder(spanName).setNoParent().startSpan()
 
 /**
  * Runs a block of code in an Open Telemetry span with the given name and parameters.
@@ -26,9 +27,10 @@ suspend fun <T> withSpan(
 
 /**
  * Starts a new Open Telemtry span with the given name and parameters, executes the given block of code,
- * record any exceptions and ends the span.
+ * record any exceptions and rethrows them, and ends the span.
  * Taken from: https://danielcorreia.net/opentelemetry-kotlin-coroutines/
  */
+@Suppress("TooGenericExceptionCaught")
 suspend fun <T> Tracer.startSpan(
     spanName: String,
     parameters: (SpanBuilder.() -> Unit)? = null,

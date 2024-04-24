@@ -14,7 +14,9 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import io.opentelemetry.api.trace.Span
+import io.opentelemetry.api.trace.SpanBuilder
 import io.opentelemetry.api.trace.Tracer
+import io.opentelemetry.context.Context
 import io.opentelemetry.context.Scope
 import net.atos.zac.app.taken.converter.RESTTaakConverter
 import net.atos.zac.app.taken.model.createRESTTaakToekennenGegevens
@@ -39,8 +41,10 @@ class TaskServiceTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
     val restTaakConverter = mockk<RESTTaakConverter>()
     val tracer = mockk<Tracer>()
+    val spanBuilder = mockk<SpanBuilder>()
     val span = mockk<Span>()
     val scope = mockk<Scope>()
+    val context = mockk<Context>()
     val taskService = TaskService(
         flowableTaskService = flowableTaskService,
         indexeerService = indexeerService,
@@ -148,6 +152,12 @@ class TaskServiceTest : BehaviorSpec({
         val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
         val screenEventSlot = mutableListOf<ScreenEvent>()
 
+        every { tracer.spanBuilder("TaskService.assignTasksAsync") } returns spanBuilder
+        every { spanBuilder.startSpan() } returns span
+        every { span.storeInContext(any()) } returns context
+        every { context.makeCurrent() } returns scope
+        every { span.end() } just Runs
+        every { scope.close() } just Runs
         every { loggedInUser.id } returns "dummyLoggedInUserId"
         every { task1.id } returns taskId1
         every { task2.id } returns taskId2
@@ -166,13 +176,9 @@ class TaskServiceTest : BehaviorSpec({
         every {
             indexeerService.indexeerDirect(restTaakVerdelenTaken.map { it.taakId }.toList(), ZoekObjectType.TAAK, true)
         } just runs
-        every { tracer.spanBuilder(any()).setNoParent().startSpan() } returns span
-        every { span.makeCurrent() } returns scope
-        every { span.end() } just Runs
-        every { scope.close() } just Runs
 
         When("the 'assign tasks' function is called with REST taak verdelen gegevens") {
-            taskService.assignTasksAsync(restTaakVerdelenGegevens, loggedInUser).join()
+            taskService.assignTasksAsync(restTaakVerdelenGegevens, loggedInUser)
 
             Then(
                 """
@@ -207,6 +213,12 @@ class TaskServiceTest : BehaviorSpec({
     }
     Given("REST taak vrijgeven gegevens with two tasks") {
         clearAllMocks()
+        every { tracer.spanBuilder("TaskService.releaseTasksAsync") } returns spanBuilder
+        every { spanBuilder.startSpan() } returns span
+        every { span.storeInContext(any()) } returns context
+        every { context.makeCurrent() } returns scope
+        every { span.end() } just Runs
+        every { scope.close() } just Runs
         val restTaakVerdelenTaken = listOf(
             createRESTTaakVerdelenTaak(),
             createRESTTaakVerdelenTaak()
@@ -232,17 +244,13 @@ class TaskServiceTest : BehaviorSpec({
         every {
             indexeerService.indexeerDirect(restTaakVerdelenTaken.map { it.taakId }.toList(), ZoekObjectType.TAAK, true)
         } just runs
-        every { tracer.spanBuilder(any()).setNoParent().startSpan() } returns span
-        every { span.makeCurrent() } returns scope
-        every { span.end() } just Runs
-        every { scope.close() } just Runs
 
         When(
             """"
                 the 'release tasks' function is called with REST taak vrijgeven gegevens               
             """
         ) {
-            taskService.releaseTasksAsync(restTaakVrijgevenGegevens, loggedInUser).join()
+            taskService.releaseTasksAsync(restTaakVrijgevenGegevens, loggedInUser)
 
             Then(
                 """taken are released, the index is updated and signalering and signaleringen and screen events are sent"""
