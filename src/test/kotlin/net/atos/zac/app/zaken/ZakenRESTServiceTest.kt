@@ -70,8 +70,8 @@ import net.atos.zac.healthcheck.HealthCheckService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.createGroup
 import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.output.createOverigeRechten
-import net.atos.zac.policy.output.createZaakRechten
+import net.atos.zac.policy.output.createOverigeRechtenAllDeny
+import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import net.atos.zac.shared.helper.OpschortenZaakHelper
 import net.atos.zac.signalering.SignaleringenService
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService
@@ -238,10 +238,10 @@ class ZakenRESTServiceTest : BehaviorSpec({
         every { zakenService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
 
         When("createZaak is called for a zaaktype for which the logged in user has permissions") {
-            every { policyService.readOverigeRechten() } returns createOverigeRechten(startenZaak = true)
+            every { policyService.readOverigeRechten() } returns createOverigeRechtenAllDeny(startenZaak = true)
             every {
                 policyService.readZaakRechten(zaak)
-            } returns createZaakRechten(toevoegenInitiatorPersoon = true)
+            } returns createZaakRechtenAllDeny(toevoegenInitiatorPersoon = true)
 
             val restZaakReturned = zakenRESTService.createZaak(restZaakAanmaakGegevens)
 
@@ -302,7 +302,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
         every { zakenService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
 
         When("toekennen is called from user with access") {
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechten(toekennen = true)
+            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(toekennen = true)
 
             val returnedRestZaak = zakenRESTService.toekennen(restZaakToekennenGegevens)
 

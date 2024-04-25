@@ -5,8 +5,13 @@
 
 package net.atos.zac.policy.output
 
+fun createDocumentRechten() = DocumentRechten(
+    true, true, true, true, true, true,
+    true, true, true, true
+)
+
 @Suppress("LongParameterList")
-fun createDocumentRechten(
+fun createDocumentRechtenAllDeny(
     lezen: Boolean = false,
     wijzigen: Boolean = false,
     verwijderen: Boolean = false,
@@ -22,7 +27,15 @@ fun createDocumentRechten(
     toevoegenNieuweVersie, verplaatsen, ontkoppelen, downloaden
 )
 
-fun createTaakRechten(
+fun createTaakRechten() = TaakRechten(
+    true,
+    true,
+    true,
+    true,
+    true
+)
+
+fun createTaakRechtenAllDeny(
     lezen: Boolean = false,
     wijzigen: Boolean = false,
     toekennen: Boolean = false,
@@ -30,8 +43,16 @@ fun createTaakRechten(
     toevoegenDocument: Boolean = false,
 ) = TaakRechten(lezen, wijzigen, toekennen, creeerenDocument, toevoegenDocument)
 
+fun createZaakRechten() = ZaakRechten(
+    true, true, true, true, true, true, true,
+    true, true, true, true, true, true,
+    true, true, true, true, true,
+    true, true, true, true,
+    true, true, true, true, true
+)
+
 @Suppress("LongParameterList")
-fun createZaakRechten(
+fun createZaakRechtenAllDeny(
     lezen: Boolean = false,
     wijzigen: Boolean = false,
     toekennen: Boolean = false,
@@ -67,7 +88,15 @@ fun createZaakRechten(
     toevoegenBagObject, startenTaak, vastleggenBesluit, verlengenDoorlooptijd
 )
 
-fun createWerklijstRechten(
+fun createWerklijstRechten() = WerklijstRechten(
+    true,
+    true,
+    true,
+    true,
+    true
+)
+
+fun createWerklijstRechtenAllDeny(
     inbox: Boolean = false,
     ontkoppeldeDocumentenVerwijderen: Boolean = false,
     inboxProductaanvragenVerwijderen: Boolean = false,
@@ -81,7 +110,9 @@ fun createWerklijstRechten(
     zakenTakenVerdelen
 )
 
-fun createOverigeRechten(
+fun createOverigeRechten() = OverigeRechten(true, true, true)
+
+fun createOverigeRechtenAllDeny(
     startenZaak: Boolean = false,
     beheren: Boolean = false,
     zoeken: Boolean = false
