@@ -54,7 +54,7 @@ Then(
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, s: string) {
     await this.page
-      .getByText(`${_noOfTaken} zaken zijn verdeeld`)
+      .getByText(`${_noOfTaken} taken zijn verdeeld`)
       .waitFor({ timeout: ONE_MINUTE_IN_MS });
   },
 );
