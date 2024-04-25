@@ -43,9 +43,9 @@ import net.atos.zac.flowable.TaakVariabelenService
 import net.atos.zac.flowable.util.TaskUtil.getTaakStatus
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.exception.PolicyException
-import net.atos.zac.policy.output.createDocumentRechtenAllDeny
-import net.atos.zac.policy.output.createTaakRechtenAllDeny
-import net.atos.zac.policy.output.createWerklijstRechtenAllDeny
+import net.atos.zac.policy.output.createDocumentRechten
+import net.atos.zac.policy.output.createTaakRechten
+import net.atos.zac.policy.output.createWerklijstRechten
 import net.atos.zac.shared.helper.OpschortenZaakHelper
 import net.atos.zac.signalering.SignaleringenService
 import net.atos.zac.task.TaskService
@@ -124,7 +124,7 @@ class TakenRESTServiceTest : BehaviorSpec({
         } just runs
 
         When("'toekennen' is called from user with access") {
-            every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(toekennen = true)
+            every { policyService.readTaakRechten(task) } returns createTaakRechten(toekennen = true)
 
             takenRESTService.toekennen(restTaakToekennenGegevens)
 
@@ -142,7 +142,7 @@ class TakenRESTServiceTest : BehaviorSpec({
         }
 
         When("'toekennen' is called from user with no access") {
-            every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny()
+            every { policyService.readTaakRechten(task) } returns createTaakRechten()
 
             val exception = shouldThrow<PolicyException> {
                 takenRESTService.toekennen(restTaakToekennenGegevens)
@@ -186,7 +186,7 @@ class TakenRESTServiceTest : BehaviorSpec({
         every { eventingService.send(any<ScreenEvent>()) } just runs
 
         When("'complete' is called from user with access") {
-            every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
+            every { policyService.readTaakRechten(task) } returns createTaakRechten(wijzigen = true)
 
             val restTaakReturned = takenRESTService.completeTaak(restTaak)
 
@@ -201,7 +201,7 @@ class TakenRESTServiceTest : BehaviorSpec({
         }
 
         When("'complete' is called from user with access") {
-            every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny()
+            every { policyService.readTaakRechten(task) } returns createTaakRechten()
 
             val exception = shouldThrow<PolicyException> {
                 takenRESTService.completeTaak(restTaak)
@@ -237,7 +237,7 @@ class TakenRESTServiceTest : BehaviorSpec({
         every { eventingService.send(any<ScreenEvent>()) } just runs
 
         When("'updateTaakdata' is called with changed description and due date from user with access") {
-            every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
+            every { policyService.readTaakRechten(task) } returns createTaakRechten(wijzigen = true)
 
             restTaak.apply {
                 toelichting = "changed"
@@ -283,7 +283,7 @@ class TakenRESTServiceTest : BehaviorSpec({
             } returns enkelvoudigInformatieObject
             every {
                 policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
-            } returns createDocumentRechtenAllDeny(wijzigen = true, ondertekenen = true)
+            } returns createDocumentRechten(wijzigen = true, ondertekenen = true)
             every {
                 enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
                     enkelvoudigInformatieObjectUUID
@@ -322,7 +322,7 @@ class TakenRESTServiceTest : BehaviorSpec({
         When("the 'verdelen vanuit lijst' function is called from user with access") {
             every {
                 policyService.readWerklijstRechten()
-            } returns createWerklijstRechtenAllDeny(zakenTakenVerdelen = true)
+            } returns createWerklijstRechten(zakenTakenVerdelen = true)
 
             takenRESTService.verdelenVanuitLijst(restTaakVerdelenGegevens)
 
@@ -334,7 +334,7 @@ class TakenRESTServiceTest : BehaviorSpec({
         }
 
         When("the 'verdelen vanuit lijst' function is called from user with no access") {
-            every { policyService.readWerklijstRechten() } returns createWerklijstRechtenAllDeny()
+            every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
 
             val exception = shouldThrow<PolicyException> {
                 takenRESTService.verdelenVanuitLijst(restTaakVerdelenGegevens)
@@ -355,7 +355,7 @@ class TakenRESTServiceTest : BehaviorSpec({
         val releaseTasksAsyncJob = mockk<Job>()
         every {
             policyService.readWerklijstRechten()
-        } returns createWerklijstRechtenAllDeny(zakenTakenVerdelen = true)
+        } returns createWerklijstRechten(zakenTakenVerdelen = true)
         every {
             taskService.releaseTasksAsync(restTaakVrijgevenGegevens, loggedInUser, screenEventResourceId)
         } returns releaseTasksAsyncJob

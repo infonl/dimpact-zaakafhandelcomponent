@@ -41,8 +41,8 @@ import net.atos.zac.documentcreatie.model.DocumentCreatieGegevens
 import net.atos.zac.documentcreatie.model.createDocumentCreatieResponse
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.exception.PolicyException
-import net.atos.zac.policy.output.createDocumentRechtenAllDeny
-import net.atos.zac.policy.output.createZaakRechtenAllDeny
+import net.atos.zac.policy.output.createDocumentRechten
+import net.atos.zac.policy.output.createZaakRechten
 
 class InformatieObjectenRESTServiceTest : BehaviorSpec() {
     private val documentCreatieService = mockk<DocumentCreatieService>()
@@ -92,7 +92,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             } returns documentCreatieResponse
 
             When("createDocument is called by a role that is allowed to change the zaak") {
-                every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
+                every { policyService.readZaakRechten(zaak) } returns createZaakRechten(
                     creeerenDocument = true
                 )
 
@@ -111,7 +111,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             }
 
             When("createDocument is called by a user that has no access") {
-                every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
+                every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
 
                 val exception = shouldThrow<PolicyException> {
                     informatieObjectenRESTService.createDocument(restDocumentCreatieGegevens)
@@ -152,7 +152,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             When(
                 "the enkelvoudig informatieobject update is done by a role that is allowed to change the zaak"
             ) {
-                every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
+                every { policyService.readZaakRechten(zaak) } returns createZaakRechten(
                     toevoegenDocument = true
                 )
 
@@ -181,7 +181,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             When(
                 "the enkelvoudig informatieobject update is triggered but the ZGW client service throws an exception"
             ) {
-                every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
+                every { policyService.readZaakRechten(zaak) } returns createZaakRechten(
                     toevoegenDocument = true
                 )
                 every {
@@ -217,7 +217,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             }
 
             When("the enkelvoudig informatieobject is updated") {
-                every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
+                every { policyService.readZaakRechten(zaak) } returns createZaakRechten(
                     toevoegenDocument = true
                 )
                 restEnkelvoudigInformatieobject.file = restFileUpload.file
@@ -246,7 +246,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             }
 
             When("enkelvoudig informatieobject is updated by a user that has no access") {
-                every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
+                every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
 
                 val exception = shouldThrow<PolicyException> {
                     informatieObjectenRESTService.createEnkelvoudigInformatieobjectAndUploadFile(
@@ -294,7 +294,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             When(
                 "the enkelvoudig informatieobject is updated by a role that is allowed to change the zaak"
             ) {
-                every { policyService.readZaakRechten(closedZaak) } returns createZaakRechtenAllDeny(
+                every { policyService.readZaakRechten(closedZaak) } returns createZaakRechten(
                     toevoegenDocument = true
                 )
 
@@ -354,7 +354,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             When("the enkelvoudig informatieobject is updated from user with access") {
                 every {
                     policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
-                } returns createDocumentRechtenAllDeny(toevoegenNieuweVersie = true)
+                } returns createDocumentRechten(toevoegenNieuweVersie = true)
 
                 val returnedRESTEnkelvoudigInformatieobject =
                     informatieObjectenRESTService.updateEnkelvoudigInformatieobjectAndUploadFile(
@@ -379,7 +379,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             When("the enkelvoudig informatieobject is updated by a user that has no access") {
                 every {
                     policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
-                } returns createDocumentRechtenAllDeny()
+                } returns createDocumentRechten()
 
                 val exception = shouldThrow<PolicyException> {
                     informatieObjectenRESTService.updateEnkelvoudigInformatieobjectAndUploadFile(

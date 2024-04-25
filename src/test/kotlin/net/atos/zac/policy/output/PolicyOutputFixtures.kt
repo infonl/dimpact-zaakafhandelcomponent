@@ -5,13 +5,8 @@
 
 package net.atos.zac.policy.output
 
-fun createDocumentRechtenAllAllow() = DocumentRechten(
-    true, true, true, true, true, true, true,
-    true, true, true,
-)
-
 @Suppress("LongParameterList")
-fun createDocumentRechtenAllDeny(
+fun createDocumentRechten(
     lezen: Boolean = false,
     wijzigen: Boolean = false,
     verwijderen: Boolean = false,
@@ -27,7 +22,7 @@ fun createDocumentRechtenAllDeny(
     toevoegenNieuweVersie, verplaatsen, ontkoppelen, downloaden
 )
 
-fun createTaakRechtenAllDeny(
+fun createTaakRechten(
     lezen: Boolean = false,
     wijzigen: Boolean = false,
     toekennen: Boolean = false,
@@ -35,16 +30,8 @@ fun createTaakRechtenAllDeny(
     toevoegenDocument: Boolean = false,
 ) = TaakRechten(lezen, wijzigen, toekennen, creeerenDocument, toevoegenDocument)
 
-fun createZaakRechtenAllAllow() = ZaakRechten(
-    true, true, true, true, true, true, true,
-    true, true, true, true, true, true,
-    true, true, true, true, true,
-    true, true, true, true,
-    true, true, true, true, true
-)
-
 @Suppress("LongParameterList")
-fun createZaakRechtenAllDeny(
+fun createZaakRechten(
     lezen: Boolean = false,
     wijzigen: Boolean = false,
     toekennen: Boolean = false,
@@ -80,7 +67,7 @@ fun createZaakRechtenAllDeny(
     toevoegenBagObject, startenTaak, vastleggenBesluit, verlengenDoorlooptijd
 )
 
-fun createWerklijstRechtenAllDeny(
+fun createWerklijstRechten(
     inbox: Boolean = false,
     ontkoppeldeDocumentenVerwijderen: Boolean = false,
     inboxProductaanvragenVerwijderen: Boolean = false,
@@ -94,7 +81,7 @@ fun createWerklijstRechtenAllDeny(
     zakenTakenVerdelen
 )
 
-fun createOverigeRechtenAllDeny(
+fun createOverigeRechten(
     startenZaak: Boolean = false,
     beheren: Boolean = false,
     zoeken: Boolean = false

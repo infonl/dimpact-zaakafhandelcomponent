@@ -18,7 +18,7 @@ import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.exception.PolicyException
-import net.atos.zac.policy.output.createZaakRechtenAllDeny
+import net.atos.zac.policy.output.createZaakRechten
 import java.time.LocalDate
 import java.util.Optional
 
@@ -78,7 +78,7 @@ class OpschortenZaakHelperTest : BehaviorSpec({
         } returns postponedZaak
 
         When("the zaak is postponed for x days from user with access") {
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(opschorten = true)
+            every { policyService.readZaakRechten(zaak) } returns createZaakRechten(opschorten = true)
 
             val returnedZaak = opschortenZaakHelper.opschortenZaak(
                 zaak,
@@ -109,7 +109,7 @@ class OpschortenZaakHelperTest : BehaviorSpec({
         }
 
         When("the zaak is postponed for x days from user with no access") {
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
+            every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
 
             val exception = shouldThrow<PolicyException> {
                 opschortenZaakHelper.opschortenZaak(
@@ -152,7 +152,7 @@ class OpschortenZaakHelperTest : BehaviorSpec({
         every { zaakVariabelenService.removeVerwachteDagenOpgeschort(zaak.uuid) } just runs
 
         When("the zaak is resumed from user with access") {
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(hervatten = true)
+            every { policyService.readZaakRechten(zaak) } returns createZaakRechten(hervatten = true)
 
             opschortenZaakHelper.hervattenZaak(zaak, reasonResumed)
 
@@ -175,7 +175,7 @@ class OpschortenZaakHelperTest : BehaviorSpec({
         }
 
         When("the zaak is resumed from user with no access") {
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
+            every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
 
             val exception = shouldThrow<PolicyException> { opschortenZaakHelper.hervattenZaak(zaak, reasonResumed) }
 
