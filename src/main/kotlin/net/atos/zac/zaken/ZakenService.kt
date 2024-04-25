@@ -15,6 +15,7 @@ import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZTCClientService
 import net.atos.client.zgw.ztc.model.generated.RolType
+import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.event.EventingService
 import net.atos.zac.identity.model.Group
 import net.atos.zac.identity.model.User
@@ -31,6 +32,7 @@ class ZakenService @Inject constructor(
     private val ztcClientService: ZTCClientService,
     private val indexeerService: IndexeerService,
     private var eventingService: EventingService,
+    private val configuratieService: ConfiguratieService
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZakenService::class.java.name)
@@ -68,13 +70,21 @@ class ZakenService @Inject constructor(
                         explanation
                     )
                 }
-                indexeerService.indexeerDirect(
-                    zaak.uuid.toString(),
-                    ZoekObjectType.ZAAK,
-                    false
-                )
+                // unless OpenNotificaties is disabled, we don't need to do any indexing here,
+                // because we will do it based on notifications from OpenZaak
+                if (configuratieService.notificationsDisabled) {
+                    indexeerService.indexeerDirect(
+                        zaak.uuid.toString(),
+                        ZoekObjectType.ZAAK,
+                        false
+                    )
+                    eventingService.send(ScreenEventType.ZAAK.updated(zaak.uuid))
+                }
                 zakenAssignedList.add(zaak.uuid)
             }
+        if (configuratieService.notificationsDisabled) {
+            indexeerService.commit()
+        }
         LOG.fine {
             "Asynchronous assign zaken job with job ID '$screenEventResourceId' finished. " +
                 "Successfully assigned ${zakenAssignedList.size} zaken."
@@ -133,12 +143,20 @@ class ZakenService @Inject constructor(
             .map { zrcClientService.readZaak(it) }
             .forEach {
                 zrcClientService.deleteRol(it, BetrokkeneType.MEDEWERKER, explanation)
-                indexeerService.indexeerDirect(
-                    it.uuid.toString(),
-                    ZoekObjectType.ZAAK,
-                    false
-                )
+                // unless OpenNotificaties is disabled, we don't need to do any indexing here,
+                // because we will do it based on notifications from OpenZaak
+                if (configuratieService.notificationsDisabled) {
+                    indexeerService.indexeerDirect(
+                        it.uuid.toString(),
+                        ZoekObjectType.ZAAK,
+                        false
+                    )
+                    eventingService.send(ScreenEventType.ZAAK.updated(it.uuid))
+                }
             }
+        if (configuratieService.notificationsDisabled) {
+            indexeerService.commit()
+        }
         LOG.fine {
             "Asynchronous release zaken job with job ID '$screenEventResourceId' finished. " +
                 "Successfully released ${zaakUUIDs.size} zaken."

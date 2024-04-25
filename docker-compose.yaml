@@ -590,6 +590,7 @@ services:
       # Typically when using the Docker Compose profile 'metrics' you want to turn this on
       - SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE=${SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE:-off}
       - SUBSYSTEM_OPENTELEMETRY__ENDPOINT=http://otel-collector:4317
+      - NOTIFICATIONS_DISABLED=true
       - VRL_API_CLIENT_MP_REST_URL=http://zgw-referentielijsten.local:8000/
       - ZGW_API_CLIENT_MP_REST_URL=http://openzaak.local:8000/
       - ZGW_API_CLIENTID=zac_client

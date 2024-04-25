@@ -135,6 +135,10 @@ public class ConfiguratieService {
     private String authResource;
 
     @Inject
+    @ConfigProperty(name = "NOTIFICATIONS_DISABLED")
+    private boolean notificationsDisabled;
+
+    @Inject
     private ZTCClientService ztcClientService;
 
     private URI catalogusURI;
@@ -179,5 +183,9 @@ public class ConfiguratieService {
 
     public String readZgwApiClientMpRestUrl() {
         return zgwApiClientMpRestUrl;
+    }
+
+    public boolean getNotificationsDisabled() {
+        return notificationsDisabled;
     }
 }
