@@ -139,7 +139,12 @@ class ZakenServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("A list of zaken and a failing ZRC client service when retrieving the second zaak ") {
+    Given(
+        """
+            A list of zaken and a failing ZRC client service that throws an exception 
+            when retrieving the second zaak 
+            """
+    ) {
         clearAllMocks()
         every { zrcClientService.readZaak(zaken[0].uuid) } returns zaken[0]
         every { zrcClientService.readZaak(zaken[1].uuid) } throws RuntimeException("dummyRuntimeException")
@@ -156,7 +161,7 @@ class ZakenServiceTest : BehaviorSpec({
                 )
             }
             Then(
-                """the exception should be re-thrown and for neither of the zaken 
+                """the exception should be thrown and for neither of the zaken 
                     the group and user role nor the search index should be updated
                     and no screen event of type 'zaken verdelen' should be sent"""
             ) {
