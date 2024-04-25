@@ -26,7 +26,8 @@ import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.mail.MailService
 import net.atos.zac.mailtemplates.MailTemplateService
 import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.output.createZaakRechten
+import net.atos.zac.policy.exception.PolicyException
+import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import net.atos.zac.shared.helper.OpschortenZaakHelper
 import net.atos.zac.util.DateTimeConverterUtil
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService
@@ -80,7 +81,6 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
     val planItemInstanceId = "dummyPlanItemInstanceId"
     val planItemInstance = mockk<PlanItemInstance>()
     val zaakTypeUUID = UUID.randomUUID()
-    val zaakRechtenAllAllowed = createZaakRechten()
     val zaakafhandelParameters = createZaakafhandelParameters(
         zaakTypeUUID = zaakTypeUUID
     )
@@ -107,7 +107,6 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
         every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { policyService.readZaakRechten(zaak) } returns zaakRechtenAllAllowed
         every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID) } returns zaakafhandelParameters
         every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
         every { indexeerService.addOrUpdateZaak(zaak.uuid, false) } just runs
@@ -123,7 +122,9 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
             )
         } just runs
 
-        When("A human task plan item is started") {
+        When("A human task plan item is started from user that has access") {
+            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+
             planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
 
             Then("A CMMN human task plan item is started and the zaak is re-indexed") {
@@ -135,6 +136,14 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
             with(taskDataSlot.captured) {
                 get("dummyKey") shouldBe "dummyValue"
             }
+        }
+
+        When("the enkelvoudig informatieobject is updated by a user that has no access") {
+            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
+
+            val exception = shouldThrow<PolicyException> { planItemsRESTService.doHumanTaskplanItem(restHumanTaskData) }
+
+            Then("it throws exception with no message") { exception.message shouldBe null }
         }
     }
     Given("Valid REST human task data with a fatal date and with zaak opschorten set to true") {
@@ -154,7 +163,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
         every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { policyService.readZaakRechten(zaak) } returns zaakRechtenAllAllowed
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
         every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID) } returns zaakafhandelParameters
         every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
         every { indexeerService.addOrUpdateZaak(zaak.uuid, false) } just runs
@@ -174,7 +183,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
             opschortenZaakHelper.opschortenZaak(zaak, 1, "Aanvullende informatie opgevraagd")
         } returns opgeschorteZaak
 
-        When("A human task plan item is started") {
+        When("A human task plan item is started from user with access") {
             planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
 
             Then("A CMMN human task plan item is started and the zaak is opgeschort and re-indexed") {
@@ -202,7 +211,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
         every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { policyService.readZaakRechten(zaak) } returns zaakRechtenAllAllowed
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
         every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID) } returns zaakafhandelParameters
         every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
 

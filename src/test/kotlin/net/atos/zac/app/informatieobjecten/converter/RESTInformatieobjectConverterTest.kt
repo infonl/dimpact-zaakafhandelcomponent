@@ -24,7 +24,7 @@ import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.output.createDocumentRechten
+import net.atos.zac.policy.output.createDocumentRechtenAllDeny
 import java.net.URI
 import java.time.LocalDate
 import java.util.Base64
@@ -176,7 +176,7 @@ class RESTInformatieobjectConverterTest : BehaviorSpec() {
             val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(url = uri).apply {
                 informatieobjecttype = uri
             }
-            val documentRechten = createDocumentRechten()
+            val documentRechten = createDocumentRechtenAllDeny(lezen = true)
             val restDocumentRechten = createRESTDocumentRechten()
 
             every {
