@@ -40,8 +40,9 @@ import net.atos.zac.documentcreatie.DocumentCreatieService
 import net.atos.zac.documentcreatie.model.DocumentCreatieGegevens
 import net.atos.zac.documentcreatie.model.createDocumentCreatieResponse
 import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.output.ZaakRechten
-import net.atos.zac.policy.output.createDocumentRechten
+import net.atos.zac.policy.exception.PolicyException
+import net.atos.zac.policy.output.createDocumentRechtenAllDeny
+import net.atos.zac.policy.output.createZaakRechtenAllDeny
 
 class InformatieObjectenRESTServiceTest : BehaviorSpec() {
     private val documentCreatieService = mockk<DocumentCreatieService>()
@@ -52,14 +53,6 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
     private val zgwApiService = mockk<ZGWApiService>()
     private val zrcClientService = mockk<ZRCClientService>()
     private val ztcClientService = mockk<ZTCClientService>()
-
-    private val zaakRechtenWijzigen = ZaakRechten(
-        false, true, false, false, false, false, false, false,
-        false, false, false, true, true, false,
-        false, false, false, false,
-        false, false, false, false,
-        false, false, false, false, false
-    )
 
     // We have to use @InjectMockKs since the class under test uses field injection instead of constructor injection.
     // This is because WildFly does not support constructor injection for JAX-RS REST services completely.
@@ -87,7 +80,6 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             val documentCreatieGegevens = slot<DocumentCreatieGegevens>()
 
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { policyService.readZaakRechten(zaak) } returns zaakRechtenWijzigen
             every { ztcClientService.readInformatieobjecttypen(zaak.zaaktype) } returns listOf(
                 createInformatieObjectType(omschrijving = "bijlage")
             )
@@ -100,6 +92,10 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             } returns documentCreatieResponse
 
             When("createDocument is called by a role that is allowed to change the zaak") {
+                every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
+                    creeerenDocument = true
+                )
+
                 val restDocumentCreatieResponse =
                     informatieObjectenRESTService.createDocument(restDocumentCreatieGegevens)
 
@@ -111,6 +107,18 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                         this.taskId shouldBe restDocumentCreatieGegevens.taskId
                         this.informatieobjecttype.omschrijving shouldBe "bijlage"
                     }
+                }
+            }
+
+            When("createDocument is called by a user that has no access") {
+                every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
+
+                val exception = shouldThrow<PolicyException> {
+                    informatieObjectenRESTService.createDocument(restDocumentCreatieGegevens)
+                }
+
+                Then("it throws exception with no message") {
+                    exception.message shouldBe null
                 }
             }
         }
@@ -125,7 +133,6 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             val zaakInformatieobject = createZaakInformatieobject()
 
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { policyService.readZaakRechten(zaak) } returns zaakRechtenWijzigen
             every {
                 restInformatieobjectConverter.convertZaakObject(restEnkelvoudigInformatieobject)
             } returns enkelvoudigInformatieObjectData
@@ -145,6 +152,10 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             When(
                 "the enkelvoudig informatieobject update is done by a role that is allowed to change the zaak"
             ) {
+                every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
+                    toevoegenDocument = true
+                )
+
                 val returnedRESTEnkelvoudigInformatieobject =
                     informatieObjectenRESTService.createEnkelvoudigInformatieobjectAndUploadFile(
                         zaak.uuid,
@@ -170,6 +181,9 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             When(
                 "the enkelvoudig informatieobject update is triggered but the ZGW client service throws an exception"
             ) {
+                every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
+                    toevoegenDocument = true
+                )
                 every {
                     zgwApiService.createZaakInformatieobjectForZaak(
                         zaak,
@@ -203,6 +217,9 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             }
 
             When("the enkelvoudig informatieobject is updated") {
+                every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
+                    toevoegenDocument = true
+                )
                 restEnkelvoudigInformatieobject.file = restFileUpload.file
                 restEnkelvoudigInformatieobject.formaat = restFileUpload.type
 
@@ -227,6 +244,23 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                     }
                 }
             }
+
+            When("enkelvoudig informatieobject is updated by a user that has no access") {
+                every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
+
+                val exception = shouldThrow<PolicyException> {
+                    informatieObjectenRESTService.createEnkelvoudigInformatieobjectAndUploadFile(
+                        zaak.uuid,
+                        documentReferentieId,
+                        false,
+                        restEnkelvoudigInformatieobject,
+                    )
+                }
+
+                Then("it throws exception with no message") {
+                    exception.message shouldBe null
+                }
+            }
         }
 
         Given("an enkelvoudig informatieobject has been uploaded, and the zaak is closed") {
@@ -241,7 +275,6 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             val zaakInformatieobject = createZaakInformatieobject()
 
             every { zrcClientService.readZaak(closedZaak.uuid) } returns closedZaak
-            every { policyService.readZaakRechten(closedZaak) } returns zaakRechtenWijzigen
             every {
                 restInformatieobjectConverter.convertZaakObject(restEnkelvoudigInformatieobject)
             } returns enkelvoudigInformatieObjectData
@@ -261,6 +294,10 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             When(
                 "the enkelvoudig informatieobject is updated by a role that is allowed to change the zaak"
             ) {
+                every { policyService.readZaakRechten(closedZaak) } returns createZaakRechtenAllDeny(
+                    toevoegenDocument = true
+                )
+
                 val returnedRESTEnkelvoudigInformatieobject =
                     informatieObjectenRESTService.createEnkelvoudigInformatieobjectAndUploadFile(
                         closedZaak.uuid,
@@ -291,13 +328,11 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
             val restEnkelvoudigInformatieObjectVersieGegevens =
                 createRESTEnkelvoudigInformatieObjectVersieGegevens(zaakUuid = zaak.uuid)
             val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
-            val documentRechten = createDocumentRechten()
 
             every {
                 drcClientService.readEnkelvoudigInformatieobject(restEnkelvoudigInformatieObjectVersieGegevens.uuid)
             } returns enkelvoudigInformatieObject
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak) } returns documentRechten
             every {
                 restInformatieobjectConverter.convert(restEnkelvoudigInformatieObjectVersieGegevens)
             } returns enkelvoudigInformatieObjectWithLockData
@@ -316,7 +351,11 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                 restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject)
             } returns restEnkelvoudigInformatieobject
 
-            When("the enkelvoudig informatieobject is updated") {
+            When("the enkelvoudig informatieobject is updated from user with access") {
+                every {
+                    policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
+                } returns createDocumentRechtenAllDeny(toevoegenNieuweVersie = true)
+
                 val returnedRESTEnkelvoudigInformatieobject =
                     informatieObjectenRESTService.updateEnkelvoudigInformatieobjectAndUploadFile(
                         restEnkelvoudigInformatieObjectVersieGegevens
@@ -334,6 +373,22 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec() {
                             null
                         )
                     }
+                }
+            }
+
+            When("the enkelvoudig informatieobject is updated by a user that has no access") {
+                every {
+                    policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
+                } returns createDocumentRechtenAllDeny()
+
+                val exception = shouldThrow<PolicyException> {
+                    informatieObjectenRESTService.updateEnkelvoudigInformatieobjectAndUploadFile(
+                        restEnkelvoudigInformatieObjectVersieGegevens
+                    )
+                }
+
+                Then("it throws exception with no message") {
+                    exception.message shouldBe null
                 }
             }
         }

@@ -70,8 +70,8 @@ import net.atos.zac.healthcheck.HealthCheckService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.createGroup
 import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.output.OverigeRechten
-import net.atos.zac.policy.output.createZaakRechten
+import net.atos.zac.policy.output.createOverigeRechtenAllDeny
+import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import net.atos.zac.shared.helper.OpschortenZaakHelper
 import net.atos.zac.signalering.SignaleringenService
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService
@@ -196,8 +196,6 @@ class ZakenRESTServiceTest : BehaviorSpec({
             objectsClientService
                 .readObject(restZaakAanmaakGegevens.inboxProductaanvraag?.productaanvraagObjectUUID)
         } returns objectRegistratieObject
-        every { policyService.readOverigeRechten() } returns OverigeRechten(true, false, false)
-        every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
         every { productaanvraagService.getFormulierData(objectRegistratieObject) } returns formulierData
         every {
             productaanvraagService.getProductaanvraag(objectRegistratieObject)
@@ -240,6 +238,11 @@ class ZakenRESTServiceTest : BehaviorSpec({
         every { zakenService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
 
         When("createZaak is called for a zaaktype for which the logged in user has permissions") {
+            every { policyService.readOverigeRechten() } returns createOverigeRechtenAllDeny(startenZaak = true)
+            every {
+                policyService.readZaakRechten(zaak)
+            } returns createZaakRechtenAllDeny(toevoegenInitiatorPersoon = true)
+
             val restZaakReturned = zakenRESTService.createZaak(restZaakAanmaakGegevens)
 
             Then("a zaak is created using the ZGW API and a zaak is started in the ZAC CMMN service") {
@@ -291,7 +294,6 @@ class ZakenRESTServiceTest : BehaviorSpec({
 
         every { zrcClientService.readZaak(restZaakToekennenGegevens.zaakUUID) } returns zaak
         every { zrcClientService.updateRol(zaak, capture(rolSlot), restZaakToekennenGegevens.reden) } just runs
-        every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
         every { zgwApiService.findBehandelaarForZaak(zaak) } returns Optional.empty()
         every { identityService.readUser(restZaakToekennenGegevens.behandelaarGebruikersnaam) } returns user
         every { zgwApiService.findGroepForZaak(zaak) } returns Optional.empty()
@@ -299,7 +301,9 @@ class ZakenRESTServiceTest : BehaviorSpec({
         every { indexeerService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
         every { zakenService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
 
-        When("toekennen is called") {
+        When("toekennen is called from user with access") {
+            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(toekennen = true)
+
             val returnedRestZaak = zakenRESTService.toekennen(restZaakToekennenGegevens)
 
             Then("the zaak is updated, and the zaken search index is updated") {
