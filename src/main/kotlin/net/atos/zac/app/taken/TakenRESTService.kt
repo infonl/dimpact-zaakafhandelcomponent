@@ -21,6 +21,9 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import net.atos.client.zgw.drc.DRCClientService
 import net.atos.client.zgw.drc.model.generated.Ondertekening
 import net.atos.client.zgw.shared.ZGWApiService
@@ -94,6 +97,7 @@ class TakenRESTService @Inject constructor(
     private val opschortenZaakHelper: OpschortenZaakHelper
 ) {
     companion object {
+        private val ioCoroutineScope = CoroutineScope(Dispatchers.IO)
         private const val REDEN_ZAAK_HERVATTEN = "Aanvullende informatie geleverd"
         private const val REDEN_TAAK_AFGESLOTEN = "Afgesloten"
     }
@@ -141,22 +145,28 @@ class TakenRESTService @Inject constructor(
     @Path("lijst/verdelen")
     fun verdelenVanuitLijst(@Valid restTaakVerdelenGegevens: RESTTaakVerdelenGegevens) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
-        taskService.assignTasksAsync(
-            restTaakVerdelenGegevens = restTaakVerdelenGegevens,
-            loggedInUser = loggedInUserInstance.get(),
-            screenEventResourceId = restTaakVerdelenGegevens.screenEventResourceId
-        )
+        // this can be a long-running operation so run it asynchronously
+        ioCoroutineScope.launch {
+            taskService.assignTasks(
+                restTaakVerdelenGegevens = restTaakVerdelenGegevens,
+                loggedInUser = loggedInUserInstance.get(),
+                screenEventResourceId = restTaakVerdelenGegevens.screenEventResourceId
+            )
+        }
     }
 
     @PUT
     @Path("lijst/vrijgeven")
     fun vrijgevenVanuitLijst(@Valid restTaakVrijgevenGegevens: RESTTaakVrijgevenGegevens) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
-        taskService.releaseTasksAsync(
-            restTaakVrijgevenGegevens = restTaakVrijgevenGegevens,
-            loggedInUser = loggedInUserInstance.get(),
-            screenEventResourceId = restTaakVrijgevenGegevens.screenEventResourceId
-        )
+        // this can be a long-running operation so run it asynchronously
+        ioCoroutineScope.launch {
+            taskService.releaseTasksAsync(
+                restTaakVrijgevenGegevens = restTaakVrijgevenGegevens,
+                loggedInUser = loggedInUserInstance.get(),
+                screenEventResourceId = restTaakVrijgevenGegevens.screenEventResourceId
+            )
+        }
     }
 
     @PATCH
@@ -257,7 +267,7 @@ class TakenRESTService @Inject constructor(
             explanation = restTaakToekennenGegevens.reden
         ).let {
             taskService.sendScreenEventsOnTaskChange(it, restTaakToekennenGegevens.zaakUuid)
-            indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK)
+            indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, true)
             return it
         }
     }

@@ -92,7 +92,7 @@ class IndexeerServiceTest : BehaviorSpec({
         When(
             """The indexeer direct method is called to index the two zaken"""
         ) {
-            indexeerService.indexeerDirect(zaken.map { it.uuid.toString() }, ZoekObjectType.ZAAK)
+            indexeerService.indexeerDirect(zaken.map { it.uuid.toString() }, ZoekObjectType.ZAAK, false)
 
             Then(
                 """

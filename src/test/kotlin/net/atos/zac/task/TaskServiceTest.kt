@@ -4,7 +4,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
-import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -13,9 +12,6 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
-import io.opentelemetry.api.trace.Span
-import io.opentelemetry.api.trace.Tracer
-import io.opentelemetry.context.Scope
 import net.atos.zac.app.taken.converter.RESTTaakConverter
 import net.atos.zac.app.taken.model.createRESTTaakToekennenGegevens
 import net.atos.zac.app.taken.model.createRESTTaakVerdelenGegevens
@@ -38,15 +34,11 @@ class TaskServiceTest : BehaviorSpec({
     val indexeerService = mockk<IndexeerService>()
     val eventingService = mockk<EventingService>()
     val restTaakConverter = mockk<RESTTaakConverter>()
-    val tracer = mockk<Tracer>()
-    val span = mockk<Span>()
-    val scope = mockk<Scope>()
     val taskService = TaskService(
         flowableTaskService = flowableTaskService,
         indexeerService = indexeerService,
         eventingService = eventingService,
         restTaakConverter = restTaakConverter,
-        tracer = tracer
     )
 
     beforeEach {
@@ -98,7 +90,7 @@ class TaskServiceTest : BehaviorSpec({
         } returns updatedTaskAfterAssigningUser
         every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every { eventingService.send(capture(screenEventSlot)) } just runs
-        every { indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK) } just runs
+        every { indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, true) } just runs
 
         When("the 'assign task' function is called with REST taak toekennen gegevens with a group and user") {
             taskService.assignTask(
@@ -114,7 +106,7 @@ class TaskServiceTest : BehaviorSpec({
                         restTaakToekennenGegevens.reden
                     )
                     flowableTaskService.assignTaskToUser(any(), any(), any())
-                    indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK)
+                    indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, true)
                 }
                 screenEventSlot.size shouldBe 2
                 screenEventSlot.map { it.objectType } shouldContainExactlyInAnyOrder listOf(
@@ -164,15 +156,11 @@ class TaskServiceTest : BehaviorSpec({
         every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every { eventingService.send(capture(screenEventSlot)) } just runs
         every {
-            indexeerService.indexeerDirect(restTaakVerdelenTaken.map { it.taakId }.toList(), ZoekObjectType.TAAK)
+            indexeerService.indexeerDirect(restTaakVerdelenTaken.map { it.taakId }.toList(), ZoekObjectType.TAAK, true)
         } just runs
-        every { tracer.spanBuilder(any()).setNoParent().startSpan() } returns span
-        every { span.makeCurrent() } returns scope
-        every { span.end() } just Runs
-        every { scope.close() } just Runs
 
         When("the 'assign tasks' function is called with REST taak verdelen gegevens") {
-            taskService.assignTasksAsync(restTaakVerdelenGegevens, loggedInUser).join()
+            taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser)
 
             Then(
                 """
@@ -187,7 +175,8 @@ class TaskServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     indexeerService.indexeerDirect(
                         restTaakVerdelenTaken.map { it.taakId }.toList(),
-                        ZoekObjectType.TAAK
+                        ZoekObjectType.TAAK,
+                        true
                     )
                 }
                 // we expect 4 screen events to be sent, 2 for each task
@@ -229,19 +218,15 @@ class TaskServiceTest : BehaviorSpec({
         every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every { eventingService.send(capture(screenEventSlot)) } just runs
         every {
-            indexeerService.indexeerDirect(restTaakVerdelenTaken.map { it.taakId }.toList(), ZoekObjectType.TAAK)
+            indexeerService.indexeerDirect(restTaakVerdelenTaken.map { it.taakId }.toList(), ZoekObjectType.TAAK, true)
         } just runs
-        every { tracer.spanBuilder(any()).setNoParent().startSpan() } returns span
-        every { span.makeCurrent() } returns scope
-        every { span.end() } just Runs
-        every { scope.close() } just Runs
 
         When(
             """"
                 the 'release tasks' function is called with REST taak vrijgeven gegevens               
             """
         ) {
-            taskService.releaseTasksAsync(restTaakVrijgevenGegevens, loggedInUser).join()
+            taskService.releaseTasksAsync(restTaakVrijgevenGegevens, loggedInUser)
 
             Then(
                 """taken are released, the index is updated and signalering and signaleringen and screen events are sent"""
@@ -252,7 +237,8 @@ class TaskServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     indexeerService.indexeerDirect(
                         restTaakVerdelenTaken.map { it.taakId }.toList(),
-                        ZoekObjectType.TAAK
+                        ZoekObjectType.TAAK,
+                        true
                     )
                 }
                 // we expect 4 screen events to be sent, 2 for each task
