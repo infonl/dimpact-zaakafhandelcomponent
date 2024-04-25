@@ -685,8 +685,8 @@ test_vastleggen_besluit_in_intake_fails if {
         with input.zaak.besloten as true
 }
 
-test_vastleggen_besluit_besloten_ignored if {
-    vastleggen_besluit
+test_vastleggen_besluit_not_besluitd_fails if {
+    not vastleggen_besluit
         with input.user.rollen as [ "behandelaar" ]
         with input.zaak.open as true
         with input.zaak.intake as false
