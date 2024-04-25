@@ -286,7 +286,7 @@ class TakenRESTServiceTest : BehaviorSpec({
         val werklijstRechten = createWerklijstRechten()
         every { policyService.readWerklijstRechten() } returns werklijstRechten
         coEvery {
-            taskService.assignTasksAsync(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
+            taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
         } returns mockk()
 
         When("the 'verdelen vanuit lijst' function is called") {
@@ -294,7 +294,7 @@ class TakenRESTServiceTest : BehaviorSpec({
 
             Then("the tasks are assigned to the group and user") {
                 coVerify(exactly = 1) {
-                    taskService.assignTasksAsync(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
+                    taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
                 }
             }
         }

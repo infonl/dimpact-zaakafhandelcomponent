@@ -196,7 +196,7 @@ class ZakenRESTService @Inject constructor(
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZakenRESTService::class.java.name)
-        private val defaultCoroutineScope = CoroutineScope(Dispatchers.Default)
+        private val ioCoroutineScope = CoroutineScope(Dispatchers.IO)
 
         private const val ROL_VERWIJDER_REDEN = "Verwijderd door de medewerker tijdens het behandelen van de zaak"
         private const val ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
@@ -595,7 +595,8 @@ class ZakenRESTService @Inject constructor(
     @Path("lijst/verdelen")
     fun verdelenVanuitLijst(@Valid restZakenVerdeelGegevens: RESTZakenVerdeelGegevens) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
-        defaultCoroutineScope.launch {
+        // this can be a long-running operation so run it asynchronously
+        ioCoroutineScope.launch {
             zakenService.assignZakenAsync(
                 zaakUUIDs = restZakenVerdeelGegevens.uuids,
                 explanation = restZakenVerdeelGegevens.reden,
@@ -616,8 +617,9 @@ class ZakenRESTService @Inject constructor(
     @Path("lijst/vrijgeven")
     fun vrijgevenVanuitLijst(@Valid restZakenVrijgevenGegevens: RESTZakenVrijgevenGegevens) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
-        defaultCoroutineScope.launch {
-            zakenService.releaseZakenAsync(
+        // this can be a long-running operation so run it asynchronously
+        ioCoroutineScope.launch {
+            zakenService.releaseZaken(
                 zaakUUIDs = restZakenVrijgevenGegevens.uuids,
                 explanation = restZakenVrijgevenGegevens.reden,
                 screenEventResourceId = restZakenVrijgevenGegevens.screenEventResourceId

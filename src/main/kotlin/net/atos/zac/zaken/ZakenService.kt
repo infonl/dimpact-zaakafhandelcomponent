@@ -4,9 +4,8 @@
 */
 package net.atos.zac.zaken
 
-import io.opentelemetry.api.trace.Tracer
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.inject.Inject
-import kotlinx.coroutines.Dispatchers
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Medewerker
@@ -22,36 +21,34 @@ import net.atos.zac.identity.model.User
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
-import nl.lifely.zac.opentelemetry.withSpan
+import nl.lifely.zac.util.AllOpen
 import java.util.UUID
 import java.util.logging.Logger
 
+@AllOpen
 class ZakenService @Inject constructor(
     private val zrcClientService: ZRCClientService,
     private val ztcClientService: ZTCClientService,
     private val indexeerService: IndexeerService,
     private var eventingService: EventingService,
-    private val tracer: Tracer
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZakenService::class.java.name)
     }
 
     /**
-     * Asynchronously assigns a list of zaken to a group and/or user and updates the search index on the fly.
+     * Assigns a list of zaken to a group and/or user and updates the search index on the fly.
+     * This can be a long-running operation.
      */
+    @WithSpan
     @Suppress("LongParameterList")
-    suspend fun assignZakenAsync(
+    fun assignZakenAsync(
         zaakUUIDs: List<UUID>,
         group: Group,
         user: User? = null,
         explanation: String? = null,
         screenEventResourceId: String? = null,
-    ) = withSpan(
-        tracer = tracer,
-        spanName = "${javaClass.kotlin.simpleName}.assignZakenAsync",
-        coroutineContext = Dispatchers.IO
-    ) { _ ->
+    ) {
         LOG.fine { "Started asynchronous job with ID: $screenEventResourceId to assign ${zaakUUIDs.size} zaken." }
         val zakenAssignedList = mutableListOf<UUID>()
         zaakUUIDs
@@ -119,17 +116,15 @@ class ZakenService @Inject constructor(
         )
 
     /**
-     * Asynchronously releases a list of zaken from a user and updates the search index on the fly.
+     * Releases a list of zaken from a user and updates the search index on the fly.
+     * This can be a long-running operation.
      */
-    suspend fun releaseZakenAsync(
+    @WithSpan
+    fun releaseZaken(
         zaakUUIDs: List<UUID>,
         explanation: String? = null,
         screenEventResourceId: String? = null
-    ) = withSpan(
-        tracer = tracer,
-        spanName = "${javaClass.kotlin.simpleName}.releaseZakenAsync",
-        coroutineContext = Dispatchers.IO
-    ) { _ ->
+    ) {
         LOG.fine {
             "Started asynchronous job with ID: $screenEventResourceId to release ${zaakUUIDs.size} zaken"
         }
@@ -142,7 +137,6 @@ class ZakenService @Inject constructor(
                     ZoekObjectType.ZAAK
                 )
             }
-
         LOG.fine {
             "Asynchronous release zaken job with job ID '$screenEventResourceId' finished. " +
                 "Successfully released ${zaakUUIDs.size} zaken."

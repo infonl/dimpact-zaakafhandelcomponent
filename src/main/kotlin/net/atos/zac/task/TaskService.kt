@@ -1,8 +1,7 @@
 package net.atos.zac.task
 
-import io.opentelemetry.api.trace.Tracer
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.inject.Inject
-import kotlinx.coroutines.Dispatchers
 import net.atos.zac.app.taken.converter.RESTTaakConverter
 import net.atos.zac.app.taken.model.RESTTaakToekennenGegevens
 import net.atos.zac.app.taken.model.RESTTaakVerdelenGegevens
@@ -15,7 +14,6 @@ import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
-import nl.lifely.zac.opentelemetry.withSpan
 import nl.lifely.zac.util.AllOpen
 import org.flowable.task.api.Task
 import java.util.UUID
@@ -27,7 +25,6 @@ class TaskService @Inject constructor(
     private val indexeerService: IndexeerService,
     private val eventingService: EventingService,
     private val restTaakConverter: RESTTaakConverter,
-    private val tracer: Tracer
 ) {
     companion object {
         private val LOG = Logger.getLogger(TaskService::class.java.name)
@@ -69,16 +66,14 @@ class TaskService @Inject constructor(
     /**
      * Asynchronously assigns a list of tasks to a group and optionally also to a user,
      * sends corresponding screen events and updates the search index.
+     * This can be a long-running operation.
      */
-    suspend fun assignTasksAsync(
+    @WithSpan
+    fun assignTasks(
         restTaakVerdelenGegevens: RESTTaakVerdelenGegevens,
         loggedInUser: LoggedInUser,
         screenEventResourceId: String? = null,
-    ) = withSpan(
-        tracer = tracer,
-        spanName = "${javaClass.kotlin.simpleName}.assignTasksAsync",
-        coroutineContext = Dispatchers.IO
-    ) { _ ->
+    ) {
         LOG.fine {
             "Started asynchronous job with ID: $screenEventResourceId to assign " +
                 "${restTaakVerdelenGegevens.taken.size} tasks."
@@ -135,17 +130,15 @@ class TaskService @Inject constructor(
     }
 
     /**
-     * Asynchronously releases a list of tasks, sends corresponding screen events and updates the search index.
+     * Releases a list of tasks, sends corresponding screen events and updates the search index.
+     * This can be a long-running operation.
      */
-    suspend fun releaseTasksAsync(
+    @WithSpan
+    fun releaseTasksAsync(
         restTaakVrijgevenGegevens: RESTTaakVrijgevenGegevens,
         loggedInUser: LoggedInUser,
         screenEventResourceId: String? = null
-    ) = withSpan(
-        tracer = tracer,
-        spanName = "${javaClass.kotlin.simpleName}.releaseTasksAsync",
-        coroutineContext = Dispatchers.IO
-    ) { _ ->
+    ) {
         LOG.fine {
             "Started asynchronous job with ID: '$screenEventResourceId' to release " +
                 "${restTaakVrijgevenGegevens.taken.size} tasks."
