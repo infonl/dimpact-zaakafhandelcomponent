@@ -12,6 +12,7 @@ import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpSession;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -62,5 +63,11 @@ public class IndexerenRESTService {
             );
         });
         return info.toString();
+    }
+
+    @POST
+    @Path("commit")
+    public void commit() {
+        indexeerService.commit();
     }
 }

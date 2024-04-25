@@ -7,11 +7,8 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
-import { v4 as uuidv4 } from "uuid";
 import { ZaakAfzender } from "../admin/model/zaakafzender";
 import { ZaakbeeindigReden } from "../admin/model/zaakbeeindig-reden";
-import { ObjectType } from "../core/websocket/model/object-type";
-import { Opcode } from "../core/websocket/model/opcode";
 import { WebsocketService } from "../core/websocket/websocket.service";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { Group } from "../identity/model/group";
@@ -191,42 +188,24 @@ export class ZakenService {
     verdeelGegevens.groepId = groep?.id;
     verdeelGegevens.behandelaarGebruikersnaam = medewerker?.id;
     verdeelGegevens.reden = reden;
-    verdeelGegevens.screenEventResourceId = uuidv4();
 
-    return this.websocketService.longRunningOperation(
-      Opcode.UPDATED,
-      ObjectType.ZAKEN_VERDELEN,
-      verdeelGegevens.screenEventResourceId,
-      () =>
-        this.http
-          .put<void>(`${this.basepath}/lijst/verdelen`, verdeelGegevens)
-          .pipe(
-            catchError((err) =>
-              this.foutAfhandelingService.foutAfhandelen(err),
-            ),
-          ),
-    );
+    return this.http
+      .put<void>(`${this.basepath}/lijst/verdelen`, verdeelGegevens)
+      .pipe(
+        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+      );
   }
 
   vrijgevenVanuitLijst(uuids: string[], reden?: string): Observable<void> {
     const verdeelGegevens: ZakenVerdeelGegevens = new ZakenVerdeelGegevens();
     verdeelGegevens.uuids = uuids;
     verdeelGegevens.reden = reden;
-    verdeelGegevens.screenEventResourceId = uuidv4();
 
-    return this.websocketService.longRunningOperation(
-      Opcode.UPDATED,
-      ObjectType.ZAKEN_VRIJGEVEN,
-      verdeelGegevens.screenEventResourceId,
-      () =>
-        this.http
-          .put<void>(`${this.basepath}/lijst/vrijgeven`, verdeelGegevens)
-          .pipe(
-            catchError((err) =>
-              this.foutAfhandelingService.foutAfhandelen(err),
-            ),
-          ),
-    );
+    return this.http
+      .put<void>(`${this.basepath}/lijst/vrijgeven`, verdeelGegevens)
+      .pipe(
+        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+      );
   }
 
   toekennenAanIngelogdeMedewerker(

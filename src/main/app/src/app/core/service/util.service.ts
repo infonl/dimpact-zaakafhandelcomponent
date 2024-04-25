@@ -4,9 +4,10 @@
  */
 
 import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
+import { ComponentType } from "@angular/cdk/portal";
 import { DOCUMENT } from "@angular/common";
 import { Inject, Injectable, Optional } from "@angular/core";
-import { MatSnackBar } from "@angular/material/snack-bar";
+import { MatSnackBar, MatSnackBarConfig } from "@angular/material/snack-bar";
 import { Title } from "@angular/platform-browser";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
@@ -137,7 +138,7 @@ export class UtilService {
   }
 
   openSnackbar(message: string, params?: {}, duration = 3) {
-    this.openSnackbarAction(message, "actie.sluiten", params, 3);
+    this.openSnackbarAction(message, "actie.sluiten", params, duration);
   }
 
   openSnackbarAction(
@@ -156,6 +157,13 @@ export class UtilService {
         },
       )
       .onAction();
+  }
+
+  openSnackbarFromComponent<T>(
+    component: ComponentType<T>,
+    config?: MatSnackBarConfig<any>,
+  ) {
+    return this.snackbar.openFromComponent(component, config);
   }
 
   addAction(action: ActionBarAction) {
