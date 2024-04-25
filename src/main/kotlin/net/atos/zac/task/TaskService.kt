@@ -97,7 +97,7 @@ class TaskService @Inject constructor(
             sendScreenEventsOnTaskChange(task, restTaakVerdelenTaak.zaakUuid)
             taskIds.add(restTaakVerdelenTaak.taakId)
         }
-        indexeerService.indexeerDirect(taskIds, ZoekObjectType.TAAK)
+        indexeerService.indexeerDirect(taskIds, ZoekObjectType.TAAK, true)
         LOG.fine {
             "Asynchronous assign tasks job with ID '$screenEventResourceId' finished. " +
                 "Successfully assigned ${taskIds.size} tasks."
@@ -154,7 +154,7 @@ class TaskService @Inject constructor(
                 taskIds.add(updatedTask.id)
             }
         }
-        indexeerService.indexeerDirect(taskIds, ZoekObjectType.TAAK)
+        indexeerService.indexeerDirect(taskIds, ZoekObjectType.TAAK, true)
         LOG.fine {
             "Asynchronous release tasks job with ID '$screenEventResourceId' finished. " +
                 "Successfully released ${taskIds.size} tasks."
