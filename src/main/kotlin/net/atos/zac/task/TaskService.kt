@@ -59,7 +59,11 @@ class TaskService @Inject constructor(
         }
         if (changed) {
             sendScreenEventsOnTaskChange(updatedTask, restTaakToekennenGegevens.zaakUuid)
-            indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK)
+            indexeerService.indexeerDirect(
+                restTaakToekennenGegevens.taakId,
+                ZoekObjectType.TAAK,
+                true
+            )
         }
     }
 
