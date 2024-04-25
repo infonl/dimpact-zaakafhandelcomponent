@@ -11,12 +11,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import io.opentelemetry.api.trace.Span
-import io.opentelemetry.api.trace.SpanBuilder
-import io.opentelemetry.api.trace.StatusCode
-import io.opentelemetry.api.trace.Tracer
-import io.opentelemetry.context.Context
-import io.opentelemetry.context.Scope
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.createZaak
@@ -37,17 +31,11 @@ class ZakenServiceTest : BehaviorSpec({
     val indexeerService = mockk<IndexeerService>()
     val zrcClientService = mockk<ZRCClientService>()
     val ztcClientService = mockk<ZTCClientService>()
-    val tracer = mockk<Tracer>()
-    val spanBuilder = mockk<SpanBuilder>()
-    val span = mockk<Span>()
-    val scope = mockk<Scope>()
-    val context = mockk<Context>()
     val zakenService = ZakenService(
         eventingService = eventingService,
         indexeerService = indexeerService,
         zrcClientService = zrcClientService,
         ztcClientService = ztcClientService,
-        tracer = tracer
     )
     val explanation = "dummyExplanation"
     val screenEventResourceId = "dummyResourceId"
@@ -71,12 +59,6 @@ class ZakenServiceTest : BehaviorSpec({
 
     Given("A list of zaken") {
         val screenEventSlot = slot<ScreenEvent>()
-        every { tracer.spanBuilder("ZakenService.assignZakenAsync") } returns spanBuilder
-        every { spanBuilder.startSpan() } returns span
-        every { span.storeInContext(any()) } returns context
-        every { context.makeCurrent() } returns scope
-        every { span.end() } just Runs
-        every { scope.close() } just Runs
         zaken.map {
             every { zrcClientService.readZaak(it.uuid) } returns it
             every {
@@ -123,12 +105,6 @@ class ZakenServiceTest : BehaviorSpec({
     Given("A list of zaken") {
         clearAllMocks()
         val screenEventSlot = slot<ScreenEvent>()
-        every { tracer.spanBuilder("ZakenService.releaseZakenAsync") } returns spanBuilder
-        every { spanBuilder.startSpan() } returns span
-        every { span.storeInContext(any()) } returns context
-        every { context.makeCurrent() } returns scope
-        every { span.end() } just Runs
-        every { scope.close() } just Runs
         zaken.map {
             every { zrcClientService.readZaak(it.uuid) } returns it
             every { zrcClientService.deleteRol(it, any(), explanation) } just Runs
@@ -139,7 +115,7 @@ class ZakenServiceTest : BehaviorSpec({
             """the release zaken async function is called with
                  a screen event resource id"""
         ) {
-            zakenService.releaseZakenAsync(
+            zakenService.releaseZaken(
                 zaakUUIDs = zaken.map { it.uuid },
                 explanation = explanation,
                 screenEventResourceId = screenEventResourceId
@@ -165,14 +141,6 @@ class ZakenServiceTest : BehaviorSpec({
     }
     Given("A list of zaken and a failing ZRC client service when retrieving the second zaak ") {
         clearAllMocks()
-        every { tracer.spanBuilder("ZakenService.assignZakenAsync") } returns spanBuilder
-        every { spanBuilder.startSpan() } returns span
-        every { span.storeInContext(any()) } returns context
-        every { context.makeCurrent() } returns scope
-        every { span.setStatus(StatusCode.ERROR) } returns span
-        every { span.recordException(any()) } returns span
-        every { span.end() } just Runs
-        every { scope.close() } just Runs
         every { zrcClientService.readZaak(zaken[0].uuid) } returns zaken[0]
         every { zrcClientService.readZaak(zaken[1].uuid) } throws RuntimeException("dummyRuntimeException")
         When(
