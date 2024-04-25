@@ -223,6 +223,14 @@ public class IndexeerService {
         helper.markObjectForRemoval(taskID, TAAK);
     }
 
+    public void commit() {
+        try {
+            solrClient.commit(null, true, true);
+        } catch (SolrServerException | IOException exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+
     private void log(final ZoekObjectType objectType, final String message) {
         LOG.info("[%s] %s".formatted(objectType.toString(), message));
     }
@@ -261,7 +269,7 @@ public class IndexeerService {
             try {
                 solrClient.addBeans(beansToBeAdded);
                 if (performCommit) {
-                    solrClient.commit();
+                    commit();
                 }
             } catch (final IOException | SolrServerException e) {
                 throw new RuntimeException(e);
