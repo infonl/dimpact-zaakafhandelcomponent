@@ -3,7 +3,18 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
+import {
+  AfterViewInit,
+  Component,
+  Inject,
+  OnInit,
+  Signal,
+  ViewChild,
+  computed,
+  effect,
+  inject,
+  signal,
+} from "@angular/core";
 
 import { detailExpand } from "../../shared/animations/animations";
 
@@ -21,7 +32,24 @@ import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { ZakenService } from "../zaken.service";
 
+import { ComponentType } from "@angular/cdk/portal";
+import {
+  MatProgressBar,
+  ProgressBarMode,
+} from "@angular/material/progress-bar";
+import {
+  MAT_SNACK_BAR_DATA,
+  MatSnackBarLabel,
+  MatSnackBarRef,
+} from "@angular/material/snack-bar";
 import { ActivatedRoute } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
+import { ObjectType } from "src/app/core/websocket/model/object-type";
+import { Opcode } from "src/app/core/websocket/model/opcode";
+import { WebsocketService } from "src/app/core/websocket/websocket.service";
+import { Group } from "src/app/identity/model/group";
+import { User } from "src/app/identity/model/user";
+import { IndexingService } from "src/app/indexing/indexing.service";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { SorteerVeld } from "src/app/zoeken/model/sorteer-veld";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
@@ -68,6 +96,17 @@ export class ZakenWerkvoorraadComponent
     "error",
   );
 
+  zakenLoading = signal(false);
+  zakenState = signal<Record<string, boolean>>({});
+  zakenValues = computed(() => Object.values(this.zakenState()));
+  zakenProgressPercentage = computed(() => {
+    const values = this.zakenValues();
+    return values.length
+      ? Math.round((values.filter((done) => done).length / values.length) * 100)
+      : undefined;
+  });
+  toekenning: { groep?: Group; medewerker?: User } | undefined;
+
   constructor(
     private zakenService: ZakenService,
     public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
@@ -76,6 +115,8 @@ export class ZakenWerkvoorraadComponent
     public utilService: UtilService,
     public dialog: MatDialog,
     private identityService: IdentityService,
+    private websocketService: WebsocketService,
+    private translateService: TranslateService,
   ) {
     super();
     this.dataSource = new ZakenWerkvoorraadDatasource(
@@ -215,39 +256,122 @@ export class ZakenWerkvoorraadComponent
   }
 
   openVerdelenScherm(): void {
-    const zaken = this.selection.selected;
-    const dialogRef = this.dialog.open(ZakenVerdelenDialogComponent, {
-      data: zaken,
-    });
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        if (this.selection.selected.length === 1) {
-          this.utilService.openSnackbar("msg.verdeeld.zaak");
-        } else {
-          this.utilService.openSnackbar("msg.verdeeld.zaken", {
-            aantal: this.selection.selected.length,
-          });
-        }
-        this.filtersChange();
-      }
-    });
+    this.handleWorkflow(
+      ZakenVerdelenDialogComponent,
+      "msg.verdeeld.zaak",
+      "msg.verdeeld.zaken",
+    );
   }
 
   openVrijgevenScherm(): void {
+    this.handleWorkflow(
+      ZakenVrijgevenDialogComponent,
+      "msg.vrijgegeven.zaak",
+      "msg.vrijgegeven.zaken",
+    );
+  }
+
+  private handleWorkflow<T>(
+    dialogComponent: ComponentType<T>,
+    singleToken: string,
+    multipleToken: string,
+  ) {
     const zaken = this.selection.selected;
-    const dialogRef = this.dialog.open(ZakenVrijgevenDialogComponent, {
+    const subscriptions = zaken.map(({ id }) => {
+      this.zakenState.update((v) => ({
+        ...v,
+        [id]: false,
+      }));
+      const subscription = this.websocketService.addListener(
+        Opcode.UPDATED,
+        ObjectType.ZAAK,
+        id,
+        () => {
+          this.zakenState.update((v) => ({
+            ...v,
+            [id]: true,
+          }));
+          const zaak = this.dataSource.data.find((x) => x.id === id);
+          if (this.toekenning && zaak) {
+            zaak.groepNaam = this.toekenning.groep?.naam || zaak.groepNaam;
+            zaak.groepId = this.toekenning.groep?.id || zaak.groepId;
+            zaak.behandelaarGebruikersnaam = this.toekenning.medewerker?.id;
+            zaak.behandelaarNaam = this.toekenning.medewerker?.naam;
+          }
+          this.websocketService.removeListener(subscription);
+        },
+      );
+      return subscription;
+    });
+    const dialogRef = this.dialog.open(dialogComponent, {
       data: zaken,
     });
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        if (this.selection.selected.length === 1) {
-          this.utilService.openSnackbar("msg.vrijgegeven.zaak");
-        } else {
-          this.utilService.openSnackbar("msg.vrijgegeven.zaken", {
-            aantal: this.selection.selected.length,
+        this.toekenning = result;
+        this.zakenLoading.set(true);
+        const message =
+          zaken.length === 1
+            ? this.translateService.instant(singleToken)
+            : this.translateService.instant(multipleToken, {
+                aantal: zaken.length,
+              });
+        this.utilService
+          .openSnackbarFromComponent(ZakenWorkflowSnackbar, {
+            data: { progressPercentage: this.zakenProgressPercentage, message },
+          })
+          .afterDismissed()
+          .subscribe(() => {
+            this.selection.clear();
+            this.dataSource.load();
+            this.zakenLoading.set(false);
+            this.zakenState.set({});
           });
-        }
-        this.filtersChange();
+      } else {
+        this.websocketService.removeListeners(subscriptions);
+      }
+    });
+  }
+}
+
+@Component({
+  standalone: true,
+  imports: [MatSnackBarLabel, MatProgressBar],
+  template: `
+    <div matSnackBarLabel>{{ data.message }}</div>
+    <mat-progress-bar
+      [mode]="progressMode()"
+      [value]="data.progressPercentage()"
+    ></mat-progress-bar>
+  `,
+  styles: `
+    .mat-mdc-progress-bar {
+      --mdc-linear-progress-active-indicator-color: var(
+        --mat-snack-bar-button-color
+      );
+      --mdc-linear-progress-track-color: rgba(255, 64, 129, 0.25);
+      position: absolute;
+      bottom: 0;
+    }
+  `,
+})
+class ZakenWorkflowSnackbar {
+  snackBarRef = inject(MatSnackBarRef);
+  progressMode = computed<ProgressBarMode>(() => {
+    const percentage = this.data.progressPercentage();
+    return percentage === 100 || percentage === 0 ? "query" : "determinate";
+  });
+
+  constructor(
+    @Inject(MAT_SNACK_BAR_DATA)
+    public data: { progressPercentage: Signal<number>; message: string },
+    index: IndexingService,
+  ) {
+    effect(() => {
+      if (data.progressPercentage() === 100) {
+        index.commit().subscribe(() => {
+          this.snackBarRef.dismiss();
+        });
       }
     });
   }

@@ -47,7 +47,7 @@ export class ZakenVrijgevenDialogComponent implements OnInit {
         this.redenFormField.formControl.value,
       )
       .subscribe(() => {
-        this.dialogRef.close(true);
+        this.dialogRef.close({});
       });
   }
 }

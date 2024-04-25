@@ -70,7 +70,7 @@ export class ZakenVerdelenDialogComponent implements OnInit {
         this.redenFormField.formControl.value,
       )
       .subscribe(() => {
-        this.dialogRef.close(toekenning.groep || toekenning.medewerker);
+        this.dialogRef.close(toekenning);
       });
   }
 }
