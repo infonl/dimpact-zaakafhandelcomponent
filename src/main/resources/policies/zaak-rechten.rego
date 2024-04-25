@@ -267,6 +267,7 @@ vastleggen_besluit {
     zaaktype_allowed == true
     zaak.open == true
     zaak.intake == false
+    zaak.besloten == true
 }
 
 default verlengen_doorlooptijd := false
