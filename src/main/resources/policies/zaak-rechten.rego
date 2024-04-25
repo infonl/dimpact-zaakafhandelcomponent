@@ -42,7 +42,7 @@ zaak_rechten := {
     "verwijderen_betrokkene": verwijderen_betrokkene,
     "toevoegen_bag_object": toevoegen_bag_object,
     "starten_taak": starten_taak,
-    "vastleggen_besluit:": vastleggen_besluit,
+    "vastleggen_besluit": vastleggen_besluit,
     "verlengen_doorlooptijd": verlengen_doorlooptijd
 }
 
