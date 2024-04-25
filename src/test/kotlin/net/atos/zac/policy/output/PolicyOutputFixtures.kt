@@ -5,9 +5,21 @@
 
 package net.atos.zac.policy.output
 
-fun createDocumentRechten() = DocumentRechten(
-    true, true, true, true, true, true,
-    true, true, true, true
+@Suppress("LongParameterList")
+fun createDocumentRechten(
+    lezen: Boolean = true,
+    wijzigen: Boolean = true,
+    verwijderen: Boolean = true,
+    vergrendelen: Boolean = true,
+    ontgrendelen: Boolean = true,
+    ondertekenen: Boolean = true,
+    toevoegenNieuweVersie: Boolean = true,
+    verplaatsen: Boolean = true,
+    ontkoppelen: Boolean = true,
+    downloaden: Boolean = true
+) = DocumentRechten(
+    lezen, wijzigen, verwijderen, vergrendelen, ontgrendelen, ondertekenen,
+    toevoegenNieuweVersie, verplaatsen, ontkoppelen, downloaden
 )
 
 @Suppress("LongParameterList")
@@ -21,34 +33,63 @@ fun createDocumentRechtenAllDeny(
     toevoegenNieuweVersie: Boolean = false,
     verplaatsen: Boolean = false,
     ontkoppelen: Boolean = false,
-    downloaden: Boolean = false,
-) = DocumentRechten(
+    downloaden: Boolean = false
+) = createDocumentRechten(
     lezen, wijzigen, verwijderen, vergrendelen, ontgrendelen, ondertekenen,
     toevoegenNieuweVersie, verplaatsen, ontkoppelen, downloaden
 )
 
-fun createTaakRechten() = TaakRechten(
-    true,
-    true,
-    true,
-    true,
-    true
-)
+fun createTaakRechten(
+    lezen: Boolean = true,
+    wijzigen: Boolean = true,
+    toekennen: Boolean = true,
+    creeerenDocument: Boolean = true,
+    toevoegenDocument: Boolean = true
+) = TaakRechten(lezen, wijzigen, toekennen, creeerenDocument, toevoegenDocument)
 
 fun createTaakRechtenAllDeny(
     lezen: Boolean = false,
     wijzigen: Boolean = false,
     toekennen: Boolean = false,
     creeerenDocument: Boolean = false,
-    toevoegenDocument: Boolean = false,
-) = TaakRechten(lezen, wijzigen, toekennen, creeerenDocument, toevoegenDocument)
+    toevoegenDocument: Boolean = false
+) = createTaakRechten(lezen, wijzigen, toekennen, creeerenDocument, toevoegenDocument)
 
-fun createZaakRechten() = ZaakRechten(
-    true, true, true, true, true, true, true,
-    true, true, true, true, true, true,
-    true, true, true, true, true,
-    true, true, true, true,
-    true, true, true, true, true
+@Suppress("LongParameterList")
+fun createZaakRechten(
+    lezen: Boolean = true,
+    wijzigen: Boolean = true,
+    toekennen: Boolean = true,
+    behandelen: Boolean = true,
+    afbreken: Boolean = true,
+    heropenen: Boolean = true,
+    wijzigenZaakdata: Boolean = true,
+    wijzigenDoorlooptijd: Boolean = true,
+    verlengen: Boolean = true,
+    opschorten: Boolean = true,
+    hervatten: Boolean = true,
+    creeerenDocument: Boolean = true,
+    toevoegenDocument: Boolean = true,
+    koppelen: Boolean = true,
+    koppelenGerelateerd: Boolean = true,
+    versturenEmail: Boolean = true,
+    versturenOntvangstbevestiging: Boolean = true,
+    toevoegenInitiatorPersoon: Boolean = true,
+    toevoegenInitiatorBedrijf: Boolean = true,
+    verwijderenInitiator: Boolean = true,
+    toevoegenBetrokkenePersoon: Boolean = true,
+    toevoegenBetrokkeneBedrijf: Boolean = true,
+    verwijderenBetrokkene: Boolean = true,
+    toevoegenBagObject: Boolean = true,
+    startenTaak: Boolean = true,
+    vastleggenBesluit: Boolean = true,
+    verlengenDoorlooptijd: Boolean = true
+) = ZaakRechten(
+    lezen, wijzigen, toekennen, behandelen, afbreken, heropenen, wijzigenZaakdata, wijzigenDoorlooptijd,
+    verlengen, opschorten, hervatten, creeerenDocument, toevoegenDocument, koppelen, koppelenGerelateerd,
+    versturenEmail, versturenOntvangstbevestiging, toevoegenInitiatorPersoon, toevoegenInitiatorBedrijf,
+    verwijderenInitiator, toevoegenBetrokkenePersoon, toevoegenBetrokkeneBedrijf, verwijderenBetrokkene,
+    toevoegenBagObject, startenTaak, vastleggenBesluit, verlengenDoorlooptijd
 )
 
 @Suppress("LongParameterList")
@@ -79,8 +120,8 @@ fun createZaakRechtenAllDeny(
     toevoegenBagObject: Boolean = false,
     startenTaak: Boolean = false,
     vastleggenBesluit: Boolean = false,
-    verlengenDoorlooptijd: Boolean = false,
-) = ZaakRechten(
+    verlengenDoorlooptijd: Boolean = false
+) = createZaakRechten(
     lezen, wijzigen, toekennen, behandelen, afbreken, heropenen, wijzigenZaakdata, wijzigenDoorlooptijd,
     verlengen, opschorten, hervatten, creeerenDocument, toevoegenDocument, koppelen, koppelenGerelateerd,
     versturenEmail, versturenOntvangstbevestiging, toevoegenInitiatorPersoon, toevoegenInitiatorBedrijf,
@@ -88,20 +129,12 @@ fun createZaakRechtenAllDeny(
     toevoegenBagObject, startenTaak, vastleggenBesluit, verlengenDoorlooptijd
 )
 
-fun createWerklijstRechten() = WerklijstRechten(
-    true,
-    true,
-    true,
-    true,
-    true
-)
-
-fun createWerklijstRechtenAllDeny(
-    inbox: Boolean = false,
-    ontkoppeldeDocumentenVerwijderen: Boolean = false,
-    inboxProductaanvragenVerwijderen: Boolean = false,
-    zakenTaken: Boolean = false,
-    zakenTakenVerdelen: Boolean = false,
+fun createWerklijstRechten(
+    inbox: Boolean = true,
+    ontkoppeldeDocumentenVerwijderen: Boolean = true,
+    inboxProductaanvragenVerwijderen: Boolean = true,
+    zakenTaken: Boolean = true,
+    zakenTakenVerdelen: Boolean = true
 ) = WerklijstRechten(
     inbox,
     ontkoppeldeDocumentenVerwijderen,
@@ -110,14 +143,32 @@ fun createWerklijstRechtenAllDeny(
     zakenTakenVerdelen
 )
 
-fun createOverigeRechten() = OverigeRechten(true, true, true)
+fun createWerklijstRechtenAllDeny(
+    inbox: Boolean = false,
+    ontkoppeldeDocumentenVerwijderen: Boolean = false,
+    inboxProductaanvragenVerwijderen: Boolean = false,
+    zakenTaken: Boolean = false,
+    zakenTakenVerdelen: Boolean = false
+) = createWerklijstRechten(
+    inbox,
+    ontkoppeldeDocumentenVerwijderen,
+    inboxProductaanvragenVerwijderen,
+    zakenTaken,
+    zakenTakenVerdelen
+)
 
-fun createOverigeRechtenAllDeny(
-    startenZaak: Boolean = false,
-    beheren: Boolean = false,
-    zoeken: Boolean = false
+fun createOverigeRechten(
+    startenZaak: Boolean = true,
+    beheren: Boolean = true,
+    zoeken: Boolean = true
 ) = OverigeRechten(
     startenZaak,
     beheren,
     zoeken
 )
+
+fun createOverigeRechtenAllDeny(
+    startenZaak: Boolean = false,
+    beheren: Boolean = false,
+    zoeken: Boolean = false
+) = createOverigeRechten(startenZaak, beheren, zoeken)
