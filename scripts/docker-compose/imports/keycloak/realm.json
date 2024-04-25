@@ -403,7 +403,7 @@
       ],
       "zaakafhandelcomponent": [
         {
-          "id": "73c07f94-2fa6-40ed-aa6a-d86fe0386956",
+          "id": "aed63617-11ac-4af9-bb34-f72549354c93",
           "name": "beheerder",
           "composite": false,
           "clientRole": true,
@@ -411,7 +411,7 @@
           "attributes": {}
         },
         {
-          "id": "901ad566-0a1d-4720-a150-b4f89d81b1b5",
+          "id": "beae7e94-3b1e-4e95-9fca-b33bfec7c761",
           "name": "recordmanager",
           "composite": false,
           "clientRole": true,
@@ -419,7 +419,7 @@
           "attributes": {}
         },
         {
-          "id": "dba9045d-71bc-4230-b75c-1b5c5ce0bdfd",
+          "id": "6f526363-462c-4c7c-a1ca-ef61ff9693e2",
           "name": "zaakafhandelcomponent_user",
           "description": "Grants basic access to ZAC. Without this role a user cannot access ZAC.",
           "composite": false,
@@ -428,7 +428,7 @@
           "attributes": {}
         },
         {
-          "id": "dda6494d-1dd0-4da2-8c9d-03a042f2a401",
+          "id": "a6cd8863-f81d-467b-931e-3495a14f3879",
           "name": "behandelaar",
           "composite": false,
           "clientRole": true,
@@ -436,7 +436,7 @@
           "attributes": {}
         },
         {
-          "id": "ffd29bf7-1bc1-461c-a3d0-98346e16cb4a",
+          "id": "a8e24637-d5db-4545-a910-ce1a0a24da67",
           "name": "domein_toestemming_verlenen",
           "composite": false,
           "clientRole": true,
@@ -444,7 +444,7 @@
           "attributes": {}
         },
         {
-          "id": "b9b72e88-7b0e-46e9-8c9c-30249913c908",
+          "id": "02461c0b-0f77-4857-88dd-44ba165e83da",
           "name": "coordinator",
           "composite": false,
           "clientRole": true,
@@ -452,7 +452,7 @@
           "attributes": {}
         },
         {
-          "id": "929ab108-e957-4722-bf49-1394fa458284",
+          "id": "79226e68-19c9-4fce-a407-8e883a75bd25",
           "name": "domein_elk_zaaktype",
           "composite": false,
           "clientRole": true,
@@ -460,7 +460,7 @@
           "attributes": {}
         },
         {
-          "id": "899f4ec5-ed0e-4159-b4ed-207ed92f30b1",
+          "id": "117a3ab0-784b-4312-abcf-059469828866",
           "name": "domein_voorzieningen_verstrekken",
           "composite": false,
           "clientRole": true,
@@ -468,7 +468,7 @@
           "attributes": {}
         },
         {
-          "id": "851b84b6-af9a-4932-8cf1-942d41ca3a58",
+          "id": "b79f6cfd-e198-471d-b322-3a9b8a46d9fc",
           "name": "domein_test",
           "composite": false,
           "clientRole": true,
