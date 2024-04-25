@@ -7,6 +7,7 @@ package net.atos.zac.app.taken
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -287,7 +288,7 @@ class TakenRESTServiceTest : BehaviorSpec({
         every { policyService.readWerklijstRechten() } returns werklijstRechten
         coEvery {
             taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
-        } returns mockk()
+        } just Runs
 
         When("the 'verdelen vanuit lijst' function is called") {
             takenRESTService.verdelenVanuitLijst(restTaakVerdelenGegevens)
@@ -312,7 +313,7 @@ class TakenRESTServiceTest : BehaviorSpec({
         every { policyService.readWerklijstRechten() } returns werklijstRechten
         coEvery {
             taskService.releaseTasksAsync(restTaakVrijgevenGegevens, loggedInUser, screenEventResourceId)
-        } returns mockk()
+        } just Runs
 
         When("the 'verdelen vanuit lijst' function is called") {
             takenRESTService.vrijgevenVanuitLijst(restTaakVrijgevenGegevens)
