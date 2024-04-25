@@ -47,6 +47,7 @@ import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.policy.output.createDocumentRechtenAllDeny
 import net.atos.zac.policy.output.createTaakRechtenAllDeny
+import net.atos.zac.policy.output.createWerklijstRechten
 import net.atos.zac.policy.output.createWerklijstRechtenAllDeny
 import net.atos.zac.shared.helper.OpschortenZaakHelper
 import net.atos.zac.signalering.SignaleringenService
