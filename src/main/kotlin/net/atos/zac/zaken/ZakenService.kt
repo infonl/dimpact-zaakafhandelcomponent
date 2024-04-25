@@ -70,7 +70,8 @@ class ZakenService @Inject constructor(
                 }
                 indexeerService.indexeerDirect(
                     zaak.uuid.toString(),
-                    ZoekObjectType.ZAAK
+                    ZoekObjectType.ZAAK,
+                    false
                 )
                 zakenAssignedList.add(zaak.uuid)
             }
@@ -134,7 +135,8 @@ class ZakenService @Inject constructor(
                 zrcClientService.deleteRol(it, BetrokkeneType.MEDEWERKER, explanation)
                 indexeerService.indexeerDirect(
                     it.uuid.toString(),
-                    ZoekObjectType.ZAAK
+                    ZoekObjectType.ZAAK,
+                    false
                 )
             }
         LOG.fine {
