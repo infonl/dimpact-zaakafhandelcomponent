@@ -101,7 +101,7 @@ class TaskService @Inject constructor(
             sendScreenEventsOnTaskChange(task, restTaakVerdelenTaak.zaakUuid)
             taskIds.add(restTaakVerdelenTaak.taakId)
         }
-        indexeerService.indexeerDirect(taskIds, ZoekObjectType.TAAK, true)
+        indexeerService.indexeerDirect(taskIds.stream(), ZoekObjectType.TAAK, true)
         LOG.fine { "Successfully assigned ${taskIds.size} tasks." }
 
         // if a screen event resource ID was specified, send a screen event
@@ -157,7 +157,7 @@ class TaskService @Inject constructor(
                 taskIds.add(updatedTask.id)
             }
         }
-        indexeerService.indexeerDirect(taskIds, ZoekObjectType.TAAK, true)
+        indexeerService.indexeerDirect(taskIds.stream(), ZoekObjectType.TAAK, true)
         LOG.fine { "Successfully released ${taskIds.size} tasks." }
 
         // if a screen event resource ID was specified, send a screen event

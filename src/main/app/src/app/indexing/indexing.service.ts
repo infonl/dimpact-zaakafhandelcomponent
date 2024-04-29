@@ -14,14 +14,6 @@ export class IndexingService {
     private foutAfhandelingService: FoutAfhandelingService,
   ) {}
 
-  index(count = 100): Observable<string> {
-    return this.http
-      .get(
-        `${this.basepath}/${count}`,
-        {responseType: 'text'}
-      )
-  }
-
   commitPendingChangesToSearchIndex(): Observable<void> {
     return this.http
       .post<void>(

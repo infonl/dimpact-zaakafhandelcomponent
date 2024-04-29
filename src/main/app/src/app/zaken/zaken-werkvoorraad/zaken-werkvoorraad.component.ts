@@ -60,7 +60,6 @@ import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { ZakenVerdelenDialogComponent } from "../zaken-verdelen-dialog/zaken-verdelen-dialog.component";
 import { ZakenVrijgevenDialogComponent } from "../zaken-vrijgeven-dialog/zaken-vrijgeven-dialog.component";
 import { ZakenWerkvoorraadDatasource } from "./zaken-werkvoorraad-datasource";
-import { switchMap } from "rxjs";
 
 @Component({
   templateUrl: "./zaken-werkvoorraad.component.html",
@@ -370,9 +369,7 @@ class ZakenWorkflowSnackbar {
   ) {
     effect(() => {
       if (data.progressPercentage() === 100) {
-        index.index().pipe(
-          switchMap(() => index.commitPendingChangesToSearchIndex())
-        ).subscribe(() => {
+        index.commitPendingChangesToSearchIndex().subscribe(() => {
           this.snackBarRef.dismiss();
         });
       }

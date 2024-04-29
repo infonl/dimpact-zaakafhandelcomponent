@@ -156,7 +156,7 @@ class TaskServiceTest : BehaviorSpec({
         every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every { eventingService.send(capture(screenEventSlot)) } just runs
         every {
-            indexeerService.indexeerDirect(restTaakVerdelenTaken.map { it.taakId }.toList(), ZoekObjectType.TAAK, true)
+            indexeerService.indexeerDirect(restTaakVerdelenTaken.map { it.taakId }.stream(), ZoekObjectType.TAAK, true)
         } just runs
 
         When("the 'assign tasks' function is called with REST taak verdelen gegevens") {
@@ -174,7 +174,7 @@ class TaskServiceTest : BehaviorSpec({
                 }
                 verify(exactly = 1) {
                     indexeerService.indexeerDirect(
-                        restTaakVerdelenTaken.map { it.taakId }.toList(),
+                        restTaakVerdelenTaken.stream().map { it.taakId },
                         ZoekObjectType.TAAK,
                         true
                     )
@@ -218,7 +218,7 @@ class TaskServiceTest : BehaviorSpec({
         every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every { eventingService.send(capture(screenEventSlot)) } just runs
         every {
-            indexeerService.indexeerDirect(restTaakVerdelenTaken.map { it.taakId }.toList(), ZoekObjectType.TAAK, true)
+            indexeerService.indexeerDirect(restTaakVerdelenTaken.map { it.taakId }.stream(), ZoekObjectType.TAAK, true)
         } just runs
 
         When(
@@ -236,7 +236,7 @@ class TaskServiceTest : BehaviorSpec({
                 }
                 verify(exactly = 1) {
                     indexeerService.indexeerDirect(
-                        restTaakVerdelenTaken.map { it.taakId }.toList(),
+                        restTaakVerdelenTaken.map { it.taakId }.stream(),
                         ZoekObjectType.TAAK,
                         true
                     )

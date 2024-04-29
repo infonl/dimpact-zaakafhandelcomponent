@@ -2,11 +2,9 @@ package net.atos.zac.zoeken
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearAllMocks
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.slot
@@ -46,15 +44,13 @@ class IndexeerServiceTest : BehaviorSpec({
     val converterInstancesIterator = mockk<MutableIterator<AbstractZoekObjectConverter<out ZoekObject?>>>()
     val drcClientService = mockk<DRCClientService>()
     val flowableTaskService = mockk<FlowableTaskService>()
-    val indexeerServiceHelper = mockk<IndexeerServiceHelper>()
     val zrcClientService = mockk<ZRCClientService>()
 
     val indexeerService = IndexeerService(
         converterInstances,
         zrcClientService,
         drcClientService,
-        flowableTaskService,
-        indexeerServiceHelper
+        flowableTaskService
     )
 
     beforeEach {
@@ -87,12 +83,11 @@ class IndexeerServiceTest : BehaviorSpec({
             every { zaakZoekObjectConverter.convert(zaak.uuid.toString()) } returns zaakZoekObjecten[index]
         }
         every { solrClient.addBeans(zaakZoekObjecten) } returns UpdateResponse()
-        every { indexeerServiceHelper.removeMarks(capture(objectIdsSlot)) } just Runs
 
         When(
             """The indexeer direct method is called to index the two zaken"""
         ) {
-            indexeerService.indexeerDirect(zaken.map { it.uuid.toString() }, ZoekObjectType.ZAAK, false)
+            indexeerService.indexeerDirect(zaken.map { it.uuid.toString() }.stream(), ZoekObjectType.ZAAK, false)
 
             Then(
                 """
@@ -102,7 +97,6 @@ class IndexeerServiceTest : BehaviorSpec({
             ) {
                 verify(exactly = 1) {
                     solrClient.addBeans(any<Collection<*>>())
-                    indexeerServiceHelper.removeMarks(any<Stream<String>>())
                 }
                 objectIdsSlot.captured.toList() shouldBe zaakZoekObjecten.map { it.uuid.toString() }
             }
