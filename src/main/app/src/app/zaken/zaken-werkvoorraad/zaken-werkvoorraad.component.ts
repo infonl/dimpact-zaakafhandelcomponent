@@ -284,7 +284,7 @@ export class ZakenWerkvoorraadComponent
       }));
       const subscription = this.websocketService.addListener(
         Opcode.UPDATED,
-        ObjectType.ZAAK,
+        ObjectType.ZAAK_ROLLEN,
         id,
         () => {
           this.zakenState.update((v) => ({
