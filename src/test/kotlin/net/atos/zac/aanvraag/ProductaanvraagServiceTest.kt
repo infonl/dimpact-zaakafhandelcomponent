@@ -3,6 +3,8 @@ package net.atos.zac.aanvraag
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
+import io.mockk.checkUnnecessaryStub
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -50,7 +52,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     val cmmnService = mockk<CMMNService>()
     val bpmnService = mockk<BPMNService>()
     val configuratieService = mockk<ConfiguratieService>()
-
     val productaanvraagService = ProductaanvraagService(
         objectsClientService,
         zgwApiService,
@@ -67,6 +68,14 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         bpmnService,
         configuratieService
     )
+
+    beforeEach {
+        checkUnnecessaryStub()
+    }
+
+    beforeSpec {
+        clearAllMocks()
+    }
 
     Given("an object registration object") {
         val bron = createBron()
