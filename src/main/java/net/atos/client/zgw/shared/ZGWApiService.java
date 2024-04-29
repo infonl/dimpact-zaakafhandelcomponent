@@ -152,8 +152,10 @@ public class ZGWApiService {
      * @return Created {@link Resultaat}.
      */
     public Resultaat updateResultaatForZaak(final Zaak zaak, final UUID resultaatTypeUuid, final String reden) {
-        final Resultaat resultaat = zrcClientService.readResultaat(zaak.getResultaat());
-        zrcClientService.deleteResultaat(resultaat.getUuid());
+        if (zaak.getResultaat() != null) {
+            final Resultaat resultaat = zrcClientService.readResultaat(zaak.getResultaat());
+            zrcClientService.deleteResultaat(resultaat.getUuid());
+        }
         return createResultaatForZaak(zaak, resultaatTypeUuid, reden);
     }
 

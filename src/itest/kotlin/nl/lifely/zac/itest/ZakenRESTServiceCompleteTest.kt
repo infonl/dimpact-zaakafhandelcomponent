@@ -10,6 +10,7 @@ import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
+import nl.lifely.zac.itest.config.ItestConfiguration.ACTIE_ZAAK_AFHANDELEN
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
@@ -33,7 +34,7 @@ class ZakenRESTServiceCompleteTest : BehaviorSpec({
 
     Given("A zaak has been created that has finished the intake phase with the status 'admissible'") {
         lateinit var zaakUUID: UUID
-        lateinit var resultaatUuid: UUID
+        lateinit var resultaatTypeUuid: UUID
         val intakeId: Int
         zacClient.createZaak(
             ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID,
@@ -72,7 +73,8 @@ class ZakenRESTServiceCompleteTest : BehaviorSpec({
             "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
         ).run {
             JSONArray(body!!.string()).getJSONObject(0).run {
-                resultaatUuid = getString("id").let(UUID::fromString)
+                // we do not care about the specific result type so we just take the first one
+                resultaatTypeUuid = getString("id").let(UUID::fromString)
             }
         }
 
@@ -92,8 +94,8 @@ class ZakenRESTServiceCompleteTest : BehaviorSpec({
             {
                 "zaakUuid":"$zaakUUID",
                 "planItemInstanceId":"$afhandelenId",
-                "actie":"ZAAK_AFHANDELEN",
-                "resultaattypeUuid": "$resultaatUuid",
+                "actie":"$ACTIE_ZAAK_AFHANDELEN",
+                "resultaattypeUuid": "$resultaatTypeUuid",
                 "resultaatToelichting":"afronden"
             }
                 """.trimIndent()
@@ -115,7 +117,7 @@ class ZakenRESTServiceCompleteTest : BehaviorSpec({
             }
         }
 
-        When("The closed zaak is re-opened") {
+        When("the closed zaak is re-opened") {
             sleep(1)
             itestHttpClient.performPatchRequest(
                 "$ZAC_API_URI/zaken/zaak/$zaakUUID/heropenen",
@@ -135,6 +137,37 @@ class ZakenRESTServiceCompleteTest : BehaviorSpec({
                     responseBody.run {
                         shouldContainJsonKeyValue("isOpen", true)
                         shouldNotContainJsonKey("resultaat")
+                    }
+                }
+            }
+        }
+
+        When("the re-opened zaak is completed again") {
+            sleep(1)
+            // Completing a re-opened zaak is done using the 'afsluiten' endpoint
+            // instead of the 'doUserEventListenerPlanItem' endpoint.
+            // Not sure why.
+            itestHttpClient.performPatchRequest(
+                url = "$ZAC_API_URI/zaken/zaak/$zaakUUID/afsluiten",
+                requestBodyAsString = """
+                    {
+                    "reden":"dummyReason",
+                    "resultaattypeUuid":"$resultaatTypeUuid"
+                    }
+                """.trimIndent()
+            ).run {
+                logger.info { "Response: ${body!!.string()}" }
+                code shouldBe HttpStatusCode.NO_CONTENT_204.code()
+            }
+
+            Then("the zaak should be closed and have a result") {
+                zacClient.retrieveZaak(zaakUUID).use { response ->
+                    val responseBody = response.body!!.string()
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HttpStatusCode.OK_200.code()
+                    responseBody.run {
+                        shouldContainJsonKeyValue("isOpen", false)
+                        shouldContainJsonKey("resultaat")
                     }
                 }
             }
