@@ -97,29 +97,41 @@ public class MailService {
 
     private static final String MAIL_BERICHT = "Bericht";
 
-    @Inject
     private ConfiguratieService configuratieService;
-
-    @Inject
     private ZGWApiService zgwApiService;
-
-    @Inject
     private ZTCClientService ztcClientService;
-
-    @Inject
     private ZRCClientService zrcClientService;
-
-    @Inject
     private DRCClientService drcClientService;
-
-    @Inject
     private MailTemplateHelper mailTemplateHelper;
-
-    @Inject
     private TaakVariabelenService taakVariabelenService;
+    private Instance<LoggedInUser> loggedInUserInstance;
+
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public MailService() {
+    }
 
     @Inject
-    private Instance<LoggedInUser> loggedInUserInstance;
+    public MailService(
+            ConfiguratieService configuratieService,
+            ZGWApiService zgwApiService,
+            ZTCClientService ztcClientService,
+            ZRCClientService zrcClientService,
+            DRCClientService drcClientService,
+            MailTemplateHelper mailTemplateHelper,
+            TaakVariabelenService taakVariabelenService,
+            Instance<LoggedInUser> loggedInUserInstance
+    ) {
+        this.configuratieService = configuratieService;
+        this.zgwApiService = zgwApiService;
+        this.ztcClientService = ztcClientService;
+        this.zrcClientService = zrcClientService;
+        this.drcClientService = drcClientService;
+        this.mailTemplateHelper = mailTemplateHelper;
+        this.taakVariabelenService = taakVariabelenService;
+        this.loggedInUserInstance = loggedInUserInstance;
+    }
 
     private final MailjetClient mailjetClient = createMailjetClient(MAILJET_API_KEY, MAILJET_API_SECRET_KEY);
 
