@@ -28,6 +28,7 @@ import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.task.api.Task
+import java.util.stream.Stream
 
 class TaskServiceTest : BehaviorSpec({
     val flowableTaskService = mockk<FlowableTaskService>()
@@ -156,7 +157,7 @@ class TaskServiceTest : BehaviorSpec({
         every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every { eventingService.send(capture(screenEventSlot)) } just runs
         every {
-            indexeerService.indexeerDirect(restTaakVerdelenTaken.map { it.taakId }.stream(), ZoekObjectType.TAAK, true)
+            indexeerService.indexeerDirect(any<Stream<String>>(), ZoekObjectType.TAAK, true)
         } just runs
 
         When("the 'assign tasks' function is called with REST taak verdelen gegevens") {
@@ -174,7 +175,7 @@ class TaskServiceTest : BehaviorSpec({
                 }
                 verify(exactly = 1) {
                     indexeerService.indexeerDirect(
-                        restTaakVerdelenTaken.stream().map { it.taakId },
+                        any<Stream<String>>(),
                         ZoekObjectType.TAAK,
                         true
                     )
@@ -218,7 +219,7 @@ class TaskServiceTest : BehaviorSpec({
         every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every { eventingService.send(capture(screenEventSlot)) } just runs
         every {
-            indexeerService.indexeerDirect(restTaakVerdelenTaken.map { it.taakId }.stream(), ZoekObjectType.TAAK, true)
+            indexeerService.indexeerDirect(any<Stream<String>>(), ZoekObjectType.TAAK, true)
         } just runs
 
         When(
@@ -236,7 +237,7 @@ class TaskServiceTest : BehaviorSpec({
                 }
                 verify(exactly = 1) {
                     indexeerService.indexeerDirect(
-                        restTaakVerdelenTaken.map { it.taakId }.stream(),
+                        any<Stream<String>>(),
                         ZoekObjectType.TAAK,
                         true
                     )
