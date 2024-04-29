@@ -68,7 +68,7 @@ Given(
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld) {
     await this.page.waitForResponse(/zoeken\/list/);
-    await this.page.waitForTimeout(100);
+    await this.page.waitForTimeout(1000);
   },
 );
 
