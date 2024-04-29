@@ -66,7 +66,7 @@ public class IndexerenRESTService {
     }
 
     @POST
-    @Path("commit")
+    @Path("commit-pending-changes-to-search-index")
     public void commit() {
         indexeerService.commit();
     }

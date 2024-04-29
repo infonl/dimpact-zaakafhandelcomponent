@@ -369,7 +369,7 @@ class ZakenWorkflowSnackbar {
   ) {
     effect(() => {
       if (data.progressPercentage() === 100) {
-        index.commit().subscribe(() => {
+        index.commitPendingChangesToSearchIndex().subscribe(() => {
           this.snackBarRef.dismiss();
         });
       }

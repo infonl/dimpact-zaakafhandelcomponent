@@ -14,9 +14,12 @@ export class IndexingService {
     private foutAfhandelingService: FoutAfhandelingService,
   ) {}
 
-  commit(): Observable<void> {
+  commitPendingChangesToSearchIndex(): Observable<void> {
     return this.http
-      .post<void>(`${this.basepath}/commit`, null)
+      .post<void>(
+        `${this.basepath}/commit-pending-changes-to-search-index`,
+        null,
+      )
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
