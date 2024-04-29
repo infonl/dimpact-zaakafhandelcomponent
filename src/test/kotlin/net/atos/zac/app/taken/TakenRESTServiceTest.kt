@@ -317,7 +317,6 @@ class TakenRESTServiceTest : BehaviorSpec({
             ),
             screenEventResourceId = screenEventResourceId
         )
-        val werklijstRechten = createWerklijstRechten()
         coEvery {
             taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
         } just Runs
