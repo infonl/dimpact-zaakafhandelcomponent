@@ -269,7 +269,7 @@ public class IndexeerService {
             try {
                 solrClient.addBeans(beansToBeAdded);
                 if (performCommit) {
-                    commit();
+                    solrClient.commit();
                 }
             } catch (final IOException | SolrServerException e) {
                 throw new RuntimeException(e);
