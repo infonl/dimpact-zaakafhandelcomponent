@@ -17,28 +17,21 @@ import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.ZTCClientService
 import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.generated.RolType
-import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
 import net.atos.zac.identity.model.createGroup
 import net.atos.zac.identity.model.createUser
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
-import net.atos.zac.zoeken.IndexeerService
-import net.atos.zac.zoeken.model.index.ZoekObjectType
 
 class ZakenServiceTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
-    val indexeerService = mockk<IndexeerService>()
     val zrcClientService = mockk<ZRCClientService>()
     val ztcClientService = mockk<ZTCClientService>()
-    val configuratieService = mockk<ConfiguratieService>()
     val zakenService = ZakenService(
         eventingService = eventingService,
-        indexeerService = indexeerService,
         zrcClientService = zrcClientService,
-        ztcClientService = ztcClientService,
-        configuratieService = configuratieService
+        ztcClientService = ztcClientService
     )
     val explanation = "dummyExplanation"
     val screenEventResourceId = "dummyResourceId"
@@ -71,10 +64,7 @@ class ZakenServiceTest : BehaviorSpec({
                 )
             } returns rolTypeBehandelaar
             every { zrcClientService.updateRol(it, any(), explanation) } just Runs
-            every { indexeerService.indexeerDirect(it.uuid.toString(), ZoekObjectType.ZAAK, false) } just Runs
             every { eventingService.send(capture(screenEventSlot)) } just Runs
-            every { configuratieService.notificationsDisabled } returns true
-            every { indexeerService.commit() } just Runs
         }
         When(
             """the assign zaken async function is called with a group, a user
@@ -113,11 +103,8 @@ class ZakenServiceTest : BehaviorSpec({
         zaken.map {
             every { zrcClientService.readZaak(it.uuid) } returns it
             every { zrcClientService.deleteRol(it, any(), explanation) } just Runs
-            every { indexeerService.indexeerDirect(it.uuid.toString(), ZoekObjectType.ZAAK, false) } just Runs
         }
         every { eventingService.send(capture(screenEventSlot)) } just Runs
-        every { configuratieService.notificationsDisabled } returns true
-        every { indexeerService.commit() } just Runs
         When(
             """the release zaken async function is called with
                  a screen event resource id"""
