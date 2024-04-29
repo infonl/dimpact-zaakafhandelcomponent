@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -45,28 +46,35 @@ import net.atos.client.zgw.ztc.model.generated.ZaakType;
 
 
 /**
- * Careful!
- * <p>
- * Never call methods with caching annotations from within the service (or it will not work).
- * Do not introduce caches with keys other than URI and UUID.
- * Use Optional for caches that need to hold nulls (Infinispan does not cache nulls).
+ * Service class for ZGW API's.
  */
 @ApplicationScoped
 public class ZGWApiService {
-
     private static final Logger LOG = Logger.getLogger(ZGWApiService.class.getName());
 
     // Page numbering in ZGW Api's starts with 1
     public static final int FIRST_PAGE_NUMBER_ZGW_APIS = 1;
 
-    @Inject
     private ZTCClientService ztcClientService;
-
-    @Inject
     private ZRCClientService zrcClientService;
+    private DRCClientService drcClientService;
+
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public ZGWApiService() {
+    }
 
     @Inject
-    private DRCClientService drcClientService;
+    public ZGWApiService(
+            final ZTCClientService ztcClientService,
+            final ZRCClientService zrcClientService,
+            final DRCClientService drcClientService
+    ) {
+        this.ztcClientService = ztcClientService;
+        this.zrcClientService = zrcClientService;
+        this.drcClientService = drcClientService;
+    }
 
     /**
      * Create {@link Zaak} and calculate Doorlooptijden.
@@ -100,16 +108,14 @@ public class ZGWApiService {
     }
 
     /**
-     * Create {@link Resultaat} for a given {@link Zaak} based on {@link ResultaatType}
-     * .omschrijving and with {@link Resultaat}.toelichting.
+     * Create {@link Resultaat} for a given {@link Zaak} based on {@link ResultaatType} .omschrijving and with
+     * {@link Resultaat}.toelichting.
      *
      * @param zaak                      {@link Zaak}
-     * @param resultaattypeOmschrijving Omschrijving of the {@link ResultaatType} of the required
-     *                                  {@link Resultaat}.
+     * @param resultaattypeOmschrijving Omschrijving of the {@link ResultaatType} of the required {@link Resultaat}.
      * @param resultaatToelichting      Toelichting for thew {@link Resultaat}.
-     * @return Created {@link Resultaat}.
      */
-    public Resultaat createResultaatForZaak(
+    public void createResultaatForZaak(
             final Zaak zaak,
             final String resultaattypeOmschrijving,
             final String resultaatToelichting
@@ -118,7 +124,7 @@ public class ZGWApiService {
         final ResultaatType resultaattype = filterResultaattype(resultaattypen,
                 resultaattypeOmschrijving,
                 zaak.getZaaktype());
-        return createResultaat(zaak.getUrl(), resultaattype.getUrl(), resultaatToelichting);
+        createResultaat(zaak.getUrl(), resultaattype.getUrl(), resultaatToelichting);
     }
 
     /**
@@ -129,15 +135,14 @@ public class ZGWApiService {
      * @param resultaattypeUUID    UUID of the {@link ResultaatType} of the required
      *                             {@link Resultaat}.
      * @param resultaatToelichting Toelichting for thew {@link Resultaat}.
-     * @return Created {@link Resultaat}.
      */
-    public Resultaat createResultaatForZaak(
+    public void createResultaatForZaak(
             final Zaak zaak,
             final UUID resultaattypeUUID,
             final String resultaatToelichting
     ) {
         final ResultaatType resultaattype = ztcClientService.readResultaattype(resultaattypeUUID);
-        return createResultaat(zaak.getUrl(), resultaattype.getUrl(), resultaatToelichting);
+        createResultaat(zaak.getUrl(), resultaattype.getUrl(), resultaatToelichting);
     }
 
     /**
@@ -149,14 +154,13 @@ public class ZGWApiService {
      * @param resultaatTypeUuid Containing the UUID of the {@link ResultaatType} of the required
      *                          {@link Resultaat}.
      * @param reden             Reason of setting the {@link ResultaatType}
-     * @return Created {@link Resultaat}.
      */
-    public Resultaat updateResultaatForZaak(final Zaak zaak, final UUID resultaatTypeUuid, final String reden) {
+    public void updateResultaatForZaak(final Zaak zaak, final UUID resultaatTypeUuid, final String reden) {
         if (zaak.getResultaat() != null) {
             final Resultaat resultaat = zrcClientService.readResultaat(zaak.getResultaat());
             zrcClientService.deleteResultaat(resultaat.getUuid());
         }
-        return createResultaatForZaak(zaak, resultaatTypeUuid, reden);
+        createResultaatForZaak(zaak, resultaatTypeUuid, reden);
     }
 
     /**
@@ -325,7 +329,7 @@ public class ZGWApiService {
         zaak.setUiterlijkeEinddatumAfdoening(zaak.getStartdatum().plus(Period.parse(zaaktype.getDoorlooptijd())));
     }
 
-    private Resultaat createResultaat(
+    private void createResultaat(
             final URI zaakURI,
             final URI resultaattypeURI,
             final String resultaatToelichting
@@ -334,7 +338,7 @@ public class ZGWApiService {
         resultaat.setZaak(zaakURI);
         resultaat.setResultaattype(resultaattypeURI);
         resultaat.setToelichting(resultaatToelichting);
-        return zrcClientService.createResultaat(resultaat);
+        zrcClientService.createResultaat(resultaat);
     }
 
     private ResultaatType filterResultaattype(
@@ -369,13 +373,15 @@ public class ZGWApiService {
     private LocalDate bepaalBrondatum(final Zaak zaak, final ResultaatType resultaattype) {
         final BrondatumArchiefprocedure brondatumArchiefprocedure = resultaattype.getBrondatumArchiefprocedure();
         if (brondatumArchiefprocedure != null) {
-            switch (brondatumArchiefprocedure.getAfleidingswijze()) {
-                case AFGEHANDELD:
-                    return zaak.getEinddatum();
-                default:
-                    LOG.warning(
-                            String.format("De brondatum bepaling voor afleidingswijze %s is nog niet geimplementeerd",
-                                    brondatumArchiefprocedure.getAfleidingswijze()));
+            if (Objects.requireNonNull(brondatumArchiefprocedure.getAfleidingswijze()) ==
+                BrondatumArchiefprocedure.AfleidingswijzeEnum.AFGEHANDELD) {
+                return zaak.getEinddatum();
+            } else {
+                LOG.warning(
+                        String.format(
+                                "De brondatum bepaling voor afleidingswijze %s is nog niet geimplementeerd",
+                                brondatumArchiefprocedure.getAfleidingswijze()
+                        ));
             }
         }
         return null;

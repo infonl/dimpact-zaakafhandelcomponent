@@ -1,6 +1,7 @@
 package net.atos.client.zgw.ztc.model
 
 import net.atos.client.zgw.ztc.model.generated.InformatieObjectType
+import net.atos.client.zgw.ztc.model.generated.ResultaatType
 import net.atos.client.zgw.ztc.model.generated.RolType
 import net.atos.client.zgw.ztc.model.generated.StatusType
 import net.atos.client.zgw.ztc.model.generated.ZaakType
@@ -57,6 +58,27 @@ fun createInformatieObjectType(
     this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
     this.beginGeldigheid = beginGeldigheid
 }
+
+@Suppress("LongParameterList")
+fun createResultaatType(
+    url: URI = URI("http://example.com/zaaktype/${UUID.randomUUID()}"),
+    zaaktypeIdentificatie: String = "dummyZaaktypeIdentificatie",
+    omschrijvingGeneriek: String = "dummyOmschrijvingGeneriek",
+    catalogus: URI = URI("http://example.com/catalogus${UUID.randomUUID()}"),
+    besluittypeOmschrijving: MutableSet<String> = mutableSetOf("dummyBesluittypeOmschrijving"),
+    informatieobjecttypeOmschrijving: MutableSet<String> = mutableSetOf("dummyInformatieobjecttypeOmschrijving"),
+    beginObject: LocalDate = LocalDate.now(),
+    eindeObject: LocalDate = LocalDate.now().plusDays(1)
+) = ResultaatType(
+    url,
+    zaaktypeIdentificatie,
+    omschrijvingGeneriek,
+    catalogus,
+    besluittypeOmschrijving,
+    informatieobjecttypeOmschrijving,
+    beginObject,
+    eindeObject
+)
 
 @Suppress("LongParameterList")
 fun createStatusType(

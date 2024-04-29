@@ -3,6 +3,7 @@ package net.atos.client.zgw.zrc.model
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.shared.model.Archiefnominatie
 import net.atos.client.zgw.zrc.model.generated.Opschorting
+import net.atos.client.zgw.zrc.model.generated.Resultaat
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectPand
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
@@ -58,6 +59,14 @@ fun createOrganisatorischeEenheid(
     this.naam = naam
 }
 
+fun createResultaat(
+    url: URI = URI("http://example.com/${UUID.randomUUID()}"),
+    uuid: UUID = UUID.randomUUID()
+) = Resultaat(
+    url,
+    uuid
+)
+
 fun createRolMedewerker(
     zaak: URI = URI("http://example.com/${UUID.randomUUID()}"),
     rolType: RolType = createRolType(),
@@ -105,6 +114,7 @@ fun createZaak(
     opschorting: Opschorting? = null,
     einddatumGepland: LocalDate? = null,
     registratiedatum: LocalDate = LocalDate.now(),
+    resultaat: URI? = null,
     uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.now().plusDays(1),
     vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR,
     status: URI? = null,
@@ -121,6 +131,7 @@ fun createZaak(
     this.opschorting = opschorting
     this.einddatumGepland = einddatumGepland
     this.registratiedatum = registratiedatum
+    this.resultaat = resultaat
     this.uiterlijkeEinddatumAfdoening = uiterlijkeEinddatumAfdoening
     this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
     this.status = status
