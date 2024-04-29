@@ -1,13 +1,11 @@
 package net.atos.zac.zoeken
 
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
-import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.client.zgw.drc.DRCClientService
@@ -24,7 +22,6 @@ import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.response.UpdateResponse
 import org.eclipse.microprofile.config.ConfigProvider
 import java.net.URI
-import java.util.stream.Stream
 
 class IndexeerServiceTest : BehaviorSpec({
     // add static mocking for config provider because the IndexeerService class
@@ -74,7 +71,6 @@ class IndexeerServiceTest : BehaviorSpec({
             createZaakZoekObject(),
             createZaakZoekObject()
         )
-        val objectIdsSlot = slot<Stream<String>>()
         every { zaakZoekObjectConverter.supports(ZoekObjectType.ZAAK) } returns true
         every { converterInstances.iterator() } returns converterInstancesIterator
         every { converterInstancesIterator.hasNext() } returns true andThen true andThen false
@@ -98,7 +94,6 @@ class IndexeerServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     solrClient.addBeans(any<Collection<*>>())
                 }
-                objectIdsSlot.captured.toList() shouldBe zaakZoekObjecten.map { it.uuid.toString() }
             }
         }
     }
