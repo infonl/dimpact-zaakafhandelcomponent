@@ -253,15 +253,19 @@ public class PlanItemsRESTService {
         switch (userEventListenerData.actie) {
             case INTAKE_AFRONDEN -> {
                 final PlanItemInstance planItemInstance = cmmnService.readOpenPlanItem(
-                        userEventListenerData.planItemInstanceId);
+                        userEventListenerData.planItemInstanceId
+                );
                 zaakVariabelenService.setOntvankelijk(planItemInstance, userEventListenerData.zaakOntvankelijk);
                 if (!userEventListenerData.zaakOntvankelijk) {
                     policyService.checkZaakAfsluitbaar(zaak);
                     final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                            UriUtil.uuidFromURI(zaak.getZaaktype()));
-                    zgwApiService.createResultaatForZaak(zaak,
+                            UriUtil.uuidFromURI(zaak.getZaaktype())
+                    );
+                    zgwApiService.createResultaatForZaak(
+                            zaak,
                             zaakafhandelParameters.getNietOntvankelijkResultaattype(),
-                            userEventListenerData.resultaatToelichting);
+                            userEventListenerData.resultaatToelichting
+                    );
                 }
             }
             case ZAAK_AFHANDELEN -> {
@@ -271,8 +275,11 @@ public class PlanItemsRESTService {
                     resultaat.setToelichting(userEventListenerData.resultaatToelichting);
                     zrcClientService.updateResultaat(resultaat);
                 } else {
-                    zgwApiService.createResultaatForZaak(zaak, userEventListenerData.resultaattypeUuid,
-                            userEventListenerData.resultaatToelichting);
+                    zgwApiService.createResultaatForZaak(
+                            zaak,
+                            userEventListenerData.resultaattypeUuid,
+                            userEventListenerData.resultaatToelichting
+                    );
                 }
             }
         }
