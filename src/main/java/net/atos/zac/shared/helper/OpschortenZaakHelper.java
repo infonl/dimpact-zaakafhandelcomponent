@@ -26,16 +26,16 @@ public class OpschortenZaakHelper {
     private ZaakVariabelenService zaakVariabelenService;
 
     /**
-     * Default empty constructor, required by JAX-RS
+     * Default no-arg constructor, required by Weld.
      */
     public OpschortenZaakHelper() {
     }
 
     @Inject
     OpschortenZaakHelper(
-            PolicyService policyService,
-            ZRCClientService zrcClientService,
-            ZaakVariabelenService zaakVariabelenService
+            final PolicyService policyService,
+            final ZRCClientService zrcClientService,
+            final ZaakVariabelenService zaakVariabelenService
     ) {
         this.policyService = policyService;
         this.zrcClientService = zrcClientService;

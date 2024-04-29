@@ -85,7 +85,7 @@ public class PlanItemsRESTService {
     private OpschortenZaakHelper opschortenZaakHelper;
 
     /**
-     * Default empty constructor, required by JAX-RS
+     * Default no-arg constructor, required by Weld.
      */
     public PlanItemsRESTService() {
     }
