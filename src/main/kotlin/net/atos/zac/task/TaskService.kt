@@ -68,7 +68,7 @@ class TaskService @Inject constructor(
     }
 
     /**
-     * Asynchronously assigns a list of tasks to a group and optionally also to a user,
+     * Assigns a list of tasks to a group and optionally also to a user,
      * sends corresponding screen events and updates the search index.
      * This can be a long-running operation.
      */
@@ -79,8 +79,8 @@ class TaskService @Inject constructor(
         screenEventResourceId: String? = null,
     ) {
         LOG.fine {
-            "Started asynchronous job with ID: $screenEventResourceId to assign " +
-                "${restTaakVerdelenGegevens.taken.size} tasks."
+            "Started to assign ${restTaakVerdelenGegevens.taken.size} tasks " +
+                "with screen event resource ID: '$screenEventResourceId'."
         }
         val taskIds = mutableListOf<String>()
         restTaakVerdelenGegevens.taken.forEach { restTaakVerdelenTaak ->
@@ -102,14 +102,13 @@ class TaskService @Inject constructor(
             taskIds.add(restTaakVerdelenTaak.taakId)
         }
         indexeerService.indexeerDirect(taskIds, ZoekObjectType.TAAK, true)
-        LOG.fine {
-            "Asynchronous assign tasks job with ID '$screenEventResourceId' finished. " +
-                "Successfully assigned ${taskIds.size} tasks."
-        }
+        LOG.fine { "Successfully assigned ${taskIds.size} tasks." }
+
         // if a screen event resource ID was specified, send a screen event
         // with the provided job ID so that it can be picked up by a client
         // that has created a websocket subscription to this event
         screenEventResourceId?.let {
+            LOG.fine { "Sending 'TAKEN_VERDELEN' screen event with ID '$it'." }
             eventingService.send(ScreenEventType.TAKEN_VERDELEN.updated(it))
         }
     }
@@ -138,14 +137,14 @@ class TaskService @Inject constructor(
      * This can be a long-running operation.
      */
     @WithSpan
-    fun releaseTasksAsync(
+    fun releaseTasks(
         restTaakVrijgevenGegevens: RESTTaakVrijgevenGegevens,
         loggedInUser: LoggedInUser,
         screenEventResourceId: String? = null
     ) {
         LOG.fine {
-            "Started asynchronous job with ID: '$screenEventResourceId' to release " +
-                "${restTaakVrijgevenGegevens.taken.size} tasks."
+            "Started to assign ${restTaakVrijgevenGegevens.taken.size} tasks " +
+                "with screen event resource ID: '$screenEventResourceId'."
         }
         val taskIds = mutableListOf<String>()
         restTaakVrijgevenGegevens.taken.forEach {
@@ -159,14 +158,13 @@ class TaskService @Inject constructor(
             }
         }
         indexeerService.indexeerDirect(taskIds, ZoekObjectType.TAAK, true)
-        LOG.fine {
-            "Asynchronous release tasks job with ID '$screenEventResourceId' finished. " +
-                "Successfully released ${taskIds.size} tasks."
-        }
+        LOG.fine { "Successfully released ${taskIds.size} tasks." }
+
         // if a screen event resource ID was specified, send a screen event
         // with the provided job ID so that it can be picked up by a client
         // that has created a websocket subscription to this event
         screenEventResourceId?.let {
+            LOG.fine { "Sending 'TAKEN_VRIJGEVEN' screen event with ID '$it'." }
             eventingService.send(ScreenEventType.TAKEN_VRIJGEVEN.updated(it))
         }
     }

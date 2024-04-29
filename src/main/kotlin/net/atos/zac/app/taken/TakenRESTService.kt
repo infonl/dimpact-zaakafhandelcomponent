@@ -161,7 +161,7 @@ class TakenRESTService @Inject constructor(
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation so run it asynchronously
         ioCoroutineScope.launch {
-            taskService.releaseTasksAsync(
+            taskService.releaseTasks(
                 restTaakVrijgevenGegevens = restTaakVrijgevenGegevens,
                 loggedInUser = loggedInUserInstance.get(),
                 screenEventResourceId = restTaakVrijgevenGegevens.screenEventResourceId

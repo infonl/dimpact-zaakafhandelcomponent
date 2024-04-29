@@ -128,12 +128,12 @@ import net.atos.zac.util.DateTimeConverterUtil
 import net.atos.zac.util.LocalDateUtil
 import net.atos.zac.util.UriUtil
 import net.atos.zac.websocket.event.ScreenEventType
+import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import net.atos.zac.zaaksturing.model.ZaakAfzender
 import net.atos.zac.zaaksturing.model.ZaakAfzender.Speciaal
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters
 import net.atos.zac.zaaksturing.model.ZaakbeeindigParameter
-import net.atos.zac.zaken.ZakenService
 import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import nl.lifely.zac.util.AllOpen
@@ -192,7 +192,7 @@ class ZakenRESTService @Inject constructor(
     private val healthCheckService: HealthCheckService,
     private val opschortenZaakHelper: OpschortenZaakHelper,
     private val restZaakAfzenderConverter: RESTZaakAfzenderConverter,
-    private val zakenService: ZakenService
+    private val zaakService: ZaakService
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZakenRESTService::class.java.name)
@@ -294,11 +294,11 @@ class ZakenRESTService @Inject constructor(
         }
         restZaak.groep?.let {
             val group = identityService.readGroup(it.id)
-            zrcClientService.updateRol(zaak, zakenService.bepaalRolGroep(group, zaak), AANMAKEN_ZAAK_REDEN)
+            zrcClientService.updateRol(zaak, zaakService.bepaalRolGroep(group, zaak), AANMAKEN_ZAAK_REDEN)
         }
         restZaak.behandelaar?.let {
             val user = identityService.readUser(it.id)
-            zrcClientService.updateRol(zaak, zakenService.bepaalRolMedewerker(user, zaak), AANMAKEN_ZAAK_REDEN)
+            zrcClientService.updateRol(zaak, zaakService.bepaalRolMedewerker(user, zaak), AANMAKEN_ZAAK_REDEN)
         }
         cmmnService.startCase(
             zaak,
@@ -542,7 +542,7 @@ class ZakenRESTService @Inject constructor(
                 )
                 zrcClientService.updateRol(
                     zaak,
-                    zakenService.bepaalRolMedewerker(user, zaak),
+                    zaakService.bepaalRolMedewerker(user, zaak),
                     toekennenGegevens.reden
                 )
             } else {
@@ -566,7 +566,7 @@ class ZakenRESTService @Inject constructor(
                     val group = identityService.readGroup(toekennenGegevens.groepId)
                     zrcClientService.updateRol(
                         zaak,
-                        zakenService.bepaalRolGroep(group, zaak),
+                        zaakService.bepaalRolGroep(group, zaak),
                         toekennenGegevens.reden
                     )
                     isUpdated.set(true)
@@ -597,7 +597,7 @@ class ZakenRESTService @Inject constructor(
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation so run it asynchronously
         ioCoroutineScope.launch {
-            zakenService.assignZakenAsync(
+            zaakService.assignZaken(
                 zaakUUIDs = restZakenVerdeelGegevens.uuids,
                 explanation = restZakenVerdeelGegevens.reden,
                 group = restZakenVerdeelGegevens.groepId.let {
@@ -619,7 +619,7 @@ class ZakenRESTService @Inject constructor(
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation so run it asynchronously
         ioCoroutineScope.launch {
-            zakenService.releaseZaken(
+            zaakService.releaseZaken(
                 zaakUUIDs = restZakenVrijgevenGegevens.uuids,
                 explanation = restZakenVrijgevenGegevens.reden,
                 screenEventResourceId = restZakenVrijgevenGegevens.screenEventResourceId
@@ -1167,7 +1167,7 @@ class ZakenRESTService @Inject constructor(
         assertPolicy(zaak.isOpen && policyService.readZaakRechten(zaak).toekennen)
         zrcClientService.updateRol(
             zaak,
-            zakenService.bepaalRolMedewerker(identityService.readUser(loggedInUserInstance.get().id), zaak),
+            zaakService.bepaalRolMedewerker(identityService.readUser(loggedInUserInstance.get().id), zaak),
             toekennenGegevens.reden
         )
         return zaak
