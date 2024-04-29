@@ -191,8 +191,10 @@ public class ZGWApiService {
      * @param eindstatusToelichting Toelichting for thew Eind {@link Status}.
      */
     public void closeZaak(final Zaak zaak, final String eindstatusToelichting) {
-        final StatusType eindStatustype = readStatustypeEind(ztcClientService.readStatustypen(zaak.getZaaktype()),
-                zaak.getZaaktype());
+        final StatusType eindStatustype = readStatustypeEind(
+                ztcClientService.readStatustypen(zaak.getZaaktype()),
+                zaak.getZaaktype()
+        );
         createStatusForZaak(zaak.getUrl(), eindStatustype.getUrl(), eindstatusToelichting);
     }
 

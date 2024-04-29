@@ -41,11 +41,6 @@ import java.time.LocalDate
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
-// private const val EXPECTED_STATUS_CODE_FOR_HEROPENEN = 204
-
-private const val GEOMETRIE_X = 4.806972888890921
-private const val GEOMETRIE_Y = 52.35339893489683
-
 /**
  * This test assumes a zaak has been created in a previously run test.
  */
@@ -189,14 +184,16 @@ class ZakenRESTServiceTest : BehaviorSpec({
             }
         }
         When("the 'update Zaak Locatie' endpoint is called with a valid location") {
+            val geometryX = 4.806972888890921
+            val geometryY = 52.35339893489683
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/$zaak2UUID/zaaklocatie",
                 requestBodyAsString = """
                         {
                             "geometrie": {
                                 "point": {
-                                    "x": $GEOMETRIE_X,
-                                    "y": $GEOMETRIE_Y
+                                    "x": $geometryX,
+                                    "y": $geometryY
                                 },
                                 "type": "Point"
                             },
@@ -215,8 +212,8 @@ class ZakenRESTServiceTest : BehaviorSpec({
                         shouldContainJsonKeyValue("type", "Point")
                         shouldContainJsonKey("point")
                         with(JSONObject(geometrie)["point"].toString()) {
-                            shouldContainJsonKeyValue("x", GEOMETRIE_X)
-                            shouldContainJsonKeyValue("y", GEOMETRIE_Y)
+                            shouldContainJsonKeyValue("x", geometryX)
+                            shouldContainJsonKeyValue("y", geometryY)
                         }
                     }
                 }
@@ -436,137 +433,4 @@ class ZakenRESTServiceTest : BehaviorSpec({
             }
         }
     }
-//    Given("A zaak that is ontvankelijk") {
-//        lateinit var uuid: UUID
-//        var intakeId: Int
-//        lateinit var resultaatUuid: UUID
-//
-//        with(
-//            zacClient.createZaak(
-//                ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID,
-//                TEST_GROUP_A_ID,
-//                TEST_GROUP_A_DESCRIPTION
-//            )
-//        ) {
-//            with(JSONObject(body!!.string())) {
-//                getJSONObject("zaakdata").apply {
-//                    uuid = getString("zaakUUID").let(UUID::fromString)
-//                }
-//            }
-//        }
-//
-//        with(itestHttpClient.performGetRequest("$ZAC_API_URI/planitems/zaak/$uuid/userEventListenerPlanItems")) {
-//            with(JSONArray(body!!.string()).getJSONObject(0)) {
-//                intakeId = getString("id").toInt()
-//            }
-//        }
-//
-//        with(
-//            itestHttpClient.performJSONPostRequest(
-//                "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
-//                requestBodyAsString = """
-//            {
-//                "zaakUuid":"$uuid",
-//                "planItemInstanceId":"$intakeId",
-//                "actie":"INTAKE_AFRONDEN",
-//                "zaakOntvankelijk":true,
-//                "resultaatToelichting":"intake"
-//            }
-//                """.trimIndent()
-//            )
-//        ) {
-//            logger.info { "--- intake afronden status code: $code ---" }
-//        }
-//
-//        with(
-//            itestHttpClient.performGetRequest(
-//                "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
-//            )
-//        ) {
-//            with(JSONArray(body!!.string()).getJSONObject(0)) {
-//                resultaatUuid = getString("id").let(UUID::fromString)
-//            }
-//        }
-//
-//        When("The zaak is closed") {
-//            var afhandelenId: Int
-//
-//            with(itestHttpClient.performGetRequest("$ZAC_API_URI/planitems/zaak/$uuid/userEventListenerPlanItems")) {
-//                with(JSONArray(body!!.string()).getJSONObject(0)) {
-//                    afhandelenId = getString("id").toInt()
-//                }
-//            }
-//
-//            with(
-//                itestHttpClient.performJSONPostRequest(
-//                    "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
-//                    requestBodyAsString = """
-//            {
-//                "zaakUuid":"$uuid",
-//                "planItemInstanceId":"$afhandelenId",
-//                "actie":"ZAAK_AFHANDELEN",
-//                "zaakOntvankelijk":true,
-//                "resultaattypeUuid": "$resultaatUuid",
-//                "resultaatToelichting":"afronden"
-//            }
-//                    """.trimIndent()
-//                )
-//            ) {
-//                logger.info { "--- afronden planItem status code: $code ---" }
-//            }
-//
-//            with(
-//                itestHttpClient.performPatchRequest(
-//                    "$ZAC_API_URI/zaken/zaak/$uuid/afsluiten",
-//                    requestBodyAsString = """
-//                {"reden":"dummyReason","resultaattypeUuid":"$resultaatUuid"}
-//                    """.trimIndent()
-//                )
-//            ) {
-//                logger.info { "--- afsluiten zaak status code: $code ---" }
-//            }
-//
-//            Then("The zaak should have a resultaat") {
-//                with(zacClient.retrieveZaak(uuid)) {
-//                    code shouldBe HttpStatusCode.OK_200.code()
-//                    val bodyStr = body!!.string()
-//                    logger.info { "--- zaak body after afronden: $bodyStr ---" }
-//                    JSONObject(bodyStr).apply {
-//                        has("resultaat") shouldBe true
-//                    }
-//                }
-//            }
-//        }
-//
-//        When("The zaak is re-opened") {
-//            KeycloakClient.authenticate(TEST_RECORD_MANAGER_1_USERNAME, TEST_RECORD_MANAGER_1_PASSWORD)
-//
-//            with(
-//                itestHttpClient.performPatchRequest(
-//                    "$ZAC_API_URI/zaken/zaak/$uuid/heropenen",
-//                    requestBodyAsString = """
-//            {"reden":"dummyReason"}
-//                    """.trimIndent()
-//                )
-//            ) {
-//                logger.info { "--- Heropenen status code: $code ---" }
-//                if (code > EXPECTED_STATUS_CODE_FOR_HEROPENEN) {
-//                    val bodyStr = body!!.string()
-//                    logger.info { "--- Heropenen error body: $bodyStr ---" }
-//                }
-//            }
-//
-//            // re-authenticate with the default user
-//            KeycloakClient.authenticate()
-//
-//            Then("The zaak should not have a resultaat") {
-//                with(zacClient.retrieveZaak(uuid)) {
-//                    code shouldBe HttpStatusCode.OK_200.code()
-//                    JSONObject(body!!.string()).apply {
-//                        has("resultaat") shouldBe false
-//                    }
-//                }
-//            }
-//        }
-//    }
 })
