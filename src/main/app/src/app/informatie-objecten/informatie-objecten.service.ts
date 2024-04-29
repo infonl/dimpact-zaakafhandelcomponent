@@ -23,7 +23,7 @@ import { Informatieobjecttype } from "./model/informatieobjecttype";
 import { ZaakInformatieobject } from "./model/zaak-informatieobject";
 
 const formatDateForFormData = ([k, v]: [string, string]) =>
-  [k, moment(v).format("YYYY-MM-DDThh:mmZ")] as const;
+  [k, v && moment(v).format("YYYY-MM-DDThh:mmZ")] as const;
 
 @Injectable({
   providedIn: "root",
