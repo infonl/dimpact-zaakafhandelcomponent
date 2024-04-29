@@ -7,6 +7,7 @@ import { CustomWorld } from "../support/worlds/world";
 import { worldPossibleZacUrls } from "../utils/schemes";
 
 const ONE_MINUTE_IN_MS = 60_000;
+const ONE_SECOND_IN_MS = 1_000;
 
 When(
   "Employee {string} opens zac",
@@ -68,7 +69,7 @@ Given(
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld) {
     await this.page.waitForResponse(/zoeken\/list/);
-    await this.page.waitForTimeout(1000);
+    await this.page.waitForTimeout(ONE_SECOND_IN_MS);
   },
 );
 
