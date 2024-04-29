@@ -2,7 +2,7 @@
 * SPDX-FileCopyrightText: 2024 Lifely
 * SPDX-License-Identifier: EUPL-1.2+
 */
-package net.atos.zac.zaken
+package net.atos.zac.zaak
 
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.inject.Inject
@@ -24,13 +24,13 @@ import java.util.UUID
 import java.util.logging.Logger
 
 @AllOpen
-class ZakenService @Inject constructor(
+class ZaakService @Inject constructor(
     private val zrcClientService: ZRCClientService,
     private val ztcClientService: ZTCClientService,
     private var eventingService: EventingService,
 ) {
     companion object {
-        private val LOG = Logger.getLogger(ZakenService::class.java.name)
+        private val LOG = Logger.getLogger(ZaakService::class.java.name)
     }
 
     /**
@@ -39,14 +39,16 @@ class ZakenService @Inject constructor(
      */
     @WithSpan
     @Suppress("LongParameterList")
-    fun assignZakenAsync(
+    fun assignZaken(
         zaakUUIDs: List<UUID>,
         group: Group,
         user: User? = null,
         explanation: String? = null,
         screenEventResourceId: String? = null,
     ) {
-        LOG.fine { "Started asynchronous job with ID: $screenEventResourceId to assign ${zaakUUIDs.size} zaken." }
+        LOG.fine {
+            "Started to assign ${zaakUUIDs.size} zaken with screen event resource ID: '$screenEventResourceId'."
+        }
         val zakenAssignedList = mutableListOf<UUID>()
         zaakUUIDs
             .map { zrcClientService.readZaak(it) }
@@ -67,14 +69,12 @@ class ZakenService @Inject constructor(
                 }
                 zakenAssignedList.add(zaak.uuid)
             }
-        LOG.fine {
-            "Asynchronous assign zaken job with job ID '$screenEventResourceId' finished. " +
-                "Successfully assigned ${zakenAssignedList.size} zaken."
-        }
+        LOG.fine { "Successfully assigned ${zakenAssignedList.size} zaken." }
         // if a screen event resource ID was specified, send an 'updated zaken_verdelen' screen event
         // with the job UUID so that it can be picked up by a client
         // that has created a websocket subscription to this event
         screenEventResourceId?.let {
+            LOG.fine { "Sending 'ZAKEN_VERDELEN' screen event with ID '$it'." }
             eventingService.send(ScreenEventType.ZAKEN_VERDELEN.updated(it))
         }
     }
@@ -119,21 +119,20 @@ class ZakenService @Inject constructor(
         screenEventResourceId: String? = null
     ) {
         LOG.fine {
-            "Started asynchronous job with ID: $screenEventResourceId to release ${zaakUUIDs.size} zaken"
+            "Started to release ${zaakUUIDs.size} zaken with screen event resource ID: '$screenEventResourceId'."
         }
         zaakUUIDs
             .map { zrcClientService.readZaak(it) }
             .forEach {
                 zrcClientService.deleteRol(it, BetrokkeneType.MEDEWERKER, explanation)
             }
-        LOG.fine {
-            "Asynchronous release zaken job with job ID '$screenEventResourceId' finished. " +
-                "Successfully released ${zaakUUIDs.size} zaken."
-        }
+        LOG.fine { "Successfully released  ${zaakUUIDs.size} zaken." }
+
         // if a screen event resource ID was specified, send an 'updated zaken_verdelen' screen event
         // with the job UUID so that it can be picked up by a client
         // that has created a websocket subscription to this event
         screenEventResourceId?.let {
+            LOG.fine { "Sending 'ZAKEN_VRIJGEVEN' screen event with ID '$it'." }
             eventingService.send(ScreenEventType.ZAKEN_VRIJGEVEN.updated(it))
         }
     }

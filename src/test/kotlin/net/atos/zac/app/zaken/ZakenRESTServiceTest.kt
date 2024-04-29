@@ -74,9 +74,9 @@ import net.atos.zac.policy.output.createOverigeRechtenAllDeny
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import net.atos.zac.shared.helper.OpschortenZaakHelper
 import net.atos.zac.signalering.SignaleringenService
+import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import net.atos.zac.zaaksturing.model.createZaakafhandelParameters
-import net.atos.zac.zaken.ZakenService
 import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -115,7 +115,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
     val vrlClientService: VRLClientService = mockk<VRLClientService>()
     val zaakafhandelParameterService: ZaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
     val zaakVariabelenService: ZaakVariabelenService = mockk<ZaakVariabelenService>()
-    val zakenService: ZakenService = mockk<ZakenService>()
+    val zaakService: ZaakService = mockk<ZaakService>()
     val zgwApiService: ZGWApiService = mockk<ZGWApiService>()
     val zrcClientService: ZRCClientService = mockk<ZRCClientService>()
     val ztcClientService: ZTCClientService = mockk<ZTCClientService>()
@@ -135,7 +135,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
         zaakVariabelenService = zaakVariabelenService,
         zrcClientService = zrcClientService,
         ztcClientService = ztcClientService,
-        zakenService = zakenService,
+        zaakService = zaakService,
         indexeerService = indexeerService,
         restHistorieRegelConverter = restHistorieRegelConverter,
         restBesluitConverter = restBesluitConverter,
@@ -234,8 +234,8 @@ class ZakenRESTServiceTest : BehaviorSpec({
         every {
             ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.INITIATOR, zaak.zaaktype)
         } returns createRolType(omschrijvingGeneriek = RolType.OmschrijvingGeneriekEnum.INITIATOR)
-        every { zakenService.bepaalRolGroep(group, zaak) } returns rolOrganisatorischeEenheid
-        every { zakenService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
+        every { zaakService.bepaalRolGroep(group, zaak) } returns rolOrganisatorischeEenheid
+        every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
 
         When("createZaak is called for a zaaktype for which the logged in user has permissions") {
             every { policyService.readOverigeRechten() } returns createOverigeRechtenAllDeny(startenZaak = true)
@@ -299,7 +299,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
         every { zgwApiService.findGroepForZaak(zaak) } returns Optional.empty()
         every { restZaakConverter.convert(zaak) } returns restZaak
         every { indexeerService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
-        every { zakenService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
+        every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
 
         When("toekennen is called from user with access") {
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(toekennen = true)

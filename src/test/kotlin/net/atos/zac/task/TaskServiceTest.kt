@@ -226,7 +226,7 @@ class TaskServiceTest : BehaviorSpec({
                 the 'release tasks' function is called with REST taak vrijgeven gegevens               
             """
         ) {
-            taskService.releaseTasksAsync(restTaakVrijgevenGegevens, loggedInUser)
+            taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser)
 
             Then(
                 """taken are released, the index is updated and signalering and signaleringen and screen events are sent"""

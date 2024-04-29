@@ -1,4 +1,4 @@
-package net.atos.zac.zaken
+package net.atos.zac.zaak
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -28,7 +28,7 @@ class ZakenServiceTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
     val zrcClientService = mockk<ZRCClientService>()
     val ztcClientService = mockk<ZTCClientService>()
-    val zakenService = ZakenService(
+    val zaakService = ZaakService(
         eventingService = eventingService,
         zrcClientService = zrcClientService,
         ztcClientService = ztcClientService
@@ -67,10 +67,10 @@ class ZakenServiceTest : BehaviorSpec({
             every { eventingService.send(capture(screenEventSlot)) } just Runs
         }
         When(
-            """the assign zaken async function is called with a group, a user
+            """the assign zaken function is called with a group, a user
                 and a screen event resource id"""
         ) {
-            zakenService.assignZakenAsync(
+            zaakService.assignZaken(
                 zaakUUIDs = zaken.map { it.uuid },
                 explanation = explanation,
                 group = group,
@@ -106,10 +106,10 @@ class ZakenServiceTest : BehaviorSpec({
         }
         every { eventingService.send(capture(screenEventSlot)) } just Runs
         When(
-            """the release zaken async function is called with
+            """the release zaken function is called with
                  a screen event resource id"""
         ) {
-            zakenService.releaseZaken(
+            zaakService.releaseZaken(
                 zaakUUIDs = zaken.map { it.uuid },
                 explanation = explanation,
                 screenEventResourceId = screenEventResourceId
@@ -143,11 +143,11 @@ class ZakenServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(zaken[0].uuid) } returns zaken[0]
         every { zrcClientService.readZaak(zaken[1].uuid) } throws RuntimeException("dummyRuntimeException")
         When(
-            """the assign zaken async function is called with a group
+            """the assign zaken function is called with a group
                 and a screen event resource id"""
         ) {
             shouldThrow<RuntimeException> {
-                zakenService.assignZakenAsync(
+                zaakService.assignZaken(
                     zaakUUIDs = zaken.map { it.uuid },
                     explanation = explanation,
                     group = group,
