@@ -9,7 +9,12 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.client.ZacClient
-import nl.lifely.zac.itest.config.ItestConfiguration
+import nl.lifely.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONArray
 import org.json.JSONObject
 import org.mockserver.model.HttpStatusCode
@@ -20,7 +25,7 @@ const val ONE_SECOND_IN_MILLIS = 1000L
 /**
  * This test creates a zaak, adds a task to complete the intake phase, closes the zaak, and then re-opens the zaak.
  */
-@Order(ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED)
+@Order(TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED)
 class ZakenRESTServiceCompleteTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
@@ -31,9 +36,9 @@ class ZakenRESTServiceCompleteTest : BehaviorSpec({
         lateinit var resultaatUuid: UUID
         val intakeId: Int
         zacClient.createZaak(
-            ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID,
-            ItestConfiguration.TEST_GROUP_A_ID,
-            ItestConfiguration.TEST_GROUP_A_DESCRIPTION
+            ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID,
+            TEST_GROUP_A_ID,
+            TEST_GROUP_A_DESCRIPTION
         ).run {
             JSONObject(body!!.string()).run {
                 getJSONObject("zaakdata").run {
@@ -42,7 +47,7 @@ class ZakenRESTServiceCompleteTest : BehaviorSpec({
             }
         }
         itestHttpClient.performGetRequest(
-            "${ItestConfiguration.ZAC_API_URI}/planitems/zaak/$zaakUUID/userEventListenerPlanItems"
+            "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems"
         ).run {
             JSONArray(body!!.string()).getJSONObject(0).run {
                 intakeId = getString("id").toInt()
@@ -50,12 +55,12 @@ class ZakenRESTServiceCompleteTest : BehaviorSpec({
         }
         sleep(1)
         itestHttpClient.performJSONPostRequest(
-            "${ItestConfiguration.ZAC_API_URI}/planitems/doUserEventListenerPlanItem",
+            "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
             requestBodyAsString = """
             {
                 "zaakUuid":"$zaakUUID",
                 "planItemInstanceId":"$intakeId",
-                "actie":"${ItestConfiguration.ACTIE_INTAKE_AFRONDEN}",
+                "actie":"$ACTIE_INTAKE_AFRONDEN",
                 "zaakOntvankelijk":true
             }
             """.trimIndent()
@@ -64,7 +69,7 @@ class ZakenRESTServiceCompleteTest : BehaviorSpec({
             code shouldBe HttpStatusCode.NO_CONTENT_204.code()
         }
         itestHttpClient.performGetRequest(
-            "${ItestConfiguration.ZAC_API_URI}/zaken/resultaattypes/${ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID}"
+            "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
         ).run {
             JSONArray(body!!.string()).getJSONObject(0).run {
                 resultaatUuid = getString("id").let(UUID::fromString)
@@ -74,7 +79,7 @@ class ZakenRESTServiceCompleteTest : BehaviorSpec({
         When("the zaak is completed") {
             val afhandelenId: Int
             itestHttpClient.performGetRequest(
-                "${ItestConfiguration.ZAC_API_URI}/planitems/zaak/$zaakUUID/userEventListenerPlanItems"
+                "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems"
             ).run {
                 JSONArray(body!!.string()).getJSONObject(0).run {
                     afhandelenId = getString("id").toInt()
@@ -82,7 +87,7 @@ class ZakenRESTServiceCompleteTest : BehaviorSpec({
             }
             sleep(1)
             itestHttpClient.performJSONPostRequest(
-                "${ItestConfiguration.ZAC_API_URI}/planitems/doUserEventListenerPlanItem",
+                "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
                 requestBodyAsString = """
             {
                 "zaakUuid":"$zaakUUID",
@@ -113,7 +118,7 @@ class ZakenRESTServiceCompleteTest : BehaviorSpec({
         When("The closed zaak is re-opened") {
             sleep(1)
             itestHttpClient.performPatchRequest(
-                "${ItestConfiguration.ZAC_API_URI}/zaken/zaak/$zaakUUID/heropenen",
+                "$ZAC_API_URI/zaken/zaak/$zaakUUID/heropenen",
                 requestBodyAsString = """
                     {"reden":"dummyReason"}
                 """.trimIndent()
