@@ -225,6 +225,7 @@ public class IndexeerService {
 
     public void commit() {
         try {
+            // this overload waits until the solr searcher is done, which is what we want
             solrClient.commit(null, true, true);
         } catch (SolrServerException | IOException exception) {
             throw new RuntimeException(exception);
@@ -269,7 +270,7 @@ public class IndexeerService {
             try {
                 solrClient.addBeans(beansToBeAdded);
                 if (performCommit) {
-                    solrClient.commit();
+                    commit();
                 }
             } catch (final IOException | SolrServerException e) {
                 throw new RuntimeException(e);
