@@ -39,6 +39,7 @@ import org.json.JSONObject
 import org.mockserver.model.HttpStatusCode
 import java.time.LocalDate
 import java.util.UUID
+import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -184,8 +185,8 @@ class ZakenRESTServiceTest : BehaviorSpec({
             }
         }
         When("the 'update Zaak Locatie' endpoint is called with a valid location") {
-            val geometryX = 4.806972888890921
-            val geometryY = 52.35339893489683
+            val geometryX = Random.nextFloat()
+            val geometryY = Random.nextFloat()
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/$zaak2UUID/zaaklocatie",
                 requestBodyAsString = """
