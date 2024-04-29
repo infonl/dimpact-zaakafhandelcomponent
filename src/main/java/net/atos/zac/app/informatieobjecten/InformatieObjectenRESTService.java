@@ -101,74 +101,85 @@ import net.atos.zac.webdav.WebdavHelper;
 @Produces(MediaType.APPLICATION_JSON)
 public class InformatieObjectenRESTService {
     private static final String MEDIA_TYPE_PDF = "application/pdf";
-
     private static final String TOELICHTING_PDF = "Geconverteerd naar PDF";
 
-    @Inject
     private DRCClientService drcClientService;
-
-    @Inject
     private ZTCClientService ztcClientService;
-
-    @Inject
     private ZRCClientService zrcClientService;
-
-    @Inject
     private ZGWApiService zgwApiService;
-
-    @Inject
     private FlowableTaskService flowableTaskService;
-
-    @Inject
     private TaakVariabelenService taakVariabelenService;
-
-    @Inject
     private OntkoppeldeDocumentenService ontkoppeldeDocumentenService;
-
-    @Inject
     private InboxDocumentenService inboxDocumentenService;
-
-    @Inject
     private EnkelvoudigInformatieObjectLockService enkelvoudigInformatieObjectLockService;
-
-    @Inject
     private EventingService eventingService;
-
-    @Inject
     private RESTZaakInformatieobjectConverter zaakInformatieobjectConverter;
-
-    @Inject
     private RESTInformatieobjectConverter informatieobjectConverter;
-
-    @Inject
     private RESTInformatieobjecttypeConverter informatieobjecttypeConverter;
-
-    @Inject
     private RESTHistorieRegelConverter historieRegelConverter;
-
-    @Inject
     private RESTGerelateerdeZaakConverter gerelateerdeZaakConverter;
-
-    @Inject
     private DocumentCreatieService documentCreatieService;
-
-    @Inject
     private Instance<LoggedInUser> loggedInUserInstance;
-
-    @Inject
     private WebdavHelper webdavHelper;
-
-    @Inject
     private PolicyService policyService;
-
-    @Inject
     private EnkelvoudigInformatieObjectDownloadService enkelvoudigInformatieObjectDownloadService;
-
-    @Inject
     private EnkelvoudigInformatieObjectUpdateService enkelvoudigInformatieObjectUpdateService;
+    private OfficeConverterClientService officeConverterClientService;
+
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public InformatieObjectenRESTService() {
+    }
 
     @Inject
-    private OfficeConverterClientService officeConverterClientService;
+    public InformatieObjectenRESTService(
+            final DRCClientService drcClientService,
+            final ZTCClientService ztcClientService,
+            final ZRCClientService zrcClientService,
+            final ZGWApiService zgwApiService,
+            final FlowableTaskService flowableTaskService,
+            final TaakVariabelenService taakVariabelenService,
+            final OntkoppeldeDocumentenService ontkoppeldeDocumentenService,
+            final InboxDocumentenService inboxDocumentenService,
+            final EnkelvoudigInformatieObjectLockService enkelvoudigInformatieObjectLockService,
+            final EventingService eventingService,
+            final RESTZaakInformatieobjectConverter restZaakInformatieobjectConverter,
+            final RESTInformatieobjectConverter restInformatieobjectConverter,
+            final RESTInformatieobjecttypeConverter restInformatieobjecttypeConverter,
+            final RESTHistorieRegelConverter restHistorieRegelConverter,
+            final RESTGerelateerdeZaakConverter restGerelateerdeZaakConverter,
+            final DocumentCreatieService documentCreatieService,
+            final Instance<LoggedInUser> loggedInUserInstance,
+            final WebdavHelper webdavHelper,
+            final PolicyService policyService,
+            final EnkelvoudigInformatieObjectDownloadService enkelvoudigInformatieObjectDownloadService,
+            final EnkelvoudigInformatieObjectUpdateService enkelvoudigInformatieObjectUpdateService,
+            final OfficeConverterClientService officeConverterClientService
+    ) {
+        this.drcClientService = drcClientService;
+        this.ztcClientService = ztcClientService;
+        this.zrcClientService = zrcClientService;
+        this.zgwApiService = zgwApiService;
+        this.flowableTaskService = flowableTaskService;
+        this.taakVariabelenService = taakVariabelenService;
+        this.ontkoppeldeDocumentenService = ontkoppeldeDocumentenService;
+        this.inboxDocumentenService = inboxDocumentenService;
+        this.enkelvoudigInformatieObjectLockService = enkelvoudigInformatieObjectLockService;
+        this.eventingService = eventingService;
+        this.zaakInformatieobjectConverter = restZaakInformatieobjectConverter;
+        this.informatieobjectConverter = restInformatieobjectConverter;
+        this.informatieobjecttypeConverter = restInformatieobjecttypeConverter;
+        this.historieRegelConverter = restHistorieRegelConverter;
+        this.gerelateerdeZaakConverter = restGerelateerdeZaakConverter;
+        this.documentCreatieService = documentCreatieService;
+        this.loggedInUserInstance = loggedInUserInstance;
+        this.webdavHelper = webdavHelper;
+        this.policyService = policyService;
+        this.enkelvoudigInformatieObjectDownloadService = enkelvoudigInformatieObjectDownloadService;
+        this.enkelvoudigInformatieObjectUpdateService = enkelvoudigInformatieObjectUpdateService;
+        this.officeConverterClientService = officeConverterClientService;
+    }
 
     @GET
     @Path("informatieobject/{uuid}")

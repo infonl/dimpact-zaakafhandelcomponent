@@ -3,6 +3,8 @@ package net.atos.zac.app.taken.converter
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
+import io.mockk.clearAllMocks
 import io.mockk.mockk
 import net.atos.zac.identity.IdentityService
 import org.flowable.task.api.history.HistoricTaskLogEntryType
@@ -11,6 +13,14 @@ import org.flowable.task.service.impl.persistence.entity.createHistoricTaskLogEn
 class RESTTaakHistorieConverterTest : BehaviorSpec({
     val identityService = mockk<IdentityService>()
     val restTaakHistorieConverter = RESTTaakHistorieConverter(identityService)
+
+    beforeEach {
+        checkUnnecessaryStub()
+    }
+
+    beforeSpec {
+        clearAllMocks()
+    }
 
     Given("A converter history with USER_TASK_CREATED item") {
         val history = listOf(createHistoricTaskLogEntryEntityImpl())
