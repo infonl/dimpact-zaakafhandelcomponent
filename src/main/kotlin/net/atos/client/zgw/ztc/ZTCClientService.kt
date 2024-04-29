@@ -33,6 +33,7 @@ import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.client.zgw.ztc.model.generated.ZaakTypeInformatieObjectType
 import net.atos.zac.configuratie.ConfiguratieService
 import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.net.URI
 import java.time.ZonedDateTime
@@ -45,18 +46,14 @@ import java.util.logging.Logger
  */
 @ApplicationScoped
 @AllOpen
+@NoArgConstructor
 @Suppress("TooManyFunctions")
-class ZTCClientService : Caching {
+class ZTCClientService @Inject constructor(
     @RestClient
-    @Inject
-    private lateinit var ztcClient: ZTCClient
-
-    @Inject
-    private lateinit var zgwClientHeadersFactory: ZGWClientHeadersFactory
-
-    @Inject
-    private lateinit var configuratieService: ConfiguratieService
-
+    val ztcClient: ZTCClient,
+    val zgwClientHeadersFactory: ZGWClientHeadersFactory,
+    val configuratieService: ConfiguratieService
+) : Caching {
     companion object {
         private val CACHES = mutableMapOf<String, Cache<*, *>>()
 
