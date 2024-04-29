@@ -44,7 +44,7 @@ export function createFormData<T extends {}>(
           ]);
           if (stringOrBlob instanceof Blob) {
             formData.append(newKey, stringOrBlob, maybeFileName);
-          } else {
+          } else if (stringOrBlob) {
             formData.append(newKey, stringOrBlob);
           }
         } else {
