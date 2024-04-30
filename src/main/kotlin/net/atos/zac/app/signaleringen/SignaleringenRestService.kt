@@ -14,6 +14,9 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import net.atos.client.zgw.drc.DRCClientService
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieobject
@@ -29,6 +32,7 @@ import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
+import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -49,6 +53,8 @@ class SignaleringenRestService @Inject constructor(
     private val restSignaleringInstellingenConverter: RESTSignaleringInstellingenConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>,
 ) {
+    private val ioCoroutineScope = CoroutineScope(Dispatchers.IO)
+
     private fun Instance<LoggedInUser>.getSignaleringZoekParameters() =
         SignaleringZoekParameters(get())
     private fun Instance<LoggedInUser>.getSignaleringInstellingenZoekParameters() =
@@ -60,16 +66,24 @@ class SignaleringenRestService @Inject constructor(
         loggedInUserInstance.getSignaleringZoekParameters()
             .let { signaleringenService.latestSignalering(it) }
 
+    /**
+     * Starts listing zaken signaleringen for the given signaleringsType.
+     * This can be a long-running operation, so it is run asynchronously.
+     */
     @PUT
     @Path("/zaken/{type}")
     fun startListingZakenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type,
         screenEventResourceId: String
-    ) = signaleringenService.startListingZakenSignaleringenAsync(
-        loggedInUserInstance.get(),
-        signaleringsType,
-        screenEventResourceId
-    )
+    ) {
+        ioCoroutineScope.launch {
+            signaleringenService.listZakenSignaleringen(
+                loggedInUserInstance.get(),
+                signaleringsType,
+                screenEventResourceId
+            )
+        }
+    }
 
     @GET
     @Path("/taken/{type}")
