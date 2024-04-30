@@ -102,9 +102,6 @@ smartDocuments:
   authentication: ""
   fixedUserName: ""
 
-# Schedule of the indexeren job in CRON job format
-indexerenSchedule: "*/1 * * * *"
-
 # Schedule of the signaleren job in CRON job format
 signalerenSchedule: "0 2 * * *"
 

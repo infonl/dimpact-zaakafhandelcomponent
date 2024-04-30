@@ -105,7 +105,6 @@ For example to (re)index all 'zaken' and 'taken' do the following from a local c
 
 1. Mark all 'zaken' ready for reindexing: `curl http://localhost:8080/rest/indexeren/herindexeren/ZAAK`
 2. Mark all 'taken' ready for reindexing: `curl http://localhost:8080/rest/indexeren/herindexeren/TAAK`
-3. (Re)index all (first 100) 'zaken' and 'taken': `curl http://localhost:8080/rest/indexeren/100`
 
 ### Generating Swagger UI documentation for the ZAC backend API
 
