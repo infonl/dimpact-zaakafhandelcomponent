@@ -23,7 +23,9 @@ import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
+import net.atos.zac.policy.input.UserInput
 import net.atos.zac.policy.input.ZaakInput
+import net.atos.zac.policy.output.createWerklijstRechten
 import net.atos.zac.policy.output.createZaakRechten
 import net.atos.zac.zoeken.model.ZaakIndicatie
 import net.atos.zac.zoeken.model.createZaakZoekObject
@@ -230,6 +232,29 @@ class PolicyServiceTest : BehaviorSpec() {
                         besloten shouldBe true
                         intake shouldBe true
                         heropend shouldBe true
+                    }
+                }
+            }
+        }
+
+        Given("an evaluation client") {
+            val expectedWerklijstRechten = createWerklijstRechten()
+            val ruleQuerySlot = slot<RuleQuery<UserInput>>()
+            every { evaluationClient.readWerklijstRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedWerklijstRechten)
+
+            When("the werklijst rechten are requested") {
+
+                val werklijstRechten = policyService.readWerklijstRechten()
+
+                Then("the evaluation client is called with the correct arguments") {
+                    werklijstRechten shouldBe expectedWerklijstRechten
+                    verify(exactly = 1) {
+                        evaluationClient.readWerklijstRechten(any<RuleQuery<UserInput>>())
+                    }
+                    with(ruleQuerySlot.captured.input.user) {
+                        this.id shouldBe loggedInUser.id
+                        this.rollen shouldBe loggedInUser.roles
+                        this.zaaktypen shouldBe loggedInUser.geautoriseerdeZaaktypen
                     }
                 }
             }
