@@ -327,6 +327,22 @@ export class ZakenWerkvoorraadComponent
             this.zakenLoading.set(false);
             this.zakenState.set({});
           });
+        const notChanged = zaken
+          .filter(
+            (x) =>
+              (!this.toekenning.groep ||
+                this.toekenning.groep.id === x.groepId) &&
+              this.toekenning.medewerker?.id === x.behandelaarGebruikersnaam,
+          )
+          .map(({ id }) => id);
+        this.zakenState.update((old) =>
+          Object.fromEntries(
+            Object.entries(old).map(([k, v]) => [
+              k,
+              v || notChanged.includes(k),
+            ]),
+          ),
+        );
       } else {
         this.websocketService.removeListeners(subscriptions);
       }
