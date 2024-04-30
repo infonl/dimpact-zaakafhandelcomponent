@@ -192,13 +192,15 @@ public class PolicyService {
                 UUID.fromString(taakZoekObject.getZaakUUID())
         ).isOpen();
         taakData.zaaktype = taakZoekObject.getZaaktypeOmschrijving();
-        return evaluationClient.readTaakRechten(new RuleQuery<>(new TaakInput(loggedInUserInstance.get(), taakData)))
-                .getResult();
+        return evaluationClient.readTaakRechten(
+                new RuleQuery<>(new TaakInput(loggedInUserInstance.get(), taakData))
+        ).getResult();
     }
 
     public WerklijstRechten readWerklijstRechten() {
-        return evaluationClient.readWerklijstRechten(new RuleQuery<>(new UserInput(loggedInUserInstance.get())))
-                .getResult();
+        return evaluationClient.readWerklijstRechten(
+                new RuleQuery<>(new UserInput(loggedInUserInstance.get()))
+        ).getResult();
     }
 
     public void checkZaakAfsluitbaar(final Zaak zaak) {
