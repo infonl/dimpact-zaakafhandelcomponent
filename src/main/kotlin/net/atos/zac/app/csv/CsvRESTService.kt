@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.app.csv
@@ -31,17 +31,13 @@ class CsvRESTService @Inject constructor(
 ) {
     @POST
     @Path("export")
-    fun downloadCSV(restZoekParameters: RESTZoekParameters): Response {
-        val zoekParameters = restZoekParametersConverter.convert(restZoekParameters).let {
-            // if no max nr of result rows are specified, resort to the default value
-            if (it.rows == 0) {
-                it.rows = TabelInstellingen.AANTAL_PER_PAGINA_MAX
-            }
-            it
+    fun downloadCSV(restZoekParameters: RESTZoekParameters?): Response {
+        val zoekParameters = restZoekParametersConverter.convert(restZoekParameters)
+        if (zoekParameters.rows == 0) { // If rows isn't set, use max per page.
+            zoekParameters.rows = TabelInstellingen.AANTAL_PER_PAGINA_MAX
         }
-        val streamingOutput = zoekenService.zoek(zoekParameters).let {
-            csvService.exportToCsv(it)
-        }
+        val zoekResultaat = zoekenService.zoek(zoekParameters)
+        val streamingOutput = csvService.exportToCsv(zoekResultaat)
         return Response.ok(streamingOutput).header("Content-Type", "text/csv").build()
     }
 }
