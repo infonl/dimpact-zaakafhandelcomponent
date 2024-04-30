@@ -106,9 +106,11 @@ Then(
 );
 
 Then(
-  'after a while the snackbar disappears',
+  "after a while the snackbar disappears",
   { timeout: FIVE_MINUTES_IN_MS },
   async function (this: CustomWorld) {
-    await this.page.locator('mat-snack-bar-container').waitFor({state: 'hidden', timeout: FIVE_MINUTES_IN_MS});
+    await this.page
+      .locator("mat-snack-bar-container")
+      .waitFor({ state: "hidden", timeout: FIVE_MINUTES_IN_MS });
   },
 );
