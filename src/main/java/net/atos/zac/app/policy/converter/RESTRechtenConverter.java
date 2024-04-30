@@ -58,6 +58,7 @@ public class RESTRechtenConverter {
         restWerklijstRechten.inboxProductaanvragenVerwijderen = werklijstrechten.inboxProductaanvragenVerwijderen();
         restWerklijstRechten.zakenTaken = werklijstrechten.zakenTaken();
         restWerklijstRechten.zakenTakenVerdelen = werklijstrechten.zakenTakenVerdelen();
+        restWerklijstRechten.zakenTakenExporteren = werklijstrechten.zakenTakenExporteren();
         return restWerklijstRechten;
     }
 

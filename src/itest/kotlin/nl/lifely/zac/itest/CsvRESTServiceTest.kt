@@ -98,7 +98,7 @@ class CsvRESTServiceTest : BehaviorSpec({
 
             Then(
                 """"
-                the response is a CSV string containing a header row followed by two rows
+                 the response is a CSV string containing a header row followed by two rows
                  one for each open zaak
                 """
             ) {

@@ -49,6 +49,6 @@ zaken_taken_verdelen {
 }
 
 default zaken_taken_exporteren := false
-zaken_taken_verdelen {
+zaken_taken_exporteren {
     beheerder.rol in user.rollen
 }

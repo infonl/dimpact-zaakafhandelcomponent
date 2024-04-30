@@ -16,6 +16,8 @@ import net.atos.zac.app.zoeken.converter.RESTZoekParametersConverter
 import net.atos.zac.app.zoeken.model.RESTZoekParameters
 import net.atos.zac.csv.CsvService
 import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen
+import net.atos.zac.policy.PolicyService
+import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.zoeken.ZoekenService
 import nl.lifely.zac.util.NoArgConstructor
 
@@ -27,11 +29,13 @@ import nl.lifely.zac.util.NoArgConstructor
 class CsvRESTService @Inject constructor(
     private val zoekenService: ZoekenService,
     private val restZoekParametersConverter: RESTZoekParametersConverter,
-    private val csvService: CsvService
+    private val csvService: CsvService,
+    private val policyService: PolicyService
 ) {
     @POST
     @Path("export")
     fun downloadCSV(restZoekParameters: RESTZoekParameters): Response {
+        assertPolicy(policyService.readWerklijstRechten().zakenTakenExporteren)
         val zoekParameters = restZoekParametersConverter.convert(restZoekParameters).let {
             // if no max nr of result rows are specified, resort to the default value
             if (it.rows == 0) {
