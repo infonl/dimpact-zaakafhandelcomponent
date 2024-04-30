@@ -104,12 +104,12 @@ public class NotificatieReceiver {
         if (isAuthenticated(headers)) {
             LOG.info(() -> "Notificatie ontvangen: %s"
                     .formatted(notificatie.toString()));
-            handleWebsockets(notificatie);
             handleSignaleringen(notificatie);
             handleProductaanvraag(notificatie);
             handleIndexering(notificatie);
             handleInboxDocumenten(notificatie);
             handleZaaktype(notificatie);
+            handleWebsockets(notificatie);
             return noContent().build();
         } else {
             return noContent().status(Response.Status.FORBIDDEN).build();
