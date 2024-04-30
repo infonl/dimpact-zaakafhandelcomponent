@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 package net.atos.zac.app.zoeken
 
 import net.atos.zac.app.zoeken.model.RESTDatumRange
@@ -13,7 +17,8 @@ import net.atos.zac.zoeken.model.ZoekResultaat
 import net.atos.zac.zoeken.model.ZoekVeld
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject
-import java.util.*
+import java.util.EnumMap
+import java.util.UUID
 
 @Suppress("LongParameterList")
 fun createRESTZoekParameters(
