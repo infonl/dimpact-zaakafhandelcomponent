@@ -10,6 +10,7 @@ import data.net.atos.zac.werklijst.inbox
 import data.net.atos.zac.werklijst.ontkoppelde_documenten_verwijderen
 import data.net.atos.zac.werklijst.inbox_productaanvragen_verwijderen
 import data.net.atos.zac.werklijst.zaken_taken
+import data.net.atos.zac.werklijst.zaken_taken_exporteren
 import data.net.atos.zac.werklijst.zaken_taken_verdelen
 
 #######
@@ -85,4 +86,19 @@ test_zaken_taken_verdelen_wrong_role_fails if {
 
 test_zaken_taken_verdelen_missing_role_fails if {
     not zaken_taken_verdelen with input.user.key as "value"
+}
+
+######################
+# zaken_taken_exporteren
+######################
+test_zaken_taken_exporteren if {
+    zaken_taken_exporteren with input.user.rollen as [ "beheerder" ]
+}
+
+test_zaken_taken_exporteren_wrong_role_fails if {
+    not zaken_taken_exporteren with input.user.rollen as [ "functioneel" ]
+}
+
+test_zaken_taken_exporteren_missing_role_fails if {
+    not zaken_taken_exporteren with input.user.key as "value"
 }

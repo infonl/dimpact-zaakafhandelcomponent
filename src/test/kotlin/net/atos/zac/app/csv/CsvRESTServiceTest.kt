@@ -16,16 +16,19 @@ import net.atos.zac.app.zoeken.createRESTZoekParameters
 import net.atos.zac.app.zoeken.createZoekParameters
 import net.atos.zac.app.zoeken.createZoekResultaatForZaakZoekObjecten
 import net.atos.zac.csv.CsvService
+import net.atos.zac.policy.PolicyService
 import net.atos.zac.zoeken.ZoekenService
 
 class CsvRESTServiceTest : BehaviorSpec({
     val zoekenService = mockk<ZoekenService>()
     val restZoekParametersConverter = mockk<RESTZoekParametersConverter>()
     val csvService = mockk<CsvService>()
+    val policyService = mockk<PolicyService>()
     val csvRESTService = CsvRESTService(
         zoekenService,
         restZoekParametersConverter,
-        csvService
+        csvService,
+        policyService
     )
 
     beforeEach {
@@ -42,6 +45,7 @@ class CsvRESTServiceTest : BehaviorSpec({
         val zoekResultaat = createZoekResultaatForZaakZoekObjecten()
         val csvStreamingOutput = mockk<StreamingOutput>()
 
+        every { policyService.readWerklijstRechten().zakenTakenExporteren } returns true
         every { restZoekParametersConverter.convert(restZoekParameters) } returns zoekParameters
         every { zoekenService.zoek(zoekParameters) } returns zoekResultaat
         every { csvService.exportToCsv(zoekResultaat) } returns csvStreamingOutput

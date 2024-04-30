@@ -15,4 +15,6 @@ public class RESTWerklijstRechten {
     public boolean zakenTaken;
 
     public boolean zakenTakenVerdelen;
+
+    public boolean zakenTakenExporteren;
 }
