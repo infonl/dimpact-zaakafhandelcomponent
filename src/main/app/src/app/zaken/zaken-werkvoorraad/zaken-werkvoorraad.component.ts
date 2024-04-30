@@ -256,7 +256,7 @@ export class ZakenWerkvoorraadComponent
   }
 
   openVerdelenScherm(): void {
-    this.handleWorkflow(
+    this.handleAssigmentOrReleasementWorkflow(
       ZakenVerdelenDialogComponent,
       "msg.verdeeld.zaak",
       "msg.verdeeld.zaken",
@@ -264,14 +264,14 @@ export class ZakenWerkvoorraadComponent
   }
 
   openVrijgevenScherm(): void {
-    this.handleWorkflow(
+    this.handleAssigmentOrReleasementWorkflow(
       ZakenVrijgevenDialogComponent,
       "msg.vrijgegeven.zaak",
       "msg.vrijgegeven.zaken",
     );
   }
 
-  private handleWorkflow<T>(
+  private handleAssigmentOrReleasementWorkflow<T>(
     dialogComponent: ComponentType<T>,
     singleToken: string,
     multipleToken: string,
