@@ -196,7 +196,6 @@ class ZakenRESTService @Inject constructor(
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZakenRESTService::class.java.name)
-
         private const val ROL_VERWIJDER_REDEN = "Verwijderd door de medewerker tijdens het behandelen van de zaak"
         private const val ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
         private const val AANMAKEN_ZAAK_REDEN = "Aanmaken zaak"
