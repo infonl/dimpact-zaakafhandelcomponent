@@ -15,7 +15,8 @@ public record WerklijstRechten(
                                boolean ontkoppeldeDocumentenVerwijderen,
                                boolean inboxProductaanvragenVerwijderen,
                                boolean zakenTaken,
-                               boolean zakenTakenVerdelen
+                               boolean zakenTakenVerdelen,
+                               boolean zakenTakenExporteren
 ) implements SerializableByYasson {
 
     @JsonbCreator
@@ -24,13 +25,15 @@ public record WerklijstRechten(
             @JsonbProperty("ontkoppelde_documenten_verwijderen") final boolean ontkoppeldeDocumentenVerwijderen,
             @JsonbProperty("inbox_productaanvragen_verwijderen") final boolean inboxProductaanvragenVerwijderen,
             @JsonbProperty("zaken_taken") final boolean zakenTaken,
-            @JsonbProperty("zaken_taken_verdelen") final boolean zakenTakenVerdelen
+            @JsonbProperty("zaken_taken_verdelen") final boolean zakenTakenVerdelen,
+            @JsonbProperty("zaken_taken_exporteren") final boolean zakenTakenExporteren
     ) {
         this.inbox = inbox;
         this.ontkoppeldeDocumentenVerwijderen = ontkoppeldeDocumentenVerwijderen;
         this.inboxProductaanvragenVerwijderen = inboxProductaanvragenVerwijderen;
         this.zakenTaken = zakenTaken;
         this.zakenTakenVerdelen = zakenTakenVerdelen;
+        this.zakenTakenExporteren = zakenTakenExporteren;
     }
 
 
