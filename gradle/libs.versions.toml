@@ -3,6 +3,7 @@ kotlin = "1.9.23"
 kotlinx-coroutines = "1.8.0"
 nodejs = "20.11.1"
 jsonschema2pojo = "1.2.1"
+kotlin-csv = "1.9.3"
 openapi = "3.10.0"
 openapi-generator = "7.5.0"
 opentelemetry = "1.37.0"
@@ -106,6 +107,7 @@ webdav-servlet = { group = "nl.info.webdav", name = "webdav-servlet", version.re
 htmlcleaner = { group = "net.sourceforge.htmlcleaner", name = "htmlcleaner", version.ref = "htmlcleaner" }
 unboundid-ldapsdk = { group = "com.unboundid", name = "unboundid-ldapsdk", version.ref = "unboundid" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlin-csv-jvm = { group = "com.github.doyaaaaaken", name = "kotlin-csv-jvm", version.ref = "kotlin-csv" }
 
 swagger-ui = { group = "org.webjars", name = "swagger-ui", version.ref = "swagger" }
 
