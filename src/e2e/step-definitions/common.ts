@@ -8,6 +8,7 @@ import { worldPossibleZacUrls } from "../utils/schemes";
 
 const ONE_MINUTE_IN_MS = 60_000;
 const ONE_SECOND_IN_MS = 1_000;
+const FIVE_MINUTES_IN_MS = ONE_MINUTE_IN_MS * 5;
 
 When(
   "Employee {string} opens zac",
@@ -101,5 +102,13 @@ Then(
   "{string} clicks on element with text: {string}",
   async function (this: CustomWorld, user, text) {
     await this.page.getByText(text).click();
+  },
+);
+
+Then(
+  'after a while the snackbar disappears',
+  { timeout: FIVE_MINUTES_IN_MS },
+  async function (this: CustomWorld) {
+    await this.page.locator('mat-snack-bar-container').waitFor({state: 'hidden', timeout: FIVE_MINUTES_IN_MS});
   },
 );
