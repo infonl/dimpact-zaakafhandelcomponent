@@ -9,4 +9,5 @@ export class WerklijstRechten {
   inboxProductaanvragenVerwijderen = false;
   zakenTaken = false;
   zakenTakenVerdelen = false;
+  zakenTakenExporteren = false;
 }
