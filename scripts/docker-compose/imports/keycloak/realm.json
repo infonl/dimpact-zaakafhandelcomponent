@@ -540,6 +540,8 @@
       "clientRoles": {
         "zaakafhandelcomponent": [
           "domein_elk_zaaktype",
+          "behandelaar",
+          "coordinator",
           "recordmanager",
           "zaakafhandelcomponent_user"
         ]
