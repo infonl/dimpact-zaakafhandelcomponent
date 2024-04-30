@@ -194,7 +194,8 @@
 
     <ng-container *ngIf="dataSource.totalItems === 0"><p>{{'msg.geen.gegevens.gevonden' | translate}}</p></ng-container>
     <div class="pagination-wrapper">
-        <zac-export-button [zoekParameters]="this.dataSource.zoekParameters"
+        <zac-export-button *ngIf="this.werklijstRechten.zakenTakenExporteren"
+                           [zoekParameters]="this.dataSource.zoekParameters"
                            [filename]="'title.taken.mijn' | translate"></zac-export-button>
         <mat-paginator #paginator (page)="paginatorChanged($event)" [length]="dataSource.totalItems" [pageIndex]="dataSource.zoekParameters.page"
                        [pageSize]="aantalPerPagina"
