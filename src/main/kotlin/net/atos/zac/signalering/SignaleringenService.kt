@@ -4,15 +4,12 @@
  */
 package net.atos.zac.signalering
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
 import jakarta.transaction.Transactional
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.zac.app.zaken.converter.RESTZaakOverzichtConverter
 import net.atos.zac.app.zaken.model.RESTZaakOverzicht
@@ -316,29 +313,32 @@ class SignaleringenService @Inject constructor(
         return list
     }
 
-    fun startListingZakenSignaleringenAsync(
+    /**
+     * Lists zaken signaleringen for the given signaleringsType and sends a screen event with the result.
+     * This can be a long-running operation.
+     */
+    @WithSpan
+    fun listZakenSignaleringen(
         user: LoggedInUser,
         signaleringsType: SignaleringType.Type,
         screenEventResourceId: String
     ) {
-        CoroutineScope(Dispatchers.IO).launch(CoroutineName("ListZakenSignaleringen")) {
-            LOG.fine {
-                "Started asynchronous job with ID $screenEventResourceId to list zaken signaleringen of" +
-                    " type $signaleringsType"
-            }
+        LOG.fine {
+            "Started to list zaken signaleringen for type '$signaleringsType' " +
+                "with screen event resource ID: '$screenEventResourceId'."
+        }
 
-            val zakenSignaleringen = listZakenSignaleringen(user, signaleringsType)
+        val zakenSignaleringen = listZakenSignaleringen(user, signaleringsType)
 
-            LOG.fine {
-                "Asynchronous list zaken signaleringen job with ID $screenEventResourceId finished. " +
-                    "Successfully listed ${zakenSignaleringen.size} zaken signaleringen of type $signaleringsType"
-            }
+        LOG.fine {
+            "Successfully listed ${zakenSignaleringen.size} zaken signaleringen of type '$signaleringsType'."
+        }
 
-            // Send an 'updated zaken_verdelen' screen event with the job id so that it can be picked up by a client
-            // that has created a websocket subscription to this event
-            screenEventResourceId.let {
-                eventingService.send(ScreenEventType.ZAKEN_SIGNALERINGEN.updated(it, zakenSignaleringen))
-            }
+        // Send an 'updated zaken_verdelen' screen event with the job id so that it can be picked up by a client
+        // that has created a websocket subscription to this event
+        screenEventResourceId.let {
+            LOG.fine { "Sending 'ZAKEN_SIGNALERINGEN' screen event with ID '$it'." }
+            eventingService.send(ScreenEventType.ZAKEN_SIGNALERINGEN.updated(it, zakenSignaleringen))
         }
     }
 }

@@ -182,6 +182,8 @@ class ZakenRESTServiceCompleteTest : BehaviorSpec({
  * If we do not wait in these cases we get a 400 response from OpenZaak with:
  * "rest_framework.exceptions.ValidationError: {'non_field_errors':
  * [ErrorDetail(string='De velden zaak, datum_status_gezet moeten een unieke set zijn.', code='unique')]}"
+ *
+ * Related OpenZaak issue: https://github.com/open-zaak/open-zaak/issues/1639
  */
 fun sleep(seconds: Long) {
     Thread.sleep(seconds * ONE_SECOND_IN_MILLIS)

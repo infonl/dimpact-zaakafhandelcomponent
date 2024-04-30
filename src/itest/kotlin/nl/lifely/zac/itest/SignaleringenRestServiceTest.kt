@@ -17,6 +17,7 @@ import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_URI
+import nl.lifely.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAKEN_SIGNALERINGEN
 import nl.lifely.zac.itest.config.ItestConfiguration.START_DATE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_COMPLETED
@@ -216,9 +217,9 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                 "subscriptionType":"CREATE",
                 "event":{  
                     "opcode":"UPDATED",
-                    "objectType":"ZAKEN_SIGNALERINGEN",
+                    "objectType":"$SCREEN_EVENT_TYPE_ZAKEN_SIGNALERINGEN",
                     "objectId":{ "resource":"$id" },
-                    "_key":"ANY;ZAKEN_SIGNALERINGEN;$id"
+                    "_key":"ANY;$SCREEN_EVENT_TYPE_ZAKEN_SIGNALERINGEN;$id"
                 }
             }"""
             )
@@ -245,7 +246,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                 eventually(afterThirtySeconds) {
                     with(JSONObject(websocketListener.messagesReceived.last())) {
                         getString("opcode") shouldBe "UPDATED"
-                        getString("objectType") shouldBe "ZAKEN_SIGNALERINGEN"
+                        getString("objectType") shouldBe SCREEN_EVENT_TYPE_ZAKEN_SIGNALERINGEN
                         with(getJSONObject("objectId")) {
                             getString("resource") shouldBe uniqueResourceId.toString()
                             val detail = JSONArray(getString("detail"))
@@ -282,7 +283,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                 eventually(afterThirtySeconds) {
                     with(JSONObject(websocketListener.messagesReceived.last())) {
                         getString("opcode") shouldBe "UPDATED"
-                        getString("objectType") shouldBe "ZAKEN_SIGNALERINGEN"
+                        getString("objectType") shouldBe SCREEN_EVENT_TYPE_ZAKEN_SIGNALERINGEN
                         with(getJSONObject("objectId")) {
                             getString("resource") shouldBe uniqueResourceId.toString()
                             val detail = JSONArray(getString("detail"))
