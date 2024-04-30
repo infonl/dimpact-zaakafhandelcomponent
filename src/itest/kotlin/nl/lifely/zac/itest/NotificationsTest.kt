@@ -9,6 +9,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.inspectors.forAtLeastOne
+import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration
@@ -189,7 +191,7 @@ class NotificationsTest : BehaviorSpec({
         When(""""a notification is sent to ZAC that the zaak in question has been updated""") {
             // we need eventually here because it takes some time before the new websocket has been
             // successfully created in ZAC
-            eventually(10.seconds) {
+            eventually(30.seconds) {
                 val response = itestHttpClient.performJSONPostRequest(
                     url = "$ZAC_API_URI/notificaties",
                     headers = Headers.headersOf(
@@ -216,16 +218,19 @@ class NotificationsTest : BehaviorSpec({
                     addAuthorizationHeader = false
                 )
                 response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
-                websocketListener.messagesReceived.size shouldBe 1
+                // because of the retries using eventually, we can end up with duplicate messages. that's ok.
+                websocketListener.messagesReceived.size shouldBeGreaterThan 0
             }
         }
         Then(
             """the response should be 'no content' and an event that the zaak has been updated should be sent to the websocket"""
         ) {
-            with(JSONObject(websocketListener.messagesReceived[0])) {
-                getString("opcode") shouldBe "UPDATED"
-                getString("objectType") shouldBe "ZAAK"
-                getJSONObject("objectId").getString("resource") shouldBe zaak1UUID.toString()
+            websocketListener.messagesReceived.forAtLeastOne {
+                with(JSONObject(it)) {
+                    getString("opcode") shouldBe "UPDATED"
+                    getString("objectType") shouldBe "ZAAK"
+                    getJSONObject("objectId").getString("resource") shouldBe zaak1UUID.toString()
+                }
             }
         }
     }
