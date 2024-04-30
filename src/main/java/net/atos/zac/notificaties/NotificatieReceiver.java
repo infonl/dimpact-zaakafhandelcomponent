@@ -43,7 +43,6 @@ import net.atos.client.or.objecttype.model.Objecttype;
 import net.atos.zac.aanvraag.ProductaanvraagService;
 import net.atos.zac.authentication.ActiveSession;
 import net.atos.zac.authentication.SecurityUtil;
-import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.documenten.InboxDocumentenService;
 import net.atos.zac.event.EventingService;
 import net.atos.zac.signalering.event.SignaleringEventUtil;
@@ -65,7 +64,6 @@ public class NotificatieReceiver {
 
     private EventingService eventingService;
     private ProductaanvraagService productaanvraagService;
-    private ConfiguratieService configuratieService;
     private IndexeerService indexeerService;
     private InboxDocumentenService inboxDocumentenService;
     private ZaakafhandelParameterBeheerService zaakafhandelParameterBeheerService;
@@ -83,7 +81,6 @@ public class NotificatieReceiver {
     public NotificatieReceiver(
             EventingService eventingService,
             ProductaanvraagService productaanvraagService,
-            ConfiguratieService configuratieService,
             IndexeerService indexeerService,
             InboxDocumentenService inboxDocumentenService,
             ZaakafhandelParameterBeheerService zaakafhandelParameterBeheerService,
@@ -93,7 +90,6 @@ public class NotificatieReceiver {
     ) {
         this.eventingService = eventingService;
         this.productaanvraagService = productaanvraagService;
-        this.configuratieService = configuratieService;
         this.indexeerService = indexeerService;
         this.inboxDocumentenService = inboxDocumentenService;
         this.zaakafhandelParameterBeheerService = zaakafhandelParameterBeheerService;
@@ -109,13 +105,11 @@ public class NotificatieReceiver {
             LOG.info(() -> "Notificatie ontvangen: %s"
                     .formatted(notificatie.toString()));
             handleWebsockets(notificatie);
-            if (!configuratieService.isLocalDevelopment()) {
-                handleSignaleringen(notificatie);
-                handleProductaanvraag(notificatie);
-                handleIndexering(notificatie);
-                handleInboxDocumenten(notificatie);
-                handleZaaktype(notificatie);
-            }
+            handleSignaleringen(notificatie);
+            handleProductaanvraag(notificatie);
+            handleIndexering(notificatie);
+            handleInboxDocumenten(notificatie);
+            handleZaaktype(notificatie);
             return noContent().build();
         } else {
             return noContent().status(Response.Status.FORBIDDEN).build();

@@ -18,7 +18,6 @@ import jakarta.ws.rs.core.HttpHeaders
 import net.atos.client.or.`object`.model.createObjecttype
 import net.atos.client.or.objecttype.ObjecttypesClientService
 import net.atos.zac.aanvraag.ProductaanvraagService
-import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.zaaksturing.ZaakafhandelParameterBeheerService
@@ -32,7 +31,6 @@ const val SECRET = "dummySecret"
 class NotificatieReceiverTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
     val productaanvraagService = mockk<ProductaanvraagService>()
-    val configuratieService = mockk<ConfiguratieService>()
     val indexeerService = mockk<IndexeerService>()
     val inboxDocumentenService = mockk<InboxDocumentenService>()
     val zaakafhandelParameterBeheerService = mockk<ZaakafhandelParameterBeheerService>()
@@ -42,7 +40,6 @@ class NotificatieReceiverTest : BehaviorSpec({
     val notificatieReceiver = NotificatieReceiver(
         eventingService,
         productaanvraagService,
-        configuratieService,
         indexeerService,
         inboxDocumentenService,
         zaakafhandelParameterBeheerService,
@@ -73,7 +70,6 @@ class NotificatieReceiverTest : BehaviorSpec({
                 every { httpHeaders.getHeaderString("Authorization") } returns secret
                 every { httpSessionInstance.get() } returns httpSession
                 every { httpSession.setAttribute("logged-in-user", any()) } just runs
-                every { configuratieService.isLocalDevelopment } returns false
                 every { objecttypesClientService.readObjecttype(productTypeUUID) } returns objectType
                 every { productaanvraagService.verwerkProductaanvraag(notifcatie.resourceUrl) } just runs
 

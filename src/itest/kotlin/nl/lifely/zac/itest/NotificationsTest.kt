@@ -189,7 +189,7 @@ class NotificationsTest : BehaviorSpec({
         When(""""a notification is sent to ZAC that the zaak in question has been updated""") {
             // we need eventually here because it takes some time before the new websocket has been
             // successfully created in ZAC
-            eventually(1.seconds) {
+            eventually(10.seconds) {
                 val response = itestHttpClient.performJSONPostRequest(
                     url = "$ZAC_API_URI/notificaties",
                     headers = Headers.headersOf(
