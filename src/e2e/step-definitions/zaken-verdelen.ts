@@ -51,21 +51,21 @@ When(
 );
 
 Then(
-  "{string} gets a message confirming that the distribution of zaken is complete",
+  "{string} gets a message confirming that the distribution of zaken is starting",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, s: string) {
     await this.page
-      .getByText(`${_noOfZaken} zaken zijn verdeeld`)
+      .getByText(`${_noOfZaken} zaken worden verdeeld...`)
       .waitFor({ timeout: ONE_MINUTE_IN_MS });
   },
 );
 
 Then(
-  "{string} gets a message confirming that the releasement of zaken is complete",
+  "{string} gets a message confirming that the releasement of zaken is starting",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, s: string) {
     await this.page
-      .getByText(`${_noOfZaken} zaken zijn vrijgegeven`)
+      .getByText(`${_noOfZaken} zaken worden vrijgegeven...`)
       .waitFor({ timeout: ONE_MINUTE_IN_MS });
   },
 );
