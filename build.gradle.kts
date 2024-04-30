@@ -182,6 +182,7 @@ dependencies {
     "itestImplementation"(libs.mockserver.client)
     "itestImplementation"(libs.auth0.java.jwt)
     "itestImplementation"(libs.github.kotlin.logging)
+    "itestImplementation"(libs.kotlin.csv.jvm)
 
     jacocoAgentJarForItest(variantOf(libs.jacoco.agent) { classifier("runtime") })
 }
