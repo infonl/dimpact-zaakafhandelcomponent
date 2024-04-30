@@ -122,25 +122,50 @@ fun createZaakRechtenAllDeny(
     vastleggenBesluit: Boolean = false,
     verlengenDoorlooptijd: Boolean = false
 ) = createZaakRechten(
-    lezen, wijzigen, toekennen, behandelen, afbreken, heropenen, wijzigenZaakdata, wijzigenDoorlooptijd,
-    verlengen, opschorten, hervatten, creeerenDocument, toevoegenDocument, koppelen, koppelenGerelateerd,
-    versturenEmail, versturenOntvangstbevestiging, toevoegenInitiatorPersoon, toevoegenInitiatorBedrijf,
-    verwijderenInitiator, toevoegenBetrokkenePersoon, toevoegenBetrokkeneBedrijf, verwijderenBetrokkene,
-    toevoegenBagObject, startenTaak, vastleggenBesluit, verlengenDoorlooptijd
+    lezen,
+    wijzigen,
+    toekennen,
+    behandelen,
+    afbreken,
+    heropenen,
+    wijzigenZaakdata,
+    wijzigenDoorlooptijd,
+    verlengen,
+    opschorten,
+    hervatten,
+    creeerenDocument,
+    toevoegenDocument,
+    koppelen,
+    koppelenGerelateerd,
+    versturenEmail,
+    versturenOntvangstbevestiging,
+    toevoegenInitiatorPersoon,
+    toevoegenInitiatorBedrijf,
+    verwijderenInitiator,
+    toevoegenBetrokkenePersoon,
+    toevoegenBetrokkeneBedrijf,
+    verwijderenBetrokkene,
+    toevoegenBagObject,
+    startenTaak,
+    vastleggenBesluit,
+    verlengenDoorlooptijd
 )
 
+@Suppress("LongParameterList")
 fun createWerklijstRechten(
     inbox: Boolean = true,
     ontkoppeldeDocumentenVerwijderen: Boolean = true,
     inboxProductaanvragenVerwijderen: Boolean = true,
     zakenTaken: Boolean = true,
-    zakenTakenVerdelen: Boolean = true
+    zakenTakenVerdelen: Boolean = true,
+    zakenTakenExporteren: Boolean = true
 ) = WerklijstRechten(
     inbox,
     ontkoppeldeDocumentenVerwijderen,
     inboxProductaanvragenVerwijderen,
     zakenTaken,
-    zakenTakenVerdelen
+    zakenTakenVerdelen,
+    zakenTakenExporteren
 )
 
 fun createWerklijstRechtenAllDeny(

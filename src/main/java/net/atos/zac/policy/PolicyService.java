@@ -76,8 +76,9 @@ public class PolicyService {
     private ZRCClientService zrcClientService;
 
     public OverigeRechten readOverigeRechten() {
-        return evaluationClient.readOverigeRechten(new RuleQuery<>(new UserInput(loggedInUserInstance.get())))
-                .getResult();
+        return evaluationClient.readOverigeRechten(
+                new RuleQuery<>(new UserInput(loggedInUserInstance.get()))
+        ).getResult();
     }
 
     public ZaakRechten readZaakRechten(final Zaak zaak) {

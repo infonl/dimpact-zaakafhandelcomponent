@@ -19,7 +19,8 @@ werklijst_rechten := {
     "ontkoppelde_documenten_verwijderen": ontkoppelde_documenten_verwijderen,
     "inbox_productaanvragen_verwijderen": inbox_productaanvragen_verwijderen,
     "zaken_taken": zaken_taken,
-    "zaken_taken_verdelen": zaken_taken_verdelen
+    "zaken_taken_verdelen": zaken_taken_verdelen,
+    "zaken_taken_exporteren": zaken_taken_exporteren
 }
 
 default inbox := false
@@ -45,4 +46,9 @@ zaken_taken {
 default zaken_taken_verdelen := false
 zaken_taken_verdelen {
     coordinator.rol in user.rollen
+}
+
+default zaken_taken_exporteren := false
+zaken_taken_verdelen {
+    beheerder.rol in user.rollen
 }
