@@ -67,7 +67,7 @@ class RESTTaakConverter @Inject constructor(
             } else {
                 null
             },
-            behandelaar = if (restTaakRechten.lezen)medewerkerConverter.convertUserId(taskInfo.assignee) else null,
+            behandelaar = if (restTaakRechten.lezen) medewerkerConverter.convertUserId(taskInfo.assignee) else null,
             groep = if (restTaakRechten.lezen) {
                 groepConverter.convertGroupId(
                     extractGroupId(taskInfo.identityLinks)
@@ -75,7 +75,7 @@ class RESTTaakConverter @Inject constructor(
             } else {
                 null
             },
-            taakinformatie = if (restTaakRechten.lezen)taakVariabelenService.readTaakinformatie(taskInfo) else null,
+            taakinformatie = if (restTaakRechten.lezen) taakVariabelenService.readTaakinformatie(taskInfo) else null,
             taakdata = if (restTaakRechten.lezen) taakVariabelenService.readTaakdata(taskInfo).toMutableMap() else null,
             taakdocumenten = if (restTaakRechten.lezen) {
                 taakVariabelenService.readTaakdocumenten(
