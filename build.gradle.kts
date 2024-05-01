@@ -3,8 +3,8 @@ import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.github.gradle.node.npm.task.NpmTask
 import io.smallrye.openapi.api.OpenApiConfig
 import org.apache.tools.ant.taskdefs.condition.Os
-import java.util.Locale
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+import java.util.Locale
 
 /*
  * SPDX-FileCopyrightText: 2024 Lifely
@@ -194,7 +194,7 @@ tasks.register<io.gitlab.arturbosch.detekt.Detekt>("detektApply") {
 }
 tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
     config.setFrom("$rootDir/config/detekt.yml")
-    setSource(files("src/main/kotlin", "src/test/kotlin", "src/itest/kotlin"))
+    setSource(files("src/main/kotlin", "src/test/kotlin", "src/itest/kotlin", "build.gradle.kts"))
     // our Detekt configuration build builds upon the default configuration
     buildUponDefaultConfig = true
 }
@@ -216,7 +216,7 @@ jacoco {
     toolVersion = libs.versions.jacoco.get()
 }
 
-if(!Os.isFamily(Os.FAMILY_WINDOWS)) {
+if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
     opa {
         srcDir = "$rootDir/src/main/resources/policies"
         testDir = "$rootDir/src/test/resources/policies"
@@ -281,7 +281,7 @@ swaggerSources {
 
 configure<com.diffplug.gradle.spotless.SpotlessExtension> {
     format("misc") {
-        target("*.gradle", ".gitattributes", ".gitignore", ".containerignore", ".dockerignore")
+        target("*.gradle.kts", ".gitattributes", ".gitignore", ".containerignore", ".dockerignore")
 
         trimTrailingWhitespace()
         indentWithSpaces()
@@ -303,9 +303,12 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         target("src/e2e/**/*.js", "src/e2e/**/*.ts")
         targetExclude("src/e2e/node_modules/**")
 
-        prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get(),
-            "prettier-plugin-organize-imports" to libs.versions.spotless.prettier.organize.imports.get()))
-            .config(mapOf("parser" to "typescript", "plugins" to arrayOf("prettier-plugin-organize-imports")))
+        prettier(
+            mapOf(
+                "prettier" to libs.versions.spotless.prettier.base.get(),
+                "prettier-plugin-organize-imports" to libs.versions.spotless.prettier.organize.imports.get()
+            )
+        ).config(mapOf("parser" to "typescript", "plugins" to arrayOf("prettier-plugin-organize-imports")))
     }
     gherkin {
         target("src/e2e/**/*.feature")
@@ -328,9 +331,12 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
             "src/main/app/.angular/**"
         )
 
-        prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get(),
-            "prettier-plugin-organize-imports" to libs.versions.spotless.prettier.organize.imports.get()))
-            .config(mapOf("parser" to "typescript", "plugins" to arrayOf("prettier-plugin-organize-imports")))
+        prettier(
+            mapOf(
+                "prettier" to libs.versions.spotless.prettier.base.get(),
+                "prettier-plugin-organize-imports" to libs.versions.spotless.prettier.organize.imports.get()
+            )
+        ).config(mapOf("parser" to "typescript", "plugins" to arrayOf("prettier-plugin-organize-imports")))
     }
     format("json") {
         target("src/**/*.json")
@@ -381,12 +387,13 @@ tasks {
     }
 
     build {
+
         dependsOn("generateWildflyBootableJar")
     }
 
     test {
         dependsOn("npmRunTest")
-        if(!Os.isFamily(Os.FAMILY_WINDOWS)) {
+        if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
             dependsOn("testRegoCoverage")
         }
     }
