@@ -193,11 +193,11 @@ jobs:
       - name: Build Docker image
         uses: docker/build-push-action@v4
         with:
-          tags: ${{ ZAC_DOCKER_IMAGE }}
+          tags: ${{ env.ZAC_DOCKER_IMAGE }}
           build-args: |
-            versionNumber=${{ BUILD_NUMBER }}
-            branchName=${{ BRANCH_NAME }}
-            commitHash=${{ GIT_COMMIT_HASH }}
+            versionNumber=${{ env.BUILD_NUMBER }}
+            branchName=${{ env.BRANCH_NAME }}
+            commitHash=${{ env.GIT_COMMIT_HASH }}
           push: false
           # use GitHub Actions cache to speed up the build
           cache-from: type=gha
