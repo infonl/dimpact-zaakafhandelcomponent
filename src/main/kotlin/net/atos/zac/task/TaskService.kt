@@ -78,7 +78,7 @@ class TaskService @Inject constructor(
         loggedInUser: LoggedInUser,
         screenEventResourceId: String? = null,
     ) {
-        LOG.fine {
+        LOG.info {
             "Started to assign ${restTaakVerdelenGegevens.taken.size} tasks " +
                 "with screen event resource ID: '$screenEventResourceId'."
         }
@@ -102,13 +102,13 @@ class TaskService @Inject constructor(
             taskIds.add(restTaakVerdelenTaak.taakId)
         }
         indexeerService.indexeerDirect(taskIds.stream(), ZoekObjectType.TAAK, true)
-        LOG.fine { "Successfully assigned ${taskIds.size} tasks." }
+        LOG.info { "Successfully assigned ${taskIds.size} tasks." }
 
         // if a screen event resource ID was specified, send a screen event
         // with the provided job ID so that it can be picked up by a client
         // that has created a websocket subscription to this event
         screenEventResourceId?.let {
-            LOG.fine { "Sending 'TAKEN_VERDELEN' screen event with ID '$it'." }
+            LOG.info { "Sending 'TAKEN_VERDELEN' screen event with ID '$it'." }
             eventingService.send(ScreenEventType.TAKEN_VERDELEN.updated(it))
         }
     }
@@ -142,7 +142,7 @@ class TaskService @Inject constructor(
         loggedInUser: LoggedInUser,
         screenEventResourceId: String? = null
     ) {
-        LOG.fine {
+        LOG.info {
             "Started to assign ${restTaakVrijgevenGegevens.taken.size} tasks " +
                 "with screen event resource ID: '$screenEventResourceId'."
         }
@@ -158,13 +158,13 @@ class TaskService @Inject constructor(
             }
         }
         indexeerService.indexeerDirect(taskIds.stream(), ZoekObjectType.TAAK, true)
-        LOG.fine { "Successfully released ${taskIds.size} tasks." }
+        LOG.info { "Successfully released ${taskIds.size} tasks." }
 
         // if a screen event resource ID was specified, send a screen event
         // with the provided job ID so that it can be picked up by a client
         // that has created a websocket subscription to this event
         screenEventResourceId?.let {
-            LOG.fine { "Sending 'TAKEN_VRIJGEVEN' screen event with ID '$it'." }
+            LOG.info { "Sending 'TAKEN_VRIJGEVEN' screen event with ID '$it'." }
             eventingService.send(ScreenEventType.TAKEN_VRIJGEVEN.updated(it))
         }
     }
