@@ -187,15 +187,21 @@ jobs:
             target/
           key: maven-build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
       - name: Build Docker image
-        run: |
-          ./gradlew \
-          -PzacDockerImage=${ZAC_DOCKER_IMAGE} \
-          -PversionNumber=${BUILD_NUMBER} \
-          -PbranchName=${BRANCH_NAME} \
-          -PcommitHash=${GIT_COMMIT_HASH} \
-          buildDockerImage \
-          -x generateWildflyBootableJar
+        uses: docker/build-push-action@v4
+        with:
+          tags: ${{ ZAC_DOCKER_IMAGE }}
+          build-args: |
+            versionNumber=${{ BUILD_NUMBER }}
+            branchName=${{ BRANCH_NAME }}
+            commitHash=${{ GIT_COMMIT_HASH }}
+          push: false
+          # use GitHub Actions cache to speed up the build
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       # Make sure this step is run _after_ we have built our ZAC Docker Image because
       # we do not want the ZAC Docker image to be cached.
