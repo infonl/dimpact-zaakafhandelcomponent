@@ -4,6 +4,7 @@
 */
 package net.atos.zac.zaak
 
+import io.opentelemetry.instrumentation.annotations.SpanAttribute
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.inject.Inject
 import net.atos.client.zgw.zrc.ZRCClientService
@@ -40,7 +41,7 @@ class ZaakService @Inject constructor(
     @WithSpan
     @Suppress("LongParameterList")
     fun assignZaken(
-        zaakUUIDs: List<UUID>,
+        @SpanAttribute("zaakUUIDs") zaakUUIDs: List<UUID>,
         group: Group,
         user: User? = null,
         explanation: String? = null,
@@ -114,7 +115,7 @@ class ZaakService @Inject constructor(
      */
     @WithSpan
     fun releaseZaken(
-        zaakUUIDs: List<UUID>,
+        @SpanAttribute("zaakUUIDs") zaakUUIDs: List<UUID>,
         explanation: String? = null,
         screenEventResourceId: String? = null
     ) {
