@@ -11,14 +11,22 @@ Since every user in ZAC has a role, these policies are used to enforce the acces
 
 As also documented in the [ZAC gebruikershandleiding](../manuals) ZAC supports the following functional user roles (in Dutch):
 
-| Role                  | Description                                                                                                                                |
-|:----------------------|:-------------------------------------------------------------------------------------------------------------------------------------------|
-| Behandelaar           | Een zaakbehandelaar. Heeft alle rechten om met de werklijsten, zaken, taken en documenten te werken.                                       |
-| Coördinator           | Een zaakcoördinator of ook wel werkverdeler genoemd. Heeft rechten om vanuit werklijsten werk te verdelen en zaken en taken te raadplegen. |
-| Recordmanager         | Mag zaken en taken raadplegen en heeft aanvullende rechten op het gebied van documenten en beëindigde zaken.                               |
-| Functioneel beheerder | Heeft toegang tot de beheerschermen van ZAC en kan daar diverse instellingen aanmaken en wijzingen.                                        |
+| Role          | Description                                                                                                                                |
+|:--------------|:-------------------------------------------------------------------------------------------------------------------------------------------|
+| Behandelaar   | Een zaakbehandelaar. Heeft alle rechten om met de werklijsten, zaken, taken en documenten te werken.                                       |
+| Coördinator   | Een zaakcoördinator of ook wel werkverdeler genoemd. Heeft rechten om vanuit werklijsten werk te verdelen en zaken en taken te raadplegen. |
+| Recordmanager | Mag zaken en taken raadplegen en heeft aanvullende rechten op het gebied van documenten en beëindigde zaken.                               |
+| Beheerder     | De functioneel beheerder. Heeft toegang tot de beheerschermen van ZAC en kan daar diverse instellingen aanmaken en wijzingen.              |
 
-Every ZAC user can have multiple of these roles.
+Typically, these roles are assigned to individual users through groups.
+
+Note that the ZAC authorisation architecture has been set up in such that a user also needs all 'lower-level' roles 
+next to their 'main' role in order to be able to work in ZAC.
+This means the following in practise:
+
+- A user with the 'Coordinator' role also needs to have the 'Behandelaar' role
+- A user with the 'Recordmanager' role also needs to have the 'Behandelaar' and 'Coordinator'  roles
+- A user with the 'Beheerder' role also needs to have the 'Behandelaar', 'Coordinator' and 'Recordmanager' roles
 
 ### System roles
 
