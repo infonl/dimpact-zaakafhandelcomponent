@@ -1,5 +1,44 @@
 package net.atos.zac.mailtemplates;
 
+import jakarta.inject.Inject;
+import net.atos.client.brp.BRPClientService;
+import net.atos.client.brp.model.generated.Adres;
+import net.atos.client.brp.model.generated.Persoon;
+import net.atos.client.brp.model.generated.VerblijfadresBinnenland;
+import net.atos.client.brp.model.generated.VerblijfadresBuitenland;
+import net.atos.client.brp.model.generated.VerblijfplaatsBuitenland;
+import net.atos.client.kvk.KVKClientService;
+import net.atos.client.kvk.zoeken.model.generated.ResultaatItem;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import net.atos.client.zgw.shared.ZGWApiService;
+import net.atos.client.zgw.zrc.ZRCClientService;
+import net.atos.client.zgw.zrc.model.BetrokkeneType;
+import net.atos.client.zgw.zrc.model.Rol;
+import net.atos.client.zgw.zrc.model.RolMedewerker;
+import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid;
+import net.atos.client.zgw.zrc.model.Status;
+import net.atos.client.zgw.zrc.model.Zaak;
+import net.atos.client.zgw.ztc.ZTCClientService;
+import net.atos.client.zgw.ztc.model.generated.StatusType;
+import net.atos.client.zgw.ztc.model.generated.ZaakType;
+import net.atos.zac.configuratie.ConfiguratieService;
+import net.atos.zac.flowable.TaakVariabelenService;
+import net.atos.zac.identity.IdentityService;
+import net.atos.zac.identity.model.Group;
+import net.atos.zac.identity.model.User;
+import net.atos.zac.mailtemplates.model.MailLink;
+import net.atos.zac.mailtemplates.model.MailTemplateVariabelen;
+import net.atos.zac.util.DateTimeConverterUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
+import org.flowable.identitylink.api.IdentityLinkInfo;
+import org.flowable.identitylink.api.IdentityLinkType;
+import org.flowable.task.api.TaskInfo;
+
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+import java.util.regex.Pattern;
+
 import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
 import static net.atos.zac.mailtemplates.model.MailTemplateVariabelen.DOCUMENT_LINK;
 import static net.atos.zac.mailtemplates.model.MailTemplateVariabelen.DOCUMENT_TITEL;
@@ -29,47 +68,6 @@ import static net.atos.zac.util.StringUtil.joinNonBlankWith;
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
-
-import java.time.format.DateTimeFormatter;
-import java.util.Optional;
-import java.util.regex.Pattern;
-
-import jakarta.inject.Inject;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringEscapeUtils;
-import org.flowable.identitylink.api.IdentityLinkInfo;
-import org.flowable.identitylink.api.IdentityLinkType;
-import org.flowable.task.api.TaskInfo;
-
-import net.atos.client.brp.BRPClientService;
-import net.atos.client.brp.model.generated.Adres;
-import net.atos.client.brp.model.generated.Persoon;
-import net.atos.client.brp.model.generated.VerblijfadresBinnenland;
-import net.atos.client.brp.model.generated.VerblijfadresBuitenland;
-import net.atos.client.brp.model.generated.VerblijfplaatsBuitenland;
-import net.atos.client.kvk.KVKClientService;
-import net.atos.client.kvk.zoeken.model.generated.ResultaatItem;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.shared.ZGWApiService;
-import net.atos.client.zgw.zrc.ZRCClientService;
-import net.atos.client.zgw.zrc.model.BetrokkeneType;
-import net.atos.client.zgw.zrc.model.Rol;
-import net.atos.client.zgw.zrc.model.RolMedewerker;
-import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid;
-import net.atos.client.zgw.zrc.model.Status;
-import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.generated.StatusType;
-import net.atos.client.zgw.ztc.model.generated.ZaakType;
-import net.atos.zac.configuratie.ConfiguratieService;
-import net.atos.zac.flowable.TaakVariabelenService;
-import net.atos.zac.identity.IdentityService;
-import net.atos.zac.identity.model.Group;
-import net.atos.zac.identity.model.User;
-import net.atos.zac.mailtemplates.model.MailLink;
-import net.atos.zac.mailtemplates.model.MailTemplateVariabelen;
-import net.atos.zac.util.DateTimeConverterUtil;
 
 public class MailTemplateHelper {
 
@@ -178,9 +176,13 @@ public class MailTemplateHelper {
             resolvedTekst = replaceVariabele(resolvedTekst, TAAK_URL, link.url);
             resolvedTekst = replaceVariabeleHtml(resolvedTekst, TAAK_LINK, link.toHtml());
 
-            resolvedTekst = replaceVariabele(resolvedTekst, TAAK_FATALEDATUM,
-                    DateTimeConverterUtil.convertToLocalDate(taskInfo.getDueDate())
-                            .format(DATE_FORMATTER));
+            if (taskInfo.getDueDate() != null) {
+                resolvedTekst = replaceVariabele(
+                        resolvedTekst,
+                        TAAK_FATALEDATUM,
+                        DateTimeConverterUtil.convertToLocalDate(taskInfo.getDueDate()).format(DATE_FORMATTER)
+                );
+            }
 
             if (resolvedTekst.contains(TAAK_BEHANDELAAR_GROEP.getVariabele())) {
                 resolvedTekst = replaceVariabele(resolvedTekst, TAAK_BEHANDELAAR_GROEP,
