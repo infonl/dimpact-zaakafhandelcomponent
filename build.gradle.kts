@@ -281,7 +281,7 @@ swaggerSources {
 
 configure<com.diffplug.gradle.spotless.SpotlessExtension> {
     format("misc") {
-        target("*.gradle.kts", ".gitattributes", ".gitignore", ".containerignore", ".dockerignore")
+        target(".gitattributes", ".gitignore", ".containerignore", ".dockerignore")
 
         trimTrailingWhitespace()
         indentWithSpaces()
