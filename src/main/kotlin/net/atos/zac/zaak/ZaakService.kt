@@ -67,7 +67,7 @@ class ZaakService @Inject constructor(
                         bepaalRolMedewerker(it, zaak),
                         explanation
                     )
-                }
+                } ?: zrcClientService.deleteRol(zaak, BetrokkeneType.MEDEWERKER, explanation)
                 zakenAssignedList.add(zaak.uuid)
             }
         LOG.fine { "Successfully assigned ${zakenAssignedList.size} zaken." }

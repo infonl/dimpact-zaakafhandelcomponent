@@ -98,7 +98,11 @@ class TaskService @Inject constructor(
                     loggedInUser = loggedInUser,
                     explanation = restTaakVerdelenGegevens.reden
                 )
-            }
+            } ?: releaseTask(
+                taskId = task.id,
+                loggedInUser = loggedInUser,
+                reden = restTaakVerdelenGegevens.reden
+            )
             sendScreenEventsOnTaskChange(task, restTaakVerdelenTaak.zaakUuid)
             taskIds.add(restTaakVerdelenTaak.taakId)
         }
