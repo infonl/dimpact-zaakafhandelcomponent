@@ -65,7 +65,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
 
       - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@v3
+        uses: gradle/actions/wrapper-validation@v3
 
       # The Gradle build also executes a Maven command to build the WildFly bootable JAR.
       - name: Gradle build
@@ -199,6 +199,7 @@ jobs:
             branchName=${{ env.BRANCH_NAME }}
             commitHash=${{ env.GIT_COMMIT_HASH }}
           context: .
+          load: true
           push: false
           # use GitHub Actions cache to speed up the build
           cache-from: type=gha
