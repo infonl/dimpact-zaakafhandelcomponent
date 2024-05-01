@@ -193,7 +193,7 @@ public class RESTPersoonConverter {
             case JaarMaandDatum jaarMaandDatum -> "%d2-%d4".formatted(jaarMaandDatum.getMaand(),
                                                                       jaarMaandDatum.getJaar());
             case JaarDatum jaarDatum -> "%d4".formatted(jaarDatum.getJaar());
-            case DatumOnbekend datumOnbekend -> ONBEKEND;
+            case DatumOnbekend ignored -> ONBEKEND;
             default -> null;
         };
     }
@@ -204,7 +204,7 @@ public class RESTPersoonConverter {
                     convertVerblijfadresBinnenland(adres.getVerblijfadres());
             case VerblijfplaatsBuitenland verblijfplaatsBuitenland when verblijfplaatsBuitenland.getVerblijfadres() != null ->
                     convertVerblijfadresBuitenland(verblijfplaatsBuitenland.getVerblijfadres());
-            case VerblijfplaatsOnbekend verblijfplaatsOnbekend -> ONBEKEND;
+            case VerblijfplaatsOnbekend ignored -> ONBEKEND;
             default -> null;
         };
     }
