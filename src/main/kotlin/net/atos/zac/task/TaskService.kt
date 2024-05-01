@@ -1,5 +1,6 @@
 package net.atos.zac.task
 
+import io.opentelemetry.instrumentation.annotations.SpanAttribute
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.inject.Inject
 import net.atos.zac.app.taken.converter.RESTTaakConverter
@@ -74,7 +75,7 @@ class TaskService @Inject constructor(
      */
     @WithSpan
     fun assignTasks(
-        restTaakVerdelenGegevens: RESTTaakVerdelenGegevens,
+        @SpanAttribute("restTaakVerdelenGegevens") restTaakVerdelenGegevens: RESTTaakVerdelenGegevens,
         loggedInUser: LoggedInUser,
         screenEventResourceId: String? = null,
     ) {
@@ -121,7 +122,7 @@ class TaskService @Inject constructor(
         assignee: String,
         loggedInUser: LoggedInUser,
         explanation: String?
-    ) = flowableTaskService.assignTaskToUser(taskId, assignee, explanation).let { updatedTask ->
+    ): Task = flowableTaskService.assignTaskToUser(taskId, assignee, explanation).let { updatedTask ->
         eventingService.send(
             SignaleringEventUtil.event(
                 SignaleringType.Type.TAAK_OP_NAAM,
@@ -138,7 +139,7 @@ class TaskService @Inject constructor(
      */
     @WithSpan
     fun releaseTasks(
-        restTaakVrijgevenGegevens: RESTTaakVrijgevenGegevens,
+        @SpanAttribute("restTaakVerdelenGegevens") restTaakVrijgevenGegevens: RESTTaakVrijgevenGegevens,
         loggedInUser: LoggedInUser,
         screenEventResourceId: String? = null
     ) {
