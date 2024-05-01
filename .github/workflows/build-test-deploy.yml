@@ -198,6 +198,7 @@ jobs:
             versionNumber=${{ env.BUILD_NUMBER }}
             branchName=${{ env.BRANCH_NAME }}
             commitHash=${{ env.GIT_COMMIT_HASH }}
+          context: .
           push: false
           # use GitHub Actions cache to speed up the build
           cache-from: type=gha
