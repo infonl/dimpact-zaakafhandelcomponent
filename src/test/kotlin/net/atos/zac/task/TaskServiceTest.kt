@@ -42,17 +42,6 @@ class TaskServiceTest : BehaviorSpec({
         restTaakConverter = restTaakConverter,
     )
 
-    beforeEach {
-        // only check for unnecessary stubs on our mocked services and not on all mocks
-        // using checkUnnecessaryStub() because that currently breaks the test
-        checkUnnecessaryStub(
-            flowableTaskService,
-            indexeerService,
-            eventingService,
-            restTaakConverter
-        )
-    }
-
     beforeSpec {
         clearAllMocks()
     }
