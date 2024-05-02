@@ -166,4 +166,42 @@ class ZakenServiceTest : BehaviorSpec({
             }
         }
     }
+    Given("A list of zaken") {
+        val screenEventSlot = slot<ScreenEvent>()
+        zaken.map {
+            every { zrcClientService.readZaak(it.uuid) } returns it
+            every {
+                ztcClientService.readRoltype(
+                    RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
+                    it.zaaktype
+                )
+            } returns rolTypeBehandelaar
+            every { zrcClientService.updateRol(it, any(), explanation) } just Runs
+            every { zrcClientService.deleteRol(it, any(), explanation) } just Runs
+            every { eventingService.send(capture(screenEventSlot)) } just Runs
+        }
+        When(
+            """the assign zaken function is called with a group, WITHOUT a user
+                and with a screen event resource id"""
+        ) {
+            zaakService.assignZaken(
+                zaakUUIDs = zaken.map { it.uuid },
+                explanation = explanation,
+                group = group,
+                screenEventResourceId = screenEventResourceId
+            )
+
+            Then(
+                """for both zaken the group roles should be updated
+                    and the user roles should be deleted"""
+            ) {
+                zaken.map {
+                    verify(exactly = 1) {
+                        zrcClientService.updateRol(it, any(), explanation)
+                        zrcClientService.deleteRol(it, any(), explanation)
+                    }
+                }
+            }
+        }
+    }
 })
