@@ -210,12 +210,15 @@ class TaskServiceTest : BehaviorSpec({
         val screenEventSlot = mutableListOf<ScreenEvent>()
 
         every { loggedInUser.id } returns "dummyLoggedInUserId"
+        every { task1.id } returns taskId1
+        every { task2.id } returns taskId2
         every { updatedTaskAfterRelease1.id } returns restTaakVerdelenTaken[0].taakId
         every { updatedTaskAfterRelease2.id } returns restTaakVerdelenTaken[1].taakId
-
+        every { flowableTaskService.readOpenTask(taskId1) } returns task1
+        every { flowableTaskService.readOpenTask(taskId2) } returns task2
         restTaakVrijgevenGegevens.let {
-            every { flowableTaskService.releaseTask(restTaakVerdelenTaken[0].taakId, it.reden) } returns updatedTaskAfterRelease1
-            every { flowableTaskService.releaseTask(restTaakVerdelenTaken[1].taakId, it.reden) } returns updatedTaskAfterRelease2
+            every { flowableTaskService.releaseTask(task1, it.reden) } returns updatedTaskAfterRelease1
+            every { flowableTaskService.releaseTask(task2, it.reden) } returns updatedTaskAfterRelease2
         }
         every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every { eventingService.send(capture(screenEventSlot)) } just runs
@@ -234,7 +237,7 @@ class TaskServiceTest : BehaviorSpec({
                 """taken are released, the index is updated and signalering and signaleringen and screen events are sent"""
             ) {
                 verify(exactly = 2) {
-                    flowableTaskService.releaseTask(any<String>(), any())
+                    flowableTaskService.releaseTask(any<Task>(), any())
                 }
                 verify(exactly = 1) {
                     indexeerService.indexeerDirect(
@@ -271,37 +274,40 @@ class TaskServiceTest : BehaviorSpec({
             taken = restTaakVerdelenTaken,
             behandelaarGebruikersnaam = null
         )
-        val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
         val screenEventSlot = mutableListOf<ScreenEvent>()
 
-        every { loggedInUser.id } returns "dummyLoggedInUserId"
         every { task1.id } returns taskId1
         every { task2.id } returns taskId2
+        every { task1.assignee } returns null
+        every { task2.assignee } returns null
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId) } returns task1
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[1].taakId) } returns task2
         every {
             flowableTaskService.assignTaskToGroup(any(), any(), any())
         } returns task1 andThen task2
-        every {
-            flowableTaskService.releaseTask(any<Task>(), any())
-        } returns task1 andThen task2
-        every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every { eventingService.send(capture(screenEventSlot)) } just runs
         every {
             indexeerService.indexeerDirect(any<Stream<String>>(), ZoekObjectType.TAAK, true)
         } just runs
 
-        When("the 'assign tasks' function is called with REST taak verdelen gegevens") {
+        When(
+            """
+            the 'assign tasks' function is called with REST taak verdelen gegevens without a assignee
+            """
+        ) {
             taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser)
 
             Then(
                 """
-                    the tasks are assigned to the group,
-                    and released from the user
+                    the tasks are assigned to the group
                     """
             ) {
                 verify(exactly = 2) {
                     flowableTaskService.assignTaskToGroup(any(), any(), any())
+                }
+                // since the tasks were not assigned to a user already, they should not be released
+                // and no related screen events should be sent
+                verify(exactly = 0) {
                     flowableTaskService.releaseTask(any<Task>(), any())
                 }
             }
@@ -326,11 +332,10 @@ class TaskServiceTest : BehaviorSpec({
             taken = restTaakVerdelenTaken,
             behandelaarGebruikersnaam = null
         )
-        val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
         val screenEventSlot = mutableListOf<ScreenEvent>()
 
-        every { loggedInUser.id } returns "dummyLoggedInUserId"
         every { task2.id } returns taskId2
+        every { task2.assignee } returns null
         every {
             flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId)
         } throws TaskNotFoundException("task not found!")
@@ -338,10 +343,6 @@ class TaskServiceTest : BehaviorSpec({
         every {
             flowableTaskService.assignTaskToGroup(any(), any(), any())
         } returns task2
-        every {
-            flowableTaskService.releaseTask(any<Task>(), any())
-        } returns task2
-        every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every { eventingService.send(capture(screenEventSlot)) } just runs
         every {
             indexeerService.indexeerDirect(any<Stream<String>>(), ZoekObjectType.TAAK, true)
@@ -352,13 +353,81 @@ class TaskServiceTest : BehaviorSpec({
 
             Then(
                 """
-                    the first task is skipped and the second tasks is assigned to the group,
-                    and released from the user
+                    the first task is skipped and the second task is assigned to the group,
                     """
             ) {
                 verify(exactly = 1) {
                     flowableTaskService.assignTaskToGroup(any(), any(), any())
+                }
+                // since the tasks were not assigned to a user already, they should not be released
+                // and no related screen events should be sent
+                verify(exactly = 0) {
                     flowableTaskService.releaseTask(any<Task>(), any())
+                }
+            }
+        }
+    }
+    Given("Two open tasks that are already assigned to a specific group and user") {
+        clearAllMocks()
+        val restTaakVerdelenTaken = listOf(
+            createRESTTaakVerdelenTaak(
+                taakId = taskId1
+            ),
+            createRESTTaakVerdelenTaak(
+                taakId = taskId2
+            )
+        )
+        val restTaakVerdelenGegevens = createRESTTaakVerdelenGegevens(
+            taken = restTaakVerdelenTaken,
+            behandelaarGebruikersnaam = null
+        )
+        val screenEventSlot = mutableListOf<ScreenEvent>()
+        val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
+        val releasedTask1 = mockk<Task>()
+        val releasedTask2 = mockk<Task>()
+
+        every { loggedInUser.id } returns "dummyLoggedInUserId"
+        every { task1.id } returns taskId1
+        every { task2.id } returns taskId2
+        every { releasedTask1.id } returns taskId1
+        every { releasedTask2.id } returns taskId1
+        every { task1.assignee } returns "dummyAssignee1"
+        every { task2.assignee } returns "dummyAssignee2"
+        every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId) } returns task1
+        every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[1].taakId) } returns task2
+        every {
+            flowableTaskService.assignTaskToGroup(any(), any(), any())
+        } returns task1 andThen task2
+        every { eventingService.send(capture(screenEventSlot)) } just runs
+        every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
+        every { flowableTaskService.releaseTask(task1, restTaakVerdelenGegevens.reden) } returns releasedTask1
+        every { flowableTaskService.releaseTask(task2, restTaakVerdelenGegevens.reden) } returns releasedTask2
+        every {
+            indexeerService.indexeerDirect(any<Stream<String>>(), ZoekObjectType.TAAK, true)
+        } just runs
+
+        When(
+            """
+            the 'assign tasks' function is called with REST taak verdelen gegevens without a assignee
+            """
+        ) {
+            taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser)
+
+            Then(
+                """
+                    the tasks are assigned to the group and released from the current assignee
+                    """
+            ) {
+                verify(exactly = 2) {
+                    flowableTaskService.assignTaskToGroup(any(), any(), any())
+                    // since the tasks were already assigned to a user already, they should also be released
+                    // and related screen events should be sent
+                    flowableTaskService.releaseTask(any<Task>(), any())
+                    eventingService.send(any<SignaleringEvent<*>>())
+                }
+                // we expect four screen events, two for every task
+                verify(exactly = 4) {
+                    eventingService.send(any<ScreenEvent>())
                 }
             }
         }
