@@ -179,6 +179,7 @@ export class ZakenService {
 
   verdelenVanuitLijst(
     uuids: string[],
+    screenEventResourceId: string,
     groep?: Group,
     medewerker?: User,
     reden?: string,
@@ -188,6 +189,7 @@ export class ZakenService {
     verdeelGegevens.groepId = groep?.id;
     verdeelGegevens.behandelaarGebruikersnaam = medewerker?.id;
     verdeelGegevens.reden = reden;
+    verdeelGegevens.screenEventResourceId = screenEventResourceId;
 
     return this.http
       .put<void>(`${this.basepath}/lijst/verdelen`, verdeelGegevens)

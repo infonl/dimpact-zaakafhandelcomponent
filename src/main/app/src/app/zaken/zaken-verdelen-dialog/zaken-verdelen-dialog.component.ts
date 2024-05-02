@@ -5,6 +5,7 @@
 
 import { Component, Inject, OnInit } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { v4 as uuidv4 } from "uuid";
 import { Group } from "../../identity/model/group";
 import { User } from "../../identity/model/user";
 import { InputFormField } from "../../shared/material-form-builder/form-components/input/input-form-field";
@@ -65,6 +66,7 @@ export class ZakenVerdelenDialogComponent implements OnInit {
     this.zakenService
       .verdelenVanuitLijst(
         this.data.map((zaak) => zaak.id),
+        uuidv4(),
         toekenning.groep,
         toekenning.medewerker,
         this.redenFormField.formControl.value,
