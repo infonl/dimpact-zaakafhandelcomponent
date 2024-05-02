@@ -235,9 +235,8 @@ public class FlowableTaskService {
         return readOpenTask(task.getId());
     }
 
-    public Task releaseTask(final String taskId, final String explanation) {
-        final Task task = readOpenTask(taskId);
-        taskService.unclaim(taskId);
+    public Task releaseTask(final Task task, final String explanation) {
+        taskService.unclaim(task.getId());
         createHistoricTaskLogEntry(
                 task,
                 USER_TASK_ASSIGNEE_CHANGED_CUSTOM,
@@ -245,11 +244,7 @@ public class FlowableTaskService {
                 null,
                 explanation
         );
-        return readOpenTask(taskId);
-    }
-
-    public Task releaseTask(final Task task, final String explanation) {
-        return releaseTask(task.getId(), explanation);
+        return readOpenTask(task.getId());
     }
 
     public Task findOpenTask(final String taskId) {
