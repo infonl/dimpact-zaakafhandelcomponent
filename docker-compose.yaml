@@ -88,7 +88,7 @@ services:
       - POSTGRES_USER=openzaak
       - POSTGRES_PASSWORD=openzaak
       - POSTGRES_DB=openzaak
-      - BAG_API_CLIENT_MP_REST_URL=${BAG_API_CLIENT_MP_REST_URL:-https://api.bag.acceptatie.kadaster.nl/lvbag/individuelebevragingen/v2/}
+      - BAG_API_CLIENT_MP_REST_URL=${BAG_API_CLIENT_MP_REST_URL:-https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/}
       - BAG_API_KEY=${BAG_API_KEY:-please-request-a-bag-api-key}
     volumes:
       - ./scripts/docker-compose/imports/openzaak-database:/docker-entrypoint-initdb.d
