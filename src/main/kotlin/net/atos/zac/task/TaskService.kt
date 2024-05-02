@@ -10,6 +10,7 @@ import net.atos.zac.app.taken.model.RESTTaakVrijgevenGegevens
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.FlowableTaskService
+import net.atos.zac.flowable.exception.TaskNotFoundException
 import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.websocket.event.ScreenEventType
@@ -18,6 +19,7 @@ import net.atos.zac.zoeken.model.index.ZoekObjectType
 import nl.lifely.zac.util.AllOpen
 import org.flowable.task.api.Task
 import java.util.UUID
+import java.util.logging.Level
 import java.util.logging.Logger
 
 @AllOpen
@@ -83,31 +85,39 @@ class TaskService @Inject constructor(
             "Started to assign ${restTaakVerdelenGegevens.taken.size} tasks " +
                 "with screen event resource ID: '$screenEventResourceId'."
         }
-        val taskIds = mutableListOf<String>()
+        val succesfullyAssignedTaskIds = mutableListOf<String>()
         restTaakVerdelenGegevens.taken.forEach { restTaakVerdelenTaak ->
-            val task = flowableTaskService.readOpenTask(restTaakVerdelenTaak.taakId)
-            flowableTaskService.assignTaskToGroup(
-                task,
-                restTaakVerdelenGegevens.groepId,
-                restTaakVerdelenGegevens.reden
-            )
-            restTaakVerdelenGegevens.behandelaarGebruikersnaam?.let {
-                assignTaskToUser(
-                    taskId = task.id,
-                    assignee = it,
-                    loggedInUser = loggedInUser,
-                    explanation = restTaakVerdelenGegevens.reden
+            try {
+                val task = flowableTaskService.readOpenTask(restTaakVerdelenTaak.taakId)
+                flowableTaskService.assignTaskToGroup(
+                    task,
+                    restTaakVerdelenGegevens.groepId,
+                    restTaakVerdelenGegevens.reden
                 )
-            } ?: releaseTask(
-                taskId = task.id,
-                loggedInUser = loggedInUser,
-                reden = restTaakVerdelenGegevens.reden
-            )
-            sendScreenEventsOnTaskChange(task, restTaakVerdelenTaak.zaakUuid)
-            taskIds.add(restTaakVerdelenTaak.taakId)
+                restTaakVerdelenGegevens.behandelaarGebruikersnaam?.let {
+                    assignTaskToUser(
+                        taskId = task.id,
+                        assignee = it,
+                        loggedInUser = loggedInUser,
+                        explanation = restTaakVerdelenGegevens.reden
+                    )
+                } ?: releaseTask(
+                    taskId = task.id,
+                    loggedInUser = loggedInUser,
+                    reden = restTaakVerdelenGegevens.reden
+                )
+                sendScreenEventsOnTaskChange(task, restTaakVerdelenTaak.zaakUuid)
+                succesfullyAssignedTaskIds.add(restTaakVerdelenTaak.taakId)
+            } catch (taskNotFoundException: TaskNotFoundException) {
+                LOG.log(
+                    Level.SEVERE,
+                    "No open task with ID '${restTaakVerdelenTaak.taakId}' found. Skipping task.",
+                    taskNotFoundException
+                )
+            }
         }
-        indexeerService.indexeerDirect(taskIds.stream(), ZoekObjectType.TAAK, true)
-        LOG.info { "Successfully assigned ${taskIds.size} tasks." }
+        indexeerService.indexeerDirect(succesfullyAssignedTaskIds.stream(), ZoekObjectType.TAAK, true)
+        LOG.info { "Successfully assigned ${succesfullyAssignedTaskIds.size} tasks." }
 
         // if a screen event resource ID was specified, send a screen event
         // with the provided job ID so that it can be picked up by a client
