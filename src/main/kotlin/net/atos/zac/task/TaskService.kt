@@ -91,7 +91,7 @@ class TaskService @Inject constructor(
         restTaakVerdelenGegevens.taken.forEach { restTaakVerdelenTaak ->
             try {
                 flowableTaskService.readOpenTask(restTaakVerdelenTaak.taakId).let { task ->
-                    assignTaskAndOptionallyReleaseFromUser(task, restTaakVerdelenGegevens, loggedInUser)
+                    assignTaskAndOptionallyReleaseFromAssignee(task, restTaakVerdelenGegevens, loggedInUser)
                     sendScreenEventsOnTaskChange(task, restTaakVerdelenTaak.zaakUuid)
                 }
                 succesfullyAssignedTaskIds.add(restTaakVerdelenTaak.taakId)
@@ -178,7 +178,7 @@ class TaskService @Inject constructor(
         eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(zaakUuid))
     }
 
-    private fun assignTaskAndOptionallyReleaseFromUser(
+    private fun assignTaskAndOptionallyReleaseFromAssignee(
         task: Task,
         restTaakVerdelenGegevens: RESTTaakVerdelenGegevens,
         loggedInUser: LoggedInUser
@@ -196,8 +196,8 @@ class TaskService @Inject constructor(
                 explanation = restTaakVerdelenGegevens.reden
             )
         } ?: run {
-            // if no behandelaar was specified _and_ the task is currently assigned to a behandelaar
-            // then release it
+            // if no assignee was specified _and_ the task currently has an assignee,
+            // only then release it
             task.assignee?.run {
                 releaseTask(
                     task = task,
