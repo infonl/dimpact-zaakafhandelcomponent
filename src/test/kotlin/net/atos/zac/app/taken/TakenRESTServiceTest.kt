@@ -104,7 +104,26 @@ class TakenRESTServiceTest : BehaviorSpec({
     val loggedInUser = createLoggedInUser()
 
     beforeEach {
-        checkUnnecessaryStub()
+        // specifically do not check for unnecessary stubs in the task service
+        // using checkUnnecessaryStub() because that currently breaks the test
+        checkUnnecessaryStub(
+            drcClientService,
+            enkelvoudigInformatieObjectUpdateService,
+            eventingService,
+            httpSessionInstance,
+            indexeerService,
+            loggedInUserInstance,
+            policyService,
+            taakVariabelenService,
+            restTaakConverter,
+            flowableTaskService,
+            zrcClientService,
+            opschortenZaakHelper,
+            restInformatieobjectConverter,
+            signaleringenService,
+            taakHistorieConverter,
+            zgwApiService
+        )
     }
 
     beforeSpec {
