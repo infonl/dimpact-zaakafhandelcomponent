@@ -37,6 +37,8 @@ class TaskServiceTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
     val restTaakConverter = mockk<RESTTaakConverter>()
     val loggedInUser = mockk<LoggedInUser>()
+    val task1 = mockk<Task>()
+    val task2 = mockk<Task>()
     val taskService = TaskService(
         flowableTaskService = flowableTaskService,
         indexeerService = indexeerService,
@@ -129,8 +131,6 @@ class TaskServiceTest : BehaviorSpec({
         val restTaakVerdelenGegevens = createRESTTaakVerdelenGegevens(
             taken = restTaakVerdelenTaken
         )
-        val task1 = mockk<Task>()
-        val task2 = mockk<Task>()
         val updatedTask1AfterAssigningGroup = mockk<Task>()
         val updatedTask2AfterAssigningGroup = mockk<Task>()
         val updatedTask1AfterAssigningUser = mockk<Task>()
@@ -271,8 +271,6 @@ class TaskServiceTest : BehaviorSpec({
             taken = restTaakVerdelenTaken,
             behandelaarGebruikersnaam = null
         )
-        val task1 = mockk<Task>()
-        val task2 = mockk<Task>()
         val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
         val screenEventSlot = mutableListOf<ScreenEvent>()
 
@@ -328,7 +326,6 @@ class TaskServiceTest : BehaviorSpec({
             taken = restTaakVerdelenTaken,
             behandelaarGebruikersnaam = null
         )
-        val task2 = mockk<Task>()
         val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
         val screenEventSlot = mutableListOf<ScreenEvent>()
 
