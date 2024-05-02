@@ -8,7 +8,7 @@ import jakarta.inject.Inject
 import jakarta.json.bind.annotation.JsonbDateFormat
 import net.atos.zac.app.taken.model.RESTTaakHistorieRegel
 import net.atos.zac.flowable.FlowableTaskService
-import net.atos.zac.flowable.FlowableTaskService.ValueChangeData
+import net.atos.zac.flowable.model.ValueChangeData
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.util.DateTimeConverterUtil
 import net.atos.zac.util.JsonbUtil
