@@ -36,17 +36,20 @@ class TaskServiceTest : BehaviorSpec({
     val indexeerService = mockk<IndexeerService>()
     val eventingService = mockk<EventingService>()
     val restTaakConverter = mockk<RESTTaakConverter>()
+    val loggedInUser = mockk<LoggedInUser>()
     val taskService = TaskService(
         flowableTaskService = flowableTaskService,
         indexeerService = indexeerService,
         eventingService = eventingService,
         restTaakConverter = restTaakConverter,
     )
+    val taskId1 = "dummyTaskId1"
+    val taskId2 = "dummyTaskId2"
 
     beforeEach {
         checkUnnecessaryStub()
     }
-    
+
     beforeSpec {
         clearAllMocks()
     }
@@ -58,7 +61,6 @@ class TaskServiceTest : BehaviorSpec({
         val identityLinks = mutableListOf<IdentityLinkInfo>()
         val updatedTaskAfterAssigningGroup = mockk<Task>()
         val updatedTaskAfterAssigningUser = mockk<Task>()
-        val loggedInUser = mockk<LoggedInUser>()
         val groupId = "dummyCurrentGroupId"
         val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
         val screenEventSlot = mutableListOf<ScreenEvent>()
@@ -117,15 +119,16 @@ class TaskServiceTest : BehaviorSpec({
     Given("Two tasks that have not yet been assigned to a specific group and user") {
         clearAllMocks()
         val restTaakVerdelenTaken = listOf(
-            createRESTTaakVerdelenTaak(),
-            createRESTTaakVerdelenTaak()
+            createRESTTaakVerdelenTaak(
+                taakId = taskId1
+            ),
+            createRESTTaakVerdelenTaak(
+                taakId = taskId2
+            )
         )
         val restTaakVerdelenGegevens = createRESTTaakVerdelenGegevens(
             taken = restTaakVerdelenTaken
         )
-        val taskId1 = "dummyTaskId1"
-        val taskId2 = "dummyTaskId2"
-        val loggedInUser = mockk<LoggedInUser>()
         val task1 = mockk<Task>()
         val task2 = mockk<Task>()
         val updatedTask1AfterAssigningGroup = mockk<Task>()
@@ -136,6 +139,7 @@ class TaskServiceTest : BehaviorSpec({
         val screenEventSlot = mutableListOf<ScreenEvent>()
 
         every { loggedInUser.id } returns "dummyLoggedInUserId"
+        every { task1.id } returns taskId1
         every { task2.id } returns taskId2
         every { updatedTask1AfterAssigningUser.id } returns taskId1
         every { updatedTask2AfterAssigningUser.id } returns taskId2
@@ -190,20 +194,25 @@ class TaskServiceTest : BehaviorSpec({
     Given("REST taak vrijgeven gegevens with two tasks") {
         clearAllMocks()
         val restTaakVerdelenTaken = listOf(
-            createRESTTaakVerdelenTaak(),
-            createRESTTaakVerdelenTaak()
+            createRESTTaakVerdelenTaak(
+                taakId = taskId1
+            ),
+            createRESTTaakVerdelenTaak(
+                taakId = taskId2
+            )
         )
         val restTaakVrijgevenGegevens = createRESTTaakVrijgevenGegevens(
             taken = restTaakVerdelenTaken
         )
-        val loggedInUser = mockk<LoggedInUser>()
         val updatedTaskAfterRelease1 = mockk<Task>()
         val updatedTaskAfterRelease2 = mockk<Task>()
         val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
         val screenEventSlot = mutableListOf<ScreenEvent>()
 
         every { loggedInUser.id } returns "dummyLoggedInUserId"
+        every { updatedTaskAfterRelease1.id } returns restTaakVerdelenTaken[0].taakId
         every { updatedTaskAfterRelease2.id } returns restTaakVerdelenTaken[1].taakId
+
         restTaakVrijgevenGegevens.let {
             every { flowableTaskService.releaseTask(restTaakVerdelenTaken[0].taakId, it.reden) } returns updatedTaskAfterRelease1
             every { flowableTaskService.releaseTask(restTaakVerdelenTaken[1].taakId, it.reden) } returns updatedTaskAfterRelease2
@@ -251,16 +260,17 @@ class TaskServiceTest : BehaviorSpec({
     Given("Two open tasks that have not yet been assigned to a specific group and user") {
         clearAllMocks()
         val restTaakVerdelenTaken = listOf(
-            createRESTTaakVerdelenTaak(),
-            createRESTTaakVerdelenTaak()
+            createRESTTaakVerdelenTaak(
+                taakId = taskId1
+            ),
+            createRESTTaakVerdelenTaak(
+                taakId = taskId2
+            )
         )
         val restTaakVerdelenGegevens = createRESTTaakVerdelenGegevens(
             taken = restTaakVerdelenTaken,
             behandelaarGebruikersnaam = null
         )
-        val taskId1 = "dummyTaskId1"
-        val taskId2 = "dummyTaskId2"
-        val loggedInUser = mockk<LoggedInUser>()
         val task1 = mockk<Task>()
         val task2 = mockk<Task>()
         val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
@@ -306,8 +316,6 @@ class TaskServiceTest : BehaviorSpec({
             """
     ) {
         clearAllMocks()
-        val taskId1 = "dummyTaskId1"
-        val taskId2 = "dummyTaskId2"
         val restTaakVerdelenTaken = listOf(
             createRESTTaakVerdelenTaak(
                 taakId = taskId1
@@ -320,7 +328,6 @@ class TaskServiceTest : BehaviorSpec({
             taken = restTaakVerdelenTaken,
             behandelaarGebruikersnaam = null
         )
-        val loggedInUser = mockk<LoggedInUser>()
         val task2 = mockk<Task>()
         val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
         val screenEventSlot = mutableListOf<ScreenEvent>()
