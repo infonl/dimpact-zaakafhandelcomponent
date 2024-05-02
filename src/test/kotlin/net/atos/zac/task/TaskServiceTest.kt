@@ -234,7 +234,7 @@ class TaskServiceTest : BehaviorSpec({
                 """taken are released, the index is updated and signalering and signaleringen and screen events are sent"""
             ) {
                 verify(exactly = 2) {
-                    flowableTaskService.releaseTask(any(), any())
+                    flowableTaskService.releaseTask(any<String>(), any())
                 }
                 verify(exactly = 1) {
                     indexeerService.indexeerDirect(
@@ -283,7 +283,7 @@ class TaskServiceTest : BehaviorSpec({
             flowableTaskService.assignTaskToGroup(any(), any(), any())
         } returns task1 andThen task2
         every {
-            flowableTaskService.releaseTask(any(), any())
+            flowableTaskService.releaseTask(any<Task>(), any())
         } returns task1 andThen task2
         every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every { eventingService.send(capture(screenEventSlot)) } just runs
@@ -302,7 +302,7 @@ class TaskServiceTest : BehaviorSpec({
             ) {
                 verify(exactly = 2) {
                     flowableTaskService.assignTaskToGroup(any(), any(), any())
-                    flowableTaskService.releaseTask(any(), any())
+                    flowableTaskService.releaseTask(any<Task>(), any())
                 }
             }
         }
@@ -339,7 +339,7 @@ class TaskServiceTest : BehaviorSpec({
             flowableTaskService.assignTaskToGroup(any(), any(), any())
         } returns task2
         every {
-            flowableTaskService.releaseTask(any(), any())
+            flowableTaskService.releaseTask(any<Task>(), any())
         } returns task2
         every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every { eventingService.send(capture(screenEventSlot)) } just runs
@@ -358,7 +358,7 @@ class TaskServiceTest : BehaviorSpec({
             ) {
                 verify(exactly = 1) {
                     flowableTaskService.assignTaskToGroup(any(), any(), any())
-                    flowableTaskService.releaseTask(any(), any())
+                    flowableTaskService.releaseTask(any<Task>(), any())
                 }
             }
         }

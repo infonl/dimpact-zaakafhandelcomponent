@@ -101,11 +101,18 @@ class TaskService @Inject constructor(
                         loggedInUser = loggedInUser,
                         explanation = restTaakVerdelenGegevens.reden
                     )
-                } ?: releaseTask(
-                    taskId = task.id,
-                    loggedInUser = loggedInUser,
-                    reden = restTaakVerdelenGegevens.reden
-                )
+                }
+                    // if no behandelaar was specified and if the task is currently
+                    // assigned to a behandelaar, then release it
+                    ?: flowableTaskService.releaseTask(task, restTaakVerdelenGegevens.reden).let { updatedTask ->
+                        eventingService.send(
+                            SignaleringEventUtil.event(
+                                SignaleringType.Type.TAAK_OP_NAAM,
+                                updatedTask,
+                                loggedInUser
+                            )
+                        )
+                    }
                 sendScreenEventsOnTaskChange(task, restTaakVerdelenTaak.zaakUuid)
                 succesfullyAssignedTaskIds.add(restTaakVerdelenTaak.taakId)
             } catch (taskNotFoundException: TaskNotFoundException) {
