@@ -13,7 +13,6 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.zac.app.zaken.converter.RESTZaakOverzichtConverter
 import net.atos.zac.app.zaken.model.RESTZaakOverzicht
@@ -63,7 +62,6 @@ class SignaleringenService @Inject constructor(
         private fun signaleringTypeInstance(signaleringsType: SignaleringType.Type?): SignaleringType =
             entityManager.find(SignaleringType::class.java, signaleringsType.toString())
 
-        private val defaultCoroutineScope = CoroutineScope(Dispatchers.Default)
         private val LOG = Logger.getLogger(SignaleringenService::class.java.name)
     }
 
@@ -323,16 +321,13 @@ class SignaleringenService @Inject constructor(
         signaleringsType: SignaleringType.Type,
         screenEventResourceId: String
     ) {
-        defaultCoroutineScope.launch(CoroutineName("ListZakenSignaleringen")) {
+        CoroutineScope(Dispatchers.IO).launch(CoroutineName("ListZakenSignaleringen")) {
             LOG.fine {
                 "Started asynchronous job with ID $screenEventResourceId to list zaken signaleringen of" +
                     " type $signaleringsType"
             }
 
-            val zakenSignaleringen: List<RESTZaakOverzicht>
-            withContext(Dispatchers.IO) {
-                zakenSignaleringen = listZakenSignaleringen(user, signaleringsType)
-            }
+            val zakenSignaleringen = listZakenSignaleringen(user, signaleringsType)
 
             LOG.fine {
                 "Asynchronous list zaken signaleringen job with ID $screenEventResourceId finished. " +

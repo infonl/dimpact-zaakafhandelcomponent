@@ -196,7 +196,6 @@ class ZakenRESTService @Inject constructor(
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZakenRESTService::class.java.name)
-        private val ioCoroutineScope = CoroutineScope(Dispatchers.IO)
 
         private const val ROL_VERWIJDER_REDEN = "Verwijderd door de medewerker tijdens het behandelen van de zaak"
         private const val ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
@@ -596,7 +595,7 @@ class ZakenRESTService @Inject constructor(
     fun verdelenVanuitLijst(@Valid restZakenVerdeelGegevens: RESTZakenVerdeelGegevens) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation so run it asynchronously
-        ioCoroutineScope.launch {
+        CoroutineScope(Dispatchers.IO).launch {
             zaakService.assignZaken(
                 zaakUUIDs = restZakenVerdeelGegevens.uuids,
                 explanation = restZakenVerdeelGegevens.reden,
@@ -618,7 +617,7 @@ class ZakenRESTService @Inject constructor(
     fun vrijgevenVanuitLijst(@Valid restZakenVrijgevenGegevens: RESTZakenVrijgevenGegevens) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation so run it asynchronously
-        ioCoroutineScope.launch {
+        CoroutineScope(Dispatchers.IO).launch {
             zaakService.releaseZaken(
                 zaakUUIDs = restZakenVrijgevenGegevens.uuids,
                 explanation = restZakenVrijgevenGegevens.reden,

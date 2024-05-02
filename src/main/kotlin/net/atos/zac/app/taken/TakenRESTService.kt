@@ -97,7 +97,6 @@ class TakenRESTService @Inject constructor(
     private val opschortenZaakHelper: OpschortenZaakHelper
 ) {
     companion object {
-        private val ioCoroutineScope = CoroutineScope(Dispatchers.IO)
         private const val REDEN_ZAAK_HERVATTEN = "Aanvullende informatie geleverd"
         private const val REDEN_TAAK_AFGESLOTEN = "Afgesloten"
     }
@@ -146,7 +145,7 @@ class TakenRESTService @Inject constructor(
     fun verdelenVanuitLijst(@Valid restTaakVerdelenGegevens: RESTTaakVerdelenGegevens) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation so run it asynchronously
-        ioCoroutineScope.launch {
+        CoroutineScope(Dispatchers.IO).launch {
             taskService.assignTasks(
                 restTaakVerdelenGegevens = restTaakVerdelenGegevens,
                 loggedInUser = loggedInUserInstance.get(),
@@ -160,7 +159,7 @@ class TakenRESTService @Inject constructor(
     fun vrijgevenVanuitLijst(@Valid restTaakVrijgevenGegevens: RESTTaakVrijgevenGegevens) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation so run it asynchronously
-        ioCoroutineScope.launch {
+        CoroutineScope(Dispatchers.IO).launch {
             taskService.releaseTasks(
                 restTaakVrijgevenGegevens = restTaakVrijgevenGegevens,
                 loggedInUser = loggedInUserInstance.get(),
