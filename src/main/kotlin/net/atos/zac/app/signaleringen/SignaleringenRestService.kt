@@ -32,7 +32,6 @@ import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
-import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -53,8 +52,6 @@ class SignaleringenRestService @Inject constructor(
     private val restSignaleringInstellingenConverter: RESTSignaleringInstellingenConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>,
 ) {
-    private val ioCoroutineScope = CoroutineScope(Dispatchers.IO)
-
     private fun Instance<LoggedInUser>.getSignaleringZoekParameters() =
         SignaleringZoekParameters(get())
     private fun Instance<LoggedInUser>.getSignaleringInstellingenZoekParameters() =
@@ -76,7 +73,7 @@ class SignaleringenRestService @Inject constructor(
         @PathParam("type") signaleringsType: SignaleringType.Type,
         screenEventResourceId: String
     ) {
-        ioCoroutineScope.launch {
+        CoroutineScope(Dispatchers.IO).launch {
             signaleringenService.listZakenSignaleringen(
                 loggedInUserInstance.get(),
                 signaleringsType,
