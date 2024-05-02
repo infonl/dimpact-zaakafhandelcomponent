@@ -33,43 +33,36 @@ import org.flowable.task.api.history.HistoricTaskInstance;
 import org.flowable.task.api.history.HistoricTaskLogEntry;
 
 import net.atos.zac.app.taken.model.TaakSortering;
+import net.atos.zac.flowable.exception.TaskNotFoundException;
+import net.atos.zac.flowable.model.ValueChangeData;
 import net.atos.zac.shared.model.SorteerRichting;
 
 @ApplicationScoped
 @Transactional
 public class FlowableTaskService {
-
     public static final String USER_TASK_DESCRIPTION_CHANGED = "USER_TASK_DESCRIPTION_CHANGED";
-
     public static final String USER_TASK_ASSIGNEE_CHANGED_CUSTOM = "USER_TASK_ASSIGNEE_CHANGED_CUSTOM";
-
     public static final String USER_TASK_GROUP_CHANGED = "USER_TASK_GROUP_CHANGED";
 
-    @Inject
     private TaskService taskService;
-
-    @Inject
     private CmmnTaskService cmmnTaskService;
-
-    @Inject
     private HistoryService historyService;
 
-    public static class ValueChangeData {
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public FlowableTaskService() {
+    }
 
-        public String oldValue;
-
-        public String newValue;
-
-        public String explanation;
-
-        public ValueChangeData() {
-        }
-
-        public ValueChangeData(final String oldValue, final String newValue, final String explanation) {
-            this.oldValue = oldValue;
-            this.newValue = newValue;
-            this.explanation = explanation;
-        }
+    @Inject
+    public FlowableTaskService(
+            final TaskService taskService,
+            final CmmnTaskService cmmnTaskService,
+            final HistoryService historyService
+    ) {
+        this.taskService = taskService;
+        this.cmmnTaskService = cmmnTaskService;
+        this.historyService = historyService;
     }
 
     public List<Task> listOpenTasks(
@@ -173,7 +166,7 @@ public class FlowableTaskService {
     public Task readOpenTask(final String taskId) {
         final Task task = findOpenTask(taskId);
         if (task == null) {
-            throw new RuntimeException(String.format("Task with id '%s' not found", taskId));
+            throw new TaskNotFoundException(String.format("No open task with id '%s' found", taskId));
         }
         return task;
     }
@@ -181,7 +174,7 @@ public class FlowableTaskService {
     public HistoricTaskInstance readClosedTask(final String taskId) {
         final HistoricTaskInstance historicTaskInstance = findClosedTask(taskId);
         if (historicTaskInstance == null) {
-            throw new RuntimeException(String.format("Task with id '%s' not found", taskId));
+            throw new TaskNotFoundException(String.format("No historic task with id '%s' found", taskId));
         }
         return historicTaskInstance;
     }
@@ -203,10 +196,13 @@ public class FlowableTaskService {
         if (!StringUtils.equals(oldValue, newValue)) {
             historyService.createHistoricTaskLogEntryBuilder(task)
                     .type(type)
-                    .data(FIELD_VISIBILITY_STRATEGY.toJson(new ValueChangeData(
-                            Objects.toString(oldValue, StringUtils.EMPTY),
-                            Objects.toString(newValue, StringUtils.EMPTY),
-                            explanation)))
+                    .data(FIELD_VISIBILITY_STRATEGY.toJson(
+                            new ValueChangeData(
+                                    Objects.toString(oldValue, StringUtils.EMPTY),
+                                    Objects.toString(newValue, StringUtils.EMPTY),
+                                    explanation
+                            )
+                    ))
                     .create();
         }
     }
