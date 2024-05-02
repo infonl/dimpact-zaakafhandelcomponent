@@ -21,6 +21,7 @@ import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
 import net.atos.zac.flowable.FlowableTaskService
+import net.atos.zac.flowable.exception.TaskNotFoundException
 import net.atos.zac.signalering.event.SignaleringEvent
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
@@ -247,7 +248,7 @@ class TaskServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("Two tasks that have not yet been assigned to a specific group and user") {
+    Given("Two open tasks that have not yet been assigned to a specific group and user") {
         clearAllMocks()
         val restTaakVerdelenTaken = listOf(
             createRESTTaakVerdelenTaak(),
@@ -292,6 +293,66 @@ class TaskServiceTest : BehaviorSpec({
                     """
             ) {
                 verify(exactly = 2) {
+                    flowableTaskService.assignTaskToGroup(any(), any(), any())
+                    flowableTaskService.releaseTask(any(), any())
+                }
+            }
+        }
+    }
+    Given(
+        """
+            Two tasks that have not yet been assigned to a specific group and user where the first
+            task is a historical (closed) task and the second an open task
+            """
+    ) {
+        clearAllMocks()
+        val taskId1 = "dummyTaskId1"
+        val taskId2 = "dummyTaskId2"
+        val restTaakVerdelenTaken = listOf(
+            createRESTTaakVerdelenTaak(
+                taakId = taskId1
+            ),
+            createRESTTaakVerdelenTaak(
+                taakId = taskId2
+            )
+        )
+        val restTaakVerdelenGegevens = createRESTTaakVerdelenGegevens(
+            taken = restTaakVerdelenTaken,
+            behandelaarGebruikersnaam = null
+        )
+        val loggedInUser = mockk<LoggedInUser>()
+        val task2 = mockk<Task>()
+        val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
+        val screenEventSlot = mutableListOf<ScreenEvent>()
+
+        every { loggedInUser.id } returns "dummyLoggedInUserId"
+        every { task2.id } returns taskId2
+        every {
+            flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId)
+        } throws TaskNotFoundException("task not found!")
+        every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[1].taakId) } returns task2
+        every {
+            flowableTaskService.assignTaskToGroup(any(), any(), any())
+        } returns task2
+        every {
+            flowableTaskService.releaseTask(any(), any())
+        } returns task2
+        every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
+        every { eventingService.send(capture(screenEventSlot)) } just runs
+        every {
+            indexeerService.indexeerDirect(any<Stream<String>>(), ZoekObjectType.TAAK, true)
+        } just runs
+
+        When("the 'assign tasks' function is called with REST taak verdelen gegevens") {
+            taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser)
+
+            Then(
+                """
+                    the first task is skipped and the second tasks is assigned to the group,
+                    and released from the user
+                    """
+            ) {
+                verify(exactly = 1) {
                     flowableTaskService.assignTaskToGroup(any(), any(), any())
                     flowableTaskService.releaseTask(any(), any())
                 }
