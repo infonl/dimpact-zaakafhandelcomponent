@@ -59,7 +59,6 @@ class SignaleringenService @Inject constructor(
         private fun signaleringTypeInstance(signaleringsType: SignaleringType.Type?): SignaleringType =
             entityManager.find(SignaleringType::class.java, signaleringsType.toString())
 
-        private val defaultCoroutineScope = CoroutineScope(Dispatchers.Default)
         private val LOG = Logger.getLogger(SignaleringenService::class.java.name)
     }
 
