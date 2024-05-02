@@ -196,6 +196,7 @@ class ZakenRESTService @Inject constructor(
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZakenRESTService::class.java.name)
+
         private const val ROL_VERWIJDER_REDEN = "Verwijderd door de medewerker tijdens het behandelen van de zaak"
         private const val ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
         private const val AANMAKEN_ZAAK_REDEN = "Aanmaken zaak"
@@ -203,8 +204,6 @@ class ZakenRESTService @Inject constructor(
         private const val AANMAKEN_BESLUIT_TOELICHTING = "Aanmaken besluit"
         private const val WIJZIGEN_BESLUIT_TOELICHTING = "Wijzigen besluit"
     }
-
-    private val ioCoroutineScope = CoroutineScope(Dispatchers.IO)
 
     @GET
     @Path("zaak/{uuid}")
@@ -599,7 +598,8 @@ class ZakenRESTService @Inject constructor(
     @Path("lijst/verdelen")
     fun verdelenVanuitLijst(@Valid restZakenVerdeelGegevens: RESTZakenVerdeelGegevens) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
-        ioCoroutineScope.launch {
+        // this can be a long-running operation so run it asynchronously
+        CoroutineScope(Dispatchers.IO).launch {
             zaakService.assignZaken(
                 zaakUUIDs = restZakenVerdeelGegevens.uuids,
                 explanation = restZakenVerdeelGegevens.reden,
@@ -624,7 +624,8 @@ class ZakenRESTService @Inject constructor(
     @Path("lijst/vrijgeven")
     fun vrijgevenVanuitLijst(@Valid restZakenVrijgevenGegevens: RESTZakenVrijgevenGegevens) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
-        ioCoroutineScope.launch {
+        // this can be a long-running operation so run it asynchronously
+        CoroutineScope(Dispatchers.IO).launch {
             zaakService.releaseZaken(
                 zaakUUIDs = restZakenVrijgevenGegevens.uuids,
                 explanation = restZakenVrijgevenGegevens.reden,
