@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
@@ -41,6 +42,10 @@ class TaskServiceTest : BehaviorSpec({
         restTaakConverter = restTaakConverter,
     )
 
+    beforeEach {
+        checkUnnecessaryStub()
+    }
+    
     beforeSpec {
         clearAllMocks()
     }
@@ -130,7 +135,6 @@ class TaskServiceTest : BehaviorSpec({
         val screenEventSlot = mutableListOf<ScreenEvent>()
 
         every { loggedInUser.id } returns "dummyLoggedInUserId"
-        every { task1.id } returns taskId1
         every { task2.id } returns taskId2
         every { updatedTask1AfterAssigningUser.id } returns taskId1
         every { updatedTask2AfterAssigningUser.id } returns taskId2
@@ -198,7 +202,6 @@ class TaskServiceTest : BehaviorSpec({
         val screenEventSlot = mutableListOf<ScreenEvent>()
 
         every { loggedInUser.id } returns "dummyLoggedInUserId"
-        every { updatedTaskAfterRelease1.id } returns restTaakVerdelenTaken[0].taakId
         every { updatedTaskAfterRelease2.id } returns restTaakVerdelenTaken[1].taakId
         restTaakVrijgevenGegevens.let {
             every { flowableTaskService.releaseTask(restTaakVerdelenTaken[0].taakId, it.reden) } returns updatedTaskAfterRelease1

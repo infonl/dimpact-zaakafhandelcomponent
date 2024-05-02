@@ -24,7 +24,7 @@ import net.atos.zac.identity.model.createUser
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
 
-class ZakenServiceTest : BehaviorSpec({
+class ZaakServiceTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
     val zrcClientService = mockk<ZRCClientService>()
     val ztcClientService = mockk<ZTCClientService>()
