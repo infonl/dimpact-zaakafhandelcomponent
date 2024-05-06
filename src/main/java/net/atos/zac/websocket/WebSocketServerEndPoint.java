@@ -77,7 +77,7 @@ public class WebSocketServerEndPoint {
     }
 
     private void denyAccess(final Session session, final String reason) {
-        LOG.severe(() -> String.format("Open WebSocket denied for %s (%s)", user(session), reason));
+        LOG.fine(() -> String.format("Open WebSocket denied for %s (%s)", user(session), reason));
         try {
             // According to the RFC, this close reason should be used if the other reasons are not applicable.
             session.close(new CloseReason(VIOLATED_POLICY, reason));
