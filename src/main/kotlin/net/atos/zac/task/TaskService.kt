@@ -98,7 +98,7 @@ class TaskService @Inject constructor(
             } catch (taskNotFoundException: TaskNotFoundException) {
                 LOG.log(
                     Level.SEVERE,
-                    "No open task with ID '${restTaakVerdelenTaak.taakId}' found. Skipping task.",
+                    "No open task with ID '${restTaakVerdelenTaak.taakId}' found while assigning tasks. Skipping task.",
                     taskNotFoundException
                 )
             }
@@ -151,14 +151,22 @@ class TaskService @Inject constructor(
         }
         val taskIds = mutableListOf<String>()
         restTaakVrijgevenGegevens.taken.forEach {
-            flowableTaskService.readOpenTask(it.taakId).let { task ->
-                releaseTask(
-                    task = task,
-                    loggedInUser = loggedInUser,
-                    reden = restTaakVrijgevenGegevens.reden
+            try {
+                flowableTaskService.readOpenTask(it.taakId).let { task ->
+                    releaseTask(
+                        task = task,
+                        loggedInUser = loggedInUser,
+                        reden = restTaakVrijgevenGegevens.reden
+                    )
+                    sendScreenEventsOnTaskChange(task, it.zaakUuid)
+                    taskIds.add(task.id)
+                }
+            } catch (taskNotFoundException: TaskNotFoundException) {
+                LOG.log(
+                    Level.SEVERE,
+                    "No open task with ID '${it.taakId}' found while releasing tasks. Skipping task.",
+                    taskNotFoundException
                 )
-                sendScreenEventsOnTaskChange(task, it.zaakUuid)
-                taskIds.add(task.id)
             }
         }
         indexeerService.indexeerDirect(taskIds.stream(), ZoekObjectType.TAAK, true)

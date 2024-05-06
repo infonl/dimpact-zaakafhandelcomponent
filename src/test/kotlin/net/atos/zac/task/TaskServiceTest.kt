@@ -432,4 +432,64 @@ class TaskServiceTest : BehaviorSpec({
             }
         }
     }
+    Given(
+        """
+            Two tasks that have not yet been assigned to a specific group and user where the first
+            task is a historical (closed) task and the second an open task
+            """
+    ) {
+        clearAllMocks()
+        val restTaakVerdelenTaken = listOf(
+            createRESTTaakVerdelenTaak(
+                taakId = taskId1
+            ),
+            createRESTTaakVerdelenTaak(
+                taakId = taskId2
+            )
+        )
+        val restTaakVrijgevenGegevens = createRESTTaakVrijgevenGegevens(
+            taken = restTaakVerdelenTaken
+        )
+        val screenEventSlot = mutableListOf<ScreenEvent>()
+        val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
+
+        every { loggedInUser.id } returns "dummyLoggedInUserId"
+        every { task2.id } returns taskId2
+        every {
+            flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId)
+        } throws TaskNotFoundException("task not found!")
+        every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[1].taakId) } returns task2
+        every {
+            flowableTaskService.releaseTask(any(), any())
+        } returns task2
+        every { eventingService.send(capture(screenEventSlot)) } just runs
+        every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
+        every {
+            indexeerService.indexeerDirect(any<Stream<String>>(), ZoekObjectType.TAAK, true)
+        } just runs
+
+        When("the 'release tasks' function is called with REST taak vrijgeven gegevens") {
+            taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser)
+
+            Then(
+                """
+                    the first task is skipped and the second task is released to the user,
+                    """
+            ) {
+                verify(exactly = 1) {
+                    flowableTaskService.releaseTask(any(), any())
+                }
+                // we expect twp screen events for the one succesfully released task
+                screenEventSlot.size shouldBe 2
+                screenEventSlot.map { it.objectType } shouldContainExactlyInAnyOrder listOf(
+                    ScreenEventType.TAAK,
+                    ScreenEventType.ZAAK_TAKEN
+                )
+                taakOpNaamSignaleringEventSlot.captured.run {
+                    opcode shouldBe Opcode.UPDATED
+                    actor shouldBe loggedInUser.id
+                }
+            }
+        }
+    }
 })
