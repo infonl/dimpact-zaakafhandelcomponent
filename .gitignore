@@ -36,4 +36,4 @@ scripts/github/.secrets
 /bin
 
 ### Docker Compose ###
-docker-compose.override.yaml
+docker-compose.override.yml
