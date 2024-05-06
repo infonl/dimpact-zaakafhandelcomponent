@@ -83,7 +83,7 @@ class TaskService @Inject constructor(
         loggedInUser: LoggedInUser,
         screenEventResourceId: String? = null,
     ) {
-        LOG.info {
+        LOG.fine {
             "Started to assign ${restTaakVerdelenGegevens.taken.size} tasks " +
                 "with screen event resource ID: '$screenEventResourceId'."
         }
@@ -135,7 +135,7 @@ class TaskService @Inject constructor(
         loggedInUser: LoggedInUser,
         screenEventResourceId: String? = null
     ) {
-        LOG.info {
+        LOG.fine {
             "Started to assign ${restTaakVrijgevenGegevens.taken.size} tasks " +
                 "with screen event resource ID: '$screenEventResourceId'."
         }
