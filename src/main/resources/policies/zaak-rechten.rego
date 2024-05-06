@@ -23,7 +23,7 @@ zaak_rechten := {
     "behandelen": behandelen,
     "afbreken": afbreken,
     "heropenen": heropenen,
-    "wijzigen_zaakdata": wijzigen_zaakdata,
+    "bekijken_zaakdata": bekijken_zaakdata,
     "wijzigen_doorlooptijd": wijzigen_doorlooptijd,
     "verlengen": verlengen,
     "opschorten": opschorten,
@@ -95,8 +95,8 @@ heropenen {
     zaaktype_allowed == true
 }
 
-default wijzigen_zaakdata := false
-wijzigen_zaakdata {
+default bekijken_zaakdata := false
+bekijken_zaakdata {
     beheerder.rol in user.rollen
     zaaktype_allowed == true
 }

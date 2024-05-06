@@ -682,7 +682,7 @@ export class ZaakViewComponent
             ),
           );
         }
-        if (this.hasZaakData() && this.zaak.rechten.wijzigenZaakdata) {
+        if (this.hasZaakData() && this.zaak.rechten.bekijkenZaakdata) {
           this.menu.push(
             new ButtonMenuItem(
               "actie.zaakdata.bekijken",

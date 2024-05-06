@@ -13,7 +13,7 @@ import data.net.atos.zac.zaak.toekennen
 import data.net.atos.zac.zaak.behandelen
 import data.net.atos.zac.zaak.afbreken
 import data.net.atos.zac.zaak.heropenen
-import data.net.atos.zac.zaak.wijzigen_zaakdata
+import data.net.atos.zac.zaak.bekijken_zaakdata
 import data.net.atos.zac.zaak.wijzigen_doorlooptijd
 import data.net.atos.zac.zaak.verlengen
 import data.net.atos.zac.zaak.opschorten
@@ -160,18 +160,18 @@ test_heropenen_missing_role_fails if {
 }
 
 ###################
-# wijzigen_zaakdata
+# bekijken_zaakdata
 ###################
-test_wijzigen_zaakdata if {
-    wijzigen_zaakdata with input.user.rollen as [ "beheerder" ]
+test_bekijken_zaakdata if {
+    bekijken_zaakdata with input.user.rollen as [ "beheerder" ]
 }
 
-test_wijzigen_zaakdata_wrong_role_fails if {
-    not wijzigen_zaakdata with input.user.rollen as [ "behandelaar" ]
+test_bekijken_zaakdata_wrong_role_fails if {
+    not bekijken_zaakdata with input.user.rollen as [ "behandelaar" ]
 }
 
-test_wijzigen_zaakdata_missing_role_fails if {
-    not wijzigen_zaakdata with input.user.key as "value"
+test_bekijken_zaakdata_missing_role_fails if {
+    not bekijken_zaakdata with input.user.key as "value"
 }
 
 #######################

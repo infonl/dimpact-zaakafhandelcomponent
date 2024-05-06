@@ -17,7 +17,7 @@ public record ZaakRechten(
                           boolean behandelen,
                           boolean afbreken,
                           boolean heropenen,
-                          boolean wijzigenZaakdata,
+                          boolean bekijkenZaakdata,
                           boolean wijzigenDoorlooptijd,
                           boolean verlengen,
                           boolean opschorten,
@@ -48,7 +48,7 @@ public record ZaakRechten(
             @JsonbProperty("behandelen") final boolean behandelen,
             @JsonbProperty("afbreken") final boolean afbreken,
             @JsonbProperty("heropenen") final boolean heropenen,
-            @JsonbProperty("wijzigen_zaakdata") final boolean wijzigenZaakdata,
+            @JsonbProperty("bekijken_zaakdata") final boolean bekijkenZaakdata,
             @JsonbProperty("wijzigen_doorlooptijd") final boolean wijzigenDoorlooptijd,
             @JsonbProperty("verlengen") final boolean verlengen,
             @JsonbProperty("opschorten") final boolean opschorten,
@@ -76,7 +76,7 @@ public record ZaakRechten(
         this.behandelen = behandelen;
         this.afbreken = afbreken;
         this.heropenen = heropenen;
-        this.wijzigenZaakdata = wijzigenZaakdata;
+        this.bekijkenZaakdata = bekijkenZaakdata;
         this.wijzigenDoorlooptijd = wijzigenDoorlooptijd;
         this.verlengen = verlengen;
         this.opschorten = opschorten;
