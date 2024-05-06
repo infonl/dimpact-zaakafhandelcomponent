@@ -88,30 +88,20 @@ class TaskService @Inject constructor(
                 "with screen event resource ID: '$screenEventResourceId'."
         }
         val succesfullyAssignedTaskIds = mutableListOf<String>()
-        restTaakVerdelenGegevens.taken.forEach { restTaakVerdelenTaak ->
-            try {
-                flowableTaskService.readOpenTask(restTaakVerdelenTaak.taakId).let { task ->
-                    assignTaskAndOptionallyReleaseFromAssignee(task, restTaakVerdelenGegevens, loggedInUser)
-                    sendScreenEventsOnTaskChange(task, restTaakVerdelenTaak.zaakUuid)
-                }
-                succesfullyAssignedTaskIds.add(restTaakVerdelenTaak.taakId)
-            } catch (taskNotFoundException: TaskNotFoundException) {
-                LOG.log(
-                    Level.SEVERE,
-                    "No open task with ID '${restTaakVerdelenTaak.taakId}' found while assigning tasks. Skipping task.",
-                    taskNotFoundException
-                )
-            }
-        }
-        indexeerService.indexeerDirect(succesfullyAssignedTaskIds.stream(), ZoekObjectType.TAAK, true)
-        LOG.info { "Successfully assigned ${succesfullyAssignedTaskIds.size} tasks." }
+        try {
+            assignTasks(restTaakVerdelenGegevens, loggedInUser, succesfullyAssignedTaskIds)
+        } finally {
+            // always update the search index and send the screen event, also if exceptions were thrown
+            indexeerService.indexeerDirect(succesfullyAssignedTaskIds.stream(), ZoekObjectType.TAAK, true)
+            LOG.info { "Successfully assigned ${succesfullyAssignedTaskIds.size} tasks." }
 
-        // if a screen event resource ID was specified, send a screen event
-        // with the provided job ID so that it can be picked up by a client
-        // that has created a websocket subscription to this event
-        screenEventResourceId?.let {
-            LOG.info { "Sending 'TAKEN_VERDELEN' screen event with ID '$it'." }
-            eventingService.send(ScreenEventType.TAKEN_VERDELEN.updated(it))
+            // if a screen event resource ID was specified, send a screen event
+            // with the provided job ID so that it can be picked up by a client
+            // that has created a websocket subscription to this event
+            screenEventResourceId?.let {
+                LOG.info { "Sending 'TAKEN_VERDELEN' screen event with ID '$it'." }
+                eventingService.send(ScreenEventType.TAKEN_VERDELEN.updated(it))
+            }
         }
     }
 
@@ -184,6 +174,29 @@ class TaskService @Inject constructor(
     fun sendScreenEventsOnTaskChange(task: Task, zaakUuid: UUID) {
         eventingService.send(ScreenEventType.TAAK.updated(task))
         eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(zaakUuid))
+    }
+
+    private fun assignTasks(
+        restTaakVerdelenGegevens: RESTTaakVerdelenGegevens,
+        loggedInUser: LoggedInUser,
+        succesfullyAssignedTaskIds: MutableList<String>
+    ) {
+        restTaakVerdelenGegevens.taken.forEach { restTaakVerdelenTaak ->
+            try {
+                flowableTaskService.readOpenTask(restTaakVerdelenTaak.taakId).let { task ->
+                    assignTaskAndOptionallyReleaseFromAssignee(task, restTaakVerdelenGegevens, loggedInUser)
+                    sendScreenEventsOnTaskChange(task, restTaakVerdelenTaak.zaakUuid)
+                }
+                succesfullyAssignedTaskIds.add(restTaakVerdelenTaak.taakId)
+            } catch (taskNotFoundException: TaskNotFoundException) {
+                // continue assigning remaining tasks if particular open task could not be found
+                LOG.log(
+                    Level.SEVERE,
+                    "No open task with ID '${restTaakVerdelenTaak.taakId}' found while assigning tasks. Skipping task.",
+                    taskNotFoundException
+                )
+            }
+        }
     }
 
     private fun assignTaskAndOptionallyReleaseFromAssignee(
