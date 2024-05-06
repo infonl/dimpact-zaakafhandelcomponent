@@ -74,10 +74,10 @@ class SignaleringenRestService @Inject constructor(
         screenEventResourceId: String
     ) {
         // User is not available in co-routines, so fetch it outside the co-routine scope
-        val user = loggedInUserInstance.get()
-
-        CoroutineScope(Dispatchers.IO).launch {
-            signaleringenService.listZakenSignaleringen(user, signaleringsType, screenEventResourceId)
+        loggedInUserInstance.get().let { user ->
+            CoroutineScope(Dispatchers.IO).launch {
+                signaleringenService.listZakenSignaleringen(user, signaleringsType, screenEventResourceId)
+            }
         }
     }
 
