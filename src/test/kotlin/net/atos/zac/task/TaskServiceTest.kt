@@ -434,8 +434,7 @@ class TaskServiceTest : BehaviorSpec({
     }
     Given(
         """
-            Two tasks that have not yet been assigned to a specific group and user where the first
-            task is a historical (closed) task and the second an open task
+            Two tasks where the first task is a historical (closed) task and the second an open task
             """
     ) {
         clearAllMocks()
