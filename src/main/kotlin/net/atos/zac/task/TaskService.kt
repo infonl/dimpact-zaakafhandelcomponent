@@ -93,13 +93,13 @@ class TaskService @Inject constructor(
         } finally {
             // always update the search index and send the screen event, also if exceptions were thrown
             indexeerService.indexeerDirect(succesfullyAssignedTaskIds.stream(), ZoekObjectType.TAAK, true)
-            LOG.info { "Successfully assigned ${succesfullyAssignedTaskIds.size} tasks." }
+            LOG.fine { "Successfully assigned ${succesfullyAssignedTaskIds.size} tasks." }
 
             // if a screen event resource ID was specified, send a screen event
             // with the provided job ID so that it can be picked up by a client
             // that has created a websocket subscription to this event
             screenEventResourceId?.let {
-                LOG.info { "Sending 'TAKEN_VERDELEN' screen event with ID '$it'." }
+                LOG.fine { "Sending 'TAKEN_VERDELEN' screen event with ID '$it'." }
                 eventingService.send(ScreenEventType.TAKEN_VERDELEN.updated(it))
             }
         }
@@ -144,13 +144,13 @@ class TaskService @Inject constructor(
             releaseTasks(restTaakVrijgevenGegevens, loggedInUser, taskIds)
         } finally {
             indexeerService.indexeerDirect(taskIds.stream(), ZoekObjectType.TAAK, true)
-            LOG.info { "Successfully released ${taskIds.size} tasks." }
+            LOG.fine { "Successfully released ${taskIds.size} tasks." }
 
             // if a screen event resource ID was specified, send a screen event
             // with the provided job ID so that it can be picked up by a client
             // that has created a websocket subscription to this event
             screenEventResourceId?.let {
-                LOG.info { "Sending 'TAKEN_VRIJGEVEN' screen event with ID '$it'." }
+                LOG.fine { "Sending 'TAKEN_VRIJGEVEN' screen event with ID '$it'." }
                 eventingService.send(ScreenEventType.TAKEN_VRIJGEVEN.updated(it))
             }
         }
