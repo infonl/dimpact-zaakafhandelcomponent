@@ -44,7 +44,7 @@ while getopts ':dtzlh' OPTION; do
     z)
       echo "Pulling latest ZAC Docker Image ..."
       startZac=true
-      docker compose pull zac
+      UID=$(id -u) GID=$(id -g) docker compose pull zac
       ;;
     l)
       echo "Building ZAC Docker Image ..."
@@ -68,7 +68,12 @@ if [ "$startZac" = true ] ; then
     profiles=zac
   fi
   echo "Starting Docker Compose environment with ${ZAC_DOCKER_IMAGE:-ZAC} ..."
-  export APP_ENV=devlocal && export COMPOSE_PROFILES=$profiles && export SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE=$enableZacOpenTelemetrySampler && op run --env-file="./.env.tpl" --no-masking -- docker compose --project-name zac up -d
+  APP_ENV=devlocal \
+  COMPOSE_PROFILES=$profiles \
+  SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE=$enableZacOpenTelemetrySampler \
+  UID=$(id -u) \
+  GID=$(id -g) \
+  op run --env-file="./.env.tpl" --no-masking -- docker compose --project-name zac up -d
 else
     if [ "$enableTracing" = true ] ; then
       profiles=metrics
@@ -76,5 +81,10 @@ else
       profiles=
     fi
   echo "Starting Docker Compose environment without ZAC ..."
-  export APP_ENV=devlocal && export COMPOSE_PROFILES=$profiles && export SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE=$enableZacOpenTelemetrySampler && op run --env-file="./.env.tpl" --no-masking -- docker compose --project-name zac up -d
+  APP_ENV=devlocal \
+  COMPOSE_PROFILES=$profiles \
+  SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE=$enableZacOpenTelemetrySampler \
+  UID=$(id -u) \
+  GID=$(id -g) \
+  op run --env-file="./.env.tpl" --no-masking -- docker compose --project-name zac up -d
 fi
