@@ -1,7 +1,6 @@
 services:
   keycloak:
     image: quay.io/keycloak/keycloak:23.0.4
-    user: "${UID}:${GID}"
     depends_on:
       keycloak-database:
         condition: service_healthy
@@ -33,7 +32,6 @@ services:
 
   keycloak-database:
     image: postgres:15.4
-    user: "${UID}:${GID}"
     ports:
       - "54326:5432"
     healthcheck:
@@ -55,7 +53,6 @@ services:
 
   zac-database:
     image: postgres:15.4
-    user: "${UID}:${GID}"
     ports:
       - "54320:5432"
     healthcheck:
@@ -78,7 +75,6 @@ services:
 
   openzaak-database:
     image: postgis/postgis:15-3.4
-    user: "${UID}:${GID}"
     ports:
       - "54322:5432"
     platform: linux/amd64
@@ -106,7 +102,6 @@ services:
   # error on certain API requests caused by an internal 'invalid URL' error.
   openzaak.local:
     image: openzaak/open-zaak:1.10.3
-    user: "${UID}:${GID}"
     platform: linux/amd64
     environment:
       - ALLOWED_HOSTS=localhost,host.docker.internal,openzaak.local
@@ -193,7 +188,6 @@ services:
 
   objecten-api-import:
     image: maykinmedia/objects-api:2.1.1
-    user: "${UID}:${GID}"
     platform: linux/amd64
     environment: *objects-env
     # in the current version of django it is not possible to create a new user with password without user interaction by using the createsuperuser command
@@ -250,7 +244,6 @@ services:
 
   objecttypen-api-import:
     image: maykinmedia/objecttypes-api:2.1.0
-    user: "${UID}:${GID}"
     platform: linux/amd64
     environment: *objecttypes-env
     command: sh init/init.sh
@@ -266,12 +259,13 @@ services:
 
   solr:
     image: solr:9.5.0-slim
-    user: "${UID}:${GID}"
     platform: linux/amd64
     ports:
       - "8983:8983"
     volumes:
       - ./scripts/docker-compose/volume-data/solr-data:/var/solr/data
+    # run as root to change the permissions of the solr folder
+    user: root
     # Change permissions of the solr folder, create the 'zac' core and start solr
     command: bash -c "
       chown -R 8983:8983 /var/solr
@@ -294,7 +288,6 @@ services:
 
   openldap:
     image: bitnami/openldap:2.6.7
-    user: "${UID}:${GID}"
     ports:
       - "1389:1389"
       - "1636:1636"
@@ -324,7 +317,6 @@ services:
   # VNG ZGW referentielijsten ('VRL') (see: https://github.com/VNG-Realisatie/VNG-referentielijsten)
   zgw-referentielijsten-database:
     image: postgres:15.4
-    user: "${UID}:${GID}"
     ports:
       - "54321:5432"
     environment:
@@ -367,7 +359,6 @@ services:
   # Insert required test data into the VRL database after the VRL application has started up and finished initializing the database
   zgw-referentielijsten-database-init:
     image: postgres:15.4
-    user: "${UID}:${GID}"
     volumes:
       - ./scripts/docker-compose/imports/zgw-referentielijsten/init-zgw-referentielijsten-database.sql:/tmp/init-zgw-referentielijsten-database.sql
     command: bash -c "psql postgresql://vrl:vrl@zgw-referentielijsten-database/vrl < /tmp/init-zgw-referentielijsten-database.sql"
@@ -420,7 +411,6 @@ services:
 
   openklant-database:
     image: postgres:15.4
-    user: "${UID}:${GID}"
     ports:
       - "54325:5432"
     healthcheck:
@@ -470,7 +460,6 @@ services:
 
   smartdocuments-wiremock:
     image: "wiremock/wiremock:3.3.1"
-    user: "${UID}:${GID}"
     ports:
       - "8082:8080"
     volumes:
@@ -495,7 +484,6 @@ services:
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
     image: otel/opentelemetry-collector:0.98.0
-    user: "${UID}:${GID}"
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -510,7 +498,6 @@ services:
   # Observability traces data store
   tempo:
     image: grafana/tempo:latest
-    user: "${UID}:${GID}"
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - ./scripts/docker-compose/imports/tempo/tempo.yaml:/etc/tempo.yaml
@@ -525,7 +512,6 @@ services:
   # Observability metrics data store
   prometheus:
     image: prom/prometheus:latest
-    user: "${UID}:${GID}"
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
@@ -539,7 +525,6 @@ services:
   # Visualizes metrics and traces data
   grafana:
     image: grafana/grafana:10.1.1
-    user: "${UID}:${GID}"
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
@@ -550,17 +535,20 @@ services:
       - GF_FEATURE_TOGGLES_ENABLE=traceqlEditor
     ports:
       - "3000:3000"
+    healthcheck:
+      test: "bash -c 'printf \"GET /api/health HTTP/1.1\n\n\" > /dev/tcp/127.0.0.1/3000; exit $?;'"
+      interval: 20s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     depends_on:
       - tempo
       - prometheus
     profiles: [ "metrics" ]
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   zac:
     # By default, we use the latest ZAC Docker Image. Change this if you wish to use a specific version.
     image: ${ZAC_DOCKER_IMAGE:-ghcr.io/infonl/zaakafhandelcomponent:latest}
-    user: "${UID}:${GID}"
     environment:
       - AUTH_REALM=zaakafhandelcomponent
       - AUTH_RESOURCE=zaakafhandelcomponent
@@ -637,7 +625,3 @@ services:
       zac-database:
         condition: service_healthy
     profiles: ["zac"]
-    # Linux workaround for host.docker.internal support
-    # see: https://stackoverflow.com/a/67158212
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
