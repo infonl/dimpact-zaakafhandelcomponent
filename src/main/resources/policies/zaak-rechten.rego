@@ -97,7 +97,7 @@ heropenen {
 
 default wijzigen_zaakdata := false
 wijzigen_zaakdata {
-    behandelaar.rol in user.rollen
+    beheerder.rol in user.rollen
     zaaktype_allowed == true
 }
 
