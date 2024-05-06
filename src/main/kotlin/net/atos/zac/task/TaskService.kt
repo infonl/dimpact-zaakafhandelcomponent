@@ -136,7 +136,7 @@ class TaskService @Inject constructor(
         screenEventResourceId: String? = null
     ) {
         LOG.fine {
-            "Started to assign ${restTaakVrijgevenGegevens.taken.size} tasks " +
+            "Started to release ${restTaakVrijgevenGegevens.taken.size} tasks " +
                 "with screen event resource ID: '$screenEventResourceId'."
         }
         val taskIds = mutableListOf<String>()
