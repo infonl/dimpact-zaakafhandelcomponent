@@ -1,5 +1,6 @@
 package net.atos.zac.task
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldContainOnly
@@ -432,6 +433,72 @@ class TaskServiceTest : BehaviorSpec({
             }
         }
     }
+    Given("Two open tasks") {
+        clearAllMocks()
+        val restTaakVerdelenTaken = listOf(
+            createRESTTaakVerdelenTaak(
+                taakId = taskId1
+            ),
+            createRESTTaakVerdelenTaak(
+                taakId = taskId2
+            )
+        )
+        val restTaakVerdelenGegevens = createRESTTaakVerdelenGegevens(
+            taken = restTaakVerdelenTaken,
+            behandelaarGebruikersnaam = null
+        )
+        val screenEventSlot = mutableListOf<ScreenEvent>()
+        val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
+        val releasedTask1 = mockk<Task>()
+
+        every { loggedInUser.id } returns "dummyLoggedInUserId"
+        every { task1.id } returns taskId1
+        every { releasedTask1.id } returns taskId1
+        every { task1.assignee } returns "dummyAssignee1"
+        every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId) } returns task1
+        every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[1].taakId) } throws RuntimeException("dummyError")
+        every {
+            flowableTaskService.assignTaskToGroup(any(), any(), any())
+        } returns task1
+        every { eventingService.send(capture(screenEventSlot)) } just runs
+        every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
+        every { flowableTaskService.releaseTask(task1, restTaakVerdelenGegevens.reden) } returns releasedTask1
+        every {
+            indexeerService.indexeerDirect(any<Stream<String>>(), ZoekObjectType.TAAK, true)
+        } just runs
+
+        When(
+            """
+            when assigning the tasks a generic runtime exception is thrown when reading the second task 
+            """
+        ) {
+            val exception = shouldThrow<RuntimeException> {
+                taskService.assignTasks(
+                    restTaakVerdelenGegevens,
+                    loggedInUser
+                )
+            }
+
+            Then(
+                """
+                    the search index is still updated and the TAKEN_VERDELEN screen event is still sent
+                    """
+            ) {
+                exception.message shouldBe "dummyError"
+                verify(exactly = 1) {
+                    indexeerService.indexeerDirect(any<Stream<String>>(), ZoekObjectType.TAAK, true)
+                    flowableTaskService.assignTaskToGroup(any(), any(), any())
+                }
+                // we expect two screen events, one for the one succesfully assigned task
+                // and the other for the TAKEN_VERDELEN screen event
+                screenEventSlot.size shouldBe 2
+                screenEventSlot[1].run {
+                    objectType shouldBe ScreenEventType.ZAAK_TAKEN
+                    opcode shouldBe Opcode.UPDATED
+                }
+            }
+        }
+    }
     Given(
         """
             Two tasks that have not yet been assigned to a specific group and user where the first
@@ -488,6 +555,67 @@ class TaskServiceTest : BehaviorSpec({
                 taakOpNaamSignaleringEventSlot.captured.run {
                     opcode shouldBe Opcode.UPDATED
                     actor shouldBe loggedInUser.id
+                }
+            }
+        }
+    }
+    Given("Two open tasks") {
+        clearAllMocks()
+        val restTaakVerdelenTaken = listOf(
+            createRESTTaakVerdelenTaak(
+                taakId = taskId1
+            ),
+            createRESTTaakVerdelenTaak(
+                taakId = taskId2
+            )
+        )
+        val restTaakVerdelenGegevens = createRESTTaakVrijgevenGegevens(
+            taken = restTaakVerdelenTaken,
+        )
+        val screenEventSlot = mutableListOf<ScreenEvent>()
+        val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
+        val releasedTask1 = mockk<Task>()
+
+        every { loggedInUser.id } returns "dummyLoggedInUserId"
+        every { task1.id } returns taskId1
+        every { releasedTask1.id } returns taskId1
+        every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId) } returns task1
+        every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[1].taakId) } throws RuntimeException("dummyError")
+        every { eventingService.send(capture(screenEventSlot)) } just runs
+        every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
+        every { flowableTaskService.releaseTask(task1, restTaakVerdelenGegevens.reden) } returns releasedTask1
+        every {
+            indexeerService.indexeerDirect(any<Stream<String>>(), ZoekObjectType.TAAK, true)
+        } just runs
+
+        When(
+            """
+            when releasing the tasks a generic runtime exception is thrown when reading the second task 
+            """
+        ) {
+            val exception = shouldThrow<RuntimeException> {
+                taskService.releaseTasks(
+                    restTaakVerdelenGegevens,
+                    loggedInUser
+                )
+            }
+
+            Then(
+                """
+                    the search index is still updated and the TAKEN_VERDELEN screen event is still sent
+                    """
+            ) {
+                exception.message shouldBe "dummyError"
+                verify(exactly = 1) {
+                    indexeerService.indexeerDirect(any<Stream<String>>(), ZoekObjectType.TAAK, true)
+                    flowableTaskService.releaseTask(any(), any())
+                }
+                // we expect two screen events, one for the one succesfully released task
+                // and the other for the TAKEN_VERDELEN screen event
+                screenEventSlot.size shouldBe 2
+                screenEventSlot[1].run {
+                    objectType shouldBe ScreenEventType.ZAAK_TAKEN
+                    opcode shouldBe Opcode.UPDATED
                 }
             }
         }
