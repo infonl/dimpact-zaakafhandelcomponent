@@ -163,11 +163,11 @@ test_heropenen_missing_role_fails if {
 # wijzigen_zaakdata
 ###################
 test_wijzigen_zaakdata if {
-    wijzigen_zaakdata with input.user.rollen as [ "behandelaar" ]
+    wijzigen_zaakdata with input.user.rollen as [ "beheerder" ]
 }
 
 test_wijzigen_zaakdata_wrong_role_fails if {
-    not wijzigen_zaakdata with input.user.rollen as [ "functioneel" ]
+    not wijzigen_zaakdata with input.user.rollen as [ "behandelaar" ]
 }
 
 test_wijzigen_zaakdata_missing_role_fails if {
