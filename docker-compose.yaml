@@ -548,7 +548,7 @@ services:
       - AUTH_RESOURCE=zaakafhandelcomponent
       - AUTH_SECRET=keycloakZaakafhandelcomponentClientSecret
       - AUTH_SERVER=http://keycloak:8080
-      - BAG_API_CLIENT_MP_REST_URL=https://api.bag.acceptatie.kadaster.nl/lvbag/individuelebevragingen/v2/
+      - BAG_API_CLIENT_MP_REST_URL=https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/
       - BAG_API_KEY=${BAG_API_KEY:-dummyBagApiKey}
       - BRP_API_CLIENT_MP_REST_URL=http://brpproxy:5000/haalcentraal/api/brp
       - BRP_API_KEY=dummyKey # not used when using the BRP proxy
