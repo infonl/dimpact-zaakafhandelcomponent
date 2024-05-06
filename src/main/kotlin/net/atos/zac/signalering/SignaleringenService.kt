@@ -4,6 +4,7 @@
  */
 package net.atos.zac.signalering
 
+import io.opentelemetry.instrumentation.annotations.SpanAttribute
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
@@ -320,7 +321,7 @@ class SignaleringenService @Inject constructor(
     @WithSpan
     fun listZakenSignaleringen(
         user: LoggedInUser,
-        signaleringsType: SignaleringType.Type,
+        @SpanAttribute("signaleringsType") signaleringsType: SignaleringType.Type,
         screenEventResourceId: String
     ) {
         LOG.fine {
