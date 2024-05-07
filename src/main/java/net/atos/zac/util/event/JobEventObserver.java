@@ -5,19 +5,22 @@
 
 package net.atos.zac.util.event;
 
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import jakarta.annotation.ManagedBean;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.ObservesAsync;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import net.atos.zac.signalering.SignaleringenJob;
 
 /**
  * This bean listens for JobEvents and handles them by starting the relevant job.
  */
-@ManagedBean
+@Named
+@ApplicationScoped
 public class JobEventObserver {
     private static final Logger LOG = Logger.getLogger(JobEventObserver.class.getName());
 
@@ -28,8 +31,8 @@ public class JobEventObserver {
         try {
             LOG.fine(() -> String.format("Job event ontvangen: %s", event.toString()));
             event.delay();
-            switch (event.getObjectId()) {
-                case SIGNALERINGEN_JOB -> signaleringenJob.signaleringenVerzenden();
+            if (Objects.requireNonNull(event.getObjectId()) == JobId.SIGNALERINGEN_JOB) {
+                signaleringenJob.signaleringenVerzenden();
             }
         } catch (final Throwable ex) {
             LOG.log(Level.SEVERE, "asynchronous guard", ex);
