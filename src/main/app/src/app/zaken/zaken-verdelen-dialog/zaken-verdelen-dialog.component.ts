@@ -59,6 +59,7 @@ export class ZakenVerdelenDialogComponent implements OnInit {
   }
 
   verdeel(): void {
+    this.redenFormField.readonly = true;
     const toekenning: { groep?: Group; medewerker?: User } =
       this.medewerkerGroepFormField.formControl.value;
     this.dialogRef.disableClose = true;
