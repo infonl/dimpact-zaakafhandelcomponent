@@ -10,10 +10,11 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import jakarta.annotation.ManagedBean;
 import jakarta.annotation.Nullable;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.ObservesAsync;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.flowable.task.api.TaskInfo;
 
@@ -39,7 +40,8 @@ import net.atos.zac.util.UriUtil;
 /**
  * This bean listens for SignaleringEvents and handles them.
  */
-@ManagedBean
+@Named
+@ApplicationScoped
 public class SignaleringEventObserver extends AbstractEventObserver<SignaleringEvent<?>> {
 
     private static final Logger LOG = Logger.getLogger(SignaleringEventObserver.class.getName());
@@ -149,7 +151,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
             final User actor = owner != null ? identityService.readUser(owner) : null;
             final SignaleringEvent<?> fixed = SignaleringEventUtil.event(event.getObjectType(), subject, actor);
             if (actor != null) {
-                LOG.fine(() -> String.format("Signalering event fixed: %s", fixed.toString()));
+                LOG.fine(() -> String.format("Signalering event fixed: %s", fixed));
             }
             return fixed;
         }
@@ -184,10 +186,9 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
                 final TaskInfo subject = flowableTaskService.readOpenTask((String) event.getObjectId().getResource());
                 return getSignaleringVoorBehandelaar(fixActor(event, subject), subject);
             }
-            case ZAAK_VERLOPEND, TAAK_VERLOPEN -> {
+            case ZAAK_VERLOPEND, TAAK_VERLOPEN ->
                 // These are NOT event driven and should not show up here
                 LOG.warning(String.format("ignored SignaleringType %s", event.getObjectType()));
-            }
         }
         return null;
     }
@@ -197,20 +198,12 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
     }
 
     private Optional<Rol<?>> getRolBehandelaarMedewerker(final Zaak zaak) {
-        return getRol(zaak, getRoltypeBehandelaar(zaak), BetrokkeneType.MEDEWERKER);
-    }
-
-    private Optional<Rol<?>> getRolBehandelaarGroup(final Zaak zaak) {
-        return getRol(zaak, getRoltypeBehandelaar(zaak), BetrokkeneType.ORGANISATORISCHE_EENHEID);
-    }
-
-    private Optional<Rol<?>> getRol(
-            final Zaak zaak,
-            final RolType roltype,
-            final BetrokkeneType betrokkeneType
-    ) {
-        return zrcClientService.listRollen(new RolListParameters(zaak.getUrl(), roltype.getUrl(), betrokkeneType))
-                .getSingleResult();
+        return zrcClientService.listRollen(
+                new RolListParameters(
+                        zaak.getUrl(),
+                        getRoltypeBehandelaar(zaak).getUrl(),
+                        BetrokkeneType.MEDEWERKER)
+        ).getSingleResult();
     }
 
     private @Nullable Signalering addTarget(final Signalering signalering, final Rol<?> rol) {
