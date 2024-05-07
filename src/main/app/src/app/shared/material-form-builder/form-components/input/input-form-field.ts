@@ -16,7 +16,7 @@ export class InputFormField extends AbstractFormControlField {
   onClear = new EventEmitter<void>();
   maxlength: number;
   showCount = false;
-  nonEditable = false;
+  externalInput = false;
 
   constructor() {
     super();

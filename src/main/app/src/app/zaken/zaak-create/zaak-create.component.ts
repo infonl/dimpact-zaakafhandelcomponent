@@ -155,7 +155,7 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
       .id("initiatorIdentificatie")
       .styleClass("input-fake-enabled")
       .icon(this.initiatorToevoegenIcon)
-      .nonEditable()
+      .externalInput()
       .label("initiator")
       .build();
 
@@ -192,7 +192,7 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
       .id("bagObjecten")
       .styleClass("input-fake-enabled")
       .icon(this.bagObjectenToevoegenIcon)
-      .nonEditable()
+      .externalInput()
       .label("bagObjecten")
       .build();
 
