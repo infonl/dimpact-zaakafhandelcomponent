@@ -59,6 +59,15 @@ while getopts ':dtzlh' OPTION; do
   esac
 done
 
+# Ensure that volume-data is created with current user
+mkdir -p $volumeDataFolder/openklant-database-data
+mkdir -p $volumeDataFolder/openzaak-database-data
+mkdir -p $volumeDataFolder/zac-keycloak-database-data
+mkdir -p $volumeDataFolder/solr-data
+mkdir -p $volumeDataFolder/zac-database-data
+mkdir -p $volumeDataFolder/zac-keycloak-database-data
+mkdir -p $volumeDataFolder/zgw-referentielijsten-database-data
+
 # Uses the 1Password CLI tools to set up the environment variables for running Docker Compose and ZAC in IntelliJ.
 # Please see docs/INSTALL.md for details on how to use this script.
 if [ "$startZac" = true ] ; then
