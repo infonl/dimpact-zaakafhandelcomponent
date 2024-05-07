@@ -1,7 +1,11 @@
 package net.atos.zac.app.informatieobjecten.converter
 
+import com.google.common.collect.ImmutableList
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.core.test.TestCase
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.date.shouldHaveSameDayAs
 import io.kotest.matchers.shouldBe
 import io.mockk.MockKAnnotations
@@ -11,22 +15,29 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
 import net.atos.client.zgw.brc.BRCClientService
+import net.atos.client.zgw.drc.DRCClientService
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData
+import net.atos.client.zgw.shared.exception.FoutException
+import net.atos.client.zgw.shared.model.Fout
 import net.atos.client.zgw.ztc.ZTCClientService
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
 import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatieobject
 import net.atos.zac.app.informatieobjecten.model.createRESTFileUpload
 import net.atos.zac.app.policy.converter.RESTRechtenConverter
+import net.atos.zac.app.policy.model.RESTDocumentRechten
 import net.atos.zac.app.policy.model.createRESTDocumentRechten
 import net.atos.zac.app.taken.model.createRESTTaakDocumentData
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.policy.PolicyService
+import net.atos.zac.policy.output.DocumentRechten
 import net.atos.zac.policy.output.createDocumentRechtenAllDeny
 import java.net.URI
 import java.time.LocalDate
+import java.time.OffsetDateTime
 import java.util.Base64
 import java.util.Optional
 import java.util.UUID
@@ -39,6 +50,7 @@ class RESTInformatieobjectConverterTest : BehaviorSpec() {
     private val rechtenConverter = mockk<RESTRechtenConverter>()
     private val brcClientService = mockk<BRCClientService>()
     private val configuratieService = mockk<ConfiguratieService>()
+    private val drcClientService = mockk<DRCClientService>()
 
     // We have to use @InjectMockKs since the class under test uses field injection instead of constructor injection.
     // This is because WildFly does not support constructor injection for JAX-RS REST services completely.
@@ -208,6 +220,71 @@ class RESTInformatieobjectConverterTest : BehaviorSpec() {
                         versie shouldBe 1234
                         bestandsomvang shouldBe 0
                     }
+                }
+            }
+        }
+
+        Given("A uuid that's found in open zaak") {
+            val rechten = DocumentRechten(false, false, false, false, false, false, false, false, false, false)
+            val uuid = UUID.randomUUID()
+            val document = EnkelvoudigInformatieObject(
+                URI.create("https://example.com/$uuid"),
+                1,
+                OffsetDateTime.now(),
+                URI.create("https://example.com"),
+                false,
+                emptyList()
+            )
+            every {
+                drcClientService.readEnkelvoudigInformatieobject(uuid)
+            } returns document
+            every {
+                policyService.readDocumentRechten(document, null, null)
+            } returns rechten
+            every {
+                rechtenConverter.convert(rechten)
+            } returns RESTDocumentRechten()
+            every {
+                brcClientService.isInformatieObjectGekoppeldAanBesluit(document.url)
+            } returns false
+            When("We try to convert a list with that uuid") {
+                val result = restInformatieobjectConverter.convertUUIDsToREST(ImmutableList.of(uuid), null)
+                Then("An list is returned containing the expected object") {
+                    with(result) {
+                        shouldHaveSize(1)
+                        with(get(0).uuid) {
+                            shouldBe(uuid)
+                        }
+                    }
+                }
+            }
+        }
+
+        Given("A uuid that's not found in open zaak") {
+            val uuid = UUID.randomUUID()
+            every {
+                drcClientService.readEnkelvoudigInformatieobject(uuid)
+            } throws FoutException(Fout(null, null, null, 404, null, null))
+            When("We try to convert a list with that uuid") {
+                val result = restInformatieobjectConverter.convertUUIDsToREST(ImmutableList.of(uuid), null)
+                Then("An empty list is returned") {
+                    result.shouldBeEmpty()
+                }
+            }
+        }
+
+        Given("A uuid that causes an error response other than 404 in open zaak") {
+            val uuid = UUID.randomUUID()
+            val expectedException = FoutException(Fout(null, null, null, 500, null, null))
+            every {
+                drcClientService.readEnkelvoudigInformatieobject(uuid)
+            } throws expectedException
+            When("We try to convert a list with that uuid") {
+                Then("The exception bubbles up") {
+                    val exception = shouldThrow<FoutException> {
+                        restInformatieobjectConverter.convertUUIDsToREST(ImmutableList.of(uuid), null)
+                    }
+                    exception.shouldBe(expectedException)
                 }
             }
         }
