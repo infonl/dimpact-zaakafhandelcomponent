@@ -2,17 +2,17 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-# External URL to the zaakafhandelcomponent. (https://zaakafhandelcomponent.example.com)
+# contextUrl External URL to the zaakafhandelcomponent. (https://zaakafhandelcomponent.example.com)
 contextUrl: ""
 
-# Configuration of database connection
+# db Configuration of database connection
 db:
   host: "" # database.internal or 1.2.3.4
   name: ""
   user: ""
   password: ""
 
-# Configuration of OpenID Connect
+# auth Configuration of OpenID Connect
 auth:
   server: "" # https://keycloak.example.com
   realm: ""
@@ -20,7 +20,7 @@ auth:
   clientId: ""
   secret: ""
 
-# Configuration of ldap or ADFS connection
+# ldap Configuration of ldap or ADFS connection
 ldap:
   url: "" # ldap://openldap.internal:1389
   dn: ""  # ou=example-unit,dc=example,dc=org
@@ -28,96 +28,96 @@ ldap:
   user: ""
   password: ""
 
-# Configuration gemeente
+# gemeente Configuration gemeente
 gemeente:
   code: ""
   naam: ""
   mail: ""
 
-# Configuration email sending connection
+# mail Configuration email sending connection
 mail:
   # API and secret key used for sending mail via mailjet (https://www.mailjet.com)
   mailjet:
     apiKey: ""
     secretKey: ""
 
-# Configuration of ZGW API's provider (Open Zaak)
+# zgwApis Configuration of ZGW API's provider (Open Zaak)
 zgwApis:
   url: "" # http://open-zaak.internal
   urlExtern: "" # https://open-zaak.example.com
   clientId: ""
   secret: ""
 
-# Configuration of the notifications receiving endpoint.
+# notificationsSecretKey Configuration of the notifications receiving endpoint.
 notificationsSecretKey: ""
 
-# Configuration of Klanten API provider (Open Klant)
+# klantenApi Configuration of Klanten API provider (Open Klant)
 klantenApi:
   url: "" # http://open-klant.internal
   clientId: ""
   secret: ""
 
-# Configuration of Contactmomenten API provider (Open Klant)
+# contactmomentenApi Configuration of Contactmomenten API provider (Open Klant)
 contactmomentenApi:
   url: "" # http://open-klant.internal
   clientId: ""
   secret: ""
 
-# Configuration of the Objecten API provider (Overige Registraties)
+# objectenApi Configuration of the Objecten API provider (Overige Registraties)
 objectenApi:
   url: "" # http://objecten.internal
   token: ""
 
-# Configuration of the Objecttypen API provider (Overige Registraties)
+# objecttypenApi Configuration of the Objecttypen API provider (Overige Registraties)
 objecttypenApi:
   url: "" # http://objecttypen.internal
   token: ""
 
-# Configuration of the BRP Api provider (Haal Centraal)
+# brpApi Configuration of the BRP Api provider (Haal Centraal)
 brpApi:
   url: "" # https://www.haalcentraal.nl/haalcentraal
   apiKey: ""
 
-# Configuration of the KVK API provider (KVK)
+# kvkApi Configuration of the KVK API provider (KVK)
 kvkApi:
   url: "" # https://developers.kvk.nl/test
   apiKey: ""
 
-# Configuration of the BAG API provider (Kadaster)
+# bagApi Configuration of the BAG API provider (Kadaster)
 bagApi:
   url: "" # https://api.bag.acceptatie.kadaster.nl/esd/huidigebevragingen/v1
   apiKey: ""
 
-# Configuration of the Referentielijsten & Selectielijst API provider (VNG)
+# vrlApi Configuration of the Referentielijsten & Selectielijst API provider (VNG)
 vrlApi:
   url: "" # http://vng-referentielijsten.internal
 
-# Configuration of the Open Forms URL
+# openForms Configuration of the Open Forms URL
 openForms:
   url: "" # https://open-forms.example.com
 
-# Configuration of the SmartDocuments connection
+# smartDocuments Configuration of the SmartDocuments connection
 smartDocuments:
   url: "" # https://partners.smartdocuments.com
   authentication: ""
   fixedUserName: ""
 
-# Schedule of the signaleren job in CRON job format
+# signalerenSchedule Schedule of the signaleren job in CRON job format
 signalerenSchedule: "0 2 * * *"
 
-# Overrides for opentelemetry
+# opentelemetry_zaakafhandelcomponent Overrides for opentelemetry
 #opentelemetry_zaakafhandelcomponent:
 #  sampler_type: "-off"
 #  endpoint: "http://otel-collector:4317"
 
 
-# Maximum size (in Mega Bytes) of files that can be uploaded.
+# maxFileSizeMB Maximum size (in Mega Bytes) of files that can be uploaded.
 maxFileSizeMB: 80
 
-# An optional list of additional file extensions that can be uploaded
+# additionalAllowedFileTypes An optional list of additional file extensions that can be uploaded
 # additionalAllowedFileTypes: aaa,bbb,ccc
 
-# Enable Java remote debugging
+# remoteDebug Enable Java remote debugging
 remoteDebug: False
 
 replicaCount: 1
@@ -203,22 +203,16 @@ tolerations: [ ]
 
 affinity: { }
 
-# opa url should be the url the openpolicyagent can be reached on from ZAC ( for example: http://release-opa.default.svc.cluster.local )
+# Extra objects to deploy (value evaluated as a template)
+extraDeploy: [ ]
+
 opa:
-  url: ""
-  name: "opa"
-  service:
-    type: ClusterIP
-    port: 8181
   image:
     repository: openpolicyagent/opa
     tag: "edge-static"
     pullPolicy: IfNotPresent
 
-# deprecated, provision seperately using solr-values.yml
 solr:
-  # the url will be the only solr related value relevant for ZAC
-  url: ""
   coreNames: [ "zac" ]
   persistence:
     size: 1Gi
@@ -260,7 +254,6 @@ office_converter:
     repository: ghcr.io/eugenmayer/kontextwork-converter
     tag: "1.0.0"
     pullPolicy: IfNotPresent
-  name: "office-converter"
   replicas: 1
   resources:
     # We usually recommend not to specify default resources and to leave this as a conscious
@@ -292,10 +285,6 @@ office_converter:
   affinity: { }
   tolerations: [ ]
 
-
-# Extra objects to deploy (value evaluated as a template)
-extraDeploy: [ ]
-
 opentelemetry-collector:
   enabled: false
   mode: deployment
@@ -314,13 +303,13 @@ opentelemetry-collector:
       enabled: false
   config:
     receivers:
-      prometheus: null
-      jaeger: null
-      zipkin: null
+      prometheus: {}
+      jaeger: {}
+      zipkin: {}
     service:
       pipelines:
         traces:
           receivers:
             - otlp
-        metrics: null
-        logs: null
+        metrics: {}
+        logs: {}

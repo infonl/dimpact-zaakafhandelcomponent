@@ -1,10 +1,13 @@
 apiVersion: v2
 name: zaakafhandelcomponent
 description: A Helm chart for installing Zaakafhandelcomponent
-version: 0.3.0
+version: 0.4.0
 appVersion: "latest"
 dependencies:
   - name: opentelemetry-collector
-    repository: https://open-telemetry.github.io/opentelemetry-helm-charts
-    condition: open-telemetry-collector.enabled
     version: 0.55.2
+    repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+    condition: opentelemetry-collector.enabled
+  - name: solr
+    version: 9.1.3
+    repository: https://charts.bitnami.com/bitnami
