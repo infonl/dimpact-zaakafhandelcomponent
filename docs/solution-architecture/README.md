@@ -12,6 +12,7 @@ The architecture is documented in more detail on the following pages:
 - [SmartDocuments Integration](smartDocumentsIntegration.md) - The integration of ZAC with SmartDocuments.
 - [Solr Architecture](solrArchitecture.md) - The architecture of the Solr search engine in ZAC.
 - [Access Control Policies](accessControlPolicies.md) - The [Open Policy Agent (OPA)](https://www.openpolicyagent.org/) access control policies used by ZAC.
+- [Observability Architecture](observabilityArchitecture.md) - The observability setup used for the ZAC environment.
 
 ## Main characteristics
 
