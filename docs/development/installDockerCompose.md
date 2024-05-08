@@ -15,6 +15,7 @@ It was extended and made specific for the needs of ZAC.
 - [Docker Compose](https://docs.docker.com/compose/install/)
 - [1Password CLI extensions](https://developer.1password.com/docs/cli/) (optional)
 - On Windows: to run .sh scripts use [git bash](https://gitforwindows.org/)
+- On Linux: run [setup-linux.sh script](../../scripts/docker-compose/setup-linux.sh)
 
 ## Starting Docker Compose
 
