@@ -22,4 +22,14 @@ public class RESTZaakRechten {
     public boolean bekijkenZaakdata;
 
     public boolean wijzigenDoorlooptijd;
+
+    public boolean toevoegenBagObject;
+
+    public boolean toevoegenBetrokkeneBedrijf;
+
+    public boolean toevoegenBetrokkenePersoon;
+
+    public boolean toevoegenInitiatorBedrijf;
+
+    public boolean toevoegenInitiatorPersoon;
 }

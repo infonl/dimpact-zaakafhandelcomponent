@@ -37,7 +37,7 @@ import { KlantKoppelInitiator } from "./klant-koppel-initiator.component";
 
     <!--Initiator-->
     <mat-tab-group mat-stretch-tabs="false" *ngIf="initiator">
-      <mat-tab>
+      <mat-tab *ngIf="allowPersoon">
         <ng-template mat-tab-label>
           <mat-icon>emoji_people</mat-icon>
           {{ "betrokkene.persoon" | translate }}
@@ -47,7 +47,7 @@ import { KlantKoppelInitiator } from "./klant-koppel-initiator.component";
           (klantGegevens)="klantGegevens.emit($event)"
         />
       </mat-tab>
-      <mat-tab>
+      <mat-tab *ngIf="allowBedrijf">
         <ng-template mat-tab-label>
           <mat-icon>business</mat-icon>
           {{ "betrokkene.bedrijf" | translate }}
@@ -61,7 +61,7 @@ import { KlantKoppelInitiator } from "./klant-koppel-initiator.component";
 
     <!--Betrokkene-->
     <mat-tab-group mat-stretch-tabs="false" *ngIf="!initiator">
-      <mat-tab>
+      <mat-tab *ngIf="allowPersoon">
         <ng-template mat-tab-label>
           <mat-icon>emoji_people</mat-icon>
           {{ "betrokkene.persoon" | translate }}
@@ -72,7 +72,7 @@ import { KlantKoppelInitiator } from "./klant-koppel-initiator.component";
           (klantGegevens)="klantGegevens.emit($event)"
         />
       </mat-tab>
-      <mat-tab>
+      <mat-tab *ngIf="allowBedrijf">
         <ng-template mat-tab-label>
           <mat-icon>business</mat-icon>
           {{ "betrokkene.bedrijf" | translate }}
@@ -93,5 +93,7 @@ export class KlantKoppelComponent {
   @Input() initiator = false;
   @Input() zaaktypeUUID: string;
   @Input() sideNav: MatDrawer;
+  @Input() allowPersoon: boolean;
+  @Input() allowBedrijf: boolean;
   @Output() klantGegevens = new EventEmitter<KlantGegevens>();
 }
