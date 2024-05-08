@@ -6,15 +6,19 @@ package net.atos.zac.app.signaleringen.model
 
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringType
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
 
-class RESTSignaleringInstellingen {
-    var id: Long? = null
+@AllOpen
+@NoArgConstructor
+data class RESTSignaleringInstellingen(
+    var id: Long? = null,
 
-    var type: SignaleringType.Type? = null
+    var type: SignaleringType.Type,
 
-    var subjecttype: SignaleringSubject? = null
+    var subjecttype: SignaleringSubject? = null,
 
-    var dashboard: Boolean? = null
+    var dashboard: Boolean? = null,
 
-    var mail: Boolean? = null
-}
+    var mail: Boolean? = null,
+)
