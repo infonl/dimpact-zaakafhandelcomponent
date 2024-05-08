@@ -12,11 +12,15 @@
         <zac-klant-koppel *ngSwitchCase="sideNavAction.ZOEK_INITIATOR"
                           [sideNav]="actionsSidenav"
                           (klantGegevens)="initiatorGeselecteerd($event.klant)"
-                          [initiator]="true"></zac-klant-koppel>
+                          [initiator]="true"
+                          [allowBedrijf]="zaak.rechten.toevoegenInitiatorBedrijf"
+                          [allowPersoon]="zaak.rechten.toevoegenInitiatorPersoon"></zac-klant-koppel>
         <zac-klant-koppel *ngSwitchCase="sideNavAction.ZOEK_BETROKKENE"
                           (klantGegevens)="betrokkeneGeselecteerd($event)"
                           [sideNav]="actionsSidenav"
-                          [zaaktypeUUID]="zaak.zaaktype.uuid"></zac-klant-koppel>
+                          [zaaktypeUUID]="zaak.zaaktype.uuid"
+                          [allowBedrijf]="zaak.rechten.toevoegenBetrokkeneBedrijf"
+                          [allowPersoon]="zaak.rechten.toevoegenBetrokkenePersoon"></zac-klant-koppel>
         <zac-bag-zoek *ngSwitchCase="sideNavAction.ZOEK_BAG_ADRES"
                       [gekoppeldeBagObjecten]="gekoppeldeBagObjecten"
                       [sideNav]="actionsSidenav"
@@ -70,22 +74,22 @@
         <div class="flex-row flex-wrap gap-10">
             <zac-zaak-initiator-toevoegen class="w100 flex-1"
                                           *ngIf="!zaak.initiatorIdentificatieType"
-                                          [toevoegenToegestaan]="zaak.rechten.behandelen"
+                                          [toevoegenToegestaan]="zaak.rechten.toevoegenInitiatorPersoon || zaak.rechten.toevoegenInitiatorBedrijf"
                                           (add)="addOrEditZaakInitiator()">
             </zac-zaak-initiator-toevoegen>
             <zac-persoongegevens class="w100 flex-1" *ngIf="zaak.initiatorIdentificatieType==='BSN'"
                                  [bsn]="zaak.initiatorIdentificatie"
-                                 [isVerwijderbaar]="zaak.rechten.behandelen"
-                                 [isWijzigbaar]="zaak.rechten.behandelen"
+                                 [isVerwijderbaar]="zaak.rechten.toevoegenInitiatorPersoon"
+                                 [isWijzigbaar]="zaak.rechten.toevoegenInitiatorPersoon"
                                  (edit)="addOrEditZaakInitiator()"
                                  (delete)="deleteInitiator()">
             </zac-persoongegevens>
             <zac-bedrijfsgegevens class="w100 flex-1"
                                   *ngIf="zaak.initiatorIdentificatieType==='VN' || zaak.initiatorIdentificatieType==='RSIN'"
                                   [rsinOfVestigingsnummer]="zaak.initiatorIdentificatie"
-                                  [isVerwijderbaar]="zaak.rechten.behandelen"
+                                  [isVerwijderbaar]="zaak.rechten.toevoegenInitiatorBedrijf"
                                   (edit)="addOrEditZaakInitiator()"
-                                  [isWijzigbaar]="zaak.rechten.behandelen"
+                                  [isWijzigbaar]="zaak.rechten.toevoegenInitiatorBedrijf"
                                   (delete)="deleteInitiator()">
             </zac-bedrijfsgegevens>
 
