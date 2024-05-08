@@ -85,7 +85,7 @@ kvkApi:
 
 # bagApi Configuration of the BAG API provider (Kadaster)
 bagApi:
-  url: "" # https://api.bag.acceptatie.kadaster.nl/esd/huidigebevragingen/v1
+  url: "" # https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2
   apiKey: ""
 
 # vrlApi Configuration of the Referentielijsten & Selectielijst API provider (VNG)

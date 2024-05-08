@@ -34,3 +34,6 @@ scripts/docker-compose/imports/openldap/ldifs/zac-ldap-setup.ldif
 scripts/github/.secrets
 
 /bin
+
+### Docker Compose ###
+docker-compose.override.yml

@@ -38,6 +38,7 @@ export class TakenVrijgevenDialogComponent implements OnInit {
   }
 
   vrijgeven() {
+    this.redenFormField.readonly = true;
     this.dialogRef.disableClose = true;
     this.loading = true;
     const reden: string = this.redenFormField.formControl.value;

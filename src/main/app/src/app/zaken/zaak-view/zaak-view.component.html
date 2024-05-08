@@ -61,7 +61,7 @@
                           [besluit]="teWijzigenBesluit"
                           [zaak]="zaak"></zac-besluit-edit>
         <zac-zaakdata *ngSwitchCase="sideNavAction.ZAAKDATA_TONEN"
-                      [readonly]="!zaak.rechten.wijzigenZaakdata"
+                      [readonly]="true"
                       [sideNav]="actionsSidenav"
                       [zaak]="zaak"></zac-zaakdata>
 

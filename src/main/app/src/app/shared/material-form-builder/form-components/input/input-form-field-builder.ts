@@ -33,8 +33,8 @@ export class InputFormFieldBuilder extends AbstractFormFieldBuilder {
 
   // NOTE: intended for making a field disabled but not looking like it's disabled,
   // it should be used for fields that will only display values that will be filled by external components, like a modal
-  nonEditable() {
-    this.formField.nonEditable = true;
+  externalInput() {
+    this.formField.externalInput = true;
     return this;
   }
 

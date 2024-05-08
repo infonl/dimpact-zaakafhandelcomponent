@@ -59,6 +59,7 @@ export class TakenVerdelenDialogComponent implements OnInit {
   }
 
   verdeel(): void {
+    this.redenFormField.readonly = true;
     const toekenning: { groep?: Group; medewerker?: User } =
       this.medewerkerGroepFormField.formControl.value;
     const reden: string = this.redenFormField.formControl.value;

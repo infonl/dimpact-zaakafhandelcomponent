@@ -43,7 +43,7 @@ export class InputComponent extends FormComponent implements OnInit, OnDestroy {
   }
 
   private setDisabled(): void {
-    if (this.data.nonEditable) {
+    if (this.data.externalInput) {
       this.data.styleClass = this.data.styleClass + " input__non-editable";
       this.data.formControl.disable();
       this.clearDisabled$.next(false);

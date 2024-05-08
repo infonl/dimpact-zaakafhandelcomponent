@@ -682,13 +682,10 @@ export class ZaakViewComponent
             ),
           );
         }
-        if (this.hasZaakData()) {
-          const title = this.zaak.rechten.wijzigenZaakdata
-            ? "actie.zaakdata.wijzigen"
-            : "actie.zaakdata.bekijken";
+        if (this.hasZaakData() && this.zaak.rechten.bekijkenZaakdata) {
           this.menu.push(
             new ButtonMenuItem(
-              title,
+              "actie.zaakdata.bekijken",
               () => {
                 this.actionsSidenav.open();
                 this.action = SideNavAction.ZAAKDATA_TONEN;
