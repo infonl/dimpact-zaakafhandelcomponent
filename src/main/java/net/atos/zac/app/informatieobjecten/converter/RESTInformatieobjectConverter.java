@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
+import org.eclipse.jetty.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 
 import net.atos.client.zgw.brc.BRCClientService;
@@ -390,7 +391,7 @@ public class RESTInformatieobjectConverter {
                         return convertToREST(
                                 drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID), zaak);
                     } catch (FoutException e) {
-                        if (e.getFout().getStatus() != 404) {
+                        if (e.getFout().getStatus() != HttpStatus.NOT_FOUND_404) {
                             throw e;
                         }
                         LOG.warning(() -> "Document niet gevonden: %s".formatted(enkelvoudigInformatieobjectUUID));
