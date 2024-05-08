@@ -394,7 +394,7 @@ public class RESTInformatieobjectConverter {
                         if (e.getFout().getStatus() != HttpStatus.NOT_FOUND_404) {
                             throw e;
                         }
-                        LOG.warning(() -> "Document niet gevonden: %s".formatted(enkelvoudigInformatieobjectUUID));
+                        LOG.severe(() -> "Document niet gevonden: %s".formatted(enkelvoudigInformatieobjectUUID));
                         return null;
                     }
                 })
