@@ -341,7 +341,6 @@ class SignaleringenService @Inject constructor(
             .types(signaleringsType)
             .subjecttype(SignaleringSubject.ZAAK)
             .let { listSignaleringen(it) }
-            .stream()
             .map { zrcClientService.readZaak(UUID.fromString(it.subject)) }
             .map { restZaakOverzichtConverter.convert(it, user) }
             .toList()

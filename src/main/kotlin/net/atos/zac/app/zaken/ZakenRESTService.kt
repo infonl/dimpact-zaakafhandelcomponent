@@ -485,7 +485,7 @@ class ZakenRESTService @Inject constructor(
         )
         val zaakListParameters = ZaakListParameters()
         zaakListParameters.rolBetrokkeneIdentificatieMedewerkerIdentificatie = loggedInUserInstance.get().id
-        return zrcClientService.listZaken(zaakListParameters).results.stream()
+        return zrcClientService.listZaken(zaakListParameters).results
             .filter { obj -> obj.isOpen }
             .filter { zaak ->
                 isWaarschuwing(
@@ -503,7 +503,7 @@ class ZakenRESTService @Inject constructor(
     @Path("zaaktypes")
     fun listZaaktypes(): List<RESTZaaktype> =
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
-            .stream()
+            .asSequence()
             .filter { zaaktype -> loggedInUserInstance.get().isGeautoriseerdZaaktype(zaaktype.omschrijving) }
             .filter { zaaktype -> !zaaktype.concept }
             .filter { zaakType -> isNuGeldig(zaakType) }
@@ -783,14 +783,14 @@ class ZakenRESTService @Inject constructor(
         val zaak = zrcClientService.readZaak(zaakUUID)
         assertPolicy(policyService.readZaakRechten(zaak).lezen)
         return convertToRESTZaakBetrokkenen(
-            zrcClientService.listRollen(zaak).stream()
+            zrcClientService.listRollen(zaak)
                 .filter { rol ->
                     KlantenRESTService.betrokkenen.contains(
                         RolType.OmschrijvingGeneriekEnum.valueOf(
                             rol.omschrijvingGeneriek.uppercase(Locale.getDefault())
                         )
                     )
-                }
+                }.stream()
         )
     }
 
@@ -830,7 +830,7 @@ class ZakenRESTService @Inject constructor(
                 UriUtil.uuidFromURI(zaak.zaaktype)
             )
                 .zaakAfzenders.stream()
-                .filter { obj -> obj.isDefault }
+                .filter { it.isDefault }
                 .map { zaakAfzender -> restZaakAfzenderConverter.convertZaakAfzender(zaakAfzender) }
         )
             .findAny()
@@ -928,7 +928,7 @@ class ZakenRESTService @Inject constructor(
         val besluitInformatieobjecten = brcClientService.listBesluitInformatieobjecten(
             besluit!!.url
         )
-        val huidigeDocumenten = besluitInformatieobjecten.stream()
+        val huidigeDocumenten = besluitInformatieobjecten
             .map { besluitInformatieobject ->
                 UriUtil.uuidFromURI(besluitInformatieobject.informatieobject)
             }
@@ -939,7 +939,7 @@ class ZakenRESTService @Inject constructor(
 
         verwijderen.forEach(
             Consumer { teVerwijderenInformatieobject ->
-                besluitInformatieobjecten.stream()
+                besluitInformatieobjecten
                     .filter { besluitInformatieobject ->
                         UriUtil.uuidFromURI(besluitInformatieobject.informatieobject) == teVerwijderenInformatieobject
                     }
@@ -995,7 +995,7 @@ class ZakenRESTService @Inject constructor(
         assertPolicy(policyService.readWerklijstRechten().zakenTaken)
         val besluittypen = ztcClientService.readBesluittypen(
             ztcClientService.readZaaktype(zaaktypeUUID!!).url
-        ).stream()
+        )
             .filter { besluittype: BesluitType? -> LocalDateUtil.dateNowIsBetween(besluittype) }
             .toList()
         return restBesluittypeConverter.convertToRESTBesluittypes(besluittypen)
@@ -1303,7 +1303,7 @@ class ZakenRESTService @Inject constructor(
         aardRelatie: AardRelatie
     ): List<RelevanteZaak>? {
         relevanteZaken?.removeAll(
-            relevanteZaken.stream()
+            relevanteZaken
                 .filter { it.`is`(andereZaak, aardRelatie) }
                 .toList()
         )
@@ -1343,7 +1343,7 @@ class ZakenRESTService @Inject constructor(
 
     private fun verlengOpenTaken(zaakUUID: UUID, duurDagen: Int): Int {
         val count = IntArray(1)
-        flowableTaskService.listOpenTasksForZaak(zaakUUID).stream()
+        flowableTaskService.listOpenTasksForZaak(zaakUUID)
             .filter { task -> task.dueDate != null }
             .forEach { task ->
                 task.dueDate = DateTimeConverterUtil.convertToDate(
