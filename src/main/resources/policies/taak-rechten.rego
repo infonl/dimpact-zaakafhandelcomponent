@@ -52,7 +52,6 @@ default creeeren_document := false
 creeeren_document {
     behandelaar.rol in user.rollen
     zaaktype_allowed == true
-    taak.zaak_open == true
     taak.open == true
 }
 
@@ -60,6 +59,5 @@ default toevoegen_document := false
 toevoegen_document {
     behandelaar.rol in user.rollen
     zaaktype_allowed == true
-    taak.zaak_open == true
     taak.open == true
 }

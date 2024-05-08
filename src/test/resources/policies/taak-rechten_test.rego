@@ -84,21 +84,12 @@ test_toekennen_missing_role_fails if {
 test_creeeren_document if {
     creeeren_document
         with input.user.rollen as [ "behandelaar" ]
-        with input.taak.zaak_open as true
-        with input.taak.open as true
-}
-
-test_creeeren_document_zaak_closed_fails if {
-    not creeeren_document
-        with input.user.rollen as [ "behandelaar" ]
-        with input.taak.zaak_open as false
         with input.taak.open as true
 }
 
 test_creeeren_document_taak_closed_fails if {
     not creeeren_document
         with input.user.rollen as [ "behandelaar" ]
-        with input.taak.zaak_open as true
         with input.taak.open as false
 }
 
@@ -116,21 +107,12 @@ test_creeeren_document_missing_role_fails if {
 test_toevoegen_document if {
     toevoegen_document
         with input.user.rollen as [ "behandelaar" ]
-        with input.taak.zaak_open as true
-        with input.taak.open as true
-}
-
-test_toevoegen_document_zaak_closed_fails if {
-    not toevoegen_document
-        with input.user.rollen as [ "behandelaar" ]
-        with input.taak.zaak_open as false
         with input.taak.open as true
 }
 
 test_creeeren_document_taak_closed_fails if {
     not toevoegen_document
         with input.user.rollen as [ "behandelaar" ]
-        with input.taak.zaak_open as true
         with input.taak.open as false
 }
 

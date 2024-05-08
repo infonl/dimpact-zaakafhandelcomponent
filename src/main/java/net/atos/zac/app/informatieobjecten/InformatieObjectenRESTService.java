@@ -304,15 +304,14 @@ public class InformatieObjectenRESTService {
         );
 
         if (taakObject) {
-            addZaakInformatieobjectToTaak(zaakInformatieobject, documentReferentieId, zaak);
+            addZaakInformatieobjectToTaak(zaakInformatieobject, documentReferentieId);
         }
         return informatieobjectConverter.convertToREST(zaakInformatieobject);
     }
 
     private void addZaakInformatieobjectToTaak(
             ZaakInformatieobject zaakInformatieobject,
-            String documentReferentieId,
-            Zaak zaak
+            String documentReferentieId
     ) {
         final Task task = flowableTaskService.findOpenTask(documentReferentieId);
         if (task == null) {
@@ -321,7 +320,7 @@ public class InformatieObjectenRESTService {
                     Response.Status.CONFLICT
             );
         }
-        assertPolicy(policyService.readTaakRechten(task, zaak).toevoegenDocument());
+        assertPolicy(policyService.readTaakRechten(task).toevoegenDocument());
 
         final List<UUID> taakDocumenten = new ArrayList<>(taakVariabelenService.readTaakdocumenten(task));
         taakDocumenten.add(UriUtil.uuidFromURI(zaakInformatieobject.getInformatieobject()));
