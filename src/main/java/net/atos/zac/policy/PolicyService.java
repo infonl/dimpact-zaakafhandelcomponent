@@ -11,8 +11,6 @@ import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend;
 import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isIntake;
 import static net.atos.zac.flowable.util.TaskUtil.isOpen;
 
-import java.util.UUID;
-
 import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
@@ -163,24 +161,13 @@ public class PolicyService {
                 new RuleQuery<>(new DocumentInput(loggedInUserInstance.get(), documentData))).getResult();
     }
 
-    public TaakRechten readTaakRechten(final TaskInfo taskInfo, Zaak zaak) {
-        return readTaakRechten(taskInfo, zaak, taakVariabelenService.readZaaktypeOmschrijving(taskInfo));
+    public TaakRechten readTaakRechten(final TaskInfo taskInfo) {
+        return readTaakRechten(taskInfo, taakVariabelenService.readZaaktypeOmschrijving(taskInfo));
     }
 
     public TaakRechten readTaakRechten(final TaskInfo taskInfo, final String zaaktypeOmschrijving) {
-        final UUID zaakUUID = taakVariabelenService.readZaakUUID(taskInfo);
-        return readTaakRechten(taskInfo, zrcClientService.readZaak(zaakUUID), zaaktypeOmschrijving);
-    }
-
-    public TaakRechten readTaakRechten(final TaskInfo taskInfo) {
-        final UUID zaakUUID = taakVariabelenService.readZaakUUID(taskInfo);
-        return readTaakRechten(taskInfo, zrcClientService.readZaak(zaakUUID), taakVariabelenService.readZaaktypeOmschrijving(taskInfo));
-    }
-
-    public TaakRechten readTaakRechten(final TaskInfo taskInfo, final Zaak zaak, final String zaaktypeOmschrijving) {
         final TaakData taakData = new TaakData();
         taakData.open = isOpen(taskInfo);
-        taakData.zaakOpen = zaak.isOpen();
         taakData.zaaktype = zaaktypeOmschrijving;
         return evaluationClient.readTaakRechten(new RuleQuery<>(new TaakInput(loggedInUserInstance.get(), taakData)))
                 .getResult();
@@ -188,9 +175,6 @@ public class PolicyService {
 
     public TaakRechten readTaakRechten(final TaakZoekObject taakZoekObject) {
         final TaakData taakData = new TaakData();
-        taakData.zaakOpen = zrcClientService.readZaak(
-                UUID.fromString(taakZoekObject.getZaakUUID())
-        ).isOpen();
         taakData.zaaktype = taakZoekObject.getZaaktypeOmschrijving();
         return evaluationClient.readTaakRechten(
                 new RuleQuery<>(new TaakInput(loggedInUserInstance.get(), taakData))
