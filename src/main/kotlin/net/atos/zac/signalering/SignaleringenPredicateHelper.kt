@@ -32,7 +32,8 @@ class SignaleringenPredicateHelper {
             where.add(
                 root.get<Any>("type").get<Any>("id")
                     .`in`(
-                        parameters.types.stream().map { obj: SignaleringType.Type -> obj.toString() }
+                        parameters.types.stream()
+                            .map { it.toString() }
                             .collect(Collectors.toList())
                     )
             )

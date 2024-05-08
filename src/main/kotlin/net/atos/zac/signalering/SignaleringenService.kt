@@ -11,6 +11,8 @@ import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
 import jakarta.transaction.Transactional
+import jakarta.transaction.Transactional.TxType.REQUIRED
+import jakarta.transaction.Transactional.TxType.SUPPORTS
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.zac.app.zaken.converter.RESTZaakOverzichtConverter
 import net.atos.zac.app.zaken.model.RESTZaakOverzicht
@@ -39,7 +41,7 @@ import java.util.UUID
 import java.util.logging.Logger
 
 @ApplicationScoped
-@Transactional
+@Transactional(SUPPORTS)
 @Suppress("TooManyFunctions", "LongParameterList")
 @NoArgConstructor
 @AllOpen
@@ -57,7 +59,7 @@ class SignaleringenService @Inject constructor(
         @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
         private lateinit var entityManager: EntityManager
 
-        private fun signaleringTypeInstance(signaleringsType: SignaleringType.Type?): SignaleringType =
+        private fun signaleringTypeInstance(signaleringsType: SignaleringType.Type): SignaleringType =
             entityManager.find(SignaleringType::class.java, signaleringsType.toString())
 
         private val LOG = Logger.getLogger(SignaleringenService::class.java.name)
@@ -69,12 +71,11 @@ class SignaleringenService @Inject constructor(
      * @param signaleringsType the type of the signalering to construct
      * @return the constructed instance (subject and target are still null, type and tijdstip have been set)
      */
-    fun signaleringInstance(signaleringsType: SignaleringType.Type?): Signalering {
-        val instance = Signalering()
-        instance.tijdstip = ZonedDateTime.now()
-        instance.type = signaleringTypeInstance(signaleringsType)
-        return instance
-    }
+    fun signaleringInstance(signaleringsType: SignaleringType.Type): Signalering =
+        Signalering().apply {
+            tijdstip = ZonedDateTime.now()
+            type = signaleringTypeInstance(signaleringsType)
+        }
 
     /**
      * Factory method for constructing SignaleringInstellingen instances.
@@ -88,9 +89,7 @@ class SignaleringenService @Inject constructor(
         signaleringsType: SignaleringType.Type,
         ownerType: SignaleringTarget?,
         ownerId: String?
-    ): SignaleringInstellingen {
-        return SignaleringInstellingen(signaleringTypeInstance(signaleringsType), ownerType, ownerId)
-    }
+    ) = SignaleringInstellingen(signaleringTypeInstance(signaleringsType), ownerType, ownerId)
 
     /**
      * Factory method for constructing SignaleringVerzonden instances.
@@ -98,15 +97,14 @@ class SignaleringenService @Inject constructor(
      * @param signalering the signalering that has been sent
      * @return the constructed instance (all members have been set)
      */
-    fun signaleringVerzondenInstance(signalering: Signalering): SignaleringVerzonden =
-        SignaleringVerzonden().let {
-            it.tijdstip = ZonedDateTime.now()
-            it.type = signaleringTypeInstance(signalering.type.type)
-            it.targettype = signalering.targettype
-            it.target = signalering.target
-            it.subject = signalering.subject
-            it.detail = signalering.detail
-            return it
+    fun signaleringVerzondenInstance(signalering: Signalering) =
+        SignaleringVerzonden().apply {
+            tijdstip = ZonedDateTime.now()
+            type = signaleringTypeInstance(signalering.type.type)
+            targettype = signalering.targettype
+            target = signalering.target
+            subject = signalering.subject
+            detail = signalering.detail
         }
 
     /**
@@ -117,10 +115,10 @@ class SignaleringenService @Inject constructor(
      * @param actor       the actor (a gebruikersnaam) or null if unknown
      * @return true if signalling is necessary
      */
-    fun isNecessary(signalering: Signalering, actor: String?): Boolean {
-        return signalering.targettype != SignaleringTarget.USER || signalering.target != actor
-    }
+    fun isNecessary(signalering: Signalering, actor: String?): Boolean =
+        signalering.targettype != SignaleringTarget.USER || signalering.target != actor
 
+    @Transactional(REQUIRED)
     fun createSignalering(signalering: Signalering): Signalering {
         ValidationUtil.valideerObject(signalering)
         val created = entityManager.merge(signalering)
@@ -128,6 +126,7 @@ class SignaleringenService @Inject constructor(
         return created
     }
 
+    @Transactional(REQUIRED)
     fun deleteSignaleringen(parameters: SignaleringZoekParameters) {
         val removed: MutableMap<String, Signalering> = HashMap()
         listSignaleringen(parameters)
@@ -203,6 +202,7 @@ class SignaleringenService @Inject constructor(
         }
     }
 
+    @Transactional(REQUIRED)
     fun createUpdateOrDeleteInstellingen(instellingen: SignaleringInstellingen): SignaleringInstellingen? {
         ValidationUtil.valideerObject(instellingen)
         if (instellingen.isEmpty) {
@@ -214,16 +214,20 @@ class SignaleringenService @Inject constructor(
         return entityManager.merge(instellingen)
     }
 
-    fun readInstellingenGroup(type: SignaleringType.Type?, target: String?): SignaleringInstellingen {
-        val signalering = signaleringInstance(type)
-        signalering.setTargetGroup(target)
-        return readInstellingen(signalering)
+    fun readInstellingenGroup(type: SignaleringType.Type, target: String?): SignaleringInstellingen {
+        signaleringInstance(type).apply {
+            setTargetGroup(target)
+        }.let {
+            return readInstellingen(it)
+        }
     }
 
-    fun readInstellingenUser(type: SignaleringType.Type?, target: String?): SignaleringInstellingen {
-        val signalering = signaleringInstance(type)
-        signalering.setTargetUser(target)
-        return readInstellingen(signalering)
+    fun readInstellingenUser(type: SignaleringType.Type, target: String?): SignaleringInstellingen {
+        signaleringInstance(type).apply {
+            setTargetUser(target)
+        }.let {
+            return readInstellingen(it)
+        }
     }
 
     fun readInstellingen(signalering: Signalering): SignaleringInstellingen {
@@ -270,12 +274,14 @@ class SignaleringenService @Inject constructor(
         return SignaleringType.Type.entries.size
     }
 
+    @Transactional(REQUIRED)
     fun createSignaleringVerzonden(signalering: Signalering): SignaleringVerzonden {
         val signaleringVerzonden = signaleringVerzondenInstance(signalering)
         ValidationUtil.valideerObject(signaleringVerzonden)
         return entityManager.merge(signaleringVerzonden)
     }
 
+    @Transactional(REQUIRED)
     fun deleteSignaleringVerzonden(verzonden: SignaleringVerzondenZoekParameters) {
         findSignaleringVerzonden(verzonden).ifPresent { entityManager.remove(it) }
     }
@@ -296,22 +302,6 @@ class SignaleringenService @Inject constructor(
         )
             .resultList
         return if (result.isEmpty()) { Optional.empty() } else { Optional.of(result[0]) }
-    }
-
-    private fun listZakenSignaleringen(
-        user: LoggedInUser,
-        signaleringsType: SignaleringType.Type
-    ): List<RESTZaakOverzicht> {
-        val list = SignaleringZoekParameters(user)
-            .types(signaleringsType)
-            .subjecttype(SignaleringSubject.ZAAK)
-            .let { listSignaleringen(it) }
-            .stream()
-            .map { zrcClientService.readZaak(UUID.fromString(it.subject)) }
-            .map { restZaakOverzichtConverter.convert(it, user) }
-            .toList()
-        LOG.fine { "Generated zaken signaleringen list $list for type $signaleringsType" }
-        return list
     }
 
     /**
@@ -341,5 +331,21 @@ class SignaleringenService @Inject constructor(
             LOG.fine { "Sending 'ZAKEN_SIGNALERINGEN' screen event with ID '$it'." }
             eventingService.send(ScreenEventType.ZAKEN_SIGNALERINGEN.updated(it, zakenSignaleringen))
         }
+    }
+
+    private fun listZakenSignaleringen(
+        user: LoggedInUser,
+        signaleringsType: SignaleringType.Type
+    ): List<RESTZaakOverzicht> {
+        val list = SignaleringZoekParameters(user)
+            .types(signaleringsType)
+            .subjecttype(SignaleringSubject.ZAAK)
+            .let { listSignaleringen(it) }
+            .stream()
+            .map { zrcClientService.readZaak(UUID.fromString(it.subject)) }
+            .map { restZaakOverzichtConverter.convert(it, user) }
+            .toList()
+        LOG.fine { "Generated zaken signaleringen list $list for type $signaleringsType" }
+        return list
     }
 }
