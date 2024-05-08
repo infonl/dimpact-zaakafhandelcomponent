@@ -35,6 +35,7 @@ import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.output.DocumentRechten
 import net.atos.zac.policy.output.createDocumentRechtenAllDeny
+import org.eclipse.jetty.http.HttpStatus
 import java.net.URI
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -264,7 +265,7 @@ class RESTInformatieobjectConverterTest : BehaviorSpec() {
             val uuid = UUID.randomUUID()
             every {
                 drcClientService.readEnkelvoudigInformatieobject(uuid)
-            } throws FoutException(Fout(null, null, null, 404, null, null))
+            } throws FoutException(Fout(null, null, null, HttpStatus.NOT_FOUND_404, null, null))
             When("We try to convert a list with that uuid") {
                 val result = restInformatieobjectConverter.convertUUIDsToREST(ImmutableList.of(uuid), null)
                 Then("An empty list is returned") {
