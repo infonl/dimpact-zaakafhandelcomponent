@@ -5,7 +5,6 @@
 
 package net.atos.zac.zoeken;
 
-import static java.util.logging.Level.WARNING;
 import static net.atos.client.zgw.shared.ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS;
 import static net.atos.client.zgw.shared.model.Results.NUM_ITEMS_PER_PAGE;
 import static net.atos.zac.util.UriUtil.uuidFromURI;
@@ -52,7 +51,6 @@ import net.atos.zac.flowable.FlowableTaskService;
 import net.atos.zac.shared.model.SorteerRichting;
 import net.atos.zac.zoeken.converter.AbstractZoekObjectConverter;
 import net.atos.zac.zoeken.model.ZoekObject;
-import net.atos.zac.zoeken.model.index.ZoekIndexEntity;
 import net.atos.zac.zoeken.model.index.ZoekObjectType;
 
 @Singleton
@@ -197,20 +195,6 @@ public class IndexeerService {
             }
         }
         throw new RuntimeException("[%s] No converter found".formatted(objectType.toString()));
-    }
-
-    private ZoekObject convertToZoekObject(
-            final ZoekIndexEntity zoekIndexEntity,
-            final AbstractZoekObjectConverter<? extends ZoekObject> converter
-    ) {
-        ZoekObject zoekObject = null;
-        try {
-            zoekObject = converter.convert(zoekIndexEntity.getObjectId());
-        } catch (final RuntimeException e) {
-            LOG.log(WARNING, "[%s] '%s': %s".formatted(zoekIndexEntity.getType(), zoekIndexEntity.getObjectId(),
-                    e.getMessage()));
-        }
-        return zoekObject;
     }
 
     private long addToSolrIndex(final Stream<ZoekObject> zoekObjecten, final boolean performCommit) {

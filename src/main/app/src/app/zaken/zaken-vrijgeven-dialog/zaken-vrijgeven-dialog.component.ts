@@ -39,6 +39,7 @@ export class ZakenVrijgevenDialogComponent implements OnInit {
   }
 
   vrijgeven(): void {
+    this.redenFormField.readonly = true;
     this.dialogRef.disableClose = true;
     this.loading = true;
     this.zakenService

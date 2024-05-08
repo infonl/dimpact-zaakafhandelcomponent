@@ -28,7 +28,7 @@ export abstract class AbstractFormFieldBuilder {
     return this;
   }
 
-  readonly(readonly: boolean): this {
+  readonly(readonly = true): this {
     this.formField.readonly = readonly;
     return this;
   }
