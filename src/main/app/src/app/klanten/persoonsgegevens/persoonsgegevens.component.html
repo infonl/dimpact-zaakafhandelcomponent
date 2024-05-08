@@ -12,11 +12,11 @@
         <mat-panel-description *ngIf="persoon$ | async as persoon">
             {{persoon ? persoon.naam : ('msg.loading'| translate)}}
             <div class="flex-row">
-                <button *ngIf="persoon && isWijzigbaar" [title]="'actie.initiator.wijzigen' | translate" mat-icon-button
+                <button *ngIf="persoon && isWijzigbaar()" [title]="'actie.initiator.wijzigen' | translate" mat-icon-button
                         (click)="$event.stopPropagation(); edit.emit(persoon)">
                     <mat-icon>edit</mat-icon>
                 </button>
-                <button *ngIf="persoon && isVerwijderbaar" [title]="'actie.ontkoppelen' | translate" mat-icon-button
+                <button *ngIf="persoon && isVerwijderbaar()" [title]="'actie.ontkoppelen' | translate" mat-icon-button
                         (click)="$event.stopPropagation(); delete.emit(persoon)">
                     <mat-icon>link_off</mat-icon>
                 </button>
