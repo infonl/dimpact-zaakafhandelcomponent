@@ -67,7 +67,7 @@ kotest-runner-junit5 = "5.8.1"
 kotest-assertions-json = "5.8.1"
 mockk = "1.13.10"
 
-testcontainers-testcontainers = "1.19.7"
+testcontainers-testcontainers = "1.19.8"
 testcontainers-mockserver = "1.19.7"
 testcontainers-postgresql = "1.19.7"
 
