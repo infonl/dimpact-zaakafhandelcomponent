@@ -16,19 +16,21 @@ import java.util.stream.Collectors
 class RESTSignaleringInstellingenConverter @Inject constructor(
     private var signaleringenService: SignaleringenService
 ) {
-    fun convert(instellingen: SignaleringInstellingen): RESTSignaleringInstellingen =
-        RESTSignaleringInstellingen().let {
-            it.id = instellingen.id
-            it.type = instellingen.type.type
-            it.subjecttype = instellingen.type.subjecttype
+    fun convert(instellingen: SignaleringInstellingen): RESTSignaleringInstellingen {
+        RESTSignaleringInstellingen(
+            id = instellingen.id,
+            type = instellingen.type.type,
+            subjecttype = instellingen.type.subjecttype
+        ).apply {
             if (instellingen.type.type.isDashboard && instellingen.ownerType != SignaleringTarget.GROUP) {
-                it.dashboard = instellingen.isDashboard
+                dashboard = instellingen.isDashboard
             }
             if (instellingen.type.type.isMail) {
-                it.mail = instellingen.isMail
+                mail = instellingen.isMail
             }
-            return it
+            return this
         }
+    }
 
     fun convert(instellingen: Collection<SignaleringInstellingen>): List<RESTSignaleringInstellingen> =
         instellingen.stream()

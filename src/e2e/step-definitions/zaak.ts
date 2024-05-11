@@ -157,7 +157,7 @@ When(
       .press("Enter");
     await this.page
       .getByRole("row", {
-        name: "Gerelateerde gegevens tonen 0384200000005901 Adres Meelbeskamp 49, 1112GV Diemen Selecteren",
+        name: "Meelbeskamp 49, 1112GV Diemen",
       })
       .getByTitle("Selecteren")
       .click();
@@ -253,7 +253,10 @@ Then(
   async function (this: CustomWorld, user) {
     const caseNumber = this.testStorage.get("caseNumber");
 
-    await this.page.getByText(caseNumber);
+    await this.page
+      .getByText(caseNumber)
+      .first()
+      .waitFor({ timeout: ONE_MINUTE_IN_MS });
   },
 );
 
@@ -261,11 +264,11 @@ Then(
   "{string} sees the created zaak with a delay",
   { timeout: ONE_MINUTE_IN_MS + 15000 },
   async function (this: CustomWorld, user) {
-    // at least a minute and 10 seconds just to be sure
-    await this.page.waitForTimeout(ONE_MINUTE_IN_MS + 10000);
     const caseNumber = this.testStorage.get("caseNumber");
-
-    await this.page.getByText(caseNumber);
+    await this.page
+      .getByText(caseNumber)
+      .first()
+      .waitFor({ timeout: ONE_MINUTE_IN_MS });
   },
 );
 

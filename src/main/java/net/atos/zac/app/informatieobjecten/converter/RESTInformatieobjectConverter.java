@@ -16,11 +16,14 @@ import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_TAAK_DO
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
+import org.eclipse.jetty.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 
 import net.atos.client.zgw.brc.BRCClientService;
@@ -28,6 +31,7 @@ import net.atos.client.zgw.drc.DRCClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockData;
+import net.atos.client.zgw.shared.exception.FoutException;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
@@ -51,6 +55,8 @@ import net.atos.zac.policy.output.DocumentRechten;
 import net.atos.zac.util.UriUtil;
 
 public class RESTInformatieobjectConverter {
+
+    private static final Logger LOG = Logger.getLogger(RESTInformatieobjectConverter.class.getName());
 
     @Inject
     private ZTCClientService ztcClientService;
@@ -380,8 +386,19 @@ public class RESTInformatieobjectConverter {
             final Zaak zaak
     ) {
         return enkelvoudigInformatieobjectUUIDs.stream()
-                .map(enkelvoudigInformatieobjectUUID -> convertToREST(
-                        drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID), zaak))
+                .map(enkelvoudigInformatieobjectUUID -> {
+                    try {
+                        return convertToREST(
+                                drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID), zaak);
+                    } catch (FoutException e) {
+                        if (e.getFout().getStatus() != HttpStatus.NOT_FOUND_404) {
+                            throw e;
+                        }
+                        LOG.severe(() -> "Document niet gevonden: %s".formatted(enkelvoudigInformatieobjectUUID));
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
                 .toList();
     }
 

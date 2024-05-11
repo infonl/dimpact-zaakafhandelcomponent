@@ -735,7 +735,10 @@ export class ZaakViewComponent
   private createKoppelingenMenuItems(): void {
     if (this.zaak.rechten.behandelen || this.zaak.rechten.wijzigen) {
       this.menu.push(new HeaderMenuItem("koppelingen"));
-      if (this.zaak.rechten.behandelen) {
+      if (
+        this.zaak.rechten.toevoegenBetrokkeneBedrijf ||
+        this.zaak.rechten.toevoegenBetrokkenePersoon
+      ) {
         this.menu.push(
           new ButtonMenuItem(
             "actie.betrokkene.toevoegen",
@@ -746,16 +749,18 @@ export class ZaakViewComponent
             "group_add",
           ),
         );
-        this.menu.push(
-          new ButtonMenuItem(
-            "actie.bagObject.toevoegen",
-            () => {
-              this.actionsSidenav.open();
-              this.action = SideNavAction.ZOEK_BAG_ADRES;
-            },
-            "add_home_work",
-          ),
-        );
+        if (this.zaak.rechten.toevoegenBagObject) {
+          this.menu.push(
+            new ButtonMenuItem(
+              "actie.bagObject.toevoegen",
+              () => {
+                this.actionsSidenav.open();
+                this.action = SideNavAction.ZOEK_BAG_ADRES;
+              },
+              "add_home_work",
+            ),
+          );
+        }
       }
       if (this.zaak.rechten.wijzigen) {
         this.menu.push(

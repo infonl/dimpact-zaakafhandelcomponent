@@ -5,7 +5,7 @@
 
 <mat-form-field appearance="fill" class="full-width" (click)="clicked()"
 [class]="data.styleClass">
-    @if (data.onClear.observed && data.formControl.value) {
+    @if (data.onClear.observed && data.formControl.value && !data.readonly) {
         <button matSuffix 
                 mat-icon-button 
                 aria-label="Clear" 

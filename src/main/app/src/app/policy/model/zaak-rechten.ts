@@ -12,4 +12,9 @@ export class ZaakRechten {
   heropenen = false;
   bekijkenZaakdata = false;
   wijzigenDoorlooptijd = false;
+  toevoegenBagObject = false;
+  toevoegenBetrokkeneBedrijf = false;
+  toevoegenBetrokkenePersoon = false;
+  toevoegenInitiatorBedrijf = false;
+  toevoegenInitiatorPersoon = false;
 }
