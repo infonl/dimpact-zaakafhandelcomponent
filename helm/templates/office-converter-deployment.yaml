@@ -8,43 +8,43 @@ spec:
   selector:
     matchLabels:
       {{- include "zaakafhandelcomponent.office-converter.selectorLabels" . | nindent 6 }}
-  replicas: {{ .Values.office_converter.replicas }}
+  replicas: {{ .Values.officeConverter.replicas }}
   template:
     metadata:
       annotations:
-      {{- with .Values.office_converter.podAnnotations }}
+      {{- with .Values.officeConverter.podAnnotations }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
         {{- include "zaakafhandelcomponent.office-converter.selectorLabels" . | nindent 8 }}
     spec:
-      {{- with .Values.office_converter.imagePullSecrets }}
+      {{- with .Values.officeConverter.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "zaakafhandelcomponent.serviceAccountName" . }}
       securityContext:
-        {{- toYaml .Values.office_converter.podSecurityContext | nindent 8 }}
+        {{- toYaml .Values.officeConverter.podSecurityContext | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}-office-converter
           securityContext:
-            {{- toYaml .Values.office_converter.securityContext | nindent 12 }}
-          image: "{{ .Values.office_converter.image.repository }}:{{ .Values.office_converter.image.tag }}"
-          imagePullPolicy: {{ .Values.office_converter.image.pullPolicy }}
+            {{- toYaml .Values.officeConverter.securityContext | nindent 12 }}
+          image: "{{ .Values.officeConverter.image.repository }}:{{ .Values.officeConverter.image.tag }}"
+          imagePullPolicy: {{ .Values.officeConverter.image.pullPolicy }}
           ports:
             - name: http
               containerPort: 8080
           resources:
-            {{- toYaml .Values.office_converter.resources | nindent 12 }}
-      {{- with .Values.office_converter.nodeSelector }}
+            {{- toYaml .Values.officeConverter.resources | nindent 12 }}
+      {{- with .Values.officeConverter.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.office_converter.affinity }}
+      {{- with .Values.officeConverter.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.office_converter.tolerations }}
+      {{- with .Values.officeConverter.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}

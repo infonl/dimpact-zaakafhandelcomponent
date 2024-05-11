@@ -102,8 +102,23 @@ smartDocuments:
   authentication: ""
   fixedUserName: ""
 
-# signalerenSchedule Schedule of the signaleren job in CRON job format
-signalerenSchedule: "0 2 * * *"
+# signalerenCronjob Configuration of the signaleren job
+signalerenCronjob:
+  schedule: "0 2 * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  restartPolicy: Never
+  image:
+    repository: curlimages/curl
+    tag: latest
+    pullPolicy: IfNotPresent
+  imagePullSecrets: [ ]
+  resources: { }
+  podSecurityContext: { }
+  nodeSelector: { }
+  affinity: { }
+  tolerations: [ ]
+
 
 # opentelemetry_zaakafhandelcomponent Overrides for opentelemetry
 #opentelemetry_zaakafhandelcomponent:
@@ -249,7 +264,7 @@ solr:
   zookeeper:
     enabled: false
 
-office_converter:
+officeConverter:
   image:
     repository: ghcr.io/eugenmayer/kontextwork-converter
     tag: "1.0.0"

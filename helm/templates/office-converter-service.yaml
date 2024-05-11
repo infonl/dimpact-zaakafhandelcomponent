@@ -4,16 +4,16 @@ metadata:
   name: {{ include "zaakafhandelcomponent.fullname" . }}-office-converter
   labels:
     {{- include "zaakafhandelcomponent.office-converter.labels" . | nindent 4 }}
-  {{- with .Values.office_converter.service.annotations }}
+  {{- with .Values.officeConverter.service.annotations }}
   annotations:
     {{- range $key, $value := . }}
     {{ $key }} : {{ tpl ($value | toString) $ }}
     {{- end }}
   {{- end }}
 spec:
-  type: {{ .Values.office_converter.service.type }}
+  type: {{ .Values.officeConverter.service.type }}
   ports:
-    - port: {{ .Values.office_converter.service.port }}
+    - port: {{ .Values.officeConverter.service.port }}
       name: http
       targetPort: http
   selector:

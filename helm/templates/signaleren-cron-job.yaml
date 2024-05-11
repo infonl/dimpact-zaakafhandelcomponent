@@ -5,17 +5,43 @@ metadata:
   labels:
     {{- include "zaakafhandelcomponent.labels" . | nindent 4 }}
 spec:
-  schedule: {{ .Values.signalerenSchedule | quote }}
+  schedule: {{ .Values.signalerenCronjob.schedule | quote }}
   concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: {{ .Values.signalerenCronjob.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.signalerenCronjob.failedJobsHistoryLimit }}
   jobTemplate:
     spec:
       template:
+        metadata:
+          labels:
+            {{- include "zaakafhandelcomponent.labels" . | nindent 12 }}
         spec:
-          restartPolicy: Never
+          {{- with .Values.signalerenCronjob.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          serviceAccountName: {{ include "zaakafhandelcomponent.serviceAccountName" . }}
+          securityContext:
+            {{- toYaml .Values.officeConverter.podSecurityContext | nindent 12 }}
+          restartPolicy: {{ .Values.signalerenCronjob.restartPolicy }}
           containers:
             - name: {{ include "zaakafhandelcomponent.fullname" . }}-signaleren
-              image: curlimages/curl
-              imagePullPolicy: IfNotPresent
+              image: "{{ .Values.signalerenCronjob.image.repository }}:{{ .Values.signalerenCronjob.image.tag }}"
+              imagePullPolicy: {{ .Values.signalerenCronjob.image.pullPolicy }}
+              resources:
+                {{- toYaml .Values.signalerenCronjob.resources | nindent 16 }}
               args:
                 - -s
                 - {{ printf "http://%s.%s/rest/signaleren" (include "zaakafhandelcomponent.fullname" .) .Release.Namespace }}
+          {{- with .Values.signalerenCronjob.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.signalerenCronjob.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.signalerenCronjob.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
