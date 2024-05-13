@@ -369,7 +369,7 @@ tasks.war {
     dependsOn("npmRunBuild")
 
     // add built frontend resources to WAR archive
-    from("src/main/app/dist/zaakafhandelcomponent")
+    from("src/main/app/dist")
 
     // explicitly add our 'warLib' 'transitive' dependencies that are required in the generated WAR
     classpath(files(configurations["warLib"]))
@@ -587,7 +587,7 @@ tasks {
         // see: https://github.com/node-gradle/gradle-node-plugin/blob/master/docs/faq.md
         inputs.files(fileTree("src/main/app/node_modules"))
         inputs.files(fileTree("src/main/app/src"))
-        outputs.dir("src/main/app/dist/zaakafhandelcomponent")
+        outputs.dir("src/main/app/dist")
         outputs.cacheIf { true }
     }
 
