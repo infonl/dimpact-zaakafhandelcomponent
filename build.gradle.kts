@@ -357,7 +357,10 @@ tasks.getByName("spotlessApply").finalizedBy(listOf("detektApply"))
 
 // run npm install task after generating the Java clients because they
 // share the same output folder (= $rootDir)
-tasks.getByName("npmInstall").setMustRunAfter(listOf("generateJavaClients"))
+tasks.getByName("npmInstall") {
+    setMustRunAfter(listOf("generateJavaClients"))
+    outputs.cacheIf { true }
+}
 tasks.getByName("generateSwaggerUIZaakafhandelcomponent").setDependsOn(listOf("generateOpenApiSpec"))
 
 tasks.getByName("compileItestKotlin") {
@@ -590,6 +593,7 @@ tasks {
         inputs.file("src/main/app/package.json")
         inputs.file("src/main/app/package-lock.json")
         outputs.dir("src/main/app/dist/zaakafhandelcomponent")
+        outputs.cacheIf { true }
     }
 
     register<NpmTask>("npmRunTest") {
