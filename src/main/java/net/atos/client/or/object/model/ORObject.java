@@ -5,6 +5,8 @@
 
 package net.atos.client.or.object.model;
 
+import net.atos.client.or.model.generated.ObjectRecord;
+
 import java.net.URI;
 import java.util.UUID;
 

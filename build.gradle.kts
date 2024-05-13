@@ -554,6 +554,11 @@ tasks {
         modelPackage.set("net.atos.client.zgw.ztc.model.generated")
     }
 
+    register<GenerateTask>("generateOrClient") {
+        inputSpec.set("$rootDir/src/main/resources/api-specs/or/objects-openapi.yaml")
+        modelPackage.set("net.atos.client.or.model.generated")
+    }
+
     register("generateJavaClients") {
         dependsOn(
             generateJsonSchema2Pojo,
@@ -568,7 +573,8 @@ tasks {
             "generateZgwBrcClient",
             "generateZgwDrcClient",
             "generateZrcDrcClient",
-            "generateZtcDrcClient"
+            "generateZtcDrcClient",
+            "generateOrClient"
         )
     }
 
