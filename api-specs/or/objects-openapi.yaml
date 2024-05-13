@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Objects API
-  version: 2.1.1 (v2)
+  version: 2.3.2 (v2)
   description: |
     An API to manage Objects.
 
@@ -98,7 +98,7 @@ paths:
             A valid parameter value has the form `key__operator__value`.
             `key` is the attribute name, `operator` is the comparison operator to be used and `value` is the attribute value.
             Note: Values can be string, numeric, or dates (ISO format; YYYY-MM-DD).
-
+            
             Valid operator values are:
             * `exact` - equal to
             * `gt` - greater than
@@ -106,10 +106,10 @@ paths:
             * `lt` - lower than
             * `lte` - lower than or equal to
             * `icontains` - case-insensitive partial match
-
+            
             `value` may not contain double underscore or comma characters.
             `key` may not contain comma characters and includes double underscore only if it indicates nested attributes.
-
+            
             Example: in order to display only objects with `height` equal to 100, query `data_attrs=height__exact__100`
             should be used. If `height` is nested inside `dimensions` attribute, query should look like
             `data_attrs=dimensions__height__exact__100`
@@ -136,7 +136,7 @@ paths:
           required: false
           in: query
           description: 'Comma-separated fields, which are used to order results. For
-          descending order user ''-'' as prefix. Nested fileds are also supported.
+          descending order use ''-'' as prefix. Nested fields are also supported.
           For example: ''-record__data__length,record__index''.'
           schema:
             type: string
@@ -168,10 +168,15 @@ paths:
             maxLength: 1000
             minLength: 1
           description: Url reference to OBJECTTYPE in Objecttypes API
+        - in: query
+          name: typeVersion
+          schema:
+            type: integer
+          description: Display record data for the specified type version
       tags:
         - objects
       security:
-        - tokenAuth: [ ]
+        - tokenAuth: []
       responses:
         '200':
           headers:
@@ -234,7 +239,7 @@ paths:
               $ref: '#/components/schemas/Object'
         required: true
       security:
-        - tokenAuth: [ ]
+        - tokenAuth: []
       responses:
         '201':
           headers:
@@ -282,7 +287,7 @@ paths:
       tags:
         - objects
       security:
-        - tokenAuth: [ ]
+        - tokenAuth: []
       responses:
         '200':
           headers:
@@ -352,7 +357,7 @@ paths:
               $ref: '#/components/schemas/Object'
         required: true
       security:
-        - tokenAuth: [ ]
+        - tokenAuth: []
       responses:
         '200':
           headers:
@@ -372,6 +377,8 @@ paths:
     patch:
       operationId: object_partial_update
       description: Update the OBJECT by creating a new RECORD with the updates values.
+        The provided `record.data` value will be merged recursively with the existing
+        record data.
       parameters:
         - in: header
           name: Accept-Crs
@@ -415,7 +422,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedObject'
       security:
-        - tokenAuth: [ ]
+        - tokenAuth: []
       responses:
         '200':
           headers:
@@ -446,7 +453,7 @@ paths:
       tags:
         - objects
       security:
-        - tokenAuth: [ ]
+        - tokenAuth: []
       responses:
         '204':
           description: No response body
@@ -486,7 +493,7 @@ paths:
       tags:
         - objects
       security:
-        - tokenAuth: [ ]
+        - tokenAuth: []
       responses:
         '200':
           headers:
@@ -572,7 +579,7 @@ paths:
                         A valid parameter value has the form `key__operator__value`.
                         `key` is the attribute name, `operator` is the comparison operator to be used and `value` is the attribute value.
                         Note: Values can be string, numeric, or dates (ISO format; YYYY-MM-DD).
-
+                        
                         Valid operator values are:
                         * `exact` - equal to
                         * `gt` - greater than
@@ -580,10 +587,10 @@ paths:
                         * `lt` - lower than
                         * `lte` - lower than or equal to
                         * `icontains` - case-insensitive partial match
-
+                        
                         `value` may not contain double underscore or comma characters.
                         `key` may not contain comma characters and includes double underscore only if it indicates nested attributes.
-
+                        
                         Example: in order to display only objects with `height` equal to 100, query `data_attrs=height__exact__100`
                         should be used. If `height` is nested inside `dimensions` attribute, query should look like
                         `data_attrs=dimensions__height__exact__100`
@@ -599,16 +606,19 @@ paths:
                       description: Display record data for the specified registration
                         date, i.e. the specified date would be between `registrationAt`
                         attributes of different records
+                    typeVersion:
+                      type: integer
+                      description: Display record data for the specified type version
                     data_icontains:
                       type: string
                       description: Search in all `data` values of string properties.
                     ordering:
                       type: string
                       description: 'Comma-separated fields, which are used to order
-                      results. For descending order user ''-'' as prefix. Nested fileds
+                      results. For descending order use ''-'' as prefix. Nested fields
                       are also supported. For example: ''-record__data__length,record__index''.'
       security:
-        - tokenAuth: [ ]
+        - tokenAuth: []
       responses:
         '200':
           headers:
@@ -645,8 +655,8 @@ paths:
       tags:
         - permissions
       security:
-        - tokenAuth: [ ]
-        - { }
+        - tokenAuth: []
+        - {}
       responses:
         '200':
           content:
@@ -717,11 +727,11 @@ components:
         typeVersion:
           type: integer
           maximum: 32767
-          description: Version of the OBJECTTYPE for data in the object record
           minimum: 0
+          description: Version of the OBJECTTYPE for data in the object record
         data:
           type: object
-          additionalProperties: { }
+          additionalProperties: {}
           description: Object data, based on OBJECTTYPE
         geometry:
           allOf:
@@ -739,6 +749,7 @@ components:
           type: string
           format: date
           readOnly: true
+          nullable: true
           description: Legal end date of the object record
         registrationAt:
           type: string
@@ -746,13 +757,17 @@ components:
           readOnly: true
           description: The date when the record was registered in the system
         correctionFor:
-          type: string
-          readOnly: true
+          type: integer
+          maximum: 2147483647
+          minimum: 0
           description: Index of the record corrected by the current record
-        correctedBy:
-          type: string
           readOnly: true
+        correctedBy:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
           description: Index of the record, which corrects the current record
+          readOnly: true
       required:
         - startAt
         - typeVersion
@@ -777,6 +792,9 @@ components:
         - read_only
         - read_and_write
       type: string
+      description: |-
+        * `read_only` - Read-only
+        * `read_and_write` - Read and write
     MultiLineString:
       type: object
       description: GeoJSON multi-line-string geometry
@@ -869,11 +887,11 @@ components:
         typeVersion:
           type: integer
           maximum: 32767
-          description: Version of the OBJECTTYPE for data in the object record
           minimum: 0
+          description: Version of the OBJECTTYPE for data in the object record
         data:
           type: object
-          additionalProperties: { }
+          additionalProperties: {}
           description: Object data, based on OBJECTTYPE
         geometry:
           allOf:
@@ -891,6 +909,7 @@ components:
           type: string
           format: date
           readOnly: true
+          nullable: true
           description: Legal end date of the object record
         registrationAt:
           type: string
@@ -898,12 +917,16 @@ components:
           readOnly: true
           description: The date when the record was registered in the system
         correctionFor:
-          type: string
+          type: integer
+          maximum: 2147483647
+          minimum: 0
           description: Index of the record corrected by the current record
         correctedBy:
-          type: string
-          readOnly: true
+          type: integer
+          maximum: 2147483647
+          minimum: 0
           description: Index of the record, which corrects the current record
+          readOnly: true
       required:
         - startAt
         - typeVersion
@@ -1012,13 +1035,17 @@ components:
         mode:
           allOf:
             - $ref: '#/components/schemas/ModeEnum'
-          description: Permission mode
+          description: |-
+            Permission mode
+
+            * `read_only` - Read-only
+            * `read_and_write` - Read and write
         use_fields:
           type: boolean
           description: Use field-based authorization
         fields:
           type: object
-          additionalProperties: { }
+          additionalProperties: {}
           nullable: true
           title: Mode
           description: Fields allowed for this token in relation to objecttype versions.
