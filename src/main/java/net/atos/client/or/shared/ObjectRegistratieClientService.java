@@ -16,9 +16,9 @@ import java.util.Map;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import net.atos.client.or.model.generated.ObjectRecord;
 import net.atos.client.or.object.ObjectsClientService;
 import net.atos.client.or.object.model.ORObject;
-import net.atos.client.or.object.model.ObjectRecord;
 import net.atos.client.or.objecttype.ObjecttypesClientService;
 import net.atos.client.or.objecttype.model.Objecttype;
 import net.atos.client.or.objecttype.model.ObjecttypeVersion;
