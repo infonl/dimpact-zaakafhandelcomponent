@@ -7,7 +7,9 @@
         <zac-klant-koppel *ngSwitchCase="sideNavAction.ZOEK_INITIATOR"
                           (klantGegevens)="initiatorGeselecteerd($event.klant)"
                           [sideNav]="actionsSidenav"
-                          [initiator]="true"></zac-klant-koppel>
+                          [initiator]="true"
+                          [allowBedrijf]="true"
+                          [allowPersoon]="true"></zac-klant-koppel>
         <zac-bag-zoek *ngSwitchCase="sideNavAction.ZOEK_BAG_ADRES"
                       [gekoppeldeBagObjecten]="bagObjecten"
                       [sideNav]="actionsSidenav"
