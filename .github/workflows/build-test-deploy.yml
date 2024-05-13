@@ -85,19 +85,19 @@ jobs:
             src/generated/java
           key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
-      - name: Cache Maven build artefacts
-        uses: actions/cache/save@v4
-        with:
-          path: |
-            target
-          key: maven-build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
-
       - name: Cache frontend build artefacts
         uses: actions/cache/save@v4
         with:
           path: |
             src/main/app/dist
           key: frontend-build-artefacts-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+
+      - name: Cache Maven build artefacts
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            target
+          key: maven-build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   run-unit-tests:
     needs: [build]
