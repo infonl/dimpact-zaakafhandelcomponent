@@ -357,10 +357,7 @@ tasks.getByName("spotlessApply").finalizedBy(listOf("detektApply"))
 
 // run npm install task after generating the Java clients because they
 // share the same output folder (= $rootDir)
-tasks.getByName("npmInstall") {
-    setMustRunAfter(listOf("generateJavaClients"))
-    outputs.cacheIf { true }
-}
+tasks.getByName("npmInstall").setMustRunAfter(listOf("generateJavaClients"))
 tasks.getByName("generateSwaggerUIZaakafhandelcomponent").setDependsOn(listOf("generateOpenApiSpec"))
 
 tasks.getByName("compileItestKotlin") {
@@ -590,8 +587,6 @@ tasks {
         // see: https://github.com/node-gradle/gradle-node-plugin/blob/master/docs/faq.md
         inputs.files(fileTree("src/main/app/node_modules"))
         inputs.files(fileTree("src/main/app/src"))
-        inputs.file("src/main/app/package.json")
-        inputs.file("src/main/app/package-lock.json")
         outputs.dir("src/main/app/dist/zaakafhandelcomponent")
         outputs.cacheIf { true }
     }
@@ -604,8 +599,6 @@ tasks {
         // see: https://github.com/node-gradle/gradle-node-plugin/blob/master/docs/faq.md
         inputs.files(fileTree("src/main/app/node_modules"))
         inputs.files(fileTree("src/main/app/src"))
-        inputs.file("src/main/app/package.json")
-        inputs.file("src/main/app/package-lock.json")
 
         // directory used by the Jest reporter(s) that we have configured
         outputs.dir("src/main/app/reports")
