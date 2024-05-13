@@ -1020,12 +1020,5 @@
             "user_id": "objects-api",
             "user_representation": "Objects API"
         }
-    },
-    {
-        "model": "notifications.notificationsconfig",
-        "pk": 1,
-        "fields": {
-            "api_root": "http://open-notificaties:8000/api/v1/"
-        }
     }
 ]
