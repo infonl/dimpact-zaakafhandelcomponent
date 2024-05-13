@@ -32,9 +32,9 @@ services:
       - "54326:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
-      interval: 20s
-      timeout: 60s
-      retries: 5
+      interval: 10s
+      timeout: 10s
+      retries: 10
       start_period: 30s
     environment:
       - POSTGRES_USER=keycloak
@@ -49,9 +49,9 @@ services:
       - "54320:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
-      interval: 20s
-      timeout: 60s
-      retries: 5
+      interval: 10s
+      timeout: 10s
+      retries: 10
       start_period: 30s
     environment:
       POSTGRES_USER: zac
@@ -68,9 +68,9 @@ services:
     platform: linux/amd64
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
-      interval: 20s
-      timeout: 60s
-      retries: 5
+      interval: 10s
+      timeout: 10s
+      retries: 10
       start_period: 30s
     environment:
       - POSTGRES_USER=openzaak
@@ -135,6 +135,12 @@ services:
       - DEBUG=true
       - TWO_FACTOR_FORCE_OTP_ADMIN=False # this is not available yet in this version
       - TWO_FACTOR_PATCH_ADMIN=False
+    healthcheck:
+      test: "bash -c 'printf \"GET / HTTP/1.1\n\n\" > /dev/tcp/127.0.0.1/8000; exit $?;'"
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
     depends_on:
       objecten-api-database:
         condition: service_healthy
@@ -146,9 +152,9 @@ services:
     platform: linux/amd64
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
-      interval: 20s
-      timeout: 60s
-      retries: 5
+      interval: 10s
+      timeout: 10s
+      retries: 10
       start_period: 30s
     environment:
       - POSTGRES_USER=objects
@@ -165,7 +171,8 @@ services:
       - ./scripts/docker-compose/imports/objects-api/fixtures:/app/src/objects/fixtures
       - ./scripts/docker-compose/imports/objects-api/init:/app/init
     depends_on:
-      - objecten-api.local
+      objecten-api.local:
+        condition: service_healthy
 
   objecttypen-api:
     image: maykinmedia/objecttypes-api:2.1.0
@@ -190,9 +197,9 @@ services:
       - "54324:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
-      interval: 20s
-      timeout: 60s
-      retries: 5
+      interval: 10s
+      timeout: 10s
+      retries: 10
       start_period: 30s
     environment:
       - POSTGRES_USER=objecttypes
@@ -282,9 +289,9 @@ services:
       - "8020:8000"
     healthcheck:
       test: ["CMD", "wget", "--spider", "http://0.0.0.0:8000"]
-      interval: 20s
-      timeout: 60s
-      retries: 5
+      interval: 10s
+      timeout: 10s
+      retries: 10
       start_period: 30s
     depends_on:
       - zgw-referentielijsten-database
@@ -336,9 +343,9 @@ services:
       - "54325:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
-      interval: 20s
-      timeout: 60s
-      retries: 5
+      interval: 10s
+      timeout: 10s
+      retries: 10
       start_period: 30s
     environment:
       - POSTGRES_USER=openklant
@@ -442,9 +449,9 @@ services:
       - "3000:3000"
     healthcheck:
       test: "bash -c 'printf \"GET /api/health HTTP/1.1\n\n\" > /dev/tcp/127.0.0.1/3000; exit $?;'"
-      interval: 20s
+      interval: 10s
       timeout: 10s
-      retries: 3
+      retries: 10
       start_period: 30s
     depends_on:
       - tempo
