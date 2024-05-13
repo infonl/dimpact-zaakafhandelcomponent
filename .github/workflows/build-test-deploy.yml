@@ -75,7 +75,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: |
-            build/
+            build
           key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Cache generated Java clients
@@ -89,8 +89,15 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: |
-            target/
+            target
           key: maven-build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+
+      - name: Cache frontend build artefacts
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            src/main/app/dist
+          key: frontend-build-artefacts-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   run-unit-tests:
     needs: [build]
@@ -122,11 +129,18 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: |
-            build/
+            build
           key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
+      - name: Restore frontend build artefacts
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            src/main/app/dist
+          key: frontend-build-artefacts--${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+
       - name: Run unit tests
-        run: ./gradlew -x compileJava -x processResources -x compileKotlin -x classes test --info
+        run: ./gradlew -x compileJava -x processResources -x compileKotlin -x classes -x npmRunBuild test --info
 
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action@v2
@@ -138,7 +152,7 @@ jobs:
             src/main/app/reports/*.xml
 
       - name: Generate unit test code coverage report
-        run: ./gradlew -x compileJava -x processResources -x compileKotlin -x classes -x test -x itest npmRunTestCoverage jacocoTestReport --info
+        run: ./gradlew -x compileJava -x processResources -x compileKotlin -x classes -x test -x itest -x npmRunBuild npmRunTestCoverage jacocoTestReport --info
 
       - name: Upload unit test coverage report to Codecov
         uses: codecov/codecov-action@v4
