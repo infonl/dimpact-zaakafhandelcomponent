@@ -594,6 +594,8 @@ tasks {
         inputs.files(fileTree("src/main/app/node_modules"))
         inputs.files(fileTree("src/main/app/src"))
         outputs.dir("src/main/app/dist/zaakafhandelcomponent")
+        outputs.dir("src/main/app/src/generated/types")
+        outputs.cacheIf { true }
     }
 
     register<NpmTask>("npmRunTest") {
@@ -663,10 +665,13 @@ tasks {
         }
     }
 
-    // Simple function to invoke a maven goal, dependent on the os, with optional
     register<Maven>("generateWildflyBootableJar") {
         dependsOn("war")
         execGoal("wildfly-jar:package")
+
+        inputs.files(fileTree("src/main/resources/wildfly"))
+        inputs.file("build/libs/zaakafhandelcomponent.war")
+        outputs.dir("target")
     }
 
     register<Maven>("mavenClean") {
