@@ -188,6 +188,7 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
           this.zaak.initiatorIdentificatieType,
           this.zaak.initiatorIdentificatie,
         )
+        .pipe(takeUntil(this.destroy$))
         .subscribe((gegevens) => {
           if (gegevens.emailadres) {
             const initiatorToevoegenIcon = new ActionIcon(
@@ -201,9 +202,11 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
             emailInput.icons
               ? emailInput.icons.push(initiatorToevoegenIcon)
               : (emailInput.icons = [initiatorToevoegenIcon]);
-            initiatorToevoegenIcon.iconClicked.subscribe(() => {
-              emailInput.value(gegevens.emailadres);
-            });
+            initiatorToevoegenIcon.iconClicked
+              .pipe(takeUntil(this.destroy$))
+              .subscribe(() => {
+                emailInput.value(gegevens.emailadres);
+              });
           }
         });
     }

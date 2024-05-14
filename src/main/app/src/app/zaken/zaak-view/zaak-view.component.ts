@@ -18,7 +18,7 @@ import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { forkJoin } from "rxjs";
-import { map, tap } from "rxjs/operators";
+import { map, takeUntil, tap } from "rxjs/operators";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
@@ -283,11 +283,13 @@ export class ZaakViewComponent
     super.ngAfterViewInit();
 
     this.subscriptions$.push(
-      this.actionsSidenav.openedChange.subscribe((opened) => {
-        if (!opened && this.action === SideNavAction.ZOEK_LOCATIE) {
-          this.action = null;
-        }
-      }),
+      this.actionsSidenav.openedChange
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((opened) => {
+          if (!opened && this.action === SideNavAction.ZOEK_LOCATIE) {
+            this.action = null;
+          }
+        }),
     );
 
     this.takenDataSource.sortingDataAccessor = (item, property) => {

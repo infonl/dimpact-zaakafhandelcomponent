@@ -21,7 +21,8 @@ import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { map } from "rxjs/operators";
+import { Subject } from "rxjs";
+import { map, switchMap, takeUntil, tap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
@@ -87,6 +88,8 @@ export class ZaakDocumentenComponent
 
   private websocketListeners: WebsocketListener[] = [];
 
+  destroy$ = new Subject<void>();
+
   constructor(
     private informatieObjectenService: InformatieObjectenService,
     private websocketService: WebsocketService,
@@ -145,6 +148,8 @@ export class ZaakDocumentenComponent
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     this.websocketService.removeListeners(this.websocketListeners);
   }
 
@@ -154,21 +159,27 @@ export class ZaakDocumentenComponent
         .readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID(
           event.objectId.detail,
         )
-        .subscribe((enkelvoudigInformatieobject) => {
-          this.utilService
-            .openSnackbarAction(
-              "msg.document.toegevoegd.aan.zaak",
-              "actie.document.bekijken",
-              { document: enkelvoudigInformatieobject.titel },
-              7,
-            )
-            .subscribe(() => {
-              this.router.navigate([
-                "/informatie-objecten",
-                enkelvoudigInformatieobject.uuid,
-              ]);
-            });
-        });
+        .pipe(
+          switchMap((enkelvoudigInformatieobject) =>
+            this.utilService
+              .openSnackbarAction(
+                "msg.document.toegevoegd.aan.zaak",
+                "actie.document.bekijken",
+                { document: enkelvoudigInformatieobject.titel },
+                7,
+              )
+              .pipe(
+                tap(() => {
+                  this.router.navigate([
+                    "/informatie-objecten",
+                    enkelvoudigInformatieobject.uuid,
+                  ]);
+                }),
+              ),
+          ),
+          takeUntil(this.destroy$),
+        )
+        .subscribe();
     }
 
     this.isLoadingResults = true;
@@ -178,6 +189,7 @@ export class ZaakDocumentenComponent
 
     this.informatieObjectenService
       .listEnkelvoudigInformatieobjecten(zoekParameters)
+      .pipe(takeUntil(this.destroy$))
       .subscribe((objecten) => {
         this.enkelvoudigInformatieObjecten.data = objecten;
         this.isLoadingResults = false;
@@ -204,6 +216,7 @@ export class ZaakDocumentenComponent
             .filter((zaakID) => zaakID !== this.zaakIdentificatie)
             .join(", ");
         }),
+        takeUntil(this.destroy$),
       )
       .subscribe((zaakIDs) => {
         let melding: string;
@@ -239,6 +252,7 @@ export class ZaakDocumentenComponent
             data: dialogData,
           })
           .afterClosed()
+          .pipe(takeUntil(this.destroy$))
           .subscribe((result) => {
             if (result) {
               this.utilService.openSnackbar(
@@ -329,6 +343,7 @@ export class ZaakDocumentenComponent
 
     return this.informatieObjectenService
       .getZIPDownload(uuids)
+      .pipe(takeUntil(this.destroy$))
       .subscribe((response) => {
         this.utilService.downloadBlobResponse(response, this.zaakIdentificatie);
       });
@@ -376,6 +391,7 @@ export class ZaakDocumentenComponent
         enkelvoudigInformatieobject.uuid,
         this.zaak?.uuid,
       )
+      .pipe(takeUntil(this.destroy$))
       .subscribe((url) => {
         window.open(url);
       });

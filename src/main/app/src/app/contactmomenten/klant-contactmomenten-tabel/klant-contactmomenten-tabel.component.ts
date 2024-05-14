@@ -47,15 +47,15 @@ export class KlantContactmomentenTabelComponent
   resultaat: Resultaat<Contactmoment> = new Resultaat<Contactmoment>();
   init: boolean;
   isLoadingResults = true;
-  destroy$ = new Subject<void>()
+  destroy$ = new Subject<void>();
 
   constructor(
     private contactmomentenService: ContactmomentenService,
     private utilService: UtilService,
   ) {}
   ngOnDestroy(): void {
-    this.destroy$.next()
-    this.destroy$.complete()
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   ngOnInit(): void {
@@ -78,7 +78,7 @@ export class KlantContactmomentenTabelComponent
           this.utilService.setLoading(false);
           return resultaat;
         }),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe((resultaat) => {
         this.resultaat = resultaat;

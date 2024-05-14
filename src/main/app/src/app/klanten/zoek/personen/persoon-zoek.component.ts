@@ -3,12 +3,19 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+} from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
-import { Subject, forkJoin } from "rxjs";
+import { Subject, forkJoin, takeUntil } from "rxjs";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
 import { UtilService } from "../../../core/service/util.service";
 import { ActionIcon } from "../../../shared/edit/action-icon";
@@ -27,7 +34,7 @@ import { Persoon } from "../../model/personen/persoon";
   templateUrl: "./persoon-zoek.component.html",
   styleUrls: ["./persoon-zoek.component.less"],
 })
-export class PersoonZoekComponent implements OnInit {
+export class PersoonZoekComponent implements OnInit, OnDestroy {
   @Output() persoon? = new EventEmitter<Persoon>();
   @Input() sideNav?: MatSidenav;
   formGroup: FormGroup;
@@ -53,6 +60,7 @@ export class PersoonZoekComponent implements OnInit {
   mijnGemeente: string;
   foutmelding: string;
   loading = false;
+  destroy$ = new Subject<void>();
 
   constructor(
     private klantenService: KlantenService,
@@ -61,6 +69,10 @@ export class PersoonZoekComponent implements OnInit {
     private router: Router,
     private configuratieService: ConfiguratieService,
   ) {}
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   ngOnInit(): void {
     this.bsnFormField = new InputFormFieldBuilder()
@@ -100,7 +112,7 @@ export class PersoonZoekComponent implements OnInit {
       .maxlength(4)
       .icon(gemeenteIcon)
       .build();
-    gemeenteIcon.iconClicked.subscribe(() => {
+    gemeenteIcon.iconClicked.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.gemeenteVanInschrijvingFormField.formControl.setValue(
         this.mijnGemeente,
       );
@@ -152,10 +164,12 @@ export class PersoonZoekComponent implements OnInit {
     forkJoin([
       this.klantenService.getPersonenParameters(),
       this.configuratieService.readGemeenteCode(),
-    ]).subscribe(([personenParameters, gemeenteCode]) => {
-      this.queries = personenParameters;
-      this.mijnGemeente = gemeenteCode;
-    });
+    ])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([personenParameters, gemeenteCode]) => {
+        this.queries = personenParameters;
+        this.mijnGemeente = gemeenteCode;
+      });
   }
 
   isValid(): boolean {
@@ -263,6 +277,7 @@ export class PersoonZoekComponent implements OnInit {
     this.personen.data = [];
     this.klantenService
       .listPersonen(this.createListPersonenParameters())
+      .pipe(takeUntil(this.destroy$))
       .subscribe((personen) => {
         this.personen.data = personen.resultaten;
         this.foutmelding = personen.foutmelding;

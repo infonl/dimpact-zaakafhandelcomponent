@@ -6,6 +6,7 @@
 import {
   AfterViewInit,
   Component,
+  OnDestroy,
   TemplateRef,
   ViewChild,
 } from "@angular/core";
@@ -14,7 +15,7 @@ import {
   MatBottomSheetRef,
 } from "@angular/material/bottom-sheet";
 import { Router } from "@angular/router";
-import { Observable } from "rxjs";
+import { Observable, Subject, takeUntil } from "rxjs";
 import { UtilService } from "../service/util.service";
 import { ActionBarAction } from "./model/action-bar-action";
 
@@ -23,19 +24,24 @@ import { ActionBarAction } from "./model/action-bar-action";
   templateUrl: "./action-bar.component.html",
   styleUrls: ["./action-bar.component.less"],
 })
-export class ActionBarComponent implements AfterViewInit {
+export class ActionBarComponent implements AfterViewInit, OnDestroy {
   @ViewChild(TemplateRef) template: TemplateRef<any>;
   addAction$: Observable<ActionBarAction>;
   disableActionBar$: Observable<boolean>;
   actions: ActionBarAction[] = [];
   actionBarDisabled = false;
   matBottomSheetRef: MatBottomSheetRef;
+  destroy$ = new Subject<void>();
 
   constructor(
     readonly bottomSheet: MatBottomSheet,
     public utilService: UtilService,
     private router: Router,
   ) {}
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   actionTextClicked(action: ActionBarAction): void {
     action.action.iconClicked.next(this.router.url);
@@ -55,7 +61,7 @@ export class ActionBarComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.addAction$ = this.utilService.addAction$.asObservable();
-    this.addAction$.subscribe((action) => {
+    this.addAction$.pipe(takeUntil(this.destroy$)).subscribe((action) => {
       this.actions.push(action);
       if (this.actions.length === 1) {
         this.matBottomSheetRef = this.bottomSheet.open(this.template, {
@@ -65,7 +71,7 @@ export class ActionBarComponent implements AfterViewInit {
       }
     });
     this.disableActionBar$ = this.utilService.disableActionBar$.asObservable();
-    this.disableActionBar$.subscribe((state) => {
+    this.disableActionBar$.pipe(takeUntil(this.destroy$)).subscribe((state) => {
       this.actionBarDisabled = state;
     });
   }

@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
+import { Injectable, OnDestroy } from "@angular/core";
 import { Router } from "@angular/router";
-import { Subject } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 import {
   ActionBarAction,
   ActionEntityType,
@@ -21,12 +21,18 @@ import { EnkelvoudigInformatieobject } from "./model/enkelvoudig-informatieobjec
 @Injectable({
   providedIn: "root",
 })
-export class InformatieObjectVerplaatsService {
+export class InformatieObjectVerplaatsService implements OnDestroy {
+  destroy$ = new Subject<void>();
+
   constructor(
     private utilService: UtilService,
     private router: Router,
     private informatieObjectService: InformatieObjectenService,
   ) {}
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   addTeVerplaatsenDocument(
     informatieobject: EnkelvoudigInformatieobject,
@@ -71,19 +77,28 @@ export class InformatieObjectVerplaatsService {
     onInit?: boolean,
   ) {
     const dismiss: Subject<void> = new Subject<void>();
-    dismiss.asObservable().subscribe(() => {
-      this.deleteTeVerplaatsenDocument(document);
-    });
+    dismiss
+      .asObservable()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.deleteTeVerplaatsenDocument(document);
+      });
     const verplaatsAction = new Subject<string>();
-    verplaatsAction.asObservable().subscribe((url) => {
-      const nieuweZaakID = url.split("/").pop();
-      this.informatieObjectService
-        .postVerplaatsDocument(document, nieuweZaakID)
-        .subscribe(() =>
-          this.utilService.openSnackbar("msg.document.verplaatsen.uitgevoerd"),
-        );
-      this.deleteTeVerplaatsenDocument(document);
-    });
+    verplaatsAction
+      .asObservable()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((url) => {
+        const nieuweZaakID = url.split("/").pop();
+        this.informatieObjectService
+          .postVerplaatsDocument(document, nieuweZaakID)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(() =>
+            this.utilService.openSnackbar(
+              "msg.document.verplaatsen.uitgevoerd",
+            ),
+          );
+        this.deleteTeVerplaatsenDocument(document);
+      });
     const teVerplaatsenDocumenten = SessionStorageUtil.getItem(
       "teVerplaatsenDocumenten",
       [],

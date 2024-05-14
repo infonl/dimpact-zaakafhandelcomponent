@@ -4,12 +4,19 @@
  */
 
 import { HttpClient } from "@angular/common/http";
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+} from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { Subject } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 import { Mail } from "../../admin/model/mail";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
@@ -37,9 +44,10 @@ import { MailGegevens } from "../model/mail-gegevens";
   templateUrl: "./ontvangstbevestiging.component.html",
   styleUrls: ["./ontvangstbevestiging.component.less"],
 })
-export class OntvangstbevestigingComponent implements OnInit {
+export class OntvangstbevestigingComponent implements OnInit, OnDestroy {
   formConfig: FormConfig;
   fields: Array<AbstractFormField[]>;
+  destroy$ = new Subject<void>();
   @Input() sideNav: MatDrawer;
   @Input() zaak: Zaak;
   @Output() ontvangstBevestigd = new EventEmitter<boolean>();
@@ -58,6 +66,10 @@ export class OntvangstbevestigingComponent implements OnInit {
     public translateService: TranslateService,
     private klantenService: KlantenService,
   ) {}
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   ngOnInit(): void {
     this.formConfig = new FormConfigBuilder()
@@ -120,6 +132,7 @@ export class OntvangstbevestigingComponent implements OnInit {
           this.zaak.initiatorIdentificatieType,
           this.zaak.initiatorIdentificatie,
         )
+        .pipe(takeUntil(this.destroy$))
         .subscribe((gegevens) => {
           if (gegevens.emailadres) {
             const initiatorToevoegenIcon = new ActionIcon(
@@ -130,9 +143,11 @@ export class OntvangstbevestigingComponent implements OnInit {
             ontvanger.icons
               ? ontvanger.icons.push(initiatorToevoegenIcon)
               : (ontvanger.icons = [initiatorToevoegenIcon]);
-            initiatorToevoegenIcon.iconClicked.subscribe(() => {
-              ontvanger.value(gegevens.emailadres);
-            });
+            initiatorToevoegenIcon.iconClicked
+              .pipe(takeUntil(this.destroy$))
+              .subscribe(() => {
+                ontvanger.value(gegevens.emailadres);
+              });
           }
         });
     }

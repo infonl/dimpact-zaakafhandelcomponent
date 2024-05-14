@@ -4,11 +4,18 @@
  */
 
 import { HttpClient } from "@angular/common/http";
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+} from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Subject } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 import { Mail } from "../../admin/model/mail";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -41,7 +48,7 @@ import { MailGegevens } from "../model/mail-gegevens";
   templateUrl: "./mail-create.component.html",
   styleUrls: ["./mail-create.component.less"],
 })
-export class MailCreateComponent implements OnInit {
+export class MailCreateComponent implements OnInit, OnDestroy {
   fieldNames = {
     VERZENDER: "verzender",
     ONTVANGER: "ontvanger",
@@ -62,6 +69,7 @@ export class MailCreateComponent implements OnInit {
   onderwerpFormField: AbstractFormControlField;
   bodyFormField: AbstractFormControlField;
   bijlagenFormField: AbstractFormControlField;
+  destroy$ = new Subject<void>();
 
   constructor(
     private zakenService: ZakenService,
@@ -77,6 +85,10 @@ export class MailCreateComponent implements OnInit {
     public takenService: TakenService,
     public utilService: UtilService,
   ) {}
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   ngOnInit(): void {
     this.formConfig = new FormConfigBuilder()
@@ -143,6 +155,7 @@ export class MailCreateComponent implements OnInit {
           this.zaak.initiatorIdentificatieType,
           this.zaak.initiatorIdentificatie,
         )
+        .pipe(takeUntil(this.destroy$))
         .subscribe((gegevens) => {
           if (gegevens.emailadres) {
             const initiatorToevoegenIcon = new ActionIcon(
@@ -153,9 +166,11 @@ export class MailCreateComponent implements OnInit {
             this.ontvangerFormField.icons
               ? this.ontvangerFormField.icons.push(initiatorToevoegenIcon)
               : (this.ontvangerFormField.icons = [initiatorToevoegenIcon]);
-            initiatorToevoegenIcon.iconClicked.subscribe(() => {
-              this.ontvangerFormField.value(gegevens.emailadres);
-            });
+            initiatorToevoegenIcon.iconClicked
+              .pipe(takeUntil(this.destroy$))
+              .subscribe(() => {
+                this.ontvangerFormField.value(gegevens.emailadres);
+              });
           }
         });
     }

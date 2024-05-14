@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
+import { Injectable, OnDestroy } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { Router } from "@angular/router";
-import { Subject } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 import {
   ActionBarAction,
   ActionEntityType,
@@ -22,12 +22,17 @@ import { ZaakKoppelenDialogComponent } from "./zaak-koppelen-dialog.component";
 @Injectable({
   providedIn: "root",
 })
-export class ZaakKoppelenService {
+export class ZaakKoppelenService implements OnDestroy {
+  destroy$ = new Subject<void>();
   constructor(
     private utilService: UtilService,
     private router: Router,
     private dialog: MatDialog,
   ) {}
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   addTeKoppelenZaak(zaak: Zaak): void {
     if (!this.isReedsTeKoppelen(zaak)) {
@@ -54,14 +59,20 @@ export class ZaakKoppelenService {
 
   private _koppelenZaak(zaak: Zaak, onInit?: boolean) {
     const dismiss: Subject<void> = new Subject<void>();
-    dismiss.asObservable().subscribe(() => {
-      this.deleteTeKoppelenZaak(zaak);
-    });
+    dismiss
+      .asObservable()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.deleteTeKoppelenZaak(zaak);
+      });
     const editAction = new Subject<string>();
-    editAction.asObservable().subscribe((url) => {
-      const nieuwZaakID = url.split("/").pop();
-      this.openDialog(zaak, nieuwZaakID);
-    });
+    editAction
+      .asObservable()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((url) => {
+        const nieuwZaakID = url.split("/").pop();
+        this.openDialog(zaak, nieuwZaakID);
+      });
     const teKoppelenZaken = SessionStorageUtil.getItem(
       "teKoppelenZaken",
       [],

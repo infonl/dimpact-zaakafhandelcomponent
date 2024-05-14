@@ -22,9 +22,11 @@ export abstract class ViewComponent implements OnDestroy, AfterViewInit {
   protected constructor() {}
 
   ngAfterViewInit(): void {
-    this.menuSidenav.openedStart.subscribe(() => {
-      this.sideNavContainer.hasBackdrop = false;
-    });
+    this.subscriptions$.push(
+      this.menuSidenav.openedStart.subscribe(() => {
+        this.sideNavContainer.hasBackdrop = false;
+      }),
+    );
   }
 
   menuModeChanged(mode: string): void {
