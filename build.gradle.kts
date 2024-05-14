@@ -355,11 +355,8 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
 }
 tasks.getByName("spotlessApply").finalizedBy(listOf("detektApply"))
 
-// run npm install task after generating the Java clients because they
-// share the same output folder (= $rootDir)
 tasks.getByName("npmInstall") {
-    setMustRunAfter(listOf("generateJavaClients"))
-    inputs.files("src/main/app/package.json")
+    inputs.file("src/main/app/package.json")
     outputs.dir("src/main/app/node_modules")
 }
 tasks.getByName("generateSwaggerUIZaakafhandelcomponent").setDependsOn(listOf("generateOpenApiSpec"))
