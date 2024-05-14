@@ -85,7 +85,7 @@ jobs:
             src/generated/java
           key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
-      - name: Cache built ZAR JAR
+      - name: Cache built ZAC JAR
         uses: actions/cache/save@v4
         with:
           path: |
@@ -180,7 +180,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - name: Restore Maven build artefacts
+      - name: Restore built ZAC JAR
         uses: actions/cache/restore@v4
         with:
           path: |
