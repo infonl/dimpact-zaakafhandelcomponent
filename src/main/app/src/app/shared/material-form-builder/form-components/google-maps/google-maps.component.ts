@@ -43,7 +43,7 @@ export class GoogleMapsComponent
   apiLoaded: boolean;
 
   private subscription$: Subscription;
-  private abortController = new AbortController()
+  private abortController = new AbortController();
 
   constructor(
     public translate: TranslateService,
@@ -74,15 +74,19 @@ export class GoogleMapsComponent
           google.maps.ControlPosition.TOP_CENTER
         ].push(locationButton);
 
-        locationButton.addEventListener("click", () => {
-          this.googleMapsService
-            .loadCurrentPosition()
-            .then((latLng) => this.addMarker(latLng))
-            .catch((reason) => {
-              this.infoWindow.infoWindow.setContent(reason);
-              this.infoWindow.open();
-            });
-        }, { signal: this.abortController.signal });
+        locationButton.addEventListener(
+          "click",
+          () => {
+            this.googleMapsService
+              .loadCurrentPosition()
+              .then((latLng) => this.addMarker(latLng))
+              .catch((reason) => {
+                this.infoWindow.infoWindow.setContent(reason);
+                this.infoWindow.open();
+              });
+          },
+          { signal: this.abortController.signal },
+        );
         const autocomplete = new google.maps.places.Autocomplete(
           this.mapAutoComplete.nativeElement,
         );
@@ -104,7 +108,7 @@ export class GoogleMapsComponent
   }
 
   ngOnDestroy(): void {
-    this.abortController.abort()
+    this.abortController.abort();
     if (this.subscription$) {
       this.subscription$.unsubscribe();
     }
