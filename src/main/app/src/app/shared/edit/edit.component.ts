@@ -13,7 +13,7 @@ import {
   Output,
 } from "@angular/core";
 import { FormControlStatus, FormGroup } from "@angular/forms";
-import { Subscription } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "../../core/service/util.service";
 import { MaterialFormBuilderService } from "../material-form-builder/material-form-builder.service";
 import { AbstractFormField } from "../material-form-builder/model/abstract-form-field";
@@ -38,7 +38,7 @@ export abstract class EditComponent
   @Output() onSave: EventEmitter<any> = new EventEmitter<any>();
 
   formFields: FormGroup;
-  subscription: Subscription;
+  destroy$ = new Subject<void>();
 
   protected constructor(
     protected mfbService: MaterialFormBuilderService,
@@ -52,9 +52,8 @@ export abstract class EditComponent
   }
 
   ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onOutsideClick() {
@@ -72,12 +71,12 @@ export abstract class EditComponent
       this.formFields = new FormGroup({});
       this.formFields.setControl(this.formField.id, this.formField.formControl);
 
-      this.subscription = this.formFields.statusChanges.subscribe(
-        (status: FormControlStatus) => {
+      this.formFields.statusChanges
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((status: FormControlStatus) => {
           this.isInValid =
             this.formFields.get(this.formField.id).dirty && status !== "VALID";
-        },
-      );
+        });
     }
   }
 
@@ -90,12 +89,14 @@ export abstract class EditComponent
     if (this.editing && this.formFields.dirty) {
       // Wait for an async validator if it is present.
       if (this.formField.formControl.pending) {
-        const sub = this.formField.formControl.statusChanges.subscribe(() => {
-          if (this.formField.formControl.valid) {
-            this.submitSave();
-          }
-          sub.unsubscribe();
-        });
+        const sub = this.formField.formControl.statusChanges
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(() => {
+            if (this.formField.formControl.valid) {
+              this.submitSave();
+            }
+            sub.unsubscribe();
+          });
       } else {
         this.submitSave();
       }

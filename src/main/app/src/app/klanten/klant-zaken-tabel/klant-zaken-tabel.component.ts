@@ -9,6 +9,7 @@ import {
   EventEmitter,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   SimpleChanges,
   ViewChild,
@@ -18,8 +19,8 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { Observable, lastValueFrom, merge } from "rxjs";
-import { map, startWith, switchMap } from "rxjs/operators";
+import { Observable, Subject, lastValueFrom, merge } from "rxjs";
+import { map, startWith, switchMap, takeUntil } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { SorteerVeld } from "../../zoeken/model/sorteer-veld";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
@@ -36,7 +37,7 @@ import { KlantenService } from "../klanten.service";
   styleUrls: ["./klant-zaken-tabel.component.less"],
 })
 export class KlantZakenTabelComponent
-  implements OnInit, AfterViewInit, OnChanges
+  implements OnInit, AfterViewInit, OnChanges, OnDestroy
 {
   @Input() klantIdentificatie: string;
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -73,11 +74,17 @@ export class KlantZakenTabelComponent
     queryFn: () => this.listDistinctRoltypen(),
   }));
 
+  destroy$ = new Subject<void>();
+
   constructor(
     private utilService: UtilService,
     private zoekenService: ZoekenService,
     private klantenService: KlantenService,
   ) {}
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   ngOnInit(): void {
     this.zoekParameters.type = ZoekObjectType.ZAAK;
@@ -125,7 +132,9 @@ export class KlantZakenTabelComponent
   ngAfterViewInit(): void {
     this.init = true;
     this.filtersChanged();
-    this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
+    this.sort.sortChange
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => (this.paginator.pageIndex = 0));
     merge(this.sort.sortChange, this.paginator.page, this.filterChange)
       .pipe(
         startWith({}),
@@ -139,6 +148,7 @@ export class KlantZakenTabelComponent
           this.utilService.setLoading(false);
           return zoekResultaat;
         }),
+        takeUntil(this.destroy$),
       )
       .subscribe((zoekResultaat) => {
         this.zoekResultaat = zoekResultaat;

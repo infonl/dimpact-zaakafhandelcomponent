@@ -7,6 +7,7 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  OnDestroy,
   OnInit,
   ViewChild,
 } from "@angular/core";
@@ -16,8 +17,8 @@ import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { merge } from "rxjs";
-import { map, startWith, switchMap } from "rxjs/operators";
+import { Subject, merge } from "rxjs";
+import { map, startWith, switchMap, takeUntil } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
@@ -41,7 +42,7 @@ import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service"
 })
 export class OntkoppeldeDocumentenListComponent
   extends WerklijstComponent
-  implements OnInit, AfterViewInit
+  implements OnInit, AfterViewInit, OnDestroy
 {
   isLoadingResults = true;
   dataSource: MatTableDataSource<OntkoppeldDocument> =
@@ -70,6 +71,7 @@ export class OntkoppeldeDocumentenListComponent
   filterOntkoppeldDoor: User[] = [];
   filterChange: EventEmitter<void> = new EventEmitter<void>();
   clearZoekopdracht: EventEmitter<void> = new EventEmitter<void>();
+  destroy$ = new Subject<void>();
 
   constructor(
     private ontkoppeldeDocumentenService: OntkoppeldeDocumentenService,
@@ -83,6 +85,10 @@ export class OntkoppeldeDocumentenListComponent
   ) {
     super();
   }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   ngOnInit(): void {
     super.ngOnInit();
@@ -94,7 +100,9 @@ export class OntkoppeldeDocumentenListComponent
   }
 
   ngAfterViewInit(): void {
-    this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
+    this.sort.sortChange
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => (this.paginator.pageIndex = 0));
     merge(this.sort.sortChange, this.paginator.page, this.filterChange)
       .pipe(
         startWith({}),
@@ -109,6 +117,7 @@ export class OntkoppeldeDocumentenListComponent
           this.utilService.setLoading(false);
           return data;
         }),
+        takeUntil(this.destroy$),
       )
       .subscribe((data) => {
         this.paginator.length = data.totaal;
@@ -136,6 +145,7 @@ export class OntkoppeldeDocumentenListComponent
     od["disabled"] = true;
     this.infoService
       .readEnkelvoudigInformatieobject(od.documentUUID)
+      .pipe(takeUntil(this.destroy$))
       .subscribe((i) => {
         this.informatieObjectVerplaatsService.addTeVerplaatsenDocument(
           i,
@@ -156,6 +166,7 @@ export class OntkoppeldeDocumentenListComponent
         ),
       })
       .afterClosed()
+      .pipe(takeUntil(this.destroy$))
       .subscribe((result) => {
         if (result) {
           this.utilService.openSnackbar("msg.document.verwijderen.uitgevoerd", {

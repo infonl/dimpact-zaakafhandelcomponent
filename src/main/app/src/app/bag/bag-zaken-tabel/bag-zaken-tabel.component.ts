@@ -9,6 +9,7 @@ import {
   EventEmitter,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   SimpleChanges,
   ViewChild,
@@ -16,8 +17,8 @@ import {
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
-import { Observable, merge } from "rxjs";
-import { map, startWith, switchMap } from "rxjs/operators";
+import { Observable, Subject, merge } from "rxjs";
+import { map, startWith, switchMap, takeUntil } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { SorteerVeld } from "../../zoeken/model/sorteer-veld";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
@@ -33,7 +34,7 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
   styleUrls: ["./bag-zaken-tabel.component.less"],
 })
 export class BagZakenTabelComponent
-  implements OnInit, AfterViewInit, OnChanges
+  implements OnInit, AfterViewInit, OnChanges, OnDestroy
 {
   @Input() BagObjectIdentificatie: string;
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -60,11 +61,16 @@ export class BagZakenTabelComponent
   init: boolean;
   inclusiefAfgerondeZaken = false;
   ZoekVeld = ZoekVeld;
+  destroy$ = new Subject<void>();
 
   constructor(
     private utilService: UtilService,
     private zoekenService: ZoekenService,
   ) {}
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   ngOnInit(): void {
     this.zoekParameters.type = ZoekObjectType.ZAAK;
@@ -89,7 +95,9 @@ export class BagZakenTabelComponent
   ngAfterViewInit(): void {
     this.init = true;
     this.filtersChanged();
-    this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
+    this.sort.sortChange
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => (this.paginator.pageIndex = 0));
     merge(this.sort.sortChange, this.paginator.page, this.filterChange)
       .pipe(
         startWith({}),
@@ -103,6 +111,7 @@ export class BagZakenTabelComponent
           this.utilService.setLoading(false);
           return zoekResultaat;
         }),
+        takeUntil(this.destroy$),
       )
       .subscribe((zoekResultaat) => {
         this.zoekResultaat = zoekResultaat;

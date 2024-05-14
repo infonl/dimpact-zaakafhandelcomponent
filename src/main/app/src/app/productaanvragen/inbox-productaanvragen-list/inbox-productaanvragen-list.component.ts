@@ -7,6 +7,7 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  OnDestroy,
   OnInit,
   ViewChild,
 } from "@angular/core";
@@ -16,8 +17,8 @@ import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
 import { ActivatedRoute, Router } from "@angular/router";
-import { merge } from "rxjs";
-import { map, startWith, switchMap } from "rxjs/operators";
+import { Subject, merge } from "rxjs";
+import { map, startWith, switchMap, takeUntil } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
@@ -41,7 +42,7 @@ import { InboxProductaanvraagListParameters } from "../model/inbox-productaanvra
 })
 export class InboxProductaanvragenListComponent
   extends WerklijstComponent
-  implements OnInit, AfterViewInit
+  implements OnInit, AfterViewInit, OnDestroy
 {
   isLoadingResults = true;
   dataSource: MatTableDataSource<InboxProductaanvraag> =
@@ -70,6 +71,7 @@ export class InboxProductaanvragenListComponent
   filterChange: EventEmitter<void> = new EventEmitter<void>();
   clearZoekopdracht: EventEmitter<void> = new EventEmitter<void>();
   previewSrc: SafeUrl = null;
+  destroy$ = new Subject<void>();
 
   constructor(
     private inboxProductaanvragenService: InboxProductaanvragenService,
@@ -83,6 +85,10 @@ export class InboxProductaanvragenListComponent
   ) {
     super();
   }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   ngOnInit(): void {
     super.ngOnInit();
@@ -94,7 +100,9 @@ export class InboxProductaanvragenListComponent
   }
 
   ngAfterViewInit(): void {
-    this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
+    this.sort.sortChange
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => (this.paginator.pageIndex = 0));
     merge(this.sort.sortChange, this.paginator.page, this.filterChange)
       .pipe(
         startWith({}),
@@ -109,6 +117,7 @@ export class InboxProductaanvragenListComponent
           this.utilService.setLoading(false);
           return data;
         }),
+        takeUntil(this.destroy$),
       )
       .subscribe((data) => {
         this.paginator.length = data.totaal;
@@ -202,6 +211,7 @@ export class InboxProductaanvragenListComponent
         ),
       })
       .afterClosed()
+      .pipe(takeUntil(this.destroy$))
       .subscribe((result) => {
         if (result) {
           this.utilService.openSnackbar(

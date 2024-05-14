@@ -7,6 +7,7 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  OnDestroy,
   OnInit,
   ViewChild,
 } from "@angular/core";
@@ -16,8 +17,8 @@ import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { merge } from "rxjs";
-import { map, startWith, switchMap } from "rxjs/operators";
+import { Subject, merge } from "rxjs";
+import { map, startWith, switchMap, takeUntil } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
@@ -40,7 +41,7 @@ import { InboxDocumentListParameters } from "../model/inbox-document-list-parame
 })
 export class InboxDocumentenListComponent
   extends WerklijstComponent
-  implements OnInit, AfterViewInit
+  implements OnInit, AfterViewInit, OnDestroy
 {
   isLoadingResults = true;
   dataSource: MatTableDataSource<InboxDocument> =
@@ -62,6 +63,7 @@ export class InboxDocumentenListComponent
   listParameters: InboxDocumentListParameters;
   filterChange: EventEmitter<void> = new EventEmitter<void>();
   clearZoekopdracht: EventEmitter<void> = new EventEmitter<void>();
+  destroy$ = new Subject<void>();
 
   constructor(
     private inboxDocumentenService: InboxDocumentenService,
@@ -75,6 +77,10 @@ export class InboxDocumentenListComponent
   ) {
     super();
   }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   ngOnInit(): void {
     super.ngOnInit();
@@ -86,7 +92,9 @@ export class InboxDocumentenListComponent
   }
 
   ngAfterViewInit(): void {
-    this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
+    this.sort.sortChange
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => (this.paginator.pageIndex = 0));
     merge(this.sort.sortChange, this.paginator.page, this.filterChange)
       .pipe(
         startWith({}),
@@ -101,6 +109,7 @@ export class InboxDocumentenListComponent
           this.utilService.setLoading(false);
           return data;
         }),
+        takeUntil(this.destroy$),
       )
       .subscribe((data) => {
         this.paginator.length = data.totaal;
@@ -127,6 +136,7 @@ export class InboxDocumentenListComponent
     id["disabled"] = true;
     this.infoService
       .readEnkelvoudigInformatieobject(id.enkelvoudiginformatieobjectUUID)
+      .pipe(takeUntil(this.destroy$))
       .subscribe((i) => {
         this.informatieObjectVerplaatsService.addTeVerplaatsenDocument(
           i,
@@ -147,6 +157,7 @@ export class InboxDocumentenListComponent
         ),
       })
       .afterClosed()
+      .pipe(takeUntil(this.destroy$))
       .subscribe((result) => {
         if (result) {
           this.utilService.openSnackbar("msg.document.verwijderen.uitgevoerd", {

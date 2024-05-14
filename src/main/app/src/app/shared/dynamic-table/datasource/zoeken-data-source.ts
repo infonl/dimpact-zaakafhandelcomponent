@@ -8,8 +8,8 @@ import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import { EventEmitter } from "@angular/core";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
-import { BehaviorSubject, Observable, Subscription, merge } from "rxjs";
-import { finalize, tap } from "rxjs/operators";
+import { BehaviorSubject, Observable, Subject, merge } from "rxjs";
+import { finalize, takeUntil, tap } from "rxjs/operators";
 import { UtilService } from "../../../core/service/util.service";
 import { Werklijst } from "../../../gebruikersvoorkeuren/model/werklijst";
 import { Zoekopdracht } from "../../../gebruikersvoorkeuren/model/zoekopdracht";
@@ -43,7 +43,7 @@ export abstract class ZoekenDataSource<
   private _filterColumns: Array<string>;
   private _detailExpandColumns: Array<ZoekenColumn>;
   private _drop = false;
-  private subscriptions$: Subscription[] = [];
+  private disconnect$ = new Subject<void>();
 
   protected constructor(
     public werklijst: Werklijst,
@@ -75,14 +75,17 @@ export abstract class ZoekenDataSource<
   connect(
     collectionViewer: CollectionViewer,
   ): Observable<OBJECT[] | ReadonlyArray<OBJECT>> {
-    this.subscriptions$.push(
-      this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0)),
-    );
-    this.subscriptions$.push(
-      merge(this.sort.sortChange, this.paginator.page)
-        .pipe(tap(() => this.load()))
-        .subscribe(),
-    );
+    this.sort.sortChange
+      .pipe(takeUntil(this.disconnect$))
+      .subscribe(() => (this.paginator.pageIndex = 0));
+
+    merge(this.sort.sortChange, this.paginator.page)
+      .pipe(
+        tap(() => this.load()),
+        takeUntil(this.disconnect$),
+      )
+      .subscribe();
+
     return this.tableSubject.asObservable() as Observable<OBJECT[]>;
   }
 
@@ -91,9 +94,8 @@ export abstract class ZoekenDataSource<
    * any open connections or free any held resources that were set up during connect.
    */
   disconnect(collectionViewer: CollectionViewer): void {
-    this.subscriptions$.forEach((s) => {
-      s.unsubscribe();
-    });
+    this.disconnect$.next();
+    this.disconnect$.complete();
     this.tableSubject.complete();
   }
 
