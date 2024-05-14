@@ -587,7 +587,7 @@ tasks {
         // see: https://github.com/node-gradle/gradle-node-plugin/blob/master/docs/faq.md
         inputs.files(fileTree("src/main/app/node_modules"))
         inputs.files(fileTree("src/main/app/src"))
-        outputs.dir("src/main/app/dist")
+        outputs.dir("src/main/app/dist/zaakafhandelcomponent")
         outputs.cacheIf { true }
     }
 
