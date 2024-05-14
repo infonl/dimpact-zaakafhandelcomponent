@@ -10,13 +10,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-/**
- *
- */
+
 public class Objecttype {
 
     /**
-     * URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object.
+     * URL-reference to the object type. This is the unique identificaton and location of the object type.
      * - readOnly
      */
     private URI url;
@@ -96,11 +94,6 @@ public class Objecttype {
      * Link to the documentation for the object type
      */
     private URI documentationUrl;
-
-    /**
-     * Key-value pairs of keywords related for the object type
-     */
-    // ToDo: labels
 
     /**
      * Date when the object type was created

@@ -16,4 +16,3 @@
 *.md
 .openapi-generator
 config
-/api-specs
