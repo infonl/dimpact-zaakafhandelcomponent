@@ -5,22 +5,23 @@
 
 package net.atos.client.or.shared;
 
+import static java.lang.String.format;
+import static net.atos.client.or.objecttype.model.Status.PUBLISHED;
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
+
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.Map;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import net.atos.client.or.object.ObjectsClientService;
 import net.atos.client.or.object.model.ORObject;
 import net.atos.client.or.objects.model.generated.ObjectRecord;
 import net.atos.client.or.objecttype.ObjecttypesClientService;
 import net.atos.client.or.objecttype.model.Objecttype;
 import net.atos.client.or.objecttype.model.ObjecttypeVersion;
-
-import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.Map;
-
-import static java.lang.String.format;
-import static net.atos.client.or.objecttype.model.Status.PUBLISHED;
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 @ApplicationScoped
 public class ObjectRegistratieClientService {
