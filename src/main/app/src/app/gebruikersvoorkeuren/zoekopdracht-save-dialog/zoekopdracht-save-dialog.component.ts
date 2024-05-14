@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { Observable } from "rxjs";
-import { map, startWith } from "rxjs/operators";
+import { Observable, Subject } from "rxjs";
+import { map, startWith, takeUntil } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
 import { Werklijst } from "../model/werklijst";
@@ -17,10 +17,11 @@ import { Zoekopdracht } from "../model/zoekopdracht";
   templateUrl: "./zoekopdracht-save-dialog.component.html",
   styleUrls: ["./zoekopdracht-save-dialog.component.less"],
 })
-export class ZoekopdrachtSaveDialogComponent implements OnInit {
+export class ZoekopdrachtSaveDialogComponent implements OnInit, OnDestroy {
   loading: boolean;
   formControl = new FormControl("");
   filteredOptions: Observable<string[]>;
+  destroy$ = new Subject<void>();
 
   constructor(
     public dialogRef: MatDialogRef<ZoekopdrachtSaveDialogComponent>,
@@ -33,6 +34,10 @@ export class ZoekopdrachtSaveDialogComponent implements OnInit {
     private gebruikersvoorkeurenService: GebruikersvoorkeurenService,
     private utilService: UtilService,
   ) {}
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   close() {
     this.dialogRef.close();
@@ -53,6 +58,7 @@ export class ZoekopdrachtSaveDialogComponent implements OnInit {
     }
     this.gebruikersvoorkeurenService
       .createOrUpdateZoekOpdrachten(zoekopdracht)
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
           this.utilService.openSnackbar("msg.zoekopdracht.opgeslagen");

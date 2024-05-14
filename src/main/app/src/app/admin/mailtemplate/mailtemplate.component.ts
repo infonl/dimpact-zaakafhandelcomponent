@@ -14,10 +14,9 @@ import { Validators } from "@angular/forms";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { Observable, of } from "rxjs";
-import { catchError } from "rxjs/operators";
+import { Observable, Subject, of } from "rxjs";
+import { catchError, switchMap, takeUntil, tap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
-import { IdentityService } from "../../identity/identity.service";
 import { HtmlEditorFormField } from "../../shared/material-form-builder/form-components/html-editor/html-editor-form-field";
 import { HtmlEditorFormFieldBuilder } from "../../shared/material-form-builder/form-components/html-editor/html-editor-form-field-builder";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
@@ -46,7 +45,9 @@ export class MailtemplateComponent
     ONDERWERP: "onderwerp",
     BODY: "body",
     DEFAULT_MAILTEMPLATE: "defaultMailtemplate",
-  };
+  } as const;
+
+  destroy$ = new Subject<void>();
 
   naamFormField: AbstractFormControlField;
   mailFormField: AbstractFormControlField;
@@ -59,7 +60,6 @@ export class MailtemplateComponent
   isLoadingResults = false;
 
   constructor(
-    private identityService: IdentityService,
     private service: MailtemplateBeheerService,
     public utilService: UtilService,
     private route: ActivatedRoute,
@@ -70,7 +70,7 @@ export class MailtemplateComponent
   }
 
   ngOnInit(): void {
-    this.route.data.subscribe((data) => {
+    this.route.data.pipe(takeUntil(this.destroy$)).subscribe((data) => {
       this.init(data?.template ? data.template : new Mailtemplate());
     });
   }
@@ -130,24 +130,26 @@ export class MailtemplateComponent
       .label(this.fields.DEFAULT_MAILTEMPLATE)
       .build();
 
-    this.subscriptions$.push(
-      this.mailFormField.formControl.valueChanges.subscribe((value) => {
-        if (value) {
-          this.service
-            .ophalenVariabelenVoorMail(value.value)
-            .subscribe((variabelen) => {
-              this.onderwerpFormField.variabelen = variabelen;
-              this.bodyFormField.variabelen = variabelen;
-            });
-        }
-      }),
-    );
+    this.mailFormField.formControl.valueChanges
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap((v) =>
+          v?.value
+            ? this.service.ophalenVariabelenVoorMail(v.value).pipe(
+                tap((variabelen) => {
+                  this.onderwerpFormField.variabelen = variabelen;
+                  this.bodyFormField.variabelen = variabelen;
+                }),
+              )
+            : of(false),
+        ),
+      )
+      .subscribe();
   }
 
   ngOnDestroy(): void {
-    for (const subscription of this.subscriptions$) {
-      subscription.unsubscribe();
-    }
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   saveMailtemplate(): void {
@@ -171,7 +173,10 @@ export class MailtemplateComponent
     const persistMailtemplate: Observable<Mailtemplate> =
       this.service.persistMailtemplate(this.template);
     persistMailtemplate
-      .pipe(catchError((error) => of(this.template)))
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError((error) => of(this.template)),
+      )
       .subscribe(() => {
         this.utilService.openSnackbar("msg.mailtemplate.opgeslagen");
         this.router.navigate(["/admin/mailtemplates"]);

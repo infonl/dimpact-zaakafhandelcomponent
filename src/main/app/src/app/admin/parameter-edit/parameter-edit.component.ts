@@ -16,8 +16,8 @@ import { MatSelectChange } from "@angular/material/select";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
-import { Subscription, forkJoin } from "rxjs";
-import { switchMap, tap } from "rxjs/operators";
+import { Subject, forkJoin } from "rxjs";
+import { switchMap, takeUntil, tap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { Group } from "../../identity/model/group";
@@ -89,7 +89,7 @@ export class ParameterEditComponent
   mailtemplates: Mailtemplate[];
   replyTos: ReplyTo[];
   loading: boolean;
-  defaultGroepSubscription$: Subscription;
+  destroy$ = new Subject<void>();
 
   constructor(
     public utilService: UtilService,
@@ -101,7 +101,7 @@ export class ParameterEditComponent
     private mailtemplateBeheerService: MailtemplateBeheerService,
   ) {
     super(utilService);
-    this.route.data.subscribe((data) => {
+    this.route.data.pipe(takeUntil(this.destroy$)).subscribe((data) => {
       this.parameters = data.parameters;
       this.parameters.intakeMail = this.parameters.intakeMail
         ? this.parameters.intakeMail
@@ -114,6 +114,7 @@ export class ParameterEditComponent
       this.humanTaskParameters = this.parameters.humanTaskParameters;
       adminService
         .listResultaattypes(this.parameters.zaaktype.uuid)
+        .pipe(takeUntil(this.destroy$))
         .subscribe((resultaattypes) => (this.resultaattypes = resultaattypes));
       forkJoin([
         adminService.listCaseDefinitions(),
@@ -126,32 +127,34 @@ export class ParameterEditComponent
         identityService.listUsers(),
         adminService.listZaakbeeindigRedenen(),
         mailtemplateBeheerService.listKoppelbareMailtemplates(),
-      ]).subscribe(
-        ([
-          caseDefinitions,
-          formulierDefinities,
-          referentieTabellen,
-          domeinen,
-          afzenders,
-          replyTos,
-          groepen,
-          medewerkers,
-          zaakbeeindigRedenen,
-          mailtemplates,
-        ]) => {
-          this.caseDefinitions = caseDefinitions;
-          this.formulierDefinities = formulierDefinities;
-          this.referentieTabellen = referentieTabellen;
-          this.domeinen = domeinen;
-          this.groepen = groepen;
-          this.medewerkers = medewerkers;
-          this.zaakbeeindigRedenen = zaakbeeindigRedenen;
-          this.mailtemplates = mailtemplates;
-          this.zaakAfzenders = afzenders;
-          this.replyTos = replyTos;
-          this.createForm();
-        },
-      );
+      ])
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(
+          ([
+            caseDefinitions,
+            formulierDefinities,
+            referentieTabellen,
+            domeinen,
+            afzenders,
+            replyTos,
+            groepen,
+            medewerkers,
+            zaakbeeindigRedenen,
+            mailtemplates,
+          ]) => {
+            this.caseDefinitions = caseDefinitions;
+            this.formulierDefinities = formulierDefinities;
+            this.referentieTabellen = referentieTabellen;
+            this.domeinen = domeinen;
+            this.groepen = groepen;
+            this.medewerkers = medewerkers;
+            this.zaakbeeindigRedenen = zaakbeeindigRedenen;
+            this.mailtemplates = mailtemplates;
+            this.zaakAfzenders = afzenders;
+            this.replyTos = replyTos;
+            this.createForm();
+          },
+        );
     });
   }
 
@@ -165,7 +168,8 @@ export class ParameterEditComponent
 
   ngOnDestroy(): void {
     super.ngOnDestroy();
-    this.defaultGroepSubscription$.unsubscribe();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   caseDefinitionChanged(event: MatSelectChange): void {
@@ -238,16 +242,17 @@ export class ParameterEditComponent
       ],
       productaanvraagtype: [this.parameters.productaanvraagtype],
     });
-    this.defaultGroepSubscription$ =
-      this.algemeenFormGroup.controls.defaultGroepId.valueChanges
-        .pipe(
-          switchMap((groepId) =>
-            this.identityService
-              .listUsersInGroup(groepId)
-              .pipe(tap((medewerkers) => (this.medewerkers = medewerkers))),
+    this.algemeenFormGroup.controls.defaultGroepId.valueChanges
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap((groepId) =>
+          this.identityService.listUsersInGroup(groepId).pipe(
+            takeUntil(this.destroy$),
+            tap((medewerkers) => (this.medewerkers = medewerkers)),
           ),
-        )
-        .subscribe();
+        ),
+      )
+      .subscribe();
     this.createHumanTasksForm();
     this.createUserEventListenerForm();
     this.createMailForm();
@@ -616,6 +621,7 @@ export class ParameterEditComponent
 
     this.adminService
       .updateZaakafhandelparameters(this.parameters)
+      .pipe(takeUntil(this.destroy$))
       .subscribe((data) => {
         this.loading = false;
         this.utilService.openSnackbar("msg.zaakafhandelparameters.opgeslagen");

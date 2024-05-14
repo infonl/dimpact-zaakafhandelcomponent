@@ -22,7 +22,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
 import { Moment } from "moment/moment";
-import { Observable, Subscription, of } from "rxjs";
+import { Observable, Subject, Subscription, of, takeUntil } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
 import { ZakenService } from "../../../zaken/zaken.service";
 import { DialogData } from "../../dialog/dialog-data";
@@ -81,6 +81,7 @@ export class EditDatumGroepComponent
   werkelijkeOpschortDuur: number;
 
   editFormFieldIcons: Map<string, TextIcon> = new Map<string, TextIcon>();
+  destroy$ = new Subject<void>();
 
   constructor(
     mfbService: MaterialFormBuilderService,
@@ -94,6 +95,12 @@ export class EditDatumGroepComponent
 
   ngOnInit(): void {
     this.updateGroep();
+  }
+
+  ngOnDestroy(): void {
+    super.ngOnDestroy();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -170,9 +177,11 @@ export class EditDatumGroepComponent
         reden: this.reasonField.formControl,
       });
 
-      this.formFields.statusChanges.subscribe((status: FormControlStatus) => {
-        this.isInValid = this.formFields.dirty && status !== "VALID";
-      });
+      this.formFields.statusChanges
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((status: FormControlStatus) => {
+          this.isInValid = this.formFields.dirty && status !== "VALID";
+        });
     }
   }
 
@@ -245,6 +254,7 @@ export class EditDatumGroepComponent
         data: dialogData,
       })
       .afterClosed()
+      .pipe(takeUntil(this.destroy$))
       .subscribe((result) => {
         this.unsubscribe(subscriptions);
         if (!result) {
@@ -347,6 +357,7 @@ export class EditDatumGroepComponent
         data: dialogData,
       })
       .afterClosed()
+      .pipe(takeUntil(this.destroy$))
       .subscribe((result) => {
         this.unsubscribe(subscriptions);
         if (!result) {
@@ -370,33 +381,37 @@ export class EditDatumGroepComponent
   ): Subscription[] {
     const subscriptions: Subscription[] = [];
     subscriptions.push(
-      this.duurField.formControl.valueChanges.subscribe((value) => {
-        this.duurChanged(
-          value,
-          vorigeEinddatumGeplandDatum,
-          vorigeUiterlijkeEinddatumAfdoening,
-        );
-      }),
+      this.duurField.formControl.valueChanges
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((value) => {
+          this.duurChanged(
+            value,
+            vorigeEinddatumGeplandDatum,
+            vorigeUiterlijkeEinddatumAfdoening,
+          );
+        }),
     );
     subscriptions.push(
-      this.einddatumGeplandField.formControl.valueChanges.subscribe((value) => {
-        this.einddatumGeplandChanged(
-          value,
-          vorigeEinddatumGeplandDatum,
-          vorigeUiterlijkeEinddatumAfdoening,
-        );
-      }),
+      this.einddatumGeplandField.formControl.valueChanges
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((value) => {
+          this.einddatumGeplandChanged(
+            value,
+            vorigeEinddatumGeplandDatum,
+            vorigeUiterlijkeEinddatumAfdoening,
+          );
+        }),
     );
     subscriptions.push(
-      this.uiterlijkeEinddatumAfdoeningField.formControl.valueChanges.subscribe(
-        (value) => {
+      this.uiterlijkeEinddatumAfdoeningField.formControl.valueChanges
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((value) => {
           this.uiterlijkEinddatumAfdoeningChanged(
             value,
             vorigeEinddatumGeplandDatum,
             vorigeUiterlijkeEinddatumAfdoening,
           );
-        },
-      ),
+        }),
     );
     return subscriptions;
   }

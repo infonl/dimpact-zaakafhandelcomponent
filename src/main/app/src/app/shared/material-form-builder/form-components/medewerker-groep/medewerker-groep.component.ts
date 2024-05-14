@@ -12,8 +12,8 @@ import {
   Validators,
 } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
-import { Observable, Subscription } from "rxjs";
-import { map, startWith, tap } from "rxjs/operators";
+import { Observable, Subject } from "rxjs";
+import { map, startWith, takeUntil, tap } from "rxjs/operators";
 import { IdentityService } from "../../../../identity/identity.service";
 import { Group } from "../../../../identity/model/group";
 import { User } from "../../../../identity/model/user";
@@ -35,7 +35,7 @@ export class MedewerkerGroepComponent
   filteredGroepen: Observable<Group[]>;
   medewerkers: User[];
   filteredMedewerkers: Observable<User[]>;
-  subscriptions$: Subscription[] = [];
+  destroy$ = new Subject<void>();
 
   constructor(
     public translate: TranslateService,
@@ -47,8 +47,9 @@ export class MedewerkerGroepComponent
   ngOnInit(): void {
     this.initGroepen();
 
-    this.subscriptions$.push(
-      this.data.groep.valueChanges.subscribe((value) => {
+    this.data.groep.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((value) => {
         if (!this.data.groep.dirty) {
           return;
         }
@@ -60,8 +61,8 @@ export class MedewerkerGroepComponent
           this.data.medewerker.disable();
         }
         this.data.medewerker.setValue(null);
-      }),
-    );
+      });
+
     if (!this.data.groep.value) {
       this.data.medewerker.disable();
     } else {
@@ -70,13 +71,17 @@ export class MedewerkerGroepComponent
   }
 
   ngOnDestroy() {
-    this.subscriptions$.forEach((s) => s.unsubscribe());
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   initGroepen(): void {
     this.identityService
       .listGroups()
-      .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam"))))
+      .pipe(
+        takeUntil(this.destroy$),
+        tap((value) => value.sort(OrderUtil.orderBy("naam"))),
+      )
       .subscribe((groepen) => {
         this.groepen = groepen;
         const validators: ValidatorFn[] = [];
@@ -131,7 +136,10 @@ export class MedewerkerGroepComponent
     const observable: Observable<User[]> =
       this.identityService.listUsersInGroup(this.data.groep.value.id);
     observable
-      .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam"))))
+      .pipe(
+        takeUntil(this.destroy$),
+        tap((value) => value.sort(OrderUtil.orderBy("naam"))),
+      )
       .subscribe((medewerkers) => {
         this.medewerkers = medewerkers;
         const validators: ValidatorFn[] = [];

@@ -5,6 +5,7 @@
 
 import { Validators } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
+import { Subject, takeUntil } from "rxjs";
 import { Mail } from "../../../admin/model/mail";
 import { ZaakAfzender } from "../../../admin/model/zaakafzender";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
@@ -40,6 +41,7 @@ export class ExternAdviesMail extends AbstractTaakFormulier {
   };
 
   constructor(
+    private destroy$: Subject<void>,
     translate: TranslateService,
     public takenService: TakenService,
     public informatieObjectenService: InformatieObjectenService,
@@ -112,16 +114,16 @@ export class ExternAdviesMail extends AbstractTaakFormulier {
       ],
     );
 
-    this.getFormField(fields.VERZENDER).formControl.valueChanges.subscribe(
-      (afzender: ZaakAfzender) => {
+    this.getFormField(fields.VERZENDER)
+      .formControl.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe((afzender: ZaakAfzender) => {
         const verzender: SelectFormField = this.getFormField(
           fields.VERZENDER,
         ) as SelectFormField;
         this.getFormField(fields.REPLYTO).formControl.setValue(
           verzender.getOption(afzender)?.replyTo,
         );
-      },
-    );
+      });
   }
 
   _initBehandelForm() {

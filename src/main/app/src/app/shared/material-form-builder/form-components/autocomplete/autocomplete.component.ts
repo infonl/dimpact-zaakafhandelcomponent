@@ -5,8 +5,8 @@
 
 import { AfterViewInit, Component, OnDestroy } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { Observable, Subscription } from "rxjs";
-import { map, startWith } from "rxjs/operators";
+import { Observable, Subject, Subscription } from "rxjs";
+import { map, startWith, takeUntil } from "rxjs/operators";
 import { FormComponent } from "../../model/form-component";
 import { AutocompleteFormField } from "./autocomplete-form-field";
 import { AutocompleteValidators } from "./autocomplete-validators";
@@ -25,6 +25,7 @@ export class AutocompleteComponent
   options: any[];
   filteredOptions: Observable<any[]>;
   optionsChanged$: Subscription;
+  destroy$ = new Subject<void>();
 
   constructor(public translate: TranslateService) {
     super();
@@ -32,7 +33,7 @@ export class AutocompleteComponent
 
   ngAfterViewInit() {
     this.initOptions();
-    this.optionsChanged$ = this.data.optionsChanged$.subscribe(() => {
+    this.data.optionsChanged$.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.data.formControl.clearAsyncValidators();
       this.initOptions();
       this.data.formControl.setValue(this.data.formControl.value); // force validation on new options
@@ -43,7 +44,7 @@ export class AutocompleteComponent
     this.data.formControl.setAsyncValidators(
       AutocompleteValidators.asyncOptionInList(this.data.options),
     );
-    this.data.options.subscribe((options) => {
+    this.data.options.pipe(takeUntil(this.destroy$)).subscribe((options) => {
       this.options = options;
 
       this.filteredOptions = this.data.formControl.valueChanges.pipe(
@@ -77,6 +78,7 @@ export class AutocompleteComponent
   }
 
   ngOnDestroy(): void {
-    this.optionsChanged$.unsubscribe();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

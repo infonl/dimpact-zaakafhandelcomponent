@@ -15,8 +15,8 @@ import {
 import { FormControl } from "@angular/forms";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSidenav } from "@angular/material/sidenav";
-import { merge } from "rxjs";
-import { map, switchMap } from "rxjs/operators";
+import { Subject, merge } from "rxjs";
+import { map, switchMap, takeUntil } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { DocumentZoekObject } from "../model/documenten/document-zoek-object";
 import { TaakZoekObject } from "../model/taken/taak-zoek-object";
@@ -54,6 +54,7 @@ export class ZoekComponent implements AfterViewInit, OnInit {
   hasZaken = false;
   hasDocument = false;
   huidigZoekVeld: ZoekVeld = ZoekVeld.ALLE;
+  destroy$ = new Subject<void>();
 
   constructor(
     private zoekService: ZoekenService,
@@ -61,24 +62,32 @@ export class ZoekComponent implements AfterViewInit, OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.zoekService.trefwoorden$.subscribe((trefwoorden) => {
-      if (this.trefwoordenControl.value !== trefwoorden) {
-        this.trefwoordenControl.setValue(trefwoorden);
-      }
-    });
-    this.trefwoordenControl.valueChanges.subscribe((trefwoorden) => {
-      this.zoekService.trefwoorden$.next(trefwoorden);
-    });
-    this.zoekenSideNav.openedStart.subscribe(() => {
-      if (this.trefwoordenControl.value) {
-        this.zoek.emit();
-      }
-    });
-    this.zoekService.reset$.subscribe(() => this.reset());
+    this.zoekService.trefwoorden$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((trefwoorden) => {
+        if (this.trefwoordenControl.value !== trefwoorden) {
+          this.trefwoordenControl.setValue(trefwoorden);
+        }
+      });
+    this.trefwoordenControl.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((trefwoorden) => {
+        this.zoekService.trefwoorden$.next(trefwoorden);
+      });
+    this.zoekenSideNav.openedStart
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.trefwoordenControl.value) {
+          this.zoek.emit();
+        }
+      });
+    this.zoekService.reset$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.reset());
   }
 
   ngAfterViewInit(): void {
-    this.zoek.subscribe(() => {
+    this.zoek.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.paginator.pageIndex = 0;
     });
     merge(this.paginator.page, this.zoek)
@@ -98,6 +107,7 @@ export class ZoekComponent implements AfterViewInit, OnInit {
           return data;
         }),
       )
+      .pipe(takeUntil(this.destroy$))
       .subscribe((data) => {
         this.paginator.length = data.totaal;
         this.hasSearched = true;

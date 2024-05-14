@@ -3,8 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
+import { Injectable, OnDestroy } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
+import { Subject } from "rxjs";
 import { FormulierDefinitieID } from "../../admin/model/formulier-definitie";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
@@ -24,7 +25,7 @@ import { TaakFormulierBuilder } from "./taak-formulier-builder";
 @Injectable({
   providedIn: "root",
 })
-export class TaakFormulierenService {
+export class TaakFormulierenService implements OnDestroy {
   constructor(
     private translate: TranslateService,
     private informatieObjectenService: InformatieObjectenService,
@@ -34,6 +35,13 @@ export class TaakFormulierenService {
     private mailtemplateService: MailtemplateService,
     private klantenService: KlantenService,
   ) {}
+
+  destroy$ = new Subject<void>();
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   public getFormulierBuilder(
     formulierDefinitie: FormulierDefinitieID,
@@ -49,6 +57,7 @@ export class TaakFormulierenService {
       case "AANVULLENDE_INFORMATIE":
         return new TaakFormulierBuilder(
           new AanvullendeInformatie(
+            this.destroy$,
             this.translate,
             this.takenService,
             this.informatieObjectenService,
@@ -78,6 +87,7 @@ export class TaakFormulierenService {
       case "EXTERN_ADVIES_MAIL":
         return new TaakFormulierBuilder(
           new ExternAdviesMail(
+            this.destroy$,
             this.translate,
             this.takenService,
             this.informatieObjectenService,

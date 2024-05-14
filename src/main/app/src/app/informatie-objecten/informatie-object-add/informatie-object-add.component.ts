@@ -16,7 +16,15 @@ import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
-import { BehaviorSubject, Subscription, combineLatest, map, tap } from "rxjs";
+import {
+  BehaviorSubject,
+  Subject,
+  Subscription,
+  combineLatest,
+  map,
+  takeUntil,
+  tap,
+} from "rxjs";
 import { LoggedInUser } from "src/app/identity/model/logged-in-user";
 import { FileInputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/file-input/file-input-form-field-builder";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
@@ -58,6 +66,8 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
     private translateService: TranslateService,
     private identityService: IdentityService,
   ) {}
+
+  destroy$ = new Subject<void>();
 
   formConfig: FormConfig;
   loggedInUser$ = this.identityService.readLoggedInUser();
@@ -256,8 +266,9 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
     inhoudField,
     titel,
   }: ReturnType<InformatieObjectAddComponent["getInputs"]>) {
-    this.subscriptions.push(
-      informatieobjectType.formControl.valueChanges.subscribe((value) => {
+    informatieobjectType.formControl.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((value) => {
         if (value) {
           vertrouwelijk.formControl.setValue(
             vertrouwelijkheidsAanduidingen.find(
@@ -266,36 +277,35 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
           );
         }
       }),
-    );
-
-    this.subscriptions.push(
-      ontvangstDatum.formControl.valueChanges.subscribe((value) => {
-        if (value && verzendDatum.formControl.enabled) {
-          this.status.formControl.setValue(this.getStatusDefinitief());
-          this.status.formControl.disable();
-          verzendDatum.formControl.disable();
-        } else if (!value && verzendDatum.formControl.disabled) {
-          if (!this.isAfgehandeld()) {
-            this.status.formControl.enable();
+      ontvangstDatum.formControl.valueChanges
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((value) => {
+          if (value && verzendDatum.formControl.enabled) {
+            this.status.formControl.setValue(this.getStatusDefinitief());
+            this.status.formControl.disable();
+            verzendDatum.formControl.disable();
+          } else if (!value && verzendDatum.formControl.disabled) {
+            if (!this.isAfgehandeld()) {
+              this.status.formControl.enable();
+            }
+            verzendDatum.formControl.enable();
           }
-          verzendDatum.formControl.enable();
-        }
-      }),
-    );
+        });
 
-    this.subscriptions.push(
-      verzendDatum.formControl.valueChanges.subscribe((value) => {
+    verzendDatum.formControl.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((value) => {
         if (value && ontvangstDatum.formControl.enabled) {
           ontvangstDatum.formControl.disable();
         } else if (!value && ontvangstDatum.formControl.disabled) {
           ontvangstDatum.formControl.enable();
         }
-      }),
-    );
+      });
 
     let vorigeBestandsnaam = null;
-    this.subscriptions.push(
-      inhoudField.fileUploaded.subscribe((bestandsnaam) => {
+    inhoudField.fileUploaded
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((bestandsnaam) => {
         const titelCtrl = titel.formControl;
         if (!bestandsnaam) {
           titelCtrl.setValue(null);
@@ -304,8 +314,7 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
           titelCtrl.setValue(bestandsnaam.replace(/\.[^/.]+$/, ""));
           vorigeBestandsnaam = "" + titelCtrl.value;
         }
-      }),
-    );
+      });
   }
 
   private isAfgehandeld(): boolean {
@@ -330,9 +339,8 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    for (const subscription of this.subscriptions) {
-      subscription.unsubscribe();
-    }
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onFormSubmit(formGroup: FormGroup): void {
@@ -368,6 +376,7 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
           infoObject,
           !!this.taak,
         )
+        .pipe(takeUntil(this.destroy$))
         .subscribe((document) => {
           this.document.emit(document);
           const iterations = this.formIterations$.getValue();

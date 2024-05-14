@@ -16,7 +16,7 @@ import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
-import { Subscription } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 import { FileInputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/file-input/file-input-form-field-builder";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
@@ -53,12 +53,12 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
 
   @ViewChild(FormComponent) form: FormComponent;
 
+  destroy$ = new Subject<void>();
+
   fields: Array<AbstractFormField[]>;
   informatieobjecttypes: Informatieobjecttype[];
   formConfig: FormConfig;
   ingelogdeMedewerker: User;
-
-  private subscriptions$: Subscription[] = [];
 
   constructor(
     private zakenService: ZakenService,
@@ -178,11 +178,13 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
       .build();
 
     let vorigeBestandsnaam = null;
-    inhoudField.fileUploaded.subscribe((bestandsnaam) => {
-      const titelCtrl = titel.formControl;
-      titelCtrl.setValue(bestandsnaam.replace(/\.[^/.]+$/, ""));
-      vorigeBestandsnaam = "" + titelCtrl.value;
-    });
+    inhoudField.fileUploaded
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((bestandsnaam) => {
+        const titelCtrl = titel.formControl;
+        titelCtrl.setValue(bestandsnaam.replace(/\.[^/.]+$/, ""));
+        vorigeBestandsnaam = "" + titelCtrl.value;
+      });
 
     this.fields = [
       [inhoudField],
@@ -194,8 +196,9 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
       [toelichting],
     ];
 
-    this.subscriptions$.push(
-      ontvangstDatum.formControl.valueChanges.subscribe((value) => {
+    ontvangstDatum.formControl.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((value) => {
         if (value && verzenddatum.formControl.enabled) {
           status.formControl.setValue(
             informatieobjectStatussen.find(
@@ -213,18 +216,17 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
           status.formControl.enable();
           verzenddatum.formControl.enable();
         }
-      }),
-    );
+      });
 
-    this.subscriptions$.push(
-      verzenddatum.formControl.valueChanges.subscribe((value) => {
+    verzenddatum.formControl.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((value) => {
         if (value && ontvangstDatum.formControl.enabled) {
           ontvangstDatum.formControl.disable();
         } else if (!value && ontvangstDatum.formControl.disabled) {
           ontvangstDatum.formControl.enable();
         }
-      }),
-    );
+      });
 
     if (ontvangstDatum.formControl.value) {
       verzenddatum.formControl.disable();
@@ -236,9 +238,8 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    for (const subscription of this.subscriptions$) {
-      subscription.unsubscribe();
-    }
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onFormSubmit(formGroup: FormGroup): void {
@@ -271,6 +272,7 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
           this.zaakUuid,
           nieuweVersie,
         )
+        .pipe(takeUntil(this.destroy$))
         .subscribe((document) => {
           this.document.emit(document);
           this.utilService.openSnackbar(
@@ -286,8 +288,11 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
   }
 
   private getIngelogdeMedewerker() {
-    this.identityService.readLoggedInUser().subscribe((ingelogdeMedewerker) => {
-      this.ingelogdeMedewerker = ingelogdeMedewerker;
-    });
+    this.identityService
+      .readLoggedInUser()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((ingelogdeMedewerker) => {
+        this.ingelogdeMedewerker = ingelogdeMedewerker;
+      });
   }
 }

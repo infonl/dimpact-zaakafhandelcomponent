@@ -6,7 +6,7 @@
 import { Validators } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import moment from "moment/moment";
-import { Observable, of, Subject } from "rxjs";
+import { Observable, of, Subject, takeUntil } from "rxjs";
 import { Mail } from "../../../admin/model/mail";
 import { Mailtemplate } from "../../../admin/model/mailtemplate";
 import { ZaakAfzender } from "../../../admin/model/zaakafzender";
@@ -55,6 +55,7 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
   mailtemplate$: Observable<Mailtemplate>;
 
   constructor(
+    private destroy$: Subject<void>,
     translate: TranslateService,
     public takenService: TakenService,
     public informatieObjectenService: InformatieObjectenService,
@@ -152,16 +153,16 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
         );
       });
 
-    this.getFormField(fields.VERZENDER).formControl.valueChanges.subscribe(
-      (afzender: ZaakAfzender) => {
+    this.getFormField(fields.VERZENDER)
+      .formControl.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe((afzender: ZaakAfzender) => {
         const verzender: SelectFormField = this.getFormField(
           fields.VERZENDER,
         ) as SelectFormField;
         this.getFormField(fields.REPLYTO).formControl.setValue(
           verzender.getOption(afzender)?.replyTo,
         );
-      },
-    );
+      });
 
     if (this.opschortenMogelijk()) {
       this.form.push([
@@ -170,12 +171,12 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
           .label(fields.ZAAK_OPSCHORTEN)
           .build(),
       ]);
-      this.getFormField(
-        fields.ZAAK_OPSCHORTEN,
-      ).formControl.valueChanges.subscribe((opschorten) => {
-        this.getFormField(AbstractTaakFormulier.TAAK_FATALEDATUM).required =
-          opschorten;
-      });
+      this.getFormField(fields.ZAAK_OPSCHORTEN)
+        .formControl.valueChanges.pipe(takeUntil(this.destroy$))
+        .subscribe((opschorten) => {
+          this.getFormField(AbstractTaakFormulier.TAAK_FATALEDATUM).required =
+            opschorten;
+        });
     }
 
     if (
