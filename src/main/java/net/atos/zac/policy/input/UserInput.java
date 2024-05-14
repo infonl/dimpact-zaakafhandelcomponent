@@ -5,6 +5,8 @@
 
 package net.atos.zac.policy.input;
 
+import java.util.Objects;
+
 import jakarta.json.bind.annotation.JsonbProperty;
 
 import net.atos.zac.authentication.LoggedInUser;
@@ -15,6 +17,8 @@ public class UserInput {
     private final UserData userData = new UserData();
 
     public UserInput(final LoggedInUser loggedInUser) {
+        Objects.requireNonNull(loggedInUser,
+                "No logged in user found. Please ensure that user did not log out and its session is still active");
         userData.id = loggedInUser.getId();
         userData.rollen = loggedInUser.getRoles();
         userData.zaaktypen = loggedInUser.isGeautoriseerdVoorAlleZaaktypen() ? null : loggedInUser.getGeautoriseerdeZaaktypen();
