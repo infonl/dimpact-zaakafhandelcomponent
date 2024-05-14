@@ -29,7 +29,7 @@ C4Component
 
 ```
 
-The following components are part of the ZAC IAM architecture:
+The following components are part of the ZAC Observability architecture:
 
 | Component                                                   | Description                                                     | ZAC usage                                                                                                           |
 |-------------------------------------------------------------|-----------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
