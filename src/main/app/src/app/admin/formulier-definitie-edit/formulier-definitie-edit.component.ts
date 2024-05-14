@@ -177,7 +177,6 @@ export class FormulierDefinitieEditComponent
     $event: MatSelectChange,
     veldDefinitieFormGroup: FormGroup,
   ): void {
-    console.log($event, veldDefinitieFormGroup);
     const veldtype: FormulierVeldtype = $event.value;
     if (FormulierVeldDefinitie.isMeerkeuzeVeld(veldtype)) {
       veldDefinitieFormGroup.get("meerkeuzeOpties").enable();
@@ -200,7 +199,6 @@ export class FormulierDefinitieEditComponent
   opslaan(): void {
     this.bezigMetOpslaan = true;
     const val = this.definitieFormGroup.value as FormulierDefinitie;
-    console.log(val);
     if (val.id) {
       this.service.update(val).subscribe((data) => {
         this.definitie = data;

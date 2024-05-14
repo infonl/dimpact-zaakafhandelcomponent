@@ -144,7 +144,7 @@ export class FoutAfhandelingService {
 
   public log(melding): (error: HttpErrorResponse) => Observable<any> {
     return (error: any): Observable<never> => {
-      console.error(error); // log to console instead
+      console.error(JSON.stringify(error)); // log to console instead
       this.utilService.openSnackbarError(melding);
       return throwError(error);
     };

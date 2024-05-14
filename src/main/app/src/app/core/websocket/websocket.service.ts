@@ -128,7 +128,7 @@ export class WebsocketService implements OnDestroy {
           }
         } catch (error) {
           console.warn("Websocket callback error: ");
-          console.error(error);
+          console.error(JSON.stringify(error));
         }
       }
     }
@@ -136,7 +136,7 @@ export class WebsocketService implements OnDestroy {
 
   private onError = (error: any) => {
     console.error("Websocket error:");
-    console.error(error);
+    console.error(JSON.stringify(error));
   };
 
   public addListener(

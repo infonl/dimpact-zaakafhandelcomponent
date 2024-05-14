@@ -248,7 +248,6 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
       Object.keys(formGroup.controls).forEach((key) => {
         const control = formGroup.controls[key];
         const value = control.value;
-        console.log(key, value);
         if (value instanceof moment) {
           nieuweVersie[key] = value; // conversie niet nodig, ISO-8601 in UTC gaat goed met java ZonedDateTime.parse
         } else if (key === "taal") {
