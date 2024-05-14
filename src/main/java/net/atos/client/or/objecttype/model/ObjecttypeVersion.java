@@ -8,9 +8,7 @@ package net.atos.client.or.objecttype.model;
 import java.net.URI;
 import java.time.LocalDate;
 
-/**
- *
- */
+
 public class ObjecttypeVersion {
 
     /**

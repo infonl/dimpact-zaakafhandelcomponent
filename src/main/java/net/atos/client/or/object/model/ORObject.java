@@ -5,10 +5,10 @@
 
 package net.atos.client.or.object.model;
 
+import net.atos.client.or.objects.model.generated.ObjectRecord;
+
 import java.net.URI;
 import java.util.UUID;
-
-import net.atos.client.or.model.generated.ObjectRecord;
 
 /**
  * Object registratie obkject.

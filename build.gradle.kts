@@ -554,9 +554,14 @@ tasks {
         modelPackage.set("net.atos.client.zgw.ztc.model.generated")
     }
 
-    register<GenerateTask>("generateOrClient") {
+    register<GenerateTask>("generateOrObjectsClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/or/objects-openapi.yaml")
-        modelPackage.set("net.atos.client.or.model.generated")
+        modelPackage.set("net.atos.client.or.objects.model.generated")
+    }
+
+    register<GenerateTask>("generateOrObjectTypesClient") {
+        inputSpec.set("$rootDir/src/main/resources/api-specs/or/objects-openapi.yaml")
+        modelPackage.set("net.atos.client.or.objecttypes.model.generated")
     }
 
     register("generateJavaClients") {
@@ -574,7 +579,8 @@ tasks {
             "generateZgwDrcClient",
             "generateZrcDrcClient",
             "generateZtcDrcClient",
-            "generateOrClient"
+            "generateOrObjectsClient",
+            "generateOrObjectTypesClient"
         )
     }
 

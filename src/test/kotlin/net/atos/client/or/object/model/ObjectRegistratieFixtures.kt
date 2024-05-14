@@ -2,7 +2,7 @@
 
 package net.atos.client.or.`object`.model
 
-import net.atos.client.or.model.generated.ObjectRecord
+import net.atos.client.or.objects.model.generated.ObjectRecord
 import net.atos.client.or.objecttype.model.Objecttype
 import java.net.URI
 import java.util.UUID
