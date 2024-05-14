@@ -369,7 +369,7 @@ tasks.war {
     dependsOn("npmRunBuild")
 
     // add built frontend resources to WAR archive
-    from("src/main/app/dist")
+    from("src/main/app/dist/zaakafhandelcomponent")
 
     // explicitly add our 'warLib' 'transitive' dependencies that are required in the generated WAR
     classpath(files(configurations["warLib"]))
