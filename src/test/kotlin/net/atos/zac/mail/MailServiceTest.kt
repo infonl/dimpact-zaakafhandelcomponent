@@ -19,7 +19,6 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.client.zgw.drc.DRCClientService
 import net.atos.client.zgw.shared.ZGWApiService
-import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakInformatieobject
 import net.atos.client.zgw.ztc.ZTCClientService
@@ -28,7 +27,6 @@ import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
-import net.atos.zac.flowable.TaakVariabelenService
 import net.atos.zac.mail.model.Bronnen
 import net.atos.zac.mailtemplates.MailTemplateHelper
 import net.atos.zac.mailtemplates.model.createMailGegevens
@@ -41,9 +39,7 @@ class MailServiceTest : BehaviorSpec({
     val drcClientService = mockk<DRCClientService>()
     val mailTemplateHelper = mockk<MailTemplateHelper>()
     val mailJetClient = mockk<MailjetClient>()
-    val taakVariabelenService = mockk<TaakVariabelenService>()
     val zgwApiService = mockk<ZGWApiService>()
-    val zrcClientService = mockk<ZRCClientService>()
     val ztcClientService = mockk<ZTCClientService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
 
@@ -66,10 +62,8 @@ class MailServiceTest : BehaviorSpec({
         configuratieService,
         zgwApiService,
         ztcClientService,
-        zrcClientService,
         drcClientService,
         mailTemplateHelper,
-        taakVariabelenService,
         loggedInUserInstance
     )
 
