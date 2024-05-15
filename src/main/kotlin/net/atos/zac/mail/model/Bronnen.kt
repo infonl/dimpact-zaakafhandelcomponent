@@ -5,28 +5,26 @@ import net.atos.client.zgw.zrc.model.Zaak
 import org.flowable.task.api.TaskInfo
 
 class Bronnen private constructor(
-    val zaak: Zaak?,
+    val zaak: Zaak,
     val document: EnkelvoudigInformatieObject?,
     val taskInfo: TaskInfo?
 ) {
     class Builder {
-        private var zaak: Zaak? = null
+        private lateinit var zaak: Zaak
+        private lateinit var document: EnkelvoudigInformatieObject
+        private lateinit var taskInfo: TaskInfo
 
-        private var document: EnkelvoudigInformatieObject? = null
-
-        private var taskInfo: TaskInfo? = null
-
-        fun add(zaak: Zaak?): Builder {
+        fun add(zaak: Zaak): Builder {
             this.zaak = zaak
             return this
         }
 
-        fun add(document: EnkelvoudigInformatieObject?): Builder {
+        fun add(document: EnkelvoudigInformatieObject): Builder {
             this.document = document
             return this
         }
 
-        fun add(taskInfo: TaskInfo?): Builder {
+        fun add(taskInfo: TaskInfo): Builder {
             this.taskInfo = taskInfo
             return this
         }
@@ -37,17 +35,8 @@ class Bronnen private constructor(
     }
 
     companion object {
-        @JvmStatic
-        fun fromZaak(zaak: Zaak?): Bronnen {
+        fun fromZaak(zaak: Zaak): Bronnen {
             return Builder().add(zaak).build()
-        }
-
-        fun fromDocument(document: EnkelvoudigInformatieObject?): Bronnen {
-            return Builder().add(document).build()
-        }
-
-        fun fromTaak(taskInfo: TaskInfo?): Bronnen {
-            return Builder().add(taskInfo).build()
         }
     }
 }
