@@ -75,7 +75,7 @@ public class BRPClientService {
             final var response = (RaadpleegMetBurgerservicenummerResponse) personenApi.personen(
                     createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer));
             if (!CollectionUtils.isEmpty(response.getPersonen())) {
-                return Optional.of(response.getPersonen().get(0));
+                return Optional.of(response.getPersonen().getFirst());
             } else {
                 return Optional.empty();
             }
@@ -102,7 +102,7 @@ public class BRPClientService {
             final Throwable exception
     ) {
         if (!CollectionUtils.isEmpty(response.getPersonen())) {
-            return Optional.of(response.getPersonen().get(0));
+            return Optional.of(response.getPersonen().getFirst());
         } else {
             LOG.warning(() -> "Error while calling findPersoonAsync: %s".formatted(exception.getMessage()));
             return Optional.empty();
@@ -144,7 +144,7 @@ public class BRPClientService {
                 query.setType(ZOEK_MET_STRAAT_HUISNUMMER_EN_GEMEENTE_VAN_INSCHRIJVING);
                 query.setFields(FIELDS_PERSOON_BEPERKT);
             }
-            case PersonenQuery query -> throw new IllegalStateException(
+            case PersonenQuery ignored -> throw new IllegalStateException(
                     "Must use one of the subclasses of '%s'".formatted(PersonenQuery.class.getSimpleName()));
         }
     }
