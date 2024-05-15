@@ -37,10 +37,6 @@ class Bronnen private constructor(
             return Bronnen(zaak, document, taskInfo)
         }
     }
-
-    companion object {
-        fun fromZaak(zaak: Zaak): Bronnen {
-            return Builder().add(zaak).build()
-        }
-    }
 }
+
+fun fromZaak(zaak: Zaak): Bronnen = Bronnen.Builder().add(zaak).build()

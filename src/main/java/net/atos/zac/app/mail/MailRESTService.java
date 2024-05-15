@@ -29,7 +29,7 @@ import net.atos.zac.app.mail.converter.RESTMailGegevensConverter;
 import net.atos.zac.app.mail.model.RESTMailGegevens;
 import net.atos.zac.flowable.ZaakVariabelenService;
 import net.atos.zac.mail.MailService;
-import net.atos.zac.mail.model.Bronnen;
+import net.atos.zac.mail.model.BronnenKt;
 import net.atos.zac.policy.PolicyService;
 import net.atos.zac.util.ValidationUtil;
 
@@ -68,7 +68,7 @@ public class MailRESTService {
         validateEmail(restMailGegevens.verzender);
         validateEmail(restMailGegevens.ontvanger);
         mailService.sendMail(
-                restMailGegevensConverter.convert(restMailGegevens), Bronnen.Companion.fromZaak(zaak));
+                restMailGegevensConverter.convert(restMailGegevens), BronnenKt.fromZaak(zaak));
     }
 
     @POST
@@ -76,14 +76,14 @@ public class MailRESTService {
     public void sendAcknowledgmentReceiptMail(
             @PathParam("zaakUuid") final UUID zaakUuid,
             final RESTMailGegevens restMailGegevens
-    ) throws MailjetException {
+    ) {
         final Zaak zaak = zrcClientService.readZaak(zaakUuid);
         assertPolicy(!zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.getUuid()).orElse(false) &&
                      policyService.readZaakRechten(zaak).versturenOntvangstbevestiging());
         validateEmail(restMailGegevens.verzender);
         validateEmail(restMailGegevens.ontvanger);
         mailService.sendMail(
-                restMailGegevensConverter.convert(restMailGegevens), Bronnen.Companion.fromZaak(zaak));
+                restMailGegevensConverter.convert(restMailGegevens), BronnenKt.fromZaak(zaak));
 
         final StatusType statustype = zaak.getStatus() != null ?
                 ztcClientService.readStatustype(zrcClientService.readStatus(zaak.getStatus()).getStatustype()) : null;

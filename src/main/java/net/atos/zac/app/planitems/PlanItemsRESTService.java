@@ -43,7 +43,7 @@ import net.atos.zac.flowable.CMMNService;
 import net.atos.zac.flowable.TaakVariabelenService;
 import net.atos.zac.flowable.ZaakVariabelenService;
 import net.atos.zac.mail.MailService;
-import net.atos.zac.mail.model.Bronnen;
+import net.atos.zac.mail.model.BronnenKt;
 import net.atos.zac.mail.model.MailAdres;
 import net.atos.zac.mailtemplates.MailTemplateService;
 import net.atos.zac.mailtemplates.model.Mail;
@@ -223,7 +223,7 @@ public class PlanItemsRESTService {
                             taakVariabelenService.readMailBody(taakdata).orElse(null),
                             taakVariabelenService.readMailBijlagen(taakdata).orElse(null),
                             true),
-                    Bronnen.Companion.fromZaak(zaak)));
+                    BronnenKt.fromZaak(zaak)));
         }
         cmmnService.startHumanTaskPlanItem(
                 humanTaskData.planItemInstanceId,
