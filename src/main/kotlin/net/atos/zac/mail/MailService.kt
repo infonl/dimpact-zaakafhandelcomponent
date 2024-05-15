@@ -2,321 +2,331 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.mail
 
-package net.atos.zac.mail;
-
-import static java.util.stream.Collectors.joining;
-import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertByteArrayToBase64String;
-import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN;
-import static net.atos.zac.mail.MailjetClientHelper.createMailjetClient;
-import static net.atos.zac.util.JsonbUtil.JSONB;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Instance;
-import jakarta.inject.Inject;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.eclipse.microprofile.config.ConfigProvider;
-import org.htmlcleaner.CleanerProperties;
-import org.htmlcleaner.HtmlCleaner;
-import org.htmlcleaner.PrettyXmlSerializer;
-import org.htmlcleaner.TagNode;
-import org.htmlcleaner.XmlSerializer;
-
-import com.fasterxml.uuid.impl.UUIDUtil;
-import com.itextpdf.html2pdf.HtmlConverter;
-import com.itextpdf.io.font.constants.StandardFonts;
-import com.itextpdf.kernel.colors.ColorConstants;
-import com.itextpdf.kernel.exceptions.PdfException;
-import com.itextpdf.kernel.font.PdfFont;
-import com.itextpdf.kernel.font.PdfFontFactory;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.IBlockElement;
-import com.itextpdf.layout.element.Paragraph;
-import com.mailjet.client.MailjetClient;
-import com.mailjet.client.MailjetRequest;
-import com.mailjet.client.errors.MailjetException;
-import com.mailjet.client.resource.Emailv31;
-
-import net.atos.client.zgw.drc.DRCClientService;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData;
-import net.atos.client.zgw.shared.ZGWApiService;
-import net.atos.client.zgw.zrc.ZRCClientService;
-import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.client.zgw.ztc.ZTCClientService;
-import net.atos.client.zgw.ztc.model.generated.InformatieObjectType;
-import net.atos.client.zgw.ztc.model.generated.ZaakType;
-import net.atos.zac.authentication.LoggedInUser;
-import net.atos.zac.configuratie.ConfiguratieService;
-import net.atos.zac.flowable.TaakVariabelenService;
-import net.atos.zac.mail.model.Attachment;
-import net.atos.zac.mail.model.Bronnen;
-import net.atos.zac.mail.model.EMail;
-import net.atos.zac.mail.model.EMails;
-import net.atos.zac.mail.model.MailAdres;
-import net.atos.zac.mailtemplates.MailTemplateHelper;
-import net.atos.zac.mailtemplates.model.MailGegevens;
+import com.fasterxml.uuid.impl.UUIDUtil
+import com.itextpdf.html2pdf.HtmlConverter
+import com.itextpdf.io.font.constants.StandardFonts
+import com.itextpdf.kernel.colors.ColorConstants
+import com.itextpdf.kernel.exceptions.PdfException
+import com.itextpdf.kernel.font.PdfFontFactory
+import com.itextpdf.kernel.pdf.PdfDocument
+import com.itextpdf.kernel.pdf.PdfWriter
+import com.itextpdf.layout.Document
+import com.itextpdf.layout.element.IBlockElement
+import com.itextpdf.layout.element.IElement
+import com.itextpdf.layout.element.Paragraph
+import com.mailjet.client.MailjetClient
+import com.mailjet.client.MailjetRequest
+import com.mailjet.client.errors.MailjetException
+import com.mailjet.client.resource.Emailv31
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.enterprise.inject.Instance
+import jakarta.inject.Inject
+import net.atos.client.zgw.drc.DRCClientService
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData
+import net.atos.client.zgw.shared.ZGWApiService
+import net.atos.client.zgw.shared.util.InformatieobjectenUtil
+import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.model.Zaak
+import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.model.generated.InformatieObjectType
+import net.atos.zac.authentication.LoggedInUser
+import net.atos.zac.configuratie.ConfiguratieService
+import net.atos.zac.flowable.TaakVariabelenService
+import net.atos.zac.mail.model.Attachment
+import net.atos.zac.mail.model.Bronnen
+import net.atos.zac.mail.model.EMail
+import net.atos.zac.mail.model.EMails
+import net.atos.zac.mail.model.MailAdres
+import net.atos.zac.mailtemplates.MailTemplateHelper
+import net.atos.zac.mailtemplates.model.MailGegevens
+import net.atos.zac.util.JsonbUtil
+import org.apache.commons.lang3.ArrayUtils
+import org.apache.commons.lang3.StringUtils
+import org.eclipse.microprofile.config.ConfigProvider
+import org.htmlcleaner.HtmlCleaner
+import org.htmlcleaner.PrettyXmlSerializer
+import org.htmlcleaner.XmlSerializer
+import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.net.URI
+import java.time.LocalDate
+import java.util.Arrays
+import java.util.Base64
+import java.util.UUID
+import java.util.function.Consumer
+import java.util.logging.Level
+import java.util.logging.Logger
+import java.util.stream.Collectors
 
 @ApplicationScoped
-public class MailService {
-    private static final String MAILJET_API_KEY = ConfigProvider.getConfig().getValue("mailjet.api.key", String.class);
-
-    private static final String MAILJET_API_SECRET_KEY = ConfigProvider.getConfig().getValue("mailjet.api.secret.key", String.class);
-
-    // http://www.faqs.org/rfcs/rfc2822.html
-    private static final int SUBJECT_MAXWIDTH = 78;
-
-    private static final Logger LOG = Logger.getLogger(MailService.class.getName());
-
-    private static final String MEDIA_TYPE_PDF = "application/pdf";
-
-    private static final String MAIL_VERZENDER = "Afzender";
-
-    private static final String MAIL_ONTVANGER = "Ontvanger";
-
-    private static final String MAIL_BIJLAGE = "Bijlage";
-
-    private static final String MAIL_ONDERWERP = "Onderwerp";
-
-    private static final String MAIL_BERICHT = "Bericht";
-
-    private ConfiguratieService configuratieService;
-    private ZGWApiService zgwApiService;
-    private ZTCClientService ztcClientService;
-    private ZRCClientService zrcClientService;
-    private DRCClientService drcClientService;
-    private MailTemplateHelper mailTemplateHelper;
-    private TaakVariabelenService taakVariabelenService;
-    private Instance<LoggedInUser> loggedInUserInstance;
+class MailService {
+    private var configuratieService: ConfiguratieService? = null
+    private var zgwApiService: ZGWApiService? = null
+    private var ztcClientService: ZTCClientService? = null
+    private var zrcClientService: ZRCClientService? = null
+    private var drcClientService: DRCClientService? = null
+    private var mailTemplateHelper: MailTemplateHelper? = null
+    private var taakVariabelenService: TaakVariabelenService? = null
+    private var loggedInUserInstance: Instance<LoggedInUser>? = null
 
     /**
      * Default no-arg constructor, required by Weld.
      */
-    public MailService() {
-    }
+    constructor()
 
     @Inject
-    public MailService(
-            ConfiguratieService configuratieService,
-            ZGWApiService zgwApiService,
-            ZTCClientService ztcClientService,
-            ZRCClientService zrcClientService,
-            DRCClientService drcClientService,
-            MailTemplateHelper mailTemplateHelper,
-            TaakVariabelenService taakVariabelenService,
-            Instance<LoggedInUser> loggedInUserInstance
+    constructor(
+        configuratieService: ConfiguratieService?,
+        zgwApiService: ZGWApiService?,
+        ztcClientService: ZTCClientService?,
+        zrcClientService: ZRCClientService?,
+        drcClientService: DRCClientService?,
+        mailTemplateHelper: MailTemplateHelper?,
+        taakVariabelenService: TaakVariabelenService?,
+        loggedInUserInstance: Instance<LoggedInUser>?
     ) {
-        this.configuratieService = configuratieService;
-        this.zgwApiService = zgwApiService;
-        this.ztcClientService = ztcClientService;
-        this.zrcClientService = zrcClientService;
-        this.drcClientService = drcClientService;
-        this.mailTemplateHelper = mailTemplateHelper;
-        this.taakVariabelenService = taakVariabelenService;
-        this.loggedInUserInstance = loggedInUserInstance;
+        this.configuratieService = configuratieService
+        this.zgwApiService = zgwApiService
+        this.ztcClientService = ztcClientService
+        this.zrcClientService = zrcClientService
+        this.drcClientService = drcClientService
+        this.mailTemplateHelper = mailTemplateHelper
+        this.taakVariabelenService = taakVariabelenService
+        this.loggedInUserInstance = loggedInUserInstance
     }
 
-    private final MailjetClient mailjetClient = createMailjetClient(MAILJET_API_KEY, MAILJET_API_SECRET_KEY);
+    private val mailjetClient: MailjetClient? =
+        MailjetClientHelper.createMailjetClient(MAILJET_API_KEY, MAILJET_API_SECRET_KEY)
 
-    public MailAdres getGemeenteMailAdres() {
-        return new MailAdres(configuratieService.readGemeenteMail(), configuratieService.readGemeenteNaam());
-    }
+    val gemeenteMailAdres: MailAdres
+        get() = MailAdres(configuratieService!!.readGemeenteMail(), configuratieService!!.readGemeenteNaam())
 
-    public String sendMail(final MailGegevens mailGegevens, final Bronnen bronnen) {
-        final String subject = StringUtils.abbreviate(
-                resolveVariabelen(mailGegevens.getSubject(), bronnen),
-                SUBJECT_MAXWIDTH
-        );
-        final String body = resolveVariabelen(mailGegevens.getBody(), bronnen);
-        final List<Attachment> attachments = getAttachments(mailGegevens.getAttachments());
+    fun sendMail(mailGegevens: MailGegevens, bronnen: Bronnen): String {
+        val subject = StringUtils.abbreviate(
+            resolveVariabelen(mailGegevens.subject, bronnen),
+            SUBJECT_MAXWIDTH
+        )
+        val body = resolveVariabelen(mailGegevens.body, bronnen)
+        val attachments = getAttachments(mailGegevens.attachments)
 
-        final EMail eMail = new EMail(
-                mailGegevens.getFrom(),
-                List.of(mailGegevens.getTo()),
-                mailGegevens.getReplyTo(),
-                subject,
-                body,
-                attachments
-        );
-        final MailjetRequest request = new MailjetRequest(Emailv31.resource)
-                .setBody(JSONB.toJson(new EMails(List.of(eMail))));
+        val eMail = EMail(
+            mailGegevens.from,
+            java.util.List.of(mailGegevens.to),
+            mailGegevens.replyTo,
+            subject,
+            body,
+            attachments
+        )
+        val request = MailjetRequest(Emailv31.resource)
+            .setBody(JsonbUtil.JSONB.toJson(EMails(java.util.List.of(eMail))))
         try {
-            final int status = mailjetClient.post(request).getStatus();
+            val status = mailjetClient!!.post(request).status
             if (status < 300) {
-                if (mailGegevens.isCreateDocumentFromMail()) {
+                if (mailGegevens.isCreateDocumentFromMail) {
                     createZaakDocumentFromMail(
-                            mailGegevens.getFrom().getEmail(),
-                            mailGegevens.getTo().getEmail(),
-                            subject,
-                            body,
-                            attachments,
-                            bronnen.zaak
-                    );
+                        mailGegevens.from.email,
+                        mailGegevens.to.email,
+                        subject,
+                        body,
+                        attachments,
+                        bronnen.zaak
+                    )
                 }
             } else {
-                LOG.log(Level.WARNING,
-                        String.format("Failed to send mail with subject '%s' (http result %d).", subject, status));
+                LOG.log(
+                    Level.WARNING,
+                    String.format("Failed to send mail with subject '%s' (http result %d).", subject, status)
+                )
             }
-        } catch (MailjetException e) {
-            LOG.log(Level.SEVERE, String.format("Failed to send mail with subject '%s'.", subject), e);
+        } catch (e: MailjetException) {
+            LOG.log(Level.SEVERE, String.format("Failed to send mail with subject '%s'.", subject), e)
         }
 
-        return body;
+        return body
     }
 
-    private void createZaakDocumentFromMail(
-            final String verzender,
-            final String ontvanger,
-            final String subject,
-            final String body,
-            final List<Attachment> attachments,
-            final Zaak zaak
+    private fun createZaakDocumentFromMail(
+        verzender: String,
+        ontvanger: String,
+        subject: String,
+        body: String,
+        attachments: List<Attachment>,
+        zaak: Zaak?
     ) {
-        final InformatieObjectType eMailObjectType = getEmailInformatieObjectType(zaak);
-        final byte[] pdfDocument = createPdfDocument(verzender, ontvanger, subject, body, attachments);
+        val eMailObjectType = getEmailInformatieObjectType(zaak)
+        val pdfDocument = createPdfDocument(verzender, ontvanger, subject, body, attachments)
 
-        final EnkelvoudigInformatieObjectData enkelvoudigInformatieobjectWithInhoud = new EnkelvoudigInformatieObjectData();
-        enkelvoudigInformatieobjectWithInhoud.setBronorganisatie(ConfiguratieService.BRON_ORGANISATIE);
-        enkelvoudigInformatieobjectWithInhoud.setCreatiedatum(LocalDate.now());
-        enkelvoudigInformatieobjectWithInhoud.setTitel(subject);
-        enkelvoudigInformatieobjectWithInhoud.setAuteur(loggedInUserInstance.get().getFullName());
-        enkelvoudigInformatieobjectWithInhoud.setTaal(ConfiguratieService.TAAL_NEDERLANDS);
-        enkelvoudigInformatieobjectWithInhoud.setInformatieobjecttype(eMailObjectType.getUrl());
-        enkelvoudigInformatieobjectWithInhoud.setInhoud(convertByteArrayToBase64String(pdfDocument));
-        enkelvoudigInformatieobjectWithInhoud.setVertrouwelijkheidaanduiding(
-                EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.OPENBAAR);
-        enkelvoudigInformatieobjectWithInhoud.setFormaat(MEDIA_TYPE_PDF);
-        enkelvoudigInformatieobjectWithInhoud.setBestandsnaam(String.format("%s.pdf", subject));
-        enkelvoudigInformatieobjectWithInhoud.setStatus(EnkelvoudigInformatieObjectData.StatusEnum.DEFINITIEF);
-        enkelvoudigInformatieobjectWithInhoud.setVertrouwelijkheidaanduiding(
-                EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.OPENBAAR);
-        enkelvoudigInformatieobjectWithInhoud.setVerzenddatum(LocalDate.now());
+        val enkelvoudigInformatieobjectWithInhoud = EnkelvoudigInformatieObjectData()
+        enkelvoudigInformatieobjectWithInhoud.bronorganisatie = ConfiguratieService.BRON_ORGANISATIE
+        enkelvoudigInformatieobjectWithInhoud.creatiedatum = LocalDate.now()
+        enkelvoudigInformatieobjectWithInhoud.titel = subject
+        enkelvoudigInformatieobjectWithInhoud.auteur = loggedInUserInstance!!.get().fullName
+        enkelvoudigInformatieobjectWithInhoud.taal = ConfiguratieService.TAAL_NEDERLANDS
+        enkelvoudigInformatieobjectWithInhoud.informatieobjecttype = eMailObjectType.url
+        enkelvoudigInformatieobjectWithInhoud.inhoud =
+            InformatieobjectenUtil.convertByteArrayToBase64String(pdfDocument)
+        enkelvoudigInformatieobjectWithInhoud.vertrouwelijkheidaanduiding =
+            EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.OPENBAAR
+        enkelvoudigInformatieobjectWithInhoud.formaat = MEDIA_TYPE_PDF
+        enkelvoudigInformatieobjectWithInhoud.bestandsnaam = String.format("%s.pdf", subject)
+        enkelvoudigInformatieobjectWithInhoud.status = EnkelvoudigInformatieObjectData.StatusEnum.DEFINITIEF
+        enkelvoudigInformatieobjectWithInhoud.vertrouwelijkheidaanduiding =
+            EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.OPENBAAR
+        enkelvoudigInformatieobjectWithInhoud.verzenddatum = LocalDate.now()
 
-        zgwApiService.createZaakInformatieobjectForZaak(
-                zaak,
-                enkelvoudigInformatieobjectWithInhoud,
-                subject,
-                subject,
-                OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
-        );
+        zgwApiService!!.createZaakInformatieobjectForZaak(
+            zaak,
+            enkelvoudigInformatieobjectWithInhoud,
+            subject,
+            subject,
+            ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
+        )
     }
 
-    private byte[] createPdfDocument(
-            final String verzender,
-            final String ontvanger,
-            final String subject,
-            final String body,
-            final List<Attachment> attachments
-    ) {
-        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        try (
-             final PdfWriter pdfWriter = new PdfWriter(byteArrayOutputStream);
-             final PdfDocument pdfDoc = new PdfDocument(pdfWriter);
-             final Document document = new Document(pdfDoc);
-        ) {
-            final Paragraph headerParagraph = new Paragraph();
-            final PdfFont font = PdfFontFactory.createFont(StandardFonts.COURIER);
+    private fun createPdfDocument(
+        verzender: String,
+        ontvanger: String,
+        subject: String,
+        body: String,
+        attachments: List<Attachment>
+    ): ByteArray {
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        try {
+            PdfWriter(byteArrayOutputStream).use { pdfWriter ->
+                PdfDocument(pdfWriter).use { pdfDoc ->
+                    Document(pdfDoc).use { document ->
+                        val headerParagraph = Paragraph()
+                        val font = PdfFontFactory.createFont(StandardFonts.COURIER)
 
-            headerParagraph.setFont(font).setFontSize(16).setFontColor(ColorConstants.BLACK);
-            headerParagraph.add(String.format("%s: %s %n %n", MAIL_VERZENDER, verzender));
-            headerParagraph.add(String.format("%s: %s %n %n", MAIL_ONTVANGER, ontvanger));
-            if (!attachments.isEmpty()) {
-                String content = attachments.stream().map(attachment -> String.valueOf(attachment.getFilename()))
-                        .collect(joining(", "));
-                headerParagraph.add(String.format("%s: %s %n %n", MAIL_BIJLAGE, content));
+                        headerParagraph.setFont(font).setFontSize(16f).setFontColor(ColorConstants.BLACK)
+                        headerParagraph.add(String.format("%s: %s %n %n", MAIL_VERZENDER, verzender))
+                        headerParagraph.add(String.format("%s: %s %n %n", MAIL_ONTVANGER, ontvanger))
+                        if (!attachments.isEmpty()) {
+                            val content =
+                                attachments.stream().map { attachment: Attachment -> attachment.filename.toString() }
+                                    .collect(Collectors.joining(", "))
+                            headerParagraph.add(String.format("%s: %s %n %n", MAIL_BIJLAGE, content))
+                        }
+
+                        headerParagraph.add(String.format("%s: %s %n %n", MAIL_ONDERWERP, subject))
+                        headerParagraph.add(String.format("%s: %n", MAIL_BERICHT))
+                        document.add(headerParagraph)
+
+                        val emailBodyParagraph = Paragraph()
+                        val cleaner = HtmlCleaner()
+                        val rootTagNode = cleaner.clean(body)
+                        val cleanerProperties = cleaner.properties
+                        cleanerProperties.isOmitXmlDeclaration = true
+
+                        val xmlSerializer: XmlSerializer = PrettyXmlSerializer(cleanerProperties)
+                        val html = xmlSerializer.getAsString(rootTagNode)
+                        HtmlConverter.convertToElements(html).forEach(Consumer { element: IElement? ->
+                            emailBodyParagraph.add(element as IBlockElement?)
+                            // the individual (HTML paragraph) block elements are not separated
+                            // with new lines, so we add them explicitly here
+                            emailBodyParagraph.add("\n")
+                        })
+                        document.add(emailBodyParagraph)
+                    }
+                }
             }
-
-            headerParagraph.add(String.format("%s: %s %n %n", MAIL_ONDERWERP, subject));
-            headerParagraph.add(String.format("%s: %n", MAIL_BERICHT));
-            document.add(headerParagraph);
-
-            Paragraph emailBodyParagraph = new Paragraph();
-            final HtmlCleaner cleaner = new HtmlCleaner();
-            final TagNode rootTagNode = cleaner.clean(body);
-            final CleanerProperties cleanerProperties = cleaner.getProperties();
-            cleanerProperties.setOmitXmlDeclaration(true);
-
-            final XmlSerializer xmlSerializer = new PrettyXmlSerializer(cleanerProperties);
-            final String html = xmlSerializer.getAsString(rootTagNode);
-            HtmlConverter.convertToElements(html).forEach(element -> {
-                emailBodyParagraph.add((IBlockElement) element);
-                // the individual (HTML paragraph) block elements are not separated
-                // with new lines, so we add them explicitly here
-                emailBodyParagraph.add("\n");
-            });
-            document.add(emailBodyParagraph);
-        } catch (final PdfException | IOException e) {
-            LOG.log(Level.SEVERE, "Failed to create pdf document", e);
+        } catch (e: PdfException) {
+            LOG.log(Level.SEVERE, "Failed to create pdf document", e)
+        } catch (e: IOException) {
+            LOG.log(Level.SEVERE, "Failed to create pdf document", e)
         }
 
-        return byteArrayOutputStream.toByteArray();
+        return byteArrayOutputStream.toByteArray()
     }
 
-    private InformatieObjectType getEmailInformatieObjectType(final Zaak zaak) {
-        final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
-        return zaaktype.getInformatieobjecttypen().stream()
-                .map(ztcClientService::readInformatieobjecttype)
-                .filter(infoObject -> infoObject.getOmschrijving()
-                        .equals(ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL)).findFirst()
-                .orElseThrow();
+    private fun getEmailInformatieObjectType(zaak: Zaak?): InformatieObjectType {
+        val zaaktype = ztcClientService!!.readZaaktype(zaak!!.zaaktype)
+        return zaaktype.informatieobjecttypen.stream()
+            .map { informatieobjecttypeURI: URI? ->
+                ztcClientService!!.readInformatieobjecttype(
+                    informatieobjecttypeURI!!
+                )
+            }
+            .filter { infoObject: InformatieObjectType ->
+                (infoObject.omschrijving
+                        == ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL)
+            }.findFirst()
+            .orElseThrow()
     }
 
-    private List<Attachment> getAttachments(final String[] bijlagenString) {
-        final List<UUID> bijlagen = new ArrayList<>();
-        if (ArrayUtils.isNotEmpty(bijlagenString)) {
-            Arrays.stream(bijlagenString).forEach(uuidString -> bijlagen.add(UUIDUtil.uuid(uuidString)));
+    private fun getAttachments(bijlagenString: Array<String>): List<Attachment> {
+        val bijlagen: MutableList<UUID> = ArrayList()
+        if (ArrayUtils.isNotEmpty<String>(bijlagenString)) {
+            Arrays.stream(bijlagenString).forEach { uuidString: String? -> bijlagen.add(UUIDUtil.uuid(uuidString)) }
         } else {
-            return Collections.emptyList();
+            return emptyList()
         }
 
-        final List<Attachment> attachments = new ArrayList<>();
-        bijlagen.forEach(uuid -> {
-            final EnkelvoudigInformatieObject enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
-                    uuid);
-            final ByteArrayInputStream byteArrayInputStream = drcClientService.downloadEnkelvoudigInformatieobject(
-                    uuid);
-            final Attachment attachment = new Attachment(enkelvoudigInformatieobject.getFormaat(),
-                    enkelvoudigInformatieobject.getBestandsnaam(),
-                    new String(Base64.getEncoder()
-                            .encode(byteArrayInputStream.readAllBytes())));
-            attachments.add(attachment);
-        });
+        val attachments: MutableList<Attachment> = ArrayList()
+        bijlagen.forEach(Consumer { uuid: UUID? ->
+            val enkelvoudigInformatieobject = drcClientService!!.readEnkelvoudigInformatieobject(
+                uuid
+            )
+            val byteArrayInputStream = drcClientService!!.downloadEnkelvoudigInformatieobject(
+                uuid
+            )
+            val attachment = Attachment(
+                enkelvoudigInformatieobject.formaat,
+                enkelvoudigInformatieobject.bestandsnaam,
+                String(
+                    Base64.getEncoder()
+                        .encode(byteArrayInputStream.readAllBytes())
+                )
+            )
+            attachments.add(attachment)
+        })
 
-        return attachments;
+        return attachments
     }
 
-    private String resolveVariabelen(final String tekst, final Bronnen bronnen) {
-        return mailTemplateHelper.resolveVariabelen(
-                mailTemplateHelper.resolveVariabelen(
-                        mailTemplateHelper.resolveVariabelen(
-                                mailTemplateHelper.resolveVariabelen(tekst),
-                                getZaakBron(bronnen)
-                        ),
-                        bronnen.document
+    private fun resolveVariabelen(tekst: String, bronnen: Bronnen): String {
+        return mailTemplateHelper!!.resolveVariabelen(
+            mailTemplateHelper!!.resolveVariabelen(
+                mailTemplateHelper!!.resolveVariabelen(
+                    mailTemplateHelper!!.resolveVariabelen(tekst),
+                    getZaakBron(bronnen)
                 ),
-                bronnen.taskInfo
-        );
+                bronnen.document
+            ),
+            bronnen.taskInfo
+        )
     }
 
-    private Zaak getZaakBron(final Bronnen bronnen) {
-        return (bronnen.zaak != null || bronnen.taskInfo == null) ? bronnen.zaak : zrcClientService.readZaak(taakVariabelenService
-                .readZaakUUID(bronnen.taskInfo));
+    private fun getZaakBron(bronnen: Bronnen): Zaak? {
+        return if ((bronnen.zaak != null || bronnen.taskInfo == null)) bronnen.zaak else zrcClientService!!.readZaak(
+            taakVariabelenService
+                .readZaakUUID(bronnen.taskInfo)
+        )
+    }
+
+    companion object {
+        private val MAILJET_API_KEY: String = ConfigProvider.getConfig().getValue("mailjet.api.key", String::class.java)
+
+        private val MAILJET_API_SECRET_KEY: String =
+            ConfigProvider.getConfig().getValue("mailjet.api.secret.key", String::class.java)
+
+        // http://www.faqs.org/rfcs/rfc2822.html
+        private const val SUBJECT_MAXWIDTH = 78
+
+        private val LOG: Logger = Logger.getLogger(MailService::class.java.name)
+
+        private const val MEDIA_TYPE_PDF = "application/pdf"
+
+        private const val MAIL_VERZENDER = "Afzender"
+
+        private const val MAIL_ONTVANGER = "Ontvanger"
+
+        private const val MAIL_BIJLAGE = "Bijlage"
+
+        private const val MAIL_ONDERWERP = "Onderwerp"
+
+        private const val MAIL_BERICHT = "Bericht"
     }
 }

@@ -1,64 +1,53 @@
-package net.atos.zac.mail.model;
+package net.atos.zac.mail.model
 
-import org.flowable.task.api.TaskInfo;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import net.atos.client.zgw.zrc.model.Zaak
+import org.flowable.task.api.TaskInfo
 
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.zrc.model.Zaak;
+class Bronnen private constructor(
+    val zaak: Zaak?,
+    val document: EnkelvoudigInformatieObject?,
+    val taskInfo: TaskInfo?
+) {
+    class Builder {
+        private var zaak: Zaak? = null
 
-public class Bronnen {
+        private var document: EnkelvoudigInformatieObject? = null
 
-    public final Zaak zaak;
+        private var taskInfo: TaskInfo? = null
 
-    public final EnkelvoudigInformatieObject document;
-
-    public final TaskInfo taskInfo;
-
-    private Bronnen(
-            final Zaak zaak,
-            final EnkelvoudigInformatieObject document,
-            final TaskInfo taskInfo
-    ) {
-        this.zaak = zaak;
-        this.document = document;
-        this.taskInfo = taskInfo;
-    }
-
-    public static Bronnen fromZaak(final Zaak zaak) {
-        return new Builder().add(zaak).build();
-    }
-
-    public static Bronnen fromDocument(final EnkelvoudigInformatieObject document) {
-        return new Builder().add(document).build();
-    }
-
-    public static Bronnen fromTaak(final TaskInfo taskInfo) {
-        return new Builder().add(taskInfo).build();
-    }
-
-    public static class Builder {
-        private Zaak zaak;
-
-        private EnkelvoudigInformatieObject document;
-
-        private TaskInfo taskInfo;
-
-        public Builder add(final Zaak zaak) {
-            this.zaak = zaak;
-            return this;
+        fun add(zaak: Zaak?): Builder {
+            this.zaak = zaak
+            return this
         }
 
-        public Builder add(final EnkelvoudigInformatieObject document) {
-            this.document = document;
-            return this;
+        fun add(document: EnkelvoudigInformatieObject?): Builder {
+            this.document = document
+            return this
         }
 
-        public Builder add(final TaskInfo taskInfo) {
-            this.taskInfo = taskInfo;
-            return this;
+        fun add(taskInfo: TaskInfo?): Builder {
+            this.taskInfo = taskInfo
+            return this
         }
 
-        public Bronnen build() {
-            return new Bronnen(zaak, document, taskInfo);
+        fun build(): Bronnen {
+            return Bronnen(zaak, document, taskInfo)
+        }
+    }
+
+    companion object {
+        @JvmStatic
+        fun fromZaak(zaak: Zaak?): Bronnen {
+            return Builder().add(zaak).build()
+        }
+
+        fun fromDocument(document: EnkelvoudigInformatieObject?): Bronnen {
+            return Builder().add(document).build()
+        }
+
+        fun fromTaak(taskInfo: TaskInfo?): Bronnen {
+            return Builder().add(taskInfo).build()
         }
     }
 }
