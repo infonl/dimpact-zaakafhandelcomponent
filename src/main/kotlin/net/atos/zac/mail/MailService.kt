@@ -16,7 +16,6 @@ import com.itextpdf.layout.Document
 import com.itextpdf.layout.element.IBlockElement
 import com.itextpdf.layout.element.IElement
 import com.itextpdf.layout.element.Paragraph
-import com.mailjet.client.MailjetClient
 import com.mailjet.client.MailjetRequest
 import com.mailjet.client.errors.MailjetException
 import com.mailjet.client.resource.Emailv31
@@ -59,23 +58,24 @@ import java.util.logging.Logger
 @NoArgConstructor
 @AllOpen
 class MailService
-
 @Inject
+@Suppress("LongParameterList")
 constructor(
     private var configuratieService: ConfiguratieService,
     private var zgwApiService: ZGWApiService,
     private var ztcClientService: ZTCClientService,
     private var drcClientService: DRCClientService,
     private var mailTemplateHelper: MailTemplateHelper,
-    private var loggedInUserInstance: Instance<LoggedInUser>
+    private var loggedInUserInstance: Instance<LoggedInUser>,
+    mailjetService: MailjetService
 ) {
 
     companion object {
-        private val LOG: Logger = Logger.getLogger(MailService::class.java.name)
+        private val LOG = Logger.getLogger(MailService::class.java.name)
 
-        private val MAILJET_API_KEY: String =
+        private val MAILJET_API_KEY =
             ConfigProvider.getConfig().getValue("mailjet.api.key", String::class.java)
-        private val MAILJET_API_SECRET_KEY: String =
+        private val MAILJET_API_SECRET_KEY =
             ConfigProvider.getConfig().getValue("mailjet.api.secret.key", String::class.java)
 
         private const val HTTP_REDIRECT_RANGE = 300
@@ -94,10 +94,9 @@ constructor(
         private const val MAIL_BERICHT = "Bericht"
     }
 
-    private val mailjetClient: MailjetClient =
-        MailjetClientHelper.createMailjetClient(MAILJET_API_KEY, MAILJET_API_SECRET_KEY)
+    private val mailjetClient = mailjetService.createMailjetClient(MAILJET_API_KEY, MAILJET_API_SECRET_KEY)
 
-    val gemeenteMailAdres: MailAdres
+    val gemeenteMailAdres
         get() = MailAdres(configuratieService.readGemeenteMail(), configuratieService.readGemeenteNaam())
 
     fun sendMail(mailGegevens: MailGegevens, bronnen: Bronnen): String {
