@@ -42,6 +42,7 @@ import net.atos.zac.mail.model.MailAdres
 import net.atos.zac.mailtemplates.MailTemplateHelper
 import net.atos.zac.mailtemplates.model.MailGegevens
 import net.atos.zac.util.JsonbUtil
+import nl.lifely.zac.util.NoArgConstructor
 import org.apache.commons.lang3.ArrayUtils
 import org.apache.commons.lang3.StringUtils
 import org.eclipse.microprofile.config.ConfigProvider
@@ -58,18 +59,42 @@ import java.util.UUID
 import java.util.function.Consumer
 import java.util.logging.Level
 import java.util.logging.Logger
-import java.util.stream.Collectors
 
 @ApplicationScoped
+@NoArgConstructor
 class MailService {
-    private var configuratieService: ConfiguratieService? = null
-    private var zgwApiService: ZGWApiService? = null
-    private var ztcClientService: ZTCClientService? = null
-    private var zrcClientService: ZRCClientService? = null
-    private var drcClientService: DRCClientService? = null
-    private var mailTemplateHelper: MailTemplateHelper? = null
-    private var taakVariabelenService: TaakVariabelenService? = null
-    private var loggedInUserInstance: Instance<LoggedInUser>? = null
+    private lateinit var configuratieService: ConfiguratieService
+    private lateinit var zgwApiService: ZGWApiService
+    private lateinit var ztcClientService: ZTCClientService
+    private lateinit var zrcClientService: ZRCClientService
+    private lateinit var drcClientService: DRCClientService
+    private lateinit var mailTemplateHelper: MailTemplateHelper
+    private lateinit var taakVariabelenService: TaakVariabelenService
+    private lateinit var loggedInUserInstance: Instance<LoggedInUser>
+
+    companion object {
+        private val LOG: Logger = Logger.getLogger(MailService::class.java.name)
+
+        private val MAILJET_API_KEY: String =
+            ConfigProvider.getConfig().getValue("mailjet.api.key", String::class.java)
+        private val MAILJET_API_SECRET_KEY: String =
+            ConfigProvider.getConfig().getValue("mailjet.api.secret.key", String::class.java)
+
+        private const val HTTP_REDIRECT_RANGE = 300
+
+        // http://www.faqs.org/rfcs/rfc2822.html
+        private const val SUBJECT_MAXWIDTH = 78
+
+        private const val FONT_SIZE = 16f
+
+        private const val MEDIA_TYPE_PDF = "application/pdf"
+
+        private const val MAIL_VERZENDER = "Afzender"
+        private const val MAIL_ONTVANGER = "Ontvanger"
+        private const val MAIL_BIJLAGE = "Bijlage"
+        private const val MAIL_ONDERWERP = "Onderwerp"
+        private const val MAIL_BERICHT = "Bericht"
+    }
 
     /**
      * Default no-arg constructor, required by Weld.
@@ -77,15 +102,16 @@ class MailService {
     constructor()
 
     @Inject
+    @Suppress("LongParameterList")
     constructor(
-        configuratieService: ConfiguratieService?,
-        zgwApiService: ZGWApiService?,
-        ztcClientService: ZTCClientService?,
-        zrcClientService: ZRCClientService?,
-        drcClientService: DRCClientService?,
-        mailTemplateHelper: MailTemplateHelper?,
-        taakVariabelenService: TaakVariabelenService?,
-        loggedInUserInstance: Instance<LoggedInUser>?
+        configuratieService: ConfiguratieService,
+        zgwApiService: ZGWApiService,
+        ztcClientService: ZTCClientService,
+        zrcClientService: ZRCClientService,
+        drcClientService: DRCClientService,
+        mailTemplateHelper: MailTemplateHelper,
+        taakVariabelenService: TaakVariabelenService,
+        loggedInUserInstance: Instance<LoggedInUser>
     ) {
         this.configuratieService = configuratieService
         this.zgwApiService = zgwApiService
@@ -97,11 +123,11 @@ class MailService {
         this.loggedInUserInstance = loggedInUserInstance
     }
 
-    private val mailjetClient: MailjetClient? =
+    private val mailjetClient: MailjetClient =
         MailjetClientHelper.createMailjetClient(MAILJET_API_KEY, MAILJET_API_SECRET_KEY)
 
     val gemeenteMailAdres: MailAdres
-        get() = MailAdres(configuratieService!!.readGemeenteMail(), configuratieService!!.readGemeenteNaam())
+        get() = MailAdres(configuratieService.readGemeenteMail(), configuratieService.readGemeenteNaam())
 
     fun sendMail(mailGegevens: MailGegevens, bronnen: Bronnen): String {
         val subject = StringUtils.abbreviate(
@@ -113,17 +139,17 @@ class MailService {
 
         val eMail = EMail(
             mailGegevens.from,
-            java.util.List.of(mailGegevens.to),
+            listOf(mailGegevens.to),
             mailGegevens.replyTo,
             subject,
             body,
             attachments
         )
         val request = MailjetRequest(Emailv31.resource)
-            .setBody(JsonbUtil.JSONB.toJson(EMails(java.util.List.of(eMail))))
+            .setBody(JsonbUtil.JSONB.toJson(EMails(listOf(eMail))))
         try {
-            val status = mailjetClient!!.post(request).status
-            if (status < 300) {
+            val status = mailjetClient.post(request).status
+            if (status < HTTP_REDIRECT_RANGE) {
                 if (mailGegevens.isCreateDocumentFromMail) {
                     createZaakDocumentFromMail(
                         mailGegevens.from.email,
@@ -135,25 +161,23 @@ class MailService {
                     )
                 }
             } else {
-                LOG.log(
-                    Level.WARNING,
-                    String.format("Failed to send mail with subject '%s' (http result %d).", subject, status)
-                )
+                LOG.log(Level.WARNING, "Failed to send mail with subject '$subject' (http result $status).")
             }
         } catch (e: MailjetException) {
-            LOG.log(Level.SEVERE, String.format("Failed to send mail with subject '%s'.", subject), e)
+            LOG.log(Level.SEVERE, "Failed to send mail with subject '$subject'.", e)
         }
 
         return body
     }
 
+    @Suppress("LongParameterList")
     private fun createZaakDocumentFromMail(
         verzender: String,
         ontvanger: String,
         subject: String,
         body: String,
         attachments: List<Attachment>,
-        zaak: Zaak?
+        zaak: Zaak
     ) {
         val eMailObjectType = getEmailInformatieObjectType(zaak)
         val pdfDocument = createPdfDocument(verzender, ontvanger, subject, body, attachments)
@@ -162,7 +186,7 @@ class MailService {
         enkelvoudigInformatieobjectWithInhoud.bronorganisatie = ConfiguratieService.BRON_ORGANISATIE
         enkelvoudigInformatieobjectWithInhoud.creatiedatum = LocalDate.now()
         enkelvoudigInformatieobjectWithInhoud.titel = subject
-        enkelvoudigInformatieobjectWithInhoud.auteur = loggedInUserInstance!!.get().fullName
+        enkelvoudigInformatieobjectWithInhoud.auteur = loggedInUserInstance.get().fullName
         enkelvoudigInformatieobjectWithInhoud.taal = ConfiguratieService.TAAL_NEDERLANDS
         enkelvoudigInformatieobjectWithInhoud.informatieobjecttype = eMailObjectType.url
         enkelvoudigInformatieobjectWithInhoud.inhoud =
@@ -170,13 +194,13 @@ class MailService {
         enkelvoudigInformatieobjectWithInhoud.vertrouwelijkheidaanduiding =
             EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.OPENBAAR
         enkelvoudigInformatieobjectWithInhoud.formaat = MEDIA_TYPE_PDF
-        enkelvoudigInformatieobjectWithInhoud.bestandsnaam = String.format("%s.pdf", subject)
+        enkelvoudigInformatieobjectWithInhoud.bestandsnaam = "$subject.pdf"
         enkelvoudigInformatieobjectWithInhoud.status = EnkelvoudigInformatieObjectData.StatusEnum.DEFINITIEF
         enkelvoudigInformatieobjectWithInhoud.vertrouwelijkheidaanduiding =
             EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.OPENBAAR
         enkelvoudigInformatieobjectWithInhoud.verzenddatum = LocalDate.now()
 
-        zgwApiService!!.createZaakInformatieobjectForZaak(
+        zgwApiService.createZaakInformatieobjectForZaak(
             zaak,
             enkelvoudigInformatieobjectWithInhoud,
             subject,
@@ -185,6 +209,7 @@ class MailService {
         )
     }
 
+    @Suppress("NestedBlockDepth")
     private fun createPdfDocument(
         verzender: String,
         ontvanger: String,
@@ -200,18 +225,19 @@ class MailService {
                         val headerParagraph = Paragraph()
                         val font = PdfFontFactory.createFont(StandardFonts.COURIER)
 
-                        headerParagraph.setFont(font).setFontSize(16f).setFontColor(ColorConstants.BLACK)
-                        headerParagraph.add(String.format("%s: %s %n %n", MAIL_VERZENDER, verzender))
-                        headerParagraph.add(String.format("%s: %s %n %n", MAIL_ONTVANGER, ontvanger))
-                        if (!attachments.isEmpty()) {
-                            val content =
-                                attachments.stream().map { attachment: Attachment -> attachment.filename.toString() }
-                                    .collect(Collectors.joining(", "))
-                            headerParagraph.add(String.format("%s: %s %n %n", MAIL_BIJLAGE, content))
+                        headerParagraph.setFont(font).setFontSize(FONT_SIZE).setFontColor(ColorConstants.BLACK)
+                        headerParagraph.add("$MAIL_VERZENDER: $verzender \n\n")
+                        headerParagraph.add("$MAIL_ONTVANGER: $ontvanger \n\n")
+                        if (attachments.isNotEmpty()) {
+                            val content = attachments.joinToString(",") {
+                                    attachment: Attachment ->
+                                attachment.filename
+                            }
+                            headerParagraph.add("$MAIL_BIJLAGE: $content \n\n")
                         }
 
-                        headerParagraph.add(String.format("%s: %s %n %n", MAIL_ONDERWERP, subject))
-                        headerParagraph.add(String.format("%s: %n", MAIL_BERICHT))
+                        headerParagraph.add("$MAIL_ONDERWERP: $subject \n\n")
+                        headerParagraph.add("$MAIL_BERICHT \n")
                         document.add(headerParagraph)
 
                         val emailBodyParagraph = Paragraph()
@@ -222,12 +248,14 @@ class MailService {
 
                         val xmlSerializer: XmlSerializer = PrettyXmlSerializer(cleanerProperties)
                         val html = xmlSerializer.getAsString(rootTagNode)
-                        HtmlConverter.convertToElements(html).forEach(Consumer { element: IElement? ->
-                            emailBodyParagraph.add(element as IBlockElement?)
-                            // the individual (HTML paragraph) block elements are not separated
-                            // with new lines, so we add them explicitly here
-                            emailBodyParagraph.add("\n")
-                        })
+                        HtmlConverter.convertToElements(html).forEach(
+                            Consumer { element: IElement? ->
+                                emailBodyParagraph.add(element as IBlockElement?)
+                                // the individual (HTML paragraph) block elements are not separated
+                                // with new lines, so we add them explicitly here
+                                emailBodyParagraph.add("\n")
+                            }
+                        )
                         document.add(emailBodyParagraph)
                     }
                 }
@@ -241,92 +269,65 @@ class MailService {
         return byteArrayOutputStream.toByteArray()
     }
 
-    private fun getEmailInformatieObjectType(zaak: Zaak?): InformatieObjectType {
-        val zaaktype = ztcClientService!!.readZaaktype(zaak!!.zaaktype)
+    private fun getEmailInformatieObjectType(zaak: Zaak): InformatieObjectType {
+        val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
         return zaaktype.informatieobjecttypen.stream()
-            .map { informatieobjecttypeURI: URI? ->
-                ztcClientService!!.readInformatieobjecttype(
-                    informatieobjecttypeURI!!
+            .map { informatieobjecttypeURI: URI ->
+                ztcClientService.readInformatieobjecttype(
+                    informatieobjecttypeURI
                 )
             }
             .filter { infoObject: InformatieObjectType ->
-                (infoObject.omschrijving
-                        == ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL)
+                (
+                    infoObject.omschrijving
+                        == ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL
+                    )
             }.findFirst()
             .orElseThrow()
     }
 
     private fun getAttachments(bijlagenString: Array<String>): List<Attachment> {
         val bijlagen: MutableList<UUID> = ArrayList()
-        if (ArrayUtils.isNotEmpty<String>(bijlagenString)) {
-            Arrays.stream(bijlagenString).forEach { uuidString: String? -> bijlagen.add(UUIDUtil.uuid(uuidString)) }
+        if (ArrayUtils.isNotEmpty(bijlagenString)) {
+            Arrays.stream(bijlagenString).forEach { uuidString: String -> bijlagen.add(UUIDUtil.uuid(uuidString)) }
         } else {
             return emptyList()
         }
 
         val attachments: MutableList<Attachment> = ArrayList()
-        bijlagen.forEach(Consumer { uuid: UUID? ->
-            val enkelvoudigInformatieobject = drcClientService!!.readEnkelvoudigInformatieobject(
-                uuid
-            )
-            val byteArrayInputStream = drcClientService!!.downloadEnkelvoudigInformatieobject(
-                uuid
-            )
-            val attachment = Attachment(
-                enkelvoudigInformatieobject.formaat,
-                enkelvoudigInformatieobject.bestandsnaam,
-                String(
-                    Base64.getEncoder()
-                        .encode(byteArrayInputStream.readAllBytes())
+        bijlagen.forEach(
+            Consumer { uuid: UUID ->
+                val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
+                    uuid
                 )
-            )
-            attachments.add(attachment)
-        })
+                val byteArrayInputStream = drcClientService.downloadEnkelvoudigInformatieobject(
+                    uuid
+                )
+                val attachment = Attachment(
+                    enkelvoudigInformatieobject.formaat,
+                    enkelvoudigInformatieobject.bestandsnaam,
+                    String(
+                        Base64.getEncoder()
+                            .encode(byteArrayInputStream.readAllBytes())
+                    )
+                )
+                attachments.add(attachment)
+            }
+        )
 
         return attachments
     }
 
     private fun resolveVariabelen(tekst: String, bronnen: Bronnen): String {
-        return mailTemplateHelper!!.resolveVariabelen(
-            mailTemplateHelper!!.resolveVariabelen(
-                mailTemplateHelper!!.resolveVariabelen(
-                    mailTemplateHelper!!.resolveVariabelen(tekst),
-                    getZaakBron(bronnen)
+        return mailTemplateHelper.resolveVariabelen(
+            mailTemplateHelper.resolveVariabelen(
+                mailTemplateHelper.resolveVariabelen(
+                    mailTemplateHelper.resolveVariabelen(tekst),
+                    bronnen.zaak
                 ),
                 bronnen.document
             ),
             bronnen.taskInfo
         )
-    }
-
-    private fun getZaakBron(bronnen: Bronnen): Zaak? {
-        return if ((bronnen.zaak != null || bronnen.taskInfo == null)) bronnen.zaak else zrcClientService!!.readZaak(
-            taakVariabelenService
-                .readZaakUUID(bronnen.taskInfo)
-        )
-    }
-
-    companion object {
-        private val MAILJET_API_KEY: String = ConfigProvider.getConfig().getValue("mailjet.api.key", String::class.java)
-
-        private val MAILJET_API_SECRET_KEY: String =
-            ConfigProvider.getConfig().getValue("mailjet.api.secret.key", String::class.java)
-
-        // http://www.faqs.org/rfcs/rfc2822.html
-        private const val SUBJECT_MAXWIDTH = 78
-
-        private val LOG: Logger = Logger.getLogger(MailService::class.java.name)
-
-        private const val MEDIA_TYPE_PDF = "application/pdf"
-
-        private const val MAIL_VERZENDER = "Afzender"
-
-        private const val MAIL_ONTVANGER = "Ontvanger"
-
-        private const val MAIL_BIJLAGE = "Bijlage"
-
-        private const val MAIL_ONDERWERP = "Onderwerp"
-
-        private const val MAIL_BERICHT = "Bericht"
     }
 }
