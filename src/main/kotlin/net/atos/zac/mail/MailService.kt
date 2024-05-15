@@ -31,13 +31,11 @@ import net.atos.client.zgw.drc.DRCClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.util.InformatieobjectenUtil
-import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZTCClientService
 import net.atos.client.zgw.ztc.model.generated.InformatieObjectType
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
-import net.atos.zac.flowable.TaakVariabelenService
 import net.atos.zac.mail.model.Attachment
 import net.atos.zac.mail.model.Bronnen
 import net.atos.zac.mail.model.EMail
@@ -46,6 +44,7 @@ import net.atos.zac.mail.model.MailAdres
 import net.atos.zac.mailtemplates.MailTemplateHelper
 import net.atos.zac.mailtemplates.model.MailGegevens
 import net.atos.zac.util.JsonbUtil
+import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.apache.commons.lang3.ArrayUtils
 import org.apache.commons.lang3.StringUtils
@@ -66,15 +65,18 @@ import java.util.logging.Logger
 
 @ApplicationScoped
 @NoArgConstructor
-class MailService {
-    private lateinit var configuratieService: ConfiguratieService
-    private lateinit var zgwApiService: ZGWApiService
-    private lateinit var ztcClientService: ZTCClientService
-    private lateinit var zrcClientService: ZRCClientService
-    private lateinit var drcClientService: DRCClientService
-    private lateinit var mailTemplateHelper: MailTemplateHelper
-    private lateinit var taakVariabelenService: TaakVariabelenService
-    private lateinit var loggedInUserInstance: Instance<LoggedInUser>
+@AllOpen
+class MailService
+@Inject
+@Suppress("LongParameterList")
+constructor(
+    private var configuratieService: ConfiguratieService,
+    private var zgwApiService: ZGWApiService,
+    private var ztcClientService: ZTCClientService,
+    private var drcClientService: DRCClientService,
+    private var mailTemplateHelper: MailTemplateHelper,
+    private var loggedInUserInstance: Instance<LoggedInUser>
+) {
 
     companion object {
         private val LOG: Logger = Logger.getLogger(MailService::class.java.name)
@@ -98,33 +100,6 @@ class MailService {
         private const val MAIL_BIJLAGE = "Bijlage"
         private const val MAIL_ONDERWERP = "Onderwerp"
         private const val MAIL_BERICHT = "Bericht"
-    }
-
-    /**
-     * Default no-arg constructor, required by Weld.
-     */
-    constructor()
-
-    @Inject
-    @Suppress("LongParameterList")
-    constructor(
-        configuratieService: ConfiguratieService,
-        zgwApiService: ZGWApiService,
-        ztcClientService: ZTCClientService,
-        zrcClientService: ZRCClientService,
-        drcClientService: DRCClientService,
-        mailTemplateHelper: MailTemplateHelper,
-        taakVariabelenService: TaakVariabelenService,
-        loggedInUserInstance: Instance<LoggedInUser>
-    ) {
-        this.configuratieService = configuratieService
-        this.zgwApiService = zgwApiService
-        this.ztcClientService = ztcClientService
-        this.zrcClientService = zrcClientService
-        this.drcClientService = drcClientService
-        this.mailTemplateHelper = mailTemplateHelper
-        this.taakVariabelenService = taakVariabelenService
-        this.loggedInUserInstance = loggedInUserInstance
     }
 
     private val mailjetClient: MailjetClient =
