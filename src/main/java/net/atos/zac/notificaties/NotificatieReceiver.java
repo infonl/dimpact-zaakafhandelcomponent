@@ -10,7 +10,6 @@ import static net.atos.zac.notificaties.Action.CREATE;
 import static net.atos.zac.notificaties.Action.DELETE;
 import static net.atos.zac.notificaties.Action.UPDATE;
 import static net.atos.zac.notificaties.Resource.INFORMATIEOBJECT;
-import static net.atos.zac.notificaties.Resource.OBJECT;
 import static net.atos.zac.notificaties.Resource.RESULTAAT;
 import static net.atos.zac.notificaties.Resource.ROL;
 import static net.atos.zac.notificaties.Resource.STATUS;
@@ -19,7 +18,6 @@ import static net.atos.zac.notificaties.Resource.ZAAKINFORMATIEOBJECT;
 import static net.atos.zac.notificaties.Resource.ZAAKOBJECT;
 import static net.atos.zac.notificaties.Resource.ZAAKTYPE;
 import static net.atos.zac.util.UriUtil.uuidFromURI;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,7 +37,6 @@ import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import net.atos.client.or.objecttype.ObjecttypesClientService;
-import net.atos.client.or.objecttype.model.Objecttype;
 import net.atos.zac.aanvraag.ProductaanvraagService;
 import net.atos.zac.authentication.ActiveSession;
 import net.atos.zac.authentication.SecurityUtil;
@@ -59,8 +56,6 @@ import net.atos.zac.zoeken.IndexeerService;
 @Produces(MediaType.APPLICATION_JSON)
 public class NotificatieReceiver {
     private static final Logger LOG = Logger.getLogger(NotificatieReceiver.class.getName());
-    private static final String OBJECTTYPE_KENMERK = "objectType";
-    private static final String PRODUCTAANVRAAG_DIMPACT_OBJECTTYPE_NAAM = "Productaanvraag-Dimpact";
 
     private EventingService eventingService;
     private ProductaanvraagService productaanvraagService;
@@ -105,7 +100,7 @@ public class NotificatieReceiver {
             LOG.info(() -> "Notificatie ontvangen: %s"
                     .formatted(notificatie.toString()));
             handleSignaleringen(notificatie);
-            handleProductaanvraag(notificatie);
+            productaanvraagService.handleProductaanvraag(notificatie);
             handleIndexering(notificatie);
             handleInboxDocumenten(notificatie);
             handleZaaktype(notificatie);
@@ -146,27 +141,6 @@ public class NotificatieReceiver {
         } catch (RuntimeException ex) {
             warning("Signaleringen", notificatie, ex);
         }
-    }
-
-    private void handleProductaanvraag(final Notificatie notificatie) {
-        try {
-            if (isProductaanvraagDimpact(notificatie)) {
-                LOG.info(() -> "Verwerken productaanvraag Dimpact: %s"
-                        .formatted(notificatie.toString()));
-                productaanvraagService.verwerkProductaanvraag(notificatie.getResourceUrl());
-            }
-        } catch (RuntimeException ex) {
-            warning("Productaanvraag", notificatie, ex);
-        }
-    }
-
-    private boolean isProductaanvraagDimpact(final Notificatie notificatie) {
-        final String producttypeUri = notificatie.getProperties().get(OBJECTTYPE_KENMERK);
-        if (notificatie.getResource() != OBJECT || notificatie.getAction() != CREATE || isEmpty(producttypeUri)) {
-            return false;
-        }
-        final Objecttype objecttype = objecttypesClientService.readObjecttype(uuidFromURI(producttypeUri));
-        return PRODUCTAANVRAAG_DIMPACT_OBJECTTYPE_NAAM.equals(objecttype.getName());
     }
 
     private void handleIndexering(final Notificatie notificatie) {

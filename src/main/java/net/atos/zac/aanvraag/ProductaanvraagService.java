@@ -7,7 +7,10 @@ package net.atos.zac.aanvraag;
 
 import static net.atos.zac.configuratie.ConfiguratieService.BRON_ORGANISATIE;
 import static net.atos.zac.configuratie.ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER;
+import static net.atos.zac.notificaties.Action.CREATE;
+import static net.atos.zac.notificaties.Resource.OBJECT;
 import static net.atos.zac.util.UriUtil.uuidFromURI;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.net.URI;
@@ -62,6 +65,7 @@ import net.atos.zac.flowable.CMMNService;
 import net.atos.zac.identity.IdentityService;
 import net.atos.zac.identity.model.Group;
 import net.atos.zac.identity.model.User;
+import net.atos.zac.notificaties.Notificatie;
 import net.atos.zac.util.JsonbUtil;
 import net.atos.zac.zaaksturing.ZaakafhandelParameterBeheerService;
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService;
@@ -79,6 +83,7 @@ public class ProductaanvraagService {
     private static final String FORMULIER_VELD_ZAAK_TOELICHTING = "zaak_toelichting";
     private static final String FORMULIER_VELD_ZAAK_OMSCHRIJVING = "zaak_omschrijving";
     private static final String ZAAK_DESCRIPTION_FORMAT = "Aangemaakt vanuit %s met kenmerk '%s'";
+    private static final String OBJECTTYPE_KENMERK = "objectType";
 
     /**
      * Maximum length of the description field in a zaak as defined by the ZGW ZRC API.
@@ -139,7 +144,39 @@ public class ProductaanvraagService {
         this.configuratieService = configuratieService;
     }
 
-    public void verwerkProductaanvraag(final URI productaanvraagUrl) {
+    public void handleProductaanvraag(final Notificatie notificatie) {
+        try {
+            if (isProductaanvraagDimpact(notificatie)) {
+                LOG.info(() -> "Verwerken productaanvraag Dimpact: %s".formatted(notificatie.toString()));
+                verwerkProductaanvraag(notificatie.getResourceUrl());
+            }
+        } catch (RuntimeException ex) {
+            LOG.log(
+                    Level.WARNING,
+                    "Er is iets fout gegaan in de productaanvraag-handler bij het afhandelen van notificatie: %s"
+                            .formatted(notificatie.toString()),
+                    ex
+            );
+        }
+    }
+
+    private boolean isProductaanvraagDimpact(final Notificatie notificatie) {
+        final String objecttypeUri = notificatie.getProperties().get(OBJECTTYPE_KENMERK);
+        if (notificatie.getResource() != OBJECT || notificatie.getAction() != CREATE || isEmpty(objecttypeUri)) {
+            return false;
+        }
+        final var productaanvraagObject = objectsClientService.readObject(uuidFromURI(notificatie.getResourceUrl()));
+        // check if the required attributes defined by the 'Productaanvraag Dimpact' JSON schema are present
+        // this is a bit of a poor man's solution for the fact that we are currently 'misusing' Objects
+        // to store the productaanvraag data
+        final var productAanvraagData = productaanvraagObject.getRecord().getData();
+        return productAanvraagData.containsKey("bron") &&
+               productAanvraagData.containsKey("type") &&
+               productAanvraagData.containsKey("aanvraaggegevens");
+    }
+
+
+    private void verwerkProductaanvraag(final URI productaanvraagUrl) {
         LOG.fine(() -> "Verwerken productaanvraag: %s".formatted(productaanvraagUrl));
 
         final var productaanvraagObject = objectsClientService.readObject(uuidFromURI(productaanvraagUrl));
@@ -150,7 +187,6 @@ public class ProductaanvraagService {
         if (zaaktypeUUID.isPresent()) {
             try {
                 LOG.fine(() -> "Start zaak met CMMN case. Zaaktype: %s".formatted(zaaktypeUUID.get().toString()));
-
                 registreerZaakMetCMMNCase(zaaktypeUUID.get(), productaanvraag, productaanvraagObject);
             } catch (RuntimeException ex) {
                 warning("CMMN", productaanvraag, ex);
@@ -159,17 +195,19 @@ public class ProductaanvraagService {
             final var zaaktype = findZaaktypeByIdentificatie(productaanvraag.getType());
             if (zaaktype.isPresent()) {
                 try {
-
                     LOG.fine(() -> "Start zaak met BPMN proces. Zaaktype: %s".formatted(zaaktype.get().toString()));
-
                     registreerZaakMetBPMNProces(zaaktype.get(), productaanvraag, productaanvraagObject);
                 } catch (RuntimeException ex) {
                     warning("BPMN", productaanvraag, ex);
                 }
             } else {
-                LOG.info(message(productaanvraag,
-                        "Er is geen zaaktype gevonden voor het type '%s'. Er wordt geen zaak aangemaakt."
-                                .formatted(productaanvraag.getType())));
+                LOG.info(
+                        message(
+                                productaanvraag,
+                                "Er is geen zaaktype gevonden voor het type '%s'. Er wordt geen zaak aangemaakt.".formatted(productaanvraag
+                                        .getType())
+                        )
+                );
                 registreerInbox(productaanvraag, productaanvraagObject);
             }
         }
