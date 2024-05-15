@@ -1,15 +1,15 @@
-package net.atos.zac.mail;
+package net.atos.zac.mail
 
-import com.mailjet.client.ClientOptions;
-import com.mailjet.client.MailjetClient;
+import com.mailjet.client.ClientOptions
+import com.mailjet.client.MailjetClient
 
-public class MailjetClientHelper {
-    public static MailjetClient createMailjetClient(String mailjetApiKey, String mailjetSecretKey) {
-        return new MailjetClient(
-                ClientOptions.builder()
-                        .apiKey(mailjetApiKey)
-                        .apiSecretKey(mailjetSecretKey)
-                        .build()
-        );
+object MailjetClientHelper {
+    fun createMailjetClient(mailjetApiKey: String?, mailjetSecretKey: String?): MailjetClient {
+        return MailjetClient(
+            ClientOptions.builder()
+                .apiKey(mailjetApiKey)
+                .apiSecretKey(mailjetSecretKey)
+                .build()
+        )
     }
 }
