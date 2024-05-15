@@ -8,6 +8,7 @@ import com.mailjet.client.ClientOptions
 import com.mailjet.client.MailjetClient
 
 object MailjetClientHelper {
+    @JvmStatic
     fun createMailjetClient(mailjetApiKey: String?, mailjetSecretKey: String?): MailjetClient {
         return MailjetClient(
             ClientOptions.builder()

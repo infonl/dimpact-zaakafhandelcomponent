@@ -15,8 +15,8 @@ class Bronnen private constructor(
 ) {
     class Builder {
         private lateinit var zaak: Zaak
-        private lateinit var document: EnkelvoudigInformatieObject
-        private lateinit var taskInfo: TaskInfo
+        private var document: EnkelvoudigInformatieObject? = null
+        private var taskInfo: TaskInfo? = null
 
         fun add(zaak: Zaak): Builder {
             this.zaak = zaak
