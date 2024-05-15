@@ -68,7 +68,7 @@ public class MailRESTService {
         validateEmail(restMailGegevens.verzender);
         validateEmail(restMailGegevens.ontvanger);
         mailService.sendMail(
-                restMailGegevensConverter.convert(restMailGegevens), Bronnen.fromZaak(zaak));
+                restMailGegevensConverter.convert(restMailGegevens), Bronnen.Companion.fromZaak(zaak));
     }
 
     @POST
@@ -83,7 +83,7 @@ public class MailRESTService {
         validateEmail(restMailGegevens.verzender);
         validateEmail(restMailGegevens.ontvanger);
         mailService.sendMail(
-                restMailGegevensConverter.convert(restMailGegevens), Bronnen.fromZaak(zaak));
+                restMailGegevensConverter.convert(restMailGegevens), Bronnen.Companion.fromZaak(zaak));
 
         final StatusType statustype = zaak.getStatus() != null ?
                 ztcClientService.readStatustype(zrcClientService.readStatus(zaak.getStatus()).getStatustype()) : null;
