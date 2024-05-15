@@ -245,12 +245,8 @@ export class ParameterEditComponent
     this.algemeenFormGroup.controls.defaultGroepId.valueChanges
       .pipe(
         takeUntil(this.destroy$),
-        switchMap((groepId) =>
-          this.identityService.listUsersInGroup(groepId).pipe(
-            takeUntil(this.destroy$),
-            tap((medewerkers) => (this.medewerkers = medewerkers)),
-          ),
-        ),
+        switchMap((groepId) => this.identityService.listUsersInGroup(groepId)),
+        tap((medewerkers) => (this.medewerkers = medewerkers)),
       )
       .subscribe();
     this.createHumanTasksForm();
