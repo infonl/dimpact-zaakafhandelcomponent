@@ -13,11 +13,12 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
+  OnDestroy,
   OnInit,
   ViewChild,
 } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { Observable, Subscription } from "rxjs";
+import { Observable, Subject, Subscription, takeUntil } from "rxjs";
 import { FoutAfhandelingService } from "../../../../fout-afhandeling/fout-afhandeling.service";
 import { FormComponent } from "../../model/form-component";
 import { FileFormField } from "./file-form-field";
@@ -27,13 +28,14 @@ import { UploadStatus } from "./upload-status.enum";
   templateUrl: "./file.component.html",
   styleUrls: ["./file.component.less"],
 })
-export class FileComponent extends FormComponent implements OnInit {
+export class FileComponent extends FormComponent implements OnInit, OnDestroy {
   @ViewChild("fileInput") fileInput: ElementRef;
 
   data: FileFormField;
   progress = 0;
   subscription: Subscription;
   status: string = UploadStatus.SELECTEER_BESTAND;
+  destroy$ = new Subject<void>();
 
   constructor(
     private http: HttpClient,
@@ -43,9 +45,13 @@ export class FileComponent extends FormComponent implements OnInit {
   ) {
     super();
   }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   ngOnInit(): void {
-    this.data.reset$.subscribe(() => {
+    this.data.reset$.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.reset();
     });
   }
@@ -75,34 +81,36 @@ export class FileComponent extends FormComponent implements OnInit {
         return;
       }
 
-      this.subscription = this.createRequest(file).subscribe({
-        next: (event: HttpEvent<any>) => {
-          switch (event.type) {
-            case HttpEventType.Sent:
-              this.status = UploadStatus.BEZIG;
-              break;
-            case HttpEventType.ResponseHeader:
-              break;
-            case HttpEventType.UploadProgress:
-              this.progress = Math.round((event.loaded / event.total) * 100);
-              this.updateInput(`${file.name} | ${this.progress}%`);
-              break;
-            case HttpEventType.Response:
-              this.fileInput.nativeElement.value = null;
-              this.updateInput(file.name);
-              this.data.fileUploaded$.next(file.name);
-              this.status = UploadStatus.GEREED;
-              setTimeout(() => {
-                this.progress = 0;
-              }, 1500);
-          }
-        },
-        error: (error) => {
-          this.status = UploadStatus.SELECTEER_BESTAND;
-          this.fileInput.nativeElement.value = null;
-          this.data.uploadError = this.foutAfhandelingService.getFout(error);
-        },
-      });
+      this.subscription = this.createRequest(file)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (event: HttpEvent<any>) => {
+            switch (event.type) {
+              case HttpEventType.Sent:
+                this.status = UploadStatus.BEZIG;
+                break;
+              case HttpEventType.ResponseHeader:
+                break;
+              case HttpEventType.UploadProgress:
+                this.progress = Math.round((event.loaded / event.total) * 100);
+                this.updateInput(`${file.name} | ${this.progress}%`);
+                break;
+              case HttpEventType.Response:
+                this.fileInput.nativeElement.value = null;
+                this.updateInput(file.name);
+                this.data.fileUploaded$.next(file.name);
+                this.status = UploadStatus.GEREED;
+                setTimeout(() => {
+                  this.progress = 0;
+                }, 1500);
+            }
+          },
+          error: (error) => {
+            this.status = UploadStatus.SELECTEER_BESTAND;
+            this.fileInput.nativeElement.value = null;
+            this.data.uploadError = this.foutAfhandelingService.getFout(error);
+          },
+        });
     } else {
       this.updateInput(null);
     }

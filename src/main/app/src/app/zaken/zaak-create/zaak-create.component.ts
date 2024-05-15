@@ -196,21 +196,25 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
       .label("bagObjecten")
       .build();
 
-    this.initiatorField.clicked.subscribe(
-      this.iconNext(SideNavAction.ZOEK_INITIATOR),
-    );
-    this.initiatorField.onClear.subscribe(() => {
-      this.initiator = null;
-      this.initiatorField.reset();
-    });
+    this.initiatorField.clicked
+      .pipe(takeUntil(this.ngDestroy))
+      .subscribe(this.iconNext(SideNavAction.ZOEK_INITIATOR));
+    this.initiatorField.onClear
+      .pipe(takeUntil(this.ngDestroy))
+      .subscribe(() => {
+        this.initiator = null;
+        this.initiatorField.reset();
+      });
 
-    this.bagObjectenField.clicked.subscribe(
-      this.iconNext(SideNavAction.ZOEK_BAG_ADRES),
-    );
-    this.bagObjectenField.onClear.subscribe(() => {
-      this.bagObjecten = [];
-      this.bagObjectenField.reset();
-    });
+    this.bagObjectenField.clicked
+      .pipe(takeUntil(this.ngDestroy))
+      .subscribe(this.iconNext(SideNavAction.ZOEK_BAG_ADRES));
+    this.bagObjectenField.onClear
+      .pipe(takeUntil(this.ngDestroy))
+      .subscribe(() => {
+        this.bagObjecten = [];
+        this.bagObjectenField.reset();
+      });
 
     this.createZaakFields = [
       [titel],
@@ -270,6 +274,7 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
             this.mfbForm.reset();
             return of();
           }),
+          takeUntil(this.ngDestroy),
         )
         .subscribe((newZaak) => {
           this.router.navigate(["/zaken/", newZaak.identificatie]);
@@ -352,6 +357,7 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
         );
         this.klantenService
           .readPersoon(this.inboxProductaanvraag.initiatorID)
+          .pipe(takeUntil(this.ngDestroy))
           .subscribe((initiator) => {
             this.initiator = initiator;
             this.initiatorField.formControl.setValue(initiator.naam);
@@ -364,6 +370,7 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
         );
         this.klantenService
           .readVestiging(this.inboxProductaanvraag.initiatorID)
+          .pipe(takeUntil(this.ngDestroy))
           .subscribe((initiator) => {
             this.initiator = initiator;
             this.initiatorField.formControl.setValue(initiator.naam);
@@ -371,11 +378,13 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
       }
     }
     this.toelichtingField.formControl.setValue(defaultToelichting);
-    this.communicatiekanalen.subscribe((data) => {
-      this.communicatiekanaalField.value(
-        data.find((c) => c.naam === ZaakCreateComponent.KANAAL_E_FORMULIER),
-      );
-    });
+    this.communicatiekanalen
+      .pipe(takeUntil(this.ngDestroy))
+      .subscribe((data) => {
+        this.communicatiekanaalField.value(
+          data.find((c) => c.naam === ZaakCreateComponent.KANAAL_E_FORMULIER),
+        );
+      });
   }
 
   bagGeselecteerd($event: BAGObject): void {
@@ -387,6 +396,7 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
         .get("msg.aantal.bagObjecten.geselecteerd", {
           aantal: this.bagObjecten.length,
         })
+        .pipe(takeUntil(this.ngDestroy))
         .subscribe((v) => {
           this.bagObjectenField.formControl.setValue(v);
         });

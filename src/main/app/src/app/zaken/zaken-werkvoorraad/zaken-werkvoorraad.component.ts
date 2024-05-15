@@ -7,6 +7,7 @@ import {
   AfterViewInit,
   Component,
   Inject,
+  OnDestroy,
   OnInit,
   Signal,
   ViewChild,
@@ -44,6 +45,7 @@ import {
 } from "@angular/material/snack-bar";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
+import { Subject, takeUntil } from "rxjs";
 import { ObjectType } from "src/app/core/websocket/model/object-type";
 import { Opcode } from "src/app/core/websocket/model/opcode";
 import { WebsocketService } from "src/app/core/websocket/websocket.service";
@@ -68,7 +70,7 @@ import { ZakenWerkvoorraadDatasource } from "./zaken-werkvoorraad-datasource";
 })
 export class ZakenWerkvoorraadComponent
   extends WerklijstComponent
-  implements AfterViewInit, OnInit
+  implements AfterViewInit, OnInit, OnDestroy
 {
   readonly indicatiesLayout = IndicatiesLayout;
   selection = new SelectionModel<ZaakZoekObject>(true, []);
@@ -80,6 +82,7 @@ export class ZakenWerkvoorraadComponent
   expandedRow: ZaakZoekObject | null;
   readonly zoekenColumn = ZoekenColumn;
   sorteerVeld = SorteerVeld;
+  destroy$ = new Subject<void>();
 
   einddatumGeplandIcon: TextIcon = new TextIcon(
     DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
@@ -123,6 +126,10 @@ export class ZakenWerkvoorraadComponent
       this.zoekenService,
       this.utilService,
     );
+  }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   ngOnInit(): void {
@@ -170,9 +177,12 @@ export class ZakenWerkvoorraadComponent
   }
 
   private getIngelogdeMedewerker() {
-    this.identityService.readLoggedInUser().subscribe((ingelogdeMedewerker) => {
-      this.ingelogdeMedewerker = ingelogdeMedewerker;
-    });
+    this.identityService
+      .readLoggedInUser()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((ingelogdeMedewerker) => {
+        this.ingelogdeMedewerker = ingelogdeMedewerker;
+      });
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
@@ -236,6 +246,7 @@ export class ZakenWerkvoorraadComponent
 
     this.zakenService
       .toekennenAanIngelogdeMedewerkerVanuitLijst(zaakZoekObject)
+      .pipe(takeUntil(this.destroy$))
       .subscribe((zaak) => {
         zaakZoekObject.behandelaarNaam = zaak.behandelaar.naam;
         zaakZoekObject.behandelaarGebruikersnaam = zaak.behandelaar.id;
@@ -306,47 +317,54 @@ export class ZakenWerkvoorraadComponent
     const dialogRef = this.dialog.open(dialogComponent, {
       data: zaken,
     });
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.toekenning = result;
-        this.zakenLoading.set(true);
-        const message =
-          zaken.length === 1
-            ? this.translateService.instant(singleToken)
-            : this.translateService.instant(multipleToken, {
-                aantal: zaken.length,
-              });
-        this.utilService
-          .openSnackbarFromComponent(ZakenWorkflowSnackbar, {
-            data: { progressPercentage: this.zakenProgressPercentage, message },
-          })
-          .afterDismissed()
-          .subscribe(() => {
-            this.selection.clear();
-            this.dataSource.load();
-            this.zakenLoading.set(false);
-            this.zakenState.set({});
-          });
-        const notChanged = zaken
-          .filter(
-            (x) =>
-              (!this.toekenning.groep ||
-                this.toekenning.groep.id === x.groepId) &&
-              this.toekenning.medewerker?.id === x.behandelaarGebruikersnaam,
-          )
-          .map(({ id }) => id);
-        this.zakenState.update((old) =>
-          Object.fromEntries(
-            Object.entries(old).map(([k, v]) => [
-              k,
-              v || notChanged.includes(k),
-            ]),
-          ),
-        );
-      } else {
-        this.websocketService.removeListeners(subscriptions);
-      }
-    });
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((result) => {
+        if (result) {
+          this.toekenning = result;
+          this.zakenLoading.set(true);
+          const message =
+            zaken.length === 1
+              ? this.translateService.instant(singleToken)
+              : this.translateService.instant(multipleToken, {
+                  aantal: zaken.length,
+                });
+          this.utilService
+            .openSnackbarFromComponent(ZakenWorkflowSnackbar, {
+              data: {
+                progressPercentage: this.zakenProgressPercentage,
+                message,
+              },
+            })
+            .afterDismissed()
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(() => {
+              this.selection.clear();
+              this.dataSource.load();
+              this.zakenLoading.set(false);
+              this.zakenState.set({});
+            });
+          const notChanged = zaken
+            .filter(
+              (x) =>
+                (!this.toekenning.groep ||
+                  this.toekenning.groep.id === x.groepId) &&
+                this.toekenning.medewerker?.id === x.behandelaarGebruikersnaam,
+            )
+            .map(({ id }) => id);
+          this.zakenState.update((old) =>
+            Object.fromEntries(
+              Object.entries(old).map(([k, v]) => [
+                k,
+                v || notChanged.includes(k),
+              ]),
+            ),
+          );
+        } else {
+          this.websocketService.removeListeners(subscriptions);
+        }
+      });
   }
 }
 
