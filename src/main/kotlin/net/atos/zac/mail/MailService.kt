@@ -42,17 +42,13 @@ import net.atos.zac.mailtemplates.model.MailGegevens
 import net.atos.zac.util.JsonbUtil
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
-import org.apache.commons.lang3.ArrayUtils
 import org.apache.commons.lang3.StringUtils
 import org.eclipse.microprofile.config.ConfigProvider
 import org.htmlcleaner.HtmlCleaner
 import org.htmlcleaner.PrettyXmlSerializer
-import org.htmlcleaner.XmlSerializer
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.net.URI
 import java.time.LocalDate
-import java.util.Arrays
 import java.util.Base64
 import java.util.UUID
 import java.util.function.Consumer
@@ -63,8 +59,8 @@ import java.util.logging.Logger
 @NoArgConstructor
 @AllOpen
 class MailService
+
 @Inject
-@Suppress("LongParameterList")
 constructor(
     private var configuratieService: ConfiguratieService,
     private var zgwApiService: ZGWApiService,
@@ -156,24 +152,21 @@ constructor(
     ) {
         val eMailObjectType = getEmailInformatieObjectType(zaak)
         val pdfDocument = createPdfDocument(verzender, ontvanger, subject, body, attachments)
-
-        val enkelvoudigInformatieobjectWithInhoud = EnkelvoudigInformatieObjectData()
-        enkelvoudigInformatieobjectWithInhoud.bronorganisatie = ConfiguratieService.BRON_ORGANISATIE
-        enkelvoudigInformatieobjectWithInhoud.creatiedatum = LocalDate.now()
-        enkelvoudigInformatieobjectWithInhoud.titel = subject
-        enkelvoudigInformatieobjectWithInhoud.auteur = loggedInUserInstance.get().fullName
-        enkelvoudigInformatieobjectWithInhoud.taal = ConfiguratieService.TAAL_NEDERLANDS
-        enkelvoudigInformatieobjectWithInhoud.informatieobjecttype = eMailObjectType.url
-        enkelvoudigInformatieobjectWithInhoud.inhoud =
-            InformatieobjectenUtil.convertByteArrayToBase64String(pdfDocument)
-        enkelvoudigInformatieobjectWithInhoud.vertrouwelijkheidaanduiding =
-            EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.OPENBAAR
-        enkelvoudigInformatieobjectWithInhoud.formaat = MEDIA_TYPE_PDF
-        enkelvoudigInformatieobjectWithInhoud.bestandsnaam = "$subject.pdf"
-        enkelvoudigInformatieobjectWithInhoud.status = EnkelvoudigInformatieObjectData.StatusEnum.DEFINITIEF
-        enkelvoudigInformatieobjectWithInhoud.vertrouwelijkheidaanduiding =
-            EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.OPENBAAR
-        enkelvoudigInformatieobjectWithInhoud.verzenddatum = LocalDate.now()
+        val enkelvoudigInformatieobjectWithInhoud = EnkelvoudigInformatieObjectData().apply {
+            bronorganisatie = ConfiguratieService.BRON_ORGANISATIE
+            creatiedatum = LocalDate.now()
+            titel = subject
+            auteur = loggedInUserInstance.get().fullName
+            taal = ConfiguratieService.TAAL_NEDERLANDS
+            informatieobjecttype = eMailObjectType.url
+            inhoud = InformatieobjectenUtil.convertByteArrayToBase64String(pdfDocument)
+            vertrouwelijkheidaanduiding = EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.OPENBAAR
+            formaat = MEDIA_TYPE_PDF
+            bestandsnaam = "$subject.pdf"
+            status = EnkelvoudigInformatieObjectData.StatusEnum.DEFINITIEF
+            vertrouwelijkheidaanduiding = EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.OPENBAAR
+            verzenddatum = LocalDate.now()
+        }
 
         zgwApiService.createZaakInformatieobjectForZaak(
             zaak,
@@ -193,36 +186,37 @@ constructor(
         attachments: List<Attachment>
     ): ByteArray {
         val byteArrayOutputStream = ByteArrayOutputStream()
+
         try {
             PdfWriter(byteArrayOutputStream).use { pdfWriter ->
                 PdfDocument(pdfWriter).use { pdfDoc ->
                     Document(pdfDoc).use { document ->
-                        val headerParagraph = Paragraph()
                         val font = PdfFontFactory.createFont(StandardFonts.COURIER)
 
-                        headerParagraph.setFont(font).setFontSize(FONT_SIZE).setFontColor(ColorConstants.BLACK)
-                        headerParagraph.add("$MAIL_VERZENDER: $verzender \n\n")
-                        headerParagraph.add("$MAIL_ONTVANGER: $ontvanger \n\n")
-                        if (attachments.isNotEmpty()) {
-                            val content = attachments.joinToString(",") {
-                                    attachment: Attachment ->
-                                attachment.filename
+                        document.add(
+                            Paragraph().apply {
+                                setFont(font).setFontSize(FONT_SIZE).setFontColor(ColorConstants.BLACK)
+                                add("$MAIL_VERZENDER: $verzender \n\n")
+                                add("$MAIL_ONTVANGER: $ontvanger \n\n")
+                                if (attachments.isNotEmpty()) {
+                                    val content = attachments.joinToString(",") { attachment: Attachment ->
+                                        attachment.filename
+                                    }
+                                    add("$MAIL_BIJLAGE: $content \n\n")
+                                }
+                                add("$MAIL_ONDERWERP: $subject \n\n")
+                                add("$MAIL_BERICHT \n")
                             }
-                            headerParagraph.add("$MAIL_BIJLAGE: $content \n\n")
-                        }
+                        )
 
-                        headerParagraph.add("$MAIL_ONDERWERP: $subject \n\n")
-                        headerParagraph.add("$MAIL_BERICHT \n")
-                        document.add(headerParagraph)
-
-                        val emailBodyParagraph = Paragraph()
                         val cleaner = HtmlCleaner()
                         val rootTagNode = cleaner.clean(body)
-                        val cleanerProperties = cleaner.properties
-                        cleanerProperties.isOmitXmlDeclaration = true
+                        val cleanerProperties = cleaner.properties.apply {
+                            isOmitXmlDeclaration = true
+                        }
+                        val html = PrettyXmlSerializer(cleanerProperties).getAsString(rootTagNode)
 
-                        val xmlSerializer: XmlSerializer = PrettyXmlSerializer(cleanerProperties)
-                        val html = xmlSerializer.getAsString(rootTagNode)
+                        val emailBodyParagraph = Paragraph()
                         HtmlConverter.convertToElements(html).forEach(
                             Consumer { element: IElement? ->
                                 emailBodyParagraph.add(element as IBlockElement?)
@@ -244,54 +238,21 @@ constructor(
         return byteArrayOutputStream.toByteArray()
     }
 
-    private fun getEmailInformatieObjectType(zaak: Zaak): InformatieObjectType {
-        val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
-        return zaaktype.informatieobjecttypen.stream()
-            .map { informatieobjecttypeURI: URI ->
-                ztcClientService.readInformatieobjecttype(
-                    informatieobjecttypeURI
-                )
-            }
-            .filter { infoObject: InformatieObjectType ->
-                (
-                    infoObject.omschrijving
-                        == ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL
-                    )
-            }.findFirst()
-            .orElseThrow()
-    }
+    private fun getEmailInformatieObjectType(zaak: Zaak): InformatieObjectType =
+        ztcClientService.readZaaktype(zaak.zaaktype).informatieobjecttypen
+            .map { ztcClientService.readInformatieobjecttype(it) }
+            .first { it.omschrijving == ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL }
 
-    private fun getAttachments(bijlagenString: Array<String>): List<Attachment> {
-        val bijlagen: MutableList<UUID> = ArrayList()
-        if (ArrayUtils.isNotEmpty(bijlagenString)) {
-            Arrays.stream(bijlagenString).forEach { uuidString: String -> bijlagen.add(UUIDUtil.uuid(uuidString)) }
-        } else {
-            return emptyList()
+    private fun getAttachments(bijlagenString: Array<String>): List<Attachment> =
+        bijlagenString.map { UUIDUtil.uuid(it) }.map { uuid: UUID ->
+            val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(uuid)
+            val byteArrayInputStream = drcClientService.downloadEnkelvoudigInformatieobject(uuid)
+            Attachment(
+                enkelvoudigInformatieobject.formaat,
+                enkelvoudigInformatieobject.bestandsnaam,
+                String(Base64.getEncoder().encode(byteArrayInputStream.readAllBytes()))
+            )
         }
-
-        val attachments: MutableList<Attachment> = ArrayList()
-        bijlagen.forEach(
-            Consumer { uuid: UUID ->
-                val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
-                    uuid
-                )
-                val byteArrayInputStream = drcClientService.downloadEnkelvoudigInformatieobject(
-                    uuid
-                )
-                val attachment = Attachment(
-                    enkelvoudigInformatieobject.formaat,
-                    enkelvoudigInformatieobject.bestandsnaam,
-                    String(
-                        Base64.getEncoder()
-                            .encode(byteArrayInputStream.readAllBytes())
-                    )
-                )
-                attachments.add(attachment)
-            }
-        )
-
-        return attachments
-    }
 
     private fun resolveVariabelen(tekst: String, bronnen: Bronnen): String {
         return mailTemplateHelper.resolveVariabelen(
