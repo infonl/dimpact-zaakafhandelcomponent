@@ -223,7 +223,7 @@ public class PlanItemsRESTService {
                             taakVariabelenService.readMailBody(taakdata).orElse(null),
                             taakVariabelenService.readMailBijlagen(taakdata).orElse(null),
                             true),
-                    BronnenKt.fromZaak(zaak)));
+                    BronnenKt.getBronnenFromZaak(zaak)));
         }
         cmmnService.startHumanTaskPlanItem(
                 humanTaskData.planItemInstanceId,
