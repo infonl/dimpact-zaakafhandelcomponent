@@ -42,7 +42,7 @@ class MailServiceTest : BehaviorSpec({
     val zgwApiService = mockk<ZGWApiService>()
     val ztcClientService = mockk<ZTCClientService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-    val mailjetService = mockk<MailjetService>()
+    val mailjetClientUtil = mockk<MailjetClientUtil>()
 
     // mock the required static methods or else the MailService cannot be instantiated
     mockkStatic(ConfigProvider::class)
@@ -53,7 +53,7 @@ class MailServiceTest : BehaviorSpec({
         ConfigProvider.getConfig().getValue("mailjet.api.secret.key", String::class.java)
     } returns "dummySecretKey"
     every {
-        mailjetService.createMailjetClient("dummyApiKey", "dummySecretKey")
+        mailjetClientUtil.createMailjetClient("dummyApiKey", "dummySecretKey")
     } returns mailJetClient
 
     val mailService = MailService(
@@ -63,7 +63,7 @@ class MailServiceTest : BehaviorSpec({
         drcClientService,
         mailTemplateHelper,
         loggedInUserInstance,
-        mailjetService
+        mailjetClientUtil
     )
 
     beforeEach {

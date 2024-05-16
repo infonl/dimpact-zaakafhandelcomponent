@@ -7,7 +7,7 @@ package net.atos.zac.mail
 import com.mailjet.client.ClientOptions
 import com.mailjet.client.MailjetClient
 
-object MailjetService {
+object MailjetClientUtil {
     fun createMailjetClient(mailjetApiKey: String, mailjetSecretKey: String): MailjetClient =
         MailjetClient(
             ClientOptions.builder()

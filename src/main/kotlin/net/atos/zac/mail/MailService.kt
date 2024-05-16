@@ -67,7 +67,7 @@ constructor(
     private var drcClientService: DRCClientService,
     private var mailTemplateHelper: MailTemplateHelper,
     private var loggedInUserInstance: Instance<LoggedInUser>,
-    mailjetService: MailjetService
+    mailjetClientUtil: MailjetClientUtil
 ) {
 
     companion object {
@@ -94,7 +94,7 @@ constructor(
         private const val MAIL_BERICHT = "Bericht"
     }
 
-    private val mailjetClient = mailjetService.createMailjetClient(MAILJET_API_KEY, MAILJET_API_SECRET_KEY)
+    private val mailjetClient = mailjetClientUtil.createMailjetClient(MAILJET_API_KEY, MAILJET_API_SECRET_KEY)
 
     val gemeenteMailAdres
         get() = MailAdres(configuratieService.readGemeenteMail(), configuratieService.readGemeenteNaam())
