@@ -187,18 +187,6 @@ dependencies {
     jacocoAgentJarForItest(variantOf(libs.jacoco.agent) { classifier("runtime") })
 }
 
-tasks.register<io.gitlab.arturbosch.detekt.Detekt>("detektApply") {
-    description = "Apply detekt fixes."
-    autoCorrect = true
-    ignoreFailures = true
-}
-tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
-    config.setFrom("$rootDir/config/detekt.yml")
-    setSource(files("src/main/kotlin", "src/test/kotlin", "src/itest/kotlin", "build.gradle.kts"))
-    // our Detekt configuration build builds upon the default configuration
-    buildUponDefaultConfig = true
-}
-
 allOpen {
     // enable all-open plugin for Kotlin so that WildFly's dependency injection framework (Weld)
     // can proxy our Kotlin classes when they have our custom annotation
@@ -353,28 +341,6 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get())).config(mapOf("parser" to "json"))
     }
 }
-tasks.getByName("spotlessApply").finalizedBy(listOf("detektApply"))
-
-tasks.getByName("npmInstall") {
-    inputs.file("src/main/app/package.json")
-    outputs.dir("src/main/app/node_modules")
-}
-tasks.getByName("generateSwaggerUIZaakafhandelcomponent").setDependsOn(listOf("generateOpenApiSpec"))
-
-tasks.getByName("compileItestKotlin") {
-    dependsOn("copyJacocoAgentForItest")
-    mustRunAfter("buildDockerImage")
-}
-
-tasks.war {
-    dependsOn("npmRunBuild")
-
-    // add built frontend resources to WAR archive
-    from("src/main/app/dist/zaakafhandelcomponent")
-
-    // explicitly add our 'warLib' 'transitive' dependencies that are required in the generated WAR
-    classpath(files(configurations["warLib"]))
-}
 
 tasks {
     clean {
@@ -416,6 +382,33 @@ tasks {
         }
     }
 
+    processResources {
+        // exclude resources that we do not need in the build artefacts
+        exclude("api-specs/**")
+        exclude("wildfly/**")
+    }
+
+    register<io.gitlab.arturbosch.detekt.Detekt>("detektApply") {
+        description = "Apply detekt fixes."
+        autoCorrect = true
+        ignoreFailures = true
+    }
+    withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+        config.setFrom("$rootDir/config/detekt.yml")
+        setSource(files("src/main/kotlin", "src/test/kotlin", "src/itest/kotlin", "build.gradle.kts"))
+        // our Detekt configuration build builds upon the default configuration
+        buildUponDefaultConfig = true
+    }
+
+    getByName("spotlessApply").finalizedBy(listOf("detektApply"))
+
+    getByName("generateSwaggerUIZaakafhandelcomponent").setDependsOn(listOf("generateOpenApiSpec"))
+
+    getByName("compileItestKotlin") {
+        dependsOn("copyJacocoAgentForItest")
+        mustRunAfter("buildDockerImage")
+    }
+
     withType<JacocoReport> {
         // exclude Java client code that was auto generated at build time
         afterEvaluate {
@@ -429,12 +422,6 @@ tasks {
         }
     }
 
-    processResources {
-        // exclude resources that we do not need in the build artefacts
-        exclude("api-specs/**")
-        exclude("wildfly/**")
-    }
-
     withType<Test> {
         useJUnitPlatform()
     }
@@ -445,6 +432,16 @@ tasks {
 
     withType<JavaCompile> {
         options.encoding = "UTF-8"
+    }
+
+    withType<War> {
+        dependsOn("npmRunBuild")
+
+        // add built frontend resources to WAR archive
+        from("src/main/app/dist/zaakafhandelcomponent")
+
+        // explicitly add our 'warLib' 'transitive' dependencies that are required in the generated WAR
+        classpath(files(configurations["warLib"]))
     }
 
     withType<GenerateTask> {
@@ -583,6 +580,11 @@ tasks {
             "generateOrObjectsClient",
             "generateOrObjectTypesClient"
         )
+    }
+
+    getByName("npmInstall") {
+        inputs.file("src/main/app/package.json")
+        outputs.dir("src/main/app/node_modules")
     }
 
     register<NpmTask>("npmRunBuild") {
