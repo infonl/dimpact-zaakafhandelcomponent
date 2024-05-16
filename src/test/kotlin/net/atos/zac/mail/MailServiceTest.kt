@@ -27,7 +27,7 @@ import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
-import net.atos.zac.mail.model.Bronnen
+import net.atos.zac.mail.model.getBronnenFromZaak
 import net.atos.zac.mailtemplates.MailTemplateHelper
 import net.atos.zac.mailtemplates.model.createMailGegevens
 import org.eclipse.microprofile.config.ConfigProvider
@@ -89,7 +89,7 @@ class MailServiceTest : BehaviorSpec({
                 val mailGegevens = createMailGegevens(
                     createDocumentFromMail = true
                 )
-                val bronnen = Bronnen.Builder().add(zaak).build()
+                val bronnen = zaak.getBronnenFromZaak()
                 val mailjetResponse = MailjetResponse(200, "{dummyAttribute: dummyValue}")
                 val informatieObjectType = createInformatieObjectType(
                     // omschrijving has to be exactly "e-mail"
