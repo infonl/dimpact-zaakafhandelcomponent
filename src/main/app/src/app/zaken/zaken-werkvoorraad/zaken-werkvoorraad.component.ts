@@ -6,13 +6,10 @@
 import {
   AfterViewInit,
   Component,
-  Inject,
   OnInit,
-  Signal,
   ViewChild,
   computed,
   effect,
-  inject,
   signal,
 } from "@angular/core";
 
@@ -33,15 +30,7 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
 import { ZakenService } from "../zaken.service";
 
 import { ComponentType } from "@angular/cdk/portal";
-import {
-  MatProgressBar,
-  ProgressBarMode,
-} from "@angular/material/progress-bar";
-import {
-  MAT_SNACK_BAR_DATA,
-  MatSnackBarLabel,
-  MatSnackBarRef,
-} from "@angular/material/snack-bar";
+import { MatSnackBarRef } from "@angular/material/snack-bar";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { ObjectType } from "src/app/core/websocket/model/object-type";
@@ -106,6 +95,7 @@ export class ZakenWerkvoorraadComponent
       : undefined;
   });
   toekenning: { groep?: Group; medewerker?: User } | undefined;
+  snackBarRef: MatSnackBarRef<unknown>;
 
   constructor(
     private zakenService: ZakenService,
@@ -117,12 +107,24 @@ export class ZakenWerkvoorraadComponent
     private identityService: IdentityService,
     private websocketService: WebsocketService,
     private translateService: TranslateService,
+    private indexService: IndexingService,
   ) {
     super();
     this.dataSource = new ZakenWerkvoorraadDatasource(
       this.zoekenService,
       this.utilService,
     );
+    effect(() => {
+      if (this.zakenProgressPercentage() === 100) {
+        this.indexService.commitPendingChangesToSearchIndex().subscribe(() => {
+          this.snackBarRef?.dismiss();
+          this.selection.clear();
+          this.dataSource.load();
+          this.zakenLoading.set(false);
+          this.zakenState.set({});
+        });
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -316,17 +318,10 @@ export class ZakenWerkvoorraadComponent
             : this.translateService.instant(multipleToken, {
                 aantal: zaken.length,
               });
-        this.utilService
-          .openSnackbarFromComponent(ZakenWorkflowSnackbar, {
-            data: { progressPercentage: this.zakenProgressPercentage, message },
-          })
-          .afterDismissed()
-          .subscribe(() => {
-            this.selection.clear();
-            this.dataSource.load();
-            this.zakenLoading.set(false);
-            this.zakenState.set({});
-          });
+        this.snackBarRef = this.utilService.openProgressSnackbar({
+          progressPercentage: this.zakenProgressPercentage,
+          message,
+        });
         const notChanged = zaken
           .filter(
             (x) =>
@@ -345,49 +340,6 @@ export class ZakenWerkvoorraadComponent
         );
       } else {
         this.websocketService.removeListeners(subscriptions);
-      }
-    });
-  }
-}
-
-@Component({
-  standalone: true,
-  imports: [MatSnackBarLabel, MatProgressBar],
-  template: `
-    <div matSnackBarLabel>{{ data.message }}</div>
-    <mat-progress-bar
-      [mode]="progressMode()"
-      [value]="data.progressPercentage()"
-    ></mat-progress-bar>
-  `,
-  styles: `
-    .mat-mdc-progress-bar {
-      --mdc-linear-progress-active-indicator-color: var(
-        --mat-snack-bar-button-color
-      );
-      --mdc-linear-progress-track-color: rgba(255, 64, 129, 0.25);
-      position: absolute;
-      bottom: 0;
-    }
-  `,
-})
-class ZakenWorkflowSnackbar {
-  snackBarRef = inject(MatSnackBarRef);
-  progressMode = computed<ProgressBarMode>(() => {
-    const percentage = this.data.progressPercentage();
-    return percentage === 100 || percentage === 0 ? "query" : "determinate";
-  });
-
-  constructor(
-    @Inject(MAT_SNACK_BAR_DATA)
-    public data: { progressPercentage: Signal<number>; message: string },
-    index: IndexingService,
-  ) {
-    effect(() => {
-      if (data.progressPercentage() === 100) {
-        index.commitPendingChangesToSearchIndex().subscribe(() => {
-          this.snackBarRef.dismiss();
-        });
       }
     });
   }
