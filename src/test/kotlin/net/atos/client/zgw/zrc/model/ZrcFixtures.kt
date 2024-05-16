@@ -113,6 +113,7 @@ fun createZaak(
     archiefnominatie: Archiefnominatie? = null,
     opschorting: Opschorting? = null,
     einddatumGepland: LocalDate? = null,
+    identificatie: String = "dummyIdentificatie",
     registratiedatum: LocalDate = LocalDate.now(),
     resultaat: URI? = null,
     uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.now().plusDays(1),
@@ -130,6 +131,7 @@ fun createZaak(
     this.archiefnominatie = archiefnominatie
     this.opschorting = opschorting
     this.einddatumGepland = einddatumGepland
+    this.identificatie = identificatie
     this.registratiedatum = registratiedatum
     this.resultaat = resultaat
     this.uiterlijkeEinddatumAfdoening = uiterlijkeEinddatumAfdoening
