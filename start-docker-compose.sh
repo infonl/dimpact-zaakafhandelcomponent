@@ -16,7 +16,8 @@ help()
    echo "-d     Delete local Docker volume data before starting Docker Compose."
    echo "-t     Also enable tracing and start the containers used for handling metrics and traces"
    echo "-z     Also start last-known-good ZAC Docker container as part of the Docker Compose environment."
-   echo "-l     Build and start local ZAC Docker image in the Docker Compose environment."
+   echo "-b     Build and start local ZAC Docker image in the Docker Compose environment."
+   echo "-l     Start local ZAC Docker image in the Docker Compose environment."
    echo "-h     Print this Help."
    echo
 }
@@ -46,10 +47,14 @@ while getopts ':dtzlh' OPTION; do
       startZac=true
       docker compose pull zac
       ;;
-    l)
+    b)
       echo "Building ZAC Docker Image ..."
       startZac=true
       ./gradlew buildDockerImage
+      export ZAC_DOCKER_IMAGE=ghcr.io/infonl/zaakafhandelcomponent:dev
+      ;;
+    l)
+      startZac=true
       export ZAC_DOCKER_IMAGE=ghcr.io/infonl/zaakafhandelcomponent:dev
       ;;
     \?)
