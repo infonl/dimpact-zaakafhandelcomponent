@@ -12,7 +12,7 @@ import net.atos.zac.aanvraag.model.generated.Bron
 import net.atos.zac.aanvraag.model.generated.ProductaanvraagDimpact
 import java.net.URI
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 fun createBetrokkene(
     inBsn: String = "dummyBsn",
