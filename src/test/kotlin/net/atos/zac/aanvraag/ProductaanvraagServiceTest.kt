@@ -33,7 +33,6 @@ import net.atos.zac.identity.IdentityService
 import net.atos.zac.zaaksturing.ZaakafhandelParameterBeheerService
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import net.atos.zac.zaaksturing.model.createZaakafhandelParameters
-import java.net.URI
 import java.util.Optional
 import java.util.UUID
 
@@ -77,7 +76,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         clearAllMocks()
     }
 
-    Given("an object registration object") {
+    Given("an productaanvraag-dimpact object registration object") {
         val bron = createBron()
         val orObject = createORObject(
             record = createObjectRecord(
@@ -101,7 +100,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("a productaanvraag to start a zaak") {
+    Given("a productaanvraag-dimpact object registration object containing required data") {
+        clearAllMocks()
         val productAanvraagObjectUUID = UUID.randomUUID()
         val zaakTypeUUID = UUID.randomUUID()
         val productAanvraagType = "productaanvraag"
@@ -122,7 +122,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             )
         )
-        val productAanvraagURI = URI("http://example.com/dummyProductaanvraag/$productAanvraagObjectUUID")
         val zaakToBeCreated = slot<Zaak>()
         every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
         every {
@@ -141,10 +140,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         } returns createdZaakInformatieobject
         every { cmmnService.startCase(createdZaak, zaakType, zaakafhandelParameters, any()) } just Runs
 
-        When("a zaak, a zaakobject and a zaakinformatieobject are created and a CMMN process is started") {
-            productaanvraagService.verwerkProductaanvraag(productAanvraagURI)
+        When("the productaanvraag is handled") {
+            productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
-            Then("a zaak should be created and a CMMN process should be started") {
+            Then("a zaak should be created and a CMMN case process should be started") {
                 verify(exactly = 1) {
                     zgwApiService.createZaak(any())
                     zrcClientService.createZaakobject(any())
@@ -156,6 +155,40 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     bronorganisatie shouldBe BRON_ORGANISATIE
                     omschrijving shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'"
                     toelichting shouldBe null
+                }
+            }
+        }
+    }
+    Given("a productaanvraag-dimpact object registration object missing required aanvraaggegevens") {
+        clearAllMocks()
+        val productAanvraagObjectUUID = UUID.randomUUID()
+        val productAanvraagType = "productaanvraag"
+        val formulierBron = createBron()
+        val productAanvraagORObjectWithMissingAanvraaggegevens = createORObject(
+            record = createObjectRecord(
+                data = mapOf(
+                    "bron" to formulierBron,
+                    "type" to productAanvraagType
+                )
+            )
+        )
+        every {
+            objectsClientService.readObject(productAanvraagObjectUUID)
+        } returns productAanvraagORObjectWithMissingAanvraaggegevens
+
+        When("the productaanvraag is handled") {
+            productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
+
+            Then(
+                """
+                an inbox productaanvraag should be created and a zaak should not be created, 
+                and a CMMN case process should not be started
+                """
+            ) {
+                verify(exactly = 0) {
+                    zgwApiService.createZaak(any())
+                    zrcClientService.createZaakobject(any())
+                    cmmnService.startCase(any(), any(), any(), any())
                 }
             }
         }
