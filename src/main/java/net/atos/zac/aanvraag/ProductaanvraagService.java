@@ -284,7 +284,7 @@ public class ProductaanvraagService {
         inboxProductaanvraag.setProductaanvraagObjectUUID(productaanvraagObject.getUuid());
         inboxProductaanvraag.setType(productaanvraag.getType());
         inboxProductaanvraag.setOntvangstdatum(productaanvraagObject.getRecord().getRegistrationAt());
-        productaanvraag.getBetrokkenen().stream()
+        ListUtils.emptyIfNull(productaanvraag.getBetrokkenen()).stream()
                 .filter(betrokkene -> betrokkene.getRolOmschrijvingGeneriek().equals(Betrokkene.RolOmschrijvingGeneriek.INITIATOR))
                 // there can be at most only one initiator for a particular zaak so even if there are multiple (theorically possible)
                 // we are only interested in the first one
@@ -430,7 +430,7 @@ public class ProductaanvraagService {
 
     private Optional<ZaakType> findZaaktypeByIdentificatie(final String zaaktypeIdentificatie) {
         return ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI()).stream()
-                .filter(zaak -> zaak.getIdentificatie().equals(zaaktypeIdentificatie))
+                .filter(zaakType -> zaakType.getIdentificatie().equals(zaaktypeIdentificatie))
                 .findFirst();
     }
 }
