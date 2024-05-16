@@ -143,7 +143,7 @@ class TaskService @Inject constructor(
         try {
             releaseTasks(restTaakVrijgevenGegevens, loggedInUser, taskIds)
         } finally {
-            indexeerService.indexeerDirect(taskIds.stream(), ZoekObjectType.TAAK, true)
+            indexeerService.commit()
             LOG.fine { "Successfully released ${taskIds.size} tasks." }
 
             // if a screen event resource ID was specified, send a screen event
@@ -227,6 +227,7 @@ class TaskService @Inject constructor(
                         loggedInUser = loggedInUser,
                         reden = restTaakVrijgevenGegevens.reden
                     )
+                    indexeerService.indexeerDirect(task.id, ZoekObjectType.TAAK, false)
                     sendScreenEventsOnTaskChange(task, it.zaakUuid)
                     taskIds.add(task.id)
                 }
