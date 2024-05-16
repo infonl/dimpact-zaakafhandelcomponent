@@ -39,4 +39,4 @@ class Bronnen private constructor(
     }
 }
 
-fun fromZaak(zaak: Zaak): Bronnen = Bronnen.Builder().add(zaak).build()
+fun Zaak.getBronnenFromZaak() = Bronnen.Builder().add(this).build()
