@@ -58,12 +58,12 @@ class NotificatieReceiverTest : BehaviorSpec({
                     "and a 'no content' response is returned"
             ) {
                 val secret = "dummySecret"
-                val objectTypeUUID = UUID.randomUUID()
+                val productaanvraagObjectUUID = UUID.randomUUID()
                 val productTypeUUID = UUID.randomUUID()
                 val httpHeaders = mockk<HttpHeaders>()
                 val httpSession = mockk<HttpSession>()
                 val notifcatie = createNotificatie(
-                    resourceUrl = URI("http://example.com/dummyproductaanvraag/$objectTypeUUID"),
+                    resourceUrl = URI("http://example.com/dummyproductaanvraag/$productaanvraagObjectUUID"),
                     properties = mapOf("objectType" to "http://example.com/dummyproducttype/$productTypeUUID")
                 )
                 val objectType = createObjecttype(name = "Productaanvraag-Dimpact")
@@ -71,13 +71,13 @@ class NotificatieReceiverTest : BehaviorSpec({
                 every { httpSessionInstance.get() } returns httpSession
                 every { httpSession.setAttribute("logged-in-user", any()) } just runs
                 every { objecttypesClientService.readObjecttype(productTypeUUID) } returns objectType
-                every { productaanvraagService.verwerkProductaanvraag(notifcatie.resourceUrl) } just runs
+                every { productaanvraagService.handleProductaanvraag(productaanvraagObjectUUID) } just runs
 
                 val response = notificatieReceiver.notificatieReceive(httpHeaders, notifcatie)
 
                 response.status shouldBe 204
                 verify(exactly = 1) {
-                    productaanvraagService.verwerkProductaanvraag(notifcatie.resourceUrl)
+                    productaanvraagService.handleProductaanvraag(productaanvraagObjectUUID)
                 }
             }
         }
