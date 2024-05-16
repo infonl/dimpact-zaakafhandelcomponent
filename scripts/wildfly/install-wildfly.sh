@@ -21,7 +21,7 @@ export PATH=$PATH:$(pwd)/galleon/bin
 
 echo ">>> Installing WildFly ..."
 rm -fr $WILDFLY_SERVER_DIR
-galleon.sh install wildfly#$WILDFLY_VERSION --dir=$WILDFLY_SERVER_DIR --layers=jaxrs-server,microprofile-health,microprofile-fault-tolerance,elytron-oidc-client,metrics,opentelemetry
+galleon.sh install wildfly#$WILDFLY_VERSION --dir=$WILDFLY_SERVER_DIR --layers=elytron-oidc-client,jaxrs-server,mail,metrics,microprofile-health,microprofile-fault-tolerance,opentelemetry
 galleon.sh install org.wildfly:wildfly-datasources-galleon-pack:$WILDFLY_DATASOURCES_GALLEON_PACK_VERSION --dir=$WILDFLY_SERVER_DIR --layers=postgresql-driver
 $WILDFLY_SERVER_DIR/bin/jboss-cli.sh --file=install-wildfly.cli
 

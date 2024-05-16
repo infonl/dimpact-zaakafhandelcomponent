@@ -54,8 +54,8 @@ ZGW_API_SECRET=op://Dimpact/ZAC-.env-$APP_ENV/ZGW/API_SECRET
 ZGW_API_URL_EXTERN=op://Dimpact/ZAC-.env-$APP_ENV/ZGW/API_URL_EXTERN
 SMTP_HOST=op://Dimpact/ZAC-.env-$APP_ENV/SMTP/HOST
 SMTP_PORT=op://Dimpact/ZAC-.env-$APP_ENV/SMTP/PORT
-SMTP_USER=op://Dimpact/ZAC-.env-$APP_ENV/SMTP/USER
-SMTP_PASSWORD=op://Dimpact/ZAC-.env-$APP_ENV/SMTP/PASSWORD
+SMTP_USER=op://Dimpact/ZAC-.env-$APP_ENV/MAILJET/API_KEY
+SMTP_PASSWORD=op://Dimpact/ZAC-.env-$APP_ENV/MAILJET/API_SECRET_KEY
 
 # -----------------------------------------
 # e2e only environment variables
