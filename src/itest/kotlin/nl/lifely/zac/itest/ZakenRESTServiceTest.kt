@@ -21,9 +21,9 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_BETROKKENE
 import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_UUID_BELANGHEBBENDE
 import nl.lifely.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAKEN_VERDELEN
 import nl.lifely.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAKEN_VRIJGEVEN
-import nl.lifely.zac.itest.config.ItestConfiguration.TEST_BETROKKENE_BSN_HENDRIKA_JANSE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
@@ -98,7 +98,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     "  \"roltypeUUID\": \"$ROLTYPE_UUID_BELANGHEBBENDE\",\n" +
                     "  \"roltoelichting\": \"\",\n" +
                     "  \"betrokkeneIdentificatieType\": \"$BETROKKENE_IDENTIFICATIE_TYPE_BSN\",\n" +
-                    "  \"betrokkeneIdentificatie\": \"$TEST_BETROKKENE_BSN_HENDRIKA_JANSE\"\n" +
+                    "  \"betrokkeneIdentificatie\": \"$TEST_PERSON_HENDRIKA_JANSE_BSN\"\n" +
                     "}"
             )
             Then("the response should be a 400 bad request HTTP response") {
@@ -172,7 +172,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     "  \"roltypeUUID\": \"$ROLTYPE_UUID_BELANGHEBBENDE\",\n" +
                     "  \"roltoelichting\": \"dummyToelichting\",\n" +
                     "  \"betrokkeneIdentificatieType\": \"$BETROKKENE_IDENTIFICATIE_TYPE_BSN\",\n" +
-                    "  \"betrokkeneIdentificatie\": \"$TEST_BETROKKENE_BSN_HENDRIKA_JANSE\"\n" +
+                    "  \"betrokkeneIdentificatie\": \"$TEST_PERSON_HENDRIKA_JANSE_BSN\"\n" +
                     "}"
             )
             Then("the response should be a 200 OK HTTP response") {
@@ -254,7 +254,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                         getString("roltype") shouldBe ROLTYPE_NAME_BETROKKENE
                         getString("roltoelichting") shouldBe "dummyToelichting"
                         getString("type") shouldBe BETROKKENE_TYPE_NATUURLIJK_PERSOON
-                        getString("identificatie") shouldBe TEST_BETROKKENE_BSN_HENDRIKA_JANSE
+                        getString("identificatie") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
                     }
                 }
             }

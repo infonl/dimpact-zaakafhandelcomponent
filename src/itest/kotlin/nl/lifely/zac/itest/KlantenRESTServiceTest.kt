@@ -12,6 +12,13 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_COUNT
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_EMAIL
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_FULLNAME
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_GENDER
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONArray
@@ -41,6 +48,29 @@ class KlantenRESTServiceTest : BehaviorSpec({
                         shouldContainJsonKeyValue("naam", "Behandelaar")
                         shouldContainJsonKeyValue("omschrijvingGeneriekEnum", "behandelaar")
                     }
+                }
+            }
+        }
+        When("a person is retrieved using a BSN which is present in both the BRP and Klanten API databases") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/klanten/persoon/$TEST_PERSON_HENDRIKA_JANSE_BSN"
+            )
+            Then(
+                """
+                    the response should be a 200 HTTP response with personal data from both the BRP and Klanten databases
+                    """
+            ) {
+                response.code shouldBe HttpStatusCode.OK_200.code()
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                with(responseBody) {
+                    shouldContainJsonKeyValue("identificatie", TEST_PERSON_HENDRIKA_JANSE_BSN)
+                    shouldContainJsonKeyValue("naam", TEST_PERSON_HENDRIKA_JANSE_FULLNAME)
+                    shouldContainJsonKeyValue("emailadres", TEST_PERSON_HENDRIKA_JANSE_EMAIL)
+                    shouldContainJsonKeyValue("telefoonnummer", TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER)
+                    shouldContainJsonKeyValue("geboortedatum", TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE)
+                    shouldContainJsonKeyValue("geslacht", TEST_PERSON_HENDRIKA_JANSE_GENDER)
+                    shouldContainJsonKeyValue("verblijfplaats", TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE)
                 }
             }
         }
