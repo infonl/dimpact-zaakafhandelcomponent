@@ -224,7 +224,10 @@ class TaskServiceTest : BehaviorSpec({
         every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every { eventingService.send(capture(screenEventSlot)) } just runs
         every {
-            indexeerService.indexeerDirect(any<Stream<String>>(), ZoekObjectType.TAAK, true)
+            indexeerService.indexeerDirect(any<String>(), ZoekObjectType.TAAK, false)
+        } just runs
+        every {
+            indexeerService.commit()
         } just runs
 
         When(
@@ -240,11 +243,11 @@ class TaskServiceTest : BehaviorSpec({
                 verify(exactly = 2) {
                     flowableTaskService.releaseTask(any<Task>(), any())
                 }
-                verify(exactly = 1) {
+                verify(exactly = 2) {
                     indexeerService.indexeerDirect(
-                        any<Stream<String>>(),
+                        any<String>(),
                         ZoekObjectType.TAAK,
-                        true
+                        false
                     )
                 }
                 // we expect 4 screen events to be sent, 2 for each task
@@ -532,7 +535,10 @@ class TaskServiceTest : BehaviorSpec({
         every { eventingService.send(capture(screenEventSlot)) } just runs
         every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every {
-            indexeerService.indexeerDirect(any<Stream<String>>(), ZoekObjectType.TAAK, true)
+            indexeerService.indexeerDirect(any<String>(), ZoekObjectType.TAAK, false)
+        } just runs
+        every {
+            indexeerService.commit()
         } just runs
 
         When("the 'release tasks' function is called with REST taak vrijgeven gegevens") {
@@ -585,7 +591,10 @@ class TaskServiceTest : BehaviorSpec({
         every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every { flowableTaskService.releaseTask(task1, restTaakVerdelenGegevens.reden) } returns releasedTask1
         every {
-            indexeerService.indexeerDirect(any<Stream<String>>(), ZoekObjectType.TAAK, true)
+            indexeerService.indexeerDirect(any<String>(), ZoekObjectType.TAAK, false)
+        } just runs
+        every {
+            indexeerService.commit()
         } just runs
 
         When(
@@ -607,7 +616,7 @@ class TaskServiceTest : BehaviorSpec({
             ) {
                 exception.message shouldBe "dummyError"
                 verify(exactly = 1) {
-                    indexeerService.indexeerDirect(any<Stream<String>>(), ZoekObjectType.TAAK, true)
+                    indexeerService.indexeerDirect(any<String>(), ZoekObjectType.TAAK, false)
                     flowableTaskService.releaseTask(any(), any())
                 }
                 // we expect two screen events, one for the one succesfully released task
