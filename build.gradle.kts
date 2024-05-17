@@ -520,8 +520,7 @@ tasks {
 
     register<GenerateTask>("generateKlantenClient") {
         // disabled because (at least with our current settings) this results
-        // in uncompilable generated Java code where classes attempts
-        // to access private memberrs of their subclass
+        // in uncompilable generated Java code
         // this task was not enabled in the original Maven build either;
         // these model files were added to the code base manually instead
         isEnabled = false
