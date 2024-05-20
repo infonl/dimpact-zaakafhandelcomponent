@@ -470,9 +470,8 @@ tasks {
                 "useJakartaEe" to "true"
             )
         )
-        // Specify custom Mustache template dir as temporary workaround for the issue where OpenAPI Generator 7.2.0
+        // Specify custom Mustache template dir as temporary workaround for the issue where OpenAPI Generator
         // fails to generate import statements for @JsonbCreator annotations.
-        // Maybe this workaround can be removed when we migrate to OpenAPI Generator 7.3.0.
         templateDir.set("$rootDir/src/main/resources/openapi-generator-templates")
     }
 
@@ -504,7 +503,8 @@ tasks {
     register<GenerateTask>("generateBagClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/bag/openapi.yaml")
         modelPackage.set("net.atos.client.bag.model.generated")
-        // we use a different date library for this client
+        // we need to use the java8-localdatatime date library for this client
+        // or else certain date time fields for this client cannot be deserialized
         configOptions.set(
             mapOf(
                 "library" to "microprofile",
