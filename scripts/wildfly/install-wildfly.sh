@@ -16,7 +16,7 @@ cd "$(dirname "$0")" || exit
 # WildFly version, layers and data-sources are taken from pom.xml
 # Please follow the instructions in 'updatingDependencies.md' when upgrading WildFly.
 WILDFLY_VERSION=$(grep -E '<wildfly.version>' ../../pom.xml | awk -F'[<>]' '{print $3}')
-WILDFLY_LAYERS=$(awk -F'[<>]' '/<layer>/{printf "%s,", $3}' ../../pom.xml | sed 's/,$//' | sed 's/postgresql-driver,//')
+WILDFLY_LAYERS=$(awk -F'[<>]' '/<layer>/{printf "%s,", $3}' ../../pom.xml | sed 's/,$//' | sed 's/postgresql-driver,\{0,1\}//')
 WILDFLY_DATASOURCES_GALLEON_PACK_VERSION=$(grep -E '<wildfly-datasources-galleon-pack.version>' ../../pom.xml | awk -F'[<>]' '{print $3}')
 
 WILDFLY_SERVER_DIR=../../wildfly-$WILDFLY_VERSION
