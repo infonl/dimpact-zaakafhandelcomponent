@@ -11,12 +11,12 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
+import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_COMPLETED
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_2_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.junit.jupiter.api.Order
-import org.mockserver.model.HttpStatusCode
 
 const val CSV_ROWS_EXPECTED = 3
 const val CSV_FIELD_IDENTIFICATIE = "identificatie"
@@ -102,7 +102,7 @@ class CsvRESTServiceTest : BehaviorSpec({
                  one for each open zaak
                 """
             ) {
-                response.code shouldBe HttpStatusCode.OK_200.code()
+                response.code shouldBe HTTP_STATUS_OK
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
 

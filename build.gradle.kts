@@ -179,7 +179,6 @@ dependencies {
     "itestImplementation"(libs.squareup.okhttp)
     "itestImplementation"(libs.squareup.okhttp.urlconnection)
     "itestImplementation"(libs.awaitility)
-    "itestImplementation"(libs.mockserver.client)
     "itestImplementation"(libs.auth0.java.jwt)
     "itestImplementation"(libs.github.kotlin.logging)
     "itestImplementation"(libs.kotlin.csv.jvm)

@@ -76,7 +76,6 @@ github-kotlin-logging = "6.0.9"
 squareup-okhttp = "4.12.0"
 squareup-okhttp-urlconnection = "4.12.0"
 awaitility = "4.2.1"
-mockserver-client = "5.15.0"
 
 [libraries]
 apache-commons-lang = { group = "org.apache.commons", name = "commons-lang3", version.ref = "apache-commons-lang" }
@@ -166,7 +165,6 @@ github-kotlin-logging = { group = "io.github.oshai", name = "kotlin-logging-jvm"
 squareup-okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "squareup-okhttp" }
 squareup-okhttp-urlconnection = { group = "com.squareup.okhttp3", name = "okhttp-urlconnection", version.ref = "squareup-okhttp-urlconnection" }
 awaitility = { group = "org.awaitility", name = "awaitility-kotlin", version.ref = "awaitility" }
-mockserver-client = { group = "org.mock-server", name = "mockserver-client-java", version.ref = "mockserver-client" }
 
 jacoco-agent = { group = "org.jacoco", name="org.jacoco.agent", version.ref = "jacoco" }
 

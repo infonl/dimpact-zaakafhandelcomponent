@@ -11,6 +11,8 @@ import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
 import nl.lifely.zac.itest.config.ItestConfiguration.ACTIE_ZAAK_AFHANDELEN
+import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
+import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
@@ -18,7 +20,6 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVEN
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONArray
 import org.json.JSONObject
-import org.mockserver.model.HttpStatusCode
 import java.util.UUID
 
 const val ONE_SECOND_IN_MILLIS = 1000L
@@ -67,7 +68,7 @@ class ZakenRESTServiceCompleteTest : BehaviorSpec({
             """.trimIndent()
         ).run {
             logger.info { "Response: ${body!!.string()}" }
-            code shouldBe HttpStatusCode.NO_CONTENT_204.code()
+            code shouldBe HTTP_STATUS_NO_CONTENT
         }
         itestHttpClient.performGetRequest(
             "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
@@ -101,14 +102,14 @@ class ZakenRESTServiceCompleteTest : BehaviorSpec({
                 """.trimIndent()
             ).run {
                 logger.info { "Response: ${body!!.string()}" }
-                code shouldBe HttpStatusCode.NO_CONTENT_204.code()
+                code shouldBe HTTP_STATUS_NO_CONTENT
             }
 
             Then("the zaak should be closed and have a result") {
                 zacClient.retrieveZaak(zaakUUID).use { response ->
                     val responseBody = response.body!!.string()
                     logger.info { "Response: $responseBody" }
-                    response.code shouldBe HttpStatusCode.OK_200.code()
+                    response.code shouldBe HTTP_STATUS_OK
                     responseBody.run {
                         shouldContainJsonKeyValue("isOpen", false)
                         shouldContainJsonKey("resultaat")
@@ -126,14 +127,14 @@ class ZakenRESTServiceCompleteTest : BehaviorSpec({
                 """.trimIndent()
             ).run {
                 logger.info { "Response: ${body!!.string()}" }
-                code shouldBe HttpStatusCode.NO_CONTENT_204.code()
+                code shouldBe HTTP_STATUS_NO_CONTENT
             }
 
             Then("the zaak should be open and should no longer have a result") {
                 zacClient.retrieveZaak(zaakUUID).use { response ->
                     val responseBody = response.body!!.string()
                     logger.info { "Response: $responseBody" }
-                    response.code shouldBe HttpStatusCode.OK_200.code()
+                    response.code shouldBe HTTP_STATUS_OK
                     responseBody.run {
                         shouldContainJsonKeyValue("isOpen", true)
                         shouldNotContainJsonKey("resultaat")
@@ -157,14 +158,14 @@ class ZakenRESTServiceCompleteTest : BehaviorSpec({
                 """.trimIndent()
             ).run {
                 logger.info { "Response: ${body!!.string()}" }
-                code shouldBe HttpStatusCode.NO_CONTENT_204.code()
+                code shouldBe HTTP_STATUS_NO_CONTENT
             }
 
             Then("the zaak should be closed and have a result") {
                 zacClient.retrieveZaak(zaakUUID).use { response ->
                     val responseBody = response.body!!.string()
                     logger.info { "Response: $responseBody" }
-                    response.code shouldBe HttpStatusCode.OK_200.code()
+                    response.code shouldBe HTTP_STATUS_OK
                     responseBody.run {
                         shouldContainJsonKeyValue("isOpen", false)
                         shouldContainJsonKey("resultaat")
