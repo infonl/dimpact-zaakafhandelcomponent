@@ -11,6 +11,7 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
+import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
 import nl.lifely.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
@@ -31,7 +32,6 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
-import org.mockserver.model.HttpStatusCode
 import java.io.File
 import java.time.LocalDate
 import java.time.ZonedDateTime
@@ -74,7 +74,7 @@ class InformatieObjectenTest : BehaviorSpec({
             ) {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HttpStatusCode.OK_200.code()
+                response.code shouldBe HTTP_STATUS_OK
 
                 with(responseBody) {
                     shouldContainJsonKeyValue(
@@ -137,7 +137,7 @@ class InformatieObjectenTest : BehaviorSpec({
             ) {
                 val responseBody = response.body!!.string()
                 logger.info { "$endpointUrl response: $responseBody" }
-                response.code shouldBe HttpStatusCode.OK_200.code()
+                response.code shouldBe HTTP_STATUS_OK
                 with(responseBody) {
                     shouldContainJsonKeyValue("auteur", TEST_USER_1_NAME)
                     shouldContainJsonKeyValue("status", documentStatusInBewerking)
@@ -198,7 +198,7 @@ class InformatieObjectenTest : BehaviorSpec({
             ) {
                 val responseBody = response.body!!.string()
                 logger.info { "$endpointUrl response: $responseBody" }
-                response.code shouldBe HttpStatusCode.OK_200.code()
+                response.code shouldBe HTTP_STATUS_OK
                 with(responseBody) {
                     shouldContainJsonKeyValue("auteur", TEST_USER_1_NAME)
                     shouldContainJsonKeyValue("status", documentStatusInBewerking)
@@ -234,7 +234,7 @@ class InformatieObjectenTest : BehaviorSpec({
                 "the response should be OK"
             ) {
                 logger.info { "$endpointUrl status code: ${response.code}" }
-                response.code shouldBe HttpStatusCode.OK_200.code()
+                response.code shouldBe HTTP_STATUS_OK
             }
         }
     }
@@ -278,7 +278,7 @@ class InformatieObjectenTest : BehaviorSpec({
             ) {
                 val responseBody = response.body!!.string()
                 logger.info { "$endpointUrl response: $responseBody" }
-                response.code shouldBe HttpStatusCode.OK_200.code()
+                response.code shouldBe HTTP_STATUS_OK
                 with(responseBody) {
                     shouldContainJsonKeyValue("auteur", TEST_USER_1_NAME)
                     shouldContainJsonKeyValue("beschrijving", "taak-document")

@@ -16,59 +16,55 @@
         "equalTo": "testuser1"
       }
     },
-    "bodyPatterns": [
-      {
-        "equalToJson": {
-          "SmartDocument": {
-            "Selection": {
-              "TemplateGroup": "Melding evenement organiseren behandelen"
-            }
-          },
-          "data": {
-            "gebruiker": {
-              "id": "testuser1",
-              "naam": "Test User1"
-            },
-            "startformulier": {
-              "data": {
-                "omschrijving": "Ik heb een vraag over mijn paspoort",
-                "naam": "Jan Jansen",
-                "telefoonnummer": "0612345678"
-              },
-              "productAanvraagtype": "productaanvraag"
-            },
-            "zaak": {
-              "communicatiekanaal": "E-formulier",
-              "groep": "Test group A",
-              "identificatie": "ZAAK-2023-0000000001",
-              "omschrijving": "${json-unit.any-string}",
-              "registratiedatum": "${json-unit.any-string}",
-              "startdatum": "25-10-2023",
-              "status": "Intake",
-              "toelichting": "",
-              "uiterlijkeEinddatumAfdoening": "${json-unit.any-string}",
-              "vertrouwelijkheidaanduiding": "openbaar",
-              "zaaktype": "Melding evenement organiseren behandelen"
-            }
-          },
-          "registratie": {
-            "auditToelichting": "Door SmartDocuments",
-            "bronorganisatie": "123443210",
-            "creatiedatum": "${json-unit.any-string}",
-            "informatieobjectStatus": "ter_vaststelling",
-            "informatieobjecttype": "http://openzaak.local:8000/catalogi/api/v1/informatieobjecttypen/b1933137-94d6-49bc-9e12-afe712512276",
-            "zaak": "${json-unit.any-string}"
+    "bodyPatterns": [ {
+      "equalToJson": {
+        "SmartDocument": {
+          "Selection": {
+            "TemplateGroup": "Melding evenement organiseren behandelen"
           }
         },
-        "ignoreArrayOrder": true
-      }
-    ]
+        "data": {
+          "gebruiker": {
+            "id": "testuser1",
+            "naam": "Test User1"
+          },
+          "startformulier": {
+            "data": {
+              "omschrijving": "Ik heb een vraag over mijn paspoort",
+              "naam": "Jan Jansen",
+              "telefoonnummer": "0612345678"
+            },
+            "productAanvraagtype": "productaanvraag"
+          },
+          "zaak": {
+            "communicatiekanaal": "E-formulier",
+            "groep": "Test group A",
+            "identificatie": "ZAAK-2023-0000000001",
+            "omschrijving": "${json-unit.any-string}",
+            "registratiedatum": "${json-unit.any-string}",
+            "startdatum": "25-10-2023",
+            "status": "Intake",
+            "toelichting": "",
+            "uiterlijkeEinddatumAfdoening": "${json-unit.any-string}",
+            "vertrouwelijkheidaanduiding": "openbaar",
+            "zaaktype": "Melding evenement organiseren behandelen"
+          }
+        },
+        "registratie": {
+          "auditToelichting": "Door SmartDocuments",
+          "bronorganisatie": "123443210",
+          "creatiedatum": "${json-unit.any-string}",
+          "informatieobjectStatus": "ter_vaststelling",
+          "informatieobjecttype": "http://openzaak.local:8000/catalogi/api/v1/informatieobjecttypen/b1933137-94d6-49bc-9e12-afe712512276",
+          "zaak": "${json-unit.any-string}"
+        }
+      },
+      "ignoreArrayOrder": true
+    } ]
   },
   "response": {
     "status": 200,
-    "body": {
-      "ticket": "dummySmartdocumentsTicketID"
-    },
+    "body": "{\"ticket\": \"dummySmartdocumentsTicketID\"}",
     "headers": {
       "Content-Type": "application/json"
     }

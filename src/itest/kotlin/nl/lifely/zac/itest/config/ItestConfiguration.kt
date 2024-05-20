@@ -13,6 +13,11 @@ import java.util.UUID
  * used in the entire integration test flow such as: Keycloak, Objecten, Objecttypen, Open Zaak, ZAC.
  */
 object ItestConfiguration {
+    const val HTTP_STATUS_OK = 200
+    const val HTTP_STATUS_NO_CONTENT = 204
+    const val HTTP_STATUS_BAD_REQUEST = 400
+    const val HTTP_STATUS_FORBIDDEN = 403
+
     const val ACTIE_INTAKE_AFRONDEN = "INTAKE_AFRONDEN"
     const val ACTIE_ZAAK_AFHANDELEN = "ZAAK_AFHANDELEN"
     const val BETROKKENE_TYPE_NATUURLIJK_PERSOON = "NATUURLIJK_PERSOON"
