@@ -9,9 +9,6 @@ import jakarta.json.bind.annotation.JsonbTypeDeserializer;
 
 import net.atos.client.zgw.zrc.util.GeometryJsonbDeserializer;
 
-/**
- *
- */
 @JsonbTypeDeserializer(GeometryJsonbDeserializer.class)
 public abstract class Geometry {
     public static final String GEOMETRY_TYPE_NAAM = "type";

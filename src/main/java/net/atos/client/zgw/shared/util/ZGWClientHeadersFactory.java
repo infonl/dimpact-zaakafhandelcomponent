@@ -20,10 +20,8 @@ import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory;
 import net.atos.client.util.JWTTokenGenerator;
 import net.atos.zac.authentication.LoggedInUser;
 
-/**
- *
- */
 public class ZGWClientHeadersFactory implements ClientHeadersFactory {
+    public static final String X_AUDIT_TOELICHTING_HEADER = "X-Audit-Toelichting";
 
     @Inject
     private Instance<LoggedInUser> loggedInUserInstance;
@@ -86,7 +84,7 @@ public class ZGWClientHeadersFactory implements ClientHeadersFactory {
         if (loggedInUser != null) {
             final String toelichting = AUDIT_TOELICHTINGEN.get(loggedInUser.getId());
             if (toelichting != null) {
-                outgoingHeaders.add("X-Audit-Toelichting", toelichting);
+                outgoingHeaders.add(X_AUDIT_TOELICHTING_HEADER, toelichting);
             }
         }
     }
