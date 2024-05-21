@@ -17,7 +17,8 @@ import net.atos.zac.documentcreatie.converter.DataConverter
 import net.atos.zac.documentcreatie.model.createData
 import net.atos.zac.documentcreatie.model.createDocumentCreatieGegevens
 import java.net.URI
-import java.util.*
+import java.util.Optional
+import java.util.UUID
 
 class DocumentCreatieServiceTest : BehaviorSpec({
     val smartDocumentsClient = mockk<SmartDocumentsClient>()
