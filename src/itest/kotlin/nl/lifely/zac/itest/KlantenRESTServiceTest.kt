@@ -60,7 +60,7 @@ class KlantenRESTServiceTest : BehaviorSpec({
                     the response should be a 200 HTTP response with personal data from both the BRP and Klanten databases
                     """
             ) {
-                response.code shouldBe HttpStatusCode.OK_200.code()
+                response.code shouldBe HTTP_STATUS_OK
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 with(responseBody) {
