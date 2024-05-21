@@ -105,7 +105,7 @@ fun createRolOrganisatorischeEenheid(
 
 @Suppress("LongParameterList")
 fun createZaak(
-    zaaktypeURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    zaakTypeURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     startDate: LocalDate = LocalDate.now(),
     bronOrganisatie: String = "dummyBronOrganisatie",
     verantwoordelijkeOrganisatie: String = "dummyVerantwoordelijkeOrganisatie",
@@ -121,7 +121,7 @@ fun createZaak(
     status: URI? = null,
     verlenging: Verlenging? = null
 ) = Zaak(
-    zaaktypeURI,
+    zaakTypeURI,
     startDate,
     bronOrganisatie,
     verantwoordelijkeOrganisatie

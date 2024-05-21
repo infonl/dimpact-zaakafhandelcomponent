@@ -10,14 +10,10 @@ import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.model.generated.InformatieObjectType;
 
 public class DocumentCreatieGegevens {
-
     private final Zaak zaak;
-
-    private String taskId;
-
-    private EnkelvoudigInformatieObject.StatusEnum informatieobjectStatus = EnkelvoudigInformatieObject.StatusEnum.TER_VASTSTELLING;
-
-    private InformatieObjectType informatieobjecttype;
+    private final String taskId;
+    private final EnkelvoudigInformatieObject.StatusEnum informatieobjectStatus = EnkelvoudigInformatieObject.StatusEnum.TER_VASTSTELLING;
+    private final InformatieObjectType informatieobjecttype;
 
     public DocumentCreatieGegevens(
             final Zaak zaak,

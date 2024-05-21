@@ -40,33 +40,41 @@ public class DocumentCreatieService {
     private static final String AUDIT_TOELICHTING = "Door SmartDocuments";
     private static final Logger LOG = Logger.getLogger(DocumentCreatieService.class.getName());
 
-    @Inject
-    @RestClient
     private SmartDocumentsClient smartDocumentsClient;
-
-    @Inject
-    @ConfigProperty(name = "SD_CLIENT_MP_REST_URL")
     private String smartDocumentsURL;
-
-    @Inject
-    @ConfigProperty(name = "SD_AUTHENTICATION")
     private String authenticationToken;
-
-    @Inject
-    @ConfigProperty(name = "SD_FIXED_USER_NAME")
     private Optional<String> fixedUserName;
-
-    @Inject
     private DataConverter dataConverter;
-
-    @Inject
     private Instance<LoggedInUser> loggedInUserInstance;
-
-    @Inject
     private ZTCClientService ztcClientService;
+    private ZRCClientService zrcClientService;
+
+    /**
+     * Empty no-op constructor as required by Weld.
+     */
+    public DocumentCreatieService() {
+    }
 
     @Inject
-    private ZRCClientService zrcClientService;
+    public DocumentCreatieService(
+            @RestClient SmartDocumentsClient smartDocumentsClient,
+            @ConfigProperty(name = "SD_CLIENT_MP_REST_URL") String smartDocumentsURL,
+            @ConfigProperty(name = "SD_AUTHENTICATION") String authenticationToken,
+            @ConfigProperty(name = "SD_FIXED_USER_NAME") Optional<String> fixedUserName,
+            DataConverter dataConverter,
+            Instance<LoggedInUser> loggedInUserInstance,
+            ZTCClientService ztcClientService,
+            ZRCClientService zrcClientService
+    ) {
+        this.smartDocumentsClient = smartDocumentsClient;
+        this.smartDocumentsURL = smartDocumentsURL;
+        this.authenticationToken = authenticationToken;
+        this.fixedUserName = fixedUserName;
+        this.dataConverter = dataConverter;
+        this.loggedInUserInstance = loggedInUserInstance;
+        this.ztcClientService = ztcClientService;
+        this.zrcClientService = zrcClientService;
+    }
 
     /**
      * Create a document using the SmartDocuments wizard.
@@ -88,8 +96,11 @@ public class DocumentCreatieService {
                     wizardRequest
             );
             return new DocumentCreatieResponse(
-                    UriBuilder.fromUri(smartDocumentsURL).path("smartdocuments/wizard").queryParam("ticket", wizardResponse.ticket)
-                            .build());
+                    UriBuilder.fromUri(smartDocumentsURL)
+                            .path("smartdocuments/wizard")
+                            .queryParam("ticket", wizardResponse.ticket)
+                            .build()
+            );
         } catch (final BadRequestException badRequestException) {
             return new DocumentCreatieResponse(
                     "Aanmaken van een document is helaas niet mogelijk. (ben je als user geregistreerd in SmartDocuments?)");
@@ -99,8 +110,9 @@ public class DocumentCreatieService {
     private SmartDocument createSmartDocument(final DocumentCreatieGegevens documentCreatieGegevens) {
         final SmartDocument smartDocument = new SmartDocument();
         smartDocument.selection = new Selection();
-        smartDocument.selection.templateGroup = ztcClientService.readZaaktype(documentCreatieGegevens.getZaak().getZaaktype())
-                .getOmschrijving();
+        smartDocument.selection.templateGroup = ztcClientService.readZaaktype(
+                documentCreatieGegevens.getZaak().getZaaktype()
+        ).getOmschrijving();
         return smartDocument;
     }
 

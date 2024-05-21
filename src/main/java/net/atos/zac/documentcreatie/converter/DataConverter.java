@@ -89,12 +89,12 @@ public class DataConverter {
 
     public Data createData(final DocumentCreatieGegevens documentCreatieGegevens, final LoggedInUser loggedInUser) {
         final Data data = new Data();
-        data.gebruiker = createGebruikerData(loggedInUser);
-        data.zaak = createZaakData(documentCreatieGegevens.getZaak());
-        data.aanvrager = createAanvragerData(documentCreatieGegevens.getZaak());
-        data.startformulier = createStartformulierData(documentCreatieGegevens.getZaak().getUrl());
+        data.gebruikerData = createGebruikerData(loggedInUser);
+        data.zaakData = createZaakData(documentCreatieGegevens.getZaak());
+        data.aanvragerData = createAanvragerData(documentCreatieGegevens.getZaak());
+        data.startformulierData = createStartformulierData(documentCreatieGegevens.getZaak().getUrl());
         if (documentCreatieGegevens.getTaskId() != null) {
-            data.taak = createTaakData(documentCreatieGegevens.getTaskId());
+            data.taakData = createTaakData(documentCreatieGegevens.getTaskId());
         }
         return data;
     }
