@@ -111,7 +111,6 @@ dependencies {
     implementation(libs.auth0.java.jwt)
     implementation(libs.javax.cache.api)
     implementation(libs.google.guava)
-    implementation(libs.mailjet.client)
     implementation(libs.itextpdf.kernel)
     implementation(libs.itextpdf.layout)
     implementation(libs.itextpdf.io)
