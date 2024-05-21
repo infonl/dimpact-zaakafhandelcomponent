@@ -92,7 +92,7 @@ class TaskService @Inject constructor(
             assignTasks(restTaakVerdelenGegevens, loggedInUser, succesfullyAssignedTaskIds)
         } finally {
             // always update the search index and send the screen event, also if exceptions were thrown
-            indexeerService.indexeerDirect(succesfullyAssignedTaskIds.stream(), ZoekObjectType.TAAK, true)
+            indexeerService.commit()
             LOG.fine { "Successfully assigned ${succesfullyAssignedTaskIds.size} tasks." }
 
             // if a screen event resource ID was specified, send a screen event
@@ -172,6 +172,7 @@ class TaskService @Inject constructor(
                     assignTaskAndOptionallyReleaseFromAssignee(task, restTaakVerdelenGegevens, loggedInUser)
                     sendScreenEventsOnTaskChange(task, restTaakVerdelenTaak.zaakUuid)
                 }
+                indexeerService.indexeerDirect(restTaakVerdelenTaak.taakId, ZoekObjectType.TAAK, false)
                 succesfullyAssignedTaskIds.add(restTaakVerdelenTaak.taakId)
             } catch (taskNotFoundException: TaskNotFoundException) {
                 // continue assigning remaining tasks if particular open task could not be found
