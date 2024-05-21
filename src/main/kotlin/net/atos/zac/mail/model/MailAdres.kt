@@ -5,10 +5,15 @@
 package net.atos.zac.mail.model
 
 import jakarta.json.bind.annotation.JsonbProperty
+import jakarta.mail.internet.InternetAddress
 
 class MailAdres(
     @field:JsonbProperty("Email") var email: String,
     @field:JsonbProperty("Name") var name: String?
 ) {
     constructor(email: String) : this(email, null)
+
+    fun toAddress(): InternetAddress {
+        return InternetAddress(email, name)
+    }
 }

@@ -16,12 +16,18 @@ import com.itextpdf.layout.Document
 import com.itextpdf.layout.element.IBlockElement
 import com.itextpdf.layout.element.IElement
 import com.itextpdf.layout.element.Paragraph
-import com.mailjet.client.MailjetRequest
-import com.mailjet.client.errors.MailjetException
-import com.mailjet.client.resource.Emailv31
+import jakarta.annotation.Resource
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
+import jakarta.mail.Message
+import jakarta.mail.MessagingException
+import jakarta.mail.Session
+import jakarta.mail.Transport
+import jakarta.mail.internet.MimeBodyPart
+import jakarta.mail.internet.MimeMessage
+import jakarta.mail.internet.MimeMultipart
+import jakarta.mail.internet.PreencodedMimeBodyPart
 import net.atos.client.zgw.drc.DRCClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData
 import net.atos.client.zgw.shared.ZGWApiService
@@ -33,22 +39,19 @@ import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.mail.model.Attachment
 import net.atos.zac.mail.model.Bronnen
-import net.atos.zac.mail.model.EMail
-import net.atos.zac.mail.model.EMails
 import net.atos.zac.mail.model.MailAdres
 import net.atos.zac.mailtemplates.MailTemplateHelper
 import net.atos.zac.mailtemplates.model.MailGegevens
-import net.atos.zac.util.JsonbUtil
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.apache.commons.lang3.StringUtils
-import org.eclipse.microprofile.config.ConfigProvider
 import org.htmlcleaner.HtmlCleaner
 import org.htmlcleaner.PrettyXmlSerializer
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.time.LocalDate
 import java.util.Base64
+import java.util.Date
 import java.util.UUID
 import java.util.function.Consumer
 import java.util.logging.Level
@@ -59,6 +62,7 @@ import java.util.logging.Logger
 @AllOpen
 class MailService
 @Inject
+@Suppress("LongParameterList")
 constructor(
     private var configuratieService: ConfiguratieService,
     private var zgwApiService: ZGWApiService,
@@ -66,17 +70,12 @@ constructor(
     private var drcClientService: DRCClientService,
     private var mailTemplateHelper: MailTemplateHelper,
     private var loggedInUserInstance: Instance<LoggedInUser>,
+    @Resource(mappedName = "java:jboss/mail/zac")
+    private var mailSession: Session
 ) {
 
     companion object {
         private val LOG = Logger.getLogger(MailService::class.java.name)
-
-        private val MAILJET_API_KEY =
-            ConfigProvider.getConfig().getValue("mailjet.api.key", String::class.java)
-        private val MAILJET_API_SECRET_KEY =
-            ConfigProvider.getConfig().getValue("mailjet.api.secret.key", String::class.java)
-
-        private const val HTTP_REDIRECT_RANGE = 300
 
         // http://www.faqs.org/rfcs/rfc2822.html
         private const val SUBJECT_MAXWIDTH = 78
@@ -92,8 +91,6 @@ constructor(
         private const val MAIL_BERICHT = "Bericht"
     }
 
-    private val mailjetClient = createMailjetClient(MAILJET_API_KEY, MAILJET_API_SECRET_KEY)
-
     val gemeenteMailAdres
         get() = MailAdres(configuratieService.readGemeenteMail(), configuratieService.readGemeenteNaam())
 
@@ -105,33 +102,47 @@ constructor(
         val body = resolveVariabelen(mailGegevens.body, bronnen)
         val attachments = getAttachments(mailGegevens.attachments)
 
-        val eMail = EMail(
-            mailGegevens.from,
-            listOf(mailGegevens.to),
-            mailGegevens.replyTo,
-            subject,
-            body,
-            attachments
-        )
-        val request = MailjetRequest(Emailv31.resource)
-            .setBody(JsonbUtil.JSONB.toJson(EMails(listOf(eMail))))
-        try {
-            val status = mailjetClient.post(request).status
-            if (status < HTTP_REDIRECT_RANGE) {
-                if (mailGegevens.isCreateDocumentFromMail) {
-                    createZaakDocumentFromMail(
-                        mailGegevens.from.email,
-                        mailGegevens.to.email,
-                        subject,
-                        body,
-                        attachments,
-                        bronnen.zaak
-                    )
+        val message = MimeMessage(mailSession)
+        message.addHeader("Content-type", "text/HTML; charset=UTF-8")
+        message.addHeader("format", "flowed")
+        message.addHeader("Content-Transfer-Encoding", "8bit")
+
+        message.setFrom(mailGegevens.from.toAddress())
+        message.setRecipients(Message.RecipientType.TO, arrayOf(mailGegevens.to.toAddress()))
+        message.replyTo = arrayOf(mailGegevens.replyTo.toAddress())
+        message.subject = subject
+        message.sentDate = Date()
+
+        val multipart = MimeMultipart().apply {
+            addBodyPart(
+                MimeBodyPart().apply {
+                    setText(body)
                 }
-            } else {
-                LOG.log(Level.WARNING, "Failed to send mail with subject '$subject' (http result $status).")
+            )
+            attachments.forEach {
+                val messageBodyPart = PreencodedMimeBodyPart("base64").apply {
+                    setContent(it.base64Content, it.contentType)
+                    fileName = it.filename
+                }
+                addBodyPart(messageBodyPart)
             }
-        } catch (e: MailjetException) {
+        }
+
+        message.setContent(multipart)
+
+        try {
+            Transport.send(message)
+            if (mailGegevens.isCreateDocumentFromMail) {
+                createZaakDocumentFromMail(
+                    mailGegevens.from.email,
+                    mailGegevens.to.email,
+                    subject,
+                    body,
+                    attachments,
+                    bronnen.zaak
+                )
+            }
+        } catch (e: MessagingException) {
             LOG.log(Level.SEVERE, "Failed to send mail with subject '$subject'.", e)
         }
 
