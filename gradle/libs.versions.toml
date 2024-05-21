@@ -5,9 +5,9 @@ nodejs = "20.11.1"
 jsonschema2pojo = "1.2.1"
 kotlin-csv = "1.9.3"
 openapi = "3.10.0"
-openapi-generator = "7.5.0"
+openapi-generator = "7.6.0"
 opentelemetry = "1.38.0"
-opentelemetry-instrumentation = "2.3.0"
+opentelemetry-instrumentation = "2.4.0"
 node-gradle = "7.0.2"
 taskinfo = "2.2.0"
 swagger-generator = "2.19.2"
@@ -35,7 +35,7 @@ google-guava = "33.2.0-jre"
 mailjet = "5.2.5"
 itextpdf = "8.0.4"
 itextpdf-html2pdf = "5.0.4"
-flyway = "10.12.0"
+flyway = "10.13.0"
 apache-solr = "9.6.0"
 webdav-servlet = "1.2.49"
 htmlcleaner = "2.29"
@@ -65,7 +65,7 @@ eclipse-yasson = "3.0.3"
 
 kotest-runner-junit5 = "5.9.0"
 kotest-assertions-json = "5.9.0"
-mockk = "1.13.10"
+mockk = "1.13.11"
 
 testcontainers = "1.19.8"
 
@@ -73,10 +73,8 @@ json-json = "20240303"
 slf4j-simple = "2.0.13"
 
 github-kotlin-logging = "6.0.9"
-squareup-okhttp = "4.12.0"
-squareup-okhttp-urlconnection = "4.12.0"
+okhttp = "4.12.0"
 awaitility = "4.2.1"
-mockserver-client = "5.15.0"
 
 [libraries]
 apache-commons-lang = { group = "org.apache.commons", name = "commons-lang3", version.ref = "apache-commons-lang" }
@@ -163,10 +161,9 @@ json = { group = "org.json", name = "json", version.ref = "json-json" }
 slf4j-simple = { group = "org.slf4j", name = "slf4j-simple", version.ref = "slf4j-simple" }
 
 github-kotlin-logging = { group = "io.github.oshai", name = "kotlin-logging-jvm", version.ref = "github-kotlin-logging" }
-squareup-okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "squareup-okhttp" }
-squareup-okhttp-urlconnection = { group = "com.squareup.okhttp3", name = "okhttp-urlconnection", version.ref = "squareup-okhttp-urlconnection" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+okhttp-urlconnection = { group = "com.squareup.okhttp3", name = "okhttp-urlconnection", version.ref = "okhttp" }
 awaitility = { group = "org.awaitility", name = "awaitility-kotlin", version.ref = "awaitility" }
-mockserver-client = { group = "org.mock-server", name = "mockserver-client-java", version.ref = "mockserver-client" }
 
 jacoco-agent = { group = "org.jacoco", name="org.jacoco.agent", version.ref = "jacoco" }
 

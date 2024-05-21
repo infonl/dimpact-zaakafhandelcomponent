@@ -52,33 +52,44 @@ import net.atos.zac.policy.PolicyService;
 @Produces(MediaType.APPLICATION_JSON)
 @Singleton
 public class BAGRESTService {
-
-    @Inject
     private BAGClientService bagClientService;
-
-    @Inject
     private ZRCClientService zrcClientService;
-
-    @Inject
-    private RESTBAGConverter bagConverter;
-
-    @Inject
-    private RESTAdresConverter adresConverter;
-
-    @Inject
-    private RESTNummeraanduidingConverter nummeraanduidingConverter;
-
-    @Inject
-    private RESTOpenbareRuimteConverter openbareRuimteConverter;
-
-    @Inject
-    private RESTPandConverter pandConverter;
-
-    @Inject
-    private RESTWoonplaatsConverter woonplaatsConverter;
-
-    @Inject
+    private RESTBAGConverter restbagConverter;
+    private RESTAdresConverter restAdresConverter;
+    private RESTNummeraanduidingConverter restNummeraanduidingConverter;
+    private RESTOpenbareRuimteConverter restOpenbareRuimteConverter;
+    private RESTPandConverter restPandConverter;
+    private RESTWoonplaatsConverter restWoonplaatsConverter;
     private PolicyService policyService;
+
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public BAGRESTService() {
+    }
+
+    @Inject
+    public BAGRESTService(
+            BAGClientService bagClientService,
+            ZRCClientService zrcClientService,
+            RESTBAGConverter restbagConverter,
+            RESTAdresConverter restAdresConverter,
+            RESTNummeraanduidingConverter restNummeraanduidingConverter,
+            RESTOpenbareRuimteConverter restOpenbareRuimteConverter,
+            RESTPandConverter restPandConverter,
+            RESTWoonplaatsConverter restWoonplaatsConverter,
+            PolicyService policyService
+    ) {
+        this.bagClientService = bagClientService;
+        this.zrcClientService = zrcClientService;
+        this.restbagConverter = restbagConverter;
+        this.restAdresConverter = restAdresConverter;
+        this.restNummeraanduidingConverter = restNummeraanduidingConverter;
+        this.restOpenbareRuimteConverter = restOpenbareRuimteConverter;
+        this.restPandConverter = restPandConverter;
+        this.restWoonplaatsConverter = restWoonplaatsConverter;
+        this.policyService = policyService;
+    }
 
     @PUT
     @Path("adres")
@@ -88,7 +99,7 @@ public class BAGRESTService {
         bevraagAdressenParameters.setExpand(getExpand(BAGObjectType.NUMMERAANDUIDING, BAGObjectType.OPENBARE_RUIMTE, BAGObjectType.PAND,
                 BAGObjectType.WOONPLAATS));
         return new RESTResultaat<>(bagClientService.listAdressen(bevraagAdressenParameters).stream()
-                .map(adres -> adresConverter.convertToREST(adres))
+                .map(adres -> restAdresConverter.convertToREST(adres))
                 .toList());
     }
 
@@ -96,11 +107,11 @@ public class BAGRESTService {
     @Path("/{type}/{id}")
     public RESTBAGObject read(@PathParam("type") final BAGObjectType type, @PathParam("id") final String id) {
         return switch (type) {
-            case ADRES -> adresConverter.convertToREST(bagClientService.readAdres(id));
-            case WOONPLAATS -> woonplaatsConverter.convertToREST(bagClientService.readWoonplaats(id));
-            case PAND -> pandConverter.convertToREST(bagClientService.readPand(id));
-            case OPENBARE_RUIMTE -> openbareRuimteConverter.convertToREST(bagClientService.readOpenbareRuimte(id));
-            case NUMMERAANDUIDING -> nummeraanduidingConverter.convertToREST(bagClientService.readNummeraanduiding(id));
+            case ADRES -> restAdresConverter.convertToREST(bagClientService.readAdres(id));
+            case WOONPLAATS -> restWoonplaatsConverter.convertToREST(bagClientService.readWoonplaats(id));
+            case PAND -> restPandConverter.convertToREST(bagClientService.readPand(id));
+            case OPENBARE_RUIMTE -> restOpenbareRuimteConverter.convertToREST(bagClientService.readOpenbareRuimte(id));
+            case NUMMERAANDUIDING -> restNummeraanduidingConverter.convertToREST(bagClientService.readNummeraanduiding(id));
             case ADRESSEERBAAR_OBJECT -> null; //(Nog) geen zelfstandige entiteit
         };
     }
@@ -110,7 +121,7 @@ public class BAGRESTService {
         final Zaak zaak = zrcClientService.readZaak(bagObjectGegevens.zaakUuid);
         assertPolicy(policyService.readZaakRechten(zaak).toevoegenBagObject());
         if (isNogNietGekoppeld(bagObjectGegevens.getBagObject(), zaak)) {
-            zrcClientService.createZaakobject(bagConverter.convertToZaakobject(bagObjectGegevens.getBagObject(), zaak));
+            zrcClientService.createZaakobject(restbagConverter.convertToZaakobject(bagObjectGegevens.getBagObject(), zaak));
         }
     }
 
@@ -133,7 +144,7 @@ public class BAGRESTService {
         if (zaakobjecten.getCount() > 0) {
             return zaakobjecten.getResults().stream()
                     .filter(Zaakobject::isBagObject)
-                    .map(bagConverter::convertToRESTBAGObjectGegevens)
+                    .map(restbagConverter::convertToRESTBAGObjectGegevens)
                     .toList();
         } else {
             return Collections.emptyList();

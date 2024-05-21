@@ -14,6 +14,7 @@ import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.client.KeycloakClient
 import nl.lifely.zac.itest.client.ZacClient
+import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
 import nl.lifely.zac.itest.config.ItestConfiguration.SMARTDOCUMENTS_MOCK_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_CONTAINER_SERVICE_NAME
@@ -21,7 +22,6 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_DEFAULT_DOCKER_IMAGE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_HEALTH_READY_URL
 import okhttp3.Headers
 import org.json.JSONObject
-import org.mockserver.model.HttpStatusCode
 import org.slf4j.Logger
 import org.testcontainers.containers.ComposeContainer
 import org.testcontainers.containers.ContainerLaunchException
@@ -59,7 +59,7 @@ class ProjectConfig : AbstractProjectConfig() {
                     headers = Headers.headersOf("Content-Type", "application/json"),
                     url = KEYCLOAK_HEALTH_READY_URL,
                     addAuthorizationHeader = false
-                ).code shouldBe HttpStatusCode.OK_200.code()
+                ).code shouldBe HTTP_STATUS_OK
             }
             logger.info { "Keycloak is healthy" }
             logger.info { "Waiting until ZAC is healthy by calling the health endpoint and checking the response" }
@@ -69,7 +69,7 @@ class ProjectConfig : AbstractProjectConfig() {
                     url = ZAC_HEALTH_READY_URL,
                     addAuthorizationHeader = false
                 ).use { response ->
-                    response.code shouldBe HttpStatusCode.OK_200.code()
+                    response.code shouldBe HTTP_STATUS_OK
                     JSONObject(response.body!!.string()).getString("status") shouldBe "UP"
                 }
             }

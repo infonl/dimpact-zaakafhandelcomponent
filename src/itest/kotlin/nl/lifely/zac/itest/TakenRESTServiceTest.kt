@@ -17,6 +17,7 @@ import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
+import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
 import nl.lifely.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.lifely.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_TAKEN_VERDELEN
 import nl.lifely.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_TAKEN_VRIJGEVEN
@@ -32,7 +33,6 @@ import nl.lifely.zac.itest.config.ItestConfiguration.zaak1UUID
 import nl.lifely.zac.itest.util.WebSocketTestListener
 import org.json.JSONArray
 import org.json.JSONObject
-import org.mockserver.model.HttpStatusCode
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
@@ -140,7 +140,7 @@ class TakenRESTServiceTest : BehaviorSpec({
             Then("the task is assigned correctly") {
                 val assignTasksResponseBody = assignTasksResponse.body!!.string()
                 logger.info { "Response: $assignTasksResponseBody" }
-                assignTasksResponse.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
+                assignTasksResponse.code shouldBe HTTP_STATUS_NO_CONTENT
                 // the backend process is asynchronous, so we need to wait a bit until the tasks are assigned
                 eventually(10.seconds) {
                     websocketListener.messagesReceived.size shouldBe 1
@@ -188,7 +188,7 @@ class TakenRESTServiceTest : BehaviorSpec({
             Then("the task is released correctly") {
                 val assignTasksResponseBody = releaseTasksResponse.body!!.string()
                 logger.info { "Response: $assignTasksResponseBody" }
-                releaseTasksResponse.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
+                releaseTasksResponse.code shouldBe HTTP_STATUS_NO_CONTENT
                 // the backend process is asynchronous, so we need to wait a bit until the tasks are released
                 eventually(10.seconds) {
                     websocketListener.messagesReceived.size shouldBe 1

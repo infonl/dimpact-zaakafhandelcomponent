@@ -13,6 +13,11 @@ import java.util.UUID
  * used in the entire integration test flow such as: Keycloak, Objecten, Objecttypen, Open Zaak, ZAC.
  */
 object ItestConfiguration {
+    const val HTTP_STATUS_OK = 200
+    const val HTTP_STATUS_NO_CONTENT = 204
+    const val HTTP_STATUS_BAD_REQUEST = 400
+    const val HTTP_STATUS_FORBIDDEN = 403
+
     const val ACTIE_INTAKE_AFRONDEN = "INTAKE_AFRONDEN"
     const val ACTIE_ZAAK_AFHANDELEN = "ZAAK_AFHANDELEN"
     const val BETROKKENE_TYPE_NATUURLIJK_PERSOON = "NATUURLIJK_PERSOON"
@@ -47,11 +52,19 @@ object ItestConfiguration {
     const val SCREEN_EVENT_TYPE_ZAKEN_SIGNALERINGEN = "ZAKEN_SIGNALERINGEN"
     const val SCREEN_EVENT_TYPE_ZAKEN_VERDELEN = "ZAKEN_VERDELEN"
     const val SCREEN_EVENT_TYPE_ZAKEN_VRIJGEVEN = "ZAKEN_VRIJGEVEN"
+
+    // test person that exists in both the BRP and the Klanten API databases
+    const val TEST_PERSON_HENDRIKA_JANSE_BSN = "999993896"
+    const val TEST_PERSON_HENDRIKA_JANSE_EMAIL = "hendrika.janse@example.com"
+    const val TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE = "1965-01-01"
+    const val TEST_PERSON_HENDRIKA_JANSE_GENDER = "V"
+    const val TEST_PERSON_HENDRIKA_JANSE_FULLNAME = "Héndrika Janse"
+    const val TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER = "0612345678"
+    const val TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE = "Street ¦ 38 & House ¦ 10, Baghdad, Park Al-Sadoum, Hay Al-Nidhal 103"
     const val TEST_PDF_FILE_NAME = "dummyTestDocument.pdf"
     const val TEST_PDF_FILE_SIZE = 9268
     const val TEST_TXT_FILE_NAME = "testTextDocument.txt"
     const val TEST_TXT_FILE_SIZE = 63
-    const val TEST_BETROKKENE_BSN_HENDRIKA_JANSE = "999993896"
     const val TEST_SPEC_ORDER_INITIAL = 0
     const val TEST_SPEC_ORDER_AFTER_ZAAK_CREATED = 1
     const val TEST_SPEC_ORDER_AFTER_TASK_CREATED = 2

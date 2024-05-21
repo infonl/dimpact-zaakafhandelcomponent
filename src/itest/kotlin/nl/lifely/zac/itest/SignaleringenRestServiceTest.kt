@@ -15,6 +15,8 @@ import io.kotest.matchers.date.shouldBeBetween
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration
+import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
+import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAKEN_SIGNALERINGEN
@@ -30,7 +32,6 @@ import nl.lifely.zac.itest.util.WebSocketTestListener
 import okhttp3.Headers
 import org.json.JSONArray
 import org.json.JSONObject
-import org.mockserver.model.HttpStatusCode
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -72,7 +73,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                 )
 
                 Then("the responses should be 'ok'") {
-                    response.code shouldBe HttpStatusCode.OK_200.code()
+                    response.code shouldBe HTTP_STATUS_OK
                 }
             }
         }
@@ -96,7 +97,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
             )
 
             Then("the responses should be 'ok'") {
-                response.code shouldBe HttpStatusCode.OK_200.code()
+                response.code shouldBe HTTP_STATUS_OK
             }
         }
     }
@@ -109,7 +110,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
         )
         var responseBody = zaakInformatieObjectenResponse.body!!.string()
         logger.info { "Response: $responseBody" }
-        zaakInformatieObjectenResponse.code shouldBe HttpStatusCode.OK_200.code()
+        zaakInformatieObjectenResponse.code shouldBe HTTP_STATUS_OK
         val zaakInformatieObjectenUrl = JSONArray(responseBody)
             .getJSONObject(0)
             .getString("url")
@@ -120,7 +121,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
         )
         responseBody = zaakRollenResponse.body!!.string()
         logger.info { "Response: $responseBody" }
-        zaakRollenResponse.code shouldBe HttpStatusCode.OK_200.code()
+        zaakRollenResponse.code shouldBe HTTP_STATUS_OK
         val zaakRollenUrl = JSONObject(responseBody)
             .getJSONArray("results")
             .getJSONObject(0)
@@ -153,7 +154,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
             Then("the response should be 'no content'") {
                 responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
+                response.code shouldBe HTTP_STATUS_NO_CONTENT
             }
         }
 
@@ -182,7 +183,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
             Then("the response should be 'no content'") {
                 responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
+                response.code shouldBe HTTP_STATUS_NO_CONTENT
             }
         }
     }
@@ -232,7 +233,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/signaleringen/zaken/$type",
                 requestBodyAsString = "$id"
             )
-            response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
+            response.code shouldBe HTTP_STATUS_NO_CONTENT
 
             return websocketListener
         }

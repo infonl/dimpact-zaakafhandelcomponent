@@ -5,11 +5,14 @@
 
 package net.atos.zac.aanvraag
 
+import net.atos.zac.aanvraag.model.InboxProductaanvraag
 import net.atos.zac.aanvraag.model.generated.Betrokkene
 import net.atos.zac.aanvraag.model.generated.Betrokkene.RolOmschrijvingGeneriek
 import net.atos.zac.aanvraag.model.generated.Bron
 import net.atos.zac.aanvraag.model.generated.ProductaanvraagDimpact
 import java.net.URI
+import java.time.LocalDate
+import java.util.UUID
 
 fun createBetrokkene(
     inBsn: String = "dummyBsn",
@@ -26,6 +29,25 @@ fun createBron(
 ) = Bron().apply {
     this.naam = naam
     this.kenmerk = kenmerk
+}
+
+@Suppress("LongParameterList")
+fun createInboxProductaanvraag(
+    id: Long = 1234L,
+    productaanvraagObjectUUID: UUID = UUID.randomUUID(),
+    aanvraagdocumentUUID: UUID = UUID.randomUUID(),
+    ontvangstdatum: LocalDate = LocalDate.now(),
+    type: String = "dummyType",
+    initiatorID: String = "dummyInitiator",
+    aantalBijlagen: Int = 0
+) = InboxProductaanvraag().apply {
+    this.id = id
+    this.productaanvraagObjectUUID = productaanvraagObjectUUID
+    this.aanvraagdocumentUUID = aanvraagdocumentUUID
+    this.ontvangstdatum = ontvangstdatum
+    this.type = type
+    this.initiatorID = initiatorID
+    this.aantalBijlagen = aantalBijlagen
 }
 
 @Suppress("LongParameterList")

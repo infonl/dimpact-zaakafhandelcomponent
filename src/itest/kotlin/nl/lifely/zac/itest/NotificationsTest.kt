@@ -4,7 +4,6 @@
  */
 package nl.lifely.zac.itest
 
-import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.HttpStatus
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.Order
@@ -14,6 +13,8 @@ import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration
+import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_FORBIDDEN
+import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTS_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_UUID
@@ -31,7 +32,6 @@ import nl.lifely.zac.itest.config.dockerComposeContainer
 import nl.lifely.zac.itest.util.WebSocketTestListener
 import okhttp3.Headers
 import org.json.JSONObject
-import org.mockserver.model.HttpStatusCode
 import org.testcontainers.containers.wait.strategy.Wait
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -59,7 +59,7 @@ class NotificationsTest : BehaviorSpec({
                 ).toString()
             )
             Then("the response should be forbidden") {
-                response.code shouldBe HttpStatus.SC_FORBIDDEN
+                response.code shouldBe HTTP_STATUS_FORBIDDEN
             }
         }
     }
@@ -97,7 +97,7 @@ class NotificationsTest : BehaviorSpec({
                 """the response should be 'no content', a zaak should be created in OpenZaak
                         and a zaak productaanvraag proces of type 'Productaanvraag-Dimpact' should be started in ZAC"""
             ) {
-                response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
+                response.code shouldBe HTTP_STATUS_NO_CONTENT
 
                 // retrieve the newly created zaak and check the contents
                 itestHttpClient.performGetRequest(
@@ -155,7 +155,7 @@ class NotificationsTest : BehaviorSpec({
             Then(
                 """the response should be 'no content' and a corresponding error message should be logged in ZAC"""
             ) {
-                response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
+                response.code shouldBe HTTP_STATUS_NO_CONTENT
 
                 // we expect ZAC to log an error message indicating that the resourceURL is invalid
                 dockerComposeContainer.waitingFor(
@@ -217,7 +217,7 @@ class NotificationsTest : BehaviorSpec({
                     ).toString(),
                     addAuthorizationHeader = false
                 )
-                response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
+                response.code shouldBe HTTP_STATUS_NO_CONTENT
                 // because of the retries using eventually, we can end up with duplicate messages. that's ok.
                 websocketListener.messagesReceived.size shouldBeGreaterThan 0
             }

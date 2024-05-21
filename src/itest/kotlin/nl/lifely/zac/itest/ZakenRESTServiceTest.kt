@@ -17,13 +17,16 @@ import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATIE_TYPE_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_TYPE_NATUURLIJK_PERSOON
+import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_BAD_REQUEST
+import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
+import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_BETROKKENE
 import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_UUID_BELANGHEBBENDE
 import nl.lifely.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAKEN_VERDELEN
 import nl.lifely.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAKEN_VRIJGEVEN
-import nl.lifely.zac.itest.config.ItestConfiguration.TEST_BETROKKENE_BSN_HENDRIKA_JANSE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
@@ -36,7 +39,6 @@ import nl.lifely.zac.itest.config.ItestConfiguration.zaak1UUID
 import nl.lifely.zac.itest.util.WebSocketTestListener
 import org.json.JSONArray
 import org.json.JSONObject
-import org.mockserver.model.HttpStatusCode
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.random.Random
@@ -61,7 +63,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 TEST_GROUP_A_DESCRIPTION
             )
             Then("the response should be a 200 HTTP response with the created zaak") {
-                response.code shouldBe HttpStatusCode.OK_200.code()
+                response.code shouldBe HTTP_STATUS_OK
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 JSONObject(responseBody).apply {
@@ -80,7 +82,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
             val response = zacClient.retrieveZaak(zaak2UUID)
             Then("the response should be a 200 HTTP response and contain the created zaak") {
                 with(response) {
-                    code shouldBe HttpStatusCode.OK_200.code()
+                    code shouldBe HTTP_STATUS_OK
                     val responseBody = response.body!!.string()
                     logger.info { "Response: $responseBody" }
                     with(JSONObject(responseBody)) {
@@ -98,11 +100,11 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     "  \"roltypeUUID\": \"$ROLTYPE_UUID_BELANGHEBBENDE\",\n" +
                     "  \"roltoelichting\": \"\",\n" +
                     "  \"betrokkeneIdentificatieType\": \"$BETROKKENE_IDENTIFICATIE_TYPE_BSN\",\n" +
-                    "  \"betrokkeneIdentificatie\": \"$TEST_BETROKKENE_BSN_HENDRIKA_JANSE\"\n" +
+                    "  \"betrokkeneIdentificatie\": \"$TEST_PERSON_HENDRIKA_JANSE_BSN\"\n" +
                     "}"
             )
             Then("the response should be a 400 bad request HTTP response") {
-                response.code shouldBe HttpStatusCode.BAD_REQUEST_400.code()
+                response.code shouldBe HTTP_STATUS_BAD_REQUEST
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 with(responseBody) {
@@ -132,7 +134,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
             Then("the response should be a 200 HTTP response with the changed zaak data") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HttpStatusCode.OK_200.code()
+                response.code shouldBe HTTP_STATUS_OK
                 with(responseBody) {
                     shouldContainJsonKeyValue("uuid", zaak2UUID.toString())
                     shouldContainJsonKeyValue("startdatum", startDateNew.toString())
@@ -172,11 +174,11 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     "  \"roltypeUUID\": \"$ROLTYPE_UUID_BELANGHEBBENDE\",\n" +
                     "  \"roltoelichting\": \"dummyToelichting\",\n" +
                     "  \"betrokkeneIdentificatieType\": \"$BETROKKENE_IDENTIFICATIE_TYPE_BSN\",\n" +
-                    "  \"betrokkeneIdentificatie\": \"$TEST_BETROKKENE_BSN_HENDRIKA_JANSE\"\n" +
+                    "  \"betrokkeneIdentificatie\": \"$TEST_PERSON_HENDRIKA_JANSE_BSN\"\n" +
                     "}"
             )
             Then("the response should be a 200 OK HTTP response") {
-                response.code shouldBe HttpStatusCode.OK_200.code()
+                response.code shouldBe HTTP_STATUS_OK
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 with(responseBody) {
@@ -205,7 +207,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
             Then("the response should be a 200 HTTP response with the changed zaak data") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HttpStatusCode.OK_200.code()
+                response.code shouldBe HTTP_STATUS_OK
                 with(responseBody) {
                     shouldContainJsonKey("zaakgeometrie")
                     val geometrie = JSONObject(responseBody)["zaakgeometrie"].toString()
@@ -234,7 +236,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
             Then("the response should be a 200 HTTP response with the changed zaak data, so without zaakgeometrie") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HttpStatusCode.OK_200.code()
+                response.code shouldBe HTTP_STATUS_OK
             }
         }
     }
@@ -244,7 +246,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID/betrokkene",
             )
             Then("the response should be a 200 HTTP response with a list consisting of the betrokkene") {
-                response.code shouldBe HttpStatusCode.OK_200.code()
+                response.code shouldBe HTTP_STATUS_OK
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 with(JSONArray(responseBody)) {
@@ -254,7 +256,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                         getString("roltype") shouldBe ROLTYPE_NAME_BETROKKENE
                         getString("roltoelichting") shouldBe "dummyToelichting"
                         getString("type") shouldBe BETROKKENE_TYPE_NATUURLIJK_PERSOON
-                        getString("identificatie") shouldBe TEST_BETROKKENE_BSN_HENDRIKA_JANSE
+                        getString("identificatie") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
                     }
                 }
             }
@@ -302,7 +304,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
             ) {
                 val lijstVerdelenResponseBody = lijstVerdelenResponse.body!!.string()
                 logger.info { "Response: $lijstVerdelenResponseBody" }
-                lijstVerdelenResponse.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
+                lijstVerdelenResponse.code shouldBe HTTP_STATUS_NO_CONTENT
                 // the backend process is asynchronous, so we need to wait a bit until the zaken are assigned
                 eventually(10.seconds) {
                     websocketListener.messagesReceived.size shouldBe 1
@@ -312,14 +314,14 @@ class ZakenRESTServiceTest : BehaviorSpec({
                         getJSONObject("objectId").getString("resource") shouldBe uniqueResourceId.toString()
                     }
                     zacClient.retrieveZaak(zaak1UUID).use { response ->
-                        response.code shouldBe HttpStatusCode.OK_200.code()
+                        response.code shouldBe HTTP_STATUS_OK
                         with(JSONObject(response.body!!.string())) {
                             getJSONObject("groep").getString("id") shouldBe TEST_GROUP_A_ID
                             getJSONObject("behandelaar").getString("id") shouldBe TEST_USER_2_ID
                         }
                     }
                     zacClient.retrieveZaak(zaak2UUID).use { response ->
-                        response.code shouldBe HttpStatusCode.OK_200.code()
+                        response.code shouldBe HTTP_STATUS_OK
                         with(JSONObject(response.body!!.string())) {
                             getJSONObject("groep").getString("id") shouldBe TEST_GROUP_A_ID
                             getJSONObject("behandelaar").getString("id") shouldBe TEST_USER_2_ID
@@ -344,7 +346,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
             ) {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HttpStatusCode.OK_200.code()
+                response.code shouldBe HTTP_STATUS_OK
                 with(responseBody) {
                     shouldContainJsonKeyValue("uuid", zaak1UUID.toString())
                     JSONObject(this).getJSONObject("behandelaar").apply {
@@ -353,7 +355,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     }
                 }
                 with(zacClient.retrieveZaak(zaak1UUID)) {
-                    code shouldBe HttpStatusCode.OK_200.code()
+                    code shouldBe HTTP_STATUS_OK
                     JSONObject(body!!.string()).apply {
                         getJSONObject("behandelaar").apply {
                             getString("id") shouldBe TEST_USER_1_USERNAME
@@ -406,12 +408,12 @@ class ZakenRESTServiceTest : BehaviorSpec({
             ) {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HttpStatusCode.NO_CONTENT_204.code()
+                response.code shouldBe HTTP_STATUS_NO_CONTENT
                 // the backend process is asynchronous, so we need to wait a bit until the zaken are assigned
                 eventually(10.seconds) {
                     websocketListener.messagesReceived.size shouldBe 1
                     with(zacClient.retrieveZaak(zaak1UUID)) {
-                        code shouldBe HttpStatusCode.OK_200.code()
+                        code shouldBe HTTP_STATUS_OK
                         JSONObject(body!!.string()).apply {
                             getJSONObject("groep").apply {
                                 getString("id") shouldBe TEST_GROUP_A_ID
@@ -421,7 +423,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                         }
                     }
                     with(zacClient.retrieveZaak(zaak2UUID)) {
-                        code shouldBe HttpStatusCode.OK_200.code()
+                        code shouldBe HTTP_STATUS_OK
                         JSONObject(body!!.string()).apply {
                             getJSONObject("groep").apply {
                                 getString("id") shouldBe TEST_GROUP_A_ID

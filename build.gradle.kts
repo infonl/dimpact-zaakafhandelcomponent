@@ -176,27 +176,14 @@ dependencies {
     "itestImplementation"(libs.kotest.runner.junit5)
     "itestImplementation"(libs.kotest.assertions.json)
     "itestImplementation"(libs.slf4j.simple)
-    "itestImplementation"(libs.squareup.okhttp)
-    "itestImplementation"(libs.squareup.okhttp.urlconnection)
+    "itestImplementation"(libs.okhttp)
+    "itestImplementation"(libs.okhttp.urlconnection)
     "itestImplementation"(libs.awaitility)
-    "itestImplementation"(libs.mockserver.client)
     "itestImplementation"(libs.auth0.java.jwt)
     "itestImplementation"(libs.github.kotlin.logging)
     "itestImplementation"(libs.kotlin.csv.jvm)
 
     jacocoAgentJarForItest(variantOf(libs.jacoco.agent) { classifier("runtime") })
-}
-
-tasks.register<io.gitlab.arturbosch.detekt.Detekt>("detektApply") {
-    description = "Apply detekt fixes."
-    autoCorrect = true
-    ignoreFailures = true
-}
-tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
-    config.setFrom("$rootDir/config/detekt.yml")
-    setSource(files("src/main/kotlin", "src/test/kotlin", "src/itest/kotlin", "build.gradle.kts"))
-    // our Detekt configuration build builds upon the default configuration
-    buildUponDefaultConfig = true
 }
 
 allOpen {
@@ -353,28 +340,6 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get())).config(mapOf("parser" to "json"))
     }
 }
-tasks.getByName("spotlessApply").finalizedBy(listOf("detektApply"))
-
-tasks.getByName("npmInstall") {
-    inputs.file("src/main/app/package.json")
-    outputs.dir("src/main/app/node_modules")
-}
-tasks.getByName("generateSwaggerUIZaakafhandelcomponent").setDependsOn(listOf("generateOpenApiSpec"))
-
-tasks.getByName("compileItestKotlin") {
-    dependsOn("copyJacocoAgentForItest")
-    mustRunAfter("buildDockerImage")
-}
-
-tasks.war {
-    dependsOn("npmRunBuild")
-
-    // add built frontend resources to WAR archive
-    from("src/main/app/dist/zaakafhandelcomponent")
-
-    // explicitly add our 'warLib' 'transitive' dependencies that are required in the generated WAR
-    classpath(files(configurations["warLib"]))
-}
 
 tasks {
     clean {
@@ -416,6 +381,33 @@ tasks {
         }
     }
 
+    processResources {
+        // exclude resources that we do not need in the build artefacts
+        exclude("api-specs/**")
+        exclude("wildfly/**")
+    }
+
+    register<io.gitlab.arturbosch.detekt.Detekt>("detektApply") {
+        description = "Apply detekt fixes."
+        autoCorrect = true
+        ignoreFailures = true
+    }
+    withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+        config.setFrom("$rootDir/config/detekt.yml")
+        setSource(files("src/main/kotlin", "src/test/kotlin", "src/itest/kotlin", "build.gradle.kts"))
+        // our Detekt configuration build builds upon the default configuration
+        buildUponDefaultConfig = true
+    }
+
+    getByName("spotlessApply").finalizedBy(listOf("detektApply"))
+
+    getByName("generateSwaggerUIZaakafhandelcomponent").setDependsOn(listOf("generateOpenApiSpec"))
+
+    getByName("compileItestKotlin") {
+        dependsOn("copyJacocoAgentForItest")
+        mustRunAfter("buildDockerImage")
+    }
+
     withType<JacocoReport> {
         // exclude Java client code that was auto generated at build time
         afterEvaluate {
@@ -429,12 +421,6 @@ tasks {
         }
     }
 
-    processResources {
-        // exclude resources that we do not need in the build artefacts
-        exclude("api-specs/**")
-        exclude("wildfly/**")
-    }
-
     withType<Test> {
         useJUnitPlatform()
     }
@@ -445,6 +431,16 @@ tasks {
 
     withType<JavaCompile> {
         options.encoding = "UTF-8"
+    }
+
+    withType<War> {
+        dependsOn("npmRunBuild")
+
+        // add built frontend resources to WAR archive
+        from("src/main/app/dist/zaakafhandelcomponent")
+
+        // explicitly add our 'warLib' 'transitive' dependencies that are required in the generated WAR
+        classpath(files(configurations["warLib"]))
     }
 
     withType<GenerateTask> {
@@ -473,9 +469,8 @@ tasks {
                 "useJakartaEe" to "true"
             )
         )
-        // Specify custom Mustache template dir as temporary workaround for the issue where OpenAPI Generator 7.2.0
+        // Specify custom Mustache template dir as temporary workaround for the issue where OpenAPI Generator
         // fails to generate import statements for @JsonbCreator annotations.
-        // Maybe this workaround can be removed when we migrate to OpenAPI Generator 7.3.0.
         templateDir.set("$rootDir/src/main/resources/openapi-generator-templates")
     }
 
@@ -507,7 +502,8 @@ tasks {
     register<GenerateTask>("generateBagClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/bag/openapi.yaml")
         modelPackage.set("net.atos.client.bag.model.generated")
-        // we use a different date library for this client
+        // we need to use the java8-localdatatime date library for this client
+        // or else certain date time fields for this client cannot be deserialized
         configOptions.set(
             mapOf(
                 "library" to "microprofile",
@@ -522,6 +518,8 @@ tasks {
     }
 
     register<GenerateTask>("generateKlantenClient") {
+        // disabled because (at least with our current settings) this results
+        // in uncompilable generated Java code
         // this task was not enabled in the original Maven build either;
         // these model files were added to the code base manually instead
         isEnabled = false
@@ -583,6 +581,11 @@ tasks {
             "generateOrObjectsClient",
             "generateOrObjectTypesClient"
         )
+    }
+
+    getByName("npmInstall") {
+        inputs.file("src/main/app/package.json")
+        outputs.dir("src/main/app/node_modules")
     }
 
     register<NpmTask>("npmRunBuild") {

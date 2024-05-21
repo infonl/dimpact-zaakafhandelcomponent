@@ -6,8 +6,26 @@
 import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
 import { ComponentType } from "@angular/cdk/portal";
 import { DOCUMENT } from "@angular/common";
-import { Inject, Injectable, Optional } from "@angular/core";
-import { MatSnackBar, MatSnackBarConfig } from "@angular/material/snack-bar";
+import {
+  Component,
+  Inject,
+  Injectable,
+  Optional,
+  Signal,
+  computed,
+  inject,
+} from "@angular/core";
+import {
+  MatProgressBar,
+  ProgressBarMode,
+} from "@angular/material/progress-bar";
+import {
+  MAT_SNACK_BAR_DATA,
+  MatSnackBar,
+  MatSnackBarConfig,
+  MatSnackBarLabel,
+  MatSnackBarRef,
+} from "@angular/material/snack-bar";
 import { Title } from "@angular/platform-browser";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
@@ -166,6 +184,15 @@ export class UtilService {
     return this.snackbar.openFromComponent(component, config);
   }
 
+  openProgressSnackbar(data: {
+    progressPercentage: Signal<number>;
+    message: string;
+  }) {
+    return this.openSnackbarFromComponent(ProgressSnackbar, {
+      data,
+    });
+  }
+
   addAction(action: ActionBarAction) {
     this.addAction$.next(action);
   }
@@ -210,4 +237,38 @@ export class UtilService {
     link.remove();
     window.URL.revokeObjectURL(link.href);
   }
+}
+
+@Component({
+  standalone: true,
+  imports: [MatSnackBarLabel, MatProgressBar],
+  template: `
+    <div matSnackBarLabel>{{ data.message }}</div>
+    <mat-progress-bar
+      [mode]="progressMode()"
+      [value]="data.progressPercentage()"
+    ></mat-progress-bar>
+  `,
+  styles: `
+    .mat-mdc-progress-bar {
+      --mdc-linear-progress-active-indicator-color: var(
+        --mat-snack-bar-button-color
+      );
+      --mdc-linear-progress-track-color: rgba(255, 64, 129, 0.25);
+      position: absolute;
+      bottom: 0;
+    }
+  `,
+})
+class ProgressSnackbar {
+  snackBarRef = inject(MatSnackBarRef);
+  progressMode = computed<ProgressBarMode>(() => {
+    const percentage = this.data.progressPercentage();
+    return percentage === 100 || percentage === 0 ? "query" : "determinate";
+  });
+
+  constructor(
+    @Inject(MAT_SNACK_BAR_DATA)
+    public data: { progressPercentage: Signal<number>; message: string },
+  ) {}
 }

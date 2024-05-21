@@ -35,9 +35,8 @@ public class InboxProductaanvraagService {
     @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
     private EntityManager entityManager;
 
-    public InboxProductaanvraag create(final InboxProductaanvraag inboxProductaanvraag) {
+    public void create(final InboxProductaanvraag inboxProductaanvraag) {
         entityManager.persist(inboxProductaanvraag);
-        return inboxProductaanvraag;
     }
 
     public InboxProductaanvraagResultaat list(final InboxProductaanvraagListParameters listParameters) {
