@@ -32,8 +32,8 @@ data:
   MP_HEALTH_EMPTY_READINESS_CHECKS_STATUS: DOWN
   OBJECTS_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.objectenApi.url entry required!" .Values.objectenApi.url }}
   OBJECTTYPES_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.objecttypenApi.url entry required!" .Values.objecttypenApi.url }}
-  OFFICE_CONVERTER_CLIENT_MP_REST_URL: {{ printf "http://%s-office-converter.%s" .Release.Name .Release.Namespace }}
-  OPA_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.opa.url entry required!" .Values.opa.url }}
+  OFFICE_CONVERTER_CLIENT_MP_REST_URL: {{ printf "http://%s-office-converter.%s" (include "zaakafhandelcomponent.fullname" .) .Release.Namespace }}
+  OPA_API_CLIENT_MP_REST_URL: http://localhost:8181
   OPEN_FORMS_URL: {{ required "Valid .Values.openForms.url entry required!" .Values.openForms.url }}
   {{- if index .Values "opentelemetry-collector" "enabled" }}
   SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE: {{ ((.Values.opentelemetry_zaakafhandelcomponent).sampler_type) | default "-off" }}
@@ -43,7 +43,7 @@ data:
   {{- if .Values.smartDocuments.fixedUserName }}
   SD_FIXED_USER_NAME: {{ .Values.smartDocuments.fixedUserName }}
   {{- end}}
-  SOLR_URL: {{ required "Valid .Values.solr.url entry required!" .Values.solr.url }}
+  SOLR_URL: {{ printf "http://%s-solr.%s" (include "zaakafhandelcomponent.fullname" .) .Release.Namespace }}
   TZ: Europe/Amsterdam
   VRL_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.vrlApi.url entry required!" .Values.vrlApi.url }}
   ZGW_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.zgwApis.url entry required!" .Values.zgwApis.url }}
