@@ -3,17 +3,33 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
+import {
+  AfterViewInit,
+  Component,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  signal,
+} from "@angular/core";
 
 import { detailExpand } from "../../shared/animations/animations";
 
 import { SelectionModel } from "@angular/cdk/collections";
+import { ComponentType } from "@angular/cdk/portal";
 import { MatDialog } from "@angular/material/dialog";
 import { MatPaginator, PageEvent } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { MatTable } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
+import { ObjectType } from "src/app/core/websocket/model/object-type";
+import { Opcode } from "src/app/core/websocket/model/opcode";
+import { WebsocketService } from "src/app/core/websocket/websocket.service";
+import { Group } from "src/app/identity/model/group";
+import { User } from "src/app/identity/model/user";
+import { BatchProcessService } from "src/app/shared/batch-progress/batch-process.service";
 import { SorteerVeld } from "src/app/zoeken/model/sorteer-veld";
+import { v4 as uuidv4 } from "uuid";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
@@ -38,7 +54,7 @@ import { TakenWerkvoorraadDatasource } from "./taken-werkvoorraad-datasource";
 })
 export class TakenWerkvoorraadComponent
   extends WerklijstComponent
-  implements AfterViewInit, OnInit
+  implements AfterViewInit, OnInit, OnDestroy
 {
   selection = new SelectionModel<TaakZoekObject>(true, []);
   dataSource: TakenWerkvoorraadDatasource;
@@ -58,6 +74,10 @@ export class TakenWerkvoorraadComponent
     "error",
   );
 
+  takenLoading = signal(false);
+  toekenning: { groep?: Group; medewerker?: User } | undefined;
+  private batchProcessService: BatchProcessService;
+
   constructor(
     public route: ActivatedRoute,
     private takenService: TakenService,
@@ -66,12 +86,21 @@ export class TakenWerkvoorraadComponent
     public dialog: MatDialog,
     private zoekenService: ZoekenService,
     public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
+    websocketService: WebsocketService,
+    private translateService: TranslateService,
   ) {
     super();
+    this.batchProcessService = new BatchProcessService(
+      websocketService,
+      utilService,
+    );
     this.dataSource = new TakenWerkvoorraadDatasource(
       this.zoekenService,
       this.utilService,
     );
+  }
+  ngOnDestroy(): void {
+    this.batchProcessService.stop();
   }
 
   ngOnInit(): void {
@@ -172,22 +201,11 @@ export class TakenWerkvoorraadComponent
   }
 
   openVrijgevenScherm(): void {
-    const taken = this.selection.selected;
-    const dialogRef = this.dialog.open(TakenVrijgevenDialogComponent, {
-      data: taken,
-    });
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        if (this.selection.selected.length === 1) {
-          this.utilService.openSnackbar("msg.vrijgegeven.taak");
-        } else {
-          this.utilService.openSnackbar("msg.vrijgegeven.taken", {
-            aantal: this.selection.selected.length,
-          });
-        }
-        this.filtersChange();
-      }
-    });
+    this.handleAssigmentOrReleasementWorkflow(
+      TakenVrijgevenDialogComponent,
+      "msg.vrijgegeven.taak",
+      "msg.vrijgegeven.taken",
+    );
   }
 
   isAfterDate(datum): boolean {
@@ -236,5 +254,62 @@ export class TakenWerkvoorraadComponent
   filtersChange(): void {
     this.selection.clear();
     this.dataSource.filtersChanged();
+  }
+
+  private handleAssigmentOrReleasementWorkflow<T>(
+    dialogComponent: ComponentType<T>,
+    singleToken: string,
+    multipleToken: string,
+  ) {
+    const screenEventResourceId = uuidv4();
+    const taken = this.selection.selected;
+
+    this.batchProcessService.start({
+      ids: taken.map(({ id }) => id),
+      progressSubscription: {
+        objectType: ObjectType.TAAK,
+        opcode: Opcode.UPDATED,
+        onNotification: (id) => {
+          const taak = this.dataSource.data.find((x) => x.id === id);
+          if (!taak || !this.toekenning) return;
+          taak.groepNaam = this.toekenning.groep?.naam || taak.groepNaam;
+          taak.groepID = this.toekenning.groep?.id || taak.groepID;
+          taak.behandelaarGebruikersnaam = this.toekenning.medewerker?.id;
+          taak.behandelaarNaam = this.toekenning.medewerker?.naam;
+        },
+      },
+      finalSubscription: {
+        objectType: ObjectType.ANY,
+        opcode: Opcode.UPDATED,
+        screenEventResourceId,
+      },
+      finally: () => {
+        this.selection.clear();
+        this.dataSource.load();
+        this.takenLoading.set(false);
+        this.batchProcessService.stop();
+      },
+    });
+
+    const dialogRef = this.dialog.open(dialogComponent, {
+      data: {
+        taken,
+        screenEventResourceId,
+      },
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.toekenning = result;
+        const message =
+          taken.length === 1
+            ? this.translateService.instant(singleToken)
+            : this.translateService.instant(multipleToken, {
+                aantal: taken.length,
+              });
+        this.batchProcessService.showProgress(message);
+      } else {
+        this.batchProcessService.stop();
+      }
+    });
   }
 }

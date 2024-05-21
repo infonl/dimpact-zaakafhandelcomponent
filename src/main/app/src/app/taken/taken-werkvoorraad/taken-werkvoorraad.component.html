@@ -3,7 +3,7 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div class="table-wrapper" [class.loading]="utilService.loading$ | async">
+<div class="table-wrapper" [class.loading]="(utilService.loading$ | async) || takenLoading()">
     <table mat-table matSort matSortDisableClear [matSortDirection]="dataSource.zoekParameters.sorteerRichting"
            [matSortActive]="dataSource.zoekParameters.sorteerVeld"
            multiTemplateDataRows cdkDropList cdkDropListLockAxis="x" cdkDropListOrientation="horizontal" (cdkDropListDropped)="dataSource.drop($event)">

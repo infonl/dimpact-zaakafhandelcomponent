@@ -4,6 +4,7 @@
  */
 
 export class TaakVerdelenGegevens {
+  screenEventResourceId: string;
   taken: { taakId: string; zaakUuid: string }[];
   behandelaarGebruikersnaam: string;
   groepId: string;
