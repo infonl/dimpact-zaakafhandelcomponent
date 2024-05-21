@@ -109,7 +109,7 @@ constructor(
 
         message.setFrom(mailGegevens.from.toAddress())
         message.setRecipients(Message.RecipientType.TO, arrayOf(mailGegevens.to.toAddress()))
-        message.replyTo = arrayOf(mailGegevens.replyTo.toAddress())
+        message.replyTo = mailGegevens.replyTo?.let { arrayOf(it.toAddress()) }
         message.subject = subject
         message.sentDate = Date()
 

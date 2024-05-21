@@ -13,7 +13,5 @@ class MailAdres(
 ) {
     constructor(email: String) : this(email, null)
 
-    fun toAddress(): InternetAddress {
-        return InternetAddress(email, name)
-    }
+    fun toAddress(): InternetAddress = InternetAddress(email, name)
 }
