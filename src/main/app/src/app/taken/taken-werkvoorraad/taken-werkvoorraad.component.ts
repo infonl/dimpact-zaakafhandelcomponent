@@ -201,7 +201,7 @@ export class TakenWerkvoorraadComponent
   }
 
   openVrijgevenScherm(): void {
-    this.handleAssigmentOrReleasementWorkflow(
+    this.handleAssignOrReleaseWorkflow(
       TakenVrijgevenDialogComponent,
       "msg.vrijgegeven.taak",
       "msg.vrijgegeven.taken",
@@ -256,7 +256,7 @@ export class TakenWerkvoorraadComponent
     this.dataSource.filtersChanged();
   }
 
-  private handleAssigmentOrReleasementWorkflow<T>(
+  private handleAssignOrReleaseWorkflow<T>(
     dialogComponent: ComponentType<T>,
     singleToken: string,
     multipleToken: string,
