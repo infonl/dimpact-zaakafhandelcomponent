@@ -9,7 +9,7 @@ import jakarta.json.bind.annotation.JsonbProperty
 class EMail(
     @field:JsonbProperty("From") var from: MailAdres,
     @field:JsonbProperty("To") var to: List<MailAdres>,
-    @field:JsonbProperty("ReplyTo") var replyTo: MailAdres,
+    @field:JsonbProperty("ReplyTo") var replyTo: MailAdres?,
     @field:JsonbProperty("Subject") var subject: String,
     body: String,
     @field:JsonbProperty("Attachments") var attachments: List<Attachment>
