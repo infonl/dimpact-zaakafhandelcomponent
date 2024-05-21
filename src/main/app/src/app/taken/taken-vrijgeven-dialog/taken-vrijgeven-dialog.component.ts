@@ -21,7 +21,11 @@ export class TakenVrijgevenDialogComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<TakenVrijgevenDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: TaakZoekObject[],
+    @Inject(MAT_DIALOG_DATA)
+    public data: {
+      taken: TaakZoekObject[];
+      screenEventResourceId: string;
+    },
     private takenService: TakenService,
   ) {}
 
@@ -42,8 +46,14 @@ export class TakenVrijgevenDialogComponent implements OnInit {
     this.dialogRef.disableClose = true;
     this.loading = true;
     const reden: string = this.redenFormField.formControl.value;
-    this.takenService.vrijgevenVanuitLijst(this.data, reden).subscribe(() => {
-      this.dialogRef.close(true);
-    });
+    this.takenService
+      .vrijgevenVanuitLijst(
+        this.data.taken,
+        reden,
+        this.data.screenEventResourceId,
+      )
+      .subscribe(() => {
+        this.dialogRef.close({});
+      });
   }
 }

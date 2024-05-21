@@ -136,8 +136,7 @@ export class TakenService {
     groep?: Group,
     medewerker?: User,
   ): Observable<void> {
-    const taakBody: TaakVerdelenGegevens & { screenEventResourceId?: string } =
-      new TaakVerdelenGegevens();
+    const taakBody: TaakVerdelenGegevens = new TaakVerdelenGegevens();
     taakBody.taken = taken.map((taak) => ({
       taakId: taak.id,
       zaakUuid: taak.zaakUuid,
@@ -164,27 +163,19 @@ export class TakenService {
   vrijgevenVanuitLijst(
     taken: TaakZoekObject[],
     reden: string,
+    screenEventResourceId: string,
   ): Observable<void> {
-    const taakBody: TaakVerdelenGegevens & { screenEventResourceId?: string } =
-      new TaakVerdelenGegevens();
+    const taakBody: TaakVerdelenGegevens = new TaakVerdelenGegevens();
     taakBody.taken = taken.map((taak) => ({
       taakId: taak.id,
       zaakUuid: taak.zaakUuid,
     }));
     taakBody.reden = reden;
-    taakBody.screenEventResourceId = uuidv4();
-    return this.websocketService.longRunningOperation(
-      Opcode.UPDATED,
-      ObjectType.TAKEN_VRIJGEVEN,
-      taakBody.screenEventResourceId,
-      () =>
-        this.http
-          .put<void>(`${this.basepath}/lijst/vrijgeven`, taakBody)
-          .pipe(
-            catchError((err) =>
-              this.foutAfhandelingService.foutAfhandelen(err),
-            ),
-          ),
-    );
+    taakBody.screenEventResourceId = screenEventResourceId;
+    return this.http
+      .put<void>(`${this.basepath}/lijst/vrijgeven`, taakBody)
+      .pipe(
+        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+      );
   }
 }
