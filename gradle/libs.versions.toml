@@ -73,8 +73,7 @@ json-json = "20240303"
 slf4j-simple = "2.0.13"
 
 github-kotlin-logging = "6.0.9"
-squareup-okhttp = "4.12.0"
-squareup-okhttp-urlconnection = "4.12.0"
+okhttp = "4.12.0"
 awaitility = "4.2.1"
 
 [libraries]
@@ -162,8 +161,8 @@ json = { group = "org.json", name = "json", version.ref = "json-json" }
 slf4j-simple = { group = "org.slf4j", name = "slf4j-simple", version.ref = "slf4j-simple" }
 
 github-kotlin-logging = { group = "io.github.oshai", name = "kotlin-logging-jvm", version.ref = "github-kotlin-logging" }
-squareup-okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "squareup-okhttp" }
-squareup-okhttp-urlconnection = { group = "com.squareup.okhttp3", name = "okhttp-urlconnection", version.ref = "squareup-okhttp-urlconnection" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+okhttp-urlconnection = { group = "com.squareup.okhttp3", name = "okhttp-urlconnection", version.ref = "okhttp" }
 awaitility = { group = "org.awaitility", name = "awaitility-kotlin", version.ref = "awaitility" }
 
 jacoco-agent = { group = "org.jacoco", name="org.jacoco.agent", version.ref = "jacoco" }
