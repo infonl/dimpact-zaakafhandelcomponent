@@ -53,7 +53,7 @@ public class ContactmomentenRESTService {
                 klantenClientService.findPersoon(parameters.bsn) :
                 klantenClientService.findVestiging(parameters.vestigingsnummer);
         return klantOptional.map(klant -> listContactmomenten(klant, parameters.page, parameters.pageSize))
-                .orElseGet(() -> new RESTResultaat<>());
+                .orElseGet(RESTResultaat::new);
     }
 
     private RESTResultaat<RESTContactmoment> listContactmomenten(
@@ -62,7 +62,7 @@ public class ContactmomentenRESTService {
             final Integer pageSize
     ) {
         final var klantcontactmomentListParameters = new KlantcontactmomentListParameters();
-        klantcontactmomentListParameters.setPage(1 + page * pageSize / 100);
+        klantcontactmomentListParameters.setPage(1 + page * pageSize / NUM_ITEMS_PER_PAGE);
         klantcontactmomentListParameters.setKlant(klant.getUrl());
         final var klantcontactmomentenResponse = contactmomentenClientService.listKlantcontactmomenten(klantcontactmomentListParameters);
         final List<RESTContactmoment> contactmomenten = klantcontactmomentenResponse.getResults().stream()
