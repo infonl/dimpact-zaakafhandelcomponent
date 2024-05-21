@@ -6,10 +6,9 @@
 import {
   AfterViewInit,
   Component,
+  OnDestroy,
   OnInit,
   ViewChild,
-  computed,
-  effect,
   signal,
 } from "@angular/core";
 
@@ -30,7 +29,6 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
 import { ZakenService } from "../zaken.service";
 
 import { ComponentType } from "@angular/cdk/portal";
-import { MatSnackBarRef } from "@angular/material/snack-bar";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { ObjectType } from "src/app/core/websocket/model/object-type";
@@ -39,6 +37,7 @@ import { WebsocketService } from "src/app/core/websocket/websocket.service";
 import { Group } from "src/app/identity/model/group";
 import { User } from "src/app/identity/model/user";
 import { IndexingService } from "src/app/indexing/indexing.service";
+import { BatchProcessService } from "src/app/shared/batch-progress/batch-process.service";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { SorteerVeld } from "src/app/zoeken/model/sorteer-veld";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
@@ -57,8 +56,9 @@ import { ZakenWerkvoorraadDatasource } from "./zaken-werkvoorraad-datasource";
 })
 export class ZakenWerkvoorraadComponent
   extends WerklijstComponent
-  implements AfterViewInit, OnInit
+  implements AfterViewInit, OnInit, OnDestroy
 {
+  private batchProcessService: BatchProcessService;
   readonly indicatiesLayout = IndicatiesLayout;
   selection = new SelectionModel<ZaakZoekObject>(true, []);
   dataSource: ZakenWerkvoorraadDatasource;
@@ -86,16 +86,7 @@ export class ZakenWerkvoorraadComponent
   );
 
   zakenLoading = signal(false);
-  zakenState = signal<Record<string, boolean>>({});
-  zakenValues = computed(() => Object.values(this.zakenState()));
-  zakenProgressPercentage = computed(() => {
-    const values = this.zakenValues();
-    return values.length
-      ? Math.round((values.filter((done) => done).length / values.length) * 100)
-      : undefined;
-  });
   toekenning: { groep?: Group; medewerker?: User } | undefined;
-  snackBarRef: MatSnackBarRef<unknown>;
 
   constructor(
     private zakenService: ZakenService,
@@ -105,7 +96,7 @@ export class ZakenWerkvoorraadComponent
     public utilService: UtilService,
     public dialog: MatDialog,
     private identityService: IdentityService,
-    private websocketService: WebsocketService,
+    websocketService: WebsocketService,
     private translateService: TranslateService,
     private indexService: IndexingService,
   ) {
@@ -114,17 +105,13 @@ export class ZakenWerkvoorraadComponent
       this.zoekenService,
       this.utilService,
     );
-    effect(() => {
-      if (this.zakenProgressPercentage() === 100) {
-        this.indexService.commitPendingChangesToSearchIndex().subscribe(() => {
-          this.snackBarRef?.dismiss();
-          this.selection.clear();
-          this.dataSource.load();
-          this.zakenLoading.set(false);
-          this.zakenState.set({});
-        });
-      }
-    });
+    this.batchProcessService = new BatchProcessService(
+      websocketService,
+      utilService,
+    );
+  }
+  ngOnDestroy(): void {
+    this.batchProcessService.stop();
   }
 
   ngOnInit(): void {
@@ -279,20 +266,12 @@ export class ZakenWerkvoorraadComponent
     multipleToken: string,
   ) {
     const zaken = this.selection.selected;
-    const subscriptions = zaken.map(({ id }) => {
-      this.zakenState.update((v) => ({
-        ...v,
-        [id]: false,
-      }));
-      const subscription = this.websocketService.addListener(
-        Opcode.UPDATED,
-        ObjectType.ZAAK_ROLLEN,
-        id,
-        () => {
-          this.zakenState.update((v) => ({
-            ...v,
-            [id]: true,
-          }));
+    this.batchProcessService.start({
+      ids: zaken.map(({ id }) => id),
+      progressSubscription: {
+        opcode: Opcode.UPDATED,
+        objectType: ObjectType.ZAAK_ROLLEN,
+        onNotification: (id) => {
           const zaak = this.dataSource.data.find((x) => x.id === id);
           if (this.toekenning && zaak) {
             zaak.groepNaam = this.toekenning.groep?.naam || zaak.groepNaam;
@@ -300,10 +279,15 @@ export class ZakenWerkvoorraadComponent
             zaak.behandelaarGebruikersnaam = this.toekenning.medewerker?.id;
             zaak.behandelaarNaam = this.toekenning.medewerker?.naam;
           }
-          this.websocketService.removeListener(subscription);
         },
-      );
-      return subscription;
+      },
+      finally: () => {
+        this.indexService.commitPendingChangesToSearchIndex().subscribe(() => {
+          this.selection.clear();
+          this.dataSource.load();
+          this.zakenLoading.set(false);
+        });
+      },
     });
     const dialogRef = this.dialog.open(dialogComponent, {
       data: zaken,
@@ -318,10 +302,7 @@ export class ZakenWerkvoorraadComponent
             : this.translateService.instant(multipleToken, {
                 aantal: zaken.length,
               });
-        this.snackBarRef = this.utilService.openProgressSnackbar({
-          progressPercentage: this.zakenProgressPercentage,
-          message,
-        });
+        this.batchProcessService.showProgress(message);
         const notChanged = zaken
           .filter(
             (x) =>
@@ -330,16 +311,9 @@ export class ZakenWerkvoorraadComponent
               this.toekenning.medewerker?.id === x.behandelaarGebruikersnaam,
           )
           .map(({ id }) => id);
-        this.zakenState.update((old) =>
-          Object.fromEntries(
-            Object.entries(old).map(([k, v]) => [
-              k,
-              v || notChanged.includes(k),
-            ]),
-          ),
-        );
+        this.batchProcessService.update(notChanged);
       } else {
-        this.websocketService.removeListeners(subscriptions);
+        this.batchProcessService.stop();
       }
     });
   }
