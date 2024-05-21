@@ -20,13 +20,13 @@ fun createRolType(
 }
 
 fun createZaakType(
-    uuid: UUID = UUID.randomUUID(),
+    uri: URI = URI("http://example.com/zaaktypes/${UUID.randomUUID()}"),
     omschrijving: String = "dummyZaakTypeOmschrijving",
     informatieObjectTypen: Set<URI>? = setOf(URI("dummyInformatieObjectType1"), URI("dummyInformatieObjectType2")),
     identifactie: String = "dummyIdentificatie",
     besluittypen: Set<URI>? = null,
 ) = ZaakType(
-    URI("http://example.com/zaaktypes/$uuid"),
+    uri,
     false,
     null,
     null,

@@ -54,7 +54,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
     Given("a zaak with betrokkenen, without open tasks, zaak objecten and communication channels") {
         val zaakType = createZaakType()
         val zaak = createZaak(
-            zaaktypeURI = zaakType.url
+            zaakTypeURI = zaakType.url
         )
         val rolInitiator = createRolNatuurlijkPersoon(
             rolType = createRolType(omschrijving = "dummy_role_initiator")
@@ -130,7 +130,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
             besluittypen = setOf(URI("decision1"), URI("decision2"))
         )
         val zaak = createZaak(
-            zaaktypeURI = zaakType.url,
+            zaakTypeURI = zaakType.url,
             status = URI("status")
         )
         val rolInitiator = createRolNatuurlijkPersoon(
