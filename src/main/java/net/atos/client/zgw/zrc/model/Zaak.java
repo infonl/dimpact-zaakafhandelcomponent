@@ -215,7 +215,12 @@ public class Zaak {
     /**
      * Constructor with required attributes for POST and PUT requests
      */
-    public Zaak(final URI zaakTypeURI, final LocalDate startdatum, final String bronorganisatie, final String verantwoordelijkeOrganisatie) {
+    public Zaak(
+            final URI zaakTypeURI,
+            final LocalDate startdatum,
+            final String bronorganisatie,
+            final String verantwoordelijkeOrganisatie
+    ) {
         this.bronorganisatie = bronorganisatie;
         this.zaaktype = zaakTypeURI;
         this.verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie;
