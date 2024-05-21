@@ -9,7 +9,7 @@ import { TestBed } from "@angular/core/testing";
 
 import { Paths, ZacHttpClient } from "./zac-http-client";
 
-describe("HttpClient testing", () => {
+describe("HttpClientTesting", () => {
   let zacHttpClient: ZacHttpClient;
   let httpTestingController: HttpTestingController;
 

@@ -69,6 +69,7 @@
     "openapi-typescript": "^6.7.6",
     "protractor": "~7.0.0",
     "ts-node": "~10.9.2",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "whatwg-fetch": "^3.6.20"
   }
 }
