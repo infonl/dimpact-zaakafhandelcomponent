@@ -137,8 +137,8 @@ class MailServiceTest : BehaviorSpec({
                 }
                 with(transportSendRequest.captured) {
                     subject shouldBe resolvedSubject
-                    with((content as MimeMultipart).getBodyPart(0)) {
-                        contentType shouldBe "text/plain"
+                    with((content as MimeMultipart).getBodyPart(0).dataHandler) {
+                        contentType shouldBe "text/html; charset=UTF-8"
                         content shouldBe "dummyResolvedBody5"
                     }
                 }
