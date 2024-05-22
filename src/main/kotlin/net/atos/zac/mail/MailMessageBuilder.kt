@@ -7,6 +7,7 @@ import jakarta.mail.internet.MimeBodyPart
 import jakarta.mail.internet.MimeMessage
 import jakarta.mail.internet.MimeMultipart
 import jakarta.mail.internet.PreencodedMimeBodyPart
+import jakarta.ws.rs.core.MediaType
 import net.atos.zac.mail.model.Attachment
 import java.nio.charset.StandardCharsets
 import java.util.Date
@@ -20,7 +21,7 @@ class MailMessageBuilder(
     private var attachments: List<Attachment>
 ) {
     fun build(mailSession: Session) = MimeMessage(mailSession).apply {
-        addHeader("Content-type", "text/html; charset=${StandardCharsets.UTF_8.name()}")
+        addHeader("Content-type", "${MediaType.TEXT_HTML}; charset=${StandardCharsets.UTF_8.name()}")
         addHeader("format", "flowed")
         addHeader("Content-Transfer-Encoding", "8bit")
 
