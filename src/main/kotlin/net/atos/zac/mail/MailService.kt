@@ -16,12 +16,13 @@ import com.itextpdf.layout.Document
 import com.itextpdf.layout.element.IBlockElement
 import com.itextpdf.layout.element.IElement
 import com.itextpdf.layout.element.Paragraph
-import com.mailjet.client.MailjetRequest
-import com.mailjet.client.errors.MailjetException
-import com.mailjet.client.resource.Emailv31
+import jakarta.annotation.Resource
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
+import jakarta.mail.MessagingException
+import jakarta.mail.Session
+import jakarta.mail.Transport
 import net.atos.client.zgw.drc.DRCClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData
 import net.atos.client.zgw.shared.ZGWApiService
@@ -33,16 +34,12 @@ import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.mail.model.Attachment
 import net.atos.zac.mail.model.Bronnen
-import net.atos.zac.mail.model.EMail
-import net.atos.zac.mail.model.EMails
 import net.atos.zac.mail.model.MailAdres
 import net.atos.zac.mailtemplates.MailTemplateHelper
 import net.atos.zac.mailtemplates.model.MailGegevens
-import net.atos.zac.util.JsonbUtil
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.apache.commons.lang3.StringUtils
-import org.eclipse.microprofile.config.ConfigProvider
 import org.htmlcleaner.HtmlCleaner
 import org.htmlcleaner.PrettyXmlSerializer
 import java.io.ByteArrayOutputStream
@@ -71,12 +68,8 @@ constructor(
     companion object {
         private val LOG = Logger.getLogger(MailService::class.java.name)
 
-        private val MAILJET_API_KEY =
-            ConfigProvider.getConfig().getValue("mailjet.api.key", String::class.java)
-        private val MAILJET_API_SECRET_KEY =
-            ConfigProvider.getConfig().getValue("mailjet.api.secret.key", String::class.java)
-
-        private const val HTTP_REDIRECT_RANGE = 300
+        @Resource(mappedName = "java:jboss/mail/zac")
+        lateinit var mailSession: Session
 
         // http://www.faqs.org/rfcs/rfc2822.html
         private const val SUBJECT_MAXWIDTH = 78
@@ -92,8 +85,6 @@ constructor(
         private const val MAIL_BERICHT = "Bericht"
     }
 
-    private val mailjetClient = createMailjetClient(MAILJET_API_KEY, MAILJET_API_SECRET_KEY)
-
     val gemeenteMailAdres
         get() = MailAdres(configuratieService.readGemeenteMail(), configuratieService.readGemeenteNaam())
 
@@ -104,34 +95,29 @@ constructor(
         )
         val body = resolveVariabelen(mailGegevens.body, bronnen)
         val attachments = getAttachments(mailGegevens.attachments)
+        val message = MailMessageBuilder(
+            fromAddress = mailGegevens.from.toAddress(),
+            toAddress = mailGegevens.to.toAddress(),
+            replyToAddress = mailGegevens.replyTo?.toAddress(),
+            mailSubject = subject,
+            body = body,
+            attachments = attachments
+        ).build(mailSession)
 
-        val eMail = EMail(
-            mailGegevens.from,
-            listOf(mailGegevens.to),
-            mailGegevens.replyTo,
-            subject,
-            body,
-            attachments
-        )
-        val request = MailjetRequest(Emailv31.resource)
-            .setBody(JsonbUtil.JSONB.toJson(EMails(listOf(eMail))))
         try {
-            val status = mailjetClient.post(request).status
-            if (status < HTTP_REDIRECT_RANGE) {
-                if (mailGegevens.isCreateDocumentFromMail) {
-                    createZaakDocumentFromMail(
-                        mailGegevens.from.email,
-                        mailGegevens.to.email,
-                        subject,
-                        body,
-                        attachments,
-                        bronnen.zaak
-                    )
-                }
-            } else {
-                LOG.log(Level.WARNING, "Failed to send mail with subject '$subject' (http result $status).")
+            Transport.send(message)
+            LOG.info("Sent mail to ${mailGegevens.to} with subject '$subject'.")
+            if (mailGegevens.isCreateDocumentFromMail) {
+                createZaakDocumentFromMail(
+                    mailGegevens.from.email,
+                    mailGegevens.to.email,
+                    subject,
+                    body,
+                    attachments,
+                    bronnen.zaak
+                )
             }
-        } catch (e: MailjetException) {
+        } catch (e: MessagingException) {
             LOG.log(Level.SEVERE, "Failed to send mail with subject '$subject'.", e)
         }
 

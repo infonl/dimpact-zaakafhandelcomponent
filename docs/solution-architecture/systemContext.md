@@ -32,7 +32,7 @@ C4Context
         System(BRP, "BRP")
         System(KVK, "KVK")
         System(VNGReferentielijsten, "VNG Referentielijsten")
-        System(Mailjet, "Mailjet")
+        System(SMTPServer, "SMTP Mail Server")
         System(SmartDocuments, "SmartDocuments")
     }
 
@@ -59,7 +59,7 @@ C4Context
     Rel(ZAC, KVK, "Uses", "KVK Zoeken en Vestigingsprofielen API")
     Rel(ZAC, VNGReferentielijsten, "Uses", "VNG Referentielijsten API")
     Rel(ZAC, SmartDocuments, "Uses", "SmartDocuments API")
-    Rel(ZAC, Mailjet, "Uses", "Mailjet API")
+    Rel(ZAC, SMTPServer, "Uses", "SMTP Mail Server")
 
     Rel(SmartDocuments, OpenZaak, "Uses", "ZGW Documenten en Zaken API")
 
@@ -68,7 +68,7 @@ C4Context
     UpdateElementStyle(BRP, $bgColor="grey", $borderColor="grey")
     UpdateElementStyle(KVK, $bgColor="grey", $borderColor="grey")
     UpdateElementStyle(VNGReferentielijsten, $bgColor="grey", $borderColor="grey")
-    UpdateElementStyle(Mailjet, $bgColor="grey", $borderColor="grey")
+    UpdateElementStyle(SMTPServer, $bgColor="grey", $borderColor="grey")
     UpdateElementStyle(SmartDocuments, $bgColor="grey", $borderColor="grey")
 
     UpdateLayoutConfig($c4ShapeInRow="5", $c4BoundaryInRow="4")
@@ -78,12 +78,12 @@ C4Context
 
 The following components are part of the 'ZAC subsystem':
 
-| Component                                                        | Description                                                                    | ZAC usage                                                          | API(s) used                                      |
-|------------------------------------------------------------------|--------------------------------------------------------------------------------|--------------------------------------------------------------------|--------------------------------------------------|
+| Component                                                        | Description                                                                      | ZAC usage                                                          | API(s) used                                      |
+|------------------------------------------------------------------|----------------------------------------------------------------------------------|--------------------------------------------------------------------|--------------------------------------------------|
 | [ZAC](https://github.com/infonl/dimpact-zaakafhandelcomponent)   | The Zaakafhandelcomponent. Consists of both the ZAC backend as well as frontend. | -                                                                  | -                                                |
-| [OfficeConverter](https://github.com/EugenMayer/officeconverter) | Document conversion service.                                                   | Convert office documents (like .docx) to PDF for preview purposes. | <ul><li>OfficeConverter REST API 1.5.0</li></ul> |
-| [Open Policy Agent (OPA)](https://www.openpolicyagent.org//)     | Open Policy Agent server                                                       | See [ZAC IAM architecture](iamArchitecture.md).                    | <ul><li>OPA REST API </li></ul>                  |
-| [Solr](https://solr.apache.org/)                        | Solr search engine                                                             | See [ZAC Solr architecture](solrArchitecture.md)                   | <ul><li>Solr REST API </li></ul>                 |
+| [OfficeConverter](https://github.com/EugenMayer/officeconverter) | Document conversion service.                                                     | Convert office documents (like .docx) to PDF for preview purposes. | <ul><li>OfficeConverter REST API 1.5.0</li></ul> |
+| [Open Policy Agent (OPA)](https://www.openpolicyagent.org//)     | Open Policy Agent server                                                         | See [ZAC IAM architecture](iamArchitecture.md).                    | <ul><li>OPA REST API </li></ul>                  |
+| [Solr](https://solr.apache.org/)                                 | Solr search engine                                                               | See [ZAC Solr architecture](solrArchitecture.md)                   | <ul><li>Solr REST API </li></ul>                 |
 
 The following components are part of the broader context of ZAC (='PodiumD Zaak' in the context of Dimpact).
 
@@ -108,14 +108,14 @@ Notes:
 
 Furthermore, ZAC integrates with the following external services:
 
-| Service                                                                              | Description                                                                         | ZAC Usage                                                                                                                          | API(s) used                                                                                  |
-|--------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
-| [Haal Centraal BAG](https://vng-realisatie.github.io/Haal-Centraal-BAG-bevragen/)    | Centralized address and location data service by the Dutch government.              | Retrieve address and location data related to a zaak.                                                                              | <ul><li>IMBAG API 2.6.0</li></ul>                                                            |
-| [Haal Centraal BRP](https://github.com/BRP-API/Haal-Centraal-BRP-bevragen)           | Centralized personal data service by the Dutch government.                          | Retrieve personal data for citizens related to a zaak (the initiator of a zaak).                                                   | <ul><li>BRP Personen Bevragen API 2.0.0</li></ul>                                            |
-| [KVK](https://developers.kvk.nl/)                                                    | Centralized company data service.                                                   | Retrieve company data for companies related to a zaak.                                                                             | <ul><li>Basisprofiel API 1.3</li><li>Vestigingsprofiel API 1.4</li><li>Zoeken API 1.3</li></ul> |
-| [Mailjet](https://www.mailjet.com/)                                                  | Email service.                                                                      | Send emails to employees. Only used for sending e-mails, not for managing e-mail templates (this is done in ZAC itself).           | <ul><li>Mailjet Email API (latest version)</li></ul>                                         |
-| [SmartDocuments](https://www.smartdocuments.eu/)                                     | Document creation service. Maybe used to create documents in your own look & feel.  | Start a document creation 'wizard' with pre-filled zaak data where the resulting document is stored by SmartDocuments in Open Zaak. | <ul><li>SmartDocuments REST API (latest version)</li></ul>                                   |
-| [VNG Referentielijsten](https://vng-realisatie.github.io/gemma-zaken/ontwikkelaars/) | Centralized reference data service.                                                 | Retrieve 'communication channels' reference data.                                                                                  | <ul><li>Referentielijsten API 0.6.0 (see below)</li></ul>                       |
+| Service                                                                              | Description                                                                        | ZAC Usage                                                                                                                           | API(s) used                                                                                     |
+|--------------------------------------------------------------------------------------|------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| [Haal Centraal BAG](https://vng-realisatie.github.io/Haal-Centraal-BAG-bevragen/)    | Centralized address and location data service by the Dutch government.             | Retrieve address and location data related to a zaak.                                                                               | <ul><li>IMBAG API 2.6.0</li></ul>                                                               |
+| [Haal Centraal BRP](https://github.com/BRP-API/Haal-Centraal-BRP-bevragen)           | Centralized personal data service by the Dutch government.                         | Retrieve personal data for citizens related to a zaak (the initiator of a zaak).                                                    | <ul><li>BRP Personen Bevragen API 2.0.0</li></ul>                                               |
+| [KVK](https://developers.kvk.nl/)                                                    | Centralized company data service.                                                  | Retrieve company data for companies related to a zaak.                                                                              | <ul><li>Basisprofiel API 1.3</li><li>Vestigingsprofiel API 1.4</li><li>Zoeken API 1.3</li></ul> |
+| [SMTP Server](https://www.mailjet.com/)                                              | SMTP server. Services like MailJet can also be used.                               | Send emails to employees. Only used for sending e-mails, not for managing e-mail templates (this is done in ZAC itself).            | <ul><li>SMTP Protocol</li></ul>                                                                 |
+| [SmartDocuments](https://www.smartdocuments.eu/)                                     | Document creation service. Maybe used to create documents in your own look & feel. | Start a document creation 'wizard' with pre-filled zaak data where the resulting document is stored by SmartDocuments in Open Zaak. | <ul><li>SmartDocuments REST API (latest version)</li></ul>                                      |
+| [VNG Referentielijsten](https://vng-realisatie.github.io/gemma-zaken/ontwikkelaars/) | Centralized reference data service.                                                | Retrieve 'communication channels' reference data.                                                                                   | <ul><li>Referentielijsten API 0.6.0 (see below)</li></ul>                                       |
 
 
 

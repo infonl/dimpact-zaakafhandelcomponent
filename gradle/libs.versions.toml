@@ -32,7 +32,6 @@ slf4j = "2.0.13"
 auth0-java-jwt = "4.4.0"
 javax-cache = "1.1.1"
 google-guava = "33.2.0-jre"
-mailjet = "5.2.5"
 itextpdf = "8.0.4"
 itextpdf-html2pdf = "5.0.4"
 flyway = "10.13.0"
@@ -91,7 +90,6 @@ slf4j-jdk14 = { group = "org.slf4j", name = "slf4j-jdk14", version.ref = "slf4j"
 auth0-java-jwt = { group = "com.auth0", name = "java-jwt", version.ref = "auth0-java-jwt" }
 javax-cache-api = { group = "javax.cache", name = "cache-api", version.ref = "javax-cache" }
 google-guava = { group = "com.google.guava", name = "guava", version.ref = "google-guava" }
-mailjet-client = { group = "com.mailjet", name = "mailjet-client", version.ref = "mailjet" }
 itextpdf-kernel = { group = "com.itextpdf", name = "kernel", version.ref = "itextpdf" }
 itextpdf-layout = { group = "com.itextpdf", name = "layout", version.ref = "itextpdf" }
 itextpdf-io = { group = "com.itextpdf", name = "io", version.ref = "itextpdf" }
