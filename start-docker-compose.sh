@@ -11,7 +11,7 @@ help()
 {
    echo "Starts the ZAC Docker Compose environment using the 1Password CLI tools to retrieve secrets."
    echo
-   echo "Syntax: $0 [-d|z|l|h]"
+   echo "Syntax: $0 [-d|t|z|b|l|h]"
    echo "options:"
    echo "-d     Delete local Docker volume data before starting Docker Compose."
    echo "-t     Also enable tracing and start the containers used for handling metrics and traces"
@@ -22,12 +22,21 @@ help()
    echo
 }
 
+echoerr() {
+  echo 1>&2;
+  echo "$@" 1>&2;
+  echo 1>&2;
+}
+
 volumeDataFolder="./scripts/docker-compose/volume-data"
 startZac=false
+pullZac=false
+buildZac=false
+localZac=false
 enableTracing=false
 enableZacOpenTelemetrySampler=off
 
-while getopts ':dtzlh' OPTION; do
+while getopts ':dtzblh' OPTION; do
   case $OPTION in
     d)
       echo "Deleting local Docker volume data folder: '$volumeDataFolder'.."
@@ -43,26 +52,50 @@ while getopts ':dtzlh' OPTION; do
       enableZacOpenTelemetrySampler=on
       ;;
     z)
-      echo "Pulling latest ZAC Docker Image ..."
       startZac=true
-      docker compose pull zac
+      pullZac=true
       ;;
     b)
-      echo "Building ZAC Docker Image ..."
       startZac=true
-      ./gradlew buildDockerImage
-      export ZAC_DOCKER_IMAGE=ghcr.io/infonl/zaakafhandelcomponent:dev
+      buildZac=true
+      localZac=true
       ;;
     l)
       startZac=true
-      export ZAC_DOCKER_IMAGE=ghcr.io/infonl/zaakafhandelcomponent:dev
+      localZac=true
       ;;
     \?)
-      echo "Error: Invalid option"
+      echoerr "Error: Invalid option"
       help
       exit;;
   esac
 done
+
+if [ "$pullZac" = "true" ] && [ "$buildZac" = "true" ]; then
+    echoerr "Only one of -z and -b can be specified!"
+    exit 1
+fi
+if [ "$pullZac" = "true" ] && [ "$localZac" = "true" ]; then
+    echoerr "Only one of -z and -l can be specified!"
+    exit 1
+fi
+if [ "$localZac" = "true" ] && [ "$buildZac" = "true" ]; then
+    echoerr "Only one of -b and -l can be specified!"
+    exit 1
+fi
+
+if [ "$buildZac" = "true" ]; then
+    echo "Building ZAC Docker Image ..."
+    ./gradlew buildDockerImage
+fi
+if [ "$localZac" = "true" ]; then
+    echo "Using local ZAC Docker Image ..."
+    export ZAC_DOCKER_IMAGE=ghcr.io/infonl/zaakafhandelcomponent:dev
+fi
+if [ "$pullZac" = "true" ]; then
+    echo "Pulling latest ZAC Docker Image ..."
+    docker compose pull zac
+fi
 
 # Ensure that volume-data is created with current user
 mkdir -p $volumeDataFolder/openklant-database-data
