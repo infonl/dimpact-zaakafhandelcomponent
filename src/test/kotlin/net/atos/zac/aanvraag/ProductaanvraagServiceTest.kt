@@ -26,6 +26,7 @@ import net.atos.client.zgw.zrc.model.createZaakobjectProductaanvraag
 import net.atos.client.zgw.ztc.ZTCClientService
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.aanvraag.model.InboxProductaanvraag
+import net.atos.zac.aanvraag.model.generated.Geometry
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.configuratie.ConfiguratieService.BRON_ORGANISATIE
 import net.atos.zac.documenten.InboxDocumentenService
@@ -81,11 +82,20 @@ class ProductaanvraagServiceTest : BehaviorSpec({
 
     Given("an productaanvraag-dimpact object registration object") {
         val bron = createBron()
+        val zaakIdentificatie = "dummyZaakIdentificatie"
+        val coordinates = listOf(52.08968250760225, 5.114358701512936)
         val orObject = createORObject(
             record = createObjectRecord(
                 data = mapOf(
                     "bron" to bron,
-                    "type" to "productaanvraag"
+                    "type" to "productaanvraag",
+                    "zaakgegevens" to mapOf(
+                        "identificatie" to zaakIdentificatie,
+                        "geometry" to mapOf(
+                            "type" to "Point",
+                            "coordinates" to coordinates
+                        )
+                    )
                 )
             )
         )
@@ -98,7 +108,15 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         naam shouldBe bron.naam
                         kenmerk shouldBe bron.kenmerk
                     }
+                    taal shouldBe "nld"
                     type shouldBe "productaanvraag"
+                    with(zaakgegevens) {
+                        identificatie shouldBe zaakIdentificatie
+                        with(geometry) {
+                            type shouldBe Geometry.Type.POINT
+                            coordinates shouldBe coordinates
+                        }
+                    }
                 }
             }
         }

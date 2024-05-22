@@ -832,7 +832,11 @@
                     "identificatie" : "ZAAK-2023-0000000001",
                     "communicatiekanaal" : "https://referentielijsten-api.vng.cloud/api/v1/communicatiekanalen/f56552a8-a082-4306-9111-eb1664fcb05d",
                     "omschrijving" : "dummyZaakOmschrijving",
-                    "toelichting" : "dummyZaakToelichting"
+                    "toelichting" : "dummyZaakToelichting",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [52.08968250760225, 5.114358701512936]
+                    }
                 },
                 "betrokkenen" : [
                     {

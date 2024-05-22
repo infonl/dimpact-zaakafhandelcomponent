@@ -53,6 +53,7 @@ import net.atos.zac.aanvraag.model.InboxProductaanvraag;
 import net.atos.zac.aanvraag.model.generated.Betrokkene;
 import net.atos.zac.aanvraag.model.generated.ProductaanvraagDimpact;
 import net.atos.zac.aanvraag.util.BetalingStatusEnumJsonAdapter;
+import net.atos.zac.aanvraag.util.GeometryTypeEnumJsonAdapter;
 import net.atos.zac.aanvraag.util.IndicatieMachtigingEnumJsonAdapter;
 import net.atos.zac.aanvraag.util.RolOmschrijvingGeneriekEnumJsonAdapter;
 import net.atos.zac.configuratie.ConfiguratieService;
@@ -256,7 +257,8 @@ public class ProductaanvraagService {
                 .withAdapters(
                         new IndicatieMachtigingEnumJsonAdapter(),
                         new RolOmschrijvingGeneriekEnumJsonAdapter(),
-                        new BetalingStatusEnumJsonAdapter()
+                        new BetalingStatusEnumJsonAdapter(),
+                        new GeometryTypeEnumJsonAdapter()
                 ))
         ) {
             return jsonb.fromJson(
