@@ -19,8 +19,6 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-import com.mailjet.client.errors.MailjetException;
-
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.ZTCClientService;
@@ -62,7 +60,7 @@ public class MailRESTService {
     public void sendMail(
             @PathParam("zaakUuid") final UUID zaakUUID,
             final RESTMailGegevens restMailGegevens
-    ) throws MailjetException {
+    ) {
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
         assertPolicy(policyService.readZaakRechten(zaak).versturenEmail());
         validateEmail(restMailGegevens.verzender);

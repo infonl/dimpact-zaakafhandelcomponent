@@ -11,7 +11,7 @@ help()
 {
    echo "Starts the ZAC Docker Compose environment using the 1Password CLI tools to retrieve secrets."
    echo
-   echo "Syntax: $0 [-d|z|l|h]"
+   echo "Syntax: $0 [-d|t|z|b|l|h]"
    echo "options:"
    echo "-d     Delete local Docker volume data before starting Docker Compose."
    echo "-t     Also enable tracing and start the containers used for handling metrics and traces"
@@ -24,10 +24,11 @@ help()
 
 volumeDataFolder="./scripts/docker-compose/volume-data"
 startZac=false
+pullZac=false
 enableTracing=false
 enableZacOpenTelemetrySampler=off
 
-while getopts ':dtzlh' OPTION; do
+while getopts ':dtzblh' OPTION; do
   case $OPTION in
     d)
       echo "Deleting local Docker volume data folder: '$volumeDataFolder'.."
@@ -45,15 +46,19 @@ while getopts ':dtzlh' OPTION; do
     z)
       echo "Pulling latest ZAC Docker Image ..."
       startZac=true
+      pullZac=true
       docker compose pull zac
       ;;
     b)
+      [ "$pullZac" = "true" ] && echo "Both -z and -b are specified. Ignoring latest ZAC image!"
       echo "Building ZAC Docker Image ..."
       startZac=true
       ./gradlew buildDockerImage
       export ZAC_DOCKER_IMAGE=ghcr.io/infonl/zaakafhandelcomponent:dev
       ;;
     l)
+      [ "$pullZac" = "true" ] && echo "Both -z and -l are specified. Ignoring latest ZAC image!"
+      echo "Using local ZAC Docker Image ..."
       startZac=true
       export ZAC_DOCKER_IMAGE=ghcr.io/infonl/zaakafhandelcomponent:dev
       ;;
