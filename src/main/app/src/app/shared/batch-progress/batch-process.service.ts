@@ -1,4 +1,4 @@
-import { computed, effect, signal } from "@angular/core";
+import { Injectable, computed, effect, signal } from "@angular/core";
 import { MatSnackBarRef } from "@angular/material/snack-bar";
 import { UtilService } from "src/app/core/service/util.service";
 import { ObjectType } from "src/app/core/websocket/model/object-type";
@@ -17,9 +17,12 @@ type Options = {
     onNotification?: (id: string) => void;
   };
   finalSubscription?: SubscriptionType & { screenEventResourceId: string };
-  finally: () => void;
+  finally: () => void | Promise<void>;
 };
 
+@Injectable({
+  providedIn: "root",
+})
 export class BatchProcessService {
   private state = signal<Record<string, boolean>>({});
   private values = computed(() => Object.values(this.state()));
@@ -39,7 +42,7 @@ export class BatchProcessService {
   ) {
     effect(() => {
       if (this.progress() === 100 && !this.options.finalSubscription) {
-        this.options.finally();
+        Promise.resolve(this.options.finally()).finally(() => this.stop());
       }
     });
   }
@@ -69,10 +72,8 @@ export class BatchProcessService {
         options.finalSubscription.opcode,
         options.finalSubscription.objectType,
         options.finalSubscription.screenEventResourceId,
-        () => {
-          this.stop();
-          options.finally();
-        },
+        () =>
+          Promise.resolve(this.options.finally()).finally(() => this.stop()),
       );
       this.subscriptions.push(finalSubscription);
     }

@@ -6,7 +6,6 @@
 import {
   AfterViewInit,
   Component,
-  OnDestroy,
   OnInit,
   ViewChild,
   signal,
@@ -31,9 +30,9 @@ import { ZakenService } from "../zaken.service";
 import { ComponentType } from "@angular/cdk/portal";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
+import { firstValueFrom } from "rxjs";
 import { ObjectType } from "src/app/core/websocket/model/object-type";
 import { Opcode } from "src/app/core/websocket/model/opcode";
-import { WebsocketService } from "src/app/core/websocket/websocket.service";
 import { Group } from "src/app/identity/model/group";
 import { User } from "src/app/identity/model/user";
 import { IndexingService } from "src/app/indexing/indexing.service";
@@ -56,9 +55,8 @@ import { ZakenWerkvoorraadDatasource } from "./zaken-werkvoorraad-datasource";
 })
 export class ZakenWerkvoorraadComponent
   extends WerklijstComponent
-  implements AfterViewInit, OnInit, OnDestroy
+  implements AfterViewInit, OnInit
 {
-  private batchProcessService: BatchProcessService;
   readonly indicatiesLayout = IndicatiesLayout;
   selection = new SelectionModel<ZaakZoekObject>(true, []);
   dataSource: ZakenWerkvoorraadDatasource;
@@ -96,24 +94,16 @@ export class ZakenWerkvoorraadComponent
     public utilService: UtilService,
     public dialog: MatDialog,
     private identityService: IdentityService,
-    websocketService: WebsocketService,
     private translateService: TranslateService,
     private indexService: IndexingService,
+    private batchProcessService: BatchProcessService,
   ) {
     super();
     this.dataSource = new ZakenWerkvoorraadDatasource(
       this.zoekenService,
       this.utilService,
     );
-    this.batchProcessService = new BatchProcessService(
-      websocketService,
-      utilService,
-    );
   }
-  ngOnDestroy(): void {
-    this.batchProcessService.stop();
-  }
-
   ngOnInit(): void {
     super.ngOnInit();
     this.utilService.setTitle("title.zaken.werkvoorraad");
@@ -281,13 +271,14 @@ export class ZakenWerkvoorraadComponent
           }
         },
       },
-      finally: () => {
-        this.indexService.commitPendingChangesToSearchIndex().subscribe(() => {
+      finally: () =>
+        firstValueFrom(
+          this.indexService.commitPendingChangesToSearchIndex(),
+        ).then(() => {
           this.selection.clear();
           this.dataSource.load();
           this.zakenLoading.set(false);
-        });
-      },
+        }),
     });
     const dialogRef = this.dialog.open(dialogComponent, {
       data: zaken,
