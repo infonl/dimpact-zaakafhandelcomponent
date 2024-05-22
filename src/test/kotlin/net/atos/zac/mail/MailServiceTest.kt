@@ -53,7 +53,7 @@ class MailServiceTest : BehaviorSpec({
         loggedInUserInstance,
     )
 
-    afterEach {
+    beforeEach {
         checkUnnecessaryStub()
     }
 
