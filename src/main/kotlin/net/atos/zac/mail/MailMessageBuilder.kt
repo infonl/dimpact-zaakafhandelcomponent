@@ -20,7 +20,7 @@ class MailMessageBuilder(
     private var attachments: List<Attachment>
 ) {
     fun build(mailSession: Session) = MimeMessage(mailSession).apply {
-        addHeader("Content-type", "text/HTML; charset=${StandardCharsets.UTF_8.name()}")
+        addHeader("Content-type", "text/html; charset=${StandardCharsets.UTF_8.name()}")
         addHeader("format", "flowed")
         addHeader("Content-Transfer-Encoding", "8bit")
 
