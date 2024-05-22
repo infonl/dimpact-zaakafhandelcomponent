@@ -8,7 +8,6 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
@@ -33,19 +32,12 @@ import net.atos.zac.util.DateTimeConverterUtil
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import net.atos.zac.zaaksturing.model.createZaakafhandelParameters
 import net.atos.zac.zoeken.IndexeerService
-import org.eclipse.microprofile.config.ConfigProvider
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
 
 class PlanItemsRESTServiceTest : BehaviorSpec({
-    // add static mocking for config provider or else the MailService class cannot be mocked
-    // since it references the config provider statically
-    mockkStatic(ConfigProvider::class)
-    every { ConfigProvider.getConfig().getValue("mailjet.api.key", String::class.java) } returns "dummyApiKey"
-    every { ConfigProvider.getConfig().getValue("mailjet.api.secret.key", String::class.java) } returns "dummySecretKey"
-
     val taakVariabelenService = mockk<TaakVariabelenService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val cmmnService = mockk<CMMNService>()
