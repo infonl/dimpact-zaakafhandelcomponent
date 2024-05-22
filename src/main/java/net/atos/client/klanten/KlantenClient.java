@@ -39,12 +39,13 @@ import net.atos.client.klanten.util.KlantenClientHeadersFactory;
  * Een API om zowel klanten te registreren als op te vragen.
  * Een klant is een natuurlijk persoon, niet-natuurlijk persoon (bedrijf) of vestiging waarbij het gaat om niet geverifieerde gegevens.
  */
-
 @RegisterRestClient(configKey = "Klanten-API-Client")
 @RegisterClientHeaders(KlantenClientHeadersFactory.class)
 @RegisterProvider(RuntimeExceptionMapper.class)
 @Path("api/v1/klanten")
 public interface KlantenClient {
+    String X_NLX_LOGRECORD_ID_HEADER = "X-NLX-Logrecord-ID";
+    String X_AUDIT_TOELICHTING_HEADER = "X-Audit-Toelichting";
 
     /**
      * Alle audit trail regels behorend bij de KLANT.
@@ -52,7 +53,7 @@ public interface KlantenClient {
     @GET
     @Path("/{klant_uuid}/audittrail")
     @Produces({"application/json", "application/problem+json"})
-    public List<AuditTrail> audittrailList(@PathParam("klant_uuid") UUID klantUuid) throws ProcessingException;
+    List<AuditTrail> audittrailList(@PathParam("klant_uuid") UUID klantUuid) throws ProcessingException;
 
     /**
      * Een specifieke audit trail regel opvragen.
@@ -60,7 +61,7 @@ public interface KlantenClient {
     @GET
     @Path("/{klant_uuid}/audittrail/{uuid}")
     @Produces({"application/json", "application/problem+json"})
-    public AuditTrail audittrailRead(
+    AuditTrail audittrailRead(
             @PathParam("klant_uuid") UUID klantUuid,
             @PathParam("uuid") UUID uuid,
             @HeaderParam("If-None-Match") String ifNoneMatch
@@ -72,11 +73,11 @@ public interface KlantenClient {
     @POST
     @Consumes({"application/json"})
     @Produces({"application/json", "application/problem+json"})
-    public Klant klantCreate(
+    Klant klantCreate(
             @HeaderParam("Content-Type") String contentType,
             Klant klant,
-            @HeaderParam("X-NLX-Logrecord-ID") String xNLXLogrecordID,
-            @HeaderParam("X-Audit-Toelichting") String xAuditToelichting
+            @HeaderParam(X_NLX_LOGRECORD_ID_HEADER) String xNLXLogrecordID,
+            @HeaderParam(X_AUDIT_TOELICHTING_HEADER) String xAuditToelichting
     ) throws ProcessingException;
 
     /**
@@ -85,10 +86,10 @@ public interface KlantenClient {
     @DELETE
     @Path("/{uuid}")
     @Produces({"application/problem+json"})
-    public void klantDelete(
+    void klantDelete(
             @PathParam("uuid") UUID uuid,
-            @HeaderParam("X-NLX-Logrecord-ID") String xNLXLogrecordID,
-            @HeaderParam("X-Audit-Toelichting") String xAuditToelichting
+            @HeaderParam(X_NLX_LOGRECORD_ID_HEADER) String xNLXLogrecordID,
+            @HeaderParam(X_AUDIT_TOELICHTING_HEADER) String xAuditToelichting
     ) throws ProcessingException;
 
     /**
@@ -96,7 +97,7 @@ public interface KlantenClient {
      */
     @GET
     @Produces({"application/json", "application/problem+json"})
-    public KlantList200Response klantList(
+    KlantList200Response klantList(
             @BeanParam final KlantListParameters listParameters
     ) throws ProcessingException;
 
@@ -105,7 +106,7 @@ public interface KlantenClient {
      */
     @GET
     @Produces({"application/json", "application/problem+json"})
-    public CompletionStage<KlantList200Response> klantListAsync(
+    CompletionStage<KlantList200Response> klantListAsync(
             @BeanParam final KlantListParameters listParameters
     ) throws ProcessingException;
 
@@ -116,12 +117,12 @@ public interface KlantenClient {
     @Path("/{uuid}")
     @Consumes({"application/json"})
     @Produces({"application/json", "application/problem+json"})
-    public Klant klantPartialUpdate(
+    Klant klantPartialUpdate(
             @PathParam("uuid") UUID uuid,
             @HeaderParam("Content-Type") String contentType,
             Klant klant,
-            @HeaderParam("X-NLX-Logrecord-ID") String xNLXLogrecordID,
-            @HeaderParam("X-Audit-Toelichting") String xAuditToelichting
+            @HeaderParam(X_NLX_LOGRECORD_ID_HEADER) String xNLXLogrecordID,
+            @HeaderParam(X_AUDIT_TOELICHTING_HEADER) String xAuditToelichting
     ) throws ProcessingException;
 
     /**
@@ -130,7 +131,7 @@ public interface KlantenClient {
     @GET
     @Path("/{uuid}")
     @Produces({"application/json", "application/problem+json"})
-    public Klant klantRead(
+    Klant klantRead(
             @PathParam("uuid") UUID uuid,
             @HeaderParam("If-None-Match") String ifNoneMatch
     ) throws ProcessingException;
@@ -142,11 +143,11 @@ public interface KlantenClient {
     @Path("/{uuid}")
     @Consumes({"application/json"})
     @Produces({"application/json", "application/problem+json"})
-    public Klant klantUpdate(
+    Klant klantUpdate(
             @PathParam("uuid") UUID uuid,
             @HeaderParam("Content-Type") String contentType,
             Klant klant,
-            @HeaderParam("X-NLX-Logrecord-ID") String xNLXLogrecordID,
-            @HeaderParam("X-Audit-Toelichting") String xAuditToelichting
+            @HeaderParam(X_NLX_LOGRECORD_ID_HEADER) String xNLXLogrecordID,
+            @HeaderParam(X_AUDIT_TOELICHTING_HEADER) String xAuditToelichting
     ) throws ProcessingException;
 }

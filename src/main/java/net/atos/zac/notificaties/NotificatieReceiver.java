@@ -69,7 +69,7 @@ public class NotificatieReceiver {
     private Instance<HttpSession> httpSession;
 
     /**
-     * Empty no-op constructor as required by JAX-RS.
+     * Empty no-op constructor as required by Weld.
      */
     public NotificatieReceiver() {
     }

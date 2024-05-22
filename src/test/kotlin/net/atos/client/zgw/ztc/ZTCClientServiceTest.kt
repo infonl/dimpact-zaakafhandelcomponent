@@ -12,6 +12,7 @@ import io.mockk.mockk
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.configuratie.ConfiguratieService
+import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
@@ -89,7 +90,9 @@ class ZTCClientServiceTest : BehaviorSpec({
         When("reading lots of zaak types") {
             (1..101).forEach {
                 val generatedUUID = UUID.randomUUID()
-                every { ztcClient.zaaktypeRead(generatedUUID) } returns createZaakType(uuid = generatedUUID)
+                every {
+                    ztcClient.zaaktypeRead(generatedUUID)
+                } returns createZaakType(uri = URI("https://example.com/zaaktype/$generatedUUID"))
                 ztcClientService.readZaaktype(generatedUUID)
             }
 

@@ -5,15 +5,21 @@
 
 package net.atos.zac.documentcreatie.model;
 
+import jakarta.json.bind.annotation.JsonbProperty;
+
 public class Data {
+    @JsonbProperty("startformulier")
+    public StartformulierData startformulierData;
 
-    public StartformulierData startformulier;
+    @JsonbProperty("zaak")
+    public ZaakData zaakData;
 
-    public ZaakData zaak;
+    @JsonbProperty("taak")
+    public TaakData taakData;
 
-    public TaakData taak;
+    @JsonbProperty("gebruiker")
+    public GebruikerData gebruikerData;
 
-    public GebruikerData gebruiker;
-
-    public AanvragerData aanvrager;
+    @JsonbProperty("aanvrager")
+    public AanvragerData aanvragerData;
 }

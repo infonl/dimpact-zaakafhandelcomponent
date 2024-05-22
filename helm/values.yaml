@@ -40,6 +40,12 @@ mail:
   mailjet:
     apiKey: ""
     secretKey: ""
+  # SMTP server and port will be required after phasing out mailjet
+  smtp:
+    server: "" # when using mailjet use in-v3.mailjet.com
+    port: "25" # when using mailjet use port 587
+    username: "" # when using mailjet same as mailjet.apiKey
+    password: "" # when using mailjet same as mailjet.secretKey
 
 # Configuration of ZGW API's provider (Open Zaak)
 zgwApis:

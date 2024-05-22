@@ -44,6 +44,8 @@ import net.atos.client.contactmomenten.util.ContactmomentenClientHeadersFactory;
 @RegisterProvider(NotFoundExceptionMapper.class)
 @Path("api/v1/contactmomenten")
 public interface ContactmomentenClient {
+    String X_NLX_LOGRECORD_ID_HEADER = "X-NLX-Logrecord-ID";
+    String X_AUDIT_TOELICHTING_HEADER = "X-Audit-Toelichting";
 
     /**
      * Alle audit trail regels behorend bij de CONTACTMOMENT.
@@ -76,8 +78,8 @@ public interface ContactmomentenClient {
     public ContactMoment contactmomentCreate(
             @HeaderParam("Content-Type") String contentType,
             ContactMoment contactMoment,
-            @HeaderParam("X-NLX-Logrecord-ID") String xNLXLogrecordID,
-            @HeaderParam("X-Audit-Toelichting") String xAuditToelichting
+            @HeaderParam(X_NLX_LOGRECORD_ID_HEADER) String xNLXLogrecordID,
+            @HeaderParam(X_AUDIT_TOELICHTING_HEADER) String xAuditToelichting
     ) throws ProcessingException;
 
     /**
@@ -88,8 +90,8 @@ public interface ContactmomentenClient {
     @Produces({"application/problem+json"})
     public void contactmomentDelete(
             @PathParam("uuid") UUID uuid,
-            @HeaderParam("X-NLX-Logrecord-ID") String xNLXLogrecordID,
-            @HeaderParam("X-Audit-Toelichting") String xAuditToelichting
+            @HeaderParam(X_NLX_LOGRECORD_ID_HEADER) String xNLXLogrecordID,
+            @HeaderParam(X_AUDIT_TOELICHTING_HEADER) String xAuditToelichting
     ) throws ProcessingException;
 
     /**
@@ -126,8 +128,8 @@ public interface ContactmomentenClient {
             @PathParam("uuid") UUID uuid,
             @HeaderParam("Content-Type") String contentType,
             ContactMoment contactMoment,
-            @HeaderParam("X-NLX-Logrecord-ID") String xNLXLogrecordID,
-            @HeaderParam("X-Audit-Toelichting") String xAuditToelichting
+            @HeaderParam(X_NLX_LOGRECORD_ID_HEADER) String xNLXLogrecordID,
+            @HeaderParam(X_AUDIT_TOELICHTING_HEADER) String xAuditToelichting
     ) throws ProcessingException;
 
     /**
@@ -152,7 +154,7 @@ public interface ContactmomentenClient {
             @PathParam("uuid") UUID uuid,
             @HeaderParam("Content-Type") String contentType,
             ContactMoment contactMoment,
-            @HeaderParam("X-NLX-Logrecord-ID") String xNLXLogrecordID,
-            @HeaderParam("X-Audit-Toelichting") String xAuditToelichting
+            @HeaderParam(X_NLX_LOGRECORD_ID_HEADER) String xNLXLogrecordID,
+            @HeaderParam(X_AUDIT_TOELICHTING_HEADER) String xAuditToelichting
     ) throws ProcessingException;
 }

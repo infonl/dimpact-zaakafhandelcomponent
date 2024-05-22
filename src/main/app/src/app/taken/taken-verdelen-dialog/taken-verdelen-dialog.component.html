@@ -3,8 +3,8 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<h1 *ngIf="data.length == 1" mat-dialog-title>{{'msg.verdelen.taak' | translate}}</h1>
-<h1 *ngIf="data.length != 1" mat-dialog-title>{{ 'msg.verdelen.taken' | translate:{aantal: data.length} }}</h1>
+<h1 *ngIf="data.taken.length === 1" mat-dialog-title>{{'msg.verdelen.taak' | translate}}</h1>
+<h1 *ngIf="data.taken.length !== 1" mat-dialog-title>{{ 'msg.verdelen.taken' | translate:{aantal: data.taken.length} }}</h1>
 
 <div mat-dialog-content>
     <mfb-form-field [field]="medewerkerGroepFormField"></mfb-form-field>

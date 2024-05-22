@@ -27,7 +27,11 @@ export class TakenVerdelenDialogComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<TakenVerdelenDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: TaakZoekObject[],
+    @Inject(MAT_DIALOG_DATA)
+    public data: {
+      taken: TaakZoekObject[];
+      screenEventResourceId: string;
+    },
     private mfbService: MaterialFormBuilderService,
     private takenService: TakenService,
   ) {}
@@ -67,13 +71,14 @@ export class TakenVerdelenDialogComponent implements OnInit {
     this.loading = true;
     this.takenService
       .verdelenVanuitLijst(
-        this.data,
+        this.data.taken,
         reden,
+        this.data.screenEventResourceId,
         toekenning.groep,
         toekenning.medewerker,
       )
       .subscribe(() => {
-        this.dialogRef.close(toekenning.groep || toekenning.medewerker);
+        this.dialogRef.close(toekenning);
       });
   }
 }
