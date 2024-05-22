@@ -6,7 +6,6 @@
 import {
   AfterViewInit,
   Component,
-  OnDestroy,
   OnInit,
   ViewChild,
   signal,
@@ -24,7 +23,6 @@ import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { ObjectType } from "src/app/core/websocket/model/object-type";
 import { Opcode } from "src/app/core/websocket/model/opcode";
-import { WebsocketService } from "src/app/core/websocket/websocket.service";
 import { Group } from "src/app/identity/model/group";
 import { User } from "src/app/identity/model/user";
 import { BatchProcessService } from "src/app/shared/batch-progress/batch-process.service";
@@ -54,7 +52,7 @@ import { TakenWerkvoorraadDatasource } from "./taken-werkvoorraad-datasource";
 })
 export class TakenWerkvoorraadComponent
   extends WerklijstComponent
-  implements AfterViewInit, OnInit, OnDestroy
+  implements AfterViewInit, OnInit
 {
   selection = new SelectionModel<TaakZoekObject>(true, []);
   dataSource: TakenWerkvoorraadDatasource;
@@ -76,7 +74,6 @@ export class TakenWerkvoorraadComponent
 
   takenLoading = signal(false);
   toekenning: { groep?: Group; medewerker?: User } | undefined;
-  private batchProcessService: BatchProcessService;
 
   constructor(
     public route: ActivatedRoute,
@@ -86,23 +83,15 @@ export class TakenWerkvoorraadComponent
     public dialog: MatDialog,
     private zoekenService: ZoekenService,
     public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-    websocketService: WebsocketService,
     private translateService: TranslateService,
+    private batchProcessService: BatchProcessService,
   ) {
     super();
-    this.batchProcessService = new BatchProcessService(
-      websocketService,
-      utilService,
-    );
     this.dataSource = new TakenWerkvoorraadDatasource(
       this.zoekenService,
       this.utilService,
     );
   }
-  ngOnDestroy(): void {
-    this.batchProcessService.stop();
-  }
-
   ngOnInit(): void {
     super.ngOnInit();
     this.utilService.setTitle("title.taken.werkvoorraad");
