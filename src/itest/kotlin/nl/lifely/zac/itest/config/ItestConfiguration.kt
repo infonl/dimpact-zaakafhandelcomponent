@@ -93,7 +93,7 @@ object ItestConfiguration {
     const val ZAAK_2_IDENTIFICATION = "ZAAK-2023-0000000002"
     const val ZAC_CONTAINER_SERVICE_NAME = "zac"
     const val ZAC_CONTAINER_PORT = 8080
-    const val SMTP_SERVER_PORT = 46500
+    const val SMTP_SERVER_PORT = 25
 
     /**
      * The default ZAC Docker image used when running the integration tests locally.

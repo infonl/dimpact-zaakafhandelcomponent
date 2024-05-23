@@ -180,7 +180,6 @@ dependencies {
     "itestImplementation"(libs.auth0.java.jwt)
     "itestImplementation"(libs.github.kotlin.logging)
     "itestImplementation"(libs.kotlin.csv.jvm)
-    "itestImplementation"(libs.greenmail)
 
     jacocoAgentJarForItest(variantOf(libs.jacoco.agent) { classifier("runtime") })
 }

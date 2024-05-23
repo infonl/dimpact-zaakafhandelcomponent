@@ -462,6 +462,25 @@ services:
       - prometheus
     profiles: [ "metrics" ]
 
+  greenmail:
+    image: greenmail/standalone:2.1.0-alpha-4
+    environment:
+      GREENMAIL_OPTS: >-
+        -Dgreenmail.smtp.hostname=0.0.0.0
+        -Dgreenmail.smtp.port=25
+        -Dgreenmail.imap.hostname=0.0.0.0
+        -Dgreenmail.imap.port=143
+        -Dgreenmail.api.host=0.0.0.0
+        -Dgreenmail.api.port=8080
+        -Dgreenmail.hostname=0.0.0.0
+        -Dgreenmail.auth.disabled
+        -Dgreenmail.verbose
+    ports:
+      - "25:25"
+      - "143:143"
+      - "8888:8080"
+    profiles: [ "itest" ]
+
   zac:
     # By default, we use the latest ZAC Docker Image. Change this if you wish to use a specific version.
     image: ${ZAC_DOCKER_IMAGE:-ghcr.io/infonl/zaakafhandelcomponent:latest}
@@ -517,8 +536,8 @@ services:
       - ZGW_API_CLIENTID=zac_client
       - ZGW_API_SECRET=openzaakZaakafhandelcomponentClientSecret
       - ZGW_API_URL_EXTERN=http://localhost:8001/
-      - SMTP_SERVER=in-v3.mailjet.com
-      - SMTP_PORT=587
+      - SMTP_SERVER=${SMTP_SERVER:-in-v3.mailjet.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
       - SMTP_USERNAME=${SMTP_USER:-dummyMailjetApiKey}
       - SMTP_PASSWORD=${SMTP_PASSWORD:-dummyMailjetApiSecretKey}
     ports:
