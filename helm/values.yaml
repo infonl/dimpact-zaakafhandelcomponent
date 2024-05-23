@@ -36,16 +36,12 @@ gemeente:
 
 # Configuration email sending connection
 mail:
-  # API and secret key used for sending mail via mailjet (https://www.mailjet.com)
-  mailjet:
-    apiKey: ""
-    secretKey: ""
-  # SMTP server and port will be required after phasing out mailjet
+  # SMTP server and port are required, spf record needs to be properly setup in DNS
   smtp:
-    server: "" # when using mailjet use in-v3.mailjet.com
-    port: "25" # when using mailjet use port 587
-    username: "" # when using mailjet same as mailjet.apiKey
-    password: "" # when using mailjet same as mailjet.secretKey
+    server: "" # localhost
+    port: "25" # use port 587 for TLS, port 25 is normally used for relaying
+    username: ""
+    password: ""
 
 # Configuration of ZGW API's provider (Open Zaak)
 zgwApis:
