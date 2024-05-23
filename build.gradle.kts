@@ -659,6 +659,7 @@ tasks {
         dependsOn("itest")
 
         description = "Generates code coverage report for the integration tests"
+        inputs.files("$rootDir/build/jacoco/itest/jacoco-report/jacoco-it.exec")
         executionData.setFrom("$rootDir/build/jacoco/itest/jacoco-report/jacoco-it.exec")
         // tell JaCoCo to report on our code base
         sourceSets(sourceSets["main"])
@@ -666,6 +667,9 @@ tasks {
             xml.required = true
             html.required = false
         }
+        outputs.dir("$rootDir/build/reports/jacoco/jacocoIntegrationTestReport")
+        // do not use the Gradle build cache for this task
+        outputs.cacheIf { false }
     }
 
     register<Maven>("generateWildflyBootableJar") {
