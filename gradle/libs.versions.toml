@@ -19,8 +19,10 @@ spotless-prettier-base = "3.2.5"
 spotless-prettier-organize-imports = "3.2.4"
 microprofile-rest-client = "3.0"
 jacoco = "0.8.12"
+
 opa-binary = "0.63.0"
 opa-plugin = "0.4.2"
+greenmail = "2.0.1"
 
 apache-commons-lang = "3.14.0"
 apache-commons-text = "1.12.0"
@@ -73,7 +75,6 @@ slf4j-simple = "2.0.13"
 
 github-kotlin-logging = "6.0.9"
 okhttp = "4.12.0"
-awaitility = "4.2.1"
 
 [libraries]
 apache-commons-lang = { group = "org.apache.commons", name = "commons-lang3", version.ref = "apache-commons-lang" }
@@ -155,13 +156,13 @@ testcontainers-testcontainers = { group = "org.testcontainers", name = "testcont
 testcontainers-mockserver = { group = "org.testcontainers", name = "mockserver", version.ref = "testcontainers" }
 testcontainers-postgresql = { group = "org.testcontainers", name = "postgresql", version.ref = "testcontainers" }
 json = { group = "org.json", name = "json", version.ref = "json-json" }
+greenmail = { group = 'com.icegreen', name = 'greenmail', version.ref = 'greenmail' }
 
 slf4j-simple = { group = "org.slf4j", name = "slf4j-simple", version.ref = "slf4j-simple" }
 
 github-kotlin-logging = { group = "io.github.oshai", name = "kotlin-logging-jvm", version.ref = "github-kotlin-logging" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 okhttp-urlconnection = { group = "com.squareup.okhttp3", name = "okhttp-urlconnection", version.ref = "okhttp" }
-awaitility = { group = "org.awaitility", name = "awaitility-kotlin", version.ref = "awaitility" }
 
 jacoco-agent = { group = "org.jacoco", name="org.jacoco.agent", version.ref = "jacoco" }
 

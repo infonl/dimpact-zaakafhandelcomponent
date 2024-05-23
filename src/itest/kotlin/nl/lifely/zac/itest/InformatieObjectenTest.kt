@@ -24,6 +24,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_SIZE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.lifely.zac.itest.config.ItestConfiguration.enkelvoudigInformatieObjectUUID
 import nl.lifely.zac.itest.config.ItestConfiguration.task1ID
 import nl.lifely.zac.itest.config.ItestConfiguration.zaak1UUID
 import okhttp3.Headers
@@ -51,8 +52,6 @@ class InformatieObjectenTest : BehaviorSpec({
 
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
-
-    lateinit var enkelvoudigInformatieObjectUUID: String
 
     Given(
         "ZAC and all related Docker containers are running and zaak exists"
@@ -132,6 +131,7 @@ class InformatieObjectenTest : BehaviorSpec({
                 ),
                 requestBody = requestBody
             )
+
             Then(
                 "the response should be OK and contain information for the created document and uploaded file"
             ) {
