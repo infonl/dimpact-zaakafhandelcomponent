@@ -50,21 +50,21 @@ When(
 );
 
 Then(
-  "{string} gets a message confirming that the distribution of taken is complete",
+  "{string} gets a message confirming that the distribution of taken is starting",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, s: string) {
     await this.page
-      .getByText(`${_noOfTaken} taken zijn verdeeld`)
+      .getByText(`${_noOfTaken} taken worden verdeeld...`)
       .waitFor({ timeout: ONE_MINUTE_IN_MS });
   },
 );
 
 Then(
-  "{string} gets a message confirming that the releasement of taken is complete",
+  "{string} gets a message confirming that the releasement of taken is starting",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, s: string) {
     await this.page
-      .getByText(`${_noOfTaken} taken zijn vrijgegeven`)
+      .getByText(`${_noOfTaken} taken worden vrijgegeven...`)
       .waitFor({ timeout: ONE_MINUTE_IN_MS });
   },
 );
