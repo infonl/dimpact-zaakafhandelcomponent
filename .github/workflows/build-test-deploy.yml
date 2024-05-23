@@ -251,6 +251,11 @@ jobs:
       - name: Generate JaCoCo integration test code coverage report
         run: ./gradlew jacocoIntegrationTestReport -x itest --info
 
+      - name: TEMPORARY STEP FOR DEBUGGING
+        run: |
+          echo "Code coverage integration test Jacoco report contents:"
+          echo "$(cat build/reports/jacoco/jacocoIntegrationTestReport/jacocoIntegrationTestReport.xml)"
+
       - name: Upload integration test coverage report to Codecov
         uses: codecov/codecov-action@v4
         with:
