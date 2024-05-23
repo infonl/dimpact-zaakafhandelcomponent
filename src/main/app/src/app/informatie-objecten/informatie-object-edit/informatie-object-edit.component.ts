@@ -16,7 +16,7 @@ import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
-import { Subscription } from "rxjs";
+import { Subscription, tap } from "rxjs";
 import { FileInputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/file-input/file-input-form-field-builder";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
@@ -37,7 +37,6 @@ import { InformatieObjectenService } from "../informatie-objecten.service";
 import { EnkelvoudigInformatieObjectVersieGegevens } from "../model/enkelvoudig-informatie-object-versie-gegevens";
 import { EnkelvoudigInformatieobject } from "../model/enkelvoudig-informatieobject";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
-import { Informatieobjecttype } from "../model/informatieobjecttype";
 import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
 
 @Component({
@@ -54,7 +53,6 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
   @ViewChild(FormComponent) form: FormComponent;
 
   fields: Array<AbstractFormField[]>;
-  informatieobjecttypes: Informatieobjecttype[];
   formConfig: FormConfig;
   ingelogdeMedewerker: User;
 
@@ -151,6 +149,25 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
       .hint("msg.document.ontvangstdatum.hint")
       .build();
 
+    const types = this.informatieObjectenService
+      .listInformatieobjecttypesForZaak(this.zaakUuid)
+      .pipe(
+        tap((x) =>
+          informatieobjectType.value(
+            x.find((y) => y.uuid === this.infoObject.informatieobjectTypeUUID),
+          ),
+        ),
+      );
+
+    const informatieobjectType = new SelectFormFieldBuilder()
+      .id("informatieobjectTypeUUID")
+      .label("informatieobjectType")
+      .options(types)
+      .optionLabel("omschrijving")
+      .validators(Validators.required)
+      .settings({ translateLabels: false, capitalizeFirstLetter: true })
+      .build();
+
     const auteur = new InputFormFieldBuilder(this.ingelogdeMedewerker.naam)
       .id("auteur")
       .label("auteur")
@@ -190,6 +207,7 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
       [titel],
       [beschrijving],
       [status, vertrouwelijk],
+      [informatieobjectType],
       [auteur, taal],
       [ontvangstDatum, verzenddatum],
       [toelichting],
@@ -262,6 +280,8 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
           nieuweVersie["bestandsnaam"] = value.name;
           nieuweVersie["file"] = value;
           nieuweVersie["formaat"] = value.type;
+        } else if (key === "informatieobjectTypeUUID") {
+          nieuweVersie[key] = value.uuid;
         } else {
           nieuweVersie[key] = value;
         }

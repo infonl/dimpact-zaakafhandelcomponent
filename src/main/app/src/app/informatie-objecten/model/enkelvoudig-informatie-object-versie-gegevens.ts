@@ -9,6 +9,7 @@ import { InformatieobjectStatus } from "./informatieobject-status.enum";
 export class EnkelvoudigInformatieObjectVersieGegevens {
   uuid: string;
   zaakUuid: string;
+  informatieobjectTypeUUID: string;
   titel: string;
   vertrouwelijkheidaanduiding: string;
   auteur: string;

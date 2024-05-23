@@ -8,6 +8,7 @@ package net.atos.zac.app.informatieobjecten.model;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.FormParam;
 
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
@@ -50,4 +51,7 @@ public class RESTEnkelvoudigInformatieObjectVersieGegevens extends RESTEnkelvoud
 
     @FormParam("toelichting")
     public String toelichting;
+
+    @NotNull @FormParam("informatieobjectTypeUUID")
+    public UUID informatieobjectTypeUUID;
 }

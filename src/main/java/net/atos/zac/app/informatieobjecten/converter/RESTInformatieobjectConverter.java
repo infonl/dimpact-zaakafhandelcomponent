@@ -314,6 +314,8 @@ public class RESTInformatieobjectConverter {
                 .map(restTaalConverter::convert)
                 .ifPresent(taal -> restEnkelvoudigInformatieObjectVersieGegevens.taal = taal);
         restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam = informatieobject.getInhoud().toString();
+        restEnkelvoudigInformatieObjectVersieGegevens.informatieobjectTypeUUID = UriUtil.uuidFromURI(informatieobject
+                .getInformatieobjecttype());
 
         return restEnkelvoudigInformatieObjectVersieGegevens;
     }
@@ -328,6 +330,9 @@ public class RESTInformatieobjectConverter {
         enkelvoudigInformatieObjectWithLockData.setBestandsnaam(restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam);
         enkelvoudigInformatieObjectWithLockData.setBestandsomvang(restEnkelvoudigInformatieObjectVersieGegevens.file.length);
         enkelvoudigInformatieObjectWithLockData.setFormaat(restEnkelvoudigInformatieObjectVersieGegevens.formaat);
+        enkelvoudigInformatieObjectWithLockData.setInformatieobjecttype(ztcClientService.readInformatieobjecttype(
+                restEnkelvoudigInformatieObjectVersieGegevens.informatieobjectTypeUUID)
+                .getUrl());
 
         return enkelvoudigInformatieObjectWithLockData;
     }

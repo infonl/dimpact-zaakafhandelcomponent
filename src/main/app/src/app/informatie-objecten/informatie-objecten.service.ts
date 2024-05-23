@@ -200,6 +200,7 @@ export class InformatieObjectenService {
       verzenddatum: formatDateForFormData,
       ontvangstdatum: formatDateForFormData,
       toelichting: true,
+      informatieobjectTypeUUID: true,
     });
 
     return this.http
