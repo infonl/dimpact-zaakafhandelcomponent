@@ -320,13 +320,13 @@ opentelemetry-collector:
       enabled: false
   config:
     receivers:
-      prometheus: null
-      jaeger: null
-      zipkin: null
+      prometheus: {}
+      jaeger: {}
+      zipkin: {}
     service:
       pipelines:
         traces:
           receivers:
             - otlp
-        metrics: null
-        logs: null
+        metrics: {}
+        logs: {}
