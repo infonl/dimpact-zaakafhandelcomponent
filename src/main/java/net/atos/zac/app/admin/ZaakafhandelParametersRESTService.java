@@ -133,7 +133,10 @@ public class ZaakafhandelParametersRESTService {
                 .map(zaaktype -> UriUtil.uuidFromURI(zaaktype.getUrl()))
                 .map(zaakafhandelParameterService::readZaakafhandelParameters)
                 .map(zaakafhandelParameters -> zaakafhandelParametersConverter.convertZaakafhandelParameters(
-                        zaakafhandelParameters, false))
+                        zaakafhandelParameters,
+                        false
+                )
+                )
                 .toList();
     }
 
@@ -146,8 +149,7 @@ public class ZaakafhandelParametersRESTService {
     @Path("{zaaktypeUUID}")
     public RESTZaakafhandelParameters readZaakafhandelParameters(@PathParam("zaaktypeUUID") final UUID zaakTypeUUID) {
         assertPolicy(policyService.readOverigeRechten().beheren());
-        final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                zaakTypeUUID);
+        final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID);
         return zaakafhandelParametersConverter.convertZaakafhandelParameters(zaakafhandelParameters, true);
     }
 

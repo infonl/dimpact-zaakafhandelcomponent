@@ -58,7 +58,7 @@ public class FormulierDefinitieService {
         final Root<FormulierDefinitie> root = query.from(FormulierDefinitie.class);
         query.select(root).where(builder.equal(root.get("systeemnaam"), systeemnaam));
         final List<FormulierDefinitie> resultList = entityManager.createQuery(query).getResultList();
-        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
+        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.getFirst());
     }
 
     public FormulierDefinitie createFormulierDefinitie(final FormulierDefinitie formulierDefinitie) {

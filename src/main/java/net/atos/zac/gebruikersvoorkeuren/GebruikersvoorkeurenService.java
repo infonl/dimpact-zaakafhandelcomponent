@@ -90,7 +90,7 @@ public class GebruikersvoorkeurenService {
         query.where(builder.and(predicates.toArray(new Predicate[0])));
         final List<TabelInstellingen> resultList = entityManager.createQuery(query).getResultList();
         if (!resultList.isEmpty()) {
-            return resultList.get(0);
+            return resultList.getFirst();
         } else {
             final TabelInstellingen tabelInstellingen = new TabelInstellingen();
             tabelInstellingen.setLijstID(lijstID);

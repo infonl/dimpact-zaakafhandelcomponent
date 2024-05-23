@@ -99,7 +99,7 @@ public class ConfiguratieService {
         query.where(builder.equal(root.get("code"), code));
         final TypedQuery<Taal> emQuery = entityManager.createQuery(query);
         final List<Taal> talen = emQuery.getResultList();
-        return talen.isEmpty() ? Optional.empty() : Optional.of(talen.get(0));
+        return talen.isEmpty() ? Optional.empty() : Optional.of(talen.getFirst());
     }
 
     public long readMaxFileSizeMB() {

@@ -75,7 +75,7 @@ public class InboxDocumentenService {
         query.select(root).where(builder.equal(root.get(InboxDocument.ENKELVOUDIGINFORMATIEOBJECT_UUID),
                 enkelvoudiginformatieobjectUUID));
         final List<InboxDocument> resultList = entityManager.createQuery(query).getResultList();
-        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
+        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.getFirst());
     }
 
     public InboxDocument read(final UUID enkelvoudiginformatieobjectUUID) {

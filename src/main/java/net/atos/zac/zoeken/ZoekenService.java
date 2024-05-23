@@ -106,7 +106,7 @@ public class ZoekenService {
         zoekParameters.getFilters().forEach((filter, filterParameters) -> {
             if (CollectionUtils.isNotEmpty(filterParameters.waarden())) {
                 final String special = filterParameters.waarden().size() == 1 ? filterParameters.waarden()
-                        .get(0) : null;
+                        .getFirst() : null;
                 if (LEEG.is(special)) {
                     query.addFilterQuery(format("{!tag=%s}!%s:(*)",
                             filter,

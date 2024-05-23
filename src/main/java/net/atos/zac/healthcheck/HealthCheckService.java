@@ -96,7 +96,7 @@ public class HealthCheckService {
         final File buildDatumTijdFile = new File(BUILD_TIMESTAMP_FILE);
         if (buildDatumTijdFile.exists()) {
             try {
-                buildDatumTijd = convertToLocalDateTime(ZonedDateTime.parse(readAllLines(buildDatumTijdFile.toPath()).get(0)));
+                buildDatumTijd = convertToLocalDateTime(ZonedDateTime.parse(readAllLines(buildDatumTijdFile.toPath()).getFirst()));
             } catch (final IOException e) {
                 throw new RuntimeException(e);
             }

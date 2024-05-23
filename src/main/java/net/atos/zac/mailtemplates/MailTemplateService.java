@@ -57,7 +57,7 @@ public class MailTemplateService {
         final Predicate finalPredicate = builder.and(equalPredicate, defaultPredicate);
         query.select(root).where(finalPredicate);
         final List<MailTemplate> resultList = entityManager.createQuery(query).getResultList();
-        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
+        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.getFirst());
     }
 
     public MailTemplate readMailtemplate(final Mail mail) {

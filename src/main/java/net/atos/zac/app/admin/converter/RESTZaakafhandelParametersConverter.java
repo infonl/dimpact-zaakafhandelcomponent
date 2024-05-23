@@ -53,7 +53,8 @@ public class RESTZaakafhandelParametersConverter {
         final RESTZaakafhandelParameters restZaakafhandelParameters = new RESTZaakafhandelParameters();
         restZaakafhandelParameters.id = zaakafhandelParameters.getId();
         restZaakafhandelParameters.zaaktype = restZaaktypeOverzichtConverter.convert(
-                ztcClientService.readZaaktype(zaakafhandelParameters.getZaakTypeUUID()));
+                ztcClientService.readZaaktype(zaakafhandelParameters.getZaakTypeUUID())
+        );
         restZaakafhandelParameters.defaultGroepId = zaakafhandelParameters.getGroepID();
         restZaakafhandelParameters.defaultBehandelaarId = zaakafhandelParameters.getGebruikersnaamMedewerker();
         restZaakafhandelParameters.einddatumGeplandWaarschuwing = zaakafhandelParameters.getEinddatumGeplandWaarschuwing();
@@ -103,7 +104,8 @@ public class RESTZaakafhandelParametersConverter {
             final RESTZaakafhandelParameters restZaakafhandelParameters
     ) {
         final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                restZaakafhandelParameters.zaaktype.uuid);
+                restZaakafhandelParameters.zaaktype.uuid
+        );
         zaakafhandelParameters.setId(restZaakafhandelParameters.id);
         zaakafhandelParameters.setZaakTypeUUID(restZaakafhandelParameters.zaaktype.uuid);
         zaakafhandelParameters.setZaaktypeOmschrijving(restZaakafhandelParameters.zaaktype.omschrijving);

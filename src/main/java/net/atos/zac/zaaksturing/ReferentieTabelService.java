@@ -55,6 +55,6 @@ public class ReferentieTabelService {
         final Root<ReferentieTabel> root = query.from(ReferentieTabel.class);
         query.select(root).where(builder.equal(root.get("code"), code));
         final List<ReferentieTabel> resultList = entityManager.createQuery(query).getResultList();
-        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
+        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.getFirst());
     }
 }
