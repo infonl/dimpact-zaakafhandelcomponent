@@ -7,7 +7,8 @@ Feature: Taken verdelen / vrijgeven
     And there are at least 3 taken
     When "Bob" selects that number of taken
     And "Bob" distributes the taken to the first group available
-    Then "Bob" gets a message confirming that the distribution of taken is complete
+    Then "Bob" gets a message confirming that the distribution of taken is starting
+    And after a while the snackbar disappears
 
   Scenario: Bob releases taken
     Given "Bob" is logged in to zac
@@ -16,4 +17,5 @@ Feature: Taken verdelen / vrijgeven
     And there are at least 3 taken
     When "Bob" selects that number of taken
     And "Bob" releases the taken
-    Then "Bob" gets a message confirming that the releasement of taken is complete
+    Then "Bob" gets a message confirming that the releasement of taken is starting
+    And after a while the snackbar disappears
