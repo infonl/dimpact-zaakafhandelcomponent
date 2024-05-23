@@ -52,13 +52,13 @@ class MailRestServiceTest : BehaviorSpec({
                 addAuthorizationHeader = true
             )
 
-            Then("the responses should be 'ok'") {
+            Then("the response should be 'no-content'") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_STATUS_NO_CONTENT
             }
 
-            And("received mail should contain the right details") {
+            And("the received mail should contain the right details") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
                     url = "http://localhost:8888/api/user/$recieverMail/messages/"
                 )
