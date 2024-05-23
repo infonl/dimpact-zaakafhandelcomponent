@@ -5,7 +5,6 @@
 package nl.lifely.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -20,8 +19,6 @@ import nl.lifely.zac.itest.config.ItestConfiguration.enkelvoudigInformatieObject
 import nl.lifely.zac.itest.config.ItestConfiguration.zaak1UUID
 import okhttp3.Headers
 import org.json.JSONArray
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 
 /**
  * This test assumes previous tests completed successfully.
@@ -30,11 +27,6 @@ import kotlin.time.Duration.Companion.seconds
 class MailRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
-
-    val afterTenSeconds = eventuallyConfig {
-        duration = 10.seconds
-        interval = 500.milliseconds
-    }
 
     Given("A zaak exists and SMTP server is configured") {
         When("A mail is sent") {
