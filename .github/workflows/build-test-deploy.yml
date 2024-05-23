@@ -245,7 +245,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: |
-            build/
+            build
           key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Generate JaCoCo integration test code coverage report

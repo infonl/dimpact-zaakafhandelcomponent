@@ -648,11 +648,11 @@ tasks {
 
     register<Test>("itest") {
         inputs.files(project.tasks.findByPath("compileItestKotlin")!!.outputs.files)
-
         testClassesDirs = sourceSets["itest"].output.classesDirs
         classpath = sourceSets["itest"].runtimeClasspath
-
         systemProperty("zacDockerImage", zacDockerImage)
+        // do not use the Gradle build cache for this task
+        outputs.cacheIf { false }
     }
 
     register<JacocoReport>("jacocoIntegrationTestReport") {
