@@ -468,10 +468,6 @@ services:
       GREENMAIL_OPTS: >-
         -Dgreenmail.smtp.hostname=0.0.0.0
         -Dgreenmail.smtp.port=25
-        -Dgreenmail.imap.hostname=0.0.0.0
-        -Dgreenmail.imap.port=143
-        -Dgreenmail.api.host=0.0.0.0
-        -Dgreenmail.api.port=8080
         -Dgreenmail.hostname=0.0.0.0
         -Dgreenmail.auth.disabled
         -Dgreenmail.verbose
