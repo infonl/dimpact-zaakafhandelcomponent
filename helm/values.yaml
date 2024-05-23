@@ -38,7 +38,7 @@ gemeente:
 mail:
   # SMTP server and port are required, spf record needs to be properly setup in DNS
   smtp:
-    server: "" # localhost
+    server: "" # SMTP server host (for example localhost or in-v3.mailjet.com)
     port: "587" # port 587 for TLS, port 25 for relaying
     username: ""
     password: ""
