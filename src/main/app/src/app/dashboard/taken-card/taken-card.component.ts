@@ -4,10 +4,10 @@
  */
 
 import { Component } from "@angular/core";
+import { SignaleringTaakSummary } from "src/app/signaleringen/model/signalering-taak-summary";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { SignaleringenService } from "../../signaleringen.service";
-import { Taak } from "../../taken/model/taak";
 import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
 
 @Component({
@@ -18,7 +18,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
     "./taken-card.component.less",
   ],
 })
-export class TakenCardComponent extends DashboardCardComponent<Taak> {
+export class TakenCardComponent extends DashboardCardComponent<SignaleringTaakSummary> {
   columns: string[] = [
     "naam",
     "creatiedatumTijd",
