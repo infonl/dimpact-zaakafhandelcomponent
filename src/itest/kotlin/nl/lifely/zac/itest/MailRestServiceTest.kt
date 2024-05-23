@@ -4,21 +4,24 @@
  */
 package nl.lifely.zac.itest
 
-import com.icegreen.greenmail.configuration.GreenMailConfiguration
-import com.icegreen.greenmail.util.GreenMail
-import com.icegreen.greenmail.util.ServerSetup
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldStartWith
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
-import nl.lifely.zac.itest.config.ItestConfiguration.SMTP_SERVER_PORT
+import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_COMPLETED
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.enkelvoudigInformatieObjectUUID
 import nl.lifely.zac.itest.config.ItestConfiguration.zaak1UUID
 import okhttp3.Headers
+import org.json.JSONArray
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * This test assumes previous tests completed successfully.
@@ -27,19 +30,17 @@ import okhttp3.Headers
 class MailRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
-    val greenMail = GreenMail(ServerSetup(SMTP_SERVER_PORT, null, ServerSetup.PROTOCOL_SMTPS))
-        .withConfiguration(GreenMailConfiguration.aConfig().withDisabledAuthentication())
 
-    beforeSpec() {
-        greenMail.start();
-    }
-
-    afterSpec() {
-        greenMail.stop();
+    val afterTenSeconds = eventuallyConfig {
+        duration = 10.seconds
+        interval = 500.milliseconds
     }
 
     Given("A zaak exists and SMTP server is configured") {
         When("A mail is sent") {
+            val recieverMail = "reciever@example.com"
+            val body = "<p><b>bold</b>paragraph<i>italic</i></p>"
+
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/mail/send/$zaak1UUID",
                 headers = Headers.headersOf(
@@ -48,10 +49,10 @@ class MailRestServiceTest : BehaviorSpec({
                 ),
                 requestBodyAsString = """{
                     "verzender": "sender@example.com",
-                    "ontvanger": "reciever@example.com",
+                    "ontvanger": "$recieverMail",
                     "replyTo": "replyTo@example.com",
                     "onderwerp": "subject",
-                    "body": "<p><b>bold</b>paragraph<i>italic</i></p>",
+                    "body": "$body",
                     "bijlagen": "$enkelvoudigInformatieObjectUUID",
                     "createDocumentFromMail": false
                 }
@@ -65,14 +66,26 @@ class MailRestServiceTest : BehaviorSpec({
                 response.code shouldBe HTTP_STATUS_NO_CONTENT
             }
 
-            And("received mail contains the right details") {
-                val emails = greenMail.receivedMessages
-                emails.size shouldBe 1
-                with(emails[0]) {
-                    subject shouldBe "subject"
-                    content shouldBe "<p><b>bold</b>paragraph<i>italic</i></p>"
+            And("received mail should contain the right details") {
+                val receivedMailsResponse = itestHttpClient.performGetRequest(
+                    url = "http://localhost:8888/api/user/$recieverMail/messages/"
+                )
+                receivedMailsResponse.code shouldBe HTTP_STATUS_OK
+
+                val receivedMails = JSONArray(receivedMailsResponse.body!!.string())
+                with(receivedMails) {
+                    length() shouldBe 1
+                    with(getJSONObject(0)) {
+                        getString("subject") shouldBe "subject"
+                        getString("contentType") shouldStartWith "multipart/mixed"
+                        with(getString("mimeMessage")) {
+                            shouldContain(body)
+                            shouldContain("Content-Type: application/text; name=testTextDocument.txt")
+                            shouldContain("Content-Disposition: attachment; filename=testTextDocument.txt")
+                        }
+                    }
                 }
-           }
+            }
         }
     }
 })

@@ -22,7 +22,6 @@ jacoco = "0.8.12"
 
 opa-binary = "0.63.0"
 opa-plugin = "0.4.2"
-greenmail = "2.0.1"
 
 apache-commons-lang = "3.14.0"
 apache-commons-text = "1.12.0"
@@ -156,7 +155,6 @@ testcontainers-testcontainers = { group = "org.testcontainers", name = "testcont
 testcontainers-mockserver = { group = "org.testcontainers", name = "mockserver", version.ref = "testcontainers" }
 testcontainers-postgresql = { group = "org.testcontainers", name = "postgresql", version.ref = "testcontainers" }
 json = { group = "org.json", name = "json", version.ref = "json-json" }
-greenmail = { group = 'com.icegreen', name = 'greenmail', version.ref = 'greenmail' }
 
 slf4j-simple = { group = "org.slf4j", name = "slf4j-simple", version.ref = "slf4j-simple" }
 
