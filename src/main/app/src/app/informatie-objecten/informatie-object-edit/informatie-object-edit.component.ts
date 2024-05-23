@@ -96,6 +96,7 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
       .additionalAllowedFileTypes(
         this.configuratieService.readAdditionalAllowedFileTypes(),
       )
+      .validators(Validators.required)
       .build();
 
     const titel = new InputFormFieldBuilder(this.infoObject.titel)
