@@ -60,7 +60,8 @@ object ItestConfiguration {
     const val TEST_PERSON_HENDRIKA_JANSE_GENDER = "V"
     const val TEST_PERSON_HENDRIKA_JANSE_FULLNAME = "Héndrika Janse"
     const val TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER = "0612345678"
-    const val TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE = "Street ¦ 38 & House ¦ 10, Baghdad, Park Al-Sadoum, Hay Al-Nidhal 103"
+    const val TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE =
+        "Street ¦ 38 & House ¦ 10, Baghdad, Park Al-Sadoum, Hay Al-Nidhal 103"
     const val TEST_PDF_FILE_NAME = "dummyTestDocument.pdf"
     const val TEST_PDF_FILE_SIZE = 9268
     const val TEST_TXT_FILE_NAME = "testTextDocument.txt"
@@ -92,6 +93,7 @@ object ItestConfiguration {
     const val ZAAK_2_IDENTIFICATION = "ZAAK-2023-0000000002"
     const val ZAC_CONTAINER_SERVICE_NAME = "zac"
     const val ZAC_CONTAINER_PORT = 8080
+    const val SMTP_SERVER_PORT = 46500
 
     /**
      * The default ZAC Docker image used when running the integration tests locally.
@@ -131,6 +133,11 @@ object ItestConfiguration {
      * Global variable to store the UUID of a zaak that is created in the integration tests.
      */
     lateinit var zaak1UUID: UUID
+
+    /**
+     * Global variable to store the UUID of an uploaded file in the integration tests.
+     */
+    lateinit var enkelvoudigInformatieObjectUUID: String
 
     /**
      * Global variable to store the fatal date of a zaak that is created in the integration tests.

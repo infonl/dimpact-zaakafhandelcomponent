@@ -177,10 +177,10 @@ dependencies {
     "itestImplementation"(libs.slf4j.simple)
     "itestImplementation"(libs.okhttp)
     "itestImplementation"(libs.okhttp.urlconnection)
-    "itestImplementation"(libs.awaitility)
     "itestImplementation"(libs.auth0.java.jwt)
     "itestImplementation"(libs.github.kotlin.logging)
     "itestImplementation"(libs.kotlin.csv.jvm)
+    "itestImplementation"(libs.greenmail)
 
     jacocoAgentJarForItest(variantOf(libs.jacoco.agent) { classifier("runtime") })
 }
