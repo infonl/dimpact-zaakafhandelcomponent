@@ -173,6 +173,7 @@ class InformatieObjectenTest : BehaviorSpec({
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("uuid", enkelvoudigInformatieObjectUUID)
                     .addFormDataPart("zaakUuid", zaak1UUID.toString())
+                    .addFormDataPart("informatieobjectTypeUUID", INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID)
                     .addFormDataPart("bestandsnaam", TEST_TXT_FILE_NAME)
                     .addFormDataPart("titel", updatedFileTitle)
                     .addFormDataPart("bestandsomvang", TEST_TXT_FILE_SIZE.toString())
