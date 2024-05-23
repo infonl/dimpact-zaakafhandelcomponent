@@ -39,7 +39,7 @@ mail:
   # SMTP server and port are required, spf record needs to be properly setup in DNS
   smtp:
     server: "" # localhost
-    port: "25" # use port 587 for TLS, port 25 is normally used for relaying
+    port: "587" # port 587 for TLS, port 25 for relaying
     username: ""
     password: ""
 
