@@ -30,7 +30,7 @@ class MailRestServiceTest : BehaviorSpec({
 
     Given("A zaak exists and SMTP server is configured") {
         When("A mail is sent") {
-            val recieverMail = "reciever@example.com"
+            val receiverMail = "receiver@example.com"
             val body = "<p><b>bold</b>paragraph<i>italic</i></p>"
 
             val response = itestHttpClient.performJSONPostRequest(
@@ -41,7 +41,7 @@ class MailRestServiceTest : BehaviorSpec({
                 ),
                 requestBodyAsString = """{
                     "verzender": "sender@example.com",
-                    "ontvanger": "$recieverMail",
+                    "ontvanger": "$receiverMail",
                     "replyTo": "replyTo@example.com",
                     "onderwerp": "subject",
                     "body": "$body",
@@ -60,7 +60,7 @@ class MailRestServiceTest : BehaviorSpec({
 
             And("the received mail should contain the right details") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
-                    url = "http://localhost:8888/api/user/$recieverMail/messages/"
+                    url = "http://localhost:8888/api/user/$receiverMail/messages/"
                 )
                 receivedMailsResponse.code shouldBe HTTP_STATUS_OK
 
