@@ -21,9 +21,9 @@ import net.atos.client.zgw.drc.DRCClientService
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieobject
 import net.atos.zac.app.signaleringen.converter.RESTSignaleringInstellingenConverter
+import net.atos.zac.app.signaleringen.converter.RESTSignaleringTaakConverter
 import net.atos.zac.app.signaleringen.model.RESTSignaleringInstellingen
-import net.atos.zac.app.taken.converter.RESTTaakConverter
-import net.atos.zac.app.taken.model.RESTTaak
+import net.atos.zac.app.signaleringen.model.RESTSignaleringTaakSummary
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.identity.IdentityService
@@ -47,10 +47,10 @@ class SignaleringenRestService @Inject constructor(
     private val flowableTaskService: FlowableTaskService,
     private val drcClientService: DRCClientService,
     private val identityService: IdentityService,
-    private val restTaakConverter: RESTTaakConverter,
     private val restInformatieobjectConverter: RESTInformatieobjectConverter,
     private val restSignaleringInstellingenConverter: RESTSignaleringInstellingenConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>,
+    private val restSignaleringTaakConverter: RESTSignaleringTaakConverter,
 ) {
     private fun Instance<LoggedInUser>.getSignaleringZoekParameters() =
         SignaleringZoekParameters(get())
@@ -83,14 +83,18 @@ class SignaleringenRestService @Inject constructor(
 
     @GET
     @Path("/taken/{type}")
-    fun listTakenSignaleringen(@PathParam("type") signaleringsType: SignaleringType.Type): List<RESTTaak> =
+    fun listTakenSignaleringen(
+        @PathParam(
+            "type"
+        ) signaleringsType: SignaleringType.Type
+    ): List<RESTSignaleringTaakSummary> =
         loggedInUserInstance.getSignaleringZoekParameters()
             .types(signaleringsType)
             .subjecttype(SignaleringSubject.TAAK)
             .let { signaleringenService.listSignaleringen(it) }
             .stream()
             .map { flowableTaskService.readTask(it.subject) }
-            .map { restTaakConverter.convert(it) }
+            .map { restSignaleringTaakConverter.convert(it) }
             .toList()
 
     @GET

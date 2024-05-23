@@ -14,7 +14,7 @@ import { WebsocketService } from "./core/websocket/websocket.service";
 import { FoutAfhandelingService } from "./fout-afhandeling/fout-afhandeling.service";
 import { EnkelvoudigInformatieobject } from "./informatie-objecten/model/enkelvoudig-informatieobject";
 import { SignaleringType } from "./shared/signaleringen/signalering-type";
-import { Taak } from "./taken/model/taak";
+import { SignaleringTaakSummary } from "./signaleringen/model/signalering-taak-summary";
 import { ZaakOverzicht } from "./zaken/model/zaak-overzicht";
 
 @Injectable({
@@ -64,9 +64,13 @@ export class SignaleringenService {
     );
   }
 
-  listTakenSignalering(signaleringType: SignaleringType): Observable<Taak[]> {
+  listTakenSignalering(
+    signaleringType: SignaleringType,
+  ): Observable<SignaleringTaakSummary[]> {
     return this.http
-      .get<Taak[]>(`${this.basepath}/taken/${signaleringType}`)
+      .get<
+        SignaleringTaakSummary[]
+      >(`${this.basepath}/taken/${signaleringType}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
