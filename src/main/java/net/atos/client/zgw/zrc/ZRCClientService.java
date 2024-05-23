@@ -380,7 +380,7 @@ public class ZRCClientService {
         } else if (zaakResults.getCount() > 1) {
             throw new IllegalStateException(String.format("Meerdere zaken met identificatie '%s' gevonden", identificatie));
         }
-        return zaakResults.getResults().get(0);
+        return zaakResults.getResults().getFirst();
     }
 
     public void verplaatsInformatieobject(
@@ -398,7 +398,7 @@ public class ZRCClientService {
                     UriUtil.uuidFromURI(informatieobject.getInhoud())));
         }
 
-        final ZaakInformatieobject oudeZaakInformatieobject = zaakInformatieobjecten.get(0);
+        final ZaakInformatieobject oudeZaakInformatieobject = zaakInformatieobjecten.getFirst();
         final ZaakInformatieobject nieuweZaakInformatieObject = new ZaakInformatieobject();
         nieuweZaakInformatieObject.setZaak(nieuweZaak.getUrl());
         nieuweZaakInformatieObject.setInformatieobject(informatieobject.getUrl());
@@ -418,7 +418,7 @@ public class ZRCClientService {
     ) {
         List<ZaakInformatieobject> zaakInformatieobjecten = listZaakinformatieobjecten(informatieobject);
         if (!zaakInformatieobjecten.isEmpty()) {
-            final UUID zaakUuid = UriUtil.uuidFromURI(zaakInformatieobjecten.get(0).getZaak());
+            final UUID zaakUuid = UriUtil.uuidFromURI(zaakInformatieobjecten.getFirst().getZaak());
             throw new IllegalStateException(String.format("Informatieobject is reeds gekoppeld aan zaak '%s'", zaakUuid));
         }
         final ZaakInformatieobject nieuweZaakInformatieObject = new ZaakInformatieobject();

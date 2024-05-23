@@ -106,7 +106,7 @@ public class EnkelvoudigInformatieObjectDownloadService {
     private String getInformatieObjectZipPath(final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
         final List<ZaakInformatieobject> zaakInformatieObjectenList = zrcClientService.listZaakinformatieobjecten(
                 enkelvoudigInformatieobject);
-        final URI zaakUri = zaakInformatieObjectenList.get(0).getZaak();
+        final URI zaakUri = zaakInformatieObjectenList.getFirst().getZaak();
         final String zaakId = zrcClientService.readZaak(zaakUri).getIdentificatie();
         final String subfolder = enkelvoudigInformatieobject.getOntvangstdatum() != null ? RICHTING_INKOMEND :
                 enkelvoudigInformatieobject.getVerzenddatum() != null ? RICHTING_UITGAAND :

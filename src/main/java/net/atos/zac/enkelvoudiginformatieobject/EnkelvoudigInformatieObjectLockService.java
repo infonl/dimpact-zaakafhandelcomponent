@@ -53,7 +53,7 @@ public class EnkelvoudigInformatieObjectLockService {
         query.select(root)
                 .where(builder.equal(root.get("enkelvoudiginformatieobjectUUID"), enkelvoudiginformatieobjectUUID));
         final List<EnkelvoudigInformatieObjectLock> resultList = entityManager.createQuery(query).getResultList();
-        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
+        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.getFirst());
     }
 
     public EnkelvoudigInformatieObjectLock readLock(final UUID enkelvoudiginformatieobjectUUID) {

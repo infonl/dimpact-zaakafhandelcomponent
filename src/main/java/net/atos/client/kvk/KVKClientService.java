@@ -94,7 +94,7 @@ public class KVKClientService {
     private Optional<ResultaatItem> convertToSingleItem(final Resultaat resultaat) {
         return switch (resultaat.getTotaal()) {
             case 0 -> Optional.empty();
-            case 1 -> Optional.of(resultaat.getResultaten().get(0));
+            case 1 -> Optional.of(resultaat.getResultaten().getFirst());
             default -> throw new IllegalStateException("Too many results: %d".formatted(resultaat.getAantal()));
         };
     }

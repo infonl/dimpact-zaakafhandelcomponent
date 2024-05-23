@@ -5,20 +5,6 @@
 
 package net.atos.zac.zaaksturing;
 
-import static net.atos.zac.util.ValidationUtil.valideerObject;
-import static net.atos.zac.zaaksturing.model.ZaakafhandelParameters.CREATIEDATUM;
-import static net.atos.zac.zaaksturing.model.ZaakafhandelParameters.PRODUCTAANVRAAGTYPE;
-import static net.atos.zac.zaaksturing.model.ZaakafhandelParameters.ZAAKTYPE_OMSCHRIJVING;
-import static net.atos.zac.zaaksturing.model.ZaakafhandelParameters.ZAAKTYPE_UUID;
-
-import java.net.URI;
-import java.time.ZonedDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.logging.Logger;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -28,7 +14,6 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
-
 import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.client.zgw.ztc.model.generated.ResultaatType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
@@ -40,6 +25,20 @@ import net.atos.zac.zaaksturing.model.UserEventListenerParameters;
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
 import net.atos.zac.zaaksturing.model.ZaakbeeindigParameter;
 import net.atos.zac.zaaksturing.model.ZaakbeeindigReden;
+
+import java.net.URI;
+import java.time.ZonedDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.logging.Logger;
+
+import static net.atos.zac.util.ValidationUtil.valideerObject;
+import static net.atos.zac.zaaksturing.model.ZaakafhandelParameters.CREATIEDATUM;
+import static net.atos.zac.zaaksturing.model.ZaakafhandelParameters.PRODUCTAANVRAAGTYPE;
+import static net.atos.zac.zaaksturing.model.ZaakafhandelParameters.ZAAKTYPE_OMSCHRIJVING;
+import static net.atos.zac.zaaksturing.model.ZaakafhandelParameters.ZAAKTYPE_UUID;
 
 @ApplicationScoped
 @Transactional
@@ -64,7 +63,7 @@ public class ZaakafhandelParameterBeheerService {
         query.select(root).where(builder.equal(root.get(ZAAKTYPE_UUID), zaaktypeUUID));
         final List<ZaakafhandelParameters> resultList = entityManager.createQuery(query).getResultList();
         if (!resultList.isEmpty()) {
-            return resultList.get(0);
+            return resultList.getFirst();
         } else {
             final ZaakafhandelParameters zaakafhandelParameters = new ZaakafhandelParameters();
             zaakafhandelParameters.setZaakTypeUUID(zaaktypeUUID);
@@ -108,11 +107,20 @@ public class ZaakafhandelParameterBeheerService {
         query.orderBy(builder.desc(root.get(CREATIEDATUM)));
         final List<UUID> resultList = entityManager.createQuery(query).getResultList();
         if (!resultList.isEmpty()) {
+            // note that we currently do not check if a zaakafhandelparameter record
+            // is actually 'active' or not
+            // we should probably only check for active/current zaakafhandelparameters here
             if (resultList.size() > 1) {
-                LOG.warning(String.format("Er zijn meerdere zaaktypes gevonden voor productaanvraag type: '%s'",
-                        productaanvraagType));
+                LOG.warning(
+                        String.format(
+                                "Multiple zaaktypes have been found for productaanvraag type: '%s'. " +
+                                "Using the first one, with zaaktype UUID: '%s'.",
+                                productaanvraagType,
+                                resultList.getFirst()
+                        )
+                );
             }
-            return Optional.of(resultList.get(0));
+            return Optional.of(resultList.getFirst());
         }
         return Optional.empty();
     }
@@ -173,7 +181,7 @@ public class ZaakafhandelParameterBeheerService {
         query.orderBy(builder.desc(root.get(CREATIEDATUM)));
         final List<ZaakafhandelParameters> resultList = entityManager.createQuery(query).setMaxResults(1).getResultList();
         if (!resultList.isEmpty()) {
-            return resultList.get(0);
+            return resultList.getFirst();
         } else {
             return new ZaakafhandelParameters();
         }

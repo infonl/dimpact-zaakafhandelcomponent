@@ -71,7 +71,7 @@ public class Results<T> {
         if (isEmpty(results)) {
             return Optional.empty();
         } else if (results.size() == 1) {
-            return Optional.of(results.get(0));
+            return Optional.of(results.getFirst());
         } else {
             throw new IllegalStateException(String.format("More then one result found (count: %d)", count));
         }

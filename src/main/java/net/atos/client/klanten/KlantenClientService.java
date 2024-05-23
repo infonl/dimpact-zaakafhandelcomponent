@@ -64,7 +64,7 @@ public class KlantenClientService {
     private Optional<Klant> convertToSingleItem(final KlantList200Response response) {
         return switch (response.getResults().size()) {
             case 0 -> Optional.empty();
-            case 1 -> Optional.of(response.getResults().get(0));
+            case 1 -> Optional.of(response.getResults().getFirst());
             default -> throw new IllegalStateException("Too many results: %d".formatted(response.getResults().size()));
         };
     }

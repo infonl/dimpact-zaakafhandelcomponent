@@ -54,7 +54,7 @@ public class DocumentZoekObjectConverter extends AbstractZoekObjectConverter<Doc
         if (zaakInformatieobjecten.isEmpty()) {
             return null;
         }
-        return convert(document, zaakInformatieobjecten.get(0));
+        return convert(document, zaakInformatieobjecten.getFirst());
     }
 
     private DocumentZoekObject convert(

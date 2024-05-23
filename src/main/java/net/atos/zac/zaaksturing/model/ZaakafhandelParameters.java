@@ -322,8 +322,9 @@ public class ZaakafhandelParameters {
      * @return true indien er een zaak kan worden gestart
      */
     public boolean isValide() {
-        return StringUtils.isNotBlank(groepID) && StringUtils.isNotBlank(
-                caseDefinitionID) && nietOntvankelijkResultaattype != null;
+        return StringUtils.isNotBlank(groepID) &&
+               StringUtils.isNotBlank(caseDefinitionID) &&
+               nietOntvankelijkResultaattype != null;
     }
 
 
