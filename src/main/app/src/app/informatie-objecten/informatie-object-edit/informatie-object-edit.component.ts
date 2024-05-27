@@ -18,6 +18,7 @@ import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
 import { Subscription, tap } from "rxjs";
 import { FileInputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/file-input/file-input-form-field-builder";
+import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -38,7 +39,6 @@ import { EnkelvoudigInformatieObjectVersieGegevens } from "../model/enkelvoudig-
 import { EnkelvoudigInformatieobject } from "../model/enkelvoudig-informatieobject";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
 import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
-import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
 
 @Component({
   selector: "zac-informatie-object-edit",
@@ -203,9 +203,7 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
       vorigeBestandsnaam = "" + titelCtrl.value;
     });
 
-    const emptyColumn = new ParagraphFormFieldBuilder()
-      .text("")  
-      .build()
+    const emptyColumn = new ParagraphFormFieldBuilder().text("").build();
 
     this.fields = [
       [inhoudField],
