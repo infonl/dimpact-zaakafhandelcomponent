@@ -6,8 +6,5 @@ package net.atos.client.sd.model
 
 class File {
     lateinit var fileName: String
-
     lateinit var document: Document
-
-    var outputFormat: String? = null
 }
