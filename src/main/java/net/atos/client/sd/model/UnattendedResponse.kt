@@ -2,15 +2,11 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.client.sd.model
 
-package net.atos.client.sd.model;
+import jakarta.json.bind.annotation.JsonbProperty
 
-import java.util.List;
-
-import jakarta.json.bind.annotation.JsonbProperty;
-
-public class UnattendedResponse {
-
+class UnattendedResponse {
     @JsonbProperty("file")
-    public List<File> files;
+    var files: List<File>? = null
 }

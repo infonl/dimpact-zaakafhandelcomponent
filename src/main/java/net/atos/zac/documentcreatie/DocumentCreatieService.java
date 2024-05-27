@@ -98,7 +98,7 @@ public class DocumentCreatieService {
             return new DocumentCreatieResponse(
                     UriBuilder.fromUri(smartDocumentsURL)
                             .path("smartdocuments/wizard")
-                            .queryParam("ticket", wizardResponse.ticket)
+                            .queryParam("ticket", wizardResponse.getTicket())
                             .build()
             );
         } catch (final BadRequestException badRequestException) {
@@ -109,10 +109,10 @@ public class DocumentCreatieService {
 
     private SmartDocument createSmartDocument(final DocumentCreatieGegevens documentCreatieGegevens) {
         final SmartDocument smartDocument = new SmartDocument();
-        smartDocument.selection = new Selection();
-        smartDocument.selection.templateGroup = ztcClientService.readZaaktype(
-                documentCreatieGegevens.getZaak().getZaaktype()
-        ).getOmschrijving();
+        smartDocument.setSelection(new Selection());
+        smartDocument.getSelection().setTemplateGroup(
+            ztcClientService.readZaaktype(documentCreatieGegevens.getZaak().getZaaktype()).getOmschrijving()
+        );
         return smartDocument;
     }
 

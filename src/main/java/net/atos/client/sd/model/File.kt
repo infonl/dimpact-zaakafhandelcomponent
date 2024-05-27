@@ -2,14 +2,12 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.client.sd.model
 
-package net.atos.client.sd.model;
+class File {
+    var fileName: String? = null
 
-public class File {
+    var document: Document? = null
 
-    public String fileName;
-
-    public Document document;
-
-    public String outputFormat;
+    var outputFormat: String? = null
 }

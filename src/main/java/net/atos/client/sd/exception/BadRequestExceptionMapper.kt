@@ -2,23 +2,16 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.client.sd.exception
 
-package net.atos.client.sd.exception;
+import jakarta.ws.rs.core.MultivaluedMap
+import jakarta.ws.rs.core.Response
+import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper
 
-import jakarta.ws.rs.core.MultivaluedMap;
-import jakarta.ws.rs.core.Response;
+class BadRequestExceptionMapper : ResponseExceptionMapper<BadRequestException> {
+    override fun handles(status: Int, headers: MultivaluedMap<String, Any>): Boolean =
+        status == Response.Status.BAD_REQUEST.statusCode
 
-import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
-
-public class BadRequestExceptionMapper implements ResponseExceptionMapper<BadRequestException> {
-
-    @Override
-    public boolean handles(final int status, final MultivaluedMap<String, Object> headers) {
-        return status == Response.Status.BAD_REQUEST.getStatusCode();
-    }
-
-    @Override
-    public BadRequestException toThrowable(final Response response) {
-        return new BadRequestException();
-    }
+    override fun toThrowable(response: Response): BadRequestException =
+        BadRequestException()
 }

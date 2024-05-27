@@ -2,13 +2,11 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.client.sd.model
 
-package net.atos.client.sd.model;
+import jakarta.json.bind.annotation.JsonbProperty
 
-import jakarta.json.bind.annotation.JsonbProperty;
-
-public class Deposit {
-
+open class Deposit {
     @JsonbProperty("SmartDocument")
-    public SmartDocument smartDocument;
+    var smartDocument: SmartDocument? = null
 }

@@ -2,16 +2,14 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.client.sd.model
 
-package net.atos.client.sd.model;
+import jakarta.json.bind.annotation.JsonbProperty
 
-import jakarta.json.bind.annotation.JsonbProperty;
-
-public class Selection {
-
+class Selection {
     @JsonbProperty("TemplateGroup")
-    public String templateGroup;
+    var templateGroup: String? = null
 
     @JsonbProperty("Template")
-    public String template;
+    var template: String? = null
 }
