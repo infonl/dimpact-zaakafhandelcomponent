@@ -4,4 +4,6 @@
  */
 package net.atos.client.sd.model
 
-data class WizardResponse(val ticket: String? = null)
+class WizardResponse {
+    var ticket: String? = null
+}

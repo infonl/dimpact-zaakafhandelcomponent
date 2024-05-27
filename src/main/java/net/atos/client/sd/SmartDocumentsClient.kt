@@ -19,9 +19,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 
 @RegisterRestClient(configKey = "SD-Client")
 @RegisterProvider(BadRequestExceptionMapper::class)
-@RegisterProvider(
-    RuntimeExceptionMapper::class
-)
+@RegisterProvider(RuntimeExceptionMapper::class)
 @Path("wsxmldeposit")
 @Produces(MediaType.APPLICATION_JSON)
 interface SmartDocumentsClient {
