@@ -325,11 +325,19 @@ public class RESTInformatieobjectConverter {
     ) {
         final EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieObjectWithLockData = createEnkelvoudigInformatieObjectWithLockData(
                 restEnkelvoudigInformatieObjectVersieGegevens);
-        enkelvoudigInformatieObjectWithLockData.setInhoud(convertByteArrayToBase64String(
-                restEnkelvoudigInformatieObjectVersieGegevens.file));
-        enkelvoudigInformatieObjectWithLockData.setBestandsnaam(restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam);
-        enkelvoudigInformatieObjectWithLockData.setBestandsomvang(restEnkelvoudigInformatieObjectVersieGegevens.file.length);
-        enkelvoudigInformatieObjectWithLockData.setFormaat(restEnkelvoudigInformatieObjectVersieGegevens.formaat);
+        if (
+            restEnkelvoudigInformatieObjectVersieGegevens.file != null &&
+            restEnkelvoudigInformatieObjectVersieGegevens.file.length > 0 &&
+            restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam != null &&
+            restEnkelvoudigInformatieObjectVersieGegevens.formaat != null
+        ) {
+            enkelvoudigInformatieObjectWithLockData.setInhoud(convertByteArrayToBase64String(
+                    restEnkelvoudigInformatieObjectVersieGegevens.file));
+            enkelvoudigInformatieObjectWithLockData.setBestandsnaam(restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam);
+            enkelvoudigInformatieObjectWithLockData.setBestandsomvang(restEnkelvoudigInformatieObjectVersieGegevens.file.length);
+            enkelvoudigInformatieObjectWithLockData.setFormaat(restEnkelvoudigInformatieObjectVersieGegevens.formaat);
+        }
+
         enkelvoudigInformatieObjectWithLockData.setInformatieobjecttype(ztcClientService.readInformatieobjecttype(
                 restEnkelvoudigInformatieObjectVersieGegevens.informatieobjectTypeUUID)
                 .getUrl());
