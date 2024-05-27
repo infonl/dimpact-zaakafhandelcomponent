@@ -15,13 +15,9 @@ public class WizardRequest extends Deposit {
     public final Data data;
 
     public WizardRequest(final SmartDocument smartDocument, final Registratie registratie, final Data data) {
-        this.smartDocument = smartDocument;
+        this.setSmartDocument(smartDocument);
         this.registratie = registratie;
         this.data = data;
-    }
-
-    public SmartDocument getSmartDocument() {
-        return smartDocument;
     }
 
     public Registratie getRegistratie() {
