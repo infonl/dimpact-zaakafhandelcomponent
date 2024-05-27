@@ -95,7 +95,6 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
       .additionalAllowedFileTypes(
         this.configuratieService.readAdditionalAllowedFileTypes(),
       )
-      .validators(Validators.required)
       .build();
 
     const titel = new InputFormFieldBuilder(this.infoObject.titel)
@@ -279,7 +278,7 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
           nieuweVersie[key] = InformatieobjectStatus[value.value.toUpperCase()];
         } else if (key === "vertrouwelijkheidaanduiding") {
           nieuweVersie[key] = value.value;
-        } else if (key === "bestand") {
+        } else if (key === "bestand" && value) {
           nieuweVersie["bestandsnaam"] = value.name;
           nieuweVersie["file"] = value;
           nieuweVersie["formaat"] = value.type;
