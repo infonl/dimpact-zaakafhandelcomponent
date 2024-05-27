@@ -38,6 +38,7 @@ import { EnkelvoudigInformatieObjectVersieGegevens } from "../model/enkelvoudig-
 import { EnkelvoudigInformatieobject } from "../model/enkelvoudig-informatieobject";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
 import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
+import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
 
 @Component({
   selector: "zac-informatie-object-edit",
@@ -202,12 +203,16 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
       vorigeBestandsnaam = "" + titelCtrl.value;
     });
 
+    const emptyColumn = new ParagraphFormFieldBuilder()
+      .text("")  
+      .build()
+
     this.fields = [
       [inhoudField],
       [titel],
       [beschrijving],
-      [status, vertrouwelijk],
-      [informatieobjectType],
+      [informatieobjectType, vertrouwelijk],
+      [status, emptyColumn],
       [auteur, taal],
       [ontvangstDatum, verzenddatum],
       [toelichting],
