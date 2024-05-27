@@ -11,6 +11,7 @@ export class FormConfig {
   partialButtonIcon: string;
   saveButtonIcon: string;
   cancelButtonIcon: string;
+  requireUserChanges: boolean;
 
   constructor() {}
 }

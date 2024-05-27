@@ -74,6 +74,7 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
     this.formConfig = new FormConfigBuilder()
       .saveText("actie.toevoegen")
       .cancelText("actie.annuleren")
+      .requireUserChanges()
       .build();
     this.getIngelogdeMedewerker();
 
@@ -152,11 +153,11 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
     const types = this.informatieObjectenService
       .listInformatieobjecttypesForZaak(this.zaakUuid)
       .pipe(
-        tap((x) =>
-          informatieobjectType.value(
+        tap((x) => {
+          informatieobjectType.formControl.setValue(
             x.find((y) => y.uuid === this.infoObject.informatieobjectTypeUUID),
-          ),
-        ),
+          );
+        }),
       );
 
     const informatieobjectType = new SelectFormFieldBuilder()

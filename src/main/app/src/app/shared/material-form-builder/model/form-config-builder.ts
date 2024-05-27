@@ -42,6 +42,11 @@ export class FormConfigBuilder {
     return this;
   }
 
+  requireUserChanges(requireUserChanges = true): this {
+    this.formConfig.requireUserChanges = requireUserChanges;
+    return this;
+  }
+
   build(): FormConfig {
     return this.formConfig;
   }

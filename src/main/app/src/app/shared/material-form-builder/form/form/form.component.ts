@@ -58,6 +58,17 @@ export class FormComponent {
         }
       });
     }
+    this.formGroup.setValidators((x) => {
+      if (!this._config?.requireUserChanges) return null;
+      const hasChanges = Object.values((x as FormGroup).controls).some(
+        (x) => !x.pristine,
+      );
+      return hasChanges
+        ? null
+        : {
+            noChanges: true,
+          };
+    });
   }
 
   reset() {
