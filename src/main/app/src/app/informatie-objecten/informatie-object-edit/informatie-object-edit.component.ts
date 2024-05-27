@@ -210,7 +210,7 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
       [titel],
       [beschrijving],
       [informatieobjectType, vertrouwelijk],
-      [status, emptyColumn],
+      [status, emptyField],
       [auteur, taal],
       [ontvangstDatum, verzenddatum],
       [toelichting],
