@@ -111,7 +111,7 @@ public class DocumentCreatieService {
         final SmartDocument smartDocument = new SmartDocument();
         smartDocument.setSelection(new Selection());
         smartDocument.getSelection().setTemplateGroup(
-            ztcClientService.readZaaktype(documentCreatieGegevens.getZaak().getZaaktype()).getOmschrijving()
+                ztcClientService.readZaaktype(documentCreatieGegevens.getZaak().getZaaktype()).getOmschrijving()
         );
         return smartDocument;
     }
