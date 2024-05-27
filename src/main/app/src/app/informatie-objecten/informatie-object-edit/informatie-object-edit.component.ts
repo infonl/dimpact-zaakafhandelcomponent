@@ -203,7 +203,7 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
       vorigeBestandsnaam = "" + titelCtrl.value;
     });
 
-    const emptyColumn = new ParagraphFormFieldBuilder().text("").build();
+    const emptyField = new ParagraphFormFieldBuilder().text("").build();
 
     this.fields = [
       [inhoudField],
