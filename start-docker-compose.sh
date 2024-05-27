@@ -58,7 +58,6 @@ while getopts ':dtzblh' OPTION; do
     b)
       startZac=true
       buildZac=true
-      localZac=true
       ;;
     l)
       startZac=true
@@ -87,6 +86,7 @@ fi
 if [ "$buildZac" = "true" ]; then
     echo "Building ZAC Docker Image ..."
     ./gradlew buildDockerImage
+    export ZAC_DOCKER_IMAGE=ghcr.io/infonl/zaakafhandelcomponent:dev
 fi
 if [ "$localZac" = "true" ]; then
     echo "Using local ZAC Docker Image ..."

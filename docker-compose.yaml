@@ -534,7 +534,7 @@ services:
       - ZGW_API_URL_EXTERN=http://localhost:8001/
       - SMTP_SERVER=${SMTP_SERVER:-in-v3.mailjet.com}
       - SMTP_PORT=${SMTP_PORT:-587}
-      - SMTP_USERNAME=${SMTP_USER:-dummyMailjetApiKey}
+      - SMTP_USERNAME=${SMTP_USERNAME:-dummyMailjetApiKey}
       - SMTP_PASSWORD=${SMTP_PASSWORD:-dummyMailjetApiSecretKey}
     ports:
       - "8080:8080"

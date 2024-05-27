@@ -56,9 +56,7 @@ class ProjectConfig : AbstractProjectConfig() {
         "ZAC_DOCKER_IMAGE" to zacDockerImage,
         "SD_CLIENT_MP_REST_URL" to SMARTDOCUMENTS_MOCK_BASE_URI,
         "SMTP_SERVER" to "greenmail",
-        "SMTP_PORT" to SMTP_SERVER_PORT.toString(),
-        "SMTP_USERNAME" to "email",
-        "SMTP_PASSWORD" to "email"
+        "SMTP_PORT" to SMTP_SERVER_PORT.toString()
     )
 
     override suspend fun beforeProject() {
