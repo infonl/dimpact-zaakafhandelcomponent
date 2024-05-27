@@ -8,5 +8,5 @@ import jakarta.json.bind.annotation.JsonbProperty
 
 class SmartDocument {
     @JsonbProperty("Selection")
-    var selection: Selection? = null
+    lateinit var selection: Selection
 }

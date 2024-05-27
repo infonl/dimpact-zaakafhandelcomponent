@@ -5,11 +5,9 @@
 package net.atos.client.sd.model
 
 import jakarta.json.bind.annotation.JsonbProperty
+import nl.lifely.zac.util.AllOpen
 
-class Selection {
-    @JsonbProperty("TemplateGroup")
-    var templateGroup: String? = null
-
-    @JsonbProperty("Template")
-    var template: String? = null
+class Deposit {
+    @JsonbProperty("SmartDocument")
+    lateinit var smartDocument: SmartDocument
 }
