@@ -5,9 +5,8 @@
 package net.atos.client.sd.model
 
 import jakarta.json.bind.annotation.JsonbProperty
-import nl.lifely.zac.util.AllOpen
 
-class Deposit {
+open class Deposit {
     @JsonbProperty("SmartDocument")
     lateinit var smartDocument: SmartDocument
 }

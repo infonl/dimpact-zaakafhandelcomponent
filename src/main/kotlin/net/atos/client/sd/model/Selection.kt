@@ -11,5 +11,5 @@ class Selection {
     var templateGroup: String? = null
 
     @JsonbProperty("Template")
-    lateinit var template: String
+    var template: String? = null
 }
