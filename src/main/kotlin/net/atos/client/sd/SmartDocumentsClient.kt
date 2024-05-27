@@ -26,16 +26,16 @@ interface SmartDocumentsClient {
     @POST
     @Path("deposit/unattended")
     fun unattendedDeposit(
-        @HeaderParam("Authorization") authenticationToken: String?,
-        @HeaderParam("Username") username: String?,
-        deposit: Deposit?
-    ): UnattendedResponse?
+        @HeaderParam("Authorization") authenticationToken: String,
+        @HeaderParam("Username") username: String,
+        deposit: Deposit
+    ): UnattendedResponse
 
     @POST
     @Path("deposit/wizard")
     fun wizardDeposit(
-        @HeaderParam("Authorization") authenticationToken: String?,
-        @HeaderParam("Username") username: String?,
-        deposit: Deposit?
-    ): WizardResponse?
+        @HeaderParam("Authorization") authenticationToken: String,
+        @HeaderParam("Username") username: String,
+        deposit: Deposit
+    ): WizardResponse
 }
