@@ -21,18 +21,22 @@ fun createWizardResponse(
 
 fun createUserGroup(name: String) = UserGroup().apply {
     this.groupsAccess = GroupsAccess().apply {
-        this.templateGroups = listOf(TemplateGroup().apply {
-            this.id = UUID.randomUUID().toString()
-            this.name = "Dimpact"
-            this.allDescendants = true
-        })
+        this.templateGroups = listOf(
+            TemplateGroup().apply {
+                this.id = UUID.randomUUID().toString()
+                this.name = "Dimpact"
+                this.allDescendants = true
+            }
+        )
         this.headerGroups = emptyList()
     }
     this.userGroups = emptyList()
-    this.users = listOf(User().apply {
-        this.id = UUID.randomUUID().toString()
-        this.name = "zaakafhandelcomponent"
-    })
+    this.users = listOf(
+        User().apply {
+            this.id = UUID.randomUUID().toString()
+            this.name = "zaakafhandelcomponent"
+        }
+    )
     this.accessible = true
     this.id = UUID.randomUUID().toString()
     this.name = name
@@ -106,13 +110,15 @@ fun createTemplateGroups() = listOf(
 fun createListTemplatesResponse() = TemplatesResponse().apply {
     this.documentsStructure = DocumentsStructure().apply {
         this.templatesStructure = TemplatesStructure().apply {
-            this.templateGroups = listOf(TemplateGroup().apply {
-                this.templateGroups = createTemplateGroups()
-                this.templates = createTemplates()
-                this.accessible = true
-                this.id = UUID.randomUUID().toString()
-                this.name = "Dimpact"
-            })
+            this.templateGroups = listOf(
+                TemplateGroup().apply {
+                    this.templateGroups = createTemplateGroups()
+                    this.templates = createTemplates()
+                    this.accessible = true
+                    this.id = UUID.randomUUID().toString()
+                    this.name = "Dimpact"
+                }
+            )
             this.accessible = true
         }
         this.headersStructure = HeadersStructure().apply {

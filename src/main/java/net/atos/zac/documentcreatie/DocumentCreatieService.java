@@ -17,12 +17,12 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.UriBuilder;
 
-import net.atos.client.sd.model.templates.TemplatesResponse;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import net.atos.client.sd.SmartDocumentsClient;
 import net.atos.client.sd.exception.BadRequestException;
+import net.atos.client.sd.model.templates.TemplatesResponse;
 import net.atos.client.sd.model.wizard.Selection;
 import net.atos.client.sd.model.wizard.SmartDocument;
 import net.atos.client.sd.model.wizard.WizardResponse;
@@ -138,8 +138,8 @@ public class DocumentCreatieService {
         final LoggedInUser loggedInUser = loggedInUserInstance.get();
         final String userName = fixedUserName.orElse(loggedInUser.getId());
         return smartDocumentsClient.listTemplates(
-            format("Basic %s", authenticationToken),
-            userName
+                format("Basic %s", authenticationToken),
+                userName
         );
     }
 }
