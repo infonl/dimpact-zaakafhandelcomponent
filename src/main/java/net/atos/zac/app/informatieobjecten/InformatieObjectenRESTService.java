@@ -42,7 +42,6 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
 import jakarta.ws.rs.core.UriInfo;
 
-import net.atos.client.sd.model.templates.TemplatesResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.flowable.task.api.Task;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;

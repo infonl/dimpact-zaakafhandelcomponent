@@ -92,7 +92,7 @@ class DocumentCreatieServiceTest : BehaviorSpec({
             Then("it should return a list of templates") {
                 with(templatesList.documentsStructure.templatesStructure.templateGroups) {
                     size shouldBe 1
-                    with (first()) {
+                    with(first()) {
                         name shouldBe "Dimpact"
                         templateGroups!!.size shouldBe 4
                         templateGroups!!.first().name shouldBe "Intern zaaktype voor test volledig gebruik ZAC"
