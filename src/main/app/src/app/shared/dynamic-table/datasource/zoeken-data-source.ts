@@ -148,14 +148,18 @@ export abstract class ZoekenDataSource<
    */
   initColumns(defaultColumns: Map<ZoekenColumn, ColumnPickerValue>): void {
     const key = this.werklijst + "Columns";
-    const columnsString = JSON.stringify(Array.from(defaultColumns.entries()));
-    const sessionColumns: string = SessionStorageUtil.getItem(
+    const sessionColumnsString = SessionStorageUtil.getItem<string | undefined>(
       key,
-      columnsString,
     );
-    const columns: Map<ZoekenColumn, ColumnPickerValue> = new Map(
-      JSON.parse(sessionColumns),
+    const sessionColumns: Map<ZoekenColumn, ColumnPickerValue> | undefined =
+      sessionColumnsString && new Map(JSON.parse(sessionColumnsString));
+    // sometimes we remove / add columns based on the logged in user / policies.
+    // to support switching between users within the same session, the default columns must be leading.
+    // we only map the ColumnPickerValues from session storage for columns that are in the default column list.
+    const mergedEntries = [...defaultColumns.entries()].map(
+      ([k, v]) => [k, sessionColumns?.get(k) || v] as const,
     );
+    const columns = new Map(mergedEntries);
     this._defaultColumns = defaultColumns;
     this._columns = columns;
     this._sessionKey = key;
