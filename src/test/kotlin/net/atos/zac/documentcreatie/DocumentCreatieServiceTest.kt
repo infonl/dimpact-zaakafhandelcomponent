@@ -87,11 +87,18 @@ class DocumentCreatieServiceTest : BehaviorSpec({
         } returns templatesResponse
 
         When("list templates is called") {
-            val templates = documentCreatieService.listTemplates()
+            val templatesList = documentCreatieService.listTemplates()
 
             Then("it should return a list of templates") {
-                with(templates.documentsStructure.templatesStructure) {
-                    templateGroups.size shouldBe 2
+                with(templatesList.documentsStructure.templatesStructure.templateGroups) {
+                    size shouldBe 1
+                    with (first()) {
+                        name shouldBe "Dimpact"
+                        templateGroups!!.size shouldBe 4
+                        templateGroups!!.first().name shouldBe "Intern zaaktype voor test volledig gebruik ZAC"
+                        templates!!.size shouldBe 16
+                        templates!!.first().name shouldBe "Aanvullende informatie nieuw"
+                    }
                 }
             }
         }
