@@ -13,6 +13,6 @@ class RuntimeExceptionMapper : ResponseExceptionMapper<RuntimeException> {
         status >= Response.Status.INTERNAL_SERVER_ERROR.statusCode
 
     override fun toThrowable(response: Response): RuntimeException = RuntimeException(
-        "Server response from SmartDocuments wsxmldeposit: ${response.status} (${response.statusInfo})"
+        "Server response from SmartDocuments: ${response.location} ${response.status} (${response.statusInfo})"
     )
 }
