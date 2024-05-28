@@ -4,4 +4,4 @@
  */
 package net.atos.client.sd.exception
 
-class BadRequestException : RuntimeException()
+class BadRequestException(message: String?) : RuntimeException(message)
