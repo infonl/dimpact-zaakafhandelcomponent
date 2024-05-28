@@ -102,8 +102,9 @@ public class DocumentCreatieService {
                             .build()
             );
         } catch (final BadRequestException badRequestException) {
-            return new DocumentCreatieResponse(
-                    "Aanmaken van een document is helaas niet mogelijk. (ben je als user geregistreerd in SmartDocuments?)");
+            return new DocumentCreatieResponse("Aanmaken van een document is helaas niet mogelijk. " +
+                                               "Ben je als user geregistreerd in SmartDocuments? " +
+                                               "Details: " + badRequestException.getMessage());
         }
     }
 

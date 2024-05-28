@@ -12,7 +12,7 @@ class BadRequestExceptionMapper : ResponseExceptionMapper<BadRequestException> {
     override fun handles(status: Int, headers: MultivaluedMap<String, Any>): Boolean =
         status == Response.Status.BAD_REQUEST.statusCode
 
-    override fun toThrowable(response: Response): BadRequestException =  BadRequestException(
+    override fun toThrowable(response: Response): BadRequestException = BadRequestException(
         "SmartDocuments responded with 400 Bad Request: ${response.location} (${response.statusInfo})"
     )
 }
