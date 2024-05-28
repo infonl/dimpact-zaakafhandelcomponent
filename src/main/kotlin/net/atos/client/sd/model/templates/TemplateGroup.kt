@@ -7,11 +7,11 @@ package net.atos.client.sd.model.templates
 import nl.lifely.zac.util.NoArgConstructor
 
 @NoArgConstructor
-data class TemplateGroup(
-    val id: String,
-    var name: String,
-    var templateGroups: List<TemplateGroup>,
-    var templates: List<Template>,
-    var accessible: Boolean = false,
+class TemplateGroup {
+    lateinit var id: String
+    lateinit var name: String
+    lateinit var templateGroups: List<TemplateGroup>
+    lateinit var templates: List<Template>
+    var accessible: Boolean = false
     var allDescendants: Boolean = false
-)
+}

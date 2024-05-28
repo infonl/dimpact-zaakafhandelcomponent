@@ -589,7 +589,6 @@ public class InformatieObjectenRESTService {
         );
         final DocumentCreatieResponse documentCreatieResponse = documentCreatieService.creeerDocumentAttendedSD(
                 documentCreatieGegevens);
-        final TemplatesResponse templatesResponse = documentCreatieService.listTemplates();
         return new RESTDocumentCreatieResponse(documentCreatieResponse.getRedirectUrl(),
                 documentCreatieResponse.getMessage());
     }

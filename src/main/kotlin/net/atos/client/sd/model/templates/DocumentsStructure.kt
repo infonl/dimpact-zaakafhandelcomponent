@@ -7,7 +7,7 @@ package net.atos.client.sd.model.templates
 import nl.lifely.zac.util.NoArgConstructor
 
 @NoArgConstructor
-data class DocumentsStructure(
-    var templatesStructure: TemplatesStructure,
-    var headersStructure: HeadersStructure
-)
+class DocumentsStructure {
+    lateinit var templatesStructure: TemplatesStructure
+    lateinit var headersStructure: HeadersStructure
+}
