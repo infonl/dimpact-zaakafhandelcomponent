@@ -61,18 +61,38 @@ class DocumentCreatieServiceTest : BehaviorSpec({
         } returns wizardResponse
 
         When("the create attended document method is called") {
-            val documentCreatieReponse = documentCreatieService.creeerDocumentAttendedSD(documentCreatieGegevens)
+            val documentCreatieResponse = documentCreatieService.creeerDocumentAttendedSD(documentCreatieGegevens)
 
             Then(
                 """
                 the attended SmartDocuments document creation wizard is started and a document creation response is returned
                 """
             ) {
-                documentCreatieReponse.let {
-                    it.redirectUrl shouldBe URI("$smartDocumentsURL/smartdocuments/wizard?ticket=${wizardResponse.ticket}")
-                    it.message shouldBe null
+                with(documentCreatieResponse) {
+                    redirectUrl shouldBe URI("$smartDocumentsURL/smartdocuments/wizard?ticket=${wizardResponse.ticket}")
+                    message shouldBe null
                 }
             }
         }
     }
+
+//    Given("SD contains templates") {
+//        val loggedInUser = createLoggedInUser()
+//        every { loggedInUserInstance.get() } returns loggedInUser
+//
+//        val templatesResponse = createListTemplatesResponse()
+//        every {
+//            smartDocumentsClient.listTemplates("Basic $authenticationToken", fixedUserName.get())
+//        } returns templatesResponse
+//
+//        When("list templates is called") {
+//            val templates = documentCreatieService.listTemplates()
+//
+//            Then("it should return a list of templates") {
+//                with(templates.documentsStructure.templatesStructure) {
+//                    templateGroups.size shouldBe 2
+//                }
+//            }
+//        }
+//    }
 })
