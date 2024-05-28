@@ -10,8 +10,9 @@ import nl.lifely.zac.util.NoArgConstructor
 class TemplateGroup {
     lateinit var id: String
     lateinit var name: String
-    lateinit var templateGroups: List<TemplateGroup>
-    lateinit var templates: List<Template>
-    var accessible: Boolean = false
     var allDescendants: Boolean = false
+
+    var templateGroups: List<TemplateGroup>? = null
+    var templates: List<Template>? = null
+    var accessible: Boolean? = null
 }

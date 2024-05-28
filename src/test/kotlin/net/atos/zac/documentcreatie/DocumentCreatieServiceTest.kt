@@ -6,6 +6,7 @@ import io.mockk.every
 import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
 import net.atos.client.sd.SmartDocumentsClient
+import net.atos.client.sd.model.createListTemplatesResponse
 import net.atos.client.sd.model.createWizardResponse
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.createZaak
@@ -76,23 +77,23 @@ class DocumentCreatieServiceTest : BehaviorSpec({
         }
     }
 
-//    Given("SD contains templates") {
-//        val loggedInUser = createLoggedInUser()
-//        every { loggedInUserInstance.get() } returns loggedInUser
-//
-//        val templatesResponse = createListTemplatesResponse()
-//        every {
-//            smartDocumentsClient.listTemplates("Basic $authenticationToken", fixedUserName.get())
-//        } returns templatesResponse
-//
-//        When("list templates is called") {
-//            val templates = documentCreatieService.listTemplates()
-//
-//            Then("it should return a list of templates") {
-//                with(templates.documentsStructure.templatesStructure) {
-//                    templateGroups.size shouldBe 2
-//                }
-//            }
-//        }
-//    }
+    Given("SD contains templates") {
+        val loggedInUser = createLoggedInUser()
+        every { loggedInUserInstance.get() } returns loggedInUser
+
+        val templatesResponse = createListTemplatesResponse()
+        every {
+            smartDocumentsClient.listTemplates("Basic $authenticationToken", fixedUserName.get())
+        } returns templatesResponse
+
+        When("list templates is called") {
+            val templates = documentCreatieService.listTemplates()
+
+            Then("it should return a list of templates") {
+                with(templates.documentsStructure.templatesStructure) {
+                    templateGroups.size shouldBe 2
+                }
+            }
+        }
+    }
 })
