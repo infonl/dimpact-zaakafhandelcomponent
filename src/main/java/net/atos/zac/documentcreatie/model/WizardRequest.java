@@ -5,8 +5,8 @@
 
 package net.atos.zac.documentcreatie.model;
 
-import net.atos.client.sd.model.Deposit;
-import net.atos.client.sd.model.SmartDocument;
+import net.atos.client.sd.model.wizard.Deposit;
+import net.atos.client.sd.model.wizard.SmartDocument;
 
 public class WizardRequest extends Deposit {
 

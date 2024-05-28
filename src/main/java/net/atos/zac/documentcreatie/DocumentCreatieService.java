@@ -17,14 +17,15 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.UriBuilder;
 
+import net.atos.client.sd.model.templates.TemplatesResponse;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import net.atos.client.sd.SmartDocumentsClient;
 import net.atos.client.sd.exception.BadRequestException;
-import net.atos.client.sd.model.Selection;
-import net.atos.client.sd.model.SmartDocument;
-import net.atos.client.sd.model.WizardResponse;
+import net.atos.client.sd.model.wizard.Selection;
+import net.atos.client.sd.model.wizard.SmartDocument;
+import net.atos.client.sd.model.wizard.WizardResponse;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.zac.authentication.LoggedInUser;
@@ -126,5 +127,19 @@ public class DocumentCreatieService {
         registratie.creatieDatum = LocalDate.now();
         registratie.auditToelichting = AUDIT_TOELICHTING;
         return registratie;
+    }
+
+    /**
+     * Lists all templates available for the current user
+     *
+     * @return A structure describing templates and groups
+     */
+    public TemplatesResponse listTemplates() {
+        final LoggedInUser loggedInUser = loggedInUserInstance.get();
+        final String userName = fixedUserName.orElse(loggedInUser.getId());
+        return smartDocumentsClient.listTemplates(
+            format("Basic %s", authenticationToken),
+            userName
+        );
     }
 }
