@@ -10,3 +10,10 @@ class UnattendedResponse {
     @JsonbProperty("file")
     var files: List<File>? = null
 }
+
+class File {
+    lateinit var fileName: String
+    lateinit var document: Document
+}
+
+class Document
