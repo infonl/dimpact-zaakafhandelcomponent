@@ -10,3 +10,16 @@ open class Deposit {
     @JsonbProperty("SmartDocument")
     lateinit var smartDocument: SmartDocument
 }
+
+class SmartDocument {
+    @JsonbProperty("Selection")
+    lateinit var selection: Selection
+}
+
+class Selection {
+    @JsonbProperty("TemplateGroup")
+    var templateGroup: String? = null
+
+    @JsonbProperty("Template")
+    var template: String? = null
+}
