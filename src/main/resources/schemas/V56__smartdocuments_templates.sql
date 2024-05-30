@@ -6,7 +6,7 @@
 CREATE TABLE ${schema}.template_group
 (
     id_template_group BIGINT                   NOT NULL,
-    smartdocuments_id VARCHAR                  NOT_NULL,
+    smartdocuments_id VARCHAR                  NOT NULL,
     naam              VARCHAR                  NOT NULL,
     creatiedatum      TIMESTAMP WITH TIME ZONE NOT NULL,
     CONSTRAINT pk_template_group PRIMARY KEY (id_template_group)
@@ -20,11 +20,12 @@ CREATE INDEX idx_template_group_creatiedatum ON ${schema}.template_group USING b
 CREATE TABLE ${schema}.template
 (
     id_template       BIGINT                   NOT NULL,
-    smartdocuments_id VARCHAR                  NOT_NULL,
-    id_template_group BIGINT                   NOT_NULL,
+    smartdocuments_id VARCHAR                  NOT NULL,
+    id_template_group BIGINT                   NOT NULL,
     naam              VARCHAR                  NOT NULL,
     creatiedatum      TIMESTAMP WITH TIME ZONE NOT NULL,
     CONSTRAINT pk_template PRIMARY KEY (id_template),
+    CONSTRAINT un_id_template_id_template_group UNIQUE (id_template, id_template_group),
     CONSTRAINT fk_template_template_group FOREIGN KEY (id_template)
         REFERENCES ${schema}.template_group (id_template_group)
             MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE
