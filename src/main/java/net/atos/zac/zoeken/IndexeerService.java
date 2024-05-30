@@ -144,7 +144,7 @@ public class IndexeerService {
     public void addOrUpdateZaak(final UUID zaakUUID, boolean inclusiefTaken) {
         indexeerDirect(zaakUUID.toString(), ZAAK, false);
         if (inclusiefTaken) {
-            flowableTaskService.listTasksForZaak(zaakUUID).stream()
+            flowableTaskService.listOpenTasksForZaak(zaakUUID).stream()
                     .map(TaskInfo::getId)
                     .forEach(this::addOrUpdateTaak);
         }
