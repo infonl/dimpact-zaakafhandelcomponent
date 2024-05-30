@@ -19,40 +19,40 @@ fun createWizardResponse(
     this.ticket = ticket
 }
 
-fun createUserGroup(name: String) = UserGroup().apply {
+fun createUserGroup(userGroupName: String) = UserGroup().apply {
     this.groupsAccess = GroupsAccess().apply {
-        this.templateGroups = listOf(
+        templateGroups = listOf(
             TemplateGroup().apply {
-                this.id = UUID.randomUUID().toString()
-                this.name = "Dimpact"
-                this.allDescendants = true
+                id = UUID.randomUUID().toString()
+                name = "Dimpact"
+                allDescendants = true
             }
         )
-        this.headerGroups = emptyList()
+        headerGroups = emptyList()
     }
-    this.userGroups = emptyList()
-    this.users = listOf(
+    userGroups = emptyList()
+    users = listOf(
         User().apply {
-            this.id = UUID.randomUUID().toString()
-            this.name = "zaakafhandelcomponent"
+            id = UUID.randomUUID().toString()
+            name = "zaakafhandelcomponent"
         }
     )
-    this.accessible = true
-    this.id = UUID.randomUUID().toString()
-    this.name = name
+    accessible = true
+    id = UUID.randomUUID().toString()
+    name = userGroupName
 }
 
 fun createTemplate(templateName: String) = Template().apply {
-    this.id = UUID.randomUUID().toString()
-    this.name = templateName
-    this.favorite = false
+    id = UUID.randomUUID().toString()
+    name = templateName
+    favorite = false
 }
 
 fun createTemplates() = listOf(
     createTemplate("Aanvullende informatie nieuw"),
     createTemplate("Aanvullende informatie oud"),
     createTemplate("Advies nieuw"),
-    createTemplate("Advies ou"),
+    createTemplate("Advies oud"),
     createTemplate("Besluit nieuw"),
     createTemplate("Besluit oud"),
     createTemplate("Data Test"),
@@ -67,12 +67,12 @@ fun createTemplates() = listOf(
     createTemplate("Zaakafhandelcomponent Test")
 )
 
-fun createTemplateGroup(groupName: String, templates: List<Template>) = TemplateGroup().apply {
-    this.templateGroups = emptyList()
-    this.templates = templates
-    this.accessible = true
-    this.id = UUID.randomUUID().toString()
-    this.name = groupName
+fun createTemplateGroup(groupName: String, templatesList: List<Template>) = TemplateGroup().apply {
+    templateGroups = emptyList()
+    templates = templatesList
+    accessible = true
+    id = UUID.randomUUID().toString()
+    name = groupName
 }
 
 fun createTemplateGroups() = listOf(
@@ -112,23 +112,23 @@ fun createListTemplatesResponse() = TemplatesResponse().apply {
         this.templatesStructure = TemplatesStructure().apply {
             this.templateGroups = listOf(
                 TemplateGroup().apply {
-                    this.templateGroups = createTemplateGroups()
-                    this.templates = createTemplates()
-                    this.accessible = true
-                    this.id = UUID.randomUUID().toString()
-                    this.name = "Dimpact"
+                    templateGroups = createTemplateGroups()
+                    templates = createTemplates()
+                    accessible = true
+                    id = UUID.randomUUID().toString()
+                    name = "Dimpact"
                 }
             )
-            this.accessible = true
+            accessible = true
         }
         this.headersStructure = HeadersStructure().apply {
-            this.headerGroups = emptyList()
-            this.accessible = true
+            headerGroups = emptyList()
+            accessible = true
         }
     }
     this.usersStructure = UsersStructure().apply {
-        this.groupsAccess = GroupsAccess()
-        this.userGroups = listOf(createUserGroup("Atos"), createUserGroup("Dimpact"))
-        this.accessible = true
+        groupsAccess = GroupsAccess()
+        userGroups = listOf(createUserGroup("Atos"), createUserGroup("Dimpact"))
+        accessible = true
     }
 }
