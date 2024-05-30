@@ -94,9 +94,9 @@ class DocumentCreatieServiceTest : BehaviorSpec({
                     size shouldBe 1
                     with(first()) {
                         name shouldBe "Dimpact"
-                        templateGroups!!.size shouldBe 4
+                        templateGroups!!.size shouldBe 2
                         templateGroups!!.first().name shouldBe "Intern zaaktype voor test volledig gebruik ZAC"
-                        templates!!.size shouldBe 16
+                        templates!!.size shouldBe 2
                         templates!!.first().name shouldBe "Aanvullende informatie nieuw"
                     }
                 }

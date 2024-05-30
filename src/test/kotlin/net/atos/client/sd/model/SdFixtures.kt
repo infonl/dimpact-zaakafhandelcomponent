@@ -51,20 +51,6 @@ fun createTemplate(templateName: String) = Template().apply {
 fun createTemplates() = listOf(
     createTemplate("Aanvullende informatie nieuw"),
     createTemplate("Aanvullende informatie oud"),
-    createTemplate("Advies nieuw"),
-    createTemplate("Advies oud"),
-    createTemplate("Besluit nieuw"),
-    createTemplate("Besluit oud"),
-    createTemplate("Data Test"),
-    createTemplate("Memo nieuw"),
-    createTemplate("Memo oud"),
-    createTemplate("Ontvangstbevestiging nieuw"),
-    createTemplate("Ontvangstbevestiging oud"),
-    createTemplate("Samenwerking loont"),
-    createTemplate("Signature Template"),
-    createTemplate("Toets nieuw"),
-    createTemplate("Toets oud"),
-    createTemplate("Zaakafhandelcomponent Test")
 )
 
 fun createTemplateGroup(groupName: String, templatesList: List<Template>) = TemplateGroup().apply {
@@ -79,27 +65,11 @@ fun createTemplateGroups() = listOf(
     createTemplateGroup(
         "Intern zaaktype voor test volledig gebruik ZAC",
         listOf(
-            createTemplate("Data Test"),
-            createTemplate("OpenZaakTest"),
             createTemplate("Intern zaaktype voor test volledig gebruik ZAC"),
         )
     ),
     createTemplateGroup(
-        "OpenZaak",
-        listOf(
-            createTemplate("Data Test"),
-            createTemplate("OpenZaakTest"),
-        )
-    ),
-    createTemplateGroup(
         "Indienen aansprakelijkstelling door derden behandelen",
-        listOf(
-            createTemplate("Data Test"),
-            createTemplate("OpenZaakTest"),
-        )
-    ),
-    createTemplateGroup(
-        "Melding evenement organiseren behandelen",
         listOf(
             createTemplate("Data Test"),
             createTemplate("OpenZaakTest"),
