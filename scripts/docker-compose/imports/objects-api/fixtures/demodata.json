@@ -893,7 +893,7 @@
         "model": "token.tokenauth",
         "pk": 2,
         "fields": {
-            "token": "182c13e2209161852c53cef53a879f7a2f923430",
+            "token": "dummyZacObjectsToken",
             "contact_person": "zac",
             "email": "test@example.com",
             "organization": "Test",
