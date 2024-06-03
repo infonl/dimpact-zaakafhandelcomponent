@@ -1,10 +1,8 @@
-package net.atos.zac.templates
+package net.atos.zac.smartdocuments.templates
 
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import net.atos.client.smartdocuments.model.createTemplatesResponse
-import net.atos.zac.smartdocuments.templates.TemplateConverter
 
 class TemplateConverterTest : BehaviorSpec({
 
@@ -16,16 +14,16 @@ class TemplateConverterTest : BehaviorSpec({
 
             Then("it produces the right models") {
                 templateGroupsSet.size shouldBe 1
-                with (templateGroupsSet.first()) {
+                with(templateGroupsSet.first()) {
                     name shouldBe "Dimpact"
 
                     templates.size shouldBe 2
-                    with (templates) {
+                    with(templates) {
                         first().name shouldBe "Aanvullende informatie nieuw"
                         last().name shouldBe "Aanvullende informatie oud"
                     }
 
-                    with (children) {
+                    with(children) {
                         size shouldBe 2
                         with(first()) {
                             name shouldBe "Intern zaaktype voor test volledig gebruik ZAC"

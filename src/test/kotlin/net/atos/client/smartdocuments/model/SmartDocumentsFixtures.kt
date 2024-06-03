@@ -19,34 +19,37 @@ fun createWizardResponse(
     this.ticket = ticket
 }
 
-fun createUserGroup(userGroupName: String) = UserGroup().apply {
-    this.groupsAccess = GroupsAccess().apply {
+fun createUserGroup(userGroupName: String) = UserGroup(
+    id = UUID.randomUUID().toString(),
+    name = userGroupName,
+    groupsAccess = GroupsAccess(
         templateGroups = listOf(
-            SmartDocumentsTemplateGroup().apply {
-                id = UUID.randomUUID().toString()
-                name = "Dimpact"
-                allDescendants = true
-            }
-        )
+            SmartDocumentsTemplateGroup(
+                id = UUID.randomUUID().toString(),
+                name = "Dimpact",
+                allDescendants = true,
+                templates = emptyList(),
+                templateGroups = emptyList(),
+                accessible = true
+            )
+        ),
         headerGroups = emptyList()
-    }
-    userGroups = emptyList()
+    ),
+    userGroups = emptyList(),
     users = listOf(
-        User().apply {
-            id = UUID.randomUUID().toString()
+        User(
+            id = UUID.randomUUID().toString(),
             name = "zaakafhandelcomponent"
-        }
-    )
+        )
+    ),
     accessible = true
-    id = UUID.randomUUID().toString()
-    name = userGroupName
-}
+)
 
-fun createTemplate(templateName: String) = SmartDocumentsTemplate().apply {
-    id = UUID.randomUUID().toString()
-    name = templateName
+fun createTemplate(templateName: String) = SmartDocumentsTemplate(
+    id = UUID.randomUUID().toString(),
+    name = templateName,
     favorite = false
-}
+)
 
 fun createTemplates() = listOf(
     createTemplate("Aanvullende informatie nieuw"),
@@ -54,13 +57,14 @@ fun createTemplates() = listOf(
 )
 
 fun createTemplateGroup(groupName: String, templatesList: List<SmartDocumentsTemplate>) =
-    SmartDocumentsTemplateGroup().apply {
-        templateGroups = emptyList()
-        templates = templatesList
-        accessible = true
-        id = UUID.randomUUID().toString()
-        name = groupName
-    }
+    SmartDocumentsTemplateGroup(
+        templateGroups = emptyList(),
+        templates = templatesList,
+        accessible = true,
+        id = UUID.randomUUID().toString(),
+        name = groupName,
+        allDescendants = true,
+    )
 
 fun createTemplateGroups() = listOf(
     createTemplateGroup(
@@ -78,28 +82,32 @@ fun createTemplateGroups() = listOf(
     )
 )
 
-fun createTemplatesResponse() = TemplatesResponse().apply {
-    this.documentsStructure = DocumentsStructure().apply {
-        this.templatesStructure = TemplatesStructure().apply {
-            this.templateGroups = listOf(
-                SmartDocumentsTemplateGroup().apply {
-                    templateGroups = createTemplateGroups()
-                    templates = createTemplates()
-                    accessible = true
-                    id = UUID.randomUUID().toString()
-                    name = "Dimpact"
-                }
-            )
+fun createTemplatesResponse() = TemplatesResponse(
+    documentsStructure = DocumentsStructure(
+        templatesStructure = TemplatesStructure(
+            templateGroups = listOf(
+                SmartDocumentsTemplateGroup(
+                    id = UUID.randomUUID().toString(),
+                    name = "Dimpact",
+                    templateGroups = createTemplateGroups(),
+                    templates = createTemplates(),
+                    accessible = true,
+                    allDescendants = true,
+                )
+            ),
             accessible = true
-        }
-        this.headersStructure = HeadersStructure().apply {
+        ),
+        headersStructure = HeadersStructure(
+            headerGroups = emptyList(),
+            accessible = true
+        )
+    ),
+    usersStructure = UsersStructure(
+        groupsAccess = GroupsAccess(
+            templateGroups = emptyList(),
             headerGroups = emptyList()
-            accessible = true
-        }
-    }
-    this.usersStructure = UsersStructure().apply {
-        groupsAccess = GroupsAccess()
-        userGroups = listOf(createUserGroup("Atos"), createUserGroup("Dimpact"))
+        ),
+        userGroups = listOf(createUserGroup("Atos"), createUserGroup("Dimpact")),
         accessible = true
-    }
-}
+    )
+)
