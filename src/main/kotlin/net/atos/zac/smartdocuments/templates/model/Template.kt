@@ -10,6 +10,7 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import net.atos.zac.util.FlywayIntegrator
+import nl.lifely.zac.util.AllOpen
 import java.time.ZonedDateTime
 
 @Entity
@@ -20,11 +21,12 @@ import java.time.ZonedDateTime
     sequenceName = "sq_template",
     allocationSize = 1
 )
-open class Template {
+@AllOpen
+class Template {
     @Id
     @GeneratedValue(generator = "sq_template", strategy = GenerationType.SEQUENCE)
     @Column(name = "id_template")
-    private var id: Long = 0
+    var id: Long = 0
 
     @Column(name = "smartdocuments_id", nullable = false)
     lateinit var smartDocumentsId: String

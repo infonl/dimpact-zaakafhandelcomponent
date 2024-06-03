@@ -7,74 +7,73 @@ package net.atos.client.smartdocuments.model.templates
 import nl.lifely.zac.util.NoArgConstructor
 
 @NoArgConstructor
-class TemplatesResponse {
-    lateinit var documentsStructure: DocumentsStructure
-    lateinit var usersStructure: UsersStructure
-}
+data class TemplatesResponse(
+    var documentsStructure: DocumentsStructure,
+    var usersStructure: UsersStructure
+)
 
 @NoArgConstructor
-class DocumentsStructure {
-    lateinit var templatesStructure: TemplatesStructure
-    lateinit var headersStructure: HeadersStructure
-}
+data class DocumentsStructure(
+    var templatesStructure: TemplatesStructure,
+    var headersStructure: HeadersStructure
+)
 
 @NoArgConstructor
-class TemplatesStructure {
-    lateinit var templateGroups: List<SmartDocumentsTemplateGroup>
-    var accessible: Boolean = false
-}
+data class TemplatesStructure(
+    var templateGroups: List<SmartDocumentsTemplateGroup>,
+    var accessible: Boolean
+)
 
 @NoArgConstructor
-class SmartDocumentsTemplateGroup {
-    lateinit var id: String
-    lateinit var name: String
-    var allDescendants: Boolean = false
-
-    var templateGroups: List<SmartDocumentsTemplateGroup>? = null
-    var templates: List<SmartDocumentsTemplate>? = null
-    var accessible: Boolean? = null
-}
+data class SmartDocumentsTemplateGroup(
+    var id: String,
+    var name: String,
+    var allDescendants: Boolean,
+    var templateGroups: List<SmartDocumentsTemplateGroup>?,
+    var templates: List<SmartDocumentsTemplate>?,
+    var accessible: Boolean?
+)
 
 @NoArgConstructor
-class HeadersStructure {
-    lateinit var headerGroups: List<HeaderGroup>
-    var accessible: Boolean = false
-}
+data class HeadersStructure(
+    var headerGroups: List<HeaderGroup>,
+    var accessible: Boolean
+)
 
 class HeaderGroup
 
 @NoArgConstructor
-class GroupsAccess {
-    lateinit var templateGroups: List<SmartDocumentsTemplateGroup>
-    lateinit var headerGroups: List<Any>
-}
+data class GroupsAccess(
+    var templateGroups: List<SmartDocumentsTemplateGroup>,
+    var headerGroups: List<Any>
+)
 
 @NoArgConstructor
-class SmartDocumentsTemplate {
-    lateinit var id: String
-    lateinit var name: String
-    var favorite: Boolean = false
-}
+data class SmartDocumentsTemplate(
+    var id: String,
+    var name: String,
+    var favorite: Boolean
+)
 
 @NoArgConstructor
-class User {
-    lateinit var id: String
-    lateinit var name: String
-}
+data class User(
+    var id: String,
+    var name: String
+)
 
 @NoArgConstructor
-class UserGroup {
-    lateinit var id: String
-    lateinit var name: String
-    lateinit var groupsAccess: GroupsAccess
-    lateinit var userGroups: List<UserGroup>
-    lateinit var users: List<User>
-    var accessible: Boolean = false
-}
+data class UserGroup(
+    var id: String,
+    var name: String,
+    var groupsAccess: GroupsAccess,
+    var userGroups: List<UserGroup>,
+    var users: List<User>,
+    var accessible: Boolean
+)
 
 @NoArgConstructor
-class UsersStructure {
-    lateinit var groupsAccess: GroupsAccess
-    lateinit var userGroups: List<UserGroup>
-    var accessible: Boolean = false
-}
+data class UsersStructure(
+    var groupsAccess: GroupsAccess,
+    var userGroups: List<UserGroup>,
+    var accessible: Boolean
+)

@@ -12,6 +12,7 @@ import jakarta.persistence.OneToMany
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import net.atos.zac.util.FlywayIntegrator
+import nl.lifely.zac.util.AllOpen
 import java.time.ZonedDateTime
 
 @Entity
@@ -22,11 +23,12 @@ import java.time.ZonedDateTime
     sequenceName = "sq_template_group",
     allocationSize = 1
 )
-open class TemplateGroup {
+@AllOpen
+class TemplateGroup {
     @Id
     @GeneratedValue(generator = "sq_template_group", strategy = GenerationType.SEQUENCE)
     @Column(name = "id_template_group")
-    private var id: Long? = null
+    var id: Long? = null
 
     @Column(name = "smartdocuments_id", nullable = false)
     lateinit var smartDocumentsId: String

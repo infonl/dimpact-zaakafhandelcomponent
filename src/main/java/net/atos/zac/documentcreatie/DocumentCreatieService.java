@@ -17,11 +17,11 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.UriBuilder;
 
-import net.atos.client.smartdocuments.SmartDocumentsClient;
-import net.atos.client.smartdocuments.exception.BadRequestException;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
+import net.atos.client.smartdocuments.SmartDocumentsClient;
+import net.atos.client.smartdocuments.exception.BadRequestException;
 import net.atos.client.smartdocuments.model.templates.TemplatesResponse;
 import net.atos.client.smartdocuments.model.wizard.Selection;
 import net.atos.client.smartdocuments.model.wizard.SmartDocument;
