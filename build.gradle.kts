@@ -225,9 +225,9 @@ java {
 
 jsonSchema2Pojo {
     // generates Java model files for the "productaanvraag" JSON schema(s)
-    setSource(files("$rootDir/src/main/resources/json-schema"))
+    setSource(files("$rootDir/src/main/resources/json-schemas/productaanvraag"))
+    setSourceType("jsonschema")
     targetDirectory = file("$rootDir/src/generated/java")
-    setFileExtensions(".schema.json")
     targetPackage = "net.atos.zac.aanvraag.model.generated"
     setAnnotationStyle("JSONB2")
     dateType = "java.time.LocalDate"
