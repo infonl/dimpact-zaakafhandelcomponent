@@ -7,35 +7,35 @@ package net.atos.client.smartdocuments.model.templates
 import nl.lifely.zac.util.NoArgConstructor
 
 @NoArgConstructor
-data class TemplatesResponse(
-    var documentsStructure: DocumentsStructure,
-    var usersStructure: UsersStructure
+data class SmartDocumentsTemplatesResponse(
+    var documentsStructure: SmartDocumentsResponseDocumentsStructure,
+    var usersStructure: SmartDocumentsResponseUsersStructure
 )
 
 @NoArgConstructor
-data class DocumentsStructure(
-    var templatesStructure: TemplatesStructure,
-    var headersStructure: HeadersStructure
+data class SmartDocumentsResponseDocumentsStructure(
+    var templatesStructure: SmartDocumentsResponseTemplatesStructure,
+    var headersStructure: SmartDocumentsResponseHeadersStructure
 )
 
 @NoArgConstructor
-data class TemplatesStructure(
-    var templateGroups: List<SmartDocumentsTemplateGroup>,
+data class SmartDocumentsResponseTemplatesStructure(
+    var templateGroups: List<SmartDocumentsResponseTemplateGroup>,
     var accessible: Boolean
 )
 
 @NoArgConstructor
-data class SmartDocumentsTemplateGroup(
+data class SmartDocumentsResponseTemplateGroup(
     var id: String,
     var name: String,
     var allDescendants: Boolean,
-    var templateGroups: List<SmartDocumentsTemplateGroup>?,
-    var templates: List<SmartDocumentsTemplate>?,
+    var templateGroups: List<SmartDocumentsResponseTemplateGroup>?,
+    var templates: List<SmartDocumentsResponseTemplate>?,
     var accessible: Boolean?
 )
 
 @NoArgConstructor
-data class HeadersStructure(
+data class SmartDocumentsResponseHeadersStructure(
     var headerGroups: List<HeaderGroup>,
     var accessible: Boolean
 )
@@ -43,13 +43,13 @@ data class HeadersStructure(
 class HeaderGroup
 
 @NoArgConstructor
-data class GroupsAccess(
-    var templateGroups: List<SmartDocumentsTemplateGroup>,
+data class SmartDocumentsResponseGroupsAccess(
+    var templateGroups: List<SmartDocumentsResponseTemplateGroup>,
     var headerGroups: List<Any>
 )
 
 @NoArgConstructor
-data class SmartDocumentsTemplate(
+data class SmartDocumentsResponseTemplate(
     var id: String,
     var name: String,
     var favorite: Boolean
@@ -62,18 +62,18 @@ data class User(
 )
 
 @NoArgConstructor
-data class UserGroup(
+data class SmartDocumentsResponseUserGroup(
     var id: String,
     var name: String,
-    var groupsAccess: GroupsAccess,
-    var userGroups: List<UserGroup>,
+    var groupsAccess: SmartDocumentsResponseGroupsAccess,
+    var userGroups: List<SmartDocumentsResponseUserGroup>,
     var users: List<User>,
     var accessible: Boolean
 )
 
 @NoArgConstructor
-data class UsersStructure(
-    var groupsAccess: GroupsAccess,
-    var userGroups: List<UserGroup>,
+data class SmartDocumentsResponseUsersStructure(
+    var groupsAccess: SmartDocumentsResponseGroupsAccess,
+    var userGroups: List<SmartDocumentsResponseUserGroup>,
     var accessible: Boolean
 )

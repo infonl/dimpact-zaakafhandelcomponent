@@ -1,18 +1,18 @@
 package net.atos.zac.smartdocuments.templates
 
-import net.atos.client.smartdocuments.model.templates.SmartDocumentsTemplate
-import net.atos.client.smartdocuments.model.templates.SmartDocumentsTemplateGroup
-import net.atos.client.smartdocuments.model.templates.TemplatesResponse
-import net.atos.zac.smartdocuments.templates.model.Template
-import net.atos.zac.smartdocuments.templates.model.TemplateGroup
+import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseTemplate
+import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseTemplateGroup
+import net.atos.client.smartdocuments.model.templates.SmartDocumentsTemplatesResponse
+import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplate
+import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
 import java.time.ZonedDateTime
 
 object TemplateConverter {
-    fun convert(response: TemplatesResponse): Set<TemplateGroup> =
+    fun convert(response: SmartDocumentsTemplatesResponse): Set<SmartDocumentsTemplateGroup> =
         response.documentsStructure.templatesStructure.templateGroups
             .mapTo(mutableSetOf()) { convertTemplateGroup(it, null) }
 
-    private fun convertTemplateGroup(group: SmartDocumentsTemplateGroup, parent: TemplateGroup?): TemplateGroup {
+    private fun convertTemplateGroup(group: SmartDocumentsResponseTemplateGroup, parent: SmartDocumentsTemplateGroup?): SmartDocumentsTemplateGroup {
         val jpaGroup = createTemplateGroup(group, parent)
 
         group.templates?.forEach {
@@ -27,16 +27,16 @@ object TemplateConverter {
     }
 
     private fun createTemplateGroup(
-        smartDocumentsTemplateGroup: SmartDocumentsTemplateGroup,
-        parentGroup: TemplateGroup?
-    ) = TemplateGroup().apply {
+        smartDocumentsTemplateGroup: SmartDocumentsResponseTemplateGroup,
+        parentGroup: SmartDocumentsTemplateGroup?
+    ) = SmartDocumentsTemplateGroup().apply {
         smartDocumentsId = smartDocumentsTemplateGroup.id
         name = smartDocumentsTemplateGroup.name
         parent = parentGroup
         creationDate = ZonedDateTime.now()
     }
 
-    private fun createTemplate(smartDocumentsTemplate: SmartDocumentsTemplate) = Template().apply {
+    private fun createTemplate(smartDocumentsTemplate: SmartDocumentsResponseTemplate) = SmartDocumentsTemplate().apply {
         smartDocumentsId = smartDocumentsTemplate.id
         name = smartDocumentsTemplate.name
         creationDate = ZonedDateTime.now()
