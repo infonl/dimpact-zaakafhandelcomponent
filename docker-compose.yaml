@@ -513,7 +513,7 @@ services:
       - MAILJET_API_SECRET_KEY=${MAILJET_API_SECRET_KEY:-dummyMailjetApiSecretKey}
       - OFFICE_CONVERTER_CLIENT_MP_REST_URL=http://office-converter:8083
       - OBJECTS_API_CLIENT_MP_REST_URL=http://objecten-api.local:8000
-      - OBJECTS_API_TOKEN=182c13e2209161852c53cef53a879f7a2f923430
+      - OBJECTS_API_TOKEN=dummyZacObjectsToken
       - OBJECTTYPES_API_CLIENT_MP_REST_URL=http://objecttypen-api:8000
       - OBJECTTYPES_API_TOKEN=dummyZacObjectTypesToken
       - OPA_API_CLIENT_MP_REST_URL=http://opa:8181
