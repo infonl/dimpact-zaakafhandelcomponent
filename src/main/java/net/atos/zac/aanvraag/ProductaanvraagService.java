@@ -38,10 +38,15 @@ import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Medewerker;
 import net.atos.client.zgw.zrc.model.NatuurlijkPersoon;
+import net.atos.client.zgw.zrc.model.NietNatuurlijkPersoon;
 import net.atos.client.zgw.zrc.model.OrganisatorischeEenheid;
+import net.atos.client.zgw.zrc.model.Rol;
 import net.atos.client.zgw.zrc.model.RolMedewerker;
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon;
+import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon;
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid;
+import net.atos.client.zgw.zrc.model.RolVestiging;
+import net.atos.client.zgw.zrc.model.Vestiging;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag;
@@ -270,15 +275,20 @@ public class ProductaanvraagService {
         }
     }
 
-    private void addInitiator(final String bsn, final URI zaak, final URI zaaktype) {
+    private void addInitiator(final Betrokkene betrokkene, final URI zaak, final URI zaaktype) {
         final RolType initiator = ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.INITIATOR, zaaktype);
-        final RolNatuurlijkPersoon rolNatuurlijkPersoon = new RolNatuurlijkPersoon(
-                zaak,
-                initiator,
-                ROL_TOELICHTING,
-                new NatuurlijkPersoon(bsn)
-        );
-        zrcClientService.createRol(rolNatuurlijkPersoon);
+        final Rol<?> rol = getRol(betrokkene, zaak, initiator);
+        zrcClientService.createRol(rol);
+    }
+
+    private Rol<?> getRol(final Betrokkene betrokkene, final URI zaak, final RolType rolType) {
+        if (StringUtils.isNotBlank(betrokkene.getInpBsn()))
+            return new RolNatuurlijkPersoon(zaak, rolType, ROL_TOELICHTING, new NatuurlijkPersoon(betrokkene.getInpBsn()));
+        if (StringUtils.isNotBlank(betrokkene.getVestigingsNummer()))
+            return new RolVestiging(zaak, rolType, ROL_TOELICHTING, new Vestiging(betrokkene.getVestigingsNummer()));
+        if (StringUtils.isNotBlank(betrokkene.getInnNnpId()))
+            return new RolNietNatuurlijkPersoon(zaak, rolType, ROL_TOELICHTING, new NietNatuurlijkPersoon(betrokkene.getInnNnpId()));
+        return null;
     }
 
     private void registreerInbox(final ProductaanvraagDimpact productaanvraag, final ORObject productaanvraagObject) {
@@ -357,7 +367,7 @@ public class ProductaanvraagService {
                 // there can be at most only one initiator for a particular zaak so even if there are multiple (theorically possible)
                 // we are only interested in the first one
                 .findFirst()
-                .ifPresent(betrokkene -> addInitiator(betrokkene.getInpBsn(), zaak.getUrl(), zaak.getZaaktype()));
+                .ifPresent(betrokkene -> addInitiator(betrokkene, zaak.getUrl(), zaak.getZaaktype()));
     }
 
     public void pairProductaanvraagWithZaak(final ORObject productaanvraag, final URI zaakUrl) {
