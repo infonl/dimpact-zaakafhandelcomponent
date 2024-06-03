@@ -39,4 +39,36 @@ public class Template {
 
     @Column(name = "creatiedatum", nullable = false)
     private ZonedDateTime creatiedatum;
+
+    public @NotBlank String getSmartdocumentsId() {
+        return smartdocumentsId;
+    }
+
+    public void setSmartdocumentsId(@NotBlank String smartdocumentsId) {
+        this.smartdocumentsId = smartdocumentsId;
+    }
+
+    public TemplateGroup getTemplateGroup() {
+        return templateGroup;
+    }
+
+    public void setTemplateGroup(TemplateGroup templateGroup) {
+        this.templateGroup = templateGroup;
+    }
+
+    public @NotBlank String getNaam() {
+        return naam;
+    }
+
+    public void setNaam(@NotBlank String naam) {
+        this.naam = naam;
+    }
+
+    public ZonedDateTime getCreatiedatum() {
+        return creatiedatum;
+    }
+
+    public void setCreatiedatum(ZonedDateTime creatiedatum) {
+        this.creatiedatum = creatiedatum;
+    }
 }
