@@ -5,9 +5,9 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
-import net.atos.client.sd.SmartDocumentsClient
-import net.atos.client.sd.model.createListTemplatesResponse
-import net.atos.client.sd.model.createWizardResponse
+import net.atos.client.smartdocuments.SmartDocumentsClient
+import net.atos.client.smartdocuments.model.createTemplatesResponse
+import net.atos.client.smartdocuments.model.createWizardResponse
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.ZTCClientService
@@ -81,7 +81,7 @@ class DocumentCreatieServiceTest : BehaviorSpec({
         val loggedInUser = createLoggedInUser()
         every { loggedInUserInstance.get() } returns loggedInUser
 
-        val templatesResponse = createListTemplatesResponse()
+        val templatesResponse = createTemplatesResponse()
         every {
             smartDocumentsClient.listTemplates("Basic $authenticationToken", fixedUserName.get())
         } returns templatesResponse

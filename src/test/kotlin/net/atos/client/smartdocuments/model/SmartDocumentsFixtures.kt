@@ -1,16 +1,16 @@
-package net.atos.client.sd.model
+package net.atos.client.smartdocuments.model
 
-import net.atos.client.sd.model.templates.DocumentsStructure
-import net.atos.client.sd.model.templates.GroupsAccess
-import net.atos.client.sd.model.templates.HeadersStructure
-import net.atos.client.sd.model.templates.Template
-import net.atos.client.sd.model.templates.TemplateGroup
-import net.atos.client.sd.model.templates.TemplatesResponse
-import net.atos.client.sd.model.templates.TemplatesStructure
-import net.atos.client.sd.model.templates.User
-import net.atos.client.sd.model.templates.UserGroup
-import net.atos.client.sd.model.templates.UsersStructure
-import net.atos.client.sd.model.wizard.WizardResponse
+import net.atos.client.smartdocuments.model.templates.DocumentsStructure
+import net.atos.client.smartdocuments.model.templates.GroupsAccess
+import net.atos.client.smartdocuments.model.templates.HeadersStructure
+import net.atos.client.smartdocuments.model.templates.SmartDocumentsTemplate
+import net.atos.client.smartdocuments.model.templates.SmartDocumentsTemplateGroup
+import net.atos.client.smartdocuments.model.templates.TemplatesResponse
+import net.atos.client.smartdocuments.model.templates.TemplatesStructure
+import net.atos.client.smartdocuments.model.templates.User
+import net.atos.client.smartdocuments.model.templates.UserGroup
+import net.atos.client.smartdocuments.model.templates.UsersStructure
+import net.atos.client.smartdocuments.model.wizard.WizardResponse
 import java.util.UUID
 
 fun createWizardResponse(
@@ -22,7 +22,7 @@ fun createWizardResponse(
 fun createUserGroup(userGroupName: String) = UserGroup().apply {
     this.groupsAccess = GroupsAccess().apply {
         templateGroups = listOf(
-            TemplateGroup().apply {
+            SmartDocumentsTemplateGroup().apply {
                 id = UUID.randomUUID().toString()
                 name = "Dimpact"
                 allDescendants = true
@@ -42,7 +42,7 @@ fun createUserGroup(userGroupName: String) = UserGroup().apply {
     name = userGroupName
 }
 
-fun createTemplate(templateName: String) = Template().apply {
+fun createTemplate(templateName: String) = SmartDocumentsTemplate().apply {
     id = UUID.randomUUID().toString()
     name = templateName
     favorite = false
@@ -53,13 +53,14 @@ fun createTemplates() = listOf(
     createTemplate("Aanvullende informatie oud"),
 )
 
-fun createTemplateGroup(groupName: String, templatesList: List<Template>) = TemplateGroup().apply {
-    templateGroups = emptyList()
-    templates = templatesList
-    accessible = true
-    id = UUID.randomUUID().toString()
-    name = groupName
-}
+fun createTemplateGroup(groupName: String, templatesList: List<SmartDocumentsTemplate>) =
+    SmartDocumentsTemplateGroup().apply {
+        templateGroups = emptyList()
+        templates = templatesList
+        accessible = true
+        id = UUID.randomUUID().toString()
+        name = groupName
+    }
 
 fun createTemplateGroups() = listOf(
     createTemplateGroup(
@@ -77,11 +78,11 @@ fun createTemplateGroups() = listOf(
     )
 )
 
-fun createListTemplatesResponse() = TemplatesResponse().apply {
+fun createTemplatesResponse() = TemplatesResponse().apply {
     this.documentsStructure = DocumentsStructure().apply {
         this.templatesStructure = TemplatesStructure().apply {
             this.templateGroups = listOf(
-                TemplateGroup().apply {
+                SmartDocumentsTemplateGroup().apply {
                     templateGroups = createTemplateGroups()
                     templates = createTemplates()
                     accessible = true
