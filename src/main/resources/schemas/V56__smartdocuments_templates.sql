@@ -41,7 +41,7 @@ CREATE SEQUENCE ${schema}.sq_template START WITH 1 INCREMENT BY 1 NO MINVALUE NO
 CREATE INDEX idx_template_smartdocuments_id ON ${schema}.template USING btree (smartdocuments_id);
 CREATE INDEX idx_template_id_template_group ON ${schema}.template USING btree (id_template_group);
 CREATE INDEX idx_template_name ON ${schema}.template USING btree (name);
-CREATE INDEX idx_template_creationdate ON ${schema}.template USING btree (creation_date);
+CREATE INDEX idx_template_creation_date ON ${schema}.template USING btree (creation_date);
 COMMENT ON COLUMN ${schema}.template.id_template IS 'Unique ID for the template';
 COMMENT ON COLUMN ${schema}.template.smartdocuments_id IS 'ID for the template in SmartDocuments';
 COMMENT ON COLUMN ${schema}.template.id_template_group IS 'ID of the template group this template is part of';
