@@ -5,11 +5,11 @@ import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseGrou
 import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseHeadersStructure
 import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseTemplate
 import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseTemplateGroup
-import net.atos.client.smartdocuments.model.templates.SmartDocumentsTemplatesResponse
 import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseTemplatesStructure
-import net.atos.client.smartdocuments.model.templates.User
 import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseUserGroup
 import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseUsersStructure
+import net.atos.client.smartdocuments.model.templates.SmartDocumentsTemplatesResponse
+import net.atos.client.smartdocuments.model.templates.User
 import net.atos.client.smartdocuments.model.wizard.WizardResponse
 import java.util.UUID
 
