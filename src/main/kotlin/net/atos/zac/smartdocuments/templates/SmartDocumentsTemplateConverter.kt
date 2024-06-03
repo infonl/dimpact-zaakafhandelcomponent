@@ -7,12 +7,15 @@ import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplate
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
 import java.time.ZonedDateTime
 
-object TemplateConverter {
+object SmartDocumentsTemplateConverter {
     fun convert(response: SmartDocumentsTemplatesResponse): Set<SmartDocumentsTemplateGroup> =
         response.documentsStructure.templatesStructure.templateGroups
             .mapTo(mutableSetOf()) { convertTemplateGroup(it, null) }
 
-    private fun convertTemplateGroup(group: SmartDocumentsResponseTemplateGroup, parent: SmartDocumentsTemplateGroup?): SmartDocumentsTemplateGroup {
+    private fun convertTemplateGroup(
+        group: SmartDocumentsResponseTemplateGroup,
+        parent: SmartDocumentsTemplateGroup?
+    ): SmartDocumentsTemplateGroup {
         val jpaGroup = createTemplateGroup(group, parent)
 
         group.templates?.forEach {
@@ -36,7 +39,9 @@ object TemplateConverter {
         creationDate = ZonedDateTime.now()
     }
 
-    private fun createTemplate(smartDocumentsTemplate: SmartDocumentsResponseTemplate) = SmartDocumentsTemplate().apply {
+    private fun createTemplate(
+        smartDocumentsTemplate: SmartDocumentsResponseTemplate
+    ) = SmartDocumentsTemplate().apply {
         smartDocumentsId = smartDocumentsTemplate.id
         name = smartDocumentsTemplate.name
         creationDate = ZonedDateTime.now()

@@ -4,13 +4,13 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import net.atos.client.smartdocuments.model.createTemplatesResponse
 
-class TemplateConverterTest : BehaviorSpec({
+class SmartDocumentsTemplateConverterTest : BehaviorSpec({
 
     Given("a template response from SmartDocuments") {
         val templateResponse = createTemplatesResponse()
 
         When("convert to JPA model is called") {
-            val templateGroupsSet = TemplateConverter.convert(templateResponse)
+            val templateGroupsSet = SmartDocumentsTemplateConverter.convert(templateResponse)
 
             Then("it produces the right models") {
                 templateGroupsSet.size shouldBe 1
