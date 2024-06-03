@@ -275,20 +275,39 @@ public class ProductaanvraagService {
         }
     }
 
-    private void addInitiator(final Betrokkene betrokkene, final URI zaak, final URI zaaktype) {
-        final RolType initiator = ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.INITIATOR, zaaktype);
-        final Rol<?> rol = getRol(betrokkene, zaak, initiator);
-        zrcClientService.createRol(rol);
+    private Optional<Rol<?>> getRol(
+            final Betrokkene betrokkene,
+            final URI zaak,
+            final URI zaaktype,
+            RolType.OmschrijvingGeneriekEnum omschrijvingGeneriekEnum
+    ) {
+        final RolType initiator = ztcClientService.readRoltype(omschrijvingGeneriekEnum, zaaktype);
+        return getRol(betrokkene, zaak, initiator);
     }
 
-    private Rol<?> getRol(final Betrokkene betrokkene, final URI zaak, final RolType rolType) {
+    private Optional<Rol<?>> getRol(final Betrokkene betrokkene, final URI zaak, final RolType rolType) {
         if (StringUtils.isNotBlank(betrokkene.getInpBsn()))
-            return new RolNatuurlijkPersoon(zaak, rolType, ROL_TOELICHTING, new NatuurlijkPersoon(betrokkene.getInpBsn()));
-        if (StringUtils.isNotBlank(betrokkene.getVestigingsNummer()))
-            return new RolVestiging(zaak, rolType, ROL_TOELICHTING, new Vestiging(betrokkene.getVestigingsNummer()));
-        if (StringUtils.isNotBlank(betrokkene.getInnNnpId()))
-            return new RolNietNatuurlijkPersoon(zaak, rolType, ROL_TOELICHTING, new NietNatuurlijkPersoon(betrokkene.getInnNnpId()));
-        return null;
+            return Optional.of(new RolNatuurlijkPersoon(zaak, rolType, ROL_TOELICHTING, new NatuurlijkPersoon(betrokkene.getInpBsn())));
+        else if (StringUtils.isNotBlank(betrokkene.getVestigingsNummer()))
+            return Optional.of(new RolVestiging(zaak, rolType, ROL_TOELICHTING, new Vestiging(betrokkene.getVestigingsNummer())));
+        else if (StringUtils.isNotBlank(betrokkene.getInnNnpId()))
+            return Optional.of(
+                    new RolNietNatuurlijkPersoon(zaak, rolType, ROL_TOELICHTING, new NietNatuurlijkPersoon(betrokkene.getInnNnpId())));
+        else if (StringUtils.isNotBlank(betrokkene.getOrganisatorischeEenheidIdentificatie())) {
+            var eenheid = new OrganisatorischeEenheid();
+            eenheid.setIdentificatie(betrokkene.getOrganisatorischeEenheidIdentificatie());
+            return Optional.of(new RolOrganisatorischeEenheid(zaak, rolType, ROL_TOELICHTING, eenheid));
+        } else if (StringUtils.isNotBlank(betrokkene.getMedewerkerIdentificatie())) {
+            var medewerker = new Medewerker();
+            medewerker.setIdentificatie(betrokkene.getMedewerkerIdentificatie());
+            return Optional.of(new RolMedewerker(zaak, rolType, ROL_TOELICHTING, medewerker));
+        } else {
+            LOG.warning(String.format(
+                    "Cannot map betrokkene '%s' to a known Role",
+                    betrokkene
+            ));
+            return Optional.empty();
+        }
     }
 
     private void registreerInbox(final ProductaanvraagDimpact productaanvraag, final ORObject productaanvraagObject) {
@@ -367,7 +386,8 @@ public class ProductaanvraagService {
                 // there can be at most only one initiator for a particular zaak so even if there are multiple (theorically possible)
                 // we are only interested in the first one
                 .findFirst()
-                .ifPresent(betrokkene -> addInitiator(betrokkene, zaak.getUrl(), zaak.getZaaktype()));
+                .flatMap(betrokkene -> getRol(betrokkene, zaak.getUrl(), zaak.getZaaktype(), RolType.OmschrijvingGeneriekEnum.INITIATOR))
+                .ifPresent(zrcClientService::createRol);
     }
 
     public void pairProductaanvraagWithZaak(final ORObject productaanvraag, final URI zaakUrl) {
