@@ -24,7 +24,7 @@ import java.time.ZonedDateTime
     allocationSize = 1
 )
 @AllOpen
-class TemplateGroup {
+class SmartDocumentsTemplateGroup {
     @Id
     @GeneratedValue(generator = "sq_template_group", strategy = GenerationType.SEQUENCE)
     @Column(name = "id_template_group")
@@ -41,11 +41,11 @@ class TemplateGroup {
 
     @ManyToOne
     @JoinColumn(name = "parent_template_group_id")
-    var parent: TemplateGroup? = null
+    var parent: SmartDocumentsTemplateGroup? = null
 
     @OneToMany(mappedBy = "parent", cascade = [CascadeType.ALL])
-    var children: MutableSet<TemplateGroup> = mutableSetOf()
+    var children: MutableSet<SmartDocumentsTemplateGroup> = mutableSetOf()
 
     @OneToMany(mappedBy = "templateGroup")
-    var templates: MutableSet<Template> = mutableSetOf()
+    var templates: MutableSet<SmartDocumentsTemplate> = mutableSetOf()
 }

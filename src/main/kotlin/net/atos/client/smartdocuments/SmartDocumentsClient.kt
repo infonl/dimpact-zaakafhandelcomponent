@@ -12,7 +12,7 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.smartdocuments.exception.BadRequestExceptionMapper
 import net.atos.client.smartdocuments.exception.RuntimeExceptionMapper
-import net.atos.client.smartdocuments.model.templates.TemplatesResponse
+import net.atos.client.smartdocuments.model.templates.SmartDocumentsTemplatesResponse
 import net.atos.client.smartdocuments.model.wizard.Deposit
 import net.atos.client.smartdocuments.model.wizard.UnattendedResponse
 import net.atos.client.smartdocuments.model.wizard.WizardResponse
@@ -45,5 +45,5 @@ interface SmartDocumentsClient {
     fun listTemplates(
         @HeaderParam("Authorization") authenticationToken: String,
         @HeaderParam("Username") username: String
-    ): TemplatesResponse
+    ): SmartDocumentsTemplatesResponse
 }

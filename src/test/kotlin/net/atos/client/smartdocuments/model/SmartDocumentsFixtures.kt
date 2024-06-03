@@ -1,15 +1,15 @@
 package net.atos.client.smartdocuments.model
 
-import net.atos.client.smartdocuments.model.templates.DocumentsStructure
-import net.atos.client.smartdocuments.model.templates.GroupsAccess
-import net.atos.client.smartdocuments.model.templates.HeadersStructure
-import net.atos.client.smartdocuments.model.templates.SmartDocumentsTemplate
-import net.atos.client.smartdocuments.model.templates.SmartDocumentsTemplateGroup
-import net.atos.client.smartdocuments.model.templates.TemplatesResponse
-import net.atos.client.smartdocuments.model.templates.TemplatesStructure
+import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseDocumentsStructure
+import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseGroupsAccess
+import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseHeadersStructure
+import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseTemplate
+import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseTemplateGroup
+import net.atos.client.smartdocuments.model.templates.SmartDocumentsTemplatesResponse
+import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseTemplatesStructure
 import net.atos.client.smartdocuments.model.templates.User
-import net.atos.client.smartdocuments.model.templates.UserGroup
-import net.atos.client.smartdocuments.model.templates.UsersStructure
+import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseUserGroup
+import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseUsersStructure
 import net.atos.client.smartdocuments.model.wizard.WizardResponse
 import java.util.UUID
 
@@ -19,12 +19,12 @@ fun createWizardResponse(
     this.ticket = ticket
 }
 
-fun createUserGroup(userGroupName: String) = UserGroup(
+fun createUserGroup(userGroupName: String) = SmartDocumentsResponseUserGroup(
     id = UUID.randomUUID().toString(),
     name = userGroupName,
-    groupsAccess = GroupsAccess(
+    groupsAccess = SmartDocumentsResponseGroupsAccess(
         templateGroups = listOf(
-            SmartDocumentsTemplateGroup(
+            SmartDocumentsResponseTemplateGroup(
                 id = UUID.randomUUID().toString(),
                 name = "Dimpact",
                 allDescendants = true,
@@ -45,7 +45,7 @@ fun createUserGroup(userGroupName: String) = UserGroup(
     accessible = true
 )
 
-fun createTemplate(templateName: String) = SmartDocumentsTemplate(
+fun createTemplate(templateName: String) = SmartDocumentsResponseTemplate(
     id = UUID.randomUUID().toString(),
     name = templateName,
     favorite = false
@@ -56,8 +56,8 @@ fun createTemplates() = listOf(
     createTemplate("Aanvullende informatie oud"),
 )
 
-fun createTemplateGroup(groupName: String, templatesList: List<SmartDocumentsTemplate>) =
-    SmartDocumentsTemplateGroup(
+fun createTemplateGroup(groupName: String, templatesList: List<SmartDocumentsResponseTemplate>) =
+    SmartDocumentsResponseTemplateGroup(
         templateGroups = emptyList(),
         templates = templatesList,
         accessible = true,
@@ -82,11 +82,11 @@ fun createTemplateGroups() = listOf(
     )
 )
 
-fun createTemplatesResponse() = TemplatesResponse(
-    documentsStructure = DocumentsStructure(
-        templatesStructure = TemplatesStructure(
+fun createTemplatesResponse() = SmartDocumentsTemplatesResponse(
+    documentsStructure = SmartDocumentsResponseDocumentsStructure(
+        templatesStructure = SmartDocumentsResponseTemplatesStructure(
             templateGroups = listOf(
-                SmartDocumentsTemplateGroup(
+                SmartDocumentsResponseTemplateGroup(
                     id = UUID.randomUUID().toString(),
                     name = "Dimpact",
                     templateGroups = createTemplateGroups(),
@@ -97,13 +97,13 @@ fun createTemplatesResponse() = TemplatesResponse(
             ),
             accessible = true
         ),
-        headersStructure = HeadersStructure(
+        headersStructure = SmartDocumentsResponseHeadersStructure(
             headerGroups = emptyList(),
             accessible = true
         )
     ),
-    usersStructure = UsersStructure(
-        groupsAccess = GroupsAccess(
+    usersStructure = SmartDocumentsResponseUsersStructure(
+        groupsAccess = SmartDocumentsResponseGroupsAccess(
             templateGroups = emptyList(),
             headerGroups = emptyList()
         ),

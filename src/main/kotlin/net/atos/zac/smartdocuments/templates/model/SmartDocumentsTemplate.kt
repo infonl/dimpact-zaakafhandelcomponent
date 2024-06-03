@@ -22,7 +22,7 @@ import java.time.ZonedDateTime
     allocationSize = 1
 )
 @AllOpen
-class Template {
+class SmartDocumentsTemplate {
     @Id
     @GeneratedValue(generator = "sq_template", strategy = GenerationType.SEQUENCE)
     @Column(name = "id_template")
@@ -33,7 +33,7 @@ class Template {
 
     @ManyToOne
     @JoinColumn(name = "id_template_group", nullable = false)
-    lateinit var templateGroup: TemplateGroup
+    lateinit var templateGroup: SmartDocumentsTemplateGroup
 
     @Column(name = "name", nullable = false)
     lateinit var name: String
