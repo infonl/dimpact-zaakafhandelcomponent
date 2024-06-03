@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.sd.model.templates
+package net.atos.client.smartdocuments.model.templates
 
 import nl.lifely.zac.util.NoArgConstructor
 
@@ -20,18 +20,18 @@ class DocumentsStructure {
 
 @NoArgConstructor
 class TemplatesStructure {
-    lateinit var templateGroups: List<TemplateGroup>
+    lateinit var templateGroups: List<SmartDocumentsTemplateGroup>
     var accessible: Boolean = false
 }
 
 @NoArgConstructor
-class TemplateGroup {
+class SmartDocumentsTemplateGroup {
     lateinit var id: String
     lateinit var name: String
     var allDescendants: Boolean = false
 
-    var templateGroups: List<TemplateGroup>? = null
-    var templates: List<Template>? = null
+    var templateGroups: List<SmartDocumentsTemplateGroup>? = null
+    var templates: List<SmartDocumentsTemplate>? = null
     var accessible: Boolean? = null
 }
 
@@ -45,12 +45,12 @@ class HeaderGroup
 
 @NoArgConstructor
 class GroupsAccess {
-    lateinit var templateGroups: List<TemplateGroup>
+    lateinit var templateGroups: List<SmartDocumentsTemplateGroup>
     lateinit var headerGroups: List<Any>
 }
 
 @NoArgConstructor
-class Template {
+class SmartDocumentsTemplate {
     lateinit var id: String
     lateinit var name: String
     var favorite: Boolean = false

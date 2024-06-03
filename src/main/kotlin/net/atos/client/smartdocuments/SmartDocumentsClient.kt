@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.sd
+package net.atos.client.smartdocuments
 
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.HeaderParam
@@ -10,12 +10,12 @@ import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.client.sd.exception.BadRequestExceptionMapper
-import net.atos.client.sd.exception.RuntimeExceptionMapper
-import net.atos.client.sd.model.templates.TemplatesResponse
-import net.atos.client.sd.model.wizard.Deposit
-import net.atos.client.sd.model.wizard.UnattendedResponse
-import net.atos.client.sd.model.wizard.WizardResponse
+import net.atos.client.smartdocuments.exception.BadRequestExceptionMapper
+import net.atos.client.smartdocuments.exception.RuntimeExceptionMapper
+import net.atos.client.smartdocuments.model.templates.TemplatesResponse
+import net.atos.client.smartdocuments.model.wizard.Deposit
+import net.atos.client.smartdocuments.model.wizard.UnattendedResponse
+import net.atos.client.smartdocuments.model.wizard.WizardResponse
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 
