@@ -24,6 +24,9 @@
           }
         },
         "data": {
+          "aanvrager" : {
+            "naam" : "Héndrika Janse"
+          },
           "gebruiker": {
             "id": "testuser1",
             "naam": "Test User1"
