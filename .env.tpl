@@ -56,6 +56,10 @@ SMTP_SERVER=op://Dimpact/ZAC-.env-$APP_ENV/SMTP/SERVER
 SMTP_PORT=op://Dimpact/ZAC-.env-$APP_ENV/SMTP/PORT
 SMTP_USERNAME=op://Dimpact/ZAC-.env-$APP_ENV/MAILJET/API_KEY
 SMTP_PASSWORD=op://Dimpact/ZAC-.env-$APP_ENV/MAILJET/API_SECRET_KEY
+OBJECTS_API_CLIENT_MP_REST_URL=http://host.docker.internal:8011
+OBJECTS_API_TOKEN=182c13e2209161852c53cef53a879f7a2f923430
+OBJECTTYPES_API_CLIENT_MP_REST_URL=http://host.docker.internal:8011
+OBJECTTYPES_API_TOKEN=dummyZacObjectTypesToken
 
 # -----------------------------------------
 # e2e only environment variables

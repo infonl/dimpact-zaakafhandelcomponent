@@ -1635,13 +1635,13 @@
                         },
                         "betrokkenen" : [
                             {
-                                "inpBsn" : "111222333",
+                                "inpBsn" : "999993896",
                                 "rolOmschrijvingGeneriek" : "initiator",
                                 "indicatieMachtiging" : "gemachtigde",
                                 "indicatieCorrespondentie" : true
                             },
                             {
-                                "inpBsn" : "222333444",
+                                "inpBsn" : "999992958",
                                 "rolOmschrijvingGeneriek" : "mede_initiator",
                                 "indicatieMachtiging" : "machtiginggever",
                                 "indicatieCorrespondentie" : false
