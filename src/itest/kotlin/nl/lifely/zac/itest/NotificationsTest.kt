@@ -170,7 +170,8 @@ class NotificationsTest : BehaviorSpec({
                 response.code shouldBe HTTP_STATUS_NO_CONTENT
                 // retrieve the newly created zaak and check the contents
                 itestHttpClient.performGetRequest(
-                    "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken?rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__innNnpId=$OBJECT_PRODUCTAANVRAAG_KVK_NUMMER"
+                    "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken?" +
+                        "rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__innNnpId=$OBJECT_PRODUCTAANVRAAG_KVK_NUMMER"
                 ).use { getZaakResponse ->
                     val responseBody = getZaakResponse.body!!.string()
                     logger.info { "Response: $responseBody" }
