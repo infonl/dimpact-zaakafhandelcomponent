@@ -5,34 +5,14 @@
 
 package net.atos.zac.aanvraag;
 
-import static net.atos.zac.configuratie.ConfiguratieService.BRON_ORGANISATIE;
-import static net.atos.zac.configuratie.ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER;
-import static net.atos.zac.util.UriUtil.uuidFromURI;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
-import java.net.URI;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.json.bind.JsonbConfig;
-
-import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import net.atos.client.or.object.ObjectsClientService;
 import net.atos.client.or.object.model.ORObject;
 import net.atos.client.vrl.VRLClientService;
-import net.atos.client.vrl.model.generated.CommunicatieKanaal;
 import net.atos.client.zgw.drc.DRCClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.ZGWApiService;
@@ -51,6 +31,7 @@ import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.aanvraag.model.InboxProductaanvraag;
 import net.atos.zac.aanvraag.model.generated.Betrokkene;
+import net.atos.zac.aanvraag.model.generated.Geometry;
 import net.atos.zac.aanvraag.model.generated.ProductaanvraagDimpact;
 import net.atos.zac.aanvraag.util.BetalingStatusEnumJsonAdapter;
 import net.atos.zac.aanvraag.util.GeometryTypeEnumJsonAdapter;
@@ -67,6 +48,23 @@ import net.atos.zac.util.JsonbUtil;
 import net.atos.zac.zaaksturing.ZaakafhandelParameterBeheerService;
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService;
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import java.net.URI;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static net.atos.zac.configuratie.ConfiguratieService.BRON_ORGANISATIE;
+import static net.atos.zac.configuratie.ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER;
+import static net.atos.zac.util.UriUtil.uuidFromURI;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @ApplicationScoped
 public class ProductaanvraagService {
@@ -315,41 +313,33 @@ public class ProductaanvraagService {
             final ORObject productaanvraagObject
     ) {
         final var formulierData = getFormulierData(productaanvraagObject);
-        var zaak = new Zaak();
+        final var zaak = new Zaak();
         final var zaaktype = ztcClientService.readZaaktype(zaaktypeUuid);
         zaak.setZaaktype(zaaktype.getUrl());
-        // we truncate the zaak description to the maximum length allowed by the ZGW ZRC API
-        // or else it will not be accepted by the ZGW API implementation component
-        var zaakOmschrijving = String.format(
-                ZAAK_DESCRIPTION_FORMAT,
-                productaanvraag.getBron().getNaam(),
-                productaanvraag.getBron().getKenmerk()
-        );
-        if (zaakOmschrijving.length() > ZAAK_DESCRIPTION_MAX_LENGTH) {
-            LOG.warning(String.format(
-                    "Truncating zaak description '%s' to the maximum length allowed by the ZGW ZRC API",
-                    zaakOmschrijving
-            )
-            );
-            zaakOmschrijving = zaakOmschrijving.substring(0, ZAAK_DESCRIPTION_MAX_LENGTH);
-        }
+        var zaakOmschrijving = getZaakOmschrijving(productaanvraag);
         zaak.setOmschrijving(zaakOmschrijving);
         // note that we leave the 'toelichting' field empty for a zaak created from a productaanvraag
         zaak.setStartdatum(productaanvraagObject.getRecord().getStartAt());
         zaak.setBronorganisatie(BRON_ORGANISATIE);
         zaak.setVerantwoordelijkeOrganisatie(BRON_ORGANISATIE);
-        final Optional<CommunicatieKanaal> communicatiekanaal = vrlClientService.findCommunicatiekanaal(
-                COMMUNICATIEKANAAL_EFORMULIER);
-        if (communicatiekanaal.isPresent()) {
-            zaak.setCommunicatiekanaal(communicatiekanaal.get().getUrl());
+        vrlClientService.findCommunicatiekanaal(COMMUNICATIEKANAAL_EFORMULIER).ifPresent(
+                communicatieKanaal -> zaak.setCommunicatiekanaal(communicatieKanaal.getUrl())
+        );
+        final var zaakgegevens = productaanvraag.getZaakgegevens();
+        if (
+                zaakgegevens != null &&
+                zaakgegevens.getGeometry() != null &&
+                zaakgegevens.getGeometry().getType() == Geometry.Type.POINT
+        ) {
+            zaak.setZaakgeometrie(AanvraagToZgwConverterKt.convertToZgwPoint(zaakgegevens.getGeometry()));
         }
 
         LOG.fine("Creating zaak using the ZGW API: " + zaak);
-        zaak = zgwApiService.createZaak(zaak);
+        final var createdZaak = zgwApiService.createZaak(zaak);
         final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid);
-        toekennenZaak(zaak, zaakafhandelParameters);
-        pairProductaanvraagInfoWithZaak(productaanvraag, productaanvraagObject, zaak);
-        cmmnService.startCase(zaak, zaaktype, zaakafhandelParameters, formulierData);
+        toekennenZaak(createdZaak, zaakafhandelParameters);
+        pairProductaanvraagInfoWithZaak(productaanvraag, productaanvraagObject, createdZaak);
+        cmmnService.startCase(createdZaak, zaaktype, zaakafhandelParameters, formulierData);
     }
 
     private void pairProductaanvraagInfoWithZaak(
@@ -434,5 +424,26 @@ public class ProductaanvraagService {
         return ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI()).stream()
                 .filter(zaakType -> zaakType.getIdentificatie().equals(zaaktypeIdentificatie))
                 .findFirst();
+    }
+
+    private static String getZaakOmschrijving(ProductaanvraagDimpact productaanvraag) {
+        final var zaakOmschrijving = String.format(
+                ZAAK_DESCRIPTION_FORMAT,
+                productaanvraag.getBron().getNaam(),
+                productaanvraag.getBron().getKenmerk()
+        );
+        if (zaakOmschrijving.length() > ZAAK_DESCRIPTION_MAX_LENGTH) {
+            // we truncate the zaak description to the maximum length allowed by the ZGW ZRC API
+            // or else it will not be accepted by the ZGW API implementation component
+            LOG.warning(
+                    String.format(
+                            "Truncating zaak description '%s' to the maximum length allowed by the ZGW ZRC API",
+                            zaakOmschrijving
+                    )
+            );
+            return zaakOmschrijving.substring(0, ZAAK_DESCRIPTION_MAX_LENGTH);
+        } else {
+            return zaakOmschrijving;
+        }
     }
 }

@@ -2,6 +2,8 @@ package net.atos.zac.aanvraag
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearAllMocks
@@ -19,6 +21,7 @@ import net.atos.client.vrl.model.generated.CommunicatieKanaal
 import net.atos.client.zgw.drc.DRCClientService
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.model.Point
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakInformatieobject
@@ -80,7 +83,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         clearAllMocks()
     }
 
-    Given("an productaanvraag-dimpact object registration object") {
+    Given("a productaanvraag-dimpact object registration object") {
         val bron = createBron()
         val zaakIdentificatie = "dummyZaakIdentificatie"
         val coordinates = listOf(52.08968250760225, 5.114358701512936)
@@ -133,13 +136,20 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val createdZaakInformatieobject = createZaakInformatieobject()
         val zaakafhandelParameters = createZaakafhandelParameters()
         val formulierBron = createBron()
+        val coordinates = listOf(52.08968250760225, 5.114358701512936)
         val productAanvraagORObject = createORObject(
             record = createObjectRecord(
                 data = mapOf(
                     "bron" to formulierBron,
                     "type" to productAanvraagType,
                     // aanvraaggegevens must contain at least one key with a map value
-                    "aanvraaggegevens" to mapOf("dummyKey" to mapOf("dummySubKey" to "dummyValue"))
+                    "aanvraaggegevens" to mapOf("dummyKey" to mapOf("dummySubKey" to "dummyValue")),
+                    "zaakgegevens" to mapOf(
+                        "geometry" to mapOf(
+                            "type" to "Point",
+                            "coordinates" to coordinates
+                        )
+                    )
                 )
             )
         )
@@ -176,6 +186,13 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     bronorganisatie shouldBe BRON_ORGANISATIE
                     omschrijving shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'"
                     toelichting shouldBe null
+                    with(zaakgeometrie) {
+                        type.toValue() shouldBe Geometry.Type.POINT.value()
+                        with((this as Point).coordinates) {
+                            x.toDouble() shouldBe coordinates[0]
+                            y.toDouble() shouldBe coordinates[1]
+                        }
+                    }
                 }
             }
         }
