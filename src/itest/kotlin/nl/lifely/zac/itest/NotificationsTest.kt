@@ -27,6 +27,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECR
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCT_AANVRAAG_ZAAKGEGEVENS_GEOMETRY_X
 import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCT_AANVRAAG_ZAAKGEGEVENS_GEOMETRY_Y
+import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_INITIAL
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_IDENTIFICATION
@@ -170,7 +171,7 @@ class NotificationsTest : BehaviorSpec({
                 response.code shouldBe HTTP_STATUS_NO_CONTENT
                 // retrieve the newly created zaak and check the contents
                 itestHttpClient.performGetRequest(
-                    "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken?" +
+                    "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaken?" +
                         "rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__innNnpId=$OBJECT_PRODUCTAANVRAAG_KVK_NUMMER"
                 ).use { getZaakResponse ->
                     val responseBody = getZaakResponse.body!!.string()
