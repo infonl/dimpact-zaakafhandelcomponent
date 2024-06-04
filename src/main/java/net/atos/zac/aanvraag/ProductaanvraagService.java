@@ -281,8 +281,8 @@ public class ProductaanvraagService {
             final URI zaaktype,
             RolType.OmschrijvingGeneriekEnum omschrijvingGeneriekEnum
     ) {
-        final RolType initiator = ztcClientService.readRoltype(omschrijvingGeneriekEnum, zaaktype);
-        return getRol(betrokkene, zaak, initiator);
+        final RolType roleType = ztcClientService.readRoltype(omschrijvingGeneriekEnum, zaaktype);
+        return getRol(betrokkene, zaak, roleType);
     }
 
     private Optional<Rol<?>> getRol(final Betrokkene betrokkene, final URI zaak, final RolType rolType) {
