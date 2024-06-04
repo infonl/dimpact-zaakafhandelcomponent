@@ -9,6 +9,7 @@ import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.inspectors.forAtLeastOne
+import io.kotest.matchers.collections.shouldHaveAtLeastSize
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
@@ -17,6 +18,8 @@ import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_FORBIDDEN
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTS_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT
+import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_KVK_NUMMER
+import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_KVK_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_KENMERK
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
@@ -126,6 +129,54 @@ class NotificationsTest : BehaviorSpec({
                             getBigDecimal("y") shouldBe PRODUCT_AANVRAAG_ZAAKGEGEVENS_GEOMETRY_Y.toBigDecimal()
                         }
                         zaak1UUID = getString("uuid").let(UUID::fromString)
+                    }
+                }
+            }
+        }
+    }
+    Given(
+        """"ZAC and all related Docker containers are running, productaanvraag object exists in Objecten API
+                    and productaanvraag PDF exists in Open Zaak"""
+    ) {
+        When(
+            """the notificaties endpoint is called with a 'create productaanvraag' payload for a company and with authentication header"""
+        ) {
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/notificaties",
+                headers = Headers.headersOf(
+                    "Content-Type",
+                    "application/json",
+                    // this test simulates that Open Notificaties sends the request to ZAC
+                    // using the secret API key that is configured in ZAC
+                    "Authorization",
+                    OPEN_NOTIFICATIONS_API_SECRET_KEY
+                ),
+                requestBodyAsString = JSONObject(
+                    mapOf(
+                        "resource" to "object",
+                        "resourceUrl" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_KVK_UUID",
+                        "actie" to "create",
+                        "kenmerken" to mapOf(
+                            "objectType" to "$OBJECTS_BASE_URI/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT"
+                        ),
+                        "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
+                    )
+                ).toString(),
+                addAuthorizationHeader = false
+            )
+            Then(
+                """the response should be 'no content', a zaak should be created in OpenZaak"""
+            ) {
+                response.code shouldBe HTTP_STATUS_NO_CONTENT
+                // retrieve the newly created zaak and check the contents
+                itestHttpClient.performGetRequest(
+                    "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken?rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__innNnpId=$OBJECT_PRODUCTAANVRAAG_KVK_NUMMER"
+                ).use { getZaakResponse ->
+                    val responseBody = getZaakResponse.body!!.string()
+                    logger.info { "Response: $responseBody" }
+
+                    with(JSONObject(responseBody).getJSONArray("results")) {
+                        shouldHaveAtLeastSize(1)
                     }
                 }
             }

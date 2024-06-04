@@ -183,6 +183,14 @@
     },
     {
       "model": "core.object",
+      "pk": 33,
+      "fields": {
+        "uuid": "85099eaf-821c-4046-8e82-fdc22c623fb8",
+        "object_type": 4
+      }
+    },
+    {
+      "model": "core.object",
       "pk": 32,
       "fields": {
         "uuid": "9dbed186-89ca-48d7-8c6c-f9995ceb8e27",
@@ -875,6 +883,80 @@
             "geometry": null
          }
     },
+    {
+         "model": "core.objectrecord",
+         "pk": 44,
+         "fields": {
+             "index": 1,
+             "object": 33,
+             "version": 1,
+             "data": {
+                "pdf": "https://open-zaak-zac-dev.dimpact.lifely.nl/documenten/api/v1/enkelvoudiginformatieobjecten/692c5254-a540-4aad-80e0-167fbf62c5a2",
+                "bron": { "naam": "open-forms", "kenmerk": "OF-SAGMUJ" },
+                "taal": "nld",
+                "type": "productaanvraag-indienen-aansprakelijkstelling-door-derden-behandelen",
+                "bijlagen": [],
+                "betrokkenen": [
+                  { "innNnpId": "69599084", "rolOmschrijvingGeneriek": "initiator" }
+                ],
+                "aanvraaggegevens": {
+                  "overig": { "foto": [], "anderedocumenten": [], "factuurofofferte": [] },
+                  "voorval": {
+                    "plaats": "",
+                    "straat": "",
+                    "datumTijdstipVoorval": "",
+                    "warenErGetuigenAanwezig": "",
+                    "omschrijvingVanHetVoorval": "",
+                    "nadereOmschrijvingVanDeLocatie": "",
+                    "wiltUBijlagenMeesturenMetDeMelding": "",
+                    "ikHebDeVolgendeSchadeMeerdereKeuzesMogelijk": {
+                      "andere": false,
+                      "materiele": false,
+                      "persoonlijk": false,
+                      "persoonlijkLetsel": false,
+                      "andereMaterieleSchade": false,
+                      "materieleSchadeAanEenVoertuig": false
+                    },
+                    "uKuntHierAangevenWaaromDeGemeenteAansprakelijkIsVoorDeSchade": ""
+                  },
+                  "getuigen": {
+                    "kolommen": {
+                      "0": {
+                        "postcodeeerste": "",
+                        "voornameneerste": "",
+                        "achternaameerste": "",
+                        "huisnummereerste": null,
+                        "tussenvoegselseerste": ""
+                      }
+                    }
+                  },
+                  "nadere-gegevens-schade": {
+                    "polisnummer": null,
+                    "bedrijfsnaam": "",
+                    "hoeBentUVerzekerd": "",
+                    "schadeReedsGemeld": ""
+                  },
+                  "naw-en-verborgen-velden": {
+                    "demovoornaam": "",
+                    "id_initiator": "via logica is deze waarde te vullen met bijvoorbeeld 'NatuurlijkPersoon (bsn)' wanneer alleen-lezen NAW wordt gevuld, of 'Anoniem' wanneer niet gevuld",
+                    "demoachternaam": "",
+                    "demobsnprefill": "BSN-nummer",
+                    "demovoorletters": "",
+                    "demotussenvoegsels": "",
+                    "demovoornaamprefill": "Demo",
+                    "demoachternaamprefill": "Demo",
+                    "demovoorlettersprefill": "",
+                    "demotussenvoegselsprefill": ""
+                  }
+                }
+              },
+             "start_at": "2023-10-25",
+             "end_at": null,
+             "registration_at": "2023-10-25",
+             "correct": null,
+             "geometry": null
+          }
+     },
     {
         "model": "token.tokenauth",
         "pk": 1,
