@@ -44,6 +44,8 @@ object ItestConfiguration {
     const val OPEN_ZAAK_CLIENT_SECRET = "openzaakZaakafhandelcomponentClientSecret"
     const val PDF_MIME_TYPE = "application/pdf"
     const val PRODUCT_AANVRAAG_TYPE = "productaanvraag"
+    const val PRODUCT_AANVRAAG_ZAAKGEGEVENS_GEOMETRY_X = 52.08968250760225
+    const val PRODUCT_AANVRAAG_ZAAKGEGEVENS_GEOMETRY_Y = 5.114358701512936
     const val ROLTYPE_NAME_BETROKKENE = "Belanghebbende"
     const val ROLTYPE_UUID_BELANGHEBBENDE = "4c4cd850-8332-4bb9-adc4-dd046f0614ad"
     const val ROLTYPE_COUNT = 16
