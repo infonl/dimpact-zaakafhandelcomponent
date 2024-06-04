@@ -370,10 +370,10 @@ public class ProductaanvraagService {
         pairBijlagenWithZaak(productaanvraag.getBijlagen(), zaak.getUrl());
         ListUtils.emptyIfNull(productaanvraag.getBetrokkenen()).stream()
                 .filter(betrokkene -> betrokkene.getRolOmschrijvingGeneriek().equals(Betrokkene.RolOmschrijvingGeneriek.INITIATOR))
+                .flatMap(betrokkene -> getInitiatorRol(betrokkene, zaak.getUrl(), zaak.getZaaktype()).stream())
+                .findFirst()
                 // there can be at most only one initiator for a particular zaak so even if there are multiple (theorically possible)
                 // we are only interested in the first one
-                .findFirst()
-                .flatMap(betrokkene -> getInitiatorRol(betrokkene, zaak.getUrl(), zaak.getZaaktype()))
                 .ifPresent(zrcClientService::createRol);
     }
 
