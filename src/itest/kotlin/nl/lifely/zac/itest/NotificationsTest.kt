@@ -22,6 +22,8 @@ import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
+import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCT_AANVRAAG_ZAAKGEGEVENS_GEOMETRY_X
+import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCT_AANVRAAG_ZAAKGEGEVENS_GEOMETRY_Y
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_INITIAL
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_IDENTIFICATION
@@ -119,6 +121,10 @@ class NotificationsTest : BehaviorSpec({
                         getString("omschrijving") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
                             "met kenmerk '$OPEN_FORMULIEREN_FORMULIER_BRON_KENMERK'"
                         getString("uiterlijkeEinddatumAfdoening") shouldBe ZAAK_1_UITERLIJKE_EINDDATUM_AFDOENING
+                        with(getJSONObject("zaakgeometrie").getJSONObject("point")) {
+                            getBigDecimal("x") shouldBe PRODUCT_AANVRAAG_ZAAKGEGEVENS_GEOMETRY_X.toBigDecimal()
+                            getBigDecimal("y") shouldBe PRODUCT_AANVRAAG_ZAAKGEGEVENS_GEOMETRY_Y.toBigDecimal()
+                        }
                         zaak1UUID = getString("uuid").let(UUID::fromString)
                     }
                 }
