@@ -54,7 +54,6 @@ class SignaleringenService @Inject constructor(
     private val zrcClientService: ZRCClientService,
     private val restZaakOverzichtConverter: RESTZaakOverzichtConverter,
 ) {
-
     companion object {
         @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
         private lateinit var entityManager: EntityManager
@@ -331,6 +330,10 @@ class SignaleringenService @Inject constructor(
             LOG.fine { "Sending 'ZAKEN_SIGNALERINGEN' screen event with ID '$it'." }
             eventingService.send(ScreenEventType.ZAKEN_SIGNALERINGEN.updated(it, zakenSignaleringen))
         }
+    }
+
+    fun deleteOldSignaleringen() {
+        // TODO: implement
     }
 
     private fun listZakenSignaleringen(
