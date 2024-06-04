@@ -302,7 +302,7 @@ public class ProductaanvraagService {
             medewerker.setIdentificatie(betrokkene.getMedewerkerIdentificatie());
             return Optional.of(new RolMedewerker(zaak, rolType, ROL_TOELICHTING, medewerker));
         } else {
-            LOG.warning(String.format(
+            LOG.severe(String.format(
                     "Cannot map betrokkene '%s' to a known Role",
                     betrokkene
             ));
