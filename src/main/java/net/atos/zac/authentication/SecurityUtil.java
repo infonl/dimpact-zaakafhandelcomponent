@@ -5,15 +5,15 @@
 
 package net.atos.zac.authentication;
 
-import jakarta.enterprise.inject.Instance;
-import jakarta.enterprise.inject.Produces;
-import jakarta.inject.Inject;
-import jakarta.servlet.http.HttpSession;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
+
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpSession;
 
 public class SecurityUtil implements Serializable {
 
