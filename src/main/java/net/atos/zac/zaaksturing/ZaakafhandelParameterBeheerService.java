@@ -108,10 +108,12 @@ public class ZaakafhandelParameterBeheerService {
         query.orderBy(builder.desc(root.get(CREATIEDATUM)));
         final List<UUID> resultList = entityManager.createQuery(query).getResultList();
         if (!resultList.isEmpty()) {
-            // note that we currently do not check if a zaakafhandelparameter record
-            // is actually 'active' or not
-            // we should probably only check for active/current zaakafhandelparameters here
             if (resultList.size() > 1) {
+                // note that we currently do not check if the zaaktype (version) for a zaakafhandelparameter record
+                // is currently active or not
+                // we get away with this to some degree because we are sorting by creation date,
+                // so the most recent one should be the active one normally
+                // should be improved in the future
                 LOG.warning(
                         String.format(
                                 "Multiple zaaktypes have been found for productaanvraag type: '%s'. " +

@@ -25,17 +25,17 @@ import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
 
 @ApplicationScoped
 public class ZaakafhandelParameterService implements Caching {
-
     private static final Logger LOG = Logger.getLogger(ZaakafhandelParameterService.class.getName());
+    private static final int MAX_CACHE_SIZE = 100;
 
     @Inject
     private ZaakafhandelParameterBeheerService beheerService;
 
-    private static final Map<String, Cache> CACHES = new HashMap<>();
+    private static final Map<String, Cache<?, ?>> CACHES = new HashMap<>();
 
     private <K, V> Cache<K, V> createCache(String name) {
         Cache<K, V> cache = Caffeine.newBuilder()
-                .maximumSize(100)
+                .maximumSize(MAX_CACHE_SIZE)
                 .recordStats()
                 .removalListener(
                         (K key, V value, RemovalCause cause) -> LOG.info("Removing key: %s because of: %s".formatted(key, cause))
@@ -49,7 +49,6 @@ public class ZaakafhandelParameterService implements Caching {
     private final Cache<UUID, ZaakafhandelParameters> uuidToZaakafhandelParametersCache = createCache("UUID -> ZaakafhandelParameters");
     private final Cache<String, List<ZaakafhandelParameters>> stringToZaakafhandelParametersListCache = createCache(
             "List<ZaakafhandelParameters>");
-
 
     public ZaakafhandelParameters readZaakafhandelParameters(final UUID zaaktypeUUID) {
         return uuidToZaakafhandelParametersCache.get(
