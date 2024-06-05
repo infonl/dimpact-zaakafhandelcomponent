@@ -34,6 +34,7 @@ import net.atos.zac.util.ValidationUtil
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
+import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.time.ZonedDateTime
 import java.util.Arrays
 import java.util.Optional
@@ -52,7 +53,7 @@ class SignaleringenService @Inject constructor(
     private val signaleringenZACHelper: SignaleringenZACHelper,
     private val signaleringenPredicateHelper: SignaleringenPredicateHelper,
     private val zrcClientService: ZRCClientService,
-    private val restZaakOverzichtConverter: RESTZaakOverzichtConverter,
+    private val restZaakOverzichtConverter: RESTZaakOverzichtConverter
 ) {
     companion object {
         @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
@@ -145,9 +146,7 @@ class SignaleringenService @Inject constructor(
      * @return the number of deleted signaleringen
      */
     @Transactional(REQUIRED)
-    fun deleteOldSignaleringen(): Int {
-        // TODO: get from configuration
-        val deleteOlderThanDays = 14L
+    fun deleteOldSignaleringen(deleteOlderThanDays: Long): Int {
         LOG.info("Deleting signaleringen older than $deleteOlderThanDays days from the database.")
         val builder = entityManager.criteriaBuilder
         val query = builder.createCriteriaDelete(Signalering::class.java)
@@ -155,7 +154,7 @@ class SignaleringenService @Inject constructor(
         query.where(
             builder.lessThan(
                 root.get("tijdstip"),
-                ZonedDateTime.now().minusDays(deleteOlderThanDays)
+                ZonedDateTime.now().minusSeconds(deleteOlderThanDays)
             )
         )
         val deletedCount = entityManager.createQuery(query).executeUpdate()

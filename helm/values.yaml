@@ -104,8 +104,11 @@ smartDocuments:
   authentication: ""
   fixedUserName: ""
 
-# Schedule of the signaleren job in CRON job format
-signalerenSchedule: "0 2 * * *"
+signaleringen:
+  # Delete any signaleringen older than this number of days when the corresponding admin endpoint is called.
+  deleteOlderThanDays: 14
+  # Schedule of the signaleringen send zaken job in CRON job format
+  sendZaakSignaleringenSchedule: "0 2 * * *"
 
 # Overrides for opentelemetry
 #opentelemetry_zaakafhandelcomponent:
