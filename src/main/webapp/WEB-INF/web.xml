@@ -92,14 +92,6 @@
 
     <security-constraint>
         <web-resource-collection>
-            <web-resource-name>start</web-resource-name>
-            <description>For allowing starting a form</description>
-            <url-pattern>/startformulieren/*</url-pattern>
-        </web-resource-collection>
-    </security-constraint>
-
-    <security-constraint>
-        <web-resource-collection>
             <web-resource-name>webdav</web-resource-name>
             <description>For allowing WebDAV</description>
             <url-pattern>/webdav/*</url-pattern>
