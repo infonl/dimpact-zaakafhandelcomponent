@@ -35,7 +35,7 @@ class SmartDocumentsTemplateGroup {
     lateinit var smartDocumentsId: String
 
     @ManyToOne
-    @JoinColumn(name = "id_zaakafhandelparameters", nullable = false)
+    @JoinColumn(name = "zaakafhandelparameters_id", nullable = false)
     lateinit var zaakafhandelParameters: ZaakafhandelParameters
 
     @Column(name = "name", nullable = false)
@@ -51,6 +51,6 @@ class SmartDocumentsTemplateGroup {
     @OneToMany(mappedBy = "parent", cascade = [CascadeType.ALL])
     var children: MutableSet<SmartDocumentsTemplateGroup> = mutableSetOf()
 
-    @OneToMany(mappedBy = "templateGroup")
+    @OneToMany(mappedBy = "templateGroup", cascade = [CascadeType.ALL])
     var templates: MutableSet<SmartDocumentsTemplate> = mutableSetOf()
 }

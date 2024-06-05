@@ -68,7 +68,7 @@ object SmartDocumentsTemplateConverter {
         val jpaGroup = createModelTemplateGroup(group, parent, zaakafhandelParameterId)
 
         group.templates?.forEach {
-            jpaGroup.templates.add(createModelTemplate(it, zaakafhandelParameterId))
+            jpaGroup.templates.add(createModelTemplate(it, jpaGroup, zaakafhandelParameterId))
         }
 
         group.groups?.forEach {
@@ -92,11 +92,13 @@ object SmartDocumentsTemplateConverter {
 
     private fun createModelTemplate(
         smartDocumentsTemplate: RESTSmartDocumentsTemplate,
+        parentGroup: SmartDocumentsTemplateGroup,
         zaakafhandelParams: ZaakafhandelParameters
     ) = SmartDocumentsTemplate().apply {
         smartDocumentsId = smartDocumentsTemplate.id
         zaakafhandelParameters = zaakafhandelParams
         name = smartDocumentsTemplate.name
+        templateGroup = parentGroup
         creationDate = ZonedDateTime.now()
     }
 

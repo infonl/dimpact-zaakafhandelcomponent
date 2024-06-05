@@ -7,8 +7,10 @@ package nl.lifely.zac.itest
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 
 class SmartDocumentsTest : BehaviorSpec({
@@ -87,6 +89,78 @@ class SmartDocumentsTest : BehaviorSpec({
                     shouldContainJsonKeyValue("$[0].templates[14].name", "Toets oud")
                     shouldContainJsonKeyValue("$[0].templates[15].id", "E919C3C9444F4EA7B4A53C896FBC8ABC")
                     shouldContainJsonKeyValue("$[0].templates[15].name", "Zaakafhandelcomponent Test")
+                }
+            }
+        }
+
+        When("the create mapping endpoint is called") {
+            val smartDocumentsZaakafhandelParametersUrl =
+                "$ZAC_API_URI/smartdocuments/templates/zaakafhandelParamaters/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
+            val restTemplateGroups = """
+                [
+                  {
+                    "id": "6e0658a4-3039-4a7c-84d2-4ef47285ea52",
+                    "name": "root",
+                    "groups": [
+                      {
+                        "id": "ef1abdd4-2182-4600-85ab-b9e7bab4e96a",
+                        "name": "group 1",
+                        "groups": null,
+                        "templates": [
+                          {
+                            "id": "4496b307-2980-4fe3-ac7f-53219683770b",
+                            "name": "group 1 template 1"
+                          },
+                          {
+                            "id": "606db3b5-bff1-4664-bfab-d7c4f9647f19",
+                            "name": "group 1 template 2"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "949e5a09-0361-43cb-a82f-93263b7fc4b4",
+                        "name": "group 2",
+                        "groups": null,
+                        "templates": [
+                          {
+                            "id": "e147850c-4492-446d-a37e-0f593c6061fd",
+                            "name": "group 2 template 1"
+                          },
+                          {
+                            "id": "d5da1fd2-dd72-4c3c-af43-3555dacaf59a",
+                            "name": "group 2 template 2"
+                          }
+                        ]
+                      }
+                    ],
+                    "templates": [
+                      {
+                        "id": "93556271-a1ec-43a2-95f5-a5570ce927a4",
+                        "name": "root template 1"
+                      },
+                      {
+                        "id": "2fe1ab77-57c8-4e78-88ed-e25358ceff89",
+                        "name": "root template 2"
+                      }
+                    ]
+                  }
+                ]
+            """.trimIndent()
+            val storeResponse = itestHttpClient.performJSONPostRequest(
+                url = smartDocumentsZaakafhandelParametersUrl,
+                requestBodyAsString = restTemplateGroups
+            )
+            storeResponse.isSuccessful shouldBe true
+
+            And("then the mapping is fetched back") {
+                val fetchResponse = itestHttpClient.performGetRequest(url = smartDocumentsZaakafhandelParametersUrl)
+
+                Then("the data is fetched correctly") {
+                    fetchResponse.isSuccessful shouldBe true
+                    val fetchResponseBody = fetchResponse.body!!.string()
+                    logger.info { "Response: $fetchResponseBody" }
+
+                    fetchResponseBody shouldBeEqual restTemplateGroups
                 }
             }
         }

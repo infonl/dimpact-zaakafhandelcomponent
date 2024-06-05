@@ -120,10 +120,12 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
                     with(templates.first()) {
                         name shouldBe "root template 1"
                         zaakafhandelParameters shouldBe zaakafhandelParametersFixture
+                        templateGroup.name shouldBe "root"
                     }
                     with(templates.last()) {
                         name shouldBe "root template 2"
                         zaakafhandelParameters shouldBe zaakafhandelParametersFixture
+                        templateGroup.name shouldBe "root"
                     }
 
                     children.size shouldBe 2
@@ -135,10 +137,12 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
                         with(templates.first()) {
                             name shouldBe "group 1 template 1"
                             zaakafhandelParameters shouldBe zaakafhandelParametersFixture
+                            templateGroup.name shouldBe "group 1"
                         }
                         with(templates.last()) {
                             name shouldBe "group 1 template 2"
                             zaakafhandelParameters shouldBe zaakafhandelParametersFixture
+                            templateGroup.name shouldBe "group 1"
                         }
 
                         parent!!.name shouldBe "root"
@@ -151,10 +155,12 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
                         with(templates.first()) {
                             name shouldBe "group 2 template 1"
                             zaakafhandelParameters shouldBe zaakafhandelParametersFixture
+                            templateGroup.name shouldBe "group 2"
                         }
                         with(templates.last()) {
                             name shouldBe "group 2 template 2"
                             zaakafhandelParameters shouldBe zaakafhandelParametersFixture
+                            templateGroup.name shouldBe "group 2"
                         }
 
                         parent!!.name shouldBe "root"

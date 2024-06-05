@@ -13,8 +13,6 @@ import jakarta.ws.rs.core.MediaType
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.smartdocuments.SmartDocumentsService
-import net.atos.zac.smartdocuments.templates.SmartDocumentsTemplateConverter.toModel
-import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.util.UUID
@@ -27,7 +25,6 @@ import java.util.UUID
 @AllOpen
 class SmartDocumentsRESTService @Inject constructor(
     private val smartDocumentsService: SmartDocumentsService,
-    private var zaakafhandelParameterService: ZaakafhandelParameterService,
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
 
@@ -42,8 +39,7 @@ class SmartDocumentsRESTService @Inject constructor(
     @Path("templates/zaakafhandelParamaters/{zaakafhandelUUID}")
     fun getTemplatesMapping(@PathParam("zaakafhandelUUID") zaakafhandelUUID: UUID) {
         PolicyService.assertPolicy(loggedInUserInstance.get().isGeautoriseerdVoorAlleZaaktypen)
-        val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaakafhandelUUID)
-        smartDocumentsService.getTemplatesMapping(zaakafhandelParameters.id)
+        smartDocumentsService.getTemplatesMapping(zaakafhandelUUID)
     }
 
     @POST
@@ -53,8 +49,6 @@ class SmartDocumentsRESTService @Inject constructor(
         restTemplateGroups: Set<RESTSmartDocumentsTemplateGroup>
     ) {
         PolicyService.assertPolicy(loggedInUserInstance.get().isGeautoriseerdVoorAlleZaaktypen)
-        val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaakafhandelUUID)
-        val modelTemplateGroups = restTemplateGroups.toModel(zaakafhandelParameters)
-        smartDocumentsService.storeTemplatesMapping(modelTemplateGroups)
+        smartDocumentsService.storeTemplatesMapping(restTemplateGroups, zaakafhandelUUID)
     }
 }
