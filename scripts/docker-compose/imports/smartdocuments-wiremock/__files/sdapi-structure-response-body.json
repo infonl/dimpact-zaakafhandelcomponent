@@ -1,0 +1,227 @@
+{
+  "documentsStructure": {
+    "templatesStructure": {
+      "templateGroups": [
+        {
+          "templateGroups": [
+            {
+              "templateGroups": [],
+              "templates": [
+                {
+                  "favorite": false,
+                  "id": "7B7857BB9959470C82974037304E433D",
+                  "name": "Data Test"
+                },
+                {
+                  "favorite": false,
+                  "id": "273C2707E5A844699B653C87ACFD618E",
+                  "name": "OpenZaakTest"
+                }
+              ],
+              "accessible": true,
+              "id": "0E18B04EDF9646C0A2D04E651DC4C6FF",
+              "name": "Intern zaaktype voor test volledig gebruik ZAC"
+            },
+            {
+              "templateGroups": [],
+              "templates": [
+                {
+                  "favorite": false,
+                  "id": "7B7857BB9959470C82974037304E433D",
+                  "name": "Data Test"
+                },
+                {
+                  "favorite": false,
+                  "id": "273C2707E5A844699B653C87ACFD618E",
+                  "name": "OpenZaakTest"
+                }
+              ],
+              "accessible": true,
+              "id": "348097107FA346DC9AEBBE33A5500B79",
+              "name": "OpenZaak"
+            },
+            {
+              "templateGroups": [],
+              "templates": [
+                {
+                  "favorite": false,
+                  "id": "7B7857BB9959470C82974037304E433D",
+                  "name": "Data Test"
+                },
+                {
+                  "favorite": false,
+                  "id": "273C2707E5A844699B653C87ACFD618E",
+                  "name": "OpenZaakTest"
+                }
+              ],
+              "accessible": true,
+              "id": "CC2696396E1D4899A74AC025B19C8FDC",
+              "name": "Indienen aansprakelijkstelling door derden behandelen"
+            },
+            {
+              "templateGroups": [],
+              "templates": [
+                {
+                  "favorite": false,
+                  "id": "7B7857BB9959470C82974037304E433D",
+                  "name": "Data Test"
+                },
+                {
+                  "favorite": false,
+                  "id": "273C2707E5A844699B653C87ACFD618E",
+                  "name": "OpenZaakTest"
+                }
+              ],
+              "accessible": true,
+              "id": "DA3A76D24DFD48C9837B03E47BC701FB",
+              "name": "Melding evenement organiseren behandelen"
+            }
+          ],
+          "templates": [
+            {
+              "favorite": false,
+              "id": "2F426D9B06034FDB93FDC2C6427640DD",
+              "name": "Aanvullende informatie nieuw"
+            },
+            {
+              "favorite": false,
+              "id": "CDC0FD0F08B545B59E36D610AFFA0B58",
+              "name": "Aanvullende informatie oud"
+            },
+            {
+              "favorite": false,
+              "id": "40A8482A34F941618B95359BF8246FB8",
+              "name": "Advies nieuw"
+            },
+            {
+              "favorite": false,
+              "id": "16B8B5A8E18A4BA484302029B51C32B6",
+              "name": "Advies oud"
+            },
+            {
+              "favorite": false,
+              "id": "53AFB00EE74E4B8AB1EC73CCB3251F8B",
+              "name": "Besluit nieuw"
+            },
+            {
+              "favorite": false,
+              "id": "60D711D768184F7F94A8BC1553A689A1",
+              "name": "Besluit oud"
+            },
+            {
+              "favorite": false,
+              "id": "7B7857BB9959470C82974037304E433D",
+              "name": "Data Test"
+            },
+            {
+              "favorite": false,
+              "id": "6BF6F7B751554C24964C7B39DC62F2BA",
+              "name": "Memo nieuw"
+            },
+            {
+              "favorite": false,
+              "id": "4A615E0E9F754539A7BB969B55CC814A",
+              "name": "Memo oud"
+            },
+            {
+              "favorite": false,
+              "id": "C775E87B0DA04FFFA3355320C2E905A9",
+              "name": "Ontvangstbevestiging nieuw"
+            },
+            {
+              "favorite": false,
+              "id": "237A278B4CC9455EA9D7AF9BC41610FC",
+              "name": "Ontvangstbevestiging oud"
+            },
+            {
+              "favorite": false,
+              "id": "B1052A0E3A7A46FDA694A239B93E68AD",
+              "name": "Samenwerking loont"
+            },
+            {
+              "favorite": false,
+              "id": "719AB39150074AF88E02CFE55EBAE479",
+              "name": "Signature Template"
+            },
+            {
+              "favorite": false,
+              "id": "445E1A2C5D964A33961CA46679AB51CF",
+              "name": "Toets nieuw"
+            },
+            {
+              "favorite": false,
+              "id": "8CCCF38A7757473CB5F5F2B8E5D7484D",
+              "name": "Toets oud"
+            },
+            {
+              "favorite": false,
+              "id": "E919C3C9444F4EA7B4A53C896FBC8ABC",
+              "name": "Zaakafhandelcomponent Test"
+            }
+          ],
+          "accessible": true,
+          "id": "D5037631FF6748269059B353699EFA0C",
+          "name": "Dimpact"
+        }
+      ],
+      "accessible": true
+    },
+    "headersStructure": {
+      "headerGroups": [],
+      "accessible": true
+    }
+  },
+  "usersStructure": {
+    "groupsAccess": {
+      "templateGroups": [],
+      "headerGroups": []
+    },
+    "userGroups": [
+      {
+        "groupsAccess": {
+          "templateGroups": [
+            {
+              "id": "D5037631FF6748269059B353699EFA0C",
+              "name": "Dimpact",
+              "allDescendants": true
+            }
+          ],
+          "headerGroups": []
+        },
+        "userGroups": [],
+        "users": [
+          {
+            "id": "53D4C8F354C34236911C2228180CFE5A",
+            "name": "zaakafhandelcomponent"
+          }
+        ],
+        "accessible": true,
+        "id": "85F565BC938F496E9EAEEE5AFE6662D1",
+        "name": "Atos"
+      },
+      {
+        "groupsAccess": {
+          "templateGroups": [
+            {
+              "id": "D5037631FF6748269059B353699EFA0C",
+              "name": "Dimpact",
+              "allDescendants": true
+            }
+          ],
+          "headerGroups": []
+        },
+        "userGroups": [],
+        "users": [
+          {
+            "id": "53D4C8F354C34236911C2228180CFE5A",
+            "name": "zaakafhandelcomponent"
+          }
+        ],
+        "accessible": true,
+        "id": "59FD5E31809645D0B9CC7EAE2A536513",
+        "name": "Dimpact"
+      }
+    ],
+    "accessible": true
+  }
+}

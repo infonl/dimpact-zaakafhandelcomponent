@@ -11,7 +11,6 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.authentication.LoggedInUser
-import net.atos.zac.authentication.SecurityUtil
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.smartdocuments.SmartDocumentsService
 import net.atos.zac.smartdocuments.templates.SmartDocumentsTemplateConverter.toModel
@@ -35,13 +34,14 @@ class SmartDocumentsRESTService @Inject constructor(
     @GET
     @Path("templates")
     fun listTemplates(): Set<RESTSmartDocumentsTemplateGroup> {
-        PolicyService.assertPolicy(loggedInUserInstance.get().equals(SecurityUtil.FUNCTIONEEL_GEBRUIKER))
+        PolicyService.assertPolicy(loggedInUserInstance.get().isGeautoriseerdVoorAlleZaaktypen)
         return smartDocumentsService.listTemplates()
     }
 
     @GET
     @Path("templates/zaakafhandelParamaters/{zaakafhandelUUID}")
     fun getTemplatesMapping(@PathParam("zaakafhandelUUID") zaakafhandelUUID: UUID) {
+        PolicyService.assertPolicy(loggedInUserInstance.get().isGeautoriseerdVoorAlleZaaktypen)
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaakafhandelUUID)
         smartDocumentsService.getTemplatesMapping(zaakafhandelParameters.id)
     }
@@ -52,6 +52,7 @@ class SmartDocumentsRESTService @Inject constructor(
         @PathParam("zaakafhandelUUID") zaakafhandelUUID: UUID,
         restTemplateGroups: Set<RESTSmartDocumentsTemplateGroup>
     ) {
+        PolicyService.assertPolicy(loggedInUserInstance.get().isGeautoriseerdVoorAlleZaaktypen)
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaakafhandelUUID)
         val modelTemplateGroups = restTemplateGroups.toModel(zaakafhandelParameters)
         smartDocumentsService.storeTemplatesMapping(modelTemplateGroups)
