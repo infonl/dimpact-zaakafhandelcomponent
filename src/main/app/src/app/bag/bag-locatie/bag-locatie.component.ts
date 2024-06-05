@@ -25,6 +25,7 @@ import * as source from "ol/source.js";
 import * as style from "ol/style.js";
 import WMTSTileGrid from "ol/tilegrid/WMTS.js";
 import proj4 from "proj4";
+import { LocationUtil } from "src/app/shared/location/location-util";
 import { environment } from "src/environments/environment";
 import { Geometry } from "../../zaken/model/geometry";
 import { GeometryType } from "../../zaken/model/geometryType";
@@ -136,13 +137,13 @@ export class BagLocatieComponent implements OnInit, AfterViewInit, OnChanges {
 
   private draw(geometry: Geometry): void {
     if (geometry.type === GeometryType.POINT) {
-      const coordinate: Array<number> = [geometry.point.x, geometry.point.y];
+      const coordinate = LocationUtil.pointToCoordinate(geometry.point);
       this.addPoint(coordinate);
     }
     if (geometry.type === GeometryType.POLYGON) {
       const coordinates: Coordinate[][] = [[]];
       geometry.polygon.forEach((cs) => {
-        coordinates.push(cs.map((c) => [c.x, c.y]));
+        coordinates.push(cs.map(LocationUtil.pointToCoordinate));
       });
       this.addVlak(coordinates);
     }

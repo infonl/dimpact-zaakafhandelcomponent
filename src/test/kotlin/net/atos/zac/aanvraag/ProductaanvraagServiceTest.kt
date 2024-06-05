@@ -187,8 +187,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     with(zaakgeometrie) {
                         type.toValue() shouldBe Geometry.Type.POINT.value()
                         with((this as Point).coordinates) {
-                            x.toDouble() shouldBe coordinates[0]
-                            y.toDouble() shouldBe coordinates[1]
+                            latitude.toDouble() shouldBe coordinates[0]
+                            longitude.toDouble() shouldBe coordinates[1]
                         }
                     }
                 }
