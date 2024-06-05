@@ -1,5 +1,6 @@
 package net.atos.zac.smartdocuments.templates.model
 
+import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -33,11 +34,11 @@ class SmartDocumentsTemplate {
     lateinit var smartDocumentsId: String
 
     @ManyToOne
-    @JoinColumn(name = "id_template_group", nullable = false)
+    @JoinColumn(name = "template_group_id", nullable = false)
     lateinit var templateGroup: SmartDocumentsTemplateGroup
 
     @ManyToOne
-    @JoinColumn(name = "id_zaakafhandelparameters", nullable = false)
+    @JoinColumn(name = "zaakafhandelparameters_id", nullable = false)
     lateinit var zaakafhandelParameters: ZaakafhandelParameters
 
     @Column(name = "name", nullable = false)
