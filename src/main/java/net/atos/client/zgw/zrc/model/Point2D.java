@@ -21,26 +21,26 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 @JsonbTypeAdapter(Point2D.Adapter.class)
 public class Point2D {
 
-    private final BigDecimal x;
+    private final BigDecimal longitude;
 
-    private final BigDecimal y;
+    private final BigDecimal latitude;
 
-    public Point2D(final BigDecimal x, final BigDecimal y) {
-        this.x = x;
-        this.y = y;
+    public Point2D(final BigDecimal latitude, final BigDecimal longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
-    public Point2D(final double x, final double y) {
-        this.x = BigDecimal.valueOf(x);
-        this.y = BigDecimal.valueOf(y);
+    public Point2D(final double latitude, final double longitude) {
+        this.latitude = BigDecimal.valueOf(latitude);
+        this.longitude = BigDecimal.valueOf(longitude);
     }
 
-    public BigDecimal getX() {
-        return x;
+    public BigDecimal getLongitude() {
+        return longitude;
     }
 
-    public BigDecimal getY() {
-        return y;
+    public BigDecimal getLatitude() {
+        return latitude;
     }
 
     public static class Adapter implements JsonbAdapter<Point2D, List<BigDecimal>> {
@@ -48,8 +48,8 @@ public class Point2D {
         @Override
         public List<BigDecimal> adaptToJson(final Point2D point2D) {
             final List<BigDecimal> coordinates = new ArrayList<>();
-            coordinates.add(point2D.x);
-            coordinates.add(point2D.y);
+            coordinates.add(point2D.latitude);
+            coordinates.add(point2D.longitude);
             return coordinates;
         }
 
@@ -71,11 +71,11 @@ public class Point2D {
 
         final Point2D point2D = (Point2D) o;
 
-        return new EqualsBuilder().append(x, point2D.getX()).append(y, point2D.getY()).isEquals();
+        return new EqualsBuilder().append(longitude, point2D.getLongitude()).append(latitude, point2D.getLatitude()).isEquals();
     }
 
     @Override
     public final int hashCode() {
-        return Objects.hash(x, y);
+        return Objects.hash(longitude, latitude);
     }
 }

@@ -4,11 +4,8 @@
  */
 
 export class GeometryCoordinate {
-  constructor(x: number, y: number) {
-    this.x = x;
-    this.y = y;
-  }
-
-  x: number;
-  y: number;
+  constructor(
+    public latitude: number,
+    public longitude: number,
+  ) {}
 }

@@ -1,3 +1,4 @@
+import { Coordinate } from "ol/coordinate";
 import { Geometry } from "../../zaken/model/geometry";
 import { GeometryCoordinate } from "../../zaken/model/geometryCoordinate";
 import { GeometryType } from "../../zaken/model/geometryType";
@@ -9,24 +10,31 @@ export class LocationUtil {
    * @private
    */
   public static wktToPoint(wkt: string): Geometry {
-    const geometrie = new Geometry(GeometryType.POINT);
-    const coordinates: string[] = wkt
+    const coordinate = wkt
       .replace("POINT(", "")
       .replace(")", "")
-      .split(" ");
-    geometrie.point = new GeometryCoordinate(+coordinates[0], +coordinates[1]);
+      .split(" ")
+      .map(Number);
+    return this.coordinateToPoint(coordinate);
+  }
+
+  public static coordinateToPoint([x, y]: Coordinate): Geometry {
+    const geometrie = new Geometry(GeometryType.POINT);
+    geometrie.point = new GeometryCoordinate(y, x);
     return geometrie;
   }
 
-  public static coordinateToPoint(coordinate: number[]): Geometry {
-    const geometrie = new Geometry(GeometryType.POINT);
-    geometrie.point = new GeometryCoordinate(coordinate[0], coordinate[1]);
-    return geometrie;
+  public static pointToCoordinate({
+    latitude,
+    longitude,
+  }: GeometryCoordinate): Coordinate {
+    // the map library uses [X,Y] in stead of [latitude, longitude]
+    return [longitude, latitude];
   }
 
   public static format(geometry: Geometry) {
     if (geometry && geometry.type == GeometryType.POINT) {
-      return geometry.point.y + ", " + geometry.point.x;
+      return geometry.point.latitude + ", " + geometry.point.longitude;
     }
     return null;
   }

@@ -187,16 +187,16 @@ class ZakenRESTServiceTest : BehaviorSpec({
             }
         }
         When("the 'update Zaak Locatie' endpoint is called with a valid location") {
-            val geometryX = Random.nextFloat()
-            val geometryY = Random.nextFloat()
+            val longitude = Random.nextFloat()
+            val latitude = Random.nextFloat()
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/$zaak2UUID/zaaklocatie",
                 requestBodyAsString = """
                         {
                             "geometrie": {
                                 "point": {
-                                    "x": $geometryX,
-                                    "y": $geometryY
+                                    "longitude": $longitude,
+                                    "latitude": $latitude
                                 },
                                 "type": "Point"
                             },
@@ -215,8 +215,8 @@ class ZakenRESTServiceTest : BehaviorSpec({
                         shouldContainJsonKeyValue("type", "Point")
                         shouldContainJsonKey("point")
                         with(JSONObject(geometrie)["point"].toString()) {
-                            shouldContainJsonKeyValue("x", geometryX)
-                            shouldContainJsonKeyValue("y", geometryY)
+                            shouldContainJsonKeyValue("longitude", longitude)
+                            shouldContainJsonKeyValue("latitude", latitude)
                         }
                     }
                 }

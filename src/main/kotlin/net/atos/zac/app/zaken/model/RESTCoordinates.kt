@@ -10,7 +10,7 @@ import nl.lifely.zac.util.NoArgConstructor
 @NoArgConstructor
 @AllOpen
 data class RESTCoordinates(
-    var x: Double = 0.0,
+    var latitude: Double = 0.0,
 
-    var y: Double = 0.0
+    var longitude: Double = 0.0
 )

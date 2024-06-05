@@ -36,17 +36,24 @@ class RESTGeometryConverter {
         }
 
     private fun createRESTPoint(point: Point) = RESTCoordinates(
-        point.coordinates.x.toDouble(),
-        point.coordinates.y.toDouble()
+        point.coordinates.latitude.toDouble(),
+        point.coordinates.longitude.toDouble(),
     )
 
-    private fun createPoint(restGeometry: RESTGeometry) = Point(Point2D(restGeometry.point!!.x, restGeometry.point!!.y))
+    private fun createPoint(restGeometry: RESTGeometry) = Point(
+        Point2D(restGeometry.point!!.latitude, restGeometry.point!!.longitude)
+    )
 
     private fun createRESTPolygon(polygon: Polygon) =
         polygon.coordinates.stream()
             .map { point2DS ->
                 point2DS.stream()
-                    .map { point2D: Point2D -> RESTCoordinates(point2D.x.toDouble(), point2D.y.toDouble()) }
+                    .map { point2D: Point2D ->
+                        RESTCoordinates(
+                            point2D.latitude.toDouble(),
+                            point2D.longitude.toDouble()
+                        )
+                    }
                     .toList()
             }
             .toList()
@@ -56,7 +63,7 @@ class RESTGeometryConverter {
             restGeometry.polygon!!.stream()
                 .map { polygon ->
                     polygon.stream()
-                        .map { coordinates: RESTCoordinates? -> Point2D(coordinates!!.x, coordinates.y) }
+                        .map { coordinates: RESTCoordinates? -> Point2D(coordinates!!.latitude, coordinates.longitude) }
                         .toList()
                 }
                 .toList()

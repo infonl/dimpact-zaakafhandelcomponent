@@ -227,7 +227,9 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
   private setLokatie(geometry: Geometry, fromSearch: boolean) {
     if (geometry && geometry.type == GeometryType.POINT) {
       this.markerLocatie = geometry;
-      const coordinate: Array<number> = [geometry.point.x, geometry.point.y];
+      const coordinate: Coordinate = LocationUtil.pointToCoordinate(
+        geometry.point,
+      );
       this.addMarker(coordinate);
       if (fromSearch) {
         this.zoomToMarker(coordinate);

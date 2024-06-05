@@ -5,6 +5,9 @@
 
 package net.atos.zac.app.bag.converter;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.NotImplementedException;
@@ -98,7 +101,7 @@ public class RESTBAGConverter {
                 surface.getCoordinates()
                         .stream()
                         .map(coords -> coords.stream()
-                                .map(punt -> new RESTCoordinates(punt.getFirst().doubleValue(), punt.get(1).doubleValue()))
+                                .map(RESTBAGConverter::convertCoordinates)
                                 .toList())
                         .toList(),
                 null
@@ -108,7 +111,7 @@ public class RESTBAGConverter {
     public static RESTGeometry convertPunt(PointGeoJSON punt) {
         return new RESTGeometry(
                 punt.getType().value(),
-                new RESTCoordinates(punt.getCoordinates().get(0).doubleValue(), punt.getCoordinates().get(1).doubleValue()),
+                convertCoordinates(punt.getCoordinates()),
                 null,
                 null);
     }
@@ -120,5 +123,9 @@ public class RESTBAGConverter {
             return convertVlak(puntOfVlak.getVlak());
         }
         return null;
+    }
+
+    public static RESTCoordinates convertCoordinates(List<BigDecimal> coordinates) {
+        return new RESTCoordinates(coordinates.get(1).doubleValue(), coordinates.get(0).doubleValue());
     }
 }

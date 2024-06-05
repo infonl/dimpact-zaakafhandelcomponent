@@ -31,7 +31,7 @@ public class Point extends Geometry {
 
     @Override
     public String toString() {
-        return String.format("POINT(%s %s)", getCoordinates().getX(), getCoordinates().getY());
+        return String.format("POINT(%s %s)", getCoordinates().getLatitude(), getCoordinates().getLongitude());
     }
 
     @Override
