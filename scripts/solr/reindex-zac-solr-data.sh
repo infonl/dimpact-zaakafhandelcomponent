@@ -35,7 +35,6 @@ done
 
 echo "Sending requests to ZAC to reindex zaak, taak and document data in Solr using ZAC base URL: '$zacBaseURL'."
 
-## Note that we first need to mark all items for re-indexation per item type
 curl ${zacBaseURL}/rest/indexeren/herindexeren/ZAAK \
     && curl ${zacBaseURL}/rest/indexeren/herindexeren/TAAK \
     && curl ${zacBaseURL}/rest/indexeren/herindexeren/DOCUMENT
