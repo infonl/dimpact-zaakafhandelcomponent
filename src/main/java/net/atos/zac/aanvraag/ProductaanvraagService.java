@@ -5,30 +5,11 @@
 
 package net.atos.zac.aanvraag;
 
-import static net.atos.zac.configuratie.ConfiguratieService.BRON_ORGANISATIE;
-import static net.atos.zac.configuratie.ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER;
-import static net.atos.zac.util.UriUtil.uuidFromURI;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
-import java.net.URI;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.json.bind.JsonbConfig;
-
-import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import net.atos.client.or.object.ObjectsClientService;
 import net.atos.client.or.object.model.ORObject;
 import net.atos.client.vrl.VRLClientService;
@@ -67,6 +48,21 @@ import net.atos.zac.util.JsonbUtil;
 import net.atos.zac.zaaksturing.ZaakafhandelParameterBeheerService;
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService;
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
+import org.apache.commons.collections4.ListUtils;
+
+import java.net.URI;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static net.atos.zac.configuratie.ConfiguratieService.BRON_ORGANISATIE;
+import static net.atos.zac.configuratie.ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER;
+import static net.atos.zac.util.UriUtil.uuidFromURI;
 
 @ApplicationScoped
 public class ProductaanvraagService {
@@ -77,8 +73,6 @@ public class ProductaanvraagService {
     private static final Logger LOG = Logger.getLogger(ProductaanvraagService.class.getName());
     private static final String ROL_TOELICHTING = "Overgenomen vanuit de product aanvraag";
     private static final String PRODUCT_AANVRAAG_FORMULIER_DATA_VELD = "aanvraaggegevens";
-    private static final String FORMULIER_VELD_ZAAK_TOELICHTING = "zaak_toelichting";
-    private static final String FORMULIER_VELD_ZAAK_OMSCHRIJVING = "zaak_omschrijving";
     private static final String ZAAK_DESCRIPTION_FORMAT = "Aangemaakt vanuit %s met kenmerk '%s'";
 
     /**
@@ -226,14 +220,6 @@ public class ProductaanvraagService {
         zaak.setBronorganisatie(BRON_ORGANISATIE);
         zaak.setVerantwoordelijkeOrganisatie(BRON_ORGANISATIE);
         zaak.setStartdatum(LocalDate.now());
-        final var omschrijving = (String) formulierData.get(FORMULIER_VELD_ZAAK_OMSCHRIJVING);
-        if (isNotBlank(omschrijving)) {
-            zaak.setOmschrijving(omschrijving);
-        }
-        final var toelichting = (String) formulierData.get(FORMULIER_VELD_ZAAK_TOELICHTING);
-        if (StringUtils.isNotBlank(toelichting)) {
-            zaak.setToelichting(toelichting);
-        }
         zaak = zgwApiService.createZaak(zaak);
         final var PROCESS_DEFINITION_KEY = "test-met-proces";
         final var processDefinition = bpmnService.readProcessDefinitionByprocessDefinitionKey(PROCESS_DEFINITION_KEY);
