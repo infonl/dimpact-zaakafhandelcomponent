@@ -139,6 +139,30 @@ class SignaleringenService @Inject constructor(
             }
     }
 
+    /**
+     * Deletes old signaleringen from the database regardless of the type.
+     *
+     * @return the number of deleted signaleringen
+     */
+    @Transactional(REQUIRED)
+    fun deleteOldSignaleringen(): Int {
+        // TODO: get from configuration
+        val deleteOlderThanDays = 14L
+        LOG.info("Deleting signaleringen older than $deleteOlderThanDays days from the database.")
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createCriteriaDelete(Signalering::class.java)
+        val root = query.from(Signalering::class.java)
+        query.where(
+            builder.lessThan(
+                root.get("tijdstip"),
+                ZonedDateTime.now().minusDays(deleteOlderThanDays)
+            )
+        )
+        val deletedCount = entityManager.createQuery(query).executeUpdate()
+        LOG.info("Deleted $deletedCount signaleringen.")
+        return deletedCount
+    }
+
     fun listSignaleringen(parameters: SignaleringZoekParameters): List<Signalering> {
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(
@@ -330,10 +354,6 @@ class SignaleringenService @Inject constructor(
             LOG.fine { "Sending 'ZAKEN_SIGNALERINGEN' screen event with ID '$it'." }
             eventingService.send(ScreenEventType.ZAKEN_SIGNALERINGEN.updated(it, zakenSignaleringen))
         }
-    }
-
-    fun deleteOldSignaleringen() {
-        // TODO: implement
     }
 
     private fun listZakenSignaleringen(

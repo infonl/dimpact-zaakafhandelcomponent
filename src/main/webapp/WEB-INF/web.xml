@@ -75,8 +75,8 @@
 
     <security-constraint>
         <web-resource-collection>
-            <web-resource-name>signaleren</web-resource-name>
-            <url-pattern>/rest/signaleren/*</url-pattern>
+            <web-resource-name>admin-signaleringen</web-resource-name>
+            <url-pattern>/rest/admin/signaleringen/*</url-pattern>
             <http-method>GET</http-method>
         </web-resource-collection>
     </security-constraint>
