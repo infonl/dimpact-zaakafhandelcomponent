@@ -522,6 +522,7 @@ services:
       - SD_AUTHENTICATION=${SD_AUTHENTICATION:-dummySmartDocumentsAuthentication}
       - SD_CLIENT_MP_REST_URL=${SD_CLIENT_MP_REST_URL:-http://smartdocuments-wiremock:8080}
       - SD_FIXED_USER_NAME=${SD_FIXED_USER_NAME:-}
+      - SIGNALERINGEN_DELETE_OLDER_THAN_DAYS=${SIGNALERINGEN_DELETE_OLDER_THAN_DAYS:-14}
       - SOLR_URL=http://solr:8983
       # Turn off the Open Telemetry sampler by default because it is not always needed
       # Typically when using the Docker Compose profile 'metrics' you want to turn this on

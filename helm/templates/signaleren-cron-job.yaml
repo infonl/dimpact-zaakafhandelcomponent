@@ -5,7 +5,7 @@ metadata:
   labels:
     {{- include "zaakafhandelcomponent.labels" . | nindent 4 }}
 spec:
-  schedule: {{ .Values.signalerenSchedule | quote }}
+  schedule: {{ .Values.signaleringen.sendZaakSignaleringenSchedule | quote }}
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
