@@ -891,13 +891,13 @@
              "object": 33,
              "version": 1,
              "data": {
-                "pdf": "https://open-zaak-zac-dev.dimpact.lifely.nl/documenten/api/v1/enkelvoudiginformatieobjecten/692c5254-a540-4aad-80e0-167fbf62c5a2",
+                "pdf": "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e",
                 "bron": { "naam": "open-forms", "kenmerk": "OF-SAGMUJ" },
                 "taal": "nld",
-                "type": "productaanvraag-indienen-aansprakelijkstelling-door-derden-behandelen",
+                "type": "productaanvraag",
                 "bijlagen": [],
                 "betrokkenen": [
-                  { "innNnpId": "69599084", "rolOmschrijvingGeneriek": "initiator" }
+                  { "innNnpId": "857587973", "rolOmschrijvingGeneriek": "initiator" }
                 ],
                 "aanvraaggegevens": {
                   "overig": { "foto": [], "anderedocumenten": [], "factuurofofferte": [] },

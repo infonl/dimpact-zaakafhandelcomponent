@@ -18,8 +18,8 @@ import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_FORBIDDEN
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTS_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT
-import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_KVK_NUMMER
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_KVK_UUID
+import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_RSIN
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_KENMERK
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
@@ -172,7 +172,8 @@ class NotificationsTest : BehaviorSpec({
                 // retrieve the newly created zaak and check the contents
                 itestHttpClient.performGetRequest(
                     "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaken?" +
-                        "rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__innNnpId=$OBJECT_PRODUCTAANVRAAG_KVK_NUMMER"
+                        "rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__innNnpId=$OBJECT_PRODUCTAANVRAAG_RSIN",
+                    Headers.headersOf("Accept-Crs", "EPSG:4326")
                 ).use { getZaakResponse ->
                     val responseBody = getZaakResponse.body!!.string()
                     logger.info { "Response: $responseBody" }
