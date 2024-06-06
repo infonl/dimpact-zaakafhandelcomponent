@@ -15,6 +15,12 @@ public class LoggedInUser extends User {
 
     private final Set<String> groupIds;
 
+    public static final String ROLE_BEHANDELAAR = "behandelaar";
+    public static final String ROLE_COORDINATOR = "coordinator";
+    public static final String ROLE_RECORDMANAGER = "recordmanager";
+    public static final String ROLE_BEHEERDER = "beheerder";
+    public static final String ROLE_FUNCTIONELE_GEBRUIKER = "functionele_gebruiker";
+
     private final Set<String> roles;
 
     // Lijst van zaaktype.omschrijving waarvoor de ingelogde gebruiker geautoriseerd is.
