@@ -10,6 +10,7 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import net.atos.zac.util.FlywayIntegrator
+import net.atos.zac.zaaksturing.model.ZaakafhandelParameters
 import nl.lifely.zac.util.AllOpen
 import java.time.ZonedDateTime
 
@@ -32,8 +33,12 @@ class SmartDocumentsTemplate {
     lateinit var smartDocumentsId: String
 
     @ManyToOne
-    @JoinColumn(name = "id_template_group", nullable = false)
+    @JoinColumn(name = "template_group_id", nullable = false)
     lateinit var templateGroup: SmartDocumentsTemplateGroup
+
+    @ManyToOne
+    @JoinColumn(name = "zaakafhandelparameters_id", nullable = false)
+    lateinit var zaakafhandelParameters: ZaakafhandelParameters
 
     @Column(name = "name", nullable = false)
     lateinit var name: String

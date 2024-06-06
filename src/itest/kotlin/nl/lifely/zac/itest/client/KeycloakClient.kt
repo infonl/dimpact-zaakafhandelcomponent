@@ -25,7 +25,10 @@ object KeycloakClient {
     private const val ACCESS_TOKEN_ATTRIBUTE = "access_token"
     private const val REFRESH_TOKEN_ATTRIBUTE = "refresh_token"
 
-    fun authenticate(username: String = TEST_USER_1_USERNAME, password: String = TEST_USER_1_PASSWORD) = okHttpClient.newCall(
+    fun authenticate(
+        username: String = TEST_USER_1_USERNAME,
+        password: String = TEST_USER_1_PASSWORD
+    ) = okHttpClient.newCall(
         Request.Builder()
             .headers(Headers.headersOf("Content-Type", "application/x-www-form-urlencoded"))
             .url("$KEYCLOAK_HOSTNAME_URL/realms/$KEYCLOAK_REALM/protocol/openid-connect/token")

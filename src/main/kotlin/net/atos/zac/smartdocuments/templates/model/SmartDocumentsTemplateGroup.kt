@@ -3,6 +3,7 @@ package net.atos.zac.smartdocuments.templates.model
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -12,6 +13,7 @@ import jakarta.persistence.OneToMany
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import net.atos.zac.util.FlywayIntegrator
+import net.atos.zac.zaaksturing.model.ZaakafhandelParameters
 import nl.lifely.zac.util.AllOpen
 import java.time.ZonedDateTime
 
@@ -33,6 +35,10 @@ class SmartDocumentsTemplateGroup {
     @Column(name = "smartdocuments_id", nullable = false)
     lateinit var smartDocumentsId: String
 
+    @ManyToOne
+    @JoinColumn(name = "zaakafhandelparameters_id", nullable = false)
+    lateinit var zaakafhandelParameters: ZaakafhandelParameters
+
     @Column(name = "name", nullable = false)
     lateinit var name: String
 
@@ -43,9 +49,9 @@ class SmartDocumentsTemplateGroup {
     @JoinColumn(name = "parent_template_group_id")
     var parent: SmartDocumentsTemplateGroup? = null
 
-    @OneToMany(mappedBy = "parent", cascade = [CascadeType.ALL])
-    var children: MutableSet<SmartDocumentsTemplateGroup> = mutableSetOf()
+    @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
+    var children: MutableSet<SmartDocumentsTemplateGroup>? = null
 
-    @OneToMany(mappedBy = "templateGroup")
-    var templates: MutableSet<SmartDocumentsTemplate> = mutableSetOf()
+    @OneToMany(mappedBy = "templateGroup", fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
+    var templates: MutableSet<SmartDocumentsTemplate>? = null
 }
