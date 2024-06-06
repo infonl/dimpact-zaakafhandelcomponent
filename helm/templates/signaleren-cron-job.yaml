@@ -18,4 +18,4 @@ spec:
               imagePullPolicy: IfNotPresent
               args:
                 - -s
-                - {{ printf "http://%s.%s/rest/admin/signaleringen/send-zaak-signaleringen" (include "zaakafhandelcomponent.fullname" .) .Release.Namespace }}
+                - {{ printf "http://%s.%s/rest/admin/signaleringen/send-signaleringen" (include "zaakafhandelcomponent.fullname" .) .Release.Namespace }}

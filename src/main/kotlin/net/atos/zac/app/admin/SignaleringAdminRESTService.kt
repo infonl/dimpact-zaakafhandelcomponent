@@ -36,11 +36,11 @@ class SignaleringAdminRESTService @Inject constructor(
 
 ) {
     @GET
-    @Path("send-zaak-signaleringen")
+    @Path("send-signaleringen")
     fun zaakSignaleringenVerzenden(): String {
         SecurityUtil.setFunctioneelGebruiker(httpSession.get())
         eventingService.send(JobEvent(JobId.SIGNALERINGEN_JOB))
-        return "Started sending zaak signaleringen using job: '${JobId.SIGNALERINGEN_JOB.getName()}'"
+        return "Started sending signaleringen using job: '${JobId.SIGNALERINGEN_JOB.getName()}'"
     }
 
     @DELETE

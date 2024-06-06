@@ -107,7 +107,7 @@ constructor(
         try {
             Transport.send(message)
             LOG.info("Sent mail to ${mailGegevens.to} with subject '$subject'.")
-            if (mailGegevens.isCreateDocumentFromMail) {
+            if (mailGegevens.isCreateDocumentFromMail && bronnen.zaak != null) {
                 createZaakDocumentFromMail(
                     mailGegevens.from.email,
                     mailGegevens.to.email,
@@ -117,8 +117,8 @@ constructor(
                     bronnen.zaak
                 )
             }
-        } catch (e: MessagingException) {
-            LOG.log(Level.SEVERE, "Failed to send mail with subject '$subject'.", e)
+        } catch (messagingException: MessagingException) {
+            LOG.log(Level.SEVERE, "Failed to send mail with subject '$subject'.", messagingException)
         }
 
         return body
@@ -169,7 +169,6 @@ constructor(
         attachments: List<Attachment>
     ): ByteArray {
         val byteArrayOutputStream = ByteArrayOutputStream()
-
         try {
             PdfWriter(byteArrayOutputStream).use { pdfWriter ->
                 PdfDocument(pdfWriter).use { pdfDoc ->
