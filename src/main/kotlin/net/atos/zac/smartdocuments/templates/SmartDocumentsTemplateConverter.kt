@@ -22,21 +22,12 @@ object SmartDocumentsTemplateConverter {
     ): RESTSmartDocumentsTemplateGroup {
         val restGroup = createRESTTemplateGroup(group)
 
-        if (!group.templates.isNullOrEmpty()) {
-            restGroup.templates = mutableSetOf<RESTSmartDocumentsTemplate>().apply {
-                group.templates?.forEach {
-                    add(createRESTTemplate(it))
-                }
-            }
-        }
-
-        if (!group.templateGroups.isNullOrEmpty()) {
-            restGroup.groups = mutableSetOf<RESTSmartDocumentsTemplateGroup>().apply {
-                group.templateGroups?.forEach {
-                    add(convertTemplateGroupResponseToREST(it))
-                }
-            }
-        }
+        restGroup.templates = group.templates?.map {
+            createRESTTemplate(it)
+        }?.ifEmpty { null }?.toSet()
+        restGroup.groups = group.templateGroups?.map {
+            convertTemplateGroupResponseToREST(it)
+        }?.ifEmpty { null }?.toSet()
 
         return restGroup
     }
@@ -69,13 +60,12 @@ object SmartDocumentsTemplateConverter {
     ): SmartDocumentsTemplateGroup {
         val jpaGroup = createModelTemplateGroup(group, parent, zaakafhandelParameterId)
 
-        group.templates?.forEach {
-            jpaGroup.templates.add(createModelTemplate(it, jpaGroup, zaakafhandelParameterId))
-        }
-
-        group.groups?.forEach {
-            jpaGroup.children.add(convertTemplateGroupToModel(it, jpaGroup, zaakafhandelParameterId))
-        }
+        jpaGroup.templates = group.templates?.map {
+            createModelTemplate(it, jpaGroup, zaakafhandelParameterId)
+        }?.ifEmpty { null }?.toMutableSet()
+        jpaGroup.children = group.groups?.map {
+            convertTemplateGroupToModel(it, jpaGroup, zaakafhandelParameterId)
+        }?.ifEmpty { null }?.toMutableSet()
 
         return jpaGroup
     }
@@ -112,21 +102,12 @@ object SmartDocumentsTemplateConverter {
     ): RESTSmartDocumentsTemplateGroup {
         val restTemplateGroup = createRESTTemplateGroup(group)
 
-        if (group.templates.isNotEmpty()) {
-            restTemplateGroup.templates = mutableSetOf<RESTSmartDocumentsTemplate>().apply {
-                group.templates.forEach {
-                    add(createRESTTemplate(it))
-                }
-            }
-        }
-
-        if (group.children.isNotEmpty()) {
-            restTemplateGroup.groups = mutableSetOf<RESTSmartDocumentsTemplateGroup>().apply {
-                group.children.forEach {
-                    add(convertTemplateGroupToREST(it))
-                }
-            }
-        }
+        restTemplateGroup.templates = group.templates?.map {
+            createRESTTemplate(it)
+        }?.ifEmpty { null }?.toSet()
+        restTemplateGroup.groups = group.children?.map {
+            convertTemplateGroupToREST(it)
+        }?.ifEmpty { null }?.toSet()
 
         return restTemplateGroup
     }

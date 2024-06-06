@@ -19,11 +19,12 @@ class SmartDocumentsTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    val myOptions = compareJsonOptions {
-        arrayOrder = ArrayOrder.Lenient
-    }
-
-    infix fun String.lenientShouldEqualJson(other: String) = this.shouldEqualJson(other, myOptions)
+    infix fun String.lenientShouldEqualJson(other: String) = this.shouldEqualJson(
+        other,
+        compareJsonOptions {
+            arrayOrder = ArrayOrder.Lenient
+        }
+    )
 
     Given("ZAC Docker container is running and zaakafhandelparameters have been created") {
         When("the list SmartDocuments templates endpoint is called") {
