@@ -21,7 +21,9 @@ import jakarta.mail.Message
 import jakarta.mail.Transport
 import jakarta.mail.internet.MimeMultipart
 import net.atos.client.zgw.drc.DRCClientService
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.ZGWApiService
+import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakInformatieobject
 import net.atos.client.zgw.ztc.ZTCClientService
@@ -30,9 +32,11 @@ import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
+import net.atos.zac.mail.model.Bronnen
 import net.atos.zac.mail.model.getBronnenFromZaak
 import net.atos.zac.mailtemplates.MailTemplateHelper
 import net.atos.zac.mailtemplates.model.createMailGegevens
+import org.flowable.task.api.Task
 import java.net.URI
 import java.util.Properties
 
@@ -118,12 +122,14 @@ class MailServiceTest : BehaviorSpec({
         val transportSendRequest = slot<Message>()
         every { Transport.send(capture(transportSendRequest)) } just runs
 
-        When("sendMail is invoked") {
+        When("the send mail function is invoked") {
             mailService.sendMail(mailGegevens, bronnen)
 
             Then(
-                "a mail is sent using MailJet and a PDF document is created from the e-mail data and " +
-                    "is attached to the zaak using the ZGW APIs"
+                """
+                    an e-mail is sent and a PDF document is created from the e-mail data and
+                    is attached to the zaak using the ZGW APIs
+                """
             ) {
                 verify(exactly = 1) {
                     Transport.send(any())
@@ -140,6 +146,65 @@ class MailServiceTest : BehaviorSpec({
                     with((content as MimeMultipart).getBodyPart(0).dataHandler) {
                         contentType shouldBe "text/html; charset=UTF-8"
                         content shouldBe "dummyResolvedBody5"
+                    }
+                }
+            }
+        }
+    }
+    Given("a task") {
+        val task = mockk<Task>()
+        val mailGegevens = createMailGegevens(
+            createDocumentFromMail = true
+        )
+        val bronnen = Bronnen.Builder().add(task).build()
+        val resolvedSubject = "resolvedSubject"
+        val resolvedBody = "resolvedBody"
+
+        every { mailTemplateHelper.resolveVariabelen(mailGegevens.subject) } returns "dummyResolvedString1"
+
+        every {
+            mailTemplateHelper.resolveVariabelen("dummyResolvedString1", null as Zaak?)
+        } returns "dummyResolvedString1"
+        every {
+            mailTemplateHelper.resolveVariabelen("dummyResolvedString1", null as EnkelvoudigInformatieObject?)
+        } returns "dummyResolvedString1"
+        every {
+            mailTemplateHelper.resolveVariabelen("dummyResolvedString1", task)
+        } returns resolvedSubject
+        every { mailTemplateHelper.resolveVariabelen(mailGegevens.body) } returns "dummyResolvedBody2"
+        every {
+            mailTemplateHelper.resolveVariabelen("dummyResolvedBody2", null as Zaak?)
+        } returns "dummyResolvedBody2"
+        every {
+            mailTemplateHelper.resolveVariabelen("dummyResolvedBody2", null as EnkelvoudigInformatieObject?)
+        } returns "dummyResolvedBody2"
+        every {
+            mailTemplateHelper.resolveVariabelen("dummyResolvedBody2", task)
+        } returns resolvedBody
+
+        mockkObject(MailService.Companion)
+        every { MailService.Companion.mailSession.properties } returns Properties()
+
+        mockkStatic(Transport::class)
+        val transportSendRequest = slot<Message>()
+        every { Transport.send(capture(transportSendRequest)) } just runs
+
+        When("the send mail function is invoked") {
+            mailService.sendMail(mailGegevens, bronnen)
+
+            Then(
+                """
+                    an e-mail is sent with the task data and no PDF document is created
+                """
+            ) {
+                verify(exactly = 1) {
+                    Transport.send(any())
+                }
+                with(transportSendRequest.captured) {
+                    subject shouldBe resolvedSubject
+                    with((content as MimeMultipart).getBodyPart(0).dataHandler) {
+                        contentType shouldBe "text/html; charset=UTF-8"
+                        content shouldBe resolvedBody
                     }
                 }
             }

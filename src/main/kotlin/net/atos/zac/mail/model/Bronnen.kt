@@ -9,12 +9,12 @@ import net.atos.client.zgw.zrc.model.Zaak
 import org.flowable.task.api.TaskInfo
 
 class Bronnen private constructor(
-    val zaak: Zaak,
+    val zaak: Zaak?,
     val document: EnkelvoudigInformatieObject?,
     val taskInfo: TaskInfo?
 ) {
     class Builder {
-        private lateinit var zaak: Zaak
+        private var zaak: Zaak? = null
         private var document: EnkelvoudigInformatieObject? = null
         private var taskInfo: TaskInfo? = null
 
