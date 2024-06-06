@@ -12,15 +12,11 @@ import { MatMiniFabButton } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { Observable, map, tap } from "rxjs";
+import { Observable, tap } from "rxjs";
 import { FileDragAndDropDirective } from "../../../directives/file-drag-and-drop.directive";
 import { FormComponent } from "../../model/form-component";
 import { FileFormField } from "../file/file-form-field";
-
-export const UploadStatus = {
-  SELECT_FILE: "SELECT_FILE",
-  SELECTED: "SELECTED",
-};
+import { MatFileInput } from "./file-input-control";
 
 @Component({
   standalone: true,
@@ -30,31 +26,47 @@ export const UploadStatus = {
       ::ng-deep .file-field .mat-mdc-form-field-subscript-wrapper {
         margin-top: -16px;
       }
+
+      input[type="file"] {
+        position: absolute;
+        inset: 0;
+        padding-top: var(
+          --mat-form-field-filled-with-label-container-padding-top
+        );
+        padding-bottom: var(
+          --mat-form-field-filled-with-label-container-padding-bottom
+        );
+      }
+
+      input[type="file"].empty {
+        opacity: 0;
+      }
+
+      ::file-selector-button {
+        display: none;
+      }
     `,
   ],
   template: `
-    <div DropZone (onFileDropped)="selectFile($event)">
+    <div DropZone (onFileDropped)="handleDrop($event)">
       <mat-form-field
         appearance="fill"
         subscriptSizing="dynamic"
         class="file-field full-width"
-        (click)="fileInput.click()"
       >
         <mat-label>{{ data.label | translate }}</mat-label>
-        <input
-          [value]="fileName$ | async"
-          [id]="data.id + '_filefield'"
-          [readonly]="true"
-          [required]="data.required"
-          matInput
-        />
 
-        @if (status === "SELECT_FILE") {
-          <button mat-mini-fab matSuffix type="button">
+        @if (!data.formControl.value) {
+          <button
+            mat-mini-fab
+            matSuffix
+            type="button"
+            (click)="fileInput.click()"
+          >
             <mat-icon>upload</mat-icon>
           </button>
         }
-        @if (status === "SELECTED") {
+        @if (data.formControl.value) {
           <button mat-mini-fab matSuffix (click)="reset($event)" type="button">
             <mat-icon>delete</mat-icon>
           </button>
@@ -75,14 +87,16 @@ export const UploadStatus = {
         </mat-hint>
 
         <input
-          [formControl]="data.formControl"
-          hidden
           type="file"
           [accept]="data.getAllowedFileTypes()"
           #fileInput
+          [required]="data.required"
           id="uploadFile"
           (change)="handleChange($event)"
           name="uploadFile"
+          matFileInput
+          [class.empty]="!data.formControl.value"
+          (click)="$event.stopPropagation()"
         />
       </mat-form-field>
     </div>
@@ -96,31 +110,22 @@ export const UploadStatus = {
     ReactiveFormsModule,
     TranslateModule,
     AsyncPipe,
+    MatFileInput,
   ],
 })
 export class FileInputComponent extends FormComponent implements OnInit {
-  fileInput = viewChild<ElementRef>("fileInput");
+  fileInput = viewChild<ElementRef<HTMLInputElement>>("fileInput");
   translate = inject(TranslateService);
   changeDetector = inject(ChangeDetectorRef);
 
   data: FileFormField;
-  status = UploadStatus.SELECT_FILE;
 
   triggerResetFromParent$: Observable<void>;
-  fileName$: Observable<string>;
   controlValue$: Observable<File>;
 
   ngOnInit() {
     this.triggerResetFromParent$ = this.data.reset$.pipe(
       tap(() => this.reset()),
-    );
-    this.fileName$ = this.data.formControl.valueChanges.pipe(
-      map(() => {
-        if (this.data.formControl.value === null) {
-          return null;
-        }
-        return this.fileInput().nativeElement.files[0].name;
-      }),
     );
   }
 
@@ -128,11 +133,8 @@ export class FileInputComponent extends FormComponent implements OnInit {
     if ($event) {
       $event.stopPropagation();
     }
-    this.status = UploadStatus.SELECT_FILE;
-    this.fileInput().nativeElement.value = null;
-    this.data.formControl.setValue(null);
+    this.data.formControl.setValue("");
     this.changeDetector.detectChanges();
-    this.data.fileUploaded$.next(null);
   }
 
   getErrorMessage(): string {
@@ -145,8 +147,6 @@ export class FileInputComponent extends FormComponent implements OnInit {
   selectFile(file: File): void {
     const validated = this.validateFile(file);
     if (validated) {
-      this.data.fileUploaded$.next(file.name);
-      this.status = UploadStatus.SELECTED;
       this.data.formControl.setValue(file);
       this.data.formControl.updateValueAndValidity();
       this.changeDetector.detectChanges();
@@ -154,14 +154,20 @@ export class FileInputComponent extends FormComponent implements OnInit {
   }
 
   handleChange(event: Event) {
-    const file = (event.target as HTMLInputElement).files[0];
+    const input = event.target as HTMLInputElement;
+    const file = input.files[0];
     this.selectFile(file);
+  }
+
+  handleDrop(files: FileList) {
+    this.fileInput().nativeElement.files = files;
+    this.selectFile(files[0]);
   }
 
   validateFile(file: File): boolean {
     this.data.uploadError = null;
     if (!file) {
-      this.data.formControl.setValue(null);
+      this.data.formControl.setValue("");
       this.changeDetector.detectChanges();
       return false;
     }
