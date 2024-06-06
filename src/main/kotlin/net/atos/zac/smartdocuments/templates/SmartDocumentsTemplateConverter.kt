@@ -15,9 +15,9 @@ object SmartDocumentsTemplateConverter {
 
     fun SmartDocumentsTemplatesResponse.toREST(): Set<RESTSmartDocumentsTemplateGroup> =
         this.documentsStructure.templatesStructure.templateGroups
-            .mapTo(mutableSetOf()) { convertTemplateGroupToREST(it) }
+            .mapTo(mutableSetOf()) { convertTemplateGroupResponseToREST(it) }
 
-    private fun convertTemplateGroupToREST(
+    private fun convertTemplateGroupResponseToREST(
         group: SmartDocumentsResponseTemplateGroup
     ): RESTSmartDocumentsTemplateGroup {
         val restGroup = createRESTTemplateGroup(group)
@@ -33,7 +33,7 @@ object SmartDocumentsTemplateConverter {
         if (!group.templateGroups.isNullOrEmpty()) {
             restGroup.groups = mutableSetOf<RESTSmartDocumentsTemplateGroup>().apply {
                 group.templateGroups?.forEach {
-                    add(convertTemplateGroupToREST(it))
+                    add(convertTemplateGroupResponseToREST(it))
                 }
             }
         }
@@ -57,7 +57,9 @@ object SmartDocumentsTemplateConverter {
         name = smartDocumentsTemplate.name
     )
 
-    fun Set<RESTSmartDocumentsTemplateGroup>.toModel(zaakafhandelParameters: ZaakafhandelParameters): Set<SmartDocumentsTemplateGroup> =
+    fun Set<RESTSmartDocumentsTemplateGroup>.toModel(
+        zaakafhandelParameters: ZaakafhandelParameters
+    ): Set<SmartDocumentsTemplateGroup> =
         this.mapTo(mutableSetOf()) { convertTemplateGroupToModel(it, null, zaakafhandelParameters) }
 
     private fun convertTemplateGroupToModel(
@@ -102,42 +104,46 @@ object SmartDocumentsTemplateConverter {
         creationDate = ZonedDateTime.now()
     }
 
-    fun SmartDocumentsTemplatesResponse.toModel(): Set<SmartDocumentsTemplateGroup> =
-        this.documentsStructure.templatesStructure.templateGroups
-            .mapTo(mutableSetOf()) { convertTemplateGroupToModel(it, null) }
+    fun Set<SmartDocumentsTemplateGroup>.toREST(): Set<RESTSmartDocumentsTemplateGroup> =
+        this.mapTo(mutableSetOf()) { convertTemplateGroupToREST(it) }
 
-    private fun convertTemplateGroupToModel(
-        group: SmartDocumentsResponseTemplateGroup,
-        parent: SmartDocumentsTemplateGroup?
-    ): SmartDocumentsTemplateGroup {
-        val jpaGroup = createModelTemplateGroup(group, parent)
+    private fun convertTemplateGroupToREST(
+        group: SmartDocumentsTemplateGroup
+    ): RESTSmartDocumentsTemplateGroup {
+        val restTemplateGroup = createRESTTemplateGroup(group)
 
-        group.templates?.forEach {
-            jpaGroup.templates.add(createModelTemplate(it))
+        if (group.templates.isNotEmpty()) {
+            restTemplateGroup.templates = mutableSetOf<RESTSmartDocumentsTemplate>().apply {
+                group.templates.forEach {
+                    add(createRESTTemplate(it))
+                }
+            }
         }
 
-        group.templateGroups?.forEach {
-            jpaGroup.children.add(convertTemplateGroupToModel(it, jpaGroup))
+        if (group.children.isNotEmpty()) {
+            restTemplateGroup.groups = mutableSetOf<RESTSmartDocumentsTemplateGroup>().apply {
+                group.children.forEach {
+                    add(convertTemplateGroupToREST(it))
+                }
+            }
         }
 
-        return jpaGroup
+        return restTemplateGroup
     }
 
-    private fun createModelTemplateGroup(
-        smartDocumentsTemplateGroup: SmartDocumentsResponseTemplateGroup,
-        parentGroup: SmartDocumentsTemplateGroup?
-    ) = SmartDocumentsTemplateGroup().apply {
-        smartDocumentsId = smartDocumentsTemplateGroup.id
-        name = smartDocumentsTemplateGroup.name
-        parent = parentGroup
-        creationDate = ZonedDateTime.now()
-    }
+    private fun createRESTTemplateGroup(
+        smartDocumentsTemplateGroup: SmartDocumentsTemplateGroup,
+    ) = RESTSmartDocumentsTemplateGroup(
+        id = smartDocumentsTemplateGroup.smartDocumentsId,
+        name = smartDocumentsTemplateGroup.name,
+        groups = null,
+        templates = null
+    )
 
-    private fun createModelTemplate(
-        smartDocumentsTemplate: SmartDocumentsResponseTemplate
-    ) = SmartDocumentsTemplate().apply {
-        smartDocumentsId = smartDocumentsTemplate.id
+    private fun createRESTTemplate(
+        smartDocumentsTemplate: SmartDocumentsTemplate
+    ) = RESTSmartDocumentsTemplate(
+        id = smartDocumentsTemplate.smartDocumentsId,
         name = smartDocumentsTemplate.name
-        creationDate = ZonedDateTime.now()
-    }
+    )
 }
