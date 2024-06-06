@@ -11,7 +11,7 @@ import {
   standalone: true,
 })
 export class FileDragAndDropDirective {
-  @Output() onFileDropped = new EventEmitter<any>();
+  @Output() onFileDropped = new EventEmitter<FileList>();
   @HostBinding("style.border") private border = "solid transparent";
 
   @HostListener("dragover", ["$event"]) public onDragOver(evt): any {
@@ -32,7 +32,7 @@ export class FileDragAndDropDirective {
     this.border = "solid transparent";
     const files = evt.dataTransfer.files;
     if (files.length > 0) {
-      this.onFileDropped.emit(files[0]);
+      this.onFileDropped.emit(files);
     }
   }
 }
