@@ -16,13 +16,17 @@ import net.atos.zac.event.EventingService
 import net.atos.zac.signalering.SignaleringenService
 import net.atos.zac.util.event.JobEvent
 import net.atos.zac.util.event.JobId
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import kotlin.let
 
 @Path("admin/signaleringen")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-class SignaleringenAdminRESTService @Inject constructor(
+@AllOpen
+@NoArgConstructor
+class SignaleringAdminRESTService @Inject constructor(
     private val signaleringenService: SignaleringenService,
     private val eventingService: EventingService,
     @ActiveSession
