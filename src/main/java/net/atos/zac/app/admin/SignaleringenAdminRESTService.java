@@ -15,6 +15,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
 import net.atos.zac.app.admin.model.RESTDeletedSignaleringenResponse;
 import net.atos.zac.authentication.ActiveSession;
 import net.atos.zac.authentication.SecurityUtil;
@@ -22,7 +24,6 @@ import net.atos.zac.event.EventingService;
 import net.atos.zac.signalering.SignaleringenService;
 import net.atos.zac.util.event.JobEvent;
 import net.atos.zac.util.event.JobId;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @Path("admin/signaleringen")
 @Consumes(MediaType.APPLICATION_JSON)
