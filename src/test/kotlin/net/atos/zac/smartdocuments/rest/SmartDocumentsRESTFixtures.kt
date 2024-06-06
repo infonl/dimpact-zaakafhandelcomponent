@@ -1,7 +1,5 @@
-package net.atos.client.smartdocuments.model
+package net.atos.zac.smartdocuments.rest
 
-import net.atos.zac.smartdocuments.rest.RESTSmartDocumentsTemplate
-import net.atos.zac.smartdocuments.rest.RESTSmartDocumentsTemplateGroup
 import java.util.UUID
 
 fun createRESTTemplateGroup(

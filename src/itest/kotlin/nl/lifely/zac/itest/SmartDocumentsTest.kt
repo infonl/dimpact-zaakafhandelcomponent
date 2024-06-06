@@ -1,13 +1,15 @@
 /*
- * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.lifely.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.kotest.assertions.json.ArrayOrder
+import io.kotest.assertions.json.compareJsonOptions
 import io.kotest.assertions.json.shouldContainJsonKeyValue
+import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
@@ -16,6 +18,12 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 class SmartDocumentsTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
+
+    val myOptions = compareJsonOptions {
+        arrayOrder = ArrayOrder.Lenient
+    }
+
+    infix fun String.lenientShouldEqualJson(other: String) = this.shouldEqualJson(other, myOptions)
 
     Given("ZAC Docker container is running and zaakafhandelparameters have been created") {
         When("the list SmartDocuments templates endpoint is called") {
@@ -105,7 +113,6 @@ class SmartDocumentsTest : BehaviorSpec({
                       {
                         "id": "ef1abdd4-2182-4600-85ab-b9e7bab4e96a",
                         "name": "group 1",
-                        "groups": null,
                         "templates": [
                           {
                             "id": "4496b307-2980-4fe3-ac7f-53219683770b",
@@ -120,7 +127,6 @@ class SmartDocumentsTest : BehaviorSpec({
                       {
                         "id": "949e5a09-0361-43cb-a82f-93263b7fc4b4",
                         "name": "group 2",
-                        "groups": null,
                         "templates": [
                           {
                             "id": "e147850c-4492-446d-a37e-0f593c6061fd",
@@ -160,7 +166,7 @@ class SmartDocumentsTest : BehaviorSpec({
                     val fetchResponseBody = fetchResponse.body!!.string()
                     logger.info { "Response: $fetchResponseBody" }
 
-                    fetchResponseBody shouldBeEqual restTemplateGroups
+                    fetchResponseBody lenientShouldEqualJson restTemplateGroups
                 }
             }
         }

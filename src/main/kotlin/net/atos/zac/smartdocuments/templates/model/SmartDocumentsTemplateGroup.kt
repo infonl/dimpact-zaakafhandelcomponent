@@ -3,6 +3,7 @@ package net.atos.zac.smartdocuments.templates.model
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -48,9 +49,9 @@ class SmartDocumentsTemplateGroup {
     @JoinColumn(name = "parent_template_group_id")
     var parent: SmartDocumentsTemplateGroup? = null
 
-    @OneToMany(mappedBy = "parent", cascade = [CascadeType.ALL])
+    @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     var children: MutableSet<SmartDocumentsTemplateGroup> = mutableSetOf()
 
-    @OneToMany(mappedBy = "templateGroup", cascade = [CascadeType.ALL])
+    @OneToMany(mappedBy = "templateGroup", fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     var templates: MutableSet<SmartDocumentsTemplate> = mutableSetOf()
 }
