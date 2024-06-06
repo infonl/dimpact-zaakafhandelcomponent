@@ -106,7 +106,7 @@ smartDocuments:
 
 signaleringen:
   # Delete any signaleringen older than this number of days when the corresponding admin endpoint is called.
-  deleteOlderThanDays: 14
+  deleteOlderThanDays: "14"
   # Schedule of the signaleringen send zaken job in CRON job format
   sendZaakSignaleringenSchedule: "0 2 * * *"
 
