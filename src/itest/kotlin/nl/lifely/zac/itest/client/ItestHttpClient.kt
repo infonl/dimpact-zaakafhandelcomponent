@@ -20,6 +20,7 @@ import java.net.CookieManager
 import java.net.CookiePolicy
 import java.net.URI
 
+@Suppress("TooManyFunctions")
 class ItestHttpClient {
     private var okHttpClient: OkHttpClient
     private val logger = KotlinLogging.logger {}
