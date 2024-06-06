@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: {{ include "zaakafhandelcomponent.fullname" . }}-delete-old-signaleringen
+  name: {{ include "zaakafhandelcomponent.fullname" . }}-signaleren-delete
   labels:
     {{- include "zaakafhandelcomponent.labels" . | nindent 4 }}
 spec:
@@ -13,7 +13,7 @@ spec:
         spec:
           restartPolicy: Never
           containers:
-            - name: {{ include "zaakafhandelcomponent.fullname" . }}-delete-old-signaleringen
+            - name: {{ include "zaakafhandelcomponent.fullname" . }}-signaleren-delete
               image: curlimages/curl
               imagePullPolicy: IfNotPresent
               args:
