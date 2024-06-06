@@ -109,6 +109,8 @@ signaleringen:
   deleteOlderThanDays: "14"
   # Schedule of the signaleringen send zaken job in CRON job format
   sendZaakSignaleringenSchedule: "0 2 * * *"
+  # Schedule of the 'delete old signaleringen send job in CRON job format
+  deleteOldSignaleringenSchedule: "0 3 * * *"
 
 # Overrides for opentelemetry
 #opentelemetry_zaakafhandelcomponent:

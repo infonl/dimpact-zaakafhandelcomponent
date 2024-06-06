@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "zaakafhandelcomponent.fullname" . }}-delete-old-signaleringen
+  labels:
+    {{- include "zaakafhandelcomponent.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.signaleringen.deleteOldSignaleringenSchedule | quote }}
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: {{ include "zaakafhandelcomponent.fullname" . }}-delete-old-signaleringen
+              image: curlimages/curl
+              imagePullPolicy: IfNotPresent
+              args:
+                - -s
+                - {{ printf "http://%s.%s/rest/admin/signaleringen/delete-old" (include "zaakafhandelcomponent.fullname" .) .Release.Namespace }}
