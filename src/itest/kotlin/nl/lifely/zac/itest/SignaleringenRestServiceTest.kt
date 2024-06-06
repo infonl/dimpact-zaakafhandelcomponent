@@ -321,4 +321,25 @@ class SignaleringenRestServiceTest : BehaviorSpec({
             }
         }
     }
+    Given(
+        """
+        Two existing signaleringen and the ZAC environment variable 'SIGNALERINGEN_DELETE_OLDER_THAN_DAYS' set to 0 days
+        """
+    ) {
+        When("signaleringen older than 0 days are deleted") {
+            val response = itestHttpClient.performDeleteRequest(
+                "$ZAC_API_URI/admin/signaleringen/delete-old"
+            )
+            val responseBody = response.body!!.string()
+            logger.info { "Response: $responseBody" }
+
+            Then("all existing signaleringen should have been deleted") {
+                response.isSuccessful shouldBe true
+
+                with(JSONObject(responseBody)) {
+                    getInt("deletedSignaleringenCount") shouldBe 2
+                }
+            }
+        }
+    }
 })

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.util;
+package net.atos.zac.app.admin;
 
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -15,6 +15,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
+import net.atos.zac.app.admin.model.RESTDeletedSignaleringenResponse;
 import net.atos.zac.authentication.ActiveSession;
 import net.atos.zac.authentication.SecurityUtil;
 import net.atos.zac.event.EventingService;
@@ -52,8 +53,9 @@ public class SignaleringenAdminRESTService {
 
     @DELETE
     @Path("delete-old")
-    public void deleteOldSignaleringen() {
+    public RESTDeletedSignaleringenResponse deleteOldSignaleringen() {
         SecurityUtil.setFunctioneelGebruiker(httpSession.get());
-        signaleringenService.deleteOldSignaleringen(deleteOlderThanDays);
+        final var deletedSignaleringenCount = signaleringenService.deleteOldSignaleringen(deleteOlderThanDays);
+        return new RESTDeletedSignaleringenResponse(deletedSignaleringenCount);
     }
 }

@@ -33,6 +33,26 @@ class ItestHttpClient {
             .build()
     }
 
+    fun performDeleteRequest(
+        url: String,
+        headers: Headers = getDefaultJSONHeaders(),
+        addAuthorizationHeader: Boolean = true
+    ): Response {
+        logger.info { "Performing DELETE request on: '$url'" }
+        val request = Request.Builder()
+            .headers(
+                if (addAuthorizationHeader) {
+                    cloneHeadersWithAuthorization(headers, url)
+                } else {
+                    headers
+                }
+            )
+            .url(url)
+            .delete()
+            .build()
+        return okHttpClient.newCall(request).execute()
+    }
+
     fun performGetRequest(
         url: String,
         headers: Headers = getDefaultJSONGETHeaders(),

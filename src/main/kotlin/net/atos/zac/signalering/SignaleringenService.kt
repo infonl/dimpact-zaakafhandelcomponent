@@ -34,7 +34,6 @@ import net.atos.zac.util.ValidationUtil
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
-import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.time.ZonedDateTime
 import java.util.Arrays
 import java.util.Optional
@@ -126,6 +125,10 @@ class SignaleringenService @Inject constructor(
         return created
     }
 
+    /**
+     * Deletes signaleringen based on the given parameters
+     * and sends a screen event for each deletion.
+     */
     @Transactional(REQUIRED)
     fun deleteSignaleringen(parameters: SignaleringZoekParameters) {
         val removed: MutableMap<String, Signalering> = HashMap()
@@ -141,7 +144,8 @@ class SignaleringenService @Inject constructor(
     }
 
     /**
-     * Deletes old signaleringen from the database regardless of the type.
+     * Deletes all signaleringen older than the specified number of days regardless of the type.
+     * Does not send any screen events for these deletions.
      *
      * @return the number of deleted signaleringen
      */
