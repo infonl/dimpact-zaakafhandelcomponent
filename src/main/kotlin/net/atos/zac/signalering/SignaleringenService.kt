@@ -158,7 +158,7 @@ class SignaleringenService @Inject constructor(
         query.where(
             builder.lessThan(
                 root.get("tijdstip"),
-                ZonedDateTime.now().minusSeconds(deleteOlderThanDays)
+                ZonedDateTime.now().minusDays(deleteOlderThanDays)
             )
         )
         val deletedCount = entityManager.createQuery(query).executeUpdate()
