@@ -57,12 +57,14 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
                             createRESTTemplate(name = "group 1 template 1"),
                             createRESTTemplate(name = "group 1 template 2")
                         )
+                        groups = emptySet()
                     },
                     createRESTTemplateGroup(name = "group 2").apply {
                         templates = setOf(
                             createRESTTemplate(name = "group 2 template 1"),
                             createRESTTemplate(name = "group 2 template 2")
                         )
+                        groups = emptySet()
                     }
                 )
                 templates = setOf(
@@ -82,55 +84,55 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
                     name shouldBe "root"
                     zaakafhandelParameters shouldBe zaakafhandelParametersFixture
 
-                    templates.size shouldBe 2
-                    with(templates.first()) {
+                    templates!!.size shouldBe 2
+                    with(templates!!.first()) {
                         name shouldBe "root template 1"
                         zaakafhandelParameters shouldBe zaakafhandelParametersFixture
                         templateGroup.name shouldBe "root"
                     }
-                    with(templates.last()) {
+                    with(templates!!.last()) {
                         name shouldBe "root template 2"
                         zaakafhandelParameters shouldBe zaakafhandelParametersFixture
                         templateGroup.name shouldBe "root"
                     }
 
-                    children.size shouldBe 2
-                    with(children.first()) {
+                    children!!.size shouldBe 2
+                    with(children!!.first()) {
                         name shouldBe "group 1"
                         zaakafhandelParameters shouldBe zaakafhandelParametersFixture
 
-                        templates.size shouldBe 2
-                        with(templates.first()) {
+                        templates!!.size shouldBe 2
+                        with(templates!!.first()) {
                             name shouldBe "group 1 template 1"
                             zaakafhandelParameters shouldBe zaakafhandelParametersFixture
                             templateGroup.name shouldBe "group 1"
                         }
-                        with(templates.last()) {
+                        with(templates!!.last()) {
                             name shouldBe "group 1 template 2"
                             zaakafhandelParameters shouldBe zaakafhandelParametersFixture
                             templateGroup.name shouldBe "group 1"
                         }
 
                         parent!!.name shouldBe "root"
-                        children shouldBe emptySet()
+                        children shouldBe null
                     }
-                    with(children.last()) {
+                    with(children!!.last()) {
                         name shouldBe "group 2"
                         zaakafhandelParameters shouldBe zaakafhandelParametersFixture
 
-                        with(templates.first()) {
+                        with(templates!!.first()) {
                             name shouldBe "group 2 template 1"
                             zaakafhandelParameters shouldBe zaakafhandelParametersFixture
                             templateGroup.name shouldBe "group 2"
                         }
-                        with(templates.last()) {
+                        with(templates!!.last()) {
                             name shouldBe "group 2 template 2"
                             zaakafhandelParameters shouldBe zaakafhandelParametersFixture
                             templateGroup.name shouldBe "group 2"
                         }
 
                         parent!!.name shouldBe "root"
-                        children shouldBe emptySet()
+                        children shouldBe null
                     }
                 }
             }
@@ -146,17 +148,19 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
         val jpaGroups = mutableSetOf(
             createSmartDocumentsTemplateGroup(name = "group 1").apply {
                 parent = jpaRoot
-                templates.addAll(jpaTemplates)
+                templates = jpaTemplates
+                children = mutableSetOf()
             },
             createSmartDocumentsTemplateGroup(name = "group 2").apply {
                 parent = jpaRoot
-                templates.addAll(jpaTemplates)
+                templates = jpaTemplates
+                children = mutableSetOf()
             }
         )
         val jpaModel = setOf(
             jpaRoot.apply {
                 children = jpaGroups
-                templates.addAll(jpaTemplates)
+                templates = jpaTemplates
             }
         )
 
@@ -186,6 +190,7 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
                         templates!!.size shouldBe 2
                         templates!!.first().name shouldBe "template 1"
                         templates!!.last().name shouldBe "template 2"
+                        groups shouldBe null
                     }
                     with(groups!!.last()) {
                         id shouldBe jpaGroups.last().smartDocumentsId
@@ -193,6 +198,7 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
                         templates!!.size shouldBe 2
                         templates!!.first().name shouldBe "template 1"
                         templates!!.last().name shouldBe "template 2"
+                        groups shouldBe null
                     }
                 }
             }

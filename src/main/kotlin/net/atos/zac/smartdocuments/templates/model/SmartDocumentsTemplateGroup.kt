@@ -50,8 +50,8 @@ class SmartDocumentsTemplateGroup {
     var parent: SmartDocumentsTemplateGroup? = null
 
     @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
-    var children: MutableSet<SmartDocumentsTemplateGroup> = mutableSetOf()
+    var children: MutableSet<SmartDocumentsTemplateGroup>? = null
 
     @OneToMany(mappedBy = "templateGroup", fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
-    var templates: MutableSet<SmartDocumentsTemplate> = mutableSetOf()
+    var templates: MutableSet<SmartDocumentsTemplate>? = null
 }
