@@ -1,3 +1,4 @@
 package net.atos.zac.app.admin.model;
 
-public record RESTDeletedSignaleringenResponse(int deletedSignaleringenCount) {}
+public record RESTDeletedSignaleringenResponse(int deletedSignaleringenCount) {
+}
