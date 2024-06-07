@@ -64,7 +64,7 @@ hibernate-validator = "8.0.1.Final"
 eclipse-yasson = "3.0.3"
 
 kotest-runner-junit5 = "5.9.0"
-kotest-assertions-json = "5.9.0"
+kotest-assertions-json = "5.9.1"
 mockk = "1.13.11"
 
 testcontainers = "1.19.8"
