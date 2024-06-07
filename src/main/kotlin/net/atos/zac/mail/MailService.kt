@@ -106,7 +106,7 @@ constructor(
 
         try {
             Transport.send(message)
-            LOG.info("Sent mail to ${mailGegevens.to} with subject '$subject'.")
+            LOG.fine("Sent mail to ${mailGegevens.to} with subject '$subject'.")
             if (mailGegevens.isCreateDocumentFromMail && bronnen.zaak != null) {
                 createZaakDocumentFromMail(
                     mailGegevens.from.email,

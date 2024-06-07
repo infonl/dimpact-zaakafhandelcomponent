@@ -151,7 +151,7 @@ class SignaleringenService @Inject constructor(
      */
     @Transactional(REQUIRED)
     fun deleteOldSignaleringen(deleteOlderThanDays: Long): Int {
-        LOG.info("Deleting signaleringen older than $deleteOlderThanDays days from the database.")
+        LOG.info("Deleting signaleringen older than $deleteOlderThanDays day(s) from the database.")
         val builder = entityManager.criteriaBuilder
         val query = builder.createCriteriaDelete(Signalering::class.java)
         val root = query.from(Signalering::class.java)
