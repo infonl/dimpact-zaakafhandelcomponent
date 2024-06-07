@@ -18,4 +18,5 @@ spec:
               imagePullPolicy: IfNotPresent
               args:
                 - -s
+                - -X "DELETE"
                 - {{ printf "http://%s.%s/rest/admin/signaleringen/delete-old" (include "zaakafhandelcomponent.fullname" .) .Release.Namespace }}
