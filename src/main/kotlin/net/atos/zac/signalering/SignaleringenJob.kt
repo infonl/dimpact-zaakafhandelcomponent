@@ -67,7 +67,7 @@ class SignaleringenJob @Inject constructor(
      */
     fun zaakSignaleringenVerzenden() {
         val signaleringVerzendInfo = SignaleringVerzendInfo()
-        LOG.fine("Zaak signaleringen verzenden: gestart...")
+        LOG.info("Zaak signaleringen verzenden: gestart...")
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             .map { zaaktype ->
                 zaakafhandelParameterService.readZaakafhandelParameters(
@@ -95,7 +95,7 @@ class SignaleringenJob @Inject constructor(
                     }
                 }
             }
-        LOG.fine(
+        LOG.info(
             """Zaak signaleringen verzenden: gestopt (${signaleringVerzendInfo.streefdatumVerzonden} streefdatum
                 | waarschuwingen, ${signaleringVerzendInfo.fataledatumVerzonden} fatale datum waarschuwingen)
                 |

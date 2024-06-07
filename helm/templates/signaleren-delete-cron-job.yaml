@@ -17,6 +17,5 @@ spec:
               image: curlimages/curl
               imagePullPolicy: IfNotPresent
               args:
-                - -s
-                - -X "DELETE"
+                - -X DELETE
                 - {{ printf "http://%s.%s/rest/admin/signaleringen/delete-old" (include "zaakafhandelcomponent.fullname" .) .Release.Namespace }}
