@@ -17,7 +17,8 @@ import input.user
 overige_rechten := {
     "starten_zaak": starten_zaak,
     "beheren": beheren,
-    "zoeken": zoeken
+    "zoeken": zoeken,
+    "sjabloon_toewijzing": sjabloon_toewijzing
 }
 
 default starten_zaak := false
@@ -33,4 +34,9 @@ beheren {
 default zoeken := false
 zoeken {
     behandelaar.rol in user.rollen
+}
+
+default sjabloon_toewijzing := false
+sjabloon_toewijzing {
+    beheerder.rol in user.rollen
 }

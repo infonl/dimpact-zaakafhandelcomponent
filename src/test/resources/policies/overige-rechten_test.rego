@@ -54,3 +54,21 @@ test_zoeken_with_unknown_role if {
 test_zoeken_with_wrong_role if {
     not zoeken with input.user.rollen as [ "recordmanager" ]
 }
+
+#####################
+# sjabloon_toewijzing
+#####################
+test_sjabloon_toewijzing_with_beheerder_role if  {
+    sjabloon_toewijzing
+        with input.user.rollen as ["beheerder"]
+}
+
+test_sjabloon_toewijzing_missing_role_fails if {
+    not sjabloon_toewijzing
+        with input.document.zaak_open as true
+}
+
+test_sjabloon_toewijzing_wrong_role_fails if {
+    not sjabloon_toewijzing
+        with input.user.rollen as ["functioneel"]
+}

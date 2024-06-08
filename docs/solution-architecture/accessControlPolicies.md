@@ -112,6 +112,7 @@ various resources on which a user can perform actions:
 | starten_zaak                                         |                                                             ✅                                                             |             |                                                                    |           |
 | beheren                                              |                                                                                                                           |             |                                                                    |     ✅     |
 | zoeken                                               |                                                             ✅                                                             |             |                                                                    |           |
+| sjabloon_toewijzing                                  |                                                                                                                           |             |                                                                    |     ✅     |
 
 Notes:
 - **✅ (zaak open)**: the zaak status must be 'Open' for the user role to have this right.

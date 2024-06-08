@@ -185,15 +185,18 @@ fun createWerklijstRechtenAllDeny(
 fun createOverigeRechten(
     startenZaak: Boolean = true,
     beheren: Boolean = true,
-    zoeken: Boolean = true
+    zoeken: Boolean = true,
+    sjabloonToewijzing: Boolean = true,
 ) = OverigeRechten(
     startenZaak,
     beheren,
-    zoeken
+    zoeken,
+    sjabloonToewijzing
 )
 
 fun createOverigeRechtenAllDeny(
     startenZaak: Boolean = false,
     beheren: Boolean = false,
-    zoeken: Boolean = false
-) = createOverigeRechten(startenZaak, beheren, zoeken)
+    zoeken: Boolean = false,
+    sjabloonToewijzing: Boolean = false,
+) = createOverigeRechten(startenZaak, beheren, zoeken, sjabloonToewijzing)
