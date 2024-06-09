@@ -1,5 +1,4 @@
 import com.bisnode.opa.configuration.ExecutableMode
-import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.github.gradle.node.npm.task.NpmTask
 import io.smallrye.openapi.api.OpenApiConfig
 import org.apache.tools.ant.taskdefs.condition.Os
@@ -24,7 +23,6 @@ plugins {
     alias(libs.plugins.openapi)
     alias(libs.plugins.swagger.generator)
     alias(libs.plugins.detekt)
-    alias(libs.plugins.docker.remote.api)
     alias(libs.plugins.spotless)
     alias(libs.plugins.allopen)
     alias(libs.plugins.noarg)
@@ -620,19 +618,15 @@ tasks {
         outputs.dir("src/main/app/coverage")
     }
 
-    register<DockerBuildImage>("buildDockerImage") {
+    register<Exec>("buildDockerImage") {
         dependsOn("generateWildflyBootableJar")
 
-        inputDir.set(file("."))
-        buildArgs.set(
-            mapOf(
-                "versionNumber" to versionNumber,
-                "branchName" to branchName,
-                "commitHash" to commitHash
-            )
-        )
-        dockerFile.set(file("Dockerfile"))
-        images.add(zacDockerImage)
+        inputs.file("Dockerfile")
+        inputs.file("target/zaakafhandelcomponent.jar")
+        inputs.files(fileTree("certificates"))
+
+        workingDir(".")
+        commandLine("scripts/docker/build-docker-image.sh", "-v", versionNumber, "-b", branchName, "-c", commitHash, "-t", zacDockerImage)
     }
 
     register<Copy>("copyJacocoAgentForItest") {
@@ -685,7 +679,6 @@ tasks {
     }
 }
 
-@DisableCachingByDefault(because = "Gradle would require more information to cache this task")
 abstract class Maven : Exec() {
     // Simple function to invoke a maven goal, dependent on the os, with optional
     fun execGoal(goal: String, vararg args: String) = commandLine(
