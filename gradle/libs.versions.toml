@@ -12,7 +12,6 @@ node-gradle = "7.0.2"
 taskinfo = "2.2.0"
 swagger-generator = "2.19.2"
 detekt = "1.23.6"
-docker-remote-api = "9.4.0"
 spotless = "6.25.0"
 spotless-eclipse-formatter = "4.21"
 spotless-prettier-base = "3.2.5"
@@ -175,6 +174,5 @@ gradle-node = { id = "com.github.node-gradle.node", version.ref = "node-gradle" 
 taskinfo = { id = "org.barfuin.gradle.taskinfo", version.ref = "taskinfo" }
 swagger-generator = { id = "org.hidetake.swagger.generator", version.ref = "swagger-generator" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
-docker-remote-api = { id = "com.bmuschko.docker-remote-api", version.ref = "docker-remote-api" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 opa = { id = "com.bisnode.opa", version.ref = "opa-plugin" }
