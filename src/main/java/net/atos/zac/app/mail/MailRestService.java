@@ -35,25 +35,36 @@ import net.atos.zac.util.ValidationUtil;
 @Path("mail")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class MailRESTService {
-
-    @Inject
+public class MailRestService {
     private MailService mailService;
-
-    @Inject
     private ZaakVariabelenService zaakVariabelenService;
-
-    @Inject
     private PolicyService policyService;
-
-    @Inject
     private ZRCClientService zrcClientService;
-
-    @Inject
     private ZTCClientService ztcClientService;
+    private RESTMailGegevensConverter restMailGegevensConverter;
+
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public MailRestService() {
+    }
 
     @Inject
-    private RESTMailGegevensConverter restMailGegevensConverter;
+    public MailRestService(
+            final MailService mailService,
+            final ZaakVariabelenService zaakVariabelenService,
+            final PolicyService policyService,
+            final ZRCClientService zrcClientService,
+            final ZTCClientService ztcClientService,
+            final RESTMailGegevensConverter restMailGegevensConverter
+    ) {
+        this.mailService = mailService;
+        this.zaakVariabelenService = zaakVariabelenService;
+        this.policyService = policyService;
+        this.zrcClientService = zrcClientService;
+        this.ztcClientService = ztcClientService;
+        this.restMailGegevensConverter = restMailGegevensConverter;
+    }
 
     @POST
     @Path("send/{zaakUuid}")
@@ -65,8 +76,7 @@ public class MailRESTService {
         assertPolicy(policyService.readZaakRechten(zaak).versturenEmail());
         validateEmail(restMailGegevens.verzender);
         validateEmail(restMailGegevens.ontvanger);
-        mailService.sendMail(
-                restMailGegevensConverter.convert(restMailGegevens), BronnenKt.getBronnenFromZaak(zaak));
+        mailService.sendMail(restMailGegevensConverter.convert(restMailGegevens), BronnenKt.getBronnenFromZaak(zaak));
     }
 
     @POST
