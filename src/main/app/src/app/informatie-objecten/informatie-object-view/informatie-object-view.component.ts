@@ -19,6 +19,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { Observable } from "rxjs";
 import { tap } from "rxjs/operators";
+import { AsyncButtonMenuItem } from "src/app/shared/side-nav/menu-item/subscription-button-menu-item";
 import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
@@ -84,7 +85,6 @@ export class InformatieObjectViewComponent
   @ViewChild("sideNavContainer") sideNavContainer: MatSidenavContainer;
   @ViewChild(MatSort) sort: MatSort;
   private documentListener: WebsocketListener;
-  private converteerButton: ButtonMenuItem = null;
 
   constructor(
     private informatieObjectenService: InformatieObjectenService,
@@ -131,7 +131,6 @@ export class InformatieObjectViewComponent
             this.toevoegenActies();
             this.loadZaakInformatieobjecten();
             this.loadHistorie();
-            this.resetConvertKnop();
           },
         );
 
@@ -222,13 +221,13 @@ export class InformatieObjectViewComponent
       this.laatsteVersieInfoObject.rechten.vergrendelen
     ) {
       this.menu.push(
-        new ButtonMenuItem(
+        new AsyncButtonMenuItem(
           "actie.lock",
-          () => {
-            this.informatieObjectenService
-              .lockInformatieObject(this.infoObject.uuid, this.zaak?.uuid)
-              .subscribe(() => {});
-          },
+          () =>
+            this.informatieObjectenService.lockInformatieObject(
+              this.infoObject.uuid,
+              this.zaak?.uuid,
+            ),
           "lock",
         ),
       );
@@ -239,13 +238,13 @@ export class InformatieObjectViewComponent
       this.laatsteVersieInfoObject.rechten.ontgrendelen
     ) {
       this.menu.push(
-        new ButtonMenuItem(
+        new AsyncButtonMenuItem(
           "actie.unlock",
-          () => {
-            this.informatieObjectenService
-              .unlockInformatieObject(this.infoObject.uuid, this.zaak?.uuid)
-              .subscribe(() => {});
-          },
+          () =>
+            this.informatieObjectenService.unlockInformatieObject(
+              this.infoObject.uuid,
+              this.zaak?.uuid,
+            ),
           "lock_open",
         ),
       );
@@ -281,18 +280,17 @@ export class InformatieObjectViewComponent
       this.laatsteVersieInfoObject.rechten.wijzigen &&
       FileFormatUtil.isOffice(this.infoObject.formaat)
     ) {
-      this.converteerButton = new ButtonMenuItem(
-        "actie.converteren",
-        () => {
-          this.converteerButton.disabled = true;
-          this.utilService.setLoading(true);
-          this.informatieObjectenService
-            .convertInformatieObjectToPDF(this.infoObject.uuid, this.zaak?.uuid)
-            .subscribe(() => {});
-        },
-        "picture_as_pdf",
+      this.menu.push(
+        new AsyncButtonMenuItem(
+          "actie.converteren",
+          () =>
+            this.informatieObjectenService.convertInformatieObjectToPDF(
+              this.infoObject.uuid,
+              this.zaak?.uuid,
+            ),
+          "picture_as_pdf",
+        ),
       );
-      this.menu.push(this.converteerButton);
     }
   }
 
@@ -421,11 +419,6 @@ export class InformatieObjectViewComponent
       .pipe(
         tap(() => this.websocketService.suspendListener(this.documentListener)),
       );
-  }
-
-  private resetConvertKnop(): void {
-    this.converteerButton.disabled = false;
-    this.utilService.setLoading(false);
   }
 
   /**
