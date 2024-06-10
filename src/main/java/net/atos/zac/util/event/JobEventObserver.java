@@ -14,25 +14,35 @@ import jakarta.enterprise.event.ObservesAsync;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
-import net.atos.zac.signalering.SignaleringJob;
+import net.atos.zac.signalering.DueDateEmailNotificationService;
 
 /**
- * This bean listens for JobEvents and handles them by starting the relevant job.
+ * This bean listens for job events and handles them by calling the corresponding service.
  */
 @Named
 @ApplicationScoped
 public class JobEventObserver {
     private static final Logger LOG = Logger.getLogger(JobEventObserver.class.getName());
 
+    private DueDateEmailNotificationService dueDateEmailNotificationService;
+
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public JobEventObserver() {
+    }
+
     @Inject
-    private SignaleringJob signaleringJob;
+    public JobEventObserver(final DueDateEmailNotificationService dueDateEmailNotificationService) {
+        this.dueDateEmailNotificationService = dueDateEmailNotificationService;
+    }
 
     public void onFire(final @ObservesAsync JobEvent event) {
         try {
             LOG.fine(() -> String.format("Job event ontvangen: %s", event.toString()));
             event.delay();
             if (Objects.requireNonNull(event.getObjectId()) == JobId.SIGNALERINGEN_JOB) {
-                signaleringJob.signaleringenVerzenden();
+                dueDateEmailNotificationService.sendDueDateEmailNotifications();
             }
         } catch (final Throwable ex) {
             LOG.log(Level.SEVERE, "asynchronous guard", ex);

@@ -46,20 +46,32 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
 
     private static final Logger LOG = Logger.getLogger(SignaleringEventObserver.class.getName());
 
-    @Inject
     private ZTCClientService ztcClientService;
-
-    @Inject
     private ZRCClientService zrcClientService;
-
-    @Inject
     private FlowableTaskService flowableTaskService;
-
-    @Inject
     private IdentityService identityService;
+    private SignaleringService signaleringService;
+
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public SignaleringEventObserver() {
+    }
 
     @Inject
-    private SignaleringService signaleringService;
+    public SignaleringEventObserver(
+            final ZTCClientService ztcClientService,
+            final ZRCClientService zrcClientService,
+            final FlowableTaskService flowableTaskService,
+            final IdentityService identityService,
+            final SignaleringService signaleringService
+    ) {
+        this.ztcClientService = ztcClientService;
+        this.zrcClientService = zrcClientService;
+        this.flowableTaskService = flowableTaskService;
+        this.identityService = identityService;
+        this.signaleringService = signaleringService;
+    }
 
     @Override
     public void onFire(final @ObservesAsync SignaleringEvent<?> event) {
@@ -161,13 +173,13 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
     private Signalering buildSignalering(final SignaleringEvent<?> event) {
         switch (event.getObjectType()) {
             case ZAAK_DOCUMENT_TOEGEVOEGD -> {
-                final Zaak subject = zrcClientService.readZaak((URI) event.getObjectId().getResource());
+                final Zaak subject = zrcClientService.readZaak((URI) event.getObjectId().resource());
                 final ZaakInformatieobject detail = zrcClientService.readZaakinformatieobject(
-                        UriUtil.uuidFromURI((URI) event.getObjectId().getDetail()));
+                        UriUtil.uuidFromURI((URI) event.getObjectId().detail()));
                 return getSignaleringVoorBehandelaar(event, subject, detail);
             }
             case ZAAK_OP_NAAM -> {
-                final Rol<?> rol = zrcClientService.readRol((URI) event.getObjectId().getResource());
+                final Rol<?> rol = zrcClientService.readRol((URI) event.getObjectId().resource());
                 if (RolType.OmschrijvingGeneriekEnum.valueOf(rol.getOmschrijvingGeneriek().toUpperCase()) ==
                     RolType.OmschrijvingGeneriekEnum.BEHANDELAAR) {
                     final Zaak subject = zrcClientService.readZaak(rol.getZaak());
@@ -183,7 +195,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
                 }
             }
             case TAAK_OP_NAAM -> {
-                final TaskInfo subject = flowableTaskService.readOpenTask((String) event.getObjectId().getResource());
+                final TaskInfo subject = flowableTaskService.readOpenTask((String) event.getObjectId().resource());
                 return getSignaleringVoorBehandelaar(fixActor(event, subject), subject);
             }
             case ZAAK_VERLOPEND, TAAK_VERLOPEN ->

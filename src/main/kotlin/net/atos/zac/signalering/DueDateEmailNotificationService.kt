@@ -42,7 +42,7 @@ import java.util.logging.Logger
 @Suppress("TooManyFunctions")
 @NoArgConstructor
 @AllOpen
-class SignaleringJob @Inject constructor(
+class DueDateEmailNotificationService @Inject constructor(
     private val signaleringService: SignaleringService,
     private val configuratieService: ConfiguratieService,
     private val ztcClientService: ZTCClientService,
@@ -51,22 +51,41 @@ class SignaleringJob @Inject constructor(
     private val flowableTaskService: FlowableTaskService
 ) {
     companion object {
-        private val LOG = Logger.getLogger(SignaleringJob::class.java.name)
+        private val LOG = Logger.getLogger(DueDateEmailNotificationService::class.java.name)
         const val ZAAK_AFGEHANDELD_QUERY = "zaak_afgehandeld"
     }
 
-    fun signaleringenVerzenden() {
-        zaakSignaleringenVerzenden()
-        taakSignaleringenVerzenden()
+    /**
+     * Send zaak and task due date email notifications as warnings that the
+     * user should take action.
+     */
+    fun sendDueDateEmailNotifications() {
+        sendZaakTargetDateAndFatalDateEmailNotifications()
+        sendTaskDueDateEmailNotifications()
     }
 
     /**
-     * This is the batchjob to send E-Mail warnings about cases that are approaching their einddatum gepland or their
-     * uiterlijke einddatum afdoening.
+     * Sends e-mail notifications about tasks that are at or past their due date.
+     * Typically run as part of a cron job.
      */
-    fun zaakSignaleringenVerzenden() {
+    private fun sendTaskDueDateEmailNotifications() {
         val signaleringVerzendInfo = SignaleringVerzendInfo()
-        LOG.info("Sending zaak signaleringen...")
+        LOG.info("Sending task email notifications...")
+        signaleringVerzendInfo.fataledatumVerzonden += sendTaskDueDateNotifications()
+        taakDueOnterechtVerzondenVerwijderen()
+        LOG.info(
+            "Finished sending task email notifications (${signaleringVerzendInfo.fataledatumVerzonden} fatal date warnings)"
+        )
+    }
+
+    /**
+     * Sends e-mail notifications about zaken that are approaching their target date or their
+     * fatal date.
+     * Typically run as part of a cron job.
+     */
+    private fun sendZaakTargetDateAndFatalDateEmailNotifications() {
+        val signaleringVerzendInfo = SignaleringVerzendInfo()
+        LOG.info("Sending zaak email notifications...")
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             .map { zaaktype ->
                 zaakafhandelParameterService.readZaakafhandelParameters(
@@ -95,17 +114,15 @@ class SignaleringJob @Inject constructor(
                 }
             }
         LOG.info(
-            "Finished sending zaak signaleringen (${signaleringVerzendInfo.streefdatumVerzonden} target date " +
+            "Finished sending zaak email notifications (${signaleringVerzendInfo.streefdatumVerzonden} target date " +
                 "warnings, ${signaleringVerzendInfo.fataledatumVerzonden} fatal date warnings)"
         )
     }
 
     /**
-     * Send the E-Mail warnings about the einddatum gepland
-     *
-     * @return the number of E-Mails sent
+     * Sends einddatum gepland zaak email notifications
      */
-    fun zaakEinddatumGeplandVerzenden(zaaktype: ZaakType, venster: Int): Int {
+    private fun zaakEinddatumGeplandVerzenden(zaaktype: ZaakType, venster: Int): Int {
         val verzonden = IntArray(1)
         zoekenService.zoek(getZaakSignaleringTeVerzendenZoekParameters(DatumVeld.ZAAK_STREEFDATUM, zaaktype, venster))
             .items.stream()
@@ -117,11 +134,9 @@ class SignaleringJob @Inject constructor(
     }
 
     /**
-     * Send the E-Mail warnings about the uiterlijke einddatum afdoening
-     *
-     * @return the number of E-Mails sent
+     * Sends fatal date zaak email notifications
      */
-    fun zaakUiterlijkeEinddatumAfdoeningVerzenden(
+    private fun zaakUiterlijkeEinddatumAfdoeningVerzenden(
         zaaktype: ZaakType,
         venster: Int
     ): Int {
@@ -135,7 +150,7 @@ class SignaleringJob @Inject constructor(
         return verzonden[0]
     }
 
-    fun hasZaakSignaleringTarget(zaak: ZaakZoekObject, detail: SignaleringDetail): Boolean =
+    private fun hasZaakSignaleringTarget(zaak: ZaakZoekObject, detail: SignaleringDetail): Boolean =
         signaleringService.readInstellingenUser(
             SignaleringType.Type.ZAAK_VERLOPEND, zaak.behandelaarGebruikersnaam
         ).isMail &&
@@ -143,7 +158,7 @@ class SignaleringJob @Inject constructor(
                 getZaakSignaleringVerzondenParameters(zaak.behandelaarGebruikersnaam, zaak.uuid, detail)
             ).isPresent
 
-    fun buildZaakSignalering(
+    private fun buildZaakSignalering(
         target: String,
         zaakZoekObject: ZaakZoekObject,
         detail: SignaleringDetail
@@ -159,7 +174,7 @@ class SignaleringJob @Inject constructor(
         return signalering
     }
 
-    fun verzendZaakSignalering(signalering: Signalering): Int {
+    private fun verzendZaakSignalering(signalering: Signalering): Int {
         signaleringService.sendSignalering(signalering)
         signaleringService.createSignaleringVerzonden(signalering)
         return 1
@@ -168,7 +183,7 @@ class SignaleringJob @Inject constructor(
     /**
      * Make sure already sent E-Mail warnings will get send again (in cases where the einddatum gepland has changed)
      */
-    fun zaakEinddatumGeplandOnterechtVerzondenVerwijderen(
+    private fun zaakEinddatumGeplandOnterechtVerzondenVerwijderen(
         zaaktype: ZaakType,
         venster: Int
     ) {
@@ -191,7 +206,7 @@ class SignaleringJob @Inject constructor(
      * Make sure already sent E-Mail warnings will get send again
      * (in cases where the uiterlijke einddatum afdoening has changed)
      */
-    fun zaakUiterlijkeEinddatumAfdoeningOnterechtVerzondenVerwijderen(
+    private fun zaakUiterlijkeEinddatumAfdoeningOnterechtVerzondenVerwijderen(
         zaaktype: ZaakType,
         venster: Int
     ) {
@@ -210,7 +225,7 @@ class SignaleringJob @Inject constructor(
             .forEach { signaleringService.deleteSignaleringVerzonden(it) }
     }
 
-    fun getZaakSignaleringTeVerzendenZoekParameters(
+    private fun getZaakSignaleringTeVerzendenZoekParameters(
         veld: DatumVeld,
         zaaktype: ZaakType,
         venster: Int
@@ -221,7 +236,7 @@ class SignaleringJob @Inject constructor(
         return parameters
     }
 
-    fun getZaakSignaleringLaterTeVerzendenZoekParameters(
+    private fun getZaakSignaleringLaterTeVerzendenZoekParameters(
         veld: DatumVeld,
         zaaktype: ZaakType,
         venster: Int
@@ -232,7 +247,7 @@ class SignaleringJob @Inject constructor(
         return parameters
     }
 
-    fun getOpenZaakMetBehandelaarZoekParameters(zaaktype: ZaakType): ZoekParameters {
+    private fun getOpenZaakMetBehandelaarZoekParameters(zaaktype: ZaakType): ZoekParameters {
         val parameters = ZoekParameters(ZoekObjectType.ZAAK)
         parameters.addFilter(FilterVeld.ZAAK_ZAAKTYPE_UUID, UriUtil.uuidFromURI(zaaktype.url).toString())
         parameters.addFilter(FilterVeld.ZAAK_BEHANDELAAR, FilterWaarde.NIET_LEEG.toString())
@@ -241,7 +256,7 @@ class SignaleringJob @Inject constructor(
         return parameters
     }
 
-    fun getZaakSignaleringVerzondenParameters(
+    private fun getZaakSignaleringVerzondenParameters(
         target: String,
         zaakUUID: String,
         detail: SignaleringDetail
@@ -253,25 +268,9 @@ class SignaleringJob @Inject constructor(
     }
 
     /**
-     * Sends e-mail warnings about tasks that are at or past their due date.
-     * Typically run as part of a cron job.
+     * Sends due date task email notifications
      */
-    fun taakSignaleringenVerzenden() {
-        val signaleringVerzendInfo = SignaleringVerzendInfo()
-        LOG.info("Sending task signaleringen...")
-        signaleringVerzendInfo.fataledatumVerzonden += taakDueVerzenden()
-        taakDueOnterechtVerzondenVerwijderen()
-        LOG.info(
-            "Finished sending task signaleringen (${signaleringVerzendInfo.fataledatumVerzonden} fatal date warnings)"
-        )
-    }
-
-    /**
-     * Send the E-Mail warnings about the due date
-     *
-     * @return the number of E-Mails sent
-     */
-    fun taakDueVerzenden(): Int {
+    private fun sendTaskDueDateNotifications(): Int {
         val verzonden = IntArray(1)
         flowableTaskService.listOpenTasksDueNow().stream()
             .filter { hasTaakSignaleringTarget(it) }
@@ -280,14 +279,14 @@ class SignaleringJob @Inject constructor(
         return verzonden[0]
     }
 
-    fun hasTaakSignaleringTarget(task: Task): Boolean =
+    private fun hasTaakSignaleringTarget(task: Task): Boolean =
         signaleringService.readInstellingenUser(SignaleringType.Type.TAAK_VERLOPEN, task.assignee)
             .isMail &&
             !signaleringService.findSignaleringVerzonden(
                 getTaakSignaleringVerzondenParameters(task.assignee, task.id)
             ).isPresent
 
-    fun buildTaakSignalering(target: String, task: Task): Signalering {
+    private fun buildTaakSignalering(target: String, task: Task): Signalering {
         val signalering = signaleringService.signaleringInstance(
             SignaleringType.Type.TAAK_VERLOPEN
         )
@@ -297,7 +296,7 @@ class SignaleringJob @Inject constructor(
         return signalering
     }
 
-    fun verzendTaakSignalering(signalering: Signalering): Int {
+    private fun verzendTaakSignalering(signalering: Signalering): Int {
         signaleringService.sendSignalering(signalering)
         signaleringService.createSignaleringVerzonden(signalering)
         return 1
@@ -306,13 +305,13 @@ class SignaleringJob @Inject constructor(
     /**
      * Make sure already sent E-Mail warnings will get send again (in cases where the due date has changed)
      */
-    fun taakDueOnterechtVerzondenVerwijderen() {
+    private fun taakDueOnterechtVerzondenVerwijderen() {
         flowableTaskService.listOpenTasksDueLater().stream()
             .map { getTaakSignaleringVerzondenParameters(it.assignee, it.id) }
             .forEach { signaleringService.deleteSignaleringVerzonden(it) }
     }
 
-    fun getTaakSignaleringVerzondenParameters(
+    private fun getTaakSignaleringVerzondenParameters(
         target: String,
         taakId: String
     ): SignaleringVerzondenZoekParameters =
