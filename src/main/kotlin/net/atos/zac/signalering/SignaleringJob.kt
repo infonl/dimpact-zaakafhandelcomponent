@@ -96,10 +96,8 @@ class SignaleringJob @Inject constructor(
                 }
             }
         LOG.info(
-            """Zaak signaleringen verzenden: gestopt (${signaleringVerzendInfo.streefdatumVerzonden} streefdatum
-                | waarschuwingen, ${signaleringVerzendInfo.fataledatumVerzonden} fatale datum waarschuwingen)
-                |
-            """.trimMargin()
+            "Zaak signaleringen verzenden: gestopt (${signaleringVerzendInfo.streefdatumVerzonden} streefdatum " +
+                "waarschuwingen, ${signaleringVerzendInfo.fataledatumVerzonden} fatale datum waarschuwingen)"
         )
     }
 
@@ -264,9 +262,7 @@ class SignaleringJob @Inject constructor(
         signaleringVerzendInfo.fataledatumVerzonden += taakDueVerzenden()
         taakDueOnterechtVerzondenVerwijderen()
         LOG.info(
-            """Taak signaleringen verzenden: gestopt (${signaleringVerzendInfo.fataledatumVerzonden}
-            | fatale datum waarschuwingen)
-            """.trimMargin()
+            "Taak signaleringen verzenden: gestopt (${signaleringVerzendInfo.fataledatumVerzonden} fatale datum waarschuwingen)"
         )
     }
 

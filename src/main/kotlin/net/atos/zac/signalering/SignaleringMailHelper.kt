@@ -19,7 +19,6 @@ class SignaleringMailHelper @Inject constructor(
     private val identityService: IdentityService,
     private val mailTemplateService: MailTemplateService,
 ) {
-
     fun getTargetMail(signalering: Signalering): SignaleringTarget.Mail? =
         when (signalering.targettype) {
             SignaleringTarget.GROUP -> {

@@ -13,11 +13,13 @@ import jakarta.persistence.PersistenceContext
 import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
+import net.atos.client.zgw.drc.DRCClientService
 import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.app.zaken.converter.RESTZaakOverzichtConverter
-import net.atos.zac.app.zaken.model.RESTZaakOverzicht
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.event.EventingService
+import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.mail.MailService
 import net.atos.zac.mail.model.Bronnen
 import net.atos.zac.mailtemplates.model.MailGegevens
@@ -46,10 +48,11 @@ import java.util.logging.Logger
 @NoArgConstructor
 @AllOpen
 class SignaleringService @Inject constructor(
+    private val drcClientService: DRCClientService,
     private val eventingService: EventingService,
+    private val flowableTaskService: FlowableTaskService,
     private val mailService: MailService,
     private val signaleringenMailHelper: SignaleringMailHelper,
-    private val signaleringZACHelper: SignaleringZACHelper,
     private val signaleringPredicateHelper: SignaleringPredicateHelper,
     private val zrcClientService: ZRCClientService,
     private val restZaakOverzichtConverter: RESTZaakOverzichtConverter
@@ -206,16 +209,14 @@ class SignaleringService @Inject constructor(
             val bronnenBuilder = Bronnen.Builder()
             when (signalering.subjecttype) {
                 SignaleringSubject.ZAAK -> {
-                    bronnenBuilder.add(signaleringZACHelper.getZaak(signalering.subject))
+                    bronnenBuilder.add(getZaak(signalering.subject))
                     if (signalering.type.type === SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD) {
-                        bronnenBuilder.add(signaleringZACHelper.getDocument(signalering.detail))
+                        bronnenBuilder.add(getDocument(signalering.detail))
                     }
                 }
 
-                SignaleringSubject.TAAK -> bronnenBuilder.add(signaleringZACHelper.getTaak(signalering.subject))
-                SignaleringSubject.DOCUMENT -> bronnenBuilder.add(
-                    signaleringZACHelper.getDocument(signalering.subject)
-                )
+                SignaleringSubject.TAAK -> bronnenBuilder.add(getTask(signalering.subject))
+                SignaleringSubject.DOCUMENT -> bronnenBuilder.add(getDocument(signalering.subject))
                 else -> {}
             }
             mailService.sendMail(
@@ -366,21 +367,24 @@ class SignaleringService @Inject constructor(
         this.entityManager = entityManager
     }
 
-    private fun signaleringTypeInstance(signaleringsType: SignaleringType.Type): SignaleringType =
-        entityManager.find(SignaleringType::class.java, signaleringsType.toString())
+    private fun getDocument(documentUUID: String) =
+        drcClientService.readEnkelvoudigInformatieobject(UUID.fromString(documentUUID))
+
+    private fun getTask(taakID: String) = flowableTaskService.readTask(taakID)
+
+    private fun getZaak(zaakUUID: String): Zaak = zrcClientService.readZaak(UUID.fromString(zaakUUID))
 
     private fun listZakenSignaleringen(
         user: LoggedInUser,
         signaleringsType: SignaleringType.Type
-    ): List<RESTZaakOverzicht> {
-        val list = SignaleringZoekParameters(user)
-            .types(signaleringsType)
-            .subjecttype(SignaleringSubject.ZAAK)
-            .let { listSignaleringen(it) }
-            .map { zrcClientService.readZaak(UUID.fromString(it.subject)) }
-            .map { restZaakOverzichtConverter.convert(it, user) }
-            .toList()
-        LOG.fine { "Generated zaken signaleringen list $list for type $signaleringsType" }
-        return list
-    }
+    ) = SignaleringZoekParameters(user)
+        .types(signaleringsType)
+        .subjecttype(SignaleringSubject.ZAAK)
+        .let { listSignaleringen(it) }
+        .map { zrcClientService.readZaak(UUID.fromString(it.subject)) }
+        .map { restZaakOverzichtConverter.convert(it, user) }
+        .toList()
+
+    private fun signaleringTypeInstance(signaleringsType: SignaleringType.Type): SignaleringType =
+        entityManager.find(SignaleringType::class.java, signaleringsType.toString())
 }
