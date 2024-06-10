@@ -55,14 +55,14 @@ class SignaleringenService @Inject constructor(
     private val restZaakOverzichtConverter: RESTZaakOverzichtConverter
 ) {
     companion object {
-        @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
-        private lateinit var entityManager: EntityManager
-
-        private fun signaleringTypeInstance(signaleringsType: SignaleringType.Type): SignaleringType =
-            entityManager.find(SignaleringType::class.java, signaleringsType.toString())
-
         private val LOG = Logger.getLogger(SignaleringenService::class.java.name)
     }
+    
+    @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
+    internal lateinit var entityManager: EntityManager
+
+    private fun signaleringTypeInstance(signaleringsType: SignaleringType.Type): SignaleringType =
+        entityManager.find(SignaleringType::class.java, signaleringsType.toString())
 
     /**
      * Factory method for constructing Signalering instances.
