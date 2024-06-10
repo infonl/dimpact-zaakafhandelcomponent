@@ -1,6 +1,5 @@
 package net.atos.zac.smartdocuments.rest
 
-import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.ws.rs.Consumes
@@ -10,8 +9,8 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.policy.PolicyService
+import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.smartdocuments.SmartDocumentsService
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
@@ -25,13 +24,13 @@ import java.util.UUID
 @AllOpen
 class SmartDocumentsRESTService @Inject constructor(
     private val smartDocumentsService: SmartDocumentsService,
-    private val loggedInUserInstance: Instance<LoggedInUser>
+    private val policyService: PolicyService
 ) {
 
     @GET
     @Path("templates")
     fun listTemplates(): Set<RESTSmartDocumentsTemplateGroup> {
-        PolicyService.assertPolicy(loggedInUserInstance.get().isGeautoriseerdVoorAlleZaaktypen)
+        assertPolicy(policyService.readOverigeRechten().beheren)
         return smartDocumentsService.listTemplates()
     }
 
@@ -40,7 +39,7 @@ class SmartDocumentsRESTService @Inject constructor(
     fun getTemplatesMapping(
         @PathParam("zaakafhandelUUID") zaakafhandelUUID: UUID
     ): Set<RESTSmartDocumentsTemplateGroup> {
-        PolicyService.assertPolicy(loggedInUserInstance.get().isGeautoriseerdVoorAlleZaaktypen)
+        assertPolicy(policyService.readOverigeRechten().beheren)
         return smartDocumentsService.getTemplatesMapping(zaakafhandelUUID)
     }
 
@@ -50,7 +49,7 @@ class SmartDocumentsRESTService @Inject constructor(
         @PathParam("zaakafhandelUUID") zaakafhandelUUID: UUID,
         restTemplateGroups: Set<RESTSmartDocumentsTemplateGroup>
     ) {
-        PolicyService.assertPolicy(loggedInUserInstance.get().isGeautoriseerdVoorAlleZaaktypen)
+        assertPolicy(policyService.readOverigeRechten().beheren)
         smartDocumentsService.storeTemplatesMapping(restTemplateGroups, zaakafhandelUUID)
     }
 }
