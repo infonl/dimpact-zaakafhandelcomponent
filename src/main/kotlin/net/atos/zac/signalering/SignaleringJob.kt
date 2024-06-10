@@ -50,7 +50,6 @@ class SignaleringJob @Inject constructor(
     private val zoekenService: ZoekenService,
     private val flowableTaskService: FlowableTaskService
 ) {
-
     companion object {
         private val LOG = Logger.getLogger(SignaleringJob::class.java.name)
         const val ZAAK_AFGEHANDELD_QUERY = "zaak_afgehandeld"
@@ -67,7 +66,7 @@ class SignaleringJob @Inject constructor(
      */
     fun zaakSignaleringenVerzenden() {
         val signaleringVerzendInfo = SignaleringVerzendInfo()
-        LOG.info("Zaak signaleringen verzenden: gestart...")
+        LOG.info("Sending zaak signaleringen...")
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             .map { zaaktype ->
                 zaakafhandelParameterService.readZaakafhandelParameters(
@@ -96,8 +95,8 @@ class SignaleringJob @Inject constructor(
                 }
             }
         LOG.info(
-            "Zaak signaleringen verzenden: gestopt (${signaleringVerzendInfo.streefdatumVerzonden} streefdatum " +
-                "waarschuwingen, ${signaleringVerzendInfo.fataledatumVerzonden} fatale datum waarschuwingen)"
+            "Finished sending zaak signaleringen (${signaleringVerzendInfo.streefdatumVerzonden} target date " +
+                "warnings, ${signaleringVerzendInfo.fataledatumVerzonden} fatal date warnings)"
         )
     }
 
@@ -254,15 +253,16 @@ class SignaleringJob @Inject constructor(
     }
 
     /**
-     * This is the batchjob to send E-Mail warnings about tasks that are at or past their due date.
+     * Sends e-mail warnings about tasks that are at or past their due date.
+     * Typically run as part of a cron job.
      */
     fun taakSignaleringenVerzenden() {
         val signaleringVerzendInfo = SignaleringVerzendInfo()
-        LOG.info("Taak signaleringen verzenden: gestart...")
+        LOG.info("Sending task signaleringen...")
         signaleringVerzendInfo.fataledatumVerzonden += taakDueVerzenden()
         taakDueOnterechtVerzondenVerwijderen()
         LOG.info(
-            "Taak signaleringen verzenden: gestopt (${signaleringVerzendInfo.fataledatumVerzonden} fatale datum waarschuwingen)"
+            "Finished sending task signaleringen (${signaleringVerzendInfo.fataledatumVerzonden} fatal date warnings)"
         )
     }
 
