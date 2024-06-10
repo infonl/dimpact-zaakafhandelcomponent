@@ -5,46 +5,7 @@
 
 package net.atos.zac.signalering.event;
 
-import java.util.Objects;
-
-public class SignaleringEventId<ID> {
-    private final ID resource;
-
-    private final ID detail;
-
-    public SignaleringEventId(final ID resource, final ID detail) {
-        this.resource = resource;
-        this.detail = detail;
-    }
-
-    public ID getResource() {
-        return resource;
-    }
-
-    public ID getDetail() {
-        return detail;
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        // snel antwoord
-        if (obj == this) {
-            return true;
-        }
-        // gebruik getClass i.p.v. instanceof, maar dan wel met de null check
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        // cast en vergelijk
-        final SignaleringEventId<?> other = (SignaleringEventId<?>) obj;
-        return Objects.equals(resource, other.resource) && Objects.equals(detail, other.detail);
-    }
-
-    @Override
-    public int hashCode() {
-        final int result = resource != null ? resource.hashCode() : 0;
-        return detail != null ? 31 * result + detail.hashCode() : result;
-    }
+public record SignaleringEventId<ID>(ID resource, ID detail) {
 
     @Override
     public String toString() {
