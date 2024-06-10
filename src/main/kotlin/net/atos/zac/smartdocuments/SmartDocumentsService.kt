@@ -11,6 +11,7 @@ import net.atos.zac.documentcreatie.DocumentCreatieService
 import net.atos.zac.smartdocuments.rest.RESTSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.templates.SmartDocumentsTemplateConverter.toModel
 import net.atos.zac.smartdocuments.templates.SmartDocumentsTemplateConverter.toREST
+import net.atos.zac.smartdocuments.templates.SmartDocumentsTemplateConverter.toStringRepresentation
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters
@@ -113,5 +114,24 @@ class SmartDocumentsService @Inject constructor(
                     )
                 )
         ).resultList.toSet().toREST()
+    }
+}
+
+/**
+ * Validates that all elements in a RESTSmartDocumentsTemplateGroup set are part of  pre-defined
+ * RESTSmartDocumentsTemplateGroup superset.
+ * The superset can be returned by SmartDocuments structure API or stored in our DB
+ *
+ * @param supersetTemplates set of RESTSmartDocumentsTemplateGroup to validate against
+ */
+fun Set<RESTSmartDocumentsTemplateGroup>.validate(
+    supersetTemplates: Set<RESTSmartDocumentsTemplateGroup>
+) {
+    val superset = supersetTemplates.toStringRepresentation()
+    val subset = this.toStringRepresentation()
+
+    val errors = subset.filterNot { superset.contains(it) }
+    if (errors.isNotEmpty()) {
+        throw SmartDocumentsException("Validation failed. Unknown entities: $errors")
     }
 }

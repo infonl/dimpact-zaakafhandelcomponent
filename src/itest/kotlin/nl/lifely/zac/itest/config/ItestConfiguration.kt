@@ -98,6 +98,28 @@ object ItestConfiguration {
     const val SMTP_SERVER_PORT = 25
 
     /**
+     * Constants from SmartDocuments WireMock template response
+     */
+    const val SMART_DOCUMENTS_ROOT_GROUP_ID = "D5037631FF6748269059B353699EFA0C"
+    const val SMART_DOCUMENTS_ROOT_GROUP_NAME = "root"
+    const val SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID = "445E1A2C5D964A33961CA46679AB51CF"
+    const val SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME = "root template 1"
+    const val SMART_DOCUMENTS_ROOT_TEMPLATE_2_ID = "8CCCF38A7757473CB5F5F2B8E5D7484D"
+    const val SMART_DOCUMENTS_ROOT_TEMPLATE_2_NAME = "root template 2"
+    const val SMART_DOCUMENTS_GROUP_1_ID = "0E18B04EDF9646C0A2D04E651DC4C6FF"
+    const val SMART_DOCUMENTS_GROUP_1_NAME = "group 1"
+    const val SMART_DOCUMENTS_GROUP_1_TEMPLATE_1_ID = "7B7857BB9959470C82974037304E433D"
+    const val SMART_DOCUMENTS_GROUP_1_TEMPLATE_1_NAME = "group 1 template 1"
+    const val SMART_DOCUMENTS_GROUP_1_TEMPLATE_2_ID = "273C2707E5A844699B653C87ACFD618E"
+    const val SMART_DOCUMENTS_GROUP_1_TEMPLATE_2_NAME = "group 1 template 2"
+    const val SMART_DOCUMENTS_GROUP_2_ID = "348097107FA346DC9AEBBE33A5500B79"
+    const val SMART_DOCUMENTS_GROUP_2_NAME = "group 2"
+    const val SMART_DOCUMENTS_GROUP_2_TEMPLATE_1_ID = "7B7857BB9959470C82974037304E433D"
+    const val SMART_DOCUMENTS_GROUP_2_TEMPLATE_1_NAME = "group 2 template 1"
+    const val SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_ID = "273C2707E5A844699B653C87ACFD618E"
+    const val SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_NAME = "group 2 template 2"
+
+    /**
      * The default ZAC Docker image used when running the integration tests locally.
      * When running the tests in our GitHub pipeline a different Docker image specific for the pipeline is used.
      */
