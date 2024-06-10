@@ -5,7 +5,7 @@
 
 package net.atos.zac.signalering.event;
 
-public record SignaleringEventId<ID>(ID resource, ID detail) {
+public record SignaleringEventId<ID> (ID resource, ID detail) {
 
     @Override
     public String toString() {
