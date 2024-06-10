@@ -20,10 +20,10 @@ import kotlinx.coroutines.launch
 import net.atos.client.zgw.drc.DRCClientService
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieobject
-import net.atos.zac.app.signaleringen.converter.RESTSignaleringInstellingenConverter
-import net.atos.zac.app.signaleringen.converter.RESTSignaleringTaakConverter
-import net.atos.zac.app.signaleringen.model.RESTSignaleringInstellingen
-import net.atos.zac.app.signaleringen.model.RESTSignaleringTaakSummary
+import net.atos.zac.app.signalering.converter.RESTSignaleringInstellingenConverter
+import net.atos.zac.app.signalering.converter.RESTSignaleringTaakConverter
+import net.atos.zac.app.signalering.model.RESTSignaleringInstellingen
+import net.atos.zac.app.signalering.model.RESTSignaleringTaakSummary
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.identity.IdentityService

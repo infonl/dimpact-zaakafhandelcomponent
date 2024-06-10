@@ -1,4 +1,4 @@
-package net.atos.zac.app.signaleringen.model
+package net.atos.zac.app.signalering.model
 
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor

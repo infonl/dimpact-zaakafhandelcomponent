@@ -12,9 +12,9 @@ import net.atos.zac.mail.MailService
 class SignaleringServiceTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
     val mailService = mockk<MailService>()
-    val signaleringenMailHelper = mockk<SignaleringenMailHelper>()
-    val signaleringenZACHelper = mockk<SignaleringenZACHelper>()
-    val signaleringenPredicateHelper = mockk<SignaleringenPredicateHelper>()
+    val signaleringenMailHelper = mockk<SignaleringMailHelper>()
+    val signaleringZACHelper = mockk<SignaleringZACHelper>()
+    val signaleringPredicateHelper = mockk<SignaleringPredicateHelper>()
     val zrcClientService = mockk<ZRCClientService>()
     val restZaakOverzichtConverter = mockk<RESTZaakOverzichtConverter>()
 
@@ -22,8 +22,8 @@ class SignaleringServiceTest : BehaviorSpec({
         eventingService = eventingService,
         mailService = mailService,
         signaleringenMailHelper = signaleringenMailHelper,
-        signaleringenZACHelper = signaleringenZACHelper,
-        signaleringenPredicateHelper = signaleringenPredicateHelper,
+        signaleringZACHelper = signaleringZACHelper,
+        signaleringPredicateHelper = signaleringPredicateHelper,
         zrcClientService = zrcClientService,
         restZaakOverzichtConverter = restZaakOverzichtConverter
     )

@@ -17,7 +17,7 @@ import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import java.util.stream.Collectors
 
-class SignaleringenPredicateHelper {
+class SignaleringPredicateHelper {
     fun getSignaleringWhere(
         parameters: SignaleringZoekParameters,
         builder: CriteriaBuilder,
