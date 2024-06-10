@@ -48,9 +48,9 @@ import java.util.logging.Logger
 class SignaleringenService @Inject constructor(
     private val eventingService: EventingService,
     private val mailService: MailService,
-    private val signaleringenMailHelper: SignaleringenMailHelper,
-    private val signaleringenZACHelper: SignaleringenZACHelper,
-    private val signaleringenPredicateHelper: SignaleringenPredicateHelper,
+    private val signaleringenMailHelper: SignaleringMailHelper,
+    private val signaleringZACHelper: SignaleringZACHelper,
+    private val signaleringPredicateHelper: SignaleringPredicateHelper,
     private val zrcClientService: ZRCClientService,
     private val restZaakOverzichtConverter: RESTZaakOverzichtConverter
 ) {
@@ -174,7 +174,7 @@ class SignaleringenService @Inject constructor(
         val root = query.from(Signalering::class.java)
         return entityManager.createQuery(
             query.select(root)
-                .where(signaleringenPredicateHelper.getSignaleringWhere(parameters, builder, root))
+                .where(signaleringPredicateHelper.getSignaleringWhere(parameters, builder, root))
                 .orderBy(builder.desc(root.get<Any>("tijdstip")))
         )
             .resultList
@@ -188,7 +188,7 @@ class SignaleringenService @Inject constructor(
         val root = query.from(Signalering::class.java)
 
         query.select(root.get("tijdstip"))
-            .where(signaleringenPredicateHelper.getSignaleringWhere(parameters, builder, root))
+            .where(signaleringPredicateHelper.getSignaleringWhere(parameters, builder, root))
             .orderBy(builder.desc(root.get<Any>("tijdstip")))
 
         val resultList = entityManager.createQuery(query).resultList
@@ -209,15 +209,15 @@ class SignaleringenService @Inject constructor(
             val bronnenBuilder = Bronnen.Builder()
             when (signalering.subjecttype) {
                 SignaleringSubject.ZAAK -> {
-                    bronnenBuilder.add(signaleringenZACHelper.getZaak(signalering.subject))
+                    bronnenBuilder.add(signaleringZACHelper.getZaak(signalering.subject))
                     if (signalering.type.type === SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD) {
-                        bronnenBuilder.add(signaleringenZACHelper.getDocument(signalering.detail))
+                        bronnenBuilder.add(signaleringZACHelper.getDocument(signalering.detail))
                     }
                 }
 
-                SignaleringSubject.TAAK -> bronnenBuilder.add(signaleringenZACHelper.getTaak(signalering.subject))
+                SignaleringSubject.TAAK -> bronnenBuilder.add(signaleringZACHelper.getTaak(signalering.subject))
                 SignaleringSubject.DOCUMENT -> bronnenBuilder.add(
-                    signaleringenZACHelper.getDocument(signalering.subject)
+                    signaleringZACHelper.getDocument(signalering.subject)
                 )
                 else -> {}
             }
@@ -276,7 +276,7 @@ class SignaleringenService @Inject constructor(
         )
         return entityManager.createQuery(
             query.select(root)
-                .where(signaleringenPredicateHelper.getSignaleringInstellingenWhere(parameters, builder, root))
+                .where(signaleringPredicateHelper.getSignaleringInstellingenWhere(parameters, builder, root))
         )
             .resultList
     }
@@ -324,7 +324,7 @@ class SignaleringenService @Inject constructor(
         )
         val result = entityManager.createQuery(
             query.select(root)
-                .where(signaleringenPredicateHelper.getSignaleringVerzondenWhere(parameters, builder, root))
+                .where(signaleringPredicateHelper.getSignaleringVerzondenWhere(parameters, builder, root))
         )
             .resultList
         return if (result.isEmpty()) { Optional.empty() } else { Optional.of(result[0]) }

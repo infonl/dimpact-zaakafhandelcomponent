@@ -2,10 +2,10 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.signaleringen.converter
+package net.atos.zac.app.signalering.converter
 
 import jakarta.inject.Inject
-import net.atos.zac.app.signaleringen.model.RESTSignaleringInstellingen
+import net.atos.zac.app.signalering.model.RESTSignaleringInstellingen
 import net.atos.zac.identity.model.Group
 import net.atos.zac.identity.model.User
 import net.atos.zac.signalering.SignaleringenService

@@ -1,7 +1,7 @@
-package net.atos.zac.app.signaleringen.converter
+package net.atos.zac.app.signalering.converter
 
 import jakarta.inject.Inject
-import net.atos.zac.app.signaleringen.model.RESTSignaleringTaakSummary
+import net.atos.zac.app.signalering.model.RESTSignaleringTaakSummary
 import net.atos.zac.flowable.TaakVariabelenService
 import net.atos.zac.util.DateTimeConverterUtil
 import org.flowable.task.api.TaskInfo

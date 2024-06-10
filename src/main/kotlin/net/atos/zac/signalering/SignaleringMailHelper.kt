@@ -15,7 +15,7 @@ import net.atos.zac.signalering.model.SignaleringDetail
 import net.atos.zac.signalering.model.SignaleringTarget
 import net.atos.zac.signalering.model.SignaleringType
 
-class SignaleringenMailHelper @Inject constructor(
+class SignaleringMailHelper @Inject constructor(
     private val identityService: IdentityService,
     private val mailTemplateService: MailTemplateService,
 ) {

@@ -13,7 +13,7 @@ import net.atos.zac.flowable.FlowableTaskService
 import org.flowable.task.api.TaskInfo
 import java.util.UUID
 
-class SignaleringenZACHelper @Inject constructor(
+class SignaleringZACHelper @Inject constructor(
     private val zrcClientService: ZRCClientService,
     private val flowableTaskService: FlowableTaskService,
     private val drcClientService: DRCClientService

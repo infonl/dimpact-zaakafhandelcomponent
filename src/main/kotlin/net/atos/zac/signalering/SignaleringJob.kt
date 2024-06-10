@@ -42,7 +42,7 @@ import java.util.logging.Logger
 @Suppress("TooManyFunctions")
 @NoArgConstructor
 @AllOpen
-class SignaleringenJob @Inject constructor(
+class SignaleringJob @Inject constructor(
     private val signaleringenService: SignaleringenService,
     private val configuratieService: ConfiguratieService,
     private val ztcClientService: ZTCClientService,
@@ -52,7 +52,7 @@ class SignaleringenJob @Inject constructor(
 ) {
 
     companion object {
-        private val LOG = Logger.getLogger(SignaleringenJob::class.java.name)
+        private val LOG = Logger.getLogger(SignaleringJob::class.java.name)
         const val ZAAK_AFGEHANDELD_QUERY = "zaak_afgehandeld"
     }
 
