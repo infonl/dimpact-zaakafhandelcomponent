@@ -4,11 +4,14 @@
  */
 
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { finalize } from "rxjs";
+import { UtilService } from "src/app/core/service/util.service";
 import { rotate180, sideNavToggle } from "../animations/animations";
 import { ButtonMenuItem } from "./menu-item/button-menu-item";
 import { HrefMenuItem } from "./menu-item/href-menu-item";
 import { LinkMenuItem } from "./menu-item/link-menu-item";
 import { MenuItem, MenuItemType } from "./menu-item/menu-item";
+import { AsyncButtonMenuItem } from "./menu-item/subscription-button-menu-item";
 import { SideNavUtil } from "./side-nav.util";
 
 @Component({
@@ -25,7 +28,7 @@ export class SideNavComponent implements OnInit {
   menuMode = SideNavUtil.load();
   menuState: string;
 
-  constructor() {}
+  constructor(private utilService: UtilService) {}
 
   ngOnInit(): void {
     if (this.menuMode === MenuMode.OPEN) {
@@ -68,7 +71,22 @@ export class SideNavComponent implements OnInit {
   }
 
   onClick(buttonMenuItem: ButtonMenuItem): void {
-    buttonMenuItem.fn();
+    if (buttonMenuItem.disabled) return;
+    if (buttonMenuItem instanceof AsyncButtonMenuItem) {
+      this.utilService.setLoading(true);
+      buttonMenuItem.disabled = true;
+      buttonMenuItem
+        .fn()
+        .pipe(
+          finalize(() => {
+            this.utilService.setLoading(false);
+            buttonMenuItem.disabled = false;
+          }),
+        )
+        .subscribe();
+    } else {
+      buttonMenuItem.fn();
+    }
   }
 
   asButtonMenuItem(menuItem: MenuItem): ButtonMenuItem {

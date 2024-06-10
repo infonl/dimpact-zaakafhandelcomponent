@@ -7,7 +7,7 @@ export abstract class MenuItem {
   abstract readonly type: MenuItemType;
   abstract readonly title: string;
   abstract readonly icon?: string;
-  disabled: boolean;
+  disabled = false;
 }
 
 export enum MenuItemType {
