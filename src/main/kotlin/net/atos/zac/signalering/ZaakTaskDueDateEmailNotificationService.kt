@@ -42,7 +42,7 @@ import java.util.logging.Logger
 @Suppress("TooManyFunctions")
 @NoArgConstructor
 @AllOpen
-class DueDateEmailNotificationService @Inject constructor(
+class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     private val signaleringService: SignaleringService,
     private val configuratieService: ConfiguratieService,
     private val ztcClientService: ZTCClientService,
@@ -51,7 +51,7 @@ class DueDateEmailNotificationService @Inject constructor(
     private val flowableTaskService: FlowableTaskService
 ) {
     companion object {
-        private val LOG = Logger.getLogger(DueDateEmailNotificationService::class.java.name)
+        private val LOG = Logger.getLogger(ZaakTaskDueDateEmailNotificationService::class.java.name)
         const val ZAAK_AFGEHANDELD_QUERY = "zaak_afgehandeld"
     }
 
@@ -282,6 +282,7 @@ class DueDateEmailNotificationService @Inject constructor(
     private fun hasTaakSignaleringTarget(task: Task): Boolean =
         signaleringService.readInstellingenUser(SignaleringType.Type.TAAK_VERLOPEN, task.assignee)
             .isMail &&
+            // skip signalering if it was already sent
             !signaleringService.findSignaleringVerzonden(
                 getTaakSignaleringVerzondenParameters(task.assignee, task.id)
             ).isPresent
@@ -303,7 +304,8 @@ class DueDateEmailNotificationService @Inject constructor(
     }
 
     /**
-     * Make sure already sent E-Mail warnings will get send again (in cases where the due date has changed)
+     * Make sure already sent task email notifications will get sent again (in cases where the due date has changed)
+     * by deleting the corresponding 'signalering verzonden' record from the database.
      */
     private fun taakDueOnterechtVerzondenVerwijderen() {
         flowableTaskService.listOpenTasksDueLater().stream()
@@ -313,10 +315,10 @@ class DueDateEmailNotificationService @Inject constructor(
 
     private fun getTaakSignaleringVerzondenParameters(
         target: String,
-        taakId: String
+        taskId: String
     ): SignaleringVerzondenZoekParameters =
         SignaleringVerzondenZoekParameters(SignaleringTarget.USER, target)
             .types(SignaleringType.Type.TAAK_VERLOPEN)
-            .subjectTaak(taakId)
+            .subjectTaak(taskId)
             .detail(SignaleringDetail.STREEFDATUM)
 }

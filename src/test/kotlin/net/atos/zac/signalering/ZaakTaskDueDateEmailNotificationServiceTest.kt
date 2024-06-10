@@ -1,14 +1,17 @@
 package net.atos.zac.signalering
 
-import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
+import io.mockk.verify
 import net.atos.client.zgw.ztc.ZTCClientService
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.signalering.model.SignaleringSubject
+import net.atos.zac.signalering.model.SignaleringTarget
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.createSignalering
 import net.atos.zac.signalering.model.createSignaleringInstellingen
@@ -20,8 +23,7 @@ import java.net.URI
 import java.util.Optional
 import java.util.UUID
 
-@Ignored("This test is not yet implemented")
-class DueDateEmailNotificationServiceTest : BehaviorSpec({
+class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
     val signaleringService = mockk<SignaleringService>()
     val configuratieService = mockk<ConfiguratieService>()
     val ztcClientService = mockk<ZTCClientService>()
@@ -29,7 +31,7 @@ class DueDateEmailNotificationServiceTest : BehaviorSpec({
     val zoekenService = mockk<ZoekenService>()
     val flowableTaskService = mockk<FlowableTaskService>()
 
-    val dueDateEmailNotificationService = DueDateEmailNotificationService(
+    val zaakTaskDueDateEmailNotificationService = ZaakTaskDueDateEmailNotificationService(
         signaleringService,
         configuratieService,
         ztcClientService,
@@ -38,7 +40,7 @@ class DueDateEmailNotificationServiceTest : BehaviorSpec({
         flowableTaskService
     )
 
-    Given("Two zaaktypen") {
+    Given("One open task which is due now") {
         val defaultCatalogusURI = URI("http://example.com/dummeCatalogusURI")
         val zaakTypeUUID1 = UUID.randomUUID()
         val zaakTypeUUID2 = UUID.randomUUID()
@@ -60,34 +62,52 @@ class DueDateEmailNotificationServiceTest : BehaviorSpec({
         val zaakAfhandelParameters2 = createZaakafhandelParameters(
             zaakTypeUUID = zaakTypeUUID2
         )
-        val openTask = mockk<Task>()
         val assignee1 = "dummyAssignee1"
+        val openTask = mockk<Task>()
+        every { openTask.assignee } returns assignee1
+        every { openTask.id } returns "dummyTaskId"
+        val taakVerlopenSignaleringType = SignaleringType().apply {
+            type = SignaleringType.Type.TAAK_VERLOPEN
+            subjecttype = SignaleringSubject.TAAK
+        }
         val signaleringInstellingen1 = createSignaleringInstellingen(
-            medewerker = assignee1,
-            type = SignaleringType().apply {
-                type = SignaleringType.Type.TAAK_VERLOPEN
-                subjecttype = SignaleringSubject.TAAK
-            }
+            type = taakVerlopenSignaleringType,
+            ownerType = SignaleringTarget.USER,
+            ownerId = assignee1
         )
-        val signalering1 = createSignalering()
+        val taakOpNaamVerlopenSignalering1 = createSignalering(
+            type = taakVerlopenSignaleringType,
+            zaak = null,
+            taskInfo = openTask
+        )
         every { configuratieService.readDefaultCatalogusURI() } returns defaultCatalogusURI
         every { ztcClientService.listZaaktypen(defaultCatalogusURI) } returns zaakTypen
         every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID1) } returns zaakAfhandelParameters1
         every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID2) } returns zaakAfhandelParameters2
         every { flowableTaskService.listOpenTasksDueNow() } returns listOf(openTask)
-        every { openTask.assignee } returns assignee1
-        every { openTask.id } returns "dummyTaskId"
+        // note: using 'SignaleringType.Type.TAAK_VERLOPEN' here instead of 'any' results in a
+        // a 'kotlin.reflect.jvm.internal.KotlinReflectionInternalError: Unresolved class:
+        // class net.atos.zac.signalering.model.SignaleringType$Type$1'
         every {
-            signaleringService.readInstellingenUser(SignaleringType.Type.TAAK_VERLOPEN, assignee1)
+            signaleringService.readInstellingenUser(any<SignaleringType.Type>(), assignee1)
         } returns signaleringInstellingen1
         every { signaleringService.findSignaleringVerzonden(any()) } returns Optional.empty()
-        every { signaleringService.signaleringInstance(SignaleringType.Type.TAAK_VERLOPEN) } returns signalering1
+        // note: using 'SignaleringType.Type.TAAK_VERLOPEN' here instead of 'any' results in a
+        // a 'kotlin.reflect.jvm.internal.KotlinReflectionInternalError: Unresolved class:
+        // class net.atos.zac.signalering.model.SignaleringType$Type$1'
+        every { signaleringService.signaleringInstance(any<SignaleringType.Type>()) } returns taakOpNaamVerlopenSignalering1
+        every { signaleringService.sendSignalering(taakOpNaamVerlopenSignalering1) } just runs
+        every { signaleringService.createSignaleringVerzonden(taakOpNaamVerlopenSignalering1) } returns mockk()
+        every { flowableTaskService.listOpenTasksDueLater() } returns emptyList()
 
         When("the send due date email notifications method is called") {
-            dueDateEmailNotificationService.sendDueDateEmailNotifications()
+            zaakTaskDueDateEmailNotificationService.sendDueDateEmailNotifications()
 
-            Then("due date email notifications are sent") {
-                // Test code
+            Then("one task due date email notifications is sent") {
+                verify(exactly = 1) {
+                    signaleringService.sendSignalering(taakOpNaamVerlopenSignalering1)
+                    signaleringService.createSignaleringVerzonden(taakOpNaamVerlopenSignalering1)
+                }
             }
         }
     }
