@@ -45,7 +45,7 @@ import java.util.logging.Logger
 @Suppress("TooManyFunctions", "LongParameterList")
 @NoArgConstructor
 @AllOpen
-class SignaleringenService @Inject constructor(
+class SignaleringService @Inject constructor(
     private val eventingService: EventingService,
     private val mailService: MailService,
     private val signaleringenMailHelper: SignaleringMailHelper,
@@ -55,9 +55,9 @@ class SignaleringenService @Inject constructor(
     private val restZaakOverzichtConverter: RESTZaakOverzichtConverter
 ) {
     companion object {
-        private val LOG = Logger.getLogger(SignaleringenService::class.java.name)
+        private val LOG = Logger.getLogger(SignaleringService::class.java.name)
     }
-    
+
     @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
     internal lateinit var entityManager: EntityManager
 

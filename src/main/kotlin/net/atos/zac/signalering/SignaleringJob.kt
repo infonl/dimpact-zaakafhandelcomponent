@@ -43,7 +43,7 @@ import java.util.logging.Logger
 @NoArgConstructor
 @AllOpen
 class SignaleringJob @Inject constructor(
-    private val signaleringenService: SignaleringenService,
+    private val signaleringService: SignaleringService,
     private val configuratieService: ConfiguratieService,
     private val ztcClientService: ZTCClientService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
@@ -139,10 +139,10 @@ class SignaleringJob @Inject constructor(
     }
 
     fun hasZaakSignaleringTarget(zaak: ZaakZoekObject, detail: SignaleringDetail): Boolean =
-        signaleringenService.readInstellingenUser(
+        signaleringService.readInstellingenUser(
             SignaleringType.Type.ZAAK_VERLOPEND, zaak.behandelaarGebruikersnaam
         ).isMail &&
-            !signaleringenService.findSignaleringVerzonden(
+            !signaleringService.findSignaleringVerzonden(
                 getZaakSignaleringVerzondenParameters(zaak.behandelaarGebruikersnaam, zaak.uuid, detail)
             ).isPresent
 
@@ -153,7 +153,7 @@ class SignaleringJob @Inject constructor(
     ): Signalering {
         val zaak = Zaak()
         zaak.uuid = UUID.fromString(zaakZoekObject.uuid)
-        val signalering = signaleringenService.signaleringInstance(
+        val signalering = signaleringService.signaleringInstance(
             SignaleringType.Type.ZAAK_VERLOPEND
         )
         signalering.setTargetUser(target)
@@ -163,8 +163,8 @@ class SignaleringJob @Inject constructor(
     }
 
     fun verzendZaakSignalering(signalering: Signalering): Int {
-        signaleringenService.sendSignalering(signalering)
-        signaleringenService.createSignaleringVerzonden(signalering)
+        signaleringService.sendSignalering(signalering)
+        signaleringService.createSignaleringVerzonden(signalering)
         return 1
     }
 
@@ -187,7 +187,7 @@ class SignaleringJob @Inject constructor(
                     SignaleringDetail.STREEFDATUM
                 )
             }
-            .forEach { signaleringenService.deleteSignaleringVerzonden(it) }
+            .forEach { signaleringService.deleteSignaleringVerzonden(it) }
     }
 
     /**
@@ -210,7 +210,7 @@ class SignaleringJob @Inject constructor(
                     SignaleringDetail.FATALE_DATUM
                 )
             }
-            .forEach { signaleringenService.deleteSignaleringVerzonden(it) }
+            .forEach { signaleringService.deleteSignaleringVerzonden(it) }
     }
 
     fun getZaakSignaleringTeVerzendenZoekParameters(
@@ -285,14 +285,14 @@ class SignaleringJob @Inject constructor(
     }
 
     fun hasTaakSignaleringTarget(task: Task): Boolean =
-        signaleringenService.readInstellingenUser(SignaleringType.Type.TAAK_VERLOPEN, task.assignee)
+        signaleringService.readInstellingenUser(SignaleringType.Type.TAAK_VERLOPEN, task.assignee)
             .isMail &&
-            !signaleringenService.findSignaleringVerzonden(
+            !signaleringService.findSignaleringVerzonden(
                 getTaakSignaleringVerzondenParameters(task.assignee, task.id)
             ).isPresent
 
     fun buildTaakSignalering(target: String, task: Task): Signalering {
-        val signalering = signaleringenService.signaleringInstance(
+        val signalering = signaleringService.signaleringInstance(
             SignaleringType.Type.TAAK_VERLOPEN
         )
         signalering.setTargetUser(target)
@@ -302,8 +302,8 @@ class SignaleringJob @Inject constructor(
     }
 
     fun verzendTaakSignalering(signalering: Signalering): Int {
-        signaleringenService.sendSignalering(signalering)
-        signaleringenService.createSignaleringVerzonden(signalering)
+        signaleringService.sendSignalering(signalering)
+        signaleringService.createSignaleringVerzonden(signalering)
         return 1
     }
 
@@ -313,7 +313,7 @@ class SignaleringJob @Inject constructor(
     fun taakDueOnterechtVerzondenVerwijderen() {
         flowableTaskService.listOpenTasksDueLater().stream()
             .map { getTaakSignaleringVerzondenParameters(it.assignee, it.id) }
-            .forEach { signaleringenService.deleteSignaleringVerzonden(it) }
+            .forEach { signaleringService.deleteSignaleringVerzonden(it) }
     }
 
     fun getTaakSignaleringVerzondenParameters(

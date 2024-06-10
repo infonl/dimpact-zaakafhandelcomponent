@@ -73,7 +73,7 @@ import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.output.createOverigeRechtenAllDeny
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import net.atos.zac.shared.helper.OpschortenZaakHelper
-import net.atos.zac.signalering.SignaleringenService
+import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import net.atos.zac.zaaksturing.model.createZaakafhandelParameters
@@ -110,7 +110,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
     val restZaakOverzichtConverter: RESTZaakOverzichtConverter = mockk<RESTZaakOverzichtConverter>()
     val restZaaktypeConverter: RESTZaaktypeConverter = mockk<RESTZaaktypeConverter>()
     val restHistorieRegelConverter: RESTHistorieRegelConverter = mockk<RESTHistorieRegelConverter>()
-    val signaleringenService: SignaleringenService = mockk<SignaleringenService>()
+    val signaleringService: SignaleringService = mockk<SignaleringService>()
     val flowableTaskService: FlowableTaskService = mockk<FlowableTaskService>()
     val vrlClientService: VRLClientService = mockk<VRLClientService>()
     val zaakafhandelParameterService: ZaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
@@ -151,7 +151,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
         restGeometryConverter = restGeometryConverter,
         restResultaattypeConverter = restResultaattypeConverter,
         restZaakOverzichtConverter = restZaakOverzichtConverter,
-        signaleringenService = signaleringenService,
+        signaleringService = signaleringService,
         flowableTaskService = flowableTaskService,
         vrlClientService = vrlClientService,
         restZaakAfzenderConverter = restZaakAfzenderConverter,

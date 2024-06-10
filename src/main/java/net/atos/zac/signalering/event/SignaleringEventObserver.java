@@ -32,7 +32,7 @@ import net.atos.zac.event.AbstractEventObserver;
 import net.atos.zac.flowable.FlowableTaskService;
 import net.atos.zac.identity.IdentityService;
 import net.atos.zac.identity.model.User;
-import net.atos.zac.signalering.SignaleringenService;
+import net.atos.zac.signalering.SignaleringService;
 import net.atos.zac.signalering.model.Signalering;
 import net.atos.zac.signalering.model.SignaleringInstellingen;
 import net.atos.zac.util.UriUtil;
@@ -59,7 +59,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
     private IdentityService identityService;
 
     @Inject
-    private SignaleringenService signaleringenService;
+    private SignaleringService signaleringService;
 
     @Override
     public void onFire(final @ObservesAsync SignaleringEvent<?> event) {
@@ -72,18 +72,18 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
                 LOG.fine(() -> String.format("No signal generated for received event: %s", event));
                 return;
             }
-            if (!signaleringenService.isNecessary(signalering, event.getActor())) {
+            if (!signaleringService.isNecessary(signalering, event.getActor())) {
                 LOG.fine(() -> String.format("Unnecessary signalering: %s for actor %s", signalering, event.getActor()));
                 return;
             }
 
-            final SignaleringInstellingen subscriptions = signaleringenService.readInstellingen(signalering);
+            final SignaleringInstellingen subscriptions = signaleringService.readInstellingen(signalering);
             LOG.fine(() -> String.format("Subscription settings: %s for signalering: %s", subscriptions, signalering));
             if (subscriptions.isDashboard()) {
-                signaleringenService.createSignalering(signalering);
+                signaleringService.createSignalering(signalering);
             }
             if (subscriptions.isMail()) {
-                signaleringenService.sendSignalering(signalering);
+                signaleringService.sendSignalering(signalering);
             }
         } catch (final Throwable ex) {
             LOG.log(Level.SEVERE, "asynchronous guard", ex);
@@ -91,7 +91,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
     }
 
     private Signalering getInstance(final SignaleringEvent<?> event) {
-        return signaleringenService.signaleringInstance(event.getObjectType());
+        return signaleringService.signaleringInstance(event.getObjectType());
     }
 
     private Signalering getSignaleringVoorRol(final SignaleringEvent<?> event, final Zaak subject, final Rol<?> rol) {
