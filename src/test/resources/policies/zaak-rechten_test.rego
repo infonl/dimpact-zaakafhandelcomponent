@@ -402,8 +402,9 @@ test_versturen_email if {
         with input.zaak.open as true
 }
 
-test_versturen_email_zaak_closed_fails if {
-    not versturen_email
+# it should be possible to send an email also if the zaak is closed
+test_versturen_email_zaak_closed_succeeds if {
+    versturen_email
         with input.user.rollen as [ "behandelaar" ]
         with input.zaak.open as false
 }
