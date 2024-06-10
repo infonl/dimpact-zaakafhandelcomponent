@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.signaleringen
+package net.atos.zac.app.signalering
 
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
@@ -42,7 +42,7 @@ import java.util.UUID
 @Singleton
 @NoArgConstructor
 @Suppress("LongParameterList", "TooManyFunctions")
-class SignaleringenRestService @Inject constructor(
+class SignaleringRestService @Inject constructor(
     private val signaleringenService: SignaleringenService,
     private val flowableTaskService: FlowableTaskService,
     private val drcClientService: DRCClientService,
