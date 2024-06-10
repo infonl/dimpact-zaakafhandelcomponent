@@ -17,3 +17,24 @@ fun createSignalering(
     }
     this.setSubject(zaak)
 }
+
+@Suppress("LongParameterList")
+fun createSignaleringInstellingen(
+    id: Long = 1234L,
+    type: SignaleringType = SignaleringType().apply {
+        this.type = SignaleringType.Type.ZAAK_OP_NAAM
+        this.subjecttype = SignaleringSubject.ZAAK
+    },
+    groep: String = "dummyGroep",
+    medewerker: String = "dummyMedewerker",
+    isDashboard: Boolean = true,
+    isMail: Boolean = true,
+) =
+    SignaleringInstellingen().apply {
+        this.id = id
+        this.type = type
+        this.groep = groep
+        this.medewerker = medewerker
+        this.isDashboard = isDashboard
+        this.isMail = isMail
+    }

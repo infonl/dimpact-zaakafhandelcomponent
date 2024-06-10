@@ -60,7 +60,7 @@ class DueDateEmailNotificationService @Inject constructor(
      * user should take action.
      */
     fun sendDueDateEmailNotifications() {
-        sendZaakTargetDateAndFatalDateEmailNotifications()
+        sendZaakDueDateEmailNotifications()
         sendTaskDueDateEmailNotifications()
     }
 
@@ -70,11 +70,11 @@ class DueDateEmailNotificationService @Inject constructor(
      */
     private fun sendTaskDueDateEmailNotifications() {
         val signaleringVerzendInfo = SignaleringVerzendInfo()
-        LOG.info("Sending task email notifications...")
+        LOG.info("Sending task due date email notifications...")
         signaleringVerzendInfo.fataledatumVerzonden += sendTaskDueDateNotifications()
         taakDueOnterechtVerzondenVerwijderen()
         LOG.info(
-            "Finished sending task email notifications (${signaleringVerzendInfo.fataledatumVerzonden} fatal date warnings)"
+            "Finished sending task due date email notifications (${signaleringVerzendInfo.fataledatumVerzonden} fatal date warnings)"
         )
     }
 
@@ -83,9 +83,9 @@ class DueDateEmailNotificationService @Inject constructor(
      * fatal date.
      * Typically run as part of a cron job.
      */
-    private fun sendZaakTargetDateAndFatalDateEmailNotifications() {
+    private fun sendZaakDueDateEmailNotifications() {
         val signaleringVerzendInfo = SignaleringVerzendInfo()
-        LOG.info("Sending zaak email notifications...")
+        LOG.info("Sending zaak due date email notifications...")
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             .map { zaaktype ->
                 zaakafhandelParameterService.readZaakafhandelParameters(
@@ -114,7 +114,7 @@ class DueDateEmailNotificationService @Inject constructor(
                 }
             }
         LOG.info(
-            "Finished sending zaak email notifications (${signaleringVerzendInfo.streefdatumVerzonden} target date " +
+            "Finished sending zaak due date email notifications (${signaleringVerzendInfo.streefdatumVerzonden} target date " +
                 "warnings, ${signaleringVerzendInfo.fataledatumVerzonden} fatal date warnings)"
         )
     }
