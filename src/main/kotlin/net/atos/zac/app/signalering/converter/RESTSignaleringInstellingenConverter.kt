@@ -8,13 +8,13 @@ import jakarta.inject.Inject
 import net.atos.zac.app.signalering.model.RESTSignaleringInstellingen
 import net.atos.zac.identity.model.Group
 import net.atos.zac.identity.model.User
-import net.atos.zac.signalering.SignaleringenService
+import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringTarget
 import java.util.stream.Collectors
 
 class RESTSignaleringInstellingenConverter @Inject constructor(
-    private var signaleringenService: SignaleringenService
+    private var signaleringService: SignaleringService
 ) {
     fun convert(instellingen: SignaleringInstellingen): RESTSignaleringInstellingen {
         RESTSignaleringInstellingen(
@@ -38,14 +38,14 @@ class RESTSignaleringInstellingenConverter @Inject constructor(
             .collect(Collectors.toList())
 
     fun convert(restInstellingen: RESTSignaleringInstellingen, group: Group): SignaleringInstellingen =
-        signaleringenService.readInstellingenGroup(restInstellingen.type, group.id).let {
+        signaleringService.readInstellingenGroup(restInstellingen.type, group.id).let {
             it.isDashboard = false
             it.isMail = it.type.type.isMail && restInstellingen.mail!!
             return it
         }
 
     fun convert(restInstellingen: RESTSignaleringInstellingen, user: User): SignaleringInstellingen =
-        signaleringenService.readInstellingenUser(restInstellingen.type, user.id).let {
+        signaleringService.readInstellingenUser(restInstellingen.type, user.id).let {
             it.isDashboard = it.type.type.isDashboard && restInstellingen.dashboard!!
             it.isMail = it.type.type.isMail && restInstellingen.mail!!
             return it

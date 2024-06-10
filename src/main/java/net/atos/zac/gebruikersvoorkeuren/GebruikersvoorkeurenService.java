@@ -29,7 +29,7 @@ import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen;
 import net.atos.zac.gebruikersvoorkeuren.model.Werklijst;
 import net.atos.zac.gebruikersvoorkeuren.model.Zoekopdracht;
 import net.atos.zac.gebruikersvoorkeuren.model.ZoekopdrachtListParameters;
-import net.atos.zac.signalering.SignaleringenService;
+import net.atos.zac.signalering.SignaleringService;
 import net.atos.zac.signalering.model.SignaleringInstellingen;
 
 @ApplicationScoped
@@ -40,7 +40,7 @@ public class GebruikersvoorkeurenService {
     private EntityManager entityManager;
 
     @Inject
-    private SignaleringenService signaleringenService;
+    private SignaleringService signaleringService;
 
     public Zoekopdracht createZoekopdracht(final Zoekopdracht zoekopdracht) {
         if (zoekopdracht.getId() != null) {
@@ -180,10 +180,10 @@ public class GebruikersvoorkeurenService {
 
     public void addDashboardCard(final String medewerkerId, final DashboardCardInstelling card) {
         if (card.getSignaleringType() != null) {
-            final SignaleringInstellingen instellingen = signaleringenService.readInstellingenUser(
+            final SignaleringInstellingen instellingen = signaleringService.readInstellingenUser(
                     card.getSignaleringType(), medewerkerId);
             instellingen.setDashboard(true);
-            signaleringenService.createUpdateOrDeleteInstellingen(instellingen);
+            signaleringService.createUpdateOrDeleteInstellingen(instellingen);
         }
         if (card.getId() == null) {
             card.setMedewerkerId(medewerkerId);
@@ -193,10 +193,10 @@ public class GebruikersvoorkeurenService {
 
     public void deleteDashboardCard(final String medewerkerId, final DashboardCardInstelling card) {
         if (card.getSignaleringType() != null) {
-            final SignaleringInstellingen instellingen = signaleringenService.readInstellingenUser(
+            final SignaleringInstellingen instellingen = signaleringService.readInstellingenUser(
                     card.getSignaleringType(), medewerkerId);
             instellingen.setDashboard(false);
-            signaleringenService.createUpdateOrDeleteInstellingen(instellingen);
+            signaleringService.createUpdateOrDeleteInstellingen(instellingen);
         }
         if (card.getId() != null) {
             entityManager.remove(entityManager.find(DashboardCardInstelling.class, card.getId()));

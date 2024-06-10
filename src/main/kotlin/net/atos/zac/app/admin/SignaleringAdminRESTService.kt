@@ -13,7 +13,7 @@ import net.atos.zac.app.admin.model.RESTDeletedSignaleringenResponse
 import net.atos.zac.authentication.ActiveSession
 import net.atos.zac.authentication.SecurityUtil
 import net.atos.zac.event.EventingService
-import net.atos.zac.signalering.SignaleringenService
+import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.util.event.JobEvent
 import net.atos.zac.util.event.JobId
 import nl.lifely.zac.util.AllOpen
@@ -27,7 +27,7 @@ import kotlin.let
 @AllOpen
 @NoArgConstructor
 class SignaleringAdminRESTService @Inject constructor(
-    private val signaleringenService: SignaleringenService,
+    private val signaleringService: SignaleringService,
     private val eventingService: EventingService,
     @ActiveSession
     private val httpSession: Instance<HttpSession>,
@@ -47,7 +47,7 @@ class SignaleringAdminRESTService @Inject constructor(
     @Path("delete-old")
     fun deleteOldSignaleringen(): RESTDeletedSignaleringenResponse {
         SecurityUtil.setFunctioneelGebruiker(httpSession.get())
-        signaleringenService.deleteOldSignaleringen(deleteOlderThanDays).let {
+        signaleringService.deleteOldSignaleringen(deleteOlderThanDays).let {
             return RESTDeletedSignaleringenResponse(it)
         }
     }

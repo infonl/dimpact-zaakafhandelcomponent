@@ -51,7 +51,7 @@ import net.atos.zac.flowable.util.TaskUtil
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.shared.helper.OpschortenZaakHelper
-import net.atos.zac.signalering.SignaleringenService
+import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.task.TaskService
@@ -90,7 +90,7 @@ class TakenRESTService @Inject constructor(
     private val zgwApiService: ZGWApiService,
     private val zrcClientService: ZRCClientService,
     private val drcClientService: DRCClientService,
-    private val signaleringenService: SignaleringenService,
+    private val signaleringService: SignaleringService,
     private val taakHistorieConverter: RESTTaakHistorieConverter,
     private val policyService: PolicyService,
     private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
@@ -342,11 +342,11 @@ class TakenRESTService @Inject constructor(
 
     private fun deleteSignaleringen(taskInfo: TaskInfo) {
         loggedInUserInstance.get().let { loggedInUser ->
-            signaleringenService.deleteSignaleringen(
+            signaleringService.deleteSignaleringen(
                 SignaleringZoekParameters(loggedInUser)
                     .types(SignaleringType.Type.TAAK_OP_NAAM).subject(taskInfo)
             )
-            signaleringenService.deleteSignaleringen(
+            signaleringService.deleteSignaleringen(
                 SignaleringZoekParameters(loggedInUser)
                     .types(SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD)
                     .subjectZaak(taakVariabelenService.readZaakUUID(taskInfo))

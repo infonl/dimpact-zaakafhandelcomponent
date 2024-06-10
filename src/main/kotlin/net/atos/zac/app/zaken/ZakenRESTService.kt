@@ -121,7 +121,7 @@ import net.atos.zac.identity.IdentityService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.shared.helper.OpschortenZaakHelper
-import net.atos.zac.signalering.SignaleringenService
+import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.util.DateTimeConverterUtil
@@ -167,7 +167,7 @@ class ZakenRESTService @Inject constructor(
     private val vrlClientService: VRLClientService,
     private val eventingService: EventingService,
     private val identityService: IdentityService,
-    private val signaleringenService: SignaleringenService,
+    private val signaleringService: SignaleringService,
     private val ontkoppeldeDocumentenService: OntkoppeldeDocumentenService,
     private val indexeerService: IndexeerService,
     private val policyService: PolicyService,
@@ -1148,7 +1148,7 @@ class ZakenRESTService @Inject constructor(
     }
 
     private fun deleteSignaleringen(zaak: Zaak) {
-        signaleringenService.deleteSignaleringen(
+        signaleringService.deleteSignaleringen(
             SignaleringZoekParameters(loggedInUserInstance.get())
                 .types(SignaleringType.Type.ZAAK_OP_NAAM, SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD)
                 .subject(zaak)

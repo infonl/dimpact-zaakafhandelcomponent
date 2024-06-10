@@ -50,7 +50,7 @@ import net.atos.zac.policy.output.createTaakRechtenAllDeny
 import net.atos.zac.policy.output.createWerklijstRechten
 import net.atos.zac.policy.output.createWerklijstRechtenAllDeny
 import net.atos.zac.shared.helper.OpschortenZaakHelper
-import net.atos.zac.signalering.SignaleringenService
+import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.task.TaskService
 import net.atos.zac.util.DateTimeConverterUtil
 import net.atos.zac.websocket.event.ScreenEvent
@@ -77,7 +77,7 @@ class TakenRESTServiceTest : BehaviorSpec({
     val zrcClientService = mockk<ZRCClientService>()
     val opschortenZaakHelper = mockk<OpschortenZaakHelper>()
     val restInformatieobjectConverter = mockk<RESTInformatieobjectConverter>()
-    val signaleringenService = mockk<SignaleringenService>()
+    val signaleringService = mockk<SignaleringService>()
     val taakHistorieConverter = mockk<RESTTaakHistorieConverter>()
     val zgwApiService = mockk<ZGWApiService>()
     val taskService = mockk<TaskService>()
@@ -96,7 +96,7 @@ class TakenRESTServiceTest : BehaviorSpec({
         zrcClientService = zrcClientService,
         opschortenZaakHelper = opschortenZaakHelper,
         restInformatieobjectConverter = restInformatieobjectConverter,
-        signaleringenService = signaleringenService,
+        signaleringService = signaleringService,
         taakHistorieConverter = taakHistorieConverter,
         zgwApiService = zgwApiService,
         taskService = taskService
@@ -120,7 +120,7 @@ class TakenRESTServiceTest : BehaviorSpec({
             zrcClientService,
             opschortenZaakHelper,
             restInformatieobjectConverter,
-            signaleringenService,
+            signaleringService,
             taakHistorieConverter,
             zgwApiService
         )

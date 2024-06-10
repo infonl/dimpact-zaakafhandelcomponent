@@ -1,9 +1,9 @@
 package net.atos.zac.signalering
 
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.shouldBe
 import io.kotest.matchers.date.shouldBeAfter
 import io.kotest.matchers.date.shouldBeBefore
+import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -38,7 +38,7 @@ class SignaleringServiceTest : BehaviorSpec({
     val pathTijdstip = mockk<Path<Long>>()
     val query = mockk<Query>()
 
-    val signaleringService = SignaleringenService(
+    val signaleringService = SignaleringService(
         eventingService = eventingService,
         mailService = mailService,
         signaleringenMailHelper = signaleringenMailHelper,
