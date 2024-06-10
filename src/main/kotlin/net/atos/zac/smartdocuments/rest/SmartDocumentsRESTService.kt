@@ -12,6 +12,7 @@ import jakarta.ws.rs.core.MediaType
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.smartdocuments.SmartDocumentsService
+import net.atos.zac.smartdocuments.validate
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.util.UUID
@@ -50,6 +51,10 @@ class SmartDocumentsRESTService @Inject constructor(
         restTemplateGroups: Set<RESTSmartDocumentsTemplateGroup>
     ) {
         assertPolicy(policyService.readOverigeRechten().beheren)
+
+        val smartDocumentsTemplates = smartDocumentsService.listTemplates()
+        restTemplateGroups.validate(smartDocumentsTemplates)
+
         smartDocumentsService.storeTemplatesMapping(restTemplateGroups, zaakafhandelUUID)
     }
 }

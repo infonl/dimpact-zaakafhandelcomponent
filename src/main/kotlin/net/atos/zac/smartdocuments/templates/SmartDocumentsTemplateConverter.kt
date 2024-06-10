@@ -127,4 +127,21 @@ object SmartDocumentsTemplateConverter {
         id = smartDocumentsTemplate.smartDocumentsId,
         name = smartDocumentsTemplate.name
     )
+
+    fun Set<RESTSmartDocumentsTemplateGroup>.toStringRepresentation(): Set<String> {
+        val result = mutableSetOf<String>()
+        this.map { result.addAll(convertTemplateGroupToStringRepresentation(it, null)) }
+        return result
+    }
+
+    private fun convertTemplateGroupToStringRepresentation(
+        group: RESTSmartDocumentsTemplateGroup,
+        parent: String?
+    ): Set<String> =
+        arrayOf(parent, "group.${group.id}.${group.name}").filterNotNull().joinToString(".").let { groupString ->
+            mutableSetOf(groupString).apply {
+                group.templates?.mapTo(this) { "$groupString.template.${it.id}.${it.name}" }
+                group.groups?.map { addAll(convertTemplateGroupToStringRepresentation(it, groupString)) }
+            }
+        }
 }
