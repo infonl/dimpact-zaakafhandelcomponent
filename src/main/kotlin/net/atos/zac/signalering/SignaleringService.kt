@@ -59,10 +59,7 @@ class SignaleringService @Inject constructor(
     }
 
     @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
-    internal lateinit var entityManager: EntityManager
-
-    private fun signaleringTypeInstance(signaleringsType: SignaleringType.Type): SignaleringType =
-        entityManager.find(SignaleringType::class.java, signaleringsType.toString())
+    private lateinit var entityManager: EntityManager
 
     /**
      * Factory method for constructing Signalering instances.
@@ -358,6 +355,19 @@ class SignaleringService @Inject constructor(
             eventingService.send(ScreenEventType.ZAKEN_SIGNALERINGEN.updated(it, zakenSignaleringen))
         }
     }
+
+    /**
+     * Sets the entity manager for this service.
+     * Only meant for testing purposes! In normal usage the entity manager is injected by the CDI container.
+     *
+     * @param entityManager the entity manager to set
+     */
+    fun setEntityManager(entityManager: EntityManager) {
+        this.entityManager = entityManager
+    }
+
+    private fun signaleringTypeInstance(signaleringsType: SignaleringType.Type): SignaleringType =
+        entityManager.find(SignaleringType::class.java, signaleringsType.toString())
 
     private fun listZakenSignaleringen(
         user: LoggedInUser,

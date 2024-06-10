@@ -47,7 +47,7 @@ class SignaleringServiceTest : BehaviorSpec({
         zrcClientService = zrcClientService,
         restZaakOverzichtConverter = restZaakOverzichtConverter
     )
-    signaleringService.entityManager = entityManager
+    signaleringService.setEntityManager(entityManager)
 
     beforeEach {
         checkUnnecessaryStub()
