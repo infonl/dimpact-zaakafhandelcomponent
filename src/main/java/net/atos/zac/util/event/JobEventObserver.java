@@ -14,7 +14,7 @@ import jakarta.enterprise.event.ObservesAsync;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
-import net.atos.zac.signalering.DueDateEmailNotificationService;
+import net.atos.zac.signalering.ZaakTaskDueDateEmailNotificationService;
 
 /**
  * This bean listens for job events and handles them by calling the corresponding service.
@@ -24,7 +24,7 @@ import net.atos.zac.signalering.DueDateEmailNotificationService;
 public class JobEventObserver {
     private static final Logger LOG = Logger.getLogger(JobEventObserver.class.getName());
 
-    private DueDateEmailNotificationService dueDateEmailNotificationService;
+    private ZaakTaskDueDateEmailNotificationService zaakTaskDueDateEmailNotificationService;
 
     /**
      * Default no-arg constructor, required by Weld.
@@ -33,8 +33,8 @@ public class JobEventObserver {
     }
 
     @Inject
-    public JobEventObserver(final DueDateEmailNotificationService dueDateEmailNotificationService) {
-        this.dueDateEmailNotificationService = dueDateEmailNotificationService;
+    public JobEventObserver(final ZaakTaskDueDateEmailNotificationService zaakTaskDueDateEmailNotificationService) {
+        this.zaakTaskDueDateEmailNotificationService = zaakTaskDueDateEmailNotificationService;
     }
 
     public void onFire(final @ObservesAsync JobEvent event) {
@@ -42,7 +42,7 @@ public class JobEventObserver {
             LOG.fine(() -> String.format("Job event ontvangen: %s", event.toString()));
             event.delay();
             if (Objects.requireNonNull(event.getObjectId()) == JobId.SIGNALERINGEN_JOB) {
-                dueDateEmailNotificationService.sendDueDateEmailNotifications();
+                zaakTaskDueDateEmailNotificationService.sendDueDateEmailNotifications();
             }
         } catch (final Throwable ex) {
             LOG.log(Level.SEVERE, "asynchronous guard", ex);

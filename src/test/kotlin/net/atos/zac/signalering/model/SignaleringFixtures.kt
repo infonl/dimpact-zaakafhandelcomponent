@@ -5,17 +5,24 @@
 
 package net.atos.zac.signalering.model
 
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.createZaak
+import org.flowable.task.api.TaskInfo
 
 fun createSignalering(
-    zaak: Zaak = createZaak()
+    type: SignaleringType = SignaleringType().apply {
+        this.type = SignaleringType.Type.ZAAK_OP_NAAM
+        this.subjecttype = SignaleringSubject.ZAAK
+    },
+    zaak: Zaak? = createZaak(),
+    taskInfo: TaskInfo? = null,
+    enkelvoudigInformatieObject: EnkelvoudigInformatieObject? = null,
 ) = Signalering().apply {
-    this.type = SignaleringType().apply {
-        type = SignaleringType.Type.ZAAK_OP_NAAM
-        subjecttype = SignaleringSubject.ZAAK
-    }
-    this.setSubject(zaak)
+    this.type = type
+    zaak?.let { this.setSubject(zaak) }
+    taskInfo?.let { this.setSubject(taskInfo) }
+    enkelvoudigInformatieObject?.let { this.setSubject(enkelvoudigInformatieObject) }
 }
 
 @Suppress("LongParameterList")
@@ -25,16 +32,17 @@ fun createSignaleringInstellingen(
         this.type = SignaleringType.Type.ZAAK_OP_NAAM
         this.subjecttype = SignaleringSubject.ZAAK
     },
-    groep: String = "dummyGroep",
-    medewerker: String = "dummyMedewerker",
+    ownerType: SignaleringTarget = SignaleringTarget.USER,
+    ownerId: String = "dummyMedewerker",
     isDashboard: Boolean = true,
     isMail: Boolean = true,
 ) =
-    SignaleringInstellingen().apply {
+    SignaleringInstellingen(
+        type,
+        ownerType,
+        ownerId,
+    ).apply {
         this.id = id
-        this.type = type
-        this.groep = groep
-        this.medewerker = medewerker
         this.isDashboard = isDashboard
         this.isMail = isMail
     }
