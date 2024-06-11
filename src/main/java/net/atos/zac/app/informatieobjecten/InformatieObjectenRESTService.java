@@ -20,6 +20,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.inject.Instance;
@@ -102,6 +103,7 @@ import net.atos.zac.webdav.WebdavHelper;
 public class InformatieObjectenRESTService {
     private static final String MEDIA_TYPE_PDF = "application/pdf";
     private static final String TOELICHTING_PDF = "Geconverteerd naar PDF";
+    private static final Logger LOG = Logger.getLogger(InformatieObjectenRESTService.class.getName());
 
     private DRCClientService drcClientService;
     private ZTCClientService ztcClientService;
@@ -536,6 +538,8 @@ public class InformatieObjectenRESTService {
                 enkelvoudigInformatieobject, zrcClientService.readZaak(zaakUUID)).vergrendelen());
         enkelvoudigInformatieObjectLockService.createLock(uuid, loggedInUserInstance.get().getId());
         // Hiervoor wordt door open zaak geen notificatie verstuurd. Dus zelf het ScreenEvent versturen!
+        // Maar eerst moeten we zorgen dat open zaak echt klaar is
+        waitForOpenZaak();
         eventingService.send(ENKELVOUDIG_INFORMATIEOBJECT.updated(uuid));
         return Response.ok().build();
     }
@@ -549,6 +553,8 @@ public class InformatieObjectenRESTService {
                 enkelvoudigInformatieobject, zrcClientService.readZaak(zaakUUID)).ontgrendelen());
         enkelvoudigInformatieObjectLockService.deleteLock(uuid);
         // Hiervoor wordt door open zaak geen notificatie verstuurd. Dus zelf het ScreenEvent versturen!
+        // Maar eerst moeten we zorgen dat open zaak echt klaar is
+        waitForOpenZaak();
         eventingService.send(ENKELVOUDIG_INFORMATIEOBJECT.updated(uuid));
         return Response.ok().build();
     }
@@ -628,6 +634,8 @@ public class InformatieObjectenRESTService {
         enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(uuid);
 
         // Hiervoor wordt door open zaak geen notificatie verstuurd. Dus zelf het ScreenEvent versturen!
+        // Maar eerst moeten we zorgen dat open zaak echt klaar is
+        waitForOpenZaak();
         eventingService.send(ENKELVOUDIG_INFORMATIEOBJECT.updated(enkelvoudigInformatieobject));
 
         return Response.ok().build();
@@ -705,5 +713,14 @@ public class InformatieObjectenRESTService {
                 )
         ));
         return enkelvoudigInformatieobjectList;
+    }
+
+    private void waitForOpenZaak() {
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            LOG.warning("The Thread.sleep call was interrupted");
+        }
     }
 }
