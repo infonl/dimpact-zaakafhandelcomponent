@@ -13,7 +13,11 @@ import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
 import net.atos.client.or.shared.model.Fout;
 
 /**
- *
+ * Maps all responses with as status code greater than 400 (Bad Request) and less than 500 (Internal Server Error)
+ * from the Object Registration APIs.
+ * These responses are expected to have a JSON payload according to
+ * <a href="https://datatracker.ietf.org/doc/html/rfc7807">the Problem Details Standard</a>.
+ * 400 (Bad Request) status codes are handled by {@link ValidatieFoutExceptionMapper}
  */
 public class FoutExceptionMapper implements ResponseExceptionMapper<FoutException> {
 

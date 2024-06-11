@@ -13,7 +13,9 @@ import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
 import net.atos.client.zgw.shared.model.ValidatieFout;
 
 /**
- *
+ * Maps all responses with status code 400 (Bad Request) from the ZGW APIs.
+ * These responses are expected to have a JSON payload according to
+ * <a href="https://datatracker.ietf.org/doc/html/rfc7807">the Problem Details Standard</a>.
  */
 public class ValidatieFoutExceptionMapper implements ResponseExceptionMapper<ValidatieFoutException> {
 
