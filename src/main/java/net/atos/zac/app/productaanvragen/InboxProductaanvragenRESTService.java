@@ -28,9 +28,6 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.zac.aanvraag.InboxProductaanvraagService;
-import net.atos.zac.aanvraag.model.InboxProductaanvraagListParameters;
-import net.atos.zac.aanvraag.model.InboxProductaanvraagResultaat;
 import net.atos.zac.app.productaanvragen.converter.RESTInboxProductaanvraagConverter;
 import net.atos.zac.app.productaanvragen.converter.RESTInboxProductaanvraagListParametersConverter;
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag;
@@ -38,6 +35,9 @@ import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraagListParam
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraagResultaat;
 import net.atos.zac.app.shared.RESTResultaat;
 import net.atos.zac.policy.PolicyService;
+import net.atos.zac.productaanvraag.InboxProductaanvraagService;
+import net.atos.zac.productaanvraag.model.InboxProductaanvraagListParameters;
+import net.atos.zac.productaanvraag.model.InboxProductaanvraagResultaat;
 
 @Singleton
 @Path("inbox-productaanvragen")

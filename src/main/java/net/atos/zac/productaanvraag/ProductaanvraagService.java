@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.aanvraag;
+package net.atos.zac.productaanvraag;
 
 import static net.atos.zac.configuratie.ConfiguratieService.BRON_ORGANISATIE;
 import static net.atos.zac.configuratie.ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER;
@@ -46,14 +46,6 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag;
 import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
-import net.atos.zac.aanvraag.model.InboxProductaanvraag;
-import net.atos.zac.aanvraag.model.generated.Betrokkene;
-import net.atos.zac.aanvraag.model.generated.Geometry;
-import net.atos.zac.aanvraag.model.generated.ProductaanvraagDimpact;
-import net.atos.zac.aanvraag.util.BetalingStatusEnumJsonAdapter;
-import net.atos.zac.aanvraag.util.GeometryTypeEnumJsonAdapter;
-import net.atos.zac.aanvraag.util.IndicatieMachtigingEnumJsonAdapter;
-import net.atos.zac.aanvraag.util.RolOmschrijvingGeneriekEnumJsonAdapter;
 import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.documenten.InboxDocumentenService;
 import net.atos.zac.flowable.BPMNService;
@@ -61,6 +53,14 @@ import net.atos.zac.flowable.CMMNService;
 import net.atos.zac.identity.IdentityService;
 import net.atos.zac.identity.model.Group;
 import net.atos.zac.identity.model.User;
+import net.atos.zac.productaanvraag.model.InboxProductaanvraag;
+import net.atos.zac.productaanvraag.model.generated.Betrokkene;
+import net.atos.zac.productaanvraag.model.generated.Geometry;
+import net.atos.zac.productaanvraag.model.generated.ProductaanvraagDimpact;
+import net.atos.zac.productaanvraag.util.BetalingStatusEnumJsonAdapter;
+import net.atos.zac.productaanvraag.util.GeometryTypeEnumJsonAdapter;
+import net.atos.zac.productaanvraag.util.IndicatieMachtigingEnumJsonAdapter;
+import net.atos.zac.productaanvraag.util.RolOmschrijvingGeneriekEnumJsonAdapter;
 import net.atos.zac.util.JsonbUtil;
 import net.atos.zac.zaaksturing.ZaakafhandelParameterBeheerService;
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService;

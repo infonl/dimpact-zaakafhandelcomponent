@@ -39,11 +39,11 @@ import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import net.atos.client.or.objecttype.ObjecttypesClientService;
-import net.atos.zac.aanvraag.ProductaanvraagService;
 import net.atos.zac.authentication.ActiveSession;
 import net.atos.zac.authentication.SecurityUtil;
 import net.atos.zac.documenten.InboxDocumentenService;
 import net.atos.zac.event.EventingService;
+import net.atos.zac.productaanvraag.ProductaanvraagService;
 import net.atos.zac.signalering.event.SignaleringEventUtil;
 import net.atos.zac.websocket.event.ScreenEventType;
 import net.atos.zac.zaaksturing.ZaakafhandelParameterBeheerService;

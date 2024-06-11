@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.aanvraag.model;
+package net.atos.zac.productaanvraag.model;
 
 import java.util.List;
 

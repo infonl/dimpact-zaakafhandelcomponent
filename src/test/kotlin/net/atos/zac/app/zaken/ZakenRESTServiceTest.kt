@@ -40,9 +40,6 @@ import net.atos.client.zgw.ztc.ZTCClientService
 import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.client.zgw.ztc.model.generated.RolType
-import net.atos.zac.aanvraag.InboxProductaanvraagService
-import net.atos.zac.aanvraag.ProductaanvraagService
-import net.atos.zac.aanvraag.createProductaanvraagDimpact
 import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.bag.converter.RESTBAGConverter
@@ -72,6 +69,9 @@ import net.atos.zac.identity.model.createGroup
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.output.createOverigeRechtenAllDeny
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
+import net.atos.zac.productaanvraag.InboxProductaanvraagService
+import net.atos.zac.productaanvraag.ProductaanvraagService
+import net.atos.zac.productaanvraag.createProductaanvraagDimpact
 import net.atos.zac.shared.helper.OpschortenZaakHelper
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.zaak.ZaakService

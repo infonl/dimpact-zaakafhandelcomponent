@@ -1,11 +1,11 @@
-package net.atos.zac.aanvraag.util;
+package net.atos.zac.productaanvraag.util;
 
 import jakarta.json.bind.adapter.JsonbAdapter;
 
-import net.atos.zac.aanvraag.model.generated.Geometry;
+import net.atos.zac.productaanvraag.model.generated.Geometry;
 
 /**
- * JSON adapter for the {@link net.atos.zac.aanvraag.model.generated.Geometry.Type} enum that matches on the enum's value instead
+ * JSON adapter for the {@link net.atos.zac.productaanvraag.model.generated.Geometry.Type} enum that matches on the enum's value instead
  * of the enum's name.
  */
 public class GeometryTypeEnumJsonAdapter implements JsonbAdapter<Geometry.Type, String> {
