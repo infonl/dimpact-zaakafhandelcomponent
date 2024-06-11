@@ -17,7 +17,7 @@ import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.zac.app.planitems.converter.RESTPlanItemConverter
 import net.atos.zac.app.planitems.model.createRESTHumanTaskData
-import net.atos.zac.app.util.InputValidationFailedException
+import net.atos.zac.app.util.exception.InputValidationFailedException
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.CMMNService
 import net.atos.zac.flowable.TaakVariabelenService
