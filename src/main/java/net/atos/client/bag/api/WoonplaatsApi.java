@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -40,17 +40,17 @@ import net.atos.client.bag.util.JsonbConfiguration;
 /**
  * IMBAG API - van de LVBAG
  *
- * <p>Dit is de [BAG API](https://zakelijk.kadaster.nl/-/bag-api) Individuele Bevragingen van de Landelijke Voorziening Basisregistratie
+ * <p>Dit is de [BAG API](<a href="https://zakelijk.kadaster.nl/-/bag-api">...</a>) Individuele Bevragingen van de Landelijke Voorziening Basisregistratie
  * Adressen en Gebouwen (LVBAG). Meer informatie over de Basisregistratie Adressen en Gebouwen is te vinden op de website van het
  * [Ministerie van Binnenlandse Zaken en Koninkrijksrelaties](https://www.geobasisregistraties.nl/basisregistraties/adressen-en-gebouwen) en
- * [Kadaster](https://zakelijk.kadaster.nl/bag). De BAG API levert informatie conform de [BAG Catalogus
+ * [Kadaster](<a href="https://zakelijk.kadaster.nl/bag">...</a>). De BAG API levert informatie conform de [BAG Catalogus
  * 2018](https://www.geobasisregistraties.nl/documenten/publicatie/2018/03/12/catalogus-2018) en het informatiemodel IMBAG 2.0. De API
  * specificatie volgt de [Nederlandse API-Strategie](https://docs.geostandaarden.nl/api/API-Strategie) specificatie versie van 20200204 en
- * is opgesteld in [OpenAPI Specificatie](https://www.forumstandaardisatie.nl/standaard/openapi-specification) (OAS) v3. Het standaard
+ * is opgesteld in [OpenAPI Specificatie](<a href="https://www.forumstandaardisatie.nl/standaard/openapi-specification">...</a>) (OAS) v3. Het standaard
  * mediatype HAL (`application/hal+json`) wordt gebruikt. Dit is een mediatype voor het weergeven van resources en hun relaties via
  * hyperlinks. Deze API is vooral gericht op individuele bevragingen (op basis van de identificerende gegevens van een object). Om gebruik
  * te kunnen maken van de BAG API is een API key nodig, deze kan verkregen worden door het
- * [aanvraagformulier](https://formulieren.kadaster.nl/aanvraag_bag_api_individuele_bevragingen_productie) in te vullen. Voor vragen, neem
+ * [aanvraagformulier](<a href="https://formulieren.kadaster.nl/aanvraag_bag_api_individuele_bevragingen_productie">...</a>) in te vullen. Voor vragen, neem
  * contact op met de LVBAG beheerder o.v.v. BAG API 2.0. We zijn aan het kijken naar een geschikt medium hiervoor, mede ook om de API
  * iteratief te kunnen opstellen of doorontwikkelen samen met de community. Als de API iets (nog) niet kan, wat u wel graag wilt, neem dan
  * contact op.
@@ -67,16 +67,16 @@ public interface WoonplaatsApi {
      * bevragen van een woonplaats met een geometrische locatie.
      * <p>
      * Bevragen/raadplegen van een voorkomen van een Woonplaats met een geometrische locatie. Parameter huidig kan worden toegepast, zie
-     * [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature). De geldigOp en beschikbaarOp
+     * [functionele specificatie huidig](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature">...</a>). De geldigOp en beschikbaarOp
      * parameters kunnen gebruikt worden voor tijdreis vragen, zie [functionele specificatie
-     * tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature). Als expand&#x3D;bronhouders, geometrie of true
+     * tijdreizen](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature">...</a>). Als expand&#x3D;bronhouders, geometrie of true
      * dan worden de gevraagde of alle gerelateerde objecten als geneste resource geleverd, zie [functionele specificatie
-     * expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).
+     * expand](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature">...</a>).
      */
     @POST
     @Consumes({"application/json"})
     @Produces({"application/hal+json", "application/problem+json"})
-    public WoonplaatsIOHalCollection woonplaatsGeometrie(
+    WoonplaatsIOHalCollection woonplaatsGeometrie(
             PointGeoJSON pointGeoJSON,
             @QueryParam("geldigOp") LocalDate geldigOp,
             @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
@@ -90,16 +90,16 @@ public interface WoonplaatsApi {
      * bevragen van een woonplaats met de identificatie van een woonplaats.
      * <p>
      * Bevragen/raadplegen van een voorkomen van een Woonplaats met de identificatie van de woonplaats. Parameter huidig kan worden
-     * toegepast, zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature). De geldigOp
+     * toegepast, zie [functionele specificatie huidig](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature">...</a>). De geldigOp
      * en beschikbaarOp parameters kunnen gebruikt worden voor tijdreis vragen, zie [functionele specificatie
-     * tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature). Als expand&#x3D;bronhouders, geometrie of true
+     * tijdreizen](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature">...</a>). Als expand&#x3D;bronhouders, geometrie of true
      * dan worden de gevraagde of alle gerelateerde objecten als geneste resource geleverd, zie [functionele specificatie
-     * expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).
+     * expand](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature">...</a>).
      */
     @GET
     @Path("/{identificatie}")
     @Produces({"application/hal+json", "application/problem+json"})
-    public WoonplaatsIOHal woonplaatsIdentificatie(
+    WoonplaatsIOHal woonplaatsIdentificatie(
             @PathParam("identificatie") String identificatie,
             @QueryParam("geldigOp") LocalDate geldigOp,
             @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
@@ -115,12 +115,12 @@ public interface WoonplaatsApi {
      * Bevragen/raadplegen van een voorkomen van een Woonplaats met de identificatie van een woonplaats en de identificatie van een
      * voorkomen, bestaande uit een versie en een timestamp van het tijdstip van registratie in de LV BAG. Als expand&#x3D;bronhouders,
      * geometrie of true dan worden de gevraagde of alle gerelateerde objecten als geneste resource geleverd, zie [functionele specificatie
-     * expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).
+     * expand](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature">...</a>).
      */
     @GET
     @Path("/{identificatie}/{versie}/{timestampRegistratieLv}")
     @Produces({"application/hal+json", "application/problem+json"})
-    public WoonplaatsIOHal woonplaatsIdentificatieVoorkomen(
+    WoonplaatsIOHal woonplaatsIdentificatieVoorkomen(
             @PathParam("identificatie") String identificatie,
             @PathParam("versie") Integer versie,
             @PathParam("timestampRegistratieLv") String timestampRegistratieLv,
@@ -133,12 +133,12 @@ public interface WoonplaatsApi {
      * <p>
      * Bevragen/raadplegen van de levenscyclus van een Woonplaats met de identificatie van de woonplaats. Als expand&#x3D;bronhouders,
      * geometrie of true dan worden de gevraagde of alle gerelateerde objecten als geneste resource geleverd, zie [functionele specificatie
-     * expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).
+     * expand](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature">...</a>).
      */
     @GET
     @Path("/{identificatie}/lvc")
     @Produces({"application/hal+json", "application/problem+json"})
-    public WoonplaatsIOLvcHalCollection woonplaatsLvcIdentificatie(
+    WoonplaatsIOLvcHalCollection woonplaatsLvcIdentificatie(
             @PathParam("identificatie") String identificatie,
             @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc,
             @QueryParam("expand") String expand,
@@ -150,16 +150,16 @@ public interface WoonplaatsApi {
      * <p>
      * Zoeken van actuele woonplaatsen: 1. met een woonplaatsnaam. 2. met een geometrische locatie. 3. binnen een geometrische contour
      * (rechthoek). Parameter huidig kan worden toegepast, zie [functionele specificatie
-     * huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature). De geldigOp en beschikbaarOp parameters kunnen
+     * huidig](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature">...</a>). De geldigOp en beschikbaarOp parameters kunnen
      * gebruikt worden voor tijdreis vragen, zie [functionele specificatie
      * tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature). Als expand&#x3D;bronhouders, geometrie of true
      * dan worden de gevraagde of alle gerelateerde objecten als geneste resource geleverd, zie [functionele specificatie
-     * expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature). Voor paginering, zie: [functionele specificatie
-     * paginering](https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature).
+     * expand](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature">...</a>). Voor paginering, zie: [functionele specificatie
+     * paginering](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature">...</a>).
      */
     @GET
     @Produces({"application/hal+json", "application/problem+json"})
-    public WoonplaatsIOHalCollection zoekWoonplaatsen(
+    WoonplaatsIOHalCollection zoekWoonplaatsen(
             @QueryParam("naam") String naam,
             @QueryParam("geldigOp") LocalDate geldigOp,
             @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,

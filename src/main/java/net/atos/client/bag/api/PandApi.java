@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -76,7 +76,7 @@ public interface PandApi {
     @POST
     @Consumes({"application/json"})
     @Produces({"application/hal+json", "application/problem+json"})
-    public PandIOHalCollection pandGeometrie(
+    PandIOHalCollection pandGeometrie(
             PointGeoJSON pointGeoJSON,
             @QueryParam("geldigOp") LocalDate geldigOp,
             @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
@@ -96,7 +96,7 @@ public interface PandApi {
     @GET
     @Path("/{identificatie}")
     @Produces({"application/hal+json", "application/problem+json"})
-    public PandIOHal pandIdentificatie(
+    PandIOHal pandIdentificatie(
             @PathParam("identificatie") String identificatie,
             @QueryParam("geldigOp") LocalDate geldigOp,
             @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
@@ -114,7 +114,7 @@ public interface PandApi {
     @GET
     @Path("/{identificatie}/{versie}/{timestampRegistratieLv}")
     @Produces({"application/hal+json", "application/problem+json"})
-    public PandIOHal pandIdentificatieVoorkomen(
+    PandIOHal pandIdentificatieVoorkomen(
             @PathParam("identificatie") String identificatie,
             @PathParam("versie") Integer versie,
             @PathParam("timestampRegistratieLv") String timestampRegistratieLv,
@@ -129,7 +129,7 @@ public interface PandApi {
     @GET
     @Path("/{identificatie}/lvc")
     @Produces({"application/hal+json", "application/problem+json"})
-    public PandIOLvcHalCollection pandLvcIdentificatie(
+    PandIOLvcHalCollection pandLvcIdentificatie(
             @PathParam("identificatie") String identificatie,
             @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc,
             @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs
@@ -149,7 +149,7 @@ public interface PandApi {
      */
     @GET
     @Produces({"application/hal+json", "application/problem+json"})
-    public PandIOHalCollection zoekPanden(
+    PandIOHalCollection zoekPanden(
             @QueryParam("geldigOp") LocalDate geldigOp,
             @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
             @QueryParam("huidig") @DefaultValue("false") Boolean huidig,
