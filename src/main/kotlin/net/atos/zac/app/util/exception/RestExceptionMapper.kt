@@ -18,7 +18,7 @@ import java.util.logging.Level
 import java.util.logging.Logger
 
 /**
- * Implementatie van ExceptionMapper. Alle exceptions worden gecatched door de JAX-RS runtime en gemapped naar een [Response].
+ * Maps exceptions to JAX-RS responses for use in REST responses.
  */
 @Provider
 class RestExceptionMapper : ExceptionMapper<Exception> {
@@ -28,7 +28,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
     }
 
     /**
-     * Retourneert een [Response] naar de client.
+     * Converts an exception to a JAX-RS response.
      */
     override fun toResponse(exception: Exception): Response =
         if (exception is WebApplicationException &&
