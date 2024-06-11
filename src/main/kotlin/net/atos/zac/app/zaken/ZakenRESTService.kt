@@ -60,8 +60,6 @@ import net.atos.client.zgw.ztc.model.generated.BesluitType
 import net.atos.client.zgw.ztc.model.generated.RolType
 import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.client.zgw.ztc.util.isNuGeldig
-import net.atos.zac.aanvraag.InboxProductaanvraagService
-import net.atos.zac.aanvraag.ProductaanvraagService
 import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter
 import net.atos.zac.app.admin.model.RESTZaakAfzender
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
@@ -120,6 +118,8 @@ import net.atos.zac.healthcheck.HealthCheckService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
+import net.atos.zac.productaanvraag.InboxProductaanvraagService
+import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.shared.helper.OpschortenZaakHelper
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringType

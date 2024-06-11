@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.aanvraag;
+package net.atos.zac.productaanvraag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,9 +21,9 @@ import jakarta.transaction.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
 
-import net.atos.zac.aanvraag.model.InboxProductaanvraag;
-import net.atos.zac.aanvraag.model.InboxProductaanvraagListParameters;
-import net.atos.zac.aanvraag.model.InboxProductaanvraagResultaat;
+import net.atos.zac.productaanvraag.model.InboxProductaanvraag;
+import net.atos.zac.productaanvraag.model.InboxProductaanvraagListParameters;
+import net.atos.zac.productaanvraag.model.InboxProductaanvraagResultaat;
 import net.atos.zac.shared.model.SorteerRichting;
 
 @ApplicationScoped
