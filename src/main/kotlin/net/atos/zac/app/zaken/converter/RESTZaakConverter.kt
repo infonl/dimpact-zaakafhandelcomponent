@@ -5,8 +5,8 @@
 package net.atos.zac.app.zaken.converter
 
 import jakarta.inject.Inject
-import net.atos.client.vrl.VRLClientService
-import net.atos.client.zgw.brc.BRCClientService
+import net.atos.client.vrl.VrlClientService
+import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.util.InformatieobjectenUtil
 import net.atos.client.zgw.zrc.ZRCClientService
@@ -52,7 +52,7 @@ class RESTZaakConverter {
     private lateinit var zrcClientService: ZRCClientService
 
     @Inject
-    private lateinit var brcClientService: BRCClientService
+    private lateinit var brcClientService: BrcClientService
 
     @Inject
     private lateinit var zgwApiService: ZGWApiService
@@ -79,7 +79,7 @@ class RESTZaakConverter {
     private lateinit var rechtenConverter: RESTRechtenConverter
 
     @Inject
-    private lateinit var vrlClientService: VRLClientService
+    private lateinit var vrlClientService: VrlClientService
 
     @Inject
     private lateinit var restGeometryConverter: RESTGeometryConverter

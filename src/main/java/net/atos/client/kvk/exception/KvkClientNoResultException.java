@@ -5,5 +5,5 @@
 
 package net.atos.client.kvk.exception;
 
-public class KvKClientNoResultException extends RuntimeException {
+public class KvkClientNoResultException extends RuntimeException {
 }

@@ -24,7 +24,7 @@ import jakarta.ws.rs.core.Response
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import net.atos.client.zgw.drc.DRCClientService
+import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.Ondertekening
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.util.URIUtil
@@ -89,7 +89,7 @@ class TakenRESTService @Inject constructor(
     private val restInformatieobjectConverter: RESTInformatieobjectConverter,
     private val zgwApiService: ZGWApiService,
     private val zrcClientService: ZRCClientService,
-    private val drcClientService: DRCClientService,
+    private val drcClientService: DrcClientService,
     private val signaleringService: SignaleringService,
     private val taakHistorieConverter: RESTTaakHistorieConverter,
     private val policyService: PolicyService,

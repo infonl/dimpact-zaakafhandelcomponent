@@ -9,9 +9,6 @@ import java.net.URI;
 
 import net.atos.client.zgw.shared.model.Fout;
 
-/**
- *
- */
 public class FoutException extends RuntimeException {
 
     private final Fout fout;

@@ -5,8 +5,8 @@
 
 package net.atos.client.bag;
 
-import static net.atos.client.bag.util.BAGClientHeadersFactory.API_KEY;
-import static net.atos.client.bag.util.BAGClientHeadersFactory.X_API_KEY;
+import static net.atos.client.bag.util.BagClientHeadersFactory.API_KEY;
+import static net.atos.client.bag.util.BagClientHeadersFactory.X_API_KEY;
 
 import java.net.URI;
 import java.util.Collections;
@@ -33,7 +33,7 @@ import net.atos.client.bag.model.generated.WoonplaatsIOHal;
 import net.atos.client.util.JAXRSClientFactory;
 
 @ApplicationScoped
-public class BAGClientService {
+public class BagClientService {
 
     public static final String DEFAULT_CRS = "epsg:28992";
 

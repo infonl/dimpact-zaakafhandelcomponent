@@ -20,7 +20,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-import net.atos.client.zgw.drc.DRCClientService;
+import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
@@ -45,7 +45,7 @@ public class InboxDocumentenRESTService {
     private InboxDocumentenService inboxDocumentenService;
 
     @Inject
-    private DRCClientService drcClientService;
+    private DrcClientService drcClientService;
 
     @Inject
     private ZRCClientService zrcClientService;

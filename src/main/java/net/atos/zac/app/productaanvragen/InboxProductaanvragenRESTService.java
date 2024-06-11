@@ -26,7 +26,7 @@ import jakarta.ws.rs.core.Response;
 
 import org.apache.commons.collections4.CollectionUtils;
 
-import net.atos.client.zgw.drc.DRCClientService;
+import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.zac.aanvraag.InboxProductaanvraagService;
 import net.atos.zac.aanvraag.model.InboxProductaanvraagListParameters;
@@ -46,7 +46,7 @@ import net.atos.zac.policy.PolicyService;
 public class InboxProductaanvragenRESTService {
 
     @Inject
-    private DRCClientService drcClientService;
+    private DrcClientService drcClientService;
 
 
     @Inject

@@ -10,7 +10,7 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
-import net.atos.client.zgw.drc.DRCClientService;
+import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockData;
 import net.atos.client.zgw.drc.model.generated.Ondertekening;
 import net.atos.zac.authentication.LoggedInUser;
@@ -29,7 +29,7 @@ public class EnkelvoudigInformatieObjectUpdateService {
     private EnkelvoudigInformatieObjectLockService enkelvoudigInformatieObjectLockService;
 
     @Inject
-    private DRCClientService drcClientService;
+    private DrcClientService drcClientService;
 
     @Inject
     private Instance<LoggedInUser> loggedInUserInstance;

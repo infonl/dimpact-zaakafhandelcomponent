@@ -32,9 +32,9 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import net.atos.client.zgw.brc.model.BesluitenListParameters;
 import net.atos.client.zgw.brc.model.generated.Besluit;
 import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject;
-import net.atos.client.zgw.shared.exception.FoutExceptionMapper;
-import net.atos.client.zgw.shared.exception.RuntimeExceptionMapper;
-import net.atos.client.zgw.shared.exception.ValidatieFoutExceptionMapper;
+import net.atos.client.zgw.shared.exception.ZgwFoutExceptionMapper;
+import net.atos.client.zgw.shared.exception.ZgwRuntimeExceptionMapper;
+import net.atos.client.zgw.shared.exception.ZgwValidatieFoutExceptionMapper;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel;
 import net.atos.client.zgw.shared.util.JsonbConfiguration;
@@ -45,13 +45,13 @@ import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
  */
 @RegisterRestClient(configKey = "ZGW-API-Client")
 @RegisterClientHeaders(ZGWClientHeadersFactory.class)
-@RegisterProvider(FoutExceptionMapper.class)
-@RegisterProvider(ValidatieFoutExceptionMapper.class)
-@RegisterProvider(RuntimeExceptionMapper.class)
+@RegisterProvider(ZgwFoutExceptionMapper.class)
+@RegisterProvider(ZgwValidatieFoutExceptionMapper.class)
+@RegisterProvider(ZgwRuntimeExceptionMapper.class)
 @RegisterProvider(JsonbConfiguration.class)
 @Path("besluiten/api/v1")
 @Produces(APPLICATION_JSON)
-public interface BRCClient {
+public interface BrcClient {
 
     String ACCEPT_CRS = "Accept-Crs";
 

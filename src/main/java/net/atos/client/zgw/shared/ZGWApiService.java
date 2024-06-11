@@ -22,7 +22,7 @@ import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 
-import net.atos.client.zgw.drc.DRCClientService;
+import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData;
 import net.atos.client.zgw.drc.model.generated.Gebruiksrechten;
@@ -57,7 +57,7 @@ public class ZGWApiService {
 
     private ZTCClientService ztcClientService;
     private ZRCClientService zrcClientService;
-    private DRCClientService drcClientService;
+    private DrcClientService drcClientService;
 
     /**
      * Default no-arg constructor, required by Weld.
@@ -69,7 +69,7 @@ public class ZGWApiService {
     public ZGWApiService(
             final ZTCClientService ztcClientService,
             final ZRCClientService zrcClientService,
-            final DRCClientService drcClientService
+            final DrcClientService drcClientService
     ) {
         this.ztcClientService = ztcClientService;
         this.zrcClientService = zrcClientService;

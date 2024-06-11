@@ -24,12 +24,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.atos.client.or.`object`.ObjectsClientService
-import net.atos.client.vrl.VRLClientService
-import net.atos.client.zgw.brc.BRCClientService
+import net.atos.client.vrl.VrlClientService
+import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.brc.model.generated.Besluit
 import net.atos.client.zgw.brc.model.generated.Besluit.VervalredenEnum
 import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject
-import net.atos.client.zgw.drc.DRCClientService
+import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel
@@ -160,11 +160,11 @@ import java.util.stream.Stream
 class ZakenRESTService @Inject constructor(
     private val zgwApiService: ZGWApiService,
     private val productaanvraagService: ProductaanvraagService,
-    private val brcClientService: BRCClientService,
-    private val drcClientService: DRCClientService,
+    private val brcClientService: BrcClientService,
+    private val drcClientService: DrcClientService,
     private val ztcClientService: ZTCClientService,
     private val zrcClientService: ZRCClientService,
-    private val vrlClientService: VRLClientService,
+    private val vrlClientService: VrlClientService,
     private val eventingService: EventingService,
     private val identityService: IdentityService,
     private val signaleringService: SignaleringService,

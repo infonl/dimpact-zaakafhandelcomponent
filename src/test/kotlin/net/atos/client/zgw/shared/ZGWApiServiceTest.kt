@@ -1,7 +1,6 @@
 package net.atos.client.zgw.shared
 
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.ints.exactly
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
@@ -11,7 +10,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import net.atos.client.zgw.drc.DRCClientService
+import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.createResultaat
 import net.atos.client.zgw.zrc.model.createZaak
@@ -24,7 +23,7 @@ import java.util.UUID
 class ZGWApiServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZTCClientService>()
     val zrcClientService = mockk<ZRCClientService>()
-    val drcClientService = mockk<DRCClientService>()
+    val drcClientService = mockk<DrcClientService>()
     val zgwApiService = ZGWApiService(
         ztcClientService,
         zrcClientService,

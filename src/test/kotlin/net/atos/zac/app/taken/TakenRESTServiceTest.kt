@@ -20,7 +20,7 @@ import io.mockk.runs
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
-import net.atos.client.zgw.drc.DRCClientService
+import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZRCClientService
@@ -64,7 +64,7 @@ import java.util.Optional
 import java.util.UUID
 
 class TakenRESTServiceTest : BehaviorSpec({
-    val drcClientService = mockk<DRCClientService>()
+    val drcClientService = mockk<DrcClientService>()
     val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
     val eventingService = mockk<EventingService>()
     val httpSessionInstance = mockk<Instance<HttpSession>>()

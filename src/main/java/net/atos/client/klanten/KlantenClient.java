@@ -26,7 +26,7 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import net.atos.client.klanten.exception.RuntimeExceptionMapper;
+import net.atos.client.klanten.exception.KlantenRuntimeExceptionMapper;
 import net.atos.client.klanten.model.AuditTrail;
 import net.atos.client.klanten.model.Klant;
 import net.atos.client.klanten.model.KlantList200Response;
@@ -41,7 +41,7 @@ import net.atos.client.klanten.util.KlantenClientHeadersFactory;
  */
 @RegisterRestClient(configKey = "Klanten-API-Client")
 @RegisterClientHeaders(KlantenClientHeadersFactory.class)
-@RegisterProvider(RuntimeExceptionMapper.class)
+@RegisterProvider(KlantenRuntimeExceptionMapper.class)
 @Path("api/v1/klanten")
 public interface KlantenClient {
     String X_NLX_LOGRECORD_ID_HEADER = "X-NLX-Logrecord-ID";

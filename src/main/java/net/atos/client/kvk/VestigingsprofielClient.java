@@ -22,13 +22,13 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import net.atos.client.kvk.exception.RuntimeExceptionMapper;
-import net.atos.client.kvk.util.KVKClientHeadersFactory;
+import net.atos.client.kvk.exception.KvkRuntimeExceptionMapper;
+import net.atos.client.kvk.util.KvkClientHeadersFactory;
 import net.atos.client.kvk.vestigingsprofiel.model.generated.Vestiging;
 
 @RegisterRestClient(configKey = "KVK-API-Client")
-@RegisterClientHeaders(KVKClientHeadersFactory.class)
-@RegisterProvider(RuntimeExceptionMapper.class)
+@RegisterClientHeaders(KvkClientHeadersFactory.class)
+@RegisterProvider(KvkRuntimeExceptionMapper.class)
 @Produces({"application/hal+json"})
 @Path("api/v1/vestigingsprofielen")
 public interface VestigingsprofielClient {

@@ -15,16 +15,16 @@ import jakarta.inject.Inject;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-import net.atos.client.kvk.exception.KvKClientNoResultException;
-import net.atos.client.kvk.model.KVKZoekenParameters;
+import net.atos.client.kvk.exception.KvkClientNoResultException;
+import net.atos.client.kvk.model.KvkZoekenParameters;
 import net.atos.client.kvk.vestigingsprofiel.model.generated.Vestiging;
 import net.atos.client.kvk.zoeken.model.generated.Resultaat;
 import net.atos.client.kvk.zoeken.model.generated.ResultaatItem;
 
 @ApplicationScoped
-public class KVKClientService {
+public class KvkClientService {
 
-    private static final Logger LOG = Logger.getLogger(KVKClientService.class.getName());
+    private static final Logger LOG = Logger.getLogger(KvkClientService.class.getName());
 
     @Inject
     @RestClient
@@ -34,10 +34,10 @@ public class KVKClientService {
     @RestClient
     private VestigingsprofielClient vestigingsprofielClient;
 
-    public Resultaat list(final KVKZoekenParameters parameters) {
+    public Resultaat list(final KvkZoekenParameters parameters) {
         try {
             return zoekenClient.getResults(parameters);
-        } catch (final KvKClientNoResultException exception) {
+        } catch (final KvkClientNoResultException exception) {
             // Nothing to report
         } catch (final RuntimeException exception) {
             LOG.warning(() -> ("Failed to search for company information using the KVK API: %s").formatted(exception));
@@ -45,7 +45,7 @@ public class KVKClientService {
         return createEmptyResultaat();
     }
 
-    public CompletionStage<Resultaat> listAsync(final KVKZoekenParameters parameters) {
+    public CompletionStage<Resultaat> listAsync(final KvkZoekenParameters parameters) {
         return zoekenClient.getResultsAsync(parameters)
                 .handle(this::handleListAsync);
     }
@@ -55,20 +55,20 @@ public class KVKClientService {
     }
 
     public Optional<ResultaatItem> findHoofdvestiging(final String kvkNummer) {
-        final KVKZoekenParameters zoekParameters = new KVKZoekenParameters();
+        final KvkZoekenParameters zoekParameters = new KvkZoekenParameters();
         zoekParameters.setType("hoofdvestiging");
         zoekParameters.setKvkNummer(kvkNummer);
         return convertToSingleItem(list(zoekParameters));
     }
 
     public Optional<ResultaatItem> findVestiging(final String vestigingsnummer) {
-        final KVKZoekenParameters zoekParameters = new KVKZoekenParameters();
+        final KvkZoekenParameters zoekParameters = new KvkZoekenParameters();
         zoekParameters.setVestigingsnummer(vestigingsnummer);
         return convertToSingleItem(list(zoekParameters));
     }
 
     public CompletionStage<Optional<ResultaatItem>> findVestigingAsync(final String vestigingsnummer) {
-        final KVKZoekenParameters zoekParameters = new KVKZoekenParameters();
+        final KvkZoekenParameters zoekParameters = new KvkZoekenParameters();
         zoekParameters.setVestigingsnummer(vestigingsnummer);
         return listAsync(zoekParameters).thenApply(this::convertToSingleItem);
     }
@@ -77,7 +77,7 @@ public class KVKClientService {
         if (resultaat != null) {
             return resultaat;
         } else {
-            if (!(exception instanceof KvKClientNoResultException)) {
+            if (!(exception instanceof KvkClientNoResultException)) {
                 LOG.warning(() -> "Error while calling listAsync: %s".formatted(exception.getMessage()));
             }
             return createEmptyResultaat();
@@ -85,7 +85,7 @@ public class KVKClientService {
     }
 
     public Optional<ResultaatItem> findRechtspersoon(final String rsin) {
-        final KVKZoekenParameters zoekParameters = new KVKZoekenParameters();
+        final KvkZoekenParameters zoekParameters = new KvkZoekenParameters();
         zoekParameters.setType("rechtspersoon");
         zoekParameters.setRsin(rsin);
         return convertToSingleItem(list(zoekParameters));

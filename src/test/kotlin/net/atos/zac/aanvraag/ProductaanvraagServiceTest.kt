@@ -14,9 +14,9 @@ import io.mockk.verify
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createORObject
 import net.atos.client.or.`object`.model.createObjectRecord
-import net.atos.client.vrl.VRLClientService
+import net.atos.client.vrl.VrlClientService
 import net.atos.client.vrl.model.generated.CommunicatieKanaal
-import net.atos.client.zgw.drc.DRCClientService
+import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.Point
@@ -45,9 +45,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     val objectsClientService = mockk<ObjectsClientService>()
     val zgwApiService = mockk<ZGWApiService>()
     val zrcClientService = mockk<ZRCClientService>()
-    val drcClientService = mockk<DRCClientService>()
+    val drcClientService = mockk<DrcClientService>()
     val ztcClientService = mockk<ZTCClientService>()
-    val vrlClientService = mockk<VRLClientService>()
+    val vrlClientService = mockk<VrlClientService>()
     val identityService = mockk<IdentityService>()
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
     val zaakafhandelParameterBeheerService = mockk<ZaakafhandelParameterBeheerService>()

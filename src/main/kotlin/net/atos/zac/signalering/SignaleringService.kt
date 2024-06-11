@@ -13,7 +13,7 @@ import jakarta.persistence.PersistenceContext
 import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
-import net.atos.client.zgw.drc.DRCClientService
+import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.app.zaken.converter.RESTZaakOverzichtConverter
@@ -48,7 +48,7 @@ import java.util.logging.Logger
 @NoArgConstructor
 @AllOpen
 class SignaleringService @Inject constructor(
-    private val drcClientService: DRCClientService,
+    private val drcClientService: DrcClientService,
     private val eventingService: EventingService,
     private val flowableTaskService: FlowableTaskService,
     private val mailService: MailService,

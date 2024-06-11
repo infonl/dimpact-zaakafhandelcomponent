@@ -8,7 +8,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
-import net.atos.client.vrl.VRLClientService
+import net.atos.client.vrl.VrlClientService
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.model.createResultsOfZaakObjecten
 import net.atos.client.zgw.zrc.ZRCClientService
@@ -37,7 +37,7 @@ import java.util.Optional
 class ZaakZoekObjectConverterTest : BehaviorSpec({
     val zrcClientService = mockk<ZRCClientService>()
     val ztcClientService = mockk<ZTCClientService>()
-    val vrlClientService = mockk<VRLClientService>()
+    val vrlClientService = mockk<VrlClientService>()
     val zgwApiService = mockk<ZGWApiService>()
     val identityService = mockk<IdentityService>()
     val flowableTaskService = mockk<FlowableTaskService>()

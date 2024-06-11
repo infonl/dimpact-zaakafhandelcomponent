@@ -14,8 +14,8 @@ import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
-import net.atos.client.zgw.brc.BRCClientService
-import net.atos.client.zgw.drc.DRCClientService
+import net.atos.client.zgw.brc.BrcClientService
+import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData
@@ -49,9 +49,9 @@ class RESTInformatieobjectConverterTest : BehaviorSpec() {
     private val loggedInUser = createLoggedInUser()
     private val policyService = mockk<PolicyService>()
     private val rechtenConverter = mockk<RESTRechtenConverter>()
-    private val brcClientService = mockk<BRCClientService>()
+    private val brcClientService = mockk<BrcClientService>()
     private val configuratieService = mockk<ConfiguratieService>()
-    private val drcClientService = mockk<DRCClientService>()
+    private val drcClientService = mockk<DrcClientService>()
 
     // We have to use @InjectMockKs since the class under test uses field injection instead of constructor injection.
     // This is because WildFly does not support constructor injection for JAX-RS REST services completely.

@@ -11,9 +11,10 @@ import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
 
 /**
- * Maps BAG client HTTP responses of type server error to runtime exceptions.
+ *
  */
-public class RuntimeExceptionMapper implements ResponseExceptionMapper<RuntimeException> {
+public class BagRuntimeExceptionMapper implements ResponseExceptionMapper<RuntimeException> {
+
 
     @Override
     public boolean handles(final int status, final MultivaluedMap<String, Object> headers) {
@@ -24,7 +25,7 @@ public class RuntimeExceptionMapper implements ResponseExceptionMapper<RuntimeEx
     public RuntimeException toThrowable(final Response response) {
         return new RuntimeException(
                 String.format(
-                        "Server response from BAG service : %d (%s)",
+                        "Server response from BAG: %d (%s)",
                         response.getStatus(),
                         response.getStatusInfo()
                 )

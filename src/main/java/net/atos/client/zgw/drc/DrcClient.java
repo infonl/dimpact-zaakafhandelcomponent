@@ -34,9 +34,9 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockData;
 import net.atos.client.zgw.drc.model.generated.Gebruiksrechten;
 import net.atos.client.zgw.drc.model.generated.ObjectInformatieObject;
-import net.atos.client.zgw.shared.exception.FoutExceptionMapper;
-import net.atos.client.zgw.shared.exception.RuntimeExceptionMapper;
-import net.atos.client.zgw.shared.exception.ValidatieFoutExceptionMapper;
+import net.atos.client.zgw.shared.exception.ZgwFoutExceptionMapper;
+import net.atos.client.zgw.shared.exception.ZgwRuntimeExceptionMapper;
+import net.atos.client.zgw.shared.exception.ZgwValidatieFoutExceptionMapper;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel;
 import net.atos.client.zgw.shared.util.JsonbConfiguration;
@@ -44,13 +44,13 @@ import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
 
 @RegisterRestClient(configKey = "ZGW-API-Client")
 @RegisterClientHeaders(ZGWClientHeadersFactory.class)
-@RegisterProvider(FoutExceptionMapper.class)
-@RegisterProvider(ValidatieFoutExceptionMapper.class)
-@RegisterProvider(RuntimeExceptionMapper.class)
+@RegisterProvider(ZgwFoutExceptionMapper.class)
+@RegisterProvider(ZgwValidatieFoutExceptionMapper.class)
+@RegisterProvider(ZgwRuntimeExceptionMapper.class)
 @RegisterProvider(JsonbConfiguration.class)
 @Path("documenten/api/v1")
 @Produces(APPLICATION_JSON)
-public interface DRCClient {
+public interface DrcClient {
 
     @POST
     @Path("enkelvoudiginformatieobjecten")

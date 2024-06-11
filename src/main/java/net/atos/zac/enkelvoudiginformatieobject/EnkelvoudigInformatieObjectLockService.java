@@ -15,7 +15,7 @@ import jakarta.transaction.Transactional;
 
 import org.apache.commons.collections4.CollectionUtils;
 
-import net.atos.client.zgw.drc.DRCClientService;
+import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
@@ -29,7 +29,7 @@ public class EnkelvoudigInformatieObjectLockService {
     private EntityManager entityManager;
 
     @Inject
-    private DRCClientService drcClientService;
+    private DrcClientService drcClientService;
 
     @Inject
     private ZRCClientService zrcClientService;

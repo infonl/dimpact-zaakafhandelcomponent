@@ -48,7 +48,7 @@ import net.atos.client.brp.model.generated.Persoon;
 import net.atos.client.brp.model.generated.VerblijfadresBinnenland;
 import net.atos.client.brp.model.generated.VerblijfadresBuitenland;
 import net.atos.client.brp.model.generated.VerblijfplaatsBuitenland;
-import net.atos.client.kvk.KVKClientService;
+import net.atos.client.kvk.KvkClientService;
 import net.atos.client.kvk.zoeken.model.generated.ResultaatItem;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.ZGWApiService;
@@ -90,7 +90,7 @@ public class MailTemplateHelper {
     private BRPClientService brpClientService;
 
     @Inject
-    private KVKClientService kvkClientService;
+    private KvkClientService kvkClientService;
 
     @Inject
     private ZGWApiService zgwApiService;

@@ -20,8 +20,8 @@ import net.atos.client.kvk.basisprofiel.model.generated.Basisprofiel;
 import net.atos.client.kvk.basisprofiel.model.generated.Eigenaar;
 import net.atos.client.kvk.basisprofiel.model.generated.Vestiging;
 import net.atos.client.kvk.basisprofiel.model.generated.VestigingList;
-import net.atos.client.kvk.exception.RuntimeExceptionMapper;
-import net.atos.client.kvk.util.KVKClientHeadersFactory;
+import net.atos.client.kvk.exception.KvkRuntimeExceptionMapper;
+import net.atos.client.kvk.util.KvkClientHeadersFactory;
 
 /**
  * API Basisprofiel
@@ -29,8 +29,8 @@ import net.atos.client.kvk.util.KVKClientHeadersFactory;
  * <p>Documentatie voor API Basisprofiel.
  */
 @RegisterRestClient(configKey = "KVK-API-Client")
-@RegisterClientHeaders(KVKClientHeadersFactory.class)
-@RegisterProvider(RuntimeExceptionMapper.class)
+@RegisterClientHeaders(KvkClientHeadersFactory.class)
+@RegisterProvider(KvkRuntimeExceptionMapper.class)
 @Produces({"application/hal+json"})
 @Path("api/v1/basisprofielen/{kvkNummer}")
 public interface BasisprofielClient {

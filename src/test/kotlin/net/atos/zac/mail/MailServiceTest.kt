@@ -20,7 +20,7 @@ import jakarta.enterprise.inject.Instance
 import jakarta.mail.Message
 import jakarta.mail.Transport
 import jakarta.mail.internet.MimeMultipart
-import net.atos.client.zgw.drc.DRCClientService
+import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.model.Zaak
@@ -42,7 +42,7 @@ import java.util.Properties
 
 class MailServiceTest : BehaviorSpec({
     val configuratieService = mockk<ConfiguratieService>()
-    val drcClientService = mockk<DRCClientService>()
+    val drcClientService = mockk<DrcClientService>()
     val mailTemplateHelper = mockk<MailTemplateHelper>()
     val zgwApiService = mockk<ZGWApiService>()
     val ztcClientService = mockk<ZTCClientService>()

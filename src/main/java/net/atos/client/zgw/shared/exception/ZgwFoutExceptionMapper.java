@@ -15,12 +15,13 @@ import net.atos.client.zgw.shared.model.Fout;
 
 /**
  * Maps all responses with status code greater than 400 (Bad Request) and less than 500 (Internal Server Error)
- * from the Object Registration APIs.
+ * from the ZGW API clients.
+ * <p>
  * These responses are expected to have a JSON payload according to
  * <a href="https://datatracker.ietf.org/doc/html/rfc7807">the Problem Details Standard</a>.
  * 400 (Bad Request) status codes are handled by {@link ValidatieFoutExceptionMapper}
  */
-public class FoutExceptionMapper implements ResponseExceptionMapper<FoutException> {
+public class ZgwFoutExceptionMapper implements ResponseExceptionMapper<FoutException> {
 
     @Override
     public boolean handles(final int status, final MultivaluedMap<String, Object> headers) {

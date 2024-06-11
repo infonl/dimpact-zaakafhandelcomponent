@@ -27,7 +27,7 @@ import jakarta.ws.rs.core.MediaType;
 
 import org.flowable.cmmn.api.runtime.PlanItemInstance;
 
-import net.atos.client.zgw.brc.BRCClientService;
+import net.atos.client.zgw.brc.BrcClientService;
 import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
@@ -73,7 +73,7 @@ public class PlanItemsRESTService {
     private ZaakVariabelenService zaakVariabelenService;
     private CMMNService cmmnService;
     private ZRCClientService zrcClientService;
-    private BRCClientService brcClientService;
+    private BrcClientService brcClientService;
     private ZaakafhandelParameterService zaakafhandelParameterService;
     private RESTPlanItemConverter planItemConverter;
     private ZGWApiService zgwApiService;
@@ -96,7 +96,7 @@ public class PlanItemsRESTService {
             ZaakVariabelenService zaakVariabelenService,
             CMMNService cmmnService,
             ZRCClientService zrcClientService,
-            BRCClientService brcClientService,
+            BrcClientService brcClientService,
             ZaakafhandelParameterService zaakafhandelParameterService,
             RESTPlanItemConverter planItemConverter,
             ZGWApiService zgwApiService,
