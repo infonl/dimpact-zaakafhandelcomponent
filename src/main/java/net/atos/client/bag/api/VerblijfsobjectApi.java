@@ -38,17 +38,21 @@ import net.atos.client.bag.util.BagClientHeadersFactory;
 /**
  * IMBAG API - van de LVBAG
  *
- * <p>Dit is de [BAG API](<a href="https://zakelijk.kadaster.nl/-/bag-api">...</a>) Individuele Bevragingen van de Landelijke Voorziening Basisregistratie
+ * <p>Dit is de [BAG API](<a href="https://zakelijk.kadaster.nl/-/bag-api">...</a>) Individuele Bevragingen van de Landelijke Voorziening
+ * Basisregistratie
  * Adressen en Gebouwen (LVBAG). Meer informatie over de Basisregistratie Adressen en Gebouwen is te vinden op de website van het
  * [Ministerie van Binnenlandse Zaken en Koninkrijksrelaties](https://www.geobasisregistraties.nl/basisregistraties/adressen-en-gebouwen) en
  * [Kadaster](<a href="https://zakelijk.kadaster.nl/bag">...</a>). De BAG API levert informatie conform de [BAG Catalogus
- * 2018](<a href="https://www.geobasisregistraties.nl/documenten/publicatie/2018/03/12/catalogus-2018">...</a>) en het informatiemodel IMBAG 2.0. De API
+ * 2018](<a href="https://www.geobasisregistraties.nl/documenten/publicatie/2018/03/12/catalogus-2018">...</a>) en het informatiemodel IMBAG
+ * 2.0. De API
  * specificatie volgt de [Nederlandse API-Strategie](https://docs.geostandaarden.nl/api/API-Strategie) specificatie versie van 20200204 en
- * is opgesteld in [OpenAPI Specificatie](<a href="https://www.forumstandaardisatie.nl/standaard/openapi-specification">...</a>) (OAS) v3. Het standaard
+ * is opgesteld in [OpenAPI Specificatie](<a href="https://www.forumstandaardisatie.nl/standaard/openapi-specification">...</a>) (OAS) v3.
+ * Het standaard
  * mediatype HAL (`application/hal+json`) wordt gebruikt. Dit is een mediatype voor het weergeven van resources en hun relaties via
  * hyperlinks. Deze API is vooral gericht op individuele bevragingen (op basis van de identificerende gegevens van een object). Om gebruik
  * te kunnen maken van de BAG API is een API key nodig, deze kan verkregen worden door het
- * [aanvraagformulier](<a href="https://formulieren.kadaster.nl/aanvraag_bag_api_individuele_bevragingen_productie">...</a>) in te vullen. Voor vragen, neem
+ * [aanvraagformulier](<a href="https://formulieren.kadaster.nl/aanvraag_bag_api_individuele_bevragingen_productie">...</a>) in te vullen.
+ * Voor vragen, neem
  * contact op met de LVBAG beheerder o.v.v. BAG API 2.0. We zijn aan het kijken naar een geschikt medium hiervoor, mede ook om de API
  * iteratief te kunnen opstellen of doorontwikkelen samen met de community. Als de API iets (nog) niet kan, wat u wel graag wilt, neem dan
  * contact op.
@@ -64,9 +68,11 @@ public interface VerblijfsobjectApi {
      * bevragen 1 verblijfsobject met de identificatie van een verblijfsobject.
      * <p>
      * Bevragen/raadplegen van één voorkomen van een Verblijfsobject met de identificatie van een verblijfsobject. Parameter huidig kan
-     * worden toegepast, zie [functionele specificatie huidig](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature">...</a>). De
+     * worden toegepast, zie [functionele specificatie huidig](<a
+     * href="https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature">...</a>). De
      * geldigOp en beschikbaarOp parameters kunnen gebruikt worden voor tijdreis vragen, zie [functionele specificatie
-     * tijdreizen](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature">...</a>). Als expand&#x3D;heeftAlsHoofdAdres,
+     * tijdreizen](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature">...</a>). Als
+     * expand&#x3D;heeftAlsHoofdAdres,
      * heeftAlsNevenAdres, maaktDeelUitVan of true, dan worden de gevraagde of alle gerelateerde objecten als geneste resource geleverd, zie
      * [functionele specificatie expand](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature">...</a>).
      */
@@ -118,11 +124,14 @@ public interface VerblijfsobjectApi {
      * <p>
      * Zoek verblijfsobjecten: 1. gerelateerd aan een pand identificatie. 2. binnen een geometrische contour (rechthoek) in combinatie met
      * status geconstateerd, oppervlakte, gebruiksdoel. Parameter huidig kan worden toegepast, zie [functionele specificatie
-     * huidig](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature">...</a>). De geldigOp en beschikbaarOp parameters kunnen
+     * huidig](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature">...</a>). De geldigOp en beschikbaarOp
+     * parameters kunnen
      * gebruikt worden voor tijdreis vragen, zie [functionele specificatie
-     * tijdreizen](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature">...</a>). Als expand&#x3D;heeftAlsHoofdAdres,
+     * tijdreizen](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature">...</a>). Als
+     * expand&#x3D;heeftAlsHoofdAdres,
      * heeftAlsNevenAdres of true, dan worden de gevraagde of alle gerelateerde objecten als geneste resource geleverd, zie [functionele
-     * specificatie expand](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature">...</a>). Voor paginering, zie: [functionele
+     * specificatie expand](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature">...</a>). Voor paginering, zie:
+     * [functionele
      * specificatie paginering](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature">...</a>).
      */
     @GET
