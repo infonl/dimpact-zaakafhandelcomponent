@@ -1,8 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.util
+package net.atos.zac.app.util.exception
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.ws.rs.WebApplicationException
@@ -19,9 +19,9 @@ import java.util.logging.Logger
  * Implementatie van ExceptionMapper. Alle exceptions worden gecatched door de JAX-RS runtime en gemapped naar een [Response].
  */
 @Provider
-class RESTExceptionMapper : ExceptionMapper<Exception> {
+class RestExceptionMapper : ExceptionMapper<Exception> {
     companion object {
-        private val LOG = Logger.getLogger(RESTExceptionMapper::class.java.name)
+        private val LOG = Logger.getLogger(RestExceptionMapper::class.java.name)
         const val JSON_CONVERSION_ERROR_MESSAGE = "Failed to convert exception to JSON"
     }
 

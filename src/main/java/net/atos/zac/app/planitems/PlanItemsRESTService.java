@@ -37,7 +37,7 @@ import net.atos.zac.app.planitems.model.RESTHumanTaskData;
 import net.atos.zac.app.planitems.model.RESTPlanItem;
 import net.atos.zac.app.planitems.model.RESTProcessTaskData;
 import net.atos.zac.app.planitems.model.RESTUserEventListenerData;
-import net.atos.zac.app.util.InputValidationFailedException;
+import net.atos.zac.app.util.exception.InputValidationFailedException;
 import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.flowable.CMMNService;
 import net.atos.zac.flowable.TaakVariabelenService;
