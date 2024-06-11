@@ -10,6 +10,8 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.ext.ExceptionMapper
 import jakarta.ws.rs.ext.Provider
+import net.atos.zac.app.util.exception.RestExceptionMapper.Companion.JSON_CONVERSION_ERROR_MESSAGE
+import net.atos.zac.app.util.exception.RestExceptionMapper.Companion.LOG
 import org.apache.commons.lang3.exception.ExceptionUtils
 import java.io.IOException
 import java.util.logging.Level
@@ -28,33 +30,32 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
     /**
      * Retourneert een [Response] naar de client.
      */
-    override fun toResponse(exception: Exception): Response {
+    override fun toResponse(exception: Exception): Response =
         if (exception is WebApplicationException &&
             Response.Status.Family.familyOf(exception.response.status) != Response.Status.Family.SERVER_ERROR
         ) {
-            return Response.status(exception.response.status)
+            Response.status(exception.response.status)
                 .type(MediaType.APPLICATION_JSON)
                 .entity(getJSONMessage(exception, exception.message))
                 .build()
         } else {
             LOG.log(Level.SEVERE, exception.message, exception)
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+            Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .type(MediaType.APPLICATION_JSON)
                 .entity(getJSONMessage(exception, "Algemene Fout"))
                 .build()
         }
-    }
 
-    private fun getJSONMessage(exception: Exception, melding: String?): String {
-        val data: MutableMap<String, Any?> = HashMap()
-        melding?.let { data["message"] = it }
-        data["exception"] = exception.message
-        data["stackTrace"] = ExceptionUtils.getStackTrace(exception)
-        return try {
+    private fun getJSONMessage(exception: Exception, melding: String?) =
+        try {
+            val data = HashMap<String, Any?>().apply {
+                melding?.let { this["message"] = it }
+                this["exception"] = exception.message
+                this["stackTrace"] = ExceptionUtils.getStackTrace(exception)
+            }
             ObjectMapper().writeValueAsString(data)
         } catch (ioException: IOException) {
             LOG.log(Level.SEVERE, JSON_CONVERSION_ERROR_MESSAGE, ioException)
             JSON_CONVERSION_ERROR_MESSAGE
         }
-    }
 }
