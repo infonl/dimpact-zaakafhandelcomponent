@@ -85,16 +85,10 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
         every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID1) } returns zaakAfhandelParameters1
         every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID2) } returns zaakAfhandelParameters2
         every { flowableTaskService.listOpenTasksDueNow() } returns listOf(openTask)
-        // note: using 'SignaleringType.Type.TAAK_VERLOPEN' here instead of 'any' results in a
-        // a 'kotlin.reflect.jvm.internal.KotlinReflectionInternalError: Unresolved class:
-        // class net.atos.zac.signalering.model.SignaleringType$Type$1'
         every {
             signaleringService.readInstellingenUser(any<SignaleringType.Type>(), assignee1)
         } returns signaleringInstellingen1
         every { signaleringService.findSignaleringVerzonden(any()) } returns Optional.empty()
-        // note: using 'SignaleringType.Type.TAAK_VERLOPEN' here instead of 'any' results in a
-        // a 'kotlin.reflect.jvm.internal.KotlinReflectionInternalError: Unresolved class:
-        // class net.atos.zac.signalering.model.SignaleringType$Type$1'
         every { signaleringService.signaleringInstance(any<SignaleringType.Type>()) } returns taakOpNaamVerlopenSignalering1
         every { signaleringService.sendSignalering(taakOpNaamVerlopenSignalering1) } just runs
         every { signaleringService.createSignaleringVerzonden(taakOpNaamVerlopenSignalering1) } returns mockk()
