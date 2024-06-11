@@ -7,7 +7,7 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockData;
 import net.atos.client.zgw.drc.model.generated.Ondertekening;
 
-public class DRCClientUtil {
+public class DrcClientUtil {
 
     /**
      * Utility function to convert a byte array to a base64 string as

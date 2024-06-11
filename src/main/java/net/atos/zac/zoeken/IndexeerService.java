@@ -38,7 +38,7 @@ import org.eclipse.microprofile.config.ConfigProvider;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.TaskInfo;
 
-import net.atos.client.zgw.drc.DRCClientService;
+import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.model.Results;
@@ -64,7 +64,7 @@ public class IndexeerService {
 
     private final Instance<AbstractZoekObjectConverter<? extends ZoekObject>> converterInstances;
     private final ZRCClientService zrcClientService;
-    private final DRCClientService drcClientService;
+    private final DrcClientService drcClientService;
     private final FlowableTaskService flowableTaskService;
     private final SolrClient solrClient;
     private final Set<ZoekObjectType> herindexerenBezig = new HashSet<>();
@@ -73,7 +73,7 @@ public class IndexeerService {
     IndexeerService(
             @Any Instance<AbstractZoekObjectConverter<? extends ZoekObject>> converterInstances,
             ZRCClientService zrcClientService,
-            DRCClientService drcClientService,
+            DrcClientService drcClientService,
             FlowableTaskService flowableTaskService
     ) {
         this.converterInstances = converterInstances;

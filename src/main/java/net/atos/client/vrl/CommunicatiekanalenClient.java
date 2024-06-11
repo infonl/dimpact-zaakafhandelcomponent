@@ -17,7 +17,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import net.atos.client.vrl.exception.CommunicatiekanaalNotFoundException;
 import net.atos.client.vrl.exception.CommunicatiekanaalNotFoundExceptionMapping;
-import net.atos.client.vrl.exception.RuntimeExceptionMapper;
+import net.atos.client.vrl.exception.VrlRuntimeExceptionMapper;
 import net.atos.client.vrl.model.generated.CommunicatieKanaal;
 import net.atos.client.vrl.model.generated.CommunicatiekanaalList200Response;
 
@@ -46,7 +46,7 @@ import net.atos.client.vrl.model.generated.CommunicatiekanaalList200Response;
  * De inhoud van de Gemeentelijke Selectielijst wordt geïmporteerd vanuit de gepubliceerde Excel-bestanden.
  */
 @RegisterRestClient(configKey = "VRL-API-Client")
-@RegisterProvider(RuntimeExceptionMapper.class)
+@RegisterProvider(VrlRuntimeExceptionMapper.class)
 @RegisterProvider(CommunicatiekanaalNotFoundExceptionMapping.class)
 @Produces({"application/json", "application/problem+json"})
 @Path("api/v1/communicatiekanalen")

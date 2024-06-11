@@ -33,8 +33,8 @@ import net.atos.client.brp.model.generated.PersonenQueryResponse;
 import net.atos.client.brp.model.generated.Persoon;
 import net.atos.client.klanten.KlantenClientService;
 import net.atos.client.klanten.model.Klant;
-import net.atos.client.kvk.KVKClientService;
-import net.atos.client.kvk.model.KVKZoekenParameters;
+import net.atos.client.kvk.KvkClientService;
+import net.atos.client.kvk.model.KvkZoekenParameters;
 import net.atos.client.kvk.vestigingsprofiel.model.generated.Vestiging;
 import net.atos.client.kvk.zoeken.model.generated.Resultaat;
 import net.atos.client.kvk.zoeken.model.generated.ResultaatItem;
@@ -70,7 +70,7 @@ public class KlantenRESTService {
     }
 
     private BRPClientService brpClientService;
-    private KVKClientService kvkClientService;
+    private KvkClientService kvkClientService;
     private ZTCClientService ztcClientService;
     private RESTPersoonConverter restPersoonConverter;
     private RESTBedrijfConverter restBedrijfConverter;
@@ -87,7 +87,7 @@ public class KlantenRESTService {
     @Inject
     public KlantenRESTService(
             BRPClientService brpClientService,
-            KVKClientService kvkClientService,
+            KvkClientService kvkClientService,
             ZTCClientService ztcClientService,
             RESTPersoonConverter restPersoonConverter,
             RESTBedrijfConverter restBedrijfConverter,
@@ -165,7 +165,7 @@ public class KlantenRESTService {
     @PUT
     @Path("bedrijven")
     public RESTResultaat<RESTBedrijf> listBedrijven(final RESTListBedrijvenParameters restParameters) {
-        final KVKZoekenParameters zoekenParameters = restBedrijfConverter.convert(restParameters);
+        final KvkZoekenParameters zoekenParameters = restBedrijfConverter.convert(restParameters);
         final Resultaat resultaat = kvkClientService.list(zoekenParameters);
         return new RESTResultaat<>(resultaat.getResultaten().stream()
                 .filter(KlantenRESTService::isKoppelbaar)

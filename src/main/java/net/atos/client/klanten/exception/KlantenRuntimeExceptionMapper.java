@@ -10,8 +10,7 @@ import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
 
-public class RuntimeExceptionMapper implements ResponseExceptionMapper<RuntimeException> {
-
+public class KlantenRuntimeExceptionMapper implements ResponseExceptionMapper<RuntimeException> {
 
     @Override
     public boolean handles(final int status, final MultivaluedMap<String, Object> headers) {
@@ -20,7 +19,12 @@ public class RuntimeExceptionMapper implements ResponseExceptionMapper<RuntimeEx
 
     @Override
     public RuntimeException toThrowable(final Response response) {
-        return new RuntimeException(String.format("Server response from Klanten: %d (%s)", response.getStatus(),
-                response.getStatusInfo()));
+        return new RuntimeException(
+                String.format(
+                        "Server response from Klanten: %d (%s)",
+                        response.getStatus(),
+                        response.getStatusInfo()
+                )
+        );
     }
 }

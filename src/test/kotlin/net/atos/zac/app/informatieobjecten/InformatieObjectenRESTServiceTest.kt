@@ -17,7 +17,7 @@ import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.client.officeconverter.OfficeConverterClientService
-import net.atos.client.zgw.drc.DRCClientService
+import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObjectData
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObjectWithLockData
@@ -56,7 +56,7 @@ import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import net.atos.zac.webdav.WebdavHelper
 
 class InformatieObjectenRESTServiceTest : BehaviorSpec({
-    val drcClientService = mockk<DRCClientService>()
+    val drcClientService = mockk<DrcClientService>()
     val documentCreatieService = mockk<DocumentCreatieService>()
     val enkelvoudigInformatieObjectDownloadService = mockk<EnkelvoudigInformatieObjectDownloadService>()
     val enkelvoudigInformatieObjectLockService = mockk<EnkelvoudigInformatieObjectLockService>()

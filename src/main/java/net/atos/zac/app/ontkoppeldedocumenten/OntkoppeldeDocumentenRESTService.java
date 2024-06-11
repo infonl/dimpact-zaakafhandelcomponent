@@ -23,7 +23,7 @@ import jakarta.ws.rs.core.MediaType;
 
 import org.apache.commons.collections4.CollectionUtils;
 
-import net.atos.client.zgw.drc.DRCClientService;
+import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
@@ -51,7 +51,7 @@ public class OntkoppeldeDocumentenRESTService {
     private OntkoppeldeDocumentenService ontkoppeldeDocumentenService;
 
     @Inject
-    private DRCClientService drcClientService;
+    private DrcClientService drcClientService;
 
     @Inject
     private ZRCClientService zrcClientService;

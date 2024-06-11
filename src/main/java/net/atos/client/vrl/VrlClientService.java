@@ -19,7 +19,7 @@ import net.atos.client.vrl.model.generated.CommunicatieKanaal;
 import net.atos.client.vrl.model.generated.CommunicatiekanaalList200Response;
 
 @ApplicationScoped
-public class VRLClientService {
+public class VrlClientService {
 
     @RestClient
     @Inject

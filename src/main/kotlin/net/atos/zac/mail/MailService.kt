@@ -23,7 +23,7 @@ import jakarta.inject.Inject
 import jakarta.mail.MessagingException
 import jakarta.mail.Session
 import jakarta.mail.Transport
-import net.atos.client.zgw.drc.DRCClientService
+import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.util.InformatieobjectenUtil
@@ -60,7 +60,7 @@ constructor(
     private var configuratieService: ConfiguratieService,
     private var zgwApiService: ZGWApiService,
     private var ztcClientService: ZTCClientService,
-    private var drcClientService: DRCClientService,
+    private var drcClientService: DrcClientService,
     private var mailTemplateHelper: MailTemplateHelper,
     private var loggedInUserInstance: Instance<LoggedInUser>,
 ) {

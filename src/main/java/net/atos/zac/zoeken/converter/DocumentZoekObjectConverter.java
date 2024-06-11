@@ -7,8 +7,8 @@ import java.util.UUID;
 
 import jakarta.inject.Inject;
 
-import net.atos.client.zgw.brc.BRCClientService;
-import net.atos.client.zgw.drc.DRCClientService;
+import net.atos.client.zgw.brc.BrcClientService;
+import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.util.URIUtil;
 import net.atos.client.zgw.zrc.ZRCClientService;
@@ -31,13 +31,13 @@ public class DocumentZoekObjectConverter extends AbstractZoekObjectConverter<Doc
     private IdentityService identityService;
 
     @Inject
-    private BRCClientService brcClientService;
+    private BrcClientService brcClientService;
 
     @Inject
     private ZTCClientService ztcClientService;
 
     @Inject
-    private DRCClientService drcClientService;
+    private DrcClientService drcClientService;
 
     @Inject
     private ZRCClientService zrcClientService;

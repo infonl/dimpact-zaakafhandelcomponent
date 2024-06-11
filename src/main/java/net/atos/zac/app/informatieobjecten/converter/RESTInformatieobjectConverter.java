@@ -26,8 +26,8 @@ import jakarta.inject.Inject;
 import org.eclipse.jetty.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 
-import net.atos.client.zgw.brc.BRCClientService;
-import net.atos.client.zgw.drc.DRCClientService;
+import net.atos.client.zgw.brc.BrcClientService;
+import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockData;
@@ -62,10 +62,10 @@ public class RESTInformatieobjectConverter {
     private ZTCClientService ztcClientService;
 
     @Inject
-    private DRCClientService drcClientService;
+    private DrcClientService drcClientService;
 
     @Inject
-    private BRCClientService brcClientService;
+    private BrcClientService brcClientService;
 
     @Inject
     private ZRCClientService zrcClientService;

@@ -25,7 +25,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-import net.atos.client.bag.BAGClientService;
+import net.atos.client.bag.BagClientService;
 import net.atos.client.bag.model.BevraagAdressenParameters;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.zrc.ZRCClientService;
@@ -52,7 +52,7 @@ import net.atos.zac.policy.PolicyService;
 @Produces(MediaType.APPLICATION_JSON)
 @Singleton
 public class BAGRESTService {
-    private BAGClientService bagClientService;
+    private BagClientService bagClientService;
     private ZRCClientService zrcClientService;
     private RESTBAGConverter restbagConverter;
     private RESTAdresConverter restAdresConverter;
@@ -70,7 +70,7 @@ public class BAGRESTService {
 
     @Inject
     public BAGRESTService(
-            BAGClientService bagClientService,
+            BagClientService bagClientService,
             ZRCClientService zrcClientService,
             RESTBAGConverter restbagConverter,
             RESTAdresConverter restAdresConverter,

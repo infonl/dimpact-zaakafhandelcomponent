@@ -11,7 +11,7 @@ import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory;
 
 
-public class BAGClientHeadersFactory implements ClientHeadersFactory {
+public class BagClientHeadersFactory implements ClientHeadersFactory {
 
     public static final String X_API_KEY = "X-Api-Key";
 

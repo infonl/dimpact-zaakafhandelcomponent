@@ -24,17 +24,17 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import net.atos.client.kvk.exception.KvKClientNoResultExceptionMapper;
-import net.atos.client.kvk.exception.RuntimeExceptionMapper;
-import net.atos.client.kvk.model.KVKZoekenParameters;
-import net.atos.client.kvk.util.KVKClientHeadersFactory;
+import net.atos.client.kvk.exception.KvkClientNoResultExceptionMapper;
+import net.atos.client.kvk.exception.KvkRuntimeExceptionMapper;
+import net.atos.client.kvk.model.KvkZoekenParameters;
+import net.atos.client.kvk.util.KvkClientHeadersFactory;
 import net.atos.client.kvk.zoeken.model.generated.Resultaat;
 
 
 @RegisterRestClient(configKey = "KVK-API-Client")
-@RegisterClientHeaders(KVKClientHeadersFactory.class)
-@RegisterProvider(RuntimeExceptionMapper.class)
-@RegisterProvider(KvKClientNoResultExceptionMapper.class)
+@RegisterClientHeaders(KvkClientHeadersFactory.class)
+@RegisterProvider(KvkRuntimeExceptionMapper.class)
+@RegisterProvider(KvkClientNoResultExceptionMapper.class)
 @Produces({"application/hal+json"})
 @Path("api/v1/zoeken")
 @Timeout(unit = ChronoUnit.SECONDS, value = 5)
@@ -46,7 +46,7 @@ public interface ZoekenClient {
      * Er wordt max. 1000 resultaten getoond.
      */
     @GET
-    Resultaat getResults(@BeanParam final KVKZoekenParameters zoekenParameters);
+    Resultaat getResults(@BeanParam final KvkZoekenParameters zoekenParameters);
 
     /**
      * Voor een bedrijf zoeken naar basisinformatie asynchron.
@@ -54,5 +54,5 @@ public interface ZoekenClient {
      * Er wordt max. 1000 resultaten getoond.
      */
     @GET
-    CompletionStage<Resultaat> getResultsAsync(@BeanParam final KVKZoekenParameters zoekenParameters);
+    CompletionStage<Resultaat> getResultsAsync(@BeanParam final KvkZoekenParameters zoekenParameters);
 }

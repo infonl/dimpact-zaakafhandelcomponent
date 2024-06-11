@@ -10,7 +10,7 @@ import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory;
 
 
-public class KVKClientHeadersFactory implements ClientHeadersFactory {
+public class KvkClientHeadersFactory implements ClientHeadersFactory {
 
     public static final String KVK_API_KEY_HEADER_FIELD = "apikey";
 

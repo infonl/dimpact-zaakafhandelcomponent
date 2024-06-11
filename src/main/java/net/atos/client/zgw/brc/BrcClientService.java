@@ -29,11 +29,11 @@ import net.atos.zac.util.UriUtil;
  * BRC Client Service
  */
 @ApplicationScoped
-public class BRCClientService {
+public class BrcClientService {
 
     @Inject
     @RestClient
-    private BRCClient brcClient;
+    private BrcClient brcClient;
 
     @Inject
     private ZGWClientHeadersFactory zgwClientHeadersFactory;

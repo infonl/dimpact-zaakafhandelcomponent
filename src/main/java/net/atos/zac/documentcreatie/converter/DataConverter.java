@@ -22,10 +22,10 @@ import net.atos.client.brp.BRPClientService;
 import net.atos.client.brp.model.generated.Adres;
 import net.atos.client.brp.model.generated.Persoon;
 import net.atos.client.brp.model.generated.VerblijfadresBinnenland;
-import net.atos.client.kvk.KVKClientService;
+import net.atos.client.kvk.KvkClientService;
 import net.atos.client.kvk.zoeken.model.generated.ResultaatItem;
 import net.atos.client.or.object.ObjectsClientService;
-import net.atos.client.vrl.VRLClientService;
+import net.atos.client.vrl.VrlClientService;
 import net.atos.client.vrl.model.generated.CommunicatieKanaal;
 import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.zrc.ZRCClientService;
@@ -64,13 +64,13 @@ public class DataConverter {
     private ZTCClientService ztcClientService;
 
     @Inject
-    private VRLClientService vrlClientService;
+    private VrlClientService vrlClientService;
 
     @Inject
     private BRPClientService brpClientService;
 
     @Inject
-    private KVKClientService kvkClientService;
+    private KvkClientService kvkClientService;
 
     @Inject
     private ObjectsClientService objectsClientService;

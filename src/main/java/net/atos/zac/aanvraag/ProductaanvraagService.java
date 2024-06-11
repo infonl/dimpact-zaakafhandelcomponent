@@ -29,8 +29,8 @@ import org.apache.commons.collections4.ListUtils;
 
 import net.atos.client.or.object.ObjectsClientService;
 import net.atos.client.or.object.model.ORObject;
-import net.atos.client.vrl.VRLClientService;
-import net.atos.client.zgw.drc.DRCClientService;
+import net.atos.client.vrl.VrlClientService;
+import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.zrc.ZRCClientService;
@@ -85,9 +85,9 @@ public class ProductaanvraagService {
     private ObjectsClientService objectsClientService;
     private ZGWApiService zgwApiService;
     private ZRCClientService zrcClientService;
-    private DRCClientService drcClientService;
+    private DrcClientService drcClientService;
     private ZTCClientService ztcClientService;
-    private VRLClientService vrlClientService;
+    private VrlClientService vrlClientService;
     private IdentityService identityService;
     private ZaakafhandelParameterService zaakafhandelParameterService;
     private ZaakafhandelParameterBeheerService zaakafhandelParameterBeheerService;
@@ -108,9 +108,9 @@ public class ProductaanvraagService {
             ObjectsClientService objectsClientService,
             ZGWApiService zgwApiService,
             ZRCClientService zrcClientService,
-            DRCClientService drcClientService,
+            DrcClientService drcClientService,
             ZTCClientService ztcClientService,
-            VRLClientService vrlClientService,
+            VrlClientService vrlClientService,
             IdentityService identityService,
             ZaakafhandelParameterService zaakafhandelParameterService,
             ZaakafhandelParameterBeheerService zaakafhandelParameterBeheerService,

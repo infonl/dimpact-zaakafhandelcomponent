@@ -18,7 +18,7 @@ import jakarta.inject.Singleton;
 import org.apache.commons.collections4.CollectionUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import net.atos.client.vrl.VRLClientService;
+import net.atos.client.vrl.VrlClientService;
 import net.atos.client.zgw.shared.util.URIUtil;
 import net.atos.client.zgw.ztc.ZTCClientService;
 import net.atos.client.zgw.ztc.model.Afleidingswijze;
@@ -45,7 +45,7 @@ public class HealthCheckService {
     private ZTCClientService ztcClientService;
 
     @Inject
-    private VRLClientService vrlClientService;
+    private VrlClientService vrlClientService;
 
     @Inject
     private ZaakafhandelParameterService zaakafhandelParameterBeheerService;

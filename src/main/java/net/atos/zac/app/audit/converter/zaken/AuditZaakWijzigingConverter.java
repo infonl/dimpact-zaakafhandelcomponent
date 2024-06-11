@@ -17,7 +17,7 @@ import jakarta.inject.Inject;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import net.atos.client.vrl.VRLClientService;
+import net.atos.client.vrl.VrlClientService;
 import net.atos.client.vrl.model.generated.CommunicatieKanaal;
 import net.atos.client.zgw.shared.model.ObjectType;
 import net.atos.client.zgw.shared.model.audit.zaken.ZaakWijziging;
@@ -34,7 +34,7 @@ public class AuditZaakWijzigingConverter extends AbstractAuditWijzigingConverter
     private ZTCClientService ztcClientService;
 
     @Inject
-    private VRLClientService vrlClientService;
+    private VrlClientService vrlClientService;
 
     @Inject
     private ZRCClientService zrcClientService;

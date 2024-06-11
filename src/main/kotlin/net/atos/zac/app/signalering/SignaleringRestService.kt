@@ -17,7 +17,7 @@ import jakarta.ws.rs.core.MediaType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import net.atos.client.zgw.drc.DRCClientService
+import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieobject
 import net.atos.zac.app.signalering.converter.RESTSignaleringInstellingenConverter
@@ -45,7 +45,7 @@ import java.util.UUID
 class SignaleringRestService @Inject constructor(
     private val signaleringService: SignaleringService,
     private val flowableTaskService: FlowableTaskService,
-    private val drcClientService: DRCClientService,
+    private val drcClientService: DrcClientService,
     private val identityService: IdentityService,
     private val restInformatieobjectConverter: RESTInformatieobjectConverter,
     private val restSignaleringInstellingenConverter: RESTSignaleringInstellingenConverter,

@@ -19,7 +19,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import net.atos.client.zgw.drc.DRCClientService;
+import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockData;
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService;
@@ -48,14 +48,14 @@ public class WebdavStore implements IWebdavStore {
 
     private final WebdavHelper webdavHelper;
 
-    private final DRCClientService drcClientService;
+    private final DrcClientService drcClientService;
 
     private final EnkelvoudigInformatieObjectUpdateService enkelvoudigInformatieObjectUpdateService;
 
     // De dummy parameter is nodig omdat de constructie waarmee deze class wordt geinstantieerd deze parameter verwacht
     public WebdavStore(final File ignoredDummy) {
         webdavHelper = CDI.current().select(WebdavHelper.class).get();
-        drcClientService = CDI.current().select(DRCClientService.class).get();
+        drcClientService = CDI.current().select(DrcClientService.class).get();
         enkelvoudigInformatieObjectUpdateService = CDI.current().select(EnkelvoudigInformatieObjectUpdateService.class).get();
     }
 

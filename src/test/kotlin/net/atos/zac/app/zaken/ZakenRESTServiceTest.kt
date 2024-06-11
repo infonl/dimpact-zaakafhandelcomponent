@@ -17,9 +17,9 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createORObject
-import net.atos.client.vrl.VRLClientService
-import net.atos.client.zgw.brc.BRCClientService
-import net.atos.client.zgw.drc.DRCClientService
+import net.atos.client.vrl.VrlClientService
+import net.atos.client.zgw.brc.BrcClientService
+import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.ZRCClientService
@@ -85,10 +85,10 @@ import java.util.Optional
 @Suppress("LongParameterList")
 class ZakenRESTServiceTest : BehaviorSpec({
     val bpmnService: BPMNService = mockk<BPMNService>()
-    val brcClientService: BRCClientService = mockk<BRCClientService>()
+    val brcClientService: BrcClientService = mockk<BrcClientService>()
     val configuratieService: ConfiguratieService = mockk<ConfiguratieService>()
     val cmmnService: CMMNService = mockk<CMMNService>()
-    val drcClientService: DRCClientService = mockk<DRCClientService>()
+    val drcClientService: DrcClientService = mockk<DrcClientService>()
     val eventingService: EventingService = mockk<EventingService>()
     val healthCheckService: HealthCheckService = mockk<HealthCheckService>()
     val identityService: IdentityService = mockk<IdentityService>()
@@ -112,7 +112,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
     val restHistorieRegelConverter: RESTHistorieRegelConverter = mockk<RESTHistorieRegelConverter>()
     val signaleringService: SignaleringService = mockk<SignaleringService>()
     val flowableTaskService: FlowableTaskService = mockk<FlowableTaskService>()
-    val vrlClientService: VRLClientService = mockk<VRLClientService>()
+    val vrlClientService: VrlClientService = mockk<VrlClientService>()
     val zaakafhandelParameterService: ZaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
     val zaakVariabelenService: ZaakVariabelenService = mockk<ZaakVariabelenService>()
     val zaakService: ZaakService = mockk<ZaakService>()

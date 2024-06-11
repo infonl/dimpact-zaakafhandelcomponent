@@ -47,7 +47,7 @@ import org.flowable.task.api.Task;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 
 import net.atos.client.officeconverter.OfficeConverterClientService;
-import net.atos.client.zgw.drc.DRCClientService;
+import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockData;
 import net.atos.client.zgw.drc.model.generated.Ondertekening;
@@ -103,7 +103,7 @@ public class InformatieObjectenRESTService {
     private static final String MEDIA_TYPE_PDF = "application/pdf";
     private static final String TOELICHTING_PDF = "Geconverteerd naar PDF";
 
-    private DRCClientService drcClientService;
+    private DrcClientService drcClientService;
     private ZTCClientService ztcClientService;
     private ZRCClientService zrcClientService;
     private ZGWApiService zgwApiService;
@@ -134,7 +134,7 @@ public class InformatieObjectenRESTService {
 
     @Inject
     public InformatieObjectenRESTService(
-            final DRCClientService drcClientService,
+            final DrcClientService drcClientService,
             final ZTCClientService ztcClientService,
             final ZRCClientService zrcClientService,
             final ZGWApiService zgwApiService,

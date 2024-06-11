@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 
 import jakarta.ws.rs.QueryParam;
 
-public class KVKZoekenParameters {
+public class KvkZoekenParameters {
 
     @QueryParam("kvkNummer")
     private String kvkNummer;

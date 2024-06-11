@@ -38,11 +38,11 @@ import net.atos.zac.configuratie.ConfiguratieService;
  *
  */
 @ApplicationScoped
-public class DRCClientService {
+public class DrcClientService {
 
     @Inject
     @RestClient
-    private DRCClient drcClient;
+    private DrcClient drcClient;
 
     @Inject
     private ZGWClientHeadersFactory zgwClientHeadersFactory;

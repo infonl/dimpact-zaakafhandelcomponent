@@ -12,7 +12,7 @@ import jakarta.inject.Inject;
 
 import org.apache.commons.collections.CollectionUtils;
 
-import net.atos.client.vrl.VRLClientService;
+import net.atos.client.vrl.VrlClientService;
 import net.atos.client.vrl.model.generated.CommunicatieKanaal;
 import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.shared.model.Results;
@@ -40,7 +40,7 @@ import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
 public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoekObject> {
     private final ZRCClientService zrcClientService;
     private final ZTCClientService ztcClientService;
-    private final VRLClientService vrlClientService;
+    private final VrlClientService vrlClientService;
     private final ZGWApiService zgwApiService;
     private final IdentityService identityService;
     private final FlowableTaskService flowableTaskService;
@@ -49,7 +49,7 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
     public ZaakZoekObjectConverter(
             ZRCClientService zrcClientService,
             ZTCClientService ztcClientService,
-            VRLClientService vrlClientService,
+            VrlClientService vrlClientService,
             ZGWApiService zgwApiService,
             IdentityService identityService,
             FlowableTaskService flowableTaskService

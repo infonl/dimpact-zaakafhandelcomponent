@@ -18,7 +18,7 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import net.atos.client.brp.exception.RuntimeExceptionMapper;
+import net.atos.client.brp.exception.BrpRuntimeExceptionMapper;
 import net.atos.client.brp.model.generated.PersonenQuery;
 import net.atos.client.brp.model.generated.PersonenQueryResponse;
 import net.atos.client.brp.util.BRPClientHeadersFactory;
@@ -36,7 +36,7 @@ import net.atos.client.brp.util.JsonbConfiguration;
  */
 @RegisterRestClient(configKey = "BRP-API-Client")
 @RegisterClientHeaders(BRPClientHeadersFactory.class)
-@RegisterProvider(RuntimeExceptionMapper.class)
+@RegisterProvider(BrpRuntimeExceptionMapper.class)
 @RegisterProvider(JsonbConfiguration.class)
 @Path("/personen")
 @Consumes({"application/json"})

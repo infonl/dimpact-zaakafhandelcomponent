@@ -26,8 +26,8 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
+import net.atos.client.contactmomenten.exception.ContactmomentenRuntimeExceptionMapper;
 import net.atos.client.contactmomenten.exception.NotFoundExceptionMapper;
-import net.atos.client.contactmomenten.exception.RuntimeExceptionMapper;
 import net.atos.client.contactmomenten.model.generated.AuditTrail;
 import net.atos.client.contactmomenten.model.generated.ContactMoment;
 import net.atos.client.contactmomenten.model.generated.ContactmomentList200Response;
@@ -40,7 +40,7 @@ import net.atos.client.contactmomenten.util.ContactmomentenClientHeadersFactory;
  */
 @RegisterRestClient(configKey = "Contactmomenten-API-Client")
 @RegisterClientHeaders(ContactmomentenClientHeadersFactory.class)
-@RegisterProvider(RuntimeExceptionMapper.class)
+@RegisterProvider(ContactmomentenRuntimeExceptionMapper.class)
 @RegisterProvider(NotFoundExceptionMapper.class)
 @Path("api/v1/contactmomenten")
 public interface ContactmomentenClient {

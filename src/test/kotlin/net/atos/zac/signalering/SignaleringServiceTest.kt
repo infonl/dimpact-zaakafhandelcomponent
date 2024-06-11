@@ -16,7 +16,7 @@ import jakarta.persistence.criteria.CriteriaDelete
 import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
-import net.atos.client.zgw.drc.DRCClientService
+import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.zac.app.zaken.converter.RESTZaakOverzichtConverter
 import net.atos.zac.event.EventingService
@@ -26,7 +26,7 @@ import net.atos.zac.signalering.model.Signalering
 import java.time.ZonedDateTime
 
 class SignaleringServiceTest : BehaviorSpec({
-    val drcClientService = mockk<DRCClientService>()
+    val drcClientService = mockk<DrcClientService>()
     val eventingService = mockk<EventingService>()
     val flowableTaskService = mockk<FlowableTaskService>()
     val mailService = mockk<MailService>()

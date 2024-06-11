@@ -24,7 +24,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import net.atos.client.or.object.model.ORObject;
 import net.atos.client.or.shared.exception.FoutExceptionMapper;
-import net.atos.client.or.shared.exception.RuntimeExceptionMapper;
+import net.atos.client.or.shared.exception.ORRuntimeExceptionMapper;
 import net.atos.client.or.shared.exception.ValidatieFoutExceptionMapper;
 
 /**
@@ -34,7 +34,7 @@ import net.atos.client.or.shared.exception.ValidatieFoutExceptionMapper;
 @RegisterClientHeaders(ObjectsClientHeadersFactory.class)
 @RegisterProvider(FoutExceptionMapper.class)
 @RegisterProvider(ValidatieFoutExceptionMapper.class)
-@RegisterProvider(RuntimeExceptionMapper.class)
+@RegisterProvider(ORRuntimeExceptionMapper.class)
 @Produces(APPLICATION_JSON)
 @Path("api/v2")
 public interface ObjectsClient {
