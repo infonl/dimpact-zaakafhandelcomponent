@@ -180,7 +180,7 @@ public class RESTInformatieobjectConverter {
         restEnkelvoudigInformatieobject.verzenddatum = enkelvoudigInformatieObject.getVerzenddatum();
         if (lock != null) {
             restEnkelvoudigInformatieobject.gelockedDoor = restUserConverter.convertUser(
-                    identityService.readUser(lock.getUserId()));
+                    identityService.readUser(lock.userId));
         }
         restEnkelvoudigInformatieobject.bestandsomvang = enkelvoudigInformatieObject.getBestandsomvang() != null ?
                 enkelvoudigInformatieObject.getBestandsomvang().longValue() : 0;

@@ -139,7 +139,7 @@ public class PolicyService {
         final DocumentData documentData = new DocumentData();
         documentData.definitief = enkelvoudigInformatieobject.getStatus() == DEFINITIEF;
         documentData.vergrendeld = enkelvoudigInformatieobject.getLocked();
-        documentData.vergrendeldDoor = lock != null ? lock.getUserId() : null;
+        documentData.vergrendeldDoor = lock != null ? lock.userId : null;
         documentData.ondertekend = enkelvoudigInformatieobject.getOndertekening() != null;
         if (zaak != null) {
             documentData.zaakOpen = zaak.isOpen();
