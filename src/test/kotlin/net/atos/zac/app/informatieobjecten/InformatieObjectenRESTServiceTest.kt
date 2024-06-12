@@ -78,7 +78,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec({
     val zgwApiService = mockk<ZGWApiService>()
     val zrcClientService = mockk<ZRCClientService>()
     val ztcClientService = mockk<ZTCClientService>()
-    val informatieObjectenRESTService = InformatieObjectenRESTService(
+    val enkelvoudigInformatieObjectRestService = EnkelvoudigInformatieObjectRestService(
         drcClientService,
         ztcClientService,
         zrcClientService,
@@ -139,7 +139,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec({
             )
 
             val restDocumentCreatieResponse =
-                informatieObjectenRESTService.createDocument(restDocumentCreatieGegevens)
+                enkelvoudigInformatieObjectRestService.createDocument(restDocumentCreatieGegevens)
 
             Then("the document creation service is called to create the document") {
                 restDocumentCreatieResponse.message shouldBe null
@@ -156,7 +156,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
 
             val exception = shouldThrow<PolicyException> {
-                informatieObjectenRESTService.createDocument(restDocumentCreatieGegevens)
+                enkelvoudigInformatieObjectRestService.createDocument(restDocumentCreatieGegevens)
             }
 
             Then("it throws exception with no message") {
@@ -199,7 +199,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec({
             )
 
             val returnedRESTEnkelvoudigInformatieobject =
-                informatieObjectenRESTService.createEnkelvoudigInformatieobjectAndUploadFile(
+                enkelvoudigInformatieObjectRestService.createEnkelvoudigInformatieobjectAndUploadFile(
                     zaak.uuid,
                     documentReferentieId,
                     false,
@@ -237,7 +237,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec({
             } throws RuntimeException("dummy exception")
 
             shouldThrow<RuntimeException> {
-                informatieObjectenRESTService.createEnkelvoudigInformatieobjectAndUploadFile(
+                enkelvoudigInformatieObjectRestService.createEnkelvoudigInformatieobjectAndUploadFile(
                     zaak.uuid,
                     documentReferentieId,
                     false,
@@ -266,7 +266,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec({
             restEnkelvoudigInformatieobject.formaat = restFileUpload.type
 
             val returnedRESTEnkelvoudigInformatieobject =
-                informatieObjectenRESTService.createEnkelvoudigInformatieobjectAndUploadFile(
+                enkelvoudigInformatieObjectRestService.createEnkelvoudigInformatieobjectAndUploadFile(
                     zaak.uuid,
                     documentReferentieId,
                     false,
@@ -291,7 +291,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
 
             val exception = shouldThrow<PolicyException> {
-                informatieObjectenRESTService.createEnkelvoudigInformatieobjectAndUploadFile(
+                enkelvoudigInformatieObjectRestService.createEnkelvoudigInformatieobjectAndUploadFile(
                     zaak.uuid,
                     documentReferentieId,
                     false,
@@ -341,7 +341,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec({
             )
 
             val returnedRESTEnkelvoudigInformatieobject =
-                informatieObjectenRESTService.createEnkelvoudigInformatieobjectAndUploadFile(
+                enkelvoudigInformatieObjectRestService.createEnkelvoudigInformatieobjectAndUploadFile(
                     closedZaak.uuid,
                     documentReferentieId,
                     false,
@@ -399,7 +399,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec({
             } returns createDocumentRechtenAllDeny(toevoegenNieuweVersie = true)
 
             val returnedRESTEnkelvoudigInformatieobject =
-                informatieObjectenRESTService.updateEnkelvoudigInformatieobjectAndUploadFile(
+                enkelvoudigInformatieObjectRestService.updateEnkelvoudigInformatieobjectAndUploadFile(
                     restEnkelvoudigInformatieObjectVersieGegevens
                 )
 
@@ -424,7 +424,7 @@ class InformatieObjectenRESTServiceTest : BehaviorSpec({
             } returns createDocumentRechtenAllDeny()
 
             val exception = shouldThrow<PolicyException> {
-                informatieObjectenRESTService.updateEnkelvoudigInformatieobjectAndUploadFile(
+                enkelvoudigInformatieObjectRestService.updateEnkelvoudigInformatieobjectAndUploadFile(
                     restEnkelvoudigInformatieObjectVersieGegevens
                 )
             }
