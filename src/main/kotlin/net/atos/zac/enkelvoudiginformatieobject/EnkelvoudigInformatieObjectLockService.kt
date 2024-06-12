@@ -18,7 +18,6 @@ import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjec
 import net.atos.zac.util.UriUtil
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
-import java.util.Optional
 import java.util.UUID
 
 @ApplicationScoped
@@ -41,24 +40,25 @@ class EnkelvoudigInformatieObjectLockService @Inject constructor(
             entityManager.persist(this)
         }
 
-    fun findLock(informationObjectUUID: UUID): Optional<EnkelvoudigInformatieObjectLock> {
+    fun findLock(informationObjectUUID: UUID): EnkelvoudigInformatieObjectLock? {
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(EnkelvoudigInformatieObjectLock::class.java)
         val root = query.from(EnkelvoudigInformatieObjectLock::class.java)
         query.select(root)
             .where(builder.equal(root.get<Any>("enkelvoudiginformatieobjectUUID"), informationObjectUUID))
         val resultList = entityManager.createQuery(query).resultList
-        return if (resultList.isEmpty()) Optional.empty() else Optional.of(resultList.first())
+        return if (resultList.isEmpty()) null else resultList.first()
     }
 
     fun readLock(informationObjectUUID: UUID): EnkelvoudigInformatieObjectLock =
-        findLock(informationObjectUUID).orElseThrow {
-            RuntimeException("Lock for EnkelvoudigInformatieObject with uuid '$informationObjectUUID' not found")
-        }
+        findLock(informationObjectUUID).takeIf { it != null }
+            ?: throw EnkelvoudigInformatieObjectLockNotFoundException(
+                "Lock for EnkelvoudigInformatieObject with uuid '$informationObjectUUID' not found"
+            )
 
     @Transactional(REQUIRED)
     fun deleteLock(informationObjectUUID: UUID) =
-        findLock(informationObjectUUID).ifPresent { lock ->
+        findLock(informationObjectUUID)?.let { lock ->
             drcClientService.unlockEnkelvoudigInformatieobject(informationObjectUUID, lock.lock)
             entityManager.remove(lock)
         }
