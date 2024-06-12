@@ -31,14 +31,14 @@ class EnkelvoudigInformatieObjectLock {
     @Id
     @GeneratedValue(generator = "sq_enkelvoudiginformatieobject_lock", strategy = GenerationType.SEQUENCE)
     @Column(name = "id_enkelvoudiginformatieobject_lock")
-    var id: Long = 0
+    val id: Long = 0
 
     @Column(name = "uuid_enkelvoudiginformatieobject", nullable = false)
-    lateinit var enkelvoudiginformatieobjectUUID: UUID
+    var enkelvoudiginformatieobjectUUID: UUID? = null
 
     @Column(name = "id_user", nullable = false)
-    lateinit var userId: @NotBlank String
+    var userId: @NotBlank String? = null
 
     @Column(name = "lock", nullable = false)
-    lateinit var lock: @NotBlank String
+    var lock: @NotBlank String? = null
 }

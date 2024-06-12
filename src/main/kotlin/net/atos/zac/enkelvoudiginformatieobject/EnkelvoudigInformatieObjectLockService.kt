@@ -5,13 +5,8 @@ import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
 import jakarta.transaction.Transactional
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.retry
-import kotlinx.coroutines.flow.timeout
-import kotlinx.coroutines.runBlocking
+import jakarta.transaction.Transactional.TxType.REQUIRED
+import jakarta.transaction.Transactional.TxType.SUPPORTS
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.Zaak
@@ -21,11 +16,10 @@ import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.util.Optional
 import java.util.UUID
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
+import java.util.logging.Logger
 
 @ApplicationScoped
-@Transactional
+@Transactional(SUPPORTS)
 @AllOpen
 @NoArgConstructor
 class EnkelvoudigInformatieObjectLockService @Inject constructor(
@@ -35,22 +29,13 @@ class EnkelvoudigInformatieObjectLockService @Inject constructor(
     @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
     private lateinit var entityManager: EntityManager
 
-    @OptIn(FlowPreview::class)
-    fun waitForLockState(enkelvoudiginformatieobjectUUID: UUID, isLocked: Boolean) = flow<Void> {
-        throw EnkelvoudigInformatieObjectLockRetryException(
-            "Waiting for lock state $isLocked on info object $enkelvoudiginformatieobjectUUID"
-        )
-    }.retry {
-        drcClientService.readEnkelvoudigInformatieobject(enkelvoudiginformatieobjectUUID).locked != isLocked
-    }.timeout(2.seconds).onEach { delay(200.milliseconds) }
-
+    @Transactional(REQUIRED)
     fun createLock(enkelvoudiginformatieobjectUUID: UUID, idUser: String): EnkelvoudigInformatieObjectLock =
         EnkelvoudigInformatieObjectLock().apply {
             this.enkelvoudiginformatieobjectUUID = enkelvoudiginformatieobjectUUID
             userId = idUser
             lock = drcClientService.lockEnkelvoudigInformatieobject(enkelvoudiginformatieobjectUUID)
             entityManager.persist(this)
-            runBlocking { waitForLockState(enkelvoudiginformatieobjectUUID, true).collect{} }
         }
 
     fun findLock(enkelvoudiginformatieobjectUUID: UUID): Optional<EnkelvoudigInformatieObjectLock> {
@@ -74,11 +59,11 @@ class EnkelvoudigInformatieObjectLockService @Inject constructor(
             )
         }
 
+    @Transactional(REQUIRED)
     fun deleteLock(enkelvoudiginformatieObjectUUID: UUID) =
         findLock(enkelvoudiginformatieObjectUUID).ifPresent { lock ->
             drcClientService.unlockEnkelvoudigInformatieobject(enkelvoudiginformatieObjectUUID, lock.lock)
             entityManager.remove(lock)
-            runBlocking { waitForLockState(enkelvoudiginformatieObjectUUID, false).collect{} }
         }
 
     fun hasLockedInformatieobjecten(zaak: Zaak): Boolean {
