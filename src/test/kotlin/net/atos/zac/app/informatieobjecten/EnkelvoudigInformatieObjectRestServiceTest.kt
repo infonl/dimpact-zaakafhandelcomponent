@@ -55,7 +55,7 @@ import net.atos.zac.policy.output.createDocumentRechtenAllDeny
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import net.atos.zac.webdav.WebdavHelper
 
-class InformatieObjectenRESTServiceTest : BehaviorSpec({
+class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val drcClientService = mockk<DrcClientService>()
     val documentCreatieService = mockk<DocumentCreatieService>()
     val enkelvoudigInformatieObjectDownloadService = mockk<EnkelvoudigInformatieObjectDownloadService>()
