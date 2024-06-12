@@ -61,10 +61,10 @@ public class EnkelvoudigInformatieObjectUpdateService {
         try {
             final var existingLock = enkelvoudigInformatieObjectLockService.findLock(uuid);
             if (existingLock.isPresent()) {
-                update.setLock(existingLock.get().lock);
+                update.setLock(existingLock.get().getLock());
             } else {
                 tempLock = enkelvoudigInformatieObjectLockService.createLock(uuid, loggedInUserInstance.get().getId());
-                update.setLock(tempLock.lock);
+                update.setLock(tempLock.getLock());
             }
             return drcClientService.updateEnkelvoudigInformatieobject(uuid, update, toelichting);
         } finally {

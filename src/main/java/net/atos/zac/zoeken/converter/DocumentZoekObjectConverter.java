@@ -116,8 +116,8 @@ public class DocumentZoekObjectConverter extends AbstractZoekObjectConverter<Doc
             final EnkelvoudigInformatieObjectLock lock = enkelvoudigInformatieObjectLockService.readLock(
                     informatieobjectUUID
             );
-            documentZoekObject.setVergrendeldDoorGebruikersnaam(lock.userId);
-            documentZoekObject.setVergrendeldDoorNaam(identityService.readUser(lock.userId).getFullName());
+            documentZoekObject.setVergrendeldDoorGebruikersnaam(lock.getUserId());
+            documentZoekObject.setVergrendeldDoorNaam(identityService.readUser(lock.getUserId()).getFullName());
         }
         return documentZoekObject;
     }
