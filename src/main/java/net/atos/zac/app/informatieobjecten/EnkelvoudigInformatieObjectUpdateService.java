@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 package net.atos.zac.app.informatieobjecten;
 
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
@@ -60,8 +65,8 @@ public class EnkelvoudigInformatieObjectUpdateService {
         EnkelvoudigInformatieObjectLock tempLock = null;
         try {
             final var existingLock = enkelvoudigInformatieObjectLockService.findLock(uuid);
-            if (existingLock.isPresent()) {
-                update.setLock(existingLock.get().getLock());
+            if (existingLock != null) {
+                update.setLock(existingLock.getLock());
             } else {
                 tempLock = enkelvoudigInformatieObjectLockService.createLock(uuid, loggedInUserInstance.get().getId());
                 update.setLock(tempLock.getLock());

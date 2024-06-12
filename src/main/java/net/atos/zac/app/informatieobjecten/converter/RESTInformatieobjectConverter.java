@@ -122,7 +122,7 @@ public class RESTInformatieobjectConverter {
     ) {
         final UUID enkelvoudigInformatieObjectUUID = parseUUIDFromResourceURI(enkelvoudigInformatieObject.getUrl());
         final EnkelvoudigInformatieObjectLock lock = enkelvoudigInformatieObject.getLocked() ?
-                enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID).orElse(null) : null;
+                enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID) : null;
         final DocumentRechten rechten = policyService.readDocumentRechten(enkelvoudigInformatieObject, lock, zaak);
         final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject = new RESTEnkelvoudigInformatieobject();
         restEnkelvoudigInformatieobject.uuid = enkelvoudigInformatieObjectUUID;
@@ -424,7 +424,7 @@ public class RESTInformatieobjectConverter {
                 zaakInformatieObject.getInformatieobject());
         final UUID enkelvoudigInformatieObjectUUID = parseUUIDFromResourceURI(enkelvoudigInformatieObject.getUrl());
         final EnkelvoudigInformatieObjectLock lock = enkelvoudigInformatieObject.getLocked() ?
-                enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID).orElse(null) : null;
+                enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID) : null;
         final DocumentRechten rechten = policyService.readDocumentRechten(enkelvoudigInformatieObject, lock, zaak);
         final RESTGekoppeldeZaakEnkelvoudigInformatieObject restEnkelvoudigInformatieobject = new RESTGekoppeldeZaakEnkelvoudigInformatieObject();
         restEnkelvoudigInformatieobject.uuid = enkelvoudigInformatieObjectUUID;
