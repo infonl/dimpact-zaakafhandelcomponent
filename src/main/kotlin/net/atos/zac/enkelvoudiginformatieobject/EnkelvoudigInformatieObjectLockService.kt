@@ -43,12 +43,8 @@ class EnkelvoudigInformatieObjectLockService @Inject constructor(
 
     fun findLock(informationObjectUUID: UUID): Optional<EnkelvoudigInformatieObjectLock> {
         val builder = entityManager.criteriaBuilder
-        val query = builder.createQuery(
-            EnkelvoudigInformatieObjectLock::class.java
-        )
-        val root = query.from(
-            EnkelvoudigInformatieObjectLock::class.java
-        )
+        val query = builder.createQuery(EnkelvoudigInformatieObjectLock::class.java)
+        val root = query.from(EnkelvoudigInformatieObjectLock::class.java)
         query.select(root)
             .where(builder.equal(root.get<Any>("enkelvoudiginformatieobjectUUID"), informationObjectUUID))
         val resultList = entityManager.createQuery(query).resultList
@@ -75,12 +71,8 @@ class EnkelvoudigInformatieObjectLockService @Inject constructor(
             return false
         }
         val builder = entityManager.criteriaBuilder
-        val query = builder.createQuery(
-            EnkelvoudigInformatieObjectLock::class.java
-        )
-        val root = query.from(
-            EnkelvoudigInformatieObjectLock::class.java
-        )
+        val query = builder.createQuery(EnkelvoudigInformatieObjectLock::class.java)
+        val root = query.from(EnkelvoudigInformatieObjectLock::class.java)
         query.select(root).where(root.get<Any>("enkelvoudiginformatieobjectUUID").`in`(informationObjectUUIDs))
         return entityManager.createQuery(query).resultList.isNotEmpty()
     }
