@@ -33,15 +33,15 @@ class EnkelvoudigInformatieObjectLockService @Inject constructor(
     private lateinit var entityManager: EntityManager
 
     @Transactional(REQUIRED)
-    fun createLock(enkelvoudiginformatieobjectUUID: UUID, idUser: String): EnkelvoudigInformatieObjectLock =
+    fun createLock(informationObjectUUID: UUID, idUser: String): EnkelvoudigInformatieObjectLock =
         EnkelvoudigInformatieObjectLock().apply {
-            this.enkelvoudiginformatieobjectUUID = enkelvoudiginformatieobjectUUID
+            enkelvoudiginformatieobjectUUID = informationObjectUUID
             userId = idUser
-            lock = drcClientService.lockEnkelvoudigInformatieobject(enkelvoudiginformatieobjectUUID)
+            lock = drcClientService.lockEnkelvoudigInformatieobject(informationObjectUUID)
             entityManager.persist(this)
         }
 
-    fun findLock(enkelvoudiginformatieobjectUUID: UUID): Optional<EnkelvoudigInformatieObjectLock> {
+    fun findLock(informationObjectUUID: UUID): Optional<EnkelvoudigInformatieObjectLock> {
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(
             EnkelvoudigInformatieObjectLock::class.java
@@ -50,30 +50,28 @@ class EnkelvoudigInformatieObjectLockService @Inject constructor(
             EnkelvoudigInformatieObjectLock::class.java
         )
         query.select(root)
-            .where(builder.equal(root.get<Any>("enkelvoudiginformatieobjectUUID"), enkelvoudiginformatieobjectUUID))
+            .where(builder.equal(root.get<Any>("enkelvoudiginformatieobjectUUID"), informationObjectUUID))
         val resultList = entityManager.createQuery(query).resultList
         return if (resultList.isEmpty()) Optional.empty() else Optional.of(resultList.first())
     }
 
-    fun readLock(enkelvoudiginformatieobjectUUID: UUID): EnkelvoudigInformatieObjectLock =
-        findLock(enkelvoudiginformatieobjectUUID).orElseThrow {
-            RuntimeException(
-                "Lock for EnkelvoudigInformatieObject with uuid '$enkelvoudiginformatieobjectUUID' not found"
-            )
+    fun readLock(informationObjectUUID: UUID): EnkelvoudigInformatieObjectLock =
+        findLock(informationObjectUUID).orElseThrow {
+            RuntimeException("Lock for EnkelvoudigInformatieObject with uuid '$informationObjectUUID' not found")
         }
 
     @Transactional(REQUIRED)
-    fun deleteLock(enkelvoudiginformatieObjectUUID: UUID) =
-        findLock(enkelvoudiginformatieObjectUUID).ifPresent { lock ->
-            drcClientService.unlockEnkelvoudigInformatieobject(enkelvoudiginformatieObjectUUID, lock.lock)
+    fun deleteLock(informationObjectUUID: UUID) =
+        findLock(informationObjectUUID).ifPresent { lock ->
+            drcClientService.unlockEnkelvoudigInformatieobject(informationObjectUUID, lock.lock)
             entityManager.remove(lock)
         }
 
     fun hasLockedInformatieobjecten(zaak: Zaak): Boolean {
-        val informatieobjectUUIDs = zrcClientService.listZaakinformatieobjecten(zaak)
+        val informationObjectUUIDs = zrcClientService.listZaakinformatieobjecten(zaak)
             .map { UriUtil.uuidFromURI(it.informatieobject) }
             .toList()
-        if (informatieobjectUUIDs.isEmpty()) {
+        if (informationObjectUUIDs.isEmpty()) {
             return false
         }
         val builder = entityManager.criteriaBuilder
@@ -83,7 +81,7 @@ class EnkelvoudigInformatieObjectLockService @Inject constructor(
         val root = query.from(
             EnkelvoudigInformatieObjectLock::class.java
         )
-        query.select(root).where(root.get<Any>("enkelvoudiginformatieobjectUUID").`in`(informatieobjectUUIDs))
+        query.select(root).where(root.get<Any>("enkelvoudiginformatieobjectUUID").`in`(informationObjectUUIDs))
         return entityManager.createQuery(query).resultList.isNotEmpty()
     }
 }
