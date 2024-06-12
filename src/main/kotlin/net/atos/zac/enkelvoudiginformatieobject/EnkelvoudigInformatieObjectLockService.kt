@@ -20,7 +20,6 @@ import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.util.Optional
 import java.util.UUID
-import java.util.logging.Logger
 
 @ApplicationScoped
 @Transactional(SUPPORTS)
