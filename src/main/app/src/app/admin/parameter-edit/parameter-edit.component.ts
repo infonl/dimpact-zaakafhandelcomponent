@@ -48,6 +48,7 @@ import { ZaaknietontvankelijkParameter } from "../model/zaaknietontvankelijk-par
 import { ZaaknietontvankelijkReden } from "../model/zaaknietontvankelijk-reden";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
+import { SmartDocumentsTreeComponent } from "./smart-documents/smart-documents-tree.component";
 
 @Component({
   templateUrl: "./parameter-edit.component.html",
@@ -59,6 +60,8 @@ export class ParameterEditComponent
 {
   @ViewChild("sideNavContainer") sideNavContainer: MatSidenavContainer;
   @ViewChild("menuSidenav") menuSidenav: MatSidenav;
+  @ViewChild("smartDocumentsTree")
+  smartDocumentsTree: SmartDocumentsTreeComponent;
 
   parameters: ZaakafhandelParameters;
   humanTaskParameters: HumanTaskParameter[] = [];
@@ -629,6 +632,8 @@ export class ParameterEditComponent
           }
         }
       });
+
+    this.smartDocumentsTree.save().subscribe();
   }
 
   compareObject(object1: any, object2: any): boolean {
