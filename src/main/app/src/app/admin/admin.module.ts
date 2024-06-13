@@ -17,6 +17,7 @@ import { InrichtingscheckComponent } from "./inrichtingscheck/inrichtingscheck.c
 import { MailtemplateComponent } from "./mailtemplate/mailtemplate.component";
 import { MailtemplatesComponent } from "./mailtemplates/mailtemplates.component";
 import { ParameterEditComponent } from "./parameter-edit/parameter-edit.component";
+import { SmartDocumentsTreeComponent } from "./parameter-edit/smart-documents/smart-documents-tree.component";
 import { ParametersComponent } from "./parameters/parameters.component";
 import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.component";
 import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-tabellen.component";
@@ -34,6 +35,7 @@ import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-ta
     MailtemplatesComponent,
     MailtemplateComponent,
     TekstvlakEditDialogComponent,
+    SmartDocumentsTreeComponent,
   ],
   exports: [],
   imports: [SharedModule, ZoekenModule, AdminRoutingModule, NgxEditorModule],
