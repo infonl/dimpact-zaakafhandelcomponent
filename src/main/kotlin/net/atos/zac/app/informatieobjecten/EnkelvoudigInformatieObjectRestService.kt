@@ -66,7 +66,6 @@ import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.util.UriUtil
 import net.atos.zac.webdav.WebdavHelper
 import nl.lifely.zac.util.NoArgConstructor
-import org.apache.commons.lang3.BooleanUtils
 import org.apache.commons.lang3.StringUtils
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm
 import java.io.IOException

@@ -13,19 +13,16 @@ import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.Zaak
+import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectChangeEventService
 import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
-import net.atos.zac.event.EventingService
 import net.atos.zac.util.UriUtil
-import net.atos.zac.websocket.event.ScreenEventType
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.util.UUID
-import java.util.logging.Logger
 
 @ApplicationScoped
 @Transactional(SUPPORTS)
@@ -34,15 +31,10 @@ import java.util.logging.Logger
 class EnkelvoudigInformatieObjectLockService @Inject constructor(
     private val drcClientService: DrcClientService,
     private val zrcClientService: ZRCClientService,
-    private val eventingService: EventingService,
-    private val configuration: EnkelvoudigInformatieObjectLockServiceChangeEventConfiguration
+    private val enkelvoudigInformatieObjectChangeEventService: EnkelvoudigInformatieObjectChangeEventService
 ) {
     @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
     private lateinit var entityManager: EntityManager
-
-    companion object {
-        private val LOG = Logger.getLogger(EnkelvoudigInformatieObjectLockService::class.java.name)
-    }
 
     @Transactional(REQUIRED)
     fun createLock(informationObjectUUID: UUID, idUser: String): EnkelvoudigInformatieObjectLock =
@@ -51,7 +43,11 @@ class EnkelvoudigInformatieObjectLockService @Inject constructor(
             userId = idUser
             lock = drcClientService.lockEnkelvoudigInformatieobject(informationObjectUUID)
             entityManager.persist(this)
-            CoroutineScope(Dispatchers.IO).launch { sendChangeEvent(informationObjectUUID, true) }
+            CoroutineScope(Dispatchers.IO).launch {
+                enkelvoudigInformatieObjectChangeEventService.sendChangeEvent(informationObjectUUID) {
+                    drcClientService.readEnkelvoudigInformatieobject(informationObjectUUID).locked == true
+                }
+            }
         }
 
     fun findLock(informationObjectUUID: UUID): EnkelvoudigInformatieObjectLock? {
@@ -75,7 +71,11 @@ class EnkelvoudigInformatieObjectLockService @Inject constructor(
         findLock(informationObjectUUID)?.let { lock ->
             drcClientService.unlockEnkelvoudigInformatieobject(informationObjectUUID, lock.lock)
             entityManager.remove(lock)
-            CoroutineScope(Dispatchers.IO).launch { sendChangeEvent(informationObjectUUID, false) }
+            CoroutineScope(Dispatchers.IO).launch {
+                enkelvoudigInformatieObjectChangeEventService.sendChangeEvent(informationObjectUUID) {
+                    drcClientService.readEnkelvoudigInformatieobject(informationObjectUUID).locked == false
+                }
+            }
         }
 
     fun hasLockedInformatieobjecten(zaak: Zaak): Boolean {
@@ -91,26 +91,4 @@ class EnkelvoudigInformatieObjectLockService @Inject constructor(
         query.select(root).where(root.get<Any>("enkelvoudiginformatieobjectUUID").`in`(informationObjectUUIDs))
         return entityManager.createQuery(query).resultList.isNotEmpty()
     }
-
-    suspend fun sendChangeEvent(informationObjectUUID: UUID, isLocked: Boolean) {
-        repeat(configuration.retries) {
-            if (drcClientService.readEnkelvoudigInformatieobject(informationObjectUUID).locked == isLocked) {
-                // No notification by OpenZaak for lock/unlock, so we send this on our own
-                eventingService.send(ScreenEventType.ENKELVOUDIG_INFORMATIEOBJECT.updated(informationObjectUUID))
-                LOG.fine("Change event for for information object with UUID $informationObjectUUID sent")
-                return
-            }
-            delay(configuration.waitTimeoutMillis)
-        }
-        LOG.warning(
-            "Change event was not sent for information object with UUID $informationObjectUUID as " +
-                "desired state ${if (isLocked) "" else "UN"}LOCKED was not reached after " +
-                "${configuration.retries * configuration.waitTimeoutMillis} ms"
-        )
-    }
 }
-
-data class EnkelvoudigInformatieObjectLockServiceChangeEventConfiguration(
-    val retries: Int = 5,
-    val waitTimeoutMillis: Long = 200
-)
