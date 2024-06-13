@@ -63,11 +63,11 @@ class EnkelvoudigInformatieObjectChangeEventServiceTest : BehaviorSpec({
             } returnsMany List(numRetries) { false }
             enkelvoudigInformatieObjectChangeEventService.sendChangeEvent(informationObjectUUID, predicate)
 
-            Then("DRC is polled") {
+            Then("predicate is called") {
                 verify(exactly = numRetries) { predicate(informationObjectUUID) }
             }
 
-            Then("event is not sent") {
+            Then("no event is sent") {
                 verify(exactly = 0) { eventingService.send(screenEvent) }
             }
         }

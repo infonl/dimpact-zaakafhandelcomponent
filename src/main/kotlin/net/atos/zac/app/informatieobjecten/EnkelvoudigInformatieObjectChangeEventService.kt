@@ -32,6 +32,10 @@ class EnkelvoudigInformatieObjectChangeEventService @Inject constructor(
                 LOG.fine("Change event for for information object with UUID $informationObjectUUID sent")
                 return
             }
+            LOG.info(
+                "Retrying (${it + 1}/${configuration.retries}) the check for information object " +
+                    "with UUID $informationObjectUUID ..."
+            )
             delay(configuration.waitTimeoutMillis)
         }
         LOG.warning(
