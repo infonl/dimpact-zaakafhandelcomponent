@@ -34,15 +34,13 @@ import java.util.logging.Logger
 class EnkelvoudigInformatieObjectLockService @Inject constructor(
     private val drcClientService: DrcClientService,
     private val zrcClientService: ZRCClientService,
-    private val eventingService: EventingService
+    private val eventingService: EventingService,
+    private val configuration: EnkelvoudigInformatieObjectLockServiceChangeEventConfiguration
 ) {
     @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
     private lateinit var entityManager: EntityManager
 
     companion object {
-        private const val CHANGE_EVENT_RETRIES = 5
-        private const val CHANGE_EVENT_WAIT_MILLISECONDS: Long = 200
-
         private val LOG = Logger.getLogger(EnkelvoudigInformatieObjectLockService::class.java.name)
     }
 
@@ -94,20 +92,25 @@ class EnkelvoudigInformatieObjectLockService @Inject constructor(
         return entityManager.createQuery(query).resultList.isNotEmpty()
     }
 
-    private suspend fun sendChangeEvent(informationObjectUUID: UUID, isLocked: Boolean) {
-        repeat(CHANGE_EVENT_RETRIES) {
-            if (drcClientService.readEnkelvoudigInformatieobject(informationObjectUUID).locked != isLocked) {
+    suspend fun sendChangeEvent(informationObjectUUID: UUID, isLocked: Boolean) {
+        repeat(configuration.retries) {
+            if (drcClientService.readEnkelvoudigInformatieobject(informationObjectUUID).locked == isLocked) {
                 // No notification by OpenZaak for lock/unlock, so we send this on our own
                 eventingService.send(ScreenEventType.ENKELVOUDIG_INFORMATIEOBJECT.updated(informationObjectUUID))
                 LOG.fine("Change event for for information object with UUID $informationObjectUUID sent")
                 return
             }
-            delay(CHANGE_EVENT_WAIT_MILLISECONDS)
+            delay(configuration.waitTimeoutMillis)
         }
         LOG.warning(
             "Change event was not sent for information object with UUID $informationObjectUUID as " +
                 "desired state ${if (isLocked) "" else "UN"}LOCKED was not reached after " +
-                "${CHANGE_EVENT_RETRIES * CHANGE_EVENT_WAIT_MILLISECONDS} ms"
+                "${configuration.retries * configuration.waitTimeoutMillis} ms"
         )
     }
 }
+
+data class EnkelvoudigInformatieObjectLockServiceChangeEventConfiguration(
+    val retries: Int = 5,
+    val waitTimeoutMillis: Long = 200
+)

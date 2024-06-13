@@ -35,14 +35,12 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
     private val drcClientService: DrcClientService,
     private val loggedInUserInstance: Instance<LoggedInUser>,
     private val eventingService: EventingService,
+    private val configuration: EnkelvoudigInformatieObjectUpdateServiceChangeEventConfiguration
 ) {
 
     companion object {
         private const val VERZEND_TOELICHTING_PREFIX = "Per post"
         private const val ONDERTEKENEN_TOELICHTING = "Door ondertekenen"
-
-        private const val CHANGE_EVENT_RETRIES = 5
-        private const val CHANGE_EVENT_WAIT_MILLISECONDS: Long = 200
 
         private val LOG = Logger.getLogger(EnkelvoudigInformatieObjectUpdateService::class.java.name)
     }
@@ -69,8 +67,8 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
         }
     }
 
-    private suspend fun sendChangeEvent(informationObjectUUID: UUID) {
-        repeat(CHANGE_EVENT_RETRIES) {
+    suspend fun sendChangeEvent(informationObjectUUID: UUID) {
+        repeat(configuration.retries) {
             if (drcClientService.readEnkelvoudigInformatieobject(informationObjectUUID).ondertekening?.datum != null) {
                 // No notification by OpenZaak for lock/unlock, so we send this on our own
                 eventingService.send(ScreenEventType.ENKELVOUDIG_INFORMATIEOBJECT.updated(informationObjectUUID))
@@ -78,11 +76,11 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
                 LOG.fine("Change event for for information object with UUID $informationObjectUUID sent")
                 return
             }
-            delay(CHANGE_EVENT_WAIT_MILLISECONDS)
+            delay(configuration.waitTimeoutMillis)
         }
         LOG.warning(
-            "Change event was not sent for information object with UUID $informationObjectUUID as " +
-                "desired SIGNED state was not reached after ${CHANGE_EVENT_RETRIES * CHANGE_EVENT_WAIT_MILLISECONDS} ms"
+            "Change event was not sent for information object with UUID $informationObjectUUID as desired SIGNED" +
+                " state was not reached after ${configuration.retries * configuration.waitTimeoutMillis } ms"
         )
     }
 
@@ -106,3 +104,8 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
         }
     }
 }
+
+data class EnkelvoudigInformatieObjectUpdateServiceChangeEventConfiguration(
+    val retries: Int = 5,
+    val waitTimeoutMillis: Long = 200
+)
