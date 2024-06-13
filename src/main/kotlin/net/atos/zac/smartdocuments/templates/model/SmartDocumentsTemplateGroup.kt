@@ -21,14 +21,14 @@ import java.time.ZonedDateTime
 @Table(schema = FlywayIntegrator.SCHEMA, name = "document_creation_template_group")
 @SequenceGenerator(
     schema = FlywayIntegrator.SCHEMA,
-    name = "sq_template_group",
-    sequenceName = "sq_template_group",
+    name = "sq_document_creation_template_group",
+    sequenceName = "sq_document_creation_template_group",
     allocationSize = 1
 )
 @AllOpen
 class SmartDocumentsTemplateGroup {
     @Id
-    @GeneratedValue(generator = "sq_template_group", strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(generator = "sq_document_creation_template_group", strategy = GenerationType.SEQUENCE)
     @Column(name = "id_template_group")
     var id: Long? = null
 
