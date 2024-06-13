@@ -17,8 +17,8 @@ import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { Observable } from "rxjs";
-import { tap } from "rxjs/operators";
+import { Observable, throwError } from "rxjs";
+import { catchError, tap } from "rxjs/operators";
 import { AsyncButtonMenuItem } from "src/app/shared/side-nav/menu-item/subscription-button-menu-item";
 import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
@@ -128,7 +128,6 @@ export class InformatieObjectViewComponent
           this.infoObject.uuid,
           () => {
             this.loadInformatieObject();
-            this.toevoegenActies();
             this.loadZaakInformatieobjecten();
             this.loadHistorie();
           },
@@ -220,34 +219,48 @@ export class InformatieObjectViewComponent
       !this.laatsteVersieInfoObject.gelockedDoor &&
       this.laatsteVersieInfoObject.rechten.vergrendelen
     ) {
-      this.menu.push(
-        new AsyncButtonMenuItem(
-          "actie.lock",
-          () =>
-            this.informatieObjectenService.lockInformatieObject(
-              this.infoObject.uuid,
-              this.zaak?.uuid,
-            ),
-          "lock",
-        ),
+      let button = new ButtonMenuItem(
+        "actie.lock",
+        () => {
+          button.disabled = true;
+          this.informatieObjectenService
+            .lockInformatieObject(this.infoObject.uuid, this.zaak?.uuid)
+            .pipe(
+              catchError((e) => {
+                // we only need to do this on error, because on success we get a new button
+                button.disabled = false;
+                return throwError(() => e);
+              }),
+            )
+            .subscribe();
+        },
+        "lock",
       );
+      this.menu.push(button);
     }
 
     if (
       this.laatsteVersieInfoObject.gelockedDoor &&
       this.laatsteVersieInfoObject.rechten.ontgrendelen
     ) {
-      this.menu.push(
-        new AsyncButtonMenuItem(
-          "actie.unlock",
-          () =>
-            this.informatieObjectenService.unlockInformatieObject(
-              this.infoObject.uuid,
-              this.zaak?.uuid,
-            ),
-          "lock_open",
-        ),
+      let button = new ButtonMenuItem(
+        "actie.unlock",
+        () => {
+          button.disabled = true;
+          this.informatieObjectenService
+            .unlockInformatieObject(this.infoObject.uuid, this.zaak?.uuid)
+            .pipe(
+              catchError((e) => {
+                // we only need to do this on error, because on success we get a new button
+                button.disabled = false;
+                return throwError(() => e);
+              }),
+            )
+            .subscribe();
+        },
+        "lock_open",
       );
+      this.menu.push(button);
     }
 
     if (
