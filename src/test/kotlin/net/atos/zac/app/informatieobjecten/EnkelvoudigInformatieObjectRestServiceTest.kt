@@ -46,7 +46,6 @@ import net.atos.zac.documentcreatie.model.createDocumentCreatieResponse
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
-import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.flowable.TaakVariabelenService
 import net.atos.zac.policy.PolicyService
@@ -61,7 +60,6 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val enkelvoudigInformatieObjectDownloadService = mockk<EnkelvoudigInformatieObjectDownloadService>()
     val enkelvoudigInformatieObjectLockService = mockk<EnkelvoudigInformatieObjectLockService>()
     val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
-    val eventingService = mockk<EventingService>()
     val flowableTaskService = mockk<FlowableTaskService>()
     val inboxDocumentenService = mockk<InboxDocumentenService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
@@ -88,7 +86,6 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         ontkoppeldeDocumentenService,
         inboxDocumentenService,
         enkelvoudigInformatieObjectLockService,
-        eventingService,
         zaakInformatieobjectConverter,
         restInformatieobjectConverter,
         restInformatieobjecttypeConverter,

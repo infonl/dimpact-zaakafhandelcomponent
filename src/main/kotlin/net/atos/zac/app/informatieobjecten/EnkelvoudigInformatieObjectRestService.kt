@@ -59,14 +59,12 @@ import net.atos.zac.documentcreatie.model.DocumentCreatieGegevens
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
-import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.flowable.TaakVariabelenService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.util.UriUtil
 import net.atos.zac.webdav.WebdavHelper
-import net.atos.zac.websocket.event.ScreenEventType
 import nl.lifely.zac.util.NoArgConstructor
 import org.apache.commons.lang3.BooleanUtils
 import org.apache.commons.lang3.StringUtils
@@ -91,7 +89,6 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val ontkoppeldeDocumentenService: OntkoppeldeDocumentenService,
     private val inboxDocumentenService: InboxDocumentenService,
     private val enkelvoudigInformatieObjectLockService: EnkelvoudigInformatieObjectLockService,
-    private val eventingService: EventingService,
     private val zaakInformatieobjectConverter: RESTZaakInformatieobjectConverter,
     private val informatieobjectConverter: RESTInformatieobjectConverter,
     private val informatieObjecttypeConverter: RESTInformatieobjecttypeConverter,
@@ -486,8 +483,6 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             }
         )
         enkelvoudigInformatieObjectLockService.createLock(uuid, loggedInUserInstance.get().id)
-        // Hiervoor wordt door open zaak geen notificatie verstuurd. Dus zelf het ScreenEvent versturen!
-        eventingService.send(ScreenEventType.ENKELVOUDIG_INFORMATIEOBJECT.updated(uuid))
         return Response.ok().build()
     }
 
@@ -500,10 +495,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                     policyService.readDocumentRechten(it, zrcClientService.readZaak(zaakUUID)).ontgrendelen
             }
         )
-
         enkelvoudigInformatieObjectLockService.deleteLock(uuid)
-        // Hiervoor wordt door open zaak geen notificatie verstuurd. Dus zelf het ScreenEvent versturen!
-        eventingService.send(ScreenEventType.ENKELVOUDIG_INFORMATIEOBJECT.updated(uuid))
         return Response.ok().build()
     }
 
@@ -574,10 +566,6 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen
         )
         enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(uuid)
-
-        // Hiervoor wordt door open zaak geen notificatie verstuurd. Dus zelf het ScreenEvent versturen!
-        eventingService.send(ScreenEventType.ENKELVOUDIG_INFORMATIEOBJECT.updated(enkelvoudigInformatieobject))
-
         return Response.ok().build()
     }
 
