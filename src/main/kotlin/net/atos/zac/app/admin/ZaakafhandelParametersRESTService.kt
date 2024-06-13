@@ -8,6 +8,7 @@ import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
+import jakarta.ws.rs.POST
 import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
@@ -30,6 +31,10 @@ import net.atos.zac.app.zaken.model.RESTResultaattype
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.CMMNService
 import net.atos.zac.policy.PolicyService
+import net.atos.zac.policy.PolicyService.assertPolicy
+import net.atos.zac.smartdocuments.SmartDocumentsService
+import net.atos.zac.smartdocuments.rest.RESTSmartDocumentsTemplateGroup
+import net.atos.zac.smartdocuments.validate
 import net.atos.zac.util.UriUtil
 import net.atos.zac.zaaksturing.ReferentieTabelService
 import net.atos.zac.zaaksturing.ZaakafhandelParameterBeheerService
@@ -61,6 +66,7 @@ class ZaakafhandelParametersRESTService @Inject constructor(
     private val resultaattypeConverter: RESTResultaattypeConverter,
     private val zaakbeeindigRedenConverter: RESTZaakbeeindigRedenConverter,
     private val restReplyToConverter: RESTReplyToConverter,
+    private val smartDocumentsService: SmartDocumentsService,
     private val policyService: PolicyService
 ) {
 
@@ -231,4 +237,34 @@ class ZaakafhandelParametersRESTService @Inject constructor(
         restReplyToConverter.convertReplyTos(
             referentieTabelService.readReferentieTabel(Systeem.AFZENDER.name).waarden
         )
+
+    @GET
+    @Path("documentTemplates")
+    fun listTemplates(): Set<RESTSmartDocumentsTemplateGroup> {
+        assertPolicy(policyService.readOverigeRechten().beheren)
+        return smartDocumentsService.listTemplates()
+    }
+
+    @GET
+    @Path("documentTemplates/zaakafhandelParamaters/{zaakafhandelUUID}")
+    fun getTemplatesMapping(
+        @PathParam("zaakafhandelUUID") zaakafhandelUUID: UUID
+    ): Set<RESTSmartDocumentsTemplateGroup> {
+        assertPolicy(policyService.readOverigeRechten().beheren)
+        return smartDocumentsService.getTemplatesMapping(zaakafhandelUUID)
+    }
+
+    @POST
+    @Path("documentTemplates/zaakafhandelParamaters/{zaakafhandelUUID}")
+    fun storeTemplatesMapping(
+        @PathParam("zaakafhandelUUID") zaakafhandelUUID: UUID,
+        restTemplateGroups: Set<RESTSmartDocumentsTemplateGroup>
+    ) {
+        assertPolicy(policyService.readOverigeRechten().beheren)
+
+        val smartDocumentsTemplates = smartDocumentsService.listTemplates()
+        restTemplateGroups.validate(smartDocumentsTemplates)
+
+        smartDocumentsService.storeTemplatesMapping(restTemplateGroups, zaakafhandelUUID)
+    }
 }
