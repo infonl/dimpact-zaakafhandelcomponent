@@ -49,7 +49,7 @@ class SmartDocumentsTest : BehaviorSpec({
     Given("ZAC Docker container is running and zaakafhandelparameters have been created") {
         When("the list SmartDocuments templates endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/smartdocuments/templates"
+                url = "$ZAC_API_URI/zaakafhandelParameters/documentTemplates"
             )
 
             Then("the response should be ok") {
@@ -84,7 +84,7 @@ class SmartDocumentsTest : BehaviorSpec({
 
         When("the create mapping endpoint is called with correct payload") {
             val smartDocumentsZaakafhandelParametersUrl =
-                "$ZAC_API_URI/smartdocuments/templates/zaakafhandelParamaters/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
+                "$ZAC_API_URI/zaakafhandelParameters/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID/documentTemplates"
             val restTemplateGroups = """
                 [
                   {
@@ -156,7 +156,7 @@ class SmartDocumentsTest : BehaviorSpec({
 
         When("the create mapping endpoint is called with invalid payload") {
             val smartDocumentsZaakafhandelParametersUrl =
-                "$ZAC_API_URI/smartdocuments/templates/zaakafhandelParamaters/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
+                "$ZAC_API_URI/zaakafhandelParameters/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID/documentTemplates"
             val restTemplateGroups = """
                 [
                   {

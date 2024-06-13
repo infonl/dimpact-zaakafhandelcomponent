@@ -246,7 +246,7 @@ class ZaakafhandelParametersRESTService @Inject constructor(
     }
 
     @GET
-    @Path("documentTemplates/zaakafhandelParamaters/{zaakafhandelUUID}")
+    @Path("{zaakafhandelUUID}/documentTemplates")
     fun getTemplatesMapping(
         @PathParam("zaakafhandelUUID") zaakafhandelUUID: UUID
     ): Set<RESTSmartDocumentsTemplateGroup> {
@@ -255,7 +255,7 @@ class ZaakafhandelParametersRESTService @Inject constructor(
     }
 
     @POST
-    @Path("documentTemplates/zaakafhandelParamaters/{zaakafhandelUUID}")
+    @Path("{zaakafhandelUUID}/documentTemplates")
     fun storeTemplatesMapping(
         @PathParam("zaakafhandelUUID") zaakafhandelUUID: UUID,
         restTemplateGroups: Set<RESTSmartDocumentsTemplateGroup>
