@@ -481,7 +481,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     fun lockDocument(@PathParam("uuid") uuid: UUID, @QueryParam("zaak") zaakUUID: UUID): Response {
         assertPolicy(
             drcClientService.readEnkelvoudigInformatieobject(uuid).let {
-                BooleanUtils.isFalse(it.locked) &&
+                !it.locked &&
                     policyService.readDocumentRechten(it, zrcClientService.readZaak(zaakUUID)).vergrendelen
             }
         )
@@ -496,7 +496,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     fun unlockDocument(@PathParam("uuid") uuid: UUID, @QueryParam("zaak") zaakUUID: UUID): Response {
         assertPolicy(
             drcClientService.readEnkelvoudigInformatieobject(uuid).let {
-                BooleanUtils.isFalse(it.locked) &&
+                it.locked &&
                     policyService.readDocumentRechten(it, zrcClientService.readZaak(zaakUUID)).ontgrendelen
             }
         )
