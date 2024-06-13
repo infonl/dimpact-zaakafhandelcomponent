@@ -38,23 +38,23 @@ function getSelectableGroup(
 }
 
 function getSelectableTemplates(
-  left: DocumentsTemplate[],
-  right: DocumentsTemplate[],
+  original: DocumentsTemplate[],
+  selection: DocumentsTemplate[],
 ): SelectableDocumentsTemplate[] {
-  return left.map((l) => ({
-    ...l,
-    selected: !!right.find((x) => x.id === l.id),
+  return original.map((template) => ({
+    ...template,
+    selected: !!selection.find(({ id }) => id === template.id),
   }));
 }
 
 export function getSelectableGroups(
-  all: DocumentsTemplateGroup[],
+  original: DocumentsTemplateGroup[],
   selection: DocumentsTemplateGroup[],
 ): SelectableDocumentsTemplateGroup[] {
-  return all.map((a) =>
+  return original.map((group) =>
     getSelectableGroup(
-      a,
-      selection.find((s) => s.id === a.id),
+      group,
+      selection.find(({ id }) => id === group.id),
     ),
   );
 }
