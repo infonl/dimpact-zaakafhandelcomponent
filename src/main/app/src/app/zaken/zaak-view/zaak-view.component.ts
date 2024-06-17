@@ -573,7 +573,7 @@ export class ZaakViewComponent
       );
     }
 
-    if (this.zaak.rechten.wijzigen) {
+    if (this.zaak.rechten.creeerenDocument) {
       this.menu.push(
         new ButtonMenuItem(
           "actie.document.maken",
