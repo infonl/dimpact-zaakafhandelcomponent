@@ -78,7 +78,7 @@ verwijderen {
 verwijderen {
     recordmanager.rol in user.rollen
     document.zaak_open == true
-    vergrendeld == false
+    document.vergrendeld == false
 }
 
 default vergrendelen := false
