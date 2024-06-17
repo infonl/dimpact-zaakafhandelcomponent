@@ -173,7 +173,7 @@ export class InformatieObjectViewComponent
       );
     }
 
-    if (this.laatsteVersieInfoObject.rechten.wijzigen) {
+    if (this.laatsteVersieInfoObject.rechten.toevoegenNieuweVersie) {
       this.menu.push(
         new ButtonMenuItem(
           "actie.nieuwe.versie.toevoegen",

@@ -10,4 +10,5 @@ export class DocumentRechten {
   vergrendelen = false;
   ontgrendelen = false;
   ondertekenen = false;
+  toevoegenNieuweVersie = false;
 }

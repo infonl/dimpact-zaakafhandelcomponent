@@ -38,4 +38,6 @@ public class RESTZaakRechten {
     public boolean verwijderenBetrokkene;
 
     public boolean verwijderenInitiator;
+
+    public boolean creeerenDocument;
 }

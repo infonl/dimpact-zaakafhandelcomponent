@@ -18,4 +18,6 @@ public class RESTDocumentRechten {
     public boolean ontgrendelen;
 
     public boolean ondertekenen;
+
+    public boolean toevoegenNieuweVersie;
 }

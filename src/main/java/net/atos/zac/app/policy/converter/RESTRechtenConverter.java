@@ -26,6 +26,7 @@ public class RESTRechtenConverter {
         restDocumentRechten.vergrendelen = documentRechten.vergrendelen();
         restDocumentRechten.verwijderen = documentRechten.verwijderen();
         restDocumentRechten.ondertekenen = documentRechten.ondertekenen();
+        restDocumentRechten.toevoegenNieuweVersie = documentRechten.toevoegenNieuweVersie();
         return restDocumentRechten;
     }
 
@@ -56,6 +57,7 @@ public class RESTRechtenConverter {
         restZaakRechten.toevoegenInitiatorPersoon = zaakRechten.toevoegenInitiatorPersoon();
         restZaakRechten.verwijderenBetrokkene = zaakRechten.verwijderenBetrokkene();
         restZaakRechten.verwijderenInitiator = zaakRechten.verwijderenInitiator();
+        restZaakRechten.creeerenDocument = zaakRechten.creeerenDocument();
         return restZaakRechten;
     }
 
