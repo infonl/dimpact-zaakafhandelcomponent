@@ -43,6 +43,60 @@ describe("SmartDocumentsTree-getSelectableGroups", () => {
     expect(template.selected).toBe(true);
   });
 
+  it("should mark matching templates at a nested level as selected", () => {
+    const result = getSelectableGroups(
+      //all
+      [
+        {
+          id: "some-group",
+          name: "",
+          groups: [
+            {
+              id: "inner-group",
+              name: "",
+              templates: [
+                {
+                  id: "some-template",
+                  name: "",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      //selection
+      [
+        {
+          id: "some-group",
+          name: "",
+          groups: [
+            {
+              id: "inner-group",
+              name: "",
+              templates: [
+                {
+                  id: "some-template",
+                  name: "",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    );
+
+    expect(result.length).toBe(1);
+    const group = result[0];
+    expect(group.groups).toBeTruthy();
+    expect(group.groups.length).toBe(1);
+    const inner = group.groups[0];
+    expect(inner.templates).toBeTruthy();
+    expect(inner.templates.length).toBe(1);
+    const template = inner.templates[0];
+    expect(template.id).toBe("some-template");
+    expect(template.selected).toBe(true);
+  });
+
   it("should ignore old groups and templates that don't exist anymore", () => {
     const result = getSelectableGroups(
       //all
