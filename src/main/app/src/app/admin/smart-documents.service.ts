@@ -24,7 +24,7 @@ export class SmartDocumentsService {
 
   listTemplates(): Observable<DocumentsTemplateGroup[]> {
     return this.zacHttp
-      .GET("/rest/smartdocuments/templates")
+      .GET("/rest/zaakafhandelParameters/documentTemplates")
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -35,7 +35,7 @@ export class SmartDocumentsService {
   ): Observable<DocumentsTemplateGroup[]> {
     return this.zacHttp
       .GET(
-        "/rest/smartdocuments/templates/zaakafhandelParamaters/{zaakafhandelUUID}",
+        "/rest/zaakafhandelParameters/{zaakafhandelUUID}/documentTemplates",
         {
           pathParams: {
             path: {
@@ -55,7 +55,7 @@ export class SmartDocumentsService {
   ) {
     return this.zacHttp
       .POST(
-        "/rest/smartdocuments/templates/zaakafhandelParamaters/{zaakafhandelUUID}",
+        "/rest/zaakafhandelParameters/{zaakafhandelUUID}/documentTemplates",
         templates,
         {
           pathParams: {
