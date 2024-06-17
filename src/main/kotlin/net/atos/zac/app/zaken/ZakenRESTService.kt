@@ -58,7 +58,6 @@ import net.atos.client.zgw.zrc.util.StatusTypeUtil
 import net.atos.client.zgw.ztc.ZTCClientService
 import net.atos.client.zgw.ztc.model.generated.BesluitType
 import net.atos.client.zgw.ztc.model.generated.RolType
-import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.client.zgw.ztc.util.isNuGeldig
 import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter
 import net.atos.zac.app.admin.model.RESTZaakAfzender
@@ -504,11 +503,11 @@ class ZakenRESTService @Inject constructor(
     fun listZaaktypes(): List<RESTZaaktype> =
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             .asSequence()
-            .filter { zaaktype -> loggedInUserInstance.get().isGeautoriseerdZaaktype(zaaktype.omschrijving) }
-            .filter { zaaktype -> !zaaktype.concept }
-            .filter { zaakType -> isNuGeldig(zaakType) }
-            .filter { zaaktype -> healthCheckService.controleerZaaktype(zaaktype.url).isValide }
-            .map { zaaktype: ZaakType -> restZaaktypeConverter.convert(zaaktype) }
+            .filter { loggedInUserInstance.get().isGeautoriseerdZaaktype(it.omschrijving) }
+            .filter { !it.concept }
+            .filter { isNuGeldig(it) }
+            .filter { healthCheckService.controleerZaaktype(it.url).isValide }
+            .map { restZaaktypeConverter.convert(it) }
             .toList()
 
     @PUT

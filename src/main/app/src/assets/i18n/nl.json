@@ -696,6 +696,8 @@
   "msg.error.date.invalid.fatale2": "De fatale datum mag niet voor de startdatum liggen",
   "msg.error.group.invalid.id": "De identificatie van deze groep is te lang. Gelieve deze te wijzigen naar maximaal {{max}} tekens.",
   "msg.error.group.invalid.name": "De naam van deze groep is te lang. Gelieve deze te wijzigen naar maximaal {{max}} tekens.",
+  "msg.error.server.generic": "Er heeft zich helaas een technische fout voor gedaan.",
+  "msg.error.ztc.client.exception": "Er kunnen geen zaaktypes worden opgehaald.",
   "msg.email.verstuurd": "E-mail is verstuurd",
   "msg.extern.advies.vastleggen.behandelen": "Er is een extern advies aangevraagd. Hieronder kan het antwoord worden vastgelegd.",
   "msg.geen.cards.hint": "Optimaliseer uw persoonlijke dashboard door er een of meer handige cards op te zetten",
