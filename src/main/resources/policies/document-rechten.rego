@@ -73,11 +73,12 @@ verwijderen {
     zaaktype_allowed
     document.zaak_open == true
     document.definitief == false
-    onvergrendeld_of_vergrendeld_door_user == true
+    vergrendeld == false
 }
 verwijderen {
     recordmanager.rol in user.rollen
     document.zaak_open == true
+    vergrendeld == false
 }
 
 default vergrendelen := false

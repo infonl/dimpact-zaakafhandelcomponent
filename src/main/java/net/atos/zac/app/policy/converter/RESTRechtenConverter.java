@@ -48,11 +48,14 @@ public class RESTRechtenConverter {
         restZaakRechten.heropenen = zaakRechten.heropenen();
         restZaakRechten.wijzigenDoorlooptijd = zaakRechten.wijzigenDoorlooptijd();
         restZaakRechten.bekijkenZaakdata = zaakRechten.bekijkenZaakdata();
+        restZaakRechten.versturenOntvangstbevestiging = zaakRechten.versturenOntvangstbevestiging();
         restZaakRechten.toevoegenBagObject = zaakRechten.toevoegenBagObject();
         restZaakRechten.toevoegenBetrokkeneBedrijf = zaakRechten.toevoegenBetrokkeneBedrijf();
         restZaakRechten.toevoegenBetrokkenePersoon = zaakRechten.toevoegenBetrokkenePersoon();
         restZaakRechten.toevoegenInitiatorBedrijf = zaakRechten.toevoegenInitiatorBedrijf();
         restZaakRechten.toevoegenInitiatorPersoon = zaakRechten.toevoegenInitiatorPersoon();
+        restZaakRechten.verwijderenBetrokkene = zaakRechten.verwijderenBetrokkene();
+        restZaakRechten.verwijderenInitiator = zaakRechten.verwijderenInitiator();
         return restZaakRechten;
     }
 

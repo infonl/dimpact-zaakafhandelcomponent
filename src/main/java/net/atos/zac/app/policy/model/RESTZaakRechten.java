@@ -32,4 +32,10 @@ public class RESTZaakRechten {
     public boolean toevoegenInitiatorBedrijf;
 
     public boolean toevoegenInitiatorPersoon;
+
+    public boolean versturenOntvangstbevestiging;
+
+    public boolean verwijderenBetrokkene;
+
+    public boolean verwijderenInitiator;
 }

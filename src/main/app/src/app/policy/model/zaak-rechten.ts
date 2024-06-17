@@ -17,4 +17,7 @@ export class ZaakRechten {
   toevoegenBetrokkenePersoon = false;
   toevoegenInitiatorBedrijf = false;
   toevoegenInitiatorPersoon = false;
+  versturenOntvangstbevestiging = false;
+  verwijderenBetrokkene = false;
+  verwijderenInitiator = false;
 }
