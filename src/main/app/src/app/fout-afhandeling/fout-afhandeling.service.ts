@@ -120,9 +120,7 @@ export class FoutAfhandelingService {
       this.foutmelding = "Helaas! Je bent uitgelogd.";
       this.bericht = "";
     } else {
-      this.foutmelding = `${this.translate.instant(
-        "msg.error.server.generic",
-      )} ${this.translate.instant(err.error.message)}`;
+      this.foutmelding = this.translate.instant(err.error.message);
       if (err.error) {
         this.bericht = "";
         this.exception = err.error.exception;

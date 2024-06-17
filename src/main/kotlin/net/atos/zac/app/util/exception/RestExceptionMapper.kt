@@ -46,7 +46,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
         ) {
             Response.status(exception.response.status)
                 .type(MediaType.APPLICATION_JSON)
-                .entity(getJSONMessage(exception.message ?: ERROR_CODE_GENERIC_SERVER))
+                .entity(getJSONMessage(errorMessage = exception.message ?: ERROR_CODE_GENERIC_SERVER))
                 .build()
         } else if (exception is ProcessingException) {
             handleProcessingException(exception)
