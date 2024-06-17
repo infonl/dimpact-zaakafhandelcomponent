@@ -230,8 +230,8 @@ test_verwijderen_behandelaar if {
         with input.document.vergrendeld as false
 }
 
-test_verwijderen_behandelaar_locked_by_this_user if {
-    verwijderen
+test_verwijderen_behandelaar_locked_by_this_user_fails if {
+    not verwijderen
         with input.user.rollen as ["behandelaar"]
         with input.document.zaak_open as true
         with input.document.definitief as false
@@ -277,6 +277,14 @@ test_verwijderen_recordmanager if {
     verwijderen
         with input.user.rollen as ["recordmanager"]
         with input.document.zaak_open as true
+        with input.document.vergrendeld as false
+}
+
+test_verwijderen_recordmanager_locked_fails if {
+    not verwijderen
+        with input.user.rollen as ["recordmanager"]
+        with input.document.zaak_open as true
+        with input.document.vergrendeld as true
 }
 
 test_verwijderen_recordmanager_zaak_closed_fails if {
@@ -434,8 +442,8 @@ test_toevoegen_nieuwe_versie_behandelaar if {
         with input.document.vergrendeld as false
 }
 
-test_toevoegen_nieuwe_versie_behandelaar_locked_by_current_user_fails if {
-    not toevoegen_nieuwe_versie
+test_toevoegen_nieuwe_versie_behandelaar_locked_by_current_user if {
+    toevoegen_nieuwe_versie
         with input.user.rollen as ["behandelaar"]
         with input.document.zaak_open as true
         with input.document.definitief as false
