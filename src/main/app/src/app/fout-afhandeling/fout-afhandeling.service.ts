@@ -39,7 +39,6 @@ type JakartaBeanValidationError = P.infer<typeof ValidationErrorPattern>;
 export class FoutAfhandelingService {
   foutmelding: string;
   bericht: string;
-  stack: string;
   exception: string;
 
   constructor(
@@ -112,7 +111,6 @@ export class FoutAfhandelingService {
       this.foutmelding = `Er is een fout opgetreden`;
       this.bericht = err.error.message;
       this.exception = "";
-      this.stack = "";
     } else if (err.status === 0 && err.url.startsWith("/rest/")) {
       // status 0, niet meer ingelogd
       if (!isDevMode()) {
@@ -126,20 +124,15 @@ export class FoutAfhandelingService {
         "msg.error.server.generic",
       )} ${this.translate.instant(err.error.message)}`;
       if (err.error) {
-        this.stack = err.error.stackTrace;
         this.bericht = "";
         this.exception = err.error.exception;
       } else {
         this.exception = "";
-        this.stack = "";
         this.bericht = err.message;
       }
     }
     if (isDevMode()) {
       this.utilService.openSnackbarError(this.foutmelding);
-      if (this.stack) {
-        console.error(this.stack);
-      }
     } else {
       this.router.navigate(["/fout-pagina"]);
     }
