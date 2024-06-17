@@ -14,14 +14,11 @@ import { FoutAfhandelingService } from "./fout-afhandeling.service";
 export class FoutAfhandelingComponent implements OnInit {
   bericht: string;
   foutmelding: string;
-  exception: string;
-  panelOpenState = false;
 
   constructor(private service: FoutAfhandelingService) {}
 
   ngOnInit(): void {
     this.bericht = this.service.bericht;
     this.foutmelding = this.service.foutmelding;
-    this.exception = this.service.exception;
   }
 }
