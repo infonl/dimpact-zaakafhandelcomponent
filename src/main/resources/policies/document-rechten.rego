@@ -73,7 +73,7 @@ verwijderen {
     zaaktype_allowed
     document.zaak_open == true
     document.definitief == false
-    vergrendeld == false
+    document.vergrendeld == false
 }
 verwijderen {
     recordmanager.rol in user.rollen
