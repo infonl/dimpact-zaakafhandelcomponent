@@ -114,21 +114,20 @@ export function filterOutUnselected(
       inline-size: fit-content;
       column-gap: 2rem;
 
-      * {
-        grid-column: 1 / -1;
-      }
-
+      :has(.single-node),
       .single-node {
-        grid-template-columns: subgrid;
+        grid-column: 1 / -1;
         display: grid;
-        > * {
-          grid-column: unset;
-        }
+        grid-template-columns: subgrid;
       }
     }
   `,
   template: `
-    <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+    <mat-tree
+      [dataSource]="dataSource"
+      [treeControl]="treeControl"
+      class="tree-grid"
+    >
       <!-- This is the tree node template for leaf nodes -->
       <!-- There is inline padding applied to this node using styles.
     This padding value depends on the mat-icon-button width. -->
@@ -161,11 +160,7 @@ export function filterOutUnselected(
         </div>
         <!-- There is inline padding applied to this div using styles.
           This padding value depends on the mat-icon-button width.  -->
-        <div
-          [attr.data-hide]="!treeControl.isExpanded(node)"
-          role="group"
-          class="tree-grid"
-        >
+        <div [attr.data-hide]="!treeControl.isExpanded(node)" role="group">
           <ng-container matTreeNodeOutlet></ng-container>
         </div>
       </mat-nested-tree-node>
