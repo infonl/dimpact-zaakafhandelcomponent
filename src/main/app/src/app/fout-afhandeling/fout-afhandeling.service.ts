@@ -39,7 +39,6 @@ type JakartaBeanValidationError = P.infer<typeof ValidationErrorPattern>;
 export class FoutAfhandelingService {
   foutmelding: string;
   bericht: string;
-  exception: string;
 
   constructor(
     private router: Router,
@@ -110,7 +109,6 @@ export class FoutAfhandelingService {
       // Client-side
       this.foutmelding = `Er is een fout opgetreden`;
       this.bericht = err.error.message;
-      this.exception = "";
     } else if (err.status === 0 && err.url.startsWith("/rest/")) {
       // status 0, niet meer ingelogd
       if (!isDevMode()) {
@@ -122,10 +120,8 @@ export class FoutAfhandelingService {
     } else {
       this.foutmelding = this.translate.instant(err.error.message);
       if (err.error) {
-        this.bericht = "";
-        this.exception = err.error.exception;
+        this.bericht = err.error.exception;
       } else {
-        this.exception = "";
         this.bericht = err.message;
       }
     }
