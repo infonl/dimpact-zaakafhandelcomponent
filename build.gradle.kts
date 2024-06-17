@@ -164,6 +164,7 @@ dependencies {
     testImplementation(libs.eclipse.yasson)
     testImplementation(libs.kotest.runner.junit5)
     testImplementation(libs.mockk)
+    testImplementation(libs.json)
 
     // integration test dependencies
     "itestImplementation"(libs.testcontainers.testcontainers)
