@@ -18,7 +18,7 @@ import nl.lifely.zac.util.AllOpen
 import java.time.ZonedDateTime
 
 @Entity
-@Table(schema = FlywayIntegrator.SCHEMA, name = "document_creation_template_group")
+@Table(schema = FlywayIntegrator.SCHEMA, name = "smartdocuments_document_creation_template_group")
 @SequenceGenerator(
     schema = FlywayIntegrator.SCHEMA,
     name = "sq_document_creation_template_group",
