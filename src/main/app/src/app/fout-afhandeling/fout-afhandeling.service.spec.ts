@@ -5,6 +5,7 @@
 
 import { TestBed } from "@angular/core/testing";
 import { MatDialog } from "@angular/material/dialog";
+import { TranslateService } from "@ngx-translate/core";
 import { firstValueFrom } from "rxjs";
 import { UtilService } from "../core/service/util.service";
 import { FoutAfhandelingService } from "./fout-afhandeling.service";
@@ -17,6 +18,7 @@ describe("FoutAfhandelingService", () => {
       providers: [
         { provide: UtilService, useValue: {} },
         { provide: MatDialog, useValue: { open() {} } },
+        { provide: TranslateService, useValue: {} },
       ],
       imports: [],
     });

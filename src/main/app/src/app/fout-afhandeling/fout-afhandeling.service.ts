@@ -7,6 +7,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { Injectable, isDevMode } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { Router } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
 import { Observable, throwError } from "rxjs";
 import { P, match } from "ts-pattern";
 import { UtilService } from "../core/service/util.service";
@@ -45,6 +46,7 @@ export class FoutAfhandelingService {
     private router: Router,
     private dialog: MatDialog,
     private utilService: UtilService,
+    private translate: TranslateService,
   ) {}
 
   public foutAfhandelen(
@@ -120,10 +122,12 @@ export class FoutAfhandelingService {
       this.foutmelding = "Helaas! Je bent uitgelogd.";
       this.bericht = "";
     } else {
-      this.foutmelding = `De server heeft code ${err.status} geretourneerd`;
+      this.foutmelding = `${this.translate.instant(
+        "msg.error.server.generic",
+      )} ${this.translate.instant(err.error.message)}`;
       if (err.error) {
         this.stack = err.error.stackTrace;
-        this.bericht = err.error.message;
+        this.bericht = "";
         this.exception = err.error.exception;
       } else {
         this.exception = "";
