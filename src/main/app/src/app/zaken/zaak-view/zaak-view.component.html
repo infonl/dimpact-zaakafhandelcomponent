@@ -79,7 +79,7 @@
             </zac-zaak-initiator-toevoegen>
             <zac-persoongegevens class="w100 flex-1" *ngIf="zaak.initiatorIdentificatieType==='BSN'"
                                  [bsn]="zaak.initiatorIdentificatie"
-                                 [isVerwijderbaar]="zaak.rechten.toevoegenInitiatorPersoon"
+                                 [isVerwijderbaar]="zaak.rechten.verwijderenInitiator"
                                  [isWijzigbaar]="zaak.rechten.toevoegenInitiatorPersoon"
                                  (edit)="addOrEditZaakInitiator()"
                                  (delete)="deleteInitiator()">
@@ -87,7 +87,7 @@
             <zac-bedrijfsgegevens class="w100 flex-1"
                                   *ngIf="zaak.initiatorIdentificatieType==='VN' || zaak.initiatorIdentificatieType==='RSIN'"
                                   [rsinOfVestigingsnummer]="zaak.initiatorIdentificatie"
-                                  [isVerwijderbaar]="zaak.rechten.toevoegenInitiatorBedrijf"
+                                  [isVerwijderbaar]="zaak.rechten.verwijderenInitiator"
                                   (edit)="addOrEditZaakInitiator()"
                                   [isWijzigbaar]="zaak.rechten.toevoegenInitiatorBedrijf"
                                   (delete)="deleteInitiator()">
@@ -382,7 +382,7 @@
                                                title="{{ 'actie.bedrijf.bekijken' | translate }}">
                                                 <mat-icon>visibility</mat-icon>
                                             </a>
-                                            <button *ngIf="zaak.rechten.behandelen"
+                                            <button *ngIf="zaak.rechten.verwijderenBetrokkene"
                                                     mat-icon-button
                                                     (click)="deleteBetrokkene(betrokkene)"
                                                     title="{{ 'actie.betrokkene.ontkoppelen' | translate}}">

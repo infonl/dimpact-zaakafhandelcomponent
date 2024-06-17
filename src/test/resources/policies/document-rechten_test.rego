@@ -434,8 +434,8 @@ test_toevoegen_nieuwe_versie_behandelaar if {
         with input.document.vergrendeld as false
 }
 
-test_toevoegen_nieuwe_versie_behandelaar_locked_by_current_user if {
-    toevoegen_nieuwe_versie
+test_toevoegen_nieuwe_versie_behandelaar_locked_by_current_user_fails if {
+    not toevoegen_nieuwe_versie
         with input.user.rollen as ["behandelaar"]
         with input.document.zaak_open as true
         with input.document.definitief as false
