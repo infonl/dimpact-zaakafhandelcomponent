@@ -14,7 +14,6 @@ import { FoutAfhandelingService } from "./fout-afhandeling.service";
 export class FoutAfhandelingComponent implements OnInit {
   bericht: string;
   foutmelding: string;
-  stack: string;
   exception: string;
   panelOpenState = false;
 
@@ -23,7 +22,6 @@ export class FoutAfhandelingComponent implements OnInit {
   ngOnInit(): void {
     this.bericht = this.service.bericht;
     this.foutmelding = this.service.foutmelding;
-    this.stack = this.service.stack;
     this.exception = this.service.exception;
   }
 }
