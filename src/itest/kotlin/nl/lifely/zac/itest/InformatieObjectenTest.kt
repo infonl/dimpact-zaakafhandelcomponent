@@ -115,7 +115,7 @@ class InformatieObjectenTest : BehaviorSpec({
                     .addFormDataPart(
                         "creatiedatum",
                         DateTimeFormatter.ofPattern(
-                            "yyyy-MM-dd'T'hh:mm+01:00"
+                            "yyyy-MM-dd'T'HH:mm+01:00"
                         ).format(ZonedDateTime.now())
                     )
                     .addFormDataPart("auteur", TEST_USER_1_NAME)
