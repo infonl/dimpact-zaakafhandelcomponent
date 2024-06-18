@@ -293,17 +293,9 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
       }),
     );
 
-    let vorigeBestandsnaam = null;
     this.subscriptions.push(
-      inhoudField.fileUploaded.subscribe((bestandsnaam) => {
-        const titelCtrl = titel.formControl;
-        if (!bestandsnaam) {
-          titelCtrl.setValue(null);
-        }
-        if (!titelCtrl.value || titelCtrl.value === vorigeBestandsnaam) {
-          titelCtrl.setValue(bestandsnaam.replace(/\.[^/.]+$/, ""));
-          vorigeBestandsnaam = "" + titelCtrl.value;
-        }
+      inhoudField.formControl.valueChanges.subscribe((file: File) => {
+        titel.formControl.setValue(file?.name?.replace(/\.[^/.]+$/, "") || "");
       }),
     );
   }
