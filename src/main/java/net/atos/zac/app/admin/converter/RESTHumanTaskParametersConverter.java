@@ -26,8 +26,15 @@ public class RESTHumanTaskParametersConverter {
             final List<RESTPlanItemDefinition> humanTaskDefinitions
     ) {
         return humanTaskDefinitions.stream()
-                .map(humanTaskDefinition -> convertHumanTaskDefinition(humanTaskDefinition,
-                        humanTaskParametersCollection))
+                .map(humanTaskDefinition -> convertHumanTaskDefinition(humanTaskDefinition, humanTaskParametersCollection))
+                .toList();
+    }
+
+    public List<HumanTaskParameters> convertRESTHumanTaskParameters(
+            final List<RESTHumanTaskParameters> restHumanTaskParametersList
+    ) {
+        return restHumanTaskParametersList.stream()
+                .map(this::convertRESTHumanTaskParameters)
                 .toList();
     }
 
@@ -73,23 +80,6 @@ public class RESTHumanTaskParametersConverter {
         return referentieTabellen;
     }
 
-    private RESTHumanTaskParameters convertToRESTHumanTaskParameters(final RESTPlanItemDefinition humanTaskDefinition) {
-        final RESTHumanTaskParameters restHumanTaskParameters = new RESTHumanTaskParameters();
-        restHumanTaskParameters.planItemDefinition = humanTaskDefinition;
-        restHumanTaskParameters.actief = false;
-        restHumanTaskParameters.formulierDefinitieId = DefaultHumanTaskFormulierKoppeling.readFormulierDefinitie(
-                humanTaskDefinition.id).name();
-        return restHumanTaskParameters;
-    }
-
-    public List<HumanTaskParameters> convertRESTHumanTaskParameters(
-            final List<RESTHumanTaskParameters> restHumanTaskParametersList
-    ) {
-        return restHumanTaskParametersList.stream()
-                .map(this::convertRESTHumanTaskParameters)
-                .toList();
-    }
-
     private HumanTaskParameters convertRESTHumanTaskParameters(final RESTHumanTaskParameters restHumanTaskParameters) {
         HumanTaskParameters humanTaskParameters = new HumanTaskParameters();
         humanTaskParameters.setId(restHumanTaskParameters.id);
@@ -101,5 +91,15 @@ public class RESTHumanTaskParametersConverter {
         humanTaskParameters.setReferentieTabellen(
                 restHumanTaskReferentieTabelConverter.convert(restHumanTaskParameters.referentieTabellen));
         return humanTaskParameters;
+    }
+
+    private static RESTHumanTaskParameters convertToRESTHumanTaskParameters(final RESTPlanItemDefinition humanTaskDefinition) {
+        final RESTHumanTaskParameters restHumanTaskParameters = new RESTHumanTaskParameters();
+        restHumanTaskParameters.planItemDefinition = humanTaskDefinition;
+        restHumanTaskParameters.actief = false;
+        restHumanTaskParameters.formulierDefinitieId = DefaultHumanTaskFormulierKoppeling.readFormulierDefinitie(
+                humanTaskDefinition.id
+        ).name();
+        return restHumanTaskParameters;
     }
 }

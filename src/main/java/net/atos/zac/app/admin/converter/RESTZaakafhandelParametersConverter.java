@@ -20,25 +20,13 @@ public class RESTZaakafhandelParametersConverter {
     private RESTCaseDefinitionConverter caseDefinitionConverter;
 
     @Inject
-    private RESTZaaktypeOverzichtConverter restZaaktypeOverzichtConverter;
-
-    @Inject
     private RESTResultaattypeConverter resultaattypeConverter;
 
     @Inject
     private RESTZaakbeeindigParameterConverter zaakbeeindigParameterConverter;
 
     @Inject
-    private RESTMailtemplateKoppelingConverter mailtemplateKoppelingConverter;
-
-    @Inject
-    private RESTUserEventListenerParametersConverter userEventListenerParametersConverter;
-
-    @Inject
     private RESTHumanTaskParametersConverter humanTaskParametersConverter;
-
-    @Inject
-    private RESTZaakAfzenderConverter zaakAfzenderConverter;
 
     @Inject
     private ZTCClientService ztcClientService;
@@ -52,7 +40,7 @@ public class RESTZaakafhandelParametersConverter {
     ) {
         final RESTZaakafhandelParameters restZaakafhandelParameters = new RESTZaakafhandelParameters();
         restZaakafhandelParameters.id = zaakafhandelParameters.getId();
-        restZaakafhandelParameters.zaaktype = restZaaktypeOverzichtConverter.convert(
+        restZaakafhandelParameters.zaaktype = RESTZaaktypeOverzichtConverter.convert(
                 ztcClientService.readZaaktype(zaakafhandelParameters.getZaakTypeUUID())
         );
         restZaakafhandelParameters.defaultGroepId = zaakafhandelParameters.getGroepID();
@@ -75,16 +63,20 @@ public class RESTZaakafhandelParametersConverter {
             restZaakafhandelParameters.humanTaskParameters = humanTaskParametersConverter.convertHumanTaskParametersCollection(
                     zaakafhandelParameters.getHumanTaskParametersCollection(),
                     restZaakafhandelParameters.caseDefinition.humanTaskDefinitions);
-            restZaakafhandelParameters.userEventListenerParameters = userEventListenerParametersConverter
+            restZaakafhandelParameters.userEventListenerParameters = RESTUserEventListenerParametersConverter
                     .convertUserEventListenerParametersCollection(
                             zaakafhandelParameters.getUserEventListenerParametersCollection(),
-                            restZaakafhandelParameters.caseDefinition.userEventListenerDefinitions);
+                            restZaakafhandelParameters.caseDefinition.userEventListenerDefinitions
+                    );
             restZaakafhandelParameters.zaakbeeindigParameters = zaakbeeindigParameterConverter.convertZaakbeeindigParameters(
-                    zaakafhandelParameters.getZaakbeeindigParameters());
-            restZaakafhandelParameters.mailtemplateKoppelingen = mailtemplateKoppelingConverter.convert(
-                    zaakafhandelParameters.getMailtemplateKoppelingen());
-            restZaakafhandelParameters.zaakAfzenders = zaakAfzenderConverter.convertZaakAfzenders(
-                    zaakafhandelParameters.getZaakAfzenders());
+                    zaakafhandelParameters.getZaakbeeindigParameters()
+            );
+            restZaakafhandelParameters.mailtemplateKoppelingen = RESTMailtemplateKoppelingConverter.convert(
+                    zaakafhandelParameters.getMailtemplateKoppelingen()
+            );
+            restZaakafhandelParameters.zaakAfzenders = RESTZaakAfzenderConverter.convertZaakAfzenders(
+                    zaakafhandelParameters.getZaakAfzenders()
+            );
         }
         if (zaakafhandelParameters.getIntakeMail() != null) {
             restZaakafhandelParameters.intakeMail = RESTZaakStatusmailOptie.valueOf(
@@ -128,17 +120,17 @@ public class RESTZaakafhandelParametersConverter {
                 humanTaskParametersConverter.convertRESTHumanTaskParameters(
                         restZaakafhandelParameters.humanTaskParameters));
         zaakafhandelParameters.setUserEventListenerParametersCollection(
-                userEventListenerParametersConverter.convertRESTUserEventListenerParameters(
+                RESTUserEventListenerParametersConverter.convertRESTUserEventListenerParameters(
                         restZaakafhandelParameters.userEventListenerParameters));
         zaakafhandelParameters.setZaakbeeindigParameters(
                 zaakbeeindigParameterConverter.convertRESTZaakbeeindigParameters(
                         restZaakafhandelParameters.zaakbeeindigParameters));
         zaakafhandelParameters.setMailtemplateKoppelingen(
-                mailtemplateKoppelingConverter.convertRESTmailtemplateKoppelingen(
+                RESTMailtemplateKoppelingConverter.convertRESTmailtemplateKoppelingen(
                         restZaakafhandelParameters.mailtemplateKoppelingen));
         zaakafhandelParameters.setZaakAfzenders(
-                zaakAfzenderConverter.convertRESTZaakAfzenders(
-                        restZaakafhandelParameters.zaakAfzenders));
+                RESTZaakAfzenderConverter.convertRESTZaakAfzenders(restZaakafhandelParameters.zaakAfzenders)
+        );
         return zaakafhandelParameters;
     }
 }

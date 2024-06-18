@@ -13,11 +13,11 @@ import java.util.stream.Collectors;
 import net.atos.zac.app.admin.model.RESTZaakAfzender;
 import net.atos.zac.zaaksturing.model.ZaakAfzender;
 
-public class RESTZaakAfzenderConverter {
+public final class RESTZaakAfzenderConverter {
 
-    public List<RESTZaakAfzender> convertZaakAfzenders(final Set<ZaakAfzender> zaakAfzender) {
+    public static List<RESTZaakAfzender> convertZaakAfzenders(final Set<ZaakAfzender> zaakAfzender) {
         final List<RESTZaakAfzender> restZaakAfzenders = zaakAfzender.stream()
-                .map(this::convertZaakAfzender)
+                .map(RESTZaakAfzenderConverter::convertZaakAfzender)
                 .collect(Collectors.toList());
         for (final ZaakAfzender.Speciaal speciaal : ZaakAfzender.Speciaal.values()) {
             if (zaakAfzender.stream()
@@ -29,7 +29,7 @@ public class RESTZaakAfzenderConverter {
         return restZaakAfzenders;
     }
 
-    public List<ZaakAfzender> convertRESTZaakAfzenders(final List<RESTZaakAfzender> restZaakAfzender) {
+    public static List<ZaakAfzender> convertRESTZaakAfzenders(final List<RESTZaakAfzender> restZaakAfzender) {
         return restZaakAfzender.stream()
                 .peek(afzender -> {
                     if (afzender.mail.equals(afzender.replyTo)) {
@@ -37,11 +37,11 @@ public class RESTZaakAfzenderConverter {
                     }
                 })
                 .filter(afzender -> !afzender.speciaal || afzender.defaultMail || afzender.replyTo != null)
-                .map(this::convertRESTZaakAfzender)
+                .map(RESTZaakAfzenderConverter::convertRESTZaakAfzender)
                 .toList();
     }
 
-    public RESTZaakAfzender convertZaakAfzender(final ZaakAfzender zaakAfzender) {
+    public static RESTZaakAfzender convertZaakAfzender(final ZaakAfzender zaakAfzender) {
         final RESTZaakAfzender restZaakAfzender = new RESTZaakAfzender();
         restZaakAfzender.id = zaakAfzender.getId();
         restZaakAfzender.defaultMail = zaakAfzender.isDefault();
@@ -52,7 +52,7 @@ public class RESTZaakAfzenderConverter {
         return restZaakAfzender;
     }
 
-    public ZaakAfzender convertRESTZaakAfzender(final RESTZaakAfzender restZaakAfzender) {
+    public static ZaakAfzender convertRESTZaakAfzender(final RESTZaakAfzender restZaakAfzender) {
         final ZaakAfzender zaakAfzender = new ZaakAfzender();
         zaakAfzender.setId(restZaakAfzender.id);
         zaakAfzender.setDefault(restZaakAfzender.defaultMail);

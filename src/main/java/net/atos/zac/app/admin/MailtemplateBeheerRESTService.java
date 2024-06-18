@@ -39,23 +39,20 @@ public class MailtemplateBeheerRESTService {
     private MailTemplateService mailTemplateService;
 
     @Inject
-    private RESTMailtemplateConverter restMailtemplateConverter;
-
-    @Inject
     private PolicyService policyService;
 
     @GET
     @Path("{id}")
     public RESTMailtemplate readMailtemplate(@PathParam("id") final long id) {
         assertPolicy(policyService.readOverigeRechten().beheren());
-        return restMailtemplateConverter.convert(mailTemplateService.readMailtemplate(id));
+        return RESTMailtemplateConverter.convert(mailTemplateService.readMailtemplate(id));
     }
 
     @GET
     public List<RESTMailtemplate> listMailtemplates() {
         assertPolicy(policyService.readOverigeRechten().beheren());
         final List<MailTemplate> mailTemplates = mailTemplateService.listMailtemplates();
-        return mailTemplates.stream().map(restMailtemplateConverter::convert).toList();
+        return mailTemplates.stream().map(RESTMailtemplateConverter::convert).toList();
     }
 
     @GET
@@ -63,7 +60,7 @@ public class MailtemplateBeheerRESTService {
     public List<RESTMailtemplate> listkoppelbareMailtemplates() {
         assertPolicy(policyService.readOverigeRechten().beheren());
         final List<MailTemplate> mailTemplates = mailTemplateService.listKoppelbareMailtemplates();
-        return mailTemplates.stream().map(restMailtemplateConverter::convert).toList();
+        return mailTemplates.stream().map(RESTMailtemplateConverter::convert).toList();
     }
 
     @DELETE
@@ -77,8 +74,9 @@ public class MailtemplateBeheerRESTService {
     @Path("")
     public RESTMailtemplate persistMailtemplate(final RESTMailtemplate mailtemplate) {
         assertPolicy(policyService.readOverigeRechten().beheren());
-        return restMailtemplateConverter.convert(
-                mailTemplateService.storeMailtemplate(restMailtemplateConverter.convert(mailtemplate)));
+        return RESTMailtemplateConverter.convert(
+                mailTemplateService.storeMailtemplate(RESTMailtemplateConverter.convert(mailtemplate))
+        );
     }
 
     @GET

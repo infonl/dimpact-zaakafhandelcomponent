@@ -10,9 +10,9 @@ import net.atos.zac.mailtemplates.MailTemplateHelper;
 import net.atos.zac.mailtemplates.model.Mail;
 import net.atos.zac.mailtemplates.model.MailTemplate;
 
-public class RESTMailtemplateConverter {
+public final class RESTMailtemplateConverter {
 
-    public RESTMailtemplate convert(final MailTemplate mailTemplate) {
+    public static RESTMailtemplate convert(final MailTemplate mailTemplate) {
         final RESTMailtemplate restMailtemplate = new RESTMailtemplate();
         restMailtemplate.id = mailTemplate.getId();
         restMailtemplate.mailTemplateNaam = mailTemplate.getMailTemplateNaam();
@@ -21,11 +21,10 @@ public class RESTMailtemplateConverter {
         restMailtemplate.onderwerp = mailTemplate.getOnderwerp();
         restMailtemplate.body = mailTemplate.getBody();
         restMailtemplate.defaultMailtemplate = mailTemplate.isDefaultMailtemplate();
-
         return restMailtemplate;
     }
 
-    public MailTemplate convert(final RESTMailtemplate restMailtemplate) {
+    public static MailTemplate convert(final RESTMailtemplate restMailtemplate) {
         final MailTemplate mailTemplate = new MailTemplate();
         mailTemplate.setId(restMailtemplate.id);
         mailTemplate.setMail(Mail.valueOf(restMailtemplate.mail));

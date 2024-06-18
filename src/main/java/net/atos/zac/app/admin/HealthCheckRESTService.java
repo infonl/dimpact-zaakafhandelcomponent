@@ -42,9 +42,6 @@ public class HealthCheckRESTService {
     @Inject
     private HealthCheckService healthCheckService;
 
-    @Inject
-    private RESTZaaktypeOverzichtConverter zaaktypeConverter;
-
     @GET
     @Path("zaaktypes")
     public List<RESTZaaktypeInrichtingscheck> listZaaktypeInrichtingschecks() {
@@ -92,7 +89,7 @@ public class HealthCheckRESTService {
 
     private RESTZaaktypeInrichtingscheck convertToREST(final ZaaktypeInrichtingscheck check) {
         final RESTZaaktypeInrichtingscheck restCheck = new RESTZaaktypeInrichtingscheck();
-        restCheck.zaaktype = zaaktypeConverter.convert(check.getZaaktype());
+        restCheck.zaaktype = RESTZaaktypeOverzichtConverter.convert(check.getZaaktype());
         restCheck.besluittypeAanwezig = check.isBesluittypeAanwezig();
         restCheck.resultaattypesMetVerplichtBesluit = check.getResultaattypesMetVerplichtBesluit();
         restCheck.resultaattypeAanwezig = check.isResultaattypeAanwezig();
