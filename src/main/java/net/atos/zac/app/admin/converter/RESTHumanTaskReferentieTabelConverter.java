@@ -19,9 +19,6 @@ import net.atos.zac.zaaksturing.model.HumanTaskReferentieTabel;
 public class RESTHumanTaskReferentieTabelConverter {
 
     @Inject
-    private RESTReferentieTabelConverter restReferentieTabelConverter;
-
-    @Inject
     private ReferentieTabelService referentieTabelService;
 
     public List<RESTHumanTaskReferentieTabel> convertDefault(final Collection<FormulierVeldDefinitie> veldDefinities) {
@@ -32,7 +29,7 @@ public class RESTHumanTaskReferentieTabelConverter {
 
     public RESTHumanTaskReferentieTabel convertDefault(final FormulierVeldDefinitie veldDefinitie) {
         final RESTHumanTaskReferentieTabel referentieTabel = new RESTHumanTaskReferentieTabel(veldDefinitie);
-        referentieTabel.tabel = restReferentieTabelConverter.convert(
+        referentieTabel.tabel = RESTReferentieTabelConverter.convert(
                 referentieTabelService.readReferentieTabel(veldDefinitie.getDefaultTabel().name()), false);
         return referentieTabel;
     }
@@ -47,7 +44,7 @@ public class RESTHumanTaskReferentieTabelConverter {
         final RESTHumanTaskReferentieTabel restHumanTaskReferentieTabel = new RESTHumanTaskReferentieTabel();
         restHumanTaskReferentieTabel.id = humanTaskReferentieTabel.getId();
         restHumanTaskReferentieTabel.veld = humanTaskReferentieTabel.getVeld();
-        restHumanTaskReferentieTabel.tabel = restReferentieTabelConverter.convert(humanTaskReferentieTabel.getTabel(), false);
+        restHumanTaskReferentieTabel.tabel = RESTReferentieTabelConverter.convert(humanTaskReferentieTabel.getTabel(), false);
         return restHumanTaskReferentieTabel;
     }
 
