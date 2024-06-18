@@ -12,3 +12,13 @@ INSERT INTO zgw_consumers_service (label, api_type, api_root, client_id, secret,
 -- Set up the Objecten service configuration.
 INSERT INTO zgw_consumers_service (label, api_type, api_root, client_id, secret, auth_type, header_key, header_value, oas, nlx, user_id, user_representation, oas_file, client_certificate_id, server_certificate_id, uuid) VALUES ('Objects API', 'orc', 'http://objecten-api.local:8000/api/v2/', '', '', 'api_key', 'Authorization', 'Token cd63e158f3aca276ef284e3033d020a22899c728', 'http://objecten-api.local:8000/api/v2/schema/openapi.yaml', '', '', '', '', NULL, NULL, '9fe5f3fb-a1f5-4ea5-a2fe-c5b1294da0f4');
 INSERT INTO zgw_consumers_service (label, api_type, api_root, client_id, secret, auth_type, header_key, header_value, oas, nlx, user_id, user_representation, oas_file, client_certificate_id, server_certificate_id, uuid) VALUES ('Objects API IntelliJ', 'orc', 'http://host.docker.internal:8010/api/v2/', '', '', 'api_key', 'Authorization', 'Token cd63e158f3aca276ef284e3033d020a22899c728', 'http://host.docker.internal:8010/api/v2/schema/openapi.yaml', '', '', '', '', NULL, NULL, '91a1cc84-7677-47b5-a6e2-f33aae89ff8f');
+
+-- Update the primary key sequences for the tables in which we previously inserted data using fixed primary key values
+-- so that new records inserted manually via the OpenZaak UI do not conflict with the records we inserted.
+ALTER SEQUENCE catalogi_zaaktype_id_seq RESTART WITH 100;
+ALTER SEQUENCE catalogi_resultaattype_id_seq RESTART WITH 100;
+ALTER SEQUENCE catalogi_roltype_id_seq RESTART WITH 100;
+ALTER SEQUENCE catalogi_statustype_id_seq RESTART WITH 100;
+
+
+
