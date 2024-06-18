@@ -13,11 +13,16 @@ import jakarta.inject.Inject;
 import net.atos.zac.app.identity.converter.RESTUserConverter;
 import net.atos.zac.app.ontkoppeldedocumenten.model.RESTOntkoppeldDocument;
 import net.atos.zac.documenten.model.OntkoppeldDocument;
+import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
+import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
 
 public class RESTOntkoppeldDocumentConverter {
 
     @Inject
     private RESTUserConverter userConverter;
+
+    @Inject
+    private EnkelvoudigInformatieObjectLockService lockService;
 
     public RESTOntkoppeldDocument convert(final OntkoppeldDocument document) {
         final RESTOntkoppeldDocument restDocument = new RESTOntkoppeldDocument();
@@ -31,6 +36,8 @@ public class RESTOntkoppeldDocumentConverter {
         restDocument.ontkoppeldDoor = userConverter.convertUserId(document.getOntkoppeldDoor());
         restDocument.ontkoppeldOp = document.getOntkoppeldOp();
         restDocument.reden = document.getReden();
+        final EnkelvoudigInformatieObjectLock lock = lockService.findLock(document.getDocumentUUID());
+        restDocument.isVergrendeld = lock != null && lock.getLock() != null;
         return restDocument;
     }
 

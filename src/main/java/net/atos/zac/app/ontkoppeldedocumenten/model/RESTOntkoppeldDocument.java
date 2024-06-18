@@ -32,4 +32,6 @@ public class RESTOntkoppeldDocument {
     public ZonedDateTime ontkoppeldOp;
 
     public String reden;
+
+    public boolean isVergrendeld;
 }
