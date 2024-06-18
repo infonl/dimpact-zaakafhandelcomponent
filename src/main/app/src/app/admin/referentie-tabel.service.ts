@@ -76,4 +76,12 @@ export class ReferentieTabelService {
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
+
+  listServerErrorText(): Observable<string[]> {
+    return this.http
+      .get<string[]>(`${this.basepath}/server-error-text`)
+      .pipe(
+        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+      );
+  }
 }
