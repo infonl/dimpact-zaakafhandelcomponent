@@ -44,7 +44,8 @@ public class ReferentieTabelBeheerService {
 
     @Inject
     public ReferentieTabelBeheerService(
-            final ReferentieTabelService referentieTabelService) {
+            final ReferentieTabelService referentieTabelService
+    ) {
         this.referentieTabelService = referentieTabelService;
     }
 
