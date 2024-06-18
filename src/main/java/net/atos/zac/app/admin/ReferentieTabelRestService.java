@@ -6,7 +6,9 @@
 package net.atos.zac.app.admin;
 
 import static net.atos.zac.policy.PolicyService.assertPolicy;
-import static net.atos.zac.zaaksturing.model.ReferentieTabel.Systeem.*;
+import static net.atos.zac.zaaksturing.model.ReferentieTabel.Systeem.AFZENDER;
+import static net.atos.zac.zaaksturing.model.ReferentieTabel.Systeem.DOMEIN;
+import static net.atos.zac.zaaksturing.model.ReferentieTabel.Systeem.SERVER_ERROR_ERROR_PAGINA_TEKST;
 
 import java.util.List;
 
