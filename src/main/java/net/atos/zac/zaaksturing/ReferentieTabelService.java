@@ -18,8 +18,10 @@ import jakarta.transaction.Transactional;
 
 import net.atos.zac.zaaksturing.model.ReferentieTabel;
 
+import static jakarta.transaction.Transactional.TxType.SUPPORTS;
+
 @ApplicationScoped
-@Transactional
+@Transactional(SUPPORTS)
 public class ReferentieTabelService {
 
     @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
