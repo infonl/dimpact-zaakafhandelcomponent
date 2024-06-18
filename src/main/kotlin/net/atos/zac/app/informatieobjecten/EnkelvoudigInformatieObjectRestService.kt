@@ -492,11 +492,11 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
 
     @POST
     @Path("/informatieobject/{uuid}/unlock")
-    fun unlockDocument(@PathParam("uuid") uuid: UUID, @QueryParam("zaak") zaakUUID: UUID): Response {
+    fun unlockDocument(@PathParam("uuid") uuid: UUID, @QueryParam("zaak") zaakUUID: UUID?): Response {
         assertPolicy(
             drcClientService.readEnkelvoudigInformatieobject(uuid).let {
                 it.locked &&
-                    policyService.readDocumentRechten(it, zrcClientService.readZaak(zaakUUID)).ontgrendelen
+                    policyService.readDocumentRechten(it, zaakUUID?.let(zrcClientService::readZaak)).ontgrendelen
             }
         )
 

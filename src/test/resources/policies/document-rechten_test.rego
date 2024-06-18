@@ -334,8 +334,8 @@ test_ontgrendelen_behandelaar if {
         with input.document.vergrendeld_door as "1"
 }
 
-test_ontgrendelen_behandelaar_zaak_closed_fails if {
-    not ontgrendelen
+test_ontgrendelen_behandelaar_zaak_closed if {
+    ontgrendelen
         with input.user.rollen as ["behandelaar"]
         with input.document.zaak_open as false
         with input.user.id as "1"
@@ -356,8 +356,8 @@ test_ontgrendelen_recordmanager if {
         with input.document.zaak_open as true
 }
 
-test_ontgrendelen_recordmanager_zaak_closed_fails if {
-    not ontgrendelen
+test_ontgrendelen_recordmanager_zaak_closed if {
+    ontgrendelen
         with input.user.rollen as ["recordmanager"]
         with input.document.zaak_open as false
 }
