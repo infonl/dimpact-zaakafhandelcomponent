@@ -82,7 +82,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: |
-            src/generated/java
+            src/generated
           key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Cache built frontend artefacts
@@ -137,7 +137,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: |
-            src/generated/java
+            src/generated
           key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Run unit tests
