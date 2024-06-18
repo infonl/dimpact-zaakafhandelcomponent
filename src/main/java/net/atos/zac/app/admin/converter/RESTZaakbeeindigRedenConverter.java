@@ -9,6 +9,8 @@ package net.atos.zac.app.admin.converter;
 import net.atos.zac.app.admin.model.RESTZaakbeeindigReden;
 import net.atos.zac.zaaksturing.model.ZaakbeeindigReden;
 
+import java.util.List;
+
 public final class RESTZaakbeeindigRedenConverter {
 
     public static RESTZaakbeeindigReden convertZaakbeeindigReden(final ZaakbeeindigReden zaakbeeindigReden) {
@@ -16,6 +18,12 @@ public final class RESTZaakbeeindigRedenConverter {
         restZaakbeeindigReden.id = zaakbeeindigReden.getId();
         restZaakbeeindigReden.naam = zaakbeeindigReden.getNaam();
         return restZaakbeeindigReden;
+    }
+
+    public static List<RESTZaakbeeindigReden> convertZaakbeeindigRedenen(final List<ZaakbeeindigReden> zaakbeeindigRedenen) {
+        return zaakbeeindigRedenen.stream()
+                .map(RESTZaakbeeindigRedenConverter::convertZaakbeeindigReden)
+                .toList();
     }
 
     public static ZaakbeeindigReden convertRESTZaakbeeindigReden(final RESTZaakbeeindigReden restZaakbeeindigReden) {
