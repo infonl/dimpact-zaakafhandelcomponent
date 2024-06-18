@@ -33,7 +33,8 @@ public class ReferentieTabel {
     public enum Systeem {
         ADVIES,
         AFZENDER,
-        DOMEIN
+        DOMEIN,
+        SERVER_ERROR_ERROR_PAGINA_TEKST
     }
 
     @Id

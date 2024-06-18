@@ -5,6 +5,8 @@
 
 package net.atos.zac.zaaksturing;
 
+import static jakarta.transaction.Transactional.TxType.SUPPORTS;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -17,8 +19,6 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 import net.atos.zac.zaaksturing.model.ReferentieTabel;
-
-import static jakarta.transaction.Transactional.TxType.SUPPORTS;
 
 @ApplicationScoped
 @Transactional(SUPPORTS)
@@ -47,8 +47,9 @@ public class ReferentieTabelService {
 
     public ReferentieTabel readReferentieTabel(final String code) {
         return findReferentieTabel(code)
-                .orElseThrow(() -> new RuntimeException(
-                        "%s with code='%s' not found".formatted(ReferentieTabel.class.getSimpleName(), code)));
+                .orElseThrow(
+                        () -> new RuntimeException("%s with code='%s' not found".formatted(ReferentieTabel.class.getSimpleName(), code))
+                );
     }
 
     public Optional<ReferentieTabel> findReferentieTabel(final String code) {
