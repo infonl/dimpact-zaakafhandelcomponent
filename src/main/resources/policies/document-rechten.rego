@@ -91,13 +91,11 @@ default ontgrendelen := false
 ontgrendelen {
     behandelaar.rol in user.rollen
     zaaktype_allowed
-    document.zaak_open == true
     document.vergrendeld_door == user.id
 }
 ontgrendelen {
     recordmanager.rol in user.rollen
     zaaktype_allowed
-    document.zaak_open == true
 }
 
 default ondertekenen := false
