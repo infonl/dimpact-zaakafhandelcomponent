@@ -6,10 +6,10 @@
 package net.atos.zac.app.admin.converter;
 
 
+import java.util.List;
+
 import net.atos.zac.app.admin.model.RESTZaakbeeindigReden;
 import net.atos.zac.zaaksturing.model.ZaakbeeindigReden;
-
-import java.util.List;
 
 public final class RESTZaakbeeindigRedenConverter {
 
