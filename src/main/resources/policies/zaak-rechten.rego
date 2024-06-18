@@ -33,6 +33,7 @@ zaak_rechten := {
     "koppelen": koppelen,
     "koppelen_gerelateerd": koppelen_gerelateerd,
     "versturen_email": versturen_email,
+    "versturen_email_bij_afhandelen_zaak": versturen_email_bij_afhandelen_zaak,
     "versturen_ontvangstbevestiging": versturen_ontvangstbevestiging,
     "toevoegen_initiator_persoon": toevoegen_initiator_persoon,
     "toevoegen_initiator_bedrijf": toevoegen_initiator_bedrijf,
@@ -165,6 +166,13 @@ koppelen_gerelateerd {
 
 default versturen_email := false
 versturen_email {
+    behandelaar.rol in user.rollen
+    zaaktype_allowed == true
+    zaak.open == true
+}
+
+default versturen_email_bij_afhandelen_zaak := false
+versturen_email_bij_afhandelen_zaak {
     behandelaar.rol in user.rollen
     zaaktype_allowed == true
 }
