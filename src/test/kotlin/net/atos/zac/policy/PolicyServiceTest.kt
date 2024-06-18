@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 package net.atos.zac.policy
 
 import io.kotest.core.spec.style.BehaviorSpec
@@ -13,6 +18,8 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.client.opa.model.RuleQuery
 import net.atos.client.opa.model.RuleResponse
+import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
+import net.atos.client.zgw.drc.model.generated.Ondertekening
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.createVerlenging
 import net.atos.client.zgw.zrc.model.createZaak
@@ -23,13 +30,17 @@ import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
+import net.atos.zac.enkelvoudiginformatieobject.model.createEnkelvoudigInformatieObjectLock
+import net.atos.zac.policy.input.DocumentInput
 import net.atos.zac.policy.input.UserInput
 import net.atos.zac.policy.input.ZaakInput
+import net.atos.zac.policy.output.createDocumentRechten
 import net.atos.zac.policy.output.createWerklijstRechten
 import net.atos.zac.policy.output.createZaakRechten
 import net.atos.zac.zoeken.model.ZaakIndicatie
 import net.atos.zac.zoeken.model.createZaakZoekObject
 import java.net.URI
+import java.time.LocalDate
 import java.util.UUID
 
 class PolicyServiceTest : BehaviorSpec() {
@@ -79,13 +90,13 @@ class PolicyServiceTest : BehaviorSpec() {
                         evaluationClient.readZaakRechten(any<RuleQuery<ZaakInput>>())
                     }
                     with(ruleQuerySlot.captured.input.zaak) {
-                        this.open shouldBe true
-                        this.zaaktype shouldBe zaakType.omschrijving
-                        this.opgeschort shouldBe zaak.isOpgeschort
-                        this.verlengd shouldBe zaak.isVerlengd
-                        this.besloten shouldBe false
-                        this.intake shouldBe false
-                        this.heropend shouldBe false
+                        open shouldBe true
+                        zaaktype shouldBe zaakType.omschrijving
+                        opgeschort shouldBe zaak.isOpgeschort
+                        verlengd shouldBe zaak.isVerlengd
+                        besloten shouldBe false
+                        intake shouldBe false
+                        heropend shouldBe false
                     }
                 }
             }
@@ -116,13 +127,13 @@ class PolicyServiceTest : BehaviorSpec() {
                         evaluationClient.readZaakRechten(any<RuleQuery<ZaakInput>>())
                     }
                     with(ruleQuerySlot.captured.input.zaak) {
-                        this.open shouldBe true
-                        this.zaaktype shouldBe zaakType.omschrijving
-                        this.opgeschort shouldBe zaak.isOpgeschort
-                        this.verlengd shouldBe zaak.isVerlengd
-                        this.besloten shouldBe false
-                        this.intake shouldBe false
-                        this.heropend shouldBe false
+                        open shouldBe true
+                        zaaktype shouldBe zaakType.omschrijving
+                        opgeschort shouldBe zaak.isOpgeschort
+                        verlengd shouldBe zaak.isVerlengd
+                        besloten shouldBe false
+                        intake shouldBe false
+                        heropend shouldBe false
                     }
                 }
             }
@@ -240,7 +251,9 @@ class PolicyServiceTest : BehaviorSpec() {
         Given("an evaluation client") {
             val expectedWerklijstRechten = createWerklijstRechten()
             val ruleQuerySlot = slot<RuleQuery<UserInput>>()
-            every { evaluationClient.readWerklijstRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedWerklijstRechten)
+            every {
+                evaluationClient.readWerklijstRechten(capture(ruleQuerySlot))
+            } returns RuleResponse(expectedWerklijstRechten)
 
             When("the werklijst rechten are requested") {
 
@@ -252,9 +265,92 @@ class PolicyServiceTest : BehaviorSpec() {
                         evaluationClient.readWerklijstRechten(any<RuleQuery<UserInput>>())
                     }
                     with(ruleQuerySlot.captured.input.user) {
-                        this.id shouldBe loggedInUser.id
-                        this.rollen shouldBe loggedInUser.roles
-                        this.zaaktypen shouldBe loggedInUser.geautoriseerdeZaaktypen
+                        id shouldBe loggedInUser.id
+                        rollen shouldBe loggedInUser.roles
+                        zaaktypen shouldBe loggedInUser.geautoriseerdeZaaktypen
+                    }
+                }
+            }
+        }
+
+        Given("unsigned information object") {
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val enkelvoudigInformatieobject = createEnkelvoudigInformatieObject()
+            val enkelvoudigInformatieObjectLock = createEnkelvoudigInformatieObjectLock()
+
+            val expectedDocumentRights = createDocumentRechten()
+            val ruleQuerySlot = slot<RuleQuery<DocumentInput>>()
+
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+            every { evaluationClient.readDocumentRechten(capture(ruleQuerySlot)) } returns RuleResponse(
+                expectedDocumentRights
+            )
+
+            When("document policy rights are requested") {
+                val documentRights = policyService.readDocumentRechten(
+                    enkelvoudigInformatieobject,
+                    enkelvoudigInformatieObjectLock,
+                    zaak
+                )
+
+                Then("the correct data is sent to OPA") {
+                    documentRights shouldBe expectedDocumentRights
+
+                    verify(exactly = 1) {
+                        evaluationClient.readDocumentRechten(any<RuleQuery<DocumentInput>>())
+                    }
+                    with(ruleQuerySlot.captured.input.documentData) {
+                        definitief shouldBe false
+                        vergrendeld shouldBe false
+                        ondertekend shouldBe false
+                        vergrendeldDoor shouldBe null
+                        zaaktype shouldBe zaakType.omschrijving
+                        zaakOpen shouldBe true
+                    }
+                }
+            }
+        }
+
+        Given("signed and locked information object") {
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val enkelvoudigInformatieobject = createEnkelvoudigInformatieObject(locked = true).apply {
+                ondertekening = Ondertekening().apply {
+                    soort = Ondertekening.SoortEnum.ANALOOG
+                    datum = LocalDate.now()
+                }
+            }
+            val enkelvoudigInformatieObjectLock = createEnkelvoudigInformatieObjectLock()
+
+            val expectedDocumentRights = createDocumentRechten()
+            val ruleQuerySlot = slot<RuleQuery<DocumentInput>>()
+
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+            every {
+                evaluationClient.readDocumentRechten(capture(ruleQuerySlot))
+            } returns RuleResponse(expectedDocumentRights)
+
+            When("document policy rights are requested") {
+                val documentRights = policyService.readDocumentRechten(
+                    enkelvoudigInformatieobject,
+                    enkelvoudigInformatieObjectLock,
+                    zaak
+                )
+
+                Then("the correct data is sent to OPA") {
+                    documentRights shouldBe expectedDocumentRights
+
+                    verify(exactly = 1) {
+                        evaluationClient.readDocumentRechten(any<RuleQuery<DocumentInput>>())
+                    }
+                    with(ruleQuerySlot.captured.input.documentData) {
+                        definitief shouldBe false
+                        vergrendeld shouldBe true
+                        ondertekend shouldBe true
+                        vergrendeldDoor shouldBe null
+                        zaaktype shouldBe zaakType.omschrijving
+                        zaakOpen shouldBe true
                     }
                 }
             }
