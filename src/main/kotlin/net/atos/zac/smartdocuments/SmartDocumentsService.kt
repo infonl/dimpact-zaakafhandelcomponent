@@ -34,11 +34,11 @@ class SmartDocumentsService @Inject constructor(
     private var zaakafhandelParameterService: ZaakafhandelParameterService,
 ) {
     companion object {
-        @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
-        lateinit var entityManager: EntityManager
-
         private val LOG = Logger.getLogger(SmartDocumentsService::class.java.name)
     }
+
+    @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
+    private lateinit var entityManager: EntityManager
 
     /**
      * Lists all SmartDocuments template available

@@ -36,20 +36,32 @@ import net.atos.zac.zaaksturing.model.ReferentieTabel;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class ReferentieTabelRESTService {
-    @Inject
     private ReferentieTabelService referentieTabelService;
-
-    @Inject
     private ReferentieTabelBeheerService referentieTabelBeheerService;
-
-    @Inject
     private RESTReferentieTabelConverter restReferentieTabelConverter;
-
-    @Inject
     private RESTReferentieWaardeConverter restReferentieWaardeConverter;
+    private PolicyService policyService;
+
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public ReferentieTabelRESTService() {
+    }
 
     @Inject
-    private PolicyService policyService;
+    public ReferentieTabelRESTService(
+            final ReferentieTabelService referentieTabelService,
+            final ReferentieTabelBeheerService referentieTabelBeheerService,
+            final RESTReferentieTabelConverter restReferentieTabelConverter,
+            final RESTReferentieWaardeConverter restReferentieWaardeConverter,
+            final PolicyService policyService
+    ) {
+        this.referentieTabelService = referentieTabelService;
+        this.referentieTabelBeheerService = referentieTabelBeheerService;
+        this.restReferentieTabelConverter = restReferentieTabelConverter;
+        this.restReferentieWaardeConverter = restReferentieWaardeConverter;
+        this.policyService = policyService;
+    }
 
     @GET
     public List<RESTReferentieTabel> listReferentieTabellen() {
