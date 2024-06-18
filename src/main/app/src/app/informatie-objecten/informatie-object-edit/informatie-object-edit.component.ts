@@ -196,12 +196,11 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
       .label("toelichting")
       .build();
 
-    let vorigeBestandsnaam = null;
-    inhoudField.fileUploaded.subscribe((bestandsnaam) => {
-      const titelCtrl = titel.formControl;
-      titelCtrl.setValue(bestandsnaam.replace(/\.[^/.]+$/, ""));
-      vorigeBestandsnaam = "" + titelCtrl.value;
-    });
+    this.subscriptions$.push(
+      inhoudField.formControl.valueChanges.subscribe((file: File) => {
+        titel.formControl.setValue(file?.name?.replace(/\.[^/.]+$/, "") || "");
+      }),
+    );
 
     const emptyField = new ParagraphFormFieldBuilder().text("").build();
 
