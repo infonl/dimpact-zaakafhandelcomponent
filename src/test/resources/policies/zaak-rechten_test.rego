@@ -23,6 +23,7 @@ import data.net.atos.zac.zaak.toevoegen_document
 import data.net.atos.zac.zaak.koppelen
 import data.net.atos.zac.zaak.koppelen_gerelateerd
 import data.net.atos.zac.zaak.versturen_email
+import data.net.atos.zac.zaak.versturen_email_bij_afhandelen_zaak
 import data.net.atos.zac.zaak.versturen_ontvangstbevestiging
 import data.net.atos.zac.zaak.toevoegen_initiator_persoon
 import data.net.atos.zac.zaak.toevoegen_initiator_bedrijf
@@ -402,9 +403,8 @@ test_versturen_email if {
         with input.zaak.open as true
 }
 
-# it should be possible to send an email also if the zaak is closed
-test_versturen_email_zaak_closed_succeeds if {
-    versturen_email
+test_versturen_email_zaak_closed_fails if {
+    not versturen_email
         with input.user.rollen as [ "behandelaar" ]
         with input.zaak.open as false
 }
@@ -414,6 +414,29 @@ test_versturen_email_wrong_role_fails if {
 }
 
 test_versturen_email_missing_role_fails if {
+    not versturen_email with input.user.key as "value"
+}
+
+#####################################
+# versturen_email_bij_afhandelen_zaak
+#####################################
+test_versturen_email_bij_afhandelen_zaak if {
+    versturen_email_bij_afhandelen_zaak
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+}
+
+test_versturen_email_bij_afhandelen_zaak_zaak_closed if {
+    versturen_email_bij_afhandelen_zaak
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as false
+}
+
+test_versturen_email_bij_afhandelen_zaak_wrong_role_fails if {
+    not versturen_email with input.user.rollen as [ "functioneel" ]
+}
+
+test_versturen_email_bij_afhandelen_zaak_missing_role_fails if {
     not versturen_email with input.user.key as "value"
 }
 
