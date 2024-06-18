@@ -34,31 +34,25 @@ import net.atos.zac.zaaksturing.model.ReferentieTabel;
 @Path("referentietabellen")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class ReferentieTabelRESTService {
+public class ReferentieTabelRestService {
     private ReferentieTabelService referentieTabelService;
     private ReferentieTabelBeheerService referentieTabelBeheerService;
-    private RESTReferentieTabelConverter restReferentieTabelConverter;
-    private RESTReferentieWaardeConverter restReferentieWaardeConverter;
     private PolicyService policyService;
 
     /**
      * Default no-arg constructor, required by Weld.
      */
-    public ReferentieTabelRESTService() {
+    public ReferentieTabelRestService() {
     }
 
     @Inject
-    public ReferentieTabelRESTService(
+    public ReferentieTabelRestService(
             final ReferentieTabelService referentieTabelService,
             final ReferentieTabelBeheerService referentieTabelBeheerService,
-            final RESTReferentieTabelConverter restReferentieTabelConverter,
-            final RESTReferentieWaardeConverter restReferentieWaardeConverter,
             final PolicyService policyService
     ) {
         this.referentieTabelService = referentieTabelService;
         this.referentieTabelBeheerService = referentieTabelBeheerService;
-        this.restReferentieTabelConverter = restReferentieTabelConverter;
-        this.restReferentieWaardeConverter = restReferentieWaardeConverter;
         this.policyService = policyService;
     }
 
@@ -67,7 +61,7 @@ public class ReferentieTabelRESTService {
         assertPolicy(policyService.readOverigeRechten().beheren());
         final List<ReferentieTabel> referentieTabellen = referentieTabelService.listReferentieTabellen();
         return referentieTabellen.stream()
-                .map(referentieTabel -> restReferentieTabelConverter.convert(referentieTabel, false))
+                .map(referentieTabel -> RESTReferentieTabelConverter.convert(referentieTabel, false))
                 .toList();
     }
 
@@ -75,7 +69,7 @@ public class ReferentieTabelRESTService {
     @Path("new")
     public RESTReferentieTabel newReferentieTabel() {
         assertPolicy(policyService.readOverigeRechten().beheren());
-        return restReferentieTabelConverter.convert(
+        return RESTReferentieTabelConverter.convert(
                 referentieTabelBeheerService.newReferentieTabel(),
                 true
         );
@@ -84,9 +78,9 @@ public class ReferentieTabelRESTService {
     @POST
     public RESTReferentieTabel createReferentieTabel(final RESTReferentieTabel referentieTabel) {
         assertPolicy(policyService.readOverigeRechten().beheren());
-        return restReferentieTabelConverter.convert(
+        return RESTReferentieTabelConverter.convert(
                 referentieTabelBeheerService.createReferentieTabel(
-                        restReferentieTabelConverter.convert(referentieTabel)
+                        RESTReferentieTabelConverter.convert(referentieTabel)
                 ),
                 true
         );
@@ -96,7 +90,7 @@ public class ReferentieTabelRESTService {
     @Path("{id}")
     public RESTReferentieTabel readReferentieTabel(@PathParam("id") final long id) {
         assertPolicy(policyService.readOverigeRechten().beheren());
-        return restReferentieTabelConverter.convert(
+        return RESTReferentieTabelConverter.convert(
                 referentieTabelService.readReferentieTabel(id),
                 true
         );
@@ -109,9 +103,9 @@ public class ReferentieTabelRESTService {
             final RESTReferentieTabel referentieTabel
     ) {
         assertPolicy(policyService.readOverigeRechten().beheren());
-        return restReferentieTabelConverter.convert(
+        return RESTReferentieTabelConverter.convert(
                 referentieTabelBeheerService.updateReferentieTabel(
-                        restReferentieTabelConverter.convert(referentieTabel,
+                        RESTReferentieTabelConverter.convert(referentieTabel,
                                 referentieTabelService.readReferentieTabel(id)
                         )
                 ),
@@ -130,7 +124,7 @@ public class ReferentieTabelRESTService {
     @Path("afzender")
     public List<String> listAfzenders() {
         assertPolicy(policyService.readOverigeRechten().beheren());
-        return restReferentieWaardeConverter.convert(
+        return RESTReferentieWaardeConverter.convert(
                 referentieTabelService.readReferentieTabel(AFZENDER.name()).getWaarden()
         );
     }
@@ -139,7 +133,7 @@ public class ReferentieTabelRESTService {
     @Path("domein")
     public List<String> listDomeinen() {
         assertPolicy(policyService.readOverigeRechten().beheren());
-        return restReferentieWaardeConverter.convert(
+        return RESTReferentieWaardeConverter.convert(
                 referentieTabelService.readReferentieTabel(DOMEIN.name()).getWaarden()
         );
     }
@@ -147,7 +141,7 @@ public class ReferentieTabelRESTService {
     @GET
     @Path("server-error-text")
     public List<String> listServerErrorPageTexts() {
-        return restReferentieWaardeConverter.convert(
+        return RESTReferentieWaardeConverter.convert(
                 referentieTabelService.readReferentieTabel(SERVER_ERROR_ERROR_PAGINA_TEKST.name()).getWaarden()
         );
     }
