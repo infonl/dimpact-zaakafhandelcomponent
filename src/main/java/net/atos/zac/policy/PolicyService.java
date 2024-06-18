@@ -21,6 +21,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.flowable.task.api.TaskInfo;
 
 import net.atos.client.opa.model.RuleQuery;
+import net.atos.client.zgw.drc.DrcClientUtil;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
@@ -140,7 +141,7 @@ public class PolicyService {
         documentData.definitief = enkelvoudigInformatieobject.getStatus() == DEFINITIEF;
         documentData.vergrendeld = enkelvoudigInformatieobject.getLocked();
         documentData.vergrendeldDoor = lock != null ? lock.getUserId() : null;
-        documentData.ondertekend = enkelvoudigInformatieobject.getOndertekening() != null;
+        documentData.ondertekend = DrcClientUtil.isOndertekend(enkelvoudigInformatieobject);
         if (zaak != null) {
             documentData.zaakOpen = zaak.isOpen();
             documentData.zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype()).getOmschrijving();
