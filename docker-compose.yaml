@@ -383,7 +383,7 @@ services:
         condition: service_started
 
   smartdocuments-wiremock:
-    image: "wiremock/wiremock:3.6.0-2"
+    image: wiremock/wiremock:3.6.0-2
     ports:
       - "8082:8080"
     volumes:
@@ -464,7 +464,7 @@ services:
     profiles: [ "metrics" ]
 
   greenmail:
-    image: greenmail/standalone:2.1.0-alpha-4
+    image: greenmail/standalone:2.1.0-rc-1
     environment:
       GREENMAIL_OPTS: >-
         -Dgreenmail.smtp.hostname=0.0.0.0
