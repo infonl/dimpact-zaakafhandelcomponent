@@ -18,9 +18,6 @@ import net.atos.zac.zaaksturing.model.ZaakbeeindigParameter;
 public class RESTZaakbeeindigParameterConverter {
 
     @Inject
-    private RESTZaakbeeindigRedenConverter restZaakbeeindigRedenConverter;
-
-    @Inject
     private RESTResultaattypeConverter restResultaattypeConverter;
 
     @Inject
@@ -41,18 +38,21 @@ public class RESTZaakbeeindigParameterConverter {
     private RESTZaakbeeindigParameter convertZaakbeeindigParameter(final ZaakbeeindigParameter zaakbeeindigParameter) {
         final RESTZaakbeeindigParameter restZaakbeeindigParameter = new RESTZaakbeeindigParameter();
         restZaakbeeindigParameter.id = zaakbeeindigParameter.getId();
-        restZaakbeeindigParameter.zaakbeeindigReden = restZaakbeeindigRedenConverter.convertZaakbeeindigReden(zaakbeeindigParameter
-                .getZaakbeeindigReden());
+        restZaakbeeindigParameter.zaakbeeindigReden = RESTZaakbeeindigRedenConverter.convertZaakbeeindigReden(zaakbeeindigParameter
+                .getZaakbeeindigReden()
+        );
         restZaakbeeindigParameter.resultaattype = restResultaattypeConverter.convertResultaattype(
-                ztcClientService.readResultaattype(zaakbeeindigParameter.getResultaattype()));
+                ztcClientService.readResultaattype(zaakbeeindigParameter.getResultaattype())
+        );
         return restZaakbeeindigParameter;
     }
 
     private ZaakbeeindigParameter convertRESTZaakbeeindigParameter(final RESTZaakbeeindigParameter restZaakbeeindigParameter) {
         final ZaakbeeindigParameter zaakbeeindigParameter = new ZaakbeeindigParameter();
         zaakbeeindigParameter.setId(restZaakbeeindigParameter.id);
-        zaakbeeindigParameter.setZaakbeeindigReden(restZaakbeeindigRedenConverter.convertRESTZaakbeeindigReden(
-                restZaakbeeindigParameter.zaakbeeindigReden));
+        zaakbeeindigParameter.setZaakbeeindigReden(
+                RESTZaakbeeindigRedenConverter.convertRESTZaakbeeindigReden(restZaakbeeindigParameter.zaakbeeindigReden)
+        );
         zaakbeeindigParameter.setResultaattype(restZaakbeeindigParameter.resultaattype.getId());
         return zaakbeeindigParameter;
     }

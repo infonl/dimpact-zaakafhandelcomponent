@@ -8,38 +8,34 @@ package net.atos.zac.app.admin.converter;
 import java.util.List;
 import java.util.Set;
 
-import jakarta.inject.Inject;
-
 import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling;
 import net.atos.zac.zaaksturing.model.MailtemplateKoppeling;
 
-public class RESTMailtemplateKoppelingConverter {
+public final class RESTMailtemplateKoppelingConverter {
 
-    @Inject
-    private RESTMailtemplateConverter restMailtemplateConverter;
-
-    public RESTMailtemplateKoppeling convert(final MailtemplateKoppeling mailtemplateKoppeling) {
+    public static RESTMailtemplateKoppeling convert(final MailtemplateKoppeling mailtemplateKoppeling) {
         final RESTMailtemplateKoppeling restMailtemplateKoppeling = new RESTMailtemplateKoppeling();
         restMailtemplateKoppeling.id = mailtemplateKoppeling.getId();
-        restMailtemplateKoppeling.mailtemplate = restMailtemplateConverter.convert(mailtemplateKoppeling.getMailTemplate());
+        restMailtemplateKoppeling.mailtemplate = RESTMailtemplateConverter.convert(mailtemplateKoppeling.getMailTemplate());
 
         return restMailtemplateKoppeling;
     }
 
-    public MailtemplateKoppeling convert(final RESTMailtemplateKoppeling restMailtemplateKoppeling) {
+    public static MailtemplateKoppeling convert(final RESTMailtemplateKoppeling restMailtemplateKoppeling) {
         final MailtemplateKoppeling mailtemplateKoppeling = new MailtemplateKoppeling();
         mailtemplateKoppeling.setMailTemplate(
-                restMailtemplateConverter.convert(restMailtemplateKoppeling.mailtemplate));
+                RESTMailtemplateConverter.convert(restMailtemplateKoppeling.mailtemplate)
+        );
         return mailtemplateKoppeling;
     }
 
-    public List<RESTMailtemplateKoppeling> convert(final Set<MailtemplateKoppeling> mailtemplateKoppelingen) {
-        return mailtemplateKoppelingen.stream().map(this::convert).toList();
+    public static List<RESTMailtemplateKoppeling> convert(final Set<MailtemplateKoppeling> mailtemplateKoppelingen) {
+        return mailtemplateKoppelingen.stream().map(RESTMailtemplateKoppelingConverter::convert).toList();
     }
 
-    public List<MailtemplateKoppeling> convertRESTmailtemplateKoppelingen(
+    public static List<MailtemplateKoppeling> convertRESTmailtemplateKoppelingen(
             final List<RESTMailtemplateKoppeling> restMailtemplateKoppelingen
     ) {
-        return restMailtemplateKoppelingen.stream().map(this::convert).toList();
+        return restMailtemplateKoppelingen.stream().map(RESTMailtemplateKoppelingConverter::convert).toList();
     }
 }

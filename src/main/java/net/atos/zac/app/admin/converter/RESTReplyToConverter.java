@@ -12,11 +12,11 @@ import net.atos.zac.app.admin.model.RESTReplyTo;
 import net.atos.zac.zaaksturing.model.ReferentieTabelWaarde;
 import net.atos.zac.zaaksturing.model.ZaakAfzender;
 
-public class RESTReplyToConverter {
+public final class RESTReplyToConverter {
 
-    public List<RESTReplyTo> convertReplyTos(final List<ReferentieTabelWaarde> waarden) {
+    public static List<RESTReplyTo> convertReplyTos(final List<ReferentieTabelWaarde> waarden) {
         final List<RESTReplyTo> restReplyTos = waarden.stream()
-                .map(this::convertReplyTo)
+                .map(RESTReplyToConverter::convertReplyTo)
                 .collect(Collectors.toList());
         for (final ZaakAfzender.Speciaal speciaal : ZaakAfzender.Speciaal.values()) {
             restReplyTos.add(new RESTReplyTo(speciaal));
@@ -25,7 +25,7 @@ public class RESTReplyToConverter {
         return restReplyTos;
     }
 
-    public RESTReplyTo convertReplyTo(final ReferentieTabelWaarde waarde) {
+    public static RESTReplyTo convertReplyTo(final ReferentieTabelWaarde waarde) {
         final RESTReplyTo restReplyTo = new RESTReplyTo();
         restReplyTo.mail = waarde.getNaam();
         restReplyTo.speciaal = false;

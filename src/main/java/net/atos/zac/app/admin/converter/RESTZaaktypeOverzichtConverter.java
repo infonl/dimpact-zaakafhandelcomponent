@@ -12,9 +12,9 @@ import net.atos.client.zgw.shared.util.URIUtil;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.app.admin.model.RESTZaaktypeOverzicht;
 
-public class RESTZaaktypeOverzichtConverter {
+public final class RESTZaaktypeOverzichtConverter {
 
-    public RESTZaaktypeOverzicht convert(final ZaakType zaaktype) {
+    public static RESTZaaktypeOverzicht convert(final ZaakType zaaktype) {
         final RESTZaaktypeOverzicht restZaaktype = new RESTZaaktypeOverzicht();
         restZaaktype.uuid = URIUtil.parseUUIDFromResourceURI(zaaktype.getUrl());
         restZaaktype.identificatie = zaaktype.getIdentificatie();

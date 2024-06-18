@@ -37,9 +37,6 @@ public class MailtemplateKoppelingRESTService {
     private MailTemplateKoppelingenService mailTemplateKoppelingenService;
 
     @Inject
-    private RESTMailtemplateKoppelingConverter restMailtemplateKoppelingConverter;
-
-    @Inject
     private RESTZaakafhandelParametersConverter restZaakafhandelParametersConverter;
 
     @Inject
@@ -49,7 +46,7 @@ public class MailtemplateKoppelingRESTService {
     @Path("{id}")
     public RESTMailtemplateKoppeling readMailtemplateKoppeling(@PathParam("id") final long id) {
         assertPolicy(policyService.readOverigeRechten().beheren());
-        return restMailtemplateKoppelingConverter.convert(mailTemplateKoppelingenService.readMailtemplateKoppeling(id));
+        return RESTMailtemplateKoppelingConverter.convert(mailTemplateKoppelingenService.readMailtemplateKoppeling(id));
     }
 
     @DELETE
@@ -64,7 +61,7 @@ public class MailtemplateKoppelingRESTService {
         assertPolicy(policyService.readOverigeRechten().beheren());
         final List<MailtemplateKoppeling> mailtemplateKoppelingList = mailTemplateKoppelingenService.listMailtemplateKoppelingen();
         return mailtemplateKoppelingList.stream().map(mailtemplateKoppeling -> {
-            final RESTMailtemplateKoppeling restMailtemplateKoppeling = restMailtemplateKoppelingConverter.convert(mailtemplateKoppeling);
+            final RESTMailtemplateKoppeling restMailtemplateKoppeling = RESTMailtemplateKoppelingConverter.convert(mailtemplateKoppeling);
             restMailtemplateKoppeling.zaakafhandelParameters = restZaakafhandelParametersConverter
                     .convertZaakafhandelParameters(mailtemplateKoppeling.getZaakafhandelParameters(), false);
             return restMailtemplateKoppeling;
@@ -77,8 +74,10 @@ public class MailtemplateKoppelingRESTService {
             final RESTMailtemplateKoppeling mailtemplateKoppeling
     ) {
         assertPolicy(policyService.readOverigeRechten().beheren());
-        return restMailtemplateKoppelingConverter.convert(
+        return RESTMailtemplateKoppelingConverter.convert(
                 mailTemplateKoppelingenService.storeMailtemplateKoppeling(
-                        restMailtemplateKoppelingConverter.convert(mailtemplateKoppeling)));
+                        RESTMailtemplateKoppelingConverter.convert(mailtemplateKoppeling)
+                )
+        );
     }
 }

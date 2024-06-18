@@ -21,37 +21,33 @@ public class RESTHumanTaskReferentieTabelConverter {
     @Inject
     private ReferentieTabelService referentieTabelService;
 
-    public List<RESTHumanTaskReferentieTabel> convertDefault(final Collection<FormulierVeldDefinitie> veldDefinities) {
-        return veldDefinities.stream()
-                .map(this::convertDefault)
-                .collect(Collectors.toList());
-    }
-
     public RESTHumanTaskReferentieTabel convertDefault(final FormulierVeldDefinitie veldDefinitie) {
         final RESTHumanTaskReferentieTabel referentieTabel = new RESTHumanTaskReferentieTabel(veldDefinitie);
         referentieTabel.tabel = RESTReferentieTabelConverter.convert(
-                referentieTabelService.readReferentieTabel(veldDefinitie.getDefaultTabel().name()), false);
+                referentieTabelService.readReferentieTabel(veldDefinitie.getDefaultTabel().name()),
+                false
+        );
         return referentieTabel;
     }
 
     public List<RESTHumanTaskReferentieTabel> convert(final Collection<HumanTaskReferentieTabel> humanTaskReferentieTabellen) {
         return humanTaskReferentieTabellen.stream()
-                .map(this::convert)
+                .map(RESTHumanTaskReferentieTabelConverter::convert)
                 .collect(Collectors.toList());
-    }
-
-    private RESTHumanTaskReferentieTabel convert(final HumanTaskReferentieTabel humanTaskReferentieTabel) {
-        final RESTHumanTaskReferentieTabel restHumanTaskReferentieTabel = new RESTHumanTaskReferentieTabel();
-        restHumanTaskReferentieTabel.id = humanTaskReferentieTabel.getId();
-        restHumanTaskReferentieTabel.veld = humanTaskReferentieTabel.getVeld();
-        restHumanTaskReferentieTabel.tabel = RESTReferentieTabelConverter.convert(humanTaskReferentieTabel.getTabel(), false);
-        return restHumanTaskReferentieTabel;
     }
 
     public List<HumanTaskReferentieTabel> convert(final List<RESTHumanTaskReferentieTabel> restHumanTaskrestHumanTaskReferentieTabellen) {
         return restHumanTaskrestHumanTaskReferentieTabellen.stream()
                 .map(this::convert)
                 .toList();
+    }
+
+    private static RESTHumanTaskReferentieTabel convert(final HumanTaskReferentieTabel humanTaskReferentieTabel) {
+        final RESTHumanTaskReferentieTabel restHumanTaskReferentieTabel = new RESTHumanTaskReferentieTabel();
+        restHumanTaskReferentieTabel.id = humanTaskReferentieTabel.getId();
+        restHumanTaskReferentieTabel.veld = humanTaskReferentieTabel.getVeld();
+        restHumanTaskReferentieTabel.tabel = RESTReferentieTabelConverter.convert(humanTaskReferentieTabel.getTabel(), false);
+        return restHumanTaskReferentieTabel;
     }
 
     private HumanTaskReferentieTabel convert(final RESTHumanTaskReferentieTabel restHumanTaskReferentieTabel) {

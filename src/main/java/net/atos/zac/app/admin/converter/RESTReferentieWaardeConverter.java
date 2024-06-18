@@ -11,6 +11,7 @@ import net.atos.zac.app.admin.model.RESTReferentieTabelWaarde;
 import net.atos.zac.zaaksturing.model.ReferentieTabelWaarde;
 
 public final class RESTReferentieWaardeConverter {
+
     public static RESTReferentieTabelWaarde convert(final ReferentieTabelWaarde referentieTabelWaarde) {
         final RESTReferentieTabelWaarde restReferentieTabelWaarde = new RESTReferentieTabelWaarde();
         restReferentieTabelWaarde.id = referentieTabelWaarde.getId();
