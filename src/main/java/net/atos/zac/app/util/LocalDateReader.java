@@ -18,7 +18,7 @@ import jakarta.ws.rs.ext.Provider;
 @Produces(MediaType.TEXT_PLAIN)
 public class LocalDateReader implements MessageBodyReader<LocalDate> {
 
-    DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mmXXX");
+    DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmXXX");
 
     @Override
     public boolean isReadable(Class<?> aClass, Type type, Annotation[] annotations, MediaType mediaType) {
