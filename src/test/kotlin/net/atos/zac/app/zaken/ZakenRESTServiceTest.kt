@@ -40,7 +40,6 @@ import net.atos.client.zgw.ztc.ZTCClientService
 import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.client.zgw.ztc.model.generated.RolType
-import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.bag.converter.RESTBAGConverter
 import net.atos.zac.app.zaken.converter.RESTBesluitConverter
@@ -106,7 +105,6 @@ class ZakenRESTServiceTest : BehaviorSpec({
     val restGeometryConverter: RESTGeometryConverter = mockk<RESTGeometryConverter>()
     val restResultaattypeConverter: RESTResultaattypeConverter = mockk<RESTResultaattypeConverter>()
     val restZaakConverter: RESTZaakConverter = mockk<RESTZaakConverter>()
-    val restZaakAfzenderConverter: RESTZaakAfzenderConverter = mockk<RESTZaakAfzenderConverter>()
     val restZaakOverzichtConverter: RESTZaakOverzichtConverter = mockk<RESTZaakOverzichtConverter>()
     val restZaaktypeConverter: RESTZaaktypeConverter = mockk<RESTZaaktypeConverter>()
     val restHistorieRegelConverter: RESTHistorieRegelConverter = mockk<RESTHistorieRegelConverter>()
