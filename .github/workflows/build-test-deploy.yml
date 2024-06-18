@@ -229,7 +229,7 @@ jobs:
           key: docker-${{ runner.os }}-${{ hashFiles('docker-compose.yaml') }}
 
       - name: Run integration tests
-        run: ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} -x compileJava -x processResources -x compileKotlin -x classes itest --info
+        run: ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} -x buildDockerImage itest --info
 
       - name: Publish integration test results
         uses: EnricoMi/publish-unit-test-result-action@v2
