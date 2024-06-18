@@ -105,6 +105,7 @@ export class InformatieObjectenService {
       creatiedatum: formatDateForFormData,
       auteur: true,
       taal: true,
+      beschrijving: true,
       bestand: ([, value]) => ["file", value, infoObject.bestandsnaam],
     });
 
@@ -118,30 +119,6 @@ export class InformatieObjectenService {
           },
           params: {
             taakObject,
-          },
-        },
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
-  }
-
-  createMultipartFormDataEnkelvoudigInformatieobject(
-    zaakUuid: string,
-    documentReferentieId: string,
-    taakObject: boolean,
-    infoObject: EnkelvoudigInformatieobject,
-  ): Observable<EnkelvoudigInformatieobject> {
-    const formData = new FormData();
-    formData.append("blobFile", infoObject.bestand);
-    formData.append("", infoObject.bestand);
-    return this.http
-      .post<EnkelvoudigInformatieobject>(
-        `${this.basepath}/informatieobject/${zaakUuid}/${documentReferentieId}`,
-        formData,
-        {
-          params: {
-            taakObject: taakObject,
           },
         },
       )
