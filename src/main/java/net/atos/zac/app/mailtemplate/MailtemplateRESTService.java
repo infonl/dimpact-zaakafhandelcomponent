@@ -31,9 +31,6 @@ public class MailtemplateRESTService {
     private MailTemplateService mailTemplateService;
 
     @Inject
-    private RESTMailtemplateConverter restMailtemplateConverter;
-
-    @Inject
     private ZaakafhandelParameterService zaakafhandelParameterService;
 
     @Inject
@@ -51,10 +48,11 @@ public class MailtemplateRESTService {
 
         return zaakafhandelParameters.getMailtemplateKoppelingen().stream()
                 .filter(koppeling -> koppeling.getMailTemplate().getMail().equals(mail))
-                .map(koppeling -> restMailtemplateConverter.convert(koppeling.getMailTemplate()))
+                .map(koppeling -> RESTMailtemplateConverter.convert(koppeling.getMailTemplate()))
                 .findFirst()
                 .orElseGet(() -> mailTemplateService.findDefaultMailtemplate(mail)
-                        .map(restMailtemplateConverter::convert)
-                        .orElse(null));
+                        .map(RESTMailtemplateConverter::convert)
+                        .orElse(null)
+                );
     }
 }
