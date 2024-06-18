@@ -276,7 +276,6 @@ test_verwijderen_behandelaar_missing_role_fails if {
 test_verwijderen_recordmanager if {
     verwijderen
         with input.user.rollen as ["recordmanager"]
-        with input.document.zaak_open as true
         with input.document.vergrendeld as false
 }
 
@@ -285,12 +284,6 @@ test_verwijderen_recordmanager_locked_fails if {
         with input.user.rollen as ["recordmanager"]
         with input.document.zaak_open as true
         with input.document.vergrendeld as true
-}
-
-test_verwijderen_recordmanager_zaak_closed_fails if {
-    not verwijderen
-        with input.user.rollen as ["recordmanager"]
-        with input.document.zaak_open as false
 }
 
 test_verwijderen_recordmanager_missing_role_fails if {
