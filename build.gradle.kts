@@ -202,11 +202,11 @@ jacoco {
 
 if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
     opa {
-        srcDir = "$rootDir/src/main/resources/policies"
-        testDir = "$rootDir/src/test/resources/policies"
+        srcDir = "src/main/resources/policies"
+        testDir = "src/test/resources/policies"
         version = libs.versions.opa.binary.get()
         mode = ExecutableMode.DOWNLOAD
-        location = "$rootDir/build/opa/$version/opa"
+        location = "build/opa/$version/opa"
     }
 }
 
@@ -220,28 +220,28 @@ java {
 
     // add our generated client code to the main source set
     sourceSets["main"].java
-        .srcDir("$rootDir/src/generated/productaanvraag/java")
-        .srcDir("$rootDir/src/generated/kvk/zoeken/java")
-        .srcDir("$rootDir/src/generated/kvk/basisprofiel/java")
-        .srcDir("$rootDir/src/generated/kvk/vestigingsprofiel/java")
-        .srcDir("$rootDir/src/generated/brp/java")
-        .srcDir("$rootDir/src/generated/vrl/java")
-        .srcDir("$rootDir/src/generated/bag/java")
-        .srcDir("$rootDir/src/generated/klanten/java")
-        .srcDir("$rootDir/src/generated/contactmomenten/java")
-        .srcDir("$rootDir/src/generated/zgw/brc/java")
-        .srcDir("$rootDir/src/generated/zgw/drc/java")
-        .srcDir("$rootDir/src/generated/zgw/zrc/java")
-        .srcDir("$rootDir/src/generated/zgw/ztc/java")
-        .srcDir("$rootDir/src/generated/or/objects/java")
-        .srcDir("$rootDir/src/generated/or/objecttypes/java")
+        .srcDir("src/generated/productaanvraag/java")
+        .srcDir("src/generated/kvk/zoeken/java")
+        .srcDir("src/generated/kvk/basisprofiel/java")
+        .srcDir("src/generated/kvk/vestigingsprofiel/java")
+        .srcDir("src/generated/brp/java")
+        .srcDir("src/generated/vrl/java")
+        .srcDir("src/generated/bag/java")
+        .srcDir("src/generated/klanten/java")
+        .srcDir("src/generated/contactmomenten/java")
+        .srcDir("src/generated/zgw/brc/java")
+        .srcDir("src/generated/zgw/drc/java")
+        .srcDir("src/generated/zgw/zrc/java")
+        .srcDir("src/generated/zgw/ztc/java")
+        .srcDir("src/generated/or/objects/java")
+        .srcDir("src/generated/or/objecttypes/java")
 }
 
 jsonSchema2Pojo {
     // generates Java model files for the "productaanvraag" JSON schema(s)
-    setSource(files("$rootDir/src/main/resources/json-schemas/productaanvraag"))
+    setSource(files("src/main/resources/json-schemas/productaanvraag"))
     setSourceType("jsonschema")
-    targetDirectory = file("$rootDir/src/generated/productaanvraag/java")
+    targetDirectory = file("src/generated/productaanvraag/java")
     targetPackage = "net.atos.zac.productaanvraag.model.generated"
     setAnnotationStyle("JSONB2")
     dateType = "java.time.LocalDate"
@@ -257,7 +257,7 @@ node {
     download.set(true)
     version.set(libs.versions.nodejs.get())
     distBaseUrl.set("https://nodejs.org/dist")
-    nodeProjectDir.set(file("$rootDir/src/main/app"))
+    nodeProjectDir.set(file("src/main/app"))
     if (System.getenv("CI") != null) {
         npmInstallCommand.set("ci")
     } else {
@@ -274,7 +274,7 @@ smallryeOpenApi {
 
 swaggerSources {
     register("zaakafhandelcomponent") {
-        setInputFile(file("$rootDir/build/generated/openapi/META-INF/openapi/openapi.yaml"))
+        setInputFile(file("build/generated/openapi/META-INF/openapi/openapi.yaml"))
     }
 }
 
@@ -357,11 +357,11 @@ tasks {
     clean {
         dependsOn("mavenClean")
 
-        delete("$rootDir/src/main/app/dist")
-        delete("$rootDir/src/main/app/reports")
-        delete("$rootDir/src/main/app/coverage")
-        delete("$rootDir/src/generated")
-        delete("$rootDir/src/e2e/reports")
+        delete("src/main/app/dist")
+        delete("src/main/app/reports")
+        delete("src/main/app/coverage")
+        delete("src/generated")
+        delete("src/e2e/reports")
     }
 
     build {
@@ -405,7 +405,7 @@ tasks {
         ignoreFailures = true
     }
     withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
-        config.setFrom("$rootDir/config/detekt.yml")
+        config.setFrom("config/detekt.yml")
         setSource(files("src/main/kotlin", "src/test/kotlin", "src/itest/kotlin", "build.gradle.kts"))
         // our Detekt configuration build builds upon the default configuration
         buildUponDefaultConfig = true
@@ -486,42 +486,42 @@ tasks {
         )
         // Specify custom Mustache template dir as temporary workaround for the issue where OpenAPI Generator
         // fails to generate import statements for @JsonbCreator annotations.
-        templateDir.set("$rootDir/src/main/resources/openapi-generator-templates")
+        templateDir.set("src/main/resources/openapi-generator-templates")
     }
 
     register<GenerateTask>("generateKvkZoekenClient") {
-        inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/zoeken-openapi.yaml")
-        outputDir.set("$rootDir/src/generated/kvk/zoeken/java")
+        inputSpec.set("src/main/resources/api-specs/kvk/zoeken-openapi.yaml")
+        outputDir.set("src/generated/kvk/zoeken/java")
         modelPackage.set("net.atos.client.kvk.zoeken.model.generated")
     }
 
     register<GenerateTask>("generateKvkBasisProfielClient") {
-        inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/basisprofiel-openapi.yaml")
-        outputDir.set("$rootDir/src/generated/kvk/basisprofiel/java")
+        inputSpec.set("src/main/resources/api-specs/kvk/basisprofiel-openapi.yaml")
+        outputDir.set("src/generated/kvk/basisprofiel/java")
         modelPackage.set("net.atos.client.kvk.basisprofiel.model.generated")
     }
 
     register<GenerateTask>("generateKvkVestigingsProfielClient") {
-        inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/vestigingsprofiel-openapi.yaml")
-        outputDir.set("$rootDir/src/generated/kvk/vestigingsprofiel/java")
+        inputSpec.set("src/main/resources/api-specs/kvk/vestigingsprofiel-openapi.yaml")
+        outputDir.set("src/generated/kvk/vestigingsprofiel/java")
         modelPackage.set("net.atos.client.kvk.vestigingsprofiel.model.generated")
     }
 
     register<GenerateTask>("generateBrpClient") {
-        inputSpec.set("$rootDir/src/main/resources/api-specs/brp/brp-openapi.yaml")
-        outputDir.set("$rootDir/src/generated/brp/java")
+        inputSpec.set("src/main/resources/api-specs/brp/brp-openapi.yaml")
+        outputDir.set("src/generated/brp/java")
         modelPackage.set("net.atos.client.brp.model.generated")
     }
 
     register<GenerateTask>("generateVrlClient") {
-        inputSpec.set("$rootDir/src/main/resources/api-specs/vrl/vrl-openapi.yaml")
-        outputDir.set("$rootDir/src/generated/vrl/java")
+        inputSpec.set("src/main/resources/api-specs/vrl/vrl-openapi.yaml")
+        outputDir.set("src/generated/vrl/java")
         modelPackage.set("net.atos.client.vrl.model.generated")
     }
 
     register<GenerateTask>("generateBagClient") {
-        inputSpec.set("$rootDir/src/main/resources/api-specs/bag/bag-openapi.yaml")
-        outputDir.set("$rootDir/src/generated/bag/java")
+        inputSpec.set("src/main/resources/api-specs/bag/bag-openapi.yaml")
+        outputDir.set("src/generated/bag/java")
         modelPackage.set("net.atos.client.bag.model.generated")
         // we need to use the java8-localdatatime date library for this client
         // or else certain date time fields for this client cannot be deserialized
@@ -545,50 +545,50 @@ tasks {
         // these model files were added to the code base manually instead
         isEnabled = false
 
-        inputSpec.set("$rootDir/src/main/resources/api-specs/klanten/klanten-openapi.yaml")
-        outputDir.set("$rootDir/src/generated/klanten/java")
+        inputSpec.set("src/main/resources/api-specs/klanten/klanten-openapi.yaml")
+        outputDir.set("src/generated/klanten/java")
         modelPackage.set("net.atos.client.klanten.model.generated")
     }
 
     register<GenerateTask>("generateContactMomentenClient") {
-        inputSpec.set("$rootDir/src/main/resources/api-specs/contactmomenten/contactmomenten-openapi.yaml")
-        outputDir.set("$rootDir/src/generated/contactmomenten/java")
+        inputSpec.set("src/main/resources/api-specs/contactmomenten/contactmomenten-openapi.yaml")
+        outputDir.set("src/generated/contactmomenten/java")
         modelPackage.set("net.atos.client.contactmomenten.model.generated")
     }
 
     register<GenerateTask>("generateZgwBrcClient") {
-        inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/brc-openapi.yaml")
-        outputDir.set("$rootDir/src/generated/zgw/brc/java")
+        inputSpec.set("src/main/resources/api-specs/zgw/brc-openapi.yaml")
+        outputDir.set("src/generated/zgw/brc/java")
         modelPackage.set("net.atos.client.zgw.brc.model.generated")
     }
 
     register<GenerateTask>("generateZgwDrcClient") {
-        inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/drc-openapi.yaml")
-        outputDir.set("$rootDir/src/generated/zgw/drc/java")
+        inputSpec.set("src/main/resources/api-specs/zgw/drc-openapi.yaml")
+        outputDir.set("src/generated/zgw/drc/java")
         modelPackage.set("net.atos.client.zgw.drc.model.generated")
     }
 
     register<GenerateTask>("generateZrcDrcClient") {
-        inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/zrc-openapi.yaml")
-        outputDir.set("$rootDir/src/generated/zgw/zrc/java")
+        inputSpec.set("src/main/resources/api-specs/zgw/zrc-openapi.yaml")
+        outputDir.set("src/generated/zgw/zrc/java")
         modelPackage.set("net.atos.client.zgw.zrc.model.generated")
     }
 
     register<GenerateTask>("generateZtcDrcClient") {
-        inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/ztc-openapi.yaml")
-        outputDir.set("$rootDir/src/generated/zgw/ztc/java")
+        inputSpec.set("src/main/resources/api-specs/zgw/ztc-openapi.yaml")
+        outputDir.set("src/generated/zgw/ztc/java")
         modelPackage.set("net.atos.client.zgw.ztc.model.generated")
     }
 
     register<GenerateTask>("generateOrObjectsClient") {
-        inputSpec.set("$rootDir/src/main/resources/api-specs/or/objects-openapi.yaml")
-        outputDir.set("$rootDir/src/generated/or/objects/java")
+        inputSpec.set("src/main/resources/api-specs/or/objects-openapi.yaml")
+        outputDir.set("src/generated/or/objects/java")
         modelPackage.set("net.atos.client.or.objects.model.generated")
     }
 
     register<GenerateTask>("generateOrObjectTypesClient") {
-        inputSpec.set("$rootDir/src/main/resources/api-specs/or/objecttypes-openapi.yaml")
-        outputDir.set("$rootDir/src/generated/or/objecttypes/java")
+        inputSpec.set("src/main/resources/api-specs/or/objecttypes-openapi.yaml")
+        outputDir.set("src/generated/or/objecttypes/java")
         modelPackage.set("net.atos.client.or.objecttypes.model.generated")
     }
 
@@ -624,8 +624,8 @@ tasks {
 
         // avoid running this task when there are no changes in the input or output files
         // see: https://github.com/node-gradle/gradle-node-plugin/blob/master/docs/faq.md
-        inputs.files(fileTree("src/main/app/node_modules"))
-        inputs.files(fileTree("src/main/app/src"))
+        inputs.dir("src/main/app/node_modules")
+        inputs.dir("src/main/app/src")
         outputs.dir("src/main/app/dist/zaakafhandelcomponent")
         outputs.dir("src/main/app/src/generated/types")
         outputs.cacheIf { true }
@@ -637,8 +637,8 @@ tasks {
         npmCommand.set(listOf("run", "test"))
         // avoid running this task when there are no changes in the input or output files
         // see: https://github.com/node-gradle/gradle-node-plugin/blob/master/docs/faq.md
-        inputs.files(fileTree("src/main/app/node_modules"))
-        inputs.files(fileTree("src/main/app/src"))
+        inputs.dir("src/main/app/node_modules")
+        inputs.dir("src/main/app/src")
 
         // directory used by the Jest reporter(s) that we have configured
         outputs.dir("src/main/app/reports")
@@ -656,7 +656,7 @@ tasks {
 
         inputs.file("Dockerfile")
         inputs.file("target/zaakafhandelcomponent.jar")
-        inputs.files(fileTree("certificates"))
+        inputs.dir("certificates")
 
         workingDir(".")
         commandLine("scripts/docker/build-docker-image.sh", "-v", versionNumber, "-b", branchName, "-c", commitHash, "-t", zacDockerImage)
@@ -669,40 +669,38 @@ tasks {
         rename {
             "org.jacoco.agent-runtime.jar"
         }
-        into("$rootDir/build/jacoco/itest/jacoco-agent")
+        into("build/jacoco/itest/jacoco-agent")
     }
 
     register<Test>("itest") {
+        dependsOn("buildDockerImage")
+
         inputs.files(project.tasks.findByPath("compileItestKotlin")!!.outputs.files)
         testClassesDirs = sourceSets["itest"].output.classesDirs
         classpath = sourceSets["itest"].runtimeClasspath
         systemProperty("zacDockerImage", zacDockerImage)
-        // do not use the Gradle build cache for this task
-        outputs.cacheIf { false }
     }
 
     register<JacocoReport>("jacocoIntegrationTestReport") {
         dependsOn("itest")
 
         description = "Generates code coverage report for the integration tests"
-        inputs.files("$rootDir/build/jacoco/itest/jacoco-report/jacoco-it.exec")
-        executionData.setFrom("$rootDir/build/jacoco/itest/jacoco-report/jacoco-it.exec")
+        inputs.files("build/jacoco/itest/jacoco-report/jacoco-it.exec")
+        executionData.setFrom("build/jacoco/itest/jacoco-report/jacoco-it.exec")
         // tell JaCoCo to report on our code base
         sourceSets(sourceSets["main"])
         reports {
             xml.required = true
             html.required = false
         }
-        outputs.dir("$rootDir/build/reports/jacoco/jacocoIntegrationTestReport")
-        // do not use the Gradle build cache for this task
-        outputs.cacheIf { false }
+        outputs.dir("build/reports/jacoco/jacocoIntegrationTestReport")
     }
 
     register<Maven>("generateWildflyBootableJar") {
         dependsOn("war")
         execGoal("wildfly-jar:package")
 
-        inputs.files(fileTree("src/main/resources/wildfly"))
+        inputs.dir("src/main/resources/wildfly")
         inputs.file("build/libs/zaakafhandelcomponent.war")
         outputs.dir("target")
     }
