@@ -2,6 +2,7 @@ package net.atos.client.zgw.ztc.model
 
 import net.atos.client.zgw.ztc.model.generated.InformatieObjectType
 import net.atos.client.zgw.ztc.model.generated.ResultaatType
+import net.atos.client.zgw.ztc.model.generated.ResultaatType.ArchiefnominatieEnum
 import net.atos.client.zgw.ztc.model.generated.RolType
 import net.atos.client.zgw.ztc.model.generated.StatusType
 import net.atos.client.zgw.ztc.model.generated.ZaakType
@@ -70,7 +71,9 @@ fun createResultaatType(
     besluittypeOmschrijving: MutableSet<String> = mutableSetOf("dummyBesluittypeOmschrijving"),
     informatieobjecttypeOmschrijving: MutableSet<String> = mutableSetOf("dummyInformatieobjecttypeOmschrijving"),
     beginObject: LocalDate = LocalDate.now(),
-    eindeObject: LocalDate = LocalDate.now().plusDays(1)
+    eindeObject: LocalDate = LocalDate.now().plusDays(1),
+    archiefnominatie: ArchiefnominatieEnum = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
+    archiefactietermijn: String? = null
 ) = ResultaatType(
     url,
     zaaktypeIdentificatie,
@@ -80,7 +83,10 @@ fun createResultaatType(
     informatieobjecttypeOmschrijving,
     beginObject,
     eindeObject
-)
+).apply {
+    this.archiefnominatie = archiefnominatie
+    this.archiefactietermijn = archiefactietermijn
+}
 
 @Suppress("LongParameterList")
 fun createStatusType(
