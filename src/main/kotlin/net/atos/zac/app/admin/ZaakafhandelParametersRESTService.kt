@@ -64,8 +64,6 @@ class ZaakafhandelParametersRESTService @Inject constructor(
     private val zaakafhandelParametersConverter: RESTZaakafhandelParametersConverter,
     private val caseDefinitionConverter: RESTCaseDefinitionConverter,
     private val resultaattypeConverter: RESTResultaattypeConverter,
-    private val zaakbeeindigRedenConverter: RESTZaakbeeindigRedenConverter,
-    private val restReplyToConverter: RESTReplyToConverter,
     private val smartDocumentsService: SmartDocumentsService,
     private val policyService: PolicyService
 ) {
@@ -78,7 +76,7 @@ class ZaakafhandelParametersRESTService @Inject constructor(
     @GET
     @Path("caseDefinition")
     fun listCaseDefinitions(): List<RESTCaseDefinition> {
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().beheren)
         return cmmnService.listCaseDefinitions()
             .map { caseDefinition: CaseDefinition? ->
                 caseDefinitionConverter.convertToRESTCaseDefinition(
@@ -165,8 +163,8 @@ class ZaakafhandelParametersRESTService @Inject constructor(
     @GET
     @Path("zaakbeeindigRedenen")
     fun listZaakbeeindigRedenen(): List<RESTZaakbeeindigReden> {
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
-        return zaakbeeindigRedenConverter.convertZaakbeeindigRedenen(
+        assertPolicy(policyService.readOverigeRechten().beheren)
+        return RESTZaakbeeindigRedenConverter.convertZaakbeeindigRedenen(
             zaakafhandelParameterBeheerService.listZaakbeeindigRedenen()
         )
     }
@@ -184,7 +182,7 @@ class ZaakafhandelParametersRESTService @Inject constructor(
         zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUUID).zaakbeeindigParameters
             .map { it.zaakbeeindigReden }
             .let {
-                zaakbeeindigRedenConverter.convertZaakbeeindigRedenen(it)
+                RESTZaakbeeindigRedenConverter.convertZaakbeeindigRedenen(it)
             }
 
     /**
@@ -234,7 +232,7 @@ class ZaakafhandelParametersRESTService @Inject constructor(
     @GET
     @Path("replyTo")
     fun listReplyTos(): List<RESTReplyTo> =
-        restReplyToConverter.convertReplyTos(
+        RESTReplyToConverter.convertReplyTos(
             referentieTabelService.readReferentieTabel(Systeem.AFZENDER.name).waarden
         )
 

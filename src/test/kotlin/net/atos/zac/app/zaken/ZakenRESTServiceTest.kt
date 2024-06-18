@@ -154,7 +154,6 @@ class ZakenRESTServiceTest : BehaviorSpec({
         signaleringService = signaleringService,
         flowableTaskService = flowableTaskService,
         vrlClientService = vrlClientService,
-        restZaakAfzenderConverter = restZaakAfzenderConverter,
         restZaaktypeConverter = restZaaktypeConverter
     )
 

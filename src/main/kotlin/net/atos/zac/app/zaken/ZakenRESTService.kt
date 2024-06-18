@@ -190,7 +190,6 @@ class ZakenRESTService @Inject constructor(
     private val restGeometryConverter: RESTGeometryConverter,
     private val healthCheckService: HealthCheckService,
     private val opschortenZaakHelper: OpschortenZaakHelper,
-    private val restZaakAfzenderConverter: RESTZaakAfzenderConverter,
     private val zaakService: ZaakService
 ) {
     companion object {
@@ -805,7 +804,7 @@ class ZakenRESTService @Inject constructor(
         val zaak = zrcClientService.readZaak(zaakUUID)
         return sortAndRemoveDuplicates(
             resolveZaakAfzenderMail(
-                restZaakAfzenderConverter.convertZaakAfzenders(
+                RESTZaakAfzenderConverter.convertZaakAfzenders(
                     zaakafhandelParameterService.readZaakafhandelParameters(
                         UriUtil.uuidFromURI(zaak.zaaktype)
                     ).zaakAfzenders
@@ -830,7 +829,7 @@ class ZakenRESTService @Inject constructor(
             )
                 .zaakAfzenders.stream()
                 .filter { it.isDefault }
-                .map { zaakAfzender -> restZaakAfzenderConverter.convertZaakAfzender(zaakAfzender) }
+                .map { zaakAfzender -> RESTZaakAfzenderConverter.convertZaakAfzender(zaakAfzender) }
         )
             .findAny()
             .orElse(null)
