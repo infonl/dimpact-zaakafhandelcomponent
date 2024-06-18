@@ -31,7 +31,7 @@ services:
       - "--health-enabled=true"
 
   keycloak-database:
-    image: postgres:15.4
+    image: postgres:16.3
     ports:
       - "54326:5432"
     healthcheck:
@@ -48,7 +48,7 @@ services:
       - ./scripts/docker-compose/volume-data/zac-keycloak-database-data:/var/lib/postgresql/data
 
   zac-database:
-    image: postgres:15.4
+    image: postgres:16.3
     ports:
       - "54320:5432"
     healthcheck:
@@ -66,7 +66,7 @@ services:
       - ./scripts/docker-compose/volume-data/zac-database-data:/var/lib/postgresql/data
 
   openzaak-database:
-    image: postgis/postgis:15-3.4
+    image: postgis/postgis:16-3.4
     ports:
       - "54322:5432"
     platform: linux/amd64
@@ -150,7 +150,7 @@ services:
         condition: service_healthy
 
   objecten-api-database:
-    image: postgis/postgis:15-3.4
+    image: postgis/postgis:16-3.4
     ports:
       - "54323:5432"
     platform: linux/amd64
@@ -196,7 +196,7 @@ services:
         condition: service_healthy
 
   objecttypen-api-database:
-    image: postgres:15.4
+    image: postgres:16.3
     ports:
       - "54324:5432"
     healthcheck:
@@ -268,7 +268,7 @@ services:
 
   # VNG ZGW referentielijsten ('VRL') (see: https://github.com/VNG-Realisatie/VNG-referentielijsten)
   zgw-referentielijsten-database:
-    image: postgres:15.4
+    image: postgres:16.3
     ports:
       - "54321:5432"
     environment:
@@ -302,7 +302,7 @@ services:
 
   # Insert required test data into the VRL database after the VRL application has started up and finished initializing the database
   zgw-referentielijsten-database-init:
-    image: postgres:15.4
+    image: postgres:16.3
     volumes:
       - ./scripts/docker-compose/imports/zgw-referentielijsten/init-zgw-referentielijsten-database.sql:/tmp/init-zgw-referentielijsten-database.sql
     command: bash -c "psql postgresql://vrl:vrl@zgw-referentielijsten-database/vrl < /tmp/init-zgw-referentielijsten-database.sql"
@@ -342,7 +342,7 @@ services:
       - gbamock
 
   openklant-database:
-    image: postgres:15.4
+    image: postgres:16.3
     ports:
       - "54325:5432"
     healthcheck:
@@ -383,7 +383,7 @@ services:
         condition: service_started
 
   smartdocuments-wiremock:
-    image: "wiremock/wiremock:3.3.1"
+    image: "wiremock/wiremock:3.6.0-2"
     ports:
       - "8082:8080"
     volumes:
