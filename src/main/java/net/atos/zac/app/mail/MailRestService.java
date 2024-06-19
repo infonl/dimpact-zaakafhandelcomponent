@@ -29,7 +29,6 @@ import net.atos.zac.flowable.ZaakVariabelenService;
 import net.atos.zac.mail.MailService;
 import net.atos.zac.mail.model.BronnenKt;
 import net.atos.zac.policy.PolicyService;
-import net.atos.zac.util.ValidationUtil;
 
 @Singleton
 @Path("mail")
@@ -74,8 +73,6 @@ public class MailRestService {
     ) {
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
         assertPolicy(policyService.readZaakRechten(zaak).versturenEmail());
-        validateEmail(restMailGegevens.verzender);
-        validateEmail(restMailGegevens.ontvanger);
         mailService.sendMail(restMailGegevensConverter.convert(restMailGegevens), BronnenKt.getBronnenFromZaak(zaak));
     }
 
@@ -88,21 +85,12 @@ public class MailRestService {
         final Zaak zaak = zrcClientService.readZaak(zaakUuid);
         assertPolicy(!zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.getUuid()).orElse(false) &&
                      policyService.readZaakRechten(zaak).versturenOntvangstbevestiging());
-        validateEmail(restMailGegevens.verzender);
-        validateEmail(restMailGegevens.ontvanger);
-        mailService.sendMail(
-                restMailGegevensConverter.convert(restMailGegevens), BronnenKt.getBronnenFromZaak(zaak));
+        mailService.sendMail(restMailGegevensConverter.convert(restMailGegevens), BronnenKt.getBronnenFromZaak(zaak));
 
         final StatusType statustype = zaak.getStatus() != null ?
                 ztcClientService.readStatustype(zrcClientService.readStatus(zaak.getStatus()).getStatustype()) : null;
         if (!isHeropend(statustype)) {
             zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaakUuid, Boolean.TRUE);
-        }
-    }
-
-    private void validateEmail(final String email) {
-        if (!ValidationUtil.isValidEmail(email)) {
-            throw new RuntimeException(String.format("E-Mail '%s' is not valid", email));
         }
     }
 }
