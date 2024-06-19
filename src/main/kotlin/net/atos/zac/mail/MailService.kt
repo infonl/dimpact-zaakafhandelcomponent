@@ -30,13 +30,17 @@ import net.atos.client.zgw.shared.util.InformatieobjectenUtil
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZTCClientService
 import net.atos.client.zgw.ztc.model.generated.InformatieObjectType
+import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
+import net.atos.zac.app.mail.model.RESTMailGegevens
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.mail.model.Attachment
 import net.atos.zac.mail.model.Bronnen
 import net.atos.zac.mail.model.MailAdres
+import net.atos.zac.mail.model.getBronnenFromZaak
 import net.atos.zac.mailtemplates.MailTemplateHelper
 import net.atos.zac.mailtemplates.model.MailGegevens
+import net.atos.zac.util.ValidationUtil
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.apache.commons.lang3.StringUtils
@@ -54,15 +58,13 @@ import java.util.logging.Logger
 @ApplicationScoped
 @NoArgConstructor
 @AllOpen
-class MailService
-@Inject
-constructor(
+class MailService @Inject constructor(
     private var configuratieService: ConfiguratieService,
     private var zgwApiService: ZGWApiService,
     private var ztcClientService: ZTCClientService,
     private var drcClientService: DrcClientService,
     private var mailTemplateHelper: MailTemplateHelper,
-    private var loggedInUserInstance: Instance<LoggedInUser>,
+    private var loggedInUserInstance: Instance<LoggedInUser>
 ) {
 
     companion object {
@@ -87,6 +89,7 @@ constructor(
 
     val gemeenteMailAdres
         get() = MailAdres(configuratieService.readGemeenteMail(), configuratieService.readGemeenteNaam())
+
 
     fun sendMail(mailGegevens: MailGegevens, bronnen: Bronnen): String {
         val subject = StringUtils.abbreviate(
@@ -236,8 +239,8 @@ constructor(
             )
         }
 
-    private fun resolveVariabelen(tekst: String, bronnen: Bronnen): String {
-        return mailTemplateHelper.resolveVariabelen(
+    private fun resolveVariabelen(tekst: String, bronnen: Bronnen): String =
+        mailTemplateHelper.resolveVariabelen(
             mailTemplateHelper.resolveVariabelen(
                 mailTemplateHelper.resolveVariabelen(
                     mailTemplateHelper.resolveVariabelen(tekst),
@@ -247,5 +250,4 @@ constructor(
             ),
             bronnen.taskInfo
         )
-    }
 }

@@ -7,11 +7,16 @@ package net.atos.zac.mail.model
 import jakarta.json.bind.annotation.JsonbProperty
 import jakarta.mail.Address
 import jakarta.mail.internet.InternetAddress
+import net.atos.zac.util.ValidationUtil
 
 class MailAdres(
     @field:JsonbProperty("Email") var email: String,
     @field:JsonbProperty("Name") var name: String?
 ) {
+    init {
+        require(!ValidationUtil.isValidEmail(email)) { "E-Mail '$email' is not valid" }
+    }
+
     constructor(email: String) : this(email, null)
 
     fun toAddress(): Address = InternetAddress(email, name)
