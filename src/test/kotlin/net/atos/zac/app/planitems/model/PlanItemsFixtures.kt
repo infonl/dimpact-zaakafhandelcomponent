@@ -2,8 +2,10 @@ package net.atos.zac.app.planitems.model
 
 import net.atos.zac.app.identity.model.RESTGroup
 import net.atos.zac.app.identity.model.RESTUser
+import net.atos.zac.app.mail.model.RESTMailGegevens
 import net.atos.zac.app.zaken.model.createRESTGroup
 import java.time.LocalDate
+import java.util.UUID
 
 @Suppress("LongParameterList")
 fun createRESTHumanTaskData(
@@ -30,4 +32,14 @@ fun createRESTTaakStuurGegevens(
 ) = RESTTaakStuurGegevens().apply {
     this.sendMail = sendMail
     this.mail = mail
+}
+
+fun createRESTUserEventListenerData(
+    zaakUuid: UUID,
+    actie: UserEventListenerActie,
+    restMailGegevens: RESTMailGegevens
+) = RESTUserEventListenerData().apply {
+    this.zaakUuid = zaakUuid
+    this.actie = actie
+    this.restMailGegevens = restMailGegevens
 }

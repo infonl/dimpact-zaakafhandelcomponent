@@ -7,6 +7,8 @@ package net.atos.zac.app.planitems.model;
 
 import java.util.UUID;
 
+import net.atos.zac.app.mail.model.RESTMailGegevens;
+
 public class RESTUserEventListenerData {
 
     public UUID zaakUuid;
@@ -20,4 +22,6 @@ public class RESTUserEventListenerData {
     public String resultaatToelichting;
 
     public UUID resultaattypeUuid;
+
+    public RESTMailGegevens restMailGegevens;
 }

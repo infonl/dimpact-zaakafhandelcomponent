@@ -46,8 +46,9 @@ public final class ValidationUtil {
     }
 
     private static Set<ConstraintViolation<Object>> valideer(final Object object, final Class<?>... validationGroups) {
-        final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        final Validator validator = factory.getValidator();
-        return validator.validate(object, validationGroups);
+        try (final ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+            final Validator validator = factory.getValidator();
+            return validator.validate(object, validationGroups);
+        }
     }
 }
