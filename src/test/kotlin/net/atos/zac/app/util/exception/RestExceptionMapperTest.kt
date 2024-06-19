@@ -90,7 +90,8 @@ class RestExceptionMapperTest : BehaviorSpec({
         val exception = ProcessingException(
             exceptionMessage,
             UnknownHostException(
-               "Something terrible happened in the ${ZTCClientService::class.simpleName}!")
+                "Something terrible happened in the ${ZTCClientService::class.simpleName}!"
+            )
         )
 
         When("the exception is mapped to a response") {
