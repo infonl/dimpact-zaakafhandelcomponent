@@ -76,30 +76,24 @@ export class FoutAfhandelingService {
       : throwError(() => new Error("No violations found"));
   }
 
-  public httpErrorAfhandelen(err: HttpErrorResponse) {
-    if (err.status === 400) {
-      return this.openFoutDialog(err.error);
-    } else {
-      return this.redirect(err);
-    }
-  }
-
-  public openFoutDialog(error: string): Observable<never> {
+  public openFoutDialog(errorText: string): Observable<never> {
     this.dialog.open(FoutDialogComponent, {
-      data: error,
+      data: errorText,
     });
 
-    return throwError(() => "Fout!");
+    return throwError(() => errorText);
   }
 
   public openFoutDetailedDialog(
     error: string,
     details: string,
+    errorHelpTexts?: Observable<string[]>,
   ): Observable<never> {
     this.dialog.open(FoutDetailedDialogComponent, {
       data: {
         error,
         details,
+        errorHelpTexts,
       },
     });
 
@@ -126,37 +120,40 @@ export class FoutAfhandelingService {
     }
   }
 
-  private redirect(err: HttpErrorResponse): Observable<never> {
+  public httpErrorAfhandelen(err: HttpErrorResponse): Observable<never> {
     this.foutmelding = err.message;
     if (err.error instanceof ErrorEvent) {
-      // Client-side error
+      // client-side error
       this.foutmelding = `Er is een fout opgetreden`;
       this.bericht = err.error.message;
+      this.router.navigate(["/fout-pagina"]);
     } else if (err.status === 0 && err.url.startsWith("/rest/")) {
-      // status 0, niet meer ingelogd
+      // status 0 means that the user is no longer logged in
       if (!isDevMode()) {
         window.location.reload();
         return;
       }
       this.foutmelding = "Helaas! Je bent uitgelogd.";
       this.bericht = "";
+      this.router.navigate(["/fout-pagina"]);
     } else {
-      this.foutmelding = this.translate.instant(err.error.message);
+      let errorDetail: string;
       if (err.error) {
-        this.bericht = err.error.exception;
+        errorDetail = err.error.exception;
       } else {
-        this.bericht = err.message;
+        errorDetail = err.message;
       }
+      let serverErrorText: Observable<string[]> | undefined;
       // only show server error texts in case of a server error (500 family of errors)
       if (err.status >= 500) {
-        this.serverErrorTexts =
-          this.referentieTabelService.listServerErrorTexts();
+        serverErrorText = this.referentieTabelService.listServerErrorTexts();
       }
-    }
-    if (isDevMode()) {
-      this.utilService.openSnackbarError(this.foutmelding);
-    } else {
-      this.router.navigate(["/fout-pagina"]);
+      // show error in context and do not redirect to error page
+      return this.openFoutDetailedDialog(
+        this.translate.instant(err.error.message),
+        errorDetail,
+        serverErrorText,
+      );
     }
     return throwError(() => `${this.foutmelding}: ${this.bericht}`);
   }

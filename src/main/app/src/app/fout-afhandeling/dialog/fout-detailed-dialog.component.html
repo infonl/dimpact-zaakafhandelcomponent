@@ -3,20 +3,11 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<h1 mat-dialog-title>{{data.error}}</h1>
-
+<h1 mat-dialog-title>{{'title.fout' | translate}}</h1>
 <div mat-dialog-content>
-    <mat-expansion-panel
-            *ngIf="data.details"
-            (opened)="panelOpenState = true"
-            (closed)="panelOpenState = false">
-        <mat-expansion-panel-header>
-            <mat-panel-title>
-                Technische informatie
-            </mat-panel-title>
-        </mat-expansion-panel-header>
-        <div class="details">{{data.details}}</div>
-    </mat-expansion-panel>
+    <div>{{data.error}}</div>
+    <div class="details">{{data.details}}</div>
+    <div class="details" *ngFor="let serverErrorText of data.serverErrorTexts | async">{{serverErrorText}}</div>
 </div>
 <div mat-dialog-actions>
     <button autofocus mat-button (click)="close()">{{'actie.sluiten' | translate}}</button>

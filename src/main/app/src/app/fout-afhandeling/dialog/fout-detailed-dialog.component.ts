@@ -3,19 +3,19 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
+import { AsyncPipe, NgForOf, NgIf } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { TranslateModule } from "@ngx-translate/core";
 import { MaterialModule } from "../../shared/material/material.module";
+import { Observable } from "rxjs";
 
 @Component({
   standalone: true,
   templateUrl: "fout-detailed-dialog.component.html",
-  imports: [TranslateModule, MaterialModule, NgIf],
+  imports: [TranslateModule, MaterialModule, NgIf, AsyncPipe, NgForOf],
   styles: `
     .details {
-      background: #eeeeee;
       padding: 12px 12px 12px;
       overflow-x: scroll;
     }
@@ -28,6 +28,7 @@ export class FoutDetailedDialogComponent {
     public data: {
       error: string;
       details: string;
+      serverErrorTexts: Observable<string[]>;
     },
   ) {}
 
