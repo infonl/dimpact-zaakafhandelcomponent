@@ -13,6 +13,7 @@ import { P, match } from "ts-pattern";
 import { UtilService } from "../core/service/util.service";
 import { FoutDetailedDialogComponent } from "./dialog/fout-detailed-dialog.component";
 import { FoutDialogComponent } from "./dialog/fout-dialog.component";
+import { ReferentieTabelService } from "../admin/referentie-tabel.service";
 
 const ViolationPattern = {
   constraintType: P.string,
@@ -39,12 +40,14 @@ type JakartaBeanValidationError = P.infer<typeof ValidationErrorPattern>;
 export class FoutAfhandelingService {
   foutmelding: string;
   bericht: string;
+  serverErrorTexts: Observable<string[]>;
 
   constructor(
     private router: Router,
     private dialog: MatDialog,
     private utilService: UtilService,
     private translate: TranslateService,
+    private referentieTabelService: ReferentieTabelService,
   ) {}
 
   public foutAfhandelen(
@@ -123,6 +126,11 @@ export class FoutAfhandelingService {
         this.bericht = err.error.exception;
       } else {
         this.bericht = err.message;
+      }
+      // only show server error texts in case of a server error (500 family of errors)
+      if (err.status >= 500) {
+        this.serverErrorTexts =
+          this.referentieTabelService.listServerErrorTexts();
       }
     }
     if (isDevMode()) {
