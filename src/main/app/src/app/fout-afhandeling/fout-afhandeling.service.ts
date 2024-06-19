@@ -129,7 +129,7 @@ export class FoutAfhandelingService {
   private redirect(err: HttpErrorResponse): Observable<never> {
     this.foutmelding = err.message;
     if (err.error instanceof ErrorEvent) {
-      // Client-side
+      // Client-side error
       this.foutmelding = `Er is een fout opgetreden`;
       this.bericht = err.error.message;
     } else if (err.status === 0 && err.url.startsWith("/rest/")) {
