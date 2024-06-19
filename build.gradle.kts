@@ -705,6 +705,8 @@ tasks {
         testClassesDirs = sourceSets["itest"].output.classesDirs
         classpath = sourceSets["itest"].runtimeClasspath
         systemProperty("zacDockerImage", zacDockerImage)
+        // do not use the Gradle build cache for this task
+        outputs.cacheIf { false }
     }
 
     register<JacocoReport>("jacocoIntegrationTestReport") {
@@ -719,6 +721,8 @@ tasks {
             xml.required = true
             html.required = false
         }
+        // do not use the Gradle build cache for this task
+        outputs.cacheIf { false }
         outputs.dir("$rootDir/build/reports/jacoco/jacocoIntegrationTestReport")
     }
 
