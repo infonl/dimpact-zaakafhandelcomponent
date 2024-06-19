@@ -11,8 +11,12 @@ import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.ztc.ZTCClientService
+import org.apache.http.HttpHost
 import org.apache.http.HttpStatus
+import org.apache.http.conn.HttpHostConnectException
 import org.json.JSONObject
+import java.io.IOException
+import java.net.UnknownHostException
 
 class RestExceptionMapperTest : BehaviorSpec({
     val restExceptionMapper = RestExceptionMapper()
@@ -41,13 +45,18 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
-    Given("A JAX-RS processing exception which contains the BRC client service class name in the stacktrace") {
+    Given(
+        """
+        A JAX-RS processing exception with as root cause a HttpHostConnectException
+        and which contains the BRC client service class name in the stacktrace
+        """
+    ) {
         val exceptionMessage = "DummyProcessingException"
         val exception = ProcessingException(
             exceptionMessage,
-            RuntimeException(
-                "DummyRuntimeException",
-                RuntimeException("Something terrible happened in the ${BrcClientService::class.simpleName}!")
+            HttpHostConnectException(
+                IOException("Something terrible happened in the ${BrcClientService::class.simpleName}!"),
+                HttpHost("localhost", 8080)
             )
         )
 
@@ -71,14 +80,17 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
-    Given("A JAX-RS processing exception which contains the ZTC client service class name in the stacktrace") {
+    Given(
+        """
+        A JAX-RS processing exception with as root cause a UnknownHostException
+        which contains the ZTC client service class name in the stacktrace
+        """
+    ) {
         val exceptionMessage = "DummyProcessingException"
         val exception = ProcessingException(
             exceptionMessage,
-            RuntimeException(
-                "DummyRuntimeException",
-                RuntimeException("Something terrible happened in the ${ZTCClientService::class.simpleName}!")
-            )
+            UnknownHostException(
+               "Something terrible happened in the ${ZTCClientService::class.simpleName}!")
         )
 
         When("the exception is mapped to a response") {
