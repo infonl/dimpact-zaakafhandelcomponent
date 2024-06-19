@@ -106,6 +106,26 @@ export class FoutAfhandelingService {
     return throwError(() => "Fout!");
   }
 
+  public log(melding): (error: HttpErrorResponse) => Observable<any> {
+    return (error: any): Observable<never> => {
+      console.error(error); // log to console instead
+      this.utilService.openSnackbarError(melding);
+      return throwError(error);
+    };
+  }
+
+  public getFout(e: HttpErrorResponse) {
+    if (e.error instanceof ErrorEvent) {
+      return `Er is een fout opgetreden. (${e.error.message})`;
+    } else {
+      if (e.error) {
+        return `De server heeft code ${e.status} geretourneerd. (${e.error.exception})`;
+      } else {
+        return e.message;
+      }
+    }
+  }
+
   private redirect(err: HttpErrorResponse): Observable<never> {
     this.foutmelding = err.message;
     if (err.error instanceof ErrorEvent) {
@@ -139,25 +159,5 @@ export class FoutAfhandelingService {
       this.router.navigate(["/fout-pagina"]);
     }
     return throwError(() => `${this.foutmelding}: ${this.bericht}`);
-  }
-
-  public log(melding): (error: HttpErrorResponse) => Observable<any> {
-    return (error: any): Observable<never> => {
-      console.error(error); // log to console instead
-      this.utilService.openSnackbarError(melding);
-      return throwError(error);
-    };
-  }
-
-  public getFout(e: HttpErrorResponse) {
-    if (e.error instanceof ErrorEvent) {
-      return `Er is een fout opgetreden. (${e.error.message})`;
-    } else {
-      if (e.error) {
-        return `De server heeft code ${e.status} geretourneerd. (${e.error.exception})`;
-      } else {
-        return e.message;
-      }
-    }
   }
 }
