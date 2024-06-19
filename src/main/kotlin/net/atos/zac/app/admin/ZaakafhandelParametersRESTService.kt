@@ -95,7 +95,7 @@ class ZaakafhandelParametersRESTService @Inject constructor(
     @GET
     @Path("caseDefinition/{key}")
     fun readCaseDefinition(@PathParam("key") caseDefinitionKey: String?): RESTCaseDefinition {
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().beheren)
         return caseDefinitionConverter.convertToRESTCaseDefinition(caseDefinitionKey, true)
     }
 
@@ -106,7 +106,7 @@ class ZaakafhandelParametersRESTService @Inject constructor(
      */
     @GET
     fun listZaakafhandelParameters(): List<RESTZaakafhandelParameters> {
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().beheren)
         return listZaaktypes()
             .map { zaaktype: ZaakType -> UriUtil.uuidFromURI(zaaktype.url) }
             .map { zaaktypeUUID: UUID? -> zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUUID) }
@@ -126,7 +126,7 @@ class ZaakafhandelParametersRESTService @Inject constructor(
     @GET
     @Path("{zaaktypeUUID}")
     fun readZaakafhandelParameters(@PathParam("zaaktypeUUID") zaakTypeUUID: UUID?): RESTZaakafhandelParameters {
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().beheren)
         return zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID).let {
             zaakafhandelParametersConverter.convertZaakafhandelParameters(it, true)
         }
@@ -141,7 +141,7 @@ class ZaakafhandelParametersRESTService @Inject constructor(
     fun updateZaakafhandelparameters(
         restZaakafhandelParameters: RESTZaakafhandelParameters?
     ): RESTZaakafhandelParameters {
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().beheren)
         var zaakafhandelParameters = zaakafhandelParametersConverter.convertRESTZaakafhandelParameters(
             restZaakafhandelParameters
         )
@@ -194,7 +194,7 @@ class ZaakafhandelParametersRESTService @Inject constructor(
     @GET
     @Path("resultaattypes/{zaaktypeUUID}")
     fun listResultaattypes(@PathParam("zaaktypeUUID") zaaktypeUUID: UUID?): List<RESTResultaattype> {
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().beheren)
         return resultaattypeConverter.convertResultaattypes(
             ztcClientService.readResultaattypen(ztcClientService.readZaaktype(zaaktypeUUID!!).url)
         )
