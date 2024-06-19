@@ -17,7 +17,6 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 
 import net.atos.client.zgw.zrc.ZRCClientService;
@@ -70,7 +69,6 @@ public class MailRestService {
     @Path("send/{zaakUuid}")
     public void sendMail(
             @PathParam("zaakUuid") final UUID zaakUUID,
-            @QueryParam("zaakClosing") final boolean zaakClosing,
             final RESTMailGegevens restMailGegevens
     ) {
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
