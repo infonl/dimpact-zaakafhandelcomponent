@@ -492,38 +492,50 @@ tasks {
     register<GenerateTask>("generateKvkZoekenClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/zoeken-openapi.yaml")
         outputDir.set("$rootDir/src/generated/kvk/zoeken/java")
+        // need to set outputs as file tree or else empty output folder will be cached by Gradle
+        outputs.files(fileTree("$rootDir/src/generated/kvk/zoeken/java"))
         modelPackage.set("net.atos.client.kvk.zoeken.model.generated")
     }
 
     register<GenerateTask>("generateKvkBasisProfielClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/basisprofiel-openapi.yaml")
         outputDir.set("$rootDir/src/generated/kvk/basisprofiel/java")
+        // need to set outputs as file tree or else empty output folder will be cached by Gradle
+        outputs.files(fileTree("$rootDir/src/generated/kvk/basisprofiel/java"))
         modelPackage.set("net.atos.client.kvk.basisprofiel.model.generated")
     }
 
     register<GenerateTask>("generateKvkVestigingsProfielClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/vestigingsprofiel-openapi.yaml")
         outputDir.set("$rootDir/src/generated/kvk/vestigingsprofiel/java")
+        // need to set outputs as file tree or else empty output folder will be cached by Gradle
+        outputs.files(fileTree("$rootDir/src/generated/kvk/vestigingsprofiel/java"))
         modelPackage.set("net.atos.client.kvk.vestigingsprofiel.model.generated")
     }
 
     register<GenerateTask>("generateBrpClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/brp/brp-openapi.yaml")
         outputDir.set("$rootDir/src/generated/brp/java")
+        // need to set outputs as file tree or else empty output folder will be cached by Gradle
+        outputs.files(fileTree("$rootDir/src/generated/brp/java"))
         modelPackage.set("net.atos.client.brp.model.generated")
     }
 
     register<GenerateTask>("generateVrlClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/vrl/vrl-openapi.yaml")
         outputDir.set("$rootDir/src/generated/vrl/java")
+        // need to set outputs as file tree or else empty output folder will be cached by Gradle
+        outputs.files(fileTree("$rootDir/src/generated/vrl/java"))
         modelPackage.set("net.atos.client.vrl.model.generated")
     }
 
     register<GenerateTask>("generateBagClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/bag/bag-openapi.yaml")
         outputDir.set("$rootDir/src/generated/bag/java")
+        // need to set outputs as file tree or else empty output folder will be cached by Gradle
+        outputs.files(fileTree("$rootDir/src/generated/bag/java"))
         modelPackage.set("net.atos.client.bag.model.generated")
-        // we need to use the java8-localdatatime date library for this client
+        // we need to use the java8-localdatetime date library for this client
         // or else certain date time fields for this client cannot be deserialized
         configOptions.set(
             mapOf(
@@ -547,48 +559,64 @@ tasks {
 
         inputSpec.set("$rootDir/src/main/resources/api-specs/klanten/klanten-openapi.yaml")
         outputDir.set("$rootDir/src/generated/klanten/java")
+        // need to set outputs as file tree or else empty output folder will be cached by Gradle
+        outputs.files(fileTree("$rootDir/src/generated/klanten/java"))
         modelPackage.set("net.atos.client.klanten.model.generated")
     }
 
     register<GenerateTask>("generateContactMomentenClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/contactmomenten/contactmomenten-openapi.yaml")
         outputDir.set("$rootDir/src/generated/contactmomenten/java")
+        // need to set outputs as file tree or else empty output folder will be cached by Gradle
+        outputs.files(fileTree("$rootDir/src/generated/contactmomenten/java"))
         modelPackage.set("net.atos.client.contactmomenten.model.generated")
     }
 
     register<GenerateTask>("generateZgwBrcClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/brc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/brc/java")
+        // need to set outputs as file tree or else empty output folder will be cached by Gradle
+        outputs.files(fileTree("$rootDir/src/generated/zgw/brc/java"))
         modelPackage.set("net.atos.client.zgw.brc.model.generated")
     }
 
     register<GenerateTask>("generateZgwDrcClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/drc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/drc/java")
+        // need to set outputs as file tree or else empty output folder will be cached by Gradle
+        outputs.files(fileTree("$rootDir/src/generated/zgw/drc/java"))
         modelPackage.set("net.atos.client.zgw.drc.model.generated")
     }
 
     register<GenerateTask>("generateZrcDrcClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/zrc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/zrc/java")
+        // need to set outputs as file tree or else empty output folder will be cached by Gradle
+        outputs.files(fileTree("$rootDir/src/generated/zgw/zrc/java"))
         modelPackage.set("net.atos.client.zgw.zrc.model.generated")
     }
 
     register<GenerateTask>("generateZtcDrcClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/ztc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/ztc/java")
+        // need to set outputs as file tree or else empty output folder will be cached by Gradle
+        outputs.files(fileTree("$rootDir/src/generated/zgw/ztc/java"))
         modelPackage.set("net.atos.client.zgw.ztc.model.generated")
     }
 
     register<GenerateTask>("generateOrObjectsClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/or/objects-openapi.yaml")
         outputDir.set("$rootDir/src/generated/or/objects/java")
+        // need to set outputs as file tree or else empty output folder will be cached by Gradle
+        outputs.files(fileTree("$rootDir/src/generated/or/objects/java"))
         modelPackage.set("net.atos.client.or.objects.model.generated")
     }
 
     register<GenerateTask>("generateOrObjectTypesClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/or/objecttypes-openapi.yaml")
         outputDir.set("$rootDir/src/generated/or/objecttypes/java")
+        // need to set outputs as file tree or else empty output folder will be cached by Gradle
+        outputs.files(fileTree("$rootDir/src/generated/or/objecttypes/java"))
         modelPackage.set("net.atos.client.or.objecttypes.model.generated")
     }
 
@@ -620,14 +648,13 @@ tasks {
     register<NpmTask>("npmRunBuild") {
         dependsOn("npmInstall")
         dependsOn("generateOpenApiSpec")
+
         npmCommand.set(listOf("run", "build"))
 
-        // avoid running this task when there are no changes in the input or output files
-        // see: https://github.com/node-gradle/gradle-node-plugin/blob/master/docs/faq.md
         inputs.files(fileTree("src/main/app/node_modules"))
         inputs.files(fileTree("src/main/app/src"))
-        outputs.dir("src/main/app/dist/zaakafhandelcomponent")
-        outputs.dir("src/main/app/src/generated/types")
+        outputs.files(fileTree("src/main/app/dist/zaakafhandelcomponent"))
+        outputs.files(fileTree("src/main/app/src/generated/types"))
         outputs.cacheIf { true }
     }
 
@@ -635,8 +662,7 @@ tasks {
         dependsOn("npmRunBuild")
 
         npmCommand.set(listOf("run", "test"))
-        // avoid running this task when there are no changes in the input or output files
-        // see: https://github.com/node-gradle/gradle-node-plugin/blob/master/docs/faq.md
+
         inputs.files(fileTree("src/main/app/node_modules"))
         inputs.files(fileTree("src/main/app/src"))
 
@@ -673,6 +699,8 @@ tasks {
     }
 
     register<Test>("itest") {
+        dependsOn("buildDockerImage")
+
         inputs.files(project.tasks.findByPath("compileItestKotlin")!!.outputs.files)
         testClassesDirs = sourceSets["itest"].output.classesDirs
         classpath = sourceSets["itest"].runtimeClasspath
@@ -693,18 +721,18 @@ tasks {
             xml.required = true
             html.required = false
         }
-        outputs.dir("$rootDir/build/reports/jacoco/jacocoIntegrationTestReport")
         // do not use the Gradle build cache for this task
         outputs.cacheIf { false }
+        outputs.dir("$rootDir/build/reports/jacoco/jacocoIntegrationTestReport")
     }
 
     register<Maven>("generateWildflyBootableJar") {
         dependsOn("war")
         execGoal("wildfly-jar:package")
 
-        inputs.files(fileTree("src/main/resources/wildfly"))
-        inputs.file("build/libs/zaakafhandelcomponent.war")
-        outputs.dir("target")
+        inputs.files(fileTree("$rootDir/src/main/resources/wildfly"))
+        inputs.file("$rootDir/build/libs/zaakafhandelcomponent.war")
+        outputs.dir("$rootDir/target")
     }
 
     register<Maven>("mavenClean") {
