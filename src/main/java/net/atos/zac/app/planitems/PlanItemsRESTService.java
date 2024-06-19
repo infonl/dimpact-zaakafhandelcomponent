@@ -32,6 +32,7 @@ import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.generated.Resultaat;
+import net.atos.zac.app.mail.converter.RESTMailGegevensConverter;
 import net.atos.zac.app.planitems.converter.RESTPlanItemConverter;
 import net.atos.zac.app.planitems.model.RESTHumanTaskData;
 import net.atos.zac.app.planitems.model.RESTPlanItem;
@@ -83,6 +84,7 @@ public class PlanItemsRESTService {
     private MailTemplateService mailTemplateService;
     private PolicyService policyService;
     private OpschortenZaakHelper opschortenZaakHelper;
+    private RESTMailGegevensConverter restMailGegevensConverter;
 
     /**
      * Default no-arg constructor, required by Weld.
@@ -105,7 +107,8 @@ public class PlanItemsRESTService {
             ConfiguratieService configuratieService,
             MailTemplateService mailTemplateService,
             PolicyService policyService,
-            OpschortenZaakHelper opschortenZaakHelper
+            OpschortenZaakHelper opschortenZaakHelper,
+            RESTMailGegevensConverter restMailGegevensConverter
     ) {
         this.taakVariabelenService = taakVariabelenService;
         this.zaakVariabelenService = zaakVariabelenService;
@@ -121,6 +124,7 @@ public class PlanItemsRESTService {
         this.mailTemplateService = mailTemplateService;
         this.policyService = policyService;
         this.opschortenZaakHelper = opschortenZaakHelper;
+        this.restMailGegevensConverter = restMailGegevensConverter;
     }
 
     @GET
@@ -284,6 +288,12 @@ public class PlanItemsRESTService {
             }
         }
         cmmnService.startUserEventListenerPlanItem(userEventListenerData.planItemInstanceId);
+        if (userEventListenerData.restMailGegevens != null) {
+            mailService.sendMail(
+                    restMailGegevensConverter.convert(userEventListenerData.restMailGegevens),
+                    BronnenKt.getBronnenFromZaak(zaak)
+            );
+        }
     }
 
     private static void validateFatalDate(LocalDate taskFatalDate, LocalDate zaakFatalDate) {

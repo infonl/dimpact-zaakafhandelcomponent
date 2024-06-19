@@ -30,17 +30,13 @@ import net.atos.client.zgw.shared.util.InformatieobjectenUtil
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZTCClientService
 import net.atos.client.zgw.ztc.model.generated.InformatieObjectType
-import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
-import net.atos.zac.app.mail.model.RESTMailGegevens
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.mail.model.Attachment
 import net.atos.zac.mail.model.Bronnen
 import net.atos.zac.mail.model.MailAdres
-import net.atos.zac.mail.model.getBronnenFromZaak
 import net.atos.zac.mailtemplates.MailTemplateHelper
 import net.atos.zac.mailtemplates.model.MailGegevens
-import net.atos.zac.util.ValidationUtil
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.apache.commons.lang3.StringUtils
@@ -89,7 +85,6 @@ class MailService @Inject constructor(
 
     val gemeenteMailAdres
         get() = MailAdres(configuratieService.readGemeenteMail(), configuratieService.readGemeenteNaam())
-
 
     fun sendMail(mailGegevens: MailGegevens, bronnen: Bronnen): String {
         val subject = StringUtils.abbreviate(

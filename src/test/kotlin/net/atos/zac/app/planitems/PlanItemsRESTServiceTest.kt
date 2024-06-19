@@ -12,18 +12,26 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import net.atos.client.zgw.brc.BrcClientService
+import net.atos.client.zgw.brc.model.generated.Besluit
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.createZaak
+import net.atos.client.zgw.zrc.model.generated.Resultaat
+import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
+import net.atos.zac.app.mail.model.createRESTMailGegevens
 import net.atos.zac.app.planitems.converter.RESTPlanItemConverter
+import net.atos.zac.app.planitems.model.UserEventListenerActie
 import net.atos.zac.app.planitems.model.createRESTHumanTaskData
+import net.atos.zac.app.planitems.model.createRESTUserEventListenerData
 import net.atos.zac.app.util.exception.InputValidationFailedException
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.CMMNService
 import net.atos.zac.flowable.TaakVariabelenService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.mail.MailService
+import net.atos.zac.mail.model.Bronnen
 import net.atos.zac.mailtemplates.MailTemplateService
+import net.atos.zac.mailtemplates.model.createMailGegevens
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
@@ -35,6 +43,7 @@ import net.atos.zac.zoeken.IndexeerService
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.net.URI
 import java.time.LocalDate
+import java.util.Optional
 import java.util.UUID
 
 class PlanItemsRESTServiceTest : BehaviorSpec({
@@ -52,6 +61,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
     val mailTemplateService = mockk<MailTemplateService>()
     val policyService = mockk<PolicyService>()
     val opschortenZaakHelper = mockk<OpschortenZaakHelper>()
+    val restMailGegevensConverter = mockk<RESTMailGegevensConverter>()
 
     val planItemsRESTService = PlanItemsRESTService(
         taakVariabelenService,
@@ -67,7 +77,8 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         configuratieService,
         mailTemplateService,
         policyService,
-        opschortenZaakHelper
+        opschortenZaakHelper,
+        restMailGegevensConverter
     )
 
     val planItemInstanceId = "dummyPlanItemInstanceId"
@@ -138,6 +149,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
             Then("it throws exception with no message") { exception.message shouldBe null }
         }
     }
+
     Given("Valid REST human task data with a fatal date and with zaak opschorten set to true") {
         clearAllMocks()
         val opgeschorteZaak = createZaak()
@@ -187,6 +199,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("REST human task data with a fatal date that comes after the fatal date of the related zaal") {
         clearAllMocks()
         val restHumanTaskData = createRESTHumanTaskData(
@@ -213,6 +226,40 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
                 verify(exactly = 0) {
                     cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
                     indexeerService.addOrUpdateZaak(any(), any())
+                }
+            }
+        }
+    }
+
+    Given("Zaak exists") {
+        val zaak = createZaak()
+
+        val mailGegevens = createMailGegevens()
+        val resultaat = Resultaat()
+
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+        every { policyService.checkZaakAfsluitbaar(zaak) } just runs
+        every { brcClientService.listBesluiten(zaak) } returns Optional.of(listOf(Besluit()))
+        every { zrcClientService.readResultaat(zaak.resultaat) } returns resultaat
+        every { zrcClientService.updateResultaat(any<Resultaat>()) } returns resultaat
+        every { mailService.sendMail(mailGegevens, any<Bronnen>()) } returns mailGegevens.body
+
+        When("Zaak is requested to close and send mail") {
+            val restMailGegevens = createRESTMailGegevens()
+            val restUserEventListenerData = createRESTUserEventListenerData(
+                zaakUuid = zaak.uuid,
+                actie = UserEventListenerActie.ZAAK_AFHANDELEN,
+                restMailGegevens = restMailGegevens
+            )
+            every { restMailGegevensConverter.convert(restMailGegevens) } returns mailGegevens
+            every { cmmnService.startUserEventListenerPlanItem(restUserEventListenerData.planItemInstanceId) } just runs
+
+            planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
+
+            Then("it sends mail") {
+                verify(exactly = 1) {
+                    mailService.sendMail(mailGegevens, any<Bronnen>())
                 }
             }
         }

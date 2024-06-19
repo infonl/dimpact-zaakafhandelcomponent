@@ -14,7 +14,7 @@ class MailAdres(
     @field:JsonbProperty("Name") var name: String?
 ) {
     init {
-        require(!ValidationUtil.isValidEmail(email)) { "E-Mail '$email' is not valid" }
+        require(ValidationUtil.isValidEmail(email)) { "E-Mail '$email' is not valid" }
     }
 
     constructor(email: String) : this(email, null)
