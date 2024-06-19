@@ -77,7 +77,7 @@ export class ReferentieTabelService {
       );
   }
 
-  listServerErrorText(): Observable<string[]> {
+  listServerErrorTexts(): Observable<string[]> {
     return this.http
       .get<string[]>(`${this.basepath}/server-error-text`)
       .pipe(
