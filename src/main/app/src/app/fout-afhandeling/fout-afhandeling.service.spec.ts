@@ -9,16 +9,30 @@ import { TranslateService } from "@ngx-translate/core";
 import { firstValueFrom } from "rxjs";
 import { UtilService } from "../core/service/util.service";
 import { FoutAfhandelingService } from "./fout-afhandeling.service";
+import { ReferentieTabelService } from "../admin/referentie-tabel.service";
+import { HttpErrorResponse } from "@angular/common/http";
 
 describe("FoutAfhandelingService", () => {
   let service: FoutAfhandelingService;
+  const translatedErrorMessage = "dummyTranslatedErrorMessage";
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
-        { provide: UtilService, useValue: {} },
         { provide: MatDialog, useValue: { open() {} } },
-        { provide: TranslateService, useValue: {} },
+        { provide: UtilService, useValue: { openSnackbarError() {} } },
+        {
+          provide: TranslateService,
+          useValue: {
+            instant() {
+              return translatedErrorMessage;
+            },
+          },
+        },
+        {
+          provide: ReferentieTabelService,
+          useValue: { listServerErrorTexts() {} },
+        },
       ],
       imports: [],
     });
@@ -34,5 +48,21 @@ describe("FoutAfhandelingService", () => {
     const error$ = service.openFoutDialog("some error");
     const errorMessage = await firstValueFrom(error$).catch((r) => r);
     expect(errorMessage).toEqual("Fout!");
+  });
+
+  it("should return an observable error message when httpErrorAfhandelen is called with a server error", async () => {
+    const exceptionMessage = "dummyException";
+    const errorResponse = new HttpErrorResponse({
+      error: {
+        message: "dummyServerErrorMessage",
+        exception: exceptionMessage,
+      },
+      status: 500,
+    });
+    const error$ = service.httpErrorAfhandelen(errorResponse);
+    const errorMessage = await firstValueFrom(error$).catch((r) => r);
+    expect(errorMessage).toEqual(
+      `${translatedErrorMessage}: ${exceptionMessage}`,
+    );
   });
 });
