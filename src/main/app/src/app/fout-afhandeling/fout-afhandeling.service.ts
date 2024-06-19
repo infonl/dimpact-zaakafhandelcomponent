@@ -10,10 +10,10 @@ import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { Observable, throwError } from "rxjs";
 import { P, match } from "ts-pattern";
+import { ReferentieTabelService } from "../admin/referentie-tabel.service";
 import { UtilService } from "../core/service/util.service";
 import { FoutDetailedDialogComponent } from "./dialog/fout-detailed-dialog.component";
 import { FoutDialogComponent } from "./dialog/fout-dialog.component";
-import { ReferentieTabelService } from "../admin/referentie-tabel.service";
 
 const ViolationPattern = {
   constraintType: P.string,

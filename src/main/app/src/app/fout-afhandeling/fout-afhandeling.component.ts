@@ -4,8 +4,8 @@
  */
 
 import { Component, OnInit } from "@angular/core";
+import { Observable } from "rxjs";
 import { FoutAfhandelingService } from "./fout-afhandeling.service";
-import {Observable} from "rxjs";
 
 @Component({
   selector: "zac-fout-afhandeling",

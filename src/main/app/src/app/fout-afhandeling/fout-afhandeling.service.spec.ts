@@ -3,14 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HttpErrorResponse } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
 import { MatDialog } from "@angular/material/dialog";
 import { TranslateService } from "@ngx-translate/core";
 import { firstValueFrom } from "rxjs";
+import { ReferentieTabelService } from "../admin/referentie-tabel.service";
 import { UtilService } from "../core/service/util.service";
 import { FoutAfhandelingService } from "./fout-afhandeling.service";
-import { ReferentieTabelService } from "../admin/referentie-tabel.service";
-import { HttpErrorResponse } from "@angular/common/http";
 
 describe("FoutAfhandelingService", () => {
   let service: FoutAfhandelingService;
