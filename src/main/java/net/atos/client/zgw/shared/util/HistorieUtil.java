@@ -19,7 +19,7 @@ public final class HistorieUtil {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")
-                                                                     .withZone(ZoneId.systemDefault());
+            .withZone(ZoneId.systemDefault());
 
     private static final String TRUE = "Ja";
 
