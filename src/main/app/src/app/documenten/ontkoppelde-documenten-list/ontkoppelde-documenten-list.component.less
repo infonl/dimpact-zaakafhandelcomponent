@@ -29,3 +29,26 @@
   margin-block: auto;
   padding: .125em;
 }
+
+.actions-grid {
+  @column-count: 4;
+  --_column-count: @column-count;
+  --_column-size: 3rem;
+  --_spacing: 0.375rem;
+
+  display: grid;
+  grid-template-columns: repeat(var(--_column-count), var(--_column-size));
+  gap: var(--_spacing);
+  margin-inline: var(--_spacing);
+  place-items: center;
+
+  > * {
+    margin: 0;
+  }
+
+  each(range(1, @column-count, 1), {
+    > .col-@{index} {
+      grid-column: @index;
+    }
+  });
+}
