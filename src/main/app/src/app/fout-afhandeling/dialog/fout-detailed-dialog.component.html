@@ -7,8 +7,8 @@
 <div mat-dialog-content>
     <div>{{data.error}}</div>
     <div class="details">{{data.details}}</div>
-    <ng-container *ngIf="data.serverErrorTexts">
-      <div class="details" *ngFor="let serverErrorText of data.serverErrorTexts | async">{{serverErrorText}}</div>
+    <ng-container *ngIf="data.showServerErrorTexts">
+      <div class="details" *ngFor="let serverErrorText of serverErrorTexts | async">{{serverErrorText}}</div>
     </ng-container>
 </div>
 <div mat-dialog-actions>

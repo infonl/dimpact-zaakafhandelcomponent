@@ -7,7 +7,7 @@ import { AsyncPipe, NgForOf, NgIf } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { TranslateModule } from "@ngx-translate/core";
-import { Observable } from "rxjs";
+import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
 import { MaterialModule } from "../../shared/material/material.module";
 
 @Component({
@@ -23,16 +23,18 @@ import { MaterialModule } from "../../shared/material/material.module";
 })
 export class FoutDetailedDialogComponent {
   constructor(
+    private referentieTabelService: ReferentieTabelService,
     public dialogRef: MatDialogRef<FoutDetailedDialogComponent>,
     @Inject(MAT_DIALOG_DATA)
     public data: {
       error: string;
       details: string;
-      serverErrorTexts?: Observable<string[]>;
+      showServerErrorTexts?: boolean;
     },
   ) {}
 
   panelOpenState = false;
+  serverErrorTexts = this.referentieTabelService.listServerErrorTexts();
 
   close(): void {
     this.dialogRef.close();

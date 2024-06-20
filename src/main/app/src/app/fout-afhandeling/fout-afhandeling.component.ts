@@ -4,7 +4,7 @@
  */
 
 import { Component, OnInit } from "@angular/core";
-import { Observable } from "rxjs";
+import { ReferentieTabelService } from "../admin/referentie-tabel.service";
 import { FoutAfhandelingService } from "./fout-afhandeling.service";
 
 @Component({
@@ -15,13 +15,15 @@ import { FoutAfhandelingService } from "./fout-afhandeling.service";
 export class FoutAfhandelingComponent implements OnInit {
   bericht: string;
   foutmelding: string;
-  serverErrorTexts: Observable<string[]>;
+  serverErrorTexts = this.referentieTabelService.listServerErrorTexts();
 
-  constructor(private service: FoutAfhandelingService) {}
+  constructor(
+    private service: FoutAfhandelingService,
+    private referentieTabelService: ReferentieTabelService,
+  ) {}
 
   ngOnInit(): void {
     this.bericht = this.service.bericht;
     this.foutmelding = this.service.foutmelding;
-    this.serverErrorTexts = this.service.serverErrorTexts;
   }
 }

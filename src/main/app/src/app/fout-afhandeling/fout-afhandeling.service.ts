@@ -11,7 +11,6 @@ import { TranslateService } from "@ngx-translate/core";
 import { Observable, throwError } from "rxjs";
 import { P, match } from "ts-pattern";
 import { UtilService } from "../core/service/util.service";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { FoutDetailedDialogComponent } from "./dialog/fout-detailed-dialog.component";
 import { FoutDialogComponent } from "./dialog/fout-dialog.component";
 
@@ -40,19 +39,13 @@ type JakartaBeanValidationError = P.infer<typeof ValidationErrorPattern>;
 export class FoutAfhandelingService {
   foutmelding: string;
   bericht: string;
-  serverErrorTexts: Observable<string[]>;
 
   constructor(
     private router: Router,
     private dialog: MatDialog,
     private utilService: UtilService,
     private translate: TranslateService,
-    zacHttp: ZacHttpClient,
-  ) {
-    this.serverErrorTexts = zacHttp.GET(
-      "/rest/referentietabellen/server-error-text",
-    );
-  }
+  ) {}
 
   public foutAfhandelen(
     err: HttpErrorResponse | JakartaBeanValidationError,
@@ -91,13 +84,13 @@ export class FoutAfhandelingService {
   public openFoutDetailedDialog(
     error: string,
     details: string,
-    serverErrorTexts?: Observable<string[]>,
+    showServerErrorTexts?: boolean,
   ): Observable<never> {
     this.dialog.open(FoutDetailedDialogComponent, {
       data: {
         error,
         details,
-        serverErrorTexts,
+        showServerErrorTexts,
       },
     });
 
@@ -148,14 +141,13 @@ export class FoutAfhandelingService {
         errorDetail = err.message;
       }
       // only show server error texts in case of a server error (500 family of errors)
-      const serverErrorText =
-        err.status >= 500 ? this.serverErrorTexts : undefined;
+      const showServerErrorTexts = err.status >= 500;
 
       // show error in context and do not redirect to error page
       return this.openFoutDetailedDialog(
         this.translate.instant(err.error.message),
         errorDetail,
-        serverErrorText,
+        showServerErrorTexts,
       );
     }
     return throwError(() => `${this.foutmelding}: ${this.bericht}`);
