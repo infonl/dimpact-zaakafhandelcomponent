@@ -148,6 +148,20 @@ fun createRESTZaakToekennenGegevens(
     reden = reden
 )
 
+fun createRESTZakenVerdeelGegevens(
+    uuids: List<UUID> = emptyList(),
+    groepId: String = "dummyGroupId",
+    behandelaarGebruikersnaam: String? = null,
+    reden: String? = null,
+    screenEventResourceId: String? = null
+) = RESTZakenVerdeelGegevens(
+    uuids = uuids,
+    groepId = groepId,
+    behandelaarGebruikersnaam = behandelaarGebruikersnaam,
+    reden = reden,
+    screenEventResourceId = screenEventResourceId
+)
+
 fun createRESTZaakRechten() = RESTZaakRechten()
 
 fun createRESTZaakResultaat() = RESTZaakResultaat()

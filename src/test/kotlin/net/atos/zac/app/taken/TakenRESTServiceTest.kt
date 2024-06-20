@@ -11,8 +11,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearAllMocks
-import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -104,26 +102,7 @@ class TakenRESTServiceTest : BehaviorSpec({
     val loggedInUser = createLoggedInUser()
 
     beforeEach {
-        // specifically do not check for unnecessary stubs in the task service
-        // using checkUnnecessaryStub() because that currently breaks the test
-        checkUnnecessaryStub(
-            drcClientService,
-            enkelvoudigInformatieObjectUpdateService,
-            eventingService,
-            httpSessionInstance,
-            indexeerService,
-            loggedInUserInstance,
-            policyService,
-            taakVariabelenService,
-            restTaakConverter,
-            flowableTaskService,
-            zrcClientService,
-            opschortenZaakHelper,
-            restInformatieobjectConverter,
-            signaleringService,
-            taakHistorieConverter,
-            zgwApiService
-        )
+        checkUnnecessaryStub()
     }
 
     beforeSpec {
@@ -336,7 +315,7 @@ class TakenRESTServiceTest : BehaviorSpec({
             ),
             screenEventResourceId = screenEventResourceId
         )
-        coEvery {
+        every {
             taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
         } just Runs
 
@@ -345,10 +324,10 @@ class TakenRESTServiceTest : BehaviorSpec({
                 policyService.readWerklijstRechten()
             } returns createWerklijstRechtenAllDeny(zakenTakenVerdelen = true)
 
-            takenRESTService.verdelenVanuitLijst(restTaakVerdelenGegevens)
+            takenRESTService.verdelenVanuitLijst(restTaakVerdelenGegevens).join()
 
             Then("the tasks are assigned to the group and user") {
-                coVerify(exactly = 1) {
+                verify(exactly = 1) {
                     taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
                 }
             }
@@ -375,15 +354,15 @@ class TakenRESTServiceTest : BehaviorSpec({
         )
         val werklijstRechten = createWerklijstRechten()
         every { policyService.readWerklijstRechten() } returns werklijstRechten
-        coEvery {
+        every {
             taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser, screenEventResourceId)
         } just Runs
 
         When("the 'verdelen vanuit lijst' function is called") {
-            takenRESTService.vrijgevenVanuitLijst(restTaakVrijgevenGegevens)
+            takenRESTService.vrijgevenVanuitLijst(restTaakVrijgevenGegevens).join()
 
             Then("the tasks are assigned to the group and user") {
-                coVerify(exactly = 1) {
+                verify(exactly = 1) {
                     taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser, screenEventResourceId)
                 }
             }
