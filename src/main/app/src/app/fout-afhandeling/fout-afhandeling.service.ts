@@ -91,13 +91,13 @@ export class FoutAfhandelingService {
   public openFoutDetailedDialog(
     error: string,
     details: string,
-    errorHelpTexts?: Observable<string[]>,
+    serverErrorTexts?: Observable<string[]>,
   ): Observable<never> {
     this.dialog.open(FoutDetailedDialogComponent, {
       data: {
         error,
         details,
-        errorHelpTexts,
+        serverErrorTexts,
       },
     });
 
