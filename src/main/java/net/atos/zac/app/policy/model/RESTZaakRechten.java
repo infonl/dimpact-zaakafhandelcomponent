@@ -40,4 +40,6 @@ public class RESTZaakRechten {
     public boolean verwijderenInitiator;
 
     public boolean creeerenDocument;
+
+    public boolean vesturenEmail;
 }

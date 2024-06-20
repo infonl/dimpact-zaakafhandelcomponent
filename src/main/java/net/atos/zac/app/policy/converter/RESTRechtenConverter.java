@@ -58,6 +58,7 @@ public class RESTRechtenConverter {
         restZaakRechten.verwijderenBetrokkene = zaakRechten.verwijderenBetrokkene();
         restZaakRechten.verwijderenInitiator = zaakRechten.verwijderenInitiator();
         restZaakRechten.creeerenDocument = zaakRechten.creeerenDocument();
+        restZaakRechten.vesturenEmail = zaakRechten.versturenEmail();
         return restZaakRechten;
     }
 
