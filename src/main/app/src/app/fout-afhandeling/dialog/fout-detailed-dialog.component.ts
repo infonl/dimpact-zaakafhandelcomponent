@@ -7,8 +7,8 @@ import { AsyncPipe, NgForOf, NgIf } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { TranslateModule } from "@ngx-translate/core";
-import { MaterialModule } from "../../shared/material/material.module";
 import { Observable } from "rxjs";
+import { MaterialModule } from "../../shared/material/material.module";
 
 @Component({
   standalone: true,
@@ -28,7 +28,7 @@ export class FoutDetailedDialogComponent {
     public data: {
       error: string;
       details: string;
-      serverErrorTexts: Observable<string[]>;
+      serverErrorTexts?: Observable<string[]>;
     },
   ) {}
 
