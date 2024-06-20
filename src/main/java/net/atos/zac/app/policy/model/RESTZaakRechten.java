@@ -41,5 +41,5 @@ public class RESTZaakRechten {
 
     public boolean creeerenDocument;
 
-    public boolean vesturenEmail;
+    public boolean versturenEmail;
 }
