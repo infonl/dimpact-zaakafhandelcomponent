@@ -12,6 +12,11 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.ext.ExceptionMapper
 import jakarta.ws.rs.ext.Provider
+import net.atos.client.bag.BagClientService
+import net.atos.client.brp.BRPClientService
+import net.atos.client.klanten.KlantenClientService
+import net.atos.client.or.`object`.ObjectsClientService
+import net.atos.client.or.objecttype.ObjecttypesClientService
 import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.ZRCClientService
@@ -29,8 +34,13 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
     companion object {
         private val LOG = Logger.getLogger(RestExceptionMapper::class.java.name)
         const val JSON_CONVERSION_ERROR_MESSAGE = "Failed to convert exception to JSON"
+        const val ERROR_CODE_BAG_CLIENT = "msg.error.bag.client.exception"
         const val ERROR_CODE_BRC_CLIENT = "msg.error.brc.client.exception"
+        const val ERROR_CODE_BRP_CLIENT = "msg.error.brp.client.exception"
         const val ERROR_CODE_DRC_CLIENT = "msg.error.drc.client.exception"
+        const val ERROR_CODE_KLANTEN_CLIENT = "msg.error.klanten.client.exception"
+        const val ERROR_CODE_OBJECTS_CLIENT = "msg.error.objects.client.exception"
+        const val ERROR_CODE_OBJECTTYPES_CLIENT = "msg.error.objecttypes.client.exception"
         const val ERROR_CODE_ZRC_CLIENT = "msg.error.zrc.client.exception"
         const val ERROR_CODE_ZTC_CLIENT = "msg.error.ztc.client.exception"
         const val ERROR_CODE_GENERIC_SERVER = "msg.error.server.generic"
@@ -73,11 +83,26 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
     private fun handleProcessingException(exception: Exception): Response {
         val stackTrace = exception.stackTraceToString()
         return when {
+            stackTrace.contains(BagClientService::class.simpleName!!) -> {
+                generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_BAG_CLIENT)
+            }
             stackTrace.contains(BrcClientService::class.simpleName!!) -> {
                 generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_BRC_CLIENT)
             }
+            stackTrace.contains(BRPClientService::class.simpleName!!) -> {
+                generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_BRP_CLIENT)
+            }
             stackTrace.contains(DrcClientService::class.simpleName!!) -> {
                 generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_DRC_CLIENT)
+            }
+            stackTrace.contains(ObjectsClientService::class.simpleName!!) -> {
+                generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_OBJECTS_CLIENT)
+            }
+            stackTrace.contains(ObjecttypesClientService::class.simpleName!!) -> {
+                generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_OBJECTTYPES_CLIENT)
+            }
+            stackTrace.contains(KlantenClientService::class.simpleName!!) -> {
+                generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_KLANTEN_CLIENT)
             }
             stackTrace.contains(ZRCClientService::class.simpleName!!) -> {
                 generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_ZRC_CLIENT)
