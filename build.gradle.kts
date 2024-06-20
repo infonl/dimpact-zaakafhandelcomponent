@@ -701,7 +701,6 @@ tasks {
     register<Test>("itest") {
         dependsOn("buildDockerImage")
 
-        inputs.files(project.tasks.findByPath("compileItestKotlin")!!.outputs.files)
         testClassesDirs = sourceSets["itest"].output.classesDirs
         classpath = sourceSets["itest"].runtimeClasspath
         systemProperty("zacDockerImage", zacDockerImage)
