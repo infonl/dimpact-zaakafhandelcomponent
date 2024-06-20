@@ -10,6 +10,7 @@ import static net.atos.zac.policy.PolicyService.assertPolicy;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -22,9 +23,11 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.eclipse.jetty.http.HttpStatus;
 
 import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import net.atos.client.zgw.shared.exception.FoutException;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.zac.app.identity.converter.RESTUserConverter;
@@ -68,6 +71,8 @@ public class OntkoppeldeDocumentenRESTService {
     @Inject
     private PolicyService policyService;
 
+    private static final Logger LOG = Logger.getLogger(OntkoppeldeDocumentenRESTService.class.getName());
+
     @PUT
     @Path("")
     public RESTResultaat<RESTOntkoppeldDocument> list(final RESTOntkoppeldDocumentListParameters restListParameters) {
@@ -95,15 +100,27 @@ public class OntkoppeldeDocumentenRESTService {
         if (ontkoppeldDocument.isEmpty()) {
             return; // al verwijderd
         }
-        final EnkelvoudigInformatieObject enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(ontkoppeldDocument
-                .get().getDocumentUUID());
-        final List<ZaakInformatieobject> zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
-                enkelvoudigInformatieobject);
-        if (!zaakInformatieobjecten.isEmpty()) {
-            final UUID zaakUuid = UriUtil.uuidFromURI(zaakInformatieobjecten.getFirst().getZaak());
-            throw new IllegalStateException(String.format("Informatieobject is gekoppeld aan zaak '%s'", zaakUuid));
+        EnkelvoudigInformatieObject enkelvoudigInformatieobject = null;
+        final UUID documentUUID = ontkoppeldDocument
+                .get().getDocumentUUID();
+        try {
+            enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(documentUUID);
+        } catch (FoutException e) {
+            if (e.getFout().getStatus() != HttpStatus.NOT_FOUND_404) {
+                throw e;
+            }
+            LOG.info(String.format("Document met UUID '%s' wel gevonden in de database, maar niet in OpenZaak", documentUUID));
         }
-        drcClientService.deleteEnkelvoudigInformatieobject(ontkoppeldDocument.get().getDocumentUUID());
+        if (enkelvoudigInformatieobject != null) {
+            final List<ZaakInformatieobject> zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
+                    enkelvoudigInformatieobject);
+            if (!zaakInformatieobjecten.isEmpty()) {
+                final UUID zaakUuid = UriUtil.uuidFromURI(zaakInformatieobjecten.getFirst().getZaak());
+                throw new IllegalStateException(String.format("Informatieobject is gekoppeld aan zaak '%s'", zaakUuid));
+            }
+            drcClientService.deleteEnkelvoudigInformatieobject(documentUUID);
+        }
+
         ontkoppeldeDocumentenService.delete(ontkoppeldDocument.get().getId());
     }
 }
