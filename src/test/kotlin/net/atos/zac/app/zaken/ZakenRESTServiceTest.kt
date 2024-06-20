@@ -53,6 +53,7 @@ import net.atos.zac.app.zaken.model.ZAAK_TYPE_1_OMSCHRIJVING
 import net.atos.zac.app.zaken.model.createRESTZaak
 import net.atos.zac.app.zaken.model.createRESTZaakAanmaakGegevens
 import net.atos.zac.app.zaken.model.createRESTZaakToekennenGegevens
+import net.atos.zac.app.zaken.model.createRESTZakenVerdeelGegevens
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
@@ -67,6 +68,7 @@ import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.createGroup
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.output.createOverigeRechtenAllDeny
+import net.atos.zac.policy.output.createWerklijstRechten
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.ProductaanvraagService
@@ -80,6 +82,7 @@ import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.Optional
+import java.util.UUID
 
 @Suppress("LongParameterList")
 class ZakenRESTServiceTest : BehaviorSpec({
@@ -317,6 +320,33 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     )
                     assertEquals(this.zaak, rolMedewerker.zaak)
                     assertEquals(this.omschrijving, rolType.omschrijving)
+                }
+            }
+        }
+    }
+    Given("REST zaken verdeel gegevens are provided") {
+        clearAllMocks()
+        val zaakUUIDs = listOf(UUID.randomUUID(), UUID.randomUUID())
+        val restZakenVerdeelGegevens = createRESTZakenVerdeelGegevens(
+            uuids = zaakUUIDs
+        )
+        every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
+        every { zaakService.assignZaken(any(), any(), any(), any(), any()) } just runs
+        // need more mocking still..
+
+        When("the assign zaken from a list function is called") {
+            zakenRESTService.verdelenVanuitLijst(restZakenVerdeelGegevens).join()
+
+            // cannot get it to work. maybe need https://kotest.io/docs/framework/coroutines/test-coroutine-dispatcher.html?
+            Then("the zaken are assigned").config(enabled = false) {
+                verify(exactly = 1) {
+                    zaakService.assignZaken(
+                        zaakUUIDs,
+                        any(),
+                        any(),
+                        any(),
+                        restZakenVerdeelGegevens.screenEventResourceId
+                    )
                 }
             }
         }

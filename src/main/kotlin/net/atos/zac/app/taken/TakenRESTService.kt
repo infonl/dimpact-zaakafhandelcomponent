@@ -23,6 +23,7 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.Ondertekening
@@ -142,10 +143,10 @@ class TakenRESTService @Inject constructor(
 
     @PUT
     @Path("lijst/verdelen")
-    fun verdelenVanuitLijst(@Valid restTaakVerdelenGegevens: RESTTaakVerdelenGegevens) {
+    fun verdelenVanuitLijst(@Valid restTaakVerdelenGegevens: RESTTaakVerdelenGegevens): Job {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation so run it asynchronously
-        CoroutineScope(Dispatchers.IO).launch {
+        return CoroutineScope(Dispatchers.IO).launch {
             taskService.assignTasks(
                 restTaakVerdelenGegevens = restTaakVerdelenGegevens,
                 loggedInUser = loggedInUserInstance.get(),
@@ -156,10 +157,10 @@ class TakenRESTService @Inject constructor(
 
     @PUT
     @Path("lijst/vrijgeven")
-    fun vrijgevenVanuitLijst(@Valid restTaakVrijgevenGegevens: RESTTaakVrijgevenGegevens) {
+    fun vrijgevenVanuitLijst(@Valid restTaakVrijgevenGegevens: RESTTaakVrijgevenGegevens): Job {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation so run it asynchronously
-        CoroutineScope(Dispatchers.IO).launch {
+        return CoroutineScope(Dispatchers.IO).launch {
             taskService.releaseTasks(
                 restTaakVrijgevenGegevens = restTaakVrijgevenGegevens,
                 loggedInUser = loggedInUserInstance.get(),
