@@ -10,4 +10,4 @@
 @REM # crashes of WildFly/ZAC when running in IntelliJ when you have configured DEBUG logging in WildFly
 @REM # with errors such as: "fatal error: concurrent map read and map write goroutine 2013 [running]:
 @REM # go.1password.io/op/op-cli/command/subprocess/masking.matches.add(...)"
-op run --env-file=".env.tpl" --no-masking -- .\wildfly-31.0.1.Final\bin\standalone.bat
+op run --env-file=".env.tpl" --no-masking -- .\wildfly-32.0.1.Final\bin\standalone.bat
