@@ -18,6 +18,7 @@ import io.mockk.runs
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
+import kotlinx.coroutines.test.runTest
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.ZGWApiService
@@ -324,7 +325,9 @@ class TakenRESTServiceTest : BehaviorSpec({
                 policyService.readWerklijstRechten()
             } returns createWerklijstRechtenAllDeny(zakenTakenVerdelen = true)
 
-            takenRESTService.verdelenVanuitLijst(restTaakVerdelenGegevens).join()
+            runTest {
+                takenRESTService.verdelenVanuitLijst(restTaakVerdelenGegevens)
+            }
 
             Then("the tasks are assigned to the group and user") {
                 verify(exactly = 1) {
@@ -359,7 +362,9 @@ class TakenRESTServiceTest : BehaviorSpec({
         } just Runs
 
         When("the 'verdelen vanuit lijst' function is called") {
-            takenRESTService.vrijgevenVanuitLijst(restTaakVrijgevenGegevens).join()
+            runTest {
+                takenRESTService.vrijgevenVanuitLijst(restTaakVrijgevenGegevens)
+            }
 
             Then("the tasks are assigned to the group and user") {
                 verify(exactly = 1) {
