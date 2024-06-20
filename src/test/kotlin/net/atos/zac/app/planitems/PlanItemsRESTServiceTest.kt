@@ -245,7 +245,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         every { zrcClientService.updateResultaat(any<Resultaat>()) } returns resultaat
         every { mailService.sendMail(mailGegevens, any<Bronnen>()) } returns mailGegevens.body
 
-        When("Zaak is requested to close and send mail") {
+        When("A user event to settle the zaak and send a corresponding email is planned") {
             val restMailGegevens = createRESTMailGegevens()
             val restUserEventListenerData = createRESTUserEventListenerData(
                 zaakUuid = zaak.uuid,
@@ -257,7 +257,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
 
             planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
 
-            Then("it sends mail") {
+            Then("the zaak is settled and the email is sent") {
                 verify(exactly = 1) {
                     mailService.sendMail(mailGegevens, any<Bronnen>())
                 }
