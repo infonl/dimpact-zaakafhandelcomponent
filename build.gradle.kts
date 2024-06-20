@@ -732,6 +732,9 @@ tasks {
 
         inputs.files(fileTree("$rootDir/src/main/resources/wildfly"))
         inputs.file("$rootDir/build/libs/zaakafhandelcomponent.war")
+        inputs.file("$rootDir/pom.xml")
+        inputs.file("$rootDir/src/main/resources/wildfly/configure-wildfly.cli")
+        inputs.file("$rootDir/src/main/resources/wildfly/deploy-zaakafhandelcomponent.cli")
         outputs.dir("$rootDir/target")
     }
 
