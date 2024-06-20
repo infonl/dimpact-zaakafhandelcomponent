@@ -10,8 +10,8 @@ import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { Observable, throwError } from "rxjs";
 import { P, match } from "ts-pattern";
-import { ReferentieTabelService } from "../admin/referentie-tabel.service";
 import { UtilService } from "../core/service/util.service";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { FoutDetailedDialogComponent } from "./dialog/fout-detailed-dialog.component";
 import { FoutDialogComponent } from "./dialog/fout-dialog.component";
 
@@ -47,8 +47,12 @@ export class FoutAfhandelingService {
     private dialog: MatDialog,
     private utilService: UtilService,
     private translate: TranslateService,
-    private referentieTabelService: ReferentieTabelService,
-  ) {}
+    zacHttp: ZacHttpClient,
+  ) {
+    this.serverErrorTexts = zacHttp.GET(
+      "/rest/referentietabellen/server-error-text",
+    );
+  }
 
   public foutAfhandelen(
     err: HttpErrorResponse | JakartaBeanValidationError,
@@ -143,11 +147,10 @@ export class FoutAfhandelingService {
       } else {
         errorDetail = err.message;
       }
-      let serverErrorText: Observable<string[]> | undefined;
       // only show server error texts in case of a server error (500 family of errors)
-      if (err.status >= 500) {
-        serverErrorText = this.referentieTabelService.listServerErrorTexts();
-      }
+      const serverErrorText =
+        err.status >= 500 ? this.serverErrorTexts : undefined;
+
       // show error in context and do not redirect to error page
       return this.openFoutDetailedDialog(
         this.translate.instant(err.error.message),
