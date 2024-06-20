@@ -114,4 +114,38 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
+    Given(
+        """
+        A JAX-RS processing exception without a HttpHostConnectException or UnknownHostException
+        as cause but which does contain the ZTC client service class name in the stacktrace
+        """
+    ) {
+        val exceptionMessage = "DummyProcessingException"
+        val exception = ProcessingException(
+            exceptionMessage,
+            RuntimeException(
+                "Something terrible happened in the ${ZTCClientService::class.simpleName}!"
+            )
+        )
+
+        When("the exception is mapped to a response") {
+            val response = restExceptionMapper.toResponse(exception)
+
+            Then(
+                """
+                    it should return the general server error error code with an exception message
+                   """
+            ) {
+                with(response) {
+                    mediaType shouldBe MediaType.APPLICATION_JSON_TYPE
+                    status shouldBe HttpStatus.SC_INTERNAL_SERVER_ERROR
+                    val entityAsJson = JSONObject(readEntity(String::class.java))
+                    with(entityAsJson) {
+                        getString("message") shouldBe "msg.error.server.generic"
+                        getString("exception") shouldBe exceptionMessage
+                    }
+                }
+            }
+        }
+    }
 })
