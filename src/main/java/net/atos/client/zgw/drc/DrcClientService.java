@@ -34,9 +34,7 @@ import net.atos.client.zgw.shared.model.audit.AuditTrailRegel;
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
 import net.atos.zac.configuratie.ConfiguratieService;
 
-/**
- *
- */
+
 @ApplicationScoped
 public class DrcClientService {
 
@@ -61,7 +59,6 @@ public class DrcClientService {
         return drcClient.enkelvoudigInformatieobjectRead(uuid);
     }
 
-
     /**
      * Read {@link EnkelvoudigInformatieObject} via its UUID and version.
      * Throws a RuntimeException if the {@link EnkelvoudigInformatieObject} can not be read.
@@ -76,7 +73,6 @@ public class DrcClientService {
     ) {
         return drcClient.enkelvoudigInformatieobjectReadVersie(uuid, versie);
     }
-
 
     /**
      * DELETE {@link EnkelvoudigInformatieObject} via its UUID.
@@ -116,7 +112,6 @@ public class DrcClientService {
     public String lockEnkelvoudigInformatieobject(final UUID enkelvoudigInformatieobjectUUID) {
         // If the EnkelvoudigInformatieobject is already locked a ValidationException is thrown.
         return drcClient.enkelvoudigInformatieobjectLock(enkelvoudigInformatieobjectUUID, new Lock()).getLock();
-
     }
 
     /**
