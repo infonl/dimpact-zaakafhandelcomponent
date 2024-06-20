@@ -16,7 +16,7 @@ import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.ztc.ZTCClientService
-import org.apache.http.conn.HttpHostConnectException
+import java.net.ConnectException
 import java.net.UnknownHostException
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -51,7 +51,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                 .entity(getJSONMessage(errorMessage = exception.message ?: ERROR_CODE_GENERIC_SERVER))
                 .build()
         } else if (exception is ProcessingException && exception.cause?.let {
-                it is HttpHostConnectException || it is UnknownHostException
+                it is ConnectException || it is UnknownHostException
             } == true
         ) {
             handleProcessingException(exception)
