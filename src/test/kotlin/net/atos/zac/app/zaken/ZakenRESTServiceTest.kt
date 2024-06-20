@@ -15,6 +15,7 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
+import kotlinx.coroutines.test.runTest
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createORObject
 import net.atos.client.vrl.VrlClientService
@@ -66,6 +67,7 @@ import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.healthcheck.HealthCheckService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.createGroup
+import net.atos.zac.identity.model.createUser
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.output.createOverigeRechtenAllDeny
 import net.atos.zac.policy.output.createWerklijstRechten
@@ -324,27 +326,34 @@ class ZakenRESTServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("REST zaken verdeel gegevens are provided") {
+    Given("REST zaken verdeel gegevens with a group and a user") {
         clearAllMocks()
         val zaakUUIDs = listOf(UUID.randomUUID(), UUID.randomUUID())
+        val group = createGroup()
+        val user = createUser()
         val restZakenVerdeelGegevens = createRESTZakenVerdeelGegevens(
-            uuids = zaakUUIDs
+            uuids = zaakUUIDs,
+            groepId = group.id,
+            behandelaarGebruikersnaam = user.id,
+            reden = "dummyReason"
         )
         every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
         every { zaakService.assignZaken(any(), any(), any(), any(), any()) } just runs
-        // need more mocking still..
+        every { identityService.readGroup(group.id) } returns group
+        every { identityService.readUser(restZakenVerdeelGegevens.behandelaarGebruikersnaam) } returns user
 
         When("the assign zaken from a list function is called") {
-            zakenRESTService.verdelenVanuitLijst(restZakenVerdeelGegevens).join()
+            runTest {
+                zakenRESTService.verdelenVanuitLijst(restZakenVerdeelGegevens)
+            }
 
-            // cannot get it to work. maybe need https://kotest.io/docs/framework/coroutines/test-coroutine-dispatcher.html?
-            Then("the zaken are assigned").config(enabled = false) {
+            Then("the zaken are assigned to the group and user") {
                 verify(exactly = 1) {
                     zaakService.assignZaken(
                         zaakUUIDs,
-                        any(),
-                        any(),
-                        any(),
+                        group,
+                        user,
+                        restZakenVerdeelGegevens.reden,
                         restZakenVerdeelGegevens.screenEventResourceId
                     )
                 }
