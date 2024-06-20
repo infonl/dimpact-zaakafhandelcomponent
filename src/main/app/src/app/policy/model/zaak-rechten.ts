@@ -21,4 +21,5 @@ export class ZaakRechten {
   verwijderenBetrokkene = false;
   verwijderenInitiator = false;
   creeerenDocument = false;
+  versturenEmail = false;
 }

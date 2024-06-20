@@ -561,16 +561,18 @@ export class ZaakViewComponent
         );
       }
 
-      this.menu.push(
-        new ButtonMenuItem(
-          "actie.mail.versturen",
-          () => {
-            this.actionsSidenav.open();
-            this.action = SideNavAction.MAIL_VERSTUREN;
-          },
-          "mail",
-        ),
-      );
+      if (this.zaak.rechten.versturenEmail) {
+        this.menu.push(
+          new ButtonMenuItem(
+            "actie.mail.versturen",
+            () => {
+              this.actionsSidenav.open();
+              this.action = SideNavAction.MAIL_VERSTUREN;
+            },
+            "mail",
+          ),
+        );
+      }
     }
 
     if (this.zaak.rechten.creeerenDocument) {
