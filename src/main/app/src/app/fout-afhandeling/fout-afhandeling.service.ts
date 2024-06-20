@@ -94,7 +94,7 @@ export class FoutAfhandelingService {
       },
     });
 
-    return throwError(() => "Fout!");
+    return throwError(() => `${error}: ${details}`);
   }
 
   public log(melding): (error: HttpErrorResponse) => Observable<any> {

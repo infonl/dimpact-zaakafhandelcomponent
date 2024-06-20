@@ -45,9 +45,10 @@ describe("FoutAfhandelingService", () => {
   });
 
   it("should return an observable error message when openFoutDialog is called", async () => {
-    const error$ = service.openFoutDialog("some error");
+    const errorText = "dummyErrorMessage";
+    const error$ = service.openFoutDialog(errorText);
     const errorMessage = await firstValueFrom(error$).catch((r) => r);
-    expect(errorMessage).toEqual("Fout!");
+    expect(errorMessage).toEqual(errorText);
   });
 
   it("should return an observable error message when httpErrorAfhandelen is called with a server error", async () => {
