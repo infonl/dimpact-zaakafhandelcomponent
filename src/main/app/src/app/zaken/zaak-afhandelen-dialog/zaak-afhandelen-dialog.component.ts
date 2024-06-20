@@ -18,7 +18,6 @@ import { Mail } from "../../admin/model/mail";
 import { Mailtemplate } from "../../admin/model/mailtemplate";
 import { ZaakAfzender } from "../../admin/model/zaakafzender";
 import { KlantenService } from "../../klanten/klanten.service";
-import { MailService } from "../../mail/mail.service";
 import { MailGegevens } from "../../mail/model/mail-gegevens";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { PlanItem } from "../../plan-items/model/plan-item";
@@ -62,7 +61,6 @@ export class ZaakAfhandelenDialogComponent implements OnInit, OnDestroy {
     private translateService: TranslateService,
     private zakenService: ZakenService,
     private planItemsService: PlanItemsService,
-    private mailService: MailService,
     private mailtemplateService: MailtemplateService,
     private klantenService: KlantenService,
   ) {
@@ -172,22 +170,20 @@ export class ZaakAfhandelenDialogComponent implements OnInit, OnDestroy {
       ? this.zaak.resultaat.resultaattype.id
       : values.resultaattype.id;
     userEventListenerData.resultaatToelichting = values.toelichting;
+    if (values.sendMail && this.mailtemplate) {
+      const restMailGegevens: MailGegevens = new MailGegevens();
+      restMailGegevens.verzender = values.verzender.mail;
+      restMailGegevens.replyTo = values.verzender.replyTo;
+      restMailGegevens.ontvanger = values.ontvanger;
+      restMailGegevens.onderwerp = this.mailtemplate.onderwerp;
+      restMailGegevens.body = this.mailtemplate.body;
+      restMailGegevens.createDocumentFromMail = true;
+      Object.assign(userEventListenerData, { restMailGegevens });
+    }
     this.planItemsService
       .doUserEventListenerPlanItem(userEventListenerData)
       .subscribe({
         next: () => {
-          if (values.sendMail && this.mailtemplate) {
-            const mailGegevens: MailGegevens = new MailGegevens();
-            mailGegevens.verzender = values.verzender.mail;
-            mailGegevens.replyTo = values.verzender.replyTo;
-            mailGegevens.ontvanger = values.ontvanger;
-            mailGegevens.onderwerp = this.mailtemplate.onderwerp;
-            mailGegevens.body = this.mailtemplate.body;
-            mailGegevens.createDocumentFromMail = true;
-            this.mailService
-              .sendMail(this.zaak.uuid, mailGegevens)
-              .subscribe(() => {});
-          }
           this.dialogRef.close(true);
         },
         error: () => this.dialogRef.close(false),
