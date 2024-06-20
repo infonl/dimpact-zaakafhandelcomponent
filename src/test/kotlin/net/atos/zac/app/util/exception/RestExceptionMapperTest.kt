@@ -9,6 +9,9 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.core.MediaType
+import net.atos.client.bag.BagClientService
+import net.atos.client.klanten.KlantenClientService
+import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.ztc.ZTCClientService
 import org.apache.http.HttpHost
@@ -48,6 +51,41 @@ class RestExceptionMapperTest : BehaviorSpec({
     Given(
         """
         A JAX-RS processing exception with as root cause a HttpHostConnectException
+        and which contains the BAG client service class name in the stacktrace
+        """
+    ) {
+        val exceptionMessage = "DummyProcessingException"
+        val exception = ProcessingException(
+            exceptionMessage,
+            HttpHostConnectException(
+                IOException("Something terrible happened in the ${BagClientService::class.simpleName}!"),
+                HttpHost("localhost", 8080)
+            )
+        )
+
+        When("the exception is mapped to a response") {
+            val response = restExceptionMapper.toResponse(exception)
+
+            Then(
+                """
+                    it should return the BAG error code and no exception message
+                   """
+            ) {
+                with(response) {
+                    mediaType shouldBe MediaType.APPLICATION_JSON_TYPE
+                    status shouldBe HttpStatus.SC_INTERNAL_SERVER_ERROR
+                    val entityAsJson = JSONObject(readEntity(String::class.java))
+                    with(entityAsJson) {
+                        getString("message") shouldBe "msg.error.bag.client.exception"
+                        has("exception") shouldBe false
+                    }
+                }
+            }
+        }
+    }
+    Given(
+        """
+        A JAX-RS processing exception with as root cause a HttpHostConnectException
         and which contains the BRC client service class name in the stacktrace
         """
     ) {
@@ -74,6 +112,76 @@ class RestExceptionMapperTest : BehaviorSpec({
                     val entityAsJson = JSONObject(readEntity(String::class.java))
                     with(entityAsJson) {
                         getString("message") shouldBe "msg.error.brc.client.exception"
+                        has("exception") shouldBe false
+                    }
+                }
+            }
+        }
+    }
+    Given(
+        """
+        A JAX-RS processing exception with as root cause a HttpHostConnectException
+        and which contains the Klanten client service class name in the stacktrace
+        """
+    ) {
+        val exceptionMessage = "DummyProcessingException"
+        val exception = ProcessingException(
+            exceptionMessage,
+            HttpHostConnectException(
+                IOException("Something terrible happened in the ${KlantenClientService::class.simpleName}!"),
+                HttpHost("localhost", 8080)
+            )
+        )
+
+        When("the exception is mapped to a response") {
+            val response = restExceptionMapper.toResponse(exception)
+
+            Then(
+                """
+                    it should return the Klanten error code and no exception message
+                   """
+            ) {
+                with(response) {
+                    mediaType shouldBe MediaType.APPLICATION_JSON_TYPE
+                    status shouldBe HttpStatus.SC_INTERNAL_SERVER_ERROR
+                    val entityAsJson = JSONObject(readEntity(String::class.java))
+                    with(entityAsJson) {
+                        getString("message") shouldBe "msg.error.klanten.client.exception"
+                        has("exception") shouldBe false
+                    }
+                }
+            }
+        }
+    }
+    Given(
+        """
+        A JAX-RS processing exception with as root cause a HttpHostConnectException
+        and which contains the Objecten client service class name in the stacktrace
+        """
+    ) {
+        val exceptionMessage = "DummyProcessingException"
+        val exception = ProcessingException(
+            exceptionMessage,
+            HttpHostConnectException(
+                IOException("Something terrible happened in the ${ObjectsClientService::class.simpleName}!"),
+                HttpHost("localhost", 8080)
+            )
+        )
+
+        When("the exception is mapped to a response") {
+            val response = restExceptionMapper.toResponse(exception)
+
+            Then(
+                """
+                    it should return the Objecten error code and no exception message
+                   """
+            ) {
+                with(response) {
+                    mediaType shouldBe MediaType.APPLICATION_JSON_TYPE
+                    status shouldBe HttpStatus.SC_INTERNAL_SERVER_ERROR
+                    val entityAsJson = JSONObject(readEntity(String::class.java))
+                    with(entityAsJson) {
+                        getString("message") shouldBe "msg.error.objects.client.exception"
                         has("exception") shouldBe false
                     }
                 }
@@ -117,7 +225,7 @@ class RestExceptionMapperTest : BehaviorSpec({
     Given(
         """
         A JAX-RS processing exception without a HttpHostConnectException or UnknownHostException
-        as cause but which does contain the ZTC client service class name in the stacktrace
+        as cause but which does contain a mapped client service class name in the stacktrace
         """
     ) {
         val exceptionMessage = "DummyProcessingException"
