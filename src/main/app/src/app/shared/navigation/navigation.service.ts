@@ -51,13 +51,15 @@ export class NavigationService {
       return;
     }
 
-    if (e instanceof NavigationError &&
-      this.router.routerState.snapshot.url === "") {
-        // on a full browser navigation, if a route resolver throws,
-        // Angular by default redirects to the root url.
-        // we want to override this behaviour so the target url remains in the address bar.
-        window.history.replaceState(null, null, e.url);
-      }
+    if (
+      e instanceof NavigationError &&
+      this.router.routerState.snapshot.url === ""
+    ) {
+      // on a full browser navigation, if a route resolver throws,
+      // Angular by default redirects to the root url.
+      // we want to override this behaviour so the target url remains in the address bar.
+      window.history.replaceState(null, null, e.url);
+    }
 
     if (e instanceof NavigationEnd) {
       const history = SessionStorageUtil.getItem(
