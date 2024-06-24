@@ -181,7 +181,7 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
           this.infoObject.vertrouwelijkheidaanduiding,
         ),
       ),
-      value: this.infoObject.vertrouwelijkheidaanduiding.toUpperCase(),
+      value: this.infoObject.vertrouwelijkheidaanduiding?.toUpperCase(),
     })
       .id("vertrouwelijkheidaanduiding")
       .label("vertrouwelijkheidaanduiding")
