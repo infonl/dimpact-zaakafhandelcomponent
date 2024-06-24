@@ -45,35 +45,37 @@ export class NavigationService {
       .subscribe((e) => this.handleRouterEvents(e));
   }
 
-  private handleRouterEvents(e): void {
-    if (e instanceof NavigationStart) {
-      this.utilService.setLoading(true);
-      return;
-    }
+  private handleRouterEvents(e: unknown): void {
+    switch (true) {
+      case e instanceof NavigationStart:
+        this.utilService.setLoading(true);
+        return;
 
-    if (
-      e instanceof NavigationError &&
-      this.router.routerState.snapshot.url === ""
-    ) {
-      // on a full browser navigation, if a route resolver throws,
-      // Angular by default redirects to the root url.
-      // we want to override this behaviour so the target url remains in the address bar.
-      window.history.replaceState(null, null, e.url);
-    }
+      case e instanceof NavigationError &&
+        this.router.routerState.snapshot.url === "":
+        // on a full browser navigation, if a route resolver throws,
+        // Angular by default redirects to the root url.
+        // we want to override this behaviour so the target url remains in the address bar.
+        window.history.replaceState(null, null, e.url);
+        break;
 
-    if (e instanceof NavigationEnd) {
-      const history = SessionStorageUtil.getItem(
-        NavigationService.NAVIGATION_HISTORY,
-        [],
-      );
-      if (
-        history.length === 0 ||
-        history[history.length - 1] !== e.urlAfterRedirects
-      ) {
-        history.push(e.urlAfterRedirects);
-      }
-      SessionStorageUtil.setItem(NavigationService.NAVIGATION_HISTORY, history);
-      this.backDisabled.next(history.length <= 1);
+      case e instanceof NavigationEnd:
+        const history = SessionStorageUtil.getItem(
+          NavigationService.NAVIGATION_HISTORY,
+          [],
+        );
+        if (
+          history.length === 0 ||
+          history[history.length - 1] !== e.urlAfterRedirects
+        ) {
+          history.push(e.urlAfterRedirects);
+        }
+        SessionStorageUtil.setItem(
+          NavigationService.NAVIGATION_HISTORY,
+          history,
+        );
+        this.backDisabled.next(history.length <= 1);
+        break;
     }
 
     this.utilService.setLoading(false);
