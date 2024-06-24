@@ -55,6 +55,7 @@ describe("HttpClientTesting", () => {
   it("Http post works with all expected types", (done) => {
     const testData: Paths["/rest/informatieobjecten/informatieobject/{uuid}/convert"]["post"]["responses"]["200"] =
       {
+        headers: {},
         content: undefined as never,
       };
 
