@@ -193,7 +193,7 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
             sut.delete(document.id)
 
             Then("the document is deleted") {
-                verify {
+                verify(exactly = 1) {
                     ontkoppeldeDocumentenService.delete(document.id)
                 }
             }
