@@ -42,7 +42,7 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
     val userConverter = mockk<RESTUserConverter>()
     val policyService = mockk<PolicyService>()
 
-    val sut = OntkoppeldeDocumentenRESTService(
+    val ontkoppeldeDocumentenRESTService = OntkoppeldeDocumentenRESTService(
         ontkoppeldeDocumentenService,
         drcClientService,
         zrcClientService,
@@ -72,7 +72,7 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
         } returns Optional.empty()
 
         When("the delete endpoint is called with that id") {
-            sut.delete(id)
+            ontkoppeldeDocumentenRESTService.delete(id)
 
             Then("there are no exceptions") {
             }
@@ -98,7 +98,7 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
         } just runs
 
         When("the delete endpoint is called with the id of that document") {
-            sut.delete(document.id)
+            ontkoppeldeDocumentenRESTService.delete(document.id)
 
             Then("the document is deleted") {
                 verify(exactly = 1) {
@@ -124,7 +124,7 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
         } throws FoutException(Fout(null, null, null, 400, null, null))
 
         When("the delete endpoint is called with the id of that document") {
-            val exception = shouldThrow<FoutException> { sut.delete(document.id) }
+            val exception = shouldThrow<FoutException> { ontkoppeldeDocumentenRESTService.delete(document.id) }
 
             Then("the exception from OpenZaak is rethrown") {
                 exception.fout.status shouldBe 400
@@ -154,7 +154,7 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
         } returns mutableListOf(zaakInformatieObject)
 
         When("the delete endpoint is called with the id of that document") {
-            val exception = shouldThrow<IllegalStateException> { sut.delete(document.id) }
+            val exception = shouldThrow<IllegalStateException> { ontkoppeldeDocumentenRESTService.delete(document.id) }
 
             Then("the an IllegalStateException should be thrown") {
                 exception shouldNotBe null
@@ -190,7 +190,7 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
         } just runs
 
         When("the delete endpoint is called with the id of that document") {
-            sut.delete(document.id)
+            ontkoppeldeDocumentenRESTService.delete(document.id)
 
             Then("the document is deleted") {
                 verify(exactly = 1) {
