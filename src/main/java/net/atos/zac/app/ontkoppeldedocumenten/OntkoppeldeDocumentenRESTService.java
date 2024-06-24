@@ -50,26 +50,39 @@ import net.atos.zac.util.UriUtil;
 @Produces(MediaType.APPLICATION_JSON)
 public class OntkoppeldeDocumentenRESTService {
 
-    @Inject
     private OntkoppeldeDocumentenService ontkoppeldeDocumentenService;
-
-    @Inject
     private DrcClientService drcClientService;
-
-    @Inject
     private ZRCClientService zrcClientService;
-
-    @Inject
     private RESTOntkoppeldDocumentConverter ontkoppeldDocumentConverter;
-
-    @Inject
     private RESTOntkoppeldDocumentListParametersConverter listParametersConverter;
-
-    @Inject
     private RESTUserConverter userConverter;
+    private PolicyService policyService;
+
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public OntkoppeldeDocumentenRESTService() {
+    }
 
     @Inject
-    private PolicyService policyService;
+    public OntkoppeldeDocumentenRESTService(
+            OntkoppeldeDocumentenService ontkoppeldeDocumentenService,
+            DrcClientService drcClientService,
+            ZRCClientService zrcClientService,
+            RESTOntkoppeldDocumentConverter ontkoppeldDocumentConverter,
+            RESTOntkoppeldDocumentListParametersConverter listParametersConverter,
+            RESTUserConverter userConverter,
+            PolicyService policyService
+    ) {
+        this.ontkoppeldeDocumentenService = ontkoppeldeDocumentenService;
+        this.drcClientService = drcClientService;
+        this.zrcClientService = zrcClientService;
+        this.ontkoppeldDocumentConverter = ontkoppeldDocumentConverter;
+        this.listParametersConverter = listParametersConverter;
+        this.userConverter = userConverter;
+        this.policyService = policyService;
+    }
+
 
     private static final Logger LOG = Logger.getLogger(OntkoppeldeDocumentenRESTService.class.getName());
 
