@@ -110,7 +110,9 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
       .build();
 
     const taal = new SelectFormFieldBuilder({
-      naam: this.translateService.instant(this.infoObject.taal?.naam),
+      naam:
+        this.infoObject.taal?.naam &&
+        this.translateService.instant(this.infoObject.taal.naam),
       value: this.infoObject.taal,
     })
       .id("taal")
