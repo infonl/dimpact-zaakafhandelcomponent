@@ -9,7 +9,7 @@ import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.AardRelatie
 import net.atos.client.zgw.zrc.model.RelevanteZaak
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.policy.converter.RESTRechtenConverter
 import net.atos.zac.app.zaken.model.RESTGerelateerdeZaak
 import net.atos.zac.app.zaken.model.RelatieType
@@ -20,7 +20,7 @@ class RESTGerelateerdeZaakConverter {
     private lateinit var zrcClientService: ZRCClientService
 
     @Inject
-    private lateinit var ztcClientService: ZTCClientService
+    private lateinit var ztcClientService: ZtcClientService
 
     @Inject
     private lateinit var rechtenConverter: RESTRechtenConverter

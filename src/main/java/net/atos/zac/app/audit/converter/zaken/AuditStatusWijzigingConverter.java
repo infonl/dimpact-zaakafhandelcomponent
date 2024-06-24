@@ -12,14 +12,14 @@ import jakarta.inject.Inject;
 import net.atos.client.zgw.shared.model.ObjectType;
 import net.atos.client.zgw.shared.model.audit.zaken.StatusWijziging;
 import net.atos.client.zgw.zrc.model.Status;
-import net.atos.client.zgw.ztc.ZTCClientService;
+import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.zac.app.audit.converter.AbstractAuditWijzigingConverter;
 import net.atos.zac.app.audit.model.RESTHistorieRegel;
 
 public class AuditStatusWijzigingConverter extends AbstractAuditWijzigingConverter<StatusWijziging> {
 
     @Inject
-    private ZTCClientService ztcClientService;
+    private ZtcClientService ztcClientService;
 
     @Override
     public boolean supports(final ObjectType objectType) {

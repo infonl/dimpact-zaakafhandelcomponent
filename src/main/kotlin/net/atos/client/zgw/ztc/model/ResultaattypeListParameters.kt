@@ -9,7 +9,7 @@ import java.net.URI
 
 class ResultaattypeListParameters(
     private val zaaktype: URI
-) : AbstractZTCListParameters() {
+) : AbstractZtcListParameters() {
     /**
      * URL-referentie naar het ZAAKTYPE van ZAAKen waarin resultaten van dit RESULTAATTYPE bereikt kunnen worden.
      */

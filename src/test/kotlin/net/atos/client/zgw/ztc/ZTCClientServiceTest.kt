@@ -18,10 +18,10 @@ import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
 class ZTCClientServiceTest : BehaviorSpec({
-    val ztcClient = mockk<ZTCClient>()
+    val ztcClient = mockk<ZtcClient>()
     val zgwClientHeadersFactory = mockk<ZGWClientHeadersFactory>()
     val configuratieService = mockk<ConfiguratieService>()
-    val ztcClientService = ZTCClientService(
+    val ztcClientService = ZtcClientService(
         ztcClient = ztcClient,
         zgwClientHeadersFactory = zgwClientHeadersFactory,
         configuratieService = configuratieService,

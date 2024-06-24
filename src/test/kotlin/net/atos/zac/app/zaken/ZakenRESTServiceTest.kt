@@ -37,7 +37,7 @@ import net.atos.client.zgw.zrc.model.createRolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.createZaakobjectPand
-import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.client.zgw.ztc.model.generated.RolType
@@ -121,7 +121,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
     val zaakService: ZaakService = mockk<ZaakService>()
     val zgwApiService: ZGWApiService = mockk<ZGWApiService>()
     val zrcClientService: ZRCClientService = mockk<ZRCClientService>()
-    val ztcClientService: ZTCClientService = mockk<ZTCClientService>()
+    val ztcClientService: ZtcClientService = mockk<ZtcClientService>()
 
     val zakenRESTService = ZakenRESTService(
         zgwApiService = zgwApiService,

@@ -14,7 +14,7 @@ import io.mockk.verify
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.createZaak
-import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.generated.RolType
 import net.atos.zac.event.EventingService
@@ -27,7 +27,7 @@ import net.atos.zac.websocket.event.ScreenEventType
 class ZaakServiceTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
     val zrcClientService = mockk<ZRCClientService>()
-    val ztcClientService = mockk<ZTCClientService>()
+    val ztcClientService = mockk<ZtcClientService>()
     val zaakService = ZaakService(
         eventingService = eventingService,
         zrcClientService = zrcClientService,

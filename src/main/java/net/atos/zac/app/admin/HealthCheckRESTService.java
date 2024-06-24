@@ -17,7 +17,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-import net.atos.client.zgw.ztc.ZTCClientService;
+import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.client.zgw.ztc.util.ZaakTypeUtilKt;
 import net.atos.zac.app.admin.converter.RESTZaaktypeOverzichtConverter;
@@ -34,7 +34,7 @@ import net.atos.zac.healthcheck.model.ZaaktypeInrichtingscheck;
 public class HealthCheckRESTService {
 
     @Inject
-    private ZTCClientService ztcClientService;
+    private ZtcClientService ztcClientService;
 
     @Inject
     private ConfiguratieService configuratieService;

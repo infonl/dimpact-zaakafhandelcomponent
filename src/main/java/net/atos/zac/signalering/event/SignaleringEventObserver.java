@@ -26,7 +26,7 @@ import net.atos.client.zgw.zrc.model.RolMedewerker;
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
-import net.atos.client.zgw.ztc.ZTCClientService;
+import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.zac.event.AbstractEventObserver;
 import net.atos.zac.flowable.FlowableTaskService;
@@ -46,7 +46,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
 
     private static final Logger LOG = Logger.getLogger(SignaleringEventObserver.class.getName());
 
-    private ZTCClientService ztcClientService;
+    private ZtcClientService ztcClientService;
     private ZRCClientService zrcClientService;
     private FlowableTaskService flowableTaskService;
     private IdentityService identityService;
@@ -60,7 +60,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
 
     @Inject
     public SignaleringEventObserver(
-            final ZTCClientService ztcClientService,
+            final ZtcClientService ztcClientService,
             final ZRCClientService zrcClientService,
             final FlowableTaskService flowableTaskService,
             final IdentityService identityService,

@@ -20,7 +20,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import net.atos.client.vrl.VrlClientService;
 import net.atos.client.zgw.shared.util.URIUtil;
-import net.atos.client.zgw.ztc.ZTCClientService;
+import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.Afleidingswijze;
 import net.atos.client.zgw.ztc.model.generated.BesluitType;
 import net.atos.client.zgw.ztc.model.generated.BrondatumArchiefprocedure;
@@ -42,7 +42,7 @@ public class HealthCheckService {
     private static final String BUILD_TIMESTAMP_FILE = "/build_timestamp.txt";
 
     @Inject
-    private ZTCClientService ztcClientService;
+    private ZtcClientService ztcClientService;
 
     @Inject
     private VrlClientService vrlClientService;

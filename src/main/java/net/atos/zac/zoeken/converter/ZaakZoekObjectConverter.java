@@ -24,7 +24,7 @@ import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.generated.Resultaat;
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters;
-import net.atos.client.zgw.ztc.ZTCClientService;
+import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.ResultaatType;
 import net.atos.client.zgw.ztc.model.generated.StatusType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
@@ -39,7 +39,7 @@ import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
 
 public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoekObject> {
     private final ZRCClientService zrcClientService;
-    private final ZTCClientService ztcClientService;
+    private final ZtcClientService ztcClientService;
     private final VrlClientService vrlClientService;
     private final ZGWApiService zgwApiService;
     private final IdentityService identityService;
@@ -48,7 +48,7 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
     @Inject
     public ZaakZoekObjectConverter(
             ZRCClientService zrcClientService,
-            ZTCClientService ztcClientService,
+            ZtcClientService ztcClientService,
             VrlClientService vrlClientService,
             ZGWApiService zgwApiService,
             IdentityService identityService,

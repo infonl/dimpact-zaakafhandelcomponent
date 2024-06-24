@@ -28,7 +28,7 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.util.InformatieobjectenUtil
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.InformatieObjectType
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
@@ -57,7 +57,7 @@ import java.util.logging.Logger
 class MailService @Inject constructor(
     private var configuratieService: ConfiguratieService,
     private var zgwApiService: ZGWApiService,
-    private var ztcClientService: ZTCClientService,
+    private var ztcClientService: ZtcClientService,
     private var drcClientService: DrcClientService,
     private var mailTemplateHelper: MailTemplateHelper,
     private var loggedInUserInstance: Instance<LoggedInUser>

@@ -8,7 +8,7 @@ import jakarta.inject.Inject
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.identity.converter.RESTGroupConverter
 import net.atos.zac.app.identity.converter.RESTUserConverter
 import net.atos.zac.app.policy.converter.RESTRechtenConverter
@@ -18,7 +18,7 @@ import net.atos.zac.policy.PolicyService
 
 class RESTZaakOverzichtConverter {
     @Inject
-    private lateinit var ztcClientService: ZTCClientService
+    private lateinit var ztcClientService: ZtcClientService
 
     @Inject
     private lateinit var zgwApiService: ZGWApiService

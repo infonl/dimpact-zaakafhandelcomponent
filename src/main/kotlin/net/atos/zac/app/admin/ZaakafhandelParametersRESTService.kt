@@ -14,7 +14,7 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
 import net.atos.zac.app.admin.converter.RESTReplyToConverter
@@ -55,7 +55,7 @@ import java.util.UUID
 @NoArgConstructor
 @Suppress("LongParameterList", "TooManyFunctions")
 class ZaakafhandelParametersRESTService @Inject constructor(
-    private val ztcClientService: ZTCClientService,
+    private val ztcClientService: ZtcClientService,
     private val configuratieService: ConfiguratieService,
     private val cmmnService: CMMNService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,

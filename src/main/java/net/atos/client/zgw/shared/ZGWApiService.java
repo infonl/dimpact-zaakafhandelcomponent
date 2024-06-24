@@ -37,7 +37,7 @@ import net.atos.client.zgw.zrc.model.Status;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.zrc.model.generated.Resultaat;
-import net.atos.client.zgw.ztc.ZTCClientService;
+import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.BrondatumArchiefprocedure;
 import net.atos.client.zgw.ztc.model.generated.ResultaatType;
 import net.atos.client.zgw.ztc.model.generated.RolType;
@@ -55,7 +55,7 @@ public class ZGWApiService {
     // Page numbering in ZGW Api's starts with 1
     public static final int FIRST_PAGE_NUMBER_ZGW_APIS = 1;
 
-    private ZTCClientService ztcClientService;
+    private ZtcClientService ztcClientService;
     private ZRCClientService zrcClientService;
     private DrcClientService drcClientService;
 
@@ -67,7 +67,7 @@ public class ZGWApiService {
 
     @Inject
     public ZGWApiService(
-            final ZTCClientService ztcClientService,
+            final ZtcClientService ztcClientService,
             final ZRCClientService zrcClientService,
             final DrcClientService drcClientService
     ) {

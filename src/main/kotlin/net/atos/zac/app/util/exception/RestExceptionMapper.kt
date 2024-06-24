@@ -19,8 +19,10 @@ import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.objecttype.ObjecttypesClientService
 import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.drc.DrcClientService
+import net.atos.client.zgw.shared.exception.ZgwRuntimeException
 import net.atos.client.zgw.zrc.ZRCClientService
-import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.ZtcClientService
+import net.atos.client.zgw.ztc.exception.ZtcRuntimeException
 import java.net.ConnectException
 import java.net.UnknownHostException
 import java.util.logging.Level
@@ -60,6 +62,8 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                 .type(MediaType.APPLICATION_JSON)
                 .entity(getJSONMessage(errorMessage = exception.message ?: ERROR_CODE_GENERIC_SERVER))
                 .build()
+        } else if (exception is ZgwRuntimeException) {
+            handleZgwRuntimeException(exception)
         } else if (exception is ProcessingException && exception.cause?.let {
                 it is ConnectException || it is UnknownHostException
             } == true
@@ -68,6 +72,17 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
         } else {
             generateServerErrorResponse(exception = exception, exceptionMessage = exception.message)
         }
+
+    private fun handleZgwRuntimeException(exception: ZgwRuntimeException): Response {
+        return when {
+            exception is ZtcRuntimeException -> {
+                generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_ZTC_CLIENT)
+            }
+            else -> {
+                generateServerErrorResponse(exception = exception, exceptionMessage = exception.message)
+            }
+        }
+    }
 
     /**
      * Handle JAX-RS processing exceptions which can be thrown by the various
@@ -107,7 +122,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             stackTrace.contains(ZRCClientService::class.simpleName!!) -> {
                 generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_ZRC_CLIENT)
             }
-            stackTrace.contains(ZTCClientService::class.simpleName!!) -> {
+            stackTrace.contains(ZtcClientService::class.simpleName!!) -> {
                 generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_ZTC_CLIENT)
             }
             else -> {

@@ -6,7 +6,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.FlowableTaskService
@@ -26,7 +26,7 @@ import java.util.UUID
 class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
     val signaleringService = mockk<SignaleringService>()
     val configuratieService = mockk<ConfiguratieService>()
-    val ztcClientService = mockk<ZTCClientService>()
+    val ztcClientService = mockk<ZtcClientService>()
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
     val zoekenService = mockk<ZoekenService>()
     val flowableTaskService = mockk<FlowableTaskService>()

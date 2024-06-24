@@ -59,7 +59,7 @@ import net.atos.client.zgw.zrc.model.RolMedewerker;
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid;
 import net.atos.client.zgw.zrc.model.Status;
 import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.client.zgw.ztc.ZTCClientService;
+import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.StatusType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.configuratie.ConfiguratieService;
@@ -84,7 +84,7 @@ public class MailTemplateHelper {
     private ZRCClientService zrcClientService;
 
     @Inject
-    private ZTCClientService ztcClientService;
+    private ZtcClientService ztcClientService;
 
     @Inject
     private BRPClientService brpClientService;

@@ -14,14 +14,14 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.drc.model.generated.Ondertekening;
 import net.atos.client.zgw.shared.model.ObjectType;
 import net.atos.client.zgw.shared.model.audit.documenten.EnkelvoudigInformatieobjectWijziging;
-import net.atos.client.zgw.ztc.ZTCClientService;
+import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.zac.app.audit.converter.AbstractAuditWijzigingConverter;
 import net.atos.zac.app.audit.model.RESTHistorieRegel;
 
 public class AuditEnkelvoudigInformatieobjectConverter extends AbstractAuditWijzigingConverter<EnkelvoudigInformatieobjectWijziging> {
 
     @Inject
-    private ZTCClientService ztcClientService;
+    private ZtcClientService ztcClientService;
 
     @Override
     public boolean supports(final ObjectType objectType) {

@@ -14,7 +14,7 @@ import net.atos.client.zgw.zrc.model.OrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.RolType
 import net.atos.zac.event.EventingService
 import net.atos.zac.identity.model.Group
@@ -27,7 +27,7 @@ import java.util.logging.Logger
 @AllOpen
 class ZaakService @Inject constructor(
     private val zrcClientService: ZRCClientService,
-    private val ztcClientService: ZTCClientService,
+    private val ztcClientService: ZtcClientService,
     private var eventingService: EventingService,
 ) {
     companion object {

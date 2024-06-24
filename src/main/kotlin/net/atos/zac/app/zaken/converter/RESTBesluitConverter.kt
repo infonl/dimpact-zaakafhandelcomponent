@@ -11,7 +11,7 @@ import net.atos.client.zgw.brc.model.generated.Besluit.VervalredenEnum
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
 import net.atos.zac.app.zaken.model.RESTBesluit
 import net.atos.zac.app.zaken.model.RESTBesluitIntrekkenGegevens
@@ -27,7 +27,7 @@ class RESTBesluitConverter {
     private lateinit var restBesluittypeConverter: RESTBesluittypeConverter
 
     @Inject
-    private lateinit var ztcClientService: ZTCClientService
+    private lateinit var ztcClientService: ZtcClientService
 
     @Inject
     private lateinit var brcClientService: BrcClientService

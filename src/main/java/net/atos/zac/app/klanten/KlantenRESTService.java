@@ -38,7 +38,7 @@ import net.atos.client.kvk.model.KvkZoekenParameters;
 import net.atos.client.kvk.vestigingsprofiel.model.generated.Vestiging;
 import net.atos.client.kvk.zoeken.model.generated.Resultaat;
 import net.atos.client.kvk.zoeken.model.generated.ResultaatItem;
-import net.atos.client.zgw.ztc.ZTCClientService;
+import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.zac.app.klanten.converter.RESTBedrijfConverter;
 import net.atos.zac.app.klanten.converter.RESTPersoonConverter;
@@ -71,7 +71,7 @@ public class KlantenRESTService {
 
     private BRPClientService brpClientService;
     private KvkClientService kvkClientService;
-    private ZTCClientService ztcClientService;
+    private ZtcClientService ztcClientService;
     private RESTPersoonConverter restPersoonConverter;
     private RESTBedrijfConverter restBedrijfConverter;
     private RESTVestigingsprofielConverter restVestigingsprofielConverter;
@@ -88,7 +88,7 @@ public class KlantenRESTService {
     public KlantenRESTService(
             BRPClientService brpClientService,
             KvkClientService kvkClientService,
-            ZTCClientService ztcClientService,
+            ZtcClientService ztcClientService,
             RESTPersoonConverter restPersoonConverter,
             RESTBedrijfConverter restBedrijfConverter,
             RESTVestigingsprofielConverter restVestigingsprofielConverter,

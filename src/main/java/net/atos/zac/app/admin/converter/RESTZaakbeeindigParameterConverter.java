@@ -10,7 +10,7 @@ import java.util.Set;
 
 import jakarta.inject.Inject;
 
-import net.atos.client.zgw.ztc.ZTCClientService;
+import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.zac.app.admin.model.RESTZaakbeeindigParameter;
 import net.atos.zac.app.zaken.converter.RESTResultaattypeConverter;
 import net.atos.zac.zaaksturing.model.ZaakbeeindigParameter;
@@ -21,7 +21,7 @@ public class RESTZaakbeeindigParameterConverter {
     private RESTResultaattypeConverter restResultaattypeConverter;
 
     @Inject
-    private ZTCClientService ztcClientService;
+    private ZtcClientService ztcClientService;
 
     public List<RESTZaakbeeindigParameter> convertZaakbeeindigParameters(final Set<ZaakbeeindigParameter> zaakbeeindigRedenen) {
         return zaakbeeindigRedenen.stream()

@@ -13,14 +13,14 @@ import java.util.stream.Collectors;
 import jakarta.inject.Inject;
 
 import net.atos.client.zgw.shared.util.URIUtil;
-import net.atos.client.zgw.ztc.ZTCClientService;
+import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.InformatieObjectType;
 import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjecttype;
 
 public class RESTInformatieobjecttypeConverter {
 
     @Inject
-    private ZTCClientService ztcClientService;
+    private ZtcClientService ztcClientService;
 
     public RESTInformatieobjecttype convert(final InformatieObjectType type) {
         final RESTInformatieobjecttype restType = new RESTInformatieobjecttype();

@@ -5,7 +5,7 @@
 package net.atos.zac.app.zaken.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.Afleidingswijze
 import net.atos.client.zgw.ztc.model.generated.ResultaatType
 import net.atos.zac.app.zaken.model.RESTResultaattype
@@ -15,7 +15,7 @@ import java.net.URI
 import java.time.Period
 
 class RESTResultaattypeConverter @Inject constructor(
-    private val ztcClientService: ZTCClientService
+    private val ztcClientService: ZtcClientService
 ) {
     fun convertResultaattype(resultaattype: ResultaatType) =
         RESTResultaattype(

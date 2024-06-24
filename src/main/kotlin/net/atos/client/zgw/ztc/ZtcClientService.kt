@@ -42,22 +42,22 @@ import java.util.UUID
 import java.util.logging.Logger
 
 /**
- * Encapsulates [ZTCClient] by providing caching and authentication.
+ * Encapsulates [ZtcClient] by providing caching and authentication.
  */
 @ApplicationScoped
 @AllOpen
 @NoArgConstructor
 @Suppress("TooManyFunctions")
-class ZTCClientService @Inject constructor(
+class ZtcClientService @Inject constructor(
     @RestClient
-    val ztcClient: ZTCClient,
+    val ztcClient: ZtcClient,
     val zgwClientHeadersFactory: ZGWClientHeadersFactory,
     val configuratieService: ConfiguratieService
 ) : Caching {
     companion object {
         private val CACHES = mutableMapOf<String, Cache<*, *>>()
 
-        private val LOG = Logger.getLogger(ZTCClientService::class.java.name)
+        private val LOG = Logger.getLogger(ZtcClientService::class.java.name)
 
         private fun <K, V> createCache(name: String, size: Long = 100): Cache<K, V> {
             val cache: Cache<K, V> = Caffeine.newBuilder()

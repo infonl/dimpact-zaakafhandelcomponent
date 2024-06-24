@@ -55,7 +55,7 @@ import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import net.atos.client.zgw.zrc.model.ZaakListParameters
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.util.StatusTypeUtil
-import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.BesluitType
 import net.atos.client.zgw.ztc.model.generated.RolType
 import net.atos.client.zgw.ztc.util.isNuGeldig
@@ -161,7 +161,7 @@ class ZakenRESTService @Inject constructor(
     private val productaanvraagService: ProductaanvraagService,
     private val brcClientService: BrcClientService,
     private val drcClientService: DrcClientService,
-    private val ztcClientService: ZTCClientService,
+    private val ztcClientService: ZtcClientService,
     private val zrcClientService: ZRCClientService,
     private val vrlClientService: VrlClientService,
     private val eventingService: EventingService,
