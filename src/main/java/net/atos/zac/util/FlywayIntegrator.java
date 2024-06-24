@@ -22,18 +22,15 @@ import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.MigrationInfo;
 
 /**
- * See http://are-you-ready.de/blog/2017/06/08/integrating-flyway-with-java-ee-and-using-its-datasource/
+ * See <a href="http://are-you-ready.de/integrating-flyway-with-java-ee-and-using-its-datasource/">
+ * Integrating Flyway with Java EE and using its datasource</a>
  */
-
 @TransactionManagement(value = BEAN)
 public class FlywayIntegrator {
-
-    private static final Logger LOG = Logger.getLogger(FlywayIntegrator.class.getName());
-
     public static final String SCHEMA = "zaakafhandelcomponent";
 
+    private static final Logger LOG = Logger.getLogger(FlywayIntegrator.class.getName());
     private static final String SCHEMA_FILES_LOCATION = "schemas";
-
     private static final String SCHEMA_PLACEHOLDER = "schema";
 
     @Resource(lookup = "java:comp/env/jdbc/Datasource")
@@ -41,7 +38,7 @@ public class FlywayIntegrator {
 
     public void onStartup(@Observes @Initialized(ApplicationScoped.class) Object event) {
         if (dataSource == null) {
-            throw new RuntimeException("No datasource found to execute the db migrations!");
+            throw new RuntimeException("No datasource found to execute the ZAC database migrations");
         }
 
         final Flyway flyway = Flyway.configure()
@@ -51,14 +48,18 @@ public class FlywayIntegrator {
                 .placeholders(Map.of(SCHEMA_PLACEHOLDER, SCHEMA))
                 .outOfOrder(true)
                 .load();
-
         final MigrationInfo migrationInfo = flyway.info().current();
 
         if (migrationInfo == null) {
-            LOG.info("No existing database at the actual datasource");
+            LOG.info("No existing ZAC database at the configured datasource");
         } else {
-            LOG.info(String.format("Found a database with the version: %s : %s", migrationInfo.getVersion(), migrationInfo
-                    .getDescription()));
+            LOG.info(
+                    String.format(
+                            "Found an existing ZAC database with version: %s : %s",
+                            migrationInfo.getVersion(),
+                            migrationInfo.getDescription()
+                    )
+            );
         }
 
         flyway.migrate();

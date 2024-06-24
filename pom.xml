@@ -41,7 +41,6 @@
                             <version>${wildfly-datasources-galleon-pack.version}</version>
                         </featurePack>
                     </featurePacks>
-                    <!-- please keep these layers in sync with those in our `install-wildfly.sh` script -->
                     <layers>
                         <layer>elytron-oidc-client</layer>
                         <layer>jaxrs-server</layer>/
