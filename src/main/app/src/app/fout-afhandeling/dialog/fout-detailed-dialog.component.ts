@@ -27,7 +27,6 @@ export class FoutDetailedDialogComponent {
     },
   ) {}
 
-  panelOpenState = false;
   serverErrorTexts = this.referentieTabelService.listServerErrorTexts();
 
   close(): void {
