@@ -118,6 +118,9 @@ export class FoutAfhandelingService {
   }
 
   public httpErrorAfhandelen(err: HttpErrorResponse): Observable<never> {
+    if (err.status === 400) {
+      return this.openFoutDialog(err.error);
+    }
     this.foutmelding = err.message;
     if (err.error instanceof ErrorEvent) {
       // client-side error
