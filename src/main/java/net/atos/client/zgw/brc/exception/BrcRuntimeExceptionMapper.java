@@ -3,14 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.client.zgw.shared.exception;
+package net.atos.client.zgw.brc.exception;
 
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
 
-public class ZgwRuntimeExceptionMapper implements ResponseExceptionMapper<RuntimeException> {
+public class BrcRuntimeExceptionMapper implements ResponseExceptionMapper<RuntimeException> {
 
     @Override
     public boolean handles(final int status, final MultivaluedMap<String, Object> headers) {
@@ -19,9 +19,9 @@ public class ZgwRuntimeExceptionMapper implements ResponseExceptionMapper<Runtim
 
     @Override
     public RuntimeException toThrowable(final Response response) {
-        return new RuntimeException(
+        return new BrcRuntimeException(
                 String.format(
-                        "Server response from ZGW Api's implementation: %d (%s)",
+                        "Server response from the BRC API implementation: %d (%s)",
                         response.getStatus(),
                         response.getStatusInfo()
                 )

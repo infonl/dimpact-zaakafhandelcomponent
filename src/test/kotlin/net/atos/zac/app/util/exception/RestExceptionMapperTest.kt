@@ -9,10 +9,15 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.core.MediaType
+import jakarta.ws.rs.core.Response
 import net.atos.client.bag.BagClientService
 import net.atos.client.klanten.KlantenClientService
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.brc.BrcClientService
+import net.atos.client.zgw.brc.exception.BrcRuntimeException
+import net.atos.client.zgw.drc.exception.DrcRuntimeException
+import net.atos.client.zgw.shared.exception.ZgwRuntimeException
+import net.atos.client.zgw.zrc.exception.ZrcRuntimeException
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.exception.ZtcRuntimeException
 import org.apache.http.HttpHost
@@ -37,15 +42,71 @@ class RestExceptionMapperTest : BehaviorSpec({
                     it should return the generic server error code and the exception message
                    """
             ) {
-                with(response) {
-                    mediaType shouldBe MediaType.APPLICATION_JSON_TYPE
-                    status shouldBe HttpStatus.SC_INTERNAL_SERVER_ERROR
-                    val entityAsJson = JSONObject(readEntity(String::class.java))
-                    with(entityAsJson) {
-                        getString("message") shouldBe "msg.error.server.generic"
-                        getString("exception") shouldBe exceptionMessage
-                    }
-                }
+                checkResponse(response, "msg.error.server.generic", exceptionMessage)
+            }
+        }
+    }
+    Given("A BRC runtime exception") {
+        val exceptionMessage = "DummyRuntimeException"
+        val exception = BrcRuntimeException(exceptionMessage)
+
+        When("the exception is mapped to a response") {
+            val response = restExceptionMapper.toResponse(exception)
+
+            Then(
+                """
+                    it should return the ZTC server error code
+                   """
+            ) {
+                checkResponse(response, "msg.error.brc.client.exception")
+            }
+        }
+    }
+    Given("A DRC runtime exception") {
+        val exceptionMessage = "DummyRuntimeException"
+        val exception = DrcRuntimeException(exceptionMessage)
+
+        When("the exception is mapped to a response") {
+            val response = restExceptionMapper.toResponse(exception)
+
+            Then(
+                """
+                    it should return the DRC server error code
+                   """
+            ) {
+                checkResponse(response, "msg.error.drc.client.exception")
+            }
+        }
+    }
+    Given("A ZRC runtime exception") {
+        val exceptionMessage = "DummyRuntimeException"
+        val exception = ZrcRuntimeException(exceptionMessage)
+
+        When("the exception is mapped to a response") {
+            val response = restExceptionMapper.toResponse(exception)
+
+            Then(
+                """
+                    it should return the ZRC server error code
+                   """
+            ) {
+                checkResponse(response, "msg.error.zrc.client.exception")
+            }
+        }
+    }
+    Given("A ZGW runtime exception") {
+        val exceptionMessage = "DummyRuntimeException"
+        val exception = ZgwRuntimeException(exceptionMessage)
+
+        When("the exception is mapped to a response") {
+            val response = restExceptionMapper.toResponse(exception)
+
+            Then(
+                """
+                    it should return the generic server error code and the exception message
+                   """
+            ) {
+                checkResponse(response, "msg.error.server.generic", exceptionMessage)
             }
         }
     }
@@ -61,15 +122,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                     it should return the ZTC server error code and the exception message
                    """
             ) {
-                with(response) {
-                    mediaType shouldBe MediaType.APPLICATION_JSON_TYPE
-                    status shouldBe HttpStatus.SC_INTERNAL_SERVER_ERROR
-                    val entityAsJson = JSONObject(readEntity(String::class.java))
-                    with(entityAsJson) {
-                        getString("message") shouldBe "msg.error.ztc.client.exception"
-                        has("exception") shouldBe false
-                    }
-                }
+                checkResponse(response, "msg.error.ztc.client.exception")
             }
         }
     }
@@ -96,15 +149,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                     it should return the BAG server error code and no exception message
                    """
             ) {
-                with(response) {
-                    mediaType shouldBe MediaType.APPLICATION_JSON_TYPE
-                    status shouldBe HttpStatus.SC_INTERNAL_SERVER_ERROR
-                    val entityAsJson = JSONObject(readEntity(String::class.java))
-                    with(entityAsJson) {
-                        getString("message") shouldBe "msg.error.bag.client.exception"
-                        has("exception") shouldBe false
-                    }
-                }
+                checkResponse(response, "msg.error.bag.client.exception")
             }
         }
     }
@@ -131,15 +176,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                     it should return the BRC server error code and no exception message
                    """
             ) {
-                with(response) {
-                    mediaType shouldBe MediaType.APPLICATION_JSON_TYPE
-                    status shouldBe HttpStatus.SC_INTERNAL_SERVER_ERROR
-                    val entityAsJson = JSONObject(readEntity(String::class.java))
-                    with(entityAsJson) {
-                        getString("message") shouldBe "msg.error.brc.client.exception"
-                        has("exception") shouldBe false
-                    }
-                }
+                checkResponse(response, "msg.error.brc.client.exception")
             }
         }
     }
@@ -166,15 +203,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                     it should return the Klanten server error code and no exception message
                    """
             ) {
-                with(response) {
-                    mediaType shouldBe MediaType.APPLICATION_JSON_TYPE
-                    status shouldBe HttpStatus.SC_INTERNAL_SERVER_ERROR
-                    val entityAsJson = JSONObject(readEntity(String::class.java))
-                    with(entityAsJson) {
-                        getString("message") shouldBe "msg.error.klanten.client.exception"
-                        has("exception") shouldBe false
-                    }
-                }
+                checkResponse(response, "msg.error.klanten.client.exception")
             }
         }
     }
@@ -201,15 +230,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                     it should return the Objecten server error code and no exception message
                    """
             ) {
-                with(response) {
-                    mediaType shouldBe MediaType.APPLICATION_JSON_TYPE
-                    status shouldBe HttpStatus.SC_INTERNAL_SERVER_ERROR
-                    val entityAsJson = JSONObject(readEntity(String::class.java))
-                    with(entityAsJson) {
-                        getString("message") shouldBe "msg.error.objects.client.exception"
-                        has("exception") shouldBe false
-                    }
-                }
+                checkResponse(response, "msg.error.objects.client.exception")
             }
         }
     }
@@ -235,15 +256,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                     it should return the ZTC server error code and no exception message
                    """
             ) {
-                with(response) {
-                    mediaType shouldBe MediaType.APPLICATION_JSON_TYPE
-                    status shouldBe HttpStatus.SC_INTERNAL_SERVER_ERROR
-                    val entityAsJson = JSONObject(readEntity(String::class.java))
-                    with(entityAsJson) {
-                        getString("message") shouldBe "msg.error.ztc.client.exception"
-                        has("exception") shouldBe false
-                    }
-                }
+                checkResponse(response, "msg.error.ztc.client.exception")
             }
         }
     }
@@ -269,16 +282,21 @@ class RestExceptionMapperTest : BehaviorSpec({
                     it should return the general server error error code with an exception message
                    """
             ) {
-                with(response) {
-                    mediaType shouldBe MediaType.APPLICATION_JSON_TYPE
-                    status shouldBe HttpStatus.SC_INTERNAL_SERVER_ERROR
-                    val entityAsJson = JSONObject(readEntity(String::class.java))
-                    with(entityAsJson) {
-                        getString("message") shouldBe "msg.error.server.generic"
-                        getString("exception") shouldBe exceptionMessage
-                    }
-                }
+                checkResponse(response, "msg.error.server.generic", exceptionMessage)
             }
         }
     }
 })
+
+fun checkResponse(response: Response, errorMessage: String, exceptionMessage: String? = null): Unit =
+    with(response) {
+        mediaType shouldBe MediaType.APPLICATION_JSON_TYPE
+        status shouldBe HttpStatus.SC_INTERNAL_SERVER_ERROR
+        val entityAsJson = JSONObject(readEntity(String::class.java))
+        with(entityAsJson) {
+            getString("message") shouldBe errorMessage
+            exceptionMessage?.let {
+                getString("exception") shouldBe exceptionMessage
+            } ?: (has("exception") shouldBe false)
+        }
+    }

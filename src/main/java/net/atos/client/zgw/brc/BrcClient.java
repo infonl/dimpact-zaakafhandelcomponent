@@ -29,11 +29,11 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
+import net.atos.client.zgw.brc.exception.BrcRuntimeExceptionMapper;
 import net.atos.client.zgw.brc.model.BesluitenListParameters;
 import net.atos.client.zgw.brc.model.generated.Besluit;
 import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject;
 import net.atos.client.zgw.shared.exception.ZgwFoutExceptionMapper;
-import net.atos.client.zgw.shared.exception.ZgwRuntimeExceptionMapper;
 import net.atos.client.zgw.shared.exception.ZgwValidatieFoutExceptionMapper;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel;
@@ -47,7 +47,7 @@ import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
 @RegisterClientHeaders(ZGWClientHeadersFactory.class)
 @RegisterProvider(ZgwFoutExceptionMapper.class)
 @RegisterProvider(ZgwValidatieFoutExceptionMapper.class)
-@RegisterProvider(ZgwRuntimeExceptionMapper.class)
+@RegisterProvider(BrcRuntimeExceptionMapper.class)
 @RegisterProvider(JsonbConfiguration.class)
 @Path("besluiten/api/v1")
 @Produces(APPLICATION_JSON)
