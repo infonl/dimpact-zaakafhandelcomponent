@@ -14,12 +14,6 @@ import { MaterialModule } from "../../shared/material/material.module";
   standalone: true,
   templateUrl: "fout-detailed-dialog.component.html",
   imports: [TranslateModule, MaterialModule, NgIf, AsyncPipe, NgForOf],
-  styles: `
-    .details {
-      padding: 12px 12px 12px;
-      overflow-x: scroll;
-    }
-  `,
 })
 export class FoutDetailedDialogComponent {
   constructor(
