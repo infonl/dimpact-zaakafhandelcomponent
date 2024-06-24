@@ -18,9 +18,12 @@ import net.atos.client.klanten.KlantenClientService
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.objecttype.ObjecttypesClientService
 import net.atos.client.zgw.brc.BrcClientService
+import net.atos.client.zgw.brc.exception.BrcRuntimeException
 import net.atos.client.zgw.drc.DrcClientService
+import net.atos.client.zgw.drc.exception.DrcRuntimeException
 import net.atos.client.zgw.shared.exception.ZgwRuntimeException
 import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.exception.ZrcRuntimeException
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.exception.ZtcRuntimeException
 import java.net.ConnectException
@@ -74,8 +77,17 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
         }
 
     private fun handleZgwRuntimeException(exception: ZgwRuntimeException): Response {
-        return when {
-            exception is ZtcRuntimeException -> {
+        return when (exception) {
+            is BrcRuntimeException -> {
+                generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_BRC_CLIENT)
+            }
+            is DrcRuntimeException -> {
+                generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_DRC_CLIENT)
+            }
+            is ZrcRuntimeException -> {
+                generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_ZRC_CLIENT)
+            }
+            is ZtcRuntimeException -> {
                 generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_ZTC_CLIENT)
             }
             else -> {
