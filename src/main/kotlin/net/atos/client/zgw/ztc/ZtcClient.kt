@@ -11,11 +11,11 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.shared.exception.ZgwFoutExceptionMapper
-import net.atos.client.zgw.shared.exception.ZgwRuntimeExceptionMapper
 import net.atos.client.zgw.shared.exception.ZgwValidatieFoutExceptionMapper
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.shared.util.JsonbConfiguration
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
+import net.atos.client.zgw.ztc.exception.ZtcRuntimeExceptionMapper
 import net.atos.client.zgw.ztc.model.BesluittypeListParameters
 import net.atos.client.zgw.ztc.model.CatalogusListParameters
 import net.atos.client.zgw.ztc.model.EigenschapListParameters
@@ -39,21 +39,21 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 import java.util.UUID
 
 /**
- * Note that this client should normally only be used by [ZTCClientService] and not directly
+ * Note that this client should normally only be used by [ZtcClientService] and not directly
  * because of caching purposes.
  */
 @RegisterRestClient(configKey = "ZGW-API-Client")
 @RegisterClientHeaders(ZGWClientHeadersFactory::class)
 @RegisterProvider(ZgwFoutExceptionMapper::class)
 @RegisterProvider(ZgwValidatieFoutExceptionMapper::class)
-@RegisterProvider(ZgwRuntimeExceptionMapper::class)
+@RegisterProvider(ZtcRuntimeExceptionMapper::class)
 @RegisterProvider(JsonbConfiguration::class)
 @Path("catalogi/api/v1")
 @Produces(
     MediaType.APPLICATION_JSON
 )
 @Suppress("TooManyFunctions")
-interface ZTCClient {
+interface ZtcClient {
     @GET
     @Path("catalogussen")
     fun catalogusList(@BeanParam parameters: CatalogusListParameters): Results<Catalogus>

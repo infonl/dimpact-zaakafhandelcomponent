@@ -21,7 +21,7 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData
 import net.atos.client.zgw.shared.exception.FoutException
 import net.atos.client.zgw.shared.model.Fout
-import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
 import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatieobject
 import net.atos.zac.app.informatieobjecten.model.createRESTFileUpload
@@ -45,7 +45,7 @@ import java.util.UUID
 
 class RESTInformatieobjectConverterTest : BehaviorSpec() {
     private val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-    private val ztcClientService = mockk<ZTCClientService>()
+    private val ztcClientService = mockk<ZtcClientService>()
     private val loggedInUser = createLoggedInUser()
     private val policyService = mockk<PolicyService>()
     private val rechtenConverter = mockk<RESTRechtenConverter>()

@@ -24,7 +24,7 @@ import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.createVerlenging
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakStatus
-import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createStatusType
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.authentication.LoggedInUser
@@ -46,7 +46,7 @@ import java.util.UUID
 class PolicyServiceTest : BehaviorSpec() {
     private val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     private val evaluationClient = mockk<OPAEvaluationClient>()
-    private val ztcClientService = mockk<ZTCClientService>()
+    private val ztcClientService = mockk<ZtcClientService>()
     private val zrcClientService = mockk<ZRCClientService>()
 
     private val loggedInUser = createLoggedInUser()

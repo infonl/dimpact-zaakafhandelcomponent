@@ -24,7 +24,7 @@ import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakInformatieobject
 import net.atos.client.zgw.zrc.model.createZaakobjectProductaanvraag
-import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.configuratie.ConfiguratieService.BRON_ORGANISATIE
@@ -46,7 +46,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     val zgwApiService = mockk<ZGWApiService>()
     val zrcClientService = mockk<ZRCClientService>()
     val drcClientService = mockk<DrcClientService>()
-    val ztcClientService = mockk<ZTCClientService>()
+    val ztcClientService = mockk<ZtcClientService>()
     val vrlClientService = mockk<VrlClientService>()
     val identityService = mockk<IdentityService>()
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()

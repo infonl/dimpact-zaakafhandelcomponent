@@ -26,7 +26,7 @@ import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakInformatieobject
-import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.authentication.LoggedInUser
@@ -45,7 +45,7 @@ class MailServiceTest : BehaviorSpec({
     val drcClientService = mockk<DrcClientService>()
     val mailTemplateHelper = mockk<MailTemplateHelper>()
     val zgwApiService = mockk<ZGWApiService>()
-    val ztcClientService = mockk<ZTCClientService>()
+    val ztcClientService = mockk<ZtcClientService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
 
     val mailService = MailService(

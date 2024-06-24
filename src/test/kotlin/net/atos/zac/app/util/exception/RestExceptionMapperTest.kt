@@ -13,7 +13,8 @@ import net.atos.client.bag.BagClientService
 import net.atos.client.klanten.KlantenClientService
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.brc.BrcClientService
-import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.ZtcClientService
+import net.atos.client.zgw.ztc.exception.ZtcRuntimeException
 import org.apache.http.HttpHost
 import org.apache.http.HttpStatus
 import org.apache.http.conn.HttpHostConnectException
@@ -48,6 +49,30 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
+    Given("A ZTC runtime exception") {
+        val exceptionMessage = "DummyRuntimeException"
+        val exception = ZtcRuntimeException(exceptionMessage)
+
+        When("the exception is mapped to a response") {
+            val response = restExceptionMapper.toResponse(exception)
+
+            Then(
+                """
+                    it should return the ZTC server error code and the exception message
+                   """
+            ) {
+                with(response) {
+                    mediaType shouldBe MediaType.APPLICATION_JSON_TYPE
+                    status shouldBe HttpStatus.SC_INTERNAL_SERVER_ERROR
+                    val entityAsJson = JSONObject(readEntity(String::class.java))
+                    with(entityAsJson) {
+                        getString("message") shouldBe "msg.error.ztc.client.exception"
+                        has("exception") shouldBe false
+                    }
+                }
+            }
+        }
+    }
     Given(
         """
         A JAX-RS processing exception with as root cause a HttpHostConnectException
@@ -68,7 +93,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
             Then(
                 """
-                    it should return the BAG error code and no exception message
+                    it should return the BAG server error code and no exception message
                    """
             ) {
                 with(response) {
@@ -103,7 +128,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
             Then(
                 """
-                    it should return the BRC error code and no exception message
+                    it should return the BRC server error code and no exception message
                    """
             ) {
                 with(response) {
@@ -138,7 +163,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
             Then(
                 """
-                    it should return the Klanten error code and no exception message
+                    it should return the Klanten server error code and no exception message
                    """
             ) {
                 with(response) {
@@ -173,7 +198,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
             Then(
                 """
-                    it should return the Objecten error code and no exception message
+                    it should return the Objecten server error code and no exception message
                    """
             ) {
                 with(response) {
@@ -198,7 +223,7 @@ class RestExceptionMapperTest : BehaviorSpec({
         val exception = ProcessingException(
             exceptionMessage,
             UnknownHostException(
-                "Something terrible happened in the ${ZTCClientService::class.simpleName}!"
+                "Something terrible happened in the ${ZtcClientService::class.simpleName}!"
             )
         )
 
@@ -207,7 +232,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
             Then(
                 """
-                    it should return the ZTC error code and no exception message
+                    it should return the ZTC server error code and no exception message
                    """
             ) {
                 with(response) {
@@ -232,7 +257,7 @@ class RestExceptionMapperTest : BehaviorSpec({
         val exception = ProcessingException(
             exceptionMessage,
             RuntimeException(
-                "Something terrible happened in the ${ZTCClientService::class.simpleName}!"
+                "Something terrible happened in the ${ZtcClientService::class.simpleName}!"
             )
         )
 

@@ -32,7 +32,7 @@ import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.util.InformatieObjectTypeUtil
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.audit.model.RESTHistorieRegel
@@ -82,7 +82,7 @@ import java.util.UUID
 @Suppress("TooManyFunctions", "LargeClass", "LongParameterList", "TooGenericExceptionThrown")
 class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val drcClientService: DrcClientService,
-    private val ztcClientService: ZTCClientService,
+    private val ztcClientService: ZtcClientService,
     private val zrcClientService: ZRCClientService,
     private val zgwApiService: ZGWApiService,
     private val flowableTaskService: FlowableTaskService,

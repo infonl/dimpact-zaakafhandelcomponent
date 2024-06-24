@@ -7,7 +7,7 @@ package net.atos.zac.app.admin.converter;
 
 import jakarta.inject.Inject;
 
-import net.atos.client.zgw.ztc.ZTCClientService;
+import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.zac.app.admin.model.RESTZaakafhandelParameters;
 import net.atos.zac.app.zaken.converter.RESTResultaattypeConverter;
 import net.atos.zac.app.zaken.model.RESTZaakStatusmailOptie;
@@ -29,7 +29,7 @@ public class RESTZaakafhandelParametersConverter {
     private RESTHumanTaskParametersConverter humanTaskParametersConverter;
 
     @Inject
-    private ZTCClientService ztcClientService;
+    private ZtcClientService ztcClientService;
 
     @Inject
     private ZaakafhandelParameterService zaakafhandelParameterService;

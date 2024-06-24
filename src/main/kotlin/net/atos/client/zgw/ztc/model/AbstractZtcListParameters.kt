@@ -6,7 +6,7 @@ package net.atos.client.zgw.ztc.model
 
 import jakarta.ws.rs.QueryParam
 
-abstract class AbstractZTCListParameters {
+abstract class AbstractZtcListParameters {
     /**
      * Filter objects depending on their concept status
      */

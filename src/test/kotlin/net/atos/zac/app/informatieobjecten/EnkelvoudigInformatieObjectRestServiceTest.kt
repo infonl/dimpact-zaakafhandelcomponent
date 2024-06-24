@@ -27,7 +27,7 @@ import net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakInformatieobject
-import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
@@ -77,7 +77,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val zaakInformatieobjectConverter = mockk<RESTZaakInformatieobjectConverter>()
     val zgwApiService = mockk<ZGWApiService>()
     val zrcClientService = mockk<ZRCClientService>()
-    val ztcClientService = mockk<ZTCClientService>()
+    val ztcClientService = mockk<ZtcClientService>()
     val enkelvoudigInformatieObjectRestService = EnkelvoudigInformatieObjectRestService(
         drcClientService,
         ztcClientService,

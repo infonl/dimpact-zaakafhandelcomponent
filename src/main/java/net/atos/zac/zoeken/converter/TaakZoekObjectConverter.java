@@ -14,7 +14,7 @@ import org.flowable.task.api.TaskInfo;
 import net.atos.client.zgw.shared.util.URIUtil;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.client.zgw.ztc.ZTCClientService;
+import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.flowable.FlowableTaskService;
 import net.atos.zac.flowable.TaakVariabelenService;
@@ -36,7 +36,7 @@ public class TaakZoekObjectConverter extends AbstractZoekObjectConverter<TaakZoe
     private TaakVariabelenService taakVariabelenService;
 
     @Inject
-    private ZTCClientService ztcClientService;
+    private ZtcClientService ztcClientService;
 
     @Inject
     private ZRCClientService zrcClientService;

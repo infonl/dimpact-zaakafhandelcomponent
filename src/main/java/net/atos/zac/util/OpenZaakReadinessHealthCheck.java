@@ -16,7 +16,7 @@ import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Readiness;
 
-import net.atos.client.zgw.ztc.ZTCClientService;
+import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.CatalogusListParameters;
 
 @Readiness
@@ -30,7 +30,7 @@ public class OpenZaakReadinessHealthCheck implements HealthCheck {
     }
 
     @Inject
-    private ZTCClientService ztcClientService;
+    private ZtcClientService ztcClientService;
 
     @Override
     public HealthCheckResponse call() {

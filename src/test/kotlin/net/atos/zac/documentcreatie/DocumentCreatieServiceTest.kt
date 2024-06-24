@@ -10,7 +10,7 @@ import net.atos.client.smartdocuments.model.createTemplatesResponse
 import net.atos.client.smartdocuments.model.createWizardResponse
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.createZaak
-import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
@@ -28,7 +28,7 @@ class DocumentCreatieServiceTest : BehaviorSpec({
     val fixedUserName = Optional.of("dummyFixedUserName")
     val dataConverter = mockk<DataConverter>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-    val ztcClientService = mockk<ZTCClientService>()
+    val ztcClientService = mockk<ZtcClientService>()
     val zrcClientService = mockk<ZRCClientService>()
 
     val documentCreatieService = DocumentCreatieService(

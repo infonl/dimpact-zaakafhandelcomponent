@@ -5,7 +5,7 @@
 package net.atos.zac.app.zaken.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.BesluitType
 import net.atos.zac.app.zaken.model.RESTBesluittype
 import net.atos.zac.util.UriUtil
@@ -13,7 +13,7 @@ import java.net.URI
 
 class RESTBesluittypeConverter {
     @Inject
-    private lateinit var ztcClientService: ZTCClientService
+    private lateinit var ztcClientService: ZtcClientService
 
     fun convertToRESTBesluittype(besluittypeURI: URI): RESTBesluittype {
         return convertToRESTBesluittype(ztcClientService.readBesluittype(besluittypeURI))

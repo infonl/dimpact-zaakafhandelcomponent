@@ -18,7 +18,7 @@ import net.atos.client.zgw.zrc.model.createRolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakStatus
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
-import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.createStatusType
 import net.atos.client.zgw.ztc.model.createZaakType
@@ -36,7 +36,7 @@ import java.util.Optional
 @MockKExtension.CheckUnnecessaryStub
 class ZaakZoekObjectConverterTest : BehaviorSpec({
     val zrcClientService = mockk<ZRCClientService>()
-    val ztcClientService = mockk<ZTCClientService>()
+    val ztcClientService = mockk<ZtcClientService>()
     val vrlClientService = mockk<VrlClientService>()
     val zgwApiService = mockk<ZGWApiService>()
     val identityService = mockk<IdentityService>()

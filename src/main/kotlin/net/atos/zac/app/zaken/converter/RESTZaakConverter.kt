@@ -16,7 +16,7 @@ import net.atos.client.zgw.zrc.model.Status
 import net.atos.client.zgw.zrc.model.Verlenging
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.util.StatusTypeUtil
-import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.StatusType
 import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.zac.app.identity.converter.RESTGroupConverter
@@ -46,7 +46,7 @@ import kotlin.jvm.optionals.getOrNull
 
 class RESTZaakConverter {
     @Inject
-    private lateinit var ztcClientService: ZTCClientService
+    private lateinit var ztcClientService: ZtcClientService
 
     @Inject
     private lateinit var zrcClientService: ZRCClientService

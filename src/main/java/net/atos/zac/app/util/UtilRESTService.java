@@ -19,7 +19,7 @@ import jakarta.ws.rs.core.MediaType;
 import org.apache.commons.text.StringEscapeUtils;
 
 import net.atos.client.zgw.shared.cache.Caching;
-import net.atos.client.zgw.ztc.ZTCClientService;
+import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService;
 
 @Path("util")
@@ -31,7 +31,7 @@ public class UtilRESTService {
     private static final String ZHPS = h(2, "zaakafhandelParameterService");
 
     @Inject
-    private ZTCClientService ztcClientService;
+    private ZtcClientService ztcClientService;
 
     @Inject
     private ZaakafhandelParameterService zaakafhandelParameterService;

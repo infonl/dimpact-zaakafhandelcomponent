@@ -29,7 +29,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
-import net.atos.client.zgw.ztc.ZTCClientService;
+import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.ResultaatType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.util.UriUtil;
@@ -51,7 +51,7 @@ public class ZaakafhandelParameterBeheerService {
     private EntityManager entityManager;
 
     @Inject
-    private ZTCClientService ztcClientService;
+    private ZtcClientService ztcClientService;
 
     @Inject
     private ZaakafhandelParameterService zaakafhandelParameterService;

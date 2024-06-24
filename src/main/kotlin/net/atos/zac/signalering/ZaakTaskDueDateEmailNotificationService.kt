@@ -9,7 +9,7 @@ import jakarta.inject.Inject
 import jakarta.transaction.Transactional
 import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.FlowableTaskService
@@ -45,7 +45,7 @@ import java.util.logging.Logger
 class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     private val signaleringService: SignaleringService,
     private val configuratieService: ConfiguratieService,
-    private val ztcClientService: ZTCClientService,
+    private val ztcClientService: ZtcClientService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
     private val zoekenService: ZoekenService,
     private val flowableTaskService: FlowableTaskService

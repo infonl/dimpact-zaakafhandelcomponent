@@ -11,7 +11,7 @@ import java.net.URI
 class RoltypeListParameters(
     private val zaaktype: URI,
     private val omschrijvingGeneriek: OmschrijvingGeneriekEnum? = null
-) : AbstractZTCListParameters() {
+) : AbstractZtcListParameters() {
     /**
      * Algemeen gehanteerde omschrijving van de aard van de ROL.
      */

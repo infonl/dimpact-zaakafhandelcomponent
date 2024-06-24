@@ -9,7 +9,7 @@ import java.net.URI
 
 class ZaaktypeListParameters(
     private val catalogus: URI
-) : AbstractZTCListParameters() {
+) : AbstractZtcListParameters() {
     /**
      * URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
      */

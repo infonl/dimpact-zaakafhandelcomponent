@@ -21,7 +21,7 @@ import jakarta.ws.rs.core.MediaType;
 
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.client.zgw.ztc.ZTCClientService;
+import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.StatusType;
 import net.atos.zac.app.mail.converter.RESTMailGegevensConverter;
 import net.atos.zac.app.mail.model.RESTMailGegevens;
@@ -39,7 +39,7 @@ public class MailRestService {
     private ZaakVariabelenService zaakVariabelenService;
     private PolicyService policyService;
     private ZRCClientService zrcClientService;
-    private ZTCClientService ztcClientService;
+    private ZtcClientService ztcClientService;
     private RESTMailGegevensConverter restMailGegevensConverter;
 
     /**
@@ -54,7 +54,7 @@ public class MailRestService {
             final ZaakVariabelenService zaakVariabelenService,
             final PolicyService policyService,
             final ZRCClientService zrcClientService,
-            final ZTCClientService ztcClientService,
+            final ZtcClientService ztcClientService,
             final RESTMailGegevensConverter restMailGegevensConverter
     ) {
         this.mailService = mailService;

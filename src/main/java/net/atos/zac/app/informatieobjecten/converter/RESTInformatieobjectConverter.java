@@ -35,7 +35,7 @@ import net.atos.client.zgw.shared.exception.FoutException;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
-import net.atos.client.zgw.ztc.ZTCClientService;
+import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.zac.app.configuratie.converter.RESTTaalConverter;
 import net.atos.zac.app.identity.converter.RESTUserConverter;
 import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieObjectVersieGegevens;
@@ -59,7 +59,7 @@ public class RESTInformatieobjectConverter {
     private static final Logger LOG = Logger.getLogger(RESTInformatieobjectConverter.class.getName());
 
     @Inject
-    private ZTCClientService ztcClientService;
+    private ZtcClientService ztcClientService;
 
     @Inject
     private DrcClientService drcClientService;

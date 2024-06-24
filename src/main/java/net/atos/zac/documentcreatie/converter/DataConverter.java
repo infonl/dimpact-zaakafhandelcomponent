@@ -36,7 +36,7 @@ import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag;
-import net.atos.client.zgw.ztc.ZTCClientService;
+import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.zac.authentication.LoggedInUser;
 import net.atos.zac.documentcreatie.model.AanvragerData;
 import net.atos.zac.documentcreatie.model.Data;
@@ -61,7 +61,7 @@ public class DataConverter {
     private ZRCClientService zrcClientService;
 
     @Inject
-    private ZTCClientService ztcClientService;
+    private ZtcClientService ztcClientService;
 
     @Inject
     private VrlClientService vrlClientService;

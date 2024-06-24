@@ -43,7 +43,7 @@ import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag;
-import net.atos.client.zgw.ztc.ZTCClientService;
+import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.configuratie.ConfiguratieService;
@@ -86,7 +86,7 @@ public class ProductaanvraagService {
     private ZGWApiService zgwApiService;
     private ZRCClientService zrcClientService;
     private DrcClientService drcClientService;
-    private ZTCClientService ztcClientService;
+    private ZtcClientService ztcClientService;
     private VrlClientService vrlClientService;
     private IdentityService identityService;
     private ZaakafhandelParameterService zaakafhandelParameterService;
@@ -109,7 +109,7 @@ public class ProductaanvraagService {
             ZGWApiService zgwApiService,
             ZRCClientService zrcClientService,
             DrcClientService drcClientService,
-            ZTCClientService ztcClientService,
+            ZtcClientService ztcClientService,
             VrlClientService vrlClientService,
             IdentityService identityService,
             ZaakafhandelParameterService zaakafhandelParameterService,

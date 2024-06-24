@@ -9,7 +9,7 @@ import java.net.URI
 
 class StatustypeListParameters(
     private val zaaktype: URI
-) : AbstractZTCListParameters() {
+) : AbstractZtcListParameters() {
     /**
      * URL-referentie naar het ZAAKTYPE van ZAAKen waarin STATUSsen van dit STATUSTYPE bereikt kunnen worden.
      */

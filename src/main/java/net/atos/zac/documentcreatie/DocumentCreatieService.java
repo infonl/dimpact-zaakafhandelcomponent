@@ -27,7 +27,7 @@ import net.atos.client.smartdocuments.model.wizard.Selection;
 import net.atos.client.smartdocuments.model.wizard.SmartDocument;
 import net.atos.client.smartdocuments.model.wizard.WizardResponse;
 import net.atos.client.zgw.zrc.ZRCClientService;
-import net.atos.client.zgw.ztc.ZTCClientService;
+import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.zac.authentication.LoggedInUser;
 import net.atos.zac.documentcreatie.converter.DataConverter;
 import net.atos.zac.documentcreatie.model.Data;
@@ -47,7 +47,7 @@ public class DocumentCreatieService {
     private Optional<String> fixedUserName;
     private DataConverter dataConverter;
     private Instance<LoggedInUser> loggedInUserInstance;
-    private ZTCClientService ztcClientService;
+    private ZtcClientService ztcClientService;
     private ZRCClientService zrcClientService;
 
     /**
@@ -64,7 +64,7 @@ public class DocumentCreatieService {
             @ConfigProperty(name = "SD_FIXED_USER_NAME") Optional<String> fixedUserName,
             DataConverter dataConverter,
             Instance<LoggedInUser> loggedInUserInstance,
-            ZTCClientService ztcClientService,
+            ZtcClientService ztcClientService,
             ZRCClientService zrcClientService
     ) {
         this.smartDocumentsClient = smartDocumentsClient;

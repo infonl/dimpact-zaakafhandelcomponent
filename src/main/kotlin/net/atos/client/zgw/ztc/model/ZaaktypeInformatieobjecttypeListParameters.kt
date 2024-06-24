@@ -9,7 +9,7 @@ import java.net.URI
 
 class ZaaktypeInformatieobjecttypeListParameters(
     private val zaaktype: URI
-) : AbstractZTCListParameters() {
+) : AbstractZtcListParameters() {
     @QueryParam("zaaktype")
     fun getZaaktype() = zaaktype
 }

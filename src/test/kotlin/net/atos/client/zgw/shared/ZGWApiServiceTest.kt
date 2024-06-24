@@ -15,13 +15,13 @@ import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.createResultaat
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.generated.Resultaat
-import net.atos.client.zgw.ztc.ZTCClientService
+import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createResultaatType
 import java.net.URI
 import java.util.UUID
 
 class ZGWApiServiceTest : BehaviorSpec({
-    val ztcClientService = mockk<ZTCClientService>()
+    val ztcClientService = mockk<ZtcClientService>()
     val zrcClientService = mockk<ZRCClientService>()
     val drcClientService = mockk<DrcClientService>()
     val zgwApiService = ZGWApiService(

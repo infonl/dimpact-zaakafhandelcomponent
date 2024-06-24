@@ -14,7 +14,7 @@ import net.atos.client.zgw.shared.util.URIUtil;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
-import net.atos.client.zgw.ztc.ZTCClientService;
+import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.InformatieObjectType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
@@ -34,7 +34,7 @@ public class DocumentZoekObjectConverter extends AbstractZoekObjectConverter<Doc
     private BrcClientService brcClientService;
 
     @Inject
-    private ZTCClientService ztcClientService;
+    private ZtcClientService ztcClientService;
 
     @Inject
     private DrcClientService drcClientService;
