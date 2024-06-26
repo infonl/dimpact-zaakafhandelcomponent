@@ -1,8 +1,8 @@
 Feature: Zaak
 
   Scenario: Bob wants to create a new zaak
-    Given "Bob" navigates to "zac" with path "/"
+    Given "Bob" is logged in to zac
     When "Bob" wants to create a new zaak
-    Then "Bob" sees the created zaak with a delay
+    Then "Bob" sees the created zaak
     Given "Bob" navigates to "zac" with path "/zaken/werkvoorraad"
     Then "Bob" sees the created zaak

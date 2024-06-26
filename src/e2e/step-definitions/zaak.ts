@@ -11,42 +11,38 @@ import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakStatus } from "../utils/schemes";
 
 const ONE_MINUTE_IN_MS = 60_000;
+const TWO_MINUTES_IN_MS = 120_000;
+const FIFTEEN_SECONDS_IN_MS = 15_000;
 
 async function checkZaakAssignment(
   this: CustomWorld,
   zaakNumber: any,
-  user1Profile: any,
+  userProfile: any,
 ) {
-  this.expect(
-    await this.page.getByText(
-      `Aanvullende informatie nodig voor zaak ${zaakNumber}`,
-    ),
-  ).toBeTruthy();
-  this.expect(
-    await this.page.getByRole("cell", {
+  await this.expect(
+    this.page
+      .getByText(`Aanvullende informatie nodig voor zaak ${zaakNumber}`)
+      .first(),
+  ).toBeVisible();
+
+  await this.expect(
+    this.page.getByRole("cell", {
       name: "Aanvullende informatie",
       exact: true,
     }),
-  ).toBeTruthy();
-  this.expect(
-    await this.page.getByRole("cell", { name: "Assigned" }),
-  ).toBeTruthy();
-  // current date to 16-02-2024 format
-  const currentDDateString = new Date()
-    .toISOString()
-    .split("T")[0]
-    .split("-")
-    .reverse()
-    .join("-");
-  this.expect(
-    await this.page.getByRole("cell", { name: currentDDateString }),
-  ).toBeTruthy();
-  this.expect(
-    await this.page.getByRole("cell", { name: user1Profile.group }),
-  ).toBeTruthy();
-  this.expect(
-    await this.page.getByRole("cell", { name: user1Profile.username }),
-  ).toBeTruthy();
+  ).toBeVisible();
+
+  await this.expect(
+    this.page.getByRole("cell", { name: "Toegekend" }),
+  ).toBeVisible();
+
+  await this.expect(
+    this.page.getByRole("cell", { name: userProfile.group }),
+  ).toBeVisible();
+
+  await this.expect(
+    this.page.getByRole("cell", { name: userProfile.username }),
+  ).toBeVisible();
 }
 
 Given(
@@ -67,23 +63,22 @@ Given(
       `${this.worldParameters.urls.zac}/zaken/${caseNumber}`,
     );
 
-    this.expect(
-      await this.page.getByText(`State ${parsedStatus} info`),
-    ).toBeTruthy();
+    await this.expect(
+      this.page.getByText(`Status ${parsedStatus}`),
+    ).toBeVisible();
   },
 );
 When(
   "Employee {string} does not have enough information to finish Intake and assigns a task to Employee {string}",
-  { timeout: 120 * 1000 },
+  { timeout: TWO_MINUTES_IN_MS },
   async function (
     this: CustomWorld,
     user1: z.infer<typeof worldUsers>,
     user2: z.infer<typeof worldUsers>,
   ) {
     const zaakNumber = this.testStorage.get("caseNumber");
-    const user1Parsed = worldUsers.parse(user1);
-    const user1Profile = profiles[user1Parsed];
-    worldUsers.parse(user2);
+    const user2Parsed = worldUsers.parse(user2);
+    const user2Profile = profiles[user2Parsed];
 
     await this.page.getByText("Aanvullende informatie").first().click();
 
@@ -100,25 +95,23 @@ When(
 
     await this.page.getByPlaceholder("- Kies een groep -").first().click();
     await this.page
-      .getByRole("option", { name: "Test groep B" })
+      .getByRole("option", { name: user2Profile.group })
       .first()
       .click();
-    await this.page.waitForTimeout(1000);
 
     await this.page.getByPlaceholder("- Geen behandelaar -").first().click();
     await this.page
-      .getByRole("option", { name: "E2etest User2" })
+      .getByRole("option", { name: user2Profile.username })
       .first()
       .click();
     await this.page.getByRole("button", { name: "Start" }).first().click();
 
-    await this.page.waitForTimeout(10000);
-    this.expect(
-      await this.page.getByText(
-        'Document "Aanvullende informatie nodig voor zaak ZAAK-2024-0000000167" is toegevoegd aan de zaak',
+    await this.expect(
+      this.page.getByText(
+        `Document "Aanvullende informatie nodig voor zaak ${zaakNumber}" is toegevoegd aan de zaak`,
       ),
-    ).toBeTruthy();
-    await checkZaakAssignment.call(this, zaakNumber, user1Profile);
+    ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
+    await checkZaakAssignment.call(this, zaakNumber, user2Profile);
   },
 );
 
@@ -162,23 +155,26 @@ When(
       .getByTitle("Selecteren")
       .click();
     await this.page.getByText("close").click();
+
+    const group = this.page.getByPlaceholder("kies een groep");
+    await group.fill("test gr");
+    await group.focus();
+    await this.page.getByRole("listbox").first().click();
+
     await this.page.getByLabel("Communicatiekanaal").click();
     await this.page.getByRole("option", { name: " E-mail " }).click();
-    await this.page.waitForTimeout(1000);
     // Openbaar should be automatically selected on openbaar
-    await this.page.getByText("Vertrouwelijkheidaanduiding- Openbaar -");
+    await this.expect(this.page.getByText("Openbaar").first()).toBeVisible();
     await this.page.getByLabel("Omschrijving").click();
     await this.page.getByLabel("Omschrijving").fill("E2etest1");
     await this.page.getByRole("button", { name: "Aanmaken" }).click();
-
-    await this.page.waitForTimeout(5000);
 
     const currentYear = new Date().getFullYear();
 
     // Construct the regex pattern with the current year
     const regexPattern = new RegExp(`ZAAK-${currentYear}-\\d+`, "g");
 
-    await this.page.getByText(regexPattern);
+    await this.expect(this.page.getByText(regexPattern).first()).toBeVisible();
 
     // Get the HTML content of the page
     const content = await this.page.content();
@@ -191,59 +187,45 @@ When(
     } else {
       throw new Error("No case number found");
     }
-
-    await this.page.waitForTimeout(1000);
   },
 );
 
 Then(
-  "Employee {string} sees the task assigned by Employee {string} in the newly created zaak tasks list",
+  "Employee {string} sees the task assigned to them by Employee {string} in the newly created zaak tasks list",
   { timeout: ONE_MINUTE_IN_MS },
-  async function (this: CustomWorld, user1, user2) {
+  async function (this: CustomWorld, user1: string, _user2: string) {
     const user1Parsed = worldUsers.parse(user1);
     const user1Profile = profiles[user1Parsed];
-    worldUsers.parse(user2);
     const zaakNumber = this.testStorage.get("caseNumber");
 
-    checkZaakAssignment.call(this, zaakNumber, user1Profile);
+    await checkZaakAssignment.call(this, zaakNumber, user1Profile);
   },
 );
 
 Then(
-  "Employee {string} sees the task assigned to Employee {string} in my task list",
-  { timeout: 120 * 1000 },
-  async function (this: CustomWorld, user1, user2) {
+  "Employee {string} sees the task assigned to them by Employee {string} in my task list",
+  { timeout: TWO_MINUTES_IN_MS },
+  async function (this: CustomWorld, user1: string, _user2: string) {
     const user1Parsed = worldUsers.parse(user1);
     const user1Profile = profiles[user1Parsed];
-    worldUsers.parse(user2);
 
     const caseNumber = this.testStorage.get("caseNumber");
 
     await this.page.goto(`${this.worldParameters.urls.zac}/taken/mijn`);
 
-    this.expect(
-      await this.page
-        .getByRole("cell", { name: caseNumber, exact: true })
-        .first(),
-    ).toBeTruthy();
-    this.expect(
-      await this.page
+    await this.expect(
+      this.page.getByRole("cell", { name: caseNumber, exact: true }).first(),
+    ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
+
+    await this.expect(
+      this.page
         .getByRole("cell", { name: "Aanvullende informatie", exact: true })
         .first(),
-    ).toBeTruthy();
-    // current date to 16-02-2024 format
-    const currentDDateString = new Date()
-      .toISOString()
-      .split("T")[0]
-      .split("-")
-      .reverse()
-      .join("-");
-    this.expect(
-      await this.page.getByRole("cell", { name: currentDDateString }).first(),
-    ).toBeTruthy();
-    this.expect(
-      await this.page.getByRole("cell", { name: user1Profile.group }).first(),
-    ).toBeTruthy();
+    ).toBeVisible();
+
+    await this.expect(
+      this.page.getByRole("cell", { name: user1Profile.group }).first(),
+    ).toBeVisible();
   },
 );
 
@@ -253,18 +235,6 @@ Then(
   async function (this: CustomWorld, user) {
     const caseNumber = this.testStorage.get("caseNumber");
 
-    await this.page
-      .getByText(caseNumber)
-      .first()
-      .waitFor({ timeout: ONE_MINUTE_IN_MS });
-  },
-);
-
-Then(
-  "{string} sees the created zaak with a delay",
-  { timeout: ONE_MINUTE_IN_MS + 15000 },
-  async function (this: CustomWorld, user) {
-    const caseNumber = this.testStorage.get("caseNumber");
     await this.page
       .getByText(caseNumber)
       .first()
@@ -299,15 +269,15 @@ Then(
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user) {
     const caseNumber = this.testStorage.get("caseNumber");
-    await this.page.getByText(caseNumber);
+    await this.expect(this.page.getByText(caseNumber).first()).toBeVisible();
   },
 );
 
 Then(
   "Employee {string} clicks on the first zaak in the zaak-werkvoorraad with delay",
-  { timeout: ONE_MINUTE_IN_MS + 30000 },
+  { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user) {
-    await this.page.waitForTimeout(ONE_MINUTE_IN_MS + 10000);
+    await this.page.waitForTimeout(FIFTEEN_SECONDS_IN_MS);
     await this.page.reload();
     await this.page.getByText("visibility").first().click();
   },
