@@ -43,29 +43,6 @@ Given(
 );
 
 Given(
-  "{string} navigates to {string} with path {string} with delay after of {int} ms",
-  { timeout: ONE_MINUTE_IN_MS },
-  async function (this: CustomWorld, user, urlKey, path, delay) {
-    const res = worldPossibleZacUrls.parse(urlKey);
-    const expectedUrl = this.worldParameters.urls[res] + path;
-
-    await this.openUrl(expectedUrl);
-
-    await this.page.waitForURL(expectedUrl);
-
-    const currentUrl = this.page.url();
-
-    if (currentUrl !== expectedUrl) {
-      throw new Error(
-        `Navigation failed: Expected URL '${expectedUrl}', but found '${currentUrl}'`,
-      );
-    }
-
-    await this.page.waitForTimeout(delay);
-  },
-);
-
-Given(
   "the page is done searching",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld) {

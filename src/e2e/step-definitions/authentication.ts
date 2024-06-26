@@ -48,11 +48,12 @@ async function isLoggedIn(world: CustomWorld, user: keyof typeof profiles) {
   if (!(await account_circle.isVisible())) return false;
   await account_circle.click();
   const { username } = profiles[user];
-  console.error(username);
   const profileText = world.page.getByRole("menu").filter({
     hasText: username,
   });
-  return profileText.isVisible();
+  const isVisible = await profileText.isVisible();
+  await world.page.keyboard.press("Escape");
+  return isVisible;
 }
 
 When(
@@ -85,7 +86,8 @@ Given(
   async function (this: CustomWorld, user: keyof typeof profiles) {
     const expectedUrl = this.worldParameters.urls["zac"];
     await this.openUrl(expectedUrl);
-    if (!(await isLoggedIn(this, user))) {
+    let tries = 0;
+    while (!(await isLoggedIn(this, user)) && tries++ < 4) {
       await logout(this);
       await loginToZac.call(this, user);
     }
