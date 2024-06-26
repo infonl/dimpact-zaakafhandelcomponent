@@ -20,7 +20,8 @@ fun createEnkelvoudigInformatieObject(
     beginRegistratie: OffsetDateTime = OffsetDateTime.now(),
     inhoud: URI = URI("http://example.com/${UUID.randomUUID()}"),
     locked: Boolean = false,
-    bestandsdelen: List<BestandsDeel> = emptyList()
+    bestandsdelen: List<BestandsDeel> = emptyList(),
+    indicatieGebruiksrecht: Boolean? = null
 ) = EnkelvoudigInformatieObject(
     url,
     versie,
@@ -28,7 +29,9 @@ fun createEnkelvoudigInformatieObject(
     inhoud,
     locked,
     bestandsdelen
-)
+).apply {
+    this.indicatieGebruiksrecht = indicatieGebruiksrecht
+}
 
 fun createEnkelvoudigInformatieObjectData(
     url: URI = URI("http://example.com/${UUID.randomUUID()}"),

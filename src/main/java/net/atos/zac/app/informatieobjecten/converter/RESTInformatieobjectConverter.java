@@ -105,7 +105,8 @@ public class RESTInformatieobjectConverter {
 
     public RESTEnkelvoudigInformatieobject convertToREST(final ZaakInformatieobject zaakInformatieObject) {
         final EnkelvoudigInformatieObject enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(
-                zaakInformatieObject.getInformatieobject());
+                zaakInformatieObject.getInformatieobject()
+        );
         final Zaak zaak = zrcClientService.readZaak(zaakInformatieObject.getZaakUUID());
         return convertToREST(enkelvoudigInformatieObject, zaak);
     }
@@ -128,15 +129,20 @@ public class RESTInformatieobjectConverter {
         restEnkelvoudigInformatieobject.uuid = enkelvoudigInformatieObjectUUID;
         restEnkelvoudigInformatieobject.identificatie = enkelvoudigInformatieObject.getIdentificatie();
         restEnkelvoudigInformatieobject.rechten = rechtenConverter.convert(rechten);
+        restEnkelvoudigInformatieobject.indicatieGebruiksrecht = enkelvoudigInformatieObject.getIndicatieGebruiksrecht();
         restEnkelvoudigInformatieobject.isBesluitDocument = brcClientService.isInformatieObjectGekoppeldAanBesluit(
-                enkelvoudigInformatieObject.getUrl());
+                enkelvoudigInformatieObject.getUrl()
+        );
         if (rechten.lezen()) {
             convertEnkelvoudigInformatieObject(enkelvoudigInformatieObject, lock, restEnkelvoudigInformatieobject);
-            if (enkelvoudigInformatieObject.getOndertekening() != null && enkelvoudigInformatieObject.getOndertekening()
-                    .getSoort() != null &&
-                enkelvoudigInformatieObject.getOndertekening().getDatum() != null) {
-                restEnkelvoudigInformatieobject.ondertekening = restOndertekeningConverter.convert(enkelvoudigInformatieObject
-                        .getOndertekening());
+            if (
+                enkelvoudigInformatieObject.getOndertekening() != null &&
+                enkelvoudigInformatieObject.getOndertekening().getSoort() != null &&
+                enkelvoudigInformatieObject.getOndertekening().getDatum() != null
+            ) {
+                restEnkelvoudigInformatieobject.ondertekening = restOndertekeningConverter.convert(
+                        enkelvoudigInformatieObject.getOndertekening()
+                );
             }
         } else {
             restEnkelvoudigInformatieobject.titel = enkelvoudigInformatieObject.getIdentificatie();
@@ -193,8 +199,9 @@ public class RESTInformatieobjectConverter {
     public EnkelvoudigInformatieObjectData convertZaakObject(
             final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
     ) {
-        final EnkelvoudigInformatieObjectData enkelvoudigInformatieobjectWithInhoud = buildZaacEnkelvoudigInformatieObjectData(
-                restEnkelvoudigInformatieobject);
+        final EnkelvoudigInformatieObjectData enkelvoudigInformatieobjectWithInhoud = buildEnkelvoudigInformatieObjectData(
+                restEnkelvoudigInformatieobject
+        );
         enkelvoudigInformatieobjectWithInhoud.setInhoud(convertByteArrayToBase64String(restEnkelvoudigInformatieobject.file));
         enkelvoudigInformatieobjectWithInhoud.setBestandsomvang(restEnkelvoudigInformatieobject.file.length);
         enkelvoudigInformatieobjectWithInhoud.setFormaat(restEnkelvoudigInformatieobject.formaat);
@@ -202,18 +209,19 @@ public class RESTInformatieobjectConverter {
     }
 
     @NotNull
-    private EnkelvoudigInformatieObjectData buildZaacEnkelvoudigInformatieObjectData(
+    private EnkelvoudigInformatieObjectData buildEnkelvoudigInformatieObjectData(
             RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
     ) {
         final EnkelvoudigInformatieObjectData enkelvoudigInformatieobjectWithInhoud = new EnkelvoudigInformatieObjectData();
         enkelvoudigInformatieobjectWithInhoud.setBronorganisatie(ConfiguratieService.BRON_ORGANISATIE);
         enkelvoudigInformatieobjectWithInhoud.setCreatiedatum(restEnkelvoudigInformatieobject.creatiedatum);
+        enkelvoudigInformatieobjectWithInhoud.setIndicatieGebruiksrecht(restEnkelvoudigInformatieobject.indicatieGebruiksrecht);
         enkelvoudigInformatieobjectWithInhoud.setTitel(restEnkelvoudigInformatieobject.titel);
         enkelvoudigInformatieobjectWithInhoud.setAuteur(restEnkelvoudigInformatieobject.auteur);
         enkelvoudigInformatieobjectWithInhoud.setTaal(restEnkelvoudigInformatieobject.taal);
         enkelvoudigInformatieobjectWithInhoud.setInformatieobjecttype(
-                ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID)
-                        .getUrl());
+                ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID).getUrl()
+        );
         enkelvoudigInformatieobjectWithInhoud.setBestandsnaam(restEnkelvoudigInformatieobject.bestandsnaam);
         enkelvoudigInformatieobjectWithInhoud.setBeschrijving(restEnkelvoudigInformatieobject.beschrijving);
         enkelvoudigInformatieobjectWithInhoud.setStatus(
