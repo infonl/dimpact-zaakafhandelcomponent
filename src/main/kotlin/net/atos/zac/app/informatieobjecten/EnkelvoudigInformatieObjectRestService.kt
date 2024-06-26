@@ -208,7 +208,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         @PathParam("zaakUuid") zaakUuid: UUID,
         @PathParam("documentReferenceId") documentReferenceId: String,
         @QueryParam("taakObject") isTaakObject: Boolean,
-        @MultipartForm restEnkelvoudigInformatieobject: @Valid RESTEnkelvoudigInformatieobject?
+        @MultipartForm restEnkelvoudigInformatieobject: @Valid RESTEnkelvoudigInformatieobject
     ): RESTEnkelvoudigInformatieobject {
         val zaak = zrcClientService.readZaak(zaakUuid)
         assertPolicy(policyService.readZaakRechten(zaak).toevoegenDocument)
