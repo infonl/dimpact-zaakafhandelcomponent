@@ -29,7 +29,7 @@ fun createRESTEnkelvoudigInformatieobject(
     this.file = file
     this.bestandsnaam = bestandsNaam
     this.formaat = formaat
-    this.indicatieGebruiksrecht = indicatieGebruiksrecht
+    this.indicatieGebruiksrecht = indicatieGebruiksrecht ?: false
 }
 
 fun createRESTFileUpload(
