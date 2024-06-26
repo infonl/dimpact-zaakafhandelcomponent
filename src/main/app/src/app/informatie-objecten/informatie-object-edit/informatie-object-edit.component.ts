@@ -274,8 +274,6 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
         console.log(key, value);
         if (value instanceof moment) {
           nieuweVersie[key] = value; // conversie niet nodig, ISO-8601 in UTC gaat goed met java ZonedDateTime.parse
-        } else if (key === "taal") {
-          nieuweVersie[key] = value.value;
         } else if (key === "status") {
           nieuweVersie[key] = InformatieobjectStatus[value.value.toUpperCase()];
         } else if (key === "vertrouwelijkheidaanduiding") {
