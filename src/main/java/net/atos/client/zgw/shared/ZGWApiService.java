@@ -224,7 +224,8 @@ public class ZGWApiService {
             final String omschrijvingVoorwaardenGebruiksrechten
     ) {
         final EnkelvoudigInformatieObject newInformatieObjectData = drcClientService.createEnkelvoudigInformatieobject(
-                enkelvoudigInformatieObjectData);
+                enkelvoudigInformatieObjectData
+        );
         final Gebruiksrechten gebruiksrechten = new Gebruiksrechten();
         gebruiksrechten.setInformatieobject(newInformatieObjectData.getUrl());
         gebruiksrechten.setStartdatum(convertToDateTime(newInformatieObjectData.getCreatiedatum()).toOffsetDateTime());

@@ -188,6 +188,7 @@ class RESTInformatieobjectConverterTest : BehaviorSpec() {
             val uri = URI("https://example.com/informatieobjecten/$expectedUUID")
             val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(url = uri).apply {
                 informatieobjecttype = uri
+                indicatieGebruiksrecht = true
             }
             val documentRechten = createDocumentRechtenAllDeny(lezen = true)
             val restDocumentRechten = createRESTDocumentRechten()
@@ -220,6 +221,7 @@ class RESTInformatieobjectConverterTest : BehaviorSpec() {
                         informatieobjectTypeUUID shouldBe expectedUUID
                         versie shouldBe 1234
                         bestandsomvang shouldBe 0
+                        indicatieGebruiksrecht shouldBe true
                     }
                 }
             }
