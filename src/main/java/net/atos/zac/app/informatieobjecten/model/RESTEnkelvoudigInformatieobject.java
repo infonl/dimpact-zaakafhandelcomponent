@@ -87,7 +87,7 @@ public class RESTEnkelvoudigInformatieobject extends RESTEnkelvoudigInformatieFi
     public RESTOndertekening ondertekening;
 
     @FormParam("indicatieGebruiksrecht")
-    public Boolean indicatieGebruiksrecht;
+    public boolean indicatieGebruiksrecht;
 
     public EnumSet<DocumentIndicatie> getIndicaties() {
         final EnumSet<DocumentIndicatie> indicaties = EnumSet.noneOf(DocumentIndicatie.class);

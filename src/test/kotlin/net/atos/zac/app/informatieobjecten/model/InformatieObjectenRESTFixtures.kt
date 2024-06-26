@@ -16,7 +16,8 @@ fun createRESTEnkelvoudigInformatieobject(
     informatieobjectTypeUUID: UUID = UUID.randomUUID(),
     file: ByteArray = "dummyFile".toByteArray(),
     bestandsNaam: String = "dummyFilename",
-    formaat: String = "dummyType"
+    formaat: String = "dummyType",
+    indicatieGebruiksrecht: Boolean? = null
 ) = RESTEnkelvoudigInformatieobject().apply {
     this.uuid = uuid
     this.status = status
@@ -28,6 +29,7 @@ fun createRESTEnkelvoudigInformatieobject(
     this.file = file
     this.bestandsnaam = bestandsNaam
     this.formaat = formaat
+    this.indicatieGebruiksrecht = indicatieGebruiksrecht
 }
 
 fun createRESTFileUpload(

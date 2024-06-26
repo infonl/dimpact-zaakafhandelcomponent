@@ -129,7 +129,6 @@ public class RESTInformatieobjectConverter {
         restEnkelvoudigInformatieobject.uuid = enkelvoudigInformatieObjectUUID;
         restEnkelvoudigInformatieobject.identificatie = enkelvoudigInformatieObject.getIdentificatie();
         restEnkelvoudigInformatieobject.rechten = rechtenConverter.convert(rechten);
-        restEnkelvoudigInformatieobject.indicatieGebruiksrecht = enkelvoudigInformatieObject.getIndicatieGebruiksrecht();
         restEnkelvoudigInformatieobject.isBesluitDocument = brcClientService.isInformatieObjectGekoppeldAanBesluit(
                 enkelvoudigInformatieObject.getUrl()
         );
@@ -215,7 +214,6 @@ public class RESTInformatieobjectConverter {
         final EnkelvoudigInformatieObjectData enkelvoudigInformatieobjectWithInhoud = new EnkelvoudigInformatieObjectData();
         enkelvoudigInformatieobjectWithInhoud.setBronorganisatie(ConfiguratieService.BRON_ORGANISATIE);
         enkelvoudigInformatieobjectWithInhoud.setCreatiedatum(restEnkelvoudigInformatieobject.creatiedatum);
-        enkelvoudigInformatieobjectWithInhoud.setIndicatieGebruiksrecht(restEnkelvoudigInformatieobject.indicatieGebruiksrecht);
         enkelvoudigInformatieobjectWithInhoud.setTitel(restEnkelvoudigInformatieobject.titel);
         enkelvoudigInformatieobjectWithInhoud.setAuteur(restEnkelvoudigInformatieobject.auteur);
         enkelvoudigInformatieobjectWithInhoud.setTaal(restEnkelvoudigInformatieobject.taal);
@@ -243,7 +241,8 @@ public class RESTInformatieobjectConverter {
             final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
     ) {
         final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData = buildTaakEnkelvoudigInformatieObjectData(
-                restEnkelvoudigInformatieobject);
+                restEnkelvoudigInformatieobject
+        );
         enkelvoudigInformatieObjectData.setInhoud(convertByteArrayToBase64String(restEnkelvoudigInformatieobject.file));
         enkelvoudigInformatieObjectData.setBestandsnaam(restEnkelvoudigInformatieobject.bestandsnaam);
         enkelvoudigInformatieObjectData.setBestandsomvang(restEnkelvoudigInformatieobject.file.length);
@@ -262,14 +261,15 @@ public class RESTInformatieobjectConverter {
         enkelvoudigInformatieObjectData.setAuteur(loggedInUserInstance.get().getFullName());
         enkelvoudigInformatieObjectData.setTaal(ConfiguratieService.TAAL_NEDERLANDS);
         enkelvoudigInformatieObjectData.setInformatieobjecttype(
-                ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID)
-                        .getUrl());
+                ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID).getUrl()
+        );
         enkelvoudigInformatieObjectData.setBeschrijving(OMSCHRIJVING_TAAK_DOCUMENT);
         enkelvoudigInformatieObjectData.setStatus(EnkelvoudigInformatieObjectData.StatusEnum.DEFINITIEF);
         enkelvoudigInformatieObjectData.setVerzenddatum(restEnkelvoudigInformatieobject.verzenddatum);
         enkelvoudigInformatieObjectData.setOntvangstdatum(restEnkelvoudigInformatieobject.ontvangstdatum);
         enkelvoudigInformatieObjectData.setVertrouwelijkheidaanduiding(
-                EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.OPENBAAR);
+                EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.OPENBAAR
+        );
         return enkelvoudigInformatieObjectData;
     }
 
