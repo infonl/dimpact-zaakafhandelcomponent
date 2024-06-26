@@ -100,6 +100,7 @@ services:
       - CACHE_DEFAULT=redis:6379/0
       - CACHE_AXES=redis:6379/0
       - DEBUG=true
+      - DISABLE_2FA=true
       - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
       - DJANGO_SUPERUSER_PASSWORD=admin
       - LOG_LEVEL=DEBUG
@@ -133,10 +134,11 @@ services:
     environment: &objects-env
       - ALLOWED_HOSTS=localhost,host.docker.internal,objecten-api.local
       - CORS_ALLOW_ALL_ORIGINS=true
-      - SECRET_KEY=objectenApiSecretKey
-      - DJANGO_SETTINGS_MODULE=objects.conf.docker
       - DB_HOST=objecten-api-database
       - DEBUG=true
+      - DISABLE_2FA=true
+      - DJANGO_SETTINGS_MODULE=objects.conf.docker
+      - SECRET_KEY=objectenApiSecretKey
       - TWO_FACTOR_FORCE_OTP_ADMIN=False # this is not available yet in this version
       - TWO_FACTOR_PATCH_ADMIN=False
     healthcheck:
