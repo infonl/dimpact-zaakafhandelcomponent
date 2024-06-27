@@ -7,8 +7,8 @@ package net.atos.zac.app.zaken.converter
 import jakarta.inject.Inject
 import net.atos.client.vrl.VrlClientService
 import net.atos.client.zgw.brc.BrcClientService
+import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.shared.ZGWApiService
-import net.atos.client.zgw.shared.util.InformatieobjectenUtil
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.RolMedewerker
@@ -203,7 +203,7 @@ class RESTZaakConverter {
                 .ifPresent { communicatiekanaal -> zaak.communicatiekanaal = communicatiekanaal }
         }
         zaak.vertrouwelijkheidaanduiding = restZaak.vertrouwelijkheidaanduiding?.let {
-            InformatieobjectenUtil.convertToVertrouwelijkheidaanduidingEnum(it)
+            VertrouwelijkheidaanduidingEnum.fromValue(it)
         }
         zaak.zaakgeometrie = restZaak.zaakgeometrie?.let { restGeometryConverter.convert(it) }
         return zaak
@@ -217,7 +217,7 @@ class RESTZaakConverter {
         zaak.einddatumGepland = restZaak.einddatumGepland
         zaak.uiterlijkeEinddatumAfdoening = restZaak.uiterlijkeEinddatumAfdoening
         zaak.vertrouwelijkheidaanduiding = restZaak.vertrouwelijkheidaanduiding?.let {
-            InformatieobjectenUtil.convertToVertrouwelijkheidaanduidingEnum(it)
+            VertrouwelijkheidaanduidingEnum.fromValue(it)
         }
         restZaak.communicatiekanaal?.let { restCommunicatiekanaal ->
             vrlClientService.findCommunicatiekanaal(restCommunicatiekanaal.uuid)

@@ -12,15 +12,14 @@ import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.client.officeconverter.OfficeConverterClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
-import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObjectData
-import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObjectWithLockData
+import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
+import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObjectWithLockRequest
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.model.Archiefnominatie
 import net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI
@@ -31,7 +30,6 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
-import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter.convertToEnkelvoudigInformatieObject
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjecttypeConverter
 import net.atos.zac.app.informatieobjecten.converter.RESTZaakInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.RESTDocumentCreatieGegevens
@@ -171,7 +169,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
         val responseRestEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
         val restFileUpload = createRESTFileUpload()
-        val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectData()
+        val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectCreateLockRequest()
         val zaakInformatieobject = createZaakInformatieobject()
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
@@ -313,7 +311,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
         val responseRestEnkelvoudigInformatieobject =
             createRESTEnkelvoudigInformatieobject()
-        val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectData()
+        val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectCreateLockRequest()
         val zaakInformatieobject = createZaakInformatieobject()
 
         every { zrcClientService.readZaak(closedZaak.uuid) } returns closedZaak
@@ -366,7 +364,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     Given("enkelvoudig informatieobject has been uploaded, and the zaak is open") {
         val zaak = createZaak()
         val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
-        val enkelvoudigInformatieObjectWithLockData = createEnkelvoudigInformatieObjectWithLockData()
+        val enkelvoudigInformatieObjectWithLockData = createEnkelvoudigInformatieObjectWithLockRequest()
         val restEnkelvoudigInformatieObjectVersieGegevens =
             createRESTEnkelvoudigInformatieObjectVersieGegevens(zaakUuid = zaak.uuid)
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
@@ -384,10 +382,6 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 enkelvoudigInformatieObjectWithLockData,
                 null
             )
-        } returns enkelvoudigInformatieObjectWithLockData
-        mockkStatic(RESTInformatieobjectConverter::convertToEnkelvoudigInformatieObject)
-        every {
-            convertToEnkelvoudigInformatieObject(enkelvoudigInformatieObjectWithLockData)
         } returns enkelvoudigInformatieObject
         every {
             restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject)

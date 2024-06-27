@@ -25,7 +25,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.drc.model.generated.Ondertekening
+import net.atos.client.zgw.drc.model.generated.SoortEnum
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.ZRCClientService
@@ -330,7 +330,7 @@ class TakenRESTService @Inject constructor(
                             enkelvoudigInformatieobject.ondertekening == null ||
                                 // when no signature is present (even if this is not
                                 // permitted according to the original OpenAPI spec)
-                                enkelvoudigInformatieobject.ondertekening.soort == Ondertekening.SoortEnum.EMPTY
+                                enkelvoudigInformatieobject.ondertekening.soort == SoortEnum.EMPTY
                             ) && policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen
                     )
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(

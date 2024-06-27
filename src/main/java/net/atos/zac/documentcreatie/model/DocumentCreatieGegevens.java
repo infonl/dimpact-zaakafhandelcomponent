@@ -5,14 +5,14 @@
 
 package net.atos.zac.documentcreatie.model;
 
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import net.atos.client.zgw.drc.model.generated.StatusEnum;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.model.generated.InformatieObjectType;
 
 public class DocumentCreatieGegevens {
     private final Zaak zaak;
     private final String taskId;
-    private final EnkelvoudigInformatieObject.StatusEnum informatieobjectStatus = EnkelvoudigInformatieObject.StatusEnum.TER_VASTSTELLING;
+    private final StatusEnum informatieobjectStatus = StatusEnum.TER_VASTSTELLING;
     private final InformatieObjectType informatieobjecttype;
 
     public DocumentCreatieGegevens(
@@ -29,7 +29,7 @@ public class DocumentCreatieGegevens {
         return zaak;
     }
 
-    public EnkelvoudigInformatieObject.StatusEnum getInformatieobjectStatus() {
+    public StatusEnum getInformatieobjectStatus() {
         return informatieobjectStatus;
     }
 

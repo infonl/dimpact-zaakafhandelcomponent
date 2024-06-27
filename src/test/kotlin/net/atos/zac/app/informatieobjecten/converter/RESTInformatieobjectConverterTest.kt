@@ -17,8 +17,8 @@ import jakarta.enterprise.inject.Instance
 import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData
+import net.atos.client.zgw.drc.model.generated.StatusEnum
+import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.shared.exception.FoutException
 import net.atos.client.zgw.shared.model.Fout
 import net.atos.client.zgw.ztc.ZtcClientService
@@ -38,7 +38,6 @@ import net.atos.zac.policy.output.createDocumentRechtenAllDeny
 import org.eclipse.jetty.http.HttpStatus
 import java.net.URI
 import java.time.LocalDate
-import java.time.OffsetDateTime
 import java.util.Base64
 import java.util.Optional
 import java.util.UUID
@@ -99,8 +98,8 @@ class RESTInformatieobjectConverterTest : BehaviorSpec() {
                         formaat shouldBe restFileUpload.type
                         bestandsnaam shouldBe restFileUpload.filename
                         // status should always be DEFINITIEF
-                        status shouldBe EnkelvoudigInformatieObjectData.StatusEnum.DEFINITIEF
-                        vertrouwelijkheidaanduiding shouldBe EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.valueOf(
+                        status shouldBe StatusEnum.DEFINITIEF
+                        vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.valueOf(
                             restTaakDocumentData.documentType.vertrouwelijkheidaanduiding
                         )
                     }
@@ -135,9 +134,9 @@ class RESTInformatieobjectConverterTest : BehaviorSpec() {
                         formaat shouldBe restFileUpload.type
                         bestandsnaam shouldBe restFileUpload.filename
                         // status should always be DEFINITIEF
-                        status shouldBe EnkelvoudigInformatieObjectData.StatusEnum.DEFINITIEF
+                        status shouldBe StatusEnum.DEFINITIEF
                         // vertrouwelijkheidaanduiding should always be OPENBAAR
-                        vertrouwelijkheidaanduiding shouldBe EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.OPENBAAR
+                        vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
                     }
                 }
             }
@@ -176,8 +175,8 @@ class RESTInformatieobjectConverterTest : BehaviorSpec() {
                         inhoud shouldBe Base64.getEncoder().encodeToString(restFileUpload.file)
                         formaat shouldBe restFileUpload.type
                         bestandsnaam shouldBe restEnkelvoudigInformatieobject.bestandsnaam
-                        status.value() shouldBe restEnkelvoudigInformatieobject.status.value()
-                        vertrouwelijkheidaanduiding.value() shouldBe restEnkelvoudigInformatieobject.vertrouwelijkheidaanduiding
+                        status.name shouldBe restEnkelvoudigInformatieobject.status.name
+                        vertrouwelijkheidaanduiding.name shouldBe restEnkelvoudigInformatieobject.vertrouwelijkheidaanduiding.uppercase()
                     }
                 }
             }
@@ -229,13 +228,8 @@ class RESTInformatieobjectConverterTest : BehaviorSpec() {
         Given("A uuid that's found in open zaak") {
             val rechten = DocumentRechten(false, false, false, false, false, false, false, false, false, false)
             val uuid = UUID.randomUUID()
-            val document = EnkelvoudigInformatieObject(
-                URI.create("https://example.com/$uuid"),
-                1,
-                OffsetDateTime.now(),
-                URI.create("https://example.com"),
-                false,
-                emptyList()
+            val document = createEnkelvoudigInformatieObject(
+                url = URI("http://example.com/$uuid")
             )
             every {
                 drcClientService.readEnkelvoudigInformatieobject(uuid)

@@ -8,7 +8,8 @@ package net.atos.zac.app.audit.model;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import net.atos.client.zgw.drc.model.generated.StatusEnum;
+import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum;
 import net.atos.client.zgw.shared.util.HistorieUtil;
 
 public class RESTHistorieRegel {
@@ -47,16 +48,16 @@ public class RESTHistorieRegel {
 
     public RESTHistorieRegel(
             final String attribuutLabel,
-            final EnkelvoudigInformatieObject.StatusEnum oudeWaarde,
-            final EnkelvoudigInformatieObject.StatusEnum nieuweWaarde
+            final StatusEnum oudeWaarde,
+            final StatusEnum nieuweWaarde
     ) {
         this(attribuutLabel, HistorieUtil.toWaarde(oudeWaarde), HistorieUtil.toWaarde(nieuweWaarde));
     }
 
     public RESTHistorieRegel(
             final String attribuutLabel,
-            final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum oudeWaarde,
-            final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum nieuweWaarde
+            final VertrouwelijkheidaanduidingEnum oudeWaarde,
+            final VertrouwelijkheidaanduidingEnum nieuweWaarde
     ) {
         this(attribuutLabel, HistorieUtil.toWaarde(oudeWaarde), HistorieUtil.toWaarde(nieuweWaarde));
     }

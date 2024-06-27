@@ -25,9 +25,10 @@ import jakarta.ws.rs.core.UriInfo
 import net.atos.client.officeconverter.OfficeConverterClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockData
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
+import net.atos.client.zgw.drc.model.generated.StatusEnum
+import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.shared.ZGWApiService
-import net.atos.client.zgw.shared.util.InformatieobjectenUtil
 import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.Zaak
@@ -213,7 +214,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(zaakUuid)
         assertPolicy(policyService.readZaakRechten(zaak).toevoegenDocument)
 
-        val enkelvoudigInformatieObjectData = restEnkelvoudigInformatieobject.run(
+        val enkelvoudigInformatieObjectCreateLockRequest = restEnkelvoudigInformatieobject.run(
             when {
                 isTaakObject -> informatieobjectConverter::convertTaakObject
                 else -> informatieobjectConverter::convertZaakObject
@@ -221,9 +222,9 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         )
         val zaakInformatieobject = zgwApiService.createZaakInformatieobjectForZaak(
             zaak,
-            enkelvoudigInformatieObjectData,
-            enkelvoudigInformatieObjectData.titel,
-            enkelvoudigInformatieObjectData.beschrijving,
+            enkelvoudigInformatieObjectCreateLockRequest,
+            enkelvoudigInformatieObjectCreateLockRequest.titel,
+            enkelvoudigInformatieObjectCreateLockRequest.beschrijving,
             ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
         )
 
@@ -465,14 +466,13 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private fun updateEnkelvoudigInformatieobject(
         enkelvoudigInformatieObjectVersieGegevens: RESTEnkelvoudigInformatieObjectVersieGegevens,
         enkelvoudigInformatieObject: EnkelvoudigInformatieObject,
-        enkelvoudigInformatieObjectWithLockData: EnkelvoudigInformatieObjectWithLockData
+        enkelvoudigInformatieObjectWithLockRequest: EnkelvoudigInformatieObjectWithLockRequest
     ): RESTEnkelvoudigInformatieobject =
         enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
             URIUtil.parseUUIDFromResourceURI(enkelvoudigInformatieObject.url),
-            enkelvoudigInformatieObjectWithLockData,
+            enkelvoudigInformatieObjectWithLockRequest,
             enkelvoudigInformatieObjectVersieGegevens.toelichting
         )
-            .let(RESTInformatieobjectConverter::convertToEnkelvoudigInformatieObject)
             .let(informatieobjectConverter::convertToREST)
 
     @POST
@@ -599,9 +599,9 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 document
                     .bestandsnaam
             ).use { pdfInputStream ->
-                val pdf = EnkelvoudigInformatieObjectWithLockData()
+                val pdf = EnkelvoudigInformatieObjectWithLockRequest()
                 val inhoud = pdfInputStream.readAllBytes()
-                pdf.inhoud = InformatieobjectenUtil.convertByteArrayToBase64String(inhoud)
+                pdf.inhoud = inhoud
                 pdf.formaat = MEDIA_TYPE_PDF
                 pdf.bestandsnaam = StringUtils.substringBeforeLast(document.bestandsnaam, ".") + ".pdf"
                 pdf.bestandsomvang = inhoud.size
@@ -617,10 +617,10 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
 
     private fun isVerzendenToegestaan(informatieobject: EnkelvoudigInformatieObject): Boolean =
         informatieobject.vertrouwelijkheidaanduiding.let {
-            informatieobject.status == EnkelvoudigInformatieObject.StatusEnum.DEFINITIEF &&
-                it != EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum.CONFIDENTIEEL &&
-                it != EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum.GEHEIM &&
-                it != EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum.ZEER_GEHEIM &&
+            informatieobject.status == StatusEnum.DEFINITIEF &&
+                it != VertrouwelijkheidaanduidingEnum.CONFIDENTIEEL &&
+                it != VertrouwelijkheidaanduidingEnum.GEHEIM &&
+                it != VertrouwelijkheidaanduidingEnum.ZEER_GEHEIM &&
                 informatieobject.ontvangstdatum == null &&
                 MEDIA_TYPE_PDF == informatieobject.formaat
         }

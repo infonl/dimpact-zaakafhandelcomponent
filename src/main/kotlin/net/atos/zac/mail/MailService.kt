@@ -24,9 +24,10 @@ import jakarta.mail.MessagingException
 import jakarta.mail.Session
 import jakarta.mail.Transport
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
+import net.atos.client.zgw.drc.model.generated.StatusEnum
+import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.shared.ZGWApiService
-import net.atos.client.zgw.shared.util.InformatieobjectenUtil
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.InformatieObjectType
@@ -133,19 +134,19 @@ class MailService @Inject constructor(
     ) {
         val eMailObjectType = getEmailInformatieObjectType(zaak)
         val pdfDocument = createPdfDocument(verzender, ontvanger, subject, body, attachments)
-        val enkelvoudigInformatieobjectWithInhoud = EnkelvoudigInformatieObjectData().apply {
+        val enkelvoudigInformatieobjectWithInhoud = EnkelvoudigInformatieObjectCreateLockRequest().apply {
             bronorganisatie = ConfiguratieService.BRON_ORGANISATIE
             creatiedatum = LocalDate.now()
             titel = subject
             auteur = loggedInUserInstance.get().fullName
             taal = ConfiguratieService.TAAL_NEDERLANDS
             informatieobjecttype = eMailObjectType.url
-            inhoud = InformatieobjectenUtil.convertByteArrayToBase64String(pdfDocument)
-            vertrouwelijkheidaanduiding = EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.OPENBAAR
+            inhoud = pdfDocument
+            vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
             formaat = MEDIA_TYPE_PDF
             bestandsnaam = "$subject.pdf"
-            status = EnkelvoudigInformatieObjectData.StatusEnum.DEFINITIEF
-            vertrouwelijkheidaanduiding = EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.OPENBAAR
+            status = StatusEnum.DEFINITIEF
+            vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
             verzenddatum = LocalDate.now()
         }
 

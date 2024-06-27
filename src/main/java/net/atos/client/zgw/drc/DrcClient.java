@@ -31,8 +31,8 @@ import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters;
 import net.atos.client.zgw.drc.model.Lock;
 import net.atos.client.zgw.drc.model.ObjectInformatieobjectListParameters;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockData;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest;
 import net.atos.client.zgw.drc.model.generated.Gebruiksrechten;
 import net.atos.client.zgw.drc.model.generated.ObjectInformatieObject;
 import net.atos.client.zgw.shared.exception.ZgwFoutExceptionMapper;
@@ -54,7 +54,9 @@ public interface DrcClient {
 
     @POST
     @Path("enkelvoudiginformatieobjecten")
-    EnkelvoudigInformatieObject enkelvoudigInformatieobjectCreate(final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData);
+    EnkelvoudigInformatieObject enkelvoudigInformatieobjectCreate(
+            final EnkelvoudigInformatieObjectCreateLockRequest enkelvoudigInformatieObjectCreateLockRequest
+    );
 
     @GET
     @Path("enkelvoudiginformatieobjecten")
@@ -85,9 +87,9 @@ public interface DrcClient {
 
     @PATCH
     @Path("enkelvoudiginformatieobjecten/{uuid}")
-    EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieobjectPartialUpdate(
+    EnkelvoudigInformatieObject enkelvoudigInformatieobjectPartialUpdate(
             @PathParam("uuid") final UUID uuid,
-            final EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieObjectWithInhoudAndLock
+            final EnkelvoudigInformatieObjectWithLockRequest enkelvoudigInformatieObjectWithLockRequest
     );
 
     @DELETE
