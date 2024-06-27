@@ -19,7 +19,6 @@ import net.atos.zac.util.event.JobId
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
-import kotlin.let
 
 @Path("admin/signaleringen")
 @Consumes(MediaType.APPLICATION_JSON)

@@ -5,6 +5,4 @@
 
 package net.atos.client.zgw.shared.exception
 
-import java.lang.RuntimeException
-
 open class ZgwRuntimeException(message: String) : RuntimeException(message)
