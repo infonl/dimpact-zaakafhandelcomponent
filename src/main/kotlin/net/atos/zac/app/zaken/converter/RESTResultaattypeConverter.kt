@@ -13,7 +13,7 @@ import net.atos.zac.util.PeriodUtil
 import net.atos.zac.util.UriUtil
 import java.net.URI
 import java.time.Period
-import java.util.*
+import java.util.Locale
 
 class RESTResultaattypeConverter @Inject constructor(
     private val ztcClientService: ZtcClientService
