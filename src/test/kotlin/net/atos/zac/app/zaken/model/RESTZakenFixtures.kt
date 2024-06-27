@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.zaken.model
 
-import net.atos.client.zgw.ztc.model.generated.ZaakType
+import net.atos.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.zac.app.admin.model.RESTZaakafhandelParameters
 import net.atos.zac.app.bag.model.RESTOpenbareRuimte
 import net.atos.zac.app.bag.model.RESTPand
@@ -184,7 +184,7 @@ fun createRESTZaaktype() = RESTZaaktype(
     versiedatum = LocalDate.now(),
     beginGeldigheid = LocalDate.of(2023, 1, 1),
     eindeGeldigheid = LocalDate.of(2023, 12, 31),
-    vertrouwelijkheidaanduiding = ZaakType.VertrouwelijkheidaanduidingEnum.OPENBAAR,
+    vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR,
     nuGeldig = true,
     opschortingMogelijk = false,
     verlengingMogelijk = false,

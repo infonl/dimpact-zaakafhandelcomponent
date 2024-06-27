@@ -1,7 +1,7 @@
 package net.atos.zac.app.informatieobjecten.model
 
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject.StatusEnum
-import net.atos.client.zgw.ztc.model.generated.ZaakType.VertrouwelijkheidaanduidingEnum
+import net.atos.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import java.time.LocalDate
 import java.util.UUID
 
@@ -47,7 +47,7 @@ fun createRESTFileUpload(
 fun createRESTInformatieobjecttype(
     uuid: UUID = UUID.randomUUID(),
     omschrijving: String = "dummyOmschrijving",
-    vertrouwelijkheidaanduiding: String = VertrouwelijkheidaanduidingEnum.OPENBAAR.value().uppercase(),
+    vertrouwelijkheidaanduiding: String = VertrouwelijkheidaanduidingEnum.OPENBAAR.name,
     concept: Boolean = false
 ) = RESTInformatieobjecttype().apply {
     this.uuid = uuid

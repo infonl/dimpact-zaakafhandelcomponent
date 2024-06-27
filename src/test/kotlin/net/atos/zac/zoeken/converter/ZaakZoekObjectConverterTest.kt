@@ -127,7 +127,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
 
     Given("a reopened zaak with status and decisions") {
         val zaakType = createZaakType(
-            besluittypen = setOf(URI("decision1"), URI("decision2"))
+            besluittypen = listOf(URI("decision1"), URI("decision2"))
         )
         val zaak = createZaak(
             zaakTypeURI = zaakType.url,

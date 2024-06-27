@@ -13,6 +13,7 @@ import java.util.Set;
 
 import jakarta.ws.rs.QueryParam;
 
+import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
 import org.apache.commons.collections4.CollectionUtils;
 
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
@@ -103,7 +104,7 @@ public class ZaakListParameters extends AbstractListParameters {
     /**
      * Algemeen gehanteerde benaming van de aard van de ROL, afgeleid uit het ROLTYPE.
      */
-    private RolType.OmschrijvingGeneriekEnum rolOmschrijvingGeneriek;
+    private OmschrijvingGeneriekEnum rolOmschrijvingGeneriek;
 
     /**
      * Zaken met een vertrouwelijkheidaanduiding die beperkter is dan de aangegeven aanduiding worden uit de resultaten gefiltered.
@@ -290,10 +291,10 @@ public class ZaakListParameters extends AbstractListParameters {
 
     @QueryParam("rol__omschrijvingGeneriek")
     public String getRolOmschrijvingGeneriek() {
-        return rolOmschrijvingGeneriek != null ? rolOmschrijvingGeneriek.value() : null;
+        return rolOmschrijvingGeneriek != null ? rolOmschrijvingGeneriek.name().toLowerCase() : null;
     }
 
-    public void setRolOmschrijvingGeneriek(final RolType.OmschrijvingGeneriekEnum rolOmschrijvingGeneriek) {
+    public void setRolOmschrijvingGeneriek(final OmschrijvingGeneriekEnum rolOmschrijvingGeneriek) {
         this.rolOmschrijvingGeneriek = rolOmschrijvingGeneriek;
     }
 

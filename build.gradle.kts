@@ -559,24 +559,36 @@ tasks {
     register<GenerateTask>("generateZgwBrcClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/brc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/brc/java")
+        // this OpenAPI spec contains disallowed properties like `min_length` and `max_length`
+        // so we disable the schema validation for this spec
+        validateSpec.set(false)
         modelPackage.set("net.atos.client.zgw.brc.model.generated")
     }
 
     register<GenerateTask>("generateZgwDrcClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/drc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/drc/java")
+        // this OpenAPI spec contains disallowed properties like `min_length` and `max_length`
+        // so we disable the schema validation for this spec
+        validateSpec.set(false)
         modelPackage.set("net.atos.client.zgw.drc.model.generated")
     }
 
-    register<GenerateTask>("generateZrcDrcClient") {
+    register<GenerateTask>("generateZgwZrcClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/zrc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/zrc/java")
+        // this OpenAPI spec contains disallowed properties like `min_length` and `max_length`
+        // so we disable the schema validation for this spec
+        validateSpec.set(false)
         modelPackage.set("net.atos.client.zgw.zrc.model.generated")
     }
 
-    register<GenerateTask>("generateZtcDrcClient") {
+    register<GenerateTask>("generateZgwZtcClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/ztc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/ztc/java")
+        // this OpenAPI spec contains disallowed properties like `min_length` and `max_length`
+        // so we disable the schema validation for this spec
+        validateSpec.set(false)
         modelPackage.set("net.atos.client.zgw.ztc.model.generated")
     }
 
@@ -605,8 +617,8 @@ tasks {
             "generateContactMomentenClient",
             "generateZgwBrcClient",
             "generateZgwDrcClient",
-            "generateZrcDrcClient",
-            "generateZtcDrcClient",
+            "generateZgwZrcClient",
+            "generateZgwZtcClient",
             "generateOrObjectsClient",
             "generateOrObjectTypesClient"
         )

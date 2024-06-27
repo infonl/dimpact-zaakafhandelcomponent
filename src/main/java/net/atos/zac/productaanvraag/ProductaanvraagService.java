@@ -25,6 +25,7 @@ import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.json.bind.JsonbConfig;
 
+import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
 import org.apache.commons.collections4.ListUtils;
 
 import net.atos.client.or.object.ObjectsClientService;
@@ -259,7 +260,7 @@ public class ProductaanvraagService {
     }
 
     private void addInitiator(final String bsn, final URI zaak, final URI zaaktype) {
-        final RolType initiator = ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.INITIATOR, zaaktype);
+        final RolType initiator = ztcClientService.readRoltype(OmschrijvingGeneriekEnum.INITIATOR, zaaktype);
         final RolNatuurlijkPersoon rolNatuurlijkPersoon = new RolNatuurlijkPersoon(
                 zaak,
                 initiator,
@@ -378,13 +379,11 @@ public class ProductaanvraagService {
 
     private void toekennenZaak(final Zaak zaak, final ZaakafhandelParameters zaakafhandelParameters) {
         if (zaakafhandelParameters.getGroepID() != null) {
-            LOG.info(String.format("Zaak %s: toegekend aan groep '%s'", zaak.getUuid(),
-                    zaakafhandelParameters.getGroepID()));
+            LOG.info(String.format("Zaak %s: toegekend aan groep '%s'", zaak.getUuid(), zaakafhandelParameters.getGroepID()));
             zrcClientService.createRol(creeerRolGroep(zaakafhandelParameters.getGroepID(), zaak));
         }
         if (zaakafhandelParameters.getGebruikersnaamMedewerker() != null) {
-            LOG.info(String.format("Zaak %s: toegekend aan behandelaar '%s'", zaak.getUuid(),
-                    zaakafhandelParameters.getGebruikersnaamMedewerker()));
+            LOG.info(String.format("Zaak %s: toegekend aan behandelaar '%s'", zaak.getUuid(), zaakafhandelParameters.getGebruikersnaamMedewerker()));
             zrcClientService.createRol(creeerRolMedewerker(zaakafhandelParameters.getGebruikersnaamMedewerker(), zaak));
         }
     }
@@ -394,8 +393,7 @@ public class ProductaanvraagService {
         final OrganisatorischeEenheid groep = new OrganisatorischeEenheid();
         groep.setIdentificatie(group.getId());
         groep.setNaam(group.getName());
-        final RolType roltype = ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
-                zaak.getZaaktype());
+        final RolType roltype = ztcClientService.readRoltype(OmschrijvingGeneriekEnum.BEHANDELAAR, zaak.getZaaktype());
         return new RolOrganisatorischeEenheid(zaak.getUrl(), roltype, "Behandelend groep van de zaak", groep);
     }
 
@@ -405,8 +403,7 @@ public class ProductaanvraagService {
         medewerker.setIdentificatie(user.getId());
         medewerker.setVoorletters(user.getFirstName());
         medewerker.setAchternaam(user.getLastName());
-        final RolType roltype = ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
-                zaak.getZaaktype());
+        final RolType roltype = ztcClientService.readRoltype(OmschrijvingGeneriekEnum.BEHANDELAAR, zaak.getZaaktype());
         return new RolMedewerker(zaak.getUrl(), roltype, "Behandelaar van de zaak", medewerker);
     }
 

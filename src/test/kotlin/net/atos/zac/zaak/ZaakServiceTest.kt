@@ -16,7 +16,7 @@ import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createRolType
-import net.atos.client.zgw.ztc.model.generated.RolType
+import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
 import net.atos.zac.identity.model.createGroup
@@ -42,7 +42,7 @@ class ZaakServiceTest : BehaviorSpec({
     val group = createGroup()
     val user = createUser()
     val rolTypeBehandelaar = createRolType(
-        omschrijvingGeneriek = RolType.OmschrijvingGeneriekEnum.BEHANDELAAR
+        omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
     )
 
     beforeEach {
@@ -59,7 +59,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { zrcClientService.readZaak(it.uuid) } returns it
             every {
                 ztcClientService.readRoltype(
-                    RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
+                    OmschrijvingGeneriekEnum.BEHANDELAAR,
                     it.zaaktype
                 )
             } returns rolTypeBehandelaar
@@ -172,7 +172,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { zrcClientService.readZaak(it.uuid) } returns it
             every {
                 ztcClientService.readRoltype(
-                    RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
+                    OmschrijvingGeneriekEnum.BEHANDELAAR,
                     it.zaaktype
                 )
             } returns rolTypeBehandelaar

@@ -8,7 +8,7 @@ package net.atos.zac.app.admin.model;
 import java.time.LocalDate;
 import java.util.UUID;
 
-import net.atos.client.zgw.ztc.model.generated.ZaakType;
+import net.atos.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum;
 
 public class RESTZaaktypeOverzicht {
 
@@ -28,7 +28,7 @@ public class RESTZaaktypeOverzicht {
 
     public LocalDate eindeGeldigheid;
 
-    public ZaakType.VertrouwelijkheidaanduidingEnum vertrouwelijkheidaanduiding;
+    public VertrouwelijkheidaanduidingEnum vertrouwelijkheidaanduiding;
 
     public boolean nuGeldig;
 

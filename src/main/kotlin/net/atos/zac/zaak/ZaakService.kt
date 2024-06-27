@@ -15,7 +15,7 @@ import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.client.zgw.ztc.model.generated.RolType
+import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.zac.event.EventingService
 import net.atos.zac.identity.model.Group
 import net.atos.zac.identity.model.User
@@ -84,7 +84,7 @@ class ZaakService @Inject constructor(
         RolOrganisatorischeEenheid(
             zaak.url,
             ztcClientService.readRoltype(
-                RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
+                OmschrijvingGeneriekEnum.BEHANDELAAR,
                 zaak.zaaktype
             ),
             "Behandelend groep van de zaak",
@@ -98,7 +98,7 @@ class ZaakService @Inject constructor(
         RolMedewerker(
             zaak.url,
             ztcClientService.readRoltype(
-                RolType.OmschrijvingGeneriekEnum.BEHANDELAAR,
+                OmschrijvingGeneriekEnum.BEHANDELAAR,
                 zaak.zaaktype
             ),
             "Behandelaar van de zaak",

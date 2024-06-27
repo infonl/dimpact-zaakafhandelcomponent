@@ -27,6 +27,7 @@ import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.ztc.ZtcClientService;
+import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
 import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.zac.event.AbstractEventObserver;
 import net.atos.zac.flowable.FlowableTaskService;
@@ -180,8 +181,8 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
             }
             case ZAAK_OP_NAAM -> {
                 final Rol<?> rol = zrcClientService.readRol((URI) event.getObjectId().resource());
-                if (RolType.OmschrijvingGeneriekEnum.valueOf(rol.getOmschrijvingGeneriek().toUpperCase()) ==
-                    RolType.OmschrijvingGeneriekEnum.BEHANDELAAR) {
+                if (OmschrijvingGeneriekEnum.valueOf(rol.getOmschrijvingGeneriek().toUpperCase()) ==
+                    OmschrijvingGeneriekEnum.BEHANDELAAR) {
                     final Zaak subject = zrcClientService.readZaak(rol.getZaak());
                     switch (rol.getBetrokkeneType()) {
                         case MEDEWERKER -> {
@@ -206,7 +207,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
     }
 
     private RolType getRoltypeBehandelaar(final Zaak zaak) {
-        return ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.BEHANDELAAR, zaak.getZaaktype());
+        return ztcClientService.readRoltype(OmschrijvingGeneriekEnum.BEHANDELAAR, zaak.getZaaktype());
     }
 
     private Optional<Rol<?>> getRolBehandelaarMedewerker(final Zaak zaak) {
