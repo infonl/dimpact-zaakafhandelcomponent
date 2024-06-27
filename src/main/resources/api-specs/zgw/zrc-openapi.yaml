@@ -1,4 +1,5 @@
 openapi: 3.0.3
+# Lifely: renamed invalid min_length and max_length properties to minLength and maxLength
 info:
   title: Zaken API
   version: 1.5.1 (1)
@@ -10785,8 +10786,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         uuid:
           type: string
           format: uuid
@@ -10898,8 +10899,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         uuid:
           type: string
           format: uuid
@@ -11291,8 +11292,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         uuid:
           type: string
           format: uuid
@@ -13228,8 +13229,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         uuid:
           type: string
           format: uuid
@@ -13619,8 +13620,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         uuid:
           type: string
           format: uuid
@@ -14083,8 +14084,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         uuid:
           type: string
           format: uuid
@@ -14409,8 +14410,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         uuid:
           type: string
           format: uuid
@@ -14519,8 +14520,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         uuid:
           type: string
           format: uuid
@@ -15014,8 +15015,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         uuid:
           type: string
           format: uuid
