@@ -10,7 +10,7 @@ import java.time.LocalDate;
 
 import jakarta.json.bind.annotation.JsonbProperty;
 
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import net.atos.client.zgw.drc.model.generated.StatusEnum;
 
 
 public class Registratie {
@@ -19,7 +19,7 @@ public class Registratie {
     public URI zaak;
 
     @JsonbProperty("informatieobjectStatus")
-    public EnkelvoudigInformatieObject.StatusEnum informatieObjectStatus;
+    public StatusEnum informatieObjectStatus;
 
     @JsonbProperty("informatieobjecttype")
     public URI informatieObjectType;

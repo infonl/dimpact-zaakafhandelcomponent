@@ -24,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest;
 import net.atos.client.zgw.drc.model.generated.Gebruiksrechten;
 import net.atos.client.zgw.shared.util.URIUtil;
 import net.atos.client.zgw.zrc.ZRCClientService;
@@ -199,23 +199,23 @@ public class ZGWApiService {
     /**
      * Create {@link EnkelvoudigInformatieObject} and {@link ZaakInformatieobject} for {@link Zaak}.
      *
-     * @param zaak                                   {@link Zaak}.
-     * @param enkelvoudigInformatieObjectData        {@link EnkelvoudigInformatieObject} to be created.
-     * @param titel                                  Titel of the new {@link ZaakInformatieobject}.
-     * @param beschrijving                           Beschrijving of the new {@link ZaakInformatieobject}.
-     * @param omschrijvingVoorwaardenGebruiksrechten Used to create the {@link Gebruiksrechten} for the to be created
-     *                                               {@link EnkelvoudigInformatieObject}
+     * @param zaak                                         {@link Zaak}.
+     * @param enkelvoudigInformatieObjectCreateLockRequest {@link EnkelvoudigInformatieObject} to be created.
+     * @param titel                                        Titel of the new {@link ZaakInformatieobject}.
+     * @param beschrijving                                 Beschrijving of the new {@link ZaakInformatieobject}.
+     * @param omschrijvingVoorwaardenGebruiksrechten       Used to create the {@link Gebruiksrechten} for the to be created
+     *                                                     {@link EnkelvoudigInformatieObject}
      * @return Created {@link ZaakInformatieobject}.
      */
     public ZaakInformatieobject createZaakInformatieobjectForZaak(
             final Zaak zaak,
-            final EnkelvoudigInformatieObjectData enkelvoudigInformatieObjectData,
+            final EnkelvoudigInformatieObjectCreateLockRequest enkelvoudigInformatieObjectCreateLockRequest,
             final String titel,
             final String beschrijving,
             final String omschrijvingVoorwaardenGebruiksrechten
     ) {
         final EnkelvoudigInformatieObject newInformatieObjectData = drcClientService.createEnkelvoudigInformatieobject(
-                enkelvoudigInformatieObjectData
+                enkelvoudigInformatieObjectCreateLockRequest
         );
         final Gebruiksrechten gebruiksrechten = new Gebruiksrechten();
         gebruiksrechten.setInformatieobject(newInformatieObjectData.getUrl());

@@ -26,8 +26,8 @@ import net.atos.client.util.JAXRSClientFactory;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters;
 import net.atos.client.zgw.drc.model.Lock;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectData;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockData;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest;
 import net.atos.client.zgw.drc.model.generated.Gebruiksrechten;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel;
@@ -95,9 +95,9 @@ public class DrcClientService {
         return createInvocationBuilder(enkelvoudigInformatieobjectURI).get(EnkelvoudigInformatieObject.class);
     }
 
-    public EnkelvoudigInformatieObjectWithLockData updateEnkelvoudigInformatieobject(
+    public EnkelvoudigInformatieObject updateEnkelvoudigInformatieobject(
             final UUID uuid,
-            final EnkelvoudigInformatieObjectWithLockData enkelvoudigInformatieobject,
+            final EnkelvoudigInformatieObjectWithLockRequest enkelvoudigInformatieobject,
             final String toelichting
     ) {
         zgwClientHeadersFactory.setAuditToelichting(toelichting);
@@ -186,9 +186,9 @@ public class DrcClientService {
     }
 
     public EnkelvoudigInformatieObject createEnkelvoudigInformatieobject(
-            final EnkelvoudigInformatieObjectData informatieobject
+            final EnkelvoudigInformatieObjectCreateLockRequest enkelvoudigInformatieObjectCreateLockRequest
     ) {
-        return drcClient.enkelvoudigInformatieobjectCreate(informatieobject);
+        return drcClient.enkelvoudigInformatieobjectCreate(enkelvoudigInformatieObjectCreateLockRequest);
     }
 
     public void createGebruiksrechten(final Gebruiksrechten gebruiksrechten) {

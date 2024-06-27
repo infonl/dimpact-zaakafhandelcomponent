@@ -12,6 +12,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.FormParam;
 
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import net.atos.client.zgw.drc.model.generated.StatusEnum;
 import net.atos.zac.app.configuratie.model.RESTTaal;
 
 public class RESTEnkelvoudigInformatieObjectVersieGegevens extends RESTEnkelvoudigInformatieFileUpload {
@@ -32,7 +33,7 @@ public class RESTEnkelvoudigInformatieObjectVersieGegevens extends RESTEnkelvoud
     public String auteur;
 
     @FormParam("status")
-    public EnkelvoudigInformatieObject.StatusEnum status;
+    public StatusEnum status;
 
     @FormParam("taal")
     public RESTTaal taal;

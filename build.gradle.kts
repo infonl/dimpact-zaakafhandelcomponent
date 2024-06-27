@@ -565,6 +565,11 @@ tasks {
     register<GenerateTask>("generateZgwDrcClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/drc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/drc/java")
+
+        // this OpenAPI spec contains a schema validation error: `schema: null`
+        // so we disable the schema validation for this spec until this is fixed in a future version of this spec
+        validateSpec.set(false)
+
         modelPackage.set("net.atos.client.zgw.drc.model.generated")
     }
 

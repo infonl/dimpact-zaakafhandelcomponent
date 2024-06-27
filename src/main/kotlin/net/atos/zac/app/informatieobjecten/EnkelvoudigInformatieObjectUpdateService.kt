@@ -9,8 +9,11 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockData
-import net.atos.client.zgw.drc.model.generated.Ondertekening
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequestOndertekening
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
+import net.atos.client.zgw.drc.model.generated.SoortEnum
+import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
@@ -35,7 +38,7 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
     }
 
     fun verzendEnkelvoudigInformatieObject(uuid: UUID, verzenddatum: LocalDate?, toelichting: String?) =
-        EnkelvoudigInformatieObjectWithLockData().apply {
+        EnkelvoudigInformatieObjectWithLockRequest().apply {
             this.verzenddatum = verzenddatum
             updateEnkelvoudigInformatieObjectWithLockData(
                 uuid,
@@ -45,29 +48,33 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
         }
 
     fun ondertekenEnkelvoudigInformatieObject(uuid: UUID) {
-        EnkelvoudigInformatieObjectWithLockData().apply {
-            ondertekening = Ondertekening().apply {
-                soort = Ondertekening.SoortEnum.DIGITAAL
+        EnkelvoudigInformatieObjectWithLockRequest().apply {
+            ondertekening = EnkelvoudigInformatieObjectCreateLockRequestOndertekening().apply {
+                soort = SoortEnum.DIGITAAL
                 datum = LocalDate.now()
             }
-            status = EnkelvoudigInformatieObjectWithLockData.StatusEnum.DEFINITIEF
+            status = StatusEnum.DEFINITIEF
             updateEnkelvoudigInformatieObjectWithLockData(uuid, this, ONDERTEKENEN_TOELICHTING)
         }
     }
 
     fun updateEnkelvoudigInformatieObjectWithLockData(
         uuid: UUID,
-        update: EnkelvoudigInformatieObjectWithLockData,
+        enkelvoudigInformatieObjectWithLockRequest: EnkelvoudigInformatieObjectWithLockRequest,
         toelichting: String?
-    ): EnkelvoudigInformatieObjectWithLockData {
+    ): EnkelvoudigInformatieObject {
         var tempLock: EnkelvoudigInformatieObjectLock? = null
         try {
             val enkelvoudigInformatieObjectLock = enkelvoudigInformatieObjectLockService.findLock(uuid)
                 ?: enkelvoudigInformatieObjectLockService.createLock(uuid, loggedInUserInstance.get().id).also {
                     tempLock = it
                 }
-            update.lock = enkelvoudigInformatieObjectLock.lock
-            return drcClientService.updateEnkelvoudigInformatieobject(uuid, update, toelichting)
+            enkelvoudigInformatieObjectWithLockRequest.lock = enkelvoudigInformatieObjectLock.lock
+            return drcClientService.updateEnkelvoudigInformatieobject(
+                uuid,
+                enkelvoudigInformatieObjectWithLockRequest,
+                toelichting
+            )
         } finally {
             if (tempLock != null) {
                 enkelvoudigInformatieObjectLockService.deleteLock(uuid)

@@ -5,15 +5,16 @@
 
 package net.atos.zac.app.informatieobjecten.converter;
 
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectOndertekening;
 import net.atos.client.zgw.drc.model.generated.Ondertekening;
 import net.atos.zac.app.informatieobjecten.model.RESTOndertekening;
 
 public class RESTOndertekeningConverter {
 
-    public RESTOndertekening convert(final Ondertekening ondertekening) {
+    public RESTOndertekening convert(final EnkelvoudigInformatieObjectOndertekening enkelvoudigInformatieObjectOndertekening) {
         final RESTOndertekening restOndertekening = new RESTOndertekening();
-        restOndertekening.soort = ondertekening.getSoort().value();
-        restOndertekening.datum = ondertekening.getDatum();
+        restOndertekening.soort = enkelvoudigInformatieObjectOndertekening.getSoort().name().toLowerCase();
+        restOndertekening.datum = enkelvoudigInformatieObjectOndertekening.getDatum();
         return restOndertekening;
     }
 }

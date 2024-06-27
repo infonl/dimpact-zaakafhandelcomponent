@@ -1,6 +1,6 @@
 package net.atos.client.zgw.zrc.model
 
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum
+import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.shared.model.Archiefnominatie
 import net.atos.client.zgw.zrc.model.generated.Opschorting
 import net.atos.client.zgw.zrc.model.generated.Resultaat

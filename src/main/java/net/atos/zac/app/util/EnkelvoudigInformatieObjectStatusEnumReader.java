@@ -15,21 +15,22 @@ import jakarta.ws.rs.ext.Provider;
 import org.apache.commons.lang3.StringUtils;
 
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import net.atos.client.zgw.drc.model.generated.StatusEnum;
 
 @Provider
 @Produces(MediaType.TEXT_PLAIN)
-public class EnkelvoudigInformatieObjectStatusEnumReader implements MessageBodyReader<EnkelvoudigInformatieObject.StatusEnum> {
+public class EnkelvoudigInformatieObjectStatusEnumReader implements MessageBodyReader<StatusEnum> {
 
     private static final String CLASS_PREFIX = EnkelvoudigInformatieObject.class.toString().replace("class ", "") + ".StatusEnum.";
 
     @Override
     public boolean isReadable(Class<?> aClass, Type type, Annotation[] annotations, MediaType mediaType) {
-        return type == EnkelvoudigInformatieObject.StatusEnum.class;
+        return type == StatusEnum.class;
     }
 
     @Override
-    public EnkelvoudigInformatieObject.StatusEnum readFrom(
-            Class<EnkelvoudigInformatieObject.StatusEnum> aClass,
+    public StatusEnum readFrom(
+            Class<StatusEnum> aClass,
             Type type,
             Annotation[] annotations,
             MediaType mediaType,
@@ -39,6 +40,6 @@ public class EnkelvoudigInformatieObjectStatusEnumReader implements MessageBodyR
         String enumValueAsString = new String(inputStream.readAllBytes());
         enumValueAsString = StringUtils.removeStart(enumValueAsString, CLASS_PREFIX);
 
-        return EnkelvoudigInformatieObject.StatusEnum.valueOf(enumValueAsString.toUpperCase());
+        return StatusEnum.valueOf(enumValueAsString.toUpperCase());
     }
 }

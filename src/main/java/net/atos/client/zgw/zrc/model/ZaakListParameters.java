@@ -15,7 +15,7 @@ import jakarta.ws.rs.QueryParam;
 
 import org.apache.commons.collections4.CollectionUtils;
 
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum;
 import net.atos.client.zgw.shared.model.AbstractListParameters;
 import net.atos.client.zgw.shared.model.Archiefnominatie;
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
@@ -108,7 +108,7 @@ public class ZaakListParameters extends AbstractListParameters {
     /**
      * Zaken met een vertrouwelijkheidaanduiding die beperkter is dan de aangegeven aanduiding worden uit de resultaten gefiltered.
      */
-    private EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum maximaleVertrouwelijkheidaanduiding;
+    private VertrouwelijkheidaanduidingEnum maximaleVertrouwelijkheidaanduiding;
 
     /**
      * Het burgerservicenummer, bedoeld in artikel 1.1 van de Wet algemene bepalingen burgerservicenummer.
@@ -300,11 +300,11 @@ public class ZaakListParameters extends AbstractListParameters {
     @QueryParam("maximaleVertrouwelijkheidaanduiding")
     public String getMaximaleVertrouwelijkheidaanduiding() {
         return maximaleVertrouwelijkheidaanduiding != null ?
-                maximaleVertrouwelijkheidaanduiding.value() : null;
+                maximaleVertrouwelijkheidaanduiding.toString() : null;
     }
 
     public void setMaximaleVertrouwelijkheidaanduiding(
-            final EnkelvoudigInformatieObject.VertrouwelijkheidaanduidingEnum maximaleVertrouwelijkheidaanduiding
+            final VertrouwelijkheidaanduidingEnum maximaleVertrouwelijkheidaanduiding
     ) {
         this.maximaleVertrouwelijkheidaanduiding = maximaleVertrouwelijkheidaanduiding;
     }

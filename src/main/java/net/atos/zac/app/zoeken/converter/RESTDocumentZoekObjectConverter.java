@@ -45,7 +45,7 @@ public class RESTDocumentZoekObjectConverter {
         restDocumentZoekObject.vertrouwelijkheidaanduiding = documentZoekObject.getVertrouwelijkheidaanduiding();
         restDocumentZoekObject.auteur = documentZoekObject.getAuteur();
         if (documentZoekObject.getStatus() != null) {
-            restDocumentZoekObject.status = documentZoekObject.getStatus().value();
+            restDocumentZoekObject.status = documentZoekObject.getStatus().toString();
         }
         restDocumentZoekObject.formaat = documentZoekObject.getFormaat();
         restDocumentZoekObject.versie = documentZoekObject.getVersie();

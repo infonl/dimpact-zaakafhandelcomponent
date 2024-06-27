@@ -1,6 +1,5 @@
 package net.atos.zac.webdav;
 
-import static net.atos.client.zgw.shared.util.InformatieobjectenUtil.convertByteArrayToBase64String;
 import static net.atos.zac.util.DateTimeConverterUtil.convertToDate;
 
 import java.io.File;
@@ -21,7 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockData;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest;
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService;
 import net.atos.zac.authentication.SecurityUtil;
 import nl.info.webdav.ITransaction;
@@ -112,12 +111,15 @@ public class WebdavStore implements IWebdavStore {
                         CDI.current().select(HttpSession.class).get(),
                         webdavGegevens.loggedInUser()
                 );
-                final var update = new EnkelvoudigInformatieObjectWithLockData();
+                final var update = new EnkelvoudigInformatieObjectWithLockRequest();
                 final byte[] inhoud = IOUtils.toByteArray(content);
-                update.setInhoud(convertByteArrayToBase64String(inhoud));
+                update.setInhoud(inhoud);
                 update.setBestandsomvang(inhoud.length);
                 return enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                        webdavGegevens.enkelvoudigInformatieibjectUUID(), update, UPDATE_INHOUD_TOELICHTING)
+                        webdavGegevens.enkelvoudigInformatieibjectUUID(),
+                        update,
+                        UPDATE_INHOUD_TOELICHTING
+                )
                         .getBestandsomvang();
             } catch (final IOException e) {
                 throw new RuntimeException(e);

@@ -101,7 +101,7 @@ public class DocumentZoekObjectConverter extends AbstractZoekObjectConverter<Doc
         documentZoekObject.setDocumentType(informatieobjecttype.getOmschrijving());
         if (informatieobject.getOndertekening() != null) {
             if (informatieobject.getOndertekening().getSoort() != null) {
-                documentZoekObject.setOndertekeningSoort(informatieobject.getOndertekening().getSoort().value());
+                documentZoekObject.setOndertekeningSoort(informatieobject.getOndertekening().getSoort().toString());
             }
             documentZoekObject.setOndertekeningDatum(
                     DateTimeConverterUtil.convertToDate(informatieobject.getOndertekening().getDatum()));

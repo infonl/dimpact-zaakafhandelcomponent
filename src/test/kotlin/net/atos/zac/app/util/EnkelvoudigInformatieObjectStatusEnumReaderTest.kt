@@ -3,14 +3,14 @@ package net.atos.zac.app.util
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import net.atos.client.zgw.drc.model.generated.StatusEnum
 
 class EnkelvoudigInformatieObjectStatusEnumReaderTest : DescribeSpec({
     val statusReader = EnkelvoudigInformatieObjectStatusEnumReader()
 
     describe("isReadable") {
         it("can read StatusEnum class") {
-            statusReader.isReadable(null, EnkelvoudigInformatieObject.StatusEnum::class.java, null, null) shouldBe true
+            statusReader.isReadable(null, StatusEnum::class.java, null, null) shouldBe true
         }
 
         it("cannot read unknown classes") {
@@ -31,7 +31,7 @@ class EnkelvoudigInformatieObjectStatusEnumReaderTest : DescribeSpec({
                 null,
                 null,
                 "net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject.StatusEnum.in_bewerking".byteInputStream()
-            ) shouldBe EnkelvoudigInformatieObject.StatusEnum.valueOf("IN_BEWERKING")
+            ) shouldBe StatusEnum.valueOf("IN_BEWERKING")
         }
 
         it("parses a well formatted enum value") {
@@ -42,7 +42,7 @@ class EnkelvoudigInformatieObjectStatusEnumReaderTest : DescribeSpec({
                 null,
                 null,
                 "in_bewerking".byteInputStream()
-            ) shouldBe EnkelvoudigInformatieObject.StatusEnum.valueOf("IN_BEWERKING")
+            ) shouldBe StatusEnum.valueOf("IN_BEWERKING")
         }
 
         describe("with mis-formatted data") {
