@@ -25,7 +25,6 @@ import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.json.bind.JsonbConfig;
 
-import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
 import org.apache.commons.collections4.ListUtils;
 
 import net.atos.client.or.object.ObjectsClientService;
@@ -45,6 +44,7 @@ import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag;
 import net.atos.client.zgw.ztc.ZtcClientService;
+import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
 import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.configuratie.ConfiguratieService;
@@ -383,7 +383,8 @@ public class ProductaanvraagService {
             zrcClientService.createRol(creeerRolGroep(zaakafhandelParameters.getGroepID(), zaak));
         }
         if (zaakafhandelParameters.getGebruikersnaamMedewerker() != null) {
-            LOG.info(String.format("Zaak %s: toegekend aan behandelaar '%s'", zaak.getUuid(), zaakafhandelParameters.getGebruikersnaamMedewerker()));
+            LOG.info(String.format("Zaak %s: toegekend aan behandelaar '%s'", zaak.getUuid(), zaakafhandelParameters
+                    .getGebruikersnaamMedewerker()));
             zrcClientService.createRol(creeerRolMedewerker(zaakafhandelParameters.getGebruikersnaamMedewerker(), zaak));
         }
     }
