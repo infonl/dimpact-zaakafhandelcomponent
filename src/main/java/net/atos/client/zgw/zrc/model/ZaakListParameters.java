@@ -13,13 +13,12 @@ import java.util.Set;
 
 import jakarta.ws.rs.QueryParam;
 
-import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
 import org.apache.commons.collections4.CollectionUtils;
 
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.model.AbstractListParameters;
 import net.atos.client.zgw.shared.model.Archiefnominatie;
-import net.atos.client.zgw.ztc.model.generated.RolType;
+import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
 
 /**
  * Parameters to retrieve lists of zaken.

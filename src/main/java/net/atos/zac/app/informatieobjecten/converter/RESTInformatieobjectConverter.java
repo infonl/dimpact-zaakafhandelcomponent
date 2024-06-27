@@ -291,7 +291,8 @@ public class RESTInformatieobjectConverter {
         enkelvoudigInformatieobjectWithInhoud.setBestandsnaam(bestand.filename);
         enkelvoudigInformatieobjectWithInhoud.setStatus(EnkelvoudigInformatieObjectData.StatusEnum.DEFINITIEF);
         enkelvoudigInformatieobjectWithInhoud.setVertrouwelijkheidaanduiding(
-                EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.valueOf(documentData.getDocumentType().vertrouwelijkheidaanduiding)
+                EnkelvoudigInformatieObjectData.VertrouwelijkheidaanduidingEnum.valueOf(documentData
+                        .getDocumentType().vertrouwelijkheidaanduiding)
         );
         return enkelvoudigInformatieobjectWithInhoud;
     }
