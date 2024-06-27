@@ -15,6 +15,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_BAD_REQUEST
+import nl.lifely.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_GROUP_1_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_GROUP_1_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_GROUP_1_TEMPLATE_1_ID
@@ -84,8 +85,9 @@ class SmartDocumentsTest : BehaviorSpec({
         }
 
         When("the create mapping endpoint is called with correct payload") {
-            val smartDocumentsZaakafhandelParametersUrl =
-                "$ZAC_API_URI/zaakafhandelParameters/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID/documentTemplates"
+            val smartDocumentsZaakafhandelParametersUrl = "$ZAC_API_URI/zaakafhandelParameters/" +
+                "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID/informatieobjectType/" +
+                "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID/documentTemplates"
             val restTemplateGroups = """
                 [
                   {
@@ -156,8 +158,9 @@ class SmartDocumentsTest : BehaviorSpec({
         }
 
         When("the create mapping endpoint is called with invalid payload") {
-            val smartDocumentsZaakafhandelParametersUrl =
-                "$ZAC_API_URI/zaakafhandelParameters/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID/documentTemplates"
+            val smartDocumentsZaakafhandelParametersUrl = "$ZAC_API_URI/zaakafhandelParameters/" +
+                "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID/informatieobjectType/" +
+                "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID/documentTemplates"
             val restTemplateGroups = """
                 [
                   {
