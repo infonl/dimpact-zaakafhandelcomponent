@@ -57,6 +57,7 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.util.StatusTypeUtil
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.BesluitType
+import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.client.zgw.ztc.model.generated.RolType
 import net.atos.client.zgw.ztc.util.isNuGeldig
 import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter
@@ -784,7 +785,7 @@ class ZakenRESTService @Inject constructor(
             zrcClientService.listRollen(zaak)
                 .filter { rol ->
                     KlantenRESTService.betrokkenen.contains(
-                        RolType.OmschrijvingGeneriekEnum.valueOf(
+                        OmschrijvingGeneriekEnum.valueOf(
                             rol.omschrijvingGeneriek.uppercase(Locale.getDefault())
                         )
                     )
@@ -1107,7 +1108,7 @@ class ZakenRESTService @Inject constructor(
         identificatie: String,
         zaak: Zaak
     ) {
-        val initiator = ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.INITIATOR, zaak.zaaktype)
+        val initiator = ztcClientService.readRoltype(OmschrijvingGeneriekEnum.INITIATOR, zaak.zaaktype)
         val zaakRechten = policyService.readZaakRechten(zaak)
         when (identificatieType) {
             IdentificatieType.BSN -> {

@@ -25,9 +25,9 @@ import net.atos.client.zgw.ztc.model.ZaaktypeListParameters
 import net.atos.client.zgw.ztc.model.generated.BesluitType
 import net.atos.client.zgw.ztc.model.generated.Catalogus
 import net.atos.client.zgw.ztc.model.generated.InformatieObjectType
+import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.client.zgw.ztc.model.generated.ResultaatType
 import net.atos.client.zgw.ztc.model.generated.RolType
-import net.atos.client.zgw.ztc.model.generated.RolType.OmschrijvingGeneriekEnum
 import net.atos.client.zgw.ztc.model.generated.StatusType
 import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.client.zgw.ztc.model.generated.ZaakTypeInformatieObjectType
@@ -278,11 +278,11 @@ class ZtcClientService @Inject constructor(
     }
 
     /**
-     * Find [RolType] of [ZaakType] and [RolType.OmschrijvingGeneriekEnum].
+     * Find [RolType] of [ZaakType] and [OmschrijvingGeneriekEnum].
      * returns null if the [ResultaatType] can not be found
      *
      * @param zaaktypeURI              URI of [ZaakType].
-     * @param omschrijvingGeneriekEnum [RolType.OmschrijvingGeneriekEnum].
+     * @param omschrijvingGeneriekEnum [OmschrijvingGeneriekEnum].
      * @return [RolType] or NULL
      */
     fun findRoltype(zaaktypeURI: URI, omschrijvingGeneriekEnum: OmschrijvingGeneriekEnum): Optional<RolType> =
@@ -291,11 +291,11 @@ class ZtcClientService @Inject constructor(
         }
 
     /**
-     * Read [RolType] of [ZaakType] and [RolType.OmschrijvingGeneriekEnum].
+     * Read [RolType] of [ZaakType] and [OmschrijvingGeneriekEnum].
      * Throws a RuntimeException if the [ResultaatType] can not be read.
      *
      * @param zaaktypeURI              URI of [ZaakType].
-     * @param omschrijvingGeneriekEnum [RolType.OmschrijvingGeneriekEnum].
+     * @param omschrijvingGeneriekEnum [OmschrijvingGeneriekEnum].
      * @return [RolType]. Never 'null'!
      */
     fun readRoltype(omschrijvingGeneriekEnum: OmschrijvingGeneriekEnum, zaaktypeURI: URI): RolType =

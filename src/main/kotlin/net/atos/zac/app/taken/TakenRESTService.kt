@@ -284,14 +284,14 @@ class TakenRESTService @Inject constructor(
                                 jsonDocumentData,
                                 RESTTaakDocumentData::class.java
                             )
-                            val document = restInformatieobjectConverter.convert(
+                            val enkelvoudigInformatieObjectCreateLockRequest = restInformatieobjectConverter.convert(
                                 restTaakDocumentData,
                                 uploadedFile as RESTFileUpload
                             )
                             val zaakInformatieobject = zgwApiService.createZaakInformatieobjectForZaak(
                                 zaak,
-                                document,
-                                document.titel,
+                                enkelvoudigInformatieObjectCreateLockRequest,
+                                enkelvoudigInformatieObjectCreateLockRequest.titel,
                                 ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT,
                                 ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
                             )

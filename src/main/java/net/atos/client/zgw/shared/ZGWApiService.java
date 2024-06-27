@@ -38,11 +38,7 @@ import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.zrc.model.generated.Resultaat;
 import net.atos.client.zgw.ztc.ZtcClientService;
-import net.atos.client.zgw.ztc.model.generated.BrondatumArchiefprocedure;
-import net.atos.client.zgw.ztc.model.generated.ResultaatType;
-import net.atos.client.zgw.ztc.model.generated.RolType;
-import net.atos.client.zgw.ztc.model.generated.StatusType;
-import net.atos.client.zgw.ztc.model.generated.ZaakType;
+import net.atos.client.zgw.ztc.model.generated.*;
 
 
 /**
@@ -273,32 +269,32 @@ public class ZGWApiService {
     }
 
     /**
-     * Find {@link RolOrganisatorischeEenheid} for {@link Zaak} with behandelaar {@link RolType.OmschrijvingGeneriekEnum}.
+     * Find {@link RolOrganisatorischeEenheid} for {@link Zaak} with behandelaar {@link OmschrijvingGeneriekEnum}.
      *
      * @param zaak {@link Zaak}
      * @return {@link RolOrganisatorischeEenheid} or 'null'.
      */
     public Optional<RolOrganisatorischeEenheid> findGroepForZaak(final Zaak zaak) {
-        return findRolForZaak(zaak, RolType.OmschrijvingGeneriekEnum.BEHANDELAAR, BetrokkeneType.ORGANISATORISCHE_EENHEID)
+        return findRolForZaak(zaak, OmschrijvingGeneriekEnum.BEHANDELAAR, BetrokkeneType.ORGANISATORISCHE_EENHEID)
                 .map(RolOrganisatorischeEenheid.class::cast);
     }
 
     /**
-     * Find {@link RolMedewerker} for {@link Zaak} with behandelaar {@link RolType.OmschrijvingGeneriekEnum}.
+     * Find {@link RolMedewerker} for {@link Zaak} with behandelaar {@link OmschrijvingGeneriekEnum}.
      *
      * @param zaak {@link Zaak}
      * @return {@link RolMedewerker} or 'null'.
      */
     public Optional<RolMedewerker> findBehandelaarForZaak(final Zaak zaak) {
-        return findRolForZaak(zaak, RolType.OmschrijvingGeneriekEnum.BEHANDELAAR, BetrokkeneType.MEDEWERKER)
+        return findRolForZaak(zaak, OmschrijvingGeneriekEnum.BEHANDELAAR, BetrokkeneType.MEDEWERKER)
                 .map(RolMedewerker.class::cast);
     }
 
     public Optional<Rol<?>> findInitiatorForZaak(final Zaak zaak) {
-        return findRolForZaak(zaak, RolType.OmschrijvingGeneriekEnum.INITIATOR);
+        return findRolForZaak(zaak, OmschrijvingGeneriekEnum.INITIATOR);
     }
 
-    private Optional<Rol<?>> findRolForZaak(final Zaak zaak, final RolType.OmschrijvingGeneriekEnum omschrijvingGeneriekEnum) {
+    private Optional<Rol<?>> findRolForZaak(final Zaak zaak, final OmschrijvingGeneriekEnum omschrijvingGeneriekEnum) {
         return ztcClientService.findRoltype(zaak.getZaaktype(), omschrijvingGeneriekEnum)
                 .flatMap(roltype -> zrcClientService.listRollen(new RolListParameters(zaak.getUrl(), roltype.getUrl()))
                         .getSingleResult());
@@ -306,7 +302,7 @@ public class ZGWApiService {
 
     private Optional<Rol<?>> findRolForZaak(
             final Zaak zaak,
-            final RolType.OmschrijvingGeneriekEnum omschrijvingGeneriekEnum,
+            final OmschrijvingGeneriekEnum omschrijvingGeneriekEnum,
             final BetrokkeneType betrokkeneType
     ) {
         return ztcClientService.findRoltype(zaak.getZaaktype(), omschrijvingGeneriekEnum).flatMap(roltype -> zrcClientService.listRollen(
@@ -372,17 +368,17 @@ public class ZGWApiService {
     }
 
     private LocalDate bepaalBrondatum(final Zaak zaak, final ResultaatType resultaattype) {
-        final BrondatumArchiefprocedure brondatumArchiefprocedure = resultaattype.getBrondatumArchiefprocedure();
+        final ResultaatTypeBrondatumArchiefprocedure brondatumArchiefprocedure = resultaattype.getBrondatumArchiefprocedure();
         if (brondatumArchiefprocedure != null) {
-            if (Objects.requireNonNull(brondatumArchiefprocedure.getAfleidingswijze()) ==
-                BrondatumArchiefprocedure.AfleidingswijzeEnum.AFGEHANDELD) {
+            if (Objects.requireNonNull(brondatumArchiefprocedure.getAfleidingswijze()) == AfleidingswijzeEnum.AFGEHANDELD) {
                 return zaak.getEinddatum();
             } else {
                 LOG.warning(
                         String.format(
                                 "De brondatum bepaling voor afleidingswijze %s is nog niet geimplementeerd",
                                 brondatumArchiefprocedure.getAfleidingswijze()
-                        ));
+                        )
+                );
             }
         }
         return null;

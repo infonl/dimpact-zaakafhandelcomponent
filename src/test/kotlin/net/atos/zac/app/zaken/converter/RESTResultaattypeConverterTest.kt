@@ -10,7 +10,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createResultaatType
-import net.atos.client.zgw.ztc.model.generated.ResultaatType
+import net.atos.client.zgw.ztc.model.generated.ArchiefnominatieEnum
 import java.net.URI
 import java.util.UUID
 
@@ -22,7 +22,7 @@ class RESTResultaattypeConverterTest : BehaviorSpec({
         val resultaattypeUUID = UUID.randomUUID()
         val resultaatType = createResultaatType(
             url = URI("http://example.com/resultaattypes/$resultaattypeUUID"),
-            archiefnominatie = ResultaatType.ArchiefnominatieEnum.BLIJVEND_BEWAREN,
+            archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
             archiefactietermijn = null
         )
         When("the resultaattype is converted") {

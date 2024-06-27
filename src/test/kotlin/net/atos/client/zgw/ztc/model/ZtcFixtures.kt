@@ -1,10 +1,12 @@
 package net.atos.client.zgw.ztc.model
 
+import net.atos.client.zgw.ztc.model.generated.ArchiefnominatieEnum
 import net.atos.client.zgw.ztc.model.generated.InformatieObjectType
+import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.client.zgw.ztc.model.generated.ResultaatType
-import net.atos.client.zgw.ztc.model.generated.ResultaatType.ArchiefnominatieEnum
 import net.atos.client.zgw.ztc.model.generated.RolType
 import net.atos.client.zgw.ztc.model.generated.StatusType
+import net.atos.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.ztc.model.generated.ZaakType
 import java.net.URI
 import java.time.LocalDate
@@ -13,7 +15,7 @@ import java.util.UUID
 fun createRolType(
     zaakTypeURI: URI = URI("http://example.com/${UUID.randomUUID()}"),
     omschrijving: String = "dummyOmschrijving",
-    omschrijvingGeneriek: RolType.OmschrijvingGeneriekEnum = RolType.OmschrijvingGeneriekEnum.INITIATOR
+    omschrijvingGeneriek: OmschrijvingGeneriekEnum = OmschrijvingGeneriekEnum.INITIATOR
 ) = RolType().apply {
     this.zaaktype = zaakTypeURI
     this.omschrijving = omschrijving
@@ -23,19 +25,18 @@ fun createRolType(
 fun createZaakType(
     uri: URI = URI("http://example.com/zaaktypes/${UUID.randomUUID()}"),
     omschrijving: String = "dummyZaakTypeOmschrijving",
-    informatieObjectTypen: Set<URI>? = setOf(URI("dummyInformatieObjectType1"), URI("dummyInformatieObjectType2")),
+    informatieObjectTypen: List<URI>? = listOf(URI("dummyInformatieObjectType1"), URI("dummyInformatieObjectType2")),
     identifactie: String = "dummyIdentificatie",
-    besluittypen: Set<URI>? = null,
+    besluittypen: List<URI>? = null,
 ) = ZaakType(
     uri,
     false,
     null,
     null,
-    setOf(URI("dummyStatusType1"), URI("dummyStatusType2")),
-    setOf(URI("dummyResultaatType1"), URI("dummyResultaatType2")),
-    setOf(URI("dummyEigenschap1"), URI("dummyEigenschap2")),
-    informatieObjectTypen,
-    setOf(URI("dummyRolType1"), URI("dummyRolType2")),
+    listOf(URI("dummyStatusType1"), URI("dummyStatusType2")),
+    listOf(URI("dummyResultaatType1"), URI("dummyResultaatType2")),
+    listOf(URI("dummyEigenschap1"), URI("dummyEigenschap2")), informatieObjectTypen,
+    listOf(URI("dummyRolType1"), URI("dummyRolType2")),
     null
 ).apply {
     this.omschrijving = omschrijving
@@ -46,8 +47,7 @@ fun createZaakType(
 fun createInformatieObjectType(
     catalogusURI: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
     omschrijving: String = "dummyOmschrijving",
-    vertrouwelijkheidaanduiding: InformatieObjectType.VertrouwelijkheidaanduidingEnum =
-        InformatieObjectType.VertrouwelijkheidaanduidingEnum.OPENBAAR,
+    vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR,
     beginGeldigheid: LocalDate = LocalDate.now()
 ) = InformatieObjectType(
     catalogusURI,
@@ -68,8 +68,8 @@ fun createResultaatType(
     zaaktypeIdentificatie: String = "dummyZaaktypeIdentificatie",
     omschrijvingGeneriek: String = "dummyOmschrijvingGeneriek",
     catalogus: URI = URI("http://example.com/catalogus${UUID.randomUUID()}"),
-    besluittypeOmschrijving: MutableSet<String> = mutableSetOf("dummyBesluittypeOmschrijving"),
-    informatieobjecttypeOmschrijving: MutableSet<String> = mutableSetOf("dummyInformatieobjecttypeOmschrijving"),
+    besluittypeOmschrijving: MutableList<String> = mutableListOf("dummyBesluittypeOmschrijving"),
+    informatieobjecttypeOmschrijving: MutableList<String> = mutableListOf("dummyInformatieobjecttypeOmschrijving"),
     beginObject: LocalDate = LocalDate.now(),
     eindeObject: LocalDate = LocalDate.now().plusDays(1),
     archiefnominatie: ArchiefnominatieEnum = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
@@ -94,8 +94,8 @@ fun createStatusType(
     zaaktypeIdentificatie: String? = null,
     isEindstatus: Boolean = false,
     catalogus: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
-    eigenschappen: Set<URI> = setOf(URI("http://example.com/catalogus/${UUID.randomUUID()}")),
-    zaakobjecttypen: Set<URI> = setOf(URI("http://example.com/catalogus/${UUID.randomUUID()}")),
+    eigenschappen: List<URI> = listOf(URI("http://example.com/catalogus/${UUID.randomUUID()}")),
+    zaakobjecttypen: List<URI> = listOf(URI("http://example.com/catalogus/${UUID.randomUUID()}")),
     beginObject: LocalDate = LocalDate.now(),
     eindeObject: LocalDate = LocalDate.now(),
     omschrijving: String? = null

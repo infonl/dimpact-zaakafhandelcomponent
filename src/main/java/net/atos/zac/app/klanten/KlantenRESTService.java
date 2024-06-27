@@ -39,6 +39,7 @@ import net.atos.client.kvk.vestigingsprofiel.model.generated.Vestiging;
 import net.atos.client.kvk.zoeken.model.generated.Resultaat;
 import net.atos.client.kvk.zoeken.model.generated.ResultaatItem;
 import net.atos.client.zgw.ztc.ZtcClientService;
+import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
 import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.zac.app.klanten.converter.RESTBedrijfConverter;
 import net.atos.zac.app.klanten.converter.RESTPersoonConverter;
@@ -61,12 +62,12 @@ import net.atos.zac.app.shared.RESTResultaat;
 @Produces(MediaType.APPLICATION_JSON)
 @Singleton
 public class KlantenRESTService {
-    public static final Set<RolType.OmschrijvingGeneriekEnum> betrokkenen;
+    public static final Set<OmschrijvingGeneriekEnum> betrokkenen;
     private static final RESTPersoon ONBEKEND_PERSOON = new RESTPersoon(ONBEKEND, ONBEKEND, ONBEKEND);
     static {
-        betrokkenen = EnumSet.allOf(RolType.OmschrijvingGeneriekEnum.class);
-        betrokkenen.remove(RolType.OmschrijvingGeneriekEnum.INITIATOR);
-        betrokkenen.remove(RolType.OmschrijvingGeneriekEnum.BEHANDELAAR);
+        betrokkenen = EnumSet.allOf(OmschrijvingGeneriekEnum.class);
+        betrokkenen.remove(OmschrijvingGeneriekEnum.INITIATOR);
+        betrokkenen.remove(OmschrijvingGeneriekEnum.BEHANDELAAR);
     }
 
     private BRPClientService brpClientService;

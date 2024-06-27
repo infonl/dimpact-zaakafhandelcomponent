@@ -68,7 +68,7 @@ class MailServiceTest : BehaviorSpec({
     Given("a zaak and e-mail data with 'create document from mail' set to true") {
         val zaak = createZaak()
         val zaakType = createZaakType(
-            informatieObjectTypen = setOf(
+            informatieObjectTypen = listOf(
                 URI("dummyInformatieObjectType1")
             )
         )

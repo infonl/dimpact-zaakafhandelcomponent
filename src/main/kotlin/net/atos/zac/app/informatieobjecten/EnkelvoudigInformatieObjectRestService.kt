@@ -287,7 +287,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     @Path("informatieobjecttypes/{zaakTypeUuid}")
     fun listInformatieobjecttypes(@PathParam("zaakTypeUuid") zaakTypeID: UUID): List<RESTInformatieobjecttype> =
         ztcClientService.readZaaktype(zaakTypeID).let {
-            informatieObjecttypeConverter.convert(it.informatieobjecttypen)
+            informatieObjecttypeConverter.convertFromUris(it.informatieobjecttypen)
         }
 
     @GET

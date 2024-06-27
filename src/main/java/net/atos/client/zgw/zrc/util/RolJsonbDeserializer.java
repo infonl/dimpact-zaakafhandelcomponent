@@ -30,19 +30,12 @@ public class RolJsonbDeserializer implements JsonbDeserializer<Rol<?>> {
         final JsonObject jsonObject = parser.getObject();
         final BetrokkeneType betrokkenetype = BetrokkeneType.fromValue(jsonObject.getJsonString(BETROKKENE_TYPE_NAAM).getString());
 
-        switch (betrokkenetype) {
-            case VESTIGING:
-                return JSONB.fromJson(jsonObject.toString(), RolVestiging.class);
-            case MEDEWERKER:
-                return JSONB.fromJson(jsonObject.toString(), RolMedewerker.class);
-            case NATUURLIJK_PERSOON:
-                return JSONB.fromJson(jsonObject.toString(), RolNatuurlijkPersoon.class);
-            case NIET_NATUURLIJK_PERSOON:
-                return JSONB.fromJson(jsonObject.toString(), RolNietNatuurlijkPersoon.class);
-            case ORGANISATORISCHE_EENHEID:
-                return JSONB.fromJson(jsonObject.toString(), RolOrganisatorischeEenheid.class);
-            default:
-                throw new RuntimeException(String.format("BetrokkeneType '%s' wordt niet ondersteund", betrokkenetype));
-        }
+        return switch (betrokkenetype) {
+            case VESTIGING -> JSONB.fromJson(jsonObject.toString(), RolVestiging.class);
+            case MEDEWERKER -> JSONB.fromJson(jsonObject.toString(), RolMedewerker.class);
+            case NATUURLIJK_PERSOON -> JSONB.fromJson(jsonObject.toString(), RolNatuurlijkPersoon.class);
+            case NIET_NATUURLIJK_PERSOON -> JSONB.fromJson(jsonObject.toString(), RolNietNatuurlijkPersoon.class);
+            case ORGANISATORISCHE_EENHEID -> JSONB.fromJson(jsonObject.toString(), RolOrganisatorischeEenheid.class);
+        };
     }
 }

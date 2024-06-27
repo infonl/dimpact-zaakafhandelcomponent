@@ -117,7 +117,7 @@ public abstract class Rol<T> {
         this.roltype = roltype.getUrl();
         this.roltoelichting = roltoelichting;
         this.omschrijving = roltype.getOmschrijving();
-        this.omschrijvingGeneriek = roltype.getOmschrijvingGeneriek().value();
+        this.omschrijvingGeneriek = roltype.getOmschrijvingGeneriek().name().toLowerCase();
     }
 
     public URI getUrl() {

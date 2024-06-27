@@ -4,7 +4,7 @@
  */
 package net.atos.zac.app.zaken.model
 
-import net.atos.client.zgw.ztc.model.generated.ZaakType
+import net.atos.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.zac.app.admin.model.RESTZaakafhandelParameters
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
@@ -32,7 +32,7 @@ data class RESTZaaktype(
 
     var eindeGeldigheid: LocalDate? = null,
 
-    var vertrouwelijkheidaanduiding: ZaakType.VertrouwelijkheidaanduidingEnum? = null,
+    var vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum? = null,
 
     var nuGeldig: Boolean? = null,
 

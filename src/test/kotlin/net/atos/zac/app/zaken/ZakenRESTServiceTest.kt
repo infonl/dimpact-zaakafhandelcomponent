@@ -40,7 +40,7 @@ import net.atos.client.zgw.zrc.model.createZaakobjectPand
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.createZaakType
-import net.atos.client.zgw.ztc.model.generated.RolType
+import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.bag.converter.RESTBAGConverter
 import net.atos.zac.app.zaken.converter.RESTBesluitConverter
@@ -234,8 +234,8 @@ class ZakenRESTServiceTest : BehaviorSpec({
         every { zrcClientService.createZaakobject(zaakObjectOpenbareRuimte) } returns zaakObjectOpenbareRuimte
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
         every {
-            ztcClientService.readRoltype(RolType.OmschrijvingGeneriekEnum.INITIATOR, zaak.zaaktype)
-        } returns createRolType(omschrijvingGeneriek = RolType.OmschrijvingGeneriekEnum.INITIATOR)
+            ztcClientService.readRoltype(OmschrijvingGeneriekEnum.INITIATOR, zaak.zaaktype)
+        } returns createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR)
         every { zaakService.bepaalRolGroep(group, zaak) } returns rolOrganisatorischeEenheid
         every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
 
@@ -291,7 +291,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
         val user = createLoggedInUser()
         val rolSlot = slot<Rol<*>>()
         val restZaak = createRESTZaak()
-        val rolType = createRolType(omschrijvingGeneriek = RolType.OmschrijvingGeneriekEnum.BEHANDELAAR)
+        val rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR)
         val rolMedewerker = createRolMedewerker()
 
         every { zrcClientService.readZaak(restZaakToekennenGegevens.zaakUUID) } returns zaak

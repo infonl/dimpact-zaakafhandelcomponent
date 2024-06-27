@@ -27,16 +27,20 @@ public class RESTInformatieobjecttypeConverter {
         restType.uuid = URIUtil.parseUUIDFromResourceURI(type.getUrl());
         restType.concept = type.getConcept();
         restType.omschrijving = type.getOmschrijving();
-        restType.vertrouwelijkheidaanduiding = type.getVertrouwelijkheidaanduiding().value();
+        restType.vertrouwelijkheidaanduiding = type.getVertrouwelijkheidaanduiding().toString();
         return restType;
     }
 
-    public List<RESTInformatieobjecttype> convert(final Set<URI> informatieobjecttypen) {
-        return informatieobjecttypen.stream().map(ztcClientService::readInformatieobjecttype).map(this::convert).collect(Collectors
-                .toList());
+    public List<RESTInformatieobjecttype> convert(final List<InformatieObjectType> informatieobjecttypen) {
+        return informatieobjecttypen.stream()
+                .map(this::convert)
+                .collect(Collectors.toList());
     }
 
-    public List<RESTInformatieobjecttype> convert(final List<InformatieObjectType> informatieobjecttypen) {
-        return informatieobjecttypen.stream().map(this::convert).collect(Collectors.toList());
+    public List<RESTInformatieobjecttype> convertFromUris(final List<URI> informatieobjecttypeUris) {
+        return informatieobjecttypeUris.stream()
+                .map(ztcClientService::readInformatieobjecttype)
+                .map(this::convert)
+                .collect(Collectors.toList());
     }
 }
