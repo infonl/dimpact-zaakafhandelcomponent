@@ -21,6 +21,7 @@ import net.atos.zac.smartdocuments.templates.model.createSmartDocumentsTemplate
 import net.atos.zac.smartdocuments.templates.model.createSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.validate
 import net.atos.zac.zaaksturing.model.createZaakafhandelParameters
+import java.util.UUID
 
 class SmartDocumentsTemplateConverterTest : BehaviorSpec({
 
@@ -87,23 +88,27 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
 
         When("convert to JPA model is called") {
             val zaakafhandelParametersFixture = createZaakafhandelParameters()
-            val jpaModel = restTemplateRequest.toModel(zaakafhandelParametersFixture)
+            val expectedInformatieobjectTypeUUID = UUID.randomUUID()
+            val jpaModel = restTemplateRequest.toModel(zaakafhandelParametersFixture, expectedInformatieobjectTypeUUID)
 
             Then("it produces a correct jpa representation") {
                 jpaModel.size shouldBe 1
                 with(jpaModel.first()) {
                     name shouldBe "root"
                     zaakafhandelParameters shouldBe zaakafhandelParametersFixture
+                    informatieobjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
 
                     templates!!.size shouldBe 2
                     with(templates!!.first()) {
                         name shouldBe "root template 1"
                         zaakafhandelParameters shouldBe zaakafhandelParametersFixture
+                        informatieobjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
                         templateGroup.name shouldBe "root"
                     }
                     with(templates!!.last()) {
                         name shouldBe "root template 2"
                         zaakafhandelParameters shouldBe zaakafhandelParametersFixture
+                        informatieobjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
                         templateGroup.name shouldBe "root"
                     }
 
@@ -111,16 +116,19 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
                     with(children!!.first()) {
                         name shouldBe "group 1"
                         zaakafhandelParameters shouldBe zaakafhandelParametersFixture
+                        informatieobjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
 
                         templates!!.size shouldBe 2
                         with(templates!!.first()) {
                             name shouldBe "group 1 template 1"
                             zaakafhandelParameters shouldBe zaakafhandelParametersFixture
+                            informatieobjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
                             templateGroup.name shouldBe "group 1"
                         }
                         with(templates!!.last()) {
                             name shouldBe "group 1 template 2"
                             zaakafhandelParameters shouldBe zaakafhandelParametersFixture
+                            informatieobjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
                             templateGroup.name shouldBe "group 1"
                         }
 
@@ -130,15 +138,18 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
                     with(children!!.last()) {
                         name shouldBe "group 2"
                         zaakafhandelParameters shouldBe zaakafhandelParametersFixture
+                        informatieobjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
 
                         with(templates!!.first()) {
                             name shouldBe "group 2 template 1"
                             zaakafhandelParameters shouldBe zaakafhandelParametersFixture
+                            informatieobjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
                             templateGroup.name shouldBe "group 2"
                         }
                         with(templates!!.last()) {
                             name shouldBe "group 2 template 2"
                             zaakafhandelParameters shouldBe zaakafhandelParametersFixture
+                            informatieobjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
                             templateGroup.name shouldBe "group 2"
                         }
 

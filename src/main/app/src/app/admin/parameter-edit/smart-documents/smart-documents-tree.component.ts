@@ -183,7 +183,10 @@ export class SmartDocumentsTreeComponent {
     ],
     queryFn: () =>
       firstValueFrom(
-        this.smartDocumentsService.getTemplatesMapping(this.zaaktypeUuid),
+        this.smartDocumentsService.getTemplatesMapping(
+          this.zaaktypeUuid,
+          "00000000-0000-0000-0000-000000000000",
+        ),
       ),
   }));
   dataSource = new MatTreeNestedDataSource<SelectableDocumentsTemplateGroup>();
@@ -206,6 +209,7 @@ export class SmartDocumentsTreeComponent {
   save(): Observable<never> {
     return this.smartDocumentsService.storeTemplatesMapping(
       this.zaaktypeUuid,
+      "00000000-0000-0000-0000-000000000000",
       this.dataSource.data.map(filterOutUnselected).filter(Boolean),
     );
   }

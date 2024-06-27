@@ -21,37 +21,34 @@ import net.atos.zac.util.FlywayIntegrator
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters
 import nl.lifely.zac.util.AllOpen
 import java.time.ZonedDateTime
+import java.util.UUID
 
 @Entity
-@Table(schema = FlywayIntegrator.SCHEMA, name = "smartdocuments_document_creation_template_group")
+@Table(schema = FlywayIntegrator.SCHEMA, name = "smartdocuments_document_creatie_sjabloon_groep")
 @SequenceGenerator(
     schema = FlywayIntegrator.SCHEMA,
-    name = "sq_document_creation_template_group",
-    sequenceName = "sq_document_creation_template_group",
+    name = "sq_sd_document_creatie_sjabloon_groep",
+    sequenceName = "sq_sd_document_creatie_sjabloon_groep",
     allocationSize = 1
 )
 @AllOpen
 class SmartDocumentsTemplateGroup {
     @Id
-    @GeneratedValue(generator = "sq_document_creation_template_group", strategy = GenerationType.SEQUENCE)
-    @Column(name = "id_template_group")
+    @GeneratedValue(generator = "sq_sd_document_creatie_sjabloon_groep", strategy = GenerationType.SEQUENCE)
+    @Column(name = "id_sjabloon_groep")
     var id: Long? = null
 
     @Column(name = "smartdocuments_id", nullable = false)
     lateinit var smartDocumentsId: String
 
-    @ManyToOne
-    @JoinColumn(name = "zaakafhandelparameters_id", nullable = false)
-    lateinit var zaakafhandelParameters: ZaakafhandelParameters
-
-    @Column(name = "name", nullable = false)
+    @Column(name = "naam", nullable = false)
     lateinit var name: String
 
-    @Column(name = "creation_date", nullable = false)
+    @Column(name = "aanmaakdatum", nullable = false)
     var creationDate: ZonedDateTime? = null
 
     @ManyToOne
-    @JoinColumn(name = "parent_template_group_id")
+    @JoinColumn(name = "parent_id")
     var parent: SmartDocumentsTemplateGroup? = null
 
     @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
@@ -59,4 +56,11 @@ class SmartDocumentsTemplateGroup {
 
     @OneToMany(mappedBy = "templateGroup", fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     var templates: MutableSet<SmartDocumentsTemplate>? = null
+
+    @ManyToOne
+    @JoinColumn(name = "zaakafhandelparameters_id", nullable = false)
+    lateinit var zaakafhandelParameters: ZaakafhandelParameters
+
+    @Column(name = "informatie_object_type_uuid", nullable = false)
+    lateinit var informatieobjectTypeUUID: UUID
 }
