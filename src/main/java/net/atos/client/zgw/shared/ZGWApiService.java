@@ -20,10 +20,6 @@ import java.util.logging.Logger;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import net.atos.client.zgw.ztc.model.generated.AfleidingswijzeEnum;
-import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
-import net.atos.client.zgw.ztc.model.generated.ResultaatTypeBrondatumArchiefprocedure;
-import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import org.apache.commons.lang3.StringUtils;
 
 import net.atos.client.zgw.drc.DrcClientService;
@@ -42,8 +38,12 @@ import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.zrc.model.generated.Resultaat;
 import net.atos.client.zgw.ztc.ZtcClientService;
+import net.atos.client.zgw.ztc.model.generated.AfleidingswijzeEnum;
+import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
 import net.atos.client.zgw.ztc.model.generated.ResultaatType;
+import net.atos.client.zgw.ztc.model.generated.ResultaatTypeBrondatumArchiefprocedure;
 import net.atos.client.zgw.ztc.model.generated.StatusType;
+import net.atos.client.zgw.ztc.model.generated.ZaakType;
 
 
 /**
@@ -300,7 +300,7 @@ public class ZGWApiService {
             final BetrokkeneType betrokkeneType
     ) {
         return ztcClientService.findRoltype(zaak.getZaaktype(), omschrijvingGeneriekEnum).flatMap(roltype -> zrcClientService.listRollen(
-                        new RolListParameters(zaak.getUrl(), roltype.getUrl(), betrokkeneType))
+                new RolListParameters(zaak.getUrl(), roltype.getUrl(), betrokkeneType))
                 .getSingleResult());
     }
 

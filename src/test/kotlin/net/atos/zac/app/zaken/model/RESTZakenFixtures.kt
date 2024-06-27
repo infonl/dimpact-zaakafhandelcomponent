@@ -19,7 +19,6 @@ import java.net.URI
 import java.time.LocalDate
 import java.util.EnumSet
 import java.util.UUID
-import kotlin.collections.HashMap
 
 // note: the value of the zaak type 'omschrijving' field is used to determine whether users
 // are allowed access to a zaak type
