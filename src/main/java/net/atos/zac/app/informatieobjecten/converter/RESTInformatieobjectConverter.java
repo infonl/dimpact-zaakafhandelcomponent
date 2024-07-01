@@ -52,47 +52,58 @@ import net.atos.zac.policy.output.DocumentRechten;
 import net.atos.zac.util.UriUtil;
 
 public class RESTInformatieobjectConverter {
-
     private static final Logger LOG = Logger.getLogger(RESTInformatieobjectConverter.class.getName());
 
-    @Inject
+    private BrcClientService brcClientService;
+    private ConfiguratieService configuratieService;
+    private DrcClientService drcClientService;
+    private EnkelvoudigInformatieObjectLockService enkelvoudigInformatieObjectLockService;
+    private IdentityService identityService;
+    private Instance<LoggedInUser> loggedInUserInstance;
+    private PolicyService policyService;
+    private RESTOndertekeningConverter restOndertekeningConverter;
+    private RESTRechtenConverter restRechtenConverter;
+    private RESTTaalConverter restTaalConverter;
+    private RESTUserConverter restUserConverter;
+    private ZRCClientService zrcClientService;
     private ZtcClientService ztcClientService;
 
-    @Inject
-    private DrcClientService drcClientService;
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public RESTInformatieobjectConverter() {
+    }
 
     @Inject
-    private BrcClientService brcClientService;
-
-    @Inject
-    private ZRCClientService zrcClientService;
-
-    @Inject
-    private RESTTaalConverter restTaalConverter;
-
-    @Inject
-    private Instance<LoggedInUser> loggedInUserInstance;
-
-    @Inject
-    private RESTUserConverter restUserConverter;
-
-    @Inject
-    private RESTOndertekeningConverter restOndertekeningConverter;
-
-    @Inject
-    private EnkelvoudigInformatieObjectLockService enkelvoudigInformatieObjectLockService;
-
-    @Inject
-    private IdentityService identityService;
-
-    @Inject
-    private RESTRechtenConverter rechtenConverter;
-
-    @Inject
-    private PolicyService policyService;
-
-    @Inject
-    private ConfiguratieService configuratieService;
+    public RESTInformatieobjectConverter(
+            BrcClientService brcClientService,
+            ConfiguratieService configuratieService,
+            DrcClientService drcClientService,
+            EnkelvoudigInformatieObjectLockService enkelvoudigInformatieObjectLockService,
+            IdentityService identityService,
+            Instance<LoggedInUser> loggedInUserInstance,
+            PolicyService policyService,
+            RESTOndertekeningConverter restOndertekeningConverter,
+            RESTRechtenConverter restRechtenConverter,
+            RESTTaalConverter restTaalConverter,
+            RESTUserConverter restUserConverter,
+            ZRCClientService zrcClientService,
+            ZtcClientService ztcClientService
+    ) {
+        this.ztcClientService = ztcClientService;
+        this.drcClientService = drcClientService;
+        this.brcClientService = brcClientService;
+        this.zrcClientService = zrcClientService;
+        this.restTaalConverter = restTaalConverter;
+        this.loggedInUserInstance = loggedInUserInstance;
+        this.restUserConverter = restUserConverter;
+        this.restOndertekeningConverter = restOndertekeningConverter;
+        this.enkelvoudigInformatieObjectLockService = enkelvoudigInformatieObjectLockService;
+        this.identityService = identityService;
+        this.restRechtenConverter = restRechtenConverter;
+        this.policyService = policyService;
+        this.configuratieService = configuratieService;
+    }
 
     public List<RESTEnkelvoudigInformatieobject> convertToREST(
             final List<ZaakInformatieobject> zaakInformatieobjecten
@@ -125,7 +136,7 @@ public class RESTInformatieobjectConverter {
         final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject = new RESTEnkelvoudigInformatieobject();
         restEnkelvoudigInformatieobject.uuid = enkelvoudigInformatieObjectUUID;
         restEnkelvoudigInformatieobject.identificatie = enkelvoudigInformatieObject.getIdentificatie();
-        restEnkelvoudigInformatieobject.rechten = rechtenConverter.convert(rechten);
+        restEnkelvoudigInformatieobject.rechten = restRechtenConverter.convert(rechten);
         restEnkelvoudigInformatieobject.isBesluitDocument = brcClientService.isInformatieObjectGekoppeldAanBesluit(
                 enkelvoudigInformatieObject.getUrl()
         );
@@ -333,16 +344,17 @@ public class RESTInformatieobjectConverter {
             restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam != null &&
             restEnkelvoudigInformatieObjectVersieGegevens.formaat != null
         ) {
-            enkelvoudigInformatieObjectWithLockRequest.setInhoud(convertByteArrayToBase64String(
-                    restEnkelvoudigInformatieObjectVersieGegevens.file));
+            enkelvoudigInformatieObjectWithLockRequest.setInhoud(
+                    convertByteArrayToBase64String(restEnkelvoudigInformatieObjectVersieGegevens.file)
+            );
             enkelvoudigInformatieObjectWithLockRequest.setBestandsnaam(restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam);
             enkelvoudigInformatieObjectWithLockRequest.setBestandsomvang(restEnkelvoudigInformatieObjectVersieGegevens.file.length);
             enkelvoudigInformatieObjectWithLockRequest.setFormaat(restEnkelvoudigInformatieObjectVersieGegevens.formaat);
         }
 
-        enkelvoudigInformatieObjectWithLockRequest.setInformatieobjecttype(ztcClientService.readInformatieobjecttype(
-                restEnkelvoudigInformatieObjectVersieGegevens.informatieobjectTypeUUID)
-                .getUrl());
+        enkelvoudigInformatieObjectWithLockRequest.setInformatieobjecttype(
+                ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieObjectVersieGegevens.informatieobjectTypeUUID).getUrl()
+        );
 
         return enkelvoudigInformatieObjectWithLockRequest;
     }
@@ -357,35 +369,31 @@ public class RESTInformatieobjectConverter {
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding != null) {
             enkelvoudigInformatieObjectWithLockData.setVertrouwelijkheidaanduiding(
-                    VertrouwelijkheidaanduidingEnum.fromValue(restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding)
+                    // always convert provided value to uppercase just to be safe
+                    VertrouwelijkheidaanduidingEnum.valueOf(restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding
+                            .toUpperCase())
             );
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.beschrijving != null) {
-            enkelvoudigInformatieObjectWithLockData.setBeschrijving(
-                    restEnkelvoudigInformatieObjectVersieGegevens.beschrijving);
+            enkelvoudigInformatieObjectWithLockData.setBeschrijving(restEnkelvoudigInformatieObjectVersieGegevens.beschrijving);
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.verzenddatum != null) {
-            enkelvoudigInformatieObjectWithLockData.setVerzenddatum(
-                    restEnkelvoudigInformatieObjectVersieGegevens.verzenddatum);
+            enkelvoudigInformatieObjectWithLockData.setVerzenddatum(restEnkelvoudigInformatieObjectVersieGegevens.verzenddatum);
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.ontvangstdatum != null) {
-            enkelvoudigInformatieObjectWithLockData.setOntvangstdatum(
-                    restEnkelvoudigInformatieObjectVersieGegevens.ontvangstdatum);
+            enkelvoudigInformatieObjectWithLockData.setOntvangstdatum(restEnkelvoudigInformatieObjectVersieGegevens.ontvangstdatum);
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.titel != null) {
             enkelvoudigInformatieObjectWithLockData.setTitel(restEnkelvoudigInformatieObjectVersieGegevens.titel);
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.taal != null) {
-            enkelvoudigInformatieObjectWithLockData.setTaal(
-                    restEnkelvoudigInformatieObjectVersieGegevens.taal.code);
+            enkelvoudigInformatieObjectWithLockData.setTaal(restEnkelvoudigInformatieObjectVersieGegevens.taal.code);
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.auteur != null) {
-            enkelvoudigInformatieObjectWithLockData.setAuteur(
-                    restEnkelvoudigInformatieObjectVersieGegevens.auteur);
+            enkelvoudigInformatieObjectWithLockData.setAuteur(restEnkelvoudigInformatieObjectVersieGegevens.auteur);
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam != null) {
-            enkelvoudigInformatieObjectWithLockData.setBestandsnaam(
-                    (restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam));
+            enkelvoudigInformatieObjectWithLockData.setBestandsnaam((restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam));
         }
         return enkelvoudigInformatieObjectWithLockData;
     }
@@ -425,7 +433,7 @@ public class RESTInformatieobjectConverter {
         final RESTGekoppeldeZaakEnkelvoudigInformatieObject restEnkelvoudigInformatieobject = new RESTGekoppeldeZaakEnkelvoudigInformatieObject();
         restEnkelvoudigInformatieobject.uuid = enkelvoudigInformatieObjectUUID;
         restEnkelvoudigInformatieobject.identificatie = enkelvoudigInformatieObject.getIdentificatie();
-        restEnkelvoudigInformatieobject.rechten = rechtenConverter.convert(rechten);
+        restEnkelvoudigInformatieobject.rechten = restRechtenConverter.convert(rechten);
         if (rechten.lezen()) {
             convertEnkelvoudigInformatieObject(enkelvoudigInformatieObject, lock, restEnkelvoudigInformatieobject);
             restEnkelvoudigInformatieobject.relatieType = relatieType;

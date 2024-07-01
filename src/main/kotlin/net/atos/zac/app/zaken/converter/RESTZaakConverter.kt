@@ -200,7 +200,7 @@ class RESTZaakConverter {
         restZaak.communicatiekanaal?.let { restCommunicatiekanaal ->
             vrlClientService.findCommunicatiekanaal(restCommunicatiekanaal.uuid)
                 .map { it.url }
-                .ifPresent { communicatiekanaal -> zaak.communicatiekanaal = communicatiekanaal }
+                .ifPresent { zaak.communicatiekanaal = it }
         }
         zaak.vertrouwelijkheidaanduiding = restZaak.vertrouwelijkheidaanduiding?.let {
             VertrouwelijkheidaanduidingEnum.fromValue(it)
