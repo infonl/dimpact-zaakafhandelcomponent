@@ -27,8 +27,8 @@ import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.vrl.VrlClientService
 import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.brc.model.generated.Besluit
-import net.atos.client.zgw.brc.model.generated.VervalredenEnum
 import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject
+import net.atos.client.zgw.brc.model.generated.VervalredenEnum
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.ZGWApiService
