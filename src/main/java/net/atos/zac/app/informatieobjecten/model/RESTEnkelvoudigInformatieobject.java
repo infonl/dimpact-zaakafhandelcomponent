@@ -13,7 +13,6 @@ import java.util.UUID;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.FormParam;
 
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.drc.model.generated.StatusEnum;
 import net.atos.zac.app.identity.model.RESTUser;
 import net.atos.zac.app.policy.model.RESTDocumentRechten;
