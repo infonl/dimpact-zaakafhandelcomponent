@@ -261,6 +261,7 @@ class ZaakafhandelParametersRESTService @Inject constructor(
         restTemplateGroups: Set<RESTSmartDocumentsTemplateGroup>
     ) {
         assertPolicy(policyService.readOverigeRechten().beheren)
+        ztcClientService.readInformatieobjecttype(informatieobjectTypeUUID)
 
         val smartDocumentsTemplates = smartDocumentsService.listTemplates()
         restTemplateGroups.validate(smartDocumentsTemplates)
