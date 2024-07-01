@@ -43,13 +43,13 @@ import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.bag.converter.RESTBAGConverter
-import net.atos.zac.app.zaken.converter.RESTBesluitConverter
 import net.atos.zac.app.zaken.converter.RESTBesluittypeConverter
 import net.atos.zac.app.zaken.converter.RESTGeometryConverter
 import net.atos.zac.app.zaken.converter.RESTResultaattypeConverter
 import net.atos.zac.app.zaken.converter.RESTZaakConverter
 import net.atos.zac.app.zaken.converter.RESTZaakOverzichtConverter
 import net.atos.zac.app.zaken.converter.RESTZaaktypeConverter
+import net.atos.zac.app.zaken.converter.RestBesluitConverter
 import net.atos.zac.app.zaken.model.ZAAK_TYPE_1_OMSCHRIJVING
 import net.atos.zac.app.zaken.model.createRESTZaak
 import net.atos.zac.app.zaken.model.createRESTZaakAanmaakGegevens
@@ -105,7 +105,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
     val policyService: PolicyService = mockk<PolicyService>()
     val productaanvraagService: ProductaanvraagService = mockk<ProductaanvraagService>()
     val restBAGConverter: RESTBAGConverter = mockk<RESTBAGConverter>()
-    val restBesluitConverter: RESTBesluitConverter = mockk<RESTBesluitConverter>()
+    val restBesluitConverter: RestBesluitConverter = mockk<RestBesluitConverter>()
     val restBesluittypeConverter: RESTBesluittypeConverter = mockk<RESTBesluittypeConverter>()
     val restGeometryConverter: RESTGeometryConverter = mockk<RESTGeometryConverter>()
     val restResultaattypeConverter: RESTResultaattypeConverter = mockk<RESTResultaattypeConverter>()

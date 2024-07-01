@@ -1,6 +1,7 @@
 package net.atos.client.zgw.ztc.model
 
 import net.atos.client.zgw.ztc.model.generated.ArchiefnominatieEnum
+import net.atos.client.zgw.ztc.model.generated.BesluitType
 import net.atos.client.zgw.ztc.model.generated.InformatieObjectType
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.client.zgw.ztc.model.generated.ResultaatType
@@ -11,6 +12,29 @@ import net.atos.client.zgw.ztc.model.generated.ZaakType
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
+
+@Suppress("LongParameterList")
+fun createBesluitType(
+    url: URI = URI("http://example.com/zaaktype/${UUID.randomUUID()}"),
+    zaaktypen: List<URI> = listOf(URI("dummyZaaktype1"), URI("dummyZaaktype2")),
+    isConcept: Boolean = false,
+    resultaattypen: List<URI> = listOf(URI("dummyResultaatType1"), URI("dummyResultaatType2")),
+    resultaattypenOmschrijving: List<String> =
+        listOf("dummyResultaatTypeOmschrijving1", "dummyResultaatTypeOmschrijving2"),
+    vastgelegdIn: List<String> = listOf("dummyVastgelegdIn1", "dummyVastgelegdIn2"),
+    beginObject: LocalDate = LocalDate.now(),
+    eindeObject: LocalDate = LocalDate.now().plusDays(1)
+) =
+    BesluitType(
+        url,
+        zaaktypen,
+        isConcept,
+        resultaattypen,
+        resultaattypenOmschrijving,
+        vastgelegdIn,
+        beginObject,
+        eindeObject
+    )
 
 fun createRolType(
     zaakTypeURI: URI = URI("http://example.com/${UUID.randomUUID()}"),

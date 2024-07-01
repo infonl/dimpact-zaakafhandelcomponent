@@ -33,6 +33,26 @@ fun createRESTBesluit(
     uuid = uuid
 )
 
+@Suppress("LongParameterList")
+fun createRESTBesluitVastleggenGegevens(
+    zaakUuid: UUID = UUID.randomUUID(),
+    resultaattypeUuid: UUID = UUID.randomUUID(),
+    besluittypeUuid: UUID = UUID.randomUUID(),
+    toelichting: String = "dummyToelichting",
+    ingangsdatum: LocalDate = LocalDate.of(2023, 9, 14),
+    vervaldatum: LocalDate = LocalDate.of(2023, 10, 5),
+    informatieobjecten: List<UUID> = listOf(UUID.randomUUID())
+) =
+    RESTBesluitVastleggenGegevens(
+        besluittypeUuid = besluittypeUuid,
+        informatieobjecten = informatieobjecten,
+        ingangsdatum = ingangsdatum,
+        resultaattypeUuid = resultaattypeUuid,
+        toelichting = toelichting,
+        vervaldatum = vervaldatum,
+        zaakUuid = zaakUuid
+    )
+
 fun createRESTCommunicatiekanaal(
     uuid: UUID = UUID.randomUUID(),
     naam: String = "dummyName"

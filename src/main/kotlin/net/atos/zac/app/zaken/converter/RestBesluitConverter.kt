@@ -19,25 +19,18 @@ import net.atos.zac.app.zaken.model.RESTBesluitVastleggenGegevens
 import net.atos.zac.app.zaken.model.RESTBesluitWijzigenGegevens
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.util.UriUtil
+import nl.lifely.zac.util.NoArgConstructor
 import java.time.LocalDate
 import java.util.stream.Collectors
 
-class RESTBesluitConverter {
-    @Inject
-    private lateinit var restBesluittypeConverter: RESTBesluittypeConverter
-
-    @Inject
-    private lateinit var ztcClientService: ZtcClientService
-
-    @Inject
-    private lateinit var brcClientService: BrcClientService
-
-    @Inject
-    private lateinit var informatieobjectConverter: RESTInformatieobjectConverter
-
-    @Inject
-    private lateinit var drcClientService: DrcClientService
-
+@NoArgConstructor
+class RestBesluitConverter @Inject constructor(
+    private val brcClientService: BrcClientService,
+    private val drcClientService: DrcClientService,
+    private val restInformatieobjectConverter: RESTInformatieobjectConverter,
+    private val restBesluittypeConverter: RESTBesluittypeConverter,
+    private val ztcClientService: ZtcClientService
+) {
     fun convertToRESTBesluit(besluit: Besluit) = RESTBesluit(
         uuid = UriUtil.uuidFromURI(besluit.url),
         besluittype = restBesluittypeConverter.convertToRESTBesluittype(besluit.besluittype),
@@ -52,7 +45,7 @@ class RESTBesluitConverter {
             besluit.vervalreden == VervalredenEnum.INGETROKKEN_BELANGHEBBENDE ||
                 besluit.vervalreden == VervalredenEnum.INGETROKKEN_OVERHEID
             ),
-        informatieobjecten = informatieobjectConverter.convertInformatieobjectenToREST(
+        informatieobjecten = restInformatieobjectConverter.convertInformatieobjectenToREST(
             listBesluitInformatieobjecten(besluit)
         )
     )
@@ -64,7 +57,7 @@ class RESTBesluitConverter {
     fun convertToBesluit(zaak: Zaak, besluitToevoegenGegevens: RESTBesluitVastleggenGegevens): Besluit {
         val besluit = Besluit()
         besluit.zaak = zaak.url
-        besluit.besluittype = ztcClientService.readBesluittype(besluitToevoegenGegevens.besluittypeUuid!!).url
+        besluit.besluittype = ztcClientService.readBesluittype(besluitToevoegenGegevens.besluittypeUuid).url
         besluit.datum = LocalDate.now()
         besluit.ingangsdatum = besluitToevoegenGegevens.ingangsdatum
         besluit.vervaldatum = besluitToevoegenGegevens.vervaldatum

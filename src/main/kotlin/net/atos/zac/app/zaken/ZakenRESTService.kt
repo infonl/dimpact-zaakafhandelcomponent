@@ -68,13 +68,13 @@ import net.atos.zac.app.bag.converter.RESTBAGConverter
 import net.atos.zac.app.klanten.KlantenRESTService
 import net.atos.zac.app.klanten.model.klant.IdentificatieType
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
-import net.atos.zac.app.zaken.converter.RESTBesluitConverter
 import net.atos.zac.app.zaken.converter.RESTBesluittypeConverter
 import net.atos.zac.app.zaken.converter.RESTGeometryConverter
 import net.atos.zac.app.zaken.converter.RESTResultaattypeConverter
 import net.atos.zac.app.zaken.converter.RESTZaakConverter
 import net.atos.zac.app.zaken.converter.RESTZaakOverzichtConverter
 import net.atos.zac.app.zaken.converter.RESTZaaktypeConverter
+import net.atos.zac.app.zaken.converter.RestBesluitConverter
 import net.atos.zac.app.zaken.converter.convertToRESTCommunicatiekanalen
 import net.atos.zac.app.zaken.converter.convertToRESTZaakBetrokkenen
 import net.atos.zac.app.zaken.model.RESTBesluit
@@ -181,7 +181,7 @@ class ZakenRESTService @Inject constructor(
     private val loggedInUserInstance: Instance<LoggedInUser>,
     private val restZaakConverter: RESTZaakConverter,
     private val restZaaktypeConverter: RESTZaaktypeConverter,
-    private val restBesluitConverter: RESTBesluitConverter,
+    private val restBesluitConverter: RestBesluitConverter,
     private val restBesluittypeConverter: RESTBesluittypeConverter,
     private val restResultaattypeConverter: RESTResultaattypeConverter,
     private val restZaakOverzichtConverter: RESTZaakOverzichtConverter,

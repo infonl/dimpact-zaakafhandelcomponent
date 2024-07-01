@@ -16,7 +16,7 @@ data class RESTBesluitVastleggenGegevens(
 
     var resultaattypeUuid: UUID? = null,
 
-    var besluittypeUuid: UUID? = null,
+    var besluittypeUuid: UUID,
 
     var toelichting: String? = null,
 
