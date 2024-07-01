@@ -6432,6 +6432,8 @@ components:
       - sha_256
       - sha_512
       - sha_3
+        # manual added by Lifely: need to allow for empty values returned by the API
+      - ''
       type: string
     AuditTrail:
       type: object
@@ -6571,7 +6573,7 @@ components:
       properties:
         inhoud:
           type: string
-          format: binary
+          format: bytes
           writeOnly: true
           description: De (binaire) bestandsinhoud van dit specifieke bestandsdeel.
         lock:
@@ -7078,7 +7080,8 @@ components:
           maxLength: 255
         inhoud:
           type: string
-          format: byte
+          # manual changed by Lifely: `format: byte` results in errors when using the generated client code
+          format: bytes
           description: Minimal accepted size of uploaded file = 4294967296 bytes (or
             4.0 GiB)
           nullable: true
@@ -7245,7 +7248,8 @@ components:
           maxLength: 255
         inhoud:
           type: string
-          format: byte
+          # Manually changed by Lifely: `format: byte` results in errors when using the generated client code
+          format: bytes
           description: Minimal accepted size of uploaded file = 4294967296 bytes (or
             4.0 GiB)
           nullable: true
@@ -8003,7 +8007,8 @@ components:
           maxLength: 255
         inhoud:
           type: string
-          format: byte
+          # Manually changed by Lifely: `format: byte` results in errors when using the generated client code
+          format: bytes
           description: Minimal accepted size of uploaded file = 4294967296 bytes (or
             4.0 GiB)
           nullable: true
