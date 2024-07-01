@@ -109,9 +109,7 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
       .label("beschrijving")
       .build();
 
-    const taal = new SelectFormFieldBuilder(
-      this.infoObject.taal,
-    )
+    const taal = new SelectFormFieldBuilder(this.infoObject.taal)
       .id("taal")
       .label("taal")
       .optionLabel("naam")
