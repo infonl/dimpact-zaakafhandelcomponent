@@ -7,7 +7,7 @@ package net.atos.zac.app.zaken.converter
 import jakarta.inject.Inject
 import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.brc.model.generated.Besluit
-import net.atos.client.zgw.brc.model.generated.Besluit.VervalredenEnum
+import net.atos.client.zgw.brc.model.generated.VervalredenEnum
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.zrc.model.Zaak

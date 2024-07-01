@@ -5,7 +5,7 @@
 package net.atos.zac.app.zaken.model
 
 import jakarta.json.bind.annotation.JsonbProperty
-import net.atos.client.zgw.brc.model.generated.Besluit
+import net.atos.client.zgw.brc.model.generated.VervalredenEnum
 import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieobject
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
@@ -30,7 +30,7 @@ data class RESTBesluit(
 
     var vervaldatum: LocalDate? = null,
 
-    var vervalreden: Besluit.VervalredenEnum? = null,
+    var vervalreden: VervalredenEnum? = null,
 
     @field:JsonbProperty("isIngetrokken")
     var isIngetrokken: Boolean = false,
