@@ -97,11 +97,11 @@ public class DrcClientService {
 
     public EnkelvoudigInformatieObject updateEnkelvoudigInformatieobject(
             final UUID uuid,
-            final EnkelvoudigInformatieObjectWithLockRequest enkelvoudigInformatieobject,
+            final EnkelvoudigInformatieObjectWithLockRequest enkelvoudigInformatieObjectWithLockRequest,
             final String toelichting
     ) {
         zgwClientHeadersFactory.setAuditToelichting(toelichting);
-        return drcClient.enkelvoudigInformatieobjectPartialUpdate(uuid, enkelvoudigInformatieobject);
+        return drcClient.enkelvoudigInformatieobjectPartialUpdate(uuid, enkelvoudigInformatieObjectWithLockRequest);
     }
 
     /**
