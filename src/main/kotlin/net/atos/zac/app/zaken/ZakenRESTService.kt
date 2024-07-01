@@ -64,7 +64,6 @@ import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter
 import net.atos.zac.app.admin.model.RESTZaakAfzender
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.audit.model.RESTHistorieRegel
-import net.atos.zac.app.audit.model.RESTHistorieRegelV2
 import net.atos.zac.app.bag.converter.RESTBAGConverter
 import net.atos.zac.app.klanten.KlantenRESTService
 import net.atos.zac.app.klanten.model.klant.IdentificatieType
@@ -76,9 +75,9 @@ import net.atos.zac.app.zaken.converter.RESTResultaattypeConverter
 import net.atos.zac.app.zaken.converter.RESTZaakConverter
 import net.atos.zac.app.zaken.converter.RESTZaakOverzichtConverter
 import net.atos.zac.app.zaken.converter.RESTZaaktypeConverter
-import net.atos.zac.app.zaken.converter.ZaakRESTHistorieRegelConverter
 import net.atos.zac.app.zaken.converter.convertToRESTCommunicatiekanalen
 import net.atos.zac.app.zaken.converter.convertToRESTZaakBetrokkenen
+import net.atos.zac.app.zaken.converter.historie.RESTZaakHistorieRegelConverter
 import net.atos.zac.app.zaken.model.RESTBesluit
 import net.atos.zac.app.zaken.model.RESTBesluitIntrekkenGegevens
 import net.atos.zac.app.zaken.model.RESTBesluitVastleggenGegevens
@@ -194,7 +193,7 @@ class ZakenRESTService @Inject constructor(
     private val healthCheckService: HealthCheckService,
     private val opschortenZaakHelper: OpschortenZaakHelper,
     private val zaakService: ZaakService,
-    private val zaakRESTHistorieRegelConverter: ZaakRESTHistorieRegelConverter
+    private val RESTZaakHistorieRegelConverter: RESTZaakHistorieRegelConverter
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZakenRESTService::class.java.name)
@@ -771,10 +770,10 @@ class ZakenRESTService @Inject constructor(
 
     @GET
     @Path("zaak/{uuid}/historie")
-    fun listHistorie(@PathParam("uuid") zaakUUID: UUID?): List<RESTHistorieRegelV2> {
+    fun listHistorie(@PathParam("uuid") zaakUUID: UUID?): List<RESTHistorieRegel> {
         assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).lezen)
         val auditTrail = zrcClientService.listAuditTrail(zaakUUID)
-        return auditTrail.mapNotNull(zaakRESTHistorieRegelConverter::convertZaakRESTHistorieRegel)
+        return auditTrail.flatMap(RESTZaakHistorieRegelConverter::convertZaakRESTHistorieRegel)
     }
 
     @GET
