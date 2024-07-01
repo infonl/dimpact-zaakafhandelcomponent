@@ -56,14 +56,21 @@ fun createRESTInformatieobjecttype(
     this.concept = concept
 }
 
+@Suppress("LongParameterList")
 fun createRESTEnkelvoudigInformatieObjectVersieGegevens(
     uuid: UUID = UUID.randomUUID(),
-    zaakUuid: UUID,
+    zaakUuid: UUID = UUID.randomUUID(),
     bestandsnaam: String = "dummyFile.txt",
     file: ByteArray = "dummyFile".toByteArray(),
+    formaat: String = "dummyType",
+    informatieobjectTypeUUID: UUID = UUID.randomUUID(),
+    vertrouwelijkheidaanduiding: String = VertrouwelijkheidaanduidingEnum.OPENBAAR.name
 ) = RESTEnkelvoudigInformatieObjectVersieGegevens().apply {
     this.uuid = uuid
     this.zaakUuid = zaakUuid
     this.bestandsnaam = bestandsnaam
+    this.formaat = formaat
     this.file = file
+    this.informatieobjectTypeUUID = informatieobjectTypeUUID
+    this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
 }

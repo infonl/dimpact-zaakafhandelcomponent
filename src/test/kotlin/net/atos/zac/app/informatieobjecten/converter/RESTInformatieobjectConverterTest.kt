@@ -3,15 +3,11 @@ package net.atos.zac.app.informatieobjecten.converter
 import com.google.common.collect.ImmutableList
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.core.test.TestCase
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.date.shouldHaveSameDayAs
 import io.kotest.matchers.shouldBe
-import io.mockk.MockKAnnotations
-import io.mockk.clearAllMocks
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
 import net.atos.client.zgw.brc.BrcClientService
@@ -21,8 +17,12 @@ import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.shared.exception.FoutException
 import net.atos.client.zgw.shared.model.Fout
+import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
+import net.atos.zac.app.configuratie.converter.RESTTaalConverter
+import net.atos.zac.app.identity.converter.RESTUserConverter
+import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatieObjectVersieGegevens
 import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatieobject
 import net.atos.zac.app.informatieobjecten.model.createRESTFileUpload
 import net.atos.zac.app.policy.converter.RESTRechtenConverter
@@ -32,6 +32,8 @@ import net.atos.zac.app.taken.model.createRESTTaakDocumentData
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
+import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
+import net.atos.zac.identity.IdentityService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.output.DocumentRechten
 import net.atos.zac.policy.output.createDocumentRechtenAllDeny
@@ -42,247 +44,282 @@ import java.util.Base64
 import java.util.Optional
 import java.util.UUID
 
-class RESTInformatieobjectConverterTest : BehaviorSpec() {
-    private val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-    private val ztcClientService = mockk<ZtcClientService>()
-    private val loggedInUser = createLoggedInUser()
-    private val policyService = mockk<PolicyService>()
-    private val rechtenConverter = mockk<RESTRechtenConverter>()
-    private val brcClientService = mockk<BrcClientService>()
-    private val configuratieService = mockk<ConfiguratieService>()
-    private val drcClientService = mockk<DrcClientService>()
+class RESTInformatieobjectConverterTest : BehaviorSpec({
+    val brcClientService = mockk<BrcClientService>()
+    val configuratieService = mockk<ConfiguratieService>()
+    val drcClientService = mockk<DrcClientService>()
+    val enkelvoudigInformatieObjectLockService = mockk<EnkelvoudigInformatieObjectLockService>()
+    val identityService = mockk<IdentityService>()
+    val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
+    val loggedInUser = createLoggedInUser()
+    val policyService = mockk<PolicyService>()
+    val restOndertekeningConverter = mockk<RESTOndertekeningConverter>()
+    val restRechtenConverter = mockk<RESTRechtenConverter>()
+    val restTaalConverter = mockk<RESTTaalConverter>()
+    val restUserConverter = mockk<RESTUserConverter>()
+    val zrcClientService = mockk<ZRCClientService>()
+    val ztcClientService = mockk<ZtcClientService>()
 
-    // We have to use @InjectMockKs since the class under test uses field injection instead of constructor injection.
-    // This is because WildFly does not support constructor injection for JAX-RS REST services completely.
-    @InjectMockKs
-    lateinit var restInformatieobjectConverter: RESTInformatieobjectConverter
+    val restInformatieobjectConverter = RESTInformatieobjectConverter(
+        brcClientService,
+        configuratieService,
+        drcClientService,
+        enkelvoudigInformatieObjectLockService,
+        identityService,
+        loggedInUserInstance,
+        policyService,
+        restOndertekeningConverter,
+        restRechtenConverter,
+        restTaalConverter,
+        restUserConverter,
+        zrcClientService,
+        ztcClientService
+    )
 
-    override suspend fun beforeContainer(testCase: TestCase) {
-        super.beforeContainer(testCase)
-
-        // Only run before Given
-        if (testCase.parent != null) return
-
-        MockKAnnotations.init(this)
-        clearAllMocks()
+    Given("REST taak document data and REST file upload are provided") {
+        val restTaakDocumentData = createRESTTaakDocumentData()
+        val restFileUpload = createRESTFileUpload()
+        val providedInformatieObjectType = createInformatieObjectType()
 
         every { loggedInUserInstance.get() } returns loggedInUser
-    }
+        every {
+            ztcClientService.readInformatieobjecttype(restTaakDocumentData.documentType.uuid)
+        } returns providedInformatieObjectType
 
-    init {
-        Given("REST taak document data and REST file upload are provided") {
-            val restTaakDocumentData = createRESTTaakDocumentData()
-            val restFileUpload = createRESTFileUpload()
-            val providedInformatieObjectType = createInformatieObjectType()
-
-            every {
-                ztcClientService.readInformatieobjecttype(restTaakDocumentData.documentType.uuid)
-            } returns providedInformatieObjectType
-
-            When("convert is invoked") {
-                val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convert(
-                    restTaakDocumentData,
-                    restFileUpload
-                )
-                Then("the provided data is converted correctly") {
-                    with(enkelvoudigInformatieObjectData) {
-                        // currently hardcoded
-                        bronorganisatie shouldBe "123443210"
-                        creatiedatum shouldHaveSameDayAs LocalDate.now()
-                        titel shouldBe restTaakDocumentData.documentTitel
-                        auteur shouldBe loggedInUser.fullName
-                        // currently hardcoded
-                        taal shouldBe "dut"
-                        informatieobjecttype shouldBe providedInformatieObjectType.url
-                        inhoud shouldBe Base64.getEncoder().encodeToString(restFileUpload.file)
-                        formaat shouldBe restFileUpload.type
-                        bestandsnaam shouldBe restFileUpload.filename
-                        // status should always be DEFINITIEF
-                        status shouldBe StatusEnum.DEFINITIEF
-                        vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.valueOf(
-                            restTaakDocumentData.documentType.vertrouwelijkheidaanduiding
-                        )
-                    }
-                }
-            }
-        }
-
-        Given("REST enkelvoudig informatie object data and REST file upload are provided for a taak") {
-            val restFileUpload = createRESTFileUpload()
-            val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
-            val providedInformatieObjectType = createInformatieObjectType()
-
-            every {
-                ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID)
-            } returns providedInformatieObjectType
-
-            When("convert taak object is invoked") {
-                val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convertTaakObject(
-                    restEnkelvoudigInformatieobject
-                )
-                Then("the provided data is converted correctly") {
-                    with(enkelvoudigInformatieObjectData) {
-                        // currently hardcoded
-                        bronorganisatie shouldBe "123443210"
-                        creatiedatum shouldHaveSameDayAs LocalDate.now()
-                        titel shouldBe restEnkelvoudigInformatieobject.titel
-                        auteur shouldBe loggedInUser.fullName
-                        // currently hardcoded
-                        taal shouldBe "dut"
-                        informatieobjecttype shouldBe providedInformatieObjectType.url
-                        inhoud shouldBe Base64.getEncoder().encodeToString(restFileUpload.file)
-                        formaat shouldBe restFileUpload.type
-                        bestandsnaam shouldBe restFileUpload.filename
-                        // status should always be DEFINITIEF
-                        status shouldBe StatusEnum.DEFINITIEF
-                        // vertrouwelijkheidaanduiding should always be OPENBAAR
-                        vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
-                    }
-                }
-            }
-        }
-
-        Given("REST enkelvoudig informatie object data and REST file upload are provided for a zaak") {
-            // when converting a zaak more fields in the RESTEnkelvoudigInformatieobject are used in the
-            // conversion compared to when converting a taak
-            val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject(
-                vertrouwelijkheidaanduiding = "vertrouwelijk",
-                creatieDatum = LocalDate.now(),
-                auteur = "dummyAuteur",
-                taal = "dummyTaal",
-                bestandsNaam = "dummyBestandsNaam"
+        When("convert is invoked") {
+            val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convert(
+                restTaakDocumentData,
+                restFileUpload
             )
-            val restFileUpload = createRESTFileUpload()
-            val providedInformatieObjectType = createInformatieObjectType()
-
-            every {
-                ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID)
-            } returns providedInformatieObjectType
-
-            When("convert zaak object is invoked") {
-                val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convertZaakObject(
-                    restEnkelvoudigInformatieobject
-                )
-                Then("the provided data is converted correctly") {
-                    with(enkelvoudigInformatieObjectData) {
-                        // currently hardcoded
-                        bronorganisatie shouldBe "123443210"
-                        creatiedatum shouldHaveSameDayAs LocalDate.now()
-                        titel shouldBe restEnkelvoudigInformatieobject.titel
-                        auteur shouldBe restEnkelvoudigInformatieobject.auteur
-                        taal shouldBe restEnkelvoudigInformatieobject.taal
-                        informatieobjecttype shouldBe providedInformatieObjectType.url
-                        inhoud shouldBe Base64.getEncoder().encodeToString(restFileUpload.file)
-                        formaat shouldBe restFileUpload.type
-                        bestandsnaam shouldBe restEnkelvoudigInformatieobject.bestandsnaam
-                        status.name shouldBe restEnkelvoudigInformatieobject.status.name
-                        vertrouwelijkheidaanduiding.name shouldBe restEnkelvoudigInformatieobject.vertrouwelijkheidaanduiding.uppercase()
-                    }
-                }
-            }
-        }
-
-        Given("Enkelvoudig informatie object") {
-            val expectedUUID = UUID.randomUUID()
-            val uri = URI("https://example.com/informatieobjecten/$expectedUUID")
-            val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(url = uri).apply {
-                informatieobjecttype = uri
-            }
-            val documentRechten = createDocumentRechtenAllDeny(lezen = true)
-            val restDocumentRechten = createRESTDocumentRechten()
-
-            every {
-                policyService.readDocumentRechten(enkelvoudigInformatieObject, null, null)
-            } returns documentRechten
-            every {
-                rechtenConverter.convert(documentRechten)
-            } returns restDocumentRechten
-            every {
-                brcClientService.isInformatieObjectGekoppeldAanBesluit(enkelvoudigInformatieObject.url)
-            } returns true
-            every {
-                configuratieService.findTaal(any())
-            } returns Optional.empty()
-            every {
-                ztcClientService.readInformatieobjecttype(any<URI>())
-            } returns createInformatieObjectType()
-
-            When("converted to REST Enkelvoudig Informatie Object") {
-                val restEnkelvoudigInformatieObject = restInformatieobjectConverter.convertToREST(
-                    enkelvoudigInformatieObject
-                )
-
-                Then("the provided data is converted correctly") {
-                    with(restEnkelvoudigInformatieObject) {
-                        uuid shouldBe expectedUUID
-                        informatieobjectTypeOmschrijving shouldBe "dummyOmschrijving"
-                        informatieobjectTypeUUID shouldBe expectedUUID
-                        informatieobjectTypeUUID shouldBe expectedUUID
-                        versie shouldBe 1234
-                        bestandsomvang shouldBe 0
-                    }
-                }
-            }
-        }
-
-        Given("A uuid that's found in open zaak") {
-            val rechten = DocumentRechten(false, false, false, false, false, false, false, false, false, false)
-            val uuid = UUID.randomUUID()
-            val document = createEnkelvoudigInformatieObject(
-                url = URI("http://example.com/$uuid")
-            )
-            every {
-                drcClientService.readEnkelvoudigInformatieobject(uuid)
-            } returns document
-            every {
-                policyService.readDocumentRechten(document, null, null)
-            } returns rechten
-            every {
-                rechtenConverter.convert(rechten)
-            } returns RESTDocumentRechten()
-            every {
-                brcClientService.isInformatieObjectGekoppeldAanBesluit(document.url)
-            } returns false
-            When("We try to convert a list with that uuid") {
-                val result = restInformatieobjectConverter.convertUUIDsToREST(ImmutableList.of(uuid), null)
-                Then("An list is returned containing the expected object") {
-                    with(result) {
-                        shouldHaveSize(1)
-                        with(get(0).uuid) {
-                            shouldBe(uuid)
-                        }
-                    }
-                }
-            }
-        }
-
-        Given("A uuid that's not found in open zaak") {
-            val uuid = UUID.randomUUID()
-            every {
-                drcClientService.readEnkelvoudigInformatieobject(uuid)
-            } throws FoutException(Fout(null, null, null, HttpStatus.NOT_FOUND_404, null, null))
-            When("We try to convert a list with that uuid") {
-                val result = restInformatieobjectConverter.convertUUIDsToREST(ImmutableList.of(uuid), null)
-                Then("An empty list is returned") {
-                    result.shouldBeEmpty()
-                }
-            }
-        }
-
-        Given("A uuid that causes an error response other than 404 in open zaak") {
-            val uuid = UUID.randomUUID()
-            val expectedException = FoutException(Fout(null, null, null, 500, null, null))
-            every {
-                drcClientService.readEnkelvoudigInformatieobject(uuid)
-            } throws expectedException
-            When("We try to convert a list with that uuid") {
-                Then("The exception bubbles up") {
-                    val exception = shouldThrow<FoutException> {
-                        restInformatieobjectConverter.convertUUIDsToREST(ImmutableList.of(uuid), null)
-                    }
-                    exception.shouldBe(expectedException)
+            Then("the provided data is converted correctly") {
+                with(enkelvoudigInformatieObjectData) {
+                    // currently hardcoded
+                    bronorganisatie shouldBe "123443210"
+                    creatiedatum shouldHaveSameDayAs LocalDate.now()
+                    titel shouldBe restTaakDocumentData.documentTitel
+                    auteur shouldBe loggedInUser.fullName
+                    // currently hardcoded
+                    taal shouldBe "dut"
+                    informatieobjecttype shouldBe providedInformatieObjectType.url
+                    inhoud shouldBe Base64.getEncoder().encodeToString(restFileUpload.file)
+                    formaat shouldBe restFileUpload.type
+                    bestandsnaam shouldBe restFileUpload.filename
+                    // status should always be DEFINITIEF
+                    status shouldBe StatusEnum.DEFINITIEF
+                    vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.valueOf(
+                        restTaakDocumentData.documentType.vertrouwelijkheidaanduiding
+                    )
                 }
             }
         }
     }
-}
+
+    Given("REST enkelvoudig informatie object data and REST file upload are provided for a taak") {
+        val restFileUpload = createRESTFileUpload()
+        val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
+        val providedInformatieObjectType = createInformatieObjectType()
+
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every {
+            ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID)
+        } returns providedInformatieObjectType
+
+        When("convert taak object is invoked") {
+            val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convertTaakObject(
+                restEnkelvoudigInformatieobject
+            )
+            Then("the provided data is converted correctly") {
+                with(enkelvoudigInformatieObjectData) {
+                    // currently hardcoded
+                    bronorganisatie shouldBe "123443210"
+                    creatiedatum shouldHaveSameDayAs LocalDate.now()
+                    titel shouldBe restEnkelvoudigInformatieobject.titel
+                    auteur shouldBe loggedInUser.fullName
+                    // currently hardcoded
+                    taal shouldBe "dut"
+                    informatieobjecttype shouldBe providedInformatieObjectType.url
+                    inhoud shouldBe Base64.getEncoder().encodeToString(restFileUpload.file)
+                    formaat shouldBe restFileUpload.type
+                    bestandsnaam shouldBe restFileUpload.filename
+                    // status should always be DEFINITIEF
+                    status shouldBe StatusEnum.DEFINITIEF
+                    // vertrouwelijkheidaanduiding should always be OPENBAAR
+                    vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
+                }
+            }
+        }
+    }
+
+    Given("REST enkelvoudig informatie object data and REST file upload are provided for a zaak") {
+        // when converting a zaak more fields in the RESTEnkelvoudigInformatieobject are used in the
+        // conversion compared to when converting a taak
+        val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject(
+            vertrouwelijkheidaanduiding = "vertrouwelijk",
+            creatieDatum = LocalDate.now(),
+            auteur = "dummyAuteur",
+            taal = "dummyTaal",
+            bestandsNaam = "dummyBestandsNaam"
+        )
+        val restFileUpload = createRESTFileUpload()
+        val providedInformatieObjectType = createInformatieObjectType()
+
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every {
+            ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID)
+        } returns providedInformatieObjectType
+
+        When("convert zaak object is invoked") {
+            val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convertZaakObject(
+                restEnkelvoudigInformatieobject
+            )
+            Then("the provided data is converted correctly") {
+                with(enkelvoudigInformatieObjectData) {
+                    // currently hardcoded
+                    bronorganisatie shouldBe "123443210"
+                    creatiedatum shouldHaveSameDayAs LocalDate.now()
+                    titel shouldBe restEnkelvoudigInformatieobject.titel
+                    auteur shouldBe restEnkelvoudigInformatieobject.auteur
+                    taal shouldBe restEnkelvoudigInformatieobject.taal
+                    informatieobjecttype shouldBe providedInformatieObjectType.url
+                    inhoud shouldBe Base64.getEncoder().encodeToString(restFileUpload.file)
+                    formaat shouldBe restFileUpload.type
+                    bestandsnaam shouldBe restEnkelvoudigInformatieobject.bestandsnaam
+                    status.name shouldBe restEnkelvoudigInformatieobject.status.name
+                    vertrouwelijkheidaanduiding.name shouldBe restEnkelvoudigInformatieobject.vertrouwelijkheidaanduiding.uppercase()
+                }
+            }
+        }
+    }
+
+    Given("Enkelvoudig informatie object") {
+        val expectedUUID = UUID.randomUUID()
+        val uri = URI("https://example.com/informatieobjecten/$expectedUUID")
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(url = uri).apply {
+            informatieobjecttype = uri
+        }
+        val documentRechten = createDocumentRechtenAllDeny(lezen = true)
+        val restDocumentRechten = createRESTDocumentRechten()
+
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every {
+            policyService.readDocumentRechten(enkelvoudigInformatieObject, null, null)
+        } returns documentRechten
+        every {
+            restRechtenConverter.convert(documentRechten)
+        } returns restDocumentRechten
+        every {
+            brcClientService.isInformatieObjectGekoppeldAanBesluit(enkelvoudigInformatieObject.url)
+        } returns true
+        every {
+            configuratieService.findTaal(any())
+        } returns Optional.empty()
+        every {
+            ztcClientService.readInformatieobjecttype(any<URI>())
+        } returns createInformatieObjectType()
+
+        When("converted to REST Enkelvoudig Informatie Object") {
+            val restEnkelvoudigInformatieObject = restInformatieobjectConverter.convertToREST(
+                enkelvoudigInformatieObject
+            )
+
+            Then("the provided data is converted correctly") {
+                with(restEnkelvoudigInformatieObject) {
+                    uuid shouldBe expectedUUID
+                    informatieobjectTypeOmschrijving shouldBe "dummyOmschrijving"
+                    informatieobjectTypeUUID shouldBe expectedUUID
+                    informatieobjectTypeUUID shouldBe expectedUUID
+                    versie shouldBe 1234
+                    bestandsomvang shouldBe 0
+                }
+            }
+        }
+    }
+
+    Given("A uuid that's found in open zaak") {
+        val rechten = DocumentRechten(false, false, false, false, false, false, false, false, false, false)
+        val uuid = UUID.randomUUID()
+        val document = createEnkelvoudigInformatieObject(
+            url = URI("http://example.com/$uuid")
+        )
+
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every {
+            drcClientService.readEnkelvoudigInformatieobject(uuid)
+        } returns document
+        every {
+            policyService.readDocumentRechten(document, null, null)
+        } returns rechten
+        every {
+            restRechtenConverter.convert(rechten)
+        } returns RESTDocumentRechten()
+        every {
+            brcClientService.isInformatieObjectGekoppeldAanBesluit(document.url)
+        } returns false
+        When("We try to convert a list with that uuid") {
+            val result = restInformatieobjectConverter.convertUUIDsToREST(ImmutableList.of(uuid), null)
+            Then("An list is returned containing the expected object") {
+                with(result) {
+                    shouldHaveSize(1)
+                    with(get(0).uuid) {
+                        shouldBe(uuid)
+                    }
+                }
+            }
+        }
+    }
+
+    Given("A uuid that's not found in open zaak") {
+        val uuid = UUID.randomUUID()
+        every {
+            drcClientService.readEnkelvoudigInformatieobject(uuid)
+        } throws FoutException(Fout(null, null, null, HttpStatus.NOT_FOUND_404, null, null))
+        When("We try to convert a list with that uuid") {
+            val result = restInformatieobjectConverter.convertUUIDsToREST(ImmutableList.of(uuid), null)
+            Then("An empty list is returned") {
+                result.shouldBeEmpty()
+            }
+        }
+    }
+
+    Given("A uuid that causes an error response other than 404 in open zaak") {
+        val uuid = UUID.randomUUID()
+        val expectedException = FoutException(Fout(null, null, null, 500, null, null))
+        every {
+            drcClientService.readEnkelvoudigInformatieobject(uuid)
+        } throws expectedException
+        When("We try to convert a list with that uuid") {
+            Then("The exception bubbles up") {
+                val exception = shouldThrow<FoutException> {
+                    restInformatieobjectConverter.convertUUIDsToREST(ImmutableList.of(uuid), null)
+                }
+                exception.shouldBe(expectedException)
+            }
+        }
+    }
+
+    Given("A 'REST enkelvoudiginformatieobject versie gegevens' object containing a file, bestandsnaam and formaat") {
+        val informatieobjectType = createInformatieObjectType()
+        val restEnkelvoudigInformatieobjectVersieGegevens = createRESTEnkelvoudigInformatieObjectVersieGegevens(
+            vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR.name.lowercase()
+        )
+
+        every {
+            ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobjectVersieGegevens.informatieobjectTypeUUID)
+        } returns informatieobjectType
+
+        When("this object is converted") {
+            val enkelvoudigInformatieObjectWithLockRequest =
+                restInformatieobjectConverter.convert(restEnkelvoudigInformatieobjectVersieGegevens)
+
+            Then("the obejct is correctly converted to a 'enkelvoudiginformatieobject with lock request'") {
+                with(enkelvoudigInformatieObjectWithLockRequest) {
+                    bestandsnaam shouldBe restEnkelvoudigInformatieobjectVersieGegevens.bestandsnaam
+                    bestandsomvang shouldBe restEnkelvoudigInformatieobjectVersieGegevens.file.size
+                    inhoud shouldBe Base64.getEncoder().encodeToString(restEnkelvoudigInformatieobjectVersieGegevens.file)
+                    informatieobjecttype shouldBe informatieobjectType.url
+                    vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
+                }
+            }
+        }
+    }
+})
