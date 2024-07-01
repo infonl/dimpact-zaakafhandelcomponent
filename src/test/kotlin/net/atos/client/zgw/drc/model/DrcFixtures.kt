@@ -10,6 +10,7 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
 import java.net.URI
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -35,15 +36,28 @@ fun createEnkelvoudigInformatieObject(
 
 fun createEnkelvoudigInformatieObjectCreateLockRequest(
     url: URI = URI("http://example.com/${UUID.randomUUID()}"),
-    versie: Int = 1234,
-    beginRegistratie: OffsetDateTime = OffsetDateTime.now(),
-    locked: Boolean = false,
-    bestandsdelen: List<BestandsDeel> = emptyList()
+    bronorganisatie: String = "123456789",
+    creatiedatum: LocalDate = LocalDate.now(),
+    titel: String = "dummyTitle",
+    inhoud: String = "dummyContent"
 ) = EnkelvoudigInformatieObjectCreateLockRequest().apply {
     this.link = url
-    // TODO
+    this.bronorganisatie = bronorganisatie
+    this.creatiedatum = creatiedatum
+    this.titel = titel
+    this.inhoud = inhoud
 }
 
-fun createEnkelvoudigInformatieObjectWithLockRequest() = EnkelvoudigInformatieObjectWithLockRequest().apply {
-    // TODO
+fun createEnkelvoudigInformatieObjectWithLockRequest(
+    url: URI = URI("http://example.com/${UUID.randomUUID()}"),
+    bronorganisatie: String = "123456789",
+    creatiedatum: LocalDate = LocalDate.now(),
+    titel: String = "dummyTitle",
+    inhoud: String = "dummyContent"
+) = EnkelvoudigInformatieObjectWithLockRequest().apply {
+    this.link = url
+    this.bronorganisatie = bronorganisatie
+    this.creatiedatum = creatiedatum
+    this.titel = titel
+    this.inhoud = inhoud
 }
