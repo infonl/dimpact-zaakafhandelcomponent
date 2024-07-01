@@ -94,7 +94,7 @@ class RESTInformatieobjectConverterTest : BehaviorSpec() {
                         // currently hardcoded
                         taal shouldBe "dut"
                         informatieobjecttype shouldBe providedInformatieObjectType.url
-                        inhoud shouldBe restFileUpload.file
+                        inhoud shouldBe Base64.getEncoder().encodeToString(restFileUpload.file)
                         formaat shouldBe restFileUpload.type
                         bestandsnaam shouldBe restFileUpload.filename
                         // status should always be DEFINITIEF
@@ -130,7 +130,7 @@ class RESTInformatieobjectConverterTest : BehaviorSpec() {
                         // currently hardcoded
                         taal shouldBe "dut"
                         informatieobjecttype shouldBe providedInformatieObjectType.url
-                        inhoud shouldBe restFileUpload.file
+                        inhoud shouldBe Base64.getEncoder().encodeToString(restFileUpload.file)
                         formaat shouldBe restFileUpload.type
                         bestandsnaam shouldBe restFileUpload.filename
                         // status should always be DEFINITIEF
@@ -172,7 +172,7 @@ class RESTInformatieobjectConverterTest : BehaviorSpec() {
                         auteur shouldBe restEnkelvoudigInformatieobject.auteur
                         taal shouldBe restEnkelvoudigInformatieobject.taal
                         informatieobjecttype shouldBe providedInformatieObjectType.url
-                        inhoud shouldBe restFileUpload.file
+                        inhoud shouldBe Base64.getEncoder().encodeToString(restFileUpload.file)
                         formaat shouldBe restFileUpload.type
                         bestandsnaam shouldBe restEnkelvoudigInformatieobject.bestandsnaam
                         status.name shouldBe restEnkelvoudigInformatieobject.status.name

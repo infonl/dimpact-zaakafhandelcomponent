@@ -5,6 +5,7 @@
 
 package net.atos.zac.app.informatieobjecten.converter;
 
+import static net.atos.client.zgw.drc.DrcClientUtil.convertByteArrayToBase64String;
 import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
 import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT;
 
@@ -197,7 +198,7 @@ public class RESTInformatieobjectConverter {
         final EnkelvoudigInformatieObjectCreateLockRequest enkelvoudigInformatieObjectCreateLockRequest = buildEnkelvoudigInformatieObjectData(
                 restEnkelvoudigInformatieobject
         );
-        enkelvoudigInformatieObjectCreateLockRequest.setInhoud(restEnkelvoudigInformatieobject.file);
+        enkelvoudigInformatieObjectCreateLockRequest.setInhoud(convertByteArrayToBase64String(restEnkelvoudigInformatieobject.file));
         enkelvoudigInformatieObjectCreateLockRequest.setBestandsomvang(restEnkelvoudigInformatieobject.file.length);
         enkelvoudigInformatieObjectCreateLockRequest.setFormaat(restEnkelvoudigInformatieobject.formaat);
         return enkelvoudigInformatieObjectCreateLockRequest;
@@ -237,7 +238,7 @@ public class RESTInformatieobjectConverter {
         final EnkelvoudigInformatieObjectCreateLockRequest enkelvoudigInformatieObjectCreateLockRequest = buildTaakEnkelvoudigInformatieObjectData(
                 restEnkelvoudigInformatieobject
         );
-        enkelvoudigInformatieObjectCreateLockRequest.setInhoud(restEnkelvoudigInformatieobject.file);
+        enkelvoudigInformatieObjectCreateLockRequest.setInhoud(convertByteArrayToBase64String(restEnkelvoudigInformatieobject.file));
         enkelvoudigInformatieObjectCreateLockRequest.setBestandsnaam(restEnkelvoudigInformatieobject.bestandsnaam);
         enkelvoudigInformatieObjectCreateLockRequest.setBestandsomvang(restEnkelvoudigInformatieobject.file.length);
         enkelvoudigInformatieObjectCreateLockRequest.setFormaat(restEnkelvoudigInformatieobject.formaat);
@@ -280,7 +281,7 @@ public class RESTInformatieobjectConverter {
         enkelvoudigInformatieobjectWithInhoud.setInformatieobjecttype(
                 ztcClientService.readInformatieobjecttype(documentData.getDocumentType().uuid).getUrl()
         );
-        enkelvoudigInformatieobjectWithInhoud.setInhoud(bestand.file);
+        enkelvoudigInformatieobjectWithInhoud.setInhoud(convertByteArrayToBase64String(bestand.file));
         enkelvoudigInformatieobjectWithInhoud.setFormaat(bestand.type);
         enkelvoudigInformatieobjectWithInhoud.setBestandsnaam(bestand.filename);
         enkelvoudigInformatieobjectWithInhoud.setStatus(StatusEnum.DEFINITIEF);
@@ -332,7 +333,8 @@ public class RESTInformatieobjectConverter {
             restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam != null &&
             restEnkelvoudigInformatieObjectVersieGegevens.formaat != null
         ) {
-            enkelvoudigInformatieObjectWithLockRequest.setInhoud(restEnkelvoudigInformatieObjectVersieGegevens.file);
+            enkelvoudigInformatieObjectWithLockRequest.setInhoud(convertByteArrayToBase64String(
+                    restEnkelvoudigInformatieObjectVersieGegevens.file));
             enkelvoudigInformatieObjectWithLockRequest.setBestandsnaam(restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam);
             enkelvoudigInformatieObjectWithLockRequest.setBestandsomvang(restEnkelvoudigInformatieObjectVersieGegevens.file.length);
             enkelvoudigInformatieObjectWithLockRequest.setFormaat(restEnkelvoudigInformatieObjectVersieGegevens.formaat);

@@ -1,5 +1,6 @@
 package net.atos.zac.webdav;
 
+import static net.atos.client.zgw.drc.DrcClientUtil.convertByteArrayToBase64String;
 import static net.atos.zac.util.DateTimeConverterUtil.convertToDate;
 
 import java.io.File;
@@ -113,7 +114,7 @@ public class WebdavStore implements IWebdavStore {
                 );
                 final var update = new EnkelvoudigInformatieObjectWithLockRequest();
                 final byte[] inhoud = IOUtils.toByteArray(content);
-                update.setInhoud(inhoud);
+                update.setInhoud(convertByteArrayToBase64String(inhoud));
                 update.setBestandsomvang(inhoud.length);
                 return enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
                         webdavGegevens.enkelvoudigInformatieibjectUUID(),
