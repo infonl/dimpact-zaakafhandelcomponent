@@ -50,9 +50,9 @@ import java.util.logging.Logger
 @Suppress("TooManyFunctions")
 class ZtcClientService @Inject constructor(
     @RestClient
-    val ztcClient: ZtcClient,
-    val zgwClientHeadersFactory: ZGWClientHeadersFactory,
-    val configuratieService: ConfiguratieService
+    private val ztcClient: ZtcClient,
+    private val zgwClientHeadersFactory: ZGWClientHeadersFactory,
+    private val configuratieService: ConfiguratieService
 ) : Caching {
     companion object {
         private val CACHES = mutableMapOf<String, Cache<*, *>>()

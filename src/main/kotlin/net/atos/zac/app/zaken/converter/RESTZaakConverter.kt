@@ -70,7 +70,7 @@ class RESTZaakConverter {
     private lateinit var userConverter: RESTUserConverter
 
     @Inject
-    private lateinit var besluitConverter: RESTBesluitConverter
+    private lateinit var besluitConverter: RestBesluitConverter
 
     @Inject
     private lateinit var zaaktypeConverter: RESTZaaktypeConverter
