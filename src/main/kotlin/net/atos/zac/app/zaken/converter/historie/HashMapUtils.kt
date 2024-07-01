@@ -2,7 +2,7 @@ package net.atos.zac.app.zaken.converter.historie
 
 import net.atos.client.zgw.shared.util.JsonbUtil
 
-fun <K> HashMap<K, *>.getDiff(other: HashMap<K, *>): Map<K, Pair<Any?, Any?>> = other.entries.mapNotNull {
+fun HashMap<*, *>.getDiff(other: HashMap<*, *>): Map<Any, Pair<*, Any?>> = other.entries.mapNotNull {
     when (this.containsKey(it.key) && compare(it.value, this[it.key])) {
         true -> null
         else -> it.key to (this[it.key] to it.value)

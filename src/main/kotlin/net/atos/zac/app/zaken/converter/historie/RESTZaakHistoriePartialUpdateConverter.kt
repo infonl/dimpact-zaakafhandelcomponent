@@ -15,12 +15,11 @@ private const val ZAAKGEOMETRIE = "zaakgeometrie"
 class RESTZaakHistoriePartialUpdateConverter @Inject constructor(
     private val vrlClientService: VrlClientService
 ) {
-
-    fun handlePartialUpdate(auditTrailRegel: AuditTrail, old: HashMap<String, *>, new: HashMap<String, *>) =
+    fun handlePartialUpdate(auditTrailRegel: AuditTrail, old: HashMap<*, *>, new: HashMap<*, *>) =
         old.getDiff(new)
             .map {
                 val regel = RESTHistorieRegel(
-                    it.key,
+                    it.key.toString(),
                     convertWaarde(it.key, it.value.first),
                     convertWaarde(it.key, it.value.second)
                 )
@@ -30,7 +29,7 @@ class RESTZaakHistoriePartialUpdateConverter @Inject constructor(
                 regel
             }
 
-    private fun convertWaarde(resource: String, item: Any?): String? = when {
+    private fun convertWaarde(resource: Any?, item: Any?): String? = when {
         resource == ZAAKGEOMETRIE && item is HashMap<*, *> -> item.getTypedValue(Geometry::class.java)?.toString()
         resource == COMMUNICATIEKANAAL && item is String ->
             item
