@@ -369,9 +369,7 @@ public class RESTInformatieobjectConverter {
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding != null) {
             enkelvoudigInformatieObjectWithLockData.setVertrouwelijkheidaanduiding(
-                    // always convert provided value to uppercase just to be safe
-                    VertrouwelijkheidaanduidingEnum.valueOf(restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding
-                            .toUpperCase())
+                    VertrouwelijkheidaanduidingEnum.fromValue(restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding)
             );
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.beschrijving != null) {
