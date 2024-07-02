@@ -73,7 +73,7 @@ objectClass: organizationalPerson
 objectClass: person
 objectClass: top
 cn: testuser1
-sn: User1
+sn: User1 Špëçîâl Characters
 givenName: Test
 mail: ${TESTUSER1_EMAIL_ADDRESS}
 userPassword:: e1NTSEF9WVFNNUV2d3F2RHMyR00rSVgzVGtoQzJUWWpScFpRZ0dhdEY5RXc9P

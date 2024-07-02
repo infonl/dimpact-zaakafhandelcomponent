@@ -14,7 +14,7 @@ import jakarta.ws.rs.ext.Provider;
 @Provider
 public class JsonbConfiguration implements ContextResolver<Jsonb> {
 
-    private Jsonb jsonb;
+    private final Jsonb jsonb;
 
     public JsonbConfiguration() {
         final JsonbConfig jsonbConfig = new JsonbConfig()
