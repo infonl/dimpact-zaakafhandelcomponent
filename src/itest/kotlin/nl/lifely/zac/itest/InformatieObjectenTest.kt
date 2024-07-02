@@ -44,7 +44,7 @@ import java.time.format.DateTimeFormatter
 @Order(TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED)
 class InformatieObjectenTest : BehaviorSpec({
     val fileTitle = "dummyTitel"
-    val updatedFileTitle = "updated title"
+    val updatedFileTitle = "updated title with Špëcîål characters"
     val documentVertrouwelijkheidsAanduidingVertrouwelijk = "zaakvertrouwelijk"
     val documentVertrouwelijkheidsAanduidingOpenbaar = "openbaar"
     val documentStatusDefinitief = "definitief"

@@ -21,27 +21,28 @@ import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * If the requested resource doesn't exist, use index.html
- * more information at https://angular.io/guide/deployment#server-configuration
+ * more information at <a href="https://angular.io/guide/deployment#server-configuration">server configuration</a>
  */
 @WebFilter(filterName = "indexRewriteFilter")
-public class indexRewriteFilter implements Filter {
-
-    private final List<String> resourcePaths = List.of("/assets", "/rest", "/websocket", "/webdav");
-
+public class IndexRewriteFilter implements Filter {
+    private static final List<String> RESOURCE_PATHS = List.of("/assets", "/rest", "/websocket", "/webdav");
     private static final Pattern REGEX_RESOURCES = Pattern.compile(
-            "\\.(js(on|\\.map)?|css|txt|jpe?g|png|gif|svg|ico|webmanifest|eot|ttf|woff2?)$");
+            "\\.(js(on|\\.map)?|css|txt|jpe?g|png|gif|svg|ico|webmanifest|eot|ttf|woff2?)$"
+    );
 
     @Override
-    public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException,
-                                                                                                                ServletException {
+    public void doFilter(
+            final ServletRequest request,
+            final ServletResponse response,
+            final FilterChain chain
+    ) throws IOException,
+      ServletException {
         if (request instanceof final HttpServletRequest httpRequest) {
             final String path = httpRequest.getServletPath();
             if (isResourcePath(path) || isResource(path)) {
                 chain.doFilter(request, response);
             } else if (path.equals("/logout")) {
                 logout(httpRequest, (HttpServletResponse) response);
-            } else if (path.startsWith("/startformulieren")) {
-                httpRequest.getRequestDispatcher("/startformulieren/melding-klein-evenement.jsp").forward(request, response);
             } else {
                 httpRequest.getRequestDispatcher("/index.html").forward(request, response);
             }
@@ -54,7 +55,7 @@ public class indexRewriteFilter implements Filter {
     }
 
     private boolean isResourcePath(final String path) {
-        return resourcePaths.stream().anyMatch(path::startsWith);
+        return RESOURCE_PATHS.stream().anyMatch(path::startsWith);
     }
 
     private boolean isResource(final String path) {
