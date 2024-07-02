@@ -135,7 +135,7 @@ export class InformatieObjectVerplaatsService {
     const actieveZaak = ViewResourceUtil.actieveZaak;
     if (actieveZaak && actieveZaak.identificatie !== verplaatsGegevens.bron) {
       if (
-        !actieveZaak.zaaktype.informatieobjecttypes.includes(
+        !actieveZaak.zaaktype.informatieobjecttypes?.includes(
           verplaatsGegevens.documentTypeUUID,
         )
       ) {

@@ -3,29 +3,17 @@ import { Component, Input, effect } from "@angular/core";
 import { MatTreeNestedDataSource } from "@angular/material/tree";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { Observable, firstValueFrom } from "rxjs";
+import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
 import {
   DocumentsTemplate,
   DocumentsTemplateGroup,
   SmartDocumentsService,
 } from "../../smart-documents.service";
 
-type SelectableDocumentsTemplate = {
-  id: string;
-  name: string;
-  selected: boolean;
-};
-
-type SelectableDocumentsTemplateGroup = {
-  id: string;
-  name: string;
-  templates?: SelectableDocumentsTemplate[];
-  groups?: SelectableDocumentsTemplateGroup[];
-};
-
 function getSelectableGroup(
   original: DocumentsTemplateGroup,
   selection?: DocumentsTemplateGroup,
-): SelectableDocumentsTemplateGroup {
+): DocumentsTemplateGroup {
   return {
     ...original,
     groups:
@@ -40,17 +28,18 @@ function getSelectableGroup(
 function getSelectableTemplates(
   original: DocumentsTemplate[],
   selection: DocumentsTemplate[],
-): SelectableDocumentsTemplate[] {
+): DocumentsTemplate[] {
   return original.map((template) => ({
     ...template,
-    selected: !!selection.find(({ id }) => id === template.id),
+    informatieObjectTypeUUID: selection.find(({ id }) => id === template.id)
+      ?.informatieObjectTypeUUID,
   }));
 }
 
 export function getSelectableGroups(
   original: DocumentsTemplateGroup[],
   selection: DocumentsTemplateGroup[],
-): SelectableDocumentsTemplateGroup[] {
+): DocumentsTemplateGroup[] {
   return original.map((group) =>
     getSelectableGroup(
       group,
@@ -60,10 +49,12 @@ export function getSelectableGroups(
 }
 
 export function filterOutUnselected(
-  group: SelectableDocumentsTemplateGroup,
+  group: DocumentsTemplateGroup,
 ): DocumentsTemplateGroup | undefined {
   const groups = group.groups?.map(filterOutUnselected).filter(Boolean);
-  const templates = group.templates?.filter(({ selected }) => selected);
+  const templates = group.templates?.filter(
+    ({ informatieObjectTypeUUID }) => informatieObjectTypeUUID,
+  );
   return groups?.length || templates?.length
     ? {
         ...group,
@@ -110,7 +101,7 @@ export function filterOutUnselected(
 
     .tree-grid {
       display: grid;
-      grid-template-columns: repeat(2, auto);
+      grid-template-columns: auto 18rem;
       inline-size: fit-content;
       column-gap: 2rem;
 
@@ -120,6 +111,10 @@ export function filterOutUnselected(
         display: grid;
         grid-template-columns: subgrid;
       }
+    }
+
+    mat-tree-node {
+      margin-block-start: 1rem;
     }
   `,
   template: `
@@ -137,10 +132,19 @@ export function filterOutUnselected(
         class="single-node"
       >
         <span>{{ node.name }}</span>
-        <mat-slide-toggle
-          [(ngModel)]="node.selected"
-          color="primary"
-        ></mat-slide-toggle>
+        <mat-form-field subscriptSizing="dynamic" floatLabel="always">
+          <mat-label>{{ "informatieobjectType" | translate }}</mat-label>
+          <mat-select [(value)]="node.informatieObjectTypeUUID">
+            <mat-option>{{
+              "informatieobjectType.-kies-" | translate
+            }}</mat-option>
+            @for (objType of informatieObjectTypes.data(); track objType.uuid) {
+              <mat-option [value]="objType.uuid">{{
+                objType.omschrijving
+              }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
       </mat-tree-node>
       <!-- This is the tree node template for expandable nodes -->
       <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
@@ -169,9 +173,18 @@ export function filterOutUnselected(
 })
 export class SmartDocumentsTreeComponent {
   @Input() zaaktypeUuid: string;
-  treeControl = new NestedTreeControl<SelectableDocumentsTemplateGroup>(
+  treeControl = new NestedTreeControl<DocumentsTemplateGroup>(
     ({ groups = [], templates = [] }) => [...groups, ...templates],
   );
+  informatieObjectTypes = injectQuery(() => ({
+    queryKey: ["informatieObjectTypes", this.zaaktypeUuid],
+    queryFn: () =>
+      firstValueFrom(
+        this.informatieObjectenService.listInformatieobjecttypes(
+          this.zaaktypeUuid,
+        ),
+      ),
+  }));
   allSmartDocumentTemplates = injectQuery(() => ({
     queryKey: ["all smart documents"],
     queryFn: () => firstValueFrom(this.smartDocumentsService.listTemplates()),
@@ -183,16 +196,16 @@ export class SmartDocumentsTreeComponent {
     ],
     queryFn: () =>
       firstValueFrom(
-        this.smartDocumentsService.getTemplatesMapping(
-          this.zaaktypeUuid,
-          "00000000-0000-0000-0000-000000000000",
-        ),
+        this.smartDocumentsService.getTemplatesMapping(this.zaaktypeUuid),
       ),
   }));
-  dataSource = new MatTreeNestedDataSource<SelectableDocumentsTemplateGroup>();
+  dataSource = new MatTreeNestedDataSource<DocumentsTemplateGroup>();
   parameters: any;
 
-  constructor(private smartDocumentsService: SmartDocumentsService) {
+  constructor(
+    private smartDocumentsService: SmartDocumentsService,
+    private informatieObjectenService: InformatieObjectenService,
+  ) {
     effect(() => {
       this.dataSource.data = getSelectableGroups(
         this.allSmartDocumentTemplates.data() || [],
@@ -203,13 +216,12 @@ export class SmartDocumentsTreeComponent {
 
   hasChild = (
     _: number,
-    { groups = [], templates = [] }: SelectableDocumentsTemplateGroup,
+    { groups = [], templates = [] }: DocumentsTemplateGroup,
   ) => !!groups.length || !!templates.length;
 
   save(): Observable<never> {
     return this.smartDocumentsService.storeTemplatesMapping(
       this.zaaktypeUuid,
-      "00000000-0000-0000-0000-000000000000",
       this.dataSource.data.map(filterOutUnselected).filter(Boolean),
     );
   }
