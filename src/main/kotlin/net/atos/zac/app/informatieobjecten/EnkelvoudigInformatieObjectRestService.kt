@@ -69,6 +69,7 @@ import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.util.UriUtil
 import net.atos.zac.webdav.WebdavHelper
 import net.atos.zac.websocket.event.ScreenEventType
+import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.apache.commons.lang3.StringUtils
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm
@@ -81,6 +82,7 @@ import java.util.UUID
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @NoArgConstructor
+@AllOpen
 @Suppress("TooManyFunctions", "LargeClass", "LongParameterList", "TooGenericExceptionThrown")
 class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val drcClientService: DrcClientService,
@@ -210,7 +212,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         @PathParam("zaakUuid") zaakUuid: UUID,
         @PathParam("documentReferenceId") documentReferenceId: String,
         @QueryParam("taakObject") isTaakObject: Boolean,
-        @MultipartForm restEnkelvoudigInformatieobject: @Valid RESTEnkelvoudigInformatieobject
+        @Valid @MultipartForm restEnkelvoudigInformatieobject: RESTEnkelvoudigInformatieobject
     ): RESTEnkelvoudigInformatieobject {
         val zaak = zrcClientService.readZaak(zaakUuid)
         assertPolicy(policyService.readZaakRechten(zaak).toevoegenDocument)
@@ -449,7 +451,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Path("/informatieobject/update")
     fun updateEnkelvoudigInformatieobjectAndUploadFile(
-        @MultipartForm enkelvoudigInformatieObjectVersieGegevens: @Valid RESTEnkelvoudigInformatieObjectVersieGegevens
+        @Valid @MultipartForm enkelvoudigInformatieObjectVersieGegevens: RESTEnkelvoudigInformatieObjectVersieGegevens
     ): RESTEnkelvoudigInformatieobject {
         val document = drcClientService.readEnkelvoudigInformatieobject(
             enkelvoudigInformatieObjectVersieGegevens.uuid
