@@ -1,9 +1,9 @@
 package net.atos.zac.app.zaken.converter.historie
 
 import jakarta.inject.Inject
+import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel
 import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.generated.AuditTrail
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.client.zgw.ztc.ZtcClientService
@@ -33,9 +33,9 @@ class RESTZaakHistorieRegelConverter @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val restZaakHistoriePartialUpdateConverter: RESTZaakHistoriePartialUpdateConverter
 ) {
-    fun convertZaakRESTHistorieRegel(auditTrail: AuditTrail): List<RESTHistorieRegel> {
-        val old = auditTrail.wijzigingen.oud as? HashMap<*, *>
-        val new = auditTrail.wijzigingen.nieuw as? HashMap<*, *>
+    fun convertZaakRESTHistorieRegel(auditTrail: ZRCAuditTrailRegel): List<RESTHistorieRegel> {
+        val old = auditTrail.wijzigingen.oud as? Map<*, *>
+        val new = auditTrail.wijzigingen.nieuw as? Map<*, *>
         return when {
             auditTrail.actie == PARTIAL_UPDATE &&
                 old != null &&
@@ -51,18 +51,18 @@ class RESTZaakHistorieRegelConverter @Inject constructor(
         }
     }
 
-    private fun convertLine(auditTrail: AuditTrail, old: HashMap<*, *>?, new: HashMap<*, *>?): RESTHistorieRegel =
+    private fun convertLine(auditTrail: ZRCAuditTrailRegel, old: Map<*, *>?, new: Map<*, *>?): RESTHistorieRegel =
         RESTHistorieRegel(
             (old ?: new)?.let { convertResource(auditTrail.resource, it) },
             old?.let { convertValue(auditTrail.resource, it, auditTrail.resourceWeergave) },
             new?.let { convertValue(auditTrail.resource, it, auditTrail.resourceWeergave) }
         ).apply {
-            datumTijd = auditTrail.aanmaakdatum.toZonedDateTime()
+            datumTijd = auditTrail.aanmaakdatum
             toelichting = auditTrail.toelichting
             door = auditTrail.gebruikersWeergave
         }
 
-    private fun convertResource(resource: String, obj: HashMap<*, *>): String = when (resource) {
+    private fun convertResource(resource: String, obj: Map<*, *>): String = when (resource) {
         ROL -> obj.stringProperty(ROLTYPE)
             ?.let(URI::create)
             ?.let(URIUtil::parseUUIDFromResourceURI)
@@ -72,7 +72,7 @@ class RESTZaakHistorieRegelConverter @Inject constructor(
         else -> resource
     } ?: resource
 
-    private fun convertValue(resource: String, obj: HashMap<*, *>, resourceWeergave: String): String? =
+    private fun convertValue(resource: String, obj: Map<*, *>, resourceWeergave: String): String? =
         when (resource) {
             ZAAK -> obj.stringProperty(IDENTIFICATIE)
             ROL -> obj.getTypedValue(Rol::class.java)?.naam
