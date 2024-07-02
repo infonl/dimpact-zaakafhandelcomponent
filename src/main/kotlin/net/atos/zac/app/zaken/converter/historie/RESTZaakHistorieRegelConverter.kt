@@ -37,48 +37,30 @@ class RESTZaakHistorieRegelConverter @Inject constructor(
         val old = auditTrail.wijzigingen.oud as? HashMap<*, *>
         val new = auditTrail.wijzigingen.nieuw as? HashMap<*, *>
         return when {
-            auditTrail.actie == PARTIAL_UPDATE && old != null && new != null
+            auditTrail.actie == PARTIAL_UPDATE &&
+                old != null &&
+                new != null
             -> restZaakHistoriePartialUpdateConverter.convertPartialUpdate(auditTrail, old, new)
+
             auditTrail.actie == CREATE ||
                 auditTrail.actie == UPDATE ||
                 auditTrail.actie == DESTROY
             -> listOf(convertLine(auditTrail, old, new))
+
             else -> emptyList()
         }
     }
 
-    private fun convertLine(
-        auditTrail: AuditTrail,
-        old: HashMap<*, *>?,
-        new: HashMap<*, *>?
-    ): RESTHistorieRegel {
-        val line = RESTHistorieRegel(
-            (old ?: new)?.let {
-                convertResource(
-                    auditTrail.resource,
-                    it
-                )
-            },
-            old?.let {
-                convertValue(
-                    auditTrail.resource,
-                    it,
-                    auditTrail.resourceWeergave
-                )
-            },
-            new?.let {
-                convertValue(
-                    auditTrail.resource,
-                    it,
-                    auditTrail.resourceWeergave
-                )
-            }
-        )
-        line.datumTijd = auditTrail.aanmaakdatum.toZonedDateTime()
-        line.toelichting = auditTrail.toelichting
-        line.door = auditTrail.gebruikersWeergave
-        return line
-    }
+    private fun convertLine(auditTrail: AuditTrail, old: HashMap<*, *>?, new: HashMap<*, *>?): RESTHistorieRegel =
+        RESTHistorieRegel(
+            (old ?: new)?.let { convertResource(auditTrail.resource, it) },
+            old?.let { convertValue(auditTrail.resource, it, auditTrail.resourceWeergave) },
+            new?.let { convertValue(auditTrail.resource, it, auditTrail.resourceWeergave) }
+        ).apply {
+            datumTijd = auditTrail.aanmaakdatum.toZonedDateTime()
+            toelichting = auditTrail.toelichting
+            door = auditTrail.gebruikersWeergave
+        }
 
     private fun convertResource(resource: String, obj: HashMap<*, *>): String = when (resource) {
         ROL -> obj.stringProperty(ROLTYPE)
