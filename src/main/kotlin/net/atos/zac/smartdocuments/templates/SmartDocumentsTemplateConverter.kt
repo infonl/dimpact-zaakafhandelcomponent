@@ -14,7 +14,6 @@ import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplate
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters
 import java.time.ZonedDateTime
-import java.util.UUID
 
 @Suppress("TooManyFunctions")
 object SmartDocumentsTemplateConverter {
