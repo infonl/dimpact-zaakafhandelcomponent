@@ -60,7 +60,4 @@ class SmartDocumentsTemplateGroup {
     @ManyToOne
     @JoinColumn(name = "zaakafhandelparameters_id", nullable = false)
     lateinit var zaakafhandelParameters: ZaakafhandelParameters
-
-    @Column(name = "informatie_object_type_uuid", nullable = false)
-    lateinit var informatieobjectTypeUUID: UUID
 }
