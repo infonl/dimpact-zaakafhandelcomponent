@@ -19,9 +19,10 @@ fun createRESTTemplateGroup(
 
 fun createRESTTemplate(
     id: String = UUID.randomUUID().toString(),
-    name: String = "template1"
+    name: String = "template1",
+    informatieObjectTypeUUID: UUID? = UUID.randomUUID()
 ) = RESTSmartDocumentsTemplate(
     id = id,
     name = name,
-    informatieObjectTypeUUID = smartDocumentsTemplate.informatieObjectTypeUUID
+    informatieObjectTypeUUID = informatieObjectTypeUUID
 )
