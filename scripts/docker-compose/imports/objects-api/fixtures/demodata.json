@@ -817,7 +817,7 @@
                     "naam" : "open-forms",
                     "kenmerk" : "a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"
                 },
-                "type": "productaanvraag",
+                "type": "productaanvraag-type-1",
                 "aanvraaggegevens": {
                     "stap1": {
                         "naam" : "Jan Jansen",

@@ -16,8 +16,16 @@ import nl.lifely.zac.itest.client.KeycloakClient
 import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
+import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCT_AANVRAAG_TYPE_1
+import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCT_AANVRAAG_TYPE_2
 import nl.lifely.zac.itest.config.ItestConfiguration.SMARTDOCUMENTS_MOCK_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.SMTP_SERVER_PORT
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_IDENTIFICATIE
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_CONTAINER_SERVICE_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_DEFAULT_DOCKER_IMAGE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_HEALTH_READY_URL
@@ -96,7 +104,20 @@ class ProjectConfig : AbstractProjectConfig() {
 
             KeycloakClient.authenticate()
 
-            ZacClient().createZaakAfhandelParameters().use { response ->
+            ZacClient().createZaakAfhandelParameters(
+                ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE,
+                ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID,
+                ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION,
+                PRODUCT_AANVRAAG_TYPE_1
+            ).use { response ->
+                response.isSuccessful shouldBe true
+            }
+            ZacClient().createZaakAfhandelParameters(
+                ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_IDENTIFICATIE,
+                ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID,
+                ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION,
+                PRODUCT_AANVRAAG_TYPE_2
+            ).use { response ->
                 response.isSuccessful shouldBe true
             }
         } catch (exception: ContainerLaunchException) {

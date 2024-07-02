@@ -873,7 +873,7 @@ class ZakenRESTService @Inject constructor(
             zgwApiService.createResultaatForZaak(zaak, besluitToevoegenGegevens.resultaattypeUuid, null)
         }
         val restBesluit = restBesluitConverter.convertToRESTBesluit(brcClientService.createBesluit(besluit))
-        besluitToevoegenGegevens.informatieobjecten!!.forEach(
+        besluitToevoegenGegevens.informatieobjecten?.forEach(
             Consumer { documentUri: UUID? ->
                 val informatieobject = drcClientService.readEnkelvoudigInformatieobject(documentUri)
                 val besluitInformatieobject = BesluitInformatieObject()

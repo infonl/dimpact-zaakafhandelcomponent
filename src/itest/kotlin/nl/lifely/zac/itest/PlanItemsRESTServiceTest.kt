@@ -41,8 +41,8 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
                 "$ZAC_API_URI/planitems/zaak/$zaak1UUID/humanTaskPlanItems"
             )
             Then(
-                "the list of human task plan items for this zaak is returned and contains " +
-                    "the task 'aanvullende informatie'"
+                """the list of human task plan items for this zaak is returned and contains 
+                         the task 'aanvullende informatie'"""
             ) {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }

@@ -37,7 +37,7 @@
               "naam": "Jan Jansen",
               "telefoonnummer": "0612345678"
             },
-            "productAanvraagtype": "productaanvraag"
+            "productAanvraagtype": "productaanvraag-type-1"
           },
           "zaak": {
             "communicatiekanaal": "E-formulier",
