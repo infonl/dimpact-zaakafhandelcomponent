@@ -18,27 +18,27 @@ class RESTZaakHistoriePartialUpdateConverter @Inject constructor(
     fun convertPartialUpdate(auditTrail: AuditTrail, old: HashMap<*, *>, new: HashMap<*, *>) =
         old.getDiff(new).map { convertLine(auditTrail, it) }
 
-    private fun convertLine(auditTrail: AuditTrail, change: Map.Entry<Any, Pair<*, Any?>>): RESTHistorieRegel {
-        val line = RESTHistorieRegel(
+    private fun convertLine(auditTrail: AuditTrail, change: Map.Entry<Any, Pair<*, Any?>>): RESTHistorieRegel =
+        RESTHistorieRegel(
             change.key.toString(),
             convertValue(change.key, change.value.first),
             convertValue(change.key, change.value.second)
-        )
-        line.datumTijd = auditTrail.aanmaakdatum.toZonedDateTime()
-        line.door = auditTrail.gebruikersWeergave
-        line.toelichting = auditTrail.toelichting
-        return line
-    }
+        ).apply {
+            datumTijd = auditTrail.aanmaakdatum.toZonedDateTime()
+            door = auditTrail.gebruikersWeergave
+            toelichting = auditTrail.toelichting
+        }
 
-    private fun convertValue(resource: Any?, item: Any?): String? = when {
-        resource == ZAAKGEOMETRIE && item is HashMap<*, *> -> item.getTypedValue(Geometry::class.java)?.toString()
-        resource == COMMUNICATIEKANAAL && item is String ->
-            item
-                .let(URI::create)
-                .let(URIUtil::parseUUIDFromResourceURI)
-                .let(vrlClientService::findCommunicatiekanaal)
-                .map(CommunicatieKanaal::getNaam)
-                .orElse(null)
-        else -> item?.toString()
-    }
+    private fun convertValue(resource: Any?, item: Any?): String? =
+        when {
+            resource == ZAAKGEOMETRIE && item is HashMap<*, *> -> item.getTypedValue(Geometry::class.java)?.toString()
+            resource == COMMUNICATIEKANAAL && item is String ->
+                item
+                    .let(URI::create)
+                    .let(URIUtil::parseUUIDFromResourceURI)
+                    .let(vrlClientService::findCommunicatiekanaal)
+                    .map(CommunicatieKanaal::getNaam)
+                    .orElse(null)
+            else -> item?.toString()
+        }
 }
