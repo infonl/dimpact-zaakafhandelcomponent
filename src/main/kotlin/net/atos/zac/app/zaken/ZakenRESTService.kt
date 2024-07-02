@@ -77,6 +77,7 @@ import net.atos.zac.app.zaken.converter.RESTZaaktypeConverter
 import net.atos.zac.app.zaken.converter.RestBesluitConverter
 import net.atos.zac.app.zaken.converter.convertToRESTCommunicatiekanalen
 import net.atos.zac.app.zaken.converter.convertToRESTZaakBetrokkenen
+import net.atos.zac.app.zaken.converter.historie.RESTZaakHistorieRegelConverter
 import net.atos.zac.app.zaken.model.RESTBesluit
 import net.atos.zac.app.zaken.model.RESTBesluitIntrekkenGegevens
 import net.atos.zac.app.zaken.model.RESTBesluitVastleggenGegevens
@@ -191,7 +192,8 @@ class ZakenRESTService @Inject constructor(
     private val restGeometryConverter: RESTGeometryConverter,
     private val healthCheckService: HealthCheckService,
     private val opschortenZaakHelper: OpschortenZaakHelper,
-    private val zaakService: ZaakService
+    private val zaakService: ZaakService,
+    private val restZaakHistorieRegelConverter: RESTZaakHistorieRegelConverter
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZakenRESTService::class.java.name)
@@ -770,8 +772,8 @@ class ZakenRESTService @Inject constructor(
     @Path("zaak/{uuid}/historie")
     fun listHistorie(@PathParam("uuid") zaakUUID: UUID?): List<RESTHistorieRegel> {
         assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).lezen)
-        val auditTrail: List<AuditTrailRegel> = zrcClientService.listAuditTrail(zaakUUID)
-        return restHistorieRegelConverter.convert(auditTrail)
+        val auditTrail = zrcClientService.listAuditTrail(zaakUUID)
+        return auditTrail.flatMap(restZaakHistorieRegelConverter::convertZaakRESTHistorieRegel)
     }
 
     @GET
