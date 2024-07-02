@@ -244,20 +244,18 @@ class ZaakafhandelParametersRESTService @Inject constructor(
     }
 
     @GET
-    @Path("{zaakafhandelUUID}/informatieobjectType/{informatieobjectTypeUUID}/documentTemplates")
+    @Path("{zaakafhandelUUID}/documentTemplates")
     fun getTemplatesMapping(
-        @PathParam("zaakafhandelUUID") zaakafhandelUUID: UUID,
-        @PathParam("informatieobjectTypeUUID") informatieobjectTypeUUID: UUID,
+        @PathParam("zaakafhandelUUID") zaakafhandelUUID: UUID
     ): Set<RESTSmartDocumentsTemplateGroup> {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        return smartDocumentsService.getTemplatesMapping(zaakafhandelUUID, informatieobjectTypeUUID)
+        return smartDocumentsService.getTemplatesMapping(zaakafhandelUUID)
     }
 
     @POST
-    @Path("{zaakafhandelUUID}/informatieobjectType/{informatieobjectTypeUUID}/documentTemplates")
+    @Path("{zaakafhandelUUID}/documentTemplates")
     fun storeTemplatesMapping(
         @PathParam("zaakafhandelUUID") zaakafhandelUUID: UUID,
-        @PathParam("informatieobjectTypeUUID") informatieobjectTypeUUID: UUID,
         restTemplateGroups: Set<RESTSmartDocumentsTemplateGroup>
     ) {
         assertPolicy(policyService.readOverigeRechten().beheren)
@@ -265,6 +263,6 @@ class ZaakafhandelParametersRESTService @Inject constructor(
         val smartDocumentsTemplates = smartDocumentsService.listTemplates()
         restTemplateGroups.validate(smartDocumentsTemplates)
 
-        smartDocumentsService.storeTemplatesMapping(restTemplateGroups, zaakafhandelUUID, informatieobjectTypeUUID)
+        smartDocumentsService.storeTemplatesMapping(restTemplateGroups, zaakafhandelUUID)
     }
 }

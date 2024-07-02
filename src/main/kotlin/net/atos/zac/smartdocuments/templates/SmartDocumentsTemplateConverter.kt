@@ -54,33 +54,32 @@ object SmartDocumentsTemplateConverter {
         smartDocumentsTemplate: SmartDocumentsResponseTemplate
     ) = RESTSmartDocumentsTemplate(
         id = smartDocumentsTemplate.id,
-        name = smartDocumentsTemplate.name
+        name = smartDocumentsTemplate.name,
+        null
     )
 
     /**
      * REST --> JPA
      */
     fun Set<RESTSmartDocumentsTemplateGroup>.toModel(
-        zaakafhandelParameters: ZaakafhandelParameters,
-        informatieObjectTypeUUID: UUID
+        zaakafhandelParameters: ZaakafhandelParameters
     ): Set<SmartDocumentsTemplateGroup> =
         this.mapTo(mutableSetOf()) {
-            convertTemplateGroupToModel(it, null, zaakafhandelParameters, informatieObjectTypeUUID)
+            convertTemplateGroupToModel(it, null, zaakafhandelParameters)
         }
 
     private fun convertTemplateGroupToModel(
         group: RESTSmartDocumentsTemplateGroup,
         parent: SmartDocumentsTemplateGroup?,
-        zaakafhandelParameterId: ZaakafhandelParameters,
-        informatieObjectTypeUUID: UUID
+        zaakafhandelParameterId: ZaakafhandelParameters
     ): SmartDocumentsTemplateGroup {
-        val jpaGroup = createModelTemplateGroup(group, parent, zaakafhandelParameterId, informatieObjectTypeUUID)
+        val jpaGroup = createModelTemplateGroup(group, parent, zaakafhandelParameterId)
 
         jpaGroup.templates = group.templates?.map {
-            createModelTemplate(it, jpaGroup, zaakafhandelParameterId, informatieObjectTypeUUID)
+            createModelTemplate(it, jpaGroup, zaakafhandelParameterId)
         }?.ifEmpty { null }?.toMutableSet()
         jpaGroup.children = group.groups?.map {
-            convertTemplateGroupToModel(it, jpaGroup, zaakafhandelParameterId, informatieObjectTypeUUID)
+            convertTemplateGroupToModel(it, jpaGroup, zaakafhandelParameterId)
         }?.ifEmpty { null }?.toMutableSet()
 
         return jpaGroup
@@ -89,12 +88,10 @@ object SmartDocumentsTemplateConverter {
     private fun createModelTemplateGroup(
         smartDocumentsTemplateGroup: RESTSmartDocumentsTemplateGroup,
         parentGroup: SmartDocumentsTemplateGroup?,
-        zaakafhandelParams: ZaakafhandelParameters,
-        infObjectTypeUUID: UUID
+        zaakafhandelParams: ZaakafhandelParameters
     ) = SmartDocumentsTemplateGroup().apply {
         smartDocumentsId = smartDocumentsTemplateGroup.id
         zaakafhandelParameters = zaakafhandelParams
-        informatieobjectTypeUUID = infObjectTypeUUID
         name = smartDocumentsTemplateGroup.name
         parent = parentGroup
         creationDate = ZonedDateTime.now()
@@ -103,12 +100,11 @@ object SmartDocumentsTemplateConverter {
     private fun createModelTemplate(
         smartDocumentsTemplate: RESTSmartDocumentsTemplate,
         parentGroup: SmartDocumentsTemplateGroup,
-        zaakafhandelParams: ZaakafhandelParameters,
-        infObjectTypeUUID: UUID
+        zaakafhandelParams: ZaakafhandelParameters
     ) = SmartDocumentsTemplate().apply {
         smartDocumentsId = smartDocumentsTemplate.id
         zaakafhandelParameters = zaakafhandelParams
-        informatieObjectTypeUUID = infObjectTypeUUID
+        informatieObjectTypeUUID = smartDocumentsTemplate.informatieObjectTypeUUID!!
         name = smartDocumentsTemplate.name
         templateGroup = parentGroup
         creationDate = ZonedDateTime.now()
@@ -148,7 +144,8 @@ object SmartDocumentsTemplateConverter {
         smartDocumentsTemplate: SmartDocumentsTemplate
     ) = RESTSmartDocumentsTemplate(
         id = smartDocumentsTemplate.smartDocumentsId,
-        name = smartDocumentsTemplate.name
+        name = smartDocumentsTemplate.name,
+        informatieObjectTypeUUID = smartDocumentsTemplate.informatieObjectTypeUUID,
     )
 
     /**

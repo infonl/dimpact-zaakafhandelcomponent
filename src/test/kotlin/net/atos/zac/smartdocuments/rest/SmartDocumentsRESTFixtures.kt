@@ -22,5 +22,6 @@ fun createRESTTemplate(
     name: String = "template1"
 ) = RESTSmartDocumentsTemplate(
     id = id,
-    name = name
+    name = name,
+    informatieObjectTypeUUID = smartDocumentsTemplate.informatieObjectTypeUUID
 )
