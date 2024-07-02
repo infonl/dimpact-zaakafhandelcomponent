@@ -1276,24 +1276,24 @@
                     "controlefrequentie": {
                         "$id": "#/properties/controlefrequentie",
                         "enum": [
-                            "TODO"
+                            "dummyData"
                         ],
                         "type": "string",
                         "title": "Controlefrequentie",
                         "examples": [
-                            "TODO"
+                            "dummyData"
                         ],
                         "description": "Aanduiding van de frequentie van de controle van het beheerobject.\nToelichting: \"De frequentie van de boomveiligheidscontrole. Dit is de periodieke visuele controle van een boom in het kader van de zorgplicht (voortkomend uit artikel 6:162 van het BW) ten behoeve van het vaststellen van een (potentieel toekomstig) risico dat de boom vormt voor zijn omgeving. \nDe term boomveiligheidscontrole heeft betrekking op het gehele proces om in het veld de benodigde gegevens te verkrijgen voor het logboek, zoals beschreven in de CROW Richtlijn Boomveiligheidsregistratie.\n\""
                     },
                     "stamdiameterklasse": {
                         "$id": "#/properties/stamdiameterklasse",
                         "enum": [
-                            "TODO"
+                            "dummyData"
                         ],
                         "type": "string",
                         "title": "Stamdiameterklasse",
                         "examples": [
-                            "TODO"
+                            "dummyData"
                         ],
                         "description": "Aanduiding van de diameter van de stam in diameterklassen."
                     },
@@ -1316,12 +1316,12 @@
                     "boomboomvoorziening": {
                         "$id": "#/properties/boomboomvoorziening",
                         "enum": [
-                            "TODO"
+                            "dummyData"
                         ],
                         "type": "string",
                         "title": "BoomBoomvoorziening",
                         "examples": [
-                            "TODO"
+                            "dummyData"
                         ],
                         "description": "Mogelijkheid om 1 of meerdere boomvoorzieningen bij een boom te registreren."
                     },
@@ -1402,12 +1402,12 @@
                     "boomhoogteklasseactueel": {
                         "$id": "#/properties/boomhoogteklasseactueel",
                         "enum": [
-                            "TODO"
+                            "dummyData"
                         ],
                         "type": "string",
                         "title": "BoomhoogteklasseActueel",
                         "examples": [
-                            "TODO"
+                            "dummyData"
                         ],
                         "description": "Aanduiding van de boomhoogte in meters ingedeeld in vaste klassen.\nToelichting: Boomhoogte in meters, ingedeeld in vaste klassen,  gemeten vanaf het maaiveld tot de top van de boom, bij vormbomen gemeten tot de hoogste knot of de gewenste hoogte (Bron: RAW)"
                     },
@@ -1421,12 +1421,12 @@
                     "boomhoogteklasseeindbeeld": {
                         "$id": "#/properties/boomhoogteklasseeindbeeld",
                         "enum": [
-                            "TODO"
+                            "dummyData"
                         ],
                         "type": "string",
                         "title": "BoomhoogteklasseEindbeeld",
                         "examples": [
-                            "TODO"
+                            "dummyData"
                         ],
                         "description": "Aanduiding van de boomhoogte van het eindbeeld, in meters ingedeeld in vaste klassen.\nToelichting: Boomhoogte in meters, ingedeeld in vaste klassen,  gemeten vanaf het maaiveld tot de top van de boom, bij vormbomen gemeten tot de hoogste knot of de gewenste hoogte (Bron: RAW)"
                     },
@@ -1465,12 +1465,12 @@
                     "kroondiameterklasseactueel": {
                         "$id": "#/properties/kroondiameterklasseactueel",
                         "enum": [
-                            "TODO"
+                            "dummyData"
                         ],
                         "type": "string",
                         "title": "KroondiameterklasseActueel",
                         "examples": [
-                            "TODO"
+                            "dummyData"
                         ],
                         "description": "Diameter van de kroon van de boom in meters ingedeeld in vaste klassen."
                     },
@@ -1493,24 +1493,24 @@
                     "kroondiameterklasseeindbeeld": {
                         "$id": "#/properties/kroondiameterklasseeindbeeld",
                         "enum": [
-                            "TODO"
+                            "dummyData"
                         ],
                         "type": "string",
                         "title": "KroondiameterklasseEindbeeld",
                         "examples": [
-                            "TODO"
+                            "dummyData"
                         ],
                         "description": "Diameter van de kroon van het eindbeeld van de boom in meters ingedeeld in vaste klassen."
                     },
                     "boomtypebeschermingsstatusplus": {
                         "$id": "#/properties/boomtypebeschermingsstatusplus",
                         "enum": [
-                            "TODO"
+                            "dummyData"
                         ],
                         "type": "string",
                         "title": "BoomTypeBeschermingsstatusPlus",
                         "examples": [
-                            "TODO"
+                            "dummyData"
                         ],
                         "description": "Nadere aanduiding voor de speciale status van de boom."
                     }
