@@ -28,6 +28,7 @@ describe("SmartDocumentsTree-getSelectableGroups", () => {
             {
               id: "some-template",
               name: "",
+              informatieObjectTypeUUID: "my-id",
             },
           ],
         },
@@ -40,7 +41,7 @@ describe("SmartDocumentsTree-getSelectableGroups", () => {
     expect(group.templates.length).toBe(1);
     const template = group.templates[0];
     expect(template.id).toBe("some-template");
-    expect(template.selected).toBe(true);
+    expect(template.informatieObjectTypeUUID).toBe("my-id");
   });
 
   it("should mark matching templates at a nested level as selected", () => {
@@ -77,6 +78,7 @@ describe("SmartDocumentsTree-getSelectableGroups", () => {
                 {
                   id: "some-template",
                   name: "",
+                  informatieObjectTypeUUID: "my-id",
                 },
               ],
             },
@@ -94,7 +96,7 @@ describe("SmartDocumentsTree-getSelectableGroups", () => {
     expect(inner.templates.length).toBe(1);
     const template = inner.templates[0];
     expect(template.id).toBe("some-template");
-    expect(template.selected).toBe(true);
+    expect(template.informatieObjectTypeUUID).toBe("my-id");
   });
 
   it("should ignore old groups and templates that don't exist anymore", () => {
@@ -121,6 +123,7 @@ describe("SmartDocumentsTree-getSelectableGroups", () => {
             {
               id: "i-am-an-old-template",
               name: "",
+              informatieObjectTypeUUID: "my-id",
             },
           ],
         },
@@ -131,6 +134,7 @@ describe("SmartDocumentsTree-getSelectableGroups", () => {
             {
               id: "i-am-also-an-old-template",
               name: "",
+              informatieObjectTypeUUID: "my-id",
             },
           ],
         },
@@ -142,7 +146,7 @@ describe("SmartDocumentsTree-getSelectableGroups", () => {
     expect(firstGroup.templates.length).toBe(1);
     const firstTemplate = firstGroup.templates[0];
     expect(firstTemplate.id).toBe("i-am-a-new-template");
-    expect(firstTemplate.selected).toBe(false);
+    expect(firstTemplate.informatieObjectTypeUUID).toBeFalsy();
   });
 });
 
@@ -155,12 +159,11 @@ describe("SmartDocumentsTree-filterOutUnselected", () => {
         {
           id: "1",
           name: "",
-          selected: true,
+          informatieObjectTypeUUID: "my-id",
         },
         {
           id: "2",
           name: "",
-          selected: false,
         },
       ],
     });
@@ -181,12 +184,11 @@ describe("SmartDocumentsTree-filterOutUnselected", () => {
             {
               id: "1",
               name: "",
-              selected: true,
+              informatieObjectTypeUUID: "my-id",
             },
             {
               id: "2",
               name: "",
-              selected: false,
             },
           ],
         },
@@ -212,7 +214,6 @@ describe("SmartDocumentsTree-filterOutUnselected", () => {
             {
               id: "2",
               name: "",
-              selected: false,
             },
           ],
         },
@@ -223,7 +224,7 @@ describe("SmartDocumentsTree-filterOutUnselected", () => {
             {
               id: "4",
               name: "",
-              selected: true,
+              informatieObjectTypeUUID: "my-id",
             },
           ],
         },
