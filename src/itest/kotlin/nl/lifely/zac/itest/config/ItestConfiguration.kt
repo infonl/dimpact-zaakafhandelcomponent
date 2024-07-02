@@ -43,7 +43,8 @@ object ItestConfiguration {
     const val OPEN_ZAAK_CLIENT_ID = "zac_client"
     const val OPEN_ZAAK_CLIENT_SECRET = "openzaakZaakafhandelcomponentClientSecret"
     const val PDF_MIME_TYPE = "application/pdf"
-    const val PRODUCT_AANVRAAG_TYPE = "productaanvraag"
+    const val PRODUCT_AANVRAAG_TYPE_1 = "productaanvraag-type-1"
+    const val PRODUCT_AANVRAAG_TYPE_2 = "productaanvraag-type-2"
     const val PRODUCT_AANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE = 52.08968250760225
     const val PRODUCT_AANVRAAG_ZAAKGEGEVENS_GEOMETRY_LONGITUDE = 5.114358701512936
     const val ROLTYPE_NAME_BETROKKENE = "Belanghebbende"
@@ -143,9 +144,16 @@ object ItestConfiguration {
     const val ZAC_HEALTH_READY_URL = "$ZAC_MANAGEMENT_URI/health/ready"
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE = "melding-evenement-organiseren-behandelen"
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION = "Melding evenement organiseren behandelen"
+    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_IDENTIFICATIE =
+        "indienen-aansprakelijkstelling-door-derden-behandelen"
+    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION =
+        "Indienen aansprakelijkstelling door derden behandelen"
+
     const val SMARTDOCUMENTS_MOCK_BASE_URI = "http://smartdocuments-wiremock:8080"
 
     val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
+    val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID: UUID =
+        UUID.fromString("fd2bf643-c98a-4b00-b2b3-9ae0c41ed425")
     val START_DATE = LocalDateTime.now()
 
     /**

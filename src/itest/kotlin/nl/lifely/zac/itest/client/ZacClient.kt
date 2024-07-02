@@ -5,10 +5,6 @@
 package nl.lifely.zac.itest.client
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCT_AANVRAAG_TYPE
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import okhttp3.Response
 import java.util.UUID
@@ -18,10 +14,15 @@ class ZacClient {
     private var itestHttpClient = ItestHttpClient()
 
     @Suppress("LongMethod")
-    fun createZaakAfhandelParameters(): Response {
+    fun createZaakAfhandelParameters(
+        zaakTypeIdentificatie: String,
+        zaakTypeUuid: UUID,
+        zaakTypeDescription: String,
+        productaanvraagType: String
+    ): Response {
         logger.info {
-            "Creating zaakafhandelparameters in ZAC for zaaktype with identificatie: $ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE " +
-                "and UUID: $ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
+            "Creating zaakafhandelparameters in ZAC for zaaktype with identificatie: $zaakTypeIdentificatie " +
+                "and UUID: $zaakTypeUuid"
         }
         return itestHttpClient.performPutRequest(
             url = "$ZAC_API_URI/zaakafhandelParameters",
@@ -122,12 +123,12 @@ class ZacClient {
                 "  \"zaakbeeindigParameters\": [],\n" +
                 "  \"zaaktype\": {\n" +
                 "    \"beginGeldigheid\": \"2023-09-21\",\n" +
-                "    \"doel\": \"$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION\",\n" +
-                "    \"identificatie\": \"$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE\",\n" +
+                "    \"doel\": \"$zaakTypeDescription\",\n" +
+                "    \"identificatie\": \"$zaakTypeIdentificatie\",\n" +
                 "    \"nuGeldig\": true,\n" +
-                "    \"omschrijving\": \"$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION\",\n" +
+                "    \"omschrijving\": \"$zaakTypeDescription\",\n" +
                 "    \"servicenorm\": false,\n" +
-                "    \"uuid\": \"$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID\",\n" +
+                "    \"uuid\": \"$zaakTypeUuid\",\n" +
                 "    \"versiedatum\": \"2023-09-21\",\n" +
                 "    \"vertrouwelijkheidaanduiding\": \"openbaar\"\n" +
                 "  },\n" +
@@ -188,7 +189,7 @@ class ZacClient {
                 "  \"defaultBehandelaarId\": null,\n" +
                 "  \"einddatumGeplandWaarschuwing\": null,\n" +
                 "  \"uiterlijkeEinddatumAfdoeningWaarschuwing\": null,\n" +
-                "  \"productaanvraagtype\": \"$PRODUCT_AANVRAAG_TYPE\",\n" +
+                "  \"productaanvraagtype\": \"$productaanvraagType\",\n" +
                 "  \"zaakNietOntvankelijkResultaattype\": {\n" +
                 "    \"archiefNominatie\": \"VERNIETIGEN\",\n" +
                 "    \"archiefTermijn\": \"5 jaren\",\n" +
