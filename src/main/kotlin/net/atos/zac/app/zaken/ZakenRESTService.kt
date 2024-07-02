@@ -770,7 +770,7 @@ class ZakenRESTService @Inject constructor(
 
     @GET
     @Path("zaak/{uuid}/historie")
-    fun listHistorie(@PathParam("uuid") zaakUUID: UUID?): List<RESTHistorieRegel> {
+    fun listHistorie(@PathParam("uuid") zaakUUID: UUID): List<RESTHistorieRegel> {
         assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).lezen)
         val auditTrail = zrcClientService.listAuditTrail(zaakUUID)
         return auditTrail.flatMap(restZaakHistorieRegelConverter::convertZaakRESTHistorieRegel)
@@ -778,9 +778,7 @@ class ZakenRESTService @Inject constructor(
 
     @GET
     @Path("zaak/{uuid}/betrokkene")
-    fun listBetrokkenenVoorZaak(
-        @PathParam("uuid") zaakUUID: UUID?
-    ): List<RESTZaakBetrokkene> {
+    fun listBetrokkenenVoorZaak(@PathParam("uuid") zaakUUID: UUID): List<RESTZaakBetrokkene> {
         val zaak = zrcClientService.readZaak(zaakUUID)
         assertPolicy(policyService.readZaakRechten(zaak).lezen)
         return convertToRESTZaakBetrokkenen(
