@@ -19,8 +19,10 @@ fun createSmartDocumentsTemplateGroup(
 
 fun createSmartDocumentsTemplate(
     id: String = UUID.randomUUID().toString(),
-    name: String = "template"
+    name: String = "template",
+    informatieObjectTypeUUID: UUID = UUID.randomUUID(),
 ) = SmartDocumentsTemplate().apply {
     smartDocumentsId = id
     this.name = name
+    this.informatieObjectTypeUUID = informatieObjectTypeUUID
 }

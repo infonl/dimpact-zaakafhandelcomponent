@@ -61,54 +61,53 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
     }
 
     Given("a REST request") {
+        val expectedInformatieobjectTypeUUID = UUID.randomUUID()
         val restTemplateRequest = setOf(
             createRESTTemplateGroup(name = "root").apply {
                 groups = setOf(
                     createRESTTemplateGroup(name = "group 1").apply {
                         templates = setOf(
-                            createRESTTemplate(name = "group 1 template 1"),
-                            createRESTTemplate(name = "group 1 template 2")
+                            createRESTTemplate(name = "group 1 template 1", informatieObjectTypeUUID = expectedInformatieobjectTypeUUID),
+                            createRESTTemplate(name = "group 1 template 2", informatieObjectTypeUUID = expectedInformatieobjectTypeUUID)
                         )
                         groups = emptySet()
                     },
                     createRESTTemplateGroup(name = "group 2").apply {
                         templates = setOf(
-                            createRESTTemplate(name = "group 2 template 1"),
-                            createRESTTemplate(name = "group 2 template 2")
+                            createRESTTemplate(name = "group 2 template 1", informatieObjectTypeUUID = expectedInformatieobjectTypeUUID),
+                            createRESTTemplate(name = "group 2 template 2", informatieObjectTypeUUID = expectedInformatieobjectTypeUUID)
                         )
                         groups = emptySet()
                     }
                 )
                 templates = setOf(
-                    createRESTTemplate(name = "root template 1"),
-                    createRESTTemplate(name = "root template 2")
+                    createRESTTemplate(name = "root template 1", informatieObjectTypeUUID = expectedInformatieobjectTypeUUID),
+                    createRESTTemplate(name = "root template 2", informatieObjectTypeUUID = expectedInformatieobjectTypeUUID)
                 )
             }
         )
 
         When("convert to JPA model is called") {
             val zaakafhandelParametersFixture = createZaakafhandelParameters()
-            val expectedInformatieobjectTypeUUID = UUID.randomUUID()
-            val jpaModel = restTemplateRequest.toModel(zaakafhandelParametersFixture, expectedInformatieobjectTypeUUID)
+            val jpaModel = restTemplateRequest.toModel(zaakafhandelParametersFixture)
 
             Then("it produces a correct jpa representation") {
                 jpaModel.size shouldBe 1
                 with(jpaModel.first()) {
                     name shouldBe "root"
                     zaakafhandelParameters shouldBe zaakafhandelParametersFixture
-                    informatieobjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
 
                     templates!!.size shouldBe 2
                     with(templates!!.first()) {
                         name shouldBe "root template 1"
                         zaakafhandelParameters shouldBe zaakafhandelParametersFixture
-                        informatieobjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
+                        informatieObjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
                         templateGroup.name shouldBe "root"
                     }
                     with(templates!!.last()) {
                         name shouldBe "root template 2"
                         zaakafhandelParameters shouldBe zaakafhandelParametersFixture
-                        informatieobjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
+                        informatieObjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
                         templateGroup.name shouldBe "root"
                     }
 
@@ -116,19 +115,18 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
                     with(children!!.first()) {
                         name shouldBe "group 1"
                         zaakafhandelParameters shouldBe zaakafhandelParametersFixture
-                        informatieobjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
 
                         templates!!.size shouldBe 2
                         with(templates!!.first()) {
                             name shouldBe "group 1 template 1"
                             zaakafhandelParameters shouldBe zaakafhandelParametersFixture
-                            informatieobjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
+                            informatieObjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
                             templateGroup.name shouldBe "group 1"
                         }
                         with(templates!!.last()) {
                             name shouldBe "group 1 template 2"
                             zaakafhandelParameters shouldBe zaakafhandelParametersFixture
-                            informatieobjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
+                            informatieObjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
                             templateGroup.name shouldBe "group 1"
                         }
 
@@ -138,18 +136,17 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
                     with(children!!.last()) {
                         name shouldBe "group 2"
                         zaakafhandelParameters shouldBe zaakafhandelParametersFixture
-                        informatieobjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
 
                         with(templates!!.first()) {
                             name shouldBe "group 2 template 1"
                             zaakafhandelParameters shouldBe zaakafhandelParametersFixture
-                            informatieobjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
+                            informatieObjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
                             templateGroup.name shouldBe "group 2"
                         }
                         with(templates!!.last()) {
                             name shouldBe "group 2 template 2"
                             zaakafhandelParameters shouldBe zaakafhandelParametersFixture
-                            informatieobjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
+                            informatieObjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
                             templateGroup.name shouldBe "group 2"
                         }
 
