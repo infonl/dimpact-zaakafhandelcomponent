@@ -43,7 +43,6 @@ import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters;
 import net.atos.client.zgw.zrc.model.ZaakListParameters;
-import net.atos.client.zgw.zrc.model.generated.AuditTrail;
 import net.atos.client.zgw.zrc.model.generated.Resultaat;
 import net.atos.client.zgw.zrc.model.generated.ZaakEigenschap;
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject;
@@ -436,7 +435,7 @@ public class ZRCClientService {
      * @param zaakUUID UUID of {@link Zaak}.
      * @return List of {@link AuditTrailRegel} instances.
      */
-    public List<AuditTrail> listAuditTrail(final UUID zaakUUID) {
+    public List<AuditTrailRegel> listAuditTrail(final UUID zaakUUID) {
         return zrcClient.listAuditTrail(zaakUUID);
     }
 
