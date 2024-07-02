@@ -16,8 +16,6 @@ import jakarta.json.stream.JsonParser;
 
 import net.atos.client.zgw.shared.model.ObjectType;
 import net.atos.client.zgw.shared.model.audit.AuditWijziging;
-import net.atos.client.zgw.zrc.model.BetrokkeneType;
-import net.atos.client.zgw.zrc.model.Objecttype;
 
 public class AuditWijzigingJsonbDeserializer implements JsonbDeserializer<AuditWijziging<?>> {
 
@@ -34,14 +32,6 @@ public class AuditWijzigingJsonbDeserializer implements JsonbDeserializer<AuditW
         }
 
         final ObjectType type = ObjectType.getObjectType(waardeObject.getJsonString("url").getString());
-        if (type == ObjectType.ROL) {
-            final BetrokkeneType betrokkenetype = BetrokkeneType.fromValue(waardeObject.getJsonString("betrokkeneType").getString());
-            return JSONB.fromJson(wijzigingObject.toString(), type.getAuditClass(betrokkenetype));
-        } else if (type == ObjectType.ZAAKOBJECT) {
-            final Objecttype objectType = Objecttype.fromValue(waardeObject.getJsonString("objectType").getString());
-            final String objectTypeOverige = waardeObject.getJsonString("objectTypeOverige").getString();
-            return JSONB.fromJson(wijzigingObject.toString(), type.getAuditClass(objectType, objectTypeOverige));
-        }
         return JSONB.fromJson(wijzigingObject.toString(), type.getAuditClass());
     }
 }
