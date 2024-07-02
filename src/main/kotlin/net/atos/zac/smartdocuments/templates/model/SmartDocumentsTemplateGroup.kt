@@ -21,7 +21,6 @@ import net.atos.zac.util.FlywayIntegrator
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters
 import nl.lifely.zac.util.AllOpen
 import java.time.ZonedDateTime
-import java.util.UUID
 
 @Entity
 @Table(schema = FlywayIntegrator.SCHEMA, name = "smartdocuments_document_creatie_sjabloon_groep")
