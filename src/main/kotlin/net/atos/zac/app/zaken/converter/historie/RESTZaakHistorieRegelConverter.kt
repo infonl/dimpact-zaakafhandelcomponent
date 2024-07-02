@@ -1,9 +1,9 @@
 package net.atos.zac.app.zaken.converter.historie
 
 import jakarta.inject.Inject
+import net.atos.client.zgw.shared.model.audit.AuditTrailRegel
 import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.generated.AuditTrail
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.client.zgw.ztc.ZtcClientService
@@ -33,7 +33,7 @@ class RESTZaakHistorieRegelConverter @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val restZaakHistoriePartialUpdateConverter: RESTZaakHistoriePartialUpdateConverter
 ) {
-    fun convertZaakRESTHistorieRegel(auditTrail: AuditTrail): List<RESTHistorieRegel> {
+    fun convertZaakRESTHistorieRegel(auditTrail: AuditTrailRegel): List<RESTHistorieRegel> {
         val old = auditTrail.wijzigingen.oud as? HashMap<*, *>
         val new = auditTrail.wijzigingen.nieuw as? HashMap<*, *>
         return when {
@@ -51,13 +51,13 @@ class RESTZaakHistorieRegelConverter @Inject constructor(
         }
     }
 
-    private fun convertLine(auditTrail: AuditTrail, old: HashMap<*, *>?, new: HashMap<*, *>?): RESTHistorieRegel =
+    private fun convertLine(auditTrail: AuditTrailRegel, old: HashMap<*, *>?, new: HashMap<*, *>?): RESTHistorieRegel =
         RESTHistorieRegel(
             (old ?: new)?.let { convertResource(auditTrail.resource, it) },
             old?.let { convertValue(auditTrail.resource, it, auditTrail.resourceWeergave) },
             new?.let { convertValue(auditTrail.resource, it, auditTrail.resourceWeergave) }
         ).apply {
-            datumTijd = auditTrail.aanmaakdatum.toZonedDateTime()
+            datumTijd = auditTrail.aanmaakdatum
             toelichting = auditTrail.toelichting
             door = auditTrail.gebruikersWeergave
         }
