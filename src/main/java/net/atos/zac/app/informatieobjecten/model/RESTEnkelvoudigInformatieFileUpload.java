@@ -1,5 +1,6 @@
 package net.atos.zac.app.informatieobjecten.model;
 
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.ws.rs.FormParam;
 
 import net.atos.zac.app.informatieobjecten.model.validation.ValidRestEnkelvoudigInformatieFileUploadForm;
@@ -7,10 +8,9 @@ import net.atos.zac.app.informatieobjecten.model.validation.ValidRestEnkelvoudig
 @ValidRestEnkelvoudigInformatieFileUploadForm
 public abstract class RESTEnkelvoudigInformatieFileUpload {
 
-    @FormParam("file")
+    @NotEmpty @FormParam("file")
     public byte[] file;
 
     @FormParam("bestandsnaam")
     public String bestandsnaam;
-
 }
