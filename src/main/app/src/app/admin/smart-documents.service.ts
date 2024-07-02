@@ -13,6 +13,7 @@ export type DocumentsTemplateGroup = {
 export type DocumentsTemplate = {
   id: string;
   name: string;
+  informatieObjectTypeUUID?: string;
 };
 
 @Injectable({ providedIn: "root" })
@@ -32,16 +33,14 @@ export class SmartDocumentsService {
 
   getTemplatesMapping(
     zaakafhandelUUID: string,
-    informatieobjectTypeUUID: string,
   ): Observable<DocumentsTemplateGroup[]> {
     return this.zacHttp
       .GET(
-        "/rest/zaakafhandelParameters/{zaakafhandelUUID}/informatieobjectType/{informatieobjectTypeUUID}/documentTemplates",
+        "/rest/zaakafhandelParameters/{zaakafhandelUUID}/documentTemplates",
         {
           pathParams: {
             path: {
               zaakafhandelUUID,
-              informatieobjectTypeUUID,
             },
           },
         },
@@ -53,18 +52,16 @@ export class SmartDocumentsService {
 
   storeTemplatesMapping(
     zaakafhandelUUID: string,
-    informatieobjectTypeUUID: string,
     templates: DocumentsTemplateGroup[],
   ) {
     return this.zacHttp
       .POST(
-        "/rest/zaakafhandelParameters/{zaakafhandelUUID}/informatieobjectType/{informatieobjectTypeUUID}/documentTemplates",
+        "/rest/zaakafhandelParameters/{zaakafhandelUUID}/documentTemplates",
         templates,
         {
           pathParams: {
             path: {
               zaakafhandelUUID,
-              informatieobjectTypeUUID,
             },
           },
         },

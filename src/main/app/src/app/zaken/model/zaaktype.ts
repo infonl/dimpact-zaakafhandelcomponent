@@ -23,6 +23,6 @@ export class Zaaktype {
   verlengingMogelijk: boolean;
   verlengingstermijn: number;
   zaaktypeRelaties: ZaaktypeRelatie[];
-  informatieobjecttypes: string[];
+  informatieobjecttypes?: string[];
   zaakafhandelparameters: ZaakafhandelParameters;
 }
