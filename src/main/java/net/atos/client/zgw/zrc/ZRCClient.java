@@ -30,7 +30,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import net.atos.client.zgw.shared.exception.ZgwFoutExceptionMapper;
 import net.atos.client.zgw.shared.exception.ZgwValidatieFoutExceptionMapper;
 import net.atos.client.zgw.shared.model.Results;
-import net.atos.client.zgw.shared.model.audit.AuditTrailRegel;
+import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel;
 import net.atos.client.zgw.shared.util.JsonbConfiguration;
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
 import net.atos.client.zgw.zrc.exception.ZrcRuntimeExceptionMapper;
@@ -163,7 +163,7 @@ public interface ZRCClient {
 
     @GET
     @Path("zaken/{zaak_uuid}/audittrail")
-    List<AuditTrailRegel> listAuditTrail(@PathParam("zaak_uuid") final UUID zaakUUID);
+    List<ZRCAuditTrailRegel> listAuditTrail(@PathParam("zaak_uuid") final UUID zaakUUID);
 
     @GET
     @Path("zaakinformatieobjecten/{uuid}")
