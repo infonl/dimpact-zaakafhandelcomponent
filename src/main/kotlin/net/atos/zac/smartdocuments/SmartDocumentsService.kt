@@ -31,7 +31,7 @@ import java.util.logging.Logger
 @AllOpen
 class SmartDocumentsService @Inject constructor(
     private val documentCreatieService: DocumentCreatieService,
-    private var zaakafhandelParameterService: ZaakafhandelParameterService,
+    private val zaakafhandelParameterService: ZaakafhandelParameterService
 ) {
     companion object {
         private val LOG = Logger.getLogger(SmartDocumentsService::class.java.name)
@@ -63,7 +63,7 @@ class SmartDocumentsService @Inject constructor(
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaakafhandelParametersUUID)
         val modelTemplateGroups = restTemplateGroups.toModel(zaakafhandelParameters, informatieobjectTypeUUID)
 
-        deleteTemplateMapping(zaakafhandelParametersUUID, informatieobjectTypeUUID)
+        deleteTemplatesMapping(zaakafhandelParametersUUID, informatieobjectTypeUUID)
 
         modelTemplateGroups.forEach { templateGroup ->
             entityManager.merge(templateGroup)
@@ -73,22 +73,22 @@ class SmartDocumentsService @Inject constructor(
     /**
      * Deletes all template groups and templates for a zaakafhandelparameters and informatieobjecttypes
      *
-     * @param zaakafhandelUUID UUID of the zaakafhandelparameters
+     * @param zaakafhandelParametersUUID UUID of the zaakafhandelparameters
      * @param informatieobjectTypeUUID UUID of the informatieobjecttype
      * @return the number of entities deleted
      */
     @Transactional(REQUIRED)
-    fun deleteTemplateMapping(
-        zaakafhandelparametersUUID: UUID,
+    fun deleteTemplatesMapping(
+        zaakafhandelParametersUUID: UUID,
         informatieobjectTypeUUID: UUID
     ): Int {
         LOG.info {
-            "Deleting template mapping for zaakafhandelParameters UUID $zaakafhandelparametersUUID and " +
+            "Deleting template mapping for zaakafhandelParameters UUID $zaakafhandelParametersUUID and " +
                 "informatieobjectType UUID $informatieobjectTypeUUID"
         }
 
         val zaakafhandelParametersId =
-            zaakafhandelParameterService.readZaakafhandelParameters(zaakafhandelparametersUUID).id
+            zaakafhandelParameterService.readZaakafhandelParameters(zaakafhandelParametersUUID).id
         val builder = entityManager.criteriaBuilder
         val query = builder.createCriteriaDelete(SmartDocumentsTemplateGroup::class.java)
         val root = query.from(SmartDocumentsTemplateGroup::class.java)
@@ -112,7 +112,7 @@ class SmartDocumentsService @Inject constructor(
     /**
      * Lists all template groups for a zaakafhandelparameters
      *
-     * @param zaakafhandelUUID UUID of a zaakafhandelparameters
+     * @param zaakafhandelParametersUUID UUID of a zaakafhandelparameters
      * @param informatieobjectTypeUUID UUID of the informatieobjecttype
      * @return a set of all RESTSmartDocumentsTemplateGroup for the zaakafhandelparameters and informatieobjecttype
      */
