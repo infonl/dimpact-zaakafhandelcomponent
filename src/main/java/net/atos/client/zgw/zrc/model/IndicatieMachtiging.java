@@ -41,7 +41,7 @@ public enum IndicatieMachtiging implements AbstractEnum<IndicatieMachtiging> {
     }
 
 
-    static class Adapter extends AbstractEnum.Adapter<IndicatieMachtiging> {
+    public static class Adapter extends AbstractEnum.Adapter<IndicatieMachtiging> {
 
         @Override
         protected IndicatieMachtiging[] getEnums() {

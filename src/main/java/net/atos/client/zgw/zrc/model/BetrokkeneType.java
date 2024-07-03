@@ -40,7 +40,7 @@ public enum BetrokkeneType implements AbstractEnum<BetrokkeneType> {
         return AbstractEnum.fromValue(values(), value);
     }
 
-    static class Adapter extends AbstractEnum.Adapter<BetrokkeneType> {
+    public static class Adapter extends AbstractEnum.Adapter<BetrokkeneType> {
 
         @Override
         protected BetrokkeneType[] getEnums() {

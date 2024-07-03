@@ -62,7 +62,7 @@ public enum Objecttype implements AbstractEnum<Objecttype> {
         return AbstractEnum.fromValue(values(), value);
     }
 
-    static class Adapter extends AbstractEnum.Adapter<Objecttype> {
+    public static class Adapter extends AbstractEnum.Adapter<Objecttype> {
 
         @Override
         protected Objecttype[] getEnums() {

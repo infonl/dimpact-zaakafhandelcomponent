@@ -45,7 +45,7 @@ public enum AardRelatie implements AbstractEnum<AardRelatie> {
         return AbstractEnum.fromValue(values(), value);
     }
 
-    static class Adapter extends AbstractEnum.Adapter<AardRelatie> {
+    public static class Adapter extends AbstractEnum.Adapter<AardRelatie> {
 
         @Override
         protected AardRelatie[] getEnums() {
