@@ -10,8 +10,8 @@ import jakarta.inject.Inject
 import jakarta.transaction.Transactional
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequestOndertekening
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
+import net.atos.client.zgw.drc.model.generated.OndertekeningRequest
 import net.atos.client.zgw.drc.model.generated.SoortEnum
 import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.zac.authentication.LoggedInUser
@@ -49,7 +49,7 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
 
     fun ondertekenEnkelvoudigInformatieObject(uuid: UUID) {
         EnkelvoudigInformatieObjectWithLockRequest().apply {
-            ondertekening = EnkelvoudigInformatieObjectCreateLockRequestOndertekening().apply {
+            ondertekening = OndertekeningRequest().apply {
                 soort = SoortEnum.DIGITAAL
                 datum = LocalDate.now()
             }

@@ -39,9 +39,9 @@ import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.zrc.model.generated.Resultaat;
 import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.AfleidingswijzeEnum;
+import net.atos.client.zgw.ztc.model.generated.BrondatumArchiefprocedure;
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
 import net.atos.client.zgw.ztc.model.generated.ResultaatType;
-import net.atos.client.zgw.ztc.model.generated.ResultaatTypeBrondatumArchiefprocedure;
 import net.atos.client.zgw.ztc.model.generated.StatusType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 
@@ -363,7 +363,7 @@ public class ZGWApiService {
     }
 
     private LocalDate bepaalBrondatum(final Zaak zaak, final ResultaatType resultaattype) {
-        final ResultaatTypeBrondatumArchiefprocedure brondatumArchiefprocedure = resultaattype.getBrondatumArchiefprocedure();
+        final BrondatumArchiefprocedure brondatumArchiefprocedure = resultaattype.getBrondatumArchiefprocedure();
         if (brondatumArchiefprocedure != null) {
             if (Objects.requireNonNull(brondatumArchiefprocedure.getAfleidingswijze()) == AfleidingswijzeEnum.AFGEHANDELD) {
                 return zaak.getEinddatum();
