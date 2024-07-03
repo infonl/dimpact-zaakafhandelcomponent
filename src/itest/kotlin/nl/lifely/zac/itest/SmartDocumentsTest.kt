@@ -86,8 +86,7 @@ class SmartDocumentsTest : BehaviorSpec({
 
         When("the create mapping endpoint is called with correct payload") {
             val smartDocumentsZaakafhandelParametersUrl = "$ZAC_API_URI/zaakafhandelParameters/" +
-                "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID/informatieobjectType/" +
-                "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID/documentTemplates"
+                "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID/documentTemplates"
             val restTemplateGroups = """
                 [
                   {
@@ -100,11 +99,13 @@ class SmartDocumentsTest : BehaviorSpec({
                         "templates": [
                           {
                             "id": "$SMART_DOCUMENTS_GROUP_1_TEMPLATE_1_ID",
-                            "name": "$SMART_DOCUMENTS_GROUP_1_TEMPLATE_1_NAME"
+                            "name": "$SMART_DOCUMENTS_GROUP_1_TEMPLATE_1_NAME",
+                            "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
                           },
                           {
                             "id": "$SMART_DOCUMENTS_GROUP_1_TEMPLATE_2_ID",
-                            "name": "$SMART_DOCUMENTS_GROUP_1_TEMPLATE_2_NAME"
+                            "name": "$SMART_DOCUMENTS_GROUP_1_TEMPLATE_2_NAME",
+                            "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
                           }
                         ]
                       },
@@ -114,11 +115,13 @@ class SmartDocumentsTest : BehaviorSpec({
                         "templates": [
                           {
                             "id": "$SMART_DOCUMENTS_GROUP_2_TEMPLATE_1_ID",
-                            "name": "$SMART_DOCUMENTS_GROUP_2_TEMPLATE_1_NAME"
+                            "name": "$SMART_DOCUMENTS_GROUP_2_TEMPLATE_1_NAME",
+                            "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
                           },
                           {
                             "id": "$SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_ID",
-                            "name": "$SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_NAME"
+                            "name": "$SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_NAME",
+                            "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
                           }
                         ]
                       }
@@ -126,11 +129,13 @@ class SmartDocumentsTest : BehaviorSpec({
                     "templates": [
                       {
                         "id": "$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID",
-                        "name": "$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME"
+                        "name": "$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME",
+                        "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
                       },
                       {
                         "id": "$SMART_DOCUMENTS_ROOT_TEMPLATE_2_ID",
-                        "name": "$SMART_DOCUMENTS_ROOT_TEMPLATE_2_NAME"
+                        "name": "$SMART_DOCUMENTS_ROOT_TEMPLATE_2_NAME",
+                        "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
                       }
                     ]
                   }
@@ -159,8 +164,7 @@ class SmartDocumentsTest : BehaviorSpec({
 
         When("the create mapping endpoint is called with invalid payload") {
             val smartDocumentsZaakafhandelParametersUrl = "$ZAC_API_URI/zaakafhandelParameters/" +
-                "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID/informatieobjectType/" +
-                "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID/documentTemplates"
+                "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID/documentTemplates"
             val restTemplateGroups = """
                 [
                   {
@@ -173,7 +177,8 @@ class SmartDocumentsTest : BehaviorSpec({
                         "templates": [
                           {
                             "id": "4",
-                            "name": "group A template 1"
+                            "name": "group A template 1",
+                            "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
                           }
                         ]
                       }
@@ -181,7 +186,8 @@ class SmartDocumentsTest : BehaviorSpec({
                     "templates": [
                       {
                         "id": "$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID",
-                        "name": "$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME"
+                        "name": "$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME",
+                        "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
                       }
                     ]
                   }
