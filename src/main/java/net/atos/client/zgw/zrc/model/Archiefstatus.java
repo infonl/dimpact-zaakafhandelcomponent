@@ -50,7 +50,7 @@ public enum Archiefstatus implements AbstractEnum<Archiefstatus> {
         return AbstractEnum.fromValue(values(), value);
     }
 
-    static class Adapter extends AbstractEnum.Adapter<Archiefstatus> {
+    public static class Adapter extends AbstractEnum.Adapter<Archiefstatus> {
 
         @Override
         protected Archiefstatus[] getEnums() {

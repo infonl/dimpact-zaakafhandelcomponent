@@ -47,7 +47,7 @@ public enum Rechtsvorm implements AbstractEnum<Rechtsvorm> {
         return AbstractEnum.fromValue(values(), value);
     }
 
-    static class Adapter extends AbstractEnum.Adapter<Rechtsvorm> {
+    public static class Adapter extends AbstractEnum.Adapter<Rechtsvorm> {
 
         @Override
         protected Rechtsvorm[] getEnums() {

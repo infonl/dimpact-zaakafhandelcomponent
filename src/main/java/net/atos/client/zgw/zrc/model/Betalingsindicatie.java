@@ -50,7 +50,7 @@ public enum Betalingsindicatie implements AbstractEnum<Betalingsindicatie> {
         return AbstractEnum.fromValue(values(), value);
     }
 
-    static class Adapter extends AbstractEnum.Adapter<Betalingsindicatie> {
+    public static class Adapter extends AbstractEnum.Adapter<Betalingsindicatie> {
 
         @Override
         protected Betalingsindicatie[] getEnums() {

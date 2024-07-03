@@ -31,7 +31,7 @@ class RESTZaakHistoriePartialUpdateConverter @Inject constructor(
 
     private fun convertValue(resource: Any?, item: Any?): String? =
         when {
-            resource == ZAAKGEOMETRIE && item is HashMap<*, *> -> item.getTypedValue(Geometry::class.java)?.toString()
+            resource == ZAAKGEOMETRIE && item is Map<*, *> -> item.getTypedValue(Geometry::class.java)?.toString()
             resource == COMMUNICATIEKANAAL && item is String ->
                 item
                     .let(URI::create)
