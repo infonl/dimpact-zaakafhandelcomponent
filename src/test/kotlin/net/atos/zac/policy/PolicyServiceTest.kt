@@ -19,7 +19,7 @@ import jakarta.enterprise.inject.Instance
 import net.atos.client.opa.model.RuleQuery
 import net.atos.client.opa.model.RuleResponse
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectOndertekening
+import net.atos.client.zgw.drc.model.generated.Ondertekening
 import net.atos.client.zgw.drc.model.generated.SoortEnum
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.createVerlenging
@@ -317,7 +317,7 @@ class PolicyServiceTest : BehaviorSpec() {
             val zaak = createZaak()
             val zaakType = createZaakType()
             val enkelvoudigInformatieobject = createEnkelvoudigInformatieObject(locked = true).apply {
-                ondertekening = EnkelvoudigInformatieObjectOndertekening().apply {
+                ondertekening = Ondertekening().apply {
                     soort = SoortEnum.ANALOOG
                     datum = LocalDate.now()
                 }

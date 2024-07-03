@@ -147,7 +147,7 @@ public class RESTInformatieobjectConverter {
                 enkelvoudigInformatieObject.getOndertekening().getSoort() != null &&
                 enkelvoudigInformatieObject.getOndertekening().getDatum() != null
             ) {
-                restEnkelvoudigInformatieobject.ondertekening = restOndertekeningConverter.convert(
+                restEnkelvoudigInformatieobject.ondertekening = RESTOndertekeningConverter.convert(
                         enkelvoudigInformatieObject.getOndertekening()
                 );
             }
