@@ -6,10 +6,7 @@
 package nl.lifely.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.kotest.assertions.json.ArrayOrder
-import io.kotest.assertions.json.compareJsonOptions
 import io.kotest.assertions.json.shouldContainJsonKeyValue
-import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -36,17 +33,11 @@ import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_TEMPLA
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_TEMPLATE_2_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.lifely.zac.itest.util.lenientShouldEqualJson
 
 class SmartDocumentsTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
-
-    infix fun String.lenientShouldEqualJson(other: String) = this.shouldEqualJson(
-        other,
-        compareJsonOptions {
-            arrayOrder = ArrayOrder.Lenient
-        }
-    )
 
     Given("ZAC Docker container is running and zaakafhandelparameters have been created") {
         When("the list SmartDocuments templates endpoint is called") {
