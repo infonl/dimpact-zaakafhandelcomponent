@@ -123,19 +123,19 @@ public class IndexeerService {
     @Transactional(Transactional.TxType.NEVER)
     public void herindexeren(final ZoekObjectType objectType) {
         if (herindexerenBezig.contains(objectType)) {
-            log(objectType, "Markeren voor herindexeren niet gestart, is nog bezig");
+            log(objectType, "Herindexeren niet gestart, is nog bezig");
             return;
         }
         herindexerenBezig.add(objectType);
         try {
-            log(objectType, "Markeren voor herindexeren gestart...");
-            markSolrEntitiesForRemoval(objectType);
+            log(objectType, "Herindexeren gestart...");
+            removeEntitiesFromSolrIndex(objectType);
             switch (objectType) {
-                case ZAAK -> markAllZakenForReindexing();
-                case DOCUMENT -> markAllInformatieobjectenForReindexing();
-                case TAAK -> markAllTakenForReindexing();
+                case ZAAK -> reindexAllZaken();
+                case DOCUMENT -> reindexAllInformatieobjecten();
+                case TAAK -> reindexAllTaken();
             }
-            log(objectType, "Markeren voor herindexeren gestopt");
+            log(objectType, "Herindexeren gestopt");
         } finally {
             herindexerenBezig.remove(objectType);
         }
@@ -197,7 +197,7 @@ public class IndexeerService {
         throw new RuntimeException("[%s] No converter found".formatted(objectType.toString()));
     }
 
-    private long addToSolrIndex(final Stream<ZoekObject> zoekObjecten, final boolean performCommit) {
+    private void addToSolrIndex(final Stream<ZoekObject> zoekObjecten, final boolean performCommit) {
         final List<ZoekObject> beansToBeAdded = zoekObjecten
                 .filter(Objects::nonNull)
                 .toList();
@@ -211,7 +211,6 @@ public class IndexeerService {
                 throw new RuntimeException(e);
             }
         }
-        return beansToBeAdded.size();
     }
 
     private void removeFromSolrIndex(final Stream<String> ids) {
@@ -234,10 +233,10 @@ public class IndexeerService {
     }
 
     private void logProgress(final ZoekObjectType objectType, final long voortgang, final long grootte) {
-        log(objectType, "gemarkeerd: %d / %d".formatted(voortgang, grootte));
+        log(objectType, "reindexed: %d / %d".formatted(voortgang, grootte));
     }
 
-    private void markSolrEntitiesForRemoval(final ZoekObjectType objectType) {
+    private void removeEntitiesFromSolrIndex(final ZoekObjectType objectType) {
         final SolrQuery query = new SolrQuery("*:*");
         query.setFields("id");
         query.addFilterQuery("type:%s".formatted(objectType.toString()));
@@ -254,10 +253,12 @@ public class IndexeerService {
                 throw new RuntimeException(e);
             }
             removeFromSolrIndex(
-                    response.getResults().stream()
+                    response.getResults()
+                            .stream()
                             .map(document -> document.get("id"))
                             .filter(Objects::nonNull)
-                            .map(Object::toString));
+                            .map(Object::toString)
+            );
             final String nextCursorMark = response.getNextCursorMark();
             if (cursorMark.equals(nextCursorMark)) {
                 done = true;
@@ -267,69 +268,82 @@ public class IndexeerService {
         }
     }
 
-    private void markAllZakenForReindexing() {
+    private void reindexAllZaken() {
         final ZaakListParameters listParameters = new ZaakListParameters();
         listParameters.setOrdering("-identificatie");
         listParameters.setPage(FIRST_PAGE_NUMBER_ZGW_APIS);
         boolean hasMore;
         do {
-            hasMore = markZakenForReindexing(listParameters);
+            hasMore = reindexZaken(listParameters);
             listParameters.setPage(listParameters.getPage() + 1);
         } while (hasMore);
     }
 
-    private void markAllInformatieobjectenForReindexing() {
+    private void reindexAllInformatieobjecten() {
         final EnkelvoudigInformatieobjectListParameters listParameters = new EnkelvoudigInformatieobjectListParameters();
         listParameters.setPage(FIRST_PAGE_NUMBER_ZGW_APIS);
         boolean hasMore;
         do {
-            hasMore = markInformatieobjectenForReindexing(listParameters);
+            hasMore = reindexInformatieobjecten(listParameters);
             listParameters.setPage(listParameters.getPage() + 1);
         } while (hasMore);
     }
 
-    private void markAllTakenForReindexing() {
+    private void reindexAllTaken() {
         final long numberOfTasks = flowableTaskService.countOpenTasks();
         int page = 0;
         boolean hasMore;
         do {
-            hasMore = markTakenForReindexing(page, numberOfTasks);
+            hasMore = reindexTaken(page, numberOfTasks);
             page++;
         } while (hasMore);
     }
 
-    private boolean markZakenForReindexing(final ZaakListParameters listParameters) {
+    private boolean reindexZaken(final ZaakListParameters listParameters) {
         final Results<Zaak> results = zrcClientService.listZaken(listParameters);
-        indexeerDirect(results.getResults().stream()
-                .map(Zaak::getUuid)
-                .map(UUID::toString), ZAAK, false);
-        logProgress(ZAAK,
-                (listParameters.getPage() - FIRST_PAGE_NUMBER_ZGW_APIS) * NUM_ITEMS_PER_PAGE + results.getResults()
-                        .size(), results.getCount());
+        indexeerDirect(
+                results.getResults()
+                        .stream()
+                        .map(Zaak::getUuid)
+                        .map(UUID::toString),
+                ZAAK,
+                false
+        );
+        logProgress(
+                ZAAK,
+                (listParameters.getPage() - FIRST_PAGE_NUMBER_ZGW_APIS) * NUM_ITEMS_PER_PAGE + results.getResults().size(),
+                results.getCount()
+        );
         return results.getNext() != null;
     }
 
-    private boolean markInformatieobjectenForReindexing(
+    private boolean reindexInformatieobjecten(
             final EnkelvoudigInformatieobjectListParameters listParameters
     ) {
         final Results<EnkelvoudigInformatieObject> results = drcClientService.listEnkelvoudigInformatieObjecten(listParameters);
         indexeerDirect(
-                results.getResults().stream()
+                results.getResults()
+                        .stream()
                         .map(enkelvoudigInformatieObject -> URIUtil.parseUUIDFromResourceURI(enkelvoudigInformatieObject.getUrl()))
                         .map(UUID::toString),
                 DOCUMENT,
                 false
         );
-        logProgress(DOCUMENT,
-                (listParameters.getPage() - FIRST_PAGE_NUMBER_ZGW_APIS) * NUM_ITEMS_PER_PAGE + results.getResults()
-                        .size(), results.getCount());
+        logProgress(
+                DOCUMENT,
+                (listParameters.getPage() - FIRST_PAGE_NUMBER_ZGW_APIS) * NUM_ITEMS_PER_PAGE + results.getResults().size(),
+                results.getCount()
+        );
         return results.getNext() != null;
     }
 
-    private boolean markTakenForReindexing(final int page, final long numberOfTasks) {
+    private boolean reindexTaken(final int page, final long numberOfTasks) {
         final int firstResult = page * TAKEN_MAX_RESULTS;
-        final List<Task> tasks = flowableTaskService.listOpenTasks(TaakSortering.CREATIEDATUM, SorteerRichting.DESCENDING,
-                firstResult, TAKEN_MAX_RESULTS);
+        final List<Task> tasks = flowableTaskService.listOpenTasks(
+                TaakSortering.CREATIEDATUM,
+                SorteerRichting.DESCENDING,
+                firstResult, TAKEN_MAX_RESULTS
+        );
         indexeerDirect(tasks.stream().map(TaskInfo::getId), TAAK, false);
         if (!tasks.isEmpty()) {
             logProgress(TAAK, (long) firstResult + tasks.size(), numberOfTasks);
