@@ -773,7 +773,9 @@ class ZakenRESTService @Inject constructor(
     fun listHistorie(@PathParam("uuid") zaakUUID: UUID): List<RESTHistorieRegel> {
         assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).lezen)
         val auditTrail = zrcClientService.listAuditTrail(zaakUUID)
-        return auditTrail.flatMap(restZaakHistorieRegelConverter::convertZaakRESTHistorieRegel)
+        return auditTrail
+            .flatMap(restZaakHistorieRegelConverter::convertZaakRESTHistorieRegel)
+            .sortedByDescending { it.datumTijd }
     }
 
     @GET
