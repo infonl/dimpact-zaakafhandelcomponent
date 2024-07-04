@@ -82,6 +82,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     }
 
     Given("a productaanvraag-dimpact object registration object") {
+        val type = "productaanvraag"
         val bron = createBron()
         val zaakIdentificatie = "dummyZaakIdentificatie"
         val coordinates = listOf(52.08968250760225, 5.114358701512936)
@@ -89,7 +90,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             record = createObjectRecord(
                 data = mapOf(
                     "bron" to bron,
-                    "type" to "productaanvraag",
+                    "type" to type,
                     "zaakgegevens" to mapOf(
                         "identificatie" to zaakIdentificatie,
                         "geometry" to mapOf(
@@ -110,14 +111,41 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         kenmerk shouldBe bron.kenmerk
                     }
                     taal shouldBe "nld"
-                    type shouldBe "productaanvraag"
+                    type shouldBe type
                     with(zaakgegevens) {
                         identificatie shouldBe zaakIdentificatie
                         with(geometry) {
-                            type shouldBe Geometry.Type.POINT
-                            coordinates shouldBe coordinates
+                            this.type shouldBe Geometry.Type.POINT
+                            this.coordinates shouldBe coordinates
                         }
                     }
+                }
+            }
+        }
+    }
+    Given("a productaanvraag-dimpact object registration object without zaakgegevens") {
+        val type = "productaanvraag"
+        val bron = createBron()
+        val orObject = createORObject(
+            record = createObjectRecord(
+                data = mapOf(
+                    "bron" to bron,
+                    "type" to type
+                )
+            )
+        )
+        When("the productaanvraag is requested from the product aanvraag service") {
+            val productAanVraagDimpact = productaanvraagService.getProductaanvraag(orObject)
+
+            Then("the productaanvraag of type 'productaanvraag Dimpact' is returned and contains the expected data") {
+                with(productAanVraagDimpact) {
+                    with(this.bron) {
+                        naam shouldBe bron.naam
+                        kenmerk shouldBe bron.kenmerk
+                    }
+                    taal shouldBe "nld"
+                    type shouldBe type
+                    zaakgegevens shouldBe null
                 }
             }
         }
