@@ -17,7 +17,8 @@ import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_FORBIDDEN
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTS_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT
-import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_UUID
+import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_UUID
+import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_2_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_KENMERK
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
@@ -35,6 +36,7 @@ import nl.lifely.zac.itest.util.WebSocketTestListener
 import okhttp3.Headers
 import org.json.JSONObject
 import org.testcontainers.containers.wait.strategy.Wait
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -70,7 +72,10 @@ class NotificationsTest : BehaviorSpec({
                     and productaanvraag PDF exists in Open Zaak"""
     ) {
         When(
-            """the notificaties endpoint is called with a 'create productaanvraag' payload with authentication header"""
+            """
+                the notificaties endpoint is called with a 'create productaanvraag' payload with authentication header 
+                and initiator of type 'BSN'
+            """.trimIndent()
         ) {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/notificaties",
@@ -85,7 +90,7 @@ class NotificationsTest : BehaviorSpec({
                 requestBodyAsString = JSONObject(
                     mapOf(
                         "resource" to "object",
-                        "resourceUrl" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_UUID",
+                        "resourceUrl" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_1_UUID",
                         "actie" to "create",
                         "kenmerken" to mapOf(
                             "objectType" to "$OBJECTS_BASE_URI/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT"
@@ -116,8 +121,7 @@ class NotificationsTest : BehaviorSpec({
                         // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
                         // since we have defined zaakafhandelparameters for this zaaktype a CMMN proces should be started
                         getBoolean("isProcesGestuurd") shouldBe false
-                        getJSONObject("communicatiekanaal")
-                            .getString("naam") shouldBe "E-formulier"
+                        getJSONObject("communicatiekanaal").getString("naam") shouldBe "E-formulier"
                         getString("omschrijving") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
                             "met kenmerk '$OPEN_FORMULIEREN_FORMULIER_BRON_KENMERK'"
                         getString("uiterlijkeEinddatumAfdoening") shouldBe ZAAK_1_UITERLIJKE_EINDDATUM_AFDOENING
@@ -126,6 +130,71 @@ class NotificationsTest : BehaviorSpec({
                             getBigDecimal("longitude") shouldBe PRODUCT_AANVRAAG_ZAAKGEGEVENS_GEOMETRY_LONGITUDE.toBigDecimal()
                         }
                         zaak1UUID = getString("uuid").let(UUID::fromString)
+                    }
+                }
+            }
+        }
+    }
+    Given(
+        """"ZAC and all related Docker containers are running, productaanvraag object exists in Objecten API
+                    and productaanvraag PDF exists in Open Zaak"""
+    ) {
+        When(
+            """
+                the notificaties endpoint is called with a 'create productaanvraag' payload with authentication header
+                 and without zaakgegevens and with an initiator of type 'vestiging'
+            """.trimIndent()
+        ) {
+            // this productaanvraag contains no zaakgegevens and therefore the zaak identification is generated
+            // by OpenZaak using the following format
+            val zaakIdentification = "ZAAK-${LocalDate.now().year}-0000000001"
+
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/notificaties",
+                headers = Headers.headersOf(
+                    "Content-Type",
+                    "application/json",
+                    // this test simulates that Open Notificaties sends the request to ZAC
+                    // using the secret API key that is configured in ZAC
+                    "Authorization",
+                    OPEN_NOTIFICATIONS_API_SECRET_KEY
+                ),
+                requestBodyAsString = JSONObject(
+                    mapOf(
+                        "resource" to "object",
+                        "resourceUrl" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_2_UUID",
+                        "actie" to "create",
+                        "kenmerken" to mapOf(
+                            "objectType" to "$OBJECTS_BASE_URI/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT"
+                        ),
+                        "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
+                    )
+                ).toString(),
+                addAuthorizationHeader = false
+            )
+            Then(
+                """the response should be 'no content', a zaak should be created in OpenZaak
+                        and a zaak productaanvraag proces of type 'Productaanvraag-Dimpact' should be started in ZAC"""
+            ) {
+                response.code shouldBe HTTP_STATUS_NO_CONTENT
+
+                // retrieve the newly created zaak and check the contents
+                itestHttpClient.performGetRequest(
+                    "$ZAC_API_URI/zaken/zaak/id/$zaakIdentification"
+                ).use { getZaakResponse ->
+                    val responseBody = getZaakResponse.body!!.string()
+                    logger.info { "Response: $responseBody" }
+                    with(JSONObject(responseBody)) {
+                        getString("identificatie") shouldBe zaakIdentification
+                        getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID.toString()
+                        getJSONObject("status").getString("naam") shouldBe "Intake"
+                        getJSONObject("groep").getString("id") shouldBe "test-group-a"
+                        // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
+                        // since we have defined zaakafhandelparameters for this zaaktype a CMMN proces should be started
+                        getBoolean("isProcesGestuurd") shouldBe false
+                        getJSONObject("communicatiekanaal").getString("naam") shouldBe "E-formulier"
+                        getString("omschrijving") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
+                            "met kenmerk '$OPEN_FORMULIEREN_FORMULIER_BRON_KENMERK'"
                     }
                 }
             }

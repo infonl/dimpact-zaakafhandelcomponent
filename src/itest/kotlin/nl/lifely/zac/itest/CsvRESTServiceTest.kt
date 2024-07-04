@@ -14,7 +14,7 @@ import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_COMPLETED
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_IDENTIFICATION
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_2_IDENTIFICATION
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_3_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.junit.jupiter.api.Order
 
@@ -135,7 +135,7 @@ class CsvRESTServiceTest : BehaviorSpec({
                 // the order of the zaken in the search query used to generate the CSV
                 // should always be the same
                 csvRows[1].run {
-                    get(headerRowFields.indexOf(CSV_FIELD_IDENTIFICATIE)) shouldBe ZAAK_2_IDENTIFICATION
+                    get(headerRowFields.indexOf(CSV_FIELD_IDENTIFICATIE)) shouldBe ZAAK_3_IDENTIFICATION
                 }
                 csvRows[2].run {
                     get(headerRowFields.indexOf(CSV_FIELD_IDENTIFICATIE)) shouldBe ZAAK_1_IDENTIFICATION

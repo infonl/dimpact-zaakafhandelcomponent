@@ -190,6 +190,14 @@
       }
     },
     {
+        "model": "core.object",
+        "pk": 33,
+        "fields": {
+            "uuid": "f1f6f670-fda8-4e98-81a6-6528937f10ee",
+            "object_type": 4
+        }
+    },
+    {
         "model": "core.objectrecord",
         "pk": 4,
         "fields": {
@@ -805,7 +813,7 @@
             "geometry": "SRID=4326;POINT (4.894407188326989 52.37626808920047)"
         }
     },
-   {
+    {
         "model": "core.objectrecord",
         "pk": 43,
         "fields": {
@@ -874,6 +882,46 @@
             "correct": null,
             "geometry": null
          }
+    },
+    {
+        "model": "core.objectrecord",
+        "pk": 44,
+        "fields": {
+            "index": 1,
+            "object": 33,
+            "version": 1,
+            "data": {
+                "bron": {
+                    "naam" : "open-forms",
+                    "kenmerk" : "a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"
+                },
+                "type": "productaanvraag-type-1",
+                "aanvraaggegevens": {
+                    "stap1": {
+                        "naam" : "dummyApplicantName",
+                        "telefoonnummer" : "0612345678"
+                    },
+                    "stap2": {
+                        "omschrijving" : "dummyDescription"
+                    }
+                },
+                "taal" : "nld",
+                "betrokkenen" : [
+                    {
+                        "inpBsn" : "999993896",
+                        "rolOmschrijvingGeneriek" : "initiator",
+                        "indicatieMachtiging" : "gemachtigde",
+                        "indicatieCorrespondentie" : true
+                    }
+                ],
+                "pdf": "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e"
+            },
+            "start_at": "2024-01-01",
+            "end_at": null,
+            "registration_at": "2024-01-01",
+            "correct": null,
+            "geometry": null
+        }
     },
     {
         "model": "token.tokenauth",

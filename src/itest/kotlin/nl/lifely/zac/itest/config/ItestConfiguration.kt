@@ -31,7 +31,8 @@ object ItestConfiguration {
     const val KEYCLOAK_CLIENT_SECRET = "keycloakZaakafhandelcomponentClientSecret"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING = "bijlage"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID = "b1933137-94d6-49bc-9e12-afe712512276"
-    const val OBJECT_PRODUCTAANVRAAG_UUID = "9dbed186-89ca-48d7-8c6c-f9995ceb8e27"
+    const val OBJECT_PRODUCTAANVRAAG_1_UUID = "9dbed186-89ca-48d7-8c6c-f9995ceb8e27"
+    const val OBJECT_PRODUCTAANVRAAG_2_UUID = "f1f6f670-fda8-4e98-81a6-6528937f10ee"
     const val OBJECTS_BASE_URI = "http://objecten-api.local:8000"
     const val OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT = "021f685e-9482-4620-b157-34cd4003da6b"
     const val OPEN_FORMULIEREN_FORMULIER_BRON_KENMERK = "a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"
@@ -93,7 +94,7 @@ object ItestConfiguration {
     const val TEXT_MIME_TYPE = "application/text"
     const val ZAAK_1_IDENTIFICATION = "ZAAK-2023-0000000001"
     const val ZAAK_1_UITERLIJKE_EINDDATUM_AFDOENING = "2023-11-08"
-    const val ZAAK_2_IDENTIFICATION = "ZAAK-2023-0000000002"
+    const val ZAAK_3_IDENTIFICATION = "ZAAK-2023-0000000002"
     const val ZAC_CONTAINER_SERVICE_NAME = "zac"
     const val ZAC_CONTAINER_PORT = 8080
     const val SMTP_SERVER_PORT = 25
