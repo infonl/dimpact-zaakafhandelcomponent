@@ -15,6 +15,7 @@ import net.atos.client.zgw.zrc.model.generated.Wijzigingen
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createResultaatType
 import net.atos.client.zgw.ztc.model.createStatusType
+import net.atos.zac.app.audit.model.RESTHistorieActie
 import java.net.URI
 import java.util.Optional
 import java.util.UUID
@@ -65,6 +66,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                     door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null
                     toelichting shouldBe "zaak created"
+                    actie shouldBe RESTHistorieActie.AANGEMAAKT
                 }
             }
         }
@@ -118,6 +120,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                     door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null
                     toelichting shouldBe "rol updated"
+                    actie shouldBe RESTHistorieActie.GEWIJZIGD
                 }
             }
         }
@@ -158,6 +161,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                     door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null
                     toelichting shouldBe "file dropped"
+                    actie shouldBe RESTHistorieActie.ONTKOPPELD
                 }
             }
         }
@@ -198,6 +202,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                     door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null
                     toelichting shouldBe "n/a"
+                    actie shouldBe RESTHistorieActie.GEKOPPELD
                 }
             }
         }
@@ -243,6 +248,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                     door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null
                     toelichting shouldBe "n/a"
+                    actie shouldBe RESTHistorieActie.GEWIJZIGD
                 }
             }
         }
@@ -288,6 +294,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                     door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null
                     toelichting shouldBe "n/a"
+                    actie shouldBe RESTHistorieActie.GEWIJZIGD
                 }
             }
         }
@@ -339,6 +346,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                     door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null
                     toelichting shouldBe "n/a"
+                    actie shouldBe RESTHistorieActie.ONTKOPPELD
                 }
             }
         }
@@ -380,6 +388,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                     door shouldBe "Test User"
                     applicatie shouldBe null
                     toelichting shouldBe "xyz"
+                    actie shouldBe RESTHistorieActie.GEWIJZIGD
                 }
             }
         }
@@ -431,6 +440,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                     door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null
                     toelichting shouldBe "hologram"
+                    actie shouldBe RESTHistorieActie.GEWIJZIGD
                 }
             }
         }
