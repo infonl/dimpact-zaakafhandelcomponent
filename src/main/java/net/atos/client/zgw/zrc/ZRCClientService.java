@@ -91,7 +91,7 @@ public class ZRCClientService {
      * @return Created {@link Rol}.
      */
     public Rol<?> createRol(final Rol<?> rol, final String toelichting) {
-        zgwClientHeadersFactory.setAuditToelichting("%s: %s".formatted(rol.getOmschrijving(), toelichting));
+        zgwClientHeadersFactory.setAuditToelichting(toelichting);
         return zrcClient.rolCreate(rol);
     }
 
@@ -102,7 +102,7 @@ public class ZRCClientService {
      * @param toelichting de toelichting
      */
     public void deleteRol(final Rol<?> rol, final String toelichting) {
-        zgwClientHeadersFactory.setAuditToelichting("%s: %s".formatted(rol.getOmschrijving(), toelichting));
+        zgwClientHeadersFactory.setAuditToelichting(toelichting);
         zrcClient.rolDelete(rol.getUuid());
     }
 
