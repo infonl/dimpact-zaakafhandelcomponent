@@ -5,21 +5,15 @@
 
 package net.atos.zac.smartdocuments.templates
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
 import net.atos.client.smartdocuments.model.createTemplatesResponse
-import net.atos.zac.smartdocuments.SmartDocumentsException
-import net.atos.zac.smartdocuments.rest.createRESTTemplate
-import net.atos.zac.smartdocuments.rest.createRESTTemplateGroup
+import net.atos.zac.smartdocuments.rest.createRESTMappedTemplate
+import net.atos.zac.smartdocuments.rest.createRESTMappedTemplateGroup
 import net.atos.zac.smartdocuments.templates.SmartDocumentsTemplateConverter.toModel
 import net.atos.zac.smartdocuments.templates.SmartDocumentsTemplateConverter.toREST
-import net.atos.zac.smartdocuments.templates.SmartDocumentsTemplateConverter.toStringRepresentation
 import net.atos.zac.smartdocuments.templates.model.createSmartDocumentsTemplate
 import net.atos.zac.smartdocuments.templates.model.createSmartDocumentsTemplateGroup
-import net.atos.zac.smartdocuments.validate
 import net.atos.zac.zaaksturing.model.createZaakafhandelParameters
 import java.util.UUID
 
@@ -63,26 +57,44 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
     Given("a REST request") {
         val expectedInformatieobjectTypeUUID = UUID.randomUUID()
         val restTemplateRequest = setOf(
-            createRESTTemplateGroup(name = "root").apply {
+            createRESTMappedTemplateGroup(name = "root").apply {
                 groups = setOf(
-                    createRESTTemplateGroup(name = "group 1").apply {
+                    createRESTMappedTemplateGroup(name = "group 1").apply {
                         templates = setOf(
-                            createRESTTemplate(name = "group 1 template 1", informatieObjectTypeUUID = expectedInformatieobjectTypeUUID),
-                            createRESTTemplate(name = "group 1 template 2", informatieObjectTypeUUID = expectedInformatieobjectTypeUUID)
+                            createRESTMappedTemplate(
+                                name = "group 1 template 1",
+                                informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
+                            ),
+                            createRESTMappedTemplate(
+                                name = "group 1 template 2",
+                                informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
+                            )
                         )
                         groups = emptySet()
                     },
-                    createRESTTemplateGroup(name = "group 2").apply {
+                    createRESTMappedTemplateGroup(name = "group 2").apply {
                         templates = setOf(
-                            createRESTTemplate(name = "group 2 template 1", informatieObjectTypeUUID = expectedInformatieobjectTypeUUID),
-                            createRESTTemplate(name = "group 2 template 2", informatieObjectTypeUUID = expectedInformatieobjectTypeUUID)
+                            createRESTMappedTemplate(
+                                name = "group 2 template 1",
+                                informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
+                            ),
+                            createRESTMappedTemplate(
+                                name = "group 2 template 2",
+                                informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
+                            )
                         )
                         groups = emptySet()
                     }
                 )
                 templates = setOf(
-                    createRESTTemplate(name = "root template 1", informatieObjectTypeUUID = expectedInformatieobjectTypeUUID),
-                    createRESTTemplate(name = "root template 2", informatieObjectTypeUUID = expectedInformatieobjectTypeUUID)
+                    createRESTMappedTemplate(
+                        name = "root template 1",
+                        informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
+                    ),
+                    createRESTMappedTemplate(
+                        name = "root template 2",
+                        informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
+                    )
                 )
             }
         )
@@ -154,56 +166,6 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
                         children shouldBe null
                     }
                 }
-            }
-        }
-
-        When("convert to string representation is requested") {
-            val stringSet = restTemplateRequest.toStringRepresentation()
-
-            Then("it produces a correct set of strings") {
-                stringSet.size shouldBe 9
-
-                with(restTemplateRequest.first()) {
-                    val rootId = id
-                    val rootTemplate1Id = templates!!.first().id
-                    val rootTemplate2Id = templates!!.last().id
-                    val group1Id = groups!!.first().id
-                    val group2Id = groups!!.last().id
-                    val group1Template1Id = groups!!.first().templates!!.first().id
-                    val group1Template2Id = groups!!.first().templates!!.last().id
-                    val group2Template1Id = groups!!.last().templates!!.first().id
-                    val group2Template2Id = groups!!.last().templates!!.last().id
-
-                    stringSet shouldContainAll setOf(
-                        "group.$rootId.root",
-                        "group.$rootId.root.template.$rootTemplate1Id.root template 1",
-                        "group.$rootId.root.template.$rootTemplate2Id.root template 2",
-                        "group.$rootId.root.group.$group1Id.group 1",
-                        "group.$rootId.root.group.$group1Id.group 1.template.$group1Template1Id.group 1 template 1",
-                        "group.$rootId.root.group.$group1Id.group 1.template.$group1Template2Id.group 1 template 2",
-                        "group.$rootId.root.group.$group2Id.group 2",
-                        "group.$rootId.root.group.$group2Id.group 2.template.$group2Template1Id.group 2 template 1",
-                        "group.$rootId.root.group.$group2Id.group 2.template.$group2Template2Id.group 2 template 2"
-                    )
-                }
-            }
-        }
-
-        When("validating with the same rest request as a superset") {
-            restTemplateRequest.validate(restTemplateRequest)
-            Then("it does not error") {}
-        }
-
-        When("validating invalid rest request") {
-            val invalidRestTemplateRequest = setOf(
-                createRESTTemplateGroup(name = "non-existing")
-            )
-            val exception = shouldThrow<SmartDocumentsException> {
-                invalidRestTemplateRequest.validate(restTemplateRequest)
-            }
-
-            Then("error should hint what's wrong") {
-                exception.message shouldContain "non-existing"
             }
         }
     }

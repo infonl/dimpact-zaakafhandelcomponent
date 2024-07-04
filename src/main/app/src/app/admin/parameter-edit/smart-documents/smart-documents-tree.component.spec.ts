@@ -164,6 +164,7 @@ describe("SmartDocumentsTree-filterOutUnselected", () => {
         {
           id: "2",
           name: "",
+          informatieObjectTypeUUID: "",
         },
       ],
     });
@@ -189,6 +190,7 @@ describe("SmartDocumentsTree-filterOutUnselected", () => {
             {
               id: "2",
               name: "",
+              informatieObjectTypeUUID: "",
             },
           ],
         },
@@ -214,6 +216,7 @@ describe("SmartDocumentsTree-filterOutUnselected", () => {
             {
               id: "2",
               name: "",
+              informatieObjectTypeUUID: "",
             },
           ],
         },
