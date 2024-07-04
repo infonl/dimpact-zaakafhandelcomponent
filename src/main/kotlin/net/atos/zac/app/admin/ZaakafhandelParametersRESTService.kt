@@ -33,8 +33,9 @@ import net.atos.zac.flowable.CMMNService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.smartdocuments.SmartDocumentsService
+import net.atos.zac.smartdocuments.rest.RESTMappedSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.RESTSmartDocumentsTemplateGroup
-import net.atos.zac.smartdocuments.validate
+import net.atos.zac.smartdocuments.rest.isSubsetOf
 import net.atos.zac.util.UriUtil
 import net.atos.zac.zaaksturing.ReferentieTabelService
 import net.atos.zac.zaaksturing.ZaakafhandelParameterBeheerService
@@ -247,7 +248,7 @@ class ZaakafhandelParametersRESTService @Inject constructor(
     @Path("{zaakafhandelUUID}/documentTemplates")
     fun getTemplatesMapping(
         @PathParam("zaakafhandelUUID") zaakafhandelUUID: UUID
-    ): Set<RESTSmartDocumentsTemplateGroup> {
+    ): Set<RESTMappedSmartDocumentsTemplateGroup> {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return smartDocumentsService.getTemplatesMapping(zaakafhandelUUID)
     }
@@ -256,12 +257,12 @@ class ZaakafhandelParametersRESTService @Inject constructor(
     @Path("{zaakafhandelUUID}/documentTemplates")
     fun storeTemplatesMapping(
         @PathParam("zaakafhandelUUID") zaakafhandelUUID: UUID,
-        restTemplateGroups: Set<RESTSmartDocumentsTemplateGroup>
+        restTemplateGroups: Set<RESTMappedSmartDocumentsTemplateGroup>
     ) {
         assertPolicy(policyService.readOverigeRechten().beheren)
 
         val smartDocumentsTemplates = smartDocumentsService.listTemplates()
-        restTemplateGroups.validate(smartDocumentsTemplates)
+        restTemplateGroups isSubsetOf smartDocumentsTemplates
 
         smartDocumentsService.storeTemplatesMapping(restTemplateGroups, zaakafhandelUUID)
     }

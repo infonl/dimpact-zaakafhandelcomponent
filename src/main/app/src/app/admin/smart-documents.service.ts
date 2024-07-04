@@ -3,6 +3,18 @@ import { catchError, Observable } from "rxjs";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 
+export type SmartDocumentsTemplateGroup = {
+  id: string;
+  name: string;
+  groups?: SmartDocumentsTemplateGroup[];
+  templates?: SmartDocumentsTemplate[];
+};
+
+export type SmartDocumentsTemplate = {
+  id: string;
+  name: string;
+};
+
 export type DocumentsTemplateGroup = {
   id: string;
   name: string;
@@ -13,7 +25,7 @@ export type DocumentsTemplateGroup = {
 export type DocumentsTemplate = {
   id: string;
   name: string;
-  informatieObjectTypeUUID?: string;
+  informatieObjectTypeUUID: string;
 };
 
 @Injectable({ providedIn: "root" })
@@ -23,7 +35,7 @@ export class SmartDocumentsService {
     private foutAfhandelingService: FoutAfhandelingService,
   ) {}
 
-  listTemplates(): Observable<DocumentsTemplateGroup[]> {
+  listTemplates(): Observable<SmartDocumentsTemplateGroup[]> {
     return this.zacHttp
       .GET("/rest/zaakafhandelParameters/documentTemplates")
       .pipe(
