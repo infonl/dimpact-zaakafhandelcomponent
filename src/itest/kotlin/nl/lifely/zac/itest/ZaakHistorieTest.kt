@@ -41,61 +41,71 @@ class ZaakHistorieTest : BehaviorSpec({
                     "attribuutLabel": "Behandelaar",
                     "door": "$TEST_USER_1_NAME",
                     "nieuweWaarde": "$TEST_USER_1_NAME",
-                    "toelichting": ""
+                    "toelichting": "",
+                    "actie": "GEKOPPELD"
                   },
                   {
                     "attribuutLabel": "zaakinformatieobject",
                     "door": "$TEST_USER_1_NAME",
                     "nieuweWaarde": "dummyTitel",
-                    "toelichting": ""
+                    "toelichting": "",
+                    "actie": "GEKOPPELD"
                   },
                   {
                     "attribuutLabel": "zaakinformatieobject",
                     "door": "$TEST_USER_1_NAME",
                     "nieuweWaarde": "dummyTitel",
-                    "toelichting": ""
+                    "toelichting": "",
+                    "actie": "GEKOPPELD"
                   },
                   {
                     "attribuutLabel": "Behandelaar",
                     "door": "Functionele gebruiker",
                     "oudeWaarde": "$TEST_USER_1_NAME",
-                    "toelichting": "dummyLijstVrijgevenReason"
+                    "toelichting": "dummyLijstVrijgevenReason",
+                    "actie": "ONTKOPPELD"
                   },
                   {
                     "attribuutLabel": "Behandelaar",
                     "door": "$TEST_USER_1_NAME",
                     "nieuweWaarde": "$TEST_USER_1_NAME",
-                    "toelichting": "dummyAssignToMeFromListReason"
+                    "toelichting": "dummyAssignToMeFromListReason",
+                    "actie": "GEKOPPELD"
                   },
                   {
                     "attribuutLabel": "Behandelaar",
                     "door": "$TEST_USER_1_NAME",
                     "oudeWaarde": "$TEST_USER_2_NAME",
-                    "toelichting": "dummyAssignToMeFromListReason"
+                    "toelichting": "dummyAssignToMeFromListReason",
+                    "actie": "ONTKOPPELD"
                   },
                   {
                     "attribuutLabel": "Behandelaar",
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "$TEST_USER_2_NAME",
-                    "toelichting": "dummyLijstVerdelenReason"
+                    "toelichting": "dummyLijstVerdelenReason",
+                    "actie": "GEKOPPELD"
                   },
                   {
                     "attribuutLabel": "status",
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "Intake",
-                    "toelichting": "Status gewijzigd vanuit Case"
+                    "toelichting": "Status gewijzigd vanuit Case",
+                    "actie": "GEWIJZIGD"
                   },
                   {
                     "attribuutLabel": "Melder",
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
-                    "toelichting": ""
+                    "toelichting": "",
+                    "actie": "GEKOPPELD"
                   },
                   {
                     "attribuutLabel": "zaakinformatieobject",
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "Aanvraag PDF",
-                    "toelichting": "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+                    "toelichting": "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag",
+                    "actie": "GEKOPPELD"
                   },
                   {
                     "attribuutLabel": "overige",
@@ -106,13 +116,15 @@ class ZaakHistorieTest : BehaviorSpec({
                     "attribuutLabel": "Behandelaar",
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "$TEST_GROUP_A_DESCRIPTION",
-                    "toelichting": ""
+                    "toelichting": "",
+                    "actie": "GEKOPPELD"
                   },
                   {
                     "attribuutLabel": "zaak",
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION",
-                    "toelichting": ""
+                    "toelichting": "",
+                    "actie": "AANGEMAAKT"
                   }]
                 """.trimIndent()
 
