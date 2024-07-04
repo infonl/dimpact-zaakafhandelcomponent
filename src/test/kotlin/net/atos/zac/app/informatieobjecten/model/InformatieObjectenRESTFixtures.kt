@@ -74,3 +74,15 @@ fun createRESTEnkelvoudigInformatieObjectVersieGegevens(
     this.informatieobjectTypeUUID = informatieobjectTypeUUID
     this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
 }
+
+fun createRESTInformatieobjectZoekParameters(
+    informatieobjectUUIDs: List<UUID>? = listOf(UUID.randomUUID(), UUID.randomUUID()),
+    zaakUUID: UUID = UUID.randomUUID(),
+    besluittypeUUID: UUID = UUID.randomUUID(),
+    gekoppeldeZaakDocumenten: Boolean = false
+) = RESTInformatieobjectZoekParameters().apply {
+    this.informatieobjectUUIDs = informatieobjectUUIDs
+    this.zaakUUID = zaakUUID
+    this.besluittypeUUID = besluittypeUUID
+    this.gekoppeldeZaakDocumenten = gekoppeldeZaakDocumenten
+}
