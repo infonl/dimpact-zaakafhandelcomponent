@@ -435,4 +435,136 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
             }
         }
     }
+
+    Given("A partial update with a list that has gotten smaller") {
+        val ztcClientService = mockk<ZtcClientService>()
+        val vrlClientService = mockk<VrlClientService>()
+
+        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+            bron = Bron.AUTORISATIES_API,
+            actie = "partial_update",
+            actieWeergave = "Almost updated",
+            resultaat = 201,
+            hoofdObject = URI("https://example.com/somePath"),
+            resource = "communicatiekanaal",
+            resourceUrl = URI("https://example.com/somePath"),
+            toelichting = "hologram",
+            wijzigingen = Wijzigingen().apply {
+                this.oud = mapOf("my_list" to listOf(1, 2))
+                this.nieuw = mapOf("my_list" to listOf(1))
+            }
+        )
+
+        val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
+            ztcClientService,
+            RESTZaakHistoriePartialUpdateConverter(vrlClientService)
+        )
+
+        When("converted to REST historie regel") {
+            val listRestRegel = restZaakHistorieRegelConverter.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
+
+            Then("it should not throw an exception") {
+                listRestRegel.size shouldBe 1
+            }
+        }
+    }
+
+    Given("A partial update with a list that stays the same size but values change") {
+        val ztcClientService = mockk<ZtcClientService>()
+        val vrlClientService = mockk<VrlClientService>()
+
+        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+            bron = Bron.AUTORISATIES_API,
+            actie = "partial_update",
+            actieWeergave = "Almost updated",
+            resultaat = 201,
+            hoofdObject = URI("https://example.com/somePath"),
+            resource = "communicatiekanaal",
+            resourceUrl = URI("https://example.com/somePath"),
+            toelichting = "hologram",
+            wijzigingen = Wijzigingen().apply {
+                this.oud = mapOf("my_list" to listOf(1, 2))
+                this.nieuw = mapOf("my_list" to listOf(1, 3))
+            }
+        )
+
+        val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
+            ztcClientService,
+            RESTZaakHistoriePartialUpdateConverter(vrlClientService)
+        )
+
+        When("converted to REST historie regel") {
+            val listRestRegel = restZaakHistorieRegelConverter.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
+
+            Then("it should not throw an exception") {
+                listRestRegel.size shouldBe 1
+            }
+        }
+    }
+
+    Given("A partial update with a list that stays exactly the same") {
+        val ztcClientService = mockk<ZtcClientService>()
+        val vrlClientService = mockk<VrlClientService>()
+
+        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+            bron = Bron.AUTORISATIES_API,
+            actie = "partial_update",
+            actieWeergave = "Almost updated",
+            resultaat = 201,
+            hoofdObject = URI("https://example.com/somePath"),
+            resource = "communicatiekanaal",
+            resourceUrl = URI("https://example.com/somePath"),
+            toelichting = "hologram",
+            wijzigingen = Wijzigingen().apply {
+                this.oud = mapOf("my_list" to listOf(1, 2))
+                this.nieuw = mapOf("my_list" to listOf(1, 2))
+            }
+        )
+
+        val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
+            ztcClientService,
+            RESTZaakHistoriePartialUpdateConverter(vrlClientService)
+        )
+
+        When("converted to REST historie regel") {
+            val listRestRegel = restZaakHistorieRegelConverter.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
+
+            Then("it should not contain lines") {
+                listRestRegel.size shouldBe 0
+            }
+        }
+    }
+
+    Given("A partial update with a map with a value that changes") {
+        val ztcClientService = mockk<ZtcClientService>()
+        val vrlClientService = mockk<VrlClientService>()
+
+        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+            bron = Bron.AUTORISATIES_API,
+            actie = "partial_update",
+            actieWeergave = "Almost updated",
+            resultaat = 201,
+            hoofdObject = URI("https://example.com/somePath"),
+            resource = "communicatiekanaal",
+            resourceUrl = URI("https://example.com/somePath"),
+            toelichting = "hologram",
+            wijzigingen = Wijzigingen().apply {
+                this.oud = mapOf("my_map" to mapOf("my_key" to "my_value"))
+                this.nieuw = mapOf("my_list" to mapOf("my_key" to "my_changed_value"))
+            }
+        )
+
+        val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
+            ztcClientService,
+            RESTZaakHistoriePartialUpdateConverter(vrlClientService)
+        )
+
+        When("converted to REST historie regel") {
+            val listRestRegel = restZaakHistorieRegelConverter.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
+
+            Then("it should contain a line") {
+                listRestRegel.size shouldBe 1
+            }
+        }
+    }
 })
