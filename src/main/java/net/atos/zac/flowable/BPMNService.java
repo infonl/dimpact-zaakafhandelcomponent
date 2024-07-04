@@ -70,7 +70,8 @@ public class BPMNService {
             return processDefinition;
         } else {
             throw new RuntimeException(
-                    "No processDefinition found with processDefinitionKey: '%s'".formatted(processDefinitionKey));
+                    "No process definition found with process definition key: '%s'".formatted(processDefinitionKey)
+            );
         }
     }
 
