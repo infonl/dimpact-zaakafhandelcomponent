@@ -191,8 +191,8 @@ class ProductaanvraagService @Inject constructor(
     fun getFormulierData(productaanvraagObject: ORObject): Map<String, Any> {
         val formulierData = mutableMapOf<String, Any>()
         (productaanvraagObject.record.data[PRODUCT_AANVRAAG_FORMULIER_DATA_VELD] as Map<*, *>)
-            .forEach { (_, velden) ->
-                formulierData.putAll(velden as Map<String, Any>)
+            .values.forEach {
+                formulierData.putAll(it as Map<String, Any>)
             }
         return formulierData
     }
