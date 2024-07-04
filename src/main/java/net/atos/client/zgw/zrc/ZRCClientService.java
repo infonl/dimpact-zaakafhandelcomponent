@@ -78,10 +78,9 @@ public class ZRCClientService {
      * Create {@link Rol}.
      *
      * @param rol {@link Rol}/
-     * @return Created {@link Rol}.
      */
-    public Rol<?> createRol(final Rol<?> rol) {
-        return createRol(rol, null);
+    public void createRol(final Rol<?> rol) {
+        createRol(rol, null);
     }
 
     /**
