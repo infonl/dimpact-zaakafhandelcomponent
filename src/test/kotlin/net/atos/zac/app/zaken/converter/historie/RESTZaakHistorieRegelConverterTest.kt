@@ -62,7 +62,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                     oudeWaarde shouldBe null
                     nieuweWaarde shouldBe zaakIdentificatie
                     datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
-                    door shouldBe null
+                    door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null
                     toelichting shouldBe "zaak created"
                 }
@@ -115,7 +115,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                     oudeWaarde shouldBe null
                     nieuweWaarde shouldBe "dummyVoorletters dummyAchternaam"
                     datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
-                    door shouldBe null
+                    door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null
                     toelichting shouldBe "rol updated"
                 }
@@ -155,7 +155,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                     oudeWaarde shouldBe null
                     nieuweWaarde shouldBe "title"
                     datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
-                    door shouldBe null
+                    door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null
                     toelichting shouldBe "file dropped"
                 }
@@ -195,7 +195,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                     oudeWaarde shouldBe null
                     nieuweWaarde shouldBe zrcAuditTrailRegel.resourceWeergave
                     datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
-                    door shouldBe null
+                    door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null
                     toelichting shouldBe "n/a"
                 }
@@ -240,7 +240,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                     oudeWaarde shouldBe null
                     nieuweWaarde shouldBe "description"
                     datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
-                    door shouldBe null
+                    door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null
                     toelichting shouldBe "n/a"
                 }
@@ -285,7 +285,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                     oudeWaarde shouldBe null
                     nieuweWaarde shouldBe "description"
                     datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
-                    door shouldBe null
+                    door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null
                     toelichting shouldBe "n/a"
                 }
@@ -336,7 +336,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                     oudeWaarde shouldBe null
                     nieuweWaarde shouldBe "objecttype.identity"
                     datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
-                    door shouldBe null
+                    door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null
                     toelichting shouldBe "n/a"
                 }
@@ -377,7 +377,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                     oudeWaarde shouldBe "Point"
                     nieuweWaarde shouldBe "Polygon"
                     datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
-                    door shouldBe null
+                    door shouldBe "Test User"
                     applicatie shouldBe null
                     toelichting shouldBe "xyz"
                 }
@@ -428,7 +428,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                     oudeWaarde shouldBe "old"
                     nieuweWaarde shouldBe "new"
                     datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
-                    door shouldBe null
+                    door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null
                     toelichting shouldBe "hologram"
                 }
