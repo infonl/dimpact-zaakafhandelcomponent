@@ -246,10 +246,11 @@ class ProductaanvraagService @Inject constructor(
             type = productaanvraag.type
             ontvangstdatum = productaanvraagObject.record.registrationAt
         }
-        productaanvraag.betrokkenen
+        productaanvraag.betrokkenen?.let { betrokkenen ->
             // we are only interested in the first betrokkene with the role 'INITIATOR'
-            .first { it.rolOmschrijvingGeneriek == Betrokkene.RolOmschrijvingGeneriek.INITIATOR }
-            .let { inboxProductaanvraag.initiatorID = it.inpBsn }
+            betrokkenen.first { it.rolOmschrijvingGeneriek == Betrokkene.RolOmschrijvingGeneriek.INITIATOR }
+                .let { inboxProductaanvraag.initiatorID = it.inpBsn }
+        }
 
         productaanvraag.pdf?.let { pdfUri ->
             uuidFromURI(pdfUri).let {
