@@ -404,7 +404,9 @@ public class RESTInformatieobjectConverter {
                 .map(enkelvoudigInformatieobjectUUID -> {
                     try {
                         return convertToREST(
-                                drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID), zaak);
+                                drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID),
+                                zaak
+                        );
                     } catch (FoutException e) {
                         if (e.getFout().getStatus() != HttpStatus.NOT_FOUND_404) {
                             throw e;

@@ -36,6 +36,7 @@ import net.atos.zac.app.informatieobjecten.model.RESTDocumentCreatieGegevens
 import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatieObjectVersieGegevens
 import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatieobject
 import net.atos.zac.app.informatieobjecten.model.createRESTFileUpload
+import net.atos.zac.app.informatieobjecten.model.createRESTInformatieobjectZoekParameters
 import net.atos.zac.app.zaken.converter.RESTGerelateerdeZaakConverter
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.documentcreatie.DocumentCreatieService
@@ -50,8 +51,11 @@ import net.atos.zac.flowable.TaakVariabelenService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.policy.output.createDocumentRechtenAllDeny
+import net.atos.zac.policy.output.createZaakRechten
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import net.atos.zac.webdav.WebdavHelper
+import java.net.URI
+import java.util.UUID
 
 class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val drcClientService = mockk<DrcClientService>()
@@ -425,6 +429,85 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             Then("it throws exception with no message") {
                 exception.message shouldBe null
+            }
+        }
+    }
+
+    Given("enkelvoudig informatieobject with informatie object uuids") {
+        val zaakUuid = UUID.randomUUID()
+        val informatieobjectUUIDs = listOf(UUID.randomUUID(), UUID.randomUUID())
+        val restInformatieobjectZoekParameters = createRESTInformatieobjectZoekParameters(
+            informatieobjectUUIDs = informatieobjectUUIDs,
+            zaakUUID = zaakUuid
+        )
+        val zaak = createZaak()
+        val restEnkelvoudigInformatieobjecten = listOf(
+            createRESTEnkelvoudigInformatieobject(),
+            createRESTEnkelvoudigInformatieobject()
+        )
+
+        every { zrcClientService.readZaak(zaakUuid) } returns zaak
+        every {
+            restInformatieobjectConverter.convertUUIDsToREST(informatieobjectUUIDs, zaak)
+        } returns restEnkelvoudigInformatieobjecten
+
+        When("the list of enkelvoudig informatieobject is requested") {
+            val returnedRestEnkelvoudigInformatieobjecten =
+                enkelvoudigInformatieObjectRestService.listEnkelvoudigInformatieobjecten(
+                    restInformatieobjectZoekParameters
+                )
+
+            Then("the returned enkelvoudige informatie objecten are as expected") {
+                with(returnedRestEnkelvoudigInformatieobjecten) {
+                    size shouldBe 2
+                    this[0] shouldBe restEnkelvoudigInformatieobjecten[0]
+                    this[1] shouldBe restEnkelvoudigInformatieobjecten[1]
+                }
+            }
+        }
+    }
+
+    Given("enkelvoudig informatieobject without informatie object uuids") {
+        clearAllMocks()
+        val zaakUuid = UUID.randomUUID()
+        val informatieobjectUUIDs = listOf(UUID.randomUUID(), UUID.randomUUID())
+        val restInformatieobjectZoekParameters = createRESTInformatieobjectZoekParameters(
+            gekoppeldeZaakDocumenten = true,
+            informatieobjectUUIDs = null,
+            zaakUUID = zaakUuid
+        )
+        val zaak = createZaak(
+            deelzaken = setOf(URI("http://example.com/${UUID.randomUUID()}"))
+        )
+        val restEnkelvoudigInformatieobjecten = listOf(
+            createRESTEnkelvoudigInformatieobject()
+        )
+        val zaakInformatieobjecten = listOf(
+            createZaakInformatieobject()
+        )
+
+        every { zrcClientService.readZaak(zaakUuid) } returns zaak
+        every {
+            restInformatieobjectConverter.convertUUIDsToREST(informatieobjectUUIDs, zaak)
+        } returns restEnkelvoudigInformatieobjecten
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
+        every { zrcClientService.listZaakinformatieobjecten(zaak) } returns zaakInformatieobjecten
+        every {
+            restInformatieobjectConverter.convertToREST(zaakInformatieobjecten[0])
+        } returns restEnkelvoudigInformatieobjecten[0]
+
+        When("the list of enkelvoudig informatieobject is requested") {
+            val returnedRestEnkelvoudigInformatieobjecten =
+                enkelvoudigInformatieObjectRestService.listEnkelvoudigInformatieobjecten(
+                    restInformatieobjectZoekParameters
+                )
+
+            Then("the returned enkelvoudige informatie objecten are as expected") {
+                with(returnedRestEnkelvoudigInformatieobjecten) {
+                    size shouldBe 2
+                    this[0] shouldBe restEnkelvoudigInformatieobjecten[0]
+                    this[1] shouldBe restEnkelvoudigInformatieobjecten[1]
+                }
             }
         }
     }

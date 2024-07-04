@@ -632,6 +632,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         zaak
             .let(zrcClientService::listZaakinformatieobjecten)
             .let(informatieobjectConverter::convertToREST)
+            .toMutableList()
 
     private fun listGekoppeldeZaakEnkelvoudigInformatieobjectenVoorZaak(
         zaakURI: URI,

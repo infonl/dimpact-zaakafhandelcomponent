@@ -119,7 +119,8 @@ fun createZaak(
     uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.now().plusDays(1),
     vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR,
     status: URI? = null,
-    verlenging: Verlenging? = null
+    verlenging: Verlenging? = null,
+    deelzaken: Set<URI>? = null
 ) = Zaak(
     zaakTypeURI,
     startDate,
@@ -138,6 +139,7 @@ fun createZaak(
     this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
     this.status = status
     this.verlenging = verlenging
+    this.deelzaken = deelzaken
 }
 
 fun createZaakobjectOpenbareRuimte(
