@@ -8,9 +8,11 @@ fun Map<*, *>.diff(other: Map<*, *>): Map<Any?, Pair<Any?, Any?>> = other
 
 private fun compare(left: Any?, right: Any?): Boolean =
     when {
-        left is Map<*, *> && right is Map<*, *> -> left.all { right.containsKey(it.key) && compare(it.value, right[it.key]) }
-        left is List<*> && right is List<*> -> left.withIndex().all {
-            right.size > it.index && compare(it.value, right[it.index])
+        left is Map<*, *> && right is Map<*, *> -> left.all {
+            right.containsKey(it.key) && compare(it.value, right[it.key])
+        }
+        left is List<*> && right is List<*> -> left.size == right.size && left.withIndex().all {
+            compare(it.value, right[it.index])
         }
         else -> left == right
     }
