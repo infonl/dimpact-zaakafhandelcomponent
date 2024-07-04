@@ -28,6 +28,8 @@ public class RESTHistorieRegel {
 
     public String toelichting;
 
+    public RESTHistorieActie actie;
+
     public RESTHistorieRegel(final String attribuutLabel, final String oudeWaarde, final String nieuweWaarde) {
         this.attribuutLabel = attribuutLabel;
         this.oudeWaarde = oudeWaarde;
