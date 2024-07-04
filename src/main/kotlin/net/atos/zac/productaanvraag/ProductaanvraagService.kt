@@ -47,10 +47,8 @@ import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
-import org.apache.commons.collections4.ListUtils
 import java.net.URI
 import java.time.LocalDate
-import java.util.Optional
 import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -137,17 +135,14 @@ class ProductaanvraagService @Inject constructor(
                 warning("CMMN", productaanvraag, exception)
             }
         } else {
-            val zaaktype = findZaaktypeByIdentificatie(productaanvraag.type)
-            if (zaaktype.isPresent) {
+            findZaaktypeByIdentificatie(productaanvraag.type)?.let {
                 try {
-                    zaaktype.get().let {
-                        LOG.fine { "Creating a zaak using a BPMN proces with zaaktype: $it" }
-                        registreerZaakMetBPMNProces(it, productaanvraag, productaanvraagObject)
-                    }
+                    LOG.fine { "Creating a zaak using a BPMN proces with zaaktype: $it" }
+                    registreerZaakMetBPMNProces(it, productaanvraag, productaanvraagObject)
                 } catch (exception: RuntimeException) {
                     warning("BPMN", productaanvraag, exception)
                 }
-            } else {
+            } ?: run {
                 LOG.info(
                     message(
                         productaanvraag,
@@ -175,14 +170,12 @@ class ProductaanvraagService @Inject constructor(
         productaanvraag: ProductaanvraagDimpact,
         productaanvraagObject: ORObject
     ) {
-        val createdZaak = zgwApiService.createZaak(
-            Zaak().apply {
-                this.zaaktype = zaaktype.url
-                bronorganisatie = ConfiguratieService.BRON_ORGANISATIE
-                verantwoordelijkeOrganisatie = ConfiguratieService.BRON_ORGANISATIE
-                startdatum = LocalDate.now()
-            }
-        )
+        val createdZaak = Zaak().apply {
+            this.zaaktype = zaaktype.url
+            bronorganisatie = ConfiguratieService.BRON_ORGANISATIE
+            verantwoordelijkeOrganisatie = ConfiguratieService.BRON_ORGANISATIE
+            startdatum = LocalDate.now()
+        }.let(zgwApiService::createZaak)
         bpmnService.readProcessDefinitionByprocessDefinitionKey(BPMN_PROCESS_DEFINITION_KEY).let {
             zrcClientService.createRol(creeerRolGroep(it.description, createdZaak))
         }
@@ -251,7 +244,6 @@ class ProductaanvraagService @Inject constructor(
             betrokkenen.first { it.rolOmschrijvingGeneriek == Betrokkene.RolOmschrijvingGeneriek.INITIATOR }
                 .let { inboxProductaanvraag.initiatorID = it.inpBsn }
         }
-
         productaanvraag.pdf?.let { pdfUri ->
             uuidFromURI(pdfUri).let {
                 inboxProductaanvraag.aanvraagdocumentUUID = it
@@ -267,8 +259,7 @@ class ProductaanvraagService @Inject constructor(
     }
 
     private fun deleteInboxDocument(documentUUID: UUID) =
-        inboxDocumentenService.find(documentUUID)
-            .ifPresent { inboxDocumentenService.delete(it.id) }
+        inboxDocumentenService.find(documentUUID).ifPresent { inboxDocumentenService.delete(it.id) }
 
     private fun registreerZaakMetCMMNCase(
         zaaktypeUuid: UUID,
@@ -276,25 +267,26 @@ class ProductaanvraagService @Inject constructor(
         productaanvraagObject: ORObject
     ) {
         val formulierData = getFormulierData(productaanvraagObject)
-        val zaak = Zaak()
         val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
-        zaak.zaaktype = zaaktype.url
-        val zaakOmschrijving = getZaakOmschrijving(productaanvraag)
-        zaak.omschrijving = zaakOmschrijving
-        // note that we leave the 'toelichting' field empty for a zaak created from a productaanvraag
-        zaak.startdatum = productaanvraagObject.record.startAt
-        zaak.bronorganisatie = ConfiguratieService.BRON_ORGANISATIE
-        zaak.verantwoordelijkeOrganisatie = ConfiguratieService.BRON_ORGANISATIE
-        vrlClientService.findCommunicatiekanaal(ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER).ifPresent {
-            zaak.communicatiekanaal = it.url
-        }
-        val zaakgegevens = productaanvraag.zaakgegevens
-        if (zaakgegevens?.geometry != null && zaakgegevens.geometry.type == Geometry.Type.POINT) {
-            zaak.zaakgeometrie = zaakgegevens.geometry.convertToZgwPoint()
+        val communicatieKanaal = vrlClientService.findCommunicatiekanaal(
+            ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER
+        )
+        val createdZaak = Zaak().apply {
+            this.zaaktype = zaaktype.url
+            omschrijving = getZaakOmschrijving(productaanvraag)
+            startdatum = productaanvraagObject.record.startAt
+            bronorganisatie = ConfiguratieService.BRON_ORGANISATIE
+            communicatieKanaal.ifPresent { communicatiekanaal = it.url }
+            verantwoordelijkeOrganisatie = ConfiguratieService.BRON_ORGANISATIE
+            // note that we leave the 'toelichting' field empty for a zaak created from a productaanvraag
+        }.let(zgwApiService::createZaak)
+        productaanvraag.zaakgegevens.let {
+            if (it.geometry != null && it.geometry.type == Geometry.Type.POINT) {
+                createdZaak.zaakgeometrie = it.geometry.convertToZgwPoint()
+            }
         }
 
-        LOG.fine("Creating zaak using the ZGW API: $zaak")
-        val createdZaak = zgwApiService.createZaak(zaak)
+        LOG.fine("Creating zaak using the ZGW API: $createdZaak")
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid)
         toekennenZaak(createdZaak, zaakafhandelParameters)
         pairProductaanvraagInfoWithZaak(productaanvraag, productaanvraagObject, createdZaak)
@@ -309,34 +301,30 @@ class ProductaanvraagService @Inject constructor(
         pairProductaanvraagWithZaak(productaanvraagObject, zaak.url)
         pairAanvraagPDFWithZaak(productaanvraag, zaak.url)
         productaanvraag.bijlagen?.let { pairBijlagenWithZaak(it, zaak.url) }
-        ListUtils.emptyIfNull(productaanvraag.betrokkenen).stream()
-            .filter { it.rolOmschrijvingGeneriek == Betrokkene.RolOmschrijvingGeneriek.INITIATOR }
-            // there can be at most only one initiator for a particular zaak so even if there are multiple (theorically possible)
-            // we are only interested in the first one
-            .findFirst()
-            .ifPresent {
-                addInitiator(
-                    it.inpBsn,
-                    zaak.url,
-                    zaak.zaaktype
-                )
-            }
+        productaanvraag.betrokkenen?.let { betrokkenen ->
+            addInitiator(
+                betrokkenen.first { it.rolOmschrijvingGeneriek == Betrokkene.RolOmschrijvingGeneriek.INITIATOR }.inpBsn,
+                zaak.url,
+                zaak.zaaktype
+            )
+        }
     }
 
     fun pairProductaanvraagWithZaak(productaanvraag: ORObject, zaakUrl: URI) {
-        val zaakobject = ZaakobjectProductaanvraag(zaakUrl, productaanvraag.url)
-        zrcClientService.createZaakobject(zaakobject)
+        ZaakobjectProductaanvraag(zaakUrl, productaanvraag.url)
+            .let(zrcClientService::createZaakobject)
     }
 
-    fun pairAanvraagPDFWithZaak(productaanvraag: ProductaanvraagDimpact, zaakUrl: URI?) {
-        val zaakInformatieobject = ZaakInformatieobject()
-        zaakInformatieobject.informatieobject = productaanvraag.pdf
-        zaakInformatieobject.zaak = zaakUrl
-        zaakInformatieobject.titel = AANVRAAG_PDF_TITEL
-        zaakInformatieobject.beschrijving = AANVRAAG_PDF_BESCHRIJVING
-
-        LOG.fine("Creating zaak informatieobject: $zaakInformatieobject")
-        zrcClientService.createZaakInformatieobject(zaakInformatieobject, ZAAK_INFORMATIEOBJECT_REDEN)
+    fun pairAanvraagPDFWithZaak(productaanvraag: ProductaanvraagDimpact, zaakUrl: URI) {
+        ZaakInformatieobject().apply {
+            informatieobject = productaanvraag.pdf
+            zaak = zaakUrl
+            titel = AANVRAAG_PDF_TITEL
+            beschrijving = AANVRAAG_PDF_BESCHRIJVING
+        }.let {
+            LOG.fine("Creating zaak informatieobject: $it")
+            zrcClientService.createZaakInformatieobject(it, ZAAK_INFORMATIEOBJECT_REDEN)
+        }
     }
 
     fun pairBijlagenWithZaak(bijlageURIs: List<URI>, zaakUrl: URI) =
@@ -361,42 +349,52 @@ class ProductaanvraagService @Inject constructor(
         }
     }
 
-    private fun creeerRolGroep(groepID: String, zaak: Zaak): RolOrganisatorischeEenheid {
-        val group = identityService.readGroup(groepID)
-        val groep = OrganisatorischeEenheid()
-        groep.identificatie = group.id
-        groep.naam = group.name
-        val roltype = ztcClientService.readRoltype(OmschrijvingGeneriekEnum.BEHANDELAAR, zaak.zaaktype)
-        return RolOrganisatorischeEenheid(zaak.url, roltype, "Behandelend groep van de zaak", groep)
-    }
-
-    private fun creeerRolMedewerker(behandelaarGebruikersnaam: String, zaak: Zaak): RolMedewerker {
-        val user = identityService.readUser(behandelaarGebruikersnaam)
-        val medewerker = Medewerker()
-        medewerker.identificatie = user.id
-        medewerker.voorletters = user.firstName
-        medewerker.achternaam = user.lastName
-        val roltype = ztcClientService.readRoltype(OmschrijvingGeneriekEnum.BEHANDELAAR, zaak.zaaktype)
-        return RolMedewerker(zaak.url, roltype, "Behandelaar van de zaak", medewerker)
-    }
-
-    private fun findZaaktypeByIdentificatie(zaaktypeIdentificatie: String): Optional<ZaakType> {
-        return ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI()).stream()
-            .filter { it.identificatie == zaaktypeIdentificatie }
-            .findFirst()
-    }
-
-    private fun getZaakOmschrijving(productaanvraag: ProductaanvraagDimpact): String {
-        val zaakOmschrijving = "Aangemaakt vanuit ${productaanvraag.bron.naam} met kenmerk '${productaanvraag.bron.kenmerk}'"
-        return if (zaakOmschrijving.length > ZAAK_DESCRIPTION_MAX_LENGTH) {
-            // we truncate the zaak description to the maximum length allowed by the ZGW ZRC API
-            // or else it will not be accepted by the ZGW API implementation component
-            LOG.warning(
-                "Truncating zaak description '$zaakOmschrijving' to the maximum length allowed by the ZGW ZRC API"
+    private fun creeerRolGroep(groepID: String, zaak: Zaak): RolOrganisatorischeEenheid =
+        identityService.readGroup(groepID).let {
+            OrganisatorischeEenheid().apply {
+                identificatie = it.id
+                naam = it.name
+            }
+        }.let { organistatorischeEenheid ->
+            RolOrganisatorischeEenheid(
+                zaak.url,
+                ztcClientService.readRoltype(OmschrijvingGeneriekEnum.BEHANDELAAR, zaak.zaaktype),
+                "Behandelend groep van de zaak",
+                organistatorischeEenheid
             )
-            zaakOmschrijving.substring(0, ZAAK_DESCRIPTION_MAX_LENGTH)
-        } else {
-            zaakOmschrijving
         }
-    }
+
+    private fun creeerRolMedewerker(behandelaarGebruikersnaam: String, zaak: Zaak): RolMedewerker =
+        identityService.readUser(behandelaarGebruikersnaam).let {
+            Medewerker().apply {
+                identificatie = it.id
+                voorletters = it.firstName
+                achternaam = it.lastName
+            }
+        }.let { medewerker ->
+            RolMedewerker(
+                zaak.url,
+                ztcClientService.readRoltype(OmschrijvingGeneriekEnum.BEHANDELAAR, zaak.zaaktype),
+                "Behandelaar van de zaak",
+                medewerker
+            )
+        }
+
+    private fun findZaaktypeByIdentificatie(zaaktypeIdentificatie: String) =
+        ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
+            .firstOrNull { it.identificatie == zaaktypeIdentificatie }
+
+    private fun getZaakOmschrijving(productaanvraag: ProductaanvraagDimpact): String =
+        "Aangemaakt vanuit ${productaanvraag.bron.naam} met kenmerk '${productaanvraag.bron.kenmerk}'".let {
+            return if (it.length > ZAAK_DESCRIPTION_MAX_LENGTH) {
+                // we truncate the zaak description to the maximum length allowed by the ZGW ZRC API
+                // or else it will not be accepted by the ZGW API implementation component
+                LOG.warning(
+                    "Truncating zaak description '$it' to the maximum length allowed by the ZGW ZRC API"
+                )
+                it.substring(0, ZAAK_DESCRIPTION_MAX_LENGTH)
+            } else {
+                it
+            }
+        }
 }
