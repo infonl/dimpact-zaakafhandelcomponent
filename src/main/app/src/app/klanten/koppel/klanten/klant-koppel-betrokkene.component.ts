@@ -112,7 +112,6 @@ export class KlantKoppelBetrokkeneComponent implements OnInit, AfterViewInit {
     this.betrokkeneToelichting = new InputFormFieldBuilder()
       .id("betrokkenToelichting")
       .label("toelichting")
-      .validators(Validators.required)
       .maxlength(75)
       .build();
   }
