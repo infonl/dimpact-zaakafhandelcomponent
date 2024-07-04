@@ -11,18 +11,22 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_COMPLETED
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_2_NAME
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.zaak1UUID
 import nl.lifely.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 
 @Order(TEST_SPEC_ORDER_AFTER_TASK_COMPLETED)
-class HistorieTest : BehaviorSpec({
+class ZaakHistorieTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    Given("ZAC Docker container is running") {
-        When("historie is requested") {
+    Given("A zaak exists for which there is an audit trail in OpenZaak") {
+        When("zaakhistorie is requested") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaken/zaak/$zaak1UUID/historie"
             )
@@ -34,38 +38,38 @@ class HistorieTest : BehaviorSpec({
 
                 val expectedResponse = """[{
                     "attribuutLabel": "zaakinformatieobject",
-                    "door": "Test User1 Špëçîâl Characters",
+                    "door": "$TEST_USER_1_NAME",
                     "nieuweWaarde": "dummyTitel",
                     "toelichting": ""
                   },
                   {
                     "attribuutLabel": "zaakinformatieobject",
-                    "door": "Test User1 Špëçîâl Characters",
+                    "door": "$TEST_USER_1_NAME",
                     "nieuweWaarde": "dummyTitel",
                     "toelichting": ""
                   },
                   {
                     "attribuutLabel": "Behandelaar",
                     "door": "Functionele gebruiker",
-                    "oudeWaarde": "Test User1 Špëçîâl Characters",
+                    "oudeWaarde": "$TEST_USER_1_NAME",
                     "toelichting": "Behandelaar: dummyLijstVrijgevenReason"
                   },
                   {
                     "attribuutLabel": "Behandelaar",
-                    "door": "Test User1 Špëçîâl Characters",
-                    "nieuweWaarde": "Test User1 Špëçîâl Characters",
+                    "door": "$TEST_USER_1_NAME",
+                    "nieuweWaarde": "$TEST_USER_1_NAME",
                     "toelichting": "Behandelaar: dummyAssignToMeFromListReason"
                   },
                   {
                     "attribuutLabel": "Behandelaar",
-                    "door": "Test User1 Špëçîâl Characters",
-                    "oudeWaarde": "Test User2",
+                    "door": "$TEST_USER_1_NAME",
+                    "oudeWaarde": "$TEST_USER_2_NAME",
                     "toelichting": "Behandelaar: dummyAssignToMeFromListReason"
                   },
                   {
                     "attribuutLabel": "Behandelaar",
                     "door": "Functionele gebruiker",
-                    "nieuweWaarde": "Test User2",
+                    "nieuweWaarde": "$TEST_USER_2_NAME",
                     "toelichting": "Behandelaar: dummyLijstVerdelenReason"
                   },
                   {
@@ -94,13 +98,13 @@ class HistorieTest : BehaviorSpec({
                   {
                     "attribuutLabel": "Behandelaar",
                     "door": "Functionele gebruiker",
-                    "nieuweWaarde": "Test group A",
+                    "nieuweWaarde": "$TEST_GROUP_A_DESCRIPTION"",
                     "toelichting": "Behandelaar: null"
                   },
                   {
                     "attribuutLabel": "zaak",
                     "door": "Functionele gebruiker",
-                    "nieuweWaarde": "ZAAK-2023-0000000001",
+                    "nieuweWaarde": "$ZAAK_1_IDENTIFICATION",
                     "toelichting": ""
                   }]"""
 
