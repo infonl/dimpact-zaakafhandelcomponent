@@ -7,6 +7,7 @@ import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.client.zgw.ztc.ZtcClientService
+import net.atos.zac.app.audit.model.RESTHistorieActie
 import net.atos.zac.app.audit.model.RESTHistorieRegel
 import java.net.URI
 
@@ -40,7 +41,12 @@ class RESTZaakHistorieRegelConverter @Inject constructor(
             auditTrail.actie == PARTIAL_UPDATE &&
                 old != null &&
                 new != null
-            -> restZaakHistoriePartialUpdateConverter.convertPartialUpdate(auditTrail, old, new)
+            -> restZaakHistoriePartialUpdateConverter.convertPartialUpdate(
+                auditTrail,
+                convertActie(auditTrail.resource, auditTrail.actie),
+                old,
+                new
+            )
 
             auditTrail.actie == CREATE ||
                 auditTrail.actie == UPDATE ||
@@ -60,6 +66,7 @@ class RESTZaakHistorieRegelConverter @Inject constructor(
             datumTijd = auditTrail.aanmaakdatum
             toelichting = auditTrail.toelichting
             door = auditTrail.gebruikersWeergave
+            actie = convertActie(auditTrail.resource, auditTrail.actie)
         }
 
     private fun convertResource(resource: String, obj: Map<*, *>): String = when (resource) {
@@ -94,4 +101,13 @@ class RESTZaakHistorieRegelConverter @Inject constructor(
             }
             else -> null
         }
+
+    private fun convertActie(resource: String?, action: String?): RESTHistorieActie? = when {
+        resource == ZAAK && action == CREATE -> RESTHistorieActie.AANGEMAAKT
+        resource == STATUS -> RESTHistorieActie.GEWIJZIGD
+        action == CREATE -> RESTHistorieActie.GEKOPPELD
+        action == DESTROY -> RESTHistorieActie.ONTKOPPELD
+        action == UPDATE || action == PARTIAL_UPDATE -> RESTHistorieActie.GEWIJZIGD
+        else -> null
+    }
 }
