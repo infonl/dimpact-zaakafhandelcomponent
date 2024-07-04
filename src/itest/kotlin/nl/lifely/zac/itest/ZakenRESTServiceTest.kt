@@ -33,7 +33,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_2_IDENTIFICATION
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_3_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.zaak1UUID
 import nl.lifely.zac.itest.util.WebSocketTestListener
@@ -70,7 +70,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     getJSONObject("zaaktype").getString("identificatie") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
                     getJSONObject("zaakdata").apply {
                         getString("zaakUUID") shouldNotBe null
-                        getString("zaakIdentificatie") shouldBe ZAAK_2_IDENTIFICATION
+                        getString("zaakIdentificatie") shouldBe ZAAK_3_IDENTIFICATION
                         zaak2UUID = getString("zaakUUID").let(UUID::fromString)
                     }
                 }
@@ -86,7 +86,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     val responseBody = response.body!!.string()
                     logger.info { "Response: $responseBody" }
                     with(JSONObject(responseBody)) {
-                        getString("identificatie") shouldBe ZAAK_2_IDENTIFICATION
+                        getString("identificatie") shouldBe ZAAK_3_IDENTIFICATION
                         getJSONObject("zaaktype").getString("identificatie") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
                     }
                 }
