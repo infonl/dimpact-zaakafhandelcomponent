@@ -72,7 +72,7 @@ class RESTZaakHistorieRegelConverter @Inject constructor(
         else -> resource
     } ?: resource
 
-    private fun convertValue(resource: String, obj: Map<*, *>, resourceWeergave: String): String? =
+    private fun convertValue(resource: String, obj: Map<*, *>, resourceWeergave: String?): String? =
         when (resource) {
             ZAAK -> obj.stringProperty(IDENTIFICATIE)
             ROL -> obj.getTypedValue(Rol::class.java)?.naam

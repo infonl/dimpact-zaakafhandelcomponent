@@ -12,6 +12,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_COMPLETED
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_2_NAME
@@ -37,6 +38,12 @@ class ZaakHistorieTest : BehaviorSpec({
                 response.isSuccessful shouldBe true
 
                 val expectedResponse = """[{
+                    "attribuutLabel": "Behandelaar",
+                    "door": "$TEST_USER_1_NAME",
+                    "nieuweWaarde": "$TEST_USER_1_NAME",
+                    "toelichting": "Behandelaar: null"
+                  },
+                  {
                     "attribuutLabel": "zaakinformatieobject",
                     "door": "$TEST_USER_1_NAME",
                     "nieuweWaarde": "dummyTitel",
@@ -81,7 +88,7 @@ class ZaakHistorieTest : BehaviorSpec({
                   {
                     "attribuutLabel": "Melder",
                     "door": "Functionele gebruiker",
-                    "nieuweWaarde": "999993896",
+                    "nieuweWaarde": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
                     "toelichting": "Melder: null"
                   },
                   {
@@ -98,7 +105,7 @@ class ZaakHistorieTest : BehaviorSpec({
                   {
                     "attribuutLabel": "Behandelaar",
                     "door": "Functionele gebruiker",
-                    "nieuweWaarde": "$TEST_GROUP_A_DESCRIPTION"",
+                    "nieuweWaarde": "$TEST_GROUP_A_DESCRIPTION",
                     "toelichting": "Behandelaar: null"
                   },
                   {
@@ -106,7 +113,8 @@ class ZaakHistorieTest : BehaviorSpec({
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "$ZAAK_1_IDENTIFICATION",
                     "toelichting": ""
-                  }]"""
+                  }]
+                """.trimIndent()
 
                 responseBody shouldEqualJsonIgnoringExtraneousFields expectedResponse
                 responseBody shouldContainJsonKey("$[0].datumTijd")

@@ -8,11 +8,13 @@ import java.util.UUID
 
 @Suppress("LongParameterList")
 fun createZRCAuditTrailRegel(
+    uri: URI = URI("https://example.com/resource"),
     uuid: UUID = UUID.randomUUID(),
     bron: Bron,
     applicatieId: String = UUID.randomUUID().toString(),
     applicatieWeergave: String = "ZAC",
     gebruikersId: String = "testuser",
+    gebruikersWeergave: String = "Test User",
     actie: String,
     actieWeergave: String,
     resultaat: Int,
@@ -23,20 +25,22 @@ fun createZRCAuditTrailRegel(
     resourceWeergave: String = "123443210 - ZAAK-2024-0000000003",
     aanmaakdatum: ZonedDateTime = ZonedDateTime.now(),
     wijzigingen: Wijzigingen
-) = ZRCAuditTrailRegel().apply {
-    this.uuid = uuid
-    this.bron = bron
-    this.applicatieId = applicatieId
-    this.applicatieWeergave = applicatieWeergave
-    this.gebruikersId = gebruikersId
-    this.actie = actie
-    this.actieWeergave = actieWeergave
-    this.resultaat = resultaat
-    this.hoofdObject = hoofdObject
-    this.resource = resource
-    this.resourceUrl = resourceUrl
-    this.toelichting = toelichting
-    this.resourceWeergave = resourceWeergave
-    this.aanmaakdatum = aanmaakdatum
-    this.wijzigingen = wijzigingen
-}
+) = ZRCAuditTrailRegel(
+    uri,
+    uuid,
+    bron,
+    applicatieId,
+    applicatieWeergave,
+    gebruikersId,
+    gebruikersWeergave,
+    actie,
+    actieWeergave,
+    resultaat,
+    hoofdObject,
+    resource,
+    resourceUrl,
+    toelichting,
+    resourceWeergave,
+    aanmaakdatum,
+    wijzigingen
+)
