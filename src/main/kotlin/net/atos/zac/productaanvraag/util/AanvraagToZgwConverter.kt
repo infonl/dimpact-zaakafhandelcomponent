@@ -1,4 +1,4 @@
-package net.atos.zac.productaanvraag
+package net.atos.zac.productaanvraag.util
 
 import net.atos.client.zgw.zrc.model.Point
 import net.atos.client.zgw.zrc.model.Point2D

@@ -58,6 +58,7 @@ import net.atos.zac.productaanvraag.model.InboxProductaanvraag;
 import net.atos.zac.productaanvraag.model.generated.Betrokkene;
 import net.atos.zac.productaanvraag.model.generated.Geometry;
 import net.atos.zac.productaanvraag.model.generated.ProductaanvraagDimpact;
+import net.atos.zac.productaanvraag.util.AanvraagToZgwConverterKt;
 import net.atos.zac.productaanvraag.util.BetalingStatusEnumJsonAdapter;
 import net.atos.zac.productaanvraag.util.GeometryTypeEnumJsonAdapter;
 import net.atos.zac.productaanvraag.util.IndicatieMachtigingEnumJsonAdapter;
