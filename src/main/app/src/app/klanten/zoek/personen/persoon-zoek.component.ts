@@ -273,6 +273,7 @@ export class PersoonZoekComponent implements OnInit {
 
   selectPersoon(persoon: Persoon): void {
     this.persoon.emit(persoon);
+    this.wissen();
   }
 
   openPersoonPagina(persoon: Persoon): void {
@@ -282,5 +283,6 @@ export class PersoonZoekComponent implements OnInit {
 
   wissen() {
     this.formGroup.reset();
+    this.personen.data = [];
   }
 }
