@@ -278,12 +278,12 @@ class ProductaanvraagService @Inject constructor(
             bronorganisatie = ConfiguratieService.BRON_ORGANISATIE
             communicatieKanaal.ifPresent { communicatiekanaal = it.url }
             verantwoordelijkeOrganisatie = ConfiguratieService.BRON_ORGANISATIE
-            // note that we leave the 'toelichting' field empty for a zaak created from a productaanvraag
-            productaanvraag.zaakgegevens.let { zaakgegevens ->
+            productaanvraag.zaakgegevens?.let { zaakgegevens ->
                 if (zaakgegevens.geometry != null && zaakgegevens.geometry.type == Geometry.Type.POINT) {
                     zaakgeometrie = zaakgegevens.geometry.convertToZgwPoint()
                 }
             }
+            // note that we leave the 'toelichting' field empty for a zaak created from a productaanvraag
         }.let(zgwApiService::createZaak)
 
         LOG.fine("Creating zaak using the ZGW API: $createdZaak")
