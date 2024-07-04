@@ -41,7 +41,7 @@ class ZaakHistorieTest : BehaviorSpec({
                     "attribuutLabel": "Behandelaar",
                     "door": "$TEST_USER_1_NAME",
                     "nieuweWaarde": "$TEST_USER_1_NAME",
-                    "toelichting": "Behandelaar: null"
+                    "toelichting": ""
                   },
                   {
                     "attribuutLabel": "zaakinformatieobject",
@@ -59,25 +59,25 @@ class ZaakHistorieTest : BehaviorSpec({
                     "attribuutLabel": "Behandelaar",
                     "door": "Functionele gebruiker",
                     "oudeWaarde": "$TEST_USER_1_NAME",
-                    "toelichting": "Behandelaar: dummyLijstVrijgevenReason"
+                    "toelichting": "dummyLijstVrijgevenReason"
                   },
                   {
                     "attribuutLabel": "Behandelaar",
                     "door": "$TEST_USER_1_NAME",
                     "nieuweWaarde": "$TEST_USER_1_NAME",
-                    "toelichting": "Behandelaar: dummyAssignToMeFromListReason"
+                    "toelichting": "dummyAssignToMeFromListReason"
                   },
                   {
                     "attribuutLabel": "Behandelaar",
                     "door": "$TEST_USER_1_NAME",
                     "oudeWaarde": "$TEST_USER_2_NAME",
-                    "toelichting": "Behandelaar: dummyAssignToMeFromListReason"
+                    "toelichting": "dummyAssignToMeFromListReason"
                   },
                   {
                     "attribuutLabel": "Behandelaar",
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "$TEST_USER_2_NAME",
-                    "toelichting": "Behandelaar: dummyLijstVerdelenReason"
+                    "toelichting": "dummyLijstVerdelenReason"
                   },
                   {
                     "attribuutLabel": "status",
@@ -89,7 +89,7 @@ class ZaakHistorieTest : BehaviorSpec({
                     "attribuutLabel": "Melder",
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
-                    "toelichting": "Melder: null"
+                    "toelichting": ""
                   },
                   {
                     "attribuutLabel": "zaakinformatieobject",
@@ -106,7 +106,7 @@ class ZaakHistorieTest : BehaviorSpec({
                     "attribuutLabel": "Behandelaar",
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "$TEST_GROUP_A_DESCRIPTION",
-                    "toelichting": "Behandelaar: null"
+                    "toelichting": ""
                   },
                   {
                     "attribuutLabel": "zaak",
