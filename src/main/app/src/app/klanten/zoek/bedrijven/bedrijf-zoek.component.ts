@@ -171,7 +171,13 @@ export class BedrijfZoekComponent implements OnInit {
     this.router.navigate(["/bedrijf/", bedrijf.identificatie]);
   }
 
+  selectBedrijf(bedrijf: Bedrijf): void {
+    this.bedrijf.emit(bedrijf);
+    this.wissen();
+  }
+
   wissen() {
     this.formGroup.reset();
+    this.bedrijven.data = [];
   }
 }
