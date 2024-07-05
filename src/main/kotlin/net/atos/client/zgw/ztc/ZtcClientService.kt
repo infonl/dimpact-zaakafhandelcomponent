@@ -15,6 +15,8 @@ import net.atos.client.util.JAXRSClientFactory
 import net.atos.client.zgw.shared.cache.Caching
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
+import net.atos.client.zgw.ztc.exception.CatalogusNotFoundException
+import net.atos.client.zgw.ztc.exception.RoltypeNotFoundException
 import net.atos.client.zgw.ztc.model.BesluittypeListParameters
 import net.atos.client.zgw.ztc.model.CatalogusListParameters
 import net.atos.client.zgw.ztc.model.ResultaattypeListParameters
@@ -112,15 +114,19 @@ class ZtcClientService @Inject constructor(
 
     /**
      * Read [Catalogus] filtered by [CatalogusListParameters].
-     * Throws a RuntimeException if the [Catalogus] can not be read.
      *
-     * @param filter [CatalogusListParameters].
-     * @return [Catalogus]. Never 'null'!
+     * @param catalogusListParameters [CatalogusListParameters].
+     * @return [Catalogus]. Never 'null'
+     * @throws CatalogusNotFoundException if no [Catalogus] could be found.
      */
-    fun readCatalogus(filter: CatalogusListParameters): Catalogus =
-        ztcClient.catalogusList(filter)
+    fun readCatalogus(catalogusListParameters: CatalogusListParameters): Catalogus =
+        ztcClient.catalogusList(catalogusListParameters)
             .singleResult
-            .orElseThrow { RuntimeException("Catalogus not found.") }
+            .orElseThrow {
+                CatalogusNotFoundException(
+                    "No catalogus found for catalogus list parameters '$catalogusListParameters'."
+                )
+            }
 
     fun readCacheTime(): ZonedDateTime = ztcTimeCache.get(Caching.ZTC_CACHE_TIME) { ZonedDateTime.now() }
 
@@ -291,18 +297,20 @@ class ZtcClientService @Inject constructor(
         }
 
     /**
-     * Read [RolType] of [ZaakType] and [OmschrijvingGeneriekEnum].
-     * Throws a RuntimeException if the [ResultaatType] can not be read.
+     * Retrieves the [RolType] of the specified zaak type and roltype 'aard'.
      *
-     * @param zaaktypeURI              URI of [ZaakType].
-     * @param omschrijvingGeneriekEnum [OmschrijvingGeneriekEnum].
-     * @return [RolType]. Never 'null'!
+     * @param zaaktypeURI URI of [ZaakType].
+     * @param omschrijvingGeneriekEnum the 'aard' of the [RolType].
+     * @return [RolType]. Never 'null'
+     * @throws RoltypeNotFoundException if no [RolType] could be found.
      */
     fun readRoltype(omschrijvingGeneriekEnum: OmschrijvingGeneriekEnum, zaaktypeURI: URI): RolType =
         uriOmschrijvingGeneriekEnumToRolTypeCache.get("$zaaktypeURI$omschrijvingGeneriekEnum") {
             ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI, omschrijvingGeneriekEnum)).singleResult
         }.orElseThrow {
-            RuntimeException("Zaaktype '$zaaktypeURI': Roltype with aard '$omschrijvingGeneriekEnum' not found.")
+            RoltypeNotFoundException(
+                "Roltype with aard '$omschrijvingGeneriekEnum' not found for zaaktype '$zaaktypeURI':"
+            )
         }
 
     /**

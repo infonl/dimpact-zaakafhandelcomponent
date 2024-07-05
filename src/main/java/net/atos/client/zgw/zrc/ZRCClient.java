@@ -19,7 +19,6 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParams;
@@ -103,7 +102,7 @@ public interface ZRCClient {
 
     @DELETE
     @Path("rollen/{uuid}")
-    Response rolDelete(@PathParam("uuid") final UUID uuid);
+    void rolDelete(@PathParam("uuid") final UUID uuid);
 
     @GET
     @Path("rollen/{uuid}")
@@ -119,7 +118,7 @@ public interface ZRCClient {
 
     @DELETE
     @Path("zaakinformatieobjecten/{uuid}")
-    Response zaakinformatieobjectDelete(@PathParam("uuid") final UUID uuid);
+    void zaakinformatieobjectDelete(@PathParam("uuid") final UUID uuid);
 
     @POST
     @Path("statussen")
@@ -135,7 +134,7 @@ public interface ZRCClient {
 
     @DELETE
     @Path("resultaten/{uuid}")
-    Response resultaatDelete(@PathParam("uuid") final UUID uuid);
+    void resultaatDelete(@PathParam("uuid") final UUID uuid);
 
     @GET
     @Path("zaken/{zaak_uuid}/zaakeigenschappen")
@@ -155,7 +154,7 @@ public interface ZRCClient {
 
     @DELETE
     @Path("zaakobjecten/{uuid}")
-    Response zaakobjectDelete(@PathParam("uuid") final UUID uuid);
+    void zaakobjectDelete(@PathParam("uuid") final UUID uuid);
 
     @GET
     @Path("zaakobjecten/{uuid}")
