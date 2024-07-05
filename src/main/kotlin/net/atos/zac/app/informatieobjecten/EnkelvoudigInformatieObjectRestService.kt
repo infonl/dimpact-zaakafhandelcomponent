@@ -629,17 +629,15 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         }
 
     private fun listEnkelvoudigInformatieobjectenVoorZaak(zaak: Zaak): MutableList<RESTEnkelvoudigInformatieobject> =
-        zaak
-            .let(zrcClientService::listZaakinformatieobjecten)
-            .let(informatieobjectConverter::convertToREST)
+        zaak.let(zrcClientService::listZaakinformatieobjecten)
+            .map(informatieobjectConverter::convertToREST)
             .toMutableList()
 
     private fun listGekoppeldeZaakEnkelvoudigInformatieobjectenVoorZaak(
         zaakURI: URI,
         relatieType: RelatieType
     ): List<RESTGekoppeldeZaakEnkelvoudigInformatieObject> =
-        zaakURI
-            .let(zrcClientService::readZaak)
+        zaakURI.let(zrcClientService::readZaak)
             .let { zaak ->
                 zrcClientService.listZaakinformatieobjecten(zaak)
                     .map { informatieobjectConverter.convertToREST(it, relatieType, zaak) }
@@ -650,13 +648,13 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         zaak: Zaak
     ): List<RESTGekoppeldeZaakEnkelvoudigInformatieObject> =
         mutableListOf<RESTGekoppeldeZaakEnkelvoudigInformatieObject>().apply {
-            zaak.deelzaken.forEach {
+            zaak.deelzaken?.forEach {
                 addAll(listGekoppeldeZaakEnkelvoudigInformatieobjectenVoorZaak(it, RelatieType.DEELZAAK))
             }
             zaak.hoofdzaak?.let {
                 addAll(listGekoppeldeZaakEnkelvoudigInformatieobjectenVoorZaak(it, RelatieType.HOOFDZAAK))
             }
-            zaak.relevanteAndereZaken.forEach {
+            zaak.relevanteAndereZaken?.forEach {
                 addAll(
                     listGekoppeldeZaakEnkelvoudigInformatieobjectenVoorZaak(
                         it.url,

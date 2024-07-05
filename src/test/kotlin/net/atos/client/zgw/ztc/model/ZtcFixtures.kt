@@ -23,7 +23,8 @@ fun createBesluitType(
         listOf("dummyResultaatTypeOmschrijving1", "dummyResultaatTypeOmschrijving2"),
     vastgelegdIn: List<String> = listOf("dummyVastgelegdIn1", "dummyVastgelegdIn2"),
     beginObject: LocalDate = LocalDate.now(),
-    eindeObject: LocalDate = LocalDate.now().plusDays(1)
+    eindeObject: LocalDate = LocalDate.now().plusDays(1),
+    informatieobjecttypen: List<URI>? = listOf(URI("dummyInformatieObjectType1"), URI("dummyInformatieObjectType2"))
 ) =
     BesluitType(
         url,
@@ -34,7 +35,9 @@ fun createBesluitType(
         vastgelegdIn,
         beginObject,
         eindeObject
-    )
+    ).apply {
+        setInformatieobjecttypen(informatieobjecttypen)
+    }
 
 fun createRolType(
     zaakTypeURI: URI = URI("http://example.com/${UUID.randomUUID()}"),

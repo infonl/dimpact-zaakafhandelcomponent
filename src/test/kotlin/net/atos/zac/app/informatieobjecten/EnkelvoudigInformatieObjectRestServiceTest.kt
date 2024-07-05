@@ -27,6 +27,7 @@ import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakInformatieobject
 import net.atos.client.zgw.ztc.ZtcClientService
+import net.atos.client.zgw.ztc.model.createBesluitType
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
@@ -169,7 +170,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
     Given("an enkelvoudig informatieobject has been uploaded, and the zaak is open") {
         val zaak = createZaak()
-        val documentReferentieId: String = "dummyDocumentReferentieId"
+        val documentReferentieId = "dummyDocumentReferentieId"
         val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
         val responseRestEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
         val restFileUpload = createRESTFileUpload()
@@ -433,12 +434,17 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("enkelvoudig informatieobject with informatie object uuids") {
+    Given(
+        """
+            REST informatieobject zoek parameters with an enkelvoudig informatieobject 
+            containing informatie object uuids
+            """
+    ) {
         val zaakUuid = UUID.randomUUID()
         val informatieobjectUUIDs = listOf(UUID.randomUUID(), UUID.randomUUID())
         val restInformatieobjectZoekParameters = createRESTInformatieobjectZoekParameters(
             informatieobjectUUIDs = informatieobjectUUIDs,
-            zaakUUID = zaakUuid
+            zaakUuid = zaakUuid
         )
         val zaak = createZaak()
         val restEnkelvoudigInformatieobjecten = listOf(
@@ -467,34 +473,51 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("enkelvoudig informatieobject without informatie object uuids") {
-        clearAllMocks()
+    Given(
+        """
+            REST informatieobject zoek parameters with an enkelvoudig informatieobject 
+            not containing informatie object uuids, and creating a deel with a deelzaak
+            """
+    ) {
         val zaakUuid = UUID.randomUUID()
-        val informatieobjectUUIDs = listOf(UUID.randomUUID(), UUID.randomUUID())
+        val besluittypeUuid = UUID.randomUUID()
+        val informatieobjectUUID = UUID.randomUUID()
         val restInformatieobjectZoekParameters = createRESTInformatieobjectZoekParameters(
+            besluittypeUuid = besluittypeUuid,
             gekoppeldeZaakDocumenten = true,
             informatieobjectUUIDs = null,
-            zaakUUID = zaakUuid
+            zaakUuid = zaakUuid
         )
+        val deelzaak = createZaak()
         val zaak = createZaak(
-            deelzaken = setOf(URI("http://example.com/${UUID.randomUUID()}"))
+            deelzaken = setOf(deelzaak.url)
         )
         val restEnkelvoudigInformatieobjecten = listOf(
-            createRESTEnkelvoudigInformatieobject()
+            createRESTEnkelvoudigInformatieobject(
+                informatieobjectTypeUUID = informatieobjectUUID
+            )
         )
         val zaakInformatieobjecten = listOf(
             createZaakInformatieobject()
         )
+        val besluitType = createBesluitType(
+            url = URI("http://example.com/$besluittypeUuid"),
+            informatieobjecttypen = listOf(
+                URI("http://example.com/$informatieobjectUUID"),
+            )
+        )
 
         every { zrcClientService.readZaak(zaakUuid) } returns zaak
-        every {
-            restInformatieobjectConverter.convertUUIDsToREST(informatieobjectUUIDs, zaak)
-        } returns restEnkelvoudigInformatieobjecten
         every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
         every { zrcClientService.listZaakinformatieobjecten(zaak) } returns zaakInformatieobjecten
         every {
             restInformatieobjectConverter.convertToREST(zaakInformatieobjecten[0])
         } returns restEnkelvoudigInformatieobjecten[0]
+        every { zrcClientService.readZaak(deelzaak.url) } returns deelzaak
+        every { zrcClientService.listZaakinformatieobjecten(deelzaak) } returns emptyList()
+        every {
+            ztcClientService.readBesluittype(restInformatieobjectZoekParameters.besluittypeUUID)
+        } returns besluitType
 
         When("the list of enkelvoudig informatieobject is requested") {
             val returnedRestEnkelvoudigInformatieobjecten =
@@ -504,9 +527,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             Then("the returned enkelvoudige informatie objecten are as expected") {
                 with(returnedRestEnkelvoudigInformatieobjecten) {
-                    size shouldBe 2
+                    size shouldBe 1
                     this[0] shouldBe restEnkelvoudigInformatieobjecten[0]
-                    this[1] shouldBe restEnkelvoudigInformatieobjecten[1]
                 }
             }
         }
