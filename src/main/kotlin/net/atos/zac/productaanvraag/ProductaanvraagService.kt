@@ -221,7 +221,7 @@ class ProductaanvraagService @Inject constructor(
             throw RuntimeException(exception)
         }
 
-    private fun addInitiator(bsn: String, zaak: URI, zaaktype: URI) =
+    private fun addNatuurlijkPersoonInitiatorRole(bsn: String, zaak: URI, zaaktype: URI) =
         ztcClientService.readRoltype(OmschrijvingGeneriekEnum.INITIATOR, zaaktype).let {
             zrcClientService.createRol(
                 RolNatuurlijkPersoon(
@@ -288,7 +288,7 @@ class ProductaanvraagService @Inject constructor(
 
         LOG.fine("Creating zaak using the ZGW API: $createdZaak")
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid)
-        toekennenZaak(createdZaak, zaakafhandelParameters)
+        assignZaak(createdZaak, zaakafhandelParameters)
         pairProductaanvraagInfoWithZaak(productaanvraag, productaanvraagObject, createdZaak)
         cmmnService.startCase(createdZaak, zaaktype, zaakafhandelParameters, formulierData)
     }
@@ -301,19 +301,21 @@ class ProductaanvraagService @Inject constructor(
         pairProductaanvraagWithZaak(productaanvraagObject, zaak.url)
         pairAanvraagPDFWithZaak(productaanvraag, zaak.url)
         productaanvraag.bijlagen?.let { pairBijlagenWithZaak(it, zaak.url) }
-        productaanvraag.betrokkenen?.let { betrokkenen ->
-            addInitiator(
-                betrokkenen.first { it.rolOmschrijvingGeneriek == Betrokkene.RolOmschrijvingGeneriek.INITIATOR }.inpBsn,
+        // TODO: add support for vestiging as initiator
+        productaanvraag.betrokkenen?.first {
+            it.rolOmschrijvingGeneriek == Betrokkene.RolOmschrijvingGeneriek.INITIATOR
+        }?.inpBsn?.let {
+            addNatuurlijkPersoonInitiatorRole(
+                it,
                 zaak.url,
                 zaak.zaaktype
             )
         }
     }
 
-    fun pairProductaanvraagWithZaak(productaanvraag: ORObject, zaakUrl: URI) {
+    fun pairProductaanvraagWithZaak(productaanvraag: ORObject, zaakUrl: URI) =
         ZaakobjectProductaanvraag(zaakUrl, productaanvraag.url)
             .let(zrcClientService::createZaakobject)
-    }
 
     fun pairAanvraagPDFWithZaak(productaanvraag: ProductaanvraagDimpact, zaakUrl: URI) {
         ZaakInformatieobject().apply {
@@ -338,13 +340,13 @@ class ProductaanvraagService @Inject constructor(
             zrcClientService.createZaakInformatieobject(zaakInformatieobject, ZAAK_INFORMATIEOBJECT_REDEN)
         }
 
-    private fun toekennenZaak(zaak: Zaak, zaakafhandelParameters: ZaakafhandelParameters) {
+    private fun assignZaak(zaak: Zaak, zaakafhandelParameters: ZaakafhandelParameters) {
         zaakafhandelParameters.groepID?.let {
-            LOG.info("Zaak ${zaak.uuid}: toegekend aan groep '${zaakafhandelParameters.groepID}'")
+            LOG.info("Assigning zaak ${zaak.uuid} to group: '${zaakafhandelParameters.groepID}'")
             zrcClientService.createRol(creeerRolGroep(zaakafhandelParameters.groepID, zaak))
         }
         zaakafhandelParameters.gebruikersnaamMedewerker?.let {
-            LOG.info("Zaak ${zaak.uuid}: toegekend aan behandelaar '$it'")
+            LOG.info("Assigning zaak ${zaak.uuid}: to assignee: '$it'")
             zrcClientService.createRol(creeerRolMedewerker(zaakafhandelParameters.gebruikersnaamMedewerker, zaak))
         }
     }
