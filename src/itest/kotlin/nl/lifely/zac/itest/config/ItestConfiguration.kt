@@ -44,10 +44,10 @@ object ItestConfiguration {
     const val OPEN_ZAAK_CLIENT_ID = "zac_client"
     const val OPEN_ZAAK_CLIENT_SECRET = "openzaakZaakafhandelcomponentClientSecret"
     const val PDF_MIME_TYPE = "application/pdf"
-    const val PRODUCT_AANVRAAG_TYPE_1 = "productaanvraag-type-1"
-    const val PRODUCT_AANVRAAG_TYPE_2 = "productaanvraag-type-2"
-    const val PRODUCT_AANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE = 52.08968250760225
-    const val PRODUCT_AANVRAAG_ZAAKGEGEVENS_GEOMETRY_LONGITUDE = 5.114358701512936
+    const val PRODUCTAANVRAAG_TYPE_1 = "productaanvraag-type-1"
+    const val PRODUCTAANVRAAG_TYPE_2 = "productaanvraag-type-2"
+    const val PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE = 52.08968250760225
+    const val PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LONGITUDE = 5.114358701512936
     const val ROLTYPE_NAME_BETROKKENE = "Belanghebbende"
     const val ROLTYPE_UUID_BELANGHEBBENDE = "4c4cd850-8332-4bb9-adc4-dd046f0614ad"
     const val ROLTYPE_COUNT = 16
@@ -92,9 +92,17 @@ object ItestConfiguration {
     const val TEST_GROUP_RECORD_MANAGERS_ID = "test-group-rm"
     const val TEST_GROUP_RECORD_MANAGERS_DESCRIPTION = "Test group record managers"
     const val TEXT_MIME_TYPE = "application/text"
-    const val ZAAK_1_IDENTIFICATION = "ZAAK-2023-0000000001"
-    const val ZAAK_1_UITERLIJKE_EINDDATUM_AFDOENING = "2023-11-08"
-    const val ZAAK_3_IDENTIFICATION = "ZAAK-2023-0000000002"
+
+    /**
+     * First zaak created from a productaanvraag.
+     */
+    const val ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION = "ZAAK-2023-0000000001"
+    const val ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING = "2023-11-08"
+
+    /**
+     * First 'manually' created zaak using the ZAC API.
+     */
+    const val ZAAK_MANUAL_1_IDENTIFICATION = "ZAAK-2023-0000000002"
     const val ZAC_CONTAINER_SERVICE_NAME = "zac"
     const val ZAC_CONTAINER_PORT = 8080
     const val SMTP_SERVER_PORT = 25
@@ -152,6 +160,12 @@ object ItestConfiguration {
 
     const val SMARTDOCUMENTS_MOCK_BASE_URI = "http://smartdocuments-wiremock:8080"
 
+    /**
+     * Second zaak created from a productaanvraag.
+     * This productaanvraag contains no zaakgegevens and therefore the zaak identification is generated
+     * by OpenZaak using the format: 'ZAAK-YYYY-SEQUENCE_NUMBER'.
+     * */
+    val PRODUCTAANVRAAG_ZAAK2_IDENTIFICATION = "ZAAK-${LocalDate.now().year}-0000000001"
     val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
     val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID: UUID =
         UUID.fromString("fd2bf643-c98a-4b00-b2b3-9ae0c41ed425")
@@ -163,9 +177,16 @@ object ItestConfiguration {
     lateinit var task1ID: String
 
     /**
-     * Global variable to store the UUID of a zaak that is created in the integration tests.
+     * Global variable to store the UUID of a zaak that is created in the integration tests
+     * from a productaanvraag.
      */
-    lateinit var zaak1UUID: UUID
+    lateinit var productaanvraagZaak1Uuid: UUID
+
+    /**
+     * Global variable to store the UUID of a zaak that is created in the integration tests
+     * from a productaanvraag.
+     */
+    lateinit var productaanvraagZaak2Uuid: UUID
 
     /**
      * Global variable to store the UUID of an uploaded file in the integration tests.
