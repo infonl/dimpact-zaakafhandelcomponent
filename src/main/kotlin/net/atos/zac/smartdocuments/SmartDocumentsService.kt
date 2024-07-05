@@ -13,7 +13,7 @@ import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
 import net.atos.zac.documentcreatie.DocumentCreatieService
-import net.atos.zac.smartdocuments.rest.RESTMappedSmartDocumentsTemplateGroup
+import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.templates.SmartDocumentsTemplateConverter.toModel
 import net.atos.zac.smartdocuments.templates.SmartDocumentsTemplateConverter.toREST
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
@@ -52,7 +52,7 @@ class SmartDocumentsService @Inject constructor(
      */
     @Transactional(REQUIRED)
     fun storeTemplatesMapping(
-        restTemplateGroups: Set<RESTMappedSmartDocumentsTemplateGroup>,
+        restTemplateGroups: Set<RestMappedSmartDocumentsTemplateGroup>,
         zaakafhandelParametersUUID: UUID
     ) {
         LOG.info { "Storing template mapping for zaakafhandelParameters UUID $zaakafhandelParametersUUID" }
@@ -105,7 +105,7 @@ class SmartDocumentsService @Inject constructor(
      */
     fun getTemplatesMapping(
         zaakafhandelParametersUUID: UUID
-    ): Set<RESTMappedSmartDocumentsTemplateGroup> {
+    ): Set<RestMappedSmartDocumentsTemplateGroup> {
         LOG.info { "Fetching template mapping for zaakafhandelParameters UUID $zaakafhandelParametersUUID" }
 
         val zaakafhandelParametersId =

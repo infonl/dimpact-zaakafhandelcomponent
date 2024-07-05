@@ -5,14 +5,16 @@ import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 import java.util.UUID
 
-class RESTSmartDocumentsTemplateGroupTest : BehaviorSpec({
+class RestSmartDocumentsTemplateGroupTest : BehaviorSpec({
 
     Given("a REST request") {
         val expectedInformatieobjectTypeUUID = UUID.randomUUID()
         val restTemplateRequest = setOf(
-            createRESTMappedTemplateGroup(name = "root").apply {
+            createRESTMappedTemplateGroup(
+                name = "root",
                 groups = setOf(
-                    createRESTMappedTemplateGroup(name = "group 1").apply {
+                    createRESTMappedTemplateGroup(
+                        name = "group 1",
                         templates = setOf(
                             createRESTMappedTemplate(
                                 name = "group 1 template 1",
@@ -22,10 +24,11 @@ class RESTSmartDocumentsTemplateGroupTest : BehaviorSpec({
                                 name = "group 1 template 2",
                                 informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
                             )
-                        )
+                        ),
                         groups = emptySet()
-                    },
-                    createRESTMappedTemplateGroup(name = "group 2").apply {
+                    ),
+                    createRESTMappedTemplateGroup(
+                        name = "group 2",
                         templates = setOf(
                             createRESTMappedTemplate(
                                 name = "group 2 template 1",
@@ -35,10 +38,10 @@ class RESTSmartDocumentsTemplateGroupTest : BehaviorSpec({
                                 name = "group 2 template 2",
                                 informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
                             )
-                        )
+                        ),
                         groups = emptySet()
-                    }
-                )
+                    )
+                ),
                 templates = setOf(
                     createRESTMappedTemplate(
                         name = "root template 1",
@@ -49,7 +52,7 @@ class RESTSmartDocumentsTemplateGroupTest : BehaviorSpec({
                         informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
                     )
                 )
-            }
+            )
         )
 
         When("convert to string representation is requested") {
