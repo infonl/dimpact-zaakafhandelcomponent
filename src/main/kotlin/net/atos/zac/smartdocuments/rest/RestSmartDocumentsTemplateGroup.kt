@@ -10,21 +10,21 @@ import nl.lifely.zac.util.NoArgConstructor
 
 @NoArgConstructor
 @AllOpen
-data class RESTSmartDocumentsTemplateGroup(
-    var id: String,
-    var name: String,
-    var groups: Set<RESTSmartDocumentsTemplateGroup>?,
-    var templates: Set<RESTSmartDocumentsTemplate>?,
+data class RestSmartDocumentsTemplateGroup(
+    val id: String,
+    val name: String,
+    val groups: Set<RestSmartDocumentsTemplateGroup>?,
+    val templates: Set<RestSmartDocumentsTemplate>?,
 )
 
-fun Set<RESTSmartDocumentsTemplateGroup>.toStringRepresentation(): Set<String> {
+fun Set<RestSmartDocumentsTemplateGroup>.toStringRepresentation(): Set<String> {
     val result = mutableSetOf<String>()
     this.forEach { result.addAll(convertTemplateGroupToStringRepresentation(it, null)) }
     return result
 }
 
 private fun convertTemplateGroupToStringRepresentation(
-    group: RESTSmartDocumentsTemplateGroup,
+    group: RestSmartDocumentsTemplateGroup,
     parent: String?
 ): Set<String> =
     arrayOf(parent, "group.${group.id}.${group.name}").filterNotNull().joinToString(".").let { groupString ->

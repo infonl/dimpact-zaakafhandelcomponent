@@ -7,12 +7,10 @@ package net.atos.zac.smartdocuments.rest
 
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
-import java.util.UUID
 
 @NoArgConstructor
 @AllOpen
-data class RESTMappedSmartDocumentsTemplate(
-    var id: String,
-    var name: String,
-    var informatieObjectTypeUUID: UUID,
+data class RestSmartDocumentsTemplate(
+    val id: String,
+    val name: String
 )
