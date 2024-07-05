@@ -25,8 +25,8 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.enkelvoudigInformatieObjectUUID
+import nl.lifely.zac.itest.config.ItestConfiguration.productaanvraagZaak1Uuid
 import nl.lifely.zac.itest.config.ItestConfiguration.task1ID
-import nl.lifely.zac.itest.config.ItestConfiguration.zaak1UUID
 import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
@@ -64,7 +64,7 @@ class InformatieObjectenTest : BehaviorSpec({
                 url = endpointUrl,
                 requestBodyAsString = JSONObject(
                     mapOf(
-                        "zaakUUID" to zaak1UUID
+                        "zaakUUID" to productaanvraagZaak1Uuid
                     )
                 ).toString()
             )
@@ -89,7 +89,7 @@ class InformatieObjectenTest : BehaviorSpec({
     ) {
         When("the create enkelvoudig informatie object with file upload endpoint is called for the zaak") {
             val endpointUrl =
-                "$ZAC_API_URI/informatieobjecten/informatieobject/$zaak1UUID/$zaak1UUID"
+                "$ZAC_API_URI/informatieobjecten/informatieobject/$productaanvraagZaak1Uuid/$productaanvraagZaak1Uuid"
             logger.info { "Calling $endpointUrl endpoint" }
             val file = Thread.currentThread().contextClassLoader.getResource(TEST_PDF_FILE_NAME).let {
                 File(it!!.path)
@@ -172,7 +172,7 @@ class InformatieObjectenTest : BehaviorSpec({
                 MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("uuid", enkelvoudigInformatieObjectUUID)
-                    .addFormDataPart("zaakUuid", zaak1UUID.toString())
+                    .addFormDataPart("zaakUuid", productaanvraagZaak1Uuid.toString())
                     .addFormDataPart("informatieobjectTypeUUID", INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID)
                     .addFormDataPart("bestandsnaam", TEST_TXT_FILE_NAME)
                     .addFormDataPart("titel", updatedFileTitle)
@@ -224,7 +224,7 @@ class InformatieObjectenTest : BehaviorSpec({
         When("ondertekenInformatieObject endpoint is called") {
             val endpointUrl =
                 "$ZAC_API_URI/informatieobjecten/informatieobject" +
-                    "/$enkelvoudigInformatieObjectUUID/onderteken?zaak=$zaak1UUID"
+                    "/$enkelvoudigInformatieObjectUUID/onderteken?zaak=$productaanvraagZaak1Uuid"
             logger.info { "Calling $endpointUrl endpoint" }
 
             val response = itestHttpClient.performPostRequest(
@@ -245,7 +245,7 @@ class InformatieObjectenTest : BehaviorSpec({
     ) {
         When("the create enkelvoudig informatie object with file upload endpoint is called for the task") {
             val endpointUrl = "$ZAC_API_URI/informatieobjecten/informatieobject/" +
-                "$zaak1UUID/$task1ID?taakObject=true"
+                "$productaanvraagZaak1Uuid/$task1ID?taakObject=true"
             logger.info { "Calling $endpointUrl endpoint" }
             val file = Thread.currentThread().contextClassLoader.getResource(TEST_PDF_FILE_NAME).let {
                 File(it!!.path)
