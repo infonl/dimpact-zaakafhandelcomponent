@@ -35,7 +35,7 @@ import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.client.zgw.ztc.util.InformatieObjectTypeUtil
+import net.atos.client.zgw.ztc.util.InformatieObjectTypeUtil.isNuGeldig
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.audit.model.RESTHistorieRegel
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
@@ -67,6 +67,7 @@ import net.atos.zac.flowable.TaakVariabelenService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.util.UriUtil
+import net.atos.zac.util.UriUtil.uuidFromURI
 import net.atos.zac.webdav.WebdavHelper
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.lifely.zac.util.AllOpen
@@ -159,8 +160,8 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             if (zoekParameters.gekoppeldeZaakDocumenten) {
                 enkelvoudigInformatieobjectenVoorZaak.addAll(listGekoppeldeZaakInformatieObjectenVoorZaak(zaak))
             }
-            zoekParameters.besluittypeUUID?.let {
-                val besluittype = ztcClientService.readBesluittype(zoekParameters.besluittypeUUID)
+            zoekParameters.besluittypeUUID?.let { besluittypeUuid ->
+                val besluittype = ztcClientService.readBesluittype(besluittypeUuid)
                 val compareList = besluittype.informatieobjecttypen.map { UriUtil.uuidFromURI(it) }.toList()
                 enkelvoudigInformatieobjectenVoorZaak = enkelvoudigInformatieobjectenVoorZaak.filter {
                     compareList.contains(it.informatieobjectTypeUUID)
@@ -250,7 +251,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
 
         mutableListOf<UUID>().let {
             it.addAll(taakVariabelenService.readTaakdocumenten(task))
-            it.add(UriUtil.uuidFromURI(zaakInformatieobject.informatieobject))
+            it.add(uuidFromURI(zaakInformatieobject.informatieobject))
             taakVariabelenService.setTaakdocumenten(task, it)
         }
     }
@@ -262,27 +263,27 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         val informatieobject = drcClientService.readEnkelvoudigInformatieobject(
             enkelvoudigInformatieobjectUUID
         )
-        val nieuweZaak = zrcClientService.readZaakByID(documentVerplaatsGegevens.nieuweZaakID)
+        val targetZaak = zrcClientService.readZaakByID(documentVerplaatsGegevens.nieuweZaakID)
         assertPolicy(
-            policyService.readDocumentRechten(informatieobject, nieuweZaak).verplaatsen &&
-                policyService.readZaakRechten(nieuweZaak).wijzigen
+            policyService.readDocumentRechten(informatieobject, targetZaak).verplaatsen &&
+                policyService.readZaakRechten(targetZaak).wijzigen
         )
-        val toelichting = "Verplaatst: ${documentVerplaatsGegevens.bron} -> ${nieuweZaak.identificatie}"
+        val toelichting = "Verplaatst: ${documentVerplaatsGegevens.bron} -> ${targetZaak.identificatie}"
         when {
             documentVerplaatsGegevens.vanuitOntkoppeldeDocumenten() -> ontkoppeldeDocumentenService.read(
                 enkelvoudigInformatieobjectUUID
             ).let {
-                zrcClientService.koppelInformatieobject(informatieobject, nieuweZaak, toelichting)
+                zrcClientService.koppelInformatieobject(informatieobject, targetZaak, toelichting)
                 ontkoppeldeDocumentenService.delete(it.id)
             }
             documentVerplaatsGegevens.vanuitInboxDocumenten() -> inboxDocumentenService.read(
                 enkelvoudigInformatieobjectUUID
             ).let {
-                zrcClientService.koppelInformatieobject(informatieobject, nieuweZaak, toelichting)
+                zrcClientService.koppelInformatieobject(informatieobject, targetZaak, toelichting)
                 inboxDocumentenService.delete(it.id)
             }
             else -> zrcClientService.readZaakByID(documentVerplaatsGegevens.bron).let {
-                zrcClientService.verplaatsInformatieobject(informatieobject, it, nieuweZaak)
+                zrcClientService.verplaatsInformatieobject(informatieobject, it, targetZaak)
             }
         }
     }
@@ -296,32 +297,27 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
 
     @GET
     @Path("informatieobjecttypes/zaak/{zaakUuid}")
-    fun listInformatieobjecttypesForZaak(@PathParam("zaakUuid") zaakID: UUID): List<RESTInformatieobjecttype> {
-        val zaak = zrcClientService.readZaak(zaakID)
-        val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
-        val informatieObjectTypes = zaaktype.informatieobjecttypen
+    fun listInformatieobjecttypesForZaak(@PathParam("zaakUuid") zaakID: UUID): List<RESTInformatieobjecttype> =
+        zrcClientService.readZaak(zaakID).zaaktype
+            .let { ztcClientService.readZaaktype(it).informatieobjecttypen }
             .map { ztcClientService.readInformatieobjecttype(it) }
-            .filter { InformatieObjectTypeUtil.isNuGeldig(it) }
+            .filter { isNuGeldig(it) }
             .toList()
-        return informatieObjecttypeConverter.convert(informatieObjectTypes)
-    }
+            .let(informatieObjecttypeConverter::convert)
 
     @GET
     @Path("zaakinformatieobject/{uuid}/informatieobject")
     fun readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID(
-        @PathParam("uuid") uuid: UUID?
-    ): RESTEnkelvoudigInformatieobject = informatieobjectConverter.convertToREST(
-        drcClientService.readEnkelvoudigInformatieobject(
-            zrcClientService.readZaakinformatieobject(uuid).informatieobject
-        )
-    )
+        @PathParam("uuid") uuid: UUID
+    ): RESTEnkelvoudigInformatieobject =
+        zrcClientService.readZaakinformatieobject(uuid).informatieobject
+            .let(drcClientService::readEnkelvoudigInformatieobject)
+            .let(informatieobjectConverter::convertToREST)
 
     @GET
     @Path("informatieobject/{uuid}/zaakinformatieobjecten")
-    fun listZaakInformatieobjecten(@PathParam("uuid") uuid: UUID?): List<RESTZaakInformatieobject> =
-        drcClientService.readEnkelvoudigInformatieobject(
-            uuid
-        ).let {
+    fun listZaakInformatieobjecten(@PathParam("uuid") uuid: UUID): List<RESTZaakInformatieobject> =
+        drcClientService.readEnkelvoudigInformatieobject(uuid).let {
             assertPolicy(policyService.readDocumentRechten(it).lezen)
             return zrcClientService.listZaakinformatieobjecten(it)
                 .map(zaakInformatieobjectConverter::convert)
