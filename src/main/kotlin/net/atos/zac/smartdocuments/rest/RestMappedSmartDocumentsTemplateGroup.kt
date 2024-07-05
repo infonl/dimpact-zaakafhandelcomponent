@@ -11,10 +11,10 @@ import nl.lifely.zac.util.NoArgConstructor
 @NoArgConstructor
 @AllOpen
 data class RestMappedSmartDocumentsTemplateGroup(
-    val id: String,
-    val name: String,
-    val groups: Set<RestMappedSmartDocumentsTemplateGroup>?,
-    val templates: Set<RestMappedSmartDocumentsTemplate>?,
+    var id: String,
+    var name: String,
+    var groups: Set<RestMappedSmartDocumentsTemplateGroup>?,
+    var templates: Set<RestMappedSmartDocumentsTemplate>?,
 )
 
 fun Set<RestMappedSmartDocumentsTemplateGroup>.toStringRepresentation(): Set<String> =
