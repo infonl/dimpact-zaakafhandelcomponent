@@ -12,7 +12,7 @@ import java.util.UUID
 @NoArgConstructor
 @AllOpen
 data class RestMappedSmartDocumentsTemplate(
-    val id: String,
-    val name: String,
-    val informatieObjectTypeUUID: UUID,
+    var id: String,
+    var name: String,
+    var informatieObjectTypeUUID: UUID,
 )

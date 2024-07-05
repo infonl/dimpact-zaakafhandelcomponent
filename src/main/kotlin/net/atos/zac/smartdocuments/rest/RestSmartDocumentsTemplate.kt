@@ -11,6 +11,6 @@ import nl.lifely.zac.util.NoArgConstructor
 @NoArgConstructor
 @AllOpen
 data class RestSmartDocumentsTemplate(
-    val id: String,
-    val name: String
+    var id: String,
+    var name: String
 )
