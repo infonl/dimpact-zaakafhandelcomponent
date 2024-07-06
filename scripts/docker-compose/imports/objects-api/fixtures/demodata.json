@@ -837,7 +837,7 @@
                 },
                 "taal" : "nld",
                 "zaakgegevens" : {
-                    "identificatie" : "ZAAK-2023-0000000001",
+                    "identificatie" : "zaakProductaanvraag1",
                     "communicatiekanaal" : "https://referentielijsten-api.vng.cloud/api/v1/communicatiekanalen/f56552a8-a082-4306-9111-eb1664fcb05d",
                     "omschrijving" : "dummyZaakOmschrijving",
                     "toelichting" : "dummyZaakToelichting",
@@ -876,9 +876,9 @@
                 "pdf": "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e",
                 "csv" : "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/aeaba696-4968-46a6-8b1e-016f503ed88d"
             },
-            "start_at": "2023-10-25",
+            "start_at": "1970-01-01",
             "end_at": null,
-            "registration_at": "2023-10-25",
+            "registration_at": "1970-01-01",
             "correct": null,
             "geometry": null
          }
@@ -916,9 +916,9 @@
                 ],
                 "pdf": "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e"
             },
-            "start_at": "2024-01-01",
+            "start_at": "1999-01-01",
             "end_at": null,
-            "registration_at": "2024-01-01",
+            "registration_at": "1999-01-01",
             "correct": null,
             "geometry": null
         }

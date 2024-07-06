@@ -13,7 +13,7 @@ import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.lifely.zac.itest.config.ItestConfiguration.productaanvraagZaak1Uuid
+import nl.lifely.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import org.json.JSONArray
 
 /**
@@ -29,7 +29,7 @@ class TakenRESTServiceCompleteTest : BehaviorSpec({
 
         When("the get tasks for a zaak endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/taken/zaak/$productaanvraagZaak1Uuid"
+                "$ZAC_API_URI/taken/zaak/$zaakProductaanvraag1Uuid"
             )
             Then(
                 """the list of taken for this zaak is returned and contains the task 

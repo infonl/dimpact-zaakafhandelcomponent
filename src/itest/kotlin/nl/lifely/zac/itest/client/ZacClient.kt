@@ -5,6 +5,7 @@
 package nl.lifely.zac.itest.client
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import nl.lifely.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_EMAIL
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import okhttp3.Response
 import java.util.UUID
@@ -225,7 +226,7 @@ class ZacClient {
                 "    },\n" +
                 "    \"communicatiekanaal\": {\n" +
                 "      \"naam\": \"E-mail\",\n" +
-                "      \"uuid\": \"f5de7d7f-8440-4ce7-8f27-f934ad0c2ea6\"\n" +
+                "      \"uuid\": \"$COMMUNICATIEKANAAL_EMAIL\"\n" +
                 "    },\n" +
                 "    \"vertrouwelijkheidaanduiding\": \"openbaar\",\n" +
                 "    \"omschrijving\": \"dummyOmschrijving\",\n" +
