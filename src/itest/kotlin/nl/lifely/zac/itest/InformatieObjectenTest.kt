@@ -15,7 +15,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
 import nl.lifely.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
-import nl.lifely.zac.itest.config.ItestConfiguration.SMARTDOCUMENTS_MOCK_BASE_URI
+import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_SIZE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED
@@ -25,8 +25,8 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.enkelvoudigInformatieObjectUUID
-import nl.lifely.zac.itest.config.ItestConfiguration.productaanvraagZaak1Uuid
 import nl.lifely.zac.itest.config.ItestConfiguration.task1ID
+import nl.lifely.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
@@ -64,7 +64,7 @@ class InformatieObjectenTest : BehaviorSpec({
                 url = endpointUrl,
                 requestBodyAsString = JSONObject(
                     mapOf(
-                        "zaakUUID" to productaanvraagZaak1Uuid
+                        "zaakUUID" to zaakProductaanvraag1Uuid
                     )
                 ).toString()
             )
@@ -78,7 +78,7 @@ class InformatieObjectenTest : BehaviorSpec({
                 with(responseBody) {
                     shouldContainJsonKeyValue(
                         "redirectURL",
-                        "$SMARTDOCUMENTS_MOCK_BASE_URI/smartdocuments/wizard?ticket=dummySmartdocumentsTicketID"
+                        "$SMART_DOCUMENTS_MOCK_BASE_URI/smartdocuments/wizard?ticket=dummySmartdocumentsTicketID"
                     )
                 }
             }
@@ -89,7 +89,7 @@ class InformatieObjectenTest : BehaviorSpec({
     ) {
         When("the create enkelvoudig informatie object with file upload endpoint is called for the zaak") {
             val endpointUrl =
-                "$ZAC_API_URI/informatieobjecten/informatieobject/$productaanvraagZaak1Uuid/$productaanvraagZaak1Uuid"
+                "$ZAC_API_URI/informatieobjecten/informatieobject/$zaakProductaanvraag1Uuid/$zaakProductaanvraag1Uuid"
             logger.info { "Calling $endpointUrl endpoint" }
             val file = Thread.currentThread().contextClassLoader.getResource(TEST_PDF_FILE_NAME).let {
                 File(it!!.path)
@@ -172,7 +172,7 @@ class InformatieObjectenTest : BehaviorSpec({
                 MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("uuid", enkelvoudigInformatieObjectUUID)
-                    .addFormDataPart("zaakUuid", productaanvraagZaak1Uuid.toString())
+                    .addFormDataPart("zaakUuid", zaakProductaanvraag1Uuid.toString())
                     .addFormDataPart("informatieobjectTypeUUID", INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID)
                     .addFormDataPart("bestandsnaam", TEST_TXT_FILE_NAME)
                     .addFormDataPart("titel", updatedFileTitle)
@@ -224,7 +224,7 @@ class InformatieObjectenTest : BehaviorSpec({
         When("ondertekenInformatieObject endpoint is called") {
             val endpointUrl =
                 "$ZAC_API_URI/informatieobjecten/informatieobject" +
-                    "/$enkelvoudigInformatieObjectUUID/onderteken?zaak=$productaanvraagZaak1Uuid"
+                    "/$enkelvoudigInformatieObjectUUID/onderteken?zaak=$zaakProductaanvraag1Uuid"
             logger.info { "Calling $endpointUrl endpoint" }
 
             val response = itestHttpClient.performPostRequest(
@@ -245,7 +245,7 @@ class InformatieObjectenTest : BehaviorSpec({
     ) {
         When("the create enkelvoudig informatie object with file upload endpoint is called for the task") {
             val endpointUrl = "$ZAC_API_URI/informatieobjecten/informatieobject/" +
-                "$productaanvraagZaak1Uuid/$task1ID?taakObject=true"
+                "$zaakProductaanvraag1Uuid/$task1ID?taakObject=true"
             logger.info { "Calling $endpointUrl endpoint" }
             val file = Thread.currentThread().contextClassLoader.getResource(TEST_PDF_FILE_NAME).let {
                 File(it!!.path)

@@ -19,7 +19,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.lifely.zac.itest.config.ItestConfiguration.productaanvraagZaak1Uuid
+import nl.lifely.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import org.json.JSONArray
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -38,7 +38,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
     Given("A zaak has been created") {
         When("the list human task plan items endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/planitems/zaak/$productaanvraagZaak1Uuid/humanTaskPlanItems"
+                "$ZAC_API_URI/planitems/zaak/$zaakProductaanvraag1Uuid/humanTaskPlanItems"
             )
             Then(
                 """the list of human task plan items for this zaak is returned and contains 
@@ -56,7 +56,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
                     shouldContainJsonKeyValue("formulierDefinitie", FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE)
                     shouldContainJsonKeyValue("naam", HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM)
                     shouldContainJsonKeyValue("type", humanTaskType)
-                    shouldContainJsonKeyValue("zaakUuid", productaanvraagZaak1Uuid.toString())
+                    shouldContainJsonKeyValue("zaakUuid", zaakProductaanvraag1Uuid.toString())
                     shouldContainJsonKey("id")
                 }
                 humanTaskItemAanvullendeInformatieId = JSONArray(responseBody).getJSONObject(0).getString("id")
@@ -75,7 +75,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
                     shouldContainJsonKeyValue("formulierDefinitie", FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE)
                     shouldContainJsonKeyValue("naam", HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM)
                     shouldContainJsonKeyValue("type", humanTaskType)
-                    shouldContainJsonKeyValue("zaakUuid", productaanvraagZaak1Uuid.toString())
+                    shouldContainJsonKeyValue("zaakUuid", zaakProductaanvraag1Uuid.toString())
                     shouldContainJsonKeyValue("id", humanTaskItemAanvullendeInformatieId)
                 }
             }

@@ -26,6 +26,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_START_DATE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.util.WebSocketTestListener
@@ -88,7 +89,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                     "application/json"
                 ),
                 requestBodyAsString = """{
-                    "zaakUUID":"${ItestConfiguration.productaanvraagZaak1Uuid}",
+                    "zaakUUID":"${ItestConfiguration.zaakProductaanvraag1Uuid}",
                     "behandelaarGebruikersnaam":"$TEST_USER_1_USERNAME",
                     "groepId":"$TEST_GROUP_A_ID",
                     "reden":null
@@ -103,7 +104,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
     }
 
     Given("A zaak with informatie objecten") {
-        val zaakPath = "zaken/api/v1/zaken/${ItestConfiguration.productaanvraagZaak1Uuid}"
+        val zaakPath = "zaken/api/v1/zaken/${ItestConfiguration.zaakProductaanvraag1Uuid}"
 
         val zaakInformatieObjectenResponse = itestHttpClient.performGetRequest(
             url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaakinformatieobjecten?zaak=$OPEN_ZAAK_EXTERNAL_URI/$zaakPath"
@@ -264,10 +265,13 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                                 shouldContainJsonKey("openstaandeTaken")
                                 shouldContainJsonKey("rechten")
                                 shouldContainJsonKey("uuid")
-                                shouldContainJsonKeyValue("startdatum", "2023-10-25")
+                                shouldContainJsonKeyValue("startdatum", ZAAK_PRODUCTAANVRAAG_1_START_DATE)
                                 shouldContainJsonKeyValue("status", "Intake")
                                 shouldContainJsonKeyValue("toelichting", "")
-                                shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", "2023-11-08")
+                                shouldContainJsonKeyValue(
+                                    "uiterlijkeEinddatumAfdoening",
+                                    ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING
+                                )
                                 shouldContainJsonKeyValue("zaaktype", ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION)
                             }
                         }
@@ -301,7 +305,7 @@ class SignaleringenRestServiceTest : BehaviorSpec({
                                 shouldContainJsonKeyValue("toelichting", "")
                                 shouldContainJsonKey("omschrijving")
                                 shouldContainJsonKey("uuid")
-                                shouldContainJsonKeyValue("startdatum", "2023-10-25")
+                                shouldContainJsonKeyValue("startdatum", ZAAK_PRODUCTAANVRAAG_1_START_DATE)
                                 shouldContainJsonKey("einddatum")
                                 shouldContainJsonKeyValue("zaaktype", ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION)
                                 shouldContainJsonKeyValue("status", "Intake")

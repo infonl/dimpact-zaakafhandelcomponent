@@ -18,7 +18,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_2_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.lifely.zac.itest.config.ItestConfiguration.productaanvraagZaak1Uuid
+import nl.lifely.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.lifely.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 
 @Order(TEST_SPEC_ORDER_AFTER_TASK_COMPLETED)
@@ -29,7 +29,7 @@ class ZaakHistorieTest : BehaviorSpec({
     Given("A zaak exists for which there is an audit trail in OpenZaak") {
         When("zaakhistorie is requested") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/zaken/zaak/$productaanvraagZaak1Uuid/historie"
+                url = "$ZAC_API_URI/zaken/zaak/$zaakProductaanvraag1Uuid/historie"
             )
 
             Then("the response should be ok") {

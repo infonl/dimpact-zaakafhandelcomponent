@@ -23,16 +23,16 @@ import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
-import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_ZAAK2_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE
 import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LONGITUDE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_INITIAL
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.lifely.zac.itest.config.ItestConfiguration.productaanvraagZaak1Uuid
-import nl.lifely.zac.itest.config.ItestConfiguration.productaanvraagZaak2Uuid
+import nl.lifely.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
+import nl.lifely.zac.itest.config.ItestConfiguration.zaakProductaanvraag2Uuid
 import nl.lifely.zac.itest.config.dockerComposeContainer
 import nl.lifely.zac.itest.util.WebSocketTestListener
 import okhttp3.Headers
@@ -130,7 +130,7 @@ class NotificationsTest : BehaviorSpec({
                             getBigDecimal("latitude") shouldBe PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE.toBigDecimal()
                             getBigDecimal("longitude") shouldBe PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LONGITUDE.toBigDecimal()
                         }
-                        productaanvraagZaak1Uuid = getString("uuid").let(UUID::fromString)
+                        zaakProductaanvraag1Uuid = getString("uuid").let(UUID::fromString)
                     }
                 }
             }
@@ -177,12 +177,12 @@ class NotificationsTest : BehaviorSpec({
 
                 // retrieve the newly created zaak and check the contents
                 itestHttpClient.performGetRequest(
-                    "$ZAC_API_URI/zaken/zaak/id/$PRODUCTAANVRAAG_ZAAK2_IDENTIFICATION"
+                    "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION"
                 ).use { getZaakResponse ->
                     val responseBody = getZaakResponse.body!!.string()
                     logger.info { "Response: $responseBody" }
                     with(JSONObject(responseBody)) {
-                        getString("identificatie") shouldBe PRODUCTAANVRAAG_ZAAK2_IDENTIFICATION
+                        getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
                         getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID.toString()
                         getJSONObject("status").getString("naam") shouldBe "Intake"
                         getJSONObject("groep").getString("id") shouldBe "test-group-a"
@@ -192,7 +192,7 @@ class NotificationsTest : BehaviorSpec({
                         getJSONObject("communicatiekanaal").getString("naam") shouldBe "E-formulier"
                         getString("omschrijving") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
                             "met kenmerk '$OPEN_FORMULIEREN_FORMULIER_BRON_KENMERK'"
-                        productaanvraagZaak2Uuid = getString("uuid").let(UUID::fromString)
+                        zaakProductaanvraag2Uuid = getString("uuid").let(UUID::fromString)
                     }
                 }
             }
@@ -251,9 +251,9 @@ class NotificationsTest : BehaviorSpec({
                 "  \"opcode\":\"ANY\"," +
                 "  \"objectType\":\"ZAAK\"," +
                 "  \"objectId\":{" +
-                "    \"resource\":\"$productaanvraagZaak1Uuid\"" +
+                "    \"resource\":\"$zaakProductaanvraag1Uuid\"" +
                 "  }," +
-                "\"_key\":\"ANY;ZAAK;$productaanvraagZaak1Uuid\"" +
+                "\"_key\":\"ANY;ZAAK;$zaakProductaanvraag1Uuid\"" +
                 "}" +
                 "}"
         )
@@ -283,8 +283,8 @@ class NotificationsTest : BehaviorSpec({
                                 "bronorganisatie" to "123443210",
                                 "vertrouwelijkheidaanduiding" to "openbaar"
                             ),
-                            "hoofdObject" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$productaanvraagZaak1Uuid",
-                            "resourceUrl" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$productaanvraagZaak1Uuid",
+                            "hoofdObject" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakProductaanvraag1Uuid",
+                            "resourceUrl" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakProductaanvraag1Uuid",
                             "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                         )
                     ).toString(),
@@ -302,7 +302,7 @@ class NotificationsTest : BehaviorSpec({
                 with(JSONObject(it)) {
                     getString("opcode") shouldBe "UPDATED"
                     getString("objectType") shouldBe "ZAAK"
-                    getJSONObject("objectId").getString("resource") shouldBe productaanvraagZaak1Uuid.toString()
+                    getJSONObject("objectId").getString("resource") shouldBe zaakProductaanvraag1Uuid.toString()
                 }
             }
         }

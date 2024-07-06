@@ -16,7 +16,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_COMPLETED
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.enkelvoudigInformatieObjectUUID
-import nl.lifely.zac.itest.config.ItestConfiguration.productaanvraagZaak1Uuid
+import nl.lifely.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import okhttp3.Headers
 import org.json.JSONArray
 
@@ -34,7 +34,7 @@ class MailRestServiceTest : BehaviorSpec({
             val body = "<p><b>bold</b>paragraph<i>italic</i></p>"
 
             val response = itestHttpClient.performJSONPostRequest(
-                url = "$ZAC_API_URI/mail/send/$productaanvraagZaak1Uuid",
+                url = "$ZAC_API_URI/mail/send/$zaakProductaanvraag1Uuid",
                 headers = Headers.headersOf(
                     "Content-Type",
                     "application/json"
