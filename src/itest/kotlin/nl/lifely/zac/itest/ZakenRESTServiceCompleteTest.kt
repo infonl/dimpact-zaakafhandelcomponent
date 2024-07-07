@@ -43,9 +43,9 @@ class ZakenRESTServiceCompleteTest : BehaviorSpec({
         lateinit var besluitTypeUuid: UUID
         val intakeId: Int
         zacClient.createZaak(
-            ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID,
-            TEST_GROUP_A_ID,
-            TEST_GROUP_A_DESCRIPTION,
+            zaakTypeUUID = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID,
+            groupId = TEST_GROUP_A_ID,
+            groupName = TEST_GROUP_A_DESCRIPTION,
             startDate = DATE_TIME_2000_01_01
         ).run {
             JSONObject(body!!.string()).run {
