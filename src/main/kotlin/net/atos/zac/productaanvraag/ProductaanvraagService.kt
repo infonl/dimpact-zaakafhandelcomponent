@@ -81,7 +81,9 @@ class ProductaanvraagService @Inject constructor(
         private const val AANVRAAG_PDF_TITEL = "Aanvraag PDF"
         private const val AANVRAAG_PDF_BESCHRIJVING = "PDF document met de aanvraag gegevens van de zaak"
         private const val BPMN_PROCESS_DEFINITION_KEY = "test-met-proces"
-        private const val PRODUCT_AANVRAAG_FORMULIER_DATA_VELD = "aanvraaggegevens"
+        private const val PRODUCTAANVRAAG_FORMULIER_VELD_AANVRAAGGEGEVENS = "aanvraaggegevens"
+        private const val PRODUCTAANVRAAG_FORMULIER_VELD_BRON = "bron"
+        private const val PRODUCTAANVRAAG_FORMULIER_VELD_TYPE = "type"
         private const val ROL_TOELICHTING = "Overgenomen vanuit de product aanvraag"
 
         /**
@@ -117,7 +119,9 @@ class ProductaanvraagService @Inject constructor(
      */
     private fun isProductaanvraagDimpact(productaanvraagObject: ORObject) =
         productaanvraagObject.record.data.let {
-            it.containsKey("bron") && it.containsKey("type") && it.containsKey("aanvraaggegevens")
+            it.containsKey(PRODUCTAANVRAAG_FORMULIER_VELD_BRON) &&
+                it.containsKey(PRODUCTAANVRAAG_FORMULIER_VELD_TYPE) &&
+                it.containsKey(PRODUCTAANVRAAG_FORMULIER_VELD_AANVRAAGGEGEVENS)
         }
 
     @Suppress("TooGenericExceptionCaught", "NestedBlockDepth")
@@ -192,7 +196,7 @@ class ProductaanvraagService @Inject constructor(
 
     fun getFormulierData(productaanvraagObject: ORObject): Map<String, Any> {
         val formulierData = mutableMapOf<String, Any>()
-        (productaanvraagObject.record.data[PRODUCT_AANVRAAG_FORMULIER_DATA_VELD] as Map<*, *>)
+        (productaanvraagObject.record.data[PRODUCTAANVRAAG_FORMULIER_VELD_AANVRAAGGEGEVENS] as Map<*, *>)
             .values.forEach {
                 formulierData.putAll(it as Map<String, Any>)
             }

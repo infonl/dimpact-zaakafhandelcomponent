@@ -156,7 +156,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     }
     Given(
         """
-        a productaanvraag-dimpact object registration object containing a betrokkene with role initiator and type BSN
+        a productaanvraag-dimpact object registration object containing zaakgegevens with a point geometry and 
+        a betrokkene with role initiator and type BSN
         """
     ) {
         clearAllMocks()
@@ -171,7 +172,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val zaakafhandelParameters = createZaakafhandelParameters()
         val formulierBron = createBron()
         val coordinates = listOf(52.08968250760225, 5.114358701512936)
-        val bsnNumber = "123456789"
+        val bsnNumber = "dummyBsnNumber"
         val productAanvraagORObject = createORObject(
             record = createObjectRecord(
                 data = mapOf(
@@ -250,6 +251,94 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 with(roleToBeCreated.captured) {
                     betrokkeneType shouldBe BetrokkeneType.NATUURLIJK_PERSOON
                     identificatienummer shouldBe bsnNumber
+                    roltype shouldBe rolType.url
+                    zaak shouldBe createdZaak.url
+                }
+            }
+        }
+    }
+    Given(
+        """
+        a productaanvraag-dimpact object registration object containing a betrokkene with role initiator and type vestiging
+        """
+    ) {
+        clearAllMocks()
+        val productAanvraagObjectUUID = UUID.randomUUID()
+        val zaakTypeUUID = UUID.randomUUID()
+        val productAanvraagType = "productaanvraag"
+        val zaakType = createZaakType()
+        val communicatieKanaal = CommunicatieKanaal()
+        val createdZaak = createZaak()
+        val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
+        val createdZaakInformatieobject = createZaakInformatieobject()
+        val zaakafhandelParameters = createZaakafhandelParameters()
+        val formulierBron = createBron()
+        val vestigingsNummer = "dummyVestigingsNummer"
+        val productAanvraagORObject = createORObject(
+            record = createObjectRecord(
+                data = mapOf(
+                    "bron" to formulierBron,
+                    "type" to productAanvraagType,
+                    // aanvraaggegevens must contain at least one key with a map value
+                    "aanvraaggegevens" to mapOf("dummyKey" to mapOf("dummySubKey" to "dummyValue")),
+                    "betrokkenen" to listOf(
+                        mapOf(
+                            "vestigingsNummer" to vestigingsNummer,
+                            "rolOmschrijvingGeneriek" to "initiator"
+                        )
+                    )
+                )
+            )
+        )
+        val rolType = createRolType(
+            zaakTypeURI = zaakType.url,
+            omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR
+        )
+        val zaakToBeCreated = slot<Zaak>()
+        val roleToBeCreated = slot<Rol<*>>()
+        every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
+        every {
+            zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(productAanvraagType)
+        } returns Optional.of(zaakTypeUUID)
+        every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
+        every { vrlClientService.findCommunicatiekanaal("E-formulier") } returns Optional.of(communicatieKanaal)
+        every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
+        every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID) } returns zaakafhandelParameters
+        every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
+        every {
+            zrcClientService.createZaakInformatieobject(
+                any(),
+                "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+            )
+        } returns createdZaakInformatieobject
+        every { cmmnService.startCase(createdZaak, zaakType, zaakafhandelParameters, any()) } just Runs
+        every { ztcClientService.readRoltype(OmschrijvingGeneriekEnum.INITIATOR, any()) } returns rolType
+        every { zrcClientService.createRol(capture(roleToBeCreated)) } just runs
+
+        When("the productaanvraag is handled") {
+            productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
+
+            Then(
+                """
+                    a zaak should be created, an initiator role of type 'vestiging' should be created for the zaak
+                    and a CMMN case process should be started
+                    """
+            ) {
+                verify(exactly = 1) {
+                    zgwApiService.createZaak(any())
+                    zrcClientService.createZaakobject(any())
+                    cmmnService.startCase(createdZaak, zaakType, zaakafhandelParameters, any())
+                }
+                with(zaakToBeCreated.captured) {
+                    zaaktype shouldBe zaakType.url
+                    communicatiekanaal shouldBe communicatieKanaal.url
+                    bronorganisatie shouldBe BRON_ORGANISATIE
+                    omschrijving shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'"
+                    toelichting shouldBe null
+                }
+                with(roleToBeCreated.captured) {
+                    betrokkeneType shouldBe BetrokkeneType.VESTIGING
+                    identificatienummer shouldBe vestigingsNummer
                     roltype shouldBe rolType.url
                     zaak shouldBe createdZaak.url
                 }
