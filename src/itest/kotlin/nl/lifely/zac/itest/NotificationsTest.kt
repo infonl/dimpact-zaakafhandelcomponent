@@ -13,6 +13,8 @@ import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration
+import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
+import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_FORBIDDEN
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTS_BASE_URI
@@ -26,6 +28,8 @@ import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECR
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE
 import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LONGITUDE
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_INITIAL
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
@@ -131,6 +135,8 @@ class NotificationsTest : BehaviorSpec({
                             getBigDecimal("latitude") shouldBe PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE.toBigDecimal()
                             getBigDecimal("longitude") shouldBe PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LONGITUDE.toBigDecimal()
                         }
+                        getString("initiatorIdentificatie") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
+                        getString("initiatorIdentificatieType") shouldBe BETROKKENE_IDENTIFICATION_TYPE_BSN
                         zaakProductaanvraag1Uuid = getString("uuid").let(UUID::fromString)
                     }
                 }
@@ -144,7 +150,7 @@ class NotificationsTest : BehaviorSpec({
         When(
             """
                 the notificaties endpoint is called with a second 'create productaanvraag' payload with authentication header
-                 and without zaakgegevens and with an initiator of type 'BSN'
+                 and without zaakgegevens and with an initiator of type 'vestigingsnummer'
             """.trimIndent()
         ) {
             val response = itestHttpClient.performJSONPostRequest(
@@ -193,6 +199,8 @@ class NotificationsTest : BehaviorSpec({
                         getJSONObject("communicatiekanaal").getString("naam") shouldBe "E-formulier"
                         getString("omschrijving") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
                             "met kenmerk '$OPEN_FORMULIEREN_PRODUCTAANVRAAG_FORMULIER_2_BRON_KENMERK'"
+                        getString("initiatorIdentificatie") shouldBe TEST_KVK_VESTIGINGSNUMMER_1
+                        getString("initiatorIdentificatieType") shouldBe BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
                         zaakProductaanvraag2Uuid = getString("uuid").let(UUID::fromString)
                     }
                 }

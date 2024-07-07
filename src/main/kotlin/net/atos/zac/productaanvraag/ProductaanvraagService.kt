@@ -20,6 +20,8 @@ import net.atos.client.zgw.zrc.model.OrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
+import net.atos.client.zgw.zrc.model.RolVestiging
+import net.atos.client.zgw.zrc.model.Vestiging
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
@@ -96,7 +98,7 @@ class ProductaanvraagService @Inject constructor(
             objectsClientService.readObject(productaanvraagObjectUUID).let {
                 if (isProductaanvraagDimpact(it)) {
                     LOG.info { "Handle productaanvraag-Dimpact object UUID: $productaanvraagObjectUUID" }
-                    verwerkProductaanvraag(it)
+                    handleProductaanvraagDimpact(it)
                 }
             }
         } catch (exception: RuntimeException) {
@@ -119,7 +121,7 @@ class ProductaanvraagService @Inject constructor(
         }
 
     @Suppress("TooGenericExceptionCaught", "NestedBlockDepth")
-    private fun verwerkProductaanvraag(productaanvraagObject: ORObject) {
+    private fun handleProductaanvraagDimpact(productaanvraagObject: ORObject) {
         LOG.fine { "Start handling productaanvraag with object URL: ${productaanvraagObject.url}" }
         val productaanvraag = getProductaanvraag(productaanvraagObject)
         val zaaktypeUUID = zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(
@@ -233,6 +235,18 @@ class ProductaanvraagService @Inject constructor(
             )
         }
 
+    private fun addVestigingInitiatorRole(vestigingsNummer: String, zaak: URI, zaaktype: URI) =
+        ztcClientService.readRoltype(OmschrijvingGeneriekEnum.INITIATOR, zaaktype).let {
+            zrcClientService.createRol(
+                RolVestiging(
+                    zaak,
+                    it,
+                    ROL_TOELICHTING,
+                    Vestiging(vestigingsNummer)
+                )
+            )
+        }
+
     private fun registreerInbox(productaanvraag: ProductaanvraagDimpact, productaanvraagObject: ORObject) {
         val inboxProductaanvraag = InboxProductaanvraag().apply {
             productaanvraagObjectUUID = productaanvraagObject.uuid
@@ -304,12 +318,29 @@ class ProductaanvraagService @Inject constructor(
         // only one initiator per zaak is supported so in case there are multiple we only take the first one
         productaanvraag.betrokkenen?.first {
             it.rolOmschrijvingGeneriek == Betrokkene.RolOmschrijvingGeneriek.INITIATOR
-        }?.inpBsn?.let {
-            addNatuurlijkPersoonInitiatorRole(
-                it,
-                zaak.url,
-                zaak.zaaktype
-            )
+        }?.let { initiatorBetrokkene ->
+            when {
+                initiatorBetrokkene.inpBsn != null -> {
+                    addNatuurlijkPersoonInitiatorRole(
+                        initiatorBetrokkene.inpBsn,
+                        zaak.url,
+                        zaak.zaaktype
+                    )
+                }
+                initiatorBetrokkene.vestigingsNummer != null -> {
+                    addVestigingInitiatorRole(
+                        initiatorBetrokkene.vestigingsNummer,
+                        zaak.url,
+                        zaak.zaaktype
+                    )
+                }
+                else -> {
+                    LOG.warning(
+                        "Betrokkene with initiator role in productaanvraag does not contain a BSN or vestigingsnummer. " +
+                            "No initiator role created for productaanvraag: '$productaanvraag'."
+                    )
+                }
+            }
         }
     }
 

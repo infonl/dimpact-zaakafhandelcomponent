@@ -27,7 +27,8 @@ object ItestConfiguration {
     const val ACTIE_INTAKE_AFRONDEN = "INTAKE_AFRONDEN"
     const val ACTIE_ZAAK_AFHANDELEN = "ZAAK_AFHANDELEN"
     const val BETROKKENE_TYPE_NATUURLIJK_PERSOON = "NATUURLIJK_PERSOON"
-    const val BETROKKENE_IDENTIFICATIE_TYPE_BSN = "BSN"
+    const val BETROKKENE_IDENTIFICATION_TYPE_BSN = "BSN"
+    const val BETROKKENE_IDENTIFACTION_TYPE_VESTIGING = "VN"
     const val COMMUNICATIEKANAAL_EMAIL = "f5de7d7f-8440-4ce7-8f27-f934ad0c2ea6"
     const val FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE = "AANVULLENDE_INFORMATIE"
     const val HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM = "Aanvullende informatie"
@@ -101,6 +102,7 @@ object ItestConfiguration {
     const val TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION = "Test group functional admins"
     const val TEST_GROUP_RECORD_MANAGERS_ID = "test-group-rm"
     const val TEST_GROUP_RECORD_MANAGERS_DESCRIPTION = "Test group record managers"
+    const val TEST_KVK_VESTIGINGSNUMMER_1 = "000038509520"
     const val TEXT_MIME_TYPE = "application/text"
 
     const val SMART_DOCUMENTS_MOCK_BASE_URI = "http://smartdocuments-wiremock:8080"

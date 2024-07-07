@@ -15,7 +15,7 @@ import io.kotest.matchers.shouldNotBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration
-import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATIE_TYPE_BSN
+import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_TYPE_NATUURLIJK_PERSOON
 import nl.lifely.zac.itest.config.ItestConfiguration.DATE_TIME_2020_01_01
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_BAD_REQUEST
@@ -101,7 +101,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     "  \"zaakUUID\": \"$zaak2UUID\",\n" +
                     "  \"roltypeUUID\": \"$ROLTYPE_UUID_BELANGHEBBENDE\",\n" +
                     "  \"roltoelichting\": \"\",\n" +
-                    "  \"betrokkeneIdentificatieType\": \"$BETROKKENE_IDENTIFICATIE_TYPE_BSN\",\n" +
+                    "  \"betrokkeneIdentificatieType\": \"$BETROKKENE_IDENTIFICATION_TYPE_BSN\",\n" +
                     "  \"betrokkeneIdentificatie\": \"$TEST_PERSON_HENDRIKA_JANSE_BSN\"\n" +
                     "}"
             )
@@ -175,7 +175,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     "  \"zaakUUID\": \"$zaak2UUID\",\n" +
                     "  \"roltypeUUID\": \"$ROLTYPE_UUID_BELANGHEBBENDE\",\n" +
                     "  \"roltoelichting\": \"dummyToelichting\",\n" +
-                    "  \"betrokkeneIdentificatieType\": \"$BETROKKENE_IDENTIFICATIE_TYPE_BSN\",\n" +
+                    "  \"betrokkeneIdentificatieType\": \"$BETROKKENE_IDENTIFICATION_TYPE_BSN\",\n" +
                     "  \"betrokkeneIdentificatie\": \"$TEST_PERSON_HENDRIKA_JANSE_BSN\"\n" +
                     "}"
             )

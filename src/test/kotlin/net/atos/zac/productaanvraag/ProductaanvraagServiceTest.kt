@@ -19,13 +19,17 @@ import net.atos.client.vrl.model.generated.CommunicatieKanaal
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Point
+import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakInformatieobject
 import net.atos.client.zgw.zrc.model.createZaakobjectProductaanvraag
 import net.atos.client.zgw.ztc.ZtcClientService
+import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.createZaakType
+import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.configuratie.ConfiguratieService.BRON_ORGANISATIE
 import net.atos.zac.documenten.InboxDocumentenService
@@ -150,7 +154,11 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("a productaanvraag-dimpact object registration object containing required data") {
+    Given(
+        """
+        a productaanvraag-dimpact object registration object containing a betrokkene with role initiator and type BSN
+        """
+    ) {
         clearAllMocks()
         val productAanvraagObjectUUID = UUID.randomUUID()
         val zaakTypeUUID = UUID.randomUUID()
@@ -163,6 +171,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val zaakafhandelParameters = createZaakafhandelParameters()
         val formulierBron = createBron()
         val coordinates = listOf(52.08968250760225, 5.114358701512936)
+        val bsnNumber = "123456789"
         val productAanvraagORObject = createORObject(
             record = createObjectRecord(
                 data = mapOf(
@@ -175,11 +184,22 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                             "type" to "Point",
                             "coordinates" to coordinates
                         )
+                    ),
+                    "betrokkenen" to listOf(
+                        mapOf(
+                            "inpBsn" to bsnNumber,
+                            "rolOmschrijvingGeneriek" to "initiator"
+                        )
                     )
                 )
             )
         )
+        val rolType = createRolType(
+            zaakTypeURI = zaakType.url,
+            omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR
+        )
         val zaakToBeCreated = slot<Zaak>()
+        val roleToBeCreated = slot<Rol<*>>()
         every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
         every {
             zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(productAanvraagType)
@@ -196,11 +216,18 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             )
         } returns createdZaakInformatieobject
         every { cmmnService.startCase(createdZaak, zaakType, zaakafhandelParameters, any()) } just Runs
+        every { ztcClientService.readRoltype(OmschrijvingGeneriekEnum.INITIATOR, any()) } returns rolType
+        every { zrcClientService.createRol(capture(roleToBeCreated)) } just runs
 
         When("the productaanvraag is handled") {
             productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
-            Then("a zaak should be created and a CMMN case process should be started") {
+            Then(
+                """
+                    a zaak should be created, an initiator role of type 'natuurlijk persoon' should be created for the zaak
+                    and a CMMN case process should be started
+                    """
+            ) {
                 verify(exactly = 1) {
                     zgwApiService.createZaak(any())
                     zrcClientService.createZaakobject(any())
@@ -219,6 +246,12 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                             longitude.toDouble() shouldBe coordinates[1]
                         }
                     }
+                }
+                with(roleToBeCreated.captured) {
+                    betrokkeneType shouldBe BetrokkeneType.NATUURLIJK_PERSOON
+                    identificatienummer shouldBe bsnNumber
+                    roltype shouldBe rolType.url
+                    zaak shouldBe createdZaak.url
                 }
             }
         }
