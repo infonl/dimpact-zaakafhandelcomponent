@@ -8,6 +8,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import nl.lifely.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_EMAIL
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import okhttp3.Response
+import java.time.ZonedDateTime
 import java.util.UUID
 
 class ZacClient {
@@ -207,7 +208,7 @@ class ZacClient {
     }
 
     @Suppress("LongMethod")
-    fun createZaak(zaakTypeUUID: UUID, groupId: String, groupName: String): Response {
+    fun createZaak(zaakTypeUUID: UUID, groupId: String, groupName: String, startDate: ZonedDateTime): Response {
         logger.info {
             "Creating zaak with group id: $groupId and group name: $groupName"
         }
@@ -219,7 +220,7 @@ class ZacClient {
                 "      \"uuid\": \"$zaakTypeUUID\"\n" +
                 "    },\n" +
                 "    \"initiatorIdentificatie\": null,\n" +
-                "    \"startdatum\": \"2023-12-07T12:43:01+01:00\",\n" +
+                "    \"startdatum\": \"$startDate\",\n" +
                 "    \"groep\": {\n" +
                 "      \"id\": \"$groupId\",\n" +
                 "      \"naam\": \"$groupName\"\n" +
