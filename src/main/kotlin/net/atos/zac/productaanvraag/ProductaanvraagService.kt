@@ -312,9 +312,10 @@ class ProductaanvraagService @Inject constructor(
         }
     }
 
-    fun pairProductaanvraagWithZaak(productaanvraag: ORObject, zaakUrl: URI) =
+    fun pairProductaanvraagWithZaak(productaanvraag: ORObject, zaakUrl: URI) {
         ZaakobjectProductaanvraag(zaakUrl, productaanvraag.url)
             .let(zrcClientService::createZaakobject)
+    }
 
     fun pairAanvraagPDFWithZaak(productaanvraag: ProductaanvraagDimpact, zaakUrl: URI) {
         ZaakInformatieobject().apply {

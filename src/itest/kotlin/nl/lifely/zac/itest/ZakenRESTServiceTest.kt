@@ -59,10 +59,10 @@ class ZakenRESTServiceTest : BehaviorSpec({
     Given("ZAC Docker container is running and zaakafhandelparameters have been created") {
         When("the create zaak endpoint is called and the user has permissions for the zaaktype used") {
             val response = zacClient.createZaak(
-                ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID,
-                TEST_GROUP_A_ID,
-                TEST_GROUP_A_DESCRIPTION,
-                DATE_TIME_2020_01_01
+                zaakTypeUUID = ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID,
+                groupId = TEST_GROUP_A_ID,
+                groupName = TEST_GROUP_A_DESCRIPTION,
+                startDate = DATE_TIME_2020_01_01
             )
             Then("the response should be a 200 HTTP response with the created zaak") {
                 response.code shouldBe HTTP_STATUS_OK
