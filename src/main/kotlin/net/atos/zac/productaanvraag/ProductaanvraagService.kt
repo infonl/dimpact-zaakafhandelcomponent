@@ -301,6 +301,7 @@ class ProductaanvraagService @Inject constructor(
         pairProductaanvraagWithZaak(productaanvraagObject, zaak.url)
         pairAanvraagPDFWithZaak(productaanvraag, zaak.url)
         productaanvraag.bijlagen?.let { pairBijlagenWithZaak(it, zaak.url) }
+        // only one initiator per zaak is supported so in case there are multiple we only take the first one
         productaanvraag.betrokkenen?.first {
             it.rolOmschrijvingGeneriek == Betrokkene.RolOmschrijvingGeneriek.INITIATOR
         }?.inpBsn?.let {
