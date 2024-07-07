@@ -6,6 +6,9 @@ package nl.lifely.zac.itest.config
 
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.Month
+import java.time.ZonedDateTime
+import java.util.TimeZone
 import java.util.UUID
 
 /**
@@ -13,6 +16,9 @@ import java.util.UUID
  * used in the entire integration test flow such as: Keycloak, Objecten, Objecttypen, Open Zaak, ZAC.
  */
 object ItestConfiguration {
+    private const val ZAC_CONTAINER_PORT = 8080
+    private const val ZAC_MANAGEMENT_PORT = 9990
+
     const val HTTP_STATUS_OK = 200
     const val HTTP_STATUS_NO_CONTENT = 204
     const val HTTP_STATUS_BAD_REQUEST = 400
@@ -141,17 +147,15 @@ object ItestConfiguration {
     /**
      * First 'manually' created zaak using the ZAC API.
      */
-    const val ZAAK_MANUAL_1_IDENTIFICATION = "ZAAK-2023-0000000001"
+    const val ZAAK_MANUAL_1_IDENTIFICATION = "ZAAK-2020-0000000001"
 
     const val ZAC_CONTAINER_SERVICE_NAME = "zac"
-    const val ZAC_CONTAINER_PORT = 8080
 
     /**
      * The default ZAC Docker image used when running the integration tests locally.
      * When running the tests in our GitHub pipeline a different Docker image specific for the pipeline is used.
      */
     const val ZAC_DEFAULT_DOCKER_IMAGE = "ghcr.io/infonl/zaakafhandelcomponent:dev"
-    const val ZAC_MANAGEMENT_PORT = 9990
 
     /**
      * The ZAC API URI from outside the Docker network.
@@ -175,6 +179,13 @@ object ItestConfiguration {
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION =
         "Indienen aansprakelijkstelling door derden behandelen"
 
+    @Suppress("MagicNumber")
+    val DATE_TIME_2000_01_01: ZonedDateTime = LocalDate.of(2000, Month.JANUARY, 1)
+        .atStartOfDay(TimeZone.getDefault().toZoneId())
+
+    @Suppress("MagicNumber")
+    val DATE_TIME_2020_01_01: ZonedDateTime = LocalDate.of(2020, Month.JANUARY, 1)
+        .atStartOfDay(TimeZone.getDefault().toZoneId())
     val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
     val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID: UUID =
         UUID.fromString("fd2bf643-c98a-4b00-b2b3-9ae0c41ed425")
@@ -201,9 +212,4 @@ object ItestConfiguration {
      * Global variable to store the UUID of an uploaded file in the integration tests.
      */
     lateinit var enkelvoudigInformatieObjectUUID: String
-
-    /**
-     * Global variable to store the fatal date of a zaak that is created in the integration tests.
-     */
-    lateinit var zaak1uiterlijkeEinddatumAfdoening: LocalDate
 }

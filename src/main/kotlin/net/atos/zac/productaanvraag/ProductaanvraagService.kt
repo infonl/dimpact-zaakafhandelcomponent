@@ -301,7 +301,6 @@ class ProductaanvraagService @Inject constructor(
         pairProductaanvraagWithZaak(productaanvraagObject, zaak.url)
         pairAanvraagPDFWithZaak(productaanvraag, zaak.url)
         productaanvraag.bijlagen?.let { pairBijlagenWithZaak(it, zaak.url) }
-        // TODO: add support for vestiging as initiator
         productaanvraag.betrokkenen?.first {
             it.rolOmschrijvingGeneriek == Betrokkene.RolOmschrijvingGeneriek.INITIATOR
         }?.inpBsn?.let {

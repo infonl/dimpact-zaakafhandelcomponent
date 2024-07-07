@@ -17,6 +17,7 @@ import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATIE_TYPE_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_TYPE_NATUURLIJK_PERSOON
+import nl.lifely.zac.itest.config.ItestConfiguration.DATE_TIME_2020_01_01
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_BAD_REQUEST
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
@@ -60,7 +61,8 @@ class ZakenRESTServiceTest : BehaviorSpec({
             val response = zacClient.createZaak(
                 ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID,
                 TEST_GROUP_A_ID,
-                TEST_GROUP_A_DESCRIPTION
+                TEST_GROUP_A_DESCRIPTION,
+                DATE_TIME_2020_01_01
             )
             Then("the response should be a 200 HTTP response with the created zaak") {
                 response.code shouldBe HTTP_STATUS_OK
