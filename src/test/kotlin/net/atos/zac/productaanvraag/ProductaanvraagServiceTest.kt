@@ -345,6 +345,84 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
     }
+    Given(
+        """
+        a productaanvraag-dimpact object registration object containing a betrokkene with role initiator 
+        but no supported initiator identification
+        """
+    ) {
+        clearAllMocks()
+        val productAanvraagObjectUUID = UUID.randomUUID()
+        val zaakTypeUUID = UUID.randomUUID()
+        val productAanvraagType = "productaanvraag"
+        val zaakType = createZaakType()
+        val communicatieKanaal = CommunicatieKanaal()
+        val createdZaak = createZaak()
+        val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
+        val createdZaakInformatieobject = createZaakInformatieobject()
+        val zaakafhandelParameters = createZaakafhandelParameters()
+        val formulierBron = createBron()
+        val productAanvraagORObject = createORObject(
+            record = createObjectRecord(
+                data = mapOf(
+                    "bron" to formulierBron,
+                    "type" to productAanvraagType,
+                    // aanvraaggegevens must contain at least one key with a map value
+                    "aanvraaggegevens" to mapOf("dummyKey" to mapOf("dummySubKey" to "dummyValue")),
+                    "betrokkenen" to listOf(
+                        mapOf(
+                            "unsupportedIdentification" to "1234",
+                            "rolOmschrijvingGeneriek" to "initiator"
+                        )
+                    )
+                )
+            )
+        )
+        val zaakToBeCreated = slot<Zaak>()
+        every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
+        every {
+            zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(productAanvraagType)
+        } returns Optional.of(zaakTypeUUID)
+        every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
+        every { vrlClientService.findCommunicatiekanaal("E-formulier") } returns Optional.of(communicatieKanaal)
+        every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
+        every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID) } returns zaakafhandelParameters
+        every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
+        every {
+            zrcClientService.createZaakInformatieobject(
+                any(),
+                "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+            )
+        } returns createdZaakInformatieobject
+        every { cmmnService.startCase(createdZaak, zaakType, zaakafhandelParameters, any()) } just Runs
+
+        When("the productaanvraag is handled") {
+            productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
+
+            Then(
+                """
+                    a zaak should be created, no initiator role should be created for the zaak
+                    and a CMMN case process should be started
+                    """
+            ) {
+                verify(exactly = 1) {
+                    zgwApiService.createZaak(any())
+                    zrcClientService.createZaakobject(any())
+                    cmmnService.startCase(createdZaak, zaakType, zaakafhandelParameters, any())
+                }
+                verify(exactly = 0) {
+                    zrcClientService.createRol(any())
+                }
+                with(zaakToBeCreated.captured) {
+                    zaaktype shouldBe zaakType.url
+                    communicatiekanaal shouldBe communicatieKanaal.url
+                    bronorganisatie shouldBe BRON_ORGANISATIE
+                    omschrijving shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'"
+                    toelichting shouldBe null
+                }
+            }
+        }
+    }
     Given("a productaanvraag-dimpact object registration object missing required aanvraaggegevens") {
         clearAllMocks()
         val productAanvraagObjectUUID = UUID.randomUUID()
