@@ -11,4 +11,5 @@ export class HistorieRegel {
   oudeWaarde: string;
   nieuweWaarde: string;
   toelichting: string;
+  actie?: string;
 }

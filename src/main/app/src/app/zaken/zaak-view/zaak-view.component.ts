@@ -128,6 +128,7 @@ export class ZaakViewComponent
     "datum",
     "gebruiker",
     "wijziging",
+    "actie",
     "oudeWaarde",
     "nieuweWaarde",
     "toelichting",
