@@ -14,7 +14,7 @@ data class RESTZaakBetrokkene(
 
     var roltype: String,
 
-    var roltoelichting: String,
+    var roltoelichting: String?,
 
     var type: String,
 
