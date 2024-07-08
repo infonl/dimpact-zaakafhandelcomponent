@@ -41,15 +41,15 @@ Stappen:
 ![image](./attachments/images/2f75ad61-aae6-4aa5-b94e-cb0bba651aae.png)
 
  
-Klik op een taak om de instellingen te openen. Iedere taak heeft standaard 3 instellingen:
+4. Klik op een taak om de instellingen te openen. Iedere taak heeft standaard 3 instellingen:
   - Formulierdefinitie (v) | welk formulier voor het taakbehandelformulier wordt gebruikt
   - Groep | de groep die standaard bij taaktoewijzing wordt ingevuld als een gebruiker de taak start
   - Doorlooptijd | bepaalt de fatale datum van de taak
 In sommige taakbehandelformulieren komen keuzelijsten voor waarvan de opties via een referentietabel aangepast kunnen worden. Welke referentietabel in dat taakbehandelformulier gebruikt wordt is dan te zien bij de instelling ‘Referentietabel voor ...’. Om de opties aan te passen kun je later naar de menukeuze ‘Referentietabellen’ gaan en daar de juiste tabel te kiezen, dit wordt elders in deze handleiding omschreven. Het is ook mogelijk om zelf een referentietabel aan te maken en deze in het taakbehandelformulier te gebruiken. Na het aanmaken van de tabel kan deze in de lijst bij de instelling ‘Referentietabel voor ...’ gekozen worden.
 ![image](./attachments/images/208073572-dbe3e168-91ff-4a42-9c03-dea7824e348a.png)
 
-4. Ga verder naar het tabblad ‘Actie gegevens’. Bij de acties waarmee een gebruiker een fase afrondt is het mogelijk om een toelichting te tonen, denk aan een herinnering aan een belangrijke handeling die in die fase moete zijn uitgevoerd. Klik op een fase om de toelichting in het veld in te vullen.
-5. Ga verder naar ‘Mailgegevens’. Tijdens de zaakbehandeling gebruikt de ZAC een aantal e-mails dat verstuurd wordt, voornamelijk aan de klant. Sommige van deze mails worden verplicht verstuurd en anderen zijn optioneel. De beschikbare opties bij alle mails kunnen in 'Mailgegevens' ingesteld worden. 
+5. Ga verder naar het tabblad ‘Actie gegevens’. Bij de acties waarmee een gebruiker een fase afrondt is het mogelijk om een toelichting te tonen, denk aan een herinnering aan een belangrijke handeling die in die fase moete zijn uitgevoerd. Klik op een fase om de toelichting in het veld in te vullen.
+6. Ga verder naar ‘Mailgegevens’. Tijdens de zaakbehandeling gebruikt de ZAC een aantal e-mails dat verstuurd wordt, voornamelijk aan de klant. Sommige van deze mails worden verplicht verstuurd en anderen zijn optioneel. De beschikbare opties bij alle mails kunnen in 'Mailgegevens' ingesteld worden. 
 - Voor de statusmails kan bepaald worden of deze beschikbaar zijn en wat de standaard geselecteerde keuze is:
   - Statusmail intake fase (v) | bepaalt of bij het afronden van de fase ‘Intake’ de optie voor het versturen van een e-mail beschikbaar is en of deze standaard aangevinkt is
   - Statusmail afronden fase (v) | bepaalt of bij het afronden van de fase ‘In behandeling’ de optie voor het versturen van een e-mail beschikbaar is en of deze standaard aangevinkt is
@@ -57,7 +57,7 @@ In sommige taakbehandelformulieren komen keuzelijsten voor waarvan de opties via
   ![image](./attachments/images/84bfa621-a433-43ff-bd79-0f65ef3a2eda.png)
 
 - Bij het verzenden van een mail kan de behandelaar kiezen wat de afzender van de e-mail wordt. De keuzes die de behandelaar te zien krijgt zijn, is in dit tabblad in te stellen en gelden voor alle mails. Een mail heeft altijd de opties e-mailadres van de gemeente en het e-mailadres van de medewerker (de ingelogde gebruiker). Deze opties kunnen worden aangevuld met meer mailafzenders. Daarnaast kan een van deze opties als standaard ingevulde mailafzender worden ingesteld. Verder kan bij iedere mailafzender een eigen 'Antwoord aan' e-mailadres worden ingesteld, als dit niet wordt ingesteld dan is deze gelijk aan de afzender. Een uitgebreide beschrijving van de mailafzenders is in het hoofdstuk Mailafzenders te vinden.
-Stel de lijst van mogelijke mailafzenders op en kies de 'Antwoord aan' bij iedere mailafzender. Selecteer daarna welke mailafzender als default wordt getoond aan de behandelaar.
+7. Stel de lijst van mogelijke mailafzenders op en kies de 'Antwoord aan' bij iedere mailafzender. Selecteer daarna welke mailafzender als default wordt getoond aan de behandelaar.
 - Iedere e-mail heeft een eigen template dat de standaard inhoud van het bericht en het onderwerp bepaalt. In dit overzicht stel je in welke e-mail welke mailtemplate gebruikt. Iedere e-mail heeft een standaard mailtemplate. Om deze te bekijken of te bewerken kun je later naar naar de menukeuze ‘Mailtemplates’ gaan. Het is ook mogelijk om zelf een mailtemplate aan te maken en deze in een van de e-mails te gebruiken. Na het aanmaken van de template kan deze in de lijst bij de instelling ‘mailtemplate’ gekozen worden. Open een e-mail door er op te klikken en stel bij iedere e-mail het gewenste template in.
 8. Ga verder naar ‘Zaakbeëindig gegevens’.  In dit tabblad kan voor een aantal situaties waarin de zaak wordt beëindigd het resultaat dat de zaak krijgt bepaald worden. De mogelijke resultaten zijn ingesteld bij het zaaktype. Stel voor de volgende situaties het resultaat in:
   - Zaak is niet ontvankelijk (v) | bepaalt het resultaat wanneer een gebruiker bij de actie ‘Intake afronden’ deze optie kiest.
