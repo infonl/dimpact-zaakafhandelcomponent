@@ -31,7 +31,7 @@ reindexDocuments=true
 reindexTasks=true
 reindexZaken=true
 
-while getopts ':udtzh' OPTION; do
+while getopts 'u:dtzh' OPTION; do
   case $OPTION in
     u)
       zacBaseURL=$OPTARG
@@ -61,9 +61,6 @@ while getopts ':udtzh' OPTION; do
   esac
 done
 
-if [ "$reindexDocuments" = true ] && [ "$reindexTasks" = true ] && [ "$reindexZaken" = true ] ; then
-    echo "Reindexing document, task and zaak data in Solr using ZAC base URL: '$zacBaseURL'."
-fi
 if [ "$reindexDocuments" = true ] ; then
     echo "Sending request to ZAC to reindex document data in Solr using ZAC base URL: '$zacBaseURL'."
     curl ${zacBaseURL}/rest/indexeren/herindexeren/DOCUMENT
