@@ -1,5 +1,5 @@
 ### Create runtime image fase
-FROM docker.io/eclipse-temurin:21-ubi9-minimal as runtime
+FROM docker.io/eclipse-temurin:21-ubi9-minimal AS runtime
 
 LABEL name="zaakafhandelcomponent"
 LABEL summary="Zaakafhandelcomponent (ZAC) developed for Dimpact"
@@ -33,7 +33,7 @@ COPY target/zaakafhandelcomponent.jar /
 RUN date -Iseconds > /build_timestamp.txt
 
 # Turn on ability to be able to override WildFly settings using environment variables
-ENV WILDFLY_OVERRIDING_ENV_VARS 1
+ENV WILDFLY_OVERRIDING_ENV_VARS=1
 
 # Start zaakafhandelcomponent
 ENTRYPOINT ["java", "-Xms1024m", "-Xmx1024m", "-Xlog:gc::time,uptime", "-jar", "zaakafhandelcomponent.jar"]
