@@ -252,7 +252,7 @@ class ZakenRESTService @Inject constructor(
             gegevens.roltypeUUID,
             gegevens.betrokkeneIdentificatieType,
             gegevens.betrokkeneIdentificatie,
-            gegevens.roltoelichting,
+            toelichting = gegevens.roltoelichting ?: ROL_TOEVOEGEN_REDEN,
             zaak
         )
         return restZaakConverter.convert(zaak)
