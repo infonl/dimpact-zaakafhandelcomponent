@@ -6,7 +6,7 @@ Om zaken te registeren en behandelen maakt de applicatie gebruik van registratie
 
 ### Beheerinstellingen
 Het inrichten van de ZAC gaat via de beheermenu dat rechts in de werkbalk te openen is via het radar icoon. Het beheermenu bestaat 5 onderdelen, bij het openen van de beheerinstellingen is standaard ‘Inrichtingscheck’ geopend.
-![image](./attachments/images/208067669-5a1050b9-3dd9-4c54-9411-37ce9fa393c7.png)
+![image](./attachments/images/8a281ac6-8c57-4ba6-8a58-fd4716d51ef5.png)
 
 In deze handleiding wordt de werking van de beheer-instellingen per onderdeel beschreven.
 
@@ -38,7 +38,7 @@ Stappen:
   - wanneer een zaak in de dashboardkaart ‘Mijn binnenkort verlopende zaken’ verschijnt
 - Productaanvraagtype | het id van de productaanvraag zoals deze in Overige Registraties is ingericht. Deze instelling bepaalt dus voor een in Open Formulieren ingevuld formulier dat in Overige Registraties is geregistreerd van welk zaaktype door de ZAC een zaak aangemaakt moet worden.
 3. Klik op de knop Volgende om naar het volgende tabblad ‘Taakgegevens’ te gaan. Hier worden alle beschikbare taken van het CMMN-model getoond. Standaard staan alle taken aan maar het is mogelijk om een taak via het schuifje uit te zetten waardoor deze tijdens de zaakbehandeling niet beschikbaar is.
-![image](./attachments/images/220167923-88d99ade-f5c3-4bf0-a77d-14f712ee54e3.png)
+![image](./attachments/images/2f75ad61-aae6-4aa5-b94e-cb0bba651aae.png)
 
  
 Klik op een taak om de instellingen te openen. Iedere taak heeft standaard 3 instellingen:
@@ -53,7 +53,8 @@ In sommige taakbehandelformulieren komen keuzelijsten voor waarvan de opties via
 - Voor de statusmails kan bepaald worden of deze beschikbaar zijn en wat de standaard geselecteerde keuze is:
   - Statusmail intake fase (v) | bepaalt of bij het afronden van de fase ‘Intake’ de optie voor het versturen van een e-mail beschikbaar is en of deze standaard aangevinkt is
   - Statusmail afronden fase (v) | bepaalt of bij het afronden van de fase ‘In behandeling’ de optie voor het versturen van een e-mail beschikbaar is en of deze standaard aangevinkt is
-![image](./attachments/images/220169578-58c5bf9d-56ff-4d96-97ed-dadcde4cbb46.png)
+  
+  ![image](./attachments/images/84bfa621-a433-43ff-bd79-0f65ef3a2eda.png)
 
 - Bij het verzenden van een mail kan de behandelaar kiezen wat de afzender van de e-mail wordt. De keuzes die de behandelaar te zien krijgt zijn, is in dit tabblad in te stellen en gelden voor alle mails. Een mail heeft altijd de opties e-mailadres van de gemeente en het e-mailadres van de medewerker (de ingelogde gebruiker). Deze opties kunnen worden aangevuld met meer mailafzenders. Daarnaast kan een van deze opties als standaard ingevulde mailafzender worden ingesteld. Verder kan bij iedere mailafzender een eigen 'Antwoord aan' e-mailadres worden ingesteld, als dit niet wordt ingesteld dan is deze gelijk aan de afzender. Een uitgebreide beschrijving van de mailafzenders is in het hoofdstuk Mailafzenders te vinden.
 Stel de lijst van mogelijke mailafzenders op en kies de 'Antwoord aan' bij iedere mailafzender. Selecteer daarna welke mailafzender als default wordt getoond aan de behandelaar.
@@ -63,7 +64,9 @@ Stel de lijst van mogelijke mailafzenders op en kies de 'Antwoord aan' bij ieder
   - Verzoek is bij verkeerde organisatie ingediend | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt. 
   - Verzoek is door initiator ingetrokken | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
   - Zaak is een duplicaat | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
+    ![image](./attachments/images/33fc1158-0ada-4fea-a491-fc1e6e9935a0.png)
 9. Ga verder naar 'SmartDocuments'. Dit is nog verder in te vullen.
+![image](./attachments/images/f744cc21-04a4-4457-827a-1e6807c019b2.png)
 10. Klik op ‘Opslaan’ om de zaps voor het zaaktype te bewaren. Het zaaktype is hierna actief te gebruiken in de ZAC.
 
 ## Referentietabellen
