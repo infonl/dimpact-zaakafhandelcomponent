@@ -343,6 +343,7 @@
   "zaak.locatie.adres": "Nearest address",
   "zaakIdentificatie": "Belongs to case",
   "zaakInformatieobject": "Document",
+  "zaakinformatieobject": "Document",
   "zaakObject": "Object",
   "zaakOmschrijving": "Case description",
   "zaakToelichting": "Case explanation",
