@@ -4,38 +4,38 @@ info:
   description: Documentatie voor API Vestigingsprofiel.
   version: "1.4"
 servers:
-  - url: /test/api
-    description: only for testing with Swagger widget
-  - url: https://api.kvk.nl/test/api
-    description: Test API (uses Staat der Nederlanden Private Root CA – G1 certificate
-      chain)
-  - url: https://api.kvk.nl/api
-    description: Production API (uses Staat der Nederlanden Private Root CA – G1 certificate
-      chain)
+- url: /test/api
+  description: only for testing with Swagger widget
+- url: https://api.kvk.nl/test/api
+  description: Test API (uses Staat der Nederlanden Private Root CA – G1 certificate
+    chain)
+- url: https://api.kvk.nl/api
+  description: Production API (uses Staat der Nederlanden Private Root CA – G1 certificate
+    chain)
 tags:
-  - name: Vestigingsprofiel
+- name: Vestigingsprofiel
 paths:
   /v1/vestigingsprofielen/{vestigingsnummer}:
     get:
       tags:
-        - Vestigingsprofiel
+      - Vestigingsprofiel
       summary: Voor een specifieke vestiging informatie opvragen.
       operationId: getVestigingByVestigingsnummer
       parameters:
-        - name: vestigingsnummer
-          in: path
-          description: "Vestigingsnummer: uniek nummer dat bestaat uit 12 cijfers"
-          required: true
-          schema:
-            pattern: "^[0-9]{12}$"
-            type: string
-        - name: geoData
-          in: query
-          description: "GeoData: (true/false) geef aan of BAG data opgehaald moet worden"
-          required: false
-          schema:
-            type: boolean
-            default: false
+      - name: vestigingsnummer
+        in: path
+        description: "Vestigingsnummer: uniek nummer dat bestaat uit 12 cijfers"
+        required: true
+        schema:
+          pattern: "^[0-9]{12}$"
+          type: string
+      - name: geoData
+        in: query
+        description: "GeoData: (true/false) geef aan of BAG data opgehaald moet worden"
+        required: false
+        schema:
+          type: boolean
+          default: false
       responses:
         default:
           description: default response
@@ -44,7 +44,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Vestiging'
       security:
-        - ApiKeyAuth: [ ]
+      - ApiKeyAuth: []
 components:
   schemas:
     Adres:

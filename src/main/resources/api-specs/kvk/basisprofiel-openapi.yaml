@@ -2,39 +2,39 @@ openapi: 3.0.1
 info:
   title: API Basisprofiel
   description: Documentatie voor API Basisprofiel.
-  version: "1.3"
+  version: "1.4"
 servers:
-  - url: /test/api
-    description: only for testing with Swagger widget
-  - url: https://api.kvk.nl/test/api
-    description: Test API (uses Staat der Nederlanden Private Root CA – G1 certificate
-      chain)
-  - url: https://api.kvk.nl/api
-    description: Production API (uses Staat der Nederlanden Private Root CA – G1 certificate
-      chain)
+- url: /test/api
+  description: only for testing with Swagger widget
+- url: https://api.kvk.nl/test/api
+  description: Test API (uses Staat der Nederlanden Private Root CA – G1 certificate
+    chain)
+- url: https://api.kvk.nl/api
+  description: Production API (uses Staat der Nederlanden Private Root CA – G1 certificate
+    chain)
 tags:
-  - name: Basisprofiel
+- name: Basisprofiel
 paths:
   /v1/basisprofielen/{kvkNummer}:
     get:
       tags:
-        - Basisprofiel
+      - Basisprofiel
       summary: Voor een specifiek bedrijf basisinformatie opvragen.
       operationId: getBasisprofielByKvkNummer
       parameters:
-        - name: kvkNummer
-          in: path
-          description: "Nederlands Kamer van Koophandel nummer: bestaat uit 8 cijfers"
-          required: true
-          schema:
-            pattern: "^[0-9]{8}$"
-            type: string
-        - name: geoData
-          in: query
-          required: false
-          schema:
-            type: boolean
-            default: false
+      - name: kvkNummer
+        in: path
+        description: "Nederlands Kamer van Koophandel nummer: bestaat uit 8 cijfers"
+        required: true
+        schema:
+          pattern: "^[0-9]{8}$"
+          type: string
+      - name: geoData
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
       responses:
         default:
           description: default response
@@ -43,27 +43,27 @@ paths:
               schema:
                 $ref: '#/components/schemas/Basisprofiel'
       security:
-        - ApiKeyAuth: [ ]
+      - ApiKeyAuth: []
   /v1/basisprofielen/{kvkNummer}/eigenaar:
     get:
       tags:
-        - Basisprofiel
+      - Basisprofiel
       summary: Voor een specifiek bedrijf eigenaar informatie opvragen.
       operationId: getEigenaar
       parameters:
-        - name: kvkNummer
-          in: path
-          description: "Nederlands Kamer van Koophandel nummer: bestaat uit 8 cijfers"
-          required: true
-          schema:
-            pattern: "^[0-9]{8}$"
-            type: string
-        - name: geoData
-          in: query
-          required: false
-          schema:
-            type: boolean
-            default: false
+      - name: kvkNummer
+        in: path
+        description: "Nederlands Kamer van Koophandel nummer: bestaat uit 8 cijfers"
+        required: true
+        schema:
+          pattern: "^[0-9]{8}$"
+          type: string
+      - name: geoData
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
       responses:
         default:
           description: default response
@@ -72,27 +72,27 @@ paths:
               schema:
                 $ref: '#/components/schemas/Eigenaar'
       security:
-        - ApiKeyAuth: [ ]
+      - ApiKeyAuth: []
   /v1/basisprofielen/{kvkNummer}/hoofdvestiging:
     get:
       tags:
-        - Basisprofiel
+      - Basisprofiel
       summary: Voor een specifiek bedrijf hoofdvestigingsinformatie opvragen.
       operationId: getHoofdvestiging
       parameters:
-        - name: kvkNummer
-          in: path
-          description: "Nederlands Kamer van Koophandel nummer: bestaat uit 8 cijfers"
-          required: true
-          schema:
-            pattern: "^[0-9]{8}$"
-            type: string
-        - name: geoData
-          in: query
-          required: false
-          schema:
-            type: boolean
-            default: false
+      - name: kvkNummer
+        in: path
+        description: "Nederlands Kamer van Koophandel nummer: bestaat uit 8 cijfers"
+        required: true
+        schema:
+          pattern: "^[0-9]{8}$"
+          type: string
+      - name: geoData
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
       responses:
         default:
           description: default response
@@ -101,21 +101,21 @@ paths:
               schema:
                 $ref: '#/components/schemas/Vestiging'
       security:
-        - ApiKeyAuth: [ ]
+      - ApiKeyAuth: []
   /v1/basisprofielen/{kvkNummer}/vestigingen:
     get:
       tags:
-        - Basisprofiel
+      - Basisprofiel
       summary: Voor een specifiek bedrijf een lijst met vestigingen opvragen.
       operationId: getVestigingen
       parameters:
-        - name: kvkNummer
-          in: path
-          description: "Nederlands Kamer van Koophandel nummer: bestaat uit 8 cijfers"
-          required: true
-          schema:
-            pattern: "^[0-9]{8}$"
-            type: string
+      - name: kvkNummer
+        in: path
+        description: "Nederlands Kamer van Koophandel nummer: bestaat uit 8 cijfers"
+        required: true
+        schema:
+          pattern: "^[0-9]{8}$"
+          type: string
       responses:
         default:
           description: default response
@@ -124,7 +124,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/VestigingList'
       security:
-        - ApiKeyAuth: [ ]
+      - ApiKeyAuth: []
 components:
   schemas:
     Adres:
@@ -146,8 +146,6 @@ components:
         huisnummerToevoeging:
           type: string
         huisletter:
-          type: string
-        aanduidingBijHuisnummer:
           type: string
         toevoegingAdres:
           type: string
@@ -227,6 +225,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Adres'
+        websites:
+          type: array
+          items:
+            type: string
         links:
           type: array
           items:
@@ -276,8 +278,7 @@ components:
         volgorde:
           type: integer
           format: int32
-      description: Alle namen waaronder een onderneming of vestiging handelt (op volgorde
-        van registreren)
+      description: Alle namen waaronder een vestiging handelt (op volgorde van registreren)
     Link:
       type: object
       properties:
@@ -359,6 +360,12 @@ components:
         deeltijdWerkzamePersonen:
           type: integer
           description: Aantal deeltijd werkzame personen
+        handelsnamen:
+          type: array
+          description: Alle namen waaronder een vestiging handelt (op volgorde van
+            registreren)
+          items:
+            $ref: '#/components/schemas/Handelsnaam'
         adressen:
           type: array
           items:
