@@ -3,11 +3,13 @@ package net.atos.zac.app.zaken.converter.historie
 import jakarta.inject.Inject
 import net.atos.client.vrl.VrlClientService
 import net.atos.client.vrl.model.generated.CommunicatieKanaal
-import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel
+import net.atos.client.zgw.shared.model.audit.AuditTrailRegel
 import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.model.Geometry
 import net.atos.zac.app.audit.model.RESTHistorieActie
 import net.atos.zac.app.audit.model.RESTHistorieRegel
+import net.atos.zac.app.diff
+import net.atos.zac.app.getTypedValue
 import java.net.URI
 
 private const val COMMUNICATIEKANAAL = "communicatiekanaal"
@@ -17,7 +19,7 @@ class RESTZaakHistoriePartialUpdateConverter @Inject constructor(
     private val vrlClientService: VrlClientService
 ) {
     fun convertPartialUpdate(
-        auditTrail: ZRCAuditTrailRegel,
+        auditTrail: AuditTrailRegel,
         actie: RESTHistorieActie?,
         old: Map<*, *>,
         new: Map<*, *>
@@ -25,7 +27,7 @@ class RESTZaakHistoriePartialUpdateConverter @Inject constructor(
         old.diff(new).map { convertLine(auditTrail, actie, it) }
 
     private fun convertLine(
-        auditTrail: ZRCAuditTrailRegel,
+        auditTrail: AuditTrailRegel,
         actie: RESTHistorieActie?,
         change: Map.Entry<Any?, Pair<*, Any?>>
     ): RESTHistorieRegel =

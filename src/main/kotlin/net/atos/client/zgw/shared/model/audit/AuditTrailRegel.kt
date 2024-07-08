@@ -15,7 +15,7 @@ import java.util.UUID
  * Gegevens m.b.t. een wijziging gedaan op een object
  */
 @NoArgConstructor
-data class ZRCAuditTrailRegel(
+data class AuditTrailRegel(
     /**
      * URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object.
      */

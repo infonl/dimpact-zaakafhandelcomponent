@@ -1,7 +1,7 @@
 package net.atos.zac.app.zaken.converter.historie
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel
+import net.atos.client.zgw.shared.model.audit.AuditTrailRegel
 import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
@@ -9,6 +9,8 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.audit.model.RESTHistorieActie
 import net.atos.zac.app.audit.model.RESTHistorieRegel
+import net.atos.zac.app.getTypedValue
+import net.atos.zac.app.stringProperty
 import java.net.URI
 
 private const val CREATE = "create"
@@ -34,7 +36,7 @@ class RESTZaakHistorieRegelConverter @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val restZaakHistoriePartialUpdateConverter: RESTZaakHistoriePartialUpdateConverter
 ) {
-    fun convertZaakRESTHistorieRegel(auditTrail: ZRCAuditTrailRegel): List<RESTHistorieRegel> {
+    fun convertZaakRESTHistorieRegel(auditTrail: AuditTrailRegel): List<RESTHistorieRegel> {
         val old = auditTrail.wijzigingen.oud as? Map<*, *>
         val new = auditTrail.wijzigingen.nieuw as? Map<*, *>
         return when {
@@ -57,7 +59,7 @@ class RESTZaakHistorieRegelConverter @Inject constructor(
         }
     }
 
-    private fun convertLine(auditTrail: ZRCAuditTrailRegel, old: Map<*, *>?, new: Map<*, *>?): RESTHistorieRegel =
+    private fun convertLine(auditTrail: AuditTrailRegel, old: Map<*, *>?, new: Map<*, *>?): RESTHistorieRegel =
         RESTHistorieRegel(
             (old ?: new)?.let { convertResource(auditTrail.resource, it) },
             old?.let { convertValue(auditTrail.resource, it, auditTrail.resourceWeergave) },

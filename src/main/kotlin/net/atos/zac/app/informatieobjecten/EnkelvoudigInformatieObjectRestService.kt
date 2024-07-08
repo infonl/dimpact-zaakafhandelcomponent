@@ -36,11 +36,11 @@ import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.util.InformatieObjectTypeUtil.isNuGeldig
-import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.audit.model.RESTHistorieRegel
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjecttypeConverter
 import net.atos.zac.app.informatieobjecten.converter.RESTZaakInformatieobjectConverter
+import net.atos.zac.app.informatieobjecten.converter.historie.convertInformatieObjectRESTHistorieRegel
 import net.atos.zac.app.informatieobjecten.model.RESTDocumentCreatieGegevens
 import net.atos.zac.app.informatieobjecten.model.RESTDocumentCreatieResponse
 import net.atos.zac.app.informatieobjecten.model.RESTDocumentVerplaatsGegevens
@@ -99,7 +99,6 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val zaakInformatieobjectConverter: RESTZaakInformatieobjectConverter,
     private val informatieobjectConverter: RESTInformatieobjectConverter,
     private val informatieObjecttypeConverter: RESTInformatieobjecttypeConverter,
-    private val historieRegelConverter: RESTHistorieRegelConverter,
     private val gerelateerdeZaakConverter: RESTGerelateerdeZaakConverter,
     private val documentCreatieService: DocumentCreatieService,
     private val loggedInUserInstance: Instance<LoggedInUser>,
@@ -512,7 +511,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             policyService.readDocumentRechten(drcClientService.readEnkelvoudigInformatieobject(uuid)).lezen
         )
         return drcClientService.listAuditTrail(uuid)
-            .let(historieRegelConverter::convert)
+            .flatMap(::convertInformatieObjectRESTHistorieRegel)
     }
 
     @POST

@@ -1,4 +1,4 @@
-package net.atos.zac.app.zaken.converter.historie
+package net.atos.zac.app
 
 import net.atos.client.zgw.shared.util.JsonbUtil
 

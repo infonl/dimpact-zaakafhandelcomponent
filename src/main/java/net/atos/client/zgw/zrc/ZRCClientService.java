@@ -31,7 +31,7 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.exception.ZgwFoutExceptionMapper;
 import net.atos.client.zgw.shared.exception.ZgwValidatieFoutExceptionMapper;
 import net.atos.client.zgw.shared.model.Results;
-import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel;
+import net.atos.client.zgw.shared.model.audit.AuditTrailRegel;
 import net.atos.client.zgw.shared.util.JsonbConfiguration;
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
 import net.atos.client.zgw.zrc.exception.ZrcRuntimeExceptionMapper;
@@ -429,12 +429,12 @@ public class ZRCClientService {
     }
 
     /**
-     * List all instances of {@link ZRCAuditTrailRegel} for a specific {@link Zaak}.
+     * List all instances of {@link AuditTrailRegel} for a specific {@link Zaak}.
      *
      * @param zaakUUID UUID of {@link Zaak}.
-     * @return List of {@link ZRCAuditTrailRegel} instances.
+     * @return List of {@link AuditTrailRegel} instances.
      */
-    public List<ZRCAuditTrailRegel> listAuditTrail(final UUID zaakUUID) {
+    public List<AuditTrailRegel> listAuditTrail(final UUID zaakUUID) {
         return zrcClient.listAuditTrail(zaakUUID);
     }
 

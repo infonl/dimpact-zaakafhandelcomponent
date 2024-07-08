@@ -29,7 +29,6 @@ import net.atos.client.zgw.zrc.model.createZaakInformatieobject
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createBesluitType
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
-import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjecttypeConverter
 import net.atos.zac.app.informatieobjecten.converter.RESTZaakInformatieobjectConverter
@@ -72,7 +71,6 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val ontkoppeldeDocumentenService = mockk<OntkoppeldeDocumentenService>()
     val policyService = mockk<PolicyService>()
     val restGerelateerdeZaakConverter = mockk<RESTGerelateerdeZaakConverter>()
-    val restHistorieRegelConverter = mockk<RESTHistorieRegelConverter>()
     val restInformatieobjectConverter = mockk<RESTInformatieobjectConverter>()
     val restInformatieobjecttypeConverter = mockk<RESTInformatieobjecttypeConverter>()
     val taakVariabelenService = mockk<TaakVariabelenService>()

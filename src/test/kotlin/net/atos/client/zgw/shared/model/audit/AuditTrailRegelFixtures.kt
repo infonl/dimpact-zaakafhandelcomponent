@@ -25,7 +25,7 @@ fun createZRCAuditTrailRegel(
     resourceWeergave: String = "123443210 - ZAAK-2024-0000000003",
     aanmaakdatum: ZonedDateTime = ZonedDateTime.now(),
     wijzigingen: Wijzigingen
-) = ZRCAuditTrailRegel(
+) = AuditTrailRegel(
     uri,
     uuid,
     bron,

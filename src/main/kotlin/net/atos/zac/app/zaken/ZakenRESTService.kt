@@ -62,7 +62,6 @@ import net.atos.client.zgw.ztc.model.generated.RolType
 import net.atos.client.zgw.ztc.util.isNuGeldig
 import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter
 import net.atos.zac.app.admin.model.RESTZaakAfzender
-import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.audit.model.RESTHistorieRegel
 import net.atos.zac.app.bag.converter.RESTBAGConverter
 import net.atos.zac.app.klanten.KlantenRESTService
@@ -78,6 +77,7 @@ import net.atos.zac.app.zaken.converter.RestBesluitConverter
 import net.atos.zac.app.zaken.converter.convertToRESTCommunicatiekanalen
 import net.atos.zac.app.zaken.converter.convertToRESTZaakBetrokkenen
 import net.atos.zac.app.zaken.converter.historie.RESTZaakHistorieRegelConverter
+import net.atos.zac.app.zaken.converter.historie.convertBesluitRESTHistorieRegel
 import net.atos.zac.app.zaken.model.RESTBesluit
 import net.atos.zac.app.zaken.model.RESTBesluitIntrekkenGegevens
 import net.atos.zac.app.zaken.model.RESTBesluitVastleggenGegevens
@@ -187,7 +187,6 @@ class ZakenRESTService @Inject constructor(
     private val restResultaattypeConverter: RESTResultaattypeConverter,
     private val restZaakOverzichtConverter: RESTZaakOverzichtConverter,
     private val restBAGConverter: RESTBAGConverter,
-    private val restHistorieRegelConverter: RESTHistorieRegelConverter,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
     private val restGeometryConverter: RESTGeometryConverter,
     private val healthCheckService: HealthCheckService,
@@ -985,7 +984,7 @@ class ZakenRESTService @Inject constructor(
     @Path("besluit/{uuid}/historie")
     fun listBesluitHistorie(@PathParam("uuid") uuid: UUID?): List<RESTHistorieRegel> {
         val auditTrail: List<AuditTrailRegel> = brcClientService.listAuditTrail(uuid)
-        return restHistorieRegelConverter.convert(auditTrail)
+        return auditTrail.flatMap(::convertBesluitRESTHistorieRegel)
     }
 
     @GET

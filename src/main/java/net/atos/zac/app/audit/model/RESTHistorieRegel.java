@@ -35,32 +35,4 @@ public class RESTHistorieRegel {
         this.oudeWaarde = oudeWaarde;
         this.nieuweWaarde = nieuweWaarde;
     }
-
-    public RESTHistorieRegel(final String attribuutLabel, final LocalDate oudeWaarde, final LocalDate nieuweWaarde) {
-        this(attribuutLabel, HistorieUtil.toWaarde(oudeWaarde), HistorieUtil.toWaarde(nieuweWaarde));
-    }
-
-    public RESTHistorieRegel(final String attribuutLabel, final ZonedDateTime oudeWaarde, final ZonedDateTime nieuweWaarde) {
-        this(attribuutLabel, HistorieUtil.toWaarde(oudeWaarde), HistorieUtil.toWaarde(nieuweWaarde));
-    }
-
-    public RESTHistorieRegel(final String attribuutLabel, final Boolean oudeWaarde, final Boolean nieuweWaarde) {
-        this(attribuutLabel, HistorieUtil.toWaarde(oudeWaarde), HistorieUtil.toWaarde(nieuweWaarde));
-    }
-
-    public RESTHistorieRegel(
-            final String attribuutLabel,
-            final StatusEnum oudeWaarde,
-            final StatusEnum nieuweWaarde
-    ) {
-        this(attribuutLabel, HistorieUtil.toWaarde(oudeWaarde), HistorieUtil.toWaarde(nieuweWaarde));
-    }
-
-    public RESTHistorieRegel(
-            final String attribuutLabel,
-            final VertrouwelijkheidaanduidingEnum oudeWaarde,
-            final VertrouwelijkheidaanduidingEnum nieuweWaarde
-    ) {
-        this(attribuutLabel, HistorieUtil.toWaarde(oudeWaarde), HistorieUtil.toWaarde(nieuweWaarde));
-    }
 }

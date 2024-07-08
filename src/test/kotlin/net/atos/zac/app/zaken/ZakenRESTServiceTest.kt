@@ -41,7 +41,6 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
-import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.bag.converter.RESTBAGConverter
 import net.atos.zac.app.zaken.converter.RESTBesluittypeConverter
 import net.atos.zac.app.zaken.converter.RESTGeometryConverter
@@ -113,7 +112,6 @@ class ZakenRESTServiceTest : BehaviorSpec({
     val restZaakConverter: RESTZaakConverter = mockk<RESTZaakConverter>()
     val restZaakOverzichtConverter: RESTZaakOverzichtConverter = mockk<RESTZaakOverzichtConverter>()
     val restZaaktypeConverter: RESTZaaktypeConverter = mockk<RESTZaaktypeConverter>()
-    val restHistorieRegelConverter: RESTHistorieRegelConverter = mockk<RESTHistorieRegelConverter>()
     val signaleringService: SignaleringService = mockk<SignaleringService>()
     val flowableTaskService: FlowableTaskService = mockk<FlowableTaskService>()
     val vrlClientService: VrlClientService = mockk<VrlClientService>()
@@ -142,7 +140,6 @@ class ZakenRESTServiceTest : BehaviorSpec({
         ztcClientService = ztcClientService,
         zaakService = zaakService,
         indexeerService = indexeerService,
-        restHistorieRegelConverter = restHistorieRegelConverter,
         restBesluitConverter = restBesluitConverter,
         bpmnService = bpmnService,
         brcClientService = brcClientService,
