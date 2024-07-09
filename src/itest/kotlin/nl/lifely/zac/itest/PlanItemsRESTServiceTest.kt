@@ -17,9 +17,9 @@ import nl.lifely.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFO
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_UITERLIJKE_EINDDATUM_AFDOENING
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.lifely.zac.itest.config.ItestConfiguration.zaak1UUID
+import nl.lifely.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import org.json.JSONArray
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -38,7 +38,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
     Given("A zaak has been created") {
         When("the list human task plan items endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/planitems/zaak/$zaak1UUID/humanTaskPlanItems"
+                "$ZAC_API_URI/planitems/zaak/$zaakProductaanvraag1Uuid/humanTaskPlanItems"
             )
             Then(
                 """the list of human task plan items for this zaak is returned and contains 
@@ -56,7 +56,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
                     shouldContainJsonKeyValue("formulierDefinitie", FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE)
                     shouldContainJsonKeyValue("naam", HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM)
                     shouldContainJsonKeyValue("type", humanTaskType)
-                    shouldContainJsonKeyValue("zaakUuid", zaak1UUID.toString())
+                    shouldContainJsonKeyValue("zaakUuid", zaakProductaanvraag1Uuid.toString())
                     shouldContainJsonKey("id")
                 }
                 humanTaskItemAanvullendeInformatieId = JSONArray(responseBody).getJSONObject(0).getString("id")
@@ -75,14 +75,14 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
                     shouldContainJsonKeyValue("formulierDefinitie", FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE)
                     shouldContainJsonKeyValue("naam", HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM)
                     shouldContainJsonKeyValue("type", humanTaskType)
-                    shouldContainJsonKeyValue("zaakUuid", zaak1UUID.toString())
+                    shouldContainJsonKeyValue("zaakUuid", zaakProductaanvraag1Uuid.toString())
                     shouldContainJsonKeyValue("id", humanTaskItemAanvullendeInformatieId)
                 }
             }
         }
         When("the start human task plan items endpoint is called") {
             // note that the fatal date of a task cannot be later than the fatal data of the related zaak
-            val fataleDatum = LocalDate.parse(ZAAK_1_UITERLIJKE_EINDDATUM_AFDOENING)
+            val fataleDatum = LocalDate.parse(ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING)
                 .minusDays(1)
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
             val response = itestHttpClient.performJSONPostRequest(

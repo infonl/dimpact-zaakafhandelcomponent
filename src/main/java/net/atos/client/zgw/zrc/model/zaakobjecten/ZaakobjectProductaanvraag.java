@@ -19,7 +19,7 @@ public class ZaakobjectProductaanvraag extends Zaakobject {
     public static final String OBJECT_TYPE_OVERIGE = "ProductAanvraag";
 
     /**
-     * Constructor for JSONB deserialization
+     * No-arg constructor for JSONB deserialization
      */
     public ZaakobjectProductaanvraag() {
     }

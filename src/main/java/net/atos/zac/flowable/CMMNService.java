@@ -106,7 +106,7 @@ public class CMMNService {
             final Map<String, Object> zaakData
     ) {
         final String caseDefinitionKey = zaakafhandelParameters.getCaseDefinitionID();
-        LOG.info(() -> String.format("Zaak %s: Starten zaak met CMMN model '%s'", zaak.getUuid(), caseDefinitionKey));
+        LOG.info(() -> String.format("Starting zaak '%s' using CMMN model '%s'", zaak.getUuid(), caseDefinitionKey));
         try {
             final CaseInstanceBuilder caseInstanceBuilder = cmmnRuntimeService.createCaseInstanceBuilder()
                     .caseDefinitionKey(caseDefinitionKey)
@@ -120,8 +120,13 @@ public class CMMNService {
             }
             caseInstanceBuilder.start();
         } catch (final FlowableObjectNotFoundException flowableObjectNotFoundException) {
-            LOG.severe(String.format("Zaak %s: CMMN model '%s' bestaat niet. Zaak is niet gestart.", zaak.getUuid(),
-                    caseDefinitionKey));
+            LOG.severe(
+                    String.format(
+                            "CMMN model '%s' for zaak '%s' could not be found. Zaak is not started.",
+                            caseDefinitionKey,
+                            zaak.getUuid()
+                    )
+            );
         }
     }
 

@@ -13,12 +13,14 @@ import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_COMPLETED
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_IDENTIFICATION
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_2_IDENTIFICATION
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_1_IDENTIFICATION
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.junit.jupiter.api.Order
 
-const val CSV_ROWS_EXPECTED = 3
+const val CSV_ROWS_EXPECTED = 4
+const val CSV_ROW_THREE = 3
 const val CSV_FIELD_IDENTIFICATIE = "identificatie"
 const val CSV_FIELD_AFGEHANDELD = "afgehandeld"
 const val CSV_FIELD_ARCHIEF_ACTIE_DATUM = "archiefActiedatum"
@@ -114,8 +116,9 @@ class CsvRESTServiceTest : BehaviorSpec({
                 }
                 val csvRows = csvReader.readAll(responseBody)
                 logger.info { "CSV rows: $csvRows" }
-                // since we run this test after IndexerenRESTServiceTest, we expect only
-                // two zaken to be present in the search index which is used to generate the CSV
+                // since we run this test after IndexerenRESTServiceTest, we expect
+                // all created zaken up to that point to be present in the search index
+                // which is used to generate the CSV
                 csvRows.size shouldBe CSV_ROWS_EXPECTED
                 csvRows[0] shouldContainExactly headerRowFields
                 csvRows.filterIndexed { index, _ -> index > 0 }.forEach {
@@ -134,11 +137,15 @@ class CsvRESTServiceTest : BehaviorSpec({
                 }
                 // the order of the zaken in the search query used to generate the CSV
                 // should always be the same
-                csvRows[1].run {
-                    get(headerRowFields.indexOf(CSV_FIELD_IDENTIFICATIE)) shouldBe ZAAK_2_IDENTIFICATION
-                }
-                csvRows[2].run {
-                    get(headerRowFields.indexOf(CSV_FIELD_IDENTIFICATIE)) shouldBe ZAAK_1_IDENTIFICATION
+                csvRows.forEachIndexed { index, row ->
+                    when (index) {
+                        1 ->
+                            row[headerRowFields.indexOf(CSV_FIELD_IDENTIFICATIE)]shouldBe ZAAK_MANUAL_1_IDENTIFICATION
+                        2 ->
+                            row[headerRowFields.indexOf(CSV_FIELD_IDENTIFICATIE)] shouldBe ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
+                        CSV_ROW_THREE ->
+                            row[headerRowFields.indexOf(CSV_FIELD_IDENTIFICATIE)] shouldBe ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
+                    }
                 }
             }
         }

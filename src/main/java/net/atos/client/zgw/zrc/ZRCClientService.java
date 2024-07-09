@@ -31,7 +31,7 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.exception.ZgwFoutExceptionMapper;
 import net.atos.client.zgw.shared.exception.ZgwValidatieFoutExceptionMapper;
 import net.atos.client.zgw.shared.model.Results;
-import net.atos.client.zgw.shared.model.audit.AuditTrailRegel;
+import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel;
 import net.atos.client.zgw.shared.util.JsonbConfiguration;
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
 import net.atos.client.zgw.zrc.exception.ZrcRuntimeExceptionMapper;
@@ -78,10 +78,9 @@ public class ZRCClientService {
      * Create {@link Rol}.
      *
      * @param rol {@link Rol}/
-     * @return Created {@link Rol}.
      */
-    public Rol<?> createRol(final Rol<?> rol) {
-        return createRol(rol, null);
+    public void createRol(final Rol<?> rol) {
+        createRol(rol, null);
     }
 
     /**
@@ -92,7 +91,7 @@ public class ZRCClientService {
      * @return Created {@link Rol}.
      */
     public Rol<?> createRol(final Rol<?> rol, final String toelichting) {
-        zgwClientHeadersFactory.setAuditToelichting("%s: %s".formatted(rol.getOmschrijving(), toelichting));
+        zgwClientHeadersFactory.setAuditToelichting(toelichting);
         return zrcClient.rolCreate(rol);
     }
 
@@ -103,7 +102,7 @@ public class ZRCClientService {
      * @param toelichting de toelichting
      */
     public void deleteRol(final Rol<?> rol, final String toelichting) {
-        zgwClientHeadersFactory.setAuditToelichting("%s: %s".formatted(rol.getOmschrijving(), toelichting));
+        zgwClientHeadersFactory.setAuditToelichting(toelichting);
         zrcClient.rolDelete(rol.getUuid());
     }
 
@@ -430,12 +429,12 @@ public class ZRCClientService {
     }
 
     /**
-     * List all instances of {@link AuditTrailRegel} for a specific {@link Zaak}.
+     * List all instances of {@link ZRCAuditTrailRegel} for a specific {@link Zaak}.
      *
      * @param zaakUUID UUID of {@link Zaak}.
-     * @return List of {@link AuditTrailRegel} instances.
+     * @return List of {@link ZRCAuditTrailRegel} instances.
      */
-    public List<AuditTrailRegel> listAuditTrail(final UUID zaakUUID) {
+    public List<ZRCAuditTrailRegel> listAuditTrail(final UUID zaakUUID) {
         return zrcClient.listAuditTrail(zaakUUID);
     }
 

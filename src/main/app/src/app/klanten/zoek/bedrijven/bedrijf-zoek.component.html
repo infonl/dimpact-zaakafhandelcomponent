@@ -67,7 +67,7 @@
         <ng-container matColumnDef="acties" stickyEnd>
             <th mat-header-cell *matHeaderCellDef></th>
             <td mat-cell *matCellDef="let row">
-                <button *ngIf="bedrijf.observed" mat-icon-button color="primary" (click)="bedrijf.emit(row)" title="{{ 'actie.selecteren' | translate}}">
+                <button *ngIf="bedrijf.observed" mat-icon-button color="primary" (click)="selectBedrijf(row)" title="{{ 'actie.selecteren' | translate}}">
                     <mat-icon>business</mat-icon>
                 </button>
                 <button *ngIf="!bedrijf.observed" mat-icon-button

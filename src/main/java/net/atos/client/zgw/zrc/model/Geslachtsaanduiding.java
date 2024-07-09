@@ -31,7 +31,7 @@ public enum Geslachtsaanduiding implements AbstractEnum<Geslachtsaanduiding> {
     }
 
 
-    static class Adapter extends AbstractEnum.Adapter<Geslachtsaanduiding> {
+    public static class Adapter extends AbstractEnum.Adapter<Geslachtsaanduiding> {
 
         @Override
         protected Geslachtsaanduiding[] getEnums() {

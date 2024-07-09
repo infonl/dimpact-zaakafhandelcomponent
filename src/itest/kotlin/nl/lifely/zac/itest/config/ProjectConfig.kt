@@ -16,9 +16,9 @@ import nl.lifely.zac.itest.client.KeycloakClient
 import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
-import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCT_AANVRAAG_TYPE_1
-import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCT_AANVRAAG_TYPE_2
-import nl.lifely.zac.itest.config.ItestConfiguration.SMARTDOCUMENTS_MOCK_BASE_URI
+import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_1
+import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
+import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.SMTP_SERVER_PORT
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_IDENTIFICATIE
@@ -62,7 +62,7 @@ class ProjectConfig : AbstractProjectConfig() {
             " -Xmx1024m" +
             " -jar zaakafhandelcomponent.jar",
         "ZAC_DOCKER_IMAGE" to zacDockerImage,
-        "SD_CLIENT_MP_REST_URL" to SMARTDOCUMENTS_MOCK_BASE_URI,
+        "SD_CLIENT_MP_REST_URL" to SMART_DOCUMENTS_MOCK_BASE_URI,
         "SMTP_SERVER" to "greenmail",
         "SMTP_PORT" to SMTP_SERVER_PORT.toString(),
         "SIGNALERINGEN_DELETE_OLDER_THAN_DAYS" to "0"
@@ -108,7 +108,7 @@ class ProjectConfig : AbstractProjectConfig() {
                 ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE,
                 ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID,
                 ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION,
-                PRODUCT_AANVRAAG_TYPE_1
+                PRODUCTAANVRAAG_TYPE_1
             ).use { response ->
                 response.isSuccessful shouldBe true
             }
@@ -116,7 +116,7 @@ class ProjectConfig : AbstractProjectConfig() {
                 ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_IDENTIFICATIE,
                 ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID,
                 ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION,
-                PRODUCT_AANVRAAG_TYPE_2
+                PRODUCTAANVRAAG_TYPE_2
             ).use { response ->
                 response.isSuccessful shouldBe true
             }

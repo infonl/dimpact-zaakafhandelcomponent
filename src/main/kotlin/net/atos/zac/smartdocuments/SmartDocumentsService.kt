@@ -13,10 +13,9 @@ import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
 import net.atos.zac.documentcreatie.DocumentCreatieService
-import net.atos.zac.smartdocuments.rest.RESTSmartDocumentsTemplateGroup
+import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.templates.SmartDocumentsTemplateConverter.toModel
 import net.atos.zac.smartdocuments.templates.SmartDocumentsTemplateConverter.toREST
-import net.atos.zac.smartdocuments.templates.SmartDocumentsTemplateConverter.toStringRepresentation
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters
@@ -31,7 +30,7 @@ import java.util.logging.Logger
 @AllOpen
 class SmartDocumentsService @Inject constructor(
     private val documentCreatieService: DocumentCreatieService,
-    private var zaakafhandelParameterService: ZaakafhandelParameterService,
+    private val zaakafhandelParameterService: ZaakafhandelParameterService,
 ) {
     companion object {
         private val LOG = Logger.getLogger(SmartDocumentsService::class.java.name)
@@ -46,15 +45,14 @@ class SmartDocumentsService @Inject constructor(
     fun listTemplates() = documentCreatieService.listTemplates().toREST()
 
     /**
-     * Stores template mapping for zaakafhandelparameters and informatieobjecttypes
+     * Stores template mapping for zaakafhandelparameters
      *
      * @param restTemplateGroups a set of RESTSmartDocumentsTemplateGroup objects to store
      * @param zaakafhandelParametersUUID UUID of the zaakafhandelparameters
-     * @param informatieobjectTypeUUID UUID of the informatieobjectType
      */
     @Transactional(REQUIRED)
     fun storeTemplatesMapping(
-        restTemplateGroups: Set<RESTSmartDocumentsTemplateGroup>,
+        restTemplateGroups: Set<RestMappedSmartDocumentsTemplateGroup>,
         zaakafhandelParametersUUID: UUID
     ) {
         LOG.info { "Storing template mapping for zaakafhandelParameters UUID $zaakafhandelParametersUUID" }
@@ -70,10 +68,9 @@ class SmartDocumentsService @Inject constructor(
     }
 
     /**
-     * Deletes all template groups and templates for a zaakafhandelparameters and informatieobjecttypes
+     * Deletes all template groups and templates for a zaakafhandelparameters
      *
      * @param zaakafhandelUUID UUID of the zaakafhandelparameters
-     * @param informatieobjectTypeUUID UUID of the informatieobjecttype
      * @return the number of entities deleted
      */
     @Transactional(REQUIRED)
@@ -104,11 +101,11 @@ class SmartDocumentsService @Inject constructor(
      * Lists all template groups for a zaakafhandelparameters
      *
      * @param zaakafhandelUUID UUID of a zaakafhandelparameters
-     * @return a set of all RESTSmartDocumentsTemplateGroup for the zaakafhandelparameters and informatieobjecttype
+     * @return a set of all RESTSmartDocumentsTemplateGroup for the zaakafhandelparameters
      */
     fun getTemplatesMapping(
         zaakafhandelParametersUUID: UUID
-    ): Set<RESTSmartDocumentsTemplateGroup> {
+    ): Set<RestMappedSmartDocumentsTemplateGroup> {
         LOG.info { "Fetching template mapping for zaakafhandelParameters UUID $zaakafhandelParametersUUID" }
 
         val zaakafhandelParametersId =
@@ -128,24 +125,5 @@ class SmartDocumentsService @Inject constructor(
                     )
                 )
         ).resultList.toSet().toREST()
-    }
-}
-
-/**
- * Validates that all elements in a RESTSmartDocumentsTemplateGroup set are part of pre-defined
- * RESTSmartDocumentsTemplateGroup superset.
- * The superset can be returned by SmartDocuments structure API or stored in our DB
- *
- * @param supersetTemplates set of RESTSmartDocumentsTemplateGroup to validate against
- */
-fun Set<RESTSmartDocumentsTemplateGroup>.validate(
-    supersetTemplates: Set<RESTSmartDocumentsTemplateGroup>
-) {
-    val superset = supersetTemplates.toStringRepresentation()
-    val subset = this.toStringRepresentation()
-
-    val errors = subset.filterNot { superset.contains(it) }
-    if (errors.isNotEmpty()) {
-        throw SmartDocumentsException("Validation failed. Unknown entities: $errors")
     }
 }

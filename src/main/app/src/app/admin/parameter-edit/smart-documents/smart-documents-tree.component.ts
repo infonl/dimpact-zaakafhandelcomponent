@@ -8,10 +8,12 @@ import {
   DocumentsTemplate,
   DocumentsTemplateGroup,
   SmartDocumentsService,
+  SmartDocumentsTemplate,
+  SmartDocumentsTemplateGroup,
 } from "../../smart-documents.service";
 
 function getSelectableGroup(
-  original: DocumentsTemplateGroup,
+  original: SmartDocumentsTemplateGroup,
   selection?: DocumentsTemplateGroup,
 ): DocumentsTemplateGroup {
   return {
@@ -26,18 +28,19 @@ function getSelectableGroup(
 }
 
 function getSelectableTemplates(
-  original: DocumentsTemplate[],
+  original: SmartDocumentsTemplate[],
   selection: DocumentsTemplate[],
 ): DocumentsTemplate[] {
   return original.map((template) => ({
     ...template,
-    informatieObjectTypeUUID: selection.find(({ id }) => id === template.id)
-      ?.informatieObjectTypeUUID,
+    informatieObjectTypeUUID:
+      selection.find(({ id }) => id === template.id)
+        ?.informatieObjectTypeUUID ?? "",
   }));
 }
 
 export function getSelectableGroups(
-  original: DocumentsTemplateGroup[],
+  original: SmartDocumentsTemplateGroup[],
   selection: DocumentsTemplateGroup[],
 ): DocumentsTemplateGroup[] {
   return original.map((group) =>
@@ -53,7 +56,7 @@ export function filterOutUnselected(
 ): DocumentsTemplateGroup | undefined {
   const groups = group.groups?.map(filterOutUnselected).filter(Boolean);
   const templates = group.templates?.filter(
-    ({ informatieObjectTypeUUID }) => informatieObjectTypeUUID,
+    ({ informatieObjectTypeUUID }) => informatieObjectTypeUUID?.length,
   );
   return groups?.length || templates?.length
     ? {

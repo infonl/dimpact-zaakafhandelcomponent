@@ -5,11 +5,12 @@
 
 package net.atos.zac.smartdocuments.templates
 
-import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseTemplate
 import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseTemplateGroup
 import net.atos.client.smartdocuments.model.templates.SmartDocumentsTemplatesResponse
-import net.atos.zac.smartdocuments.rest.RESTSmartDocumentsTemplate
-import net.atos.zac.smartdocuments.rest.RESTSmartDocumentsTemplateGroup
+import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplate
+import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
+import net.atos.zac.smartdocuments.rest.RestSmartDocumentsTemplate
+import net.atos.zac.smartdocuments.rest.RestSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplate
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters
@@ -21,46 +22,24 @@ object SmartDocumentsTemplateConverter {
     /**
      * SmartDocuments --> REST
      */
-    fun SmartDocumentsTemplatesResponse.toREST(): Set<RESTSmartDocumentsTemplateGroup> =
+    fun SmartDocumentsTemplatesResponse.toREST(): Set<RestSmartDocumentsTemplateGroup> =
         this.documentsStructure.templatesStructure.templateGroups
             .mapTo(mutableSetOf()) { convertTemplateGroupResponseToREST(it) }
 
     private fun convertTemplateGroupResponseToREST(
         group: SmartDocumentsResponseTemplateGroup
-    ): RESTSmartDocumentsTemplateGroup {
-        val restGroup = createRESTTemplateGroup(group)
-
-        restGroup.templates = group.templates?.map {
-            createRESTTemplate(it)
-        }?.ifEmpty { null }?.toSet()
-        restGroup.groups = group.templateGroups?.map {
-            convertTemplateGroupResponseToREST(it)
-        }?.ifEmpty { null }?.toSet()
-
-        return restGroup
-    }
-
-    private fun createRESTTemplateGroup(
-        smartDocumentsTemplateGroup: SmartDocumentsResponseTemplateGroup
-    ) = RESTSmartDocumentsTemplateGroup(
-        id = smartDocumentsTemplateGroup.id,
-        name = smartDocumentsTemplateGroup.name,
-        groups = null,
-        templates = null
-    )
-
-    private fun createRESTTemplate(
-        smartDocumentsTemplate: SmartDocumentsResponseTemplate
-    ) = RESTSmartDocumentsTemplate(
-        id = smartDocumentsTemplate.id,
-        name = smartDocumentsTemplate.name,
-        null
-    )
+    ): RestSmartDocumentsTemplateGroup =
+        RestSmartDocumentsTemplateGroup(
+            id = group.id,
+            name = group.name,
+            groups = group.templateGroups?.map { convertTemplateGroupResponseToREST(it) }?.ifEmpty { null }?.toSet(),
+            templates = group.templates?.map { RestSmartDocumentsTemplate(it.id, it.name) }?.ifEmpty { null }?.toSet()
+        )
 
     /**
      * REST --> JPA
      */
-    fun Set<RESTSmartDocumentsTemplateGroup>.toModel(
+    fun Set<RestMappedSmartDocumentsTemplateGroup>.toModel(
         zaakafhandelParameters: ZaakafhandelParameters
     ): Set<SmartDocumentsTemplateGroup> =
         this.mapTo(mutableSetOf()) {
@@ -68,24 +47,24 @@ object SmartDocumentsTemplateConverter {
         }
 
     private fun convertTemplateGroupToModel(
-        group: RESTSmartDocumentsTemplateGroup,
+        group: RestMappedSmartDocumentsTemplateGroup,
         parent: SmartDocumentsTemplateGroup?,
         zaakafhandelParameterId: ZaakafhandelParameters
     ): SmartDocumentsTemplateGroup {
         val jpaGroup = createModelTemplateGroup(group, parent, zaakafhandelParameterId)
 
         jpaGroup.templates = group.templates?.map {
-            createModelTemplate(it, jpaGroup, zaakafhandelParameterId)
+            createModelTemplate(it as RestMappedSmartDocumentsTemplate, jpaGroup, zaakafhandelParameterId)
         }?.ifEmpty { null }?.toMutableSet()
         jpaGroup.children = group.groups?.map {
-            convertTemplateGroupToModel(it, jpaGroup, zaakafhandelParameterId)
+            convertTemplateGroupToModel(it as RestMappedSmartDocumentsTemplateGroup, jpaGroup, zaakafhandelParameterId)
         }?.ifEmpty { null }?.toMutableSet()
 
         return jpaGroup
     }
 
     private fun createModelTemplateGroup(
-        smartDocumentsTemplateGroup: RESTSmartDocumentsTemplateGroup,
+        smartDocumentsTemplateGroup: RestMappedSmartDocumentsTemplateGroup,
         parentGroup: SmartDocumentsTemplateGroup?,
         zaakafhandelParams: ZaakafhandelParameters
     ) = SmartDocumentsTemplateGroup().apply {
@@ -97,13 +76,13 @@ object SmartDocumentsTemplateConverter {
     }
 
     private fun createModelTemplate(
-        smartDocumentsTemplate: RESTSmartDocumentsTemplate,
+        smartDocumentsTemplate: RestMappedSmartDocumentsTemplate,
         parentGroup: SmartDocumentsTemplateGroup,
         zaakafhandelParams: ZaakafhandelParameters
     ) = SmartDocumentsTemplate().apply {
         smartDocumentsId = smartDocumentsTemplate.id
         zaakafhandelParameters = zaakafhandelParams
-        informatieObjectTypeUUID = smartDocumentsTemplate.informatieObjectTypeUUID!!
+        informatieObjectTypeUUID = smartDocumentsTemplate.informatieObjectTypeUUID
         name = smartDocumentsTemplate.name
         templateGroup = parentGroup
         creationDate = ZonedDateTime.now()
@@ -112,58 +91,18 @@ object SmartDocumentsTemplateConverter {
     /**
      * JPA --> REST
      */
-    fun Set<SmartDocumentsTemplateGroup>.toREST(): Set<RESTSmartDocumentsTemplateGroup> =
+    fun Set<SmartDocumentsTemplateGroup>.toREST(): Set<RestMappedSmartDocumentsTemplateGroup> =
         this.mapTo(mutableSetOf()) { convertTemplateGroupToREST(it) }
 
     private fun convertTemplateGroupToREST(
         group: SmartDocumentsTemplateGroup
-    ): RESTSmartDocumentsTemplateGroup {
-        val restTemplateGroup = createRESTTemplateGroup(group)
-
-        restTemplateGroup.templates = group.templates?.map {
-            createRESTTemplate(it)
-        }?.ifEmpty { null }?.toSet()
-        restTemplateGroup.groups = group.children?.map {
-            convertTemplateGroupToREST(it)
-        }?.ifEmpty { null }?.toSet()
-
-        return restTemplateGroup
-    }
-
-    private fun createRESTTemplateGroup(
-        smartDocumentsTemplateGroup: SmartDocumentsTemplateGroup,
-    ) = RESTSmartDocumentsTemplateGroup(
-        id = smartDocumentsTemplateGroup.smartDocumentsId,
-        name = smartDocumentsTemplateGroup.name,
-        groups = null,
-        templates = null
-    )
-
-    private fun createRESTTemplate(
-        smartDocumentsTemplate: SmartDocumentsTemplate
-    ) = RESTSmartDocumentsTemplate(
-        id = smartDocumentsTemplate.smartDocumentsId,
-        name = smartDocumentsTemplate.name,
-        informatieObjectTypeUUID = smartDocumentsTemplate.informatieObjectTypeUUID,
-    )
-
-    /**
-     * JPA --> String
-     */
-    fun Set<RESTSmartDocumentsTemplateGroup>.toStringRepresentation(): Set<String> {
-        val result = mutableSetOf<String>()
-        this.map { result.addAll(convertTemplateGroupToStringRepresentation(it, null)) }
-        return result
-    }
-
-    private fun convertTemplateGroupToStringRepresentation(
-        group: RESTSmartDocumentsTemplateGroup,
-        parent: String?
-    ): Set<String> =
-        arrayOf(parent, "group.${group.id}.${group.name}").filterNotNull().joinToString(".").let { groupString ->
-            mutableSetOf(groupString).apply {
-                group.templates?.mapTo(this) { "$groupString.template.${it.id}.${it.name}" }
-                group.groups?.map { addAll(convertTemplateGroupToStringRepresentation(it, groupString)) }
-            }
-        }
+    ): RestMappedSmartDocumentsTemplateGroup =
+        RestMappedSmartDocumentsTemplateGroup(
+            id = group.smartDocumentsId,
+            name = group.name,
+            groups = group.children?.map { convertTemplateGroupToREST(it) }?.ifEmpty { null }?.toSet(),
+            templates = group.templates?.map {
+                RestMappedSmartDocumentsTemplate(it.smartDocumentsId, it.name, it.informatieObjectTypeUUID)
+            }?.ifEmpty { null }?.toSet()
+        )
 }

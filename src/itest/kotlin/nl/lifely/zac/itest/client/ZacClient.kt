@@ -5,8 +5,10 @@
 package nl.lifely.zac.itest.client
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import nl.lifely.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_EMAIL
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import okhttp3.Response
+import java.time.ZonedDateTime
 import java.util.UUID
 
 class ZacClient {
@@ -206,7 +208,7 @@ class ZacClient {
     }
 
     @Suppress("LongMethod")
-    fun createZaak(zaakTypeUUID: UUID, groupId: String, groupName: String): Response {
+    fun createZaak(zaakTypeUUID: UUID, groupId: String, groupName: String, startDate: ZonedDateTime): Response {
         logger.info {
             "Creating zaak with group id: $groupId and group name: $groupName"
         }
@@ -218,14 +220,14 @@ class ZacClient {
                 "      \"uuid\": \"$zaakTypeUUID\"\n" +
                 "    },\n" +
                 "    \"initiatorIdentificatie\": null,\n" +
-                "    \"startdatum\": \"2023-12-07T12:43:01+01:00\",\n" +
+                "    \"startdatum\": \"$startDate\",\n" +
                 "    \"groep\": {\n" +
                 "      \"id\": \"$groupId\",\n" +
                 "      \"naam\": \"$groupName\"\n" +
                 "    },\n" +
                 "    \"communicatiekanaal\": {\n" +
                 "      \"naam\": \"E-mail\",\n" +
-                "      \"uuid\": \"f5de7d7f-8440-4ce7-8f27-f934ad0c2ea6\"\n" +
+                "      \"uuid\": \"$COMMUNICATIEKANAAL_EMAIL\"\n" +
                 "    },\n" +
                 "    \"vertrouwelijkheidaanduiding\": \"openbaar\",\n" +
                 "    \"omschrijving\": \"dummyOmschrijving\",\n" +

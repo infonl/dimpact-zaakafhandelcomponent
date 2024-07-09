@@ -13,6 +13,7 @@ import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
 import nl.lifely.zac.itest.config.ItestConfiguration.ACTIE_ZAAK_AFHANDELEN
+import nl.lifely.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
@@ -42,9 +43,10 @@ class ZakenRESTServiceCompleteTest : BehaviorSpec({
         lateinit var besluitTypeUuid: UUID
         val intakeId: Int
         zacClient.createZaak(
-            ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID,
-            TEST_GROUP_A_ID,
-            TEST_GROUP_A_DESCRIPTION
+            zaakTypeUUID = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID,
+            groupId = TEST_GROUP_A_ID,
+            groupName = TEST_GROUP_A_DESCRIPTION,
+            startDate = DATE_TIME_2000_01_01
         ).run {
             JSONObject(body!!.string()).run {
                 getJSONObject("zaakdata").run {

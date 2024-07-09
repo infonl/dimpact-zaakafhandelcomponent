@@ -26,10 +26,10 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_CREATED
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_1_IDENTIFICATION
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.task1ID
-import nl.lifely.zac.itest.config.ItestConfiguration.zaak1UUID
+import nl.lifely.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.lifely.zac.itest.util.WebSocketTestListener
 import org.json.JSONArray
 import org.json.JSONObject
@@ -49,7 +49,7 @@ class TakenRESTServiceTest : BehaviorSpec({
 
         When("the get tasks for a zaak endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/taken/zaak/$zaak1UUID"
+                "$ZAC_API_URI/taken/zaak/$zaakProductaanvraag1Uuid"
             )
             Then(
                 """the list of taken for this zaak is returned and contains the expected task"""
@@ -68,12 +68,12 @@ class TakenRESTServiceTest : BehaviorSpec({
                         FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
                     )
                     shouldContainJsonKeyValue("status", "NIET_TOEGEKEND")
-                    shouldContainJsonKeyValue("zaakIdentificatie", ZAAK_1_IDENTIFICATION)
+                    shouldContainJsonKeyValue("zaakIdentificatie", ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION)
                     shouldContainJsonKeyValue(
                         "zaaktypeOmschrijving",
                         ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
                     )
-                    shouldContainJsonKeyValue("zaakUuid", zaak1UUID.toString())
+                    shouldContainJsonKeyValue("zaakUuid", zaakProductaanvraag1Uuid.toString())
                     JSONObject(this,).getJSONObject("groep").apply {
                         getString("id") shouldBe TEST_GROUP_A_ID
                         getString("naam") shouldBe TEST_GROUP_A_DESCRIPTION
@@ -129,7 +129,7 @@ class TakenRESTServiceTest : BehaviorSpec({
             val assignTasksResponse = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/taken/lijst/verdelen",
                 requestBodyAsString = """{
-                        "taken":[{"taakId":"$task1ID","zaakUuid":"$zaak1UUID"}],
+                        "taken":[{"taakId":"$task1ID","zaakUuid":"$zaakProductaanvraag1Uuid"}],
                          "groepId":"$TEST_GROUP_A_ID",
                         "behandelaarGebruikersnaam":"$TEST_USER_2_ID",
                         "reden":"dummyTasksAssignReason",
@@ -179,7 +179,7 @@ class TakenRESTServiceTest : BehaviorSpec({
             val releaseTasksResponse = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/taken/lijst/vrijgeven",
                 requestBodyAsString = """{
-                        "taken":[{"taakId":"$task1ID","zaakUuid":"$zaak1UUID"}],
+                        "taken":[{"taakId":"$task1ID","zaakUuid":"$zaakProductaanvraag1Uuid"}],
                         "reden":"dummyTasksReleaseReason",
                         "screenEventResourceId":"$uniqueResourceId"
                         }
