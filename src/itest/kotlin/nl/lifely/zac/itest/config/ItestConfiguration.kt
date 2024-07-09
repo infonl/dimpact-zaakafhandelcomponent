@@ -29,6 +29,7 @@ object ItestConfiguration {
     const val BETROKKENE_TYPE_NATUURLIJK_PERSOON = "NATUURLIJK_PERSOON"
     const val BETROKKENE_IDENTIFICATION_TYPE_BSN = "BSN"
     const val BETROKKENE_IDENTIFACTION_TYPE_VESTIGING = "VN"
+    const val BETROKKENE_ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
     const val COMMUNICATIEKANAAL_EMAIL = "f5de7d7f-8440-4ce7-8f27-f934ad0c2ea6"
     const val FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE = "AANVULLENDE_INFORMATIE"
     const val HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM = "Aanvullende informatie"
