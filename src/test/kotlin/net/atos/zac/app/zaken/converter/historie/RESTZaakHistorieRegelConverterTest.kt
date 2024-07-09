@@ -10,6 +10,8 @@ import net.atos.client.vrl.VrlClientService
 import net.atos.client.vrl.model.generated.CommunicatieKanaal
 import net.atos.client.zgw.shared.model.Bron
 import net.atos.client.zgw.shared.model.audit.createZRCAuditTrailRegel
+import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.generated.Wijzigingen
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createResultaatType
@@ -33,6 +35,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
     Given("Audit trail has resource zaak with action created") {
         val ztcClientService = mockk<ZtcClientService>()
         val vrlClientService = mockk<VrlClientService>()
+        val zrcClientService = mockk<ZRCClientService>()
 
         val zaakIdentificatie = "ZAAK-2024-0000000003"
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
@@ -50,7 +53,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
         )
         val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(vrlClientService)
+            RESTZaakHistoriePartialUpdateConverter(vrlClientService, zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -78,6 +81,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
         val rolType = createRolType()
         val ztcClientService = mockk<ZtcClientService>()
         val vrlClientService = mockk<VrlClientService>()
+        val zrcClientService = mockk<ZRCClientService>()
 
         every { ztcClientService.readRoltype(uuid) } returns rolType
 
@@ -110,7 +114,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
         )
         val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(vrlClientService)
+            RESTZaakHistoriePartialUpdateConverter(vrlClientService, zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -135,6 +139,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
     Given("Audit trail has resource zaakinformatieobject with action destroy") {
         val ztcClientService = mockk<ZtcClientService>()
         val vrlClientService = mockk<VrlClientService>()
+        val zrcClientService = mockk<ZRCClientService>()
 
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -151,7 +156,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
         )
         val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(vrlClientService)
+            RESTZaakHistoriePartialUpdateConverter(vrlClientService, zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -176,6 +181,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
     Given("Audit trail has resource klantcontact with action create") {
         val ztcClientService = mockk<ZtcClientService>()
         val vrlClientService = mockk<VrlClientService>()
+        val zrcClientService = mockk<ZRCClientService>()
 
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -192,7 +198,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
         )
         val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(vrlClientService)
+            RESTZaakHistoriePartialUpdateConverter(vrlClientService, zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -217,6 +223,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
     Given("Audit trail has resource resultaat with action update") {
         val ztcClientService = mockk<ZtcClientService>()
         val vrlClientService = mockk<VrlClientService>()
+        val zrcClientService = mockk<ZRCClientService>()
 
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -238,7 +245,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
         val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(vrlClientService)
+            RESTZaakHistoriePartialUpdateConverter(vrlClientService, zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -263,6 +270,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
     Given("Audit trail has resource status with action update") {
         val ztcClientService = mockk<ZtcClientService>()
         val vrlClientService = mockk<VrlClientService>()
+        val zrcClientService = mockk<ZRCClientService>()
 
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -284,7 +292,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
         val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(vrlClientService)
+            RESTZaakHistoriePartialUpdateConverter(vrlClientService, zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -309,6 +317,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
     Given("Audit trail has resource zaakobject with action destroy") {
         val ztcClientService = mockk<ZtcClientService>()
         val vrlClientService = mockk<VrlClientService>()
+        val zrcClientService = mockk<ZRCClientService>()
 
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -336,7 +345,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
         )
         val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(vrlClientService)
+            RESTZaakHistoriePartialUpdateConverter(vrlClientService, zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -361,6 +370,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
     Given("Audit trail has resource zaakgeometrie with action partial_update") {
         val ztcClientService = mockk<ZtcClientService>()
         val vrlClientService = mockk<VrlClientService>()
+        val zrcClientService = mockk<ZRCClientService>()
 
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -378,7 +388,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
         )
         val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(vrlClientService)
+            RESTZaakHistoriePartialUpdateConverter(vrlClientService, zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -403,6 +413,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
     Given("Audit trail has resource communicatiekanaal with action partial_update") {
         val ztcClientService = mockk<ZtcClientService>()
         val vrlClientService = mockk<VrlClientService>()
+        val zrcClientService = mockk<ZRCClientService>()
 
         val oldUUID = UUID.randomUUID()
         val newUUID = UUID.randomUUID()
@@ -430,7 +441,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
         val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(vrlClientService)
+            RESTZaakHistoriePartialUpdateConverter(vrlClientService, zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -455,6 +466,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
     Given("A partial update with a list that has gotten smaller") {
         val ztcClientService = mockk<ZtcClientService>()
         val vrlClientService = mockk<VrlClientService>()
+        val zrcClientService = mockk<ZRCClientService>()
 
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -473,7 +485,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
         val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(vrlClientService)
+            RESTZaakHistoriePartialUpdateConverter(vrlClientService, zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -488,6 +500,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
     Given("A partial update with a list that stays the same size but values change") {
         val ztcClientService = mockk<ZtcClientService>()
         val vrlClientService = mockk<VrlClientService>()
+        val zrcClientService = mockk<ZRCClientService>()
 
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -506,7 +519,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
         val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(vrlClientService)
+            RESTZaakHistoriePartialUpdateConverter(vrlClientService, zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -521,6 +534,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
     Given("A partial update with a list that stays exactly the same") {
         val ztcClientService = mockk<ZtcClientService>()
         val vrlClientService = mockk<VrlClientService>()
+        val zrcClientService = mockk<ZRCClientService>()
 
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -539,7 +553,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
         val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(vrlClientService)
+            RESTZaakHistoriePartialUpdateConverter(vrlClientService, zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -554,6 +568,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
     Given("A partial update with a map with a value that changes") {
         val ztcClientService = mockk<ZtcClientService>()
         val vrlClientService = mockk<VrlClientService>()
+        val zrcClientService = mockk<ZRCClientService>()
 
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -572,7 +587,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
         val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(vrlClientService)
+            RESTZaakHistoriePartialUpdateConverter(vrlClientService, zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -587,6 +602,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
     Given("A retrieve action") {
         val ztcClientService = mockk<ZtcClientService>()
         val vrlClientService = mockk<VrlClientService>()
+        val zrcClientService = mockk<ZRCClientService>()
 
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -602,7 +618,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
         val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(vrlClientService)
+            RESTZaakHistoriePartialUpdateConverter(vrlClientService, zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -617,6 +633,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
     Given("An unknown resource") {
         val ztcClientService = mockk<ZtcClientService>()
         val vrlClientService = mockk<VrlClientService>()
+        val zrcClientService = mockk<ZRCClientService>()
 
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -634,7 +651,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
         val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(vrlClientService)
+            RESTZaakHistoriePartialUpdateConverter(vrlClientService, zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -650,6 +667,134 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                     door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null
                     toelichting shouldBe "hologram"
+                    actie shouldBe RESTHistorieActie.GEWIJZIGD
+                }
+            }
+        }
+    }
+
+    Given("Audit trail has resource hoofdzaak with action partial_update") {
+        val ztcClientService = mockk<ZtcClientService>()
+        val vrlClientService = mockk<VrlClientService>()
+        val zrcClientService = mockk<ZRCClientService>()
+
+        val zaak1 = createZaak(identificatie = "identificatie1")
+        val zaak2 = createZaak(identificatie = "identificatie2")
+
+        every {
+            zrcClientService.readZaak(zaak1.url)
+        } returns zaak1
+
+        every {
+            zrcClientService.readZaak(zaak2.url)
+        } returns zaak2
+
+        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+            bron = Bron.AUTORISATIES_API,
+            actie = "partial_update",
+            actieWeergave = "Almost updated",
+            resultaat = 201,
+            hoofdObject = URI("https://example.com/somePath"),
+            resource = "zaak",
+            resourceUrl = URI("https://example.com/somePath"),
+            toelichting = "xyz",
+            wijzigingen = Wijzigingen().apply {
+                oud = mapOf("hoofdzaak" to zaak1.url.toString())
+                nieuw = mapOf("hoofdzaak" to zaak2.url.toString())
+            }
+        )
+        val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
+            ztcClientService,
+            RESTZaakHistoriePartialUpdateConverter(vrlClientService, zrcClientService)
+        )
+
+        When("converted to REST historie regel") {
+            val listRestRegel = restZaakHistorieRegelConverter.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
+
+            Then("it should return correct data") {
+                listRestRegel.size shouldBe 1
+                with(listRestRegel.first()) {
+                    attribuutLabel shouldBe "hoofdzaak"
+                    oudeWaarde shouldBe zaak1.identificatie
+                    nieuweWaarde shouldBe zaak2.identificatie
+                    datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
+                    door shouldBe "Test User"
+                    applicatie shouldBe null
+                    toelichting shouldBe "xyz"
+                    actie shouldBe RESTHistorieActie.GEWIJZIGD
+                }
+            }
+        }
+    }
+
+    Given("Audit trail has resource relevanteAndereZaken with action partial_update") {
+        val ztcClientService = mockk<ZtcClientService>()
+        val vrlClientService = mockk<VrlClientService>()
+        val zrcClientService = mockk<ZRCClientService>()
+
+        val zaak1 = createZaak(identificatie = "identificatie1")
+        val zaak2 = createZaak(identificatie = "identificatie2")
+        val zaak3 = createZaak(identificatie = "identificatie3")
+        val zaak4 = createZaak(identificatie = "identificatie4")
+
+        every {
+            zrcClientService.readZaak(zaak1.url)
+        } returns zaak1
+
+        every {
+            zrcClientService.readZaak(zaak2.url)
+        } returns zaak2
+
+        every {
+            zrcClientService.readZaak(zaak3.url)
+        } returns zaak3
+
+        every {
+            zrcClientService.readZaak(zaak4.url)
+        } returns zaak4
+
+        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+            bron = Bron.AUTORISATIES_API,
+            actie = "partial_update",
+            actieWeergave = "Almost updated",
+            resultaat = 201,
+            hoofdObject = URI("https://example.com/somePath"),
+            resource = "zaak",
+            resourceUrl = URI("https://example.com/somePath"),
+            toelichting = "xyz",
+            wijzigingen = Wijzigingen().apply {
+                oud = mapOf(
+                    "relevanteAndereZaken" to listOf(
+                        mapOf("url" to zaak1.url.toString()),
+                        mapOf("url" to zaak2.url.toString()),
+                    )
+                )
+                nieuw = mapOf(
+                    "relevanteAndereZaken" to listOf(
+                        mapOf("url" to zaak3.url.toString()),
+                        mapOf("url" to zaak4.url.toString()),
+                    )
+                )
+            }
+        )
+        val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
+            ztcClientService,
+            RESTZaakHistoriePartialUpdateConverter(vrlClientService, zrcClientService)
+        )
+
+        When("converted to REST historie regel") {
+            val listRestRegel = restZaakHistorieRegelConverter.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
+
+            Then("it should return correct data") {
+                listRestRegel.size shouldBe 1
+                with(listRestRegel.first()) {
+                    attribuutLabel shouldBe "relevanteAndereZaken"
+                    oudeWaarde shouldBe "${zaak1.identificatie}, ${zaak2.identificatie}"
+                    nieuweWaarde shouldBe "${zaak3.identificatie}, ${zaak4.identificatie}"
+                    datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
+                    door shouldBe "Test User"
+                    applicatie shouldBe null
+                    toelichting shouldBe "xyz"
                     actie shouldBe RESTHistorieActie.GEWIJZIGD
                 }
             }
