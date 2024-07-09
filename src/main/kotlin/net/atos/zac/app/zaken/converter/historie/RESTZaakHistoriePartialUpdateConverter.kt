@@ -5,6 +5,7 @@ import net.atos.client.vrl.VrlClientService
 import net.atos.client.vrl.model.generated.CommunicatieKanaal
 import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel
 import net.atos.client.zgw.shared.util.URIUtil
+import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.Geometry
 import net.atos.zac.app.audit.model.RESTHistorieActie
 import net.atos.zac.app.audit.model.RESTHistorieRegel
@@ -14,7 +15,8 @@ private const val COMMUNICATIEKANAAL = "communicatiekanaal"
 private const val ZAAKGEOMETRIE = "zaakgeometrie"
 
 class RESTZaakHistoriePartialUpdateConverter @Inject constructor(
-    private val vrlClientService: VrlClientService
+    private val vrlClientService: VrlClientService,
+    private val zrcClientService: ZRCClientService
 ) {
     fun convertPartialUpdate(
         auditTrail: ZRCAuditTrailRegel,
@@ -50,6 +52,17 @@ class RESTZaakHistoriePartialUpdateConverter @Inject constructor(
                     .let(vrlClientService::findCommunicatiekanaal)
                     .map(CommunicatieKanaal::getNaam)
                     .orElse(null)
+            resource == "hoofdzaak" && item is String ->
+                item
+                    .let(URI::create)
+                    .let(zrcClientService::readZaak).identificatie
+            resource == "relevanteAndereZaken" && item is List<*> ->
+                item
+                    .asSequence()
+                    .mapNotNull { (it as? Map<*, *>)?.stringProperty("url") }
+                    .map(URI::create)
+                    .map(zrcClientService::readZaak)
+                    .joinToString { it.identificatie }
             else -> item?.toString()
         }
 }
