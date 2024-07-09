@@ -22,6 +22,7 @@ import java.net.URI
 import java.util.Optional
 import java.util.UUID
 
+@Suppress("LargeClass")
 class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
     beforeEach {
