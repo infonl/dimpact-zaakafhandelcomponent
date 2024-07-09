@@ -105,18 +105,12 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     "  \"betrokkeneIdentificatie\": \"$TEST_PERSON_HENDRIKA_JANSE_BSN\"\n" +
                     "}"
             )
-            Then("the response should be a 400 bad request HTTP response") {
-                response.code shouldBe HTTP_STATUS_BAD_REQUEST
+            Then("the response should be a 200 OK HTTP response") {
+                response.code shouldBe HTTP_STATUS_OK
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 with(responseBody) {
-                    with(JSONObject(this).getJSONArray("parameterViolations")) {
-                        length() shouldBe 1
-                        getJSONObject(0).apply {
-                            getString("message") shouldBe "must not be blank"
-                            getString("path") shouldBe "createBetrokken.arg0.roltoelichting"
-                        }
-                    }
+                    shouldContainJsonKeyValue("uuid", zaak2UUID.toString())
                 }
             }
         }
