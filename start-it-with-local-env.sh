@@ -11,7 +11,7 @@ help() {
    echo "-d     Delete local Docker volume data before starting Docker Compose"
    echo "-v     Keep local Docker Compose volume data after test execution"
    echo "-u     Turn on debug logs"
-   echo "-h     Print this Help."
+   echo "-h     Print this Help"
    echo
 }
 
