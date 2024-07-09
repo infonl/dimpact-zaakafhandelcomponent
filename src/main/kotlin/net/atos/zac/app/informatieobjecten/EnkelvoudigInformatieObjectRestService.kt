@@ -316,13 +316,12 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
 
     @GET
     @Path("informatieobject/{uuid}/zaakinformatieobjecten")
-    fun listZaakInformatieobjecten(@PathParam("uuid") uuid: UUID): List<RESTZaakInformatieobject> =
-        drcClientService.readEnkelvoudigInformatieobject(uuid).let {
-            assertPolicy(policyService.readDocumentRechten(it).lezen)
-            return zrcClientService.listZaakinformatieobjecten(it)
-                .map(zaakInformatieobjectConverter::convert)
-                .toList()
-        }
+    fun listZaakInformatieobjecten(@PathParam("uuid") uuid: UUID): List<RESTZaakInformatieobject> = uuid
+        .let(drcClientService::readEnkelvoudigInformatieobject)
+        .apply { assertPolicy(policyService.readDocumentRechten(this).lezen) }
+        .let(zrcClientService::listZaakinformatieobjecten)
+        .map(zaakInformatieobjectConverter::convert)
+        .toList()
 
     @GET
     @Path("informatieobject/{uuid}/edit")
@@ -507,13 +506,14 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
 
     @GET
     @Path("informatieobject/{uuid}/historie")
-    fun listHistorie(@PathParam("uuid") uuid: UUID?): List<RESTHistorieRegel> {
-        assertPolicy(
-            policyService.readDocumentRechten(drcClientService.readEnkelvoudigInformatieobject(uuid)).lezen
-        )
-        return drcClientService.listAuditTrail(uuid)
-            .let(historieRegelConverter::convert)
-    }
+    fun listHistorie(@PathParam("uuid") uuid: UUID?): List<RESTHistorieRegel> = uuid
+        .apply {
+            assertPolicy(
+                policyService.readDocumentRechten(drcClientService.readEnkelvoudigInformatieobject(uuid)).lezen
+            )
+        }
+        .let(drcClientService::listAuditTrail)
+        .let(historieRegelConverter::convert)
 
     @POST
     @Path("/documentcreatie")
@@ -549,12 +549,11 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     fun listZaakIdentificatiesForInformatieobject(
         @PathParam("informatieObjectUuid") informatieobjectUuid: UUID
     ): List<String> =
-        drcClientService.readEnkelvoudigInformatieobject(informatieobjectUuid).let {
-            assertPolicy(policyService.readDocumentRechten(it).lezen)
-            return zrcClientService.listZaakinformatieobjecten(it)
-                .map { zaakInformatieobject -> zrcClientService.readZaak(zaakInformatieobject.zaak).identificatie }
-                .toList()
-        }
+        drcClientService.readEnkelvoudigInformatieobject(informatieobjectUuid)
+            .apply { assertPolicy(policyService.readDocumentRechten(this).lezen) }
+            .let(zrcClientService::listZaakinformatieobjecten)
+            .map { zaakInformatieobject -> zrcClientService.readZaak(zaakInformatieobject.zaak).identificatie }
+            .toList()
 
     @POST
     @Path("/informatieobject/{uuid}/onderteken")
