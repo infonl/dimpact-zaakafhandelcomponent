@@ -13,6 +13,8 @@ import java.net.URI
 
 private const val COMMUNICATIEKANAAL = "communicatiekanaal"
 private const val ZAAKGEOMETRIE = "zaakgeometrie"
+private const val HOOFDZAAK = "hoofdzaak"
+private const val RELEVANTE_ANDERE_ZAKEN = "relevanteAndereZaken"
 
 class RESTZaakHistoriePartialUpdateConverter @Inject constructor(
     private val vrlClientService: VrlClientService,
@@ -24,25 +26,27 @@ class RESTZaakHistoriePartialUpdateConverter @Inject constructor(
         old: Map<*, *>,
         new: Map<*, *>
     ) =
-        old.diff(new).map { convertLine(auditTrail, actie, it) }
+        old.diff(new).mapNotNull { convertLine(auditTrail, actie, it) }
 
     private fun convertLine(
         auditTrail: ZRCAuditTrailRegel,
         actie: RESTHistorieActie?,
-        change: Map.Entry<Any?, Pair<*, Any?>>
-    ): RESTHistorieRegel =
-        RESTHistorieRegel(
-            change.key.toString(),
-            convertValue(change.key, change.value.first),
-            convertValue(change.key, change.value.second)
-        ).apply {
-            datumTijd = auditTrail.aanmaakdatum
-            door = auditTrail.gebruikersWeergave
-            toelichting = auditTrail.toelichting
-            this.actie = actie
+        change: Map.Entry<Any?, Pair<Any?, Any?>>
+    ): RESTHistorieRegel? =
+        (change.key as? String)?.let { key ->
+            RESTHistorieRegel(
+                key,
+                change.value.first?.let { convertValue(key, it) },
+                change.value.second?.let { convertValue(key, it) },
+            ).apply {
+                datumTijd = auditTrail.aanmaakdatum
+                door = auditTrail.gebruikersWeergave
+                toelichting = auditTrail.toelichting
+                this.actie = actie
+            }
         }
 
-    private fun convertValue(resource: Any?, item: Any?): String? =
+    private fun convertValue(resource: String, item: Any): String? =
         when {
             resource == ZAAKGEOMETRIE && item is Map<*, *> -> item.getTypedValue(Geometry::class.java)?.toString()
             resource == COMMUNICATIEKANAAL && item is String ->
@@ -52,17 +56,17 @@ class RESTZaakHistoriePartialUpdateConverter @Inject constructor(
                     .let(vrlClientService::findCommunicatiekanaal)
                     .map(CommunicatieKanaal::getNaam)
                     .orElse(null)
-            resource == "hoofdzaak" && item is String ->
+            resource == HOOFDZAAK && item is String ->
                 item
                     .let(URI::create)
                     .let(zrcClientService::readZaak).identificatie
-            resource == "relevanteAndereZaken" && item is List<*> ->
+            resource == RELEVANTE_ANDERE_ZAKEN && item is List<*> ->
                 item
                     .asSequence()
                     .mapNotNull { (it as? Map<*, *>)?.stringProperty("url") }
                     .map(URI::create)
                     .map(zrcClientService::readZaak)
                     .joinToString { it.identificatie }
-            else -> item?.toString()
+            else -> item.toString()
         }
 }
