@@ -21,4 +21,4 @@ sudo chown -R "$UID:$GID" "$REPO_DIR/build"
 
 echo "Copying support environment scripts ..."
 cp "$SCRIPT_DIR/fix-permissions.sh" "$REPO_DIR/fix-permissions.sh"
-cp "$SCRIPT_DIR/check-env.sh" "$REPO_DIR/check-env.sh"
+cp "$SCRIPT_DIR/check-for-running-containers.sh" "$REPO_DIR/check-for-running-containers.sh"
