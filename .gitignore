@@ -37,3 +37,5 @@ scripts/github/.secrets
 
 ### Docker Compose ###
 docker-compose.override.yml
+check-env.sh
+fix-permissions.sh
