@@ -8,7 +8,7 @@ help() {
    echo "Syntax: $0 [-l|d|v|u|h]"
    echo "options:"
    echo "-l     Build a local ZAC Docker image"
-   echo "-d     Delete local Docker volume data before starting Docker Compose."
+   echo "-d     Delete local Docker volume data before starting Docker Compose"
    echo "-v     Keep local Docker Compose volume data after test execution"
    echo "-u     Turn on debug logs"
    echo "-h     Print this Help."
