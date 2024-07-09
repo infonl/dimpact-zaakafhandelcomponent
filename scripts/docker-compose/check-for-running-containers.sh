@@ -13,7 +13,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
   cd "$SCRIPT_DIR"
 
   if sudo lsof -i@localhost:8080; then
-    echo -e "\nPlease stop the currently running WildFly!"
+    echo -e "\nPlease stop the currently running process on port 8080!"
     exit 1
   fi
 
