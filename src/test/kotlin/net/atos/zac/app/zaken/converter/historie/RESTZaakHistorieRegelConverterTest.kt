@@ -1,6 +1,5 @@
 package net.atos.zac.app.zaken.converter.historie
 
-import io.kotest.assertions.any
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
@@ -581,6 +580,78 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
             Then("it should contain a line") {
                 listRestRegel.size shouldBe 1
+            }
+        }
+    }
+
+    Given("A retrieve action") {
+        val ztcClientService = mockk<ZtcClientService>()
+        val vrlClientService = mockk<VrlClientService>()
+
+        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+            bron = Bron.AUTORISATIES_API,
+            actie = "retrieve",
+            actieWeergave = "retrieved some data",
+            resultaat = 201,
+            hoofdObject = URI("https://example.com/somePath"),
+            resource = "communicatiekanaal",
+            resourceUrl = URI("https://example.com/somePath"),
+            toelichting = "hologram",
+            wijzigingen = Wijzigingen()
+        )
+
+        val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
+            ztcClientService,
+            RESTZaakHistoriePartialUpdateConverter(vrlClientService)
+        )
+
+        When("converted to REST historie regel") {
+            val listRestRegel = restZaakHistorieRegelConverter.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
+
+            Then("it should contain no lines") {
+                listRestRegel.size shouldBe 0
+            }
+        }
+    }
+
+    Given("An unknown resource") {
+        val ztcClientService = mockk<ZtcClientService>()
+        val vrlClientService = mockk<VrlClientService>()
+
+        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+            bron = Bron.AUTORISATIES_API,
+            actie = "update",
+            actieWeergave = "updated some data",
+            resultaat = 201,
+            hoofdObject = URI("https://example.com/somePath"),
+            resource = "some_unknown_value",
+            resourceUrl = URI("https://example.com/somePath"),
+            toelichting = "hologram",
+            wijzigingen = Wijzigingen().apply {
+                nieuw = mapOf("statustype" to "https://example.com/statustype")
+            }
+        )
+
+        val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
+            ztcClientService,
+            RESTZaakHistoriePartialUpdateConverter(vrlClientService)
+        )
+
+        When("converted to REST historie regel") {
+            val listRestRegel = restZaakHistorieRegelConverter.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
+
+            Then("it should return correct data, with null values for oudeWaarde and nieuweWaarde") {
+                listRestRegel.size shouldBe 1
+                with(listRestRegel.first()) {
+                    attribuutLabel shouldBe "some_unknown_value"
+                    oudeWaarde shouldBe null
+                    nieuweWaarde shouldBe null
+                    datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
+                    door shouldBe zrcAuditTrailRegel.gebruikersWeergave
+                    applicatie shouldBe null
+                    toelichting shouldBe "hologram"
+                    actie shouldBe RESTHistorieActie.GEWIJZIGD
+                }
             }
         }
     }
