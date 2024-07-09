@@ -3,7 +3,7 @@
 set -e
 
 help() {
-   echo "Starts the Integration Tests with local docker image."
+   echo "Starts the integration tests with a local ZAC Docker Image."
    echo
    echo "Syntax: $0 [-l|d|v|u|h]"
    echo "options:"
