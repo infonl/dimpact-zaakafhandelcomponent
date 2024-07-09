@@ -14,6 +14,7 @@ import net.atos.client.zgw.shared.model.audit.createZRCAuditTrailRegel
 import net.atos.client.zgw.zrc.model.generated.Wijzigingen
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createResultaatType
+import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.createStatusType
 import net.atos.zac.app.audit.model.RESTHistorieActie
 import java.net.URI
@@ -73,8 +74,13 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
     }
 
     Given("Audit trail has resource rol with action updated") {
+        val uuid = UUID.randomUUID()
+        val rolTypeUri = "https://example.com/roltype/$uuid"
+        val rolType = createRolType()
         val ztcClientService = mockk<ZtcClientService>()
         val vrlClientService = mockk<VrlClientService>()
+
+        every { ztcClientService.readRoltype(uuid) } returns rolType
 
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -87,6 +93,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
             toelichting = "rol updated",
             wijzigingen = Wijzigingen().apply {
                 nieuw = mapOf(
+                    "roltype" to rolTypeUri,
                     "roltoelichting" to "",
                     "omschrijving" to "dummyOmschrijving",
                     "betrokkeneIdentificatie" to mapOf(
@@ -113,7 +120,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
             Then("it should return correct data") {
                 listRestRegel.size shouldBe 1
                 with(listRestRegel.first()) {
-                    attribuutLabel shouldBe "rol"
+                    attribuutLabel shouldBe rolType.omschrijving
                     oudeWaarde shouldBe null
                     nieuweWaarde shouldBe "dummyVoorletters dummyAchternaam"
                     datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
@@ -339,9 +346,9 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
             Then("it should return correct data") {
                 listRestRegel.size shouldBe 1
                 with(listRestRegel.first()) {
-                    attribuutLabel shouldBe "adres"
+                    attribuutLabel shouldBe "objecttype.ADRES"
                     oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "objecttype.identity"
+                    nieuweWaarde shouldBe "identity"
                     datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
                     door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null
