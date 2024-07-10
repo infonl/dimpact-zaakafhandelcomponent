@@ -17,12 +17,14 @@ import net.atos.client.or.`object`.model.createObjectRecord
 import net.atos.client.vrl.VrlClientService
 import net.atos.client.vrl.model.generated.CommunicatieKanaal
 import net.atos.client.zgw.drc.DrcClientService
+import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Point
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.Zaak
+import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakInformatieobject
 import net.atos.client.zgw.zrc.model.createZaakobjectProductaanvraag
@@ -549,6 +551,43 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     type shouldBe productAanvraagType
                     initiatorID shouldBe null
                     aantalBijlagen shouldBe 0
+                }
+            }
+        }
+    }
+    Given("a list of bijlage URIs and a zaak URI") {
+        val bijlageURIs = listOf(URI("dummyURI1"), URI("dummyURI2"))
+        val enkelvoudigInformatieobjecten = listOf(
+            createEnkelvoudigInformatieObject(),
+            createEnkelvoudigInformatieObject()
+        )
+        val zaakInformatieobjecten = listOf(createZaakInformatieobject(), createZaakInformatieobject())
+        val zaakUrl = URI("dummyZaakUrl")
+        val createdZaakInformatieobjectSlot = slot<ZaakInformatieobject>()
+        val beschrijving = "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+        bijlageURIs.forEachIndexed { index, uri ->
+            every { drcClientService.readEnkelvoudigInformatieobject(uri) } returns enkelvoudigInformatieobjecten[index]
+            every { drcClientService.readEnkelvoudigInformatieobject(uri) } returns enkelvoudigInformatieobjecten[index]
+        }
+        every {
+            zrcClientService.createZaakInformatieobject(
+                capture(createdZaakInformatieobjectSlot),
+                beschrijving
+            )
+        } returns zaakInformatieobjecten[0] andThenAnswer { zaakInformatieobjecten[1] }
+
+        When("the bijlagen are paired with the zaak") {
+            productaanvraagService.pairBijlagenWithZaak(bijlageURIs, zaakUrl)
+
+            Then("for every bijlage a zaakInformatieobject should be created") {
+                verify(exactly = 2) {
+                    zrcClientService.createZaakInformatieobject(any(), any())
+                }
+                createdZaakInformatieobjectSlot.captured.run {
+                    zaak shouldBe zaakUrl
+                    beschrijving shouldBe beschrijving
+                    informatieobject shouldBe enkelvoudigInformatieobjecten[1].url
+                    titel shouldBe enkelvoudigInformatieobjecten[1].titel
                 }
             }
         }
