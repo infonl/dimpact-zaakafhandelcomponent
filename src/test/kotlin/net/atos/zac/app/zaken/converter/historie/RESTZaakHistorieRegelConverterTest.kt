@@ -16,6 +16,7 @@ import net.atos.client.zgw.ztc.model.createResultaatType
 import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.createStatusType
 import net.atos.zac.app.audit.model.RESTHistorieActie
+import java.math.BigDecimal
 import java.net.URI
 import java.util.UUID
 
@@ -372,8 +373,24 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
             resourceUrl = URI("https://example.com/somePath"),
             toelichting = "xyz",
             wijzigingen = Wijzigingen().apply {
-                oud = mapOf("zaakgeometrie" to "Point")
-                nieuw = mapOf("zaakgeometrie" to "Polygon")
+                oud = mapOf(
+                    "zaakgeometrie" to mapOf(
+                        "type" to "Point",
+                        "coordinates" to listOf(
+                            BigDecimal("52.602182801494195"),
+                            BigDecimal("4.363728969647492")
+                        )
+                    )
+                )
+                nieuw = mapOf(
+                    "zaakgeometrie" to mapOf(
+                        "type" to "Point",
+                        "coordinates" to listOf(
+                            BigDecimal("53.602182801494195"),
+                            BigDecimal("5.363728969647492")
+                        )
+                    )
+                )
             }
         )
         val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
@@ -388,8 +405,8 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                 listRestRegel.size shouldBe 1
                 with(listRestRegel.first()) {
                     attribuutLabel shouldBe "zaakgeometrie"
-                    oudeWaarde shouldBe "Point"
-                    nieuweWaarde shouldBe "Polygon"
+                    oudeWaarde shouldBe "POINT(52.602182801494195 4.363728969647492)"
+                    nieuweWaarde shouldBe "POINT(53.602182801494195 5.363728969647492)"
                     datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
                     door shouldBe "Test User"
                     applicatie shouldBe null
