@@ -31,7 +31,6 @@ zaak_rechten := {
     "creeeren_document": creeeren_document,
     "toevoegen_document": toevoegen_document,
     "koppelen": koppelen,
-    "koppelen_gerelateerd": koppelen_gerelateerd,
     "versturen_email": versturen_email,
     "versturen_ontvangstbevestiging": versturen_ontvangstbevestiging,
     "toevoegen_initiator_persoon": toevoegen_initiator_persoon,
@@ -156,10 +155,8 @@ koppelen {
     zaaktype_allowed == true
     zaak.open == true
 }
-
-default koppelen_gerelateerd := false
-koppelen_gerelateerd {
-    behandelaar.rol in user.rollen
+koppelen {
+    recordmanager.rol in user.rollen
     zaaktype_allowed == true
 }
 

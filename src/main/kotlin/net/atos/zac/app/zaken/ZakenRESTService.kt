@@ -707,6 +707,7 @@ class ZakenRESTService @Inject constructor(
     fun koppelZaak(gegevens: RESTZaakKoppelGegevens) {
         val zaak: Zaak = zrcClientService.readZaak(gegevens.zaakUuid)
         val teKoppelenZaak: Zaak = zrcClientService.readZaak(gegevens.teKoppelenZaakUuid)
+        assertPolicy(zaak.isOpen == teKoppelenZaak.isOpen)
         assertPolicy(policyService.readZaakRechten(zaak).koppelen)
         assertPolicy(policyService.readZaakRechten(teKoppelenZaak).koppelen)
 
@@ -1248,7 +1249,9 @@ class ZakenRESTService @Inject constructor(
         andereZaak: Zaak,
         aardRelatie: AardRelatie
     ) {
-        assertPolicy(policyService.readZaakRechten(zaak).koppelenGerelateerd)
+        assertPolicy(zaak.isOpen == andereZaak.isOpen)
+        assertPolicy(policyService.readZaakRechten(zaak).koppelen)
+        assertPolicy(policyService.readZaakRechten(andereZaak).koppelen)
         zrcClientService.patchZaak(
             zaak.uuid,
             RelevantezaakZaakPatch(
