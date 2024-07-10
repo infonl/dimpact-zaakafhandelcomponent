@@ -143,38 +143,6 @@ class ProductaanvraagService @Inject constructor(
             throw RuntimeException(exception)
         }
 
-    private fun startZaakWithCmmnProcess(
-        zaaktypeUuid: UUID,
-        productaanvraag: ProductaanvraagDimpact,
-        productaanvraagObject: ORObject
-    ) {
-        val formulierData = getAanvraaggegevens(productaanvraagObject)
-        val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
-        val communicatieKanaal = vrlClientService.findCommunicatiekanaal(
-            ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER
-        )
-        val createdZaak = Zaak().apply {
-            this.zaaktype = zaaktype.url
-            omschrijving = getZaakOmschrijving(productaanvraag)
-            startdatum = productaanvraagObject.record.startAt
-            bronorganisatie = ConfiguratieService.BRON_ORGANISATIE
-            communicatieKanaal.ifPresent { communicatiekanaal = it.url }
-            verantwoordelijkeOrganisatie = ConfiguratieService.BRON_ORGANISATIE
-            productaanvraag.zaakgegevens?.let { zaakgegevens ->
-                if (zaakgegevens.geometry != null && zaakgegevens.geometry.type == Geometry.Type.POINT) {
-                    zaakgeometrie = zaakgegevens.geometry.convertToZgwPoint()
-                }
-            }
-            // note that we leave the 'toelichting' field empty for a zaak created from a productaanvraag
-        }.let(zgwApiService::createZaak)
-
-        LOG.fine("Creating zaak using the ZGW API: $createdZaak")
-        val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid)
-        assignZaak(createdZaak, zaakafhandelParameters)
-        pairProductaanvraagInfoWithZaak(productaanvraag, productaanvraagObject, createdZaak)
-        cmmnService.startCase(createdZaak, zaaktype, zaakafhandelParameters, formulierData)
-    }
-
     fun pairProductaanvraagWithZaak(productaanvraag: ORObject, zaakUrl: URI) {
         ZaakobjectProductaanvraag(zaakUrl, productaanvraag.url)
             .let(zrcClientService::createZaakobject)
@@ -193,14 +161,15 @@ class ProductaanvraagService @Inject constructor(
     }
 
     fun pairBijlagenWithZaak(bijlageURIs: List<URI>, zaakUrl: URI) =
-        bijlageURIs.forEach {
-            val bijlage = drcClientService.readEnkelvoudigInformatieobject(it)
-            val zaakInformatieobject = ZaakInformatieobject()
-            zaakInformatieobject.informatieobject = bijlage.url
-            zaakInformatieobject.zaak = zaakUrl
-            zaakInformatieobject.titel = bijlage.titel
-            zaakInformatieobject.beschrijving = bijlage.beschrijving
-            zrcClientService.createZaakInformatieobject(zaakInformatieobject, ZAAK_INFORMATIEOBJECT_REDEN)
+        bijlageURIs.map(drcClientService::readEnkelvoudigInformatieobject).forEach { bijlage ->
+            ZaakInformatieobject().apply {
+                informatieobject = bijlage.url
+                zaak = zaakUrl
+                titel = bijlage.titel
+                beschrijving = bijlage.beschrijving
+            }.run {
+                zrcClientService.createZaakInformatieobject(this, ZAAK_INFORMATIEOBJECT_REDEN)
+            }
         }
 
     private fun addBetrokkenen(
@@ -425,6 +394,38 @@ class ProductaanvraagService @Inject constructor(
             getAanvraaggegevens(productaanvraagObject),
             BPMN_PROCESS_DEFINITION_KEY
         )
+    }
+
+    private fun startZaakWithCmmnProcess(
+        zaaktypeUuid: UUID,
+        productaanvraag: ProductaanvraagDimpact,
+        productaanvraagObject: ORObject
+    ) {
+        val formulierData = getAanvraaggegevens(productaanvraagObject)
+        val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
+        val communicatieKanaal = vrlClientService.findCommunicatiekanaal(
+            ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER
+        )
+        val createdZaak = Zaak().apply {
+            this.zaaktype = zaaktype.url
+            omschrijving = getZaakOmschrijving(productaanvraag)
+            startdatum = productaanvraagObject.record.startAt
+            bronorganisatie = ConfiguratieService.BRON_ORGANISATIE
+            communicatieKanaal.ifPresent { communicatiekanaal = it.url }
+            verantwoordelijkeOrganisatie = ConfiguratieService.BRON_ORGANISATIE
+            productaanvraag.zaakgegevens?.let { zaakgegevens ->
+                if (zaakgegevens.geometry != null && zaakgegevens.geometry.type == Geometry.Type.POINT) {
+                    zaakgeometrie = zaakgegevens.geometry.convertToZgwPoint()
+                }
+            }
+            // note that we leave the 'toelichting' field empty for a zaak created from a productaanvraag
+        }.let(zgwApiService::createZaak)
+
+        LOG.fine("Creating zaak using the ZGW API: $createdZaak")
+        val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid)
+        assignZaak(createdZaak, zaakafhandelParameters)
+        pairProductaanvraagInfoWithZaak(productaanvraag, productaanvraagObject, createdZaak)
+        cmmnService.startCase(createdZaak, zaaktype, zaakafhandelParameters, formulierData)
     }
 
     private fun logZaakCouldNotBeCreatedWarning(
