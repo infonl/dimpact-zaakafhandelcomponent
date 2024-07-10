@@ -112,13 +112,12 @@ class ProductaanvraagService @Inject constructor(
         }
     }
 
-    fun getAanvraaggegevens(productaanvraagObject: ORObject): Map<String, Any> {
-        val aanvraaggegevensKeyValueMap = mutableMapOf<String, Any>()
-        (productaanvraagObject.record.data[PRODUCTAANVRAAG_FORMULIER_VELD_AANVRAAGGEGEVENS] as Map<*, *>).values.forEach {
-            aanvraaggegevensKeyValueMap.putAll(it as Map<String, Any>)
-        }
-        return aanvraaggegevensKeyValueMap
-    }
+    fun getAanvraaggegevens(productaanvraagObject: ORObject): Map<String, Any> =
+        (productaanvraagObject.record.data[PRODUCTAANVRAAG_FORMULIER_VELD_AANVRAAGGEGEVENS] as Map<*, *>)
+            .values
+            .filterIsInstance<Map<String, Any>>()
+            .flatMap { it.entries }
+            .associate { it.key to it.value }
 
     @Suppress("TooGenericExceptionCaught", "TooGenericExceptionThrown")
     fun getProductaanvraag(productaanvraagObject: ORObject): ProductaanvraagDimpact =
