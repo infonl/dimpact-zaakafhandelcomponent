@@ -201,7 +201,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
             objectsClientService
                 .readObject(restZaakAanmaakGegevens.inboxProductaanvraag?.productaanvraagObjectUUID)
         } returns objectRegistratieObject
-        every { productaanvraagService.getFormulierData(objectRegistratieObject) } returns formulierData
+        every { productaanvraagService.getAanvraaggegevens(objectRegistratieObject) } returns formulierData
         every {
             productaanvraagService.getProductaanvraag(objectRegistratieObject)
         } returns productaanvraagDimpact

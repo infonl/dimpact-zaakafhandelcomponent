@@ -106,7 +106,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             )
         )
         When("the form data is requested from the productaanvraag") {
-            val formData = productaanvraagService.getFormulierData(orObject)
+            val formData = productaanvraagService.getAanvraaggegevens(orObject)
 
             Then("all key-value pairs in the aanvraaggegevens are returned") {
                 with(formData) {

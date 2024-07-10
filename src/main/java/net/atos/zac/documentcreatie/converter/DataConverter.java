@@ -246,7 +246,7 @@ public class DataConverter {
         final var productAanvraag = productaanvraagService.getProductaanvraag(productAaanvraagObject);
         final var startformulierData = new StartformulierData();
         startformulierData.productAanvraagtype = productAanvraag.getType();
-        startformulierData.data = productaanvraagService.getFormulierData(productAaanvraagObject);
+        startformulierData.data = productaanvraagService.getAanvraaggegevens(productAaanvraagObject);
         return startformulierData;
     }
 
