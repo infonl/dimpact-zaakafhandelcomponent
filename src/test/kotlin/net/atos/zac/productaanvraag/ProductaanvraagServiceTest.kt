@@ -85,6 +85,39 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         clearAllMocks()
     }
 
+    Given("a productaanvraag-dimpact object with aanvraaggegevens containing form steps with key-value pairs") {
+        val type = "productaanvraag"
+        val bron = createBron()
+        val orObject = createORObject(
+            record = createObjectRecord(
+                data = mapOf(
+                    "bron" to bron,
+                    "type" to type,
+                    "aanvraaggegevens" to mapOf(
+                        "formStep1" to mapOf(
+                            "dummyKey1" to "dummyValue1",
+                            "dummyKey2" to "dummyValue2"
+                        ),
+                        "formStep2" to mapOf(
+                            "dummyKey3" to "dummyValue3"
+                        )
+                    )
+                )
+            )
+        )
+        When("the form data is requested from the productaanvraag") {
+            val formData = productaanvraagService.getFormulierData(orObject)
+
+            Then("all key-value pairs in the aanvraaggegevens are returned") {
+                with(formData) {
+                    this["dummyKey1"] shouldBe "dummyValue1"
+                    this["dummyKey2"] shouldBe "dummyValue2"
+                    this["dummyKey3"] shouldBe "dummyValue3"
+                }
+            }
+        }
+    }
+
     Given("a productaanvraag-dimpact object registration object") {
         val type = "productaanvraag"
         val bron = createBron()
