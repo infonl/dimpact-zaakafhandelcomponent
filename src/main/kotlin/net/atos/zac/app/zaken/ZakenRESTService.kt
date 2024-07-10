@@ -1239,7 +1239,7 @@ class ZakenRESTService @Inject constructor(
         inboxProductaanvraagService.delete(inboxProductaanvraag.id)
         zaakVariabelenService.setZaakdata(
             zaak.uuid,
-            productaanvraagService.getFormulierData(productaanvraagObject)
+            productaanvraagService.getAanvraaggegevens(productaanvraagObject)
         )
     }
 

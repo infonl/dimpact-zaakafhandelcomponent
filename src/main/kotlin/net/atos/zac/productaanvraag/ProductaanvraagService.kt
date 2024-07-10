@@ -112,94 +112,12 @@ class ProductaanvraagService @Inject constructor(
         }
     }
 
-    /**
-     * Checks if the required attributes defined by the 'Productaanvraag Dimpact' JSON schema are present.
-     * This is a bit of a poor man's solution because we are currently 'misusing' the very generic Objects API
-     * to store specific productaanvraag JSON data.
-     */
-    private fun isProductaanvraagDimpact(productaanvraagObject: ORObject) =
-        productaanvraagObject.record.data.let {
-            it.containsKey(PRODUCTAANVRAAG_FORMULIER_VELD_BRON) &&
-                it.containsKey(PRODUCTAANVRAAG_FORMULIER_VELD_TYPE) &&
-                it.containsKey(PRODUCTAANVRAAG_FORMULIER_VELD_AANVRAAGGEGEVENS)
-        }
-
-    @Suppress("TooGenericExceptionCaught", "NestedBlockDepth")
-    private fun handleProductaanvraagDimpact(productaanvraagObject: ORObject) {
-        LOG.fine { "Start handling productaanvraag with object URL: ${productaanvraagObject.url}" }
-        val productaanvraag = getProductaanvraag(productaanvraagObject)
-        val zaaktypeUUID = zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(
-            productaanvraag.type
-        )
-        if (zaaktypeUUID.isPresent) {
-            try {
-                zaaktypeUUID.get().let {
-                    LOG.fine { "Creating a zaak using a CMMN case with zaaktype: $it" }
-                    registreerZaakMetCMMNCase(it, productaanvraag, productaanvraagObject)
-                }
-            } catch (exception: RuntimeException) {
-                warning("CMMN", productaanvraag, exception)
-            }
-        } else {
-            findZaaktypeByIdentificatie(productaanvraag.type)?.let {
-                try {
-                    LOG.fine { "Creating a zaak using a BPMN proces with zaaktype: $it" }
-                    registreerZaakMetBPMNProces(it, productaanvraag, productaanvraagObject)
-                } catch (exception: RuntimeException) {
-                    warning("BPMN", productaanvraag, exception)
-                }
-            } ?: run {
-                LOG.info(
-                    message(
-                        productaanvraag,
-                        "No zaaktype found for productaanvraag-Dimpact type '${productaanvraag.type}'. No zaak was created."
-                    )
-                )
-                registreerInbox(productaanvraag, productaanvraagObject)
-            }
-        }
-    }
-
-    private fun warning(processType: String, productaanvraag: ProductaanvraagDimpact, exception: RuntimeException) {
-        LOG.log(
-            Level.WARNING,
-            message(productaanvraag, "Failed to create a zaak of process type: $processType."),
-            exception
-        )
-    }
-
-    private fun message(productaanvraag: ProductaanvraagDimpact, message: String) =
-        "Productaanvraag ${productaanvraag.aanvraaggegevens}: $message"
-
-    private fun registreerZaakMetBPMNProces(
-        zaaktype: ZaakType,
-        productaanvraag: ProductaanvraagDimpact,
-        productaanvraagObject: ORObject
-    ) {
-        val createdZaak = Zaak().apply {
-            this.zaaktype = zaaktype.url
-            bronorganisatie = ConfiguratieService.BRON_ORGANISATIE
-            verantwoordelijkeOrganisatie = ConfiguratieService.BRON_ORGANISATIE
-            startdatum = LocalDate.now()
-        }.let(zgwApiService::createZaak)
-        bpmnService.readProcessDefinitionByprocessDefinitionKey(BPMN_PROCESS_DEFINITION_KEY).let {
-            zrcClientService.createRol(creeerRolGroep(it.description, createdZaak))
-        }
-        pairProductaanvraagInfoWithZaak(productaanvraag, productaanvraagObject, createdZaak)
-        bpmnService.startProcess(
-            createdZaak,
-            zaaktype,
-            getFormulierData(productaanvraagObject),
-            BPMN_PROCESS_DEFINITION_KEY
-        )
-    }
-
-    fun getFormulierData(productaanvraagObject: ORObject): Map<String, Any> {
-        val formulierData = mutableMapOf<String, Any>()
+    fun getAanvraaggegevens(productaanvraagObject: ORObject): Map<String, Any> {
+        val aanvraaggegevensKeyValueMap = mutableMapOf<String, Any>()
         (productaanvraagObject.record.data[PRODUCTAANVRAAG_FORMULIER_VELD_AANVRAAGGEGEVENS] as Map<*, *>).values.forEach {
-            formulierData.putAll(it as Map<String, Any>)
+            aanvraaggegevensKeyValueMap.putAll(it as Map<String, Any>)
         }
-        return formulierData
+        return aanvraaggegevensKeyValueMap
     }
 
     @Suppress("TooGenericExceptionCaught", "TooGenericExceptionThrown")
@@ -226,64 +144,12 @@ class ProductaanvraagService @Inject constructor(
             throw RuntimeException(exception)
         }
 
-    private fun addNatuurlijkPersoonInitiatorRole(bsn: String, zaak: URI, zaaktype: URI) =
-        ztcClientService.readRoltype(OmschrijvingGeneriekEnum.INITIATOR, zaaktype).let {
-            zrcClientService.createRol(
-                RolNatuurlijkPersoon(
-                    zaak,
-                    it,
-                    ROL_TOELICHTING,
-                    NatuurlijkPersoon(bsn)
-                )
-            )
-        }
-
-    private fun addVestigingInitiatorRole(vestigingsNummer: String, zaak: URI, zaaktype: URI) =
-        ztcClientService.readRoltype(OmschrijvingGeneriekEnum.INITIATOR, zaaktype).let {
-            zrcClientService.createRol(
-                RolVestiging(
-                    zaak,
-                    it,
-                    ROL_TOELICHTING,
-                    Vestiging(vestigingsNummer)
-                )
-            )
-        }
-
-    private fun registreerInbox(productaanvraag: ProductaanvraagDimpact, productaanvraagObject: ORObject) {
-        val inboxProductaanvraag = InboxProductaanvraag().apply {
-            productaanvraagObjectUUID = productaanvraagObject.uuid
-            type = productaanvraag.type
-            ontvangstdatum = productaanvraagObject.record.registrationAt
-        }
-        productaanvraag.betrokkenen?.let { betrokkenen ->
-            // we are only interested in the first betrokkene with the role 'INITIATOR'
-            betrokkenen.first { it.rolOmschrijvingGeneriek == Betrokkene.RolOmschrijvingGeneriek.INITIATOR }
-                .let { inboxProductaanvraag.initiatorID = it.inpBsn }
-        }
-        productaanvraag.pdf?.let { pdfUri ->
-            uuidFromURI(pdfUri).let {
-                inboxProductaanvraag.aanvraagdocumentUUID = it
-                deleteInboxDocument(it)
-            }
-        }
-        productaanvraag.bijlagen?.let { bijlagen ->
-            inboxProductaanvraag.aantalBijlagen = bijlagen.size
-            bijlagen.forEach { deleteInboxDocument(uuidFromURI(it)) }
-        }
-
-        inboxProductaanvraagService.create(inboxProductaanvraag)
-    }
-
-    private fun deleteInboxDocument(documentUUID: UUID) =
-        inboxDocumentenService.find(documentUUID).ifPresent { inboxDocumentenService.delete(it.id) }
-
-    private fun registreerZaakMetCMMNCase(
+    private fun startZaakWithCmmnProcess(
         zaaktypeUuid: UUID,
         productaanvraag: ProductaanvraagDimpact,
         productaanvraagObject: ORObject
     ) {
-        val formulierData = getFormulierData(productaanvraagObject)
+        val formulierData = getAanvraaggegevens(productaanvraagObject)
         val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
         val communicatieKanaal = vrlClientService.findCommunicatiekanaal(
             ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER
@@ -308,17 +174,6 @@ class ProductaanvraagService @Inject constructor(
         assignZaak(createdZaak, zaakafhandelParameters)
         pairProductaanvraagInfoWithZaak(productaanvraag, productaanvraagObject, createdZaak)
         cmmnService.startCase(createdZaak, zaaktype, zaakafhandelParameters, formulierData)
-    }
-
-    private fun pairProductaanvraagInfoWithZaak(
-        productaanvraag: ProductaanvraagDimpact,
-        productaanvraagObject: ORObject,
-        zaak: Zaak
-    ) {
-        pairProductaanvraagWithZaak(productaanvraagObject, zaak.url)
-        pairAanvraagPDFWithZaak(productaanvraag, zaak.url)
-        productaanvraag.bijlagen?.let { pairBijlagenWithZaak(it, zaak.url) }
-        addBetrokkenen(productaanvraag, zaak)
     }
 
     fun pairProductaanvraagWithZaak(productaanvraag: ORObject, zaakUrl: URI) {
@@ -384,6 +239,30 @@ class ProductaanvraagService @Inject constructor(
         }
     }
 
+    private fun addNatuurlijkPersoonInitiatorRole(bsn: String, zaak: URI, zaaktype: URI) =
+        ztcClientService.readRoltype(OmschrijvingGeneriekEnum.INITIATOR, zaaktype).let {
+            zrcClientService.createRol(
+                RolNatuurlijkPersoon(
+                    zaak,
+                    it,
+                    ROL_TOELICHTING,
+                    NatuurlijkPersoon(bsn)
+                )
+            )
+        }
+
+    private fun addVestigingInitiatorRole(vestigingsNummer: String, zaak: URI, zaaktype: URI) =
+        ztcClientService.readRoltype(OmschrijvingGeneriekEnum.INITIATOR, zaaktype).let {
+            zrcClientService.createRol(
+                RolVestiging(
+                    zaak,
+                    it,
+                    ROL_TOELICHTING,
+                    Vestiging(vestigingsNummer)
+                )
+            )
+        }
+
     private fun assignZaak(zaak: Zaak, zaakafhandelParameters: ZaakafhandelParameters) {
         zaakafhandelParameters.groepID?.let {
             LOG.info("Assigning zaak ${zaak.uuid} to group: '${zaakafhandelParameters.groepID}'")
@@ -426,6 +305,9 @@ class ProductaanvraagService @Inject constructor(
             )
         }
 
+    private fun deleteInboxDocument(documentUUID: UUID) =
+        inboxDocumentenService.find(documentUUID).ifPresent { inboxDocumentenService.delete(it.id) }
+
     private fun findZaaktypeByIdentificatie(zaaktypeIdentificatie: String) =
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             .firstOrNull { it.identificatie == zaaktypeIdentificatie }
@@ -443,4 +325,118 @@ class ProductaanvraagService @Inject constructor(
                 it
             }
         }
+
+    @Suppress("TooGenericExceptionCaught", "NestedBlockDepth")
+    private fun handleProductaanvraagDimpact(productaanvraagObject: ORObject) {
+        LOG.fine { "Start handling productaanvraag with object URL: ${productaanvraagObject.url}" }
+        val productaanvraag = getProductaanvraag(productaanvraagObject)
+        val zaaktypeUUID = zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(
+            productaanvraag.type
+        )
+        if (zaaktypeUUID.isPresent) {
+            try {
+                zaaktypeUUID.get().let {
+                    LOG.fine { "Creating a zaak using a CMMN case with zaaktype: $it" }
+                    startZaakWithCmmnProcess(it, productaanvraag, productaanvraagObject)
+                }
+            } catch (exception: RuntimeException) {
+                logZaakCouldNotBeCreatedWarning("CMMN", productaanvraag, exception)
+            }
+        } else {
+            findZaaktypeByIdentificatie(productaanvraag.type)?.let {
+                try {
+                    LOG.fine { "Creating a zaak using a BPMN proces with zaaktype: $it" }
+                    startZaakWithBpmnProcess(it, productaanvraag, productaanvraagObject)
+                } catch (exception: RuntimeException) {
+                    logZaakCouldNotBeCreatedWarning("BPMN", productaanvraag, exception)
+                }
+            } ?: run {
+                LOG.info("No zaaktype found for productaanvraag-Dimpact type '${productaanvraag.type}'. No zaak was created.")
+                registreerInbox(productaanvraag, productaanvraagObject)
+            }
+        }
+    }
+
+    /**
+     * Checks if the required attributes defined by the 'Productaanvraag Dimpact' JSON schema are present.
+     * This is a bit of a poor man's solution because we are currently 'misusing' the very generic Objects API
+     * to store specific productaanvraag JSON data.
+     */
+    private fun isProductaanvraagDimpact(productaanvraagObject: ORObject) =
+        productaanvraagObject.record.data.let {
+            it.containsKey(PRODUCTAANVRAAG_FORMULIER_VELD_BRON) &&
+                it.containsKey(PRODUCTAANVRAAG_FORMULIER_VELD_TYPE) &&
+                it.containsKey(PRODUCTAANVRAAG_FORMULIER_VELD_AANVRAAGGEGEVENS)
+        }
+
+    private fun pairProductaanvraagInfoWithZaak(
+        productaanvraag: ProductaanvraagDimpact,
+        productaanvraagObject: ORObject,
+        zaak: Zaak
+    ) {
+        pairProductaanvraagWithZaak(productaanvraagObject, zaak.url)
+        pairAanvraagPDFWithZaak(productaanvraag, zaak.url)
+        productaanvraag.bijlagen?.let { pairBijlagenWithZaak(it, zaak.url) }
+        addBetrokkenen(productaanvraag, zaak)
+    }
+
+    private fun registreerInbox(productaanvraag: ProductaanvraagDimpact, productaanvraagObject: ORObject) {
+        val inboxProductaanvraag = InboxProductaanvraag().apply {
+            productaanvraagObjectUUID = productaanvraagObject.uuid
+            type = productaanvraag.type
+            ontvangstdatum = productaanvraagObject.record.registrationAt
+        }
+        productaanvraag.betrokkenen?.let { betrokkenen ->
+            // we are only interested in the first betrokkene with the role 'INITIATOR'
+            betrokkenen.first { it.rolOmschrijvingGeneriek == Betrokkene.RolOmschrijvingGeneriek.INITIATOR }
+                .let { inboxProductaanvraag.initiatorID = it.inpBsn }
+        }
+        productaanvraag.pdf?.let { pdfUri ->
+            uuidFromURI(pdfUri).let {
+                inboxProductaanvraag.aanvraagdocumentUUID = it
+                deleteInboxDocument(it)
+            }
+        }
+        productaanvraag.bijlagen?.let { bijlagen ->
+            inboxProductaanvraag.aantalBijlagen = bijlagen.size
+            bijlagen.forEach { deleteInboxDocument(uuidFromURI(it)) }
+        }
+
+        inboxProductaanvraagService.create(inboxProductaanvraag)
+    }
+
+    private fun startZaakWithBpmnProcess(
+        zaaktype: ZaakType,
+        productaanvraag: ProductaanvraagDimpact,
+        productaanvraagObject: ORObject
+    ) {
+        val createdZaak = Zaak().apply {
+            this.zaaktype = zaaktype.url
+            bronorganisatie = ConfiguratieService.BRON_ORGANISATIE
+            verantwoordelijkeOrganisatie = ConfiguratieService.BRON_ORGANISATIE
+            startdatum = LocalDate.now()
+        }.let(zgwApiService::createZaak)
+        bpmnService.readProcessDefinitionByprocessDefinitionKey(BPMN_PROCESS_DEFINITION_KEY).let {
+            zrcClientService.createRol(creeerRolGroep(it.description, createdZaak))
+        }
+        pairProductaanvraagInfoWithZaak(productaanvraag, productaanvraagObject, createdZaak)
+        bpmnService.startProcess(
+            createdZaak,
+            zaaktype,
+            getAanvraaggegevens(productaanvraagObject),
+            BPMN_PROCESS_DEFINITION_KEY
+        )
+    }
+
+    private fun logZaakCouldNotBeCreatedWarning(
+        processType: String,
+        productaanvraag: ProductaanvraagDimpact,
+        exception: RuntimeException
+    ) {
+        LOG.log(
+            Level.WARNING,
+            "Failed to create a zaak of process type: '$processType' for productaanvraag '${productaanvraag.aanvraaggegevens}'",
+            exception
+        )
+    }
 }
