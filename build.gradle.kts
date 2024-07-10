@@ -225,7 +225,6 @@ java {
         .srcDir("$rootDir/src/generated/kvk/basisprofiel/java")
         .srcDir("$rootDir/src/generated/kvk/vestigingsprofiel/java")
         .srcDir("$rootDir/src/generated/brp/java")
-        .srcDir("$rootDir/src/generated/vrl/java")
         .srcDir("$rootDir/src/generated/bag/java")
         .srcDir("$rootDir/src/generated/klanten/java")
         .srcDir("$rootDir/src/generated/contactmomenten/java")
@@ -513,12 +512,6 @@ tasks {
         modelPackage.set("net.atos.client.brp.model.generated")
     }
 
-    register<GenerateTask>("generateVrlClient") {
-        inputSpec.set("$rootDir/src/main/resources/api-specs/vrl/vrl-openapi.yaml")
-        outputDir.set("$rootDir/src/generated/vrl/java")
-        modelPackage.set("net.atos.client.vrl.model.generated")
-    }
-
     register<GenerateTask>("generateBagClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/bag/bag-openapi.yaml")
         outputDir.set("$rootDir/src/generated/bag/java")
@@ -604,7 +597,6 @@ tasks {
             "generateKvkBasisProfielClient",
             "generateKvkVestigingsProfielClient",
             "generateBrpClient",
-            "generateVrlClient",
             "generateBagClient",
             "generateKlantenClient",
             "generateContactMomentenClient",

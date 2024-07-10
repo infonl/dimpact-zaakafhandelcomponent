@@ -24,7 +24,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.atos.client.or.`object`.ObjectsClientService
-import net.atos.client.vrl.VrlClientService
 import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.brc.model.generated.Besluit
 import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject
@@ -75,7 +74,6 @@ import net.atos.zac.app.zaken.converter.RESTZaakConverter
 import net.atos.zac.app.zaken.converter.RESTZaakOverzichtConverter
 import net.atos.zac.app.zaken.converter.RESTZaaktypeConverter
 import net.atos.zac.app.zaken.converter.RestBesluitConverter
-import net.atos.zac.app.zaken.converter.convertToRESTCommunicatiekanalen
 import net.atos.zac.app.zaken.converter.convertToRESTZaakBetrokkenen
 import net.atos.zac.app.zaken.converter.historie.RESTZaakHistorieRegelConverter
 import net.atos.zac.app.zaken.model.RESTBesluit
@@ -83,7 +81,6 @@ import net.atos.zac.app.zaken.model.RESTBesluitIntrekkenGegevens
 import net.atos.zac.app.zaken.model.RESTBesluitVastleggenGegevens
 import net.atos.zac.app.zaken.model.RESTBesluitWijzigenGegevens
 import net.atos.zac.app.zaken.model.RESTBesluittype
-import net.atos.zac.app.zaken.model.RESTCommunicatiekanaal
 import net.atos.zac.app.zaken.model.RESTDocumentOntkoppelGegevens
 import net.atos.zac.app.zaken.model.RESTReden
 import net.atos.zac.app.zaken.model.RESTResultaattype
@@ -165,7 +162,6 @@ class ZakenRESTService @Inject constructor(
     private val drcClientService: DrcClientService,
     private val ztcClientService: ZtcClientService,
     private val zrcClientService: ZRCClientService,
-    private val vrlClientService: VrlClientService,
     private val eventingService: EventingService,
     private val identityService: IdentityService,
     private val signaleringService: SignaleringService,
@@ -842,15 +838,9 @@ class ZakenRESTService @Inject constructor(
     @Path("communicatiekanalen/{inclusiefEFormulier}")
     fun listCommunicatiekanalen(
         @PathParam("inclusiefEFormulier") inclusiefEFormulier: Boolean
-    ): List<RESTCommunicatiekanaal> {
-        val communicatieKanalen = vrlClientService.listCommunicatiekanalen()
-        if (!inclusiefEFormulier) {
-            communicatieKanalen.removeIf { communicatieKanaal ->
-                (communicatieKanaal.naam == ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER)
-            }
-        }
-        return convertToRESTCommunicatiekanalen(communicatieKanalen)
-    }
+    ) = listOf("E-formulier", "dummyCommunicatiekanaal")
+        // TODO: get from referentietabellen
+        .filter { if (inclusiefEFormulier) true else it != ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER }
 
     @GET
     @Path("besluit/zaakUuid/{zaakUuid}")

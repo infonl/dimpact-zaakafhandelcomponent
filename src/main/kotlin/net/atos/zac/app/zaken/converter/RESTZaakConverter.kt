@@ -5,7 +5,6 @@
 package net.atos.zac.app.zaken.converter
 
 import jakarta.inject.Inject
-import net.atos.client.vrl.VrlClientService
 import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.shared.ZGWApiService
@@ -33,7 +32,6 @@ import net.atos.zac.flowable.BPMNService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.util.PeriodUtil
-import net.atos.zac.util.UriUtil
 import net.atos.zac.zoeken.model.ZaakIndicatie
 import org.apache.commons.collections4.CollectionUtils
 import org.apache.commons.lang3.StringUtils
@@ -79,9 +77,6 @@ class RESTZaakConverter {
     private lateinit var rechtenConverter: RESTRechtenConverter
 
     @Inject
-    private lateinit var vrlClientService: VrlClientService
-
-    @Inject
     private lateinit var restGeometryConverter: RESTGeometryConverter
 
     @Inject
@@ -113,11 +108,6 @@ class RESTZaakConverter {
                 userConverter.convertUserId(behandelaar.betrokkeneIdentificatie.identificatie)
             }
             .orElse(null)
-        val communicatiekanaal = zaak.communicatiekanaal?.let {
-            vrlClientService.findCommunicatiekanaal(UriUtil.uuidFromURI(zaak.communicatiekanaal))
-                .map { communicatieKanaal -> convertToRESTCommunicatiekanaal(communicatieKanaal) }
-                .orElse(null)
-        }
         val initiator = zgwApiService.findInitiatorForZaak(zaak)
         return RESTZaak(
             identificatie = zaak.identificatie,
@@ -152,7 +142,7 @@ class RESTZaakConverter {
             kenmerken = zaak.kenmerken?.stream()?.map {
                 RESTZaakKenmerk(it.kenmerk, it.bron)
             }?.collect(Collectors.toList()),
-            communicatiekanaal = communicatiekanaal,
+            communicatiekanaal = zaak.communicatiekanaalNaam,
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.toString(),
             groep = groep,
             behandelaar = behandelaar,
@@ -197,11 +187,7 @@ class RESTZaakConverter {
         zaak.omschrijving = restZaak.omschrijving
         zaak.toelichting = restZaak.toelichting
         zaak.registratiedatum = LocalDate.now()
-        restZaak.communicatiekanaal?.let { restCommunicatiekanaal ->
-            vrlClientService.findCommunicatiekanaal(restCommunicatiekanaal.uuid)
-                .map { it.url }
-                .ifPresent { zaak.communicatiekanaal = it }
-        }
+        zaak.communicatiekanaalNaam = restZaak.communicatiekanaal
         zaak.vertrouwelijkheidaanduiding = restZaak.vertrouwelijkheidaanduiding?.let {
             VertrouwelijkheidaanduidingEnum.fromValue(it)
         }
@@ -219,11 +205,7 @@ class RESTZaakConverter {
         zaak.vertrouwelijkheidaanduiding = restZaak.vertrouwelijkheidaanduiding?.let {
             VertrouwelijkheidaanduidingEnum.fromValue(it)
         }
-        restZaak.communicatiekanaal?.let { restCommunicatiekanaal ->
-            vrlClientService.findCommunicatiekanaal(restCommunicatiekanaal.uuid)
-                .map { it.url }
-                .ifPresent { zaak.communicatiekanaal = it }
-        }
+        zaak.communicatiekanaalNaam = restZaak.communicatiekanaal
         zaak.zaakgeometrie = restZaak.zaakgeometrie?.let { restGeometryConverter.convert(it) }
         return zaak
     }

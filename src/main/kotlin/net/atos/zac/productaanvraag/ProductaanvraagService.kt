@@ -10,7 +10,6 @@ import jakarta.json.bind.JsonbBuilder
 import jakarta.json.bind.JsonbConfig
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.ORObject
-import net.atos.client.vrl.VrlClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZRCClientService
@@ -65,7 +64,6 @@ class ProductaanvraagService @Inject constructor(
     private val zrcClientService: ZRCClientService,
     private val drcClientService: DrcClientService,
     private val ztcClientService: ZtcClientService,
-    private val vrlClientService: VrlClientService,
     private val identityService: IdentityService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
     private val zaakafhandelParameterBeheerService: ZaakafhandelParameterBeheerService,
@@ -403,19 +401,16 @@ class ProductaanvraagService @Inject constructor(
     ) {
         val formulierData = getAanvraaggegevens(productaanvraagObject)
         val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
-        val communicatieKanaal = vrlClientService.findCommunicatiekanaal(
-            ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER
-        )
         val createdZaak = Zaak().apply {
             this.zaaktype = zaaktype.url
             omschrijving = getZaakOmschrijving(productaanvraag)
             startdatum = productaanvraagObject.record.startAt
             bronorganisatie = ConfiguratieService.BRON_ORGANISATIE
-            communicatieKanaal.ifPresent { communicatiekanaal = it.url }
+            communicatiekanaalNaam = ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER
             verantwoordelijkeOrganisatie = ConfiguratieService.BRON_ORGANISATIE
-            productaanvraag.zaakgegevens?.let { zaakgegevens ->
-                if (zaakgegevens.geometry != null && zaakgegevens.geometry.type == Geometry.Type.POINT) {
-                    zaakgeometrie = zaakgegevens.geometry.convertToZgwPoint()
+            productaanvraag.zaakgegevens?.apply {
+                if (this.geometry != null && this.geometry.type == Geometry.Type.POINT) {
+                    zaakgeometrie = this.geometry.convertToZgwPoint()
                 }
             }
             // note that we leave the 'toelichting' field empty for a zaak created from a productaanvraag

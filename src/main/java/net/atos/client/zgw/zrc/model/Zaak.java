@@ -112,10 +112,9 @@ public class Zaak {
     private LocalDate publicatiedatum;
 
     /**
-     * Het medium waarlangs de aanleiding om een zaak te starten is ontvangen.
-     * URL naar een communicatiekanaal in de VNG-Referentielijst van communicatiekanalen.
+     * **EXPERIMENTEEL** De naam van het medium waarlangs de aanleiding om een zaak te starten is ontvangen.
      */
-    private URI communicatiekanaal;
+    private String communicatiekanaalNaam;
 
     /**
      * De producten en/of diensten die door de zaak worden voortgebracht.
@@ -365,12 +364,12 @@ public class Zaak {
         this.publicatiedatum = publicatiedatum;
     }
 
-    public URI getCommunicatiekanaal() {
-        return communicatiekanaal;
+    public String getCommunicatiekanaalNaam() {
+        return communicatiekanaalNaam;
     }
 
-    public void setCommunicatiekanaal(final URI communicatiekanaal) {
-        this.communicatiekanaal = communicatiekanaal;
+    public void setCommunicatiekanaalNaam(final String communicatiekanaalNaam) {
+        this.communicatiekanaalNaam = communicatiekanaalNaam;
     }
 
     public List<URI> getProductenOfDiensten() {
@@ -546,7 +545,7 @@ public class Zaak {
                ", einddatumGepland=" + einddatumGepland +
                ", uiterlijkeEinddatumAfdoening=" + uiterlijkeEinddatumAfdoening +
                ", publicatiedatum=" + publicatiedatum +
-               ", communicatiekanaal=" + communicatiekanaal +
+               ", communicatiekanaalNaam=" + communicatiekanaalNaam +
                ", productenOfDiensten=" + productenOfDiensten +
                ", vertrouwelijkheidaanduiding=" + vertrouwelijkheidaanduiding +
                ", betalingsindicatie=" + betalingsindicatie +

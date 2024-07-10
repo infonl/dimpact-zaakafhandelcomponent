@@ -31,7 +31,6 @@ C4Context
         System(BAG, "BAG")
         System(BRP, "BRP")
         System(KVK, "KVK")
-        System(VNGReferentielijsten, "VNG Referentielijsten")
         System(SMTPServer, "SMTP Mail Server")
         System(SmartDocuments, "SmartDocuments")
     }
@@ -57,7 +56,6 @@ C4Context
     Rel(ZAC, BAG, "Uses", "HaalCentraal BAG Bevragen API")
     Rel(ZAC, BRP, "Uses", "HaalCentraal BRP Bevragen API")
     Rel(ZAC, KVK, "Uses", "KVK Zoeken en Vestigingsprofielen API")
-    Rel(ZAC, VNGReferentielijsten, "Uses", "VNG Referentielijsten API")
     Rel(ZAC, SmartDocuments, "Uses", "SmartDocuments API")
     Rel(ZAC, SMTPServer, "Uses", "SMTP Mail Server")
 
@@ -115,11 +113,6 @@ Furthermore, ZAC integrates with the following external services:
 | [KVK](https://developers.kvk.nl/)                                                    | Centralized company data service.                                                  | Retrieve company data for companies related to a zaak.                                                                              | <ul><li>[Basisprofiel API](../../src/main/resources/api-specs/kvk/basisprofiel-openapi.yaml)</li><li>[Vestigingsprofiel API](../../src/main/resources/api-specs/kvk/vestigingsprofiel-openapi.yaml)</li><li>[Zoeken API](../../src/main/resources/api-specs/kvk/zoeken-openapi.yaml)</li></ul> |
 | [SMTP Server](https://www.mailjet.com/)                                              | SMTP server. Services like MailJet can also be used.                               | Send emails to employees. Only used for sending e-mails, not for managing e-mail templates (this is done in ZAC itself).            | <ul><li>SMTP Protocol</li></ul>                                                                                                                                                                                                                                                                |
 | [SmartDocuments](https://www.smartdocuments.eu/)                                     | Document creation service. Maybe used to create documents in your own look & feel. | Start a document creation 'wizard' with pre-filled zaak data where the resulting document is stored by SmartDocuments in Open Zaak. | <ul><li>SmartDocuments REST API (latest version)</li></ul>                                                                                                                                                                                                                                     |
-| [VNG Referentielijsten](https://vng-realisatie.github.io/gemma-zaken/ontwikkelaars/) | Centralized reference data service.                                                | Retrieve 'communication channels' reference data.                                                                                   | <ul><li>[Referentielijsten API](../../src/main/resources/api-specs/vrl/vrl-openapi.yaml) (see below)</li></ul>                                                                                                                                                                                 |
 
-
-
-Notes:
-- For the VNG Referentielijsten API we follow the API version convention as used by https://vng-realisatie.github.io/gemma-zaken/standaard/ (and not the one used by https://github.com/VNG-Realisatie/referentielijsten-api).
 
 For some of these external services ZAC uses mocks when running ZAC locally (please see: [development](../development/)) and (optionally) also when running ZAC on a test environment.

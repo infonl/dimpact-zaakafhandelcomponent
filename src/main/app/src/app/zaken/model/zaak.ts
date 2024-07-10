@@ -9,7 +9,6 @@ import { IdentificatieType } from "../../klanten/model/klanten/identificatieType
 import { ZaakRechten } from "../../policy/model/zaak-rechten";
 import { ZaakIndicatie } from "../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
 import { Besluit } from "./besluit";
-import { Communicatiekanaal } from "./communicatiekanaal";
 import { Geometry } from "./geometry";
 import { GerelateerdeZaak } from "./gerelateerde-zaak";
 import { ZaakKenmerk } from "./zaak-kenmerk";
@@ -36,7 +35,7 @@ export class Zaak {
   publicatiedatum: string;
   archiefActiedatum: string;
   archiefNominatie: string;
-  communicatiekanaal: Communicatiekanaal;
+  communicatiekanaal: string;
   vertrouwelijkheidaanduiding: string;
   zaakgeometrie: Geometry;
   isOpgeschort: boolean;

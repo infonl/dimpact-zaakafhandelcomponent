@@ -1,10 +1,7 @@
 package net.atos.zac.app.zaken.converter.historie
 
 import jakarta.inject.Inject
-import net.atos.client.vrl.VrlClientService
-import net.atos.client.vrl.model.generated.CommunicatieKanaal
 import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel
-import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.Geometry
 import net.atos.zac.app.audit.model.RESTHistorieActie
@@ -17,7 +14,6 @@ private const val HOOFDZAAK = "hoofdzaak"
 private const val RELEVANTE_ANDERE_ZAKEN = "relevanteAndereZaken"
 
 class RESTZaakHistoriePartialUpdateConverter @Inject constructor(
-    private val vrlClientService: VrlClientService,
     private val zrcClientService: ZRCClientService
 ) {
     fun convertPartialUpdate(
@@ -49,13 +45,7 @@ class RESTZaakHistoriePartialUpdateConverter @Inject constructor(
     private fun convertValue(resource: String, item: Any): String? =
         when {
             resource == ZAAKGEOMETRIE && item is Map<*, *> -> item.getTypedValue(Geometry::class.java)?.toString()
-            resource == COMMUNICATIEKANAAL && item is String ->
-                item
-                    .let(URI::create)
-                    .let(URIUtil::parseUUIDFromResourceURI)
-                    .let(vrlClientService::findCommunicatiekanaal)
-                    .map(CommunicatieKanaal::getNaam)
-                    .orElse(null)
+            resource == COMMUNICATIEKANAAL && item is String -> item
             resource == HOOFDZAAK && item is String ->
                 item
                     .let(URI::create)

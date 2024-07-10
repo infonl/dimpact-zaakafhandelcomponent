@@ -127,7 +127,7 @@ class NotificationsTest : BehaviorSpec({
                         // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
                         // since we have defined zaakafhandelparameters for this zaaktype a CMMN proces should be started
                         getBoolean("isProcesGestuurd") shouldBe false
-                        getJSONObject("communicatiekanaal").getString("naam") shouldBe "E-formulier"
+                        getString("communicatiekanaal") shouldBe "E-formulier"
                         getString("omschrijving") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
                             "met kenmerk '$OPEN_FORMULIEREN_PRODUCTAANVRAAG_FORMULIER_1_BRON_KENMERK'"
                         getString("uiterlijkeEinddatumAfdoening") shouldBe ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING
@@ -196,7 +196,7 @@ class NotificationsTest : BehaviorSpec({
                         // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
                         // since we have defined zaakafhandelparameters for this zaaktype a CMMN proces should be started
                         getBoolean("isProcesGestuurd") shouldBe false
-                        getJSONObject("communicatiekanaal").getString("naam") shouldBe "E-formulier"
+                        getString("communicatiekanaal") shouldBe "E-formulier"
                         getString("omschrijving") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
                             "met kenmerk '$OPEN_FORMULIEREN_PRODUCTAANVRAAG_FORMULIER_2_BRON_KENMERK'"
                         getString("initiatorIdentificatie") shouldBe TEST_KVK_VESTIGINGSNUMMER_1

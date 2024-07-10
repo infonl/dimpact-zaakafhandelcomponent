@@ -14,8 +14,6 @@ import io.mockk.verify
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createORObject
 import net.atos.client.or.`object`.model.createObjectRecord
-import net.atos.client.vrl.VrlClientService
-import net.atos.client.vrl.model.generated.CommunicatieKanaal
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.ZGWApiService
@@ -53,7 +51,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     val zrcClientService = mockk<ZRCClientService>()
     val drcClientService = mockk<DrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
-    val vrlClientService = mockk<VrlClientService>()
     val identityService = mockk<IdentityService>()
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
     val zaakafhandelParameterBeheerService = mockk<ZaakafhandelParameterBeheerService>()
@@ -68,7 +65,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         zrcClientService,
         drcClientService,
         ztcClientService,
-        vrlClientService,
         identityService,
         zaakafhandelParameterService,
         zaakafhandelParameterBeheerService,
@@ -200,7 +196,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val zaakTypeUUID = UUID.randomUUID()
         val productAanvraagType = "productaanvraag"
         val zaakType = createZaakType()
-        val communicatieKanaal = CommunicatieKanaal()
         val createdZaak = createZaak()
         val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
         val createdZaakInformatieobject = createZaakInformatieobject()
@@ -241,7 +236,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(productAanvraagType)
         } returns Optional.of(zaakTypeUUID)
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
-        every { vrlClientService.findCommunicatiekanaal("E-formulier") } returns Optional.of(communicatieKanaal)
         every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
         every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID) } returns zaakafhandelParameters
         every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
@@ -271,7 +265,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 }
                 with(zaakToBeCreated.captured) {
                     zaaktype shouldBe zaakType.url
-                    communicatiekanaal shouldBe communicatieKanaal.url
+                    communicatiekanaalNaam shouldBe "E-formulier"
                     bronorganisatie shouldBe BRON_ORGANISATIE
                     omschrijving shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'"
                     toelichting shouldBe null
@@ -302,7 +296,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val zaakTypeUUID = UUID.randomUUID()
         val productAanvraagType = "productaanvraag"
         val zaakType = createZaakType()
-        val communicatieKanaal = CommunicatieKanaal()
         val createdZaak = createZaak()
         val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
         val createdZaakInformatieobject = createZaakInformatieobject()
@@ -336,7 +329,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(productAanvraagType)
         } returns Optional.of(zaakTypeUUID)
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
-        every { vrlClientService.findCommunicatiekanaal("E-formulier") } returns Optional.of(communicatieKanaal)
         every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
         every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID) } returns zaakafhandelParameters
         every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
@@ -366,7 +358,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 }
                 with(zaakToBeCreated.captured) {
                     zaaktype shouldBe zaakType.url
-                    communicatiekanaal shouldBe communicatieKanaal.url
+                    communicatiekanaalNaam shouldBe "E-formulier"
                     bronorganisatie shouldBe BRON_ORGANISATIE
                     omschrijving shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'"
                     toelichting shouldBe null
@@ -391,7 +383,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val zaakTypeUUID = UUID.randomUUID()
         val productAanvraagType = "productaanvraag"
         val zaakType = createZaakType()
-        val communicatieKanaal = CommunicatieKanaal()
         val createdZaak = createZaak()
         val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
         val createdZaakInformatieobject = createZaakInformatieobject()
@@ -419,7 +410,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(productAanvraagType)
         } returns Optional.of(zaakTypeUUID)
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
-        every { vrlClientService.findCommunicatiekanaal("E-formulier") } returns Optional.of(communicatieKanaal)
         every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
         every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID) } returns zaakafhandelParameters
         every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
@@ -450,7 +440,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 }
                 with(zaakToBeCreated.captured) {
                     zaaktype shouldBe zaakType.url
-                    communicatiekanaal shouldBe communicatieKanaal.url
+                    communicatiekanaalNaam shouldBe "E-formulier"
                     bronorganisatie shouldBe BRON_ORGANISATIE
                     omschrijving shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'"
                     toelichting shouldBe null

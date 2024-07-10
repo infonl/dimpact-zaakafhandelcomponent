@@ -79,7 +79,7 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
   );
   private initiator: Klant;
   private readonly inboxProductaanvraag: InboxProductaanvraag;
-  private communicatiekanalen: Observable<{ naam: string; uuid: string }[]>;
+  private communicatiekanalen: Observable<string[]>;
   private communicatiekanaalField: SelectFormField;
 
   constructor(
@@ -373,7 +373,7 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
     this.toelichtingField.formControl.setValue(defaultToelichting);
     this.communicatiekanalen.subscribe((data) => {
       this.communicatiekanaalField.value(
-        data.find((c) => c.naam === ZaakCreateComponent.KANAAL_E_FORMULIER),
+        data.find((c) => c === ZaakCreateComponent.KANAAL_E_FORMULIER),
       );
     });
   }
