@@ -33,6 +33,7 @@ public class ReferentieTabel {
     public enum Systeem {
         ADVIES,
         AFZENDER,
+        COMMUNICATIEKANAAL,
         DOMEIN,
         SERVER_ERROR_ERROR_PAGINA_TEKST
     }
