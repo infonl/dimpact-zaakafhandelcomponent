@@ -76,6 +76,7 @@ ZAC maakt onderscheid tussen systeemreferentietabellen en zelf toegevoegde refer
 ZAC kent de volgende systeemreferentietabellen:
 - ADVIES | bevat de mogelijk waarde voor de keuzelijst ‘Advies’ die gebruikt wordt bij het afronden van de taak ‘Intern advies’
 - AFZENDER | bevat de mogelijke afzenders van een e-mail; zie sectie 'Mailafzenders' voor meer details
+- COMMUNICATIEKANAAL | bevat de mogelijke waarden voor de keuzelijst ‘Communicatiekanaal’ die gebruikt wordt bij het aanmaken of aanpassen van een zaak
 - DOMEIN | bevat de mogelijke domeinen die gebruikt worden in de zaakafhandelparameters
 - SERVER_ERROR_ERROR_PAGINA_TEKST | bevat (optionele) tekstparagrafen die getoond worden bij foutmeldingen voor 'server errors' (technische fouten afkomstig van de server of onderliggende systemen). Door een volgende waarde toe te voegen, zal deze onder de al bestaande waarde(s) worden getoond bij de foutmelding. 
 Dit kunnen bijvoorbeeld doorverwijzingen zijn naar een functioneelbeheerafdeling van de gemeente. Bijvoorbeeld: "Neem s.v.p. contact op met ...".  
