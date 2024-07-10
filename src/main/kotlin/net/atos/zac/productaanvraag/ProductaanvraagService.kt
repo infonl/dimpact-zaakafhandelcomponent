@@ -196,10 +196,9 @@ class ProductaanvraagService @Inject constructor(
 
     fun getFormulierData(productaanvraagObject: ORObject): Map<String, Any> {
         val formulierData = mutableMapOf<String, Any>()
-        (productaanvraagObject.record.data[PRODUCTAANVRAAG_FORMULIER_VELD_AANVRAAGGEGEVENS] as Map<*, *>)
-            .values.forEach {
-                formulierData.putAll(it as Map<String, Any>)
-            }
+        (productaanvraagObject.record.data[PRODUCTAANVRAAG_FORMULIER_VELD_AANVRAAGGEGEVENS] as Map<*, *>).values.forEach {
+            formulierData.putAll(it as Map<String, Any>)
+        }
         return formulierData
     }
 
@@ -319,33 +318,7 @@ class ProductaanvraagService @Inject constructor(
         pairProductaanvraagWithZaak(productaanvraagObject, zaak.url)
         pairAanvraagPDFWithZaak(productaanvraag, zaak.url)
         productaanvraag.bijlagen?.let { pairBijlagenWithZaak(it, zaak.url) }
-        // only one initiator per zaak is supported so in case there are multiple we only take the first one
-        productaanvraag.betrokkenen?.first {
-            it.rolOmschrijvingGeneriek == Betrokkene.RolOmschrijvingGeneriek.INITIATOR
-        }?.let { initiatorBetrokkene ->
-            when {
-                initiatorBetrokkene.inpBsn != null -> {
-                    addNatuurlijkPersoonInitiatorRole(
-                        initiatorBetrokkene.inpBsn,
-                        zaak.url,
-                        zaak.zaaktype
-                    )
-                }
-                initiatorBetrokkene.vestigingsNummer != null -> {
-                    addVestigingInitiatorRole(
-                        initiatorBetrokkene.vestigingsNummer,
-                        zaak.url,
-                        zaak.zaaktype
-                    )
-                }
-                else -> {
-                    LOG.warning(
-                        "Betrokkene with initiator role in productaanvraag does not contain a BSN or vestigingsnummer. " +
-                            "No initiator role created for productaanvraag: '$productaanvraag'."
-                    )
-                }
-            }
-        }
+        addBetrokkenen(productaanvraag, zaak)
     }
 
     fun pairProductaanvraagWithZaak(productaanvraag: ORObject, zaakUrl: URI) {
@@ -375,6 +348,41 @@ class ProductaanvraagService @Inject constructor(
             zaakInformatieobject.beschrijving = bijlage.beschrijving
             zrcClientService.createZaakInformatieobject(zaakInformatieobject, ZAAK_INFORMATIEOBJECT_REDEN)
         }
+
+    private fun addBetrokkenen(
+        productaanvraag: ProductaanvraagDimpact,
+        zaak: Zaak
+    ) {
+        // only one initiator per zaak is supported so in case there are multiple we only take the first one
+        productaanvraag.betrokkenen?.first {
+            it.rolOmschrijvingGeneriek == Betrokkene.RolOmschrijvingGeneriek.INITIATOR
+        }?.let { initiatorBetrokkene ->
+            when {
+                initiatorBetrokkene.inpBsn != null -> {
+                    addNatuurlijkPersoonInitiatorRole(
+                        initiatorBetrokkene.inpBsn,
+                        zaak.url,
+                        zaak.zaaktype
+                    )
+                }
+
+                initiatorBetrokkene.vestigingsNummer != null -> {
+                    addVestigingInitiatorRole(
+                        initiatorBetrokkene.vestigingsNummer,
+                        zaak.url,
+                        zaak.zaaktype
+                    )
+                }
+
+                else -> {
+                    LOG.warning(
+                        "Betrokkene with initiator role in productaanvraag does not contain a BSN or vestigingsnummer. " +
+                            "No initiator role created for productaanvraag: '$productaanvraag'."
+                    )
+                }
+            }
+        }
+    }
 
     private fun assignZaak(zaak: Zaak, zaakafhandelParameters: ZaakafhandelParameters) {
         zaakafhandelParameters.groepID?.let {
