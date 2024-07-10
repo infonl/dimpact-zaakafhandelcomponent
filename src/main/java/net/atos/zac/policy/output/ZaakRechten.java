@@ -25,7 +25,6 @@ public record ZaakRechten(
                           boolean creeerenDocument,
                           boolean toevoegenDocument,
                           boolean koppelen,
-                          boolean koppelenGerelateerd,
                           boolean versturenEmail,
                           boolean versturenOntvangstbevestiging,
                           boolean toevoegenInitiatorPersoon,
@@ -56,7 +55,6 @@ public record ZaakRechten(
             @JsonbProperty("creeeren_document") final boolean creeerenDocument,
             @JsonbProperty("toevoegen_document") final boolean toevoegenDocument,
             @JsonbProperty("koppelen") final boolean koppelen,
-            @JsonbProperty("koppelen_gerelateerd") final boolean koppelenGerelateerd,
             @JsonbProperty("versturen_email") final boolean versturenEmail,
             @JsonbProperty("versturen_ontvangstbevestiging") final boolean versturenOntvangstbevestiging,
             @JsonbProperty("toevoegen_initiator_persoon") final boolean toevoegenInitiatorPersoon,
@@ -84,7 +82,6 @@ public record ZaakRechten(
         this.creeerenDocument = creeerenDocument;
         this.toevoegenDocument = toevoegenDocument;
         this.koppelen = koppelen;
-        this.koppelenGerelateerd = koppelenGerelateerd;
         this.versturenEmail = versturenEmail;
         this.versturenOntvangstbevestiging = versturenOntvangstbevestiging;
         this.toevoegenInitiatorPersoon = toevoegenInitiatorPersoon;

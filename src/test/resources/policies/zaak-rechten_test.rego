@@ -370,6 +370,11 @@ test_koppelen_zaak_closed_fails if {
         with input.zaak.open as false
 }
 
+test_koppelen_recordmanager if {
+    koppelen
+        with input.user.rollen as [ "recordmanager" ]
+}
+
 test_koppelen_wrong_role_fails if {
     not koppelen with input.user.rollen as [ "functioneel" ]
 }
@@ -378,20 +383,6 @@ test_koppelen_missing_role_fails if {
     not koppelen with input.user.key as "value"
 }
 
-######################
-# koppelen_gerelateerd
-######################
-test_koppelen_gerelateerd if {
-    koppelen_gerelateerd with input.user.rollen as [ "behandelaar" ]
-}
-
-test_koppelen_gerelateerd_wrong_role_fails if {
-    not koppelen_gerelateerd with input.user.rollen as [ "functioneel" ]
-}
-
-test_koppelen_gerelateerd_missing_role_fails if {
-    not koppelen_gerelateerd with input.user.key as "value"
-}
 
 #################
 # versturen_email

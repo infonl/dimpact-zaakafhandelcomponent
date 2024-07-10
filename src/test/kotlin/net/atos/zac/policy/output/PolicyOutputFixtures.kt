@@ -71,7 +71,6 @@ fun createZaakRechten(
     creeerenDocument: Boolean = true,
     toevoegenDocument: Boolean = true,
     koppelen: Boolean = true,
-    koppelenGerelateerd: Boolean = true,
     versturenEmail: Boolean = true,
     versturenOntvangstbevestiging: Boolean = true,
     toevoegenInitiatorPersoon: Boolean = true,
@@ -86,10 +85,10 @@ fun createZaakRechten(
     verlengenDoorlooptijd: Boolean = true
 ) = ZaakRechten(
     lezen, wijzigen, toekennen, behandelen, afbreken, heropenen, bekijkenZaakdata, wijzigenDoorlooptijd,
-    verlengen, opschorten, hervatten, creeerenDocument, toevoegenDocument, koppelen, koppelenGerelateerd,
-    versturenEmail, versturenOntvangstbevestiging, toevoegenInitiatorPersoon, toevoegenInitiatorBedrijf,
-    verwijderenInitiator, toevoegenBetrokkenePersoon, toevoegenBetrokkeneBedrijf, verwijderenBetrokkene,
-    toevoegenBagObject, startenTaak, vastleggenBesluit, verlengenDoorlooptijd
+    verlengen, opschorten, hervatten, creeerenDocument, toevoegenDocument, koppelen, versturenEmail,
+    versturenOntvangstbevestiging, toevoegenInitiatorPersoon, toevoegenInitiatorBedrijf, verwijderenInitiator,
+    toevoegenBetrokkenePersoon, toevoegenBetrokkeneBedrijf, verwijderenBetrokkene, toevoegenBagObject, startenTaak,
+    vastleggenBesluit, verlengenDoorlooptijd
 )
 
 @Suppress("LongParameterList")
@@ -108,7 +107,6 @@ fun createZaakRechtenAllDeny(
     creeerenDocument: Boolean = false,
     toevoegenDocument: Boolean = false,
     koppelen: Boolean = false,
-    koppelenGerelateerd: Boolean = false,
     versturenEmail: Boolean = false,
     versturenOntvangstbevestiging: Boolean = false,
     toevoegenInitiatorPersoon: Boolean = false,
@@ -136,7 +134,6 @@ fun createZaakRechtenAllDeny(
     creeerenDocument,
     toevoegenDocument,
     koppelen,
-    koppelenGerelateerd,
     versturenEmail,
     versturenOntvangstbevestiging,
     toevoegenInitiatorPersoon,
