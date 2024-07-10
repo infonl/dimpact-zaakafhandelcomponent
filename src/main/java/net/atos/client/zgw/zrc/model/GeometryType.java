@@ -31,7 +31,7 @@ public enum GeometryType implements AbstractEnum<GeometryType> {
         return AbstractEnum.fromValue(values(), value);
     }
 
-    static class Adapter extends AbstractEnum.Adapter<GeometryType> {
+    public static class Adapter extends AbstractEnum.Adapter<GeometryType> {
         @Override
         protected GeometryType[] getEnums() {
             return values();
