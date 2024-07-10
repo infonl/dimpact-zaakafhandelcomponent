@@ -25,7 +25,7 @@ data class RESTZaak(
     var behandelaar: RESTUser?,
     var besluiten: List<RESTBesluit>?,
     var bronorganisatie: String?,
-    var communicatiekanaal: RESTCommunicatiekanaal?,
+    var communicatiekanaal: String?,
     var duurVerlenging: String?,
     var einddatumGepland: LocalDate?,
     var einddatum: LocalDate?,

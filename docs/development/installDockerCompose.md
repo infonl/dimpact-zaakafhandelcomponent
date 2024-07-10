@@ -51,8 +51,6 @@ The following services will be started:
 | Solr                                            |    8983     |
 | Open Policy Agent                               |    8181     |
 | OpenLDAP                                        |      -      |
-| VNG Referentielijsten (VRL)                     |    8020     |
-| VNG Referentielijsten (VRL) database (postgres) |    54321    |
 | ZAC database (postgres)                         |    54320    |
 
 Note that it may take a while for all services to start up completely.
@@ -160,10 +158,6 @@ You may wish to change the email addresses of the test users to your own domain.
 
 ![Basic ZAC OpenLDAP setup](./attachments/images/zac-openldap-1.png)
 
-### VNG Referentielijsten (=VRL)
-
-The VRL database is automatically created by the Docker Compose file and (test) data as required by ZAC is automatically imported.
-
 ### Open Klant
 
 Basic configuration required by ZAC is automatically imported into the Open Klant database from the Docker Compose file.
@@ -185,14 +179,3 @@ To do so run the Docker Compose start script with the `-d` option:
 ```
 ./start-docker-compose.sh -d
 ```
-
-## Updating the VNG-Referentielijsten Docker Images
-
-We host the VNG-Referentielijsten images on our own Github Packages because they do no support multiple OS architectures. To update these, follow these steps:
-
-1. Check out https://github.com/VNG-Realisatie/VNG-referentielijsten.git
-2. Go to the repo directory.
-3. `docker login ghcr.io -u <your github user>` to login to GitHub
-4. `docker run --privileged --rm tonistiigi/binfmt --install amd64,arm64` to install the environments to emulate.
-5. `docker buildx create --name mybuilder --bootstrap --use` to create and select a builder to build images for multiple architextures.
-6. `docker buildx build --push --tag ghcr.io/infonl/vng-referentielijsten:<tag> --platform linux/arm64,linux/amd64 --no-cache .` This will build and push the new version to github. Remember to update the used version in the docker-compose file.

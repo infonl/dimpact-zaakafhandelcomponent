@@ -12,8 +12,6 @@ import jakarta.inject.Inject;
 
 import org.apache.commons.collections.CollectionUtils;
 
-import net.atos.client.vrl.VrlClientService;
-import net.atos.client.vrl.model.generated.CommunicatieKanaal;
 import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.zrc.ZRCClientService;
@@ -40,7 +38,6 @@ import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
 public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoekObject> {
     private final ZRCClientService zrcClientService;
     private final ZtcClientService ztcClientService;
-    private final VrlClientService vrlClientService;
     private final ZGWApiService zgwApiService;
     private final IdentityService identityService;
     private final FlowableTaskService flowableTaskService;
@@ -49,14 +46,12 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
     public ZaakZoekObjectConverter(
             ZRCClientService zrcClientService,
             ZtcClientService ztcClientService,
-            VrlClientService vrlClientService,
             ZGWApiService zgwApiService,
             IdentityService identityService,
             FlowableTaskService flowableTaskService
     ) {
         this.zrcClientService = zrcClientService;
         this.ztcClientService = ztcClientService;
-        this.vrlClientService = vrlClientService;
         this.zgwApiService = zgwApiService;
         this.identityService = identityService;
         this.flowableTaskService = flowableTaskService;
@@ -79,26 +74,21 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
         zaakZoekObject.setEinddatumGepland(DateTimeConverterUtil.convertToDate(zaak.getEinddatumGepland()));
         zaakZoekObject.setEinddatum(DateTimeConverterUtil.convertToDate(zaak.getEinddatum()));
         zaakZoekObject.setUiterlijkeEinddatumAfdoening(
-                DateTimeConverterUtil.convertToDate(zaak.getUiterlijkeEinddatumAfdoening()));
+                DateTimeConverterUtil.convertToDate(zaak.getUiterlijkeEinddatumAfdoening())
+        );
         zaakZoekObject.setPublicatiedatum(DateTimeConverterUtil.convertToDate(zaak.getPublicatiedatum()));
         zaakZoekObject.setVertrouwelijkheidaanduiding(zaak.getVertrouwelijkheidaanduiding().toString());
         zaakZoekObject.setAfgehandeld(!zaak.isOpen());
-
         zgwApiService.findInitiatorForZaak(zaak).ifPresent(zaakZoekObject::setInitiator);
         zaakZoekObject.setLocatie(convertToLocatie(zaak.getZaakgeometrie()));
+        zaakZoekObject.setCommunicatiekanaal(zaak.getCommunicatiekanaalNaam());
 
         addBetrokkenen(zaak, zaakZoekObject);
 
-        if (zaak.getCommunicatiekanaal() != null) {
-            vrlClientService.findCommunicatiekanaal(uuidFromURI(zaak.getCommunicatiekanaal()))
-                    .map(CommunicatieKanaal::getNaam)
-                    .ifPresent(zaakZoekObject::setCommunicatiekanaal);
-        }
-
-        final Group groep = findGroep(zaak);
-        if (groep != null) {
-            zaakZoekObject.setGroepID(groep.getId());
-            zaakZoekObject.setGroepNaam(groep.getName());
+        final Group group = findGroup(zaak);
+        if (group != null) {
+            zaakZoekObject.setGroepID(group.getId());
+            zaakZoekObject.setGroepNaam(group.getName());
         }
 
         final User behandelaar = findBehandelaar(zaak);
@@ -179,7 +169,7 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
     }
 
 
-    private Group findGroep(final Zaak zaak) {
+    private Group findGroup(final Zaak zaak) {
         return zgwApiService.findGroepForZaak(zaak)
                 .map(groep -> identityService.readGroup(groep.getBetrokkeneIdentificatie().getIdentificatie()))
                 .orElse(null);

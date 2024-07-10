@@ -225,10 +225,7 @@ class ZacClient {
                 "      \"id\": \"$groupId\",\n" +
                 "      \"naam\": \"$groupName\"\n" +
                 "    },\n" +
-                "    \"communicatiekanaal\": {\n" +
-                "      \"naam\": \"E-mail\",\n" +
-                "      \"uuid\": \"$COMMUNICATIEKANAAL_EMAIL\"\n" +
-                "    },\n" +
+                "    \"communicatiekanaal\": \"$COMMUNICATIEKANAAL_EMAIL\",\n" +
                 "    \"vertrouwelijkheidaanduiding\": \"openbaar\",\n" +
                 "    \"omschrijving\": \"dummyOmschrijving\",\n" +
                 "    \"toelichting\": null\n" +

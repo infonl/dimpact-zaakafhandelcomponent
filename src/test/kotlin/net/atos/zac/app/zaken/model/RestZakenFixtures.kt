@@ -53,14 +53,6 @@ fun createRESTBesluitVastleggenGegevens(
         zaakUuid = zaakUuid
     )
 
-fun createRESTCommunicatiekanaal(
-    uuid: UUID = UUID.randomUUID(),
-    naam: String = "dummyName"
-) = RESTCommunicatiekanaal(
-    uuid = uuid,
-    naam = naam
-)
-
 fun createRESTGerelateerdeZaak() = RESTGerelateerdeZaak()
 
 fun createRESTGeometry(
@@ -113,7 +105,7 @@ fun createRESTZaak(
     publicatiedatum = LocalDate.of(2023, 9, 16),
     archiefActiedatum = LocalDate.of(2023, 10, 15),
     archiefNominatie = "Sample Archief Nominatie",
-    communicatiekanaal = createRESTCommunicatiekanaal(),
+    communicatiekanaal = "dummyCommunicatiekanaal",
     vertrouwelijkheidaanduiding = "Sample Vertrouwelijkheidaanduiding",
     zaakgeometrie = createRESTGeometry(),
     isOpgeschort = true,

@@ -8,7 +8,6 @@ package net.atos.zac.documentcreatie.converter;
 import static net.atos.client.or.shared.util.URIUtil.getUUID;
 import static net.atos.client.zgw.zrc.model.Objecttype.OVERIGE;
 import static net.atos.zac.util.StringUtil.joinNonBlank;
-import static net.atos.zac.util.UriUtil.uuidFromURI;
 
 import java.net.URI;
 import java.util.Objects;
@@ -25,8 +24,6 @@ import net.atos.client.brp.model.generated.VerblijfadresBinnenland;
 import net.atos.client.kvk.KvkClientService;
 import net.atos.client.kvk.zoeken.model.generated.ResultaatItem;
 import net.atos.client.or.object.ObjectsClientService;
-import net.atos.client.vrl.VrlClientService;
-import net.atos.client.vrl.model.generated.CommunicatieKanaal;
 import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Rol;
@@ -51,7 +48,6 @@ import net.atos.zac.identity.IdentityService;
 import net.atos.zac.productaanvraag.ProductaanvraagService;
 
 public class DataConverter {
-
     public static final String DATE_FORMAT = "dd-MM-yyyy";
 
     @Inject
@@ -62,9 +58,6 @@ public class DataConverter {
 
     @Inject
     private ZtcClientService ztcClientService;
-
-    @Inject
-    private VrlClientService vrlClientService;
 
     @Inject
     private BRPClientService brpClientService;
@@ -108,40 +101,35 @@ public class DataConverter {
 
     private ZaakData createZaakData(final Zaak zaak) {
         final ZaakData zaakData = new ZaakData();
-
+        zaakData.communicatiekanaal = zaak.getCommunicatiekanaalNaam();
         zaakData.identificatie = zaak.getIdentificatie();
+        zaakData.einddatum = zaak.getEinddatum();
+        zaakData.einddatumGepland = zaak.getEinddatumGepland();
         zaakData.omschrijving = zaak.getOmschrijving();
-        zaakData.toelichting = zaak.getToelichting();
-        zaakData.zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype()).getOmschrijving();
         zaakData.registratiedatum = zaak.getRegistratiedatum();
         zaakData.startdatum = zaak.getStartdatum();
-        zaakData.einddatumGepland = zaak.getEinddatumGepland();
+        zaakData.toelichting = zaak.getToelichting();
+        zaakData.zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype()).getOmschrijving();
         zaakData.uiterlijkeEinddatumAfdoening = zaak.getUiterlijkeEinddatumAfdoening();
-        zaakData.einddatum = zaak.getEinddatum();
-
         if (zaak.getStatus() != null) {
             zaakData.status = ztcClientService.readStatustype(
-                    zrcClientService.readStatus(zaak.getStatus()).getStatustype()).getOmschrijving();
+                    zrcClientService.readStatus(zaak.getStatus()).getStatustype()
+            ).getOmschrijving();
         }
-
         if (zaak.getResultaat() != null) {
             zaakData.resultaat = ztcClientService.readResultaattype(
-                    zrcClientService.readResultaat(zaak.getResultaat()).getResultaattype())
-                    .getOmschrijving();
+                    zrcClientService.readResultaat(zaak.getResultaat()).getResultaattype()
+            ).getOmschrijving();
         }
-
         if (zaak.isOpgeschort()) {
             zaakData.opschortingReden = zaak.getOpschorting().getReden();
         }
-
         if (zaak.isVerlengd()) {
             zaakData.verlengingReden = zaak.getVerlenging().getReden();
         }
-
         if (zaak.getVertrouwelijkheidaanduiding() != null) {
             zaakData.vertrouwelijkheidaanduiding = zaak.getVertrouwelijkheidaanduiding().toString();
         }
-
         zgwApiService.findGroepForZaak(zaak)
                 .map(RolOrganisatorischeEenheid::getNaam)
                 .ifPresent(groep -> zaakData.groep = groep);
@@ -149,13 +137,6 @@ public class DataConverter {
         zgwApiService.findBehandelaarForZaak(zaak)
                 .map(RolMedewerker::getNaam)
                 .ifPresent(behandelaar -> zaakData.behandelaar = behandelaar);
-
-        if (zaak.getCommunicatiekanaal() != null) {
-            vrlClientService.findCommunicatiekanaal(uuidFromURI(zaak.getCommunicatiekanaal()))
-                    .map(CommunicatieKanaal::getNaam)
-                    .ifPresent(communicatiekanaal -> zaakData.communicatiekanaal = communicatiekanaal);
-        }
-
         return zaakData;
     }
 

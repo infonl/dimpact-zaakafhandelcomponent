@@ -48,7 +48,6 @@ SD_CLIENT_MP_REST_URL=op://Dimpact/ZAC-.env-$APP_ENV/SD/CLIENT_MP_REST_URL
 SD_FIXED_USER_NAME=op://Dimpact/ZAC-.env-$APP_ENV/SD/SD_FIXED_USER_NAME
 SIGNALERINGEN_DELETE_OLDER_THAN_DAYS=14
 SOLR_URL=http://localhost:8983
-VRL_API_CLIENT_MP_REST_URL=http://host.docker.internal:8020/
 ZGW_API_CLIENT_MP_REST_URL=http://localhost:8001/
 ZGW_API_CLIENTID=zac_client
 ZGW_API_SECRET=openzaakZaakafhandelcomponentClientSecret

@@ -20,7 +20,6 @@ import jakarta.enterprise.inject.Instance
 import kotlinx.coroutines.test.runTest
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createORObject
-import net.atos.client.vrl.VrlClientService
 import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.ZGWApiService
@@ -122,7 +121,6 @@ class ZakenRESTServiceTest : BehaviorSpec({
     val restHistorieRegelConverter: RESTHistorieRegelConverter = mockk<RESTHistorieRegelConverter>()
     val signaleringService: SignaleringService = mockk<SignaleringService>()
     val flowableTaskService: FlowableTaskService = mockk<FlowableTaskService>()
-    val vrlClientService: VrlClientService = mockk<VrlClientService>()
     val zaakafhandelParameterService: ZaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
     val zaakVariabelenService: ZaakVariabelenService = mockk<ZaakVariabelenService>()
     val zaakService: ZaakService = mockk<ZaakService>()
@@ -164,7 +162,6 @@ class ZakenRESTServiceTest : BehaviorSpec({
         restZaakOverzichtConverter = restZaakOverzichtConverter,
         signaleringService = signaleringService,
         flowableTaskService = flowableTaskService,
-        vrlClientService = vrlClientService,
         restZaaktypeConverter = restZaaktypeConverter,
         restZaakHistorieRegelConverter = restZaakHistorieRegelConverter
     )

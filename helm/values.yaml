@@ -90,10 +90,6 @@ bagApi:
   url: "" # https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2
   apiKey: ""
 
-# Configuration of the Referentielijsten & Selectielijst API provider (VNG)
-vrlApi:
-  url: "" # http://vng-referentielijsten.internal
-
 # Configuration of the Open Forms URL
 openForms:
   url: "" # https://open-forms.example.com

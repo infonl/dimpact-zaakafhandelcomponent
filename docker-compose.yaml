@@ -268,50 +268,6 @@ services:
     entrypoint: ["/zac-scripts/generate-zac-import-ldif-and-start-openldap.sh"]
     command: ["/opt/bitnami/scripts/openldap/run.sh"]
 
-  # VNG ZGW referentielijsten ('VRL') (see: https://github.com/VNG-Realisatie/VNG-referentielijsten)
-  zgw-referentielijsten-database:
-    image: postgres:16.3
-    ports:
-      - "54321:5432"
-    environment:
-      - POSTGRES_USER=vrl
-      - POSTGRES_PASSWORD=vrl
-      - POSTGRES_DB=vrl
-    volumes:
-      - ./scripts/docker-compose/volume-data/zgw-referentielijsten-database-data:/var/lib/postgresql/data
-
-  # This container name must contain a '.' or else Open Zaak will respond with a 400
-  # error on certain API requests caused by an internal 'invalid URL' error.
-  zgw-referentielijsten.local:
-    image: ghcr.io/infonl/vng-referentielijsten:0.6.1
-    environment:
-      - DB_HOST=zgw-referentielijsten-database
-      - DB_NAME=vrl
-      - DB_USER=vrl
-      - DB_PASSWORD=vrl
-      - DJANGO_SETTINGS_MODULE=vrl.conf.docker
-      - SECRET_KEY=zgwReferentielijstenSecretKey
-    ports:
-      - "8020:8000"
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "http://0.0.0.0:8000"]
-      interval: 10s
-      timeout: 10s
-      retries: 10
-      start_period: 30s
-    depends_on:
-      - zgw-referentielijsten-database
-
-  # Insert required test data into the VRL database after the VRL application has started up and finished initializing the database
-  zgw-referentielijsten-database-init:
-    image: postgres:16.3
-    volumes:
-      - ./scripts/docker-compose/imports/zgw-referentielijsten/init-zgw-referentielijsten-database.sql:/tmp/init-zgw-referentielijsten-database.sql
-    command: bash -c "psql postgresql://vrl:vrl@zgw-referentielijsten-database/vrl < /tmp/init-zgw-referentielijsten-database.sql"
-    depends_on:
-      zgw-referentielijsten.local:
-        condition: service_healthy
-
   # The GBA mock is required by the BRP proxy
   gbamock:
     image: ghcr.io/brp-api/haal-centraal-brp-bevragen-gba-mock:2.0.8
@@ -531,7 +487,6 @@ services:
       # Typically when using the Docker Compose profile 'metrics' you want to turn this on
       - SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE=${SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE:-off}
       - SUBSYSTEM_OPENTELEMETRY__ENDPOINT=http://otel-collector:4317
-      - VRL_API_CLIENT_MP_REST_URL=http://zgw-referentielijsten.local:8000/
       - ZGW_API_CLIENT_MP_REST_URL=http://openzaak.local:8000/
       - ZGW_API_CLIENTID=zac_client
       - ZGW_API_SECRET=openzaakZaakafhandelcomponentClientSecret

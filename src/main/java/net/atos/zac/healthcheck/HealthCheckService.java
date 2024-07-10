@@ -18,7 +18,6 @@ import jakarta.inject.Singleton;
 import org.apache.commons.collections4.CollectionUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import net.atos.client.vrl.VrlClientService;
 import net.atos.client.zgw.shared.util.URIUtil;
 import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.Afleidingswijze;
@@ -39,9 +38,6 @@ public class HealthCheckService {
     private ZtcClientService ztcClientService;
 
     @Inject
-    private VrlClientService vrlClientService;
-
-    @Inject
     private ZaakafhandelParameterService zaakafhandelParameterBeheerService;
 
     @Inject
@@ -59,7 +55,8 @@ public class HealthCheckService {
     private BuildInformatie buildInformatie;
 
     public boolean bestaatCommunicatiekanaalEformulier() {
-        return vrlClientService.findCommunicatiekanaal(ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER).isPresent();
+        // TODO: check in referentietabelservice
+        return true;
     }
 
     public ZaaktypeInrichtingscheck controleerZaaktype(final URI zaaktypeUrl) {
