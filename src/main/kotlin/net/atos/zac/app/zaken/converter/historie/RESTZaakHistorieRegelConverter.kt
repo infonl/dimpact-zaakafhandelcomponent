@@ -35,8 +35,8 @@ class RESTZaakHistorieRegelConverter @Inject constructor(
     private val restZaakHistoriePartialUpdateConverter: RESTZaakHistoriePartialUpdateConverter
 ) {
     fun convertZaakRESTHistorieRegel(auditTrail: ZRCAuditTrailRegel): List<RESTHistorieRegel> {
-        val old = auditTrail.wijzigingen.oud as? Map<*, *>
-        val new = auditTrail.wijzigingen.nieuw as? Map<*, *>
+        val old = auditTrail.wijzigingen.oud.asMapWithKeyOfString()
+        val new = auditTrail.wijzigingen.nieuw.asMapWithKeyOfString()
         return when {
             auditTrail.actie == PARTIAL_UPDATE &&
                 old != null &&
@@ -57,7 +57,8 @@ class RESTZaakHistorieRegelConverter @Inject constructor(
         }
     }
 
-    private fun convertLine(auditTrail: ZRCAuditTrailRegel, old: Map<*, *>?, new: Map<*, *>?): RESTHistorieRegel? =
+    private fun convertLine(auditTrail: ZRCAuditTrailRegel, old: Map<String, *>?, new: Map<String, *>?):
+        RESTHistorieRegel? =
         (old ?: new)
             ?.let { convertResource(auditTrail.resource, it) }
             ?.let { resource ->
@@ -74,7 +75,7 @@ class RESTZaakHistorieRegelConverter @Inject constructor(
                 actie = convertActie(auditTrail.resource, auditTrail.actie)
             }
 
-    private fun convertResource(resource: String, obj: Map<*, *>): String? = when (resource) {
+    private fun convertResource(resource: String, obj: Map<String, *>): String? = when (resource) {
         ROL -> obj.stringProperty(ROLTYPE)
             ?.let(URI::create)
             ?.let(URIUtil::parseUUIDFromResourceURI)
@@ -86,7 +87,7 @@ class RESTZaakHistorieRegelConverter @Inject constructor(
         else -> resource
     }
 
-    private fun convertValue(resource: String, obj: Map<*, *>, resourceWeergave: String?): String? =
+    private fun convertValue(resource: String, obj: Map<String, *>, resourceWeergave: String?): String? =
         when (resource) {
             ZAAK -> obj.stringProperty(IDENTIFICATIE)
             ROL -> obj.getTypedValue(Rol::class.java)?.naam
