@@ -19,32 +19,30 @@ class RESTZaakHistoriePartialUpdateConverter @Inject constructor(
     fun convertPartialUpdate(
         auditTrail: ZRCAuditTrailRegel,
         actie: RESTHistorieActie?,
-        old: Map<*, *>,
-        new: Map<*, *>
+        old: Map<String, *>,
+        new: Map<String, *>
     ) =
-        old.diff(new).mapNotNull { convertLine(auditTrail, actie, it) }
+        old.diff(new).map { convertLine(auditTrail, actie, it) }
 
     private fun convertLine(
         auditTrail: ZRCAuditTrailRegel,
         actie: RESTHistorieActie?,
-        change: Map.Entry<Any?, Pair<Any?, Any?>>
-    ): RESTHistorieRegel? =
-        (change.key as? String)?.let { key ->
-            RESTHistorieRegel(
-                key,
-                change.value.first?.let { convertValue(key, it) },
-                change.value.second?.let { convertValue(key, it) },
-            ).apply {
-                datumTijd = auditTrail.aanmaakdatum
-                door = auditTrail.gebruikersWeergave
-                toelichting = auditTrail.toelichting
-                this.actie = actie
-            }
+        change: Map.Entry<String, Pair<*, *>>
+    ): RESTHistorieRegel =
+        RESTHistorieRegel(
+            change.key,
+            change.value.first?.let { convertValue(change.key, it) },
+            change.value.second?.let { convertValue(change.key, it) },
+        ).apply {
+            datumTijd = auditTrail.aanmaakdatum
+            door = auditTrail.gebruikersWeergave
+            toelichting = auditTrail.toelichting
+            this.actie = actie
         }
 
     private fun convertValue(resource: String, item: Any): String? =
         when {
-            resource == ZAAKGEOMETRIE && item is Map<*, *> -> item.getTypedValue(Geometry::class.java)?.toString()
+            resource == ZAAKGEOMETRIE -> item.asMapWithKeyOfString()?.getTypedValue(Geometry::class.java)?.toString()
             resource == COMMUNICATIEKANAAL && item is String -> item
             resource == HOOFDZAAK && item is String ->
                 item
@@ -53,7 +51,7 @@ class RESTZaakHistoriePartialUpdateConverter @Inject constructor(
             resource == RELEVANTE_ANDERE_ZAKEN && item is List<*> ->
                 item
                     .asSequence()
-                    .mapNotNull { (it as? Map<*, *>)?.stringProperty("url") }
+                    .mapNotNull { it.asMapWithKeyOfString()?.stringProperty("url") }
                     .map(URI::create)
                     .map(zrcClientService::readZaak)
                     .joinToString { it.identificatie }
