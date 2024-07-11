@@ -87,6 +87,7 @@ import { ZaakAfhandelenDialogComponent } from "../zaak-afhandelen-dialog/zaak-af
 import { ZaakKoppelenService } from "../zaak-koppelen/zaak-koppelen.service";
 import { ZaakOntkoppelenDialogComponent } from "../zaak-ontkoppelen/zaak-ontkoppelen-dialog.component";
 import { ZakenService } from "../zaken.service";
+import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 
 @Component({
   templateUrl: "./zaak-view.component.html",
@@ -201,6 +202,7 @@ export class ZaakViewComponent
     private locationService: LocationService,
     private zaakKoppelenService: ZaakKoppelenService,
     private bagService: BAGService,
+    private referentieTabelService: ReferentieTabelService,
     private vertrouwelijkaanduidingToTranslationKeyPipe: VertrouwelijkaanduidingToTranslationKeyPipe,
   ) {
     super();
@@ -333,8 +335,7 @@ export class ZaakViewComponent
         .id("communicatiekanaal")
         .label("communicatiekanaal")
         .validators(Validators.required)
-        .optionLabel("naam")
-        .options(this.zakenService.listCommunicatiekanalen())
+        .options(this.referentieTabelService.listCommunicatiekanalen())
         .build(),
     );
 

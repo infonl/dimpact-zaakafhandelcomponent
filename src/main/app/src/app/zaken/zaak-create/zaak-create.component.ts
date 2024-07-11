@@ -45,6 +45,7 @@ import { Zaak } from "../model/zaak";
 import { ZaakAanmaakGegevens } from "../model/zaak-aanmaak-gegevens";
 import { Zaaktype } from "../model/zaaktype";
 import { ZakenService } from "../zaken.service";
+import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 
 @Component({
   selector: "zac-zaak-create",
@@ -88,6 +89,7 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
     private router: Router,
     private navigation: NavigationService,
     private klantenService: KlantenService,
+    private referentieTabelService: ReferentieTabelService,
     private translateService: TranslateService,
     private utilService: UtilService,
   ) {
@@ -102,9 +104,10 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
       .saveText("actie.aanmaken")
       .cancelText("actie.annuleren")
       .build();
-    this.communicatiekanalen = this.zakenService.listCommunicatiekanalen(
-      this.inboxProductaanvraag != null,
-    );
+    this.communicatiekanalen =
+      this.referentieTabelService.listCommunicatiekanalen(
+        this.inboxProductaanvraag != null,
+      );
     this.vertrouwelijkheidaanduidingen = this.utilService.getEnumAsSelectList(
       "vertrouwelijkheidaanduiding",
       Vertrouwelijkheidaanduiding,
@@ -162,7 +165,6 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
     this.communicatiekanaalField = new SelectFormFieldBuilder()
       .id("communicatiekanaal")
       .label("communicatiekanaal")
-      .optionLabel("naam")
       .options(this.communicatiekanalen)
       .validators(Validators.required)
       .build();

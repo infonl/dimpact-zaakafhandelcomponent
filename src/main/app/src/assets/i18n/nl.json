@@ -160,6 +160,7 @@
   "betrokkeneRoltype.MEDE_INITIATOR": "Mede-initiator",
   "bronorganisatie": "Bronorganisatie",
   "communicatiekanaal": "Communicatiekanaal",
+  "communicatiekanaalNaam": "Communicatiekanaal",
   "communicatiekanaal.-kies-": "- Kies een communicatiekanaal -",
   "communicatiekanaal.-geen-": "- Geen communicatiekanaal -",
   "documentenVerzendenPost": "Te verzenden documenten",

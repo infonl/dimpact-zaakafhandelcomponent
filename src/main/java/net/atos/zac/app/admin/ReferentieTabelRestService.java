@@ -5,6 +5,7 @@
 
 package net.atos.zac.app.admin;
 
+import static net.atos.zac.configuratie.ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER;
 import static net.atos.zac.policy.PolicyService.assertPolicy;
 import static net.atos.zac.zaaksturing.model.ReferentieTabel.Systeem.AFZENDER;
 import static net.atos.zac.zaaksturing.model.ReferentieTabel.Systeem.COMMUNICATIEKANAAL;
@@ -28,6 +29,7 @@ import jakarta.ws.rs.core.MediaType;
 import net.atos.zac.app.admin.converter.RESTReferentieTabelConverter;
 import net.atos.zac.app.admin.converter.RESTReferentieWaardeConverter;
 import net.atos.zac.app.admin.model.RESTReferentieTabel;
+import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.policy.PolicyService;
 import net.atos.zac.zaaksturing.ReferentieTabelBeheerService;
 import net.atos.zac.zaaksturing.ReferentieTabelService;
@@ -141,7 +143,7 @@ public class ReferentieTabelRestService {
                 referentieTabelService.readReferentieTabel(COMMUNICATIEKANAAL.name()).getWaarden()
         )
                 .stream()
-                .filter(communicatiekanaal -> inclusiefEFormulier || !communicatiekanaal.equals("E-formulier"))
+                .filter(communicatiekanaal -> inclusiefEFormulier || !communicatiekanaal.equals(COMMUNICATIEKANAAL_EFORMULIER))
                 .toList();
     }
 
