@@ -133,7 +133,7 @@ public class ReferentieTabelRestService {
     }
 
     @GET
-    @Path("communicatiekanalen")
+    @Path("communicatiekanaal")
     public List<String> listCommunicatiekanalen() {
         return RESTReferentieWaardeConverter.convert(
                 referentieTabelService.readReferentieTabel(COMMUNICATIEKANAAL.name()).getWaarden()
