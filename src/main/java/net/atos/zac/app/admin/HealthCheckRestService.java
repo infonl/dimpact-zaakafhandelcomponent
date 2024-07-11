@@ -31,7 +31,7 @@ import net.atos.zac.healthcheck.model.ZaaktypeInrichtingscheck;
 @Path("health-check")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class HealthCheckRESTService {
+public class HealthCheckRestService {
 
     @Inject
     private ZtcClientService ztcClientService;
