@@ -1,15 +1,19 @@
 {
   "pagina": 1,
-  "aantal": 10,
+  "resultatenPerPagina": 10,
   "totaal": 1,
   "resultaten": [
     {
       "kvkNummer": "12345678",
       "vestigingsnummer": "000012345678",
-      "handelsnaam": "dummyHandelsnaam1",
-      "adresType": "dummyAdres1",
-      "straatnaam": "dummyStraatnaam1",
-      "plaats": "dummyPlaats1",
+      "naam": "dummyNaam1",
+      "adres": {
+        "binnenlandsAdres": {
+          "type": "bezoekadres",
+          "straatnaam": "dummyStraatnaam1",
+          "plaats": "dummyPlaats1"
+        }
+      },
       "type": "nevenvestiging",
       "_links": {
         "basisprofiel": {

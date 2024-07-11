@@ -14,7 +14,7 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
-import net.atos.zac.documentcreatie.converter.DataConverter
+import net.atos.zac.documentcreatie.converter.DocumentCreatieDataConverter
 import net.atos.zac.documentcreatie.model.createData
 import net.atos.zac.documentcreatie.model.createDocumentCreatieGegevens
 import java.net.URI
@@ -26,7 +26,7 @@ class DocumentCreatieServiceTest : BehaviorSpec({
     val smartDocumentsURL = "http://example.com/dummySmartDocumentsURL"
     val authenticationToken = "dummyAuthenticationToken"
     val fixedUserName = Optional.of("dummyFixedUserName")
-    val dataConverter = mockk<DataConverter>()
+    val documentCreatieDataConverter = mockk<DocumentCreatieDataConverter>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val ztcClientService = mockk<ZtcClientService>()
     val zrcClientService = mockk<ZRCClientService>()
@@ -36,7 +36,7 @@ class DocumentCreatieServiceTest : BehaviorSpec({
         smartDocumentsURL,
         authenticationToken,
         fixedUserName,
-        dataConverter,
+        documentCreatieDataConverter,
         loggedInUserInstance,
         ztcClientService,
         zrcClientService
@@ -55,7 +55,7 @@ class DocumentCreatieServiceTest : BehaviorSpec({
         val wizardResponse = createWizardResponse()
         every { loggedInUserInstance.get() } returns loggedInUser
         every { zrcClientService.createUrlExternToZaak(documentCreatieGegevens.zaak.uuid) } returns externalZaakUrl
-        every { dataConverter.createData(documentCreatieGegevens, loggedInUser) } returns data
+        every { documentCreatieDataConverter.createData(documentCreatieGegevens, loggedInUser) } returns data
         every { ztcClientService.readZaaktype(documentCreatieGegevens.zaak.zaaktype) } returns zaakType
         every {
             smartDocumentsClient.wizardDeposit("Basic $authenticationToken", fixedUserName.get(), any())

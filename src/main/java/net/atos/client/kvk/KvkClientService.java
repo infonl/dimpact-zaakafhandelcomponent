@@ -93,13 +93,12 @@ public class KvkClientService {
         return switch (resultaat.getTotaal()) {
             case 0 -> Optional.empty();
             case 1 -> Optional.of(resultaat.getResultaten().getFirst());
-            default -> throw new IllegalStateException("Too many results: %d".formatted(resultaat.getAantal()));
+            default -> throw new IllegalStateException("Too many results: %d".formatted(resultaat.getTotaal()));
         };
     }
 
     private Resultaat createEmptyResultaat() {
         final Resultaat resultaat = new Resultaat();
-        resultaat.setAantal(0);
         resultaat.setResultaten(Collections.emptyList());
         return resultaat;
     }

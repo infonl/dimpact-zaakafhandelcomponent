@@ -41,10 +41,10 @@ import net.atos.client.kvk.zoeken.model.generated.ResultaatItem;
 import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
 import net.atos.client.zgw.ztc.model.generated.RolType;
-import net.atos.zac.app.klanten.converter.RESTBedrijfConverter;
 import net.atos.zac.app.klanten.converter.RESTPersoonConverter;
 import net.atos.zac.app.klanten.converter.RESTRoltypeConverter;
 import net.atos.zac.app.klanten.converter.RESTVestigingsprofielConverter;
+import net.atos.zac.app.klanten.converter.RestBedrijfConverter;
 import net.atos.zac.app.klanten.model.bedrijven.RESTBedrijf;
 import net.atos.zac.app.klanten.model.bedrijven.RESTListBedrijvenParameters;
 import net.atos.zac.app.klanten.model.bedrijven.RESTVestigingsprofiel;
@@ -74,7 +74,6 @@ public class KlantenRESTService {
     private KvkClientService kvkClientService;
     private ZtcClientService ztcClientService;
     private RESTPersoonConverter restPersoonConverter;
-    private RESTBedrijfConverter restBedrijfConverter;
     private RESTVestigingsprofielConverter restVestigingsprofielConverter;
     private RESTRoltypeConverter restRoltypeConverter;
     private KlantenClientService klantenClientService;
@@ -91,7 +90,6 @@ public class KlantenRESTService {
             KvkClientService kvkClientService,
             ZtcClientService ztcClientService,
             RESTPersoonConverter restPersoonConverter,
-            RESTBedrijfConverter restBedrijfConverter,
             RESTVestigingsprofielConverter restVestigingsprofielConverter,
             RESTRoltypeConverter restRoltypeConverter,
             KlantenClientService klantenClientService
@@ -100,7 +98,6 @@ public class KlantenRESTService {
         this.kvkClientService = kvkClientService;
         this.ztcClientService = ztcClientService;
         this.restPersoonConverter = restPersoonConverter;
-        this.restBedrijfConverter = restBedrijfConverter;
         this.restVestigingsprofielConverter = restVestigingsprofielConverter;
         this.restRoltypeConverter = restRoltypeConverter;
         this.klantenClientService = klantenClientService;
@@ -147,7 +144,7 @@ public class KlantenRESTService {
     @Path("rechtspersoon/{rsin}")
     public RESTBedrijf readRechtspersoon(@PathParam("rsin") final String rsin) {
         return kvkClientService.findRechtspersoon(rsin)
-                .map(restBedrijfConverter::convert)
+                .map(RestBedrijfConverter::convert)
                 .orElseGet(RESTBedrijf::new);
     }
 
@@ -168,11 +165,11 @@ public class KlantenRESTService {
     @PUT
     @Path("bedrijven")
     public RESTResultaat<RESTBedrijf> listBedrijven(final RESTListBedrijvenParameters restParameters) {
-        final KvkZoekenParameters zoekenParameters = restBedrijfConverter.convert(restParameters);
+        final KvkZoekenParameters zoekenParameters = RestBedrijfConverter.convert(restParameters);
         final Resultaat resultaat = kvkClientService.list(zoekenParameters);
         return new RESTResultaat<>(resultaat.getResultaten().stream()
                 .filter(KlantenRESTService::isKoppelbaar)
-                .map(restBedrijfConverter::convert)
+                .map(RestBedrijfConverter::convert)
                 .toList());
     }
 
@@ -233,7 +230,7 @@ public class KlantenRESTService {
 
     private RESTBedrijf convertToRESTBedrijf(final Optional<ResultaatItem> vestiging, final Optional<Klant> klant) {
         return vestiging
-                .map(restBedrijfConverter::convert)
+                .map(RestBedrijfConverter::convert)
                 .map(restBedrijf -> (RESTBedrijf) addKlantData(restBedrijf, klant))
                 .orElseGet(RESTBedrijf::new);
     }

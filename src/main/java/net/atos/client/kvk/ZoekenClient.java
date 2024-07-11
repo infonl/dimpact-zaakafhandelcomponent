@@ -36,7 +36,7 @@ import net.atos.client.kvk.zoeken.model.generated.Resultaat;
 @RegisterProvider(KvkRuntimeExceptionMapper.class)
 @RegisterProvider(KvkClientNoResultExceptionMapper.class)
 @Produces({"application/hal+json"})
-@Path("api/v1/zoeken")
+@Path("api/v2/zoeken")
 @Timeout(unit = ChronoUnit.SECONDS, value = 5)
 public interface ZoekenClient {
 

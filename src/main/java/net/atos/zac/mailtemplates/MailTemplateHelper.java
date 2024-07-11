@@ -49,6 +49,7 @@ import net.atos.client.brp.model.generated.VerblijfadresBinnenland;
 import net.atos.client.brp.model.generated.VerblijfadresBuitenland;
 import net.atos.client.brp.model.generated.VerblijfplaatsBuitenland;
 import net.atos.client.kvk.KvkClientService;
+import net.atos.client.kvk.zoeken.model.generated.BinnenlandsAdres;
 import net.atos.client.kvk.zoeken.model.generated.ResultaatItem;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.ZGWApiService;
@@ -72,38 +73,45 @@ import net.atos.zac.mailtemplates.model.MailTemplateVariabelen;
 import net.atos.zac.util.DateTimeConverterUtil;
 
 public class MailTemplateHelper {
-
     public static final Pattern PTAGS = Pattern.compile("</?p>", Pattern.CASE_INSENSITIVE);
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
-    @Inject
+    private BRPClientService brpClientService;
     private ConfiguratieService configuratieService;
-
-    @Inject
+    private IdentityService identityService;
+    private KvkClientService kvkClientService;
+    private TaakVariabelenService taakVariabelenService;
+    private ZGWApiService zgwApiService;
     private ZRCClientService zrcClientService;
-
-    @Inject
     private ZtcClientService ztcClientService;
 
     @Inject
-    private BRPClientService brpClientService;
+    public MailTemplateHelper(
+            BRPClientService brpClientService,
+            ConfiguratieService configuratieService,
+            IdentityService identityService,
+            KvkClientService kvkClientService,
+            TaakVariabelenService taakVariabelenService,
+            ZGWApiService zgwApiService,
+            ZRCClientService zrcClientService,
+            ZtcClientService ztcClientService
+    ) {
+        this.brpClientService = brpClientService;
+        this.configuratieService = configuratieService;
+        this.identityService = identityService;
+        this.kvkClientService = kvkClientService;
+        this.taakVariabelenService = taakVariabelenService;
+        this.zgwApiService = zgwApiService;
+        this.zrcClientService = zrcClientService;
+        this.ztcClientService = ztcClientService;
 
-    @Inject
-    private KvkClientService kvkClientService;
+    }
 
-    @Inject
-    private ZGWApiService zgwApiService;
-
-    @Inject
-    private IdentityService identityService;
-
-    @Inject
-    private TaakVariabelenService taakVariabelenService;
-
-    public static String stripParagraphTags(final String onderwerp) {
-        // Can't parse HTML with a regular expression, but in this case there will only be bare P-tags.
-        return PTAGS.matcher(onderwerp).replaceAll(StringUtils.EMPTY);
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public MailTemplateHelper() {
     }
 
     public String resolveVariabelen(final String tekst) {
@@ -222,6 +230,11 @@ public class MailTemplateHelper {
         return resolvedTekst;
     }
 
+    public static String stripParagraphTags(final String onderwerp) {
+        // Can't parse HTML with a regular expression, but in this case there will only be bare P-tags.
+        return PTAGS.matcher(onderwerp).replaceAll(StringUtils.EMPTY);
+    }
+
     private MailLink getLink(final Zaak zaak) {
         final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
         return new MailLink(zaak.getIdentificatie(),
@@ -281,7 +294,7 @@ public class MailTemplateHelper {
             final Optional<ResultaatItem> initiator
     ) {
         return initiator
-                .map(item -> replaceInitiatorVariabelen(resolvedTekst, item.getHandelsnaam(), convertAdres(item)))
+                .map(item -> replaceInitiatorVariabelen(resolvedTekst, item.getNaam(), convertAdres(item)))
                 .orElseGet(() -> replaceInitiatorVariabelenOnbekend(resolvedTekst));
     }
 
@@ -301,20 +314,23 @@ public class MailTemplateHelper {
                 defaultIfBlank(adres.getHuisletter(), EMPTY),
                 defaultIfBlank(adres.getHuisnummertoevoeging(), EMPTY),
                 defaultIfBlank(adres.getPostcode(), EMPTY),
-                adres.getWoonplaats());
+                adres.getWoonplaats()
+        );
     }
 
     private static String convertAdres(final VerblijfadresBuitenland adres) {
         return joinNonBlankWith(", ", adres.getRegel1(), adres.getRegel2(), adres.getRegel3());
     }
 
-    private static String convertAdres(final ResultaatItem adres) {
+    private static String convertAdres(final ResultaatItem resultaatItem) {
+        final BinnenlandsAdres binnenlandsAdres = resultaatItem.getAdres().getBinnenlandsAdres();
         return "%s %s%s, %s %s".formatted(
-                adres.getStraatnaam(),
-                defaultIfNull(adres.getHuisnummer(), EMPTY),
-                defaultIfBlank(adres.getHuisnummerToevoeging(), EMPTY),
-                defaultIfBlank(adres.getPostcode(), EMPTY),
-                adres.getPlaats());
+                binnenlandsAdres.getStraatnaam(),
+                defaultIfNull(binnenlandsAdres.getHuisnummer(), EMPTY),
+                defaultIfBlank(binnenlandsAdres.getHuisletter(), EMPTY),
+                defaultIfBlank(binnenlandsAdres.getPostcode(), EMPTY),
+                binnenlandsAdres.getPlaats()
+        );
     }
 
     private static String replaceInitiatorVariabelenOnbekend(final String resolvedTekst) {
@@ -351,8 +367,10 @@ public class MailTemplateHelper {
             final MailTemplateVariabelen variabele,
             final String html
     ) {
-        return StringUtils.replace(target, variabele.getVariabele(),
-                variabele.isResolveVariabeleAlsLegeString() ?
-                        defaultIfBlank(html, EMPTY) : html);
+        return StringUtils.replace(
+                target,
+                variabele.getVariabele(),
+                variabele.isResolveVariabeleAlsLegeString() ? defaultIfBlank(html, EMPTY) : html
+        );
     }
 }
