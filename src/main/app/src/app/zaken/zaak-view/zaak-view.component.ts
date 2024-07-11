@@ -21,6 +21,7 @@ import { forkJoin } from "rxjs";
 import { map, tap } from "rxjs/operators";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
+import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
 import { BAGObject } from "../../bag/model/bagobject";
@@ -87,7 +88,6 @@ import { ZaakAfhandelenDialogComponent } from "../zaak-afhandelen-dialog/zaak-af
 import { ZaakKoppelenService } from "../zaak-koppelen/zaak-koppelen.service";
 import { ZaakOntkoppelenDialogComponent } from "../zaak-ontkoppelen/zaak-ontkoppelen-dialog.component";
 import { ZakenService } from "../zaken.service";
-import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 
 @Component({
   templateUrl: "./zaak-view.component.html",

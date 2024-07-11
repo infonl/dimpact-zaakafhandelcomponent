@@ -16,7 +16,6 @@ import java.util.Optional;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
-import net.atos.zac.zaaksturing.ReferentieTabelService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -28,6 +27,7 @@ import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.healthcheck.model.BuildInformatie;
 import net.atos.zac.healthcheck.model.ZaaktypeInrichtingscheck;
 import net.atos.zac.util.LocalDateUtil;
+import net.atos.zac.zaaksturing.ReferentieTabelService;
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService;
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
 
