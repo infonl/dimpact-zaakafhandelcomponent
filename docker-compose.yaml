@@ -341,7 +341,7 @@ services:
         condition: service_started
 
   smartdocuments-wiremock:
-    image: wiremock/wiremock:3.6.0-2
+    image: wiremock/wiremock:3.8.0-1
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/smartdocuments-wiremock/mappings:/home/wiremock/mappings
@@ -350,7 +350,7 @@ services:
     profiles: [ "itest" ]
 
   kvk-wiremock:
-    image: wiremock/wiremock:3.6.0-2
+    image: wiremock/wiremock:3.8.0-1
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/kvk-wiremock/mappings:/home/wiremock/mappings
