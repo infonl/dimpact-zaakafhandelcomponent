@@ -112,7 +112,9 @@ public class Zaak {
     private LocalDate publicatiedatum;
 
     /**
-     * **EXPERIMENTEEL** De naam van het medium waarlangs de aanleiding om een zaak te starten is ontvangen.
+     * De naam van het medium waarlangs de aanleiding om een zaak te starten is ontvangen.
+     * Note that ZAC no longer uses the 'communicatiekanaal' attribute, which is a URI to the 'communicatiekanaal' resource
+     * in VNG Referentielijsten.
      */
     private String communicatiekanaalNaam;
 

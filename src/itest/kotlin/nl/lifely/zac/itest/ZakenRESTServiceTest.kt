@@ -18,7 +18,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_ROL_TOEVOEGEN_REDEN
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_TYPE_NATUURLIJK_PERSOON
-import nl.lifely.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_EMAIL
+import nl.lifely.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.lifely.zac.itest.config.ItestConfiguration.DATE_TIME_2020_01_01
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
@@ -64,7 +64,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 groupId = TEST_GROUP_A_ID,
                 groupName = TEST_GROUP_A_DESCRIPTION,
                 startDate = DATE_TIME_2020_01_01,
-                communicatiekanaal = COMMUNICATIEKANAAL_EMAIL
+                communicatiekanaal = COMMUNICATIEKANAAL_TEST_1
             )
             Then("the response should be a 200 HTTP response with the created zaak") {
                 response.code shouldBe HTTP_STATUS_OK
@@ -72,6 +72,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 JSONObject(responseBody).apply {
                     getJSONObject("zaaktype").getString("identificatie") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
+                    getString("communicatiekanaal") shouldBe COMMUNICATIEKANAAL_TEST_1
                     getJSONObject("zaakdata").apply {
                         getString("zaakUUID") shouldNotBe null
                         getString("zaakIdentificatie") shouldBe ZAAK_MANUAL_1_IDENTIFICATION
