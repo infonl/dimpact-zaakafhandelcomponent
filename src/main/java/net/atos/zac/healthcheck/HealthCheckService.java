@@ -3,6 +3,7 @@ package net.atos.zac.healthcheck;
 import static java.nio.file.Files.readAllLines;
 import static net.atos.client.zgw.ztc.util.InformatieObjectTypeUtil.isNuGeldig;
 import static net.atos.zac.util.DateTimeConverterUtil.convertToLocalDateTime;
+import static net.atos.zac.zaaksturing.model.ReferentieTabel.Systeem.COMMUNICATIEKANAAL;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.util.Optional;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
+import net.atos.zac.zaaksturing.ReferentieTabelService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -31,14 +33,28 @@ import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
 
 @Singleton
 public class HealthCheckService {
-
     private static final String BUILD_TIMESTAMP_FILE = "/build_timestamp.txt";
 
-    @Inject
+    private ReferentieTabelService referentieTabelService;
+    private ZaakafhandelParameterService zaakafhandelParameterBeheerService;
     private ZtcClientService ztcClientService;
 
     @Inject
-    private ZaakafhandelParameterService zaakafhandelParameterBeheerService;
+    public HealthCheckService(
+            ReferentieTabelService referentieTabelService,
+            ZaakafhandelParameterService zaakafhandelParameterBeheerService,
+            ZtcClientService ztcClientService
+    ) {
+        this.referentieTabelService = referentieTabelService;
+        this.zaakafhandelParameterBeheerService = zaakafhandelParameterBeheerService;
+        this.ztcClientService = ztcClientService;
+    }
+
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public HealthCheckService() {
+    }
 
     @Inject
     @ConfigProperty(name = "BRANCH_NAME")
@@ -55,8 +71,10 @@ public class HealthCheckService {
     private BuildInformatie buildInformatie;
 
     public boolean bestaatCommunicatiekanaalEformulier() {
-        // TODO: check in referentietabelservice
-        return true;
+        return referentieTabelService.readReferentieTabel(COMMUNICATIEKANAAL.name())
+                .getWaarden()
+                .stream()
+                .anyMatch(referentieWaarde -> ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER.equals(referentieWaarde.getNaam()));
     }
 
     public ZaaktypeInrichtingscheck controleerZaaktype(final URI zaaktypeUrl) {
