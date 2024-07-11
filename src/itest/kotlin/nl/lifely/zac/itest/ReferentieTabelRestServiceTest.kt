@@ -30,12 +30,12 @@ class ReferentieTabelRestServiceTest : BehaviorSpec({
                 JSONArray(responseBody).length() shouldBe 0
             }
         }
-        When("the get communicatiekanalen endpoint is called") {
+        When("the get communicatiekanalen endpoint is called with 'true' as parameter") {
             val response = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/referentietabellen/communicatiekanaal"
+                "$ZAC_API_URI/referentietabellen/communicatiekanaal/true"
             )
             Then(
-                """the provisioned default communicatiekanalen are returned"""
+                """the provisioned default communicatiekanalen are returned including 'E-formulier'"""
             ) {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
@@ -55,7 +55,7 @@ class ReferentieTabelRestServiceTest : BehaviorSpec({
         }
         When("the get domeinen endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/referentietabellen/domeinen"
+                "$ZAC_API_URI/referentietabellen/domein"
             )
             Then(
                 """the provisioned default domeinen are returned"""

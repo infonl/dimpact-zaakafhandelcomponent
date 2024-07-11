@@ -7,6 +7,8 @@ package net.atos.zac.app.admin
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import net.atos.zac.policy.PolicyService
@@ -24,14 +26,23 @@ class ReferentieTabelRestServiceTest : BehaviorSpec({
         referentieTabelBeheerService,
         policyService
     )
-    Given("Two communicatiekanalen") {
+
+    beforeEach {
+        checkUnnecessaryStub()
+    }
+
+    beforeSpec {
+        clearAllMocks()
+    }
+
+    Given("Two communicatiekanalen including E-formulier") {
         val referentieTabel = createReferentieTabel(
             id = 1L,
             code = "COMMUNICATIEKANAAL",
             naam = "Communicatiekanalen"
         )
         val referentieWaarde1 = "dummyWaarde1"
-        val referentieWaarde2 = "dummyWaarde2"
+        val referentieWaarde2 = "E-formulier"
         val referentieTabelWaarde1 = createReferentieTabelWaarde(
             id = 1L,
             naam = referentieWaarde1,
@@ -51,13 +62,22 @@ class ReferentieTabelRestServiceTest : BehaviorSpec({
         }
         every { referentieTabelService.readReferentieTabel("COMMUNICATIEKANAAL") } returns referentieTabel
 
-        When("the communicatiekanalen are retrieved") {
-            val communicatiekanalen = referentieTabelRESTService.listCommunicatiekanalen()
+        When("the communicatiekanalen are retrieved including E-formulier") {
+            val communicatiekanalen = referentieTabelRESTService.listCommunicatiekanalen(true)
 
-            Then("the communicatiekanalen are returned") {
+            Then("the communicatiekanalen are returned including E-formulier") {
                 communicatiekanalen.size shouldBe referentieTabelWaarden.size
                 communicatiekanalen[0] shouldBe referentieWaarde1
                 communicatiekanalen[1] shouldBe referentieWaarde2
+            }
+        }
+
+        When("the communicatiekanalen are retrieved excluding E-formulier") {
+            val communicatiekanalen = referentieTabelRESTService.listCommunicatiekanalen(false)
+
+            Then("the communicatiekanalen are returned excluding E-formulier") {
+                communicatiekanalen.size shouldBe referentieTabelWaarden.size - 1
+                communicatiekanalen[0] shouldBe referentieWaarde1
             }
         }
     }
