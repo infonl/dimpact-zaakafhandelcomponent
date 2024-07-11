@@ -99,6 +99,7 @@ public class KvkClientService {
 
     private Resultaat createEmptyResultaat() {
         final Resultaat resultaat = new Resultaat();
+        resultaat.setTotaal(0);
         resultaat.setResultaten(Collections.emptyList());
         return resultaat;
     }
