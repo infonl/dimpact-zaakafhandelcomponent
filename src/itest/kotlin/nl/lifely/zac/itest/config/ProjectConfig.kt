@@ -139,7 +139,7 @@ class ProjectConfig : AbstractProjectConfig() {
             logger.info { "Stopped ZAC Docker container" }
         }
         // now stop the rest of the Docker Compose containers (TestContainers just kills and removes the containers)
-        dockerComposeContainer.stop()
+        dockerComposeContainer.withOptions("--profile itest").stop()
     }
 
     override val specExecutionOrder = SpecExecutionOrder.Annotated
