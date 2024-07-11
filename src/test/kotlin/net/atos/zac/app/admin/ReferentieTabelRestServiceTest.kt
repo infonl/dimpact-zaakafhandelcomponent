@@ -24,7 +24,43 @@ class ReferentieTabelRestServiceTest : BehaviorSpec({
         referentieTabelBeheerService,
         policyService
     )
+    Given("Two communicatiekanalen") {
+        val referentieTabel = createReferentieTabel(
+            id = 1L,
+            code = "COMMUNICATIEKANAAL",
+            naam = "Communicatiekanalen"
+        )
+        val referentieWaarde1 = "dummyWaarde1"
+        val referentieWaarde2 = "dummyWaarde2"
+        val referentieTabelWaarde1 = createReferentieTabelWaarde(
+            id = 1L,
+            naam = referentieWaarde1,
+            volgorde = 1
+        )
+        val referentieTabelWaarde2 = createReferentieTabelWaarde(
+            id = 2L,
+            naam = referentieWaarde2,
+            volgorde = 2
+        )
+        val referentieTabelWaarden = listOf(
+            referentieTabelWaarde1,
+            referentieTabelWaarde2
+        )
+        referentieTabelWaarden.forEach {
+            referentieTabel.addWaarde(it)
+        }
+        every { referentieTabelService.readReferentieTabel("COMMUNICATIEKANAAL") } returns referentieTabel
 
+        When("the communicatiekanalen are retrieved") {
+            val communicatiekanalen = referentieTabelRESTService.listCommunicatiekanalen()
+
+            Then("the communicatiekanalen are returned") {
+                communicatiekanalen.size shouldBe referentieTabelWaarden.size
+                communicatiekanalen[0] shouldBe referentieWaarde1
+                communicatiekanalen[1] shouldBe referentieWaarde2
+            }
+        }
+    }
     Given("Two server error page texts") {
         val referentieTabel = createReferentieTabel(
             id = 1L,
