@@ -53,7 +53,7 @@ import { ZakenService } from "../zaken.service";
   styleUrls: ["./zaak-create.component.less"],
 })
 export class ZaakCreateComponent implements OnInit, OnDestroy {
-  private static KANAAL_E_FORMULIER = "E-formulier";
+  static KANAAL_E_FORMULIER = "E-formulier";
   createZaakFields: Array<AbstractFormField[]>;
   bagObjecten: BAGObject[] = [];
   formConfig: FormConfig;
@@ -162,7 +162,10 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
       .label("initiator")
       .build();
 
-    this.communicatiekanaalField = new SelectFormFieldBuilder()
+    // if the list of communicatiekanalen includes E-formulier, it should be set as default
+    this.communicatiekanaalField = new SelectFormFieldBuilder(
+      ZaakCreateComponent.KANAAL_E_FORMULIER,
+    )
       .id("communicatiekanaal")
       .label("communicatiekanaal")
       .options(this.communicatiekanalen)
@@ -373,11 +376,6 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
       }
     }
     this.toelichtingField.formControl.setValue(defaultToelichting);
-    this.communicatiekanalen.subscribe((data) => {
-      this.communicatiekanaalField.value(
-        data.find((c) => c === ZaakCreateComponent.KANAAL_E_FORMULIER),
-      );
-    });
   }
 
   bagGeselecteerd($event: BAGObject): void {
