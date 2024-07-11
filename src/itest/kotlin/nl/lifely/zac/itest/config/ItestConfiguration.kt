@@ -19,11 +19,6 @@ object ItestConfiguration {
     private const val ZAC_CONTAINER_PORT = 8080
     private const val ZAC_MANAGEMENT_PORT = 9990
 
-    const val HTTP_STATUS_OK = 200
-    const val HTTP_STATUS_NO_CONTENT = 204
-    const val HTTP_STATUS_BAD_REQUEST = 400
-    const val HTTP_STATUS_FORBIDDEN = 403
-
     const val ACTIE_INTAKE_AFRONDEN = "INTAKE_AFRONDEN"
     const val ACTIE_ZAAK_AFHANDELEN = "ZAAK_AFHANDELEN"
     const val BETROKKENE_TYPE_NATUURLIJK_PERSOON = "NATUURLIJK_PERSOON"
@@ -32,14 +27,19 @@ object ItestConfiguration {
     const val BETROKKENE_ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
     const val COMMUNICATIEKANAAL_TEST_1 = "dummyCommunicatiekanaal1"
     const val FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE = "AANVULLENDE_INFORMATIE"
+    const val HTTP_STATUS_OK = 200
+    const val HTTP_STATUS_NO_CONTENT = 204
+    const val HTTP_STATUS_BAD_REQUEST = 400
+    const val HTTP_STATUS_FORBIDDEN = 403
     const val HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM = "Aanvullende informatie"
+    const val INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING = "bijlage"
+    const val INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID = "b1933137-94d6-49bc-9e12-afe712512276"
     const val KEYCLOAK_HOSTNAME_URL = "http://localhost:8081"
     const val KEYCLOAK_HEALTH_READY_URL = "$KEYCLOAK_HOSTNAME_URL/health/ready"
     const val KEYCLOAK_REALM = "zaakafhandelcomponent"
     const val KEYCLOAK_CLIENT = "zaakafhandelcomponent"
     const val KEYCLOAK_CLIENT_SECRET = "keycloakZaakafhandelcomponentClientSecret"
-    const val INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING = "bijlage"
-    const val INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID = "b1933137-94d6-49bc-9e12-afe712512276"
+    const val KVK_MOCK_BASE_URI = "http://kvk-wiremock:8080"
     const val OBJECT_PRODUCTAANVRAAG_1_UUID = "9dbed186-89ca-48d7-8c6c-f9995ceb8e27"
     const val OBJECT_PRODUCTAANVRAAG_2_UUID = "f1f6f670-fda8-4e98-81a6-6528937f10ee"
     const val OBJECTS_BASE_URI = "http://objecten-api.local:8000"
@@ -103,7 +103,16 @@ object ItestConfiguration {
     const val TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION = "Test group functional admins"
     const val TEST_GROUP_RECORD_MANAGERS_ID = "test-group-rm"
     const val TEST_GROUP_RECORD_MANAGERS_DESCRIPTION = "Test group record managers"
-    const val TEST_KVK_VESTIGINGSNUMMER_1 = "000038509520"
+
+    /**
+     * Constants used in the KVK WireMock template response
+     */
+    const val TEST_KVK_ADRES_1 = "dummyStraatnaam1"
+    const val TEST_KVK_HANDELSNAAM_1 = "dummyHandelsnaam1"
+    const val TEST_KVK_NUMMER_1 = "12345678"
+    const val TEST_KVK_PLAATS_1 = "dummyPlaats1"
+    const val TEST_KVK_VESTIGINGSNUMMER_1 = "000012345678"
+
     const val TEXT_MIME_TYPE = "application/text"
 
     const val SMART_DOCUMENTS_MOCK_BASE_URI = "http://smartdocuments-wiremock:8080"
@@ -131,6 +140,8 @@ object ItestConfiguration {
     const val SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_NAME = "group 2 template 2"
 
     const val SMTP_SERVER_PORT = 25
+
+    const val VESTIGINGTYPE_NEVENVESTIGING = "NEVENVESTIGING"
 
     /**
      * First zaak created from a productaanvraag.

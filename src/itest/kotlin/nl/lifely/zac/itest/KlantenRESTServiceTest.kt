@@ -11,8 +11,14 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
+import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_COUNT
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_ADRES_1
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_HANDELSNAAM_1
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_PLAATS_1
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_EMAIL
@@ -21,6 +27,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
+import nl.lifely.zac.itest.config.ItestConfiguration.VESTIGINGTYPE_NEVENVESTIGING
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONArray
 
@@ -71,6 +78,26 @@ class KlantenRESTServiceTest : BehaviorSpec({
                     shouldContainJsonKeyValue("geboortedatum", TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE)
                     shouldContainJsonKeyValue("geslacht", TEST_PERSON_HENDRIKA_JANSE_GENDER)
                     shouldContainJsonKeyValue("verblijfplaats", TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE)
+                }
+            }
+        }
+        When("a vestiging is requested which is present in the KVK test environment") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/klanten/vestiging/$TEST_KVK_VESTIGINGSNUMMER_1"
+            )
+            Then("the vestiging is returned with the expected data") {
+                response.code shouldBe HTTP_STATUS_OK
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                with(responseBody) {
+                    shouldContainJsonKeyValue("adres", "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1")
+                    shouldContainJsonKeyValue("handelsnaam", TEST_KVK_HANDELSNAAM_1)
+                    shouldContainJsonKeyValue("identificatie", TEST_KVK_VESTIGINGSNUMMER_1)
+                    shouldContainJsonKeyValue("identificatieType", BETROKKENE_IDENTIFACTION_TYPE_VESTIGING)
+                    shouldContainJsonKeyValue("kvkNummer", TEST_KVK_NUMMER_1)
+                    shouldContainJsonKeyValue("naam", TEST_KVK_HANDELSNAAM_1)
+                    shouldContainJsonKeyValue("type", VESTIGINGTYPE_NEVENVESTIGING)
+                    shouldContainJsonKeyValue("vestigingsnummer", TEST_KVK_VESTIGINGSNUMMER_1)
                 }
             }
         }

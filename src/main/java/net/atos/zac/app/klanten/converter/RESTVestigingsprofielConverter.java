@@ -13,6 +13,8 @@ import net.atos.zac.app.klanten.model.bedrijven.RESTKlantenAdres;
 import net.atos.zac.app.klanten.model.bedrijven.RESTVestigingsprofiel;
 
 public class RESTVestigingsprofielConverter {
+    public static String VESTIGINGTYPE_HOOFDVESTIGING = "HOOFDVESTIGING";
+    public static String VESTIGINGTYPE_NEVENVESTIGING = "NEVENVESTIGING";
 
     public RESTVestigingsprofiel convert(final Vestiging vestiging) {
         final RESTVestigingsprofiel restVestigingsprofiel = new RESTVestigingsprofiel();
@@ -25,8 +27,8 @@ public class RESTVestigingsprofielConverter {
         restVestigingsprofiel.voltijdWerkzamePersonen = vestiging.getVoltijdWerkzamePersonen();
         restVestigingsprofiel.commercieleVestiging = isIndicatie(vestiging.getIndCommercieleVestiging());
 
-        restVestigingsprofiel.type = isIndicatie(
-                vestiging.getIndHoofdvestiging()) ? "HOOFDVESTIGING" : "NEVENVESTIGING";
+        restVestigingsprofiel.type = isIndicatie(vestiging.getIndHoofdvestiging()) ?
+                VESTIGINGTYPE_HOOFDVESTIGING : VESTIGINGTYPE_NEVENVESTIGING;
         restVestigingsprofiel.sbiHoofdActiviteit = vestiging.getSbiActiviteiten()
                 .stream()
                 .filter(a -> isIndicatie(a.getIndHoofdactiviteit()))

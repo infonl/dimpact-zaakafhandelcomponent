@@ -16,6 +16,7 @@ import nl.lifely.zac.itest.client.KeycloakClient
 import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
+import nl.lifely.zac.itest.config.ItestConfiguration.KVK_MOCK_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_1
 import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
@@ -54,6 +55,11 @@ class ProjectConfig : AbstractProjectConfig() {
         ZAC_DEFAULT_DOCKER_IMAGE
     }
     private val dockerComposeEnvironment = mapOf(
+        "KVK_API_CLIENT_MP_REST_URL" to KVK_MOCK_BASE_URI,
+        "SD_CLIENT_MP_REST_URL" to SMART_DOCUMENTS_MOCK_BASE_URI,
+        "SMTP_SERVER" to "greenmail",
+        "SMTP_PORT" to SMTP_SERVER_PORT.toString(),
+        "SIGNALERINGEN_DELETE_OLDER_THAN_DAYS" to "0",
         // override default entrypoint for ZAC Docker container to add JaCoCo agent
         "ZAC_DOCKER_ENTRYPOINT" to
             "java" +
@@ -61,11 +67,7 @@ class ProjectConfig : AbstractProjectConfig() {
             " -Xms1024m" +
             " -Xmx1024m" +
             " -jar zaakafhandelcomponent.jar",
-        "ZAC_DOCKER_IMAGE" to zacDockerImage,
-        "SD_CLIENT_MP_REST_URL" to SMART_DOCUMENTS_MOCK_BASE_URI,
-        "SMTP_SERVER" to "greenmail",
-        "SMTP_PORT" to SMTP_SERVER_PORT.toString(),
-        "SIGNALERINGEN_DELETE_OLDER_THAN_DAYS" to "0"
+        "ZAC_DOCKER_IMAGE" to zacDockerImage
     )
 
     override suspend fun beforeProject() {
