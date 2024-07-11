@@ -35,8 +35,8 @@ class RESTZaakHistorieRegelConverter @Inject constructor(
     private val restZaakHistoriePartialUpdateConverter: RESTZaakHistoriePartialUpdateConverter
 ) {
     fun convertZaakRESTHistorieRegel(auditTrail: ZRCAuditTrailRegel): List<RESTHistorieRegel> {
-        val old = auditTrail.wijzigingen.oud.asMapWithKeyOfString()
-        val new = auditTrail.wijzigingen.nieuw.asMapWithKeyOfString()
+        val old = (auditTrail.wijzigingen.oud as? Map<*, *>)?.asMapWithKeyOfString()
+        val new = (auditTrail.wijzigingen.nieuw as? Map<*, *>)?.asMapWithKeyOfString()
         return when {
             auditTrail.actie == PARTIAL_UPDATE &&
                 old != null &&

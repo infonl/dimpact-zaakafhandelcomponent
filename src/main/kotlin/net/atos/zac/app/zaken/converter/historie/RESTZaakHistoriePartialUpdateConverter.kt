@@ -42,7 +42,9 @@ class RESTZaakHistoriePartialUpdateConverter @Inject constructor(
 
     private fun convertValue(resource: String, item: Any): String? =
         when {
-            resource == ZAAKGEOMETRIE -> item.asMapWithKeyOfString()?.getTypedValue(Geometry::class.java)?.toString()
+            resource == ZAAKGEOMETRIE && item is Map<*, *> -> item.asMapWithKeyOfString().getTypedValue(
+                Geometry::class.java
+            )?.toString()
             resource == COMMUNICATIEKANAAL && item is String -> item
             resource == HOOFDZAAK && item is String ->
                 item
@@ -51,7 +53,7 @@ class RESTZaakHistoriePartialUpdateConverter @Inject constructor(
             resource == RELEVANTE_ANDERE_ZAKEN && item is List<*> ->
                 item
                     .asSequence()
-                    .mapNotNull { it.asMapWithKeyOfString()?.stringProperty("url") }
+                    .mapNotNull { (it as? Map<*, *>)?.asMapWithKeyOfString()?.stringProperty("url") }
                     .map(URI::create)
                     .map(zrcClientService::readZaak)
                     .joinToString { it.identificatie }

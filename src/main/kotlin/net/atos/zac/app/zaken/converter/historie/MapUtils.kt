@@ -2,9 +2,9 @@ package net.atos.zac.app.zaken.converter.historie
 
 import net.atos.client.zgw.shared.util.JsonbUtil
 
-fun Any?.asMapWithKeyOfString(): Map<String, *>? = (this as? Map<*, *>)
-    ?.mapNotNull { (key, value) -> (key as? String)?.let { it to value } }
-    ?.toMap()
+fun Map<*, *>.asMapWithKeyOfString(): Map<String, *> = this
+    .mapNotNull { (key, value) -> (key as? String)?.let { it to value } }
+    .toMap()
 
 fun <K> Map<K, *>.diff(other: Map<K, *>): Map<K, Pair<*, *>> = other
     .filterNot { (key, value) -> this.containsKey(key) && compare(value, this[key]) }
