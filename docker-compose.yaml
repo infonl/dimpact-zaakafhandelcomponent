@@ -342,18 +342,15 @@ services:
 
   smartdocuments-wiremock:
     image: wiremock/wiremock:3.6.0-2
-    ports:
-      - "8082:8080"
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/smartdocuments-wiremock/mappings:/home/wiremock/mappings
       - ./scripts/docker-compose/imports/smartdocuments-wiremock/__files:/home/wiremock/__files
     entrypoint: [ "/docker-entrypoint.sh", "--global-response-templating", "--disable-gzip", "--verbose" ]
+    profiles: [ "itest" ]
 
   kvk-wiremock:
     image: wiremock/wiremock:3.6.0-2
-    ports:
-      - "8084:8080"
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/kvk-wiremock/mappings:/home/wiremock/mappings
