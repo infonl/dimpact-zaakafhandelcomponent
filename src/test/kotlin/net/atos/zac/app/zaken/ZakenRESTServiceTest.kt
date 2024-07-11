@@ -5,7 +5,9 @@
 
 package net.atos.zac.app.zaken
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -22,6 +24,7 @@ import net.atos.client.vrl.VrlClientService
 import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.ZGWApiService
+import net.atos.client.zgw.shared.model.Archiefnominatie
 import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
@@ -51,9 +54,11 @@ import net.atos.zac.app.zaken.converter.RESTZaakOverzichtConverter
 import net.atos.zac.app.zaken.converter.RESTZaaktypeConverter
 import net.atos.zac.app.zaken.converter.RestBesluitConverter
 import net.atos.zac.app.zaken.converter.historie.RESTZaakHistorieRegelConverter
+import net.atos.zac.app.zaken.model.RelatieType
 import net.atos.zac.app.zaken.model.ZAAK_TYPE_1_OMSCHRIJVING
 import net.atos.zac.app.zaken.model.createRESTZaak
 import net.atos.zac.app.zaken.model.createRESTZaakAanmaakGegevens
+import net.atos.zac.app.zaken.model.createRESTZaakKoppelGegevens
 import net.atos.zac.app.zaken.model.createRESTZaakToekennenGegevens
 import net.atos.zac.app.zaken.model.createRESTZakenVerdeelGegevens
 import net.atos.zac.authentication.LoggedInUser
@@ -70,8 +75,10 @@ import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.createGroup
 import net.atos.zac.identity.model.createUser
 import net.atos.zac.policy.PolicyService
+import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.policy.output.createOverigeRechtenAllDeny
 import net.atos.zac.policy.output.createWerklijstRechten
+import net.atos.zac.policy.output.createZaakRechten
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.ProductaanvraagService
@@ -83,7 +90,6 @@ import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import net.atos.zac.zaaksturing.model.createZaakafhandelParameters
 import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
-import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.Optional
 import java.util.UUID
 
@@ -251,9 +257,7 @@ class ZakenRESTServiceTest : BehaviorSpec({
             val restZaakReturned = zakenRESTService.createZaak(restZaakAanmaakGegevens)
 
             Then("a zaak is created using the ZGW API and a zaak is started in the ZAC CMMN service") {
-                with(restZaakReturned) {
-                    assertEquals(this, restZaak)
-                }
+                restZaakReturned shouldBe restZaak
                 val zaakCreatedSlot = slot<Zaak>()
                 val rolNatuurlijkPersoonSlot = slot<RolNatuurlijkPersoon>()
                 val rolGroupSlotOrganisatorischeEenheidSlot = slot<RolOrganisatorischeEenheid>()
@@ -273,20 +277,19 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     zrcClientService.createZaakobject(zaakObjectPand)
                     zrcClientService.createZaakobject(zaakObjectOpenbareRuimte)
                 }
-                with(zaakCreatedSlot.captured) {
-                    assertEquals(this, zaak)
-                }
+                zaakCreatedSlot.captured shouldBe zaak
                 with(rolNatuurlijkPersoonSlot.captured) {
-                    assertEquals(this.zaak, zaak.url)
-                    assertEquals(this.betrokkeneType, BetrokkeneType.NATUURLIJK_PERSOON)
+                    this.zaak shouldBe zaak.url
+                    rolNatuurlijkPersoonSlot.captured.betrokkeneType shouldBe BetrokkeneType.NATUURLIJK_PERSOON
                 }
                 with(rolGroupSlotOrganisatorischeEenheidSlot.captured) {
-                    assertEquals(this.zaak, rolOrganisatorischeEenheid.zaak)
-                    assertEquals(this.betrokkeneType, BetrokkeneType.ORGANISATORISCHE_EENHEID)
+                    this.zaak shouldBe rolOrganisatorischeEenheid.zaak
+                    betrokkeneType shouldBe BetrokkeneType.ORGANISATORISCHE_EENHEID
                 }
             }
         }
     }
+
     Given("a zaak exists, no one is assigned and zaak toekennen gegevens are provided") {
         clearAllMocks()
         val restZaakToekennenGegevens = createRESTZaakToekennenGegevens()
@@ -312,23 +315,23 @@ class ZakenRESTServiceTest : BehaviorSpec({
             val returnedRestZaak = zakenRESTService.toekennen(restZaakToekennenGegevens)
 
             Then("the zaak is updated, and the zaken search index is updated") {
-                assertEquals(returnedRestZaak, restZaak)
+                returnedRestZaak shouldBe restZaak
                 verify(exactly = 1) {
                     zrcClientService.updateRol(zaak, any(), restZaakToekennenGegevens.reden)
                     indexeerService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
                 }
                 with(rolSlot.captured) {
-                    assertEquals(this.betrokkeneType, BetrokkeneType.MEDEWERKER)
-                    assertEquals(
-                        (this.betrokkeneIdentificatie as Medewerker).identificatie,
-                        rolMedewerker.betrokkeneIdentificatie.identificatie
-                    )
-                    assertEquals(this.zaak, rolMedewerker.zaak)
-                    assertEquals(this.omschrijving, rolType.omschrijving)
+                    betrokkeneType shouldBe BetrokkeneType.MEDEWERKER
+                    with(betrokkeneIdentificatie as Medewerker) {
+                        identificatie shouldBe rolMedewerker.betrokkeneIdentificatie.identificatie
+                    }
+                    this.zaak shouldBe rolMedewerker.zaak
+                    omschrijving shouldBe rolType.omschrijving
                 }
             }
         }
     }
+
     Given("REST zaken verdeel gegevens with a group and a user") {
         clearAllMocks()
         val zaakUUIDs = listOf(UUID.randomUUID(), UUID.randomUUID())
@@ -360,6 +363,53 @@ class ZakenRESTServiceTest : BehaviorSpec({
                         restZakenVerdeelGegevens.screenEventResourceId
                     )
                 }
+            }
+        }
+    }
+
+    Given("Two open ZAAKs") {
+        val zaak = createZaak()
+        val teKoppelenZaak = createZaak()
+        val restZakenVerdeelGegevens = createRESTZaakKoppelGegevens(
+            zaakUuid = zaak.uuid,
+            teKoppelenZaakUuid = teKoppelenZaak.uuid,
+            relatieType = RelatieType.BIJDRAGE,
+            reverseRelatieType = RelatieType.BIJDRAGE
+        )
+
+        every { zrcClientService.readZaak(restZakenVerdeelGegevens.zaakUuid) } returns zaak
+        every { zrcClientService.readZaak(restZakenVerdeelGegevens.teKoppelenZaakUuid) } returns teKoppelenZaak
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
+        every { policyService.readZaakRechten(teKoppelenZaak) } returns createZaakRechten()
+        every { zrcClientService.patchZaak(any<UUID>(), any<Zaak>()) } returns zaak
+
+        When("we link them") {
+            zakenRESTService.koppelZaak(restZakenVerdeelGegevens)
+
+            Then("no exception is thrown") {}
+        }
+    }
+
+    Given("An open zaak and a closed zaak") {
+        val zaak = createZaak()
+        val teKoppelenZaak = createZaak(archiefnominatie = Archiefnominatie.BLIJVEND_BEWAREN)
+        val restZakenVerdeelGegevens = createRESTZaakKoppelGegevens(
+            zaakUuid = zaak.uuid,
+            teKoppelenZaakUuid = teKoppelenZaak.uuid,
+            relatieType = RelatieType.BIJDRAGE,
+            reverseRelatieType = RelatieType.BIJDRAGE
+        )
+
+        every { zrcClientService.readZaak(restZakenVerdeelGegevens.zaakUuid) } returns zaak
+        every { zrcClientService.readZaak(restZakenVerdeelGegevens.teKoppelenZaakUuid) } returns teKoppelenZaak
+
+        When("we link them") {
+            val exception = shouldThrow<PolicyException> {
+                zakenRESTService.koppelZaak(restZakenVerdeelGegevens)
+            }
+
+            Then("policy exception is thrown") {
+                exception.message shouldBe null
             }
         }
     }
