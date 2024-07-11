@@ -16,9 +16,9 @@ import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
+import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_ROL_TOEVOEGEN_REDEN
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_TYPE_NATUURLIJK_PERSOON
 import nl.lifely.zac.itest.config.ItestConfiguration.DATE_TIME_2020_01_01
-import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_BAD_REQUEST
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_BETROKKENE
@@ -105,18 +105,12 @@ class ZakenRESTServiceTest : BehaviorSpec({
                     "  \"betrokkeneIdentificatie\": \"$TEST_PERSON_HENDRIKA_JANSE_BSN\"\n" +
                     "}"
             )
-            Then("the response should be a 400 bad request HTTP response") {
-                response.code shouldBe HTTP_STATUS_BAD_REQUEST
+            Then("the response should be a 200 OK HTTP response") {
+                response.code shouldBe HTTP_STATUS_OK
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 with(responseBody) {
-                    with(JSONObject(this).getJSONArray("parameterViolations")) {
-                        length() shouldBe 1
-                        getJSONObject(0).apply {
-                            getString("message") shouldBe "must not be blank"
-                            getString("path") shouldBe "createBetrokken.arg0.roltoelichting"
-                        }
-                    }
+                    shouldContainJsonKeyValue("uuid", zaak2UUID.toString())
                 }
             }
         }
@@ -252,11 +246,18 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 with(JSONArray(responseBody)) {
-                    length() shouldBe 1
+                    length() shouldBe 2
                     getJSONObject(0).apply {
                         getString("rolid") shouldNotBe null
                         getString("roltype") shouldBe ROLTYPE_NAME_BETROKKENE
                         getString("roltoelichting") shouldBe "dummyToelichting"
+                        getString("type") shouldBe BETROKKENE_TYPE_NATUURLIJK_PERSOON
+                        getString("identificatie") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
+                    }
+                    getJSONObject(1).apply {
+                        getString("rolid") shouldNotBe null
+                        getString("roltype") shouldBe ROLTYPE_NAME_BETROKKENE
+                        getString("roltoelichting") shouldBe BETROKKENE_ROL_TOEVOEGEN_REDEN
                         getString("type") shouldBe BETROKKENE_TYPE_NATUURLIJK_PERSOON
                         getString("identificatie") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
                     }
@@ -265,8 +266,8 @@ class ZakenRESTServiceTest : BehaviorSpec({
         }
     }
     Given(
-        """Two zaken have been created and a websocket subscription has been created to listen
-                for a 'zaken verdelen' screen event which will be sent by the asynchronous 'assign zaken from list' job"""
+        """Two zaken have been created and a websocket subscription has been created to listen for a 'zaken verdelen' 
+        screen event which will be sent by the asynchronous 'assign zaken from list' job"""
     ) {
         val uniqueResourceId = UUID.randomUUID()
         val websocketListener = WebSocketTestListener(

@@ -108,11 +108,6 @@ class ZaakHistorieTest : BehaviorSpec({
                     "actie": "GEKOPPELD"
                   },
                   {
-                    "attribuutLabel": "overige",
-                    "door": "Functionele gebruiker",
-                    "toelichting": ""
-                  },
-                  {
                     "attribuutLabel": "Behandelaar",
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "$TEST_GROUP_A_DESCRIPTION",

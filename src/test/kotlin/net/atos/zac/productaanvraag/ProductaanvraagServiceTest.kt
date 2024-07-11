@@ -17,12 +17,14 @@ import net.atos.client.or.`object`.model.createObjectRecord
 import net.atos.client.vrl.VrlClientService
 import net.atos.client.vrl.model.generated.CommunicatieKanaal
 import net.atos.client.zgw.drc.DrcClientService
+import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Point
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.Zaak
+import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakInformatieobject
 import net.atos.client.zgw.zrc.model.createZaakobjectProductaanvraag
@@ -83,6 +85,39 @@ class ProductaanvraagServiceTest : BehaviorSpec({
 
     beforeSpec {
         clearAllMocks()
+    }
+
+    Given("a productaanvraag-dimpact object with aanvraaggegevens containing form steps with key-value pairs") {
+        val type = "productaanvraag"
+        val bron = createBron()
+        val orObject = createORObject(
+            record = createObjectRecord(
+                data = mapOf(
+                    "bron" to bron,
+                    "type" to type,
+                    "aanvraaggegevens" to mapOf(
+                        "formStep1" to mapOf(
+                            "dummyKey1" to "dummyValue1",
+                            "dummyKey2" to "dummyValue2"
+                        ),
+                        "formStep2" to mapOf(
+                            "dummyKey3" to "dummyValue3"
+                        )
+                    )
+                )
+            )
+        )
+        When("the form data is requested from the productaanvraag") {
+            val formData = productaanvraagService.getAanvraaggegevens(orObject)
+
+            Then("all key-value pairs in the aanvraaggegevens are returned") {
+                with(formData) {
+                    this["dummyKey1"] shouldBe "dummyValue1"
+                    this["dummyKey2"] shouldBe "dummyValue2"
+                    this["dummyKey3"] shouldBe "dummyValue3"
+                }
+            }
+        }
     }
 
     Given("a productaanvraag-dimpact object registration object") {
@@ -516,6 +551,43 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     type shouldBe productAanvraagType
                     initiatorID shouldBe null
                     aantalBijlagen shouldBe 0
+                }
+            }
+        }
+    }
+    Given("a list of bijlage URIs and a zaak URI") {
+        val bijlageURIs = listOf(URI("dummyURI1"), URI("dummyURI2"))
+        val enkelvoudigInformatieobjecten = listOf(
+            createEnkelvoudigInformatieObject(),
+            createEnkelvoudigInformatieObject()
+        )
+        val zaakInformatieobjecten = listOf(createZaakInformatieobject(), createZaakInformatieobject())
+        val zaakUrl = URI("dummyZaakUrl")
+        val createdZaakInformatieobjectSlot = slot<ZaakInformatieobject>()
+        val beschrijving = "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+        bijlageURIs.forEachIndexed { index, uri ->
+            every { drcClientService.readEnkelvoudigInformatieobject(uri) } returns enkelvoudigInformatieobjecten[index]
+            every { drcClientService.readEnkelvoudigInformatieobject(uri) } returns enkelvoudigInformatieobjecten[index]
+        }
+        every {
+            zrcClientService.createZaakInformatieobject(
+                capture(createdZaakInformatieobjectSlot),
+                beschrijving
+            )
+        } returns zaakInformatieobjecten[0] andThenAnswer { zaakInformatieobjecten[1] }
+
+        When("the bijlagen are paired with the zaak") {
+            productaanvraagService.pairBijlagenWithZaak(bijlageURIs, zaakUrl)
+
+            Then("for every bijlage a zaakInformatieobject should be created") {
+                verify(exactly = 2) {
+                    zrcClientService.createZaakInformatieobject(any(), any())
+                }
+                createdZaakInformatieobjectSlot.captured.run {
+                    zaak shouldBe zaakUrl
+                    beschrijving shouldBe beschrijving
+                    informatieobject shouldBe enkelvoudigInformatieobjecten[1].url
+                    titel shouldBe enkelvoudigInformatieobjecten[1].titel
                 }
             }
         }

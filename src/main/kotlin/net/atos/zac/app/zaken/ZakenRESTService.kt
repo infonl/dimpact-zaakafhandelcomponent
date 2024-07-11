@@ -252,7 +252,7 @@ class ZakenRESTService @Inject constructor(
             gegevens.roltypeUUID,
             gegevens.betrokkeneIdentificatieType,
             gegevens.betrokkeneIdentificatie,
-            gegevens.roltoelichting,
+            toelichting = gegevens.roltoelichting?.ifEmpty { ROL_TOEVOEGEN_REDEN } ?: ROL_TOEVOEGEN_REDEN,
             zaak
         )
         return restZaakConverter.convert(zaak)
@@ -1240,7 +1240,7 @@ class ZakenRESTService @Inject constructor(
         inboxProductaanvraagService.delete(inboxProductaanvraag.id)
         zaakVariabelenService.setZaakdata(
             zaak.uuid,
-            productaanvraagService.getFormulierData(productaanvraagObject)
+            productaanvraagService.getAanvraaggegevens(productaanvraagObject)
         )
     }
 
