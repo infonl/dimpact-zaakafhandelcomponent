@@ -23,16 +23,25 @@ import net.atos.client.kvk.zoeken.model.generated.ResultaatItem;
 
 @ApplicationScoped
 public class KvkClientService {
-
     private static final Logger LOG = Logger.getLogger(KvkClientService.class.getName());
 
-    @Inject
-    @RestClient
     private ZoekenClient zoekenClient;
+    private VestigingsprofielClient vestigingsprofielClient;
 
     @Inject
-    @RestClient
-    private VestigingsprofielClient vestigingsprofielClient;
+    public KvkClientService(
+            @RestClient ZoekenClient zoekenClient,
+            @RestClient VestigingsprofielClient vestigingsprofielClient
+    ) {
+        this.zoekenClient = zoekenClient;
+        this.vestigingsprofielClient = vestigingsprofielClient;
+    }
+
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public KvkClientService() {
+    }
 
     public Resultaat list(final KvkZoekenParameters parameters) {
         try {
@@ -73,17 +82,6 @@ public class KvkClientService {
         return listAsync(zoekParameters).thenApply(this::convertToSingleItem);
     }
 
-    private Resultaat handleListAsync(final Resultaat resultaat, final Throwable exception) {
-        if (resultaat != null) {
-            return resultaat;
-        } else {
-            if (!(exception instanceof KvkClientNoResultException)) {
-                LOG.warning(() -> "Error while calling listAsync: %s".formatted(exception.getMessage()));
-            }
-            return createEmptyResultaat();
-        }
-    }
-
     public Optional<ResultaatItem> findRechtspersoon(final String rsin) {
         final KvkZoekenParameters zoekParameters = new KvkZoekenParameters();
         zoekParameters.setType("rechtspersoon");
@@ -104,5 +102,16 @@ public class KvkClientService {
         resultaat.setAantal(0);
         resultaat.setResultaten(Collections.emptyList());
         return resultaat;
+    }
+
+    private Resultaat handleListAsync(final Resultaat resultaat, final Throwable exception) {
+        if (resultaat != null) {
+            return resultaat;
+        } else {
+            if (!(exception instanceof KvkClientNoResultException)) {
+                LOG.warning(() -> "Error while calling listAsync: %s".formatted(exception.getMessage()));
+            }
+            return createEmptyResultaat();
+        }
     }
 }

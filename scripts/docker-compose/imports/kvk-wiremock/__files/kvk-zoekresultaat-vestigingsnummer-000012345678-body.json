@@ -1,0 +1,24 @@
+{
+  "pagina": 1,
+  "aantal": 10,
+  "totaal": 1,
+  "resultaten": [
+    {
+      "kvkNummer": "12345678",
+      "vestigingsnummer": "000012345678",
+      "handelsnaam": "dummyHandelsnaam1",
+      "adresType": "dummyAdres1",
+      "straatnaam": "dummyStraatnaam1",
+      "plaats": "dummyPlaats1",
+      "type": "nevenvestiging",
+      "_links": {
+        "basisprofiel": {
+          "href": "https://api.kvk.nl/test/api/v1/basisprofielen/69599084"
+        },
+        "vestigingsprofiel": {
+          "href": "https://api.kvk.nl/test/api/v1/vestigingsprofielen/000038509520"
+        }
+      }
+    }
+  ]
+}

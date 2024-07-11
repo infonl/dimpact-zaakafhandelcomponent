@@ -350,6 +350,17 @@ services:
       - ./scripts/docker-compose/imports/smartdocuments-wiremock/__files:/home/wiremock/__files
     entrypoint: [ "/docker-entrypoint.sh", "--global-response-templating", "--disable-gzip", "--verbose" ]
 
+  kvk-wiremock:
+    image: wiremock/wiremock:3.6.0-2
+    ports:
+      - "8084:8080"
+    volumes:
+      # these WireMock mappings are used by the ZAC integration tests
+      - ./scripts/docker-compose/imports/kvk-wiremock/mappings:/home/wiremock/mappings
+      - ./scripts/docker-compose/imports/kvk-wiremock/__files:/home/wiremock/__files
+    entrypoint: [ "/docker-entrypoint.sh", "--global-response-templating", "--disable-gzip", "--verbose" ]
+    profiles: [ "itest" ]
+
   office-converter:
     image: ghcr.io/eugenmayer/kontextwork-converter:1.5.0
     platform: linux/amd64

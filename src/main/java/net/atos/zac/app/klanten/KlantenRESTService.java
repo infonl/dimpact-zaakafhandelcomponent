@@ -123,8 +123,10 @@ public class KlantenRESTService {
       throws ExecutionException,
       InterruptedException {
         return kvkClientService.findVestigingAsync(vestigingsnummer)
-                .thenCombine(klantenClientService.findVestigingAsync(vestigingsnummer),
-                        this::convertToRESTBedrijf)
+                .thenCombine(
+                        klantenClientService.findVestigingAsync(vestigingsnummer),
+                        this::convertToRESTBedrijf
+                )
                 .toCompletableFuture()
                 .get();
     }
