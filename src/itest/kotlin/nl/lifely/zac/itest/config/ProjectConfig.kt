@@ -148,7 +148,7 @@ class ProjectConfig : AbstractProjectConfig() {
 
         return ComposeContainer(File("docker-compose.yaml"))
             .withLocalCompose(true)
-            .withRemoveVolumes(System.getenv("REMOVE_DOCKER_COMPOSE_VOLUMES").toBoolean())
+            .withRemoveVolumes(System.getenv("REMOVE_DOCKER_COMPOSE_VOLUMES")?.toBoolean() ?: true)
             .withEnv(dockerComposeEnvironment)
             .withOptions(
                 "--profile zac",
