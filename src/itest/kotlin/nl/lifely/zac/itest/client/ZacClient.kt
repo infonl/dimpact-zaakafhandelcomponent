@@ -5,7 +5,7 @@
 package nl.lifely.zac.itest.client
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import nl.lifely.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_EMAIL
+import nl.lifely.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import okhttp3.Response
 import java.time.ZonedDateTime
@@ -213,7 +213,7 @@ class ZacClient {
         groupId: String,
         groupName: String,
         startDate: ZonedDateTime,
-        communicatiekanaal: String? = COMMUNICATIEKANAAL_EMAIL
+        communicatiekanaal: String? = COMMUNICATIEKANAAL_TEST_1
     ): Response {
         logger.info {
             "Creating zaak with group id: $groupId and group name: $groupName"
