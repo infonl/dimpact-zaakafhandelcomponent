@@ -29,7 +29,6 @@ import jakarta.ws.rs.core.MediaType;
 import net.atos.zac.app.admin.converter.RESTReferentieTabelConverter;
 import net.atos.zac.app.admin.converter.RESTReferentieWaardeConverter;
 import net.atos.zac.app.admin.model.RESTReferentieTabel;
-import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.policy.PolicyService;
 import net.atos.zac.zaaksturing.ReferentieTabelBeheerService;
 import net.atos.zac.zaaksturing.ReferentieTabelService;

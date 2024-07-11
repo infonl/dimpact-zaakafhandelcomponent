@@ -11,6 +11,7 @@ import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
 import { Observable, Subject, of } from "rxjs";
 import { catchError, filter, takeUntil } from "rxjs/operators";
+import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { BAGObject } from "../../bag/model/bagobject";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -45,7 +46,6 @@ import { Zaak } from "../model/zaak";
 import { ZaakAanmaakGegevens } from "../model/zaak-aanmaak-gegevens";
 import { Zaaktype } from "../model/zaaktype";
 import { ZakenService } from "../zaken.service";
-import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 
 @Component({
   selector: "zac-zaak-create",
