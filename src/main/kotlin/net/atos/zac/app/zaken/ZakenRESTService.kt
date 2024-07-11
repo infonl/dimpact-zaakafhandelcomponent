@@ -836,14 +836,6 @@ class ZakenRESTService @Inject constructor(
     }
 
     @GET
-    @Path("communicatiekanalen/{inclusiefEFormulier}")
-    fun listCommunicatiekanalen(
-        @PathParam("inclusiefEFormulier") inclusiefEFormulier: Boolean
-    ) = listOf("E-formulier", "dummyCommunicatiekanaal")
-        // TODO: get from referentietabellen
-        .filter { if (inclusiefEFormulier) true else it != ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER }
-
-    @GET
     @Path("besluit/zaakUuid/{zaakUuid}")
     fun listBesluitenForZaakUUID(@PathParam("zaakUuid") zaakUuid: UUID): List<RESTBesluit> {
         return brcClientService.listBesluiten(zrcClientService.readZaak(zaakUuid))

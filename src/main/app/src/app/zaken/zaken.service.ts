@@ -441,16 +441,6 @@ export class ZakenService {
       );
   }
 
-  listCommunicatiekanalen(inclusiefEFormulier?: boolean): Observable<string[]> {
-    return this.http
-      .get<
-        string[]
-      >(`${this.basepath}/communicatiekanalen/${inclusiefEFormulier}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
-  }
-
   koppelZaak(zaakKoppelGegevens: ZaakKoppelGegevens): Observable<void> {
     return this.http
       .patch<void>(`${this.basepath}/zaak/koppel`, zaakKoppelGegevens)

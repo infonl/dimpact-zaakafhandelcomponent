@@ -69,9 +69,11 @@ export class ReferentieTabelService {
       );
   }
 
-  listCommunicatiekanalen(): Observable<string[]> {
+  listCommunicatiekanalen(inclusiefEFormulier?: boolean): Observable<string[]> {
     return this.http
-      .get<string[]>(`${this.basepath}/communicatiekanaal`)
+      .get<string[]>(
+        `${this.basepath}/communicatiekanaal/${inclusiefEFormulier}`,
+      )
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

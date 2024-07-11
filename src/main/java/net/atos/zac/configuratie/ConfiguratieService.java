@@ -52,6 +52,10 @@ public class ConfiguratieService {
 
     public static final String STATUSTYPE_OMSCHRIJVING_AFGEROND = "Afgerond";
 
+    /**
+     * Zaak communicatiekanaal used when creating zaken from Dimpact productaanvragen.
+     * This communicatiekanaal always needs to be available.
+     */
     public static final String COMMUNICATIEKANAAL_EFORMULIER = "E-formulier";
 
     public static final String INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL = "e-mail";
