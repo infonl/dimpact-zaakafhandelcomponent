@@ -181,6 +181,18 @@ fun createRESTZakenVerdeelGegevens(
     screenEventResourceId = screenEventResourceId
 )
 
+fun createRESTZaakKoppelGegevens(
+    zaakUuid: UUID = UUID.randomUUID(),
+    teKoppelenZaakUuid: UUID = UUID.randomUUID(),
+    relatieType: RelatieType,
+    reverseRelatieType: RelatieType
+) = RESTZaakKoppelGegevens(
+    zaakUuid = zaakUuid,
+    teKoppelenZaakUuid = teKoppelenZaakUuid,
+    relatieType = relatieType,
+    reverseRelatieType = reverseRelatieType
+)
+
 fun createRESTZaakRechten() = RESTZaakRechten()
 
 fun createRESTZaakResultaat() = RESTZaakResultaat()

@@ -1249,9 +1249,6 @@ class ZakenRESTService @Inject constructor(
         andereZaak: Zaak,
         aardRelatie: AardRelatie
     ) {
-        assertPolicy(zaak.isOpen == andereZaak.isOpen)
-        assertPolicy(policyService.readZaakRechten(zaak).koppelen)
-        assertPolicy(policyService.readZaakRechten(andereZaak).koppelen)
         zrcClientService.patchZaak(
             zaak.uuid,
             RelevantezaakZaakPatch(
