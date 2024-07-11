@@ -22,6 +22,7 @@ import net.atos.client.brp.model.generated.Adres;
 import net.atos.client.brp.model.generated.Persoon;
 import net.atos.client.brp.model.generated.VerblijfadresBinnenland;
 import net.atos.client.kvk.KvkClientService;
+import net.atos.client.kvk.zoeken.model.generated.BinnenlandsAdres;
 import net.atos.client.kvk.zoeken.model.generated.ResultaatItem;
 import net.atos.client.or.object.ObjectsClientService;
 import net.atos.client.zgw.shared.ZGWApiService;
@@ -47,38 +48,50 @@ import net.atos.zac.flowable.TaakVariabelenService;
 import net.atos.zac.identity.IdentityService;
 import net.atos.zac.productaanvraag.ProductaanvraagService;
 
-public class DataConverter {
+public class DocumentCreatieDataConverter {
     public static final String DATE_FORMAT = "dd-MM-yyyy";
 
-    @Inject
     private ZGWApiService zgwApiService;
-
-    @Inject
     private ZRCClientService zrcClientService;
-
-    @Inject
     private ZtcClientService ztcClientService;
-
-    @Inject
     private BRPClientService brpClientService;
-
-    @Inject
     private KvkClientService kvkClientService;
-
-    @Inject
     private ObjectsClientService objectsClientService;
-
-    @Inject
     private FlowableTaskService flowableTaskService;
-
-    @Inject
     private TaakVariabelenService taakVariabelenService;
-
-    @Inject
     private IdentityService identityService;
+    private ProductaanvraagService productaanvraagService;
 
     @Inject
-    private ProductaanvraagService productaanvraagService;
+    public DocumentCreatieDataConverter(
+            final ZGWApiService zgwApiService,
+            final ZRCClientService zrcClientService,
+            final ZtcClientService ztcClientService,
+            final BRPClientService brpClientService,
+            final KvkClientService kvkClientService,
+            final ObjectsClientService objectsClientService,
+            final FlowableTaskService flowableTaskService,
+            final TaakVariabelenService taakVariabelenService,
+            final IdentityService identityService,
+            final ProductaanvraagService productaanvraagService
+    ) {
+        this.zgwApiService = zgwApiService;
+        this.zrcClientService = zrcClientService;
+        this.ztcClientService = ztcClientService;
+        this.brpClientService = brpClientService;
+        this.kvkClientService = kvkClientService;
+        this.objectsClientService = objectsClientService;
+        this.flowableTaskService = flowableTaskService;
+        this.taakVariabelenService = taakVariabelenService;
+        this.identityService = identityService;
+        this.productaanvraagService = productaanvraagService;
+    }
+
+    /**
+     * Empty no-op constructor as required by Weld.
+     */
+    public DocumentCreatieDataConverter() {
+    }
 
     public Data createData(final DocumentCreatieGegevens documentCreatieGegevens, final LoggedInUser loggedInUser) {
         final Data data = new Data();
@@ -196,19 +209,23 @@ public class DataConverter {
                 .orElse(null);
     }
 
-    private AanvragerData convertToAanvragerDataBedrijf(final ResultaatItem vestiging) {
+    private AanvragerData convertToAanvragerDataBedrijf(final ResultaatItem resultaatItem) {
+        final BinnenlandsAdres binnenlandsAdres = resultaatItem.getAdres().getBinnenlandsAdres();
         final AanvragerData aanvragerData = new AanvragerData();
-        aanvragerData.naam = vestiging.getHandelsnaam();
-        aanvragerData.straat = vestiging.getStraatnaam();
-        aanvragerData.huisnummer = convertToHuisnummer(vestiging);
-        aanvragerData.postcode = vestiging.getPostcode();
-        aanvragerData.woonplaats = vestiging.getPlaats();
+        aanvragerData.naam = resultaatItem.getNaam();
+        aanvragerData.straat = binnenlandsAdres.getStraatnaam();
+        aanvragerData.huisnummer = convertToHuisnummer(resultaatItem);
+        aanvragerData.postcode = binnenlandsAdres.getPostcode();
+        aanvragerData.woonplaats = binnenlandsAdres.getPlaats();
         return aanvragerData;
     }
 
-    private String convertToHuisnummer(final ResultaatItem vestiging) {
-        return joinNonBlank(Objects.toString(vestiging.getHuisnummer(), null),
-                vestiging.getHuisnummerToevoeging());
+    private String convertToHuisnummer(final ResultaatItem resultaatItem) {
+        final BinnenlandsAdres binnenlandsAdres = resultaatItem.getAdres().getBinnenlandsAdres();
+        return joinNonBlank(
+                Objects.toString(binnenlandsAdres.getHuisnummer(), null),
+                binnenlandsAdres.getHuisletter()
+        );
     }
 
     private StartformulierData createStartformulierData(final URI zaak) {

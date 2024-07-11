@@ -1,6 +1,6 @@
 {
   "request": {
-    "url": "/api/v1/zoeken?vestigingsnummer=000012345678",
+    "url": "/api/v2/zoeken?vestigingsnummer=000012345678",
     "method": "GET",
     "headers": {
       "Accept": {

@@ -20,8 +20,8 @@ public class KvkZoekenParameters {
     @QueryParam("vestigingsnummer")
     private String vestigingsnummer;
 
-    @QueryParam("handelsnaam")
-    private String handelsnaam;
+    @QueryParam("naam")
+    private String naam;
 
     @QueryParam("straatnaam")
     private String straatnaam;
@@ -45,7 +45,7 @@ public class KvkZoekenParameters {
     private BigDecimal pagina;
 
     @QueryParam("aantal")
-    private BigDecimal aantal;
+    private BigDecimal resultatenPerPagina;
 
     public String getKvkNummer() {
         return kvkNummer;
@@ -71,12 +71,12 @@ public class KvkZoekenParameters {
         this.vestigingsnummer = vestigingsnummer;
     }
 
-    public String getHandelsnaam() {
-        return handelsnaam;
+    public String getNaam() {
+        return naam;
     }
 
-    public void setHandelsnaam(final String handelsnaam) {
-        this.handelsnaam = handelsnaam;
+    public void setNaam(final String naam) {
+        this.naam = naam;
     }
 
     public String getStraatnaam() {
@@ -135,11 +135,11 @@ public class KvkZoekenParameters {
         this.pagina = pagina;
     }
 
-    public BigDecimal getAantal() {
-        return aantal;
+    public BigDecimal getResultatenPerPagina() {
+        return resultatenPerPagina;
     }
 
-    public void setAantal(final BigDecimal aantal) {
-        this.aantal = aantal;
+    public void setResultatenPerPagina(final BigDecimal resultatenPerPagina) {
+        this.resultatenPerPagina = resultatenPerPagina;
     }
 }

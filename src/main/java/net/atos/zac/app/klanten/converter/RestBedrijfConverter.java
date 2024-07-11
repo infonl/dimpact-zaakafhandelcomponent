@@ -18,14 +18,14 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import net.atos.client.kvk.model.KvkZoekenParameters;
+import net.atos.client.kvk.zoeken.model.generated.BinnenlandsAdres;
 import net.atos.client.kvk.zoeken.model.generated.Resultaat;
 import net.atos.client.kvk.zoeken.model.generated.ResultaatItem;
 import net.atos.zac.app.klanten.model.bedrijven.RESTBedrijf;
 import net.atos.zac.app.klanten.model.bedrijven.RESTListBedrijvenParameters;
 
-public class RESTBedrijfConverter {
-
-    public KvkZoekenParameters convert(final RESTListBedrijvenParameters restListParameters) {
+public class RestBedrijfConverter {
+    public static KvkZoekenParameters convert(final RESTListBedrijvenParameters restListParameters) {
         final KvkZoekenParameters zoekenParameters = new KvkZoekenParameters();
         if (StringUtils.isNotBlank(restListParameters.kvkNummer)) {
             zoekenParameters.setKvkNummer(restListParameters.kvkNummer);
@@ -37,7 +37,7 @@ public class RESTBedrijfConverter {
             zoekenParameters.setRsin(restListParameters.rsin);
         }
         if (StringUtils.isNotBlank(restListParameters.handelsnaam)) {
-            zoekenParameters.setHandelsnaam(restListParameters.handelsnaam);
+            zoekenParameters.setNaam(restListParameters.handelsnaam);
         }
         if (restListParameters.type != null) {
             zoekenParameters.setType(restListParameters.type.getType());
@@ -51,37 +51,43 @@ public class RESTBedrijfConverter {
         return zoekenParameters;
     }
 
-    public Stream<RESTBedrijf> convert(final Resultaat resultaat) {
+    public static Stream<RESTBedrijf> convert(final Resultaat resultaat) {
         if (CollectionUtils.isEmpty(resultaat.getResultaten())) {
             return Stream.empty();
         }
-        return resultaat.getResultaten().stream().map(this::convert);
+        return resultaat.getResultaten().stream().map(RestBedrijfConverter::convert);
     }
 
-    public RESTBedrijf convert(final ResultaatItem bedrijf) {
+    public static RESTBedrijf convert(final ResultaatItem bedrijf) {
         final RESTBedrijf restBedrijf = new RESTBedrijf();
         restBedrijf.kvkNummer = bedrijf.getKvkNummer();
         restBedrijf.vestigingsnummer = bedrijf.getVestigingsnummer();
         restBedrijf.handelsnaam = convertToNaam(bedrijf);
-        restBedrijf.postcode = bedrijf.getPostcode();
+        restBedrijf.postcode = bedrijf.getAdres().getBinnenlandsAdres().getPostcode();
         restBedrijf.rsin = bedrijf.getRsin();
         restBedrijf.type = bedrijf.getType().toUpperCase(Locale.getDefault());
         restBedrijf.adres = convertAdres(bedrijf);
         return restBedrijf;
     }
 
-    private String convertToNaam(final ResultaatItem bedrijf) {
-        return replace(bedrijf.getHandelsnaam(), SPACE, NON_BREAKING_SPACE);
+    private static String convertToNaam(final ResultaatItem bedrijf) {
+        return replace(bedrijf.getNaam(), SPACE, NON_BREAKING_SPACE);
     }
 
-    private String convertAdres(final ResultaatItem bedrijf) {
-
-        final String adres = replace(joinNonBlankWith(NON_BREAKING_SPACE, bedrijf.getStraatnaam(),
-                Objects.toString(bedrijf.getHuisnummer(), null),
-                bedrijf.getHuisnummerToevoeging()),
-                SPACE, NON_BREAKING_SPACE);
-        final String postcode = replace(bedrijf.getPostcode(), SPACE, NON_BREAKING_SPACE);
-        final String woonplaats = replace(bedrijf.getPlaats(), SPACE, NON_BREAKING_SPACE);
+    private static String convertAdres(final ResultaatItem bedrijf) {
+        final BinnenlandsAdres binnenlandsAdres = bedrijf.getAdres().getBinnenlandsAdres();
+        final String adres = replace(
+                joinNonBlankWith(
+                        NON_BREAKING_SPACE,
+                        binnenlandsAdres.getStraatnaam(),
+                        Objects.toString(binnenlandsAdres.getHuisnummer(), null),
+                        binnenlandsAdres.getHuisletter()
+                ),
+                SPACE,
+                NON_BREAKING_SPACE
+        );
+        final String postcode = replace(binnenlandsAdres.getPostcode(), SPACE, NON_BREAKING_SPACE);
+        final String woonplaats = replace(binnenlandsAdres.getPlaats(), SPACE, NON_BREAKING_SPACE);
         return joinNonBlankWith(", ", adres, postcode, woonplaats);
     }
 }

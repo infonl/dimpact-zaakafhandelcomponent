@@ -5,7 +5,7 @@
 
 package net.atos.zac.documentcreatie.model;
 
-import static net.atos.zac.documentcreatie.converter.DataConverter.DATE_FORMAT;
+import static net.atos.zac.documentcreatie.converter.DocumentCreatieDataConverter.DATE_FORMAT;
 
 import java.time.LocalDate;
 

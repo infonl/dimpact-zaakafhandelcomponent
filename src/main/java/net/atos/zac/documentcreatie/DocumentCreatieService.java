@@ -29,7 +29,7 @@ import net.atos.client.smartdocuments.model.wizard.WizardResponse;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.zac.authentication.LoggedInUser;
-import net.atos.zac.documentcreatie.converter.DataConverter;
+import net.atos.zac.documentcreatie.converter.DocumentCreatieDataConverter;
 import net.atos.zac.documentcreatie.model.Data;
 import net.atos.zac.documentcreatie.model.DocumentCreatieGegevens;
 import net.atos.zac.documentcreatie.model.DocumentCreatieResponse;
@@ -45,7 +45,7 @@ public class DocumentCreatieService {
     private String smartDocumentsURL;
     private String authenticationToken;
     private Optional<String> fixedUserName;
-    private DataConverter dataConverter;
+    private DocumentCreatieDataConverter documentCreatieDataConverter;
     private Instance<LoggedInUser> loggedInUserInstance;
     private ZtcClientService ztcClientService;
     private ZRCClientService zrcClientService;
@@ -62,7 +62,7 @@ public class DocumentCreatieService {
             @ConfigProperty(name = "SD_CLIENT_MP_REST_URL") String smartDocumentsURL,
             @ConfigProperty(name = "SD_AUTHENTICATION") String authenticationToken,
             @ConfigProperty(name = "SD_FIXED_USER_NAME") Optional<String> fixedUserName,
-            DataConverter dataConverter,
+            DocumentCreatieDataConverter documentCreatieDataConverter,
             Instance<LoggedInUser> loggedInUserInstance,
             ZtcClientService ztcClientService,
             ZRCClientService zrcClientService
@@ -71,7 +71,7 @@ public class DocumentCreatieService {
         this.smartDocumentsURL = smartDocumentsURL;
         this.authenticationToken = authenticationToken;
         this.fixedUserName = fixedUserName;
-        this.dataConverter = dataConverter;
+        this.documentCreatieDataConverter = documentCreatieDataConverter;
         this.loggedInUserInstance = loggedInUserInstance;
         this.ztcClientService = ztcClientService;
         this.zrcClientService = zrcClientService;
@@ -86,7 +86,7 @@ public class DocumentCreatieService {
     public DocumentCreatieResponse creeerDocumentAttendedSD(final DocumentCreatieGegevens documentCreatieGegevens) {
         final LoggedInUser loggedInUser = loggedInUserInstance.get();
         final Registratie registratie = createRegistratie(documentCreatieGegevens);
-        final Data data = dataConverter.createData(documentCreatieGegevens, loggedInUser);
+        final Data data = documentCreatieDataConverter.createData(documentCreatieGegevens, loggedInUser);
         final WizardRequest wizardRequest = new WizardRequest(createSmartDocument(documentCreatieGegevens), registratie, data);
         final String userName = fixedUserName.orElse(loggedInUser.getId());
         try {
