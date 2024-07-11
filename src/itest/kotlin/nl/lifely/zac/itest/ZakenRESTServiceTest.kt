@@ -18,6 +18,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_ROL_TOEVOEGEN_REDEN
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_TYPE_NATUURLIJK_PERSOON
+import nl.lifely.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_EMAIL
 import nl.lifely.zac.itest.config.ItestConfiguration.DATE_TIME_2020_01_01
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
@@ -62,7 +63,8 @@ class ZakenRESTServiceTest : BehaviorSpec({
                 zaakTypeUUID = ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID,
                 groupId = TEST_GROUP_A_ID,
                 groupName = TEST_GROUP_A_DESCRIPTION,
-                startDate = DATE_TIME_2020_01_01
+                startDate = DATE_TIME_2020_01_01,
+                communicatiekanaal = COMMUNICATIEKANAAL_EMAIL
             )
             Then("the response should be a 200 HTTP response with the created zaak") {
                 response.code shouldBe HTTP_STATUS_OK

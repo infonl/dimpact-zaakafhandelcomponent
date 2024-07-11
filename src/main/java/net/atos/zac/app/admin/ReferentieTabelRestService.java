@@ -7,6 +7,7 @@ package net.atos.zac.app.admin;
 
 import static net.atos.zac.policy.PolicyService.assertPolicy;
 import static net.atos.zac.zaaksturing.model.ReferentieTabel.Systeem.AFZENDER;
+import static net.atos.zac.zaaksturing.model.ReferentieTabel.Systeem.COMMUNICATIEKANAAL;
 import static net.atos.zac.zaaksturing.model.ReferentieTabel.Systeem.DOMEIN;
 import static net.atos.zac.zaaksturing.model.ReferentieTabel.Systeem.SERVER_ERROR_ERROR_PAGINA_TEKST;
 
@@ -128,6 +129,14 @@ public class ReferentieTabelRestService {
         assertPolicy(policyService.readOverigeRechten().beheren());
         return RESTReferentieWaardeConverter.convert(
                 referentieTabelService.readReferentieTabel(AFZENDER.name()).getWaarden()
+        );
+    }
+
+    @GET
+    @Path("communicatiekanalen")
+    public List<String> listCommunicatiekanalen() {
+        return RESTReferentieWaardeConverter.convert(
+                referentieTabelService.readReferentieTabel(COMMUNICATIEKANAAL.name()).getWaarden()
         );
     }
 

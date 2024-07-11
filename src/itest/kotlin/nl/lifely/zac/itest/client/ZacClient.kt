@@ -208,7 +208,13 @@ class ZacClient {
     }
 
     @Suppress("LongMethod")
-    fun createZaak(zaakTypeUUID: UUID, groupId: String, groupName: String, startDate: ZonedDateTime): Response {
+    fun createZaak(
+        zaakTypeUUID: UUID,
+        groupId: String,
+        groupName: String,
+        startDate: ZonedDateTime,
+        communicatiekanaal: String? = COMMUNICATIEKANAAL_EMAIL
+    ): Response {
         logger.info {
             "Creating zaak with group id: $groupId and group name: $groupName"
         }
@@ -225,7 +231,7 @@ class ZacClient {
                 "      \"id\": \"$groupId\",\n" +
                 "      \"naam\": \"$groupName\"\n" +
                 "    },\n" +
-                "    \"communicatiekanaal\": \"$COMMUNICATIEKANAAL_EMAIL\",\n" +
+                "    \"communicatiekanaal\": \"$communicatiekanaal\",\n" +
                 "    \"vertrouwelijkheidaanduiding\": \"openbaar\",\n" +
                 "    \"omschrijving\": \"dummyOmschrijving\",\n" +
                 "    \"toelichting\": null\n" +
