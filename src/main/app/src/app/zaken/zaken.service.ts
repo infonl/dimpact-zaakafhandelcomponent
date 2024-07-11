@@ -441,9 +441,7 @@ export class ZakenService {
       );
   }
 
-  listCommunicatiekanalen(
-    inclusiefEFormulier?: boolean,
-  ): Observable<string[]> {
+  listCommunicatiekanalen(inclusiefEFormulier?: boolean): Observable<string[]> {
     return this.http
       .get<
         string[]

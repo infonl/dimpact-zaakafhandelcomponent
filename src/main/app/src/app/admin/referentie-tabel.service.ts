@@ -61,17 +61,25 @@ export class ReferentieTabelService {
       );
   }
 
-  listDomeinen(): Observable<string[]> {
+  listAfzenders(): Observable<string[]> {
     return this.http
-      .get<string[]>(`${this.basepath}/domein`)
+      .get<string[]>(`${this.basepath}/afzender`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
 
-  listAfzenders(): Observable<string[]> {
+  listCommunicatiekanalen(): Observable<string[]> {
     return this.http
-      .get<string[]>(`${this.basepath}/afzender`)
+      .get<string[]>(`${this.basepath}/communicatiekanaal`)
+      .pipe(
+        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+      );
+  }
+
+  listDomeinen(): Observable<string[]> {
+    return this.http
+      .get<string[]>(`${this.basepath}/domein`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
