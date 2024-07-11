@@ -133,11 +133,16 @@ public class ReferentieTabelRestService {
     }
 
     @GET
-    @Path("communicatiekanaal")
-    public List<String> listCommunicatiekanalen() {
+    @Path("communicatiekanaal/{inclusiefEFormulier}")
+    public List<String> listCommunicatiekanalen(
+            @PathParam("inclusiefEFormulier") final boolean inclusiefEFormulier
+    ) {
         return RESTReferentieWaardeConverter.convert(
                 referentieTabelService.readReferentieTabel(COMMUNICATIEKANAAL.name()).getWaarden()
-        );
+        )
+                .stream()
+                .filter(communicatiekanaal -> inclusiefEFormulier || !communicatiekanaal.equals("E-formulier"))
+                .toList();
     }
 
     @GET
