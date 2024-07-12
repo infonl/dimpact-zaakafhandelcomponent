@@ -6,4 +6,7 @@
 package net.atos.client.kvk.exception;
 
 public class KvkClientNoResultException extends RuntimeException {
+    public KvkClientNoResultException(String message) {
+        super(message);
+    }
 }

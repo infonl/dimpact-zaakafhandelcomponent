@@ -9,10 +9,10 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import net.atos.client.kvk.vestigingsprofiel.model.generated.SBIActiviteit;
 import net.atos.client.kvk.vestigingsprofiel.model.generated.Vestiging;
-import net.atos.zac.app.klanten.model.bedrijven.RESTKlantenAdres;
 import net.atos.zac.app.klanten.model.bedrijven.RESTVestigingsprofiel;
+import net.atos.zac.app.klanten.model.bedrijven.RestKlantenAdres;
 
-public class RESTVestigingsprofielConverter {
+public class RestVestigingsprofielConverter {
     public static String VESTIGINGTYPE_HOOFDVESTIGING = "HOOFDVESTIGING";
     public static String VESTIGINGTYPE_NEVENVESTIGING = "NEVENVESTIGING";
 
@@ -44,7 +44,7 @@ public class RESTVestigingsprofielConverter {
 
         restVestigingsprofiel.adressen = vestiging.getAdressen()
                 .stream()
-                .map(adres -> new RESTKlantenAdres(adres.getType(),
+                .map(adres -> new RestKlantenAdres(adres.getType(),
                         isIndicatie(adres.getIndAfgeschermd()),
                         adres.getVolledigAdres()))
                 .toList();

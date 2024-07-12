@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.klanten.model.klant;
 
-public class RESTContactGegevens {
+public class RestContactGegevens {
 
     public String emailadres;
 

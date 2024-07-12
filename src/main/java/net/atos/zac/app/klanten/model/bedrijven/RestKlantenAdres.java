@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.klanten.model.bedrijven;
 
-public class RESTKlantenAdres {
+public class RestKlantenAdres {
 
     /** Correspondentieadres en/of bezoekadres **/
     public String type;
@@ -14,7 +14,7 @@ public class RESTKlantenAdres {
 
     public String volledigAdres;
 
-    public RESTKlantenAdres(final String type, final boolean afgeschermd, final String volledigAdres) {
+    public RestKlantenAdres(final String type, final boolean afgeschermd, final String volledigAdres) {
         this.type = type;
         this.afgeschermd = afgeschermd;
         this.volledigAdres = volledigAdres;

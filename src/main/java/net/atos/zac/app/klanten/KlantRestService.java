@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.klanten;
 
-import static net.atos.zac.app.klanten.converter.RESTPersoonConverter.VALID_PERSONEN_QUERIES;
+import static net.atos.zac.app.klanten.converter.RestPersoonConverter.VALID_PERSONEN_QUERIES;
 import static net.atos.zac.util.StringUtil.ONBEKEND;
 
 import java.util.Comparator;
@@ -41,29 +41,29 @@ import net.atos.client.kvk.zoeken.model.generated.ResultaatItem;
 import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
 import net.atos.client.zgw.ztc.model.generated.RolType;
-import net.atos.zac.app.klanten.converter.RESTPersoonConverter;
-import net.atos.zac.app.klanten.converter.RESTRoltypeConverter;
-import net.atos.zac.app.klanten.converter.RESTVestigingsprofielConverter;
 import net.atos.zac.app.klanten.converter.RestBedrijfConverter;
-import net.atos.zac.app.klanten.model.bedrijven.RESTBedrijf;
-import net.atos.zac.app.klanten.model.bedrijven.RESTListBedrijvenParameters;
+import net.atos.zac.app.klanten.converter.RestPersoonConverter;
+import net.atos.zac.app.klanten.converter.RestRoltypeConverter;
+import net.atos.zac.app.klanten.converter.RestVestigingsprofielConverter;
 import net.atos.zac.app.klanten.model.bedrijven.RESTVestigingsprofiel;
+import net.atos.zac.app.klanten.model.bedrijven.RestBedrijf;
+import net.atos.zac.app.klanten.model.bedrijven.RestListBedrijvenParameters;
 import net.atos.zac.app.klanten.model.klant.IdentificatieType;
-import net.atos.zac.app.klanten.model.klant.RESTContactGegevens;
-import net.atos.zac.app.klanten.model.klant.RESTKlant;
-import net.atos.zac.app.klanten.model.klant.RESTRoltype;
-import net.atos.zac.app.klanten.model.personen.RESTListPersonenParameters;
-import net.atos.zac.app.klanten.model.personen.RESTPersonenParameters;
-import net.atos.zac.app.klanten.model.personen.RESTPersoon;
+import net.atos.zac.app.klanten.model.klant.RestContactGegevens;
+import net.atos.zac.app.klanten.model.klant.RestKlant;
+import net.atos.zac.app.klanten.model.klant.RestRoltype;
+import net.atos.zac.app.klanten.model.personen.RestListPersonenParameters;
+import net.atos.zac.app.klanten.model.personen.RestPersonenParameters;
+import net.atos.zac.app.klanten.model.personen.RestPersoon;
 import net.atos.zac.app.shared.RESTResultaat;
 
 @Path("klanten")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Singleton
-public class KlantenRESTService {
+public class KlantRestService {
     public static final Set<OmschrijvingGeneriekEnum> betrokkenen;
-    private static final RESTPersoon ONBEKEND_PERSOON = new RESTPersoon(ONBEKEND, ONBEKEND, ONBEKEND);
+    private static final RestPersoon ONBEKEND_PERSOON = new RestPersoon(ONBEKEND, ONBEKEND, ONBEKEND);
     static {
         betrokkenen = EnumSet.allOf(OmschrijvingGeneriekEnum.class);
         betrokkenen.remove(OmschrijvingGeneriekEnum.INITIATOR);
@@ -73,25 +73,23 @@ public class KlantenRESTService {
     private BRPClientService brpClientService;
     private KvkClientService kvkClientService;
     private ZtcClientService ztcClientService;
-    private RESTPersoonConverter restPersoonConverter;
-    private RESTVestigingsprofielConverter restVestigingsprofielConverter;
-    private RESTRoltypeConverter restRoltypeConverter;
+    private RestPersoonConverter restPersoonConverter;
+    private RestVestigingsprofielConverter restVestigingsprofielConverter;
     private KlantenClientService klantenClientService;
 
     /**
      * Default no-arg constructor, required by Weld.
      */
-    public KlantenRESTService() {
+    public KlantRestService() {
     }
 
     @Inject
-    public KlantenRESTService(
+    public KlantRestService(
             BRPClientService brpClientService,
             KvkClientService kvkClientService,
             ZtcClientService ztcClientService,
-            RESTPersoonConverter restPersoonConverter,
-            RESTVestigingsprofielConverter restVestigingsprofielConverter,
-            RESTRoltypeConverter restRoltypeConverter,
+            RestPersoonConverter restPersoonConverter,
+            RestVestigingsprofielConverter restVestigingsprofielConverter,
             KlantenClientService klantenClientService
     ) {
         this.brpClientService = brpClientService;
@@ -99,13 +97,12 @@ public class KlantenRESTService {
         this.ztcClientService = ztcClientService;
         this.restPersoonConverter = restPersoonConverter;
         this.restVestigingsprofielConverter = restVestigingsprofielConverter;
-        this.restRoltypeConverter = restRoltypeConverter;
         this.klantenClientService = klantenClientService;
     }
 
     @GET
     @Path("persoon/{bsn}")
-    public RESTPersoon readPersoon(@PathParam("bsn") final String bsn) throws ExecutionException, InterruptedException {
+    public RestPersoon readPersoon(@PathParam("bsn") final String bsn) throws ExecutionException, InterruptedException {
         return brpClientService.findPersoonAsync(bsn)
                 .thenCombine(klantenClientService.findPersoonAsync(bsn), this::convertToRESTPersoon)
                 .toCompletableFuture()
@@ -114,7 +111,7 @@ public class KlantenRESTService {
 
     @GET
     @Path("vestiging/{vestigingsnummer}")
-    public RESTBedrijf readVestiging(
+    public RestBedrijf readVestiging(
             @PathParam("vestigingsnummer") final String vestigingsnummer
     )
       throws ExecutionException,
@@ -142,21 +139,21 @@ public class KlantenRESTService {
 
     @GET
     @Path("rechtspersoon/{rsin}")
-    public RESTBedrijf readRechtspersoon(@PathParam("rsin") final String rsin) {
+    public RestBedrijf readRechtspersoon(@PathParam("rsin") final String rsin) {
         return kvkClientService.findRechtspersoon(rsin)
                 .map(RestBedrijfConverter::convert)
-                .orElseGet(RESTBedrijf::new);
+                .orElseGet(RestBedrijf::new);
     }
 
     @GET
     @Path("personen/parameters")
-    public List<RESTPersonenParameters> getPersonenParameters() {
+    public List<RestPersonenParameters> getPersonenParameters() {
         return VALID_PERSONEN_QUERIES;
     }
 
     @PUT
     @Path("personen")
-    public RESTResultaat<RESTPersoon> listPersonen(final RESTListPersonenParameters restListPersonenParameters) {
+    public RESTResultaat<RestPersoon> listPersonen(final RestListPersonenParameters restListPersonenParameters) {
         final PersonenQuery query = restPersoonConverter.convertToPersonenQuery(restListPersonenParameters);
         final PersonenQueryResponse response = brpClientService.queryPersonen(query);
         return new RESTResultaat<>(restPersoonConverter.convertFromPersonenQueryResponse(response));
@@ -164,19 +161,19 @@ public class KlantenRESTService {
 
     @PUT
     @Path("bedrijven")
-    public RESTResultaat<RESTBedrijf> listBedrijven(final RESTListBedrijvenParameters restParameters) {
+    public RESTResultaat<RestBedrijf> listBedrijven(final RestListBedrijvenParameters restParameters) {
         final KvkZoekenParameters zoekenParameters = RestBedrijfConverter.convert(restParameters);
         final Resultaat resultaat = kvkClientService.list(zoekenParameters);
         return new RESTResultaat<>(resultaat.getResultaten().stream()
-                .filter(KlantenRESTService::isKoppelbaar)
+                .filter(KlantRestService::isKoppelbaar)
                 .map(RestBedrijfConverter::convert)
                 .toList());
     }
 
     @GET
     @Path("roltype/{zaaktypeUuid}/betrokkene")
-    public List<RESTRoltype> listBetrokkeneRoltypen(@PathParam("zaaktypeUuid") final UUID zaaktype) {
-        return restRoltypeConverter.convert(
+    public List<RestRoltype> listBetrokkeneRoltypen(@PathParam("zaaktypeUuid") final UUID zaaktype) {
+        return RestRoltypeConverter.convert(
                 ztcClientService.listRoltypen(ztcClientService.readZaaktype(zaaktype).getUrl())
                         .stream()
                         .filter(roltype -> betrokkenen.contains(roltype.getOmschrijvingGeneriek())
@@ -186,8 +183,8 @@ public class KlantenRESTService {
 
     @GET
     @Path("roltype")
-    public List<RESTRoltype> listRoltypen() {
-        return restRoltypeConverter.convert(
+    public List<RestRoltype> listRoltypen() {
+        return RestRoltypeConverter.convert(
                 ztcClientService.listRoltypen()
                         .stream()
                         .sorted(Comparator.comparing(RolType::getOmschrijving))
@@ -196,11 +193,11 @@ public class KlantenRESTService {
 
     @GET
     @Path("contactgegevens/{identificatieType}/{initiatorIdentificatie}")
-    public RESTContactGegevens ophalenContactGegevens(
+    public RestContactGegevens ophalenContactGegevens(
             @PathParam("identificatieType") final IdentificatieType identificatieType,
             @PathParam("initiatorIdentificatie") final String initiatorIdentificatie
     ) {
-        final RESTContactGegevens restContactGegevens = new RESTContactGegevens();
+        final RestContactGegevens restContactGegevens = new RestContactGegevens();
         if (identificatieType == null) {
             return restContactGegevens;
         }
@@ -220,7 +217,7 @@ public class KlantenRESTService {
         return restContactGegevens;
     }
 
-    private RESTKlant addKlantData(final RESTKlant restKlant, final Optional<Klant> klantOptional) {
+    private RestKlant addKlantData(final RestKlant restKlant, final Optional<Klant> klantOptional) {
         klantOptional.ifPresent(klant -> {
             restKlant.telefoonnummer = klant.getTelefoonnummer();
             restKlant.emailadres = klant.getEmailadres();
@@ -228,18 +225,18 @@ public class KlantenRESTService {
         return restKlant;
     }
 
-    private RESTBedrijf convertToRESTBedrijf(final Optional<ResultaatItem> vestiging, final Optional<Klant> klant) {
+    private RestBedrijf convertToRESTBedrijf(final Optional<ResultaatItem> vestiging, final Optional<Klant> klant) {
         return vestiging
                 .map(RestBedrijfConverter::convert)
-                .map(restBedrijf -> (RESTBedrijf) addKlantData(restBedrijf, klant))
-                .orElseGet(RESTBedrijf::new);
+                .map(restBedrijf -> (RestBedrijf) addKlantData(restBedrijf, klant))
+                .orElseGet(RestBedrijf::new);
     }
 
 
-    private RESTPersoon convertToRESTPersoon(final Optional<Persoon> persoon, final Optional<Klant> klant) {
+    private RestPersoon convertToRESTPersoon(final Optional<Persoon> persoon, final Optional<Klant> klant) {
         return persoon
                 .map(restPersoonConverter::convertPersoon)
-                .map(restPersoon -> (RESTPersoon) addKlantData(restPersoon, klant))
+                .map(restPersoon -> (RestPersoon) addKlantData(restPersoon, klant))
                 .orElse(ONBEKEND_PERSOON);
     }
 

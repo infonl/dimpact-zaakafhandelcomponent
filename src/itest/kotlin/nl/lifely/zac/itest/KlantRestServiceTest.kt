@@ -35,7 +35,7 @@ import org.json.JSONArray
  * This test assumes a roltype has been created in a previously run test.
  */
 @Order(TEST_SPEC_ORDER_AFTER_ZAAK_CREATED)
-class KlantenRESTServiceTest : BehaviorSpec({
+class KlantRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val logger = KotlinLogging.logger {}
 

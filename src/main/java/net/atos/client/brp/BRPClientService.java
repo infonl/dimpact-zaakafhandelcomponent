@@ -93,7 +93,8 @@ public class BRPClientService {
      */
     public CompletionStage<Optional<Persoon>> findPersoonAsync(final String burgerservicenummer) {
         return personenApi.personenAsync(createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer))
-                .handle((response, exception) -> handleFindPersoonAsync((RaadpleegMetBurgerservicenummerResponse) response, exception)
+                .handle(
+                        (response, exception) -> handleFindPersoonAsync((RaadpleegMetBurgerservicenummerResponse) response, exception)
                 );
     }
 
