@@ -23,3 +23,5 @@ jobs:
 
       - name: Update Gradle Wrapper
         uses: gradle-update/update-gradle-wrapper-action@v1
+        with:
+          pr-title-template: 'chore(deps): Bump Gradle Wrapper from %sourceVersion% to %targetVersion%'
