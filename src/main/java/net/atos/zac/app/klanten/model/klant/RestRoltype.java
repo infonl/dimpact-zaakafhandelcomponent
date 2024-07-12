@@ -9,7 +9,7 @@ import java.util.UUID;
 
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
 
-public class RESTRoltype {
+public class RestRoltype {
     public UUID uuid;
 
     public String naam;

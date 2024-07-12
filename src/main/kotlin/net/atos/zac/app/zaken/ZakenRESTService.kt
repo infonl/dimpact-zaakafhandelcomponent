@@ -64,7 +64,7 @@ import net.atos.zac.app.admin.model.RESTZaakAfzender
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.audit.model.RESTHistorieRegel
 import net.atos.zac.app.bag.converter.RESTBAGConverter
-import net.atos.zac.app.klanten.KlantenRESTService
+import net.atos.zac.app.klanten.KlantRestService
 import net.atos.zac.app.klanten.model.klant.IdentificatieType
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import net.atos.zac.app.zaken.converter.RESTBesluittypeConverter
@@ -783,7 +783,7 @@ class ZakenRESTService @Inject constructor(
         return convertToRESTZaakBetrokkenen(
             zrcClientService.listRollen(zaak)
                 .filter { rol ->
-                    KlantenRESTService.betrokkenen.contains(
+                    KlantRestService.betrokkenen.contains(
                         OmschrijvingGeneriekEnum.valueOf(
                             rol.omschrijvingGeneriek.uppercase(Locale.getDefault())
                         )

@@ -10,16 +10,16 @@ import java.util.stream.Stream;
 
 import net.atos.client.zgw.shared.util.URIUtil;
 import net.atos.client.zgw.ztc.model.generated.RolType;
-import net.atos.zac.app.klanten.model.klant.RESTRoltype;
+import net.atos.zac.app.klanten.model.klant.RestRoltype;
 
-public class RESTRoltypeConverter {
+public class RestRoltypeConverter {
 
-    public List<RESTRoltype> convert(final Stream<RolType> roltypen) {
-        return roltypen.map(this::convert).toList();
+    public static List<RestRoltype> convert(final Stream<RolType> roltypen) {
+        return roltypen.map(RestRoltypeConverter::convert).toList();
     }
 
-    public RESTRoltype convert(final RolType roltype) {
-        final RESTRoltype restRoltype = new RESTRoltype();
+    public static RestRoltype convert(final RolType roltype) {
+        final RestRoltype restRoltype = new RestRoltype();
         restRoltype.uuid = URIUtil.parseUUIDFromResourceURI(roltype.getUrl());
         restRoltype.naam = roltype.getOmschrijving();
         restRoltype.omschrijvingGeneriekEnum = roltype.getOmschrijvingGeneriek();

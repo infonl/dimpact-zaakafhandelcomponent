@@ -21,11 +21,11 @@ import net.atos.client.kvk.model.KvkZoekenParameters;
 import net.atos.client.kvk.zoeken.model.generated.BinnenlandsAdres;
 import net.atos.client.kvk.zoeken.model.generated.Resultaat;
 import net.atos.client.kvk.zoeken.model.generated.ResultaatItem;
-import net.atos.zac.app.klanten.model.bedrijven.RESTBedrijf;
-import net.atos.zac.app.klanten.model.bedrijven.RESTListBedrijvenParameters;
+import net.atos.zac.app.klanten.model.bedrijven.RestBedrijf;
+import net.atos.zac.app.klanten.model.bedrijven.RestListBedrijvenParameters;
 
 public class RestBedrijfConverter {
-    public static KvkZoekenParameters convert(final RESTListBedrijvenParameters restListParameters) {
+    public static KvkZoekenParameters convert(final RestListBedrijvenParameters restListParameters) {
         final KvkZoekenParameters zoekenParameters = new KvkZoekenParameters();
         if (StringUtils.isNotBlank(restListParameters.kvkNummer)) {
             zoekenParameters.setKvkNummer(restListParameters.kvkNummer);
@@ -51,15 +51,15 @@ public class RestBedrijfConverter {
         return zoekenParameters;
     }
 
-    public static Stream<RESTBedrijf> convert(final Resultaat resultaat) {
+    public static Stream<RestBedrijf> convert(final Resultaat resultaat) {
         if (CollectionUtils.isEmpty(resultaat.getResultaten())) {
             return Stream.empty();
         }
         return resultaat.getResultaten().stream().map(RestBedrijfConverter::convert);
     }
 
-    public static RESTBedrijf convert(final ResultaatItem bedrijf) {
-        final RESTBedrijf restBedrijf = new RESTBedrijf();
+    public static RestBedrijf convert(final ResultaatItem bedrijf) {
+        final RestBedrijf restBedrijf = new RestBedrijf();
         restBedrijf.kvkNummer = bedrijf.getKvkNummer();
         restBedrijf.vestigingsnummer = bedrijf.getVestigingsnummer();
         restBedrijf.handelsnaam = convertToNaam(bedrijf);

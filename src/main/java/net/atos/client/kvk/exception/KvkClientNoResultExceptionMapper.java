@@ -19,6 +19,6 @@ public class KvkClientNoResultExceptionMapper implements ResponseExceptionMapper
 
     @Override
     public KvkClientNoResultException toThrowable(final Response response) {
-        return new KvkClientNoResultException();
+        return new KvkClientNoResultException("No results found for KVK search");
     }
 }

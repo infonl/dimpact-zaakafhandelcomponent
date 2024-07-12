@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.klanten.model.bedrijven;
 
-public class RESTListBedrijvenParameters {
+public class RestListBedrijvenParameters {
 
     public String kvkNummer;
 

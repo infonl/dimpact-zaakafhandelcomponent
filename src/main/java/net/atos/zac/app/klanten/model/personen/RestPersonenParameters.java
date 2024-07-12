@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.klanten.model.personen;
 
-public class RESTPersonenParameters {
+public class RestPersonenParameters {
 
     public Cardinaliteit bsn;
 
@@ -25,7 +25,7 @@ public class RESTPersonenParameters {
 
     public Cardinaliteit straat;
 
-    public RESTPersonenParameters(
+    public RestPersonenParameters(
             final Cardinaliteit bsn,
             final Cardinaliteit geslachtsnaam,
             final Cardinaliteit voornamen,
