@@ -18,7 +18,7 @@ import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.ZRCClientService
-import net.atos.zac.app.zaken.converter.RESTZaakOverzichtConverter
+import net.atos.zac.app.zaak.converter.RESTZaakOverzichtConverter
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.mail.MailService

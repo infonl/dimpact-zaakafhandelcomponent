@@ -16,7 +16,7 @@ import jakarta.transaction.Transactional.TxType.SUPPORTS
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.zac.app.zaken.converter.RESTZaakOverzichtConverter
+import net.atos.zac.app.zaak.converter.RESTZaakOverzichtConverter
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.FlowableTaskService

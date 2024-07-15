@@ -8,7 +8,7 @@ package net.atos.zac.app.taken.model
 import net.atos.zac.app.identity.model.RESTUser
 import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjecttype
 import net.atos.zac.app.informatieobjecten.model.createRESTInformatieobjecttype
-import net.atos.zac.app.zaken.model.createRESTUser
+import net.atos.zac.app.zaak.model.createRESTUser
 import java.util.UUID
 
 fun createRESTTaak(

@@ -30,8 +30,8 @@ import net.atos.zac.app.bag.model.RESTNummeraanduiding;
 import net.atos.zac.app.bag.model.RESTOpenbareRuimte;
 import net.atos.zac.app.bag.model.RESTPand;
 import net.atos.zac.app.bag.model.RESTWoonplaats;
-import net.atos.zac.app.zaken.model.RESTCoordinates;
-import net.atos.zac.app.zaken.model.RESTGeometry;
+import net.atos.zac.app.zaak.model.RESTCoordinates;
+import net.atos.zac.app.zaak.model.RESTGeometry;
 import net.atos.zac.util.UriUtil;
 
 public class RESTBAGConverter {

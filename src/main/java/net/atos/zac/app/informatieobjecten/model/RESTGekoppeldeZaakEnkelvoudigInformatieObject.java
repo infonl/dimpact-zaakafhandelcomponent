@@ -7,7 +7,7 @@ package net.atos.zac.app.informatieobjecten.model;
 
 import java.util.UUID;
 
-import net.atos.zac.app.zaken.model.RelatieType;
+import net.atos.zac.app.zaak.model.RelatieType;
 
 public class RESTGekoppeldeZaakEnkelvoudigInformatieObject extends RESTEnkelvoudigInformatieobject {
 
