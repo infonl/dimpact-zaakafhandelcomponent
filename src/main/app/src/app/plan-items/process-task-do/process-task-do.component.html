@@ -4,7 +4,10 @@
   -->
 
 <div class="form">
-    <mfb-form *ngIf="this.formItems" (formSubmit)="onFormSubmit($event)" [formFields]="this.formItems"
-              [config]="formConfig"></mfb-form>
+  <mfb-form
+    *ngIf="this.formItems"
+    (formSubmit)="onFormSubmit($event)"
+    [formFields]="this.formItems"
+    [config]="formConfig"
+  ></mfb-form>
 </div>
-

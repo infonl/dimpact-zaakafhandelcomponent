@@ -4,72 +4,130 @@
   -->
 
 <div mat-dialog-content [formGroup]="formGroup">
-    <p *ngIf="data.planItem.toelichting" class="readonly" [innerHTML]="data.planItem.toelichting"></p>
-    <div>
-        <label>{{'zaakOntvankelijk' | translate}}</label>
-        <mat-radio-group id="ontvankelijk" formControlName="ontvankelijk">
-            <mat-radio-button [value]="true">{{'actie.ja' | translate}}</mat-radio-button>
-            <mat-radio-button [value]="false">{{'actie.nee' | translate}}</mat-radio-button>
-        </mat-radio-group>
-    </div>
-    <div>
-        <mat-form-field appearance="fill" class="full-width" *ngIf="formGroup.get('ontvankelijk').value === false">
-            <mat-label>{{'redenNietOntvankelijk'| translate}}</mat-label>
-            <textarea id="redenNietOntvankelijk" formControlName="reden" maxlength="100" matInput></textarea>
-            <mat-hint align="end">{{formGroup.get('reden').value.length}}/100</mat-hint>
-            <mat-error>{{getError(formGroup.get('reden'), 'redenNietOntvankelijk')}}</mat-error>
-        </mat-form-field>
-    </div>
-    <div>
-        <mat-checkbox *ngIf="mailBeschikbaar" id="sendMail"
-                      formControlName="sendMail">{{'sendMail' | translate}}</mat-checkbox>
-    </div>
-    <div *ngIf="formGroup.get('sendMail').value">
-        <mat-form-field appearance="fill" class="full-width">
-            <mat-label>{{'verzender' | translate}}</mat-label>
-            <mat-select placeholder="{{'verzender.-kies-' | translate}}"
-                        formControlName="verzender" [compareWith]="compareObject">
-                <mat-select-trigger>
-                    {{formGroup.get('verzender').value?.mail}}
-                </mat-select-trigger>
-                <mat-option *ngFor="let afzender of afzenders | async"
-                            [value]="afzender">
-                    {{ afzender.mail }}
-                    <div class="suffix" *ngIf="afzender.suffix">
-                        {{afzender.suffix | translate}}
-                    </div>
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-    </div>
-    <div *ngIf="formGroup.get('sendMail').value">
-        <mat-form-field appearance="fill" class="full-width">
-            <button *ngIf="initiatorEmail" mat-icon-button type="button" matSuffix
-                    title="{{initiatorToevoegenIcon.title | translate}}"
-                    (click)="setInitatorEmail()">
-                <mat-icon>{{initiatorToevoegenIcon.icon}}</mat-icon>
-            </button>
+  <p
+    *ngIf="data.planItem.toelichting"
+    class="readonly"
+    [innerHTML]="data.planItem.toelichting"
+  ></p>
+  <div>
+    <label>{{'zaakOntvankelijk' | translate}}</label>
+    <mat-radio-group id="ontvankelijk" formControlName="ontvankelijk">
+      <mat-radio-button [value]="true"
+        >{{'actie.ja' | translate}}</mat-radio-button
+      >
+      <mat-radio-button [value]="false"
+        >{{'actie.nee' | translate}}</mat-radio-button
+      >
+    </mat-radio-group>
+  </div>
+  <div>
+    <mat-form-field
+      appearance="fill"
+      class="full-width"
+      *ngIf="formGroup.get('ontvankelijk').value === false"
+    >
+      <mat-label>{{'redenNietOntvankelijk'| translate}}</mat-label>
+      <textarea
+        id="redenNietOntvankelijk"
+        formControlName="reden"
+        maxlength="100"
+        matInput
+      ></textarea>
+      <mat-hint align="end"
+        >{{formGroup.get('reden').value.length}}/100</mat-hint
+      >
+      <mat-error
+        >{{getError(formGroup.get('reden'),
+        'redenNietOntvankelijk')}}</mat-error
+      >
+    </mat-form-field>
+  </div>
+  <div>
+    <mat-checkbox
+      *ngIf="mailBeschikbaar"
+      id="sendMail"
+      formControlName="sendMail"
+      >{{'sendMail' | translate}}</mat-checkbox
+    >
+  </div>
+  <div *ngIf="formGroup.get('sendMail').value">
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>{{'verzender' | translate}}</mat-label>
+      <mat-select
+        placeholder="{{'verzender.-kies-' | translate}}"
+        formControlName="verzender"
+        [compareWith]="compareObject"
+      >
+        <mat-select-trigger>
+          {{formGroup.get('verzender').value?.mail}}
+        </mat-select-trigger>
+        <mat-option
+          *ngFor="let afzender of afzenders | async"
+          [value]="afzender"
+        >
+          {{ afzender.mail }}
+          <div class="suffix" *ngIf="afzender.suffix">
+            {{afzender.suffix | translate}}
+          </div>
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div *ngIf="formGroup.get('sendMail').value">
+    <mat-form-field appearance="fill" class="full-width">
+      <button
+        *ngIf="initiatorEmail"
+        mat-icon-button
+        type="button"
+        matSuffix
+        title="{{initiatorToevoegenIcon.title | translate}}"
+        (click)="setInitatorEmail()"
+      >
+        <mat-icon>{{initiatorToevoegenIcon.icon}}</mat-icon>
+      </button>
 
-            <mat-label>{{'ontvanger' | translate}}</mat-label>
-            <input matInput id="ontvanger" maxlength="200" formControlName="ontvanger">
-            <mat-hint align="end">{{formGroup.get('ontvanger').value.length}}/200</mat-hint>
-            <mat-error>{{getError(formGroup.get('ontvanger'), 'ontvanger')}}</mat-error>
-        </mat-form-field>
-    </div>
-    <mat-expansion-panel class="mat-elevation-z0" *ngIf="formGroup.get('sendMail').value">
-        <mat-expansion-panel-header>
-            {{'body' | translate }}
-        </mat-expansion-panel-header>
-        <p class="readonly" [innerHTML]="formGroup.get('ontvankelijk').value ? zaakOntvankelijkMail?.body : zaakNietOntvankelijkMail?.body"></p>
-    </mat-expansion-panel>
+      <mat-label>{{'ontvanger' | translate}}</mat-label>
+      <input
+        matInput
+        id="ontvanger"
+        maxlength="200"
+        formControlName="ontvanger"
+      />
+      <mat-hint align="end"
+        >{{formGroup.get('ontvanger').value.length}}/200</mat-hint
+      >
+      <mat-error
+        >{{getError(formGroup.get('ontvanger'), 'ontvanger')}}</mat-error
+      >
+    </mat-form-field>
+  </div>
+  <mat-expansion-panel
+    class="mat-elevation-z0"
+    *ngIf="formGroup.get('sendMail').value"
+  >
+    <mat-expansion-panel-header>
+      {{'body' | translate }}
+    </mat-expansion-panel-header>
+    <p
+      class="readonly"
+      [innerHTML]="formGroup.get('ontvankelijk').value ? zaakOntvankelijkMail?.body : zaakNietOntvankelijkMail?.body"
+    ></p>
+  </mat-expansion-panel>
 </div>
 <div mat-dialog-actions>
-    <button [disabled]="loading || formGroup.invalid"
-            mat-button color="primary" (click)="afronden()" id="intakeAfronden_button">
-        <mat-icon *ngIf="loading">
-            <mat-spinner diameter="20"></mat-spinner>
-        </mat-icon>
-        {{'planitem.INTAKE_AFRONDEN' | translate}}
-    </button>
-    <button [disabled]="loading" mat-button (click)="close()">{{'actie.annuleren' | translate}}</button>
+  <button
+    [disabled]="loading || formGroup.invalid"
+    mat-button
+    color="primary"
+    (click)="afronden()"
+    id="intakeAfronden_button"
+  >
+    <mat-icon *ngIf="loading">
+      <mat-spinner diameter="20"></mat-spinner>
+    </mat-icon>
+    {{'planitem.INTAKE_AFRONDEN' | translate}}
+  </button>
+  <button [disabled]="loading" mat-button (click)="close()">
+    {{'actie.annuleren' | translate}}
+  </button>
 </div>

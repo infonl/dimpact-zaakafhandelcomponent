@@ -4,65 +4,115 @@
   -->
 
 <div class="form">
-    <div class="flex-row flex-col-md gap-10 flex-fill">
-        <mfb-form-field class="flex-1" [field]="bsnFormField"></mfb-form-field>
-        <mfb-form-field class="flex-1 w33" [field]="geboortedatumFormField"></mfb-form-field>
-    </div>
-    <div class="flex-row flex-col-md gap-10 flex-fill">
-        <mfb-form-field class="flex-1" [field]="voornamenFormField"></mfb-form-field>
-        <mfb-form-field class="flex-1 w33" [field]="voorvoegselFormField"></mfb-form-field>
-        <mfb-form-field class="flex-1" [field]="geslachtsnaamFormField"></mfb-form-field>
-    </div>
-    <div class="flex-row flex-col-md gap-10 flex-fill">
-        <mfb-form-field class="flex-1 w66" [field]="postcodeFormField"></mfb-form-field>
-        <mfb-form-field class="flex-1" [field]="huisnummerFormField"></mfb-form-field>
-    </div>
-    <div class="flex-row flex-col-md gap-10 flex-fill">
-        <mfb-form-field class="flex-1" [field]="straatFormField"></mfb-form-field>
-        <mfb-form-field class="flex-1 w33" [field]="gemeenteVanInschrijvingFormField"></mfb-form-field>
-    </div>
-    <button mat-flat-button color="primary" [disabled]="!isValid() || loading" (click)="zoekPersonen()">
-        {{'actie.zoeken' | translate}}
-    </button>
-    <button mat-flat-button (click)="wissen()">{{'actie.wissen' | translate}}</button>
+  <div class="flex-row flex-col-md gap-10 flex-fill">
+    <mfb-form-field class="flex-1" [field]="bsnFormField"></mfb-form-field>
+    <mfb-form-field
+      class="flex-1 w33"
+      [field]="geboortedatumFormField"
+    ></mfb-form-field>
+  </div>
+  <div class="flex-row flex-col-md gap-10 flex-fill">
+    <mfb-form-field
+      class="flex-1"
+      [field]="voornamenFormField"
+    ></mfb-form-field>
+    <mfb-form-field
+      class="flex-1 w33"
+      [field]="voorvoegselFormField"
+    ></mfb-form-field>
+    <mfb-form-field
+      class="flex-1"
+      [field]="geslachtsnaamFormField"
+    ></mfb-form-field>
+  </div>
+  <div class="flex-row flex-col-md gap-10 flex-fill">
+    <mfb-form-field
+      class="flex-1 w66"
+      [field]="postcodeFormField"
+    ></mfb-form-field>
+    <mfb-form-field
+      class="flex-1"
+      [field]="huisnummerFormField"
+    ></mfb-form-field>
+  </div>
+  <div class="flex-row flex-col-md gap-10 flex-fill">
+    <mfb-form-field class="flex-1" [field]="straatFormField"></mfb-form-field>
+    <mfb-form-field
+      class="flex-1 w33"
+      [field]="gemeenteVanInschrijvingFormField"
+    ></mfb-form-field>
+  </div>
+  <button
+    mat-flat-button
+    color="primary"
+    [disabled]="!isValid() || loading"
+    (click)="zoekPersonen()"
+  >
+    {{'actie.zoeken' | translate}}
+  </button>
+  <button mat-flat-button (click)="wissen()">
+    {{'actie.wissen' | translate}}
+  </button>
 </div>
 
 <div class="table-wrapper">
-    <table mat-table [dataSource]="personen" matSort>
-        <ng-container matColumnDef="bsn">
-            <th *matHeaderCellDef mat-header-cell mat-sort-header> {{'bsn' | translate}} </th>
-            <td *matCellDef="let persoon" mat-cell>{{persoon.bsn | empty}}</td>
-        </ng-container>
-        <ng-container matColumnDef="naam">
-            <th *matHeaderCellDef mat-header-cell mat-sort-header> {{'naam' | translate}} </th>
-            <td *matCellDef="let persoon" mat-cell>{{persoon.naam | empty}}</td>
-        </ng-container>
-        <ng-container matColumnDef="geboortedatum">
-            <th *matHeaderCellDef mat-header-cell mat-sort-header> {{'geboortedatum' | translate}} </th>
-            <td *matCellDef="let persoon" mat-cell>{{persoon.geboortedatum | datum | empty}}</td>
-        </ng-container>
-        <ng-container matColumnDef="verblijfplaats">
-            <th *matHeaderCellDef mat-header-cell mat-sort-header> {{'verblijfplaats' | translate}} </th>
-            <td *matCellDef="let persoon" mat-cell>{{persoon.verblijfplaats | empty}}</td>
-        </ng-container>
-        <ng-container matColumnDef="acties" stickyEnd>
-            <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let row">
-                <button *ngIf="persoon.observed" mat-icon-button color="primary" (click)="selectPersoon(row)"
-                        title="{{ 'actie.selecteren' | translate}}">
-                    <mat-icon>emoji_people</mat-icon>
-                </button>
-                <button *ngIf="!persoon.observed" mat-icon-button
-                        (click)="openPersoonPagina(row)"
-                        [id]="'persoonBekijken_' + row.identificatie +'_button'"
-                        title="{{ 'actie.persoon.bekijken' | translate }}">
-                    <mat-icon>visibility</mat-icon>
-                </button>
-            </td>
-        </ng-container>
-        <tr mat-header-row *matHeaderRowDef="persoonColumns; sticky: true"></tr>
-        <tr mat-row *matRowDef="let row; columns: persoonColumns;"></tr>
-    </table>
-    <p *ngIf="personen.data.length == 0 && !loading">{{foutmelding ? foutmelding : 'msg.geen.gegevens.gevonden' | translate}}</p>
-    <p *ngIf="loading ">{{'msg.loading' | translate}}</p>
+  <table mat-table [dataSource]="personen" matSort>
+    <ng-container matColumnDef="bsn">
+      <th *matHeaderCellDef mat-header-cell mat-sort-header>
+        {{'bsn' | translate}}
+      </th>
+      <td *matCellDef="let persoon" mat-cell>{{persoon.bsn | empty}}</td>
+    </ng-container>
+    <ng-container matColumnDef="naam">
+      <th *matHeaderCellDef mat-header-cell mat-sort-header>
+        {{'naam' | translate}}
+      </th>
+      <td *matCellDef="let persoon" mat-cell>{{persoon.naam | empty}}</td>
+    </ng-container>
+    <ng-container matColumnDef="geboortedatum">
+      <th *matHeaderCellDef mat-header-cell mat-sort-header>
+        {{'geboortedatum' | translate}}
+      </th>
+      <td *matCellDef="let persoon" mat-cell>
+        {{persoon.geboortedatum | datum | empty}}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="verblijfplaats">
+      <th *matHeaderCellDef mat-header-cell mat-sort-header>
+        {{'verblijfplaats' | translate}}
+      </th>
+      <td *matCellDef="let persoon" mat-cell>
+        {{persoon.verblijfplaats | empty}}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="acties" stickyEnd>
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let row">
+        <button
+          *ngIf="persoon.observed"
+          mat-icon-button
+          color="primary"
+          (click)="selectPersoon(row)"
+          title="{{ 'actie.selecteren' | translate}}"
+        >
+          <mat-icon>emoji_people</mat-icon>
+        </button>
+        <button
+          *ngIf="!persoon.observed"
+          mat-icon-button
+          (click)="openPersoonPagina(row)"
+          [id]="'persoonBekijken_' + row.identificatie +'_button'"
+          title="{{ 'actie.persoon.bekijken' | translate }}"
+        >
+          <mat-icon>visibility</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="persoonColumns; sticky: true"></tr>
+    <tr mat-row *matRowDef="let row; columns: persoonColumns;"></tr>
+  </table>
+  <p *ngIf="personen.data.length == 0 && !loading">
+    {{foutmelding ? foutmelding : 'msg.geen.gegevens.gevonden' | translate}}
+  </p>
+  <p *ngIf="loading ">{{'msg.loading' | translate}}</p>
 </div>

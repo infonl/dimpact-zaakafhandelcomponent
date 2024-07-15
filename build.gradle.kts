@@ -350,6 +350,30 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
 
         prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get())).config(mapOf("parser" to "json"))
     }
+    format("html") {
+        target("src/**/*.html", "src/**/*.htm")
+        targetExclude(
+            "src/e2e/node_modules/**",
+            "src/e2e/reports/**",
+            "src/main/app/node_modules/**",
+            "src/main/app/dist/**",
+            "src/main/app/.angular/**",
+        )
+
+        prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get())).config(mapOf("parser" to "html"))
+    }
+    format("less") {
+        target("src/**/*.less")
+        targetExclude(
+            "src/e2e/node_modules/**",
+            "src/e2e/reports/**",
+            "src/main/app/node_modules/**",
+            "src/main/app/dist/**",
+            "src/main/app/.angular/**",
+        )
+
+        prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get())).config(mapOf("parser" to "less"))
+    }
 }
 
 tasks {

@@ -3,204 +3,315 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<mat-drawer-container class="inner-sidenav-container" #sideNavContainer [class]="sideNaveMode">
-    <mat-drawer #menuSidenav [mode]="sideNaveMode" position="start" opened="true" disableClose="true">
-        <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
-    </mat-drawer>
-    <mat-drawer #actionsSidenav mode="over" position="end" [ngSwitch]="action">
-        <zac-informatie-object-edit *ngSwitchCase="sideNavAction.DOCUMENT_VERSIE_TOEVOEGEN"
-                                    [sideNav]="actionsSidenav"
-                                    [infoObject]="documentNieuweVersieGegevens"
-                                    [zaakUuid]="zaak.uuid"
-                                    (document)="versieToegevoegd($event)">
-        </zac-informatie-object-edit>
-    </mat-drawer>
-    <mat-drawer-content>
-        <div class="flex-row flex-wrap flex-col-xl gap-10">
-            <mat-card class="w60" appearance="outlined">
-                <mat-card-header class="flex-row space-between">
-                    <mat-card-title>{{'informatieobject' | translate}}</mat-card-title>
-                    <zac-informatie-object-indicaties [layout]="indicatiesLayout.VIEW" [document]="infoObject"></zac-informatie-object-indicaties>
-                </mat-card-header>
+<mat-drawer-container
+  class="inner-sidenav-container"
+  #sideNavContainer
+  [class]="sideNaveMode"
+>
+  <mat-drawer
+    #menuSidenav
+    [mode]="sideNaveMode"
+    position="start"
+    opened="true"
+    disableClose="true"
+  >
+    <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
+  </mat-drawer>
+  <mat-drawer #actionsSidenav mode="over" position="end" [ngSwitch]="action">
+    <zac-informatie-object-edit
+      *ngSwitchCase="sideNavAction.DOCUMENT_VERSIE_TOEVOEGEN"
+      [sideNav]="actionsSidenav"
+      [infoObject]="documentNieuweVersieGegevens"
+      [zaakUuid]="zaak.uuid"
+      (document)="versieToegevoegd($event)"
+    >
+    </zac-informatie-object-edit>
+  </mat-drawer>
+  <mat-drawer-content>
+    <div class="flex-row flex-wrap flex-col-xl gap-10">
+      <mat-card class="w60" appearance="outlined">
+        <mat-card-header class="flex-row space-between">
+          <mat-card-title>{{'informatieobject' | translate}}</mat-card-title>
+          <zac-informatie-object-indicaties
+            [layout]="indicatiesLayout.VIEW"
+            [document]="infoObject"
+          ></zac-informatie-object-indicaties>
+        </mat-card-header>
 
-                <mat-card-content>
-                    <mat-tab-group mat-stretch-tabs="false">
-                        <mat-tab id="algemeneGegevens_tab">
-                            <ng-template mat-tab-label>
-                                <mat-icon>topic</mat-icon>
-                                {{'gegevens.algemeen' | translate}}
-                            </ng-template>
-                            <div class="content flex-row flex-wrap flex-col-xs">
-                                <div class="w33 w50-sm">
-                                    <zac-static-text [label]="'titel' | translate"
-                                                     [value]="infoObject.titel"></zac-static-text>
-                                    <zac-static-text [label]="'identificatie' | translate"
-                                                     [value]="infoObject.identificatie"></zac-static-text>
-                                    <zac-static-text [label]="'vertrouwelijkheidaanduiding' | translate"
-                                                     [value]="infoObject.vertrouwelijkheidaanduiding | vertrouwelijkaanduidingToTranslationKey | translate"></zac-static-text>
-                                    <zac-static-text [label]="'bestandsnaam' | translate"
-                                                     [value]="infoObject.bestandsnaam">
-                                        <zac-document-icon position="content-before" [bestandsnaam]="infoObject.bestandsnaam"></zac-document-icon>
-                                        <span position="content-before">&nbsp;</span>
-                                    </zac-static-text>
-                                </div>
-                                <div class="w33 w50-sm">
-                                    <div class="mat-divider-wrapper hide-gt-sm">
-                                        <mat-divider></mat-divider>
-                                    </div>
-                                    <zac-static-text [label]="'documentType' | translate"
-                                                     [value]="infoObject.informatieobjectTypeOmschrijving"></zac-static-text>
-                                    <zac-static-text [label]="'auteur' | translate" [value]="infoObject.auteur"></zac-static-text>
-                                    <zac-static-text [label]="'beschrijving' | translate" [value]="infoObject.beschrijving"></zac-static-text>
-                                    <div class="flex-row fex-wrap">
-                                        <button [disabled]="infoObject.versie === 1" mat-icon-button (click)="haalVersieOp(infoObject.versie - 1)">
-                                            <mat-icon>chevron_left</mat-icon>
-                                        </button>
-                                        <zac-static-text [value]="versieInformatie"></zac-static-text>
-                                        <button [disabled]="laatsteVersieInfoObject && infoObject.versie === laatsteVersieInfoObject.versie" mat-icon-button
-                                                (click)="haalVersieOp(infoObject.versie + 1);">
-                                            <mat-icon>chevron_right</mat-icon>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="w33 w50-sm">
-                                    <div class="mat-divider-wrapper hide-gt-sm">
-                                        <mat-divider></mat-divider>
-                                    </div>
-                                    <zac-static-text [label]="'informatieobject.status' | translate"
-                                                     [value]="'informatieobject.status.'+infoObject.status | translate"
-                                                     *ngIf="infoObject.status"></zac-static-text>
-                                    <zac-static-text [label]="'bronorganisatie' | translate" *ngIf="infoObject.bronorganisatie"
-                                                     [value]="infoObject.bronorganisatie"></zac-static-text>
-                                    <zac-static-text [label]="'taal' | translate"
-                                                     [value]="infoObject.taal"></zac-static-text>
-                                    <zac-static-text [label]="'bestandsomvang' | translate"
-                                                     [value]="infoObject.bestandsomvang | bestandsomvang"></zac-static-text>
-                                </div>
-                            </div>
-                            <div class="content flex-row flex-wrap flex-col-xs">
-                                <div class="w33 w50-sm">
-                                    <zac-static-text [label]="'creatiedatum' | translate" [value]="infoObject.creatiedatum | datum"></zac-static-text>
-                                </div>
-                                <div class="w33 w50-sm">
-                                    <div class="mat-divider-wrapper hide-gt-sm">
-                                        <mat-divider></mat-divider>
-                                    </div>
-                                    <zac-static-text [label]="'registratiedatum' | translate"
-                                                     [value]="infoObject.registratiedatumTijd | datum:'short'"></zac-static-text>
-                                </div>
-                                <div class="w33 w50-sm">
-                                    <div class="mat-divider-wrapper hide-gt-sm">
-                                        <mat-divider></mat-divider>
-                                    </div>
-                                    <zac-static-text [label]="'verzenddatum' | translate" [value]="infoObject.verzenddatum | datum"
-                                                     *ngIf="infoObject.verzenddatum"></zac-static-text>
-                                    <zac-static-text [label]="'ontvangstdatum' | translate" *ngIf="infoObject.ontvangstdatum"
-                                                     [value]="infoObject.ontvangstdatum | datum"></zac-static-text>
-                                </div>
-                            </div>
-                        </mat-tab>
+        <mat-card-content>
+          <mat-tab-group mat-stretch-tabs="false">
+            <mat-tab id="algemeneGegevens_tab">
+              <ng-template mat-tab-label>
+                <mat-icon>topic</mat-icon>
+                {{'gegevens.algemeen' | translate}}
+              </ng-template>
+              <div class="content flex-row flex-wrap flex-col-xs">
+                <div class="w33 w50-sm">
+                  <zac-static-text
+                    [label]="'titel' | translate"
+                    [value]="infoObject.titel"
+                  ></zac-static-text>
+                  <zac-static-text
+                    [label]="'identificatie' | translate"
+                    [value]="infoObject.identificatie"
+                  ></zac-static-text>
+                  <zac-static-text
+                    [label]="'vertrouwelijkheidaanduiding' | translate"
+                    [value]="infoObject.vertrouwelijkheidaanduiding | vertrouwelijkaanduidingToTranslationKey | translate"
+                  ></zac-static-text>
+                  <zac-static-text
+                    [label]="'bestandsnaam' | translate"
+                    [value]="infoObject.bestandsnaam"
+                  >
+                    <zac-document-icon
+                      position="content-before"
+                      [bestandsnaam]="infoObject.bestandsnaam"
+                    ></zac-document-icon>
+                    <span position="content-before">&nbsp;</span>
+                  </zac-static-text>
+                </div>
+                <div class="w33 w50-sm">
+                  <div class="mat-divider-wrapper hide-gt-sm">
+                    <mat-divider></mat-divider>
+                  </div>
+                  <zac-static-text
+                    [label]="'documentType' | translate"
+                    [value]="infoObject.informatieobjectTypeOmschrijving"
+                  ></zac-static-text>
+                  <zac-static-text
+                    [label]="'auteur' | translate"
+                    [value]="infoObject.auteur"
+                  ></zac-static-text>
+                  <zac-static-text
+                    [label]="'beschrijving' | translate"
+                    [value]="infoObject.beschrijving"
+                  ></zac-static-text>
+                  <div class="flex-row fex-wrap">
+                    <button
+                      [disabled]="infoObject.versie === 1"
+                      mat-icon-button
+                      (click)="haalVersieOp(infoObject.versie - 1)"
+                    >
+                      <mat-icon>chevron_left</mat-icon>
+                    </button>
+                    <zac-static-text
+                      [value]="versieInformatie"
+                    ></zac-static-text>
+                    <button
+                      [disabled]="laatsteVersieInfoObject && infoObject.versie === laatsteVersieInfoObject.versie"
+                      mat-icon-button
+                      (click)="haalVersieOp(infoObject.versie + 1);"
+                    >
+                      <mat-icon>chevron_right</mat-icon>
+                    </button>
+                  </div>
+                </div>
+                <div class="w33 w50-sm">
+                  <div class="mat-divider-wrapper hide-gt-sm">
+                    <mat-divider></mat-divider>
+                  </div>
+                  <zac-static-text
+                    [label]="'informatieobject.status' | translate"
+                    [value]="'informatieobject.status.'+infoObject.status | translate"
+                    *ngIf="infoObject.status"
+                  ></zac-static-text>
+                  <zac-static-text
+                    [label]="'bronorganisatie' | translate"
+                    *ngIf="infoObject.bronorganisatie"
+                    [value]="infoObject.bronorganisatie"
+                  ></zac-static-text>
+                  <zac-static-text
+                    [label]="'taal' | translate"
+                    [value]="infoObject.taal"
+                  ></zac-static-text>
+                  <zac-static-text
+                    [label]="'bestandsomvang' | translate"
+                    [value]="infoObject.bestandsomvang | bestandsomvang"
+                  ></zac-static-text>
+                </div>
+              </div>
+              <div class="content flex-row flex-wrap flex-col-xs">
+                <div class="w33 w50-sm">
+                  <zac-static-text
+                    [label]="'creatiedatum' | translate"
+                    [value]="infoObject.creatiedatum | datum"
+                  ></zac-static-text>
+                </div>
+                <div class="w33 w50-sm">
+                  <div class="mat-divider-wrapper hide-gt-sm">
+                    <mat-divider></mat-divider>
+                  </div>
+                  <zac-static-text
+                    [label]="'registratiedatum' | translate"
+                    [value]="infoObject.registratiedatumTijd | datum:'short'"
+                  ></zac-static-text>
+                </div>
+                <div class="w33 w50-sm">
+                  <div class="mat-divider-wrapper hide-gt-sm">
+                    <mat-divider></mat-divider>
+                  </div>
+                  <zac-static-text
+                    [label]="'verzenddatum' | translate"
+                    [value]="infoObject.verzenddatum | datum"
+                    *ngIf="infoObject.verzenddatum"
+                  ></zac-static-text>
+                  <zac-static-text
+                    [label]="'ontvangstdatum' | translate"
+                    *ngIf="infoObject.ontvangstdatum"
+                    [value]="infoObject.ontvangstdatum | datum"
+                  ></zac-static-text>
+                </div>
+              </div>
+            </mat-tab>
 
-                        <mat-tab id="historie_tab">
-                            <ng-template mat-tab-label>
-                                <mat-icon>history</mat-icon>
-                                {{'historie' | translate}}
-                            </ng-template>
-                            <div class="table-wrapper historie-table">
-                                <table mat-table [dataSource]="historie" matSort>
-                                    <ng-container matColumnDef="datum">
-                                        <th *matHeaderCellDef mat-header-cell
-                                            mat-sort-header> {{'datum' | translate}} </th>
-                                        <td *matCellDef="let regel" mat-cell>
-                                            <div matTooltip="{{regel.datumTijd | datum:'short'}}">
-                                                {{regel.datumTijd | datum | empty}}
-                                            </div>
-                                        </td>
-                                    </ng-container>
-                                    <ng-container matColumnDef="gebruiker">
-                                        <th *matHeaderCellDef mat-header-cell
-                                            mat-sort-header> {{'door' | translate}} </th>
-                                        <td *matCellDef="let regel" mat-cell>
-                                            <div matTooltip="{{regel.applicatie}}">
-                                                {{regel.door | empty}}
-                                            </div>
-                                        </td>
-                                    </ng-container>
-                                    <ng-container matColumnDef="wijziging">
-                                        <th mat-header-cell *matHeaderCellDef> {{'wijziging' | translate}} </th>
-                                        <td mat-cell *matCellDef="let regel">
-                                            <read-more [text]="regel.attribuutLabel | translate" [maxLength]="20"></read-more>
-                                        </td>
-                                    </ng-container>
-                                    <ng-container matColumnDef="oudeWaarde">
-                                        <th mat-header-cell *matHeaderCellDef> {{'waarde.oud' | translate}} </th>
-                                        <td mat-cell *matCellDef="let regel">
-                                            <read-more [text]="regel.oudeWaarde | empty | mimetypeToExtension" [maxLength]="20"></read-more>
-                                        </td>
-                                    </ng-container>
-                                    <ng-container matColumnDef="nieuweWaarde">
-                                        <th mat-header-cell *matHeaderCellDef> {{'waarde.nieuw' | translate}} </th>
-                                        <td mat-cell *matCellDef="let regel">
-                                            <read-more [text]="regel.nieuweWaarde | empty | mimetypeToExtension" [maxLength]="20"></read-more>
-                                        </td>
-                                    </ng-container>
-                                    <ng-container matColumnDef="toelichting">
-                                        <th mat-header-cell *matHeaderCellDef> {{'toelichting' | translate}} </th>
-                                        <td mat-cell *matCellDef="let regel">
-                                            <read-more [text]="regel.toelichting | empty" [maxLength]="20"></read-more>
-                                        </td>
-                                    </ng-container>
-                                    <tr mat-header-row *matHeaderRowDef="historieColumns; sticky: true"></tr>
-                                    <tr mat-row *matRowDef="let row; columns: historieColumns;"></tr>
-                                </table>
-                                <p *ngIf="historie.data.length == 0">{{'msg.geen.gegevens.gevonden' | translate}}</p>
-                            </div>
-                        </mat-tab>
-                    </mat-tab-group>
-                </mat-card-content>
-            </mat-card>
+            <mat-tab id="historie_tab">
+              <ng-template mat-tab-label>
+                <mat-icon>history</mat-icon>
+                {{'historie' | translate}}
+              </ng-template>
+              <div class="table-wrapper historie-table">
+                <table mat-table [dataSource]="historie" matSort>
+                  <ng-container matColumnDef="datum">
+                    <th *matHeaderCellDef mat-header-cell mat-sort-header>
+                      {{'datum' | translate}}
+                    </th>
+                    <td *matCellDef="let regel" mat-cell>
+                      <div matTooltip="{{regel.datumTijd | datum:'short'}}">
+                        {{regel.datumTijd | datum | empty}}
+                      </div>
+                    </td>
+                  </ng-container>
+                  <ng-container matColumnDef="gebruiker">
+                    <th *matHeaderCellDef mat-header-cell mat-sort-header>
+                      {{'door' | translate}}
+                    </th>
+                    <td *matCellDef="let regel" mat-cell>
+                      <div matTooltip="{{regel.applicatie}}">
+                        {{regel.door | empty}}
+                      </div>
+                    </td>
+                  </ng-container>
+                  <ng-container matColumnDef="wijziging">
+                    <th mat-header-cell *matHeaderCellDef>
+                      {{'wijziging' | translate}}
+                    </th>
+                    <td mat-cell *matCellDef="let regel">
+                      <read-more
+                        [text]="regel.attribuutLabel | translate"
+                        [maxLength]="20"
+                      ></read-more>
+                    </td>
+                  </ng-container>
+                  <ng-container matColumnDef="oudeWaarde">
+                    <th mat-header-cell *matHeaderCellDef>
+                      {{'waarde.oud' | translate}}
+                    </th>
+                    <td mat-cell *matCellDef="let regel">
+                      <read-more
+                        [text]="regel.oudeWaarde | empty | mimetypeToExtension"
+                        [maxLength]="20"
+                      ></read-more>
+                    </td>
+                  </ng-container>
+                  <ng-container matColumnDef="nieuweWaarde">
+                    <th mat-header-cell *matHeaderCellDef>
+                      {{'waarde.nieuw' | translate}}
+                    </th>
+                    <td mat-cell *matCellDef="let regel">
+                      <read-more
+                        [text]="regel.nieuweWaarde | empty | mimetypeToExtension"
+                        [maxLength]="20"
+                      ></read-more>
+                    </td>
+                  </ng-container>
+                  <ng-container matColumnDef="toelichting">
+                    <th mat-header-cell *matHeaderCellDef>
+                      {{'toelichting' | translate}}
+                    </th>
+                    <td mat-cell *matCellDef="let regel">
+                      <read-more
+                        [text]="regel.toelichting | empty"
+                        [maxLength]="20"
+                      ></read-more>
+                    </td>
+                  </ng-container>
+                  <tr
+                    mat-header-row
+                    *matHeaderRowDef="historieColumns; sticky: true"
+                  ></tr>
+                  <tr
+                    mat-row
+                    *matRowDef="let row; columns: historieColumns;"
+                  ></tr>
+                </table>
+                <p *ngIf="historie.data.length == 0">
+                  {{'msg.geen.gegevens.gevonden' | translate}}
+                </p>
+              </div>
+            </mat-tab>
+          </mat-tab-group>
+        </mat-card-content>
+      </mat-card>
 
-            <div class="flex-col flex-1">
-                <mat-card class="zaak-gegevens" *ngFor="let zaak of zaakInformatieObjecten">
+      <div class="flex-col flex-1">
+        <mat-card
+          class="zaak-gegevens"
+          *ngFor="let zaak of zaakInformatieObjecten"
+        >
+          <mat-card-header>
+            <mat-card-title-group>
+              <mat-card-title
+                >{{'zaak' | translate}}
+                {{zaak.zaakIdentificatie}}</mat-card-title
+              >
+              <mat-card-subtitle
+                >{{zaak.zaaktypeOmschrijving}}</mat-card-subtitle
+              >
+              <a
+                [routerLink]="['/zaken', zaak?.zaakIdentificatie]"
+                [title]="zaak.zaakIdentificatie + ' openen'"
+                id="zaakDetail_button"
+                mat-icon-button
+              >
+                <mat-icon>visibility</mat-icon>
+              </a>
+            </mat-card-title-group>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="content flex-row flex-wrap flex-col-xs">
+              <zac-static-text
+                class="flex-1 w33"
+                [label]="'status' | translate"
+                [value]="zaak.zaakStatus | empty:'naam'"
+              ></zac-static-text>
 
-                    <mat-card-header>
-                        <mat-card-title-group>
-                            <mat-card-title>{{'zaak' | translate}} {{zaak.zaakIdentificatie}}</mat-card-title>
-                            <mat-card-subtitle>{{zaak.zaaktypeOmschrijving}}</mat-card-subtitle>
-                            <a [routerLink]="['/zaken', zaak?.zaakIdentificatie]" [title]="zaak.zaakIdentificatie + ' openen'" id="zaakDetail_button"
-                               mat-icon-button>
-                                <mat-icon>visibility</mat-icon>
-                            </a>
-                        </mat-card-title-group>
-                    </mat-card-header>
-                    <mat-card-content>
-                        <div class="content flex-row flex-wrap flex-col-xs">
+              <zac-static-text
+                class="flex-1 w33"
+                [label]="'startdatum' | translate"
+                [value]="zaak.zaakStartDatum | datum"
+              ></zac-static-text>
 
-                            <zac-static-text class="flex-1 w33" [label]="'status' | translate"
-                                             [value]="zaak.zaakStatus | empty:'naam'"></zac-static-text>
-
-                            <zac-static-text class="flex-1 w33" [label]="'startdatum' | translate"
-                                             [value]="zaak.zaakStartDatum | datum"></zac-static-text>
-
-                            <zac-static-text class="flex-1 w33" [label]="'einddatumGepland' | translate"
-                                             [value]="zaak.zaakEinddatumGepland | datum | empty "></zac-static-text>
-
-                        </div>
-                    </mat-card-content>
-                </mat-card>
+              <zac-static-text
+                class="flex-1 w33"
+                [label]="'einddatumGepland' | translate"
+                [value]="zaak.zaakEinddatumGepland | datum | empty "
+              ></zac-static-text>
             </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
 
-            <div class="flex-row w100" *ngIf="documentPreviewBeschikbaar">
-                <mat-expansion-panel class="w100" expanded="true">
-                    <mat-expansion-panel-header>
-                        <mat-panel-title>
-                            <mat-icon outlined>plagiarism</mat-icon>
-                            {{infoObject.titel}} | {{ 'document.preview' | translate}}
-                        </mat-panel-title>
-                    </mat-expansion-panel-header>
-                    <zac-document-viewer [document]="infoObject"></zac-document-viewer>
-                </mat-expansion-panel>
-            </div>
-        </div>
-    </mat-drawer-content>
+      <div class="flex-row w100" *ngIf="documentPreviewBeschikbaar">
+        <mat-expansion-panel class="w100" expanded="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon outlined>plagiarism</mat-icon>
+              {{infoObject.titel}} | {{ 'document.preview' | translate}}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <zac-document-viewer [document]="infoObject"></zac-document-viewer>
+        </mat-expansion-panel>
+      </div>
+    </div>
+  </mat-drawer-content>
 </mat-drawer-container>

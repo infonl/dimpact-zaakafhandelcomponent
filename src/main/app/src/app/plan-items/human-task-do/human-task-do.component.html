@@ -4,14 +4,20 @@
   -->
 
 <div class="sidenav-title">
-    <h3>
-        <mat-icon>assignment</mat-icon>
-        {{'title.taak.starten'| translate: ({taak: planItem.naam})}}</h3>
-    <button mat-icon-button (click)="sideNav.close()">
-        <mat-icon>close</mat-icon>
-    </button>
+  <h3>
+    <mat-icon>assignment</mat-icon>
+    {{'title.taak.starten'| translate: ({taak: planItem.naam})}}
+  </h3>
+  <button mat-icon-button (click)="sideNav.close()">
+    <mat-icon>close</mat-icon>
+  </button>
 </div>
 
 <div class="form">
-    <mfb-form *ngIf="formItems" (formSubmit)="onFormSubmit($event)" [formFields]="formItems" [config]="formConfig"></mfb-form>
+  <mfb-form
+    *ngIf="formItems"
+    (formSubmit)="onFormSubmit($event)"
+    [formFields]="formItems"
+    [config]="formConfig"
+  ></mfb-form>
 </div>
