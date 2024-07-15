@@ -6,15 +6,18 @@ package nl.lifely.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldBeJsonArray
+import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_COUNT
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_ADRES_1
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_EERSTE_HANDELSNAAM_1
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_NAAM_1
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_PLAATS_1
@@ -30,6 +33,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_
 import nl.lifely.zac.itest.config.ItestConfiguration.VESTIGINGTYPE_NEVENVESTIGING
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONArray
+import org.json.JSONObject
 
 /**
  * This test assumes a roltype has been created in a previously run test.
@@ -101,6 +105,44 @@ class KlantRestServiceTest : BehaviorSpec({
                     // the response should contain an email address and telephone number
                     shouldContainJsonKeyValue("emailadres", TEST_PERSON_HENDRIKA_JANSE_EMAIL)
                     shouldContainJsonKeyValue("telefoonnummer", TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER)
+                }
+            }
+        }
+        When("a vestigingsprofiel is requested which is present in the KVK test environment") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/klanten/vestigingsprofiel/$TEST_KVK_VESTIGINGSNUMMER_1"
+            )
+            Then("the vestigingsprofiel is returned with the expected data") {
+                response.code shouldBe HTTP_STATUS_OK
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                with(responseBody) {
+                    shouldContainJsonKey("adressen")
+                    val adressen = JSONObject(responseBody).getJSONArray("adressen")
+                    adressen.length() shouldBe 1
+                    with(JSONArray(adressen).get(0).toString()) {
+                        shouldContainJsonKeyValue("type", "bezoekadres")
+                        shouldContainJsonKeyValue("afgeschermd", false)
+                        shouldContainJsonKeyValue("volledigAdres", "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1")
+                    }
+                    shouldContainJsonKeyValue("commercieleVestiging", true)
+                    shouldContainJsonKeyValue("deeltijdWerkzamePersonen", 1)
+                    shouldContainJsonKeyValue("eersteHandelsnaam", TEST_KVK_EERSTE_HANDELSNAAM_1)
+                    shouldContainJsonKeyValue("kvkNummer", TEST_KVK_NUMMER_1)
+                    shouldContainJsonKey("sbiActiviteiten")
+                    val sbiActiviteiten = JSONObject(responseBody).getJSONArray("sbiActiviteiten")
+                    sbiActiviteiten.length() shouldBe 2
+                    with(JSONArray(sbiActiviteiten).get(0).toString()) {
+                        shouldContain("dummysbiOmschrijving2")
+                    }
+                    with(JSONArray(sbiActiviteiten).get(1).toString()) {
+                        shouldContain("dummysbiOmschrijving3")
+                    }
+                    shouldContainJsonKeyValue("sbiHoofdActiviteit", "dummysbiOmschrijving1")
+                    shouldContainJsonKeyValue("totaalWerkzamePersonen", 3)
+                    shouldContainJsonKeyValue("type", "HOOFDVESTIGING")
+                    shouldContainJsonKeyValue("vestigingsnummer", TEST_KVK_VESTIGINGSNUMMER_1)
+                    shouldContainJsonKeyValue("voltijdWerkzamePersonen", 2)
                 }
             }
         }

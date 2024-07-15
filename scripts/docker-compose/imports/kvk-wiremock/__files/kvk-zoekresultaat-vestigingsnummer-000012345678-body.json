@@ -17,10 +17,10 @@
       "type": "nevenvestiging",
       "_links": {
         "basisprofiel": {
-          "href": "https://api.kvk.nl/test/api/v1/basisprofielen/69599084"
+          "href": "http://kvk-wiremock:8080/api/v1/basisprofielen/12345678"
         },
         "vestigingsprofiel": {
-          "href": "https://api.kvk.nl/test/api/v1/vestigingsprofielen/000038509520"
+          "href": "http://kvk-wiremock:8080/api/v1/vestigingsprofielen/000012345678"
         }
       }
     }
