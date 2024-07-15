@@ -218,9 +218,9 @@ class TakenRESTService @Inject constructor(
             taakdata[TaakVariabelenService.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST]?.let {
                 updateVerzenddatumEnkelvoudigInformatieObjecten(
                     documenten = it,
-                    // implicitly assume that the following keys are present in taakdata
+                    // implicitly assume that the verzenddatum key is present in taakdata
                     verzenddatumString = taakdata[TaakVariabelenService.TAAK_DATA_VERZENDDATUM]!!,
-                    toelichting = taakdata[TaakVariabelenService.TAAK_DATA_TOELICHTING]!!
+                    toelichting = taakdata[TaakVariabelenService.TAAK_DATA_TOELICHTING]
                 )
             }
             ondertekenEnkelvoudigInformatieObjecten(taakdata, zaak)
@@ -357,7 +357,7 @@ class TakenRESTService @Inject constructor(
     private fun updateVerzenddatumEnkelvoudigInformatieObjecten(
         documenten: String,
         verzenddatumString: String,
-        toelichting: String
+        toelichting: String?
     ) {
         val verzenddatum = ZonedDateTime.parse(verzenddatumString).toLocalDate()
         documenten.split(
