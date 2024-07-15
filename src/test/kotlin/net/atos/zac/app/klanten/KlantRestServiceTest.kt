@@ -66,7 +66,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         "$straatnaam$NON_BREAKING_SPACE$huisnummer$NON_BREAKING_SPACE$huisletter, $postcode, $plaats"
                     }
                     emailadres shouldBe klant.emailadres
-                    handelsnaam shouldBe kvkResultaatItem.naam
+                    naam shouldBe kvkResultaatItem.naam
                     kvkNummer shouldBe kvkResultaatItem.kvkNummer
                     postcode shouldBe kvkResultaatItem.adres.binnenlandsAdres.postcode
                     rsin shouldBe kvkResultaatItem.rsin

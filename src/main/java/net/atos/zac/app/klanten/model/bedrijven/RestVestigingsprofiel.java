@@ -7,7 +7,7 @@ package net.atos.zac.app.klanten.model.bedrijven;
 
 import java.util.List;
 
-public class RESTVestigingsprofiel {
+public class RestVestigingsprofiel {
 
     public String vestigingsnummer;
 

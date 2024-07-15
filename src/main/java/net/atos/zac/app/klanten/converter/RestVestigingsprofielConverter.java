@@ -9,15 +9,15 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import net.atos.client.kvk.vestigingsprofiel.model.generated.SBIActiviteit;
 import net.atos.client.kvk.vestigingsprofiel.model.generated.Vestiging;
-import net.atos.zac.app.klanten.model.bedrijven.RESTVestigingsprofiel;
 import net.atos.zac.app.klanten.model.bedrijven.RestKlantenAdres;
+import net.atos.zac.app.klanten.model.bedrijven.RestVestigingsprofiel;
 
 public class RestVestigingsprofielConverter {
     public static String VESTIGINGTYPE_HOOFDVESTIGING = "HOOFDVESTIGING";
     public static String VESTIGINGTYPE_NEVENVESTIGING = "NEVENVESTIGING";
 
-    public RESTVestigingsprofiel convert(final Vestiging vestiging) {
-        final RESTVestigingsprofiel restVestigingsprofiel = new RESTVestigingsprofiel();
+    public RestVestigingsprofiel convert(final Vestiging vestiging) {
+        final RestVestigingsprofiel restVestigingsprofiel = new RestVestigingsprofiel();
         restVestigingsprofiel.kvkNummer = vestiging.getKvkNummer();
         restVestigingsprofiel.vestigingsnummer = vestiging.getVestigingsnummer();
         restVestigingsprofiel.eersteHandelsnaam = vestiging.getEersteHandelsnaam();
