@@ -108,6 +108,7 @@ object ItestConfiguration {
      * Constants used in the KVK WireMock template response
      */
     const val TEST_KVK_ADRES_1 = "dummyStraatnaam1"
+    const val TEST_KVK_EERSTE_HANDELSNAAM_1 = "dummyEersteHandelsnaam1"
     const val TEST_KVK_NAAM_1 = "dummyNaam1"
     const val TEST_KVK_NUMMER_1 = "12345678"
     const val TEST_KVK_PLAATS_1 = "dummyPlaats1"

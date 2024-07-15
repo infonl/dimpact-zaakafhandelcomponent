@@ -1,0 +1,63 @@
+{
+  "vestigingsnummer": "000012345678",
+  "kvkNummer": "12345678",
+  "indNonMailing": "Ja",
+  "formeleRegistratiedatum": "20200828",
+  "materieleRegistratie": {
+    "datumAanvang": "20150828"
+  },
+  "eersteHandelsnaam": "dummyEersteHandelsnaam1",
+  "indHoofdvestiging": "Ja",
+  "indCommercieleVestiging": "Ja",
+  "voltijdWerkzamePersonen": 2,
+  "totaalWerkzamePersonen": 3,
+  "deeltijdWerkzamePersonen": 1,
+  "handelsnamen": [
+    {
+      "naam": "dummyEersteHandelsnaam1",
+      "volgorde": 0
+    },
+    {
+      "naam": "dummyEersteHandelsnaam2",
+      "volgorde": 1
+    }
+  ],
+  "adressen": [
+    {
+      "type": "bezoekadres",
+      "indAfgeschermd": "Nee",
+      "volledigAdres": "dummyStraatnaam1, dummyPlaats1",
+      "straatnaam": "dummyStraatnaam1",
+      "huisnummer": 17,
+      "huisletter": "M",
+      "postcode": "1034WL",
+      "plaats": "dummyPlaats1",
+      "land": "Nederland"
+    }
+  ],
+  "sbiActiviteiten": [
+    {
+      "sbiCode": "sbiCode1",
+      "sbiOmschrijving": "dummysbiOmschrijving1",
+      "indHoofdactiviteit": "Ja"
+    },
+    {
+      "sbiCode": "sbiCode2",
+      "sbiOmschrijving": "dummysbiOmschrijving2",
+      "indHoofdactiviteit": "Nee"
+    },
+    {
+      "sbiCode": "sbiCode3",
+      "sbiOmschrijving": "dummysbiOmschrijving3",
+      "indHoofdactiviteit": "Nee"
+    }
+  ],
+  "_links": {
+    "self": {
+      "href": "http://kvk-wiremock:8080/api/v1/vestigingsprofielen/000012345678"
+    },
+    "basisprofiel": {
+      "href": "http://kvk-wiremock:8080/api/v1/basisprofielen/12345678"
+    }
+  }
+}

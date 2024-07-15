@@ -9,29 +9,29 @@ import java.util.List;
 
 public class RestVestigingsprofiel {
 
-    public String vestigingsnummer;
+    public List<RestKlantenAdres> adressen;
 
-    public String kvkNummer;
+    public boolean commercieleVestiging;
+
+    public int deeltijdWerkzamePersonen;
 
     public String eersteHandelsnaam;
 
+    public String kvkNummer;
+
     public String rsin;
+
+    public List<String> sbiActiviteiten;
+
+    public String sbiHoofdActiviteit;
 
     public String type;
 
     public int totaalWerkzamePersonen;
 
-    public int deeltijdWerkzamePersonen;
+    public String vestigingsnummer;
 
     public int voltijdWerkzamePersonen;
 
-    public List<RestKlantenAdres> adressen;
-
     public String website;
-
-    public String sbiHoofdActiviteit;
-
-    public List<String> sbiActiviteiten;
-
-    public boolean commercieleVestiging;
 }
