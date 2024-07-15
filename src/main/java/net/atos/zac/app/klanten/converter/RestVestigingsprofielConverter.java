@@ -20,7 +20,7 @@ public class RestVestigingsprofielConverter {
         final RESTVestigingsprofiel restVestigingsprofiel = new RESTVestigingsprofiel();
         restVestigingsprofiel.kvkNummer = vestiging.getKvkNummer();
         restVestigingsprofiel.vestigingsnummer = vestiging.getVestigingsnummer();
-        restVestigingsprofiel.handelsnaam = vestiging.getEersteHandelsnaam();
+        restVestigingsprofiel.eersteHandelsnaam = vestiging.getEersteHandelsnaam();
         restVestigingsprofiel.rsin = vestiging.getRsin();
         restVestigingsprofiel.totaalWerkzamePersonen = vestiging.getTotaalWerkzamePersonen();
         restVestigingsprofiel.deeltijdWerkzamePersonen = vestiging.getDeeltijdWerkzamePersonen();
