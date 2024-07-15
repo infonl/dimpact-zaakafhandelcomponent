@@ -17,7 +17,7 @@ public class RestBedrijf extends RestKlant {
 
     public String kvkNummer;
 
-    public String handelsnaam;
+    public String naam;
 
     public String rsin;
 
@@ -39,6 +39,6 @@ public class RestBedrijf extends RestKlant {
 
     @Override
     public String getNaam() {
-        return handelsnaam;
+        return naam;
     }
 }
