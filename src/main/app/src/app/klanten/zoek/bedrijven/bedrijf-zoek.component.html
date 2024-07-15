@@ -57,9 +57,7 @@
       <th *matHeaderCellDef mat-header-cell mat-sort-header>
         {{'naam' | translate}}
       </th>
-      <td *matCellDef="let bedrijf" mat-cell>
-        {{bedrijf.naam | empty}}
-      </td>
+      <td *matCellDef="let bedrijf" mat-cell>{{bedrijf.naam | empty}}</td>
     </ng-container>
     <ng-container matColumnDef="kvk">
       <th *matHeaderCellDef mat-header-cell mat-sort-header>
