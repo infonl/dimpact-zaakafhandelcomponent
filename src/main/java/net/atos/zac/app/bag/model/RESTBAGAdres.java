@@ -8,7 +8,7 @@ package net.atos.zac.app.bag.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.atos.zac.app.zaken.model.RESTGeometry;
+import net.atos.zac.app.zaak.model.RESTGeometry;
 
 public class RESTBAGAdres extends RESTBAGObject {
 

@@ -3,7 +3,7 @@ package net.atos.zac.app.planitems.model
 import net.atos.zac.app.identity.model.RESTGroup
 import net.atos.zac.app.identity.model.RESTUser
 import net.atos.zac.app.mail.model.RESTMailGegevens
-import net.atos.zac.app.zaken.model.createRESTGroup
+import net.atos.zac.app.zaak.model.createRESTGroup
 import java.time.LocalDate
 import java.util.UUID
 

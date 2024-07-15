@@ -38,7 +38,7 @@ import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatie
 import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatieobject
 import net.atos.zac.app.informatieobjecten.model.createRESTFileUpload
 import net.atos.zac.app.informatieobjecten.model.createRESTInformatieobjectZoekParameters
-import net.atos.zac.app.zaken.converter.RESTGerelateerdeZaakConverter
+import net.atos.zac.app.zaak.converter.RESTGerelateerdeZaakConverter
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.documentcreatie.DocumentCreatieService
 import net.atos.zac.documentcreatie.model.DocumentCreatieGegevens

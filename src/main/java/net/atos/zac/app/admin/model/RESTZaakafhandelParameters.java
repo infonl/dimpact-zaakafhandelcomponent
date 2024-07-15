@@ -9,8 +9,8 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.atos.zac.app.zaken.model.RESTResultaattype;
-import net.atos.zac.app.zaken.model.RESTZaakStatusmailOptie;
+import net.atos.zac.app.zaak.model.RESTResultaattype;
+import net.atos.zac.app.zaak.model.RESTZaakStatusmailOptie;
 
 public class RESTZaakafhandelParameters {
 

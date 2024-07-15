@@ -52,8 +52,8 @@ import net.atos.zac.app.informatieobjecten.model.RESTGekoppeldeZaakEnkelvoudigIn
 import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjectZoekParameters
 import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjecttype
 import net.atos.zac.app.informatieobjecten.model.RESTZaakInformatieobject
-import net.atos.zac.app.zaken.converter.RESTGerelateerdeZaakConverter
-import net.atos.zac.app.zaken.model.RelatieType
+import net.atos.zac.app.zaak.converter.RESTGerelateerdeZaakConverter
+import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documentcreatie.DocumentCreatieService

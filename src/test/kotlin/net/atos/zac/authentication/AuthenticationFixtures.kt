@@ -5,8 +5,8 @@
 
 package net.atos.zac.authentication
 
-import net.atos.zac.app.zaken.model.ZAAK_TYPE_1_OMSCHRIJVING
-import net.atos.zac.app.zaken.model.ZAAK_TYPE_2_OMSCHRIJVING
+import net.atos.zac.app.zaak.model.ZAAK_TYPE_1_OMSCHRIJVING
+import net.atos.zac.app.zaak.model.ZAAK_TYPE_2_OMSCHRIJVING
 
 @Suppress("LongParameterList")
 fun createLoggedInUser(

@@ -10,12 +10,19 @@ import jakarta.inject.Inject
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Medewerker
+import net.atos.client.zgw.zrc.model.NatuurlijkPersoon
+import net.atos.client.zgw.zrc.model.NietNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.OrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.RolMedewerker
+import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
+import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
+import net.atos.client.zgw.zrc.model.RolVestiging
+import net.atos.client.zgw.zrc.model.Vestiging
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
+import net.atos.client.zgw.ztc.model.generated.RolType
 import net.atos.zac.event.EventingService
 import net.atos.zac.identity.model.Group
 import net.atos.zac.identity.model.User
@@ -24,14 +31,63 @@ import nl.lifely.zac.util.AllOpen
 import java.util.UUID
 import java.util.logging.Logger
 
+private val LOG = Logger.getLogger(ZaakService::class.java.name)
+
 @AllOpen
 class ZaakService @Inject constructor(
     private val zrcClientService: ZRCClientService,
     private val ztcClientService: ZtcClientService,
     private var eventingService: EventingService,
 ) {
-    companion object {
-        private val LOG = Logger.getLogger(ZaakService::class.java.name)
+    fun addBetrokkenNatuurlijkPersoon(
+        roltype: RolType,
+        bsn: String,
+        zaak: Zaak,
+        toelichting: String
+    ) {
+        zrcClientService.createRol(
+            RolNatuurlijkPersoon(
+                zaak.url,
+                roltype,
+                toelichting,
+                NatuurlijkPersoon(bsn)
+            ),
+            toelichting
+        )
+    }
+
+    fun addBetrokkenVestiging(
+        roltype: RolType,
+        vestigingsnummer: String,
+        zaak: Zaak,
+        toelichting: String
+    ) {
+        zrcClientService.createRol(
+            RolVestiging(
+                zaak.url,
+                roltype,
+                toelichting,
+                Vestiging(vestigingsnummer)
+            ),
+            toelichting
+        )
+    }
+
+    fun addBetrokkenNietNatuurlijkPersoon(
+        roltype: RolType,
+        rsin: String,
+        zaak: Zaak,
+        toelichting: String
+    ) {
+        zrcClientService.createRol(
+            RolNietNatuurlijkPersoon(
+                zaak.url,
+                roltype,
+                toelichting,
+                NietNatuurlijkPersoon(rsin)
+            ),
+            toelichting
+        )
     }
 
     /**
