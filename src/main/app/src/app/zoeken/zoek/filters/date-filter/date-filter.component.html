@@ -4,25 +4,51 @@
   -->
 
 <mat-expansion-panel class="date-filter" [expanded]="expanded()">
-    <mat-expansion-panel-header>
-        <mat-panel-title>
-            {{label | translate}}
-        </mat-panel-title>
-    </mat-expansion-panel-header>
-    <div class="datepicker-content">
-        <mat-form-field>
-            <mat-label>{{'van' | translate}}</mat-label>
-            <input matInput [matDatepicker]="pickerVan" [formControl]="dateVan" (dateChange)="change()">
-            <mat-icon *ngIf="dateVan.value" matSuffix (click)="dateVan.setValue(null); change()">clear</mat-icon>
-            <mat-datepicker-toggle *ngIf="!dateVan.value" matSuffix [for]="pickerVan"></mat-datepicker-toggle>
-            <mat-datepicker #pickerVan></mat-datepicker>
-        </mat-form-field>
-        <mat-form-field>
-            <mat-label>{{'t/m' | translate}}</mat-label>
-            <input matInput [matDatepicker]="pickerTM" [formControl]="dateTM" (dateChange)="change()">
-            <mat-icon *ngIf="dateTM.value" matSuffix (click)="dateTM.setValue(null); change()">clear</mat-icon>
-            <mat-datepicker-toggle *ngIf="!dateTM.value" matSuffix [for]="pickerTM"></mat-datepicker-toggle>
-            <mat-datepicker #pickerTM></mat-datepicker>
-        </mat-form-field>
-    </div>
+  <mat-expansion-panel-header>
+    <mat-panel-title> {{label | translate}} </mat-panel-title>
+  </mat-expansion-panel-header>
+  <div class="datepicker-content">
+    <mat-form-field>
+      <mat-label>{{'van' | translate}}</mat-label>
+      <input
+        matInput
+        [matDatepicker]="pickerVan"
+        [formControl]="dateVan"
+        (dateChange)="change()"
+      />
+      <mat-icon
+        *ngIf="dateVan.value"
+        matSuffix
+        (click)="dateVan.setValue(null); change()"
+        >clear</mat-icon
+      >
+      <mat-datepicker-toggle
+        *ngIf="!dateVan.value"
+        matSuffix
+        [for]="pickerVan"
+      ></mat-datepicker-toggle>
+      <mat-datepicker #pickerVan></mat-datepicker>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>{{'t/m' | translate}}</mat-label>
+      <input
+        matInput
+        [matDatepicker]="pickerTM"
+        [formControl]="dateTM"
+        (dateChange)="change()"
+      />
+      <mat-icon
+        *ngIf="dateTM.value"
+        matSuffix
+        (click)="dateTM.setValue(null); change()"
+        >clear</mat-icon
+      >
+      <mat-datepicker-toggle
+        *ngIf="!dateTM.value"
+        matSuffix
+        [for]="pickerTM"
+      ></mat-datepicker-toggle>
+      <mat-datepicker #pickerTM></mat-datepicker>
+    </mat-form-field>
+  </div>
 </mat-expansion-panel>

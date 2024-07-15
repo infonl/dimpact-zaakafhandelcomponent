@@ -3,22 +3,31 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 <mat-sidenav-container autosize>
-    <mat-sidenav #actionsSideNav mode="over" position="end" [ngSwitch]="action">
-        <zac-klant-koppel *ngSwitchCase="sideNavAction.ZOEK_INITIATOR"
-                          (klantGegevens)="initiatorGeselecteerd($event.klant)"
-                          [sideNav]="actionsSidenav"
-                          [initiator]="true"
-                          [allowBedrijf]="true"
-                          [allowPersoon]="true"></zac-klant-koppel>
-        <zac-bag-zoek *ngSwitchCase="sideNavAction.ZOEK_BAG_ADRES"
-                      [gekoppeldeBagObjecten]="bagObjecten"
-                      [sideNav]="actionsSidenav"
-                      (bagObject)="bagGeselecteerd($event)"></zac-bag-zoek>
-    </mat-sidenav>
-    <div class="content">
-        <div class="form">
-            <mfb-form #mfbForm *ngIf="createZaakFields" (formSubmit)="onFormSubmit($event)" [formFields]="createZaakFields" [config]="formConfig"></mfb-form>
-        </div>
+  <mat-sidenav #actionsSideNav mode="over" position="end" [ngSwitch]="action">
+    <zac-klant-koppel
+      *ngSwitchCase="sideNavAction.ZOEK_INITIATOR"
+      (klantGegevens)="initiatorGeselecteerd($event.klant)"
+      [sideNav]="actionsSidenav"
+      [initiator]="true"
+      [allowBedrijf]="true"
+      [allowPersoon]="true"
+    ></zac-klant-koppel>
+    <zac-bag-zoek
+      *ngSwitchCase="sideNavAction.ZOEK_BAG_ADRES"
+      [gekoppeldeBagObjecten]="bagObjecten"
+      [sideNav]="actionsSidenav"
+      (bagObject)="bagGeselecteerd($event)"
+    ></zac-bag-zoek>
+  </mat-sidenav>
+  <div class="content">
+    <div class="form">
+      <mfb-form
+        #mfbForm
+        *ngIf="createZaakFields"
+        (formSubmit)="onFormSubmit($event)"
+        [formFields]="createZaakFields"
+        [config]="formConfig"
+      ></mfb-form>
     </div>
+  </div>
 </mat-sidenav-container>
-

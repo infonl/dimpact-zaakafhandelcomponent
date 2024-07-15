@@ -3,137 +3,229 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<mat-sidenav-container class="inner-sidenav-container" #sideNavContainer [class]="sideNaveMode">
-    <mat-sidenav #menuSidenav [mode]="sideNaveMode" position="start" opened="true" disableClose="true">
-        <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
-    </mat-sidenav>
-    <mat-sidenav-content class="flex-col gap-20">
-        <mat-card>
-            <mat-card-content>
-                <div class="table-wrapper">
-                    <table mat-table [dataSource]="parameters" matSort #parametersSort="matSort" matSortActive="geldig" matSortDirection="desc">
-                        <ng-container matColumnDef="valide_filter">
-                            <th mat-header-cell *matHeaderCellDef>
-                                <zac-toggle-filter unCheckedIcon="error" [selected]="filterParameters.valide"
-                                                   (changed)="filterParameters.valide = $event;applyFilter()"></zac-toggle-filter>
-                            </th>
-                        </ng-container>
-                        <ng-container matColumnDef="omschrijving_filter">
-                            <th mat-header-cell *matHeaderCellDef>
-                                <mat-form-field subscriptSizing="dynamic">
-                                    <mat-select [compareWith]="compareZaaktype" (selectionChange)="applyFilter()" id="zaaktype_filter"
-                                                placeholder="{{'zaaktype.-kies-' | translate }}"
-                                                [(ngModel)]="filterParameters.zaaktype">
-                                        <mat-option>{{'zaaktype.-kies-' | translate }}</mat-option>
-                                        <mat-option *ngFor="let value of zaaktypes" [value]="value">{{ value.omschrijving }}</mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                            </th>
-                        </ng-container>
-                        <ng-container matColumnDef="doel_filter">
-                            <th mat-header-cell *matHeaderCellDef></th>
-                        </ng-container>
-                        <ng-container matColumnDef="model_filter">
-                            <th mat-header-cell *matHeaderCellDef>
-                                <mat-form-field subscriptSizing="dynamic">
-                                    <mat-select [compareWith]="compareCaseDefinition" (selectionChange)="applyFilter()" id="caseDefinition_filter"
-                                                placeholder="{{'model.-kies-' | translate }}"
-                                                [(ngModel)]="filterParameters.caseDefinition">
-                                        <mat-option>{{'model.-kies-' | translate }}</mat-option>
-                                        <mat-option *ngFor="let value of caseDefinitions" [value]="value">{{ value.naam }}</mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                            </th>
-                        </ng-container>
-                        <ng-container matColumnDef="creatiedatum_filter">
-                            <th mat-header-cell *matHeaderCellDef></th>
-                        </ng-container>
-                        <ng-container matColumnDef="geldig_filter">
-                            <th mat-header-cell *matHeaderCellDef>
-                                <zac-toggle-filter [selected]="filterParameters.geldig"
-                                                   (changed)="filterParameters.geldig = $event;applyFilter()"></zac-toggle-filter>
-                            </th>
-                        </ng-container>
-                        <ng-container matColumnDef="beginGeldigheid_filter">
-                            <th mat-header-cell *matHeaderCellDef="let row">
-                                <zac-date-range-filter label="begin.geldigheid" [range]="filterParameters.beginGeldigheid"
-                                                       (changed)="applyFilter()"></zac-date-range-filter>
-                            </th>
-                        </ng-container>
-                        <ng-container matColumnDef="eindeGeldigheid_filter">
-                            <th mat-header-cell *matHeaderCellDef="let row">
-                                <zac-date-range-filter label="einde.geldigheid" [range]="filterParameters.eindeGeldigheid"
-                                                       (changed)="applyFilter()"></zac-date-range-filter>
-                            </th>
-                        </ng-container>
-                        <ng-container matColumnDef="url_filter">
-                            <th mat-header-cell *matHeaderCellDef></th>
-                        </ng-container>
+<mat-sidenav-container
+  class="inner-sidenav-container"
+  #sideNavContainer
+  [class]="sideNaveMode"
+>
+  <mat-sidenav
+    #menuSidenav
+    [mode]="sideNaveMode"
+    position="start"
+    opened="true"
+    disableClose="true"
+  >
+    <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
+  </mat-sidenav>
+  <mat-sidenav-content class="flex-col gap-20">
+    <mat-card>
+      <mat-card-content>
+        <div class="table-wrapper">
+          <table
+            mat-table
+            [dataSource]="parameters"
+            matSort
+            #parametersSort="matSort"
+            matSortActive="geldig"
+            matSortDirection="desc"
+          >
+            <ng-container matColumnDef="valide_filter">
+              <th mat-header-cell *matHeaderCellDef>
+                <zac-toggle-filter
+                  unCheckedIcon="error"
+                  [selected]="filterParameters.valide"
+                  (changed)="filterParameters.valide = $event;applyFilter()"
+                ></zac-toggle-filter>
+              </th>
+            </ng-container>
+            <ng-container matColumnDef="omschrijving_filter">
+              <th mat-header-cell *matHeaderCellDef>
+                <mat-form-field subscriptSizing="dynamic">
+                  <mat-select
+                    [compareWith]="compareZaaktype"
+                    (selectionChange)="applyFilter()"
+                    id="zaaktype_filter"
+                    placeholder="{{'zaaktype.-kies-' | translate }}"
+                    [(ngModel)]="filterParameters.zaaktype"
+                  >
+                    <mat-option>{{'zaaktype.-kies-' | translate }}</mat-option>
+                    <mat-option *ngFor="let value of zaaktypes" [value]="value"
+                      >{{ value.omschrijving }}</mat-option
+                    >
+                  </mat-select>
+                </mat-form-field>
+              </th>
+            </ng-container>
+            <ng-container matColumnDef="doel_filter">
+              <th mat-header-cell *matHeaderCellDef></th>
+            </ng-container>
+            <ng-container matColumnDef="model_filter">
+              <th mat-header-cell *matHeaderCellDef>
+                <mat-form-field subscriptSizing="dynamic">
+                  <mat-select
+                    [compareWith]="compareCaseDefinition"
+                    (selectionChange)="applyFilter()"
+                    id="caseDefinition_filter"
+                    placeholder="{{'model.-kies-' | translate }}"
+                    [(ngModel)]="filterParameters.caseDefinition"
+                  >
+                    <mat-option>{{'model.-kies-' | translate }}</mat-option>
+                    <mat-option
+                      *ngFor="let value of caseDefinitions"
+                      [value]="value"
+                      >{{ value.naam }}</mat-option
+                    >
+                  </mat-select>
+                </mat-form-field>
+              </th>
+            </ng-container>
+            <ng-container matColumnDef="creatiedatum_filter">
+              <th mat-header-cell *matHeaderCellDef></th>
+            </ng-container>
+            <ng-container matColumnDef="geldig_filter">
+              <th mat-header-cell *matHeaderCellDef>
+                <zac-toggle-filter
+                  [selected]="filterParameters.geldig"
+                  (changed)="filterParameters.geldig = $event;applyFilter()"
+                ></zac-toggle-filter>
+              </th>
+            </ng-container>
+            <ng-container matColumnDef="beginGeldigheid_filter">
+              <th mat-header-cell *matHeaderCellDef="let row">
+                <zac-date-range-filter
+                  label="begin.geldigheid"
+                  [range]="filterParameters.beginGeldigheid"
+                  (changed)="applyFilter()"
+                ></zac-date-range-filter>
+              </th>
+            </ng-container>
+            <ng-container matColumnDef="eindeGeldigheid_filter">
+              <th mat-header-cell *matHeaderCellDef="let row">
+                <zac-date-range-filter
+                  label="einde.geldigheid"
+                  [range]="filterParameters.eindeGeldigheid"
+                  (changed)="applyFilter()"
+                ></zac-date-range-filter>
+              </th>
+            </ng-container>
+            <ng-container matColumnDef="url_filter">
+              <th mat-header-cell *matHeaderCellDef></th>
+            </ng-container>
 
-                        <ng-container matColumnDef="valide">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header="valide"></th>
-                            <td mat-cell *matCellDef="let row">
-                                <mat-icon outlined *ngIf="row.valide" color="primary">check_circle</mat-icon>
-                                <mat-icon outlined *ngIf="!row.valide" color="warn">error</mat-icon>
-                            </td>
-                        </ng-container>
-                        <ng-container matColumnDef="omschrijving">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{'zaaktypeOmschrijving' | translate}} </th>
-                            <td mat-cell *matCellDef="let row">
-                                <read-more [text]="row.zaaktype.omschrijving" [maxLength]="100"></read-more>
-                            </td>
-                        </ng-container>
-                        <ng-container matColumnDef="doel">
-                            <th mat-header-cell *matHeaderCellDef> {{'doel' | translate}} </th>
-                            <td mat-cell *matCellDef="let row">
-                                <read-more [text]="row.zaaktype.doel" [maxLength]="75"></read-more>
-                            </td>
-                        </ng-container>
-                        <ng-container matColumnDef="model">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{'caseDefinition' | translate}} </th>
-                            <td mat-cell *matCellDef="let row"> {{row.caseDefinition | empty:'naam'}} </td>
-                        </ng-container>
-                        <ng-container matColumnDef="creatiedatum">
-                            <th mat-header-cell *matHeaderCellDef> {{'creatiedatum' | translate}} </th>
-                            <td mat-cell *matCellDef="let row"> {{row.creatiedatum | datum:'short' }} </td>
-                        </ng-container>
-                        <ng-container matColumnDef="geldig">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{'geldig' | translate}} </th>
-                            <td mat-cell
-                                *matCellDef="let row"> {{row.zaaktype.nuGeldig ? ('actie.ja' | translate) : ('actie.nee' | translate)}}</td>
-                        </ng-container>
-                        <ng-container matColumnDef="beginGeldigheid">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{'begin.geldigheid' | translate}} </th>
-                            <td mat-cell *matCellDef="let row">{{row.zaaktype.beginGeldigheid | datum}}</td>
-                        </ng-container>
-                        <ng-container matColumnDef="eindeGeldigheid">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{'einde.geldigheid' | translate}} </th>
-                            <td mat-cell *matCellDef="let row">{{row.zaaktype.eindeGeldigheid | datum | empty}}</td>
-                        </ng-container>
-                        <ng-container matColumnDef="url" stickyEnd>
-                            <th mat-header-cell *matHeaderCellDef></th>
-                            <td mat-cell *matCellDef="let row">
-                                <a mat-icon-button [routerLink]="['/admin/parameters/', row.zaaktype.uuid]"
-                                   title="{{ 'actie.bewerken' | translate}}">
-                                    <mat-icon>visibility</mat-icon>
-                                </a>
-                            </td>
-                        </ng-container>
+            <ng-container matColumnDef="valide">
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                mat-sort-header="valide"
+              ></th>
+              <td mat-cell *matCellDef="let row">
+                <mat-icon outlined *ngIf="row.valide" color="primary"
+                  >check_circle</mat-icon
+                >
+                <mat-icon outlined *ngIf="!row.valide" color="warn"
+                  >error</mat-icon
+                >
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="omschrijving">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                {{'zaaktypeOmschrijving' | translate}}
+              </th>
+              <td mat-cell *matCellDef="let row">
+                <read-more
+                  [text]="row.zaaktype.omschrijving"
+                  [maxLength]="100"
+                ></read-more>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="doel">
+              <th mat-header-cell *matHeaderCellDef>{{'doel' | translate}}</th>
+              <td mat-cell *matCellDef="let row">
+                <read-more
+                  [text]="row.zaaktype.doel"
+                  [maxLength]="75"
+                ></read-more>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="model">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                {{'caseDefinition' | translate}}
+              </th>
+              <td mat-cell *matCellDef="let row">
+                {{row.caseDefinition | empty:'naam'}}
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="creatiedatum">
+              <th mat-header-cell *matHeaderCellDef>
+                {{'creatiedatum' | translate}}
+              </th>
+              <td mat-cell *matCellDef="let row">
+                {{row.creatiedatum | datum:'short' }}
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="geldig">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                {{'geldig' | translate}}
+              </th>
+              <td mat-cell *matCellDef="let row">
+                {{row.zaaktype.nuGeldig ? ('actie.ja' | translate) :
+                ('actie.nee' | translate)}}
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="beginGeldigheid">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                {{'begin.geldigheid' | translate}}
+              </th>
+              <td mat-cell *matCellDef="let row">
+                {{row.zaaktype.beginGeldigheid | datum}}
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="eindeGeldigheid">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                {{'einde.geldigheid' | translate}}
+              </th>
+              <td mat-cell *matCellDef="let row">
+                {{row.zaaktype.eindeGeldigheid | datum | empty}}
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="url" stickyEnd>
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let row">
+                <a
+                  mat-icon-button
+                  [routerLink]="['/admin/parameters/', row.zaaktype.uuid]"
+                  title="{{ 'actie.bewerken' | translate}}"
+                >
+                  <mat-icon>visibility</mat-icon>
+                </a>
+              </td>
+            </ng-container>
 
-                        <tr mat-header-row
-                            *matHeaderRowDef="['valide','omschrijving', 'doel', 'model', 'creatiedatum', 'geldig',
-                            'beginGeldigheid', 'eindeGeldigheid', 'url']; sticky: true"></tr>
-                        <tr mat-header-row *matHeaderRowDef="['valide_filter','omschrijving_filter', 'doel_filter', 'model_filter'
+            <tr
+              mat-header-row
+              *matHeaderRowDef="['valide','omschrijving', 'doel', 'model', 'creatiedatum', 'geldig',
+                            'beginGeldigheid', 'eindeGeldigheid', 'url']; sticky: true"
+            ></tr>
+            <tr
+              mat-header-row
+              *matHeaderRowDef="['valide_filter','omschrijving_filter', 'doel_filter', 'model_filter'
                         , 'creatiedatum_filter', 'geldig_filter', 'beginGeldigheid_filter', 'eindeGeldigheid_filter', 'url_filter'];
-                        sticky: true"></tr>
-                        <tr mat-row
-                            *matRowDef="let row; columns: ['valide','omschrijving', 'doel', 'model', 'creatiedatum','geldig',
-                            'beginGeldigheid', 'eindeGeldigheid', 'url'];"></tr>
-                    </table>
-                    <p *ngIf="parameters.data.length === 0 && !loading">{{'msg.geen.gegevens.gevonden' | translate}}</p>
-                    <p *ngIf="parameters.data.length === 0 && loading">{{'msg.loading' | translate}}</p>
-                </div>
-            </mat-card-content>
-        </mat-card>
-    </mat-sidenav-content>
+                        sticky: true"
+            ></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: ['valide','omschrijving', 'doel', 'model', 'creatiedatum','geldig',
+                            'beginGeldigheid', 'eindeGeldigheid', 'url'];"
+            ></tr>
+          </table>
+          <p *ngIf="parameters.data.length === 0 && !loading">
+            {{'msg.geen.gegevens.gevonden' | translate}}
+          </p>
+          <p *ngIf="parameters.data.length === 0 && loading">
+            {{'msg.loading' | translate}}
+          </p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </mat-sidenav-content>
 </mat-sidenav-container>

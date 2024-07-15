@@ -4,23 +4,47 @@
   -->
 
 <fieldset>
-    <legend>{{data.label | translate}}</legend>
-    <mat-form-field appearance="fill" class="full-width" floatLabel="always">
-        <mat-label>{{data.groepLabel| translate}}</mat-label>
-        <input placeholder="{{(data.required ? 'groep.-kies-' : 'groep.-geen-') | translate}}" [formControl]="data.groep"
-               [id]="data.id + '_groep'" [matAutocomplete]="groepAC" matInput type="text" [maxlength]="data.maxlength">
-        <mat-autocomplete #groepAC="matAutocomplete" [displayWith]="displayFn">
-            <mat-option *ngFor="let groep of filteredGroepen | async" [value]="groep">{{ groep.naam }}</mat-option>
-        </mat-autocomplete>
-        <mat-error appEnhanceMatError *ngIf="data.groep.invalid">{{getMessage(data.groep, 'Groep')}}</mat-error>
-    </mat-form-field>
-    <mat-form-field appearance="fill" class="full-width" floatLabel="always">
-        <mat-label>{{data.medewerkerLabel | translate}}</mat-label>
-        <input placeholder="{{'behandelaar.-geen-' | translate}}" [formControl]="data.medewerker" [matAutocomplete]="medewerkerAC"
-               [id]="data.id + '_medewerker'" matInput type="text" [maxlength]="data.maxlength">
-        <mat-autocomplete #medewerkerAC="matAutocomplete" [displayWith]="displayFn">
-            <mat-option *ngFor="let medewerker of filteredMedewerkers | async" [value]="medewerker">{{ medewerker.naam }}</mat-option>
-        </mat-autocomplete>
-        <mat-error appEnhanceMatError *ngIf="data.medewerker.invalid">{{getMessage(data.medewerker, 'Medewerker')}}</mat-error>
-    </mat-form-field>
+  <legend>{{data.label | translate}}</legend>
+  <mat-form-field appearance="fill" class="full-width" floatLabel="always">
+    <mat-label>{{data.groepLabel| translate}}</mat-label>
+    <input
+      placeholder="{{(data.required ? 'groep.-kies-' : 'groep.-geen-') | translate}}"
+      [formControl]="data.groep"
+      [id]="data.id + '_groep'"
+      [matAutocomplete]="groepAC"
+      matInput
+      type="text"
+      [maxlength]="data.maxlength"
+    />
+    <mat-autocomplete #groepAC="matAutocomplete" [displayWith]="displayFn">
+      <mat-option *ngFor="let groep of filteredGroepen | async" [value]="groep"
+        >{{ groep.naam }}</mat-option
+      >
+    </mat-autocomplete>
+    <mat-error appEnhanceMatError *ngIf="data.groep.invalid"
+      >{{getMessage(data.groep, 'Groep')}}</mat-error
+    >
+  </mat-form-field>
+  <mat-form-field appearance="fill" class="full-width" floatLabel="always">
+    <mat-label>{{data.medewerkerLabel | translate}}</mat-label>
+    <input
+      placeholder="{{'behandelaar.-geen-' | translate}}"
+      [formControl]="data.medewerker"
+      [matAutocomplete]="medewerkerAC"
+      [id]="data.id + '_medewerker'"
+      matInput
+      type="text"
+      [maxlength]="data.maxlength"
+    />
+    <mat-autocomplete #medewerkerAC="matAutocomplete" [displayWith]="displayFn">
+      <mat-option
+        *ngFor="let medewerker of filteredMedewerkers | async"
+        [value]="medewerker"
+        >{{ medewerker.naam }}</mat-option
+      >
+    </mat-autocomplete>
+    <mat-error appEnhanceMatError *ngIf="data.medewerker.invalid"
+      >{{getMessage(data.medewerker, 'Medewerker')}}</mat-error
+    >
+  </mat-form-field>
 </fieldset>

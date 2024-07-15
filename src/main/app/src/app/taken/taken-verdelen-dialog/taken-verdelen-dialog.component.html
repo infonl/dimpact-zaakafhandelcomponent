@@ -3,23 +3,36 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<h1 *ngIf="data.taken.length === 1" mat-dialog-title>{{'msg.verdelen.taak' | translate}}</h1>
-<h1 *ngIf="data.taken.length !== 1" mat-dialog-title>{{ 'msg.verdelen.taken' | translate:{aantal: data.taken.length} }}</h1>
+<h1 *ngIf="data.taken.length === 1" mat-dialog-title>
+  {{'msg.verdelen.taak' | translate}}
+</h1>
+<h1 *ngIf="data.taken.length !== 1" mat-dialog-title>
+  {{ 'msg.verdelen.taken' | translate:{aantal: data.taken.length} }}
+</h1>
 
 <div mat-dialog-content>
-    <mfb-form-field [field]="medewerkerGroepFormField"></mfb-form-field>
-    <mfb-form-field [field]="redenFormField"></mfb-form-field>
+  <mfb-form-field [field]="medewerkerGroepFormField"></mfb-form-field>
+  <mfb-form-field [field]="redenFormField"></mfb-form-field>
 </div>
 <div mat-dialog-actions>
-    <button (click)="verdeel()"
-            [disabled]="isDisabled()" color="primary"
-            id="takenVerdelen_button"
-            mat-button>
-        <mat-icon *ngIf="loading">
-            <mat-spinner diameter="20"></mat-spinner>
-        </mat-icon>
-        {{'actie.verdelen' | translate}}
-    </button>
-    <button (click)="close()" [disabled]="loading" id="annuleren_button"
-            mat-button>{{'actie.annuleren' | translate}}</button>
+  <button
+    (click)="verdeel()"
+    [disabled]="isDisabled()"
+    color="primary"
+    id="takenVerdelen_button"
+    mat-button
+  >
+    <mat-icon *ngIf="loading">
+      <mat-spinner diameter="20"></mat-spinner>
+    </mat-icon>
+    {{'actie.verdelen' | translate}}
+  </button>
+  <button
+    (click)="close()"
+    [disabled]="loading"
+    id="annuleren_button"
+    mat-button
+  >
+    {{'actie.annuleren' | translate}}
+  </button>
 </div>

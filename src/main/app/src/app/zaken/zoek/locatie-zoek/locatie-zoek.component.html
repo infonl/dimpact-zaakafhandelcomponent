@@ -3,78 +3,87 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 <div class="sidenav-title">
-    <h3>
-        <mat-icon>location_on</mat-icon>
-        {{'actie.locatie.' + (readonly ? 'bekijken' : 'toevoegen') | translate}}
-    </h3>
-    <button mat-icon-button (click)="sideNav.close()">
-        <mat-icon>close</mat-icon>
-    </button>
+  <h3>
+    <mat-icon>location_on</mat-icon>
+    {{'actie.locatie.' + (readonly ? 'bekijken' : 'toevoegen') | translate}}
+  </h3>
+  <button mat-icon-button (click)="sideNav.close()">
+    <mat-icon>close</mat-icon>
+  </button>
 </div>
 
 <div class="form">
-    <div class="flex-row flex-col-md gap-10 flex-wrap">
-        <div class="w100">
-            <mat-form-field *ngIf="!readonly"
-                            appearance="fill"
-                            class="full-width">
-                <mat-icon matSuffix>search</mat-icon>
-                <mat-label>{{'adres' | translate}}</mat-label>
-                <input matInput
-                       type="text"
-                       id="search"
-                       [formControl]="searchControl"
-                       [matAutocomplete]="auto"
-                       maxlength="255">
-                <mat-autocomplete #auto="matAutocomplete"
-                                  [displayWith]="displayAddress"
-                                  (optionSelected)="selectAddress($event)">
-                    <mat-option *ngFor="let result of searchResults" [value]="result">
-                        <mat-icon mat-list-icon>home</mat-icon>
-                        <span>{{result.weergavenaam}}</span>
-                    </mat-option>
-                </mat-autocomplete>
-            </mat-form-field>
-            <zac-static-text class="overlay"
-                             [label]="'zaak.locatie.adres' | translate"
-                             [value]="nearestAddress ? nearestAddress.weergavenaam : null">
-            </zac-static-text>
-            <div class="map-container">
-                <div [id]="'open-layers-map'"
-                     #openLayersMap
-                     class="open-layers-map"
-                     [ngClass]="{'readonly':readonly}">
-                </div>
-            </div>
-            <mat-form-field *ngIf="!readonly"
-                            class="full-width">
-                <mat-label>{{'reden' | translate}}</mat-label>
-                <input matInput
-                       type="text"
-                       id="reden"
-                       [formControl]="redenControl"
-                       required="true"
-                       maxlength="80">
-                <mat-hint align="end">{{redenControl.value.length}}/80</mat-hint>
-            </mat-form-field>
-            <div *ngIf="!readonly"
-                 class="full-width">
-                <button mat-raised-button
-                        color="primary"
-                        [disabled]="!redenControl.valid"
-                        id="opslaan_button"
-                        (click)="save()"
-                        type="button">
-                    {{'actie.opslaan' | translate}}
-                </button>
-                <button mat-raised-button
-                        [disabled]="!redenControl.valid"
-                        id="verwijder_button"
-                        (click)="clear()"
-                        type="button">
-                    {{'actie.verwijderen' | translate}}
-                </button>
-            </div>
-        </div>
+  <div class="flex-row flex-col-md gap-10 flex-wrap">
+    <div class="w100">
+      <mat-form-field *ngIf="!readonly" appearance="fill" class="full-width">
+        <mat-icon matSuffix>search</mat-icon>
+        <mat-label>{{'adres' | translate}}</mat-label>
+        <input
+          matInput
+          type="text"
+          id="search"
+          [formControl]="searchControl"
+          [matAutocomplete]="auto"
+          maxlength="255"
+        />
+        <mat-autocomplete
+          #auto="matAutocomplete"
+          [displayWith]="displayAddress"
+          (optionSelected)="selectAddress($event)"
+        >
+          <mat-option *ngFor="let result of searchResults" [value]="result">
+            <mat-icon mat-list-icon>home</mat-icon>
+            <span>{{result.weergavenaam}}</span>
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+      <zac-static-text
+        class="overlay"
+        [label]="'zaak.locatie.adres' | translate"
+        [value]="nearestAddress ? nearestAddress.weergavenaam : null"
+      >
+      </zac-static-text>
+      <div class="map-container">
+        <div
+          [id]="'open-layers-map'"
+          #openLayersMap
+          class="open-layers-map"
+          [ngClass]="{'readonly':readonly}"
+        ></div>
+      </div>
+      <mat-form-field *ngIf="!readonly" class="full-width">
+        <mat-label>{{'reden' | translate}}</mat-label>
+        <input
+          matInput
+          type="text"
+          id="reden"
+          [formControl]="redenControl"
+          required="true"
+          maxlength="80"
+        />
+        <mat-hint align="end">{{redenControl.value.length}}/80</mat-hint>
+      </mat-form-field>
+      <div *ngIf="!readonly" class="full-width">
+        <button
+          mat-raised-button
+          color="primary"
+          [disabled]="!redenControl.valid"
+          id="opslaan_button"
+          (click)="save()"
+          type="button"
+        >
+          {{'actie.opslaan' | translate}}
+        </button>
+        <button
+          mat-raised-button
+          [disabled]="!redenControl.valid"
+          id="verwijder_button"
+          (click)="clear()"
+          type="button"
+        >
+          {{'actie.verwijderen' | translate}}
+        </button>
+      </div>
     </div>
+  </div>
 </div>

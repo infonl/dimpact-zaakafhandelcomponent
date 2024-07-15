@@ -3,52 +3,64 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<form [formGroup]="formGroup" (ngSubmit)="submit()" >
-    <ng-container *ngFor="let row of data">
-        <div class="flex-row flex-col-md flex-wrap gap-5 flex-fill">
-            <div class="flex-1 mfb-wrapper" [ngClass]="tile.fieldType | lowercase" *ngFor="let tile of row">
-                <mfb-form-field [field]="tile"></mfb-form-field>
-            </div>
-        </div>
-    </ng-container>
-
-    <div class="flex-row justify-start" *ngIf="config">
-        <button mat-raised-button color="accent"
-                *ngIf="config.partialButtonText || config.partialButtonIcon"
-                [disabled]="formGroup.invalid||submitting"
-                id="partial_button"
-                type="button"
-                (click)="partial()">
-            <mat-icon *ngIf="config.partialButtonIcon && !submittingPartial">
-                {{config.partialButtonIcon}}
-            </mat-icon>
-            <mat-icon *ngIf="submittingPartial">
-                <mat-spinner diameter="20"></mat-spinner>
-            </mat-icon>
-            {{config.partialButtonText | translate}}
-        </button>
-        <button mat-raised-button color="primary"
-                [disabled]="formGroup.invalid||formGroup.pending||submitting"
-                id="opslaan_button"
-                type="submit">
-            <mat-icon *ngIf="config.saveButtonIcon && !submittingForm">
-                {{config.saveButtonIcon}}
-            </mat-icon>
-            <mat-icon *ngIf="submittingForm">
-                <mat-spinner diameter="20"></mat-spinner>
-            </mat-icon>
-            {{config.saveButtonText | translate}}
-        </button>
-        <button mat-raised-button
-                *ngIf="config.cancelButtonText || config.cancelButtonIcon"
-                [disabled]="submitting"
-                id="annuleren_button"
-                type="button"
-                (click)="cancel()">
-            <mat-icon *ngIf="config.cancelButtonIcon">
-                {{config.cancelButtonIcon}}
-            </mat-icon>
-            {{config.cancelButtonText | translate}}
-        </button>
+<form [formGroup]="formGroup" (ngSubmit)="submit()">
+  <ng-container *ngFor="let row of data">
+    <div class="flex-row flex-col-md flex-wrap gap-5 flex-fill">
+      <div
+        class="flex-1 mfb-wrapper"
+        [ngClass]="tile.fieldType | lowercase"
+        *ngFor="let tile of row"
+      >
+        <mfb-form-field [field]="tile"></mfb-form-field>
+      </div>
     </div>
+  </ng-container>
+
+  <div class="flex-row justify-start" *ngIf="config">
+    <button
+      mat-raised-button
+      color="accent"
+      *ngIf="config.partialButtonText || config.partialButtonIcon"
+      [disabled]="formGroup.invalid||submitting"
+      id="partial_button"
+      type="button"
+      (click)="partial()"
+    >
+      <mat-icon *ngIf="config.partialButtonIcon && !submittingPartial">
+        {{config.partialButtonIcon}}
+      </mat-icon>
+      <mat-icon *ngIf="submittingPartial">
+        <mat-spinner diameter="20"></mat-spinner>
+      </mat-icon>
+      {{config.partialButtonText | translate}}
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      [disabled]="formGroup.invalid||formGroup.pending||submitting"
+      id="opslaan_button"
+      type="submit"
+    >
+      <mat-icon *ngIf="config.saveButtonIcon && !submittingForm">
+        {{config.saveButtonIcon}}
+      </mat-icon>
+      <mat-icon *ngIf="submittingForm">
+        <mat-spinner diameter="20"></mat-spinner>
+      </mat-icon>
+      {{config.saveButtonText | translate}}
+    </button>
+    <button
+      mat-raised-button
+      *ngIf="config.cancelButtonText || config.cancelButtonIcon"
+      [disabled]="submitting"
+      id="annuleren_button"
+      type="button"
+      (click)="cancel()"
+    >
+      <mat-icon *ngIf="config.cancelButtonIcon">
+        {{config.cancelButtonIcon}}
+      </mat-icon>
+      {{config.cancelButtonText | translate}}
+    </button>
+  </div>
 </form>

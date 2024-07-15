@@ -3,112 +3,166 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 <mat-accordion class="mat-accordion">
-    <mat-expansion-panel (afterExpand)="loadBesluitData(besluit.uuid)"
-                         *ngFor="let besluit of besluiten; first as isFirst" [expanded]="isFirst">
-        <mat-expansion-panel-header>
-            <mat-panel-title>
-                {{besluit.identificatie}}
-            </mat-panel-title>
-            <mat-panel-description class="justify-end">
-                <zac-besluit-indicaties [layout]="indicatiesLayout.VIEW" [besluit]="besluit"></zac-besluit-indicaties>
-                <button *ngIf="!isReadonly(besluit)" mat-icon-button
-                        title="{{'actie.besluit.wijzigen' | translate}}"
-                        (click)="$event.stopPropagation(); besluitWijzigen.emit(besluit)">
-                    <mat-icon>edit</mat-icon>
-                </button>
-                <button *ngIf="!isReadonly(besluit)" mat-icon-button
-                        title="{{'actie.besluit.intrekken' | translate}}"
-                        (click)="$event.stopPropagation(); intrekken(besluit)">
-                    <mat-icon outlined>stop_circle</mat-icon>
-                </button>
-            </mat-panel-description>
-        </mat-expansion-panel-header>
+  <mat-expansion-panel
+    (afterExpand)="loadBesluitData(besluit.uuid)"
+    *ngFor="let besluit of besluiten; first as isFirst"
+    [expanded]="isFirst"
+  >
+    <mat-expansion-panel-header>
+      <mat-panel-title> {{besluit.identificatie}} </mat-panel-title>
+      <mat-panel-description class="justify-end">
+        <zac-besluit-indicaties
+          [layout]="indicatiesLayout.VIEW"
+          [besluit]="besluit"
+        ></zac-besluit-indicaties>
+        <button
+          *ngIf="!isReadonly(besluit)"
+          mat-icon-button
+          title="{{'actie.besluit.wijzigen' | translate}}"
+          (click)="$event.stopPropagation(); besluitWijzigen.emit(besluit)"
+        >
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button
+          *ngIf="!isReadonly(besluit)"
+          mat-icon-button
+          title="{{'actie.besluit.intrekken' | translate}}"
+          (click)="$event.stopPropagation(); intrekken(besluit)"
+        >
+          <mat-icon outlined>stop_circle</mat-icon>
+        </button>
+      </mat-panel-description>
+    </mat-expansion-panel-header>
 
-        <mat-tab-group mat-stretch-tabs="false">
-            <mat-tab id="algemeneGegevens_tab">
-                <ng-template mat-tab-label>
-                    <mat-icon>topic</mat-icon>
-                    {{'gegevens.algemeen' | translate}}
-                </ng-template>
-                <div class="content flex-row flex-wrap">
-                    <zac-static-text class="flex-1" [label]="'besluit' | translate"
-                                     [value]="besluit.besluittype.naam"></zac-static-text>
-                    <zac-static-text class="flex-1" [label]="'datum' | translate"
-                                     [value]="besluit.datum | datum "></zac-static-text>
-                    <zac-static-text class="flex-1" [label]="'ingangsdatum' | translate"
-                                     [value]="besluit.ingangsdatum | datum"></zac-static-text>
-                    <zac-static-text class="flex-1"
-                                     [label]="'vervaldatum' | translate"
-                                     [value]="besluit.vervaldatum | datum"
-                                     [icon]="besluit.vervalreden ? toolTipIcon : null"
-                                     [matTooltip]="besluit.vervalreden ? ('besluit.vervalreden.' + besluit.vervalreden | translate) : null"
-                                     [attr.role]="besluit.vervalreden ? 'tooltip' : null"
-                                     [attr.aria-label]="besluit.vervalreden ? ('besluit.vervalreden.' + besluit.vervalreden | translate) : null"></zac-static-text>
-                    <zac-static-text class="w100 flex-1" [label]="'besluitToelichting' | translate"
-                                     [value]="besluit.toelichting"></zac-static-text>
-                    <mfb-form-field class="flex" *ngIf="besluitInformatieobjecten[besluit.uuid]"
-                                    [field]="besluitInformatieobjecten[besluit.uuid]"></mfb-form-field>
+    <mat-tab-group mat-stretch-tabs="false">
+      <mat-tab id="algemeneGegevens_tab">
+        <ng-template mat-tab-label>
+          <mat-icon>topic</mat-icon>
+          {{'gegevens.algemeen' | translate}}
+        </ng-template>
+        <div class="content flex-row flex-wrap">
+          <zac-static-text
+            class="flex-1"
+            [label]="'besluit' | translate"
+            [value]="besluit.besluittype.naam"
+          ></zac-static-text>
+          <zac-static-text
+            class="flex-1"
+            [label]="'datum' | translate"
+            [value]="besluit.datum | datum "
+          ></zac-static-text>
+          <zac-static-text
+            class="flex-1"
+            [label]="'ingangsdatum' | translate"
+            [value]="besluit.ingangsdatum | datum"
+          ></zac-static-text>
+          <zac-static-text
+            class="flex-1"
+            [label]="'vervaldatum' | translate"
+            [value]="besluit.vervaldatum | datum"
+            [icon]="besluit.vervalreden ? toolTipIcon : null"
+            [matTooltip]="besluit.vervalreden ? ('besluit.vervalreden.' + besluit.vervalreden | translate) : null"
+            [attr.role]="besluit.vervalreden ? 'tooltip' : null"
+            [attr.aria-label]="besluit.vervalreden ? ('besluit.vervalreden.' + besluit.vervalreden | translate) : null"
+          ></zac-static-text>
+          <zac-static-text
+            class="w100 flex-1"
+            [label]="'besluitToelichting' | translate"
+            [value]="besluit.toelichting"
+          ></zac-static-text>
+          <mfb-form-field
+            class="flex"
+            *ngIf="besluitInformatieobjecten[besluit.uuid]"
+            [field]="besluitInformatieobjecten[besluit.uuid]"
+          ></mfb-form-field>
+        </div>
+      </mat-tab>
 
+      <mat-tab id="historie_tab">
+        <ng-template mat-tab-label>
+          <mat-icon>history</mat-icon>
+          {{'historie' | translate}}
+        </ng-template>
+        <div class="table-wrapper historie-table">
+          <table mat-table [dataSource]="histories[besluit.uuid]" matSort>
+            <ng-container matColumnDef="datum">
+              <th *matHeaderCellDef mat-header-cell mat-sort-header>
+                {{'datum' | translate}}
+              </th>
+              <td *matCellDef="let regel" mat-cell>
+                <div matTooltip="{{regel.datumTijd | datum:'short'}}">
+                  {{regel.datumTijd | datum | empty}}
                 </div>
-            </mat-tab>
-
-            <mat-tab id="historie_tab">
-                <ng-template mat-tab-label>
-                    <mat-icon>history</mat-icon>
-                    {{'historie' | translate}}
-                </ng-template>
-                <div class="table-wrapper historie-table">
-                    <table mat-table [dataSource]="histories[besluit.uuid]" matSort>
-                        <ng-container matColumnDef="datum">
-                            <th *matHeaderCellDef mat-header-cell
-                                mat-sort-header> {{'datum' | translate}} </th>
-                            <td *matCellDef="let regel" mat-cell>
-                                <div matTooltip="{{regel.datumTijd | datum:'short'}}">
-                                    {{regel.datumTijd | datum | empty}}
-                                </div>
-                            </td>
-                        </ng-container>
-                        <ng-container matColumnDef="gebruiker">
-                            <th *matHeaderCellDef mat-header-cell
-                                mat-sort-header> {{'door' | translate}} </th>
-                            <td *matCellDef="let regel" mat-cell>
-                                <div matTooltip="{{regel.applicatie}}">
-                                    {{regel.door | empty}}
-                                </div>
-                            </td>
-                        </ng-container>
-                        <ng-container matColumnDef="wijziging">
-                            <th mat-header-cell *matHeaderCellDef> {{'wijziging' | translate}} </th>
-                            <td mat-cell *matCellDef="let regel">
-                                <read-more [text]="regel.attribuutLabel | translate" [maxLength]="20"></read-more>
-                            </td>
-                        </ng-container>
-                        <ng-container matColumnDef="oudeWaarde">
-                            <th mat-header-cell *matHeaderCellDef> {{'waarde.oud' | translate | mimetypeToExtension}} </th>
-                            <td mat-cell *matCellDef="let regel">
-                                <read-more [text]="regel.oudeWaarde | empty" [maxLength]="20"></read-more>
-                            </td>
-                        </ng-container>
-                        <ng-container matColumnDef="nieuweWaarde">
-                            <th mat-header-cell *matHeaderCellDef> {{'waarde.nieuw' | translate | mimetypeToExtension}} </th>
-                            <td mat-cell *matCellDef="let regel">
-                                <read-more [text]="regel.nieuweWaarde | empty" [maxLength]="20"></read-more>
-                            </td>
-                        </ng-container>
-                        <ng-container matColumnDef="toelichting">
-                            <th mat-header-cell *matHeaderCellDef> {{'toelichting' | translate}} </th>
-                            <td mat-cell *matCellDef="let regel">
-                                <read-more [text]="regel.toelichting | empty" [maxLength]="20"></read-more>
-                            </td>
-                        </ng-container>
-                        <tr mat-header-row
-                            *matHeaderRowDef="['datum', 'gebruiker', 'wijziging', 'oudeWaarde', 'nieuweWaarde', 'toelichting']; sticky: true"></tr>
-                        <tr mat-row
-                            *matRowDef="let row; columns: ['datum', 'gebruiker', 'wijziging', 'oudeWaarde', 'nieuweWaarde', 'toelichting'];"></tr>
-                    </table>
-                    <p *ngIf="histories[besluit.uuid]?.data.length == 0">{{'msg.geen.gegevens.gevonden' | translate}}</p>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="gebruiker">
+              <th *matHeaderCellDef mat-header-cell mat-sort-header>
+                {{'door' | translate}}
+              </th>
+              <td *matCellDef="let regel" mat-cell>
+                <div matTooltip="{{regel.applicatie}}">
+                  {{regel.door | empty}}
                 </div>
-            </mat-tab>
-        </mat-tab-group>
-    </mat-expansion-panel>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="wijziging">
+              <th mat-header-cell *matHeaderCellDef>
+                {{'wijziging' | translate}}
+              </th>
+              <td mat-cell *matCellDef="let regel">
+                <read-more
+                  [text]="regel.attribuutLabel | translate"
+                  [maxLength]="20"
+                ></read-more>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="oudeWaarde">
+              <th mat-header-cell *matHeaderCellDef>
+                {{'waarde.oud' | translate | mimetypeToExtension}}
+              </th>
+              <td mat-cell *matCellDef="let regel">
+                <read-more
+                  [text]="regel.oudeWaarde | empty"
+                  [maxLength]="20"
+                ></read-more>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="nieuweWaarde">
+              <th mat-header-cell *matHeaderCellDef>
+                {{'waarde.nieuw' | translate | mimetypeToExtension}}
+              </th>
+              <td mat-cell *matCellDef="let regel">
+                <read-more
+                  [text]="regel.nieuweWaarde | empty"
+                  [maxLength]="20"
+                ></read-more>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="toelichting">
+              <th mat-header-cell *matHeaderCellDef>
+                {{'toelichting' | translate}}
+              </th>
+              <td mat-cell *matCellDef="let regel">
+                <read-more
+                  [text]="regel.toelichting | empty"
+                  [maxLength]="20"
+                ></read-more>
+              </td>
+            </ng-container>
+            <tr
+              mat-header-row
+              *matHeaderRowDef="['datum', 'gebruiker', 'wijziging', 'oudeWaarde', 'nieuweWaarde', 'toelichting']; sticky: true"
+            ></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: ['datum', 'gebruiker', 'wijziging', 'oudeWaarde', 'nieuweWaarde', 'toelichting'];"
+            ></tr>
+          </table>
+          <p *ngIf="histories[besluit.uuid]?.data.length == 0">
+            {{'msg.geen.gegevens.gevonden' | translate}}
+          </p>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-expansion-panel>
 </mat-accordion>
