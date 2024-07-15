@@ -4,69 +4,112 @@
   -->
 
 <mat-expansion-panel [expanded]="klantExpanded">
-    <mat-expansion-panel-header>
-        <mat-panel-title>
-            {{'initiator.titel'| translate}}
-        </mat-panel-title>
-        <mat-panel-description>
-            {{bedrijf ? bedrijf.naam : ('msg.loading'| translate)}}
-            <div class="flex-row">
-                <button mat-icon-button [disabled]="!vestigingsprofielOphalenMogelijk"
-                        title="{{ 'bedrijf.profiel.ophalen' | translate }}"
-                        (click)="$event.stopPropagation(); ophalenVestigingsprofiel()">
-                    <mat-icon outlined>other_admission</mat-icon>
-                </button>
-                <button *ngIf="bedrijf && isWijzigbaar" [title]="'actie.initiator.wijzigen' | translate" mat-icon-button
-                        (click)="$event.stopPropagation(); edit.emit(bedrijf)">
-                    <mat-icon>edit</mat-icon>
-                </button>
-                <button *ngIf="bedrijf && isVerwijderbaar" [title]="'actie.ontkoppelen' | translate" mat-icon-button
-                        (click)="$event.stopPropagation(); delete.emit(bedrijf)">
-                    <mat-icon>link_off</mat-icon>
-                </button>
-                <a *ngIf="bedrijf" mat-icon-button [routerLink]="['/bedrijf', bedrijf.identificatie]"
-                   (click)="$event.stopPropagation()"
-                   [id]="'bedrijfBekijken_' + bedrijf.identificatie +'_button'"
-                   title="{{ 'actie.bedrijf.bekijken' | translate }}">
-                    <mat-icon>visibility</mat-icon>
-                </a>
-            </div>
-        </mat-panel-description>
-    </mat-expansion-panel-header>
-    <div *ngIf="bedrijf" id="bedrijfsgegevens" class="content flex-row flex-wrap">
-        <zac-static-text [label]="'handelsnaam' | translate"
-                         [value]="bedrijf.naam"></zac-static-text>
-        <zac-static-text [label]="'kvknummer' | translate"
-                         [value]="bedrijf.kvkNummer"></zac-static-text>
-        <zac-static-text *ngIf="bedrijf.vestigingsnummer" [label]="'vestigingsnummer' | translate"
-                         [value]="bedrijf.vestigingsnummer"></zac-static-text>
-        <zac-static-text *ngIf="bedrijf.rsin" [label]="'rsin' | translate"
-                         [value]="bedrijf.rsin"></zac-static-text>
-        <zac-static-text [label]="'type' | translate"
-                         [value]="bedrijf.type | translate"></zac-static-text>
-        <zac-static-text *ngIf="!vestigingsprofiel"
-                         [label]="'adres' | translate"
-                         [value]="bedrijf.adres | empty"></zac-static-text>
-        <zac-static-text *ngFor="let adres of vestigingsprofiel?.adressen"
-                         [label]="adres.type | titlecase"
-                         [value]="adres.volledigAdres | empty"></zac-static-text>
-        <zac-static-text [label]="'telefoonnummer' | translate"
-                         [value]="bedrijf.telefoonnummer | empty"></zac-static-text>
-        <zac-static-text [label]="'telefoonnummer' | translate"
-                         [value]="bedrijf.telefoonnummer | empty"></zac-static-text>
-        <zac-static-text [label]="'emailadres' | translate"
-                         [value]="bedrijf.emailadres | empty"></zac-static-text>
-        <zac-static-text *ngIf="vestigingsprofiel"
-                         [label]="'totaalWerkzamePersonen' | translate"
-                         [value]="vestigingsprofiel.totaalWerkzamePersonen | empty"></zac-static-text>
-        <zac-static-text *ngIf="vestigingsprofiel"
-                         [label]="'hoofdactiviteit' | translate"
-                         [value]="vestigingsprofiel.sbiHoofdActiviteit | empty"></zac-static-text>
-        <zac-static-text *ngIf="vestigingsprofiel"
-                         [label]="'activiteiten' | translate"
-                         [value]="vestigingsprofiel.sbiActiviteiten?.join(',\r\n') "></zac-static-text>
-        <zac-static-text *ngIf="vestigingsprofiel"
-                         [label]="'website' | translate"
-                         [value]="vestigingsprofiel.website | empty"></zac-static-text>
-    </div>
+  <mat-expansion-panel-header>
+    <mat-panel-title> {{'initiator.titel'| translate}} </mat-panel-title>
+    <mat-panel-description>
+      {{bedrijf ? bedrijf.naam : ('msg.loading'| translate)}}
+      <div class="flex-row">
+        <button
+          mat-icon-button
+          [disabled]="!vestigingsprofielOphalenMogelijk"
+          title="{{ 'bedrijf.profiel.ophalen' | translate }}"
+          (click)="$event.stopPropagation(); ophalenVestigingsprofiel()"
+        >
+          <mat-icon outlined>other_admission</mat-icon>
+        </button>
+        <button
+          *ngIf="bedrijf && isWijzigbaar"
+          [title]="'actie.initiator.wijzigen' | translate"
+          mat-icon-button
+          (click)="$event.stopPropagation(); edit.emit(bedrijf)"
+        >
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button
+          *ngIf="bedrijf && isVerwijderbaar"
+          [title]="'actie.ontkoppelen' | translate"
+          mat-icon-button
+          (click)="$event.stopPropagation(); delete.emit(bedrijf)"
+        >
+          <mat-icon>link_off</mat-icon>
+        </button>
+        <a
+          *ngIf="bedrijf"
+          mat-icon-button
+          [routerLink]="['/bedrijf', bedrijf.identificatie]"
+          (click)="$event.stopPropagation()"
+          [id]="'bedrijfBekijken_' + bedrijf.identificatie +'_button'"
+          title="{{ 'actie.bedrijf.bekijken' | translate }}"
+        >
+          <mat-icon>visibility</mat-icon>
+        </a>
+      </div>
+    </mat-panel-description>
+  </mat-expansion-panel-header>
+  <div *ngIf="bedrijf" id="bedrijfsgegevens" class="content flex-row flex-wrap">
+    <zac-static-text
+      [label]="'bedrijfsnaam' | translate"
+      [value]="bedrijf.naam"
+    ></zac-static-text>
+    <zac-static-text
+      [label]="'kvknummer' | translate"
+      [value]="bedrijf.kvkNummer"
+    ></zac-static-text>
+    <zac-static-text
+      *ngIf="bedrijf.vestigingsnummer"
+      [label]="'vestigingsnummer' | translate"
+      [value]="bedrijf.vestigingsnummer"
+    ></zac-static-text>
+    <zac-static-text
+      *ngIf="bedrijf.rsin"
+      [label]="'rsin' | translate"
+      [value]="bedrijf.rsin"
+    ></zac-static-text>
+    <zac-static-text
+      [label]="'type' | translate"
+      [value]="bedrijf.type | translate"
+    ></zac-static-text>
+    <zac-static-text
+      *ngIf="!vestigingsprofiel"
+      [label]="'adres' | translate"
+      [value]="bedrijf.adres | empty"
+    ></zac-static-text>
+    <zac-static-text
+      *ngFor="let adres of vestigingsprofiel?.adressen"
+      [label]="adres.type | titlecase"
+      [value]="adres.volledigAdres | empty"
+    ></zac-static-text>
+    <zac-static-text
+      [label]="'telefoonnummer' | translate"
+      [value]="bedrijf.telefoonnummer | empty"
+    ></zac-static-text>
+    <zac-static-text
+      [label]="'telefoonnummer' | translate"
+      [value]="bedrijf.telefoonnummer | empty"
+    ></zac-static-text>
+    <zac-static-text
+      [label]="'emailadres' | translate"
+      [value]="bedrijf.emailadres | empty"
+    ></zac-static-text>
+    <zac-static-text
+      *ngIf="vestigingsprofiel"
+      [label]="'totaalWerkzamePersonen' | translate"
+      [value]="vestigingsprofiel.totaalWerkzamePersonen | empty"
+    ></zac-static-text>
+    <zac-static-text
+      *ngIf="vestigingsprofiel"
+      [label]="'hoofdactiviteit' | translate"
+      [value]="vestigingsprofiel.sbiHoofdActiviteit | empty"
+    ></zac-static-text>
+    <zac-static-text
+      *ngIf="vestigingsprofiel"
+      [label]="'activiteiten' | translate"
+      [value]="vestigingsprofiel.sbiActiviteiten?.join(',\r\n') "
+    ></zac-static-text>
+    <zac-static-text
+      *ngIf="vestigingsprofiel"
+      [label]="'website' | translate"
+      [value]="vestigingsprofiel.website | empty"
+    ></zac-static-text>
+  </div>
 </mat-expansion-panel>

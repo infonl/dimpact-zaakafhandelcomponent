@@ -4,30 +4,52 @@
   -->
 
 <div class="flex-row flex-wrap zoek-object-wrapper">
-    <div class="flex-1 w33">
-        <zac-zoek-object-link [zoekObject]="taak" [sideNav]="sideNav"></zac-zoek-object-link>
-        <zac-static-text [label]="'zaaktype' | translate"
-                         [value]="taak.zaaktypeOmschrijving"></zac-static-text>
-        <zac-static-text [label]="'status' | translate"
-                         [value]="'taak.status.'+taak.status | translate"></zac-static-text>
-    </div>
-    <div class="flex-1 w33">
-        <zac-static-text [label]="'zaakIdentificatie' | translate"
-                         [value]="taak.zaakIdentificatie"></zac-static-text>
-        <zac-static-text [label]="'behandelaar' | translate"
-                         [value]="taak.behandelaarNaam"></zac-static-text>
-        <zac-static-text [label]="'groep' | translate"
-                         [value]="taak.groepNaam"></zac-static-text>
-    </div>
-    <div class="flex-1 w33">
-        <zac-static-text [label]="'creatiedatum' | translate"
-                         [value]="taak.creatiedatum | datum"></zac-static-text>
-        <zac-static-text [label]="'fataledatum' | translate"
-                         [value]="taak.fataledatum | datum"></zac-static-text>
-        <zac-static-text [label]="'toekenningsdatum' | translate"
-                         [value]="taak.toekenningsdatum | datum"></zac-static-text>
-    </div>
+  <div class="flex-1 w33">
+    <zac-zoek-object-link
+      [zoekObject]="taak"
+      [sideNav]="sideNav"
+    ></zac-zoek-object-link>
+    <zac-static-text
+      [label]="'zaaktype' | translate"
+      [value]="taak.zaaktypeOmschrijving"
+    ></zac-static-text>
+    <zac-static-text
+      [label]="'status' | translate"
+      [value]="'taak.status.'+taak.status | translate"
+    ></zac-static-text>
+  </div>
+  <div class="flex-1 w33">
+    <zac-static-text
+      [label]="'zaakIdentificatie' | translate"
+      [value]="taak.zaakIdentificatie"
+    ></zac-static-text>
+    <zac-static-text
+      [label]="'behandelaar' | translate"
+      [value]="taak.behandelaarNaam"
+    ></zac-static-text>
+    <zac-static-text
+      [label]="'groep' | translate"
+      [value]="taak.groepNaam"
+    ></zac-static-text>
+  </div>
+  <div class="flex-1 w33">
+    <zac-static-text
+      [label]="'creatiedatum' | translate"
+      [value]="taak.creatiedatum | datum"
+    ></zac-static-text>
+    <zac-static-text
+      [label]="'fataledatum' | translate"
+      [value]="taak.fataledatum | datum"
+    ></zac-static-text>
+    <zac-static-text
+      [label]="'toekenningsdatum' | translate"
+      [value]="taak.toekenningsdatum | datum"
+    ></zac-static-text>
+  </div>
 </div>
 <div class="toelichting">
-    <zac-static-text [label]="'toelichting' | translate" [value]="taak.toelichting"></zac-static-text>
+  <zac-static-text
+    [label]="'toelichting' | translate"
+    [value]="taak.toelichting"
+  ></zac-static-text>
 </div>

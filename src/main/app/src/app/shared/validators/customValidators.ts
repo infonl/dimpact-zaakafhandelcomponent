@@ -14,7 +14,7 @@ export class CustomValidators {
   static rsin = CustomValidators.rsinVFn();
   static email = CustomValidators.emailVFn(false);
   static emails = CustomValidators.emailVFn(true);
-  static handelsnaam = CustomValidators.handelsnaamVFn();
+  static bedrijfssnaam = CustomValidators.bedrijfsnaamVFn();
   static huisnummer = CustomValidators.huisnummerVFn();
 
   private static postcodeRegex = /^[1-9][0-9]{3}(?!sa|sd|ss)[a-z]{2}$/i;
@@ -42,7 +42,7 @@ export class CustomValidators {
   private static emailsRegex = new RegExp(
     "^(" + CustomValidators.EMAIL + ")(;//s*" + CustomValidators.EMAIL + ")*$",
   );
-  private static handelsnaamRegex = new RegExp("[*()]+");
+  private static bedrijfsnaamRegex = new RegExp("[*()]+");
   private static nummerRegex = new RegExp("^[0-9]*$");
 
   private static bsnVFn(): ValidatorFn {
@@ -133,14 +133,14 @@ export class CustomValidators {
     };
   }
 
-  private static handelsnaamVFn(): ValidatorFn {
+  private static bedrijfsnaamVFn(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: boolean } | null => {
       if (!control.value) {
         return null;
       }
       const val = control.value;
-      if (CustomValidators.handelsnaamRegex.test(val)) {
-        return { handelsnaam: true };
+      if (CustomValidators.bedrijfsnaamRegex.test(val)) {
+        return { bedrijfsnaam: true };
       }
     };
   }

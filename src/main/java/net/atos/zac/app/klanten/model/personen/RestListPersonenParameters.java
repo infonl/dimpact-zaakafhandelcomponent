@@ -7,7 +7,7 @@ package net.atos.zac.app.klanten.model.personen;
 
 import java.time.LocalDate;
 
-public class RESTListPersonenParameters {
+public class RestListPersonenParameters {
 
     public String bsn;
 

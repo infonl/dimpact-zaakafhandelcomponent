@@ -3,20 +3,34 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<h1 *ngIf="data.length == 1" mat-dialog-title>{{'title.zaak.vrijgeven' | translate }}</h1>
-<h1 *ngIf="data.length != 1" mat-dialog-title>{{'title.zaken.vrijgeven' | translate:{aantal: data.length} }}</h1>
+<h1 *ngIf="data.length == 1" mat-dialog-title>
+  {{'title.zaak.vrijgeven' | translate }}
+</h1>
+<h1 *ngIf="data.length != 1" mat-dialog-title>
+  {{'title.zaken.vrijgeven' | translate:{aantal: data.length} }}
+</h1>
 
 <div mat-dialog-content>
-    <mfb-form-field [field]="redenFormField"></mfb-form-field>
-    <p>{{ (data.length == 1 ? 'msg.vrijgeven.zaak' : 'msg.vrijgeven.zaken') | translate }}</p>
+  <mfb-form-field [field]="redenFormField"></mfb-form-field>
+  <p>
+    {{ (data.length == 1 ? 'msg.vrijgeven.zaak' : 'msg.vrijgeven.zaken') |
+    translate }}
+  </p>
 </div>
 <div mat-dialog-actions>
-    <button [disabled]="loading"
-            mat-button color="primary" (click)="vrijgeven()" id="zakenVrijgeven_button">
-        <mat-icon *ngIf="loading">
-            <mat-spinner diameter="20"></mat-spinner>
-        </mat-icon>
-        {{'actie.vrijgeven' | translate}}
-    </button>
-    <button [disabled]="loading" mat-button (click)="close()">{{'actie.annuleren' | translate}}</button>
+  <button
+    [disabled]="loading"
+    mat-button
+    color="primary"
+    (click)="vrijgeven()"
+    id="zakenVrijgeven_button"
+  >
+    <mat-icon *ngIf="loading">
+      <mat-spinner diameter="20"></mat-spinner>
+    </mat-icon>
+    {{'actie.vrijgeven' | translate}}
+  </button>
+  <button [disabled]="loading" mat-button (click)="close()">
+    {{'actie.annuleren' | translate}}
+  </button>
 </div>

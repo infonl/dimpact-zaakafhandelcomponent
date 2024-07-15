@@ -15,7 +15,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TY
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_COUNT
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_ADRES_1
-import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_HANDELSNAAM_1
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_NAAM_1
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_PLAATS_1
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
@@ -35,7 +35,7 @@ import org.json.JSONArray
  * This test assumes a roltype has been created in a previously run test.
  */
 @Order(TEST_SPEC_ORDER_AFTER_ZAAK_CREATED)
-class KlantenRESTServiceTest : BehaviorSpec({
+class KlantRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val logger = KotlinLogging.logger {}
 
@@ -91,11 +91,10 @@ class KlantenRESTServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 with(responseBody) {
                     shouldContainJsonKeyValue("adres", "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1")
-                    shouldContainJsonKeyValue("handelsnaam", TEST_KVK_HANDELSNAAM_1)
                     shouldContainJsonKeyValue("identificatie", TEST_KVK_VESTIGINGSNUMMER_1)
                     shouldContainJsonKeyValue("identificatieType", BETROKKENE_IDENTIFACTION_TYPE_VESTIGING)
                     shouldContainJsonKeyValue("kvkNummer", TEST_KVK_NUMMER_1)
-                    shouldContainJsonKeyValue("naam", TEST_KVK_HANDELSNAAM_1)
+                    shouldContainJsonKeyValue("naam", TEST_KVK_NAAM_1)
                     shouldContainJsonKeyValue("type", VESTIGINGTYPE_NEVENVESTIGING)
                     shouldContainJsonKeyValue("vestigingsnummer", TEST_KVK_VESTIGINGSNUMMER_1)
                 }

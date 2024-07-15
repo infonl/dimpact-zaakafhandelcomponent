@@ -8,9 +8,9 @@ package net.atos.zac.app.klanten.model.personen;
 import static net.atos.zac.app.klanten.model.klant.IdentificatieType.BSN;
 
 import net.atos.zac.app.klanten.model.klant.IdentificatieType;
-import net.atos.zac.app.klanten.model.klant.RESTKlant;
+import net.atos.zac.app.klanten.model.klant.RestKlant;
 
-public class RESTPersoon extends RESTKlant {
+public class RestPersoon extends RestKlant {
 
     public String bsn;
 
@@ -22,10 +22,10 @@ public class RESTPersoon extends RESTKlant {
 
     public String verblijfplaats;
 
-    public RESTPersoon() {
+    public RestPersoon() {
     }
 
-    public RESTPersoon(final String naam, final String geboortedatum, final String verblijfplaats) {
+    public RestPersoon(final String naam, final String geboortedatum, final String verblijfplaats) {
         this.naam = naam;
         this.geboortedatum = geboortedatum;
         this.verblijfplaats = verblijfplaats;

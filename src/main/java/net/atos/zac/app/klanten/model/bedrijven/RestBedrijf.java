@@ -9,15 +9,15 @@ import static net.atos.zac.app.klanten.model.klant.IdentificatieType.RSIN;
 import static net.atos.zac.app.klanten.model.klant.IdentificatieType.VN;
 
 import net.atos.zac.app.klanten.model.klant.IdentificatieType;
-import net.atos.zac.app.klanten.model.klant.RESTKlant;
+import net.atos.zac.app.klanten.model.klant.RestKlant;
 
-public class RESTBedrijf extends RESTKlant {
+public class RestBedrijf extends RestKlant {
 
     public String vestigingsnummer;
 
     public String kvkNummer;
 
-    public String handelsnaam;
+    public String naam;
 
     public String rsin;
 
@@ -39,6 +39,6 @@ public class RESTBedrijf extends RESTKlant {
 
     @Override
     public String getNaam() {
-        return handelsnaam;
+        return naam;
     }
 }

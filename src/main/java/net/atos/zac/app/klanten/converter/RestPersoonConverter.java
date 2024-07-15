@@ -5,9 +5,9 @@
 
 package net.atos.zac.app.klanten.converter;
 
-import static net.atos.zac.app.klanten.model.personen.RESTPersonenParameters.Cardinaliteit.NON;
-import static net.atos.zac.app.klanten.model.personen.RESTPersonenParameters.Cardinaliteit.OPT;
-import static net.atos.zac.app.klanten.model.personen.RESTPersonenParameters.Cardinaliteit.REQ;
+import static net.atos.zac.app.klanten.model.personen.RestPersonenParameters.Cardinaliteit.NON;
+import static net.atos.zac.app.klanten.model.personen.RestPersonenParameters.Cardinaliteit.OPT;
+import static net.atos.zac.app.klanten.model.personen.RestPersonenParameters.Cardinaliteit.REQ;
 import static net.atos.zac.util.StringUtil.NON_BREAKING_SPACE;
 import static net.atos.zac.util.StringUtil.ONBEKEND;
 import static net.atos.zac.util.StringUtil.joinNonBlankWith;
@@ -47,50 +47,50 @@ import net.atos.client.brp.model.generated.ZoekMetPostcodeEnHuisnummer;
 import net.atos.client.brp.model.generated.ZoekMetPostcodeEnHuisnummerResponse;
 import net.atos.client.brp.model.generated.ZoekMetStraatHuisnummerEnGemeenteVanInschrijving;
 import net.atos.client.brp.model.generated.ZoekMetStraatHuisnummerEnGemeenteVanInschrijvingResponse;
-import net.atos.zac.app.klanten.model.personen.RESTListPersonenParameters;
-import net.atos.zac.app.klanten.model.personen.RESTPersonenParameters;
-import net.atos.zac.app.klanten.model.personen.RESTPersoon;
+import net.atos.zac.app.klanten.model.personen.RestListPersonenParameters;
+import net.atos.zac.app.klanten.model.personen.RestPersonenParameters;
+import net.atos.zac.app.klanten.model.personen.RestPersoon;
 
-public class RESTPersoonConverter {
+public class RestPersoonConverter {
     // Moet overeenkomen met wat er in convertToPersonenQuery gebeurt.
-    public static final List<RESTPersonenParameters> VALID_PERSONEN_QUERIES = List.of(
-            new RESTPersonenParameters(REQ,
+    public static final List<RestPersonenParameters> VALID_PERSONEN_QUERIES = List.of(
+            new RestPersonenParameters(REQ,
                     NON, NON, NON,
                     NON,
                     NON,
                     NON, NON, NON),
-            new RESTPersonenParameters(NON,
+            new RestPersonenParameters(NON,
                     REQ, OPT, OPT,
                     REQ,
                     NON,
                     NON, NON, NON),
-            new RESTPersonenParameters(NON,
+            new RestPersonenParameters(NON,
                     REQ, REQ, OPT,
                     NON,
                     REQ,
                     NON, NON, NON),
-            new RESTPersonenParameters(NON,
+            new RestPersonenParameters(NON,
                     NON, NON, NON,
                     NON,
                     NON,
                     REQ, REQ, NON),
-            new RESTPersonenParameters(NON,
+            new RestPersonenParameters(NON,
                     NON, NON, NON,
                     NON,
                     REQ,
                     NON, REQ, REQ)
     );
 
-    public List<RESTPersoon> convertPersonen(final List<Persoon> personen) {
+    public List<RestPersoon> convertPersonen(final List<Persoon> personen) {
         return personen.stream().map(this::convertPersoon).toList();
     }
 
-    public List<RESTPersoon> convertPersonenBeperkt(final List<PersoonBeperkt> personen) {
+    public List<RestPersoon> convertPersonenBeperkt(final List<PersoonBeperkt> personen) {
         return personen.stream().map(this::convertPersoonBeperkt).toList();
     }
 
-    public RESTPersoon convertPersoon(final Persoon persoon) {
-        final RESTPersoon restPersoon = new RESTPersoon();
+    public RestPersoon convertPersoon(final Persoon persoon) {
+        final RestPersoon restPersoon = new RestPersoon();
         restPersoon.bsn = persoon.getBurgerservicenummer();
         if (persoon.getGeslacht() != null) {
             restPersoon.geslacht = convertGeslacht(persoon.getGeslacht());
@@ -107,8 +107,8 @@ public class RESTPersoonConverter {
         return restPersoon;
     }
 
-    public RESTPersoon convertPersoonBeperkt(final PersoonBeperkt persoon) {
-        final RESTPersoon restPersoon = new RESTPersoon();
+    public RestPersoon convertPersoonBeperkt(final PersoonBeperkt persoon) {
+        final RestPersoon restPersoon = new RestPersoon();
         restPersoon.bsn = persoon.getBurgerservicenummer();
         if (persoon.getGeslacht() != null) {
             restPersoon.geslacht = convertGeslacht(persoon.getGeslacht());
@@ -129,7 +129,7 @@ public class RESTPersoonConverter {
         return restPersoon;
     }
 
-    public PersonenQuery convertToPersonenQuery(final RESTListPersonenParameters parameters) {
+    public PersonenQuery convertToPersonenQuery(final RestListPersonenParameters parameters) {
         if (isNotBlank(parameters.bsn)) {
             final var query = new RaadpleegMetBurgerservicenummer();
             query.addBurgerservicenummerItem(parameters.bsn);
@@ -168,7 +168,7 @@ public class RESTPersoonConverter {
         throw new IllegalArgumentException("Ongeldige combinatie van zoek parameters");
     }
 
-    public List<RESTPersoon> convertFromPersonenQueryResponse(final PersonenQueryResponse personenQueryResponse) {
+    public List<RestPersoon> convertFromPersonenQueryResponse(final PersonenQueryResponse personenQueryResponse) {
         return switch (personenQueryResponse) {
             case RaadpleegMetBurgerservicenummerResponse response -> convertPersonen(response.getPersonen());
             case ZoekMetGeslachtsnaamEnGeboortedatumResponse response -> convertPersonenBeperkt(response.getPersonen());

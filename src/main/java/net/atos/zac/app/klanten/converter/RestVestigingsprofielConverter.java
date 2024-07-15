@@ -9,18 +9,18 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import net.atos.client.kvk.vestigingsprofiel.model.generated.SBIActiviteit;
 import net.atos.client.kvk.vestigingsprofiel.model.generated.Vestiging;
-import net.atos.zac.app.klanten.model.bedrijven.RESTKlantenAdres;
-import net.atos.zac.app.klanten.model.bedrijven.RESTVestigingsprofiel;
+import net.atos.zac.app.klanten.model.bedrijven.RestKlantenAdres;
+import net.atos.zac.app.klanten.model.bedrijven.RestVestigingsprofiel;
 
-public class RESTVestigingsprofielConverter {
+public class RestVestigingsprofielConverter {
     public static String VESTIGINGTYPE_HOOFDVESTIGING = "HOOFDVESTIGING";
     public static String VESTIGINGTYPE_NEVENVESTIGING = "NEVENVESTIGING";
 
-    public RESTVestigingsprofiel convert(final Vestiging vestiging) {
-        final RESTVestigingsprofiel restVestigingsprofiel = new RESTVestigingsprofiel();
+    public RestVestigingsprofiel convert(final Vestiging vestiging) {
+        final RestVestigingsprofiel restVestigingsprofiel = new RestVestigingsprofiel();
         restVestigingsprofiel.kvkNummer = vestiging.getKvkNummer();
         restVestigingsprofiel.vestigingsnummer = vestiging.getVestigingsnummer();
-        restVestigingsprofiel.handelsnaam = vestiging.getEersteHandelsnaam();
+        restVestigingsprofiel.eersteHandelsnaam = vestiging.getEersteHandelsnaam();
         restVestigingsprofiel.rsin = vestiging.getRsin();
         restVestigingsprofiel.totaalWerkzamePersonen = vestiging.getTotaalWerkzamePersonen();
         restVestigingsprofiel.deeltijdWerkzamePersonen = vestiging.getDeeltijdWerkzamePersonen();
@@ -44,7 +44,7 @@ public class RESTVestigingsprofielConverter {
 
         restVestigingsprofiel.adressen = vestiging.getAdressen()
                 .stream()
-                .map(adres -> new RESTKlantenAdres(adres.getType(),
+                .map(adres -> new RestKlantenAdres(adres.getType(),
                         isIndicatie(adres.getIndAfgeschermd()),
                         adres.getVolledigAdres()))
                 .toList();

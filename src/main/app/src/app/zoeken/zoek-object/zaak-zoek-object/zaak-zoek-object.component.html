@@ -3,34 +3,60 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 <div class="flex-row flex-wrap zoek-object-wrapper">
-    <div class="flex-1 w33">
-        <zac-zoek-object-link [zoekObject]="zaak" [sideNav]="sideNav"></zac-zoek-object-link>
-        <zac-static-text [label]="'zaaktype' | translate"
-                         [value]="zaak.zaaktypeOmschrijving"></zac-static-text>
-        <zac-static-text [label]="'status' | translate"
-                         [value]="zaak.statustypeOmschrijving"></zac-static-text>
-
-    </div>
-    <div class="flex-1 w33">
-        <zac-static-text [label]="'groep' | translate"
-                         [value]="zaak.groepNaam"></zac-static-text>
-        <zac-static-text [label]="'behandelaar' | translate"
-                         [value]="zaak.behandelaarNaam"></zac-static-text>
-        <zac-static-text [label]="'resultaat' | translate"
-                         [value]="zaak.resultaattypeOmschrijving"></zac-static-text>
-    </div>
-    <div class="flex-1 w33">
-        <zac-static-text [label]="'startdatum' | translate"
-                         [value]="zaak.startdatum | datum"></zac-static-text>
-        <zac-static-text [label]="'einddatumGepland' | translate"
-                         [value]="zaak.einddatumGepland | datum"></zac-static-text>
-        <zac-static-text [label]="'uiterlijkeEinddatumAfdoening' | translate"
-                         [value]="zaak.uiterlijkeEinddatumAfdoening | datum"></zac-static-text>
-        <zac-static-text [label]="'einddatum' | translate"
-                         [value]="zaak.einddatum | datum"></zac-static-text>
-    </div>
+  <div class="flex-1 w33">
+    <zac-zoek-object-link
+      [zoekObject]="zaak"
+      [sideNav]="sideNav"
+    ></zac-zoek-object-link>
+    <zac-static-text
+      [label]="'zaaktype' | translate"
+      [value]="zaak.zaaktypeOmschrijving"
+    ></zac-static-text>
+    <zac-static-text
+      [label]="'status' | translate"
+      [value]="zaak.statustypeOmschrijving"
+    ></zac-static-text>
+  </div>
+  <div class="flex-1 w33">
+    <zac-static-text
+      [label]="'groep' | translate"
+      [value]="zaak.groepNaam"
+    ></zac-static-text>
+    <zac-static-text
+      [label]="'behandelaar' | translate"
+      [value]="zaak.behandelaarNaam"
+    ></zac-static-text>
+    <zac-static-text
+      [label]="'resultaat' | translate"
+      [value]="zaak.resultaattypeOmschrijving"
+    ></zac-static-text>
+  </div>
+  <div class="flex-1 w33">
+    <zac-static-text
+      [label]="'startdatum' | translate"
+      [value]="zaak.startdatum | datum"
+    ></zac-static-text>
+    <zac-static-text
+      [label]="'einddatumGepland' | translate"
+      [value]="zaak.einddatumGepland | datum"
+    ></zac-static-text>
+    <zac-static-text
+      [label]="'uiterlijkeEinddatumAfdoening' | translate"
+      [value]="zaak.uiterlijkeEinddatumAfdoening | datum"
+    ></zac-static-text>
+    <zac-static-text
+      [label]="'einddatum' | translate"
+      [value]="zaak.einddatum | datum"
+    ></zac-static-text>
+  </div>
 </div>
 <div class="toelichting">
-    <zac-static-text [label]="'omschrijving' | translate" [value]="zaak.omschrijving"></zac-static-text>
-    <zac-static-text [label]="'toelichting' | translate" [value]="zaak.toelichting"></zac-static-text>
+  <zac-static-text
+    [label]="'omschrijving' | translate"
+    [value]="zaak.omschrijving"
+  ></zac-static-text>
+  <zac-static-text
+    [label]="'toelichting' | translate"
+    [value]="zaak.toelichting"
+  ></zac-static-text>
 </div>

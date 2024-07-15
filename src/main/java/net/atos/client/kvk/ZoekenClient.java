@@ -1,14 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-/**
- * API Zoeken
- * Documentatie voor API Zoeken.
- * <p>
- * The version of the OpenAPI document: 1.3
- */
 package net.atos.client.kvk;
 
 import java.time.temporal.ChronoUnit;
@@ -29,7 +23,6 @@ import net.atos.client.kvk.exception.KvkRuntimeExceptionMapper;
 import net.atos.client.kvk.model.KvkZoekenParameters;
 import net.atos.client.kvk.util.KvkClientHeadersFactory;
 import net.atos.client.kvk.zoeken.model.generated.Resultaat;
-
 
 @RegisterRestClient(configKey = "KVK-API-Client")
 @RegisterClientHeaders(KvkClientHeadersFactory.class)

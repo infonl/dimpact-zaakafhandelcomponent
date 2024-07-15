@@ -17,8 +17,6 @@
   }
 }
 
-
-
 [data-hide="true"] {
   display: none;
 }
@@ -34,17 +32,19 @@ li {
 .mat-nested-tree-node [role="group"] {
   // this sets up the indentation of nested nodes. should be equal to the icon size
   padding-left: var(--_icon-size);
-  
   position: relative;
 
   // this is the vertical line going down from a nested node / folder down towards its children
   &::before {
-    content: '';
+    content: "";
     display: block;
     position: absolute;
     background-color: black;
     inline-size: var(--_connecting-line-size);
-    block-size: calc(100% - (var(--_row-height) / 2) + var(--_icon-padding) + var(--_row-margin));
+    block-size: calc(
+      100% - (var(--_row-height) / 2) + var(--_icon-padding) +
+        var(--_row-margin)
+    );
     left: calc(var(--_icon-size) * 0.5);
     top: calc(-1 * var(--_icon-padding) - var(--_row-margin));
   }
@@ -54,7 +54,7 @@ li {
 
     // this is the line going from left from the vertical line to the right, towards a nested node
     &::before {
-      content: '';
+      content: "";
       display: block;
       position: absolute;
       background-color: black;
@@ -65,7 +65,8 @@ li {
   }
 }
 
-mat-tree-node, mat-nested-tree-node {
+mat-tree-node,
+mat-nested-tree-node {
   margin-block-start: var(--_row-margin);
 }
 

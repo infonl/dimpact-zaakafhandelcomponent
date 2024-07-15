@@ -7,13 +7,13 @@ package net.atos.zac.app.klanten.model.bedrijven;
 
 import java.util.List;
 
-public class RESTVestigingsprofiel {
+public class RestVestigingsprofiel {
 
     public String vestigingsnummer;
 
     public String kvkNummer;
 
-    public String handelsnaam;
+    public String eersteHandelsnaam;
 
     public String rsin;
 
@@ -25,7 +25,7 @@ public class RESTVestigingsprofiel {
 
     public int voltijdWerkzamePersonen;
 
-    public List<RESTKlantenAdres> adressen;
+    public List<RestKlantenAdres> adressen;
 
     public String website;
 
