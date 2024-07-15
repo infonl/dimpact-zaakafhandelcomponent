@@ -45,9 +45,9 @@ import net.atos.zac.app.klanten.converter.RestBedrijfConverter;
 import net.atos.zac.app.klanten.converter.RestPersoonConverter;
 import net.atos.zac.app.klanten.converter.RestRoltypeConverter;
 import net.atos.zac.app.klanten.converter.RestVestigingsprofielConverter;
-import net.atos.zac.app.klanten.model.bedrijven.RESTVestigingsprofiel;
 import net.atos.zac.app.klanten.model.bedrijven.RestBedrijf;
 import net.atos.zac.app.klanten.model.bedrijven.RestListBedrijvenParameters;
+import net.atos.zac.app.klanten.model.bedrijven.RestVestigingsprofiel;
 import net.atos.zac.app.klanten.model.klant.IdentificatieType;
 import net.atos.zac.app.klanten.model.klant.RestContactGegevens;
 import net.atos.zac.app.klanten.model.klant.RestKlant;
@@ -127,7 +127,7 @@ public class KlantRestService {
 
     @GET
     @Path("vestigingsprofiel/{vestigingsnummer}")
-    public RESTVestigingsprofiel readVestigingsprofiel(@PathParam("vestigingsnummer") final String vestigingsnummer) {
+    public RestVestigingsprofiel readVestigingsprofiel(@PathParam("vestigingsnummer") final String vestigingsnummer) {
         Optional<Vestiging> vestiging = kvkClientService.findVestigingsprofiel(vestigingsnummer);
         if (vestiging.isPresent()) {
             return restVestigingsprofielConverter.convert(vestiging.get());
