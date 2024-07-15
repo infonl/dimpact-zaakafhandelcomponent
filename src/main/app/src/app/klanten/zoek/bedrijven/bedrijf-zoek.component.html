@@ -4,51 +4,41 @@
   -->
 
 <div class="form">
-  <div class="flex-row flex-col-xs gap-10 flex-fill">
-    <div class="flex-1">
-      <mfb-form-field [field]="kvkFormField"></mfb-form-field>
+    <div class="flex-row flex-col-xs gap-10 flex-fill">
+        <div class="flex-1">
+            <mfb-form-field [field]="kvkFormField"></mfb-form-field>
+        </div>
     </div>
-  </div>
-  <div class="flex-row flex-col-xs gap-10 flex-fill">
-    <div class="flex-1">
-      <mfb-form-field [field]="vestigingsnummerFormField"></mfb-form-field>
+    <div class="flex-row flex-col-xs gap-10 flex-fill">
+        <div class="flex-1">
+            <mfb-form-field [field]="vestigingsnummerFormField"></mfb-form-field>
+        </div>
     </div>
-  </div>
-  <div class="flex-row flex-col-xs gap-10 flex-fill">
-    <div class="flex-1">
-      <mfb-form-field [field]="rsinFormField"></mfb-form-field>
+    <div class="flex-row flex-col-xs gap-10 flex-fill">
+        <div class="flex-1">
+            <mfb-form-field [field]="rsinFormField"></mfb-form-field>
+        </div>
     </div>
-  </div>
-  <div class="flex-row flex-col-xs gap-10 flex-fill">
-    <div class="flex-1 w66">
-      <mfb-form-field [field]="handelsnaamFormField"></mfb-form-field>
+    <div class="flex-row flex-col-xs gap-10 flex-fill">
+        <div class="flex-1 w66">
+            <mfb-form-field [field]="bedrijfsnaamFormField"></mfb-form-field>
+        </div>
+        <div class="flex-1">
+            <mfb-form-field [field]="typeFormField" (valueChanges)="typeChanged($event)"></mfb-form-field>
+        </div>
     </div>
-    <div class="flex-1">
-      <mfb-form-field
-        [field]="typeFormField"
-        (valueChanges)="typeChanged($event)"
-      ></mfb-form-field>
+    <div class="flex-row flex-col-xs gap-10 flex-fill">
+        <div class="flex-1 w66">
+            <mfb-form-field [field]="postcodeFormField"></mfb-form-field>
+        </div>
+        <div class="flex-1">
+            <mfb-form-field [field]="huisnummerFormField"></mfb-form-field>
+        </div>
     </div>
-  </div>
-  <div class="flex-row flex-col-xs gap-10 flex-fill">
-    <div class="flex-1 w66">
-      <mfb-form-field [field]="postcodeFormField"></mfb-form-field>
-    </div>
-    <div class="flex-1">
-      <mfb-form-field [field]="huisnummerFormField"></mfb-form-field>
-    </div>
-  </div>
-  <button
-    mat-flat-button
-    color="primary"
-    [disabled]="!isValid() || loading"
-    (click)="zoekBedrijven()"
-  >
-    {{'actie.zoeken' | translate}}
-  </button>
-  <button mat-flat-button (click)="wissen()">
-    {{'actie.wissen' | translate}}
-  </button>
+    <button mat-flat-button color="primary" [disabled]="!isValid() || loading" (click)="zoekBedrijven()">
+        {{'actie.zoeken' | translate}}
+    </button>
+    <button mat-flat-button (click)="wissen()">{{'actie.wissen' | translate}}</button>
 </div>
 
 <div class="table-wrapper">
