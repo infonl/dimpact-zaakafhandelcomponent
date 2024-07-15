@@ -97,6 +97,10 @@ class KlantRestServiceTest : BehaviorSpec({
                     shouldContainJsonKeyValue("naam", TEST_KVK_NAAM_1)
                     shouldContainJsonKeyValue("type", VESTIGINGTYPE_NEVENVESTIGING)
                     shouldContainJsonKeyValue("vestigingsnummer", TEST_KVK_VESTIGINGSNUMMER_1)
+                    // since there is customer contact data linked to this vestiging in our Open Klant container
+                    // the response should contain an email address and telephone number
+                    shouldContainJsonKeyValue("emailadres", TEST_PERSON_HENDRIKA_JANSE_EMAIL)
+                    shouldContainJsonKeyValue("telefoonnummer", TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER)
                 }
             }
         }
