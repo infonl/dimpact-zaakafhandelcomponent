@@ -13,7 +13,7 @@ public class RestListBedrijvenParameters {
 
     public String rsin;
 
-    public String handelsnaam;
+    public String naam;
 
     public String postcode;
 
