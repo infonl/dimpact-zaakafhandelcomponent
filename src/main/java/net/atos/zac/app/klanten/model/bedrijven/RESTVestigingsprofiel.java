@@ -13,7 +13,7 @@ public class RESTVestigingsprofiel {
 
     public String kvkNummer;
 
-    public String handelsnaam;
+    public String eersteHandelsnaam;
 
     public String rsin;
 

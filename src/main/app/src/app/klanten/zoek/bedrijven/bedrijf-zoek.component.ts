@@ -42,7 +42,7 @@ export class BedrijfZoekComponent implements OnInit {
   kvkFormField: AbstractFormControlField;
   vestigingsnummerFormField: AbstractFormControlField;
   rsinFormField: AbstractFormControlField;
-  handelsnaamFormField: AbstractFormControlField;
+  bedrijfsnaamFormField: AbstractFormControlField;
   typeFormField: AbstractFormControlField;
   postcodeFormField: AbstractFormControlField;
   huisnummerFormField: AbstractFormControlField;
@@ -56,11 +56,11 @@ export class BedrijfZoekComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.handelsnaamFormField = new InputFormFieldBuilder()
-      .id("handelsnaam")
-      .label("handelsnaam")
+    this.bedrijfsnaamFormField = new InputFormFieldBuilder()
+      .id("bedrijfsnaam")
+      .label("bedrijfsnaam")
       .maxlength(100)
-      .validators(CustomValidators.handelsnaam)
+      .validators(CustomValidators.bedrijfssnaam)
       .build();
     this.kvkFormField = new InputFormFieldBuilder()
       .id("kvknummer")
@@ -108,7 +108,7 @@ export class BedrijfZoekComponent implements OnInit {
       .build();
     this.formGroup = this.formBuilder.group({
       kvkNummer: this.kvkFormField.formControl,
-      handelsnaam: this.handelsnaamFormField.formControl,
+      bedrijfsnaam: this.bedrijfsnaamFormField.formControl,
       vestigingsnummer: this.vestigingsnummerFormField.formControl,
       rsin: this.rsinFormField.formControl,
       postcode: this.postcodeFormField.formControl,
@@ -123,7 +123,7 @@ export class BedrijfZoekComponent implements OnInit {
       return false;
     }
     const kvkNummer = this.kvkFormField.formControl.value;
-    const handelsnaam = this.handelsnaamFormField.formControl.value;
+    const bedrijfsnaam = this.bedrijfsnaamFormField.formControl.value;
     const vestigingsnummer = this.vestigingsnummerFormField.formControl.value;
     const rsin = this.rsinFormField.formControl.value;
     const postcode = this.postcodeFormField.formControl.value;
@@ -131,7 +131,7 @@ export class BedrijfZoekComponent implements OnInit {
 
     return (
       kvkNummer ||
-      handelsnaam ||
+      bedrijfsnaam ||
       vestigingsnummer ||
       rsin ||
       (postcode && huisnummer)

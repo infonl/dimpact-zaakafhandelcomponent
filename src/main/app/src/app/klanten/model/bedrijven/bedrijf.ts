@@ -10,7 +10,6 @@ export class Bedrijf implements Klant {
   vestigingsnummer: string;
   kvkNummer: string;
   rsin: string;
-  handelsnaam: string;
   adres: string;
   postcode: string;
   type: string;
