@@ -16,7 +16,8 @@ import java.util.UUID
 
 @Suppress("LongParameterList")
 fun createEnkelvoudigInformatieObject(
-    url: URI = URI("http://example.com/${UUID.randomUUID()}"),
+    uuid: UUID = UUID.randomUUID(),
+    url: URI = URI("http://example.com/$uuid"),
     versie: Int = 1234,
     beginRegistratie: OffsetDateTime = OffsetDateTime.now(),
     inhoud: URI = URI("http://example.com/${UUID.randomUUID()}"),

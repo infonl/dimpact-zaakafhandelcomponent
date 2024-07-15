@@ -21,6 +21,7 @@ import jakarta.servlet.http.HttpSession
 import kotlinx.coroutines.test.runTest
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
+import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObjectWithLockRequest
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.Zaak
@@ -41,6 +42,8 @@ import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.flowable.TaakVariabelenService
+import net.atos.zac.flowable.TaakVariabelenService.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST
+import net.atos.zac.flowable.TaakVariabelenService.TAAK_DATA_VERZENDDATUM
 import net.atos.zac.flowable.util.TaskUtil.getTaakStatus
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.exception.PolicyException
@@ -59,6 +62,7 @@ import org.flowable.task.api.history.HistoricTaskInstance
 import org.flowable.task.api.history.createHistoricTaskInstanceEntityImpl
 import java.net.URI
 import java.time.LocalDate
+import java.time.ZonedDateTime
 import java.util.Optional
 import java.util.UUID
 
@@ -162,12 +166,20 @@ class TakenRESTServiceTest : BehaviorSpec({
             id = loggedInUser.id,
             name = loggedInUser.fullName
         )
+        val documentUUID = UUID.randomUUID()
+        val dateTime = ZonedDateTime.now()
         val restTaak = createRESTTaak(
-            behandelaar = restUser
+            behandelaar = restUser,
+            taakData = mutableMapOf(
+                TAAK_DATA_DOCUMENTEN_VERZENDEN_POST to documentUUID.toString(),
+                TAAK_DATA_VERZENDDATUM to dateTime.toString()
+            )
         )
         val restTaakConverted = createRESTTaak(
             behandelaar = restUser
         )
+        val enkelvoudigInformatieObjectUUID = UUID.randomUUID()
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(uuid = enkelvoudigInformatieObjectUUID)
 
         every { loggedInUserInstance.get() } returns loggedInUser
         every { task.assignee } returns "dummyAssignee"
@@ -177,8 +189,15 @@ class TakenRESTServiceTest : BehaviorSpec({
         every { flowableTaskService.updateTask(task) } returns task
         every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
         every { httpSessionInstance.get() } returns httpSession
+        every { httpSession.getAttribute(any<String>()) } returns null
         every { taakVariabelenService.isZaakHervatten(restTaak.taakdata) } returns false
         every { taakVariabelenService.readOndertekeningen(restTaak.taakdata) } returns Optional.empty()
+        every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns enkelvoudigInformatieObject
+        every {
+            enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
+                enkelvoudigInformatieObjectUUID, dateTime.toLocalDate(), null
+            )
+        } returns createEnkelvoudigInformatieObjectWithLockRequest()
         every { taakVariabelenService.setTaakdata(task, restTaak.taakdata) } just runs
         every { taakVariabelenService.setTaakinformatie(task, null) } just runs
         every { flowableTaskService.completeTask(task) } returns historicTaskInstance
