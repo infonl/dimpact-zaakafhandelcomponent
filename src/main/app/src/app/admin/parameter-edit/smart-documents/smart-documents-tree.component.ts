@@ -109,7 +109,11 @@ export class SmartDocumentsTreeComponent {
   parameters: any;
 
   zaaktypeVertrouwelijkheid(selectedUuid: string): string {
-    return selectedUuid ? this.informatieObjectTypes.data().find(({ uuid }) => uuid === selectedUuid).vertrouwelijkheidaanduiding : null;
+    return selectedUuid
+      ? this.informatieObjectTypes
+          .data()
+          .find(({ uuid }) => uuid === selectedUuid).vertrouwelijkheidaanduiding
+      : null;
   }
 
   constructor(
