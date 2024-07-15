@@ -113,6 +113,12 @@ object ItestConfiguration {
     const val TEST_KVK_NUMMER_1 = "12345678"
     const val TEST_KVK_PLAATS_1 = "dummyPlaats1"
     const val TEST_KVK_VESTIGINGSNUMMER_1 = "000012345678"
+    const val TEST_KVK_VESTIGINGSTYPE_HOOFDVESTIGING = "HOOFDVESTIGING"
+    const val TEST_KVK_VESTIGING1_TOTAAL_WERKZAME_PERSONEN = 3
+    const val TEST_KVK_VESTIGING1_VOLTIJD_WERKZAME_PERSONEN = 3
+    const val TEST_KVK_VESTIGING1_HOOFDACTIVITEIT = "dummysbiOmschrijving1"
+    const val TEST_KVK_VESTIGING1_NEVENACTIVITEIT1 = "dummysbiOmschrijving2"
+    const val TEST_KVK_VESTIGING1_NEVENACTIVITEIT2 = "dummysbiOmschrijving3"
 
     const val TEXT_MIME_TYPE = "application/text"
 

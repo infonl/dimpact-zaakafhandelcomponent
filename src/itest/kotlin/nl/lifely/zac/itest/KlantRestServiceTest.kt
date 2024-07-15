@@ -21,7 +21,13 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_EERSTE_HANDELSNAAM
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_NAAM_1
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_PLAATS_1
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING1_HOOFDACTIVITEIT
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING1_NEVENACTIVITEIT1
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING1_NEVENACTIVITEIT2
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING1_TOTAAL_WERKZAME_PERSONEN
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING1_VOLTIJD_WERKZAME_PERSONEN
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSTYPE_HOOFDVESTIGING
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_EMAIL
@@ -133,16 +139,16 @@ class KlantRestServiceTest : BehaviorSpec({
                     val sbiActiviteiten = JSONObject(responseBody).getJSONArray("sbiActiviteiten")
                     sbiActiviteiten.length() shouldBe 2
                     with(JSONArray(sbiActiviteiten).get(0).toString()) {
-                        shouldContain("dummysbiOmschrijving2")
+                        shouldContain(TEST_KVK_VESTIGING1_NEVENACTIVITEIT1)
                     }
                     with(JSONArray(sbiActiviteiten).get(1).toString()) {
-                        shouldContain("dummysbiOmschrijving3")
+                        shouldContain(TEST_KVK_VESTIGING1_NEVENACTIVITEIT2)
                     }
-                    shouldContainJsonKeyValue("sbiHoofdActiviteit", "dummysbiOmschrijving1")
-                    shouldContainJsonKeyValue("totaalWerkzamePersonen", 3)
-                    shouldContainJsonKeyValue("type", "HOOFDVESTIGING")
+                    shouldContainJsonKeyValue("sbiHoofdActiviteit", TEST_KVK_VESTIGING1_HOOFDACTIVITEIT)
+                    shouldContainJsonKeyValue("totaalWerkzamePersonen", TEST_KVK_VESTIGING1_TOTAAL_WERKZAME_PERSONEN)
+                    shouldContainJsonKeyValue("type", TEST_KVK_VESTIGINGSTYPE_HOOFDVESTIGING)
                     shouldContainJsonKeyValue("vestigingsnummer", TEST_KVK_VESTIGINGSNUMMER_1)
-                    shouldContainJsonKeyValue("voltijdWerkzamePersonen", 2)
+                    shouldContainJsonKeyValue("voltijdWerkzamePersonen", TEST_KVK_VESTIGING1_VOLTIJD_WERKZAME_PERSONEN)
                 }
             }
         }
