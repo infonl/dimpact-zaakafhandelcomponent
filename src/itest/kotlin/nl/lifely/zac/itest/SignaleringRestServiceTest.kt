@@ -45,7 +45,7 @@ import kotlin.time.Duration.Companion.seconds
  * This test assumes previous tests completed successfully.
  */
 @Order(TEST_SPEC_ORDER_AFTER_TASK_COMPLETED)
-class SignaleringenRestServiceTest : BehaviorSpec({
+class SignaleringRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
