@@ -104,6 +104,19 @@ object ItestConfiguration {
     const val TEST_GROUP_RECORD_MANAGERS_DESCRIPTION = "Test group record managers"
 
     /**
+     * Constants used in the Informatieobjecten tests
+     */
+    const val DOCUMENT_FILE_TITLE = "dummyTitel"
+    const val DOCUMENT_UPDATED_FILE_TITLE = "updated title with Špëcîål characters"
+    const val DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK = "zaakvertrouwelijk"
+    const val DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR = "openbaar"
+    const val DOCUMENT_STATUS_DEFINITIEF = "definitief"
+    const val DOCUMENT_STATUS_IN_BEWERKING = "in_bewerking"
+    const val TEXT_MIME_TYPE = "application/text"
+    const val PDF_MIME_TYPE = "application/pdf"
+    const val DOCUMENT_IDENTIFICATION = "DOCUMENT-2024-0000000001"
+
+    /**
      * Constants used in the KVK WireMock template response
      */
     const val TEST_KVK_ADRES_1 = "dummyStraatnaam1"
@@ -118,9 +131,6 @@ object ItestConfiguration {
     const val TEST_KVK_VESTIGING1_HOOFDACTIVITEIT = "dummysbiOmschrijving1"
     const val TEST_KVK_VESTIGING1_NEVENACTIVITEIT1 = "dummysbiOmschrijving2"
     const val TEST_KVK_VESTIGING1_NEVENACTIVITEIT2 = "dummysbiOmschrijving3"
-
-    const val TEXT_MIME_TYPE = "application/text"
-    const val PDF_MIME_TYPE = "application/pdf"
 
     const val SMART_DOCUMENTS_MOCK_BASE_URI = "http://smartdocuments-wiremock:8080"
 
