@@ -20,7 +20,7 @@ import org.json.JSONArray
  * This test assumes a human task plan item (=task) has been started for a zaak in a previously run test.
  */
 @Order(TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED)
-class TakenRESTServiceCompleteTest : BehaviorSpec({
+class TaskRestServiceCompleteTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 

@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.taken.model
+package net.atos.zac.app.task.model
 
 import net.atos.zac.app.formulieren.model.RESTFormulierDefinitie
 import net.atos.zac.app.identity.model.RESTGroup
@@ -16,7 +16,7 @@ import java.util.UUID
 
 @AllOpen
 @NoArgConstructor
-data class RESTTaak(
+data class RestTask(
     var id: String? = null,
 
     var naam: String? = null,

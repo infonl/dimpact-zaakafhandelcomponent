@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import net.atos.zac.app.policy.model.RESTTaakRechten;
-import net.atos.zac.app.taken.model.TaakStatus;
+import net.atos.zac.app.task.model.TaakStatus;
 
 public class RESTTaakZoekObject extends AbstractRESTZoekObject {
 

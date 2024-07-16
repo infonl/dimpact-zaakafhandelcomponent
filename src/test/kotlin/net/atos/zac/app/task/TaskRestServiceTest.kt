@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.taken
+package net.atos.zac.app.task
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -29,14 +29,14 @@ import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.zac.app.identity.model.createRESTUser
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
-import net.atos.zac.app.taken.converter.RESTTaakConverter
-import net.atos.zac.app.taken.converter.RESTTaakHistorieConverter
-import net.atos.zac.app.taken.model.TaakStatus
-import net.atos.zac.app.taken.model.createRESTTaak
-import net.atos.zac.app.taken.model.createRESTTaakToekennenGegevens
-import net.atos.zac.app.taken.model.createRESTTaakVerdelenGegevens
-import net.atos.zac.app.taken.model.createRESTTaakVerdelenTaak
-import net.atos.zac.app.taken.model.createRESTTaakVrijgevenGegevens
+import net.atos.zac.app.task.converter.RestTaskConverter
+import net.atos.zac.app.task.converter.RestTaskHistoryConverter
+import net.atos.zac.app.task.model.TaakStatus
+import net.atos.zac.app.task.model.createRestTask
+import net.atos.zac.app.task.model.createRestTaskAssignData
+import net.atos.zac.app.task.model.createRestTaskDistributeData
+import net.atos.zac.app.task.model.createRestTaskDistributeTask
+import net.atos.zac.app.task.model.createRestTaskReleaseData
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.event.EventingService
@@ -66,7 +66,7 @@ import java.time.ZonedDateTime
 import java.util.Optional
 import java.util.UUID
 
-class TakenRESTServiceTest : BehaviorSpec({
+class TaskRestServiceTest : BehaviorSpec({
     val drcClientService = mockk<DrcClientService>()
     val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
     val eventingService = mockk<EventingService>()
@@ -75,17 +75,17 @@ class TakenRESTServiceTest : BehaviorSpec({
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val policyService = mockk<PolicyService>()
     val taakVariabelenService = mockk<TaakVariabelenService>()
-    val restTaakConverter = mockk<RESTTaakConverter>()
+    val restTaskConverter = mockk<RestTaskConverter>()
     val flowableTaskService = mockk<FlowableTaskService>()
     val zrcClientService = mockk<ZRCClientService>()
     val opschortenZaakHelper = mockk<OpschortenZaakHelper>()
     val restInformatieobjectConverter = mockk<RESTInformatieobjectConverter>()
     val signaleringService = mockk<SignaleringService>()
-    val taakHistorieConverter = mockk<RESTTaakHistorieConverter>()
+    val taakHistorieConverter = mockk<RestTaskHistoryConverter>()
     val zgwApiService = mockk<ZGWApiService>()
     val taskService = mockk<TaskService>()
 
-    val takenRESTService = TakenRESTService(
+    val taskRestService = TaskRestService(
         drcClientService = drcClientService,
         enkelvoudigInformatieObjectUpdateService = enkelvoudigInformatieObjectUpdateService,
         eventingService = eventingService,
@@ -94,7 +94,7 @@ class TakenRESTServiceTest : BehaviorSpec({
         loggedInUserInstance = loggedInUserInstance,
         policyService = policyService,
         taakVariabelenService = taakVariabelenService,
-        restTaakConverter = restTaakConverter,
+        restTaskConverter = restTaskConverter,
         flowableTaskService = flowableTaskService,
         zrcClientService = zrcClientService,
         opschortenZaakHelper = opschortenZaakHelper,
@@ -115,7 +115,7 @@ class TakenRESTServiceTest : BehaviorSpec({
     }
 
     Given("a task is not yet assigned") {
-        val restTaakToekennenGegevens = createRESTTaakToekennenGegevens()
+        val restTaakToekennenGegevens = createRestTaskAssignData()
         val task = mockk<Task>()
         every { loggedInUserInstance.get() } returns loggedInUser
         every { flowableTaskService.readOpenTask(restTaakToekennenGegevens.taakId) } returns task
@@ -129,13 +129,13 @@ class TakenRESTServiceTest : BehaviorSpec({
             )
         } just runs
 
-        When("'toekennen' is called from user with access") {
+        When("the task is assigned with a user who has permission") {
             every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(toekennen = true)
 
-            takenRESTService.toekennen(restTaakToekennenGegevens)
+            taskRestService.assign(restTaakToekennenGegevens)
 
             Then(
-                "the task is assigned"
+                "the task is correctly assigned"
             ) {
                 verify(exactly = 1) {
                     taskService.assignTask(
@@ -147,11 +147,11 @@ class TakenRESTServiceTest : BehaviorSpec({
             }
         }
 
-        When("'toekennen' is called from user with no access") {
+        When("assign is called from user with no permission") {
             every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny()
 
             val exception = shouldThrow<PolicyException> {
-                takenRESTService.toekennen(restTaakToekennenGegevens)
+                taskRestService.assign(restTaakToekennenGegevens)
             }
 
             Then("it throws exception with no message") { exception.message shouldBe null }
@@ -168,14 +168,14 @@ class TakenRESTServiceTest : BehaviorSpec({
         )
         val documentUUID = UUID.randomUUID()
         val dateTime = ZonedDateTime.now()
-        val restTaak = createRESTTaak(
+        val restTaak = createRestTask(
             behandelaar = restUser,
             taakData = mutableMapOf(
                 TAAK_DATA_DOCUMENTEN_VERZENDEN_POST to documentUUID.toString(),
                 TAAK_DATA_VERZENDDATUM to dateTime.toString()
             )
         )
-        val restTaakConverted = createRESTTaak(
+        val restTaakConverted = createRestTask(
             behandelaar = restUser
         )
         val enkelvoudigInformatieObjectUUID = UUID.randomUUID()
@@ -203,13 +203,13 @@ class TakenRESTServiceTest : BehaviorSpec({
         every { flowableTaskService.completeTask(task) } returns historicTaskInstance
         every { indexeerService.addOrUpdateZaak(restTaak.zaakUuid, false) } just runs
         every { historicTaskInstance.id } returns restTaak.id
-        every { restTaakConverter.convert(historicTaskInstance) } returns restTaakConverted
+        every { restTaskConverter.convert(historicTaskInstance) } returns restTaakConverted
         every { eventingService.send(any<ScreenEvent>()) } just runs
 
         When("'complete' is called from user with access") {
             every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
 
-            val restTaakReturned = takenRESTService.completeTaak(restTaak)
+            val restTaakReturned = taskRestService.completeTask(restTaak)
 
             Then(
                 "the task is completed and the search index service is invoked"
@@ -225,7 +225,7 @@ class TakenRESTServiceTest : BehaviorSpec({
             every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny()
 
             val exception = shouldThrow<PolicyException> {
-                takenRESTService.completeTaak(restTaak)
+                taskRestService.completeTask(restTaak)
             }
 
             Then("it throws exception with no message") { exception.message shouldBe null }
@@ -243,11 +243,11 @@ class TakenRESTServiceTest : BehaviorSpec({
         val restTaakData = mutableMapOf(
             restTaakDataKey to restTaakDataValue
         )
-        val restTaak = createRESTTaak(
+        val restTaak = createRestTask(
             behandelaar = restUser,
             taakData = restTaakData
         )
-        val restTaakConverted = createRESTTaak(
+        val restTaakConverted = createRestTask(
             behandelaar = restUser
         )
         every { task.assignee } returns "dummyAssignee"
@@ -269,7 +269,7 @@ class TakenRESTServiceTest : BehaviorSpec({
             every { task.dueDate = DateTimeConverterUtil.convertToDate(restTaak.fataledatum) } just runs
             every { task.id } returns restTaak.id
 
-            val restTaakReturned = takenRESTService.updateTaakdata(restTaak)
+            val restTaakReturned = taskRestService.updateTaskData(restTaak)
 
             Then("the changes are stored") {
                 restTaakReturned shouldBe restTaak
@@ -291,7 +291,7 @@ class TakenRESTServiceTest : BehaviorSpec({
             every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
             every { flowableTaskService.completeTask(task) } returns historicTaskInstance
             every { indexeerService.addOrUpdateZaak(restTaak.zaakUuid, false) } just runs
-            every { restTaakConverter.convert(historicTaskInstance) } returns restTaakConverted
+            every { restTaskConverter.convert(historicTaskInstance) } returns restTaakConverted
             every { httpSessionInstance.get() } returns httpSession
             // in this test we assume there was no document uploaded to the http session beforehand
             every { httpSession.getAttribute("_FILE__${restTaak.id}__$restTaakDataKey") } returns null
@@ -311,7 +311,7 @@ class TakenRESTServiceTest : BehaviorSpec({
                 )
             } just runs
 
-            val restTaakReturned = takenRESTService.completeTaak(restTaak)
+            val restTaakReturned = taskRestService.completeTask(restTaak)
 
             Then(
                 "the document is signed, the task is completed and the search index service is invoked"
@@ -328,10 +328,10 @@ class TakenRESTServiceTest : BehaviorSpec({
     }
     Given("REST taak verdeelgegevens to assign two tasks asynchronously") {
         val screenEventResourceId = "dummyScreenEventResourceId"
-        val restTaakVerdelenGegevens = createRESTTaakVerdelenGegevens(
+        val restTaakVerdelenGegevens = createRestTaskDistributeData(
             taken = listOf(
-                createRESTTaakVerdelenTaak(),
-                createRESTTaakVerdelenTaak()
+                createRestTaskDistributeTask(),
+                createRestTaskDistributeTask()
             ),
             screenEventResourceId = screenEventResourceId
         )
@@ -345,7 +345,7 @@ class TakenRESTServiceTest : BehaviorSpec({
             } returns createWerklijstRechtenAllDeny(zakenTakenVerdelen = true)
 
             runTest {
-                takenRESTService.verdelenVanuitLijst(restTaakVerdelenGegevens)
+                taskRestService.distributeFromList(restTaakVerdelenGegevens)
             }
 
             Then("the tasks are assigned to the group and user") {
@@ -359,7 +359,7 @@ class TakenRESTServiceTest : BehaviorSpec({
             every { policyService.readWerklijstRechten() } returns createWerklijstRechtenAllDeny()
 
             val exception = shouldThrow<PolicyException> {
-                takenRESTService.verdelenVanuitLijst(restTaakVerdelenGegevens)
+                taskRestService.distributeFromList(restTaakVerdelenGegevens)
             }
 
             Then("it throws exception with no message") { exception.message shouldBe null }
@@ -367,10 +367,10 @@ class TakenRESTServiceTest : BehaviorSpec({
     }
     Given("REST taak vrijgeven gegevens to release two tasks asynchronously") {
         val screenEventResourceId = "dummyScreenEventResourceId"
-        val restTaakVrijgevenGegevens = createRESTTaakVrijgevenGegevens(
+        val restTaakVrijgevenGegevens = createRestTaskReleaseData(
             taken = listOf(
-                createRESTTaakVerdelenTaak(),
-                createRESTTaakVerdelenTaak()
+                createRestTaskDistributeTask(),
+                createRestTaskDistributeTask()
             ),
             screenEventResourceId = screenEventResourceId
         )
@@ -382,7 +382,7 @@ class TakenRESTServiceTest : BehaviorSpec({
 
         When("the 'verdelen vanuit lijst' function is called") {
             runTest {
-                takenRESTService.vrijgevenVanuitLijst(restTaakVrijgevenGegevens)
+                taskRestService.releaseFromList(restTaakVrijgevenGegevens)
             }
 
             Then("the tasks are assigned to the group and user") {
