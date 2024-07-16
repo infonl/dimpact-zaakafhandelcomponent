@@ -1,10 +1,12 @@
+{{- if .Values.opa.enabled }}
+{{- if not .Values.opa.sidecar }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}-opa
+  name: {{ .Release.Name }}-{{ .Values.opa.name }}
   labels:
-    {{- include "opa.labels" . | nindent 4 }}
-  {{- with .Values.service.annotations }}
+    {{- include "zaakafhandelcomponent.opa.labels" . | nindent 4 }}
+  {{- with .Values.opa.service.annotations }}
   annotations:
     {{- range $key, $value := . }}
     {{ $key }} : {{ tpl ($value | toString) $ }}
@@ -17,4 +19,6 @@ spec:
       name: http
       targetPort: http
   selector:
-    {{- include "opa.selectorLabels" . | nindent 4 }}
+    {{- include "zaakafhandelcomponent.opa.selectorLabels" . | nindent 4 }}
+{{- end }}
+{{- end }}

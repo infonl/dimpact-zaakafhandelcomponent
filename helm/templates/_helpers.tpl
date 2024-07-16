@@ -42,18 +42,18 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
-{{- define "office-converter.labels" -}}
+{{- define "zaakafhandelcomponent.office-converter.labels" -}}
 helm.sh/chart: {{ include "zaakafhandelcomponent.chart" . }}
-{{ include "office-converter.selectorLabels" . }}
+{{ include "zaakafhandelcomponent.office-converter.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
-{{- define "opa.labels" -}}
+{{- define "zaakafhandelcomponent.opa.labels" -}}
 helm.sh/chart: {{ include "zaakafhandelcomponent.chart" . }}
-{{ include "opa.selectorLabels" . }}
+{{ include "zaakafhandelcomponent.opa.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -68,12 +68,12 @@ app.kubernetes.io/name: {{ include "zaakafhandelcomponent.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
-{{- define "office-converter.selectorLabels" -}}
+{{- define "zaakafhandelcomponent.office-converter.selectorLabels" -}}
 app.kubernetes.io/name: office-converter
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
-{{- define "opa.selectorLabels" -}}
+{{- define "zaakafhandelcomponent.opa.selectorLabels" -}}
 app.kubernetes.io/name: opa
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}

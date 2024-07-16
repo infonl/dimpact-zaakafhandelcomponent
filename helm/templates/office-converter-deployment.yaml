@@ -3,20 +3,22 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}-{{ .Values.office_converter.name }}
   labels:
-    {{- include "office-converter.labels" . | nindent 4 }}
+    {{- include "zaakafhandelcomponent.office-converter.labels" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
-      {{- include "office-converter.selectorLabels" . | nindent 6 }}
+      {{- include "zaakafhandelcomponent.office-converter.selectorLabels" . | nindent 6 }}
   replicas: {{ .Values.office_converter.replicas }}
   template:
     metadata:
       annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
       {{- with .Values.office_converter.podAnnotations }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "office-converter.selectorLabels" . | nindent 8 }}
+        {{- include "zaakafhandelcomponent.office-converter.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.office_converter.imagePullSecrets }}
       imagePullSecrets:
