@@ -46,7 +46,7 @@ import net.atos.client.zgw.shared.util.URIUtil;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakListParameters;
-import net.atos.zac.app.taken.model.TaakSortering;
+import net.atos.zac.app.task.model.TaakSortering;
 import net.atos.zac.flowable.FlowableTaskService;
 import net.atos.zac.shared.model.SorteerRichting;
 import net.atos.zac.zoeken.converter.AbstractZoekObjectConverter;

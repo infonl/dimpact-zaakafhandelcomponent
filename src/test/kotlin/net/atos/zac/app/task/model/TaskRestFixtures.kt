@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.taken.model
+package net.atos.zac.app.task.model
 
 import net.atos.zac.app.identity.model.RESTUser
 import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjecttype
@@ -11,13 +11,13 @@ import net.atos.zac.app.informatieobjecten.model.createRESTInformatieobjecttype
 import net.atos.zac.app.zaak.model.createRESTUser
 import java.util.UUID
 
-fun createRESTTaak(
+fun createRestTask(
     id: String = "dummyId",
     zaakUuid: UUID = UUID.randomUUID(),
     behandelaar: RESTUser = createRESTUser(),
     taakData: MutableMap<String, String> = emptyMap<String, String>().toMutableMap(),
     tabellen: MutableMap<String, List<String>> = emptyMap<String, List<String>>().toMutableMap()
-) = RESTTaak(
+) = RestTask(
     id = id,
     zaakUuid = zaakUuid,
     behandelaar = behandelaar,
@@ -25,23 +25,23 @@ fun createRESTTaak(
     tabellen = tabellen
 )
 
-fun createRESTTaakDocumentData(
+fun createRestTaskDocumentData(
     bestandsnaam: String = "dummyBestandsNaam",
     documentTitel: String = "dummyDocumentTitel",
     documentType: RESTInformatieobjecttype = createRESTInformatieobjecttype()
-) = RESTTaakDocumentData(
+) = RestTaskDocumentData(
     bestandsnaam = bestandsnaam,
     documentTitel = documentTitel,
     documentType = documentType
 )
 
-fun createRESTTaakToekennenGegevens(
+fun createRestTaskAssignData(
     taakId: String = "dummyTaakId",
     zaakUuid: UUID = UUID.randomUUID(),
     groepId: String = "dummyGroepId",
     behandelaarId: String = "dummyBehandelaarId",
     reden: String = "dummyReden"
-) = RESTTaakToekennenGegevens(
+) = RestTaskAssignData(
     taakId = taakId,
     zaakUuid = zaakUuid,
     groepId = groepId,
@@ -49,21 +49,21 @@ fun createRESTTaakToekennenGegevens(
     reden = reden
 )
 
-fun createRESTTaakVerdelenTaak(
+fun createRestTaskDistributeTask(
     taakId: String = "dummyTaakId",
     zaakUuid: UUID = UUID.randomUUID()
-) = RESTTaakVerdelenTaak(
+) = RestTaskDistributeTask(
     taakId = taakId,
     zaakUuid = zaakUuid
 )
 
-fun createRESTTaakVerdelenGegevens(
-    taken: List<RESTTaakVerdelenTaak> = listOf(createRESTTaakVerdelenTaak()),
+fun createRestTaskDistributeData(
+    taken: List<RestTaskDistributeTask> = listOf(createRestTaskDistributeTask()),
     groepId: String = "dummyGroepId",
     behandelaarGebruikersnaam: String? = "dummyBehandelaarGebruikersnaam",
     reden: String = "dummyReason",
     screenEventResourceId: String? = "dummyScreenEventResourceId"
-) = RESTTaakVerdelenGegevens(
+) = RestTaskDistributeData(
     taken = taken,
     groepId = groepId,
     behandelaarGebruikersnaam = behandelaarGebruikersnaam,
@@ -71,11 +71,11 @@ fun createRESTTaakVerdelenGegevens(
     screenEventResourceId = screenEventResourceId
 )
 
-fun createRESTTaakVrijgevenGegevens(
-    taken: List<RESTTaakVerdelenTaak> = listOf(createRESTTaakVerdelenTaak()),
+fun createRestTaskReleaseData(
+    taken: List<RestTaskDistributeTask> = listOf(createRestTaskDistributeTask()),
     reden: String = "dummyReason",
     screenEventResourceId: String? = "dummyScreenEventResourceId"
-) = RESTTaakVrijgevenGegevens(
+) = RestTaskReleaseData(
     taken = taken,
     reden = reden,
     screenEventResourceId = screenEventResourceId

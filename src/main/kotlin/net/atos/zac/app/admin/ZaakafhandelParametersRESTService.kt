@@ -140,7 +140,7 @@ class ZaakafhandelParametersRESTService @Inject constructor(
      */
     @PUT
     fun updateZaakafhandelparameters(
-        restZaakafhandelParameters: RESTZaakafhandelParameters?
+        restZaakafhandelParameters: RESTZaakafhandelParameters
     ): RESTZaakafhandelParameters {
         assertPolicy(policyService.readOverigeRechten().beheren)
         var zaakafhandelParameters = zaakafhandelParametersConverter.convertRESTZaakafhandelParameters(
