@@ -14,27 +14,26 @@
   >
     <mat-icon class="mat-icon-rtl-mirror icon-only"> description </mat-icon>
     <span class="node-name">{{ node.name }}</span>
-    <mat-form-field
-      subscriptSizing="dynamic"
-      floatLabel="always"
-      class="info-object-type-select"
-    >
-      <mat-label>{{ "informatieobjectType" | translate }}</mat-label>
-      <mat-select [(value)]="node.informatieObjectTypeUUID">
-        <mat-option>{{ "informatieobjectType.-kies-" | translate }}</mat-option>
-        @for (objType of informatieObjectTypes.data(); track objType.uuid) {
-        <mat-option [value]="objType.uuid"
-          >{{ objType.omschrijving }}</mat-option
-        >
-        }
-      </mat-select>
-    </mat-form-field>
-    <div
-      [ngClass]="{'visible': zaaktypeVertrouwelijkheid(node.informatieObjectTypeUUID)}"
-      class="node-vertrouwelijkheid"
-    >
-      [ {{ zaaktypeVertrouwelijkheid(node.informatieObjectTypeUUID) }} ]
-    </div>
+      <mat-form-field
+        subscriptSizing="dynamic"
+        floatLabel="always"
+        class="info-object-type-select"
+      >
+        <mat-label>{{ "informatieobjectType" | translate }}</mat-label>
+        <mat-select [(value)]="node.informatieObjectTypeUUID">
+          <mat-option>{{ "informatieobjectType.-kies-" | translate }}</mat-option>
+          @for (objType of informatieObjectTypes.data(); track objType.uuid) {
+          <mat-option [value]="objType.uuid"
+            >{{ objType.omschrijving }}</mat-option
+          >
+          }
+        </mat-select>
+      </mat-form-field>
+      <div class="node-vertrouwelijkheid">
+        <div *ngIf="zaaktypeVertrouwelijkheid(node.informatieObjectTypeUUID)">
+          [ {{ zaaktypeVertrouwelijkheid(node.informatieObjectTypeUUID) }} ]
+        </div>
+      </div>
   </mat-tree-node>
   <!-- This is the tree node template for expandable nodes -->
   <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
