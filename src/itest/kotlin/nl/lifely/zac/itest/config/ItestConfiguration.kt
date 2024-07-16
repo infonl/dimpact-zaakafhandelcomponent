@@ -53,7 +53,6 @@ object ItestConfiguration {
     const val OPEN_ZAAK_EXTERNAL_URI = "http://localhost:$OPEN_ZAAK_EXTERNAL_PORT"
     const val OPEN_ZAAK_CLIENT_ID = "zac_client"
     const val OPEN_ZAAK_CLIENT_SECRET = "openzaakZaakafhandelcomponentClientSecret"
-    const val PDF_MIME_TYPE = "application/pdf"
     const val PRODUCTAANVRAAG_TYPE_1 = "productaanvraag-type-1"
     const val PRODUCTAANVRAAG_TYPE_2 = "productaanvraag-type-2"
     const val PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE = 52.08968250760225
@@ -121,6 +120,7 @@ object ItestConfiguration {
     const val TEST_KVK_VESTIGING1_NEVENACTIVITEIT2 = "dummysbiOmschrijving3"
 
     const val TEXT_MIME_TYPE = "application/text"
+    const val PDF_MIME_TYPE = "application/pdf"
 
     const val SMART_DOCUMENTS_MOCK_BASE_URI = "http://smartdocuments-wiremock:8080"
 
