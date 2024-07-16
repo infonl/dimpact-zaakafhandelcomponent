@@ -1,42 +1,42 @@
+{{- if .Values.opa.enabled }}
+{{- if not .Values.opa.sidecar }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-{{ .Values.opa.name }}
   labels:
-    {{- include "opa.labels" . | nindent 4 }}
+    {{- include "zaakafhandelcomponent.opa.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
+  {{- if not .Values.opa.autoscaling.enabled }}
+  replicas: {{ .Values.opa.replicas }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "opa.selectorLabels" . | nindent 6 }}
+      {{- include "zaakafhandelcomponent.opa.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
-      {{- with .Values.podAnnotations }}
+      {{- with .Values.opa.podAnnotations }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "opa.selectorLabels" . | nindent 8 }}
+        {{- include "zaakafhandelcomponent.opa.selectorLabels" . | nindent 8 }}
     spec:
-      {{- with .Values.imagePullSecrets }}
+      {{- with .Values.opa.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "zaakafhandelcomponent.serviceAccountName" . }}
       securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+        {{- toYaml .Values.opa.podSecurityContext | nindent 8 }}
       containers:
         - name: {{ .Values.opa.name }}
           image: "{{ .Values.opa.image.repository }}:{{ .Values.opa.image.tag }}"
           imagePullPolicy: {{ .Values.opa.image.pullPolicy }}
-          resources:
-            requests:
-              cpu: 10m
-              memory: 20Mi
+          resources: 
+            {{- toYaml .Values.opa.resources | nindent 12 }}
           ports:
             - name: http
               containerPort: 8181
@@ -55,15 +55,17 @@ spec:
               scheme: HTTP
               port: 8181
             initialDelaySeconds: 5
-      {{- with .Values.nodeSelector }}
+      {{- with .Values.opa.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
+      {{- with .Values.opa.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.tolerations }}
+      {{- with .Values.opa.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+{{- end }}
+{{- end }}

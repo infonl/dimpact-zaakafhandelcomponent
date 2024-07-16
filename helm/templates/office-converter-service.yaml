@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: {{ .Release.Name }}-office-converter
   labels:
-    {{- include "office-converter.labels" . | nindent 4 }}
+    {{- include "zaakafhandelcomponent.office-converter.labels" . | nindent 4 }}
   {{- with .Values.office_converter.service.annotations }}
   annotations:
     {{- range $key, $value := . }}
@@ -17,4 +17,4 @@ spec:
       name: http
       targetPort: http
   selector:
-    {{- include "office-converter.selectorLabels" . | nindent 4 }}
+    {{- include "zaakafhandelcomponent.office-converter.selectorLabels" . | nindent 4 }}
