@@ -181,6 +181,11 @@ object ItestConfiguration {
      */
     const val ZAAK_MANUAL_1_IDENTIFICATION = "ZAAK-2020-0000000001"
 
+    /**
+     * Second 'manually' created zaak using the ZAC API.
+     */
+    const val ZAAK_MANUAL_2_IDENTIFICATION = "ZAAK-2000-0000000001"
+
     const val ZAC_CONTAINER_SERVICE_NAME = "zac"
 
     /**
