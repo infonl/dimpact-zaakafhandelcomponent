@@ -30,7 +30,7 @@
         </mat-select>
       </mat-form-field>
       <div class="node-vertrouwelijkheid">
-        <div *ngIf="zaaktypeVertrouwelijkheid(node.informatieObjectTypeUUID)">
+        <div *ngIf="!!zaaktypeVertrouwelijkheid(node.informatieObjectTypeUUID)">
           [ {{ zaaktypeVertrouwelijkheid(node.informatieObjectTypeUUID) }} ]
         </div>
       </div>
