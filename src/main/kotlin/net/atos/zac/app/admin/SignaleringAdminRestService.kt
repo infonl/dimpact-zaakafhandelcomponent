@@ -25,7 +25,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty
 @Produces(MediaType.APPLICATION_JSON)
 @AllOpen
 @NoArgConstructor
-class SignaleringAdminRESTService @Inject constructor(
+class SignaleringAdminRestService @Inject constructor(
     private val signaleringService: SignaleringService,
     private val eventingService: EventingService,
     @ActiveSession
@@ -36,7 +36,7 @@ class SignaleringAdminRESTService @Inject constructor(
 ) {
     @GET
     @Path("send-signaleringen")
-    fun zaakSignaleringenVerzenden(): String {
+    fun sendSignaleringen(): String {
         SecurityUtil.setFunctioneelGebruiker(httpSession.get())
         eventingService.send(JobEvent(JobId.SIGNALERINGEN_JOB))
         return "Started sending signaleringen using job: '${JobId.SIGNALERINGEN_JOB.getName()}'"

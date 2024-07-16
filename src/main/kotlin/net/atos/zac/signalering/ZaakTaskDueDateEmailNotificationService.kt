@@ -72,7 +72,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
         val signaleringVerzendInfo = SignaleringVerzendInfo()
         LOG.info("Sending task due date email notifications...")
         signaleringVerzendInfo.fataledatumVerzonden += sendTaskDueDateNotifications()
-        taakDueOnterechtVerzondenVerwijderen()
+        deleteUnjustlySentTaskDueSignaleringen()
         LOG.info(
             "Finished sending task due date email notifications (${signaleringVerzendInfo.fataledatumVerzonden} fatal date warnings)"
         )
@@ -267,9 +267,6 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
             .detail(detail)
     }
 
-    /**
-     * Sends due date task email notifications
-     */
     private fun sendTaskDueDateNotifications(): Int {
         val verzonden = IntArray(1)
         flowableTaskService.listOpenTasksDueNow().stream()
@@ -284,7 +281,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
             .isMail &&
             // skip signalering if it was already sent
             !signaleringService.findSignaleringVerzonden(
-                getTaakSignaleringVerzondenParameters(task.assignee, task.id)
+                getTaskSignaleringSentParameters(task.assignee, task.id)
             ).isPresent
 
     private fun buildTaakSignalering(target: String, task: Task): Signalering {
@@ -307,13 +304,13 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
      * Make sure already sent task email notifications will get sent again (in cases where the due date has changed)
      * by deleting the corresponding 'signalering verzonden' record from the database.
      */
-    private fun taakDueOnterechtVerzondenVerwijderen() {
+    private fun deleteUnjustlySentTaskDueSignaleringen() {
         flowableTaskService.listOpenTasksDueLater().stream()
-            .map { getTaakSignaleringVerzondenParameters(it.assignee, it.id) }
+            .map { getTaskSignaleringSentParameters(it.assignee, it.id) }
             .forEach { signaleringService.deleteSignaleringVerzonden(it) }
     }
 
-    private fun getTaakSignaleringVerzondenParameters(
+    private fun getTaskSignaleringSentParameters(
         target: String,
         taskId: String
     ): SignaleringVerzondenZoekParameters =
