@@ -106,7 +106,6 @@ export class ParameterEditComponent
     super(utilService);
     this.route.data.subscribe((data) => {
       this.parameters = data.parameters;
-      console.log("IntakeMail: " + this.parameters.intakeMail);
       this.parameters.intakeMail = this.parameters.intakeMail
         ? this.parameters.intakeMail
         : ZaakStatusmailOptie.BESCHIKBAAR_UIT;
