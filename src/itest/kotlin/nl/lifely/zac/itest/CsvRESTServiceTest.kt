@@ -14,10 +14,10 @@ import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_COMPLETED
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_1_IDENTIFICATION
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.lifely.zac.itest.config.ItestConfiguration.zaakManual2Identification
 import org.junit.jupiter.api.Order
 
 const val CSV_ROWS_EXPECTED = 5
@@ -141,9 +141,9 @@ class CsvRESTServiceTest : BehaviorSpec({
                 csvRows.forEachIndexed { index, row ->
                     when (index) {
                         1 ->
-                            row[headerRowFields.indexOf(CSV_FIELD_IDENTIFICATIE)]shouldBe ZAAK_MANUAL_1_IDENTIFICATION
+                            row[headerRowFields.indexOf(CSV_FIELD_IDENTIFICATIE)] shouldBe zaakManual2Identification
                         2 ->
-                            row[headerRowFields.indexOf(CSV_FIELD_IDENTIFICATIE)] shouldBe ZAAK_MANUAL_2_IDENTIFICATION
+                            row[headerRowFields.indexOf(CSV_FIELD_IDENTIFICATIE)] shouldBe ZAAK_MANUAL_1_IDENTIFICATION
                         3 ->
                             row[headerRowFields.indexOf(CSV_FIELD_IDENTIFICATIE)] shouldBe ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
                         4 ->
