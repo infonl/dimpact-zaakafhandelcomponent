@@ -581,6 +581,9 @@ export class ParameterEditComponent
     this.parameters.userEventListenerParameters =
       this.userEventListenerParameters;
 
+    this.parameters.intakeMail = this.mailFormGroup.get("intakeMail").value;
+    this.parameters.afrondenMail = this.mailFormGroup.get("afrondenMail").value;
+
     const parameterMailtemplateKoppelingen: MailtemplateKoppeling[] = [];
     this.mailtemplateKoppelingen.forEach((koppeling) => {
       const mailtemplateKoppeling: MailtemplateKoppeling =
