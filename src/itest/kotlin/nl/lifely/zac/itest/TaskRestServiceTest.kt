@@ -40,7 +40,7 @@ import kotlin.time.Duration.Companion.seconds
  * This test assumes a human task plan item (=task) has been started for a zaak in a previously run test.
  */
 @Order(TEST_SPEC_ORDER_AFTER_TASK_CREATED)
-class TakenRESTServiceTest : BehaviorSpec({
+class TaskRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 

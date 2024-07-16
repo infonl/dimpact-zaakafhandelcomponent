@@ -2,11 +2,11 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.taken.converter
+package net.atos.zac.app.task.converter
 
 import jakarta.inject.Inject
 import jakarta.json.bind.annotation.JsonbDateFormat
-import net.atos.zac.app.taken.model.RESTTaakHistorieRegel
+import net.atos.zac.app.task.model.RestTaskHistoryLine
 import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.flowable.model.ValueChangeData
 import net.atos.zac.identity.IdentityService
@@ -16,7 +16,7 @@ import org.flowable.task.api.history.HistoricTaskLogEntry
 import org.flowable.task.api.history.HistoricTaskLogEntryType
 import java.util.Date
 
-class RESTTaakHistorieConverter @Inject constructor(
+class RestTaskHistoryConverter @Inject constructor(
     private val identityService: IdentityService
 ) {
     companion object {
@@ -30,13 +30,13 @@ class RESTTaakHistorieConverter @Inject constructor(
         const val STATUS_ATTRIBUUT_LABEL = "taak.status"
     }
 
-    fun convert(historicTaskLogEntries: List<HistoricTaskLogEntry>): List<RESTTaakHistorieRegel> =
+    fun convert(historicTaskLogEntries: List<HistoricTaskLogEntry>): List<RestTaskHistoryLine> =
         historicTaskLogEntries
             .map { convert(it) }
             .mapNotNull { it }
             .toList()
 
-    private fun convert(historicTaskLogEntry: HistoricTaskLogEntry): RESTTaakHistorieRegel? {
+    private fun convert(historicTaskLogEntry: HistoricTaskLogEntry): RestTaskHistoryLine? {
         val restTaakHistorieRegel = when (historicTaskLogEntry.type) {
             FlowableTaskService.USER_TASK_DESCRIPTION_CHANGED -> convertValueChangeData(
                 TOELICHTING_ATTRIBUUT_LABEL,
@@ -62,15 +62,15 @@ class RESTTaakHistorieConverter @Inject constructor(
         return restTaakHistorieRegel
     }
 
-    private fun convertData(historicTaskLogEntryType: HistoricTaskLogEntryType, data: String): RESTTaakHistorieRegel? =
+    private fun convertData(historicTaskLogEntryType: HistoricTaskLogEntryType, data: String): RestTaskHistoryLine? =
         when (historicTaskLogEntryType) {
-            HistoricTaskLogEntryType.USER_TASK_CREATED -> RESTTaakHistorieRegel(
+            HistoricTaskLogEntryType.USER_TASK_CREATED -> RestTaskHistoryLine(
                 STATUS_ATTRIBUUT_LABEL,
                 null,
                 CREATED_ATTRIBUUT_LABEL,
                 null
             )
-            HistoricTaskLogEntryType.USER_TASK_COMPLETED -> RESTTaakHistorieRegel(
+            HistoricTaskLogEntryType.USER_TASK_COMPLETED -> RestTaskHistoryLine(
                 STATUS_ATTRIBUUT_LABEL,
                 CREATED_ATTRIBUUT_LABEL,
                 COMPLETED_ATTRIBUUT_LABEL,
@@ -82,9 +82,9 @@ class RESTTaakHistorieConverter @Inject constructor(
             else -> null
         }
 
-    private fun convertValueChangeData(attribuutLabel: String, data: String): RESTTaakHistorieRegel {
+    private fun convertValueChangeData(attribuutLabel: String, data: String): RestTaskHistoryLine {
         JsonbUtil.JSONB.fromJson(data, ValueChangeData::class.java).let {
-            return RESTTaakHistorieRegel(
+            return RestTaskHistoryLine(
                 attribuutLabel,
                 it.oldValue,
                 it.newValue,
@@ -98,9 +98,9 @@ class RESTTaakHistorieConverter @Inject constructor(
         var previousAssigneeId: String? = null
     }
 
-    private fun convertOwnerChanged(data: String): RESTTaakHistorieRegel {
+    private fun convertOwnerChanged(data: String): RestTaskHistoryLine {
         JsonbUtil.JSONB.fromJson(data, AssigneeChangedData::class.java).let {
-            return RESTTaakHistorieRegel(
+            return RestTaskHistoryLine(
                 AANGEMAAKT_DOOR_ATTRIBUUT_LABEL,
                 getMedewerkerFullName(it.previousAssigneeId),
                 getMedewerkerFullName(it.newAssigneeId),
@@ -120,9 +120,9 @@ class RESTTaakHistorieConverter @Inject constructor(
         var previousDueDate: Date? = null
     }
 
-    private fun convertDuedateChanged(data: String): RESTTaakHistorieRegel {
+    private fun convertDuedateChanged(data: String): RestTaskHistoryLine {
         JsonbUtil.JSONB.fromJson(data, DuedateChangedData::class.java).let {
-            return RESTTaakHistorieRegel(
+            return RestTaskHistoryLine(
                 FATALEDATUM_ATTRIBUUT_LABEL,
                 DateTimeConverterUtil.convertToLocalDate(it.previousDueDate),
                 DateTimeConverterUtil.convertToLocalDate(it.newDueDate),

@@ -3,10 +3,10 @@ package net.atos.zac.task
 import io.opentelemetry.instrumentation.annotations.SpanAttribute
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.inject.Inject
-import net.atos.zac.app.taken.converter.RESTTaakConverter
-import net.atos.zac.app.taken.model.RESTTaakToekennenGegevens
-import net.atos.zac.app.taken.model.RESTTaakVerdelenGegevens
-import net.atos.zac.app.taken.model.RESTTaakVrijgevenGegevens
+import net.atos.zac.app.task.converter.RestTaskConverter
+import net.atos.zac.app.task.model.RestTaskAssignData
+import net.atos.zac.app.task.model.RestTaskDistributeData
+import net.atos.zac.app.task.model.RestTaskReleaseData
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.FlowableTaskService
@@ -22,31 +22,29 @@ import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
 
+private val LOG = Logger.getLogger(TaskService::class.java.name)
+
 @AllOpen
 class TaskService @Inject constructor(
     private val flowableTaskService: FlowableTaskService,
     private val indexeerService: IndexeerService,
     private val eventingService: EventingService,
-    private val restTaakConverter: RESTTaakConverter,
+    private val restTaskConverter: RestTaskConverter,
 ) {
-    companion object {
-        private val LOG = Logger.getLogger(TaskService::class.java.name)
-    }
-
     fun assignTask(
-        restTaakToekennenGegevens: RESTTaakToekennenGegevens,
+        restTaskAssignData: RestTaskAssignData,
         task: Task,
         loggedInUser: LoggedInUser
     ) {
-        val groupId = restTaakConverter.extractGroupId(task.identityLinks)
+        val groupId = restTaskConverter.extractGroupId(task.identityLinks)
         var changed = false
         var updatedTask = task
-        restTaakToekennenGegevens.behandelaarId?.let {
-            if (groupId != restTaakToekennenGegevens.groepId) {
+        restTaskAssignData.behandelaarId?.let {
+            if (groupId != restTaskAssignData.groepId) {
                 flowableTaskService.assignTaskToGroup(
                     updatedTask,
-                    restTaakToekennenGegevens.groepId,
-                    restTaakToekennenGegevens.reden
+                    restTaskAssignData.groepId,
+                    restTaskAssignData.reden
                 )
                 changed = true
             }
@@ -55,15 +53,15 @@ class TaskService @Inject constructor(
                     taskId = task.id,
                     assignee = it,
                     loggedInUser = loggedInUser,
-                    explanation = restTaakToekennenGegevens.reden
+                    explanation = restTaskAssignData.reden
                 )
                 changed = true
             }
         }
         if (changed) {
-            sendScreenEventsOnTaskChange(updatedTask, restTaakToekennenGegevens.zaakUuid)
+            sendScreenEventsOnTaskChange(updatedTask, restTaskAssignData.zaakUuid)
             indexeerService.indexeerDirect(
-                restTaakToekennenGegevens.taakId,
+                restTaskAssignData.taakId,
                 ZoekObjectType.TAAK,
                 true
             )
@@ -79,17 +77,17 @@ class TaskService @Inject constructor(
      */
     @WithSpan
     fun assignTasks(
-        @SpanAttribute("restTaakVerdelenGegevens") restTaakVerdelenGegevens: RESTTaakVerdelenGegevens,
+        @SpanAttribute("restTaakVerdelenGegevens") restTaskDistributeData: RestTaskDistributeData,
         loggedInUser: LoggedInUser,
         screenEventResourceId: String? = null,
     ) {
         LOG.fine {
-            "Started to assign ${restTaakVerdelenGegevens.taken.size} tasks " +
+            "Started to assign ${restTaskDistributeData.taken.size} tasks " +
                 "with screen event resource ID: '$screenEventResourceId'."
         }
         val succesfullyAssignedTaskIds = mutableListOf<String>()
         try {
-            assignTasks(restTaakVerdelenGegevens, loggedInUser, succesfullyAssignedTaskIds)
+            assignTasks(restTaskDistributeData, loggedInUser, succesfullyAssignedTaskIds)
         } finally {
             // always update the search index and send the screen event, also if exceptions were thrown
             indexeerService.commit()
@@ -131,17 +129,17 @@ class TaskService @Inject constructor(
      */
     @WithSpan
     fun releaseTasks(
-        @SpanAttribute("restTaakVerdelenGegevens") restTaakVrijgevenGegevens: RESTTaakVrijgevenGegevens,
+        @SpanAttribute("restTaakVerdelenGegevens") restTaskReleaseData: RestTaskReleaseData,
         loggedInUser: LoggedInUser,
         screenEventResourceId: String? = null
     ) {
         LOG.fine {
-            "Started to release ${restTaakVrijgevenGegevens.taken.size} tasks " +
+            "Started to release ${restTaskReleaseData.taken.size} tasks " +
                 "with screen event resource ID: '$screenEventResourceId'."
         }
         val taskIds = mutableListOf<String>()
         try {
-            releaseTasks(restTaakVrijgevenGegevens, loggedInUser, taskIds)
+            releaseTasks(restTaskReleaseData, loggedInUser, taskIds)
         } finally {
             indexeerService.commit()
             LOG.fine { "Successfully released ${taskIds.size} tasks." }
@@ -162,14 +160,14 @@ class TaskService @Inject constructor(
     }
 
     private fun assignTasks(
-        restTaakVerdelenGegevens: RESTTaakVerdelenGegevens,
+        restTaskDistributeData: RestTaskDistributeData,
         loggedInUser: LoggedInUser,
         succesfullyAssignedTaskIds: MutableList<String>
     ) {
-        restTaakVerdelenGegevens.taken.forEach { restTaakVerdelenTaak ->
+        restTaskDistributeData.taken.forEach { restTaakVerdelenTaak ->
             try {
                 flowableTaskService.readOpenTask(restTaakVerdelenTaak.taakId).let { task ->
-                    assignTaskAndOptionallyReleaseFromAssignee(task, restTaakVerdelenGegevens, loggedInUser)
+                    assignTaskAndOptionallyReleaseFromAssignee(task, restTaskDistributeData, loggedInUser)
                     sendScreenEventsOnTaskChange(task, restTaakVerdelenTaak.zaakUuid)
                 }
                 indexeerService.indexeerDirect(restTaakVerdelenTaak.taakId, ZoekObjectType.TAAK, false)
@@ -187,20 +185,20 @@ class TaskService @Inject constructor(
 
     private fun assignTaskAndOptionallyReleaseFromAssignee(
         task: Task,
-        restTaakVerdelenGegevens: RESTTaakVerdelenGegevens,
+        restTaskDistributeData: RestTaskDistributeData,
         loggedInUser: LoggedInUser
     ) {
         flowableTaskService.assignTaskToGroup(
             task,
-            restTaakVerdelenGegevens.groepId,
-            restTaakVerdelenGegevens.reden
+            restTaskDistributeData.groepId,
+            restTaskDistributeData.reden
         )
-        restTaakVerdelenGegevens.behandelaarGebruikersnaam?.run {
+        restTaskDistributeData.behandelaarGebruikersnaam?.run {
             assignTaskToUser(
                 taskId = task.id,
                 assignee = this,
                 loggedInUser = loggedInUser,
-                explanation = restTaakVerdelenGegevens.reden
+                explanation = restTaskDistributeData.reden
             )
         } ?: run {
             // if no assignee was specified _and_ the task currently has an assignee,
@@ -209,24 +207,24 @@ class TaskService @Inject constructor(
                 releaseTask(
                     task = task,
                     loggedInUser = loggedInUser,
-                    reden = restTaakVerdelenGegevens.reden
+                    reden = restTaskDistributeData.reden
                 )
             }
         }
     }
 
     private fun releaseTasks(
-        restTaakVrijgevenGegevens: RESTTaakVrijgevenGegevens,
+        restTaskReleaseData: RestTaskReleaseData,
         loggedInUser: LoggedInUser,
         taskIds: MutableList<String>
     ) {
-        restTaakVrijgevenGegevens.taken.forEach {
+        restTaskReleaseData.taken.forEach {
             try {
                 flowableTaskService.readOpenTask(it.taakId).let { task ->
                     releaseTask(
                         task = task,
                         loggedInUser = loggedInUser,
-                        reden = restTaakVrijgevenGegevens.reden
+                        reden = restTaskReleaseData.reden
                     )
                     indexeerService.indexeerDirect(task.id, ZoekObjectType.TAAK, false)
                     sendScreenEventsOnTaskChange(task, it.zaakUuid)

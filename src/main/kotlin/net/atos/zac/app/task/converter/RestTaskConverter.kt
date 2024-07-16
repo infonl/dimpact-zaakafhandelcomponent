@@ -2,14 +2,14 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.taken.converter
+package net.atos.zac.app.task.converter
 
 import jakarta.inject.Inject
 import net.atos.zac.app.formulieren.converter.RESTFormulierDefinitieConverter
 import net.atos.zac.app.identity.converter.RESTGroupConverter
 import net.atos.zac.app.identity.converter.RESTUserConverter
 import net.atos.zac.app.policy.converter.RESTRechtenConverter
-import net.atos.zac.app.taken.model.RESTTaak
+import net.atos.zac.app.task.model.RestTask
 import net.atos.zac.flowable.TaakVariabelenService
 import net.atos.zac.flowable.util.TaskUtil
 import net.atos.zac.formulieren.FormulierDefinitieService
@@ -23,7 +23,7 @@ import org.flowable.task.api.TaskInfo
 import java.util.UUID
 
 @Suppress("LongParameterList")
-class RESTTaakConverter @Inject constructor(
+class RestTaskConverter @Inject constructor(
     private val taakVariabelenService: TaakVariabelenService,
     private val groepConverter: RESTGroupConverter,
     private val medewerkerConverter: RESTUserConverter,
@@ -38,12 +38,12 @@ class RESTTaakConverter @Inject constructor(
         .toList()
 
     @Suppress("LongMethod")
-    fun convert(taskInfo: TaskInfo): RESTTaak {
+    fun convert(taskInfo: TaskInfo): RestTask {
         val zaaktypeOmschrijving = taakVariabelenService.readZaaktypeOmschrijving(taskInfo)
         val restTaakRechten = policyService.readTaakRechten(taskInfo, zaaktypeOmschrijving).let {
             rechtenConverter.convert(it)
         }
-        val restTaak = RESTTaak(
+        val restTask = RestTask(
             id = taskInfo.id,
             naam = taskInfo.name,
             status = TaskUtil.getTaakStatus(taskInfo),
@@ -88,7 +88,7 @@ class RESTTaakConverter @Inject constructor(
         )
         if (TaskUtil.isCmmnTask(taskInfo)) {
             convertFormulierDefinitieEnReferentieTabellen(
-                restTaak,
+                restTask,
                 taakVariabelenService.readZaaktypeUUID(taskInfo),
                 taskInfo.taskDefinitionKey
             )
@@ -96,34 +96,34 @@ class RESTTaakConverter @Inject constructor(
             formulierDefinitieService.readFormulierDefinitie(
                 taskInfo.formKey
             ).let {
-                restTaak.formulierDefinitie = formulierDefinitieConverter.convert(it, true, false)
+                restTask.formulierDefinitie = formulierDefinitieConverter.convert(it, true, false)
             }
         }
-        return restTaak
+        return restTask
     }
 
     fun extractGroupId(identityLinks: List<IdentityLinkInfo>): String? =
         identityLinks.firstOrNull { IdentityLinkType.CANDIDATE == it.type }?.groupId
 
     private fun convertFormulierDefinitieEnReferentieTabellen(
-        restTaak: RESTTaak,
+        restTask: RestTask,
         zaaktypeUUID: UUID,
         taskDefinitionKey: String
     ) {
         zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUUID)
             .humanTaskParametersCollection
             .first { taskDefinitionKey == it.planItemDefinitionID }?.let {
-                verwerkZaakafhandelParameters(restTaak, it)
+                verwerkZaakafhandelParameters(restTask, it)
             }
     }
 
     private fun verwerkZaakafhandelParameters(
-        restTaak: RESTTaak,
+        restTask: RestTask,
         humanTaskParameters: HumanTaskParameters
     ) {
-        restTaak.formulierDefinitieId = humanTaskParameters.formulierDefinitieID
+        restTask.formulierDefinitieId = humanTaskParameters.formulierDefinitieID
         humanTaskParameters.referentieTabellen.forEach {
-            restTaak.tabellen[it.veld] = it.tabel.waarden
+            restTask.tabellen[it.veld] = it.tabel.waarden
                 .map { value -> value.naam }
                 .toList()
         }
