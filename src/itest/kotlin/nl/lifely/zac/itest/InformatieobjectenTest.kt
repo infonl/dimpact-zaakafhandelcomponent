@@ -11,6 +11,12 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
+import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
+import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_DEFINITIEF
+import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
+import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_UPDATED_FILE_TITLE
+import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
 import nl.lifely.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
@@ -42,14 +48,7 @@ import java.time.format.DateTimeFormatter
  * This test assumes a zaak has been created, and a task has been started in a previously run test.
  */
 @Order(TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED)
-class InformatieObjectenTest : BehaviorSpec({
-    val fileTitle = "dummyTitel"
-    val updatedFileTitle = "updated title with Špëcîål characters"
-    val documentVertrouwelijkheidsAanduidingVertrouwelijk = "zaakvertrouwelijk"
-    val documentVertrouwelijkheidsAanduidingOpenbaar = "openbaar"
-    val documentStatusDefinitief = "definitief"
-    val documentStatusInBewerking = "in_bewerking"
-
+class InformatieobjectenTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
@@ -98,7 +97,7 @@ class InformatieObjectenTest : BehaviorSpec({
                 MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("bestandsnaam", TEST_PDF_FILE_NAME)
-                    .addFormDataPart("titel", fileTitle)
+                    .addFormDataPart("titel", DOCUMENT_FILE_TITLE)
                     .addFormDataPart("bestandsomvang", file.length().toString())
                     .addFormDataPart("formaat", PDF_MIME_TYPE)
                     .addFormDataPart(
@@ -109,9 +108,9 @@ class InformatieObjectenTest : BehaviorSpec({
                     .addFormDataPart("informatieobjectTypeUUID", INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID)
                     .addFormDataPart(
                         "vertrouwelijkheidaanduiding",
-                        documentVertrouwelijkheidsAanduidingVertrouwelijk
+                        DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
                     )
-                    .addFormDataPart("status", documentStatusInBewerking)
+                    .addFormDataPart("status", DOCUMENT_STATUS_IN_BEWERKING)
                     .addFormDataPart(
                         "creatiedatum",
                         DateTimeFormatter.ofPattern(
@@ -140,12 +139,12 @@ class InformatieObjectenTest : BehaviorSpec({
                 response.code shouldBe HTTP_STATUS_OK
                 with(responseBody) {
                     shouldContainJsonKeyValue("auteur", TEST_USER_1_NAME)
-                    shouldContainJsonKeyValue("status", documentStatusInBewerking)
+                    shouldContainJsonKeyValue("status", DOCUMENT_STATUS_IN_BEWERKING)
                     shouldContainJsonKeyValue("taal", "Nederlands")
-                    shouldContainJsonKeyValue("titel", fileTitle)
+                    shouldContainJsonKeyValue("titel", DOCUMENT_FILE_TITLE)
                     shouldContainJsonKeyValue(
                         "vertrouwelijkheidaanduiding",
-                        documentVertrouwelijkheidsAanduidingVertrouwelijk
+                        DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
                     )
                     shouldContainJsonKeyValue(
                         "informatieobjectTypeOmschrijving",
@@ -175,7 +174,7 @@ class InformatieObjectenTest : BehaviorSpec({
                     .addFormDataPart("zaakUuid", zaakProductaanvraag1Uuid.toString())
                     .addFormDataPart("informatieobjectTypeUUID", INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID)
                     .addFormDataPart("bestandsnaam", TEST_TXT_FILE_NAME)
-                    .addFormDataPart("titel", updatedFileTitle)
+                    .addFormDataPart("titel", DOCUMENT_UPDATED_FILE_TITLE)
                     .addFormDataPart("bestandsomvang", TEST_TXT_FILE_SIZE.toString())
                     .addFormDataPart("formaat", TEXT_MIME_TYPE)
                     .addFormDataPart(
@@ -202,12 +201,12 @@ class InformatieObjectenTest : BehaviorSpec({
                 response.code shouldBe HTTP_STATUS_OK
                 with(responseBody) {
                     shouldContainJsonKeyValue("auteur", TEST_USER_1_NAME)
-                    shouldContainJsonKeyValue("status", documentStatusInBewerking)
+                    shouldContainJsonKeyValue("status", DOCUMENT_STATUS_IN_BEWERKING)
                     shouldContainJsonKeyValue("taal", "Nederlands")
-                    shouldContainJsonKeyValue("titel", updatedFileTitle)
+                    shouldContainJsonKeyValue("titel", DOCUMENT_UPDATED_FILE_TITLE)
                     shouldContainJsonKeyValue(
                         "vertrouwelijkheidaanduiding",
-                        documentVertrouwelijkheidsAanduidingVertrouwelijk
+                        DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
                     )
                     shouldContainJsonKeyValue(
                         "informatieobjectTypeOmschrijving",
@@ -254,7 +253,7 @@ class InformatieObjectenTest : BehaviorSpec({
                 MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("bestandsnaam", TEST_PDF_FILE_NAME)
-                    .addFormDataPart("titel", fileTitle)
+                    .addFormDataPart("titel", DOCUMENT_FILE_TITLE)
                     .addFormDataPart("bestandsomvang", file.length().toString())
                     .addFormDataPart("formaat", PDF_MIME_TYPE)
                     .addFormDataPart(
@@ -301,14 +300,14 @@ class InformatieObjectenTest : BehaviorSpec({
                     )
                     shouldContainJsonKeyValue("isBesluitDocument", false)
                     // a document added to a task should _always_ have the status 'definitief'
-                    shouldContainJsonKeyValue("status", documentStatusDefinitief)
+                    shouldContainJsonKeyValue("status", DOCUMENT_STATUS_DEFINITIEF)
                     shouldContainJsonKeyValue("taal", "Nederlands")
-                    shouldContainJsonKeyValue("titel", fileTitle)
+                    shouldContainJsonKeyValue("titel", DOCUMENT_FILE_TITLE)
                     shouldContainJsonKeyValue("versie", 1)
                     shouldContainJsonKey("uuid")
                     shouldContainJsonKeyValue(
                         "vertrouwelijkheidaanduiding",
-                        documentVertrouwelijkheidsAanduidingOpenbaar
+                        DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
                     )
                 }
             }

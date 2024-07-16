@@ -16,6 +16,11 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.match
 import nl.lifely.zac.itest.client.ItestHttpClient
+import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
+import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_IDENTIFICATION
+import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_DEFINITIEF
+import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
+import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_UPDATED_FILE_TITLE
 import nl.lifely.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
@@ -61,8 +66,8 @@ class InformatieobjectenHistorieTest : BehaviorSpec({
                     "applicatie": "ZAC",
                     "attribuutLabel": "informatieobject.status",
                     "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "definitief",
-                    "oudeWaarde": "in_bewerking",
+                    "nieuweWaarde": "$DOCUMENT_STATUS_DEFINITIEF",
+                    "oudeWaarde": "$DOCUMENT_STATUS_IN_BEWERKING",
                     "toelichting": "Door ondertekenen"
                   },
                   {
@@ -75,8 +80,8 @@ class InformatieobjectenHistorieTest : BehaviorSpec({
                     "applicatie": "ZAC",
                     "attribuutLabel": "titel",
                     "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "updated title with Špëcîål characters",
-                    "oudeWaarde": "dummyTitel",
+                    "nieuweWaarde": "$DOCUMENT_UPDATED_FILE_TITLE",
+                    "oudeWaarde": "$DOCUMENT_FILE_TITLE",
                     "toelichting": ""
                   },
                   {
@@ -120,7 +125,7 @@ class InformatieobjectenHistorieTest : BehaviorSpec({
                     "applicatie": "ZAC",
                     "attribuutLabel": "informatieobject",
                     "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "DOCUMENT-2024-0000000001",
+                    "nieuweWaarde": "$DOCUMENT_IDENTIFICATION",
                     "toelichting": ""
                   }
                 ]
