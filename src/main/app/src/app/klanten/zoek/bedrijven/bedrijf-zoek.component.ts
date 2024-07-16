@@ -42,7 +42,7 @@ export class BedrijfZoekComponent implements OnInit {
   kvkFormField: AbstractFormControlField;
   vestigingsnummerFormField: AbstractFormControlField;
   rsinFormField: AbstractFormControlField;
-  bedrijfsnaamFormField: AbstractFormControlField;
+  naamFormField: AbstractFormControlField;
   typeFormField: AbstractFormControlField;
   postcodeFormField: AbstractFormControlField;
   huisnummerFormField: AbstractFormControlField;
@@ -56,8 +56,8 @@ export class BedrijfZoekComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.bedrijfsnaamFormField = new InputFormFieldBuilder()
-      .id("bedrijfsnaam")
+    this.naamFormField = new InputFormFieldBuilder()
+      .id("naam")
       .label("bedrijfsnaam")
       .maxlength(100)
       .validators(CustomValidators.bedrijfssnaam)
@@ -108,7 +108,7 @@ export class BedrijfZoekComponent implements OnInit {
       .build();
     this.formGroup = this.formBuilder.group({
       kvkNummer: this.kvkFormField.formControl,
-      bedrijfsnaam: this.bedrijfsnaamFormField.formControl,
+      naam: this.naamFormField.formControl,
       vestigingsnummer: this.vestigingsnummerFormField.formControl,
       rsin: this.rsinFormField.formControl,
       postcode: this.postcodeFormField.formControl,
@@ -123,7 +123,7 @@ export class BedrijfZoekComponent implements OnInit {
       return false;
     }
     const kvkNummer = this.kvkFormField.formControl.value;
-    const bedrijfsnaam = this.bedrijfsnaamFormField.formControl.value;
+    const bedrijfsnaam = this.naamFormField.formControl.value;
     const vestigingsnummer = this.vestigingsnummerFormField.formControl.value;
     const rsin = this.rsinFormField.formControl.value;
     const postcode = this.postcodeFormField.formControl.value;
